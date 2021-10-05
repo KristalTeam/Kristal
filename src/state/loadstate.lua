@@ -12,6 +12,10 @@ function LoadState:enter(from, dir)
 end
 
 function LoadState:update(dt)
+    self.wait_time = self.wait_time - dt
+    if self.complete and self.wait_time <= 0 then
+        Gamestate.pop()
+    end
     if not self.complete then
         local data = self.channel:pop()
         if data ~= nil then
@@ -19,10 +23,6 @@ function LoadState:update(dt)
             Data:loadData(data.data)
             self.complete = true
         end
-    end
-    self.wait_time = self.wait_time - dt
-    if self.complete and self.wait_time <= 0 then
-        Gamestate.pop()
     end
 end
 
