@@ -3,11 +3,11 @@ local ModMenu = {}
 function ModMenu:enter()
     print("i am so gay")
 
-    --ModMenu.music = love.audio.newSource("AUDIO_STORY.ogg", "stream")
-    --ModMenu.music:setVolume(1)
-    --ModMenu.music:setPitch(0.95)
-    --ModMenu.music:setLooping(true)
-    --ModMenu.music:play()
+    ModMenu.music = love.audio.newSource("assets/music/mod_menu.ogg", "stream")
+    ModMenu.music:setVolume(1)
+    ModMenu.music:setPitch(0.95)
+    ModMenu.music:setLooping(true)
+    ModMenu.music:play()
 
     ModMenu.fader_alpha = 1
 
@@ -55,9 +55,9 @@ end
 function ModMenu:drawScissor(image, left, top, width, height, x, y, xscale, yscale, alpha)
     love.graphics.push("all")
     love.graphics.scale(xscale, yscale)
-    love.graphics.setScissor(x + left, y + top, width, height)
+    love.graphics.setScissor(math.floor(x), math.floor(y), width, height)
     love.graphics.setColor(1, 1, 1, alpha)
-    love.graphics.draw(image, x, y)
+    love.graphics.draw(image, math.floor(x) - left, math.floor(y) - top)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.pop()
 end
@@ -70,7 +70,7 @@ function ModMenu:draw_sprite_ext(sprite, subimg, x, y, xscale, yscale, alpha)
 
     local index = (math.floor(subimg) % (#sprite - 1)) + 1
 
-    love.graphics.draw(sprite[index], x, y)
+    love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.pop()
 end
@@ -80,7 +80,7 @@ function love.keypressed(g)
 end
 
 function ModMenu:draw()
-    local dt = love.timer.getDelta( )
+    local dt = love.timer.getDelta()
 
     love.graphics.setCanvas(ModMenu.bg_canvas)
 
@@ -90,18 +90,16 @@ function ModMenu:draw()
 
     --dt = (1 / 30)
 
-    if ModMenu.advance then
-
     ModMenu.ANIM_SINER = ModMenu.ANIM_SINER + 1      * (dt * 30)
     ModMenu.ANIM_SINER_B = ModMenu.ANIM_SINER_B + 1  * (dt * 30)
     ModMenu.BG_SINER = ModMenu.BG_SINER + 1          * (dt * 30)
     if (ModMenu.BG_ALPHA < 0.5) then
-        ModMenu.BG_ALPHA = (ModMenu.BG_ALPHA + (0.04 - (ModMenu.BG_ALPHA / 14))) * (dt * 30)
+        ModMenu.BG_ALPHA = ModMenu.BG_ALPHA + (0.04 - (ModMenu.BG_ALPHA / 14)) * (dt * 30)
     end
     if (ModMenu.BG_ALPHA > 0.5) then
         ModMenu.BG_ALPHA = 0.5
     end
-    end
+
     ModMenu.__WAVEHEIGHT = 240
     ModMenu.__WAVEWIDTH = 320
     for i = 0, (ModMenu.__WAVEHEIGHT - 50) - 1 do
@@ -121,7 +119,6 @@ function ModMenu:draw()
     love.graphics.setCanvas() --This sets the target back to the screen
     love.graphics.draw(ModMenu.bg_canvas, 0, 0, 0, 2, 2)
 
-    --ModMenu.advance = false
     love.graphics.setColor(0, 0, 0, ModMenu.fader_alpha)
     ModMenu.fader_alpha = ModMenu.fader_alpha - (0.08 * (dt * 30))
     love.graphics.rectangle("fill", 0, 0, 640, 480)
