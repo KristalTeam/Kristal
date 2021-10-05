@@ -1,0 +1,6 @@
+{
+    "ui/quit": {"path": "ui/", "default": "idle", "states": {
+        "idle": {"path": "quit", "loop": true, "delay": 0.25},
+        "test": {"path": "quit", "loop": true, "delay": 0.25, "frames": "0,1,2,3,4-1"}
+    }}
+}

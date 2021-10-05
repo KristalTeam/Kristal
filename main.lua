@@ -5,17 +5,21 @@ Camera = require("src.lib.hump.camera")
 Timer = require("src.lib.hump.timer")
 
 require("src.vars")
-FileSystem = require("src.utils.filesystem")
-StrUtil = require("src.utils.string")
+Utils = require("src.utils")
 
 Assets = require("src.assets")
+Data = require("src.data")
 
+TestState = require("src.state.teststate")
 LoadState = require("src.state.loadstate")
 ModMenu = require("src.state.modmenu")
+
+Animation = require("src.animation")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest")
     Gamestate.registerEvents()
+    --Gamestate.switch({resume = function() Gamestate.switch(TestState) end})
     Gamestate.switch({resume = function() Gamestate.switch(ModMenu) end})
     Gamestate.push(LoadState)
 end

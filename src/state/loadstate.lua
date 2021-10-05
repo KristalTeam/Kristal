@@ -15,7 +15,8 @@ function LoadState:update(dt)
     if not self.complete then
         local data = self.channel:pop()
         if data ~= nil then
-            Assets:loadData(data)
+            Assets:loadData(data.assets)
+            Data:loadData(data.data)
             self.complete = true
         end
     end
