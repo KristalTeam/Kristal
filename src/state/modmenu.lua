@@ -2,6 +2,7 @@ local ModMenu = {}
 
 function ModMenu:enter()
     print("i am so gay")
+    print(Utils.dump(love.graphics.getSystemLimits()))
 
     ModMenu.music = love.audio.newSource("assets/music/mod_menu.ogg", "stream")
     ModMenu.music:setVolume(1)
