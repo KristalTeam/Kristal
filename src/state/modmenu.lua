@@ -20,20 +20,20 @@ function ModMenu:enter()
     print("i am so gay")
 
     -- Load menu music
-    ModMenu.music = love.audio.newSource("assets/music/mod_menu.ogg", "stream")
-    ModMenu.music:setVolume(1)
-    ModMenu.music:setPitch(0.95)
-    ModMenu.music:setLooping(true)
-    ModMenu.music:play()
+    self.music = love.audio.newSource("assets/music/mod_menu.ogg", "stream")
+    self.music:setVolume(1)
+    self.music:setPitch(0.95)
+    self.music:setLooping(true)
+    self.music:play()
 
     -- Initialize variables for the animation
-    ModMenu.fader_alpha = 1
-    ModMenu.animation_sine = 0
-    ModMenu.background_alpha = 0
+    self.fader_alpha = 1
+    self.animation_sine = 0
+    self.background_alpha = 0
 
     -- Assets required for the background animation
-    ModMenu.background_image_wave = Assets:getTexture("kristal/title_bg_wave")
-    ModMenu.background_image_animation = {
+    self.background_image_wave = Assets:getTexture("kristal/title_bg_wave")
+    self.background_image_animation = {
         Assets:getTexture("kristal/title_bg_anim_0"),
         Assets:getTexture("kristal/title_bg_anim_1"),
         Assets:getTexture("kristal/title_bg_anim_2"),
@@ -44,9 +44,9 @@ end
 
 function ModMenu:init()
     -- We'll draw the background on a canvas, then resize it 2x
-    ModMenu.bg_canvas = love.graphics.newCanvas(320,240)
+    self.bg_canvas = love.graphics.newCanvas(320,240)
     -- No filtering
-    ModMenu.bg_canvas:setFilter("nearest", "nearest")
+    self.bg_canvas:setFilter("nearest", "nearest")
 end
 
 function ModMenu:drawAnimStrip(sprite, subimg, x, y, alpha)
@@ -61,16 +61,16 @@ function ModMenu:draw()
     local dt = love.timer.getDelta()
 
     -- Draw the menu background
-    ModMenu:drawBackground()
+    self:drawBackground()
 
     -- Menu drawing should go here
 
     -- Draw the screen fade
-    love.graphics.setColor(0, 0, 0, ModMenu.fader_alpha)
+    love.graphics.setColor(0, 0, 0, self.fader_alpha)
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
     -- Change the fade opacity for the next frame
-    ModMenu.fader_alpha = math.max(0,ModMenu.fader_alpha - (0.08 * (dt * 30)))
+    self.fader_alpha = math.max(0,self.fader_alpha - (0.08 * (dt * 30)))
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)
@@ -81,45 +81,45 @@ function ModMenu:drawBackground()
     local dt_mult = love.timer.getDelta() * 30
 
     -- We need to draw the background on a canvas
-    love.graphics.setCanvas(ModMenu.bg_canvas)
+    love.graphics.setCanvas(self.bg_canvas)
     love.graphics.clear()
 
-    ModMenu.animation_sine = ModMenu.animation_sine + (1 * dt_mult)
+    self.animation_sine = self.animation_sine + (1 * dt_mult)
 
-    if (ModMenu.background_alpha < 0.5) then
-        ModMenu.background_alpha = ModMenu.background_alpha + (0.04 - (ModMenu.background_alpha / 14)) * dt_mult
+    if (self.background_alpha < 0.5) then
+        self.background_alpha = self.background_alpha + (0.04 - (self.background_alpha / 14)) * dt_mult
     end
 
-    if (ModMenu.background_alpha > 0.5) then
-        ModMenu.background_alpha = 0.5
+    if (self.background_alpha > 0.5) then
+        self.background_alpha = 0.5
     end
 
     -- Set the shader to use
-    love.graphics.setShader(ModMenu.BACKGROUND_SHADER)
-    ModMenu.BACKGROUND_SHADER:send("bg_sine", ModMenu.animation_sine)
-    ModMenu.BACKGROUND_SHADER:send("bg_mag", 6)
-    ModMenu.BACKGROUND_SHADER:send("wave_height", 240)
-    ModMenu.BACKGROUND_SHADER:send("texsize", {ModMenu.background_image_wave:getWidth(), ModMenu.background_image_wave:getHeight()})
+    love.graphics.setShader(self.BACKGROUND_SHADER)
+    self.BACKGROUND_SHADER:send("bg_sine", self.animation_sine)
+    self.BACKGROUND_SHADER:send("bg_mag", 6)
+    self.BACKGROUND_SHADER:send("wave_height", 240)
+    self.BACKGROUND_SHADER:send("texsize", {self.background_image_wave:getWidth(), self.background_image_wave:getHeight()})
 
-    ModMenu.BACKGROUND_SHADER:send("sine_mul", 1)
-    love.graphics.setColor(1, 1, 1, ModMenu.background_alpha * 0.8)
-    love.graphics.draw(ModMenu.background_image_wave, 0, math.floor(-10 - (ModMenu.background_alpha * 20)))
-    ModMenu.BACKGROUND_SHADER:send("sine_mul", -1)
-    love.graphics.draw(ModMenu.background_image_wave, 0, math.floor(-10 - (ModMenu.background_alpha * 20)))
+    self.BACKGROUND_SHADER:send("sine_mul", 1)
+    love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
+    love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+    self.BACKGROUND_SHADER:send("sine_mul", -1)
+    love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
     love.graphics.setColor(1, 1, 1, 1)
 
     love.graphics.setShader()
 
-    ModMenu:drawAnimStrip(ModMenu.background_image_animation, ( ModMenu.animation_sine / 12),        0, (((10 - (ModMenu.background_alpha * 20)) + 240) - 70), (ModMenu.background_alpha * 0.46))
-    ModMenu:drawAnimStrip(ModMenu.background_image_animation, ((ModMenu.animation_sine / 12) + 0.4), 0, (((10 - (ModMenu.background_alpha * 20)) + 240) - 70), (ModMenu.background_alpha * 0.56))
-    ModMenu:drawAnimStrip(ModMenu.background_image_animation, ((ModMenu.animation_sine / 12) + 0.8), 0, (((10 - (ModMenu.background_alpha * 20)) + 240) - 70), (ModMenu.background_alpha * 0.7))
+    self:drawAnimStrip(self.background_image_animation, ( self.animation_sine / 12),        0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.46))
+    self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.4), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.56))
+    self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
 
     -- Reset canvas to draw to
     love.graphics.setCanvas()
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(ModMenu.bg_canvas, 0, 0, 0, 2, 2)
+    love.graphics.draw(self.bg_canvas, 0, 0, 0, 2, 2)
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)
