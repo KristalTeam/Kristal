@@ -1,36 +1,28 @@
-local Assets = {}
+local Assets = {
+    loaded = false,
+    data = {
+        texture = {},
+        texture_data = {}
+    }
+}
 
-function Assets:load(dir)
-    self.texture = {}
-    self.texture_data = {}
+function Assets:loadData(data)
+    self.data = data
 
-    self:loadDir("assets/")
-    if dir and love.filesystem.getInfo(dir, "directory") then
-        self:loadDir(dir)
+    -- thread can't create images, we do it here
+    for key,image_data in pairs(self.data.texture_data) do
+        self.data.texture[key] = love.graphics.newImage(image_data)
     end
-end
 
-function Assets:loadDir(dir)
-    self:loadTextures(dir)
-end
-
-function Assets:loadTextures(dir)
-    for _,file in ipairs(FileSystem.getFilesRecursive(dir.."/sprites")) do
-        local is_png, short = StrUtil.endsWith(file, ".png")
-        if is_png then
-            local data = love.image.newImageData(dir.."/sprites/"..file)
-            self.texture[short] = love.graphics.newImage(data)
-            self.texture_data[short] = data
-        end
-    end
+    self.loaded = true
 end
 
 function Assets:getTexture(path)
-    return self.texture[path]
+    return self.data.texture[path]
 end
 
 function Assets:getTextureData(path)
-    return self.texture_data[path]
+    return self.data.texture_data[path]
 end
 
 return Assets

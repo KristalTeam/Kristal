@@ -5,20 +5,28 @@ function LoadState:init()
 end
 
 function LoadState:enter(from, dir)
-    self.drawn = false
-    self.load_dir = dir
+    love.thread.newThread("src/loadthread.lua"):start()
+    self.channel = love.thread.getChannel("assets")
+    self.complete = false
+    self.wait_time = 2
 end
 
-function LoadState:update()
-    if self.drawn then
-        Assets:load(self.load_dir)
+function LoadState:update(dt)
+    if not self.complete then
+        local data = self.channel:pop()
+        if data ~= nil then
+            Assets:loadData(data)
+            self.complete = true
+        end
+    end
+    self.wait_time = self.wait_time - dt
+    if self.complete and self.wait_time <= 0 then
         Gamestate.pop()
     end
 end
 
 function LoadState:draw()
-    love.graphics.draw(self.logo, WIDTH/2, HEIGHT/2, 0, 1, 1, self.logo:getWidth()/2, self.logo:getHeight()/2)
-    self.drawn = true
+    love.graphics.draw(self.logo, WIDTH/2, HEIGHT/2, math.sin(self.wait_time * 3) / 5, 1, 1, self.logo:getWidth()/2, self.logo:getHeight()/2)
 end
 
 return LoadState
