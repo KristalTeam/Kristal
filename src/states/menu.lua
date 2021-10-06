@@ -141,12 +141,12 @@ function menu:draw()
         local color = {154/255, 154/255, 179/255, 1}
         if self.selected == i then
             color = {1, 1, 1, 1}
-            self.heart_target_x = x + 20
-            self.heart_target_y = y + 22
         end
         menu:drawMenuRectangle(x, y, 424, 62, color)
         menu:printShadow(self.mods[i], x + 50, y + 14, color)
     end
+
+    love.graphics.setScissor()
 
     -- Move the heart closer to the target
     if (math.abs((self.heart_target_x - self.heart_x)) <= 2) then
@@ -163,10 +163,8 @@ function menu:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.menu_heart, self.heart_x, self.heart_y)
 
-    love.graphics.setScissor()
-
     -- Draw the scrollbar background
-    love.graphics.setColor({154/255, 154/255, 179/255, 1})
+    love.graphics.setColor({0, 0, 0, 0.5})
     love.graphics.rectangle("fill", 538, 70, 4, 370)
 
     -- Draw the scrollbar with lots of math I don't understand
@@ -223,6 +221,8 @@ function menu:keypressed(key, _, is_repeat)
     while (menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) < (104 - 30)) do
         self.menu_offset_target = self.menu_offset_target + 1
     end
+
+    self.heart_target_y = menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) + 22
 
     if key == "z" then
         self.ui_select:play()
