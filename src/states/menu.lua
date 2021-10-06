@@ -82,7 +82,7 @@ function menu:drawBackground()
 
     -- We need to draw the background on a canvas
     love.graphics.setCanvas(self.bg_canvas)
-    love.graphics.clear()
+    love.graphics.clear(0, 0, 0, 1)
 
     self.animation_sine = self.animation_sine + (1 * dt_mult)
 
