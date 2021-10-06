@@ -1,6 +1,6 @@
-local ModMenu = {}
+local menu = {}
 
-ModMenu.BACKGROUND_SHADER = love.graphics.newShader([[
+menu.BACKGROUND_SHADER = love.graphics.newShader([[
     extern number bg_sine;
     extern number bg_mag;
     extern number wave_height;
@@ -16,7 +16,7 @@ ModMenu.BACKGROUND_SHADER = love.graphics.newShader([[
     }
 ]])
 
-function ModMenu:enter()
+function menu:enter()
     print("i am so gay")
 
     -- Load menu music
@@ -32,24 +32,24 @@ function ModMenu:enter()
     self.background_alpha = 0
 
     -- Assets required for the background animation
-    self.background_image_wave = Assets:getTexture("kristal/title_bg_wave")
+    self.background_image_wave = kristal.assets.getTexture("kristal/title_bg_wave")
     self.background_image_animation = {
-        Assets:getTexture("kristal/title_bg_anim_0"),
-        Assets:getTexture("kristal/title_bg_anim_1"),
-        Assets:getTexture("kristal/title_bg_anim_2"),
-        Assets:getTexture("kristal/title_bg_anim_3"),
-        Assets:getTexture("kristal/title_bg_anim_4")
+        kristal.assets.getTexture("kristal/title_bg_anim_0"),
+        kristal.assets.getTexture("kristal/title_bg_anim_1"),
+        kristal.assets.getTexture("kristal/title_bg_anim_2"),
+        kristal.assets.getTexture("kristal/title_bg_anim_3"),
+        kristal.assets.getTexture("kristal/title_bg_anim_4")
     }
 end
 
-function ModMenu:init()
+function menu:init()
     -- We'll draw the background on a canvas, then resize it 2x
     self.bg_canvas = love.graphics.newCanvas(320,240)
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
 end
 
-function ModMenu:drawAnimStrip(sprite, subimg, x, y, alpha)
+function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.setColor(1, 1, 1, alpha)
 
     local index = (math.floor(subimg) % (#sprite - 1)) + 1
@@ -57,7 +57,7 @@ function ModMenu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
-function ModMenu:draw()
+function menu:draw()
     local dt = love.timer.getDelta()
 
     -- Draw the menu background
@@ -76,7 +76,7 @@ function ModMenu:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function ModMenu:drawBackground()
+function menu:drawBackground()
     -- This code was originally 30 fps, so we need a deltatime variable to multiply some values by
     local dt_mult = love.timer.getDelta() * 30
 
@@ -125,4 +125,4 @@ function ModMenu:drawBackground()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-return ModMenu
+return menu

@@ -1,4 +1,4 @@
-local Assets = {
+local assets = {
     loaded = false,
     data = {
         texture = {},
@@ -6,23 +6,23 @@ local Assets = {
     }
 }
 
-function Assets:loadData(data)
-    self.data = data
+function assets.loadData(data)
+    assets.data = data
 
     -- thread can't create images, we do it here
-    for key,image_data in pairs(self.data.texture_data) do
-        self.data.texture[key] = love.graphics.newImage(image_data)
+    for key,image_data in pairs(assets.data.texture_data) do
+        assets.data.texture[key] = love.graphics.newImage(image_data)
     end
 
-    self.loaded = true
+    assets.loaded = true
 end
 
-function Assets:getTexture(path)
-    return self.data.texture[path]
+function assets.getTexture(path)
+    return assets.data.texture[path]
 end
 
-function Assets:getTextureData(path)
-    return self.data.texture_data[path]
+function assets.getTextureData(path)
+    return assets.data.texture_data[path]
 end
 
-return Assets
+return assets

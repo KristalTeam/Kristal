@@ -1,25 +1,30 @@
-Class = require("src.lib.hump.class")
-Gamestate = require("src.lib.hump.gamestate")
-Vector = require("src.lib.hump.vector-light")
-Camera = require("src.lib.hump.camera")
-Timer = require("src.lib.hump.timer")
-
 require("src.vars")
-Utils = require("src.utils")
 
-Assets = require("src.assets")
-Data = require("src.data")
+Class = require("src.lib.hump.class")
 
-TestState = require("src.state.teststate")
-LoadState = require("src.state.loadstate")
-ModMenu = require("src.state.modmenu")
+lib = {}
 
+lib.gamestate = require("src.lib.hump.gamestate")
+lib.vector = require("src.lib.hump.vector-light")
+lib.timer = require("src.lib.hump.timer")
+
+utils = require("src.utils")
+
+kristal = {}
+
+kristal.assets = require("src.assets")
+kristal.data = require("src.data")
+
+kristal.states = require("src.states")
+kristal.states.loading = require("src.states.loading")
+kristal.states.menu = require("src.states.menu")
+kristal.states.testing = require("src.states.testing")
+
+Camera = require("src.lib.hump.camera")
 Animation = require("src.animation")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest")
-    Gamestate.registerEvents()
-    --Gamestate.switch({resume = function() Gamestate.switch(TestState) end})
-    Gamestate.switch({resume = function() Gamestate.switch(ModMenu) end})
-    Gamestate.push(LoadState)
+    lib.gamestate.registerEvents()
+    kristal.states.switch(kristal.states.loading)
 end

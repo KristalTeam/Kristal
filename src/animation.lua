@@ -4,11 +4,11 @@ function Animation:init(src)
     if type(src) == "table" then
         self:parseData(src)
     elseif type(src) == "string" then
-        local base = Data:getAnimation(src)
+        local base = kristal.data.getAnimation(src)
         self.path = base.path
         self.current_state = base.current_state
-        self.states = Utils.copy(base.states, true)
-        self.frames = Utils.copy(base.frames, true)
+        self.states = utils.copy(base.states, true)
+        self.frames = utils.copy(base.frames, true)
     end
     self.current_frame = 1
     self.time_elapsed = 0
@@ -68,7 +68,7 @@ function Animation:parseData(data)
         if not self.current then
             self.current = k
         end
-        local new_state = Utils.copy(v, true)
+        local new_state = utils.copy(v, true)
         new_state.path = new_state.path or ""
         new_state.delay = math.max(new_state.delay or 0, FRAMERATE)
         local frame_tex = {}
@@ -77,8 +77,8 @@ function Animation:parseData(data)
         local current_path = self.path .. new_state.path
         local zero_index = true
         while true do
-            local texture = Assets:getTexture(current_path.."_"..n) or Assets:getTexture(current_path.."_0"..n)
-                         or Assets:getTexture(current_path..n) or Assets:getTexture(current_path.."0"..n)
+            local texture = kristal.assets.getTexture(current_path.."_"..n) or kristal.assets.getTexture(current_path.."_0"..n)
+                         or kristal.assets.getTexture(current_path..n) or kristal.assets.getTexture(current_path.."0"..n)
             if texture then
                 frame_tex[n] = texture
                 n_max = n
@@ -90,7 +90,7 @@ function Animation:parseData(data)
                 else
                     if n == 1 and not zero_index then
                         n_max = 1
-                        frame_tex[1] = Assets:getTexture(current_path)
+                        frame_tex[1] = kristal.assets.getTexture(current_path)
                     end
                     break
                 end
@@ -98,8 +98,8 @@ function Animation:parseData(data)
         end
         new_state.frames = new_state.frames or (n == n_max and tostring(n) or ((zero_index and "0" or "1").."-"..(n_max)))
         local frames = {}
-        for _,s in ipairs(Utils.split(new_state.frames, ",")) do
-            local range = Utils.split(s, "-")
+        for _,s in ipairs(utils.split(new_state.frames, ",")) do
+            local range = utils.split(s, "-")
             if #range == 2 then
                 local a, b = tonumber(range[1]), tonumber(range[2])
                 for i = a, b, (a > b and -1 or 1) do

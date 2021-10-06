@@ -1,6 +1,6 @@
 require("love.image")
 
-JSON = require("src.lib.json")
+json = require("src.lib.json")
 
 local args = {...}
 local mdir = args[1]
@@ -54,7 +54,7 @@ function loadData(dir)
         if file:sub(-5) == ".json" then
             local short = file:sub(1, -6)
             local json_str = love.filesystem.read(dir.."/animations/"..file)
-            local animations = JSON.decode(json_str)
+            local animations = json.decode(json_str)
             for k,v in pairs(animations) do
                 data.data.animations[k] = v
             end

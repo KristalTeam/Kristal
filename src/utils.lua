@@ -1,10 +1,10 @@
-local Utils = {}
+local utils = {}
 
-function Utils.copy(tbl, deep)
+function utils.copy(tbl, deep)
     local new_tbl = {}
     for k,v in pairs(tbl) do
         if type(v) == "table" and deep then
-            new_tbl[k] = Utils.copy(v, true)
+            new_tbl[k] = utils.copy(v, true)
         else
             new_tbl[k] = v
         end
@@ -18,24 +18,24 @@ local function dumpKey(key)
     elseif type(key) == 'string' and not key:find("[^%a_%-]") then
         return key
     else
-        return '['..Utils.dump(key)..']'
+        return '['..utils.dump(key)..']'
     end
 end
 
-function Utils.dump(o)
+function utils.dump(o)
     if type(o) == 'table' then
         local s = '{'
         local cn = 1
         if #o ~= 0 then
             for _,v in ipairs(o) do
                 if cn > 1 then s = s .. ', ' end
-                s = s .. Utils.dump(v)
+                s = s .. utils.dump(v)
                 cn = cn + 1
             end
         else
             for k,v in pairs(o) do
                 if cn > 1 then s = s .. ', ' end
-                s = s .. dumpKey(k) .. ' = ' .. Utils.dump(v)
+                s = s .. dumpKey(k) .. ' = ' .. utils.dump(v)
                 cn = cn + 1
             end
         end
@@ -47,7 +47,7 @@ function Utils.dump(o)
     end
 end
 
-function Utils.split(str, sep)
+function utils.split(str, sep)
     if sep == nil then
         sep = "%s"
     end
@@ -59,4 +59,4 @@ function Utils.split(str, sep)
     return t
 end
 
-return Utils
+return utils

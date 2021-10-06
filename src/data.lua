@@ -1,4 +1,4 @@
-local Data = {
+local data = {
     loaded = false,
     data = {
         animations = {}
@@ -8,26 +8,26 @@ local Data = {
     }
 }
 
-function Data:loadData(data)
-    self.data = data
+function data.loadData(dat)
+    data.data = dat
 
     -- post-processing animations
-    self.processed.animations = {}
-    for key,_ in pairs(self.data.animations) do
-        self:processAnimation(key)
+    data.processed.animations = {}
+    for key,_ in pairs(data.data.animations) do
+        data:processAnimation(key)
     end
 
-    self.loaded = true
+    data.loaded = true
 end
 
-function Data:processAnimation(anim)
-    if self.processed.animations[anim] then
-        return self.processed.animations[anim]
+function data:processAnimation(anim)
+    if data.processed.animations[anim] then
+        return data.processed.animations[anim]
     end
-    local anim_data = self.data.animations[anim]
+    local anim_data = data.data.animations[anim]
     if anim_data.copy then
-        self:processAnimation(anim_data.copy)
-        local copy_data = self.data.animations[anim_data.copy]
+        data:processAnimation(anim_data.copy)
+        local copy_data = data.data.animations[anim_data.copy]
         for k,v in pairs(copy_data) do
             if anim_data[k] == nil then
                 anim_data[k] = v
@@ -41,15 +41,15 @@ function Data:processAnimation(anim)
             end
         end
     end
-    self.processed.animations[anim] = Animation(anim_data)
+    data.processed.animations[anim] = Animation(anim_data)
 end
 
-function Data:getAnimationData(path)
-    return self.data.animations[path]
+function data.getAnimationData(path)
+    return data.data.animations[path]
 end
 
-function Data:getAnimation(path)
-    return self.processed.animations[path]
+function data.getAnimation(path)
+    return data.processed.animations[path]
 end
 
-return Data
+return data
