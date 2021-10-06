@@ -2,7 +2,8 @@ local assets = {
     loaded = false,
     data = {
         texture = {},
-        texture_data = {}
+        texture_data = {},
+        fonts = {}
     }
 }
 
@@ -14,7 +15,15 @@ function assets.loadData(data)
         assets.data.texture[key] = love.graphics.newImage(image_data)
     end
 
+    for key,path in pairs(assets.data.fonts) do
+        assets.data.fonts[key] = love.graphics.newFont(path, 32, "mono")
+    end
+
     assets.loaded = true
+end
+
+function assets.getFont(path)
+    return assets.data.fonts[path]
 end
 
 function assets.getTexture(path)

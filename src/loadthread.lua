@@ -10,7 +10,8 @@ local channel = love.thread.getChannel("assets")
 local data = {
     assets = {
         texture = {},
-        texture_data = {}
+        texture_data = {},
+        fonts = {}
     },
     data = {
         animations = {}
@@ -44,6 +45,13 @@ function loadAssets(dir)
         if file:sub(-4) == ".png" then
             local short = file:sub(1, -5)
             data.assets.texture_data[short] = love.image.newImageData(dir.."/sprites/"..file)
+        end
+    end
+    -- Load fonts
+    for _,file in ipairs(getFilesRecursive(dir.."/fonts")) do
+        if file:sub(-4) == ".ttf" then
+            local short = file:sub(1, -5)
+            data.assets.fonts[short] = dir.."/fonts/"..file
         end
     end
 end
