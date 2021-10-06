@@ -11,16 +11,16 @@ function loadstate:init()
 end
 
 function loadstate:enter(from, dir)
-    love.thread.newThread("src/loadthread.lua"):start()
-    self.channel = love.thread.getChannel("assets")
-    self.complete = false
+    self.loading = false
+    self.load_complete = false
 
     self.animation_done = false
 
     self.w = self.logo:getWidth()
     self.h = self.logo:getHeight()
 
-    self.noise = love.audio.newSource("assets/sounds/AUDIO_INTRONOISE.ogg", "stream")
+    self.noise = love.audio.newSource("assets/sounds/kristal_intro.ogg", "stream")
+    self.end_noise = love.audio.newSource("assets/sounds/kristal_intro_end.ogg", "stream")
     self.noise:play()
 
     self.siner = 0
@@ -39,16 +39,26 @@ function loadstate:enter(from, dir)
     self.fader_alpha = 0
 end
 
+function loadstate:beginLoad()
+    love.thread.newThread("src/loadthread.lua"):start()
+    self.channel = love.thread.getChannel("assets")
+    self.loading = true
+    self.load_complete = false
+    kristal.overlay.setLoading(true)
+end
+
 function loadstate:update(dt)
-    if self.complete and self.animation_done then
+    if self.load_complete and self.animation_done then
         kristal.states.switch(kristal.states.menu)
     end
-    if not self.complete then
+    if self.loading then
         local data = self.channel:pop()
         if data ~= nil then
             kristal.assets.loadData(data.assets)
             kristal.data.loadData(data.data)
-            self.complete = true
+            self.loading = false
+            self.load_complete = true
+            kristal.overlay.setLoading(false)
         end
     end
 end
@@ -92,6 +102,9 @@ function loadstate:draw()
         if (self.factor < 0) then
             self.factor = 0
             self.animation_phase = 1
+            if not self.loading and not self.load_complete then
+                self:beginLoad()
+            end
         end
         for i = 0, self.h - 1 do
             self.ia = ((self.siner / 25) - (math.abs((i - (self.h / 2))) * 0.05))
@@ -106,10 +119,11 @@ function loadstate:draw()
     if (self.animation_phase == 1) then
         self:drawSprite(self.logo, self.x + (self.w / 2), self.y + (self.h / 2), self.logo_alpha)
         self.animation_phase_timer = self.animation_phase_timer + 1 * dt_mult
-        if (self.animation_phase_timer >= 30) then
+        if (self.animation_phase_timer >= 30) and self.load_complete then
             self.siner = 0
             self.factor = 0
             self.animation_phase = 2
+            self.end_noise:play()
         end
     end
     if (self.animation_phase == 2) then
@@ -158,11 +172,13 @@ function loadstate:draw()
         if self.fader_alpha > 1 then
             self.animation_done = true
             self.noise:stop()
+            self.end_noise:stop()
         end
 
         -- Change the fade opacity for the next frame
         self.fader_alpha = math.max(0,self.fader_alpha + (0.04 * dt_mult))
         self.noise:setVolume(math.max(0, 1 - self.fader_alpha))
+        self.end_noise:setVolume(math.max(0, 1 - self.fader_alpha))
     end
 
     -- Reset the draw color
@@ -171,6 +187,9 @@ end
 
 function loadstate:keypressed(key)
     self.skipped = true
+    if not self.loading and not self.load_complete then
+        self:beginLoad()
+    end
 end
 
 return loadstate

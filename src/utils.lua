@@ -59,4 +59,10 @@ function utils.split(str, sep)
     return t
 end
 
+function utils.hook(target, func)
+    return function(...)
+        return func(target, ...)
+    end
+end
+
 return utils

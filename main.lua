@@ -14,6 +14,7 @@ kristal = {}
 
 kristal.assets = require("src.assets")
 kristal.data = require("src.data")
+kristal.overlay = require("src.overlay")
 
 kristal.states = require("src.states")
 kristal.states.loading = require("src.states.loading")
@@ -25,6 +26,23 @@ Animation = require("src.animation")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest")
+
     lib.gamestate.registerEvents()
+
+    -- setup overlay
+    kristal.overlay:init()
+    love.update = utils.hook(love.update, function(orig, ...)
+        orig(...)
+        kristal.overlay:update(...)
+    end)
+    love.draw = utils.hook(love.draw, function(orig, ...)
+        orig(...)
+        kristal.overlay:draw()
+    end)
+
     kristal.states.switch(kristal.states.loading)
+end
+
+function love.update(dt)
+    lib.timer.update(dt)
 end
