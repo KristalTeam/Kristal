@@ -16,6 +16,7 @@ kristal = {}
 kristal.assets = require("src.assets")
 kristal.data = require("src.data")
 kristal.overlay = require("src.overlay")
+kristal.graphics = require("src.graphics")
 
 kristal.states = require("src.states")
 kristal.states.loading = require("src.states.loading")
@@ -34,8 +35,10 @@ function love.load()
     -- register gamestate calls
     lib.gamestate.registerEvents()
 
-    -- setup overlay
+    -- initialize overlay
     kristal.overlay:init()
+
+    -- setup hooks
     love.update = utils.hook(love.update, function(orig, ...)
         orig(...)
         kristal.overlay:update(...)
@@ -43,6 +46,7 @@ function love.load()
     love.draw = utils.hook(love.draw, function(orig, ...)
         orig(...)
         kristal.overlay:draw()
+        kristal.graphics._clearUnusedCanvases()
     end)
 
     -- load menu

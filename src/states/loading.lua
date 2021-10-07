@@ -49,7 +49,7 @@ end
 
 function loadstate:update(dt)
     if self.load_complete and self.animation_done then
-        kristal.states.switch(kristal.states.menu)
+        kristal.states.switch(LOAD_TESTING and kristal.states.testing or kristal.states.menu)
     end
     if self.loading then
         local data = self.channel:pop()

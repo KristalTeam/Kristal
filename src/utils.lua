@@ -65,6 +65,30 @@ function utils.hook(target, func)
     end
 end
 
+function utils.equal(a, b, deep)
+    if type(a) ~= type(b) then
+        return false
+    elseif type(a) == "table" then
+        for k,v in pairs(a) do
+            if b[k] == nil then
+                return false
+            elseif deep and not utils.equal(v, b[k]) then
+                return false
+            elseif not deep and v ~= b[k] then
+                return false
+            end
+        end
+        for k,v in pairs(b) do
+            if a[k] == nil then
+                return false
+            end
+        end
+    elseif a ~= b then
+        return false
+    end
+    return true
+end
+
 function utils.getFilesRecursive(dir)
     local result = {}
 
@@ -84,6 +108,20 @@ function utils.getFilesRecursive(dir)
     end
 
     return result
+end
+
+function utils.getCombinedText(text)
+    if type(text) == "table" then
+        local s = ""
+        for _,v in ipairs(text) do
+            if type(v) == "string" then
+                s = s .. v
+            end
+        end
+        return s
+    else
+        return tostring(text)
+    end
 end
 
 return utils
