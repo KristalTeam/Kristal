@@ -244,6 +244,8 @@ end
 function menu:keypressed(key, _, is_repeat)
     if key == "x" then
         love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
+        self.ui_select:stop()
+        self.ui_select:play()
     end
 
     if #self.mods > 0 then
