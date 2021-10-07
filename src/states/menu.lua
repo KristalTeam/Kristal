@@ -1,5 +1,7 @@
 local menu = {}
 
+menu.TEST_MOD_LIST = true
+
 menu.BACKGROUND_SHADER = love.graphics.newShader([[
     extern number bg_sine;
     extern number bg_mag;
@@ -90,7 +92,6 @@ function menu:init()
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
 
-    --self.mods = {"Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod"}
     self:loadMods()
 
     self.selected = 1
@@ -102,6 +103,13 @@ function menu:focus()
 end
 
 function menu:loadMods()
+    if self.TEST_MOD_LIST then
+        self.mods = {}
+        for i = 1,15 do
+            table.insert(self.mods, {name = "Example Mod "..i})
+        end
+        return
+    end
     self.mods = {}
     for _,path in ipairs(love.filesystem.getDirectoryItems("mods")) do
         local full_path = "mods/"..path
@@ -240,22 +248,37 @@ function menu:keypressed(key, _, is_repeat)
             self.ui_select:play()
         end
 
+        local total_min_offset = -math.max(0, (#self.mods * 70) - 370)
+        local total_max_offset = 0
+
         local play_move = false
         if key == "up"    then self.selected = self.selected - 1; play_move = true end
         if key == "down"  then self.selected = self.selected + 1; play_move = true end
         if key == "left"  then 
-            if self.selected == 1 or self.selected > 5 then
+            if self.selected == #self.mods then
+                self.selected = math.max(1, #self.mods - 4)
+            elseif self.selected > 5 then
                 self.selected = self.selected - 5
+                self.menu_offset_target = self.menu_offset_target + 350
+            elseif self.selected == 1 then
+                self.selected = self.selected - 1
+                self.menu_offset_target = total_min_offset
             else
                 self.selected = 1
+                self.menu_offset_target = total_max_offset
             end
             play_move = true
         end
         if key == "right" then
-            if self.selected == #self.mods or self.selected < #self.mods - 5 then
+            if self.selected < #self.mods - 4 then
                 self.selected = self.selected + 5
+                self.menu_offset_target = self.menu_offset_target - 350
+            elseif self.selected == #self.mods then
+                self.selected = self.selected + 1
+                self.menu_offset_target = total_max_offset
             else
                 self.selected = #self.mods
+                self.menu_offset_target = total_min_offset
             end
             play_move = true
         end
@@ -281,8 +304,8 @@ function menu:keypressed(key, _, is_repeat)
             self.ui_move:play()
         end
 
-        local min_offset = -70 * (self.selected - 1)
-        local max_offset = 300 - (70 * (self.selected - 1))
+        local min_offset = math.max(-70 * (self.selected - 1), total_min_offset)
+        local max_offset = math.min(300 - (70 * (self.selected - 1)), total_max_offset)
 
         self.menu_offset_target = math.min(max_offset, math.max(min_offset, self.menu_offset_target))
 
