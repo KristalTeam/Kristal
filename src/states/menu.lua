@@ -1,6 +1,6 @@
 local menu = {}
 
-menu.TEST_MOD_LIST = true
+menu.TEST_MOD_LIST = false
 
 menu.BACKGROUND_SHADER = love.graphics.newShader([[
     extern number bg_sine;
@@ -63,6 +63,9 @@ function menu:enter()
     self.menu_heart = kristal.assets.getTexture("player/heart_menu")
     self.menu_font = kristal.assets.getFont("main")
 
+    -- Load the mods
+    self:loadMods()
+    self.selected = 1
 end
 
 function menu:drawMenuRectangle(x, y, width, height, color)
@@ -91,15 +94,11 @@ function menu:init()
     self.bg_canvas = love.graphics.newCanvas(320,240)
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
-
-    self:loadMods()
-
-    self.selected = 1
 end
 
 function menu:focus()
     self:loadMods()
-    self.selected = math.min(self.selected, #self.mods)
+    self.selected = math.min(math.max(self.selected, 1), #self.mods)
 end
 
 function menu:loadMods()
@@ -243,6 +242,10 @@ function menu:draw()
 end
 
 function menu:keypressed(key, _, is_repeat)
+    if key == "x" then
+        love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
+    end
+
     if #self.mods > 0 then
         if key == "z" then
             self.ui_select:play()

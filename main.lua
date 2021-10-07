@@ -28,6 +28,10 @@ Animation = require("src.animation")
 function love.load()
     love.graphics.setDefaultFilter("nearest")
 
+    -- setup structure
+    love.filesystem.createDirectory("mods")
+
+    -- register gamestate calls
     lib.gamestate.registerEvents()
 
     -- setup overlay
@@ -41,6 +45,7 @@ function love.load()
         kristal.overlay:draw()
     end)
 
+    -- load menu
     kristal.states.switch(kristal.states.loading)
 end
 
