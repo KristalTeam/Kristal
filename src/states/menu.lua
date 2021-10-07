@@ -16,6 +16,8 @@ menu.BACKGROUND_SHADER = love.graphics.newShader([[
     }
 ]])
 
+menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to open the mods folder\nPress (C) to open the options menu"}
+
 function menu:enter()
     print("i am so gay")
 
@@ -88,9 +90,45 @@ function menu:init()
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
 
-    self.mods = {"Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod"}
+    --self.mods = {"Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod", "Example Mod"}
+    self:loadMods()
 
     self.selected = 1
+end
+
+function menu:focus()
+    self:loadMods()
+    self.selected = math.min(self.selected, #self.mods)
+end
+
+function menu:loadMods()
+    self.mods = {}
+    for _,path in ipairs(love.filesystem.getDirectoryItems("mods")) do
+        local full_path = "mods/"..path
+        local hidden = false
+        local mod = {name = path}
+        if love.filesystem.getInfo(full_path.."/mod.json") then
+            local info = lib.json.decode(love.filesystem.read(full_path.."/mod.json"))
+            mod.name = info.name or path
+            hidden = info.hidden
+        end
+        if love.filesystem.getInfo(full_path.."/preview.png") then
+            mod.preview = {love.graphics.newImage(full_path.."/preview.png")}
+        else
+            local i = 0
+            local preview = {}
+            while love.filesystem.getInfo(full_path.."/preview_"..i..".png") do
+                table.insert(preview, love.graphics.newImage(full_path.."/preview_"..i..".png"))
+                i = i + 1
+            end
+            if #preview > 0 then
+                mod.preview = preview
+            end
+        end
+        if not hidden then
+            table.insert(self.mods, mod)
+        end
+    end
 end
 
 function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
@@ -101,15 +139,15 @@ function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
-function menu:printShadow(text, x, y, color)
+function menu:printShadow(text, x, y, color, center, limit)
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.menu_font)
     love.graphics.setColor({0, 0, 0, 1})
-    love.graphics.print(text, x + 2, y + 2)
+    love.graphics.printf(text, x + 2, y + 2, limit or self.menu_font:getWidth(text), center and "center" or "left")
 
     -- Draw the main text
     love.graphics.setColor(color)
-    love.graphics.print(text, x, y)
+    love.graphics.printf(text, x, y, limit or self.menu_font:getWidth(text), center and "center" or "left")
 end
 
 function menu:calculateMenuItemPosition(i, offset)
@@ -122,9 +160,14 @@ function menu:draw()
     -- Draw the menu background
     self:drawBackground()
 
-    -- Draw some menu text
-    menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
-    menu:printShadow("(X) Open Folder   (C) Options", 294, 454 - 8, {1, 1, 1, 1})
+    -- Draw introduction text if no mods exist
+    if #self.mods == 0 then
+        menu:printShadow(menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+    else
+        -- Draw some menu text
+        menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
+        menu:printShadow("(X) Mods Folder   (C) Options", 294, 454 - 8, {1, 1, 1, 1})
+    end
 
     -- Move the mod menu closer to the target
     if (math.abs((self.menu_offset_target - self.menu_offset)) <= 2) then
@@ -143,7 +186,7 @@ function menu:draw()
             color = {1, 1, 1, 1}
         end
         menu:drawMenuRectangle(x, y, 424, 62, color)
-        menu:printShadow(self.mods[i], x + 50, y + 14, color)
+        menu:printShadow(self.mods[i].name, x + 50, y + 14, color)
     end
 
     love.graphics.setScissor()
@@ -159,21 +202,26 @@ function menu:draw()
     self.heart_x = self.heart_x + ((self.heart_target_x - self.heart_x) / 2) * (dt * 30)
     self.heart_y = self.heart_y + ((self.heart_target_y - self.heart_y) / 2) * (dt * 30)
 
-    -- Draw the heart
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.menu_heart, self.heart_x, self.heart_y)
+    -- Draw the heart (only if we have to)
+    if #self.mods > 0 then
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(self.menu_heart, self.heart_x, self.heart_y)
+    end
 
-    -- Draw the scrollbar background
-    love.graphics.setColor({0, 0, 0, 0.5})
-    love.graphics.rectangle("fill", 538, 70, 4, 370)
+    -- Draw the scrollbar (only if we have to)
+    if #self.mods > 5 then
+        -- Draw the scrollbar background
+        love.graphics.setColor({0, 0, 0, 0.5})
+        love.graphics.rectangle("fill", 538, 70, 4, 370)
 
-    -- Draw the scrollbar with lots of math I don't understand
-    local menu_height = (62 + 8) * #self.mods
-    local scrollbar_height = (370 / menu_height) * 370
-    local scrollbar_y = ((-self.menu_offset / 370) * scrollbar_height) + 70
+        -- Draw the scrollbar with lots of math I don't understand
+        local menu_height = (62 + 8) * #self.mods
+        local scrollbar_height = (370 / menu_height) * 370
+        local scrollbar_y = ((-self.menu_offset / 370) * scrollbar_height) + 70
 
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("fill", 538, scrollbar_y, 4, scrollbar_height)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.rectangle("fill", 538, scrollbar_y, 4, scrollbar_height)
+    end
 
     -- Draw the screen fade
     love.graphics.setColor(0, 0, 0, self.fader_alpha)
@@ -187,45 +235,58 @@ function menu:draw()
 end
 
 function menu:keypressed(key, _, is_repeat)
-    local play_move = false
-    if key == "up"    then self.selected = self.selected - 1; play_move = true end
-    if key == "down"  then self.selected = self.selected + 1; play_move = true end
-    if key == "left"  then self.selected = self.selected - 5; play_move = true end
-    if key == "right" then self.selected = self.selected + 5; play_move = true end
-
-    if self.selected > #self.mods then
-        if is_repeat then
-            self.selected = #self.mods
-            play_move = false
-        else
-            self.selected = 1
+    if #self.mods > 0 then
+        if key == "z" then
+            self.ui_select:play()
         end
-    end
-    if self.selected < 1 then
-        if is_repeat then
-            self.selected = 1
-            play_move = false
-        else
-            self.selected = #self.mods
+
+        local play_move = false
+        if key == "up"    then self.selected = self.selected - 1; play_move = true end
+        if key == "down"  then self.selected = self.selected + 1; play_move = true end
+        if key == "left"  then 
+            if self.selected == 1 or self.selected > 5 then
+                self.selected = self.selected - 5
+            else
+                self.selected = 1
+            end
+            play_move = true
         end
-    end
+        if key == "right" then
+            if self.selected == #self.mods or self.selected < #self.mods - 5 then
+                self.selected = self.selected + 5
+            else
+                self.selected = #self.mods
+            end
+            play_move = true
+        end
 
-    if play_move then
-        self.ui_move:play()
-    end
+        if self.selected > #self.mods then
+            if is_repeat then
+                self.selected = #self.mods
+                play_move = false
+            else
+                self.selected = 1
+            end
+        end
+        if self.selected < 1 then
+            if is_repeat then
+                self.selected = 1
+                play_move = false
+            else
+                self.selected = #self.mods
+            end
+        end
 
-    while (menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) > (370 + 4)) do
-        self.menu_offset_target = self.menu_offset_target - 1
-    end
+        if play_move then
+            self.ui_move:play()
+        end
 
-    while (menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) < (104 - 30)) do
-        self.menu_offset_target = self.menu_offset_target + 1
-    end
+        local min_offset = -70 * (self.selected - 1)
+        local max_offset = 300 - (70 * (self.selected - 1))
 
-    self.heart_target_y = menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) + 22
+        self.menu_offset_target = math.min(max_offset, math.max(min_offset, self.menu_offset_target))
 
-    if key == "z" then
-        self.ui_select:play()
+        self.heart_target_y = menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) + 22
     end
 end
 
@@ -247,25 +308,33 @@ function menu:drawBackground()
         self.background_alpha = 0.5
     end
 
-    -- Set the shader to use
-    love.graphics.setShader(self.BACKGROUND_SHADER)
-    self.BACKGROUND_SHADER:send("bg_sine", self.animation_sine)
-    self.BACKGROUND_SHADER:send("bg_mag", 6)
-    self.BACKGROUND_SHADER:send("wave_height", 240)
-    self.BACKGROUND_SHADER:send("texsize", {self.background_image_wave:getWidth(), self.background_image_wave:getHeight()})
+    if self.mods[self.selected] and self.mods[self.selected].preview then
+        -- Draw mod preview
+        local preview = self.mods[self.selected].preview
+        self:drawAnimStrip(preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
+        self:drawAnimStrip(preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
+        self:drawAnimStrip(preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
+    else
+        -- Set the shader to use
+        love.graphics.setShader(self.BACKGROUND_SHADER)
+        self.BACKGROUND_SHADER:send("bg_sine", self.animation_sine)
+        self.BACKGROUND_SHADER:send("bg_mag", 6)
+        self.BACKGROUND_SHADER:send("wave_height", 240)
+        self.BACKGROUND_SHADER:send("texsize", {self.background_image_wave:getWidth(), self.background_image_wave:getHeight()})
 
-    self.BACKGROUND_SHADER:send("sine_mul", 1)
-    love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
-    love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
-    self.BACKGROUND_SHADER:send("sine_mul", -1)
-    love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
-    love.graphics.setColor(1, 1, 1, 1)
+        self.BACKGROUND_SHADER:send("sine_mul", 1)
+        love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
+        love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+        self.BACKGROUND_SHADER:send("sine_mul", -1)
+        love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+        love.graphics.setColor(1, 1, 1, 1)
 
-    love.graphics.setShader()
+        love.graphics.setShader()
 
-    self:drawAnimStrip(self.background_image_animation, ( self.animation_sine / 12),        0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.46))
-    self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.4), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.56))
-    self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
+        self:drawAnimStrip(self.background_image_animation, ( self.animation_sine / 12),        0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.46))
+        self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.4), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.56))
+        self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
+    end
 
     -- Reset canvas to draw to
     love.graphics.setCanvas()

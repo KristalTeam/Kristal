@@ -7,6 +7,7 @@ lib = {}
 lib.gamestate = require("src.lib.hump.gamestate")
 lib.vector = require("src.lib.hump.vector-light")
 lib.timer = require("src.lib.hump.timer")
+lib.json = require("src.lib.json")
 
 utils = require("src.utils")
 
