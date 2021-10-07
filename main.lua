@@ -2,6 +2,8 @@ require("src.vars")
 
 Class = require("src.lib.hump.class")
 
+require ("src.classhelper")
+
 lib = {}
 
 lib.gamestate = require("src.lib.hump.gamestate")
@@ -17,6 +19,7 @@ kristal.assets = require("src.assets")
 kristal.data = require("src.data")
 kristal.overlay = require("src.overlay")
 kristal.graphics = require("src.graphics")
+kristal.shaders = require("src.shaders")
 
 kristal.states = require("src.states")
 kristal.states.loading = require("src.states.loading")
@@ -25,6 +28,10 @@ kristal.states.testing = require("src.states.testing")
 
 Camera = require("src.lib.hump.camera")
 Animation = require("src.animation")
+
+Object = require("src.object.object")
+DialogChar = require("src.object.game.dialogchar")
+DialogText = require("src.object.game.dialogtext")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest")
