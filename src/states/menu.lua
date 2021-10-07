@@ -245,6 +245,7 @@ end
 function menu:keypressed(key, _, is_repeat)
     if #self.mods > 0 then
         if key == "z" then
+            self.ui_select:stop()
             self.ui_select:play()
         end
 
@@ -301,6 +302,7 @@ function menu:keypressed(key, _, is_repeat)
         end
 
         if play_move then
+            self.ui_move:stop()
             self.ui_move:play()
         end
 
