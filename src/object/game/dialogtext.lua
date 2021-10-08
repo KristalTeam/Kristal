@@ -50,9 +50,9 @@ function DialogText:setText(text)
                         i = j + 1 -- Let's set i so the modifier isn't processed as normal text
 
                         -- Let's split some values in the modifier!
-                        local split = utils.split(current_modifier, ":")
+                        local split = utils.splitFast(current_modifier, ":")
                         local command = split[1]
-                        local arguments = utils.split(split[2], ",")
+                        local arguments = utils.splitFast(split[2], ",")
 
                         if command == "color" then
                             if DialogText.COLORS[arguments[1]] then
