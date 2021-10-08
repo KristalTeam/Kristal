@@ -47,14 +47,33 @@ function utils.dump(o)
     end
 end
 
-function utils.split(str, sep)
-    if sep == nil then
-        sep = "%s"
-    end
+function utils.splitFast(str, sep)
     local t={} ; i=1
     for str in string.gmatch(str, "([^"..sep.."]+)") do
         t[i] = str
         i = i + 1
+    end
+    return t
+end
+
+function utils.split(str, sep, remove_empty)
+    local t = {}
+    local i = 1
+    local s = ""
+    while i <= #str do
+        if str:sub(i, i + (#sep - 1)) == sep then
+            if not remove_empty or s ~= "" then
+                table.insert(t, s)
+            end
+            s = ""
+            i = i + (#sep - 1)
+        else
+            s = s .. str:sub(i, i)
+        end
+        i = i + 1
+    end
+    if not remove_empty or s ~= "" then
+        table.insert(t, s)
     end
     return t
 end
