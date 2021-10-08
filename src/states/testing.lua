@@ -7,10 +7,12 @@ function teststate:enter()
 
     self.stage = Object()
 
-    self.stage:add(DialogText("* These \\cYbirds\\c0 are \\cYPissing\\c0 me\n  off...", 20, 20))
+    self.stage:add(DialogText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\n  off...", 20, 20))
 
-    self.funnytext = DialogText("* I'm the ULTIMATE   \\cYSTARWALKER", 20, 120)
+    self.funnytext = DialogText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
     self.stage:add(self.funnytext)
+
+    self.stage:add(DialogText("* [color:ff00ff]Amogus[color:reset] sussy [color:red]Impostor", 20, 220))
 end
 
 function teststate:update(dt)
@@ -22,14 +24,6 @@ function teststate:update(dt)
             local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
             char.color = {color[1], color[2], color[3], 1}
         end
-    end
-end
-
-function teststate:keypressed(key)
-    if key == "left" then
-        self.thing_scale = self.thing_scale / 2
-    elseif key == "right" then
-        self.thing_scale = self.thing_scale * 2
     end
 end
 

@@ -37,7 +37,7 @@ function DialogChar:draw()
 
     local last_shader = love.graphics.getShader()
     love.graphics.setShader(shader)
-    
+
     shader:send("from", utils.copy(self.color or COLORS.dkgray))
     shader:send("to", utils.copy(self.color or COLORS.navy))
     love.graphics.setColor(1, 1, 1, self.color and 0.3 or 1)
