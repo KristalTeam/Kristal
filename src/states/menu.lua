@@ -63,6 +63,10 @@ function menu:enter()
     self.menu_heart = kristal.assets.getTexture("player/heart_menu")
     self.menu_font = kristal.assets.getFont("main")
 
+    -- Preview fading stuff
+    self.background_fade = 1
+    self.mod_fades = {}
+
     -- Load the mods
     self:loadMods()
     self.selected = 1
@@ -131,6 +135,23 @@ function menu:loadMods()
             if #preview > 0 then
                 mod.preview = preview
             end
+            self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
+            if not self.mod_fades[mod].canvas then
+                self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
+            end
+        end
+        if love.filesystem.getInfo(full_path.."/preview.lua") then
+            local chunk = love.filesystem.load(full_path.."/preview.lua")
+            local success, result = pcall(chunk, full_path)
+            if success then
+                self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
+                mod.preview_script = result
+                if mod.preview_script.init then
+                    mod.preview_script:init()
+                end
+            else
+                print("preview.lua error in "..mod.name..": "..result)
+            end
         end
         if not hidden then
             table.insert(self.mods, mod)
@@ -159,6 +180,41 @@ end
 
 function menu:calculateMenuItemPosition(i, offset)
     return (74 + ((62 + 8) * (i - 1)) + offset)
+end
+
+function menu:update(dt)
+    -- Update fade between previews
+    local current_mod = self.mods[self.selected]
+    if current_mod and (current_mod.preview or current_mod.preview_script) then
+        if current_mod.preview_script and current_mod.preview_script.hide_background ~= false then
+            self.background_fade = math.max(0, self.background_fade - (dt / 0.5))
+        else
+            self.background_fade = math.min(1, self.background_fade + (dt / 0.5))
+        end
+        for k,v in pairs(self.mod_fades) do
+            if k == current_mod and v.fade < 1 then
+                v.fade = math.min(1, v.fade + (dt / 0.5))
+            elseif k ~= current_mod and v.fade > 0 then
+                v.fade = math.max(0, v.fade - (dt / 0.5))
+            end
+        end
+    else
+        self.background_fade = math.min(1, self.background_fade + (dt / 0.5))
+        for k,v in pairs(self.mod_fades) do
+            if v.fade > 0 then
+                v.fade = math.max(0, v.fade - (dt / 0.5))
+            end
+        end
+    end
+
+    -- Update preview scripts
+    for k,v in pairs(self.mods) do
+        if v.preview_script then
+            v.preview_script.fade = self.mod_fades[v].fade
+            v.preview_script.selected = (self.selected == k)
+            v.preview_script:update(dt)
+        end
+    end
 end
 
 function menu:draw()
@@ -228,6 +284,15 @@ function menu:draw()
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", 538, scrollbar_y, 4, scrollbar_height)
+    end
+
+    -- Draw mod preview overlays
+    for k,v in pairs(self.mods) do
+        if v.preview_script and v.preview_script.drawOverlay then
+            love.graphics.push()
+            v.preview_script:drawOverlay()
+            love.graphics.pop()
+        end
     end
 
     -- Draw the screen fade
@@ -322,12 +387,10 @@ end
 
 function menu:drawBackground()
     -- This code was originally 30 fps, so we need a deltatime variable to multiply some values by
+    local dt = love.timer.getDelta()
     local dt_mult = love.timer.getDelta() * 30
 
-    -- We need to draw the background on a canvas
-    love.graphics.setCanvas(self.bg_canvas)
-    love.graphics.clear(0, 0, 0, 1)
-
+    -- Math
     self.animation_sine = self.animation_sine + (1 * dt_mult)
 
     if (self.background_alpha < 0.5) then
@@ -338,40 +401,61 @@ function menu:drawBackground()
         self.background_alpha = 0.5
     end
 
-    if self.mods[self.selected] and self.mods[self.selected].preview then
-        -- Draw mod preview
-        local preview = self.mods[self.selected].preview
-        self:drawAnimStrip(preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
-        self:drawAnimStrip(preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
-        self:drawAnimStrip(preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
-    else
-        -- Set the shader to use
-        love.graphics.setShader(self.BACKGROUND_SHADER)
-        self.BACKGROUND_SHADER:send("bg_sine", self.animation_sine)
-        self.BACKGROUND_SHADER:send("bg_mag", 6)
-        self.BACKGROUND_SHADER:send("wave_height", 240)
-        self.BACKGROUND_SHADER:send("texsize", {self.background_image_wave:getWidth(), self.background_image_wave:getHeight()})
+    -- We need to draw the background on a canvas
+    love.graphics.setCanvas(self.bg_canvas)
+    love.graphics.clear(0, 0, 0, 1)
 
-        self.BACKGROUND_SHADER:send("sine_mul", 1)
-        love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
-        love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
-        self.BACKGROUND_SHADER:send("sine_mul", -1)
-        love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
-        love.graphics.setColor(1, 1, 1, 1)
+    -- Set the shader to use
+    love.graphics.setShader(self.BACKGROUND_SHADER)
+    self.BACKGROUND_SHADER:send("bg_sine", self.animation_sine)
+    self.BACKGROUND_SHADER:send("bg_mag", 6)
+    self.BACKGROUND_SHADER:send("wave_height", 240)
+    self.BACKGROUND_SHADER:send("texsize", {self.background_image_wave:getWidth(), self.background_image_wave:getHeight()})
 
-        love.graphics.setShader()
+    self.BACKGROUND_SHADER:send("sine_mul", 1)
+    love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
+    love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+    self.BACKGROUND_SHADER:send("sine_mul", -1)
+    love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+    love.graphics.setColor(1, 1, 1, 1)
 
-        self:drawAnimStrip(self.background_image_animation, ( self.animation_sine / 12),        0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.46))
-        self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.4), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.56))
-        self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
-    end
+    love.graphics.setShader()
+
+    self:drawAnimStrip(self.background_image_animation, ( self.animation_sine / 12),        0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.46))
+    self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.4), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.56))
+    self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
 
     -- Reset canvas to draw to
     love.graphics.setCanvas()
 
     -- Draw the canvas on the screen scaled by 2x
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(1, 1, 1, self.background_fade)
     love.graphics.draw(self.bg_canvas, 0, 0, 0, 2, 2)
+
+    -- Draw mod previews
+    for k,v in pairs(self.mods) do
+        local mod_preview = self.mod_fades[k]
+        if v.preview and mod_preview.fade > 0 then
+            -- Draw to the mod's preview canvas
+            love.graphics.setCanvas(mod_preview.canvas)
+            love.graphics.clear(0, 0, 0, 1)
+
+            self:drawAnimStrip(v.preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
+            self:drawAnimStrip(v.preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
+            self:drawAnimStrip(v.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
+
+            -- Draw canvas scaled 2x to the screen
+            love.graphics.setCanvas()
+            love.graphics.setColor(1, 1, 1, mod_preview.fade)
+            love.graphics.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
+        end
+        if v.preview_script and v.preview_script.draw then
+            -- Draw from the mod's preview script
+            love.graphics.push()
+            v.preview_script:draw()
+            love.graphics.pop()
+        end
+    end
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)
