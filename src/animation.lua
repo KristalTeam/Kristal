@@ -98,8 +98,8 @@ function Animation:parseData(data)
         end
         new_state.frames = new_state.frames or (n == n_max and tostring(n) or ((zero_index and "0" or "1").."-"..(n_max)))
         local frames = {}
-        for _,s in ipairs(utils.split(new_state.frames, ",")) do
-            local range = utils.split(s, "-")
+        for _,s in ipairs(utils.splitFast(new_state.frames, ",")) do
+            local range = utils.splitFast(s, "-")
             if #range == 2 then
                 local a, b = tonumber(range[1]), tonumber(range[2])
                 for i = a, b, (a > b and -1 or 1) do
