@@ -1,6 +1,6 @@
-local DialogText = newClass(Object)
+local DialogueText = newClass(Object)
 
-DialogText.COLORS = {
+DialogueText.COLORS = {
     ["red"] = COLORS.red,
     ["blue"] = COLORS.blue,
     ["yellow"] = COLORS.yellow,
@@ -13,7 +13,7 @@ DialogText.COLORS = {
     ["lime"] = {0.5, 1, 0.5}
 }
 
-function DialogText:init(text, x, y, font)
+function DialogueText:init(text, x, y, font)
     super:init(self, x, y)
 
     self.font = font or "main"
@@ -21,7 +21,7 @@ function DialogText:init(text, x, y, font)
     self:setText(text)
 end
 
-function DialogText:setText(text)
+function DialogueText:setText(text)
     for _,v in ipairs(self.chars) do
         self:remove(v)
     end
@@ -55,9 +55,9 @@ function DialogText:setText(text)
                         local arguments = utils.splitFast(split[2], ",")
 
                         if command == "color" then
-                            if DialogText.COLORS[arguments[1]] then
+                            if DialogueText.COLORS[arguments[1]] then
                                 -- Did they input a valid color name? Let's use it.
-                                color = DialogText.COLORS[arguments[1]]
+                                color = DialogueText.COLORS[arguments[1]]
                             elseif arguments[1] == "reset" then
                                 -- They want to reset the color.
                                 color = nil
@@ -86,7 +86,7 @@ function DialogText:setText(text)
                 end
                 -- It didn't find a closing bracket, let's give up
             end
-            local char = DialogChar(current_char, xpos, ypos, color)
+            local char = DialogueChar(current_char, xpos, ypos, color)
             table.insert(self.chars, char)
             self:add(char)
             xpos = xpos + char:getWidth()
@@ -97,4 +97,4 @@ function DialogText:setText(text)
     end
 end
 
-return DialogText
+return DialogueText

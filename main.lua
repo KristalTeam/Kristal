@@ -30,8 +30,9 @@ Camera = require("src.lib.hump.camera")
 Animation = require("src.animation")
 
 Object = require("src.object.object")
-DialogChar = require("src.object.game.dialogchar")
-DialogText = require("src.object.game.dialogtext")
+DialogueChar = require("src.object.game.dialoguechar")
+DialogueText = require("src.object.game.dialoguetext")
+TypewriterText = require("src.object.game.typewritertext")
 
 function love.load()
     love.graphics.setDefaultFilter("nearest")

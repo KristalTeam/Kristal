@@ -7,12 +7,12 @@ function teststate:enter()
 
     self.stage = Object()
 
-    self.stage:add(DialogText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\n  off...", 20, 20))
+    self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\n  off...", 20, 20))
 
-    self.funnytext = DialogText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
+    self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
     self.stage:add(self.funnytext)
 
-    self.stage:add(DialogText("* [color:ff00ff]Amogus[color:reset] sussy [color:red]Impostor", 20, 220))
+    self.stage:add(DialogueText("* [color:ff00ff]Amogus[color:reset] sussy [color:red]Impostor", 20, 220))
 end
 
 function teststate:update(dt)
