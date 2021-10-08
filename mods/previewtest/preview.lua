@@ -7,11 +7,13 @@ function preview:init()
     -- code here gets called when the mods are loaded
 
     self.vignette_canvas = love.graphics.newCanvas(WIDTH, HEIGHT)
+    self.timer = 0
 end
 
 function preview:update(dt)
     -- code here gets called every frame, before any draws
     -- to only update while the mod is selected, check self.selected (or self.fade)
+    self.timer = self.timer + dt
 end
 
 function preview:draw()
@@ -30,10 +32,11 @@ function preview:drawOverlay()
     love.graphics.setCanvas(self.vignette_canvas)
     love.graphics.clear(0, 0, 0, self.fade)
 
-    local radius_from = math.max(WIDTH, HEIGHT)
+    local radius_from = 320
     local radius_to = 32
 
     local radius = radius_from + (radius_to - radius_from) * self.fade
+    radius = radius + math.sin(self.timer * 4) * (radius / 4)
 
     local x, y = kristal.states.menu.heart_x, kristal.states.menu.heart_y
 

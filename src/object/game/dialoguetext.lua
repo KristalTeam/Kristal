@@ -33,7 +33,7 @@ function DialogueText:setText(text)
 
     local height = 36 -- TODO: Font determined line spacing
 
-    local color = nil
+    local color = {1, 1, 1, 1}
     local ypos = 0
 
     for _,line in ipairs(lines) do
@@ -57,10 +57,10 @@ function DialogueText:setText(text)
                         if command == "color" then
                             if DialogueText.COLORS[arguments[1]] then
                                 -- Did they input a valid color name? Let's use it.
-                                color = DialogueText.COLORS[arguments[1]]
+                                color = utils.copy(DialogueText.COLORS[arguments[1]])
                             elseif arguments[1] == "reset" then
                                 -- They want to reset the color.
-                                color = nil
+                                color = {1, 1, 1, 1}
                             elseif #arguments[1] == 6 then
                                 -- It's 6 letters long, assume hashless hex
                                 color = utils.hexToRgb("#" .. arguments[1])
@@ -89,7 +89,7 @@ function DialogueText:setText(text)
             local char = DialogueChar(current_char, xpos, ypos, color)
             table.insert(self.chars, char)
             self:add(char)
-            xpos = xpos + char:getWidth()
+            xpos = xpos + char.width
 
             i = i + 1
         end

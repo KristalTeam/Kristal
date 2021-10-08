@@ -1,6 +1,7 @@
 require("src.vars")
 
 Class = require("src.lib.hump.class")
+Vector = require("src.lib.hump.vector")
 
 require ("src.classhelper")
 

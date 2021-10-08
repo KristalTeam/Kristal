@@ -22,14 +22,8 @@ end
 
 function DialogChar:updateTexture()
     self.texture = kristal.assets.getTexture("font/"..self.font.."/"..CHAR_TEXTURES[self.char])
-end
-
-function DialogChar:getWidth()
-    return self.texture:getWidth()
-end
-
-function DialogChar:getHeight()
-    return self.texture:getHeight()
+    self.width = self.texture:getWidth()
+    self.height = self.texture:getHeight()
 end
 
 function DialogChar:draw()
@@ -38,13 +32,15 @@ function DialogChar:draw()
     local last_shader = love.graphics.getShader()
     love.graphics.setShader(shader)
 
-    shader:send("from", utils.copy(self.color or COLORS.dkgray))
-    shader:send("to", utils.copy(self.color or COLORS.navy))
-    love.graphics.setColor(1, 1, 1, self.color and 0.3 or 1)
+    local white = self.color[1] == 1 and self.color[2] == 1 and self.color[3] == 1
+
+    shader:send("from", white and COLORS.dkgray or self.color)
+    shader:send("to", white and COLORS.navy or self.color)
+    love.graphics.setColor(1, 1, 1, white and 1 or 0.3)
     love.graphics.draw(self.texture, 1, 1)
 
-    shader:send("from", utils.copy(COLORS.white))
-    shader:send("to", utils.copy(self.color or COLORS.white))
+    shader:send("from", COLORS.white)
+    shader:send("to", white and COLORS.white or self.color)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.texture)
 
