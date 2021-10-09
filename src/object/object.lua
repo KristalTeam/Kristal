@@ -3,18 +3,33 @@ local Object = Class{}
 Object.CHILD_SORTER = function(a, b) return a.layer < b.layer end
 
 function Object:init(x, y)
-    -- Intitialize this object's position (x,y args optional)
-    self.x = x or 0
-    self.y = y or 0
+    -- Intitialize this object's position (optional args)
+    self.pos = Vector(x or 0, y or 0)
+
+    -- Initialize this object's size
+    self.width = 0
+    self.height = 0
+
+    -- Various draw properties
+    self.color = {1, 1, 1, 1}
+    self.scale = Vector(1, 1)
+    self.rotation = 0
+
+    -- Origin of the object's position
+    self.origin = Vector(0, 0)
+    -- Origin of the object's scaling
+    self.scale_origin = Vector(0.5, 0.5)
+    -- Origin of the object's rotation
+    self.rotate_origin = Vector(0.5, 0.5)
+
+    -- This object's sorting, higher number = renders last (above siblings)
+    self.layer = 0
 
     -- Whether this object updates
     self.active = true
 
     -- Whether this object draws
     self.visible = true
-
-    -- This object's sorting, higher number = renders last (above siblings)
-    self.layer = 0
 
     self.parent = nil
     self.children = {}
@@ -34,6 +49,10 @@ function Object:onAdd(parent) end
 function Object:onRemove(parent) end
 
 --[[ Common functions ]]--
+
+function Object:getSize()
+    return Vector(self.width, self.height)
+end
 
 function Object:getStage()
     if self.parent and self.parent.parent then
@@ -73,23 +92,34 @@ end
 function Object:updateChildren(dt)
     for _,v in ipairs(self.children) do
         if v.active then
-            love.graphics.push()
-            love.graphics.translate(v.x, v.y)
             v:update(dt)
-            love.graphics.pop()
         end
     end
 end
 
 function Object:drawChildren()
+    local oldr, oldg, oldb, olda = love.graphics.getColor()
     for _,v in ipairs(self.children) do
         if v.visible then
             love.graphics.push()
-            love.graphics.translate(v.x, v.y)
+            local r, g, b, a = unpack(v.color)
+            love.graphics.setColor(r, g, b, a or 1)
+            love.graphics.translate(v.pos.x - v.width * v.origin.x, v.pos.y - v.height * v.origin.y)
+            if v.scale ~= 1 then
+                love.graphics.translate(v.width * v.scale_origin.x, v.height * v.scale_origin.y)
+                love.graphics.scale(v.scale.x, v.scale.y)
+                love.graphics.translate(v.width * -v.scale_origin.x, v.height * -v.scale_origin.y)
+            end
+            if v.rotation ~= 0 then
+                love.graphics.translate(v.width * v.rotate_origin.x, v.height * v.rotate_origin.y)
+                love.graphics.rotate(v.rotation)
+                love.graphics.translate(v.width * -v.rotate_origin.x, v.height * -v.rotate_origin.y)
+            end
             v:draw()
             love.graphics.pop()
         end
     end
+    love.graphics.setColor(oldr, oldg, oldb, olda)
 end
 
 return Object

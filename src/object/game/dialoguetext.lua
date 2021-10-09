@@ -147,7 +147,7 @@ function DialogueText:processNode(node)
             local char = DialogueChar(node.character, self.state.current_x, self.state.current_y, self.state.color)
             table.insert(self.chars, char)
             self:add(char)
-            self.state.current_x = self.state.current_x + char:getWidth()
+            self.state.current_x = self.state.current_x + char.width
         end
     elseif node.type == "render_mod" then
         if node.command == "color" then

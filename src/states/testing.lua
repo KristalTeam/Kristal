@@ -20,9 +20,15 @@ function teststate:update(dt)
 
     self.timer = self.timer + dt
     --for i,char in ipairs(self.funnytext.chars) do
-    --    if char.color then
+    --    if char.color[1] ~= 1 or char.color[2] ~= 1 or char.color[3] ~= 1 then
     --        local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
     --        char.color = {color[1], color[2], color[3], 1}
+--
+    --        local scale = 1 + (math.sin(self.timer * 6 + (i * 0.5)) * 0.3)
+    --        char.origin.y = math.max(0, scale - 1)
+--
+    --        char.scale_origin = Vector(0.5, 1)
+    --        char.scale.y = scale
     --    end
     --end
 end

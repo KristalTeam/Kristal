@@ -72,6 +72,10 @@ function menu:enter()
     self.selected = 1
 end
 
+function menu:leave()
+    self.music:stop()
+end
+
 function menu:drawMenuRectangle(x, y, width, height, color)
     love.graphics.push()
     -- Draw the transparent background
@@ -117,7 +121,7 @@ function menu:loadMods()
     for _,path in ipairs(love.filesystem.getDirectoryItems("mods")) do
         local full_path = "mods/"..path
         local hidden = false
-        local mod = {name = path}
+        local mod = {name = path, path = path}
         if love.filesystem.getInfo(full_path.."/mod.json") then
             local info = lib.json.decode(love.filesystem.read(full_path.."/mod.json"))
             mod.name = info.name or path
@@ -138,6 +142,19 @@ function menu:loadMods()
             self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
             if not self.mod_fades[mod].canvas then
                 self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
+            end
+        end
+        if love.filesystem.getInfo(full_path.."/preview.lua") then
+            local chunk = love.filesystem.load(full_path.."/preview.lua")
+            local success, result = pcall(chunk, full_path)
+            if success then
+                self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
+                mod.preview_script = result
+                if mod.preview_script.init then
+                    mod.preview_script:init()
+                end
+            else
+                print("preview.lua error in "..mod.name..": "..result)
             end
         end
         if love.filesystem.getInfo(full_path.."/preview.lua") then
@@ -307,16 +324,21 @@ function menu:draw()
 end
 
 function menu:keypressed(key, _, is_repeat)
+    if MOD_LOADING then return end
+
     if key == "x" then
-        love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
         self.ui_select:stop()
         self.ui_select:play()
+        love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
     end
 
     if #self.mods > 0 then
         if key == "z" then
             self.ui_select:stop()
             self.ui_select:play()
+
+            kristal.loadMod(self.mods[self.selected].path)
+            return
         end
 
         local total_min_offset = -math.max(0, (#self.mods * 70) - 370)

@@ -40,6 +40,8 @@ function getFilesRecursive(dir)
 end
 
 function loadAssets(dir)
+    if not love.filesystem.getInfo(dir) then return end
+
     -- Load textures
     for _,file in ipairs(getFilesRecursive(dir.."/sprites")) do
         if file:sub(-4) == ".png" then
@@ -57,6 +59,8 @@ function loadAssets(dir)
 end
 
 function loadData(dir)
+    if not love.filesystem.getInfo(dir) then return end
+
     -- Load animations
     for _,file in ipairs(getFilesRecursive(dir.."/animations")) do
         if file:sub(-5) == ".json" then
@@ -70,15 +74,8 @@ function loadData(dir)
     end
 end
 
-loadAssets("assets")
-if mdir ~= nil then
-    loadAssets(mdir.."/assets")
-end
-
-loadData("data")
-if mdir ~= nil then
-    loadData(mdir.."/data")
-end
+loadAssets(mdir and (mdir.."/assets") or "assets")
+loadData(mdir and (mdir.."/data") or "data")
 
 channel:push(data)
 data = nil

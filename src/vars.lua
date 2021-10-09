@@ -1,10 +1,17 @@
-LOAD_TESTING = true
+LOAD_TESTING = false
 
 WIDTH = 640
 HEIGHT = 480
 SWIDTH = WIDTH/2
 SHEIGHT = HEIGHT/2
 FRAMERATE = 1/30
+
+-- mod variables
+MOD = nil
+MOD_NAME = nil
+MOD_PATH = nil
+MOD_ENV = nil
+MOD_LOADING = nil
 
 COLORS = {
     aqua = {0, 1, 1, 1},

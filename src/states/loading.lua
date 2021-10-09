@@ -11,6 +11,12 @@ function loadstate:init()
 end
 
 function loadstate:enter(from, dir)
+    MOD = nil
+    MOD_PATH = nil
+
+    kristal.assets.clear()
+    kristal.data.clear()
+
     self.loading = false
     self.load_complete = false
 
