@@ -7,31 +7,32 @@ function teststate:enter()
 
     self.stage = Object()
 
-    self.stage:add(DialogueText("[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]>   [instant]|###|", 20, 20))
-    self.stage:add(DialogueText("[wait:2]==[wait:2]==[wait:2]==[wait:2]==[wait:2]==[wait:2]==[wait:2]=>   [instant]|###|", 20, 40))
+    --self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:1].[wait:1].[wait:1].\n\n[wait:10]* I'm the [color:ff00ff]sussy [color:red]among us[color:reset] and [speed:0.2]nobody[speed:1] can\nstop me\n\n[wait:20][instant]* Except [stopinstant][wait:30][instant]law [stopinstant][wait:50][speed:0.2]en[instant]force[stopinstant][wait:20][speed:2]ment", 20, 20))
 
-    --self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
-    --self.stage:add(self.funnytext)
+    self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:5].[wait:5].[wait:5].", 20, 20))
 
-    --self.stage:add(DialogueText("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 220))
+    self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
+    self.stage:add(self.funnytext)
+
+    self.stage:add(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320))
 end
 
 function teststate:update(dt)
     self.stage:update(dt)
 
     self.timer = self.timer + dt
-    --for i,char in ipairs(self.funnytext.chars) do
-    --    if char.color[1] ~= 1 or char.color[2] ~= 1 or char.color[3] ~= 1 then
-    --        local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
-    --        char.color = {color[1], color[2], color[3], 1}
---
-    --        local scale = 1 + (math.sin(self.timer * 6 + (i * 0.5)) * 0.3)
-    --        char.origin.y = math.max(0, scale - 1)
---
-    --        char.scale_origin = Vector(0.5, 1)
-    --        char.scale.y = scale
-    --    end
-    --end
+    for i,char in ipairs(self.funnytext.chars) do
+        if char.color[1] ~= 1 or char.color[2] ~= 1 or char.color[3] ~= 1 then
+            local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
+            char.color = {color[1], color[2], color[3], 1}
+
+            local scale = 1 + (math.sin(self.timer * 6 + (i * 0.5)) * 0.3)
+            char.origin.y = math.max(0, scale - 1)
+
+            char.scale_origin = Vector(0.5, 1)
+            char.scale.y = scale
+        end
+    end
 end
 
 function teststate:draw()

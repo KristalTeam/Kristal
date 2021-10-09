@@ -1,6 +1,6 @@
-local DialogChar = newClass(Object)
+local TextChar = newClass(Object)
 
-function DialogChar:init(char, x, y, color)
+function TextChar:init(char, x, y, color)
     super:init(self, x, y)
 
     self.char = char
@@ -10,23 +10,23 @@ function DialogChar:init(char, x, y, color)
     self:updateTexture()
 end
 
-function DialogChar:setChar(char)
+function TextChar:setChar(char)
     self.char = char
     self:updateTexture()
 end
 
-function DialogChar:setFont(font)
+function TextChar:setFont(font)
     self.font = font
     self:updateTexture()
 end
 
-function DialogChar:updateTexture()
+function TextChar:updateTexture()
     self.texture = kristal.assets.getTexture("font/"..self.font.."/"..CHAR_TEXTURES[self.char])
     self.width = self.texture:getWidth()
     self.height = self.texture:getHeight()
 end
 
-function DialogChar:draw()
+function TextChar:draw()
     local shader = kristal.shaders.GRADIENT_V
 
     local last_shader = love.graphics.getShader()
@@ -49,4 +49,4 @@ function DialogChar:draw()
     super:draw(self)
 end
 
-return DialogChar
+return TextChar

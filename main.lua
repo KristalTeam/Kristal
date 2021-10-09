@@ -32,9 +32,9 @@ Animation = require("src.animation")
 
 Object = require("src.object.object")
 Sprite = require("src.object.sprite")
-DialogueChar = require("src.object.game.dialoguechar")
+Text = require("src.object.game.text")
+TextChar = require("src.object.game.textchar")
 DialogueText = require("src.object.game.dialoguetext")
-TypewriterText = require("src.object.game.typewritertext")
 
 local mod_loading_channel
 
