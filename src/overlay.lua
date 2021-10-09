@@ -27,6 +27,8 @@ function overlay:init()
     self.load_timer = 0
 
     self.loading = false
+
+    self.quit_release = false
 end
 
 function overlay:update(dt)
@@ -42,18 +44,27 @@ function overlay:update(dt)
         self.load_timer = 0
     end
 
-    if love.keyboard.isDown("escape") then
+    if love.keyboard.isDown("escape") and not self.quit_release then
         if self.quit_alpha < 1 then
             self.quit_alpha = math.min(1, self.quit_alpha + dt / 0.75)
         end
         self.quit_timer = self.quit_timer + dt
         if self.quit_timer > 1.2 then
-            love.event.quit()
+            if MOD ~= nil then
+                kristal.states.switch(kristal.states.loading)
+                self.quit_release = true
+            else
+                love.event.quit()
+            end
         end
     else
         if self.quit_alpha > 0 then
             self.quit_alpha = math.max(0, self.quit_alpha - dt / 0.25)
         end
+    end
+
+    if self.quit_release and not love.keyboard.isDown("escape") then
+        self.quit_release = false
     end
 end
 

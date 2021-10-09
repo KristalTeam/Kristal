@@ -1,6 +1,6 @@
 local Animation = Class{}
 
-function Animation:init(src)
+function Animation:init(src, play)
     if type(src) == "table" then
         self:parseData(src)
     elseif type(src) == "string" then
@@ -12,10 +12,17 @@ function Animation:init(src)
     end
     self.current_frame = 1
     self.time_elapsed = 0
+    if play ~= nil then
+        self.playing = play
+    else
+        self.playing = true
+    end
+    self.speed = 1
 end
 
 function Animation:play(state, reset)
-    if self.states[state] ~= nil then
+    self.playing = true
+    if state and self.states[state] ~= nil then
         if self.current_state ~= state then
             self.current_state = state
             self.current_frame = 1
@@ -25,6 +32,16 @@ function Animation:play(state, reset)
             self.time_elapsed = 0
         end
     end
+end
+
+function Animation:stop()
+    self.playing = false
+    self.current_frame = 1
+    self.time_elapsed = 0
+end
+
+function Animation:pause()
+    self.playing = false
 end
 
 function Animation:getTexture()
@@ -40,9 +57,12 @@ function Animation:getCurrentPath()
 end
 
 function Animation:update(dt)
+    if not self.playing then
+        return
+    end
     local state = self.states[self.current_state]
     local frames = self.frames[self.current_state]
-    self.time_elapsed = self.time_elapsed + dt
+    self.time_elapsed = self.time_elapsed + dt * self.speed
     local target_frame = math.floor(self.time_elapsed / state.delay)
     if state.loop then
         self.current_frame = (target_frame % #frames) + 1
@@ -59,14 +79,14 @@ function Animation:draw(...)
 end
 
 function Animation:parseData(data)
-    self.path = data.path or ""
+    self.path = data.states and data.path or ""
     self.current_state = data.default
     self.states = {}
     self.frames = {}
 
-    for k,v in pairs(data.states or {}) do
-        if not self.current then
-            self.current = k
+    for k,v in pairs(data.states or {idle = data}) do
+        if not self.current_state then
+            self.current_state = k
         end
         local new_state = utils.copy(v, true)
         new_state.path = new_state.path or ""

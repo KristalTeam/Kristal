@@ -184,4 +184,22 @@ function utils:RgbToHex(rgb)
     return string.format("#%02X%02X%02X", rgb[1], rgb[2], rgb[3])
 end
 
+function utils.merge(tbl, other, deep)
+    if #tbl > 0 and #other > 0 then
+        for _,v in ipairs(other) do
+            table.insert(tbl, v)
+        end
+    else
+        for k,v in pairs(other) do
+            if deep and type(tbl[k]) == "table" and type(v) == "table" then
+                utils.merge(tbl[k], v, true)
+            else
+                tbl[k] = v
+            end
+        end
+    end
+    return tbl
+end
+
+
 return utils

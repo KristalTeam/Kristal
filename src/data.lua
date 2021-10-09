@@ -1,15 +1,17 @@
-local data = {
-    loaded = false,
-    data = {
-        animations = {}
-    },
-    processed = {
+local data = {}
+
+function data.clear()
+    data.loaded = false
+    data.data = {
         animations = {}
     }
-}
+    data.processed = {
+        animations = {}
+    }
+end
 
 function data.loadData(dat)
-    data.data = dat
+    utils.merge(data.data, dat, true)
 
     -- post-processing animations
     data.processed.animations = {}
@@ -20,7 +22,7 @@ function data.loadData(dat)
     data.loaded = true
 end
 
-function data:processAnimation(anim)
+function data:processAnimation(anim, force)
     if data.processed.animations[anim] then
         return data.processed.animations[anim]
     end
@@ -51,5 +53,7 @@ end
 function data.getAnimation(path)
     return data.processed.animations[path]
 end
+
+data.clear()
 
 return data
