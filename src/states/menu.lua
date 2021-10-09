@@ -68,8 +68,9 @@ function menu:enter()
     self.mod_fades = {}
 
     -- Load the mods
-    self:loadMods()
     self.selected = 1
+    self.last_loaded = nil
+    self:loadMods()
 end
 
 function menu:leave()
@@ -106,7 +107,6 @@ end
 
 function menu:focus()
     self:loadMods()
-    self.selected = math.min(math.max(self.selected, 1), #self.mods)
 end
 
 function menu:loadMods()
@@ -117,69 +117,78 @@ function menu:loadMods()
         end
         return
     end
-    self.mods = {}
-    for _,path in ipairs(love.filesystem.getDirectoryItems("mods")) do
-        local full_path = "mods/"..path
-        local hidden = false
-        local mod = {name = path, path = path}
-        if love.filesystem.getInfo(full_path.."/mod.json") then
-            local info = lib.json.decode(love.filesystem.read(full_path.."/mod.json"))
-            mod.name = info.name or path
-            hidden = info.hidden
-        end
-        if love.filesystem.getInfo(full_path.."/preview.png") then
-            mod.preview = {love.graphics.newImage(full_path.."/preview.png")}
-        else
-            local i = 0
-            local preview = {}
-            while love.filesystem.getInfo(full_path.."/preview_"..i..".png") do
-                table.insert(preview, love.graphics.newImage(full_path.."/preview_"..i..".png"))
-                i = i + 1
+    local mod_paths = love.filesystem.getDirectoryItems("mods")
+    if not self.last_loaded or not utils.equal(mod_paths, self.last_loaded) then
+        self.mods = {}
+        for _,path in ipairs(mod_paths) do
+            local full_path = "mods/"..path
+            local hidden = false
+            local mod = {name = path, path = path}
+            if love.filesystem.getInfo(full_path.."/mod.json") then
+                local info = lib.json.decode(love.filesystem.read(full_path.."/mod.json"))
+                mod.name = info.name or path
+                hidden = info.hidden
             end
-            if #preview > 0 then
-                mod.preview = preview
-            end
-            self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-            if not self.mod_fades[mod].canvas then
-                self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
-            end
-        end
-        if love.filesystem.getInfo(full_path.."/preview.lua") then
-            local chunk = love.filesystem.load(full_path.."/preview.lua")
-            local success, result = pcall(chunk, full_path)
-            if success then
+            if love.filesystem.getInfo(full_path.."/preview.png") then
+                mod.preview = {love.graphics.newImage(full_path.."/preview.png")}
                 self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-                mod.preview_script = result
-                if mod.preview_script.init then
-                    mod.preview_script:init()
+                if not self.mod_fades[mod].canvas then
+                    self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
                 end
             else
-                print("preview.lua error in "..mod.name..": "..result)
-            end
-        end
-        if love.filesystem.getInfo(full_path.."/preview.lua") then
-            local chunk = love.filesystem.load(full_path.."/preview.lua")
-            local success, result = pcall(chunk, full_path)
-            if success then
-                self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-                mod.preview_script = result
-                if mod.preview_script.init then
-                    mod.preview_script:init()
+                local i = 0
+                local preview = {}
+                while love.filesystem.getInfo(full_path.."/preview_"..i..".png") do
+                    table.insert(preview, love.graphics.newImage(full_path.."/preview_"..i..".png"))
+                    i = i + 1
                 end
-            else
-                print("preview.lua error in "..mod.name..": "..result)
+                if #preview > 0 then
+                    mod.preview = preview
+                end
+                self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
+                if not self.mod_fades[mod].canvas then
+                    self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
+                end
+            end
+            if love.filesystem.getInfo(full_path.."/preview.lua") then
+                local chunk = love.filesystem.load(full_path.."/preview.lua")
+                local success, result = pcall(chunk, full_path)
+                if success then
+                    self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
+                    mod.preview_script = result
+                    if mod.preview_script.init then
+                        mod.preview_script:init()
+                    end
+                else
+                    print("preview.lua error in "..mod.name..": "..result)
+                end
+            end
+            if love.filesystem.getInfo(full_path.."/preview.lua") then
+                local chunk = love.filesystem.load(full_path.."/preview.lua")
+                local success, result = pcall(chunk, full_path)
+                if success then
+                    self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
+                    mod.preview_script = result
+                    if mod.preview_script.init then
+                        mod.preview_script:init()
+                    end
+                else
+                    print("preview.lua error in "..mod.name..": "..result)
+                end
+            end
+            if not hidden then
+                table.insert(self.mods, mod)
             end
         end
-        if not hidden then
-            table.insert(self.mods, mod)
-        end
+        self.last_loaded = mod_paths
     end
+    self.selected = math.min(math.max(self.selected, 1), #self.mods)
 end
 
 function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.setColor(1, 1, 1, alpha)
 
-    local index = (math.floor(subimg) % (#sprite - 1)) + 1
+    local index = #sprite > 1 and ((math.floor(subimg) % (#sprite - 1)) + 1) or 1
 
     love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
 end
@@ -456,7 +465,7 @@ function menu:drawBackground()
 
     -- Draw mod previews
     for k,v in pairs(self.mods) do
-        local mod_preview = self.mod_fades[k]
+        local mod_preview = self.mod_fades[v]
         if v.preview and mod_preview.fade > 0 then
             -- Draw to the mod's preview canvas
             love.graphics.setCanvas(mod_preview.canvas)

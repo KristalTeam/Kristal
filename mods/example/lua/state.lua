@@ -5,15 +5,16 @@ function example_state:enter()
 
     STAGE = Object()
 
-    local sprite = Sprite("banana", WIDTH/2, HEIGHT/2)
-    sprite.origin = Vector(0.5, 0.5)
-    sprite.scale = Vector(4, 4)
-    STAGE:add(sprite)
+    self.banana = Sprite("banana", WIDTH/2, HEIGHT/2)
+    self.banana.origin = Vector(0.5, 0.5)
+    STAGE:add(self.banana)
 
     STAGE:add(DialogueText("* Potassium", WIDTH/2 - 104, HEIGHT/2 - 120))
 end
 
 function example_state:update(dt)
+    self.banana.scale = self.banana.scale + Vector(dt * (2/3), dt * (2/3))
+
     STAGE:update(dt)
 end
 

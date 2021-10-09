@@ -201,5 +201,14 @@ function utils.merge(tbl, other, deep)
     return tbl
 end
 
+function utils.removeFromTable(tbl, val)
+    for i,v in ipairs(tbl) do
+        if v == val then
+            table.remove(tbl, i)
+            return v
+        end
+    end
+end
+
 
 return utils

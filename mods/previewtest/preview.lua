@@ -5,54 +5,59 @@ preview.hide_background = false
 
 function preview:init()
     -- code here gets called when the mods are loaded
-
-    self.vignette_canvas = love.graphics.newCanvas(WIDTH, HEIGHT)
-    self.timer = 0
+    self.particles = {}
+    self.particle_timer = 0
 end
 
 function preview:update(dt)
     -- code here gets called every frame, before any draws
     -- to only update while the mod is selected, check self.selected (or self.fade)
-    self.timer = self.timer + dt
+
+    local to_remove = {}
+    for _,particle in ipairs(self.particles) do
+        particle.radius = particle.radius
+        particle.radius = particle.radius - (dt * 4)
+        particle.y = particle.y - particle.speed * (dt / FRAMERATE)
+
+        if particle.radius <= 0 then
+            table.insert(to_remove, particle)
+        end
+    end
+
+    for _,particle in ipairs(to_remove) do
+        utils.removeFromTable(self.particles, particle)
+    end
+
+    self.particle_timer = self.particle_timer + dt
+    if self.particle_timer >= 0.25 then
+        self.particle_timer = 0
+        local radius = math.random() * 48 + 16
+        table.insert(self.particles, {radius = radius, x = math.random() * WIDTH, y = HEIGHT + radius, max_radius = radius, speed = math.random() * 0.5 + 0.5})
+    end
 end
 
 function preview:draw()
     -- code here gets drawn to the background every frame!!
     -- make sure to check  self.fade  or  self.selected  here
-    love.graphics.setColor(0, 0, 0, self.fade * 0.5)
-    love.graphics.rectangle("fill", 0, 0, WIDTH, HEIGHT)
-    love.graphics.setColor(1, 1, 1, 1)
+
+    if self.fade > 0 then
+        love.graphics.setBlendMode("add")
+
+        for _,particle in ipairs(self.particles) do
+            local alpha = (particle.radius / particle.max_radius) * self.fade
+
+            love.graphics.setColor(1, 1, 0.5, alpha)
+            love.graphics.circle("fill", particle.x, particle.y, particle.radius)
+        end
+
+        love.graphics.setBlendMode("alpha")
+    end
 end
 
 function preview:drawOverlay()
     -- code here gets drawn above the menu every frame
     -- so u can make cool effects
     -- if u want
-
-    love.graphics.setCanvas(self.vignette_canvas)
-    love.graphics.clear(0, 0, 0, self.fade)
-
-    local radius_from = 320
-    local radius_to = 32
-
-    local radius = radius_from + (radius_to - radius_from) * self.fade
-    radius = radius + math.sin(self.timer * 4) * (radius / 4)
-
-    local x, y = kristal.states.menu.heart_x, kristal.states.menu.heart_y
-
-    love.graphics.setBlendMode("replace")
-
-    local circles = 24
-    for i = circles, 0, -1 do
-        love.graphics.setColor(0, 0, 0, self.fade * (i / circles))
-        love.graphics.circle("fill", x + 8, y + 8, radius + (i * 16))
-    end
-
-    love.graphics.setCanvas()
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.setBlendMode("alpha")
-
-    love.graphics.draw(self.vignette_canvas)
 end
 
 return preview
