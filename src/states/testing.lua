@@ -7,24 +7,24 @@ function teststate:enter()
 
     self.stage = Object()
 
-    self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\n  off...", 20, 20))
+    self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff...\n\n* I'm the [color:ff00ff]sussy [color:red]among us[color:reset] and [speed:0.2]nobody[speed:1] can\nstop me\n\n* Except law enforcement", 20, 20))
 
-    self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
-    self.stage:add(self.funnytext)
+    --self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
+    --self.stage:add(self.funnytext)
 
-    self.stage:add(DialogueText("* [color:ff00ff]Amogus[color:reset] sussy [color:red]Impostor", 20, 220))
+    --self.stage:add(DialogueText("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 220))
 end
 
 function teststate:update(dt)
     self.stage:update(dt)
 
     self.timer = self.timer + dt
-    for i,char in ipairs(self.funnytext.chars) do
-        if char.color then
-            local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
-            char.color = {color[1], color[2], color[3], 1}
-        end
-    end
+    --for i,char in ipairs(self.funnytext.chars) do
+    --    if char.color then
+    --        local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
+    --        char.color = {color[1], color[2], color[3], 1}
+    --    end
+    --end
 end
 
 function teststate:draw()
