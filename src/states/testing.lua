@@ -7,7 +7,8 @@ function teststate:enter()
 
     self.stage = Object()
 
-    self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff...\n\n* I'm the [color:ff00ff]sussy [color:red]among us[color:reset] and [speed:0.2]nobody[speed:1] can\nstop me\n\n* Except law enforcement", 20, 20))
+    self.stage:add(DialogueText("[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]=[wait:1]>   [instant]|###|", 20, 20))
+    self.stage:add(DialogueText("[wait:2]==[wait:2]==[wait:2]==[wait:2]==[wait:2]==[wait:2]==[wait:2]=>   [instant]|###|", 20, 40))
 
     --self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
     --self.stage:add(self.funnytext)
