@@ -12,7 +12,7 @@ function darktransition:drawAnimStrip(sprite, subimg, x, y, alpha)
     --local index = #sprite > 1 and ((math.floor(subimg) % (#sprite)) + 1) or 1
     local index = math.floor(subimg) % (#sprite)
 
-    love.graphics.draw(sprite[index + 1], math.floor(x), math.floor(y))
+    love.graphics.draw(sprite[index + 1], x, y)
 end
 
 function darktransition:drawScaledSprite(sprite, x, y, xscale, yscale, rot, color, alpha)
@@ -32,7 +32,7 @@ function darktransition:drawScissor(sprite, subimg, left, top, width, height, x,
     local index = math.floor(subimg) % (#sprite)
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(sprite[index + 1], math.floor(x) - math.floor(left), math.floor(y) - math.floor(top))
+    love.graphics.draw(sprite[index + 1], x - left, y - top)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setScissor()
     love.graphics.pop()
