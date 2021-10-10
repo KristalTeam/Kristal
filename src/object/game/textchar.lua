@@ -1,10 +1,12 @@
 local TextChar = newClass(Object)
 
 function TextChar:init(char, x, y, color)
-    super:init(self, x, y)
+    Object.init(self, x, y)
 
     self.char = char
     self.color = color
+    
+    self.inherit_color = true
 
     self.font = "main"
     self:updateTexture()
@@ -20,6 +22,24 @@ function TextChar:setFont(font)
     self:updateTexture()
 end
 
+function TextChar:getTextHeight(font)
+    local font = font or "main"
+    local texture = kristal.assets.getTexture("font/"..font.."/"..CHAR_TEXTURES[" "])
+    return texture and texture:getHeight() or 0
+end
+
+function TextChar:getTextWidth(str, font)
+    local font = font or "main"
+    local w = 0
+    local i = 1, #str do
+        local texture = kristal.assets.getTexture("font/"..font.."/"..CHAR_TEXTURES[str:sub(i, i)])
+        if texture then
+            w = w + texture:getWidth()
+        end
+    end
+    return w
+end
+
 function TextChar:updateTexture()
     self.texture = kristal.assets.getTexture("font/"..self.font.."/"..CHAR_TEXTURES[self.char])
     self.width = self.texture:getWidth()
@@ -27,26 +47,8 @@ function TextChar:updateTexture()
 end
 
 function TextChar:draw()
-    local shader = kristal.shaders.GRADIENT_V
-
-    local last_shader = love.graphics.getShader()
-    love.graphics.setShader(shader)
-
-    local white = self.color[1] == 1 and self.color[2] == 1 and self.color[3] == 1
-
-    shader:send("from", white and COLORS.dkgray or self.color)
-    shader:send("to", white and COLORS.navy or self.color)
-    love.graphics.setColor(1, 1, 1, white and 1 or 0.3)
-    love.graphics.draw(self.texture, 1, 1)
-
-    shader:send("from", COLORS.white)
-    shader:send("to", white and COLORS.white or self.color)
-    love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.texture)
-
-    love.graphics.setShader(last_shader)
-
-    super:draw(self)
+    Object.draw(self)
 end
 
 return TextChar

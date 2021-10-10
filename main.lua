@@ -4,6 +4,7 @@ Class = require("src.lib.hump.class")
 Vector = require("src.lib.hump.vector")
 
 require ("src.classhelper")
+require ("src.graphicshelper")
 
 lib = {}
 
@@ -33,9 +34,16 @@ Animation = require("src.animation")
 
 Object = require("src.object.object")
 Sprite = require("src.object.sprite")
+
 Text = require("src.object.game.text")
-TextChar = require("src.object.game.textchar")
 DialogueText = require("src.object.game.dialoguetext")
+TextChar = require("src.object.game.textchar")
+ShadedChar = require("src.object.game.shadedchar")
+
+ModList = require("src.object.menu.modlist")
+ModButton = require("src.object.menu.modbutton")
+ModMenuChar = require("src.object.menu.modmenuchar")
+
 DarkTransitionLine = require("src.object.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.object.darktransition.darktransitionparticle")
 
@@ -90,6 +98,10 @@ function love.update(dt)
             chunk()
         end
     end
+end
+
+function love.draw()
+    love.graphics.reset()
 end
 
 function kristal.loadMod(path)

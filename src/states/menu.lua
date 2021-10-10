@@ -51,16 +51,21 @@ function menu:enter()
     }
 
     -- Initialize variables for the menu
-    self.menu_offset_target = 0
-    self.menu_offset = 0
+    self.stage = Object()
 
-    self.heart_target_x = 108 + 20
-    self.heart_target_y = menu:calculateMenuItemPosition(1, 0) + 22
-    self.heart_x = self.heart_target_x
-    self.heart_y = self.heart_target_y
+    self.list = ModList(104, 70, 432, 370)
+    self.stage:add(self.list)
+
+    self.heart = Sprite("player/heart_menu")
+    self.heart.origin = Vector(0.5, 0.5)
+    self.heart.visible = false
+    self.stage:add(self.heart)
+
+    self.heart_target = Vector()
+    self.heart_locked_x = nil
+    self.heart_locked_y = nil
 
     -- Assets required for the menu
-    self.menu_heart = kristal.assets.getTexture("player/heart_menu")
     self.menu_font = kristal.assets.getFont("main")
 
     -- Preview fading stuff
@@ -68,7 +73,6 @@ function menu:enter()
     self.mod_fades = {}
 
     -- Load the mods
-    self.selected = 1
     self.last_loaded = nil
     self:loadMods()
 end
@@ -111,22 +115,23 @@ end
 
 function menu:loadMods()
     if self.TEST_MOD_LIST then
-        self.mods = {}
+        self.list:clearMods()
         for i = 1,15 do
-            table.insert(self.mods, {name = "Example Mod "..i})
+            self.list:addMod(ModButton("Example Mod "..i, 424, 62))
         end
         return
     end
     local mod_paths = love.filesystem.getDirectoryItems("mods")
     if not self.last_loaded or not utils.equal(mod_paths, self.last_loaded) then
-        self.mods = {}
+        self.list:clearMods()
         for _,path in ipairs(mod_paths) do
             local full_path = "mods/"..path
             local hidden = false
-            local mod = {name = path, path = path}
+            local mod = ModButton(path, 424, 62)
+            mod.path = path
             if love.filesystem.getInfo(full_path.."/mod.json") then
                 local info = lib.json.decode(love.filesystem.read(full_path.."/mod.json"))
-                mod.name = info.name or path
+                mod:setName(info.name or path)
                 hidden = info.hidden
             end
             if love.filesystem.getInfo(full_path.."/preview.png") then
@@ -157,32 +162,18 @@ function menu:loadMods()
                     self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
                     mod.preview_script = result
                     if mod.preview_script.init then
-                        mod.preview_script:init()
-                    end
-                else
-                    print("preview.lua error in "..mod.name..": "..result)
-                end
-            end
-            if love.filesystem.getInfo(full_path.."/preview.lua") then
-                local chunk = love.filesystem.load(full_path.."/preview.lua")
-                local success, result = pcall(chunk, full_path)
-                if success then
-                    self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-                    mod.preview_script = result
-                    if mod.preview_script.init then
-                        mod.preview_script:init()
+                        mod.preview_script:init(mod, self)
                     end
                 else
                     print("preview.lua error in "..mod.name..": "..result)
                 end
             end
             if not hidden then
-                table.insert(self.mods, mod)
+                self.list:addMod(mod)
             end
         end
         self.last_loaded = mod_paths
     end
-    self.selected = math.min(math.max(self.selected, 1), #self.mods)
 end
 
 function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
@@ -209,8 +200,9 @@ function menu:calculateMenuItemPosition(i, offset)
 end
 
 function menu:update(dt)
+    local current_mod = self.list:getSelected()
+
     -- Update fade between previews
-    local current_mod = self.mods[self.selected]
     if current_mod and (current_mod.preview or current_mod.preview_script) then
         if current_mod.preview_script and current_mod.preview_script.hide_background ~= false then
             self.background_fade = math.max(0, self.background_fade - (dt / 0.5))
@@ -234,11 +226,40 @@ function menu:update(dt)
     end
 
     -- Update preview scripts
-    for k,v in pairs(self.mods) do
+    for k,v in pairs(self.list.mods) do
         if v.preview_script then
             v.preview_script.fade = self.mod_fades[v].fade
-            v.preview_script.selected = (self.selected == k)
+            v.preview_script.selected = v.selected
             v.preview_script:update(dt)
+        end
+    end
+
+    -- Update the stage (mod menu)
+    self.stage:update(dt)
+
+    -- Move the heart closer to the target 
+    if not current_mod then
+        self.heart.visible = false
+    else
+        self.heart_target = self.list.pos + Vector(current_mod:getRelativePos(self.list, current_mod:getHeartPos():unpack())) - Vector(0, self.list.scroll_target - self.list.scroll)
+        if not self.heart.visible then
+            self.heart.visible = true
+            self.heart.pos = self.heart_target:clone()
+        else
+            if (math.abs((self.heart_target.x - self.heart.pos.x)) <= 2) or self.heart_locked_x == current_mod then
+                self.heart.pos.x = self.heart_target.x
+                self.heart_locked_x = current_mod
+            else
+                self.heart_locked_x = nil
+            end
+            if (math.abs((self.heart_target.y - self.heart.pos.y)) <= 2) or self.heart_locked_y == current_mod then
+                self.heart.pos.y = self.heart_target.y
+                self.heart_locked_y = current_mod
+            else
+                self.heart_locked_y = nil
+            end
+
+            self.heart.pos = self.heart.pos + ((self.heart_target - self.heart.pos) / 2) * (dt * 30)
         end
     end
 end
@@ -250,70 +271,19 @@ function menu:draw()
     self:drawBackground()
 
     -- Draw introduction text if no mods exist
-    if #self.mods == 0 then
+    if #self.list.mods == 0 then
         menu:printShadow(menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
     else
         -- Draw some menu text
         menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
         menu:printShadow("(X) Mods Folder   (C) Options", 294, 454 - 8, {1, 1, 1, 1})
-    end
 
-    -- Move the mod menu closer to the target
-    if (math.abs((self.menu_offset_target - self.menu_offset)) <= 2) then
-        self.menu_offset = self.menu_offset_target
-    end
-
-    self.menu_offset = self.menu_offset + ((self.menu_offset_target - self.menu_offset) / 2) * (dt * 30)
-
-    -- Draw the mods
-    love.graphics.setScissor(104, 70, 432, 370)
-    for i = 1, #self.mods do
-        local x = 108
-        local y = menu:calculateMenuItemPosition(i, self.menu_offset)
-        local color = {154/255, 154/255, 179/255, 1}
-        if self.selected == i then
-            color = {1, 1, 1, 1}
-        end
-        menu:drawMenuRectangle(x, y, 424, 62, color)
-        menu:printShadow(self.mods[i].name, x + 50, y + 14, color)
-    end
-
-    love.graphics.setScissor()
-
-    -- Move the heart closer to the target
-    if (math.abs((self.heart_target_x - self.heart_x)) <= 2) then
-        self.heart_x = self.heart_target_x
-    end
-    if (math.abs((self.heart_target_y - self.heart_y)) <= 2) then
-        self.heart_y = self.heart_target_y
-    end
-
-    self.heart_x = self.heart_x + ((self.heart_target_x - self.heart_x) / 2) * (dt * 30)
-    self.heart_y = self.heart_y + ((self.heart_target_y - self.heart_y) / 2) * (dt * 30)
-
-    -- Draw the heart (only if we have to)
-    if #self.mods > 0 then
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(self.menu_heart, self.heart_x, self.heart_y)
-    end
-
-    -- Draw the scrollbar (only if we have to)
-    if #self.mods > 5 then
-        -- Draw the scrollbar background
-        love.graphics.setColor({0, 0, 0, 0.5})
-        love.graphics.rectangle("fill", 538, 70, 4, 370)
-
-        -- Draw the scrollbar with lots of math I don't understand
-        local menu_height = (62 + 8) * #self.mods
-        local scrollbar_height = (370 / menu_height) * 370
-        local scrollbar_y = ((-self.menu_offset / 370) * scrollbar_height) + 70
-
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.rectangle("fill", 538, scrollbar_y, 4, scrollbar_height)
+        -- Draw the stage (mod menu, heart)
+        self.stage:draw()
     end
 
     -- Draw mod preview overlays
-    for k,v in pairs(self.mods) do
+    for k,v in pairs(self.list.mods) do
         if v.preview_script and v.preview_script.drawOverlay then
             love.graphics.push()
             v.preview_script:drawOverlay()
@@ -341,78 +311,22 @@ function menu:keypressed(key, _, is_repeat)
         love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
     end
 
-    if #self.mods > 0 then
+    if #self.list.mods > 0 then
         if key == "z" then
             self.ui_select:stop()
             self.ui_select:play()
 
-            kristal.loadMod(self.mods[self.selected].path)
+            local current_mod = self.list:getSelected()
+            if current_mod and current_mod.path then
+                kristal.loadMod(current_mod.path)
+            end
             return
         end
 
-        local total_min_offset = -math.max(0, (#self.mods * 70) - 370)
-        local total_max_offset = 0
-
-        local play_move = false
-        if key == "up"    then self.selected = self.selected - 1; play_move = true end
-        if key == "down"  then self.selected = self.selected + 1; play_move = true end
-        if key == "left"  then 
-            if self.selected == #self.mods then
-                self.selected = math.max(1, #self.mods - 4)
-            elseif self.selected > 5 then
-                self.selected = self.selected - 5
-                self.menu_offset_target = self.menu_offset_target + 350
-            elseif self.selected == 1 then
-                self.selected = self.selected - 1
-                self.menu_offset_target = total_min_offset
-            else
-                self.selected = 1
-                self.menu_offset_target = total_max_offset
-            end
-            play_move = true
-        end
-        if key == "right" then
-            if self.selected < #self.mods - 4 then
-                self.selected = self.selected + 5
-                self.menu_offset_target = self.menu_offset_target - 350
-            elseif self.selected == #self.mods then
-                self.selected = self.selected + 1
-                self.menu_offset_target = total_max_offset
-            else
-                self.selected = #self.mods
-                self.menu_offset_target = total_min_offset
-            end
-            play_move = true
-        end
-
-        if self.selected > #self.mods then
-            if is_repeat then
-                self.selected = #self.mods
-                play_move = false
-            else
-                self.selected = 1
-            end
-        end
-        if self.selected < 1 then
-            if is_repeat then
-                self.selected = 1
-                play_move = false
-            else
-                self.selected = #self.mods
-            end
-        end
-
-        if play_move then
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-
-        local min_offset = math.max(-70 * (self.selected - 1), total_min_offset)
-        local max_offset = math.min(300 - (70 * (self.selected - 1)), total_max_offset)
-
-        self.menu_offset_target = math.min(max_offset, math.max(min_offset, self.menu_offset_target))
-
-        self.heart_target_y = menu:calculateMenuItemPosition(self.selected, self.menu_offset_target) + 22
+        if key == "up"    then self.list:selectUp(is_repeat)   end
+        if key == "down"  then self.list:selectDown(is_repeat) end
+        if key == "left"  then self.list:pageUp(is_repeat)     end
+        if key == "right" then self.list:pageDown(is_repeat)   end
     end
 end
 
@@ -464,7 +378,7 @@ function menu:drawBackground()
     love.graphics.draw(self.bg_canvas, 0, 0, 0, 2, 2)
 
     -- Draw mod previews
-    for k,v in pairs(self.mods) do
+    for k,v in pairs(self.list.mods) do
         local mod_preview = self.mod_fades[v]
         if v.preview and mod_preview.fade > 0 then
             -- Draw to the mod's preview canvas

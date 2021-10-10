@@ -13,13 +13,20 @@ Text.COLORS = {
     ["lime"] = {0.5, 1, 0.5}
 }
 
-function Text:init(text, x, y, font)
+function Text:init(text, x, y, char_type, font)
     --super:init(self, x, y)
     Object.init(self, x, y)
 
+    self.char_type = char_type or TextChar
     self.font = font or "main"
     self.chars = {}
 
+    self:resetState()
+
+    self:setText(text)
+end
+
+function Text:resetState()
     self.state = {
         color = {1, 1, 1, 1},
         current_x = 0,
@@ -33,8 +40,6 @@ function Text:init(text, x, y, font)
         asterisk_mode = false,
         typed_string = ""
     }
-
-    self:setText(text)
 end
 
 function Text:setText(text)
@@ -42,6 +47,7 @@ function Text:setText(text)
         self:remove(v)
     end
     self.chars = {}
+    self:resetState()
 
     self.text = text
 
@@ -165,7 +171,7 @@ function Text:processNode(node)
                     self.state.current_x = 0
                 end
             end
-            local char = TextChar(node.character, self.state.current_x, self.state.current_y, self.state.color)
+            local char = self.char_type(node.character, self.state.current_x, self.state.current_y, self.state.color)
             table.insert(self.chars, char)
             self:add(char)
             self.state.current_x = self.state.current_x + char.width

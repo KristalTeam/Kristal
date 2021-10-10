@@ -9,7 +9,7 @@ function example_state:enter()
     self.banana.origin = Vector(0.5, 0.5)
     STAGE:add(self.banana)
 
-    STAGE:add(DialogueText("* Potassium", WIDTH/2 - 104, HEIGHT/2 - 120))
+    STAGE:add(DialogueText("* [speed:0.05]Potassium", WIDTH/2 - 104, HEIGHT/2 - 120))
 end
 
 function example_state:update(dt)

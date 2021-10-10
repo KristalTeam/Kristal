@@ -1,8 +1,8 @@
 local DialogueText = newClass(Text)
 
-function DialogueText:init(text, x, y, font)
+function DialogueText:init(text, x, y, char_type, font)
     --super:init(self, x, y, font)
-    Text.init(self, text, x, y, font)
+    Text.init(self, text, x, y, char_type or ShadedChar, font)
 end
 
 function DialogueText:setText(text)

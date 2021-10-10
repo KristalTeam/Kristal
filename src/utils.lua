@@ -214,4 +214,9 @@ function utils.round(value)
     return math.floor(value + 0.5)
 end
 
+function utils.clamp(val, min, max)
+    return math.max(min, math.min(max, val))
+end
+
+
 return utils
