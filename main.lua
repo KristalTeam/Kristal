@@ -25,6 +25,7 @@ kristal.shaders = require("src.shaders")
 kristal.states = require("src.states")
 kristal.states.loading = require("src.states.loading")
 kristal.states.menu = require("src.states.menu")
+kristal.states.dark_transition = require("src.states.dark_transition")
 kristal.states.testing = require("src.states.testing")
 
 Camera = require("src.lib.hump.camera")
@@ -35,6 +36,8 @@ Sprite = require("src.object.sprite")
 Text = require("src.object.game.text")
 TextChar = require("src.object.game.textchar")
 DialogueText = require("src.object.game.dialoguetext")
+DarkTransitionLine = require("src.object.darktransition.darktransitionline")
+DarkTransitionParticle = require("src.object.darktransition.darktransitionparticle")
 
 local mod_loading_channel
 

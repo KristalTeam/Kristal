@@ -1,4 +1,4 @@
-LOAD_TESTING = true
+LOAD_TESTING = false
 
 WIDTH = 640
 HEIGHT = 480

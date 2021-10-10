@@ -15,6 +15,15 @@ function teststate:enter()
     self.stage:add(self.funnytext)
 
     self.stage:add(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320))
+
+    self.stage:add(DarkTransitionLine(20))
+    self.stage:add(DarkTransitionLine(30))
+    self.stage:add(DarkTransitionLine(40))
+    self.stage:add(DarkTransitionLine(50))
+    self.stage:add(DarkTransitionLine(60))
+    self.stage:add(DarkTransitionLine(70))
+    self.stage:add(DarkTransitionLine(80))
+    self.stage:add(DarkTransitionLine(90))
 end
 
 function teststate:update(dt)

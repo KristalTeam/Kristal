@@ -210,5 +210,8 @@ function utils.removeFromTable(tbl, val)
     end
 end
 
+function utils.round(value)
+    return math.floor(value + 0.5)
+end
 
 return utils
