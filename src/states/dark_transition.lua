@@ -39,20 +39,14 @@ function darktransition:drawScissor(sprite, subimg, left, top, width, height, x,
 end
 
 function darktransition:enter(preview)
-    --self.font = kristal.assets.getFont("main")
-    --self.face = kristal.assets.getTexture("face/ralsei_hat/spr_face_r_dark_9")
-    --self.timer = 0
-
     self.prior_state = preview
     self.stage = Object()
-
-    --self.stage:add(object)
 
     self.darkzone = false
     self.plot = 9
 
     self.finaly = 60
-    self.skiprunback = 1
+    self.skiprunback = true
 
     self.depth = 100
     self.con = 8
@@ -69,7 +63,6 @@ function darktransition:enter(preview)
     self.sus_index = 0
     self.kris_only = 0
     self.finaly = 140
-    self.image_alpha = 0.9
     self.linecon = false
     self.linetimer = 0
     self.rect_draw = 0
@@ -79,12 +72,12 @@ function darktransition:enter(preview)
     self.ry1 = 64
     self.rx2 = 182
     self.ry2 = 118
-    self.quick_mode = 1
+    self.quick_mode = true
     self.soundtimer = 0
     self.soundcon = 0
     self.linesfxtimer = 0
     self.nextroom = 69
-    self.skiprunback = 0
+    self.skiprunback = false
     if (self.plot == 9) then
         self.nextroom = 70
     end
@@ -92,9 +85,11 @@ function darktransition:enter(preview)
     -- ADDED BY ALLY:
     self.darkzone = false
     self.plot = 9
-    self.quick_mode = 0
+
+    -- CONFIG
+    self.quick_mode = false
+    self.skiprunback = true
     self.finaly = 60
-    self.skiprunback = 1
 
 
     self.snd_dtrans_square = love.audio.newSource("assets/sounds/snd_dtrans_square.ogg", "static")
@@ -227,6 +222,18 @@ function darktransition:enter(preview)
         kristal.assets.getTexture("party/kris/dark_transition/ball_3")
     }
 
+    self.spr_susie_dw_landed = {
+        kristal.assets.getTexture("party/susie/dark_transition/landed_0"),
+        kristal.assets.getTexture("party/susie/dark_transition/landed_1"),
+        kristal.assets.getTexture("party/susie/dark_transition/landed_2")
+    }
+
+    self.spr_kris_dw_landed = {
+        kristal.assets.getTexture("party/kris/dark_transition/landed_0"),
+        kristal.assets.getTexture("party/kris/dark_transition/landed_1"),
+        kristal.assets.getTexture("party/kris/dark_transition/landed_2")
+    }
+
     self.canvas = love.graphics.newCanvas(320,240)
     -- No filtering
     self.canvas:setFilter("nearest", "nearest")
@@ -239,7 +246,16 @@ function darktransition:enter(preview)
     self.do_once5 = false
     self.do_once6 = false
     self.do_once7 = false
+    self.do_once8 = false
+    self.do_once9 = false
+    self.do_once10 = false
+    self.do_once11 = false
+    self.do_once12 = false
 
+    self.drone_get_louder = false
+    self.dronesfx_volume = 0
+
+    self.dz = 1
 end
 
 function darktransition:update(dt)
@@ -248,11 +264,30 @@ function darktransition:update(dt)
     end
     self.stage:update(dt)
 
+    -- Process audio fading
+    if self.drone_get_louder then
+        self.dronesfx_volume = self.dronesfx_volume + (dt / 4)
+        if self.dronesfx_volume > 0.5 then
+            self.dronesfx_volume = 0.5
+            self.drone_get_louder = false
+        end
+        self.dronesfx:setVolume(self.dronesfx_volume)
+    end
+    if self.soundcon == 4 then
+        -- self.dronesfx needs to fade out from 0.5 to 0, taking 1 second
+        if self.dronesfx_volume < 0 then
+            self.dronesfx:stop()
+        else
+            self.dronesfx_volume = self.dronesfx_volume - (dt / 2)
+            self.dronesfx:setVolume(self.dronesfx_volume)
+        end
+    end
+
     if self.linecon then
         self.linetimer = self.linetimer + 1 * (dt * 30)
         if (self.linetimer >= 1) then
-            local xrand  = math.random() * 1.5707963267948966
-            local xrand2 = math.random() * 1.5707963267948966
+            local xrand  = math.random() * (math.pi / 2)
+            local xrand2 = math.random() * (math.pi / 2)
             --instance_create(((70 -  (math.sin(xrand)  * 70)) + self:camerax()), (-10 + self:cameray()), obj_dw_transition_line)
             --instance_create(((250 + (math.sin(xrand2) * 70)) + self:camerax()), (-16 + self:cameray()), obj_dw_transition_line)
 
@@ -301,7 +336,13 @@ function darktransition:update(dt)
             if (self.fake_shakeamount < 0) then
                 self.fake_shakeamount = self.fake_shakeamount + 1 * (dt * 30)
             end
-            self.fake_shakeamount = self.fake_shakeamount * -1 * (dt * 30)
+            if (math.floor(self.timer % (1 * dt * 30)) == 0) then
+                self.fake_shakeamount = self.fake_shakeamount * -1
+            end
+            -- because of deltatime multiplying messing up some calcs, we have to do this:
+            if (self.fake_shakeamount > -0.1) and (self.fake_shakeamount < 0.1) then
+                self.fake_shakeamount = 0
+            end
         else
             self.fake_screenshake = 0
         end
@@ -324,7 +365,7 @@ function darktransition:draw()
         self.rs = self.rs + 1 * (dt * 30)
         for i = 1, self.rect_amount do
             self.rsize[i] = self.rsize[i] + (0.25 * (dt * 30))
-            if (self.quick_mode == 1) then
+            if (self.quick_mode) then
                 self.rsize[i] = self.rsize[i] + (0.25 * (dt * 30))
             end
             if (self.rsize[i] > 0) then
@@ -362,7 +403,7 @@ function darktransition:draw()
         self.kris_sprite = self.spr_krisu
         self.kris_index = 0
         self.sus_v = 1.2
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.sus_v = 2
         end
         self.timer = 0
@@ -370,11 +411,11 @@ function darktransition:draw()
         self.doorblack = 0
     end
     if (self.con == 9) then
-        self.timer = self.timer + 1
-        if (self.quick_mode == 1 or self.skiprunback == 1) then
+        self.timer = self.timer + 1 * (dt * 30)
+        if (self.quick_mode or self.skiprunback) then
             if (self.timer < 40) then
                 --snd_free_all()
-                if (self.skiprunback == 0) then
+                if (not self.skiprunback) then
                     --snd_play(snd_locker)
                     local sound = love.audio.newSource("assets/sounds/snd_locker.wav", "static")
                     sound:play()
@@ -384,6 +425,7 @@ function darktransition:draw()
                 self.sus_v = 6
                 self.sus_f = 0.4
                 self.timer = 45
+                self.do_once = true -- skip it !!!!
                 self.kris_x = self.kris_x - 4 * (dt * 30)
                 self.sus_sprite = self.spr_susieu_run
                 self.kris_sprite = self.spr_krisu_run
@@ -454,7 +496,7 @@ function darktransition:draw()
         self.rect_amount = 6
         self.rect_draw = 1
         self.timer = 0
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.rect_amount = 3
         end
         self.con = 16
@@ -463,7 +505,7 @@ function darktransition:draw()
     end
     if (self.con == 16) then
         self.soundthreshold = 6
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.soundthreshold = 3
         end
         self.soundtimer = self.soundtimer + 1 * (dt * 30)
@@ -481,7 +523,7 @@ function darktransition:draw()
         end
         self.timer = self.timer + 1 * (dt * 30)
         self.threshold = 80
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.threshold = 30
         end
         if (self.timer >= self.threshold) then
@@ -505,21 +547,25 @@ function darktransition:draw()
     if (self.soundcon == 1) then
         self.dronesfx = love.audio.newSource("assets/sounds/snd_dtrans_drone.ogg", "stream")
         --snd_volume(self.dronesfx, 0, 0)
-        self.dronesfx:setVolume(0.5)
+        self.dronesfx:setVolume(0)
+        --self.dronesfx_volume = 0.5
 
-        -- TODO: GET LOUDER FROM 0 TO 0.5 OVER 60 FRAMES
-        -- ((argument2 * 1000) / fps))
+        self.drone_get_louder = true
+
+        -- Volume starts at 0 and goes to 0.5 over 60 deltarune frames (2 seconds)
+        -- This is handled at the top of update
 
         --snd_volume(self.dronesfx, 0.5, 60)
+
         self.dronesfx:setPitch(0.1)
         self.dronesfx:play()
-        --snd_pitch(self.dronesfx, 0.1)
+
         self.dronetimer = 0
         self.soundcon = 2
     end
     if (self.soundcon == 2) then
         self.dronetimer = self.dronetimer + 1 * (dt * 30)
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.dronetimer = self.dronetimer + 1 * (dt * 30)
         end
         self.dronepitch = (self.dronetimer / 80)
@@ -531,7 +577,7 @@ function darktransition:draw()
     end
     if (self.con == 18) then
         self.timer = self.timer + 1 * (dt * 30)
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.timer = self.timer + 1 * (dt * 30)
         end
         self.sus_index = ((self.timer / 36) * 5)
@@ -550,7 +596,7 @@ function darktransition:draw()
     if (self.con == 19) then
         self.sus_index = self.sus_index + 0.2 * (dt * 30)
         self.timer = self.timer + 1 * (dt * 30)
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.timer = 8
         end
         if (self.timer >= 8) then
@@ -565,7 +611,7 @@ function darktransition:draw()
         end
         self:drawAnimStrip(self.spr_kris_fall_d_lw, (self.index / 4), self.kris_x, self.kris_y, 1)
         self.timer = self.timer + 1 * (dt * 30)
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.timer = self.timer + 1 * (dt * 30)
         end
         if (self.timer >= 15) then
@@ -618,7 +664,7 @@ function darktransition:draw()
         if (self.timer >= 4) then
             if (self.sus_top > 2) then
                 self.sus_top = self.sus_top - 0.5 * (dt * 30)
-                if (self.quick_mode == 1) then
+                if (self.quick_mode) then
                     self.sus_top = self.sus_top - 1.5 * (dt * 30)
                 end
             else
@@ -636,7 +682,7 @@ function darktransition:draw()
             end
             if (self.kris_top > 5) then
                 self.kris_top = self.kris_top - 0.5 * (dt * 30)
-                if (self.quick_mode == 1) then
+                if (self.quick_mode) then
                     self.kris_top = self.kris_top - 1.5 * (dt * 30)
                 end
             else
@@ -652,11 +698,11 @@ function darktransition:draw()
             end
         end
         self.threshold = 130
-        if (self.quick_mode == 1) then
+        if (self.quick_mode) then
             self.threshold = 40
         end
         if (self.timer >= self.threshold) then
-            if (self.quick_mode == 1) then
+            if (self.quick_mode) then
                 self.linecon = false
             end
             self.sus_y  = utils.round(self.sus_y)
@@ -711,11 +757,11 @@ function darktransition:draw()
         if (self.timer >= 14) then
             self.soundcon = 4
 
-            self.dronesfx:setVolume(0)
-            --self.dronesfx:stop()
-            -- TODO: self.dronesfx needs to fade out to 0, taking 30 frames
-            -- ((argument2 * 1000) / fps))
+            -- self.dronesfx needs to fade out to 0, taking 30 deltarune frames (1 second)
             --snd_volume(self.dronesfx, 0, 30)
+
+            -- This fade is handled at the top of the update function, when `self.soundcon` is 4.
+
             self.sus_v = 13
             self.sus_f = 0
             self.timer = 0
@@ -727,6 +773,8 @@ function darktransition:draw()
         self.timer = self.timer + 1 * (dt * 30)
         if (self.quick_mode and (self.timer < 31)) then
             self.timer = 31
+            self.do_once4 = true -- skip timer == 14
+            self.do_once5 = true -- skip timer == 30
         end
         if (self.kris_only == 0) then
             self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x, (self.sus_y - (self.sus_v * 2)), 0.25)
@@ -746,17 +794,27 @@ function darktransition:draw()
             self.kris_y = -14
         end
         if (self.timer > 30) then
-            if (self.skiprunback and (math.floor(self.timer) >= 36) and not self.do_once6) then
+            --print((math.floor(self.timer)))
+            --print(not self.do_once7)
+            --print("---")
+
+            -- Goodbye accuracy :(
+            -- Because we have a configurable self.finaly, we should play the sound when they reach that
+
+            --[[if (self.skiprunback and (math.floor(self.timer) >= 36) and not self.do_once6) then
                 self.do_once6 = true
                 local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
                 sound:play()
             end
-            if (math.floor(self.timer) >= 39) and not self.do_once_7 then
+            if (math.floor(self.timer) >= 39) and (not self.do_once7) then
                 self.do_once7 = true
                 local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
                 sound:play()
-            end
+            end]]--
             if (self.sus_y >= (self.finaly - 8)) then
+                -- Since our finaly is configurable, play the sound here
+                local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
+                sound:play()
                 self.con = 34
                 self.timer = 0
                 self.sus_v = 0
@@ -772,86 +830,97 @@ function darktransition:draw()
             end
         end
     end
-    --[[
-    if (con == 34) then
-        snd_stop(dronesfx)
-        timer = timer + 1
-        if (quick_mode == 1 && timer < 15)
-            timer = 15
-        if (timer > 1) then
-            if (kris_only == 0)
-                self:drawAnimStrip(spr_susie_dw_landed, getup_index, ((sus_x * dz) + fake_shakeamount), (sus_y * dz), (1 * dz), (1 * dz), 0, c_white, 1)
-            self:drawAnimStrip(spr_kris_dw_landed, getup_index, ((kris_x * dz) + fake_shakeamount), (kris_y * dz), (1 * dz), (1 * dz), 0, c_white, 1)
+
+    if (self.con == 34) then
+        self.dronesfx:stop()
+        self.timer = self.timer + 1 * (dt * 30)
+        if (self.quick_mode and self.timer < 15) then
+            self.timer = 15
         end
-        if (timer == 26) then
-            kris_x = remkrisx
-            kris_y = remkrisy
-            sus_x = remsusx
-            sus_y = remsusy
-            if (global.flag[302] == 1)
-                global.flag[302] = 2
-            scr_become_dark()
-            dz = (global.darkzone + 1)
-            room_goto(nextroom)
+        if (self.timer > 1) then
+            if (self.kris_only == 0) then
+                self:drawAnimStrip(self.spr_susie_dw_landed, self.getup_index, ((self.sus_x * self.dz) + self.fake_shakeamount), (self.sus_y * self.dz), 1)
+            end
+            self:drawAnimStrip(self.spr_kris_dw_landed, self.getup_index, ((self.kris_x * self.dz) + self.fake_shakeamount), (self.kris_y * self.dz), 1)
         end
-        if (timer == 27) then
-            snd_play(snd_him_quick)
-            with (obj_mainchara) then
-                x = -999
-                cutscene = true
-                visible = false
-            end
-            with (obj_caterpillarchara) then
-                x = -999
-                visible = false
-            end
-            if (global.chapter == 2) then
-                if (global.plot == 9) then
-                    obj_mainchara.y = kris_y
-                    kris_y = kris_y + 200
-                    cameray_set((cameray() + 400))
-                end
-            end
+        if ((math.floor(self.timer) >= 26) and not self.do_once8) then
+            self.do_once8 = true
+            self.kris_x = self.remkrisx
+            self.kris_y = self.remkrisy
+            self.sus_x  = self.remsusx
+            self.sus_y  = self.remsusy
+            --if (global.flag[302] == 1)
+            --    global.flag[302] = 2
+            --scr_become_dark()
+            --dz = (global.darkzone + 1)
+            --room_goto(nextroom)
         end
-        if (timer >= 30 && timer < 60) then
-            with (megablack)
-                image_alpha = image_alpha - 0.05
-            if (quick_mode == 1) then
-                with (megablack)
-                    image_alpha = image_alpha - 0.05
-            end
+        if ((math.floor(self.timer) >= 27) and not self.do_once9) then
+            self.do_once9 = true
+            local sound = love.audio.newSource("assets/sounds/snd_him_quick.ogg", "static")
+            sound:play()
+            --with (obj_mainchara) then
+            --    x = -999
+            --    cutscene = true
+            --    visible = false
+            --end
+            --with (obj_caterpillarchara) then
+            --    x = -999
+            --    visible = false
+            --end
+            --if (global.chapter == 2) then
+            --    if (global.plot == 9) then
+            --        obj_mainchara.y = kris_y
+            --        kris_y = kris_y + 200
+            --        cameray_set((cameray() + 400))
+            --    end
+            --end
         end
-        if (timer == 50)
-            getup_index = 1
-        if (timer == 53)
-            getup_index = 2
-        if (timer == 55) then
-            with (megablack)
-                instance_destroy()
-            persistent = false
-            global.interact = 0
-            global.facing = 0
-            obj_mainchara.x = ((kris_x * 2) + 8)
-            obj_mainchara.y = ((kris_y * 2) + 4)
-            with (obj_mainchara)
-                visible = true
-            if i_ex(global.cinstance[1]) then
-                with (global.cinstance[1])
-                    instance_destroy()
-            end
-            if (kris_only == 0 && i_ex(global.cinstance[0])) then
-                global.cinstance[0].x = ((sus_x * 2) + 10)
-                global.cinstance[0].y = (sus_y * 2)
-                with (obj_caterpillarchara) then
-                    visible = true
-                    scr_caterpillar_interpolate()
-                    facing[target] = 0
-                    sprite_index = dsprite
-                end
-            end
-            instance_destroy()
+        if (self.timer >= 30 and self.timer < 60) then
+            -- TODO: fade
+            --with (megablack)
+            --    image_alpha = image_alpha - 0.05
+            --if (quick_mode) then
+            --    with (megablack)
+            --        image_alpha = image_alpha - 0.05
+            --end
         end
-    end]]
+        if ((math.floor(self.timer) >= 50) and not self.do_once10) then
+            self.do_once10 = true
+            self.getup_index = 1
+        end
+        if ((math.floor(self.timer) >= 53) and not self.do_once11) then
+            self.do_once11 = true
+            self.getup_index = 2
+        end
+        if ((math.floor(self.timer) >= 55) and not self.do_once12) then
+            self.do_once12 = true
+            --with (megablack)
+            --    instance_destroy()
+            --persistent = false
+            --global.interact = 0
+            --global.facing = 0
+            --obj_mainchara.x = ((kris_x * 2) + 8)
+            --obj_mainchara.y = ((kris_y * 2) + 4)
+            --with (obj_mainchara)
+            --    visible = true
+            --if i_ex(global.cinstance[1]) then
+            --    with (global.cinstance[1])
+            --        instance_destroy()
+            --end
+            --if (kris_only == 0 && i_ex(global.cinstance[0])) then
+            --    global.cinstance[0].x = ((sus_x * 2) + 10)
+            --    global.cinstance[0].y = (sus_y * 2)
+            --    with (obj_caterpillarchara) then
+            --        visible = true
+            --        scr_caterpillar_interpolate()
+            --        facing[target] = 0
+            --        sprite_index = dsprite
+            --    end
+            --end
+            --instance_destroy()
+        end
+    end
     if (self.sus_draw == 1) then
         --[[if instance_exists(obj_kris_headobj) then
             obj_kris_headobj.x = (kris_x + 14)
