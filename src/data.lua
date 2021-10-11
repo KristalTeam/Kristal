@@ -14,7 +14,6 @@ function data.loadData(dat)
     utils.merge(data.data, dat, true)
 
     -- post-processing animations
-    data.processed.animations = {}
     for key,_ in pairs(dat.animations) do
         data.processed.animations[key] = nil
     end
