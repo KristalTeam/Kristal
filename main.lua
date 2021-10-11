@@ -30,6 +30,8 @@ kristal.states.menu = require("src.states.menu")
 kristal.states.dark_transition = require("src.states.dark_transition")
 kristal.states.testing = require("src.states.testing")
 
+kristal.config = {}
+
 Camera = require("src.lib.hump.camera")
 Animation = require("src.animation")
 
@@ -57,7 +59,13 @@ local load_waiting = 0
 local load_end_funcs = {}
 
 function love.load()
+    kristal.config = kristal.loadConfig()
+
     love.graphics.setDefaultFilter("nearest")
+
+    if kristal.config.windowScale ~= 1 then
+        love.window.setMode(WIDTH * kristal.config.windowScale, HEIGHT * kristal.config.windowScale)
+    end
 
     -- setup structure
     love.filesystem.createDirectory("mods")
@@ -68,14 +76,29 @@ function love.load()
     -- initialize overlay
     kristal.overlay:init()
 
+    -- screen canvas
+    SCREEN_CANVAS = love.graphics.newCanvas(WIDTH, HEIGHT)
+    SCREEN_CANVAS:setFilter("nearest", "nearest")
+
     -- setup hooks
     love.update = utils.hook(love.update, function(orig, ...)
         orig(...)
         kristal.overlay:update(...)
     end)
     love.draw = utils.hook(love.draw, function(orig, ...)
+        love.graphics.reset()
+
+        love.graphics.setCanvas(SCREEN_CANVAS)
+        love.graphics.clear()
         orig(...)
+        love.graphics.setCanvas(SCREEN_CANVAS)
         kristal.overlay:draw()
+        love.graphics.setCanvas()
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.scale(kristal.config.windowScale)
+        love.graphics.draw(SCREEN_CANVAS)
+
         kristal.graphics._clearUnusedCanvases()
     end)
 
@@ -91,6 +114,7 @@ function love.load()
 end
 
 function love.quit()
+    kristal.saveConfig()
     if load_thread and load_thread:isRunning() then
         load_in_channel:push("stop")
     end
@@ -118,10 +142,6 @@ function love.update(dt)
             end
         end
     end
-end
-
-function love.draw()
-    love.graphics.reset()
 end
 
 function kristal.clearAssets(include_mods)
@@ -185,4 +205,19 @@ function kristal.createModEnvironment()
     end
     setfenv(setupGlobals, env)()
     return env
+end
+
+function kristal.loadConfig()
+    local config = {
+        windowScale = 1,
+        skipIntro = false
+    }
+    if love.filesystem.getInfo("settings.json") then
+        utils.merge(config, lib.json.decode(love.filesystem.read("settings.json")))
+    end
+    return config
+end
+
+function kristal.saveConfig()
+    love.filesystem.write("settings.json", lib.json.encode(kristal.config))
 end

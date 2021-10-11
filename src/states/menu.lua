@@ -396,7 +396,7 @@ function menu:drawBackground()
     self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
 
     -- Reset canvas to draw to
-    love.graphics.setCanvas()
+    love.graphics.setCanvas(SCREEN_CANVAS)
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, self.background_fade)
@@ -415,7 +415,7 @@ function menu:drawBackground()
             self:drawAnimStrip(v.mod.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
 
             -- Draw canvas scaled 2x to the screen
-            love.graphics.setCanvas()
+            love.graphics.setCanvas(SCREEN_CANVAS)
             love.graphics.setColor(1, 1, 1, mod_preview.fade)
             love.graphics.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
         end

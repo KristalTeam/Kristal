@@ -25,9 +25,13 @@ function loadstate:enter(from, dir)
     self.w = self.logo:getWidth()
     self.h = self.logo:getHeight()
 
-    self.noise = love.audio.newSource("assets/sounds/kristal_intro.ogg", "stream")
-    self.end_noise = love.audio.newSource("assets/sounds/kristal_intro_end.ogg", "stream")
-    self.noise:play()
+    if not kristal.config.skipIntro then
+        self.noise = love.audio.newSource("assets/sounds/kristal_intro.ogg", "stream")
+        self.end_noise = love.audio.newSource("assets/sounds/kristal_intro_end.ogg", "stream")
+        self.noise:play()
+    else
+        self:beginLoad()
+    end
 
     self.siner = 0
     self.factor = 1
@@ -59,7 +63,7 @@ function loadstate:beginLoad()
 end
 
 function loadstate:update(dt)
-    if self.load_complete and self.animation_done then
+    if self.load_complete and (self.animation_done or kristal.config.skipIntro) then
         kristal.states.switch(LOAD_TESTING and kristal.states.testing or kristal.states.menu)
     end
 end
@@ -91,6 +95,15 @@ end
 
 
 function loadstate:draw()
+    if kristal.config.skipIntro then
+        love.graphics.push()
+        love.graphics.translate(WIDTH/2, HEIGHT/2)
+        love.graphics.scale(2, 2)
+        self:drawSprite(self.logo, 0, 0, 1)
+        love.graphics.pop()
+        return
+    end
+
     local dt_mult = love.timer.getDelta() * 15
 
     -- We need to draw the logo on a canvas
@@ -159,7 +172,7 @@ function loadstate:draw()
     end
 
     -- Reset canvas to draw to
-    love.graphics.setCanvas()
+    love.graphics.setCanvas(SCREEN_CANVAS)
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, 1)

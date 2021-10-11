@@ -947,7 +947,7 @@ function darktransition:draw()
     end
 
     -- Reset canvas to draw to
-    love.graphics.setCanvas()
+    love.graphics.setCanvas(SCREEN_CANVAS)
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, 1)

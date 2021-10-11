@@ -6,7 +6,7 @@ function ModButton:init(name, width, height, mod)
     self.name = name
     self.mod = mod
     self.id = mod and mod.id or name
-    
+
     self.selected = false
 
     -- temporary
@@ -60,21 +60,21 @@ function ModButton:draw()
     -- Set the color
     love.graphics.setColor(self:getDrawColor())
     -- Draw the rectangles
-    love.graphics.rectangle("line", -1, -1, self.width + 1, self.height + 1)
+    love.graphics.rectangle("line", 0, 0, self.width + 1, self.height + 1)
     -- Increase the width and height by one instead of two to produce the broken effect
-    love.graphics.rectangle("line", -2, -2, self.width + 2, self.height + 2)
-    love.graphics.rectangle("line", -3, -3, self.width + 5, self.height + 5)
+    love.graphics.rectangle("line", -1, -1, self.width + 2, self.height + 2)
+    love.graphics.rectangle("line", -2, -2, self.width + 5, self.height + 5)
     -- Here too
-    love.graphics.rectangle("line", -4, -4, self.width + 6, self.height + 6)
+    love.graphics.rectangle("line", -3, -3, self.width + 6, self.height + 6)
 
     -- Draw children inside the current box
     kristal.graphics.pushScissor()
     kristal.graphics.scissor(0, 0, self.width, self.height)
     -- TODO: Non-monospaced fonts, for now we just draw it here
     love.graphics.setColor(0, 0, 0)
-    love.graphics.print(self.name, 50 + 2, self.height/2 - self.font:getHeight()/2 + 2)
+    love.graphics.print(self.name, 50 + 2, math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2 + 2)
     love.graphics.setColor(self:getDrawColor())
-    love.graphics.print(self.name, 50, self.height/2 - self.font:getHeight()/2)
+    love.graphics.print(self.name, 50, math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2)
     --self:drawChildren()
     kristal.graphics.popScissor()
 end
