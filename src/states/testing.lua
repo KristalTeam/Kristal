@@ -14,7 +14,7 @@ function teststate:enter()
     self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
     self.stage:add(self.funnytext)
 
-    self.stage:add(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320))
+    self.stage:add(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320, ShadedChar))
 
     self.stage:add(DarkTransitionLine(20))
     self.stage:add(DarkTransitionLine(30))
