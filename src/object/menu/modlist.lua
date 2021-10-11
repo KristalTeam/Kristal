@@ -21,6 +21,24 @@ function ModList:getSelected()
     return self.mods[self.selected]
 end
 
+function ModList:getSelectedMod()
+    local selected = self.mods[self.selected]
+    return selected and selected.mod
+end
+
+function ModList:getSelectedId()
+    local selected = self.mods[self.selected]
+    return selected and selected.id
+end
+
+function ModList:getById(id)
+    for i,v in ipairs(self.mods) do
+        if v.id == id then
+            return v, i
+        end
+    end
+end
+
 function ModList:clearMods()
     for _,v in ipairs(self.mods) do
         self.mod_container:remove(v)
@@ -38,13 +56,15 @@ function ModList:addMod(mod)
     self.mod_list_height = self.mod_list_height + mod.height + 8
 end
 
-function ModList:select(i)
+function ModList:select(i, mute)
     local success = false
     local last_selected = self.selected
     self.selected = i
     if last_selected ~= self.selected then
-        self.ui_move:stop()
-        self.ui_move:play()
+        if not mute then
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
         if self.mods[last_selected] then
             self.mods[last_selected]:onDeselect()
         end

@@ -50,7 +50,7 @@ function overlay:update(dt)
         end
         self.quit_timer = self.quit_timer + dt
         if self.quit_timer > 1.2 then
-            if MOD ~= nil then
+            if MOD ~= nil or kristal.states.current() == kristal.states.dark_transition then
                 kristal.states.switch(kristal.states.loading)
                 self.quit_release = true
             else
@@ -58,6 +58,7 @@ function overlay:update(dt)
             end
         end
     else
+        self.quit_timer = 0
         if self.quit_alpha > 0 then
             self.quit_alpha = math.max(0, self.quit_alpha - dt / 0.25)
         end

@@ -1,9 +1,12 @@
 local ModButton = newClass(Object)
 
-function ModButton:init(name, width, height)
+function ModButton:init(name, width, height, mod)
     Object.init(self, 0, 0, width, height)
 
     self.name = name
+    self.mod = mod
+    self.id = mod and mod.id or name
+    
     self.selected = false
 
     -- temporary

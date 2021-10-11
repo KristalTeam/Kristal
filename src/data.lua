@@ -15,7 +15,10 @@ function data.loadData(dat)
 
     -- post-processing animations
     data.processed.animations = {}
-    for key,_ in pairs(data.data.animations) do
+    for key,_ in pairs(dat.animations) do
+        data.processed.animations[key] = nil
+    end
+    for key,_ in pairs(dat.animations) do
         data:processAnimation(key)
     end
 

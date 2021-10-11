@@ -17,6 +17,7 @@ utils = require("src.utils")
 
 kristal = {}
 
+kristal.mods = require("src.mods")
 kristal.assets = require("src.assets")
 kristal.data = require("src.data")
 kristal.overlay = require("src.overlay")
@@ -47,7 +48,13 @@ ModMenuChar = require("src.object.menu.modmenuchar")
 DarkTransitionLine = require("src.object.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.object.darktransition.darktransitionparticle")
 
-local mod_loading_channel
+local load_in_channel
+local load_out_channel
+local load_thread
+
+local next_load_key = 0
+local load_waiting = 0
+local load_end_funcs = {}
 
 function love.load()
     love.graphics.setDefaultFilter("nearest")
@@ -72,30 +79,43 @@ function love.load()
         kristal.graphics._clearUnusedCanvases()
     end)
 
+    -- start load thread
+    load_in_channel = love.thread.getChannel("load_in")
+    load_out_channel = love.thread.getChannel("load_out")
+
+    load_thread = love.thread.newThread("src/loadthread.lua")
+    load_thread:start()
+
     -- load menu
     kristal.states.switch(kristal.states.loading)
+end
+
+function love.quit()
+    if load_thread and load_thread:isRunning() then
+        load_in_channel:push("stop")
+    end
 end
 
 function love.update(dt)
     lib.timer.update(dt)
 
-    if MOD_LOADING then
-        local data = mod_loading_channel:pop()
+    if load_waiting > 0 then
+        local msg = load_out_channel:pop()
+        if msg then
+            load_waiting = load_waiting - 1
+            
+            if load_waiting == 0 then
+                kristal.overlay.setLoading(false)
+            end
 
-        if data ~= nil then
-            kristal.assets.loadData(data.assets)
-            kristal.data.loadData(data.data)
+            kristal.assets.loadData(msg.data.assets)
+            kristal.data.loadData(msg.data.data)
+            kristal.mods.loadData(msg.data.mods)
 
-            local chunk = MOD_LOADING
-
-            MOD_LOADING = nil
-            mod_loading_channel = nil
-            kristal.overlay.setLoading(false)
-
-            MOD = kristal.createModEnvironment()
-
-            setfenv(chunk, MOD)
-            chunk()
+            if load_end_funcs[msg.key] then
+                load_end_funcs[msg.key]()
+                load_end_funcs[msg.key] = nil
+            end
         end
     end
 end
@@ -104,26 +124,48 @@ function love.draw()
     love.graphics.reset()
 end
 
-function kristal.loadMod(path)
-    MOD = nil
-    MOD_NAME = path
-    MOD_PATH = "mods/"..path
-
-    if love.filesystem.getInfo(MOD_PATH.."/mod.json") then
-        local info = lib.json.decode(love.filesystem.read(MOD_PATH.."/mod.json"))
-        if info.name then
-            MOD_NAME = info.name
-        end
+function kristal.clearAssets(include_mods)
+    kristal.assets.clear()
+    kristal.data.clear()
+    if include_mods then
+        kristal.mods.clear()
     end
+end
 
-    if love.filesystem.getInfo(MOD_PATH.."/lua/mod.lua") then
-        local chunk = love.filesystem.load(MOD_PATH.."/lua/mod.lua")
+function kristal.loadAssets(dir, loader, paths, after)
+    kristal.overlay.setLoading(true)
+    load_waiting = load_waiting + 1
+    if after then
+        load_end_funcs[next_load_key] = after
+    end
+    load_in_channel:push({
+        key = next_load_key,
+        dir = dir,
+        loader = loader,
+        paths = paths
+    })
+end
 
-        MOD_LOADING = chunk
+function kristal.loadMod(id)
+    local mod = kristal.mods.getMod(id)
 
-        love.thread.newThread("src/loadthread.lua"):start(MOD_PATH)
-        mod_loading_channel = love.thread.getChannel("assets")
-        kristal.overlay.setLoading(true)
+    if not mod then return end
+
+    MOD = mod
+
+    if love.filesystem.getInfo(mod.full_path.."/lua/mod.lua") then
+        local chunk = love.filesystem.load(mod.full_path.."/lua/mod.lua")
+
+        MOD_LOADING = true
+
+        kristal.loadAssets(mod.full_path, "all", "", function()
+            MOD_LOADING = false
+
+            mod.lua = kristal.createModEnvironment()
+
+            setfenv(chunk, mod.lua)
+            chunk()
+        end)
     end
 end
 
@@ -132,10 +174,10 @@ function kristal.createModEnvironment()
     local function setupGlobals()
         function require(path)
             local chunk
-            if love.filesystem.getInfo(MOD_PATH.."/lua/"..path..".lua") then
-                chunk = love.filesystem.load(MOD_PATH.."/lua/"..path..".lua")
-            elseif love.filesystem.getInfo(MOD_PATH.."/lua/"..path.."/init.lua") then
-                chunk = love.filesystem.load(MOD_PATH.."/lua/"..path.."/init.lua")
+            if love.filesystem.getInfo(MOD.full_path.."/lua/"..path..".lua") then
+                chunk = love.filesystem.load(MOD.full_path.."/lua/"..path..".lua")
+            elseif love.filesystem.getInfo(MOD.full_path.."/lua/"..path.."/init.lua") then
+                chunk = love.filesystem.load(MOD.full_path.."/lua/"..path.."/init.lua")
             end
             setfenv(chunk, getfenv())()
         end

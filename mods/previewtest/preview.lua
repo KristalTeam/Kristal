@@ -3,7 +3,7 @@ local preview = {}
 -- whether to fade out the default background
 preview.hide_background = false
 
-function preview:init(button, menu)
+function preview:init(mod, button, menu)
     -- code here gets called when the mods are loaded
     self.particles = {}
     self.particle_timer = 0

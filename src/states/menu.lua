@@ -73,8 +73,9 @@ function menu:enter()
     self.mod_fades = {}
 
     -- Load the mods
+    self.loading_mods = false
     self.last_loaded = nil
-    self:loadMods()
+    self:buildMods()
 end
 
 function menu:leave()
@@ -110,70 +111,83 @@ function menu:init()
 end
 
 function menu:focus()
-    self:loadMods()
+    if not self.loading_mods and not self.TEST_MOD_LIST then
+        local mod_paths = love.filesystem.getDirectoryItems("mods")
+        if not utils.equal(mod_paths, self.last_loaded) then
+            self.loading_mods = true
+            self:reloadMods()
+            self.last_loaded = mod_paths
+        end
+    end
 end
 
-function menu:loadMods()
-    if self.TEST_MOD_LIST then
+function menu:reloadMods()
+    if self.loading_mods then return end
+
+    self.loading_mods = true
+    kristal.loadAssets("", "mods", "", function()
+        self.loading_mods = false
+
+        local last_scroll = self.list.scroll_target
+        local last_selected = self.list:getSelectedId()
+        
         self.list:clearMods()
+        self:buildMods()
+
+        local used = {}
+        for _,mod in ipairs(self.list.mods) do
+            used[mod.id] = true
+        end
+        for k,v in pairs(self.mod_fades) do
+            if not used[k] then
+                self.mod_fades[k] = nil
+            end
+        end
+
+        local button, i = self.list:getById(last_selected)
+        if i ~= nil then
+            self.list:select(i, true)
+            self.list:setScroll(last_scroll)
+        end
+    end)
+end
+
+function menu:buildMods()
+    if self.TEST_MOD_LIST then
         for i = 1,15 do
             self.list:addMod(ModButton("Example Mod "..i, 424, 62))
         end
         return
     end
-    local mod_paths = love.filesystem.getDirectoryItems("mods")
-    if not self.last_loaded or not utils.equal(mod_paths, self.last_loaded) then
-        self.list:clearMods()
-        for _,path in ipairs(mod_paths) do
-            local full_path = "mods/"..path
-            local hidden = false
-            local mod = ModButton(path, 424, 62)
-            mod.path = path
-            if love.filesystem.getInfo(full_path.."/mod.json") then
-                local info = lib.json.decode(love.filesystem.read(full_path.."/mod.json"))
-                mod:setName(info.name or path)
-                hidden = info.hidden
-            end
-            if love.filesystem.getInfo(full_path.."/preview.png") then
-                mod.preview = {love.graphics.newImage(full_path.."/preview.png")}
-                self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-                if not self.mod_fades[mod].canvas then
-                    self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
-                end
-            else
-                local i = 0
-                local preview = {}
-                while love.filesystem.getInfo(full_path.."/preview_"..i..".png") do
-                    table.insert(preview, love.graphics.newImage(full_path.."/preview_"..i..".png"))
-                    i = i + 1
-                end
-                if #preview > 0 then
-                    mod.preview = preview
-                end
-                self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-                if not self.mod_fades[mod].canvas then
-                    self.mod_fades[mod].canvas = love.graphics.newCanvas(320, 240)
-                end
-            end
-            if love.filesystem.getInfo(full_path.."/preview.lua") then
-                local chunk = love.filesystem.load(full_path.."/preview.lua")
-                local success, result = pcall(chunk, full_path)
-                if success then
-                    self.mod_fades[mod] = self.mod_fades[mod] or {fade = 0}
-                    mod.preview_script = result
-                    if mod.preview_script.init then
-                        mod.preview_script:init(mod, self)
-                    end
-                else
-                    print("preview.lua error in "..mod.name..": "..result)
-                end
-            end
-            if not hidden then
-                self.list:addMod(mod)
+    for _,mod in ipairs(kristal.mods.getMods()) do
+        local button = ModButton(mod.name or mod.id, 424, 62, mod)
+
+        if mod.preview then
+            self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
+            if not self.mod_fades[mod.id].canvas then
+                self.mod_fades[mod.id].canvas = love.graphics.newCanvas(320, 240)
             end
         end
-        self.last_loaded = mod_paths
+
+        if mod.preview_lua then
+            local chunk = love.filesystem.load(mod.full_path.."/"..mod.preview_lua)
+            local success, result = pcall(chunk, full_path)
+            if success then
+                self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
+                button.preview_script = result
+                if button.preview_script.init then
+                    button.preview_script:init(mod, button, self)
+                end
+            else
+                print("preview.lua error in "..mod.name..": "..result)
+            end
+        end
+
+        if not mod.hidden then
+            self.list:addMod(button)
+        end
     end
+    self.last_loaded = love.filesystem.getDirectoryItems("mods")
 end
 
 function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
@@ -200,19 +214,20 @@ function menu:calculateMenuItemPosition(i, offset)
 end
 
 function menu:update(dt)
-    local current_mod = self.list:getSelected()
+    local mod_button = self.list:getSelected()
+    local current_mod = mod_button and mod_button.mod
 
     -- Update fade between previews
-    if current_mod and (current_mod.preview or current_mod.preview_script) then
-        if current_mod.preview_script and current_mod.preview_script.hide_background ~= false then
+    if current_mod and (current_mod.preview or mod_button.preview_script) then
+        if mod_button.preview_script and mod_button.preview_script.hide_background ~= false then
             self.background_fade = math.max(0, self.background_fade - (dt / 0.5))
         else
             self.background_fade = math.min(1, self.background_fade + (dt / 0.5))
         end
         for k,v in pairs(self.mod_fades) do
-            if k == current_mod and v.fade < 1 then
+            if k == current_mod.id and v.fade < 1 then
                 v.fade = math.min(1, v.fade + (dt / 0.5))
-            elseif k ~= current_mod and v.fade > 0 then
+            elseif k ~= current_mod.id and v.fade > 0 then
                 v.fade = math.max(0, v.fade - (dt / 0.5))
             end
         end
@@ -228,7 +243,7 @@ function menu:update(dt)
     -- Update preview scripts
     for k,v in pairs(self.list.mods) do
         if v.preview_script then
-            v.preview_script.fade = self.mod_fades[v].fade
+            v.preview_script.fade = self.mod_fades[v.id].fade
             v.preview_script.selected = v.selected
             v.preview_script:update(dt)
         end
@@ -238,23 +253,23 @@ function menu:update(dt)
     self.stage:update(dt)
 
     -- Move the heart closer to the target 
-    if not current_mod then
+    if not mod_button then
         self.heart.visible = false
     else
-        self.heart_target = self.list.pos + Vector(current_mod:getRelativePos(self.list, current_mod:getHeartPos():unpack())) - Vector(0, self.list.scroll_target - self.list.scroll)
+        self.heart_target = self.list.pos + Vector(mod_button:getRelativePos(self.list, mod_button:getHeartPos():unpack())) - Vector(0, self.list.scroll_target - self.list.scroll)
         if not self.heart.visible then
             self.heart.visible = true
             self.heart.pos = self.heart_target:clone()
         else
-            if (math.abs((self.heart_target.x - self.heart.pos.x)) <= 2) or self.heart_locked_x == current_mod then
+            if (math.abs((self.heart_target.x - self.heart.pos.x)) <= 2) or self.heart_locked_x == mod_button then
                 self.heart.pos.x = self.heart_target.x
-                self.heart_locked_x = current_mod
+                self.heart_locked_x = mod_button
             else
                 self.heart_locked_x = nil
             end
-            if (math.abs((self.heart_target.y - self.heart.pos.y)) <= 2) or self.heart_locked_y == current_mod then
+            if (math.abs((self.heart_target.y - self.heart.pos.y)) <= 2) or self.heart_locked_y == mod_button then
                 self.heart.pos.y = self.heart_target.y
-                self.heart_locked_y = current_mod
+                self.heart_locked_y = mod_button
             else
                 self.heart_locked_y = nil
             end
@@ -305,6 +320,10 @@ end
 function menu:keypressed(key, _, is_repeat)
     if MOD_LOADING then return end
 
+    if key == "f5" then
+        self:reloadMods()
+    end
+
     if key == "x" then
         self.ui_select:stop()
         self.ui_select:play()
@@ -316,9 +335,15 @@ function menu:keypressed(key, _, is_repeat)
             self.ui_select:stop()
             self.ui_select:play()
 
-            local current_mod = self.list:getSelected()
-            if current_mod and current_mod.path then
-                kristal.loadMod(current_mod.path)
+            local current_mod = self.list:getSelectedMod()
+            if current_mod then
+                if current_mod.transition then
+                    kristal.loadAssets(current_mod.full_path, "sprites", kristal.states.dark_transition.SPRITE_DEPENDENCIES, function()
+                        kristal.states.switch(kristal.states.dark_transition)
+                    end)
+                else
+                    kristal.loadMod(current_mod.id)
+                end
             end
             return
         end
@@ -379,15 +404,15 @@ function menu:drawBackground()
 
     -- Draw mod previews
     for k,v in pairs(self.list.mods) do
-        local mod_preview = self.mod_fades[v]
-        if v.preview and mod_preview.fade > 0 then
+        local mod_preview = self.mod_fades[v.id]
+        if v.mod and v.mod.preview and mod_preview.fade > 0 then
             -- Draw to the mod's preview canvas
             love.graphics.setCanvas(mod_preview.canvas)
             love.graphics.clear(0, 0, 0, 1)
 
-            self:drawAnimStrip(v.preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
-            self:drawAnimStrip(v.preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
-            self:drawAnimStrip(v.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
+            self:drawAnimStrip(v.mod.preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
+            self:drawAnimStrip(v.mod.preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
+            self:drawAnimStrip(v.mod.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
 
             -- Draw canvas scaled 2x to the screen
             love.graphics.setCanvas()

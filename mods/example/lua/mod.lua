@@ -1,3 +1,3 @@
 require("state")
 
-kristal.states.switch(kristal.states.dark_transition)
+kristal.states.switch(example_state)

@@ -1,4 +1,5 @@
 {
     "name": "Another Example",
+    "transition": true,
     "hidden": false
 }

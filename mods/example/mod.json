@@ -1,4 +1,7 @@
 {
     "name": "Example Mod",
+
+    "transition": true,
+    
     "hidden": false
 }

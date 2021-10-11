@@ -1,4 +1,8 @@
 {
     "name": "Preview Test",
+
+    "preview": "preview.png",
+    "preview_lua": "preview.lua",
+
     "hidden": false
 }

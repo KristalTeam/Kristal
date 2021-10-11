@@ -46,26 +46,21 @@ function loadstate:enter(from, dir)
 end
 
 function loadstate:beginLoad()
-    love.thread.newThread("src/loadthread.lua"):start()
-    self.channel = love.thread.getChannel("assets")
+    kristal.clearAssets(true)
+
     self.loading = true
     self.load_complete = false
-    kristal.overlay.setLoading(true)
+
+    kristal.loadAssets("", "all", "")
+    kristal.loadAssets("", "mods", "", function()
+        self.loading = false
+        self.load_complete = true
+    end)
 end
 
 function loadstate:update(dt)
     if self.load_complete and self.animation_done then
         kristal.states.switch(LOAD_TESTING and kristal.states.testing or kristal.states.menu)
-    end
-    if self.loading then
-        local data = self.channel:pop()
-        if data ~= nil then
-            kristal.assets.loadData(data.assets)
-            kristal.data.loadData(data.data)
-            self.loading = false
-            self.load_complete = true
-            kristal.overlay.setLoading(false)
-        end
     end
 end
 

@@ -1,5 +1,12 @@
 local darktransition = {}
 
+darktransition.SPRITE_DEPENDENCIES = {
+    "party/kris/world/light/up_*",
+    "party/kris/dark_transition",
+    "party/susie/world/light/up_*",
+    "party/susie/dark_transition"
+}
+
 function darktransition:camerax() return 0 end
 function darktransition:cameray() return 0 end
 
