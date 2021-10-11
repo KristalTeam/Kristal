@@ -144,6 +144,7 @@ function kristal.loadAssets(dir, loader, paths, after)
         loader = loader,
         paths = paths
     })
+    next_load_key = next_load_key + 1
 end
 
 function kristal.loadMod(id)
