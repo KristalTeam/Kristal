@@ -109,137 +109,35 @@ function darktransition:enter(preview)
     self.kris_sprite = nil
     self.sus_sprite = nil
 
-    self.spr_susieu = {
-        kristal.assets.getTexture("party/susie/world/light/up_0"),
-        kristal.assets.getTexture("party/susie/world/light/up_1"),
-        kristal.assets.getTexture("party/susie/world/light/up_2"),
-        kristal.assets.getTexture("party/susie/world/light/up_3")
-    }
+    self.spr_susieu = kristal.assets.getFrames("party/susie/world/light/up")
+    self.spr_krisu = kristal.assets.getFrames("party/kris/world/light/up")
 
-    self.spr_krisu = {
-        kristal.assets.getTexture("party/kris/world/light/up_0"),
-        kristal.assets.getTexture("party/kris/world/light/up_1"),
-        kristal.assets.getTexture("party/kris/world/light/up_2"),
-        kristal.assets.getTexture("party/kris/world/light/up_3")
-    }
+    self.spr_susie_lw_fall_u = kristal.assets.getFrames("party/susie/dark_transition/forward")
+    self.spr_krisu_fall_lw = kristal.assets.getFrames("party/kris/dark_transition/forward")
 
-    self.spr_susie_lw_fall_u = {
-        kristal.assets.getTexture("party/susie/dark_transition/forward_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/forward_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/forward_2"),
-        kristal.assets.getTexture("party/susie/dark_transition/forward_3")
-    }
+    self.spr_susieu_run = kristal.assets.getFrames("party/susie/dark_transition/run")
+    self.spr_krisu_run = kristal.assets.getFrames("party/kris/dark_transition/run")
 
-    self.spr_krisu_fall_lw = {
-        kristal.assets.getTexture("party/kris/dark_transition/forward_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/forward_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/forward_2"),
-        kristal.assets.getTexture("party/kris/dark_transition/forward_3")
-    }
+    self.spr_susie_lw_fall_turn = kristal.assets.getFrames("party/susie/dark_transition/turn")
+    self.spr_kris_fall_turnaround = kristal.assets.getFrames("party/kris/dark_transition/turn")
 
-    self.spr_susieu_run = {
-        kristal.assets.getTexture("party/susie/dark_transition/run_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/run_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/run_2"),
-        kristal.assets.getTexture("party/susie/dark_transition/run_3")
-    }
+    self.spr_susie_lw_fall_d = kristal.assets.getFrames("party/susie/dark_transition/light")
+    self.spr_kris_fall_d_lw = kristal.assets.getFrames("party/kris/dark_transition/light")
 
-    self.spr_krisu_run = {
-        kristal.assets.getTexture("party/kris/dark_transition/run_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/run_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/run_2"),
-        kristal.assets.getTexture("party/kris/dark_transition/run_3")
-    }
+    self.spr_susie_dw_fall_d = kristal.assets.getFrames("party/susie/dark_transition/dark")
+    self.spr_kris_fall_d_dw = kristal.assets.getFrames("party/kris/dark_transition/dark")
 
-    self.spr_susie_lw_fall_turn = {
-        kristal.assets.getTexture("party/susie/dark_transition/turn_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/turn_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/turn_2"),
-        kristal.assets.getTexture("party/susie/dark_transition/turn_3"),
-        kristal.assets.getTexture("party/susie/dark_transition/turn_4")
-    }
+    self.spr_susie_white_fall_d = kristal.assets.getFrames("party/susie/dark_transition/white")
+    self.spr_kris_fall_d_white = kristal.assets.getFrames("party/kris/dark_transition/white")
 
-    self.spr_kris_fall_turnaround = {
-        kristal.assets.getTexture("party/kris/dark_transition/turn_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/turn_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/turn_2"),
-        kristal.assets.getTexture("party/kris/dark_transition/turn_3"),
-        kristal.assets.getTexture("party/kris/dark_transition/turn_4")
-    }
+    self.spr_susie_dw_fall_smear = kristal.assets.getFrames("party/susie/dark_transition/smear")
+    self.spr_kris_fall_smear = kristal.assets.getFrames("party/kris/dark_transition/smear")
 
-    self.spr_susie_lw_fall_d = {
-        kristal.assets.getTexture("party/susie/dark_transition/light_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/light_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/light_2")
-    }
+    self.spr_susie_dw_fall_ball = kristal.assets.getFrames("party/susie/dark_transition/ball")
+    self.spr_kris_fall_ball = kristal.assets.getFrames("party/kris/dark_transition/ball")
 
-    self.spr_kris_fall_d_lw = {
-        kristal.assets.getTexture("party/kris/dark_transition/light_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/light_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/light_2")
-    }
-
-    self.spr_susie_dw_fall_d = {
-        kristal.assets.getTexture("party/susie/dark_transition/dark_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/dark_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/dark_2")
-    }
-
-    self.spr_kris_fall_d_dw = {
-        kristal.assets.getTexture("party/kris/dark_transition/dark_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/dark_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/dark_2")
-    }
-
-    self.spr_susie_white_fall_d = {
-        kristal.assets.getTexture("party/susie/dark_transition/white_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/white_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/white_2")
-    }
-
-    self.spr_kris_fall_d_white = {
-        kristal.assets.getTexture("party/kris/dark_transition/white_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/white_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/white_2")
-    }
-
-    self.spr_susie_dw_fall_smear = {
-        kristal.assets.getTexture("party/susie/dark_transition/smear_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/smear_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/smear_2")
-    }
-
-    self.spr_kris_fall_smear = {
-        kristal.assets.getTexture("party/kris/dark_transition/smear_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/smear_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/smear_2")
-    }
-
-    self.spr_susie_dw_fall_ball = {
-        kristal.assets.getTexture("party/susie/dark_transition/ball_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/ball_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/ball_2"),
-        kristal.assets.getTexture("party/susie/dark_transition/ball_3")
-    }
-
-    self.spr_kris_fall_ball = {
-        kristal.assets.getTexture("party/kris/dark_transition/ball_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/ball_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/ball_2"),
-        kristal.assets.getTexture("party/kris/dark_transition/ball_3")
-    }
-
-    self.spr_susie_dw_landed = {
-        kristal.assets.getTexture("party/susie/dark_transition/landed_0"),
-        kristal.assets.getTexture("party/susie/dark_transition/landed_1"),
-        kristal.assets.getTexture("party/susie/dark_transition/landed_2")
-    }
-
-    self.spr_kris_dw_landed = {
-        kristal.assets.getTexture("party/kris/dark_transition/landed_0"),
-        kristal.assets.getTexture("party/kris/dark_transition/landed_1"),
-        kristal.assets.getTexture("party/kris/dark_transition/landed_2")
-    }
+    self.spr_susie_dw_landed = kristal.assets.getFrames("party/susie/dark_transition/landed")
+    self.spr_kris_dw_landed = kristal.assets.getFrames("party/kris/dark_transition/landed")
 
     self.canvas = love.graphics.newCanvas(320,240)
     -- No filtering

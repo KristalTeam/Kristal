@@ -91,7 +91,6 @@ function love.load()
         love.graphics.setCanvas(SCREEN_CANVAS)
         love.graphics.clear()
         orig(...)
-        love.graphics.setCanvas(SCREEN_CANVAS)
         kristal.overlay:draw()
         love.graphics.setCanvas()
 

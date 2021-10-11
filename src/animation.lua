@@ -90,7 +90,7 @@ function Animation:parseData(data)
         end
         local new_state = utils.copy(v, true)
         new_state.path = new_state.path or ""
-        new_state.delay = math.max(new_state.delay or 0, FRAMERATE)
+        new_state.delay = math.max(new_state.delay or 0.25, FRAMERATE)
         local frame_tex = {}
         local n = 0
         local n_max = 0

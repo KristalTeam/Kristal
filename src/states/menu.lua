@@ -42,13 +42,7 @@ function menu:enter()
 
     -- Assets required for the background animation
     self.background_image_wave = kristal.assets.getTexture("kristal/title_bg_wave")
-    self.background_image_animation = {
-        kristal.assets.getTexture("kristal/title_bg_anim_0"),
-        kristal.assets.getTexture("kristal/title_bg_anim_1"),
-        kristal.assets.getTexture("kristal/title_bg_anim_2"),
-        kristal.assets.getTexture("kristal/title_bg_anim_3"),
-        kristal.assets.getTexture("kristal/title_bg_anim_4")
-    }
+    self.background_image_animation = kristal.assets.getFrames("kristal/title_bg_anim")
 
     -- Initialize variables for the menu
     self.stage = Object()

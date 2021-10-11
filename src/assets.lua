@@ -20,9 +20,10 @@ function assets.loadData(data)
     end
 
     -- create frame tables with images
-    for _,ids in pairs(data.frame_ids) do
-        for key,id in pairs(ids) do
-            assets.data.frames[key] = assets.data.texture[id]
+    for key,ids in pairs(data.frame_ids) do
+        assets.data.frames[key] = assets.data.frames[key] or {}
+        for i,id in pairs(ids) do
+            assets.data.frames[key][i] = assets.data.texture[id]
         end
     end
 
@@ -55,11 +56,11 @@ function assets.getTextureData(path)
 end
 
 function assets.getFrames(path)
-    return assets.data.frames[path] or {}
+    return assets.data.frames[path]
 end
 
 function assets.getFrameIds(path)
-    return assets.data.frame_ids[path] or {}
+    return assets.data.frame_ids[path]
 end
 
 assets.clear()

@@ -6,18 +6,18 @@ end
 
 function overlay:init()
     self.quit_frames = {
-        love.graphics.newImage("assets/sprites/ui/quit_0.png"),
         love.graphics.newImage("assets/sprites/ui/quit_1.png"),
         love.graphics.newImage("assets/sprites/ui/quit_2.png"),
         love.graphics.newImage("assets/sprites/ui/quit_3.png"),
         love.graphics.newImage("assets/sprites/ui/quit_4.png"),
+        love.graphics.newImage("assets/sprites/ui/quit_5.png"),
     }
     self.load_frames = {
-        love.graphics.newImage("assets/sprites/ui/loading_0.png"),
         love.graphics.newImage("assets/sprites/ui/loading_1.png"),
         love.graphics.newImage("assets/sprites/ui/loading_2.png"),
         love.graphics.newImage("assets/sprites/ui/loading_3.png"),
         love.graphics.newImage("assets/sprites/ui/loading_4.png"),
+        love.graphics.newImage("assets/sprites/ui/loading_5.png"),
     }
 
     self.quit_alpha = 0

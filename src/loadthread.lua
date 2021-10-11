@@ -103,7 +103,7 @@ local loaders = {
         local id = checkExtension(path, "png", "jpg")
         if id then
             data.assets.texture_data[id] = love.image.newImageData(full_path)
-            for i = 1,3 do
+            for i = 3,1,-1 do
                 local num = tonumber(id:sub(-i))
                 if num then
                     local frame_name = id:sub(1, -i - 1)
@@ -112,6 +112,7 @@ local loaders = {
                     end
                     data.assets.frame_ids[frame_name] = data.assets.frame_ids[frame_name] or {}
                     data.assets.frame_ids[frame_name][num] = id
+                    break
                 end
             end
         end

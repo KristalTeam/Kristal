@@ -1,0 +1,12 @@
+{
+    "party/kris/dark": {"path": "party/kris/", "default": "idle_down", "states": {
+        "walk_up": {"path": "world/dark/up", "loop": true},
+        "walk_down": {"path": "world/dark/down", "loop": true},
+        "walk_right": {"path": "world/dark/right", "loop": true},
+        "walk_left": {"path": "world/dark/left", "loop": true},
+        "idle_up": {"path": "world/dark/up", "frames": "1"},
+        "idle_down": {"path": "world/dark/down", "frames": "1"},
+        "idle_right": {"path": "world/dark/right", "frames": "1"},
+        "idle_left": {"path": "world/dark/left", "frames": "1"}
+    }}
+}
