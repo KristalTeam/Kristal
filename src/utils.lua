@@ -116,7 +116,7 @@ function utils.getFilesRecursive(dir)
         local info = love.filesystem.getInfo(dir.."/"..path)
         if info then
             if info.type == "directory" then
-                local inners = getFilesRecursive(dir.."/"..path)
+                local inners = utils.getFilesRecursive(dir.."/"..path)
                 for _,inner in ipairs(inners) do
                     table.insert(result, path.."/"..inner)
                 end

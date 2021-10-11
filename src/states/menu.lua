@@ -165,7 +165,7 @@ function menu:buildMods()
 
         if mod.preview_lua then
             local chunk = love.filesystem.load(mod.full_path.."/"..mod.preview_lua)
-            local success, result = pcall(chunk, full_path)
+            local success, result = pcall(chunk, mod.full_path)
             if success then
                 self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
                 button.preview_script = result

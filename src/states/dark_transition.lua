@@ -49,6 +49,11 @@ function darktransition:enter(preview)
     self.prior_state = preview
     self.stage = Object()
 
+    self.stage_scaled = Object()
+    self.stage_scaled.scale_origin = Vector(0, 0)
+    self.stage_scaled.scale = Vector(2, 2)
+    self.stage:add(self.stage_scaled)
+
     self.darkzone = false
     self.plot = 9
 
@@ -96,18 +101,39 @@ function darktransition:enter(preview)
     -- CONFIG
     self.quick_mode = false
     self.skiprunback = true
-    self.finaly = 60
+    self.finaly = 120
 
 
     self.snd_dtrans_square = love.audio.newSource("assets/sounds/snd_dtrans_square.ogg", "static")
 
     self.spr_doorblack = kristal.assets.getTexture("kristal/doorblack")
 
-    --self.kris_sprite = kristal.assets.getTexture("kristal/party/kris/")
-    --self.sus_sprite  = kristal.assets.getTexture("kristal/spr_doorblack")
+    -- Sprite stuff
+    self.use_sus_index = false
 
-    self.kris_sprite = nil
-    self.sus_sprite = nil
+    self.kris_sprite = Sprite(nil, self.kris_x, self.kris_y)
+    self.kris_sprite_2 = Sprite(nil, 0, 0)
+    self.kris_sprite_3 = Sprite(nil, 0, 0)
+
+    self.sus_sprite = Sprite(nil, self.sus_x, self.sus_y)
+    self.sus_sprite_2 = Sprite(nil, 0, 0)
+    self.sus_sprite_3 = Sprite(nil, 0, 0)
+
+    self.kris_sprite.visible = false
+    self.kris_sprite_2.visible = false
+    self.kris_sprite_3.visible = false
+    
+    self.sus_sprite.visible = false
+    self.sus_sprite_2.visible = false
+    self.sus_sprite_3.visible = false
+
+    self.stage_scaled:add(self.kris_sprite)
+    self.kris_sprite:add(self.kris_sprite_2)
+    self.kris_sprite:add(self.kris_sprite_3)
+
+    self.stage_scaled:add(self.sus_sprite)
+    self.sus_sprite:add(self.sus_sprite_2)
+    self.sus_sprite:add(self.sus_sprite_3)
 
     self.spr_susieu = kristal.assets.getFrames("party/susie/world/light/up")
     self.spr_krisu = kristal.assets.getFrames("party/kris/world/light/up")
@@ -302,10 +328,19 @@ function darktransition:draw()
         --    follow = 0
         --    depth = (obj_dw_transition.depth - 10)
         --end
+
+        -- sprite code --
+        self.use_sus_index = true
+        self.kris_sprite.visible = true
+        self.sus_sprite.visible = true
+        self.kris_sprite:setAnimation(self.spr_krisu)
+        self.sus_sprite:setAnimation(self.spr_susieu)
+        -----------------
+
         self.sus_draw = 1
-        self.sus_sprite = self.spr_susieu
+        --self.sus_sprite = self.spr_susieu
         self.sus_index = 0
-        self.kris_sprite = self.spr_krisu
+        --self.kris_sprite = self.spr_krisu
         self.kris_index = 0
         self.sus_v = 1.2
         if (self.quick_mode) then
@@ -332,8 +367,13 @@ function darktransition:draw()
                 self.timer = 45
                 self.do_once = true -- skip it !!!!
                 self.kris_x = self.kris_x - 4 * (dt * 30)
-                self.sus_sprite = self.spr_susieu_run
-                self.kris_sprite = self.spr_krisu_run
+                --self.sus_sprite = self.spr_susieu_run
+                --self.kris_sprite = self.spr_krisu_run
+
+                -- sprite code --
+                self.kris_sprite:setAnimation(self.spr_krisu_run)
+                self.sus_sprite:setAnimation(self.spr_susieu_run)
+                -----------------
             end
         end
         if (self.timer < 30) then
@@ -351,15 +391,25 @@ function darktransition:draw()
             self.sus_index = 0
             self.sus_v = 0
             self.kris_x = self.kris_x - 4 * (dt * 30)
-            self.sus_sprite = self.spr_susieu_run
-            self.kris_sprite = self.spr_krisu_run
+            --self.sus_sprite = self.spr_susieu_run
+            --self.kris_sprite = self.spr_krisu_run
+
+            -- sprite code --
+            self.kris_sprite:setAnimation(self.spr_krisu_run)
+            self.sus_sprite:setAnimation(self.spr_susieu_run)
+            -----------------
         end
         if (math.floor(self.timer) >= 60) and not self.do_once2 then
             self.do_once2 = true
-            self.sus_sprite = self.spr_susieu_run
-            self.kris_sprite = self.spr_krisu_run
+            --self.sus_sprite = self.spr_susieu_run
+            --self.kris_sprite = self.spr_krisu_run
             self.sus_v = -5
             self.sus_f = 0
+
+            -- sprite code --
+            self.kris_sprite:setAnimation(self.spr_krisu_run)
+            self.sus_sprite:setAnimation(self.spr_susieu_run)
+            -----------------
         end
         if (self.timer > 60 and self.timer < 68) then
             self.kris_y = self.kris_y - 1 * (dt * 30)
@@ -371,10 +421,15 @@ function darktransition:draw()
             self.sus_v = -4
             self.sus_y = self.sus_y - 2 * (dt * 30)
             self.sus_x = self.sus_x - 2 * (dt * 30)
-            self.sus_sprite = self.spr_susie_lw_fall_u
-            self.kris_sprite = self.spr_krisu_fall_lw
+            --self.sus_sprite = self.spr_susie_lw_fall_u
+            --self.kris_sprite = self.spr_krisu_fall_lw
             self.con = 15
             self.soundtimer = 0
+
+            -- sprite code --
+            self.kris_sprite:setAnimation(self.spr_krisu_fall_lw)
+            self.sus_sprite:setAnimation(self.spr_susie_lw_fall_u)
+            -----------------
         end
         if (self.doorblack == 1) then
             love.graphics.setColor(0, 0, 0, 1)
@@ -443,11 +498,16 @@ function darktransition:draw()
         self.linecon = true
         self.sus_x_current = self.sus_x
         self.kris_x_current = self.kris_x
-        self.sus_sprite = self.spr_susie_lw_fall_turn
-        self.kris_sprite = self.spr_kris_fall_turnaround
+        --self.sus_sprite = self.spr_susie_lw_fall_turn
+        --self.kris_sprite = self.spr_kris_fall_turnaround
         self.con = 18
         self.soundcon = 1
         self.radius = 60
+        
+        -- sprite code --
+        self.kris_sprite:setAnimation(self.spr_kris_fall_turnaround)
+        self.sus_sprite:setAnimation(self.spr_susie_lw_fall_turn)
+        -----------------
     end
     if (self.soundcon == 1) then
         self.dronesfx = love.audio.newSource("assets/sounds/snd_dtrans_drone.ogg", "stream")
@@ -491,11 +551,16 @@ function darktransition:draw()
             self.kris_x = (self.kris_x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius))
         end
         if (self.timer >= 35) then
-            self.sus_sprite = self.spr_susie_lw_fall_d
-            self.kris_sprite = self.spr_kris_fall_d_lw
+            --self.sus_sprite = self.spr_susie_lw_fall_d
+            --self.kris_sprite = self.spr_kris_fall_d_lw
             self.sus_index = 0
             self.con = 19
             self.timer = 0
+
+            -- sprite code --
+            self.kris_sprite:setAnimation(self.spr_kris_fall_d_lw)
+            self.sus_sprite:setAnimation(self.spr_susie_lw_fall_d)
+            -----------------
         end
     end
     if (self.con == 19) then
@@ -508,13 +573,23 @@ function darktransition:draw()
             self.con = 30
             self.timer = 0
             self.sus_draw = 0
+
+            -- sprite code --
+            self.use_sus_index = false
+            self.kris_sprite:setAnimation(self.spr_kris_fall_d_lw)
+            self.sus_sprite:setAnimation(self.spr_susie_lw_fall_d)
+            -----------------
         end
     end
     if (self.con == 30) then
-        if (self.kris_only == 0) then
+        -- sprite code --
+        self.kris_sprite:setFrame(math.floor(self.index / 4) + 1)
+        self.sus_sprite:setFrame(math.floor(self.index / 4) + 1)
+        -----------------
+        --[[if (self.kris_only == 0) then
             self:drawAnimStrip(self.spr_susie_lw_fall_d, (self.index / 4), self.sus_x, self.sus_y, 1)
         end
-        self:drawAnimStrip(self.spr_kris_fall_d_lw, (self.index / 4), self.kris_x, self.kris_y, 1)
+        self:drawAnimStrip(self.spr_kris_fall_d_lw, (self.index / 4), self.kris_x, self.kris_y, 1)]]
         self.timer = self.timer + 1 * (dt * 30)
         if (self.quick_mode) then
             self.timer = self.timer + 1 * (dt * 30)
@@ -528,18 +603,59 @@ function darktransition:draw()
             self.kris_width = self.spr_kris_fall_d_dw[1]:getWidth()
             self.kris_height = self.spr_kris_fall_d_dw[1]:getHeight()
             self.kris_top = self.kris_height
+
+            -- sprite code --
+            self.kris_sprite_2:setAnimation(self.spr_kris_fall_d_white)
+            self.kris_sprite_3:setAnimation(self.spr_kris_fall_d_dw)
+            self.sus_sprite_2:setAnimation(self.spr_susie_white_fall_d)
+            self.sus_sprite_3:setAnimation(self.spr_susie_dw_fall_d)
+
+            self.kris_sprite_2.cutout.top = self.kris_top
+            self.kris_sprite_3.cutout.top = self.kris_top
+            self.sus_sprite_2.cutout.top = self.sus_top
+            self.sus_sprite_3.cutout.top = self.sus_top
+
+            self.kris_sprite_2.visible = true
+            self.kris_sprite_3.visible = true
+            self.sus_sprite_2.visible = true
+            self.sus_sprite_3.visible = true
+            -----------------
         end
     end
     if (self.con == 31) then
         self.timer = self.timer + 1 * (dt * 30)
-        if (self.kris_only == 0) then
+        -- sprite code --
+        self.kris_sprite:setFrame(math.floor(self.index / 4) + 1)
+        self.kris_sprite_2:setFrame(math.floor(self.index / 4) + 1)
+        self.kris_sprite_3:setFrame(math.floor(self.index / 4) + 1)
+
+        self.sus_sprite:setFrame(math.floor(self.index / 4) + 1)
+        self.sus_sprite_2:setFrame(math.floor(self.index / 4) + 1)
+        self.sus_sprite_3:setFrame(math.floor(self.index / 4) + 1)
+
+        if self.kris_top == 0 then
+            self.kris_sprite_2.visible = false
+        end
+        if self.sus_top == 0 then
+            self.sus_sprite_2.visible = false
+        end
+
+        self.kris_sprite_2.cutout.top = self.kris_top
+        self.kris_sprite_3.cutout.top = self.kris_top + 1
+        self.kris_sprite_2.cutout.bottom = self.kris_height - self.kris_top - 1
+
+        self.sus_sprite_2.cutout.top = self.sus_top
+        self.sus_sprite_3.cutout.top = self.sus_top + 1
+        self.sus_sprite_2.cutout.bottom = self.sus_height - self.sus_top - 1
+        -----------------
+        --[[if (self.kris_only == 0) then
             self:drawScissor(self.spr_susie_lw_fall_d, (self.index / 4), 0, 0, self.sus_width, self.sus_top, self.sus_x, self.sus_y)
         end
         self:drawScissor(self.spr_kris_fall_d_lw, (self.index / 4), 0, 0, self.kris_width, self.kris_top, self.kris_x, self.kris_y)
         if (self.kris_only == 0) then
             self:drawScissor(self.spr_susie_dw_fall_d, (self.index / 4), 0, self.sus_top, self.sus_width, (self.sus_height+1 - self.sus_top), self.sus_x, (self.sus_y + self.sus_top))
         end
-        self:drawScissor(self.spr_kris_fall_d_dw, (self.index / 4), 0, self.kris_top, self.kris_width, (self.kris_height+1 - self.kris_top), self.kris_x, (self.kris_y + self.kris_top))
+        self:drawScissor(self.spr_kris_fall_d_dw, (self.index / 4), 0, self.kris_top, self.kris_width, (self.kris_height+1 - self.kris_top), self.kris_x, (self.kris_y + self.kris_top))]]
         if (math.floor(self.timer) == 15) then
             --with (obj_kris_headobj)
             --    breakcon = 1
@@ -583,7 +699,7 @@ function darktransition:draw()
                 self.stage:add(DarkTransitionParticle(x, y))
 
 
-                self:drawScissor(self.spr_susie_white_fall_d, (self.index / 4), 0, self.sus_top, self.sus_width, 1, self.sus_x, (self.sus_y + self.sus_top))
+                --self:drawScissor(self.spr_susie_white_fall_d, (self.index / 4), 0, self.sus_top, self.sus_width, 1, self.sus_x, (self.sus_y + self.sus_top))
             end
             if (self.kris_top > 5) then
                 self.kris_top = self.kris_top - 0.5 * (dt * 30)
@@ -599,7 +715,7 @@ function darktransition:draw()
 
                 self.stage:add(DarkTransitionParticle(x, y))
 
-                self:drawScissor(self.spr_kris_fall_d_white, (self.index / 4), 0, self.kris_top, self.kris_width, 1, self.kris_x, (self.kris_y + self.kris_top))
+                --self:drawScissor(self.spr_kris_fall_d_white, (self.index / 4), 0, self.kris_top, self.kris_width, 1, self.kris_x, (self.kris_y + self.kris_top))
             end
         end
         self.threshold = 130
@@ -618,6 +734,28 @@ function darktransition:draw()
             self.sus_v = -0.2
             self.sus_f = 0.01
             self.con = 32
+
+            -- sprite code --
+            self.kris_sprite:setAnimation(self.spr_kris_fall_smear)
+            self.sus_sprite:setAnimation(self.spr_susie_dw_fall_smear)
+
+            self.kris_sprite:setFrame(1)
+            self.sus_sprite:setFrame(1)
+
+            self.kris_sprite_2.visible = false
+            self.kris_sprite_3.visible = false
+
+            self.sus_sprite_2.visible = false
+            self.sus_sprite_3.visible = false
+
+            self.kris_sprite_2.cutout.top = 0
+            self.kris_sprite_3.cutout.top = 0
+            self.kris_sprite_2.cutout.bottom = 0
+
+            self.sus_sprite_2.cutout.top = 0
+            self.sus_sprite_3.cutout.top = 0
+            self.sus_sprite_2.cutout.bottom = 0
+            -----------------
         end
     end
     if (self.con == 32) then
@@ -639,25 +777,40 @@ function darktransition:draw()
         self.timer = self.timer + 1 * (dt * 30)
         if (self.timer >= 0 and self.timer < 8) then
             self.sus_v = self.sus_v - 0.5 * (dt * 30)
-            if (self.kris_only == 0) then
+            --[[if (self.kris_only == 0) then
                 self:drawAnimStrip(self.spr_susie_dw_fall_smear, 0, self.sus_x, self.sus_y, 1)
             end
-            self:drawAnimStrip(self.spr_kris_fall_smear, 0, self.kris_x, self.kris_y, 1)
+            self:drawAnimStrip(self.spr_kris_fall_smear, 0, self.kris_x, self.kris_y, 1)]]
+
+            -- sprite code --
+            self.kris_sprite:setFrame(1)
+            self.sus_sprite:setFrame(1)
+            -----------------
         end
         if (self.timer >= 8 and self.timer < 12) then
             self.sus_v = self.sus_v + 1 * (dt * 30)
             self.sus_f = 0
-            if (self.kris_only == 0) then
+            --[[if (self.kris_only == 0) then
                 self:drawAnimStrip(self.spr_susie_dw_fall_smear, 1, self.sus_x, self.sus_y, 1)
             end
-            self:drawAnimStrip(self.spr_kris_fall_smear, 1, self.kris_x, self.kris_y, 1)
+            self:drawAnimStrip(self.spr_kris_fall_smear, 1, self.kris_x, self.kris_y, 1)]]
+
+            -- sprite code --
+            self.kris_sprite:setFrame(2)
+            self.sus_sprite:setFrame(2)
+            -----------------
         end
         if (self.timer >= 12 and self.timer <= 14) then
             self.sus_v = self.sus_v + 4 * (dt * 30)
-            if (self.kris_only == 0) then
+            --[[if (self.kris_only == 0) then
                 self:drawAnimStrip(self.spr_susie_dw_fall_smear, 2, self.sus_x, self.sus_y, 1)
             end
-            self:drawAnimStrip(self.spr_kris_fall_smear, 2, self.kris_x, self.kris_y, 1)
+            self:drawAnimStrip(self.spr_kris_fall_smear, 2, self.kris_x, self.kris_y, 1)]]
+
+            -- sprite code --
+            self.kris_sprite:setFrame(3)
+            self.sus_sprite:setFrame(3)
+            -----------------
         end
         if (self.timer >= 14) then
             self.soundcon = 4
@@ -672,6 +825,30 @@ function darktransition:draw()
             self.timer = 0
             self.con = 33
             self.rect_draw = 0
+
+            -- sprite code --
+            self.kris_sprite:setAnimation(self.spr_kris_fall_ball)
+            self.kris_sprite_2:setAnimation(self.spr_kris_fall_ball)
+            self.kris_sprite_3:setAnimation(self.spr_kris_fall_ball)
+
+            self.sus_sprite:setAnimation(self.spr_susie_dw_fall_ball)
+            self.sus_sprite_2:setAnimation(self.spr_susie_dw_fall_ball)
+            self.sus_sprite_3:setAnimation(self.spr_susie_dw_fall_ball)
+
+            self.kris_sprite_2.visible = true
+            self.kris_sprite_3.visible = true
+
+            self.sus_sprite_2.visible = true
+            self.sus_sprite_3.visible = true
+
+            self.kris_sprite.color = {1, 1, 1, 1}
+            self.kris_sprite_2.color = {1, 1, 1, 0.5}
+            self.kris_sprite_3.color = {1, 1, 1, 0.25}
+
+            self.sus_sprite.color = {1, 1, 1, 1}
+            self.sus_sprite_2.color = {1, 1, 1, 0.5}
+            self.sus_sprite_3.color = {1, 1, 1, 0.25}
+            -----------------
         end
     end
     if (self.con == 33) then
@@ -681,14 +858,29 @@ function darktransition:draw()
             self.do_once4 = true -- skip timer == 14
             self.do_once5 = true -- skip timer == 30
         end
-        if (self.kris_only == 0) then
+        --[[if (self.kris_only == 0) then
             self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x, (self.sus_y - (self.sus_v * 2)), 0.25)
             self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x, (self.sus_y -  self.sus_v), 0.5)
             self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x,  self.sus_y, 1)
         end
         self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x, (self.kris_y - (self.sus_v * 2)), 0.25)
         self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x, (self.kris_y -  self.sus_v), 0.5)
-        self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x,  self.kris_y, 1)
+        self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x,  self.kris_y, 1)]]
+        -- sprite code --
+        self.kris_sprite:setFrame(math.floor(self.timer / 2) + 1)
+        self.kris_sprite_2:setFrame(math.floor(self.timer / 2) + 1)
+        self.kris_sprite_3:setFrame(math.floor(self.timer / 2) + 1)
+
+        self.sus_sprite:setFrame(math.floor(self.timer / 2) + 1)
+        self.sus_sprite_2:setFrame(math.floor(self.timer / 2) + 1)
+        self.sus_sprite_3:setFrame(math.floor(self.timer / 2) + 1)
+
+        self.sus_sprite_2.pos.y = -self.sus_v
+        self.sus_sprite_3.pos.y = -self.sus_v * 2
+
+        self.kris_sprite_2.pos.y = -self.sus_v
+        self.kris_sprite_3.pos.y = -self.sus_v * 2
+        -----------------
         if (math.floor(self.timer) >= 14) and not self.do_once4 then
             self.do_once4 = true
             self.linecon = false
@@ -732,6 +924,17 @@ function darktransition:draw()
                 self.remkrisy = (self.kris_y - self:cameray())
                 self.remsusx  = (self.sus_x  - self:camerax())
                 self.remsusy  = (self.sus_y  - self:cameray())
+
+                -- sprite code --
+                self.kris_sprite:setAnimation(self.spr_kris_dw_landed)
+                self.sus_sprite:setAnimation(self.spr_susie_dw_landed)
+
+                self.kris_sprite_2.visible = false
+                self.kris_sprite_3.visible = false
+
+                self.sus_sprite_2.visible = false
+                self.sus_sprite_3.visible = false
+                -----------------
             end
         end
     end
@@ -743,10 +946,20 @@ function darktransition:draw()
             self.timer = 15
         end
         if (self.timer > 1) then
-            if (self.kris_only == 0) then
+            --[[if (self.kris_only == 0) then
                 self:drawAnimStrip(self.spr_susie_dw_landed, self.getup_index, ((self.sus_x * self.dz) + self.fake_shakeamount), (self.sus_y * self.dz), 1)
             end
-            self:drawAnimStrip(self.spr_kris_dw_landed, self.getup_index, ((self.kris_x * self.dz) + self.fake_shakeamount), (self.kris_y * self.dz), 1)
+            self:drawAnimStrip(self.spr_kris_dw_landed, self.getup_index, ((self.kris_x * self.dz) + self.fake_shakeamount), (self.kris_y * self.dz), 1)]]
+            -- sprite code --
+            self.kris_sprite:setFrame(math.floor(self.getup_index) + 1)
+            self.sus_sprite:setFrame(math.floor(self.getup_index) + 1)
+
+            self.kris_sprite_2.visible = false
+            self.kris_sprite_3.visible = false
+
+            self.sus_sprite_2.visible = false
+            self.sus_sprite_3.visible = false
+            -----------------
         end
         if ((math.floor(self.timer) >= 26) and not self.do_once8) then
             self.do_once8 = true
@@ -831,7 +1044,7 @@ function darktransition:draw()
             obj_kris_headobj.x = (kris_x + 14)
             obj_kris_headobj.y = (kris_y - 2)
         end]]
-        if (self.darkzone == false) then
+        --[[if (self.darkzone == false) then
             self:drawAnimStrip(self.kris_sprite, self.sus_index, (self.kris_x + self.fake_shakeamount), self.kris_y, 1)
             if (self.kris_only == 0) then
                 self:drawAnimStrip(self.sus_sprite, self.sus_index, (self.sus_x + self.fake_shakeamount), self.sus_y, 1)
@@ -841,8 +1054,17 @@ function darktransition:draw()
             if (self.kris_only == 0) then
                 self:drawAnimStrip(self.sus_sprite, self.sus_index, ((self.sus_x * 2) + self.fake_shakeamount), (self.sus_y * 2), 1) -- TODO: 2, 2
             end
-        end
+        end]]
     end
+    -- sprite code --
+    if self.use_sus_index then
+        self.kris_sprite:setFrame(math.floor(self.sus_index) + 1)
+        self.sus_sprite:setFrame(math.floor(self.sus_index) + 1)
+    end
+
+    self.kris_sprite.pos = Vector(self.kris_x + self.fake_shakeamount, self.kris_y)
+    self.sus_sprite.pos = Vector(self.sus_x + self.fake_shakeamount, self.sus_y)
+    -----------------
 
     -- Reset canvas to draw to
     love.graphics.setCanvas(SCREEN_CANVAS)

@@ -15,6 +15,9 @@ function Object:init(x, y, width, height)
     self.scale = Vector(1, 1)
     self.rotation = 0
     
+    -- Object scissor
+    self.cutout = {left = 0, right = 0, top = 0, bottom = 0}
+    
     -- Whether this object's color will be multiplied by its parent's color
     self.inherit_color = false
 
@@ -160,7 +163,15 @@ function Object:drawChildren()
             love.graphics.push()
             love.graphics.applyTransform(v:getTransform())
             love.graphics.setColor(v:getDrawColor())
+            local do_scissor = v.cutout.left ~= 0 or v.cutout.right ~= 0 or v.cutout.top ~= 0 or v.cutout.bottom ~= 0
+            if do_scissor then
+                kristal.graphics.pushScissor()
+                kristal.graphics.scissor(v.cutout.left, v.cutout.top, v.width - v.cutout.right - v.cutout.left, v.height - v.cutout.bottom - v.cutout.top)
+            end
             v:draw()
+            if do_scissor then
+                kristal.graphics.popScissor()
+            end
             love.graphics.pop()
         end
     end
