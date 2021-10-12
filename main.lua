@@ -59,12 +59,16 @@ local load_waiting = 0
 local load_end_funcs = {}
 
 function love.load()
+    -- load the settings.json
     kristal.config = kristal.loadConfig()
 
+    -- pixel scaling (the good one)
     love.graphics.setDefaultFilter("nearest")
 
-    if kristal.config.windowScale ~= 1 then
-        love.window.setMode(WIDTH * kristal.config.windowScale, HEIGHT * kristal.config.windowScale)
+    -- scale the window if we have to
+    local window_scale = kristal.config.windowScale
+    if window_scale ~= 1 then
+        love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale)
     end
 
     -- setup structure
@@ -77,7 +81,7 @@ function love.load()
     kristal.overlay:init()
 
     -- screen canvas
-    SCREEN_CANVAS = love.graphics.newCanvas(WIDTH, HEIGHT)
+    SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
     -- setup hooks
@@ -120,6 +124,8 @@ function love.quit()
 end
 
 function love.update(dt)
+    DT = dt
+
     lib.timer.update(dt)
 
     if load_waiting > 0 then

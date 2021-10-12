@@ -36,10 +36,10 @@ function teststate:update(dt)
             char.color = {color[1], color[2], color[3], 1}
 
             local scale = 1 + (math.sin(self.timer * 6 + (i * 0.5)) * 0.3)
-            char.origin.y = math.max(0, scale - 1)
+            char.origin_y = math.max(0, scale - 1)
 
-            char.scale_origin = Vector(0.5, 1)
-            char.scale.y = scale
+            char:setScaleOrigin(0.5, 1)
+            char:setScale(1, scale)
         end
     end
 end

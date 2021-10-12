@@ -1,7 +1,7 @@
-local TextChar = newClass(Object)
+local TextChar, super = newClass(Object)
 
 function TextChar:init(char, x, y, color)
-    Object.init(self, x, y)
+    super:init(self, x, y)
 
     self.char = char
     self.color = color
@@ -31,7 +31,7 @@ end
 function TextChar:getTextWidth(str, font)
     local font = font or "main"
     local w = 0
-    local i = 1, #str do
+    for i = 1, #str do
         local texture = kristal.assets.getTexture("font/"..font.."/"..CHAR_TEXTURES[str:sub(i, i)])
         if texture then
             w = w + texture:getWidth()
@@ -48,7 +48,7 @@ end
 
 function TextChar:draw()
     love.graphics.draw(self.texture)
-    Object.draw(self)
+    self:drawChildren()
 end
 
 return TextChar

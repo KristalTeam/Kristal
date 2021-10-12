@@ -34,7 +34,7 @@ function preview:update(dt)
     if self.particle_timer >= 0.25 then
         self.particle_timer = 0
         local radius = math.random() * 48 + 16
-        table.insert(self.particles, {radius = radius, x = math.random() * WIDTH, y = HEIGHT + radius, max_radius = radius, speed = math.random() * 0.5 + 0.5})
+        table.insert(self.particles, {radius = radius, x = math.random() * SCREEN_WIDTH, y = SCREEN_HEIGHT + radius, max_radius = radius, speed = math.random() * 0.5 + 0.5})
     end
 end
 

@@ -80,7 +80,7 @@ function overlay:draw()
 
     -- Draw the load text
     love.graphics.push()
-    love.graphics.translate(0, HEIGHT)
+    love.graphics.translate(0, SCREEN_HEIGHT)
     love.graphics.scale(2)
     love.graphics.setColor(1, 1, 1, self.load_alpha)
     local load_frame = (math.floor(self.load_timer / 0.25) % #self.load_frames) + 1

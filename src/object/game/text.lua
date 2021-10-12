@@ -1,4 +1,4 @@
-local Text = newClass(Object)
+local Text, super = newClass(Object)
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -14,8 +14,7 @@ Text.COLORS = {
 }
 
 function Text:init(text, x, y, char_type, font)
-    --super:init(self, x, y)
-    Object.init(self, x, y)
+    super:init(self, x, y)
 
     self.char_type = char_type or TextChar
     self.font = font or "main"

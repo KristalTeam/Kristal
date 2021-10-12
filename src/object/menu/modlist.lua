@@ -1,7 +1,7 @@
-local ModList = newClass(Object)
+local ModList, super = newClass(Object)
 
 function ModList:init(x, y, width, height)
-    Object.init(self, x, y, width, height)
+    super:init(self, x, y, width, height)
 
     self.ui_move = love.audio.newSource("assets/sounds/ui_move.wav", "static")
 
@@ -52,7 +52,7 @@ end
 function ModList:addMod(mod)
     table.insert(self.mods, mod)
     self.mod_container:add(mod)
-    mod:moveTo(4, self.mod_list_height + 4)
+    mod:setPosition(4, self.mod_list_height + 4)
     self.mod_list_height = self.mod_list_height + mod.height + 8
 end
 
@@ -144,8 +144,8 @@ function ModList:setScroll(scroll)
     local max_scroll = math.max(self.mod_list_height - self.height, 0)
 
     local selected = self:getSelected()
-    local min_selected_scroll = math.max(selected and (selected.pos.y + selected.height + 4 - self.height) or 0, 0)
-    local max_selected_scroll = math.min(selected and (selected.pos.y - 4) or max_scroll, max_scroll)
+    local min_selected_scroll = math.max(selected and (selected.y + selected.height + 4 - self.height) or 0, 0)
+    local max_selected_scroll = math.min(selected and (selected.y - 4) or max_scroll, max_scroll)
 
     self.scroll_target = utils.clamp(scroll, min_selected_scroll, max_selected_scroll)
 end
@@ -161,7 +161,7 @@ function ModList:update(dt)
     end
 
     self.scroll = self.scroll + ((self.scroll_target - self.scroll) / 2) * (dt * 30)
-    self.mod_container.pos.y = -self.scroll
+    self.mod_container.y = -self.scroll
 
     self:updateChildren(dt)
 end

@@ -1,8 +1,7 @@
-local DialogueText = newClass(Text)
+local DialogueText, super = newClass(Text)
 
 function DialogueText:init(text, x, y, char_type, font)
-    --super:init(self, x, y, font)
-    Text.init(self, text, x, y, char_type or ShadedChar, font)
+    super:init(self, text, x, y, char_type or ShadedChar, font)
 end
 
 function DialogueText:setText(text)
@@ -28,8 +27,7 @@ function DialogueText:setText(text)
     end
 end
 
-function DialogueText:update()
-    local dt = love.timer.getDelta()
+function DialogueText:update(dt)
     self.state.progress = self.state.progress + (dt * 30 * self.state.speed)
 
     if self.state.typing then
@@ -50,11 +48,12 @@ function DialogueText:update()
             self.state.current_node = self.state.current_node + 1
         end
     end
+
+    self:updateChildren(dt)
 end
 
 function DialogueText:processModifier(node)
-    --super:processModifier(self, node)
-    Text.processModifier(self,node)
+    super:processModifier(self, node)
 
     if node.type == "typer_mod" then
         if node.command == "speed" then

@@ -97,14 +97,14 @@ end
 function loadstate:draw()
     if kristal.config.skipIntro then
         love.graphics.push()
-        love.graphics.translate(WIDTH/2, HEIGHT/2)
+        love.graphics.translate(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
         love.graphics.scale(2, 2)
         self:drawSprite(self.logo, 0, 0, 1)
         love.graphics.pop()
         return
     end
 
-    local dt_mult = love.timer.getDelta() * 15
+    local dt_mult = DT * 15
 
     -- We need to draw the logo on a canvas
     love.graphics.setCanvas(self.logo_canvas)

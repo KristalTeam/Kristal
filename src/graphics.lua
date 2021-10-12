@@ -70,13 +70,32 @@ function graphics.popScissor()
 end
 
 function graphics.scissor(x, y, w, h)
-    local sx, sy = love.graphics.transformPoint(x, y)
-    local sx2, sy2 = love.graphics.transformPoint(x+w, y+h)
+    graphics.scissorPoints(x, y, x+w, x+h)
 
-    if love.graphics.getScissor() == nil then
+    --[[if love.graphics.getScissor() == nil then
         love.graphics.setScissor(math.min(sx, sx2), math.min(sy, sy2), math.abs(sx2-sx), math.abs(sy2-sy))
     else
         love.graphics.intersectScissor(math.min(sx, sx2), math.min(sy, sy2), math.abs(sx2-sx), math.abs(sy2-sy))
+    end]]
+end
+
+function graphics.scissorPoints(x1, y1, x2, y2)
+    local scrx, scry = love.graphics.inverseTransformPoint(0, 0)
+    local scrx2, scry2 = love.graphics.inverseTransformPoint(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    local tx1, ty1 = love.graphics.transformPoint(x1 or scrx, y1 or scry)
+    local tx2, ty2 = love.graphics.transformPoint(x2 or scrx2, y2 or scry2)
+
+    local sx, sy = utils.clamp(tx1, 0, SCREEN_WIDTH), utils.clamp(ty1, 0, SCREEN_HEIGHT)
+    local sx2, sy2 = utils.clamp(tx2, 0, SCREEN_WIDTH), utils.clamp(ty2, 0, SCREEN_HEIGHT)
+
+    local min_sx, min_sy = math.min(sx, sx2), math.min(sy, sy2)
+    local max_sx, max_sy = math.max(sx, sx2), math.max(sy, sy2)
+
+    if love.graphics.getScissor() == nil then
+        love.graphics.setScissor(min_sx, min_sy, max_sx - min_sx, max_sy - min_sy)
+    else
+        love.graphics.intersectScissor(min_sx, min_sy, max_sx - min_sx, max_sy - min_sy)
     end
 end
 

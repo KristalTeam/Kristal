@@ -1,4 +1,4 @@
-local Sprite = newClass(Object)
+local Sprite, super = newClass(Object)
 
 function Sprite:init(texture, x, y, allow_anim)
     super:init(self, x, y)
@@ -99,7 +99,7 @@ function Sprite:update(dt)
         self:setProgress(self.anim_progress / (#self.frames * self.anim_delay))
     end
 
-    super:update(self, dt)
+    self:updateChildren(dt)
 end
 
 function Sprite:draw()
@@ -107,7 +107,7 @@ function Sprite:draw()
         love.graphics.draw(self.texture)
     end
 
-    super:draw(self)
+    self:drawChildren()
 end
 
 return Sprite

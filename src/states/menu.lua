@@ -51,11 +51,12 @@ function menu:enter()
     self.stage:add(self.list)
 
     self.heart = Sprite("player/heart_menu")
-    self.heart.origin = Vector(0.5, 0.5)
     self.heart.visible = false
+    self.heart:setOrigin(0.5, 0.5)
     self.stage:add(self.heart)
 
-    self.heart_target = Vector()
+    self.heart_target_x = 0
+    self.heart_target_y = 0
     self.heart_locked_x = nil
     self.heart_locked_y = nil
 
@@ -250,32 +251,32 @@ function menu:update(dt)
     if not mod_button then
         self.heart.visible = false
     else
-        self.heart_target = self.list.pos + Vector(mod_button:getRelativePos(self.list, mod_button:getHeartPos():unpack())) - Vector(0, self.list.scroll_target - self.list.scroll)
+        local button_heart_x, button_heart_y = mod_button:getRelativePos(self.list, mod_button:getHeartPos())
+        self.heart_target_x = self.list.x + button_heart_x
+        self.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
         if not self.heart.visible then
             self.heart.visible = true
-            self.heart.pos = self.heart_target:clone()
+            self.heart:setPosition(self.heart_target_x, self.heart_target_y)
         else
-            if (math.abs((self.heart_target.x - self.heart.pos.x)) <= 2) or self.heart_locked_x == mod_button then
-                self.heart.pos.x = self.heart_target.x
+            if (math.abs((self.heart_target_x - self.heart.x)) <= 2) or self.heart_locked_x == mod_button then
+                self.heart.x = self.heart_target_x
                 self.heart_locked_x = mod_button
             else
                 self.heart_locked_x = nil
             end
-            if (math.abs((self.heart_target.y - self.heart.pos.y)) <= 2) or self.heart_locked_y == mod_button then
-                self.heart.pos.y = self.heart_target.y
+            if (math.abs((self.heart_target_y - self.heart.y)) <= 2) or self.heart_locked_y == mod_button then
+                self.heart.y = self.heart_target_y
                 self.heart_locked_y = mod_button
             else
                 self.heart_locked_y = nil
             end
-
-            self.heart.pos = self.heart.pos + ((self.heart_target - self.heart.pos) / 2) * (dt * 30)
+            self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * (dt * 30)
+            self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * (dt * 30)
         end
     end
 end
 
 function menu:draw()
-    local dt = love.timer.getDelta()
-
     -- Draw the menu background
     self:drawBackground()
 
@@ -305,7 +306,7 @@ function menu:draw()
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
     -- Change the fade opacity for the next frame
-    self.fader_alpha = math.max(0,self.fader_alpha - (0.08 * (dt * 30)))
+    self.fader_alpha = math.max(0,self.fader_alpha - (0.08 * (DT * 30)))
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)
@@ -351,8 +352,7 @@ end
 
 function menu:drawBackground()
     -- This code was originally 30 fps, so we need a deltatime variable to multiply some values by
-    local dt = love.timer.getDelta()
-    local dt_mult = love.timer.getDelta() * 30
+    local dt_mult = DT * 30
 
     -- Math
     self.animation_sine = self.animation_sine + (1 * dt_mult)

@@ -4,7 +4,8 @@ Object.CHILD_SORTER = function(a, b) return a.layer < b.layer end
 
 function Object:init(x, y, width, height)
     -- Intitialize this object's position (optional args)
-    self.pos = Vector(x or 0, y or 0)
+    self.x = x or 0
+    self.y = y or 0
 
     -- Initialize this object's size
     self.width = width or 0
@@ -12,21 +13,28 @@ function Object:init(x, y, width, height)
 
     -- Various draw properties
     self.color = {1, 1, 1, 1}
-    self.scale = Vector(1, 1)
+    self.scale_x = 1
+    self.scale_y = 1
     self.rotation = 0
-    
-    -- Object scissor
-    self.cutout = {left = 0, right = 0, top = 0, bottom = 0}
     
     -- Whether this object's color will be multiplied by its parent's color
     self.inherit_color = false
 
     -- Origin of the object's position
-    self.origin = Vector(0, 0)
+    self.origin_x = 0
+    self.origin_y = 0
     -- Origin of the object's scaling
-    self.scale_origin = Vector(0.5, 0.5)
+    self.scale_origin_x = nil
+    self.scale_origin_y = nil
     -- Origin of the object's rotation
-    self.rotate_origin = Vector(0.5, 0.5)
+    self.rotate_origin_x = nil
+    self.rotate_origin_y = nil
+
+    -- Object scissor, no scissor when nil
+    self.cutout_left = nil
+    self.cutout_top = nil
+    self.cutout_right = nil
+    self.cutout_bottom = nil
 
     -- This object's sorting, higher number = renders last (above siblings)
     self.layer = 0
@@ -56,27 +64,53 @@ function Object:onRemove(parent) end
 
 --[[ Common functions ]]--
 
-function Object:move(x, y)
-    self.pos = self.pos + Vector(x or 0, y or x or 0)
+function Object:move(x, y, speed)
+    self.x = self.x + (x or 0) * (speed or 1)
+    self.y = self.y + (y or 0) * (speed or 1)
 end
 
-function Object:moveTo(x, y)
-    self.pos = Vector(x or 0, y or x or 0)
+function Object:setPosition(x, y) self.x = x or 0; self.y = y or 0 end
+function Object:getPosition() return self.x, self.y end
+
+function Object:setSize(width, height) self.width = width or 0; self.height = height or width or 0 end
+function Object:getSize() return self.width, self.height end
+
+function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
+function Object:getScale() return self.scale_x, self.scale_y end
+
+function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0 end
+function Object:getOrigin() return self.origin_x, self.origin_y end
+
+function Object:setScaleOrigin(x, y) self.scale_origin_x = x; self.scale_origin_y = y or x end
+function Object:getScaleOrigin() return self.scale_origin_x or self.origin_x, self.scale_origin_y or self.origin_y end
+
+function Object:setRotateOrigin(x, y) self.rotate_origin_x = x; self.rotate_origin_y = y or x end
+function Object:getRotateOrigin() return self.rotate_origin_x or self.origin_x, self.rotate_origin_y or self.origin_y end
+
+function Object:setCutout(left, top, right, bottom)
+    self.cutout_left = left
+    self.cutout_top = top
+    self.cutout_right = right
+    self.cutout_bottom = bottom
+end
+function Object:getCutout()
+    return self.cutout_left, self.cutout_top, self.cutout_right, self.cutout_bottom
 end
 
+function Object:setScreenPos(x, y)
+    self:setPosition(self:getFullTransform():transformPoint(x or 0, y or 0))
+end
 function Object:getScreenPos(x, y)
-    x, y = x or 0, y or 0
-    return self:getFullTransform():inverseTransformPoint(x, y)
+    return self:getFullTransform():inverseTransformPoint(x or 0, y or 0)
 end
 
+function Object:setRelativePos(other, x, y)
+    local sx, sy = other:getFullTransform():inverseTransformPoint(x, y)
+    self:setPosition(self:getFullTransform():transformPoint(sx, sy))
+end
 function Object:getRelativePos(other, x, y)
-    x, y = x or 0, y or 0
-    local sx, sy = self:getFullTransform():transformPoint(x, y)
+    local sx, sy = self:getFullTransform():transformPoint(x or 0, y or 0)
     return other:getFullTransform():inverseTransformPoint(sx, sy)
-end
-
-function Object:getSize()
-    return Vector(self.width, self.height)
 end
 
 function Object:getStage()
@@ -97,18 +131,25 @@ function Object:getDrawColor()
     end
 end
 
+function Object:applyScissor()
+    local left, top, right, bottom = self:getCutout()
+    if left or top or right or bottom then
+        kristal.graphics.scissorPoints(left, top, right and (self.width - right), bottom and (self.height - bottom))
+    end
+end
+
 function Object:getTransform()
     local transform = love.math.newTransform()
-    transform:translate(self.pos.x - self.width * self.origin.x, self.pos.y - self.height * self.origin.y)
-    if self.scale ~= 1 then
-        transform:translate(self.width * self.scale_origin.x, self.height * self.scale_origin.y)
-        transform:scale(self.scale.x, self.scale.y)
-        transform:translate(self.width * -self.scale_origin.x, self.height * -self.scale_origin.y)
+    transform:translate(self.x - self.width * self.origin_x, self.y - self.height * self.origin_y)
+    if self.scale_x ~= 1 or self.scale_y ~= 1 then
+        transform:translate(self.width * (self.scale_origin_x or self.origin_x), self.height * (self.scale_origin_y or self.origin_y))
+        transform:scale(self.scale_x, self.scale_y)
+        transform:translate(self.width * -(self.scale_origin_x or self.origin_x), self.height * -(self.scale_origin_y or self.origin_y))
     end
     if self.rotation ~= 0 then
-        transform:translate(self.width * self.rotate_origin.x, self.height * self.rotate_origin.y)
+        transform:translate(self.width * (self.rotate_origin_x or self.origin_x), self.height * (self.rotate_origin_y or self.origin_y))
         transform:rotate(self.rotation)
-        transform:translate(self.width * -self.rotate_origin.x, self.height * -self.rotate_origin.y)
+        transform:translate(self.width * -(self.rotate_origin_x or self.origin_x), self.height * -(self.rotate_origin_y or self.origin_y))
     end
     return transform
 end
@@ -163,15 +204,10 @@ function Object:drawChildren()
             love.graphics.push()
             love.graphics.applyTransform(v:getTransform())
             love.graphics.setColor(v:getDrawColor())
-            local do_scissor = v.cutout.left ~= 0 or v.cutout.right ~= 0 or v.cutout.top ~= 0 or v.cutout.bottom ~= 0
-            if do_scissor then
-                kristal.graphics.pushScissor()
-                kristal.graphics.scissor(v.cutout.left, v.cutout.top, v.width - v.cutout.right - v.cutout.left, v.height - v.cutout.bottom - v.cutout.top)
-            end
+            kristal.graphics.pushScissor()
+            v:applyScissor()
             v:draw()
-            if do_scissor then
-                kristal.graphics.popScissor()
-            end
+            kristal.graphics.popScissor()
             love.graphics.pop()
         end
     end

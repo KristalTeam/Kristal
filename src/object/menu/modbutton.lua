@@ -1,7 +1,7 @@
-local ModButton = newClass(Object)
+local ModButton, super = newClass(Object)
 
 function ModButton:init(name, width, height, mod)
-    Object.init(self, 0, 0, width, height)
+    super:init(self, 0, 0, width, height)
 
     self.name = name
     self.mod = mod
@@ -37,7 +37,7 @@ function ModButton:onDeselect()
 end
 
 function ModButton:getDrawColor()
-    local r, g, b, a = Object.getDrawColor(self)
+    local r, g, b, a = super:getDrawColor(self)
     if not self.selected then
         return r * 0.6, g * 0.6, b * 0.7, a
     else
@@ -46,7 +46,7 @@ function ModButton:getDrawColor()
 end
 
 function ModButton:getHeartPos()
-    return Vector(29, self.height / 2)
+    return 29, self.height / 2
 end
 
 function ModButton:draw()

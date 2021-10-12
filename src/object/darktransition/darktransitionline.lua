@@ -1,8 +1,7 @@
-local DarkTransitionLine = newClass(Object)
+local DarkTransitionLine, super = newClass(Object)
 
 function DarkTransitionLine:init(x)
-    --super:init(self, x, y)
-    Object.init(self, x, 260)
+    super:init(self, x, 260)
 
     local h = (6 + utils.round(40))
     self.image_xscale = 2
@@ -13,21 +12,20 @@ function DarkTransitionLine:init(x)
 end
 
 function DarkTransitionLine:update(dt)
-    self.pos.y = self.pos.y + self.vspeed * (dt * 30)
-    if (self.pos.y >= 400) then
+    self:move(0, self.vspeed * (dt * 30))
+    if (self.y >= 400) then
         self.parent:remove(self)
     end
+    self:updateChildren(dt)
 end
 
 function DarkTransitionLine:draw()
-
     love.graphics.setLineWidth(self.image_xscale * 2)
     love.graphics.setLineStyle("rough")
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.line(self.pos.x, self.pos.y, self.pos.x, self.pos.y + self.image_yscale)
+    love.graphics.line(self.x, self.y, self.x, self.y + self.image_yscale)
 
-
-    super:draw(self)
+    self:drawChildren()
 end
 
 return DarkTransitionLine

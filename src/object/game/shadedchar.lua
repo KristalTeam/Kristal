@@ -22,7 +22,7 @@ function ShadedChar:draw()
 
     love.graphics.setShader(last_shader)
 
-    Object.draw(self)
+    self:drawChildren()
 end
 
 return ShadedChar
