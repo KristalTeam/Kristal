@@ -9,11 +9,17 @@ function preview:init(mod, button, menu)
     self.particle_timer = 0
     
     button.color = {1, 1, 0.7, 1}
+
+    self.menu = menu
 end
 
 function preview:update(dt)
     -- code here gets called every frame, before any draws
     -- to only update while the mod is selected, check self.selected (or self.fade)
+
+    if self.fade > 0.2 and self.menu.heart.parent then
+        self.menu.heart:explode()
+    end
 
     local to_remove = {}
     for _,particle in ipairs(self.particles) do

@@ -51,7 +51,7 @@ function darktransition:enter(preview)
 
     self.stage_scaled = Object()
     self.stage_scaled:setScale(2)
-    self.stage:add(self.stage_scaled)
+    self.stage:addChild(self.stage_scaled)
 
     self.darkzone = false
     self.plot = 9
@@ -89,6 +89,7 @@ function darktransition:enter(preview)
     self.linesfxtimer = 0
     self.nextroom = 69
     self.skiprunback = false
+    self.megablack = false
     if (self.plot == 9) then
         self.nextroom = 70
     end
@@ -128,15 +129,15 @@ function darktransition:enter(preview)
     self.sus_sprite_2.visible = false
     self.sus_sprite_3.visible = false
 
-    self.kris_sprite_holder:add(self.kris_sprite)
-    self.kris_sprite_holder:add(self.kris_sprite_2)
-    self.kris_sprite_holder:add(self.kris_sprite_3)
-    self.stage_scaled:add(self.kris_sprite_holder)
+    self.kris_sprite_holder:addChild(self.kris_sprite)
+    self.kris_sprite_holder:addChild(self.kris_sprite_2)
+    self.kris_sprite_holder:addChild(self.kris_sprite_3)
+    self.stage_scaled:addChild(self.kris_sprite_holder)
 
-    self.sus_sprite_holder:add(self.sus_sprite)
-    self.sus_sprite_holder:add(self.sus_sprite_2)
-    self.sus_sprite_holder:add(self.sus_sprite_3)
-    self.stage_scaled:add(self.sus_sprite_holder)
+    self.sus_sprite_holder:addChild(self.sus_sprite)
+    self.sus_sprite_holder:addChild(self.sus_sprite_2)
+    self.sus_sprite_holder:addChild(self.sus_sprite_3)
+    self.stage_scaled:addChild(self.sus_sprite_holder)
 
     self.spr_susieu = kristal.assets.getFrames("party/susie/world/light/up")
     self.spr_krisu = kristal.assets.getFrames("party/kris/world/light/up")
@@ -228,8 +229,8 @@ function darktransition:update(dt)
             local x =  (( 70 - (math.sin(xrand)  * 70)) + self:camerax())
             local x2 = ((250 + (math.sin(xrand2) * 70)) + self:camerax())
 
-            self.stage:add(DarkTransitionLine(x))
-            self.stage:add(DarkTransitionLine(x2))
+            self.stage_scaled:addChild(DarkTransitionLine(x))
+            self.stage_scaled:addChild(DarkTransitionLine(x2))
 
             self.linetimer = 0
         end
@@ -291,6 +292,12 @@ function darktransition:draw()
 
     love.graphics.setCanvas(self.canvas)
     love.graphics.clear()
+
+    if self.megablack then
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+        love.graphics.setColor(1, 1, 1)
+    end
 
     self.index = self.index + 1 * (DT * 30)
     if (self.rect_draw == 1) then
@@ -701,7 +708,7 @@ function darktransition:draw()
                 local x = ((self.sus_x + 3) + math.random((self.sus_width - 6)))
                 local y = (self.sus_y + self.sus_top)
 
-                self.stage:add(DarkTransitionParticle(x, y))
+                self.stage_scaled:addChild(DarkTransitionParticle(x, y))
 
 
                 --self:drawScissor(self.spr_susie_white_fall_d, (self.index / 4), 0, self.sus_top, self.sus_width, 1, self.sus_x, (self.sus_y + self.sus_top))
@@ -718,7 +725,7 @@ function darktransition:draw()
                 local x = ((self.kris_x + 3) + math.random((self.kris_width - 6)))
                 local y = (self.kris_y + self.kris_top)
 
-                self.stage:add(DarkTransitionParticle(x, y))
+                self.stage_scaled:addChild(DarkTransitionParticle(x, y))
 
                 --self:drawScissor(self.spr_kris_fall_d_white, (self.index / 4), 0, self.kris_top, self.kris_width, 1, self.kris_x, (self.kris_y + self.kris_top))
             end
@@ -779,6 +786,7 @@ function darktransition:draw()
         if (math.floor(self.timer) == 2) then
             --self.megablack.y = 0
         end
+        self.megablack = true
         self.timer = self.timer + 1 * (DT * 30)
         if (self.timer >= 0 and self.timer < 8) then
             self.sus_v = self.sus_v - 0.5 * (DT * 30)

@@ -14,7 +14,7 @@ function ModButton:init(name, width, height, mod)
 
     self.text = Text(self.name, 50, self.height/2 - ModMenuChar:getTextHeight()/2, ModMenuChar)
     self.text.inherit_color = true
-    self:add(self.text)
+    self:addChild(self.text)
 end
 
 function ModButton:setName(name)

@@ -14,16 +14,16 @@ end
 function DarkTransitionLine:update(dt)
     self:move(0, self.vspeed * (dt * 30))
     if (self.y >= 400) then
-        self.parent:remove(self)
+        self.parent:removeChild(self)
     end
     self:updateChildren(dt)
 end
 
 function DarkTransitionLine:draw()
-    love.graphics.setLineWidth(self.image_xscale * 2)
+    love.graphics.setLineWidth(self.image_xscale)
     love.graphics.setLineStyle("rough")
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.line(self.x, self.y, self.x, self.y + self.image_yscale)
+    love.graphics.line(0, 0, 0, self.image_yscale)
 
     self:drawChildren()
 end

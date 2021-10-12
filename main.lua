@@ -37,6 +37,7 @@ Animation = require("src.animation")
 
 Object = require("src.object.object")
 Sprite = require("src.object.sprite")
+Explosion = require("src.object.explosion")
 
 Text = require("src.object.game.text")
 DialogueText = require("src.object.game.dialoguetext")

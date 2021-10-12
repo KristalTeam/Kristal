@@ -7,23 +7,23 @@ function teststate:enter()
 
     self.stage = Object()
 
-    --self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:1].[wait:1].[wait:1].\n\n[wait:10]* I'm the [color:ff00ff]sussy [color:red]among us[color:reset] and [speed:0.2]nobody[speed:1] can\nstop me\n\n[wait:20][instant]* Except [stopinstant][wait:30][instant]law [stopinstant][wait:50][speed:0.2]en[instant]force[stopinstant][wait:20][speed:2]ment", 20, 20))
+    --self.stage:addChild(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:1].[wait:1].[wait:1].\n\n[wait:10]* I'm the [color:ff00ff]sussy [color:red]among us[color:reset] and [speed:0.2]nobody[speed:1] can\nstop me\n\n[wait:20][instant]* Except [stopinstant][wait:30][instant]law [stopinstant][wait:50][speed:0.2]en[instant]force[stopinstant][wait:20][speed:2]ment", 20, 20))
 
-    self.stage:add(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:5].[wait:5].[wait:5].", 20, 20))
+    self.stage:addChild(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:5].[wait:5].[wait:5].", 20, 20))
 
     self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
-    self.stage:add(self.funnytext)
+    self.stage:addChild(self.funnytext)
 
-    self.stage:add(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320, ShadedChar))
+    self.stage:addChild(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320, ShadedChar))
 
-    self.stage:add(DarkTransitionLine(20))
-    self.stage:add(DarkTransitionLine(30))
-    self.stage:add(DarkTransitionLine(40))
-    self.stage:add(DarkTransitionLine(50))
-    self.stage:add(DarkTransitionLine(60))
-    self.stage:add(DarkTransitionLine(70))
-    self.stage:add(DarkTransitionLine(80))
-    self.stage:add(DarkTransitionLine(90))
+    self.stage:addChild(DarkTransitionLine(20))
+    self.stage:addChild(DarkTransitionLine(30))
+    self.stage:addChild(DarkTransitionLine(40))
+    self.stage:addChild(DarkTransitionLine(50))
+    self.stage:addChild(DarkTransitionLine(60))
+    self.stage:addChild(DarkTransitionLine(70))
+    self.stage:addChild(DarkTransitionLine(80))
+    self.stage:addChild(DarkTransitionLine(90))
 end
 
 function teststate:update(dt)

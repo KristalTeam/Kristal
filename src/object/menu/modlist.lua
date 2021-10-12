@@ -9,7 +9,7 @@ function ModList:init(x, y, width, height)
     self.scroll_target = 0
 
     self.mod_container = Object()
-    self:add(self.mod_container)
+    self:addChild(self.mod_container)
 
     self.mod_list_height = 0
 
@@ -41,7 +41,7 @@ end
 
 function ModList:clearMods()
     for _,v in ipairs(self.mods) do
-        self.mod_container:remove(v)
+        self.mod_container:removeChild(v)
     end
     self.mods = {}
     self.selected = 0
@@ -51,7 +51,7 @@ end
 
 function ModList:addMod(mod)
     table.insert(self.mods, mod)
-    self.mod_container:add(mod)
+    self.mod_container:addChild(mod)
     mod:setPosition(4, self.mod_list_height + 4)
     self.mod_list_height = self.mod_list_height + mod.height + 8
 end

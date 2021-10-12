@@ -6,7 +6,7 @@ end
 
 function DialogueText:setText(text)
     for _,v in ipairs(self.chars) do
-        self:remove(v)
+        self:remove()
     end
     self.chars = {}
 

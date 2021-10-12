@@ -48,12 +48,12 @@ function menu:enter()
     self.stage = Object()
 
     self.list = ModList(104, 70, 432, 370)
-    self.stage:add(self.list)
+    self.stage:addChild(self.list)
 
     self.heart = Sprite("player/heart_menu")
     self.heart.visible = false
     self.heart:setOrigin(0.5, 0.5)
-    self.stage:add(self.heart)
+    self.stage:addChild(self.heart)
 
     self.heart_target_x = 0
     self.heart_target_y = 0

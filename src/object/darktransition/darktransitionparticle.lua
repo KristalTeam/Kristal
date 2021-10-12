@@ -19,7 +19,7 @@ function DarkTransitionParticle:update(dt)
 
     self.image_alpha = self.image_alpha - 0.05
     if (self.image_alpha <= 0) then
-        self.parent:remove(self)
+        self:remove()
     end
 
     self:updateChildren(dt)
@@ -28,7 +28,7 @@ end
 function DarkTransitionParticle:draw()
     love.graphics.setPointSize(2 * 2)
     love.graphics.setColor(1, 1, 1, self.image_alpha)
-    love.graphics.points(self.x, self.y)
+    love.graphics.points(0, 0)
 
     self:drawChildren()
 end

@@ -39,6 +39,10 @@ function Object:init(x, y, width, height)
     -- This object's sorting, higher number = renders last (above siblings)
     self.layer = 0
 
+    -- Triggers list sort / child removal
+    self.update_child_list = false
+    self.children_to_remove = {}
+
     -- Whether this object updates
     self.active = true
 
@@ -86,6 +90,14 @@ function Object:getScaleOrigin() return self.scale_origin_x or self.origin_x, se
 
 function Object:setRotateOrigin(x, y) self.rotate_origin_x = x; self.rotate_origin_y = y or x end
 function Object:getRotateOrigin() return self.rotate_origin_x or self.origin_x, self.rotate_origin_y or self.origin_y end
+
+function Object:getLayer() return self.layer end
+function Object:setLayer(layer)
+    self.layer = layer
+    if self.parent then
+        self.parent.child_layer_changed = true
+    end
+end
 
 function Object:setCutout(left, top, right, bottom)
     self.cutout_left = left
@@ -162,34 +174,57 @@ function Object:getFullTransform()
     end
 end
 
-function Object:add(child)
-    child.parent = self
-    table.insert(self.children, child)
-    self:sortChildren()
-    child:onAdd(self)
+function Object:remove()
+    if self.parent then
+        self.parent:removeChild(self)
+    end
 end
 
-function Object:remove(child)
+function Object:explode()
+    if self.parent then
+        local rx, ry = self:getRelativePos(self.parent, self.width/2, self.height/2)
+        local e = Explosion(rx, ry)
+        self.parent:addChild(e)
+        self:remove()
+    end
+end
+
+function Object:addChild(child)
+    child.parent = self
+    table.insert(self.children, child)
+    child:onAdd(self)
+    self.update_child_list = true
+end
+
+function Object:removeChild(child)
     if child.parent == self then
         child.parent = nil
     end
-    for i,v in ipairs(self.children) do
-        if v == child then
-            table.remove(self.children, i)
-            break
-        end
-    end
-    self:sortChildren()
+    self.children_to_remove[child] = true
     child:onRemove(self)
+    self.update_child_list = true
 end
 
 --[[ Internal functions ]]--
 
-function Object:sortChildren()
+function Object:updateChildList()
+    for child,_ in pairs(self.children_to_remove) do
+        for i,v in ipairs(self.children) do
+            if v == child then
+                table.remove(self.children, i)
+                break
+            end
+        end
+    end
+    self.children_to_remove = {}
     table.sort(self.children, Object.CHILD_SORTER)
 end
 
 function Object:updateChildren(dt)
+    if self.update_child_list then
+        self:updateChildList()
+        self.update_child_list = false
+    end
     for _,v in ipairs(self.children) do
         if v.active then
             v:update(dt)
@@ -198,6 +233,10 @@ function Object:updateChildren(dt)
 end
 
 function Object:drawChildren()
+    if self.update_child_list then
+        self:updateChildList()
+        self.update_child_list = false
+    end
     local oldr, oldg, oldb, olda = love.graphics.getColor()
     for _,v in ipairs(self.children) do
         if v.visible then

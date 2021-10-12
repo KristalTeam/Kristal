@@ -43,7 +43,7 @@ end
 
 function Text:setText(text)
     for _,v in ipairs(self.chars) do
-        self:remove(v)
+        self:removeChild(v)
     end
     self.chars = {}
     self:resetState()
@@ -172,7 +172,7 @@ function Text:processNode(node)
             end
             local char = self.char_type(node.character, self.state.current_x, self.state.current_y, self.state.color)
             table.insert(self.chars, char)
-            self:add(char)
+            self:addChild(char)
             self.state.current_x = self.state.current_x + char.width
         end
     else
