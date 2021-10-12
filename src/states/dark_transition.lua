@@ -110,11 +110,13 @@ function darktransition:enter(preview)
     -- Sprite stuff
     self.use_sus_index = false
 
-    self.kris_sprite = Sprite(nil, self.kris_x, self.kris_y)
+    self.kris_sprite_holder = Object(self.kris_x, self.kris_y)
+    self.kris_sprite = Sprite(nil, 0, 0)
     self.kris_sprite_2 = Sprite(nil, 0, 0)
     self.kris_sprite_3 = Sprite(nil, 0, 0)
 
-    self.sus_sprite = Sprite(nil, self.sus_x, self.sus_y)
+    self.sus_sprite_holder = Object(self.sus_x, self.sus_y)
+    self.sus_sprite = Sprite(nil, 0, 0)
     self.sus_sprite_2 = Sprite(nil, 0, 0)
     self.sus_sprite_3 = Sprite(nil, 0, 0)
 
@@ -126,13 +128,15 @@ function darktransition:enter(preview)
     self.sus_sprite_2.visible = false
     self.sus_sprite_3.visible = false
 
-    self.stage_scaled:add(self.kris_sprite)
-    self.kris_sprite:add(self.kris_sprite_2)
-    self.kris_sprite:add(self.kris_sprite_3)
+    self.kris_sprite_holder:add(self.kris_sprite)
+    self.kris_sprite_holder:add(self.kris_sprite_2)
+    self.kris_sprite_holder:add(self.kris_sprite_3)
+    self.stage_scaled:add(self.kris_sprite_holder)
 
-    self.stage_scaled:add(self.sus_sprite)
-    self.sus_sprite:add(self.sus_sprite_2)
-    self.sus_sprite:add(self.sus_sprite_3)
+    self.sus_sprite_holder:add(self.sus_sprite)
+    self.sus_sprite_holder:add(self.sus_sprite_2)
+    self.sus_sprite_holder:add(self.sus_sprite_3)
+    self.stage_scaled:add(self.sus_sprite_holder)
 
     self.spr_susieu = kristal.assets.getFrames("party/susie/world/light/up")
     self.spr_krisu = kristal.assets.getFrames("party/kris/world/light/up")
@@ -607,8 +611,10 @@ function darktransition:draw()
             self.sus_sprite_2:setAnimation(self.spr_susie_white_fall_d)
             self.sus_sprite_3:setAnimation(self.spr_susie_dw_fall_d)
 
+            self.kris_sprite.cutout_bottom = 0
             self.kris_sprite_2.cutout_top = self.kris_top
             self.kris_sprite_3.cutout_top = self.kris_top
+            self.sus_sprite.cutout_bottom = 0
             self.sus_sprite_2.cutout_top = self.sus_top
             self.sus_sprite_3.cutout_top = self.sus_top
 
@@ -637,13 +643,15 @@ function darktransition:draw()
             self.sus_sprite_2.visible = false
         end
 
+        self.kris_sprite.cutout_bottom = self.kris_height - self.kris_top
         self.kris_sprite_2.cutout_top = self.kris_top
-        self.kris_sprite_3.cutout_top = self.kris_top + 1
         self.kris_sprite_2.cutout_bottom = self.kris_height - self.kris_top - 1
+        self.kris_sprite_3.cutout_top = self.kris_top + 1
 
+        self.sus_sprite.cutout_bottom = self.sus_height - self.sus_top
         self.sus_sprite_2.cutout_top = self.sus_top
-        self.sus_sprite_3.cutout_top = self.sus_top + 1
         self.sus_sprite_2.cutout_bottom = self.sus_height - self.sus_top - 1
+        self.sus_sprite_3.cutout_top = self.sus_top + 1
         -----------------
         --[[if (self.kris_only == 0) then
             self:drawScissor(self.spr_susie_lw_fall_d, (self.index / 4), 0, 0, self.sus_width, self.sus_top, self.sus_x, self.sus_y)
@@ -745,9 +753,11 @@ function darktransition:draw()
             self.sus_sprite_2.visible = false
             self.sus_sprite_3.visible = false
 
+            self.kris_sprite:setCutout()
             self.kris_sprite_2:setCutout()
             self.kris_sprite_3:setCutout()
 
+            self.sus_sprite:setCutout()
             self.sus_sprite_2:setCutout()
             self.sus_sprite_3:setCutout()
             -----------------
@@ -1057,8 +1067,8 @@ function darktransition:draw()
         self.sus_sprite:setFrame(math.floor(self.sus_index) + 1)
     end
 
-    self.kris_sprite:setPosition(self.kris_x + self.fake_shakeamount, self.kris_y)
-    self.sus_sprite:setPosition(self.sus_x + self.fake_shakeamount, self.sus_y)
+    self.kris_sprite_holder:setPosition(self.kris_x + self.fake_shakeamount, self.kris_y)
+    self.sus_sprite_holder:setPosition(self.sus_x + self.fake_shakeamount, self.sus_y)
     -----------------
 
     -- Reset canvas to draw to
