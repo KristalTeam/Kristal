@@ -1,6 +1,6 @@
-local shaders = {}
+local Shaders = {}
 
-shaders.GRADIENT_H = love.graphics.newShader([[
+Shaders["GradientH"] = love.graphics.newShader([[
     extern vec4 from;
     extern vec4 to;
     extern number scale;
@@ -10,7 +10,7 @@ shaders.GRADIENT_H = love.graphics.newShader([[
     }
 ]])
 
-shaders.GRADIENT_V = love.graphics.newShader([[
+Shaders["GradientV"] = love.graphics.newShader([[
     extern vec4 from;
     extern vec4 to;
     extern number scale;
@@ -20,7 +20,7 @@ shaders.GRADIENT_V = love.graphics.newShader([[
     }
 ]])
 
-shaders.GRADIENT_H:send("scale", 1)
-shaders.GRADIENT_V:send("scale", 1)
+Shaders["GradientH"]:send("scale", 1)
+Shaders["GradientV"]:send("scale", 1)
 
-return shaders
+return Shaders

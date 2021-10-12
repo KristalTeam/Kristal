@@ -1,9 +1,9 @@
-local Sprite, super = newClass(Object)
+local Sprite, super = Class(Object)
 
 function Sprite:init(texture, x, y, allow_anim)
     super:init(self, x, y)
 
-    if type(texture) == "table" or (type(texture) == "string" and kristal.assets.getFrames(texture)) then
+    if type(texture) == "table" or (type(texture) == "string" and Assets.getFrames(texture)) then
         self:setAnimation(texture)
     else
         self:setTexture(texture)
@@ -30,7 +30,7 @@ function Sprite:setTexture(texture, keep_anim)
         self.anim_progress = 0
     end
     if type(texture) == "string" then
-        self.texture = kristal.assets.getTexture(texture)
+        self.texture = Assets.getTexture(texture)
     else
         self.texture = texture
     end
@@ -56,15 +56,19 @@ function Sprite:setFrame(frame)
     self:updateTexture()
 end
 
-function Sprite:setAnimation(frames)
+function Sprite:setAnimation(frames, speed)
     local old_frames = self.frames
     if type(frames) == "string" then
-        self.frames = kristal.assets.getFrames(frames)
+        self.frames = Assets.getFrames(frames)
     else
         self.frames = frames
     end
-    if not utils.equal(old_frames, self.frames) then
+    if not Utils.equal(old_frames, self.frames) then
         self.current_frame = 1
+    end
+    if speed then
+        self.playing = true
+        self.anim_delay = speed
     end
     self:updateTexture()
 end

@@ -33,7 +33,7 @@ function preview:update(dt)
     end
 
     for _,particle in ipairs(to_remove) do
-        utils.removeFromTable(self.particles, particle)
+        Utils.removeFromTable(self.particles, particle)
     end
 
     self.particle_timer = self.particle_timer + dt

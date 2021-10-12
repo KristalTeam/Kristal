@@ -1,9 +1,9 @@
-local DarkTransitionLine, super = newClass(Object)
+local DarkTransitionLine, super = Class(Object)
 
 function DarkTransitionLine:init(x)
     super:init(self, x, 260)
 
-    local h = (6 + utils.round(40))
+    local h = (6 + Utils.round(40))
     self.image_xscale = 2
     self.image_yscale = (4 * h)
     self.vspeed = (-16 - math.random(4))

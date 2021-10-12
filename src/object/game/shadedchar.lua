@@ -1,7 +1,7 @@
-local ShadedChar = newClass(TextChar)
+local ShadedChar = Class(TextChar)
 
 function ShadedChar:draw()
-    local shader = kristal.shaders.GRADIENT_V
+    local shader = Kristal.Shaders["GradientV"]
 
     local last_shader = love.graphics.getShader()
     love.graphics.setShader(shader)

@@ -1,4 +1,4 @@
-local Text, super = newClass(Object)
+local Text, super = Class(Object)
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -76,11 +76,11 @@ function Text:textToNodes(input_string)
                     i = j -- Let's set i so the modifier isn't processed as normal text
 
                     -- Let's split some values in the modifier!
-                    local split = utils.splitFast(current_modifier, ":")
+                    local split = Utils.splitFast(current_modifier, ":")
                     local command = split[1]
                     local arguments = {}
                     if #split > 1 then
-                        arguments = utils.splitFast(split[2], ",")
+                        arguments = Utils.splitFast(split[2], ",")
                     end
 
                     leaving_modifier = true
@@ -178,7 +178,7 @@ function Text:processNode(node)
     else
         self:processModifier(node)
     end
-    --print(utils.dump(node))
+    --print(Utils.dump(node))
 end
 
 function Text:processModifier(node)
@@ -192,10 +192,10 @@ function Text:processModifier(node)
                 self.state.color = {1, 1, 1, 1}
             elseif #node.arguments[1] == 6 then
                 -- It's 6 letters long, assume hashless hex
-                self.state.color = utils.hexToRgb("#" .. node.arguments[1])
+                self.state.color = Utils.hexToRgb("#" .. node.arguments[1])
             elseif #node.arguments[1] == 7 then
                 -- It's 7 letters long, assume hex
-                self.state.color = utils.hexToRgb(node.arguments[1])
+                self.state.color = Utils.hexToRgb(node.arguments[1])
             end
         end
     end

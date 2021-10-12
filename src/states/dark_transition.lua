@@ -1,19 +1,19 @@
-local darktransition = {}
+local DarkTransition = {}
 
-darktransition.SPRITE_DEPENDENCIES = {
+DarkTransition.SPRITE_DEPENDENCIES = {
     "party/kris/world/light/up_*",
     "party/kris/dark_transition",
     "party/susie/world/light/up_*",
     "party/susie/dark_transition"
 }
 
-function darktransition:camerax() return 0 end
-function darktransition:cameray() return 0 end
+function DarkTransition:camerax() return 0 end
+function DarkTransition:cameray() return 0 end
 
-function darktransition:scr_dark_marker(...) return end -- TODO: stub
-function darktransition:instance_create(...) return end -- TODO: stub
+function DarkTransition:scr_dark_marker(...) return end -- TODO: stub
+function DarkTransition:instance_create(...) return end -- TODO: stub
 
-function darktransition:drawAnimStrip(sprite, subimg, x, y, alpha)
+function DarkTransition:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.setColor(1, 1, 1, alpha)
 
     --local index = #sprite > 1 and ((math.floor(subimg) % (#sprite)) + 1) or 1
@@ -22,14 +22,14 @@ function darktransition:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.draw(sprite[index + 1], x, y)
 end
 
-function darktransition:drawScaledSprite(sprite, x, y, xscale, yscale, rot, color, alpha)
-    local color = utils.copy(color)
+function DarkTransition:drawScaledSprite(sprite, x, y, xscale, yscale, rot, color, alpha)
+    local color = Utils.copy(color)
     color[4] = alpha
     love.graphics.setColor(color)
     love.graphics.draw(sprite, x, y, rot, xscale * 4, yscale * 4, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
-function darktransition:drawScissor(sprite, subimg, left, top, width, height, x, y)
+function DarkTransition:drawScissor(sprite, subimg, left, top, width, height, x, y)
     love.graphics.push()
 
     local scissor_x = ((math.floor(x) >= 0) and math.floor(x) or 0)
@@ -45,7 +45,7 @@ function darktransition:drawScissor(sprite, subimg, left, top, width, height, x,
     love.graphics.pop()
 end
 
-function darktransition:enter(preview)
+function DarkTransition:enter(preview)
     self.prior_state = preview
     self.stage = Object()
 
@@ -106,7 +106,7 @@ function darktransition:enter(preview)
 
     self.snd_dtrans_square = love.audio.newSource("assets/sounds/snd_dtrans_square.ogg", "static")
 
-    self.spr_doorblack = kristal.assets.getTexture("kristal/doorblack")
+    self.spr_doorblack = Assets.getTexture("kristal/doorblack")
 
     -- Sprite stuff
     self.use_sus_index = false
@@ -139,35 +139,35 @@ function darktransition:enter(preview)
     self.sus_sprite_holder:addChild(self.sus_sprite_3)
     self.stage_scaled:addChild(self.sus_sprite_holder)
 
-    self.spr_susieu = kristal.assets.getFrames("party/susie/world/light/up")
-    self.spr_krisu = kristal.assets.getFrames("party/kris/world/light/up")
+    self.spr_susieu = Assets.getFrames("party/susie/world/light/up")
+    self.spr_krisu = Assets.getFrames("party/kris/world/light/up")
 
-    self.spr_susie_lw_fall_u = kristal.assets.getFrames("party/susie/dark_transition/forward")
-    self.spr_krisu_fall_lw = kristal.assets.getFrames("party/kris/dark_transition/forward")
+    self.spr_susie_lw_fall_u = Assets.getFrames("party/susie/dark_transition/forward")
+    self.spr_krisu_fall_lw = Assets.getFrames("party/kris/dark_transition/forward")
 
-    self.spr_susieu_run = kristal.assets.getFrames("party/susie/dark_transition/run")
-    self.spr_krisu_run = kristal.assets.getFrames("party/kris/dark_transition/run")
+    self.spr_susieu_run = Assets.getFrames("party/susie/dark_transition/run")
+    self.spr_krisu_run = Assets.getFrames("party/kris/dark_transition/run")
 
-    self.spr_susie_lw_fall_turn = kristal.assets.getFrames("party/susie/dark_transition/turn")
-    self.spr_kris_fall_turnaround = kristal.assets.getFrames("party/kris/dark_transition/turn")
+    self.spr_susie_lw_fall_turn = Assets.getFrames("party/susie/dark_transition/turn")
+    self.spr_kris_fall_turnaround = Assets.getFrames("party/kris/dark_transition/turn")
 
-    self.spr_susie_lw_fall_d = kristal.assets.getFrames("party/susie/dark_transition/light")
-    self.spr_kris_fall_d_lw = kristal.assets.getFrames("party/kris/dark_transition/light")
+    self.spr_susie_lw_fall_d = Assets.getFrames("party/susie/dark_transition/light")
+    self.spr_kris_fall_d_lw = Assets.getFrames("party/kris/dark_transition/light")
 
-    self.spr_susie_dw_fall_d = kristal.assets.getFrames("party/susie/dark_transition/dark")
-    self.spr_kris_fall_d_dw = kristal.assets.getFrames("party/kris/dark_transition/dark")
+    self.spr_susie_dw_fall_d = Assets.getFrames("party/susie/dark_transition/dark")
+    self.spr_kris_fall_d_dw = Assets.getFrames("party/kris/dark_transition/dark")
 
-    self.spr_susie_white_fall_d = kristal.assets.getFrames("party/susie/dark_transition/white")
-    self.spr_kris_fall_d_white = kristal.assets.getFrames("party/kris/dark_transition/white")
+    self.spr_susie_white_fall_d = Assets.getFrames("party/susie/dark_transition/white")
+    self.spr_kris_fall_d_white = Assets.getFrames("party/kris/dark_transition/white")
 
-    self.spr_susie_dw_fall_smear = kristal.assets.getFrames("party/susie/dark_transition/smear")
-    self.spr_kris_fall_smear = kristal.assets.getFrames("party/kris/dark_transition/smear")
+    self.spr_susie_dw_fall_smear = Assets.getFrames("party/susie/dark_transition/smear")
+    self.spr_kris_fall_smear = Assets.getFrames("party/kris/dark_transition/smear")
 
-    self.spr_susie_dw_fall_ball = kristal.assets.getFrames("party/susie/dark_transition/ball")
-    self.spr_kris_fall_ball = kristal.assets.getFrames("party/kris/dark_transition/ball")
+    self.spr_susie_dw_fall_ball = Assets.getFrames("party/susie/dark_transition/ball")
+    self.spr_kris_fall_ball = Assets.getFrames("party/kris/dark_transition/ball")
 
-    self.spr_susie_dw_landed = kristal.assets.getFrames("party/susie/dark_transition/landed")
-    self.spr_kris_dw_landed = kristal.assets.getFrames("party/kris/dark_transition/landed")
+    self.spr_susie_dw_landed = Assets.getFrames("party/susie/dark_transition/landed")
+    self.spr_kris_dw_landed = Assets.getFrames("party/kris/dark_transition/landed")
 
     self.canvas = love.graphics.newCanvas(320,240)
     -- No filtering
@@ -193,7 +193,7 @@ function darktransition:enter(preview)
     self.dz = 1
 end
 
-function darktransition:update(dt)
+function DarkTransition:update(dt)
     if self.con < 18 then
         self.prior_state:update(dt) -- Update the last state we were in
     end
@@ -284,7 +284,7 @@ function darktransition:update(dt)
     end
 end
 
-function darktransition:draw()
+function DarkTransition:draw()
     love.graphics.clear()
     if self.con < 18 then
         self.prior_state:draw() -- Draw the last state we were in
@@ -738,10 +738,10 @@ function darktransition:draw()
             if (self.quick_mode) then
                 self.linecon = false
             end
-            self.sus_y  = utils.round(self.sus_y)
-            self.sus_x  = utils.round(self.sus_x)
-            self.kris_y = utils.round(self.kris_y)
-            self.kris_x = utils.round(self.kris_x)
+            self.sus_y  = Utils.round(self.sus_y)
+            self.sus_x  = Utils.round(self.sus_x)
+            self.kris_y = Utils.round(self.kris_y)
+            self.kris_x = Utils.round(self.kris_x)
             self.timer = 0
             self.sus_v = -0.2
             self.sus_f = 0.01
@@ -1090,4 +1090,4 @@ function darktransition:draw()
 
 end
 
-return darktransition
+return DarkTransition

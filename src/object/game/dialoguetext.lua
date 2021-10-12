@@ -1,4 +1,4 @@
-local DialogueText, super = newClass(Text)
+local DialogueText, super = Class(Text)
 
 function DialogueText:init(text, x, y, char_type, font)
     super:init(self, text, x, y, char_type or ShadedChar, font)

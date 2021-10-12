@@ -1,8 +1,8 @@
-local menu = {}
+local Menu = {}
 
-menu.TEST_MOD_LIST = false
+Menu.TEST_MOD_LIST = false
 
-menu.BACKGROUND_SHADER = love.graphics.newShader([[
+Menu.BACKGROUND_SHADER = love.graphics.newShader([[
     extern number bg_sine;
     extern number bg_mag;
     extern number wave_height;
@@ -18,9 +18,9 @@ menu.BACKGROUND_SHADER = love.graphics.newShader([[
     }
 ]])
 
-menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to open the mods folder\nPress (C) to open the options menu"}
+Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to open the mods folder\nPress (C) to open the options menu"}
 
-function menu:enter()
+function Menu:enter()
     print("i am so gay")
 
     love.keyboard.setKeyRepeat(true)
@@ -41,8 +41,8 @@ function menu:enter()
     self.background_alpha = 0
 
     -- Assets required for the background animation
-    self.background_image_wave = kristal.assets.getTexture("kristal/title_bg_wave")
-    self.background_image_animation = kristal.assets.getFrames("kristal/title_bg_anim")
+    self.background_image_wave = Assets.getTexture("kristal/title_bg_wave")
+    self.background_image_animation = Assets.getFrames("kristal/title_bg_anim")
 
     -- Initialize variables for the menu
     self.stage = Object()
@@ -61,7 +61,7 @@ function menu:enter()
     self.heart_locked_y = nil
 
     -- Assets required for the menu
-    self.menu_font = kristal.assets.getFont("main")
+    self.menu_font = Assets.getFont("main")
 
     -- Preview fading stuff
     self.background_fade = 1
@@ -73,11 +73,11 @@ function menu:enter()
     self:buildMods()
 end
 
-function menu:leave()
+function Menu:leave()
     self.music:stop()
 end
 
-function menu:drawMenuRectangle(x, y, width, height, color)
+function Menu:drawMenuRectangle(x, y, width, height, color)
     love.graphics.push()
     -- Draw the transparent background
     love.graphics.setColor(0, 0, 0, 0.5)
@@ -98,17 +98,17 @@ function menu:drawMenuRectangle(x, y, width, height, color)
     love.graphics.pop()
 end
 
-function menu:init()
+function Menu:init()
     -- We'll draw the background on a canvas, then resize it 2x
     self.bg_canvas = love.graphics.newCanvas(320,240)
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
 end
 
-function menu:focus()
+function Menu:focus()
     if not self.loading_mods and not self.TEST_MOD_LIST then
         local mod_paths = love.filesystem.getDirectoryItems("mods")
-        if not utils.equal(mod_paths, self.last_loaded) then
+        if not Utils.equal(mod_paths, self.last_loaded) then
             self.loading_mods = true
             self:reloadMods()
             self.last_loaded = mod_paths
@@ -116,11 +116,11 @@ function menu:focus()
     end
 end
 
-function menu:reloadMods()
+function Menu:reloadMods()
     if self.loading_mods then return end
 
     self.loading_mods = true
-    kristal.loadAssets("", "mods", "", function()
+    Kristal.LoadAssets("", "mods", "", function()
         self.loading_mods = false
 
         local last_scroll = self.list.scroll_target
@@ -147,14 +147,14 @@ function menu:reloadMods()
     end)
 end
 
-function menu:buildMods()
+function Menu:buildMods()
     if self.TEST_MOD_LIST then
         for i = 1,15 do
             self.list:addMod(ModButton("Example Mod "..i, 424, 62))
         end
         return
     end
-    for _,mod in ipairs(kristal.mods.getMods()) do
+    for _,mod in ipairs(Kristal.Mods.getMods()) do
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
 
         if mod.preview then
@@ -185,7 +185,7 @@ function menu:buildMods()
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
 end
 
-function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
+function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.setColor(1, 1, 1, alpha)
 
     local index = #sprite > 1 and ((math.floor(subimg) % (#sprite - 1)) + 1) or 1
@@ -193,7 +193,7 @@ function menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
-function menu:printShadow(text, x, y, color, center, limit)
+function Menu:printShadow(text, x, y, color, center, limit)
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.menu_font)
     love.graphics.setColor({0, 0, 0, 1})
@@ -204,11 +204,11 @@ function menu:printShadow(text, x, y, color, center, limit)
     love.graphics.printf(text, x, y, limit or self.menu_font:getWidth(text), center and "center" or "left")
 end
 
-function menu:calculateMenuItemPosition(i, offset)
+function Menu:calculateMenuItemPosition(i, offset)
     return (74 + ((62 + 8) * (i - 1)) + offset)
 end
 
-function menu:update(dt)
+function Menu:update(dt)
     local mod_button = self.list:getSelected()
     local current_mod = mod_button and mod_button.mod
 
@@ -276,17 +276,17 @@ function menu:update(dt)
     end
 end
 
-function menu:draw()
+function Menu:draw()
     -- Draw the menu background
     self:drawBackground()
 
     -- Draw introduction text if no mods exist
     if #self.list.mods == 0 then
-        menu:printShadow(menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+        Menu:printShadow(Menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
     else
         -- Draw some menu text
-        menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
-        menu:printShadow("(X) Mods Folder   (C) Options", 294, 454 - 8, {1, 1, 1, 1})
+        Menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
+        Menu:printShadow("(X) Mods Folder   (C) Options", 294, 454 - 8, {1, 1, 1, 1})
 
         -- Draw the stage (mod menu, heart)
         self.stage:draw()
@@ -312,7 +312,7 @@ function menu:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function menu:keypressed(key, _, is_repeat)
+function Menu:keypressed(key, _, is_repeat)
     if MOD_LOADING then return end
 
     if key == "f5" then
@@ -333,11 +333,11 @@ function menu:keypressed(key, _, is_repeat)
             local current_mod = self.list:getSelectedMod()
             if current_mod then
                 if current_mod.transition then
-                    kristal.loadAssets(current_mod.full_path, "sprites", kristal.states.dark_transition.SPRITE_DEPENDENCIES, function()
-                        kristal.states.switch(kristal.states.dark_transition)
+                    Kristal.LoadAssets(current_mod.full_path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
+                        Gamestate.switch(Kristal.States["DarkTransition"])
                     end)
                 else
-                    kristal.loadMod(current_mod.id)
+                    Kristal.LoadMod(current_mod.id)
                 end
             end
             return
@@ -350,7 +350,7 @@ function menu:keypressed(key, _, is_repeat)
     end
 end
 
-function menu:drawBackground()
+function Menu:drawBackground()
     -- This code was originally 30 fps, so we need a deltatime variable to multiply some values by
     local dt_mult = DT * 30
 
@@ -425,4 +425,4 @@ function menu:drawBackground()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-return menu
+return Menu

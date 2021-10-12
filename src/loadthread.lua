@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 require("love.image")
 
 json = require("src.lib.json")
@@ -55,9 +56,6 @@ function resetData()
             frame_ids = {},
             frames = {},
             fonts = {}
-        },
-        data = {
-            animations = {}
         }
     }
 
@@ -65,9 +63,7 @@ function resetData()
         ["mods"] = {},
     
         ["sprites"] = {},
-        ["fonts"] = {},
-    
-        ["animations"] = {}
+        ["fonts"] = {}
     }
 end
 
@@ -121,18 +117,6 @@ local loaders = {
         local id = checkExtension(path, "ttf")
         if id then
             data.assets.fonts[id] = full_path
-        end
-    end},
-
-    -- Data Loaders
-
-    ["animations"] = {"data/animations", function(baseDir, path, full_path)
-        if checkExtension(path, "json") then
-            local json_str = love.filesystem.read(full_path)
-            local animations = json.decode(json_str)
-            for k,v in pairs(animations) do
-                data.data.animations[k] = v
-            end
         end
     end}
 }

@@ -1,39 +1,30 @@
 require("src.vars")
 
-Class = require("src.lib.hump.class")
-Vector = require("src.lib.hump.vector")
+_Class = require("src.lib.hump.class")
+Gamestate = require("src.lib.hump.gamestate")
+Vector = require("src.lib.hump.vector-light")
+Timer = require("src.lib.hump.timer")
+JSON = require("src.lib.json")
 
-require ("src.classhelper")
+Class = require("src.classhelper")
 require ("src.graphicshelper")
 
-lib = {}
+Utils = require("src.utils")
 
-lib.gamestate = require("src.lib.hump.gamestate")
-lib.vector = require("src.lib.hump.vector-light")
-lib.timer = require("src.lib.hump.timer")
-lib.json = require("src.lib.json")
+Kristal = {}
+Kristal.Config = {}
+Kristal.Mods = require("src.mods")
+Kristal.Overlay = require("src.overlay")
+Kristal.Shaders = require("src.shaders")
+Kristal.States = {
+    ["Loading"] = require("src.states.loading"),
+    ["Menu"] = require("src.states.menu"),
+    ["Testing"] = require("src.states.testing"),
+    ["DarkTransition"] = require("src.states.dark_transition")
+}
 
-utils = require("src.utils")
-
-kristal = {}
-
-kristal.mods = require("src.mods")
-kristal.assets = require("src.assets")
-kristal.data = require("src.data")
-kristal.overlay = require("src.overlay")
-kristal.graphics = require("src.graphics")
-kristal.shaders = require("src.shaders")
-
-kristal.states = require("src.states")
-kristal.states.loading = require("src.states.loading")
-kristal.states.menu = require("src.states.menu")
-kristal.states.dark_transition = require("src.states.dark_transition")
-kristal.states.testing = require("src.states.testing")
-
-kristal.config = {}
-
-Camera = require("src.lib.hump.camera")
-Animation = require("src.animation")
+Assets = require("src.assets")
+Draw = require("src.draw")
 
 Object = require("src.object.object")
 Sprite = require("src.object.sprite")
@@ -51,6 +42,7 @@ ModMenuChar = require("src.object.menu.modmenuchar")
 DarkTransitionLine = require("src.object.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.object.darktransition.darktransitionparticle")
 
+
 local load_in_channel
 local load_out_channel
 local load_thread
@@ -61,13 +53,13 @@ local load_end_funcs = {}
 
 function love.load()
     -- load the settings.json
-    kristal.config = kristal.loadConfig()
+    Kristal.Config = Kristal.LoadConfig()
 
     -- pixel scaling (the good one)
     love.graphics.setDefaultFilter("nearest")
 
     -- scale the window if we have to
-    local window_scale = kristal.config.windowScale
+    local window_scale = Kristal.Config["windowScale"]
     if window_scale ~= 1 then
         love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale)
     end
@@ -76,34 +68,34 @@ function love.load()
     love.filesystem.createDirectory("mods")
 
     -- register gamestate calls
-    lib.gamestate.registerEvents()
+    Gamestate.registerEvents()
 
     -- initialize overlay
-    kristal.overlay:init()
+    Kristal.Overlay:init()
 
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
     -- setup hooks
-    love.update = utils.hook(love.update, function(orig, ...)
+    love.update = Utils.hook(love.update, function(orig, ...)
         orig(...)
-        kristal.overlay:update(...)
+        Kristal.Overlay:update(...)
     end)
-    love.draw = utils.hook(love.draw, function(orig, ...)
+    love.draw = Utils.hook(love.draw, function(orig, ...)
         love.graphics.reset()
 
         love.graphics.setCanvas(SCREEN_CANVAS)
         love.graphics.clear()
         orig(...)
-        kristal.overlay:draw()
+        Kristal.Overlay:draw()
         love.graphics.setCanvas()
 
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.scale(kristal.config.windowScale)
+        love.graphics.scale(Kristal.Config["windowScale"])
         love.graphics.draw(SCREEN_CANVAS)
 
-        kristal.graphics._clearUnusedCanvases()
+        Draw._clearUnusedCanvases()
     end)
 
     -- start load thread
@@ -114,11 +106,11 @@ function love.load()
     load_thread:start()
 
     -- load menu
-    kristal.states.switch(kristal.states.loading)
+    Gamestate.switch(Kristal.States["Loading"])
 end
 
 function love.quit()
-    kristal.saveConfig()
+    Kristal.SaveConfig()
     if load_thread and load_thread:isRunning() then
         load_in_channel:push("stop")
     end
@@ -127,7 +119,7 @@ end
 function love.update(dt)
     DT = dt
 
-    lib.timer.update(dt)
+    Timer.update(dt)
 
     if load_waiting > 0 then
         local msg = load_out_channel:pop()
@@ -135,12 +127,11 @@ function love.update(dt)
             load_waiting = load_waiting - 1
             
             if load_waiting == 0 then
-                kristal.overlay.setLoading(false)
+                Kristal.Overlay.setLoading(false)
             end
 
-            kristal.assets.loadData(msg.data.assets)
-            kristal.data.loadData(msg.data.data)
-            kristal.mods.loadData(msg.data.mods)
+            Assets.loadData(msg.data.assets)
+            Kristal.Mods.loadData(msg.data.mods)
 
             if load_end_funcs[msg.key] then
                 load_end_funcs[msg.key]()
@@ -150,16 +141,15 @@ function love.update(dt)
     end
 end
 
-function kristal.clearAssets(include_mods)
-    kristal.assets.clear()
-    kristal.data.clear()
+function Kristal.ClearAssets(include_mods)
+    Assets.clear()
     if include_mods then
-        kristal.mods.clear()
+        Kristal.Mods.clear()
     end
 end
 
-function kristal.loadAssets(dir, loader, paths, after)
-    kristal.overlay.setLoading(true)
+function Kristal.LoadAssets(dir, loader, paths, after)
+    Kristal.Overlay.setLoading(true)
     load_waiting = load_waiting + 1
     if after then
         load_end_funcs[next_load_key] = after
@@ -173,8 +163,8 @@ function kristal.loadAssets(dir, loader, paths, after)
     next_load_key = next_load_key + 1
 end
 
-function kristal.loadMod(id)
-    local mod = kristal.mods.getMod(id)
+function Kristal.LoadMod(id)
+    local mod = Kristal.Mods.getMod(id)
 
     if not mod then return end
 
@@ -185,10 +175,10 @@ function kristal.loadMod(id)
 
         MOD_LOADING = true
 
-        kristal.loadAssets(mod.full_path, "all", "", function()
+        Kristal.LoadAssets(mod.full_path, "all", "", function()
             MOD_LOADING = false
 
-            mod.lua = kristal.createModEnvironment()
+            mod.lua = Kristal.CreateModEnvironment()
 
             setfenv(chunk, mod.lua)
             chunk()
@@ -196,8 +186,8 @@ function kristal.loadMod(id)
     end
 end
 
-function kristal.createModEnvironment()
-    local env = setmetatable({}, {__index = _G})
+function Kristal.CreateModEnvironment(global)
+    local env = setmetatable({}, {__index = global or _G})
     local function setupGlobals()
         function require(path)
             local chunk
@@ -213,17 +203,17 @@ function kristal.createModEnvironment()
     return env
 end
 
-function kristal.loadConfig()
+function Kristal.LoadConfig()
     local config = {
         windowScale = 1,
         skipIntro = false
     }
     if love.filesystem.getInfo("settings.json") then
-        utils.merge(config, lib.json.decode(love.filesystem.read("settings.json")))
+        Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
     end
     return config
 end
 
-function kristal.saveConfig()
-    love.filesystem.write("settings.json", lib.json.encode(kristal.config))
+function Kristal.SaveConfig()
+    love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
 end

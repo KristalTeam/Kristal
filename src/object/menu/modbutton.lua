@@ -1,4 +1,4 @@
-local ModButton, super = newClass(Object)
+local ModButton, super = Class(Object)
 
 function ModButton:init(name, width, height, mod)
     super:init(self, 0, 0, width, height)
@@ -10,7 +10,7 @@ function ModButton:init(name, width, height, mod)
     self.selected = false
 
     -- temporary
-    self.font = kristal.assets.getFont("main")
+    self.font = Assets.getFont("main")
 
     self.text = Text(self.name, 50, self.height/2 - ModMenuChar:getTextHeight()/2, ModMenuChar)
     self.text.inherit_color = true
@@ -68,15 +68,15 @@ function ModButton:draw()
     love.graphics.rectangle("line", -3, -3, self.width + 6, self.height + 6)
 
     -- Draw children inside the current box
-    kristal.graphics.pushScissor()
-    kristal.graphics.scissor(0, 0, self.width, self.height)
+    Draw.pushScissor()
+    Draw.scissor(0, 0, self.width, self.height)
     -- TODO: Non-monospaced fonts, for now we just draw it here
     love.graphics.setColor(0, 0, 0)
     love.graphics.print(self.name, 50 + 2, math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2 + 2)
     love.graphics.setColor(self:getDrawColor())
     love.graphics.print(self.name, 50, math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2)
     --self:drawChildren()
-    kristal.graphics.popScissor()
+    Draw.popScissor()
 end
 
 return ModButton

@@ -1,3 +1,3 @@
 require("state")
 
-kristal.states.switch(example_state)
+Gamestate.switch(example_state)

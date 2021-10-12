@@ -1,20 +1,21 @@
-local mods = {}
+local Mods = {}
+local self = Mods
 
-function mods.clear()
-    mods.loaded = false
-    mods.list = {}
-    mods.data = {}
-    mods.named = {}
+function Mods.clear()
+    self.loaded = false
+    self.list = {}
+    self.data = {}
+    self.named = {}
 end
 
-function mods.loadData(data)
+function Mods.loadData(data)
     for mod_id,mod_data in pairs(data) do
-        if mods.data[mod_id] then
-            local old_mod = mods.data[mod_id]
+        if self.data[mod_id] then
+            local old_mod = self.data[mod_id]
             if old_mod.name then
-                mods.named[old_mod.name] = nil
+                self.named[old_mod.name] = nil
             end
-            utils.removeFromTable(mods.list, old_mod)
+            Utils.removeFromTable(self.list, old_mod)
         end
 
         -- convert image data into images
@@ -25,24 +26,24 @@ function mods.loadData(data)
             end
         end
 
-        mods.data[mod_id] = mod_data
+        self.data[mod_id] = mod_data
         if mod_data.name then
-            mods.named[mod_data.name] = mod_id
+            self.named[mod_data.name] = mod_id
         end
-        table.insert(mods.list, mods.data[mod_id])
+        table.insert(self.list, self.data[mod_id])
     end
 end
 
-function mods.getMods()
-    return mods.list
+function Mods.getMods()
+    return self.list
 end
 
-function mods.getMod(id)
-    return mods.data[id] or (mods.named[id] and mods.data[mods.named[id]])
+function Mods.getMod(id)
+    return self.data[id] or (self.named[id] and self.data[self.named[id]])
 end
 
-function mods.getName(id)
-    return mods.data[id].name or id
+function Mods.getName(id)
+    return self.data[id].name or id
 end
 
-return mods
+return Mods

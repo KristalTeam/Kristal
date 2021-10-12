@@ -1,9 +1,9 @@
-local Explosion, super = newClass(Object)
+local Explosion, super = Class(Object)
 
 function Explosion:init(x, y)
     super:init(self, x, y)
 
-    self.frames = kristal.assets.getFrames("misc/realistic_explosion")
+    self.frames = Assets.getFrames("misc/realistic_explosion")
     self.frame = 1
     self.speed = 1
 

@@ -1,4 +1,4 @@
-local ModList, super = newClass(Object)
+local ModList, super = Class(Object)
 
 function ModList:init(x, y, width, height)
     super:init(self, x, y, width, height)
@@ -147,7 +147,7 @@ function ModList:setScroll(scroll)
     local min_selected_scroll = math.max(selected and (selected.y + selected.height + 4 - self.height) or 0, 0)
     local max_selected_scroll = math.min(selected and (selected.y - 4) or max_scroll, max_scroll)
 
-    self.scroll_target = utils.clamp(scroll, min_selected_scroll, max_selected_scroll)
+    self.scroll_target = Utils.clamp(scroll, min_selected_scroll, max_selected_scroll)
 end
 
 function ModList:update(dt)
@@ -180,10 +180,10 @@ function ModList:draw()
         love.graphics.rectangle("fill", self.width + 2, scrollbar_y, 4, scrollbar_height)
     end
 
-    kristal.graphics.pushScissor()
-    kristal.graphics.scissor(0, 0, self.width, self.height)
+    Draw.pushScissor()
+    Draw.scissor(0, 0, self.width, self.height)
     self:drawChildren()
-    kristal.graphics.popScissor()
+    Draw.popScissor()
 end
 
 return ModList

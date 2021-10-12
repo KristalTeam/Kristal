@@ -1,4 +1,4 @@
-local Object = Class{}
+local Object = Class()
 
 Object.CHILD_SORTER = function(a, b) return a.layer < b.layer end
 
@@ -146,7 +146,7 @@ end
 function Object:applyScissor()
     local left, top, right, bottom = self:getCutout()
     if left or top or right or bottom then
-        kristal.graphics.scissorPoints(left, top, right and (self.width - right), bottom and (self.height - bottom))
+        Draw.scissorPoints(left, top, right and (self.width - right), bottom and (self.height - bottom))
     end
 end
 
@@ -243,10 +243,10 @@ function Object:drawChildren()
             love.graphics.push()
             love.graphics.applyTransform(v:getTransform())
             love.graphics.setColor(v:getDrawColor())
-            kristal.graphics.pushScissor()
+            Draw.pushScissor()
             v:applyScissor()
             v:draw()
-            kristal.graphics.popScissor()
+            Draw.popScissor()
             love.graphics.pop()
         end
     end

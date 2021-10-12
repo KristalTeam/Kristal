@@ -1,8 +1,9 @@
-local assets = {}
+local Assets = {}
+local self = Assets
 
-function assets.clear()
-    assets.loaded = false
-    assets.data = {
+function Assets.clear()
+    self.loaded = false
+    self.data = {
         texture = {},
         texture_data = {},
         frame_ids = {},
@@ -11,58 +12,58 @@ function assets.clear()
     }
 end
 
-function assets.loadData(data)
-    utils.merge(assets.data, data, true)
+function Assets.loadData(data)
+    Utils.merge(self.data, data, true)
 
     -- thread can't create images, we do it here
     for key,image_data in pairs(data.texture_data) do
-        assets.data.texture[key] = love.graphics.newImage(image_data)
+        self.data.texture[key] = love.graphics.newImage(image_data)
     end
 
     -- create frame tables with images
     for key,ids in pairs(data.frame_ids) do
-        assets.data.frames[key] = assets.data.frames[key] or {}
+        self.data.frames[key] = self.data.frames[key] or {}
         for i,id in pairs(ids) do
-            assets.data.frames[key][i] = assets.data.texture[id]
+            self.data.frames[key][i] = self.data.texture[id]
         end
     end
 
     for key,path in pairs(data.fonts) do
-        assets.data.fonts[key] = love.graphics.newFont(path, 32, "mono")
+        self.data.fonts[key] = love.graphics.newFont(path, 32, "mono")
     end
 
-    assets.loaded = true
+    self.loaded = true
 end
 
-function assets.getFont(path)
+function Assets.getFont(path)
     if path:sub(1, 1) == "^" then
-        assets.data.fonts[path] = assets.data.fonts[path] or love.graphics.newFont(path:sub(2)..".ttf", 32, "mono")
+        self.data.fonts[path] = self.data.fonts[path] or love.graphics.newFont(path:sub(2)..".ttf", 32, "mono")
     end
-    return assets.data.fonts[path]
+    return self.data.fonts[path]
 end
 
-function assets.getTexture(path)
+function Assets.getTexture(path)
     if path:sub(1, 1) == "^" then
-        assets.data.texture[path] = assets.data.texture[path] or love.graphics.newImage(path:sub(2)..".png")
+        self.data.texture[path] = self.data.texture[path] or love.graphics.newImage(path:sub(2)..".png")
     end
-    return assets.data.texture[path]
+    return self.data.texture[path]
 end
 
-function assets.getTextureData(path)
+function Assets.getTextureData(path)
     if path:sub(1, 1) == "^" then
-        assets.data.texture_data[path] = assets.data.texture_data[path] or love.image.newImageData(path:sub(2)..".png")
+        self.data.texture_data[path] = self.data.texture_data[path] or love.image.newImageData(path:sub(2)..".png")
     end
-    return assets.data.texture_data[path]
+    return self.data.texture_data[path]
 end
 
-function assets.getFrames(path)
-    return assets.data.frames[path]
+function Assets.getFrames(path)
+    return self.data.frames[path]
 end
 
-function assets.getFrameIds(path)
-    return assets.data.frame_ids[path]
+function self.getFrameIds(path)
+    return self.data.frame_ids[path]
 end
 
-assets.clear()
+Assets.clear()
 
-return assets
+return Assets

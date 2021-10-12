@@ -1,4 +1,4 @@
-local ModMenuChar = newClass(TextChar)
+local ModMenuChar = Class(TextChar)
 
 function ModMenuChar:draw()
     love.graphics.setColor(0, 0, 0, 1)

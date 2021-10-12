@@ -1,10 +1,10 @@
-local utils = {}
+local Utils = {}
 
-function utils.copy(tbl, deep)
+function Utils.copy(tbl, deep)
     local new_tbl = {}
     for k,v in pairs(tbl) do
         if type(v) == "table" and deep then
-            new_tbl[k] = utils.copy(v, true)
+            new_tbl[k] = Utils.copy(v, true)
         else
             new_tbl[k] = v
         end
@@ -18,24 +18,24 @@ local function dumpKey(key)
     elseif type(key) == 'string' and not key:find("[^%a_%-]") then
         return key
     else
-        return '['..utils.dump(key)..']'
+        return '['..Utils.dump(key)..']'
     end
 end
 
-function utils.dump(o)
+function Utils.dump(o)
     if type(o) == 'table' then
         local s = '{'
         local cn = 1
         if #o ~= 0 then
             for _,v in ipairs(o) do
                 if cn > 1 then s = s .. ', ' end
-                s = s .. utils.dump(v)
+                s = s .. Utils.dump(v)
                 cn = cn + 1
             end
         else
             for k,v in pairs(o) do
                 if cn > 1 then s = s .. ', ' end
-                s = s .. dumpKey(k) .. ' = ' .. utils.dump(v)
+                s = s .. dumpKey(k) .. ' = ' .. Utils.dump(v)
                 cn = cn + 1
             end
         end
@@ -47,7 +47,7 @@ function utils.dump(o)
     end
 end
 
-function utils.splitFast(str, sep)
+function Utils.splitFast(str, sep)
     local t={} ; i=1
     for str in string.gmatch(str, "([^"..sep.."]+)") do
         t[i] = str
@@ -56,7 +56,7 @@ function utils.splitFast(str, sep)
     return t
 end
 
-function utils.split(str, sep, remove_empty)
+function Utils.split(str, sep, remove_empty)
     local t = {}
     local i = 1
     local s = ""
@@ -78,20 +78,20 @@ function utils.split(str, sep, remove_empty)
     return t
 end
 
-function utils.hook(target, func)
+function Utils.hook(target, func)
     return function(...)
         return func(target, ...)
     end
 end
 
-function utils.equal(a, b, deep)
+function Utils.equal(a, b, deep)
     if type(a) ~= type(b) then
         return false
     elseif type(a) == "table" then
         for k,v in pairs(a) do
             if b[k] == nil then
                 return false
-            elseif deep and not utils.equal(v, b[k]) then
+            elseif deep and not Utils.equal(v, b[k]) then
                 return false
             elseif not deep and v ~= b[k] then
                 return false
@@ -108,7 +108,7 @@ function utils.equal(a, b, deep)
     return true
 end
 
-function utils.getFilesRecursive(dir)
+function Utils.getFilesRecursive(dir)
     local result = {}
 
     local paths = love.filesystem.getDirectoryItems(dir)
@@ -116,7 +116,7 @@ function utils.getFilesRecursive(dir)
         local info = love.filesystem.getInfo(dir.."/"..path)
         if info then
             if info.type == "directory" then
-                local inners = utils.getFilesRecursive(dir.."/"..path)
+                local inners = Utils.getFilesRecursive(dir.."/"..path)
                 for _,inner in ipairs(inners) do
                     table.insert(result, path.."/"..inner)
                 end
@@ -129,7 +129,7 @@ function utils.getFilesRecursive(dir)
     return result
 end
 
-function utils.getCombinedText(text)
+function Utils.getCombinedText(text)
     if type(text) == "table" then
         local s = ""
         for _,v in ipairs(text) do
@@ -145,7 +145,7 @@ end
 
 
 -- https://github.com/Wavalab/rgb-hsl-rgb
-function utils.hslToRgb(h, s, l)
+function Utils.hslToRgb(h, s, l)
     if s == 0 then return l, l, l end
     local function to(p, q, t)
         if t < 0 then t = t + 1 end
@@ -160,7 +160,7 @@ function utils.hslToRgb(h, s, l)
     return to(p, q, h + .33334), to(p, q, h), to(p, q, h - .33334)
 end
 
-function utils.rgbToHsl(r, g, b)
+function Utils.rgbToHsl(r, g, b)
     local max, min = math.max(r, g, b), math.min(r, g, b)
     local b = max + min
     local h = b / 2
@@ -176,15 +176,15 @@ function utils.rgbToHsl(r, g, b)
 end
 
 -- https://github.com/s-walrus/hex2color
-function utils.hexToRgb(hex, value)
+function Utils.hexToRgb(hex, value)
 	return {tonumber(string.sub(hex, 2, 3), 16)/256, tonumber(string.sub(hex, 4, 5), 16)/256, tonumber(string.sub(hex, 6, 7), 16)/256, value or 1}
 end
 
-function utils:rgbToHex(rgb)
+function Utils:rgbToHex(rgb)
     return string.format("#%02X%02X%02X", rgb[1], rgb[2], rgb[3])
 end
 
-function utils.merge(tbl, other, deep)
+function Utils.merge(tbl, other, deep)
     if #tbl > 0 and #other > 0 then
         for _,v in ipairs(other) do
             table.insert(tbl, v)
@@ -192,7 +192,7 @@ function utils.merge(tbl, other, deep)
     else
         for k,v in pairs(other) do
             if deep and type(tbl[k]) == "table" and type(v) == "table" then
-                utils.merge(tbl[k], v, true)
+                Utils.merge(tbl[k], v, true)
             else
                 tbl[k] = v
             end
@@ -201,7 +201,7 @@ function utils.merge(tbl, other, deep)
     return tbl
 end
 
-function utils.removeFromTable(tbl, val)
+function Utils.removeFromTable(tbl, val)
     for i,v in ipairs(tbl) do
         if v == val then
             table.remove(tbl, i)
@@ -210,13 +210,13 @@ function utils.removeFromTable(tbl, val)
     end
 end
 
-function utils.round(value)
+function Utils.round(value)
     return math.floor(value + 0.5)
 end
 
-function utils.clamp(val, min, max)
+function Utils.clamp(val, min, max)
     return math.max(min, math.min(max, val))
 end
 
 
-return utils
+return Utils

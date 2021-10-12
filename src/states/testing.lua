@@ -1,8 +1,8 @@
-local teststate = {}
+local Testing = {}
 
-function teststate:enter()
-    self.font = kristal.assets.getFont("main")
-    self.face = kristal.assets.getTexture("face/ralsei_hat/spr_face_r_dark_9")
+function Testing:enter()
+    self.font = Assets.getFont("main")
+    self.face = Assets.getTexture("face/ralsei_hat/spr_face_r_dark_9")
     self.timer = 0
 
     self.stage = Object()
@@ -26,13 +26,13 @@ function teststate:enter()
     self.stage:addChild(DarkTransitionLine(90))
 end
 
-function teststate:update(dt)
+function Testing:update(dt)
     self.stage:update(dt)
 
     self.timer = self.timer + dt
     for i,char in ipairs(self.funnytext.chars) do
         if char.color[1] ~= 1 or char.color[2] ~= 1 or char.color[3] ~= 1 then
-            local color = {utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
+            local color = {Utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
             char.color = {color[1], color[2], color[3], 1}
 
             local scale = 1 + (math.sin(self.timer * 6 + (i * 0.5)) * 0.3)
@@ -44,12 +44,12 @@ function teststate:update(dt)
     end
 end
 
-function teststate:draw()
+function Testing:draw()
     love.graphics.clear()
     self.stage:draw()
 
-    --[[local text1_lines = utils.split(text, "\n")
-    local canvas = kristal.graphics.getCanvas("star_text", self.font:getWidth(text1), self.font:getHeight() * #text1_lines)
+    --[[local text1_lines = Utils.split(text, "\n")
+    local canvas = Draw.getCanvas("star_text", self.font:getWidth(text1), self.font:getHeight() * #text1_lines)
 
     love.graphics.setCanvas(canvas)
     love.graphics.clear()
@@ -66,7 +66,7 @@ function teststate:draw()
     love.graphics.setShader()]]
 end
 
-function teststate:drawScissor(image, left, top, width, height, x, y, xscale, yscale, alpha)
+function Testing:drawScissor(image, left, top, width, height, x, y, xscale, yscale, alpha)
     love.graphics.push("all")
     love.graphics.scale(xscale, yscale)
     love.graphics.setScissor(x, y, width, height)
@@ -76,4 +76,4 @@ function teststate:drawScissor(image, left, top, width, height, x, y, xscale, ys
     love.graphics.pop()
 end
 
-return teststate
+return Testing

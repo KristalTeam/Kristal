@@ -10,7 +10,7 @@ function graphics.reset()
   transformStack = {}
   love.graphics.origin()
 
-  kristal.graphics._scissor_stack = {}
+  Draw._scissor_stack = {}
   love.graphics.setScissor()
 end
 

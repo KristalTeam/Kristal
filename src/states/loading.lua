@@ -1,6 +1,6 @@
-local loadstate = {}
+local Loading = {}
 
-function loadstate:init()
+function Loading:init()
     self.logo = love.graphics.newImage("assets/sprites/kristal/title_logo.png")
     self.logo_heart = love.graphics.newImage("assets/sprites/kristal/title_logo_heart.png")
 
@@ -10,12 +10,9 @@ function loadstate:init()
     self.logo_canvas:setFilter("nearest", "nearest")
 end
 
-function loadstate:enter(from, dir)
+function Loading:enter(from, dir)
     MOD = nil
     MOD_PATH = nil
-
-    kristal.assets.clear()
-    kristal.data.clear()
 
     self.loading = false
     self.load_complete = false
@@ -25,7 +22,7 @@ function loadstate:enter(from, dir)
     self.w = self.logo:getWidth()
     self.h = self.logo:getHeight()
 
-    if not kristal.config.skipIntro then
+    if not Kristal.Config["skipIntro"] then
         self.noise = love.audio.newSource("assets/sounds/kristal_intro.ogg", "stream")
         self.end_noise = love.audio.newSource("assets/sounds/kristal_intro_end.ogg", "stream")
         self.noise:play()
@@ -49,26 +46,26 @@ function loadstate:enter(from, dir)
     self.fader_alpha = 0
 end
 
-function loadstate:beginLoad()
-    kristal.clearAssets(true)
+function Loading:beginLoad()
+    Kristal.ClearAssets(true)
 
     self.loading = true
     self.load_complete = false
 
-    kristal.loadAssets("", "all", "")
-    kristal.loadAssets("", "mods", "", function()
+    Kristal.LoadAssets("", "all", "")
+    Kristal.LoadAssets("", "mods", "", function()
         self.loading = false
         self.load_complete = true
     end)
 end
 
-function loadstate:update(dt)
-    if self.load_complete and (self.animation_done or kristal.config.skipIntro) then
-        kristal.states.switch(LOAD_TESTING and kristal.states.testing or kristal.states.menu)
+function Loading:update(dt)
+    if self.load_complete and (self.animation_done or Kristal.Config["skipIntro"]) then
+        Gamestate.switch(LOAD_TESTING and Kristal.States["Testing"] or Kristal.States["Menu"])
     end
 end
 
-function loadstate:drawScissor(image, left, top, width, height, x, y, alpha)
+function Loading:drawScissor(image, left, top, width, height, x, y, alpha)
     love.graphics.push()
 
     local scissor_x = ((math.floor(x) >= 0) and math.floor(x) or 0)
@@ -82,7 +79,7 @@ function loadstate:drawScissor(image, left, top, width, height, x, y, alpha)
     love.graphics.pop()
 end
 
-function loadstate:drawSprite(image, x, y, alpha)
+function Loading:drawSprite(image, x, y, alpha)
     love.graphics.push()
     love.graphics.setScissor()
 
@@ -94,8 +91,8 @@ end
 
 
 
-function loadstate:draw()
-    if kristal.config.skipIntro then
+function Loading:draw()
+    if Kristal.Config["skipIntro"] then
         love.graphics.push()
         love.graphics.translate(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
         love.graphics.scale(2, 2)
@@ -199,11 +196,11 @@ function loadstate:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function loadstate:keypressed(key)
+function Loading:keypressed(key)
     self.skipped = true
     if not self.loading and not self.load_complete then
         self:beginLoad()
     end
 end
 
-return loadstate
+return Loading

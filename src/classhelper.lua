@@ -1,4 +1,4 @@
-function newClass(include, o)
+return setmetatable({}, {__index=_Class, __call = function(_, include, o)
     if include and not getmetatable(include) then
         o = include
         include = nil
@@ -8,7 +8,7 @@ function newClass(include, o)
     if include then
         o.__includes = include
     end
-    return Class(o), setmetatable({}, {__index = function(t, k)
+    return _Class(o), setmetatable({}, {__index = function(t, k)
         return function(...)
             local args = {...}
             if #args > 0 then
@@ -26,4 +26,4 @@ function newClass(include, o)
             end
         end
     end})
-end
+end})

@@ -1,4 +1,4 @@
-local DarkTransitionParticle, super = newClass(Object)
+local DarkTransitionParticle, super = Class(Object)
 
 function DarkTransitionParticle:init(x, y)
     super:init(self, x, y)

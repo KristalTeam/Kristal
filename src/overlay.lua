@@ -1,10 +1,10 @@
-local overlay = {}
+local Overlay = {}
 
-function overlay.setLoading(val)
-    overlay.loading = val
+function Overlay.setLoading(val)
+    Overlay.loading = val
 end
 
-function overlay:init()
+function Overlay:init()
     self.quit_frames = {
         love.graphics.newImage("assets/sprites/ui/quit_1.png"),
         love.graphics.newImage("assets/sprites/ui/quit_2.png"),
@@ -31,7 +31,7 @@ function overlay:init()
     self.quit_release = false
 end
 
-function overlay:update(dt)
+function Overlay:update(dt)
     if self.loading then
         if self.load_alpha < 1 then
             self.load_alpha = math.min(1, self.load_alpha + dt / 0.25)
@@ -50,8 +50,8 @@ function overlay:update(dt)
         end
         self.quit_timer = self.quit_timer + dt
         if self.quit_timer > 1.2 then
-            if MOD ~= nil or kristal.states.current() == kristal.states.dark_transition then
-                kristal.states.switch(kristal.states.loading)
+            if MOD ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
+                Gamestate.switch(Kristal.States["Loading"])
                 self.quit_release = true
             else
                 love.event.quit()
@@ -69,7 +69,7 @@ function overlay:update(dt)
     end
 end
 
-function overlay:draw()
+function Overlay:draw()
     -- Draw the quit text
     love.graphics.push()
     love.graphics.scale(2)
@@ -92,4 +92,4 @@ function overlay:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-return overlay
+return Overlay
