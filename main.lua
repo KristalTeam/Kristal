@@ -50,6 +50,7 @@ Hitbox = require("src.collider.hitbox")
 World = require("src.object.game.world")
 Tileset = require("src.tileset")
 TileLayer = require("src.object.game.tilelayer")
+Character = require("src.object.game.character")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
@@ -235,7 +236,7 @@ function Kristal.modCall(f, ...)
     end
 end
 
-function Kristal.modGet(k, ...)
+function Kristal.modGet(k)
     if MOD and MOD.env and MOD.env[k] then
         return MOD.env[k]
     end

@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 5,
-  nextobjectid = 17,
+  nextobjectid = 31,
   properties = {},
   tilesets = {
     {
@@ -137,7 +137,7 @@ return {
       properties = {},
       objects = {
         {
-          id = 8,
+          id = 23,
           name = "",
           type = "",
           shape = "rectangle",
@@ -150,7 +150,7 @@ return {
           properties = {}
         },
         {
-          id = 9,
+          id = 24,
           name = "",
           type = "",
           shape = "rectangle",
@@ -163,7 +163,7 @@ return {
           properties = {}
         },
         {
-          id = 10,
+          id = 25,
           name = "",
           type = "",
           shape = "rectangle",
@@ -176,7 +176,7 @@ return {
           properties = {}
         },
         {
-          id = 11,
+          id = 26,
           name = "",
           type = "",
           shape = "rectangle",
@@ -189,46 +189,7 @@ return {
           properties = {}
         },
         {
-          id = 12,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 0,
-          y = 360,
-          width = 640,
-          height = 40,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 13,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 600,
-          y = 400,
-          width = 40,
-          height = 80,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 14,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = -40,
-          y = 240,
-          width = 40,
-          height = 120,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 15,
+          id = 27,
           name = "",
           type = "",
           shape = "rectangle",
@@ -236,6 +197,45 @@ return {
           y = 480,
           width = 80,
           height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 28,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 600,
+          y = 360,
+          width = 40,
+          height = 120,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 29,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 0,
+          y = 360,
+          width = 600,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 30,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = -40,
+          y = 240,
+          width = 40,
+          height = 120,
           rotation = 0,
           visible = true,
           properties = {}
@@ -261,7 +261,7 @@ return {
           type = "",
           shape = "rectangle",
           x = 360,
-          y = 200,
+          y = 185,
           width = 40,
           height = 40,
           rotation = 0,

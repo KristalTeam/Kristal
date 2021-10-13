@@ -29,8 +29,8 @@ function Event:setSprite(texture, speed)
             self.sprite:play(speed)
         end
         self:addChild(self.sprite)
-        if not self.hitbox then
-            self.hitbox = Hitbox(0, 0, self.sprite.width * 2, self.sprite.height * 2)
+        if not self.collider then
+            self.collider = Hitbox(0, 0, self.sprite.width * 2, self.sprite.height * 2, self)
         end
     elseif self.sprite then
         self:removeChild(self.sprite)

@@ -10,22 +10,31 @@ function Sprite:init(texture, x, y, allow_anim)
     end
 
     self.speed = 1
-    self.current_frame = 1
+    self.frame = 1
     self.anim_delay = 0.25
     self.anim_progress = 0
+    self.loop = true
     self.playing = false
 end
 
 function Sprite:updateTexture()
     if self.frames then
-        self:setTexture(self.frames[self.current_frame], true)
+        self:setTexture(self.frames[self.frame], true)
+    end
+end
+
+function Sprite:set(texture)
+    if type(texture) == "table" or (type(texture) == "string" and Assets.getFrames(texture)) then
+        self:setAnimation(texture)
+    else
+        self:setTexture(texture)
     end
 end
 
 function Sprite:setTexture(texture, keep_anim)
     if not keep_anim then
         self.frames = nil
-        self.current_frame = 1
+        self.frame = 1
         self.playing = false
         self.anim_progress = 0
     end
@@ -52,7 +61,11 @@ function Sprite:setProgress(progress)
 end
 
 function Sprite:setFrame(frame)
-    self.current_frame = ((frame - 1) % #self.frames) + 1
+    if self.loop then
+        self.frame = ((frame - 1) % (self.frames and #self.frames or 1)) + 1
+    else
+        self.frame = math.min(frame, self.frames and #self.frames or 1)
+    end
     self:updateTexture()
 end
 
@@ -64,7 +77,7 @@ function Sprite:setAnimation(frames, speed)
         self.frames = frames
     end
     if not Utils.equal(old_frames, self.frames) then
-        self.current_frame = 1
+        self.frame = 1
     end
     if speed then
         self.playing = true
@@ -73,12 +86,15 @@ function Sprite:setAnimation(frames, speed)
     self:updateTexture()
 end
 
-function Sprite:play(speed, reset)
+function Sprite:play(speed, loop, reset)
     if not self.frames then
         return
     end
     self.anim_delay = speed or 0.25
     self.playing = true
+    if loop then
+        self.loop = loop
+    end
     if reset then
         self.current_frame = 1
         self.anim_progress = 0
@@ -92,8 +108,8 @@ end
 
 function Sprite:stop()
     self.playing = false
-    self.current_frame = 1
-    self.anim_progress = 0
+    self.loop = true
+    self:setProgress(0)
 end
 
 function Sprite:pause()

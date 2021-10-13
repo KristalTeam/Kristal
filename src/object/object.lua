@@ -46,10 +46,6 @@ function Object:init(x, y, width, height)
     self.update_child_list = false
     self.children_to_remove = {}
 
-    -- Cached transform objects
-    self.cached_transform = nil
-    self.cached_full_transform = nil
-
     -- Whether this object updates
     self.active = true
 
@@ -192,28 +188,16 @@ function Object:createTransform()
 end
 
 function Object:getTransform(cache)
-    if not cache and self.cached_transform then
-        return self.cached_transform
-    end
     local transform = self:createTransform()
-    if cache then
-        self.cached_transform = transform
-    end
     return transform
 end
 
 function Object:getFullTransform(cache)
-    if not cache and self.cached_full_transform then
-        return self.cached_full_transform
-    end
     local result
     if not self.parent then
         result = self:getTransform(cache)
     else
         result = self.parent:getFullTransform() * self:getTransform(cache)
-    end
-    if cache then
-        self.cached_full_transform = result
     end
     return result
 end

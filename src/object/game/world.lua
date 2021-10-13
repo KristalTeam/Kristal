@@ -1,7 +1,5 @@
 local World, super = Class(Object)
 
-World.Y_SORT = function(a, b) return Object.LAYER_SORT(a, b) or a.y < b.y end
-
 function World:init(map)
     super:init(self)
 
@@ -20,10 +18,91 @@ function World:init(map)
 
     self.camera = Camera(0, 0)
 
+    self.collision = {}
+    self.tile_layers = {}
+    self.markers = {}
+
     for _,layer in ipairs(map_data.layers) do
         if layer.type == "tilelayer" then
-            self:addChild(TileLayer(self, layer))
+            self:loadTiles(layer)
+        elseif layer.type == "objectgroup" then
+            if layer.name == "objects" then
+                self:loadObjects(layer)
+            elseif layer.name == "markers" then
+                self:loadMarkers(layer)
+            elseif layer.name == "collision" then
+                self:loadCollision(layer)
+            end
         end
+    end
+end
+
+function World:getCollision()
+    local col = {}
+    for _,collider in ipairs(self.collision) do
+        table.insert(col, collider)
+    end
+    for _,child in ipairs(self.children) do
+        if child.collider and child.solid then
+            table.insert(col, child.collider)
+        end
+    end
+    return col
+end
+
+function World:loadTiles(layer)
+    local tilelayer = TileLayer(self, layer)
+    self:addChild(tilelayer)
+    table.insert(self.tile_layers, tilelayer)
+end
+
+function World:loadCollision(layer)
+    for _,v in ipairs(layer.objects) do
+        if v.shape == "rectangle" then
+            table.insert(self.collision, Hitbox(v.x, v.y, v.width, v.height, self))
+        end
+    end
+end
+
+function World:loadMarkers(layer)
+    for _,v in ipairs(layer.objects) do
+        v.width = v.width or 0
+        v.height = v.height or 0
+        v.center_x = v.x + v.width/2
+        v.center_y = v.y + v.height/2
+
+        self.markers[v.name] = v
+    end
+end
+
+function World:loadObjects(layer)
+    for _,v in ipairs(layer.objects) do
+        v.width = v.width or 0
+        v.height = v.height or 0
+        v.center_x = v.x + v.width/2
+        v.center_y = v.y + v.height/2
+
+        local obj = self:loadObject(v.name, v)
+        if obj then
+            self:addChild(obj)
+        end
+    end
+end
+
+function World:loadObject(name, data)
+    -- Mod object loading
+    local obj = Kristal.modCall("LoadObject", self, name, data)
+    if obj then
+        return obj
+    else
+        local events = Kristal.modGet("Events")
+        if events and events[name] then
+            return events[name](data)
+        end
+    end
+    -- Kristal object loading
+    if name:lower() == "savepoint" then
+        return Savepoint(data)
     end
 end
 
@@ -55,7 +134,11 @@ function World:createTransform()
 end
 
 function World:sortChildren()
-    table.sort(self.children, World.Y_SORT)
+    table.sort(self.children, function(a, b)
+        local ax, ay = a:getRelativePos(self, a.width/2, a.height)
+        local bx, by = b:getRelativePos(self, b.width/2, b.height)
+        return ay < by
+    end)
 end
 
 function World:update(dt)

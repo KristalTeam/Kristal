@@ -19,9 +19,9 @@ function Collider:getPointFor(other, x, y)
     if self.parent and other.parent then
         return other.parent:getRelativePos(self.parent, other.x + x, other.y + y)
     elseif self.parent then
-        return self.parent:getFullTransform():transformPoint(other.x + x, other.y + y)
+        return self.parent:getFullTransform():inverseTransformPoint(other.x + x, other.y + y)
     elseif other.parent then
-        return other.parent:getFullTransform():inverseTransformPoint(other.x + x, other.y + y)
+        return other.parent:getFullTransform():transformPoint(other.x + x, other.y + y)
     else
         return other.x + x, other.y + y
     end

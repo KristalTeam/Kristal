@@ -1,7 +1,7 @@
 local Hitbox, super = Class(Collider)
 
-function Hitbox:init(x, y, width, height)
-    super:init(self, x, y)
+function Hitbox:init(x, y, width, height, parent)
+    super:init(self, x, y, parent)
 
     self.width = width or 0
     self.height = height or 0
@@ -11,33 +11,15 @@ function Hitbox:collidesWith(other, symmetrical)
     if not isClass(other) then return false end
 
     if other:includes(Hitbox) then
-        return self:collideWithHitbox(other) or (not symmetrical and other:collideWithHitbox(self))
+        return self:collideWithHitbox(other) or (not symmetrical and other:collideWithHitbox(self, true))
     end
 end
 
 function Hitbox:collideWithHitbox(other)
-    local tf = self:getTransform()
-    local otf = other:getTransform()
-
-    local x1, y1, x2, y2, x3, y3, x4, y4
-    if otf then
-        x1, y1 = otf:inverseTransformPoint(other.x, other.y)
-        x2, y2 = otf:inverseTransformPoint(other.x + other.width, other.y)
-        x3, y3 = otf:inverseTransformPoint(other.x, other.y + other.height)
-        x4, y4 = otf:inverseTransformPoint(other.x + other.width, other.y + other.height)
-    else
-        x1, y1 = other.x, other.y
-        x2, y2 = other.x + other.width, other.y
-        x3, y3 = other.x, other.y + other.height
-        x4, y4 = other.x + other.width, other.y + other.height
-    end
-
-    if tf then
-        x1, y1 = tf:transformPoint(x1, y1)
-        x2, y2 = tf:transformPoint(x2, y2)
-        x3, y3 = tf:transformPoint(x3, y3)
-        x4, y4 = tf:transformPoint(x4, y4)
-    end
+    local x1, y1 = self:getPointFor(other, 0, 0)
+    local x2, y2 = self:getPointFor(other, other.width, 0)
+    local x3, y3 = self:getPointFor(other, 0, other.height)
+    local x4, y4 = self:getPointFor(other, other.width, other.height)
 
     return (x1 >= self.x and x1 < self.x + self.width and y1 >= self.y and y1 < self.y + self.height) or
            (x2 >= self.x and x2 < self.x + self.width and y2 >= self.y and y2 < self.y + self.height) or
