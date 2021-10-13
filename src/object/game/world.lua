@@ -129,7 +129,7 @@ end
 
 function World:createTransform()
     local transform = super:createTransform(self)
-    transform:apply(self.camera:getTransform())
+    transform:apply(self.camera:getTransform(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
     return transform
 end
 
