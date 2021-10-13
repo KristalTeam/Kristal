@@ -102,6 +102,21 @@ function camera:zoomTo(zoom)
 	return self
 end
 
+function camera:getTransform(x,y,w,h)
+	x,y = x or 0, y or 0
+	w,h = w or love.graphics.getWidth(), h or love.graphics.getHeight()
+
+	local cx,cy = x+w/2, y+h/2
+
+	local transform = love.math.newTransform()
+	transform:translate(cx, cy)
+	transform:scale(self.scale)
+	transform:rotate(self.rot)
+	transform:translate(-self.x, -self.y)
+
+	return transform
+end
+
 function camera:attach(x,y,w,h, noclip)
 	x,y = x or 0, y or 0
 	w,h = w or love.graphics.getWidth(), h or love.graphics.getHeight()

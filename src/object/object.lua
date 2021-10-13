@@ -1,6 +1,6 @@
 local Object = Class()
 
-Object.CHILD_SORTER = function(a, b) return a.layer < b.layer end
+Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
 
 function Object:init(x, y, width, height)
     -- Intitialize this object's position (optional args)
@@ -39,9 +39,16 @@ function Object:init(x, y, width, height)
     -- This object's sorting, higher number = renders last (above siblings)
     self.layer = 0
 
+    -- Collision hitbox
+    self.collider = nil
+
     -- Triggers list sort / child removal
     self.update_child_list = false
     self.children_to_remove = {}
+
+    -- Cached transform objects
+    self.cached_transform = nil
+    self.cached_full_transform = nil
 
     -- Whether this object updates
     self.active = true
@@ -73,6 +80,17 @@ function Object:move(x, y, speed)
     self.y = self.y + (y or 0) * (speed or 1)
 end
 
+function Object:collidesWith(other)
+    if other and self.collider then
+        if isClass(other) and other:includes(Object) then
+            return other.collider and self.collider:collidesWith(other.collider) or false
+        else
+            return self.collider:collidesWith(other)
+        end
+    end
+    return false
+end
+
 function Object:setPosition(x, y) self.x = x or 0; self.y = y or 0 end
 function Object:getPosition() return self.x, self.y end
 
@@ -81,6 +99,9 @@ function Object:getSize() return self.width, self.height end
 
 function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
 function Object:getScale() return self.scale_x, self.scale_y end
+
+function Object:setColor(r, g, b, a) self.color = {r, g, b, a or 1} end
+function Object:getColor() return self.color[1], self.color[2], self.color[3], self.color[4] or 1 end
 
 function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0 end
 function Object:getOrigin() return self.origin_x, self.origin_y end
@@ -121,8 +142,12 @@ function Object:setRelativePos(other, x, y)
     self:setPosition(self:getFullTransform():transformPoint(sx, sy))
 end
 function Object:getRelativePos(other, x, y)
-    local sx, sy = self:getFullTransform():transformPoint(x or 0, y or 0)
-    return other:getFullTransform():inverseTransformPoint(sx, sy)
+    if other == self.parent then
+        return self:getTransform():transformPoint(x, y)
+    else
+        local sx, sy = self:getFullTransform():transformPoint(x or 0, y or 0)
+        return other:getFullTransform():inverseTransformPoint(sx, sy)
+    end
 end
 
 function Object:getStage()
@@ -150,7 +175,7 @@ function Object:applyScissor()
     end
 end
 
-function Object:getTransform()
+function Object:createTransform()
     local transform = love.math.newTransform()
     transform:translate(self.x - self.width * self.origin_x, self.y - self.height * self.origin_y)
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
@@ -166,12 +191,31 @@ function Object:getTransform()
     return transform
 end
 
-function Object:getFullTransform()
-    if not self.parent then
-        return self:getTransform()
-    else
-        return self.parent:getFullTransform() * self:getTransform()
+function Object:getTransform(cache)
+    if not cache and self.cached_transform then
+        return self.cached_transform
     end
+    local transform = self:createTransform()
+    if cache then
+        self.cached_transform = transform
+    end
+    return transform
+end
+
+function Object:getFullTransform(cache)
+    if not cache and self.cached_full_transform then
+        return self.cached_full_transform
+    end
+    local result
+    if not self.parent then
+        result = self:getTransform(cache)
+    else
+        result = self.parent:getFullTransform() * self:getTransform(cache)
+    end
+    if cache then
+        self.cached_full_transform = result
+    end
+    return result
 end
 
 function Object:remove()
@@ -183,6 +227,7 @@ end
 function Object:explode()
     if self.parent then
         local rx, ry = self:getRelativePos(self.parent, self.width/2, self.height/2)
+        print(rx, ry)
         local e = Explosion(rx, ry)
         self.parent:addChild(e)
         self:remove()
@@ -191,6 +236,9 @@ end
 
 function Object:addChild(child)
     child.parent = self
+    if self.stage and child.stage ~= self.stage then
+        self.stage:addToStage(child)
+    end
     table.insert(self.children, child)
     child:onAdd(self)
     self.update_child_list = true
@@ -200,12 +248,19 @@ function Object:removeChild(child)
     if child.parent == self then
         child.parent = nil
     end
+    if self.stage and (not child.parent or not child.parent.stage) then
+        self.stage:removeFromStage(child)
+    end
     self.children_to_remove[child] = true
     child:onRemove(self)
     self.update_child_list = true
 end
 
 --[[ Internal functions ]]--
+
+function Object:sortChildren()
+    table.sort(self.children, Object.LAYER_SORT)
+end
 
 function Object:updateChildList()
     for child,_ in pairs(self.children_to_remove) do
@@ -217,10 +272,11 @@ function Object:updateChildList()
         end
     end
     self.children_to_remove = {}
-    table.sort(self.children, Object.CHILD_SORTER)
+    self:sortChildren()
 end
 
 function Object:updateChildren(dt)
+    self:getFullTransform(true) -- Cache the current transformation
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false

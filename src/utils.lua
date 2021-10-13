@@ -78,6 +78,18 @@ function Utils.split(str, sep, remove_empty)
     return t
 end
 
+function Utils.join(tbl, sep, len)
+    local s = ""
+    for i = 1, (len or #tbl) do
+        if i == 1 then
+            s = s..tbl[i]
+        else
+            s = s..sep..tbl[i]
+        end
+    end
+    return s
+end
+
 function Utils.hook(target, func)
     return function(...)
         return func(target, ...)
@@ -108,7 +120,7 @@ function Utils.equal(a, b, deep)
     return true
 end
 
-function Utils.getFilesRecursive(dir)
+function Utils.getFilesRecursive(dir, ext)
     local result = {}
 
     local paths = love.filesystem.getDirectoryItems(dir)
@@ -116,12 +128,12 @@ function Utils.getFilesRecursive(dir)
         local info = love.filesystem.getInfo(dir.."/"..path)
         if info then
             if info.type == "directory" then
-                local inners = Utils.getFilesRecursive(dir.."/"..path)
+                local inners = Utils.getFilesRecursive(dir.."/"..path, ext)
                 for _,inner in ipairs(inners) do
                     table.insert(result, path.."/"..inner)
                 end
-            else
-                table.insert(result, path)
+            elseif not ext or path:sub(-#ext) == ext then
+                table.insert(result, ext and path:sub(1, -#ext-1) or path)
             end
         end
     end

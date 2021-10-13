@@ -1,3 +1,7 @@
+function isClass(o)
+    return o and getmetatable(o) and true or false
+end
+
 return setmetatable({}, {__index=_Class, __call = function(_, include, o)
     if include and not getmetatable(include) then
         o = include

@@ -76,7 +76,8 @@ local loaders = {
             local mod = json.decode(love.filesystem.read(full_path.."/mod.json"))
 
             mod.id = mod.id or path
-            mod.full_path = full_path
+            mod.folder = path
+            mod.path = full_path
 
             if mod.preview then
                 if type(mod.preview) == "string" then

@@ -8,10 +8,7 @@ DT = (1/60)
 
 -- mod variables
 MOD = nil
-MOD_NAME = nil
-MOD_PATH = nil
-MOD_ENV = nil
-MOD_LOADING = nil
+MOD_LOADING = false
 
 COLORS = {
     aqua = {0, 1, 1, 1},

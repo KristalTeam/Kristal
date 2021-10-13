@@ -74,6 +74,9 @@ function Sprite:setAnimation(frames, speed)
 end
 
 function Sprite:play(speed, reset)
+    if not self.frames then
+        return
+    end
     self.anim_delay = speed or 0.25
     self.playing = true
     if reset then

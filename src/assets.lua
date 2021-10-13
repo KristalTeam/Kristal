@@ -10,6 +10,7 @@ function Assets.clear()
         frames = {},
         fonts = {}
     }
+    self.quads = {}
 end
 
 function Assets.loadData(data)
@@ -60,8 +61,13 @@ function Assets.getFrames(path)
     return self.data.frames[path]
 end
 
-function self.getFrameIds(path)
+function Assets.getFrameIds(path)
     return self.data.frame_ids[path]
+end
+
+function Assets.getQuad(x, y, width, height, sw, sh)
+    local idstr = x..","..y..","..width..","..sw..","..sh
+    return self.quads[idstr] or love.graphics.newQuad(x, y, width, height, sw, sh)
 end
 
 Assets.clear()

@@ -94,4 +94,9 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     end
 end
 
+function Draw.drawCutout(texture, x, y, cx, cy, cw, ch, ...)
+    local quad = Assets.getQuad(cx, cy, cw, ch, texture:getWidth(), texture:getHeight())
+    love.graphics.draw(texture, quad, x, y, ...)
+end
+
 return Draw

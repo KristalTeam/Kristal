@@ -165,8 +165,8 @@ function Menu:buildMods()
         end
 
         if mod.preview_lua then
-            local chunk = love.filesystem.load(mod.full_path.."/"..mod.preview_lua)
-            local success, result = pcall(chunk, mod.full_path)
+            local chunk = love.filesystem.load(mod.path.."/"..mod.preview_lua)
+            local success, result = pcall(chunk, mod.path)
             if success then
                 self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
                 button.preview_script = result
@@ -333,7 +333,7 @@ function Menu:keypressed(key, _, is_repeat)
             local current_mod = self.list:getSelectedMod()
             if current_mod then
                 if current_mod.transition then
-                    Kristal.LoadAssets(current_mod.full_path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
+                    Kristal.LoadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
                         Gamestate.switch(Kristal.States["DarkTransition"])
                     end)
                 else

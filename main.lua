@@ -4,6 +4,7 @@ _Class = require("src.lib.hump.class")
 Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
 Timer = require("src.lib.hump.timer")
+Camera = require("src.lib.hump.camera")
 JSON = require("src.lib.json")
 
 Class = require("src.classhelper")
@@ -27,13 +28,14 @@ Assets = require("src.assets")
 Draw = require("src.draw")
 
 Object = require("src.object.object")
+Stage = require("src.object.stage")
 Sprite = require("src.object.sprite")
 Explosion = require("src.object.explosion")
 
-Text = require("src.object.game.text")
-DialogueText = require("src.object.game.dialoguetext")
-TextChar = require("src.object.game.textchar")
-ShadedChar = require("src.object.game.shadedchar")
+Text = require("src.object.ui.text")
+DialogueText = require("src.object.ui.dialoguetext")
+TextChar = require("src.object.ui.textchar")
+ShadedChar = require("src.object.ui.shadedchar")
 
 ModList = require("src.object.menu.modlist")
 ModButton = require("src.object.menu.modbutton")
@@ -42,6 +44,15 @@ ModMenuChar = require("src.object.menu.modmenuchar")
 DarkTransitionLine = require("src.object.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.object.darktransition.darktransitionparticle")
 
+Collider = require("src.collider.collider")
+Hitbox = require("src.collider.hitbox")
+
+World = require("src.object.game.world")
+Tileset = require("src.tileset")
+TileLayer = require("src.object.game.tilelayer")
+
+Event = require("src.object.game.event")
+Savepoint = require("src.object.game.savepoint")
 
 local load_in_channel
 local load_out_channel
@@ -170,17 +181,17 @@ function Kristal.LoadMod(id)
 
     MOD = mod
 
-    if love.filesystem.getInfo(mod.full_path.."/lua/mod.lua") then
-        local chunk = love.filesystem.load(mod.full_path.."/lua/mod.lua")
+    if mod.script_chunks["scripts/mod"] then
+        local chunk = mod.script_chunks["scripts/mod"]
 
         MOD_LOADING = true
 
-        Kristal.LoadAssets(mod.full_path, "all", "", function()
+        Kristal.LoadAssets(mod.path, "all", "", function()
             MOD_LOADING = false
 
-            mod.lua = Kristal.CreateModEnvironment()
+            MOD.env = Kristal.CreateModEnvironment()
 
-            setfenv(chunk, mod.lua)
+            setfenv(chunk, MOD.env)
             chunk()
         end)
     end
@@ -190,12 +201,12 @@ function Kristal.CreateModEnvironment(global)
     local env = setmetatable({}, {__index = global or _G})
     local function setupGlobals()
         function require(path)
-            local chunk
-            if love.filesystem.getInfo(MOD.full_path.."/lua/"..path..".lua") then
-                chunk = love.filesystem.load(MOD.full_path.."/lua/"..path..".lua")
-            elseif love.filesystem.getInfo(MOD.full_path.."/lua/"..path.."/init.lua") then
-                chunk = love.filesystem.load(MOD.full_path.."/lua/"..path.."/init.lua")
-            end
+            local chunk = MOD.script_chunks["scripts/"..path]
+            --[[if love.filesystem.getInfo(MOD.path.."/scripts/"..path..".lua") then
+                chunk = love.filesystem.load(MOD.path.."/scripts/"..path..".lua")
+            elseif love.filesystem.getInfo(MOD.path.."/scripts/"..path.."/init.lua") then
+                chunk = love.filesystem.load(MOD.path.."/scripts/"..path.."/init.lua")
+            end]]
             setfenv(chunk, getfenv())()
         end
     end
@@ -216,4 +227,24 @@ end
 
 function Kristal.SaveConfig()
     love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
+end
+
+function Kristal.modCall(f, ...)
+    if MOD and MOD.env and MOD.env[f] then
+        return MOD.env[f](...)
+    end
+end
+
+function Kristal.modGet(k, ...)
+    if MOD and MOD.env and MOD.env[k] then
+        return MOD.env[k]
+    end
+end
+
+function Kristal.executeModScript(path, ...)
+    if not MOD.script_chunks[path] then
+        return false
+    else
+        return true, MOD.script_chunks[path](...)
+    end
 end

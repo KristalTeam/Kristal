@@ -55,13 +55,35 @@ local function clone(other)
 	return setmetatable(include({}, other), getmetatable(other))
 end
 
+local function get_all_includes(class)
+	local includes = {[class] = true}
+	for _, other in ipairs(class.__includes) do
+		if type(other) == "string" then
+			other = _G[other]
+		end
+		for c, _ in pairs(get_all_includes(other)) do
+			includes[c] = true
+		end
+	end
+	return includes
+end
+
+local function includes(class, other)
+	if type(other) == "string" then
+		other = _G[other]
+	end
+	return class.__includes_all[other] and true or false
+end
+
 local function new(class)
 	-- mixins
 	class = class or {}  -- class can be nil
-	local inc = class.__includes or {}
-	if getmetatable(inc) then inc = {inc} end
+	class.__includes = class.__includes or {}
+	if getmetatable(class.__includes) then class.__includes = {class.__includes} end
 
-	for _, other in ipairs(inc) do
+	class.__includes_all = get_all_includes(class)
+
+	for _, other in ipairs(class.__includes) do
 		if type(other) == "string" then
 			other = _G[other]
 		end
@@ -69,10 +91,11 @@ local function new(class)
 	end
 
 	-- class implementation
-	class.__index = class
-	class.init    = class.init    or class[1] or function() end
-	class.include = class.include or include
-	class.clone   = class.clone   or clone
+	class.__index  = class
+	class.init     = class.init     or class[1] or function() end
+	class.include  = class.include  or include
+	class.includes = class.includes or includes
+	class.clone    = class.clone    or clone
 
 	-- constructor call
 	return setmetatable(class, {__call = function(c, ...)
@@ -95,5 +118,5 @@ end
 
 
 -- the module
-return setmetatable({new = new, include = include, clone = clone},
+return setmetatable({new = new, include = include, includes = includes, clone = clone},
 	{__call = function(_,...) return new(...) end})
