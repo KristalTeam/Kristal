@@ -1,6 +1,8 @@
 example_state = {}
 
-function example_state:enter()
+function example_state:enter(previous)
+    self.previous_state = previous
+
     print("Loaded example mod!")
 
     self.stage = Stage()
@@ -11,6 +13,9 @@ function example_state:enter()
     self.chara = Character("kris", self.world.markers["spawn"].center_x, self.world.markers["spawn"].center_y)
     self.world:addChild(self.chara)
 
+    self.world.camera:lookAt(self.chara:getPosition())
+    self.previous_state.final_y = self.world.markers["spawn"].center_y - self.world.camera.y
+    self.chara.x = self.world.camera.x + self.previous_state.kris_x
     --[[self.banana = Sprite("banana", SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
     self.banana:setOrigin(0.5, 0.5)
     self.banana:play()
@@ -32,8 +37,16 @@ function example_state:update(dt)
     self.world.camera:lookAt(self.chara:getPosition())
 
     self.stage:update(dt)
+
+    if self.previous_state.animation_active then
+        self.previous_state:update(dt)
+    end
 end
 
 function example_state:draw()
     self.stage:draw()
+
+    if self.previous_state.animation_active then
+        self.previous_state:draw(true)
+    end
 end

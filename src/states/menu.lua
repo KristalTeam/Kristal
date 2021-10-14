@@ -334,7 +334,7 @@ function Menu:keypressed(key, _, is_repeat)
             if current_mod then
                 if current_mod.transition then
                     Kristal.LoadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
-                        Gamestate.switch(Kristal.States["DarkTransition"])
+                        Gamestate.switch(Kristal.States["DarkTransition"], current_mod)
                     end)
                 else
                     Kristal.LoadMod(current_mod.id)

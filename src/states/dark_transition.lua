@@ -20,8 +20,12 @@ function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     love.graphics.draw(sprite, x, y, rot, xscale * 4, yscale * 4, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
-function DarkTransition:enter(previous)
+function DarkTransition:enter(previous, mod)
     self.prior_state = previous
+    self.mod = mod
+
+    self.animation_active = true
+
     self.stage = Object()
 
     self.stage_scaled = Object()
@@ -39,7 +43,6 @@ function DarkTransition:enter(previous)
     self.susie_y  = (86  + self:cameray())
     self.susie_sprite = 0
     self.sprite_index = 0
-    self.final_y = 140
     self.linecon = false
     self.linetimer = 0
     self.rect_draw = 0
@@ -57,7 +60,7 @@ function DarkTransition:enter(previous)
     -- CONFIG
     self.quick_mode = false
     self.skiprunback = true
-    self.final_y = 120
+    self.final_y = 60
     self.kris_only = false
     self.has_head_object = false
     self.sparkles = 0
@@ -162,6 +165,8 @@ function DarkTransition:enter(previous)
 
     self.drone_get_louder = false
     self.dronesfx_volume = 0
+
+    self.black_fade = 1
 end
 
 function DarkTransition:update(dt)
@@ -194,8 +199,6 @@ function DarkTransition:update(dt)
         if (self.linetimer >= 1) then
             local xrand  = math.random() * (math.pi / 2)
             local xrand2 = math.random() * (math.pi / 2)
-            --instance_create(((70 -  (math.sin(xrand)  * 70)) + self:camerax()), (-10 + self:cameray()), obj_dw_transition_line)
-            --instance_create(((250 + (math.sin(xrand2) * 70)) + self:camerax()), (-16 + self:cameray()), obj_dw_transition_line)
 
             local x =  (( 70 - (math.sin(xrand)  * 70)) + self:camerax())
             local x2 = ((250 + (math.sin(xrand2) * 70)) + self:camerax())
@@ -255,8 +258,10 @@ function DarkTransition:update(dt)
     end
 end
 
-function DarkTransition:draw()
-    love.graphics.clear()
+function DarkTransition:draw(dont_clear)
+    if not dont_clear then
+        love.graphics.clear()
+    end
     if self.con < 18 then
         self.prior_state:draw() -- Draw the last state we were in
     end
@@ -265,7 +270,7 @@ function DarkTransition:draw()
     love.graphics.clear()
 
     if self.megablack then
-        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setColor(0, 0, 0, self.black_fade)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
         love.graphics.setColor(1, 1, 1)
     end
@@ -279,20 +284,20 @@ function DarkTransition:draw()
                 self.rsize[i] = self.rsize[i] + (0.25 * (DT * 30))
             end
             if (self.rsize[i] > 0) then
-                self.r_darkest = (5 - (self.rsize[i] * 0.8))
+                local r_darkest = (5 - (self.rsize[i] * 0.8))
                 if (self.rs < 20) then
-                    self.r_darkest = self.r_darkest * (self.rs / 20)
+                    r_darkest = r_darkest * (self.rs / 20)
                 end
-                if (self.r_darkest < 0) then
-                    self.r_darkest = 0
+                if (r_darkest < 0) then
+                    r_darkest = 0
                 end
-                if (self.r_darkest > 1) then
-                    self.r_darkest = 1
+                if (r_darkest > 1) then
+                    r_darkest = 1
                 end
 
-                self.r_color = {self.r_darkest, self.r_darkest, self.r_darkest, 1}
+                local r_color = {r_darkest, r_darkest, r_darkest, 1}
 
-                self:drawDoor((self.rx + self:camerax()), (self.ry + self:cameray()), (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), self.r_color)
+                self:drawDoor((self.rx + self:camerax()), (self.ry + self:cameray()), (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), r_color)
             end
         end
     end
@@ -899,6 +904,7 @@ function DarkTransition:draw()
             --scr_become_dark()
             --dz = (global.darkzone + 1)
             --room_goto(nextroom)
+            Kristal.LoadMod(self.mod.id)
         end
         if ((math.floor(self.timer) >= 27) and not self.do_once9) then
             self.do_once9 = true
@@ -923,6 +929,10 @@ function DarkTransition:draw()
         end
         if (self.timer >= 30 and self.timer < 60) then
             -- TODO: fade
+            self.black_fade = self.black_fade - 0.05 * (DT * 30)
+            if self.quick_mode then
+                self.black_fade = self.black_fade - 0.05 * (DT * 30)
+            end
             --with (megablack)
             --    image_alpha = image_alpha - 0.05
             --if (quick_mode) then
