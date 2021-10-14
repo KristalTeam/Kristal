@@ -50,6 +50,15 @@ function World:getCollision()
     return col
 end
 
+function World:checkCollision(collider)
+    for _,other in ipairs(self:getCollision()) do
+        if collider:collidesWith(other) then
+            return true, other.parent
+        end
+    end
+    return false
+end
+
 function World:loadTiles(layer)
     local tilelayer = TileLayer(self, layer)
     self:addChild(tilelayer)
@@ -60,6 +69,13 @@ function World:loadCollision(layer)
     for _,v in ipairs(layer.objects) do
         if v.shape == "rectangle" then
             table.insert(self.collision, Hitbox(v.x, v.y, v.width, v.height, self))
+        elseif v.shape == "polygon" then
+            for i = 1, #v.polygon do
+                local j = (i % #v.polygon) + 1
+                local x1, y1 = v.x + v.polygon[i].x, v.y + v.polygon[i].y
+                local x2, y2 = v.x + v.polygon[j].x, v.y + v.polygon[j].y
+                table.insert(self.collision, LineCollider(x1, y1, x2, y2, self))
+            end
         end
     end
 end

@@ -208,10 +208,9 @@ function Object:remove()
     end
 end
 
-function Object:explode()
+function Object:explode(x, y)
     if self.parent then
-        local rx, ry = self:getRelativePos(self.parent, self.width/2, self.height/2)
-        print(rx, ry)
+        local rx, ry = self:getRelativePos(self.parent, self.width/2 + (x or 0), self.height/2 + (y or 0))
         local e = Explosion(rx, ry)
         self.parent:addChild(e)
         self:remove()

@@ -49,6 +49,7 @@ HeadObject = require("src.object.darktransition.head_object")
 
 Collider = require("src.collider.collider")
 Hitbox = require("src.collider.hitbox")
+LineCollider = require("src.collider.linecollider")
 
 World = require("src.object.game.world")
 Tileset = require("src.tileset")

@@ -230,5 +230,9 @@ function Utils.clamp(val, min, max)
     return math.max(min, math.min(max, val))
 end
 
+function Utils.sign(num)
+    return num > 0 and 1 or (num < 0 and -1 or 0)
+end
+
 
 return Utils

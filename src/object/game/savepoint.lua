@@ -9,4 +9,16 @@ function Savepoint:init(data)
     self:setSprite("world/event/savepoint", 1/6)
 end
 
+function Savepoint:onInteract(player, dir)
+    local sound = love.audio.newSource("assets/sounds/snd_power.wav", "static")
+    sound:play()
+
+    local text = DialogueText("* The power of [color:pink]test dialogue[color:reset]\nshines within you.")
+    text.x = SCREEN_WIDTH/2 - ((28 / 2) * 16)
+    text.y = SCREEN_HEIGHT - (3 * 30)
+    self.stage:addChild(text)
+
+    return true
+end
+
 return Savepoint

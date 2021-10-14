@@ -1,7 +1,7 @@
 local DialogueText, super = Class(Text)
 
 function DialogueText:init(text, x, y, char_type, font)
-    super:init(self, text, x, y, char_type or ShadedChar, font)
+    super:init(self, text, x or 0, y or 0, char_type or ShadedChar, font)
 end
 
 function DialogueText:setText(text)

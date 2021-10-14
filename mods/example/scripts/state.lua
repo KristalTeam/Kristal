@@ -25,21 +25,34 @@ function example_state:enter(previous)
 end
 
 function example_state:update(dt)
-    local walk_x = 0
-    local walk_y = 0
-
-    if love.keyboard.isDown("right") then walk_x = walk_x + 1 end
-    if love.keyboard.isDown("left") then walk_x = walk_x - 1 end
-    if love.keyboard.isDown("down") then walk_y = walk_y + 1 end
-    if love.keyboard.isDown("up") then walk_y = walk_y - 1 end
-
-    self.chara:walk(walk_x, walk_y, love.keyboard.isDown("lshift"))
-    self.world.camera:lookAt(self.chara:getPosition())
+    if self.chara then
+        local walk_x = 0
+        local walk_y = 0
+    
+        if love.keyboard.isDown("right") then walk_x = walk_x + 1 end
+        if love.keyboard.isDown("left") then walk_x = walk_x - 1 end
+        if love.keyboard.isDown("down") then walk_y = walk_y + 1 end
+        if love.keyboard.isDown("up") then walk_y = walk_y - 1 end
+    
+        self.chara:walk(walk_x, walk_y, love.keyboard.isDown("lshift"))
+        self.world.camera:lookAt(self.chara:getPosition())
+        
+        if love.keyboard.isDown("e") then
+            self.chara:explode(0, -40)
+            self.chara = nil
+        end
+    end
 
     self.stage:update(dt)
 
     if self.previous_state.animation_active then
         self.previous_state:update(dt)
+    end
+end
+
+function example_state:keypressed(key)
+    if key == "z" and self.chara then
+        self.chara:interact()
     end
 end
 

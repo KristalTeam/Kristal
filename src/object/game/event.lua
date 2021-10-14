@@ -10,11 +10,12 @@ function Event:init(x, y, w, h, o)
     self.sprite = nil
 end
 
-function Event:onInteract()
+function Event:onInteract(player, dir)
     -- Do stuff when the player interacts with this object (CONFIRM key)
+    return false
 end
 
-function Event:onCollide()
+function Event:onCollide(player)
     -- Do stuff when the player collides with this object
 end
 
