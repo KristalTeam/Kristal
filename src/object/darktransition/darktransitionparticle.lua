@@ -14,7 +14,7 @@ function DarkTransitionParticle:init(x, y)
 end
 
 function DarkTransitionParticle:update(dt)
-    self.vspeed = self.vspeed - self.friction
+    self.vspeed = self.vspeed - (self.friction * (dt * 30))
     self:move(self.hspeed * (dt * 30), self.vspeed * (dt * 30))
 
     self.image_alpha = self.image_alpha - 0.05

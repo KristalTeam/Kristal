@@ -43,6 +43,9 @@ ModMenuChar = require("src.object.menu.modmenuchar")
 
 DarkTransitionLine = require("src.object.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.object.darktransition.darktransitionparticle")
+DarkTransitionSparkle = require("src.object.darktransition.darktransitionsparkle")
+FlashFade = require("src.object.darktransition.flashfade")
+HeadObject = require("src.object.darktransition.head_object")
 
 Collider = require("src.collider.collider")
 Hitbox = require("src.collider.hitbox")

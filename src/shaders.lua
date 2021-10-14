@@ -23,4 +23,15 @@ Shaders["GradientV"] = love.graphics.newShader([[
 Shaders["GradientH"]:send("scale", 1)
 Shaders["GradientV"]:send("scale", 1)
 
+Shaders["White"] = love.graphics.newShader([[
+    extern float whiteAmount;
+
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+    {
+        vec4 outputcolor = Texel(texture, texture_coords) * color;
+        outputcolor.rgb += vec3(whiteAmount);
+        return outputcolor;
+    }
+]])
+
 return Shaders
