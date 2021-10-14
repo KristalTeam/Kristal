@@ -7,59 +7,27 @@ DarkTransition.SPRITE_DEPENDENCIES = {
     "party/susie/dark_transition"
 }
 
-function DarkTransition:camerax() return 0 end
-function DarkTransition:cameray() return 0 end
-
-function DarkTransition:scr_dark_marker(...) return end -- TODO: stub
-function DarkTransition:instance_create(...) return end -- TODO: stub
-
-function DarkTransition:drawAnimStrip(sprite, subimg, x, y, alpha)
-    love.graphics.setColor(1, 1, 1, alpha)
-
-    --local index = #sprite > 1 and ((math.floor(subimg) % (#sprite)) + 1) or 1
-    local index = math.floor(subimg) % (#sprite)
-
-    love.graphics.draw(sprite[index + 1], x, y)
+function DarkTransition:camerax()
+    return 0 -- TODO: grab camera from world.lua?
+end
+function DarkTransition:cameray()
+    return 0
 end
 
-function DarkTransition:drawScaledSprite(sprite, x, y, xscale, yscale, rot, color, alpha)
-    local color = Utils.copy(color)
-    color[4] = alpha
+function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
+    local sprite = self.spr_doorblack
     love.graphics.setColor(color)
     love.graphics.draw(sprite, x, y, rot, xscale * 4, yscale * 4, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
-function DarkTransition:drawScissor(sprite, subimg, left, top, width, height, x, y)
-    love.graphics.push()
-
-    local scissor_x = ((math.floor(x) >= 0) and math.floor(x) or 0)
-    local scissor_y = ((math.floor(y) >= 0) and math.floor(y) or 0)
-    love.graphics.setScissor(scissor_x, scissor_y, math.floor(width), math.floor(height))
-
-    local index = math.floor(subimg) % (#sprite)
-
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(sprite[index + 1], x - left, y - top)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setScissor()
-    love.graphics.pop()
-end
-
-function DarkTransition:enter(preview)
-    self.prior_state = preview
+function DarkTransition:enter(previous)
+    self.prior_state = previous
     self.stage = Object()
 
     self.stage_scaled = Object()
     self.stage_scaled:setScale(2)
     self.stage:addChild(self.stage_scaled)
 
-    self.darkzone = false
-    self.plot = 9
-
-    self.finaly = 60
-    self.skiprunback = true
-
-    self.depth = 100
     self.con = 8
     self.timer = 0
     self.index = 0
@@ -94,15 +62,10 @@ function DarkTransition:enter(preview)
         self.nextroom = 70
     end
 
-    -- ADDED BY ALLY:
-    self.darkzone = false
-    self.plot = 9
-
     -- CONFIG
     self.quick_mode = false
     self.skiprunback = true
     self.finaly = 120
-
 
     self.snd_dtrans_square = love.audio.newSource("assets/sounds/snd_dtrans_square.ogg", "static")
 
@@ -318,12 +281,10 @@ function DarkTransition:draw()
                 if (self.r_darkest > 1) then
                     self.r_darkest = 1
                 end
-                --self.r_color = merge_color(c_black, c_white, self.r_darkest)
+
                 self.r_color = {self.r_darkest, self.r_darkest, self.r_darkest, 1}
 
-                --self:drawAnimStrip(self.spr_doorblack, 0, (self.rx + self:camerax()), (self.ry + self:cameray()), (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), self.rsize[i], self.r_color, 1)
-
-                self:drawScaledSprite(self.spr_doorblack, (self.rx + self:camerax()), (self.ry + self:cameray()), (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), self.r_color, 1)
+                self:drawDoor((self.rx + self:camerax()), (self.ry + self:cameray()), (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), self.r_color)
             end
         end
     end
@@ -501,13 +462,11 @@ function DarkTransition:draw()
         end
     end
     if (self.con == 17) then
-        --__background_set((0 << 0), 0, c_black)
         self.draw_rect = 0
         self.linecon = true
         self.sus_x_current = self.sus_x
         self.kris_x_current = self.kris_x
-        --self.sus_sprite = self.spr_susie_lw_fall_turn
-        --self.kris_sprite = self.spr_kris_fall_turnaround
+
         self.con = 18
         self.soundcon = 1
         self.radius = 60
@@ -519,16 +478,11 @@ function DarkTransition:draw()
     end
     if (self.soundcon == 1) then
         self.dronesfx = love.audio.newSource("assets/sounds/snd_dtrans_drone.ogg", "stream")
-        --snd_volume(self.dronesfx, 0, 0)
-        self.dronesfx:setVolume(0)
-        --self.dronesfx_volume = 0.5
-
-        self.drone_get_louder = true
 
         -- Volume starts at 0 and goes to 0.5 over 60 deltarune frames (2 seconds)
         -- This is handled at the top of update
-
-        --snd_volume(self.dronesfx, 0.5, 60)
+        self.dronesfx:setVolume(0)
+        self.drone_get_louder = true
 
         self.dronesfx:setPitch(0.1)
         self.dronesfx:play()
@@ -871,15 +825,7 @@ function DarkTransition:draw()
             self.do_once4 = true -- skip timer == 14
             self.do_once5 = true -- skip timer == 30
         end
-        --[[if (self.kris_only == 0) then
-            self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x, (self.sus_y - (self.sus_v * 2)), 0.25)
-            self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x, (self.sus_y -  self.sus_v), 0.5)
-            self:drawAnimStrip(self.spr_susie_dw_fall_ball, (self.timer / 2), self.sus_x,  self.sus_y, 1)
-        end
-        self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x, (self.kris_y - (self.sus_v * 2)), 0.25)
-        self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x, (self.kris_y -  self.sus_v), 0.5)
-        self:drawAnimStrip(self.spr_kris_fall_ball, (self.timer / 2), self.kris_x,  self.kris_y, 1)]]
-        -- sprite code --
+
         self.kris_sprite:setFrame(math.floor(self.timer / 2) + 1)
         self.kris_sprite_2:setFrame(math.floor(self.timer / 2) + 1)
         self.kris_sprite_3:setFrame(math.floor(self.timer / 2) + 1)
