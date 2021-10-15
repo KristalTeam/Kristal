@@ -144,6 +144,11 @@ function DarkTransition:enter(previous, mod)
     self.spr_susie_dw_landed = Assets.getFrames("party/susie/dark_transition/landed")
     self.spr_kris_dw_landed = Assets.getFrames("party/kris/dark_transition/landed")
 
+    self.susie_width = self.spr_susie_dw_fall_d[1]:getWidth()
+    self.susie_height = self.spr_susie_dw_fall_d[1]:getHeight()
+    self.kris_width = self.spr_kris_fall_d_dw[1]:getWidth()
+    self.kris_height = self.spr_kris_fall_d_dw[1]:getHeight()
+
     self.canvas = love.graphics.newCanvas(320,240)
     -- No filtering
     self.canvas:setFilter("nearest", "nearest")
@@ -516,10 +521,6 @@ function DarkTransition:draw(dont_clear)
             self.kris_x = (self.kris_x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius))
         end
         if (self.timer >= 35) then
-            Kristal.LoadMod(self.mod.id, function()
-                Gamestate.switch(Kristal.States["Game"])
-            end)
-
             self.sprite_index = 0
             self.con = 19
             self.timer = 0
@@ -547,6 +548,12 @@ function DarkTransition:draw(dont_clear)
             if not self.kris_only then
                 self.susie_sprite:setAnimation(self.spr_susie_lw_fall_d)
             end
+
+            self.mod_loading = true
+            Kristal.LoadMod(self.mod.id, function()
+                self.mod_loading = false
+                Gamestate.switch(Kristal.States["Game"])
+            end)
         end
     end
     if (self.con == 30) then
@@ -559,14 +566,10 @@ function DarkTransition:draw(dont_clear)
         if (self.quick_mode) then
             self.timer = self.timer + 1 * (DT * 30)
         end
-        if (self.timer >= 15) then
+        if (self.timer >= 15) and not self.mod_loading then
             self.con = 31
             self.timer = 0
-            self.susie_width = self.spr_susie_dw_fall_d[1]:getWidth()
-            self.susie_height = self.spr_susie_dw_fall_d[1]:getHeight()
             self.susie_top = self.susie_height
-            self.kris_width = self.spr_kris_fall_d_dw[1]:getWidth()
-            self.kris_height = self.spr_kris_fall_d_dw[1]:getHeight()
             self.kris_top = self.kris_height
 
             -- sprite code --
@@ -847,22 +850,10 @@ function DarkTransition:draw(dont_clear)
                 local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
                 sound:play()
             end]]--
-            if (self.susie_y >= (self.final_y - 8)) then
+            if (self.susie_y >= self.final_y - self.susie_height) then
                 -- Since our final_y is configurable, play the sound here
                 local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
                 sound:play()
-                self.con = 34
-                self.timer = 0
-                self.velocity = 0
-                self.kris_y = (self.final_y + 6)
-                self.susie_y = self.final_y
-                self.getup_index = 0
-                self.fake_screenshake = 1
-                self.fake_shakeamount = 8
-                self.remkrisx = (self.kris_x - self:camerax())
-                self.remkrisy = (self.kris_y - self:cameray())
-                self.remsusx  = (self.susie_x  - self:camerax())
-                self.remsusy  = (self.susie_y  - self:cameray())
 
                 self.kris_sprite:setAnimation(self.spr_kris_dw_landed)
 
@@ -874,7 +865,24 @@ function DarkTransition:draw(dont_clear)
 
                     self.susie_sprite_2.visible = false
                     self.susie_sprite_3.visible = false
+
+                    self.susie_sprite:explode()
                 end
+
+                --self.kris_sprite:explode()
+
+                self.con = 34
+                self.timer = 0
+                self.velocity = 0
+                self.kris_y = self.final_y - self.kris_sprite.height
+                self.susie_y = self.final_y - (self.kris_only and 0 or self.susie_sprite.height)
+                self.getup_index = 0
+                self.fake_screenshake = 1
+                self.fake_shakeamount = 8
+                self.remkrisx = (self.kris_x - self:camerax())
+                self.remkrisy = (self.kris_y - self:cameray())
+                self.remsusx  = (self.susie_x  - self:camerax())
+                self.remsusy  = (self.susie_y  - self:cameray())
             end
         end
     end

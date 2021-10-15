@@ -307,7 +307,7 @@ return {
           type = "",
           shape = "rectangle",
           x = 360,
-          y = 240,
+          y = 280,
           width = 40,
           height = 40,
           rotation = 0,

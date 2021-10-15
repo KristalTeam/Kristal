@@ -45,6 +45,6 @@
   <object id="2" name="savepoint" x="360" y="185" width="40" height="40"/>
  </objectgroup>
  <objectgroup id="3" name="markers">
-  <object id="16" name="spawn" x="360" y="240" width="40" height="40"/>
+  <object id="16" name="spawn" x="360" y="280" width="40" height="40"/>
  </objectgroup>
 </map>
