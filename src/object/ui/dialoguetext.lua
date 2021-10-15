@@ -30,6 +30,10 @@ end
 function DialogueText:update(dt)
     self.state.progress = self.state.progress + (dt * 30 * self.state.speed)
 
+    if love.keyboard.isDown("x") then
+        self.state.skipping = true
+    end
+
     if self.state.typing then
         while (math.floor(self.state.progress) > self.state.typed_characters) or self.state.skipping do
             local current_node = self.nodes[self.state.current_node]
