@@ -515,6 +515,7 @@ function DarkTransition:draw(dont_clear)
             self.kris_x = (self.kris_x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius))
         end
         if (self.timer >= 35) then
+            Kristal.LoadMod(self.mod.id)
             self.sprite_index = 0
             self.con = 19
             self.timer = 0
@@ -904,7 +905,6 @@ function DarkTransition:draw(dont_clear)
             --scr_become_dark()
             --dz = (global.darkzone + 1)
             --room_goto(nextroom)
-            Kristal.LoadMod(self.mod.id)
         end
         if ((math.floor(self.timer) >= 27) and not self.do_once9) then
             self.do_once9 = true
@@ -950,6 +950,8 @@ function DarkTransition:draw(dont_clear)
         end
         if ((math.floor(self.timer) >= 55) and not self.do_once12) then
             self.do_once12 = true
+            -- We're done!
+            self.animation_active = false
             --with (megablack)
             --    instance_destroy()
             --persistent = false
