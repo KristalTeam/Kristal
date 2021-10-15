@@ -127,10 +127,22 @@ function Object:getCutout()
 end
 
 function Object:setScreenPos(x, y)
-    self:setPosition(self:getFullTransform():transformPoint(x or 0, y or 0))
+    if self.parent then
+        self:setPosition(self.parent:getFullTransform():inverseTransformPoint(x or 0, y or 0))
+    else
+        self:setPosition(x, y)
+    end
 end
-function Object:getScreenPos(x, y)
-    return self:getFullTransform():inverseTransformPoint(x or 0, y or 0)
+function Object:getScreenPos()
+    if self.parent then
+        return self.parent:getFullTransform():transformPoint(self.x, self.y)
+    else
+        return self.x, self.y
+    end
+end
+
+function Object:getRelativeScreenPos(x, y)
+    return self:getFullTransform():transformPoint(x or 0, y or 0)
 end
 
 function Object:setRelativePos(other, x, y)
@@ -171,7 +183,7 @@ function Object:applyScissor()
     end
 end
 
-function Object:createTransform()
+function Object:getTransform()
     local transform = love.math.newTransform()
     transform:translate(self.x - self.width * self.origin_x, self.y - self.height * self.origin_y)
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
@@ -187,19 +199,12 @@ function Object:createTransform()
     return transform
 end
 
-function Object:getTransform(cache)
-    local transform = self:createTransform()
-    return transform
-end
-
-function Object:getFullTransform(cache)
-    local result
+function Object:getFullTransform()
     if not self.parent then
-        result = self:getTransform(cache)
+        return self:getTransform()
     else
-        result = self.parent:getFullTransform() * self:getTransform(cache)
+        return self.parent:getFullTransform():apply(self:getTransform())
     end
-    return result
 end
 
 function Object:remove()

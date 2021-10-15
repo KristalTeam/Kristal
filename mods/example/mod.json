@@ -1,6 +1,9 @@
 {
     "name": "Example Mod",
 
+    "map": "alley",
+    "party": ["kris", "susie"],
+
     "transition": true,
 
     "hidden": false

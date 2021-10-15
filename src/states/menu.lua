@@ -337,7 +337,9 @@ function Menu:keypressed(key, _, is_repeat)
                         Gamestate.switch(Kristal.States["DarkTransition"], current_mod)
                     end)
                 else
-                    Kristal.LoadMod(current_mod.id)
+                    Kristal.LoadMod(current_mod.id, function()
+                        Gamestate.switch(Kristal.States["Game"])
+                    end)
                 end
             end
             return

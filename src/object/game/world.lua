@@ -3,37 +3,22 @@ local World, super = Class(Object)
 function World:init(map)
     super:init(self)
 
-    local success, map_data = Kristal.executeModScript("maps/"..map)
-    if not success then
-        error("No map: "..map)
-    end
+    self.tile_width = 40
+    self.tile_height = 40
+    self.map_width = 1
+    self.map_height = 1
 
-    self.tile_width = map_data.tilewidth
-    self.tile_height = map_data.tileheight
-    self.map_width = map_data.width
-    self.map_height = map_data.height
-    self:populateTilesets(map, map_data.tilesets)
-
-    self.player = nil
-
-    self.camera = Camera(0, 0)
-
+    self.tilesets = {}
     self.collision = {}
     self.tile_layers = {}
     self.markers = {}
 
-    for _,layer in ipairs(map_data.layers) do
-        if layer.type == "tilelayer" then
-            self:loadTiles(layer)
-        elseif layer.type == "objectgroup" then
-            if layer.name == "objects" then
-                self:loadObjects(layer)
-            elseif layer.name == "markers" then
-                self:loadMarkers(layer)
-            elseif layer.name == "collision" then
-                self:loadCollision(layer)
-            end
-        end
+    self.camera = Camera(0, 0)
+
+    self.player = nil
+
+    if map then
+        self:loadMap(map)
     end
 end
 
@@ -57,6 +42,78 @@ function World:checkCollision(collider)
         end
     end
     return false
+end
+
+function World:spawnPlayer(...)
+    local args = {...}
+
+    local x, y = 0, 0
+    local chara = self.player and self.player.name
+    local variant = self.player and self.player.variant
+    if #args > 0 then
+        if type(args[1]) == "number" then
+            x, y = args[1], args[2]
+            chara = args[3] or chara
+            variant = args[4] or "dark"
+        elseif type(args[1]) == "string" then
+            local marker = self.markers[args[1]]
+            x, y = marker and marker.center_x or 0, marker and marker.center_y or 0
+            chara = args[2] or chara
+            variant = args[3] or "dark"
+        end
+    end
+
+    if self.player then
+        self:removeChild(self.player)
+    end
+    self.player = Character(chara, x, y, variant)
+    self:addChild(self.player)
+
+    self.camera:lookAt(self.player.x, self.player.y)
+    self:updateCamera()
+end
+
+function World:loadMap(map)
+    local success, map_data = Kristal.executeModScript("maps/"..map)
+    if not success then
+        error("No map: "..map)
+    end
+
+    self.tile_width = map_data.tilewidth
+    self.tile_height = map_data.tileheight
+    self.map_width = map_data.width
+    self.map_height = map_data.height
+    self:populateTilesets(map, map_data.tilesets)
+
+    for _,child in ipairs(self.children) do
+        if child ~= self.player then
+            self:removeChild(child)
+        end
+    end
+
+    self.collision = {}
+    self.tile_layers = {}
+    self.markers = {}
+
+    for _,layer in ipairs(map_data.layers) do
+        if layer.type == "tilelayer" then
+            self:loadTiles(layer)
+        elseif layer.type == "objectgroup" then
+            if layer.name == "objects" then
+                self:loadObjects(layer)
+            elseif layer.name == "markers" then
+                self:loadMarkers(layer)
+            elseif layer.name == "collision" then
+                self:loadCollision(layer)
+            end
+        end
+    end
+
+    if self.markers["spawn"] then
+        local spawn = self.markers["spawn"]
+        self.camera:lookAt(spawn.center_x, spawn.center_y)
+    end
+    self:updateCamera()
 end
 
 function World:loadTiles(layer)
@@ -143,8 +200,16 @@ function World:getTileset(id)
     return nil, 0
 end
 
-function World:createTransform()
-    local transform = super:createTransform(self)
+function World:updateCamera()
+    local zoom = 1/self.camera.scale
+    local vw, vh = SCREEN_WIDTH/2, SCREEN_HEIGHT/2
+
+    self.camera.x = Utils.clamp(self.camera.x, vw * zoom, self.map_width * self.tile_width - (vw * zoom))
+    self.camera.y = Utils.clamp(self.camera.y, vh * zoom, self.map_height * self.tile_height - (vh * zoom))
+end
+
+function World:getTransform()
+    local transform = super:getTransform(self)
     transform:apply(self.camera:getTransform(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
     return transform
 end
@@ -159,11 +224,7 @@ end
 
 function World:update(dt)
     -- Keep camera in bounds
-    local zoom = 1/self.camera.scale
-    local vw, vh = SCREEN_WIDTH/2, SCREEN_HEIGHT/2
-
-    self.camera.x = Utils.clamp(self.camera.x, vw * zoom, self.map_width * self.tile_width - (vw * zoom))
-    self.camera.y = Utils.clamp(self.camera.y, vh * zoom, self.map_height * self.tile_height - (vh * zoom))
+    self:updateCamera()
 
     -- Always sort
     self.update_child_list = true

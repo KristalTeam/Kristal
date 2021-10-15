@@ -5,6 +5,7 @@ SCREEN_HEIGHT = 480
 FRAMERATE = 1/60
 
 DT = (1/60)
+DTMULT = DT * 30
 
 -- mod variables
 MOD = nil

@@ -26,7 +26,7 @@ function DarkTransition:enter(previous, mod)
 
     self.animation_active = true
 
-    self.stage = Object()
+    self.stage = Stage()
 
     self.stage_scaled = Object()
     self.stage_scaled:setScale(2)
@@ -167,6 +167,7 @@ function DarkTransition:enter(previous, mod)
     self.dronesfx_volume = 0
 
     self.black_fade = 1
+    self.mod_loading = false
 end
 
 function DarkTransition:update(dt)
@@ -515,7 +516,10 @@ function DarkTransition:draw(dont_clear)
             self.kris_x = (self.kris_x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius))
         end
         if (self.timer >= 35) then
-            Kristal.LoadMod(self.mod.id)
+            Kristal.LoadMod(self.mod.id, function()
+                Gamestate.switch(Kristal.States["Game"])
+            end)
+
             self.sprite_index = 0
             self.con = 19
             self.timer = 0

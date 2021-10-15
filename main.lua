@@ -20,9 +20,13 @@ Kristal.Shaders = require("src.shaders")
 Kristal.States = {
     ["Loading"] = require("src.states.loading"),
     ["Menu"] = require("src.states.menu"),
+    ["Game"] = require("src.states.game"),
     ["Testing"] = require("src.states.testing"),
     ["DarkTransition"] = require("src.states.dark_transition")
 }
+
+-- Ease of access for game variables
+Game = Kristal.States["Game"]
 
 Assets = require("src.assets")
 Draw = require("src.draw")
@@ -134,6 +138,7 @@ end
 
 function love.update(dt)
     DT = dt
+    DTMULT = dt * 30
 
     Timer.update(dt)
 
@@ -179,7 +184,7 @@ function Kristal.LoadAssets(dir, loader, paths, after)
     next_load_key = next_load_key + 1
 end
 
-function Kristal.LoadMod(id)
+function Kristal.LoadMod(id, after)
     local mod = Kristal.Mods.getMod(id)
 
     if not mod then return end
@@ -198,7 +203,11 @@ function Kristal.LoadMod(id)
 
             setfenv(chunk, MOD.env)
             chunk()
+
+            after()
         end)
+    else
+        after()
     end
 end
 

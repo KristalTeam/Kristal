@@ -234,5 +234,14 @@ function Utils.sign(num)
     return num > 0 and 1 or (num < 0 and -1 or 0)
 end
 
+function Utils.approach(val, target, amount)
+    if target < val then
+        return math.max(target, val - amount)
+    elseif target > val then
+        return math.min(target, val + amount)
+    end
+    return target
+end
+
 
 return Utils
