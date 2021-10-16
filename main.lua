@@ -128,6 +128,7 @@ function love.load()
     load_thread:start()
 
     -- load menu
+    error("Nya")
     Gamestate.switch(Kristal.States["Loading"])
 end
 
@@ -162,6 +163,151 @@ function love.update(dt)
             end
         end
     end
+end
+
+local function error_printer(msg, layer)
+	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
+end
+
+function love.errorhandler(msg)
+    local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
+    local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
+    local starwalker = love.graphics.newImage("assets/sprites/kristal/starwalker.png")
+    local starwalkertext = love.graphics.newImage("assets/sprites/kristal/starwalkertext.png")
+
+	msg = tostring(msg)
+
+	error_printer(msg, 2)
+
+	if not love.window or not love.graphics or not love.event then
+		return
+	end
+
+    local width  = SCREEN_WIDTH
+    local height = SCREEN_HEIGHT
+
+    if Kristal.Config then
+        local window_scale = Kristal.Config["windowScale"]
+        if window_scale then
+            if window_scale ~= 1 then
+                local width  = SCREEN_WIDTH  * window_scale
+                local height = SCREEN_HEIGHT * window_scale
+            end
+        end
+    end
+
+	if not love.graphics.isCreated() or not love.window.isOpen() then
+		local success, status = pcall(love.window.setMode, width, height)
+		if not success or not status then
+			return
+		end
+	end
+
+	-- Reset state.
+	if love.mouse then
+		love.mouse.setVisible(true)
+		love.mouse.setGrabbed(false)
+		love.mouse.setRelativeMode(false)
+		if love.mouse.isCursorSupported() then
+			love.mouse.setCursor()
+		end
+	end
+	if love.joystick then
+		-- Stop all joystick vibrations.
+		for i,v in ipairs(love.joystick.getJoysticks()) do
+			v:setVibration()
+		end
+	end
+	if love.audio then love.audio.stop() end
+
+	love.graphics.reset()
+
+	love.graphics.setColor(1, 1, 1, 1)
+
+	local trace = debug.traceback()
+
+	love.graphics.origin()
+
+    local split = Utils.split(msg, ": ")
+
+	local function draw()
+		local pos = 32
+        local ypos = pos
+		love.graphics.clear(0, 0, 0, 1)
+        love.graphics.setFont(font)
+
+		love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[1], {1, 1, 1, 1}, " - " .. split[2]}, pos, ypos, love.graphics.getWidth() - pos)
+        ypos = ypos + 48
+
+        for l in trace:gmatch("(.-)\n") do
+            if not l:match("boot.lua") then
+                if l:match("stack traceback:") then
+                    love.graphics.setFont(font)
+                    love.graphics.printf("Traceback:", pos, ypos, love.graphics.getWidth() - pos)
+                    ypos = ypos + 32
+                else
+                    love.graphics.setFont(smaller_font)
+                    love.graphics.printf(l, pos, ypos, love.graphics.getWidth() - pos)
+                    ypos = ypos + 16
+                end
+            end
+        end
+
+        love.graphics.draw(starwalkertext, 640 - starwalkertext:getWidth() - 20, 480 - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
+
+        love.graphics.push()
+        love.graphics.scale(2, 2)
+        love.graphics.draw(starwalker, 320 - starwalker:getWidth(), 240 - starwalker:getHeight())
+        love.graphics.pop()
+
+		love.graphics.present()
+	end
+
+	local fullErrorText = p
+	local function copyToClipboard()
+		if not love.system then return end
+		love.system.setClipboardText(fullErrorText)
+		p = p .. "\nCopied to clipboard!"
+		draw()
+	end
+
+	if love.system then
+		p = p .. "\n\nPress Ctrl+C or tap to copy this error"
+	end
+
+	return function()
+		love.event.pump()
+
+		for e, a, b, c in love.event.poll() do
+			if e == "quit" then
+				return 1
+			elseif e == "keypressed" and a == "escape" then
+				return 1
+			elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
+				copyToClipboard()
+			elseif e == "touchpressed" then
+				local name = love.window.getTitle()
+				if #name == 0 or name == "Untitled" then name = "Game" end
+				local buttons = {"OK", "Cancel"}
+				if love.system then
+					buttons[3] = "Copy to clipboard"
+				end
+				local pressed = love.window.showMessageBox("Quit "..name.."?", "", buttons)
+				if pressed == 1 then
+					return 1
+				elseif pressed == 3 then
+					copyToClipboard()
+				end
+			end
+		end
+
+		draw()
+
+		if love.timer then
+			love.timer.sleep(0.1)
+		end
+	end
+
 end
 
 function Kristal.ClearAssets(include_mods)
