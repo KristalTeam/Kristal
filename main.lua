@@ -63,6 +63,8 @@ Character = require("src.object.game.character")
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
 
+Cutscene = require("src.cutscene")
+
 local load_in_channel
 local load_out_channel
 local load_thread

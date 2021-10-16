@@ -46,15 +46,17 @@ function Game:update(dt)
         return
     end
 
+    Cutscene:update(dt)
+
     if self.world.player and not disabled then
         local walk_x = 0
         local walk_y = 0
-    
+
         if love.keyboard.isDown("right") then walk_x = walk_x + 1 end
         if love.keyboard.isDown("left") then walk_x = walk_x - 1 end
         if love.keyboard.isDown("down") then walk_y = walk_y + 1 end
         if love.keyboard.isDown("up") then walk_y = walk_y - 1 end
-    
+
         self.world.player:walk(walk_x, walk_y, love.keyboard.isDown("lshift"))
 
         if walk_x ~= 0 or walk_y ~= 0 then

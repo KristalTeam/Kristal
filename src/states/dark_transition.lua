@@ -36,6 +36,7 @@ function DarkTransition:enter(previous, mod)
     self.timer = 0
     self.index = 0
     self.velocity = 0
+    self.old_velocity = 0
     self.friction = 0
     self.kris_x = (134 + self:camerax())
     self.kris_y = (94  + self:cameray())
@@ -550,6 +551,7 @@ function DarkTransition:draw(dont_clear)
             end
 
             self.mod_loading = true
+            self.old_velocity = self.velocity
             Kristal.LoadMod(self.mod.id, function()
                 self.mod_loading = false
                 Gamestate.switch(Kristal.States["Game"])
@@ -566,40 +568,44 @@ function DarkTransition:draw(dont_clear)
         if (self.quick_mode) then
             self.timer = self.timer + 1 * (DT * 30)
         end
-        if (self.timer >= 15) and not self.mod_loading then
-            self.con = 31
-            self.timer = 0
-            self.susie_top = self.susie_height
-            self.kris_top = self.kris_height
+        if (self.timer >= 15) then
+            if self.mod_loading then
+                self.old_velocity = self.velocity
+                -- While we're waiting for the mod to load, let's let them float
+                self.velocity = math.sin(self.timer / 100) * 0.5
+            else
+                self.velocity = self.old_velocity
+                self.con = 31
+                self.timer = 0
+                self.susie_top = self.susie_height
+                self.kris_top = self.kris_height
 
-            -- sprite code --
-            self.kris_sprite_2:setAnimation(self.spr_kris_fall_d_white)
-            self.kris_sprite_3:setAnimation(self.spr_kris_fall_d_dw)
+                self.kris_sprite_2:setAnimation(self.spr_kris_fall_d_white)
+                self.kris_sprite_3:setAnimation(self.spr_kris_fall_d_dw)
 
-            self.kris_sprite.cutout_bottom = 0
-            self.kris_sprite_2.cutout_top = self.kris_top
-            self.kris_sprite_3.cutout_top = self.kris_top
+                self.kris_sprite.cutout_bottom = 0
+                self.kris_sprite_2.cutout_top = self.kris_top
+                self.kris_sprite_3.cutout_top = self.kris_top
 
-            self.kris_sprite_2.visible = true
-            self.kris_sprite_3.visible = true
+                self.kris_sprite_2.visible = true
+                self.kris_sprite_3.visible = true
 
-            if not self.kris_only then
-                self.susie_sprite_2:setAnimation(self.spr_susie_white_fall_d)
-                self.susie_sprite_3:setAnimation(self.spr_susie_dw_fall_d)
+                if not self.kris_only then
+                    self.susie_sprite_2:setAnimation(self.spr_susie_white_fall_d)
+                    self.susie_sprite_3:setAnimation(self.spr_susie_dw_fall_d)
 
-                self.susie_sprite.cutout_bottom = 0
-                self.susie_sprite_2.cutout_top = self.susie_top
-                self.susie_sprite_3.cutout_top = self.susie_top
+                    self.susie_sprite.cutout_bottom = 0
+                    self.susie_sprite_2.cutout_top = self.susie_top
+                    self.susie_sprite_3.cutout_top = self.susie_top
 
-                self.susie_sprite_2.visible = true
-                self.susie_sprite_3.visible = true
+                    self.susie_sprite_2.visible = true
+                    self.susie_sprite_3.visible = true
+                end
             end
-            -----------------
         end
     end
     if (self.con == 31) then
         self.timer = self.timer + 1 * (DT * 30)
-        -- sprite code --
         self.kris_sprite:setFrame(math.floor(self.index / 4) + 1)
         self.kris_sprite_2:setFrame(math.floor(self.index / 4) + 1)
         self.kris_sprite_3:setFrame(math.floor(self.index / 4) + 1)
