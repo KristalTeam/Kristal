@@ -11,6 +11,10 @@ DTMULT = DT * 30
 MOD = nil
 MOD_LOADING = false
 
+PARTY = {
+    ["kris"] = require("src.party.kris")
+}
+
 COLORS = {
     aqua = {0, 1, 1, 1},
     black = {0, 0, 0, 1},

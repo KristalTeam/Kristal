@@ -10,6 +10,8 @@ function Game:enter(previous_state)
 
     self.started = true
 
+    self.lock_input = false
+
     if MOD and MOD.map then
         self.world:loadMap(MOD.map)
         self.world:spawnPlayer("spawn", MOD.party and MOD.party[1] or "kris")
@@ -31,12 +33,12 @@ function Game:enter(previous_state)
 end
 
 function Game:update(dt)
-    local disabled = false
     if self.previous_state and self.previous_state.animation_active then
         self.previous_state:update(dt)
-        disabled = true
+        self.lock_input = true
     elseif not self.started then
         self.started = true
+        self.lock_input = false
         if self.world.player then
             self.world.player.visible = true
         end
@@ -48,7 +50,7 @@ function Game:update(dt)
 
     Cutscene:update(dt)
 
-    if self.world.player and not disabled then
+    if self.world.player and not self.lock_input then
         local walk_x = 0
         local walk_y = 0
 

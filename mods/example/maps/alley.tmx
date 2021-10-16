@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="43">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="53">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
@@ -43,6 +43,7 @@
  </objectgroup>
  <objectgroup id="2" name="objects">
   <object id="2" name="savepoint" x="360" y="185" width="40" height="40"/>
+  <object id="52" name="banana" x="120" y="280" width="40" height="40"/>
  </objectgroup>
  <objectgroup id="3" name="markers">
   <object id="16" name="spawn" x="360" y="280" width="40" height="40"/>

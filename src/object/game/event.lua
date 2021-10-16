@@ -19,6 +19,29 @@ function Event:onCollide(player)
     -- Do stuff when the player collides with this object
 end
 
+function Event:onAdd(parent)
+    if parent:includes(World) then
+        self.world = parent
+    elseif parent.world then
+        self.world = parent.world
+    end
+end
+
+function Event:onRemove(parent)
+    if parent:includes(World) or parent.world then
+        self.world = nil
+    end
+end
+
+function Event:update(dt)
+    if self.collider and not self.solid and self.world and self.world.player then
+        if self:collidesWith(self.world.player) then
+            self:onCollide(self.world.player)
+        end
+    end
+    self:updateChildren(dt)
+end
+
 function Event:setSprite(texture, speed)
     if texture then
         if self.sprite then

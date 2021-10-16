@@ -4,17 +4,20 @@ function Character:init(name, x, y, variant)
     super:init(self, x, y, 0, 0)
 
     self.name = name
-    self.variant = variant or "dark"
     self.facing = "down"
 
-    self.sprite = Sprite("party/"..self.name.."/world/"..self.variant.."/down")
+    self.info = PARTY[name]
+
+    if self.info then
+        self.sprite = CharacterSprite("party/"..self.name, "world/"..variant, self.info.width, self.info.height, self.info.offsets)
+    else
+        self.sprite = CharacterSprite("party/"..self.name, "world/"..variant)
+    end
     self.sprite:setOrigin(0.5, 1)
     self.sprite:setScale(2)
     self:addChild(self.sprite)
 
-    self.sprite_subdir = "world"
-    self.sprite_name = self.facing
-    self.sprite:setFrame(1)
+    self.sprite.facing = self.facing
 
     self.collider = Hitbox(-19, -26, 38, 28, self)
 
@@ -31,6 +34,8 @@ function Character:init(name, x, y, variant)
 
     self.last_collided_x = false
     self.last_collided_y = false
+
+    self.moved = false
 
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
@@ -185,47 +190,43 @@ function Character:walk(x, y, run, force_dir)
                 dir = (x ~= 0 and (self.facing == "left" or self.facing == "right")) and self.facing or "up"
             end
         end
-        self.facing = dir
 
-        local target_frame = 1
-        if last_dir == "down" or last_dir == "up" or last_dir == "right" or last_dir == "left" then
-            target_frame = self.sprite.frame
-        end
-        self:setSprite("world", self.facing, target_frame)
-        self.sprite:play(run and 0.125 or 0.25)
+        self.facing = dir
+        self.sprite.facing = self.facing
 
         local moved = false
         moved = self:moveX(x*(run and 8 or 4), DT * 30, y) or moved
         moved = self:moveY(y*(run and 8 or 4), DT * 30, x) or moved
-        if not moved then
-            self.sprite:stop()
-        end
+
+        self.moved = moved
+
+        self.sprite.walking = moved
+        self.sprite.running = run
     else
-        if self.sprite_name == "up" or self.sprite_name == "down" or self.sprite_name == "left" or self.sprite_name == "right" then
-            self.sprite:stop()
-        end
+        self.moved = false
+
+        self.sprite.walking = false
+        self.sprite.running = false
     end
 end
 
-function Character:setVariant(variant)
-    if self.variant ~= variant then
-        self.variant = variant
-        self:setSprite(self.sprite_subdir, self.sprite_name, self.sprite.frame, true)
-    end
+function Character:setSprite(sprite)
+    self.sprite:setSprite(sprite)
 end
 
-function Character:setSprite(subdir, sprite, frame, force)
-    if self.sprite_subdir ~= subdir or self.sprite_name ~= sprite or force then
-        self.sprite_subdir = subdir
-        self.sprite_name = sprite
-        self.sprite:set("party/"..self.name.."/"..subdir.."/"..self.variant.."/"..sprite)
-        if frame then
-            self.sprite:setFrame(frame)
-        end
-    end
+function Character:play(speed, loop, reset, on_finished)
+    self.sprite:play(speed, loop, reset, on_finished)
 end
 
 function Character:update(dt)
+    if self.moved then
+        self.sprite.walking = true
+        self.moved = false
+    else
+        self.sprite.walking = false
+        self.sprite.running = false
+    end
+
     self:updateChildren(dt)
 end
 

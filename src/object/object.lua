@@ -16,6 +16,8 @@ function Object:init(x, y, width, height)
     self.scale_x = 1
     self.scale_y = 1
     self.rotation = 0
+    self.flip_x = false
+    self.flip_y = false
     
     -- Whether this object's color will be multiplied by its parent's color
     self.inherit_color = false
@@ -185,7 +187,11 @@ end
 
 function Object:getTransform()
     local transform = love.math.newTransform()
-    transform:translate(self.x - self.width * self.origin_x, self.y - self.height * self.origin_y)
+    transform:translate(self.x, self.y)
+    if self.flip_x or self.flip_y then
+        transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)
+    end
+    transform:translate(-self.width * self.origin_x, -self.height * self.origin_y)
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
         transform:translate(self.width * (self.scale_origin_x or self.origin_x), self.height * (self.scale_origin_y or self.origin_y))
         transform:scale(self.scale_x, self.scale_y)

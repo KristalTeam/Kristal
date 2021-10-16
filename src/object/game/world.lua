@@ -173,6 +173,10 @@ function World:loadObject(name, data)
             return events[name](data)
         end
     end
+    local success, result = Kristal.executeModScript("events/"..name)
+    if success then
+        return result(data)
+    end
     -- Kristal object loading
     if name:lower() == "savepoint" then
         return Savepoint(data)
@@ -218,7 +222,7 @@ function World:sortChildren()
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(self, a.width/2, a.height)
         local bx, by = b:getRelativePos(self, b.width/2, b.height)
-        return ay < by
+        return ay < by or (ay == by and a == self.player)
     end)
 end
 

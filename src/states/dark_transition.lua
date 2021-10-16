@@ -59,7 +59,7 @@ function DarkTransition:enter(previous, mod)
     self.megablack = false
 
     -- CONFIG
-    self.quick_mode = false
+    self.quick_mode = true
     self.skiprunback = true
     self.final_y = 60
     self.kris_only = false

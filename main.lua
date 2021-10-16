@@ -34,6 +34,7 @@ Draw = require("src.draw")
 Object = require("src.object.object")
 Stage = require("src.object.stage")
 Sprite = require("src.object.sprite")
+CharacterSprite = require("src.object.charactersprite")
 Explosion = require("src.object.explosion")
 
 Text = require("src.object.ui.text")
