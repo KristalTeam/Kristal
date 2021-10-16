@@ -128,7 +128,6 @@ function love.load()
     load_thread:start()
 
     -- load menu
-    error("Nya")
     Gamestate.switch(Kristal.States["Loading"])
 end
 
