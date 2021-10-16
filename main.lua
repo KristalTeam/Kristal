@@ -164,11 +164,76 @@ function love.update(dt)
     end
 end
 
+function love.run()
+    if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
+
+    -- We don't want the first frame's dt to include time taken by love.load.
+    if love.timer then love.timer.step() end
+
+    local dt = 0
+
+    local errorResult
+
+    local function mainLoop()
+        -- Process events.
+        if love.event then
+            love.event.pump()
+            for name, a,b,c,d,e,f in love.event.poll() do
+                if name == "quit" then
+                    if not love.quit or not love.quit() then
+                        return a or 0
+                    end
+                end
+                love.handlers[name](a,b,c,d,e,f)
+            end
+        end
+
+        -- Update dt, as we'll be passing it to update
+        if love.timer then dt = love.timer.step() end
+
+        -- Call update and draw
+        if love.update then
+            love.update(dt)
+        end 
+
+        if love.graphics and love.graphics.isActive() then
+            love.graphics.origin()
+            love.graphics.clear(love.graphics.getBackgroundColor())
+
+            if love.draw then love.draw() end
+
+            love.graphics.present()
+        end
+
+        if love.timer then love.timer.sleep(0.001) end
+    end
+
+    -- Main loop time.
+    return function()
+        if errorResult then
+            local result = errorResult()
+            if result then
+                if love.quit then
+                    love.quit()
+                end
+                return result
+            end
+        else
+            local success, result = xpcall(mainLoop, Kristal.errorHandler)
+            if success then
+                return result
+            else
+                errorResult = result
+            end
+        end
+    end
+end
+
 local function error_printer(msg, layer)
 	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
 end
 
-function love.errorhandler(msg)
+function Kristal.errorHandler(msg)
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
     local starwalker = love.graphics.newImage("assets/sprites/kristal/starwalker.png")
@@ -185,13 +250,13 @@ function love.errorhandler(msg)
     local width  = SCREEN_WIDTH
     local height = SCREEN_HEIGHT
 
+    local window_scale = 1
+
     if Kristal.Config then
-        local window_scale = Kristal.Config["windowScale"]
-        if window_scale then
-            if window_scale ~= 1 then
-                local width  = SCREEN_WIDTH  * window_scale
-                local height = SCREEN_HEIGHT * window_scale
-            end
+        window_scale = Kristal.Config["windowScale"] or 1
+        if window_scale ~= 1 then
+            local width  = SCREEN_WIDTH  * window_scale
+            local height = SCREEN_HEIGHT * window_scale
         end
     end
 
@@ -232,21 +297,26 @@ function love.errorhandler(msg)
 	local function draw()
 		local pos = 32
         local ypos = pos
+        love.graphics.origin()
 		love.graphics.clear(0, 0, 0, 1)
+        love.graphics.scale(window_scale)
+
         love.graphics.setFont(font)
 
-		love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[1], {1, 1, 1, 1}, " - " .. split[2]}, pos, ypos, love.graphics.getWidth() - pos)
-        ypos = ypos + 48
+        local _,lines = font:getWrap("Error at "..split[1].." - "..split[2], 640 - pos)
+
+		love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[1], {1, 1, 1, 1}, " - " .. split[2]}, pos, ypos, 640 - pos)
+        ypos = ypos + (32 * #lines) + 16
 
         for l in trace:gmatch("(.-)\n") do
             if not l:match("boot.lua") then
                 if l:match("stack traceback:") then
                     love.graphics.setFont(font)
-                    love.graphics.printf("Traceback:", pos, ypos, love.graphics.getWidth() - pos)
+                    love.graphics.printf("Traceback:", pos, ypos, 640 - pos)
                     ypos = ypos + 32
                 else
                     love.graphics.setFont(smaller_font)
-                    love.graphics.printf(l, pos, ypos, love.graphics.getWidth() - pos)
+                    love.graphics.printf(l, pos, ypos, 640 - pos)
                     ypos = ypos + 16
                 end
             end
@@ -262,16 +332,10 @@ function love.errorhandler(msg)
 		love.graphics.present()
 	end
 
-	local fullErrorText = p
 	local function copyToClipboard()
 		if not love.system then return end
-		love.system.setClipboardText(fullErrorText)
-		p = p .. "\nCopied to clipboard!"
+		love.system.setClipboardText(trace)
 		draw()
-	end
-
-	if love.system then
-		p = p .. "\n\nPress Ctrl+C or tap to copy this error"
 	end
 
 	return function()
@@ -281,7 +345,7 @@ function love.errorhandler(msg)
 			if e == "quit" then
 				return 1
 			elseif e == "keypressed" and a == "escape" then
-				return 1
+				return "restart"
 			elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
 				copyToClipboard()
 			elseif e == "touchpressed" then
