@@ -289,7 +289,7 @@ function Kristal.errorHandler(msg)
 
 	love.graphics.setColor(1, 1, 1, 1)
 
-	local trace = debug.traceback()
+	local trace = debug.traceback("", 3)
 
 	love.graphics.origin()
 
@@ -307,7 +307,7 @@ function Kristal.errorHandler(msg)
         local _,lines = font:getWrap("Error at "..split[1].." - "..split[2], 640 - pos)
 
 		love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[1], {1, 1, 1, 1}, " - " .. split[2]}, pos, ypos, 640 - pos)
-        ypos = ypos + (32 * #lines) + 16
+        ypos = ypos + (32 * #lines)
 
         for l in trace:gmatch("(.-)\n") do
             if not l:match("boot.lua") then
