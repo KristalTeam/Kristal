@@ -48,25 +48,22 @@ function World:spawnPlayer(...)
     local args = {...}
 
     local x, y = 0, 0
-    local chara = self.player and self.player.name
-    local variant = self.player and self.player.variant
+    local chara = self.player and self.player.info.id
     if #args > 0 then
         if type(args[1]) == "number" then
             x, y = args[1], args[2]
             chara = args[3] or chara
-            variant = args[4] or "dark"
         elseif type(args[1]) == "string" then
             local marker = self.markers[args[1]]
             x, y = marker and marker.center_x or 0, marker and marker.center_y or 0
             chara = args[2] or chara
-            variant = args[3] or "dark"
         end
     end
 
     if self.player then
         self:removeChild(self.player)
     end
-    self.player = Character(chara, x, y, variant)
+    self.player = Character(x, y, PARTY[chara])
     self:addChild(self.player)
 
     self.camera:lookAt(self.player.x, self.player.y)

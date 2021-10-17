@@ -1,7 +1,8 @@
 local CharacterSprite, super = Class(Sprite)
 
-function CharacterSprite:init(path, sprite, width, height, offsets)
-    self.path = path
+function CharacterSprite:init(chara)
+    self.info = chara
+    self.path = chara.path or ""
     self.sprite = nil
     self.facing = "down"
     self.last_facing = "down"
@@ -9,12 +10,12 @@ function CharacterSprite:init(path, sprite, width, height, offsets)
     self.directional = false
     self.dir_sep = "_"
 
-    super:init(self, sprite, 0, 0, width, height)
+    super:init(self, chara.default or "", 0, 0, chara.width, chara.height)
 
-    self.offsets = offsets or {}
+    self.offsets = chara.offsets or {}
 
-    self.running = false
     self.walking = false
+    self.walk_speed = 4
     self.walk_frame = 1
 end
 
@@ -62,7 +63,7 @@ end
 function CharacterSprite:update(dt)
     local floored_frame = math.floor(self.walk_frame)
     if floored_frame ~= self.walk_frame or (self.directional and self.walking) then
-        self.walk_frame = Utils.approach(self.walk_frame, floored_frame + 1, dt * (self.running and 8 or 4))
+        self.walk_frame = Utils.approach(self.walk_frame, floored_frame + 1, dt * (self.walk_speed > 0 and self.walk_speed or 1))
         self:setFrame(floored_frame)
     elseif self.directional and self.frames and not self.walking and not self.playing then
         self:setFrame(1)

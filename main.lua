@@ -309,7 +309,7 @@ function Kristal.errorHandler(msg)
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    local trace = debug.traceback("", 3)
+    local trace = debug.traceback("", 2)
 
     love.graphics.origin()
 
