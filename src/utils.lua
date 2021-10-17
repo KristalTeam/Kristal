@@ -222,6 +222,15 @@ function Utils.removeFromTable(tbl, val)
     end
 end
 
+function Utils.containsValue(tbl, val)
+    for k,v in pairs(tbl) do
+        if v == val then
+            return true
+        end
+    end
+    return false
+end
+
 function Utils.round(value)
     return math.floor(value + 0.5)
 end

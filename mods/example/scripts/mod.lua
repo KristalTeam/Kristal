@@ -41,6 +41,40 @@ function KeyPressed(key)
 
                 return true
             end
+        elseif key == "b" then
+            Game.lock_input = true
+
+            local kris = PARTY["kris"]
+
+            local tx, ty = Game.world:screenToLocalPos(102, 125)
+
+            player.sprite:setSprite(kris.battle_intro[1])
+            player.sprite:play(1/15, true)
+
+            Timer.every(1/30, function()
+                local afterimage = AfterImage(player, 0.5)
+                Game.world:addChild(afterimage)
+            end, 9)
+            Timer.tween(1/3, player, {x = tx, y = ty}, "linear", function()
+                local src = love.audio.newSource("assets/sounds/snd_impact.wav", "static")
+                src:play()
+                local src2 = love.audio.newSource("assets/sounds/snd_weaponpull_fast.wav", "static")
+                src2:play()
+
+                if kris.battle_intro[2] then
+                    player.sprite:setSprite(kris.battle_intro[2])
+                    player.sprite:play(1/15, false)
+                end
+
+                Timer.after(0.5, function()
+                    local music = love.audio.newSource("assets/music/battle.ogg", "stream")
+                    music:setLooping(true)
+                    music:play()
+
+                    player.sprite:setSprite("battle/dark/idle")
+                    player.sprite:play(1/5, true)
+                end)
+            end)
         end
     end
 end

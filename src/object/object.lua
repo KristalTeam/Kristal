@@ -143,8 +143,12 @@ function Object:getScreenPos()
     end
 end
 
-function Object:getRelativeScreenPos(x, y)
+function Object:localToScreenPos(x, y)
     return self:getFullTransform():transformPoint(x or 0, y or 0)
+end
+
+function Object:screenToLocalPos(x, y)
+    return self:getFullTransform():inverseTransformPoint(x or 0, y or 0)
 end
 
 function Object:setRelativePos(other, x, y)
@@ -211,6 +215,16 @@ function Object:getFullTransform()
     else
         return self.parent:getFullTransform():apply(self:getTransform())
     end
+end
+
+function Object:getHierarchy()
+    local tbl = {self}
+    if self.parent then
+        for _,v in ipairs(self.parent:getHierarchy()) do
+            table.insert(tbl, v)
+        end
+    end
+    return tbl
 end
 
 function Object:remove()
