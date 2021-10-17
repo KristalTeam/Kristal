@@ -235,10 +235,29 @@ local function error_printer(msg, layer)
 end
 
 function Kristal.errorHandler(msg)
+    local copy_color = {1, 1, 1, 1}
+    local anim_index = 1
+    math.randomseed(os.time()) -- seed!
+    local starwalker_error = (math.random(100) <= 5) -- 10% chance for starwalker
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
-    local starwalker = love.graphics.newImage("assets/sprites/kristal/starwalker.png")
-    local starwalkertext = love.graphics.newImage("assets/sprites/kristal/starwalkertext.png")
+
+    local starwalker, starwalkertext, banana_anim
+
+    if starwalker_error then
+        starwalker = love.graphics.newImage("assets/sprites/kristal/starwalker.png")
+        starwalkertext = love.graphics.newImage("assets/sprites/kristal/starwalkertext.png")
+    else
+        banana_anim = {
+            love.graphics.newImage("assets/sprites/kristal/banana_1.png"),
+            love.graphics.newImage("assets/sprites/kristal/banana_2.png"),
+            love.graphics.newImage("assets/sprites/kristal/banana_3.png"),
+            love.graphics.newImage("assets/sprites/kristal/banana_4.png"),
+            love.graphics.newImage("assets/sprites/kristal/banana_5.png"),
+            love.graphics.newImage("assets/sprites/kristal/banana_6.png"),
+            love.graphics.newImage("assets/sprites/kristal/banana_7.png")
+        }
+    end
 
     msg = tostring(msg)
 
@@ -323,21 +342,43 @@ function Kristal.errorHandler(msg)
             end
         end
 
-        love.graphics.draw(starwalkertext, 640 - starwalkertext:getWidth() - 20, 480 - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
+        if starwalker_error then
+            love.graphics.draw(starwalkertext, 640 - starwalkertext:getWidth() - 20, 480 - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
 
-        love.graphics.push()
-        love.graphics.scale(2, 2)
-        love.graphics.draw(starwalker, 320 - starwalker:getWidth(), 240 - starwalker:getHeight())
-        love.graphics.pop()
+            love.graphics.push()
+            love.graphics.scale(2, 2)
+            love.graphics.draw(starwalker, 320 - starwalker:getWidth(), 240 - starwalker:getHeight())
+            love.graphics.pop()
+        else
+            anim_index = anim_index + (DT * 4)
+            if anim_index >= 8 then
+                anim_index = 1
+            end
+
+            local banana = banana_anim[math.floor(anim_index)]
+
+            love.graphics.push()
+            love.graphics.scale(2, 2)
+            love.graphics.draw(banana, 320 - banana:getWidth(), 240 - banana:getHeight())
+            love.graphics.pop()
+        end
+
+        DT = love.timer.getDelta()
+
+        copy_color[1] = copy_color[1] + (DT * 2)
+        copy_color[3] = copy_color[3] + (DT * 2)
 
         love.graphics.setFont(smaller_font)
+        love.graphics.setColor(copy_color)
         love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
+        love.graphics.setColor(1, 1, 1, 1)
 
         love.graphics.present()
     end
 
     local function copyToClipboard()
         if not love.system then return end
+        copy_color = {0, 1, 0, 1}
         love.system.setClipboardText(trace)
         draw()
     end
