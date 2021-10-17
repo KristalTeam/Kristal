@@ -75,7 +75,8 @@ end
 
 function CharacterSprite:getTransform()
     local transform = super:getTransform(self)
-    local offset = self.offsets[self.sprite] or {0, 0}
+    local frames_for = Assets.getFramesFor(self.sprite)
+    local offset = self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or {0, 0}
     transform:translate(-offset[1], -offset[2])
     return transform
 end

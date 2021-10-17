@@ -18,7 +18,7 @@ function Game:enter(previous_state)
 
         if previous_state == Kristal.States["DarkTransition"] then
             local px, py = self.world.player:getScreenPos()
-            local kx, ky = previous_state.kris_sprite:getRelativeScreenPos(previous_state.kris_width / 2, 0)
+            local kx, ky = previous_state.kris_sprite:localToScreenPos(previous_state.kris_width / 2, 0)
 
             previous_state.final_y = py / 2
 

@@ -10,6 +10,7 @@ function Assets.clear()
         frames = {},
         fonts = {}
     }
+    self.frames_for = {}
     self.quads = {}
 end
 
@@ -26,6 +27,7 @@ function Assets.loadData(data)
         self.data.frames[key] = self.data.frames[key] or {}
         for i,id in pairs(ids) do
             self.data.frames[key][i] = self.data.texture[id]
+            self.frames_for[id] = {key, i}
         end
     end
 
@@ -63,6 +65,12 @@ end
 
 function Assets.getFrameIds(path)
     return self.data.frame_ids[path]
+end
+
+function Assets.getFramesFor(texture)
+    if self.frames_for[texture] then
+        return unpack(self.frames_for[texture])
+    end
 end
 
 function Assets.getQuad(x, y, width, height, sw, sh)
