@@ -34,6 +34,7 @@ return {
         ["battle/dark/victory"] = {0, 9}
     },
 
+    battle_offset = {2, 9},
     battle = {
         idle            = "battle/dark/idle",
 

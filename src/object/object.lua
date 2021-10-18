@@ -154,7 +154,8 @@ end
 
 function Object:setRelativePos(other, x, y)
     local sx, sy = other:getFullTransform():inverseTransformPoint(x, y)
-    self:setPosition(self:getFullTransform():transformPoint(sx, sy))
+    local cx, cy = self:getFullTransform():transformPoint(sx, sy)
+    self:setPosition(self:getTransform():inverseTransformPoint(cx, cy))
 end
 function Object:getRelativePos(other, x, y)
     if other == self.parent then

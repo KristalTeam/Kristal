@@ -32,6 +32,7 @@ return {
         ["dark_transition/landed"] = {4, 2}
     },
 
+    battle_offset = {2, 1},
     battle = {
         idle = "battle/dark/idle",
 

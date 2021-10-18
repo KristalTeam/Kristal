@@ -35,6 +35,7 @@ return {
         ["battle/dark_bangs/rudebuster"] = {47, 39}
     },
 
+    battle_offset = {6, 7},
     battle = {
         idle            = "battle/dark_bangs/idle",
 
