@@ -60,6 +60,14 @@ function CharacterSprite:isDirectional(texture)
     end
 end
 
+function CharacterSprite:getOffset()
+    local frames_for = Assets.getFramesFor(self.sprite)
+    local frames_for_dir = self.directional and Assets.getFramesFor(self.sprite..self.dir_sep..self.facing)
+    return self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or
+            (self.directional and (self.offsets[self.sprite..self.dir_sep..self.facing] or (frames_for_dir and self.offsets[frames_for_dir])))
+            or {0, 0}
+end
+
 function CharacterSprite:update(dt)
     local floored_frame = math.floor(self.walk_frame)
     if floored_frame ~= self.walk_frame or (self.directional and self.walking) then
@@ -76,8 +84,7 @@ end
 
 function CharacterSprite:getTransform()
     local transform = super:getTransform(self)
-    local frames_for = Assets.getFramesFor(self.sprite)
-    local offset = self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or {0, 0}
+    local offset = self:getOffset()
     transform:translate(-offset[1], -offset[2])
     return transform
 end

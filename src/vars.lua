@@ -7,12 +7,16 @@ FRAMERATE = 1/60
 DT = (1/60)
 DTMULT = DT * 30
 
+FOLLOW_DELAY = 0.4
+FOLLOW_SAVE_TIME = 0.05
+
 -- mod variables
 MOD = nil
 MOD_LOADING = false
 
 PARTY = {
-    ["kris"] = require("src.party.kris")
+    ["kris"] = require("src.party.kris"),
+    ["susie"] = require("src.party.susie")
 }
 
 COLORS = {

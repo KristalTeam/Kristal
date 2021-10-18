@@ -48,7 +48,7 @@ function World:spawnPlayer(...)
     local args = {...}
 
     local x, y = 0, 0
-    local chara = self.player and self.player.info.id
+    local chara = self.player and self.player.info
     if #args > 0 then
         if type(args[1]) == "number" then
             x, y = args[1], args[2]
@@ -60,10 +60,14 @@ function World:spawnPlayer(...)
         end
     end
 
+    if type(chara) == "string" then
+        chara = PARTY[chara]
+    end
+
     if self.player then
         self:removeChild(self.player)
     end
-    self.player = Character(x, y, PARTY[chara])
+    self.player = Player(chara, x, y)
     self:addChild(self.player)
 
     self.camera:lookAt(self.player.x, self.player.y)
@@ -219,7 +223,7 @@ function World:sortChildren()
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(self, a.width/2, a.height)
         local bx, by = b:getRelativePos(self, b.width/2, b.height)
-        return ay < by or (ay == by and a == self.player)
+        return math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))
     end)
 end
 

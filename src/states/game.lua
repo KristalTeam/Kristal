@@ -8,6 +8,9 @@ function Game:enter(previous_state)
     self.world = World()
     self.stage:addChild(self.world)
 
+    self.max_followers = 10
+    self.followers = {}
+
     self.started = true
 
     self.lock_input = false
@@ -15,6 +18,13 @@ function Game:enter(previous_state)
     if MOD and MOD.map then
         self.world:loadMap(MOD.map)
         self.world:spawnPlayer("spawn", MOD.party and MOD.party[1] or "kris")
+
+        if MOD.party then
+            for i = 2, #MOD.party do
+                local follower = Follower(PARTY[MOD.party[i]], self.world.player.x, self.world.player.y)
+                self.world:addChild(follower)
+            end
+        end
 
         if previous_state == Kristal.States["DarkTransition"] then
             local px, py = self.world.player:getScreenPos()
@@ -24,6 +34,13 @@ function Game:enter(previous_state)
 
             self.world.player:setScreenPos(kx, py)
             self.world.player.visible = false
+
+            if not previous_state.kris_only and self.followers[1] then
+                local sx, sy = previous_state.susie_sprite:localToScreenPos(previous_state.susie_width / 2, 0)
+
+                self.followers[1]:setScreenPos(sx, py)
+                self.followers[1].visible = false
+            end
 
             self.started = false
         end
@@ -41,6 +58,9 @@ function Game:update(dt)
         self.lock_input = false
         if self.world.player then
             self.world.player.visible = true
+        end
+        for _,follower in ipairs(self.followers) do
+            follower.visible = true
         end
     end
 
@@ -79,8 +99,12 @@ function Game:keypressed(key)
         return
     end
 
-    if key == "z" and self.world.player then
-        self.world.player:interact()
+    if self.world.player then
+        if key == "z" then
+            self.world.player:interact()
+        elseif key == "f" then
+            print(Utils.dump(self.world.player.history))
+        end
     end
 end
 

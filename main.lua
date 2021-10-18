@@ -61,6 +61,8 @@ World = require("src.object.game.world")
 Tileset = require("src.tileset")
 TileLayer = require("src.object.game.tilelayer")
 Character = require("src.object.game.character")
+Follower = require("src.object.game.follower")
+Player = require("src.object.game.player")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")

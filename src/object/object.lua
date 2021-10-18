@@ -12,7 +12,8 @@ function Object:init(x, y, width, height)
     self.height = height or 0
 
     -- Various draw properties
-    self.color = {1, 1, 1, 1}
+    self.color = {1, 1, 1}
+    self.alpha = 1
     self.scale_x = 1
     self.scale_y = 1
     self.rotation = 0
@@ -98,8 +99,8 @@ function Object:getSize() return self.width, self.height end
 function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
 function Object:getScale() return self.scale_x, self.scale_y end
 
-function Object:setColor(r, g, b, a) self.color = {r, g, b, a or 1} end
-function Object:getColor() return self.color[1], self.color[2], self.color[3], self.color[4] or 1 end
+function Object:setColor(r, g, b, a) self.color = {r, g, b}; self.alpha = a or self.alpha end
+function Object:getColor() return self.color[1], self.color[2], self.color[3], self.alpha end
 
 function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0 end
 function Object:getOrigin() return self.origin_x, self.origin_y end
@@ -173,12 +174,12 @@ function Object:getStage()
 end
 
 function Object:getDrawColor()
-    local r, g, b, a = unpack(self.color)
+    local r, g, b = unpack(self.color)
     if self.inherit_color and self.parent then
         local pr, pg, pb, pa = self.parent:getDrawColor()
-        return r * pr, g * pg, b * pb, (a or 1) * (pa or 1)
+        return r * pr, g * pg, b * pb, self.alpha
     else
-        return r, g, b, a or 1
+        return r, g, b, self.alpha
     end
 end
 
@@ -260,7 +261,6 @@ function Object:removeChild(child)
         self.stage:removeFromStage(child)
     end
     self.children_to_remove[child] = true
-    child:onRemove(self)
     self.update_child_list = true
 end
 
@@ -274,6 +274,7 @@ function Object:updateChildList()
     for child,_ in pairs(self.children_to_remove) do
         for i,v in ipairs(self.children) do
             if v == child then
+                child:onRemove(self)
                 table.remove(self.children, i)
                 break
             end

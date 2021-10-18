@@ -252,5 +252,9 @@ function Utils.approach(val, target, amount)
     return target
 end
 
+function Utils.lerp(a, b, t)
+    return a + (b - a) * Utils.clamp(t, 0, 1)
+end
+
 
 return Utils

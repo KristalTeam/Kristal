@@ -17,25 +17,27 @@ function KeyPressed(key)
                 Game.lock_input = true
 
                 player.flip_x = facing == "left"
-                player:setSprite("battle/dark/attack")
+                player:setSprite(player.info.battle.attack)
                 player:play(1/15, false, true, function()
-                    player:setSprite("world/dark")
+                    player:setSprite(player.info.default)
                     player.flip_x = last_flipped
-    
+
                     Game.lock_input = false
                 end)
-    
+
                 local src = love.audio.newSource("assets/sounds/snd_laz_c.wav", "static")
                 src:play()
 
-                local hitbox_x, hitbox_y = 13, -4
-                local hitbox_w, hitbox_h = 25, 47
-
-                local attack_box = Hitbox((-player.sprite.width / 2 + hitbox_x) * 2, (-player.sprite.height + hitbox_y) * 2, hitbox_w * 2, hitbox_h * 2, player)
+                local attack_box = Hitbox(13, -4, 25, 47, player)
 
                 for _,object in ipairs(Game.world.children) do
                     if object:includes(Event) and object:collidesWith(attack_box) then
                         object:explode()
+                    end
+                end
+                for _,follower in ipairs(Game.followers) do
+                    if follower:collidesWith(attack_box) then
+                        follower:explode()
                     end
                 end
 
@@ -44,34 +46,36 @@ function KeyPressed(key)
         elseif key == "b" then
             Game.lock_input = true
 
-            local kris = PARTY["kris"]
+            local chara = player.info
 
             local tx, ty = Game.world:screenToLocalPos(102, 125)
 
-            player.sprite:setSprite(kris.battle_intro[1])
+            player.sprite:setSprite(chara.battle.intro[1])
             player.sprite:play(1/15, true)
 
             Timer.every(1/30, function()
                 local afterimage = AfterImage(player, 0.5)
                 Game.world:addChild(afterimage)
             end, 9)
-            Timer.tween(1/3, player, {x = tx, y = ty}, "linear", function()
+            Timer.tween(10/30, player, {x = tx, y = ty}, "linear", function()
                 local src = love.audio.newSource("assets/sounds/snd_impact.wav", "static")
+                src:setVolume(0.7)
                 src:play()
                 local src2 = love.audio.newSource("assets/sounds/snd_weaponpull_fast.wav", "static")
+                src2:setVolume(0.8)
                 src2:play()
 
-                if kris.battle_intro[2] then
-                    player.sprite:setSprite(kris.battle_intro[2])
-                    player.sprite:play(1/15, false)
+                if chara.battle.intro[2] then
+                    player.sprite:setSprite(chara.battle.intro[2])
+                    player.sprite:play(1/15, true)
                 end
 
-                Timer.after(0.5, function()
+                Timer.after(13/30, function()
                     local music = love.audio.newSource("assets/music/battle.ogg", "stream")
                     music:setLooping(true)
                     music:play()
 
-                    player.sprite:setSprite("battle/dark/idle")
+                    player.sprite:setSprite(chara.battle.idle)
                     player.sprite:play(1/5, true)
                 end)
             end)

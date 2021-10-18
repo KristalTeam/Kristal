@@ -34,9 +34,11 @@ function Event:onRemove(parent)
 end
 
 function Event:update(dt)
-    if self.collider and not self.solid and self.world and self.world.player then
-        if self:collidesWith(self.world.player) then
-            self:onCollide(self.world.player)
+    if self.collider and not self.solid and self.world then
+        for _,v in ipairs(self.world.children) do
+            if v:includes(Character) and self:collidesWith(v) then
+                self:onCollide(v)
+            end
         end
     end
     self:updateChildren(dt)

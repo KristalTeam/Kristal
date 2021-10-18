@@ -791,9 +791,8 @@ function DarkTransition:draw(dont_clear)
             self.kris_sprite_2.visible = true
             self.kris_sprite_3.visible = true
 
-            self.kris_sprite.color = {1, 1, 1, 1}
-            self.kris_sprite_2.color = {1, 1, 1, 0.5}
-            self.kris_sprite_3.color = {1, 1, 1, 0.25}
+            self.kris_sprite_2.alpha = 0.5
+            self.kris_sprite_3.alpha = 0.25
 
             if not self.kris_only then
                 self.susie_sprite:setAnimation(self.spr_susie_dw_fall_ball)
@@ -803,9 +802,8 @@ function DarkTransition:draw(dont_clear)
                 self.susie_sprite_2.visible = true
                 self.susie_sprite_3.visible = true
 
-                self.susie_sprite.color = {1, 1, 1, 1}
-                self.susie_sprite_2.color = {1, 1, 1, 0.5}
-                self.susie_sprite_3.color = {1, 1, 1, 0.25}
+                self.susie_sprite_2.alpha = 0.5
+                self.susie_sprite_3.alpha = 0.25
             end
         end
     end
@@ -872,7 +870,9 @@ function DarkTransition:draw(dont_clear)
                     self.susie_sprite_2.visible = false
                     self.susie_sprite_3.visible = false
 
-                    self.susie_sprite:explode()
+                    if not MOD.party or not MOD.party[2] then
+                        self.susie_sprite:explode()
+                    end
                 end
 
                 --self.kris_sprite:explode()

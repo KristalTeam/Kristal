@@ -1,6 +1,6 @@
 local Character, super = Class(Object)
 
-function Character:init(x, y, chara)
+function Character:init(chara, x, y)
     super:init(self, x, y, chara.width, chara.height)
 
     self.info = chara
@@ -16,13 +16,6 @@ function Character:init(x, y, chara)
     local hitbox = self.info.hitbox or {0, chara.height - 14, chara.width, 14}
     self.collider = Hitbox(hitbox[1], hitbox[2], hitbox[3], hitbox[4], self)
 
-    self.interact_collider = {
-        ["down"] = Hitbox(-19, 2, 38, 16, self),
-        ["up"] = Hitbox(-19, -42, 38, 16, self),
-        ["left"] = Hitbox(-31, -26, 12, 28, self),
-        ["right"] = Hitbox(19, -26, 12, 28, self)
-    }
-
     -- 1px movement increments
     self.partial_x = (x % 1)
     self.partial_y = (y % 1)
@@ -32,8 +25,15 @@ function Character:init(x, y, chara)
 
     self.moved = 0
 
+    self.history_time = 0
+    self.history_timer = 0
+    self.history = {}
+
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
+
+    local ex, ey = self:getExactPosition()
+    table.insert(self.history, {x = ex, y = ey, time = 0})
 end
 
 function Character:onAdd(parent)
@@ -42,16 +42,12 @@ function Character:onAdd(parent)
     end
 end
 
-function Character:interact()
-    local col = self.interact_collider[self.facing]
+function Character:getExactPosition(x, y)
+    return self.x + self.partial_x, self.y + self.partial_y
+end
 
-    for _,obj in ipairs(self.world.children) do
-        if obj.onInteract and obj:collidesWith(col) and obj:onInteract(self, self.facing) then
-            return true
-        end
-    end
-
-    return false
+function Character:moveTo(x, y)
+    self:move(x - (self.x + self.partial_x), y - (self.y + self.partial_y))
 end
 
 function Character:move(x, y, speed)
@@ -217,10 +213,27 @@ function Character:play(speed, loop, reset, on_finished)
 end
 
 function Character:update(dt)
+    if self.info.update then
+        self.info:update(self, dt)
+    end
+
     if self.moved > 0 then
         self.sprite.walking = true
         self.sprite.walk_speed = self.moved
         self.moved = 0
+
+        self.history_time = self.history_time + dt
+
+        self.history_timer = self.history_timer + dt
+        if self.history_timer > FOLLOW_SAVE_TIME then
+            self.history_timer = self.history_timer - FOLLOW_SAVE_TIME
+
+            local ex, ey = self:getExactPosition()
+            table.insert(self.history, 1, {x = ex, y = ey, time = self.history_time})
+            while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
+                table.remove(self.history, #self.history)
+            end
+        end
     else
         self.sprite.walking = false
     end
@@ -229,9 +242,11 @@ function Character:update(dt)
 end
 
 function Character:draw()
-    --love.graphics.setColor(0, 1, 0)
-    --love.graphics.rectangle("fill", self.collider.x, self.collider.y, self.collider.width, self.collider.height)
     self:drawChildren()
+    
+    if self.info.draw then
+        self.info:draw(self)
+    end
 end
 
 return Character
