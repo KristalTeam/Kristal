@@ -25,15 +25,10 @@ function Character:init(chara, x, y)
 
     self.moved = 0
 
-    self.history_time = 0
-    self.history_timer = 0
-    self.history = {}
-
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
 
-    local ex, ey = self:getExactPosition()
-    table.insert(self.history, {x = ex, y = ey, time = 0})
+    self.noclip = false
 end
 
 function Character:onAdd(parent)
@@ -126,33 +121,35 @@ function Character:moveXExact(amount, move_y)
 
         self.x = self.x + sign
 
-        local collided, target = self.world:checkCollision(self.collider)
-        if collided and not (move_y > 0) then
-            for i = 1, 3 do
-                self.y = self.y - i
-                collided, target = self.world:checkCollision(self.collider)
-                if not collided then break end
+        if not self.noclip then
+            local collided, target = self.world:checkCollision(self.collider)
+            if collided and not (move_y > 0) then
+                for i = 1, 3 do
+                    self.y = self.y - i
+                    collided, target = self.world:checkCollision(self.collider)
+                    if not collided then break end
+                end
             end
-        end
-        if collided and not (move_y < 0) then
-            self.y = last_y
-            for i = 1, 3 do
-                self.y = self.y + i
-                collided, target = self.world:checkCollision(self.collider)
-                if not collided then break end
+            if collided and not (move_y < 0) then
+                self.y = last_y
+                for i = 1, 3 do
+                    self.y = self.y + i
+                    collided, target = self.world:checkCollision(self.collider)
+                    if not collided then break end
+                end
             end
-        end
-
-        if collided then
-            self.x = last_x
-            self.y = last_y
-            
-            if target and target.onCollide then
-                target:onCollide(self)
-            end
-
-            self.last_collided_x = true
-            return false, target
+    
+            if collided then
+                self.x = last_x
+                self.y = last_y
+                
+                if target and target.onCollide then
+                    target:onCollide(self)
+                end
+    
+                self.last_collided_x = true
+                return false, target
+            end 
         end
     end
     self.last_collided_x = false
@@ -167,33 +164,35 @@ function Character:moveYExact(amount, move_x)
 
         self.y = self.y + sign
 
-        local collided, target = self.world:checkCollision(self.collider)
-        if collided and not (move_x > 0) then
-            for i = 1, 2 do
-                self.x = self.x - i
-                collided, target = self.world:checkCollision(self.collider)
-                if not collided then break end
+        if not self.noclip then
+            local collided, target = self.world:checkCollision(self.collider)
+            if collided and not (move_x > 0) then
+                for i = 1, 2 do
+                    self.x = self.x - i
+                    collided, target = self.world:checkCollision(self.collider)
+                    if not collided then break end
+                end
             end
-        end
-        if collided and not (move_x < 0) then
-            self.x = last_x
-            for i = 1, 2 do
-                self.x = self.x + i
-                collided, target = self.world:checkCollision(self.collider)
-                if not collided then break end
+            if collided and not (move_x < 0) then
+                self.x = last_x
+                for i = 1, 2 do
+                    self.x = self.x + i
+                    collided, target = self.world:checkCollision(self.collider)
+                    if not collided then break end
+                end
             end
-        end
-
-        if collided then
-            self.x = last_x
-            self.y = last_y
-            
-            if target and target.onCollide then
-                target:onCollide(self)
-            end
-
-            self.last_collided_y = true
-            return i ~= sign, target
+    
+            if collided then
+                self.x = last_x
+                self.y = last_y
+                
+                if target and target.onCollide then
+                    target:onCollide(self)
+                end
+    
+                self.last_collided_y = true
+                return i ~= sign, target
+            end 
         end
     end
     self.last_collided_y = false
@@ -221,19 +220,6 @@ function Character:update(dt)
         self.sprite.walking = true
         self.sprite.walk_speed = self.moved
         self.moved = 0
-
-        self.history_time = self.history_time + dt
-
-        self.history_timer = self.history_timer + dt
-        if self.history_timer > FOLLOW_SAVE_TIME then
-            self.history_timer = self.history_timer - FOLLOW_SAVE_TIME
-
-            local ex, ey = self:getExactPosition()
-            table.insert(self.history, 1, {x = ex, y = ey, time = self.history_time})
-            while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
-                table.remove(self.history, #self.history)
-            end
-        end
     else
         self.sprite.walking = false
     end

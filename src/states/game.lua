@@ -8,7 +8,7 @@ function Game:enter(previous_state)
     self.world = World()
     self.stage:addChild(self.world)
 
-    self.max_followers = 10
+    self.max_followers = MOD["maxFollowers"] or 10
     self.followers = {}
 
     self.started = true

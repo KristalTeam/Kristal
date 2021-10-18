@@ -11,6 +11,12 @@ function Player:init(chara, x, y)
         ["up"] = Hitbox(hx, hy - hh/2, hw, hh, self),
         ["down"] = Hitbox(hx, hy + hh/2, hw, hh, self)
     }
+
+    self.history_time = 0
+    self.history = {}
+
+    local ex, ey = self:getExactPosition()
+    table.insert(self.history, {x = ex, y = ey, time = 0})
 end
 
 function Player:interact()
@@ -23,6 +29,20 @@ function Player:interact()
     end
 
     return false
+end
+
+function Player:update(dt)
+    if self.moved > 0 then
+        self.history_time = self.history_time + dt
+
+        local ex, ey = self:getExactPosition()
+        table.insert(self.history, 1, {x = ex, y = ey, time = self.history_time})
+        while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
+            table.remove(self.history, #self.history)
+        end
+    end
+
+    super:update(self, dt)
 end
 
 return Player

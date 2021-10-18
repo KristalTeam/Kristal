@@ -3,6 +3,8 @@ local Follower, super = Class(Character)
 function Follower:init(chara, x, y, target)
     super:init(self, chara, x, y)
 
+    self.noclip = true
+
     self.index = 1
     self.target = target or Game.world.player
 
