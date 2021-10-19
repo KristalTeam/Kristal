@@ -54,7 +54,8 @@ return {
         hurt            = "battle/dark_bangs/hurt",
         defeat          = "battle/dark_bangs/defeat",
 
-        intro           = {"world/dark/right_1", "battle/dark_bangs/attack"},
+        transition      = "world/dark/right_1",
+        intro           = "battle/dark_bangs/attack",
         victory         = "battle/dark_bangs/victory",
 
         rude_buster     = "battle/dark_bangs/rudebuster"

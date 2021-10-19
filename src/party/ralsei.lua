@@ -53,7 +53,8 @@ return {
         hurt            = "battle/dark/hurt",
         defeat          = "battle/dark/defeat",
 
-        intro           = {"world/dark/right_1", "battle/dark/intro"},
+        transition      = "world/dark/right_1",
+        intro           = "battle/dark/intro",
         victory         = "battle/dark/victory",
     }
 }

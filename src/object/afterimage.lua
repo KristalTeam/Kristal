@@ -76,6 +76,7 @@ function AfterImage:draw()
     local r,g,b,a = self:getDrawColor()
     love.graphics.setColor(r, g, b, a * self.fade * (1 - (self.time_alive / self.lifetime)))
     love.graphics.draw(self.canvas)
+    love.graphics.setColor(1, 1, 1, 1)
     self:drawChildren()
 end
 

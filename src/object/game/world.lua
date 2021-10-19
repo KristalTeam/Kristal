@@ -3,6 +3,9 @@ local World, super = Class(Object)
 function World:init(map)
     super:init(self)
 
+    -- states: GAMEPLAY
+    self.state = "GAMEPLAY"
+
     self.tile_width = 40
     self.tile_height = 40
     self.map_width = 1
@@ -229,7 +232,9 @@ end
 
 function World:update(dt)
     -- Keep camera in bounds
-    self:updateCamera()
+    if self.state == "GAMEPLAY" then
+        self:updateCamera()
+    end
 
     -- Always sort
     self.update_child_list = true

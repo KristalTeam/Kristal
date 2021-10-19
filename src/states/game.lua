@@ -3,10 +3,15 @@ local Game = {}
 function Game:enter(previous_state)
     self.previous_state = previous_state
 
+    -- states: OVERWORLD, BATTLE, SHOP
+    self.state = "OVERWORLD"
+
     self.stage = Stage()
 
     self.world = World()
     self.stage:addChild(self.world)
+
+    self.battle = nil
 
     self.max_followers = MOD["maxFollowers"] or 10
     self.followers = {}
@@ -49,6 +54,21 @@ function Game:enter(previous_state)
     Kristal.modCall("Init")
 end
 
+function Game:encounter(transition, background, music)
+    if transition == nil then transition = true end
+    if background == nil then background = true end
+
+    if self.battle then
+        error("Attempt to enter battle while already in battle")
+    end
+
+    self.state = "BATTLE"
+
+    self.battle = Battle(transition and "TRANSITION" or "INTRO", background, music)
+
+    self.stage:addChild(self.battle)
+end
+
 function Game:update(dt)
     if self.previous_state and self.previous_state.animation_active then
         self.previous_state:update(dt)
@@ -70,26 +90,32 @@ function Game:update(dt)
 
     Cutscene:update(dt)
 
-    if self.world.player and not self.lock_input then
-        local walk_x = 0
-        local walk_y = 0
-
-        if love.keyboard.isDown("right") then walk_x = walk_x + 1 end
-        if love.keyboard.isDown("left") then walk_x = walk_x - 1 end
-        if love.keyboard.isDown("down") then walk_y = walk_y + 1 end
-        if love.keyboard.isDown("up") then walk_y = walk_y - 1 end
-
-        self.world.player:walk(walk_x, walk_y, love.keyboard.isDown("lshift") or love.keyboard.isDown("x"))
-
-        if walk_x ~= 0 or walk_y ~= 0 then
-            self.world.camera.x = Utils.approach(self.world.camera.x, self.world.player.x, 12 * DTMULT)
-            self.world.camera.y = Utils.approach(self.world.camera.y, self.world.player.y, 12 * DTMULT)
-        end
+    if self.world.player and -- If the player exists,
+       not self.lock_input -- and input isn't locked,
+       and self.state == "OVERWORLD" then -- and we're in the overworld state,
+        Game:handleMovement()
     end
 
     self.stage:update(dt)
 
     Kristal.modCall("PostUpdate", dt)
+end
+
+function Game:handleMovement()
+    local walk_x = 0
+    local walk_y = 0
+
+    if love.keyboard.isDown("right") then walk_x = walk_x + 1 end
+    if love.keyboard.isDown("left") then walk_x = walk_x - 1 end
+    if love.keyboard.isDown("down") then walk_y = walk_y + 1 end
+    if love.keyboard.isDown("up") then walk_y = walk_y - 1 end
+
+    self.world.player:walk(walk_x, walk_y, love.keyboard.isDown("lshift") or love.keyboard.isDown("x"))
+
+    if walk_x ~= 0 or walk_y ~= 0 then
+        self.world.camera.x = Utils.approach(self.world.camera.x, self.world.player.x, 12 * DTMULT)
+        self.world.camera.y = Utils.approach(self.world.camera.y, self.world.player.y, 12 * DTMULT)
+    end
 end
 
 function Game:keypressed(key)

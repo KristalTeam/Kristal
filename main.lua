@@ -64,6 +64,9 @@ Character = require("src.object.game.character")
 Follower = require("src.object.game.follower")
 Player = require("src.object.game.player")
 
+Battle = require("src.object.game.battle")
+BattleCharacter = require("src.object.game.battlecharacter")
+
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
 
@@ -241,7 +244,7 @@ function Kristal.errorHandler(msg)
     local copy_color = {1, 1, 1, 1}
     local anim_index = 1
     math.randomseed(os.time()) -- seed!
-    local starwalker_error = (math.random(100) <= 5) -- 10% chance for starwalker
+    local starwalker_error = (math.random(100) <= 5) -- 5% chance for starwalker
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
 
