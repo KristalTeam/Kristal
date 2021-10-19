@@ -3,7 +3,7 @@ local World, super = Class(Object)
 function World:init(map)
     super:init(self)
 
-    -- states: GAMEPLAY
+    -- states: GAMEPLAY, TRANSITION_OUT, TRANSITION_IN
     self.state = "GAMEPLAY"
 
     self.tile_width = 40
@@ -17,8 +17,10 @@ function World:init(map)
     self.markers = {}
 
     self.camera = Camera(0, 0)
-
     self.player = nil
+
+    self.transition_fade = 0
+    self.transition_target = nil
 
     if map then
         self:loadMap(map)
@@ -75,6 +77,14 @@ function World:spawnPlayer(...)
 
     self.camera:lookAt(self.player.x, self.player.y)
     self:updateCamera()
+end
+
+function World:spawnFollower(chara)
+    if type(chara) == "string" then
+        chara = PARTY[chara]
+    end
+    local follower = Follower(chara, self.player.x, self.player.y)
+    self:addChild(follower)
 end
 
 function World:loadMap(map)
@@ -184,6 +194,8 @@ function World:loadObject(name, data)
     -- Kristal object loading
     if name:lower() == "savepoint" then
         return Savepoint(data)
+    elseif name:lower() == "transition" then
+        return Transition(data)
     end
 end
 
@@ -208,6 +220,38 @@ function World:getTileset(id)
     return nil, 0
 end
 
+function World:transition(target)
+    self.state = "TRANSITION_OUT"
+    self.transition_target = target
+end
+
+function World:transitionImmediate(target)
+    if target.map then
+        self:loadMap(target.map)
+    end
+    if target.x and target.y then
+        self:spawnPlayer(target.x, target.y)
+    elseif target.marker and self.markers[target.marker] then
+        self:spawnPlayer(target.marker)
+    else
+        -- Default positions
+        local marker
+        for k,v in pairs(self.markers) do
+            marker = k
+        end
+        if marker then
+            self:spawnPlayer(marker)
+        else
+            self:spawnPlayer((self.map_width * self.tile_width) / 2, (self.map_height * self.tile_height) / 2)
+        end
+    end
+    if MOD and MOD.party then
+        for i = 2, #MOD.party do
+            self:spawnFollower(MOD.party[i])
+        end
+    end
+end
+
 function World:updateCamera()
     local zoom = 1/self.camera.scale
     local vw, vh = SCREEN_WIDTH/2, SCREEN_HEIGHT/2
@@ -223,6 +267,7 @@ function World:getTransform()
 end
 
 function World:sortChildren()
+    -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(self, a.width/2, a.height)
         local bx, by = b:getRelativePos(self, b.width/2, b.height)
@@ -231,10 +276,22 @@ function World:sortChildren()
 end
 
 function World:update(dt)
-    -- Keep camera in bounds
-    if self.state == "GAMEPLAY" then
-        self:updateCamera()
+    -- Fade transition
+    if self.state == "TRANSITION_OUT" then
+        self.transition_fade = Utils.approach(self.transition_fade, 1, dt / 0.25)
+        if self.transition_fade == 1 then
+            self:transitionImmediate(self.transition_target or {})
+            self.state = "TRANSITION_IN"
+        end
+    elseif self.state == "TRANSITION_IN" then
+        self.transition_fade = Utils.approach(self.transition_fade, 0, dt / 0.25)
+        if self.transition_fade == 0 then
+            self.state = "GAMEPLAY"
+        end
     end
+
+    -- Keep camera in bounds
+    self:updateCamera()
 
     -- Always sort
     self.update_child_list = true
@@ -242,8 +299,12 @@ function World:update(dt)
 end
 
 function World:draw()
-
     self:drawChildren()
+
+    -- Draw transition fade
+    love.graphics.setColor(0, 0, 0, self.transition_fade)
+    love.graphics.rectangle("fill", 0, 0, self.map_width * self.tile_width, self.map_height * self.tile_height)
+    love.graphics.setColor(1, 1, 1)
 end
 
 return World

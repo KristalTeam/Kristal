@@ -20,6 +20,8 @@ function Overlay:init()
         love.graphics.newImage("assets/sprites/ui/loading_5.png"),
     }
 
+    self.font = love.graphics.newFont("assets/fonts/main.ttf", 32)
+
     self.quit_alpha = 0
     self.load_alpha = 0
 
@@ -93,6 +95,24 @@ function Overlay:draw()
     local load_texture = self.load_frames[load_frame]
     love.graphics.draw(load_texture, 0, -load_texture:getHeight())
     love.graphics.pop()
+
+    -- Draw the FPS counter text
+    if Kristal.Config and Kristal.Config["showFPS"] then
+        love.graphics.setFont(self.font)
+        local text = love.timer.getFPS().." FPS"
+        local x = SCREEN_WIDTH - self.font:getWidth(text) - 2
+        local y = -4
+        love.graphics.setColor(0, 0, 0)
+        for ox = -1, 1 do
+            for oy = -1, 1 do
+                if ox ~= 0 or oy ~= 0 then
+                    love.graphics.print(text, x + (ox * 2), y + (oy * 2))
+                end
+            end
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(text, x, y) 
+    end
 
     -- Reset the color
     love.graphics.setColor(1, 1, 1, 1)

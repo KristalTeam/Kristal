@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="53">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="56">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
@@ -28,12 +28,11 @@
 370,370,370,370,370,370,371,369,370,370,370,370,370,370,370,371,73,73,369,370,370
 </data>
  </layer>
- <objectgroup id="4" name="collision">
+ <objectgroup color="#0000ff" id="4" name="collision" opacity="0.5">
   <object id="23" x="0" y="200" width="320" height="40"/>
   <object id="24" x="320" y="160" width="120" height="40"/>
   <object id="25" x="440" y="200" width="280" height="40"/>
   <object id="26" x="720" y="240" width="40" height="240"/>
-  <object id="27" x="640" y="480" width="80" height="40"/>
   <object id="28" x="600" y="360" width="40" height="120"/>
   <object id="29" x="0" y="360" width="600" height="40"/>
   <object id="33" x="-40" y="240" width="40" height="120"/>
@@ -41,11 +40,20 @@
    <polygon points="0,0 80,80 80,0"/>
   </object>
  </objectgroup>
- <objectgroup id="2" name="objects">
+ <objectgroup color="#ff00ff" id="2" name="objects">
   <object id="2" name="savepoint" x="360" y="185" width="40" height="40"/>
   <object id="52" name="banana" x="120" y="280" width="40" height="40"/>
+  <object id="54" name="transition" x="640" y="480" width="80" height="40">
+   <properties>
+    <property name="map" value="alley2"/>
+    <property name="marker" value="entry"/>
+   </properties>
+  </object>
  </objectgroup>
- <objectgroup id="3" name="markers">
+ <objectgroup color="#7f00ff" id="3" name="markers">
   <object id="16" name="spawn" x="360" y="280" width="40" height="40"/>
+  <object id="55" name="entry_down" x="680" y="440">
+   <point/>
+  </object>
  </objectgroup>
 </map>

@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 5,
-  nextobjectid = 53,
+  nextobjectid = 56,
   properties = {},
   tilesets = {
     {
@@ -129,7 +129,7 @@ return {
       id = 4,
       name = "collision",
       visible = true,
-      opacity = 1,
+      opacity = 0.5,
       offsetx = 0,
       offsety = 0,
       parallaxx = 1,
@@ -184,19 +184,6 @@ return {
           y = 240,
           width = 40,
           height = 240,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
-          id = 27,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = 640,
-          y = 480,
-          width = 80,
-          height = 40,
           rotation = 0,
           visible = true,
           properties = {}
@@ -298,6 +285,22 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 54,
+          name = "transition",
+          type = "",
+          shape = "rectangle",
+          x = 640,
+          y = 480,
+          width = 80,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["map"] = "alley2",
+            ["marker"] = "entry"
+          }
         }
       }
     },
@@ -323,6 +326,19 @@ return {
           y = 280,
           width = 40,
           height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 55,
+          name = "entry_down",
+          type = "",
+          shape = "point",
+          x = 680,
+          y = 440,
+          width = 0,
+          height = 0,
           rotation = 0,
           visible = true,
           properties = {}

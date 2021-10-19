@@ -70,6 +70,7 @@ BattleCharacter = require("src.object.game.battlecharacter")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
+Transition = require("src.object.game.transition")
 
 Cutscene = require("src.cutscene")
 
@@ -169,6 +170,12 @@ function love.update(dt)
                 load_end_funcs[msg.key] = nil
             end
         end
+    end
+end
+
+function love.keypressed(key)
+    if key == "f1" then
+        Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
     end
 end
 
@@ -494,7 +501,8 @@ end
 function Kristal.LoadConfig()
     local config = {
         windowScale = 1,
-        skipIntro = false
+        skipIntro = false,
+        showFPS = false
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))

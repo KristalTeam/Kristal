@@ -16,6 +16,22 @@ function Player:init(chara, x, y)
     self.history = {}
 end
 
+function Player:onAdd(parent)
+    super:onAdd(self, parent)
+
+    if parent:includes(World) and not parent.player then
+        parent.player = self
+    end
+end
+
+function Player:onRemove(parent)
+    super:onRemove(self, parent)
+
+    if parent:includes(World) and parent.player == self then
+        parent.player = nil
+    end
+end
+
 function Player:interact()
     local col = self.interact_collider[self.facing]
 

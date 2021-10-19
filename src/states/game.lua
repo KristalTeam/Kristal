@@ -92,7 +92,8 @@ function Game:update(dt)
 
     if self.world.player and -- If the player exists,
        not self.lock_input -- and input isn't locked,
-       and self.state == "OVERWORLD" then -- and we're in the overworld state,
+       and self.state == "OVERWORLD" -- and we're in the overworld state,
+       and self.world.state == "GAMEPLAY" then -- and the world is in the gameplay state,
         Game:handleMovement()
     end
 
@@ -114,7 +115,7 @@ function Game:handleMovement()
 
     if walk_x ~= 0 or walk_y ~= 0 then
         self.world.camera.x = Utils.approach(self.world.camera.x, self.world.player.x, 12 * DTMULT)
-        self.world.camera.y = Utils.approach(self.world.camera.y, self.world.player.y, 12 * DTMULT)
+        self.world.camera.y = Utils.approach(self.world.camera.y, self.world.player.y - (self.world.player.height * 2)/2, 12 * DTMULT)
     end
 end
 
