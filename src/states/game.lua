@@ -132,6 +132,14 @@ function Game:keypressed(key)
             print(Utils.dump(self.world.player.history))
         end
     end
+    if self.battle then
+        if key == "g" then
+            self.battle.current_selecting = self.battle.current_selecting + 1
+            if self.battle.current_selecting > 3 then
+                self.battle.current_selecting = 1
+            end
+        end
+    end
 end
 
 function Game:draw()

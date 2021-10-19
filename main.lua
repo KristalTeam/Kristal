@@ -6,6 +6,7 @@ Vector = require("src.lib.hump.vector-light")
 Timer = require("src.lib.hump.timer")
 Camera = require("src.lib.hump.camera")
 JSON = require("src.lib.json")
+Ease = require("src.lib.easing")
 
 Class = require("src.classhelper")
 require ("src.graphicshelper")

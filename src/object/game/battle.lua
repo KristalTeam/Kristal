@@ -66,6 +66,19 @@ function Battle:init(state, background, music)
     end
 
     self.camera = Camera(0, 0)
+
+    self.btn_fight  = {Assets.getTexture("ui/battle/btn/fight" ), Assets.getTexture("ui/battle/btn/fight_h" )}
+    self.btn_act    = {Assets.getTexture("ui/battle/btn/act"   ), Assets.getTexture("ui/battle/btn/act_h"   )}
+    self.btn_magic  = {Assets.getTexture("ui/battle/btn/magic" ), Assets.getTexture("ui/battle/btn/magic_h" )}
+    self.btn_item   = {Assets.getTexture("ui/battle/btn/item"  ), Assets.getTexture("ui/battle/btn/item_h"  )}
+    self.btn_spare  = {Assets.getTexture("ui/battle/btn/spare" ), Assets.getTexture("ui/battle/btn/spare_h" )}
+    self.btn_defend = {Assets.getTexture("ui/battle/btn/defend"), Assets.getTexture("ui/battle/btn/defend_h")}
+
+    self.current_selecting = 1
+    self.current_button = 1
+
+    self.current_box_y_offset = {0, 0, 0}
+    self.current_box_animaion_timer = {0, 0, 0}
 end
 
 function Battle:setState(state)
@@ -91,6 +104,8 @@ function Battle:onStateChange(old,new)
             battler:setBattleSprite("intro", 1/15, true)
         end
     elseif new == "ACTIONSELECT" then
+        self.current_selecting = 1
+        self.current_button = 1
         for _,battler in ipairs(self.party) do
             battler:setBattleSprite("idle", 1/5, true)
         end
@@ -103,6 +118,8 @@ function Battle:onStateChange(old,new)
 
         self.music:setLooping(true)
         self.music:play()
+        self.encounter_text = DialogueText("[wait:1]* Smorgasbord 3.", 30, 378)
+        self:addChild(self.encounter_text)
     end
 end
 
@@ -160,6 +177,116 @@ function Battle:updateTransition(dt)
 end
 
 function Battle:draw()
+    self:drawBackground()
+
+    love.graphics.setColor(1,1,1,1)
+    self:drawChildren()
+
+    love.graphics.setColor(1,1,1,1)
+    self:drawUI()
+end
+
+function Battle:drawUI()
+    self:drawActionArena()
+    self:drawActionStrip()
+end
+
+function Battle:drawActionStrip()
+    -- Draw the top line of the action strip
+    love.graphics.setColor(51/255, 32/255, 51/255, 1)
+    love.graphics.rectangle("fill", 0, 325, 640, 2)
+    -- Draw the background of the action strip
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.rectangle("fill", 0, 327, 640, 35)
+
+    for i = 1, #self.party do
+        self:drawActionBox(i)
+    end
+end
+
+function Battle:drawActionBox(index)
+    love.graphics.setColor(1, 1, 1, 1)
+
+    love.graphics.draw(self.btn_fight [1], 20 + ((index - 1) * 213) + (35 * 0), 333)
+    love.graphics.draw(self.btn_act   [1], 20 + ((index - 1) * 213) + (35 * 1), 333)
+    love.graphics.draw(self.btn_item  [1], 20 + ((index - 1) * 213) + (35 * 2), 333)
+    love.graphics.draw(self.btn_spare [1], 20 + ((index - 1) * 213) + (35 * 3), 333)
+    love.graphics.draw(self.btn_defend[1], 20 + ((index - 1) * 213) + (35 * 4), 333)
+
+
+    if self.current_selecting == index then
+        love.graphics.setColor(0, 1, 1, 1)
+    else
+        love.graphics.setColor(0, 0, 0, 1)
+    end
+
+    love.graphics.setLineWidth(2)
+    love.graphics.line(((index - 1) * 213) + 1  , 332,     ((index - 1) * 213) + 1,       362    )
+    love.graphics.line(((index - 1) * 213) + 212, 332,     ((index - 1) * 213) + 212,     362    )
+    love.graphics.line(((index - 1) * 213) + 0  , 330 + 1, ((index - 1) * 213) + 212 + 1, 330 + 1)
+
+
+    if self.state ~= "INTRO" and self.state ~= "TRANSITION" then
+        if self.current_selecting == index then
+            self.current_box_animaion_timer[index] = self.current_box_animaion_timer[index] + 1 * (DT * 30)
+        else
+            self.current_box_animaion_timer[index] = self.current_box_animaion_timer[index] - 1 * (DT * 30)
+        end
+    end
+    local anim_timer = self.current_box_animaion_timer[index]
+    if anim_timer > 7 then
+        self.current_box_animaion_timer[index] = 7
+        anim_timer = 7
+    end
+    if anim_timer < 0 then
+        self.current_box_animaion_timer[index] = 0
+        anim_timer = 0
+    end
+
+    if self.current_selecting == index then
+
+        self.current_box_y_offset[index] = Ease.outExpo(anim_timer, 0, 32, 7)
+        local offset = self.current_box_y_offset[index]
+
+        love.graphics.setColor(0, 1, 1, 1)
+        love.graphics.setLineWidth(2)
+        love.graphics.line(((index - 1) * 213) + 1  , 332 - offset - 5, ((index - 1) * 213) + 1,       362 - offset)
+        love.graphics.line(((index - 1) * 213) + 212, 332 - offset - 5, ((index - 1) * 213) + 212,     362 - offset)
+        love.graphics.line(((index - 1) * 213) + 0  , 330 - offset - 4, ((index - 1) * 213) + 212 + 1, 330 - offset - 4)
+    else
+        print(7 - anim_timer)
+        self.current_box_y_offset[index] = Ease.outExpo(7 - anim_timer, 32, -32, 7)
+    end
+
+    local offset = self.current_box_y_offset[index]
+
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.rectangle("fill", 2 + ((index - 1) * 213), 327 - offset, 209, 35)
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(Assets.getTexture("party/" .. self.party[index].info.id .. "/icon/head"), 12 + ((index - 1) * 213), 336 - offset)
+    love.graphics.draw(Assets.getTexture("party/" .. self.party[index].info.id .. "/name"), 51 + ((index - 1) * 213), 339 - offset)
+end
+
+--[[
+self.btn_fight  = {Assets.getTexture("ui/battle/btn/fight" ), Assets.getTexture("ui/battle/btn/fight_h" )}
+self.btn_act    = {Assets.getTexture("ui/battle/btn/act"   ), Assets.getTexture("ui/battle/btn/act_h"   )}
+self.btn_magic  = {Assets.getTexture("ui/battle/btn/magic" ), Assets.getTexture("ui/battle/btn/magic_h" )}
+self.btn_item   = {Assets.getTexture("ui/battle/btn/item"  ), Assets.getTexture("ui/battle/btn/item_h"  )}
+self.btn_spare  = {Assets.getTexture("ui/battle/btn/spare" ), Assets.getTexture("ui/battle/btn/spare_h" )}
+self.btn_defend = {Assets.getTexture("ui/battle/btn/defend"), Assets.getTexture("ui/battle/btn/defend_h")}
+]]
+
+function Battle:drawActionArena()
+    -- Draw the top line of the action area
+    love.graphics.setColor(51/255, 32/255, 51/255, 1)
+    love.graphics.rectangle("fill", 0, 362, 640, 3)
+    -- Draw the background of the action area
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.rectangle("fill", 0, 365, 640, 115)
+end
+
+function Battle:drawBackground()
     love.graphics.setColor(0, 0, 0, self.transition_timer / 10)
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
@@ -183,8 +310,6 @@ function Battle:draw()
         love.graphics.line(0, -100 + (i * 50) - math.floor(self.offset), 640, -100 + (i * 50) - math.floor(self.offset))
         love.graphics.line(-100 + (i * 50) - math.floor(self.offset), 0, -100 + (i * 50) - math.floor(self.offset), 480)
     end
-
-    self:drawChildren()
 end
 
 return Battle
