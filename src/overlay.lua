@@ -46,23 +46,17 @@ function Overlay:update(dt)
         self.load_timer = 0
     end
 
-    local restarting = love.keyboard.isDown("lctrl") and love.keyboard.isDown("r")
-    local quitting = love.keyboard.isDown("escape") or restarting
-    if quitting and not self.quit_release then
+    if love.keyboard.isDown("escape") and not self.quit_release then
         if self.quit_alpha < 1 then
             self.quit_alpha = math.min(1, self.quit_alpha + dt / 0.75)
         end
         self.quit_timer = self.quit_timer + dt
         if self.quit_timer > 1.2 then
-            if restarting then
-                love.event.quit("restart")
+            if MOD ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
+                Gamestate.switch(Kristal.States["Loading"])
+                self.quit_release = true
             else
-                if MOD ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
-                    Gamestate.switch(Kristal.States["Loading"])
-                    self.quit_release = true
-                else
-                    love.event.quit()
-                end
+                love.event.quit()
             end
         end
     else

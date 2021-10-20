@@ -47,13 +47,13 @@ function Loading:enter(from, dir)
 end
 
 function Loading:beginLoad()
-    Kristal.ClearAssets(true)
+    Kristal.clearAssets(true)
 
     self.loading = true
     self.load_complete = false
 
-    Kristal.LoadAssets("", "all", "")
-    Kristal.LoadAssets("", "mods", "", function()
+    Kristal.loadAssets("", "all", "")
+    Kristal.loadAssets("", "mods", "", function()
         self.loading = false
         self.load_complete = true
     end)
