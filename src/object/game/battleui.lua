@@ -8,8 +8,18 @@ function BattleUI:init()
 
     self.action_boxes = {}
 
+    local size_offset = 0
+    if #Game.battle.party == 3 then
+        size_offset = 0
+    elseif #Game.battle.party == 2 then
+        size_offset = 108
+    elseif #Game.battle.party == 1 then
+        size_offset = 213
+    end
+
+
     for index,battler in ipairs(Game.battle.party) do
-        local action_box = ActionBox((index - 1) * 213, 0, index, battler)
+        local action_box = ActionBox(size_offset + (index - 1) * 213, 0, index, battler)
         self:addChild(action_box)
         table.insert(self.action_boxes, action_box)
     end

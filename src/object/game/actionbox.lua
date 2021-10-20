@@ -35,11 +35,14 @@ end
 function ActionBox:drawActionBox()
     love.graphics.setColor(1, 1, 1, 1)
 
+    -- Draw the buttons
     for index, button in ipairs(self.buttons) do
         local frame = 1
         if (index == Game.battle.current_button) and (self.index == Game.battle.current_selecting) then
+            -- If it's highlighted, use the second texture in the table
             frame = 2
         end
+        -- Draw the button, 35 pixels between each
         love.graphics.draw(button[frame], 20 + (35 * (index - 1)), 8)
     end
 
