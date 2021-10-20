@@ -7,6 +7,8 @@ return {
 
     hitbox = {0, 24, 19, 14},
 
+    color = {0, 1, 0},
+
     path = "party/ralsei",
     default = "world/dark",
     offsets = {

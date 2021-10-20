@@ -178,12 +178,8 @@ end
 
 function Battle:draw()
     self:drawBackground()
-
-    love.graphics.setColor(1,1,1,1)
-    self:drawChildren()
-
-    love.graphics.setColor(1,1,1,1)
     self:drawUI()
+    self:drawChildren()
 end
 
 function Battle:drawUI()
@@ -207,24 +203,21 @@ end
 function Battle:drawActionBox(index)
     love.graphics.setColor(1, 1, 1, 1)
 
-    love.graphics.draw(self.btn_fight [1], 20 + ((index - 1) * 213) + (35 * 0), 333)
-    love.graphics.draw(self.btn_act   [1], 20 + ((index - 1) * 213) + (35 * 1), 333)
-    love.graphics.draw(self.btn_item  [1], 20 + ((index - 1) * 213) + (35 * 2), 333)
-    love.graphics.draw(self.btn_spare [1], 20 + ((index - 1) * 213) + (35 * 3), 333)
-    love.graphics.draw(self.btn_defend[1], 20 + ((index - 1) * 213) + (35 * 4), 333)
+    local buttons = {
+        self.btn_fight,
+        self.btn_act,
+        self.btn_item,
+        self.btn_spare,
+        self.btn_defend
+    }
 
-
-    if self.current_selecting == index then
-        love.graphics.setColor(0, 1, 1, 1)
-    else
-        love.graphics.setColor(0, 0, 0, 1)
+    for btn_index, button in ipairs(buttons) do
+        local hl = 1
+        if (btn_index == self.current_button) and (index == self.current_selecting) then
+            hl = 2
+        end
+        love.graphics.draw(button[hl], 20 + ((index - 1) * 213) + (35 * (btn_index - 1)), 333)
     end
-
-    love.graphics.setLineWidth(2)
-    love.graphics.line(((index - 1) * 213) + 1  , 332,     ((index - 1) * 213) + 1,       362    )
-    love.graphics.line(((index - 1) * 213) + 212, 332,     ((index - 1) * 213) + 212,     362    )
-    love.graphics.line(((index - 1) * 213) + 0  , 330 + 1, ((index - 1) * 213) + 212 + 1, 330 + 1)
-
 
     if self.state ~= "INTRO" and self.state ~= "TRANSITION" then
         if self.current_selecting == index then
@@ -245,18 +238,36 @@ function Battle:drawActionBox(index)
 
     if self.current_selecting == index then
 
-        self.current_box_y_offset[index] = Ease.outExpo(anim_timer, 0, 32, 7)
+        self.current_box_y_offset[index] = Ease.outCubic(anim_timer, 0, 32, 7)
         local offset = self.current_box_y_offset[index]
 
-        love.graphics.setColor(0, 1, 1, 1)
+        love.graphics.setColor(self.party[index].info.color)
         love.graphics.setLineWidth(2)
         love.graphics.line(((index - 1) * 213) + 1  , 332 - offset - 5, ((index - 1) * 213) + 1,       362 - offset)
         love.graphics.line(((index - 1) * 213) + 212, 332 - offset - 5, ((index - 1) * 213) + 212,     362 - offset)
         love.graphics.line(((index - 1) * 213) + 0  , 330 - offset - 4, ((index - 1) * 213) + 212 + 1, 330 - offset - 4)
     else
-        print(7 - anim_timer)
-        self.current_box_y_offset[index] = Ease.outExpo(7 - anim_timer, 32, -32, 7)
+        self.current_box_y_offset[index] = Ease.outCubic(7 - anim_timer, 32, -32, 7)
+        local offset = self.current_box_y_offset[index]
+
+        love.graphics.setColor(51/255, 32/255, 51/255, 1)
+        love.graphics.setLineWidth(2)
+        love.graphics.line(((index - 1) * 213) + 1  , 332 - offset - 5, ((index - 1) * 213) + 1,       362 - offset)
+        love.graphics.line(((index - 1) * 213) + 212, 332 - offset - 5, ((index - 1) * 213) + 212,     362 - offset)
+        love.graphics.line(((index - 1) * 213) + 0  , 330 - offset - 4, ((index - 1) * 213) + 212 + 1, 330 - offset - 4)
     end
+
+    if self.current_selecting == index then
+        love.graphics.setColor(self.party[index].info.color)
+    else
+        love.graphics.setColor(0, 0, 0, 1)
+    end
+
+    love.graphics.setLineWidth(2)
+    love.graphics.line(((index - 1) * 213) + 1  , 327,     ((index - 1) * 213) + 1,       362    )
+    love.graphics.line(((index - 1) * 213) + 212, 327,     ((index - 1) * 213) + 212,     362    )
+    love.graphics.line(((index - 1) * 213) + 0  , 330 + 1, ((index - 1) * 213) + 212 + 1, 330 + 1)
+
 
     local offset = self.current_box_y_offset[index]
 
@@ -267,15 +278,6 @@ function Battle:drawActionBox(index)
     love.graphics.draw(Assets.getTexture("party/" .. self.party[index].info.id .. "/icon/head"), 12 + ((index - 1) * 213), 336 - offset)
     love.graphics.draw(Assets.getTexture("party/" .. self.party[index].info.id .. "/name"), 51 + ((index - 1) * 213), 339 - offset)
 end
-
---[[
-self.btn_fight  = {Assets.getTexture("ui/battle/btn/fight" ), Assets.getTexture("ui/battle/btn/fight_h" )}
-self.btn_act    = {Assets.getTexture("ui/battle/btn/act"   ), Assets.getTexture("ui/battle/btn/act_h"   )}
-self.btn_magic  = {Assets.getTexture("ui/battle/btn/magic" ), Assets.getTexture("ui/battle/btn/magic_h" )}
-self.btn_item   = {Assets.getTexture("ui/battle/btn/item"  ), Assets.getTexture("ui/battle/btn/item_h"  )}
-self.btn_spare  = {Assets.getTexture("ui/battle/btn/spare" ), Assets.getTexture("ui/battle/btn/spare_h" )}
-self.btn_defend = {Assets.getTexture("ui/battle/btn/defend"), Assets.getTexture("ui/battle/btn/defend_h")}
-]]
 
 function Battle:drawActionArena()
     -- Draw the top line of the action area

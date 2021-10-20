@@ -7,6 +7,8 @@ return {
 
     hitbox = {0, 24, 19, 14},
 
+    color = {0, 1, 1},
+
     path = "party/kris",
     default = "world/dark",
     offsets = {
