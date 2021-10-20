@@ -126,18 +126,16 @@ function Game:keypressed(key)
         return
     end
 
-    if self.world.player then
-        if key == "z" then
-            self.world.player:interact()
-        elseif key == "f" then
-            print(Utils.dump(self.world.player.history))
+    if self.state == "BATTLE" then
+        if self.battle then
+            self.battle:keypressed(key)
         end
-    end
-    if self.battle then
-        if key == "g" then
-            self.battle.current_selecting = self.battle.current_selecting + 1
-            if self.battle.current_selecting > 3 then
-                self.battle.current_selecting = 1
+    elseif self.state == "OVERWORLD" then
+        if self.world.player then -- TODO: move this to function in world.lua
+            if key == "z" then
+                self.world.player:interact()
+            elseif key == "f" then
+                print(Utils.dump(self.world.player.history))
             end
         end
     end

@@ -8,6 +8,8 @@ function DialogueText:setText(text)
     for _,v in ipairs(self.chars) do
         self:remove()
     end
+
+    self:resetState()
     self.chars = {}
 
     self.text = text
