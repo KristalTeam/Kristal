@@ -13,7 +13,7 @@ function KeyPressed(key)
     if Game.world.player and not Game.lock_input then
         local player = Game.world.player
         if key == "e" then
-            player:explode(0, -40)
+            player:explode()
             Game.world.player = nil
             return true
         elseif key == "r" then
