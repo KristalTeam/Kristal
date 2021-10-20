@@ -216,7 +216,11 @@ function love.keypressed(key)
     elseif key == "f3" then
         PERFORMANCE_TEST_STAGE = "UPDATE"
     elseif key == "r" and love.keyboard.isDown("lctrl") then
-        love.event.quit("restart")
+        if MOD and MOD["quickReload"] then
+            Kristal.quickReload()
+        else
+            love.event.quit("restart")
+        end
     end
 end
 
@@ -272,12 +276,7 @@ function love.run()
                 if result == "quick_reload" then
                     MOD = nil
                     errorResult = nil
-                    Gamestate.switch({})
-                    Registry.clear()
-                    Registry.registerDefaults()
-                    Kristal.loadAssets("", "mods", "", function()
-                        Gamestate.switch(Kristal.States["Menu"])
-                    end)
+                    Kristal.quickReload()
                 else
                     if love.quit then
                         love.quit()
@@ -492,6 +491,15 @@ function Kristal.errorHandler(msg)
         --end
     end
 
+end
+
+function Kristal.quickReload()
+    Gamestate.switch({})
+    Registry.clear()
+    Registry.registerDefaults()
+    Kristal.loadAssets("", "mods", "", function()
+        Gamestate.switch(Kristal.States["Menu"])
+    end)
 end
 
 function Kristal.clearAssets(include_mods)
