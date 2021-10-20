@@ -24,6 +24,8 @@ function ActionBox:init(x, y, index, battler)
     self.index = index
     self.battler = battler
 
+    self.selected_button = 1
+
 end
 
 function ActionBox:draw()
@@ -32,13 +34,30 @@ function ActionBox:draw()
     self:drawChildren()
 end
 
+function ActionBox:select()
+    if self.selected_button == 5 then -- TODO: unhardcode!
+        Game.battle.tension_bar:giveTension(40)
+        Game.battle.current_selecting = Game.battle.current_selecting + 1
+        if Game.battle.current_selecting > 3 then
+            Game.battle.current_selecting = 1
+        end
+    end
+end
+
+function ActionBox:unselect()
+    -- We have to uncommit any action that we did before.
+    if self.selected_button == 5 then -- TODO: unhardcode!
+        Game.battle.tension_bar:removeTension(40)
+    end
+end
+
 function ActionBox:drawActionBox()
     love.graphics.setColor(1, 1, 1, 1)
 
     -- Draw the buttons
     for index, button in ipairs(self.buttons) do
         local frame = 1
-        if (index == Game.battle.current_button) and (self.index == Game.battle.current_selecting) then
+        if (index == self.selected_button) and (self.index == Game.battle.current_selecting) then
             -- If it's highlighted, use the second texture in the table
             frame = 2
         end

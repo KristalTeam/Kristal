@@ -8,6 +8,12 @@ function Battle:init(state, background, music)
     self.music = nil
     self.music_file = music
 
+    self.max_tension = 250
+    self.tension = 0
+
+    self.ui_move = love.audio.newSource("assets/sounds/ui_move.wav", "static")
+    self.ui_select = love.audio.newSource("assets/sounds/ui_select.wav", "static")
+
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
 
     -- Create the player battler
@@ -68,9 +74,9 @@ function Battle:init(state, background, music)
     self.camera = Camera(0, 0)
 
     self.current_selecting = 1
-    self.current_button = 1
 
     self.battle_ui = nil
+    self.tension_bar = nil
 end
 
 function Battle:setState(state)
@@ -114,6 +120,10 @@ function Battle:onStateChange(old,new)
         if not self.battle_ui then
             self.battle_ui = BattleUI()
             self:addChild(self.battle_ui)
+        end
+        if not self.tension_bar then
+            self.tension_bar = TensionBar(-25, 40)
+            self:addChild(self.tension_bar)
         end
     end
 end
@@ -204,15 +214,33 @@ end
 
 function Battle:keypressed(key)
     if self.state == "ACTIONSELECT" then
-        if key == "left" then
-
+        -- TODO: make this less huge!!
+        if key == "z" then
+            self.battle_ui.action_boxes[self.current_selecting]:select()
+            self.ui_select:stop()
+            self.ui_select:play()
+        elseif key == "x" then
+            Game.battle.current_selecting = Game.battle.current_selecting - 1
+            if Game.battle.current_selecting < 1 then
+                Game.battle.current_selecting = 1
+            end
+            self.battle_ui.action_boxes[self.current_selecting]:unselect()
+        elseif key == "left" then
+            self.battle_ui.action_boxes[self.current_selecting].selected_button = self.battle_ui.action_boxes[self.current_selecting].selected_button - 1
+            self.ui_move:stop()
+            self.ui_move:play()
+        elseif key == "right" then
+            self.battle_ui.action_boxes[self.current_selecting].selected_button = self.battle_ui.action_boxes[self.current_selecting].selected_button + 1
+            self.ui_move:stop()
+            self.ui_move:play()
         end
 
-        if key == "g" then
-            self.current_selecting = self.current_selecting + 1
-            if self.current_selecting > 3 then
-                self.current_selecting = 1
-            end
+        if self.battle_ui.action_boxes[self.current_selecting].selected_button < 1 then
+            self.battle_ui.action_boxes[self.current_selecting].selected_button = 5 -- TODO: unhardcode
+        end
+
+        if self.battle_ui.action_boxes[self.current_selecting].selected_button > 5 then -- TODO: unhardcode
+            self.battle_ui.action_boxes[self.current_selecting].selected_button = 1
         end
     end
 end
