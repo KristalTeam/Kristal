@@ -3,15 +3,9 @@
  <editorsettings>
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
- <tileset firstgid="1" name="alley" tilewidth="40" tileheight="40" spacing="4" margin="2" tilecount="361" columns="19">
-  <image source="../assets/sprites/tilesets/alley.png" width="836" height="836"/>
- </tileset>
- <tileset firstgid="362" name="city_alley" tilewidth="40" tileheight="40" spacing="4" margin="2" tilecount="110" columns="10">
-  <image source="../assets/sprites/tilesets/city_alley.png" width="440" height="484"/>
- </tileset>
- <tileset firstgid="472" name="street_edges" tilewidth="40" tileheight="40" spacing="4" margin="2" tilecount="210" columns="14">
-  <image source="../assets/sprites/tilesets/street_edges.png" width="616" height="660"/>
- </tileset>
+ <tileset firstgid="1" source="../assets/sprites/tilesets/alley.tsx"/>
+ <tileset firstgid="362" source="../assets/sprites/tilesets/city_alley.tsx"/>
+ <tileset firstgid="472" source="../assets/sprites/tilesets/street_edges.tsx"/>
  <layer id="1" name="Tile Layer 1" width="30" height="30">
   <data encoding="csv">
 260,260,260,260,261,259,260,260,260,260,260,260,260,261,434,434,259,260,260,260,260,260,260,260,260,261,259,260,260,260,
