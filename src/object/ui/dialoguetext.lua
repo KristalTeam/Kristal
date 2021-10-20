@@ -30,7 +30,11 @@ function DialogueText:setText(text)
 end
 
 function DialogueText:update(dt)
-    self.state.progress = self.state.progress + (dt * 30 * self.state.speed)
+    if self.state.waiting == 0 then
+        self.state.progress = self.state.progress + (dt * 30 * self.state.speed)
+    else
+        self.state.waiting = math.max(0, self.state.waiting - dt)
+    end
 
     if love.keyboard.isDown("x") then
         self.state.skipping = true
@@ -69,7 +73,12 @@ function DialogueText:processModifier(node)
         elseif node.command == "stopinstant" then
             self.state.skipping = false
         elseif node.command == "wait" then
-            self.state.progress = self.state.progress - tonumber(node.arguments[1])
+            local delay = node.arguments[1]
+            if delay:sub(-1) == "s" then
+                self.state.waiting = tonumber(delay:sub(1, -2))
+            else
+                self.state.progress = self.state.progress - tonumber(delay)
+            end
         end
     end
 end

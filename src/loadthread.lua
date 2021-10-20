@@ -79,13 +79,24 @@ local loaders = {
             mod.folder = path
             mod.path = full_path
 
-            if mod.preview then
-                if type(mod.preview) == "string" then
-                    mod.preview_data = {love.image.newImageData(full_path.."/"..mod.preview)}
-                else
-                    mod.preview_data = {}
-                    for _,preview_path in ipairs(mod.preview) do
-                        table.insert(mod.preview_data, love.image.newImageData(full_path.."/"..preview_path))
+            for _,file in ipairs(love.filesystem.getDirectoryItems(full_path)) do
+                if file == "preview.lua" then
+                    mod.has_preview_lua = true
+                elseif file:sub(-4) == ".png" and file:sub(1, 7) == "preview" then
+                    local img_name = file:sub(1, -4)
+                    local img_num
+                    for i = -3, -1 do
+                        img_num = tonumber(img_name:sub(i))
+                        if img_num then
+                            img_name = img_name:sub(1, i-1)
+                            break
+                        end
+                    end
+                    mod.preview_data = mod.preview_data or {}
+                    if img_num then
+                        mod.preview_data[img_num] = love.image.newImageData(full_path.."/"..file)
+                    else
+                        table.insert(mod.preview_data, 1, love.image.newImageData(full_path.."/"..file))
                     end
                 end
             end

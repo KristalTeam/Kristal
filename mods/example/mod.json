@@ -2,7 +2,7 @@
     "name": "Example Mod",
 
     "map": "alley",
-    "party": ["kris", "susie", "ralsei"],
+    "party": ["kris", "susie", "ralsei", "noelle"],
 
     "transition": false,
 

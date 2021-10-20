@@ -35,6 +35,7 @@ function Text:resetState()
         current_node = 1,
         typing = true,
         speed = 1,
+        waiting = 0,
         skipping = false,
         asterisk_mode = false,
         typed_string = ""

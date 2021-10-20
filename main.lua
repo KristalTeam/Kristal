@@ -30,6 +30,7 @@ Kristal.States = {
 Game = Kristal.States["Game"]
 
 Assets = require("src.assets")
+Registry = require("src.registry")
 Draw = require("src.draw")
 
 Object = require("src.object.object")
@@ -87,7 +88,7 @@ local load_end_funcs = {}
 
 function love.load()
     -- load the settings.json
-    Kristal.Config = Kristal.LoadConfig()
+    Kristal.Config = Kristal.loadConfig()
 
     -- pixel scaling (the good one)
     love.graphics.setDefaultFilter("nearest")
@@ -98,6 +99,9 @@ function love.load()
         love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale)
     end
 
+    -- toggle vsync
+    love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+
     -- setup structure
     love.filesystem.createDirectory("mods")
 
@@ -106,6 +110,10 @@ function love.load()
 
     -- initialize overlay
     Kristal.Overlay:init()
+
+    -- default registry
+    Registry.clear()
+    Registry.registerDefaults()
 
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -144,7 +152,7 @@ function love.load()
 end
 
 function love.quit()
-    Kristal.SaveConfig()
+    Kristal.saveConfig()
     if load_thread and load_thread:isRunning() then
         load_in_channel:push("stop")
     end
@@ -179,6 +187,11 @@ end
 function love.keypressed(key)
     if key == "f1" then
         Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
+    elseif key == "f2" then
+        Kristal.Config["vSync"] = not Kristal.Config["vSync"]
+        love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+    elseif key == "r" and love.keyboard.isDown("lctrl") then
+        love.event.quit("restart")
     end
 end
 
@@ -435,14 +448,14 @@ function Kristal.errorHandler(msg)
 
 end
 
-function Kristal.ClearAssets(include_mods)
+function Kristal.clearAssets(include_mods)
     Assets.clear()
     if include_mods then
         Kristal.Mods.clear()
     end
 end
 
-function Kristal.LoadAssets(dir, loader, paths, after)
+function Kristal.loadAssets(dir, loader, paths, after)
     Kristal.Overlay.setLoading(true)
     load_waiting = load_waiting + 1
     if after then
@@ -457,25 +470,40 @@ function Kristal.LoadAssets(dir, loader, paths, after)
     next_load_key = next_load_key + 1
 end
 
-function Kristal.LoadMod(id, after)
+function Kristal.preloadMod(id)
+    local mod = Kristal.Mods.getMod(id)
+
+    if not mod then return end
+
+    MOD = mod
+    MOD.env = Kristal.createModEnvironment()
+
+    Registry.registerMod(mod, true)
+end
+
+function Kristal.loadMod(id, after)
     local mod = Kristal.Mods.getMod(id)
 
     if not mod then return end
 
     MOD = mod
 
-    if mod.script_chunks["scripts/mod"] then
-        local chunk = mod.script_chunks["scripts/mod"]
+    if mod.script_chunks["mod"] then
+        local chunk = mod.script_chunks["mod"]
 
         MOD_LOADING = true
 
-        Kristal.LoadAssets(mod.path, "all", "", function()
+        Kristal.loadAssets(mod.path, "all", "", function()
             MOD_LOADING = false
 
-            MOD.env = Kristal.CreateModEnvironment()
+            if not MOD.env then
+                MOD.env = Kristal.createModEnvironment()
+            end
 
             setfenv(chunk, MOD.env)
             chunk()
+
+            Registry.registerMod(MOD)
 
             after()
         end)
@@ -484,28 +512,28 @@ function Kristal.LoadMod(id, after)
     end
 end
 
-function Kristal.CreateModEnvironment(global)
+function Kristal.createModEnvironment(global)
     local env = setmetatable({}, {__index = global or _G})
     local function setupGlobals()
         function require(path)
-            local chunk = MOD.script_chunks["scripts/"..path]
-            --[[if love.filesystem.getInfo(MOD.path.."/scripts/"..path..".lua") then
-                chunk = love.filesystem.load(MOD.path.."/scripts/"..path..".lua")
-            elseif love.filesystem.getInfo(MOD.path.."/scripts/"..path.."/init.lua") then
-                chunk = love.filesystem.load(MOD.path.."/scripts/"..path.."/init.lua")
-            end]]
-            setfenv(chunk, getfenv())()
+            local chunk = MOD.script_chunks[path]
+            if chunk then
+                setfenv(chunk, getfenv())()
+            else
+                error("Could not find "..path..".lua in mod")
+            end
         end
     end
     setfenv(setupGlobals, env)()
     return env
 end
 
-function Kristal.LoadConfig()
+function Kristal.loadConfig()
     local config = {
         windowScale = 1,
         skipIntro = false,
-        showFPS = false
+        showFPS = false,
+        vSync = true
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
@@ -513,7 +541,7 @@ function Kristal.LoadConfig()
     return config
 end
 
-function Kristal.SaveConfig()
+function Kristal.saveConfig()
     love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
 end
 
@@ -533,6 +561,6 @@ function Kristal.executeModScript(path, ...)
     if not MOD.script_chunks[path] then
         return false
     else
-        return true, MOD.script_chunks[path](...)
+        return true, setfenv(MOD.script_chunks[path], MOD.env)(...)
     end
 end

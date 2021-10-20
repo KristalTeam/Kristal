@@ -26,7 +26,7 @@ function Game:enter(previous_state)
 
         if MOD.party then
             for i = 2, #MOD.party do
-                local follower = Follower(PARTY[MOD.party[i]], self.world.player.x, self.world.player.y)
+                local follower = Follower(Registry.getCharacter(MOD.party[i]), self.world.player.x, self.world.player.y)
                 self.world:addChild(follower)
             end
         end

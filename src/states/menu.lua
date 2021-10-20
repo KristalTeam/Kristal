@@ -120,7 +120,7 @@ function Menu:reloadMods()
     if self.loading_mods then return end
 
     self.loading_mods = true
-    Kristal.LoadAssets("", "mods", "", function()
+    Kristal.loadAssets("", "mods", "", function()
         self.loading_mods = false
 
         local last_scroll = self.list.scroll_target
@@ -164,8 +164,8 @@ function Menu:buildMods()
             end
         end
 
-        if mod.preview_lua then
-            local chunk = love.filesystem.load(mod.path.."/"..mod.preview_lua)
+        if mod.has_preview_lua then
+            local chunk = love.filesystem.load(mod.path.."/preview.lua")
             local success, result = pcall(chunk, mod.path)
             if success then
                 self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
@@ -333,11 +333,12 @@ function Menu:keypressed(key, _, is_repeat)
             local current_mod = self.list:getSelectedMod()
             if current_mod then
                 if current_mod.transition then
-                    Kristal.LoadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
+                    Kristal.preloadMod(current_mod)
+                    Kristal.loadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
                         Gamestate.switch(Kristal.States["DarkTransition"], current_mod)
                     end)
                 else
-                    Kristal.LoadMod(current_mod.id, function()
+                    Kristal.loadMod(current_mod.id, function()
                         Gamestate.switch(Kristal.States["Game"])
                     end)
                 end

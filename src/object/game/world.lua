@@ -66,7 +66,7 @@ function World:spawnPlayer(...)
     end
 
     if type(chara) == "string" then
-        chara = PARTY[chara]
+        chara = Registry.getCharacter(chara)
     end
 
     if self.player then
@@ -81,7 +81,7 @@ end
 
 function World:spawnFollower(chara)
     if type(chara) == "string" then
-        chara = PARTY[chara]
+        chara = Registry.getCharacter(chara)
     end
     local follower = Follower(chara, self.player.x, self.player.y)
     self:addChild(follower)
@@ -202,7 +202,7 @@ end
 function World:populateTilesets(path, data)
     local map_path = MOD.path.."/maps/"..path..".lua"
     map_path = Utils.split(map_path, "/")
-    map_path = Utils.join(map_path, "/", #map_path - 1)
+    map_path = Utils.join(map_path, "/", 1, #map_path - 1)
 
     self.tilesets = {}
     for _,tileset_data in ipairs(data) do
