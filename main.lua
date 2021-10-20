@@ -269,10 +269,21 @@ function love.run()
         if errorResult then
             local result = errorResult()
             if result then
-                if love.quit then
-                    love.quit()
+                if result == "quick_reload" then
+                    MOD = nil
+                    errorResult = nil
+                    Gamestate.switch({})
+                    Registry.clear()
+                    Registry.registerDefaults()
+                    Kristal.loadAssets("", "mods", "", function()
+                        Gamestate.switch(Kristal.States["Menu"])
+                    end)
+                else
+                    if love.quit then
+                        love.quit()
+                    end
+                    return result
                 end
-                return result
             end
         else
             local success, result = xpcall(mainLoop, Kristal.errorHandler)
@@ -424,6 +435,10 @@ function Kristal.errorHandler(msg)
         copy_color[3] = copy_color[3] + (DT * 2)
 
         love.graphics.setFont(smaller_font)
+        if MOD and MOD["quickReload"] then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print("Press R to go back to mod menu (Quick Reload available)", 8, 480 - 40)
+        end
         love.graphics.setColor(copy_color)
         love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
         love.graphics.setColor(1, 1, 1, 1)
@@ -439,6 +454,10 @@ function Kristal.errorHandler(msg)
     end
 
     return function()
+        if love.graphics.isActive() and love.graphics.getCanvas() then
+            love.graphics.setCanvas()
+        end
+
         love.event.pump()
 
         for e, a, b, c in love.event.poll() do
@@ -446,6 +465,8 @@ function Kristal.errorHandler(msg)
                 return 1
             elseif e == "keypressed" and a == "escape" then
                 return "restart"
+            elseif e == "keypressed" and a == "r" and MOD and MOD["quickReload"] then
+                return "quick_reload"
             elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
                 copyToClipboard()
             elseif e == "touchpressed" then

@@ -1,5 +1,6 @@
 local graphics = love.graphics
 
+local old_reset = love.graphics.reset
 local old_replaceTransform = love.graphics.replaceTransform
 
 local transformStack = {}
