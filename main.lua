@@ -121,10 +121,26 @@ function love.load()
 
     -- setup hooks
     love.update = Utils.hook(love.update, function(orig, ...)
+        if PERFORMANCE_TEST_STAGE == "UPDATE" then
+            PERFORMANCE_TEST = {}
+            Utils.pushPerformance()
+        end
         orig(...)
         Kristal.Overlay:update(...)
+        if PERFORMANCE_TEST then
+            Utils.popPerformance("Total")
+            print("-------- PERFORMANCE --------")
+            Utils.printPerformance()
+            PERFORMANCE_TEST_STAGE = "DRAW"
+            PERFORMANCE_TEST = nil
+        end
     end)
     love.draw = Utils.hook(love.draw, function(orig, ...)
+        if PERFORMANCE_TEST_STAGE == "DRAW" then
+            PERFORMANCE_TEST = {}
+            Utils.pushPerformance()
+        end
+
         love.graphics.reset()
 
         love.graphics.setCanvas(SCREEN_CANVAS)
@@ -138,6 +154,13 @@ function love.load()
         love.graphics.draw(SCREEN_CANVAS)
 
         Draw._clearUnusedCanvases()
+
+        if PERFORMANCE_TEST then
+            Utils.popPerformance("Total")
+            Utils.printPerformance()
+            PERFORMANCE_TEST_STAGE = nil
+            PERFORMANCE_TEST = nil
+        end
     end)
 
     -- start load thread
@@ -190,6 +213,8 @@ function love.keypressed(key)
     elseif key == "f2" then
         Kristal.Config["vSync"] = not Kristal.Config["vSync"]
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+    elseif key == "f3" then
+        PERFORMANCE_TEST_STAGE = "UPDATE"
     elseif key == "r" and love.keyboard.isDown("lctrl") then
         love.event.quit("restart")
     end

@@ -256,5 +256,32 @@ function Utils.lerp(a, b, t)
     return a + (b - a) * Utils.clamp(t, 0, 1)
 end
 
+local performance_stack = {}
+
+function Utils.pushPerformance()
+    table.insert(performance_stack, 1, love.timer.getTime())
+end
+
+function Utils.popPerformance(name)
+    local c = love.timer.getTime()
+    local t = table.remove(performance_stack, 1)
+    if PERFORMANCE_TEST then
+        PERFORMANCE_TEST[name] = PERFORMANCE_TEST[name] or {}
+        table.insert(PERFORMANCE_TEST[name], c - t)
+    end
+end
+
+function Utils.printPerformance()
+    for k,times in pairs(PERFORMANCE_TEST) do
+        if #times > 0 then
+            local n = 0
+            for _,v in ipairs(times) do
+                n = n + v
+            end
+            print("["..PERFORMANCE_TEST_STAGE.."] "..k.. " | "..#times.." calls | "..(n / #times).." | Total: "..n)
+        end
+    end
+end
+
 
 return Utils

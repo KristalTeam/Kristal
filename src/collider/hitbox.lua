@@ -20,10 +20,30 @@ function Hitbox:collidesWith(other)
 end
 
 function Hitbox:collideWithHitbox(other)
-    local x1, y1 = self:getPointFor(other, 0, 0)
-    local x2, y2 = self:getPointFor(other, other.width, 0)
-    local x3, y3 = self:getPointFor(other, 0, other.height)
-    local x4, y4 = self:getPointFor(other, other.width, other.height)
+    Utils.pushPerformance()
+
+    local tf1, tf2 = self:getTransformsWith(other)
+
+    local x1, y1 = other.x, other.y
+    local x2, y2 = other.x + other.width, other.y
+    local x3, y3 = other.x + other.width, other.y + other.height
+    local x4, y4 = other.x, other.y + other.height
+
+    if tf2 then
+        x1, y1 = tf2:transformPoint(x1, y1)
+        x2, y2 = tf2:transformPoint(x2, y2)
+        x3, y3 = tf2:transformPoint(x3, y3)
+        x4, y4 = tf2:transformPoint(x4, y4)
+    end
+
+    if tf1 then
+        x1, y1 = tf1:inverseTransformPoint(x1, y1)
+        x2, y2 = tf1:inverseTransformPoint(x2, y2)
+        x3, y3 = tf1:inverseTransformPoint(x3, y3)
+        x4, y4 = tf1:inverseTransformPoint(x4, y4)
+    end
+
+    Utils.popPerformance("Hitbox#collideWithHitbox")
 
     return (x1 > self.x and x1 < self.x + self.width and y1 > self.y and y1 < self.y + self.height) or
            (x2 > self.x and x2 < self.x + self.width and y2 > self.y and y2 < self.y + self.height) or
