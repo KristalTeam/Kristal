@@ -94,6 +94,7 @@ function love.load()
     if window_scale ~= 1 then
         love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale)
     end
+    love.window.setVSync(0)
 
     -- setup structure
     love.filesystem.createDirectory("mods")

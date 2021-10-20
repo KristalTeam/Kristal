@@ -1,4 +1,25 @@
-local Object = Class()
+local Object = Class(nil, {}, {
+    getters = {
+        x = "getX",
+        y = "getY",
+        width = "getWidth",
+        height = "getHeight",
+        scale_x = "getScaleX",
+        scale_y = "getScaleY",
+        origin_x = "getOriginX",
+        origin_y = "getOriginY",
+    },
+    setters = {
+        x = "setX",
+        y = "setY",
+        width = "setWidth",
+        height = "setHeight",
+        scale_x = "setScaleX",
+        scale_y = "setScaleY",
+        origin_x = "setOriginX",
+        origin_y = "setOriginY",
+    }
+})
 
 Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
 
@@ -49,6 +70,9 @@ function Object:init(x, y, width, height)
     self.update_child_list = false
     self.children_to_remove = {}
 
+    -- Whether this object needs to cache its transform
+    self.needs_transform_cache = false
+
     -- Whether this object updates
     self.active = true
 
@@ -80,30 +104,50 @@ function Object:move(x, y, speed)
 end
 
 function Object:collidesWith(other)
-    if other and self.collider then
+    --[[if other and self.collider then
         if isClass(other) and other:includes(Object) then
             return other.collider and self.collider:collidesWith(other.collider) or false
         else
             return self.collider:collidesWith(other)
         end
-    end
+    end]]
     return false
 end
 
 function Object:setPosition(x, y) self.x = x or 0; self.y = y or 0 end
 function Object:getPosition() return self.x, self.y end
 
+function Object:getX() return self._x or 0 end
+function Object:getY() return self._y or 0 end
+function Object:setX(val) self._x = val end
+function Object:setY(val) self._y = val end
+
 function Object:setSize(width, height) self.width = width or 0; self.height = height or width or 0 end
 function Object:getSize() return self.width, self.height end
 
+function Object:getWidth() return self._width or 0 end
+function Object:getHeight() return self._height or 0 end
+function Object:setWidth(val) self._width = val end
+function Object:setHeight(val) self._height = val end
+
 function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
 function Object:getScale() return self.scale_x, self.scale_y end
+
+function Object:getScaleX() return self._scale_x or 1 end
+function Object:getScaleY() return self._scale_y or 1 end
+function Object:setScaleX(val) self._scale_x = val end
+function Object:setScaleY(val) self._scale_y = val end
 
 function Object:setColor(r, g, b, a) self.color = {r, g, b}; self.alpha = a or self.alpha end
 function Object:getColor() return self.color[1], self.color[2], self.color[3], self.alpha end
 
 function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0 end
 function Object:getOrigin() return self.origin_x, self.origin_y end
+
+function Object:getOriginX() return self._origin_x or 0 end
+function Object:getOriginY() return self._origin_y or 0 end
+function Object:setOriginX(val) self._origin_x = val end
+function Object:setOriginY(val) self._origin_y = val end
 
 function Object:setScaleOrigin(x, y) self.scale_origin_x = x; self.scale_origin_y = y or x end
 function Object:getScaleOrigin() return self.scale_origin_x or self.origin_x, self.scale_origin_y or self.origin_y end
