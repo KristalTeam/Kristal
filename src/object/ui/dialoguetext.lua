@@ -30,10 +30,10 @@ function DialogueText:setText(text)
 end
 
 function DialogueText:update(dt)
-    if self.waiting == 0 then
+    if self.state.waiting == 0 then
         self.state.progress = self.state.progress + (dt * 30 * self.state.speed)
     else
-        self.waiting = math.max(0, self.waiting - dt)
+        self.state.waiting = math.max(0, self.state.waiting - dt)
     end
 
     if love.keyboard.isDown("x") then
