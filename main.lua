@@ -30,6 +30,7 @@ Kristal.States = {
 Game = Kristal.States["Game"]
 
 Assets = require("src.assets")
+Registry = require("src.registry")
 Draw = require("src.draw")
 
 Object = require("src.object.object")
@@ -108,6 +109,10 @@ function love.load()
 
     -- initialize overlay
     Kristal.Overlay:init()
+
+    -- default registry
+    Registry.clear()
+    Registry.registerDefaults()
 
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -464,6 +469,17 @@ function Kristal.loadAssets(dir, loader, paths, after)
     next_load_key = next_load_key + 1
 end
 
+function Kristal.preloadMod(id)
+    local mod = Kristal.Mods.getMod(id)
+
+    if not mod then return end
+
+    MOD = mod
+    MOD.env = Kristal.createModEnvironment()
+
+    Registry.registerMod(mod, true)
+end
+
 function Kristal.loadMod(id, after)
     local mod = Kristal.Mods.getMod(id)
 
@@ -479,10 +495,14 @@ function Kristal.loadMod(id, after)
         Kristal.loadAssets(mod.path, "all", "", function()
             MOD_LOADING = false
 
-            MOD.env = Kristal.createModEnvironment()
+            if not MOD.env then
+                MOD.env = Kristal.createModEnvironment()
+            end
 
             setfenv(chunk, MOD.env)
             chunk()
+
+            Registry.registerMod(MOD)
 
             after()
         end)

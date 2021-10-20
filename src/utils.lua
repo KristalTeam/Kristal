@@ -78,9 +78,9 @@ function Utils.split(str, sep, remove_empty)
     return t
 end
 
-function Utils.join(tbl, sep, len)
+function Utils.join(tbl, sep, start, len)
     local s = ""
-    for i = 1, (len or #tbl) do
+    for i = (start or 1), (len or #tbl) do
         if i == 1 then
             s = s..tbl[i]
         else

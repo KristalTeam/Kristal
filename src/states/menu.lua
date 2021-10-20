@@ -333,6 +333,7 @@ function Menu:keypressed(key, _, is_repeat)
             local current_mod = self.list:getSelectedMod()
             if current_mod then
                 if current_mod.transition then
+                    Kristal.preloadMod(current_mod)
                     Kristal.loadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
                         Gamestate.switch(Kristal.States["DarkTransition"], current_mod)
                     end)
