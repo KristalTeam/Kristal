@@ -19,8 +19,6 @@ end
 function BattleCharacter:setBattleSprite(sprite, speed, loop)
     if self.info.battle and self.info.battle[sprite] then
         self:setSprite(self.info.battle[sprite], speed, loop)
-    else
-        self:setSprite(self.info.default, speed, loop)
     end
 end
 

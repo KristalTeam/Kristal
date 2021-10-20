@@ -3,40 +3,40 @@ return {
     id = "ralsei",
 
     width = 19,
-    height = 38,
+    height = 40,
 
-    hitbox = {0, 24, 19, 14},
+    hitbox = {0, 27, 19, 14},
 
     color = {0, 1, 0},
 
     path = "party/ralsei",
     default = "world/dark",
     offsets = {
-        ["world/dark/down"] = {1, 3},
-        ["world/dark/left"] = {0, 3},
-        ["world/dark/right"] = {0, 3},
-        ["world/dark/up"] = {1, 3},
+        ["world/dark/down"] = {1, 0},
+        ["world/dark/left"] = {0, 0},
+        ["world/dark/right"] = {0, 0},
+        ["world/dark/up"] = {1, 0},
 
-        ["battle/dark/idle"] = {2, 9},
+        ["battle/dark/idle"] = {2, 6},
 
-        ["battle/dark/attack"] = {10, 9},
-        ["battle/dark/attackready"] = {10, 9},
-        ["battle/dark/act"] = {2, 9},
-        ["battle/dark/actready"] = {2, 9},
-        ["battle/dark/spell"] = {11, 9},
-        ["battle/dark/spellready"] = {11, 9},
-        ["battle/dark/item"] = {7, 17},
-        ["battle/dark/itemready"] = {7, 17},
-        ["battle/dark/defend"] = {2, 9},
+        ["battle/dark/attack"] = {10, 6},
+        ["battle/dark/attackready"] = {10, 6},
+        ["battle/dark/act"] = {2, 6},
+        ["battle/dark/actready"] = {2, 6},
+        ["battle/dark/spell"] = {11, 6},
+        ["battle/dark/spellready"] = {11, 6},
+        ["battle/dark/item"] = {7, 14},
+        ["battle/dark/itemready"] = {7, 14},
+        ["battle/dark/defend"] = {2, 6},
 
-        ["battle/dark/defeat"] = {2, 9},
-        ["battle/dark/hurt"] = {13, 5},
+        ["battle/dark/defeat"] = {2, 6},
+        ["battle/dark/hurt"] = {13, 2},
 
-        ["battle/dark/intro"] = {2, 9},
-        ["battle/dark/victory"] = {0, 9}
+        ["battle/dark/intro"] = {2, 6},
+        ["battle/dark/victory"] = {0, 6}
     },
 
-    battle_offset = {2, 9},
+    battle_offset = {2, 6},
     battle = {
         idle            = "battle/dark/idle",
 
