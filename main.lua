@@ -512,29 +512,26 @@ function Kristal.loadMod(id, after)
     if not mod then return end
 
     MOD = mod
+    MOD_LOADING = true
 
-    if mod.script_chunks["mod"] then
-        local chunk = mod.script_chunks["mod"]
+    Kristal.loadAssets(mod.path, "all", "", function()
+        MOD_LOADING = false
 
-        MOD_LOADING = true
+        if not MOD.env then
+            MOD.env = Kristal.createModEnvironment()
+        end
 
-        Kristal.loadAssets(mod.path, "all", "", function()
-            MOD_LOADING = false
-
-            if not MOD.env then
-                MOD.env = Kristal.createModEnvironment()
-            end
+        if mod.script_chunks["mod"] then
+            local chunk = mod.script_chunks["mod"]
 
             setfenv(chunk, MOD.env)
             chunk()
+        end
 
-            Registry.registerMod(MOD)
+        Registry.registerMod(MOD)
 
-            after()
-        end)
-    else
         after()
-    end
+    end)
 end
 
 function Kristal.createModEnvironment(global)
