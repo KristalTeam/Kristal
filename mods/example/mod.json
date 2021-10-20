@@ -1,5 +1,6 @@
 {
     "name": "Example Mod",
+    "subtitle": "A testing mod full of various stuff and things",
 
     "map": "alley",
     "party": ["kris", "susie", "ralsei", "noelle"],

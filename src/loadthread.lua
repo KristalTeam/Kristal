@@ -55,7 +55,9 @@ function resetData()
             texture_data = {},
             frame_ids = {},
             frames = {},
-            fonts = {}
+            fonts = {},
+            font_data = {},
+            font_settings = {}
         }
     }
 
@@ -128,7 +130,11 @@ local loaders = {
     ["fonts"] = {"assets/fonts", function(baseDir, path, full_path)
         local id = checkExtension(path, "ttf")
         if id then
-            data.assets.fonts[id] = full_path
+            data.assets.font_data[id] = love.filesystem.newFileData(full_path)
+        end
+        id = checkExtension(path, "json")
+        if id then
+            data.assets.font_settings[id] = json.decode(love.filesystem.read(full_path))
         end
     end}
 }

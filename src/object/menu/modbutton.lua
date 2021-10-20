@@ -7,10 +7,13 @@ function ModButton:init(name, width, height, mod)
     self.mod = mod
     self.id = mod and mod.id or name
 
+    self.subtitle = self.mod.subtitle
+
     self.selected = false
 
     -- temporary
     self.font = Assets.getFont("main")
+    self.subfont = Assets.getFont("main", 16)
 
     self.text = Text(self.name, 50, self.height/2 - ModMenuChar:getTextHeight()/2, ModMenuChar)
     self.text.inherit_color = true
@@ -71,10 +74,20 @@ function ModButton:draw()
     Draw.pushScissor()
     Draw.scissor(0, 0, self.width, self.height)
     -- TODO: Non-monospaced fonts, for now we just draw it here
+    local subh = self.subtitle and self.subfont:getHeight() or 0
+    local name_y = math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2 - (subh/2)
+    love.graphics.setFont(self.font)
     love.graphics.setColor(0, 0, 0)
-    love.graphics.print(self.name, 50 + 2, math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2 + 2)
+    love.graphics.print(self.name, 50 + 2, name_y + 2)
     love.graphics.setColor(self:getDrawColor())
-    love.graphics.print(self.name, 50, math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2)
+    love.graphics.print(self.name, 50, name_y)
+    if self.subtitle then
+        love.graphics.setFont(self.subfont)
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print(self.subtitle, 50 + 2, name_y + self.font:getHeight() + 2)
+        love.graphics.setColor(self:getDrawColor())
+        love.graphics.print(self.subtitle, 50, name_y + self.font:getHeight())
+    end
     --self:drawChildren()
     Draw.popScissor()
 end
