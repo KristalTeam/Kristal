@@ -70,7 +70,7 @@ end
 function BattleUI:drawState()
     if Game.battle.state == "ENEMYSELECT" then
         love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_x * 30))
+        love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))
 
         love.graphics.setFont(Assets.getFont("main"))
         for index, enemy in ipairs(Game.battle.enemies) do

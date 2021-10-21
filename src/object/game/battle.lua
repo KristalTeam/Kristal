@@ -66,6 +66,8 @@ function Battle:init()
     self.current_menu_y = 1
 
     self.enemies = {}
+
+    self.state_reason = nil
 end
 
 function Battle:postInit(state, encounter)
@@ -104,10 +106,15 @@ function Battle:postInit(state, encounter)
     end
 end
 
-function Battle:setState(state)
+function Battle:setState(state, reason)
     local old = self.state
     self.state = state
-    print("STATE CHANGE: went from " .. old .. " to " .. self.state)
+    self.state_reason = reason
+    if reason then
+        print("STATE CHANGE: went from " .. old .. " to " .. self.state .. " because of " .. reason)
+    else
+        print("STATE CHANGE: went from " .. old .. " to " .. self.state)
+    end
     self:onStateChange(old, self.state)
 end
 
@@ -128,8 +135,11 @@ function Battle:onStateChange(old,new)
             battler:setBattleSprite("intro", 1/15, true)
         end
     elseif new == "ACTIONSELECT" then
-        self.current_selecting = 1
-        self.current_button = 1
+        if old == "DEFENDING" then
+            self.current_selecting = 1
+            self.current_button = 1
+        end
+
         for _,battler in ipairs(self.party) do
             battler:setBattleSprite("idle", 1/5, true)
         end
@@ -157,14 +167,61 @@ function Battle:onStateChange(old,new)
         self:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
     elseif new == "ENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
-        self.current_menu_x = 1
+        self.current_menu_y = 1
     end
 end
 
 function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
 
-function Battle:processCharacterActions(pass)
+function Battle:processCharacterActions()
+    local order = {"ACT", "SPARE", "ITEM", "FIGHT"}
+    for _,action_string in ipairs(order) do
+        for i=1, #self.character_actions do
+            local character_action = self.character_actions[i]
+            if character_action.action == action_string then
+                table.remove(self.character_actions,i)
+                i = i - 1
+                self:processAction(character_action)
+                return
+            end
+        end
+    end
+end
 
+function Battle:processAction(action)
+    local battler = self.party[action.character_id]
+    local enemy = action.target
+    if action.action == "SPARE" then
+        battler:setBattleSprite("spare", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
+        local text = "* " .. battler.info.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
+        if enemy.tired then
+            text = {text, "* (Try using Ralsei's [color:blue]PACIFY[color:reset]!)"}
+        end
+        self:BattleText(text,
+            (function() self:processCharacterActions() end)
+        )
+    end
+end
+
+function Battle:removeAction(character_id)
+    for index, action in ipairs(self.character_actions) do
+        if action.character_id == character_id then
+            table.remove(self.character_actions, index)
+        end
+    end
+end
+
+function Battle:nextParty()
+    self.current_selecting = self.current_selecting + 1
+    if self.current_selecting > 3 then
+        self.current_action_processing = 1
+        self:processCharacterActions()
+        self.current_selecting = 0
+    else
+        if self:getState() ~= "ACTIONSELECT" then
+            self:setState("ACTIONSELECT")
+        end
+    end
 end
 
 function Battle:BattleText(text,post_func)
@@ -266,18 +323,33 @@ function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
     if self.state == "ENEMYSELECT" then
         if key == "z" then
+            if self.state_reason == "SPARE" then
+                table.insert(self.character_actions,
+                    {
+                        ["character_id"] = self.current_selecting,
+                        ["action"] = "SPARE",
+                        ["target"] = self.enemies[self.current_menu_y]
+                    }
+                )
+                self:nextParty()
+            else
+                self:nextParty()
+            end
+            return
+        end
+        if key == "x" then
             self:setState("ACTIONSELECT")
             return
         end
         if key == "up" then
-            self.current_menu_x = self.current_menu_x - 1
-            if self.current_menu_x < 1 then
-                self.current_menu_x = #self.enemies
+            self.current_menu_y = self.current_menu_y - 1
+            if self.current_menu_y < 1 then
+                self.current_menu_y = #self.enemies
             end
         elseif key == "down" then
-            self.current_menu_x = self.current_menu_x + 1
-            if self.current_menu_x > #self.enemies then
-                self.current_menu_x = 1
+            self.current_menu_y = self.current_menu_y + 1
+            if self.current_menu_y > #self.enemies then
+                self.current_menu_y = 1
             end
         end
     elseif self.state == "BATTLETEXT" then

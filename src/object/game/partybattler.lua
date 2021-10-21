@@ -21,16 +21,16 @@ function PartyBattler:init(chara, x, y)
     self:setBattleSprite("idle", 1/5, true)
 end
 
-function PartyBattler:setBattleSprite(sprite, speed, loop)
+function PartyBattler:setBattleSprite(sprite, speed, loop, after)
     if self.info.battle and self.info.battle[sprite] then
-        self:setSprite(self.info.battle[sprite], speed, loop)
+        self:setSprite(self.info.battle[sprite], speed, loop, after)
     end
 end
 
-function PartyBattler:setSprite(sprite, speed, loop)
+function PartyBattler:setSprite(sprite, speed, loop, after)
     self.sprite:setSprite(sprite)
     if not self.sprite.directional then
-        self.sprite:play(speed or (1/15), loop)
+        self.sprite:play(speed or (1/15), loop, false, after)
     end
 end
 
