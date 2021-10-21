@@ -4,9 +4,14 @@ function Virovirokun:init()
     self.text = "* Virovirokun floated in!"
 
     self.enemies = {
-        "virovirokun",
         "virovirokun"
     }
+
+    -- Also add a tired and spareable virovirokun
+    local enemy = Registry.createEnemy("virovirokun")
+    enemy.tired = true
+    enemy.can_spare = true
+    table.insert(self.enemies, enemy)
 
     self.background = true
     self.music = nil

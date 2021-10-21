@@ -123,15 +123,15 @@ function love.load(args)
     -- setup structure
     love.filesystem.createDirectory("mods")
 
+    -- default registry
+    Registry.clear()
+    Registry.registerDefaults()
+
     -- register gamestate calls
     Gamestate.registerEvents()
 
     -- initialize overlay
     Kristal.Overlay:init()
-
-    -- default registry
-    Registry.clear()
-    Registry.registerDefaults()
 
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)

@@ -1,10 +1,7 @@
 local Virovirokun, super = Class(EnemyBattler)
 
 function Virovirokun:init()
-    super:init(self)
-
     self.name = "Virovirokun"
-    self.id = "virovirokun"
 
     self.path = "enemies/virovirokun"
     self.default = "idle"

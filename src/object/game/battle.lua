@@ -74,12 +74,12 @@ function Battle:postInit(state, encounter)
     self:setState(state)
     self.encounter = encounter()
 
-    for _,enemy_name in ipairs(self.encounter.enemies) do
-        local success, enemy = Kristal.executeModScript("battles/enemies/" .. enemy_name)
-        if not success then
-            error("Attempt to create non existent enemy \"" .. enemy_name .. "\"")
+    for _,enemy in ipairs(self.encounter.enemies) do
+        if type(enemy) == "string" then
+            table.insert(self.enemies, Registry.createEnemy(enemy))
+        else
+            table.insert(self.enemies, enemy)
         end
-        table.insert(self.enemies,enemy())
     end
 
     if state == "TRANSITION" then

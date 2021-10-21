@@ -61,9 +61,9 @@ function Game:encounter(encounter_name, transition)
         error("Attempt to enter battle while already in battle")
     end
 
-    local success, encounter = Kristal.executeModScript("battles/encounters/" .. encounter_name)
-    if not success then
-        error("Attempt to load into non existent encounter \"" .. encounter .. "\"")
+    local encounter = Registry.getEncounter(encounter_name)
+    if not encounter then
+        error("Attempt to load into non existent encounter \"" .. encounter_name .. "\"")
     end
 
     self.state = "BATTLE"

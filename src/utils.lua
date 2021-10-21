@@ -80,8 +80,9 @@ end
 
 function Utils.join(tbl, sep, start, len)
     local s = ""
-    for i = (start or 1), (len or #tbl) do
-        if i == 1 then
+    local n = start or 1
+    for i = n, (len or #tbl) do
+        if i == n then
             s = s..tbl[i]
         else
             s = s..sep..tbl[i]
