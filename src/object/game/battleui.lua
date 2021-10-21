@@ -4,6 +4,7 @@ function BattleUI:init()
     super:init(self, 0, 480)
 
     self.encounter_text = DialogueText(Game.battle.encounter.text, 30, 53)
+    self.current_encounter_text = Game.battle.encounter.text
     self:addChild(self.encounter_text)
 
     self.action_boxes = {}

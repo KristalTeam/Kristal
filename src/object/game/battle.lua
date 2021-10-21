@@ -220,6 +220,7 @@ function Battle:nextParty()
     else
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
+            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
     end
 end
@@ -339,6 +340,7 @@ function Battle:keypressed(key)
         end
         if key == "x" then
             self:setState("ACTIONSELECT")
+            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
             return
         end
         if key == "up" then
