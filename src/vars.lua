@@ -13,12 +13,6 @@ FOLLOW_DELAY = 0.4
 MOD = nil
 MOD_LOADING = false
 
-PARTY = {
-    ["kris"] = require("src.party.kris"),
-    ["susie"] = require("src.party.susie"),
-    ["ralsei"] = require("src.party.ralsei")
-}
-
 COLORS = {
     aqua = {0, 1, 1, 1},
     black = {0, 0, 0, 1},

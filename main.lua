@@ -33,6 +33,8 @@ Assets = require("src.assets")
 Registry = require("src.registry")
 Draw = require("src.draw")
 
+PartyMember = require("src.partymember")
+
 Object = require("src.object.object")
 Stage = require("src.object.stage")
 Sprite = require("src.object.sprite")
@@ -124,8 +126,7 @@ function love.load(args)
     love.filesystem.createDirectory("mods")
 
     -- default registry
-    Registry.clear()
-    Registry.registerDefaults()
+    Registry.initialize()
 
     -- register gamestate calls
     Gamestate.registerEvents()
@@ -513,8 +514,7 @@ end
 
 function Kristal.quickReload()
     Gamestate.switch({})
-    Registry.clear()
-    Registry.registerDefaults()
+    Registry.initialize()
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
     end)
@@ -550,7 +550,7 @@ function Kristal.preloadMod(id)
     MOD = mod
     MOD.env = Kristal.createModEnvironment()
 
-    Registry.registerMod(mod, true)
+    Registry.initialize(true)
 end
 
 function Kristal.loadMod(id, after)
@@ -575,7 +575,7 @@ function Kristal.loadMod(id, after)
             chunk()
         end
 
-        Registry.registerMod(MOD)
+        Registry.initialize()
 
         after()
     end)
