@@ -73,15 +73,30 @@ function BattleUI:drawState()
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))
 
-        love.graphics.setFont(Assets.getFont("main"))
+        local font = Assets.getFont("main")
+        love.graphics.setFont(font)
         for index, enemy in ipairs(Game.battle.enemies) do
-            if enemy.tired and enemy.canspare then
-                love.graphics.setColor(1, 0, 0, 1) -- TODO: gradient!
-                love.graphics.print("(add gradient) " .. enemy.name, 80, 50 + ((index - 1) * 30))
+            if enemy.tired and enemy.can_spare then
+                love.graphics.setColor(1, 1, 1, 1)
+
+                -- Draw the enemy name to a canvas first
+                local canvas = Draw.pushCanvas(font:getWidth(enemy.name), font:getHeight())
+                love.graphics.print(enemy.name)
+                Draw.popCanvas()
+
+                -- Use the horizontal gradient shader for the spare/tired color
+                local shader = Kristal.Shaders["GradientH"]
+                love.graphics.setShader(shader)
+                shader:send("from", {1, 1, 0, 1}) -- Left color: Spare
+                shader:send("to", {0, 0.7, 1, 1}) -- Right color: Tired
+                -- Draw the canvas from before to apply the gradient over it
+                love.graphics.draw(canvas, 80, 50 + ((index - 1) * 30))
+                -- Disable the shader
+                love.graphics.setShader()
             elseif enemy.tired then
                 love.graphics.setColor(0, 178/255, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
-            elseif enemy.canspare then
+            elseif enemy.can_spare then
                 love.graphics.setColor(0, 1, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
             else

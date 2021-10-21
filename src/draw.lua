@@ -4,33 +4,74 @@ local self = Draw
 local old_getScissor = love.graphics.getScissor
 
 Draw._canvases = {}
-Draw._keep_canvas = {}
 Draw._used_canvas = {}
+Draw._locked_canvas = {}
+Draw._canvas_stack = {}
 
 Draw._scissor_stack = {}
 
-function Draw.getCanvas(id, width, height, keep)
-    self._used_canvas[id] = true
-    self._keep_canvas[id] = keep
-    local canvas = self._canvases[id]
-    if not canvas or canvas[2] ~= width or canvas[3] ~= height then
-        canvas = {love.graphics.newCanvas(width, height), width, height}
-        self._canvases[id] = canvas
+function Draw.pushCanvas(...)
+    local args = {...}
+    table.insert(self._canvas_stack, love.graphics.getCanvas())
+    local canvas, clear_canvas
+    if #args == 1 then
+        canvas = args[1]
+    else
+        local w, h = args[1], args[2]
+        local cid = w..","..h
+        self._canvases[cid] = self._canvases[cid] or {}
+        for _,cached in ipairs(self._canvases[cid]) do
+            if not self._locked_canvas[cached] then
+                canvas = cached
+                break
+            end
+        end
+        if not canvas then
+            canvas = love.graphics.newCanvas(w, h)
+            table.insert(self._canvases[cid], canvas)
+        end
+        clear_canvas = true
     end
-    return canvas[1]
+    if canvas then
+        self._locked_canvas[canvas] = true
+        self._used_canvas[canvas] = true
+    end
+    love.graphics.setCanvas(canvas)
+    love.graphics.push()
+    love.graphics.origin()
+    if clear_canvas then
+        love.graphics.clear()
+    end
+    return canvas
+end
+
+function Draw.popCanvas(keep)
+    local canvas = love.graphics.getCanvas()
+    if canvas and not keep then
+        self._locked_canvas[canvas] = nil
+    end
+    local old_canvas = table.remove(self._canvas_stack, #self._canvas_stack)
+    love.graphics.pop()
+    love.graphics.setCanvas(old_canvas)
+    return old_canvas
 end
 
 function Draw._clearUnusedCanvases()
-    local remove = {}
-    for k,_ in pairs(self._canvases) do
-        if not self._keep_canvas[k] and not self._used_canvas[k] then
-            table.insert(remove, k)
+    for k,canvases in pairs(self._canvases) do
+        local remove = {}
+        for _,canvas in ipairs(canvases) do
+            if not self._used_canvas[canvas] then
+                table.insert(remove, canvas)
+            end
+        end
+        for _,v in ipairs(remove) do
+            print("Removing canvas: "..k)
+            Utils.removeFromTable(canvases, v)
+            v:release()
         end
     end
-    for _,v in ipairs(remove) do
-        self._canvases[v][1] = nil
-        self._canvases[v] = nil
-    end
+    self._locked_canvas = {}
+    self._used_canvas = {}
 end
 
 function Draw.getScissor()

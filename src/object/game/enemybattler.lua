@@ -21,7 +21,7 @@ function EnemyBattler:init()
         "* Test Enemy is testing."
     }
 
-    self:registerAct("TakeCareX", "", {"susie", "ralsei"})
+    --self:registerAct("TakeCareX", "", {"susie", "ralsei"})
 end
 
 function EnemyBattler:registerAct(...) print("TODO: implement!") end -- TODO
