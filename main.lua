@@ -87,7 +87,24 @@ local next_load_key = 0
 local load_waiting = 0
 local load_end_funcs = {}
 
-function love.load()
+function love.load(args)
+    --[[
+        Launch args:
+            --wait: Pauses the load screen until a key is pressed
+    ]]
+
+    -- read args
+    Kristal.Args = {}
+    local last_arg
+    for _,arg in ipairs(args or {}) do
+        if arg:sub(1, 2) == "--" then
+            last_arg = {}
+            Kristal.Args[arg:sub(3)] = last_arg
+        elseif last_arg then
+            table.insert(last_arg, arg)
+        end
+    end
+
     -- load the settings.json
     Kristal.Config = Kristal.loadConfig()
 
@@ -122,10 +139,26 @@ function love.load()
 
     -- setup hooks
     love.update = Utils.hook(love.update, function(orig, ...)
+        if PERFORMANCE_TEST_STAGE == "UPDATE" then
+            PERFORMANCE_TEST = {}
+            Utils.pushPerformance()
+        end
         orig(...)
         Kristal.Overlay:update(...)
+        if PERFORMANCE_TEST then
+            Utils.popPerformance("Total")
+            print("-------- PERFORMANCE --------")
+            Utils.printPerformance()
+            PERFORMANCE_TEST_STAGE = "DRAW"
+            PERFORMANCE_TEST = nil
+        end
     end)
     love.draw = Utils.hook(love.draw, function(orig, ...)
+        if PERFORMANCE_TEST_STAGE == "DRAW" then
+            PERFORMANCE_TEST = {}
+            Utils.pushPerformance()
+        end
+
         love.graphics.reset()
 
         love.graphics.setCanvas(SCREEN_CANVAS)
@@ -139,6 +172,13 @@ function love.load()
         love.graphics.draw(SCREEN_CANVAS)
 
         Draw._clearUnusedCanvases()
+
+        if PERFORMANCE_TEST then
+            Utils.popPerformance("Total")
+            Utils.printPerformance()
+            PERFORMANCE_TEST_STAGE = nil
+            PERFORMANCE_TEST = nil
+        end
     end)
 
     -- start load thread
@@ -191,8 +231,14 @@ function love.keypressed(key)
     elseif key == "f2" then
         Kristal.Config["vSync"] = not Kristal.Config["vSync"]
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+    elseif key == "f3" then
+        PERFORMANCE_TEST_STAGE = "UPDATE"
     elseif key == "r" and love.keyboard.isDown("lctrl") then
-        love.event.quit("restart")
+        if MOD and MOD["quickReload"] then
+            Kristal.quickReload()
+        else
+            love.event.quit("restart")
+        end
     end
 end
 
@@ -245,10 +291,16 @@ function love.run()
         if errorResult then
             local result = errorResult()
             if result then
-                if love.quit then
-                    love.quit()
+                if result == "quick_reload" then
+                    MOD = nil
+                    errorResult = nil
+                    Kristal.quickReload()
+                else
+                    if love.quit then
+                        love.quit()
+                    end
+                    return result
                 end
-                return result
             end
         else
             local success, result = xpcall(mainLoop, Kristal.errorHandler)
@@ -400,6 +452,10 @@ function Kristal.errorHandler(msg)
         copy_color[3] = copy_color[3] + (DT * 2)
 
         love.graphics.setFont(smaller_font)
+        if MOD and MOD["quickReload"] then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print("Press R to go back to mod menu (Quick Reload available)", 8, 480 - 40)
+        end
         love.graphics.setColor(copy_color)
         love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
         love.graphics.setColor(1, 1, 1, 1)
@@ -415,6 +471,10 @@ function Kristal.errorHandler(msg)
     end
 
     return function()
+        if love.graphics.isActive() and love.graphics.getCanvas() then
+            love.graphics.setCanvas()
+        end
+
         love.event.pump()
 
         for e, a, b, c in love.event.poll() do
@@ -422,6 +482,8 @@ function Kristal.errorHandler(msg)
                 return 1
             elseif e == "keypressed" and a == "escape" then
                 return "restart"
+            elseif e == "keypressed" and a == "r" and MOD and MOD["quickReload"] then
+                return "quick_reload"
             elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
                 copyToClipboard()
             elseif e == "touchpressed" then
@@ -447,6 +509,15 @@ function Kristal.errorHandler(msg)
         --end
     end
 
+end
+
+function Kristal.quickReload()
+    Gamestate.switch({})
+    Registry.clear()
+    Registry.registerDefaults()
+    Kristal.loadAssets("", "mods", "", function()
+        Gamestate.switch(Kristal.States["Menu"])
+    end)
 end
 
 function Kristal.clearAssets(include_mods)
@@ -488,29 +559,26 @@ function Kristal.loadMod(id, after)
     if not mod then return end
 
     MOD = mod
+    MOD_LOADING = true
 
-    if mod.script_chunks["mod"] then
-        local chunk = mod.script_chunks["mod"]
+    Kristal.loadAssets(mod.path, "all", "", function()
+        MOD_LOADING = false
 
-        MOD_LOADING = true
+        if not MOD.env then
+            MOD.env = Kristal.createModEnvironment()
+        end
 
-        Kristal.loadAssets(mod.path, "all", "", function()
-            MOD_LOADING = false
-
-            if not MOD.env then
-                MOD.env = Kristal.createModEnvironment()
-            end
+        if mod.script_chunks["mod"] then
+            local chunk = mod.script_chunks["mod"]
 
             setfenv(chunk, MOD.env)
             chunk()
+        end
 
-            Registry.registerMod(MOD)
+        Registry.registerMod(MOD)
 
-            after()
-        end)
-    else
         after()
-    end
+    end)
 end
 
 function Kristal.createModEnvironment(global)

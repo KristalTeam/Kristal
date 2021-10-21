@@ -42,6 +42,7 @@ function Loading:enter(from, dir)
     self.logo_alpha_2 = 1
     self.skipped = false
     self.skiptimer = 0
+    self.key_check = not Kristal.Args["wait"]
 
     self.fader_alpha = 0
 end
@@ -60,7 +61,7 @@ function Loading:beginLoad()
 end
 
 function Loading:update(dt)
-    if self.load_complete and (self.animation_done or Kristal.Config["skipIntro"]) then
+    if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
         Gamestate.switch(LOAD_TESTING and Kristal.States["Testing"] or Kristal.States["Menu"])
     end
 end
@@ -197,6 +198,7 @@ function Loading:draw()
 end
 
 function Loading:keypressed(key)
+    self.key_check = true
     self.skipped = true
     if not self.loading and not self.load_complete then
         self:beginLoad()

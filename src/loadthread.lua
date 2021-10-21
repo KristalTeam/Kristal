@@ -55,7 +55,9 @@ function resetData()
             texture_data = {},
             frame_ids = {},
             frames = {},
-            fonts = {}
+            fonts = {},
+            font_data = {},
+            font_settings = {}
         }
     }
 
@@ -82,7 +84,7 @@ local loaders = {
             for _,file in ipairs(love.filesystem.getDirectoryItems(full_path)) do
                 if file == "preview.lua" then
                     mod.has_preview_lua = true
-                elseif file:sub(-4) == ".png" and file:sub(1, 7) == "preview" then
+                elseif file:sub(-4) == ".png" then
                     local img_name = file:sub(1, -4)
                     local img_num
                     for i = -3, -1 do
@@ -92,11 +94,20 @@ local loaders = {
                             break
                         end
                     end
-                    mod.preview_data = mod.preview_data or {}
-                    if img_num then
-                        mod.preview_data[img_num] = love.image.newImageData(full_path.."/"..file)
-                    else
-                        table.insert(mod.preview_data, 1, love.image.newImageData(full_path.."/"..file))
+                    if file:sub(1, 7) == "preview" then
+                        mod.preview_data = mod.preview_data or {}
+                        if img_num then
+                            mod.preview_data[img_num] = love.image.newImageData(full_path.."/"..file)
+                        else
+                            table.insert(mod.preview_data, 1, love.image.newImageData(full_path.."/"..file))
+                        end
+                    elseif file:sub(1, 4) == "icon" then
+                        mod.icon_data = mod.icon_data or {}
+                        if img_num then
+                            mod.icon_data[img_num] = love.image.newImageData(full_path.."/"..file)
+                        else
+                            table.insert(mod.icon_data, 1, love.image.newImageData(full_path.."/"..file))
+                        end
                     end
                 end
             end
@@ -128,7 +139,11 @@ local loaders = {
     ["fonts"] = {"assets/fonts", function(baseDir, path, full_path)
         local id = checkExtension(path, "ttf")
         if id then
-            data.assets.fonts[id] = full_path
+            data.assets.font_data[id] = love.filesystem.newFileData(full_path)
+        end
+        id = checkExtension(path, "json")
+        if id then
+            data.assets.font_settings[id] = json.decode(love.filesystem.read(full_path))
         end
     end}
 }

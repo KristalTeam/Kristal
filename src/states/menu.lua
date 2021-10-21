@@ -47,7 +47,7 @@ function Menu:enter()
     -- Initialize variables for the menu
     self.stage = Object()
 
-    self.list = ModList(104, 70, 432, 370)
+    self.list = ModList(69, 70, 502, 370)
     self.stage:addChild(self.list)
 
     self.heart = Sprite("player/heart_menu")

@@ -25,6 +25,12 @@ function Mods.loadData(data)
                 table.insert(mod_data.preview, love.graphics.newImage(img_data))
             end
         end
+        if mod_data.icon_data then
+            mod_data.icon = {}
+            for _,img_data in ipairs(mod_data.icon_data) do
+                table.insert(mod_data.icon, love.graphics.newImage(img_data))
+            end
+        end
 
         mod_data.script_chunks = {}
         for _,path in ipairs(Utils.getFilesRecursive(mod_data.path, ".lua")) do

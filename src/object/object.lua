@@ -192,6 +192,7 @@ function Object:applyScissor()
 end
 
 function Object:getTransform()
+    Utils.pushPerformance()
     local transform = love.math.newTransform()
     transform:translate(self.x, self.y)
     if self.flip_x or self.flip_y then
@@ -208,6 +209,7 @@ function Object:getTransform()
         transform:rotate(self.rotation)
         transform:translate(self.width * -(self.rotate_origin_x or self.origin_x), self.height * -(self.rotate_origin_y or self.origin_y))
     end
+    Utils.popPerformance("Object#getTransform")
     return transform
 end
 

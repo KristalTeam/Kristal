@@ -8,7 +8,9 @@ function Assets.clear()
         texture_data = {},
         frame_ids = {},
         frames = {},
-        fonts = {}
+        fonts = {},
+        font_data = {},
+        font_settings = {}
     }
     self.frames_for = {}
     self.quads = {}
@@ -31,31 +33,31 @@ function Assets.loadData(data)
         end
     end
 
-    for key,path in pairs(data.fonts) do
-        self.data.fonts[key] = love.graphics.newFont(path, 32, "mono")
+    for key,path in pairs(data.font_data) do
+        local default = data.font_settings[key] and data.font_settings[key]["defaultSize"] or 12
+        self.data.fonts[key] = {default = default}
+        self.data.fonts[key][default] = love.graphics.newFont(path, default)
     end
 
     self.loaded = true
 end
 
-function Assets.getFont(path)
-    if path:sub(1, 1) == "^" then
-        self.data.fonts[path] = self.data.fonts[path] or love.graphics.newFont(path:sub(2)..".ttf", 32, "mono")
+function Assets.getFont(path, size)
+    local font = self.data.fonts[path]
+    if font then
+        size = size or font.default
+        if not font[size] then
+            font[size] = love.graphics.newFont(self.data.font_data[path], size)
+        end
+        return font[size]
     end
-    return self.data.fonts[path]
 end
 
 function Assets.getTexture(path)
-    if path:sub(1, 1) == "^" then
-        self.data.texture[path] = self.data.texture[path] or love.graphics.newImage(path:sub(2)..".png")
-    end
     return self.data.texture[path]
 end
 
 function Assets.getTextureData(path)
-    if path:sub(1, 1) == "^" then
-        self.data.texture_data[path] = self.data.texture_data[path] or love.image.newImageData(path:sub(2)..".png")
-    end
     return self.data.texture_data[path]
 end
 
