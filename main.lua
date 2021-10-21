@@ -86,7 +86,24 @@ local next_load_key = 0
 local load_waiting = 0
 local load_end_funcs = {}
 
-function love.load()
+function love.load(args)
+    --[[
+        Launch args:
+            --wait: Pauses the load screen until a key is pressed
+    ]]
+
+    -- read args
+    Kristal.Args = {}
+    local last_arg
+    for _,arg in ipairs(args or {}) do
+        if arg:sub(1, 2) == "--" then
+            last_arg = {}
+            Kristal.Args[arg:sub(3)] = last_arg
+        elseif last_arg then
+            table.insert(last_arg, arg)
+        end
+    end
+
     -- load the settings.json
     Kristal.Config = Kristal.loadConfig()
 
