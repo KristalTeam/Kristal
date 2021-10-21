@@ -54,18 +54,22 @@ function Game:enter(previous_state)
     Kristal.modCall("Init")
 end
 
-function Game:encounter(transition, background, music)
+function Game:encounter(encounter_name, transition)
     if transition == nil then transition = true end
-    if background == nil then background = true end
 
     if self.battle then
         error("Attempt to enter battle while already in battle")
     end
 
+    local success, encounter = Kristal.executeModScript("battles/encounters/" .. encounter_name)
+    if not success then
+        error("Attempt to load into non existent encounter \"" .. encounter .. "\"")
+    end
+
     self.state = "BATTLE"
 
-    self.battle = Battle(transition and "TRANSITION" or "INTRO", background, music)
-
+    self.battle = Battle()
+    self.battle:postInit(transition and "TRANSITION" or "INTRO", encounter)
     self.stage:addChild(self.battle)
 end
 

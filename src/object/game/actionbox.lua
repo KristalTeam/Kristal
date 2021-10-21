@@ -26,6 +26,7 @@ function ActionBox:init(x, y, index, battler)
 
     self.selected_button = 1
 
+    self.revert_to = 40
 end
 
 function ActionBox:draw()
@@ -35,19 +36,28 @@ function ActionBox:draw()
 end
 
 function ActionBox:select()
-    if self.selected_button == 5 then -- TODO: unhardcode!
-        Game.battle.tension_bar:giveTension(40)
+    if self.selected_button == 1 or self.selected_button == 2 or self.selected_button == 4 then
+        Game.battle:setState("ENEMYSELECT")
+    elseif self.selected_button == 5 then -- TODO: unhardcode!
+        self.battler:setBattleSprite("defend", 1/15, false)
+        self.battler.defending = true
+        self.revert_to = Game.battle.tension_bar:giveTension(40)
         Game.battle.current_selecting = Game.battle.current_selecting + 1
         if Game.battle.current_selecting > 3 then
-            Game.battle.current_selecting = 1
+            self.current_action_processing = 1
+            Game.battle:processCharacterActions(1)
+            Game.battle:setState("ACTING")
+            Game.battle.current_selecting = 0
         end
     end
 end
 
 function ActionBox:unselect()
     -- We have to uncommit any action that we did before.
+    self.battler:setBattleSprite("idle", 1/5, true)
     if self.selected_button == 5 then -- TODO: unhardcode!
-        Game.battle.tension_bar:removeTension(40)
+        self.battler.defending = false
+        Game.battle.tension_bar:removeTension(self.revert_to)
     end
 end
 

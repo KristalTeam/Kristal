@@ -171,6 +171,7 @@ function Text:processNode(node)
                     self.state.current_x = 0
                 end
             end
+            --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             local char = self.char_type(node.character, self.state.current_x, self.state.current_y, self.state.color)
             table.insert(self.chars, char)
             self:addChild(char)

@@ -3,7 +3,7 @@ local BattleUI, super = Class(Object)
 function BattleUI:init()
     super:init(self, 0, 480)
 
-    self.encounter_text = DialogueText("* Smorgasbord 3.", 30, 53)
+    self.encounter_text = DialogueText(Game.battle.encounter.text, 30, 53)
     self:addChild(self.encounter_text)
 
     self.action_boxes = {}
@@ -25,6 +25,8 @@ function BattleUI:init()
     end
 
     self.animation_timer = 0
+
+    self.heart_sprite = Assets.getTexture("player/heart")
 end
 
 function BattleUI:update(dt)
@@ -62,6 +64,31 @@ function BattleUI:drawActionArena()
     -- Draw the background of the action area
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 0, 40, 640, 115)
+    self:drawState()
+end
+
+function BattleUI:drawState()
+    if Game.battle.state == "ENEMYSELECT" then
+        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_x * 30))
+
+        love.graphics.setFont(Assets.getFont("main"))
+        for index, enemy in ipairs(Game.battle.enemies) do
+            if enemy.tired and enemy.canspare then
+                love.graphics.setColor(1, 0, 0, 1) -- TODO: gradient!
+                love.graphics.print("(add gradient) " .. enemy.name, 80, 50 + ((index - 1) * 30))
+            elseif enemy.tired then
+                love.graphics.setColor(0, 178/255, 1, 1)
+                love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
+            elseif enemy.canspare then
+                love.graphics.setColor(0, 1, 1, 1)
+                love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
+            else
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
+            end
+        end
+    end
 end
 
 return BattleUI

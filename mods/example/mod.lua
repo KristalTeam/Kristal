@@ -5,9 +5,9 @@ end
 function KeyPressed(key)
     if not Game.lock_input then
         if key == "b" then
-            Game:encounter(true, true)
+            Game:encounter("virovirokun", true)
         elseif key == "n" then
-            Game:encounter(false, false)
+            Game:encounter("virovirokun", false)
         end
     end
     if Game.world.player and not Game.lock_input then

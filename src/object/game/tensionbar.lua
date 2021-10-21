@@ -14,17 +14,19 @@ function TensionBar:init(x, y)
 
     self.change = 0
     self.changetimer = 15
-    self.font = love.graphics.newFont("assets/fonts/main.ttf", 32)
+    self.font = Assets.getFont("main")
     self.tp_text = Assets.getTexture("ui/battle/tp_text")
 
     self.animation_timer = 0
 end
 
 function TensionBar:giveTension(amount)
+    local start = self.tension
     self.tension = self.tension + amount
     if self.tension > self.max_tension then
         self.tension = self.max_tension
     end
+    return self.tension - start
 end
 
 function TensionBar:removeTension(amount)

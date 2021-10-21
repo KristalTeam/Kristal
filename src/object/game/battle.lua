@@ -1,12 +1,12 @@
 local Battle, super = Class(Object)
 
-function Battle:init(state, background, music)
+function Battle:init()
     super:init(self)
 
     self.party = {}
 
     self.music = nil
-    self.music_file = music
+    --self.music_file = music
 
     self.max_tension = 250
     self.tension = 0
@@ -19,7 +19,7 @@ function Battle:init(state, background, music)
     -- Create the player battler
     if Game.world.player then
         local player_x, player_y = Game.world.player:getScreenPos()
-        local player_battler = BattleCharacter(Game.world.player.info, player_x, player_y)
+        local player_battler = PartyBattler(Game.world.player.info, player_x, player_y)
         player_battler:setBattleSprite("transition")
         self:addChild(player_battler)
         table.insert(self.party,player_battler)
@@ -32,7 +32,7 @@ function Battle:init(state, background, music)
         local chara = Game.followers[i]
         if chara then
             local chara_x, chara_y = chara:getScreenPos()
-            local chara_battler = BattleCharacter(chara.info, chara_x, chara_y)
+            local chara_battler = PartyBattler(chara.info, chara_x, chara_y)
             chara_battler:setBattleSprite("transition")
             self:addChild(chara_battler)
             table.insert(self.party, chara_battler)
@@ -44,9 +44,41 @@ function Battle:init(state, background, music)
     self.intro_timer = 0
     self.offset = 0
 
-    -- states: TRANSITION, INTRO, ACTIONSELECT, DEFENDING, ATTACKING
+    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ENEMYDIALOGUE, DEFENDING
+    -- ENEMYSELECT, ACTMENU, SPELLMENU, ITEMMENU, XACTMENU, PARTYSELECT
+
     self.state = "NONE"
+
+    self.camera = Camera(0, 0)
+
+    self.current_selecting = 1
+
+    self.battle_ui = nil
+    self.tension_bar = nil
+
+    self.character_actions = {}
+    self.current_action_processing = 1
+
+    self.post_battletext_func = nil
+    self.post_battletext_state = "ACTIONSELECT"
+
+    self.current_menu_x = 1
+    self.current_menu_y = 1
+
+    self.enemies = {}
+end
+
+function Battle:postInit(state, encounter)
     self:setState(state)
+    self.encounter = encounter()
+
+    for _,enemy_name in ipairs(self.encounter.enemies) do
+        local success, enemy = Kristal.executeModScript("battles/enemies/" .. enemy_name)
+        if not success then
+            error("Attempt to create non existent enemy \"" .. enemy_name .. "\"")
+        end
+        table.insert(self.enemies,enemy())
+    end
 
     if state == "TRANSITION" then
         self.transition_timer = 0
@@ -70,22 +102,16 @@ function Battle:init(state, background, music)
             table.insert(self.battler_targets, {target_x, target_y})
         end
     end
-
-    self.camera = Camera(0, 0)
-
-    self.current_selecting = 1
-
-    self.battle_ui = nil
-    self.tension_bar = nil
 end
 
 function Battle:setState(state)
     local old = self.state
     self.state = state
+    print("STATE CHANGE: went from " .. old .. " to " .. self.state)
     self:onStateChange(old, self.state)
 end
 
-function Battle:getState(state)
+function Battle:getState()
     return self.state
 end
 
@@ -107,11 +133,13 @@ function Battle:onStateChange(old,new)
         for _,battler in ipairs(self.party) do
             battler:setBattleSprite("idle", 1/5, true)
         end
-        if not self.music_file then
-            self.music = love.audio.newSource("assets/music/battle.ogg", "stream")
-            self.music:setVolume(0.7)
-        else
-            self.music = love.audio.newSource("assets/music/" .. self.music_file, "stream")
+        if not self.music then
+            if not self.music_file then
+                self.music = love.audio.newSource("assets/music/battle.ogg", "stream")
+                self.music:setVolume(0.7)
+            else
+                self.music = love.audio.newSource("assets/music/" .. self.music_file, "stream")
+            end
         end
 
         self.music:setLooping(true)
@@ -125,7 +153,26 @@ function Battle:onStateChange(old,new)
             self.tension_bar = TensionBar(-25, 40)
             self:addChild(self.tension_bar)
         end
+    elseif new == "ACTING" then
+        self:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
+    elseif new == "ENEMYSELECT" then
+        self.battle_ui.encounter_text:setText("")
+        self.current_menu_x = 1
     end
+end
+
+function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
+
+function Battle:processCharacterActions(pass)
+
+end
+
+function Battle:BattleText(text,post_func)
+    self.battle_ui.encounter_text:setText(text)
+    self.post_battletext_func = post_func
+    self.post_battletext_state = self:getState()
+    self:setState("BATTLETEXT")
+    print("BATTLE TEXT: " .. text)
 end
 
 function Battle:update(dt)
@@ -182,7 +229,10 @@ function Battle:updateTransition(dt)
 end
 
 function Battle:draw()
-    self:drawBackground()
+    if self.encounter.background then
+        self:drawBackground()
+    end
+
     self:drawChildren()
 end
 
@@ -213,18 +263,47 @@ function Battle:drawBackground()
 end
 
 function Battle:keypressed(key)
-    if self.state == "ACTIONSELECT" then
+    print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
+    if self.state == "ENEMYSELECT" then
+        if key == "z" then
+            self:setState("ACTIONSELECT")
+            return
+        end
+        if key == "up" then
+            self.current_menu_x = self.current_menu_x - 1
+            if self.current_menu_x < 1 then
+                self.current_menu_x = #self.enemies
+            end
+        elseif key == "down" then
+            self.current_menu_x = self.current_menu_x + 1
+            if self.current_menu_x > #self.enemies then
+                self.current_menu_x = 1
+            end
+        end
+    elseif self.state == "BATTLETEXT" then
+        if key == "z" then
+            if not self.battle_ui.encounter_text.state.typing then
+                self.battle_ui.encounter_text:setText("")
+                if self.post_battletext_func then
+                    self:post_battletext_func()
+                else
+                    self:setState(self.post_battletext_state)
+                end
+            end
+        end
+    elseif self.state == "ACTIONSELECT" then
         -- TODO: make this less huge!!
         if key == "z" then
             self.battle_ui.action_boxes[self.current_selecting]:select()
             self.ui_select:stop()
             self.ui_select:play()
+            return
         elseif key == "x" then
-            Game.battle.current_selecting = Game.battle.current_selecting - 1
-            if Game.battle.current_selecting < 1 then
-                Game.battle.current_selecting = 1
+            if Game.battle.current_selecting > 1 then
+                Game.battle.current_selecting = Game.battle.current_selecting - 1
+                self.battle_ui.action_boxes[self.current_selecting]:unselect()
             end
-            self.battle_ui.action_boxes[self.current_selecting]:unselect()
+            return
         elseif key == "left" then
             self.battle_ui.action_boxes[self.current_selecting].selected_button = self.battle_ui.action_boxes[self.current_selecting].selected_button - 1
             self.ui_move:stop()
