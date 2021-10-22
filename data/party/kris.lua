@@ -19,11 +19,11 @@ return PartyMember{
     spells = {},
 
     -- Current health (saved to the save file)
-    health = 100,
+    health = 120,
 
     -- Base stats (saved to the save file)
     stats = {
-        health = 100,
+        health = 120,
         attack = 10,
         defense = 2,
         magic = 0

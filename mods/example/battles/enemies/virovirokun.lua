@@ -38,7 +38,7 @@ function Virovirokun:onAct(battler, name)
         ["kris"]   = {4, 12 - 18 + 8},
         ["susie"]  = {6, 12 + 16 - 28},
         ["ralsei"] = {4 - 10, -12 + 13},
-        ["noelle"] = {4, -12}
+        ["noelle"] = {7, 0}
     }
     if name == "TakeCare" then
         local id = battler.info.id
