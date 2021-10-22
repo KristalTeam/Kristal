@@ -8,6 +8,7 @@ return {
     hitbox = {2, 33, 19, 14},
 
     color = {1, 1, 0},
+    dmg_color = {1, 1, 0.3},
 
     path = "party/noelle",
     default = "world/dark",

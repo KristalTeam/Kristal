@@ -8,6 +8,7 @@ return {
     hitbox = {3, 30, 19, 14},
 
     color = {1, 0, 1},
+    dmg_color = {0.8, 0.6, 0.8},
 
     path = "party/susie",
     default = "world/dark",

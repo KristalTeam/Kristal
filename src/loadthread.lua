@@ -57,6 +57,7 @@ function resetData()
             frames = {},
             fonts = {},
             font_data = {},
+            font_image_data = {},
             font_settings = {}
         }
     }
@@ -140,6 +141,10 @@ local loaders = {
         local id = checkExtension(path, "ttf")
         if id then
             data.assets.font_data[id] = love.filesystem.newFileData(full_path)
+        end
+        id = checkExtension(path, "png")
+        if id then
+            data.assets.font_image_data[id] = love.image.newImageData(full_path)
         end
         id = checkExtension(path, "json")
         if id then

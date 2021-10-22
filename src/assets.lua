@@ -10,6 +10,7 @@ function Assets.clear()
         frames = {},
         fonts = {},
         font_data = {},
+        font_image_data = {},
         font_settings = {}
     }
     self.frames_for = {}
@@ -33,10 +34,16 @@ function Assets.loadData(data)
         end
     end
 
-    for key,path in pairs(data.font_data) do
+    -- create TTF fonts
+    for key,file_data in pairs(data.font_data) do
         local default = data.font_settings[key] and data.font_settings[key]["defaultSize"] or 12
         self.data.fonts[key] = {default = default}
-        self.data.fonts[key][default] = love.graphics.newFont(path, default)
+        self.data.fonts[key][default] = love.graphics.newFont(file_data, default)
+    end
+    -- create image fonts
+    for key,image_data in pairs(data.font_image_data) do
+        local glyphs = data.font_settings[key] and data.font_settings[key]["glyphs"] or ""
+        self.data.fonts[key] = love.graphics.newImageFont(image_data, glyphs)
     end
 
     self.loaded = true
@@ -45,11 +52,15 @@ end
 function Assets.getFont(path, size)
     local font = self.data.fonts[path]
     if font then
-        size = size or font.default
-        if not font[size] then
-            font[size] = love.graphics.newFont(self.data.font_data[path], size)
+        if type(font) == "table" then
+            size = size or font.default
+            if not font[size] then
+                font[size] = love.graphics.newFont(self.data.font_data[path], size)
+            end
+            return font[size] 
+        else
+            return font
         end
-        return font[size]
     end
 end
 

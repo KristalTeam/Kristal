@@ -74,27 +74,8 @@ function EnemyBattler:addMercy(amount) -- TODO: finish
         src:play()
     end
 
-
-    --[[
-    if i_ex(obj_dmgwriter)
-    {
-        with (obj_dmgwriter)
-        {
-            if (type == 5)
-                _playsound = false
-        }
-    }
-
-    __mercydmgwriter = instance_create(global.monsterx[argument0], ((global.monstery[argument0] + 20) - (global.hittarget[argument0] * 20)), obj_dmgwriter)
-    __mercydmgwriter.damage = argument1
-    __mercydmgwriter.type = 5
-    global.hittarget[argument0] = (global.hittarget[argument0] + 1)
-    ]]
-
-    local heck = DamageNumber(200, 200)
-    heck.damage = 100
-    heck.type = 5
-    self.parent:addChild(heck)
+    local percent = DamageNumber("mercy", amount, 200, 200)
+    self.parent:addChild(percent)
 end
 
 function EnemyBattler:onMercy()
