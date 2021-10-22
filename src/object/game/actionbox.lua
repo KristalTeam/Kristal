@@ -61,6 +61,8 @@ function ActionBox:unselect()
         Game.battle:removeAction(Game.battle.current_selecting)
     elseif self.selected_button == 2 then -- TODO: unhardcode!
         Game.battle:removeAction(Game.battle.current_selecting)
+    elseif self.selected_button == 1 then -- TODO: unhardcode!
+        Game.battle:removeAction(Game.battle.current_selecting)
     end
 end
 

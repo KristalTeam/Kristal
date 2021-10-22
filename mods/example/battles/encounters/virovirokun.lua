@@ -10,7 +10,7 @@ function Virovirokun:init()
     -- Also add a tired and spareable virovirokun
     local enemy = Registry.createEnemy("virovirokun")
     enemy.tired = true
-    enemy.can_spare = true
+    enemy.mercy = 100
     table.insert(self.enemies, enemy)
 
     self.background = true

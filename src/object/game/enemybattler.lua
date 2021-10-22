@@ -21,7 +21,7 @@ function EnemyBattler:init()
     self.reward = 0
 
     self.tired = false
-    self.can_spare = false
+    self.mercy = 0
 
     self.check = "Remember to change\nyour check text!"
 
@@ -47,8 +47,19 @@ function EnemyBattler:registerAct(name, description, party)
     table.insert(self.acts, act)
 end
 
-function EnemyBattler:addMercy(...)    print("TODO: implement!") end -- TODO
-function EnemyBattler:setText(...)     print("TODO: implement!") end -- TODO
+function EnemyBattler:addMercy(...) print("TODO: implement!") end -- TODO
+function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
+function EnemyBattler:spare(...)    print("TODO: implement!") end -- TODO
+
+function EnemyBattler:onMercy()
+    if self.mercy >= 100 then
+        self:spare()
+        return true
+    else
+        self:addMercy(20)
+        return false
+    end
+end
 
 function EnemyBattler:onCheck(battler) end
 

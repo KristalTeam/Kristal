@@ -94,7 +94,7 @@ function BattleUI:drawState()
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
         for index, enemy in ipairs(Game.battle.enemies) do
-            if enemy.tired and enemy.can_spare then
+            if enemy.tired and (enemy.mercy >= 100) then
                 love.graphics.setColor(1, 1, 1, 1)
 
                 -- Draw the enemy name to a canvas first
@@ -114,7 +114,7 @@ function BattleUI:drawState()
             elseif enemy.tired then
                 love.graphics.setColor(0, 178/255, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
-            elseif enemy.can_spare then
+            elseif enemy.mercy >= 100 then
                 love.graphics.setColor(0, 1, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
             else

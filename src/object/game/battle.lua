@@ -217,11 +217,22 @@ function Battle:processCharacterActions()
     for _,action_string in ipairs(order) do
         for i=1, #self.character_actions do
             local character_action = self.character_actions[i]
-            if character_action.action == action_string then
-                table.remove(self.character_actions,i)
-                i = i - 1
-                self:processAction(character_action)
-                return
+            if type(action_string) == "string" then
+                if character_action.action == action_string then
+                    table.remove(self.character_actions,i)
+                    i = i - 1
+                    self:processAction(character_action)
+                    return
+                end
+            else
+                -- If the table contains the action
+                -- Ex. if {"SPELL", "ITEM", "SPARE"} contains "SPARE"
+                if Utils.containsValue(action_string, character_action.action) then
+                    table.remove(self.character_actions,i)
+                    i = i - 1
+                    self:processAction(character_action)
+                    return
+                end
             end
         end
     end
@@ -234,9 +245,19 @@ function Battle:processAction(action)
     local enemy = action.target
     if action.action == "SPARE" then
         battler:setBattleSprite("spare", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
-        local text = "* " .. battler.info.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
-        if enemy.tired then
-            text = {text, "* (Try using Ralsei's [color:blue]PACIFY[color:reset]!)"}
+        local worked = enemy:onMercy()
+        local text
+        if worked then
+            text = "* " .. battler.info.name .. " spared " .. enemy.name .. "!"
+        else
+            text = "* " .. battler.info.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
+            if enemy.tired then
+                -- TODO: unhardcode!
+                text = {text, "* (Try using Ralsei's [color:blue]PACIFY[color:reset]!)"}
+                -- * (Try using Ralsei's [color:blue]PACIFY[color:reset]!)
+                -- * (Try using Noelle's [color:blue]SLEEPMIST[color:reset]!)
+                -- * (Try using [color:blue]ACT[color:reset]s!)
+            end
         end
         self:BattleText(text,
             (function() self:processCharacterActions() end)
