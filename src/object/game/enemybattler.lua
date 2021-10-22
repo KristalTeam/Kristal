@@ -38,6 +38,7 @@ function EnemyBattler:init(chara)
         }
     }
 
+    self.flash_siner = 0
 end
 function EnemyBattler:registerAct(name, description, party)
     local act = {
@@ -123,7 +124,6 @@ function EnemyBattler:statusMessage(type, arg)
     hit_count[self] = hit_count[self] + 1
 end
 
-
 function EnemyBattler:setCharacter(id)
     self.data = Registry.getCharacter(id)
 
@@ -138,6 +138,24 @@ function EnemyBattler:setCharacter(id)
     self:addChild(self.sprite)
 
     self.sprite:play(1/5, true)
+end
+
+function EnemyBattler:preDraw()
+    super:preDraw(self)
+    if Game.battle.state == "ENEMYSELECT" and Game.battle.enemies[Game.battle.current_menu_y] == self then
+        self.flash_siner = self.flash_siner + DTMULT
+        love.graphics.setShader(Kristal.Shaders["White"])
+        Kristal.Shaders["White"]:send("whiteAmount", -math.cos(self.flash_siner / 5) * 0.4 + 0.6)
+    else
+        self.flash_siner = 0
+    end
+end
+
+function EnemyBattler:postDraw()
+    if Game.battle.state == "ENEMYSELECT" and Game.battle.enemies[Game.battle.current_menu_y] == self then
+        love.graphics.setShader()
+    end
+    super:postDraw(self)
 end
 
 function EnemyBattler:setBattleSprite(sprite, speed, loop, after)

@@ -288,7 +288,6 @@ function Object:updateChildList()
 end
 
 function Object:updateChildren(dt)
-    self:getFullTransform(true) -- Cache the current transformation
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
@@ -300,6 +299,17 @@ function Object:updateChildren(dt)
     end
 end
 
+function Object:preDraw()
+    love.graphics.applyTransform(self:getTransform())
+    love.graphics.setColor(self:getDrawColor())
+    Draw.pushScissor()
+    self:applyScissor()
+end
+
+function Object:postDraw()
+    Draw.popScissor()
+end
+
 function Object:drawChildren()
     if self.update_child_list then
         self:updateChildList()
@@ -309,12 +319,9 @@ function Object:drawChildren()
     for _,v in ipairs(self.children) do
         if v.visible then
             love.graphics.push()
-            love.graphics.applyTransform(v:getTransform())
-            love.graphics.setColor(v:getDrawColor())
-            Draw.pushScissor()
-            v:applyScissor()
+            v:preDraw()
             v:draw()
-            Draw.popScissor()
+            v:postDraw()
             love.graphics.pop()
         end
     end
