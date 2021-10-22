@@ -20,7 +20,7 @@ function Hitbox:collidesWith(other)
 end
 
 function Hitbox:collideWithHitbox(other)
-    Utils.pushPerformance()
+    Utils.pushPerformance("Hitbox#collideWithHitbox")
 
     local tf1, tf2 = self:getTransformsWith(other)
 
@@ -43,7 +43,7 @@ function Hitbox:collideWithHitbox(other)
         x4, y4 = tf1:inverseTransformPoint(x4, y4)
     end
 
-    Utils.popPerformance("Hitbox#collideWithHitbox")
+    Utils.popPerformance()
 
     return (x1 > self.x and x1 < self.x + self.width and y1 > self.y and y1 < self.y + self.height) or
            (x2 > self.x and x2 < self.x + self.width and y2 > self.y and y2 < self.y + self.height) or

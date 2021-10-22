@@ -143,12 +143,12 @@ function love.load(args)
     love.update = Utils.hook(love.update, function(orig, ...)
         if PERFORMANCE_TEST_STAGE == "UPDATE" then
             PERFORMANCE_TEST = {}
-            Utils.pushPerformance()
+            Utils.pushPerformance("Total")
         end
         orig(...)
         Kristal.Overlay:update(...)
         if PERFORMANCE_TEST then
-            Utils.popPerformance("Total")
+            Utils.popPerformance()
             print("-------- PERFORMANCE --------")
             Utils.printPerformance()
             PERFORMANCE_TEST_STAGE = "DRAW"
@@ -158,7 +158,7 @@ function love.load(args)
     love.draw = Utils.hook(love.draw, function(orig, ...)
         if PERFORMANCE_TEST_STAGE == "DRAW" then
             PERFORMANCE_TEST = {}
-            Utils.pushPerformance()
+            Utils.pushPerformance("Total")
         end
 
         love.graphics.reset()
@@ -176,7 +176,7 @@ function love.load(args)
         Draw._clearUnusedCanvases()
 
         if PERFORMANCE_TEST then
-            Utils.popPerformance("Total")
+            Utils.popPerformance()
             Utils.printPerformance()
             PERFORMANCE_TEST_STAGE = nil
             PERFORMANCE_TEST = nil
