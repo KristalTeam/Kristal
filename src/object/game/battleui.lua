@@ -115,7 +115,7 @@ function BattleUI:drawState()
                 love.graphics.setColor(0, 178/255, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
             elseif enemy.mercy >= 100 then
-                love.graphics.setColor(0, 1, 1, 1)
+                love.graphics.setColor(1, 1, 0, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
             else
                 love.graphics.setColor(1, 1, 1, 1)

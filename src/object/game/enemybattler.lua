@@ -47,9 +47,50 @@ function EnemyBattler:registerAct(name, description, party)
     table.insert(self.acts, act)
 end
 
-function EnemyBattler:addMercy(...) print("TODO: implement!") end -- TODO
 function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
 function EnemyBattler:spare(...)    print("TODO: implement!") end -- TODO
+
+function EnemyBattler:addMercy(amount) -- TODO: finish
+    print("TODO: finish")
+
+    self.mercy = self.mercy + amount
+    if (self.mercy < 0) then
+        self.mercy = 0
+    end
+
+    if (self.mercy >= 100) then
+        self.mercy = 100
+    end
+
+    if (amount > 0) then
+        local pitch = 0.8
+        if (amount < 99) then pitch = 1 end
+        if (amount <= 50) then pitch = 1.2 end
+        if (amount <= 25) then pitch = 1.4 end
+
+        local src = love.audio.newSource("assets/sounds/snd_mercyadd.wav", "static")
+        src:setVolume(0.8)
+        src:setPitch(pitch)
+        src:play()
+    end
+
+
+    --[[
+    if i_ex(obj_dmgwriter)
+    {
+        with (obj_dmgwriter)
+        {
+            if (type == 5)
+                _playsound = false
+        }
+    }
+
+    __mercydmgwriter = instance_create(global.monsterx[argument0], ((global.monstery[argument0] + 20) - (global.hittarget[argument0] * 20)), obj_dmgwriter)
+    __mercydmgwriter.damage = argument1
+    __mercydmgwriter.type = 5
+    global.hittarget[argument0] = (global.hittarget[argument0] + 1)
+    ]]
+end
 
 function EnemyBattler:onMercy()
     if self.mercy >= 100 then
