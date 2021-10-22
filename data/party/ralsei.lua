@@ -19,14 +19,14 @@ return PartyMember{
     spells = {"pacify", "heal_prayer"},
 
     -- Current health (saved to the save file)
-    health = 80,
+    health = 100,
 
     -- Base stats (saved to the save file)
     stats = {
-        health = 80,
+        health = 100,
         attack = 10,
         defense = 2,
-        magic = 0
+        magic = 9
     },
 
     -- Weapon icon in equip menu
