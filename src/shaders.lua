@@ -29,7 +29,7 @@ Shaders["White"] = love.graphics.newShader([[
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
     {
         vec4 outputcolor = Texel(texture, texture_coords) * color;
-        outputcolor.rgb += vec3(whiteAmount);
+        outputcolor.rgb += (vec3(1, 1, 1) - outputcolor.rgb) * whiteAmount;
         return outputcolor;
     }
 ]])
