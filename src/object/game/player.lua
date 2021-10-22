@@ -66,6 +66,12 @@ function Player:update(dt)
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
+
+        for _,follower in ipairs(Game.followers) do
+            if follower.target == self and follower.following then
+                follower:interprolate()
+            end
+        end
     end
 
     super:update(self, dt)

@@ -30,7 +30,7 @@ return PartyMember{
     },
 
     -- Weapon icon in equip menu
-    weapon_icon = "scarf",
+    weapon_icon = "ui/menu/equip/scarf",
 
     -- Equipment (saved to the save file)
     equipped = {

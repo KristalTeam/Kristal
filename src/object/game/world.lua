@@ -267,12 +267,14 @@ function World:getTransform()
 end
 
 function World:sortChildren()
+    Utils.pushPerformance()
     -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(self, a.width/2, a.height)
         local bx, by = b:getRelativePos(self, b.width/2, b.height)
         return math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))
     end)
+    Utils.popPerformance("World#sortChildren")
 end
 
 function World:update(dt)

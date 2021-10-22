@@ -8,9 +8,6 @@ function Follower:init(chara, x, y, target)
     self.index = 1
     self.target = target or Game.world.player
 
-    self.last_target_x = nil
-    self.last_target_y = nil
-
     self.following = true
 end
 
@@ -67,17 +64,6 @@ end
 
 function Follower:update(dt)
     self:updateIndex()
-
-    local ex, ey = self.target:getExactPosition()
-
-    if self.last_target_x then
-        local moved = ex ~= self.last_target_x or ey ~= self.last_target_y
-        if moved and self.following and self.target then
-            self:interprolate()
-        end
-    end
-    self.last_target_x = ex
-    self.last_target_y = ey
 
     super:update(self, dt)
 end
