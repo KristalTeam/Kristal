@@ -284,5 +284,15 @@ function Utils.printPerformance()
     end
 end
 
+function Utils.merge_color(start_color, end_color, amount)
+    local color = {
+        Utils.lerp(start_color[1],      end_color[1],      amount),
+        Utils.lerp(start_color[2],      end_color[2],      amount),
+        Utils.lerp(start_color[3],      end_color[3],      amount),
+        Utils.lerp(start_color[4] or 1, end_color[4] or 1, amount)
+    }
+    return color
+end
+
 
 return Utils

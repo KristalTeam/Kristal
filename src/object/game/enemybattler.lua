@@ -90,6 +90,11 @@ function EnemyBattler:addMercy(amount) -- TODO: finish
     __mercydmgwriter.type = 5
     global.hittarget[argument0] = (global.hittarget[argument0] + 1)
     ]]
+
+    local heck = DamageNumber(200, 200)
+    heck.damage = 100
+    heck.type = 5
+    self.parent:addChild(heck)
 end
 
 function EnemyBattler:onMercy()

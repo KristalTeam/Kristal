@@ -84,11 +84,14 @@ function Battle:postInit(state, encounter)
     self.encounter = encounter()
 
     for _,enemy in ipairs(self.encounter.enemies) do
+        local enemy_obj
         if type(enemy) == "string" then
-            table.insert(self.enemies, Registry.createEnemy(enemy))
+            enemy_obj = Registry.createEnemy(enemy)
         else
-            table.insert(self.enemies, enemy)
+            enemy_obj = enemy
         end
+        table.insert(self.enemies, enemy_obj)
+        self:addChild(enemy_obj)
     end
 
     if state == "TRANSITION" then

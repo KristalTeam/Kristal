@@ -74,6 +74,7 @@ EnemyBattler = require("src.object.game.enemybattler")
 BattleUI = require("src.object.game.battleui")
 ActionBox = require("src.object.game.actionbox")
 TensionBar = require("src.object.game.tensionbar")
+DamageNumber = require("src.object.game.damagenumber")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
