@@ -7,6 +7,9 @@ function AfterImage:init(sprite, fade, lifetime)
     self.lifetime = lifetime or ((5/6) * self.fade)
     self.time_alive = 0
 
+    self.speed_x = 0
+    self.speed_y = 0
+
     self.sprite = sprite
 
     self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -55,6 +58,8 @@ function AfterImage:onRemove()
 end
 
 function AfterImage:update(dt)
+    self.x = self.x + (self.speed_x * DTMULT)
+    self.y = self.y + (self.speed_y * DTMULT)
     self.time_alive = Utils.approach(self.time_alive, self.lifetime, dt)
     if self.time_alive == self.lifetime then
         self:remove()

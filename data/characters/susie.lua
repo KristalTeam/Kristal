@@ -23,12 +23,13 @@ return {
         ["battle/dark_bangs/attack"] = {26, 25},
         ["battle/dark_bangs/attackready"] = {26, 25},
         ["battle/dark_bangs/act"] = {26, 25},
+        ["battle/dark_bangs/actend"] = {26, 25},
         ["battle/dark_bangs/actready"] = {26, 25},
         ["battle/dark_bangs/spell"] = {22, 30},
         ["battle/dark_bangs/spellready"] = {22, 30},
         ["battle/dark_bangs/item"] = {22, 1},
         ["battle/dark_bangs/itemready"] = {22, 1},
-        ["battle/dark_bangs/defend"] = {19, 23},
+        ["battle/dark_bangs/defend"] = {20, 23},
 
         ["battle/dark_bangs/defeat"] = {22, 1},
         ["battle/dark_bangs/hurt"] = {22, 1},
@@ -44,6 +45,7 @@ return {
 
         attack          = "battle/dark_bangs/attack",
         act             = "battle/dark_bangs/act",
+        act_end         = "battle/dark_bangs/actend",
         spell           = "battle/dark_bangs/spell",
         item            = "battle/dark_bangs/item",
         spare           = "battle/dark_bangs/spell",

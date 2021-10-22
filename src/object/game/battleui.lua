@@ -69,7 +69,25 @@ function BattleUI:drawActionArena()
 end
 
 function BattleUI:drawState()
-    if Game.battle.state == "ENEMYSELECT" then
+    if Game.battle.state == "MENUSELECT" then
+        local x = 0
+        local y = 0
+        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + (Game.battle.current_menu_y * 30))
+
+        local font = Assets.getFont("main")
+        love.graphics.setFont(font)
+        for index, item in ipairs(Game.battle.menu_items) do
+            love.graphics.setColor(item.color)
+            love.graphics.print(item.name, 30 + (x * 230), 50 + (y * 30))
+            if x == 0 then
+                x = 1
+            else
+                x = 0
+                y = y + 1
+            end
+        end
+    elseif Game.battle.state == "ENEMYSELECT" then
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))
 

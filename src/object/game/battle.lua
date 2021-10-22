@@ -45,7 +45,7 @@ function Battle:init()
     self.offset = 0
 
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ENEMYDIALOGUE, DEFENDING
-    -- ENEMYSELECT, ACTMENU, SPELLMENU, ITEMMENU, XACTMENU, PARTYSELECT
+    -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
     self.state = "NONE"
 
@@ -62,12 +62,21 @@ function Battle:init()
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
 
+    self.battletext_table = nil
+    self.battletext_index = 1
+
     self.current_menu_x = 1
     self.current_menu_y = 1
 
     self.enemies = {}
 
     self.state_reason = nil
+
+    self.menu_items = {}
+
+    self.selected_enemy = 1
+
+    self.current_acting = nil
 end
 
 function Battle:postInit(state, encounter)
@@ -135,14 +144,24 @@ function Battle:onStateChange(old,new)
             battler:setBattleSprite("intro", 1/15, true)
         end
     elseif new == "ACTIONSELECT" then
-        if old == "DEFENDING" then
+        if (old == "DEFENDING") or (old == "INTRO") or (self.current_selecting < 1) or (self.current_selecting > #self.party) then
             self.current_selecting = 1
             self.current_button = 1
+            if self.battle_ui then
+                for _,box in ipairs(self.battle_ui.action_boxes) do
+                    box.selected_button = 1
+                end
+                self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
+            end
+            for _,battler in ipairs(self.party) do
+                battler:setBattleSprite("idle", 1/5, true)
+            end
         end
 
-        for _,battler in ipairs(self.party) do
-            battler:setBattleSprite("idle", 1/5, true)
+        if self.state_reason == "CANCEL" then
+            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
+
         if not self.music then
             if not self.music_file then
                 self.music = love.audio.newSource("assets/music/battle.ogg", "stream")
@@ -153,7 +172,7 @@ function Battle:onStateChange(old,new)
         end
 
         self.music:setLooping(true)
-        self.music:play()
+        --self.music:play()
 
         if not self.battle_ui then
             self.battle_ui = BattleUI()
@@ -164,17 +183,37 @@ function Battle:onStateChange(old,new)
             self:addChild(self.tension_bar)
         end
     elseif new == "ACTING" then
-        self:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
+        print("ENTERED ACTING STATE")
+        if self.state_reason ~= "DONTPROCESS" then
+            self:finishAct()
+        end
+        --self:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
     elseif new == "ENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_y = 1
+        self.selected_enemy = 1
+    elseif new == "MENUSELECT" then
+        self.battle_ui.encounter_text:setText("")
+        self.current_menu_x = 1
+        self.current_menu_y = 1
+        self.menu_items = {}
     end
 end
 
 function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
 
+function Battle:finishAct()
+    local battler = self.current_acting
+
+    if battler.sprite.sprite == battler.info.battle.act then
+        battler:setBattleSprite("act_end", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
+    end
+    self.current_acting = false
+    self:processCharacterActions()
+end
+
 function Battle:processCharacterActions()
-    local order = {"ACT", "SPARE", "ITEM", "FIGHT"}
+    local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK"}
     for _,action_string in ipairs(order) do
         for i=1, #self.character_actions do
             local character_action = self.character_actions[i]
@@ -186,6 +225,8 @@ function Battle:processCharacterActions()
             end
         end
     end
+    print("ALL ACTIONS DONE, GO TO STATE")
+    self:setState("ACTIONSELECT")
 end
 
 function Battle:processAction(action)
@@ -200,6 +241,23 @@ function Battle:processAction(action)
         self:BattleText(text,
             (function() self:processCharacterActions() end)
         )
+    elseif action.action == "ATTACK" then
+        battler:setBattleSprite("attack", 1/15, false)
+        self:BattleText("* " .. battler.info.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
+            (function() self:processCharacterActions() end)
+        )
+    elseif action.action == "ACT" then
+        battler:setBattleSprite("act", 1/15, false)
+        self:setState("ACTING", "DONTPROCESS")
+        print("LET'S TRY TO ACT!!!")
+        print(action.name)
+        self.current_acting = battler
+        enemy:onAct(battler, action.name)
+    else
+        -- we don't know how to handle this...
+        -- go back!!!
+        print("UNKNOWN ACTION " .. action.action .. ", SKIPPING")
+        self:processCharacterActions()
     end
 end
 
@@ -213,10 +271,11 @@ end
 
 function Battle:nextParty()
     self.current_selecting = self.current_selecting + 1
-    if self.current_selecting > 3 then
+    if self.current_selecting > #self.party then
         self.current_action_processing = 1
-        self:processCharacterActions()
         self.current_selecting = 0
+        print("PROCESSING ACTIONS")
+        self:processCharacterActions()
     else
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
@@ -226,11 +285,22 @@ function Battle:nextParty()
 end
 
 function Battle:BattleText(text,post_func)
-    self.battle_ui.encounter_text:setText(text)
+    self.battletext_index = 1
+    if type(text) == "table" then
+        self.battletext_table = text
+        self.battle_ui.encounter_text:setText(text[1])
+    else
+        self.battletext_table = nil
+        self.battle_ui.encounter_text:setText(text)
+    end
     self.post_battletext_func = post_func
     self.post_battletext_state = self:getState()
     self:setState("BATTLETEXT")
-    print("BATTLE TEXT: " .. text)
+    if type(text) == "table" then
+        print("BATTLE TEXT: " .. Utils.dump(text))
+    else
+        print("BATTLE TEXT: " .. text)
+    end
 end
 
 function Battle:update(dt)
@@ -322,14 +392,91 @@ end
 
 function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
-    if self.state == "ENEMYSELECT" then
+    if self.state == "MENUSELECT" then
+        local menu_width = 2
+        local menu_height = math.ceil(#self.menu_items / 2)
+
         if key == "z" then
+            self.ui_select:stop()
+            self.ui_select:play()
+            if self.state_reason == "ACT" then
+                table.insert(self.character_actions,
+                    {
+                        ["character_id"] = self.current_selecting,
+                        ["action"] = "ACT",
+                        ["name"] = self.menu_items[2 * (self.current_menu_y - 1) + self.current_menu_x].name,
+                        ["target"] = self.enemies[self.selected_enemy]
+                    }
+                )
+                self:nextParty()
+                return
+            end
+        elseif key == "x" then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self:setState("ACTIONSELECT", "CANCEL")
+            return
+        elseif key == "left" then -- TODO: pagination... also rewrite this code, im so sorry
+            self.current_menu_x = self.current_menu_x - 1
+            if self.current_menu_x < 1 then
+                self.current_menu_x = menu_width
+                if (self.current_menu_y + menu_width) > #self.menu_items then
+                    self.current_menu_x = 1
+                end
+            end
+        elseif key == "right" then
+            self.current_menu_x = self.current_menu_x + 1
+            if (self.current_menu_x > menu_width) or ((self.current_menu_y + menu_width) > #self.menu_items) then
+                self.current_menu_x = 1
+            end
+        end
+        if key == "up" then
+            self.current_menu_y = self.current_menu_y - 1
+            if self.current_menu_y < 1 then
+                self.current_menu_y = 1 -- No wrapping in this menu.
+            end
+        elseif key == "down" then
+            self.current_menu_y = self.current_menu_y + 1
+            if (self.current_menu_y > menu_height) or ((self.current_menu_x + menu_height) > #self.menu_items) then
+                self.current_menu_y = menu_height -- No wrapping in this menu.
+                if (self.current_menu_x + menu_height) > #self.menu_items then
+                    self.current_menu_y = menu_height - 1
+                end
+            end
+        end
+    elseif self.state == "ENEMYSELECT" then
+        if key == "z" then
+            self.ui_select:stop()
+            self.ui_select:play()
+            self.selected_enemy = self.current_menu_y
             if self.state_reason == "SPARE" then
                 table.insert(self.character_actions,
                     {
                         ["character_id"] = self.current_selecting,
                         ["action"] = "SPARE",
-                        ["target"] = self.enemies[self.current_menu_y]
+                        ["target"] = self.enemies[self.selected_enemy]
+                    }
+                )
+                self:nextParty()
+            elseif self.state_reason == "ACT" then
+                self:setState("MENUSELECT", "ACT")
+                local enemy = self.enemies[self.selected_enemy]
+                for _,v in ipairs(enemy.acts) do
+                    local item = {
+                        ["name"] = v.name,
+                        ["tp"] = 0,
+                        ["party"] = v.party,
+                        ["color"] = {1, 1, 1, 1}
+                    }
+                    table.insert(self.menu_items, item)
+                end
+            elseif self.state_reason == "ATTACK" then
+                self.party[self.current_selecting]:setBattleSprite("attack_ready")
+                table.insert(self.character_actions,
+                    {
+                        ["character_id"] = self.current_selecting,
+                        ["action"] = "ATTACK",
+                        ["target"] = self.enemies[self.selected_enemy]
                     }
                 )
                 self:nextParty()
@@ -339,8 +486,9 @@ function Battle:keypressed(key)
             return
         end
         if key == "x" then
-            self:setState("ACTIONSELECT")
-            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
+            self.ui_move:stop()
+            self.ui_move:play()
+            self:setState("ACTIONSELECT", "CANCEL")
             return
         end
         if key == "up" then
@@ -357,11 +505,18 @@ function Battle:keypressed(key)
     elseif self.state == "BATTLETEXT" then
         if key == "z" then
             if not self.battle_ui.encounter_text.state.typing then
+                if self.battletext_table ~= nil then
+                    self.battletext_index = self.battletext_index + 1
+                    if self.battletext_index <= #self.battletext_table then
+                        self.battle_ui.encounter_text:setText(self.battletext_table[self.battletext_index])
+                        return
+                    end
+                end
                 self.battle_ui.encounter_text:setText("")
                 if self.post_battletext_func then
                     self:post_battletext_func()
                 else
-                    self:setState(self.post_battletext_state)
+                    self:setState(self.post_battletext_state, "BATTLETEXT")
                 end
             end
         end
@@ -374,6 +529,8 @@ function Battle:keypressed(key)
             return
         elseif key == "x" then
             if Game.battle.current_selecting > 1 then
+                self.ui_move:stop()
+                self.ui_move:play()
                 Game.battle.current_selecting = Game.battle.current_selecting - 1
                 self.battle_ui.action_boxes[self.current_selecting]:unselect()
             end

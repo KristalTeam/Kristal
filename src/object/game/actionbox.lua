@@ -36,8 +36,10 @@ function ActionBox:draw()
 end
 
 function ActionBox:select()
-    if self.selected_button == 1 or self.selected_button == 2 then
-        Game.battle:setState("ENEMYSELECT")
+    if self.selected_button == 1 then
+        Game.battle:setState("ENEMYSELECT", "ATTACK")
+    elseif self.selected_button == 2 then
+        Game.battle:setState("ENEMYSELECT", "ACT")
     elseif self.selected_button == 4 then
         Game.battle:setState("ENEMYSELECT", "SPARE")
 
@@ -56,6 +58,8 @@ function ActionBox:unselect()
         self.battler.defending = false
         Game.battle.tension_bar:removeTension(self.revert_to)
     elseif self.selected_button == 4 then -- TODO: unhardcode!
+        Game.battle:removeAction(Game.battle.current_selecting)
+    elseif self.selected_button == 2 then -- TODO: unhardcode!
         Game.battle:removeAction(Game.battle.current_selecting)
     end
 end

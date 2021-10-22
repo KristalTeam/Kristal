@@ -18,7 +18,7 @@ function FlashFade:draw()
     love.graphics.setColor(1, 1, 1, math.sin(self.siner / 3))
 
     if self.texture then
-        love.graphics.draw(self.texture)
+        super:draw(self)
     end
 
     love.graphics.setColor(1, 1, 1, 1)

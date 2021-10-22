@@ -17,6 +17,7 @@ return {
         ["battle/dark/attack"] = {8, 0},
         ["battle/dark/attackready"] = {0, 0},
         ["battle/dark/act"] = {0, 0},
+        ["battle/dark/actend"] = {0, 0},
         ["battle/dark/actready"] = {0, 0},
         ["battle/dark/spell"] = {3, 0},
         ["battle/dark/spellready"] = {0, 0},
@@ -37,6 +38,7 @@ return {
 
         attack = "battle/dark/attack",
         act = "battle/dark/act",
+        act_end = "battle/dark/actend",
         spell = "battle/dark/spell",
         item = "battle/dark/item",
         spare = "battle/dark/act",

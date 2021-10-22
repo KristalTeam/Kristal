@@ -1,11 +1,19 @@
-local EnemyBattler = Class()
+local EnemyBattler, super = Class(Object)
 
 function EnemyBattler:init()
+    super:init(self)
     self.name = "Test Enemy"
     self.id = "test_enemy" -- Optional, defaults to file name
 
     self.path = "enemies/virovirokun"
     self.default = "idle"
+
+    self.layer = -10
+
+    --self.sprite = Sprite()
+
+    self:setOrigin(0.5, 1)
+    self:setScale(2)
 
     self.hp = 0
     self.attack = 0
@@ -21,16 +29,35 @@ function EnemyBattler:init()
         "* Test Enemy is testing."
     }
 
-    self:registerAct("TakeCareX", "", {"susie", "ralsei"})
+    self.acts = {
+        {
+            ["name"] = "Check",
+            ["description"] = "",
+            ["party"] = {}
+        }
+    }
+
+end
+function EnemyBattler:registerAct(name, description, party)
+    local act = {
+        ["name"] = name,
+        ["description"] = description,
+        ["party"] = party
+    }
+    table.insert(self.acts, act)
 end
 
-function EnemyBattler:registerAct(...) print("TODO: implement!") end -- TODO
 function EnemyBattler:addMercy(...)    print("TODO: implement!") end -- TODO
 function EnemyBattler:setText(...)     print("TODO: implement!") end -- TODO
 
 function EnemyBattler:onCheck(battler) end
 
-function EnemyBattler:onAct(name) end
+function EnemyBattler:onAct(battler, name)
+    if name == "Check" then
+        self:onCheck(battler)
+        Game.battle:BattleText("* " .. self.name .. " - " .. self.check)
+    end
+end
 
 function EnemyBattler:getXAction(battler)
     return "Standard"
