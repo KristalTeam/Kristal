@@ -207,6 +207,10 @@ function Character:setSprite(sprite)
     self.sprite:setSprite(sprite)
 end
 
+function Character:setCustomSprite(sprite, ox, oy)
+    self.sprite:setCustomSprite(sprite, ox, oy)
+end
+
 function Character:play(speed, loop, reset, on_finished)
     self.sprite:play(speed, loop, reset, on_finished)
 end

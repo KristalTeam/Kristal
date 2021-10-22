@@ -4,6 +4,7 @@ function CharacterSprite:init(chara)
     self.info = chara
     self.path = chara.path or ""
     self.sprite = nil
+    self.full_sprite = nil
     self.facing = "down"
     self.last_facing = "down"
 
@@ -27,40 +28,68 @@ function CharacterSprite:getPath(name)
     end
 end
 
-function CharacterSprite:setSprite(texture)
+function CharacterSprite:setCustomSprite(texture, ox, oy)
     if type(texture) ~= "string" then
         error("Texture must be a string")
     end
 
-    self.sprite = texture
-    self.directional, self.dir_sep = self:isDirectional(texture)
+    self.force_offset = {ox or 0, oy or 0}
+
+    self.full_sprite = texture
+    self.directional, self.dir_sep = self:isDirectional(self.full_sprite)
 
     if self.directional then
         self.loop = true
-        super:setSprite(self, self:getPath(texture)..self.dir_sep..self.facing)
+        super:setSprite(self, self.full_sprite..self.dir_sep..self.facing)
     else
         self.walk_frame = 1
-        super:setSprite(self, self:getPath(texture))
+        super:setSprite(self, self.full_sprite)
+    end
+end
+
+function CharacterSprite:setSprite(texture, ox, oy)
+    if type(texture) ~= "string" then
+        error("Texture must be a string")
+    end
+
+    if ox and oy then
+        self.force_offset = {ox, oy}
+    else
+        self.force_offset = nil
+    end
+
+    self.sprite = texture
+    self.full_sprite = self:getPath(texture)
+    self.directional, self.dir_sep = self:isDirectional(self.full_sprite)
+
+    if self.directional then
+        self.loop = true
+        super:setSprite(self, self.full_sprite..self.dir_sep..self.facing)
+    else
+        self.walk_frame = 1
+        super:setSprite(self, self.full_sprite)
     end
 end
 
 function CharacterSprite:updateDirection()
     if self.directional and self.last_facing ~= self.facing then
-        super:setSprite(self, self:getPath(self.sprite)..self.dir_sep..self.facing)
+        super:setSprite(self, self.full_sprite..self.dir_sep..self.facing)
     end
     self.last_facing = self.facing
 end
 
 function CharacterSprite:isDirectional(texture)
-    local path = self:getPath(texture)
-    if Assets.getTexture(path.."_left") or Assets.getFrames(path.."_left") then
+    if Assets.getTexture(texture.."_left") or Assets.getFrames(texture.."_left") then
         return true, "_"
-    elseif Assets.getTexture(path.."/left") or Assets.getFrames(path.."/left") then
+    elseif Assets.getTexture(texture.."/left") or Assets.getFrames(texture.."/left") then
         return true, "/"
     end
 end
 
 function CharacterSprite:getOffset()
+    if self.force_offset then
+        return self.force_offset
+    end
     local frames_for = Assets.getFramesFor(self.sprite)
     local frames_for_dir = self.directional and Assets.getFramesFor(self.sprite..self.dir_sep..self.facing)
     return self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or

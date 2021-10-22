@@ -34,4 +34,11 @@ function PartyBattler:setSprite(sprite, speed, loop, after)
     end
 end
 
+function PartyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
+    self.sprite:setCustomSprite(sprite, ox, oy)
+    if not self.sprite.directional then
+        self.sprite:play(speed or (1/15), loop, false, after)
+    end
+end
+
 return PartyBattler
