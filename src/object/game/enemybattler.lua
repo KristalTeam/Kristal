@@ -3,7 +3,6 @@ local EnemyBattler, super = Class(Object)
 function EnemyBattler:init()
     super:init(self)
     self.name = "Test Enemy"
-    self.id = "test_enemy" -- Optional, defaults to file name
 
     self.path = "enemies/virovirokun"
     self.default = "idle"

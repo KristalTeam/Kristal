@@ -38,7 +38,7 @@ function DamageNumber:init(type, arg, x, y, color)
         self.texture = Assets.getTexture("ui/battle/msg/"..self.message)
         self.width = self.texture:getWidth()
         self.height = self.texture:getHeight()
-    elseif self.type == "mercy" then
+    elseif self.text then
         self.width = self.font:getWidth(self.text)
         self.height = self.font:getHeight()
     end

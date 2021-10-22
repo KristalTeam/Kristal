@@ -23,7 +23,7 @@ function Virovirokun:init()
 
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", {"susie", "ralsei"})
-
+    self:registerAct("Quarantine")
 end
 
 function Virovirokun:onAct(battler, name)
@@ -45,7 +45,14 @@ function Virovirokun:onAct(battler, name)
         battler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
         self:addMercy(100)
         Game.battle:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
-        self:setText("Just what the\ndoctor ordered!")
+        self:setText("(Just what the)\ndoctor ordered!")
+    elseif name == "Quarantine" then
+        self.tired = true
+        Game.battle:BattleText("* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]...")
+        self:setText("Fine...")
+
+        --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.info.dmg_color)
+        --self.parent:addChild(heck)
     elseif name == "TakeCareX" then
         for _,ibattler in ipairs(Game.battle.party) do
             local id = ibattler.info.id

@@ -174,7 +174,7 @@ function Battle:onStateChange(old,new)
             end
         end
 
-        self.music:setLooping(true)
+        --self.music:setLooping(true)
         --self.music:play()
 
         if not self.battle_ui then
