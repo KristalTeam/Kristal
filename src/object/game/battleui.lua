@@ -77,9 +77,23 @@ function BattleUI:drawState()
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
-        for index, item in ipairs(Game.battle.menu_items) do
+        for _, item in ipairs(Game.battle.menu_items) do
+            love.graphics.setColor(1, 1, 1, 1)
+            local text_offset = 0
+            if item.party then
+                for index, party_id in ipairs(item.party) do
+                    local party_member = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+                    --             love.graphics.draw(Assets.getTexture("party/" .. self.battler.info.id .. "/icon/head"), 12, 11 - self.box_y_offset)
+                    --if party_member then
+                    --    love.graphics.draw(party_member.sprite, x + (index - 1) * 30, y)
+                    --end
+                    love.graphics.draw(Assets.getTexture("party/" .. party_member.info.id .. "/icon/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
+                    text_offset = text_offset + 30
+                end
+            end
+
             love.graphics.setColor(item.color)
-            love.graphics.print(item.name, 30 + (x * 230), 50 + (y * 30))
+            love.graphics.print(item.name, text_offset + 30 + (x * 230), 50 + (y * 30))
             if x == 0 then
                 x = 1
             else

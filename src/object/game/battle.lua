@@ -213,13 +213,16 @@ function Battle:finishAct()
 
     if battler.sprite.sprite == battler.info.battle.act then
         battler:setBattleSprite("act_end", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
+    else
+        battler:setBattleSprite("idle", 1/5, true)
     end
+
     self.current_acting = false
     self:processCharacterActions()
 end
 
 function Battle:processCharacterActions()
-    local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK"}
+    local order = {"SKIP", "ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK"}
     for _,action_string in ipairs(order) do
         for i=1, #self.character_actions do
             local character_action = self.character_actions[i]
@@ -248,6 +251,7 @@ end
 
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
+    print("PROCESSING " .. battler.info.name .. "'S ACTION " .. action.action)
     local enemy = action.target
     if action.action == "SPARE" then
         battler:setBattleSprite("spare", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
@@ -280,6 +284,9 @@ function Battle:processAction(action)
         print(action.name)
         self.current_acting = battler
         enemy:onAct(battler, action.name)
+    elseif action.action == "SKIP" then
+        print("skipped!")
+        self:processCharacterActions()
     else
         -- we don't know how to handle this...
         -- go back!!!
@@ -296,8 +303,28 @@ function Battle:removeAction(character_id)
     end
 end
 
+function Battle:getPartyIndex(string_id) -- TODO: this only returns the first one... what if someone has two Susies?
+    for index, battler in ipairs(self.party) do
+        if battler.info.id == string_id then
+            return index
+        end
+    end
+end
+
+function Battle:hasAction(character_id)
+    for _,action in ipairs(self.character_actions) do
+        if action.character_id == character_id then
+            return true
+        end
+    end
+    return false
+end
+
 function Battle:nextParty()
     self.current_selecting = self.current_selecting + 1
+    while (self:hasAction(self.current_selecting)) do
+        self.current_selecting = self.current_selecting + 1
+    end
     if self.current_selecting > #self.party then
         self.current_action_processing = 1
         self.current_selecting = 0
@@ -427,14 +454,26 @@ function Battle:keypressed(key)
             self.ui_select:stop()
             self.ui_select:play()
             if self.state_reason == "ACT" then
+                local menu_item = self.menu_items[2 * (self.current_menu_y - 1) + self.current_menu_x]
                 table.insert(self.character_actions,
                     {
                         ["character_id"] = self.current_selecting,
                         ["action"] = "ACT",
-                        ["name"] = self.menu_items[2 * (self.current_menu_y - 1) + self.current_menu_x].name,
+                        ["party"] = menu_item.party,
+                        ["name"] = menu_item.name,
                         ["target"] = self.enemies[self.selected_enemy]
                     }
                 )
+                if menu_item.party then
+                    for _,v in ipairs(menu_item.party) do
+                        table.insert(self.character_actions,
+                            {
+                                ["character_id"] = self:getPartyIndex(v),
+                                ["action"] = "SKIP",
+                            }
+                        )
+                    end
+                end
                 self:nextParty()
                 return
             end

@@ -51,8 +51,15 @@ end
 function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
 function EnemyBattler:spare(...)    print("TODO: implement!") end -- TODO
 
-function EnemyBattler:addMercy(amount) -- TODO: finish
-    print("TODO: finish")
+function EnemyBattler:onSpareable()
+    self:setBattleSprite("spared", 1/15, false)
+end
+
+function EnemyBattler:addMercy(amount)
+    if (self.mercy >= 100) then
+        -- We're already at full mercy; do nothing.
+        return
+    end
 
     self.mercy = self.mercy + amount
     if (self.mercy < 0) then
@@ -60,7 +67,7 @@ function EnemyBattler:addMercy(amount) -- TODO: finish
     end
 
     if (self.mercy >= 100) then
-        self:setBattleSprite("spared", 1/15, false)
+        self:onSpareable()
         self.mercy = 100
     end
 

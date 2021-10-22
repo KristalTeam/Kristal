@@ -26,6 +26,8 @@ function Virovirokun:init()
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", {"susie", "ralsei"})
     self:registerAct("Quarantine")
+
+    self.text_override = nil
 end
 
 function Virovirokun:onAct(battler, name)
@@ -47,11 +49,10 @@ function Virovirokun:onAct(battler, name)
         battler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
         self:addMercy(100)
         Game.battle:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
-        self:setText("(Just what the)\ndoctor ordered!")
     elseif name == "Quarantine" then
         self.tired = true
         Game.battle:BattleText("* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]...")
-        self:setText("Fine...")
+        self.text_override = "Fine..."
 
         --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.info.dmg_color)
         --self.parent:addChild(heck)
@@ -63,14 +64,44 @@ function Virovirokun:onAct(battler, name)
         for _,enemy in ipairs(Game.battle.enemies) do
             if enemy.id == "virovirokun" then
                 enemy:addMercy(100)
-                --enemy:setText("Just what the\ndoctor ordered!")
             else
                 enemy:addMercy(50)
             end
         end
-        Game.battle:BattleText("* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!")
+        Game.battle:BattleText("* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!",
+                                (function()
+                                    for _,ibattler in ipairs(Game.battle.party) do
+                                        ibattler:setBattleSprite("idle", 1/5, true)
+                                    end
+                                    Game.battle:finishAct()
+                                end)
+                              )
     end
     super:onAct(self, battler, name)
+end
+
+function Virovirokun:getEnemyDialogue()
+    if self.text_override then
+        local dialogue = self.text_override
+        self.text_override = nil
+        return dialogue
+    end
+
+    local dialogue
+    if self.mercy >= 100 then
+        dialogue = {
+            "Just what the\ndoctor ordered!",
+            "Kindness is\ncontagious!"
+        }
+    else
+        dialogue = {
+            "Don't let\nthis bug ya!",
+            "Happy new\nyear 1997!",
+            "I've got a love\nletter for you.",
+            "I'm the fever,\nI'm the chill."
+        }
+    end
+    return dialogue[math.random(#dialogue)]
 end
 
 function Virovirokun:onXAction(battler, name)
