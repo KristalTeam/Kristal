@@ -22,33 +22,35 @@ function Game:enter(previous_state)
 
     if MOD and MOD.map then
         self.world:loadMap(MOD.map)
-        self.world:spawnPlayer("spawn", MOD.party and MOD.party[1] or "kris")
+    end
 
-        if MOD.party then
-            for i = 2, #MOD.party do
-                local follower = Follower(Registry.getCharacter(MOD.party[i]), self.world.player.x, self.world.player.y)
-                self.world:addChild(follower)
-            end
+    self.world:spawnPlayer("spawn", MOD.party and MOD.party[1] or "kris")
+    if MOD.party then
+        for i = 2, #MOD.party do
+            local follower = Follower(Registry.getCharacter(MOD.party[i]), self.world.player.x, self.world.player.y)
+            self.world:addChild(follower)
         end
+    end
 
-        if previous_state == Kristal.States["DarkTransition"] then
-            local px, py = self.world.player:getScreenPos()
-            local kx, ky = previous_state.kris_sprite:localToScreenPos(previous_state.kris_width / 2, 0)
+    if previous_state == Kristal.States["DarkTransition"] then
+        self.started = false
 
-            previous_state.final_y = py / 2
+        local px, py = self.world.player:getScreenPos()
+        local kx, ky = previous_state.kris_sprite:localToScreenPos(previous_state.kris_width / 2, 0)
 
-            self.world.player:setScreenPos(kx, py)
-            self.world.player.visible = false
+        previous_state.final_y = py / 2
 
-            if not previous_state.kris_only and self.followers[1] then
-                local sx, sy = previous_state.susie_sprite:localToScreenPos(previous_state.susie_width / 2, 0)
+        self.world.player:setScreenPos(kx, py)
+        self.world.player.visible = false
 
-                self.followers[1]:setScreenPos(sx, py)
-                self.followers[1].visible = false
-            end
+        if not previous_state.kris_only and self.followers[1] then
+            local sx, sy = previous_state.susie_sprite:localToScreenPos(previous_state.susie_width / 2, 0)
 
-            self.started = false
+            self.followers[1]:setScreenPos(sx, py)
+            self.followers[1].visible = false
         end
+    elseif MOD.encounter then
+        self:encounter(MOD.encounter, false)
     end
 
     Kristal.modCall("Init")
@@ -85,6 +87,9 @@ function Game:update(dt)
         end
         for _,follower in ipairs(self.followers) do
             follower.visible = true
+        end
+        if MOD.encounter then
+            self:encounter(MOD.encounter, self.world.player ~= nil)
         end
     end
 
