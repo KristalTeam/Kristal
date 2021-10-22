@@ -59,6 +59,8 @@ function Battle:init()
     self.character_actions = {}
     self.current_action_processing = 1
 
+    self.hit_count = {}
+
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
 
@@ -83,7 +85,7 @@ function Battle:postInit(state, encounter)
     self:setState(state)
     self.encounter = encounter()
 
-    for _,enemy in ipairs(self.encounter.enemies) do
+    --[[for _,enemy in ipairs(self.encounter.enemies) do
         local enemy_obj
         if type(enemy) == "string" then
             enemy_obj = Registry.createEnemy(enemy)
@@ -92,7 +94,7 @@ function Battle:postInit(state, encounter)
         end
         table.insert(self.enemies, enemy_obj)
         self:addChild(enemy_obj)
-    end
+    end]]
 
     if state == "TRANSITION" then
         self.transition_timer = 0
@@ -148,6 +150,7 @@ function Battle:onStateChange(old,new)
         end
     elseif new == "ACTIONSELECT" then
         if (old == "DEFENDING") or (old == "INTRO") or (self.current_selecting < 1) or (self.current_selecting > #self.party) then
+            self.hit_count = {}
             self.current_selecting = 1
             self.current_button = 1
             if self.battle_ui then

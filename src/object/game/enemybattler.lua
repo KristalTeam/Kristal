@@ -1,6 +1,6 @@
 local EnemyBattler, super = Class(Object)
 
-function EnemyBattler:init()
+function EnemyBattler:init(chara)
     super:init(self)
     self.name = "Test Enemy"
 
@@ -9,7 +9,9 @@ function EnemyBattler:init()
 
     self.layer = -10
 
-    --self.sprite = Sprite()
+    if chara then
+        self:setCharacter(chara)
+    end
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
@@ -58,6 +60,7 @@ function EnemyBattler:addMercy(amount) -- TODO: finish
     end
 
     if (self.mercy >= 100) then
+        self:setBattleSprite("spared", 1/15, false)
         self.mercy = 100
     end
 
@@ -73,8 +76,7 @@ function EnemyBattler:addMercy(amount) -- TODO: finish
         src:play()
     end
 
-    local percent = DamageNumber("mercy", amount, 200, 200)
-    self.parent:addChild(percent)
+    self:statusMessage("mercy", amount)
 end
 
 function EnemyBattler:onMercy()
@@ -101,5 +103,61 @@ function EnemyBattler:getXAction(battler)
 end
 
 function EnemyBattler:onXAction(battler, name) end
+
+function EnemyBattler:statusMessage(type, arg)
+    local hit_count = Game.battle.hit_count
+    hit_count[self] = hit_count[self] or 0
+
+    local x, y = self:getRelativePos(self.parent, 0, self.height/2)
+
+    local percent = DamageNumber(type, arg, x, y + 20 - (hit_count[self] * 20))
+    self.parent:addChild(percent)
+
+    hit_count[self] = hit_count[self] + 1
+end
+
+
+function EnemyBattler:setCharacter(id)
+    self.data = Registry.getCharacter(id)
+
+    self.width = self.data.width
+    self.height = self.data.height
+
+    if self.sprite then
+        self:removeChild(self.sprite)
+    end
+
+    self.sprite = CharacterSprite(self.data)
+    self:addChild(self.sprite)
+
+    self.sprite:play(1/5, true)
+end
+
+function EnemyBattler:setBattleSprite(sprite, speed, loop, after)
+    if self.data and self.data.battle and self.data.battle[sprite] then
+        self:setSprite(self.data.battle[sprite], speed, loop, after)
+        return true
+    end
+    return false
+end
+
+function EnemyBattler:setSprite(sprite, speed, loop, after)
+    if not self.sprite then
+        self.sprite = Sprite(sprite)
+        self:addChild(self.sprite)
+    else
+        self.sprite:setSprite(sprite)
+    end
+    if not self.sprite.directional then
+        self.sprite:play(speed or (1/15), loop, false, after)
+    end
+end
+
+function EnemyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
+    self.sprite:setCustomSprite(sprite, ox, oy)
+    if not self.sprite.directional then
+        self.sprite:play(speed or (1/15), loop, false, after)
+    end
+end
 
 return EnemyBattler

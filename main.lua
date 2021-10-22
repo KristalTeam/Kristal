@@ -69,6 +69,7 @@ Follower = require("src.object.game.follower")
 Player = require("src.object.game.player")
 
 Battle = require("src.object.game.battle")
+Encounter = require("src.encounter")
 PartyBattler = require("src.object.game.partybattler")
 EnemyBattler = require("src.object.game.enemybattler")
 BattleUI = require("src.object.game.battleui")

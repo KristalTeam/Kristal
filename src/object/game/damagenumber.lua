@@ -77,8 +77,8 @@ function DamageNumber:update(dt)
         self.start_y = self.y
     end
 
-    self.x = self.x + ((self.speed_x * 2) * DTMULT)
-    self.y = self.y + ((self.speed_y) * DTMULT)
+    self.x = self.x + (self.speed_x * DTMULT)
+    self.y = self.y + (self.speed_y * DTMULT)
 
     self.timer = self.timer + DTMULT
     if self.timer >= self.delay then
@@ -126,6 +126,8 @@ function DamageNumber:update(dt)
         end
     end
 
+    self:setScale(2 - self.stretch, self.stretch + self.kill)
+
     self:updateChildren(dt)
 end
 
@@ -135,10 +137,10 @@ function DamageNumber:draw()
         love.graphics.setColor(r, g, b, a * (1 - self.kill))
 
         if self.texture then
-            love.graphics.draw(self.texture, 30, 0, 0, (2 - self.stretch), (self.stretch + self.kill))
+            love.graphics.draw(self.texture, 30, 0)
         elseif self.text then
             love.graphics.setFont(self.font)
-            love.graphics.print(self.text, 30, 0, 0, (2 - self.stretch), (self.stretch + self.kill))
+            love.graphics.print(self.text, 30, 0)
         end
     end
 
