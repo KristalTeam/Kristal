@@ -82,18 +82,11 @@ function BattleUI:drawState()
             local text_offset = 0
             local able = true
             if item.party then
-                -- Is a party member down?
-                for index, party_id in ipairs(item.party) do
-                    local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
-                    if battler.chara.health <= 0 then
-                        -- Yep, they're down.
-                        able = false
-                        break
-                    end
-                end
+                -- Are we able to select this?
+                able = Game.battle:canSelectMenuItem(item)
 
                 if not able then
-                    -- A party member is down, so make the heads gray
+                    -- We're not able to select this, so make the heads gray.
                     love.graphics.setColor(COLORS.gray)
                 end
 

@@ -477,6 +477,17 @@ function Battle:drawBackground()
     end
 end
 
+function Battle:canSelectMenuItem(menu_item)
+    for _,party_id in ipairs(menu_item.party) do
+        local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+        if (not battler) or (battler.chara.health <= 0) then
+            -- Their either down, or don't exist. Either way, they're not here to do the action.
+            return false
+        end
+    end
+    return true
+end
+
 function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
     if self.state == "MENUSELECT" then
@@ -488,26 +499,28 @@ function Battle:keypressed(key)
             self.ui_select:play()
             if self.state_reason == "ACT" then
                 local menu_item = self.menu_items[2 * (self.current_menu_y - 1) + self.current_menu_x]
-                table.insert(self.character_actions,
-                    {
-                        ["character_id"] = self.current_selecting,
-                        ["action"] = "ACT",
-                        ["party"] = menu_item.party,
-                        ["name"] = menu_item.name,
-                        ["target"] = self.enemies[self.selected_enemy]
-                    }
-                )
-                if menu_item.party then
-                    for _,v in ipairs(menu_item.party) do
-                        table.insert(self.character_actions,
-                            {
-                                ["character_id"] = self:getPartyIndex(v),
-                                ["action"] = "SKIP",
-                            }
-                        )
+                if self:canSelectMenuItem(menu_item) then
+                    table.insert(self.character_actions,
+                        {
+                            ["character_id"] = self.current_selecting,
+                            ["action"] = "ACT",
+                            ["party"] = menu_item.party,
+                            ["name"] = menu_item.name,
+                            ["target"] = self.enemies[self.selected_enemy]
+                        }
+                    )
+                    if menu_item.party then
+                        for _,v in ipairs(menu_item.party) do
+                            table.insert(self.character_actions,
+                                {
+                                    ["character_id"] = self:getPartyIndex(v),
+                                    ["action"] = "SKIP",
+                                }
+                            )
+                        end
                     end
+                    self:nextParty()
                 end
-                self:nextParty()
                 return
             end
         elseif key == "x" then
