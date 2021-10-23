@@ -25,7 +25,7 @@ function KeyPressed(key)
 
                 player.flip_x = facing == "left"
                 player:setSprite(player.actor.battle.attack)
-                player:play(1/15, false, true, function()
+                player:play(1/15, false, function()
                     player:setSprite(player.actor.default)
                     player.flip_x = last_flipped
 

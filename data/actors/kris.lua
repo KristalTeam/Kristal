@@ -9,6 +9,30 @@ return {
 
     path = "party/kris",
     default = "world/dark",
+
+    animations = {
+        ["battle/idle"]         = {"battle/dark/idle", 0.2, true},
+
+        ["battle/attack"]       = {"battle/dark/attack", 1/15, false},
+        ["battle/act"]          = {"battle/dark/act", 1/15, false},
+        ["battle/item"]         = {"battle/dark/item", 1/15, false, next="battle/idle"},
+        ["battle/spare"]        = {"battle/dark/act", 1/15, false, next="battle/idle"},
+        ["battle/defend"]       = {"battle/dark/defend", 1/15, false},
+
+        ["battle/attack_ready"] = {"battle/dark/attackready", 0.2, true},
+        ["battle/act_ready"]    = {"battle/dark/actready", 0.2, true},
+        ["battle/item_ready"]   = {"battle/dark/itemready", 0.2, true},
+
+        ["battle/act_end"]      = {"battle/dark/actend", 1/15, false, next="battle/idle"},
+
+        ["battle/hurt"]         = {"battle/dark/hurt", 1/15, false, temp=true, duration=0.5},
+        ["battle/defeat"]       = {"battle/dark/defeat", 1/15, false},
+
+        ["battle/transition"]   = {"battle/dark/sword_jump_down", 0.2, true},
+        ["battle/intro"]        = {"battle/dark/attack", 1/15, true},
+        ["battle/victory"]      = {"battle/dark/victory", 1/15, false}
+    },
+
     offsets = {
         ["battle/dark/idle"] = {5, 1},
 
@@ -32,27 +56,4 @@ return {
         ["dark_transition/ball"] = {5, 6},
         ["dark_transition/landed"] = {4, 2}
     },
-
-    battle_offset = {2, 1},
-    battle = {
-        idle = "battle/dark/idle",
-
-        attack = "battle/dark/attack",
-        act = "battle/dark/act",
-        act_end = "battle/dark/actend",
-        item = "battle/dark/item",
-        spare = "battle/dark/act",
-        defend = "battle/dark/defend",
-
-        attack_ready = "battle/dark/attackready",
-        act_ready = "battle/dark/actready",
-        item_ready = "battle/dark/itemready",
-
-        hurt = "battle/dark/hurt",
-        defeat = "battle/dark/defeat",
-
-        transition = "battle/dark/sword_jump_down",
-        intro = "battle/dark/attack",
-        victory = "battle/dark/victory",
-    }
 }

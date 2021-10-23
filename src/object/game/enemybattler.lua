@@ -4,9 +4,6 @@ function EnemyBattler:init(chara)
     super:init(self)
     self.name = "Test Enemy"
 
-    self.path = "enemies/virovirokun"
-    self.default = "idle"
-
     self.layer = -10
 
     if chara then
@@ -53,7 +50,7 @@ function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
 function EnemyBattler:spare(...)    print("TODO: implement!") end -- TODO
 
 function EnemyBattler:onSpareable()
-    self:setBattleSprite("spared", 1/15, false)
+    self:setAnimation("spared")
 end
 
 function EnemyBattler:addMercy(amount)
@@ -136,8 +133,6 @@ function EnemyBattler:setCharacter(id)
 
     self.sprite = ActorSprite(self.data)
     self:addChild(self.sprite)
-
-    self.sprite:play(1/5, true)
 end
 
 function EnemyBattler:preDraw()
@@ -158,12 +153,9 @@ function EnemyBattler:postDraw()
     super:postDraw(self)
 end
 
-function EnemyBattler:setBattleSprite(sprite, speed, loop, after)
-    if self.data and self.data.battle and self.data.battle[sprite] then
-        self:setSprite(self.data.battle[sprite], speed, loop, after)
-        return true
-    end
-    return false
+-- Shorthand for convenience
+function EnemyBattler:setAnimation(animation)
+    return self.sprite:setAnimation(animation)
 end
 
 function EnemyBattler:setSprite(sprite, speed, loop, after)
@@ -173,15 +165,15 @@ function EnemyBattler:setSprite(sprite, speed, loop, after)
     else
         self.sprite:setSprite(sprite)
     end
-    if not self.sprite.directional then
-        self.sprite:play(speed or (1/15), loop, false, after)
+    if not self.sprite.directional and speed then
+        self.sprite:play(speed, loop, after)
     end
 end
 
 function EnemyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     self.sprite:setCustomSprite(sprite, ox, oy)
-    if not self.sprite.directional then
-        self.sprite:play(speed or (1/15), loop, false, after)
+    if not self.sprite.directional and speed then
+        self.sprite:play(speed, loop, after)
     end
 end
 

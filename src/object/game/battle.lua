@@ -23,7 +23,7 @@ function Battle:init()
             -- Create the player battler
             local player_x, player_y = Game.world.player:getScreenPos()
             local player_battler = PartyBattler(party_member, player_x, player_y)
-            player_battler:setBattleSprite("transition")
+            player_battler:setAnimation("battle/transition")
             self:addChild(player_battler)
             table.insert(self.party,player_battler)
             table.insert(self.party_beginning_positions, {player_x, player_y})
@@ -35,7 +35,7 @@ function Battle:init()
                 if follower.visible and follower.actor.id == party_member.id then
                     local chara_x, chara_y = follower:getScreenPos()
                     local chara_battler = PartyBattler(party_member, chara_x, chara_y)
-                    chara_battler:setBattleSprite("transition")
+                    chara_battler:setAnimation("battle/transition")
                     self:addChild(chara_battler)
                     table.insert(self.party, chara_battler)
                     table.insert(self.party_beginning_positions, {chara_x, chara_y})
@@ -47,7 +47,7 @@ function Battle:init()
             end
             if not found then
                 local chara_battler = PartyBattler(party_member, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-                chara_battler:setBattleSprite("transition")
+                chara_battler:setAnimation("transition")
                 self:addChild(chara_battler)
                 table.insert(self.party, chara_battler)
                 table.insert(self.party_beginning_positions, {chara_battler.x, chara_battler.y})
@@ -127,8 +127,9 @@ function Battle:postInit(state, encounter)
                 target_y = 50 + (80 * (index - 1))
             end
 
-            target_x = target_x + (battler.actor.width/2 + battler.actor.battle_offset[1]) * 2
-            target_y = target_y + (battler.actor.height  + battler.actor.battle_offset[2]) * 2
+            local offset = battler.chara.battle_offset or {0, 0}
+            target_x = target_x + (battler.actor.width/2 + offset[1]) * 2
+            target_y = target_y + (battler.actor.height  + offset[2]) * 2
             table.insert(self.battler_targets, {target_x, target_y})
         end
     else
@@ -145,8 +146,9 @@ function Battle:postInit(state, encounter)
                 battler.y = 50 + (80 * (index - 1))
             end
 
-            battler.x = battler.x + (battler.actor.width/2 + battler.actor.battle_offset[1]) * 2
-            battler.y = battler.y + (battler.actor.height  + battler.actor.battle_offset[2]) * 2
+            local offset = battler.chara.battle_offset or {0, 0}
+            battler.x = battler.x + (battler.actor.width/2 + offset[1]) * 2
+            battler.y = battler.y + (battler.actor.height  + offset[2]) * 2
         end
     end
 end
@@ -177,7 +179,7 @@ function Battle:onStateChange(old,new)
         src2:play()
 
         for _,battler in ipairs(self.party) do
-            battler:setBattleSprite("intro", 1/15, true)
+            battler:setAnimation("battle/intro")
         end
     elseif new == "ACTIONSELECT" then
         if (old == "DEFENDING") or (old == "INTRO") or (self.current_selecting < 1) or (self.current_selecting > #self.party) then
@@ -191,7 +193,7 @@ function Battle:onStateChange(old,new)
                 self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
             end
             for _,battler in ipairs(self.party) do
-                battler:setBattleSprite("idle", 1/5, true)
+                battler:setAnimation("battle/idle")
             end
         end
 
@@ -242,10 +244,11 @@ function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
 function Battle:finishAct()
     local battler = self.current_acting
 
-    if battler.sprite.sprite == battler.actor.battle.act then
-        battler:setBattleSprite("act_end", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
+    print(battler.sprite.anim)
+    if battler.sprite.anim == "battle/act" then
+        battler:setAnimation("battle/act_end")
     else
-        battler:setBattleSprite("idle", 1/5, true)
+        battler:setAnimation("battle/idle")
     end
 
     self.current_acting = false
@@ -286,7 +289,7 @@ function Battle:processAction(action)
     print("PROCESSING " .. party_member.name .. "'S ACTION " .. action.action)
     local enemy = action.target
     if action.action == "SPARE" then
-        battler:setBattleSprite("spare", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
+        battler:setAnimation("battle/spare")
         local worked = enemy:onMercy()
         local text
         if worked then
@@ -305,12 +308,12 @@ function Battle:processAction(action)
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ATTACK" then
-        battler:setBattleSprite("attack", 1/15, false)
+        battler:setAnimation("battle/attack")
         self:BattleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ACT" then
-        battler:setBattleSprite("act", 1/15, false)
+        battler:setAnimation("battle/act")
         self:setState("ACTING", "DONTPROCESS")
         print("LET'S TRY TO ACT!!!")
         print(action.name)
@@ -479,6 +482,11 @@ end
 
 function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
+    if key == "h" then
+        for _,battler in ipairs(self.party) do
+            battler:setAnimation("battle/hurt")
+        end
+    end
     if self.state == "MENUSELECT" then
         local menu_width = 2
         local menu_height = math.ceil(#self.menu_items / 2)
@@ -581,7 +589,7 @@ function Battle:keypressed(key)
                     end
                 end
             elseif self.state_reason == "ATTACK" then
-                self.party[self.current_selecting]:setBattleSprite("attack_ready")
+                self.party[self.current_selecting]:setAnimation("battle/attack_ready")
                 table.insert(self.character_actions,
                     {
                         ["character_id"] = self.current_selecting,

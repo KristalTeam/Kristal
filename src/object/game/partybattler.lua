@@ -19,7 +19,7 @@ function PartyBattler:init(chara, x, y)
     self:setScale(2)
 
     -- default to the idle animation, handle the battle intro elsewhere
-    self:setBattleSprite("idle", 1/5, true)
+    self:setAnimation("battle/idle")
 end
 
 function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
@@ -44,23 +44,22 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
     self:addChild(afterimage2)
 end
 
-function PartyBattler:setBattleSprite(sprite, speed, loop, after)
-    if self.actor.battle and self.actor.battle[sprite] then
-        self:setSprite(self.actor.battle[sprite], speed, loop, after)
-    end
+-- Shorthand for convenience
+function PartyBattler:setAnimation(animation)
+    self.sprite:setAnimation(animation)
 end
 
 function PartyBattler:setSprite(sprite, speed, loop, after)
     self.sprite:setSprite(sprite)
-    if not self.sprite.directional then
-        self.sprite:play(speed or (1/15), loop, false, after)
+    if not self.sprite.directional and speed then
+        self.sprite:play(speed, loop, after)
     end
 end
 
 function PartyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     self.sprite:setCustomSprite(sprite, ox, oy)
-    if not self.sprite.directional then
-        self.sprite:play(speed or (1/15), loop, false, after)
+    if not self.sprite.directional and speed then
+        self.sprite:play(speed, loop, after)
     end
 end
 

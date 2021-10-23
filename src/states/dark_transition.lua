@@ -323,9 +323,9 @@ function DarkTransition:draw(dont_clear)
         self.kris_sprite.visible = true
         if not self.kris_only then
             self.susie_sprite.visible = true
-            self.susie_sprite:setAnimation(self.spr_susieu)
+            self.susie_sprite:setFrames(self.spr_susieu)
         end
-        self.kris_sprite:setAnimation(self.spr_krisu)
+        self.kris_sprite:setFrames(self.spr_krisu)
 
         self.sprite_index = 0
         self.kris_index = 0
@@ -355,9 +355,9 @@ function DarkTransition:draw(dont_clear)
                 self.do_once = true -- Ugly deltatime hack: skip self.timer == 30
                 self.kris_x = self.kris_x - 4 * (DT * 30)
 
-                self.kris_sprite:setAnimation(self.spr_krisu_run)
+                self.kris_sprite:setFrames(self.spr_krisu_run)
                 if not self.kris_only then
-                    self.susie_sprite:setAnimation(self.spr_susieu_run)
+                    self.susie_sprite:setFrames(self.spr_susieu_run)
                 end
             end
         end
@@ -376,9 +376,9 @@ function DarkTransition:draw(dont_clear)
             self.velocity = 0
             self.kris_x = self.kris_x - 4 * (DT * 30)
 
-            self.kris_sprite:setAnimation(self.spr_krisu_run)
+            self.kris_sprite:setFrames(self.spr_krisu_run)
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susieu_run)
+                self.susie_sprite:setFrames(self.spr_susieu_run)
             end
         end
         if (math.floor(self.timer) >= 60) and not self.do_once2 then
@@ -386,9 +386,9 @@ function DarkTransition:draw(dont_clear)
             self.velocity = -5
             self.friction = 0
 
-            self.kris_sprite:setAnimation(self.spr_krisu_run)
+            self.kris_sprite:setFrames(self.spr_krisu_run)
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susieu_run)
+                self.susie_sprite:setFrames(self.spr_susieu_run)
             end
         end
         if (self.timer > 60 and self.timer < 68) then
@@ -404,9 +404,9 @@ function DarkTransition:draw(dont_clear)
             self.con = 15
             self.soundtimer = 0
 
-            self.kris_sprite:setAnimation(self.spr_krisu_fall_lw)
+            self.kris_sprite:setFrames(self.spr_krisu_fall_lw)
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susie_lw_fall_u)
+                self.susie_sprite:setFrames(self.spr_susie_lw_fall_u)
             end
         end
         if (self.doorblack == 1) then
@@ -480,9 +480,9 @@ function DarkTransition:draw(dont_clear)
         self.soundcon = 1
         self.radius = 60
 
-        self.kris_sprite:setAnimation(self.spr_kris_fall_turnaround)
+        self.kris_sprite:setFrames(self.spr_kris_fall_turnaround)
         if not self.kris_only then
-            self.susie_sprite:setAnimation(self.spr_susie_lw_fall_turn)
+            self.susie_sprite:setFrames(self.spr_susie_lw_fall_turn)
         end
     end
     if (self.soundcon == 1) then
@@ -527,9 +527,9 @@ function DarkTransition:draw(dont_clear)
             self.timer = 0
 
             -- sprite code --
-            self.kris_sprite:setAnimation(self.spr_kris_fall_d_lw)
+            self.kris_sprite:setFrames(self.spr_kris_fall_d_lw)
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susie_lw_fall_d)
+                self.susie_sprite:setFrames(self.spr_susie_lw_fall_d)
             end
             -----------------
         end
@@ -545,9 +545,9 @@ function DarkTransition:draw(dont_clear)
             self.timer = 0
 
             self.use_sprite_index = false
-            self.kris_sprite:setAnimation(self.spr_kris_fall_d_lw)
+            self.kris_sprite:setFrames(self.spr_kris_fall_d_lw)
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susie_lw_fall_d)
+                self.susie_sprite:setFrames(self.spr_susie_lw_fall_d)
             end
 
             self.mod_loading = true
@@ -580,8 +580,8 @@ function DarkTransition:draw(dont_clear)
                 self.susie_top = self.susie_height
                 self.kris_top = self.kris_height
 
-                self.kris_sprite_2:setAnimation(self.spr_kris_fall_d_white)
-                self.kris_sprite_3:setAnimation(self.spr_kris_fall_d_dw)
+                self.kris_sprite_2:setFrames(self.spr_kris_fall_d_white)
+                self.kris_sprite_3:setFrames(self.spr_kris_fall_d_dw)
 
                 self.kris_sprite.cutout_bottom = 0
                 self.kris_sprite_2.cutout_top = self.kris_top
@@ -591,8 +591,8 @@ function DarkTransition:draw(dont_clear)
                 self.kris_sprite_3.visible = true
 
                 if not self.kris_only then
-                    self.susie_sprite_2:setAnimation(self.spr_susie_white_fall_d)
-                    self.susie_sprite_3:setAnimation(self.spr_susie_dw_fall_d)
+                    self.susie_sprite_2:setFrames(self.spr_susie_white_fall_d)
+                    self.susie_sprite_3:setFrames(self.spr_susie_dw_fall_d)
 
                     self.susie_sprite.cutout_bottom = 0
                     self.susie_sprite_2.cutout_top = self.susie_top
@@ -704,7 +704,7 @@ function DarkTransition:draw(dont_clear)
             self.friction = 0.01
             self.con = 32
 
-            self.kris_sprite:setAnimation(self.spr_kris_fall_smear)
+            self.kris_sprite:setFrames(self.spr_kris_fall_smear)
             self.kris_sprite:setFrame(1)
 
             self.kris_sprite_2.visible = false
@@ -715,7 +715,7 @@ function DarkTransition:draw(dont_clear)
             self.kris_sprite_3:setCutout()
 
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susie_dw_fall_smear)
+                self.susie_sprite:setFrames(self.spr_susie_dw_fall_smear)
                 self.susie_sprite:setFrame(1)
 
                 self.susie_sprite_2.visible = false
@@ -784,9 +784,9 @@ function DarkTransition:draw(dont_clear)
             self.con = 33
             self.rect_draw = 0
 
-            self.kris_sprite:setAnimation(self.spr_kris_fall_ball)
-            self.kris_sprite_2:setAnimation(self.spr_kris_fall_ball)
-            self.kris_sprite_3:setAnimation(self.spr_kris_fall_ball)
+            self.kris_sprite:setFrames(self.spr_kris_fall_ball)
+            self.kris_sprite_2:setFrames(self.spr_kris_fall_ball)
+            self.kris_sprite_3:setFrames(self.spr_kris_fall_ball)
 
             self.kris_sprite_2.visible = true
             self.kris_sprite_3.visible = true
@@ -795,9 +795,9 @@ function DarkTransition:draw(dont_clear)
             self.kris_sprite_3.alpha = 0.25
 
             if not self.kris_only then
-                self.susie_sprite:setAnimation(self.spr_susie_dw_fall_ball)
-                self.susie_sprite_2:setAnimation(self.spr_susie_dw_fall_ball)
-                self.susie_sprite_3:setAnimation(self.spr_susie_dw_fall_ball)
+                self.susie_sprite:setFrames(self.spr_susie_dw_fall_ball)
+                self.susie_sprite_2:setFrames(self.spr_susie_dw_fall_ball)
+                self.susie_sprite_3:setFrames(self.spr_susie_dw_fall_ball)
 
                 self.susie_sprite_2.visible = true
                 self.susie_sprite_3.visible = true
@@ -859,13 +859,13 @@ function DarkTransition:draw(dont_clear)
                 local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
                 sound:play()
 
-                self.kris_sprite:setAnimation(self.spr_kris_dw_landed)
+                self.kris_sprite:setFrames(self.spr_kris_dw_landed)
 
                 self.kris_sprite_2.visible = false
                 self.kris_sprite_3.visible = false
 
                 if not self.kris_only then
-                    self.susie_sprite:setAnimation(self.spr_susie_dw_landed)
+                    self.susie_sprite:setFrames(self.spr_susie_dw_landed)
 
                     self.susie_sprite_2.visible = false
                     self.susie_sprite_3.visible = false

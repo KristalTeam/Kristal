@@ -50,4 +50,7 @@ return PartyMember{
         weapon = "snow_ring",
         armor = {"silver_watch"}
     },
+
+    -- Battle position offset (optional)
+    battle_offset = {0, 0},
 }

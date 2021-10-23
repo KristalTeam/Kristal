@@ -72,7 +72,7 @@ function Virovirokun:onAct(battler, name)
         Game.battle:BattleText("* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!",
                                 (function()
                                     for _,ibattler in ipairs(Game.battle.party) do
-                                        ibattler:setBattleSprite("idle", 1/5, true)
+                                        ibattler:setAnimation("battle/idle")
                                     end
                                     Game.battle:finishAct()
                                 end)

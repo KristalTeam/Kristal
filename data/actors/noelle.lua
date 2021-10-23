@@ -9,6 +9,31 @@ return {
 
     path = "party/noelle",
     default = "world/dark",
+
+    animations = {
+        ["battle/idle"]         = {"battle/dark/idle", 0.2, true},
+
+        ["battle/attack"]       = {"battle/dark/attack", 1/15, false},
+        ["battle/act"]          = {"battle/dark/act", 1/15, false},
+        ["battle/spell"]        = {"battle/dark/spell", 1/15, false, next="battle/idle"},
+        ["battle/item"]         = {"battle/dark/item", 1/15, false, next="battle/idle"},
+        ["battle/spare"]        = {"battle/dark/act", 1/15, false, next="battle/idle"},
+        ["battle/defend"]       = {"battle/dark/defend", 1/15, false},
+
+        ["battle/attack_ready"] = {"battle/dark/attackready", 0.2, true},
+        ["battle/act_ready"]    = {"battle/dark/actready", 0.2, true},
+        ["battle/spell_ready"]  = {"battle/dark/spellready", 0.2, true},
+        ["battle/item_ready"]   = {"battle/dark/itemready", 0.2, true},
+
+        ["battle/act_end"]      = {"battle/dark/actend", 1/15, false, next="battle/idle"},
+
+        ["battle/hurt"]         = {"battle/dark/hurt", 1/15, false, temp=true, duration=0.5},
+        ["battle/defeat"]       = {"battle/dark/defeat", 1/15, false},
+
+        ["battle/transition"]   = {"battle/dark/intro", 1/15, false},
+        ["battle/victory"]      = {"battle/dark/victory", 1/15, false}
+    },
+
     offsets = {
         ["battle/dark/idle"] = {3, 0},
 
@@ -30,7 +55,7 @@ return {
         ["battle/dark/victory"] = {0, 0},
     },
 
-    battle_offset = {0, 0},
+    --[[battle_offset = {0, 0},
     battle = {
         idle = "battle/dark/idle",
 
@@ -52,5 +77,5 @@ return {
 
         transition = "battle/dark/intro",
         victory = "battle/dark/victory",
-    }
+    }]]
 }

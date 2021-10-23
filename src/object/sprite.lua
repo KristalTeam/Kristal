@@ -1,44 +1,71 @@
 local Sprite, super = Class(Object)
 
-function Sprite:init(texture, x, y, width, height)
+function Sprite:init(texture, x, y, width, height, path)
     super:init(self, x, y, width, height)
 
     self.use_texture_size = (width == nil)
+    self.path = path or ""
 
     self:setSprite(texture)
 
-    self.speed = 1
     self.frame = 1
-    self.anim_delay = 0.25
-    self.anim_progress = 0
-    self.anim_finished = false
-    self.on_finished = nil
-    self.loop = true
+    self.loop = false
     self.playing = false
+    self.anim_speed = 1
+
+    self.anim_routine = nil
+
+    self.anim_sprite = ""
+    self.anim_delay = 0
+    self.anim_frames = nil
+    self.anim_duration = -1
+    self.anim_callback = nil
+    self.anim_waiting = 0
+    self.anim_wait_func = function(s) self.anim_waiting = s; coroutine.yield() end
 end
 
 function Sprite:updateTexture()
     if self.frames then
-        self:setTexture(self.frames[self.frame], true)
+        self:setTextureExact(self.frames[self.frame], true)
     end
 end
 
-function Sprite:setSprite(texture)
-    if type(texture) == "table" or (type(texture) == "string" and Assets.getFrames(texture)) then
-        self:setAnimation(texture)
+function Sprite:getTexture()
+    return self.texture
+end
+
+function Sprite:setProgress(progress)
+    self:setFrame(math.floor(#self.frames * progress) + 1)
+end
+
+function Sprite:getPath(name)
+    if self.path ~= "" and name ~= "" then
+        return self.path.."/"..name
     else
-        self:setTexture(texture)
+        return self.path..name
+    end
+end
+
+function Sprite:setSprite(texture, keep_anim)
+    if type(texture) == "string" then
+        texture = self:getPath(texture)
+    end
+    if type(texture) == "table" or (type(texture) == "string" and Assets.getFrames(texture)) then
+        self:setFrames(texture, keep_anim)
+    else
+        self:setTexture(texture, keep_anim)
     end
 end
 
 function Sprite:setTexture(texture, keep_anim)
+    self.frames = nil
+    self:setTextureExact(texture)
     if not keep_anim then
-        self.frames = nil
-        self.frame = 1
-        self.playing = false
-        self.anim_progress = 0
-        self.on_finished = nil
+        self:stop()
     end
+end
+
+function Sprite:setTextureExact(texture)
     if type(texture) == "string" then
         self.texture = Assets.getTexture(texture)
     else
@@ -55,82 +82,95 @@ function Sprite:setTexture(texture, keep_anim)
     end
 end
 
-function Sprite:getTexture()
-    return self.texture
-end
-
-function Sprite:setProgress(progress)
-    self:setFrame(math.floor(#self.frames * progress) + 1)
-end
-
 function Sprite:setFrame(frame)
-    if self.loop then
-        self.frame = ((frame - 1) % (self.frames and #self.frames or 1)) + 1
-        self.anim_finished = false
-    else
-        self.frame = math.min(frame, self.frames and #self.frames or 1)
-        if frame > (self.frames and #self.frames or 1) then
-            self.anim_finished = true
-            if self.on_finished then
-                self.on_finished()
-                self.on_finished = nil
-            end
-        else
-            self.anim_finished = false
-        end
-    end
+    self.frame = ((frame - 1) % (self.frames and #self.frames or 1)) + 1
     self:updateTexture()
 end
 
-function Sprite:setAnimation(frames, speed)
-    local old_frames = self.frames
+function Sprite:setFrames(frames, keep_anim)
     if type(frames) == "string" then
         self.frames = Assets.getFrames(frames)
     else
         self.frames = frames
     end
-    if not Utils.equal(old_frames, self.frames) then
-        self.playing = false
-        self.frame = 1
-        self.anim_progress = 0
-        self.on_finished = nil
-    end
-    if speed then
-        self.playing = true
-        self.anim_delay = speed
+    if not keep_anim then
+        self:stop()
     end
     self:updateTexture()
 end
 
-function Sprite:play(speed, loop, reset, on_finished)
-    if not self.frames then
-        return
+function Sprite:setAnimation(anim)
+    self:stop(true)
+    self.anim_duration = -1
+
+    local func
+    if type(anim) == "table" then
+        self.anim_sprite = anim[1]
+        self.anim_delay = anim[2] or (1/30)
+        self.loop = anim[3] or false
+
+        self.anim_duration = anim.duration or -1
+
+        self.anim_frames = anim.frames
+        self.anim_callback = anim.callback
+
+        self.anim_waiting = 0
+
+        func = self._basicAnimation
+    elseif type(anim) == "function" then
+        func = anim
     end
-    self.anim_delay = speed or 0.25
+    self.anim_routine = coroutine.create(func)
     self.playing = true
+
+    coroutine.resume(self.anim_routine, self, self.anim_wait_func)
+end
+
+function Sprite:_basicAnimation(wait)
+    if self.anim_sprite then
+        self:setSprite(self.anim_sprite, true)
+    end
+    while true do
+        if type(self.anim_frames) == "table" then
+            for i = 1, #self.anim_frames do
+                self:setFrame(self.anim_frames[i])
+                wait(self.anim_delay)
+            end
+        else
+            for i = 1, #self.frames do
+                self:setFrame(i)
+                wait(self.anim_delay)
+            end
+        end
+        if not self.loop then
+            break
+        end
+    end
+end
+
+function Sprite:play(speed, loop, on_finished)
     if loop == nil then
-        self.loop = true
-    else
-        self.loop = loop
+        loop = true
     end
-    if reset then
-        self.current_frame = 1
-        self.anim_progress = 0
-        self.anim_finished = false
-    end
-    self.on_finished = on_finished
-    self:updateTexture()
+    self:setAnimation({nil, speed, loop, callback = on_finished})
 end
 
 function Sprite:resume()
     self.playing = true
 end
 
-function Sprite:stop()
+function Sprite:stop(keep_frame)
     self.playing = false
-    self.loop = true
-    self.on_finished = nil
-    self:setProgress(0)
+    self.loop = false
+
+    self.anim_waiting = 0
+    self.anim_routine = nil
+    self.anim_frames = nil
+
+    if not keep_frame then
+        self.anim_duration = -1
+        self:setFrame(1)
+    end
 end
 
 function Sprite:pause()
@@ -138,9 +178,34 @@ function Sprite:pause()
 end
 
 function Sprite:update(dt)
+    if not self.anim_routine or coroutine.status(self.anim_routine) == "dead" then
+        self:stop(true)
+    end
     if self.playing then
-        self.anim_progress = self.anim_progress + dt
-        self:setProgress(self.anim_progress / (#self.frames * self.anim_delay))
+        if self.anim_waiting > 0 then
+            self.anim_waiting = Utils.approach(self.anim_waiting, 0, dt * self.anim_speed)
+        end
+        if self.anim_waiting == 0 and coroutine.status(self.anim_routine) == "suspended" then
+            coroutine.resume(self.anim_routine, self, self.anim_wait_func)
+        end
+        if coroutine.status(self.anim_routine) == "dead" then
+            self:stop(true)
+
+            if self.anim_callback and self.anim_duration == -1 then
+                self.anim_callback(self)
+            end
+        end
+    end
+    if self.anim_callback then
+        if self.anim_duration > 0 then
+            self.anim_duration = Utils.approach(self.anim_duration, 0, dt)
+        elseif self.anim_duration == 0 then
+            self:stop(true)
+
+            if self.anim_callback then
+                self.anim_callback(self)
+            end
+        end 
     end
 
     self:updateChildren(dt)

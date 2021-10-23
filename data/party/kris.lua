@@ -50,4 +50,7 @@ return PartyMember{
         weapon = "wood_blade",
         armor = {}
     },
+
+    -- Battle position offset (optional)
+    battle_offset = {2, 1},
 }
