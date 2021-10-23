@@ -125,7 +125,7 @@ function EnemyBattler:statusMessage(type, arg)
 end
 
 function EnemyBattler:setCharacter(id)
-    self.data = Registry.getCharacter(id)
+    self.data = Registry.getActor(id)
 
     self.width = self.data.width
     self.height = self.data.height
@@ -134,7 +134,7 @@ function EnemyBattler:setCharacter(id)
         self:removeChild(self.sprite)
     end
 
-    self.sprite = CharacterSprite(self.data)
+    self.sprite = ActorSprite(self.data)
     self:addChild(self.sprite)
 
     self.sprite:play(1/5, true)

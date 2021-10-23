@@ -9,11 +9,12 @@ function Registry.initialize(preload)
             self.base_scripts[path] = chunk
         end
 
-        Registry.initCharacters()
+        Registry.initActors()
     end
     if not preload then
         Registry.initItems()
         Registry.initSpells()
+        Registry.initPartyMembers()
         Registry.initEncounters()
         Registry.initEnemies()
 
@@ -25,8 +26,8 @@ end
 
 -- Getter Functions --
 
-function Registry.getCharacter(id)
-    return self.characters[id]
+function Registry.getActor(id)
+    return self.actors[id]
 end
 
 function Registry.getItem(id)
@@ -59,8 +60,8 @@ end
 
 -- Register Functions --
 
-function Registry.registerCharacter(id, tbl)
-    self.characters[id] = tbl
+function Registry.registerActor(id, tbl)
+    self.actors[id] = tbl
 end
 
 function Registry.registerPartyMember(id, tbl)
@@ -85,15 +86,15 @@ end
 
 -- Internal Functions --
 
-function Registry.initCharacters()
-    self.characters = {}
+function Registry.initActors()
+    self.actors = {}
 
-    for path,char in self.iterScripts("characters") do
-        char.id = char.id or path
-        self.registerCharacter(char.id, char)
+    for path,actor in self.iterScripts("actors") do
+        actor.id = actor.id or path
+        self.registerActor(actor.id, actor)
     end
 
-    Kristal.modCall("onRegisterCharacters")
+    Kristal.modCall("onRegisterActors")
 end
 
 function Registry.initPartyMembers()

@@ -84,12 +84,12 @@ function BattleUI:drawState()
             if item.party then
                 -- Is a party member down?
                 for index, party_id in ipairs(item.party) do
-                    local party_member = Game.battle.party[Game.battle:getPartyIndex(party_id)]
-                    --if party_member.health <= 0 then
+                    local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+                    if battler.chara.health <= 0 then
                         -- Yep, they're down.
-                    --    able = false
-                    --    break
-                    --end
+                        able = false
+                        break
+                    end
                 end
 
                 if not able then
@@ -98,9 +98,9 @@ function BattleUI:drawState()
                 end
 
                 for index, party_id in ipairs(item.party) do
-                    local party_member = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+                    local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
 
-                    love.graphics.draw(Assets.getTexture("party/" .. party_member.info.id .. "/icon/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
+                    love.graphics.draw(Assets.getTexture(battler.chara.head_icons .. "/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
                     text_offset = text_offset + 30
                 end
             end

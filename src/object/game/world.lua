@@ -8,8 +8,8 @@ function World:init(map)
 
     self.tile_width = 40
     self.tile_height = 40
-    self.map_width = 1
-    self.map_height = 1
+    self.map_width = 16
+    self.map_height = 12
 
     self.tilesets = {}
     self.collision = {}
@@ -53,20 +53,20 @@ function World:spawnPlayer(...)
     local args = {...}
 
     local x, y = 0, 0
-    local chara = self.player and self.player.info
+    local chara = self.player and self.player.actor
     if #args > 0 then
         if type(args[1]) == "number" then
             x, y = args[1], args[2]
             chara = args[3] or chara
         elseif type(args[1]) == "string" then
             local marker = self.markers[args[1]]
-            x, y = marker and marker.center_x or 0, marker and marker.center_y or 0
+            x, y = marker and marker.center_x or (self.map_width * self.tile_width/2), marker and marker.center_y or (self.map_height * self.tile_height/2)
             chara = args[2] or chara
         end
     end
 
     if type(chara) == "string" then
-        chara = Registry.getCharacter(chara)
+        chara = Registry.getActor(chara)
     end
 
     if self.player then
@@ -81,7 +81,7 @@ end
 
 function World:spawnFollower(chara)
     if type(chara) == "string" then
-        chara = Registry.getCharacter(chara)
+        chara = Registry.getActor(chara)
     end
     local follower = Follower(chara, self.player.x, self.player.y)
     self:addChild(follower)
