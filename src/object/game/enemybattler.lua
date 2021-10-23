@@ -56,7 +56,7 @@ end
 function EnemyBattler:addMercy(amount)
     if (self.mercy >= 100) then
         -- We're already at full mercy; do nothing.
-        return
+    --    return
     end
 
     self.mercy = self.mercy + amount
@@ -115,7 +115,7 @@ function EnemyBattler:statusMessage(type, arg)
 
     local x, y = self:getRelativePos(self.parent, 0, self.height/2)
 
-    local percent = DamageNumber(type, arg, x, y + 20 - (hit_count[self] * 20))
+    local percent = DamageNumber(type, arg, x + 4, y + 20 - (hit_count[self] * 20))
     self.parent:addChild(percent)
 
     hit_count[self] = hit_count[self] + 1

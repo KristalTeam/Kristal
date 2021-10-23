@@ -54,21 +54,32 @@ function DamageNumber:init(type, arg, x, y, color)
     self.start_x = nil
     self.start_y = nil
 
-    self.speed_x = 10
-    self.speed_y = (-5 - (math.random() * 2))
-    self.start_speed_y = self.speed_y
+    self.speed_x = 0
+    self.speed_y = 0
+    self.start_speed_y = 0
 
     self.kill_timer = 0
     self.killing = false
     self.kill = 0
+
+    self.do_once = false
+
+    self.kill_others = false
 end
 
 function DamageNumber:onAdd(parent)
     for _,v in ipairs(parent.children) do
         if isClass(v) and v:includes(DamageNumber) then
-            v.kill_timer = 0
+            if self.kill_others then
+                if (v.timer >= 1) then
+                    v.killing = true
+                end
+            else
+                v.kill_timer = 0
+            end
         end
     end
+    self.killing = false
 end
 
 function DamageNumber:update(dt)
@@ -77,38 +88,42 @@ function DamageNumber:update(dt)
         self.start_y = self.y
     end
 
-    self.x = self.x + (self.speed_x * DTMULT)
+    self.x = self.x + (self.speed_x * DTMULT * 1.8)
     self.y = self.y + (self.speed_y * DTMULT)
 
     self.timer = self.timer + DTMULT
+
+    if (self.timer >= self.delay) and (not self.do_once) then
+        self.do_once = true
+        self.speed_x = 10
+        self.speed_y = (-5 - (love.math.random() * 2))
+        self.start_speed_y = self.speed_y
+    end
+
     if self.timer >= self.delay then
         self.speed_x = Utils.approach(self.speed_x, 0, DTMULT)
-        if math.abs(self.speed_x) < 1 then
-            self.speed_x = 0
-        end
 
         if self.bounces < 2 then
             self.speed_y = self.speed_y + DTMULT
-
-            if self.y > self.start_y and not self.killing then
-                self.y = self.start_y
-
-                self.speed_y = self.start_speed_y / 2
-                self.bounces = self.bounces + 1
-            end
         end
-        if self.bounces >= 2 and not self.killing then
+        if (self.y > self.start_y) and (not self.killing) then
+            self.y = self.start_y
+
+            self.speed_y = self.start_speed_y / 2
+            self.bounces = self.bounces + 1
+        end
+        if (self.bounces >= 2) and (not self.killing) then
             self.speed_y = 0
             self.y = self.start_y
         end
 
         if not self.stretch_done then
             self.stretch = self.stretch + 0.4 * DTMULT
+        end
 
-            if self.stretch >= 1.2 then
-                self.stretch = 1
-                self.stretch_done = true
-            end
+        if self.stretch >= 1.2 then
+            self.stretch = 1
+            self.stretch_done = true
         end
 
         self.kill_timer = self.kill_timer + DTMULT
@@ -127,6 +142,12 @@ function DamageNumber:update(dt)
     end
 
     self:setScale(2 - self.stretch, self.stretch + self.kill)
+
+    if Game.state == "BATTLE" then
+        if self.x >= 600 then
+            self.x = 600
+        end
+    end
 
     self:updateChildren(dt)
 end
