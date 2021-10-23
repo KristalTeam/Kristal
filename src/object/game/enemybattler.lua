@@ -99,7 +99,7 @@ function EnemyBattler:onCheck(battler) end
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
-        Game.battle:BattleText("* " .. self.name .. " - " .. self.check)
+        Game.battle:BattleText("* " .. string.upper(self.name) .. " - " .. self.check)
     end
 end
 
