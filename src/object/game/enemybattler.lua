@@ -137,7 +137,7 @@ end
 
 function EnemyBattler:preDraw()
     super:preDraw(self)
-    if Game.battle.state == "ENEMYSELECT" and Game.battle.enemies[Game.battle.current_menu_y] == self then
+    if Game.battle:isEnemySelected(self) then
         self.flash_siner = self.flash_siner + DTMULT
         love.graphics.setShader(Kristal.Shaders["White"])
         Kristal.Shaders["White"]:send("whiteAmount", -math.cos(self.flash_siner / 5) * 0.4 + 0.6)
@@ -147,7 +147,7 @@ function EnemyBattler:preDraw()
 end
 
 function EnemyBattler:postDraw()
-    if Game.battle.state == "ENEMYSELECT" and Game.battle.enemies[Game.battle.current_menu_y] == self then
+    if Game.battle:isEnemySelected(self) then
         love.graphics.setShader()
     end
     super:postDraw(self)

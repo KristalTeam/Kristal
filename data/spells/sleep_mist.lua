@@ -1,17 +1,20 @@
 return {
     -- Spell ID (optional, defaults to path)
-    id = "pacify",
+    id = "sleep_mist",
     -- Display name
-    name = "Pacify",
+    name = "Sleep Mist",
 
     -- Battle description
-    effect = "Spare\nTIRED foe",
+    effect = "Spare\nTIRED foes",
     -- Menu description
-    description = "SPARE a tired enemy by putting them to sleep.",
+    description = "A cold mist sweeps through,\nsparing all TIRED enemies.",
 
     -- TP cost (default tp max is 250)
-    cost = 40,
+    cost = 80,
 
     -- Target mode (party, enemy, or none/nil)
     target = "enemy",
+
+    -- (Optional) Suggests this spell when sparing a tired enemy
+    pacify = true,
 }

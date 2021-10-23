@@ -1,7 +1,7 @@
 local DialogueText, super = Class(Text)
 
-function DialogueText:init(text, x, y, char_type, font)
-    super:init(self, text, x or 0, y or 0, char_type or ShadedChar, font)
+function DialogueText:init(text, x, y, w, h, char_type, font)
+    super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, char_type or ShadedChar, font or "main_mono")
 end
 
 function DialogueText:setText(text)

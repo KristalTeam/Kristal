@@ -3,7 +3,7 @@ local BattleUI, super = Class(Object)
 function BattleUI:init()
     super:init(self, 0, 480)
 
-    self.encounter_text = DialogueText(Game.battle.encounter.text, 30, 53)
+    self.encounter_text = DialogueText(Game.battle.encounter.text, 30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53)
     self.current_encounter_text = Game.battle.encounter.text
     self:addChild(self.encounter_text)
 
@@ -91,9 +91,9 @@ function BattleUI:drawState()
                 end
 
                 for index, party_id in ipairs(item.party) do
-                    local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+                    local chara = Registry.getPartyMember(party_id)
 
-                    love.graphics.draw(Assets.getTexture(battler.chara.head_icons .. "/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
+                    love.graphics.draw(Assets.getTexture(chara.head_icons .. "/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
                     text_offset = text_offset + 30
                 end
             end

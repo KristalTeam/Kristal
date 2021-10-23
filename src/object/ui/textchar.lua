@@ -1,14 +1,14 @@
 local TextChar, super = Class(Object)
 
-function TextChar:init(char, x, y, color)
+function TextChar:init(char, x, y, font, color)
     super:init(self, x, y)
 
     self.char = char
-    self.color = color
-    
+    self.color = color or {1, 1, 1}
+
     self.inherit_color = true
 
-    self.font = "main"
+    self.font = font or "main"
     self:updateTexture()
 end
 
@@ -22,32 +22,19 @@ function TextChar:setFont(font)
     self:updateTexture()
 end
 
-function TextChar:getTextHeight(font)
-    local font = font or "main"
-    local texture = Assets.getTexture("font/"..font.."/"..CHAR_TEXTURES[" "])
-    return texture and texture:getHeight() or 0
-end
-
-function TextChar:getTextWidth(str, font)
-    local font = font or "main"
-    local w = 0
-    for i = 1, #str do
-        local texture = Assets.getTexture("font/"..font.."/"..CHAR_TEXTURES[str:sub(i, i)])
-        if texture then
-            w = w + texture:getWidth()
-        end
-    end
-    return w
+function TextChar:getFont()
+    return Assets.getFont(self.font)
 end
 
 function TextChar:updateTexture()
-    self.texture = Assets.getTexture("font/"..self.font.."/"..CHAR_TEXTURES[self.char])
-    self.width = self.texture:getWidth()
-    self.height = self.texture:getHeight()
+    local font = self:getFont()
+    self.width = font:getWidth(self.char)
+    self.height = font:getHeight()
 end
 
 function TextChar:draw()
-    love.graphics.draw(self.texture)
+    love.graphics.setFont(self:getFont())
+    love.graphics.print(self.char)
     self:drawChildren()
 end
 

@@ -5,8 +5,8 @@ function Virovirokun:init()
 
     self.text = "* Virovirokun floated in!"
 
-    self:addEnemy("virovirokun", 532, 148)
-    self:addEnemy("virovirokun", 563, 262)
+    self:addEnemy("virovirokun", 530, 148)
+    self:addEnemy("virovirokun", 560, 262)
     --self:addEnemy("virovirokun")
     --self:addEnemy("virovirokun")
 

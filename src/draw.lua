@@ -65,9 +65,7 @@ function Draw._clearUnusedCanvases()
             end
         end
         for _,v in ipairs(remove) do
-            print("Removing canvas: "..k)
             Utils.removeFromTable(canvases, v)
-            v:release()
         end
     end
     self._locked_canvas = {}

@@ -57,11 +57,15 @@ function Assets.getFont(path, size)
             if not font[size] then
                 font[size] = love.graphics.newFont(self.data.font_data[path], size)
             end
-            return font[size] 
+            return font[size]
         else
             return font
         end
     end
+end
+
+function Assets.getFontData(path)
+    return self.data.font_settings[path] or {}
 end
 
 function Assets.getTexture(path)

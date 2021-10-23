@@ -297,11 +297,23 @@ function Battle:processAction(action)
         else
             text = "* " .. party_member.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
             if enemy.tired then
-                -- TODO: unhardcode!
-                text = {text, "* (Try using Ralsei's [color:blue]PACIFY[color:reset]!)"}
-                -- * (Try using Ralsei's [color:blue]PACIFY[color:reset]!)
-                -- * (Try using Noelle's [color:blue]SLEEPMIST[color:reset]!)
-                -- * (Try using [color:blue]ACT[color:reset]s!)
+                local found_spell = nil
+                for _,party in ipairs(self.party) do
+                    for _,spell_id in ipairs(party.chara.spells) do
+                        local spell = Registry.getSpell(spell_id)
+                        if spell.pacify then
+                            found_spell = spell
+                            break
+                        end
+                    end
+                    if found_spell then
+                        text = {text, "* (Try using "..party.chara.name.."'s [color:blue]"..found_spell.name:upper().."[color:reset]!)"}
+                        break
+                    end
+                end
+                if not found_spell then
+                    text = {text, "* (Try using [color:blue]ACTs[color:reset]!)"}
+                end
             end
         end
         self:BattleText(text,
@@ -513,6 +525,15 @@ function Battle:canSelectMenuItem(menu_item)
         end
     end
     return true
+end
+
+function Battle:isEnemySelected(enemy)
+    if self.state == "ENEMYSELECT" then
+        return self.enemies[self.current_menu_y] == enemy
+    elseif self.state == "MENUSELECT" and self.state_reason == "ACT" then
+        return self.enemies[self.selected_enemy] == enemy
+    end
+    return false
 end
 
 function Battle:keypressed(key)

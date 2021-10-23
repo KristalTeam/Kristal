@@ -13,11 +13,12 @@ Text.COLORS = {
     ["lime"] = {0.5, 1, 0.5}
 }
 
-function Text:init(text, x, y, char_type, font)
-    super:init(self, x, y)
+function Text:init(text, x, y, w, h, char_type, font)
+    super:init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
 
     self.char_type = char_type or TextChar
     self.font = font or "main"
+    self.wrap = true
     self.chars = {}
 
     self:resetState()
@@ -58,6 +59,10 @@ function Text:setText(text)
         self:processNode(current_node)
         self.state.current_node = self.state.current_node + 1
     end
+end
+
+function Text:getFont()
+    return Assets.getFont(self.font)
 end
 
 function Text:textToNodes(input_string)
@@ -151,6 +156,7 @@ function Text:textToNodes(input_string)
 end
 
 function Text:processNode(node)
+    local font = self:getFont()
     if node.type == "character" then
         self.state.typed_characters = self.state.typed_characters + 1
         self.state.typed_string = self.state.typed_string .. node.character
@@ -160,19 +166,20 @@ function Text:processNode(node)
         if node.character == "\n" then
             self.state.current_x = 0
             if self.state.asterisk_mode then
-                self.state.current_x = (16 * 2) -- TODO: unhardcode
+                self.state.current_x = font:getWidth("* ")
             end
-            self.state.current_y = self.state.current_y + 36 -- TODO: unhardcode
+            local spacing = Assets.getFontData(self.font) or {}
+            self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) -- TODO: unhardcode
             -- We don't want to wait on a newline, so...
             self.state.progress = self.state.progress + 1
         else
             if node.character == "*" then
-                if self.state.asterisk_mode and self.state.current_x == (16 * 2) then -- TODO: PLEASE UNHARDCODE
+                if self.state.asterisk_mode and self.state.current_x == font:getWidth("* ") then -- TODO: PLEASE UNHARDCODE
                     self.state.current_x = 0
                 end
             end
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
-            local char = self.char_type(node.character, self.state.current_x, self.state.current_y, self.state.color)
+            local char = self.char_type(node.character, self.state.current_x, self.state.current_y, self.font, self.state.color)
             table.insert(self.chars, char)
             self:addChild(char)
             self.state.current_x = self.state.current_x + char.width
