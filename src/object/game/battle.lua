@@ -309,6 +309,7 @@ function Battle:getPartyIndex(string_id) -- TODO: this only returns the first on
             return index
         end
     end
+    return nil
 end
 
 function Battle:hasAction(character_id)
@@ -528,13 +529,24 @@ function Battle:keypressed(key)
                 self:setState("MENUSELECT", "ACT")
                 local enemy = self.enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
-                    local item = {
-                        ["name"] = v.name,
-                        ["tp"] = 0,
-                        ["party"] = v.party,
-                        ["color"] = {1, 1, 1, 1}
-                    }
-                    table.insert(self.menu_items, item)
+                    local insert = true
+                    if v.party and (#v.party > 0) then
+                        insert = false
+                        for _,party_id in ipairs(v.party) do
+                            if self:getPartyIndex(party_id) then
+                                insert = true
+                            end
+                        end
+                    end
+                    if insert then
+                        local item = {
+                            ["name"] = v.name,
+                            ["tp"] = 0,
+                            ["party"] = v.party,
+                            ["color"] = {1, 1, 1, 1}
+                        }
+                        table.insert(self.menu_items, item)
+                    end
                 end
             elseif self.state_reason == "ATTACK" then
                 self.party[self.current_selecting]:setBattleSprite("attack_ready")

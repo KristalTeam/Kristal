@@ -80,19 +80,36 @@ function BattleUI:drawState()
         for _, item in ipairs(Game.battle.menu_items) do
             love.graphics.setColor(1, 1, 1, 1)
             local text_offset = 0
+            local able = true
             if item.party then
+                -- Is a party member down?
                 for index, party_id in ipairs(item.party) do
                     local party_member = Game.battle.party[Game.battle:getPartyIndex(party_id)]
-                    --             love.graphics.draw(Assets.getTexture("party/" .. self.battler.info.id .. "/icon/head"), 12, 11 - self.box_y_offset)
-                    --if party_member then
-                    --    love.graphics.draw(party_member.sprite, x + (index - 1) * 30, y)
+                    --if party_member.health <= 0 then
+                        -- Yep, they're down.
+                    --    able = false
+                    --    break
                     --end
+                end
+
+                if not able then
+                    -- A party member is down, so make the heads gray
+                    love.graphics.setColor(COLORS.gray)
+                end
+
+                for index, party_id in ipairs(item.party) do
+                    local party_member = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+
                     love.graphics.draw(Assets.getTexture("party/" .. party_member.info.id .. "/icon/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
                     text_offset = text_offset + 30
                 end
             end
 
-            love.graphics.setColor(item.color)
+            if able then
+                love.graphics.setColor(item.color)
+            else
+                love.graphics.setColor(COLORS.gray)
+            end
             love.graphics.print(item.name, text_offset + 30 + (x * 230), 50 + (y * 30))
             if x == 0 then
                 x = 1
