@@ -27,6 +27,16 @@ function ActionBox:init(x, y, index, battler)
     self.selected_button = 1
 
     self.revert_to = 40
+
+    self.head_sprite = Sprite(battler.chara.head_icons.."/head", 13, 11)
+    self.name_sprite = Sprite(battler.chara.name_sprite,         51, 14)
+
+    self:addChild(self.head_sprite)
+    self:addChild(self.name_sprite)
+end
+
+function ActionBox:setHeadIcon(icon)
+    self.head_sprite:setSprite(self.battler.chara.head_icons.."/"..icon)
 end
 
 function ActionBox:draw()
@@ -105,6 +115,9 @@ function ActionBox:drawActionBox()
         self.box_y_offset = Ease.outCubic(3 - self.animation_timer, 32, -32, 3)
         love.graphics.setColor(51/255, 32/255, 51/255, 1)
     end
+
+    self.head_sprite.y = 11 - self.box_y_offset
+    self.name_sprite.y = 14 - self.box_y_offset
 
     love.graphics.setLineWidth(2)
     love.graphics.line(1  , 2 - self.box_y_offset, 1,   37 - self.box_y_offset)
