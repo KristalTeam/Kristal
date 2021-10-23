@@ -481,7 +481,7 @@ function Battle:canSelectMenuItem(menu_item)
     for _,party_id in ipairs(menu_item.party) do
         local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
         if (not battler) or (battler.chara.health <= 0) then
-            -- Their either down, or don't exist. Either way, they're not here to do the action.
+            -- They're either down, or don't exist. Either way, they're not here to do the action.
             return false
         end
     end
