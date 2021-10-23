@@ -18,7 +18,7 @@ return PartyMember{
     fightbar_color = {0, 162/255, 232/255},
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/kris/menu/dark",
+    menu_icon = "party/kris/head",
     -- Path to head icons used in battle
     head_icons = "party/kris/icon",
     -- Name sprite (TODO: optional)

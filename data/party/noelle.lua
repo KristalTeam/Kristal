@@ -18,7 +18,7 @@ return PartyMember{
     fightbar_color = {1, 1, 153/255},
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/noelle/menu/dark",
+    menu_icon = "party/noelle/head",
     -- Path to head icons used in battle
     head_icons = "party/noelle/icon",
     -- Name sprite (TODO: optional)

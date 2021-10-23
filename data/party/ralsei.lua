@@ -18,7 +18,7 @@ return PartyMember{
     fightbar_color = {181/255, 230/255, 29/255},
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/ralsei/menu/dark",
+    menu_icon = "party/ralsei/head",
     -- Path to head icons used in battle
     head_icons = "party/ralsei/icon",
     -- Name sprite (TODO: optional)

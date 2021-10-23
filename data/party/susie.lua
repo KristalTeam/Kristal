@@ -18,7 +18,7 @@ return PartyMember{
     fightbar_color = {234/255, 121/255, 200/255},
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/susie/menu/dark",
+    menu_icon = "party/susie/head",
     -- Path to head icons used in battle
     head_icons = "party/susie/icon",
     -- Name sprite (TODO: optional)
