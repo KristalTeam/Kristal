@@ -3,13 +3,26 @@ return PartyMember{
     id = "noelle",
     -- Display name
     name = "Noelle",
-    -- Character data
-    chara = Registry.getActor("noelle"),
 
-    -- Head icon in the equip / power menu
-    head_icon = "party/noelle/menu/dark",
+    -- Actor ID (handles sprites)
+    actor = "noelle",
+
     -- Title / class (saved to the save file)
     title = "LV1 Snowcaster\nMight be able to\nuse some cool moves.",
+
+    -- Character color (for action box outline and hp bar)
+    color = {1, 1, 0},
+    -- Damage color (for the number when attacking enemies)
+    dmg_color = {1, 1, 0.3},
+    -- Fightbar color (the moving bar used in attack mode)
+    fightbar_color = {1, 1, 153/255},
+
+    -- Head icon in the equip / power menu
+    menu_icon = "party/noelle/menu/dark",
+    -- Path to head icons used in battle
+    head_icons = "party/noelle/icon",
+    -- Name sprite (TODO: optional)
+    name_sprite = "party/noelle/name",
 
     -- Whether the party member can act / use spells
     has_act = false,

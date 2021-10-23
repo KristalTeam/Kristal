@@ -3,13 +3,26 @@ return PartyMember{
     id = "kris",
     -- Display name
     name = "Kris",
-    -- Character data
-    chara = Registry.getActor("kris"),
 
-    -- Head icon in the equip / power menu
-    head_icon = "party/kris/menu/dark",
+    -- Actor ID (handles overworld/battle sprites)
+    actor = "kris",
+
     -- Title / class (saved to the save file)
     title = "LV1 Leader\nCommands the party\nwith various ACTs.",
+
+    -- Character color (for action box outline and hp bar)
+    color = {0, 1, 1},
+    -- Damage color (for the number when attacking enemies)
+    dmg_color = {0.5, 1, 1},
+    -- Fightbar color (the moving bar used in attack mode)
+    fightbar_color = {0, 162/255, 232/255},
+
+    -- Head icon in the equip / power menu
+    menu_icon = "party/kris/menu/dark",
+    -- Path to head icons used in battle
+    head_icons = "party/kris/icon",
+    -- Name sprite (TODO: optional)
+    name_sprite = "party/kris/name",
 
     -- Whether the party member can act / use spells
     has_act = true,

@@ -20,16 +20,19 @@ function Game:enter(previous_state)
 
     self.lock_input = false
 
+    self.party = {}
+    for _,id in ipairs(MOD.party) do
+        table.insert(self.party, Registry.getPartyMember(id))
+    end
+
     if MOD and MOD.map then
         self.world:loadMap(MOD.map)
     end
 
-    self.world:spawnPlayer("spawn", MOD.party and MOD.party[1] or "kris")
-    if MOD.party then
-        for i = 2, #MOD.party do
-            local follower = Follower(Registry.getActor(MOD.party[i]), self.world.player.x, self.world.player.y)
-            self.world:addChild(follower)
-        end
+    self.world:spawnPlayer("spawn", self.party[1] and self.party[1].actor or "kris")
+    for i = 2, #self.party do
+        local follower = Follower(Registry.getActor(self.party[i].actor), self.world.player.x, self.world.player.y)
+        self.world:addChild(follower)
     end
 
     if previous_state == Kristal.States["DarkTransition"] then

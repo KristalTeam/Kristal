@@ -3,13 +3,26 @@ return PartyMember{
     id = "ralsei",
     -- Display name
     name = "Ralsei",
-    -- Character data
-    chara = Registry.getActor("ralsei"),
 
-    -- Head icon in the equip / power menu
-    head_icon = "party/ralsei/menu/dark",
+    -- Actor ID (handles sprites)
+    actor = "ralsei",
+
     -- Title / class (saved to the save file)
     title = "LV1 Dark Prince\nDark-World being.\nHas friends now.",
+
+    -- Character color (for action box outline and hp bar)
+    color = {0, 1, 0},
+    -- Damage color (for the number when attacking enemies)
+    dmg_color = {0.5, 1, 0.5},
+    -- Fightbar color (the moving bar used in attack mode)
+    fightbar_color = {181/255, 230/255, 29/255},
+
+    -- Head icon in the equip / power menu
+    menu_icon = "party/ralsei/menu/dark",
+    -- Path to head icons used in battle
+    head_icons = "party/ralsei/icon",
+    -- Name sprite (TODO: optional)
+    name_sprite = "party/ralsei/name",
 
     -- Whether the party member can act / use spells
     has_act = false,

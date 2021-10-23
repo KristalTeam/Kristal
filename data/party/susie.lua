@@ -3,13 +3,26 @@ return PartyMember{
     id = "susie",
     -- Display name
     name = "Susie",
-    -- Character data
-    chara = Registry.getActor("susie"),
 
-    -- Head icon in the equip / power menu
-    head_icon = "party/susie/menu/dark",
+    -- Actor ID (handles sprites)
+    actor = "susie",
+
     -- Title / class (saved to the save file)
     title = "LV1 Dark Knight\nDoes damage using\ndark energy.",
+
+    -- Character color (for action box outline and hp bar)
+    color = {1, 0, 1},
+    -- Damage color (for the number when attacking enemies)
+    dmg_color = {0.8, 0.6, 0.8},
+    -- Fightbar color (the moving bar used in attack mode)
+    fightbar_color = {234/255, 121/255, 200/255},
+
+    -- Head icon in the equip / power menu
+    menu_icon = "party/susie/menu/dark",
+    -- Path to head icons used in battle
+    head_icons = "party/susie/icon",
+    -- Name sprite (TODO: optional)
+    name_sprite = "party/susie/name",
 
     -- Whether the party member can act / use spells
     has_act = false,

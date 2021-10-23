@@ -1,9 +1,10 @@
 local PartyBattler, super = Class(Object)
 
 function PartyBattler:init(chara, x, y)
-    super:init(self, x, y, chara.width, chara.height)
+    self.chara = chara
+    self.actor = Registry.getActor(chara.actor)
 
-    self.actor = chara
+    super:init(self, x, y, self.actor.width, self.actor.height)
 
     self.layer = -10
 

@@ -14,6 +14,7 @@ function Registry.initialize(preload)
     if not preload then
         Registry.initItems()
         Registry.initSpells()
+        Registry.initPartyMembers()
         Registry.initEncounters()
         Registry.initEnemies()
 

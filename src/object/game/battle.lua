@@ -16,13 +16,13 @@ function Battle:init()
 
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
 
-    for i = 1, math.min(3, #MOD.party) do
-        local id = MOD.party[i]
+    for i = 1, math.min(3, #Game.party) do
+        local party_member = Game.party[i]
 
-        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == id then
+        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == party_member.actor then
             -- Create the player battler
             local player_x, player_y = Game.world.player:getScreenPos()
-            local player_battler = PartyBattler(Game.world.player.actor, player_x, player_y)
+            local player_battler = PartyBattler(party_member, player_x, player_y)
             player_battler:setBattleSprite("transition")
             self:addChild(player_battler)
             table.insert(self.party,player_battler)
@@ -32,9 +32,9 @@ function Battle:init()
         else
             local found = false
             for _,follower in ipairs(Game.followers) do
-                if follower.visible and follower.actor.id == id then
+                if follower.visible and follower.actor.id == party_member.id then
                     local chara_x, chara_y = follower:getScreenPos()
-                    local chara_battler = PartyBattler(follower.actor, chara_x, chara_y)
+                    local chara_battler = PartyBattler(party_member, chara_x, chara_y)
                     chara_battler:setBattleSprite("transition")
                     self:addChild(chara_battler)
                     table.insert(self.party, chara_battler)
@@ -46,7 +46,7 @@ function Battle:init()
                 end
             end
             if not found then
-                local chara_battler = PartyBattler(Registry.getActor(id), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+                local chara_battler = PartyBattler(party_member, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
                 chara_battler:setBattleSprite("transition")
                 self:addChild(chara_battler)
                 table.insert(self.party, chara_battler)
@@ -282,16 +282,17 @@ end
 
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
-    print("PROCESSING " .. battler.actor.name .. "'S ACTION " .. action.action)
+    local party_member = battler.chara
+    print("PROCESSING " .. party_member.name .. "'S ACTION " .. action.action)
     local enemy = action.target
     if action.action == "SPARE" then
         battler:setBattleSprite("spare", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
         local worked = enemy:onMercy()
         local text
         if worked then
-            text = "* " .. battler.actor.name .. " spared " .. enemy.name .. "!"
+            text = "* " .. party_member.name .. " spared " .. enemy.name .. "!"
         else
-            text = "* " .. battler.actor.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
+            text = "* " .. party_member.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
             if enemy.tired then
                 -- TODO: unhardcode!
                 text = {text, "* (Try using Ralsei's [color:blue]PACIFY[color:reset]!)"}
@@ -305,7 +306,7 @@ function Battle:processAction(action)
         )
     elseif action.action == "ATTACK" then
         battler:setBattleSprite("attack", 1/15, false)
-        self:BattleText("* " .. battler.actor.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
+        self:BattleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ACT" then
@@ -336,7 +337,7 @@ end
 
 function Battle:getPartyIndex(string_id) -- TODO: this only returns the first one... what if someone has two Susies?
     for index, battler in ipairs(self.party) do
-        if battler.actor.id == string_id then
+        if battler.chara.id == string_id then
             return index
         end
     end
