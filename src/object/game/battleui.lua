@@ -83,11 +83,11 @@ function BattleUI:drawState()
             if item.party then
                 for index, party_id in ipairs(item.party) do
                     local party_member = Game.battle.party[Game.battle:getPartyIndex(party_id)]
-                    --             love.graphics.draw(Assets.getTexture("party/" .. self.battler.info.id .. "/icon/head"), 12, 11 - self.box_y_offset)
+                    --             love.graphics.draw(Assets.getTexture("party/" .. self.battler.actor.id .. "/icon/head"), 12, 11 - self.box_y_offset)
                     --if party_member then
                     --    love.graphics.draw(party_member.sprite, x + (index - 1) * 30, y)
                     --end
-                    love.graphics.draw(Assets.getTexture("party/" .. party_member.info.id .. "/icon/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
+                    love.graphics.draw(Assets.getTexture("party/" .. party_member.actor.id .. "/icon/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
                     text_offset = text_offset + 30
                 end
             end

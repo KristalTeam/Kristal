@@ -45,7 +45,7 @@ function Virovirokun:onAct(battler, name)
         ["noelle"] = {7, 0}
     }
     if name == "TakeCare" then
-        local id = battler.info.id
+        local id = battler.actor.id
         battler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
         self:addMercy(100)
         Game.battle:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
@@ -54,11 +54,11 @@ function Virovirokun:onAct(battler, name)
         Game.battle:BattleText("* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]...")
         self.text_override = "Fine..."
 
-        --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.info.dmg_color)
+        --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.actor.dmg_color)
         --self.parent:addChild(heck)
     elseif name == "TakeCareX" then
         for _,ibattler in ipairs(Game.battle.party) do
-            local id = ibattler.info.id
+            local id = ibattler.actor.id
             ibattler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
         end
         for _,enemy in ipairs(Game.battle.enemies) do

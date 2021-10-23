@@ -3,17 +3,17 @@ local Character, super = Class(Object)
 function Character:init(chara, x, y)
     super:init(self, x, y, chara.width, chara.height)
 
-    self.info = chara
+    self.actor = chara
     self.facing = "down"
 
-    self.sprite = CharacterSprite(self.info)
+    self.sprite = ActorSprite(self.actor)
     self.sprite.facing = self.facing
     self:addChild(self.sprite)
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    local hitbox = self.info.hitbox or {0, chara.height - 14, chara.width, 14}
+    local hitbox = self.actor.hitbox or {0, chara.height - 14, chara.width, 14}
     self.collider = Hitbox(hitbox[1], hitbox[2], hitbox[3], hitbox[4], self)
 
     -- 1px movement increments
@@ -73,7 +73,7 @@ function Character:move(x, y, speed)
         end
     
         self.facing = dir
-        self.sprite.facing = self.facing 
+        self.sprite.facing = self.facing
     end
 
     return moved
@@ -216,8 +216,8 @@ function Character:play(speed, loop, reset, on_finished)
 end
 
 function Character:update(dt)
-    if self.info.update then
-        self.info:update(self, dt)
+    if self.actor.update then
+        self.actor:update(self, dt)
     end
 
     if self.moved > 0 then
@@ -234,8 +234,8 @@ end
 function Character:draw()
     self:drawChildren()
     
-    if self.info.draw then
-        self.info:draw(self)
+    if self.actor.draw then
+        self.actor:draw(self)
     end
 end
 

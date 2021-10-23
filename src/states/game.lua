@@ -27,7 +27,7 @@ function Game:enter(previous_state)
     self.world:spawnPlayer("spawn", MOD.party and MOD.party[1] or "kris")
     if MOD.party then
         for i = 2, #MOD.party do
-            local follower = Follower(Registry.getCharacter(MOD.party[i]), self.world.player.x, self.world.player.y)
+            local follower = Follower(Registry.getActor(MOD.party[i]), self.world.player.x, self.world.player.y)
             self.world:addChild(follower)
         end
     end

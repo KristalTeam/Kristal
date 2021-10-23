@@ -38,7 +38,7 @@ PartyMember = require("src.partymember")
 Object = require("src.object.object")
 Stage = require("src.object.stage")
 Sprite = require("src.object.sprite")
-CharacterSprite = require("src.object.charactersprite")
+ActorSprite = require("src.object.actorsprite")
 Explosion = require("src.object.explosion")
 AfterImage = require("src.object.afterimage")
 

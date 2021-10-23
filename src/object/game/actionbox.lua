@@ -100,7 +100,7 @@ function ActionBox:drawActionBox()
 
     if Game.battle.current_selecting == self.index then
         self.box_y_offset = Ease.outCubic(self.animation_timer, 0, 32, 7)
-        love.graphics.setColor(self.battler.info.color)
+        love.graphics.setColor(self.battler.actor.color)
     else
         self.box_y_offset = Ease.outCubic(3 - self.animation_timer, 32, -32, 3)
         love.graphics.setColor(51/255, 32/255, 51/255, 1)
@@ -112,7 +112,7 @@ function ActionBox:drawActionBox()
     love.graphics.line(0  , 1 - self.box_y_offset, 213, 1  - self.box_y_offset)
 
     if Game.battle.current_selecting == self.index then
-        love.graphics.setColor(self.battler.info.color)
+        love.graphics.setColor(self.battler.actor.color)
     else
         love.graphics.setColor(0, 0, 0, 1)
     end
@@ -126,8 +126,8 @@ function ActionBox:drawActionBox()
     love.graphics.rectangle("fill", 2, 327 - self.box_y_offset - 325, 209, 35)
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(Assets.getTexture("party/" .. self.battler.info.id .. "/icon/head"), 12 + 1, 11 - self.box_y_offset)
-    love.graphics.draw(Assets.getTexture("party/" .. self.battler.info.id .. "/name")     , 51, 14 - self.box_y_offset)
+    love.graphics.draw(Assets.getTexture("party/" .. self.battler.actor.id .. "/icon/head"), 12 + 1, 11 - self.box_y_offset)
+    love.graphics.draw(Assets.getTexture("party/" .. self.battler.actor.id .. "/name")     , 51, 14 - self.box_y_offset)
 end
 
 function ActionBox:drawActionArena()

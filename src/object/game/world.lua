@@ -53,7 +53,7 @@ function World:spawnPlayer(...)
     local args = {...}
 
     local x, y = 0, 0
-    local chara = self.player and self.player.info
+    local chara = self.player and self.player.actor
     if #args > 0 then
         if type(args[1]) == "number" then
             x, y = args[1], args[2]
@@ -66,7 +66,7 @@ function World:spawnPlayer(...)
     end
 
     if type(chara) == "string" then
-        chara = Registry.getCharacter(chara)
+        chara = Registry.getActor(chara)
     end
 
     if self.player then
@@ -81,7 +81,7 @@ end
 
 function World:spawnFollower(chara)
     if type(chara) == "string" then
-        chara = Registry.getCharacter(chara)
+        chara = Registry.getActor(chara)
     end
     local follower = Follower(chara, self.player.x, self.player.y)
     self:addChild(follower)

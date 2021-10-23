@@ -4,7 +4,7 @@ return PartyMember{
     -- Display name
     name = "Susie",
     -- Character data
-    chara = Registry.getCharacter("susie"),
+    chara = Registry.getActor("susie"),
 
     -- Head icon in the equip / power menu
     head_icon = "party/susie/menu/dark",

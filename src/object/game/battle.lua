@@ -19,10 +19,10 @@ function Battle:init()
     for i = 1, math.min(3, #MOD.party) do
         local id = MOD.party[i]
 
-        if Game.world.player and Game.world.player.visible and Game.world.player.info.id == id then
+        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == id then
             -- Create the player battler
             local player_x, player_y = Game.world.player:getScreenPos()
-            local player_battler = PartyBattler(Game.world.player.info, player_x, player_y)
+            local player_battler = PartyBattler(Game.world.player.actor, player_x, player_y)
             player_battler:setBattleSprite("transition")
             self:addChild(player_battler)
             table.insert(self.party,player_battler)
@@ -32,9 +32,9 @@ function Battle:init()
         else
             local found = false
             for _,follower in ipairs(Game.followers) do
-                if follower.visible and follower.info.id == id then
+                if follower.visible and follower.actor.id == id then
                     local chara_x, chara_y = follower:getScreenPos()
-                    local chara_battler = PartyBattler(follower.info, chara_x, chara_y)
+                    local chara_battler = PartyBattler(follower.actor, chara_x, chara_y)
                     chara_battler:setBattleSprite("transition")
                     self:addChild(chara_battler)
                     table.insert(self.party, chara_battler)
@@ -46,7 +46,7 @@ function Battle:init()
                 end
             end
             if not found then
-                local chara_battler = PartyBattler(Registry.getCharacter(id), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+                local chara_battler = PartyBattler(Registry.getActor(id), SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
                 chara_battler:setBattleSprite("transition")
                 self:addChild(chara_battler)
                 table.insert(self.party, chara_battler)
@@ -127,8 +127,8 @@ function Battle:postInit(state, encounter)
                 target_y = 50 + (80 * (index - 1))
             end
 
-            target_x = target_x + (battler.info.width/2 + battler.info.battle_offset[1]) * 2
-            target_y = target_y + (battler.info.height  + battler.info.battle_offset[2]) * 2
+            target_x = target_x + (battler.actor.width/2 + battler.actor.battle_offset[1]) * 2
+            target_y = target_y + (battler.actor.height  + battler.actor.battle_offset[2]) * 2
             table.insert(self.battler_targets, {target_x, target_y})
         end
     else
@@ -145,8 +145,8 @@ function Battle:postInit(state, encounter)
                 battler.y = 50 + (80 * (index - 1))
             end
 
-            battler.x = battler.x + (battler.info.width/2 + battler.info.battle_offset[1]) * 2
-            battler.y = battler.y + (battler.info.height  + battler.info.battle_offset[2]) * 2
+            battler.x = battler.x + (battler.actor.width/2 + battler.actor.battle_offset[1]) * 2
+            battler.y = battler.y + (battler.actor.height  + battler.actor.battle_offset[2]) * 2
         end
     end
 end
@@ -242,7 +242,7 @@ function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
 function Battle:finishAct()
     local battler = self.current_acting
 
-    if battler.sprite.sprite == battler.info.battle.act then
+    if battler.sprite.sprite == battler.actor.battle.act then
         battler:setBattleSprite("act_end", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
     else
         battler:setBattleSprite("idle", 1/5, true)
@@ -282,16 +282,16 @@ end
 
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
-    print("PROCESSING " .. battler.info.name .. "'S ACTION " .. action.action)
+    print("PROCESSING " .. battler.actor.name .. "'S ACTION " .. action.action)
     local enemy = action.target
     if action.action == "SPARE" then
         battler:setBattleSprite("spare", 1/15, false, (function() battler:setBattleSprite("idle", 1/5, true) end))
         local worked = enemy:onMercy()
         local text
         if worked then
-            text = "* " .. battler.info.name .. " spared " .. enemy.name .. "!"
+            text = "* " .. battler.actor.name .. " spared " .. enemy.name .. "!"
         else
-            text = "* " .. battler.info.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
+            text = "* " .. battler.actor.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
             if enemy.tired then
                 -- TODO: unhardcode!
                 text = {text, "* (Try using Ralsei's [color:blue]PACIFY[color:reset]!)"}
@@ -305,7 +305,7 @@ function Battle:processAction(action)
         )
     elseif action.action == "ATTACK" then
         battler:setBattleSprite("attack", 1/15, false)
-        self:BattleText("* " .. battler.info.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
+        self:BattleText("* " .. battler.actor.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ACT" then
@@ -336,7 +336,7 @@ end
 
 function Battle:getPartyIndex(string_id) -- TODO: this only returns the first one... what if someone has two Susies?
     for index, battler in ipairs(self.party) do
-        if battler.info.id == string_id then
+        if battler.actor.id == string_id then
             return index
         end
     end
