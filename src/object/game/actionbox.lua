@@ -137,10 +137,6 @@ function ActionBox:drawActionBox()
 
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 2, 327 - self.box_y_offset - 325, 209, 35)
-
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(Assets.getTexture(self.battler.chara.head_icons .. "/head"), 12 + 1, 11 - self.box_y_offset)
-    love.graphics.draw(Assets.getTexture(self.battler.chara.name_sprite),               51, 14 - self.box_y_offset)
 end
 
 function ActionBox:drawActionArena()
