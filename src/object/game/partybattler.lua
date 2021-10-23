@@ -22,6 +22,21 @@ function PartyBattler:init(chara, x, y)
     self:setBattleSprite("idle", 1/5, true)
 end
 
+function PartyBattler:hurt(amount)
+    self.chara.health = self.chara.health - amount
+    self:statusMessage("max", amount)
+end
+
+function PartyBattler:statusMessage(type, arg)
+
+    local x, y = self:getRelativePos(self.parent, -self.width, self.height/2)
+
+    local percent = DamageNumber(type, arg, x - 4, y + 16)
+    percent.kill_others = true
+    self.parent:addChild(percent)
+
+end
+
 function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
 
     self:setCustomSprite(sprite, ox, oy, speed, loop, after)

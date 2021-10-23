@@ -490,16 +490,23 @@ end
 
 function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
+    if true then -- TODO: DEBUG
+        if key == "g" then
+            self.party[self.current_selecting]:hurt(1)
+        end
+    end
+
     if self.state == "MENUSELECT" then
         local menu_width = 2
         local menu_height = math.ceil(#self.menu_items / 2)
 
         if key == "z" then
-            self.ui_select:stop()
-            self.ui_select:play()
             if self.state_reason == "ACT" then
                 local menu_item = self.menu_items[2 * (self.current_menu_y - 1) + self.current_menu_x]
                 if self:canSelectMenuItem(menu_item) then
+                    self.ui_select:stop()
+                    self.ui_select:play()
+
                     table.insert(self.character_actions,
                         {
                             ["character_id"] = self.current_selecting,
@@ -615,11 +622,15 @@ function Battle:keypressed(key)
             return
         end
         if key == "up" then
+            self.ui_move:stop()
+            self.ui_move:play()
             self.current_menu_y = self.current_menu_y - 1
             if self.current_menu_y < 1 then
                 self.current_menu_y = #self.enemies
             end
         elseif key == "down" then
+            self.ui_move:stop()
+            self.ui_move:play()
             self.current_menu_y = self.current_menu_y + 1
             if self.current_menu_y > #self.enemies then
                 self.current_menu_y = 1
