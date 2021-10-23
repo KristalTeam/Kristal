@@ -356,6 +356,28 @@ function Battle:hasAction(character_id)
     return false
 end
 
+function Battle:hurt(amount, element)
+    element = element or 0
+
+    -- TODO: make this accurate!
+    -- See gml_GlobalScript_scr_damage for reference
+
+    -- For now, let's just use a very basic system...
+
+    -- Pick a random party member to take damage from
+    local party_member = self.party[math.random(#self.party)]
+    while party_member.hp <= 0 do
+        party_member = self.party[math.random(#self.party)]
+    end
+
+    party_member:hurt(amount, element)
+
+    --self.chara.health = self.chara.health - amount
+    --self:statusMessage("max", amount)
+
+    --global.inv = (global.invc * 40)
+end
+
 function Battle:nextParty()
     self.current_selecting = self.current_selecting + 1
     while (self:hasAction(self.current_selecting)) do
