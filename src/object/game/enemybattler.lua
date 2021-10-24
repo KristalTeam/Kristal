@@ -13,8 +13,9 @@ function EnemyBattler:init(chara)
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    self.hp = 0
-    self.attack = 0
+    self.max_health = 100
+    self.health = 100
+    self.attack = 1
     self.defense = 0
     self.reward = 0
 
@@ -26,6 +27,8 @@ function EnemyBattler:init(chara)
     self.text = {
         "* Test Enemy is testing."
     }
+
+    self.low_health_text = "* Enemy is feeling tired."
 
     self.acts = {
         {
@@ -95,6 +98,9 @@ function EnemyBattler:onMercy()
 end
 
 function EnemyBattler:fetchEncounterText()
+    if self.health <= (self.low_health_text / 3) then
+        return self.low_health_text
+    end
     return self.text[math.random(#self.text)]
 end
 

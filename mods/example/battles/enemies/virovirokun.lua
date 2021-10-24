@@ -9,7 +9,8 @@ function Virovirokun:init()
     self.path = "enemies/virovirokun"
     self.default = "idle"
 
-    self.hp = 240
+    self.max_health = 240
+    self.health = 240
     self.attack = 8
     self.defense = 0
     self.reward = 84
@@ -22,6 +23,8 @@ function Virovirokun:init()
         "* Virovirokun is poking round\nthings with a spear.",
         "* Virovirokun is beeping a\ncriminal tune."
     }
+
+    self.low_health_text = "* Virovirokun looks extra sick."
 
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", {"susie", "ralsei"})
