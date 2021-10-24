@@ -59,14 +59,14 @@ function ActionBox:select()  -- TODO: unhardcode!
         else
             Game.battle.menu_items = {}
             for _,spell_id in ipairs(self.battler.chara.spells) do
-                local spell = Registry.getSpell(spell_id)
+                local spell = Registry.createSpell(spell_id)
                 local item = {
                     ["name"] = spell.name,
                     ["tp"] = spell.cost,
                     ["description"] = spell.effect,
                     ["party"] = spell.party,
                     ["color"] = spell.color or {1, 1, 1, 1},
-                    ["spell_target"] = spell.target
+                    ["data"] = spell
                 }
                 table.insert(Game.battle.menu_items, item)
             end

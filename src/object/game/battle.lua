@@ -95,6 +95,10 @@ function Battle:init()
     self.selected_spell = nil
 
     self.current_acting = nil
+    self.current_casting = nil
+
+    self.spell_delay = 0
+    self.spell_finished = false
 
     self.xactiontext = {}
 end
@@ -234,10 +238,22 @@ function Battle:onStateChange(old,new)
             self:finishAct()
         end
         --self:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
+    elseif new == "CASTING" then
+        print("ENTERED CASTING STATE")
+        if self.state_reason ~= "DONTPROCESS" then
+            if self.spell_finished then
+                local casting = self.current_casting
+                self.current_casting = nil
+                casting.spell:onFinish(casting.user, casting.target)
+            end
+        end
     elseif new == "ENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_y = 1
         self.selected_enemy = 1
+    elseif new == "PARTYSELECT" then
+        self.battle_ui.encounter_text:setText("")
+        self.current_menu_y = 1
     elseif new == "MENUSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_x = 1
@@ -283,6 +299,16 @@ function Battle:finishAct()
 
     self.current_acting = false
     self:processCharacterActions()
+end
+
+function Battle:finishSpell()
+    self.spell_finished = true
+
+    if self.state ~= "BATTLETEXT" then
+        local casting = self.current_casting
+        self.current_casting = nil
+        casting.spell:onFinish(casting.user, casting.target)
+    end
 end
 
 function Battle:processCharacterActions()
@@ -331,7 +357,7 @@ function Battle:processAction(action)
                 local found_spell = nil
                 for _,party in ipairs(self.party) do
                     for _,spell_id in ipairs(party.chara.spells) do
-                        local spell = Registry.getSpell(spell_id)
+                        local spell = Registry.createSpell(spell_id)
                         if spell.pacify then
                             found_spell = spell
                             break
@@ -367,9 +393,22 @@ function Battle:processAction(action)
         self:processCharacterActions()
     elseif action.action == "SPELL" then
         print("CASTING A SPELL.......")
-        self:BattleText("* " .. party_member.name .. " cast " .. action.name:upper() .. "!",
-            (function() self:processCharacterActions() end)
-        )
+        self.battle_ui.encounter_text:setText("")
+        self:setState("CASTING", "DONTPROCESS")
+        self.spell_finished = false
+        self.current_casting = {
+            spell = action.data,
+            user = battler,
+            target = action.target
+        }
+        action.data:onStart(battler, action.target)
+        if action.data.delay and action.data.delay > 0 then
+            self.spell_delay = action.data.delay
+        else
+            if action.data:onCast(battler, action.target) then
+                self:finishSpell()
+            end
+        end
     else
         -- we don't know how to handle this...
         -- go back!!!
@@ -469,6 +508,15 @@ function Battle:update(dt)
     elseif self.state == "INTRO" then
         self:updateIntro(dt)
     end
+    if self.current_casting and self.spell_delay > 0 then
+        self.spell_delay = self.spell_delay - dt
+        if self.spell_delay <= 0 then
+            local casting = self.current_casting
+            if casting.spell:onCast(casting.user, casting.target) then
+                self:finishSpell()
+            end
+        end
+    end
     -- Always sort
     self.update_child_list = true
     self:updateChildren(dt)
@@ -551,6 +599,9 @@ function Battle:drawBackground()
 end
 
 function Battle:canSelectMenuItem(menu_item)
+    if menu_item.tp and menu_item.tp > self.tension_bar.tension then
+        return false
+    end
     if menu_item.party then
         for _,party_id in ipairs(menu_item.party) do
             local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
@@ -586,7 +637,8 @@ function Battle:isValidMenuLocation()
     return true
 end
 
-function Battle:commitSpell(menu_item)
+function Battle:commitSpell(menu_item, target)
+    self.party[self.current_selecting]:setAnimation("battle/spell_ready")
     self.tension_bar:removeTension(menu_item.tp)
     table.insert(self.character_actions,
     {
@@ -594,7 +646,8 @@ function Battle:commitSpell(menu_item)
         ["action"] = "SPELL",
         ["party"] = menu_item.party,
         ["name"] = menu_item.name,
-        ["target"] = self.enemies[self.selected_enemy]
+        ["target"] = target,
+        ["data"] = menu_item.data
     })
     if menu_item.party then
         for _,v in ipairs(menu_item.party) do
@@ -658,11 +711,11 @@ function Battle:keypressed(key)
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if not menu_item.spell_target then
-                        self:commitSpell(menu_item)
-                    elseif menu_item.spell_target == "enemy" then
+                    if not menu_item.data.target then
+                        self:commitSpell(menu_item, nil)
+                    elseif menu_item.data.target == "enemy" then
                         Game.battle:setState("ENEMYSELECT", "SPELL")
-                    elseif menu_item.spell_target == "party" then
+                    elseif menu_item.data.target == "party" then
                         Game.battle:setState("PARTYSELECT", "SPELL")
                     end
                 end
@@ -751,7 +804,7 @@ function Battle:keypressed(key)
                 )
                 self:nextParty()
             elseif self.state_reason == "SPELL" then
-                self:commitSpell(self.selected_spell)
+                self:commitSpell(self.selected_spell, self.enemies[self.selected_enemy])
             else
                 self:nextParty()
             end
@@ -775,6 +828,38 @@ function Battle:keypressed(key)
             self.ui_move:play()
             self.current_menu_y = self.current_menu_y + 1
             if self.current_menu_y > #self.enemies then
+                self.current_menu_y = 1
+            end
+        end
+    elseif self.state == "PARTYSELECT" then
+        if key == "z" then
+            self.ui_select:stop()
+            self.ui_select:play()
+            if self.state_reason == "SPELL" then
+                self:commitSpell(self.selected_spell, self.party[self.current_menu_y])
+            else
+                self:nextParty()
+            end
+            return
+        end
+        if key == "x" then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self:setState("ACTIONSELECT", "CANCEL")
+            return
+        end
+        if key == "up" then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.current_menu_y = self.current_menu_y - 1
+            if self.current_menu_y < 1 then
+                self.current_menu_y = #self.party
+            end
+        elseif key == "down" then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.current_menu_y = self.current_menu_y + 1
+            if self.current_menu_y > #self.party then
                 self.current_menu_y = 1
             end
         end

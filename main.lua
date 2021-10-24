@@ -34,6 +34,7 @@ Registry = require("src.registry")
 Draw = require("src.draw")
 
 PartyMember = require("src.partymember")
+Spell = require("src.spell")
 
 Object = require("src.object.object")
 Stage = require("src.object.stage")

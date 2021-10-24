@@ -38,6 +38,12 @@ function Registry.getSpell(id)
     return self.spells[id]
 end
 
+function Registry.createSpell(id, ...)
+    if self.spells[id] then
+        return self.spells[id](...)
+    end
+end
+
 function Registry.getPartyMember(id)
     return self.party_members[id]
 end

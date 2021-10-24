@@ -80,11 +80,9 @@ function BattleUI:drawState()
         for _, item in ipairs(Game.battle.menu_items) do
             love.graphics.setColor(1, 1, 1, 1)
             local text_offset = 0
-            local able = true
+            -- Are we able to select this?
+            local able = Game.battle:canSelectMenuItem(item)
             if item.party then
-                -- Are we able to select this?
-                able = Game.battle:canSelectMenuItem(item)
-
                 if not able then
                     -- We're not able to select this, so make the heads gray.
                     love.graphics.setColor(COLORS.gray)
@@ -154,6 +152,16 @@ function BattleUI:drawState()
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
             end
+        end
+    elseif Game.battle.state == "PARTYSELECT" then
+        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))
+
+        local font = Assets.getFont("main")
+        love.graphics.setFont(font)
+        for index, battler in ipairs(Game.battle.party) do
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print(battler.chara.name, 80, 50 + ((index - 1) * 30))
         end
     end
 end

@@ -28,11 +28,22 @@ function PartyBattler:hurt(amount)
     self:setAnimation("battle/hurt")
 end
 
-function PartyBattler:statusMessage(type, arg)
+function PartyBattler:heal(amount)
+    love.audio.newSource("assets/sounds/snd_power.wav", "static"):play()
+    self.chara.health = self.chara.health + amount
+    if self.chara.health > self.chara.stats.health then
+        self.chara.health = self.chara.stats.health
+        self:statusMessage("msg", "max")
+    else
+        self:statusMessage("heal", amount, {0, 1, 0})
+    end
+end
+
+function PartyBattler:statusMessage(type, arg, color)
 
     local x, y = self:getRelativePos(self.parent, -self.width, self.height/2)
 
-    local percent = DamageNumber(type, arg, x - 4, y + 16)
+    local percent = DamageNumber(type, arg, x - 4, y + 16, color)
     percent.kill_others = true
     self.parent:addChild(percent)
 

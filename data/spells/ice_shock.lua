@@ -1,17 +1,24 @@
-return {
+local IceShock = Class(Spell)
+
+function IceShock:init()
     -- Spell ID (optional, defaults to path)
-    id = "ice_shock",
+    self.id = "ice_shock"
     -- Display name
-    name = "IceShock",
+    self.name = "IceShock"
 
     -- Battle description
-    effect = "Damage\nw/ ICE",
+    self.effect = "Damage\nw/ ICE"
     -- Menu description
-    description = "Deals magical ICE damage to\none enemy.",
+    self.description = "Deals magical ICE damage to\none enemy."
 
     -- TP cost (default tp max is 250)
-    cost = 40,
+    self.cost = 40
+
+    -- How long it takes the spell to cast
+    self.delay = 0.25
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
-}
+    self.target = "enemy"
+end
+
+return IceShock

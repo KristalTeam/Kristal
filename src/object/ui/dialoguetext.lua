@@ -28,7 +28,7 @@ function DialogueText:setText(text)
         self.state.current_node = self.state.current_node + 1
         i = i + 1
         -- If the current mode is a typewriter...
-        if current_node.type == "character" and not self.state.skipping then
+        if not self.state.skipping and not self:isNodeInstant(current_node) then
             break
         end
     end
@@ -88,6 +88,15 @@ function DialogueText:playTextSound(current_node)
     end
 end
 
+function DialogueText:isNodeInstant(node)
+    if node.type == "character" then
+        return false
+    elseif node.type == "typer_mod" and node.command == "wait" then
+        return false
+    end
+    return true
+end
+
 function DialogueText:processModifier(node)
     super:processModifier(self, node)
 
@@ -102,6 +111,7 @@ function DialogueText:processModifier(node)
             local delay = node.arguments[1]
             if delay:sub(-1) == "s" then
                 self.state.waiting = tonumber(delay:sub(1, -2))
+                self.state.typed_characters = self.state.typed_characters + 1
             else
                 self.state.progress = self.state.progress - tonumber(delay)
             end
