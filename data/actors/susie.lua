@@ -51,7 +51,7 @@ return {
         ["battle/dark/actend"] = {26, 25},
         ["battle/dark/actready"] = {26, 25},
         ["battle/dark/spell"] = {22, 30},
-        ["battle/dark/spellready"] = {22, 30},
+        ["battle/dark/spellready"] = {22, 15},
         ["battle/dark/item"] = {22, 1},
         ["battle/dark/itemready"] = {22, 1},
         ["battle/dark/defend"] = {20, 23},
