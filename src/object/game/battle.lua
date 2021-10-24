@@ -191,6 +191,9 @@ function Battle:onStateChange(old,new)
                 for _,box in ipairs(self.battle_ui.action_boxes) do
                     box.selected_button = 1
                 end
+                if (old ~= "INTRO") then
+                    self.battle_ui.current_encounter_text = self:fetchEncounterText()
+                end
                 self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
             end
             for _,battler in ipairs(self.party) do
@@ -257,6 +260,10 @@ function Battle:onStateChange(old,new)
 end
 
 function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
+
+function Battle:fetchEncounterText()
+    return self.encounter:fetchEncounterText()
+end
 
 function Battle:finishAct()
     local battler = self.current_acting

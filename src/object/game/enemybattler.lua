@@ -94,6 +94,10 @@ function EnemyBattler:onMercy()
     end
 end
 
+function EnemyBattler:fetchEncounterText()
+    return self.text[math.random(#self.text)]
+end
+
 function EnemyBattler:onCheck(battler) end
 
 function EnemyBattler:onAct(battler, name)

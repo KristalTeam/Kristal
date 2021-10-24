@@ -1,5 +1,10 @@
 local Encounter = Class()
 
+function Encounter:fetchEncounterText()
+    local enemies = Game.battle.enemies
+    return enemies[math.random(#enemies)]:fetchEncounterText()
+end
+
 function Encounter:addEnemy(enemy, x, y, ...)
     local enemy_obj
     if type(enemy) == "string" then
