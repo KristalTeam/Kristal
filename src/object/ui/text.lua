@@ -39,7 +39,8 @@ function Text:resetState()
         waiting = 0,
         skipping = false,
         asterisk_mode = false,
-        typed_string = ""
+        typed_string = "",
+        typing_sound = ""
     }
 end
 

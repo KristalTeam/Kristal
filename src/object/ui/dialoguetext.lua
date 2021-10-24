@@ -4,6 +4,11 @@ function DialogueText:init(text, x, y, w, h, char_type, font)
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, char_type or ShadedChar, font or "main_mono")
 end
 
+function DialogueText:resetState()
+    super:resetState(self)
+    self.state["typing_sound"] = "snd_text"
+end
+
 function DialogueText:setText(text)
     for _,v in ipairs(self.chars) do
         self:removeChild(v)
@@ -49,6 +54,7 @@ function DialogueText:update(dt)
                 break
             end
 
+            self:playTextSound(current_node)
             self:processNode(current_node)
 
             if self.state.skipping then
@@ -60,6 +66,26 @@ function DialogueText:update(dt)
     end
 
     self:updateChildren(dt)
+end
+
+function DialogueText:playTextSound(current_node)
+    if self.state.skipping then
+        return
+    end
+
+    if current_node.type ~= "character" then
+        return
+    end
+
+    if(current_node.character:match("%W")) then
+        -- Non-alphanumeric character, return
+        return
+    end
+
+    if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
+        local src = love.audio.newSource("assets/sounds/" .. self.state.typing_sound .. ".wav", "static")
+        src:play()
+    end
 end
 
 function DialogueText:processModifier(node)
