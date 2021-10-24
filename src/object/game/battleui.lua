@@ -111,6 +111,15 @@ function BattleUI:drawState()
                 y = y + 1
             end
         end
+
+        -- Print information about currently selected item
+        local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
+        if current_item.description then
+            love.graphics.setColor(COLORS.gray)
+            love.graphics.print(current_item.description, 260 + 240, 50)
+            love.graphics.setColor(1, 1, 1, 1)
+        end
+
     elseif Game.battle.state == "ENEMYSELECT" then
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))

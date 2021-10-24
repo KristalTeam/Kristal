@@ -112,11 +112,11 @@ function Virovirokun:onXAction(battler, name)
     -- for Virovirokun, name will always be Standard
     self:addMercy(50)
     if battler.id == "noelle" then
-        return "* Noelle offered a cold compress!"
+        Game.battle:setXActionText("* Noelle offered a cold compress!")
     elseif battler.id == "susie" then
-        return "* Susie encouraged evil!"
+        Game.battle:setXActionText("* Susie encouraged evil!")
     elseif battler.id == "ralsei" then
-        return "* Ralsei tried to rehabilitate!"
+        Game.battle:setXActionText("* Ralsei tried to rehabilitate!")
     end
 end
 

@@ -98,7 +98,7 @@ function EnemyBattler:onMercy()
 end
 
 function EnemyBattler:fetchEncounterText()
-    if self.health <= (self.low_health_text / 3) then
+    if self.health <= (self.max_health / 3) then
         return self.low_health_text
     end
     return self.text[math.random(#self.text)]

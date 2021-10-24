@@ -10,13 +10,18 @@ function ActionBox:init(x, y, index, battler)
     self.btn_spare  = {Assets.getTexture("ui/battle/btn/spare" ), Assets.getTexture("ui/battle/btn/spare_h" )}
     self.btn_defend = {Assets.getTexture("ui/battle/btn/defend"), Assets.getTexture("ui/battle/btn/defend_h")}
 
-    self.buttons = {
-        self.btn_fight,
-        self.btn_act,
-        self.btn_item,
-        self.btn_spare,
-        self.btn_defend
-    }
+    self.buttons = {}
+
+    table.insert(self.buttons,self.btn_fight)
+    if battler.chara.has_act then
+        table.insert(self.buttons,self.btn_act)
+    end
+    if battler.chara.has_spells then
+        table.insert(self.buttons,self.btn_magic)
+    end
+    table.insert(self.buttons,self.btn_item)
+    table.insert(self.buttons,self.btn_spare)
+    table.insert(self.buttons,self.btn_defend)
 
     self.box_y_offset = 0
     self.animation_timer = 0
@@ -45,15 +50,32 @@ function ActionBox:draw()
     self:drawChildren()
 end
 
-function ActionBox:select()
+function ActionBox:select()  -- TODO: unhardcode!
     if self.selected_button == 1 then
         Game.battle:setState("ENEMYSELECT", "ATTACK")
     elseif self.selected_button == 2 then
-        Game.battle:setState("ENEMYSELECT", "ACT")
+        if self.battler.chara.has_act then
+            Game.battle:setState("ENEMYSELECT", "ACT")
+        else
+            Game.battle.menu_items = {}
+            for _,spell_id in ipairs(self.battler.chara.spells) do
+                local spell = Registry.getSpell(spell_id)
+                local item = {
+                    ["name"] = spell.name,
+                    ["tp"] = spell.cost,
+                    ["description"] = spell.effect,
+                    ["party"] = spell.party,
+                    ["color"] = spell.color or {1, 1, 1, 1},
+                    ["spell_target"] = spell.target
+                }
+                table.insert(Game.battle.menu_items, item)
+            end
+            Game.battle:setState("MENUSELECT", "SPELLS")
+        end
     elseif self.selected_button == 4 then
         Game.battle:setState("ENEMYSELECT", "SPARE")
 
-    elseif self.selected_button == 5 then -- TODO: unhardcode!
+    elseif self.selected_button == 5 then
         self.battler:setAnimation("battle/defend")
         self.battler.defending = true
         self.revert_to = Game.battle.tension_bar:giveTension(40)

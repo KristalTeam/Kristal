@@ -92,8 +92,11 @@ function Battle:init()
     self.menu_items = {}
 
     self.selected_enemy = 1
+    self.selected_spell = nil
 
     self.current_acting = nil
+
+    self.xactiontext = {}
 end
 
 function Battle:postInit(state, encounter)
@@ -239,7 +242,6 @@ function Battle:onStateChange(old,new)
         self.battle_ui.encounter_text:setText("")
         self.current_menu_x = 1
         self.current_menu_y = 1
-        self.menu_items = {}
     elseif new == "ENEMYDIALOGUE" then
         self.battle_ui.encounter_text:setText("")
         for _,enemy in ipairs(self.enemies) do
@@ -260,6 +262,10 @@ function Battle:onStateChange(old,new)
 end
 
 function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
+
+function Battle:setXActionText(text)
+    table.insert(self.xactiontext, text)
+end
 
 function Battle:fetchEncounterText()
     return self.encounter:fetchEncounterText()
@@ -359,6 +365,11 @@ function Battle:processAction(action)
     elseif action.action == "SKIP" then
         print("skipped!")
         self:processCharacterActions()
+    elseif action.action == "SPELL" then
+        print("CASTING A SPELL.......")
+        self:BattleText("* " .. party_member.name .. " cast " .. action.name:upper() .. "!",
+            (function() self:processCharacterActions() end)
+        )
     else
         -- we don't know how to handle this...
         -- go back!!!
@@ -561,6 +572,43 @@ function Battle:isEnemySelected(enemy)
     return false
 end
 
+function Battle:getItemIndex()
+    return 2 * (self.current_menu_y - 1) + self.current_menu_x
+end
+
+function Battle:isValidMenuLocation()
+    if self:getItemIndex() > #self.menu_items then
+        return false
+    end
+    if (self.current_menu_x > 2) or self.current_menu_x < 1 then
+        return false
+    end
+    return true
+end
+
+function Battle:commitSpell(menu_item)
+    self.tension_bar:removeTension(menu_item.tp)
+    table.insert(self.character_actions,
+    {
+        ["character_id"] = self.current_selecting,
+        ["action"] = "SPELL",
+        ["party"] = menu_item.party,
+        ["name"] = menu_item.name,
+        ["target"] = self.enemies[self.selected_enemy]
+    })
+    if menu_item.party then
+        for _,v in ipairs(menu_item.party) do
+            table.insert(self.character_actions,
+                {
+                    ["character_id"] = self:getPartyIndex(v),
+                    ["action"] = "SKIP",
+                }
+            )
+        end
+    end
+    self:nextParty()
+end
+
 function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
 
@@ -576,8 +624,9 @@ function Battle:keypressed(key)
 
         if key == "z" then
             if self.state_reason == "ACT" then
-                local menu_item = self.menu_items[2 * (self.current_menu_y - 1) + self.current_menu_x]
+                local menu_item = self.menu_items[self:getItemIndex()]
                 if self:canSelectMenuItem(menu_item) then
+                    self.tension_bar:removeTension(menu_item.tp)
                     self.ui_select:stop()
                     self.ui_select:play()
 
@@ -603,6 +652,21 @@ function Battle:keypressed(key)
                     self:nextParty()
                 end
                 return
+            elseif self.state_reason == "SPELLS" then
+                local menu_item = self.menu_items[self:getItemIndex()]
+                self.selected_spell = self.menu_items[self:getItemIndex()]
+                if self:canSelectMenuItem(menu_item) then
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                    if not menu_item.spell_target then
+                        self:commitSpell(menu_item)
+                    elseif menu_item.spell_target == "enemy" then
+                        Game.battle:setState("ENEMYSELECT", "SPELL")
+                    elseif menu_item.spell_target == "party" then
+                        Game.battle:setState("PARTYSELECT", "SPELL")
+                    end
+                end
+                return
             end
         elseif key == "x" then
             self.ui_move:stop()
@@ -613,13 +677,13 @@ function Battle:keypressed(key)
             self.current_menu_x = self.current_menu_x - 1
             if self.current_menu_x < 1 then
                 self.current_menu_x = menu_width
-                if (self.current_menu_y + menu_width) > #self.menu_items then
+                if not self:isValidMenuLocation() then
                     self.current_menu_x = 1
                 end
             end
         elseif key == "right" then
             self.current_menu_x = self.current_menu_x + 1
-            if (self.current_menu_x > menu_width) or ((self.current_menu_y + menu_width) > #self.menu_items) then
+            if not self:isValidMenuLocation() then
                 self.current_menu_x = 1
             end
         end
@@ -630,9 +694,9 @@ function Battle:keypressed(key)
             end
         elseif key == "down" then
             self.current_menu_y = self.current_menu_y + 1
-            if (self.current_menu_y > menu_height) or ((self.current_menu_x + menu_height) > #self.menu_items) then
+            if (self.current_menu_y > menu_height) or (not self:isValidMenuLocation()) then
                 self.current_menu_y = menu_height -- No wrapping in this menu.
-                if (self.current_menu_x + menu_height) > #self.menu_items then
+                if not self:isValidMenuLocation() then
                     self.current_menu_y = menu_height - 1
                 end
             end
@@ -652,7 +716,7 @@ function Battle:keypressed(key)
                 )
                 self:nextParty()
             elseif self.state_reason == "ACT" then
-                self:setState("MENUSELECT", "ACT")
+                Game.battle.menu_items = {}
                 local enemy = self.enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
                     local insert = true
@@ -668,12 +732,14 @@ function Battle:keypressed(key)
                         local item = {
                             ["name"] = v.name,
                             ["tp"] = 0,
+                            ["description"] = v.description,
                             ["party"] = v.party,
                             ["color"] = {1, 1, 1, 1}
                         }
                         table.insert(self.menu_items, item)
                     end
                 end
+                self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
                 self.party[self.current_selecting]:setAnimation("battle/attack_ready")
                 table.insert(self.character_actions,
@@ -684,6 +750,8 @@ function Battle:keypressed(key)
                     }
                 )
                 self:nextParty()
+            elseif self.state_reason == "SPELL" then
+                self:commitSpell(self.selected_spell)
             else
                 self:nextParty()
             end
