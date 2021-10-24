@@ -85,6 +85,7 @@ function Battle:init()
     self.current_menu_y = 1
 
     self.enemies = {}
+    self.enemy_dialogue = {}
 
     self.state_reason = nil
 
@@ -236,6 +237,22 @@ function Battle:onStateChange(old,new)
         self.current_menu_x = 1
         self.current_menu_y = 1
         self.menu_items = {}
+    elseif new == "ENEMYDIALOGUE" then
+        self.battle_ui.encounter_text:setText("")
+        for _,enemy in ipairs(self.enemies) do
+            local x, y
+            if enemy.text_offset then
+                x, y = enemy.x + enemy.text_offset[1], enemy.y + enemy.text_offset[2]
+            else
+                x, y = enemy.sprite:getRelativePos(self, 0, enemy.sprite.height/2)
+            end
+            local dialogue = enemy:getEnemyDialogue()
+            if dialogue then
+                local textbox = EnemyTextBox(dialogue, x, y)
+                table.insert(self.enemy_dialogue, textbox)
+                self:addChild(textbox)
+            end
+        end
     end
 end
 
@@ -280,7 +297,8 @@ function Battle:processCharacterActions()
         end
     end
     print("ALL ACTIONS DONE, GO TO STATE")
-    self:setState("ACTIONSELECT")
+    self:setState("ENEMYDIALOGUE")
+    --self:setState("ACTIONSELECT")
 end
 
 function Battle:processAction(action)
@@ -701,6 +719,38 @@ function Battle:keypressed(key)
                 else
                     self:setState(self.post_battletext_state, "BATTLETEXT")
                 end
+            end
+        end
+    elseif self.state == "ENEMYDIALOGUE" then
+        if key == "z" then
+            local any_typing = false
+            local all_done = true
+            local to_remove = {}
+            -- Check if any dialogue is typing
+            for _,dialogue in ipairs(self.enemy_dialogue) do
+                if dialogue.text.state.typing then
+                    all_done = false
+                    break
+                end
+            end
+            -- Nothing is typing, try to advance
+            if all_done then
+                for _,dialogue in ipairs(self.enemy_dialogue) do
+                    dialogue:next()
+                    if not dialogue.done then
+                        all_done = false
+                    else
+                        table.insert(to_remove, dialogue)
+                    end
+                end
+            end
+            -- Remove leftover dialogue
+            for _,dialogue in ipairs(to_remove) do
+                Utils.removeFromTable(self.enemy_dialogue, dialogue)
+            end
+            -- If all dialogue is done, go to DEFENDING state
+            if all_done then
+                self:setState("ACTIONSELECT")
             end
         end
     elseif self.state == "ACTIONSELECT" then
