@@ -34,7 +34,7 @@ function Virovirokun:init()
     self.text_override = nil
 end
 
-function Virovirokun:onAct(battler, name)
+function Virovirokun:onActStart(battler, name)
     local kris_outfit = {"kris_virokun_nurse", "kris_virokun_doctor"}
     local sprite_lookup = {
         ["kris"] = kris_outfit[math.random(2)],
@@ -48,9 +48,22 @@ function Virovirokun:onAct(battler, name)
         ["ralsei"] = {4 - 10, -12 + 13},
         ["noelle"] = {7, 0}
     }
+
     if name == "TakeCare" then
         local id = battler.actor.id
         battler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
+    elseif name == "TakeCareX" then
+        for _,ibattler in ipairs(Game.battle.party) do
+            local id = ibattler.actor.id
+            ibattler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
+        end
+    else
+        battler:setAnimation("battle/act")
+    end
+end
+
+function Virovirokun:onAct(battler, name)
+    if name == "TakeCare" then
         self:addMercy(100)
         Game.battle:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
     elseif name == "Quarantine" then
@@ -61,10 +74,6 @@ function Virovirokun:onAct(battler, name)
         --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.actor.dmg_color)
         --self.parent:addChild(heck)
     elseif name == "TakeCareX" then
-        for _,ibattler in ipairs(Game.battle.party) do
-            local id = ibattler.actor.id
-            ibattler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
-        end
         for _,enemy in ipairs(Game.battle.enemies) do
             if enemy.id == "virovirokun" then
                 enemy:addMercy(100)

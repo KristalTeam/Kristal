@@ -62,6 +62,7 @@ function Battle:init()
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
     self.state = "NONE"
+    self.substate = "NONE"
 
     self.camera = Camera(0, 0)
 
@@ -88,6 +89,7 @@ function Battle:init()
     self.enemy_dialogue = {}
 
     self.state_reason = nil
+    self.substate_reason = nil
 
     self.menu_items = {}
 
@@ -101,6 +103,10 @@ function Battle:init()
     self.spell_finished = false
 
     self.xactiontext = {}
+
+    self.timer = Timer.new()
+
+    self.has_acted = false
 end
 
 function Battle:postInit(state, encounter)
@@ -173,6 +179,18 @@ function Battle:setState(state, reason)
     self:onStateChange(old, self.state)
 end
 
+function Battle:setSubState(state, reason)
+    local old = self.substate
+    self.substate = state
+    self.substate_reason = reason
+    if reason then
+        print("-> SUBSTATE CHANGE: went from " .. old .. " to " .. self.substate .. " because of " .. reason)
+    else
+        print("-> SUBSTATE CHANGE: went from " .. old .. " to " .. self.substate)
+    end
+    self:onSubStateChange(old, self.substate)
+end
+
 function Battle:getState()
     return self.state
 end
@@ -233,21 +251,24 @@ function Battle:onStateChange(old,new)
             self.tension_bar = TensionBar(-25, 40)
             self:addChild(self.tension_bar)
         end
-    elseif new == "ACTING" then
-        print("ENTERED ACTING STATE")
-        if self.state_reason ~= "DONTPROCESS" then
-            self:finishAct()
+    elseif new == "ACTIONS" then
+        self.battle_ui.encounter_text:setText("")
+        if self.state_reason == "DONTPROCESS" then
+            return
         end
-        --self:BattleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
-    elseif new == "CASTING" then
-        print("ENTERED CASTING STATE")
-        if self.state_reason ~= "DONTPROCESS" then
+
+        if self.substate == "ACT" then
+            self:finishAct()
+        elseif self.substate == "SPELL" then
             if self.spell_finished then
                 local casting = self.current_casting
                 self.current_casting = nil
                 casting.spell:onFinish(casting.user, casting.target)
             end
+        elseif self.state_reason ~= "BATTLETEXT" then
+            self:processCharacterActions()
         end
+        print("HI I LIKE IM GAY")
     elseif new == "ENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_y = 1
@@ -278,6 +299,22 @@ function Battle:onStateChange(old,new)
     end
 end
 
+function Battle:onSubStateChange(old,new)
+    if new == "ACT" then
+        print("-> ENTERED ACTING SUBSTATE")
+    elseif new == "SPELL" then
+        print("-> ENTERED CASTING SUBSTATE")
+    end
+
+    if (old == "ACT") and (new ~= "ACT") then
+        for _,battler in ipairs(self.party) do
+            if battler.sprite.anim == "battle/act" then
+                battler:setAnimation("battle/act_end")
+            end
+        end
+    end
+end
+
 function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
 
 function Battle:setXActionText(text)
@@ -291,11 +328,9 @@ end
 function Battle:finishAct()
     local battler = self.current_acting
 
-    print(battler.sprite.anim)
-    if battler.sprite.anim == "battle/act" then
-        battler:setAnimation("battle/act_end")
-    else
+    if battler.sprite.anim ~= "battle/act" then
         battler:setAnimation("battle/idle")
+        self:setSubState("NONE")
     end
 
     self.current_acting = false
@@ -309,10 +344,15 @@ function Battle:finishSpell()
         local casting = self.current_casting
         self.current_casting = nil
         casting.spell:onFinish(casting.user, casting.target)
+        self:setSubState("NONE")
     end
 end
 
 function Battle:processCharacterActions()
+    if self.state ~= "ACTIONS" then
+        self:setState("ACTIONS", "DONTPROCESS")
+    end
+
     local order = {"SKIP", "ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK"}
     for _,action_string in ipairs(order) do
         for i=1, #self.character_actions do
@@ -336,9 +376,20 @@ function Battle:processCharacterActions()
             end
         end
     end
-    print("ALL ACTIONS DONE, GO TO STATE")
-    self:setState("ENEMYDIALOGUE")
+    print("ALL ACTIONS DONE, WAITING FOR 4/30 SECONDS")
+    self:setSubState("NONE")
+    self.timer:after(4 / 30, function()
+        self:setState("ENEMYDIALOGUE")
+    end)
     --self:setState("ACTIONSELECT")
+end
+
+function Battle:getActionFromCharacterIndex(index)
+    for _,action in ipairs(self.character_actions) do
+        if action.character_id == index then
+            return action
+        end
+    end
 end
 
 function Battle:processAction(action)
@@ -346,6 +397,9 @@ function Battle:processAction(action)
     local party_member = battler.chara
     print("PROCESSING " .. party_member.name .. "'S ACTION " .. action.action)
     local enemy = action.target
+
+    self:setSubState(action.action)
+
     if action.action == "SPARE" then
         battler:setAnimation("battle/spare")
         local worked = enemy:onMercy()
@@ -383,10 +437,19 @@ function Battle:processAction(action)
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ACT" then
-        battler:setAnimation("battle/act")
-        self:setState("ACTING", "DONTPROCESS")
-        print("LET'S TRY TO ACT!!!")
-        print(action.name)
+        print("-> It's time to act!")
+        if not self.has_acted then
+            self.has_acted = true
+            enemy:onActStart(battler, action.name)
+            for index, value in ipairs(self.party) do
+                local chara_action = self:getActionFromCharacterIndex(index)
+                if chara_action and chara_action.action == "ACT" then
+                    enemy:onActStart(value, chara_action.name)
+                end
+            end
+        end
+        --battler:setAnimation("battle/act")
+        --print(action.name)
         self.current_acting = battler
         enemy:onAct(battler, action.name)
     elseif action.action == "SKIP" then
@@ -395,7 +458,6 @@ function Battle:processAction(action)
     elseif action.action == "SPELL" then
         print("CASTING A SPELL.......")
         self.battle_ui.encounter_text:setText("")
-        self:setState("CASTING", "DONTPROCESS")
         self.spell_finished = false
         self.current_casting = {
             spell = action.data,
@@ -466,6 +528,11 @@ function Battle:hurt(amount, element)
     --global.inv = (global.invc * 40)
 end
 
+function Battle:startProcessing()
+    self.has_acted = false
+    self:setState("ACTIONS")
+end
+
 function Battle:nextParty()
     self.current_selecting = self.current_selecting + 1
     while (self:hasAction(self.current_selecting)) do
@@ -475,7 +542,7 @@ function Battle:nextParty()
         self.current_action_processing = 1
         self.current_selecting = 0
         print("PROCESSING ACTIONS")
-        self:processCharacterActions()
+        self:startProcessing()
     else
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
@@ -504,6 +571,7 @@ function Battle:BattleText(text,post_func)
 end
 
 function Battle:update(dt)
+    self.timer:update(dt)
     if self.state == "TRANSITION" then
         self:updateTransition(dt)
     elseif self.state == "INTRO" then
@@ -565,12 +633,22 @@ function Battle:updateTransition(dt)
     end
 end
 
+function Battle:drawDebug()
+    local font = Assets.getFont("main")
+    love.graphics.setFont(font)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print("State: "    .. self.state   , 4, -4)
+    love.graphics.print("Substate: " .. self.substate, 4, -4 + 32)
+end
+
 function Battle:draw()
     if self.encounter.background then
         self:drawBackground()
     end
 
     self:drawChildren()
+
+    self:drawDebug()
 end
 
 function Battle:drawBackground()

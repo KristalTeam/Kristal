@@ -62,7 +62,7 @@ function ActorSprite:_setSprite(texture, keep_anim)
     end
 end
 
-function ActorSprite:setAnimation(anim)
+function ActorSprite:setAnimation(anim, callback)
     local last_anim = self.anim
     local last_sprite = self.sprite
     self.anim = anim
@@ -83,12 +83,20 @@ function ActorSprite:setAnimation(anim)
                 anim.callback = function(s) s:setSprite(last_sprite) end
             end
         end
-        super:setAnimation(self, anim)
-        if self.anim == "spared" then
-            print("spared: "..tostring(self.texture == Assets.getTexture("enemies/virovirokun/spared")))
+        if callback then
+            if anim.callback then
+                local old_callback = anim.callback
+                anim.callback = function(s) old_callback(); callback(s) end
+            else
+                anim.callback = callback
+            end
         end
+        super:setAnimation(self, anim)
         return true
     else
+        if callback then
+            callback(self)
+        end
         return false
     end
 end

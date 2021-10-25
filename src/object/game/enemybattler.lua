@@ -106,6 +106,10 @@ end
 
 function EnemyBattler:onCheck(battler) end
 
+function EnemyBattler:onActStart(battler, name)
+    battler:setAnimation("battle/act")
+end
+
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
