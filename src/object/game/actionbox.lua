@@ -77,6 +77,7 @@ function ActionBox:select()  -- TODO: unhardcode!
 
     elseif self.selected_button == 5 then
         self.battler:setAnimation("battle/defend")
+        self.head_sprite:setSprite(self.battler.chara.head_icons.."/defend")
         self.battler.defending = true
         self.revert_to = Game.battle.tension_bar:giveTension(40)
         Game.battle:nextParty()
@@ -86,6 +87,7 @@ end
 function ActionBox:unselect()
     -- We have to uncommit any action that we did before.
     self.battler:setAnimation("battle/idle")
+    self.head_sprite:setSprite(self.battler.chara.head_icons.."/head")
     if self.selected_button == 5 then -- TODO: unhardcode!
         self.battler.defending = false
         Game.battle.tension_bar:removeTension(self.revert_to)
