@@ -3,12 +3,7 @@ function isClass(o)
 end
 
 return setmetatable({}, {__index=_Class, __call = function(_, include, o)
-    if include and not getmetatable(include) then
-        o = include
-        include = nil
-    elseif not o then
-        o = {}
-    end
+    o = o or {}
     if include then
         o.__includes = include
     end

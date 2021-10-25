@@ -196,6 +196,8 @@ function World:loadObject(name, data)
         return Savepoint(data)
     elseif name:lower() == "transition" then
         return Transition(data)
+    elseif name:lower() == "npc" then
+        return NPC(data)
     end
 end
 

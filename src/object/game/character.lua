@@ -1,6 +1,10 @@
 local Character, super = Class(Object)
 
 function Character:init(chara, x, y)
+    if type(chara) == "string" then
+        chara = Registry.getActor(chara)
+    end
+
     super:init(self, x, y, chara.width, chara.height)
 
     self.actor = chara

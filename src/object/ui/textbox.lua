@@ -12,8 +12,10 @@ function Textbox:init(x, y, width, height, no_background)
     end
 
     self.face = Sprite()
+    self.face.path = "face"
     self.face.y = height / 2
     self.face:setOrigin(0, 0.5)
+    self.face:setScale(2, 2)
     self:addChild(self.face)
 
     self.text = DialogueText("", 0, 0, width, height)
@@ -32,8 +34,8 @@ end
 function Textbox:setFace(face)
     self.face:setSprite(face)
 
-    self.text.x = self.face.width
-    self.text.width = self.width - self.face.width
+    self.text.x = self.face.width * 2
+    self.text.width = self.width - self.face.width * 2
 end
 
 function Textbox:setText(text)

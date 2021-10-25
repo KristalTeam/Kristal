@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="45">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="46">
  <editorsettings>
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
@@ -79,6 +79,13 @@
   <object id="42" name="banana" x="360" y="720" width="40" height="40"/>
   <object id="43" name="banana" x="360" y="800" width="40" height="40"/>
   <object id="44" name="banana" x="440" y="800" width="40" height="40"/>
+  <object id="45" name="npc" x="980" y="860">
+   <properties>
+    <property name="actor" value="starwalker"/>
+    <property name="script" value="starwalker"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup color="#7f00ff" id="4" name="markers">
   <object id="24" name="entry" x="600" y="40">

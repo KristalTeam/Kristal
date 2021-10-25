@@ -84,6 +84,7 @@ DamageNumber = require("src.object.game.damagenumber")
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
 Transition = require("src.object.game.transition")
+NPC = require("src.object.game.npc")
 
 Cutscene = require("src.cutscene")
 
