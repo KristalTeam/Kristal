@@ -197,6 +197,7 @@ function Battle:onStateChange(old,new)
             if self.battle_ui then
                 for _,box in ipairs(self.battle_ui.action_boxes) do
                     box.selected_button = 1
+                    box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
                 end
                 if (old ~= "INTRO") then
                     self.battle_ui.current_encounter_text = self:fetchEncounterText()
@@ -639,6 +640,8 @@ end
 
 function Battle:commitSpell(menu_item, target)
     self.party[self.current_selecting]:setAnimation("battle/spell_ready")
+    local box = self.battle_ui.action_boxes[self.current_selecting]
+    box.head_sprite:setSprite(box.battler.chara.head_icons.."/magic")
     self.tension_bar:removeTension(menu_item.tp)
     table.insert(self.character_actions,
     {
@@ -795,6 +798,7 @@ function Battle:keypressed(key)
                 self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
                 self.party[self.current_selecting]:setAnimation("battle/attack_ready")
+                self.battle_ui.action_boxes[self.current_selecting].head_sprite:setSprite(self.battle_ui.action_boxes[self.current_selecting].battler.chara.head_icons.."/fight")
                 table.insert(self.character_actions,
                     {
                         ["character_id"] = self.current_selecting,
