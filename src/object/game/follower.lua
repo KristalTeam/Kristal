@@ -9,6 +9,7 @@ function Follower:init(chara, x, y, target)
     self.target = target or Game.world.player
 
     self.following = true
+    self.returning = false
 end
 
 function Follower:onAdd(parent)
@@ -59,11 +60,22 @@ function Follower:interprolate()
         local dy = Utils.approach(ey, ty, speed) - ey
 
         self:move(dx, dy)
+
+        return dx, dy
+    else
+        return 0, 0
     end
 end
 
 function Follower:update(dt)
     self:updateIndex()
+
+    if self.returning then
+        local dx, dy = self:interprolate()
+        if dx == 0 and dy == 0 then
+            self.returning = false
+        end
+    end
 
     super:update(self, dt)
 end

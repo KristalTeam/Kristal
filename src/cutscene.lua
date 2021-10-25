@@ -26,6 +26,7 @@ function Cutscene.start(cutscene)
     end
     self.textbox = nil
     self.textbox_immediate = false
+    self.move_targets = {}
 
     self.current_coroutine = coroutine.create(func)
     Game.lock_input = true
@@ -33,10 +34,11 @@ function Cutscene.start(cutscene)
     --[[Overworld.cutscene_active = true
     Overworld.lock_player_input = true
     Overworld.can_open_menu = false]]
-    coroutine.resume(self.current_coroutine)
+    self.resume()
 end
 
 function Cutscene.wait(seconds)
+    print("waiting "..seconds)
     if self.current_coroutine then
         self.delay_timer = seconds
         coroutine.yield()
@@ -51,7 +53,10 @@ end
 
 function Cutscene.resume()
     if self.current_coroutine then
-        coroutine.resume(self.current_coroutine)
+        local ok, msg = coroutine.resume(self.current_coroutine)
+        if not ok then
+            error(msg)
+        end
     end
 end
 
@@ -68,7 +73,26 @@ end
 -- Main update function of the module
 function Cutscene.update(dt)
     if self.current_coroutine then
+        local done_moving = {}
+        for chara,target in pairs(self.move_targets) do
+            local ex, ey = chara:getExactPosition()
+            if ex == target[2] and ey == target[3] then
+                table.insert(done_moving, chara)
+            end
+            local tx = Utils.approach(ex, target[2], target[4] * DTMULT)
+            local ty = Utils.approach(ey, target[3], target[4] * DTMULT)
+            if target[1] then
+                chara:moveTo(tx, ty)
+            else
+                chara:setExactPosition(tx, ty)
+            end
+        end
+        for _,v in ipairs(done_moving) do
+            self.move_targets[v] = nil
+        end
+
         if coroutine.status(self.current_coroutine) == "dead" then
+            print("coroutine death!!")
 
             -- TODO: UNSET CUTSCENE VARIABLE
             -- TODO: UNLOCK PLAYER INPUT
@@ -90,7 +114,7 @@ function Cutscene.update(dt)
                 self.delay_timer = self.delay_timer - dt
             end
             if self.delay_timer <= 0 and not self.delay_from_textbox then
-                coroutine.resume(self.current_coroutine)
+                self.resume()
             end
             if self.textbox_immediate and not self.textbox:isTyping() then
                 self.textbox.active = false
@@ -98,6 +122,75 @@ function Cutscene.update(dt)
                 self.delay_from_textbox = false
             end
         end
+    end
+end
+
+function Cutscene.getCharacter(id, index)
+    local i = 0
+    for _,chara in ipairs(Game.stage:getObjects(Character)) do
+        if chara.actor.id == id then
+            i = i + 1
+            if not index or index == i then
+                return chara
+            end
+        end
+    end
+end
+
+function Cutscene.detachFollowers()
+    for _,follower in ipairs(Game.followers) do
+        follower.following = false
+    end
+end
+
+function Cutscene.attachFollowers(dont_return)
+    for _,follower in ipairs(Game.followers) do
+        follower.following = true
+        follower.returning = not dont_return
+    end
+end
+
+function Cutscene.look(chara, dir)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    chara:setFacing(dir)
+end
+
+function Cutscene.walkTo(chara, x, y, speed)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    local ex, ey = chara:getExactPosition()
+    if ex ~= x or ey ~= y then
+        self.move_targets[chara] = {true, x, y, speed or 4}
+    end
+end
+
+function Cutscene.setSprite(chara, sprite, speed)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    chara:setSprite(sprite)
+    if speed then
+        chara:play(speed, true)
+    end
+end
+
+function Cutscene.setAnimation(chara, anim)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    chara:setAnimation(anim)
+end
+
+function Cutscene.slideTo(chara, x, y, speed)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    local ex, ey = chara:getExactPosition()
+    if ex ~= x or ey ~= y then
+        self.move_targets[chara] = {false, x, y, speed or 4}
     end
 end
 
@@ -121,7 +214,10 @@ function Cutscene.text(text, portrait, options)
 
     self.textbox_immediate = options["auto"]
     self.delay_from_textbox = true
-    coroutine.yield()
+
+    if self.current_coroutine then
+        coroutine.yield()
+    end
 end
 
 --[[

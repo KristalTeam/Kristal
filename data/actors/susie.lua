@@ -43,6 +43,8 @@ return {
         ["world/dark/right"] = {0, 2},
         ["world/dark/up"] = {0, 2},
 
+        ["world/dark/shock_r"] = {13, 1},
+
         ["battle/dark/idle"] = {22, 1},
 
         ["battle/dark/attack"] = {26, 25},

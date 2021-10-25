@@ -45,6 +45,18 @@ function Character:getExactPosition(x, y)
     return self.x + self.partial_x, self.y + self.partial_y
 end
 
+function Character:setExactPosition(x, y)
+    self.x = math.floor(x)
+    self.partial_x = x - self.x
+    self.y = math.floor(y)
+    self.partial_y = y - self.y
+end
+
+function Character:setFacing(dir)
+    self.facing = dir
+    self.sprite.facing = dir
+end
+
 function Character:moveTo(x, y)
     self:move(x - (self.x + self.partial_x), y - (self.y + self.partial_y))
 end
@@ -75,7 +87,7 @@ function Character:move(x, y, speed)
         elseif movey < 0 then
             dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "up"
         end
-    
+
         self.facing = dir
         self.sprite.facing = self.facing
     end
@@ -213,6 +225,10 @@ end
 
 function Character:setCustomSprite(sprite, ox, oy)
     self.sprite:setCustomSprite(sprite, ox, oy)
+end
+
+function Character:setAnimationSprite(animation)
+    self.sprite:setAnimation(animation)
 end
 
 function Character:play(speed, loop, reset, on_finished)
