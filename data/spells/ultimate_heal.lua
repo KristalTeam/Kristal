@@ -1,24 +1,19 @@
-local UltimateHeal = Class(Spell)
-
-function UltimateHeal:init()
+local spell = Spell{
     -- Spell ID (optional, defaults to path)
-    self.id = "ultimate_heal"
+    id = "ultimate_heal",
     -- Display name
-    self.name = "UltimatHeal"
+    name = "UltimatHeal",
 
     -- Battle description
-    self.effect = "Best\nhealing"
+    effect = "Best\nhealing",
     -- Menu description
-    self.description = "Heals 1 party member to the\nbest of Susie's ability."
+    description = "Heals 1 party member to the\nbest of Susie's ability.",
 
     -- TP cost (default tp max is 250)
-    self.cost = 250
-
-    -- How long it takes the spell to cast
-    self.delay = 0.25
+    cost = 250,
 
     -- Target mode (party, enemy, or none/nil)
-    self.target = "party"
-end
+    target = "party",
+}
 
-return UltimateHeal
+return spell

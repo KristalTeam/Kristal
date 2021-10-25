@@ -1,29 +1,24 @@
-local HealPrayer = Class(Spell)
-
-function HealPrayer:init()
+local spell = Spell{
     -- Spell ID (optional, defaults to path)
-    self.id = "heal_prayer"
+    id = "heal_prayer",
     -- Display name
-    self.name = "Heal Prayer"
+    name = "Heal Prayer",
 
     -- Battle description
-    self.effect = "Heal\nAlly"
+    effect = "Heal\nAlly",
     -- Menu description
-    self.description = "Heavenly light restores a little HP to\none party member. Depends on Magic."
+    description = "Heavenly light restores a little HP to\none party member. Depends on Magic.",
 
     -- TP cost (default tp max is 250)
-    self.cost = 80
-
-    -- How long it takes the spell to cast
-    self.delay = 0.25
+    cost = 80,
 
     -- Target mode (party, enemy, or none/nil)
-    self.target = "party"
-end
+    target = "party",
+}
 
-function HealPrayer:onCast(user, target)
+function spell:onCast(user, target)
     target:heal(love.math.random(100))
     Game.battle:finishSpell()
 end
 
-return HealPrayer
+return spell

@@ -1,24 +1,19 @@
-local RudeBuster = Class(Spell)
-
-function RudeBuster:init()
+local spell = Spell{
     -- Spell ID (optional, defaults to path)
-    self.id = "rude_buster"
+    id = "rude_buster",
     -- Display name
-    self.name = "Rude Buster"
+    name = "Rude Buster",
 
     -- Battle description
-    self.effect = "Rude\nDamage"
+    effect = "Rude\nDamage",
     -- Menu description
-    self.description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic."
+    description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic.",
 
     -- TP cost (default tp max is 250)
-    self.cost = 125
-
-    -- How long it takes the spell to cast
-    self.delay = 0.25
+    cost = 125,
 
     -- Target mode (party, enemy, or none/nil)
-    self.target = "enemy"
-end
+    target = "enemy",
+}
 
-return RudeBuster
+return spell

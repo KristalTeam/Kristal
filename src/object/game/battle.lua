@@ -357,7 +357,7 @@ function Battle:processAction(action)
                 local found_spell = nil
                 for _,party in ipairs(self.party) do
                     for _,spell_id in ipairs(party.chara.spells) do
-                        local spell = Registry.createSpell(spell_id)
+                        local spell = Registry.getSpell(spell_id)
                         if spell.pacify then
                             found_spell = spell
                             break
