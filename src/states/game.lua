@@ -100,7 +100,7 @@ function Game:update(dt)
         return
     end
 
-    Cutscene:update(dt)
+    Cutscene.update(dt)
 
     if self.world.player and -- If the player exists,
        not self.lock_input -- and input isn't locked,
@@ -143,12 +143,16 @@ function Game:keypressed(key)
             self.battle:keypressed(key)
         end
     elseif self.state == "OVERWORLD" then
-        if self.world.player then -- TODO: move this to function in world.lua
-            if key == "z" then
-                self.world.player:interact()
-            elseif key == "f" then
-                print(Utils.dump(self.world.player.history))
+        if not self.lock_input then
+            if self.world.player then -- TODO: move this to function in world.lua
+                if key == "z" then
+                    self.world.player:interact()
+                elseif key == "f" then
+                    print(Utils.dump(self.world.player.history))
+                end
             end
+        elseif self.cutscene_active then
+            Cutscene.keypressed(key)
         end
     end
 end

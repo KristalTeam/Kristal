@@ -291,7 +291,7 @@ function Battle:onStateChange(old,new)
             end
             local dialogue = enemy:getEnemyDialogue()
             if dialogue then
-                local textbox = EnemyTextBox(dialogue, x, y)
+                local textbox = EnemyTextbox(dialogue, x, y)
                 table.insert(self.enemy_dialogue, textbox)
                 self:addChild(textbox)
             end

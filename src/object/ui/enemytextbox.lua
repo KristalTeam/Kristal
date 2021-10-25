@@ -1,6 +1,6 @@
-local EnemyTextBox, super = Class(Object)
+local EnemyTextbox, super = Class(Object)
 
-function EnemyTextBox:init(text, x, y)
+function EnemyTextbox:init(text, x, y)
     super:init(self, x, y, 0, 0)
 
     self:setOrigin(1, 0.5)
@@ -27,7 +27,7 @@ function EnemyTextBox:init(text, x, y)
     self:next()
 end
 
-function EnemyTextBox:next()
+function EnemyTextbox:next()
     self.current_text = self.current_text + 1
     if self.current_text > #self.text_list then
         self:remove()
@@ -39,7 +39,7 @@ function EnemyTextBox:next()
     return false
 end
 
-function EnemyTextBox:setText(text)
+function EnemyTextbox:setText(text)
     local _,lines = text:gsub("\n", "")
 
     local w = self.font:getWidth(text)
@@ -54,7 +54,7 @@ function EnemyTextBox:setText(text)
     self.text:setText(text)
 end
 
-function EnemyTextBox:draw()
+function EnemyTextbox:draw()
     love.graphics.rectangle("fill", self.text.x - 10, self.text.y - 5, self.text.width + 20, self.text.height + 10)
     love.graphics.rectangle("fill", self.text.x - 5, self.text.y - 10, self.text.width + 10, self.text.height + 20)
     local scale = 1
@@ -66,4 +66,4 @@ function EnemyTextBox:draw()
     self:drawChildren()
 end
 
-return EnemyTextBox
+return EnemyTextbox

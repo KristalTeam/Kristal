@@ -17,7 +17,7 @@ function Savepoint:onInteract(player, dir)
     --text.x = SCREEN_WIDTH/2 - ((28 / 2) * 16)
     --text.y = SCREEN_HEIGHT - (3 * 30)
     --self.stage:addChild(text)
-    Cutscene:start("test")
+    Cutscene.start("test")
 
     return true
 end

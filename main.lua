@@ -47,7 +47,9 @@ Text = require("src.object.ui.text")
 DialogueText = require("src.object.ui.dialoguetext")
 TextChar = require("src.object.ui.textchar")
 ShadedChar = require("src.object.ui.shadedchar")
-EnemyTextBox = require("src.object.ui.enemytextbox")
+DarkBox = require("src.object.ui.darkbox")
+Textbox = require("src.object.ui.textbox")
+EnemyTextbox = require("src.object.ui.enemytextbox")
 
 ModList = require("src.object.menu.modlist")
 ModButton = require("src.object.menu.modbutton")
@@ -82,6 +84,7 @@ DamageNumber = require("src.object.game.damagenumber")
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
 Transition = require("src.object.game.transition")
+NPC = require("src.object.game.npc")
 
 Cutscene = require("src.cutscene")
 
