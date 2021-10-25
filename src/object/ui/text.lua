@@ -20,6 +20,7 @@ function Text:init(text, x, y, w, h, char_type, font)
     self.font = font or "main"
     self.wrap = true
     self.chars = {}
+    self.line_offset = 0
 
     self:resetState()
 
@@ -170,7 +171,7 @@ function Text:processNode(node)
                 self.state.current_x = font:getWidth("* ")
             end
             local spacing = Assets.getFontData(self.font) or {}
-            self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) -- TODO: unhardcode
+            self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) + self.line_offset
             -- We don't want to wait on a newline, so...
             self.state.progress = self.state.progress + 1
         else

@@ -1,9 +1,6 @@
-local text = DialogueText("* The power of [color:pink]test dialogue[color:reset] shines\nwithin you.")
-Game.stage:addChild(text)
-Cutscene:wait(3)
-text:setText("* Oh    [color:red]Fuck[color:reset]   it's a  bomb")
-Cutscene:wait(2)
-text:Remove()
+Cutscene.text("* The power of [color:pink]test dialogue[color:reset]\nshines within you.")
+Cutscene.wait(0.5)
+Cutscene.text("* Oh    [color:red]Fuck[color:reset]   it's a  bomb", nil, {auto = true})
 
 if Game.world.player then
     Game.world.player:explode()
