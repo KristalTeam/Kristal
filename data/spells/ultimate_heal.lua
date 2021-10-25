@@ -21,4 +21,9 @@ function UltimateHeal:init()
     self.target = "party"
 end
 
+function UltimateHeal:onStart(user, target)
+    user:setAnimation("battle/spell")
+    Game.battle:BattleText("* "..user.chara.name.." cast ULTIMATEHEAL!")
+end
+
 return UltimateHeal

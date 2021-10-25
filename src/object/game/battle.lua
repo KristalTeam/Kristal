@@ -640,7 +640,8 @@ end
 
 function Battle:commitSpell(menu_item, target)
     self.party[self.current_selecting]:setAnimation("battle/spell_ready")
-    self.battle_ui.action_boxes[self.current_selecting]:setSprite(self.battler.chara.head_icons.."/magic")
+    local box = self.battle_ui.action_boxes[self.current_selecting]
+    box.head_sprite:setSprite(box.battler.chara.head_icons.."/magic")
     self.tension_bar:removeTension(menu_item.tp)
     table.insert(self.character_actions,
     {
