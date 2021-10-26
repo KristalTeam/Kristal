@@ -15,15 +15,15 @@ function Input.isMenu(key)
     return (key == "c") or (key == "lctrl") or (key == "rctrl")
 end
 
-function Input.Confirm()
+function Input.confirm()
     return love.keyboard.isDown("z") or love.keyboard.isDown("return")
 end
 
-function Input.Cancel()
+function Input.cancel()
     return love.keyboard.isDown("x") or love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")
 end
 
-function Input.Menu()
+function Input.menu()
     return love.keyboard.isDown("c") or love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")
 end
 
