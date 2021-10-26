@@ -80,6 +80,8 @@ BattleUI = require("src.object.game.battleui")
 ActionBox = require("src.object.game.actionbox")
 TensionBar = require("src.object.game.tensionbar")
 DamageNumber = require("src.object.game.damagenumber")
+HeartBurst = require("src.object.game.heartburst")
+Soul = require("src.object.game.soul")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")

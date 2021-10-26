@@ -788,6 +788,23 @@ function Battle:keypressed(key)
                 self.music:play()
             end
         end
+        if key == "d" then
+            local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
+
+            local x, y
+            if not battler then
+                x, y = -9, -9
+            else
+                x, y = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+            end
+
+            self:addChild(HeartBurst(x, y))
+            if not self.soul then
+                self.soul = Soul(x, y)
+                self.soul:moveTo(310, 120)
+                self:addChild(self.soul)
+            end
+        end
     end
 
     if self.state == "MENUSELECT" then
