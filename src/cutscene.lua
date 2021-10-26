@@ -61,7 +61,7 @@ function Cutscene.resume()
 end
 
 function Cutscene.keypressed(key)
-    if key == "z" then
+    if Input.isConfirm(key) then
         if self.delay_from_textbox and not self.textbox:isTyping() then
             self.textbox.active = false
             self.textbox.visible = false

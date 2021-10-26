@@ -811,7 +811,7 @@ function Battle:keypressed(key)
         local menu_width = 2
         local menu_height = math.ceil(#self.menu_items / 2)
 
-        if key == "z" then
+        if Input.isConfirm(key) then
             if self.state_reason == "ACT" then
                 local menu_item = self.menu_items[self:getItemIndex()]
                 if self:canSelectMenuItem(menu_item) then
@@ -857,7 +857,7 @@ function Battle:keypressed(key)
                 end
                 return
             end
-        elseif key == "x" then
+        elseif Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
             self:setState("ACTIONSELECT", "CANCEL")
@@ -891,7 +891,7 @@ function Battle:keypressed(key)
             end
         end
     elseif self.state == "ENEMYSELECT" then
-        if key == "z" then
+        if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
             self.selected_enemy = self.current_menu_y
@@ -947,7 +947,7 @@ function Battle:keypressed(key)
             end
             return
         end
-        if key == "x" then
+        if Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
             self:setState("ACTIONSELECT", "CANCEL")
@@ -969,7 +969,7 @@ function Battle:keypressed(key)
             end
         end
     elseif self.state == "PARTYSELECT" then
-        if key == "z" then
+        if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
             if self.state_reason == "SPELL" then
@@ -979,7 +979,7 @@ function Battle:keypressed(key)
             end
             return
         end
-        if key == "x" then
+        if Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
             self:setState("ACTIONSELECT", "CANCEL")
@@ -1001,7 +1001,7 @@ function Battle:keypressed(key)
             end
         end
     elseif self.state == "BATTLETEXT" then
-        if key == "z" then
+        if Input.isConfirm(key) then
             if not self.battle_ui.encounter_text.state.typing then
                 if self.battletext_table ~= nil then
                     self.battletext_index = self.battletext_index + 1
@@ -1019,7 +1019,7 @@ function Battle:keypressed(key)
             end
         end
     elseif self.state == "ENEMYDIALOGUE" then
-        if key == "z" then
+        if Input.isConfirm(key) then
             local any_typing = false
             local all_done = true
             local to_remove = {}
@@ -1052,12 +1052,12 @@ function Battle:keypressed(key)
         end
     elseif self.state == "ACTIONSELECT" then
         -- TODO: make this less huge!!
-        if key == "z" then
+        if Input.isConfirm(key) then
             self.battle_ui.action_boxes[self.current_selecting]:select()
             self.ui_select:stop()
             self.ui_select:play()
             return
-        elseif key == "x" then
+        elseif Input.isCancel(key) then
             if Game.battle.current_selecting > 1 then
                 self.ui_move:stop()
                 self.ui_move:play()

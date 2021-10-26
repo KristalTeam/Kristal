@@ -30,6 +30,7 @@ Kristal.States = {
 Game = Kristal.States["Game"]
 
 Assets = require("src.assets")
+Input = require("src.input")
 Registry = require("src.registry")
 Draw = require("src.draw")
 

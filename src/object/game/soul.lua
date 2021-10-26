@@ -48,6 +48,11 @@ function Soul:update(dt)
 
     local speed = self.speed
 
+    -- Do speed calculations here if required.
+
+    if love.keyboard.isDown("x") then speed = speed / 2 end -- Focus mode.
+
+    -- Keyboard input:
     if love.keyboard.isDown("left")  then self.x = self.x - (speed * DTMULT) end
     if love.keyboard.isDown("right") then self.x = self.x + (speed * DTMULT) end
     if love.keyboard.isDown("up")    then self.y = self.y - (speed * DTMULT) end

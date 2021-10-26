@@ -319,14 +319,14 @@ function Menu:keypressed(key, _, is_repeat)
         self:reloadMods()
     end
 
-    if key == "x" then
+    if Input.isCancel(key) then
         self.ui_select:stop()
         self.ui_select:play()
         love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
     end
 
     if #self.list.mods > 0 then
-        if key == "z" then
+        if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
 
