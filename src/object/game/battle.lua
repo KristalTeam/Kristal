@@ -107,6 +107,8 @@ function Battle:init()
     self.timer = Timer.new()
 
     self.has_acted = false
+
+    self.background_fade_alpha = 0
 end
 
 function Battle:postInit(state, encounter)
@@ -235,13 +237,14 @@ function Battle:onStateChange(old,new)
             if not self.music_file then
                 self.music = love.audio.newSource("assets/music/battle.ogg", "stream")
                 self.music:setVolume(0.7)
+                self.music:setLooping(true)
+                self.music:play()
             else
                 self.music = love.audio.newSource("assets/music/" .. self.music_file, "stream")
+                self.music:setLooping(true)
+                self.music:play()
             end
         end
-
-        self.music:setLooping(true)
-        self.music:play()
 
         if not self.battle_ui then
             self.battle_ui = BattleUI()
@@ -633,18 +636,46 @@ function Battle:updateTransition(dt)
     end
 end
 
+function Battle:debugPrintOutline(string, x, y, color)
+    color = color or {love.graphics.getColor()}
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.print(string, x - 1, y)
+    love.graphics.print(string, x + 1, y)
+    love.graphics.print(string, x, y - 1)
+    love.graphics.print(string, x, y + 1)
+
+    love.graphics.setColor(color)
+    love.graphics.print(string, x, y)
+end
+
 function Battle:drawDebug()
-    local font = Assets.getFont("main")
+    local font = Assets.getFont("main", 16)
     love.graphics.setFont(font)
+
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print("State: "    .. self.state   , 4, -4)
-    love.graphics.print("Substate: " .. self.substate, 4, -4 + 32)
+    self:debugPrintOutline("State: "    .. self.state   , 4, 0)
+    self:debugPrintOutline("Substate: " .. self.substate, 4, 0 + 16)
 end
 
 function Battle:draw()
     if self.encounter.background then
         self:drawBackground()
     end
+
+    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
+        self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
+    end
+
+    if (self.state == "ACTIONSELECT") or (self.state == "ACTIONS") then
+        self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
+    end
+
+    love.graphics.setColor(0, 0, 0, self.background_fade_alpha) -- TODO: make this accurate!!
+    -- The "foreground" background boxes have values of (17, 0, 17),
+    -- while the "background" background boxes have values of (9, 0, 9).
+    -- But in our engine, when we use 0.75, for some reason the foreground boxes are correct,
+    -- however the background ones are (8, 0, 8).
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self:drawChildren()
 
@@ -749,6 +780,13 @@ function Battle:keypressed(key)
     if true then -- TODO: DEBUG
         if key == "g" then
             self.party[self.current_selecting]:hurt(1)
+        end
+        if key == "m" then
+            if self.music:isPlaying() then
+                self.music:pause()
+            else
+                self.music:play()
+            end
         end
     end
 
