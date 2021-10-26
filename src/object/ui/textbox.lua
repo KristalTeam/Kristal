@@ -11,14 +11,19 @@ function Textbox:init(x, y, width, height, no_background)
         self.box.visible = false
     end
 
+    self.face_x = 16 + 2
+    self.face_y = 10 - 4
+
+    self.text_x = 2
+    self.text_y = -2
+
     self.face = Sprite()
     self.face.path = "face"
-    self.face.y = height / 2
-    self.face:setOrigin(0, 0.5)
+    self.face:setPosition(self.face_x, self.face_y)
     self.face:setScale(2, 2)
     self:addChild(self.face)
 
-    self.text = DialogueText("", 0, 0, width, height)
+    self.text = DialogueText("", self.text_x, self.text_y, width, height)
     self.text.line_offset = 8 -- idk this is dumb
     self:addChild(self.text)
 end
@@ -26,16 +31,26 @@ end
 function Textbox:setSize(w, h)
     self.width, self.height = w or 0, h or 0
 
-    self.box:setSize(self.width, self.height)
+    self.face:setPosition(116 / 2, self.height /2)
     self.text:setSize(self.width, self.height)
-    self.face.y = self.height/2
+    if self.face.texture then
+        self.box:setSize(self.width - 116, self.height)
+    else
+        self.box:setSize(self.width, self.height)
+    end
 end
 
-function Textbox:setFace(face)
+function Textbox:setFace(face, ox, oy)
     self.face:setSprite(face)
+    self.face:setPosition(self.face_x + (ox or 0), self.face_y + (oy or 0))
 
-    self.text.x = self.face.width * 2
-    self.text.width = self.width - self.face.width * 2
+    if self.face.texture then
+        self.text.x = self.text_x + 116
+        self.text.width = self.width - 116
+    else
+        self.text.x = self.text_x
+        self.text.width = self.width
+    end
 end
 
 function Textbox:setText(text)

@@ -209,7 +209,7 @@ function Cutscene.text(text, portrait, options)
 
     self.textbox.active = true
     self.textbox.visible = true
-    self.textbox:setFace(portrait)
+    self.textbox:setFace(portrait, options["x"], options["y"])
     self.textbox:setText(text)
 
     self.textbox_immediate = options["auto"]
