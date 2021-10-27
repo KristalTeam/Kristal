@@ -35,7 +35,7 @@ function ActionBox:init(x, y, index, battler)
 
     self.head_sprite = Sprite(battler.chara.head_icons.."/head", 13, 11)
     self.name_sprite = Sprite(battler.chara.name_sprite,         51, 14)
-    self.hp_sprite   = Sprite("ui/hp", 110, 22)
+    self.hp_sprite   = Sprite("ui/hp", 109, 22)
 
     self:addChild(self.head_sprite)
     self:addChild(self.name_sprite)
