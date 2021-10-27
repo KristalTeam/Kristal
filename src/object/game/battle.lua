@@ -880,7 +880,7 @@ function Battle:keypressed(key)
             self.ui_move:play()
             self:setState("ACTIONSELECT", "CANCEL")
             return
-        elseif key == "left" then -- TODO: pagination... also rewrite this code, im so sorry
+        elseif key == "left" then -- TODO: pagination
             self.current_menu_x = self.current_menu_x - 1
             if self.current_menu_x < 1 then
                 self.current_menu_x = menu_width

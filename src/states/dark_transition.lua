@@ -946,7 +946,6 @@ function DarkTransition:draw(dont_clear)
             --end
         end
         if (self.timer >= 30 and self.timer < 60) then
-            -- TODO: fade
             self.black_fade = self.black_fade - 0.05 * (DT * 30)
             if self.quick_mode then
                 self.black_fade = self.black_fade - 0.05 * (DT * 30)

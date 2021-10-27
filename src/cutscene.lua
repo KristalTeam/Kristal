@@ -94,8 +94,6 @@ function Cutscene.update(dt)
         if coroutine.status(self.current_coroutine) == "dead" then
             print("coroutine death!!")
 
-            -- TODO: UNSET CUTSCENE VARIABLE
-            -- TODO: UNLOCK PLAYER INPUT
             -- TODO: ALLOW THE PLAYER TO OPEN THE MENU  OR SOMETHING
 
             Game.lock_input = false
