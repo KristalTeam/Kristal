@@ -62,6 +62,23 @@ function Virovirokun:onActStart(battler, name)
     end
 end
 
+function Virovirokun:processMultiActs(battler, name)
+    if name == "Quarantine" then
+        return "* You told Virovirokun to stay home."
+    elseif name == "Standard" then
+        self:addMercy(50)
+        if battler.id == "noelle" then
+            return "* Noelle offered a cold compress!"
+        elseif battler.id == "susie" then
+            return "* Susie encouraged evil!"
+        elseif battler.id == "ralsei" then
+            return "* Ralsei tried to rehabilitate!"
+        end
+    end
+    return nil
+end
+
+
 function Virovirokun:onAct(battler, name)
     if name == "TakeCare" then
         self:addMercy(100)
@@ -115,18 +132,6 @@ function Virovirokun:getEnemyDialogue()
         }
     end
     return dialogue[math.random(#dialogue)]
-end
-
-function Virovirokun:onXAction(battler, name)
-    -- for Virovirokun, name will always be Standard
-    self:addMercy(50)
-    if battler.id == "noelle" then
-        Game.battle:setXActionText("* Noelle offered a cold compress!")
-    elseif battler.id == "susie" then
-        Game.battle:setXActionText("* Susie encouraged evil!")
-    elseif battler.id == "ralsei" then
-        Game.battle:setXActionText("* Ralsei tried to rehabilitate!")
-    end
 end
 
 return Virovirokun
