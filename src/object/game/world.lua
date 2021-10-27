@@ -262,8 +262,8 @@ function World:updateCamera()
     self.camera.y = Utils.clamp(self.camera.y, vh * zoom, self.map_height * self.tile_height - (vh * zoom))
 end
 
-function World:getTransform()
-    local transform = super:getTransform(self)
+function World:createTransform()
+    local transform = super:createTransform(self)
     transform:apply(self.camera:getTransform(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
     return transform
 end

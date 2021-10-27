@@ -68,8 +68,8 @@ function AfterImage:update(dt)
     self:updateChildren(dt)
 end
 
-function AfterImage:getTransform()
-    local transform = super:getTransform(self)
+function AfterImage:createTransform()
+    local transform = super:createTransform(self)
     if self.parent then
         return self.parent:getFullTransform():inverse() * transform
     else

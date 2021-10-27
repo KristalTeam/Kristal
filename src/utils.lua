@@ -298,5 +298,76 @@ function Utils.merge_color(start_color, end_color, amount)
     return color
 end
 
+function Utils.getPolygonEdges(points)
+    local edges = {}
+    for i = 1, #points do
+        local p1, p2 = points[i], points[(i % #points) + 1]
+        table.insert(edges, {p1, p2, angle=math.atan2(p2[2] - p1[2], p2[1] - p1[1])})
+    end
+    return edges
+end
+
+function Utils.isPolygonClockwise(edges)
+    local sum = 0
+    for _,edge in ipairs(edges) do
+        sum = sum + ((edge[2][1] - edge[1][1]) * (edge[2][2] + edge[1][2]))
+    end
+    return sum > 0
+end
+
+function Utils.getLineIntersect(l1p1x,l1p1y, l1p2x,l1p2y, l2p1x,l2p1y, l2p2x,l2p2y, seg1, seg2)
+	local a1,b1,a2,b2 = l1p2y-l1p1y, l1p1x-l1p2x, l2p2y-l2p1y, l2p1x-l2p2x
+	local c1,c2 = a1*l1p1x+b1*l1p1y, a2*l2p1x+b2*l2p1y
+	local det,x,y = a1*b2 - a2*b1
+	if det==0 then return false, "The lines are parallel." end
+	x,y = (b2*c1-b1*c2)/det, (a1*c2-a2*c1)/det
+	if seg1 or seg2 then
+		local min,max = math.min, math.max
+		if seg1 and not (min(l1p1x,l1p2x) <= x and x <= max(l1p1x,l1p2x) and min(l1p1y,l1p2y) <= y and y <= max(l1p1y,l1p2y)) or
+		   seg2 and not (min(l2p1x,l2p2x) <= x and x <= max(l2p1x,l2p2x) and min(l2p1y,l2p2y) <= y and y <= max(l2p1y,l2p2y)) then
+			return false, "The lines don't intersect."
+		end
+	end
+	return x,y
+end
+
+function Utils.getPolygonOffset(points, dist)
+    local edges = Utils.getPolygonEdges(points)
+    local sign = Utils.isPolygonClockwise(edges) and 1 or -1
+
+    local function offsetPoint(x, y, angle, dist)
+        return x + math.cos(angle) * dist, y + math.sin(angle) * dist
+    end
+
+    local new_polygon = {}
+    for i = 1, #edges do
+        local e1, e2 = edges[i], edges[(i % #edges) + 1]
+
+        local p1x, p1y = offsetPoint(e1[1][1], e1[1][2], e1.angle + sign * (math.pi/2), dist)
+        local p2x, p2y = offsetPoint(e1[2][1], e1[2][2], e1.angle + sign * (math.pi/2), dist)
+        local p3x, p3y = offsetPoint(e2[1][1], e2[1][2], e2.angle + sign * (math.pi/2), dist)
+        local p4x, p4y = offsetPoint(e2[2][1], e2[2][2], e2.angle + sign * (math.pi/2), dist)
+
+        local ix, iy = Utils.getLineIntersect(p1x,p1y, p2x,p2y, p3x,p3y, p4x,p4y)
+        if ix then
+            table.insert(new_polygon, {ix, iy})
+        end
+    end
+
+    table.insert(new_polygon, 1, table.remove(new_polygon, #new_polygon))
+
+    return new_polygon
+end
+
+function Utils.unpackPolygon(points)
+    local line = {}
+    for _,point in ipairs(points) do
+        table.insert(line, point[1])
+        table.insert(line, point[2])
+    end
+    table.insert(line, points[1][1])
+    table.insert(line, points[1][2])
+    return unpack(line)
+end
 
 return Utils

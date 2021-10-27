@@ -143,8 +143,8 @@ function ActorSprite:update(dt)
     super:update(self, dt)
 end
 
-function ActorSprite:getTransform()
-    local transform = super:getTransform(self)
+function ActorSprite:createTransform()
+    local transform = super:createTransform(self)
     local offset = self:getOffset()
     transform:translate(-offset[1], -offset[2])
     return transform

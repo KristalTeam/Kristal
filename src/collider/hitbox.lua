@@ -14,6 +14,8 @@ function Hitbox:collidesWith(other)
         return self:collideWithHitbox(other) or other:collideWithHitbox(self, true)
     elseif other:includes(LineCollider) then
         return other:collidesWith(self)
+    elseif other:includes(ColliderGroup) then
+        return other:collidesWith(self)
     end
 
     return super:collidesWith(self, other)

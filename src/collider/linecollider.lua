@@ -19,6 +19,8 @@ function LineCollider:collidesWith(other, symmetrical)
                self:collideWithLine(other, tf1, tf2, other.x + other.width, other.y, other.x + other.width, other.y + other.height) or
                self:collideWithLine(other, tf1, tf2, other.x + other.width, other.y + other.height, other.x, other.y + other.height) or
                self:collideWithLine(other, tf1, tf2, other.x, other.y + other.height, other.x, other.y)
+    elseif other:includes(ColliderGroup) then
+        return other:collidesWith(self)
     end
 
     return super:collidesWith(self, other)

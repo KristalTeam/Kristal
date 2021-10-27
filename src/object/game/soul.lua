@@ -10,6 +10,11 @@ function Soul:init(x, y)
     self.sprite = Sprite("player/heart_dodge")
     self.sprite.color = self.color
     self:addChild(self.sprite)
+    
+    self.width = self.sprite.width
+    self.height = self.sprite.height
+
+    self.collider = Hitbox(0, 0, self.width, self.height, self)
 
     self.original_x = x
     self.original_y = y
@@ -52,11 +57,31 @@ function Soul:update(dt)
 
     if Input.cancel() then speed = speed / 2 end -- Focus mode.
 
+    local move_x, move_y = 0, 0
+
     -- Keyboard input:
-    if love.keyboard.isDown("left")  then self.x = self.x - (speed * DTMULT) end
-    if love.keyboard.isDown("right") then self.x = self.x + (speed * DTMULT) end
-    if love.keyboard.isDown("up")    then self.y = self.y - (speed * DTMULT) end
-    if love.keyboard.isDown("down")  then self.y = self.y + (speed * DTMULT) end
+    if love.keyboard.isDown("left")  then move_x = move_x - (speed * DTMULT) end
+    if love.keyboard.isDown("right") then move_x = move_x + (speed * DTMULT) end
+    if love.keyboard.isDown("up")    then move_y = move_y - (speed * DTMULT) end
+    if love.keyboard.isDown("down")  then move_y = move_y + (speed * DTMULT) end
+
+    if Game.battle.arena then
+        Object.startCache()
+        self.x = self.x + move_x
+        if self:collidesWith(Game.battle.arena) then
+            self.x = self.x - move_x
+        end
+        Object.endCache()
+        Object.startCache()
+        self.y = self.y + move_y
+        if self:collidesWith(Game.battle.arena) then
+            self.y = self.y - move_y
+        end
+        Object.endCache()
+    else
+        self.x = self.x + move_x
+        self.y = self.y + move_y
+    end
 
     self:updateChildren(dt)
 end

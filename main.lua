@@ -63,6 +63,7 @@ FlashFade = require("src.object.darktransition.flashfade")
 HeadObject = require("src.object.darktransition.head_object")
 
 Collider = require("src.collider.collider")
+ColliderGroup = require("src.collider.collidergroup")
 Hitbox = require("src.collider.hitbox")
 LineCollider = require("src.collider.linecollider")
 
@@ -83,6 +84,7 @@ TensionBar = require("src.object.game.tensionbar")
 DamageNumber = require("src.object.game.damagenumber")
 HeartBurst = require("src.object.game.heartburst")
 Soul = require("src.object.game.soul")
+Arena = require("src.object.game.arena")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")

@@ -2,6 +2,22 @@ local Object = Class()
 
 Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
 
+Object.CACHE_TRANSFORMS = false
+Object.CACHED = {}
+Object.CACHED_FULL = {}
+
+function Object.startCache()
+    Object.CACHED = {}
+    Object.CACHED_FULL = {}
+    Object.CACHE_TRANSFORMS = true
+end
+
+function Object.endCache()
+    Object.CACHED = {}
+    Object.CACHED_FULL = {}
+    Object.CACHE_TRANSFORMS = false
+end
+
 function Object:init(x, y, width, height)
     -- Intitialize this object's position (optional args)
     self.x = x or 0
@@ -191,8 +207,8 @@ function Object:applyScissor()
     end
 end
 
-function Object:getTransform()
-    Utils.pushPerformance("Object#getTransform")
+function Object:createTransform()
+    Utils.pushPerformance("Object#createTransform")
     local transform = love.math.newTransform()
     transform:translate(self.x, self.y)
     if self.flip_x or self.flip_y then
@@ -213,11 +229,33 @@ function Object:getTransform()
     return transform
 end
 
-function Object:getFullTransform()
-    if not self.parent then
-        return self:getTransform()
+function Object:getTransform()
+    if Object.CACHE_TRANSFORMS then
+        if not Object.CACHED[self] then
+            Object.CACHED[self] = self:createTransform()
+        end
+        return Object.CACHED[self]
     else
-        return self.parent:getFullTransform():apply(self:getTransform())
+        return self:createTransform()
+    end
+end
+
+function Object:getFullTransform()
+    if Object.CACHE_TRANSFORMS then
+        if not Object.CACHED_FULL[self] then
+            if not self.parent then
+                Object.CACHED_FULL[self] = self:getTransform()
+            else
+                Object.CACHED_FULL[self] = self.parent:getFullTransform():apply(self:getTransform())
+            end
+        end
+        return Object.CACHED_FULL[self]
+    else
+        if not self.parent then
+            return self:getTransform()
+        else
+            return self.parent:getFullTransform():apply(self:getTransform())
+        end
     end
 end
 

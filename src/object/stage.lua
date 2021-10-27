@@ -57,6 +57,7 @@ function Stage:update(dt)
             end
         end
     end
+    self.objects_to_remove = {}
     self:updateChildren(dt)
 end
 

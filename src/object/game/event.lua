@@ -33,17 +33,6 @@ function Event:onRemove(parent)
     end
 end
 
-function Event:update(dt)
-    if self.collider and self.world and not self.solid then
-        for _,v in ipairs(self.world.children) do
-            if v:includes(Character) and self:collidesWith(v) then
-                self:onCollide(v)
-            end
-        end
-    end
-    self:updateChildren(dt)
-end
-
 function Event:setSprite(texture, speed)
     if texture then
         if self.sprite then

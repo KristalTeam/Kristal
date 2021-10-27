@@ -248,6 +248,20 @@ function Character:update(dt)
         self.sprite.walking = false
     end
 
+    if self.world then
+        local collided = {}
+        Object.startCache()
+        for _,object in ipairs(self.world.children) do
+            if not object.solid and object.onCollide and self:collidesWith(object) then
+                table.insert(collided, object)
+            end
+        end
+        for _,object in ipairs(collided) do
+            object:onCollide(self)
+        end
+        Object.endCache()
+    end
+
     self:updateChildren(dt)
 end
 

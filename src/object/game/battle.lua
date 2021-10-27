@@ -71,6 +71,9 @@ function Battle:init()
     self.battle_ui = nil
     self.tension_bar = nil
 
+    self.arena = nil
+    self.soul = nil
+
     self.character_actions = {}
     self.current_action_processing = 1
 
@@ -224,6 +227,14 @@ function Battle:onStateChange(old,new)
                 end
                 self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
             end
+            if self.arena then
+                self:removeChild(self.arena)
+                self.arena = nil
+            end
+            if self.soul then
+                self:removeChild(self.soul)
+                self.soul = nil
+            end
             for _,battler in ipairs(self.party) do
                 battler:setAnimation("battle/idle")
             end
@@ -298,6 +309,30 @@ function Battle:onStateChange(old,new)
                 table.insert(self.enemy_dialogue, textbox)
                 self:addChild(textbox)
             end
+        end
+    elseif new == "DEFENDING" then
+        self.battle_ui.encounter_text:setText("")
+
+        local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
+
+        local x, y
+        if not battler then
+            x, y = -9, -9
+        else
+            x, y = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+        end
+
+        --self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10)
+        self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10, {{100, 0}, {125, 0}, {125, 75}, {200, 75}, {200, 100}, {100, 200}, {0, 100}})
+        self.arena.layer = 10
+        self:addChild(self.arena)
+
+        self:addChild(HeartBurst(x, y))
+        if not self.soul then
+            self.soul = Soul(x, y)
+            self.soul:moveTo(self.arena:getCenter())
+            self.soul.layer = 20
+            self:addChild(self.soul)
         end
     end
 end
@@ -788,23 +823,6 @@ function Battle:keypressed(key)
                 self.music:play()
             end
         end
-        if key == "d" then
-            local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
-
-            local x, y
-            if not battler then
-                x, y = -9, -9
-            else
-                x, y = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
-            end
-
-            self:addChild(HeartBurst(x, y))
-            if not self.soul then
-                self.soul = Soul(x, y)
-                self.soul:moveTo(310, 120)
-                self:addChild(self.soul)
-            end
-        end
     end
 
     if self.state == "MENUSELECT" then
@@ -1047,7 +1065,7 @@ function Battle:keypressed(key)
             end
             -- If all dialogue is done, go to DEFENDING state
             if all_done then
-                self:setState("ACTIONSELECT")
+                self:setState("DEFENDING")
             end
         end
     elseif self.state == "ACTIONSELECT" then
@@ -1081,6 +1099,22 @@ function Battle:keypressed(key)
 
         if self.battle_ui.action_boxes[self.current_selecting].selected_button > 5 then -- TODO: unhardcode
             self.battle_ui.action_boxes[self.current_selecting].selected_button = 1
+        end
+    elseif self.state == "DEFENDING" then
+        if Input.isConfirm(key) then
+            self:setState("ACTIONSELECT")
+        elseif key == "d" then
+            local rot = self.arena.rotation + (math.pi/2)
+            self.timer:tween(0.33, self.arena, {rotation = rot})
+        elseif key == "a" then
+            local rot = self.arena.rotation - (math.pi/2)
+            self.timer:tween(0.33, self.arena, {rotation = rot})
+        elseif key == "w" then
+            local sx, sy = self.arena.scale_x * 1.5, self.arena.scale_y * 1.5
+            self.timer:tween(0.33, self.arena, {scale_x = sx, scale_y = sy})
+        elseif key == "s" then
+            local sx, sy = self.arena.scale_x * 0.75, self.arena.scale_y * 0.75
+            self.timer:tween(0.33, self.arena, {scale_x = sx, scale_y = sy})
         end
     end
 end
