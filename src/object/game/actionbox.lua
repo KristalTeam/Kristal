@@ -35,9 +35,13 @@ function ActionBox:init(x, y, index, battler)
 
     self.head_sprite = Sprite(battler.chara.head_icons.."/head", 13, 11)
     self.name_sprite = Sprite(battler.chara.name_sprite,         51, 14)
+    self.hp_sprite   = Sprite("ui/hp", 110, 22)
 
     self:addChild(self.head_sprite)
     self:addChild(self.name_sprite)
+    self:addChild(self.hp_sprite)
+
+    self.font = Assets.getFont("smallnumbers")
 end
 
 function ActionBox:setHeadIcon(icon)
@@ -140,9 +144,6 @@ function ActionBox:drawActionBox()
         love.graphics.setColor(51/255, 32/255, 51/255, 1)
     end
 
-    self.head_sprite.y = 11 - self.box_y_offset
-    self.name_sprite.y = 14 - self.box_y_offset
-
     love.graphics.setLineWidth(2)
     love.graphics.line(1  , 2 - self.box_y_offset, 1,   37 - self.box_y_offset)
     love.graphics.line(212, 2 - self.box_y_offset, 212, 37 - self.box_y_offset)
@@ -161,6 +162,39 @@ function ActionBox:drawActionBox()
 
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 2, 327 - self.box_y_offset - 325, 209, 35)
+
+
+    self.head_sprite.y = 11 - self.box_y_offset
+    self.name_sprite.y = 14 - self.box_y_offset
+    self.hp_sprite.y   = 22 - self.box_y_offset
+
+    love.graphics.setColor(128/255, 0, 0, 1)
+    love.graphics.rectangle("fill", 128, 22 - self.box_y_offset, 76, 9)
+
+    local health = (self.battler.chara.health / self.battler.chara.stats.health) * 76
+
+    if health > 0 then
+        love.graphics.setColor(self.battler.chara.color)
+        love.graphics.rectangle("fill", 128, 22 - self.box_y_offset, health, 9)
+    end
+
+
+    if health <= 0 then
+        love.graphics.setColor(1, 0, 0, 1)
+    elseif (self.battler.chara.health <= (self.battler.chara.stats.health / 4)) then
+        love.graphics.setColor(1, 1, 0, 1)
+    else
+        love.graphics.setColor(1, 1, 1, 1)
+    end
+
+
+    local health_offset = 0
+    health_offset = (#tostring(self.battler.chara.health) - 1) * 8
+
+    love.graphics.setFont(self.font)
+    love.graphics.print(self.battler.chara.health, 152 - health_offset, 9 - self.box_y_offset)
+    love.graphics.print("/", 161, 9 - self.box_y_offset)
+    love.graphics.print(self.battler.chara.stats.health, 181, 9 - self.box_y_offset)
 end
 
 function ActionBox:drawActionArena()
