@@ -41,7 +41,7 @@ function DialogueText:update(dt)
         self.state.waiting = math.max(0, self.state.waiting - dt)
     end
 
-    if Input.isDown("cancel") then
+    if Input.down("cancel") then
         self.state.skipping = true
     end
 
