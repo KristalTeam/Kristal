@@ -40,11 +40,12 @@ function EnemyBattler:init(chara)
 
     self.flash_siner = 0
 end
-function EnemyBattler:registerAct(name, description, party)
+function EnemyBattler:registerAct(name, description, party, tp)
     local act = {
         ["name"] = name,
         ["description"] = description,
-        ["party"] = party
+        ["party"] = party,
+        ["tp"] = tp or 0
     }
     table.insert(self.acts, act)
 end

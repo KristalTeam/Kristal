@@ -391,7 +391,7 @@ function Battle:processCharacterActions()
         self:setState("ACTIONS", "DONTPROCESS")
     end
 
-    local order = {"SKIP", "ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK"}
+    local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK", "SKIP"}
     for _,action_string in ipairs(order) do
         for i=1, #self.character_actions do
             local character_action = self.character_actions[i]
@@ -481,7 +481,8 @@ function Battle:processAction(action)
             enemy:onActStart(battler, action.name)
             for index, value in ipairs(self.party) do
                 local chara_action = self:getActionFromCharacterIndex(index)
-                if chara_action and chara_action.action == "ACT" then
+                if chara_action and ((chara_action.action == "ACT") or (chara_action.action == "SKIP")) then
+                    print(value.chara.name .. ": " .. chara_action.name)
                     enemy:onActStart(value, chara_action.name)
                 end
             end
@@ -521,7 +522,22 @@ end
 function Battle:removeAction(character_id)
     for index, action in ipairs(self.character_actions) do
         if action.character_id == character_id then
+            local battler = self.party[character_id]
+            battler:setAnimation("battle/idle")
             table.remove(self.character_actions, index)
+            if action.party then
+                for _,v in ipairs(action.party) do
+                    if self:hasAction(self:getPartyIndex(v)) then
+                        local party_index = self:getPartyIndex(v)
+                        local ibattler = self.party[party_index]
+                        ibattler:setAnimation("battle/idle")
+                        self.battle_ui.action_boxes[party_index].head_sprite:setSprite(self.battle_ui.action_boxes[party_index].battler.chara.head_icons.."/head")
+
+                        self:removeAction(party_index)
+                    end
+                end
+                return
+            end
         end
     end
 end
@@ -801,7 +817,10 @@ function Battle:commitSpell(menu_item, target)
             table.insert(self.character_actions,
                 {
                     ["character_id"] = self:getPartyIndex(v),
-                    ["action"] = "SKIP",
+                    ["name"] = menu_item.name,
+                    ["reason"] = "ACT",
+                    ["action"] = "SPELL",
+                    ["act_parent"] = self.current_selecting
                 }
             )
         end
@@ -837,6 +856,9 @@ function Battle:keypressed(key)
                     self.ui_select:stop()
                     self.ui_select:play()
 
+                    self.party[self.current_selecting]:setAnimation("battle/act_ready")
+                    self.battle_ui.action_boxes[self.current_selecting].head_sprite:setSprite(self.battle_ui.action_boxes[self.current_selecting].battler.chara.head_icons.."/act")
+
                     table.insert(self.character_actions,
                         {
                             ["character_id"] = self.current_selecting,
@@ -848,10 +870,16 @@ function Battle:keypressed(key)
                     )
                     if menu_item.party then
                         for _,v in ipairs(menu_item.party) do
+                            local party_index = self:getPartyIndex(v)
+                            self.party[party_index]:setAnimation("battle/act_ready")
+                            self.battle_ui.action_boxes[party_index].head_sprite:setSprite(self.battle_ui.action_boxes[party_index].battler.chara.head_icons.."/act")
                             table.insert(self.character_actions,
                                 {
-                                    ["character_id"] = self:getPartyIndex(v),
+                                    ["character_id"] = party_index,
                                     ["action"] = "SKIP",
+                                    ["name"] = menu_item.name,
+                                    ["reason"] = "ACT",
+                                    ["act_parent"] = self.current_selecting
                                 }
                             )
                         end

@@ -29,7 +29,7 @@ function Virovirokun:init()
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", {"susie", "ralsei"})
     self:registerAct("TakeCareX", "", {"noelle"})
-    self:registerAct("Quarantine")
+    self:registerAct("Quarantine", "Make\nenemy\nTIRED", {"ralsei"}, 20)
 
     self.text_override = nil
 end
