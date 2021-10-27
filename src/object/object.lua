@@ -3,19 +3,38 @@ local Object = Class()
 Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
 
 Object.CACHE_TRANSFORMS = false
+Object.CACHE_ATTEMPTS = 0
 Object.CACHED = {}
 Object.CACHED_FULL = {}
 
 function Object.startCache()
-    Object.CACHED = {}
-    Object.CACHED_FULL = {}
-    Object.CACHE_TRANSFORMS = true
+    Object.CACHE_ATTEMPTS = Object.CACHE_ATTEMPTS + 1
+    if Object.CACHE_ATTEMPTS == 1 then
+        Object.CACHED = {}
+        Object.CACHED_FULL = {}
+        Object.CACHE_TRANSFORMS = true
+    end
 end
 
 function Object.endCache()
-    Object.CACHED = {}
-    Object.CACHED_FULL = {}
-    Object.CACHE_TRANSFORMS = false
+    Object.CACHE_ATTEMPTS = Object.CACHE_ATTEMPTS - 1
+    if Object.CACHE_ATTEMPTS == 0 then
+        Object.CACHED = {}
+        Object.CACHED_FULL = {}
+        Object.CACHE_TRANSFORMS = false
+    end
+end
+
+function Object.uncache(obj)
+    Object.CACHED[obj] = nil
+    Object.uncacheFull(obj)
+end
+
+function Object.uncacheFull(obj)
+    Object.CACHED_FULL[obj] = nil
+    for _,child in ipairs(obj.children) do
+        Object.uncacheFull(child)
+    end
 end
 
 function Object:init(x, y, width, height)
@@ -246,7 +265,7 @@ function Object:getFullTransform()
             if not self.parent then
                 Object.CACHED_FULL[self] = self:getTransform()
             else
-                Object.CACHED_FULL[self] = self.parent:getFullTransform():apply(self:getTransform())
+                Object.CACHED_FULL[self] = self.parent:getFullTransform() * self:getTransform()
             end
         end
         return Object.CACHED_FULL[self]

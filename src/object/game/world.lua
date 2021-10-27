@@ -41,11 +41,14 @@ function World:getCollision()
 end
 
 function World:checkCollision(collider)
+    Object.startCache()
     for _,other in ipairs(self:getCollision()) do
         if collider:collidesWith(other) then
+            Object.endCache()
             return true, other.parent
         end
     end
+    Object.endCache()
     return false
 end
 
@@ -271,11 +274,13 @@ end
 function World:sortChildren()
     Utils.pushPerformance("World#sortChildren")
     -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
+    Object.startCache()
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(self, a.width/2, a.height)
         local bx, by = b:getRelativePos(self, b.width/2, b.height)
         return math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))
     end)
+    Object.endCache()
     Utils.popPerformance()
 end
 
@@ -291,6 +296,23 @@ function World:update(dt)
         self.transition_fade = Utils.approach(self.transition_fade, 0, dt / 0.25)
         if self.transition_fade == 0 then
             self.state = "GAMEPLAY"
+        end
+    elseif self.state == "GAMEPLAY" then
+        -- Object collision
+        local collided = {}
+        Object.startCache()
+        for _,obj in ipairs(self.children) do
+            if not obj.solid and obj.onCollide then
+                for _,char in ipairs(self.stage:getObjects(Character)) do
+                    if obj:collidesWith(char) then
+                        table.insert(collided, {obj, char})
+                    end
+                end
+            end
+        end
+        Object.endCache()
+        for _,v in ipairs(collided) do
+            v[1]:onCollide(v[2])
         end
     end
 

@@ -71,8 +71,7 @@ function Soul:update(dt)
         if self:collidesWith(Game.battle.arena) then
             self.x = self.x - move_x
         end
-        Object.endCache()
-        Object.startCache()
+        Object.uncache(self)
         self.y = self.y + move_y
         if self:collidesWith(Game.battle.arena) then
             self.y = self.y - move_y

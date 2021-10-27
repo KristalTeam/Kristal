@@ -181,9 +181,11 @@ function Character:moveYExact(amount, move_x)
         self.y = self.y + sign
 
         if not self.noclip then
+            Object.startCache()
             local collided, target = self.world:checkCollision(self.collider)
             if collided and not (move_x > 0) then
                 for i = 1, 2 do
+                    Object.uncache(self)
                     self.x = self.x - i
                     collided, target = self.world:checkCollision(self.collider)
                     if not collided then break end
@@ -192,11 +194,13 @@ function Character:moveYExact(amount, move_x)
             if collided and not (move_x < 0) then
                 self.x = last_x
                 for i = 1, 2 do
+                    Object.uncache(self)
                     self.x = self.x + i
                     collided, target = self.world:checkCollision(self.collider)
                     if not collided then break end
                 end
             end
+            Object.endCache()
     
             if collided then
                 self.x = last_x
@@ -246,20 +250,6 @@ function Character:update(dt)
         self.moved = 0
     else
         self.sprite.walking = false
-    end
-
-    if self.world then
-        local collided = {}
-        Object.startCache()
-        for _,object in ipairs(self.world.children) do
-            if not object.solid and object.onCollide and self:collidesWith(object) then
-                table.insert(collided, object)
-            end
-        end
-        for _,object in ipairs(collided) do
-            object:onCollide(self)
-        end
-        Object.endCache()
     end
 
     self:updateChildren(dt)

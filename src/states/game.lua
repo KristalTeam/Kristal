@@ -109,6 +109,16 @@ function Game:update(dt)
         Game:handleMovement()
     end
 
+    if self.state == "BATTLE" and self.battle then
+        self.world.active = false
+        if self.battle.background_fade_alpha >= 1 then
+            self.world.visible = false
+        end
+    else
+        self.world.active = true
+        self.world.visible = true
+    end
+
     self.stage:update(dt)
 
     Kristal.modCall("PostUpdate", dt)
