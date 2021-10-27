@@ -10,11 +10,15 @@ function Soul:init(x, y)
     self.sprite = Sprite("player/heart_dodge")
     self.sprite.color = self.color
     self:addChild(self.sprite)
-    
-    self.width = self.sprite.width
-    self.height = self.sprite.height
 
-    self.collider = Hitbox(0, 0, self.width, self.height, self)
+    --self.width = self.sprite.width
+    --self.height = self.sprite.height
+    self.width = 16
+    self.height = 16
+    self.hitbox_x = 2
+    self.hitbox_y = 2
+
+    self.collider = Hitbox(2, 2, self.width, self.height, self)
 
     self.original_x = x
     self.original_y = y
