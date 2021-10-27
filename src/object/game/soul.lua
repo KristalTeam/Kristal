@@ -59,7 +59,7 @@ function Soul:update(dt)
 
     -- Do speed calculations here if required.
 
-    if Input.cancel() then speed = speed / 2 end -- Focus mode.
+    if Input.isDown("cancel") then speed = speed / 2 end -- Focus mode.
 
     local move_x, move_y = 0, 0
 

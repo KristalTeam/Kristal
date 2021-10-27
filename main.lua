@@ -239,6 +239,8 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+    Input.onKeyPressed(key)
+
     if key == "f1" then
         Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
     elseif key == "f2" then
@@ -255,6 +257,10 @@ function love.keypressed(key)
     end
 end
 
+function love.keyreleased(key)
+    Input.onKeyReleased(key)
+end
+
 function love.run()
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
@@ -266,6 +272,9 @@ function love.run()
     local errorResult
 
     local function mainLoop()
+        -- Clear input from last frame
+        Input.clearPressed()
+
         -- Process events.
         if love.event then
             love.event.pump()
