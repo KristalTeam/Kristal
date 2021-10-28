@@ -522,6 +522,24 @@ function Battle:processAction(action)
                     local act_text = enemy:onMultiAct(new_battler, new_action.name)
                     if act_text == nil then
                         print("we got act text, but it's nil...")
+                        if #all_act_text == 0 then
+                            print("we have no text...")
+                            print("let's just give up !!!! we wanna process this first anyway")
+                            enemy:onAct(battler, action.name)
+                            return
+                        end
+                        print("just do nothing!!")
+                    else
+                        print("we got act text: " .. act_text)
+                        print("lets add it!")
+                        table.insert(all_act_text, act_text)
+                        table.insert(actions_to_remove, new_action.character_id)
+                    end
+                    print("are we at the end...?")
+                    print("acting members: " .. self:countActingMembers() + 1)
+                    print("processed:" .. processed)
+                    if ((self:countActingMembers() + 1) == processed) then
+                        print("uh oh... we reached the end of acting characters!")
                         if #all_act_text <= 1 then
                             print("we haven't gotten enough... fall back!!")
                             enemy:onAct(battler, action.name)
@@ -537,38 +555,8 @@ function Battle:processAction(action)
                                 self:removeAction(v)
                             end
                             self:battleText(dumb_string_testing)
-                            --enemy:onAct(new_battler, new_action.name)
                         end
                         return
-                    else
-                        print("we got act text: " .. act_text)
-                        print("lets add it!")
-                        table.insert(all_act_text, act_text)
-                        table.insert(actions_to_remove, new_action.character_id)
-                        print("are we at the end...?")
-                        print("acting members: " .. self:countActingMembers() + 1)
-                        print("processed:" .. processed)
-                        if ((self:countActingMembers() + 1) == processed) then
-                            print("uh oh... we reached the end of acting characters!")
-                            if #all_act_text <= 1 then
-                                print("we haven't gotten enough... fall back!!")
-                                enemy:onAct(battler, action.name)
-                                return
-                            else
-                                print("we have more than one, so lets do it")
-                                local dumb_string_testing = ""
-                                for _,str in ipairs(all_act_text) do
-                                    dumb_string_testing = dumb_string_testing .. str .. "\n"
-                                end
-                                for _,v in ipairs(actions_to_remove) do
-                                    print("removing: " .. v)
-                                    self:removeAction(v)
-                                end
-                                self:battleText(dumb_string_testing)
-                                --enemy:onAct(new_battler, new_action.name)
-                            end
-                            return
-                        end
                     end
                 else
                     print("you don't act, that sucks")
@@ -576,7 +564,9 @@ function Battle:processAction(action)
             end
         else
             enemy:onAct(battler, action.name)
+            return
         end
+        print("how did we get here?!")
     elseif action.action == "SKIP" then
         print("skipped!")
         self:processCharacterActions()
