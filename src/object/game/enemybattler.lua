@@ -60,7 +60,7 @@ end
 function EnemyBattler:addMercy(amount)
     if (self.mercy >= 100) then
         -- We're already at full mercy; do nothing.
-    --    return
+        return
     end
 
     self.mercy = self.mercy + amount
