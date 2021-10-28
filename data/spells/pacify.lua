@@ -22,9 +22,9 @@ local spell = Spell{
 function spell:onStart(user, target)
     user:setAnimation("battle/spell")
     if target.tired then
-        Game.battle:BattleText("* "..user.chara.name.." cast PACIFY!")
+        Game.battle:battleText("* "..user.chara.name.." cast PACIFY!")
     else
-        Game.battle:BattleText("* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]...")
+        Game.battle:battleText("* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]...")
     end
 end
 

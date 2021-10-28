@@ -25,8 +25,8 @@ return PartyMember{
     name_sprite = "party/ralsei/name",
 
     -- Whether the party member can act / use spells
-    has_act = false,
-    has_spells = true,
+    has_act = true,
+    has_spells = false,
 
     -- Spells by id
     spells = {"pacify", "heal_prayer"},

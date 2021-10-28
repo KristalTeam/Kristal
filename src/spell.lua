@@ -11,7 +11,7 @@ end
 
 function Spell:onStart(user, target)
     user:setAnimation("battle/spell")
-    Game.battle:BattleText("* "..user.chara.name.." cast "..self.name:upper().."!")
+    Game.battle:battleText("* "..user.chara.name.." cast "..self.name:upper().."!")
 end
 
 function Spell:onCast(user, target)

@@ -114,15 +114,13 @@ end
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
-        Game.battle:BattleText("* " .. string.upper(self.name) .. " - " .. self.check)
+        Game.battle:battleText("* " .. string.upper(self.name) .. " - " .. self.check)
     end
 end
 
 function EnemyBattler:getXAction(battler)
     return "Standard"
 end
-
-function EnemyBattler:onXAction(battler, name) end
 
 function EnemyBattler:statusMessage(type, arg)
     local hit_count = Game.battle.hit_count

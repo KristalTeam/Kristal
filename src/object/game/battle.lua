@@ -430,6 +430,16 @@ function Battle:getActionFromCharacterIndex(index)
     end
 end
 
+function Battle:countActingMembers()
+    local count = 0
+    for _, action in ipairs(self.character_actions) do
+        if action.action == "ACT" then
+            count = count + 1
+        end
+    end
+    return count
+end
+
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
     local party_member = battler.chara
@@ -466,12 +476,12 @@ function Battle:processAction(action)
                 end
             end
         end
-        self:BattleText(text,
+        self:battleText(text,
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ATTACK" then
         battler:setAnimation("battle/attack")
-        self:BattleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
+        self:battleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
             (function() self:processCharacterActions() end)
         )
     elseif action.action == "ACT" then
@@ -490,7 +500,83 @@ function Battle:processAction(action)
         --battler:setAnimation("battle/act")
         --print(action.name)
         self.current_acting = battler
-        enemy:onAct(battler, action.name)
+
+        -- fun fact: this would have only been a single function call
+        -- if stupid multi-acts didn't exist
+
+        -- Add one to count ourself
+        if (self:countActingMembers() + 1) > 1 then
+            print("more than 1 acting member, lets go")
+            local processed = 0
+            local all_act_text = {}
+            local all_actions = Utils.copy(self.character_actions)
+            local actions_to_remove = {}
+            table.insert(all_actions, 1, action)
+            for _, new_action in ipairs(all_actions) do
+                print("alright, next!")
+                print("alright " .. self.party[new_action.character_id].chara.name .. ", you're up, do you ACT?")
+                if new_action.action == "ACT" then
+                    print("nice, you do!")
+                    processed = processed + 1
+                    local new_battler = self.party[new_action.character_id]
+                    local act_text = enemy:onMultiAct(new_battler, new_action.name)
+                    if act_text == nil then
+                        print("we got act text, but it's nil...")
+                        if #all_act_text <= 1 then
+                            print("we haven't gotten enough... fall back!!")
+                            enemy:onAct(battler, action.name)
+                            return
+                        else
+                            print("we have more than one, so lets do it")
+                            local dumb_string_testing = ""
+                            for _,str in ipairs(all_act_text) do
+                                dumb_string_testing = dumb_string_testing .. str .. "\n"
+                            end
+                            for _,v in ipairs(actions_to_remove) do
+                                print("removing: " .. v)
+                                self:removeAction(v)
+                            end
+                            self:battleText(dumb_string_testing)
+                            --enemy:onAct(new_battler, new_action.name)
+                        end
+                        return
+                    else
+                        print("we got act text: " .. act_text)
+                        print("lets add it!")
+                        table.insert(all_act_text, act_text)
+                        table.insert(actions_to_remove, new_action.character_id)
+                        print("are we at the end...?")
+                        print("acting members: " .. self:countActingMembers() + 1)
+                        print("processed:" .. processed)
+                        if ((self:countActingMembers() + 1) == processed) then
+                            print("uh oh... we reached the end of acting characters!")
+                            if #all_act_text <= 1 then
+                                print("we haven't gotten enough... fall back!!")
+                                enemy:onAct(battler, action.name)
+                                return
+                            else
+                                print("we have more than one, so lets do it")
+                                local dumb_string_testing = ""
+                                for _,str in ipairs(all_act_text) do
+                                    dumb_string_testing = dumb_string_testing .. str .. "\n"
+                                end
+                                for _,v in ipairs(actions_to_remove) do
+                                    print("removing: " .. v)
+                                    self:removeAction(v)
+                                end
+                                self:battleText(dumb_string_testing)
+                                --enemy:onAct(new_battler, new_action.name)
+                            end
+                            return
+                        end
+                    end
+                else
+                    print("you don't act, that sucks")
+                end
+            end
+        else
+            enemy:onAct(battler, action.name)
+        end
     elseif action.action == "SKIP" then
         print("skipped!")
         self:processCharacterActions()
@@ -605,7 +691,7 @@ function Battle:nextParty()
     end
 end
 
-function Battle:BattleText(text,post_func)
+function Battle:battleText(text,post_func)
     self.battletext_index = 1
     if type(text) == "table" then
         self.battletext_table = text
