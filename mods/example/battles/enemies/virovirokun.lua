@@ -29,7 +29,7 @@ function Virovirokun:init()
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", {"susie", "ralsei"})
     self:registerAct("TakeCareX", "", {"noelle"})
-    self:registerAct("Quarantine", "Make\nenemy\nTIRED")
+    self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
 
     self.text_override = nil
 end
@@ -62,7 +62,7 @@ function Virovirokun:onActStart(battler, name)
     end
 end
 
-function Virovirokun:onMultiAct(battler, name)
+function Virovirokun:onShortAct(battler, name)
     if name == "Quarantine" then
         print("telling virovirokun to stay home, naughty naughty")
         if battler.id == "kris" then
@@ -87,11 +87,11 @@ end
 function Virovirokun:onAct(battler, name)
     if name == "TakeCare" then
         self:addMercy(100)
-        Game.battle:battleText("* You treated Virovirokun with\ncare! It's no longer\ninfectious!")
+        return "* You treated Virovirokun with\ncare! It's no longer\ninfectious!"
     elseif name == "Quarantine" then
         self.tired = true
-        Game.battle:battleText("* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]...")
         self.text_override = "Fine..."
+        return "* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]..."
 
         --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.actor.dmg_color)
         --self.parent:addChild(heck)
@@ -103,33 +103,26 @@ function Virovirokun:onAct(battler, name)
                 enemy:addMercy(50)
             end
         end
-        Game.battle:battleText("* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!",
-                                (function()
-                                    for _,ibattler in ipairs(Game.battle.party) do
-                                        ibattler:setAnimation("battle/idle")
-                                    end
-                                    Game.battle:finishAct()
-                                end)
-                              )
+        return "* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!"
     elseif name == "Standard" then
         self:addMercy(50)
         if battler.id == "noelle" then
             return "* Noelle offered a cold compress!"
         elseif battler.id == "susie" then
-            Game.battle:battleText({
+            return {
                 "* Susie commiserated with the enemy!",
                 "* Stick it to the man,\ndude.",
                 "* Even if that means\ncloning yourself, or\nwhatever."
-            })
+            }
         elseif battler.id == "ralsei" then
-            Game.battle:battleText({
+            return {
                 "* Ralsei tried to steer the enemy\ndown the right path.",
                 "* Not everybody knows\nthis, but...",
                 "* Crimes are bad. ... Did\nyou know that?"
-            })
+            }
         end
     end
-    super:onAct(self, battler, name)
+    return super:onAct(self, battler, name)
 end
 
 function Virovirokun:getEnemyDialogue()

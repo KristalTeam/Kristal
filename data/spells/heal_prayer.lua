@@ -18,7 +18,6 @@ local spell = Spell{
 
 function spell:onCast(user, target)
     target:heal(love.math.random(100))
-    Game.battle:finishSpell()
 end
 
 return spell

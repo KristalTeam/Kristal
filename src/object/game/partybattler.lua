@@ -11,8 +11,6 @@ function PartyBattler:init(chara, x, y)
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "right"
 
-    self.defending = false
-
     self:addChild(self.sprite)
 
     self:setOrigin(0.5, 1)
@@ -72,8 +70,8 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
 end
 
 -- Shorthand for convenience
-function PartyBattler:setAnimation(animation)
-    self.sprite:setAnimation(animation)
+function PartyBattler:setAnimation(animation, callback)
+    return self.sprite:setAnimation(animation, callback)
 end
 
 function PartyBattler:setSprite(sprite, speed, loop, after)

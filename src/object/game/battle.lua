@@ -75,7 +75,11 @@ function Battle:init()
     self.soul = nil
 
     self.character_actions = {}
-    self.current_action_processing = 1
+
+    self.current_actions = {}
+    self.current_action_index = 1
+    self.processed_action = {}
+    self.processing_action = false
 
     self.hit_count = {}
 
@@ -98,9 +102,6 @@ function Battle:init()
 
     self.selected_enemy = 1
     self.selected_spell = nil
-
-    self.current_acting = nil
-    self.current_casting = nil
 
     self.spell_delay = 0
     self.spell_finished = false
@@ -213,14 +214,29 @@ function Battle:onStateChange(old,new)
             battler:setAnimation("battle/intro")
         end
     elseif new == "ACTIONSELECT" then
+        if old == "DEFENDING" then
+            for _,action in ipairs(self.current_actions) do
+                if action.action == "DEFEND" then
+                    self:finishAction(action)
+                end
+            end
+        end
+
         if (old == "DEFENDING") or (old == "INTRO") or (self.current_selecting < 1) or (self.current_selecting > #self.party) then
             self.hit_count = {}
             self.current_selecting = 1
             self.current_button = 1
+
+            self.character_actions = {}
+            self.current_actions = {}
+            self.processed_action = {}
+
             if self.battle_ui then
                 for _,box in ipairs(self.battle_ui.action_boxes) do
                     box.selected_button = 1
-                    box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+                    if old ~= "DEFENDING" then
+                        box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+                    end
                 end
                 if (old ~= "INTRO") then
                     self.battle_ui.current_encounter_text = self:fetchEncounterText()
@@ -235,8 +251,10 @@ function Battle:onStateChange(old,new)
                 self:removeChild(self.soul)
                 self.soul = nil
             end
-            for _,battler in ipairs(self.party) do
-                battler:setAnimation("battle/idle")
+            if old ~= "DEFENDING" then
+                for _,battler in ipairs(self.party) do
+                    battler:setAnimation("battle/idle")
+                end
             end
         end
 
@@ -270,18 +288,7 @@ function Battle:onStateChange(old,new)
         if self.state_reason == "DONTPROCESS" then
             return
         end
-
-        if self.substate == "ACT" then
-            self:finishAct()
-        elseif self.substate == "SPELL" then
-            if self.spell_finished then
-                local casting = self.current_casting
-                self.current_casting = nil
-                casting.spell:onFinish(casting.user, casting.target)
-            end
-        elseif self.state_reason ~= "BATTLETEXT" then
-            self:processCharacterActions()
-        end
+        self:tryProcessNextAction()
         print("HI I LIKE IM GAY")
     elseif new == "ENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
@@ -312,6 +319,13 @@ function Battle:onStateChange(old,new)
         end
     elseif new == "DEFENDING" then
         self.battle_ui.encounter_text:setText("")
+
+        for _,action in ipairs(self.character_actions) do
+            if action.action == "DEFEND" then
+                self:beginAction(action)
+                self:processAction(action)
+            end
+        end
 
         local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
 
@@ -363,63 +377,77 @@ function Battle:fetchEncounterText()
     return self.encounter:fetchEncounterText()
 end
 
-function Battle:finishAct()
-    local battler = self.current_acting
-
-    if battler.sprite.anim ~= "battle/act" then
-        battler:setAnimation("battle/idle")
-        self:setSubState("NONE")
-    end
-
-    self.current_acting = false
-    self:processCharacterActions()
-end
-
-function Battle:finishSpell()
-    self.spell_finished = true
-
-    if self.state ~= "BATTLETEXT" then
-        local casting = self.current_casting
-        self.current_casting = nil
-        casting.spell:onFinish(casting.user, casting.target)
-        self:setSubState("NONE")
-    end
-end
-
 function Battle:processCharacterActions()
     if self.state ~= "ACTIONS" then
         self:setState("ACTIONS", "DONTPROCESS")
     end
 
+    self.current_action_index = 1
+
     local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK", "SKIP"}
-    for _,action_string in ipairs(order) do
-        for i=1, #self.character_actions do
-            local character_action = self.character_actions[i]
-            if type(action_string) == "string" then
-                if character_action.action == action_string then
-                    table.remove(self.character_actions,i)
-                    i = i - 1
-                    self:processAction(character_action)
-                    return
-                end
-            else
-                -- If the table contains the action
-                -- Ex. if {"SPELL", "ITEM", "SPARE"} contains "SPARE"
-                if Utils.containsValue(action_string, character_action.action) then
-                    table.remove(self.character_actions,i)
-                    i = i - 1
-                    self:processAction(character_action)
-                    return
-                end
+    for _,action_group in ipairs(order) do
+        if self:processActionGroup(action_group) then
+            self:tryProcessNextAction()
+            return
+        end
+    end
+
+    print("ALL ACTIONS DONE, WAITING FOR 4/30 SECONDS")
+    self:setSubState("NONE")
+    self:setState("ENEMYDIALOGUE")
+    --[[self.timer:after(4 / 30, function()
+        self:setState("ENEMYDIALOGUE")
+    end)]]
+    --self:setState("ACTIONSELECT")
+end
+
+function Battle:processActionGroup(group)
+    if type(group) == "string" then
+        local found = false
+        for _,action in ipairs(self.character_actions) do
+            if action.action == group then
+                found = true
+                self:beginAction(action)
+            end
+        end
+        for _,action in ipairs(self.current_actions) do
+            Utils.removeFromTable(self.character_actions, action)
+        end
+        return found
+    else
+        for i,action in ipairs(self.character_actions) do
+            -- If the table contains the action
+            -- Ex. if {"SPELL", "ITEM", "SPARE"} contains "SPARE"
+            if Utils.containsValue(group, action.action) then
+                table.remove(self.character_actions, i)
+                self:beginAction(action)
+                return true
             end
         end
     end
-    print("ALL ACTIONS DONE, WAITING FOR 4/30 SECONDS")
-    self:setSubState("NONE")
-    self.timer:after(4 / 30, function()
-        self:setState("ENEMYDIALOGUE")
-    end)
-    --self:setState("ACTIONSELECT")
+end
+
+function Battle:tryProcessNextAction(force)
+    if self.state == "ACTIONS" and not self.processing_action then
+        if #self.current_actions == 0 then
+            print("PROCESSING CHARACTER ACTIONS")
+            self:processCharacterActions()
+        else
+            while self.current_action_index <= #self.current_actions do
+                local action = self.current_actions[self.current_action_index]
+                if not self.processed_action[action] then
+                    self.processing_action = action
+                    if self:processAction(action) then
+                        self:finishAction(action)
+                    end
+                    return
+                end
+                self.current_action_index = self.current_action_index + 1
+            end
+        end
+    else
+        print("CANT PROCESS, STATE: " .. self.state)
+    end
 end
 
 function Battle:getActionFromCharacterIndex(index)
@@ -440,16 +468,44 @@ function Battle:countActingMembers()
     return count
 end
 
+function Battle:getCurrentActing()
+    local result = {}
+    for _,action in ipairs(self.current_actions) do
+        if action.action == "ACT" then
+            table.insert(result, action)
+        end
+    end
+    return result
+end
+
+function Battle:beginAction(action)
+    local battler = self.party[action.character_id]
+    print("BEGINNING " .. battler.chara.name .. "'S ACTION " .. action.action)
+    local enemy = action.target
+
+    -- Add the action to the actions table, for group processing
+    table.insert(self.current_actions, action)
+
+    -- Set the state
+    self:setSubState(action.action)
+
+    if action.action == "ACT" then
+        -- Play the ACT animation by default
+        battler:setAnimation("battle/act")
+        -- Enemies might change the ACT animation, so run onActStart here
+        enemy:onActStart(battler, action.name)
+    else
+        -- TODO: Proper beginAction hook for mods
+    end
+end
+
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
     local party_member = battler.chara
     print("PROCESSING " .. party_member.name .. "'S ACTION " .. action.action)
     local enemy = action.target
 
-    self:setSubState(action.action)
-
     if action.action == "SPARE" then
-        battler:setAnimation("battle/spare")
         local worked = enemy:onMercy()
         local text
         if worked then
@@ -476,123 +532,222 @@ function Battle:processAction(action)
                 end
             end
         end
-        self:battleText(text,
-            (function() self:processCharacterActions() end)
-        )
+        battler:setAnimation("battle/spare", function() self:finishAction(action) end)
+        self:battleText(text)
     elseif action.action == "ATTACK" then
-        battler:setAnimation("battle/attack")
-        self:battleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this",
-            (function() self:processCharacterActions() end)
-        )
+        battler:setAnimation("battle/attack", function() self:finishAction(action) end)
+        self:battleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this")
     elseif action.action == "ACT" then
         print("-> It's time to act!")
-        if not self.has_acted then
-            self.has_acted = true
-            enemy:onActStart(battler, action.name)
-            for index, value in ipairs(self.party) do
-                local chara_action = self:getActionFromCharacterIndex(index)
-                if chara_action and ((chara_action.action == "ACT") or (chara_action.action == "SKIP")) then
-                    print(value.chara.name .. ": " .. chara_action.name)
-                    enemy:onActStart(value, chara_action.name)
-                end
-            end
-        end
-        --battler:setAnimation("battle/act")
-        --print(action.name)
-        self.current_acting = battler
-
         -- fun fact: this would have only been a single function call
         -- if stupid multi-acts didn't exist
 
-        -- Add one to count ourself
-        if (self:countActingMembers() + 1) > 1 then
-            print("more than 1 acting member, lets go")
-            local processed = 0
-            local all_act_text = {}
-            local all_actions = Utils.copy(self.character_actions)
-            local actions_to_remove = {}
-            table.insert(all_actions, 1, action)
-            for _, new_action in ipairs(all_actions) do
-                print("alright, next!")
-                print("alright " .. self.party[new_action.character_id].chara.name .. ", you're up, do you ACT?")
-                if new_action.action == "ACT" then
-                    print("nice, you do!")
-                    processed = processed + 1
-                    local new_battler = self.party[new_action.character_id]
-                    local act_text = enemy:onMultiAct(new_battler, new_action.name)
-                    if act_text == nil then
-                        print("we got act text, but it's nil...")
-                        if #all_act_text == 0 then
-                            print("we have no text...")
-                            print("let's just give up !!!! we wanna process this first anyway")
-                            enemy:onAct(battler, action.name)
-                            return
+        -- Check for other short acts
+        local self_short = false
+        local short_actions = {}
+        for _,iaction in ipairs(self.current_actions) do
+            if iaction.action == "ACT" then
+                local ibattler = self.party[iaction.character_id]
+                local ienemy = iaction.target
+
+                if ienemy then
+                    local act = ienemy and ienemy:getAct(iaction.name)
+
+                    if (act and act.short) or (ienemy:getXAction(ibattler) == iaction.name and ienemy:isXActionShort(ibattler)) then
+                        table.insert(short_actions, iaction)
+                        if ibattler == battler then
+                            self_short = true
                         end
-                        print("just do nothing!!")
-                    else
-                        print("we got act text: " .. act_text)
-                        print("lets add it!")
-                        table.insert(all_act_text, act_text)
-                        table.insert(actions_to_remove, new_action.character_id)
                     end
-                    print("are we at the end...?")
-                    print("acting members: " .. self:countActingMembers() + 1)
-                    print("processed:" .. processed)
-                    if ((self:countActingMembers() + 1) == processed) then
-                        print("uh oh... we reached the end of acting characters!")
-                        if #all_act_text <= 1 then
-                            print("we haven't gotten enough... fall back!!")
-                            enemy:onAct(battler, action.name)
-                            return
-                        else
-                            print("we have more than one, so lets do it")
-                            local dumb_string_testing = ""
-                            for _,str in ipairs(all_act_text) do
-                                dumb_string_testing = dumb_string_testing .. str .. "\n"
-                            end
-                            for _,v in ipairs(actions_to_remove) do
-                                print("removing: " .. v)
-                                self:removeAction(v)
-                            end
-                            self:battleText(dumb_string_testing)
-                        end
-                        return
-                    end
-                else
-                    print("you don't act, that sucks")
                 end
             end
-        else
-            enemy:onAct(battler, action.name)
-            return
         end
-        print("how did we get here?!")
+
+        if self_short and #short_actions > 1 then
+            local short_text = {}
+            for _,iaction in ipairs(short_actions) do
+                local ibattler = self.party[iaction.character_id]
+                local ienemy = iaction.target
+
+                local act_text = ienemy:onShortAct(ibattler, iaction.name)
+                if act_text then
+                    table.insert(short_text, act_text)
+                end
+            end
+
+            local dumb_string_testing = ""
+            for _,str in ipairs(short_text) do
+                dumb_string_testing = dumb_string_testing .. str .. "\n"
+            end
+            self:battleText(dumb_string_testing, function()
+                for _,iaction in ipairs(short_actions) do
+                    self:finishAction(iaction)
+                end
+                self:setState("ACTIONS", "BATTLETEXT")
+            end)
+        else
+            local text = enemy:onAct(battler, action.name)
+            if text then
+                self:setActText(text)
+            end
+        end
     elseif action.action == "SKIP" then
         print("skipped!")
-        self:processCharacterActions()
+        return true
     elseif action.action == "SPELL" then
         print("CASTING A SPELL.......")
         self.battle_ui.encounter_text:setText("")
-        self.spell_finished = false
-        self.current_casting = {
-            spell = action.data,
-            user = battler,
-            target = action.target
-        }
+
+        -- The spell itself handles the animation and finishing
         action.data:onStart(battler, action.target)
-        if action.data.delay and action.data.delay > 0 then
-            self.spell_delay = action.data.delay
-        else
-            if action.data:onCast(battler, action.target) then
-                self:finishSpell()
-            end
-        end
+    elseif action.action == "DEFEND" then
+        battler:setAnimation("battle/defend")
     else
         -- we don't know how to handle this...
-        -- go back!!!
         print("UNKNOWN ACTION " .. action.action .. ", SKIPPING")
-        self:processCharacterActions()
+        return true
     end
+end
+
+function Battle:finishActionBy(battler)
+    for _,action in ipairs(self.current_actions) do
+        local ibattler = self.party[action.character_id]
+        if ibattler == battler then
+            self:finishAction(action)
+        end
+    end
+end
+
+function Battle:finishAction(action)
+    action = action or self.current_actions[self.current_action_index]
+
+    local battler = self.party[action.character_id]
+    print("FINISHING " .. battler.chara.name .. "'S ACTION " .. action.action)
+
+    self.processed_action[action] = true
+
+    if self.processing_action == action then
+        self.processing_action = nil
+    end
+
+    local all_processed = true
+    for _,iaction in ipairs(self.current_actions) do
+        if not self.processed_action[iaction] then
+            all_processed = false
+            break
+        end
+    end
+
+    if all_processed then
+        print("ALL PROCESSED: " .. action.action)
+
+        for _,iaction in ipairs(Utils.copy(self.current_actions)) do
+            local ibattler = self.party[iaction.character_id]
+
+            local party_num = 1
+            local callback = function()
+                party_num = party_num - 1
+                if party_num == 0 then
+                    Utils.removeFromTable(self.current_actions, iaction)
+                    self:tryProcessNextAction()
+                end
+            end
+
+            if iaction.party then
+                for _,party in ipairs(iaction.party) do
+                    local jbattler = self.party[self:getPartyIndex(party)]
+
+                    if jbattler ~= ibattler then
+                        party_num = party_num + 1
+
+                        self:endActionAnimation(jbattler, iaction, callback)
+                    end
+                end
+            end
+
+            self:endActionAnimation(ibattler, iaction, callback)
+        end
+    else
+        -- Process actions if we can
+        self:tryProcessNextAction()
+    end
+end
+
+function Battle:endActionAnimation(battler, action, callback)
+    local _callback = callback
+    callback = function()
+        -- Reset the head sprite
+        local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
+        box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+        if _callback then
+            _callback()
+        end
+    end
+    if battler.sprite.anim == "battle/"..action.action:lower() then
+        -- Attempt to play the end animation if the sprite hasn't changed
+        if not battler:setAnimation("battle/"..action.action:lower().."_end", callback) then
+            battler:setAnimation("battle/idle")
+        end
+    else
+        -- Otherwise, play idle animation
+        battler:setAnimation("battle/idle")
+        if callback then
+            callback()
+        end
+    end
+end
+
+function Battle:commitAction(type, target, data)
+    data = data or {}
+
+    self.party[self.current_selecting]:setAnimation("battle/"..type:lower().."_ready")
+    local box = self.battle_ui.action_boxes[self.current_selecting]
+    print(box.battler.chara.head_icons.."/"..type:lower())
+    box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
+
+    local last_tp = self.tension_bar.tension
+    if data.tp then
+        if data.tp < 0 then
+            self.tension_bar:giveTension(-data.tp)
+        else
+            self.tension_bar:removeTension(data.tp)
+        end
+    end
+
+    table.insert(self.character_actions,
+    {
+        ["character_id"] = self.current_selecting,
+        ["action"] = type:upper(),
+        ["party"] = data.party,
+        ["name"] = data.name,
+        ["target"] = target,
+        ["data"] = data.data,
+        ["tp"] = self.tension_bar.tension - last_tp
+    })
+
+    if data.party then
+        for _,v in ipairs(data.party) do
+            local index = self:getPartyIndex(v)
+
+            self.party[index]:setAnimation("battle/"..type:lower().."_ready")
+            local other_box = self.battle_ui.action_boxes[index]
+            other_box.head_sprite:setSprite(other_box.battler.chara.head_icons.."/"..type:lower())
+
+            table.insert(self.character_actions,
+                {
+                    ["character_id"] = self:getPartyIndex(v),
+                    ["action"] = "SKIP",
+                    ["reason"] = type:upper(),
+                    ["name"] = data.name,
+                    ["target"] = target,
+                    ["data"] = data.data,
+                    ["act_parent"] = self.current_selecting
+                }
+            )
+        end
+    end
+
+    self:nextParty()
 end
 
 function Battle:removeAction(character_id)
@@ -600,16 +755,24 @@ function Battle:removeAction(character_id)
         if action.character_id == character_id then
             local battler = self.party[character_id]
             battler:setAnimation("battle/idle")
+
+            local box = self.battle_ui.action_boxes[character_id]
+            box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+
+            if action.tp then
+                if action.tp < 0 then
+                    self.tension_bar:giveTension(-action.tp)
+                elseif action.tp > 0 then
+                    self.tension_bar:removeTension(action.tp)
+                end
+            end
+
             table.remove(self.character_actions, index)
+
             if action.party then
                 for _,v in ipairs(action.party) do
                     if self:hasAction(self:getPartyIndex(v)) then
-                        local party_index = self:getPartyIndex(v)
-                        local ibattler = self.party[party_index]
-                        ibattler:setAnimation("battle/idle")
-                        self.battle_ui.action_boxes[party_index].head_sprite:setSprite(self.battle_ui.action_boxes[party_index].battler.chara.head_icons.."/head")
-
-                        self:removeAction(party_index)
+                        self:removeAction(self:getPartyIndex(v))
                     end
                 end
                 return
@@ -679,6 +842,15 @@ function Battle:nextParty()
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
     end
+end
+
+function Battle:setActText(text, dont_finish)
+    self:battleText(text, function()
+        if not dont_finish then
+            self:finishAction()
+        end
+        self:setState("ACTIONS", "BATTLETEXT")
+    end)
 end
 
 function Battle:battleText(text,post_func)
@@ -874,36 +1046,6 @@ function Battle:isValidMenuLocation()
     return true
 end
 
-function Battle:commitSpell(menu_item, target)
-    self.party[self.current_selecting]:setAnimation("battle/spell_ready")
-    local box = self.battle_ui.action_boxes[self.current_selecting]
-    box.head_sprite:setSprite(box.battler.chara.head_icons.."/magic")
-    self.tension_bar:removeTension(menu_item.tp)
-    table.insert(self.character_actions,
-    {
-        ["character_id"] = self.current_selecting,
-        ["action"] = "SPELL",
-        ["party"] = menu_item.party,
-        ["name"] = menu_item.name,
-        ["target"] = target,
-        ["data"] = menu_item.data
-    })
-    if menu_item.party then
-        for _,v in ipairs(menu_item.party) do
-            table.insert(self.character_actions,
-                {
-                    ["character_id"] = self:getPartyIndex(v),
-                    ["name"] = menu_item.name,
-                    ["reason"] = "ACT",
-                    ["action"] = "SPELL",
-                    ["act_parent"] = self.current_selecting
-                }
-            )
-        end
-    end
-    self:nextParty()
-end
-
 function Battle:keypressed(key)
     print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
 
@@ -928,39 +1070,10 @@ function Battle:keypressed(key)
             if self.state_reason == "ACT" then
                 local menu_item = self.menu_items[self:getItemIndex()]
                 if self:canSelectMenuItem(menu_item) then
-                    self.tension_bar:removeTension(menu_item.tp)
                     self.ui_select:stop()
                     self.ui_select:play()
 
-                    self.party[self.current_selecting]:setAnimation("battle/act_ready")
-                    self.battle_ui.action_boxes[self.current_selecting].head_sprite:setSprite(self.battle_ui.action_boxes[self.current_selecting].battler.chara.head_icons.."/act")
-
-                    table.insert(self.character_actions,
-                        {
-                            ["character_id"] = self.current_selecting,
-                            ["action"] = "ACT",
-                            ["party"] = menu_item.party,
-                            ["name"] = menu_item.name,
-                            ["target"] = self.enemies[self.selected_enemy]
-                        }
-                    )
-                    if menu_item.party then
-                        for _,v in ipairs(menu_item.party) do
-                            local party_index = self:getPartyIndex(v)
-                            self.party[party_index]:setAnimation("battle/act_ready")
-                            self.battle_ui.action_boxes[party_index].head_sprite:setSprite(self.battle_ui.action_boxes[party_index].battler.chara.head_icons.."/act")
-                            table.insert(self.character_actions,
-                                {
-                                    ["character_id"] = party_index,
-                                    ["action"] = "SKIP",
-                                    ["name"] = menu_item.name,
-                                    ["reason"] = "ACT",
-                                    ["act_parent"] = self.current_selecting
-                                }
-                            )
-                        end
-                    end
-                    self:nextParty()
+                    self:commitAction("ACT", self.enemies[self.selected_enemy], menu_item)
                 end
                 return
             elseif self.state_reason == "SPELLS" then
@@ -970,7 +1083,7 @@ function Battle:keypressed(key)
                     self.ui_select:stop()
                     self.ui_select:play()
                     if not menu_item.data.target then
-                        self:commitSpell(menu_item, nil)
+                        self:commitAction("SPELL", nil, menu_item)
                     elseif menu_item.data.target == "enemy" then
                         Game.battle:setState("ENEMYSELECT", "SPELL")
                     elseif menu_item.data.target == "party" then
@@ -1018,14 +1131,7 @@ function Battle:keypressed(key)
             self.ui_select:play()
             self.selected_enemy = self.current_menu_y
             if self.state_reason == "SPARE" then
-                table.insert(self.character_actions,
-                    {
-                        ["character_id"] = self.current_selecting,
-                        ["action"] = "SPARE",
-                        ["target"] = self.enemies[self.selected_enemy]
-                    }
-                )
-                self:nextParty()
+                self:commitAction("SPARE", self.enemies[self.selected_enemy])
             elseif self.state_reason == "ACT" then
                 Game.battle.menu_items = {}
                 local enemy = self.enemies[self.selected_enemy]
@@ -1052,18 +1158,9 @@ function Battle:keypressed(key)
                 end
                 self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
-                self.party[self.current_selecting]:setAnimation("battle/attack_ready")
-                self.battle_ui.action_boxes[self.current_selecting].head_sprite:setSprite(self.battle_ui.action_boxes[self.current_selecting].battler.chara.head_icons.."/fight")
-                table.insert(self.character_actions,
-                    {
-                        ["character_id"] = self.current_selecting,
-                        ["action"] = "ATTACK",
-                        ["target"] = self.enemies[self.selected_enemy]
-                    }
-                )
-                self:nextParty()
+                self:commitAction("ATTACK", self.enemies[self.selected_enemy])
             elseif self.state_reason == "SPELL" then
-                self:commitSpell(self.selected_spell, self.enemies[self.selected_enemy])
+                self:commitAction("SPELL", self.enemies[self.selected_enemy], self.selected_spell)
             else
                 self:nextParty()
             end
@@ -1095,7 +1192,7 @@ function Battle:keypressed(key)
             self.ui_select:stop()
             self.ui_select:play()
             if self.state_reason == "SPELL" then
-                self:commitSpell(self.selected_spell, self.party[self.current_menu_y])
+                self:commitAction("SPELL", self.party[self.current_menu_y], self.selected_spell)
             else
                 self:nextParty()
             end

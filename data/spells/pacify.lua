@@ -19,12 +19,11 @@ local spell = Spell{
     pacify = true,
 }
 
-function spell:onStart(user, target)
-    user:setAnimation("battle/spell")
+function spell:getCastMessage(user, target)
     if target.tired then
-        Game.battle:battleText("* "..user.chara.name.." cast PACIFY!")
+        return "* "..user.chara.name.." cast PACIFY!"
     else
-        Game.battle:battleText("* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]...")
+        return "* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
     end
 end
 
@@ -32,7 +31,6 @@ function spell:onCast(user, target)
     if target.tired then
         love.audio.newSource("assets/sounds/snd_spell_pacify.ogg", "static"):play()
     end
-    Game.battle:finishSpell()
 end
 
 return spell

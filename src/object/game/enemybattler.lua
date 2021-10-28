@@ -45,7 +45,18 @@ function EnemyBattler:registerAct(name, description, party, tp)
         ["name"] = name,
         ["description"] = description,
         ["party"] = party,
-        ["tp"] = tp or 0
+        ["tp"] = tp or 0,
+        ["short"] = false
+    }
+    table.insert(self.acts, act)
+end
+function EnemyBattler:registerShortAct(name, description, party, tp)
+    local act = {
+        ["name"] = name,
+        ["description"] = description,
+        ["party"] = party,
+        ["tp"] = tp or 0,
+        ["short"] = true
     }
     table.insert(self.acts, act)
 end
@@ -114,12 +125,24 @@ end
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
-        Game.battle:battleText("* " .. string.upper(self.name) .. " - " .. self.check)
+        return "* " .. string.upper(self.name) .. " - " .. self.check
+    end
+end
+
+function EnemyBattler:getAct(name)
+    for _,act in ipairs(self.acts) do
+        if act.name == name then
+            return act
+        end
     end
 end
 
 function EnemyBattler:getXAction(battler)
     return "Standard"
+end
+
+function EnemyBattler:isXActionShort(battler)
+    return true
 end
 
 function EnemyBattler:statusMessage(type, arg)

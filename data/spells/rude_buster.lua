@@ -16,4 +16,8 @@ local spell = Spell{
     target = "enemy",
 }
 
+function spell:getCastMessage(user, target)
+    return "* "..user.chara.name.." used RUDE BUSTER!"
+end
+
 return spell

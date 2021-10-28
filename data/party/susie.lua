@@ -25,8 +25,8 @@ return PartyMember{
     name_sprite = "party/susie/name",
 
     -- Whether the party member can act / use spells
-    has_act = true,
-    has_spells = false,
+    has_act = false,
+    has_spells = true,
 
     -- Spells by id
     spells = {"rude_buster", "ultimate_heal"},

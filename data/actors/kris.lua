@@ -17,11 +17,11 @@ return {
         ["battle/act"]          = {"battle/dark/act", 1/15, false},
         ["battle/item"]         = {"battle/dark/item", 1/15, false, next="battle/idle"},
         ["battle/spare"]        = {"battle/dark/act", 1/15, false, next="battle/idle"},
-        ["battle/defend"]       = {"battle/dark/defend", 1/15, false},
 
         ["battle/attack_ready"] = {"battle/dark/attackready", 0.2, true},
         ["battle/act_ready"]    = {"battle/dark/actready", 0.2, true},
         ["battle/item_ready"]   = {"battle/dark/itemready", 0.2, true},
+        ["battle/defend_ready"] = {"battle/dark/defend", 1/15, false},
 
         ["battle/act_end"]      = {"battle/dark/actend", 1/15, false, next="battle/idle"},
 

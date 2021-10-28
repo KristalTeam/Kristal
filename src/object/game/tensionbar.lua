@@ -36,6 +36,10 @@ function TensionBar:removeTension(amount)
     end
 end
 
+function TensionBar:setTension(amount)
+    self.tension = Utils.clamp(amount, 0, self.max_tension)
+end
+
 function TensionBar:update(dt)
     self.animation_timer = self.animation_timer + (dt * 30)
     if self.animation_timer > 12 then

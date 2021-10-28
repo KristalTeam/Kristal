@@ -16,9 +16,12 @@ local spell = Spell{
     target = "party",
 }
 
-function spell:onStart(user, target)
-    user:setAnimation("battle/spell")
-    Game.battle:battleText("* "..user.chara.name.." cast ULTIMATEHEAL!")
+function spell:getCastMessage(user, target)
+    return "* "..user.chara.name.." cast ULTIMATEHEAL!"
+end
+
+function spell:onCast(user, target)
+    target:heal(2)
 end
 
 return spell

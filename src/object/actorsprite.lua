@@ -86,7 +86,7 @@ function ActorSprite:setAnimation(anim, callback)
         if callback then
             if anim.callback then
                 local old_callback = anim.callback
-                anim.callback = function(s) old_callback(); callback(s) end
+                anim.callback = function(s) old_callback(s); callback(s) end
             else
                 anim.callback = callback
             end

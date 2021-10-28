@@ -78,30 +78,14 @@ function ActionBox:select()  -- TODO: unhardcode!
         end
     elseif self.selected_button == 4 then
         Game.battle:setState("ENEMYSELECT", "SPARE")
-
     elseif self.selected_button == 5 then
-        self.battler:setAnimation("battle/defend")
-        self.head_sprite:setSprite(self.battler.chara.head_icons.."/defend")
-        self.battler.defending = true
-        self.revert_to = Game.battle.tension_bar:giveTension(40)
-        Game.battle:nextParty()
+        Game.battle:commitAction("DEFEND", nil, {tp = -40})
     end
 end
 
 function ActionBox:unselect()
     -- We have to uncommit any action that we did before.
-    self.battler:setAnimation("battle/idle")
-    self.head_sprite:setSprite(self.battler.chara.head_icons.."/head")
-    if self.selected_button == 5 then -- TODO: unhardcode!
-        self.battler.defending = false
-        Game.battle.tension_bar:removeTension(self.revert_to)
-    elseif self.selected_button == 4 then -- TODO: unhardcode!
-        Game.battle:removeAction(Game.battle.current_selecting)
-    elseif self.selected_button == 2 then -- TODO: unhardcode!
-        Game.battle:removeAction(Game.battle.current_selecting)
-    elseif self.selected_button == 1 then -- TODO: unhardcode!
-        Game.battle:removeAction(Game.battle.current_selecting)
-    end
+    Game.battle:removeAction(Game.battle.current_selecting)
 end
 
 function ActionBox:drawActionBox()
