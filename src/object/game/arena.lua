@@ -45,6 +45,78 @@ function Arena:getCenter()
     return self:getTransform():transformPoint(self.width/2, self.height/2)
 end
 
+function Arena:onAdd(parent)
+    self.visible = false
+
+    local afterimage_count = 0
+    local last_afterimage
+    Game.battle.timer:every(1/30, function()
+        if last_afterimage then
+           last_afterimage.add_alpha = 0
+        end
+
+        afterimage_count = afterimage_count + 1
+        if afterimage_count > 15 then
+            self.visible = true
+            return false
+        else
+            local progress = afterimage_count / 15
+
+            local sx, sy = self:getScale()
+            local rot = self.rotation
+            self:setScale(sx * progress, sy * progress)
+            self.rotation = rot + (math.pi) * (1 - progress)
+
+            local afterimg = AfterImage(self, 0.6 - (0.5 * progress))
+            afterimg.add_alpha = (progress - (0.6 - (0.5 * progress)))
+            parent:addChild(afterimg)
+            afterimg:setLayer(self.layer + (1 - progress))
+            last_afterimage = afterimg
+
+            self:setScale(sx, sy)
+            self.rotation = rot
+        end
+    end)
+end
+
+function Arena:onRemove(parent)
+    self.parent = parent
+    local afterimg = AfterImage(self, 0.1)
+    afterimg.add_alpha = 0.9
+    Game.battle:addChild(afterimg)
+    self.parent = nil
+
+    local afterimage_count = 0
+    local last_afterimage = afterimg
+    Game.battle.timer:every(1/30, function()
+        if last_afterimage then
+           last_afterimage.add_alpha = 0
+        end
+
+        afterimage_count = afterimage_count + 1
+        if afterimage_count > 15 then
+            self.visible = true
+            return false
+        else
+            local progress = 1 - (afterimage_count / 15)
+
+            local sx, sy = self:getScale()
+            local rot = self.rotation
+            self:setScale(sx * progress, sy * progress)
+            self.rotation = rot + (math.pi) * (1 - progress)
+
+            local afterimg = AfterImage(self, 0.6 - (0.5 * progress))
+            afterimg.add_alpha = (progress - (0.6 - (0.5 * progress)))
+            parent:addChild(afterimg)
+            afterimg:setLayer(self.layer + (1 - progress))
+            last_afterimage = afterimg
+
+            self:setScale(sx, sy)
+            self.rotation = rot
+        end
+    end)
+end
+
 function Arena:update(dt)
     if not Utils.equal(self.processed_shape, self.shape) then
         self:setShape(self.shape)

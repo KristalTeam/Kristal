@@ -7,6 +7,8 @@ function AfterImage:init(sprite, fade, lifetime)
     self.lifetime = lifetime or ((5/6) * self.fade)
     self.time_alive = 0
 
+    self.add_alpha = 0
+
     self.speed_x = 0
     self.speed_y = 0
 
@@ -79,7 +81,7 @@ end
 
 function AfterImage:draw()
     local r,g,b,a = self:getDrawColor()
-    love.graphics.setColor(r, g, b, a * self.fade * (1 - (self.time_alive / self.lifetime)))
+    love.graphics.setColor(r, g, b, a * self.fade * (1 - (self.time_alive / self.lifetime)) + self.add_alpha)
     love.graphics.draw(self.canvas)
     love.graphics.setColor(1, 1, 1, 1)
     self:drawChildren()
