@@ -1,14 +1,14 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.7.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 21,
   height = 12,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 5,
+  nextlayerid = 6,
   nextobjectid = 56,
   properties = {},
   tilesets = {
@@ -89,6 +89,32 @@ return {
       wangsets = {},
       tilecount = 210,
       tiles = {}
+    },
+    {
+      name = "test_battleborder",
+      firstgid = 682,
+      tilewidth = 40,
+      tileheight = 40,
+      spacing = 0,
+      margin = 0,
+      columns = 5,
+      image = "../assets/sprites/tilesets/test_battleborder.png",
+      imagewidth = 200,
+      imageheight = 120,
+      objectalignment = "unspecified",
+      tileoffset = {
+        x = 0,
+        y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 40,
+        height = 40
+      },
+      properties = {},
+      wangsets = {},
+      tilecount = 15,
+      tiles = {}
     }
   },
   layers = {
@@ -121,6 +147,37 @@ return {
         355, 355, 355, 355, 355, 355, 356, 354, 355, 355, 355, 355, 355, 355, 355, 356, 73, 73, 369, 370, 370,
         370, 370, 370, 370, 370, 370, 371, 369, 370, 370, 370, 370, 370, 370, 370, 371, 73, 73, 369, 370, 370,
         370, 370, 370, 370, 370, 370, 371, 369, 370, 370, 370, 370, 370, 370, 370, 371, 73, 73, 369, 370, 370
+      }
+    },
+    {
+      type = "tilelayer",
+      x = 0,
+      y = 0,
+      width = 21,
+      height = 12,
+      id = 5,
+      name = "battleborder",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      encoding = "lua",
+      data = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 685, 693, 693, 693, 686, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        693, 693, 693, 693, 693, 693, 693, 694, 0, 0, 0, 692, 693, 693, 693, 693, 693, 693, 686, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 687, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 687, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 687, 0, 0,
+        683, 683, 683, 683, 683, 683, 683, 683, 683, 683, 683, 683, 683, 683, 683, 684, 0, 0, 687, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 689, 0, 0, 687, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 689, 0, 0, 687, 0, 0
       }
     },
     {

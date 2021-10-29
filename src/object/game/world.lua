@@ -3,6 +3,15 @@ local World, super = Class(Object)
 function World:init(map)
     super:init(self)
 
+
+    self.layers = {
+        ["tiles"] = 0,
+        ["battle_fader"] = 3,
+        ["battle_border"] = 4,
+        ["objects"] = 10
+    }
+
+
     -- states: GAMEPLAY, TRANSITION_OUT, TRANSITION_IN
     self.state = "GAMEPLAY"
 
@@ -19,8 +28,15 @@ function World:init(map)
     self.camera = Camera(0, 0)
     self.player = nil
 
+    self.battle_border = nil
+
     self.transition_fade = 0
     self.transition_target = nil
+
+    self.in_battle = false
+    self.battle_alpha = 0
+
+    self.followers = {}
 
     if map then
         self:loadMap(map)
@@ -76,6 +92,7 @@ function World:spawnPlayer(...)
         self:removeChild(self.player)
     end
     self.player = Player(chara, x, y)
+    self.player.layer = self.layers["objects"]
     self:addChild(self.player)
 
     self.camera:lookAt(self.player.x, self.player.y)
@@ -87,6 +104,8 @@ function World:spawnFollower(chara)
         chara = Registry.getActor(chara)
     end
     local follower = Follower(chara, self.player.x, self.player.y)
+    follower.layer = self.layers["objects"]
+    table.insert(self.followers, follower)
     self:addChild(follower)
 end
 
@@ -130,13 +149,24 @@ function World:loadMap(map)
         local spawn = self.markers["spawn"]
         self.camera:lookAt(spawn.center_x, spawn.center_y)
     end
+
+    self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.battle_fader.layer = self.layers["battle_fader"]
+    self:addChild(self.battle_fader)
+
     self:updateCamera()
 end
 
 function World:loadTiles(layer)
     local tilelayer = TileLayer(self, layer)
+    tilelayer.layer = self.layers["tiles"]
     self:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
+    if layer.name == "battleborder" then
+        tilelayer.tile_opacity = 0
+        tilelayer.layer = self.layers["battle_border"]
+        self.battle_border = tilelayer
+    end
 end
 
 function World:loadCollision(layer)
@@ -174,6 +204,7 @@ function World:loadObjects(layer)
 
         local obj = self:loadObject(v.name, v)
         if obj then
+            obj.layer = self.layers["objects"]
             self:addChild(obj)
         end
     end
@@ -231,6 +262,7 @@ function World:transition(target)
 end
 
 function World:transitionImmediate(target)
+    self.followers = {}
     if target.map then
         self:loadMap(target.map)
     end
@@ -278,7 +310,7 @@ function World:sortChildren()
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(self, a.width/2, a.height)
         local bx, by = b:getRelativePos(self, b.width/2, b.height)
-        return math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))
+        return a.layer < b.layer or a.layer == b.layer and (math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index))))
     end)
     Object.endCache()
     Utils.popPerformance()
@@ -319,6 +351,23 @@ function World:update(dt)
     -- Keep camera in bounds
     self:updateCamera()
 
+    if self.in_battle then
+        self.battle_alpha = math.min(self.battle_alpha + (0.04 * DTMULT), 0.52)
+    else
+        self.battle_alpha = math.max(self.battle_alpha - (0.04 * DTMULT), 0)
+    end
+
+    print(#self.followers)
+    for _,v in ipairs(self.followers) do
+        v.sprite:setColor(1 - self.battle_alpha, 1 - self.battle_alpha, 1 - self.battle_alpha, 1)
+    end
+
+    self.battle_border.tile_opacity = (self.battle_alpha * 2)
+
+    --self.battle_fader.layer = self.battle_border.layer - 1
+    self.battle_fader.color = {0, 0, 0, self.battle_alpha}
+    self.battle_fader.x = self.camera.x - 320
+    self.battle_fader.y = self.camera.y - 240
     -- Always sort
     self.update_child_list = true
     self:updateChildren(dt)

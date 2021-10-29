@@ -43,6 +43,7 @@ Sprite = require("src.object.sprite")
 ActorSprite = require("src.object.actorsprite")
 Explosion = require("src.object.explosion")
 AfterImage = require("src.object.afterimage")
+Rectangle = require("src.object.rectangle")
 
 Text = require("src.object.ui.text")
 DialogueText = require("src.object.ui.dialoguetext")

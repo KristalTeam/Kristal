@@ -14,6 +14,7 @@ function Player:init(chara, x, y)
 
     self.history_time = 0
     self.history = {}
+
 end
 
 function Player:onAdd(parent)

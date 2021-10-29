@@ -32,6 +32,8 @@ function Game:enter(previous_state)
     self.world:spawnPlayer("spawn", self.party[1] and self.party[1].actor or "kris")
     for i = 2, #self.party do
         local follower = Follower(Registry.getActor(self.party[i].actor), self.world.player.x, self.world.player.y)
+        follower.layer = self.world.layers["objects"]
+        table.insert(self.world.followers, follower)
         self.world:addChild(follower)
     end
 
@@ -159,6 +161,8 @@ function Game:keypressed(key)
                     self.world.player:interact()
                 elseif key == "f" then
                     print(Utils.dump(self.world.player.history))
+                elseif key == "v" then
+                    self.world.in_battle = not self.world.in_battle
                 end
             end
         elseif self.cutscene_active then

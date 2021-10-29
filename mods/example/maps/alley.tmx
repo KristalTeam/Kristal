@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="56">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="56">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
  <tileset firstgid="1" source="../assets/sprites/tilesets/city_alley.tsx"/>
  <tileset firstgid="111" source="../assets/sprites/tilesets/alley.tsx"/>
  <tileset firstgid="472" source="../assets/sprites/tilesets/street_edges.tsx"/>
+ <tileset firstgid="682" source="../assets/sprites/tilesets/test_battleborder.tsx"/>
  <layer id="1" name="tiles" width="21" height="12">
   <data encoding="csv">
 512,507,519,519,521,522,523,519,519,519,599,600,601,519,519,519,519,589,590,590,590,
@@ -20,6 +21,22 @@
 355,355,355,355,355,355,356,354,355,355,355,355,355,355,355,356,73,73,369,370,370,
 370,370,370,370,370,370,371,369,370,370,370,370,370,370,370,371,73,73,369,370,370,
 370,370,370,370,370,370,371,369,370,370,370,370,370,370,370,371,73,73,369,370,370
+</data>
+ </layer>
+ <layer id="5" name="battleborder" width="21" height="12">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,685,693,693,693,686,0,0,0,0,0,0,0,0,0,
+693,693,693,693,693,693,693,694,0,0,0,692,693,693,693,693,693,693,686,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,687,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,687,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,687,0,0,
+683,683,683,683,683,683,683,683,683,683,683,683,683,683,683,684,0,0,687,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,689,0,0,687,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,689,0,0,687,0,0
 </data>
  </layer>
  <objectgroup color="#0000ff" id="4" name="collision" opacity="0.5">
