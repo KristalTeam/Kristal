@@ -16,6 +16,7 @@ function ArenaSprite:init(arena, x, y)
 end
 
 function ArenaSprite:fade(alpha)
+    self.initial_alpha = alpha
     self.alpha = alpha
     self.background = false
     self.lifetime = ((5/6) * alpha)
@@ -34,7 +35,7 @@ function ArenaSprite:update(dt)
             return
         end
 
-        self.alpha = 1 - (self.time_alive / self.lifetime)
+        self.alpha = self.initial_alpha * (1 - (self.time_alive / self.lifetime))
     end
 
     self:updateChildren(dt)
