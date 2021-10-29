@@ -344,7 +344,7 @@ function Battle:onStateChange(old,new)
         self:addChild(HeartBurst(x, y))
         if not self.soul then
             self.soul = Soul(x, y)
-            self.soul:moveTo(self.arena:getCenter())
+            self.soul:transitionTo(self.arena:getCenter())
             self.soul.layer = 20
             self:addChild(self.soul)
         end
@@ -796,6 +796,18 @@ function Battle:hasAction(character_id)
             return true
         end
     end
+    return false
+end
+
+function Battle:checkSolidCollision(collider)
+    Object.startCache()
+    if self.arena then
+        if collider:collidesWith(self.arena) then
+            Object.endCache()
+            return true, self.arena
+        end
+    end
+    Object.endCache()
     return false
 end
 
