@@ -336,8 +336,8 @@ function Battle:onStateChange(old,new)
             x, y = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
         end
 
-        --self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10)
-        self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10, {{100, 0}, {125, 0}, {125, 75}, {200, 75}, {200, 100}, {100, 200}, {0, 100}})
+        self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10)
+        --self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10, {{100, 0}, {125, 0}, {125, 75}, {200, 75}, {200, 100}, {100, 200}, {0, 100}})
         self.arena.layer = 10
         self:addChild(self.arena)
 

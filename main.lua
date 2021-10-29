@@ -86,6 +86,7 @@ DamageNumber = require("src.object.game.damagenumber")
 HeartBurst = require("src.object.game.heartburst")
 Soul = require("src.object.game.soul")
 Arena = require("src.object.game.arena")
+ArenaSprite = require("src.object.game.arenasprite")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
