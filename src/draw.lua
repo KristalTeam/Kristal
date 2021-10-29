@@ -4,8 +4,8 @@ local self = Draw
 local old_getScissor = love.graphics.getScissor
 
 Draw._canvases = {}
-Draw._used_canvas = {}
-Draw._locked_canvas = {}
+Draw._used_canvas = setmetatable({},{__mode="k"})
+Draw._locked_canvas = setmetatable({},{__mode="k"})
 Draw._canvas_stack = {}
 
 Draw._scissor_stack = {}
