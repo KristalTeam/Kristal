@@ -870,7 +870,8 @@ function DarkTransition:draw(dont_clear)
                     self.susie_sprite_2.visible = false
                     self.susie_sprite_3.visible = false
 
-                    if not MOD.party or not MOD.party[2] then
+                    local party = Kristal.getModOption("party")
+                    if not party or not party[2] then
                         self.susie_sprite:explode()
                     end
                 end

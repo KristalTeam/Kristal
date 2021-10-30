@@ -1,8 +1,19 @@
-function Init()
+function Mod:init()
     print("Loaded example mod!")
+
+    local spell = Registry.getSpell("ultimate_heal")
+    Utils.hook(spell, "onCast", function(orig, self, user, target)
+        orig(self, user, target)
+
+        for _,enemy in ipairs(Game.battle.enemies) do
+            if enemy.id == "virovirokun" then
+                enemy.text_override = "Nice healing"
+            end
+        end
+    end)
 end
 
-function KeyPressed(key)
+function Mod:onKeyPressed(key)
     if not Game.lock_input then
         if key == "b" then
             Game:encounter("virovirokun", true)

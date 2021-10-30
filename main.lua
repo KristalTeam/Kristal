@@ -154,7 +154,7 @@ function love.load(args)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
     -- setup hooks
-    love.update = Utils.hook(love.update, function(orig, ...)
+    Utils.hook(love, "update", function(orig, ...)
         if PERFORMANCE_TEST_STAGE == "UPDATE" then
             PERFORMANCE_TEST = {}
             Utils.pushPerformance("Total")
@@ -169,7 +169,7 @@ function love.load(args)
             PERFORMANCE_TEST = nil
         end
     end)
-    love.draw = Utils.hook(love.draw, function(orig, ...)
+    Utils.hook(love, "draw", function(orig, ...)
         if PERFORMANCE_TEST_STAGE == "DRAW" then
             PERFORMANCE_TEST = {}
             Utils.pushPerformance("Total")
@@ -252,7 +252,7 @@ function love.keypressed(key)
     elseif key == "f3" then
         PERFORMANCE_TEST_STAGE = "UPDATE"
     elseif key == "r" and love.keyboard.isDown("lctrl") then
-        if MOD and MOD["quickReload"] then
+        if Kristal.getModOption("quickReload") then
             Kristal.quickReload()
         else
             love.event.quit("restart")
@@ -317,7 +317,7 @@ function love.run()
             local result = errorResult()
             if result then
                 if result == "quick_reload" then
-                    MOD = nil
+                    Mod = nil
                     errorResult = nil
                     Kristal.quickReload()
                 else
@@ -477,7 +477,7 @@ function Kristal.errorHandler(msg)
         copy_color[3] = copy_color[3] + (DT * 2)
 
         love.graphics.setFont(smaller_font)
-        if MOD and MOD["quickReload"] then
+        if Kristal.getModOption("quickReload") then
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.print("Press R to go back to mod menu (Quick Reload available)", 8, 480 - 40)
         end
@@ -507,7 +507,7 @@ function Kristal.errorHandler(msg)
                 return 1
             elseif e == "keypressed" and a == "escape" then
                 return "restart"
-            elseif e == "keypressed" and a == "r" and MOD and MOD["quickReload"] then
+            elseif e == "keypressed" and a == "r" and Kristal.getModOption("quickReload") then
                 return "quick_reload"
             elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
                 copyToClipboard()
@@ -571,8 +571,7 @@ function Kristal.preloadMod(id)
 
     if not mod then return end
 
-    MOD = mod
-    MOD.env = Kristal.createModEnvironment()
+    Mod = {info = mod}
 
     Registry.initialize(true)
 end
@@ -582,43 +581,29 @@ function Kristal.loadMod(id, after)
 
     if not mod then return end
 
-    MOD = mod
+    Mod = Mod or {info = mod}
+
     MOD_LOADING = true
 
     Kristal.loadAssets(mod.path, "all", "", function()
         MOD_LOADING = false
 
-        if not MOD.env then
-            MOD.env = Kristal.createModEnvironment()
-        end
-
         if mod.script_chunks["mod"] then
             local chunk = mod.script_chunks["mod"]
 
-            setfenv(chunk, MOD.env)
-            chunk()
+            local result = chunk()
+            if type(result) == "table" then
+                Mod = result
+                if not Mod.info then
+                    Mod.info = mod
+                end
+            end
         end
 
         Registry.initialize()
 
         after()
     end)
-end
-
-function Kristal.createModEnvironment(global)
-    local env = setmetatable({}, {__index = global or _G})
-    local function setupGlobals()
-        function require(path)
-            local chunk = MOD.script_chunks[path]
-            if chunk then
-                setfenv(chunk, getfenv())()
-            else
-                error("Could not find "..path..".lua in mod")
-            end
-        end
-    end
-    setfenv(setupGlobals, env)()
-    return env
 end
 
 function Kristal.loadConfig()
@@ -639,21 +624,25 @@ function Kristal.saveConfig()
 end
 
 function Kristal.modCall(f, ...)
-    if MOD and MOD.env and MOD.env[f] then
-        return MOD.env[f](...)
+    if Mod and Mod[f] and type(Mod[f]) == "function" then
+        return Mod[f](Mod, ...)
     end
 end
 
 function Kristal.modGet(k)
-    if MOD and MOD.env and MOD.env[k] then
-        return MOD.env[k]
+    if Mod and Mod[k] then
+        return Mod[k]
     end
 end
 
+function Kristal.getModOption(name)
+    return Mod and Mod.info and Mod.info[name]
+end
+
 function Kristal.executeModScript(path, ...)
-    if not MOD.script_chunks[path] then
+    if not Mod or not Mod.info.script_chunks[path] then
         return false
     else
-        return true, setfenv(MOD.script_chunks[path], MOD.env)(...)
+        return true, Mod.info.script_chunks[path](...)
     end
 end

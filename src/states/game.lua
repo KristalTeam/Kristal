@@ -13,20 +13,20 @@ function Game:enter(previous_state)
 
     self.battle = nil
 
-    self.max_followers = MOD["maxFollowers"] or 10
+    self.party = {}
+    for _,id in ipairs(Kristal.getModOption("party") or {"kris"}) do
+        table.insert(self.party, Registry.getPartyMember(id))
+    end
+
+    self.max_followers = Kristal.getModOption("maxFollowers") or 10
     self.followers = {}
 
     self.started = true
 
     self.lock_input = false
 
-    self.party = {}
-    for _,id in ipairs(MOD.party) do
-        table.insert(self.party, Registry.getPartyMember(id))
-    end
-
-    if MOD and MOD.map then
-        self.world:loadMap(MOD.map)
+    if Kristal.getModOption("map") then
+        self.world:loadMap(Kristal.getModOption("map"))
     end
 
     self.world:spawnPlayer("spawn", self.party[1] and self.party[1].actor or "kris")
@@ -54,11 +54,11 @@ function Game:enter(previous_state)
             self.followers[1]:setScreenPos(sx, py)
             self.followers[1].visible = false
         end
-    elseif MOD.encounter then
-        self:encounter(MOD.encounter, false)
+    elseif Kristal.getModOption("encounter") then
+        self:encounter(Kristal.getModOption("encounter"), false)
     end
 
-    Kristal.modCall("Init")
+    Kristal.modCall("init")
 end
 
 function Game:encounter(encounter_name, transition)
@@ -93,12 +93,12 @@ function Game:update(dt)
         for _,follower in ipairs(self.followers) do
             follower.visible = true
         end
-        if MOD.encounter then
-            self:encounter(MOD.encounter, self.world.player ~= nil)
+        if Kristal.getModOption("encounter") then
+            self:encounter(Kristal.getModOption("encounter"), self.world.player ~= nil)
         end
     end
 
-    if Kristal.modCall("PreUpdate", dt) then
+    if Kristal.modCall("preUpdate", dt) then
         return
     end
 
@@ -123,7 +123,7 @@ function Game:update(dt)
 
     self.stage:update(dt)
 
-    Kristal.modCall("PostUpdate", dt)
+    Kristal.modCall("postUpdate", dt)
 end
 
 function Game:handleMovement()
@@ -146,7 +146,7 @@ end
 function Game:keypressed(key)
     if self.previous_state and self.previous_state.animation_active then return end
 
-    if Kristal.modCall("KeyPressed", key) then
+    if Kristal.modCall("onKeyPressed", key) then
         return
     end
 
@@ -173,7 +173,7 @@ end
 
 function Game:draw()
     love.graphics.push()
-    if Kristal.modCall("PreDraw") then
+    if Kristal.modCall("preDraw") then
         love.graphics.pop()
         if self.previous_state and self.previous_state.animation_active then
             self.previous_state:draw()
@@ -185,7 +185,7 @@ function Game:draw()
     self.stage:draw()
 
     love.graphics.push()
-    Kristal.modCall("PostDraw")
+    Kristal.modCall("postDraw")
     love.graphics.pop()
 
     if self.previous_state and self.previous_state.animation_active then

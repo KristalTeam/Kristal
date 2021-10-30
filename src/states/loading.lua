@@ -11,7 +11,7 @@ function Loading:init()
 end
 
 function Loading:enter(from, dir)
-    MOD = nil
+    Mod = nil
     MOD_PATH = nil
 
     self.loading = false

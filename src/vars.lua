@@ -9,8 +9,6 @@ DTMULT = DT * 30
 
 FOLLOW_DELAY = 0.4
 
--- mod variables
-MOD = nil
 MOD_LOADING = false
 
 COLORS = {

@@ -91,9 +91,10 @@ function Utils.join(tbl, sep, start, len)
     return s
 end
 
-function Utils.hook(target, func)
-    return function(...)
-        return func(target, ...)
+function Utils.hook(target, name, hook)
+    local orig = target[name] or function() end
+    target[name] = function(...)
+        return hook(orig, ...)
     end
 end
 

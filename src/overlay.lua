@@ -52,7 +52,7 @@ function Overlay:update(dt)
         end
         self.quit_timer = self.quit_timer + dt
         if self.quit_timer > 1.2 then
-            if MOD ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
+            if Mod ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
                 Gamestate.switch(Kristal.States["Loading"])
                 self.quit_release = true
             else

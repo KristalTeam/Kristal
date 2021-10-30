@@ -212,7 +212,7 @@ end
 
 function World:loadObject(name, data)
     -- Mod object loading
-    local obj = Kristal.modCall("LoadObject", self, name, data)
+    local obj = Kristal.modCall("loadObject", self, name, data)
     if obj then
         return obj
     else
@@ -236,7 +236,7 @@ function World:loadObject(name, data)
 end
 
 function World:populateTilesets(path, data)
-    local map_path = MOD.path.."/maps/"..path..".lua"
+    local map_path = Mod.info.path.."/maps/"..path..".lua"
     map_path = Utils.split(map_path, "/")
     map_path = Utils.join(map_path, "/", 1, #map_path - 1)
 
@@ -282,9 +282,9 @@ function World:transitionImmediate(target)
             self:spawnPlayer((self.map_width * self.tile_width) / 2, (self.map_height * self.tile_height) / 2)
         end
     end
-    if MOD and MOD.party then
-        for i = 2, #MOD.party do
-            self:spawnFollower(MOD.party[i])
+    if Game.party then
+        for i = 2, #Game.party do
+            self:spawnFollower(Game.party[i].id)
         end
     end
 end

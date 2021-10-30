@@ -152,15 +152,12 @@ end
 
 function Registry.iterScripts(path)
     local result = {}
-    local function parse(chunks, mod)
+    local function parse(chunks)
         for full_path,chunk in pairs(chunks) do
             if full_path:sub(1, #path) == path then
                 local id = full_path:sub(#path + 1)
                 if id:sub(1, 1) == "/" then
                     id = id:sub(2)
-                end
-                if mod then
-                    setfenv(chunk, MOD.env)
                 end
                 local out = {chunk()}
                 table.insert(result, {out = out, path = id})
@@ -168,8 +165,8 @@ function Registry.iterScripts(path)
         end
     end
     parse(self.base_scripts)
-    if MOD then
-        parse(MOD.script_chunks, true)
+    if Mod then
+        parse(Mod.info.script_chunks)
     end
     local i = 0
 ---@diagnostic disable-next-line: undefined-field
