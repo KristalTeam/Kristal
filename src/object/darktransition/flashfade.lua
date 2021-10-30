@@ -17,9 +17,7 @@ function FlashFade:draw()
 
     love.graphics.setColor(1, 1, 1, math.sin(self.siner / 3))
 
-    if self.texture then
-        super:draw(self)
-    end
+    super:draw(self)
 
     love.graphics.setColor(1, 1, 1, 1)
 
@@ -28,8 +26,6 @@ function FlashFade:draw()
     if ((self.siner > 4) and (math.sin(self.siner / 3) < 0)) then
         self:remove()
     end
-
-    super:draw(self)
 end
 
 return FlashFade
