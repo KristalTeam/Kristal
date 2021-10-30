@@ -357,7 +357,6 @@ function World:update(dt)
         self.battle_alpha = math.max(self.battle_alpha - (0.04 * DTMULT), 0)
     end
 
-    print(#self.followers)
     for _,v in ipairs(self.followers) do
         v.sprite:setColor(1 - self.battle_alpha, 1 - self.battle_alpha, 1 - self.battle_alpha, 1)
     end
