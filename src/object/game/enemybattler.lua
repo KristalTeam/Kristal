@@ -145,13 +145,21 @@ function EnemyBattler:isXActionShort(battler)
     return true
 end
 
-function EnemyBattler:statusMessage(type, arg)
+function EnemyBattler:hurt(amount, battler)
+    self.health = self.health - amount
+    self:statusMessage("damage", amount, battler and battler.chara.dmg_color)
+
+    self:toggleOverlay(true)
+    self.overlay_sprite:setAnimation("hurt", function() self:toggleOverlay(false) end)
+end
+
+function EnemyBattler:statusMessage(type, arg, color)
     local hit_count = Game.battle.hit_count
     hit_count[self] = hit_count[self] or 0
 
     local x, y = self:getRelativePos(self.parent, 0, self.height/2)
 
-    local percent = DamageNumber(type, arg, x + 4, y + 20 - (hit_count[self] * 20))
+    local percent = DamageNumber(type, arg, x + 4, y + 20 - (hit_count[self] * 20), color)
     self.parent:addChild(percent)
 
     hit_count[self] = hit_count[self] + 1
@@ -163,12 +171,18 @@ function EnemyBattler:setCharacter(id)
     self.width = self.data.width
     self.height = self.data.height
 
-    if self.sprite then
-        self:removeChild(self.sprite)
-    end
+    if self.sprite         then self:removeChild(self.sprite)         end
+    if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
 
     self.sprite = ActorSprite(self.data)
+    self.sprite.facing = "left"
+
+    self.overlay_sprite = ActorSprite(self.data)
+    self.overlay_sprite.facing = "left"
+    self.overlay_sprite.visible = false
+
     self:addChild(self.sprite)
+    self:addChild(self.overlay_sprite)
 end
 
 function EnemyBattler:preDraw()
@@ -187,6 +201,14 @@ function EnemyBattler:postDraw()
         love.graphics.setShader()
     end
     super:postDraw(self)
+end
+
+function EnemyBattler:toggleOverlay(overlay)
+    if overlay == nil then
+        overlay = self.sprite.visible
+    end
+    self.overlay_sprite.visible = overlay
+    self.sprite.visible = not overlay
 end
 
 -- Shorthand for convenience

@@ -535,7 +535,10 @@ function Battle:processAction(action)
         battler:setAnimation("battle/spare", function() self:finishAction(action) end)
         self:battleText(text)
     elseif action.action == "ATTACK" then
-        battler:setAnimation("battle/attack", function() self:finishAction(action) end)
+        battler:setAnimation("battle/attack", function()
+            enemy:hurt(battler.chara.stats.attack, battler)
+            self:finishAction(action)
+        end)
         self:battleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this")
     elseif action.action == "ACT" then
         print("-> It's time to act!")
@@ -602,6 +605,7 @@ function Battle:processAction(action)
         action.data:onStart(battler, action.target)
     elseif action.action == "DEFEND" then
         battler:setAnimation("battle/defend")
+        battler.defending = true
     else
         -- we don't know how to handle this...
         print("UNKNOWN ACTION " .. action.action .. ", SKIPPING")
@@ -666,6 +670,11 @@ function Battle:finishAction(action)
             end
 
             self:endActionAnimation(ibattler, iaction, callback)
+
+            -- TODO: Mod hooks !!!
+            if iaction.action == "DEFEND" then
+                ibattler.defending = false
+            end
         end
     else
         -- Process actions if we can

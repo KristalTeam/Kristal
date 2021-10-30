@@ -70,6 +70,7 @@ function ActorSprite:setAnimation(anim, callback)
         anim = self.actor.animations[anim]
     end
     if anim then
+        anim = Utils.copy(anim)
         if anim.next then
             if self.actor.animations[anim.next] then
                 anim.callback = function(s) s:setAnimation(anim.next) end

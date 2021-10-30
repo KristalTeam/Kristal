@@ -11,19 +11,30 @@ function PartyBattler:init(chara, x, y)
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "right"
 
+    self.overlay_sprite = ActorSprite(self.actor)
+    self.overlay_sprite.facing = "right"
+    self.overlay_sprite.visible = false
+
     self:addChild(self.sprite)
+    self:addChild(self.overlay_sprite)
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
     -- default to the idle animation, handle the battle intro elsewhere
     self:setAnimation("battle/idle")
+
+    self.defending = false
 end
 
 function PartyBattler:hurt(amount)
     self.chara.health = self.chara.health - amount
-    self:statusMessage("max", amount)
-    self:setAnimation("battle/hurt")
+    self:statusMessage("damage", amount)
+
+    if not self.defending then
+        self:toggleOverlay(true)
+        self.overlay_sprite:setAnimation("battle/hurt", function() self:toggleOverlay(false) end)
+    end
 end
 
 function PartyBattler:heal(amount)
@@ -59,6 +70,14 @@ function PartyBattler:statusMessage(type, arg, color)
     percent.kill_others = true
     self.parent:addChild(percent)
 
+end
+
+function PartyBattler:toggleOverlay(overlay)
+    if overlay == nil then
+        overlay = self.sprite.visible
+    end
+    self.overlay_sprite.visible = overlay
+    self.sprite.visible = not overlay
 end
 
 function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
