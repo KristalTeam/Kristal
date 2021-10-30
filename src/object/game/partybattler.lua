@@ -29,17 +29,31 @@ end
 function PartyBattler:heal(amount)
     love.audio.newSource("assets/sounds/snd_power.wav", "static"):play()
     self.chara.health = self.chara.health + amount
+
+    local offset = self.sprite:getOffset()
+    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
+    self:addChild(flash)
+
     if self.chara.health > self.chara.stats.health then
         self.chara.health = self.chara.stats.health
         self:statusMessage("msg", "max")
     else
         self:statusMessage("heal", amount, {0, 1, 0})
     end
+
+    Game.battle.timer:every(1/30, function()
+        for i = 1, 2 do
+            local x = self.x + ((love.math.random() * self.width) - (self.width / 2)) * 2
+            local y = self.y - (love.math.random() * self.height) * 2
+            local sparkle = HealSparkle(x, y)
+            self.parent:addChild(sparkle)
+        end
+    end, 4)
 end
 
 function PartyBattler:statusMessage(type, arg, color)
 
-    local x, y = self:getRelativePos(self.parent, -self.width, self.height/2)
+    local x, y = self:getRelativePos(self.parent, 0, self.height/2)
 
     local percent = DamageNumber(type, arg, x - 4, y + 16, color)
     percent.kill_others = true

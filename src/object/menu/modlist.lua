@@ -163,7 +163,7 @@ function ModList:update(dt)
     self.scroll = self.scroll + ((self.scroll_target - self.scroll) / 2) * (dt * 30)
     self.mod_container.y = -self.scroll
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function ModList:draw()
@@ -182,7 +182,7 @@ function ModList:draw()
 
     Draw.pushScissor()
     Draw.scissor(0, 0, self.width, self.height)
-    self:drawChildren()
+    super:draw(self)
     Draw.popScissor()
 end
 

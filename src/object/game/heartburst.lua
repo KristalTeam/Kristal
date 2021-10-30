@@ -16,7 +16,7 @@ function HeartBurst:update(dt)
 
     --self:setScale(2 - self.stretch, self.stretch + self.kill)
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function HeartBurst:draw()
@@ -33,7 +33,7 @@ function HeartBurst:draw()
     xscale, yscale = (0.2 + (self.burst / 2.5)), (0.2 + (self.burst / 5))
     love.graphics.draw(self.heart_outline, 9, 9, 0, xscale, yscale, self.heart_outline:getWidth()/2, self.heart_outline:getHeight()/2)
 
-    self:drawChildren()
+    super:draw(self)
 
     if self.burst > 10 then
         self:remove()

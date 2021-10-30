@@ -46,6 +46,12 @@ function Object:init(x, y, width, height)
     self.width = width or 0
     self.height = height or 0
 
+    -- The speed this object moves (pixels per frame, at 30 fps)
+    self.speed_x = 0
+    self.speed_y = 0
+    -- The amount this object should slow down (also per frame at 30 fps)
+    self.friction = 0
+
     -- Various draw properties
     self.color = {1, 1, 1}
     self.alpha = 1
@@ -97,6 +103,12 @@ end
 --[[ Common overrides ]]--
 
 function Object:update(dt)
+    if self.speed_x ~= 0 or self.speed_y ~= 0 then
+        self.speed_x = Utils.approach(self.speed_x, 0, self.friction * DTMULT)
+        self.speed_y = Utils.approach(self.speed_y, 0, self.friction * DTMULT)
+        self:move(self.speed_x, self.speed_y, DTMULT)
+    end
+
     self:updateChildren(dt)
 end
 
@@ -127,6 +139,9 @@ end
 
 function Object:setPosition(x, y) self.x = x or 0; self.y = y or 0 end
 function Object:getPosition() return self.x, self.y end
+
+function Object:setSpeed(x, y) self.speed_x = x or 0; self.speed_y = y or x or 0 end
+function Object:getSpeed() return self.speed_x, self.speed_y end
 
 function Object:setSize(width, height) self.width = width or 0; self.height = height or width or 0 end
 function Object:getSize() return self.width, self.height end

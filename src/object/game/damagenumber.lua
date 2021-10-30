@@ -88,8 +88,7 @@ function DamageNumber:update(dt)
         self.start_y = self.y
     end
 
-    self.x = self.x + (self.speed_x * DTMULT * 1.8)
-    self.y = self.y + (self.speed_y * DTMULT)
+    super:update(self, dt)
 
     self.timer = self.timer + DTMULT
 
@@ -148,8 +147,6 @@ function DamageNumber:update(dt)
             self.x = 600
         end
     end
-
-    self:updateChildren(dt)
 end
 
 function DamageNumber:draw()
@@ -165,7 +162,7 @@ function DamageNumber:draw()
         end
     end
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return DamageNumber

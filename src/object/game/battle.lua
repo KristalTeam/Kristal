@@ -902,7 +902,7 @@ function Battle:update(dt)
     end
     -- Always sort
     self.update_child_list = true
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function Battle:updateIntro(dt)
@@ -988,7 +988,7 @@ function Battle:draw()
     -- however the background ones are (8, 0, 8).
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    self:drawChildren()
+    super:draw(self)
 
     self:drawDebug()
 end

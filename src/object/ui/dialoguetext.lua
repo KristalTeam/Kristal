@@ -65,7 +65,7 @@ function DialogueText:update(dt)
         end
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function DialogueText:playTextSound(current_node)

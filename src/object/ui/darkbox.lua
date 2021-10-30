@@ -36,7 +36,7 @@ function DarkBox:draw()
         love.graphics.draw(sprite, cx, cy, (i - 1) * (math.pi / 2), 2, 2, sprite:getWidth(), sprite:getHeight())
     end
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return DarkBox

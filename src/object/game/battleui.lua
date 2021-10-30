@@ -40,13 +40,13 @@ function BattleUI:update(dt)
 
     -- TODO: MAKE THE PLATE SLIDE IN USING THE LAST "30FPS FRAME"'S Y https://owo.whats-th.is/9WZ3uU3.png
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function BattleUI:draw()
     self:drawActionArena()
     self:drawActionStrip()
-    self:drawChildren()
+    super:draw(self)
 end
 
 function BattleUI:drawActionStrip()

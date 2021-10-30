@@ -231,7 +231,7 @@ function Soul:update(dt)
         self:move(move_x, move_y, speed * DTMULT)
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 return Soul

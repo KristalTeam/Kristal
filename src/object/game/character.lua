@@ -252,11 +252,11 @@ function Character:update(dt)
         self.sprite.walking = false
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function Character:draw()
-    self:drawChildren()
+    super:draw(self)
     
     if self.actor.draw then
         self.actor:draw(self)

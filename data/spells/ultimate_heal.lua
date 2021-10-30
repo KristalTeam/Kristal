@@ -21,7 +21,7 @@ function spell:getCastMessage(user, target)
 end
 
 function spell:onCast(user, target)
-    target:heal(2)
+    target:heal(user.chara.stats.magic + 1)
 end
 
 return spell

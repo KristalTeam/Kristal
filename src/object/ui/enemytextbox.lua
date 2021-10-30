@@ -63,7 +63,7 @@ function EnemyTextbox:draw()
     end
     love.graphics.draw(self.bubble_end, self.text.width + 5 + 1, self.text.height/2 - (self.bubble_end:getHeight()/2) * scale, 0, 1, scale)
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return EnemyTextbox

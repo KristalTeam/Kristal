@@ -48,7 +48,7 @@ function TensionBar:update(dt)
 
     self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function TensionBar:draw()
@@ -168,7 +168,7 @@ function TensionBar:draw()
         love.graphics.print("X", -20, 110)
     end
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return TensionBar

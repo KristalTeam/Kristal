@@ -124,7 +124,7 @@ function Arena:update(dt)
         self:setShape(self.shape)
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 return Arena

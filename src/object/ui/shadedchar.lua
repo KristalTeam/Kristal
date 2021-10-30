@@ -14,7 +14,7 @@ end
 function ShadedChar:update(dt)
     ShadedChar.MADE_CANVAS = false
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function ShadedChar:draw()
@@ -71,7 +71,7 @@ function ShadedChar:draw()
         love.graphics.draw(self.cached_canvas)
     end
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return ShadedChar

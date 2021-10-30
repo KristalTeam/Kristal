@@ -22,7 +22,7 @@ function DarkTransitionParticle:update(dt)
         self:remove()
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function DarkTransitionParticle:draw()
@@ -30,7 +30,7 @@ function DarkTransitionParticle:draw()
     love.graphics.setColor(1, 1, 1, self.image_alpha)
     love.graphics.points(0, 0)
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return DarkTransitionParticle

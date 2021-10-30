@@ -28,12 +28,12 @@ function Explosion:update(dt)
         self:remove()
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function Explosion:draw()
     love.graphics.draw(self.frames[self.frame])
-    self:drawChildren()
+    super:draw(self)
 end
 
 return Explosion

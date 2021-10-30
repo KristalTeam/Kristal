@@ -38,7 +38,7 @@ function ArenaSprite:update(dt)
         self.alpha = self.initial_alpha * (1 - (self.time_alive / self.lifetime))
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function ArenaSprite:draw()
@@ -49,7 +49,7 @@ function ArenaSprite:draw()
         end
     end
 
-    self:drawChildren()
+    super:draw(self)
 
     local r,g,b,a = self:getDrawColor()
     local arena_r,arena_g,arena_b,arena_a = self.arena:getDrawColor()

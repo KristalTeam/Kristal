@@ -16,7 +16,7 @@ function DarkTransitionLine:update(dt)
     if (self.y >= 400) then
         self.parent:removeChild(self)
     end
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function DarkTransitionLine:draw()
@@ -25,7 +25,7 @@ function DarkTransitionLine:draw()
     love.graphics.setColor(1, 1, 1, 0.5)
     love.graphics.line(0, 0, 0, self.image_yscale)
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return DarkTransitionLine

@@ -44,7 +44,7 @@ function TileLayer:draw()
     love.graphics.setColor(r, g, b, a * self.tile_opacity)
     love.graphics.draw(self.canvas)
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return TileLayer

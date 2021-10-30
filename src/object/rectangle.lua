@@ -13,7 +13,7 @@ function Rectangle:draw()
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     love.graphics.setColor(1, 1, 1, 1)
-    self:drawChildren()
+    super:draw(self)
 end
 
 return Rectangle

@@ -29,7 +29,7 @@ function FlashFade:draw()
         self:remove()
     end
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return FlashFade

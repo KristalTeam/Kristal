@@ -7,7 +7,7 @@ function ModMenuChar:draw()
     love.graphics.setColor(self:getDrawColor())
     love.graphics.draw(self.texture)
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return ModMenuChar

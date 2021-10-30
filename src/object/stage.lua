@@ -58,7 +58,7 @@ function Stage:update(dt)
         end
     end
     self.objects_to_remove = {}
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function Stage:draw()
@@ -66,7 +66,7 @@ function Stage:draw()
     love.graphics.applyTransform(self:getTransform())
     Draw.pushScissor()
     self:applyScissor()
-    self:drawChildren()
+    super:draw(self)
     Draw.popScissor()
     love.graphics.pop()
 end

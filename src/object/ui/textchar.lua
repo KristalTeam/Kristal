@@ -35,7 +35,7 @@ end
 function TextChar:draw()
     love.graphics.setFont(self:getFont())
     love.graphics.print(self.char)
-    self:drawChildren()
+    super:draw(self)
 end
 
 return TextChar

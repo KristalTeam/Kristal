@@ -370,11 +370,11 @@ function World:update(dt)
     self.battle_fader.y = self.camera.y - 240
     -- Always sort
     self.update_child_list = true
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function World:draw()
-    self:drawChildren()
+    super:draw(self)
 
     -- Draw transition fade
     love.graphics.setColor(0, 0, 0, self.transition_fade)

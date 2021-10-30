@@ -205,10 +205,10 @@ function Sprite:update(dt)
             if self.anim_callback then
                 self.anim_callback(self)
             end
-        end 
+        end
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function Sprite:draw()
@@ -216,7 +216,7 @@ function Sprite:draw()
         love.graphics.draw(self.texture)
     end
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 return Sprite

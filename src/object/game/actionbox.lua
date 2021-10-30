@@ -51,7 +51,7 @@ end
 function ActionBox:draw()
     self:drawActionBox()
 
-    self:drawChildren()
+    super:draw(self)
 end
 
 function ActionBox:select()  -- TODO: unhardcode!

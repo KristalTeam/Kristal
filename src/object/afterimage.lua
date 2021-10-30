@@ -60,14 +60,12 @@ function AfterImage:onRemove()
 end
 
 function AfterImage:update(dt)
-    self.x = self.x + (self.speed_x * DTMULT)
-    self.y = self.y + (self.speed_y * DTMULT)
     self.time_alive = Utils.approach(self.time_alive, self.lifetime, dt)
     if self.time_alive == self.lifetime then
         self:remove()
         return
     end
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function AfterImage:createTransform()
@@ -84,7 +82,7 @@ function AfterImage:draw()
     love.graphics.setColor(r, g, b, a * self.fade * (1 - (self.time_alive / self.lifetime)) + self.add_alpha)
     love.graphics.draw(self.canvas)
     love.graphics.setColor(1, 1, 1, 1)
-    self:drawChildren()
+    super:draw(self)
 end
 
 return AfterImage

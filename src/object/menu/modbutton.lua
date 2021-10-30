@@ -84,7 +84,7 @@ function ModButton:update(dt)
         self.icon_frame = 1
     end
 
-    self:updateChildren(dt)
+    super:update(self, dt)
 end
 
 function ModButton:draw()
