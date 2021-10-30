@@ -23,6 +23,9 @@ function ActorSprite:init(actor)
     self.walking = false
     self.walk_speed = 4
     self.walk_frame = 1
+
+    self.shake_x = 0
+    self.shake_y = 0
 end
 
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
@@ -118,14 +121,21 @@ function ActorSprite:isDirectional(texture)
 end
 
 function ActorSprite:getOffset()
+    local offset = {0, 0}
     if self.force_offset then
-        return self.force_offset
-    end
-    local frames_for = Assets.getFramesFor(self.full_sprite)
-    local frames_for_dir = self.directional and Assets.getFramesFor(self.full_sprite..self.dir_sep..self.facing)
-    return self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or
+        offset = self.force_offset
+    else
+        local frames_for = Assets.getFramesFor(self.full_sprite)
+        local frames_for_dir = self.directional and Assets.getFramesFor(self.full_sprite..self.dir_sep..self.facing)
+        offset = self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or
             (self.directional and (self.offsets[self.sprite..self.dir_sep..self.facing] or (frames_for_dir and self.offsets[frames_for_dir])))
             or {0, 0}
+    end
+    if self.shake_x ~= 0 or self.shake_y ~= 0 then
+        return {offset[1] + math.ceil(self.shake_x), offset[2] + math.ceil(self.shake_y)}
+    else
+        return offset
+    end
 end
 
 function ActorSprite:update(dt)
@@ -139,6 +149,25 @@ function ActorSprite:update(dt)
         end
 
         self:updateDirection()
+    end
+
+    if self.shake_x ~= 0 or self.shake_y ~= 0 then
+        local last_shake_x = math.ceil(self.shake_x)
+        local last_shake_y = math.ceil(self.shake_y)
+
+        self.shake_x = Utils.approach(self.shake_x, 0, DTMULT/2)
+        self.shake_y = Utils.approach(self.shake_y, 0, DTMULT/2)
+
+        local new_shake_x = math.ceil(self.shake_x)
+        local new_shake_y = math.ceil(self.shake_y)
+
+        if new_shake_x ~= last_shake_x then
+            self.shake_x = self.shake_x * math.pow(-1, math.abs(new_shake_x - last_shake_x))
+        end
+
+        if new_shake_y ~= last_shake_y then
+            self.shake_y = self.shake_y * math.pow(-1, math.abs(new_shake_y - last_shake_y))
+        end
     end
 
     super:update(self, dt)

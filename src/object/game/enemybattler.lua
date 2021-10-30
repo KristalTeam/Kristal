@@ -39,6 +39,7 @@ function EnemyBattler:init(chara)
     }
 
     self.flash_siner = 0
+    self.hurt_timer = 0
 end
 function EnemyBattler:registerAct(name, description, party, tp)
     local act = {
@@ -146,11 +147,16 @@ function EnemyBattler:isXActionShort(battler)
 end
 
 function EnemyBattler:hurt(amount, battler)
+    love.audio.newSource("assets/sounds/snd_damage.wav", "static"):play()
+
     self.health = self.health - amount
     self:statusMessage("damage", amount, battler and battler.chara.dmg_color)
 
     self:toggleOverlay(true)
-    self.overlay_sprite:setAnimation("hurt", function() self:toggleOverlay(false) end)
+    self.overlay_sprite:setAnimation("hurt")
+
+    self.overlay_sprite.shake_x = 9
+    self.hurt_timer = 1
 end
 
 function EnemyBattler:statusMessage(type, arg, color)
@@ -233,6 +239,19 @@ function EnemyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)
     end
+end
+
+function EnemyBattler:update(dt)
+    if self.hurt_timer > 0 then
+        self.hurt_timer = Utils.approach(self.hurt_timer, 0, dt)
+
+        if self.hurt_timer == 0 then
+            self.overlay_sprite.shake_x = 0
+            self:toggleOverlay(false)
+        end
+    end
+
+    super:update(self, dt)
 end
 
 return EnemyBattler

@@ -8,9 +8,9 @@ return {
     default_anim = "idle",
 
     animations = {
-        ["idle"] = {"idle", 0.2, true},
+        ["idle"] = {"idle", 0.25, true},
         ["spared"] = {"spared", 0, false},
-        ["hurt"] = {"hurt", 0, false, temp=true, duration=0.5}
+        ["hurt"] = {"hurt", 0, false}
     },
 
     offsets = {

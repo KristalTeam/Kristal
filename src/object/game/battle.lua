@@ -58,7 +58,7 @@ function Battle:init()
     self.intro_timer = 0
     self.offset = 0
 
-    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ENEMYDIALOGUE, DEFENDING
+    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DEFENDING
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
     self.state = "NONE"
@@ -394,7 +394,7 @@ function Battle:processCharacterActions()
 
     print("ALL ACTIONS DONE, WAITING FOR 4/30 SECONDS")
     self:setSubState("NONE")
-    self:setState("ENEMYDIALOGUE")
+    self:setState("ACTIONSDONE")
     --[[self.timer:after(4 / 30, function()
         self:setState("ENEMYDIALOGUE")
     end)]]
@@ -535,7 +535,19 @@ function Battle:processAction(action)
         battler:setAnimation("battle/spare", function() self:finishAction(action) end)
         self:battleText(text)
     elseif action.action == "ATTACK" then
+        love.audio.newSource("assets/sounds/snd_laz_c.wav", "static"):play()
         battler:setAnimation("battle/attack", function()
+            local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
+            box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+
+            local dmg_sprite = Sprite(battler.chara.dmg_sprite or "effects/attack/cut")
+            dmg_sprite:setOrigin(0.5, 0.5)
+            dmg_sprite:setScale(2, 2)
+            dmg_sprite:setPosition(enemy:getRelativePos(enemy.parent, enemy.width/2, enemy.height/2))
+            dmg_sprite.layer = enemy.layer + 0.01
+            dmg_sprite:play(1/15, false, function(s) s:remove() end)
+            enemy.parent:addChild(dmg_sprite)
+
             enemy:hurt(battler.chara.stats.attack, battler)
             self:finishAction(action)
         end)
@@ -899,14 +911,16 @@ function Battle:update(dt)
         self:updateTransition(dt)
     elseif self.state == "INTRO" then
         self:updateIntro(dt)
-    end
-    if self.current_casting and self.spell_delay > 0 then
-        self.spell_delay = self.spell_delay - dt
-        if self.spell_delay <= 0 then
-            local casting = self.current_casting
-            if casting.spell:onCast(casting.user, casting.target) then
-                self:finishSpell()
+    elseif self.state == "ACTIONSDONE" then
+        local any_hurt = false
+        for _,enemy in ipairs(self.enemies) do
+            if enemy.hurt_timer > 0 then
+                any_hurt = true
+                break
             end
+        end
+        if not any_hurt then
+            self:setState("ENEMYDIALOGUE")
         end
     end
     -- Always sort

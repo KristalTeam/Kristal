@@ -24,6 +24,9 @@ return PartyMember{
     -- Name sprite (TODO: optional)
     name_sprite = "party/noelle/name",
 
+    -- Effect shown above enemy after attacking it
+    dmg_sprite = "effects/attack/slap_n",
+
     -- Whether the party member can act / use spells
     has_act = false,
     has_spells = true,

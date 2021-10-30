@@ -24,6 +24,9 @@ return PartyMember{
     -- Name sprite (TODO: optional)
     name_sprite = "party/susie/name",
 
+    -- Effect shown above enemy after attacking it
+    dmg_sprite = "effects/attack/mash",
+
     -- Whether the party member can act / use spells
     has_act = false,
     has_spells = true,
