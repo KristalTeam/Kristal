@@ -179,6 +179,15 @@ function Object:getCutout()
     return self.cutout_left, self.cutout_top, self.cutout_right, self.cutout_bottom
 end
 
+function Object:getHitbox()
+    if self.collider and self.collider:includes(Hitbox) then
+        return self.collider.x, self.collider.y, self.collider.width, self.collider.height
+    end
+end
+function Object:setHitbox(x, y, w, h)
+    self.collider = Hitbox(x, y, w, h, self)
+end
+
 function Object:setScreenPos(x, y)
     if self.parent then
         self:setPosition(self.parent:getFullTransform():inverseTransformPoint(x or 0, y or 0))

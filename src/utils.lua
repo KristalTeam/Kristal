@@ -233,8 +233,12 @@ function Utils.containsValue(tbl, val)
     return false
 end
 
-function Utils.round(value)
-    return math.floor(value + 0.5)
+function Utils.round(value, to)
+    if not to then
+        return math.floor(value + 0.5)
+    else
+        return math.floor((value + (to/2)) / to) * to
+    end
 end
 
 function Utils.clamp(val, min, max)
@@ -369,6 +373,21 @@ function Utils.unpackPolygon(points)
     table.insert(line, points[1][1])
     table.insert(line, points[1][2])
     return unpack(line)
+end
+
+function Utils.random(...)
+    local args = {...}
+    if #args == 0 then
+        return love.math.random()
+    elseif #args == 1 then
+        return love.math.random() * args[1]
+    else
+        local n = love.math.random() * (args[2] - args[1]) + args[1]
+        if #args >= 3 then
+            n = Utils.round(n, args[3])
+        end
+        return n
+    end
 end
 
 return Utils

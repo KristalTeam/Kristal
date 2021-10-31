@@ -26,4 +26,10 @@ function ColliderGroup:collidesWith(other)
     return super:collidesWith(self, other)
 end
 
+function ColliderGroup:draw()
+    for _,collider in ipairs(self.colliders) do
+        collider:draw()
+    end
+end
+
 return ColliderGroup

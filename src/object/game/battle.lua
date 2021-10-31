@@ -1383,7 +1383,8 @@ function Battle:keypressed(key)
         end
     elseif self.state == "DEFENDING" then
         if Input.isConfirm(key) then
-            self:setState("ACTIONSELECT")
+            self:setState("NONE")
+            self.encounter:onWavesDone()
         elseif key == "d" then
             local rot = self.arena.rotation + (math.pi/2)
             self.timer:tween(0.33, self.arena, {rotation = rot})

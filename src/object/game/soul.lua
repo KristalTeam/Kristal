@@ -13,22 +13,19 @@ function Soul:init(x, y)
     self.hitbox_y = 2
 
     self.sprite = Sprite("player/heart_dodge")
-    self.sprite.color = self.color
+    self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
-    self.graze_sprite = Sprite("player/graze")
-    self.graze_sprite:setOrigin(0.5, 0.5)
-    self.graze_sprite:setPosition(self.hitbox_x + self.width/2, self.hitbox_y + self.height/2)
-    --self.graze_sprite.color = self.color
-    self.graze_sprite.visible = false
+    self.graze_sprite = GrazeSprite(self.hitbox_x + self.width/2, self.hitbox_y + self.height/2)
+    self.graze_sprite.inherit_color = true
     self:addChild(self.graze_sprite)
 
     --self.width = self.sprite.width
     --self.height = self.sprite.height
 
-    self.collider = Hitbox(2, 2, self.width, self.height, self)
+    self.collider = CircleCollider(self.hitbox_x + 8, self.hitbox_y + 8, 8, self)
 
-    self.graze_collider = Hitbox(self.width/2 - 25, self.height/2 - 25, 50, 50, self)
+    self.graze_collider = CircleCollider(self.hitbox_x + self.width/2, self.hitbox_y + self.height/2, 25, self)
 
     self.original_x = x
     self.original_y = y
@@ -40,7 +37,7 @@ function Soul:init(x, y)
     self.alpha = 0
 
     self.inv_timer = 0
-    self.graze_timer = 0
+    self.inv_flash_timer = 0
 
     -- 1px movement increments
     self.partial_x = (self.x % 1)
@@ -278,8 +275,8 @@ function Soul:update(dt)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_points * (dt / 30))
                     end
-                    if self.graze_timer < 0.1 then
-                        self.graze_timer = 0.1
+                    if self.graze_sprite.timer < 0.1 then
+                        self.graze_sprite.timer = 0.1
                     end
                 else
                     love.audio.newSource("assets/sounds/snd_graze.wav", "static"):play()
@@ -287,7 +284,7 @@ function Soul:update(dt)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_points / 30)
                     end
-                    self.graze_timer = 1/3
+                    self.graze_sprite.timer = 1/3
                     bullet.grazed = true
                 end
             end
@@ -295,14 +292,30 @@ function Soul:update(dt)
     end
     Object.endCache()
 
-    if self.graze_timer > 0 then
-        self.graze_sprite.visible = true
-        self.graze_timer = Utils.approach(self.graze_timer, 0, dt)
+    if self.inv_timer > 0 then
+        self.inv_flash_timer = self.inv_flash_timer + dt
+        local amt = math.floor(self.inv_flash_timer / (4/30))
+        if (amt % 2) == 1 then
+            self.sprite:setColor(0.5, 0.5, 0.5)
+        else
+            self.sprite:setColor(1, 1, 1)
+        end
     else
-        self.graze_sprite.visible = false
+        self.inv_flash_timer = 0
+        self.sprite:setColor(1, 1, 1)
     end
 
     super:update(self, dt)
+end
+
+function Soul:draw()
+    super:draw(self)
+
+    if SHOW_COLLIDERS then
+        love.graphics.setColor(0, 1, 0)
+        self.collider:draw()
+        self.graze_collider:draw()
+    end
 end
 
 return Soul

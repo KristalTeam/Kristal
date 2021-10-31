@@ -32,6 +32,11 @@ function Arena:setShape(shape)
     self.width = max_x - min_x
     self.height = max_y - min_y
 
+    self.left = self.x - self.width/2
+    self.right = self.x + self.width/2
+    self.top = self.y - self.height/2
+    self.bottom = self.y + self.height/2
+
     self.triangles = love.math.triangulate(Utils.unpackPolygon(self.shape))
 
     self.border_line = {Utils.unpackPolygon(Utils.getPolygonOffset(self.shape, self.line_width/2))}
@@ -125,6 +130,15 @@ function Arena:update(dt)
     end
 
     super:update(self, dt)
+end
+
+function Arena:draw()
+    super:draw(self)
+
+    if SHOW_COLLIDERS and self.collider then
+        love.graphics.setColor(0, 0, 1)
+        self.collider:draw()
+    end
 end
 
 return Arena

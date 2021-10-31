@@ -1,45 +1,37 @@
 local Bullet, super = Class(Object)
 
-function Bullet:init(texture, x, y, width, height)
+function Bullet:init(x, y, texture)
     super:init(self, x, y)
 
     -- idk whatever we'll do this later or something
     self.layer = 100
 
+    -- Default to centered and 2x scaled
+    self:setOrigin(0.5, 0.5)
+    self:setSize(2)
+
     -- Add a sprite, if we provide one
     if texture then
-        self.sprite = Sprite(texture)
-        self.sprite.inherit_color = true
-        self.sprite:play(0.25, true)
-
-        -- Default to centered and 2x scaled
-        self.sprite:setOrigin(0.5, 0.5)
-        self.sprite:setSize(2)
-
-        self:addChild(self.sprite)
-
-        -- Default object's size to sprite size, if we don't provide it
-        self.width = self.sprite.width
-        self.height = self.sprite.height
+        self:setSprite(texture, 0.25, true)
     end
 
-    local hw, hh = width or self.width/2, height or self.height/2
-
     -- Default collider to half this object's size
-    self.collider = Hitbox(-hw/2, -hh/2, hw, hh, self)
+    self.collider = Hitbox(self.width/4, self.height/4, self.width/2, self.height/2, self)
 
-    -- Speed in the current rotation direction
+    -- Move direction (defaults to rotation)
+    self.direction = nil
+    -- Speed in the current move direction
     self.speed = 0
 
     -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
-    self.graze_points = 5
+    self.graze_points = 4
     -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
     self.time_points = 1
 
     -- Damage given to the player when hit by this bullet
     self.damage = 10
     -- Invulnerability timer to apply to the player when hit by this bullet
-    self.inv_timer = 2
+    self.inv_timer = (4/3)
     -- Whether this bullet gets removed on collision with the player
     self.destroy_on_hit = true
 
@@ -50,11 +42,32 @@ function Bullet:init(texture, x, y, width, height)
     self.remove_offscreen = true
 end
 
+function Bullet:setSprite(texture, speed, loop, on_finished)
+    if self.sprite then
+        self:removeChild(self.sprite)
+    end
+    if texture then
+        self.sprite = Sprite(texture)
+        self.sprite.inherit_color = true
+        self:addChild(self.sprite)
+
+        if speed then
+            self.sprite:play(speed, loop, on_finished)
+        end
+
+        self.width = self.sprite.width
+        self.height = self.sprite.height
+
+        return self.sprite
+    end
+end
+
 function Bullet:update(dt)
     if self.speed > 0 then
-        self.speed = Utils.approach(self.speed, 0, self.friction)
+        self.speed = Utils.approach(self.speed, 0, self.friction * DTMULT)
 
-        self:move(math.cos(self.rotation), math.sin(self.rotation), self.speed * DTMULT)
+        local dir = self.direction or self.rotation
+        self:move(math.cos(dir), math.sin(dir), self.speed * DTMULT)
     end
 
     super:update(self, dt)
@@ -63,6 +76,15 @@ function Bullet:update(dt)
         if self.x < -100 or self.y < -100 or self.x > SCREEN_WIDTH + 100 or self.y > SCREEN_HEIGHT + 100 then
             self:remove()
         end
+    end
+end
+
+function Bullet:draw()
+    super:draw(self)
+
+    if SHOW_COLLIDERS and self.collider then
+        love.graphics.setColor(1, 0, 0)
+        self.collider:draw()
     end
 end
 

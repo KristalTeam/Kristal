@@ -39,4 +39,6 @@ function Collider:collidesWith(other)
     return false
 end
 
+function Collider:draw() end
+
 return Collider

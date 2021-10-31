@@ -67,6 +67,7 @@ Collider = require("src.collider.collider")
 ColliderGroup = require("src.collider.collidergroup")
 Hitbox = require("src.collider.hitbox")
 LineCollider = require("src.collider.linecollider")
+CircleCollider = require("src.collider.circlecollider")
 
 World = require("src.object.game.world")
 Tileset = require("src.tileset")
@@ -86,6 +87,7 @@ TensionBar = require("src.object.game.tensionbar")
 DamageNumber = require("src.object.game.damagenumber")
 HeartBurst = require("src.object.game.heartburst")
 HealSparkle = require("src.object.game.healsparkle")
+GrazeSprite = require("src.object.game.grazesprite")
 Soul = require("src.object.game.soul")
 Arena = require("src.object.game.arena")
 ArenaSprite = require("src.object.game.arenasprite")
@@ -253,6 +255,8 @@ function love.keypressed(key)
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     elseif key == "f3" then
         PERFORMANCE_TEST_STAGE = "UPDATE"
+    elseif key == "f6" then
+        SHOW_COLLIDERS = not SHOW_COLLIDERS
     elseif key == "r" and love.keyboard.isDown("lctrl") then
         if Kristal.getModOption("quickReload") then
             Kristal.quickReload()

@@ -18,6 +18,7 @@ function Registry.initialize(preload)
         Registry.initEncounters()
         Registry.initEnemies()
         Registry.initWaves()
+        Registry.initBullets()
 
         Kristal.modCall("onRegistered")
     end
@@ -71,6 +72,18 @@ function Registry.createWave(id, ...)
     end
 end
 
+function Registry.getBullet(id)
+    return self.bullets[id]
+end
+
+function Registry.createBullet(id, ...)
+    if self.bullets[id] then
+        return self.bullets[id](...)
+    else
+        error("Attempt to create non existent bullet \"" .. id .. "\"")
+    end
+end
+
 -- Register Functions --
 
 function Registry.registerActor(id, tbl)
@@ -99,6 +112,10 @@ end
 
 function Registry.registerWave(id, class)
     self.waves[id] = class
+end
+
+function Registry.registerBullet(id, class)
+    self.bullets[id] = class
 end
 
 -- Internal Functions --
@@ -176,6 +193,17 @@ function Registry.initWaves()
     end
 
     Kristal.modCall("onRegisterWaves")
+end
+
+function Registry.initBullets()
+    self.bullets = {}
+
+    for path,bullet in self.iterScripts("battles/bullets") do
+        bullet.id = bullet.id or path
+        self.registerBullet(bullet.id, bullet)
+    end
+
+    Kristal.modCall("onRegisterBullets")
 end
 
 function Registry.iterScripts(path)

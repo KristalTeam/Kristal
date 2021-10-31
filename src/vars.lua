@@ -11,6 +11,8 @@ FOLLOW_DELAY = 0.4
 
 MOD_LOADING = false
 
+SHOW_COLLIDERS = false
+
 COLORS = {
     aqua = {0, 1, 1, 1},
     black = {0, 0, 0, 1},

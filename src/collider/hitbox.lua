@@ -14,6 +14,8 @@ function Hitbox:collidesWith(other)
         return self:collideWithHitbox(other) or other:collideWithHitbox(self, true)
     elseif other:includes(LineCollider) then
         return other:collidesWith(self)
+    elseif other:includes(CircleCollider) then
+       return other:collidesWith(self)
     elseif other:includes(ColliderGroup) then
         return other:collidesWith(self)
     end
@@ -51,6 +53,11 @@ function Hitbox:collideWithHitbox(other)
            (x2 > self.x and x2 < self.x + self.width and y2 > self.y and y2 < self.y + self.height) or
            (x3 > self.x and x3 < self.x + self.width and y3 > self.y and y3 < self.y + self.height) or
            (x4 > self.x and x4 < self.x + self.width and y4 > self.y and y4 < self.y + self.height)
+end
+
+function Hitbox:draw()
+    love.graphics.setLineWidth(1)
+    love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
 end
 
 return Hitbox
