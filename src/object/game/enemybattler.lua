@@ -177,19 +177,23 @@ function EnemyBattler:statusMessage(type, arg, color)
     hit_count[self] = hit_count[self] + 1
 end
 
-function EnemyBattler:setCharacter(id)
-    self.data = Registry.getActor(id)
+function EnemyBattler:setActor(actor)
+    if type(actor) == "string" then
+        self.actor = Registry.getActor(actor)
+    else
+        self.actor = actor
+    end
 
-    self.width = self.data.width
-    self.height = self.data.height
+    self.width = self.actor.width
+    self.height = self.actor.height
 
     if self.sprite         then self:removeChild(self.sprite)         end
     if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
 
-    self.sprite = ActorSprite(self.data)
+    self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "left"
 
-    self.overlay_sprite = ActorSprite(self.data)
+    self.overlay_sprite = ActorSprite(self.actor)
     self.overlay_sprite.facing = "left"
     self.overlay_sprite.visible = false
 

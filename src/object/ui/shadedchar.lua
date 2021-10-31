@@ -55,7 +55,7 @@ function ShadedChar:draw()
         shader:send("from", white and COLORS.dkgray or draw_color)
         shader:send("to", white and COLORS.navy or draw_color)
         love.graphics.setColor(1, 1, 1, white and 1 or 0.3)
-        love.graphics.draw(canvas, 1 ,1)
+        love.graphics.draw(canvas, 1, 1)
 
         shader:send("from", COLORS.white)
         shader:send("to", white and COLORS.white or draw_color)

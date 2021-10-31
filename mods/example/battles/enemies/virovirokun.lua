@@ -4,7 +4,7 @@ function Virovirokun:init()
     super:init(self)
 
     self.name = "Virovirokun"
-    self:setCharacter("virovirokun")
+    self:setActor("virovirokun")
 
     self.path = "enemies/virovirokun"
     self.default = "idle"
@@ -54,11 +54,11 @@ function Virovirokun:onActStart(battler, name)
     }
 
     if name == "TakeCare" then
-        local id = battler.actor.id
+        local id = battler.chara.id
         battler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
     elseif name == "TakeCareX" then
         for _,ibattler in ipairs(Game.battle.party) do
-            local id = ibattler.actor.id
+            local id = ibattler.chara.id
             ibattler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
         end
     else
@@ -69,18 +69,18 @@ end
 function Virovirokun:onShortAct(battler, name)
     if name == "Quarantine" then
         print("telling virovirokun to stay home, naughty naughty")
-        if battler.id == "kris" then
+        if battler.chara.id == "kris" then
             return "* You told Virovirokun to stay home."
         else
             return "* " .. battler.chara.name .. " told Virovirokun to stay home."
         end
     elseif name == "Standard" then
         self:addMercy(50)
-        if battler.id == "noelle" then
+        if battler.chara.id == "noelle" then
             return "* Noelle offered a cold compress!"
-        elseif battler.id == "susie" then
+        elseif battler.chara.id == "susie" then
             return "* Susie encouraged evil!"
-        elseif battler.id == "ralsei" then
+        elseif battler.chara.id == "ralsei" then
             return "* Ralsei tried to rehabilitate!"
         end
     end
@@ -110,15 +110,15 @@ function Virovirokun:onAct(battler, name)
         return "* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!"
     elseif name == "Standard" then
         self:addMercy(50)
-        if battler.id == "noelle" then
+        if battler.chara.id == "noelle" then
             return "* Noelle offered a cold compress!"
-        elseif battler.id == "susie" then
+        elseif battler.chara.id == "susie" then
             return {
                 "* Susie commiserated with the enemy!",
                 "* Stick it to the man,\ndude.",
                 "* Even if that means\ncloning yourself, or\nwhatever."
             }
-        elseif battler.id == "ralsei" then
+        elseif battler.chara.id == "ralsei" then
             return {
                 "* Ralsei tried to steer the enemy\ndown the right path.",
                 "* Not everybody knows\nthis, but...",
