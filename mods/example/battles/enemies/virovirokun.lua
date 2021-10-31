@@ -15,6 +15,10 @@ function Virovirokun:init()
     self.defense = 0
     self.reward = 84
 
+    self.waves = {
+        "vironeedle"
+    }
+
     self.check = "This sick virus\nneeds affordable healthcare."
 
     self.text = {

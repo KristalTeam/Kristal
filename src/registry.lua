@@ -17,6 +17,7 @@ function Registry.initialize(preload)
         Registry.initPartyMembers()
         Registry.initEncounters()
         Registry.initEnemies()
+        Registry.initWaves()
 
         Kristal.modCall("onRegistered")
     end
@@ -58,6 +59,18 @@ function Registry.createEnemy(id, ...)
     end
 end
 
+function Registry.getWave(id)
+    return self.waves[id]
+end
+
+function Registry.createWave(id, ...)
+    if self.waves[id] then
+        return self.waves[id](...)
+    else
+        error("Attempt to create non existent wave \"" .. id .. "\"")
+    end
+end
+
 -- Register Functions --
 
 function Registry.registerActor(id, tbl)
@@ -82,6 +95,10 @@ end
 
 function Registry.registerEnemy(id, class)
     self.enemies[id] = class
+end
+
+function Registry.registerWave(id, class)
+    self.waves[id] = class
 end
 
 -- Internal Functions --
@@ -148,6 +165,17 @@ function Registry.initEnemies()
     end
 
     Kristal.modCall("onRegisterEnemies")
+end
+
+function Registry.initWaves()
+    self.waves = {}
+
+    for path,wave in self.iterScripts("battles/waves") do
+        wave.id = wave.id or path
+        self.registerWave(wave.id, wave)
+    end
+
+    Kristal.modCall("onRegisterWaves")
 end
 
 function Registry.iterScripts(path)

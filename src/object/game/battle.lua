@@ -58,7 +58,7 @@ function Battle:init()
     self.intro_timer = 0
     self.offset = 0
 
-    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DEFENDING
+    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
     self.state = "NONE"
@@ -113,6 +113,9 @@ function Battle:init()
     self.has_acted = false
 
     self.background_fade_alpha = 0
+
+    self.wave_length = 0
+    self.wave_timer = 0
 end
 
 function Battle:postInit(state, encounter)
@@ -317,7 +320,7 @@ function Battle:onStateChange(old,new)
                 self:addChild(textbox)
             end
         end
-    elseif new == "DEFENDING" then
+    elseif new == "DIALOGUEEND" then
         self.battle_ui.encounter_text:setText("")
 
         for _,action in ipairs(self.character_actions) do
@@ -327,27 +330,39 @@ function Battle:onStateChange(old,new)
             end
         end
 
-        local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
+        self.encounter:onDialogueEnd()
+    elseif new == "DEFENDING" then
+        self.wave_length = 0
+        self.wave_timer = 0
 
-        local x, y
-        if not battler then
-            x, y = -9, -9
-        else
-            x, y = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+        local waves = self.encounter.current_waves
+
+        for _,wave in ipairs(waves) do
+            wave.encounter = self.encounter
+
+            self.wave_length = math.max(self.wave_length, wave.time)
+
+            wave:start()
         end
+    end
+end
 
-        self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10)
-        --self.arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10, {{100, 0}, {125, 0}, {125, 75}, {200, 75}, {200, 100}, {100, 200}, {0, 100}})
-        self.arena.layer = 10
-        self:addChild(self.arena)
+function Battle:spawnSoul(x, y)
+    local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
 
-        self:addChild(HeartBurst(x, y))
-        if not self.soul then
-            self.soul = Soul(x, y)
-            self.soul:transitionTo(self.arena:getCenter())
-            self.soul.layer = 20
-            self:addChild(self.soul)
-        end
+    local bx, by
+    if not battler then
+        bx, by = -9, -9
+    else
+        bx, by = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+    end
+
+    self:addChild(HeartBurst(bx, by))
+    if not self.soul then
+        self.soul = Soul(bx, by)
+        self.soul:transitionTo(x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2)
+        self.soul.layer = 20
+        self:addChild(self.soul)
     end
 end
 
@@ -487,7 +502,9 @@ function Battle:beginAction(action)
     table.insert(self.current_actions, action)
 
     -- Set the state
-    self:setSubState(action.action)
+    if self.state == "ACTIONS" then
+        self:setSubState(action.action)
+    end
 
     if action.action == "ACT" then
         -- Play the ACT animation by default
@@ -922,6 +939,8 @@ function Battle:update(dt)
         if not any_hurt then
             self:setState("ENEMYDIALOGUE")
         end
+    elseif self.state == "DEFENDING" then
+        self:updateWaves(dt)
     end
     -- Always sort
     self.update_child_list = true
@@ -967,6 +986,32 @@ function Battle:updateTransition(dt)
 
         battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
         battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
+    end
+end
+
+function Battle:updateWaves(dt)
+    local waves = self.encounter.current_waves
+
+    self.wave_timer = self.wave_timer + dt
+
+    local last_done = true
+    local all_done = true
+    for _,wave in ipairs(waves) do
+        if not wave.finished then
+            last_done = false
+
+            if wave.time >= 0 and self.wave_timer >= wave.time then
+                wave.finished = true
+            end
+        end
+        wave:update(dt)
+        if not wave.finished then
+            all_done = false
+        end
+    end
+
+    if all_done and not last_done then
+        self.encounter:onWavesDone()
     end
 end
 
@@ -1299,9 +1344,9 @@ function Battle:keypressed(key)
             for _,dialogue in ipairs(to_remove) do
                 Utils.removeFromTable(self.enemy_dialogue, dialogue)
             end
-            -- If all dialogue is done, go to DEFENDING state
+            -- If all dialogue is done, go to DIALOGUEEND state
             if all_done then
-                self:setState("DEFENDING")
+                self:setState("DIALOGUEEND")
             end
         end
     elseif self.state == "ACTIONSELECT" then

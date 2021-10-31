@@ -228,7 +228,7 @@ function Object:getDrawColor()
     local r, g, b = unpack(self.color)
     if self.inherit_color and self.parent then
         local pr, pg, pb, pa = self.parent:getDrawColor()
-        return r * pr, g * pg, b * pb, self.alpha
+        return r * pr, g * pg, b * pb, self.alpha * pa
     else
         return r, g, b, self.alpha
     end

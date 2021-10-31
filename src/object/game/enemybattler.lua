@@ -22,6 +22,8 @@ function EnemyBattler:init(chara)
     self.tired = false
     self.mercy = 0
 
+    self.waves = {}
+
     self.check = "Remember to change\nyour check text!"
 
     self.text = {
@@ -115,6 +117,10 @@ function EnemyBattler:fetchEncounterText()
         return self.low_health_text
     end
     return self.text[math.random(#self.text)]
+end
+
+function EnemyBattler:selectWave()
+    return self.waves[love.math.random(#self.waves)]
 end
 
 function EnemyBattler:onCheck(battler) end

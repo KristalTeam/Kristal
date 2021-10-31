@@ -7,18 +7,28 @@ function Soul:init(x, y)
 
     self.color = {1, 0, 0, 1}
 
-    self.sprite = Sprite("player/heart_dodge")
-    self.sprite.color = self.color
-    self:addChild(self.sprite)
-
-    --self.width = self.sprite.width
-    --self.height = self.sprite.height
     self.width = 16
     self.height = 16
     self.hitbox_x = 2
     self.hitbox_y = 2
 
+    self.sprite = Sprite("player/heart_dodge")
+    self.sprite.color = self.color
+    self:addChild(self.sprite)
+
+    self.graze_sprite = Sprite("player/graze")
+    self.graze_sprite:setOrigin(0.5, 0.5)
+    self.graze_sprite:setPosition(self.hitbox_x + self.width/2, self.hitbox_y + self.height/2)
+    --self.graze_sprite.color = self.color
+    self.graze_sprite.visible = false
+    self:addChild(self.graze_sprite)
+
+    --self.width = self.sprite.width
+    --self.height = self.sprite.height
+
     self.collider = Hitbox(2, 2, self.width, self.height, self)
+
+    self.graze_collider = Hitbox(self.width/2 - 25, self.height/2 - 25, 50, 50, self)
 
     self.original_x = x
     self.original_y = y
@@ -28,6 +38,9 @@ function Soul:init(x, y)
     self.transitioning = false
     self.speed = 4
     self.alpha = 0
+
+    self.inv_timer = 0
+    self.graze_timer = 0
 
     -- 1px movement increments
     self.partial_x = (self.x % 1)
@@ -229,6 +242,64 @@ function Soul:update(dt)
 
     if move_x ~= 0 or move_y ~= 0 then
         self:move(move_x, move_y, speed * DTMULT)
+    end
+
+    -- Bullet collision !!! Yay
+    if self.inv_timer > 0 then
+        self.inv_timer = Utils.approach(self.inv_timer, 0, dt)
+    end
+
+    Object.startCache()
+    for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
+        if bullet:collidesWith(self.collider) then
+            if bullet.onCollide then
+                bullet:onCollide(self, false)
+            end
+            if self.inv_timer == 0 then
+                love.audio.newSource("assets/sounds/snd_hurt1.wav", "static"):play()
+
+                local battler = Game.battle.party[love.math.random(#Game.battle.party)]
+                battler:hurt(bullet.damage)
+
+                self.inv_timer = bullet.inv_timer
+
+                if bullet.onDamage then
+                    bullet:onDamage(self, true)
+                end
+            end
+            if bullet.destroy_on_hit then
+                bullet:remove()
+            end
+        end
+        if self.inv_timer == 0 then
+            if bullet:collidesWith(self.graze_collider) then
+                if bullet.grazed then
+                    Game.battle.tension_bar:giveTension(bullet.graze_points * dt)
+                    if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
+                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_points * (dt / 30))
+                    end
+                    if self.graze_timer < 0.1 then
+                        self.graze_timer = 0.1
+                    end
+                else
+                    love.audio.newSource("assets/sounds/snd_graze.wav", "static"):play()
+                    Game.battle.tension_bar:giveTension(bullet.graze_points)
+                    if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
+                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_points / 30)
+                    end
+                    self.graze_timer = 1/3
+                    bullet.grazed = true
+                end
+            end
+        end
+    end
+    Object.endCache()
+
+    if self.graze_timer > 0 then
+        self.graze_sprite.visible = true
+        self.graze_timer = Utils.approach(self.graze_timer, 0, dt)
+    else
+        self.graze_sprite.visible = false
     end
 
     super:update(self, dt)
