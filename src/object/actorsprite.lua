@@ -75,6 +75,9 @@ function ActorSprite:setAnimation(anim, callback)
     if anim then
         anim = Utils.copy(anim)
         if anim.next then
+            if type(anim.next) == "table" then
+                anim.next = anim.next[love.math.random(#anim.next)]
+            end
             if self.actor.animations[anim.next] then
                 anim.callback = function(s) s:setAnimation(anim.next) end
             else

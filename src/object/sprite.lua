@@ -105,18 +105,30 @@ function Sprite:setAnimation(anim)
 
     local func
     if type(anim) == "table" then
-        self.anim_sprite = anim[1]
-        self.anim_delay = anim[2] or (1/30)
-        self.loop = anim[3] or false
+        local has_routine = false
+        if type(anim[1]) == "string" then
+            self.anim_sprite = anim[1]
+            self:setSprite(self.anim_sprite, true)
+            if type(anim[2]) == "function" then
+                func = anim[2]
+                has_routine = true
+            end
+        elseif type(anim[1]) == "function" then
+            func = anim[1]
+            has_routine = true
+        end
 
         self.anim_duration = anim.duration or -1
-
-        self.anim_frames = anim.frames
         self.anim_callback = anim.callback
-
         self.anim_waiting = 0
 
-        func = self._basicAnimation
+        if not has_routine then
+            self.anim_delay = anim[2] or (1/30)
+            self.loop = anim[3] or false
+            self.anim_frames = anim.frames
+
+            func = self._basicAnimation
+        end
     elseif type(anim) == "function" then
         func = anim
     end
@@ -127,9 +139,6 @@ function Sprite:setAnimation(anim)
 end
 
 function Sprite:_basicAnimation(wait)
-    if self.anim_sprite then
-        self:setSprite(self.anim_sprite, true)
-    end
     while true do
         if type(self.anim_frames) == "table" then
             for i = 1, #self.anim_frames do
