@@ -398,4 +398,22 @@ function Utils.angle(x1,y1, x2,y2)
     return math.atan2(y2 - y1, x2 - x1)
 end
 
+function Utils.startsWith(value, prefix)
+    if type(value) == "string" then
+        return value:sub(1, #prefix) == prefix, value:sub(#prefix + 1)
+    elseif type(value) == "table" then
+        if #value >= #prefix then
+            local copy = Utils.copy(value)
+            for i,v in ipairs(value) do
+                if prefix[i] ~= v then
+                    return false
+                end
+                table.remove(copy, 1)
+            end
+            return true, copy
+        end
+    end
+    return false
+end
+
 return Utils

@@ -208,22 +208,74 @@ end
 
 function Registry.iterScripts(path)
     local result = {}
-    local function parse(chunks)
+
+    CLASS_NAME_GETTER = function(k)
+        for _,v in ipairs(result) do
+            if v.path == k then
+                return v.out[1]
+            end
+        end
+        return DEFAULT_CLASS_NAME_GETTER(k)
+    end
+
+    local chunks = nil
+    local parsed = {}
+    local addChunk, requireChunk, parse
+
+    addChunk = function(chunk, id)
+        local success,a,b,c,d,e,f = pcall(chunk)
+        if not success then
+            if type(a) == "table" and a.included then
+                requireChunk(a.included)
+                success,a,b,c,d,e,f = pcall(chunk)
+                if not success then
+                    error(type(a) == "table" and a.msg or a)
+                end
+                table.insert(result, {out = {a,b,c,d,e,f}, path = id})
+            else
+                error(a)
+            end
+        else
+            table.insert(result, {out = {a,b,c,d,e,f}, path = id})
+            return a
+        end
+    end
+    requireChunk = function(req_id)
         for full_path,chunk in pairs(chunks) do
-            if full_path:sub(1, #path) == path then
+            if not parsed[full_path] and full_path:sub(1, #path) == path then
                 local id = full_path:sub(#path + 1)
                 if id:sub(1, 1) == "/" then
                     id = id:sub(2)
                 end
-                local out = {chunk()}
-                table.insert(result, {out = out, path = id})
+                if id == req_id then
+                    parsed[full_path] = true
+                    addChunk(chunk, id)
+                end
             end
         end
     end
+    parse = function(_chunks)
+        chunks = _chunks
+        parsed = {}
+        for full_path,chunk in pairs(chunks) do
+            if not parsed[full_path] and full_path:sub(1, #path) == path then
+                local id = full_path:sub(#path + 1)
+                if id:sub(1, 1) == "/" then
+                    id = id:sub(2)
+                end
+                parsed[full_path] = true
+                addChunk(chunk, id)
+            end
+        end
+    end
+
     parse(self.base_scripts)
     if Mod then
         parse(Mod.info.script_chunks)
     end
+
+    CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER
+
     local i = 0
 ---@diagnostic disable-next-line: undefined-field
     local n = table.getn(result)
