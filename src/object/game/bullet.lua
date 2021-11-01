@@ -88,9 +88,8 @@ end
 function Bullet:draw()
     super:draw(self)
 
-    if SHOW_COLLIDERS and self.collider then
-        love.graphics.setColor(1, 0, 0)
-        self.collider:draw()
+    if DEBUG_RENDER and self.collider then
+        self.collider:draw(1, 0, 0)
     end
 end
 

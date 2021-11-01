@@ -26,9 +26,9 @@ function ColliderGroup:collidesWith(other)
     return super:collidesWith(self, other)
 end
 
-function ColliderGroup:draw()
+function ColliderGroup:draw(r,g,b,a)
     for _,collider in ipairs(self.colliders) do
-        collider:draw()
+        collider:draw(r,g,b,a)
     end
 end
 

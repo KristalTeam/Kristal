@@ -135,9 +135,8 @@ end
 function Arena:draw()
     super:draw(self)
 
-    if SHOW_COLLIDERS and self.collider then
-        love.graphics.setColor(0, 0, 1)
-        self.collider:draw()
+    if DEBUG_RENDER and self.collider then
+        self.collider:draw(0, 0, 1)
     end
 end
 

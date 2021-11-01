@@ -256,7 +256,7 @@ function love.keypressed(key)
     elseif key == "f3" then
         PERFORMANCE_TEST_STAGE = "UPDATE"
     elseif key == "f6" then
-        SHOW_COLLIDERS = not SHOW_COLLIDERS
+        DEBUG_RENDER = not DEBUG_RENDER
     elseif key == "r" and love.keyboard.isDown("lctrl") then
         if Kristal.getModOption("quickReload") then
             Kristal.quickReload()

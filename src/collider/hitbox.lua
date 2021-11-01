@@ -55,9 +55,11 @@ function Hitbox:collideWithHitbox(other)
            (x4 >= self.x and x4 < self.x + self.width and y4 > self.y and y4 < self.y + self.height)
 end
 
-function Hitbox:draw()
+function Hitbox:draw(r,g,b,a)
+    love.graphics.setColor(r,g,b,a)
     love.graphics.setLineWidth(1)
     love.graphics.rectangle("line", self.x, self.y, self.width, self.height)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 return Hitbox

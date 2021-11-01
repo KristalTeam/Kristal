@@ -66,9 +66,8 @@ end
 function Vironeedle:draw()
     super:draw(self)
 
-    if SHOW_COLLIDERS then
-        love.graphics.setColor(1, 0, 1, 0.5)
-        self.infect_collider:draw()
+    if DEBUG_RENDER then
+        self.infect_collider:draw(1, 0, 1, 0.5)
     end
 end
 

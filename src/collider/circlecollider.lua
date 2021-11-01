@@ -83,9 +83,11 @@ function CircleCollider.checkPoint(px, py, cx, cy, r)
     return dist <= r
 end
 
-function CircleCollider:draw()
+function CircleCollider:draw(r,g,b,a)
+    love.graphics.setColor(r,g,b,a)
     love.graphics.setLineWidth(1)
     love.graphics.circle("line", self.x, self.y, self.radius)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 return CircleCollider

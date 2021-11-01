@@ -103,9 +103,11 @@ function LineCollider.checkPoint(x1, y1, x2, y2, px, py)
     return d1+d2 >= len-buffer and d1+d2 <= len+buffer
 end
 
-function LineCollider:draw()
+function LineCollider:draw(r,g,b,a)
+    love.graphics.setColor(r,g,b,a)
     love.graphics.setLineWidth(1)
     love.graphics.line(self.x, self.y, self.x2, self.y2)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 return LineCollider
