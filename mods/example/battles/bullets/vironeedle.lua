@@ -6,9 +6,9 @@ function Vironeedle:init(x, y, slow, right)
     self.collidable = false
 
     self:setSprite("bullets/viro_needle", 1/15, false, function() self.collidable = true end)
-    self:setHitbox(8, 13, 14, 4)
+    self:setHitbox(4, 6.5, 7, 2)
 
-    self.infect_collider = Hitbox(2, 10, 28, 10, self)
+    self.infect_collider = Hitbox(1, 5, 14, 5, self)
 
     self.alpha = 0
     if not right then

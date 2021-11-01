@@ -8,7 +8,7 @@ function Bullet:init(x, y, texture)
 
     -- Default to centered and 2x scaled
     self:setOrigin(0.5, 0.5)
-    self:setSize(2)
+    self:setScale(2)
 
     -- Add a sprite, if we provide one
     if texture then
@@ -71,7 +71,7 @@ function Bullet:isBullet(id)
 end
 
 function Bullet:update(dt)
-    if self.speed > 0 then
+    if self.speed ~= 0 then
         self.speed = Utils.approach(self.speed, 0, self.friction * DTMULT)
 
         local dir = self:getDirection()
