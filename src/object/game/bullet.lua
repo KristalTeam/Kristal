@@ -6,17 +6,13 @@ function Bullet:init(x, y, texture)
     -- idk whatever we'll do this later or something
     self.layer = 100
 
-    -- Default to centered and 2x scaled
-    self:setOrigin(0.5, 0.5)
-    self:setScale(2)
-
     -- Add a sprite, if we provide one
     if texture then
         self:setSprite(texture, 0.25, true)
     end
 
     -- Default collider to half this object's size
-    self.collider = Hitbox(self.width/4, self.height/4, self.width/2, self.height/2, self)
+    self.collider = Hitbox(-self.width/4, -self.height/4, self.width/2, self.height/2, self)
 
     -- Move direction (defaults to rotation)
     self.direction = nil
@@ -48,6 +44,8 @@ function Bullet:setSprite(texture, speed, loop, on_finished)
     end
     if texture then
         self.sprite = Sprite(texture)
+        self.sprite:setOrigin(0.5, 0.5)
+        self.sprite:setScale(2)
         self.sprite.inherit_color = true
         self:addChild(self.sprite)
 
