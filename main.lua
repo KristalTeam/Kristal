@@ -229,7 +229,7 @@ function love.update(dt)
         local msg = load_out_channel:pop()
         if msg then
             load_waiting = load_waiting - 1
-            
+
             if load_waiting == 0 then
                 Kristal.Overlay.setLoading(false)
             end
@@ -300,10 +300,13 @@ function love.run()
         -- Update dt, as we'll be passing it to update
         if love.timer then dt = love.timer.step() end
 
+        -- Dt shouldn't exceed 30FPS
+        dt = math.min(dt, 1/30)
+
         -- Call update and draw
         if love.update then
             love.update(dt)
-        end 
+        end
 
         if love.graphics and love.graphics.isActive() then
             love.graphics.origin()
@@ -477,7 +480,8 @@ function Kristal.errorHandler(msg)
             love.graphics.pop()
         end
 
-        DT = love.timer.getDelta()
+        -- dt shouldnt exceed 30FPS
+        DT = math.min(love.timer.getDelta(), 1/30)
 
         copy_color[1] = copy_color[1] + (DT * 2)
         copy_color[3] = copy_color[3] + (DT * 2)

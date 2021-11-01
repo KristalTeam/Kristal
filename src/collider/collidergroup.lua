@@ -1,12 +1,9 @@
 local ColliderGroup, super = Class(Collider)
 
-function ColliderGroup:init(parent, ...)
+function ColliderGroup:init(parent, colliders)
     super:init(self, 0, 0, parent)
 
-    self.colliders = {}
-    for _,v in ipairs({...}) do
-        self:addCollider(v)
-    end
+    self.colliders = colliders or {}
 end
 
 function ColliderGroup:addCollider(collider)
