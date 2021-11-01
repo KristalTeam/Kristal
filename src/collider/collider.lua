@@ -7,6 +7,16 @@ function Collider:init(x, y, parent)
     self.y = y or 0
 end
 
+function Collider:getOtherCollider(other)
+    if isClass(other) then
+        if other:includes(Collider) then
+            return other
+        elseif other:includes(Object) and other.collidable and other.collider then
+            return other.collider
+        end
+    end
+end
+
 function Collider:getTransform()
     if self.parent then
         return self.parent:getFullTransform()

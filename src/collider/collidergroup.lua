@@ -15,7 +15,8 @@ function ColliderGroup:addCollider(collider)
 end
 
 function ColliderGroup:collidesWith(other)
-    if not isClass(other) then return false end
+    other = self:getOtherCollider(other)
+    if not other then return false end
 
     for _,collider in ipairs(self.colliders) do
         if collider:collidesWith(other) then

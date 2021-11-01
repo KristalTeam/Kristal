@@ -7,7 +7,8 @@ function CircleCollider:init(x, y, radius, parent)
 end
 
 function CircleCollider:collidesWith(other)
-    if not isClass(other) then return false end
+    other = self:getOtherCollider(other)
+    if not other then return false end
 
     if other:includes(Hitbox) then
         return self:collideWithHitbox(other)

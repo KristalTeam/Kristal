@@ -8,7 +8,8 @@ function LineCollider:init(x1, y1, x2, y2, parent)
 end
 
 function LineCollider:collidesWith(other, symmetrical)
-    if not isClass(other) then return false end
+    other = self:getOtherCollider(other)
+    if not other then return false end
 
     if other:includes(LineCollider) then
         local tf1, tf2 = self:getTransformsWith(other)

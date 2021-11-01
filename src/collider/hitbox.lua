@@ -8,7 +8,8 @@ function Hitbox:init(x, y, width, height, parent)
 end
 
 function Hitbox:collidesWith(other)
-    if not isClass(other) then return false end
+    other = self:getOtherCollider(other)
+    if not other then return false end
 
     if other:includes(Hitbox) then
         return self:collideWithHitbox(other) or other:collideWithHitbox(self, true)
