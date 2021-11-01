@@ -85,6 +85,8 @@ function Object:init(x, y, width, height)
 
     -- Collision hitbox
     self.collider = nil
+    -- Whether this object can be collided with
+    self.collidable = true
 
     -- Triggers list sort / child removal
     self.update_child_list = false
@@ -127,9 +129,9 @@ function Object:move(x, y, speed)
 end
 
 function Object:collidesWith(other)
-    if other and self.collider then
+    if other and self.collidable and self.collider then
         if isClass(other) and other:includes(Object) then
-            return other.collider and self.collider:collidesWith(other.collider) or false
+            return other.collidable and other.collider and self.collider:collidesWith(other.collider) or false
         else
             return self.collider:collidesWith(other)
         end
@@ -322,6 +324,7 @@ function Object:explode(x, y)
     if self.parent then
         local rx, ry = self:getRelativePos(self.parent, self.width/2 + (x or 0), self.height/2 + (y or 0))
         local e = Explosion(rx, ry)
+        e.layer = self.layer + 0.001
         self.parent:addChild(e)
         self:remove()
     end

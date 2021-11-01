@@ -33,7 +33,7 @@ function Encounter:selectWaves()
     for _,enemy in ipairs(enemies) do
         local wave = enemy:selectWave(enemies)
 
-        print(wave)
+        enemy.selected_wave = wave
 
         local exists = (type(wave) == "string" and added_wave[wave]) or (isClass(wave) and added_wave[wave.id])
         if not exists then

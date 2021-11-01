@@ -314,6 +314,7 @@ function Soul:draw()
     if SHOW_COLLIDERS then
         love.graphics.setColor(0, 1, 0)
         self.collider:draw()
+        love.graphics.setColor(1, 1, 1, 0.5)
         self.graze_collider:draw()
     end
 end

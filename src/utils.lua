@@ -390,4 +390,12 @@ function Utils.random(...)
     end
 end
 
+function Utils.randomSign()
+    return love.math.random() < 0.5 and 1 or -1
+end
+
+function Utils.angle(x1,y1, x2,y2)
+    return math.atan2(y2 - y1, x2 - x1)
+end
+
 return Utils

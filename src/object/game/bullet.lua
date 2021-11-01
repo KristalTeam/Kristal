@@ -62,11 +62,19 @@ function Bullet:setSprite(texture, speed, loop, on_finished)
     end
 end
 
+function Bullet:getDirection()
+    return self.direction or self.rotation
+end
+
+function Bullet:isBullet(id)
+    return self:includes(Registry.getBullet(id))
+end
+
 function Bullet:update(dt)
     if self.speed > 0 then
         self.speed = Utils.approach(self.speed, 0, self.friction * DTMULT)
 
-        local dir = self.direction or self.rotation
+        local dir = self:getDirection()
         self:move(math.cos(dir), math.sin(dir), self.speed * DTMULT)
     end
 

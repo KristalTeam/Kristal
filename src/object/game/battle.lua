@@ -943,7 +943,7 @@ function Battle:update(dt)
         self:updateWaves(dt)
     end
     -- Always sort
-    self.update_child_list = true
+    --self.update_child_list = true
     super:update(self, dt)
 end
 

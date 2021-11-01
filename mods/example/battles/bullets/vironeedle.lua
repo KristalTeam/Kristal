@@ -1,21 +1,69 @@
 local Vironeedle, super = Class(Bullet)
 
-function Vironeedle:init(x, y)
+function Vironeedle:init(x, y, slow, right)
     super:init(self, x, y)
 
-    self:setSprite("bullets/viro_needle", 1/15, false)
+    self.collidable = false
+
+    self:setSprite("bullets/viro_needle", 1/15, false, function() self.collidable = true end)
     self:setHitbox(8, 13, 14, 4)
 
+    self.infect_collider = Hitbox(2, 10, 28, 10, self)
+
     self.alpha = 0
-    self.rotation = math.pi
+    if not right then
+        self.rotation = math.pi
+    end
     self.speed = 1
     self.friction = -0.2
+    if slow then
+        self.friction = self.friction + 0.05
+    end
+    self.infecting = false
+end
+
+function Vironeedle:infect(other)
+    other:remove()
+    self.collidable = false
+    self.infecting = true
+    self.speed = 0
+    self:setLayer(math.max(self.layer, other.layer) + 0.01)
+    self:setPosition(Vector.lerp(self.x,self.y, other.x,other.y, 0.5))
+    self.sprite:setSprite("bullets/viro_needle_pop")
+    self.sprite:setAnimation(function(sprite, wait)
+        for i = 1,3 do
+            sprite:setFrame(i)
+            wait(1/30)
+        end
+        local bullet = self.wave:spawnBullet("virovirus", self.x, self.y)
+        bullet:setLayer(self.layer - 0.01)
+        sprite:setFrame(4)
+        wait(1/30)
+        self:remove()
+    end)
 end
 
 function Vironeedle:update(dt)
-    self.alpha = Utils.approach(self.alpha, 1, dt / (1/3))
+    if (self.rotation == 0 and self.x > Game.battle.arena.right + 10) or (self.rotation == math.pi and self.x < Game.battle.arena.left - 10) then
+        self.collidable = false
+        self.alpha = Utils.approach(self.alpha, 0, dt / (1/3))
+        if self.alpha == 0 then
+            self:remove()
+        end
+    else
+        self.alpha = Utils.approach(self.alpha, 1, dt / (1/3))
+    end
 
     super:update(self, dt)
+end
+
+function Vironeedle:draw()
+    super:draw(self)
+
+    if SHOW_COLLIDERS then
+        love.graphics.setColor(1, 0, 1, 0.5)
+        self.infect_collider:draw()
+    end
 end
 
 return Vironeedle

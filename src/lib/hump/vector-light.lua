@@ -147,6 +147,11 @@ local function angleTo(x,y, u,v)
     return atan2(y, x)
 end
 
+-- added by Kristal
+local function lerp(x1,y1, x2,y2, amount)
+    return x1 + (x2 - x1) * amount, y1 + (y2 - y1) * amount
+end
+
 -- the module
 return {
     str = str,
@@ -183,4 +188,5 @@ return {
     mirror        = mirror,
     trim          = trim,
     angleTo       = angleTo,
+    lerp          = lerp,
 }
