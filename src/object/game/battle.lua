@@ -840,7 +840,7 @@ end
 function Battle:checkSolidCollision(collider)
     Object.startCache()
     if self.arena then
-        if collider:collidesWith(self.arena) then
+        if self.arena:collidesWith(collider) then
             Object.endCache()
             return true, self.arena
         end
