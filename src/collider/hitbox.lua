@@ -50,9 +50,9 @@ function Hitbox:collideWithHitbox(other)
     Utils.popPerformance()
 
     return (x1 >= self.x and x1 < self.x + self.width and y1 >= self.y and y1 < self.y + self.height) or
-           (x2 >= self.x and x2 < self.x + self.width and y2 >= self.y and y2 < self.y + self.height) or
-           (x3 >= self.x and x3 < self.x + self.width and y3 >= self.y and y3 < self.y + self.height) or
-           (x4 >= self.x and x4 < self.x + self.width and y4 >= self.y and y4 < self.y + self.height)
+           (x2 > self.x and x2 < self.x + self.width and y2 > self.y and y2 < self.y + self.height) or
+           (x3 > self.x and x3 < self.x + self.width and y3 > self.y and y3 < self.y + self.height) or
+           (x4 > self.x and x4 < self.x + self.width and y4 > self.y and y4 < self.y + self.height)
 end
 
 function Hitbox:draw()
