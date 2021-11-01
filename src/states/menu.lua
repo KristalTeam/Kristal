@@ -327,11 +327,11 @@ function Menu:keypressed(key, _, is_repeat)
 
     if #self.list.mods > 0 then
         if Input.isConfirm(key) then
-            self.ui_select:stop()
-            self.ui_select:play()
 
             local current_mod = self.list:getSelectedMod()
             if current_mod then
+                self.ui_select:stop()
+                self.ui_select:play()
                 if current_mod.transition then
                     Kristal.preloadMod(current_mod)
                     Kristal.loadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
