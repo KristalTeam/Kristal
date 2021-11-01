@@ -375,16 +375,15 @@ function Utils.unpackPolygon(points)
     return unpack(line)
 end
 
-function Utils.random(...)
-    local args = {...}
-    if #args == 0 then
+function Utils.random(a, b, c)
+    if not a then
         return love.math.random()
-    elseif #args == 1 then
-        return love.math.random() * args[1]
+    elseif not b then
+        return love.math.random() * a
     else
-        local n = love.math.random() * (args[2] - args[1]) + args[1]
-        if #args >= 3 then
-            n = Utils.round(n, args[3])
+        local n = love.math.random() * (b - a) + a
+        if c then
+            n = Utils.round(n, c)
         end
         return n
     end
