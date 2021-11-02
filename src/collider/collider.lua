@@ -35,7 +35,7 @@ end
 
 function Collider:getPointFor(other, x, y)
     if self.parent and other.parent then
-        return other.parent:getRelativePos(self.parent, other.x + x, other.y + y)
+        return other.parent:getRelativePos(other.x + x, other.y + y, self.parent)
     elseif self.parent then
         return self.parent:getFullTransform():inverseTransformPoint(other.x + x, other.y + y)
     elseif other.parent then

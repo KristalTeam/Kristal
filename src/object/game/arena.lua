@@ -19,6 +19,10 @@ function Arena:init(x, y, shape)
     self:addChild(self.sprite)
 end
 
+function Arena:setSize(width, height)
+    self:setShape{{0, 0}, {width, 0}, {width, height}, {0, height}}
+end
+
 function Arena:setShape(shape)
     self.shape = Utils.copy(shape, true)
     self.processed_shape = Utils.copy(shape, true)
@@ -34,6 +38,9 @@ function Arena:setShape(shape)
     end
     self.width = max_x - min_x
     self.height = max_y - min_y
+
+    self.processed_width = self.width
+    self.processed_height = self.height
 
     self.left = math.floor(self.x - self.width/2)
     self.right = math.floor(self.x + self.width/2)
@@ -55,13 +62,25 @@ function Arena:setShape(shape)
 end
 
 function Arena:getCenter()
-    return self:getTransform():transformPoint(self.width/2, self.height/2)
+    return self:getRelativePos(self.width/2, self.height/2)
 end
+
+function Arena:getTopLeft() return self:getRelativePos(0, 0) end
+function Arena:getTopRight() return self:getRelativePos(self.width, 0) end
+function Arena:getBottomLeft() return self:getRelativePos(0, self.height) end
+function Arena:getBottomRight() return self:getRelativePos(self.width, self.height) end
+
+function Arena:getLeft() local x, y = self:getTopLeft(); return x end
+function Arena:getRight() local x, y = self:getBottomRight(); return x end
+function Arena:getTop() local x, y = self:getTopLeft(); return y end
+function Arena:getBottom() local x, y = self:getBottomRight(); return y end
 
 function Arena:onAdd(parent)
     self.sprite:setScale(0, 0)
     self.sprite.alpha = 0.5
     self.sprite.rotation = math.pi
+
+    local center_x, center_y = self:getCenter()
 
     local afterimage_timer = 0
     local afterimage_count = 0
@@ -79,7 +98,7 @@ function Arena:onAdd(parent)
 
             local progress = afterimage_count / 15
 
-            local afterimg = ArenaSprite(self, self.x, self.y)
+            local afterimg = ArenaSprite(self, center_x, center_y)
             afterimg:setOrigin(0.5, 0.5)
             afterimg:setScale(progress, progress)
             afterimg:fade(0.6 - (0.5 * progress))
@@ -95,7 +114,7 @@ function Arena:onAdd(parent)
 end
 
 function Arena:onRemove(parent)
-    local orig_sprite = ArenaSprite(self, self.x, self.y)
+    local orig_sprite = ArenaSprite(self, self:getCenter())
     orig_sprite:setOrigin(0.5, 0.5)
     parent:addChild(orig_sprite)
     orig_sprite:setLayer(self.layer)
@@ -116,7 +135,7 @@ function Arena:onRemove(parent)
 
             local progress = 1 - (afterimage_count / 15)
 
-            local afterimg = ArenaSprite(self, self.x, self.y)
+            local afterimg = ArenaSprite(self, orig_sprite.x, orig_sprite.y)
             afterimg:setOrigin(0.5, 0.5)
             afterimg:setScale(progress, progress)
             afterimg:fade(0.6 - (0.5 * progress))
@@ -130,8 +149,11 @@ function Arena:onRemove(parent)
 end
 
 function Arena:update(dt)
-    if not Utils.equal(self.processed_shape, self.shape) then
+    if not Utils.equal(self.processed_shape, self.shape, true) then
+        print("not equal")
         self:setShape(self.shape)
+    elseif self.processed_width ~= self.width or self.processed_height ~= self.height then
+        self:setSize(self.width, self.height)
     end
 
     super:update(self, dt)
@@ -144,8 +166,8 @@ function Arena:update(dt)
             local angle
             while soul:collidesWith(line) do
                 if not angle then
-                    local x1, y1 = self:getRelativePos(Game.battle, line.x, line.y)
-                    local x2, y2 = self:getRelativePos(Game.battle, line.x2, line.y2)
+                    local x1, y1 = self:getRelativePos(line.x, line.y, Game.battle)
+                    local x2, y2 = self:getRelativePos(line.x2, line.y2, Game.battle)
                     angle = Utils.angle(x1, y1, x2, y2)
                 end
                 Object.uncache(soul)

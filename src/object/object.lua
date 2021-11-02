@@ -190,6 +190,12 @@ function Object:setHitbox(x, y, w, h)
     self.collider = Hitbox(x, y, w, h, self)
 end
 
+function Object:shiftOrigin(ox, oy)
+    local tx, ty = self:getRelativePos((ox or 0) * self.width, (oy or ox or 0) * self.height)
+    self:setOrigin(ox, oy)
+    self:setPosition(tx, ty)
+end
+
 function Object:setScreenPos(x, y)
     if self.parent then
         self:setPosition(self.parent:getFullTransform():inverseTransformPoint(x or 0, y or 0))
@@ -213,14 +219,16 @@ function Object:screenToLocalPos(x, y)
     return self:getFullTransform():inverseTransformPoint(x or 0, y or 0)
 end
 
-function Object:setRelativePos(other, x, y)
+function Object:setRelativePos(x, y, other)
+    -- ill be honest idk what this does it just feels weird to not have a setter
+    other = other or self.parent
     local sx, sy = other:getFullTransform():inverseTransformPoint(x, y)
     local cx, cy = self:getFullTransform():transformPoint(sx, sy)
     self:setPosition(self:getTransform():inverseTransformPoint(cx, cy))
 end
-function Object:getRelativePos(other, x, y)
-    if other == self.parent then
-        return self:getTransform():transformPoint(x, y)
+function Object:getRelativePos(x, y, other)
+    if not other or other == self.parent then
+        return self:getTransform():transformPoint(x or 0, y or 0)
     else
         local sx, sy = self:getFullTransform():transformPoint(x or 0, y or 0)
         return other:getFullTransform():inverseTransformPoint(sx, sy)
@@ -322,7 +330,7 @@ end
 
 function Object:explode(x, y)
     if self.parent then
-        local rx, ry = self:getRelativePos(self.parent, self.width/2 + (x or 0), self.height/2 + (y or 0))
+        local rx, ry = self:getRelativePos(self.width/2 + (x or 0), self.height/2 + (y or 0))
         local e = Explosion(rx, ry)
         e.layer = self.layer + 0.001
         self.parent:addChild(e)

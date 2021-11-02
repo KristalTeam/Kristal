@@ -23,7 +23,7 @@ function HeadObject:update(dt)
             sound:play()
 
             for i = 1, 30 do
-                local x, y = self:getRelativePos(self.parent.parent)
+                local x, y = self:getRelativePos(0, 0, self.parent.parent)
                 local sparkle = DarkTransitionSparkle(self.sparestar, x + (math.random() * 30) - 15, y + (math.random() * 30) - 15)
                 sparkle:play(1 / 15)
                 -- We need to get the stage...

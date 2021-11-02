@@ -300,7 +300,7 @@ function Battle:onStateChange(old,new)
             if enemy.text_offset then
                 x, y = enemy.x + enemy.text_offset[1], enemy.y + enemy.text_offset[2]
             else
-                x, y = enemy.sprite:getRelativePos(self, 0, enemy.sprite.height/2)
+                x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
             end
             local dialogue = enemy:getEnemyDialogue()
             if dialogue then
@@ -537,7 +537,7 @@ function Battle:processAction(action)
             local dmg_sprite = Sprite(battler.chara.dmg_sprite or "effects/attack/cut")
             dmg_sprite:setOrigin(0.5, 0.5)
             dmg_sprite:setScale(2, 2)
-            dmg_sprite:setPosition(enemy:getRelativePos(enemy.parent, enemy.width/2, enemy.height/2))
+            dmg_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
             dmg_sprite.layer = enemy.layer + 0.01
             dmg_sprite:play(1/15, false, function(s) s:remove() end)
             enemy.parent:addChild(dmg_sprite)

@@ -169,7 +169,7 @@ function EnemyBattler:statusMessage(type, arg, color)
     local hit_count = Game.battle.hit_count
     hit_count[self] = hit_count[self] or 0
 
-    local x, y = self:getRelativePos(self.parent, 0, self.height/2)
+    local x, y = self:getRelativePos(0, self.height/2)
 
     local percent = DamageNumber(type, arg, x + 4, y + 20 - (hit_count[self] * 20), color)
     self.parent:addChild(percent)

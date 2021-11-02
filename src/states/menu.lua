@@ -1,6 +1,7 @@
 local Menu = {}
 
 Menu.TEST_MOD_LIST = false
+Menu.TEST_MOD_COUNT = 0
 
 Menu.BACKGROUND_SHADER = love.graphics.newShader([[
     extern number bg_sine;
@@ -150,7 +151,7 @@ end
 
 function Menu:buildMods()
     if self.TEST_MOD_LIST then
-        for i = 1,15 do
+        for i = 1,self.TEST_MOD_COUNT do
             self.list:addMod(ModButton("Example Mod "..i, 424, 62))
         end
         return
@@ -252,7 +253,8 @@ function Menu:update(dt)
     if not mod_button then
         self.heart.visible = false
     else
-        local button_heart_x, button_heart_y = mod_button:getRelativePos(self.list, mod_button:getHeartPos())
+        local lhx, lhy = mod_button:getHeartPos()
+        local button_heart_x, button_heart_y = mod_button:getRelativePos(lhx, lhy, self.list)
         self.heart_target_x = self.list.x + button_heart_x
         self.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
         if not self.heart.visible then

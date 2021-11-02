@@ -64,7 +64,7 @@ end
 
 function PartyBattler:statusMessage(type, arg, color)
 
-    local x, y = self:getRelativePos(self.parent, 0, self.height/2)
+    local x, y = self:getRelativePos(0, self.height/2)
 
     local percent = DamageNumber(type, arg, x - 4, y + 16, color)
     percent.kill_others = true

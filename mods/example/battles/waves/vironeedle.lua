@@ -37,6 +37,15 @@ function Vironeedle:update(dt)
         end
     end
     Object.endCache()
+
+    local arena = Game.battle.arena
+    if Input.down("right") then
+        arena.width = arena.width + (4 * DTMULT)
+    elseif Input.down("left") then
+        arena.width = arena.width - (4 * DTMULT)
+    elseif Input.keyPressed("q") then
+        arena:shiftOrigin(0, 0)
+    end
 end
 
 return Vironeedle
