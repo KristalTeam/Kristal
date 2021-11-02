@@ -14,6 +14,9 @@ function TensionBar:init(x, y)
     self.font = Assets.getFont("main")
     self.tp_text = Assets.getTexture("ui/battle/tp_text")
 
+    self.parallax_x = 0.5
+    self.parallax_y = 0.5
+
     self.animation_timer = 0
 end
 

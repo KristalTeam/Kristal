@@ -25,11 +25,16 @@ function PartyBattler:init(chara, x, y)
     self:setAnimation("battle/idle")
 
     self.defending = false
+    self.hurt_bump_timer = 0
 end
 
 function PartyBattler:hurt(amount)
     self.chara.health = self.chara.health - amount
     self:statusMessage("damage", amount)
+
+    self.sprite.x = -10
+    self.hurt_bump_timer = 4
+    Game.battle.shake = 4
 
     if not self.defending then
         self:toggleOverlay(true)
@@ -119,6 +124,17 @@ function PartyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)
     end
+end
+
+function PartyBattler:update(dt)
+    if self.hurt_bump_timer > 0 then
+        self.sprite.x = -self.hurt_bump_timer * 2
+        self.hurt_bump_timer = Utils.approach(self.hurt_bump_timer, 0, DTMULT)
+    else
+        self.sprite.x = 0
+    end
+
+    super:update(self, dt)
 end
 
 return PartyBattler

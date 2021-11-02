@@ -25,6 +25,9 @@ function BattleUI:init()
         table.insert(self.action_boxes, action_box)
     end
 
+    self.parallax_x = 0
+    self.parallax_y = 0
+
     self.animation_timer = 0
 
     self.heart_sprite = Assets.getTexture("player/heart")

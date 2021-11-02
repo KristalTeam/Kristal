@@ -64,7 +64,7 @@ function Battle:init()
     self.state = "NONE"
     self.substate = "NONE"
 
-    self.camera = Camera(0, 0)
+    self.camera = Camera(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.current_selecting = 1
 
@@ -111,6 +111,8 @@ function Battle:init()
     self.timer = Timer.new()
 
     self.has_acted = false
+
+    self.shake = 0
 
     self.background_fade_alpha = 0
 
@@ -887,7 +889,7 @@ end
 
 function Battle:createTransform()
     local transform = super:createTransform(self)
-    transform:apply(self.camera:getTransform(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+    transform:apply(self.camera:getTransform(0, 0))
     return transform
 end
 
@@ -911,6 +913,21 @@ function Battle:update(dt)
     elseif self.state == "DEFENDING" then
         self:updateWaves(dt)
     end
+
+    if self.shake ~= 0 then
+        local last_shake = math.ceil(self.shake)
+        self.camera.x = SCREEN_WIDTH/2 + last_shake
+        self.camera.y = SCREEN_HEIGHT/2 + last_shake
+        self.shake = Utils.approach(self.shake, 0, DTMULT)
+        local new_shake = math.ceil(self.shake)
+        if new_shake ~= last_shake then
+            self.shake = self.shake * -1
+        end
+    else
+        self.camera.x = SCREEN_WIDTH/2
+        self.camera.y = SCREEN_HEIGHT/2
+    end
+
     -- Always sort
     --self.update_child_list = true
     super:update(self, dt)
@@ -1032,7 +1049,7 @@ end
 
 function Battle:drawBackground()
     love.graphics.setColor(0, 0, 0, self.transition_timer / 10)
-    love.graphics.rectangle("fill", 0, 0, 640, 480)
+    love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH+16, SCREEN_HEIGHT+16)
 
     self.offset = self.offset + 1 * (DT * 30)
 
