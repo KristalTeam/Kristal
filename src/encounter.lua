@@ -83,11 +83,8 @@ function Encounter:onDialogueEnd()
 end
 
 function Encounter:onWavesDone()
-    for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
-        bullet:remove()
-    end
-
     for _,wave in ipairs(self.current_waves) do
+        wave:onEnd()
         wave:clear()
     end
 

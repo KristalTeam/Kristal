@@ -1,6 +1,6 @@
 local Vironeedle, super = Class(Wave)
 
-function Vironeedle:start()
+function Vironeedle:onStart()
     local attackers = self:getAttackers()
 
     local ratio = self:getEnemyRatio()
