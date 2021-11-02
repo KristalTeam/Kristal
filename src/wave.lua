@@ -29,11 +29,9 @@ end
 function Wave:draw() end
 
 function Wave:onStart() end
-function Wave:onClear() end
+function Wave:onEnd() end
 
 function Wave:clear()
-    self:onClear()
-
     for _,object in ipairs(self.objects) do
         object:remove()
     end

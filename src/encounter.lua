@@ -84,6 +84,7 @@ end
 
 function Encounter:onWavesDone()
     for _,wave in ipairs(self.current_waves) do
+        wave:onEnd()
         wave:clear()
     end
 
