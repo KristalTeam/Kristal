@@ -6,9 +6,6 @@ function TensionBar:init(x, y)
     self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill")
     self.tp_bar = Assets.getTexture("ui/battle/tp_bar")
 
-    self.tension = 0
-    self.max_tension = 250
-
     self.apparent = 0
     self.current = 0
 
@@ -21,23 +18,23 @@ function TensionBar:init(x, y)
 end
 
 function TensionBar:giveTension(amount)
-    local start = self.tension
-    self.tension = self.tension + amount
-    if self.tension > self.max_tension then
-        self.tension = self.max_tension
+    local start = Game.battle.tension
+    Game.battle.tension = Game.battle.tension + amount
+    if Game.battle.tension > Game.battle.max_tension then
+        Game.battle.tension = Game.battle.max_tension
     end
-    return self.tension - start
+    return Game.battle.tension - start
 end
 
 function TensionBar:removeTension(amount)
-    self.tension = self.tension - amount
-    if self.tension < 0 then
-        self.tension = 0
+    Game.battle.tension = Game.battle.tension - amount
+    if Game.battle.tension < 0 then
+        Game.battle.tension = 0
     end
 end
 
 function TensionBar:setTension(amount)
-    self.tension = Utils.clamp(amount, 0, self.max_tension)
+    Game.battle.tension = Utils.clamp(amount, 0, Game.battle.max_tension)
 end
 
 function TensionBar:update(dt)
@@ -53,11 +50,11 @@ end
 
 function TensionBar:draw()
 
-    if (math.abs((self.apparent - self.tension)) < 20) then
-        self.apparent = self.tension
-    elseif (self.apparent < self.tension) then
+    if (math.abs((self.apparent - Game.battle.tension)) < 20) then
+        self.apparent = Game.battle.tension
+    elseif (self.apparent < Game.battle.tension) then
         self.apparent = self.apparent + (20 * (DT * 30))
-    elseif (self.apparent > self.tension) then
+    elseif (self.apparent > Game.battle.tension) then
         self.apparent = self.apparent - (20 * (DT * 30))
     end
     if (self.apparent ~= self.current) then
@@ -140,7 +137,7 @@ function TensionBar:draw()
         Draw.popScissor()
     end
 
-    if ((self.apparent > 20) and (self.apparent < self.max_tension)) then
+    if ((self.apparent > 20) and (self.apparent < Game.battle.max_tension)) then
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
         Draw.scissor(0, 196 - ((self.current / 250) * 196) + 1, 25, 196 - ((self.current / 250) * 196) + 3)
@@ -151,11 +148,11 @@ function TensionBar:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.tp_text, -30, 30)
 
-    local tamt = math.floor(((self.apparent / self.max_tension) * 100))
+    local tamt = math.floor(((self.apparent / Game.battle.max_tension) * 100))
     self.maxed = false
     love.graphics.setFont(self.font)
     if (tamt < 100) then
-        love.graphics.print(tostring(math.floor((self.apparent / self.max_tension) * 100)), -30, 70)
+        love.graphics.print(tostring(math.floor((self.apparent / Game.battle.max_tension) * 100)), -30, 70)
         love.graphics.print("%", -25, 95)
     end
     if (tamt >= 100) then

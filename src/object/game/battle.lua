@@ -743,7 +743,7 @@ function Battle:commitAction(type, target, data)
     print(box.battler.chara.head_icons.."/"..type:lower())
     box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
 
-    local last_tp = self.tension_bar.tension
+    local last_tp = self.tension
     if data.tp then
         if data.tp < 0 then
             self.tension_bar:giveTension(-data.tp)
@@ -760,7 +760,7 @@ function Battle:commitAction(type, target, data)
         ["name"] = data.name,
         ["target"] = target,
         ["data"] = data.data,
-        ["tp"] = self.tension_bar.tension - last_tp
+        ["tp"] = self.tension - last_tp
     })
 
     if data.party then
@@ -1088,7 +1088,7 @@ function Battle:drawBackground()
 end
 
 function Battle:canSelectMenuItem(menu_item)
-    if menu_item.tp and menu_item.tp > self.tension_bar.tension then
+    if menu_item.tp and menu_item.tp > self.tension then
         return false
     end
     if menu_item.party then
