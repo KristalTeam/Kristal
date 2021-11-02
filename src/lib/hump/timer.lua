@@ -96,7 +96,7 @@ end
 function Timer:script(f)
     local co = coroutine.wrap(f)
     co(function(t)
-        self:after(t, co)
+        self:after(t or 0, co)
         coroutine.yield()
     end)
 end
