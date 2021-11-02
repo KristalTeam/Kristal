@@ -116,11 +116,19 @@ function BattleUI:drawState()
         end
 
         -- Print information about currently selected item
+        local tp_offset = 0
         local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
         if current_item.description then
             love.graphics.setColor(COLORS.gray)
             love.graphics.print(current_item.description, 260 + 240, 50)
             love.graphics.setColor(1, 1, 1, 1)
+            _, tp_offset = current_item.description:gsub('\n', '\n')
+            tp_offset = tp_offset + 1
+        end
+
+        if current_item.tp ~= 0 then
+            love.graphics.setColor(255/255, 160/255, 64/255)
+            love.graphics.print(current_item.tp .. "% TP", 260 + 240, 50 + (tp_offset * 32))
         end
 
     elseif Game.battle.state == "ENEMYSELECT" then
@@ -129,7 +137,13 @@ function BattleUI:drawState()
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.print("HP", 424, 39, 0, 1, 0.5)
+        love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
+
         for index, enemy in ipairs(Game.battle.enemies) do
+            local y_off = (index - 1) * 30
             if enemy.tired and (enemy.mercy >= 100) then
                 love.graphics.setColor(1, 1, 1, 1)
 
@@ -144,19 +158,41 @@ function BattleUI:drawState()
                 shader:send("from", {1, 1, 0, 1}) -- Left color: Spare
                 shader:send("to", {0, 0.7, 1, 1}) -- Right color: Tired
                 -- Draw the canvas from before to apply the gradient over it
-                love.graphics.draw(canvas, 80, 50 + ((index - 1) * 30))
+                love.graphics.draw(canvas, 80, 50 + y_off)
                 -- Disable the shader
                 love.graphics.setShader()
             elseif enemy.tired then
                 love.graphics.setColor(0, 178/255, 1, 1)
-                love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
+                love.graphics.print(enemy.name, 80, 50 + y_off)
             elseif enemy.mercy >= 100 then
                 love.graphics.setColor(1, 1, 0, 1)
-                love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
+                love.graphics.print(enemy.name, 80, 50 + y_off)
             else
                 love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.print(enemy.name, 80, 50 + ((index - 1) * 30))
+                love.graphics.print(enemy.name, 80, 50 + y_off)
             end
+
+            local hp_percent = enemy.health / enemy.max_health
+
+            -- Draw the enemy's HP
+            love.graphics.setColor(128/255, 0, 0, 1)
+            love.graphics.rectangle("fill", 420, 55 + y_off, 81, 16)
+
+            love.graphics.setColor(0, 1, 0, 1)
+            love.graphics.rectangle("fill", 420, 55 + y_off, (hp_percent * 81), 16)
+
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print(math.floor(hp_percent * 100) .. "%", 424, 55 + y_off, 0, 1, 0.5)
+
+            -- Draw the enemy's MERCY
+            love.graphics.setColor(255/255, 80/255, 32/255, 1)
+            love.graphics.rectangle("fill", 520, 55 + y_off, 81, 16)
+
+            love.graphics.setColor(1, 1, 0, 1)
+            love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
+
+            love.graphics.setColor(128/255, 0, 0, 1)
+            love.graphics.print(math.floor(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
         end
     elseif Game.battle.state == "PARTYSELECT" then
         love.graphics.setColor(1, 0, 0, 1)
