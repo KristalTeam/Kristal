@@ -25,7 +25,7 @@ function World:init(map)
     self.tile_layers = {}
     self.markers = {}
 
-    self.camera = Camera(0, 0)
+    self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.player = nil
 
     self.battle_border = nil
@@ -299,7 +299,7 @@ end
 
 function World:createTransform()
     local transform = super:createTransform(self)
-    transform:apply(self.camera:getTransform(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+    transform:apply(self.camera:getTransform(0, 0))
     return transform
 end
 

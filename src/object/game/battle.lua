@@ -885,6 +885,12 @@ function Battle:battleText(text,post_func)
     self:setState("BATTLETEXT")
 end
 
+function Battle:createTransform()
+    local transform = super:createTransform(self)
+    transform:apply(self.camera:getTransform(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+    return transform
+end
+
 function Battle:update(dt)
     self.timer:update(dt)
     if self.state == "TRANSITION" then

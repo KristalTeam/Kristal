@@ -74,6 +74,10 @@ function Object:init(x, y, width, height)
     self.rotate_origin_x = nil
     self.rotate_origin_y = nil
 
+    -- How much this object is moved by the camera (1 = normal, 0 = none)
+    self.parallax_x = nil
+    self.parallax_y = nil
+
     -- Object scissor, no scissor when nil
     self.cutout_left = nil
     self.cutout_top = nil
@@ -264,6 +268,9 @@ function Object:createTransform()
     Utils.pushPerformance("Object#createTransform")
     local transform = love.math.newTransform()
     transform:translate(self.x, self.y)
+    if (self.parallax_x or self.parallax_y) and self.parent and self.parent.camera then
+        transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1))
+    end
     if self.flip_x or self.flip_y then
         transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)
     end

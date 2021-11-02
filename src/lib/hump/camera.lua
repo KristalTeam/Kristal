@@ -60,12 +60,13 @@ function camera.smooth.damped(stiffness)
 end
 
 
-local function new(x,y, zoom, rot, smoother)
-    x,y  = x or love.graphics.getWidth()/2, y or love.graphics.getHeight()/2
+local function new(x,y, w,h, zoom, rot, smoother)
+    w,h  = w or love.graphics.getHeight(), h or love.graphics.getHeight()
+    x,y  = x or w/2, y or h/2
     zoom = zoom or 1
     rot  = rot or 0
     smoother = smoother or camera.smooth.none() -- for locking, see below
-    return setmetatable({x = x, y = y, scale = zoom, rot = rot, smoother = smoother}, camera)
+    return setmetatable({x = x, y = y, w = w, h = h, scale = zoom, rot = rot, smoother = smoother}, camera)
 end
 
 function camera:lookAt(x,y)
@@ -104,7 +105,7 @@ end
 
 function camera:getTransform(x,y,w,h)
     x,y = x or 0, y or 0
-    w,h = w or love.graphics.getWidth(), h or love.graphics.getHeight()
+    w,h = w or self.w, h or self.h
 
     local cx,cy = x+w/2, y+h/2
 
@@ -115,6 +116,11 @@ function camera:getTransform(x,y,w,h)
     transform:translate(-self.x, -self.y)
 
     return transform
+end
+
+function camera:getParallax(px, py)
+    local cx, cy = self.x - self.w/2, self.y - self.h/2
+    return cx * (1 - px), cy * (1 - py)
 end
 
 function camera:attach(x,y,w,h, noclip)
