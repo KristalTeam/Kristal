@@ -20,9 +20,9 @@ function Bullet:init(x, y, texture)
     self.speed = 0
 
     -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
-    self.graze_points = 4
+    self.tp = 4
     -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
-    self.time_points = 1
+    self.time_bonus = 1
 
     -- Damage given to the player when hit by this bullet
     self.damage = 10

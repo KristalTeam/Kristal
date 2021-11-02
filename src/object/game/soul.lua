@@ -269,20 +269,20 @@ function Soul:update(dt)
             end
         end
         if self.inv_timer == 0 then
-            if bullet.graze_points ~= 0 and bullet:collidesWith(self.graze_collider) then
+            if bullet.tp ~= 0 and bullet:collidesWith(self.graze_collider) then
                 if bullet.grazed then
-                    Game.battle.tension_bar:giveTension(bullet.graze_points * dt)
+                    Game.battle.tension_bar:giveTension(bullet.tp * dt)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
-                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_points * (dt / 30))
+                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus * (dt / 30))
                     end
                     if self.graze_sprite.timer < 0.1 then
                         self.graze_sprite.timer = 0.1
                     end
                 else
                     love.audio.newSource("assets/sounds/snd_graze.wav", "static"):play()
-                    Game.battle.tension_bar:giveTension(bullet.graze_points)
+                    Game.battle.tension_bar:giveTension(bullet.tp)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
-                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_points / 30)
+                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus / 30)
                     end
                     self.graze_sprite.timer = 1/3
                     bullet.grazed = true

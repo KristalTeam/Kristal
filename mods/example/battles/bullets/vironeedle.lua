@@ -25,6 +25,9 @@ function Vironeedle:init(x, y, slow, right)
     if slow then
         self.friction = self.friction + 0.05
     end
+
+    self.tp = 5
+
     self.infecting = false
 end
 
