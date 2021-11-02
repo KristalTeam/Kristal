@@ -342,7 +342,7 @@ function Battle:onStateChange(old,new)
 
             self.wave_length = math.max(self.wave_length, wave.time)
 
-            wave:start()
+            wave:onStart()
         end
     end
 end
