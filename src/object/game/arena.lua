@@ -150,7 +150,6 @@ end
 
 function Arena:update(dt)
     if not Utils.equal(self.processed_shape, self.shape, true) then
-        print("not equal")
         self:setShape(self.shape)
     elseif self.processed_width ~= self.width or self.processed_height ~= self.height then
         self:setSize(self.width, self.height)
