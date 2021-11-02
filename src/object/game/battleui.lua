@@ -32,13 +32,18 @@ end
 
 function BattleUI:update(dt)
     self.animation_timer = self.animation_timer + (dt * 30)
-    if self.animation_timer > 12 then
-        self.animation_timer = 12
+
+    if self.animation_timer > 13 then
+        self.animation_timer = 13
     end
 
-    self.y = Ease.outCubic(self.animation_timer, 480, 325 - 480, 12)
+    self.y = Ease.outCubic(math.min(12, self.animation_timer), 480, 325 - 480, 12)
 
-    -- TODO: MAKE THE PLATE SLIDE IN USING THE LAST "30FPS FRAME"'S Y https://owo.whats-th.is/9WZ3uU3.png
+    local offset = self.y - Ease.outCubic(self.animation_timer - 1, 480, 325 - 480, 12)
+
+    for _, box in ipairs(self.action_boxes) do
+        box.data_offset = offset
+    end
 
     super:update(self, dt)
 end
