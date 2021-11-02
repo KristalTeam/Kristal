@@ -128,7 +128,7 @@ function BattleUI:drawState()
 
         if current_item.tp ~= 0 then
             love.graphics.setColor(255/255, 160/255, 64/255)
-            love.graphics.print(current_item.tp .. "% TP", 260 + 240, 50 + (tp_offset * 32))
+            love.graphics.print(math.floor((current_item.tp / Game.battle.max_tension) * 100) .. "% TP", 260 + 240, 50 + (tp_offset * 32))
         end
 
     elseif Game.battle.state == "ENEMYSELECT" then
