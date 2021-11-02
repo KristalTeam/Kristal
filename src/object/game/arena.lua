@@ -20,7 +20,7 @@ function Arena:init(x, y, shape)
 end
 
 function Arena:setShape(shape)
-    self.shape = shape
+    self.shape = Utils.copy(shape, true)
     self.processed_shape = Utils.copy(shape, true)
 
     local min_x, min_y, max_x, max_y
@@ -45,6 +45,8 @@ function Arena:setShape(shape)
     self.border_line = {Utils.unpackPolygon(Utils.getPolygonOffset(self.shape, self.line_width/2))}
 
     local edges = Utils.getPolygonEdges(self.shape)
+
+    self.clockwise = Utils.isPolygonClockwise(edges)
 
     self.collider.colliders = {}
     for _,v in ipairs(edges) do
@@ -133,6 +135,28 @@ function Arena:update(dt)
     end
 
     super:update(self, dt)
+
+    local soul = Game.battle.soul
+    if soul and Game.battle.soul.collidable then
+        Object.startCache()
+        local angle_diff = self.clockwise and -(math.pi/2) or (math.pi/2)
+        for _,line in ipairs(self.collider.colliders) do
+            local angle
+            while soul:collidesWith(line) do
+                if not angle then
+                    local x1, y1 = self:getRelativePos(Game.battle, line.x, line.y)
+                    local x2, y2 = self:getRelativePos(Game.battle, line.x2, line.y2)
+                    angle = Utils.angle(x1, y1, x2, y2)
+                end
+                Object.uncache(soul)
+                soul:setPosition(
+                    soul.x + (math.cos(angle + angle_diff)),
+                    soul.y + (math.sin(angle + angle_diff))
+                )
+            end
+        end
+        Object.endCache()
+    end
 end
 
 function Arena:draw()
