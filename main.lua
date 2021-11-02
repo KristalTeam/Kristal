@@ -547,6 +547,7 @@ function Kristal.errorHandler(msg)
 end
 
 function Kristal.quickReload()
+    Mod = nil
     Gamestate.switch({})
     Registry.initialize()
     Kristal.loadAssets("", "mods", "", function()

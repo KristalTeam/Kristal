@@ -180,11 +180,6 @@ function Battle:setState(state, reason)
     local old = self.state
     self.state = state
     self.state_reason = reason
-    if reason then
-        print("STATE CHANGE: went from " .. old .. " to " .. self.state .. " because of " .. reason)
-    else
-        print("STATE CHANGE: went from " .. old .. " to " .. self.state)
-    end
     self:onStateChange(old, self.state)
 end
 
@@ -192,11 +187,6 @@ function Battle:setSubState(state, reason)
     local old = self.substate
     self.substate = state
     self.substate_reason = reason
-    if reason then
-        print("-> SUBSTATE CHANGE: went from " .. old .. " to " .. self.substate .. " because of " .. reason)
-    else
-        print("-> SUBSTATE CHANGE: went from " .. old .. " to " .. self.substate)
-    end
     self:onSubStateChange(old, self.substate)
 end
 
@@ -292,7 +282,6 @@ function Battle:onStateChange(old,new)
             return
         end
         self:tryProcessNextAction()
-        print("HI I LIKE IM GAY")
     elseif new == "ENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_y = 1
@@ -367,12 +356,6 @@ function Battle:spawnSoul(x, y)
 end
 
 function Battle:onSubStateChange(old,new)
-    if new == "ACT" then
-        print("-> ENTERED ACTING SUBSTATE")
-    elseif new == "SPELL" then
-        print("-> ENTERED CASTING SUBSTATE")
-    end
-
     if (old == "ACT") and (new ~= "ACT") then
         for _,battler in ipairs(self.party) do
             if battler.sprite.anim == "battle/act" then
@@ -407,7 +390,6 @@ function Battle:processCharacterActions()
         end
     end
 
-    print("ALL ACTIONS DONE, WAITING FOR 4/30 SECONDS")
     self:setSubState("NONE")
     self:setState("ACTIONSDONE")
     --[[self.timer:after(4 / 30, function()
@@ -445,7 +427,6 @@ end
 function Battle:tryProcessNextAction(force)
     if self.state == "ACTIONS" and not self.processing_action then
         if #self.current_actions == 0 then
-            print("PROCESSING CHARACTER ACTIONS")
             self:processCharacterActions()
         else
             while self.current_action_index <= #self.current_actions do
@@ -460,8 +441,6 @@ function Battle:tryProcessNextAction(force)
                 self.current_action_index = self.current_action_index + 1
             end
         end
-    else
-        print("CANT PROCESS, STATE: " .. self.state)
     end
 end
 
@@ -495,7 +474,6 @@ end
 
 function Battle:beginAction(action)
     local battler = self.party[action.character_id]
-    print("BEGINNING " .. battler.chara.name .. "'S ACTION " .. action.action)
     local enemy = action.target
 
     -- Add the action to the actions table, for group processing
@@ -519,7 +497,6 @@ end
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
     local party_member = battler.chara
-    print("PROCESSING " .. party_member.name .. "'S ACTION " .. action.action)
     local enemy = action.target
 
     if action.action == "SPARE" then
@@ -570,7 +547,6 @@ function Battle:processAction(action)
         end)
         self:battleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this")
     elseif action.action == "ACT" then
-        print("-> It's time to act!")
         -- fun fact: this would have only been a single function call
         -- if stupid multi-acts didn't exist
 
@@ -624,10 +600,8 @@ function Battle:processAction(action)
             end
         end
     elseif action.action == "SKIP" then
-        print("skipped!")
         return true
     elseif action.action == "SPELL" then
-        print("CASTING A SPELL.......")
         self.battle_ui.encounter_text:setText("")
 
         -- The spell itself handles the animation and finishing
@@ -637,7 +611,6 @@ function Battle:processAction(action)
         battler.defending = true
     else
         -- we don't know how to handle this...
-        print("UNKNOWN ACTION " .. action.action .. ", SKIPPING")
         return true
     end
 end
@@ -655,7 +628,6 @@ function Battle:finishAction(action)
     action = action or self.current_actions[self.current_action_index]
 
     local battler = self.party[action.character_id]
-    print("FINISHING " .. battler.chara.name .. "'S ACTION " .. action.action)
 
     self.processed_action[action] = true
 
@@ -672,8 +644,6 @@ function Battle:finishAction(action)
     end
 
     if all_processed then
-        print("ALL PROCESSED: " .. action.action)
-
         for _,iaction in ipairs(Utils.copy(self.current_actions)) do
             local ibattler = self.party[iaction.character_id]
 
@@ -740,7 +710,6 @@ function Battle:commitAction(type, target, data)
 
     self.party[self.current_selecting]:setAnimation("battle/"..type:lower().."_ready")
     local box = self.battle_ui.action_boxes[self.current_selecting]
-    print(box.battler.chara.head_icons.."/"..type:lower())
     box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
 
     local last_tp = self.tension
@@ -884,7 +853,6 @@ function Battle:nextParty()
     if self.current_selecting > #self.party then
         self.current_action_processing = 1
         self.current_selecting = 0
-        print("PROCESSING ACTIONS")
         self:startProcessing()
     else
         if self:getState() ~= "ACTIONSELECT" then
@@ -915,11 +883,6 @@ function Battle:battleText(text,post_func)
     self.post_battletext_func = post_func
     self.post_battletext_state = self:getState()
     self:setState("BATTLETEXT")
-    if type(text) == "table" then
-        print("BATTLE TEXT: " .. Utils.dump(text))
-    else
-        print("BATTLE TEXT: " .. text)
-    end
 end
 
 function Battle:update(dt)
@@ -1127,8 +1090,6 @@ function Battle:isValidMenuLocation()
 end
 
 function Battle:keypressed(key)
-    print("KEY PRESSED: " .. key .. " IN STATE " .. self.state)
-
     if true then -- TODO: DEBUG
         if key == "g" then
             self.party[self.current_selecting]:hurt(1)

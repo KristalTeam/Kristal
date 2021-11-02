@@ -74,6 +74,7 @@ function Menu:enter()
 end
 
 function Menu:leave()
+    love.keyboard.setKeyRepeat(false)
     self.music:stop()
 end
 

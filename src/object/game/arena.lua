@@ -7,6 +7,9 @@ function Arena:init(x, y, shape)
 
     self.color = {0, 0.75, 0}
 
+    self.x = math.floor(self.x)
+    self.y = math.floor(self.y)
+
     self.collider = ColliderGroup(self)
 
     self.line_width = 4 -- must call setShape again if u change this
@@ -32,10 +35,10 @@ function Arena:setShape(shape)
     self.width = max_x - min_x
     self.height = max_y - min_y
 
-    self.left = self.x - self.width/2
-    self.right = self.x + self.width/2
-    self.top = self.y - self.height/2
-    self.bottom = self.y + self.height/2
+    self.left = math.floor(self.x - self.width/2)
+    self.right = math.floor(self.x + self.width/2)
+    self.top = math.floor(self.y - self.height/2)
+    self.bottom = math.floor(self.y + self.height/2)
 
     self.triangles = love.math.triangulate(Utils.unpackPolygon(self.shape))
 
