@@ -3,29 +3,24 @@ local Soul, super = Class(Object)
 function Soul:init(x, y)
     super:init(self, x, y)
 
-    self:setOrigin(0.5, 0.5)
-
     self.color = {1, 0, 0, 1}
 
-    self.width = 16
-    self.height = 16
-    self.hitbox_x = 2
-    self.hitbox_y = 2
-
     self.sprite = Sprite("player/heart_dodge")
+    self.sprite:setOrigin(0.5, 0.5)
     self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
-    self.graze_sprite = GrazeSprite(self.hitbox_x + self.width/2, self.hitbox_y + self.height/2)
+    self.graze_sprite = GrazeSprite()
+    self.graze_sprite:setOrigin(0.5, 0.5)
     self.graze_sprite.inherit_color = true
     self:addChild(self.graze_sprite)
 
     --self.width = self.sprite.width
     --self.height = self.sprite.height
 
-    self.collider = CircleCollider(self.hitbox_x + 8, self.hitbox_y + 8, 8, self)
+    self.collider = CircleCollider(0, 0, 8, self)
 
-    self.graze_collider = CircleCollider(self.hitbox_x + self.width/2, self.hitbox_y + self.height/2, 25, self)
+    self.graze_collider = CircleCollider(0, 0, 25, self)
 
     self.original_x = x
     self.original_y = y

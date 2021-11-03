@@ -18,17 +18,15 @@ return setmetatable({}, {__index=_Class, __call = function(_, include, o)
         o.__includes = include
     end
     return _Class(o), setmetatable({}, {__index = function(t, k)
-        return function(...)
-            local args = {...}
-            if #args > 0 then
-                if args[1] == t then
-                    table.remove(args, 1)
-                end
-                if include ~= nil then
-                    include = getmetatable(include) and {include} or include
-                    for _,c in ipairs(include) do
-                        if c[k] then
-                            return c[k](unpack(args))
+        return function(a, ...)
+            if include ~= nil then
+                include = getmetatable(include) and {include} or include
+                for _,c in ipairs(include) do
+                    if c[k] then
+                        if a == t then
+                            return c[k](...)
+                        else
+                            return c[k](a, ...)
                         end
                     end
                 end

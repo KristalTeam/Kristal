@@ -5,8 +5,6 @@ function GrazeSprite:init(x, y)
 
     super:init(self, x, y, self.texture:getWidth(), self.texture:getHeight())
 
-    self:setOrigin(0.5, 0.5)
-
     self.timer = 0
     self.visible = false
 end
