@@ -4,7 +4,7 @@ function TensionBar:init(x, y)
     super:init(self, x, y)
 
     self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill")
-    self.tp_bar = Assets.getTexture("ui/battle/tp_bar")
+    self.tp_bar_outline = Assets.getTexture("ui/battle/tp_bar_outline")
 
     self.apparent = 0
     self.current = 0
@@ -17,6 +17,10 @@ function TensionBar:init(x, y)
     self.parallax_y = 0
 
     self.animation_timer = 0
+
+    self.tsiner = 0
+
+    self.tension_preview = 0
 end
 
 function TensionBar:giveTension(amount)
@@ -25,6 +29,7 @@ function TensionBar:giveTension(amount)
     if Game.battle.tension > Game.battle.max_tension then
         Game.battle.tension = Game.battle.max_tension
     end
+    self.tension_preview = 0
     return Game.battle.tension - start
 end
 
@@ -33,6 +38,11 @@ function TensionBar:removeTension(amount)
     if Game.battle.tension < 0 then
         Game.battle.tension = 0
     end
+    self.tension_preview = 0
+end
+
+function TensionBar:setTensionPreview(amount)
+    self.tension_preview = amount
 end
 
 function TensionBar:setTension(amount)
@@ -99,24 +109,30 @@ function TensionBar:draw()
     end
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.tp_bar, 0, 0)
+    love.graphics.draw(self.tp_bar_outline, 0, 0)
+
+    love.graphics.setColor(128/255, 0, 0, 1)
+    Draw.pushScissor()
+    Draw.scissor(0, 0, 25, 196 - ((self.current / Game.battle.max_tension) * 196) + 1)
+    love.graphics.draw(self.tp_bar_fill, 0, 0)
+    Draw.popScissor()
 
     if (self.apparent < self.current) then
         love.graphics.setColor(1, 0, 0, 1)
         Draw.pushScissor()
-        Draw.scissor(0, 196 - ((self.current / 250) * 196) + 1, 25, 196)
+        Draw.scissor(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1, 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
         love.graphics.setColor(255 / 255, 160 / 255, 64 / 255, 1)
         Draw.pushScissor()
-        Draw.scissor(0, 196 - ((self.apparent / 250) * 196) + 1, 25, 196)
+        Draw.scissor(0, 196 - ((self.apparent / Game.battle.max_tension) * 196) + 1 + ((self.tension_preview / Game.battle.max_tension) * 196), 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent > self.current) then
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
-        Draw.scissor(0, 196 - ((self.apparent / 250) * 196) + 1, 25, 196)
+        Draw.scissor(0, 196 - ((self.apparent / Game.battle.max_tension) * 196) + 1, 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
@@ -125,7 +141,7 @@ function TensionBar:draw()
             love.graphics.setColor(255 / 255, 208 / 255, 32 / 255, 1)
         end
         Draw.pushScissor()
-        Draw.scissor(0, 196 - ((self.current / 250) * 196) + 1, 25, 196)
+        Draw.scissor(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1 + ((self.tension_preview / Game.battle.max_tension) * 196), 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent == self.current) then
@@ -134,15 +150,44 @@ function TensionBar:draw()
             love.graphics.setColor(255 / 255, 208 / 255, 32 / 255, 1)
         end
         Draw.pushScissor()
-        Draw.scissor(0, 196 - ((self.current / 250) * 196) + 1, 25, 196)
+        Draw.scissor(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1 + ((self.tension_preview / Game.battle.max_tension) * 196), 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end
 
+    if (self.tension_preview > 0) then
+        self.tsiner = self.tsiner + DTMULT
+        local alpha = (math.abs((math.sin((self.tsiner / 8)) * 0.5)) + 0.2)
+        local color_to_set = {1, 1, 1, alpha}
+
+        local theight = ((0 + 196) - ((self.current / Game.battle.max_tension) * 196))
+        local theight2 = (theight + ((self.tension_preview / Game.battle.max_tension) * 196))
+        -- Note: causes a visual bug.
+        if (theight2 > ((0 + 196) - 1)) then
+            theight2 = ((0 + 196) - 1)
+            color_to_set = {COLORS.dkgray[1], COLORS.dkgray[2], COLORS.dkgray[3], 0.7}
+        end
+
+        Draw.pushScissor()
+        Draw.scissor(0, theight2 + 1, 25, theight + 1)
+
+        -- No idea how Deltarune draws this, cause this code was added in Kristal:
+        local r,g,b,_ = love.graphics.getColor()
+        love.graphics.setColor(r, g, b, 0.7)
+        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        -- And back to the translated code:
+        love.graphics.setColor(color_to_set)
+        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.popScissor()
+
+        love.graphics.setColor(1, 1, 1, 1)
+    end
+
+
     if ((self.apparent > 20) and (self.apparent < Game.battle.max_tension)) then
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
-        Draw.scissor(0, 196 - ((self.current / 250) * 196) + 1, 25, 196 - ((self.current / 250) * 196) + 3)
+        Draw.scissor(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1, 25, 196 - ((self.current / Game.battle.max_tension) * 196) + 3)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end

@@ -1074,7 +1074,7 @@ function Battle:drawBackground()
 end
 
 function Battle:canSelectMenuItem(menu_item)
-    if menu_item.tp and menu_item.tp > self.tension then
+    if menu_item.tp and (menu_item.tp > self.tension) then
         return false
     end
     if menu_item.party then
@@ -1159,6 +1159,7 @@ function Battle:keypressed(key)
         elseif Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
+            self.tension_bar:setTensionPreview(0)
             self:setState("ACTIONSELECT", "CANCEL")
             return
         elseif key == "left" then -- TODO: pagination
