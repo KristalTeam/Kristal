@@ -116,10 +116,12 @@ function ActorSprite:updateDirection()
 end
 
 function ActorSprite:isDirectional(texture)
-    if Assets.getTexture(texture.."_left") or Assets.getFrames(texture.."_left") then
-        return true, "_"
-    elseif Assets.getTexture(texture.."/left") or Assets.getFrames(texture.."/left") then
-        return true, "/"
+    if not Assets.getTexture(texture) and not Assets.getFrames(texture) then
+        if Assets.getTexture(texture.."_left") or Assets.getFrames(texture.."_left") then
+            return true, "_"
+        elseif Assets.getTexture(texture.."/left") or Assets.getFrames(texture.."/left") then
+            return true, "/"
+        end
     end
 end
 
