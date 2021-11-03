@@ -1,18 +1,12 @@
 local AfterImage, super = Class(Object)
 
-function AfterImage:init(sprite, fade, lifetime)
+function AfterImage:init(sprite, fade, speed)
     super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    self.fade = fade or 1
-    self.lifetime = lifetime or ((5/6) * self.fade)
-    self.time_alive = 0
-
-    self.add_alpha = 0
-
-    self.speed_x = 0
-    self.speed_y = 0
-
     self.sprite = sprite
+
+    self.alpha = fade
+    self:fadeOutAndRemove(speed)
 
     self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     love.graphics.setCanvas(self.canvas)
@@ -59,15 +53,6 @@ function AfterImage:onRemove()
     self.canvas = nil
 end
 
-function AfterImage:update(dt)
-    self.time_alive = Utils.approach(self.time_alive, self.lifetime, dt)
-    if self.time_alive == self.lifetime then
-        self:remove()
-        return
-    end
-    super:update(self, dt)
-end
-
 function AfterImage:createTransform()
     local transform = super:createTransform(self)
     if self.parent then
@@ -78,10 +63,7 @@ function AfterImage:createTransform()
 end
 
 function AfterImage:draw()
-    local r,g,b,a = self:getDrawColor()
-    love.graphics.setColor(r, g, b, a * self.fade * (1 - (self.time_alive / self.lifetime)) + self.add_alpha)
     love.graphics.draw(self.canvas)
-    love.graphics.setColor(1, 1, 1, 1)
     super:draw(self)
 end
 

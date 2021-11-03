@@ -52,6 +52,13 @@ function Object:init(x, y, width, height)
     -- The amount this object should slow down (also per frame at 30 fps)
     self.friction = 0
 
+    -- How fast this object fades its alpha (per frame at 30 fps)
+    self.fade_speed = 0
+    -- Target alpha to fade to
+    self.target_fade = 0
+    -- Function called after this object reaches target fade
+    self.fade_callback = nil
+
     -- Various draw properties
     self.color = {1, 1, 1}
     self.alpha = 1
@@ -115,6 +122,13 @@ function Object:update(dt)
         self:move(self.speed_x, self.speed_y, DTMULT)
     end
 
+    if self.fade_speed ~= 0 and self.alpha ~= self.target_fade then
+        self.alpha = Utils.approach(self.alpha, self.target_fade, self.fade_speed * DTMULT)
+        if self.fade_callback and self.alpha == self.target_fade then
+            self:fade_callback()
+        end
+    end
+
     self:updateChildren(dt)
 end
 
@@ -130,6 +144,18 @@ function Object:onRemove(parent) end
 function Object:move(x, y, speed)
     self.x = self.x + (x or 0) * (speed or 1)
     self.y = self.y + (y or 0) * (speed or 1)
+end
+
+function Object:fadeTo(target, speed, callback)
+    self.target_fade = target or 0
+    self.fade_speed = speed or 0.04
+    self.fade_callback = callback
+end
+
+function Object:fadeOutAndRemove(speed)
+    self.target_fade = 0
+    self.fade_speed = speed or 0.04
+    self.fade_callback = self.remove
 end
 
 function Object:collidesWith(other)

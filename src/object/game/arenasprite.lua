@@ -12,31 +12,11 @@ function ArenaSprite:init(arena, x, y)
     self:setRotateOrigin(0.5, 0.5)
 
     self.background = true
-    self.fading = false
-end
-
-function ArenaSprite:fade(alpha)
-    self.initial_alpha = alpha
-    self.alpha = alpha
-    self.background = false
-    self.lifetime = ((5/6) * alpha)
-    self.time_alive = 0
-    self.fading = true
 end
 
 function ArenaSprite:update(dt)
     self.width = self.arena.width
     self.height = self.arena.height
-
-    if self.fading then
-        self.time_alive = Utils.approach(self.time_alive, self.lifetime, dt)
-        if self.time_alive == self.lifetime then
-            self:remove()
-            return
-        end
-
-        self.alpha = self.initial_alpha * (1 - (self.time_alive / self.lifetime))
-    end
 
     super:update(self, dt)
 end

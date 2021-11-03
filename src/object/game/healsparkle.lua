@@ -9,6 +9,8 @@ function HealSparkle:init(x, y)
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 
+    self:fadeOutAndRemove(0.1)
+
     self.rotation = love.math.random() * math.rad(360)
 
     self.speed_x = 2 - (love.math.random() * 2)
@@ -16,17 +18,11 @@ function HealSparkle:init(x, y)
     self.friction = 0.2
 
     self.alpha = 2
-    self.fade_speed = 0.1
     self.spin = -10
 end
 
 function HealSparkle:update(dt)
-    self.alpha = Utils.approach(self.alpha, 0, self.fade_speed * DTMULT)
     self.rotation = self.rotation + (math.rad(self.spin) * DTMULT)
-
-    if self.alpha == 0 then
-        self:remove()
-    end
 
     super:update(self, dt)
 end

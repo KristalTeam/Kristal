@@ -55,12 +55,12 @@ end
 function Vironeedle:update(dt)
     if (self.rotation == 0 and self.x > Game.battle.arena.right + 10) or (self.rotation == math.pi and self.x < Game.battle.arena.left - 10) then
         self.collidable = false
-        self.alpha = Utils.approach(self.alpha, 0, dt / (1/3))
+        self:fadeTo(0, 0.1)
         if self.alpha == 0 then
             self:remove()
         end
     else
-        self.alpha = Utils.approach(self.alpha, 1, dt / (1/3))
+        self:fadeTo(1, 0.1)
     end
 
     super:update(self, dt)
