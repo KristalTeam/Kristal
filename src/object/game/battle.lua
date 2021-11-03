@@ -887,6 +887,10 @@ function Battle:battleText(text,post_func)
     self:setState("BATTLETEXT")
 end
 
+function Battle:infoText(text)
+    self.battle_ui.encounter_text:setText(text or "")
+end
+
 function Battle:createTransform()
     local transform = super:createTransform(self)
     transform:apply(self.camera:getTransform(0, 0))

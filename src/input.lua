@@ -122,6 +122,11 @@ function Input.is(alias, key)
     return self.aliases[alias] and Utils.containsValue(self.aliases[alias], key)
 end
 
+function Input.getText(alias)
+    local name = self.aliases[alias] and self.aliases[alias][1] or alias
+    return "["..name:upper().."]"
+end
+
 function Input.isConfirm(key)
     return Utils.containsValue(self.aliases["confirm"], key)
 end
