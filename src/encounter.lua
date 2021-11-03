@@ -55,8 +55,10 @@ function Encounter:onDialogueEnd()
     -- Will be referenced in battle
     self.current_waves = self:selectWaves()
 
-    local arena_w, arena_h, arena_shape
+    local arena_x, arena_y, arena_w, arena_h, arena_shape
     for _,wave in ipairs(self.current_waves) do
+        arena_x = wave.arena_x or arena_x
+        arena_y = wave.arena_y or arena_y
         arena_w = wave.arena_width and math.max(wave.arena_width, arena_w or 0) or arena_w
         arena_h = wave.arena_height and math.max(wave.arena_height, arena_h or 0) or arena_h
         if wave.arena_shape then
@@ -69,7 +71,7 @@ function Encounter:onDialogueEnd()
         arena_shape = {{0, 0}, {arena_w, 0}, {arena_w, arena_h}, {0, arena_h}}
     end
 
-    local arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
+    local arena = Arena(arena_x or SCREEN_WIDTH/2, arena_y or (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
     arena.layer = 10
 
     Game.battle.arena = arena
