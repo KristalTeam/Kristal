@@ -1,8 +1,17 @@
 local Encounter = Class()
 
-function Encounter:fetchEncounterText()
-    local enemies = Game.battle.enemies
-    return enemies[math.random(#enemies)]:fetchEncounterText()
+function Encounter:init()
+    -- Text that will be displayed when the battle starts
+    self.text = "* A skirmish breaks out!"
+
+    -- Whether the default grid background is drawn
+    self.background = true
+
+    -- The music used for this encounter (TODO: implement)
+    self.music = "battle"
+
+    -- Whether characters have the X-Action option in their spell menu
+    self.default_xactions = true
 end
 
 function Encounter:addEnemy(enemy, x, y, ...)
@@ -23,6 +32,11 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     table.insert(Game.battle.enemies, enemy_obj)
     Game.battle:addChild(enemy_obj)
+end
+
+function Encounter:fetchEncounterText()
+    local enemies = Game.battle.enemies
+    return enemies[math.random(#enemies)]:fetchEncounterText()
 end
 
 function Encounter:selectWaves()
