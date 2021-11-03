@@ -13,7 +13,7 @@ end
 
 function ColliderGroup:collidesWith(other)
     other = self:getOtherCollider(other)
-    if not other then return false end
+    if not self:collidableCheck(other) then return false end
 
     for _,collider in ipairs(self.colliders) do
         if collider:collidesWith(other) then

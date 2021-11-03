@@ -5,6 +5,12 @@ function Collider:init(x, y, parent)
 
     self.x = x or 0
     self.y = y or 0
+
+    self.collidable = true
+end
+
+function Collider:collidableCheck(other)
+    return self.collidable and other and other.collidable
 end
 
 function Collider:getOtherCollider(other)

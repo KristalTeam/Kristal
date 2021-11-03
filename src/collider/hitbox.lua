@@ -9,7 +9,7 @@ end
 
 function Hitbox:collidesWith(other)
     other = self:getOtherCollider(other)
-    if not other then return false end
+    if not self:collidableCheck(other) then return false end
 
     if other:includes(Hitbox) then
         return self:collideWithHitbox(other) or other:collideWithHitbox(self, true)
