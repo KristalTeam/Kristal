@@ -18,7 +18,7 @@ function Character:init(chara, x, y)
     self:setScale(2)
 
     local hitbox = self.actor.hitbox or {0, chara.height - 14, chara.width, 14}
-    self.collider = Hitbox(hitbox[1], hitbox[2], hitbox[3], hitbox[4], self)
+    self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
 
     -- 1px movement increments
     self.partial_x = (x % 1)

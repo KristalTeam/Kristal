@@ -1,7 +1,7 @@
 local Hitbox, super = Class(Collider)
 
-function Hitbox:init(x, y, width, height, parent)
-    super:init(self, x, y, parent)
+function Hitbox:init(parent, x, y, width, height)
+    super:init(self, parent, x, y)
 
     self.width = width or 0
     self.height = height or 0

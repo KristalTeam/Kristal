@@ -10,7 +10,7 @@ function ColliderGroup:init(parent, colliders)
 end
 
 function ColliderGroup:addCollider(collider)
-    collider.parent = self.parent
+    collider.parent = collider.parent or self.parent
     table.insert(self.colliders, collider)
 end
 

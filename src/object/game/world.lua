@@ -172,13 +172,13 @@ end
 function World:loadCollision(layer)
     for _,v in ipairs(layer.objects) do
         if v.shape == "rectangle" then
-            table.insert(self.collision, Hitbox(v.x, v.y, v.width, v.height, self))
+            table.insert(self.collision, Hitbox(self, v.x, v.y, v.width, v.height))
         elseif v.shape == "polygon" then
             for i = 1, #v.polygon do
                 local j = (i % #v.polygon) + 1
                 local x1, y1 = v.x + v.polygon[i].x, v.y + v.polygon[i].y
                 local x2, y2 = v.x + v.polygon[j].x, v.y + v.polygon[j].y
-                table.insert(self.collision, LineCollider(x1, y1, x2, y2, self))
+                table.insert(self.collision, LineCollider(self, x1, y1, x2, y2))
             end
         end
     end

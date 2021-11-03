@@ -3,7 +3,7 @@ local Transition, super = Class(Event)
 function Transition:init(data)
     super:init(self, data.x, data.y, data.width, data.height)
 
-    self.collider = Hitbox(0, 0, self.width, self.height, self)
+    self.collider = Hitbox(self, 0, 0, self.width, self.height)
 
     self.target = {
         map = data.properties.map,

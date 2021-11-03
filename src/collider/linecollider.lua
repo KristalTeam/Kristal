@@ -1,7 +1,7 @@
 local LineCollider, super = Class(Collider)
 
-function LineCollider:init(x1, y1, x2, y2, parent)
-    super:init(self, x1, y1, parent)
+function LineCollider:init(parent, x1, y1, x2, y2)
+    super:init(self, parent, x1, y1)
 
     self.x2 = x2
     self.y2 = y2

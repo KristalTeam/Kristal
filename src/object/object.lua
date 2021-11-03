@@ -217,7 +217,7 @@ function Object:getHitbox()
     end
 end
 function Object:setHitbox(x, y, w, h)
-    self.collider = Hitbox(x, y, w, h, self)
+    self.collider = Hitbox(self, x, y, w, h)
 end
 
 function Object:shiftOrigin(ox, oy)

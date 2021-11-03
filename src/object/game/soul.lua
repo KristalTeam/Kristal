@@ -18,9 +18,9 @@ function Soul:init(x, y)
     --self.width = self.sprite.width
     --self.height = self.sprite.height
 
-    self.collider = CircleCollider(0, 0, 8, self)
+    self.collider = CircleCollider(self, 0, 0, 8)
 
-    self.graze_collider = CircleCollider(0, 0, 25, self)
+    self.graze_collider = CircleCollider(self, 0, 0, 25)
 
     self.original_x = x
     self.original_y = y

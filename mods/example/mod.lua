@@ -46,7 +46,7 @@ function Mod:onKeyPressed(key)
                 local src = love.audio.newSource("assets/sounds/snd_laz_c.wav", "static")
                 src:play()
 
-                local attack_box = Hitbox(13, -4, 25, 47, player)
+                local attack_box = Hitbox(player, 13, -4, 25, 47)
 
                 for _,object in ipairs(Game.world.children) do
                     if object:includes(Event) and object:collidesWith(attack_box) then

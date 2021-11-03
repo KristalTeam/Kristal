@@ -1,7 +1,7 @@
 local CircleCollider, super = Class(Collider)
 
-function CircleCollider:init(x, y, radius, parent)
-    super:init(self, x, y, parent)
+function CircleCollider:init(parent, x, y, radius)
+    super:init(self, parent, x, y)
 
     self.radius = radius
 end

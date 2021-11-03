@@ -12,7 +12,7 @@ function Bullet:init(x, y, texture)
     end
 
     -- Default collider to half this object's size
-    self.collider = Hitbox(-self.width/4, -self.height/4, self.width/2, self.height/2, self)
+    self.collider = Hitbox(self, -self.width/4, -self.height/4, self.width/2, self.height/2)
 
     -- Move direction (defaults to rotation)
     self.direction = nil

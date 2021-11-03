@@ -6,10 +6,10 @@ function Player:init(chara, x, y)
     local hx, hy, hw, hh = self.collider.x, self.collider.y, self.collider.width, self.collider.height
 
     self.interact_collider = {
-        ["left"] = Hitbox(hx - hw/2, hy, hw, hh, self),
-        ["right"] = Hitbox(hx + hw/2, hy, hw, hh, self),
-        ["up"] = Hitbox(hx, hy - hh/2, hw, hh, self),
-        ["down"] = Hitbox(hx, hy + hh/2, hw, hh, self)
+        ["left"] = Hitbox(self, hx - hw/2, hy, hw, hh),
+        ["right"] = Hitbox(self, hx + hw/2, hy, hw, hh),
+        ["up"] = Hitbox(self, hx, hy - hh/2, hw, hh),
+        ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh)
     }
 
     self.history_time = 0

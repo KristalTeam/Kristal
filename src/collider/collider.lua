@@ -1,6 +1,6 @@
 local Collider = Class()
 
-function Collider:init(x, y, parent)
+function Collider:init(parent, x, y)
     self.parent = parent
 
     self.x = x or 0

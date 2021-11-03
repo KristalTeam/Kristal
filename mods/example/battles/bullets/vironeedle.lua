@@ -14,7 +14,7 @@ function Vironeedle:init(x, y, slow, right)
     self.sprite:setOrigin(0, 0)
     self.sprite:setScale(1)
 
-    self.infect_collider = Hitbox(1, 5, 14, 5, self)
+    self.infect_collider = Hitbox(self, 1, 5, 14, 5)
 
     self.alpha = 0
     if not right then

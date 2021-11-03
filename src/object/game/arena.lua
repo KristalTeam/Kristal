@@ -57,7 +57,7 @@ function Arena:setShape(shape)
 
     self.collider.colliders = {}
     for _,v in ipairs(edges) do
-        table.insert(self.collider.colliders, LineCollider(v[1][1], v[1][2], v[2][1], v[2][2], self))
+        table.insert(self.collider.colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
     end
 end
 
