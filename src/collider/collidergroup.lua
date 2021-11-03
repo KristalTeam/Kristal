@@ -4,6 +4,9 @@ function ColliderGroup:init(parent, colliders)
     super:init(self, 0, 0, parent)
 
     self.colliders = colliders or {}
+    for _,collider in ipairs(self.colliders) do
+        collider.parent = collider.parent or self.parent
+    end
 end
 
 function ColliderGroup:addCollider(collider)
