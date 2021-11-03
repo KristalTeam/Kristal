@@ -550,6 +550,8 @@ function Kristal.quickReload()
     Mod = nil
     Gamestate.switch({})
     Registry.initialize()
+    Kristal.Mods.clear()
+    love.audio.stop()
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
     end)
