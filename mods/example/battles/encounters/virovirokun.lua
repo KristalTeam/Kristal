@@ -11,7 +11,7 @@ function Virovirokun:init()
     --self:addEnemy("virovirokun")
 
     self.background = true
-    self.music = nil
+    self.music = "battle"
 
     self.default_xactions = false
 

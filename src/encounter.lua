@@ -1,8 +1,17 @@
 local Encounter = Class()
 
-function Encounter:fetchEncounterText()
-    local enemies = Game.battle.enemies
-    return enemies[math.random(#enemies)]:fetchEncounterText()
+function Encounter:init()
+    -- Text that will be displayed when the battle starts
+    self.text = "* A skirmish breaks out!"
+
+    -- Whether the default grid background is drawn
+    self.background = true
+
+    -- The music used for this encounter (TODO: implement)
+    self.music = "battle"
+
+    -- Whether characters have the X-Action option in their spell menu
+    self.default_xactions = true
 end
 
 function Encounter:addEnemy(enemy, x, y, ...)
@@ -23,6 +32,11 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     table.insert(Game.battle.enemies, enemy_obj)
     Game.battle:addChild(enemy_obj)
+end
+
+function Encounter:fetchEncounterText()
+    local enemies = Game.battle.enemies
+    return enemies[math.random(#enemies)]:fetchEncounterText()
 end
 
 function Encounter:selectWaves()
@@ -55,8 +69,10 @@ function Encounter:onDialogueEnd()
     -- Will be referenced in battle
     self.current_waves = self:selectWaves()
 
-    local arena_w, arena_h, arena_shape
+    local arena_x, arena_y, arena_w, arena_h, arena_shape
     for _,wave in ipairs(self.current_waves) do
+        arena_x = wave.arena_x or arena_x
+        arena_y = wave.arena_y or arena_y
         arena_w = wave.arena_width and math.max(wave.arena_width, arena_w or 0) or arena_w
         arena_h = wave.arena_height and math.max(wave.arena_height, arena_h or 0) or arena_h
         if wave.arena_shape then
@@ -69,7 +85,7 @@ function Encounter:onDialogueEnd()
         arena_shape = {{0, 0}, {arena_w, 0}, {arena_w, arena_h}, {0, arena_h}}
     end
 
-    local arena = Arena(SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
+    local arena = Arena(arena_x or SCREEN_WIDTH/2, arena_y or (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
     arena.layer = 10
 
     Game.battle.arena = arena

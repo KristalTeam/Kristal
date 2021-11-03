@@ -1,6 +1,15 @@
 local Wave, super = Class()
 
 function Wave:init()
+    -- Wave arena position
+    self.arena_x = nil
+    self.arena_y = nil
+    -- Wave arena rectangle size
+    self.arena_width = nil
+    self.arena_height = nil
+    -- Wave arena shape (overrides all rectangle options)
+    self.arena_shape = nil
+
     -- Seconds the wave will last (-1 for infinite)
     self.time = 5
 
@@ -73,6 +82,41 @@ function Wave:spawnSprite(texture, x, y, layer)
     Game.battle:addChild(sprite)
     table.insert(self.objects, sprite)
     return sprite
+end
+
+function Wave:setArenaPosition(x, y)
+    self.arena_x = x
+    self.arena_y = y
+
+    if Game.battle.arena then
+        Game.battle.arena:setPosition(x, y)
+    end
+end
+
+function Wave:setArenaOffset(x, y)
+    self.arena_x = SCREEN_WIDTH/2 + x
+    self.arena_y = (SCREEN_HEIGHT - 155)/2 + 10 + y
+
+    if Game.battle.arena then
+        Game.battle.arena:move(x, y)
+    end
+end
+
+function Wave:setArenaSize(width, height)
+    self.arena_width = width
+    self.arena_height = height
+
+    if Game.battle.arena then
+        Game.battle.arena:setSize(width, height)
+    end
+end
+
+function Wave:setArenaShape(...)
+    self.arena_shape = {...}
+
+    if Game.battle.arena then
+        Game.battle.arena:setShape({...})
+    end
 end
 
 function Wave:getAttackers()

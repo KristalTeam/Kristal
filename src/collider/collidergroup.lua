@@ -4,6 +4,9 @@ function ColliderGroup:init(parent, colliders)
     super:init(self, 0, 0, parent)
 
     self.colliders = colliders or {}
+    for _,collider in ipairs(self.colliders) do
+        collider.parent = collider.parent or self.parent
+    end
 end
 
 function ColliderGroup:addCollider(collider)
@@ -13,7 +16,7 @@ end
 
 function ColliderGroup:collidesWith(other)
     other = self:getOtherCollider(other)
-    if not other then return false end
+    if not self:collidableCheck(other) then return false end
 
     for _,collider in ipairs(self.colliders) do
         if collider:collidesWith(other) then

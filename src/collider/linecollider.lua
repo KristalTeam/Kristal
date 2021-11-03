@@ -9,7 +9,7 @@ end
 
 function LineCollider:collidesWith(other, symmetrical)
     other = self:getOtherCollider(other)
-    if not other then return false end
+    if not self:collidableCheck(other) then return false end
 
     if other:includes(LineCollider) then
         local tf1, tf2 = self:getTransformsWith(other)
