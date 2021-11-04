@@ -6,6 +6,7 @@ function Arena:init(x, y, shape)
     self:setOrigin(0.5, 0.5)
 
     self.color = {0, 0.75, 0}
+    self.bgColor = {0, 0, 0}
 
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)

@@ -4,6 +4,9 @@ function Vironeedle:onStart()
     local attackers = self:getAttackers()
 
     local ratio = self:getEnemyRatio()
+    
+    Game.battle.arena.color = {1, 1, 1}
+    Game.battle.arena.bgColor = {0.2, 0.2, 0}
 
     self.timer:every((ratio == 1 and 6 or (10 * ratio)) / 30, function()
         local arena = Game.battle.arena
