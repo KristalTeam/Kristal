@@ -13,13 +13,13 @@ Text.COLORS = {
     ["lime"] = {0.5, 1, 0.5}
 }
 
-function Text:init(text, x, y, w, h, char_type, font)
+function Text:init(text, x, y, w, h, font, style)
     super:init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
 
-    self.char_type = char_type or TextChar
     self.font = font or "main"
+    self.style = style
     self.wrap = true
-    self.chars = {}
+    self.canvas = love.graphics.newCanvas(w, h)
     self.line_offset = 0
 
     self:resetState()
@@ -30,6 +30,7 @@ end
 function Text:resetState()
     self.state = {
         color = {1, 1, 1, 1},
+        font = self.font,
         current_x = 0,
         current_y = 0,
         typed_characters = 0,
@@ -46,21 +47,23 @@ function Text:resetState()
 end
 
 function Text:setText(text)
-    for _,v in ipairs(self.chars) do
-        self:removeChild(v)
-    end
-    self.chars = {}
     self:resetState()
 
     self.text = text
 
     self.nodes = self:textToNodes(text)
 
-    for i = 1, #self.nodes do
-        local current_node = self.nodes[i]
-        self:processNode(current_node)
-        self.state.current_node = self.state.current_node + 1
+    if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
+        self.canvas = love.graphics.newCanvas(self.width, self.height)
     end
+
+    self:drawToCanvas(function()
+        for i = 1, #self.nodes do
+            local current_node = self.nodes[i]
+            self:processNode(current_node)
+            self.state.current_node = self.state.current_node + 1
+        end
+    end, true)
 end
 
 function Text:getFont()
@@ -157,6 +160,19 @@ function Text:textToNodes(input_string)
     return nodes
 end
 
+function Text:drawToCanvas(func, clear)
+    Draw.pushCanvas(self.canvas)
+    Draw.pushScissor()
+    love.graphics.push()
+    love.graphics.origin()
+    if clear then
+        love.graphics.clear()
+    end
+    func()
+    love.graphics.pop()
+    Draw.popCanvas()
+end
+
 function Text:processNode(node)
     local font = self:getFont()
     if node.type == "character" then
@@ -181,10 +197,8 @@ function Text:processNode(node)
                 end
             end
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
-            local char = self.char_type(node.character, self.state.current_x, self.state.current_y, self.font, self.state.color)
-            table.insert(self.chars, char)
-            self:addChild(char)
-            self.state.current_x = self.state.current_x + char.width
+            local w, h = self:drawChar(node, self.state)
+            self.state.current_x = self.state.current_x + w
         end
     else
         self:processModifier(node)
@@ -210,6 +224,71 @@ function Text:processModifier(node)
             end
         end
     end
+end
+
+function Text:drawChar(node, state)
+    local font = Assets.getFont(state.font)
+    local width, height = font:getWidth(node.character), font:getHeight()
+    local x, y = state.current_x, state.current_y
+    love.graphics.setFont(font)
+    if self.style == nil or self.style == "none" then
+        love.graphics.setColor(unpack(state.color))
+        love.graphics.print(node.character, x, y)
+    elseif self.style == "menu" then
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.print(node.character, x+2, y+2)
+        love.graphics.setColor(unpack(state.color))
+        love.graphics.print(node.character, x, y)
+    elseif self.style == "dark" then
+        local canvas = Draw.pushCanvas(width, height)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.print(node.character)
+        Draw.popCanvas()
+
+        local shader = Kristal.Shaders["GradientV"]
+
+        local last_shader = love.graphics.getShader()
+
+        local white = state.color[1] == 1 and state.color[2] == 1 and state.color[3] == 1
+
+        if white then
+            love.graphics.setShader(shader)
+            shader:send("from", white and COLORS.dkgray or state.color)
+            shader:send("to", white and COLORS.navy or state.color)
+            love.graphics.setColor(1, 1, 1, white and 1 or 0.3)
+        else
+            love.graphics.setColor(state.color[1], state.color[2], state.color[3], 0.3)
+        end
+        love.graphics.draw(canvas, x+1, y+1)
+
+        if not white then
+            love.graphics.setShader(shader)
+            shader:send("from", COLORS.white)
+            shader:send("to", white and COLORS.white or state.color)
+        else
+            love.graphics.setShader(last_shader)
+        end
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(canvas, x, y)
+
+        if not white then
+            love.graphics.setShader(last_shader)
+        end
+    elseif self.style == "dark_menu" then
+        love.graphics.setColor(0.25, 0.125, 0.25)
+        love.graphics.print(node.character, x+2, y+2)
+        love.graphics.setColor(unpack(state.color))
+        love.graphics.print(node.character, x, y)
+    end
+    return width, height
+end
+
+function Text:draw()
+    love.graphics.setBlendMode("alpha", "premultiplied")
+    love.graphics.draw(self.canvas)
+    love.graphics.setBlendMode("alpha")
+
+    super:draw(self)
 end
 
 return Text

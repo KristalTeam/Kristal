@@ -1,7 +1,7 @@
 local DialogueText, super = Class(Text)
 
-function DialogueText:init(text, x, y, w, h, char_type, font)
-    super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, char_type or ShadedChar, font or "main_mono")
+function DialogueText:init(text, x, y, w, h, font, style)
+    super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
 end
 
 function DialogueText:resetState()
@@ -10,28 +10,29 @@ function DialogueText:resetState()
 end
 
 function DialogueText:setText(text)
-    for _,v in ipairs(self.chars) do
-        self:removeChild(v)
-    end
-
-    self.chars = {}
     self:resetState()
 
     self.text = text
 
     self.nodes = self:textToNodes(text)
 
-    local i = 1
-    while i <= #self.nodes do
-        local current_node = self.nodes[i]
-        self:processNode(current_node)
-        self.state.current_node = self.state.current_node + 1
-        i = i + 1
-        -- If the current mode is a typewriter...
-        if not self.state.skipping and not self:isNodeInstant(current_node) then
-            break
-        end
+    if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
+        self.canvas = love.graphics.newCanvas(self.width, self.height)
     end
+
+    self:drawToCanvas(function()
+        local i = 1
+        while i <= #self.nodes do
+            local current_node = self.nodes[i]
+            self:processNode(current_node)
+            self.state.current_node = self.state.current_node + 1
+            i = i + 1
+            -- If the current mode is a typewriter...
+            if not self.state.skipping and not self:isNodeInstant(current_node) then
+                break
+            end
+        end
+    end, true)
 end
 
 function DialogueText:update(dt)
@@ -46,23 +47,25 @@ function DialogueText:update(dt)
     end
 
     if self.state.typing then
-        while (math.floor(self.state.progress) > self.state.typed_characters) or self.state.skipping do
-            local current_node = self.nodes[self.state.current_node]
+        self:drawToCanvas(function()
+            while (math.floor(self.state.progress) > self.state.typed_characters) or self.state.skipping do
+                local current_node = self.nodes[self.state.current_node]
 
-            if current_node == nil then
-                self.state.typing = false
-                break
+                if current_node == nil then
+                    self.state.typing = false
+                    break
+                end
+
+                self:playTextSound(current_node)
+                self:processNode(current_node)
+
+                if self.state.skipping then
+                    self.state.progress = self.state.typed_characters
+                end
+
+                self.state.current_node = self.state.current_node + 1
             end
-
-            self:playTextSound(current_node)
-            self:processNode(current_node)
-
-            if self.state.skipping then
-                self.state.progress = self.state.typed_characters
-            end
-
-            self.state.current_node = self.state.current_node + 1
-        end
+        end)
     end
 
     super:update(self, dt)

@@ -10,7 +10,7 @@ function EnemyTextbox:init(text, x, y)
     self.font = Assets.getFont("plain")
     self.font_data = Assets.getFontData("plain")
 
-    self.text = DialogueText("", 0, 0, 0, 0, TextChar, "plain")
+    self.text = DialogueText("", 0, 0, 1, 1, "plain", "none")
     self.text.color = {0, 0, 0}
     self:addChild(self.text)
 
