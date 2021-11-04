@@ -6,7 +6,7 @@ function Registry.initialize(preload)
         self.base_scripts = {}
         for _,path in ipairs(Utils.getFilesRecursive("data", ".lua")) do
             local chunk = love.filesystem.load("data/"..path..".lua")
-            self.base_scripts[path] = chunk
+            self.base_scripts["data/"..path] = chunk
         end
 
         Registry.initActors()
@@ -137,7 +137,7 @@ end
 function Registry.initActors()
     self.actors = {}
 
-    for path,actor in self.iterScripts("actors") do
+    for path,actor in self.iterScripts("data/actors") do
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
     end
@@ -148,7 +148,7 @@ end
 function Registry.initPartyMembers()
     self.party_members = {}
 
-    for path,char in self.iterScripts("party") do
+    for path,char in self.iterScripts("data/party") do
         char.id = char.id or path
         self.registerPartyMember(char.id, char)
     end
@@ -157,7 +157,7 @@ end
 function Registry.initItems()
     self.items = {}
 
-    for path,item in self.iterScripts("item") do
+    for path,item in self.iterScripts("data/item") do
         item.id = item.id or path
         self.registerItem(item.id, item)
     end
@@ -168,7 +168,7 @@ end
 function Registry.initSpells()
     self.spells = {}
 
-    for path,spell in self.iterScripts("spells") do
+    for path,spell in self.iterScripts("data/spells") do
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
     end

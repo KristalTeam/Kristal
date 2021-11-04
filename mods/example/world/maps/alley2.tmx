@@ -3,9 +3,9 @@
  <editorsettings>
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
- <tileset firstgid="1" source="../assets/sprites/tilesets/alley.tsx"/>
- <tileset firstgid="362" source="../assets/sprites/tilesets/city_alley.tsx"/>
- <tileset firstgid="472" source="../assets/sprites/tilesets/street_edges.tsx"/>
+ <tileset firstgid="1" source="../../assets/sprites/tilesets/alley.tsx"/>
+ <tileset firstgid="362" source="../../assets/sprites/tilesets/city_alley.tsx"/>
+ <tileset firstgid="472" source="../../assets/sprites/tilesets/street_edges.tsx"/>
  <layer id="1" name="Tile Layer 1" width="30" height="30">
   <data encoding="csv">
 260,260,260,260,261,259,260,260,260,260,260,260,260,261,434,434,259,260,260,260,260,260,260,260,260,261,259,260,260,260,

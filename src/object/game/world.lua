@@ -112,7 +112,7 @@ function World:spawnFollower(chara)
 end
 
 function World:loadMap(map)
-    local success, map_data = Kristal.executeModScript("maps/"..map)
+    local success, map_data = Kristal.executeModScript("world/maps/"..map)
     if not success then
         error("No map: "..map)
     end
@@ -261,7 +261,7 @@ function World:loadObject(name, data)
             return events[name](data)
         end
     end
-    local success, result = Kristal.executeModScript("events/"..name)
+    local success, result = Kristal.executeModScript("world/events/"..name)
     if success then
         return result(data)
     end
@@ -278,7 +278,7 @@ function World:loadObject(name, data)
 end
 
 function World:populateTilesets(path, data)
-    local map_path = Mod.info.path.."/maps/"..path..".lua"
+    local map_path = Mod.info.path.."/world/maps/"..path..".lua"
     map_path = Utils.split(map_path, "/")
     map_path = Utils.join(map_path, "/", 1, #map_path - 1)
 

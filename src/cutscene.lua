@@ -10,7 +10,7 @@ function Cutscene.start(cutscene)
     local func = nil
 
     if type(cutscene) == "string" then
-        func = Mod.info.script_chunks["cutscenes/" .. cutscene]
+        func = Mod.info.script_chunks["world/cutscenes/" .. cutscene]
         if not func then
             error("Attempt to load cutscene \"" .. cutscene .. "\", but it wasn't found. Dumbass")
         end
