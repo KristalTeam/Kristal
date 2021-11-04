@@ -1,15 +1,15 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.0",
+  tiledversion = "1.7.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 21,
   height = 12,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 6,
-  nextobjectid = 56,
+  nextlayerid = 7,
+  nextobjectid = 78,
   properties = {},
   tilesets = {
     {
@@ -307,6 +307,86 @@ return {
     {
       type = "objectgroup",
       draworder = "topdown",
+      id = 6,
+      name = "paths",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 77,
+          name = "virovirokun",
+          type = "",
+          shape = "polyline",
+          x = 680,
+          y = 440,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 0, y = -120 },
+            { x = -40, y = -160 },
+            { x = -160, y = -160 },
+            { x = -240, y = -200 },
+            { x = -300, y = -280 },
+            { x = -360, y = -200 },
+            { x = -400, y = -160 },
+            { x = -540, y = -160 }
+          },
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 3,
+      name = "markers",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 16,
+          name = "spawn",
+          type = "",
+          shape = "rectangle",
+          x = 360,
+          y = 280,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 55,
+          name = "entry_down",
+          type = "",
+          shape = "point",
+          x = 680,
+          y = 440,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
       id = 2,
       name = "objects",
       visible = true,
@@ -358,47 +438,23 @@ return {
             ["map"] = "alley2",
             ["marker"] = "entry"
           }
-        }
-      }
-    },
-    {
-      type = "objectgroup",
-      draworder = "topdown",
-      id = 3,
-      name = "markers",
-      visible = true,
-      opacity = 1,
-      offsetx = 0,
-      offsety = 0,
-      parallaxx = 1,
-      parallaxy = 1,
-      properties = {},
-      objects = {
+        },
         {
-          id = 16,
-          name = "spawn",
+          id = 74,
+          name = "enemy",
           type = "",
           shape = "rectangle",
-          x = 360,
-          y = 280,
+          x = 520,
+          y = 320,
           width = 40,
           height = 40,
           rotation = 0,
           visible = true,
-          properties = {}
-        },
-        {
-          id = 55,
-          name = "entry_down",
-          type = "",
-          shape = "point",
-          x = 680,
-          y = 440,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
+          properties = {
+            ["actor"] = "virovirokun",
+            ["encounter"] = "virovirokun",
+            ["path"] = "virovirokun"
+          }
         }
       }
     }

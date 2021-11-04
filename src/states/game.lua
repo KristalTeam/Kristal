@@ -61,17 +61,22 @@ function Game:enter(previous_state)
     Kristal.modCall("init")
 end
 
-function Game:encounter(encounter_name, transition)
+function Game:encounter(encounter, transition, enemy)
     if transition == nil then transition = true end
 
     if self.battle then
         error("Attempt to enter battle while already in battle")
     end
 
-    local encounter = Registry.getEncounter(encounter_name)
-    if not encounter then
-        error("Attempt to load into non existent encounter \"" .. encounter_name .. "\"")
+    if type(encounter) == "string" then
+        local encounter_name = encounter
+        encounter = Registry.getEncounter(encounter_name)
+        if not encounter then
+            error("Attempt to load into non existent encounter \"" .. encounter_name .. "\"")
+        end
     end
+
+    self.encounter_enemy = enemy
 
     self.state = "BATTLE"
 

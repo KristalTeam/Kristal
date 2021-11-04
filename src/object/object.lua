@@ -298,7 +298,9 @@ function Object:createTransform()
         transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1))
     end
     if self.flip_x or self.flip_y then
+        transform:translate(self.width/2, self.height/2)
         transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)
+        transform:translate(-self.width/2, -self.height/2)
     end
     transform:translate(-self.width * self.origin_x, -self.height * self.origin_y)
     if self.scale_x ~= 1 or self.scale_y ~= 1 then

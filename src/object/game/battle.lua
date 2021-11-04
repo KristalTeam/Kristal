@@ -15,6 +15,7 @@ function Battle:init()
     self.ui_select = love.audio.newSource("assets/sounds/ui_select.wav", "static")
 
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
+    self.enemy_beginning_positions = {}
 
     for i = 1, math.min(3, #Game.party) do
         local party_member = Game.party[i]
@@ -156,6 +157,18 @@ function Battle:postInit(state, encounter)
             target_x = target_x + (battler.actor.width/2 + offset[1]) * 2
             target_y = target_y + (battler.actor.height  + offset[2]) * 2
             table.insert(self.battler_targets, {target_x, target_y})
+        end
+        if Game.encounter_enemy then
+            for _,enemy in ipairs(self.enemies) do
+                if enemy.actor and enemy.actor.id == Game.encounter_enemy.actor.id then
+                    Game.encounter_enemy.visible = false
+                    enemy:setPosition(Game.encounter_enemy:getScreenPos())
+                    break
+                end
+            end
+        end
+        for _,enemy in ipairs(self.enemies) do
+            self.enemy_beginning_positions[enemy] = {enemy.x, enemy.y}
         end
     else
         self.transition_timer = 10
@@ -976,6 +989,10 @@ function Battle:updateTransition(dt)
 
         battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
         battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
+    end
+    for _, enemy in ipairs(self.enemies) do
+        enemy.x = Utils.lerp(self.enemy_beginning_positions[enemy][1], enemy.target_x, self.transition_timer / 10)
+        enemy.y = Utils.lerp(self.enemy_beginning_positions[enemy][2], enemy.target_y, self.transition_timer / 10)
     end
 end
 

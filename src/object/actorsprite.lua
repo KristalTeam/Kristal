@@ -26,6 +26,9 @@ function ActorSprite:init(actor)
 
     self.shake_x = 0
     self.shake_y = 0
+
+    self.aura = false
+    self.aura_siner = 0
 end
 
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
@@ -144,6 +147,19 @@ function ActorSprite:getOffset()
 end
 
 function ActorSprite:update(dt)
+    if self.actor.flip then
+        if not self.directional then
+            local opposite = self.actor.flip == "right" and "left" or "right"
+            if self.facing == self.actor.flip then
+                self.flip_x = true
+            elseif self.facing == opposite then
+                self.flip_x = false
+            end
+        else
+            self.flip_x = false
+        end
+    end
+
     if not self.playing then
         local floored_frame = math.floor(self.walk_frame)
         if floored_frame ~= self.walk_frame or (self.directional and self.walking) then
@@ -183,6 +199,25 @@ function ActorSprite:createTransform()
     local offset = self:getOffset()
     transform:translate(-offset[1], -offset[2])
     return transform
+end
+
+function ActorSprite:draw()
+    if self.texture and self.aura then
+        self.aura_siner = self.aura_siner + 0.25 * DTMULT
+        for i = 1, 5 do
+            local aura = (i * 9) + ((self.aura_siner * 3) % 9)
+            local aurax = (aura * 0.75) + (math.sin(aura / 4) * 4)
+            --var auray = (45 * scr_ease_in((aura / 45), 1))
+            local auray = 45 * Ease.inSine(aura / 45, 0, 1, 1)
+            local aurayscale = math.min(1, 80 / self.texture:getHeight())
+
+            love.graphics.setColor(1, 0, 0, (1 - (auray / 45)) * 0.5)
+            love.graphics.draw(self.texture, -((aurax / 180) * self.texture:getWidth()), -((auray / 82) * self.texture:getHeight() * aurayscale), 0, 1 + ((aurax/36) * 0.5), 1 + (((auray / 36) * aurayscale) * 0.5))
+        end
+        love.graphics.setColor(self:getDrawColor())
+    end
+
+    super:draw(self)
 end
 
 return ActorSprite

@@ -4,6 +4,8 @@ return {
     width = 38,
     height = 51,
 
+    flip = "right",
+
     path = "enemies/virovirokun",
     default_anim = "idle",
 

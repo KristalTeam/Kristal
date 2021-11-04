@@ -17,7 +17,7 @@ function Character:init(chara, x, y)
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    local hitbox = self.actor.hitbox or {0, chara.height - 14, chara.width, 14}
+    local hitbox = self.actor.hitbox or {0, 0, chara.width, chara.height}
     self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
 
     -- 1px movement increments
@@ -77,15 +77,27 @@ function Character:move(x, y, speed)
 
     if movex ~= 0 or movey ~= 0 then
         local dir = self.facing
-        if movex > 0 then
-            dir = (movey ~= 0 and (dir == "down" or dir == "up")) and dir or "right"
-        elseif movex < 0 then
-            dir = (movey ~= 0 and (dir == "down" or dir == "up")) and dir or "left"
-        end
-        if movey > 0 then
-            dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "down"
-        elseif movey < 0 then
-            dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "up"
+        if self.sprite.directional then
+            if movex > 0 then
+                dir = (movey ~= 0 and (dir == "down" or dir == "up")) and dir or "right"
+            elseif movex < 0 then
+                dir = (movey ~= 0 and (dir == "down" or dir == "up")) and dir or "left"
+            end
+            if movey > 0 then
+                dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "down"
+            elseif movey < 0 then
+                dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "up"
+            end
+        else
+            if movex > 0 then
+                dir = "right"
+            elseif movex < 0 then
+                dir = "left"
+            elseif movey > 0 then
+                dir = "down"
+            elseif movey < 0 then
+                dir = "up"
+            end
         end
 
         self.facing = dir

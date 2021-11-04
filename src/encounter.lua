@@ -21,12 +21,26 @@ function Encounter:addEnemy(enemy, x, y, ...)
     else
         enemy_obj = enemy
     end
+    local transition = Game.battle.state == "TRANSITION"
+    if transition then
+        enemy_obj:setPosition(SCREEN_WIDTH + 200, y)
+    end
     if x and y then
-        enemy_obj:setPosition(x, y)
+        if not transition then
+            enemy_obj:setPosition(x, y)
+        else
+            enemy_obj.target_x = x
+            enemy_obj.target_y = y
+        end
     else
         for _,enemy in ipairs(Game.battle.enemies) do
-            enemy.x = enemy.x - 10
-            enemy.y = enemy.y - 45
+            if not transition then
+                enemy.x = enemy.x - 10
+                enemy.y = enemy.y - 45
+            else
+                enemy.target_x = enemy.target_x - 10
+                enemy.target_y = enemy.target_y - 45
+            end
         end
         enemy_obj:setPosition(550 + (10 * #Game.battle.enemies), 200 + (45 * #Game.battle.enemies))
     end

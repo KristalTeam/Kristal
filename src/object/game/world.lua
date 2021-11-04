@@ -38,6 +38,8 @@ function World:init(map)
 
     self.followers = {}
 
+    self.timer = Timer.new()
+
     if map then
         self:loadMap(map)
     end
@@ -130,6 +132,7 @@ function World:loadMap(map)
     self.collision = {}
     self.tile_layers = {}
     self.markers = {}
+    self.paths = {}
 
     for _,layer in ipairs(map_data.layers) do
         if layer.type == "tilelayer" then
@@ -141,6 +144,8 @@ function World:loadMap(map)
                 self:loadMarkers(layer)
             elseif layer.name == "collision" then
                 self:loadCollision(layer)
+            elseif layer.name == "paths" then
+                self:loadPaths(layer)
             end
         end
     end
@@ -195,6 +200,41 @@ function World:loadMarkers(layer)
     end
 end
 
+function World:loadPaths(layer)
+    for _,v in ipairs(layer.objects) do
+        local path = {}
+        if v.shape == "ellipse" then
+            path.shape = "ellipse"
+            path.x = v.x + v.width/2
+            path.y = v.y + v.height/2
+            path.rx = v.width/2
+            path.ry = v.height/2
+
+            -- Roughly calculte ellipse perimeter bc the actual calculation is hard
+            path.length = 2*math.pi*((path.rx + path.ry)/2)
+            path.closed = true
+        else
+            path.shape = "line"
+            path.x = v.x
+            path.y = v.y
+            local polygon = Utils.copy(v.polygon or v.polyline or {})
+            if v.shape == "rectangle" then
+                polygon = {{x = v.x, y = v.y}, {x = v.x + v.width, y = v.y}, {x = v.x + v.width, y = v.y + v.height}, {x = v.x, y = v.y + v.height}}
+            end
+            if v.shape ~= "polyline" then
+                table.insert(polygon, polygon[1])
+                path.closed = true
+            end
+            path.polygon = polygon
+            path.length = 0
+            for i = 1, #polygon-1 do
+                path.length = path.length + Vector.dist(polygon[i].x, polygon[i].y, polygon[i+1].x, polygon[i+1].y)
+            end
+        end
+        self.paths[v.name] = path
+    end
+end
+
 function World:loadObjects(layer)
     for _,v in ipairs(layer.objects) do
         v.width = v.width or 0
@@ -232,6 +272,8 @@ function World:loadObject(name, data)
         return Transition(data)
     elseif name:lower() == "npc" then
         return NPC(data)
+    elseif name:lower() == "enemy" then
+        return ChaserEnemy(data.properties["actor"], data.center_x, data.center_y, data)
     end
 end
 
@@ -310,7 +352,7 @@ function World:sortChildren()
     table.sort(self.children, function(a, b)
         local ax, ay = a:getRelativePos(a.width/2, a.height, self)
         local bx, by = b:getRelativePos(b.width/2, b.height, self)
-        return a.layer < b.layer or a.layer == b.layer and (math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index))))
+        return a.layer < b.layer or (a.layer == b.layer and (math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
     end)
     Object.endCache()
     Utils.popPerformance()
@@ -347,6 +389,8 @@ function World:update(dt)
             v[1]:onCollide(v[2])
         end
     end
+
+    self.timer:update(dt)
 
     -- Keep camera in bounds
     self:updateCamera()

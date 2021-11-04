@@ -97,6 +97,7 @@ Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
 Transition = require("src.object.game.transition")
 NPC = require("src.object.game.npc")
+ChaserEnemy = require("src.object.game.chaserenemy")
 
 Cutscene = require("src.cutscene")
 
