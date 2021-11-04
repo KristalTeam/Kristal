@@ -6,7 +6,7 @@ function Registry.initialize(preload)
         self.base_scripts = {}
         for _,path in ipairs(Utils.getFilesRecursive("data", ".lua")) do
             local chunk = love.filesystem.load("data/"..path..".lua")
-            self.base_scripts["data/"..path] = chunk
+            self.base_scripts["scripts/data/"..path] = chunk
         end
 
         Registry.initActors()
@@ -157,7 +157,7 @@ end
 function Registry.initItems()
     self.items = {}
 
-    for path,item in self.iterScripts("data/item") do
+    for path,item in self.iterScripts("data/items") do
         item.id = item.id or path
         self.registerItem(item.id, item)
     end
@@ -222,6 +222,8 @@ end
 
 function Registry.iterScripts(path)
     local result = {}
+
+    path = "scripts/"..path
 
     CLASS_NAME_GETTER = function(k)
         for _,v in ipairs(result) do

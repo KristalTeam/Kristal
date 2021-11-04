@@ -3,10 +3,10 @@
  <editorsettings>
   <export target="../../maps/alley.lua" format="lua"/>
  </editorsettings>
- <tileset firstgid="1" source="../../assets/sprites/tilesets/city_alley.tsx"/>
- <tileset firstgid="111" source="../../assets/sprites/tilesets/alley.tsx"/>
- <tileset firstgid="472" source="../../assets/sprites/tilesets/street_edges.tsx"/>
- <tileset firstgid="682" source="../../assets/sprites/tilesets/test_battleborder.tsx"/>
+ <tileset firstgid="1" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
+ <tileset firstgid="111" source="../../../assets/sprites/tilesets/alley.tsx"/>
+ <tileset firstgid="472" source="../../../assets/sprites/tilesets/street_edges.tsx"/>
+ <tileset firstgid="682" source="../../../assets/sprites/tilesets/test_battleborder.tsx"/>
  <layer id="1" name="tiles" width="21" height="12">
   <data encoding="csv">
 512,507,519,519,521,522,523,519,519,519,599,600,601,519,519,519,519,589,590,590,590,
