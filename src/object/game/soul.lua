@@ -43,6 +43,9 @@ function Soul:init(x, y)
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
 
+    self.moving_x = 0
+    self.moving_y = 0
+
     self.noclip = false
 end
 
@@ -51,6 +54,10 @@ function Soul:transitionTo(x, y)
     self.target_x = x
     self.target_y = y
     self.timer = 0
+end
+
+function Soul:isMoving()
+    return self.moving_x ~= 0 or self.moving_y ~= 0
 end
 
 function Soul:getExactPosition(x, y)
@@ -221,6 +228,9 @@ function Soul:doMovement()
     if move_x ~= 0 or move_y ~= 0 then
         self:move(move_x, move_y, speed * DTMULT)
     end
+
+    self.moving_x = move_x
+    self.moving_y = move_y
 end
 
 function Soul:update(dt)
