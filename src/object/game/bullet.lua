@@ -38,6 +38,25 @@ function Bullet:init(x, y, texture)
     self.remove_offscreen = true
 end
 
+function Bullet:onDamage(soul)
+    if self.damage > 0 then
+        local battler = Game.battle.party[love.math.random(#Game.battle.party)]
+        battler:hurt(self.damage)
+
+        soul.inv_timer = self.inv_timer
+    end
+end
+
+function Bullet:onCollide(soul)
+    if soul.inv_timer == 0 then
+        self:onDamage(soul)
+    end
+
+    if self.destroy_on_hit then
+        self:remove()
+    end
+end
+
 function Bullet:setSprite(texture, speed, loop, on_finished)
     if self.sprite then
         self:removeChild(self.sprite)

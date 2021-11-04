@@ -12,6 +12,7 @@ function Registry.initialize(preload)
         Registry.initActors()
     end
     if not preload then
+        Registry.initObjects()
         Registry.initItems()
         Registry.initSpells()
         Registry.initPartyMembers()
@@ -119,6 +120,19 @@ function Registry.registerBullet(id, class)
 end
 
 -- Internal Functions --
+
+function Registry.initObjects()
+    for path,object in self.iterScripts("objects") do
+        local id = object.id or path
+        if _G[id] then
+            error("Registered existing object: "..id)
+        else
+            _G[id] = object
+        end
+    end
+
+    Kristal.modCall("onRegisterObjects")
+end
 
 function Registry.initActors()
     self.actors = {}

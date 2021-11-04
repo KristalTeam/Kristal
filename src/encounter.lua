@@ -121,4 +121,8 @@ function Encounter:onWavesDone()
     Game.battle:setState("ACTIONSELECT")
 end
 
+function Encounter:createSoul(x, y)
+    return Soul(x, y)
+end
+
 return Encounter

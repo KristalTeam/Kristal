@@ -363,11 +363,23 @@ function Battle:spawnSoul(x, y)
 
     self:addChild(HeartBurst(bx, by))
     if not self.soul then
-        self.soul = Soul(bx, by)
+        self.soul = self.encounter:createSoul(bx, by)
         self.soul:transitionTo(x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2)
+        self.soul.target_alpha = self.soul.alpha
+        self.soul.alpha = 0
         self.soul.layer = 20
         self:addChild(self.soul)
     end
+end
+
+function Battle:swapSoul(object)
+    if self.soul then
+        self:removeChild(self.soul)
+    end
+    object:setPosition(self.soul:getPosition())
+    object.layer = self.soul.layer
+    self.soul = object
+    self:addChild(object)
 end
 
 function Battle:onSubStateChange(old,new)
@@ -929,6 +941,10 @@ function Battle:update(dt)
         end
     elseif self.state == "DEFENDING" then
         self:updateWaves(dt)
+    end
+
+    if self.encounter.update then
+        self.encounter:update(dt)
     end
 
     if self.shake ~= 0 then

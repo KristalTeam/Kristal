@@ -19,4 +19,14 @@ function Virovirokun:init()
     Game.battle:registerXAction("susie", "Supercharge", "Charge faster", 80)
 end
 
+function Virovirokun:update(dt)
+    if Game.battle.state == "DEFENDING" then
+        if Input.pressed("menu") then
+            Game.battle:swapSoul(PinkSoul())
+        end
+    end
+
+    super:update(self, dt)
+end
+
 return Virovirokun

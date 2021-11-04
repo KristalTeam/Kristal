@@ -29,6 +29,8 @@ function PartyBattler:init(chara, x, y)
 end
 
 function PartyBattler:hurt(amount)
+    love.audio.newSource("assets/sounds/snd_hurt1.wav", "static"):play()
+
     self.chara.health = self.chara.health - amount
     self:statusMessage("damage", amount)
 

@@ -3,7 +3,7 @@ local Soul, super = Class(Object)
 function Soul:init(x, y)
     super:init(self, x, y)
 
-    self.color = {1, 0, 0, 1}
+    self:setColor(1, 0, 0)
 
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)
@@ -29,7 +29,6 @@ function Soul:init(x, y)
     self.timer = 0
     self.transitioning = false
     self.speed = 4
-    self.alpha = 0
 
     self.inv_timer = 0
     self.inv_flash_timer = 0
@@ -199,25 +198,12 @@ function Soul:moveYExact(amount, move_x)
     return true
 end
 
-function Soul:update(dt)
-    if self.transitioning then
-        if self.timer >= 7 then
-            self.transitioning = false
-            self.timer = 0
-            self:setExactPosition(self.target_x, self.target_y)
-        else
-            self:setExactPosition(
-                Utils.lerp(self.original_x, self.target_x, self.timer / 7),
-                Utils.lerp(self.original_y, self.target_y, self.timer / 7)
-            )
-            self.alpha = Utils.lerp(0, self.color[4], self.timer / 3)
-            self.sprite:setColor(self.color[1], self.color[2], self.color[3], self.alpha)
-            self.timer = self.timer + (1 * DTMULT)
-            return
-        end
-    end
+function Soul:onCollide(bullet)
+    -- Handles damage
+    bullet:onCollide(self)
+end
 
-
+function Soul:doMovement()
     local speed = self.speed
 
     -- Do speed calculations here if required.
@@ -235,6 +221,28 @@ function Soul:update(dt)
     if move_x ~= 0 or move_y ~= 0 then
         self:move(move_x, move_y, speed * DTMULT)
     end
+end
+
+function Soul:update(dt)
+    if self.transitioning then
+        if self.timer >= 7 then
+            self.transitioning = false
+            self.timer = 0
+            self:setExactPosition(self.target_x, self.target_y)
+        else
+            self:setExactPosition(
+                Utils.lerp(self.original_x, self.target_x, self.timer / 7),
+                Utils.lerp(self.original_y, self.target_y, self.timer / 7)
+            )
+            self.alpha = Utils.lerp(0, self.target_alpha or 1, self.timer / 3)
+            self.sprite:setColor(self.color[1], self.color[2], self.color[3], self.alpha)
+            self.timer = self.timer + (1 * DTMULT)
+            return
+        end
+    end
+
+    -- Input movement
+    self:doMovement()
 
     -- Bullet collision !!! Yay
     if self.inv_timer > 0 then
@@ -244,24 +252,7 @@ function Soul:update(dt)
     Object.startCache()
     for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
         if bullet:collidesWith(self.collider) then
-            if bullet.onCollide then
-                bullet:onCollide(self, false)
-            end
-            if self.inv_timer == 0 then
-                love.audio.newSource("assets/sounds/snd_hurt1.wav", "static"):play()
-
-                local battler = Game.battle.party[love.math.random(#Game.battle.party)]
-                battler:hurt(bullet.damage)
-
-                self.inv_timer = bullet.inv_timer
-
-                if bullet.onDamage then
-                    bullet:onDamage(self, true)
-                end
-            end
-            if bullet.destroy_on_hit then
-                bullet:remove()
-            end
+            self:onCollide(bullet)
         end
         if self.inv_timer == 0 then
             if bullet.tp ~= 0 and bullet:collidesWith(self.graze_collider) then
