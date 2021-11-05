@@ -23,7 +23,7 @@ end
 
 function ArenaSprite:draw()
     if self.background then
-        love.graphics.setColor(0, 0, 0)
+        love.graphics.setColor(self.arena:getBackgroundColor())
         for _,triangle in ipairs(self.arena.triangles) do
             love.graphics.polygon("fill", unpack(triangle))
         end
