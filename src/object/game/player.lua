@@ -98,7 +98,6 @@ end
 
 function Player:draw()
     -- Draw the player
-    --self.world.soul.alpha = 0
     super:draw(self)
 
     -- Now we need to draw their battle mode overlay
@@ -152,14 +151,7 @@ function Player:draw()
         love.graphics.draw(self.battle_canvas, -320 / 2, -240 / 2)
 
         love.graphics.setColor(1, 1, 1, 1)
-
     end
-
-    --love.graphics.push()
-    --self.world.soul:preDraw()
-    --self.world.soul:draw()
-    --self.world.soul:postDraw()
-    --love.graphics.pop()
 end
 
 return Player
