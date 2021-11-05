@@ -3,11 +3,11 @@ local DarkTransitionSparkle, super = Class(Sprite)
 function DarkTransitionSparkle:init(texture, x, y)
     super:init(self, texture, x, y)
 
-    self.image_speed = 0.5
     self.hspeed = (math.random() * 6) - 3
     self.friction = 0.05
     self.gravity = -0.1
     self.vspeed = 0
+    self:play(1/15)
 end
 
 function DarkTransitionSparkle:update(dt)
