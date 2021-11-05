@@ -1074,7 +1074,9 @@ function Battle:draw()
 
     super:draw(self)
 
-    self:drawDebug()
+    if DEBUG_RENDER then
+        self:drawDebug()
+    end
 end
 
 function Battle:drawBackground()
