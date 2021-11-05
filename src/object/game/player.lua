@@ -17,6 +17,10 @@ function Player:init(chara, x, y)
 
     self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
+
+    self.soul = OverworldSoul(10, 24) -- TODO: unhardcode
+    self.soul:setScale(0.5)
+    self:addChild(self.soul)
 end
 
 function Player:onAdd(parent)
@@ -83,6 +87,8 @@ function Player:update(dt)
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
+    self.soul.alpha = self.battle_alpha * 2
+
     super:update(self, dt)
 end
 
@@ -91,6 +97,7 @@ function Player:draw()
     super:draw(self)
 
     -- Now we need to draw their battle mode overlay
+    -- TODO: DRAW THE HEART *OVER* THE OVERLAY!!
     if self.battle_alpha > 0 then
         Draw.pushCanvas(self.battle_canvas)
 
@@ -141,6 +148,7 @@ function Player:draw()
         love.graphics.draw(self.battle_canvas, -320 / 2, -240 / 2)
 
         love.graphics.setColor(1, 1, 1, 1)
+
     end
 end
 
