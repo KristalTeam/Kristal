@@ -33,6 +33,9 @@ function Music:play(music, volume, pitch)
                 self.volume = volume
             end
             if self.current ~= music or not self.source or not self.source:isPlaying() then
+                if self.source then
+                    self.source:stop()
+                end
                 self.current = music
                 self.pitch = pitch or 1
                 self.source = love.audio.newSource(path, "stream")
