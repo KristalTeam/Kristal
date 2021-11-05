@@ -405,12 +405,15 @@ function World:update(dt)
         v.sprite:setColor(1 - self.battle_alpha, 1 - self.battle_alpha, 1 - self.battle_alpha, 1)
     end
 
-    self.battle_border.tile_opacity = (self.battle_alpha * 2)
+    if self.battle_border then
+        self.battle_border.tile_opacity = (self.battle_alpha * 2)
 
-    --self.battle_fader.layer = self.battle_border.layer - 1
-    self.battle_fader.color = {0, 0, 0, self.battle_alpha}
-    self.battle_fader.x = self.camera.x - 320
-    self.battle_fader.y = self.camera.y - 240
+        --self.battle_fader.layer = self.battle_border.layer - 1
+        self.battle_fader.color = {0, 0, 0, self.battle_alpha}
+        self.battle_fader.x = self.camera.x - 320
+        self.battle_fader.y = self.camera.y - 240
+    end
+
     -- Always sort
     self.update_child_list = true
     super:update(self, dt)

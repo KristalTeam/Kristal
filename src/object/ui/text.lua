@@ -41,6 +41,7 @@ function Text:resetState()
         waiting = 0,
         skipping = false,
         asterisk_mode = false,
+        escaping = false,
         typed_string = "",
         typing_sound = ""
     }
@@ -190,7 +191,9 @@ function Text:processNode(node)
             self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) + self.line_offset
             -- We don't want to wait on a newline, so...
             self.state.progress = self.state.progress + 1
-        else
+        elseif node.character == "\\" and not self.state.escaping then
+            self.state.escaping = true
+        elseif not self.state.escaping then
             if node.character == "*" then
                 if self.state.asterisk_mode and self.state.current_x == font:getWidth("* ") then -- TODO: PLEASE UNHARDCODE
                     self.state.current_x = 0
@@ -199,6 +202,12 @@ function Text:processNode(node)
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             local w, h = self:drawChar(node, self.state)
             self.state.current_x = self.state.current_x + w
+        else
+            self.state.escaping = false
+            if node.character == "\\" or node.character == "*" then
+                local w, h = self:drawChar(node, self.state)
+                self.state.current_x = self.state.current_x + w
+            end
         end
     else
         self:processModifier(node)
