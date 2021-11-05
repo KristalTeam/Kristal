@@ -15,6 +15,8 @@ function Player:init(chara, x, y)
     self.history_time = 0
     self.history = {}
 
+    self.battle_canvas = love.graphics.newCanvas(320, 240)
+    self.battle_alpha = 0
 end
 
 function Player:onAdd(parent)
@@ -75,7 +77,71 @@ function Player:update(dt)
         end
     end
 
+    if Game.world.in_battle then
+        self.battle_alpha = math.min(self.battle_alpha + (0.04 * DTMULT), 0.8)
+    else
+        self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
+    end
+
     super:update(self, dt)
+end
+
+function Player:draw()
+    -- Draw the player
+    super:draw(self)
+
+    -- Now we need to draw their battle mode overlay
+    if self.battle_alpha > 0 then
+        Draw.pushCanvas(self.battle_canvas)
+
+        -- Let's draw in the middle of the canvas so the left doesnt get cut off
+        -- There's more elegant ways to do this but whatever
+        -- TODO: make the canvas size fit to the player instead of forcing 320x240
+        love.graphics.translate(320 / 2, 240 / 2)
+
+        love.graphics.clear()
+
+        love.graphics.setShader(Kristal.Shaders["AddColor"])
+
+        -- Left
+        love.graphics.translate(-1, 0)
+        Kristal.Shaders["AddColor"]:send("inputcolor", {1, 0, 0})
+        Kristal.Shaders["AddColor"]:send("amount", 1)
+        super:draw(self)
+
+        -- Right
+        love.graphics.translate(2, 0)
+        Kristal.Shaders["AddColor"]:send("inputcolor", {1, 0, 0})
+        Kristal.Shaders["AddColor"]:send("amount", 1)
+        super:draw(self)
+
+        -- Up
+        love.graphics.translate(-1, -1)
+        Kristal.Shaders["AddColor"]:send("inputcolor", {1, 0, 0})
+        Kristal.Shaders["AddColor"]:send("amount", 1)
+        super:draw(self)
+
+        -- Down
+        love.graphics.translate(0, 2)
+        Kristal.Shaders["AddColor"]:send("inputcolor", {1, 0, 0})
+        Kristal.Shaders["AddColor"]:send("amount", 1)
+        super:draw(self)
+
+        -- Center
+        love.graphics.translate(0, -1)
+        Kristal.Shaders["AddColor"]:send("inputcolor", {32/255, 32/255, 32/255})
+        Kristal.Shaders["AddColor"]:send("amount", 1)
+        super:draw(self)
+
+        love.graphics.setShader()
+
+        Draw.popCanvas()
+
+        love.graphics.setColor(1, 1, 1, self.battle_alpha)
+        love.graphics.draw(self.battle_canvas, -320 / 2, -240 / 2)
+
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end
 
 return Player
