@@ -179,7 +179,7 @@ end
 function Registry.initEncounters()
     self.encounters = {}
 
-    for path,encounter in self.iterScripts("battles/encounters") do
+    for path,encounter in self.iterScripts("battle/encounters") do
         encounter.id = encounter.id or path
         self.registerEncounter(encounter.id, encounter)
     end
@@ -190,7 +190,7 @@ end
 function Registry.initEnemies()
     self.enemies = {}
 
-    for path,enemy in self.iterScripts("battles/enemies") do
+    for path,enemy in self.iterScripts("battle/enemies") do
         enemy.id = enemy.id or path
         self.registerEnemy(enemy.id, enemy)
     end
@@ -201,7 +201,7 @@ end
 function Registry.initWaves()
     self.waves = {}
 
-    for path,wave in self.iterScripts("battles/waves") do
+    for path,wave in self.iterScripts("battle/waves") do
         wave.id = wave.id or path
         self.registerWave(wave.id, wave)
     end
@@ -212,7 +212,7 @@ end
 function Registry.initBullets()
     self.bullets = {}
 
-    for path,bullet in self.iterScripts("battles/bullets") do
+    for path,bullet in self.iterScripts("battle/bullets") do
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
     end
