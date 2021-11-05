@@ -87,17 +87,15 @@ function Player:update(dt)
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
-    self.soul.alpha = self.battle_alpha * 2
-
     super:update(self, dt)
 end
 
 function Player:draw()
     -- Draw the player
+    self.soul.alpha = 0
     super:draw(self)
 
     -- Now we need to draw their battle mode overlay
-    -- TODO: DRAW THE HEART *OVER* THE OVERLAY!!
     if self.battle_alpha > 0 then
         Draw.pushCanvas(self.battle_canvas)
 
@@ -150,6 +148,13 @@ function Player:draw()
         love.graphics.setColor(1, 1, 1, 1)
 
     end
+    self.soul.alpha = self.battle_alpha * 2
+
+    love.graphics.push()
+    self.soul:preDraw()
+    self.soul:draw()
+    self.soul:postDraw()
+    love.graphics.pop()
 end
 
 return Player
