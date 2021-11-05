@@ -40,7 +40,7 @@ function TileLayer:draw()
         self.drawn = true
     end
 
-    local r, g, b, a = self:getColor()
+    local r, g, b, a = self:getDrawColor()
     love.graphics.setColor(r, g, b, a * self.tile_opacity)
     love.graphics.draw(self.canvas)
 
