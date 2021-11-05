@@ -4,7 +4,7 @@ function EnemyBattler:init(chara)
     super:init(self)
     self.name = "Test Enemy"
 
-    self.layer = -10
+    self.layer = LAYERS["battlers"]
 
     if chara then
         self:setCharacter(chara)

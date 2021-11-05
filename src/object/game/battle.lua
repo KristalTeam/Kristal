@@ -367,7 +367,6 @@ function Battle:spawnSoul(x, y)
         self.soul:transitionTo(x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2)
         self.soul.target_alpha = self.soul.alpha
         self.soul.alpha = 0
-        self.soul.layer = 20
         self:addChild(self.soul)
     end
 end

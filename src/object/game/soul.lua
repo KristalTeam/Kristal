@@ -5,6 +5,8 @@ function Soul:init(x, y)
 
     self:setColor(1, 0, 0)
 
+    self.layer = LAYERS["soul"]
+
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)
     self.sprite.inherit_color = true

@@ -6,7 +6,7 @@ function PartyBattler:init(chara, x, y)
 
     super:init(self, x, y, self.actor.width, self.actor.height)
 
-    self.layer = -10
+    self.layer = LAYERS["battlers"]
 
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "right"
