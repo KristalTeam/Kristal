@@ -11,10 +11,14 @@ function Assets.clear()
         fonts = {},
         font_data = {},
         font_image_data = {},
-        font_settings = {}
+        font_settings = {},
+        sound_data = {},
+        music = {},
     }
     self.frames_for = {}
     self.quads = {}
+    self.sounds = {}
+    self.music = nil
 end
 
 function Assets.loadData(data)
@@ -45,6 +49,14 @@ function Assets.loadData(data)
         local glyphs = data.font_settings[key] and data.font_settings[key]["glyphs"] or ""
         self.data.fonts[key] = love.graphics.newImageFont(image_data, glyphs)
     end
+
+    -- create single-instance audio sources
+    for key,sound_data in pairs(data.sound_data) do
+        local src = love.audio.newSource(sound_data)
+        self.sounds[key] = src
+    end
+    -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
+    self.data.sound_data = {}
 
     self.loaded = true
 end
@@ -93,6 +105,40 @@ end
 function Assets.getQuad(x, y, width, height, sw, sh)
     local idstr = x..","..y..","..width..","..sw..","..sh
     return self.quads[idstr] or love.graphics.newQuad(x, y, width, height, sw, sh)
+end
+
+function Assets.getSound(sound)
+    return self.sounds[sound]
+end
+
+function Assets.newSound(sound)
+    return self.sounds[sound]:clone()
+end
+
+function Assets.startSound(sound)
+    if self.sounds[sound] then
+        self.sounds[sound]:stop()
+        self.sounds[sound]:play()
+        return self.sounds[sound]
+    end
+end
+
+function Assets.playSound(sound, volume, pitch)
+    if self.sounds[sound] then
+        local src = self.sounds[sound]:clone()
+        if volume then
+            src:setVolume(volume)
+        end
+        if pitch then
+            src:setPitch(pitch)
+        end
+        src:play()
+        return src
+    end
+end
+
+function Assets.getMusicPath(music)
+    return self.data.music[music]
 end
 
 Assets.clear()

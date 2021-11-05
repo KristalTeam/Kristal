@@ -6,7 +6,7 @@ function Registry.initialize(preload)
         self.base_scripts = {}
         for _,path in ipairs(Utils.getFilesRecursive("data", ".lua")) do
             local chunk = love.filesystem.load("data/"..path..".lua")
-            self.base_scripts["scripts/data/"..path] = chunk
+            self.base_scripts["data/"..path] = chunk
         end
 
         Registry.initActors()
@@ -179,7 +179,7 @@ end
 function Registry.initEncounters()
     self.encounters = {}
 
-    for path,encounter in self.iterScripts("battles/encounters") do
+    for path,encounter in self.iterScripts("battle/encounters") do
         encounter.id = encounter.id or path
         self.registerEncounter(encounter.id, encounter)
     end
@@ -190,7 +190,7 @@ end
 function Registry.initEnemies()
     self.enemies = {}
 
-    for path,enemy in self.iterScripts("battles/enemies") do
+    for path,enemy in self.iterScripts("battle/enemies") do
         enemy.id = enemy.id or path
         self.registerEnemy(enemy.id, enemy)
     end
@@ -201,7 +201,7 @@ end
 function Registry.initWaves()
     self.waves = {}
 
-    for path,wave in self.iterScripts("battles/waves") do
+    for path,wave in self.iterScripts("battle/waves") do
         wave.id = wave.id or path
         self.registerWave(wave.id, wave)
     end
@@ -212,7 +212,7 @@ end
 function Registry.initBullets()
     self.bullets = {}
 
-    for path,bullet in self.iterScripts("battles/bullets") do
+    for path,bullet in self.iterScripts("battle/bullets") do
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
     end
@@ -220,10 +220,8 @@ function Registry.initBullets()
     Kristal.modCall("onRegisterBullets")
 end
 
-function Registry.iterScripts(path)
+function Registry.iterScripts(base_path)
     local result = {}
-
-    path = "scripts/"..path
 
     CLASS_NAME_GETTER = function(k)
         for _,v in ipairs(result) do
@@ -238,11 +236,11 @@ function Registry.iterScripts(path)
     local parsed = {}
     local addChunk, requireChunk, parse
 
-    addChunk = function(chunk, id)
+    addChunk = function(path, chunk, id)
         local success,a,b,c,d,e,f = pcall(chunk)
         if not success then
             if type(a) == "table" and a.included then
-                requireChunk(a.included)
+                requireChunk(path, a.included)
                 success,a,b,c,d,e,f = pcall(chunk)
                 if not success then
                     error(type(a) == "table" and a.msg or a)
@@ -256,7 +254,7 @@ function Registry.iterScripts(path)
             return a
         end
     end
-    requireChunk = function(req_id)
+    requireChunk = function(path, req_id)
         for full_path,chunk in pairs(chunks) do
             if not parsed[full_path] and full_path:sub(1, #path) == path then
                 local id = full_path:sub(#path + 1)
@@ -265,12 +263,12 @@ function Registry.iterScripts(path)
                 end
                 if id == req_id then
                     parsed[full_path] = true
-                    addChunk(chunk, id)
+                    addChunk(path, chunk, id)
                 end
             end
         end
     end
-    parse = function(_chunks)
+    parse = function(path, _chunks)
         chunks = _chunks
         parsed = {}
         for full_path,chunk in pairs(chunks) do
@@ -280,14 +278,14 @@ function Registry.iterScripts(path)
                     id = id:sub(2)
                 end
                 parsed[full_path] = true
-                addChunk(chunk, id)
+                addChunk(path, chunk, id)
             end
         end
     end
 
-    parse(self.base_scripts)
+    parse(base_path, self.base_scripts)
     if Mod then
-        parse(Mod.info.script_chunks)
+        parse("scripts/"..base_path, Mod.info.script_chunks)
     end
 
     CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER

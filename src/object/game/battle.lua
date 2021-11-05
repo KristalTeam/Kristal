@@ -5,14 +5,11 @@ function Battle:init()
 
     self.party = {}
 
-    self.music = nil
-    --self.music_file = music
-
     self.max_tension = 250
     self.tension = 0
 
-    self.ui_move = love.audio.newSource("assets/sounds/ui_move.wav", "static")
-    self.ui_select = love.audio.newSource("assets/sounds/ui_select.wav", "static")
+    self.ui_move = Assets.newSound("ui_move")
+    self.ui_select = Assets.newSound("ui_select")
 
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
     self.enemy_beginning_positions = {}
@@ -125,6 +122,14 @@ function Battle:postInit(state, encounter)
     self:setState(state)
     self.encounter = encounter()
 
+    if self.encounter.music then
+        self.music = Music()
+        Game.world.music.volume = 0
+        Game.world.music:pause()
+    else
+        self.music = Game.world.music
+    end
+
     --[[for _,enemy in ipairs(self.encounter.enemies) do
         local enemy_obj
         if type(enemy) == "string" then
@@ -211,12 +216,8 @@ end
 
 function Battle:onStateChange(old,new)
     if new == "INTRO" then
-        local src = love.audio.newSource("assets/sounds/snd_impact.wav", "static")
-        src:setVolume(0.7)
-        src:play()
-        local src2 = love.audio.newSource("assets/sounds/snd_weaponpull_fast.wav", "static")
-        src2:setVolume(0.8)
-        src2:play()
+        Assets.playSound("snd_impact", 0.7)
+        Assets.playSound("snd_weaponpull_fast", 0.8)
 
         for _,battler in ipairs(self.party) do
             battler:setAnimation("battle/intro")
@@ -270,16 +271,9 @@ function Battle:onStateChange(old,new)
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
 
-        if not self.music then
-            if not self.music_file then
-                self.music = love.audio.newSource("assets/music/battle.ogg", "stream")
-                self.music:setVolume(0.7)
-                self.music:setLooping(true)
-                self.music:play()
-            else
-                self.music = love.audio.newSource("assets/music/" .. self.music_file, "stream")
-                self.music:setLooping(true)
-                self.music:play()
+        if old == "INTRO" then
+            if self.encounter.music then
+                self.music:play(self.encounter.music)
             end
         end
 
@@ -367,7 +361,6 @@ function Battle:spawnSoul(x, y)
         self.soul:transitionTo(x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2)
         self.soul.target_alpha = self.soul.alpha
         self.soul.alpha = 0
-        self.soul.layer = 20
         self:addChild(self.soul)
     end
 end
@@ -556,7 +549,7 @@ function Battle:processAction(action)
         battler:setAnimation("battle/spare", function() self:finishAction(action) end)
         self:battleText(text)
     elseif action.action == "ATTACK" then
-        love.audio.newSource("assets/sounds/snd_laz_c.wav", "static"):play()
+        Assets.playSound("snd_laz_c")
         battler:setAnimation("battle/attack", function()
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
@@ -1081,7 +1074,9 @@ function Battle:draw()
 
     super:draw(self)
 
-    self:drawDebug()
+    if DEBUG_RENDER then
+        self:drawDebug()
+    end
 end
 
 function Battle:drawBackground()
@@ -1155,11 +1150,7 @@ function Battle:keypressed(key)
             self.party[self.current_selecting]:hurt(1)
         end
         if key == "m" then
-            if self.music:isPlaying() then
-                self.music:pause()
-            else
-                self.music:play()
-            end
+            MASTER_VOLUME = 1 - MASTER_VOLUME
         end
     end
 

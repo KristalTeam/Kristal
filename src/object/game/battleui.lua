@@ -3,6 +3,8 @@ local BattleUI, super = Class(Object)
 function BattleUI:init()
     super:init(self, 0, 480)
 
+    self.layer = LAYERS["ui"]
+
     self.encounter_text = DialogueText(Game.battle.encounter.text, 30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53)
     self.current_encounter_text = Game.battle.encounter.text
     self:addChild(self.encounter_text)

@@ -31,11 +31,10 @@ function ChaserEnemy:onCollide(player)
             self.sprite.aura = false
             Game.lock_input = true
             self.world.timer:script(function(wait)
-                love.audio.newSource("assets/sounds/snd_tensionhorn.wav", "static"):play()
+                Assets.playSound("snd_tensionhorn")
                 wait(8/30)
-                local src = love.audio.newSource("assets/sounds/snd_tensionhorn.wav", "static")
+                local src = Assets.playSound("snd_tensionhorn")
                 src:setPitch(1.1)
-                src:play()
                 wait(12/30)
                 ChaserEnemy.ENCOUNTERING = false
                 Game:encounter(encounter, true, self)

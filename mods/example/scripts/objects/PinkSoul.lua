@@ -32,6 +32,9 @@ function PinkSoul:doMovement()
     if move_x ~= 0 or move_y ~= 0 then
         self:move(move_x, move_y, speed * DTMULT)
     end
+
+    self.moving_x = move_x
+    self.moving_y = move_y
 end
 
 function PinkSoul:update(dt)

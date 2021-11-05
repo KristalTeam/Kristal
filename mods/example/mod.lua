@@ -43,8 +43,7 @@ function Mod:onKeyPressed(key)
                     Game.lock_input = false
                 end)
 
-                local src = love.audio.newSource("assets/sounds/snd_laz_c.wav", "static")
-                src:play()
+                Assets.playSound("snd_laz_c")
 
                 local attack_box = Hitbox(player, 13, -4, 25, 47)
 

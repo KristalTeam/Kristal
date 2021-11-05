@@ -9,8 +9,10 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 7,
-  nextobjectid = 78,
-  properties = {},
+  nextobjectid = 80,
+  properties = {
+    ["music"] = "cybercity"
+  },
   tilesets = {
     {
       name = "city_alley",
@@ -318,27 +320,16 @@ return {
       properties = {},
       objects = {
         {
-          id = 77,
+          id = 78,
           name = "virovirokun",
           type = "",
-          shape = "polyline",
-          x = 680,
-          y = 440,
-          width = 0,
-          height = 0,
+          shape = "ellipse",
+          x = 168.033,
+          y = 93.8198,
+          width = 425.574,
+          height = 378.984,
           rotation = 0,
           visible = true,
-          polyline = {
-            { x = 0, y = 0 },
-            { x = 0, y = -120 },
-            { x = -40, y = -160 },
-            { x = -160, y = -160 },
-            { x = -240, y = -200 },
-            { x = -300, y = -280 },
-            { x = -360, y = -200 },
-            { x = -400, y = -160 },
-            { x = -540, y = -160 }
-          },
           properties = {}
         }
       }
@@ -411,19 +402,6 @@ return {
           properties = {}
         },
         {
-          id = 52,
-          name = "banana",
-          type = "",
-          shape = "rectangle",
-          x = 120,
-          y = 280,
-          width = 40,
-          height = 40,
-          rotation = 0,
-          visible = true,
-          properties = {}
-        },
-        {
           id = 54,
           name = "transition",
           type = "",
@@ -453,7 +431,8 @@ return {
           properties = {
             ["actor"] = "virovirokun",
             ["encounter"] = "virovirokun",
-            ["path"] = "virovirokun"
+            ["path"] = "virovirokun",
+            ["progress"] = "-0.1"
           }
         }
       }

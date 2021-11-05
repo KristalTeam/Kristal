@@ -1,5 +1,6 @@
 ---@diagnostic disable: lowercase-global
 require("love.image")
+require("love.sound")
 
 json = require("src.lib.json")
 
@@ -58,7 +59,10 @@ function resetData()
             fonts = {},
             font_data = {},
             font_image_data = {},
-            font_settings = {}
+            font_settings = {},
+            sounds = {},
+            sound_data = {},
+            music = {}
         }
     }
 
@@ -66,7 +70,9 @@ function resetData()
         ["mods"] = {},
     
         ["sprites"] = {},
-        ["fonts"] = {}
+        ["fonts"] = {},
+        ["sounds"] = {},
+        ["music"] = {},
     }
 end
 
@@ -74,7 +80,7 @@ local loaders = {
 
     -- Mod Loader
 
-    ["mods"] = {"mods", function(baseDir, path, full_path)
+    ["mods"] = {"mods", function(base_dir, path, full_path)
         if love.filesystem.getInfo(full_path.."/mod.json") then
             local mod = json.decode(love.filesystem.read(full_path.."/mod.json"))
 
@@ -133,7 +139,7 @@ local loaders = {
 
     -- Asset Loaders
 
-    ["sprites"] = {"assets/sprites", function(baseDir, path, full_path)
+    ["sprites"] = {"assets/sprites", function(base_dir, path, full_path)
         local id = checkExtension(path, "png", "jpg")
         if id then
             data.assets.texture_data[id] = love.image.newImageData(full_path)
@@ -151,7 +157,7 @@ local loaders = {
             end
         end
     end},
-    ["fonts"] = {"assets/fonts", function(baseDir, path, full_path)
+    ["fonts"] = {"assets/fonts", function(base_dir, path, full_path)
         local id = checkExtension(path, "ttf")
         if id then
             data.assets.font_data[id] = love.filesystem.newFileData(full_path)
@@ -163,6 +169,18 @@ local loaders = {
         id = checkExtension(path, "json")
         if id then
             data.assets.font_settings[id] = json.decode(love.filesystem.read(full_path))
+        end
+    end},
+    ["sounds"] = {"assets/sounds", function(base_dir, path, full_path)
+        local id = checkExtension(path, "wav", "ogg")
+        if id then
+            data.assets.sound_data[id] = love.sound.newSoundData(full_path)
+        end
+    end},
+    ["music"] = {"assets/music", function(base_dir, path, full_path)
+        local id = checkExtension(path, "mp3", "wav", "ogg")
+        if id then
+            data.assets.music[id] = full_path
         end
     end}
 }

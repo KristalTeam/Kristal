@@ -5,6 +5,8 @@ function HeartBurst:init(x, y)
 
     self:setOrigin(0.5, 0.5)
 
+    self.layer = LAYERS["battlers"] + 1
+
     self.burst = 0
 
     self.heart_outline = Assets.getTexture("player/heart_outline")

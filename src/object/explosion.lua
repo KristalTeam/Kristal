@@ -16,8 +16,7 @@ function Explosion:init(x, y)
 end
 
 function Explosion:onAdd()
-    local explodsion = love.audio.newSource("assets/sounds/snd_badexplosion.wav", "static")
-    explodsion:play()
+    Assets.playSound("snd_badexplosion")
 end
 
 function Explosion:update(dt)

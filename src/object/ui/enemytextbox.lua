@@ -5,6 +5,8 @@ function EnemyTextbox:init(text, x, y)
 
     self:setOrigin(1, 0.5)
 
+    self.layer = LAYERS["above_arena"] - 1
+
     self.bubble_end = Assets.getTexture("ui/battle/bubble_end")
 
     self.font = Assets.getFont("plain")

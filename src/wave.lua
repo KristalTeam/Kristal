@@ -77,7 +77,7 @@ function Wave:spawnSprite(texture, x, y, layer)
     local sprite = Sprite(texture, x, y)
     sprite:setOrigin(0.5, 0.5)
     sprite:setScale(2)
-    sprite.layer = layer or 100
+    sprite.layer = layer or LAYERS["above_arena"]
     sprite.wave = self
     Game.battle:addChild(sprite)
     table.insert(self.objects, sprite)

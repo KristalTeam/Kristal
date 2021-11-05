@@ -3,8 +3,7 @@ local Bullet, super = Class(Object)
 function Bullet:init(x, y, texture)
     super:init(self, x, y)
 
-    -- idk whatever we'll do this later or something
-    self.layer = 100
+    self.layer = LAYERS["bullets"]
 
     -- Add a sprite, if we provide one
     if texture then

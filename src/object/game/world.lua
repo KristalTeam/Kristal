@@ -15,6 +15,8 @@ function World:init(map)
     -- states: GAMEPLAY, TRANSITION_OUT, TRANSITION_IN
     self.state = "GAMEPLAY"
 
+    self.music = Music()
+
     self.tile_width = 40
     self.tile_height = 40
     self.map_width = 16
@@ -158,6 +160,28 @@ function World:loadMap(map)
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.battle_fader.layer = self.layers["battle_fader"]
     self:addChild(self.battle_fader)
+
+    if map_data.properties["music"] and map_data.properties["music"] ~= "" then
+        if self.music.current ~= map_data.properties["music"] then
+            if self.music:isPlaying() then
+                self.music:fade(0, 0.1, function()
+                    self.music:play(map_data.properties["music"], 1)
+                end)
+            else
+                self.music:play(map_data.properties["music"], 1)
+            end
+        else
+            if not self.music:isPlaying() then
+                self.music:play(map_data.properties["music"], 1)
+            else
+                self.music:fade(1)
+            end
+        end
+    else
+        if self.music:isPlaying() then
+            self.music:fade(0, 0.1, function() self.music:stop() end)
+        end
+    end
 
     self:updateCamera()
 end
@@ -405,12 +429,16 @@ function World:update(dt)
         v.sprite:setColor(1 - self.battle_alpha, 1 - self.battle_alpha, 1 - self.battle_alpha, 1)
     end
 
-    self.battle_border.tile_opacity = (self.battle_alpha * 2)
+    if self.battle_border then
+        self.battle_border.tile_opacity = (self.battle_alpha * 2)
+    end
+    if self.battle_fader then
+        --self.battle_fader.layer = self.battle_border.layer - 1
+        self.battle_fader.color = {0, 0, 0, self.battle_alpha}
+        self.battle_fader.x = self.camera.x - 320
+        self.battle_fader.y = self.camera.y - 240
+    end
 
-    --self.battle_fader.layer = self.battle_border.layer - 1
-    self.battle_fader.color = {0, 0, 0, self.battle_alpha}
-    self.battle_fader.x = self.camera.x - 320
-    self.battle_fader.y = self.camera.y - 240
     -- Always sort
     self.update_child_list = true
     super:update(self, dt)

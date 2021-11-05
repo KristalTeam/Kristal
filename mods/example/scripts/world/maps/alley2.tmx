@@ -3,6 +3,9 @@
  <editorsettings>
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
+ <properties>
+  <property name="music" value="dogcheck"/>
+ </properties>
  <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley.tsx"/>
  <tileset firstgid="362" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
  <tileset firstgid="472" source="../../../assets/sprites/tilesets/street_edges.tsx"/>

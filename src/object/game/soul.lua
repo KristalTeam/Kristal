@@ -5,6 +5,8 @@ function Soul:init(x, y)
 
     self:setColor(1, 0, 0)
 
+    self.layer = LAYERS["soul"]
+
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)
     self.sprite.inherit_color = true
@@ -43,6 +45,9 @@ function Soul:init(x, y)
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
 
+    self.moving_x = 0
+    self.moving_y = 0
+
     self.noclip = false
 end
 
@@ -51,6 +56,10 @@ function Soul:transitionTo(x, y)
     self.target_x = x
     self.target_y = y
     self.timer = 0
+end
+
+function Soul:isMoving()
+    return self.moving_x ~= 0 or self.moving_y ~= 0
 end
 
 function Soul:getExactPosition(x, y)
@@ -221,6 +230,9 @@ function Soul:doMovement()
     if move_x ~= 0 or move_y ~= 0 then
         self:move(move_x, move_y, speed * DTMULT)
     end
+
+    self.moving_x = move_x
+    self.moving_y = move_y
 end
 
 function Soul:update(dt)
@@ -265,7 +277,7 @@ function Soul:update(dt)
                         self.graze_sprite.timer = 0.1
                     end
                 else
-                    love.audio.newSource("assets/sounds/snd_graze.wav", "static"):play()
+                    Assets.playSound("snd_graze")
                     Game.battle.tension_bar:giveTension(bullet.tp)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus / 30)

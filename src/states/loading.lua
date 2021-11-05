@@ -23,8 +23,8 @@ function Loading:enter(from, dir)
     self.h = self.logo:getHeight()
 
     if not Kristal.Config["skipIntro"] then
-        self.noise = love.audio.newSource("assets/sounds/kristal_intro.ogg", "stream")
-        self.end_noise = love.audio.newSource("assets/sounds/kristal_intro_end.ogg", "stream")
+        self.noise = love.audio.newSource("assets/sounds/kristal_intro.ogg", "static")
+        self.end_noise = love.audio.newSource("assets/sounds/kristal_intro_end.ogg", "static")
         self.noise:play()
     else
         self:beginLoad()

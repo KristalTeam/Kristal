@@ -13,6 +13,31 @@ MOD_LOADING = false
 
 DEBUG_RENDER = false
 
+LAYERS = {
+    [        "bottom"] = -1000,
+    ["below_battlers"] =  -200,
+    [      "battlers"] =  -100,
+    ["above_battlers"] =     0, --┰-- 0
+    [      "below_ui"] =     0, --┙
+    [            "ui"] =   100,
+    [      "above_ui"] =   200, --┰-- 200
+    [   "below_arena"] =   200, --┙
+    [         "arena"] =   300,
+    [   "above_arena"] =   400, --┰-- 400
+    [    "below_soul"] =   400, --┙
+    [          "soul"] =   500,
+    [    "above_soul"] =   600, --┰-- 600
+    [ "below_bullets"] =   600, --┙
+    [       "bullets"] =   700,
+    [ "above_bullets"] =   800,
+    [           "top"] =  1000
+}
+
+MUSIC_VOLUME = 1
+MUSIC_VOLUMES = {
+    ["battle"] = 0.7
+}
+
 COLORS = {
     aqua = {0, 1, 1, 1},
     black = {0, 0, 0, 1},
