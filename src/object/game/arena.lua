@@ -6,7 +6,7 @@ function Arena:init(x, y, shape)
     self:setOrigin(0.5, 0.5)
 
     self.color = {0, 0.75, 0}
-    self.bgColor = {0, 0, 0}
+    self.bg_color = {0, 0, 0}
 
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
@@ -60,6 +60,14 @@ function Arena:setShape(shape)
     for _,v in ipairs(edges) do
         table.insert(self.collider.colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
     end
+end
+
+function Arena:setBackgroundColor(r, g, b, a)
+    self.bg_color = {r, g, b, a or 1}
+end
+
+function Arena:getBackgroundColor()
+    return self.bg_color
 end
 
 function Arena:getCenter()
