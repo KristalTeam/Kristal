@@ -17,10 +17,6 @@ function Player:init(chara, x, y)
 
     self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
-
-    self.soul = OverworldSoul(10, 24) -- TODO: unhardcode
-    self.soul:setScale(0.5)
-    self:addChild(self.soul)
 end
 
 function Player:onAdd(parent)
@@ -95,12 +91,14 @@ function Player:update(dt)
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
+    self.world.soul.alpha = self.battle_alpha * 2
+
     super:update(self, dt)
 end
 
 function Player:draw()
     -- Draw the player
-    self.soul.alpha = 0
+    --self.world.soul.alpha = 0
     super:draw(self)
 
     -- Now we need to draw their battle mode overlay
@@ -156,13 +154,12 @@ function Player:draw()
         love.graphics.setColor(1, 1, 1, 1)
 
     end
-    self.soul.alpha = self.battle_alpha * 2
 
-    love.graphics.push()
-    self.soul:preDraw()
-    self.soul:draw()
-    self.soul:postDraw()
-    love.graphics.pop()
+    --love.graphics.push()
+    --self.world.soul:preDraw()
+    --self.world.soul:draw()
+    --self.world.soul:postDraw()
+    --love.graphics.pop()
 end
 
 return Player

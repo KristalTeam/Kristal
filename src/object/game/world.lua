@@ -5,10 +5,13 @@ function World:init(map)
 
 
     self.layers = {
-        ["tiles"] = 0,
-        ["battle_fader"] = 3,
+        ["tiles"]         = 0,
+        ["battle_fader"]  = 3,
         ["battle_border"] = 4,
-        ["objects"] = 10
+        ["objects"]       = 10,
+
+        ["soul"]          = 19,
+        ["bullets"]       = 20,
     }
 
 
@@ -30,6 +33,7 @@ function World:init(map)
 
     self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.player = nil
+    self.soul = nil
 
     self.battle_border = nil
 
@@ -96,9 +100,17 @@ function World:spawnPlayer(...)
     if self.player then
         self:removeChild(self.player)
     end
+    if self.soul then
+        self:removeChild(self.soul)
+    end
+
     self.player = Player(chara, x, y)
     self.player.layer = self.layers["objects"]
     self:addChild(self.player)
+
+    self.soul = OverworldSoul(x + 10, y + 24) -- TODO: unhardcode
+    self.soul.layer = self.layers["soul"]
+    self:addChild(self.soul)
 
     self.camera:lookAt(self.player.x, self.player.y)
     self:updateCamera()
@@ -417,7 +429,9 @@ function World:update(dt)
             if not obj.solid and obj.onCollide then
                 for _,char in ipairs(self.stage:getObjects(Character)) do
                     if obj:collidesWith(char) then
-                        table.insert(collided, {obj, char})
+                        if not obj:includes(OverworldSoul) then
+                            table.insert(collided, {obj, char})
+                        end
                     end
                 end
             end
@@ -456,6 +470,11 @@ function World:update(dt)
     -- Always sort
     self.update_child_list = true
     super:update(self, dt)
+
+    local bx, by = self.player:getRelativePos(self.player.width/2, self.player.height/2, self.soul.parent)
+    self.soul.x = bx + 1
+    self.soul.y = by + 11
+    -- TODO: unhardcode offset (???)
 end
 
 function World:draw()
