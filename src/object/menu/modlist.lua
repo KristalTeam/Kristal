@@ -3,7 +3,7 @@ local ModList, super = Class(Object)
 function ModList:init(x, y, width, height)
     super:init(self, x, y, width, height)
 
-    self.ui_move = love.audio.newSource("assets/sounds/ui_move.wav", "static")
+    self.ui_move = Assets.newSound("ui_move")
 
     self.scroll = 0
     self.scroll_target = 0

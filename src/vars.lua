@@ -33,6 +33,11 @@ LAYERS = {
     [           "top"] =  1000
 }
 
+MUSIC_VOLUME = 1
+MUSIC_VOLUMES = {
+    ["battle"] = 0.7
+}
+
 COLORS = {
     aqua = {0, 1, 1, 1},
     black = {0, 0, 0, 1},

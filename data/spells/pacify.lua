@@ -29,7 +29,7 @@ end
 
 function spell:onCast(user, target)
     if target.tired then
-        love.audio.newSource("assets/sounds/snd_spell_pacify.ogg", "static"):play()
+        Assets.playSound("snd_spell_pacify")
     end
 end
 

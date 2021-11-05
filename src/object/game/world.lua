@@ -15,6 +15,8 @@ function World:init(map)
     -- states: GAMEPLAY, TRANSITION_OUT, TRANSITION_IN
     self.state = "GAMEPLAY"
 
+    self.music = Music()
+
     self.tile_width = 40
     self.tile_height = 40
     self.map_width = 16
@@ -158,6 +160,28 @@ function World:loadMap(map)
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.battle_fader.layer = self.layers["battle_fader"]
     self:addChild(self.battle_fader)
+
+    if map_data.properties["music"] and map_data.properties["music"] ~= "" then
+        if self.music.current ~= map_data.properties["music"] then
+            if self.music:isPlaying() then
+                self.music:fade(0, 0.1, function()
+                    self.music:play(map_data.properties["music"], 1)
+                end)
+            else
+                self.music:play(map_data.properties["music"], 1)
+            end
+        else
+            if not self.music:isPlaying() then
+                self.music:play(map_data.properties["music"], 1)
+            else
+                self.music:fade(1)
+            end
+        end
+    else
+        if self.music:isPlaying() then
+            self.music:fade(0, 0.1, function() self.music:stop() end)
+        end
+    end
 
     self:updateCamera()
 end

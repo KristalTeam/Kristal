@@ -93,10 +93,8 @@ function EnemyBattler:addMercy(amount)
         if (amount <= 50) then pitch = 1.2 end
         if (amount <= 25) then pitch = 1.4 end
 
-        local src = love.audio.newSource("assets/sounds/snd_mercyadd.wav", "static")
-        src:setVolume(0.8)
+        local src = Assets.playSound("snd_mercyadd", 0.8)
         src:setPitch(pitch)
-        src:play()
     end
 
     self:statusMessage("mercy", amount)
@@ -153,7 +151,7 @@ function EnemyBattler:isXActionShort(battler)
 end
 
 function EnemyBattler:hurt(amount, battler)
-    love.audio.newSource("assets/sounds/snd_damage.wav", "static"):play()
+    Assets.playSound("snd_damage")
 
     self.health = self.health - amount
     self:statusMessage("damage", amount, battler and battler.chara.dmg_color)

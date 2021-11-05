@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="7" nextobjectid="78">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="7" nextobjectid="80">
  <editorsettings>
-  <export target="../../maps/alley.lua" format="lua"/>
+  <export target="alley.lua" format="lua"/>
  </editorsettings>
+ <properties>
+  <property name="music" value="cybercity"/>
+ </properties>
  <tileset firstgid="1" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
  <tileset firstgid="111" source="../../../assets/sprites/tilesets/alley.tsx"/>
  <tileset firstgid="472" source="../../../assets/sprites/tilesets/street_edges.tsx"/>
@@ -52,8 +55,8 @@
   </object>
  </objectgroup>
  <objectgroup color="#ff0000" id="6" name="paths">
-  <object id="77" name="virovirokun" x="680" y="440">
-   <polyline points="0,0 0,-120 -40,-160 -160,-160 -240,-200 -300,-280 -360,-200 -400,-160 -540,-160"/>
+  <object id="78" name="virovirokun" x="168.033" y="93.8198" width="425.574" height="378.984">
+   <ellipse/>
   </object>
  </objectgroup>
  <objectgroup color="#7f00ff" id="3" name="markers">
@@ -64,7 +67,6 @@
  </objectgroup>
  <objectgroup color="#ff00ff" id="2" name="objects">
   <object id="2" name="savepoint" x="360" y="185" width="40" height="40"/>
-  <object id="52" name="banana" x="120" y="280" width="40" height="40"/>
   <object id="54" name="transition" x="640" y="480" width="80" height="40">
    <properties>
     <property name="map" value="alley2"/>
@@ -76,6 +78,7 @@
     <property name="actor" value="virovirokun"/>
     <property name="encounter" value="virovirokun"/>
     <property name="path" value="virovirokun"/>
+    <property name="progress" value="-0.1"/>
    </properties>
   </object>
  </objectgroup>

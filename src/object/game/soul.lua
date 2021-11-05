@@ -277,7 +277,7 @@ function Soul:update(dt)
                         self.graze_sprite.timer = 0.1
                     end
                 else
-                    love.audio.newSource("assets/sounds/snd_graze.wav", "static"):play()
+                    Assets.playSound("snd_graze")
                     Game.battle.tension_bar:giveTension(bullet.tp)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus / 30)

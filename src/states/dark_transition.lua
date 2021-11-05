@@ -70,7 +70,7 @@ function DarkTransition:enter(previous, mod)
 
     self.sparestar = Assets.getFrames("effects/sparestar/sparestar")
 
-    self.snd_dtrans_square = love.audio.newSource("assets/sounds/snd_dtrans_square.ogg", "static")
+    self.snd_dtrans_square = Assets.newSound("snd_dtrans_square")
 
     self.spr_doorblack = Assets.getTexture("kristal/doorblack")
 
@@ -219,11 +219,7 @@ function DarkTransition:update(dt)
         if (self.linesfxtimer >= 4) then
             self.linesfxtimer = 0
 
-            local sidenoise = love.audio.newSource("assets/sounds/snd_dtrans_twinkle.ogg", "static")
-            sidenoise:setPitch(0.6 + (math.random() * 0.6))
-            sidenoise:setVolume(0.3)
-            sidenoise:play()
-
+            Assets.playSound("snd_dtrans_twinkle", 0.3, 0.6 + (math.random() * 0.6))
         end
     end
     if (self.friction ~= 0) then
@@ -344,8 +340,7 @@ function DarkTransition:draw(dont_clear)
                 --snd_free_all()
                 if (not self.skiprunback) then
                     --snd_play(snd_locker)
-                    local sound = love.audio.newSource("assets/sounds/snd_locker.wav", "static")
-                    sound:play()
+                    Assets.playSound("snd_locker")
 
                     self.doorblack = 1
                 end
@@ -368,8 +363,7 @@ function DarkTransition:draw(dont_clear)
 
             --snd_free_all()
             self.do_once = true
-            local sound = love.audio.newSource("assets/sounds/snd_locker.wav", "static")
-            sound:play()
+            Assets.playSound("snd_locker")
             -- Destroy the dark door object here...
             self.doorblack = 1
             self.sprite_index = 0
@@ -486,7 +480,7 @@ function DarkTransition:draw(dont_clear)
         end
     end
     if (self.soundcon == 1) then
-        self.dronesfx = love.audio.newSource("assets/sounds/snd_dtrans_drone.ogg", "stream")
+        self.dronesfx = Assets.newSound("snd_dtrans_drone")
 
         -- Volume starts at 0 and goes to 0.5 over 60 deltarune frames (2 seconds)
         -- This is handled at the top of update
@@ -645,8 +639,7 @@ function DarkTransition:draw(dont_clear)
             end
 
             if self.sparkles > 0 then
-                local sound = love.audio.newSource("assets/sounds/snd_sparkle_glock.wav", "static")
-                sound:play()
+                Assets.playSound("snd_sparkle_glock")
             end
 
             for i = 1, self.sparkles do
@@ -856,8 +849,7 @@ function DarkTransition:draw(dont_clear)
             end]]--
             if (self.susie_y >= self.final_y - self.susie_height) then
                 -- Since our final_y is configurable, play the sound here
-                local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
-                sound:play()
+                Assets.playSound("snd_dtrans_flip")
 
                 self.kris_sprite:setFrames(self.spr_kris_dw_landed)
 
@@ -927,8 +919,7 @@ function DarkTransition:draw(dont_clear)
         end
         if ((math.floor(self.timer) >= 27) and not self.do_once9) then
             self.do_once9 = true
-            local sound = love.audio.newSource("assets/sounds/snd_him_quick.ogg", "static")
-            sound:play()
+            Assets.playSound("snd_him_quick")
             --with (obj_mainchara) then
             --    x = -999
             --    cutscene = true

@@ -27,14 +27,11 @@ function Menu:enter()
     love.keyboard.setKeyRepeat(true)
 
     -- Load menu music
-    self.music = love.audio.newSource("assets/music/mod_menu.ogg", "stream")
-    self.music:setVolume(1)
-    self.music:setPitch(0.95)
-    self.music:setLooping(true)
-    self.music:play()
+    self.music = Music("mod_menu", 1, 0.95)
+    print(self.music:isPlaying())
 
-    self.ui_move = love.audio.newSource("assets/sounds/ui_move.wav", "static")
-    self.ui_select = love.audio.newSource("assets/sounds/ui_select.wav", "static")
+    self.ui_move = Assets.newSound("ui_move")
+    self.ui_select = Assets.newSound("ui_select")
 
     -- Initialize variables for the background animation
     self.fader_alpha = 1

@@ -19,8 +19,7 @@ function HeadObject:update(dt)
     if (self.breakcon == 2) then
         self.breaktimer = self.breaktimer + 1 * (dt * 30)
         if (self.breaktimer >= 4) then
-            local sound = love.audio.newSource("assets/sounds/snd_sparkle_glock.wav", "static")
-            sound:play()
+            Assets.playSound("snd_sparkle_glock")
 
             for i = 1, 30 do
                 local x, y = self:getRelativePos(0, 0, self.parent.parent)

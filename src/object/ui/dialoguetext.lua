@@ -86,8 +86,7 @@ function DialogueText:playTextSound(current_node)
     end
 
     if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
-        local src = love.audio.newSource("assets/sounds/" .. self.state.typing_sound .. ".wav", "static")
-        src:play()
+        Assets.playSound(self.state.typing_sound)
     end
 end
 

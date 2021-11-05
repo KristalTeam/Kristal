@@ -10,8 +10,7 @@ function Savepoint:init(data)
 end
 
 function Savepoint:onInteract(player, dir)
-    local sound = love.audio.newSource("assets/sounds/snd_power.wav", "static")
-    sound:play()
+    Assets.playSound("snd_power")
 
     --local text = DialogueText("* The power of [color:pink]test dialogue[color:reset]\nshines within you.")
     --text.x = SCREEN_WIDTH/2 - ((28 / 2) * 16)

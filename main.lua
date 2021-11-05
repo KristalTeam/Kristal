@@ -30,6 +30,7 @@ Kristal.States = {
 Game = Kristal.States["Game"]
 
 Assets = require("src.assets")
+Music = require("src.music")
 Input = require("src.input")
 Registry = require("src.registry")
 Draw = require("src.draw")
@@ -154,6 +155,9 @@ function love.load(args)
     -- initialize overlay
     Kristal.Overlay:init()
 
+    -- initialize music
+    Music.init()
+
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
@@ -225,6 +229,7 @@ function love.update(dt)
     DTMULT = dt * 30
 
     Timer.update(dt)
+    Music.update(dt)
 
     if load_waiting > 0 then
         local msg = load_out_channel:pop()

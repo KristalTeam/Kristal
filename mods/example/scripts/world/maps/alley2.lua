@@ -10,7 +10,9 @@ return {
   tileheight = 40,
   nextlayerid = 5,
   nextobjectid = 46,
-  properties = {},
+  properties = {
+    ["music"] = "dogcheck"
+  },
   tilesets = {
     {
       name = "alley",

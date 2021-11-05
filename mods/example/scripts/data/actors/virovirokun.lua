@@ -4,6 +4,8 @@ return {
     width = 38,
     height = 51,
 
+    hitbox = {0, 25, 38, 26},
+
     flip = "right",
 
     path = "enemies/virovirokun",

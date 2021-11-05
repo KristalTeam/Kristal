@@ -29,7 +29,7 @@ function PartyBattler:init(chara, x, y)
 end
 
 function PartyBattler:hurt(amount)
-    love.audio.newSource("assets/sounds/snd_hurt1.wav", "static"):play()
+    Assets.playSound("snd_hurt1")
 
     self.chara.health = self.chara.health - amount
     self:statusMessage("damage", amount)
@@ -45,7 +45,7 @@ function PartyBattler:hurt(amount)
 end
 
 function PartyBattler:heal(amount)
-    love.audio.newSource("assets/sounds/snd_power.wav", "static"):play()
+    Assets.playSound("snd_power")
     self.chara.health = self.chara.health + amount
 
     local offset = self.sprite:getOffset()

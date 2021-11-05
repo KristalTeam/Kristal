@@ -8,8 +8,7 @@ function Banana:init(data)
 end
 
 function Banana:onCollide(player)
-    local src = love.audio.newSource("assets/sounds/snd_item.wav", "static")
-    src:play()
+    Assets.playSound("snd_item")
 
     self:remove()
 end
