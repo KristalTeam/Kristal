@@ -72,6 +72,9 @@ function Battle:init()
     self.arena = nil
     self.soul = nil
 
+    self.mask = ArenaMask()
+    self:addChild(self.mask)
+
     self.character_actions = {}
 
     self.current_actions = {}

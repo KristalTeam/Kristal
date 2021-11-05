@@ -50,23 +50,27 @@ function Wave:clear()
 end
 
 function Wave:spawnBullet(bullet, x, y, ...)
+    return self:spawnBulletTo(Game.battle, bullet, x, y, ...)
+end
+
+function Wave:spawnBulletTo(parent, bullet, x, y, ...)
     if isClass(bullet) and bullet:includes(Bullet) then
         bullet.wave = self
-        Game.battle:addChild(bullet)
+        parent:addChild(bullet)
         table.insert(self.bullets, bullet)
         table.insert(self.objects, bullet)
         return bullet
     elseif Registry.getBullet(bullet) then
         local new_bullet = Registry.createBullet(bullet, x, y, ...)
         new_bullet.wave = self
-        Game.battle:addChild(new_bullet)
+        parent:addChild(new_bullet)
         table.insert(self.bullets, new_bullet)
         table.insert(self.objects, new_bullet)
         return new_bullet
     else
         local new_bullet = Bullet(x, y, bullet, ...)
         new_bullet.wave = self
-        Game.battle:addChild(new_bullet)
+        parent:addChild(new_bullet)
         table.insert(self.bullets, new_bullet)
         table.insert(self.objects, new_bullet)
         return new_bullet
@@ -74,12 +78,16 @@ function Wave:spawnBullet(bullet, x, y, ...)
 end
 
 function Wave:spawnSprite(texture, x, y, layer)
+    return self:spawnSpriteTo(Game.battle, texture, x, y, layer)
+end
+
+function Wave:spawnSpriteTo(parent, texture, x,  y, layer)
     local sprite = Sprite(texture, x, y)
     sprite:setOrigin(0.5, 0.5)
     sprite:setScale(2)
     sprite.layer = layer or LAYERS["above_arena"]
     sprite.wave = self
-    Game.battle:addChild(sprite)
+    parent:addChild(sprite)
     table.insert(self.objects, sprite)
     return sprite
 end

@@ -328,22 +328,29 @@ function Object:getTransform()
     end
 end
 
-function Object:getFullTransform()
-    if Object.CACHE_TRANSFORMS then
-        if not Object.CACHED_FULL[self] then
+function Object:getFullTransform(i)
+    i = i or 0
+    if i <= 0 then
+        if Object.CACHE_TRANSFORMS then
+            if not Object.CACHED_FULL[self] then
+                if not self.parent then
+                    Object.CACHED_FULL[self] = self:getTransform()
+                else
+                    Object.CACHED_FULL[self] = self.parent:getFullTransform() * self:getTransform()
+                end
+            end
+            return Object.CACHED_FULL[self]
+        else
             if not self.parent then
-                Object.CACHED_FULL[self] = self:getTransform()
+                return self:getTransform()
             else
-                Object.CACHED_FULL[self] = self.parent:getFullTransform() * self:getTransform()
+                return self.parent:getFullTransform():apply(self:getTransform())
             end
         end
-        return Object.CACHED_FULL[self]
+    elseif self.parent then
+        return self.parent:getFullTransform(i - 1)
     else
-        if not self.parent then
-            return self:getTransform()
-        else
-            return self.parent:getFullTransform():apply(self:getTransform())
-        end
+        return love.math.newTransform()
     end
 end
 

@@ -24,9 +24,7 @@ end
 function ArenaSprite:draw()
     if self.background then
         love.graphics.setColor(self.arena:getBackgroundColor())
-        for _,triangle in ipairs(self.arena.triangles) do
-            love.graphics.polygon("fill", unpack(triangle))
-        end
+        self:drawBackground()
     end
 
     super:draw(self)
@@ -38,6 +36,12 @@ function ArenaSprite:draw()
     love.graphics.setLineStyle("rough")
     love.graphics.setLineWidth(self.arena.line_width)
     love.graphics.line(unpack(self.arena.border_line))
+end
+
+function ArenaSprite:drawBackground()
+    for _,triangle in ipairs(self.arena.triangles) do
+        love.graphics.polygon("fill", unpack(triangle))
+    end
 end
 
 return ArenaSprite
