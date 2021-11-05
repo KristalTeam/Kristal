@@ -269,7 +269,7 @@ function DarkTransition:draw(dont_clear)
         self.prior_state:draw() -- Draw the last state we were in
     end
 
-    love.graphics.setCanvas(self.canvas)
+    love.graphics.setCanvas{self.canvas, stencil=true}
     love.graphics.clear()
 
     if self.megablack then

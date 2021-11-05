@@ -36,7 +36,7 @@ function Draw.pushCanvas(...)
         self._locked_canvas[canvas] = true
         self._used_canvas[canvas] = true
     end
-    love.graphics.setCanvas(canvas)
+    love.graphics.setCanvas{canvas, stencil=true}
     love.graphics.push()
     love.graphics.origin()
     if clear_canvas then

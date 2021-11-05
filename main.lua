@@ -92,6 +92,7 @@ GrazeSprite = require("src.object.game.grazesprite")
 Soul = require("src.object.game.soul")
 Arena = require("src.object.game.arena")
 ArenaSprite = require("src.object.game.arenasprite")
+ArenaMask = require("src.object.game.arenamask")
 Bullet = require("src.object.game.bullet")
 
 Event = require("src.object.game.event")
@@ -186,7 +187,7 @@ function love.load(args)
 
         love.graphics.reset()
 
-        love.graphics.setCanvas(SCREEN_CANVAS)
+        love.graphics.setCanvas{SCREEN_CANVAS, stencil=true}
         love.graphics.clear()
         orig(...)
         Kristal.Overlay:draw()

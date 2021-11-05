@@ -9,7 +9,7 @@ function AfterImage:init(sprite, fade, speed)
     self:fadeOutAndRemove(speed)
 
     self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-    love.graphics.setCanvas(self.canvas)
+    love.graphics.setCanvas{self.canvas, stencil=true}
     love.graphics.push()
     love.graphics.origin()
     love.graphics.clear()

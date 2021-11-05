@@ -18,6 +18,9 @@ function Arena:init(x, y, shape)
 
     self.sprite = ArenaSprite(self)
     self:addChild(self.sprite)
+
+    self.mask = ArenaMask(1, 0, 0, self)
+    self:addChild(self.mask)
 end
 
 function Arena:setSize(width, height)
@@ -191,6 +194,14 @@ function Arena:update(dt)
         end
         Object.endCache()
     end
+end
+
+function Arena:drawMask()
+    love.graphics.push()
+    self.sprite:preDraw()
+    self.sprite:drawBackground()
+    self.sprite:postDraw()
+    love.graphics.pop()
 end
 
 function Arena:draw()
