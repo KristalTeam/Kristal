@@ -81,7 +81,15 @@ function Player:update(dt)
         end
     end
 
-    if Game.world.in_battle then
+    self.world.in_battle = false
+    for _,area in ipairs(self.world.battle_areas) do
+        if area:collidesWith(self.collider) then
+            self.world.in_battle = true
+            break
+        end
+    end
+
+    if self.world.in_battle then
         self.battle_alpha = math.min(self.battle_alpha + (0.04 * DTMULT), 0.8)
     else
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)

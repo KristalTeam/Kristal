@@ -26,6 +26,7 @@ function World:init(map)
     self.collision = {}
     self.tile_layers = {}
     self.markers = {}
+    self.battle_areas = {}
 
     self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.player = nil
@@ -132,6 +133,7 @@ function World:loadMap(map)
     end
 
     self.collision = {}
+    self.battle_areas = {}
     self.tile_layers = {}
     self.markers = {}
     self.paths = {}
@@ -148,6 +150,8 @@ function World:loadMap(map)
                 self:loadCollision(layer)
             elseif layer.name == "paths" then
                 self:loadPaths(layer)
+            elseif layer.name == "battleareas" then
+                self:loadBattleAreas(layer)
             end
         end
     end
@@ -199,18 +203,28 @@ function World:loadTiles(layer)
 end
 
 function World:loadCollision(layer)
+    self.collision = self:loadHitboxes(layer)
+end
+
+function World:loadBattleAreas(layer)
+    self.battle_areas = self:loadHitboxes(layer)
+end
+
+function World:loadHitboxes(layer)
+    local hitboxes = {}
     for _,v in ipairs(layer.objects) do
         if v.shape == "rectangle" then
-            table.insert(self.collision, Hitbox(self, v.x, v.y, v.width, v.height))
+            table.insert(hitboxes, Hitbox(self, v.x, v.y, v.width, v.height))
         elseif v.shape == "polygon" then
             for i = 1, #v.polygon do
                 local j = (i % #v.polygon) + 1
                 local x1, y1 = v.x + v.polygon[i].x, v.y + v.polygon[i].y
                 local x2, y2 = v.x + v.polygon[j].x, v.y + v.polygon[j].y
-                table.insert(self.collision, LineCollider(self, x1, y1, x2, y2))
+                table.insert(hitboxes, LineCollider(self, x1, y1, x2, y2))
             end
         end
     end
+    return hitboxes
 end
 
 function World:loadMarkers(layer)

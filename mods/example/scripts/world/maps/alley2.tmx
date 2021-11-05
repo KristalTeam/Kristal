@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="46">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="47">
  <editorsettings>
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
@@ -97,5 +97,8 @@
   <object id="25" name="spawn" x="600" y="820">
    <point/>
   </object>
+ </objectgroup>
+ <objectgroup color="#ff7fff" id="5" name="battleareas">
+  <object id="46" x="200" y="200" width="840" height="720"/>
  </objectgroup>
 </map>

@@ -1,15 +1,15 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.7.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 30,
   height = 30,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 5,
-  nextobjectid = 46,
+  nextlayerid = 6,
+  nextobjectid = 47,
   properties = {
     ["music"] = "dogcheck"
   },
@@ -630,6 +630,34 @@ return {
           y = 820,
           width = 0,
           height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 5,
+      name = "battleareas",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 46,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 200,
+          y = 200,
+          width = 840,
+          height = 720,
           rotation = 0,
           visible = true,
           properties = {}
