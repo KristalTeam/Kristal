@@ -404,6 +404,18 @@ function Object:removeChild(child)
     self.update_child_list = true
 end
 
+function Object:setParent(parent)
+    if self.parent ~= parent then
+        local old_parent = self.parent
+        if parent then
+            parent:addChild(self)
+        end
+        if old_parent then
+            old_parent:removeChild(self)
+        end
+    end
+end
+
 --[[ Internal functions ]]--
 
 function Object:sortChildren()

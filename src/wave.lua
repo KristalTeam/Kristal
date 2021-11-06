@@ -56,31 +56,27 @@ function Wave:clear()
 end
 
 function Wave:spawnBullet(bullet, x, y, ...)
-    return self:spawnBulletTo(Game.battle, bullet, x, y, ...)
+    return self:spawnBulletTo(nil, bullet, x, y, ...)
 end
 
 function Wave:spawnBulletTo(parent, bullet, x, y, ...)
+    local new_bullet
     if isClass(bullet) and bullet:includes(Bullet) then
-        bullet.wave = self
-        parent:addChild(bullet)
-        table.insert(self.bullets, bullet)
-        table.insert(self.objects, bullet)
-        return bullet
+        new_bullet = bullet
     elseif Registry.getBullet(bullet) then
-        local new_bullet = Registry.createBullet(bullet, x, y, ...)
-        new_bullet.wave = self
-        parent:addChild(new_bullet)
-        table.insert(self.bullets, new_bullet)
-        table.insert(self.objects, new_bullet)
-        return new_bullet
+        new_bullet = Registry.createBullet(bullet, x, y, ...)
     else
-        local new_bullet = Bullet(x, y, bullet, ...)
-        new_bullet.wave = self
-        parent:addChild(new_bullet)
-        table.insert(self.bullets, new_bullet)
-        table.insert(self.objects, new_bullet)
-        return new_bullet
+        new_bullet = Bullet(x, y, bullet, ...)
     end
+    new_bullet.wave = self
+    table.insert(self.bullets, new_bullet)
+    table.insert(self.objects, new_bullet)
+    if parent then
+        new_bullet:setParent(parent)
+    elseif not new_bullet.parent then
+        Game.battle:addChild(new_bullet)
+    end
+    return new_bullet
 end
 
 function Wave:spawnSprite(texture, x, y, layer)
