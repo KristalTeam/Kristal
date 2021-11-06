@@ -401,9 +401,9 @@ function Utils.randomSign()
     return love.math.random() < 0.5 and 1 or -1
 end
 
-function Utils.filter(table, filter)
+function Utils.filter(tbl, filter)
     local t = {}
-    for _,v in ipairs(table) do
+    for _,v in ipairs(tbl) do
         if filter(v) then
             table.insert(t, v)
         end
@@ -411,9 +411,9 @@ function Utils.filter(table, filter)
     return t
 end
 
-function Utils.pick(table, sort)
-    table = sort and Utils.filter(table, sort) or table
-    return table[love.math.random(#table)]
+function Utils.pick(tbl, sort)
+    tbl = sort and Utils.filter(tbl, sort) or tbl
+    return tbl[love.math.random(#tbl)]
 end
 
 function Utils.angle(x1,y1, x2,y2)
