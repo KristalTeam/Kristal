@@ -170,7 +170,8 @@ function World:loadMap(map)
     local first_battle_border = 0
     for i,layer in ipairs(map_data.layers) do
         local depth = getDepth(i)
-        if first_battle_border == 0 and layer.name == "battleborder" then
+        local name = Utils.split(layer.name, "_")[1]
+        if first_battle_border == 0 and name == "battleborder" then
             first_battle_border = i
         end
         if layer.type == "tilelayer" then
@@ -178,16 +179,16 @@ function World:loadMap(map)
         elseif layer.type == "imagelayer" then
             self:loadImage(layer, depth)
         elseif layer.type == "objectgroup" then
-            if layer.name == "objects" then
+            if name == "objects" then
                 table.insert(object_depths, depth)
                 self:loadObjects(layer, depth)
-            elseif layer.name == "markers" then
+            elseif name == "markers" then
                 self:loadMarkers(layer)
-            elseif layer.name == "collision" then
+            elseif name == "collision" then
                 self:loadCollision(layer)
-            elseif layer.name == "paths" then
+            elseif name == "paths" then
                 self:loadPaths(layer)
-            elseif layer.name == "battleareas" then
+            elseif name == "battleareas" then
                 self:loadBattleAreas(layer)
             end
         end
