@@ -49,6 +49,7 @@ function Soul:init(x, y)
     self.moving_y = 0
 
     self.noclip = false
+    self.slope_correction = true
 end
 
 function Soul:transitionTo(x, y)
@@ -136,21 +137,23 @@ function Soul:moveXExact(amount, move_y)
         if not self.noclip then
             Object.startCache()
             local collided, target = Game.battle:checkSolidCollision(self)
-            if collided and not (move_y > 0) then
-                for i = 1, 2 do
-                    Object.uncache(self)
-                    self.y = self.y - i
-                    collided, target = Game.battle:checkSolidCollision(self)
-                    if not collided then break end
+            if self.slope_correction then
+                if collided and not (move_y > 0) then
+                    for i = 1, 2 do
+                        Object.uncache(self)
+                        self.y = self.y - i
+                        collided, target = Game.battle:checkSolidCollision(self)
+                        if not collided then break end
+                    end
                 end
-            end
-            if collided and not (move_y < 0) then
-                self.y = last_y
-                for i = 1, 2 do
-                    Object.uncache(self)
-                    self.y = self.y + i
-                    collided, target = Game.battle:checkSolidCollision(self)
-                    if not collided then break end
+                if collided and not (move_y < 0) then
+                    self.y = last_y
+                    for i = 1, 2 do
+                        Object.uncache(self)
+                        self.y = self.y + i
+                        collided, target = Game.battle:checkSolidCollision(self)
+                        if not collided then break end
+                    end
                 end
             end
             Object.endCache()
@@ -183,21 +186,23 @@ function Soul:moveYExact(amount, move_x)
         if not self.noclip then
             Object.startCache()
             local collided, target = Game.battle:checkSolidCollision(self)
-            if collided and not (move_x > 0) then
-                for i = 1, 2 do
-                    Object.uncache(self)
-                    self.x = self.x - i
-                    collided, target = Game.battle:checkSolidCollision(self)
-                    if not collided then break end
+            if self.slope_correction then
+                if collided and not (move_x > 0) then
+                    for i = 1, 2 do
+                        Object.uncache(self)
+                        self.x = self.x - i
+                        collided, target = Game.battle:checkSolidCollision(self)
+                        if not collided then break end
+                    end
                 end
-            end
-            if collided and not (move_x < 0) then
-                self.x = last_x
-                for i = 1, 2 do
-                    Object.uncache(self)
-                    self.x = self.x + i
-                    collided, target = Game.battle:checkSolidCollision(self)
-                    if not collided then break end
+                if collided and not (move_x < 0) then
+                    self.x = last_x
+                    for i = 1, 2 do
+                        Object.uncache(self)
+                        self.x = self.x + i
+                        collided, target = Game.battle:checkSolidCollision(self)
+                        if not collided then break end
+                    end
                 end
             end
             Object.endCache()

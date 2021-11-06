@@ -122,13 +122,20 @@ end
 -- Internal Functions --
 
 function Registry.initObjects()
-    for path,object in self.iterScripts("objects") do
-        local id = object.id or path
-        --[[if _G[id] then
-            error("Registered existing object: "..id)
-        else
-            _G[id] = object
-        end]]
+    for _,path,object in self.iterScripts("objects") do
+        local path_tbl = Utils.split(path, "/")
+        local new_path = path_tbl[#path_tbl]
+
+        local id = object.id or new_path
+
+        if id:lower() == id then
+            print("WARNING: Object '"..id.."' registered in lowercase!")
+        end
+
+        if _G[id] then
+            print("WARNING: Object '"..id.."' already exists, replacing")
+        end
+
         _G[id] = object
     end
 
@@ -138,7 +145,7 @@ end
 function Registry.initActors()
     self.actors = {}
 
-    for path,actor in self.iterScripts("data/actors") do
+    for _,path,actor in self.iterScripts("data/actors") do
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
     end
@@ -149,7 +156,7 @@ end
 function Registry.initPartyMembers()
     self.party_members = {}
 
-    for path,char in self.iterScripts("data/party") do
+    for _,path,char in self.iterScripts("data/party") do
         char.id = char.id or path
         self.registerPartyMember(char.id, char)
     end
@@ -158,7 +165,7 @@ end
 function Registry.initItems()
     self.items = {}
 
-    for path,item in self.iterScripts("data/items") do
+    for _,path,item in self.iterScripts("data/items") do
         item.id = item.id or path
         self.registerItem(item.id, item)
     end
@@ -169,7 +176,7 @@ end
 function Registry.initSpells()
     self.spells = {}
 
-    for path,spell in self.iterScripts("data/spells") do
+    for _,path,spell in self.iterScripts("data/spells") do
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
     end
@@ -180,7 +187,7 @@ end
 function Registry.initEncounters()
     self.encounters = {}
 
-    for path,encounter in self.iterScripts("battle/encounters") do
+    for _,path,encounter in self.iterScripts("battle/encounters") do
         encounter.id = encounter.id or path
         self.registerEncounter(encounter.id, encounter)
     end
@@ -191,7 +198,7 @@ end
 function Registry.initEnemies()
     self.enemies = {}
 
-    for path,enemy in self.iterScripts("battle/enemies") do
+    for _,path,enemy in self.iterScripts("battle/enemies") do
         enemy.id = enemy.id or path
         self.registerEnemy(enemy.id, enemy)
     end
@@ -202,7 +209,7 @@ end
 function Registry.initWaves()
     self.waves = {}
 
-    for path,wave in self.iterScripts("battle/waves") do
+    for _,path,wave in self.iterScripts("battle/waves") do
         wave.id = wave.id or path
         self.registerWave(wave.id, wave)
     end
@@ -213,7 +220,7 @@ end
 function Registry.initBullets()
     self.bullets = {}
 
-    for path,bullet in self.iterScripts("battle/bullets") do
+    for _,path,bullet in self.iterScripts("battle/bullets") do
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
     end
@@ -237,7 +244,7 @@ function Registry.iterScripts(base_path)
     local parsed = {}
     local addChunk, requireChunk, parse
 
-    addChunk = function(path, chunk, id)
+    addChunk = function(path, chunk, id, full_path)
         local success,a,b,c,d,e,f = pcall(chunk)
         if not success then
             if type(a) == "table" and a.included then
@@ -246,12 +253,12 @@ function Registry.iterScripts(base_path)
                 if not success then
                     error(type(a) == "table" and a.msg or a)
                 end
-                table.insert(result, {out = {a,b,c,d,e,f}, path = id})
+                table.insert(result, {out = {a,b,c,d,e,f}, path = id, full_path = full_path})
             else
                 error(a)
             end
         else
-            table.insert(result, {out = {a,b,c,d,e,f}, path = id})
+            table.insert(result, {out = {a,b,c,d,e,f}, path = id, full_path = full_path})
             return a
         end
     end
@@ -264,7 +271,7 @@ function Registry.iterScripts(base_path)
                 end
                 if id == req_id then
                     parsed[full_path] = true
-                    addChunk(path, chunk, id)
+                    addChunk(path, chunk, id, full_path)
                 end
             end
         end
@@ -279,7 +286,7 @@ function Registry.iterScripts(base_path)
                     id = id:sub(2)
                 end
                 parsed[full_path] = true
-                addChunk(path, chunk, id)
+                addChunk(path, chunk, id, full_path)
             end
         end
     end
@@ -297,7 +304,7 @@ function Registry.iterScripts(base_path)
     return function()
         i = i + 1
         if i <= n then
-            return result[i].path, unpack(result[i].out)
+            return result[i].full_path, result[i].path, unpack(result[i].out)
         end
     end
 end

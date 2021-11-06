@@ -1,6 +1,12 @@
 local Event, super = Class(Object)
 
 function Event:init(x, y, w, h, o)
+    if type(x) == "table" then
+        self.data = x
+        x, y = self.data.x, self.data.y
+        w, h = self.data.width, self.data.height
+    end
+
     super:init(self, x, y, w, h)
 
     -- Whether this object should stop the player
