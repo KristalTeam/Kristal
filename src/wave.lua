@@ -10,6 +10,12 @@ function Wave:init()
     -- Wave arena shape (overrides all rectangle options)
     self.arena_shape = nil
 
+    -- Position the soul will transition to at the start of the wave
+    self.soul_start_x = nil
+    self.soul_start_y = nil
+    self.soul_offset_x = nil
+    self.soul_offset_y = nil
+
     -- Seconds the wave will last (-1 for infinite)
     self.time = 5
 
@@ -124,6 +130,24 @@ function Wave:setArenaShape(...)
 
     if Game.battle.arena then
         Game.battle.arena:setShape({...})
+    end
+end
+
+function Wave:setSoulPosition(x, y)
+    self.soul_start_x = x
+    self.soul_start_y = y
+
+    if Game.battle.soul then
+        Game.battle.soul:setExactPosition(x, y)
+    end
+end
+
+function Wave:setSoulOffset(x, y)
+    self.soul_offset_x = x
+    self.soul_offset_y = y
+
+    if Game.battle.soul then
+        Game.battle.soul:move(x or 0, y or 0)
     end
 end
 

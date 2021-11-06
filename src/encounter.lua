@@ -83,8 +83,13 @@ function Encounter:onDialogueEnd()
     -- Will be referenced in battle
     self.current_waves = self:selectWaves()
 
+    local soul_x, soul_y, soul_offset_x, soul_offset_y
     local arena_x, arena_y, arena_w, arena_h, arena_shape
     for _,wave in ipairs(self.current_waves) do
+        soul_x = wave.soul_start_x or soul_x
+        soul_y = wave.soul_start_y or soul_y
+        soul_offset_x = wave.soul_offset_x or soul_offset_x
+        soul_offset_y = wave.soul_offset_y or soul_offset_y
         arena_x = wave.arena_x or arena_x
         arena_y = wave.arena_y or arena_y
         arena_w = wave.arena_width and math.max(wave.arena_width, arena_w or 0) or arena_w
@@ -105,7 +110,10 @@ function Encounter:onDialogueEnd()
     Game.battle.arena = arena
     Game.battle:addChild(arena)
 
-    Game.battle:spawnSoul(arena:getCenter())
+    local center_x, center_y = arena:getCenter()
+    soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
+    soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
+    Game.battle:spawnSoul(soul_x or center_x, soul_y or center_y)
 
     Game.battle.timer:after(15/30, function()
         Game.battle:setState("DEFENDING")
