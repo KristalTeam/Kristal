@@ -259,7 +259,15 @@ function Utils.approach(val, target, amount)
 end
 
 function Utils.lerp(a, b, t)
-    return a + (b - a) * Utils.clamp(t, 0, 1)
+    if type(a) == "table" and type(b) == "table" then
+        local o = {}
+        for k,v in ipairs(a) do
+            table.insert(o, Utils.lerp(v, b[k], t))
+        end
+        return o
+    else
+        return a + (b - a) * Utils.clamp(t, 0, 1)
+    end
 end
 
 local performance_stack = {}
@@ -391,6 +399,21 @@ end
 
 function Utils.randomSign()
     return love.math.random() < 0.5 and 1 or -1
+end
+
+function Utils.filter(table, filter)
+    local t = {}
+    for _,v in ipairs(table) do
+        if filter(v) then
+            table.insert(t, v)
+        end
+    end
+    return t
+end
+
+function Utils.pick(table, sort)
+    table = sort and Utils.filter(table, sort) or table
+    return table[love.math.random(#table)]
 end
 
 function Utils.angle(x1,y1, x2,y2)
