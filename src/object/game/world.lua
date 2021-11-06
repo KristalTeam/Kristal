@@ -6,13 +6,9 @@ function World:init(map)
 
     self.layers = {
         ["tiles"]         = 0,
-        ["battle_fader"]  = 3,
-        ["battle_border"] = 4,
-        ["objects"]       = 10,
-        ["fg_tiles"]      = 15,
-
-        ["soul"]          = 19,
-        ["bullets"]       = 20,
+        ["objects"]       = 0,
+        ["soul"]          = 200,
+        ["bullets"]       = 300,
     }
 
 
@@ -36,7 +32,9 @@ function World:init(map)
     self.player = nil
     self.soul = nil
 
-    self.battle_border = nil
+    self.battle_borders = {}
+
+    self.bg_color = {0, 0, 0, 0}
 
     self.transition_fade = 0
     self.transition_target = nil
@@ -150,6 +148,13 @@ function World:loadMap(map)
         end
     end
 
+    if map_data.backgroundcolor then
+        local bgc = map_data.backgroundcolor
+        self.bg_color = {bgc[1]/255, bgc[2]/255, bgc[3]/255, (bgc[4] or 255)/255}
+    else
+        self.bg_color = {0, 0, 0, 0}
+    end
+
     self.collision = {}
     self.battle_areas = {}
     self.tile_layers = {}
@@ -157,17 +162,25 @@ function World:loadMap(map)
     self.markers = {}
     self.paths = {}
 
-    local after_objects = false
+    local function getDepth(index)
+        return ((index - 1) / #map_data.layers) * 100
+    end
+
+    local object_depths = {}
+    local first_battle_border = 0
     for i,layer in ipairs(map_data.layers) do
-        local layer_add = (i - 1) / #map_data.layers
+        local depth = getDepth(i)
+        if first_battle_border == 0 and layer.name == "battleborder" then
+            first_battle_border = i
+        end
         if layer.type == "tilelayer" then
-            self:loadTiles(layer, layer_add, after_objects)
+            self:loadTiles(layer, depth)
         elseif layer.type == "imagelayer" then
-            self:loadImage(layer, layer_add, after_objects)
+            self:loadImage(layer, depth)
         elseif layer.type == "objectgroup" then
-            after_objects = true
             if layer.name == "objects" then
-                self:loadObjects(layer)
+                table.insert(object_depths, depth)
+                self:loadObjects(layer, depth)
             elseif layer.name == "markers" then
                 self:loadMarkers(layer)
             elseif layer.name == "collision" then
@@ -180,13 +193,34 @@ function World:loadMap(map)
         end
     end
 
+    for i,layer in ipairs(map_data.layers) do
+        local depth = ((i - 1) / #map_data.layers) * 100
+        if layer.type == "objectgroup" and layer.name == "markers" then
+            if #object_depths == 0 then
+                self.layers["objects"] = depth
+            else
+                local closest
+                for _,obj_depth in ipairs(object_depths) do
+                    if not closest then
+                        closest = obj_depth
+                    elseif math.abs(depth - obj_depth) <= math.abs(depth - closest) then
+                        closest = obj_depth
+                    else
+                        break
+                    end
+                end
+                self.layers["objects"] = closest or depth
+            end
+        end
+    end
+
     if self.markers["spawn"] then
         local spawn = self.markers["spawn"]
         self.camera:lookAt(spawn.center_x, spawn.center_y)
     end
 
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    self.battle_fader.layer = self.layers["battle_fader"]
+    self.battle_fader.layer = Utils.lerp(getDepth(first_battle_border), getDepth(first_battle_border - 1), 0.1)
     self:addChild(self.battle_fader)
 
     if map_data.properties["music"] and map_data.properties["music"] ~= "" then
@@ -214,24 +248,23 @@ function World:loadMap(map)
     self:updateCamera()
 end
 
-function World:loadTiles(layer, layer_add, after_objects)
+function World:loadTiles(layer, depth)
     local tilelayer = TileLayer(self, layer)
-    tilelayer.layer = (after_objects and self.layers["fg_tiles"] or self.layers["tiles"]) + layer_add
+    tilelayer.layer = depth
     self:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
     if layer.name == "battleborder" then
         tilelayer.tile_opacity = 0
-        tilelayer.layer = self.layers["battle_border"]
-        self.battle_border = tilelayer
+        table.insert(self.battle_borders, tilelayer)
     end
 end
 
-function World:loadImage(layer, layer_add, after_objects)
+function World:loadImage(layer, depth)
     local texture = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
     local sprite = Sprite(texture, layer.offsetx, layer.offsety)
     sprite:setParallax(layer.parallaxx, layer.parallaxy)
     sprite.alpha = layer.opacity
-    sprite.layer = (after_objects and self.layers["fg_tiles"] or self.layers["tiles"]) + layer_add
+    sprite.layer = depth
     if layer.tintcolor then
         sprite:setColor(layer.tintcolor[1]/255, layer.tintcolor[2]/255, layer.tintcolor[3]/255)
     end
@@ -239,8 +272,7 @@ function World:loadImage(layer, layer_add, after_objects)
     self.image_layers[layer.name] = sprite
     if layer.name == "battleborder" then
         sprite.alpha = 0
-        sprite.layer = self.layers["battle_border"]
-        self.battle_border = sprite
+        table.insert(self.battle_borders, sprite)
     end
 end
 
@@ -315,7 +347,7 @@ function World:loadPaths(layer)
     end
 end
 
-function World:loadObjects(layer)
+function World:loadObjects(layer, depth)
     for _,v in ipairs(layer.objects) do
         v.width = v.width or 0
         v.height = v.height or 0
@@ -324,7 +356,7 @@ function World:loadObjects(layer)
 
         local obj = self:loadObject(v.name, v)
         if obj then
-            obj.layer = self.layers["objects"]
+            obj.layer = depth
             self:addChild(obj)
         end
     end
@@ -487,11 +519,11 @@ function World:update(dt)
         v.sprite:setColor(1 - self.battle_alpha, 1 - self.battle_alpha, 1 - self.battle_alpha, 1)
     end
 
-    if self.battle_border then
-        if self.battle_border:includes(TileLayer) then
-            self.battle_border.tile_opacity = (self.battle_alpha * 2)
+    for _,battle_border in ipairs(self.battle_borders) do
+        if battle_border:includes(TileLayer) then
+            battle_border.tile_opacity = (self.battle_alpha * 2)
         else
-            self.battle_border.alpha = (self.battle_alpha * 2)
+            battle_border.alpha = (self.battle_alpha * 2)
         end
     end
     if self.battle_fader then
@@ -512,6 +544,11 @@ function World:update(dt)
 end
 
 function World:draw()
+    -- Draw background
+    love.graphics.setColor(self.bg_color)
+    love.graphics.rectangle("fill", 0, 0, self.map_width * self.tile_width, self.map_height * self.tile_height)
+    love.graphics.setColor(1, 1, 1)
+
     super:draw(self)
 
     -- Draw transition fade

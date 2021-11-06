@@ -9,8 +9,6 @@ function Tileset:init(data, path)
     self.spacing = data.spacing
     self.columns = data.columns
 
-    local texpath = Utils.absoluteToLocalPath("assets/sprites/", data.image, path)
-    print(texpath)
     self.texture = Assets.getTexture(Utils.absoluteToLocalPath("assets/sprites/", data.image, path))
 end
 
