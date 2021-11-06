@@ -75,13 +75,21 @@ end
 
 function Soul:move(x, y, speed)
     local movex, movey = x * (speed or 1), y * (speed or 1)
-    self:moveX(movex, movey)
-    self:moveY(movey, movex)
+
+    local mxa, mxb = self:moveX(movex, movey)
+    local mya, myb = self:moveY(movey, movex)
+
+    local moved = (mxa and not mxb) or (mya and not myb)
+    local collided = (not mxa and not mxb) or (not mya and not myb)
+
+    return moved, collided
 end
 
 function Soul:moveX(amount, move_y)
+    local last_collided = self.last_collided_x and (Utils.sign(amount) == self.last_collided_x)
+
     if amount == 0 then
-        return false
+        return not last_collided, true
     end
 
     self.partial_x = self.partial_x + amount
@@ -90,15 +98,18 @@ function Soul:moveX(amount, move_y)
     self.partial_x = self.partial_x % 1
 
     if move ~= 0 then
-        return self:moveXExact(move, move_y)
+        local moved = self:moveXExact(move, move_y)
+        return moved
     else
-        return not self.last_collided_x
+        return not last_collided
     end
 end
 
 function Soul:moveY(amount, move_x)
+    local last_collided = self.last_collided_y and (Utils.sign(amount) == self.last_collided_y)
+
     if amount == 0 then
-        return false
+        return not last_collided, true
     end
 
     self.partial_y = self.partial_y + amount
@@ -107,9 +118,10 @@ function Soul:moveY(amount, move_x)
     self.partial_y = self.partial_y % 1
 
     if move ~= 0 then
-        return self:moveYExact(move, move_x)
+        local moved = self:moveYExact(move, move_x)
+        return moved
     else
-        return not self.last_collided_y
+        return not last_collided
     end
 end
 
@@ -151,12 +163,12 @@ function Soul:moveXExact(amount, move_y)
                     target:onCollide(self)
                 end
 
-                self.last_collided_x = true
+                self.last_collided_x = sign
                 return false, target
             end
         end
     end
-    self.last_collided_x = false
+    self.last_collided_x = 0
     return true
 end
 
@@ -198,12 +210,12 @@ function Soul:moveYExact(amount, move_x)
                     target:onCollide(self)
                 end
 
-                self.last_collided_y = true
+                self.last_collided_y = sign
                 return i ~= sign, target
             end
         end
     end
-    self.last_collided_y = false
+    self.last_collided_y = 0
     return true
 end
 
@@ -222,17 +234,20 @@ function Soul:doMovement()
     local move_x, move_y = 0, 0
 
     -- Keyboard input:
-    if love.keyboard.isDown("left")  then move_x = move_x - 1 end
-    if love.keyboard.isDown("right") then move_x = move_x + 1 end
-    if love.keyboard.isDown("up")    then move_y = move_y - 1 end
-    if love.keyboard.isDown("down")  then move_y = move_y + 1 end
-
-    if move_x ~= 0 or move_y ~= 0 then
-        self:move(move_x, move_y, speed * DTMULT)
-    end
+    if Input.down("left")  then move_x = move_x - 1 end
+    if Input.down("right") then move_x = move_x + 1 end
+    if Input.down("up")    then move_y = move_y - 1 end
+    if Input.down("down")  then move_y = move_y + 1 end
 
     self.moving_x = move_x
     self.moving_y = move_y
+
+    if move_x ~= 0 or move_y ~= 0 then
+        if not self:move(move_x, move_y, speed * DTMULT) then
+            self.moving_x = 0
+            self.moving_y = 0
+        end
+    end
 end
 
 function Soul:update(dt)
