@@ -18,6 +18,8 @@ function TileLayer:init(world, data)
     self.tile_data = data.data
     self.tile_opacity = data.opacity
 
+    self.animated_tiles = {}
+
     self.canvas = love.graphics.newCanvas(self.map_width * world.tile_width, self.map_height * world.tile_height)
     self.drawn = false
 end
@@ -35,7 +37,11 @@ function TileLayer:draw()
 
             local tileset, id = self.world:getTileset(xid)
             if tileset then
-                tileset:drawTile(id, tx, ty)
+                if not tileset:getAnimation(id) then
+                    tileset:drawTile(id, tx, ty)
+                else
+                    table.insert(self.animated_tiles, {tileset = tileset, id = id, x = tx, y = ty})
+                end
             end
         end
         love.graphics.pop()
@@ -46,7 +52,12 @@ function TileLayer:draw()
 
     local r, g, b, a = self:getDrawColor()
     love.graphics.setColor(r, g, b, a * self.tile_opacity)
+
     love.graphics.draw(self.canvas)
+
+    for _,tile in ipairs(self.animated_tiles) do
+        tile.tileset:drawTile(tile.id, tile.x, tile.y)
+    end
 
     super:draw(self)
 end
