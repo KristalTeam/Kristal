@@ -9,6 +9,7 @@ function World:init(map)
         ["battle_fader"]  = 3,
         ["battle_border"] = 4,
         ["objects"]       = 10,
+        ["fg_tiles"]      = 15,
 
         ["soul"]          = 19,
         ["bullets"]       = 20,
@@ -132,6 +133,11 @@ function World:loadMap(map)
         error("No map: "..map)
     end
 
+    local map_path = Mod.info.path.."/scripts/world/maps/"..map..".lua"
+    map_path = Utils.split(map_path, "/")
+    map_path = Utils.join(map_path, "/", 1, #map_path - 1)
+    self.full_map_path = map_path
+
     self.tile_width = map_data.tilewidth
     self.tile_height = map_data.tileheight
     self.map_width = map_data.width
@@ -147,13 +153,19 @@ function World:loadMap(map)
     self.collision = {}
     self.battle_areas = {}
     self.tile_layers = {}
+    self.image_layers = {}
     self.markers = {}
     self.paths = {}
 
-    for _,layer in ipairs(map_data.layers) do
+    local after_objects = false
+    for i,layer in ipairs(map_data.layers) do
+        local layer_add = (i - 1) / #map_data.layers
         if layer.type == "tilelayer" then
-            self:loadTiles(layer)
+            self:loadTiles(layer, layer_add, after_objects)
+        elseif layer.type == "imagelayer" then
+            self:loadImage(layer, layer_add, after_objects)
         elseif layer.type == "objectgroup" then
+            after_objects = true
             if layer.name == "objects" then
                 self:loadObjects(layer)
             elseif layer.name == "markers" then
@@ -202,15 +214,33 @@ function World:loadMap(map)
     self:updateCamera()
 end
 
-function World:loadTiles(layer)
+function World:loadTiles(layer, layer_add, after_objects)
     local tilelayer = TileLayer(self, layer)
-    tilelayer.layer = self.layers["tiles"]
+    tilelayer.layer = (after_objects and self.layers["fg_tiles"] or self.layers["tiles"]) + layer_add
     self:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
     if layer.name == "battleborder" then
         tilelayer.tile_opacity = 0
         tilelayer.layer = self.layers["battle_border"]
         self.battle_border = tilelayer
+    end
+end
+
+function World:loadImage(layer, layer_add, after_objects)
+    local texture = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
+    local sprite = Sprite(texture, layer.offsetx, layer.offsety)
+    sprite:setParallax(layer.parallaxx, layer.parallaxy)
+    sprite.alpha = layer.opacity
+    sprite.layer = (after_objects and self.layers["fg_tiles"] or self.layers["tiles"]) + layer_add
+    if layer.tintcolor then
+        sprite:setColor(layer.tintcolor[1]/255, layer.tintcolor[2]/255, layer.tintcolor[3]/255)
+    end
+    self:addChild(sprite)
+    self.image_layers[layer.name] = sprite
+    if layer.name == "battleborder" then
+        sprite.alpha = 0
+        sprite.layer = self.layers["battle_border"]
+        self.battle_border = sprite
     end
 end
 
@@ -458,7 +488,11 @@ function World:update(dt)
     end
 
     if self.battle_border then
-        self.battle_border.tile_opacity = (self.battle_alpha * 2)
+        if self.battle_border:includes(TileLayer) then
+            self.battle_border.tile_opacity = (self.battle_alpha * 2)
+        else
+            self.battle_border.alpha = (self.battle_alpha * 2)
+        end
     end
     if self.battle_fader then
         --self.battle_fader.layer = self.battle_border.layer - 1

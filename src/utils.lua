@@ -415,4 +415,27 @@ function Utils.startsWith(value, prefix)
     return false
 end
 
+function Utils.absoluteToLocalPath(prefix, image, path)
+    local current_path = Utils.split(path, "/")
+    local tileset_path = Utils.split(image, "/")
+    while tileset_path[1] == ".." do
+        table.remove(tileset_path, 1)
+        table.remove(current_path, #current_path)
+    end
+    Utils.merge(current_path, tileset_path)
+    local final_path = table.concat(current_path, "/")
+    local _,ind = final_path:find(prefix)
+    final_path = final_path:sub(ind + 1)
+    local ext = final_path
+    while ext:find("%.") do
+        _,ind = ext:find("%.")
+        ext = ext:sub(ind + 1)
+    end
+    if ext == final_path then
+        return final_path
+    else
+        return final_path:sub(1, -#ext - 2)
+    end
+end
+
 return Utils

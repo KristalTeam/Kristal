@@ -1,15 +1,19 @@
 local TileLayer, super = Class(Object)
 
 function TileLayer:init(world, data)
-    super:init(self)
+    super:init(self, data.offsetx, data.offsety, data.width * world.tile_width, data.height * world.tile_height)
 
     self.world = world
 
     self.map_width = data.width
     self.map_height = data.height
 
-    self.offset_x = data.offset_x
-    self.offset_y = data.offset_y
+    self.parallax_x = data.parallaxx
+    self.parallax_y = data.parallaxy
+
+    if data.tintcolor then
+        self:setColor(data.tintcolor[1]/255, data.tintcolor[2]/255, data.tintcolor[3]/255)
+    end
 
     self.tile_data = data.data
     self.tile_opacity = data.opacity

@@ -193,6 +193,9 @@ function Object:getScaleOrigin() return self.scale_origin_x or self.origin_x, se
 function Object:setRotateOrigin(x, y) self.rotate_origin_x = x; self.rotate_origin_y = y or x end
 function Object:getRotateOrigin() return self.rotate_origin_x or self.origin_x, self.rotate_origin_y or self.origin_y end
 
+function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
+function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 end
+
 function Object:getLayer() return self.layer end
 function Object:setLayer(layer)
     self.layer = layer

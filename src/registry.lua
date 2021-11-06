@@ -124,11 +124,12 @@ end
 function Registry.initObjects()
     for path,object in self.iterScripts("objects") do
         local id = object.id or path
-        if _G[id] then
+        --[[if _G[id] then
             error("Registered existing object: "..id)
         else
             _G[id] = object
-        end
+        end]]
+        _G[id] = object
     end
 
     Kristal.modCall("onRegisterObjects")
