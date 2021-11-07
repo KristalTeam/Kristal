@@ -82,6 +82,8 @@ function EnemyBattler:spare(pacify)
     local sparkle_timer = 0
     local parent = self.parent
 
+    self:onSpareable()
+
     Game.battle.timer:during(5/30, function()
         self.sprite.color_mask_alpha = self.sprite.color_mask_alpha + 0.2 * DTMULT
         sparkle_timer = sparkle_timer + DTMULT

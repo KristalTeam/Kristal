@@ -32,7 +32,7 @@ return {
 
         ["battle/transition"]   = {"world/dark/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/dark/attack", 1/15, true},
-        ["battle/victory"]      = {"battle/dark/victory", 1/15, false},
+        ["battle/victory"]      = {"battle/dark/victory", 1/10, false},
 
         ["battle/rude_buster"]  = {"battle/dark/rude_buster", 1/15, false, next="battle/idle"}
     },

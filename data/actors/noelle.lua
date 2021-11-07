@@ -31,7 +31,7 @@ return {
         ["battle/defeat"]       = {"battle/dark/defeat", 1/15, false},
 
         ["battle/transition"]   = {"battle/dark/intro", 1/15, false},
-        ["battle/victory"]      = {"battle/dark/victory", 1/15, false}
+        ["battle/victory"]      = {"battle/dark/victory", 1/10, false}
     },
 
     offsets = {

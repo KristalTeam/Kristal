@@ -1188,6 +1188,10 @@ function Battle:removeEnemy(enemy)
     table.insert(self.enemies_to_remove, enemy)
 end
 
+function Battle:getActiveEnemies()
+    return Utils.filter(self.enemies, function(enemy) return not enemy.done_state end)
+end
+
 function Battle:getItemIndex()
     return 2 * (self.current_menu_y - 1) + self.current_menu_x
 end
@@ -1232,7 +1236,7 @@ function Battle:keypressed(key)
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if not menu_item.data.target then
+                    if not menu_item.data.target or menu_item.data.target == "none" then
                         self:commitAction("SPELL", nil, menu_item)
                     elseif menu_item.data.target == "enemy" then
                         Game.battle:setState("ENEMYSELECT", "SPELL")
