@@ -283,10 +283,13 @@ function Soul:update(dt)
         self.inv_timer = Utils.approach(self.inv_timer, 0, dt)
     end
 
+    local collided_bullets = {}
     Object.startCache()
     for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
         if bullet:collidesWith(self.collider) then
-            self:onCollide(bullet)
+            -- Store collided bullets to a table before calling onCollide
+            -- to avoid issues with cacheing inside onCollide
+            table.insert(collided_bullets, bullet)
         end
         if self.inv_timer == 0 then
             if bullet.tp ~= 0 and bullet:collidesWith(self.graze_collider) then
@@ -311,6 +314,9 @@ function Soul:update(dt)
         end
     end
     Object.endCache()
+    for _,bullet in ipairs(collided_bullets) do
+        self:onCollide(bullet)
+    end
 
     if self.inv_timer > 0 then
         self.inv_flash_timer = self.inv_flash_timer + dt
