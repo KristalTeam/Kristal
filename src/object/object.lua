@@ -26,14 +26,18 @@ function Object.endCache()
 end
 
 function Object.uncache(obj)
-    Object.CACHED[obj] = nil
-    Object.uncacheFull(obj)
+    if Object.CACHE_TRANSFORMS then
+        Object.CACHED[obj] = nil
+        Object.uncacheFull(obj)
+    end
 end
 
 function Object.uncacheFull(obj)
-    Object.CACHED_FULL[obj] = nil
-    for _,child in ipairs(obj.children) do
-        Object.uncacheFull(child)
+    if Object.CACHE_TRANSFORMS then
+        Object.CACHED_FULL[obj] = nil
+        for _,child in ipairs(obj.children) do
+            Object.uncacheFull(child)
+        end
     end
 end
 

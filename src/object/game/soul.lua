@@ -135,6 +135,7 @@ function Soul:moveXExact(amount, move_y)
         self.x = self.x + sign
 
         if not self.noclip then
+            Object.uncache(self)
             Object.startCache()
             local collided, target = Game.battle:checkSolidCollision(self)
             if self.slope_correction then
@@ -184,6 +185,7 @@ function Soul:moveYExact(amount, move_x)
         self.y = self.y + sign
 
         if not self.noclip then
+            Object.uncache(self)
             Object.startCache()
             local collided, target = Game.battle:checkSolidCollision(self)
             if self.slope_correction then
