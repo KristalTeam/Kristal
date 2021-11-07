@@ -270,6 +270,10 @@ function Utils.lerp(a, b, t)
     end
 end
 
+function Utils.between(val, a, b)
+    return val > a and val < b
+end
+
 local performance_stack = {}
 
 function Utils.pushPerformance(name)
