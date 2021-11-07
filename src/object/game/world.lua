@@ -22,6 +22,9 @@ function World:init(map)
     self.map_width = 16
     self.map_height = 12
 
+    self.width = self.map_width * self.tile_width
+    self.height = self.map_height * self.tile_height
+
     self.tilesets = {}
     self.collision = {}
     self.tile_layers = {}
@@ -115,7 +118,7 @@ function World:spawnPlayer(...)
     self.soul.layer = self.layers["soul"]
     self:addChild(self.soul)
 
-    self.camera:lookAt(self.player.x, self.player.y)
+    self.camera:lookAt(self.player.x, self.player.y - (self.player.height * 2)/2)
     self:updateCamera()
 end
 
@@ -144,6 +147,10 @@ function World:loadMap(map)
     self.tile_height = map_data.tileheight
     self.map_width = map_data.width
     self.map_height = map_data.height
+
+    self.width = self.map_width * self.tile_width
+    self.height = self.map_height * self.tile_height
+
     self:populateTilesets(map, map_data.tilesets)
 
     for _,child in ipairs(self.children) do
