@@ -98,6 +98,8 @@ Bullet = require("src.object.game.bullet")
 
 Event = require("src.object.game.event")
 Savepoint = require("src.object.game.savepoint")
+InteractScript = require("src.object.game.interactscript")
+Readable = require("src.object.game.readable")
 Transition = require("src.object.game.transition")
 NPC = require("src.object.game.npc")
 ChaserEnemy = require("src.object.game.chaserenemy")

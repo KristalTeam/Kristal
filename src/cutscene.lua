@@ -16,6 +16,8 @@ function Cutscene.start(cutscene)
         end
     elseif type(cutscene) == "function" then
         func = cutscene
+    else
+        error("Attempt to start cutscene with argument of type " .. type(cutscene))
     end
 
     self.delay_timer = 0

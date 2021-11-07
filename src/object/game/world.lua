@@ -96,7 +96,10 @@ function World:spawnPlayer(...)
         chara = Registry.getActor(chara)
     end
 
+    local facing = "down"
+
     if self.player then
+        facing = self.player.facing
         self:removeChild(self.player)
     end
     if self.soul then
@@ -105,6 +108,7 @@ function World:spawnPlayer(...)
 
     self.player = Player(chara, x, y)
     self.player.layer = self.layers["objects"]
+    self.player:setFacing(facing)
     self:addChild(self.player)
 
     self.soul = OverworldSoul(x + 10, y + 24) -- TODO: unhardcode
@@ -381,6 +385,10 @@ function World:loadObject(name, data)
     -- Kristal object loading
     if name:lower() == "savepoint" then
         return Savepoint(data)
+    elseif name:lower() == "interactscript" then
+        return InteractScript(data)
+    elseif name:lower() == "readable" then
+        return Readable(data)
     elseif name:lower() == "transition" then
         return Transition(data)
     elseif name:lower() == "npc" then
