@@ -9,7 +9,7 @@ function ArenaSprite:init(arena, x, y)
     self.height = arena.height
 
     self:setScaleOrigin(0.5, 0.5)
-    self:setRotateOrigin(0.5, 0.5)
+    self:setRotationOrigin(0.5, 0.5)
 
     self.background = true
 end

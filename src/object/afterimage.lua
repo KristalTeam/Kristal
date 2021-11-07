@@ -20,13 +20,13 @@ function AfterImage:init(sprite, fade, speed)
     love.graphics.setCanvas()
     
     local sox, soy = self.sprite:getScaleOrigin()
-    local rox, roy = self.sprite:getRotateOrigin()
+    local rox, roy = self.sprite:getRotationOrigin()
 
     local sox_p, soy_p = self.sprite:localToScreenPos(sox * self.sprite.width, soy * self.sprite.height)
     local rox_p, roy_p = self.sprite:localToScreenPos(rox * self.sprite.width, roy * self.sprite.height)
 
     self:setScaleOrigin(sox_p / SCREEN_WIDTH, soy_p / SCREEN_HEIGHT)
-    self:setRotateOrigin(rox_p / SCREEN_WIDTH, roy_p / SCREEN_HEIGHT)
+    self:setRotationOrigin(rox_p / SCREEN_WIDTH, roy_p / SCREEN_HEIGHT)
 end
 
 function AfterImage:onAdd(parent)

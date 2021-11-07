@@ -30,6 +30,17 @@ end
 function spell:onCast(user, target)
     if target.tired then
         Assets.playSound("snd_spell_pacify")
+    else
+        local old_color = Utils.copy(target.sprite.color)
+        Game.battle.timer:during(8/30, function()
+            target.sprite.color = Utils.lerp(target.sprite.color, {0, 0, 1}, 0.12 * DTMULT)
+        end, function()
+            Game.battle.timer:during(8/30, function()
+                target.sprite.color = Utils.lerp(target.sprite.color, old_color, 0.16 * DTMULT)
+            end, function()
+                target.sprite.color = old_color
+            end)
+        end)
     end
 end
 

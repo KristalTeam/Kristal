@@ -256,11 +256,11 @@ function Battle:onStateChange(old,new)
                 self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
             end
             if self.arena then
-                self:removeChild(self.arena)
+                self.arena:remove()
                 self.arena = nil
             end
             if self.soul then
-                self:removeChild(self.soul)
+                self.soul:remove()
                 self.soul = nil
             end
             if old ~= "DEFENDING" then
@@ -370,7 +370,7 @@ end
 
 function Battle:swapSoul(object)
     if self.soul then
-        self:removeChild(self.soul)
+        self.soul:remove()
     end
     object:setPosition(self.soul:getPosition())
     object.layer = self.soul.layer
@@ -549,7 +549,19 @@ function Battle:processAction(action)
                 end
             end
         end
-        battler:setAnimation("battle/spare", function() self:finishAction(action) end)
+        battler:setAnimation("battle/spare", function()
+            self:finishAction(action)
+            local old_color = Utils.copy(enemy.sprite.color)
+            Game.battle.timer:during(8/30, function()
+                enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 0}, 0.12 * DTMULT)
+            end, function()
+                Game.battle.timer:during(8/30, function()
+                    enemy.sprite.color = Utils.lerp(enemy.sprite.color, old_color, 0.16 * DTMULT)
+                end, function()
+                    enemy.sprite.color = old_color
+                end)
+            end)
+        end)
         self:battleText(text)
     elseif action.action == "ATTACK" then
         Assets.playSound("snd_laz_c")

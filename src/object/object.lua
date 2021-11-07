@@ -82,8 +82,8 @@ function Object:init(x, y, width, height)
     self.scale_origin_x = nil
     self.scale_origin_y = nil
     -- Origin of the object's rotation
-    self.rotate_origin_x = nil
-    self.rotate_origin_y = nil
+    self.rotation_origin_x = nil
+    self.rotation_origin_y = nil
 
     -- How much this object is moved by the camera (1 = normal, 0 = none)
     self.parallax_x = nil
@@ -194,8 +194,8 @@ function Object:getOrigin() return self.origin_x, self.origin_y end
 function Object:setScaleOrigin(x, y) self.scale_origin_x = x; self.scale_origin_y = y or x end
 function Object:getScaleOrigin() return self.scale_origin_x or self.origin_x, self.scale_origin_y or self.origin_y end
 
-function Object:setRotateOrigin(x, y) self.rotate_origin_x = x; self.rotate_origin_y = y or x end
-function Object:getRotateOrigin() return self.rotate_origin_x or self.origin_x, self.rotate_origin_y or self.origin_y end
+function Object:setRotationOrigin(x, y) self.rotation_origin_x = x; self.rotation_origin_y = y or x end
+function Object:getRotationOrigin() return self.rotation_origin_x or self.origin_x, self.rotation_origin_y or self.origin_y end
 
 function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
 function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 end
@@ -316,9 +316,9 @@ function Object:createTransform()
         transform:translate(self.width * -(self.scale_origin_x or self.origin_x), self.height * -(self.scale_origin_y or self.origin_y))
     end
     if self.rotation ~= 0 then
-        transform:translate(self.width * (self.rotate_origin_x or self.origin_x), self.height * (self.rotate_origin_y or self.origin_y))
+        transform:translate(self.width * (self.rotation_origin_x or self.origin_x), self.height * (self.rotation_origin_y or self.origin_y))
         transform:rotate(self.rotation)
-        transform:translate(self.width * -(self.rotate_origin_x or self.origin_x), self.height * -(self.rotate_origin_y or self.origin_y))
+        transform:translate(self.width * -(self.rotation_origin_x or self.origin_x), self.height * -(self.rotation_origin_y or self.origin_y))
     end
     Utils.popPerformance()
     return transform
