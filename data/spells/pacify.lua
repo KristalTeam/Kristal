@@ -32,6 +32,18 @@ end
 function spell:onCast(user, target)
     if target.tired then
         Assets.playSound("snd_spell_pacify")
+
+        target:spare(true)
+
+        local pacify_x, pacify_y = target:getRelativePos(target.width/2, target.height/2)
+        local z_count = 0
+        local z_parent = target.parent
+        Game.battle.timer:every(1/15, function()
+            z_count = z_count + 1
+            local z = SpareZ(z_count * -40, pacify_x, pacify_y)
+            z.layer = target.layer + 0.002
+            z_parent:addChild(z)
+        end, 8)
     else
         if target.mercy >= 100 then
             target:statusMessage("msg", "dumbass")

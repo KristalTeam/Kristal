@@ -18,6 +18,7 @@ function TensionBar:init(x, y)
 
     self.parallax_y = 0
 
+    self.animating_in = true
     self.animation_timer = 0
 
     self.tsiner = 0
@@ -52,12 +53,14 @@ function TensionBar:setTension(amount)
 end
 
 function TensionBar:update(dt)
-    self.animation_timer = self.animation_timer + (dt * 30)
-    if self.animation_timer > 12 then
-        self.animation_timer = 12
-    end
+    if self.animating_in then
+        self.animation_timer = self.animation_timer + (dt * 30)
+        if self.animation_timer > 12 then
+            self.animation_timer = 12
+        end
 
-    self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)
+        self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)
+    end
 
     super:update(self, dt)
 end

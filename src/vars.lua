@@ -37,6 +37,7 @@ MUSIC_VOLUME = 1
 MUSIC_VOLUMES = {
     ["battle"] = 0.7
 }
+MUSIC_PITCHES = {}
 
 COLORS = {
     aqua = {0, 1, 1, 1},

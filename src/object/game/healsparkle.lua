@@ -1,7 +1,7 @@
 local HealSparkle, super = Class(Sprite)
 
 function HealSparkle:init(x, y)
-    super:init(self, "effects/sparestar/sparestar", x, y)
+    super:init(self, "effects/spare/star", x, y)
 
     self:play(0.25, true)
 

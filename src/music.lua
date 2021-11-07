@@ -25,6 +25,10 @@ function Music:getVolume()
     return self.volume * MUSIC_VOLUME * (self.current and MUSIC_VOLUMES[self.current] or 1)
 end
 
+function Music:getPitch()
+    return self.pitch * (self.current and MUSIC_PITCHES[self.current] or 1)
+end
+
 function Music:play(music, volume, pitch)
     if music then
         local path = Assets.getMusicPath(music)
@@ -40,7 +44,7 @@ function Music:play(music, volume, pitch)
                 self.pitch = pitch or 1
                 self.source = love.audio.newSource(path, "stream")
                 self.source:setVolume(self:getVolume())
-                self.source:setPitch(self.pitch)
+                self.source:setPitch(self:getPitch())
                 self.source:setLooping(true)
                 self.source:play()
             else
@@ -49,7 +53,7 @@ function Music:play(music, volume, pitch)
                 end
                 if pitch then
                     self.pitch = pitch
-                    self.source:setPitch(self.pitch)
+                    self.source:setPitch(self:getPitch())
                 end
             end
         end
@@ -60,7 +64,7 @@ function Music:play(music, volume, pitch)
         end
         if pitch then
             self.pitch = pitch
-            self.source:setPitch(self.pitch)
+            self.source:setPitch(self:getPitch())
         end
         self.source:play()
     end
@@ -107,8 +111,9 @@ local function update(dt)
             if handler.source:getVolume() ~= volume then
                 handler.source:setVolume(volume)
             end
-            if handler.source:getPitch() ~= handler.pitch then
-                handler.source:setPitch(handler.pitch)
+            local pitch = handler:getPitch()
+            if handler.source:getPitch() ~= pitch then
+                handler.source:setPitch(pitch)
             end
         end
     end

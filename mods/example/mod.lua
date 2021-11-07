@@ -11,6 +11,9 @@ function Mod:init()
             end
         end
     end)
+
+    MUSIC_VOLUMES["cybercity"] = 0.8
+    MUSIC_PITCHES["cybercity"] = 0.97
 end
 
 function Mod:onKeyPressed(key)

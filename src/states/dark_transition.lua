@@ -68,7 +68,7 @@ function DarkTransition:enter(previous, mod)
 
 
 
-    self.sparestar = Assets.getFrames("effects/sparestar/sparestar")
+    self.sparestar = Assets.getFrames("effects/spare/star")
 
     self.snd_dtrans_square = Assets.newSound("snd_dtrans_square")
 

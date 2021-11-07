@@ -17,7 +17,7 @@ return {
         ["battle/act"]          = {"battle/dark/act", 1/15, false},
         ["battle/spell"]        = {"battle/dark/spell", 1/15, false, next="battle/idle"},
         ["battle/item"]         = {"battle/dark/item", 1/15, false, next="battle/idle"},
-        ["battle/spare"]        = {"battle/dark/act", 1/15, false, next="battle/idle"},
+        ["battle/spare"]        = {"battle/dark/spare", 1/15, false, next="battle/idle"},
 
         ["battle/attack_ready"] = {"battle/dark/attackready", 0.2, true},
         ["battle/act_ready"]    = {"battle/dark/actready", 0.2, true},

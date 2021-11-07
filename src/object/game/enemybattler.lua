@@ -22,6 +22,8 @@ function EnemyBattler:init(chara)
     self.tired = false
     self.mercy = 0
 
+    self.done_state = nil
+
     self.waves = {}
 
     self.check = "Remember to change\nyour check text!"
@@ -67,7 +69,42 @@ function EnemyBattler:registerShortAct(name, description, party, tp)
 end
 
 function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
-function EnemyBattler:spare(...)    print("TODO: implement!") end -- TODO
+
+function EnemyBattler:spare(pacify)
+    Game.battle.spare_sound:stop()
+    Game.battle.spare_sound:play()
+
+    self.done_state = pacify and "PACIFIED" or "SPARED"
+
+    self.sprite.color_mask = {1, 1, 1}
+    self.sprite.color_mask_alpha = 0
+
+    local sparkle_timer = 0
+    local parent = self.parent
+
+    Game.battle.timer:during(5/30, function()
+        self.sprite.color_mask_alpha = self.sprite.color_mask_alpha + 0.2 * DTMULT
+        sparkle_timer = sparkle_timer + DTMULT
+        if sparkle_timer >= 0.5 then
+            local x, y = Utils.random(0, self.width), Utils.random(0, self.height)
+            local sparkle = SpareSparkle(self:getRelativePos(x, y))
+            sparkle.layer = self.layer + 0.001
+            parent:addChild(sparkle)
+            sparkle_timer = sparkle_timer - 0.5
+        end
+    end, function()
+        self.sprite.color_mask_alpha = 1
+        local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
+        local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
+        img1.speed_x = 4
+        img2.speed_x = 8
+        parent:addChild(img1)
+        parent:addChild(img2)
+        self:remove()
+    end)
+
+    Game.battle:removeEnemy(self)
+end
 
 function EnemyBattler:onSpareable()
     self:setAnimation("spared")

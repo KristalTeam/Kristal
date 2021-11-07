@@ -10,6 +10,7 @@ function Battle:init()
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
+    self.spare_sound = Assets.newSound("snd_spare")
 
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
     self.enemy_beginning_positions = {}
@@ -56,7 +57,7 @@ function Battle:init()
     self.intro_timer = 0
     self.offset = 0
 
-    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING
+    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
     self.state = "NONE"
@@ -95,6 +96,7 @@ function Battle:init()
 
     self.enemies = {}
     self.enemy_dialogue = {}
+    self.enemies_to_remove = {}
 
     self.state_reason = nil
     self.substate_reason = nil
@@ -307,19 +309,26 @@ function Battle:onStateChange(old,new)
         self.current_menu_y = 1
     elseif new == "ENEMYDIALOGUE" then
         self.battle_ui.encounter_text:setText("")
+        local all_done = true
         for _,enemy in ipairs(self.enemies) do
-            local x, y
-            if enemy.text_offset then
-                x, y = enemy.x + enemy.text_offset[1], enemy.y + enemy.text_offset[2]
-            else
-                x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
+            if not enemy.done_state then
+                all_done = false
+                local x, y
+                if enemy.text_offset then
+                    x, y = enemy.x + enemy.text_offset[1], enemy.y + enemy.text_offset[2]
+                else
+                    x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
+                end
+                local dialogue = enemy:getEnemyDialogue()
+                if dialogue then
+                    local textbox = EnemyTextbox(dialogue, x, y)
+                    table.insert(self.enemy_dialogue, textbox)
+                    self:addChild(textbox)
+                end
             end
-            local dialogue = enemy:getEnemyDialogue()
-            if dialogue then
-                local textbox = EnemyTextbox(dialogue, x, y)
-                table.insert(self.enemy_dialogue, textbox)
-                self:addChild(textbox)
-            end
+        end
+        if all_done then
+            self:setState("VICTORY")
         end
     elseif new == "DIALOGUEEND" then
         self.battle_ui.encounter_text:setText("")
@@ -345,6 +354,17 @@ function Battle:onStateChange(old,new)
 
             wave:onStart()
         end
+    elseif new == "VICTORY" then
+        self.tension_bar.animating_in = false
+        self.tension_bar.speed_x = -10
+        self.tension_bar.friction = -0.4
+        for _,battler in ipairs(self.party) do
+            battler:setAnimation("battle/victory")
+
+            local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
+            box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+        end
+        self:battleText("* You won!\n* Got 0 EXP and 0 D$.")
     end
 end
 
@@ -521,6 +541,19 @@ function Battle:processAction(action)
     local battler = self.party[action.character_id]
     local party_member = battler.chara
     local enemy = action.target
+
+    if enemy and enemy.done_state then
+        enemy = nil
+        for _,other in ipairs(self.enemies) do
+            if not other.done_state then
+                enemy = other
+            end
+        end
+        action.target = enemy
+        if not enemy then
+            return true
+        end
+    end
 
     if action.action == "SPARE" then
         local worked = enemy.mercy >= 100
@@ -933,6 +966,10 @@ function Battle:createTransform()
 end
 
 function Battle:update(dt)
+    for _,enemy in ipairs(self.enemies_to_remove) do
+        Utils.removeFromTable(self.enemies, enemy)
+    end
+
     self.timer:update(dt)
     if self.state == "TRANSITION" then
         self:updateTransition(dt)
@@ -1145,6 +1182,10 @@ function Battle:isEnemySelected(enemy)
         return self.enemies[self.selected_enemy] == enemy
     end
     return false
+end
+
+function Battle:removeEnemy(enemy)
+    table.insert(self.enemies_to_remove, enemy)
 end
 
 function Battle:getItemIndex()

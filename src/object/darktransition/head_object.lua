@@ -5,7 +5,7 @@ function HeadObject:init(texture, x, y)
 
     self.breakcon = 0
     self.breaktimer = 0
-    self.sparestar = Assets.getFrames("effects/sparestar/sparestar")
+    self.sparestar = Assets.getFrames("effects/spare/star")
 end
 
 function HeadObject:update(dt)
