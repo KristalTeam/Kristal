@@ -79,10 +79,10 @@ function EnemyBattler:spare(pacify)
     self.sprite.color_mask = {1, 1, 1}
     self.sprite.color_mask_alpha = 0
 
+    self:onSpared()
+
     local sparkle_timer = 0
     local parent = self.parent
-
-    self:onSpareable()
 
     Game.battle.timer:during(5/30, function()
         self.sprite.color_mask_alpha = self.sprite.color_mask_alpha + 0.2 * DTMULT
@@ -106,6 +106,10 @@ function EnemyBattler:spare(pacify)
     end)
 
     Game.battle:removeEnemy(self)
+end
+
+function EnemyBattler:onSpared()
+    self:setAnimation("spared")
 end
 
 function EnemyBattler:onSpareable()

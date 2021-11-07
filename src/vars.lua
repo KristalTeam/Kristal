@@ -33,7 +33,7 @@ LAYERS = {
     [           "top"] =  1000
 }
 
-MUSIC_VOLUME = 1
+MUSIC_VOLUME = 0.85
 MUSIC_VOLUMES = {
     ["battle"] = 0.7
 }
