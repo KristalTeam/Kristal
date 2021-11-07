@@ -22,8 +22,10 @@ local spell = Spell{
 function spell:getCastMessage(user, target)
     if target.tired then
         return "* "..user.chara.name.." cast PACIFY!"
-    else
+    elseif target.mercy < 100 then
         return "* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
+    else
+        return "* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the foe wasn't [color:blue]TIRED[color:reset]... try\n[color:yellow]SPARING[color:reset]!"
     end
 end
 
@@ -31,14 +33,16 @@ function spell:onCast(user, target)
     if target.tired then
         Assets.playSound("snd_spell_pacify")
     else
-        local old_color = Utils.copy(target.sprite.color)
+        if target.mercy >= 100 then
+            target:statusMessage("msg", "dumbass")
+        end
         Game.battle.timer:during(8/30, function()
             target.sprite.color = Utils.lerp(target.sprite.color, {0, 0, 1}, 0.12 * DTMULT)
         end, function()
             Game.battle.timer:during(8/30, function()
-                target.sprite.color = Utils.lerp(target.sprite.color, old_color, 0.16 * DTMULT)
+                target.sprite.color = Utils.lerp(target.sprite.color, {1, 1, 1}, 0.16 * DTMULT)
             end, function()
-                target.sprite.color = old_color
+                target.sprite.color = {1, 1, 1}
             end)
         end)
     end

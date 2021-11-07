@@ -523,7 +523,7 @@ function Battle:processAction(action)
     local enemy = action.target
 
     if action.action == "SPARE" then
-        local worked = enemy:onMercy()
+        local worked = enemy.mercy >= 100
         local text
         if worked then
             text = "* " .. party_member.name .. " spared " .. enemy.name .. "!"
@@ -550,17 +550,19 @@ function Battle:processAction(action)
             end
         end
         battler:setAnimation("battle/spare", function()
-            self:finishAction(action)
-            local old_color = Utils.copy(enemy.sprite.color)
-            Game.battle.timer:during(8/30, function()
-                enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 0}, 0.12 * DTMULT)
-            end, function()
+            enemy:onMercy()
+            if not worked then
                 Game.battle.timer:during(8/30, function()
-                    enemy.sprite.color = Utils.lerp(enemy.sprite.color, old_color, 0.16 * DTMULT)
+                    enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 0}, 0.12 * DTMULT)
                 end, function()
-                    enemy.sprite.color = old_color
+                    Game.battle.timer:during(8/30, function()
+                        enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 1}, 0.16 * DTMULT)
+                    end, function()
+                        enemy.sprite.color = {1, 1, 1}
+                    end)
                 end)
-            end)
+            end
+            self:finishAction(action)
         end)
         self:battleText(text)
     elseif action.action == "ATTACK" then

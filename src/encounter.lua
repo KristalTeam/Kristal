@@ -46,6 +46,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     table.insert(Game.battle.enemies, enemy_obj)
     Game.battle:addChild(enemy_obj)
+    return enemy_obj
 end
 
 function Encounter:fetchEncounterText()
