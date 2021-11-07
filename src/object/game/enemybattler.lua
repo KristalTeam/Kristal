@@ -42,6 +42,8 @@ function EnemyBattler:init(chara)
 
     self.flash_siner = 0
     self.hurt_timer = 0
+
+    self.last_selecting = false
 end
 function EnemyBattler:registerAct(name, description, party, tp)
     local act = {
@@ -199,24 +201,6 @@ function EnemyBattler:setActor(actor)
     self:addChild(self.overlay_sprite)
 end
 
-function EnemyBattler:preDraw()
-    super:preDraw(self)
-    if Game.battle:isEnemySelected(self) then
-        self.flash_siner = self.flash_siner + DTMULT
-        love.graphics.setShader(Kristal.Shaders["White"])
-        Kristal.Shaders["White"]:send("whiteAmount", -math.cos(self.flash_siner / 5) * 0.4 + 0.6)
-    else
-        self.flash_siner = 0
-    end
-end
-
-function EnemyBattler:postDraw()
-    if Game.battle:isEnemySelected(self) then
-        love.graphics.setShader()
-    end
-    super:postDraw(self)
-end
-
 function EnemyBattler:toggleOverlay(overlay)
     if overlay == nil then
         overlay = self.sprite.visible
@@ -257,6 +241,16 @@ function EnemyBattler:update(dt)
             self.overlay_sprite.shake_x = 0
             self:toggleOverlay(false)
         end
+    end
+
+    if Game.battle:isEnemySelected(self) then
+        self.flash_siner = self.flash_siner + DTMULT
+        self.sprite.color_mask = {1, 1, 1}
+        self.sprite.color_mask_alpha = -math.cos(self.flash_siner / 5) * 0.4 + 0.6
+        self.last_selecting = true
+    elseif self.last_selecting then
+        self.sprite.color_mask_alpha = 0
+        self.last_selecting = false
     end
 
     super:update(self, dt)
