@@ -8,6 +8,9 @@ function Sprite:init(texture, x, y, width, height, path)
 
     self:setSprite(texture)
 
+    self.color_mask = {1, 1, 1}
+    self.color_mask_alpha = 0
+
     self.frame = 1
     self.loop = false
     self.playing = false
@@ -221,11 +224,23 @@ function Sprite:update(dt)
 end
 
 function Sprite:draw()
+    local last_shader = love.graphics.getShader()
+    if self.color_mask_alpha > 0 then
+        local shader = Kristal.Shaders["AddColor"]
+        love.graphics.setShader(shader)
+        shader:send("inputcolor", self.color_mask)
+        shader:send("amount", self.color_mask_alpha)
+    end
     if self.texture then
         love.graphics.draw(self.texture)
     end
 
     super:draw(self)
+
+    if self.color_mask_alpha > 0 then
+        Kristal.Shaders["AddColor"]:send("amount", 1)
+        love.graphics.setShader(last_shader)
+    end
 end
 
 return Sprite
