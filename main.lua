@@ -563,10 +563,11 @@ end
 
 function Kristal.quickReload()
     Mod = nil
-    Gamestate.switch({})
-    Registry.initialize()
     Kristal.Mods.clear()
+    Kristal.clearModHooks()
+    Registry.initialize()
     love.audio.stop()
+    Gamestate.switch({})
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
     end)
@@ -673,4 +674,11 @@ function Kristal.executeModScript(path, ...)
     else
         return true, Mod.info.script_chunks[path](...)
     end
+end
+
+function Kristal.clearModHooks()
+    for _,hook in ipairs(Utils.__MOD_HOOKS) do
+        hook.target[hook.name] = hook.orig
+    end
+    Utils.__MOD_HOOKS = {}
 end

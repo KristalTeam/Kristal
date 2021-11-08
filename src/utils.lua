@@ -91,8 +91,12 @@ function Utils.join(tbl, sep, start, len)
     return s
 end
 
+Utils.__MOD_HOOKS = {}
 function Utils.hook(target, name, hook)
     local orig = target[name] or function() end
+    if Mod then
+        table.insert(Utils.__MOD_HOOKS, 1, {target = target, name = name, hook = hook, orig = orig})
+    end
     target[name] = function(...)
         return hook(orig, ...)
     end

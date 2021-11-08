@@ -7,5 +7,6 @@
 
     "transition": false,
 
+    "quickReload": false,
     "hidden": false
 }
