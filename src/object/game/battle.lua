@@ -57,6 +57,8 @@ function Battle:init()
     self.intro_timer = 0
     self.offset = 0
 
+    self.transitioned = false
+
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
@@ -147,6 +149,7 @@ function Battle:postInit(state, encounter)
     end]]
 
     if state == "TRANSITION" then
+        self.transitioned = true
         self.transition_timer = 0
         self.afterimage_count = 0
         self.battler_targets = {}

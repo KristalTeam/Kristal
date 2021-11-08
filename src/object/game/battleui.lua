@@ -131,7 +131,7 @@ function BattleUI:drawState()
             tp_offset = tp_offset + 1
         end
 
-        if current_item.tp ~= 0 then
+        if current_item.tp and current_item.tp ~= 0 then
             love.graphics.setColor(255/255, 160/255, 64/255)
             love.graphics.print(math.floor((current_item.tp / Game.battle.max_tension) * 100) .. "% TP", 260 + 240, 50 + (tp_offset * 32))
             Game.battle.tension_bar:setTensionPreview(current_item.tp)
