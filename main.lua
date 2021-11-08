@@ -456,9 +456,9 @@ function Kristal.errorHandler(msg)
 
         love.graphics.setFont(font)
 
-        local _,lines = font:getWrap("Error at "..split[1].." - "..split[2], 640 - pos)
+        local _,lines = font:getWrap("Error at "..split[#split-1].." - "..split[#split], 640 - pos)
 
-        love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[1], {1, 1, 1, 1}, " - " .. split[2]}, pos, ypos, 640 - pos)
+        love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, 640 - pos)
         ypos = ypos + (32 * #lines)
 
         for l in trace:gmatch("(.-)\n") do

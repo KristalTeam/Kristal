@@ -30,21 +30,38 @@ function BattleUI:init()
     self.parallax_x = 0
     self.parallax_y = 0
 
+    self.animation_done = false
     self.animation_timer = 0
+    self.animate_out = false
 
     self.heart_sprite = Assets.getTexture("player/heart")
+end
+
+function BattleUI:transitionOut()
+    -- TODO: Accurate transition-out animation
+    self.animate_out = true
+    self.animation_timer = 0
+    self.animation_done = false
 end
 
 function BattleUI:update(dt)
     self.animation_timer = self.animation_timer + (dt * 30)
 
-    if self.animation_timer > 13 then
-        self.animation_timer = 13
+    local max_time = self.animate_out and 6 or 12
+
+    if self.animation_timer > max_time + 1 then
+        self.animation_done = true
+        self.animation_timer = max_time + 1
     end
 
-    self.y = Ease.outCubic(math.min(12, self.animation_timer), 480, 325 - 480, 12)
-
-    local offset = self.y - Ease.outCubic(self.animation_timer - 1, 480, 325 - 480, 12)
+    local offset
+    if not self.animate_out then
+        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 480, 325 - 480, max_time)
+        offset = self.y - Ease.outCubic(self.animation_timer - 1, 480, 325 - 480, max_time)
+    else
+        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 325, 480 - 325, max_time)
+        offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), 325, 480 - 325, max_time)
+    end
 
     for _, box in ipairs(self.action_boxes) do
         box.data_offset = offset

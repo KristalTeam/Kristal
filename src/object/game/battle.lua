@@ -15,6 +15,8 @@ function Battle:init()
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
     self.enemy_beginning_positions = {}
 
+    self.party_world_characters = {}
+
     for i = 1, math.min(3, #Game.party) do
         local party_member = Game.party[i]
 
@@ -26,6 +28,7 @@ function Battle:init()
             self:addChild(player_battler)
             table.insert(self.party,player_battler)
             table.insert(self.party_beginning_positions, {player_x, player_y})
+            self.party_world_characters[party_member.id] = Game.world.player
 
             Game.world.player.visible = false
         else
@@ -38,6 +41,8 @@ function Battle:init()
                     self:addChild(chara_battler)
                     table.insert(self.party, chara_battler)
                     table.insert(self.party_beginning_positions, {chara_x, chara_y})
+                    self.party_world_characters[party_member.id] = follower
+
                     follower.visible = false
 
                     found = true
@@ -59,7 +64,7 @@ function Battle:init()
 
     self.transitioned = false
 
-    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY
+    -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY, TRANSITIONOUT
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
 
     self.state = "NONE"
@@ -131,7 +136,6 @@ function Battle:postInit(state, encounter)
 
     if self.encounter.music then
         self.music = Music()
-        Game.world.music.volume = 0
         Game.world.music:pause()
     else
         self.music = Game.world.music
@@ -367,7 +371,12 @@ function Battle:onStateChange(old,new)
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
         end
-        self:battleText("* You won!\n* Got 0 EXP and 0 D$.")
+        self:battleText("* You won!\n* Got 0 EXP and 0 D$.", function() self:setState("TRANSITIONOUT") end)
+    elseif new == "TRANSITIONOUT" then
+        self.battle_ui:transitionOut()
+        if self.music ~= Game.world.music then
+            self.music:fade(0, 0.05)
+        end
     end
 end
 
@@ -976,6 +985,8 @@ function Battle:update(dt)
     self.timer:update(dt)
     if self.state == "TRANSITION" then
         self:updateTransition(dt)
+    elseif self.state == "TRANSITIONOUT" then
+        self:updateTransitionOut(dt)
     elseif self.state == "INTRO" then
         self:updateIntro(dt)
     elseif self.state == "ACTIONSDONE" then
@@ -993,7 +1004,7 @@ function Battle:update(dt)
         self:updateWaves(dt)
     end
 
-    if self.encounter.update then
+    if self.state ~= "TRANSITIONOUT" and self.encounter.update then
         self.encounter:update(dt)
     end
 
@@ -1059,6 +1070,38 @@ function Battle:updateTransition(dt)
     for _, enemy in ipairs(self.enemies) do
         enemy.x = Utils.lerp(self.enemy_beginning_positions[enemy][1], enemy.target_x, self.transition_timer / 10)
         enemy.y = Utils.lerp(self.enemy_beginning_positions[enemy][2], enemy.target_y, self.transition_timer / 10)
+    end
+end
+
+function Battle:updateTransitionOut(dt)
+    if not self.battle_ui.animation_done then
+        return
+    end
+
+    self.transition_timer = self.transition_timer - DTMULT
+
+    if self.transition_timer <= 0 or not self.transitioned then
+        self.transition_timer = 0
+        for _,battler in ipairs(self.party) do
+            if self.party_world_characters[battler.chara.id] then
+                self.party_world_characters[battler.chara.id].visible = true
+            end
+        end
+        if self.music ~= Game.world.music then
+            self.music:stop()
+            Game.world.music:resume()
+        end
+        self:remove()
+        Game.battle = nil
+        Game.state = "OVERWORLD"
+        return
+    end
+
+    for index, battler in ipairs(self.party) do
+        local target_x, target_y = unpack(self.battler_targets[index])
+
+        battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
+        battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
     end
 end
 
