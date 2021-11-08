@@ -130,6 +130,7 @@ function World:spawnFollower(chara)
     follower.layer = self.layers["objects"]
     table.insert(self.followers, follower)
     self:addChild(follower)
+    return follower
 end
 
 function World:loadMap(map)
@@ -436,6 +437,11 @@ function World:transitionImmediate(target)
     if target.map then
         self:loadMap(target.map)
     end
+    local facing = "down"
+    if self.player then
+        facing = self.player.facing
+    end
+
     if target.x and target.y then
         self:spawnPlayer(target.x, target.y)
     elseif target.marker and self.markers[target.marker] then
@@ -454,7 +460,8 @@ function World:transitionImmediate(target)
     end
     if Game.party then
         for i = 2, #Game.party do
-            self:spawnFollower(Game.party[i].id)
+            local follower = self:spawnFollower(Game.party[i].id)
+            follower:setFacing(facing)
         end
     end
 end
