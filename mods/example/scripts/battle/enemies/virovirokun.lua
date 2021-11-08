@@ -100,7 +100,7 @@ function Virovirokun:onAct(battler, name)
         --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.actor.dmg_color)
         --self.parent:addChild(heck)
     elseif name == "TakeCareX" then
-        for _,enemy in ipairs(Game.battle.enemies) do
+        for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
             if enemy.id == "virovirokun" then
                 enemy:addMercy(100)
             else

@@ -50,7 +50,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
 end
 
 function Encounter:fetchEncounterText()
-    local enemies = Game.battle.enemies
+    local enemies = Game.battle:getActiveEnemies()
     return enemies[math.random(#enemies)]:fetchEncounterText()
 end
 
@@ -58,7 +58,7 @@ function Encounter:selectWaves()
     local waves = {}
     local added_wave = {}
 
-    local enemies = Game.battle.enemies
+    local enemies = Game.battle:getActiveEnemies()
     for _,enemy in ipairs(enemies) do
         local wave = enemy:selectWave(enemies)
 

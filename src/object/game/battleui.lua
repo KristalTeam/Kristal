@@ -150,7 +150,7 @@ function BattleUI:drawState()
         love.graphics.print("HP", 424, 39, 0, 1, 0.5)
         love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
 
-        for index, enemy in ipairs(Game.battle.enemies) do
+        for index, enemy in ipairs(Game.battle:getActiveEnemies()) do
             local y_off = (index - 1) * 30
             if enemy.tired and (enemy.mercy >= 100) then
                 love.graphics.setColor(1, 1, 1, 1)

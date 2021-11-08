@@ -149,7 +149,7 @@ end
 
 function Wave:getAttackers()
     local result = {}
-    for _,enemy in ipairs(Game.battle.enemies) do
+    for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
         local wave = enemy.selected_wave
         if type(wave) == "table" and wave.id == self.id or wave == self.id then
             table.insert(result, enemy)
@@ -159,7 +159,7 @@ function Wave:getAttackers()
 end
 
 function Wave:getEnemyRatio()
-    local enemies = #Game.battle.enemies
+    local enemies = #Game.battle:getActiveEnemies()
     if enemies <= 1 then
         return 1
     elseif enemies == 2 then

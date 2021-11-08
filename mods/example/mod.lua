@@ -5,7 +5,7 @@ function Mod:init()
     Utils.hook(spell, "onCast", function(orig, self, user, target)
         orig(self, user, target)
 
-        for _,enemy in ipairs(Game.battle.enemies) do
+        for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
             if enemy.id == "virovirokun" then
                 enemy.text_override = "Nice healing"
             end

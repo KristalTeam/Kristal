@@ -133,6 +133,21 @@ function World:spawnFollower(chara)
     return follower
 end
 
+function World:spawnParty(marker, party)
+    party = party or Game.party or {"kris"}
+    if #party > 0 then
+        if type(marker) == "table" then
+            self:spawnPlayer(marker[1], marker[2], party[1].actor)
+        else
+            self:spawnPlayer(marker or "spawn", party[1].actor)
+        end
+        for i = 2, #Game.party do
+            local follower = self:spawnFollower(party[i].actor)
+            follower:setFacing(self.player.facing)
+        end
+    end
+end
+
 function World:loadMap(map)
     local success, map_data = Kristal.executeModScript("scripts/world/maps/"..map)
     if not success then
@@ -437,33 +452,13 @@ function World:transitionImmediate(target)
     if target.map then
         self:loadMap(target.map)
     end
-    local facing = "down"
-    if self.player then
-        facing = self.player.facing
-    end
-
+    local pos
     if target.x and target.y then
-        self:spawnPlayer(target.x, target.y)
-    elseif target.marker and self.markers[target.marker] then
-        self:spawnPlayer(target.marker)
-    else
-        -- Default positions
-        local marker
-        for k,v in pairs(self.markers) do
-            marker = k
-        end
-        if marker then
-            self:spawnPlayer(marker)
-        else
-            self:spawnPlayer((self.map_width * self.tile_width) / 2, (self.map_height * self.tile_height) / 2)
-        end
+        pos = {target.x, target.y}
+    elseif target.marker then
+        pos = target.marker
     end
-    if Game.party then
-        for i = 2, #Game.party do
-            local follower = self:spawnFollower(Game.party[i].id)
-            follower:setFacing(facing)
-        end
-    end
+    self:spawnParty(pos)
 end
 
 function World:updateCamera()
