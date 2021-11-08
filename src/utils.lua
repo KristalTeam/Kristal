@@ -409,6 +409,12 @@ function Utils.randomSign()
     return love.math.random() < 0.5 and 1 or -1
 end
 
+function Utils.randomAxis()
+    local t = {Utils.randomSign()}
+    table.insert(t, love.math.random(2), 0)
+    return t
+end
+
 function Utils.filter(tbl, filter)
     local t = {}
     for _,v in ipairs(tbl) do
@@ -422,6 +428,17 @@ end
 function Utils.pick(tbl, sort)
     tbl = sort and Utils.filter(tbl, sort) or tbl
     return tbl[love.math.random(#tbl)]
+end
+
+function Utils.pickMultiple(tbl, amount, sort)
+    tbl = sort and Utils.filter(tbl, sort) or Utils.copy(tbl)
+    local t = {}
+    for _=1,amount do
+        local i = love.math.random(#tbl)
+        table.insert(t, tbl[i])
+        table.remove(tbl, i)
+    end
+    return t
 end
 
 function Utils.angle(x1,y1, x2,y2)
