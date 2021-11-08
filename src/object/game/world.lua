@@ -412,6 +412,8 @@ function World:loadObject(name, data)
         return Savepoint(data)
     elseif name:lower() == "interactscript" then
         return InteractScript(data)
+    elseif name:lower() == "script" then
+        return Script(data)
     elseif name:lower() == "readable" then
         return Readable(data)
     elseif name:lower() == "transition" then
