@@ -175,6 +175,8 @@ function World:loadMap(map)
         end
     end
 
+    self.followers = {}
+
     if map_data.backgroundcolor then
         local bgc = map_data.backgroundcolor
         self.bg_color = {bgc[1]/255, bgc[2]/255, bgc[3]/255, (bgc[4] or 255)/255}
@@ -448,7 +450,6 @@ function World:transition(target)
 end
 
 function World:transitionImmediate(target)
-    self.followers = {}
     if target.map then
         self:loadMap(target.map)
     end
