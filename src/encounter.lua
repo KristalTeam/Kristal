@@ -6,6 +6,8 @@ function Encounter:init()
 
     -- Whether the default grid background is drawn
     self.background = true
+    -- If enabled, hides the world even if the default background is disabled
+    self.hide_world = false
 
     -- The music used for this encounter (TODO: implement)
     self.music = "battle"
@@ -13,6 +15,17 @@ function Encounter:init()
     -- Whether characters have the X-Action option in their spell menu
     self.default_xactions = true
 end
+
+function Encounter:onBattleStart() end
+function Encounter:onBattleEnd() end
+
+function Encounter:onTurnStart() end
+function Encounter:onTurnEnd() end
+
+function Encounter:update(dt) end
+
+function Encounter:draw(fade) end
+function Encounter:drawBackground(fade) end
 
 function Encounter:addEnemy(enemy, x, y, ...)
     local enemy_obj
@@ -106,7 +119,7 @@ function Encounter:onDialogueEnd()
 end
 
 function Encounter:onWavesDone()
-    Game.battle:setState("ACTIONSELECT")
+    Game.battle:nextTurn()
 end
 
 function Encounter:createSoul(x, y)

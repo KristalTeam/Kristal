@@ -110,11 +110,9 @@ function Game:update(dt)
         Game:handleMovement()
     end
 
-    if self.state == "BATTLE" and self.battle then
+    if self.state == "BATTLE" and self.battle and self.battle:isWorldHidden() then
         self.world.active = false
-        if self.battle.background_fade_alpha >= 1 then
-            self.world.visible = false
-        end
+        self.world.visible = false
     else
         self.world.active = true
         self.world.visible = true

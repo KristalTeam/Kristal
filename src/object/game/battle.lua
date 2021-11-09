@@ -74,6 +74,8 @@ function Battle:init()
 
     self.current_selecting = 1
 
+    self.turn_count = 0
+
     self.battle_ui = nil
     self.tension_bar = nil
 
@@ -142,17 +144,6 @@ function Battle:postInit(state, encounter)
     else
         self.music = Game.world.music
     end
-
-    --[[for _,enemy in ipairs(self.encounter.enemies) do
-        local enemy_obj
-        if type(enemy) == "string" then
-            enemy_obj = Registry.createEnemy(enemy)
-        else
-            enemy_obj = enemy
-        end
-        table.insert(self.enemies, enemy_obj)
-        self:addChild(enemy_obj)
-    end]]
 
     if state == "TRANSITION" then
         self.transitioned = true
@@ -236,60 +227,18 @@ function Battle:onStateChange(old,new)
         for _,battler in ipairs(self.party) do
             battler:setAnimation("battle/intro")
         end
+
+        self.encounter:onBattleStart()
     elseif new == "ACTIONSELECT" then
-        if old == "DEFENDING" then
-            for _,action in ipairs(self.current_actions) do
-                if action.action == "DEFEND" then
-                    self:finishAction(action)
-                end
-            end
-
-            for _,enemy in ipairs(self.enemies) do
-                enemy.selected_wave = nil
-            end
-        end
-
-        if (old == "DEFENDING") or (old == "INTRO") or (self.current_selecting < 1) or (self.current_selecting > #self.party) then
-            self.hit_count = {}
-            self.current_selecting = 1
-            self.current_button = 1
-
-            self.character_actions = {}
-            self.current_actions = {}
-            self.processed_action = {}
-
-            if self.battle_ui then
-                for _,box in ipairs(self.battle_ui.action_boxes) do
-                    box.selected_button = 1
-                    if old ~= "DEFENDING" then
-                        box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
-                    end
-                end
-                if (old ~= "INTRO") then
-                    self.battle_ui.current_encounter_text = self:fetchEncounterText()
-                end
-                self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
-            end
-            if self.arena then
-                self.arena:remove()
-                self.arena = nil
-            end
-            if self.soul then
-                self.soul:remove()
-                self.soul = nil
-            end
-            if old ~= "DEFENDING" then
-                for _,battler in ipairs(self.party) do
-                    battler:setAnimation("battle/idle")
-                end
-            end
-        end
-
         if self.state_reason == "CANCEL" then
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
 
         if old == "INTRO" then
+            for _,battler in ipairs(self.party) do
+                battler:setAnimation("battle/idle")
+            end
+
             if self.encounter.music then
                 self.music:play(self.encounter.music)
             end
@@ -373,7 +322,10 @@ function Battle:onStateChange(old,new)
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
         end
-        self:battleText("* You won!\n* Got 0 EXP and 0 D$.", function() self:setState("TRANSITIONOUT") end)
+        self:battleText("* You won!\n* Got 0 EXP and 0 D$.", function()
+            self:setState("TRANSITIONOUT")
+            self.encounter:onBattleEnd()
+        end)
     elseif new == "TRANSITIONOUT" then
         self.battle_ui:transitionOut()
         if self.music ~= Game.world.music then
@@ -966,6 +918,59 @@ function Battle:nextParty()
     end
 end
 
+function Battle:nextTurn()
+    self.turn_count = self.turn_count + 1
+    if self.turn_count > 1 then
+        self.encounter:onTurnEnd()
+    end
+
+    for _,wave in ipairs(self.waves) do
+        wave:clear()
+    end
+    self.waves = {}
+
+    for _,action in ipairs(self.current_actions) do
+        if action.action == "DEFEND" then
+            self:finishAction(action)
+        end
+    end
+
+    for _,enemy in ipairs(self.enemies) do
+        enemy.selected_wave = nil
+    end
+
+    self.hit_count = {}
+    self.current_selecting = 1
+    self.current_button = 1
+
+    self.character_actions = {}
+    self.current_actions = {}
+    self.processed_action = {}
+
+    if self.battle_ui then
+        for _,box in ipairs(self.battle_ui.action_boxes) do
+            box.selected_button = 1
+            box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+        end
+        self.battle_ui.current_encounter_text = self:fetchEncounterText()
+        self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
+    end
+
+    if self.arena then
+        self.arena:remove()
+        self.arena = nil
+    end
+
+    if self.soul then
+        self.soul:remove()
+        self.soul = nil
+    end
+
+    self.encounter:onTurnStart()
+
+    self:setState("ACTIONSELECT")
+end
+
 function Battle:setActText(text, dont_finish)
     self:battleText(text, function()
         if not dont_finish then
@@ -1026,7 +1031,7 @@ function Battle:update(dt)
         self:updateWaves(dt)
     end
 
-    if self.state ~= "TRANSITIONOUT" and self.encounter.update then
+    if self.state ~= "TRANSITIONOUT" then
         self.encounter:update(dt)
     end
 
@@ -1052,7 +1057,7 @@ end
 function Battle:updateIntro(dt)
     self.intro_timer = self.intro_timer + 1 * (dt * 30)
     if self.intro_timer >= 13 then
-        self:setState("ACTIONSELECT")
+        self:nextTurn()
     end
 end
 
@@ -1149,12 +1154,8 @@ function Battle:updateWaves(dt)
     if all_done and not last_done then
         for _,wave in ipairs(self.waves) do
             wave:onEnd()
-            wave:clear()
         end
-
         self.encounter:onWavesDone()
-
-        self.waves = {}
     end
 end
 
@@ -1199,7 +1200,11 @@ function Battle:draw()
     -- however the background ones are (8, 0, 8).
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    self.encounter:drawBackground(self.transition_timer / 10)
+
     super:draw(self)
+
+    self.encounter:draw(self.transition_timer / 10)
 
     if DEBUG_RENDER then
         self:drawDebug()
@@ -1230,6 +1235,11 @@ function Battle:drawBackground()
         love.graphics.line(0, -100 + (i * 50) - math.floor(self.offset), 640, -100 + (i * 50) - math.floor(self.offset))
         love.graphics.line(-100 + (i * 50) - math.floor(self.offset), 0, -100 + (i * 50) - math.floor(self.offset), 480)
     end
+end
+
+function Battle:isWorldHidden()
+    return self.state ~= "TRANSITION" and self.state ~= "TRANSITIONOUT" and
+           (self.encounter.background or self.encounter.hide_world)
 end
 
 function Battle:canSelectMenuItem(menu_item)
@@ -1286,6 +1296,12 @@ function Battle:keypressed(key)
         end
         if key == "m" then
             MASTER_VOLUME = 1 - MASTER_VOLUME
+        end
+        if self.state == "DEFENDING" and key == "f" then
+            for _,wave in ipairs(self.waves) do
+                wave:onEnd()
+            end
+            self.encounter:onWavesDone()
         end
     end
 
@@ -1530,10 +1546,7 @@ function Battle:keypressed(key)
             self.battle_ui.action_boxes[self.current_selecting].selected_button = 1
         end
     elseif self.state == "DEFENDING" then
-        if Input.isConfirm(key) then
-            self:setState("NONE")
-            self.encounter:onWavesDone()
-        elseif key == "d" then
+        if key == "d" then
             local rot = self.arena.rotation + (math.pi/2)
             self.timer:tween(0.33, self.arena, {rotation = rot})
         elseif key == "a" then
