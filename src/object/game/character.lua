@@ -33,6 +33,9 @@ function Character:init(chara, x, y)
     self.y = math.floor(self.y)
 
     self.noclip = false
+
+    self.spin_timer = 0
+    self.spin_speed = 0
 end
 
 function Character:onAdd(parent)
@@ -276,7 +279,35 @@ function Character:update(dt)
         self.sprite.walking = false
     end
 
+    if (self.spin_speed ~= 0) then
+        self.spin_timer = self.spin_timer + (1 / self.spin_speed) * DTMULT
+        if (self.spin_timer >= 1) then
+            if     (self.facing == "down")  then self:setFacing("left")
+            elseif (self.facing == "left")  then self:setFacing("up")
+            elseif (self.facing == "up")    then self:setFacing("right")
+            elseif (self.facing == "right") then self:setFacing("down")
+            end
+
+            self.spin_timer = 0
+        end
+        if (self.spin_timer <= -1) then
+            if     (self.facing == "down")  then self:setFacing("right")
+            elseif (self.facing == "left")  then self:setFacing("down")
+            elseif (self.facing == "up")    then self:setFacing("left")
+            elseif (self.facing == "right") then self:setFacing("up")
+            end
+
+            self.spin_timer = 0
+        end
+    else
+        self.spin_timer = 0
+    end
+
     super:update(self, dt)
+end
+
+function Character:spin(speed)
+    self.spin_speed = speed
 end
 
 function Character:draw()

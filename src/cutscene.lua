@@ -204,6 +204,13 @@ function Cutscene.setAnimation(chara, anim)
     chara:setAnimation(anim)
 end
 
+function Cutscene.spin(chara, speed)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    chara:spin(speed)
+end
+
 function Cutscene.slideTo(chara, x, y, speed)
     if type(chara) == "string" then
         chara = self.getCharacter(chara)
