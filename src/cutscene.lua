@@ -30,6 +30,11 @@ function Cutscene.start(cutscene)
     self.textbox_immediate = false
     self.move_targets = {}
 
+    self.camera_target = nil
+    self.camera_start = nil
+    self.camera_move_time = 0
+    self.camera_move_timer = 0
+
     self.current_coroutine = coroutine.create(func)
     Game.lock_input = true
     Game.cutscene_active = true
@@ -93,7 +98,17 @@ function Cutscene.update(dt)
             self.move_targets[v] = nil
         end
 
-        if coroutine.status(self.current_coroutine) == "dead" then
+        if self.camera_target then
+            self.camera_move_timer = Utils.approach(self.camera_move_timer, self.camera_move_time, dt)
+            Game.world.camera.x = Utils.lerp(self.camera_start[1], self.camera_target[1], self.camera_move_timer / self.camera_move_time)
+            Game.world.camera.y = Utils.lerp(self.camera_start[2], self.camera_target[2], self.camera_move_timer / self.camera_move_time)
+            Game.world:updateCamera()
+            if self.camera_move_timer == self.camera_move_time then
+                self.camera_target = nil
+            end
+        end
+
+        if coroutine.status(self.current_coroutine) == "dead" and not self.camera_target then
             -- TODO: ALLOW THE PLAYER TO OPEN THE MENU  OR SOMETHING
 
             Game.lock_input = false
@@ -204,6 +219,36 @@ function Cutscene.shake(chara, x, y)
         chara = self.getCharacter(chara)
     end
     chara:shake(x, y)
+end
+
+function Cutscene.detachCamera()
+    Game.world.camera_attached = false
+end
+
+function Cutscene.attachCamera(time)
+    Game.world.camera_attached = true
+
+    local tx, ty = Game.world:getCameraTarget()
+    self.panTo(tx, ty, time)
+end
+
+function Cutscene.panTo(...)
+    local args = {...}
+    local time = 0.8
+    if type(args[1]) == "number" then
+        self.camera_target = {args[1], args[2]}
+        time = args[3] or time
+    else
+        local chara = args[1]
+        if type(chara) == "string" then
+            chara = self.getCharacter(chara)
+        end
+        self.camera_target = {chara:getRelativePos(chara.width/2, chara.height/2)}
+        time = args[2] or time
+    end
+    self.camera_start = {Game.world.camera.x, Game.world.camera.y}
+    self.camera_move_time = time or 0.8
+    self.camera_move_timer = 0
 end
 
 function Cutscene.text(text, portrait, options)

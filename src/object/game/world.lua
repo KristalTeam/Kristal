@@ -32,6 +32,8 @@ function World:init(map)
     self.battle_areas = {}
 
     self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.camera_attached = true
+
     self.player = nil
     self.soul = nil
 
@@ -118,8 +120,10 @@ function World:spawnPlayer(...)
     self.soul.layer = self.layers["soul"]
     self:addChild(self.soul)
 
-    self.camera:lookAt(self.player.x, self.player.y - (self.player.height * 2)/2)
-    self:updateCamera()
+    if self.camera_attached then
+        self.camera:lookAt(self.player.x, self.player.y - (self.player.height * 2)/2)
+        self:updateCamera()
+    end
 end
 
 function World:spawnFollower(chara)
@@ -462,6 +466,10 @@ function World:transitionImmediate(target)
         pos = target.marker
     end
     self:spawnParty(pos)
+end
+
+function World:getCameraTarget()
+    return self.player:getRelativePos(self.player.width/2, self.player.height/2)
 end
 
 function World:updateCamera()

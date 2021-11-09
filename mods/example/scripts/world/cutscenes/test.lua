@@ -7,6 +7,7 @@ if ralsei then
     Cutscene.wait(0.5)
     Cutscene.text("* Oh    [color:red]Fuck[color:reset]   it's a  bomb")
 
+    Cutscene.detachCamera()
     Cutscene.detachFollowers()
 
     Cutscene.setSprite(ralsei, "world/dark/up", 1/15)
@@ -22,11 +23,13 @@ if ralsei then
     ralsei:explode()
 
     Cutscene.wait(2)
+    Cutscene.panTo(0, 0)
     Cutscene.text("* ", "susie/spr_face_susie_alt_15", {x=-5, y=0})
 
     Cutscene.wait(2)
     Cutscene.setSprite(susie, "world/dark")
     Cutscene.attachFollowers(true)
+    Cutscene.attachCamera()
 else
     Cutscene.text("* ", "susie/spr_face_susie_alt_15", {x=-5, y=0})
 end

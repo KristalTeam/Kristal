@@ -262,8 +262,8 @@ function Text:drawChar(node, state)
 
         if white then
             love.graphics.setShader(shader)
-            shader:send("from", white and COLORS.dkgray or state.color)
-            shader:send("to", white and COLORS.navy or state.color)
+            shader:sendColor("from", white and COLORS.dkgray or state.color)
+            shader:sendColor("to", white and COLORS.navy or state.color)
             love.graphics.setColor(1, 1, 1, white and 1 or 0.3)
         else
             love.graphics.setColor(state.color[1], state.color[2], state.color[3], 0.3)
@@ -272,8 +272,8 @@ function Text:drawChar(node, state)
 
         if not white then
             love.graphics.setShader(shader)
-            shader:send("from", COLORS.white)
-            shader:send("to", white and COLORS.white or state.color)
+            shader:sendColor("from", COLORS.white)
+            shader:sendColor("to", white and COLORS.white or state.color)
         else
             love.graphics.setShader(last_shader)
         end

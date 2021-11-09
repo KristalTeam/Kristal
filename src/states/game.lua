@@ -134,7 +134,7 @@ function Game:handleMovement()
 
     self.world.player:walk(walk_x, walk_y, love.keyboard.isDown("lshift") or love.keyboard.isDown("x"))
 
-    if walk_x ~= 0 or walk_y ~= 0 then
+    if self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
         self.world.camera.x = Utils.approach(self.world.camera.x, self.world.player.x, 12 * DTMULT)
         self.world.camera.y = Utils.approach(self.world.camera.y, self.world.player.y - (self.world.player.height * 2)/2, 12 * DTMULT)
     end
