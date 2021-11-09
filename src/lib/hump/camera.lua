@@ -66,7 +66,7 @@ local function new(x,y, w,h, zoom, rot, smoother)
     zoom = zoom or 1
     rot  = rot or 0
     smoother = smoother or camera.smooth.none() -- for locking, see below
-    return setmetatable({x = x, y = y, w = w, h = h, scale = zoom, rot = rot, smoother = smoother}, camera)
+    return setmetatable({x = x, y = y, ox = 0, oy = 0, bounds = nil, w = w, h = h, scale = zoom, rot = rot, smoother = smoother}, camera)
 end
 
 function camera:lookAt(x,y)
@@ -103,23 +103,36 @@ function camera:zoomTo(zoom)
     return self
 end
 
+function camera:getPosition()
+    local x, y = self.x + self.ox, self.y + self.oy
+    if self.bounds then
+        local zoom = 1 / self.scale
+        x = math.max(self.bounds[1] + (self.w/2 * zoom), math.min(self.bounds[1] + self.bounds[3] - (self.w/2 * zoom), x))
+        y = math.max(self.bounds[2] + (self.h/2 * zoom), math.min(self.bounds[2] + self.bounds[4] - (self.h/2 * zoom), y))
+    end
+    return x, y
+end
+
 function camera:getTransform(x,y,w,h)
     x,y = x or 0, y or 0
     w,h = w or self.w, h or self.h
 
     local cx,cy = x+w/2, y+h/2
 
+    local self_x, self_y = self:getPosition()
+
     local transform = love.math.newTransform()
     transform:translate(cx, cy)
     transform:scale(self.scale)
     transform:rotate(self.rot)
-    transform:translate(-self.x, -self.y)
+    transform:translate(-self_x, -self_y)
 
     return transform
 end
 
 function camera:getParallax(px, py)
-    local cx, cy = self.x - self.w/2, self.y - self.h/2
+    local x, y = self:getPosition()
+    local cx, cy = x - self.w/2, y - self.h/2
     return cx * (1 - px), cy * (1 - py)
 end
 
@@ -132,12 +145,14 @@ function camera:attach(x,y,w,h, noclip)
         love.graphics.setScissor(x,y,w,h)
     end
 
+    local self_x, self_y = self:getPosition()
+
     local cx,cy = x+w/2, y+h/2
     love.graphics.push()
     love.graphics.translate(cx, cy)
     love.graphics.scale(self.scale)
     love.graphics.rotate(self.rot)
-    love.graphics.translate(-self.x, -self.y)
+    love.graphics.translate(-self_x, -self_y)
 end
 
 function camera:detach()
@@ -230,6 +245,10 @@ function camera:lockWindow(x, y, x_min, x_max, y_min, y_max, smoother, ...)
 
     -- move
     self:move((smoother or self.smoother)(dx,dy,...))
+end
+
+function camera:setBounds(x, y, w, h)
+    self.bounds = {x or 0, y or 0, w or self.w, h or self.h}
 end
 
 -- the module

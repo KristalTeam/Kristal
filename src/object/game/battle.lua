@@ -1037,16 +1037,16 @@ function Battle:update(dt)
 
     if self.shake ~= 0 then
         local last_shake = math.ceil(self.shake)
-        self.camera.x = SCREEN_WIDTH/2 + last_shake
-        self.camera.y = SCREEN_HEIGHT/2 + last_shake
+        self.camera.ox = last_shake
+        self.camera.oy = last_shake
         self.shake = Utils.approach(self.shake, 0, DTMULT)
         local new_shake = math.ceil(self.shake)
         if new_shake ~= last_shake then
             self.shake = self.shake * -1
         end
     else
-        self.camera.x = SCREEN_WIDTH/2
-        self.camera.y = SCREEN_HEIGHT/2
+        self.camera.ox = 0
+        self.camera.oy = 0
     end
 
     -- Always sort

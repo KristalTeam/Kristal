@@ -32,7 +32,11 @@ function World:init(map)
     self.battle_areas = {}
 
     self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.camera:setBounds()
     self.camera_attached = true
+
+    self.shake_x = 0
+    self.shake_y = 0
 
     self.player = nil
     self.soul = nil
@@ -247,6 +251,8 @@ function World:loadMap(map)
             end
         end
     end
+
+    self.camera:setBounds(0, 0, self.map_width * self.tile_width, self.map_height * self.tile_height)
 
     if self.markers["spawn"] then
         local spawn = self.markers["spawn"]
@@ -473,11 +479,25 @@ function World:getCameraTarget()
 end
 
 function World:updateCamera()
-    local zoom = 1/self.camera.scale
-    local vw, vh = SCREEN_WIDTH/2, SCREEN_HEIGHT/2
-
-    self.camera.x = Utils.clamp(self.camera.x, vw * zoom, self.map_width * self.tile_width - (vw * zoom))
-    self.camera.y = Utils.clamp(self.camera.y, vh * zoom, self.map_height * self.tile_height - (vh * zoom))
+    if self.shake_x ~= 0 or self.shake_y ~= 0 then
+        local last_shake_x = math.ceil(self.shake_x)
+        local last_shake_y = math.ceil(self.shake_y)
+        self.camera.ox = last_shake_x
+        self.camera.oy = last_shake_y
+        self.shake_x = Utils.approach(self.shake_x, 0, DTMULT)
+        self.shake_y = Utils.approach(self.shake_y, 0, DTMULT)
+        local new_shake_x = math.ceil(self.shake_x)
+        if new_shake_x ~= last_shake_x then
+            self.shake_x = self.shake_x * -1
+        end
+        local new_shake_y = math.ceil(self.shake_y)
+        if new_shake_y ~= last_shake_y then
+            self.shake_y = self.shake_y * -1
+        end
+    else
+        self.camera.ox = 0
+        self.camera.oy = 0
+    end
 end
 
 function World:createTransform()

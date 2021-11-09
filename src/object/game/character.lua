@@ -78,7 +78,7 @@ function Character:move(x, y, speed)
         self.moved = math.max(self.moved, math.max(math.abs(movex) / DTMULT, math.abs(movey) / DTMULT))
 
         self.sprite.walking = true
-        self.sprite.walk_speed = self.moved
+        self.sprite.walk_speed = self.moved > 0 and math.max(4, self.moved) or 0
     end
 
     if movex ~= 0 or movey ~= 0 then
@@ -273,7 +273,7 @@ function Character:update(dt)
 
     if self.moved > 0 then
         self.sprite.walking = true
-        self.sprite.walk_speed = self.moved
+        self.sprite.walk_speed = math.max(4, self.moved)
         self.moved = 0
     else
         self.sprite.walking = false

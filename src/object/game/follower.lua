@@ -33,9 +33,8 @@ function Follower:updateIndex()
     end
 end
 
-function Follower:interprolate()
+function Follower:getTargetPosition()
     if self.target and self.target.history then
-        local ex, ey = self:getExactPosition()
         local tx, ty = self.x, self.y
         for i,v in ipairs(self.target.history) do
             tx, ty = v.x, v.y
@@ -53,6 +52,16 @@ function Follower:interprolate()
                 break
             end
         end
+        return tx, ty
+    else
+        return self:getExactPosition()
+    end
+end
+
+function Follower:interprolate()
+    if self.target and self.target.history then
+        local ex, ey = self:getExactPosition()
+        local tx, ty = self:getTargetPosition()
 
         local speed = 8 * DTMULT
 

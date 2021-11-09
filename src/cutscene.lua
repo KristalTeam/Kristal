@@ -87,6 +87,9 @@ function Cutscene.update(dt)
             local ex, ey = chara:getExactPosition()
             if ex == target[2] and ey == target[3] then
                 table.insert(done_moving, chara)
+                if target[5] then
+                    chara:setFacing(target[5])
+                end
             end
             local tx = Utils.approach(ex, target[2], target[4] * DTMULT)
             local ty = Utils.approach(ey, target[3], target[4] * DTMULT)
@@ -162,11 +165,24 @@ function Cutscene.detachFollowers()
     end
 end
 
-function Cutscene.attachFollowers(dont_return)
+function Cutscene.attachFollowers(return_speed, facing)
     for _,follower in ipairs(Game.followers) do
         follower.following = true
-        follower.returning = not dont_return
+
+        return_speed = return_speed or 6
+        if return_speed > 0 then
+            local tx, ty = follower:getTargetPosition()
+            self.walkTo(follower, tx, ty, return_speed, facing)
+        end
     end
+end
+
+function Cutscene.alignFollowers(facing, x, y)
+    Game.world.player:alignFollowers(facing, x, y)
+end
+
+function Cutscene.keepFollowerPositions()
+    Game.world.player:keepFollowerPositions()
 end
 
 function Cutscene.resetSprites()
@@ -183,13 +199,13 @@ function Cutscene.look(chara, dir)
     chara:setFacing(dir)
 end
 
-function Cutscene.walkTo(chara, x, y, speed)
+function Cutscene.walkTo(chara, x, y, speed, facing)
     if type(chara) == "string" then
         chara = self.getCharacter(chara)
     end
     local ex, ey = chara:getExactPosition()
     if ex ~= x or ey ~= y then
-        self.move_targets[chara] = {true, x, y, speed or 4}
+        self.move_targets[chara] = {true, x, y, speed or 4, facing}
     end
 end
 
@@ -227,11 +243,16 @@ function Cutscene.slideTo(chara, x, y, speed)
     end
 end
 
-function Cutscene.shake(chara, x, y)
+function Cutscene.shakeCharacter(chara, x, y)
     if type(chara) == "string" then
         chara = self.getCharacter(chara)
     end
     chara:shake(x, y)
+end
+
+function Cutscene.shakeCamera(x, y)
+    Game.world.shake_x = x or 0
+    Game.world.shake_y = y or x or 0
 end
 
 function Cutscene.detachCamera()

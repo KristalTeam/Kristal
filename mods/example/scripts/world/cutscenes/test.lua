@@ -18,17 +18,21 @@ if ralsei then
     Cutscene.slideTo(susie, susie.x - 40, susie.y, 8)
     Cutscene.slideTo(ralsei, kris.x, kris.y, 12)
     Cutscene.wait(0.2)
+    Cutscene.look(kris, "right")
     Cutscene.slideTo(kris, kris.x - 40, kris.y, 8)
     Cutscene.wait(0.3)
 
     ralsei:explode()
+    Cutscene.shakeCamera(8)
 
     Cutscene.wait(2)
     Cutscene.text("* Yo what the fuck", "face_15", "susie")
 
     Cutscene.wait(2)
     Cutscene.setSprite(susie, "world/dark")
-    Cutscene.attachFollowers(true)
+
+    Cutscene.alignFollowers("up")
+    Cutscene.attachFollowers()
     Cutscene.attachCamera()
 else
     Cutscene.text("", "face_15", "susie")

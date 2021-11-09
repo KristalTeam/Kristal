@@ -47,6 +47,40 @@ function Player:interact()
     return false
 end
 
+function Player:alignFollowers(facing, x, y)
+    local ex, ey = self:getExactPosition()
+
+    facing = facing or self.facing
+    x, y = x or ex, y or ey
+
+    local offset_x, offset_y = 0, 0
+    if facing == "left" then
+        offset_x = 1
+    elseif facing == "right" then
+        offset_x = -1
+    elseif facing == "up" then
+        offset_y = 1
+    elseif facing == "down" then
+        offset_y = -1
+    end
+
+    self.history = {{x = ex, y = ey, time = self.history_time}}
+    for i = 1, Game.max_followers do
+        local dist = ((i * FOLLOW_DELAY) / (1/30)) * 4
+        table.insert(self.history, {x = x + (offset_x * dist), y = y + (offset_y * dist), time = self.history_time - (i * FOLLOW_DELAY)})
+    end
+end
+
+function Player:keepFollowerPositions()
+    local ex, ey = self:getExactPosition()
+
+    self.history = {{x = ex, y = ey, time = self.history_time}}
+    for i,follower in ipairs(Game.world.followers) do
+        local fex, fey = follower:getExactPosition()
+        table.insert(self.history, {x = fex, y = fey, time = self.history_time - (i * FOLLOW_DELAY)})
+    end
+end
+
 function Player:update(dt)
     if #self.history == 0 then
         local ex, ey = self:getExactPosition()
