@@ -320,11 +320,9 @@ function Battle:onStateChange(old,new)
         for _,enemy in ipairs(self.enemies) do
             if not enemy.done_state then
                 all_done = false
-                local x, y
+                local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
                 if enemy.text_offset then
-                    x, y = enemy.x + enemy.text_offset[1], enemy.y + enemy.text_offset[2]
-                else
-                    x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
+                    x, y = x + enemy.text_offset[1], y + enemy.text_offset[2]
                 end
                 local dialogue = enemy:getEnemyDialogue()
                 if dialogue then
