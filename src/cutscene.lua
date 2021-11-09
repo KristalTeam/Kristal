@@ -199,6 +199,13 @@ function Cutscene.slideTo(chara, x, y, speed)
     end
 end
 
+function Cutscene.shake(chara, x, y)
+    if type(chara) == "string" then
+        chara = self.getCharacter(chara)
+    end
+    chara:shake(x, y)
+end
+
 function Cutscene.text(text, portrait, options)
     if not self.textbox then
         self.textbox = Textbox(56, 344, 529, 103)

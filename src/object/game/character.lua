@@ -238,6 +238,11 @@ function Character:walk(x, y, run, force_dir)
     self:move(x, y, (run and 8 or 4) * DTMULT)
 end
 
+function Character:shake(x, y)
+    self.sprite.shake_x = x or 0
+    self.sprite.shake_y = y or 0
+end
+
 function Character:setSprite(sprite)
     self.sprite:setSprite(sprite)
 end

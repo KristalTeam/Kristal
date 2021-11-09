@@ -22,6 +22,8 @@ function Mod:onKeyPressed(key)
             Game:encounter("virovirokun", true)
         elseif key == "n" then
             Game:encounter("virovirokun", false)
+        elseif key == "p" then
+            Game.world.player:shake(4, 0)
         end
     end
     if Game.world.player and not Game.lock_input then
