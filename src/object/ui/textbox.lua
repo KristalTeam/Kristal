@@ -17,6 +17,8 @@ function Textbox:init(x, y, width, height, no_background)
     self.text_x = 2
     self.text_y = -2
 
+    self.actor = nil
+
     self.face = Sprite()
     self.face.path = "face"
     self.face:setPosition(self.face_x, self.face_y)
@@ -40,8 +42,26 @@ function Textbox:setSize(w, h)
     end
 end
 
+function Textbox:setActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.getActor(actor)
+    end
+    self.actor = actor
+
+    if self.actor and self.actor.portrait_path then
+        self.face.path = self.actor.portrait_path
+    else
+        self.face.path = "face"
+    end
+end
+
 function Textbox:setFace(face, ox, oy)
     self.face:setSprite(face)
+
+    if self.actor and self.actor.portrait_offset then
+        ox = (ox or 0) + self.actor.portrait_offset[1]
+        oy = (oy or 0) + self.actor.portrait_offset[2]
+    end
     self.face:setPosition(self.face_x + (ox or 0), self.face_y + (oy or 0))
 
     if self.face.texture then
@@ -54,7 +74,11 @@ function Textbox:setFace(face, ox, oy)
 end
 
 function Textbox:setText(text)
-    self.text:setText(text)
+    if self.actor and self.actor.text_sound then
+        self.text:setText("[voice:"..self.actor.text_sound.."]"..text)
+    else
+        self.text:setText(text)
+    end
 end
 
 function Textbox:getBorder()

@@ -240,6 +240,7 @@ function love.update(dt)
 
     Timer.update(dt)
     Music.update(dt)
+    Assets.update(dt)
 
     if load_waiting > 0 then
         local msg = load_out_channel:pop()

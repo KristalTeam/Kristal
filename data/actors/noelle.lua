@@ -10,6 +10,10 @@ return {
     path = "party/noelle",
     default = "world/dark",
 
+    text_sound = "noelle",
+    portrait_path = "face/noelle",
+    portrait_offset = {-12, -10},
+
     animations = {
         ["battle/idle"]         = {"battle/dark/idle", 0.2, true},
 
@@ -54,28 +58,4 @@ return {
         ["battle/dark/intro"] = {11, 7},
         ["battle/dark/victory"] = {0, 0},
     },
-
-    --[[battle_offset = {0, 0},
-    battle = {
-        idle = "battle/dark/idle",
-
-        attack = "battle/dark/attack",
-        act = "battle/dark/act",
-        act_end = "battle/dark/actend",
-        spell = "battle/dark/spell",
-        item = "battle/dark/item",
-        spare = "battle/dark/act",
-        defend = "battle/dark/defend",
-
-        attack_ready = "battle/dark/attackready",
-        act_ready = "battle/dark/actready",
-        spell_ready = "battle/dark/spellready",
-        item_ready = "battle/dark/itemready",
-
-        hurt = "battle/dark/hurt",
-        defeat = "battle/dark/defeat",
-
-        transition = "battle/dark/intro",
-        victory = "battle/dark/victory",
-    }]]
 }

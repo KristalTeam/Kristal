@@ -1,12 +1,14 @@
 local DialogueText, super = Class(Text)
 
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait"}
+
 function DialogueText:init(text, x, y, w, h, font, style)
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
 end
 
 function DialogueText:resetState()
     super:resetState(self)
-    self.state["typing_sound"] = "snd_text"
+    self.state["typing_sound"] = "default"
 end
 
 function DialogueText:setText(text)
@@ -86,37 +88,45 @@ function DialogueText:playTextSound(current_node)
     end
 
     if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
-        Assets.playSound(self.state.typing_sound)
+        Assets.playSound("voice/"..self.state.typing_sound)
     end
 end
 
 function DialogueText:isNodeInstant(node)
     if node.type == "character" then
         return false
-    elseif node.type == "typer_mod" and node.command == "wait" then
+    elseif node.type == "modifier" and node.command == "wait" then
         return false
     end
     return true
 end
 
+function DialogueText:isModifier(command)
+    return Utils.containsValue(DialogueText.COMMANDS, command) or super:isModifier(self, command)
+end
+
 function DialogueText:processModifier(node)
     super:processModifier(self, node)
 
-    if node.type == "typer_mod" then
-        if node.command == "speed" then
-            self.state.speed = tonumber(node.arguments[1])
-        elseif node.command == "instant" then
-            self.state.skipping = true
-        elseif node.command == "stopinstant" then
-            self.state.skipping = false
-        elseif node.command == "wait" then
-            local delay = node.arguments[1]
-            if delay:sub(-1) == "s" then
-                self.state.waiting = tonumber(delay:sub(1, -2))
-                self.state.typed_characters = self.state.typed_characters + 1
-            else
-                self.state.progress = self.state.progress - tonumber(delay)
-            end
+    if node.command == "speed" then
+        self.state.speed = tonumber(node.arguments[1])
+    elseif node.command == "instant" then
+        self.state.skipping = true
+    elseif node.command == "stopinstant" then
+        self.state.skipping = false
+    elseif node.command == "wait" then
+        local delay = node.arguments[1]
+        if delay:sub(-1) == "s" then
+            self.state.waiting = tonumber(delay:sub(1, -2))
+            self.state.typed_characters = self.state.typed_characters + 1
+        else
+            self.state.progress = self.state.progress - tonumber(delay)
+        end
+    elseif node.command == "voice" then
+        if node.arguments[1] == "reset" then
+            self.state.typing_sound = "default"
+        else
+            self.state.typing_sound = node.arguments[1]
         end
     end
 end

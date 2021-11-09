@@ -10,6 +10,10 @@ return {
     path = "party/susie",
     default = "world/dark",
 
+    text_sound = "susie",
+    portrait_path = "face/susie",
+    portrait_offset = {-5, 0},
+
     animations = {
         ["battle/idle"]         = {"battle/dark/idle", 0.2, true},
 

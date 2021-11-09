@@ -11,7 +11,8 @@ if ralsei then
     Cutscene.detachFollowers()
 
     Cutscene.setSprite(ralsei, "world/dark/up", 1/15)
-    Cutscene.text("* Kris, Susie, look out!!!", "ralsei/spr_face_r_nohat_23", {x=-15, y=-10})
+    Cutscene.setSpeaker("ralsei")
+    Cutscene.text("* Kris, Susie, look out!!!", "face_23")
 
     Cutscene.setSprite(susie, "world/dark/shock_r")
     Cutscene.slideTo(susie, susie.x - 40, susie.y, 8)
@@ -23,13 +24,12 @@ if ralsei then
     ralsei:explode()
 
     Cutscene.wait(2)
-    Cutscene.panTo("entry_down")
-    Cutscene.text("* ", "susie/spr_face_susie_alt_15", {x=-5, y=0})
+    Cutscene.text("* Yo what the fuck", "face_15", "susie")
 
     Cutscene.wait(2)
     Cutscene.setSprite(susie, "world/dark")
     Cutscene.attachFollowers(true)
     Cutscene.attachCamera()
 else
-    Cutscene.text("* ", "susie/spr_face_susie_alt_15", {x=-5, y=0})
+    Cutscene.text("", "face_15", "susie")
 end

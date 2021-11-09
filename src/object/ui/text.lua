@@ -1,5 +1,7 @@
 local Text, super = Class(Object)
 
+Text.COMMANDS = {"color", "font", "style"}
+
 Text.COLORS = {
     ["red"] = COLORS.red,
     ["blue"] = COLORS.blue,
@@ -31,6 +33,7 @@ function Text:resetState()
     self.state = {
         color = {1, 1, 1, 1},
         font = self.font,
+        style = self.style,
         current_x = 0,
         current_y = 0,
         typed_characters = 0,
@@ -97,39 +100,9 @@ function Text:textToNodes(input_string)
 
                     leaving_modifier = true
 
-                    if command == "color" then
+                    if self:isModifier(command) then
                         table.insert(nodes, {
-                            ["type"] = "render_mod",
-                            ["command"] = command,
-                            ["arguments"] = arguments
-                        })
-                    elseif command == "noskip" then
-                        table.insert(nodes, {
-                            ["type"] = "typer_mod",
-                            ["command"] = command,
-                            ["arguments"] = arguments
-                        })
-                    elseif command == "speed" then
-                        table.insert(nodes, {
-                            ["type"] = "typer_mod",
-                            ["command"] = command,
-                            ["arguments"] = arguments
-                        })
-                    elseif command == "instant" then
-                        table.insert(nodes, {
-                            ["type"] = "typer_mod",
-                            ["command"] = command,
-                            ["arguments"] = arguments
-                        })
-                    elseif command == "stopinstant" then
-                        table.insert(nodes, {
-                            ["type"] = "typer_mod",
-                            ["command"] = command,
-                            ["arguments"] = arguments
-                        })
-                    elseif command == "wait" then
-                        table.insert(nodes, {
-                            ["type"] = "typer_mod",
+                            ["type"] = "modifier",
                             ["command"] = command,
                             ["arguments"] = arguments
                         })
@@ -209,28 +182,36 @@ function Text:processNode(node)
                 self.state.current_x = self.state.current_x + w
             end
         end
-    else
+    elseif node.type == "modifier" then
         self:processModifier(node)
     end
     --print(Utils.dump(node))
 end
 
+function Text:isModifier(command)
+    return Utils.containsValue(Text.COMMANDS, command)
+end
+
 function Text:processModifier(node)
-    if node.type == "render_mod" then
-        if node.command == "color" then
-            if self.COLORS[node.arguments[1]] then
-                -- Did they input a valid color name? Let's use it.
-                self.state.color = self.COLORS[node.arguments[1]]
-            elseif node.arguments[1] == "reset" then
-                -- They want to reset the color.
-                self.state.color = {1, 1, 1, 1}
-            elseif #node.arguments[1] == 6 then
-                -- It's 6 letters long, assume hashless hex
-                self.state.color = Utils.hexToRgb("#" .. node.arguments[1])
-            elseif #node.arguments[1] == 7 then
-                -- It's 7 letters long, assume hex
-                self.state.color = Utils.hexToRgb(node.arguments[1])
-            end
+    if node.command == "color" then
+        if self.COLORS[node.arguments[1]] then
+            -- Did they input a valid color name? Let's use it.
+            self.state.color = self.COLORS[node.arguments[1]]
+        elseif node.arguments[1] == "reset" then
+            -- They want to reset the color.
+            self.state.color = {1, 1, 1, 1}
+        elseif #node.arguments[1] == 6 then
+            -- It's 6 letters long, assume hashless hex
+            self.state.color = Utils.hexToRgb("#" .. node.arguments[1])
+        elseif #node.arguments[1] == 7 then
+            -- It's 7 letters long, assume hex
+            self.state.color = Utils.hexToRgb(node.arguments[1])
+        end
+    elseif node.command == "style" then
+        if node.arguments[1] == "reset" then
+            self.state.style = "none"
+        else
+            self.state.style = node.arguments[1]
         end
     end
 end
@@ -240,15 +221,15 @@ function Text:drawChar(node, state)
     local width, height = font:getWidth(node.character), font:getHeight()
     local x, y = state.current_x, state.current_y
     love.graphics.setFont(font)
-    if self.style == nil or self.style == "none" then
+    if state.style == nil or state.style == "none" then
         love.graphics.setColor(unpack(state.color))
         love.graphics.print(node.character, x, y)
-    elseif self.style == "menu" then
+    elseif state.style == "menu" then
         love.graphics.setColor(0, 0, 0)
         love.graphics.print(node.character, x+2, y+2)
         love.graphics.setColor(unpack(state.color))
         love.graphics.print(node.character, x, y)
-    elseif self.style == "dark" then
+    elseif state.style == "dark" then
         local canvas = Draw.pushCanvas(width, height)
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(node.character)
@@ -283,7 +264,7 @@ function Text:drawChar(node, state)
         if not white then
             love.graphics.setShader(last_shader)
         end
-    elseif self.style == "dark_menu" then
+    elseif state.style == "dark_menu" then
         love.graphics.setColor(0.25, 0.125, 0.25)
         love.graphics.print(node.character, x+2, y+2)
         love.graphics.setColor(unpack(state.color))

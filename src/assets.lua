@@ -18,6 +18,7 @@ function Assets.clear()
     self.frames_for = {}
     self.quads = {}
     self.sounds = {}
+    self.sound_instances = {}
     self.music = nil
 end
 
@@ -59,6 +60,20 @@ function Assets.loadData(data)
     self.data.sound_data = {}
 
     self.loaded = true
+end
+
+function Assets.update(dt)
+    local sounds_to_remove = {}
+    for key,sounds in pairs(self.sound_instances) do
+        for _,sound in ipairs(sounds) do
+            if not sound:isPlaying() then
+                table.insert(sounds_to_remove, {key = key, value = sound})
+            end
+        end
+    end
+    for _,sound in ipairs(sounds_to_remove) do
+        Utils.removeFromTable(self.sound_instances[sound.key], sound.value)
+    end
 end
 
 function Assets.getFont(path, size)
@@ -123,6 +138,13 @@ function Assets.startSound(sound)
     end
 end
 
+function Assets.stopSound(sound)
+    for _,src in ipairs(self.sound_instances[sound] or {}) do
+        src:stop()
+    end
+    self.sound_instances[sound] = {}
+end
+
 function Assets.playSound(sound, volume, pitch)
     if self.sounds[sound] then
         local src = self.sounds[sound]:clone()
@@ -133,8 +155,15 @@ function Assets.playSound(sound, volume, pitch)
             src:setPitch(pitch)
         end
         src:play()
+        self.sound_instances[sound] = self.sound_instances[sound] or {}
+        table.insert(self.sound_instances[sound], src)
         return src
     end
+end
+
+function Assets.stopAndPlaySound(sound, volume, pitch)
+    self.stopSound(sound)
+    self.playSound(sound, volume, pitch)
 end
 
 function Assets.getMusicPath(music)

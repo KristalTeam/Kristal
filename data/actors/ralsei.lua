@@ -10,6 +10,10 @@ return {
     path = "party/ralsei",
     default = "world/dark",
 
+    text_sound = "ralsei",
+    portrait_path = "face/ralsei",
+    portrait_offset = {-15, -10},
+
     animations = {
         ["battle/idle"]         = {"battle/dark/idle", 0.2, true},
 
@@ -60,29 +64,4 @@ return {
         ["battle/dark/intro"] = {2, 6},
         ["battle/dark/victory"] = {0, 6}
     },
-
-    --[[battle_offset = {2, 6},
-    battle = {
-        idle            = "battle/dark/idle",
-
-        attack          = "battle/dark/attack",
-        act             = "battle/dark/act",
-        act_end         = "battle/dark/actend",
-        spell           = "battle/dark/spell",
-        item            = "battle/dark/item",
-        spare           = "battle/dark/spell",
-        defend          = "battle/dark/defend",
-
-        attack_ready    = "battle/dark/attackready",
-        act_ready       = "battle/dark/actready",
-        spell_ready     = "battle/dark/spellready",
-        item_ready      = "battle/dark/itemready",
-
-        hurt            = "battle/dark/hurt",
-        defeat          = "battle/dark/defeat",
-
-        transition      = "world/dark/right_1",
-        intro           = "battle/dark/intro",
-        victory         = "battle/dark/victory",
-    }]]
 }

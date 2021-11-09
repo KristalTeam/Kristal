@@ -28,6 +28,7 @@ function Cutscene.start(cutscene)
     end
     self.textbox = nil
     self.textbox_immediate = false
+    self.textbox_actor = nil
     self.move_targets = {}
 
     self.camera_target = nil
@@ -242,6 +243,13 @@ function Cutscene.attachCamera(time)
     self.panTo(tx, ty, time or 0.8, function() Game.world.camera_attached = true end)
 end
 
+function Cutscene.setSpeaker(actor)
+    if isClass(actor) and actor:includes(Character) then
+        actor = actor.actor
+    end
+    self.textbox_actor = actor
+end
+
 function Cutscene.panTo(...)
     local args = {...}
     local time = 1
@@ -269,11 +277,21 @@ function Cutscene.panTo(...)
     self.camera_move_after = after
 end
 
-function Cutscene.text(text, portrait, options)
+function Cutscene.text(text, portrait, actor, options)
+    if type(actor) == "table" then
+        options = actor
+        actor = nil
+    end
+
     if not self.textbox then
         self.textbox = Textbox(56, 344, 529, 103)
         self.textbox.layer = 1
         Game.stage:addChild(self.textbox)
+    end
+
+    actor = actor or self.textbox_actor
+    if actor then
+        self.textbox:setActor(actor)
     end
 
     options = options or {}
