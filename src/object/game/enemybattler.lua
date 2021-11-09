@@ -31,8 +31,11 @@ function EnemyBattler:init(chara)
     self.text = {
         "* Test Enemy is testing."
     }
-
     self.low_health_text = "* Enemy is feeling tired."
+
+    self.dialogue = {
+        "Test dialogue!"
+    }
 
     self.acts = {
         {
@@ -159,11 +162,20 @@ function EnemyBattler:fetchEncounterText()
     if self.health <= (self.max_health / 3) then
         return self.low_health_text
     end
-    return self.text[math.random(#self.text)]
+    return Utils.pick(self.text)
+end
+
+function EnemyBattler:getEnemyDialogue()
+    if self.dialogue_override then
+        local dialogue = self.dialogue_override
+        self.dialogue_override = nil
+        return dialogue
+    end
+    return Utils.pick(self.dialogue)
 end
 
 function EnemyBattler:selectWave()
-    return self.waves[love.math.random(#self.waves)]
+    return Utils.pick(self.waves)
 end
 
 function EnemyBattler:onCheck(battler) end
