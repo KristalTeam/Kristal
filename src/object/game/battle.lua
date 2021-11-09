@@ -135,8 +135,9 @@ function Battle:init()
 end
 
 function Battle:postInit(state, encounter)
-    self:setState(state)
+    self.state = state
     self.encounter = encounter()
+    self:setState(state)
 
     if self.encounter.music then
         self.music = Music()

@@ -9,6 +9,10 @@ function Item:init(o)
     end
 end
 
+function Item:onEquip(character)
+    
+end
+
 function Item:onWorldUse(target)
 end
 
