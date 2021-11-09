@@ -170,7 +170,7 @@ function Cutscene.attachFollowers(return_speed, facing)
         follower.following = true
 
         return_speed = return_speed or 6
-        if return_speed ~= false and return_speed > 0 then
+        if return_speed ~= true and return_speed > 0 then
             local tx, ty = follower:getTargetPosition()
             self.walkTo(follower, tx, ty, return_speed, facing)
         end
