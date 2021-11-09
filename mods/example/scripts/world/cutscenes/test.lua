@@ -23,7 +23,7 @@ if ralsei then
     ralsei:explode()
 
     Cutscene.wait(2)
-    Cutscene.panTo(0, 0)
+    Cutscene.panTo("entry_down")
     Cutscene.text("* ", "susie/spr_face_susie_alt_15", {x=-5, y=0})
 
     Cutscene.wait(2)

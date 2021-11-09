@@ -229,22 +229,25 @@ function Cutscene.attachCamera(time)
     Game.world.camera_attached = true
 
     local tx, ty = Game.world:getCameraTarget()
-    self.panTo(tx, ty, time)
+    self.panTo(tx, ty, time or 0.8)
 end
 
 function Cutscene.panTo(...)
     local args = {...}
-    local time = 0.8
+    local time = 1
     if type(args[1]) == "number" then
         self.camera_target = {args[1], args[2]}
         time = args[3] or time
-    else
+    elseif type(args[1]) == "string" then
+        local marker = Game.world.markers[args[1]]
+        self.camera_target = {marker.center_x, marker.center_y}
+        time = args[2] or time
+    elseif isClass(args[1]) and args[1]:includes(Character) then
         local chara = args[1]
-        if type(chara) == "string" then
-            chara = self.getCharacter(chara)
-        end
         self.camera_target = {chara:getRelativePos(chara.width/2, chara.height/2)}
         time = args[2] or time
+    else
+        self.camera_target = {Game.world:getCameraTarget()}
     end
     self.camera_start = {Game.world.camera.x, Game.world.camera.y}
     self.camera_move_time = time or 0.8
