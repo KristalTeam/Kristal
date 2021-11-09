@@ -105,6 +105,8 @@ function Battle:init()
     self.enemy_dialogue = {}
     self.enemies_to_remove = {}
 
+    self.waves = {}
+
     self.state_reason = nil
     self.substate_reason = nil
 
@@ -241,6 +243,10 @@ function Battle:onStateChange(old,new)
                     self:finishAction(action)
                 end
             end
+
+            for _,enemy in ipairs(self.enemies) do
+                enemy.selected_wave = nil
+            end
         end
 
         if (old == "DEFENDING") or (old == "INTRO") or (self.current_selecting < 1) or (self.current_selecting > #self.party) then
@@ -350,9 +356,7 @@ function Battle:onStateChange(old,new)
         self.wave_length = 0
         self.wave_timer = 0
 
-        local waves = self.encounter.current_waves
-
-        for _,wave in ipairs(waves) do
+        for _,wave in ipairs(self.waves) do
             wave.encounter = self.encounter
 
             self.wave_length = math.max(self.wave_length, wave.time)
@@ -920,6 +924,26 @@ function Battle:hurt(amount, element)
     --global.inv = (global.invc * 40)
 end
 
+function Battle:setWaves(waves, allow_duplicates)
+    for _,wave in ipairs(self.waves) do
+        wave:onEnd()
+        wave:clear()
+    end
+    self.waves = {}
+    local added_wave = {}
+    for _,wave in ipairs(waves) do
+        local exists = (type(wave) == "string" and added_wave[wave]) or (isClass(wave) and added_wave[wave.id])
+        if allow_duplicates or not exists then
+            if type(wave) == "string" then
+                wave = Registry.createWave(wave)
+            end
+            table.insert(self.waves, wave)
+            added_wave[wave.id] = true
+        end
+    end
+    return self.waves
+end
+
 function Battle:startProcessing()
     self.has_acted = false
     self:setState("ACTIONS")
@@ -1104,13 +1128,11 @@ function Battle:updateTransitionOut(dt)
 end
 
 function Battle:updateWaves(dt)
-    local waves = self.encounter.current_waves
-
     self.wave_timer = self.wave_timer + dt
 
     local last_done = true
     local all_done = true
-    for _,wave in ipairs(waves) do
+    for _,wave in ipairs(self.waves) do
         if not wave.finished then
             last_done = false
 
@@ -1125,7 +1147,14 @@ function Battle:updateWaves(dt)
     end
 
     if all_done and not last_done then
+        for _,wave in ipairs(self.waves) do
+            wave:onEnd()
+            wave:clear()
+        end
+
         self.encounter:onWavesDone()
+
+        self.waves = {}
     end
 end
 

@@ -54,39 +54,23 @@ function Encounter:fetchEncounterText()
     return enemies[math.random(#enemies)]:fetchEncounterText()
 end
 
-function Encounter:selectWaves()
+function Encounter:getNextWaves()
     local waves = {}
-    local added_wave = {}
-
-    local enemies = Game.battle:getActiveEnemies()
-    for _,enemy in ipairs(enemies) do
-        local wave = enemy:selectWave(enemies)
-
-        enemy.selected_wave = wave
-
-        local exists = (type(wave) == "string" and added_wave[wave]) or (isClass(wave) and added_wave[wave.id])
-        if not exists then
-            if type(wave) == "string" then
-                wave = Registry.createWave(wave)
-            end
-
-            wave.encounter = self
-
+    for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
+        local wave = enemy:selectWave()
+        if wave then
             table.insert(waves, wave)
-            added_wave[wave.id] = true
         end
     end
-
     return waves
 end
 
 function Encounter:onDialogueEnd()
-    -- Will be referenced in battle
-    self.current_waves = self:selectWaves()
+    Game.battle:setWaves(self:getNextWaves())
 
     local soul_x, soul_y, soul_offset_x, soul_offset_y
     local arena_x, arena_y, arena_w, arena_h, arena_shape
-    for _,wave in ipairs(self.current_waves) do
+    for _,wave in ipairs(Game.battle.waves) do
         soul_x = wave.soul_start_x or soul_x
         soul_y = wave.soul_start_y or soul_y
         soul_offset_x = wave.soul_offset_x or soul_offset_x
@@ -122,11 +106,6 @@ function Encounter:onDialogueEnd()
 end
 
 function Encounter:onWavesDone()
-    for _,wave in ipairs(self.current_waves) do
-        wave:onEnd()
-        wave:clear()
-    end
-
     Game.battle:setState("ACTIONSELECT")
 end
 

@@ -25,6 +25,9 @@ function Wave:init()
     -- Timer for convenience
     self.timer = Timer.new()
 
+    -- Reference to the current encounter
+    self.encounter = Game.battle.encounter
+
     -- Contains bullets added via spawnBullet
     self.bullets = {}
     -- Contains everything added via spawn functions (automatically cleared)

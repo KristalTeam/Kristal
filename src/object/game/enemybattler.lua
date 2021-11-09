@@ -174,8 +174,17 @@ function EnemyBattler:getEnemyDialogue()
     return Utils.pick(self.dialogue)
 end
 
+function EnemyBattler:getNextWaves()
+    return self.waves
+end
+
 function EnemyBattler:selectWave()
-    return Utils.pick(self.waves)
+    local waves = self:getNextWaves()
+    if waves and #waves > 0 then
+        local wave = Utils.pick(waves)
+        self.selected_wave = wave
+        return wave
+    end
 end
 
 function EnemyBattler:onCheck(battler) end
