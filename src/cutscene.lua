@@ -94,8 +94,6 @@ function Cutscene.update(dt)
         end
 
         if coroutine.status(self.current_coroutine) == "dead" then
-            print("coroutine death!!")
-
             -- TODO: ALLOW THE PLAYER TO OPEN THE MENU  OR SOMETHING
 
             Game.lock_input = false
@@ -147,6 +145,13 @@ function Cutscene.attachFollowers(dont_return)
     for _,follower in ipairs(Game.followers) do
         follower.following = true
         follower.returning = not dont_return
+    end
+end
+
+function Cutscene.resetSprites()
+    Game.world.player:resetSprite()
+    for _,follower in ipairs(Game.world.followers) do
+        follower:resetSprite()
     end
 end
 

@@ -31,6 +31,14 @@ function ActorSprite:init(actor)
     self.aura_siner = 0
 end
 
+function ActorSprite:resetSprite()
+    if self.default_anim then
+        self:setAnimation(self.default_anim)
+    else
+        self:setSprite(self.actor.default or "")
+    end
+end
+
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self.path = ""
     if ox and oy then

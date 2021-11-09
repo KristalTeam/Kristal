@@ -55,6 +55,9 @@ end
 function Character:setFacing(dir)
     self.facing = dir
     self.sprite.facing = dir
+    if not self.sprite.directional and not self.actor.flip then
+        self.sprite:resetSprite()
+    end
 end
 
 function Character:moveTo(x, y)
@@ -243,7 +246,11 @@ function Character:setCustomSprite(sprite, ox, oy)
     self.sprite:setCustomSprite(sprite, ox, oy)
 end
 
-function Character:setAnimationSprite(animation)
+function Character:resetSprite()
+    self.sprite:resetSprite()
+end
+
+function Character:setAnimation(animation)
     self.sprite:setAnimation(animation)
 end
 
