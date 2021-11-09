@@ -14,7 +14,8 @@ if ralsei then
     Cutscene.setSpeaker("ralsei")
     Cutscene.text("* Kris, Susie, look out!!!", "face_23")
 
-    Cutscene.setSprite(susie, "world/dark/shock_r")
+    susie.sprite:set("world/dark/shock_r")
+    --Cutscene.setSprite(susie, "world/dark/shock_r")
     Cutscene.slideTo(susie, susie.x - 40, susie.y, 8)
     Cutscene.slideTo(ralsei, kris.x, kris.y, 12)
     Cutscene.wait(0.2)

@@ -49,6 +49,17 @@ function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self:_setSprite(texture, keep_anim)
 end
 
+function ActorSprite:set(name, callback)
+    if self.actor.animations[name] then
+        self:setAnimation(name, callback)
+    else
+        self:setSprite(name)
+        if callback then
+            callback(self)
+        end
+    end
+end
+
 function ActorSprite:setSprite(texture, keep_anim)
     self.path = self.actor.path or ""
     self.force_offset = nil
