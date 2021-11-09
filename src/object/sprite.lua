@@ -128,7 +128,7 @@ function Sprite:setAnimation(anim)
         if not has_routine then
             self.anim_delay = anim[2] or (1/30)
             self.loop = anim[3] or false
-            self.anim_frames = anim.frames
+            self.anim_frames = self:parseFrames(anim.frames)
 
             func = self._basicAnimation
         end
@@ -139,6 +139,37 @@ function Sprite:setAnimation(anim)
     self.playing = true
 
     coroutine.resume(self.anim_routine, self, self.anim_wait_func)
+end
+
+function Sprite:parseFrames(frames)
+    if not frames then return end
+    local t = {}
+    for k,v in ipairs(frames) do
+        if type(v) == "number" then
+            table.insert(t, v)
+        elseif type(v) == "string" then
+            local arg_i = string.find(v, "-")
+            if arg_i then
+                local num1, num2 = tonumber(string.sub(v,1,arg_i-1)), tonumber(string.sub(v,arg_i+1,-1))
+                for i=num1, num2, (num1 < num2) and 1 or -1 do
+                    table.insert(t, i)
+                end
+            else
+                arg_i = string.find(v, "*")
+                if arg_i then
+                    local num1, num2 = tonumber(string.sub(v,1,arg_i-1)), tonumber(string.sub(v,arg_i+1,-1))
+                    for i=1,num2 do
+                        table.insert(t, num1)
+                    end
+                else
+                    error("Could not parse string at frame index "..k)
+                end
+            end
+        else
+            error("Frame index "..k.." must be either a number or string")
+        end
+    end
+    return t
 end
 
 function Sprite:_basicAnimation(wait)
