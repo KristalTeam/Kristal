@@ -266,6 +266,123 @@ function Character:play(speed, loop, reset, on_finished)
     self.sprite:play(speed, loop, reset, on_finished)
 end
 
+function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
+    self.jump_start_x = self.x
+    self.jump_start_y = self.y
+    self.jump_x = x
+    self.jump_y = y
+    self.jump_speed = speed or 0
+    self.jump_time = time or 30
+    self.jump_sprite = jump_sprite
+    self.land_sprite = land_sprite
+    self.fake_gravity = 0
+    self.jump_arc_y = 0
+    self.jump_timer = 0
+    self.real_y = 0
+    self.drawshadow = false
+    --dark = (global.darkzone + 1)
+    self.jump_use_sprites = false
+    self.jump_sprite_timer = 0
+    self.jump_progress = 0
+    self.init = false
+
+    if (jump_sprite ~= nil) then
+        self.jump_use_sprites = true
+    end
+    self.drawshadow = false
+
+
+    self.jumping = true
+end
+
+function Character:processJump()
+    if (not self.init) then
+        self.fake_gravity = (self.jump_speed / (self.jump_time * 0.5))
+        self.init = true
+
+        self.false_end_x = self.jump_x
+        self.false_end_y = self.jump_y
+        if (self.jump_use_sprites) then
+            --self.usespritetimer = 0
+            print("ay")
+            self.sprite:set(self.land_sprite)
+
+            -- TODO: theres a bunch of offsets here.
+
+            --[[
+            if (landsprite == spr_kris_dw_landed) -- If it's the Kris kneeling one,
+                {
+                    self.x = self.x - 4
+                    self.y = self.y + 2
+                    self.false_end_x  = self.false_end_x  - 8
+                    self.jump_start_x = self.jump_start_x - 8
+                    self.jump_start_y = self.jump_start_y - 8
+                }
+                if (landsprite == spr_susie_dw_landed)
+                {
+                    self.x = self.x - 8
+                    self.false_end_x = self.false_end_x - 8
+                    self.jump_start_x = self.jump_start_x + 12
+                    self.jump_start_y = self.jump_start_y - 12
+                }
+                if (landsprite == spr_teacup_ralsei_land)
+                {
+                    self.y = self.y + 4
+                    self.jump_start_y = self.jump_start_y + 8
+                    self.jump_start_x = self.jump_start_x -  12
+                    self.false_end_x = self.false_end_x - 6
+                    self.false_end_y = self.false_end_y + 4
+                }
+                if (jumpsprite == spr_ralsei_jump)
+                {
+                    shadowoffx = shadowoffx - 10
+                    shadowoffy = shadowoffy - 4
+                }
+            }]]
+            self.jump_progress = 1
+        else
+            self.jump_progress = 2
+        end
+    end
+    if (self.jump_progress == 1) then
+        self.jump_sprite_timer = self.jump_sprite_timer + 1 * DTMULT
+        if (self.jump_sprite_timer >= 5) then
+            self.sprite:set(self.jump_sprite) -- TODO: speed should be 0.25
+            self.jump_progress = 2
+        end
+    end
+    if (self.jump_progress == 2) then
+        self.jump_timer = self.jump_timer + DTMULT
+        self.jump_speed = self.jump_speed - (self.fake_gravity * DTMULT)
+        self.jump_arc_y = self.jump_arc_y - (self.jump_speed * DTMULT)
+        self.x = Utils.lerp(self.jump_start_x, self.false_end_x, (self.jump_timer / self.jump_time))
+        self.real_y = Utils.lerp(self.jump_start_y, self.false_end_y, (self.jump_timer / self.jump_time))
+
+        self.x = self.x
+        self.y = self.real_y + self.jump_arc_y
+
+        if (self.jump_timer >= self.jump_time) then
+            self.x = self.jump_x
+            self.y = self.jump_y
+
+            self.jump_progress = 3
+            self.jump_sprite_timer = 0
+        end
+    end
+    if (self.jump_progress == 3) then
+        if (self.jump_use_sprites) then
+            self.sprite:set(self.land_sprite)
+            self.jump_sprite_timer = self.jump_sprite_timer +  DTMULT
+        else
+            self.jump_sprite_timer = 10
+        end
+        if (self.jump_sprite_timer >= 5) then
+            self.sprite:resetSprite()
+            self.jumping = false
+        end
+    end
+end
+
 function Character:update(dt)
     if self.actor.update then
         self.actor:update(self, dt)
@@ -277,6 +394,10 @@ function Character:update(dt)
         self.moved = 0
     else
         self.sprite.walking = false
+    end
+
+    if self.jumping then
+        self:processJump()
     end
 
     if (self.spin_speed ~= 0) then
