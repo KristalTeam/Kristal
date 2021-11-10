@@ -95,7 +95,11 @@ function ActorSprite:setAnimation(anim, callback)
         anim = self.actor.animations[anim]
     end
     if anim then
-        anim = Utils.copy(anim)
+        if type(anim) == "function" then
+            anim = {anim}
+        else
+            anim = Utils.copy(anim)
+        end
         if anim.next then
             if type(anim.next) == "table" then
                 anim.next = Utils.pick(anim.next)
