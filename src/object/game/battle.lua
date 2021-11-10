@@ -1393,7 +1393,7 @@ function Battle:keypressed(key)
                     if insert then
                         local item = {
                             ["name"] = v.name,
-                            ["tp"] = 0,
+                            ["tp"] = v.tp or 0,
                             ["description"] = v.description,
                             ["party"] = v.party,
                             ["color"] = {1, 1, 1, 1}
