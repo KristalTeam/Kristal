@@ -62,11 +62,6 @@ function TensionBar:update(dt)
         self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)
     end
 
-    super:update(self, dt)
-end
-
-function TensionBar:draw()
-
     if (math.abs((self.apparent - Game.battle.tension)) < 20) then
         self.apparent = Game.battle.tension
     elseif (self.apparent < Game.battle.tension) then
@@ -113,6 +108,14 @@ function TensionBar:draw()
         end
     end
 
+    if (self.tension_preview > 0) then
+        self.tsiner = self.tsiner + DTMULT
+    end
+
+    super:update(self, dt)
+end
+
+function TensionBar:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.tp_bar_outline, 0, 0)
 
@@ -161,7 +164,6 @@ function TensionBar:draw()
     end
 
     if (self.tension_preview > 0) then
-        self.tsiner = self.tsiner + DTMULT
         local alpha = (math.abs((math.sin((self.tsiner / 8)) * 0.5)) + 0.2)
         local color_to_set = {1, 1, 1, alpha}
 
