@@ -58,18 +58,21 @@ function Wave:clear()
     self.objects = {}
 end
 
-function Wave:spawnBullet(bullet, x, y, ...)
-    return self:spawnBulletTo(nil, bullet, x, y, ...)
+function Wave:spawnBullet(bullet, ...)
+    return self:spawnBulletTo(nil, bullet, ...)
 end
 
-function Wave:spawnBulletTo(parent, bullet, x, y, ...)
+function Wave:spawnBulletTo(parent, bullet, ...)
     local new_bullet
     if isClass(bullet) and bullet:includes(Bullet) then
         new_bullet = bullet
     elseif Registry.getBullet(bullet) then
-        new_bullet = Registry.createBullet(bullet, x, y, ...)
+        new_bullet = Registry.createBullet(bullet, ...)
     else
-        new_bullet = Bullet(x, y, bullet, ...)
+        local x, y = ...
+        table.remove(arg, 1)
+        table.remove(arg, 1)
+        new_bullet = Bullet(x, y, bullet, unpack(arg))
     end
     new_bullet.wave = self
     table.insert(self.bullets, new_bullet)
