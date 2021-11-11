@@ -3,7 +3,7 @@ local Timer, super = Class(Object)
 function Timer:init(active)
     super:init(self)
 
-    self.timer = _Timer.new()
+    self.timer = LibTimer.new()
 
     if active ~= nil then
         self.active = active

@@ -269,7 +269,7 @@ function DarkTransition:draw(dont_clear)
         self.prior_state:draw() -- Draw the last state we were in
     end
 
-    love.graphics.setCanvas{self.canvas, stencil=true}
+    Draw.setCanvas(self.canvas)
     love.graphics.clear()
 
     if self.megablack then
@@ -1001,7 +1001,7 @@ function DarkTransition:draw(dont_clear)
     end
 
     -- Reset canvas to draw to
-    love.graphics.setCanvas(SCREEN_CANVAS)
+    Draw.setCanvas(SCREEN_CANVAS)
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, 1)

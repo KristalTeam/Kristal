@@ -9,7 +9,7 @@ function AfterImage:init(sprite, fade, speed)
     self:fadeOutAndRemove(speed)
 
     self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-    love.graphics.setCanvas{self.canvas, stencil=true}
+    Draw.setCanvas(self.canvas)
     love.graphics.push()
     love.graphics.origin()
     love.graphics.clear()
@@ -17,8 +17,8 @@ function AfterImage:init(sprite, fade, speed)
     love.graphics.setColor(self.sprite:getDrawColor())
     self.sprite:draw()
     love.graphics.pop()
-    love.graphics.setCanvas()
-    
+    Draw.setCanvas()
+
     local sox, soy = self.sprite:getScaleOrigin()
     local rox, roy = self.sprite:getRotationOrigin()
 
