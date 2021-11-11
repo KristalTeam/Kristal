@@ -377,13 +377,15 @@ function Object:remove()
     end
 end
 
-function Object:explode(x, y)
+function Object:explode(x, y, dont_remove)
     if self.parent then
         local rx, ry = self:getRelativePos(self.width/2 + (x or 0), self.height/2 + (y or 0))
         local e = Explosion(rx, ry)
         e.layer = self.layer + 0.001
         self.parent:addChild(e)
-        self:remove()
+        if not dont_remove then
+            self:remove()
+        end
     end
 end
 

@@ -1,6 +1,6 @@
 local EnemyTextbox, super = Class(Object)
 
-function EnemyTextbox:init(text, x, y)
+function EnemyTextbox:init(text, x, y, enemy)
     super:init(self, x, y, 0, 0)
 
     self:setOrigin(1, 0.5)
@@ -15,6 +15,11 @@ function EnemyTextbox:init(text, x, y)
     self.text = DialogueText("", 0, 0, 1, 1, "plain", "none")
     self.text.color = {0, 0, 0}
     self:addChild(self.text)
+
+    self.enemy = enemy
+    if self.enemy then
+        self.enemy.textbox = self
+    end
 
     self.text_list = {}
     if type(text) == "table" then
@@ -32,8 +37,11 @@ end
 function EnemyTextbox:next()
     self.current_text = self.current_text + 1
     if self.current_text > #self.text_list then
-        self:remove()
+        if self.enemy then
+            self.enemy.textbox = nil
+        end
         self.done = true
+        self:remove()
         return true
     end
     self.done = false
@@ -54,6 +62,30 @@ function EnemyTextbox:setText(text)
     self.height = h
 
     self.text:setText(text)
+end
+
+function EnemyTextbox:isTyping()
+    return self.text.state.typing
+end
+
+function EnemyTextbox:update(dt)
+    if BattleScene.isActive() then
+        if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
+            if not self:isTyping() and self:next() then
+                local all_done = true
+                for _,enemy in ipairs(Game.battle.enemies) do
+                    if enemy.textbox then
+                        all_done = false
+                        break
+                    end
+                end
+                if all_done then
+                    BattleScene.resume()
+                end
+            end
+        end
+    end
+    super:update(self, dt)
 end
 
 function EnemyTextbox:draw()

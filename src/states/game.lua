@@ -107,6 +107,7 @@ function Game:update(dt)
     end
 
     Cutscene.update(dt)
+    BattleScene.update(dt)
 
     if self.world.player and -- If the player exists,
        not self.lock_input -- and input isn't locked,

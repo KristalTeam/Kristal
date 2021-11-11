@@ -1,18 +1,24 @@
 local Textbox, super = Class(Object)
 
-function Textbox:init(x, y, width, height, no_background)
+function Textbox:init(x, y, width, height, battle_box)
     super:init(self, x, y, width, height)
 
     self.box = DarkBox(0, 0, width, height)
     self.box.layer = -1
     self:addChild(self.box)
 
-    if no_background then
+    self.battle_box = battle_box
+    if battle_box then
         self.box.visible = false
     end
 
-    self.face_x = 16 + 2
-    self.face_y = 10 - 4
+    if battle_box then
+        self.face_x = -4
+        self.face_y = 2
+    else
+        self.face_x = 18
+        self.face_y = 6
+    end
 
     self.text_x = 2
     self.text_y = -2
@@ -33,10 +39,17 @@ function Textbox:init(x, y, width, height, no_background)
 end
 
 function Textbox:update(dt)
-    if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
-        if not self:isTyping() then
-            self:remove()
-            Cutscene.resume()
+    if not self.battle_box or BattleScene.isActive() then
+        if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
+            if not self:isTyping() then
+                if not self.battle_box then
+                    self:remove()
+                    Cutscene.resume()
+                elseif self.text.text ~= "" then
+                    self:setText("")
+                    BattleScene.resume()
+                end
+            end
         end
     end
     super:update(self, dt)

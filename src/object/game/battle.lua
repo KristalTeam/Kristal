@@ -279,15 +279,10 @@ function Battle:onStateChange(old,new)
         for _,enemy in ipairs(self.enemies) do
             if not enemy.done_state then
                 all_done = false
-                local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
-                if enemy.text_offset then
-                    x, y = x + enemy.text_offset[1], y + enemy.text_offset[2]
-                end
                 local dialogue = enemy:getEnemyDialogue()
                 if dialogue then
-                    local textbox = EnemyTextbox(dialogue, x, y)
+                    local textbox = self:spawnEnemyTextbox(enemy, dialogue)
                     table.insert(self.enemy_dialogue, textbox)
-                    self:addChild(textbox)
                 end
             end
         end
@@ -534,6 +529,8 @@ function Battle:processAction(action)
     local party_member = battler.chara
     local enemy = action.target
 
+    self.current_processing_action = action
+
     if enemy and enemy.done_state then
         enemy = nil
         for _,other in ipairs(self.enemies) do
@@ -685,6 +682,10 @@ function Battle:processAction(action)
         -- we don't know how to handle this...
         return true
     end
+end
+
+function Battle:getCurrentAction()
+    return self.current_actions[self.current_action_index]
 end
 
 function Battle:finishActionBy(battler)
@@ -840,9 +841,15 @@ function Battle:commitAction(type, target, data)
     self:nextParty()
 end
 
-function Battle:removeAction(character_id)
+function Battle:removeAction(character_id, multi_act)
     for index, action in ipairs(self.character_actions) do
         if action.character_id == character_id then
+            if not multi_act and action.act_parent then
+                self:removeAction(action.act_parent)
+                Game.battle.current_selecting = Game.battle.current_selecting - 1
+                return
+            end
+
             local battler = self.party[character_id]
             battler:setAnimation("battle/idle")
 
@@ -871,7 +878,7 @@ function Battle:removeAction(character_id)
             if action.party then
                 for _,v in ipairs(action.party) do
                     if self:hasAction(self:getPartyIndex(v)) then
-                        self:removeAction(self:getPartyIndex(v))
+                        self:removeAction(self:getPartyIndex(v), true)
                     end
                 end
                 return
@@ -884,6 +891,15 @@ function Battle:getPartyIndex(string_id) -- TODO: this only returns the first on
     for index, battler in ipairs(self.party) do
         if battler.chara.id == string_id then
             return index
+        end
+    end
+    return nil
+end
+
+function Battle:getPartyBattler(string_id)
+    for _, battler in ipairs(self.party) do
+        if battler.chara.id == string_id then
+            return battler
         end
     end
     return nil
@@ -1044,6 +1060,29 @@ end
 
 function Battle:infoText(text)
     self.battle_ui.encounter_text:setText(text or "")
+end
+
+function Battle:spawnEnemyTextbox(enemy, text)
+    local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
+    if enemy.text_offset then
+        x, y = x + enemy.text_offset[1], y + enemy.text_offset[2]
+    end
+    local textbox = EnemyTextbox(text, x, y, enemy)
+    self:addChild(textbox)
+    return textbox
+end
+
+function Battle:startActCutscene(cutscene, dont_finish)
+    self:startCutscene(cutscene, function()
+        if not dont_finish then
+            self:finishAction()
+        end
+        self:setState("ACTIONS", "BATTLESCENE")
+    end)
+end
+
+function Battle:startCutscene(cutscene, post_func)
+    BattleScene.start(cutscene, post_func)
 end
 
 function Battle:createTransform()
@@ -1531,7 +1570,7 @@ function Battle:keypressed(key)
         end
     elseif self.state == "BATTLETEXT" then
         if Input.isConfirm(key) then
-            if not self.battle_ui.encounter_text.state.typing then
+            if not self.battle_ui.encounter_text:isTyping() then
                 if self.battletext_table ~= nil then
                     self.battletext_index = self.battletext_index + 1
                     if self.battletext_index <= #self.battletext_table then

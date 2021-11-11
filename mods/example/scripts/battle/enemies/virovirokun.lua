@@ -33,7 +33,9 @@ function Virovirokun:init()
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", {"susie", "ralsei"})
     self:registerAct("TakeCareX", "", {"noelle"})
-    self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
+    self:registerAct("R-Cook", "", {"ralsei"})
+    self:registerAct("S-Cook", "", {"susie"})
+    --self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
 
     self.text_override = nil
 end
@@ -62,7 +64,7 @@ function Virovirokun:onActStart(battler, name)
             ibattler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
         end
     else
-        battler:setAnimation("battle/act")
+        super:onActStart(self, battler, name)
     end
 end
 
@@ -108,6 +110,12 @@ function Virovirokun:onAct(battler, name)
             end
         end
         return "* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!"
+    elseif name == "R-Cook" then
+        Game.battle:startActCutscene("viroviro_cook_ralsei")
+        return
+    elseif name == "S-Cook" then
+        Game.battle:startActCutscene("viroviro_cook_susie")
+        return
     elseif name == "Standard" then
         self:addMercy(50)
         if battler.chara.id == "noelle" then

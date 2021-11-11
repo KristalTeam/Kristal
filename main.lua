@@ -117,6 +117,7 @@ Outline = require("src.object.game.outline")
 Silhouette = require("src.object.game.silhouette")
 
 Cutscene = require("src.cutscene")
+BattleScene = require("src.battlescene")
 
 local load_in_channel
 local load_out_channel

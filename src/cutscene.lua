@@ -53,6 +53,10 @@ function Cutscene.start(cutscene)
     self.resume()
 end
 
+function Cutscene.isActive()
+    return self.current_coroutine ~= nil
+end
+
 function Cutscene.wait(seconds)
     print("waiting "..seconds)
     if self.current_coroutine then
