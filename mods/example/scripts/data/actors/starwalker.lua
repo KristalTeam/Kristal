@@ -8,4 +8,6 @@ return {
 
     path = "kristal/starwalker",
     default = "",
+
+    color = {1, 1, 0, 1}
 }

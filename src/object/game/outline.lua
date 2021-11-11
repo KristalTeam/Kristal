@@ -50,13 +50,9 @@ function Outline:draw()
 
             love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-            local party = Registry.getPartyMemberFromActor(object.actor.id)
-            local color
-
-            if not party then
+            local color = object.actor.color
+            if not color then
                 color = {1, 0, 0, 1}
-            else
-                color = party.color
             end
 
             Kristal.Shaders["AddColor"]:send("inputcolor", color)

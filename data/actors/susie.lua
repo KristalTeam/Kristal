@@ -7,6 +7,8 @@ return {
 
     hitbox = {3, 30, 19, 14},
 
+    color = {1, 0, 1},
+
     path = "party/susie",
     default = "world/dark",
 
