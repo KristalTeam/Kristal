@@ -21,6 +21,11 @@ function Game:enter(previous_state)
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
     self.followers = {}
 
+    self.inventory = {}
+    for _,id in ipairs(Kristal.getModOption("inventory") or {}) do
+        table.insert(self.inventory, Registry.getItem(id))
+    end
+
     self.started = true
 
     self.lock_input = false

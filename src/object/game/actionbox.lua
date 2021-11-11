@@ -108,7 +108,21 @@ function ActionBox:select()  -- TODO: unhardcode!
                 }
                 table.insert(Game.battle.menu_items, item)
             end
-            Game.battle:setState("MENUSELECT", "SPELLS")
+            Game.battle:setState("MENUSELECT", "SPELL")
+        end
+    elseif self.selected_button == 3 then
+        Game.battle.menu_items = {}
+        for i,item in ipairs(Game.inventory) do
+            local menu_item = {
+                ["name"] = item.name,
+                ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
+                ["description"] = item.effect,
+                ["data"] = {index = i, item = item}
+            }
+            table.insert(Game.battle.menu_items, menu_item)
+        end
+        if #Game.battle.menu_items > 0 then
+            Game.battle:setState("MENUSELECT", "ITEM")
         end
     elseif self.selected_button == 4 then
         Game.battle:setState("ENEMYSELECT", "SPARE")

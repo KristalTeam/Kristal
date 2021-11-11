@@ -229,6 +229,31 @@ function EnemyBattler:hurt(amount, battler)
     self.hurt_timer = 1
 end
 
+function EnemyBattler:heal(amount)
+    Assets.playSound("snd_power")
+    self.health = self.health + amount
+
+    local offset = self.sprite:getOffset()
+    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
+    self:addChild(flash)
+
+    if self.health > self.max_health then
+        self.health = self.max_health
+        self:statusMessage("msg", "max")
+    else
+        self:statusMessage("heal", amount, {0, 1, 0})
+    end
+
+    Game.battle.timer:every(1/30, function()
+        for i = 1, 2 do
+            local x = self.x + ((love.math.random() * self.width) - (self.width / 2)) * 2
+            local y = self.y - (love.math.random() * self.height) * 2
+            local sparkle = HealSparkle(x, y)
+            self.parent:addChild(sparkle)
+        end
+    end, 4)
+end
+
 function EnemyBattler:statusMessage(type, arg, color)
     local hit_count = Game.battle.hit_count
     hit_count[self] = hit_count[self] or 0

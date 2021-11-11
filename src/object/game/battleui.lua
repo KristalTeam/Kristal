@@ -124,7 +124,7 @@ function BattleUI:drawState()
             end
 
             if able then
-                love.graphics.setColor(item.color)
+                love.graphics.setColor(item.color or {1, 1, 1, 1})
             else
                 love.graphics.setColor(COLORS.gray)
             end

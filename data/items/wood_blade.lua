@@ -1,4 +1,4 @@
-return {
+local item = Item{
     -- Item ID (optional, defaults to path)
     id = "wood_blade",
     -- Display name
@@ -18,6 +18,13 @@ return {
 
     -- Shop sell price
     price = 60,
+
+    -- Consumable target mode (party, enemy, or none/nil)
+    target = nil,
+    -- Where this item can be used (world, battle, all, or none/nil)
+    usable_in = "all",
+    -- Item this item will get turned into when consumed
+    result_item = nil,
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {
@@ -39,3 +46,5 @@ return {
         noelle = "(It has bite marks...)",
     },
 }
+
+return item
