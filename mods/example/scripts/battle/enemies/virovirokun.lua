@@ -121,17 +121,19 @@ function Virovirokun:onAct(battler, name)
         if battler.chara.id == "noelle" then
             return "* Noelle offered a cold compress!"
         elseif battler.chara.id == "susie" then
-            return {
-                "* Susie commiserated with the enemy!",
-                "* Stick it to the man,\ndude.",
-                "* Even if that means\ncloning yourself, or\nwhatever."
-            }
+            Game.battle:startActCutscene((function()
+                BattleScene.text("* Susie commiserated with the enemy!")
+                BattleScene.text("* Stick it to the man,\ndude.", "face_2", "susie")
+                BattleScene.text("* Even if that means\ncloning yourself, or\nwhatever.", "face_2", "susie")
+            end))
+            return
         elseif battler.chara.id == "ralsei" then
-            return {
-                "* Ralsei tried to steer the enemy\ndown the right path.",
-                "* Not everybody knows\nthis, but...",
-                "* Crimes are bad. ... Did\nyou know that?"
-            }
+            Game.battle:startActCutscene((function()
+                BattleScene.text("* Ralsei tried to steer the enemy\ndown the right path.")
+                BattleScene.text("* Not everybody knows\nthis, but...", "face_0", "ralsei")
+                BattleScene.text("* Crimes are bad. ... Did\nyou know that?",  "face_2", "ralsei")
+            end))
+            return
         end
     end
     return super:onAct(self, battler, name)

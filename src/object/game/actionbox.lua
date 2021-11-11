@@ -105,9 +105,12 @@ function ActionBox:select()  -- TODO: unhardcode!
                     ["tp"] = 0,
                     ["color"] = self.battler.chara.xact_color or {1, 1, 1, 1},
                     ["data"] = {
+                        ["name"] = Game.battle.enemies[Game.battle.selected_enemy]:getXAction(self.battler),
                         ["target"] = "xact",
-                        ["id"] = 1,
-                        ["default"] = true
+                        ["id"] = 0,
+                        ["default"] = true,
+                        ["party"] = {},
+                        ["tp"] = 0
                     }
                 }
                 table.insert(Game.battle.menu_items, item)
@@ -121,9 +124,12 @@ function ActionBox:select()  -- TODO: unhardcode!
                         ["description"] = action.description,
                         ["color"] = action.color or {1, 1, 1, 1},
                         ["data"] = {
+                            ["name"] = action.name,
                             ["target"] = "xact",
                             ["id"] = id,
-                            ["default"] = false
+                            ["default"] = false,
+                            ["party"] = {},
+                            ["tp"] = action.tp or 0
                         }
                     }
                     table.insert(Game.battle.menu_items, item)

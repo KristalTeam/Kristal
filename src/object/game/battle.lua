@@ -781,6 +781,11 @@ end
 function Battle:commitAction(type, target, data)
     data = data or {}
 
+    local is_xact = type:upper() == "XACT"
+    if is_xact then
+        type = "ACT"
+    end
+
     local battler = self.party[self.current_selecting]
 
     battler:setAnimation("battle/"..type:lower().."_ready")
@@ -1410,7 +1415,7 @@ function Battle:keypressed(key)
                     self.ui_select:play()
 
                     if menu_item.data.target == "xact" then
-                        self.selected_xaction = menu_item.data.id
+                        self.selected_xaction = menu_item.data
                         Game.battle:setState("XACTENEMYSELECT")
                     elseif not menu_item.data.target or menu_item.data.target == "none" then
                         self:commitAction("SPELL", nil, menu_item)
@@ -1470,12 +1475,14 @@ function Battle:keypressed(key)
                 end
             end
         end
-    elseif self.state == "ENEMYSELECT" then
+    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
         if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
             self.selected_enemy = self.current_menu_y
-            if self.state_reason == "SPARE" then
+            if self.state == "XACTENEMYSELECT" then
+                self:commitAction("XACT", self.enemies[self.selected_enemy], self.selected_xaction)
+            elseif self.state_reason == "SPARE" then
                 self:commitAction("SPARE", self.enemies[self.selected_enemy])
             elseif self.state_reason == "ACT" then
                 Game.battle.menu_items = {}

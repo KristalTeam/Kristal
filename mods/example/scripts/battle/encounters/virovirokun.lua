@@ -15,8 +15,8 @@ function Virovirokun:init()
 
     --self.default_xactions = false
 
-    Game.battle:registerXAction("susie", "Snap")
-    Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
+    --Game.battle:registerXAction("susie", "Snap")
+    --Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
 end
 
 function Virovirokun:update(dt)
