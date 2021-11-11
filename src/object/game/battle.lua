@@ -1013,8 +1013,6 @@ function Battle:update(dt)
     self.timer:update(dt)
     if self.state == "TRANSITION" then
         self:updateTransition(dt)
-    elseif self.state == "TRANSITIONOUT" then
-        self:updateTransitionOut(dt)
     elseif self.state == "INTRO" then
         self:updateIntro(dt)
     elseif self.state == "ACTIONSDONE" then
@@ -1053,6 +1051,10 @@ function Battle:update(dt)
     -- Always sort
     --self.update_child_list = true
     super:update(self, dt)
+
+    if self.state == "TRANSITIONOUT" then
+        self:updateTransitionOut(dt)
+    end
 end
 
 function Battle:updateIntro(dt)
