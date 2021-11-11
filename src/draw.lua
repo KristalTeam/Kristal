@@ -36,7 +36,7 @@ function Draw.pushCanvas(...)
         self._locked_canvas[canvas] = true
         self._used_canvas[canvas] = true
     end
-    love.graphics.setCanvas{canvas, stencil=true}
+    Draw.setCanvas{canvas, stencil=true}
     love.graphics.push()
     love.graphics.origin()
     if clear_canvas then
@@ -52,8 +52,16 @@ function Draw.popCanvas(keep)
     end
     local old_canvas = table.remove(self._canvas_stack, #self._canvas_stack)
     love.graphics.pop()
-    love.graphics.setCanvas(old_canvas)
+    Draw.setCanvas(old_canvas)
     return old_canvas
+end
+
+function Draw.setCanvas(canvas)
+    if canvas then
+        love.graphics.setCanvas{canvas, stencil=true}
+    else
+        love.graphics.setCanvas()
+    end
 end
 
 function Draw._clearUnusedCanvases()

@@ -3,7 +3,7 @@ require("src.vars")
 _Class = require("src.lib.hump.class")
 Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
-_Timer = require("src.lib.hump.timer")
+LibTimer = require("src.lib.hump.timer")
 Camera = require("src.lib.hump.camera")
 JSON = require("src.lib.json")
 Ease = require("src.lib.easing")
@@ -199,11 +199,11 @@ function love.load(args)
 
         love.graphics.reset()
 
-        love.graphics.setCanvas{SCREEN_CANVAS, stencil=true}
+        Draw.setCanvas(SCREEN_CANVAS)
         love.graphics.clear()
         orig(...)
         Kristal.Overlay:draw()
-        love.graphics.setCanvas()
+        Draw.setCanvas()
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.scale(Kristal.Config["windowScale"])
@@ -241,7 +241,7 @@ function love.update(dt)
     DT = dt
     DTMULT = dt * 30
 
-    _Timer.update(dt)
+    LibTimer.update(dt)
     Music.update(dt)
     Assets.update(dt)
 

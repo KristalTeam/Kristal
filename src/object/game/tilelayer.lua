@@ -27,7 +27,7 @@ end
 function TileLayer:draw()
     if not self.drawn then
         local old_canvas = love.graphics.getCanvas()
-        love.graphics.setCanvas(self.canvas)
+        Draw.setCanvas(self.canvas)
         love.graphics.clear()
         love.graphics.push()
         love.graphics.origin()
@@ -45,7 +45,7 @@ function TileLayer:draw()
             end
         end
         love.graphics.pop()
-        love.graphics.setCanvas(old_canvas)
+        Draw.setCanvas(old_canvas)
 
         self.drawn = true
     end

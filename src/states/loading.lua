@@ -105,7 +105,7 @@ function Loading:draw()
     local dt_mult = DT * 15
 
     -- We need to draw the logo on a canvas
-    love.graphics.setCanvas(self.logo_canvas)
+    Draw.setCanvas(self.logo_canvas)
     love.graphics.clear()
 
     if (self.animation_phase == 0) then
@@ -170,7 +170,7 @@ function Loading:draw()
     end
 
     -- Reset canvas to draw to
-    love.graphics.setCanvas(SCREEN_CANVAS)
+    Draw.setCanvas(SCREEN_CANVAS)
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, 1)
