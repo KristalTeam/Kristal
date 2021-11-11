@@ -85,6 +85,9 @@ function Battle:init()
     self.mask = ArenaMask()
     self:addChild(self.mask)
 
+    self.timer = Timer()
+    self:addChild(self.timer)
+
     self.character_actions = {}
 
     self.current_actions = {}
@@ -121,8 +124,6 @@ function Battle:init()
     self.spell_finished = false
 
     self.xactiontext = {}
-
-    self.timer = Timer.new()
 
     self.has_acted = false
 
@@ -881,6 +882,7 @@ function Battle:setWaves(waves, allow_duplicates)
     for _,wave in ipairs(self.waves) do
         wave:onEnd()
         wave:clear()
+        wave:remove()
     end
     self.waves = {}
     local added_wave = {}
@@ -890,6 +892,7 @@ function Battle:setWaves(waves, allow_duplicates)
             if type(wave) == "string" then
                 wave = Registry.createWave(wave)
             end
+            self:addChild(wave)
             table.insert(self.waves, wave)
             added_wave[wave.id] = true
         end
@@ -926,7 +929,9 @@ function Battle:nextTurn()
     end
 
     for _,wave in ipairs(self.waves) do
+        wave:onEnd()
         wave:clear()
+        wave:remove()
     end
     self.waves = {}
 
@@ -1010,7 +1015,6 @@ function Battle:update(dt)
         Utils.removeFromTable(self.enemies, enemy)
     end
 
-    self.timer:update(dt)
     if self.state == "TRANSITION" then
         self:updateTransition(dt)
     elseif self.state == "INTRO" then
@@ -1146,18 +1150,13 @@ function Battle:updateWaves(dt)
 
             if wave.time >= 0 and self.wave_timer >= wave.time then
                 wave.finished = true
+            else
+                all_done = false
             end
-        end
-        wave:update(dt)
-        if not wave.finished then
-            all_done = false
         end
     end
 
     if all_done and not last_done then
-        for _,wave in ipairs(self.waves) do
-            wave:onEnd()
-        end
         self.encounter:onWavesDone()
     end
 end
@@ -1301,9 +1300,6 @@ function Battle:keypressed(key)
             MASTER_VOLUME = 1 - MASTER_VOLUME
         end
         if self.state == "DEFENDING" and key == "f" then
-            for _,wave in ipairs(self.waves) do
-                wave:onEnd()
-            end
             self.encounter:onWavesDone()
         end
     end

@@ -3,7 +3,7 @@ require("src.vars")
 _Class = require("src.lib.hump.class")
 Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
-Timer = require("src.lib.hump.timer")
+_Timer = require("src.lib.hump.timer")
 Camera = require("src.lib.hump.camera")
 JSON = require("src.lib.json")
 Ease = require("src.lib.easing")
@@ -46,6 +46,7 @@ Explosion = require("src.object.explosion")
 AfterImage = require("src.object.afterimage")
 FakeClone = require("src.object.fakeclone")
 Rectangle = require("src.object.rectangle")
+Timer = require("src.object.timer")
 
 Text = require("src.object.ui.text")
 DialogueText = require("src.object.ui.dialoguetext")
@@ -239,7 +240,7 @@ function love.update(dt)
     DT = dt
     DTMULT = dt * 30
 
-    Timer.update(dt)
+    _Timer.update(dt)
     Music.update(dt)
     Assets.update(dt)
 

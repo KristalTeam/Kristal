@@ -53,7 +53,9 @@ function World:init(map)
 
     self.followers = {}
 
-    self.timer = Timer.new()
+    self.timer = Timer()
+    self.timer.persistent = true
+    self:addChild(self.timer)
 
     if map then
         self:loadMap(map)
@@ -178,7 +180,7 @@ function World:loadMap(map)
     self:populateTilesets(map, map_data.tilesets)
 
     for _,child in ipairs(self.children) do
-        if child ~= self.player then
+        if not child.persistent then
             self:removeChild(child)
         end
     end
@@ -552,8 +554,6 @@ function World:update(dt)
             v[1]:onCollide(v[2])
         end
     end
-
-    self.timer:update(dt)
 
     -- Keep camera in bounds
     self:updateCamera()

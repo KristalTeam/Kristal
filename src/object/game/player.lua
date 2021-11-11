@@ -17,6 +17,8 @@ function Player:init(chara, x, y)
 
     self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
+
+    self.persistent = true
 end
 
 function Player:onAdd(parent)

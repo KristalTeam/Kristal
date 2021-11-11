@@ -1,6 +1,10 @@
-local Wave, super = Class()
+local Wave, super = Class(Object)
 
 function Wave:init()
+    super:init(self)
+
+    self.layer = LAYERS["above_bullets"]
+
     -- Wave arena position
     self.arena_x = nil
     self.arena_y = nil
@@ -22,9 +26,6 @@ function Wave:init()
     -- Whether the wave is done or not
     self.finished = false
 
-    -- Timer for convenience
-    self.timer = Timer.new()
-
     -- Reference to the current encounter
     self.encounter = Game.battle.encounter
 
@@ -32,19 +33,21 @@ function Wave:init()
     self.bullets = {}
     -- Contains everything added via spawn functions (automatically cleared)
     self.objects = {}
+
+    -- Timer for convenience
+    self.timer = Timer()
+    self:addChild(self.timer)
 end
 
 function Wave:update(dt)
-    self.timer:update(dt)
-
     for i = 1, #self.bullets do
         if self.bullets[i] and not self.bullets[i].parent then
             table.remove(self.bullets, i)
             i = i - 1
         end
     end
+    super:update(self, dt)
 end
-function Wave:draw() end
 
 function Wave:onStart() end
 function Wave:onEnd() end
