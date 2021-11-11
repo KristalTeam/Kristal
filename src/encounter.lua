@@ -119,7 +119,24 @@ function Encounter:onDialogueEnd()
 end
 
 function Encounter:onWavesDone()
-    Game.battle:nextTurn()
+    Game.battle:setState("DEFENDINGEND")
+    Game.battle:returnSoul()
+
+    for _,wave in ipairs(Game.battle.waves) do
+        wave:onEnd()
+        wave:clear()
+        wave:remove()
+    end
+
+    if Game.battle.arena then
+        Game.battle.arena:remove()
+        Game.battle.arena = nil
+    end
+
+    Game.battle.waves = {}
+    Game.battle.timer:after(15/30, function()
+        Game.battle:nextTurn()
+    end)
 end
 
 function Encounter:createSoul(x, y)

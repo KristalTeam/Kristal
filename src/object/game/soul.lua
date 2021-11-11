@@ -50,13 +50,22 @@ function Soul:init(x, y)
 
     self.noclip = false
     self.slope_correction = true
+
+    self.transition_destroy = false
 end
 
-function Soul:transitionTo(x, y)
+function Soul:transitionTo(x, y, should_destroy)
     self.transitioning = true
+    self.original_x = self.x
+    self.original_y = self.y
     self.target_x = x
     self.target_y = y
     self.timer = 0
+    if should_destroy ~= nil then
+        self.transition_destroy = should_destroy
+    else
+        self.transition_destroy = false
+    end
 end
 
 function Soul:isMoving()
@@ -262,7 +271,12 @@ function Soul:update(dt)
         if self.timer >= 7 then
             self.transitioning = false
             self.timer = 0
-            self:setExactPosition(self.target_x, self.target_y)
+            if self.transition_destroy then
+                Game.battle:addChild(HeartBurst(self.target_x, self.target_y))
+                self:remove()
+            else
+                self:setExactPosition(self.target_x, self.target_y)
+            end
         else
             self:setExactPosition(
                 Utils.lerp(self.original_x, self.target_x, self.timer / 7),

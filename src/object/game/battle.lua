@@ -65,7 +65,7 @@ function Battle:init()
     self.transitioned = false
 
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY, TRANSITIONOUT
-    -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT
+    -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT, DEFENDINGEND
 
     self.state = "NONE"
     self.substate = "NONE"
@@ -353,6 +353,21 @@ function Battle:spawnSoul(x, y)
         self.soul.target_alpha = self.soul.alpha
         self.soul.alpha = 0
         self:addChild(self.soul)
+    end
+end
+
+function Battle:returnSoul()
+    local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
+
+    local bx, by
+    if not battler then
+        bx, by = -9, -9
+    else
+        bx, by = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+    end
+
+    if self.soul then
+        self.soul:transitionTo(bx, by, true)
     end
 end
 
@@ -928,13 +943,6 @@ function Battle:nextTurn()
         self.encounter:onTurnEnd()
     end
 
-    for _,wave in ipairs(self.waves) do
-        wave:onEnd()
-        wave:clear()
-        wave:remove()
-    end
-    self.waves = {}
-
     for _,action in ipairs(self.current_actions) do
         if action.action == "DEFEND" then
             self:finishAction(action)
@@ -960,11 +968,6 @@ function Battle:nextTurn()
         end
         self.battle_ui.current_encounter_text = self:fetchEncounterText()
         self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
-    end
-
-    if self.arena then
-        self.arena:remove()
-        self.arena = nil
     end
 
     if self.soul then
@@ -1191,7 +1194,7 @@ function Battle:draw()
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
     end
 
-    if (self.state == "ACTIONSELECT") or (self.state == "ACTIONS") then
+    if (self.state == "DEFENDINGEND") or (self.state == "ACTIONSELECT") or (self.state == "ACTIONS") then
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
     end
 
