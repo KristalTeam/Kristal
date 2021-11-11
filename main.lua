@@ -37,6 +37,8 @@ Draw = require("src.draw")
 
 PartyMember = require("src.partymember")
 Spell = require("src.spell")
+Item = require("src.item")
+HealItem = require("src.healitem")
 
 Object = require("src.object.object")
 Stage = require("src.object.stage")

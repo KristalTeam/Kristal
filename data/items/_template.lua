@@ -1,23 +1,23 @@
 local item = Item{
     -- Item ID (optional, defaults to path)
-    id = "snow_ring",
+    id = nil,
     -- Display name
-    name = "SnowRing",
+    name = "Test Item",
 
     -- Item type (item, key, weapon, armor)
-    type = "weapon",
+    type = "item",
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/ring",
+    icon = nil,
 
     -- Battle description
     effect = "",
     -- Shop description
-    shop = "Cool\nring",
+    shop = "",
     -- Menu description
-    description = "A ring with the emblem of the\nsnowflake",
+    description = "Example item.",
 
     -- Shop sell price
-    price = 100,
+    price = 0,
 
     -- Consumable target mode (party, enemy, or none/nil)
     target = nil,
@@ -27,24 +27,16 @@ local item = Item{
     result_item = nil,
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
-        attack = 0,
-    },
+    bonuses = {},
     -- Bonus name and icon (displayed in equip menu)
     bonus_name = nil,
     bonus_icon = nil,
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {
-        noelle = true,
-    },
+    can_equip = {},
 
-    -- Character reactions
-    reactions = {
-        susie = "Smells like Noelle",
-        ralsei = "Are you... proposing?",
-        noelle = "(Thank goodness...)",
-    },
+    -- Character reactions (key = party member id)
+    reactions = {},
 }
 
 return item

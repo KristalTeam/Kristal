@@ -1,50 +1,45 @@
-local item = Item{
+local item = HealItem{
     -- Item ID (optional, defaults to path)
-    id = "snow_ring",
+    id = "dumburger",
     -- Display name
-    name = "SnowRing",
+    name = "Dumburger",
 
     -- Item type (item, key, weapon, armor)
-    type = "weapon",
+    type = "item",
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/ring",
+    icon = nil,
 
     -- Battle description
-    effect = "",
+    effect = "Really\nstupid",
     -- Shop description
-    shop = "Cool\nring",
+    shop = "Radiates\nstupidity\nheals 1000HP",
     -- Menu description
-    description = "A ring with the emblem of the\nsnowflake",
+    description = "Completely worthless",
+
+    -- Amount healed (HealItem variable)
+    heal_amount = 1000,
 
     -- Shop sell price
-    price = 100,
+    price = 0,
 
     -- Consumable target mode (party, enemy, or none/nil)
-    target = nil,
+    target = "enemy",
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    usable_in = "battle",
     -- Item this item will get turned into when consumed
     result_item = nil,
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
-        attack = 0,
-    },
+    bonuses = {},
     -- Bonus name and icon (displayed in equip menu)
     bonus_name = nil,
     bonus_icon = nil,
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {
-        noelle = true,
-    },
+    can_equip = {},
 
-    -- Character reactions
-    reactions = {
-        susie = "Smells like Noelle",
-        ralsei = "Are you... proposing?",
-        noelle = "(Thank goodness...)",
-    },
+    -- Character reactions (key = party member id)
+    reactions = {},
 }
 
 return item

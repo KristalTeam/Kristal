@@ -4,6 +4,7 @@
 
     "map": "alley",
     "party": ["kris", "susie", "ralsei"],
+    "inventory": ["darkburger", "dd_burger", "dumburger"],
 
     "transition": false,
 

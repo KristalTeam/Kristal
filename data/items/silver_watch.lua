@@ -1,4 +1,4 @@
-return {
+local item = Item{
     -- Item ID (optional, defaults to path)
     id = "silver_watch",
     -- Display name
@@ -19,6 +19,13 @@ return {
     -- Shop sell price
     price = 100,
 
+    -- Consumable target mode (party, enemy, or none/nil)
+    target = nil,
+    -- Where this item can be used (world, battle, all, or none/nil)
+    usable_in = "all",
+    -- Item this item will get turned into when consumed
+    result_item = nil,
+
     -- Equip bonuses (for weapons and armor)
     bonuses = {
         defense = 2,
@@ -37,3 +44,5 @@ return {
         noelle = "(Th-this was mine...)",
     },
 }
+
+return item

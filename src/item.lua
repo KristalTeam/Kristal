@@ -1,8 +1,6 @@
 local Item = Class()
 
 function Item:init(o)
-    o = o or {}
-
     -- Item ID (optional, defaults to path)
     self.id = nil
     -- Display name
@@ -25,8 +23,10 @@ function Item:init(o)
 
     -- Consumable target mode (party, enemy, or none/nil)
     self.target = nil
+    -- Where this item can be used (world, battle, all, or none/nil)
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    self.next_item = nil
+    self.result_item = nil
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {}
@@ -41,6 +41,7 @@ function Item:init(o)
     self.reactions = {}
 
     -- Load the table
+    o = o or {}
     for k,v in pairs(o) do
         self[k] = v
     end
@@ -49,10 +50,23 @@ end
 function Item:onEquip(character) end
 
 function Item:onWorldUse(target) end
-function Item:onBattleUse(target) end
+function Item:onBattleUse(user, target) end
 
-function Item:consume()
-    
+function Item:onBattleSelect(user, target) end
+function Item:onBattleDeselect(user, target) end
+
+function Item:getBattleText(user, target)
+    return "* "..user.chara.name.." used the "..self.name:upper().."!"
+end
+
+function Item:getReactions(id)
+    if id and self.reactions[id] then
+        if type(self.reactions[id]) == "table" then
+            return self.reactions[id]
+        else
+            return {target_id = self.reactions[id]}
+        end
+    end
 end
 
 return Item

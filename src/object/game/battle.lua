@@ -119,6 +119,7 @@ function Battle:init()
 
     self.selected_enemy = 1
     self.selected_spell = nil
+    self.selected_item = nil
 
     self.spell_delay = 0
     self.spell_finished = false
@@ -659,6 +660,16 @@ function Battle:processAction(action)
 
         -- The spell itself handles the animation and finishing
         action.data:onStart(battler, action.target)
+    elseif action.action == "ITEM" then
+        local item = action.data.item
+        local index = action.data.index
+        self:battleText(item:getBattleText(battler, action.target))
+        battler:setAnimation("battle/item", function()
+            local result = item:onBattleUse(battler, action.target)
+            if result or result == nil then
+                self:finishAction(action)
+            end
+        end)
     elseif action.action == "DEFEND" then
         battler:setAnimation("battle/defend")
         battler.defending = true
@@ -761,7 +772,9 @@ end
 function Battle:commitAction(type, target, data)
     data = data or {}
 
-    self.party[self.current_selecting]:setAnimation("battle/"..type:lower().."_ready")
+    local battler = self.party[self.current_selecting]
+
+    battler:setAnimation("battle/"..type:lower().."_ready")
     local box = self.battle_ui.action_boxes[self.current_selecting]
     box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
 
@@ -772,6 +785,15 @@ function Battle:commitAction(type, target, data)
         else
             self.tension_bar:removeTension(data.tp)
         end
+    end
+
+    if type:upper() == "ITEM" and data.data and data.data.index and data.data.item then
+        if data.data.item.result_item then
+            Game.inventory[data.data.index] = Registry.getItem(data.data.item.result_item)
+        else
+            table.remove(Game.inventory, data.data.index)
+        end
+        data.data.item:onBattleSelect(battler, target)
     end
 
     table.insert(self.character_actions,
@@ -825,6 +847,15 @@ function Battle:removeAction(character_id)
                 elseif action.tp > 0 then
                     self.tension_bar:removeTension(action.tp)
                 end
+            end
+
+            if action.action == "ITEM" and action.data and action.data.index and action.data.item then
+                if action.data.item.result_item then
+                    Game.inventory[action.data.index] = action.data.item
+                else
+                    table.insert(Game.inventory, action.data.index, action.data.item)
+                end
+                action.data.item:onBattleDeselect(battler, action.target)
             end
 
             table.remove(self.character_actions, index)
@@ -1198,14 +1229,14 @@ function Battle:draw()
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
     end
 
+    self.encounter:drawBackground(self.transition_timer / 10)
+
     love.graphics.setColor(0, 0, 0, self.background_fade_alpha) -- TODO: make this accurate!!
     -- The "foreground" background boxes have values of (17, 0, 17),
     -- while the "background" background boxes have values of (9, 0, 9).
     -- But in our engine, when we use 0.75, for some reason the foreground boxes are correct,
     -- however the background ones are (8, 0, 8).
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-
-    self.encounter:drawBackground(self.transition_timer / 10)
 
     super:draw(self)
 
@@ -1248,6 +1279,9 @@ function Battle:isWorldHidden()
 end
 
 function Battle:canSelectMenuItem(menu_item)
+    if menu_item.unusable then
+        return false
+    end
     if menu_item.tp and (menu_item.tp > self.tension) then
         return false
     end
@@ -1321,9 +1355,9 @@ function Battle:keypressed(key)
                     self:commitAction("ACT", self.enemies[self.selected_enemy], menu_item)
                 end
                 return
-            elseif self.state_reason == "SPELLS" then
+            elseif self.state_reason == "SPELL" then
                 local menu_item = self.menu_items[self:getItemIndex()]
-                self.selected_spell = self.menu_items[self:getItemIndex()]
+                self.selected_spell = menu_item
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
@@ -1336,6 +1370,20 @@ function Battle:keypressed(key)
                     end
                 end
                 return
+            elseif self.state_reason == "ITEM" then
+                local menu_item = self.menu_items[self:getItemIndex()]
+                self.selected_item = menu_item
+                if self:canSelectMenuItem(menu_item) then
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                    if not menu_item.data.item.target or menu_item.data.item.target == "none" then
+                        self:commitAction("ITEM", nil, menu_item)
+                    elseif menu_item.data.item.target == "party" then
+                        Game.battle:setState("PARTYSELECT", "ITEM")
+                    elseif menu_item.data.item.target == "enemy" then
+                        Game.battle:setState("ENEMYSELECT", "ITEM")
+                    end
+                end
             end
         elseif Input.isCancel(key) then
             self.ui_move:stop()
@@ -1407,6 +1455,8 @@ function Battle:keypressed(key)
                 self:commitAction("ATTACK", self.enemies[self.selected_enemy])
             elseif self.state_reason == "SPELL" then
                 self:commitAction("SPELL", self.enemies[self.selected_enemy], self.selected_spell)
+            elseif self.state_reason == "ITEM" then
+                self:commitAction("ITEM", self.enemies[self.selected_enemy], self.selected_item)
             else
                 self:nextParty()
             end
@@ -1439,6 +1489,8 @@ function Battle:keypressed(key)
             self.ui_select:play()
             if self.state_reason == "SPELL" then
                 self:commitAction("SPELL", self.party[self.current_menu_y], self.selected_spell)
+            elseif self.state_reason == "ITEM" then
+                self:commitAction("ITEM", self.party[self.current_menu_y], self.selected_item)
             else
                 self:nextParty()
             end

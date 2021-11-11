@@ -1,50 +1,45 @@
-local item = Item{
+local item = HealItem{
     -- Item ID (optional, defaults to path)
-    id = "snow_ring",
+    id = "darkburger",
     -- Display name
-    name = "SnowRing",
+    name = "Darkburger",
 
     -- Item type (item, key, weapon, armor)
-    type = "weapon",
+    type = "item",
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/ring",
+    icon = nil,
 
     -- Battle description
-    effect = "",
+    effect = "Heals\n70HP",
     -- Shop description
-    shop = "Cool\nring",
+    shop = "Mysterious\nhamburger\nheals 70HP",
     -- Menu description
-    description = "A ring with the emblem of the\nsnowflake",
+    description = "A mysterious black burger made of...\nHey, this is just burnt! +70HP",
+
+    -- Amount healed (HealItem variable)
+    heal_amount = 70,
 
     -- Shop sell price
-    price = 100,
+    price = 70,
 
     -- Consumable target mode (party, enemy, or none/nil)
-    target = nil,
+    target = "party",
     -- Where this item can be used (world, battle, all, or none/nil)
     usable_in = "all",
     -- Item this item will get turned into when consumed
     result_item = nil,
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
-        attack = 0,
-    },
+    bonuses = {},
     -- Bonus name and icon (displayed in equip menu)
     bonus_name = nil,
     bonus_icon = nil,
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {
-        noelle = true,
-    },
+    can_equip = {},
 
-    -- Character reactions
-    reactions = {
-        susie = "Smells like Noelle",
-        ralsei = "Are you... proposing?",
-        noelle = "(Thank goodness...)",
-    },
+    -- Character reactions (key = party member id)
+    reactions = {},
 }
 
 return item
