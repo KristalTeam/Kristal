@@ -14,8 +14,12 @@ return PartyMember{
     color = {0, 1, 1},
     -- Damage color (for the number when attacking enemies)
     dmg_color = {0.5, 1, 1},
-    -- Fightbar color (the moving bar used in attack mode)
+    -- Fightbar color (for the moving bar used in attack mode)
     fightbar_color = {0, 162/255, 232/255},
+    -- X-Action color (for the color of X-Action menu items)
+    xact_color = {0.5, 1, 1},
+
+    xact_name = "K-Action",
 
     -- Head icon in the equip / power menu
     menu_icon = "party/kris/head",

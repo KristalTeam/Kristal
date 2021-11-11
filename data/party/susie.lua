@@ -16,6 +16,10 @@ return PartyMember{
     dmg_color = {0.8, 0.6, 0.8},
     -- Fightbar color (the moving bar used in attack mode)
     fightbar_color = {234/255, 121/255, 200/255},
+    -- X-Action color (for the color of X-Action menu items)
+    xact_color = {1, 0.5, 1},
+
+    xact_name = "S-Action",
 
     -- Head icon in the equip / power menu
     menu_icon = "party/susie/head",

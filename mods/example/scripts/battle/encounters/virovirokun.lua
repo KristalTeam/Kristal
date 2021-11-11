@@ -13,10 +13,10 @@ function Virovirokun:init()
     self.background = true
     self.music = "battle"
 
-    self.default_xactions = false
+    --self.default_xactions = false
 
     Game.battle:registerXAction("susie", "Snap")
-    Game.battle:registerXAction("susie", "Supercharge", "Charge faster", 80)
+    Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
 end
 
 function Virovirokun:update(dt)

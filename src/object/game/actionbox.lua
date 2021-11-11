@@ -96,6 +96,41 @@ function ActionBox:select()  -- TODO: unhardcode!
             Game.battle:setState("ENEMYSELECT", "ACT")
         else
             Game.battle.menu_items = {}
+
+            -- First, register X-Actions as menu items.
+
+            if Game.battle.encounter.default_xactions then
+                local item = {
+                    ["name"] = self.battler.chara.xact_name or "X-Action",
+                    ["tp"] = 0,
+                    ["color"] = self.battler.chara.xact_color or {1, 1, 1, 1},
+                    ["data"] = {
+                        ["target"] = "xact",
+                        ["id"] = 1,
+                        ["default"] = true
+                    }
+                }
+                table.insert(Game.battle.menu_items, item)
+            end
+
+            for id, action in ipairs(Game.battle.xactions) do
+                if action.party == self.battler.chara.id then
+                    local item = {
+                        ["name"] = action.name,
+                        ["tp"] = action.tp or 0,
+                        ["description"] = action.description,
+                        ["color"] = action.color or {1, 1, 1, 1},
+                        ["data"] = {
+                            ["target"] = "xact",
+                            ["id"] = id,
+                            ["default"] = false
+                        }
+                    }
+                    table.insert(Game.battle.menu_items, item)
+                end
+            end
+
+            -- Now, register SPELLs as menu items.
             for _,spell_id in ipairs(self.battler.chara.spells) do
                 local spell = Registry.getSpell(spell_id)
                 local item = {

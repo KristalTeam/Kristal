@@ -119,12 +119,13 @@ function Battle:init()
 
     self.selected_enemy = 1
     self.selected_spell = nil
+    self.selected_xaction = nil
     self.selected_item = nil
 
     self.spell_delay = 0
     self.spell_finished = false
 
-    self.xactiontext = {}
+    self.xactions = {}
 
     self.has_acted = false
 
@@ -261,7 +262,7 @@ function Battle:onStateChange(old,new)
             return
         end
         self:tryProcessNextAction()
-    elseif new == "ENEMYSELECT" then
+    elseif new == "ENEMYSELECT" or new == "XACTENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_y = 1
         self.selected_enemy = 1
@@ -392,10 +393,17 @@ function Battle:onSubStateChange(old,new)
     end
 end
 
-function Battle:registerXAction(...) print("TODO: implement!") end -- TODO
+function Battle:registerXAction(party, name, description, tp)
+    local act = {
+        ["name"] = name,
+        ["description"] = description,
+        ["party"] = party,
+        ["color"] = self.party[self:getPartyIndex(party)].chara.xact_color,
+        ["tp"] = tp or 0,
+        ["short"] = false
+    }
 
-function Battle:setXActionText(text)
-    table.insert(self.xactiontext, text)
+    table.insert(self.xactions, act)
 end
 
 function Battle:fetchEncounterText()
@@ -1298,7 +1306,7 @@ function Battle:canSelectMenuItem(menu_item)
 end
 
 function Battle:isEnemySelected(enemy)
-    if self.state == "ENEMYSELECT" then
+    if self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
         return self.enemies[self.current_menu_y] == enemy
     elseif self.state == "MENUSELECT" and self.state_reason == "ACT" then
         return self.enemies[self.selected_enemy] == enemy
@@ -1361,7 +1369,11 @@ function Battle:keypressed(key)
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if not menu_item.data.target or menu_item.data.target == "none" then
+
+                    if menu_item.data.target == "xact" then
+                        self.selected_xaction = menu_item.data.id
+                        Game.battle:setState("XACTENEMYSELECT")
+                    elseif not menu_item.data.target or menu_item.data.target == "none" then
                         self:commitAction("SPELL", nil, menu_item)
                     elseif menu_item.data.target == "enemy" then
                         Game.battle:setState("ENEMYSELECT", "SPELL")

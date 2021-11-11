@@ -16,6 +16,10 @@ return PartyMember{
     dmg_color = {1, 1, 0.3},
     -- Fightbar color (the moving bar used in attack mode)
     fightbar_color = {1, 1, 153/255},
+    -- X-Action color (for the color of X-Action menu items)
+    xact_color = {1, 1, 0.5},
+
+    xact_name = "N-Action",
 
     -- Head icon in the equip / power menu
     menu_icon = "party/noelle/head",

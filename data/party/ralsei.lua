@@ -16,6 +16,10 @@ return PartyMember{
     dmg_color = {0.5, 1, 0.5},
     -- Fightbar color (the moving bar used in attack mode)
     fightbar_color = {181/255, 230/255, 29/255},
+    -- X-Action color (for the color of X-Action menu items)
+    xact_color = {0.5, 1, 0.5},
+
+    xact_name = "R-Action",
 
     -- Head icon in the equip / power menu
     menu_icon = "party/ralsei/head",
