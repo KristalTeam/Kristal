@@ -44,7 +44,7 @@ function DialogueText:update(dt)
         self.state.waiting = math.max(0, self.state.waiting - dt)
     end
 
-    if Input.down("cancel") or Input.down("menu") then
+    if (Input.down("cancel") and not self.state.noskip) or Input.down("menu") then
         self.state.skipping = true
     end
 
@@ -127,6 +127,12 @@ function DialogueText:processModifier(node)
             self.state.typing_sound = "default"
         else
             self.state.typing_sound = node.arguments[1]
+        end
+    elseif node.command == "noskip" then
+        if node.arguments[1] then
+            self.state.noskip = self:isTrue(node.arguments[1])
+        else
+            self.state.noskip = true
         end
     end
 end

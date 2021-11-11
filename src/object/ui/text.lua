@@ -46,7 +46,8 @@ function Text:resetState()
         asterisk_mode = false,
         escaping = false,
         typed_string = "",
-        typing_sound = ""
+        typing_sound = "",
+        noskip = false
     }
 end
 
@@ -271,6 +272,11 @@ function Text:drawChar(node, state)
         love.graphics.print(node.character, x, y)
     end
     return width, height
+end
+
+function Text:isTrue(text)
+    text = string.lower(text)
+    return (text == "true") or (text == "1") or (text == "yes") or (text == "on")
 end
 
 function Text:draw()
