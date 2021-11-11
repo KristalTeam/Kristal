@@ -433,7 +433,7 @@ end
 
 function Character:draw()
     super:draw(self)
-    
+
     if self.actor.draw then
         self.actor:draw(self)
     end
