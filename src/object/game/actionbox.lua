@@ -50,6 +50,38 @@ function ActionBox:setHeadIcon(icon)
     self.head_sprite:setSprite(self.battler.chara.head_icons.."/"..icon)
 end
 
+function ActionBox:update(dt)
+    if (Game.battle.current_selecting == self.index) then
+        self.animation_timer = self.animation_timer + 1 * (DT * 30)
+    else
+        self.animation_timer = self.animation_timer - 1 * (DT * 30)
+    end
+
+    if self.animation_timer > 7 then
+        self.animation_timer = 7
+    end
+
+    if (Game.battle.current_selecting ~= self.index) and (self.animation_timer > 3) then
+        self.animation_timer = 3
+    end
+
+    if self.animation_timer < 0 then
+        self.animation_timer = 0
+    end
+
+    if Game.battle.current_selecting == self.index then
+        self.box_y_offset = Ease.outCubic(self.animation_timer, 0, 32, 7)
+    else
+        self.box_y_offset = Ease.outCubic(3 - self.animation_timer, 32, -32, 3)
+    end
+
+    self.head_sprite.y = 11 - self.box_y_offset - self.data_offset
+    self.name_sprite.y = 14 - self.box_y_offset - self.data_offset
+    self.hp_sprite.y   = 22 - self.box_y_offset - self.data_offset
+
+    super:update(self, dt)
+end
+
 function ActionBox:draw()
     self:drawActionBox()
 
@@ -104,29 +136,9 @@ function ActionBox:drawActionBox()
         love.graphics.draw(button[frame], 20 + (35 * (index - 1)), 8)
     end
 
-    if (Game.battle.current_selecting == self.index) then
-        self.animation_timer = self.animation_timer + 1 * (DT * 30)
-    else
-        self.animation_timer = self.animation_timer - 1 * (DT * 30)
-    end
-
-    if self.animation_timer > 7 then
-        self.animation_timer = 7
-    end
-
-    if (Game.battle.current_selecting ~= self.index) and (self.animation_timer > 3) then
-        self.animation_timer = 3
-    end
-
-    if self.animation_timer < 0 then
-        self.animation_timer = 0
-    end
-
     if Game.battle.current_selecting == self.index then
-        self.box_y_offset = Ease.outCubic(self.animation_timer, 0, 32, 7)
         love.graphics.setColor(self.battler.chara.color)
     else
-        self.box_y_offset = Ease.outCubic(3 - self.animation_timer, 32, -32, 3)
         love.graphics.setColor(51/255, 32/255, 51/255, 1)
     end
 
@@ -149,10 +161,6 @@ function ActionBox:drawActionBox()
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 2, 327 - self.box_y_offset - 325, 209, 35)
 
-
-    self.head_sprite.y = 11 - self.box_y_offset - self.data_offset
-    self.name_sprite.y = 14 - self.box_y_offset - self.data_offset
-    self.hp_sprite.y   = 22 - self.box_y_offset - self.data_offset
 
     love.graphics.setColor(128/255, 0, 0, 1)
     love.graphics.rectangle("fill", 128, 22 - self.box_y_offset - self.data_offset, 76, 9)
