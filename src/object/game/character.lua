@@ -303,8 +303,6 @@ function Character:processJump()
         self.false_end_x = self.jump_x
         self.false_end_y = self.jump_y
         if (self.jump_use_sprites) then
-            --self.usespritetimer = 0
-            print("ay")
             self.sprite:set(self.land_sprite)
 
             -- TODO: theres a bunch of offsets here.
