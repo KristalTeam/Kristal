@@ -45,6 +45,10 @@ function Registry.getPartyMember(id)
     return self.party_members[id]
 end
 
+function Registry.getPartyMemberFromActor(id)
+    return self.party_from_actor[id]
+end
+
 function Registry.getEncounter(id)
     return self.encounters[id]
 end
@@ -93,6 +97,9 @@ end
 
 function Registry.registerPartyMember(id, tbl)
     self.party_members[id] = tbl
+    if tbl.actor then
+        self.party_from_actor[tbl.actor] = tbl
+    end
 end
 
 function Registry.registerItem(id, tbl)
@@ -155,6 +162,7 @@ end
 
 function Registry.initPartyMembers()
     self.party_members = {}
+    self.party_from_actor = {}
 
     for _,path,char in self.iterScripts("data/party") do
         char.id = char.id or path
