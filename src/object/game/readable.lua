@@ -15,7 +15,9 @@ function Readable:onInteract(player, dir)
     if self.data.properties.text then
         Cutscene.start(function()
             Cutscene.text(self.data.properties.text)
+            self:onTextEnd()
         end)
+        return true
     elseif self.data.properties.text1 then
         Cutscene.start(function()
             local index = 1
@@ -23,12 +25,14 @@ function Readable:onInteract(player, dir)
                 Cutscene.text(self.data.properties["text" .. index])
                 index = index + 1
             end
+            self:onTextEnd()
         end)
-    else
-        error("Attempt to interact with textless readable")
+        return true
     end
-
+    self:onTextEnd()
     return true
 end
+
+function Readable:onTextEnd() end
 
 return Readable
