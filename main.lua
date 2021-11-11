@@ -112,6 +112,7 @@ Transition = require("src.object.game.transition")
 NPC = require("src.object.game.npc")
 ChaserEnemy = require("src.object.game.chaserenemy")
 Outline = require("src.object.game.outline")
+Silhouette = require("src.object.game.silhouette")
 
 Cutscene = require("src.cutscene")
 

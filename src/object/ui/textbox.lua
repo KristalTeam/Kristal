@@ -33,7 +33,7 @@ function Textbox:init(x, y, width, height, no_background)
 end
 
 function Textbox:update(dt)
-    if Input.pressed("confirm") or self.auto_advance then
+    if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
         if not self:isTyping() then
             self:remove()
             Cutscene.resume()

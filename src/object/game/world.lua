@@ -436,6 +436,8 @@ function World:loadObject(name, data)
         return ChaserEnemy(data.properties["actor"], data.center_x, data.center_y, data)
     elseif name:lower() == "outline" then
         return Outline(data)
+    elseif name:lower() == "silhouette" then
+        return Silhouette(data)
     end
 end
 
