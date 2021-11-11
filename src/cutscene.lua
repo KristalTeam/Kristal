@@ -21,14 +21,18 @@ function Cutscene.start(cutscene)
     end
 
     self.delay_timer = 0
-    self.delay_from_textbox = false
 
     if self.textbox then
         self.textbox:remove()
     end
     self.textbox = nil
-    self.textbox_immediate = false
     self.textbox_actor = nil
+
+    if self.choicebox then
+        self.choicebox:remove()
+    end
+    self.choicebox = nil
+
     self.move_targets = {}
 
     self.camera_target = nil
@@ -43,6 +47,9 @@ function Cutscene.start(cutscene)
     --[[Overworld.cutscene_active = true
     Overworld.lock_player_input = true
     Overworld.can_open_menu = false]]
+
+    self.choice = 0
+
     self.resume()
 end
 
@@ -65,16 +72,6 @@ function Cutscene.resume()
         local ok, msg = coroutine.resume(self.current_coroutine)
         if not ok then
             error(msg)
-        end
-    end
-end
-
-function Cutscene.keypressed(key)
-    if Input.isConfirm(key) then
-        if self.delay_from_textbox and not self.textbox:isTyping() then
-            self.textbox.active = false
-            self.textbox.visible = false
-            self.delay_from_textbox = false
         end
     end
 end
@@ -125,6 +122,12 @@ function Cutscene.update(dt)
 
             if self.textbox then
                 self.textbox:remove()
+                self.textbox = nil
+            end
+
+            if self.choicebox then
+                self.choicebox:remove()
+                self.choicebox = nil
             end
 
             self.current_coroutine = nil
@@ -134,14 +137,9 @@ function Cutscene.update(dt)
         if coroutine.status(self.current_coroutine) == "suspended" then
             if self.delay_timer > 0 then
                 self.delay_timer = self.delay_timer - dt
-            end
-            if self.delay_timer <= 0 and not self.delay_from_textbox then
-                self.resume()
-            end
-            if self.textbox_immediate and not self.textbox:isTyping() then
-                self.textbox.active = false
-                self.textbox.visible = false
-                self.delay_from_textbox = false
+                if self.delay_timer <= 0 then
+                    self.resume()
+                end
             end
         end
     end
@@ -304,11 +302,19 @@ function Cutscene.text(text, portrait, actor, options)
         actor = nil
     end
 
-    if not self.textbox then
-        self.textbox = Textbox(56, 344, 529, 103)
-        self.textbox.layer = 1
-        Game.stage:addChild(self.textbox)
+    if self.textbox then
+        self.textbox:remove()
     end
+
+    if self.choicebox then
+        self.choicebox:remove()
+        self.choicebox = nil
+    end
+
+
+    self.textbox = Textbox(56, 344, 529, 103)
+    self.textbox.layer = 1
+    Game.stage:addChild(self.textbox)
 
     actor = actor or self.textbox_actor
     if actor then
@@ -326,8 +332,37 @@ function Cutscene.text(text, portrait, actor, options)
     self.textbox:setFace(portrait, options["x"], options["y"])
     self.textbox:setText(text)
 
-    self.textbox_immediate = options["auto"]
-    self.delay_from_textbox = true
+    self.auto_advance = options["auto"]
+
+    if self.current_coroutine then
+        coroutine.yield()
+    end
+end
+
+function Cutscene.choicer(choices, options)
+    if self.textbox then
+        self.textbox:remove()
+        self.textbox = nil
+    end
+
+    if self.choicebox then self.choicebox:remove() end
+
+    self.choicebox = Choicebox(56, 344, 529, 103)
+    self.choicebox.layer = 1
+    Game.stage:addChild(self.choicebox)
+
+    for _,choice in ipairs(choices) do
+        self.choicebox:addChoice(choice)
+    end
+
+    options = options or {}
+    if options["top"] then
+       local bx, by = self.choicebox:getBorder()
+       self.choicebox.y = by
+    end
+
+    self.choicebox.active = true
+    self.choicebox.visible = true
 
     if self.current_coroutine then
         coroutine.yield()

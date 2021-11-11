@@ -162,8 +162,6 @@ function Game:keypressed(key)
                     self.world.in_battle = not self.world.in_battle
                 end
             end
-        elseif self.cutscene_active then
-            Cutscene.keypressed(key)
         end
     end
 end

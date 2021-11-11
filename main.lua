@@ -54,6 +54,7 @@ ShadedChar = require("src.object.ui.shadedchar")
 DarkBox = require("src.object.ui.darkbox")
 Textbox = require("src.object.ui.textbox")
 EnemyTextbox = require("src.object.ui.enemytextbox")
+Choicebox = require("src.object.ui.choicebox")
 
 ModList = require("src.object.menu.modlist")
 ModButton = require("src.object.menu.modbutton")

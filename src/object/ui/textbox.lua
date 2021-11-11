@@ -28,6 +28,18 @@ function Textbox:init(x, y, width, height, no_background)
     self.text = DialogueText("", self.text_x, self.text_y, width, height)
     self.text.line_offset = 8 -- idk this is dumb
     self:addChild(self.text)
+
+    self.auto_advance = false
+end
+
+function Textbox:update(dt)
+    if Input.pressed("confirm") or self.auto_advance then
+        if not self:isTyping() then
+            self:remove()
+            Cutscene.resume()
+        end
+    end
+    super:update(self, dt)
 end
 
 function Textbox:setSize(w, h)
