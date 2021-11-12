@@ -10,30 +10,12 @@ return PartyMember{
     -- Title / class (saved to the save file)
     title = "LV1 Leader\nCommands the party\nwith various ACTs.",
 
-    -- Character color (for action box outline and hp bar)
-    color = {0, 1, 1},
-    -- Damage color (for the number when attacking enemies)
-    dmg_color = {0.5, 1, 1},
-    -- Fightbar color (for the moving bar used in attack mode)
-    fightbar_color = {0, 162/255, 232/255},
-    -- X-Action color (for the color of X-Action menu items)
-    xact_color = {0.5, 1, 1},
-
-    xact_name = "K-Action",
-
-    -- Head icon in the equip / power menu
-    menu_icon = "party/kris/head",
-    -- Path to head icons used in battle
-    head_icons = "party/kris/icon",
-    -- Name sprite (TODO: optional)
-    name_sprite = "party/kris/name",
-
-    -- Effect shown above enemy after attacking it
-    dmg_sprite = "effects/attack/cut",
-
     -- Whether the party member can act / use spells
     has_act = true,
     has_spells = false,
+
+    -- X-Action name (displayed in this character's spell menu)
+    xact_name = "K-Action",
 
     -- Spells by id
     spells = {},
@@ -57,6 +39,31 @@ return PartyMember{
         weapon = "wood_blade",
         armor = {}
     },
+
+    -- Character color (for action box outline and hp bar)
+    color = {0, 1, 1},
+    -- Damage color (for the number when attacking enemies) (defaults to the main color)
+    dmg_color = {0.5, 1, 1},
+    -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
+    attack_bar_color = {0, 162/255, 232/255},
+    -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
+    attack_box_color = {0, 0, 1},
+    -- X-Action color (for the color of X-Action menu items) (defaults to the main color)
+    xact_color = {0.5, 1, 1},
+
+    -- Head icon in the equip / power menu
+    menu_icon = "party/kris/head",
+    -- Path to head icons used in battle
+    head_icons = "party/kris/icon",
+    -- Name sprite (TODO: optional)
+    name_sprite = "party/kris/name",
+
+    -- Effect shown above enemy after attacking it
+    attack_sprite = "effects/attack/cut",
+    -- Sound played when this character attacks
+    attack_sound = "snd_laz_c",
+    -- Pitch of the attack sound
+    attack_pitch = 1,
 
     -- Battle position offset (optional)
     battle_offset = {2, 1},

@@ -226,7 +226,7 @@ function EnemyBattler:hurt(amount, battler)
     Assets.playSound("snd_damage")
 
     self.health = self.health - amount
-    self:statusMessage("damage", amount, battler and battler.chara.dmg_color)
+    self:statusMessage("damage", amount, battler and (battler.chara.dmg_color or battler.chara.color))
 
     self:toggleOverlay(true)
     self.overlay_sprite:setAnimation("hurt")
