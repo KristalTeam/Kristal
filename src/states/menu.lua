@@ -19,7 +19,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
     }
 ]])
 
-Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to open the mods folder\nPress (C) to open the options menu"}
+Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to return to the main menu."}
 
 function Menu:enter()
     -- STATES: MAINMENU, MODSELECT, OPTIONS
