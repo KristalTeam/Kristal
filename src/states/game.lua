@@ -57,6 +57,9 @@ function Game:enter(previous_state)
         self:encounter(Kristal.getModOption("encounter"), false)
     end
 
+    Game.gold = 0
+    Game.xp = 0
+
     Kristal.modCall("init")
 end
 

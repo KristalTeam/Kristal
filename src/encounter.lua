@@ -14,6 +14,9 @@ function Encounter:init()
 
     -- Whether characters have the X-Action option in their spell menu
     self.default_xactions = true
+
+    -- Should the battle skip the YOU WON! text?
+    self.no_end_message = false
 end
 
 function Encounter:onBattleStart() end

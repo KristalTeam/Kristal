@@ -17,6 +17,8 @@ function EnemyBattler:init(chara)
     self.tired = false
     self.mercy = 0
 
+    self.spare_points = 0
+
     self.done_state = nil
 
     self.waves = {}
@@ -148,7 +150,7 @@ function EnemyBattler:onMercy()
         self:spare()
         return true
     else
-        self:addMercy(20)
+        self:addMercy(self.spare_points)
         return false
     end
 end

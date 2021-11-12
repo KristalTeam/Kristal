@@ -14,6 +14,7 @@ function Virovirokun:init()
     self.attack = 8
     self.defense = 0
     self.reward = 84
+    self.spare_points = 20
 
     self.waves = {
         "vironeedle"

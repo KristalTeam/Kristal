@@ -8,6 +8,11 @@ function Battle:init()
     self.max_tension = 250
     self.tension = 0
 
+    self.gold = 0
+    self.xp = 0
+
+    self.used_violence = false
+
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
     self.spare_sound = Assets.newSound("snd_spare")
@@ -341,10 +346,65 @@ function Battle:onStateChange(old,new)
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
         end
-        self:battleText("* You won!\n* Got 0 EXP and 0 D$.", function()
+
+        local chapter = 2
+        self.gold = self.gold + (math.floor((self.tension / 10)) * chapter)
+
+
+
+        -- NOTES:
+        -- The Trefoil (unused sword) does the calculation below:
+        --     self.gold = self.gold + math.floor(self.gold / 20)
+
+        -- the Silver Card gives you 5% more gold.
+        -- the Dealmaker gives you 30% more gold.
+
+        for _,battler in ipairs(self.party) do
+            for _,equipment in ipairs(battler.chara:getEquipment()) do
+                self.gold = (equipment:applyGoldBonus(self.gold) or self.gold)
+            end
+        end
+
+        self.gold = math.floor(self.gold)
+
+        -- if (in_dojo) then
+        --     self.gold = 0
+        -- end
+
+        Game.gold = Game.gold + self.gold
+        Game.xp = Game.xp + self.xp
+
+        if (Game.gold < 0) then
+            Game.gold = 0
+        end
+
+        local win_text = "* You won!\n* Got " .. self.xp .. " EXP and " .. self.gold .. " D$."
+        -- if (in_dojo) then
+        --     win_text == "* You won the battle!"
+        -- end
+        if self.used_violence then
+            win_text = "* You won!\n* Got " .. self.gold .. " D$.\n* You became stronger."
+            for _,battler in ipairs(self.party) do
+                if battler.chara.id == "noelle" then
+                    win_text = "* You won!\n* Got " .. self.gold .. " D$.\n* Noelle became stronger."
+                end
+            end
+
+            local sound = Assets.newSound("snd_dtrans_lw")
+            sound:play()
+            sound:setVolume(0.7)
+            --scr_levelup()
+        end
+
+        if self.encounter.no_end_message then
             self:setState("TRANSITIONOUT")
             self.encounter:onBattleEnd()
-        end)
+        else
+            self:battleText(win_text, function()
+                self:setState("TRANSITIONOUT")
+                self.encounter:onBattleEnd()
+            end)
+        end
     elseif new == "TRANSITIONOUT" then
         self.battle_ui:transitionOut()
         if self.music ~= Game.world.music then

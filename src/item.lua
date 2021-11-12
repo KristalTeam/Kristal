@@ -61,6 +61,10 @@ function Item:getBattleText(user, target)
     return "* "..user.chara.name.." used the "..self.name:upper().."!"
 end
 
+function Item:applyGoldBonus(gold)
+    return gold
+end
+
 function Item:getReactions(id)
     if id and self.reactions[id] then
         if type(self.reactions[id]) == "table" then
