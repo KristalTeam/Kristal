@@ -84,6 +84,15 @@ function Game:encounter(encounter, transition, enemy)
     self.stage:addChild(self.battle)
 end
 
+function Game:setVolume(volume)
+    MASTER_VOLUME = volume
+    love.audio.setVolume(volume)
+end
+
+function Game:getVolume()
+    return MASTER_VOLUME or 1
+end
+
 function Game:update(dt)
     if self.previous_state and self.previous_state.animation_active then
         self.previous_state:update(dt)

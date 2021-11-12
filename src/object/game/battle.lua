@@ -1395,7 +1395,7 @@ function Battle:keypressed(key)
             self.party[self.current_selecting]:hurt(1)
         end
         if key == "m" then
-            MASTER_VOLUME = 1 - MASTER_VOLUME
+            Game:setVolume(1 - Game:getVolume())
         end
         if self.state == "DEFENDING" and key == "f" then
             self.encounter:onWavesDone()
