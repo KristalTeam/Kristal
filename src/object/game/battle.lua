@@ -643,6 +643,9 @@ function Battle:processAction(action)
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
 
             if damage > 0 then
+                -- TODO: JEVIL does (action.points / 15), so make this configurable in some way
+                self.tension_bar:giveTension(Utils.round((action.points / 10)))
+
                 local dmg_sprite = Sprite(battler.chara.attack_sprite or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
                 if crit then
