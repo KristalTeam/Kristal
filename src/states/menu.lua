@@ -320,6 +320,8 @@ function Menu:draw()
             Menu:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, true, 640)
         else
             if #self.list.mods == 0 then
+                self.heart_target_x = -8
+                self.heart_target_y = -8
                 self.list.active = false
                 self.list.visible = false
                 Menu:printShadow(Menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
