@@ -103,7 +103,7 @@ function ActionBox:select()  -- TODO: unhardcode!
                 local item = {
                     ["name"] = self.battler.chara.xact_name or "X-Action",
                     ["tp"] = 0,
-                    ["color"] = self.battler.chara.xact_color or {1, 1, 1, 1},
+                    ["color"] = self.battler.chara.xact_color or self.battler.chara.color,
                     ["data"] = {
                         ["name"] = Game.battle.enemies[Game.battle.selected_enemy]:getXAction(self.battler),
                         ["target"] = "xact",

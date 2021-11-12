@@ -3,6 +3,76 @@ local PartyMember = Class()
 function PartyMember:init(o)
     o = o or {}
 
+    -- Party member ID (optional, defaults to path)
+    self.id = nil
+    -- Display name
+    self.name = "Player"
+
+    -- Actor ID (handles overworld/battle sprites)
+    self.actor = "kris"
+
+    -- Title / class (saved to the save file)
+    self.title = "LV1 Player"
+
+    -- Whether the party member can act / use spells
+    self.has_act = true
+    self.has_spells = false
+
+    -- X-Action name (displayed in this character's spell menu)
+    self.xact_name = "?-Action"
+
+    -- Spells by id
+    self.spells = {}
+
+    -- Current health (saved to the save file)
+    self.health = 100
+
+    -- Base stats (saved to the save file)
+    self.stats = {
+        health = 100,
+        attack = 10,
+        defense = 2,
+        magic = 0
+    }
+
+    -- Weapon icon in equip menu
+    self.weapon_icon = "ui/menu/equip/sword"
+
+    -- Equipment (saved to the save file)
+    self.equipped = {
+        weapon = "wood_blade",
+        armor = {}
+    }
+
+    -- Character color (for action box outline and hp bar)
+    self.color = {1, 1, 1}
+    -- Damage color (for the number when attacking enemies) (defaults to the main color)
+    self.dmg_color = nil
+    -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
+    self.attack_bar_color = nil
+    -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
+    self.attack_box_color = nil
+    -- X-Action color (for the color of X-Action menu items) (defaults to the main color)
+    self.xact_color = nil
+
+    -- Head icon in the equip / power menu
+    self.menu_icon = "party/kris/head"
+    -- Path to head icons used in battle
+    self.head_icons = "party/kris/icon"
+    -- Name sprite (TODO: optional)
+    self.name_sprite = "party/kris/name"
+
+    -- Effect shown above enemy after attacking it
+    self.attack_sprite = "effects/attack/cut"
+    -- Sound played when this character attacks
+    self.attack_sound = "snd_laz_c"
+    -- Pitch of the attack sound
+    self.attack_pitch = 1
+
+    -- Battle position offset (optional)
+    self.battle_offset = nil
+
+
     -- Generic variables table (saved to the save file)
     self.vars = {}
 
@@ -11,6 +81,8 @@ function PartyMember:init(o)
         self[k] = v
     end
 end
+
+function PartyMember:onAttack(enemy, damage) end
 
 function PartyMember:getEquipment()
     local result = {}
@@ -54,6 +126,7 @@ end
 function PartyMember:save()
     local data = {
         id = self.id,
+        spells = self.spells,
         health = self.health,
         stats = self.stats,
         equipped = self.equipped,
@@ -66,6 +139,7 @@ function PartyMember:save()
 end
 
 function PartyMember:load(data)
+    self.spells = data.spells or self.spells
     self.stats = data.stats or self.stats
     self.health = data.health or self.stats.health
     self.equipped = data.equipped or self.equipped
