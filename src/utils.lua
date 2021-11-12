@@ -266,7 +266,7 @@ function Utils.lerp(a, b, t)
     if type(a) == "table" and type(b) == "table" then
         local o = {}
         for k,v in ipairs(a) do
-            table.insert(o, Utils.lerp(v, b[k], t))
+            table.insert(o, Utils.lerp(v, b[k] or v, t))
         end
         return o
     else

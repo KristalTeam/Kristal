@@ -96,6 +96,8 @@ function Battle:init()
     self.processed_action = {}
     self.processing_action = false
 
+    self.attackers = {}
+
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
 
@@ -272,6 +274,19 @@ function Battle:onStateChange(old,new)
         self.battle_ui.encounter_text:setText("")
         self.current_menu_x = 1
         self.current_menu_y = 1
+    elseif new == "ATTACKING" then
+        self.battle_ui.encounter_text:setText("")
+
+        for _,action in ipairs(self.character_actions) do
+            if action.action == "ATTACK" then
+                self:beginAction(action)
+                table.insert(self.attackers, self:getPartyBattler(action.character_id))
+            end
+        end
+
+        if #self.attackers == 0 then
+            self:setState("ACTIONSDONE")
+        end
     elseif new == "ENEMYDIALOGUE" then
         self.battle_ui.encounter_text:setText("")
         local all_done = true
@@ -1013,6 +1028,8 @@ function Battle:nextTurn()
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
     end
+
+    self.attackers = {}
 
     self.current_selecting = 1
     self.current_button = 1
