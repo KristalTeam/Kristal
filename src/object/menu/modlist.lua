@@ -54,6 +54,10 @@ function ModList:addMod(mod)
     self.mod_container:addChild(mod)
     mod:setPosition(4, self.mod_list_height + 4)
     self.mod_list_height = self.mod_list_height + mod.height + 8
+    if (self.selected == 0) and (#self.mods == 1) then
+        self.selected = 1
+        mod:onSelect()
+    end
 end
 
 function ModList:select(i, mute)
@@ -68,7 +72,9 @@ function ModList:select(i, mute)
         if self.mods[last_selected] then
             self.mods[last_selected]:onDeselect()
         end
-        self.mods[self.selected]:onSelect()
+        if self.mods[self.selected] then
+            self.mods[self.selected]:onSelect()
+        end
         success = true
     end
     self:setScroll()

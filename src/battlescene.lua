@@ -44,7 +44,6 @@ function BattleScene.isActive()
 end
 
 function BattleScene.wait(seconds)
-    print("waiting "..seconds)
     if self.current_coroutine then
         self.delay_timer = seconds
         coroutine.yield()

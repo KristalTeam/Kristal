@@ -58,7 +58,6 @@ function Cutscene.isActive()
 end
 
 function Cutscene.wait(seconds)
-    print("waiting "..seconds)
     if self.current_coroutine then
         self.delay_timer = seconds
         coroutine.yield()
