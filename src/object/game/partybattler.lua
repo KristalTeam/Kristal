@@ -28,8 +28,34 @@ function PartyBattler:init(chara, x, y)
     self.hurt_bump_timer = 0
 end
 
-function PartyBattler:hurt(amount)
+function PartyBattler:hurt(amount, exact)
     Assets.playSound("snd_hurt1")
+
+    if not exact then
+        local def = self.chara:getStat("defense")
+        local max_hp = self.chara:getStat("health")
+
+        local threshold_a = (max_hp / 5)
+        local threshold_b = (max_hp / 8)
+        for i = 1, def do
+            if amount > threshold_a then
+                amount = amount - 3
+            elseif amount > threshold_b then
+                amount = amount - 2
+            else
+                amount = amount - 1
+            end
+        end
+
+        amount = Utils.round(amount)
+
+        if self.defending then
+            amount = math.ceil((2 * amount) / 3)
+        end
+        if amount < 1 then
+            amount = 1
+        end
+    end
 
     self.chara.health = self.chara.health - amount
     self:statusMessage("damage", amount)

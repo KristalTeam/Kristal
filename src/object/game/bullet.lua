@@ -23,8 +23,8 @@ function Bullet:init(x, y, texture)
     -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
     self.time_bonus = 1
 
-    -- Damage given to the player when hit by this bullet
-    self.damage = 10
+    -- Damage given to the player when hit by this bullet (defaults to 5x the attacker's attack stat)
+    self.damage = nil
     -- Invulnerability timer to apply to the player when hit by this bullet
     self.inv_timer = (4/3)
     -- Whether this bullet gets removed on collision with the player
@@ -37,10 +37,14 @@ function Bullet:init(x, y, texture)
     self.remove_offscreen = true
 end
 
+function Bullet:getDamage()
+    return self.damage or (self.attacker and self.attacker.attack * 5) or 0
+end
+
 function Bullet:onDamage(soul)
-    if self.damage > 0 then
+    if self:getDamage() > 0 then
         local battler = Game.battle.party[love.math.random(#Game.battle.party)]
-        battler:hurt(self.damage)
+        battler:hurt(self:getDamage())
 
         soul.inv_timer = self.inv_timer
     end
