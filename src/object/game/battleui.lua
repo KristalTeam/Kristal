@@ -11,6 +11,14 @@ function BattleUI:init()
     self.encounter_text:setText(self.current_encounter_text)
     self:addChild(self.encounter_text)
 
+    self.short_act_text_1 = DialogueText("", 30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53)
+    self.short_act_text_2 = DialogueText("", 30, 53 + 32, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53)
+    self.short_act_text_3 = DialogueText("", 30, 53 + 32 + 32, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53)
+    self:addChild(self.short_act_text_1)
+    self:addChild(self.short_act_text_2)
+    self:addChild(self.short_act_text_3)
+
+
     self.action_boxes = {}
 
     local size_offset = 0

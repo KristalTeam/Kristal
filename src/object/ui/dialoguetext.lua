@@ -137,4 +137,8 @@ function DialogueText:processModifier(node)
     end
 end
 
+function DialogueText:isTyping()
+    return self.state.typing
+end
+
 return DialogueText

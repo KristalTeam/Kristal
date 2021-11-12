@@ -91,6 +91,7 @@ function Battle:init()
     self.character_actions = {}
 
     self.current_actions = {}
+    self.short_actions = {}
     self.current_action_index = 1
     self.processed_action = {}
     self.processing_action = false
@@ -611,7 +612,7 @@ function Battle:processAction(action)
 
         -- Check for other short acts
         local self_short = false
-        local short_actions = {}
+        self.short_actions = {}
         for _,iaction in ipairs(self.current_actions) do
             if iaction.action == "ACT" then
                 local ibattler = self.party[iaction.character_id]
@@ -621,7 +622,7 @@ function Battle:processAction(action)
                     local act = ienemy and ienemy:getAct(iaction.name)
 
                     if (act and act.short) or (ienemy:getXAction(ibattler) == iaction.name and ienemy:isXActionShort(ibattler)) then
-                        table.insert(short_actions, iaction)
+                        table.insert(self.short_actions, iaction)
                         if ibattler == battler then
                             self_short = true
                         end
@@ -630,9 +631,9 @@ function Battle:processAction(action)
             end
         end
 
-        if self_short and #short_actions > 1 then
+        if self_short and #self.short_actions > 1 then
             local short_text = {}
-            for _,iaction in ipairs(short_actions) do
+            for _,iaction in ipairs(self.short_actions) do
                 local ibattler = self.party[iaction.character_id]
                 local ienemy = iaction.target
 
@@ -642,16 +643,7 @@ function Battle:processAction(action)
                 end
             end
 
-            local dumb_string_testing = ""
-            for _,str in ipairs(short_text) do
-                dumb_string_testing = dumb_string_testing .. str .. "\n"
-            end
-            self:battleText(dumb_string_testing, function()
-                for _,iaction in ipairs(short_actions) do
-                    self:finishAction(iaction)
-                end
-                self:setState("ACTIONS", "BATTLETEXT")
-            end)
+            self:shortActText(short_text)
         else
             local text = enemy:onAct(battler, action.name)
             if text then
@@ -1047,6 +1039,15 @@ function Battle:setActText(text, dont_finish)
         end
         self:setState("ACTIONS", "BATTLETEXT")
     end)
+end
+
+function Battle:shortActText(text)
+    self:setState("SHORTACTTEXT")
+    self.battle_ui.encounter_text:setText("")
+
+    self.battle_ui.short_act_text_1:setText(text[1] or "")
+    self.battle_ui.short_act_text_2:setText(text[2] or "")
+    self.battle_ui.short_act_text_3:setText(text[3] or "")
 end
 
 function Battle:battleText(text,post_func)
@@ -1591,6 +1592,21 @@ function Battle:keypressed(key)
                 else
                     self:setState(self.post_battletext_state, "BATTLETEXT")
                 end
+            end
+        end
+    elseif self.state == "SHORTACTTEXT" then
+        if Input.isConfirm(key) then
+            if (not self.battle_ui.short_act_text_1:isTyping()) and
+               (not self.battle_ui.short_act_text_2:isTyping()) and
+               (not self.battle_ui.short_act_text_3:isTyping()) then
+                self.battle_ui.short_act_text_1:setText("")
+                self.battle_ui.short_act_text_2:setText("")
+                self.battle_ui.short_act_text_3:setText("")
+                for _,iaction in ipairs(self.short_actions) do
+                    self:finishAction(iaction)
+                end
+                self.short_actions = {}
+                self:setState("ACTIONS", "SHORTACTTEXT")
             end
         end
     elseif self.state == "ENEMYDIALOGUE" then
