@@ -28,6 +28,8 @@ local item = HealItem{
     usable_in = "all",
     -- Item this item will get turned into when consumed
     result_item = nil,
+    -- Will this item be instantly consumed in battles?
+    instant = false,
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {},

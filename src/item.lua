@@ -27,6 +27,8 @@ function Item:init(o)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
+    -- Will this item be instantly consumed in battles?
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {}

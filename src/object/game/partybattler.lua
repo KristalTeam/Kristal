@@ -70,13 +70,17 @@ function PartyBattler:hurt(amount, exact)
     end
 end
 
+function PartyBattler:flash()
+    local offset = self.sprite:getOffset()
+    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
+    self:addChild(flash)
+end
+
 function PartyBattler:heal(amount)
     Assets.playSound("snd_power")
     self.chara.health = self.chara.health + amount
 
-    local offset = self.sprite:getOffset()
-    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
-    self:addChild(flash)
+    self:flash()
 
     if self.chara.health > self.chara.stats.health then
         self.chara.health = self.chara.stats.health

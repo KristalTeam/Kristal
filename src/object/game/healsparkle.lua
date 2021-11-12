@@ -3,7 +3,7 @@ local HealSparkle, super = Class(Sprite)
 function HealSparkle:init(x, y)
     super:init(self, "effects/spare/star", x, y)
 
-    self:play(0.25, true)
+    self:play(4/30, true)
 
     self:setColor(0, 1, 0)
     self:setOrigin(0.5, 0.5)

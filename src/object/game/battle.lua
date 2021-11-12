@@ -594,13 +594,13 @@ function Battle:processAction(action)
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
 
-            local attack_sprite = Sprite(battler.chara.attack_sprite or "effects/attack/cut")
-            attack_sprite:setOrigin(0.5, 0.5)
-            attack_sprite:setScale(2, 2)
-            attack_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
-            attack_sprite.layer = enemy.layer + 0.01
-            attack_sprite:play(1/15, false, function(s) s:remove() end)
-            enemy.parent:addChild(attack_sprite)
+            local dmg_sprite = Sprite(battler.chara.dmg_sprite or "effects/attack/cut")
+            dmg_sprite:setOrigin(0.5, 0.5)
+            dmg_sprite:setScale(2, 2)
+            dmg_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
+            dmg_sprite.layer = enemy.layer + 0.01
+            dmg_sprite:play(1/15, false, function(s) s:remove() end)
+            enemy.parent:addChild(dmg_sprite)
 
             enemy:hurt(battler.chara.stats.attack, battler)
             self:finishAction(action)
@@ -660,13 +660,17 @@ function Battle:processAction(action)
     elseif action.action == "ITEM" then
         local item = action.data.item
         local index = action.data.index
-        self:battleText(item:getBattleText(battler, action.target))
-        battler:setAnimation("battle/item", function()
-            local result = item:onBattleUse(battler, action.target)
-            if result or result == nil then
-                self:finishAction(action)
-            end
-        end)
+        if item.instant then
+            self:finishAction(action)
+        else
+            self:battleText(item:getBattleText(battler, action.target))
+            battler:setAnimation("battle/item", function()
+                local result = item:onBattleUse(battler, action.target)
+                if result or result == nil then
+                    self:finishAction(action)
+                end
+            end)
+        end
     elseif action.action == "DEFEND" then
         battler:setAnimation("battle/defend")
         battler.defending = true
@@ -780,9 +784,11 @@ function Battle:commitAction(type, target, data)
 
     local battler = self.party[self.current_selecting]
 
-    battler:setAnimation("battle/"..type:lower().."_ready")
-    local box = self.battle_ui.action_boxes[self.current_selecting]
-    box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
+    if (type:upper() == "ITEM" and data.data and data.data.item and (not data.data.item.instant)) or (type:upper() ~= "ITEM") then
+        battler:setAnimation("battle/"..type:lower().."_ready")
+        local box = self.battle_ui.action_boxes[self.current_selecting]
+        box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
+    end
 
     local last_tp = self.tension
     if data.tp then
