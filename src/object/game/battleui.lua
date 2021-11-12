@@ -20,6 +20,7 @@ function BattleUI:init()
 
 
     self.action_boxes = {}
+    self.attack_boxes = {}
 
     local size_offset = 0
     if #Game.battle.party == 3 then
@@ -45,6 +46,34 @@ function BattleUI:init()
     self.animate_out = false
 
     self.heart_sprite = Assets.getTexture("player/heart")
+end
+
+function BattleUI:beginAttack()
+    local attack_order = Utils.pickMultiple(Game.battle.attackers, #Game.battle.attackers)
+
+    local last_offset = -1
+    local offset = 0
+    for i = 1, #attack_order do
+        offset = offset + last_offset
+
+        local battler = attack_order[i]
+        local attack_box = AttackBox(battler, 30 + offset, 0, 40 + (38 * (Game.battle:getPartyIndex(battler.chara.id) - 1)))
+        self:addChild(attack_box)
+        table.insert(self.attack_boxes, attack_box)
+
+        if i < #attack_order and last_offset ~= 0 then
+            last_offset = Utils.pick{0, 10, 15}
+        else
+            last_offset = Utils.pick{10, 15}
+        end
+    end
+end
+
+function BattleUI:endAttack()
+    for _,box in ipairs(self.attack_boxes) do
+        box:remove()
+    end
+    self.attack_boxes = {}
 end
 
 function BattleUI:transitionOut()
@@ -252,6 +281,11 @@ function BattleUI:drawState()
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.print(battler.chara.name, 80, 50 + ((index - 1) * 30))
         end
+    end
+    if Game.battle.state == "ATTACKING" or #self.attack_boxes > 0 then
+        love.graphics.setColor(0, 0, 0.5)
+        love.graphics.rectangle("fill", 79, 78, 224, 2)
+        love.graphics.rectangle("fill", 79, 116, 224, 2)
     end
 end
 

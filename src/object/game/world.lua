@@ -581,7 +581,7 @@ function World:update(dt)
     end
     if self.battle_fader then
         --self.battle_fader.layer = self.battle_border.layer - 1
-        self.battle_fader.color = {0, 0, 0, self.battle_alpha}
+        self.battle_fader:setColor(0, 0, 0, self.battle_alpha)
         local cam_x, cam_y = self.camera:getPosition()
         self.battle_fader.x = cam_x - 320
         self.battle_fader.y = cam_y - 240

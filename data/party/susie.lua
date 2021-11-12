@@ -26,7 +26,7 @@ local character = PartyMember{
     -- Base stats (saved to the save file)
     stats = {
         health = 140,
-        attack = 14,
+        attack = 16,
         defense = 2,
         magic = 1
     },
@@ -69,9 +69,9 @@ local character = PartyMember{
     battle_offset = {3, 1},
 }
 
-function character:onAttack(enemy, damage)
+function character:onAttackHit(enemy, damage)
     if damage > 0 then
-        Assets.playSound("snd_impact")
+        Assets.playSound("snd_impact", 0.8)
         Game.battle.shake = 4
     end
 end

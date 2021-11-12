@@ -82,7 +82,7 @@ function PartyMember:init(o)
     end
 end
 
-function PartyMember:onAttack(enemy, damage) end
+function PartyMember:onAttackHit(enemy, damage) end
 
 function PartyMember:getEquipment()
     local result = {}

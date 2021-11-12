@@ -185,7 +185,13 @@ function Object:getSize() return self.width, self.height end
 function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
 function Object:getScale() return self.scale_x, self.scale_y end
 
-function Object:setColor(r, g, b, a) self.color = {r, g, b}; self.alpha = a or self.alpha end
+function Object:setColor(r, g, b, a)
+    if type(r) == "table" then
+        r, g, b, a = unpack(r)
+    end
+    self.color = {r, g, b};
+    self.alpha = a or self.alpha
+end
 function Object:getColor() return self.color[1], self.color[2], self.color[3], self.alpha end
 
 function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0 end

@@ -26,7 +26,7 @@ return PartyMember{
     -- Base stats (saved to the save file)
     stats = {
         health = 120,
-        attack = 10,
+        attack = 12,
         defense = 2,
         magic = 0
     },

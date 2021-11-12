@@ -97,6 +97,7 @@ function Battle:init()
     self.processing_action = false
 
     self.attackers = {}
+    self.attack_done = false
 
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
@@ -125,6 +126,8 @@ function Battle:init()
 
     self.spell_delay = 0
     self.spell_finished = false
+
+    self.actions_done_timer = 0
 
     self.xactions = {}
 
@@ -280,12 +283,15 @@ function Battle:onStateChange(old,new)
         for _,action in ipairs(self.character_actions) do
             if action.action == "ATTACK" then
                 self:beginAction(action)
-                table.insert(self.attackers, self:getPartyBattler(action.character_id))
+                table.insert(self.attackers, self.party[action.character_id])
             end
         end
 
         if #self.attackers == 0 then
+            self.attack_done = true
             self:setState("ACTIONSDONE")
+        else
+            self.attack_done = false
         end
     elseif new == "ENEMYDIALOGUE" then
         self.battle_ui.encounter_text:setText("")
@@ -426,7 +432,7 @@ function Battle:processCharacterActions()
 
     self.current_action_index = 1
 
-    local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "ATTACK", "SKIP"}
+    local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "SKIP"}
     for _,action_group in ipairs(order) do
         if self:processActionGroup(action_group) then
             self:tryProcessNextAction()
@@ -435,7 +441,7 @@ function Battle:processCharacterActions()
     end
 
     self:setSubState("NONE")
-    self:setState("ACTIONSDONE")
+    self:setState("ATTACKING")
     --[[self.timer:after(4 / 30, function()
         self:setState("ENEMYDIALOGUE")
     end)]]
@@ -602,23 +608,63 @@ function Battle:processAction(action)
         end)
         self:battleText(text)
     elseif action.action == "ATTACK" then
-        Assets.playSound("snd_laz_c")
+        local src = Assets.stopAndPlaySound(battler.chara.attack_sound or "snd_laz_c")
+        src:setPitch(battler.chara.attack_pitch or 1)
+
+        self.actions_done_timer = 1.2
+
+        local crit = action.points == 150
+        if crit then
+            Assets.stopAndPlaySound("snd_criticalswing")
+
+            for i = 1, 3 do
+                local sx, sy = battler:getRelativePos(battler.width, 0)
+                local sparkle = Sprite("effects/criticalswing/sparkle", sx + Utils.random(50), sy + 30 + Utils.random(30))
+                sparkle:play(4/30, true)
+                sparkle:setScale(2)
+                sparkle.layer = LAYERS["above_battlers"]
+                sparkle.speed_x = Utils.random(2, 6)
+                sparkle.friction = -0.25
+                sparkle:fadeOutAndRemove()
+                self:addChild(sparkle)
+            end
+        end
+
+        local damage = 0
+        if action.points > 0 then
+            damage = Utils.round(((battler.chara:getStat("attack") * action.points) / 20) - (action.target.defense * 3))
+        end
+        if damage < 0 then
+            damage = 0
+        end
+
         battler:setAnimation("battle/attack", function()
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
 
-            local dmg_sprite = Sprite(battler.chara.dmg_sprite or "effects/attack/cut")
-            dmg_sprite:setOrigin(0.5, 0.5)
-            dmg_sprite:setScale(2, 2)
-            dmg_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
-            dmg_sprite.layer = enemy.layer + 0.01
-            dmg_sprite:play(1/15, false, function(s) s:remove() end)
-            enemy.parent:addChild(dmg_sprite)
+            if damage > 0 then
+                local dmg_sprite = Sprite(battler.chara.attack_sprite or "effects/attack/cut")
+                dmg_sprite:setOrigin(0.5, 0.5)
+                if crit then
+                    dmg_sprite:setScale(2.5, 2.5)
+                else
+                    dmg_sprite:setScale(2, 2)
+                end
+                dmg_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
+                dmg_sprite.layer = enemy.layer + 0.01
+                dmg_sprite:play(1/15, false, function(s) s:remove() end)
+                enemy.parent:addChild(dmg_sprite)
 
-            enemy:hurt(battler.chara.stats.attack, battler)
+                --enemy:hurt(battler.chara.stats.attack, battler)
+                enemy:hurt(damage, battler)
+
+                battler.chara:onAttackHit(enemy, damage)
+            else
+                enemy:statusMessage("msg", "miss", battler.chara.dmg_color or battler.chara.color)
+            end
+
             self:finishAction(action)
         end)
-        self:battleText("* " .. party_member.name .. " attacked " .. enemy.name .. "!\n* You will regret this")
     elseif action.action == "ACT" then
         -- fun fact: this would have only been a single function call
         -- if stupid multi-acts didn't exist
@@ -697,6 +743,15 @@ function Battle:getCurrentAction()
     return self.current_actions[self.current_action_index]
 end
 
+function Battle:getActionBy(battler)
+    for _,action in ipairs(self.current_actions) do
+        local ibattler = self.party[action.character_id]
+        if ibattler == battler then
+            return action
+        end
+    end
+end
+
 function Battle:finishActionBy(battler)
     for _,action in ipairs(self.current_actions) do
         local ibattler = self.party[action.character_id]
@@ -704,6 +759,15 @@ function Battle:finishActionBy(battler)
             self:finishAction(action)
         end
     end
+end
+
+function Battle:allActionsDone()
+    for _,action in ipairs(self.current_actions) do
+        if not self.processed_action[action] then
+            return false
+        end
+    end
+    return true
 end
 
 function Battle:finishAction(action)
@@ -717,13 +781,7 @@ function Battle:finishAction(action)
         self.processing_action = nil
     end
 
-    local all_processed = true
-    for _,iaction in ipairs(self.current_actions) do
-        if not self.processed_action[iaction] then
-            all_processed = false
-            break
-        end
-    end
+    local all_processed = self:allActionsDone()
 
     if all_processed then
         for _,iaction in ipairs(Utils.copy(self.current_actions)) do
@@ -773,17 +831,21 @@ function Battle:endActionAnimation(battler, action, callback)
             _callback()
         end
     end
-    if battler.sprite.anim == "battle/"..action.action:lower() then
-        -- Attempt to play the end animation if the sprite hasn't changed
-        if not battler:setAnimation("battle/"..action.action:lower().."_end", callback) then
+    if action.action ~= "ATTACK" then
+        if battler.sprite.anim == "battle/"..action.action:lower() then
+            -- Attempt to play the end animation if the sprite hasn't changed
+            if not battler:setAnimation("battle/"..action.action:lower().."_end", callback) then
+                battler:setAnimation("battle/idle")
+            end
+        else
+            -- Otherwise, play idle animation
             battler:setAnimation("battle/idle")
+            if callback then
+                callback()
+            end
         end
     else
-        -- Otherwise, play idle animation
-        battler:setAnimation("battle/idle")
-        if callback then
-            callback()
-        end
+        callback()
     end
 end
 
@@ -1131,7 +1193,10 @@ function Battle:update(dt)
         self:updateTransition(dt)
     elseif self.state == "INTRO" then
         self:updateIntro(dt)
+    elseif self.state == "ATTACKING" then
+        self:updateAttacking(dt)
     elseif self.state == "ACTIONSDONE" then
+        self.actions_done_timer = Utils.approach(self.actions_done_timer, 0, dt)
         local any_hurt = false
         for _,enemy in ipairs(self.enemies) do
             if enemy.hurt_timer > 0 then
@@ -1139,7 +1204,16 @@ function Battle:update(dt)
                 break
             end
         end
-        if not any_hurt then
+        if self.actions_done_timer == 0 and not any_hurt then
+            for _,battler in ipairs(self.attackers) do
+                if not battler:setAnimation("battle/attack_end") then
+                    battler:setAnimation("battle/idle")
+                end
+            end
+            self.attackers = {}
+            if #self.battle_ui.attack_boxes >= 0 then
+                self.battle_ui:endAttack()
+            end
             self:setState("ENEMYDIALOGUE")
         end
     elseif self.state == "DEFENDING" then
@@ -1248,6 +1322,39 @@ function Battle:updateTransitionOut(dt)
 
         battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
         battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
+    end
+end
+
+function Battle:updateAttacking(dt)
+    if not self.attack_done then
+        if #self.battle_ui.attack_boxes == 0 then
+            self.battle_ui:beginAttack()
+        end
+
+        local all_done = true
+        for _,attack in ipairs(self.battle_ui.attack_boxes) do
+            if not attack.attacked then
+                local close = attack:getClose()
+                if close <= -5 then
+                    attack:miss()
+
+                    local action = self:getActionBy(attack.battler)
+                    action.points = 0
+
+                    self:processAction(action)
+                else
+                    all_done = false
+                end
+            end
+        end
+
+        if all_done then
+            self.attack_done = true
+        end
+    else
+        if self:allActionsDone() then
+            self:setState("ACTIONSDONE")
+        end
     end
 end
 
@@ -1697,6 +1804,39 @@ function Battle:keypressed(key)
 
         if self.battle_ui.action_boxes[self.current_selecting].selected_button > 5 then -- TODO: unhardcode
             self.battle_ui.action_boxes[self.current_selecting].selected_button = 1
+        end
+    elseif self.state == "ATTACKING" then
+        if Input.isConfirm(key) then
+            if not self.attack_done and #self.battle_ui.attack_boxes > 0 then
+                local closest
+                local closest_attacks = {}
+
+                for _,attack in ipairs(self.battle_ui.attack_boxes) do
+                    if not attack.attacked then
+                        local close = attack:getClose()
+                        if not closest then
+                            closest = close
+                            table.insert(closest_attacks, attack)
+                        elseif close == closest then
+                            table.insert(closest_attacks, attack)
+                        elseif close < closest then
+                            closest = close
+                            closest_attacks = {attack}
+                        end
+                    end
+                end
+
+                if closest < 15 and closest > -5 then
+                    for _,attack in ipairs(closest_attacks) do
+                        local points = attack:hit()
+
+                        local action = self:getActionBy(attack.battler)
+                        action.points = points
+
+                        self:processAction(action)
+                    end
+                end
+            end
         end
     elseif self.state == "DEFENDING" then
         if key == "d" then

@@ -1,9 +1,12 @@
 local AttackBox, super = Class(Object)
 
-function AttackBox:init(battler, x, y)
+AttackBox.BOLTSPEED = 8
+
+function AttackBox:init(battler, offset, x, y)
     super:init(self, x, y)
 
     self.battler = battler
+    self.offset = offset
 
     self.head_sprite = Sprite(battler.chara.head_icons.."/head", 21, 19)
     self.head_sprite:setOrigin(0.5, 0.5)
@@ -11,17 +14,99 @@ function AttackBox:init(battler, x, y)
 
     self.press_sprite = Sprite("ui/battle/press", 42, 0)
     self:addChild(self.press_sprite)
+
+    self.bolt_target = 80 + 2
+    self.bolt_start_x = self.bolt_target + (self.offset * AttackBox.BOLTSPEED)
+
+    self.bolt = AttackBar(self.bolt_start_x, 0, 6, 38)
+    self.bolt.layer = 2
+    self:addChild(self.bolt)
+
+    self.afterimage_timer = 0
+    self.afterimage_count = -1
+
+    self.flash = 0
+
+    self.attacked = false
+end
+
+function AttackBox:getClose()
+    return Utils.round((self.bolt.x - self.bolt_target) / AttackBox.BOLTSPEED)
+end
+
+function AttackBox:hit()
+    local p = math.abs(self:getClose())
+
+    self.attacked = true
+
+    self.bolt:burst()
+    self.bolt.layer = 1
+    self.bolt:setPosition(self.bolt:getRelativePos(0, 0, self.parent))
+    self.bolt:setParent(self.parent)
+
+    if p == 0 then
+        self.bolt:setColor(1, 1, 0)
+        self.bolt.burst_speed = 0.2
+        return 150
+    elseif p == 1 then
+        return 120
+    elseif p == 2 then
+        return 110
+    elseif p >= 3 then
+        self.bolt:setColor(self.battler.chara.dmg_color or self.battler.chara.color)
+        return 100 - (p * 2)
+    end
+end
+
+function AttackBox:miss()
+    self.bolt:remove()
+    self.attacked = true
+end
+
+function AttackBox:update(dt)
+    if not self.attacked then
+        self.bolt:move(-AttackBox.BOLTSPEED * DTMULT, 0)
+
+        local close = self:getClose()
+        if close == 0 then
+            self.bolt:setColor(1, 1, 0)
+        else
+            self.bolt:setColor(1, 1, 1)
+        end
+
+        self.afterimage_timer = self.afterimage_timer + DTMULT/2
+        while math.floor(self.afterimage_timer) > self.afterimage_count do
+            self.afterimage_count = self.afterimage_count + 1
+            local afterimg = AttackBar(self.bolt_start_x - (self.afterimage_count * AttackBox.BOLTSPEED * 2), 0, 6, 38)
+            afterimg.layer = 1
+            afterimg.alpha = 0.4
+            afterimg:fadeOutAndRemove()
+            self:addChild(afterimg)
+        end
+    end
+
+    if Input.pressed("confirm") then
+        self.flash = 1
+    else
+        self.flash = Utils.approach(self.flash, 0, DTMULT/5)
+    end
+
+    super:update(self, dt)
 end
 
 function AttackBox:draw()
     local target_color = self.battler.chara.attack_bar_color or self.battle.chara.color
     local box_color = self.battler.chara.attack_box_color or Utils.lerp(target_color, {0, 0, 0}, 0.5)
 
+    if self.flash > 0 then
+        box_color = Utils.lerp(box_color, {1, 1, 1}, self.flash)
+    end
+
     love.graphics.setLineWidth(2)
     love.graphics.setLineStyle("rough")
 
     love.graphics.setColor(box_color)
-    love.graphics.rectangle("line", 80, 1, 123, 36)
+    love.graphics.rectangle("line", 80, 1, (15 * AttackBox.BOLTSPEED) + 3, 36)
     love.graphics.setColor(target_color)
     love.graphics.rectangle("line", 83, 1, 8, 36)
 

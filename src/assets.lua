@@ -166,7 +166,7 @@ end
 
 function Assets.stopAndPlaySound(sound, volume, pitch)
     self.stopSound(sound)
-    self.playSound(sound, volume, pitch)
+    return self.playSound(sound, volume, pitch)
 end
 
 function Assets.getMusicPath(music)
