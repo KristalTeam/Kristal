@@ -76,6 +76,20 @@ function PartyBattler:flash()
     self:addChild(flash)
 end
 
+function PartyBattler:sparkle(r, g, b)
+    Game.battle.timer:every(1/30, function()
+        for i = 1, 2 do
+            local x = self.x + ((love.math.random() * self.width) - (self.width / 2)) * 2
+            local y = self.y - (love.math.random() * self.height) * 2
+            local sparkle = HealSparkle(x, y)
+            if r and g and b then
+                sparkle:setColor(r, g, b)
+            end
+            self.parent:addChild(sparkle)
+        end
+    end, 4)
+end
+
 function PartyBattler:heal(amount)
     Assets.playSound("snd_power")
     self.chara.health = self.chara.health + amount
@@ -89,14 +103,7 @@ function PartyBattler:heal(amount)
         self:statusMessage("heal", amount, {0, 1, 0})
     end
 
-    Game.battle.timer:every(1/30, function()
-        for i = 1, 2 do
-            local x = self.x + ((love.math.random() * self.width) - (self.width / 2)) * 2
-            local y = self.y - (love.math.random() * self.height) * 2
-            local sparkle = HealSparkle(x, y)
-            self.parent:addChild(sparkle)
-        end
-    end, 4)
+    self:sparkle()
 end
 
 function PartyBattler:statusMessage(type, arg, color)

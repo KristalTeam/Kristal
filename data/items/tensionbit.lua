@@ -53,15 +53,7 @@ function item:onBattleSelect(user, target)
     sound:setVolume(0.8)
     sound:play()
 
-    Game.battle.timer:every(1/30, function()
-        for i = 1, 2 do
-            local x = user.x + ((love.math.random() * user.width) - (user.width / 2)) * 2
-            local y = user.y - (love.math.random() * user.height) * 2
-            local sparkle = HealSparkle(x, y)
-            sparkle:setColor(1, 0.625, 0.25)
-            user.parent:addChild(sparkle)
-        end
-    end, 4)
+    user:sparkle(1, 0.625, 0.25)
 end
 
 function item:onBattleDeselect(user, target)
