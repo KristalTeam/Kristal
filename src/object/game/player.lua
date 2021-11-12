@@ -188,6 +188,11 @@ function Player:draw()
 
         love.graphics.setColor(1, 1, 1, 1)
     end
+
+    local col = self.interact_collider[self.facing]
+    if DEBUG_RENDER then
+        col:draw(1, 0, 0, 0.5)
+    end
 end
 
 return Player

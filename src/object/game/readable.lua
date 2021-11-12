@@ -35,4 +35,11 @@ end
 
 function Readable:onTextEnd() end
 
+function Readable:draw()
+    super:draw(self)
+    if DEBUG_RENDER then
+        self.collider:draw(1, 0, 1)
+    end
+end
+
 return Readable

@@ -435,6 +435,10 @@ function Character:draw()
     if self.actor.draw then
         self.actor:draw(self)
     end
+
+    if DEBUG_RENDER then
+        self.collider:draw(0, 1, 0)
+    end
 end
 
 return Character

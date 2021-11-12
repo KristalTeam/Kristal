@@ -17,4 +17,11 @@ function Script:onCollide(player, dir)
     return true
 end
 
+function Script:draw()
+    super:draw(self)
+    if DEBUG_RENDER then
+        self.collider:draw(0, 1, 1)
+    end
+end
+
 return Script
