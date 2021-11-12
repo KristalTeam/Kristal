@@ -1,12 +1,10 @@
-local PartyBattler, super = Class(Object)
+local PartyBattler, super = Class(Battler)
 
 function PartyBattler:init(chara, x, y)
     self.chara = chara
     self.actor = Registry.getActor(chara.actor)
 
     super:init(self, x, y, self.actor.width, self.actor.height)
-
-    self.layer = LAYERS["battlers"]
 
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "right"
@@ -17,9 +15,6 @@ function PartyBattler:init(chara, x, y)
 
     self:addChild(self.sprite)
     self:addChild(self.overlay_sprite)
-
-    self:setOrigin(0.5, 1)
-    self:setScale(2)
 
     -- default to the idle animation, handle the battle intro elsewhere
     self:setAnimation("battle/idle")
@@ -68,26 +63,6 @@ function PartyBattler:hurt(amount, exact)
         self:toggleOverlay(true)
         self.overlay_sprite:setAnimation("battle/hurt", function() self:toggleOverlay(false) end)
     end
-end
-
-function PartyBattler:flash()
-    local offset = self.sprite:getOffset()
-    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
-    self:addChild(flash)
-end
-
-function PartyBattler:sparkle(r, g, b)
-    Game.battle.timer:every(1/30, function()
-        for i = 1, 2 do
-            local x = self.x + ((love.math.random() * self.width) - (self.width / 2)) * 2
-            local y = self.y - (love.math.random() * self.height) * 2
-            local sparkle = HealSparkle(x, y)
-            if r and g and b then
-                sparkle:setColor(r, g, b)
-            end
-            self.parent:addChild(sparkle)
-        end
-    end, 4)
 end
 
 function PartyBattler:heal(amount)
@@ -146,20 +121,8 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
     self:addChild(afterimage2)
 end
 
--- Shorthand for convenience
-function PartyBattler:setAnimation(animation, callback)
-    return self.sprite:setAnimation(animation, callback)
-end
-
 function PartyBattler:setSprite(sprite, speed, loop, after)
     self.sprite:setSprite(sprite)
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
-end
-
-function PartyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
-    self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)
     end

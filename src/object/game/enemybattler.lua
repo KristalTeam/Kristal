@@ -1,17 +1,12 @@
-local EnemyBattler, super = Class(Object)
+local EnemyBattler, super = Class(Battler)
 
 function EnemyBattler:init(chara)
     super:init(self)
     self.name = "Test Enemy"
 
-    self.layer = LAYERS["battlers"]
-
     if chara then
         self:setCharacter(chara)
     end
-
-    self:setOrigin(0.5, 1)
-    self:setScale(2)
 
     self.max_health = 100
     self.health = 100
@@ -239,9 +234,7 @@ function EnemyBattler:heal(amount)
     Assets.playSound("snd_power")
     self.health = self.health + amount
 
-    local offset = self.sprite:getOffset()
-    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
-    self:addChild(flash)
+    self:flash()
 
     if self.health > self.max_health then
         self.health = self.max_health
@@ -250,14 +243,7 @@ function EnemyBattler:heal(amount)
         self:statusMessage("heal", amount, {0, 1, 0})
     end
 
-    Game.battle.timer:every(1/30, function()
-        for i = 1, 2 do
-            local x = self.x + ((love.math.random() * self.width) - (self.width / 2)) * 2
-            local y = self.y - (love.math.random() * self.height) * 2
-            local sparkle = HealSparkle(x, y)
-            self.parent:addChild(sparkle)
-        end
-    end, 4)
+    self:sparkle()
 end
 
 function EnemyBattler:statusMessage(type, arg, color)
@@ -304,11 +290,6 @@ function EnemyBattler:toggleOverlay(overlay)
     self.sprite.visible = not overlay
 end
 
--- Shorthand for convenience
-function EnemyBattler:setAnimation(animation)
-    return self.sprite:setAnimation(animation)
-end
-
 function EnemyBattler:setSprite(sprite, speed, loop, after)
     if not self.sprite then
         self.sprite = Sprite(sprite)
@@ -316,13 +297,6 @@ function EnemyBattler:setSprite(sprite, speed, loop, after)
     else
         self.sprite:setSprite(sprite)
     end
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
-end
-
-function EnemyBattler:setCustomSprite(sprite, ox, oy, speed, loop, after)
-    self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)
     end
