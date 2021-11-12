@@ -246,16 +246,8 @@ function EnemyBattler:heal(amount)
     self:sparkle()
 end
 
-function EnemyBattler:statusMessage(type, arg, color)
-    local hit_count = Game.battle.hit_count
-    hit_count[self] = hit_count[self] or 0
-
-    local x, y = self:getRelativePos(self.width/2, self.height/2)
-
-    local percent = DamageNumber(type, arg, x + 4, y + 20 - (hit_count[self] * 20), color)
-    self.parent:addChild(percent)
-
-    hit_count[self] = hit_count[self] + 1
+function EnemyBattler:statusMessage(...)
+    super:statusMessage(self, self.width/2, self.height/2, ...)
 end
 
 function EnemyBattler:setActor(actor)

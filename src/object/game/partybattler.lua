@@ -53,7 +53,7 @@ function PartyBattler:hurt(amount, exact)
     end
 
     self.chara.health = self.chara.health - amount
-    self:statusMessage("damage", amount)
+    self:statusMessage("damage", amount, nil, true)
 
     self.sprite.x = -10
     self.hurt_bump_timer = 4
@@ -81,15 +81,11 @@ function PartyBattler:heal(amount)
     self:sparkle()
 end
 
-function PartyBattler:statusMessage(type, arg, color)
-
-    local x, y = self:getRelativePos(0, self.height/2)
-
-    local percent = DamageNumber(type, arg, x - 4, y + 16, color)
-    percent.kill_others = true
-    self.parent:addChild(percent)
-
+function PartyBattler:statusMessage(...)
+    local message = super:statusMessage(self, 0, self.height/2, ...)
+    message.y = message.y - 4
 end
+
 
 function PartyBattler:toggleOverlay(overlay)
     if overlay == nil then

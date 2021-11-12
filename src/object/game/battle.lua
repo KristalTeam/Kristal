@@ -96,8 +96,6 @@ function Battle:init()
     self.processed_action = {}
     self.processing_action = false
 
-    self.hit_count = {}
-
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
 
@@ -1009,9 +1007,13 @@ function Battle:nextTurn()
 
     for _,enemy in ipairs(self.enemies) do
         enemy.selected_wave = nil
+        enemy.hit_count = 0
     end
 
-    self.hit_count = {}
+    for _,battler in ipairs(self.party) do
+        battler.hit_count = 0
+    end
+
     self.current_selecting = 1
     self.current_button = 1
 

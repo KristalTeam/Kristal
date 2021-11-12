@@ -7,6 +7,8 @@ function Battler:init(x, y, width, height)
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
+
+    self.hit_count = 0
 end
 
 function Battler:flash()
@@ -27,6 +29,27 @@ function Battler:sparkle(r, g, b)
             self.parent:addChild(sparkle)
         end
     end, 4)
+end
+
+function Battler:statusMessage(x, y, type, arg, color, kill)
+    x, y = self:getRelativePos(x, y)
+
+    local offset = 0
+    if not kill then
+        offset = (self.hit_count * 20)
+    end
+
+    local percent = DamageNumber(type, arg, x + 4, y + 20 - offset, color)
+    if kill then
+        percent.kill_others = true
+    end
+    self.parent:addChild(percent)
+
+    if not kill then
+        self.hit_count = self.hit_count + 1
+    end
+
+    return percent
 end
 
 -- Shorthand for convenience
