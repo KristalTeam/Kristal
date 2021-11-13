@@ -153,48 +153,49 @@ function Game:updateGameOver(dt)
         self.gameover_stage = 5
     end
     if (self.gameover_timer >= 180) and (self.gameover_stage == 5) then
-        local has_ralsei = false
-        local has_susie = false
-        for i, member in ipairs(self.party) do
-            if member.id == "ralsei" then has_ralsei = true end
-            if member.id == "susie"  then has_susie  = true end
+        local options = {}
+        for _, member in ipairs(self.party) do
+            if member.gameover_message then
+                table.insert(options, member)
+            end
         end
-        if (not has_ralsei) and (not has_susie) then
+        if #options == 0 then
             self.gameover_stage = 7
         else
-            local voice = Utils.round(math.random())
-            if not has_ralsei then voice = 0 end
-            if not has_susie  then voice = 1 end
-            if (voice == 0) then
-                self.lines = {
-                    "[speed:0.5][voice:susie][spacing:8]  Come on[wait:1],\n  that all you got!?",
-                    "[speed:0.5][voice:susie][spacing:8]  Kris[wait:1],\n  get up...!"
-                }
-            else
-                self.lines = {
-                    "[speed:0.5][voice:ralsei][spacing:8]  This is not\n  your fate...!",
-                    "[speed:0.5][voice:ralsei][spacing:8]  Please[wait:1],\n  don't give up!",
-                }
+            local member = Utils.pick(options)
+            local voice = Registry.getActor(member.actor).text_sound or "default"
+            self.gameover_lines = {}
+            for _,dialogue in ipairs(member.gameover_message) do
+                local full_line = "[speed:0.5][spacing:8][voice:"..voice.."]"
+                local lines = Utils.split(dialogue, "\n")
+                for i,line in ipairs(lines) do
+                    if i > 1 then
+                        full_line = full_line.."\n  "..line
+                    else
+                        full_line = full_line.."  "..line
+                    end
+                end
+                table.insert(self.gameover_lines, full_line)
             end
-            self.gameover_dialogue = DialogueText(self.lines[1], 50*2, 151*2, nil, nil, nil, "none")
+            self.gameover_dialogue = DialogueText(self.gameover_lines[1], 50*2, 151*2, nil, nil, nil, "none")
             self.gameover_dialogue.line_offset = 14
             self.gameover_dialogue.skip_speed = true
             self.stage:addChild(self.gameover_dialogue)
+            table.remove(self.gameover_lines, 1)
             self.gameover_stage = 6
         end
     end
     if (self.gameover_stage == 6) and Input.pressed("confirm") and (not self.gameover_dialogue:isTyping()) then
-        self.gameover_dialogue:setText(self.lines[2])
-        self.gameover_dialogue.line_offset = 14
-        self.gameover_stage = 7
+        if #self.gameover_lines > 0 then
+            self.gameover_dialogue:setText(self.gameover_lines[1])
+            self.gameover_dialogue.line_offset = 14
+            table.remove(self.gameover_lines, 1)
+        else
+            self.gameover_dialogue:remove()
+            self.gameover_stage = 7
+        end
     end
     if (self.gameover_stage == 7) then
-        if self.gameover_dialogue then
-            if not (Input.pressed("confirm") and (not self.gameover_dialogue:isTyping())) then
-                return
-            end
-            self.gameover_dialogue:remove()
-        end
         self.gameover_stage = 8
         self.gameover_selected = 1
         self.gameover_fadebuffer = 10

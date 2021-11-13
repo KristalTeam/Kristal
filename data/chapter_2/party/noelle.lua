@@ -67,4 +67,7 @@ return PartyMember{
 
     -- Battle position offset (optional)
     battle_offset = {0, 0},
+
+    -- Message shown on gameover (optional)
+    gameover_message = nil,
 }

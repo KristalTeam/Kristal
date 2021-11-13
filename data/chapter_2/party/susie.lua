@@ -67,6 +67,12 @@ local character = PartyMember{
 
     -- Battle position offset (optional)
     battle_offset = {3, 1},
+
+    -- Message shown on gameover (optional)
+    gameover_message = {
+        "Come on[wait:1],\nthat all you got!?",
+        "Kris[wait:1],\nget up...!"
+    },
 }
 
 function character:onAttackHit(enemy, damage)

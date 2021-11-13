@@ -67,4 +67,10 @@ return PartyMember{
 
     -- Battle position offset (optional)
     battle_offset = {2, 6},
+
+    -- Message shown on gameover (optional)
+    gameover_message = {
+        "This is not\nyour fate...!",
+        "Please[wait:1],\ndon't give up!"
+    },
 }
