@@ -11,9 +11,10 @@ function Battler:init(x, y, width, height)
     self.hit_count = 0
 end
 
-function Battler:flash()
-    local offset = self.sprite:getOffset()
-    local flash = FlashFade(self.sprite.texture, -offset[1], -offset[2])
+function Battler:flash(sprite)
+    local sprite_to_use = sprite or self.sprite
+    local offset = sprite_to_use:getOffset()
+    local flash = FlashFade(sprite_to_use.texture, -offset[1], -offset[2])
     self:addChild(flash)
 end
 

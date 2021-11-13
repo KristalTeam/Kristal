@@ -3,7 +3,7 @@ local Game = {}
 function Game:enter(previous_state)
     self.previous_state = previous_state
 
-    -- states: OVERWORLD, BATTLE, SHOP
+    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
     self.state = "OVERWORLD"
 
     self.stage = Stage()
@@ -61,6 +61,16 @@ function Game:enter(previous_state)
     Game.xp = 0
 
     Kristal.modCall("init")
+end
+
+function Game:gameOver()
+    self.state = "GAMEOVER"
+    if self.battle then
+        self.battle:remove()
+    end
+    if self.world then
+        self.world:remove()
+    end
 end
 
 function Game:encounter(encounter, transition, enemy)

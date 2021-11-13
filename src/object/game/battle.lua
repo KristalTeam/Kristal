@@ -413,16 +413,22 @@ function Battle:onStateChange(old,new)
     end
 end
 
-function Battle:spawnSoul(x, y)
-    local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
-
-    local bx, by
-    if not battler then
-        bx, by = -9, -9
+function Battle:getSoulLocation(always_player)
+    if self.soul and (not always_player) then
+        return self.soul:getPosition()
     else
-        bx, by = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
-    end
+        local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
 
+        if not battler then
+            return -9, -9
+        else
+            return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+        end
+    end
+end
+
+function Battle:spawnSoul(x, y)
+    local bx, by = self:getSoulLocation()
     self:addChild(HeartBurst(bx, by))
     if not self.soul then
         self.soul = self.encounter:createSoul(bx, by)
@@ -434,14 +440,7 @@ function Battle:spawnSoul(x, y)
 end
 
 function Battle:returnSoul()
-    local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
-
-    local bx, by
-    if not battler then
-        bx, by = -9, -9
-    else
-        bx, by = battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
-    end
+    local bx, by = self:getSoulLocation(true)
 
     if self.soul then
         self.soul:transitionTo(bx, by, true)
@@ -654,10 +653,10 @@ function Battle:processAction(action)
         battler:setAnimation("battle/spare", function()
             enemy:onMercy()
             if not worked then
-                Game.battle.timer:during(8/30, function()
+                self.timer:during(8/30, function()
                     enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 0}, 0.12 * DTMULT)
                 end, function()
-                    Game.battle.timer:during(8/30, function()
+                    self.timer:during(8/30, function()
                         enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 1}, 0.16 * DTMULT)
                     end, function()
                         enemy.sprite.color = {1, 1, 1}
@@ -987,7 +986,7 @@ function Battle:removeAction(character_id, multi_act)
         if action.character_id == character_id then
             if not multi_act and action.act_parent then
                 self:removeAction(action.act_parent)
-                Game.battle.current_selecting = Game.battle.current_selecting - 1
+                self.current_selecting = self.current_selecting - 1
                 return
             end
 
@@ -1118,6 +1117,14 @@ end
 
 function Battle:nextParty()
     self.current_selecting = self.current_selecting + 1
+    if self.party[self.current_selecting] then
+        while (self.party[self.current_selecting].is_down) do
+            self.current_selecting = self.current_selecting + 1
+            if self.current_selecting > #self.party then
+                break
+            end
+        end
+    end
     while (self:hasAction(self.current_selecting)) do
         self.current_selecting = self.current_selecting + 1
     end
@@ -1152,11 +1159,23 @@ function Battle:nextTurn()
 
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
+        if (battler.chara.health <= 0) then
+            battler:heal(math.ceil(battler.chara.stats.health / 8))
+        end
     end
 
     self.attackers = {}
 
     self.current_selecting = 1
+    while (self.party[self.current_selecting].is_down) do
+        self.current_selecting = self.current_selecting + 1
+        if self.current_selecting > #self.party then
+            print("WARNING: nobody up! this shouldn't happen...")
+            self.current_selecting = 1
+            break
+        end
+    end
+
     self.current_button = 1
 
     self.character_actions = {}
@@ -1180,6 +1199,16 @@ function Battle:nextTurn()
     self.encounter:onTurnStart()
 
     self:setState("ACTIONSELECT")
+end
+
+function Battle:checkGameOver()
+    for _,battler in ipairs(self.party) do
+        if not battler.is_down then
+            return
+        end
+    end
+    self.music:stop()
+    Game:gameOver(self:getSoulLocation())
 end
 
 function Battle:setActText(text, dont_finish)
@@ -1375,7 +1404,7 @@ function Battle:updateTransitionOut(dt)
             Game.world.music:resume()
         end
         self:remove()
-        Game.battle = nil
+        self = nil
         Game.state = "OVERWORLD"
         return
     end
@@ -1535,7 +1564,7 @@ function Battle:canSelectMenuItem(menu_item)
     end
     if menu_item.party then
         for _,party_id in ipairs(menu_item.party) do
-            local battler = Game.battle.party[Game.battle:getPartyIndex(party_id)]
+            local battler = self.party[self:getPartyIndex(party_id)]
             if (not battler) or (battler.chara.health <= 0) then
                 -- They're either down, or don't exist. Either way, they're not here to do the action.
                 return false
@@ -1612,13 +1641,13 @@ function Battle:keypressed(key)
 
                     if menu_item.data.target == "xact" then
                         self.selected_xaction = menu_item.data
-                        Game.battle:setState("XACTENEMYSELECT")
+                        self:setState("XACTENEMYSELECT")
                     elseif not menu_item.data.target or menu_item.data.target == "none" then
                         self:commitAction("SPELL", nil, menu_item)
                     elseif menu_item.data.target == "enemy" then
-                        Game.battle:setState("ENEMYSELECT", "SPELL")
+                        self:setState("ENEMYSELECT", "SPELL")
                     elseif menu_item.data.target == "party" then
-                        Game.battle:setState("PARTYSELECT", "SPELL")
+                        self:setState("PARTYSELECT", "SPELL")
                     end
                 end
                 return
@@ -1631,9 +1660,9 @@ function Battle:keypressed(key)
                     if not menu_item.data.item.target or menu_item.data.item.target == "none" then
                         self:commitAction("ITEM", nil, menu_item)
                     elseif menu_item.data.item.target == "party" then
-                        Game.battle:setState("PARTYSELECT", "ITEM")
+                        self:setState("PARTYSELECT", "ITEM")
                     elseif menu_item.data.item.target == "enemy" then
-                        Game.battle:setState("ENEMYSELECT", "ITEM")
+                        self:setState("ENEMYSELECT", "ITEM")
                     end
                 end
             end
@@ -1681,7 +1710,7 @@ function Battle:keypressed(key)
             elseif self.state_reason == "SPARE" then
                 self:commitAction("SPARE", self.enemies[self.selected_enemy])
             elseif self.state_reason == "ACT" then
-                Game.battle.menu_items = {}
+                self.menu_items = {}
                 local enemy = self.enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
                     local insert = true
@@ -1844,10 +1873,22 @@ function Battle:keypressed(key)
             self.ui_select:play()
             return
         elseif Input.isCancel(key) then
-            if Game.battle.current_selecting > 1 then
+            local old_selecting = self.current_selecting
+
+            self.current_selecting = self.current_selecting - 1
+            if self.current_selecting < 1 then
+                self.current_selecting = old_selecting
+            end
+            while (self.party[self.current_selecting].is_down) do
+                self.current_selecting = self.current_selecting - 1
+                if self.current_selecting < 1 then
+                    self.current_selecting = old_selecting
+                    break
+                end
+            end
+            if self.current_selecting ~= old_selecting then
                 self.ui_move:stop()
                 self.ui_move:play()
-                Game.battle.current_selecting = Game.battle.current_selecting - 1
                 self.battle_ui.action_boxes[self.current_selecting]:unselect()
             end
             return

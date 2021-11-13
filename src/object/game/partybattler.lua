@@ -21,6 +21,8 @@ function PartyBattler:init(chara, x, y)
 
     self.defending = false
     self.hurt_bump_timer = 0
+
+    self.is_down = false
 end
 
 function PartyBattler:hurt(amount, exact)
@@ -52,22 +54,59 @@ function PartyBattler:hurt(amount, exact)
         end
     end
 
-    self.chara.health = self.chara.health - amount
-    self:statusMessage("damage", amount, nil, true)
+    if (self.chara.health <= 0) then
+        amount = Utils.round(amount / 4)
+        self.chara.health = self.chara.health - amount
+    else
+        self.chara.health = self.chara.health - amount
+        if (self.chara.health <= 0) then
+            amount = math.abs((self.chara.health - (self.chara.stats.health / 2)))
+            self.chara.health = Utils.round(((-self.chara.stats.health) / 2))
+            --scr_dead(target)
+            self:down()
+        end
+    end
+
+    if (self.chara.health <= 0) then
+        self:statusMessage("msg", "down", nil, true)
+    else
+        self:statusMessage("damage", amount, nil, true)
+    end
 
     self.sprite.x = -10
     self.hurt_bump_timer = 4
     Game.battle.shake = 4
 
-    if not self.defending then
+    if (not self.defending) and (not self.is_down) then
         self:toggleOverlay(true)
         self.overlay_sprite:setAnimation("battle/hurt", function() self:toggleOverlay(false) end)
     end
 end
 
+function PartyBattler:down()
+    self.is_down = true
+    self:toggleOverlay(true)
+    self.overlay_sprite:setSprite("battle/down")
+    Game.battle:checkGameOver()
+end
+
+function PartyBattler:revive()
+    self.is_down = false
+    self:toggleOverlay(false)
+end
+
+function PartyBattler:flash()
+    super:flash(self, self.overlay_sprite.visible and self.overlay_sprite or self.sprite)
+end
+
 function PartyBattler:heal(amount)
     Assets.playSound("snd_power")
+
     self.chara.health = self.chara.health + amount
+
+    if (self.is_down) and self.chara.health >= 0 then
+        self:revive()
+    end
 
     self:flash()
 
