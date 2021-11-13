@@ -12,6 +12,7 @@ Class = require("src.classhelper")
 require ("src.graphicshelper")
 
 Utils = require("src.utils")
+CollisionUtil = require("src.collisionutil")
 
 Kristal = {}
 Kristal.Config = {}
@@ -74,6 +75,8 @@ ColliderGroup = require("src.collider.collidergroup")
 Hitbox = require("src.collider.hitbox")
 LineCollider = require("src.collider.linecollider")
 CircleCollider = require("src.collider.circlecollider")
+PointCollider = require("src.collider.pointcollider")
+PolygonCollider = require("src.collider.polygoncollider")
 
 World = require("src.object.game.world")
 Tileset = require("src.tileset")
@@ -234,7 +237,11 @@ function love.load(args)
     load_thread:start()
 
     -- load menu
-    Gamestate.switch(Kristal.States["Loading"])
+    if Kristal.Args["test"] then
+        Gamestate.switch(Kristal.States["Testing"])
+    else
+        Gamestate.switch(Kristal.States["Loading"])
+    end
 end
 
 function love.quit()

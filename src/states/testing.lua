@@ -1,79 +1,72 @@
 local Testing = {}
 
 function Testing:enter()
-    self.font = Assets.getFont("main")
-    self.face = Assets.getTexture("face/ralsei_hat/spr_face_r_dark_9")
-    self.timer = 0
-
-    self.stage = Object()
-
-    --self.stage:addChild(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:1].[wait:1].[wait:1].\n\n[wait:10]* I'm the [color:ff00ff]sussy [color:red]among us[color:reset] and [speed:0.2]nobody[speed:1] can\nstop me\n\n[wait:20][instant]* Except [stopinstant][wait:30][instant]law [stopinstant][wait:50][speed:0.2]en[instant]force[stopinstant][wait:20][speed:2]ment", 20, 20))
-
-    self.stage:addChild(DialogueText("* These [color:yellow]birds[color:reset] are [color:yellow]Pissing[color:reset] me\noff[wait:5].[wait:5].[wait:5].", 20, 20))
-
-    self.funnytext = DialogueText("* I'm the ULTIMATE   [color:yellow]STARWALKER", 20, 120)
-    self.stage:addChild(self.funnytext)
-
-    self.stage:addChild(Text("[color:ff00ff]* Amogus[color:reset] sussy [color:red]Impostor", 20, 320, ShadedChar))
-
-    self.stage:addChild(DarkTransitionLine(20))
-    self.stage:addChild(DarkTransitionLine(30))
-    self.stage:addChild(DarkTransitionLine(40))
-    self.stage:addChild(DarkTransitionLine(50))
-    self.stage:addChild(DarkTransitionLine(60))
-    self.stage:addChild(DarkTransitionLine(70))
-    self.stage:addChild(DarkTransitionLine(80))
-    self.stage:addChild(DarkTransitionLine(90))
+    self.target_x = SCREEN_WIDTH/2
+    self.target_y = SCREEN_HEIGHT/2
 end
 
 function Testing:update(dt)
-    self.stage:update(dt)
+end
 
-    self.timer = self.timer + dt
-    for i,char in ipairs(self.funnytext.chars) do
-        if char.color[1] ~= 1 or char.color[2] ~= 1 or char.color[3] ~= 1 then
-            local color = {Utils.hslToRgb((self.timer + (i * 0.1)) % 1, 1, 0.5)}
-            char.color = {color[1], color[2], color[3], 1}
+function Testing:draw()
+    love.graphics.clear(1, 1, 1)
+    love.graphics.setPointSize(4)
+    love.graphics.setLineWidth(4)
+    local ix, iy, ints
 
-            local scale = 1 + (math.sin(self.timer * 6 + (i * 0.5)) * 0.3)
-            char.origin_y = math.max(0, scale - 1)
+    local centerx, centery = SCREEN_WIDTH/2, SCREEN_HEIGHT/2
+    local mx, my = love.mouse.getX() / Kristal.Config["windowScale"], love.mouse.getY() / Kristal.Config["windowScale"]
 
-            char:setScaleOrigin(0.5, 1)
-            char:setScale(1, scale)
+    local points = {{centerx-100, centery-100}, {centerx+60, centery-100}, {centerx, centery}, {centerx+100, centery-60}, {centerx, centery+100}, {centerx-100, centery}}
+    local points2 = {{mx-35,my-35}, {mx,my-10}, {mx+35,my-35}, {mx+10,my}, {mx+35,my+35}, {mx,my+10}, {mx-35,my+35}, {mx-10,my}}
+
+    local hit = CollisionUtil.polygonPolygon(points, points2)
+
+    if hit then
+        love.graphics.setColor(1, 0.5, 0)
+    else
+        love.graphics.setColor(0, 0.5, 1)
+    end
+    --love.graphics.rectangle("fill", rx,ry, rw,rh)
+    self:drawPolygon(points)
+
+    love.graphics.setColor(0, 0, 0, 0.5)
+    --love.graphics.line(x1,y1, x2,y2)
+    self:drawPolygon(points2)
+
+    if hit then
+        if ix and iy then
+            self:drawIntersect(ix, iy)
+        elseif ints then
+            for _,i in ipairs(ints) do
+                self:drawIntersect(i[1], i[2])
+            end
         end
     end
 end
 
-function Testing:draw()
-    love.graphics.clear()
-    self.stage:draw()
-
-    --[[local text1_lines = Utils.split(text, "\n")
-    local canvas = Draw.getCanvas("star_text", self.font:getWidth(text1), self.font:getHeight() * #text1_lines)
-
-    love.graphics.setCanvas(canvas)
-    love.graphics.clear()
-    love.graphics.setFont(self.font)
-    love.graphics.print(text)
-    love.graphics.setCanvas()
-    
-    love.graphics.setShader(GRADIENT_H_SHADER)
-    GRADIENT_H_SHADER:send("from", {1, 1, 0, 1}) -- spare color
-    GRADIENT_H_SHADER:send("to", {0, 0.7, 1, 1}) -- pacify color
-    GRADIENT_H_SHADER:send("scale", 1)
-    love.graphics.draw(canvas, 20, 20)
-    GRADIENT_H_SHADER:send("scale", 1)
-    love.graphics.setShader()]]
+function Testing:mousepressed(x, y, btn)
+    self.target_x = x
+    self.target_y = y
 end
 
-function Testing:drawScissor(image, left, top, width, height, x, y, xscale, yscale, alpha)
-    love.graphics.push("all")
-    love.graphics.scale(xscale, yscale)
-    love.graphics.setScissor(x, y, width, height)
-    love.graphics.setColor(1, 1, 1, alpha)
-    love.graphics.draw(image, x - left, y - top)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.pop()
+function Testing:drawPolygon(points)
+    local unpacked = {}
+    for _,point in ipairs(points) do
+        table.insert(unpacked, point[1])
+        table.insert(unpacked, point[2])
+    end
+    local triangles = love.math.triangulate(unpacked)
+    for _,triangle in ipairs(triangles) do
+        love.graphics.polygon("fill", unpack(triangle))
+    end
+end
+
+function Testing:drawIntersect(x, y)
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.circle("fill", x, y, 5)
+    love.graphics.setColor(1, 0, 0)
+    love.graphics.circle("fill", x, y, 4)
 end
 
 return Testing
