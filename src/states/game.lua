@@ -65,6 +65,9 @@ function Game:enter(previous_state)
 
     self.music = Music()
 
+    self.font = Assets.getFont("main")
+    self.soul_blur = Assets.getTexture("ui/soul_blur")
+
     Kristal.modCall("init")
 end
 
@@ -89,6 +92,7 @@ function Game:gameOver(x, y)
     self.gameover_stage = 0
     self.fader_alpha = 0
     self.gameover_skipping = 0
+    self.fade_white = false
 end
 
 function Game:updateGameOver(dt)
@@ -141,7 +145,7 @@ function Game:updateGameOver(dt)
     end
     if (self.gameover_timer >= 150) and (self.gameover_stage == 4) then
         self.music:play("AUDIO_DEFEAT")
-        self.gameover_text = Sprite("ui/gameover", 0, 20)
+        self.gameover_text = Sprite("ui/gameover", 0, 40)
         self.gameover_text:setScale(2)
         self.gameover_alpha = 0
         self.stage:addChild(self.gameover_text)
@@ -149,19 +153,149 @@ function Game:updateGameOver(dt)
         self.gameover_stage = 5
     end
     if (self.gameover_timer >= 180) and (self.gameover_stage == 5) then
-        -- Next in 30 frames...
-        self.gameover_dialogue = DialogueText("[speed:0.25][voice:susie]  Come on[wait:1],\n  that all you got!?", 50*2, 150*2)
-        --   This is not&  your fate...!/
-        self.stage:addChild(self.gameover_dialogue)
-        self.gameover_stage = 6
+        local has_ralsei = false
+        local has_susie = false
+        for i, member in ipairs(self.party) do
+            if member.id == "ralsei" then has_ralsei = true end
+            if member.id == "susie"  then has_susie  = true end
+        end
+        if (not has_ralsei) and (not has_susie) then
+            self.gameover_stage = 7
+        else
+            local voice = Utils.round(math.random())
+            if not has_ralsei then voice = 0 end
+            if not has_susie  then voice = 1 end
+            if (voice == 0) then
+                self.lines = {
+                    "[speed:0.5][voice:susie][spacing:8]  Come on[wait:1],\n  that all you got!?",
+                    "[speed:0.5][voice:susie][spacing:8]  Kris[wait:1],\n  get up...!"
+                }
+            else
+                self.lines = {
+                    "[speed:0.5][voice:ralsei][spacing:8]  This is not\n  your fate...!",
+                    "[speed:0.5][voice:ralsei][spacing:8]  Please[wait:1],\n  don't give up!",
+                }
+            end
+            self.gameover_dialogue = DialogueText(self.lines[1], 50*2, 151*2, nil, nil, nil, "none")
+            self.gameover_dialogue.line_offset = 14
+            self.gameover_dialogue.skip_speed = true
+            self.stage:addChild(self.gameover_dialogue)
+            self.gameover_stage = 6
+        end
     end
     if (self.gameover_stage == 6) and Input.pressed("confirm") and (not self.gameover_dialogue:isTyping()) then
-        self.gameover_dialogue:setText("[speed:0.25][voice:susie]  Kris[wait:1],\n  get up...!")
-        -- "  Please^1,&  don't give up!/%"
+        self.gameover_dialogue:setText(self.lines[2])
+        self.gameover_dialogue.line_offset = 14
         self.gameover_stage = 7
     end
-    if (self.gameover_stage == 7) and Input.pressed("confirm") and (not self.gameover_dialogue:isTyping()) then
+    if (self.gameover_stage == 7) then
+        if self.gameover_dialogue then
+            if not (Input.pressed("confirm") and (not self.gameover_dialogue:isTyping())) then
+                return
+            end
+            self.gameover_dialogue:remove()
+        end
+        self.gameover_stage = 8
+        self.gameover_selected = 1
+        self.gameover_fadebuffer = 10
+        self.gameover_ideal_x = 80 + (self.font:getWidth("CONTINUE") / 4 - 10)
+        self.gameover_ideal_y = 180
+        self.gameover_heart_x = self.gameover_ideal_x
+        self.gameover_heart_y = self.gameover_ideal_y
+        self.gameover_choicer_done = false
+    end
+
+    if (self.gameover_stage == 8) then
+        self.gameover_fadebuffer = self.gameover_fadebuffer - DTMULT
+
+        if self.gameover_fadebuffer < 0 then
+            if Input.pressed("left") then self.gameover_selected = 1 end
+            if Input.pressed("right") then self.gameover_selected = 2 end
+            if self.gameover_selected == 1 then
+                self.gameover_ideal_x = 80   + (self.font:getWidth("CONTINUE") / 4 - 10)  --((string_width(NAME[CURX][CURY]) / 2) - 10)
+                self.gameover_ideal_y = 180
+            else
+                self.gameover_ideal_x = 190  + (self.font:getWidth("GIVE UP") / 4 - 10)
+                self.gameover_ideal_y = 180
+            end
+
+            if Input.pressed("confirm") then
+                self.gameover_choicer_done = true
+                self.music:stop()
+                if self.gameover_selected == 1 then
+                    self.gameover_stage = 9
+
+                    self.gameover_timer = 0
+                else
+                    self.gameover_text:remove()
+                    self.gameover_stage = 20
+
+                    self.gameover_dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:5] \n WAS COVERED[wait:5] \n IN DARKNESS.", 60*2, 81*2, nil, nil, nil, "GONER")
+                    self.gameover_dialogue.line_offset = 14
+                    self.stage:addChild(self.gameover_dialogue)
+                end
+            end
+        end
+    end
+
+    if (self.gameover_stage == 9) then
+        if (self.gameover_timer >= 30) then
+            self.gameover_timer = 0
+            self.gameover_stage = 10
+            local sound = Assets.newSound("snd_dtrans_lw")
+            sound:play()
+            self.fade_white = true
+        end
+    end
+
+    if (self.gameover_stage == 10) then
+        self.fade_white = true
+        self.fader_alpha = self.fader_alpha + (0.01 * DTMULT)
+        if self.gameover_timer >= 120 then
+            self.gameover_stage = 11
+            self:loadTemp()
+        end
+    end
+
+    if (self.gameover_stage == 20) and Input.pressed("confirm") and (not self.gameover_dialogue:isTyping()) then
         self.gameover_dialogue:remove()
+        self.music:play("AUDIO_DARKNESS")
+        self.music.source:setLooping(false)
+        self.gameover_stage = 21
+    end
+
+    if (self.gameover_stage == 21) and (not self.music:isPlaying()) then
+        if Kristal.getModOption("quickReload") then
+            Kristal.quickReload()
+        else
+            love.event.quit("restart")
+        end
+        self.gameover_stage = 0
+    end
+
+
+
+
+    if (self.gameover_choicer_done) then
+        if self.gameover_fadebuffer < 0 then
+            self.gameover_fadebuffer = 0
+        end
+        self.gameover_fadebuffer = self.gameover_fadebuffer + DTMULT
+    end
+
+    if (self.gameover_stage >= 8) and self.gameover_fadebuffer < 10 then
+        if (math.abs(self.gameover_heart_x - self.gameover_ideal_x) <= 2) then
+            self.gameover_heart_x = self.gameover_ideal_x
+        end
+        if (math.abs(self.gameover_heart_y - self.gameover_ideal_y) <= 2) then
+            self.gameover_heart_y = self.gameover_ideal_y
+        end
+
+        local HEARTDIFF = ((self.gameover_ideal_x - self.gameover_heart_x) * 0.3)
+        self.gameover_heart_x = self.gameover_heart_x + (HEARTDIFF * DTMULT)
+
+        HEARTDIFF = ((self.gameover_ideal_y - self.gameover_heart_y) * 0.3)
+        self.gameover_heart_y = self.gameover_heart_y + (HEARTDIFF * DTMULT)
     end
 
     if ((self.gameover_timer >= 80) and (self.gameover_timer < 150)) then
@@ -169,8 +303,7 @@ function Game:updateGameOver(dt)
             self.gameover_skipping = self.gameover_skipping + 1
         end
         if (self.gameover_skipping >= 4) then
-            error("TODO: LOAD AFTER GAME OVER")
-            --scr_tempload()
+            self:loadTemp()
         end
     end
 
@@ -178,6 +311,10 @@ function Game:updateGameOver(dt)
         self.gameover_alpha = self.gameover_alpha + (0.02 * DTMULT)
         self.gameover_text:setColor(1, 1, 1, self.gameover_alpha)
     end
+end
+
+function Game:loadTemp()
+    error("TODO: LOAD AFTER GAME OVER")
 end
 
 function Game:encounter(encounter, transition, enemy)
@@ -306,6 +443,7 @@ function Game:keypressed(key)
 end
 
 function Game:draw()
+    love.graphics.clear(0, 0, 0, 1)
     love.graphics.push()
     if Kristal.modCall("preDraw") then
         love.graphics.pop()
@@ -317,12 +455,41 @@ function Game:draw()
     love.graphics.pop()
 
     self.stage:draw()
-    if self.gameover_screenshot then
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(self.gameover_screenshot)
+
+    if self.state == "GAMEOVER" then
+        if self.gameover_screenshot then
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(self.gameover_screenshot)
+        end
+        if (self.gameover_stage >= 8) and (self.gameover_fadebuffer < 10)then
+            local xfade = ((10 - self.gameover_fadebuffer) / 10)
+            if (xfade > 1) then
+                xfade = 1
+            end
+
+            love.graphics.setColor(1, 1, 1, xfade * 0.6)
+
+            love.graphics.draw(self.soul_blur, self.gameover_heart_x * 2, self.gameover_heart_y * 2, 0, 2, 2)
+
+            love.graphics.setFont(self.font)
+            love.graphics.setColor(1, 1, 1, xfade)
+            if self.gameover_selected == 1 then
+                love.graphics.setColor(1, 1, 0, xfade)
+            end
+            love.graphics.print("CONTINUE", 160, 360)
+            love.graphics.setColor(1, 1, 1, xfade)
+            if self.gameover_selected == 2 then
+                love.graphics.setColor(1, 1, 0, xfade)
+            end
+            love.graphics.print("GIVE UP", 380, 360)
+        end
     end
 
-    love.graphics.setColor(0, 0, 0, self.fader_alpha)
+    if self.fade_white then
+        love.graphics.setColor(1, 1, 1, self.fader_alpha)
+    else
+        love.graphics.setColor(0, 0, 0, self.fader_alpha)
+    end
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     love.graphics.setColor(1, 1, 1, 1)
 

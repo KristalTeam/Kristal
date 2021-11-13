@@ -18,9 +18,9 @@ end
 
 function Mod:onKeyPressed(key)
     if not Game.lock_input then
-        if key == "b" then
+        if key == "b" and Game.state == "OVERWORLD" then
             Game:encounter("virovirokun", true)
-        elseif key == "n" then
+        elseif key == "n" and Game.state == "OVERWORLD" then
             Game:encounter("virovirokun", false)
         elseif key == "p" then
             Game.world.player:shake(4, 0)

@@ -1615,6 +1615,11 @@ function Battle:keypressed(key)
         if self.state == "DEFENDING" and key == "f" then
             self.encounter:onWavesDone()
         end
+        if key == "b" then
+            for _,battler in ipairs(self.party) do
+                battler:hurt(99999)
+            end
+        end
     end
 
     if self.state == "MENUSELECT" then

@@ -1,9 +1,10 @@
 local DialogueText, super = Class(Text)
 
-DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait"}
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing"}
 
 function DialogueText:init(text, x, y, w, h, font, style)
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
+    self.skip_speed = false
 end
 
 function DialogueText:resetState()
@@ -38,14 +39,19 @@ function DialogueText:setText(text)
 end
 
 function DialogueText:update(dt)
-    if self.state.waiting == 0 then
-        self.state.progress = self.state.progress + (dt * 30 * self.state.speed)
-    else
-        self.state.waiting = math.max(0, self.state.waiting - dt)
+    local speed = self.state.speed
+    if (Input.down("cancel") and not self.state.noskip) or Input.down("menu") then
+        if not self.skip_speed then
+            self.state.skipping = true
+        else
+            speed = speed * 2
+        end
     end
 
-    if (Input.down("cancel") and not self.state.noskip) or Input.down("menu") then
-        self.state.skipping = true
+    if self.state.waiting == 0 then
+        self.state.progress = self.state.progress + (dt * 30 * speed)
+    else
+        self.state.waiting = math.max(0, self.state.waiting - dt)
     end
 
     if self.state.typing then
@@ -120,11 +126,13 @@ function DialogueText:processModifier(node)
             self.state.waiting = tonumber(delay:sub(1, -2))
             self.state.typed_characters = self.state.typed_characters + 1
         else
-            self.state.progress = self.state.progress - tonumber(delay)
+            self.state.progress = self.state.progress - (tonumber(delay) * (1 / self.state.speed))
         end
     elseif node.command == "voice" then
         if node.arguments[1] == "reset" then
             self.state.typing_sound = "default"
+        elseif node.arguments[1] == "none" then
+                self.state.typing_sound = nil
         else
             self.state.typing_sound = node.arguments[1]
         end
@@ -134,6 +142,8 @@ function DialogueText:processModifier(node)
         else
             self.state.noskip = true
         end
+    elseif node.command == "spacing" then
+        self.state.spacing = tonumber(node.arguments[1])
     end
 end
 

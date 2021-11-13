@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style"}
+Text.COMMANDS = {"color", "font", "style", "shake"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -18,11 +18,20 @@ Text.COLORS = {
 function Text:init(text, x, y, w, h, font, style)
     super:init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
 
+    self.draw_every_frame = false
+    self.nodes_to_draw = {}
+
     self.font = font or "main"
     self.style = style
+    if self.style == "GONER" then
+        self.draw_every_frame = true
+    end
     self.wrap = true
     self.canvas = love.graphics.newCanvas(w, h)
     self.line_offset = 0
+    self.last_shake = 0
+
+    self.timer = 0
 
     self:resetState()
 
@@ -47,8 +56,16 @@ function Text:resetState()
         escaping = false,
         typed_string = "",
         typing_sound = "",
-        noskip = false
+        noskip = false,
+        spacing = 0,
+        shake = 0,
+        offset_x = 0,
+        offset_y = 0
     }
+end
+
+function Text:update(dt)
+    self.timer = self.timer + DTMULT
 end
 
 function Text:setText(text)
@@ -159,7 +176,7 @@ function Text:processNode(node)
         if node.character == "\n" then
             self.state.current_x = 0
             if self.state.asterisk_mode then
-                self.state.current_x = font:getWidth("* ")
+                self.state.current_x = font:getWidth("* ") + self.state.spacing
             end
             local spacing = Assets.getFontData(self.font) or {}
             self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) + self.line_offset
@@ -169,18 +186,20 @@ function Text:processNode(node)
             self.state.escaping = true
         elseif not self.state.escaping then
             if node.character == "*" then
-                if self.state.asterisk_mode and self.state.current_x == font:getWidth("* ") then -- TODO: PLEASE UNHARDCODE
+                if self.state.asterisk_mode and (self.state.current_x == (font:getWidth("* ") + self.state.spacing)) then -- TODO: PLEASE UNHARDCODE
                     self.state.current_x = 0
                 end
             end
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             local w, h = self:drawChar(node, self.state)
-            self.state.current_x = self.state.current_x + w
+            table.insert(self.nodes_to_draw, {node, Utils.copy(self.state)})
+            self.state.current_x = self.state.current_x + w + self.state.spacing
         else
             self.state.escaping = false
             if node.character == "\\" or node.character == "*" then
                 local w, h = self:drawChar(node, self.state)
-                self.state.current_x = self.state.current_x + w
+                table.insert(self.nodes_to_draw, {node, self.state})
+                self.state.current_x = self.state.current_x + w + self.state.spacing
             end
         end
     elseif node.type == "modifier" then
@@ -208,11 +227,17 @@ function Text:processModifier(node)
             -- It's 7 letters long, assume hex
             self.state.color = Utils.hexToRgb(node.arguments[1])
         end
+    elseif node.command == "shake" then
+        self.state.shake = tonumber(node.arguments[1])
+        self.draw_every_frame = true
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
             self.state.style = "none"
         else
             self.state.style = node.arguments[1]
+            if self.state.style == "GONER" then
+                self.draw_every_frame = true
+            end
         end
     end
 end
@@ -220,8 +245,20 @@ end
 function Text:drawChar(node, state)
     local font = Assets.getFont(state.font)
     local width, height = font:getWidth(node.character), font:getHeight()
-    local x, y = state.current_x, state.current_y
+
+    if state.shake >= 0 then
+        if self.last_shake >= (1 * DTMULT) then
+            self.last_shake = 0
+            state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
+            state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
+        else
+            self.last_shake = self.last_shake + (1 * DTMULT)
+        end
+    end
+
+    local x, y = state.current_x + state.offset_x, state.current_y + state.offset_y
     love.graphics.setFont(font)
+
     if state.style == nil or state.style == "none" then
         love.graphics.setColor(unpack(state.color))
         love.graphics.print(node.character, x, y)
@@ -270,6 +307,25 @@ function Text:drawChar(node, state)
         love.graphics.print(node.character, x+2, y+2)
         love.graphics.setColor(unpack(state.color))
         love.graphics.print(node.character, x, y)
+    elseif state.style == "GONER" then
+
+        local r, g, b, a = unpack(state.color)
+
+        local specfade = 1 -- This is unused for now!
+        -- It's used in chapter 1, though... so let's keep it around.
+        love.graphics.setColor(r, g, b, specfade)
+        love.graphics.print(node.character, x, y)
+        love.graphics.setColor(r, g, b, ((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
+        love.graphics.print(node.character, x + 2, y)
+        love.graphics.print(node.character, x - 2, y)
+        love.graphics.print(node.character, x, y + 2)
+        love.graphics.print(node.character, x, y - 2)
+        love.graphics.setColor(r, g, b, ((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
+        love.graphics.print(node.character, x + 2, y)
+        love.graphics.print(node.character, x - 2, y)
+        love.graphics.print(node.character, x, y + 2)
+        love.graphics.print(node.character, x, y - 2)
+        love.graphics.setColor(r, g, b, 1)
     end
     return width, height
 end
@@ -280,9 +336,15 @@ function Text:isTrue(text)
 end
 
 function Text:draw()
-    love.graphics.setBlendMode("alpha", "premultiplied")
-    love.graphics.draw(self.canvas)
-    love.graphics.setBlendMode("alpha")
+    if self.draw_every_frame then
+        for i, node in ipairs(self.nodes_to_draw) do
+            self:drawChar(node[1], node[2])
+        end
+    else
+        love.graphics.setBlendMode("alpha", "premultiplied")
+        love.graphics.draw(self.canvas)
+        love.graphics.setBlendMode("alpha")
+    end
 
     super:draw(self)
 end
