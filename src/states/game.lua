@@ -61,7 +61,7 @@ function Game:enter(previous_state)
     Game.xp = 0
 
     self.fader_alpha = 0
-    self.chapter = 2
+    self.chapter = Kristal.getModOption("chapter") or 2
 
     self.music = Music()
 
