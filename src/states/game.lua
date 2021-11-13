@@ -64,6 +64,7 @@ function Game:enter(previous_state)
 end
 
 function Game:gameOver(x, y)
+    self.gameover_screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
     self.state = "GAMEOVER"
     if self.battle then
         self.battle:remove()
@@ -79,13 +80,45 @@ function Game:gameOver(x, y)
 
     self.stage:addChild(self.soul)
 
-    self.lol = 1
-    self.stage:addChild(DialogueText("* You have die :(", 40, 40))
+    self.gameover_timer = 0
+    self.gameover_stage = 0
 end
 
 function Game:updateGameOver(dt)
-    self.lol = self.lol + (0.1 * DTMULT)
-    self.soul:setScale(self.lol)
+    self.gameover_timer = self.gameover_timer + DTMULT
+    if (self.gameover_timer >= 30) and (self.gameover_stage == 0) then
+        self.gameover_screenshot = nil
+        self.gameover_stage = 1
+    end
+    if (self.gameover_timer >= 50) and (self.gameover_stage == 1) then
+        Assets.playSound("snd_break1")
+        self.soul:setSprite("player/heart_break")
+        self.gameover_stage = 2
+    end
+    if (self.gameover_timer >= 90) and (self.gameover_stage == 2) then
+        Assets.playSound("snd_break2")
+
+        local shard_count = 6
+        local x_position_table = {-2, 0, 2, 8, 10, 12}
+        local y_position_table = {0, 3, 6}
+
+        for i = 1, shard_count do 
+            local x_pos = x_position_table[((i - 1) % #x_position_table) + 1]
+            local y_pos = y_position_table[((i - 1) % #y_position_table) + 1]
+            local shard = Sprite("player/heart_shard", self.soul.x + x_pos, self.soul.y + y_pos)
+            local direction = Utils.random(360)
+            shard:setColor(self.soul:getColor())
+            shard.speed_x = math.cos(direction) * 7
+            shard.speed_y = math.sin(direction) * 7
+            shard.gravity = 0.2
+            shard:play(5/30)
+            self.stage:addChild(shard)
+        end
+
+        self.soul:remove()
+        self.soul = nil
+        self.gameover_stage = 3
+    end
 end
 
 function Game:encounter(encounter, transition, enemy)
@@ -225,6 +258,10 @@ function Game:draw()
     love.graphics.pop()
 
     self.stage:draw()
+    if self.gameover_screenshot then
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(self.gameover_screenshot)
+    end
 
     love.graphics.push()
     Kristal.modCall("postDraw")

@@ -55,6 +55,8 @@ function Object:init(x, y, width, height)
     self.speed_y = 0
     -- The amount this object should slow down (also per frame at 30 fps)
     self.friction = 0
+    -- The amount this object should accelerate downwards (also per frame at 30 fps)
+    self.gravity = 0
 
     -- How fast this object fades its alpha (per frame at 30 fps)
     self.fade_speed = 0
@@ -120,6 +122,7 @@ end
 --[[ Common overrides ]]--
 
 function Object:update(dt)
+    self.speed_y = self.speed_y + self.gravity * DTMULT
     if self.speed_x ~= 0 or self.speed_y ~= 0 then
         self.speed_x = Utils.approach(self.speed_x, 0, self.friction * DTMULT)
         self.speed_y = Utils.approach(self.speed_y, 0, self.friction * DTMULT)
