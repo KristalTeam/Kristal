@@ -63,7 +63,7 @@ function Game:enter(previous_state)
     Kristal.modCall("init")
 end
 
-function Game:gameOver()
+function Game:gameOver(x, y)
     self.state = "GAMEOVER"
     if self.battle then
         self.battle:remove()
@@ -71,6 +71,21 @@ function Game:gameOver()
     if self.world then
         self.world:remove()
     end
+    self.soul = Sprite("player/heart")
+    self.soul:setOrigin(0.5, 0.5)
+    self.soul:setColor(1, 0, 0, 1)
+    self.soul.x = x
+    self.soul.y = y
+
+    self.stage:addChild(self.soul)
+
+    self.lol = 1
+    self.stage:addChild(DialogueText("* You have die :(", 40, 40))
+end
+
+function Game:updateGameOver(dt)
+    self.lol = self.lol + (0.1 * DTMULT)
+    self.soul:setScale(self.lol)
 end
 
 function Game:encounter(encounter, transition, enemy)
@@ -147,6 +162,10 @@ function Game:update(dt)
     end
 
     self.stage:update(dt)
+
+    if self.state == "GAMEOVER" then
+        self:updateGameOver(dt)
+    end
 
     Kristal.modCall("postUpdate", dt)
 end

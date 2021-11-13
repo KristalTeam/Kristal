@@ -21,7 +21,7 @@ return PartyMember{
     spells = {"pacify", "heal_prayer"},
 
     -- Current health (saved to the save file)
-    health = 100,
+    health = 1,
 
     -- Base stats (saved to the save file)
     stats = {

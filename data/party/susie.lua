@@ -21,7 +21,7 @@ local character = PartyMember{
     spells = {"rude_buster", "ultimate_heal"},
 
     -- Current health (saved to the save file)
-    health = 140,
+    health = 1,
 
     -- Base stats (saved to the save file)
     stats = {
