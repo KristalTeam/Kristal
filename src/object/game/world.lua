@@ -310,6 +310,13 @@ function World:loadImage(layer, depth)
     if layer.tintcolor then
         sprite:setColor(layer.tintcolor[1]/255, layer.tintcolor[2]/255, layer.tintcolor[3]/255)
     end
+    sprite:setSpeed(layer.properties["speedX"] or 0, layer.properties["speedY"] or 0)
+    if layer.properties["wrapX"] then
+        sprite.wrap_texture_x = true
+    end
+    if layer.properties["wrapY"] then
+        sprite.wrap_texture_y = true
+    end
     self:addChild(sprite)
     self.image_layers[layer.name] = sprite
     if layer.name == "battleborder" then

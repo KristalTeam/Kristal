@@ -7,6 +7,9 @@ function Sprite:init(texture, x, y, width, height, path)
     self.path = path or ""
 
     self:setSprite(texture)
+    
+    self.wrap_texture_x = false
+    self.wrap_texture_y = false
 
     self.color_mask = {1, 1, 1}
     self.color_mask_alpha = 0
@@ -263,7 +266,15 @@ function Sprite:draw()
         shader:send("amount", self.color_mask_alpha)
     end
     if self.texture then
-        love.graphics.draw(self.texture)
+        if self.wrap_texture_x or self.wrap_texture_y then
+            self.texture:setWrap(self.wrap_texture_x and "repeat" or "clamp", self.wrap_texture_y and "repeat" or "clamp")
+            local quad = love.graphics.newQuad(-self.x, -self.y, self.width, self.height, self.width, self.height)
+            love.graphics.draw(self.texture, quad, -self.x, -self.y)
+            quad:release()
+            self.texture:setWrap("clamp", "clamp")
+        else
+            love.graphics.draw(self.texture)
+        end
     end
 
     super:draw(self)
