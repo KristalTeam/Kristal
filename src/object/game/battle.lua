@@ -1403,7 +1403,7 @@ function Battle:updateTransitionOut(dt)
             Game.world.music:resume()
         end
         self:remove()
-        self = nil
+        Game.battle = nil
         Game.state = "OVERWORLD"
         return
     end

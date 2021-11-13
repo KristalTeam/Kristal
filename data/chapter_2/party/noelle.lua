@@ -37,7 +37,7 @@ return PartyMember{
     -- Equipment (saved to the save file)
     equipped = {
         weapon = "snow_ring",
-        armor = {"silver_watch"}
+        armor = {"silver_watch", "royal_pin"}
     },
 
     -- Character color (for action box outline and hp bar)

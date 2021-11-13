@@ -71,31 +71,4 @@ return {
 
         ["battle/dark/rudebuster"] = {44, 33}
     },
-
-    --[[battle_offset = {3, 1},
-    battle = {
-        idle            = "battle/dark_bangs/idle",
-
-        attack          = "battle/dark_bangs/attack",
-        act             = "battle/dark_bangs/act",
-        act_end         = "battle/dark_bangs/actend",
-        spell           = "battle/dark_bangs/spell",
-        item            = "battle/dark_bangs/item",
-        spare           = "battle/dark_bangs/spell",
-        defend          = "battle/dark_bangs/defend",
-
-        attack_ready    = "battle/dark_bangs/attackready",
-        act_ready       = "battle/dark_bangs/actready",
-        spell_ready     = "battle/dark_bangs/spellready",
-        item_ready      = "battle/dark_bangs/itemready",
-
-        hurt            = "battle/dark_bangs/hurt",
-        defeat          = "battle/dark_bangs/defeat",
-
-        transition      = "world/dark/right_1",
-        intro           = "battle/dark_bangs/attack",
-        victory         = "battle/dark_bangs/victory",
-
-        rude_buster     = "battle/dark_bangs/rudebuster"
-    }]]
 }
