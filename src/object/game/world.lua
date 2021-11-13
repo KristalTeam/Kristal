@@ -317,6 +317,10 @@ function World:loadImage(layer, depth)
     if layer.properties["wrapY"] then
         sprite.wrap_texture_y = true
     end
+    if layer.properties["fitScreen"] then
+        sprite.width = SCREEN_WIDTH
+        sprite.height = SCREEN_HEIGHT
+    end
     self:addChild(sprite)
     self.image_layers[layer.name] = sprite
     if layer.name == "battleborder" then
