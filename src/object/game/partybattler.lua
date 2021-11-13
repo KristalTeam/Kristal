@@ -86,7 +86,7 @@ end
 function PartyBattler:down()
     self.is_down = true
     self:toggleOverlay(true)
-    self.overlay_sprite:setSprite("battle/down")
+    self.overlay_sprite:setAnimation("battle/defeat")
     Game.battle:checkGameOver()
 end
 

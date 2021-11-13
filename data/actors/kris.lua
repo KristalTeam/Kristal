@@ -47,7 +47,7 @@ return {
         ["battle/dark/itemready"] = {6, 6},
         ["battle/dark/defend"] = {5, 3},
 
-        ["battle/dark/defeat"] = {6, 6},
+        ["battle/dark/defeat"] = {8, 5},
         ["battle/dark/hurt"] = {5, 6},
 
         ["battle/dark/sword_jump_down"] = {17, 2},
