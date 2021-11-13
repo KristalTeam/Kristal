@@ -321,6 +321,7 @@ function World:loadImage(layer, depth)
         sprite.width = SCREEN_WIDTH
         sprite.height = SCREEN_HEIGHT
     end
+    sprite:setScale(layer.properties["scaleX"] or 1, layer.properties["scaleY"] or 1)
     self:addChild(sprite)
     self.image_layers[layer.name] = sprite
     if layer.name == "battleborder" then

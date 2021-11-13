@@ -269,7 +269,7 @@ function Sprite:draw()
         if self.wrap_texture_x or self.wrap_texture_y then
             self.texture:setWrap(self.wrap_texture_x and "repeat" or "clamp", self.wrap_texture_y and "repeat" or "clamp")
             local quad = love.graphics.newQuad(-self.x, -self.y, self.width, self.height, self.texture:getWidth(), self.texture:getHeight())
-            love.graphics.draw(self.texture, quad, -self.x, -self.y)
+            love.graphics.draw(self.texture, quad, -self.x / self.scale_x, -self.y / self.scale_y)
             quad:release()
             self.texture:setWrap("clamp", "clamp")
         else
