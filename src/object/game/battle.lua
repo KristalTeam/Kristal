@@ -347,8 +347,7 @@ function Battle:onStateChange(old,new)
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
         end
 
-        local chapter = 2
-        self.gold = self.gold + (math.floor((self.tension / 10)) * chapter)
+        self.gold = self.gold + (math.floor((self.tension / 10)) * Game.chapter)
 
 
 

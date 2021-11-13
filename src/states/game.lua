@@ -60,6 +60,11 @@ function Game:enter(previous_state)
     Game.gold = 0
     Game.xp = 0
 
+    self.fader_alpha = 0
+    self.chapter = 2
+
+    self.music = Music()
+
     Kristal.modCall("init")
 end
 
@@ -82,6 +87,8 @@ function Game:gameOver(x, y)
 
     self.gameover_timer = 0
     self.gameover_stage = 0
+    self.fader_alpha = 0
+    self.gameover_skipping = 0
 end
 
 function Game:updateGameOver(dt)
@@ -102,6 +109,7 @@ function Game:updateGameOver(dt)
         local x_position_table = {-2, 0, 2, 8, 10, 12}
         local y_position_table = {0, 3, 6}
 
+        self.shards = {}
         for i = 1, shard_count do 
             local x_pos = x_position_table[((i - 1) % #x_position_table) + 1]
             local y_pos = y_position_table[((i - 1) % #y_position_table) + 1]
@@ -112,12 +120,63 @@ function Game:updateGameOver(dt)
             shard.speed_y = math.sin(direction) * 7
             shard.gravity = 0.2
             shard:play(5/30)
+            table.insert(self.shards, shard)
             self.stage:addChild(shard)
         end
 
         self.soul:remove()
         self.soul = nil
         self.gameover_stage = 3
+    end
+    if (self.gameover_timer >= 140) and (self.gameover_stage == 3) then
+        self.fader_alpha = (self.gameover_timer - 140) / 10
+        if self.fader_alpha >= 1 then
+            for i = #self.shards, 1, -1 do
+                self.shards[i]:remove()
+            end
+            self.shards = {}
+            self.fader_alpha = 0
+            self.gameover_stage = 4
+        end
+    end
+    if (self.gameover_timer >= 150) and (self.gameover_stage == 4) then
+        self.music:play("AUDIO_DEFEAT")
+        self.gameover_text = Sprite("ui/gameover", 0, 20)
+        self.gameover_text:setScale(2)
+        self.gameover_alpha = 0
+        self.stage:addChild(self.gameover_text)
+        self.gameover_text:setColor(1, 1, 1, self.gameover_alpha)
+        self.gameover_stage = 5
+    end
+    if (self.gameover_timer >= 180) and (self.gameover_stage == 5) then
+        -- Next in 30 frames...
+        self.gameover_dialogue = DialogueText("[speed:0.25][voice:susie]  Come on[wait:1],\n  that all you got!?", 50*2, 150*2)
+        --   This is not&  your fate...!/
+        self.stage:addChild(self.gameover_dialogue)
+        self.gameover_stage = 6
+    end
+    if (self.gameover_stage == 6) and Input.pressed("confirm") and (not self.gameover_dialogue:isTyping()) then
+        self.gameover_dialogue:setText("[speed:0.25][voice:susie]  Kris[wait:1],\n  get up...!")
+        -- "  Please^1,&  don't give up!/%"
+        self.gameover_stage = 7
+    end
+    if (self.gameover_stage == 7) and Input.pressed("confirm") and (not self.gameover_dialogue:isTyping()) then
+        self.gameover_dialogue:remove()
+    end
+
+    if ((self.gameover_timer >= 80) and (self.gameover_timer < 150)) then
+        if Input.pressed("confirm") then
+            self.gameover_skipping = self.gameover_skipping + 1
+        end
+        if (self.gameover_skipping >= 4) then
+            error("TODO: LOAD AFTER GAME OVER")
+            --scr_tempload()
+        end
+    end
+
+    if self.gameover_text then
+        self.gameover_alpha = self.gameover_alpha + (0.02 * DTMULT)
+        self.gameover_text:setColor(1, 1, 1, self.gameover_alpha)
     end
 end
 
@@ -262,6 +321,10 @@ function Game:draw()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.draw(self.gameover_screenshot)
     end
+
+    love.graphics.setColor(0, 0, 0, self.fader_alpha)
+    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    love.graphics.setColor(1, 1, 1, 1)
 
     love.graphics.push()
     Kristal.modCall("postDraw")
