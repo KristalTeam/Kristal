@@ -59,6 +59,8 @@ function Arena:setShape(shape)
 
     self.clockwise = Utils.isPolygonClockwise(edges)
 
+    self.area_collider = PolygonCollider(self, Utils.copy(shape, true))
+
     self.collider.colliders = {}
     for _,v in ipairs(edges) do
         table.insert(self.collider.colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))

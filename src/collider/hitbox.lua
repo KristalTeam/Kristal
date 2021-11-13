@@ -12,11 +12,15 @@ function Hitbox:collidesWith(other)
     if not self:collidableCheck(other) then return false end
 
     if other:includes(Hitbox) then
-        return self:collideWithHitbox(other) or other:collideWithHitbox(self, true)
+        return self:collidesWithHitbox(other) or other:collidesWithHitbox(self, true)
     elseif other:includes(LineCollider) then
-        return other:collidesWith(self)
+        return CollisionUtil.rectLine(self.x,self.y,self.width,self.height, other:getShapeFor(self))
     elseif other:includes(CircleCollider) then
-       return other:collidesWith(self)
+        return CollisionUtil.rectCircle(self.x,self.y,self.width,self.height, other:getShapeFor(self))
+    elseif other:includes(PointCollider) then
+        return CollisionUtil.rectPoint(self.x,self.y,self.width,self.height, other:getShapeFor(self))
+    elseif other:includes(PolygonCollider) then
+        return CollisionUtil.rectPolygon(self.x,self.y,self.width,self.height, other:getShapeFor(self))
     elseif other:includes(ColliderGroup) then
         return other:collidesWith(self)
     end
@@ -24,8 +28,8 @@ function Hitbox:collidesWith(other)
     return super:collidesWith(self, other)
 end
 
-function Hitbox:collideWithHitbox(other)
-    Utils.pushPerformance("Hitbox#collideWithHitbox")
+function Hitbox:collidesWithHitbox(other)
+    Utils.pushPerformance("Hitbox#collidesWithHitbox")
 
     local tf1, tf2 = self:getTransformsWith(other)
 

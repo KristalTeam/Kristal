@@ -51,6 +51,43 @@ function Collider:getPointFor(other, x, y)
     end
 end
 
+function Collider:getLocalPointsWith(other, ...)
+    local tf1, tf2 = self:getTransformsWith(other)
+    return self:getLocalPoints(tf1, tf2, ...)
+end
+
+function Collider:getLocalPoints(tf1,tf2, ...)
+    local points = {...}
+    if type(points[1]) == "table" then
+        points = Utils.copy(points[1])
+    end
+    if type(points[1]) == "table" then
+        if tf2 then
+            for i,point in ipairs(points) do
+                points[i] = {tf2:transformPoint(point[1], point[2])}
+            end
+        end
+        if tf1 then
+            for i,point in ipairs(points) do
+                points[i] = {tf1:inverseTransformPoint(point[1], point[2])}
+            end
+        end
+        return points
+    else
+        if tf2 then
+            for i = 1, #points, 2 do
+                points[i], points[i+1] = tf2:transformPoint(points[i], points[i+1])
+            end
+        end
+        if tf1 then
+            for i = 1, #points, 2 do
+                points[i], points[i+1] = tf1:inverseTransformPoint(points[i], points[i+1])
+            end
+        end
+        return unpack(points)
+    end
+end
+
 function Collider:collidesWith(other)
     return false
 end
