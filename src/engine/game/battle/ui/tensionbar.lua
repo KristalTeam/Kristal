@@ -36,6 +36,22 @@ function TensionBar:giveTension(amount)
     return Game.battle.tension - start
 end
 
+function TensionBar:giveTensionPercent(amount)
+    return self:giveTension(amount * 2.5) / 2.5
+end
+
+function TensionBar:removeTensionPercent(amount)
+    return self:removeTension(amount * 2.5)
+end
+
+function TensionBar:setTensionPercent(amount)
+    self:setTension(amount * 2.5)
+end
+
+function TensionBar:getTensionPercent()
+    return Game.battle.tension / 2.5
+end
+
 function TensionBar:removeTension(amount)
     Game.battle.tension = Game.battle.tension - amount
     if Game.battle.tension < 0 then
