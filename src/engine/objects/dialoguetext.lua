@@ -88,8 +88,9 @@ function DialogueText:playTextSound(current_node)
         return
     end
 
-    if(current_node.character:match("%W")) then
-        -- Non-alphanumeric character, return
+    local no_sound = {"\n", " ", "^", "!", ".", "?", ",", ":", "/", "\\", "|", "*"}
+
+    if (Utils.containsValue(no_sound, current_node.character)) then
         return
     end
 
@@ -126,7 +127,7 @@ function DialogueText:processModifier(node)
             self.state.waiting = tonumber(delay:sub(1, -2))
             self.state.typed_characters = self.state.typed_characters + 1
         else
-            self.state.progress = self.state.progress - (tonumber(delay) * (1 / self.state.speed))
+            self.state.waiting = tonumber(delay:sub(1, -2)) / 30
         end
     elseif node.command == "voice" then
         if node.arguments[1] == "reset" then

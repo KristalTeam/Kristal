@@ -96,8 +96,21 @@ function World:closeMenu()
     self:hideHealthBars()
 end
 
-function World:showHealthBars() end
-function World:hideHealthBars() end
+function World:showHealthBars()
+    if self.light then return end
+    if self.healthbar then
+        self.healthbar:remove()
+    end
+
+    self.healthbar = HealthBar()
+    self:addChild(self.healthbar)
+end
+
+function World:hideHealthBars()
+    if self.healthbar then
+        self.healthbar:transitionOut()
+    end
+end
 
 function World:keypressed(key)
     if Game.lock_input then return end

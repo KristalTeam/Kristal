@@ -239,7 +239,7 @@ function Game:updateGameOver(dt)
                     self.gameover_text:remove()
                     self.gameover_stage = 20
 
-                    self.gameover_dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:5] \n WAS COVERED[wait:5] \n IN DARKNESS.", 60*2, 81*2, nil, nil, nil, "GONER")
+                    self.gameover_dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 60*2, 81*2, nil, nil, nil, "GONER")
                     self.gameover_dialogue.line_offset = 14
                     self.stage:addChild(self.gameover_dialogue)
                 end

@@ -72,8 +72,8 @@ local character = PartyMember{
 
     -- Message shown on gameover (optional)
     gameover_message = {
-        "Come on[wait:1],\nthat all you got!?",
-        "Kris[wait:1],\nget up...!"
+        "Come on[wait:5],\nthat all you got!?",
+        "Kris[wait:5],\nget up...!"
     },
 }
 

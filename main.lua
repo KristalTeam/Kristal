@@ -88,6 +88,8 @@ DarkBox = require("src.engine.game.world.ui.darkbox")
 Textbox = require("src.engine.game.world.ui.textbox")
 Choicebox = require("src.engine.game.world.ui.choicebox")
 DarkMenu = require("src.engine.game.world.ui.darkmenu")
+HealthBar = require("src.engine.game.world.ui.healthbar")
+OverworldActionBox = require("src.engine.game.world.ui.overworldactionbox")
 
 Event = require("src.engine.game.world.event")
 Readable = require("src.engine.game.world.events.readable")
