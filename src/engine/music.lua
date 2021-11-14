@@ -1,6 +1,6 @@
 local Music = {}
 
-local _handlers = setmetatable({}, {__mode="v"})
+local _handlers = {}
 
 function Music:init()
     self.volume = 1
@@ -92,20 +92,36 @@ function Music:isPlaying()
     return self.source and self.source:isPlaying() or false
 end
 
+function Music:remove()
+    Utils.removeFromTable(_handlers, self)
+    if self.source then
+        self.source:stop()
+    end
+end
+
+local function clear()
+    for _,handler in ipairs(_handlers) do
+        if handler.source then
+            handler.source:stop()
+        end
+    end
+    _handlers = {}
+end
+
 local function update(dt)
     for _,handler in ipairs(_handlers) do
         if handler.fade_speed ~= 0 and handler.volume ~= handler.target_volume then
             handler.volume = Utils.approach(handler.volume, handler.target_volume, handler.fade_speed * DTMULT)
-    
+
             if handler.volume == handler.target_volume then
                 handler.fade_speed = 0
-    
+
                 if handler.fade_callback then
                     handler.fade_callback()
                 end
             end
         end
-    
+
         if handler.source then
             local volume = handler:getVolume()
             if handler.source:getVolume() ~= volume then
@@ -138,7 +154,8 @@ end
 local default = new()
 local module = {
     new = new,
-    update = update
+    update = update,
+    clear = clear
 }
 for k in pairs(Music) do
     module[k] = function(...) return default[k](default, ...) end
