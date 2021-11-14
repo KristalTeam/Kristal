@@ -75,6 +75,10 @@ function Game:enter(previous_state)
     Kristal.modCall("init")
 end
 
+function Game:isLight()
+    return self.world and self.world.light or false
+end
+
 function Game:gameOver(x, y)
     self.gameover_screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
     self.state = "GAMEOVER"

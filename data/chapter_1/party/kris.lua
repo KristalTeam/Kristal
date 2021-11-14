@@ -6,6 +6,8 @@ return PartyMember{
 
     -- Actor ID (handles overworld/battle sprites)
     actor = "kris",
+    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    lw_actor = "kris_lw",
 
     -- Title / class (saved to the save file)
     title = "LV1 Leader\nCommands the party\nwith various ACTs.",

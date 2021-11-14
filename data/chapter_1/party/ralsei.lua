@@ -6,6 +6,8 @@ return PartyMember{
 
     -- Actor ID (handles sprites)
     actor = "ralsei",
+    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    lw_actor = nil,
 
     -- Title / class (saved to the save file)
     title = "LV1 Lonely Prince\nDark-World being.\nHas no subjects.",

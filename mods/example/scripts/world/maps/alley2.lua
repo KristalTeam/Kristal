@@ -11,6 +11,7 @@ return {
   nextlayerid = 7,
   nextobjectid = 47,
   properties = {
+    ["light"] = true,
     ["music"] = "dogcheck"
   },
   tilesets = {
@@ -797,7 +798,7 @@ return {
       draworder = "topdown",
       id = 2,
       name = "collision",
-      visible = false,
+      visible = true,
       opacity = 0.5,
       offsetx = 0,
       offsety = 0,
@@ -955,7 +956,7 @@ return {
       draworder = "topdown",
       id = 3,
       name = "objects",
-      visible = false,
+      visible = true,
       opacity = 1,
       offsetx = 0,
       offsety = 0,
@@ -1249,7 +1250,7 @@ return {
       draworder = "topdown",
       id = 4,
       name = "markers",
-      visible = false,
+      visible = true,
       opacity = 1,
       offsetx = 0,
       offsety = 0,

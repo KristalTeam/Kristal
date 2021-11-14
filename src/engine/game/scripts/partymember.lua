@@ -10,6 +10,8 @@ function PartyMember:init(o)
 
     -- Actor ID (handles overworld/battle sprites)
     self.actor = "kris"
+    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    self.lw_actor = nil
 
     -- Title / class (saved to the save file)
     self.title = "LV1 Player"

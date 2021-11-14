@@ -6,6 +6,8 @@ local character = PartyMember{
 
     -- Actor ID (handles sprites)
     actor = "susie",
+    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    lw_actor = "susie_lw",
 
     -- Title / class (saved to the save file)
     title = "LV1 Dark Knight\nDoes damage using\ndark energy.",

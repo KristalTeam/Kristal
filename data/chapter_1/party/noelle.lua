@@ -6,6 +6,8 @@ return PartyMember{
 
     -- Actor ID (handles sprites)
     actor = "noelle",
+    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    lw_actor = "noelle_lw",
 
     -- Title / class (saved to the save file)
     title = "LV1 Snowcaster\nMight be able to\nuse some cool moves.",

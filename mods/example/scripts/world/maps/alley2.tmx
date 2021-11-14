@@ -4,6 +4,7 @@
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
  <properties>
+  <property name="light" type="bool" value="true"/>
   <property name="music" value="dogcheck"/>
  </properties>
  <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley.tsx"/>
@@ -79,7 +80,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup color="#0000ff" id="2" name="collision" visible="0" opacity="0.5">
+ <objectgroup color="#0000ff" id="2" name="collision" opacity="0.5">
   <object id="1" x="200" y="160" width="360" height="40"/>
   <object id="2" x="520" y="0" width="40" height="160"/>
   <object id="4" x="640" y="160" width="400" height="40"/>
@@ -92,7 +93,7 @@
   <object id="11" x="680" y="400" width="40" height="320"/>
   <object id="12" x="520" y="680" width="160" height="40"/>
  </objectgroup>
- <objectgroup color="#ff00ff" id="3" name="objects" visible="0">
+ <objectgroup color="#ff00ff" id="3" name="objects">
   <object id="14" name="savepoint" x="580" y="740" width="40" height="40"/>
   <object id="26" name="transition" x="560" y="-40" width="80" height="40">
    <properties>
@@ -126,7 +127,7 @@
    <point/>
   </object>
  </objectgroup>
- <objectgroup color="#7f00ff" id="4" name="markers" visible="0">
+ <objectgroup color="#7f00ff" id="4" name="markers">
   <object id="24" name="entry" x="600" y="40">
    <point/>
   </object>

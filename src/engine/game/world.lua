@@ -31,6 +31,8 @@ function World:init(map)
     self.markers = {}
     self.battle_areas = {}
 
+    self.light = false
+
     self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.camera:setBounds()
     self.camera_attached = true
@@ -132,6 +134,10 @@ function World:spawnPlayer(...)
     end
 end
 
+function World:getActorForParty(chara)
+    return self.light and chara.lw_actor or chara.actor
+end
+
 function World:spawnFollower(chara, x, y)
     if type(chara) == "string" then
         chara = Registry.getActor(chara)
@@ -147,12 +153,12 @@ function World:spawnParty(marker, party, extra)
     party = party or Game.party or {"kris"}
     if #party > 0 then
         if type(marker) == "table" then
-            self:spawnPlayer(marker[1], marker[2], party[1].actor)
+            self:spawnPlayer(marker[1], marker[2], self:getActorForParty(party[1]))
         else
-            self:spawnPlayer(marker or "spawn", party[1].actor)
+            self:spawnPlayer(marker or "spawn", self:getActorForParty(party[1]))
         end
         for i = 2, #party do
-            local follower = self:spawnFollower(party[i].actor)
+            local follower = self:spawnFollower(self:getActorForParty(party[i]))
             follower:setFacing(self.player.facing)
         end
         for _,actor in ipairs(extra or Game.temp_followers or {}) do
@@ -188,6 +194,8 @@ function World:loadMap(map)
             self:removeChild(child)
         end
     end
+
+    self.light = map_data.properties["light"] or false
 
     self.followers = {}
 
