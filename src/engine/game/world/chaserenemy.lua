@@ -1,7 +1,5 @@
 local ChaserEnemy, super = Class(Character)
 
-ChaserEnemy.ENCOUNTERING = false
-
 function ChaserEnemy:init(actor, x, y, data)
     super:init(self, actor, x, y)
 
@@ -19,14 +17,14 @@ function ChaserEnemy:init(actor, x, y, data)
 end
 
 function ChaserEnemy:onCollide(player)
-    if not ChaserEnemy.ENCOUNTERING and player:includes(Player) then
+    if not self.world.encountering_enemy and player:includes(Player) then
         local encounter = self.encounter
         if not encounter and Registry.getEnemy(self.actor.id) then
             encounter = Encounter()
             encounter:addEnemy(self.actor.id)
         end
         if encounter then
-            ChaserEnemy.ENCOUNTERING = true
+            self.world.encountering_enemy = true
             self.sprite:setAnimation("hurt")
             self.sprite.aura = false
             Game.lock_input = true
@@ -36,7 +34,7 @@ function ChaserEnemy:onCollide(player)
                 local src = Assets.playSound("snd_tensionhorn")
                 src:setPitch(1.1)
                 wait(12/30)
-                ChaserEnemy.ENCOUNTERING = false
+                self.world.encountering_enemy = false
                 Game.lock_input = false
                 Game:encounter(encounter, true, self)
 
@@ -90,7 +88,7 @@ function ChaserEnemy:snapToPath()
 end
 
 function ChaserEnemy:update(dt)
-    if self.path and self.world.paths[self.path] and not ChaserEnemy.ENCOUNTERING then
+    if self.path and self.world.paths[self.path] and not self.world.encountering_enemy then
         local path = self.world.paths[self.path]
 
         if self.reverse_progress then

@@ -97,6 +97,7 @@ Transition = require("src.engine.game.world.events.transition")
 NPC = require("src.engine.game.world.events.npc")
 Outline = require("src.engine.game.world.events.outline")
 Silhouette = require("src.engine.game.world.events.silhouette")
+FrozenEnemy = require("src.engine.game.world.frozenenemy")
 
 Battle = require("src.engine.game.battle")
 Battler = require("src.engine.game.battle.battler")
@@ -124,6 +125,7 @@ SpareSparkle = require("src.engine.game.effects.sparesparkle")
 SpareZ = require("src.engine.game.effects.sparez")
 SleepMistEffect = require("src.engine.game.effects.sleepmisteffect")
 IceSpellEffect = require("src.engine.game.effects.icespelleffect")
+IceSpellBurst = require("src.engine.game.effects.icespellburst")
 
 local load_in_channel
 local load_out_channel

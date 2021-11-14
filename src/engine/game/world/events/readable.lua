@@ -1,35 +1,40 @@
 local Readable, super = Class(Event)
 
-function Readable:init(data)
-    super:init(self, data.center_x, data.center_y, data.width, data.height)
+function Readable:init(x, y, width, height, text)
+    text = text or {}
+
+    if type(x) == "table" then
+        local data = x
+        x, y, width, height = data.center_x, data.center_y, data.width, data.height
+
+        if data.properties["text"] then
+            text = {data.properties["text"]}
+        else
+            local i = 1
+            while data.properties["text"..i] do
+                table.insert(text, data.properties["text"..i])
+                i = i + 1
+            end
+        end
+    end
+
+    super:init(self, x, y, width, height)
 
     self.solid = false
 
-    self.data = data
+    self.text = text
 
     self:setOrigin(0.5, 0.5)
-    self:setHitbox(0, 0, data.width, data.height)
+    self:setHitbox(0, 0, self.width, self.height)
 end
 
 function Readable:onInteract(player, dir)
-    if self.data.properties.text then
-        Cutscene.start(function()
-            Cutscene.text(self.data.properties.text)
-            self:onTextEnd()
-        end)
-        return true
-    elseif self.data.properties.text1 then
-        Cutscene.start(function()
-            local index = 1
-            while self.data.properties["text" .. index] do
-                Cutscene.text(self.data.properties["text" .. index])
-                index = index + 1
-            end
-            self:onTextEnd()
-        end)
-        return true
-    end
-    self:onTextEnd()
+    Cutscene.start(function()
+        for _,line in ipairs(self.text) do
+            Cutscene.text(line)
+        end
+        self:onTextEnd()
+    end)
     return true
 end
 
