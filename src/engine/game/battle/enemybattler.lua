@@ -290,6 +290,7 @@ function EnemyBattler:freeze()
 
     Game.battle.timer:tween(20/30, self.overlay_sprite, {freeze_progress = 1})
 
+    Game.battle.gold = Game.battle.gold + 24
     self:defeat("FROZEN", true)
 end
 
