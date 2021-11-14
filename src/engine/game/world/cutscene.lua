@@ -161,13 +161,13 @@ function Cutscene.getCharacter(id, index)
 end
 
 function Cutscene.detachFollowers()
-    for _,follower in ipairs(Game.followers) do
+    for _,follower in ipairs(Game.world.followers) do
         follower.following = false
     end
 end
 
 function Cutscene.attachFollowers(return_speed, facing)
-    for _,follower in ipairs(Game.followers) do
+    for _,follower in ipairs(Game.world.followers) do
         follower.following = true
 
         return_speed = return_speed or 6

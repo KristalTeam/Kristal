@@ -38,7 +38,7 @@ function Battle:init()
             Game.world.player.visible = false
         else
             local found = false
-            for _,follower in ipairs(Game.followers) do
+            for _,follower in ipairs(Game.world.followers) do
                 if follower.visible and follower.actor.id == party_member.id then
                     local chara_x, chara_y = follower:getScreenPos()
                     local chara_battler = PartyBattler(party_member, chara_x, chara_y)

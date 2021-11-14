@@ -132,18 +132,18 @@ function World:spawnPlayer(...)
     end
 end
 
-function World:spawnFollower(chara)
+function World:spawnFollower(chara, x, y)
     if type(chara) == "string" then
         chara = Registry.getActor(chara)
     end
-    local follower = Follower(chara, self.player.x, self.player.y)
+    local follower = Follower(chara, x or self.player.x, y or self.player.y)
     follower.layer = self.layers["objects"]
     table.insert(self.followers, follower)
     self:addChild(follower)
     return follower
 end
 
-function World:spawnParty(marker, party)
+function World:spawnParty(marker, party, extra)
     party = party or Game.party or {"kris"}
     if #party > 0 then
         if type(marker) == "table" then
@@ -151,8 +151,12 @@ function World:spawnParty(marker, party)
         else
             self:spawnPlayer(marker or "spawn", party[1].actor)
         end
-        for i = 2, #Game.party do
+        for i = 2, #party do
             local follower = self:spawnFollower(party[i].actor)
+            follower:setFacing(self.player.facing)
+        end
+        for _,actor in ipairs(extra or Game.temp_followers or {}) do
+            local follower = self:spawnFollower(actor)
             follower:setFacing(self.player.facing)
         end
     end

@@ -13,28 +13,35 @@ function Game:enter(previous_state)
 
     self.battle = nil
 
+    self.max_followers = Kristal.getModOption("maxFollowers") or 10
+
+    -- BEGIN SAVE FILE VARIABLES --
+
     self.party = {}
     for _,id in ipairs(Kristal.getModOption("party") or {"kris"}) do
         table.insert(self.party, Registry.getPartyMember(id))
     end
-
-    self.max_followers = Kristal.getModOption("maxFollowers") or 10
-    self.followers = {}
 
     self.inventory = {}
     for _,id in ipairs(Kristal.getModOption("inventory") or {}) do
         table.insert(self.inventory, Registry.getItem(id))
     end
 
-    self.started = true
+    self.temp_followers = {"starwalker"}
 
-    self.lock_input = false
+    self.gold = 0
+    self.xp = 0
 
     if Kristal.getModOption("map") then
         self.world:loadMap(Kristal.getModOption("map"))
     end
 
+    -- END SAVE FILE VARIABLES --
+
     self.world:spawnParty()
+
+    self.started = true
+    self.lock_input = false
 
     if previous_state == Kristal.States["DarkTransition"] then
         self.started = false
@@ -47,18 +54,15 @@ function Game:enter(previous_state)
         self.world.player:setScreenPos(kx, py)
         self.world.player.visible = false
 
-        if not previous_state.kris_only and self.followers[1] then
+        if not previous_state.kris_only and self.world.followers[1] then
             local sx, sy = previous_state.susie_sprite:localToScreenPos(previous_state.susie_width / 2, 0)
 
-            self.followers[1]:setScreenPos(sx, py)
-            self.followers[1].visible = false
+            self.world.followers[1]:setScreenPos(sx, py)
+            self.world.followers[1].visible = false
         end
     elseif Kristal.getModOption("encounter") then
         self:encounter(Kristal.getModOption("encounter"), false)
     end
-
-    Game.gold = 0
-    Game.xp = 0
 
     self.fader_alpha = 0
     self.chapter = Kristal.getModOption("chapter") or 2
@@ -361,7 +365,7 @@ function Game:update(dt)
         if self.world.player then
             self.world.player.visible = true
         end
-        for _,follower in ipairs(self.followers) do
+        for _,follower in ipairs(self.world.followers) do
             follower.visible = true
         end
         if Kristal.getModOption("encounter") then

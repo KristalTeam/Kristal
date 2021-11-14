@@ -12,21 +12,8 @@ function Follower:init(chara, x, y, target)
     self.returning = false
 end
 
-function Follower:onAdd(parent)
-    super:onAdd(self, parent)
-
-    self.index = #Game.followers + 1
-    table.insert(Game.followers, self)
-end
-
-function Follower:onRemove(parent)
-    super:onRemove(self, parent)
-
-    Utils.removeFromTable(Game.followers, self)
-end
-
 function Follower:updateIndex()
-    for i,v in ipairs(Game.followers) do
+    for i,v in ipairs(self.world.followers) do
         if v == self then
             self.index = i
         end

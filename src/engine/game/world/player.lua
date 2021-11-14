@@ -106,7 +106,7 @@ function Player:update(dt)
             table.remove(self.history, #self.history)
         end
 
-        for _,follower in ipairs(Game.followers) do
+        for _,follower in ipairs(self.world.followers) do
             if follower.target == self and follower.following then
                 follower:interprolate()
             end

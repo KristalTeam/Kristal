@@ -57,7 +57,7 @@ function Mod:onKeyPressed(key)
                         object:explode()
                     end
                 end
-                for _,follower in ipairs(Game.followers) do
+                for _,follower in ipairs(Game.world.followers) do
                     if follower:collidesWith(attack_box) then
                         follower:explode()
                     end
