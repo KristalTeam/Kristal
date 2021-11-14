@@ -21,12 +21,12 @@ return PartyMember{
     spells = {"heal_prayer", "sleep_mist", "ice_shock"},
 
     -- Current health (saved to the save file)
-    health = 90,
+    health = 60,
 
     -- Base stats (saved to the save file)
     stats = {
         health = 60,
-        attack = 2,
+        attack = 1,
         defense = 1,
         magic = 9
     },
@@ -37,7 +37,7 @@ return PartyMember{
     -- Equipment (saved to the save file)
     equipped = {
         weapon = "snow_ring",
-        armor = {"silver_watch", "royal_pin"}
+        armor = {"silver_watch"}
     },
 
     -- Character color (for action box outline and hp bar)
