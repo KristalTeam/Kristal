@@ -52,7 +52,7 @@ return PartyMember{
     xact_color = {0.5, 1, 0.5},
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/ralsei/head_hat",
+    menu_icon = "party/ralsei/head_ch1",
     -- Path to head icons used in battle
     head_icons = "party/ralsei/icon",
     -- Name sprite (TODO: optional)

@@ -9,61 +9,61 @@ return {
 
     color = {0, 1, 0},
 
-    path = "party/ralsei",
-    default = "world/dark",
+    path = "party/ralsei/dark",
+    default = "",
 
     text_sound = "ralsei",
     portrait_path = "face/ralsei",
     portrait_offset = {-15, -10},
 
     animations = {
-        ["battle/idle"]         = {"battle/dark/idle", 0.2, true},
+        ["battle/idle"]         = {"battle/idle", 0.2, true},
 
-        ["battle/attack"]       = {"battle/dark/attack", 1/15, false},
-        ["battle/act"]          = {"battle/dark/act", 1/15, false},
-        ["battle/spell"]        = {"battle/dark/spell", 1/15, false, next="battle/idle"},
-        ["battle/item"]         = {"battle/dark/item", 1/12, false, next="battle/idle"},
-        ["battle/spare"]        = {"battle/dark/spell", 1/15, false, next="battle/idle"},
+        ["battle/attack"]       = {"battle/attack", 1/15, false},
+        ["battle/act"]          = {"battle/act", 1/15, false},
+        ["battle/spell"]        = {"battle/spell", 1/15, false, next="battle/idle"},
+        ["battle/item"]         = {"battle/item", 1/12, false, next="battle/idle"},
+        ["battle/spare"]        = {"battle/spell", 1/15, false, next="battle/idle"},
 
-        ["battle/attack_ready"] = {"battle/dark/attackready", 0.2, true},
-        ["battle/act_ready"]    = {"battle/dark/actready", 0.2, true},
-        ["battle/spell_ready"]  = {"battle/dark/spellready", 0.2, true},
-        ["battle/item_ready"]   = {"battle/dark/itemready", 0.2, true},
-        ["battle/defend_ready"] = {"battle/dark/defend", 1/15, false},
+        ["battle/attack_ready"] = {"battle/attackready", 0.2, true},
+        ["battle/act_ready"]    = {"battle/actready", 0.2, true},
+        ["battle/spell_ready"]  = {"battle/spellready", 0.2, true},
+        ["battle/item_ready"]   = {"battle/itemready", 0.2, true},
+        ["battle/defend_ready"] = {"battle/defend", 1/15, false},
 
-        ["battle/act_end"]      = {"battle/dark/actend", 1/15, false, next="battle/idle"},
+        ["battle/act_end"]      = {"battle/actend", 1/15, false, next="battle/idle"},
 
-        ["battle/hurt"]         = {"battle/dark/hurt", 1/15, false, temp=true, duration=0.5},
-        ["battle/defeat"]       = {"battle/dark/defeat", 1/15, false},
+        ["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
+        ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
-        ["battle/transition"]   = {"world/dark/right_1", 1/15, false},
-        ["battle/intro"]        = {"battle/dark/intro", 1/15, false},
-        ["battle/victory"]      = {"battle/dark/victory", 1/10, false}
+        ["battle/transition"]   = {"right_1", 1/15, false},
+        ["battle/intro"]        = {"battle/intro", 1/15, false},
+        ["battle/victory"]      = {"battle/victory", 1/10, false}
     },
 
     offsets = {
-        ["world/dark/down"] = {1, 0},
-        ["world/dark/left"] = {0, 0},
-        ["world/dark/right"] = {0, 0},
-        ["world/dark/up"] = {1, 0},
+        ["down"] = {1, 0},
+        ["left"] = {0, 0},
+        ["right"] = {0, 0},
+        ["up"] = {1, 0},
 
-        ["battle/dark/idle"] = {2, 6},
+        ["battle/idle"] = {2, 6},
 
-        ["battle/dark/attack"] = {10, 6},
-        ["battle/dark/attackready"] = {10, 6},
-        ["battle/dark/act"] = {2, 6},
-        ["battle/dark/actend"] = {2, 6},
-        ["battle/dark/actready"] = {2, 6},
-        ["battle/dark/spell"] = {11, 6},
-        ["battle/dark/spellready"] = {11, 6},
-        ["battle/dark/item"] = {7, 14},
-        ["battle/dark/itemready"] = {7, 14},
-        ["battle/dark/defend"] = {2, 6},
+        ["battle/attack"] = {10, 6},
+        ["battle/attackready"] = {10, 6},
+        ["battle/act"] = {2, 6},
+        ["battle/actend"] = {2, 6},
+        ["battle/actready"] = {2, 6},
+        ["battle/spell"] = {11, 6},
+        ["battle/spellready"] = {11, 6},
+        ["battle/item"] = {7, 14},
+        ["battle/itemready"] = {7, 14},
+        ["battle/defend"] = {2, 6},
 
-        ["battle/dark/defeat"] = {2, 6},
-        ["battle/dark/hurt"] = {13, 2},
+        ["battle/defeat"] = {2, 6},
+        ["battle/hurt"] = {13, 2},
 
-        ["battle/dark/intro"] = {2, 6},
-        ["battle/dark/victory"] = {0, 6}
+        ["battle/intro"] = {2, 6},
+        ["battle/victory"] = {0, 6}
     },
 }

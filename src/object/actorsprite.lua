@@ -83,7 +83,7 @@ function ActorSprite:_setSprite(texture, keep_anim)
     self.directional, self.dir_sep = self:isDirectional(self.full_sprite)
 
     if self.directional then
-        super:setSprite(self, self.sprite..self.dir_sep..self.facing, keep_anim)
+        super:setSprite(self, self:getDirectionalPath(self.sprite), keep_anim)
     else
         self.walk_frame = 1
         super:setSprite(self, self.sprite, keep_anim)
@@ -139,7 +139,7 @@ end
 
 function ActorSprite:updateDirection()
     if self.directional and self.last_facing ~= self.facing then
-        super:setSprite(self, self.sprite..self.dir_sep..self.facing, true)
+        super:setSprite(self, self:getDirectionalPath(self.sprite), true)
     end
     self.last_facing = self.facing
 end
@@ -154,15 +154,23 @@ function ActorSprite:isDirectional(texture)
     end
 end
 
+function ActorSprite:getDirectionalPath(sprite)
+    if sprite ~= "" then
+        return sprite..self.dir_sep..self.facing
+    else
+        return self.facing
+    end
+end
+
 function ActorSprite:getOffset()
     local offset = {0, 0}
     if self.force_offset then
         offset = self.force_offset
     else
         local frames_for = Assets.getFramesFor(self.full_sprite)
-        local frames_for_dir = self.directional and Assets.getFramesFor(self.full_sprite..self.dir_sep..self.facing)
+        local frames_for_dir = self.directional and Assets.getFramesFor(self:getDirectionalPath(self.full_sprite))
         offset = self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or
-            (self.directional and (self.offsets[self.sprite..self.dir_sep..self.facing] or (frames_for_dir and self.offsets[frames_for_dir])))
+            (self.directional and (self.offsets[self:getDirectionalPath(self.sprite)] or (frames_for_dir and self.offsets[frames_for_dir])))
             or {0, 0}
     end
     if self.shake_x ~= 0 or self.shake_y ~= 0 then
