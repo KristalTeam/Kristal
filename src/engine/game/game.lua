@@ -27,7 +27,7 @@ function Game:enter(previous_state)
         table.insert(self.inventory, Registry.getItem(id))
     end
 
-    self.temp_followers = {"starwalker"}
+    self.temp_followers = {}
 
     self.gold = 0
     self.xp = 0
