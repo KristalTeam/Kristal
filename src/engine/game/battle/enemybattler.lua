@@ -218,9 +218,7 @@ function EnemyBattler:isXActionShort(battler)
     return true
 end
 
-function EnemyBattler:hurt(amount, battler)
-    Assets.playSound("snd_damage")
-
+function EnemyBattler:hurt(amount, battler, on_defeat)
     self.health = self.health - amount
     self:statusMessage("damage", amount, battler and (battler.chara.dmg_color or battler.chara.color))
 
@@ -232,26 +230,31 @@ function EnemyBattler:hurt(amount, battler)
 
     if self.health <= 0 then
         self.health = 0
-        self.hurt_timer = -1
 
-        Assets.playSound("snd_defeatrun")
+        if on_defeat then
+            on_defeat(self, amount, battler)
+        else
+            self.hurt_timer = -1
 
-        local sweat = Sprite("effects/defeat/sweat")
-        sweat:setOrigin(0.5, 0.5)
-        sweat:play(5/30, true)
-        sweat.layer = 100
-        self:addChild(sweat)
+            Assets.playSound("snd_defeatrun")
 
-        Game.battle.timer:after(15/30, function()
-            sweat:remove()
-            self.overlay_sprite.run_away = true
+            local sweat = Sprite("effects/defeat/sweat")
+            sweat:setOrigin(0.5, 0.5)
+            sweat:play(5/30, true)
+            sweat.layer = 100
+            self:addChild(sweat)
 
             Game.battle.timer:after(15/30, function()
-                self:remove()
-            end)
-        end)
+                sweat:remove()
+                self.overlay_sprite.run_away = true
 
-        self:defeat("VIOLENCED", true)
+                Game.battle.timer:after(15/30, function()
+                    self:remove()
+                end)
+            end)
+
+            self:defeat("VIOLENCED", true)
+        end
     end
 end
 
@@ -271,6 +274,26 @@ function EnemyBattler:heal(amount)
     self:sparkle()
 end
 
+function EnemyBattler:freeze()
+    Assets.playSound("snd_petrify")
+
+    self:toggleOverlay(true)
+    if not self.overlay_sprite:setAnimation("frozen") then
+        self.overlay_sprite:setAnimation("hurt")
+    end
+    self.overlay_sprite.shake_x = 0
+
+    self.hurt_timer = -1
+
+    self.overlay_sprite.frozen = true
+    self.overlay_sprite.freeze_progress = 0
+
+    Game.battle.timer:tween(20/30, self.overlay_sprite, {freeze_progress = 1})
+
+    Game.battle.gold = Game.battle.gold + 24
+    self:defeat("FROZEN", true)
+end
+
 function EnemyBattler:statusMessage(...)
     super:statusMessage(self, self.width/2, self.height/2, ...)
 end
@@ -285,7 +308,7 @@ function EnemyBattler:defeat(reason, violent)
     Game.battle.gold = Game.battle.gold + self.gold
     Game.battle.xp = Game.battle.xp + self.experience
 
-    Game.battle:removeEnemy(self)
+    Game.battle:removeEnemy(self, true)
 end
 
 function EnemyBattler:setActor(actor)
@@ -303,10 +326,12 @@ function EnemyBattler:setActor(actor)
 
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "left"
+    self.sprite.inherit_color = true
 
     self.overlay_sprite = ActorSprite(self.actor)
     self.overlay_sprite.facing = "left"
     self.overlay_sprite.visible = false
+    self.overlay_sprite.inherit_color = true
 
     self:addChild(self.sprite)
     self:addChild(self.overlay_sprite)

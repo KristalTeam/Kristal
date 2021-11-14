@@ -32,6 +32,9 @@ function ActorSprite:init(actor)
 
     self.run_away = false
     self.run_away_timer = 0
+
+    self.frozen = false
+    self.freeze_progress = 1
 end
 
 function ActorSprite:resetSprite()
@@ -266,6 +269,40 @@ function ActorSprite:draw()
     end
 
     super:draw(self)
+
+    if self.texture and self.frozen then
+        if self.freeze_progress < 1 then
+            Draw.pushScissor()
+            Draw.scissorPoints(nil, self.texture:getHeight() * (1 - self.freeze_progress), nil, nil)
+        end
+
+        local last_shader = love.graphics.getShader()
+        local shader = Kristal.Shaders["AddColor"]
+        love.graphics.setShader(shader)
+        shader:send("inputcolor", {0.8, 0.8, 0.9})
+        shader:send("amount", 1)
+
+        local r,g,b,a = self:getDrawColor()
+
+        love.graphics.setColor(0, 0, 1, a * 0.8)
+        love.graphics.draw(self.texture, -1, -1)
+        love.graphics.setColor(0, 0, 1, a * 0.4)
+        love.graphics.draw(self.texture, 1, -1)
+        love.graphics.draw(self.texture, -1, 1)
+        love.graphics.setColor(0, 0, 1, a * 0.8)
+        love.graphics.draw(self.texture, 1, 1)
+
+        love.graphics.setShader(last_shader)
+
+        love.graphics.setBlendMode("add")
+        love.graphics.setColor(0.8, 0.8, 0.9, a * 0.4)
+        love.graphics.draw(self.texture)
+        love.graphics.setBlendMode("alpha")
+
+        if self.freeze_progress < 1 then
+            Draw.popScissor()
+        end
+    end
 end
 
 return ActorSprite

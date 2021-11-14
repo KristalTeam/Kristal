@@ -117,6 +117,7 @@ function Battle:init()
     self.enemies = {}
     self.enemy_dialogue = {}
     self.enemies_to_remove = {}
+    self.defeated_enemies = {}
 
     self.waves = {}
 
@@ -414,6 +415,17 @@ function Battle:onStateChange(old,new)
         self.battle_ui:transitionOut()
         if self.music ~= Game.world.music then
             self.music:fade(0, 0.05)
+        end
+        if Game.encounter_enemy then
+            local target = Game.encounter_enemy
+            for _,enemy in ipairs(self.defeated_enemies) do
+                if enemy.done_state == "FROZEN" then
+                    local statue = FrozenEnemy(enemy.actor, target.x, target.y, {facing = target.sprite.facing})
+                    statue.layer = target.layer
+                    Game.world:addChild(statue)
+                    break
+                end
+            end
         end
     end
 end
@@ -736,6 +748,7 @@ function Battle:processAction(action)
                 enemy.parent:addChild(dmg_sprite)
 
                 --enemy:hurt(battler.chara.stats.attack, battler)
+                Assets.playSound("snd_damage")
                 enemy:hurt(damage, battler)
 
                 battler.chara:onAttackHit(enemy, damage)
@@ -1437,6 +1450,13 @@ function Battle:updateTransitionOut(dt)
         battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
         battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
     end
+
+    for _,battler in ipairs(self.defeated_enemies) do
+        battler.alpha = self.transition_timer / 10
+    end
+    for _,battler in ipairs(self.enemies) do
+        battler.alpha = self.transition_timer / 10
+    end
 end
 
 function Battle:updateAttacking(dt)
@@ -1607,8 +1627,11 @@ function Battle:isEnemySelected(enemy)
     return false
 end
 
-function Battle:removeEnemy(enemy)
+function Battle:removeEnemy(enemy, defeated)
     table.insert(self.enemies_to_remove, enemy)
+    if defeated then
+        table.insert(self.defeated_enemies, enemy)
+    end
 end
 
 function Battle:getActiveEnemies()

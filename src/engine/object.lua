@@ -73,7 +73,7 @@ function Object:init(x, y, width, height)
     self.rotation = 0
     self.flip_x = false
     self.flip_y = false
-    
+
     -- Whether this object's color will be multiplied by its parent's color
     self.inherit_color = false
 
