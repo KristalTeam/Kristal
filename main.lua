@@ -87,6 +87,7 @@ ChaserEnemy = require("src.engine.game.world.chaserenemy")
 DarkBox = require("src.engine.game.world.ui.darkbox")
 Textbox = require("src.engine.game.world.ui.textbox")
 Choicebox = require("src.engine.game.world.ui.choicebox")
+DarkMenu = require("src.engine.game.world.ui.darkmenu")
 
 Event = require("src.engine.game.world.event")
 Readable = require("src.engine.game.world.events.readable")

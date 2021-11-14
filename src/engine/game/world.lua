@@ -59,8 +59,59 @@ function World:init(map)
     self.timer.persistent = true
     self:addChild(self.timer)
 
+    self.can_open_menu = true
+
+    self.menu = nil
+
     if map then
         self:loadMap(map)
+    end
+end
+
+function World:openMenu()
+    if Cutscene.isActive() then return end
+    if self.in_battle then return end
+    if not self.can_open_menu then return end
+
+    if self.menu then
+        self.menu:remove()
+    end
+
+    self.state = "MENU"
+
+    if not self.light then
+        self:showHealthBars()
+        self.menu = DarkMenu()
+        self:addChild(self.menu)
+    else
+        error("TODO: Light world menu")
+    end
+end
+
+function World:closeMenu()
+    self.state = "GAMEPLAY"
+    if self.menu then
+        self.menu:transitionOut()
+    end
+    self:hideHealthBars()
+end
+
+function World:showHealthBars() end
+function World:hideHealthBars() end
+
+function World:keypressed(key)
+    if Game.lock_input then return end
+
+    if self.state == "GAMEPLAY" then
+        if Input.isConfirm(key) and self.player then
+            self.player:interact()
+        elseif Input.isMenu(key) then
+            self:openMenu()
+        end
+    elseif self.state == "MENU" then
+        if self.menu then
+            self.menu:keypressed(key)
+        end
     end
 end
 

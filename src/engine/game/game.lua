@@ -437,16 +437,8 @@ function Game:keypressed(key)
             self.battle:keypressed(key)
         end
     elseif self.state == "OVERWORLD" then
-        if not self.lock_input then
-            if self.world.player then -- TODO: move this to function in world.lua
-                if Input.isConfirm(key) then
-                    self.world.player:interact()
-                elseif key == "f" then
-                    print(Utils.dump(self.world.player.history))
-                elseif key == "v" then
-                    self.world.in_battle = not self.world.in_battle
-                end
-            end
+        if self.world then
+            self.world:keypressed(key)
         end
     end
 end
