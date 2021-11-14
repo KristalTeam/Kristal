@@ -25,6 +25,7 @@ function ActionBox:init(x, y, index, battler)
 
     self.box_y_offset = 0
     self.animation_timer = 0
+    self.selection_siner = 0
 
     self.index = index
     self.battler = battler
@@ -69,6 +70,8 @@ function ActionBox:update(dt)
         self.animation_timer = 0
     end
 
+    self.selection_siner = self.selection_siner + 2 * DTMULT
+
     if Game.battle.current_selecting == self.index then
         self.box_y_offset = Ease.outCubic(self.animation_timer, 0, 32, 7)
     else
@@ -83,6 +86,7 @@ function ActionBox:update(dt)
 end
 
 function ActionBox:draw()
+    self:drawSelectionMatrix()
     self:drawActionBox()
 
     super:draw(self)
@@ -246,13 +250,27 @@ function ActionBox:drawActionBox()
     love.graphics.print(self.battler.chara.stats.health, 181, 9 - self.box_y_offset - self.data_offset)
 end
 
-function ActionBox:drawActionArena()
-    -- Draw the top line of the action area
-    love.graphics.setColor(51/255, 32/255, 51/255, 1)
-    love.graphics.rectangle("fill", 0, 362, 640, 3)
-    -- Draw the background of the action area
+function ActionBox:drawSelectionMatrix()
+    -- Draw the background of the selection matrix
     love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.rectangle("fill", 0, 365, 640, 115)
+    love.graphics.rectangle("fill", 2, 2, 209, 35)
+
+    if Game.battle.current_selecting == self.index then
+        local color = self.battler.chara.color
+
+        for i = 0, 11 do
+            local siner = self.selection_siner + (i * (10 * math.pi))
+
+            love.graphics.setLineWidth(2)
+            love.graphics.setColor(color[1], color[2], color[3], (color[4] or 1) * math.sin(siner / 60))
+            if math.cos(siner / 60) < 0 then
+                love.graphics.line(1 - (math.sin(siner / 60) * 30) + 30, 0, 1 - (math.sin(siner / 60) * 30) + 30, 37)
+                love.graphics.line(211 + (math.sin(siner / 60) * 30) - 30, 0, 211 + (math.sin(siner / 60) * 30) - 30, 37)
+            end
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end
 
 return ActionBox
