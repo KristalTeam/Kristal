@@ -103,6 +103,7 @@ function Battle:init()
 
     self.attackers = {}
     self.attack_done = false
+    self.cancel_attack = false
 
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
@@ -381,17 +382,22 @@ function Battle:onStateChange(old,new)
         -- if (in_dojo) then
         --     win_text == "* You won the battle!"
         -- end
-        if self.used_violence then
-            win_text = "* You won!\n* Got " .. self.gold .. " D$.\n* You became stronger."
+        if Game.chapter >= 2 and self.used_violence then
+            local stronger = "You"
+
             for _,battler in ipairs(self.party) do
+                battler.chara.level = battler.chara.level + 1
+                battler.chara:onLevelUp(battler.chara.level)
+
                 if battler.chara.id == "noelle" then
-                    win_text = "* You won!\n* Got " .. self.gold .. " D$.\n* Noelle became stronger."
+                    -- Hardcoded for now ,??
+                    stronger = battler.chara.name
                 end
             end
 
-            local sound = Assets.newSound("snd_dtrans_lw")
-            sound:play()
-            sound:setVolume(0.7)
+            win_text = "* You won!\n* Got " .. self.gold .. " D$.\n* "..stronger.." became stronger."
+
+            Assets.playSound("snd_dtrans_lw", 0.7, 2)
             --scr_levelup()
         end
 
@@ -602,6 +608,14 @@ function Battle:beginAction(action)
     end
 end
 
+function Battle:retargetEnemy()
+    for _,other in ipairs(self.enemies) do
+        if not other.done_state then
+            return other
+        end
+    end
+end
+
 function Battle:processAction(action)
     local battler = self.party[action.character_id]
     local party_member = battler.chara
@@ -610,12 +624,7 @@ function Battle:processAction(action)
     self.current_processing_action = action
 
     if enemy and enemy.done_state then
-        enemy = nil
-        for _,other in ipairs(self.enemies) do
-            if not other.done_state then
-                enemy = other
-            end
-        end
+        enemy = self:retargetEnemy()
         action.target = enemy
         if not enemy then
             return true
@@ -688,17 +697,27 @@ function Battle:processAction(action)
             end
         end
 
-        local damage = 0
-        if action.points > 0 then
-            damage = Utils.round(((battler.chara:getStat("attack") * action.points) / 20) - (action.target.defense * 3))
-        end
-        if damage < 0 then
-            damage = 0
-        end
-
         battler:setAnimation("battle/attack", function()
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
             box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+
+            if action.target and action.target.done_state then
+                enemy = self:retargetEnemy()
+                action.target = enemy
+                if not enemy then
+                    self.cancel_attack = true
+                    self:finishAction(action)
+                    return
+                end
+            end
+
+            local damage = 0
+            if action.points > 0 then
+                damage = Utils.round(((battler.chara:getStat("attack") * action.points) / 20) - (action.target.defense * 3))
+            end
+            if damage < 0 then
+                damage = 0
+            end
 
             if damage > 0 then
                 -- TODO: JEVIL does (action.points / 15), so make this configurable in some way
@@ -725,6 +744,10 @@ function Battle:processAction(action)
             end
 
             self:finishAction(action)
+
+            if not self:retargetEnemy() then
+                self.cancel_attack = true
+            end
         end)
     elseif action.action == "ACT" then
         -- fun fact: this would have only been a single function call
@@ -1424,7 +1447,7 @@ function Battle:updateAttacking(dt)
 
         local all_done = true
         for _,attack in ipairs(self.battle_ui.attack_boxes) do
-            if not attack.attacked then
+            if not attack.attacked and attack.fade_rect.alpha < 1 then
                 local close = attack:getClose()
                 if close <= -5 then
                     attack:miss()
@@ -1432,7 +1455,9 @@ function Battle:updateAttacking(dt)
                     local action = self:getActionBy(attack.battler)
                     action.points = 0
 
-                    self:processAction(action)
+                    if self:processAction(action) then
+                        self:finishAction(action)
+                    end
                 else
                     all_done = false
                 end
@@ -1915,7 +1940,7 @@ function Battle:keypressed(key)
         end
     elseif self.state == "ATTACKING" then
         if Input.isConfirm(key) then
-            if not self.attack_done and #self.battle_ui.attack_boxes > 0 then
+            if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
                 local closest
                 local closest_attacks = {}
 
@@ -1941,7 +1966,9 @@ function Battle:keypressed(key)
                         local action = self:getActionBy(attack.battler)
                         action.points = points
 
-                        self:processAction(action)
+                        if self:processAction(action) then
+                            self:finishAction(action)
+                        end
                     end
                 end
             end

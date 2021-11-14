@@ -1,4 +1,4 @@
-return PartyMember{
+local character = PartyMember{
     -- Party member ID (optional, defaults to path)
     id = "kris",
     -- Display name
@@ -71,3 +71,12 @@ return PartyMember{
     -- Message shown on gameover (optional)
     gameover_message = nil,
 }
+
+function character:onLevelUp(level)
+    self:increaseStat("health", 2, 160)
+    if level % 10 == 0 then
+        self:increaseStat("attack", 1)
+    end
+end
+
+return character

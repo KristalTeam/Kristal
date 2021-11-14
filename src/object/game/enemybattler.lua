@@ -12,7 +12,9 @@ function EnemyBattler:init(chara)
     self.health = 100
     self.attack = 1
     self.defense = 0
-    self.reward = 0
+
+    self.gold = 0
+    self.experience = 0 -- currently useless, maybe in later chapters?
 
     self.tired = false
     self.mercy = 0
@@ -74,12 +76,8 @@ function EnemyBattler:spare(pacify)
     Game.battle.spare_sound:stop()
     Game.battle.spare_sound:play()
 
-    self.done_state = pacify and "PACIFIED" or "SPARED"
-
     self.sprite.color_mask = {1, 1, 1}
     self.sprite.color_mask_alpha = 0
-
-    self:onSpared()
 
     local sparkle_timer = 0
     local parent = self.parent
@@ -105,7 +103,8 @@ function EnemyBattler:spare(pacify)
         self:remove()
     end)
 
-    Game.battle:removeEnemy(self)
+    self:defeat(pacify and "PACIFIED" or "SPARED", false)
+    self:onSpared()
 end
 
 function EnemyBattler:onSpared()
@@ -230,6 +229,30 @@ function EnemyBattler:hurt(amount, battler)
 
     self.overlay_sprite.shake_x = 9
     self.hurt_timer = 1
+
+    if self.health <= 0 then
+        self.health = 0
+        self.hurt_timer = -1
+
+        Assets.playSound("snd_defeatrun")
+
+        local sweat = Sprite("effects/defeat/sweat")
+        sweat:setOrigin(0.5, 0.5)
+        sweat:play(5/30, true)
+        sweat.layer = 100
+        self:addChild(sweat)
+
+        Game.battle.timer:after(15/30, function()
+            sweat:remove()
+            self.overlay_sprite.run_away = true
+
+            Game.battle.timer:after(15/30, function()
+                self:remove()
+            end)
+        end)
+
+        self:defeat("VIOLENCED", true)
+    end
 end
 
 function EnemyBattler:heal(amount)
@@ -250,6 +273,19 @@ end
 
 function EnemyBattler:statusMessage(...)
     super:statusMessage(self, self.width/2, self.height/2, ...)
+end
+
+function EnemyBattler:defeat(reason, violent)
+    self.done_state = reason or "DEFEATED"
+
+    if violent then
+        Game.battle.used_violence = true
+    end
+
+    Game.battle.gold = Game.battle.gold + self.gold
+    Game.battle.xp = Game.battle.xp + self.experience
+
+    Game.battle:removeEnemy(self)
 end
 
 function EnemyBattler:setActor(actor)

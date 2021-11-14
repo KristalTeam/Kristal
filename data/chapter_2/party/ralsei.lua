@@ -1,4 +1,4 @@
-return PartyMember{
+local character = PartyMember{
     -- Party member ID (optional, defaults to path)
     id = "ralsei",
     -- Display name
@@ -74,3 +74,13 @@ return PartyMember{
         "Please[wait:1],\ndon't give up!"
     },
 }
+
+function character:onLevelUp(level)
+    self:increaseStat("health", 2, 140)
+    if level % 10 == 0 then
+        self:increaseStat("attack", 1)
+        self:increaseStat("magic", 1)
+    end
+end
+
+return character

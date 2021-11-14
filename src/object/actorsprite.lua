@@ -29,6 +29,9 @@ function ActorSprite:init(actor)
 
     self.aura = false
     self.aura_siner = 0
+
+    self.run_away = false
+    self.run_away_timer = 0
 end
 
 function ActorSprite:resetSprite()
@@ -214,6 +217,10 @@ function ActorSprite:update(dt)
         end
     end
 
+    if self.run_away then
+        self.run_away_timer = self.run_away_timer + DTMULT
+    end
+
     super:update(self, dt)
 end
 
@@ -225,6 +232,16 @@ function ActorSprite:createTransform()
 end
 
 function ActorSprite:draw()
+    if self.texture and self.run_away then
+        local r,g,b,a = self:getDrawColor()
+        for i = 0, 80 do
+            local alph = a * 0.4
+            love.graphics.setColor(r,g,b, ((alph - (self.run_away_timer / 8)) + (i / 200)))
+            love.graphics.draw(self.texture, i * 2, 0)
+        end
+        return
+    end
+
     if self.texture and self.aura then
         self.aura_siner = self.aura_siner + 0.25 * DTMULT
         for i = 1, 5 do

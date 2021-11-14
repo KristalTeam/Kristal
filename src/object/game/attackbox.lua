@@ -19,8 +19,13 @@ function AttackBox:init(battler, offset, x, y)
     self.bolt_start_x = self.bolt_target + (self.offset * AttackBox.BOLTSPEED)
 
     self.bolt = AttackBar(self.bolt_start_x, 0, 6, 38)
-    self.bolt.layer = 2
+    self.bolt.layer = 1
     self:addChild(self.bolt)
+
+    self.fade_rect = Rectangle(0, 0, SCREEN_WIDTH, 38)
+    self.fade_rect:setColor(0, 0, 0, 0)
+    self.fade_rect.layer = 2
+    self:addChild(self.fade_rect)
 
     self.afterimage_timer = 0
     self.afterimage_count = -1
@@ -64,28 +69,25 @@ function AttackBox:miss()
 end
 
 function AttackBox:update(dt)
+    if Game.battle.cancel_attack then
+        self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, DTMULT/20)
+    end
+
     if not self.attacked then
         self.bolt:move(-AttackBox.BOLTSPEED * DTMULT, 0)
-
-        local close = self:getClose()
-        if close == 0 then
-            self.bolt:setColor(1, 1, 0)
-        else
-            self.bolt:setColor(1, 1, 1)
-        end
 
         self.afterimage_timer = self.afterimage_timer + DTMULT/2
         while math.floor(self.afterimage_timer) > self.afterimage_count do
             self.afterimage_count = self.afterimage_count + 1
             local afterimg = AttackBar(self.bolt_start_x - (self.afterimage_count * AttackBox.BOLTSPEED * 2), 0, 6, 38)
-            afterimg.layer = 1
+            afterimg.layer = 3
             afterimg.alpha = 0.4
             afterimg:fadeOutAndRemove()
             self:addChild(afterimg)
         end
     end
 
-    if Input.pressed("confirm") then
+    if not Game.battle.cancel_attack and Input.pressed("confirm") then
         self.flash = 1
     else
         self.flash = Utils.approach(self.flash, 0, DTMULT/5)

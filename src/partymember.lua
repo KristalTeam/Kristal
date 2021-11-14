@@ -72,6 +72,12 @@ function PartyMember:init(o)
     -- Battle position offset (optional)
     self.battle_offset = nil
 
+    -- Message shown on gameover (optional)
+    self.gameover_message = nil
+
+
+    -- Current level, increased by level-ups (saved to the save file)
+    self.level = 0
 
     -- Generic variables table (saved to the save file)
     self.vars = {}
@@ -83,6 +89,18 @@ function PartyMember:init(o)
 end
 
 function PartyMember:onAttackHit(enemy, damage) end
+
+function PartyMember:onLevelUp(level) end
+
+function PartyMember:increaseStat(stat, amount, max)
+    self.stats[stat] = (self.stats[stat] or 0) + amount
+    if max and self.stats[stat] > max then
+        self.stats[stat] = max
+    end
+    if stat == "health" then
+        self.health = math.min(self.health + amount, self.stats[stat])
+    end
+end
 
 function PartyMember:getEquipment()
     local result = {}

@@ -82,4 +82,15 @@ function character:onAttackHit(enemy, damage)
     end
 end
 
+function character:onLevelUp(level)
+    self:increaseStat("health", 2, 190)
+    if level % 2 == 0 then
+        self:increaseStat("health", 1, 190)
+    end
+    if level % 10 == 0 then
+        self:increaseStat("attack", 1)
+        self:increaseStat("magic", 1)
+    end
+end
+
 return character
