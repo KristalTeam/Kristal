@@ -37,19 +37,23 @@ function TensionBar:giveTension(amount)
 end
 
 function TensionBar:giveTensionPercent(amount)
-    return self:giveTension(amount * 2.5) / 2.5
+    local mult = Game.battle.max_tension / 100
+    return self:giveTension(amount * mult) / mult
 end
 
 function TensionBar:removeTensionPercent(amount)
-    return self:removeTension(amount * 2.5)
+    local mult = Game.battle.max_tension / 100
+    return self:removeTension(amount * mult)
 end
 
 function TensionBar:setTensionPercent(amount)
-    self:setTension(amount * 2.5)
+    local mult = Game.battle.max_tension / 100
+    self:setTension(amount * mult)
 end
 
 function TensionBar:getTensionPercent()
-    return Game.battle.tension / 2.5
+    local mult = Game.battle.max_tension / 100
+    return Game.battle.tension / mult
 end
 
 function TensionBar:removeTension(amount)
