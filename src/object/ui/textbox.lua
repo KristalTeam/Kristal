@@ -15,13 +15,16 @@ function Textbox:init(x, y, width, height, battle_box)
     if battle_box then
         self.face_x = -4
         self.face_y = 2
+
+        self.text_x = 0
+        self.text_y = 0
     else
         self.face_x = 18
         self.face_y = 6
-    end
 
-    self.text_x = 2
-    self.text_y = -2
+        self.text_x = 2
+        self.text_y = -2
+    end
 
     self.actor = nil
 

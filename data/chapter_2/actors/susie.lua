@@ -55,9 +55,9 @@ return {
 
         ["battle/attack"] = {26, 25},
         ["battle/attackready"] = {26, 25},
-        ["battle/act"] = {26, 25},
-        ["battle/actend"] = {26, 25},
-        ["battle/actready"] = {26, 25},
+        ["battle/act"] = {24, 25},
+        ["battle/actend"] = {24, 25},
+        ["battle/actready"] = {24, 25},
         ["battle/spell"] = {22, 30},
         ["battle/spellready"] = {22, 15},
         ["battle/item"] = {22, 1},
