@@ -17,7 +17,7 @@ end
 function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     local sprite = self.spr_doorblack
     love.graphics.setColor(color)
-    love.graphics.draw(sprite, x, y, rot, xscale * 4, yscale * 4, sprite:getWidth()/2, sprite:getHeight()/2)
+    love.graphics.draw(sprite, x, y, rot, xscale * 3, yscale * 3, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
 function DarkTransition:enter(previous, mod)
@@ -59,7 +59,7 @@ function DarkTransition:enter(previous, mod)
     self.megablack = false
 
     -- CONFIG
-    self.quick_mode = true
+    self.quick_mode = false
     self.skiprunback = true
     self.final_y = 60
     self.kris_only = false
