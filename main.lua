@@ -72,8 +72,9 @@ Wave = require("src.engine.game.scripts.wave")
 
 ActorSprite = require("src.engine.game.actorsprite")
 
-Cutscene = require("src.engine.game.world.cutscene")
-BattleScene = require("src.engine.game.battle.battlescene")
+Cutscene = require("src.engine.game.cutscene")
+WorldCutscene = require("src.engine.game.world.worldcutscene")
+BattleCutscene = require("src.engine.game.battle.battlecutscene")
 
 World = require("src.engine.game.world")
 Tileset = require("src.engine.game.world.tileset")

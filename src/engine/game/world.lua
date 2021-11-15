@@ -55,6 +55,8 @@ function World:init(map)
 
     self.followers = {}
 
+    self.cutscene = nil
+
     self.timer = Timer()
     self.timer.persistent = true
     self:addChild(self.timer)
@@ -69,7 +71,7 @@ function World:init(map)
 end
 
 function World:openMenu()
-    if Cutscene.isActive() then return end
+    if self:hasCutscene() then return end
     if self.in_battle then return end
     if not self.can_open_menu then return end
 
@@ -155,6 +157,18 @@ function World:checkCollision(collider)
     end
     Object.endCache()
     return false
+end
+
+function World:hasCutscene()
+    return self.cutscene and not self.cutscene.ended
+end
+
+function World:startCutscene(group, id, ...)
+    if self.cutscene then
+        error("Attempt to start a cutscene while already in a cutscene.")
+    end
+    self.cutscene = WorldCutscene(group, id, ...)
+    return self.cutscene
 end
 
 function World:spawnPlayer(...)
@@ -618,6 +632,15 @@ function World:sortChildren()
 end
 
 function World:update(dt)
+    if self.cutscene then
+        if not self.cutscene.ended then
+            self.cutscene:update(dt)
+        end
+        if self.cutscene.ended then
+            self.cutscene = nil
+        end
+    end
+
     -- Fade transition
     if self.state == "TRANSITION_OUT" then
         self.transition_fade = Utils.approach(self.transition_fade, 1, dt / 0.25)

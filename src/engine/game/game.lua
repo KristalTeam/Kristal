@@ -381,9 +381,6 @@ function Game:update(dt)
         return
     end
 
-    Cutscene.update(dt)
-    BattleScene.update(dt)
-
     if self.world.player and -- If the player exists,
        not self.lock_input -- and input isn't locked,
        and self.state == "OVERWORLD" -- and we're in the overworld state,

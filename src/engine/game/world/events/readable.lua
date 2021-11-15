@@ -29,9 +29,9 @@ function Readable:init(x, y, width, height, text)
 end
 
 function Readable:onInteract(player, dir)
-    Cutscene.start(function()
+    self.world:startCutscene(function(cutscene)
         for _,line in ipairs(self.text) do
-            Cutscene.text(line)
+            cutscene:text(line)
         end
         self:onTextEnd()
     end)

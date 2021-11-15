@@ -11,8 +11,8 @@ function Script:init(data)
     self:setHitbox(0, 0, data.width, data.height)
 end
 
-function Script:onCollide(player, dir)
-    Cutscene.start(self.script)
+function Script:onCollide(player)
+    self.world:startCutscene(self.script, self, player)
     self:remove()
     return true
 end

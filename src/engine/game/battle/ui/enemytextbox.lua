@@ -69,7 +69,7 @@ function EnemyTextbox:isTyping()
 end
 
 function EnemyTextbox:update(dt)
-    if BattleScene.isActive() then
+    if Game.battle:hasCutscene() then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
             if not self:isTyping() and self:next() then
                 local all_done = true
@@ -80,7 +80,7 @@ function EnemyTextbox:update(dt)
                     end
                 end
                 if all_done then
-                    BattleScene.resume()
+                    Game.battle.cutscene:resume()
                 end
             end
         end

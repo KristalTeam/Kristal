@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 16,
-  nextobjectid = 83,
+  nextobjectid = 85,
   properties = {
     ["music"] = "cybercity"
   },
@@ -1033,6 +1033,21 @@ return {
             ["encounter"] = "virovirokun",
             ["path"] = "virovirokun",
             ["progress"] = "-0.1"
+          }
+        },
+        {
+          id = 84,
+          name = "interactscript",
+          type = "",
+          shape = "rectangle",
+          x = 80,
+          y = 200,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["script"] = "test"
           }
         }
       }

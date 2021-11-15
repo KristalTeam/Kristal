@@ -10,7 +10,7 @@ end
 
 function Savepoint:onInteract(player, dir)
     Assets.playSound("snd_power")
-    super:onInteract(self)
+    super:onInteract(self, player, dir)
     return true
 end
 

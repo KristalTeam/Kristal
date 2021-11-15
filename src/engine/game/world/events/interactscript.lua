@@ -12,7 +12,7 @@ function InteractScript:init(data)
 end
 
 function InteractScript:onInteract(player, dir)
-    Cutscene.start(self.script)
+    self.world:startCutscene(self.script, self, player, dir)
     return true
 end
 

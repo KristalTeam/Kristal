@@ -61,10 +61,10 @@ function item:onBattleDeselect(user, target)
 end
 
 function item:onWorldUse(target)
-    Cutscene.start((function()
-        Cutscene.text("* (You felt tense.)")
-        Cutscene.text("* (... try using it in battle.)")
-    end))
+    Game.world:startCutscene(function(cutscene)
+        cutscene:text("* (You felt tense.)")
+        cutscene:text("* (... try using it in battle.)")
+    end)
     return false
 end
 

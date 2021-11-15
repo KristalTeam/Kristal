@@ -113,28 +113,28 @@ function Virovirokun:onAct(battler, name)
         end
         return "* Everyone treated the enemy with\ntender loving care!! All the\nenemies felt great!!"
     elseif name == "R-Cook" then
-        Game.battle:startActCutscene("viroviro_cook_ralsei")
+        Game.battle:startActCutscene("virovirokun", "cook_ralsei")
         return
     elseif name == "S-Cook" then
-        Game.battle:startActCutscene("viroviro_cook_susie")
+        Game.battle:startActCutscene("virovirokun", "cook_susie")
         return
     elseif name == "Standard" then
         self:addMercy(50)
         if battler.chara.id == "noelle" then
             return "* Noelle offered a cold compress!"
         elseif battler.chara.id == "susie" then
-            Game.battle:startActCutscene((function()
-                BattleScene.text("* Susie commiserated with the enemy!")
-                BattleScene.text("* Stick it to the man,\ndude.", "face_2", "susie")
-                BattleScene.text("* Even if that means\ncloning yourself, or\nwhatever.", "face_2", "susie")
-            end))
+            Game.battle:startActCutscene(function(cutscene)
+                cutscene:text("* Susie commiserated with the enemy!")
+                cutscene:text("* Stick it to the man,\ndude.", "face_2", "susie")
+                cutscene:text("* Even if that means\ncloning yourself, or\nwhatever.", "face_2", "susie")
+            end)
             return
         elseif battler.chara.id == "ralsei" then
-            Game.battle:startActCutscene((function()
-                BattleScene.text("* Ralsei tried to steer the enemy\ndown the right path.")
-                BattleScene.text("* Not everybody knows\nthis, but...", "face_0", "ralsei")
-                BattleScene.text("* Crimes are bad. ... Did\nyou know that?",  "face_2", "ralsei")
-            end))
+            Game.battle:startActCutscene(function(cutscene)
+                cutscene:text("* Ralsei tried to steer the enemy\ndown the right path.")
+                cutscene:text("* Not everybody knows\nthis, but...", "face_0", "ralsei")
+                cutscene:text("* Crimes are bad. ... Did\nyou know that?",  "face_2", "ralsei")
+            end)
             return
         end
     end

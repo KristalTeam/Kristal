@@ -35,8 +35,8 @@ function Choicebox:update(dt)
         if self.current_choice ~= 0 then
             self:remove()
 
-            Cutscene.choice = self.current_choice
-            Cutscene.resume()
+            Game.world.cutscene.choice = self.current_choice
+            Game.world.cutscene:resume(self.current_choice)
         end
     end
     super:update(self, dt)

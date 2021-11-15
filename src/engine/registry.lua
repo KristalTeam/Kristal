@@ -25,6 +25,7 @@ function Registry.initialize(preload)
         Registry.initEnemies()
         Registry.initWaves()
         Registry.initBullets()
+        Registry.initCutscenes()
 
         Kristal.modCall("onRegistered")
     end
@@ -94,6 +95,24 @@ function Registry.createBullet(id, ...)
     end
 end
 
+function Registry.getWorldCutscene(group, id)
+    local cutscene = self.world_cutscenes[group]
+    if type(cutscene) == "table" then
+        return cutscene[id], true
+    elseif type(cutscene) == "function" then
+        return cutscene, false
+    end
+end
+
+function Registry.getBattleCutscene(group, id)
+    local cutscene = self.battle_cutscenes[group]
+    if type(cutscene) == "table" then
+        return cutscene[id], true
+    elseif type(cutscene) == "function" then
+        return cutscene, false
+    end
+end
+
 -- Register Functions --
 
 function Registry.registerActor(id, tbl)
@@ -129,6 +148,14 @@ end
 
 function Registry.registerBullet(id, class)
     self.bullets[id] = class
+end
+
+function Registry.registerWorldCutscene(id, cutscene)
+    self.world_cutscenes[id] = cutscene
+end
+
+function Registry.registerBattleCutscene(id, cutscene)
+    self.battle_cutscenes[id] = cutscene
 end
 
 -- Internal Functions --
@@ -239,6 +266,20 @@ function Registry.initBullets()
     end
 
     Kristal.modCall("onRegisterBullets")
+end
+
+function Registry.initCutscenes()
+    self.world_cutscenes = {}
+    self.battle_cutscenes = {}
+
+    for _,path,cutscene in self.iterScripts("world/cutscenes") do
+        self.registerWorldCutscene(path, cutscene)
+    end
+    for _,path,cutscene in self.iterScripts("battle/cutscenes") do
+        self.registerBattleCutscene(path, cutscene)
+    end
+
+    Kristal.modCall("onRegisterCutscenes")
 end
 
 function Registry.iterScripts(base_path)

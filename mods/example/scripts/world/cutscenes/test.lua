@@ -1,40 +1,42 @@
-local kris = Cutscene.getCharacter("kris")
-local susie = Cutscene.getCharacter("susie")
-local ralsei = Cutscene.getCharacter("ralsei")
+return function(cutscene)
 
-if ralsei then
-    Cutscene.text("* The power of [color:pink]test\ndialogue[color:reset] shines within\nyou.", "starwalker")
-    Cutscene.wait(0.5)
-    Cutscene.text("* Oh    [color:red]Fuck[color:reset]   it's a  bomb")
+    local kris = cutscene:getCharacter("kris")
+    local susie = cutscene:getCharacter("susie")
+    local ralsei = cutscene:getCharacter("ralsei")
 
-    Cutscene.detachCamera()
-    Cutscene.detachFollowers()
+    if ralsei then
+        cutscene:text("* The power of [color:pink]test\ndialogue[color:reset] shines within\nyou.", "starwalker")
+        cutscene:wait(0.5)
+        cutscene:text("* Oh    [color:red]Fuck[color:reset]   it's a  bomb")
 
-    Cutscene.setSprite(ralsei, "world/dark/up", 1/15)
-    Cutscene.setSpeaker("ralsei")
-    Cutscene.text("* Kris, Susie, look out!!!", "face_23")
+        cutscene:detachCamera()
+        cutscene:detachFollowers()
 
-    susie.sprite:set("world/dark/shock_r")
-    --Cutscene.setSprite(susie, "world/dark/shock_r")
-    Cutscene.slideTo(susie, susie.x - 40, susie.y, 8)
-    Cutscene.slideTo(ralsei, kris.x, kris.y, 12)
-    Cutscene.wait(0.2)
-    Cutscene.look(kris, "right")
-    Cutscene.slideTo(kris, kris.x - 40, kris.y, 8)
-    Cutscene.wait(0.3)
+        cutscene:setSprite(ralsei, "up", 1/15)
+        cutscene:setSpeaker("ralsei")
+        cutscene:text("* Kris, Susie, look out!!!", "face_23")
 
-    ralsei:explode()
-    Cutscene.shakeCamera(8)
+        susie.sprite:set("shock_r")
+        --Cutscene.setSprite(susie, "world/dark/shock_r")
+        cutscene:wait(cutscene:slideTo(ralsei, susie.x, susie.y, 12))
+        cutscene:slideTo(susie, susie.x - 40, susie.y, 8)
+        cutscene:wait(cutscene:slideTo(ralsei, kris.x, kris.y, 12))
+        cutscene:look(kris, "right")
+        cutscene:wait(cutscene:slideTo(kris, kris.x - 40, kris.y, 8))
+        ralsei:explode()
+        cutscene:shakeCamera(8)
 
-    Cutscene.wait(2)
-    Cutscene.text("* Yo what the fuck", "face_15", "susie")
+        cutscene:wait(2)
+        cutscene:text("* Yo what the fuck", "face_15", "susie")
 
-    Cutscene.wait(2)
-    Cutscene.setSprite(susie, "world/dark")
+        cutscene:wait(2)
+        cutscene:setSprite(susie, "")
 
-    Cutscene.alignFollowers("up")
-    Cutscene.attachFollowers()
-    Cutscene.attachCamera()
-else
-    Cutscene.text("", "face_15", "susie")
+        cutscene:alignFollowers("up")
+        cutscene:attachFollowers()
+        cutscene:attachCamera()
+    else
+        cutscene:text("", "face_15", "susie")
+    end
+
 end

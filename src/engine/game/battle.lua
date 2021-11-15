@@ -77,6 +77,8 @@ function Battle:init()
 
     self.camera = Camera(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    self.cutscene = nil
+
     self.current_selecting = 1
 
     self.turn_count = 0
@@ -1292,18 +1294,38 @@ function Battle:spawnEnemyTextbox(enemy, text)
     return textbox
 end
 
-function Battle:startActCutscene(cutscene, dont_finish)
-    self:startCutscene(cutscene, function()
+function Battle:hasCutscene()
+    return self.cutscene and not self.cutscene.ended
+end
+
+function Battle:startCutscene(group, id, ...)
+    if self.cutscene then
+        error("Attempt to start a cutscene while already in a cutscene.")
+    end
+    self.cutscene = BattleCutscene(group, id, ...)
+    return self.cutscene
+end
+
+function Battle:startActCutscene(group, id, dont_finish)
+    local action = self:getCurrentAction()
+    local cutscene
+    if type(id) ~= "string" then
+        dont_finish = id
+        cutscene = self:startCutscene(group, self.party[action.character_id], action.target)
+    else
+        cutscene = self:startCutscene(group, id, self.party[action.character_id], action.target)
+    end
+    return cutscene:after(function()
         if not dont_finish then
-            self:finishAction()
+            self:finishAction(action)
         end
-        self:setState("ACTIONS", "BATTLESCENE")
+        self:setState("ACTIONS", "CUTSCENE")
     end)
 end
 
-function Battle:startCutscene(cutscene, post_func)
+--[[function Battle:startCutscene(cutscene, post_func)
     BattleScene.start(cutscene, post_func)
-end
+end]]
 
 function Battle:createTransform()
     local transform = super:createTransform(self)
@@ -1314,6 +1336,15 @@ end
 function Battle:update(dt)
     for _,enemy in ipairs(self.enemies_to_remove) do
         Utils.removeFromTable(self.enemies, enemy)
+    end
+
+    if self.cutscene then
+        if not self.cutscene.ended then
+            self.cutscene:update(dt)
+        end
+        if self.cutscene.ended then
+            self.cutscene = nil
+        end
     end
 
     if self.state == "TRANSITION" then

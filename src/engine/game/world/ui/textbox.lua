@@ -42,15 +42,19 @@ function Textbox:init(x, y, width, height, battle_box)
 end
 
 function Textbox:update(dt)
-    if not self.battle_box or BattleScene.isActive() then
+    if not self.battle_box or Game.battle:hasCutscene() then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
             if not self:isTyping() then
                 if not self.battle_box then
                     self:remove()
-                    Cutscene.resume()
+                    if Game.world:hasCutscene() then
+                        Game.world.cutscene:resume()
+                    end
                 elseif self.text.text ~= "" then
                     self:setText("")
-                    BattleScene.resume()
+                    if Game.battle:hasCutscene() then
+                        Game.battle.cutscene:resume()
+                    end
                 end
             end
         end
