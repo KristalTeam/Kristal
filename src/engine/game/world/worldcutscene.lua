@@ -11,6 +11,8 @@ function WorldCutscene:init(group, id, ...)
     self.choicebox = nil
     self.choice = 0
 
+    self.waiting_for_text = nil
+
     self.move_targets = {}
 
     self.camera_target = nil
@@ -95,6 +97,10 @@ function WorldCutscene:getCharacter(id, index)
             end
         end
     end
+end
+
+function WorldCutscene:getMarker(name)
+    return Game.world:getMarker(name)
 end
 
 function WorldCutscene:detachFollowers()
@@ -254,6 +260,7 @@ function WorldCutscene:panTo(...)
     return waitForCameraPan
 end
 
+local function waitForTextbox(self) return self.textbox.done end
 function WorldCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
@@ -291,11 +298,17 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox:setFace(portrait, options["x"], options["y"])
     self.textbox:setText(text)
 
-    self.auto_advance = options["auto"]
+    self.textbox.auto_advance = options["auto"]
 
-    return self:pause()
+    if options["wait"] or options["wait"] == nil then
+        self.waiting_for_text = self.textbox
+        return self:pause()
+    else
+        return waitForTextbox, self.textbox
+    end
 end
 
+local function waitForChoicer(self) return self.choicebox.done, self.choicebox.current_choice end
 function WorldCutscene:choicer(choices, options)
     if self.textbox then
         self.textbox:remove()
@@ -321,7 +334,12 @@ function WorldCutscene:choicer(choices, options)
     self.choicebox.active = true
     self.choicebox.visible = true
 
-    return self:pause()
+    if options["wait"] or options["wait"] == nil then
+        self.waiting_for_text = self.choicebox
+        return self:pause()
+    else
+        return waitForChoicer, self.choicebox
+    end
 end
 
 return WorldCutscene

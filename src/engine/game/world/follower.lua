@@ -12,6 +12,16 @@ function Follower:init(chara, x, y, target)
     self.returning = false
 end
 
+function Follower:onRemove(parent)
+    self.index = nil
+    self:updateIndex()
+    if self.index then
+        table.remove(self.world.followers, self.index)
+    end
+
+    super:onRemove(self, parent)
+end
+
 function Follower:updateIndex()
     for i,v in ipairs(self.world.followers) do
         if v == self then

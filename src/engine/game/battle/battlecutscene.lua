@@ -6,6 +6,9 @@ function BattleCutscene:init(group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getBattleCutscene, group, id, ...)
 
     self.move_targets = {}
+    self.waiting_for_text = nil
+    self.waiting_for_enemy_text = nil
+
     self.last_battle_state = Game.battle.state
     Game.battle:setState("CUTSCENE")
 
@@ -145,6 +148,7 @@ function BattleCutscene:setSpeaker(actor)
     self.textbox_actor = actor
 end
 
+local function waitForEncounterText() return Game.battle.battle_ui.encounter_text:getText() == "" end
 function BattleCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
@@ -160,10 +164,16 @@ function BattleCutscene:text(text, portrait, actor, options)
     Game.battle.battle_ui.encounter_text:setText(text)
     Game.battle.battle_ui.encounter_text.auto_advance = options["auto"] or false
 
-    return self:pause()
+    if options["wait"] or options["wait"] == nil then
+        self.waiting_for_text = Game.battle.battle_ui.encounter_text
+        return self:pause()
+    else
+        return waitForEncounterText
+    end
 end
 
-function BattleCutscene:enemyText(enemies, text)
+function BattleCutscene:enemyText(enemies, text, options)
+    options = options or {}
     if type(enemies) == "string" then
         enemies = {}
         for _,battler in ipairs(Game.party.enemies) do
@@ -172,10 +182,23 @@ function BattleCutscene:enemyText(enemies, text)
     elseif isClass(enemies) then
         enemies = {enemies}
     end
+    local textboxes = {}
     for _,enemy in ipairs(enemies) do
-        Game.battle:spawnEnemyTextbox(enemy, text)
+        table.insert(textboxes, Game.battle:spawnEnemyTextbox(enemy, text))
     end
-    return self:pause()
+    if options["wait"] or options["wait"] == nil then
+        self.waiting_for_enemy_text = textboxes
+        return self:pause()
+    else
+        return function()
+            for _,textbox in ipairs(textboxes) do
+                if not textbox.done then
+                    return false
+                end
+            end
+            return true
+        end, textboxes
+    end
 end
 
 return BattleCutscene

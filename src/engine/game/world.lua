@@ -134,6 +134,11 @@ function World:keypressed(key)
     end
 end
 
+function World:getMarker(name)
+    local marker = self.markers[name]
+    return marker and marker.center_x or (self.map_width * self.tile_width/2), marker and marker.center_y or (self.map_height * self.tile_height/2)
+end
+
 function World:getCollision()
     local col = {}
     for _,collider in ipairs(self.collision) do

@@ -72,15 +72,13 @@ function EnemyTextbox:update(dt)
     if Game.battle:hasCutscene() then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
             if not self:isTyping() and self:next() then
-                local all_done = true
-                for _,enemy in ipairs(Game.battle.enemies) do
-                    if enemy.textbox then
-                        all_done = false
-                        break
+                local enemy_text = Game.battle.cutscene.waiting_for_enemy_text
+                if enemy_text and Utils.containsValue(enemy_text, self) then
+                    Utils.removeFromTable(enemy_text, self)
+                    if #enemy_text == 0 then
+                        Game.battle.cutscene.waiting_for_enemy_text = nil
+                        Game.battle.cutscene:resume()
                     end
-                end
-                if all_done then
-                    Game.battle.cutscene:resume()
                 end
             end
         end

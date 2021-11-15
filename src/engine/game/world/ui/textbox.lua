@@ -39,20 +39,24 @@ function Textbox:init(x, y, width, height, battle_box)
     self:addChild(self.text)
 
     self.auto_advance = false
+    self.done = false
 end
 
 function Textbox:update(dt)
     if not self.battle_box or Game.battle:hasCutscene() then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
             if not self:isTyping() then
+                self.done = true
                 if not self.battle_box then
                     self:remove()
-                    if Game.world:hasCutscene() then
+                    if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
+                        Game.world.cutscene.waiting_for_text = nil
                         Game.world.cutscene:resume()
                     end
                 elseif self.text.text ~= "" then
                     self:setText("")
-                    if Game.battle:hasCutscene() then
+                    if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
+                        Game.battle.cutscene.waiting_for_text = nil
                         Game.battle.cutscene:resume()
                     end
                 end
@@ -111,6 +115,10 @@ function Textbox:setText(text)
     else
         self.text:setText(text)
     end
+end
+
+function Textbox:getText()
+    return self.text.text
 end
 
 function Textbox:getBorder()

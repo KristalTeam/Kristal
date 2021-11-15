@@ -15,6 +15,8 @@ function Choicebox:init(x, y, width, height, no_background)
 
     self.current_choice = 0
 
+    self.done = false
+
     self.font = Assets.getFont("main")
 
     self.heart = Assets.getTexture("player/heart_menu")
@@ -33,10 +35,14 @@ function Choicebox:update(dt)
 
     if Input.pressed("confirm") then
         if self.current_choice ~= 0 then
+            self.done = true
             self:remove()
 
-            Game.world.cutscene.choice = self.current_choice
-            Game.world.cutscene:resume(self.current_choice)
+            if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
+                Game.world.cutscene.waiting_for_text = nil
+                Game.world.cutscene.choice = self.current_choice
+                Game.world.cutscene:resume(self.current_choice)
+            end
         end
     end
     super:update(self, dt)
