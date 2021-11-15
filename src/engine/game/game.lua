@@ -414,7 +414,7 @@ function Game:handleMovement()
     if love.keyboard.isDown("down") then walk_y = walk_y + 1 end
     if love.keyboard.isDown("up") then walk_y = walk_y - 1 end
 
-    self.world.player:walk(walk_x, walk_y, love.keyboard.isDown("lshift") or love.keyboard.isDown("x"))
+    self.world.player:walk(walk_x, walk_y, Input.down("cancel"))
 
     if self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
         self.world.camera.x = Utils.approach(self.world.camera.x, self.world.player.x, 12 * DTMULT)
