@@ -9,6 +9,7 @@ function World:init(map)
         ["objects"]       = 0,
         ["soul"]          = 200,
         ["bullets"]       = 300,
+        ["ui"]            = 1000
     }
 
 
@@ -84,6 +85,7 @@ function World:openMenu()
     if not self.light then
         self:showHealthBars()
         self.menu = DarkMenu()
+        self.menu.layer = self.layers["ui"]
         self:addChild(self.menu)
     else
         error("TODO: Light world menu")
@@ -107,6 +109,7 @@ function World:showHealthBars()
     end
 
     self.healthbar = HealthBar()
+    self.healthbar.layer = self.layers["ui"]
     self:addChild(self.healthbar)
 end
 
