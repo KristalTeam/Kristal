@@ -17,6 +17,14 @@ return {
         cutscene:text("* She forgot to poke holes in it!\nThe hot dog exploded!")
         -- Note: the following isn't part of the original act, it's here for testing battle cutscenes!
         cutscene:enemyText(enemy, "Dumbass")
+        cutscene:gotoCutscene("virovirokun", "sussy")
         cutscene:text("* I, uh, meant to do that.", "face_3", "susie")
+    end,
+
+    sussy = function(cutscene)
+        local text = {"* SUSSY", "* SUS", "* IMPOSTOR", "* AMONG US"}
+        for i = 1, 15 do
+            cutscene:text("[speed:2]"..Utils.pick(text), "face_17", "susie", {auto = true})
+        end
     end,
 }

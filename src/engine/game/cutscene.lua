@@ -7,7 +7,6 @@ function Cutscene:init(func, ...)
     self.paused = false
     self.ended = false
 
-    self.getter = nil
     self.coroutine = coroutine.create(func)
 
     self.finished_callback = nil
@@ -131,7 +130,8 @@ end
 
 function Cutscene:gotoCutscene(func, ...)
     if self.getter then
-        return self:parseFromGetter(self.getter, func, ...)
+        local new_func, args = self:parseFromGetter(self.getter, func, ...)
+        return new_func(self, unpack(args))
     else
         return func(self, ...)
     end

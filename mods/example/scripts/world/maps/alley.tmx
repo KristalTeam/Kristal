@@ -83,7 +83,7 @@
     <property name="progress" value="-0.1"/>
    </properties>
   </object>
-  <object id="84" name="interactscript" x="80" y="200" width="40" height="40">
+  <object id="84" name="interactscript" x="80" y="200" width="81" height="40">
    <properties>
     <property name="script" value="test"/>
    </properties>
