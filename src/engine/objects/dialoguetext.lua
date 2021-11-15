@@ -127,7 +127,8 @@ function DialogueText:processModifier(node)
             self.state.waiting = tonumber(delay:sub(1, -2))
             self.state.typed_characters = self.state.typed_characters + 1
         else
-            self.state.waiting = tonumber(delay:sub(1, -2)) / 30
+            self.state.waiting = tonumber(delay:sub(1, -1)) / 30
+            self.state.typed_characters = self.state.typed_characters + 1
         end
     elseif node.command == "voice" then
         if node.arguments[1] == "reset" then
