@@ -318,7 +318,7 @@ function WorldCutscene:choicer(choices, options)
     if self.choicebox then self.choicebox:remove() end
 
     self.choicebox = Choicebox(56, 344, 529, 103)
-    self.textbox.layer = Game.world.layers["ui"]
+    self.choicebox.layer = Game.world.layers["ui"]
     Game.stage:addChild(self.choicebox)
 
     for _,choice in ipairs(choices) do
