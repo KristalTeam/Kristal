@@ -91,7 +91,9 @@ end
 function World:closeMenu()
     self.state = "GAMEPLAY"
     if self.menu then
-        self.menu:transitionOut()
+        if not self.menu.animate_out then
+            self.menu:transitionOut()
+        end
     end
     self:hideHealthBars()
 end
@@ -108,7 +110,9 @@ end
 
 function World:hideHealthBars()
     if self.healthbar then
-        self.healthbar:transitionOut()
+        if not self.healthbar.animate_out then
+            self.healthbar:transitionOut()
+        end
     end
 end
 

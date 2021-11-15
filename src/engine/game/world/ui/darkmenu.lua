@@ -47,13 +47,12 @@ function DarkMenu:transitionOut()
 end
 
 function DarkMenu:keypressed(key)
-    if not self.animation_done then return end
-    if Input.isMenu(key) then
-        if self.state == "MAIN" then
-            Game.world:closeMenu()
-        end
+    if Input.isMenu(key) and self.state == "MAIN" then
+        Game.world:closeMenu()
         return
     end
+
+    if not self.animation_done then return end
 
     if self.state == "MAIN" then
         local old_selected = self.selected_submenu
