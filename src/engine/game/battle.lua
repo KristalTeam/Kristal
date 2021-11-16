@@ -1705,6 +1705,9 @@ function Battle:keypressed(key)
                 battler:hurt(99999)
             end
         end
+        if key == "k" then
+            self.tension = 250 * 2
+        end
     end
 
     if self.state == "MENUSELECT" then

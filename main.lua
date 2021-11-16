@@ -115,6 +115,7 @@ Bullet = require("src.engine.game.battle.bullet")
 GrazeSprite = require("src.engine.game.battle.grazesprite")
 ArenaSprite = require("src.engine.game.battle.arenasprite")
 ArenaMask = require("src.engine.game.battle.arenamask")
+SnowGraveSpell = require("src.engine.game.battle.snowgravespell")
 
 BattleUI = require("src.engine.game.battle.ui.battleui")
 ActionBox = require("src.engine.game.battle.ui.actionbox")
@@ -132,6 +133,7 @@ SpareZ = require("src.engine.game.effects.sparez")
 SleepMistEffect = require("src.engine.game.effects.sleepmisteffect")
 IceSpellEffect = require("src.engine.game.effects.icespelleffect")
 IceSpellBurst = require("src.engine.game.effects.icespellburst")
+SnowGraveSnowflake = require("src.engine.game.effects.snowgravesnowflake")
 
 _, LibLurker = pcall(require, "lurker")
 

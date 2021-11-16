@@ -5,8 +5,8 @@
     "chapter": 2,
 
     "map": "alley",
-    "party": ["kris", "susie", "ralsei"],
-    "inventory": ["cell_phone", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit"],
+    "party": ["kris", "susie", "noelle"],
+    "inventory": ["cellphone", "darkburger", "darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit"],
 
     "transition": false,
 
