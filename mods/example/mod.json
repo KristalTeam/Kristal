@@ -6,7 +6,7 @@
 
     "map": "alley",
     "party": ["kris", "susie", "noelle"],
-    "inventory": ["cellphone", "darkburger", "darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit"],
+    "inventory": ["cell_phone", "darkburger", "darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit"],
 
     "transition": false,
 
