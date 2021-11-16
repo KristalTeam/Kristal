@@ -13,7 +13,7 @@ end
 
 function HealItem:onWorldUse(target)
     local amount = self:getHealAmount(target.id)
-    target:heal(amount)
+    Game.world:heal(target, amount)
     return true
 end
 

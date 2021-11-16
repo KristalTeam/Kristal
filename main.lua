@@ -45,6 +45,7 @@ Explosion = require("src.engine.objects.explosion")
 AfterImage = require("src.engine.objects.afterimage")
 FakeClone = require("src.engine.objects.fakeclone")
 Rectangle = require("src.engine.objects.rectangle")
+HPText = require("src.engine.objects.hptext")
 Timer = require("src.engine.objects.timer")
 
 ModList = require("src.engine.menu.modlist")

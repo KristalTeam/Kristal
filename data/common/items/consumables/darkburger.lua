@@ -41,7 +41,11 @@ local item = HealItem{
     can_equip = {},
 
     -- Character reactions (key = party member id)
-    reactions = {},
+    reactions = {
+        susie = "Cooked to perfection!",
+        ralsei = "A bit burnt...?",
+        noelle = "I-is this real meat...?"
+    }
 }
 
 return item

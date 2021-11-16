@@ -70,9 +70,10 @@ function Item:getReactions(id)
         if type(self.reactions[id]) == "table" then
             return self.reactions[id]
         else
-            return {target_id = self.reactions[id]}
+            return {[id] = self.reactions[id]}
         end
     end
+    return {}
 end
 
 return Item

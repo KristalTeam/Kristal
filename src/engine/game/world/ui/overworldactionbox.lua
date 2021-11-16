@@ -15,12 +15,21 @@ function OverworldActionBox:init(x, y, index, chara)
     self:addChild(self.hp_sprite)
 
     self.font = Assets.getFont("smallnumbers")
+    self.main_font = Assets.getFont("main")
 
     self.selected = false
+
+    self.reaction_text = ""
+    self.reaction_alpha = 0
 end
 
 function OverworldActionBox:setHeadIcon(icon)
     self.head_sprite:setSprite(self.chara.head_icons.."/"..icon)
+end
+
+function OverworldActionBox:update(dt)
+    self.reaction_alpha = self.reaction_alpha - DTMULT
+    super:update(self, dt)
 end
 
 function OverworldActionBox:draw()
@@ -33,7 +42,6 @@ function OverworldActionBox:draw()
 
     love.graphics.setLineWidth(2)
     love.graphics.line(0, 1, 213, 1)
-
 
     -- Draw health
     love.graphics.setColor(128/255, 0, 0, 1)
@@ -54,7 +62,6 @@ function OverworldActionBox:draw()
         love.graphics.setColor(1, 1, 1, 1)
     end
 
-
     local health_offset = 0
     health_offset = (#tostring(self.chara.health) - 1) * 8
 
@@ -62,6 +69,10 @@ function OverworldActionBox:draw()
     love.graphics.print(self.chara.health, 152 - health_offset, 11)
     love.graphics.print("/", 161, 11)
     love.graphics.print(self.chara.stats.health, 181, 11)
+
+    love.graphics.setFont(self.main_font)
+    love.graphics.setColor(1, 1, 1, self.reaction_alpha / 6)
+    love.graphics.print(self.reaction_text, -1, 43, 0, 0.5, 0.5)
 
     super:draw(self)
 end

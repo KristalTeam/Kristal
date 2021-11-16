@@ -71,6 +71,20 @@ function World:init(map)
     end
 end
 
+function World:heal(target, amount)
+    target:heal(amount)
+    if self.healthbar then
+        for _, actionbox in ipairs(self.healthbar.action_boxes) do
+            if actionbox.chara.id == target.id then
+                local text = HPText("+" .. amount, self.healthbar.x + actionbox.x + 69, self.healthbar.y + actionbox.y + 15)
+                text.layer = self.layers.ui + 1
+                Game.world:addChild(text)
+                return
+            end
+        end
+    end
+end
+
 function World:openMenu()
     if self:hasCutscene() then return end
     if self.in_battle then return end

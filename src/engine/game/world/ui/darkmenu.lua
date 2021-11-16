@@ -261,6 +261,15 @@ function DarkMenu:keypressed(key)
             local result
             if not dropping then
                 result = Game.inventory[self.selected_item]:onWorldUse(Game.party[self.selected_party])
+                local reactions = Game.inventory[self.selected_item]:getReactions(Game.party[self.selected_party].id)
+                for name, reaction in pairs(reactions) do
+                    for index, chara in ipairs(Game.party) do
+                        if name == chara.id then
+                            Game.world.healthbar.action_boxes[index].reaction_alpha = 50
+                            Game.world.healthbar.action_boxes[index].reaction_text = reaction
+                        end
+                    end
+                end
             end
 
             if result == nil or result then
