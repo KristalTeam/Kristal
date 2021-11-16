@@ -238,7 +238,7 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
             on_defeat(self, amount, battler)
         elseif self.defeat_type == "run" then
             self:onDefeatRun()
-        elseif self.defeat_type == "dust" then
+        elseif self.defeat_type == "fatal" then
             self:onDefeatFatal()
         else
             self.sprite:setAnimation("defeat")
