@@ -72,6 +72,7 @@ Encounter = require("src.engine.game.scripts.encounter")
 Wave = require("src.engine.game.scripts.wave")
 
 ActorSprite = require("src.engine.game.actorsprite")
+Inventory = require("src.engine.game.inventory")
 
 Cutscene = require("src.engine.game.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")

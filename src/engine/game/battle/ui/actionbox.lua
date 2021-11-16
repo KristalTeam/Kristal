@@ -157,7 +157,7 @@ function ActionBox:select()  -- TODO: unhardcode!
         end
     elseif self.selected_button == 3 then
         Game.battle.menu_items = {}
-        for i,item in ipairs(Game.inventory) do
+        for i,item in ipairs(Game.inventory:getStorage("item")) do
             local menu_item = {
                 ["name"] = item.name,
                 ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",

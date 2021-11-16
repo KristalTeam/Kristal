@@ -38,12 +38,13 @@ function Textbox:init(x, y, width, height, battle_box)
     self.text.line_offset = 8 -- idk this is dumb
     self:addChild(self.text)
 
+    self.can_advance = not self.battle_box
     self.auto_advance = false
     self.done = false
 end
 
 function Textbox:update(dt)
-    if not self.battle_box or Game.battle:hasCutscene() then
+    if self.can_advance then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
             if not self:isTyping() then
                 self.done = true

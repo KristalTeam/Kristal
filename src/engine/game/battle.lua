@@ -975,9 +975,9 @@ function Battle:commitAction(type, target, data)
 
     if type:upper() == "ITEM" and data.data and data.data.index and data.data.item then
         if data.data.item.result_item then
-            Game.inventory[data.data.index] = Registry.getItem(data.data.item.result_item)
+            Game.inventory:replaceItem("item", data.data.item.result_item, data.data.index)
         else
-            table.remove(Game.inventory, data.data.index)
+            Game.inventory:removeItem("item", data.data.index)
         end
         data.data.item:onBattleSelect(battler, target)
     end
@@ -1043,9 +1043,9 @@ function Battle:removeAction(character_id, multi_act)
 
             if action.action == "ITEM" and action.data and action.data.index and action.data.item then
                 if action.data.item.result_item then
-                    Game.inventory[action.data.index] = action.data.item
+                    Game.inventory:replaceItem("item", action.data.item, action.data.index)
                 else
-                    table.insert(Game.inventory, action.data.index, action.data.item)
+                    Game.inventory:addItem(action.data.item, action.data.index)
                 end
                 action.data.item:onBattleDeselect(battler, action.target)
             end

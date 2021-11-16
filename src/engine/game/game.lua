@@ -22,9 +22,9 @@ function Game:enter(previous_state)
         table.insert(self.party, Registry.getPartyMember(id))
     end
 
-    self.inventory = {}
+    self.inventory = Inventory()
     for _,id in ipairs(Kristal.getModOption("inventory") or {}) do
-        table.insert(self.inventory, Registry.getItem(id))
+        self.inventory:addItem(id)
     end
 
     self.temp_followers = {}

@@ -67,6 +67,14 @@ function DarkMenu:transitionOut()
     end
 end
 
+function DarkMenu:getCurrentItemType()
+    if self.item_header_selected == 3 then
+        return "key"
+    else
+        return "item"
+    end
+end
+
 function DarkMenu:keypressed(key)
     if (Input.isMenu(key) or Input.isCancel(key)) and self.state == "MAIN" then
         Game.world:closeMenu()
@@ -164,7 +172,7 @@ function DarkMenu:keypressed(key)
         end
         if self.item_header_selected < 1 then self.item_header_selected = 3 end
         if self.item_header_selected > 3 then self.item_header_selected = 1 end
-        if Input.isConfirm(key) and (#Game.inventory > 0) then
+        if Input.isConfirm(key) and (#Game.inventory:getStorage(self:getCurrentItemType()) > 0) then
             self.ui_select:stop()
             self.ui_select:play()
             self.item_selected_x = 1
@@ -193,12 +201,13 @@ function DarkMenu:keypressed(key)
         if Input.is("down", key) then
             self.item_selected_y = self.item_selected_y + 1
         end
+        local items = Game.inventory:getStorage(self:getCurrentItemType())
         if self.item_selected_y < 1 then self.item_selected_y = 1 end
-        if (2 * (self.item_selected_y - 1) + self.item_selected_x) > #Game.inventory then
-            if (#Game.inventory % 2) ~= 0 then
-                self.item_selected_x = ((#Game.inventory - 1) % 2) + 1
+        if (2 * (self.item_selected_y - 1) + self.item_selected_x) > #items then
+            if (#items % 2) ~= 0 then
+                self.item_selected_x = ((#items - 1) % 2) + 1
             end
-            self.item_selected_y = math.floor((#Game.inventory - 1) / 2) + 1
+            self.item_selected_y = math.floor((#items - 1) / 2) + 1
         end
         self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
         if self.item_selected_y ~= old_y or self.item_selected_x ~= old_x then
@@ -207,11 +216,22 @@ function DarkMenu:keypressed(key)
         end
         if Input.isConfirm(key) then
             self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
-            local item = Game.inventory[self.selected_item]
+            local item = items[self.selected_item]
             if (item.usable_in == "world" or item.usable_in == "all") or self.item_header_selected == 2 then
-                self.state = "PARTYSELECT"
-                self:updateSelectedBoxes()
                 local dropping = (self.item_header_selected == 2)
+                if self:getCurrentItemType() ~= "key" then
+                    self.state = "PARTYSELECT"
+                    self:updateSelectedBoxes()
+                else
+                    local result = item:onWorldUse(Game.party[self.selected_party])
+                    if result then
+                        if item.result_item and (not dropping) then
+                            Game.inventory:replaceItem(items, item.result_item, self.selected_item)
+                        else
+                            Game.inventory:removeItem(items, self.selected_item)
+                        end
+                    end
+                end
                 if (not ((item.target == nil) or (item.target == "none"))) or dropping then -- yep, deltarune bug
                     self.ui_select:stop()
                     self.ui_select:play()
@@ -229,7 +249,8 @@ function DarkMenu:keypressed(key)
             self:updateSelectedBoxes()
             return
         end
-        local item = Game.inventory[self.selected_item]
+        local items = Game.inventory:getStorage(self:getCurrentItemType())
+        local item = Game.inventory:getItem(items, self.selected_item)
         local dropping = (self.item_header_selected == 2)
         local old_selected = self.selected_party
         if (not ((item.target == nil) or (item.target == "none"))) and (not dropping) then
@@ -260,8 +281,8 @@ function DarkMenu:keypressed(key)
 
             local result
             if not dropping then
-                result = Game.inventory[self.selected_item]:onWorldUse(Game.party[self.selected_party])
-                local reactions = Game.inventory[self.selected_item]:getReactions(Game.party[self.selected_party].id)
+                result = item:onWorldUse(Game.party[self.selected_party])
+                local reactions = item:getReactions(Game.party[self.selected_party].id)
                 for name, reaction in pairs(reactions) do
                     for index, chara in ipairs(Game.party) do
                         if name == chara.id then
@@ -274,11 +295,11 @@ function DarkMenu:keypressed(key)
 
             if result == nil or result then
                 if item.result_item and (not dropping) then
-                    Game.inventory[self.selected_item] = Registry.getItem(item.result_item)
+                    Game.inventory:replaceItem(items, item.result_item, self.selected_item)
                 else
-                    table.remove(Game.inventory, self.selected_item)
+                    Game.inventory:removeItem(items, self.selected_item)
                 end
-                if (self.selected_item == (#Game.inventory + 1)) then
+                if (self.selected_item == (#items + 1)) then
                     if self.item_selected_x == 2 then
                         self.item_selected_x = 1
                     else
@@ -345,7 +366,7 @@ function DarkMenu:keypressed(key)
 end
 
 function DarkMenu:updateSelectedBoxes()
-    local item = Game.inventory[self.selected_item]
+    local item = Game.inventory:getItem(self:getCurrentItemType(), self.selected_item)
     local dropping = (self.item_header_selected == 2)
     for _, actionbox in ipairs(Game.world.healthbar.action_boxes) do
         if self.state == "PARTYSELECT" and ((item.target == nil) or (item.target == "none") or dropping) then
@@ -413,10 +434,13 @@ function DarkMenu:drawStates()
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.rectangle("fill", 0, 0, 640, 80)
         love.graphics.setColor(1, 1, 1, 1)
-        if self.state == "PARTYSELECT" and self.item_header_selected == 2 then
-            love.graphics.print("Really throw away the\n" .. Game.inventory[self.selected_item].name .. "?", 20, 10)
-        elseif self.state == "ITEMSELECT" or self.state == "PARTYSELECT" then
-            love.graphics.print(Game.inventory[self.selected_item].description, 20, 10)
+        local item = Game.inventory:getItem(self:getCurrentItemType(), self.selected_item)
+        if item then
+            if self.state == "PARTYSELECT" and self.item_header_selected == 2 then
+                love.graphics.print("Really throw away the\n" .. item.name .. "?", 20, 10)
+            else
+                love.graphics.print(item.description, 20, 10)
+            end
         end
     end
     if self.state == "ITEMMENU" or self.state == "ITEMSELECT" or self.state == "PARTYSELECT" then
@@ -453,7 +477,7 @@ function DarkMenu:drawStates()
 
         local item_x = 0
         local item_y = 0
-        local inventory = Game.inventory
+        local inventory = Game.inventory:getStorage(self:getCurrentItemType())
 
         for index, item in ipairs(inventory) do
             -- Draw the item shadow

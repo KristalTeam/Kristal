@@ -26,7 +26,7 @@ return {
         for i = 1, 15 do
             cutscene:text("[speed:2]"..Utils.pick(text), "face_17", "susie", {auto = true})
         end
-        local _,wait = cutscene:enemyText(enemy, "Please shut up", {wait = false})
+        local wait = cutscene:enemyText(enemy, "Please shut up", {wait = false})
         local count = 0
         while not wait(cutscene) do
             count = count + 1
@@ -34,7 +34,7 @@ return {
             if count == 60 then
                 for _,other in ipairs(Game.battle.enemies) do
                     if other ~= enemy then
-                        _,wait = cutscene:enemyText(other, "Seriously shut up", {wait = false})
+                        wait = cutscene:enemyText(other, "Seriously shut up", {wait = false})
                     end
                 end
             end

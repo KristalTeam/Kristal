@@ -29,6 +29,9 @@ function EnemyTextbox:init(text, x, y, enemy)
     end
     self.current_text = 0
 
+    self.can_advance = false
+    self.auto_advance = false
+
     self.done = false
 
     self:next()
@@ -69,7 +72,7 @@ function EnemyTextbox:isTyping()
 end
 
 function EnemyTextbox:update(dt)
-    if Game.battle:hasCutscene() then
+    if self.can_advance then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
             if not self:isTyping() and self:next() then
                 local enemy_text = Game.battle.cutscene.waiting_for_enemy_text

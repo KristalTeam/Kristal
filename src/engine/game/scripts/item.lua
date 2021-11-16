@@ -57,6 +57,12 @@ function Item:onBattleUse(user, target) end
 function Item:onBattleSelect(user, target) end
 function Item:onBattleDeselect(user, target) end
 
+function Item:onMenuOpen(menu) end
+function Item:onMenuClose(menu) end
+
+function Item:onMenuUpdate(menu, dt) end
+function Item:onMenuDraw(menu) end
+
 function Item:getBattleText(user, target)
     return "* "..user.chara.name.." used the "..self.name:upper().."!"
 end

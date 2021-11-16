@@ -298,9 +298,15 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox:setFace(portrait, options["x"], options["y"])
     self.textbox:setText(text)
 
+    self.textbox.can_advance = options["advance"] or options["advance"] == nil
     self.textbox.auto_advance = options["auto"]
 
-    if options["wait"] or options["wait"] == nil then
+    local wait = options["wait"] or options["wait"] == nil
+    if not self.textbox.can_advance then
+        wait = options["wait"] -- By default, don't wait if the textbox can't advance
+    end
+
+    if wait then
         self.waiting_for_text = self.textbox
         return self:pause()
     else
