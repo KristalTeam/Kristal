@@ -44,7 +44,7 @@ local item = Item{
 }
 
 function item:onBattleSelect(user, target)
-    Game.battle.tension_bar:giveTension(80)
+    Game.battle.tension_bar:giveTension(32)
 
     user:flash()
 
@@ -57,7 +57,7 @@ function item:onBattleSelect(user, target)
 end
 
 function item:onBattleDeselect(user, target)
-    Game.battle.tension_bar:removeTension(80)
+    Game.battle.tension_bar:removeTension(32)
 end
 
 function item:onWorldUse(target)

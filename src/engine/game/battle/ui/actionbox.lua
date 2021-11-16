@@ -172,7 +172,7 @@ function ActionBox:select()  -- TODO: unhardcode!
     elseif self.selected_button == 4 then
         Game.battle:setState("ENEMYSELECT", "SPARE")
     elseif self.selected_button == 5 then
-        Game.battle:commitAction("DEFEND", nil, {tp = -40})
+        Game.battle:commitAction("DEFEND", nil, {tp = -16})
     end
 end
 

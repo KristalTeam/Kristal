@@ -27,6 +27,34 @@ function TensionBar:init(x, y)
 end
 
 function TensionBar:giveTension(amount)
+    return self:giveTensionExact(amount * 2.5) / 2.5
+end
+
+function TensionBar:removeTension(amount)
+    return self:removeTensionExact(amount * 2.5) / 2.5
+end
+
+function TensionBar:setTension(amount)
+    self:setTensionExact(amount * 2.5)
+end
+
+function TensionBar:getTension()
+    return Game.battle.tension / 2.5
+end
+
+function TensionBar:setMaxTension(amount)
+    Game.battle.max_tension = amount * 2.5
+end
+
+function TensionBar:getMaxTension()
+    return Game.battle.max_tension / 2.5
+end
+
+function TensionBar:setTensionPreview(amount)
+    self:setTensionPreviewExact(amount * 2.5)
+end
+
+function TensionBar:giveTensionExact(amount)
     local start = Game.battle.tension
     Game.battle.tension = Game.battle.tension + amount
     if Game.battle.tension > Game.battle.max_tension then
@@ -36,40 +64,22 @@ function TensionBar:giveTension(amount)
     return Game.battle.tension - start
 end
 
-function TensionBar:giveTensionPercent(amount)
-    local mult = Game.battle.max_tension / 100
-    return self:giveTension(amount * mult) / mult
-end
-
-function TensionBar:removeTensionPercent(amount)
-    local mult = Game.battle.max_tension / 100
-    return self:removeTension(amount * mult)
-end
-
-function TensionBar:setTensionPercent(amount)
-    local mult = Game.battle.max_tension / 100
-    self:setTension(amount * mult)
-end
-
-function TensionBar:getTensionPercent()
-    local mult = Game.battle.max_tension / 100
-    return Game.battle.tension / mult
-end
-
-function TensionBar:removeTension(amount)
+function TensionBar:removeTensionExact(amount)
+    local start = Game.battle.tension
     Game.battle.tension = Game.battle.tension - amount
     if Game.battle.tension < 0 then
         Game.battle.tension = 0
     end
     self.tension_preview = 0
+    return start - Game.battle.tension
 end
 
-function TensionBar:setTensionPreview(amount)
-    self.tension_preview = amount
-end
-
-function TensionBar:setTension(amount)
+function TensionBar:setTensionExact(amount)
     Game.battle.tension = Utils.clamp(amount, 0, Game.battle.max_tension)
+end
+
+function TensionBar:setTensionPreviewExact(amount)
+    self.tension_preview = amount
 end
 
 function TensionBar:update(dt)

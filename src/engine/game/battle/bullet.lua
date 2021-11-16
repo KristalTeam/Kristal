@@ -14,7 +14,7 @@ function Bullet:init(x, y, texture)
     self.collider = Hitbox(self, -self.width/4, -self.height/4, self.width/2, self.height/2)
 
     -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
-    self.tp = 4
+    self.tp = 1.6 -- (1/10 of a defend, or cheap spell)
     -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
     self.time_bonus = 1
 

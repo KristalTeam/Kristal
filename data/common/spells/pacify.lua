@@ -9,8 +9,8 @@ local spell = Spell{
     -- Menu description
     description = "SPARE a tired enemy by putting them to sleep.",
 
-    -- TP cost (default tp max is 250)
-    cost = 40,
+    -- TP cost
+    cost = 16,
 
     -- Target mode (party, enemy, or none/nil)
     target = "enemy",

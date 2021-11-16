@@ -9,8 +9,8 @@ local spell = Spell{
     -- Menu description
     description = "A cold mist sweeps through,\nsparing all TIRED enemies.",
 
-    -- TP cost (default tp max is 250)
-    cost = 80,
+    -- TP cost
+    cost = 32,
 
     -- Target mode (party, enemy, or none/nil)
     target = "none",

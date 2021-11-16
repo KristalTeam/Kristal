@@ -189,7 +189,7 @@ function BattleUI:drawState()
 
         if current_item.tp and current_item.tp ~= 0 then
             love.graphics.setColor(255/255, 160/255, 64/255)
-            love.graphics.print(math.floor((current_item.tp / Game.battle.max_tension) * 100) .. "% TP", 260 + 240, 50 + (tp_offset * 32))
+            love.graphics.print(math.floor((current_item.tp / Game.battle.tension_bar:getMaxTension()) * 100) .. "% TP", 260 + 240, 50 + (tp_offset * 32))
             Game.battle.tension_bar:setTensionPreview(current_item.tp)
         else
             Game.battle.tension_bar:setTensionPreview(0)

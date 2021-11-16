@@ -9,8 +9,8 @@ local spell = Spell{
     -- Menu description
     description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic.",
 
-    -- TP cost (default tp max is 250)
-    cost = 125,
+    -- TP cost
+    cost = 50,
 
     -- Target mode (party, enemy, or none/nil)
     target = "enemy",
