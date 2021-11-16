@@ -210,10 +210,12 @@ function DarkMenu:keypressed(key)
             local item = Game.inventory[self.selected_item]
             if (item.usable_in == "world" or item.usable_in == "all") or self.item_header_selected == 2 then
                 self.state = "PARTYSELECT"
-                Game.world.healthbar.action_boxes[self.selected_party].selected = true
-                Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("heart")
-                self.ui_select:stop()
-                self.ui_select:play()
+                self:updateSelectedBoxes()
+                local dropping = (self.item_header_selected == 2)
+                if (not ((item.target == nil) or (item.target == "none"))) or dropping then -- yep, deltarune bug
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                end
             else
                 self.ui_cant_select:stop()
                 self.ui_cant_select:play()
@@ -224,38 +226,32 @@ function DarkMenu:keypressed(key)
             self.ui_cancel_small:stop()
             self.ui_cancel_small:play()
             self.state = "ITEMSELECT"
-            for _, actionbox in ipairs(Game.world.healthbar.action_boxes) do
-                actionbox.selected = false
-                actionbox:setHeadIcon("head")
-            end
+            self:updateSelectedBoxes()
             return
         end
+        local item = Game.inventory[self.selected_item]
+        local dropping = (self.item_header_selected == 2)
         local old_selected = self.selected_party
-        if Input.is("left", key) then
-            self.selected_party = self.selected_party - 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-        if Input.is("right", key) then
-            self.selected_party = self.selected_party + 1
-            self.ui_move:stop()
-            self.ui_move:play()
+        if (not ((item.target == nil) or (item.target == "none"))) and (not dropping) then
+            if Input.is("left", key) then
+                self.selected_party = self.selected_party - 1
+                self.ui_move:stop()
+                self.ui_move:play()
+            end
+            if Input.is("right", key) then
+                self.selected_party = self.selected_party + 1
+                self.ui_move:stop()
+                self.ui_move:play()
+            end
         end
         if self.selected_party < 1 then self.selected_party = #Game.party end
         if self.selected_party > #Game.party then self.selected_party = 1 end
         if old_selected ~= self.selected_party then
-            for _, actionbox in ipairs(Game.world.healthbar.action_boxes) do
-                actionbox.selected = false
-                actionbox:setHeadIcon("head")
-            end
+            self:updateSelectedBoxes()
         end
-        Game.world.healthbar.action_boxes[self.selected_party].selected = true
-        Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("heart")
         if Input.isConfirm(key) then
             self.state = "ITEMSELECT"
-            Game.world.healthbar.action_boxes[self.selected_party].selected = false
-            Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("head")
-            local dropping = (self.item_header_selected == 2)
+            self:updateSelectedBoxes()
 
             if dropping then
                 self.ui_cancel_small:stop()
@@ -268,7 +264,6 @@ function DarkMenu:keypressed(key)
             end
 
             if result == nil or result then
-                local item = Game.inventory[self.selected_item]
                 if item.result_item and (not dropping) then
                     Game.inventory[self.selected_item] = Registry.getItem(item.result_item)
                 else
@@ -337,6 +332,24 @@ function DarkMenu:keypressed(key)
             self.box = nil
             self.state = "MAIN"
         end
+    end
+end
+
+function DarkMenu:updateSelectedBoxes()
+    local item = Game.inventory[self.selected_item]
+    local dropping = (self.item_header_selected == 2)
+    for _, actionbox in ipairs(Game.world.healthbar.action_boxes) do
+        if self.state == "PARTYSELECT" and ((item.target == nil) or (item.target == "none") or dropping) then
+            actionbox.selected = true
+            actionbox:setHeadIcon("heart")
+        else
+            actionbox.selected = false
+            actionbox:setHeadIcon("head")
+        end
+    end
+    if self.state == "PARTYSELECT" then
+        Game.world.healthbar.action_boxes[self.selected_party].selected = true
+        Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("heart")
     end
 end
 
