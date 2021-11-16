@@ -208,7 +208,7 @@ function DarkMenu:keypressed(key)
         if Input.isConfirm(key) then
             self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
             local item = Game.inventory[self.selected_item]
-            if item.usable_in == "world" or item.usable_in == "all" then
+            if (item.usable_in == "world" or item.usable_in == "all") or self.item_header_selected == 2 then
                 self.state = "PARTYSELECT"
                 Game.world.healthbar.action_boxes[self.selected_party].selected = true
                 Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("heart")
