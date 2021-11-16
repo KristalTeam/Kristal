@@ -237,6 +237,9 @@ function Battle:getState()
 end
 
 function Battle:onStateChange(old,new)
+    if self.encounter.beforeStateChange then
+        self.encounter:beforeStateChange(old,new)
+    end
     if new == "INTRO" then
         Assets.playSound("snd_impact", 0.7)
         Assets.playSound("snd_weaponpull_fast", 0.8)
@@ -271,10 +274,9 @@ function Battle:onStateChange(old,new)
         end
     elseif new == "ACTIONS" then
         self.battle_ui.encounter_text:setText("")
-        if self.state_reason == "DONTPROCESS" then
-            return
+        if self.state_reason ~= "DONTPROCESS" then
+            self:tryProcessNextAction()
         end
-        self:tryProcessNextAction()
     elseif new == "ENEMYSELECT" or new == "XACTENEMYSELECT" then
         self.battle_ui.encounter_text:setText("")
         self.current_menu_y = 1
@@ -429,6 +431,9 @@ function Battle:onStateChange(old,new)
                 end
             end
         end
+    end
+    if self.encounter.onStateChange then
+        self.encounter:onStateChange(old,new)
     end
 end
 
