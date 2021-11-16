@@ -134,6 +134,7 @@ SleepMistEffect = require("src.engine.game.effects.sleepmisteffect")
 IceSpellEffect = require("src.engine.game.effects.icespelleffect")
 IceSpellBurst = require("src.engine.game.effects.icespellburst")
 SnowGraveSnowflake = require("src.engine.game.effects.snowgravesnowflake")
+FatalEffect = require("src.engine.game.effects.fataleffect")
 
 _, LibLurker = pcall(require, "lurker")
 

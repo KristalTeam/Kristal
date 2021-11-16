@@ -107,10 +107,8 @@ function SnowGraveSpell:draw()
         for i, enemy in ipairs(Game.battle.enemies) do
             if enemy then
                 enemy.hit_count = 0
-                enemy.fatal = true
-                enemy:hurt(self.damage + Utils.round(math.random(100)), self.caster)
+                enemy:hurt(self.damage + Utils.round(math.random(100)), self.caster, enemy.onDefeatFatal)
                 if enemy.health > 0 then
-                    enemy.fatal = false
                     enemy:flash()
                 end
             end

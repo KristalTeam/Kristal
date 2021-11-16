@@ -21,6 +21,9 @@ function EnemyBattler:init(chara)
 
     self.spare_points = 0
 
+    -- Affects the animation thats plays when this enemy is defeatedd (run, fatal, or none/nil)
+    self.defeat_type = "run"
+
     self.done_state = nil
 
     self.waves = {}
@@ -233,29 +236,56 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
 
         if on_defeat then
             on_defeat(self, amount, battler)
+        elseif self.defeat_type == "run" then
+            self:onDefeatRun()
+        elseif self.defeat_type == "dust" then
+            self:onDefeatFatal()
         else
-            self.hurt_timer = -1
-
-            Assets.playSound("snd_defeatrun")
-
-            local sweat = Sprite("effects/defeat/sweat")
-            sweat:setOrigin(0.5, 0.5)
-            sweat:play(5/30, true)
-            sweat.layer = 100
-            self:addChild(sweat)
-
-            Game.battle.timer:after(15/30, function()
-                sweat:remove()
-                self.overlay_sprite.run_away = true
-
-                Game.battle.timer:after(15/30, function()
-                    self:remove()
-                end)
-            end)
-
-            self:defeat("VIOLENCED", true)
+            self.sprite:setAnimation("defeat")
         end
     end
+end
+
+function EnemyBattler:onDefeatRun(damage, battler)
+    self.hurt_timer = -1
+
+    Assets.playSound("snd_defeatrun")
+
+    local sweat = Sprite("effects/defeat/sweat")
+    sweat:setOrigin(0.5, 0.5)
+    sweat:play(5/30, true)
+    sweat.layer = 100
+    self:addChild(sweat)
+
+    Game.battle.timer:after(15/30, function()
+        sweat:remove()
+        self.overlay_sprite.run_away = true
+
+        Game.battle.timer:after(15/30, function()
+            self:remove()
+        end)
+    end)
+
+    self:defeat("VIOLENCED", true)
+end
+
+function EnemyBattler:onDefeatFatal(damage, battler)
+    self.hurt_timer = -1
+
+    Assets.playSound("snd_deathnoise")
+
+    self.sprite.visible = false
+    self.overlay_sprite.visible = false
+    self.overlay_sprite.shake_x = 0
+
+    local death_x, death_y = self.overlay_sprite:getRelativePos(0, 0, self)
+    local death = FatalEffect(self.overlay_sprite:getTexture(), death_x, death_y, function() self:remove() end)
+    death:setColor(self.overlay_sprite:getDrawColor())
+    death:setScale(self.overlay_sprite:getScale())
+    death.layer = 100
+    self:addChild(death)
+
+    self:defeat("KILLED", true)
 end
 
 function EnemyBattler:heal(amount)
