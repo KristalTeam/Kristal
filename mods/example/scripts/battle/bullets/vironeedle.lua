@@ -20,10 +20,11 @@ function Vironeedle:init(x, y, slow, right)
     if not right then
         self.rotation = math.pi
     end
-    self.speed = 1
-    self.friction = -0.2
+    self.physics.match_rotation = true
+    self.physics.speed = 1
+    self.physics.friction = -0.2
     if slow then
-        self.friction = self.friction + 0.05
+        self.physics.friction = -0.15
     end
 
     self.tp = 5
@@ -35,7 +36,7 @@ function Vironeedle:infect(other)
     other:remove()
     self.collidable = false
     self.infecting = true
-    self.speed = 0
+    self.physics.speed = 0
     self:setLayer(math.max(self.layer, other.layer) + 0.01)
     self:setPosition(Vector.lerp(self.x,self.y, other.x,other.y, 0.5))
     self.sprite:setSprite("bullets/viro_needle_pop")

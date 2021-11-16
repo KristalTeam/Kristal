@@ -96,8 +96,8 @@ function EnemyBattler:spare(pacify)
         self.sprite.color_mask_alpha = 1
         local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
         local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
-        img1.speed_x = 4
-        img2.speed_x = 8
+        img1.physics.speed_x = 4
+        img2.physics.speed_x = 8
         parent:addChild(img1)
         parent:addChild(img2)
         self:remove()
@@ -259,7 +259,7 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
 end
 
 function EnemyBattler:heal(amount)
-    Assets.playSound("snd_power")
+    Assets.stopAndPlaySound("snd_power")
     self.health = self.health + amount
 
     self:flash()

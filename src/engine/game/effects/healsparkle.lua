@@ -13,9 +13,9 @@ function HealSparkle:init(x, y)
 
     self.rotation = love.math.random() * math.rad(360)
 
-    self.speed_x = 2 - (love.math.random() * 2)
-    self.speed_y = -3 - (love.math.random() * 2)
-    self.friction = 0.2
+    self.physics.speed_x = 2 - (love.math.random() * 2)
+    self.physics.speed_y = -3 - (love.math.random() * 2)
+    self.physics.friction = 0.2
 
     self.alpha = 2
     self.spin = -10

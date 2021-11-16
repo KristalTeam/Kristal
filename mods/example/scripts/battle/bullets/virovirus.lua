@@ -12,9 +12,9 @@ function Virovirus:init(x, y)
     self.sprite:setOrigin(0, 0)
     self.sprite:setScale(1)
 
-    self.speed = 0.1
-    self.friction = -0.1
-    self.direction = Utils.angle(self.x, self.y, Game.battle.soul.x, Game.battle.soul.y)
+    self.physics.speed = 0.1
+    self.physics.friction = -0.1
+    self.physics.direction = Utils.angle(self.x, self.y, Game.battle.soul.x, Game.battle.soul.y)
 end
 
 return Virovirus

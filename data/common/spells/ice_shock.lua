@@ -43,9 +43,9 @@ function spell:onCast(user, target)
             for i = 0, 5 do
                 local effect = IceSpellEffect(particle.x, particle.y)
                 effect:setScale(0.75)
-                effect.direction = math.rad(60 * i)
-                effect.speed = 8
-                effect.friction = 0.2
+                effect.physics.direction = math.rad(60 * i)
+                effect.physics.speed = 8
+                effect.physics.friction = 0.2
                 effect.layer = LAYERS["above_battlers"] - 1
                 Game.battle:addChild(effect)
             end
