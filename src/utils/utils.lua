@@ -445,6 +445,11 @@ function Utils.angle(x1,y1, x2,y2)
     return math.atan2(y2 - y1, x2 - x1)
 end
 
+function Utils.angleDiff(a, b)
+    local r = a - b
+    return (r + math.pi) % (math.pi*2) - math.pi
+end
+
 function Utils.startsWith(value, prefix)
     if type(value) == "string" then
         return value:sub(1, #prefix) == prefix, value:sub(#prefix + 1)

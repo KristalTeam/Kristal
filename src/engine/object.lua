@@ -57,22 +57,39 @@ function Object:init(x, y, width, height)
         -- The speed this object moves, in the angle of its direction (pixels per frame, at 30 fps)
         speed = 0,
         direction = 0, -- right
+
         -- The amount this object should slow down (also per frame at 30 fps)
         friction = 0,
         -- The amount this object should accelerate in the gravity direction (also per frame at 30 fps)
         gravity = 0,
         gravity_direction = math.pi/2, -- down
 
+        -- The amount this object's direction rotates (per frame at 30 fps)
+        spin = 0,
+
         -- Whether direction should be based on rotation instead
         match_rotation = false,
     }
 
-    -- How fast this object fades its alpha (per frame at 30 fps)
-    self.fade_speed = 0
-    -- Target alpha to fade to
-    self.target_fade = 0
-    -- Function called after this object reaches target fade
-    self.fade_callback = nil
+    self.graphics = {
+        -- How fast this object fades its alpha (per frame at 30 fps)
+        fade = 0,
+        -- Target alpha to fade to
+        fade_to = 0,
+        -- Function called after this object reaches target fade
+        fade_callback = nil,
+
+        -- Speed at which this object gets scaled (per frame at 30 fps)
+        grow_x = 0,
+        grow_y = 0,
+        -- Speed at which this object gets scaled in each direction (per frame at 30 fps)
+        grow = 0,
+        -- Whether this object should be removed at scale <= 0
+        remove_shrunk = false,
+
+        -- Amount this object rotates (per frame at 30 fps)
+        spin = 0
+    }
 
     -- Various draw properties
     self.color = {1, 1, 1}
@@ -131,14 +148,8 @@ end
 --[[ Common overrides ]]--
 
 function Object:update(dt)
-    if self.fade_speed ~= 0 and self.alpha ~= self.target_fade then
-        self.alpha = Utils.approach(self.alpha, self.target_fade, self.fade_speed * DTMULT)
-        if self.fade_callback and self.alpha == self.target_fade then
-            self:fade_callback()
-        end
-    end
-
-    self:updatePhysics()
+    self:updatePhysicsTransform()
+    self:updateGraphicsTransform()
 
     self:updateChildren(dt)
 end
@@ -150,42 +161,6 @@ end
 function Object:onAdd(parent) end
 function Object:onRemove(parent) end
 
-function Object:updatePhysics()
-    local physics = self.physics
-
-    if not physics then return end
-
-    local direction = physics.match_rotation and self.rotation or physics.direction
-
-    if physics.gravity ~= 0 then
-        if physics.speed ~= 0 then
-            local speed_x, speed_y = math.cos(direction) * physics.speed, math.sin(direction) * physics.speed
-            local new_speed_x = speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
-            local new_speed_y = speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
-            if physics.match_rotation then
-                self.rotation = math.atan2(new_speed_y, new_speed_x)
-            else
-                physics.direction = math.atan2(new_speed_y, new_speed_x)
-            end
-            physics.speed = math.sqrt(new_speed_x*new_speed_x + new_speed_y*new_speed_y)
-        else
-            physics.speed_x = physics.speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
-            physics.speed_y = physics.speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
-        end
-    end
-
-    if physics.speed ~= 0 then
-        physics.speed = Utils.approach(physics.speed, 0, physics.friction * DTMULT)
-        self:move(math.cos(direction), math.sin(direction), physics.speed * DTMULT)
-    end
-
-    if physics.speed_x ~= 0 or physics.speed_y ~= 0 then
-        physics.speed_x = Utils.approach(physics.speed_x, 0, physics.friction * DTMULT)
-        physics.speed_y = Utils.approach(physics.speed_y, 0, physics.friction * DTMULT)
-        self:move(physics.speed_x, physics.speed_y, DTMULT)
-    end
-end
-
 --[[ Common functions ]]--
 
 function Object:move(x, y, speed)
@@ -194,15 +169,15 @@ function Object:move(x, y, speed)
 end
 
 function Object:fadeTo(target, speed, callback)
-    self.target_fade = target or 0
-    self.fade_speed = speed or 0.04
-    self.fade_callback = callback
+    self.graphics.fade = speed or 0.04
+    self.graphics.fade_to = target or 0
+    self.graphics.fade_callback = callback
 end
 
 function Object:fadeOutAndRemove(speed)
-    self.target_fade = 0
-    self.fade_speed = speed or 0.04
-    self.fade_callback = self.remove
+    self.graphics.fade = speed or 0.04
+    self.graphics.fade_to = 0
+    self.graphics.fade_callback = self.remove
 end
 
 function Object:collidesWith(other)
@@ -557,6 +532,77 @@ function Object:drawChildren()
         end
     end
     love.graphics.setColor(oldr, oldg, oldb, olda)
+end
+
+function Object:updatePhysicsTransform()
+    local physics = self.physics
+
+    if not physics then return end
+
+    local direction = physics.match_rotation and self.rotation or physics.direction
+
+    if physics.gravity ~= 0 then
+        if physics.speed ~= 0 then
+            local speed_x, speed_y = math.cos(direction) * physics.speed, math.sin(direction) * physics.speed
+            local new_speed_x = speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
+            local new_speed_y = speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
+            if physics.match_rotation then
+                self.rotation = math.atan2(new_speed_y, new_speed_x)
+            else
+                physics.direction = math.atan2(new_speed_y, new_speed_x)
+            end
+            physics.speed = math.sqrt(new_speed_x*new_speed_x + new_speed_y*new_speed_y)
+        else
+            physics.speed_x = physics.speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
+            physics.speed_y = physics.speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
+        end
+    end
+
+    if physics.spin ~= 0 then
+        if physics.match_rotation then
+            self.rotation = self.rotation + physics.spin * DTMULT
+        else
+            physics.direction = physics.direction + physics.spin * DTMULT
+        end
+    end
+
+    if physics.speed ~= 0 then
+        physics.speed = Utils.approach(physics.speed, 0, physics.friction * DTMULT)
+        self:move(math.cos(direction), math.sin(direction), physics.speed * DTMULT)
+    end
+
+    if physics.speed_x ~= 0 or physics.speed_y ~= 0 then
+        physics.speed_x = Utils.approach(physics.speed_x, 0, physics.friction * DTMULT)
+        physics.speed_y = Utils.approach(physics.speed_y, 0, physics.friction * DTMULT)
+        self:move(physics.speed_x, physics.speed_y, DTMULT)
+    end
+end
+
+function Object:updateGraphicsTransform()
+    local graphics = self.graphics
+
+    if not graphics then return end
+
+    if graphics.fade ~= 0 and self.alpha ~= graphics.fade_to then
+        self.alpha = Utils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
+        if graphics.fade_callback and self.alpha == graphics.fade_to then
+            graphics.fade_callback(self)
+        end
+    end
+
+    if graphics.grow ~= 0 or graphics.grow_x ~= 0 or graphics.grow_y ~= 0 then
+        self.scale_x = self.scale_x + (graphics.grow_x + graphics.grow) * DTMULT
+        self.scale_y = self.scale_y + (graphics.grow_y + graphics.grow) * DTMULT
+    end
+    if graphics.remove_shrunk and self.scale_x <= 0 or self.scale_y <= 0 then
+        self.scale_x = 0
+        self.scale_y = 0
+        self:remove()
+    end
+
+    if graphics.spin ~= 0 then
+        self.rotation = self.rotation + graphics.spin * DTMULT
+    end
 end
 
 return Object
