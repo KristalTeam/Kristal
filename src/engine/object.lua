@@ -50,13 +50,22 @@ function Object:init(x, y, width, height)
     self.width = width or 0
     self.height = height or 0
 
-    -- The speed this object moves (pixels per frame, at 30 fps)
-    self.speed_x = 0
-    self.speed_y = 0
-    -- The amount this object should slow down (also per frame at 30 fps)
-    self.friction = 0
-    -- The amount this object should accelerate downwards (also per frame at 30 fps)
-    self.gravity = 0
+    self.physics = {
+        -- The speed this object moves (pixels per frame, at 30 fps)
+        speed_x = 0,
+        speed_y = 0,
+        -- The speed this object moves, in the angle of its direction (pixels per frame, at 30 fps)
+        speed = 0,
+        direction = 0, -- right
+        -- The amount this object should slow down (also per frame at 30 fps)
+        friction = 0,
+        -- The amount this object should accelerate in the gravity direction (also per frame at 30 fps)
+        gravity = 0,
+        gravity_direction = math.pi/2, -- down
+
+        -- Whether direction should be based on rotation instead
+        match_rotation = false,
+    }
 
     -- How fast this object fades its alpha (per frame at 30 fps)
     self.fade_speed = 0
@@ -122,19 +131,14 @@ end
 --[[ Common overrides ]]--
 
 function Object:update(dt)
-    self.speed_y = self.speed_y + self.gravity * DTMULT
-    if self.speed_x ~= 0 or self.speed_y ~= 0 then
-        self.speed_x = Utils.approach(self.speed_x, 0, self.friction * DTMULT)
-        self.speed_y = Utils.approach(self.speed_y, 0, self.friction * DTMULT)
-        self:move(self.speed_x, self.speed_y, DTMULT)
-    end
-
     if self.fade_speed ~= 0 and self.alpha ~= self.target_fade then
         self.alpha = Utils.approach(self.alpha, self.target_fade, self.fade_speed * DTMULT)
         if self.fade_callback and self.alpha == self.target_fade then
             self:fade_callback()
         end
     end
+
+    self:updatePhysics()
 
     self:updateChildren(dt)
 end
@@ -145,6 +149,42 @@ end
 
 function Object:onAdd(parent) end
 function Object:onRemove(parent) end
+
+function Object:updatePhysics()
+    local physics = self.physics
+
+    if not physics then return end
+
+    local direction = physics.match_rotation and self.rotation or physics.direction
+
+    if physics.gravity ~= 0 then
+        if physics.speed ~= 0 then
+            local speed_x, speed_y = math.cos(direction) * physics.speed, math.sin(direction) * physics.speed
+            local new_speed_x = speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
+            local new_speed_y = speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
+            if physics.match_rotation then
+                self.rotation = math.atan2(new_speed_y, new_speed_x)
+            else
+                physics.direction = math.atan2(new_speed_y, new_speed_x)
+            end
+            physics.speed = math.sqrt(new_speed_x*new_speed_x + new_speed_y*new_speed_y)
+        else
+            physics.speed_x = physics.speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
+            physics.speed_y = physics.speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
+        end
+    end
+
+    if physics.speed ~= 0 then
+        physics.speed = Utils.approach(physics.speed, 0, physics.friction * DTMULT)
+        self:move(math.cos(direction), math.sin(direction), physics.speed * DTMULT)
+    end
+
+    if physics.speed_x ~= 0 or physics.speed_y ~= 0 then
+        physics.speed_x = Utils.approach(physics.speed_x, 0, physics.friction * DTMULT)
+        physics.speed_y = Utils.approach(physics.speed_y, 0, physics.friction * DTMULT)
+        self:move(physics.speed_x, physics.speed_y, DTMULT)
+    end
+end
 
 --[[ Common functions ]]--
 
@@ -178,9 +218,6 @@ end
 
 function Object:setPosition(x, y) self.x = x or 0; self.y = y or 0 end
 function Object:getPosition() return self.x, self.y end
-
-function Object:setSpeed(x, y) self.speed_x = x or 0; self.speed_y = y or x or 0 end
-function Object:getSpeed() return self.speed_x, self.speed_y end
 
 function Object:setSize(width, height) self.width = width or 0; self.height = height or width or 0 end
 function Object:getSize() return self.width, self.height end
@@ -225,6 +262,36 @@ function Object:setCutout(left, top, right, bottom)
 end
 function Object:getCutout()
     return self.cutout_left, self.cutout_top, self.cutout_right, self.cutout_bottom
+end
+
+function Object:setSpeed(x, y)
+    if x and y then
+        self.physics.speed = 0
+        self.physics.speed_x = x
+        self.physics.speed_y = y
+    else
+        self.physics.speed = x or 0
+        self.physics.speed_x = 0
+        self.physics.speed_y = 0
+    end
+end
+function Object:getSpeed()
+    if self.speed ~= 0 then
+        return self.speed
+    else
+        return self.speed_x, self.speed_y
+    end
+end
+
+function Object:setDirection(dir)
+    if self.physics.match_rotation then
+        self.rotation = dir
+    else
+        self.physics.direction = dir
+    end
+end
+function Object:getDirection()
+    return self.physics.match_rotation and self.rotation or self.physics.direction
 end
 
 function Object:getHitbox()

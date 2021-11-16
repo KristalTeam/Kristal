@@ -11,8 +11,8 @@ function SpareSparkle:init(x, y)
 
     self:fadeOutAndRemove(0.1)
 
-    self.speed_x = -3
-    self.friction = 0.05
+    self.physics.speed_x = -3
+    self.physics.friction = 0.05
 
     self.alpha = 2
     self.spin = 10

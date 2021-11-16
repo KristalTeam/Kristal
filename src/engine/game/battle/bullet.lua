@@ -13,11 +13,6 @@ function Bullet:init(x, y, texture)
     -- Default collider to half this object's size
     self.collider = Hitbox(self, -self.width/4, -self.height/4, self.width/2, self.height/2)
 
-    -- Move direction (defaults to rotation)
-    self.direction = nil
-    -- Speed in the current move direction
-    self.speed = 0
-
     -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
     self.tp = 4
     -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
@@ -82,22 +77,11 @@ function Bullet:setSprite(texture, speed, loop, on_finished)
     end
 end
 
-function Bullet:getDirection()
-    return self.direction or self.rotation
-end
-
 function Bullet:isBullet(id)
     return self:includes(Registry.getBullet(id))
 end
 
 function Bullet:update(dt)
-    if self.speed ~= 0 then
-        self.speed = Utils.approach(self.speed, 0, self.friction * DTMULT)
-
-        local dir = self:getDirection()
-        self:move(math.cos(dir), math.sin(dir), self.speed * DTMULT)
-    end
-
     super:update(self, dt)
 
     if self.remove_offscreen then

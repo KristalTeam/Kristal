@@ -126,11 +126,10 @@ function Game:updateGameOver(dt)
             local x_pos = x_position_table[((i - 1) % #x_position_table) + 1]
             local y_pos = y_position_table[((i - 1) % #y_position_table) + 1]
             local shard = Sprite("player/heart_shard", self.soul.x + x_pos, self.soul.y + y_pos)
-            local direction = Utils.random(360)
             shard:setColor(self.soul:getColor())
-            shard.speed_x = math.cos(direction) * 7
-            shard.speed_y = math.sin(direction) * 7
-            shard.gravity = 0.2
+            shard.physics.direction = math.rad(Utils.random(360))
+            shard.physics.speed = 7
+            shard.physics.gravity = 0.2
             shard:play(5/30)
             table.insert(self.shards, shard)
             self.stage:addChild(shard)

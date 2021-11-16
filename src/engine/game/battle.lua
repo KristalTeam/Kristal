@@ -342,8 +342,8 @@ function Battle:onStateChange(old,new)
         end
     elseif new == "VICTORY" then
         self.tension_bar.animating_in = false
-        self.tension_bar.speed_x = -10
-        self.tension_bar.friction = -0.4
+        self.tension_bar.physics.speed_x = -10
+        self.tension_bar.physics.friction = -0.4
         for _,battler in ipairs(self.party) do
             battler:setAnimation("battle/victory")
 
@@ -704,8 +704,8 @@ function Battle:processAction(action)
                 sparkle:play(4/30, true)
                 sparkle:setScale(2)
                 sparkle.layer = LAYERS["above_battlers"]
-                sparkle.speed_x = Utils.random(2, 6)
-                sparkle.friction = -0.25
+                sparkle.physics.speed_x = Utils.random(2, 6)
+                sparkle.physics.friction = -0.25
                 sparkle:fadeOutAndRemove()
                 self:addChild(sparkle)
             end
@@ -750,7 +750,7 @@ function Battle:processAction(action)
                 enemy.parent:addChild(dmg_sprite)
 
                 --enemy:hurt(battler.chara.stats.attack, battler)
-                Assets.playSound("snd_damage")
+                Assets.stopAndPlaySound("snd_damage")
                 enemy:hurt(damage, battler)
 
                 battler.chara:onAttackHit(enemy, damage)

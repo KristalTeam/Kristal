@@ -7,22 +7,16 @@ function IceSpellEffect:init(x, y, hexagon)
     self:setScale(1.5)
 
     self.rotation_speed = 4
-    self.direction = 0
 
-    self.speed = 0
+    self.physics.direction = 0
+    self.physics.speed = 0
 
     self.timer = 0
 end
 
 function IceSpellEffect:update(dt)
     self.rotation = self.rotation + math.rad(self.rotation_speed * 2) * DTMULT
-    self.direction = self.direction + math.rad(self.rotation_speed * 3) * DTMULT
-
-    if self.speed > 0 then
-        self.speed = Utils.approach(self.speed, 0, self.friction * DTMULT)
-
-        self:move(math.cos(self.direction), math.sin(self.direction), self.speed * DTMULT)
-    end
+    self.physics.direction = self.physics.direction + math.rad(self.rotation_speed * 3) * DTMULT
 
     self.timer = self.timer + DTMULT
     if self.timer >= 10 then

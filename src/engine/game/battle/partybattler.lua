@@ -100,7 +100,7 @@ function PartyBattler:flash()
 end
 
 function PartyBattler:heal(amount)
-    Assets.playSound("snd_power")
+    Assets.stopAndPlaySound("snd_power")
 
     self.chara.health = self.chara.health + amount
 
@@ -147,8 +147,8 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
 
     local afterimage1 = AfterImage(self, 0.5)
     local afterimage2 = AfterImage(self, 0.6)
-    afterimage1.speed_x = 2.5
-    afterimage2.speed_x = 5
+    afterimage1.physics.speed_x = 2.5
+    afterimage2.physics.speed_x = 5
 
     afterimage2.layer = afterimage1.layer - 1
 

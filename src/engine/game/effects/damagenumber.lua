@@ -57,8 +57,8 @@ function DamageNumber:init(type, arg, x, y, color)
     self.start_x = nil
     self.start_y = nil
 
-    self.speed_x = 0
-    self.speed_y = 0
+    self.physics.speed_x = 0
+    self.physics.speed_y = 0
     self.start_speed_y = 0
 
     self.kill_timer = 0
@@ -97,25 +97,25 @@ function DamageNumber:update(dt)
 
     if (self.timer >= self.delay) and (not self.do_once) then
         self.do_once = true
-        self.speed_x = 10
-        self.speed_y = (-5 - (love.math.random() * 2))
-        self.start_speed_y = self.speed_y
+        self.physics.speed_x = 10
+        self.physics.speed_y = (-5 - (love.math.random() * 2))
+        self.start_speed_y = self.physics.speed_y
     end
 
     if self.timer >= self.delay then
-        self.speed_x = Utils.approach(self.speed_x, 0, DTMULT)
+        self.physics.speed_x = Utils.approach(self.physics.speed_x, 0, DTMULT)
 
         if self.bounces < 2 then
-            self.speed_y = self.speed_y + DTMULT
+            self.physics.speed_y = self.physics.speed_y + DTMULT
         end
         if (self.y > self.start_y) and (not self.killing) then
             self.y = self.start_y
 
-            self.speed_y = self.start_speed_y / 2
+            self.physics.speed_y = self.start_speed_y / 2
             self.bounces = self.bounces + 1
         end
         if (self.bounces >= 2) and (not self.killing) then
-            self.speed_y = 0
+            self.physics.speed_y = 0
             self.y = self.start_y
         end
 
