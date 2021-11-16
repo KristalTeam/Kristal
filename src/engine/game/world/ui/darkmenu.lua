@@ -14,17 +14,27 @@ function DarkMenu:init()
 
     self.selected_submenu = 1
 
+    self.item_header_selected = 1
     self.equip_selected = 1
     self.power_selected = 1
+
+    self.item_selected_x = 1
+    self.item_selected_y = 1
+
+    self.selected_party = 1
+
+    self.selected_item = 1
 
     -- States: MAIN, ITEMMENU, ITEMSELECT, KEYSELECT, PARTYSELECT,
     -- EQUIPMENU, WEAPONSELECT, REPLACEMENTSELECT, POWERMENU, SPELLSELECT,
     -- CONFIGMENU, VOLUMESELECT, CONTROLSMENU, CONTROLSELECT
     self.state = "MAIN"
+    self.state_reason = nil
     self.heart_sprite = Assets.getTexture("player/heart")
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
+    self.ui_cant_select = Assets.newSound("ui_cant_select")
     self.ui_cancel_small = Assets.newSound("ui_cancel_small")
 
     self.font = Assets.getFont("main")
@@ -50,6 +60,11 @@ function DarkMenu:transitionOut()
     self.animate_out = true
     self.animation_timer = 0
     self.animation_done = false
+
+    self.state = "MAIN"
+    if self.box then
+        self.box:remove()
+    end
 end
 
 function DarkMenu:keypressed(key)
@@ -137,7 +152,142 @@ function DarkMenu:keypressed(key)
             self.state = "MAIN"
             return
         end
+        if Input.is("left", key) then
+            self.item_header_selected = self.item_header_selected - 1
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+        if Input.is("right", key) then
+            self.item_header_selected = self.item_header_selected + 1
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+        if self.item_header_selected < 1 then self.item_header_selected = 3 end
+        if self.item_header_selected > 3 then self.item_header_selected = 1 end
+        if Input.isConfirm(key) and (#Game.inventory > 0) then
+            self.ui_select:stop()
+            self.ui_select:play()
+            self.item_selected_x = 1
+            self.item_selected_y = 1
+            self.selected_item = 1
+            self.state = "ITEMSELECT"
+        end
+    elseif self.state == "ITEMSELECT" then
+        if Input.isCancel(key) then
+            self.ui_cancel_small:stop()
+            self.ui_cancel_small:play()
+            self.state = "ITEMMENU"
+            return
+        end
+        local old_x, old_y = self.item_selected_x, self.item_selected_y
+        if Input.is("left", key) or Input.is("right", key) then
+            if self.item_selected_x == 1 then
+                self.item_selected_x = 2
+            else
+                self.item_selected_x = 1
+            end
+        end
+        if Input.is("up", key) then
+            self.item_selected_y = self.item_selected_y - 1
+        end
+        if Input.is("down", key) then
+            self.item_selected_y = self.item_selected_y + 1
+        end
+        if self.item_selected_y < 1 then self.item_selected_y = 1 end
+        if (2 * (self.item_selected_y - 1) + self.item_selected_x) > #Game.inventory then
+            if (#Game.inventory % 2) ~= 0 then
+                self.item_selected_x = ((#Game.inventory - 1) % 2) + 1
+            end
+            self.item_selected_y = math.floor((#Game.inventory - 1) / 2) + 1
+        end
+        self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
+        if self.item_selected_y ~= old_y or self.item_selected_x ~= old_x then
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+        if Input.isConfirm(key) then
+            self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
+            local item = Game.inventory[self.selected_item]
+            if item.usable_in == "world" or item.usable_in == "all" then
+                self.state = "PARTYSELECT"
+                Game.world.healthbar.action_boxes[self.selected_party].selected = true
+                Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("heart")
+                self.ui_select:stop()
+                self.ui_select:play()
+            else
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
+            end
+        end
+    elseif self.state == "PARTYSELECT" then
+        if Input.isCancel(key) then
+            self.ui_cancel_small:stop()
+            self.ui_cancel_small:play()
+            self.state = "ITEMSELECT"
+            for _, actionbox in ipairs(Game.world.healthbar.action_boxes) do
+                actionbox.selected = false
+                actionbox:setHeadIcon("head")
+            end
+            return
+        end
+        local old_selected = self.selected_party
+        if Input.is("left", key) then
+            self.selected_party = self.selected_party - 1
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+        if Input.is("right", key) then
+            self.selected_party = self.selected_party + 1
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+        if self.selected_party < 1 then self.selected_party = #Game.party end
+        if self.selected_party > #Game.party then self.selected_party = 1 end
+        if old_selected ~= self.selected_party then
+            for _, actionbox in ipairs(Game.world.healthbar.action_boxes) do
+                actionbox.selected = false
+                actionbox:setHeadIcon("head")
+            end
+        end
+        Game.world.healthbar.action_boxes[self.selected_party].selected = true
+        Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("heart")
+        if Input.isConfirm(key) then
+            self.state = "ITEMSELECT"
+            Game.world.healthbar.action_boxes[self.selected_party].selected = false
+            Game.world.healthbar.action_boxes[self.selected_party]:setHeadIcon("head")
+            local dropping = (self.item_header_selected == 2)
 
+            if dropping then
+                self.ui_cancel_small:stop()
+                self.ui_cancel_small:play()
+            end
+
+            local result
+            if not dropping then
+                result = Game.inventory[self.selected_item]:onWorldUse(Game.party[self.selected_party])
+            end
+
+            if result == nil or result then
+                local item = Game.inventory[self.selected_item]
+                if item.result_item and (not dropping) then
+                    Game.inventory[self.selected_item] = Registry.getItem(item.result_item)
+                else
+                    table.remove(Game.inventory, self.selected_item)
+                end
+                if (self.selected_item == (#Game.inventory + 1)) then
+                    if self.item_selected_x == 2 then
+                        self.item_selected_x = 1
+                    else
+                        self.item_selected_x = 2
+                        self.item_selected_y = self.item_selected_y - 1
+                        if self.item_selected_y < 1 then
+                            self.state = "ITEMMENU"
+                        end
+                    end
+                    self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
+                end
+            end
+        end
     elseif self.state == "EQUIPMENU" then
         if Input.isCancel(key) then
             self.ui_cancel_small:stop()
@@ -237,7 +387,75 @@ function DarkMenu:draw()
 end
 
 function DarkMenu:drawStates()
-    if self.state == "EQUIPMENU" then
+    if self.state == "ITEMSELECT" or self.state == "PARTYSELECT" then
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("fill", 0, 0, 640, 80)
+        love.graphics.setColor(1, 1, 1, 1)
+        if self.state == "PARTYSELECT" and self.item_header_selected == 2 then
+            love.graphics.print("Really throw away the\n" .. Game.inventory[self.selected_item].name .. "?", 20, 10)
+        elseif self.state == "ITEMSELECT" or self.state == "PARTYSELECT" then
+            love.graphics.print(Game.inventory[self.selected_item].description, 20, 10)
+        end
+    end
+    if self.state == "ITEMMENU" or self.state == "ITEMSELECT" or self.state == "PARTYSELECT" then
+
+        if self.state == "ITEMSELECT" or self.state == "PARTYSELECT" then
+            if self.item_header_selected == 1 then love.graphics.setColor(255/255, 160/255, 64/255) else love.graphics.setColor(128/255, 128/255, 128/255) end
+            love.graphics.print("USE",  180, 110)
+            if self.item_header_selected == 2 then love.graphics.setColor(255/255, 160/255, 64/255) else love.graphics.setColor(128/255, 128/255, 128/255) end
+            love.graphics.print("TOSS", 300, 110)
+            if self.item_header_selected == 3 then love.graphics.setColor(255/255, 160/255, 64/255) else love.graphics.setColor(128/255, 128/255, 128/255) end
+            love.graphics.print("KEY",  420, 110)
+        else
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print("USE",  180, 110)
+            love.graphics.print("TOSS", 300, 110)
+            love.graphics.print("KEY",  420, 110)
+        end
+
+        local heart_x = 20
+        local heart_y = 20
+
+        if self.state == "ITEMMENU" then
+            local heart_x_choices = {155, 275, 395}
+            heart_x = heart_x_choices[self.item_header_selected]
+            heart_y = 120
+        elseif self.state == "ITEMSELECT" then
+            heart_x = 120 + (self.item_selected_x - 1) * 210
+            heart_y = 162 + (self.item_selected_y - 1) * 30
+        end
+        if self.state ~= "PARTYSELECT" then
+            love.graphics.setColor(1, 0, 0, 1)
+            love.graphics.draw(self.heart_sprite, heart_x, heart_y)
+        end
+
+        local item_x = 0
+        local item_y = 0
+        local inventory = Game.inventory
+
+        for index, item in ipairs(inventory) do
+            -- Draw the item shadow
+            love.graphics.setColor(51/255, 32/255, 51/255, 1)
+            love.graphics.print(item.name, 146 + (item_x * 210) + 2, 152 + (item_y * 30) + 2)
+
+            if self.state == "ITEMMENU" then
+                love.graphics.setColor(128/255, 128/255, 128/255, 1)
+            else
+                if item.usable_in == "world" or item.usable_in == "all" then
+                    love.graphics.setColor(1, 1, 1, 1)
+                else
+                    love.graphics.setColor(192/255, 192/255, 192/255, 1)
+                end
+            end
+            love.graphics.print(item.name, 146 + (item_x * 210), 152 + (item_y * 30))
+            item_x = item_x + 1
+            if item_x >= 2 then
+                item_x = 0
+                item_y = item_y + 1
+            end
+        end
+
+    elseif self.state == "EQUIPMENU" then
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", 270, 88,  6,   139)
         love.graphics.rectangle("fill", 58,  221, 58,  6)

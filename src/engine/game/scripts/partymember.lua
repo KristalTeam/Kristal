@@ -90,6 +90,13 @@ function PartyMember:init(o)
     end
 end
 
+function PartyMember:heal(amount, playsound)
+    if playsound == nil or playsound then
+        Assets.playSound("snd_power")
+    end
+    self.health = math.min(self.stats.health, self.health + amount)
+end
+
 function PartyMember:onAttackHit(enemy, damage) end
 
 function PartyMember:onLevelUp(level) end

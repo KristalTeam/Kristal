@@ -12,8 +12,9 @@ function HealItem:getHealAmount(id)
 end
 
 function HealItem:onWorldUse(target)
-    -- TODO: World healing
-    return false
+    local amount = self:getHealAmount(target.id)
+    target:heal(amount)
+    return true
 end
 
 function HealItem:onBattleUse(user, target)

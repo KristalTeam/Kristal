@@ -122,6 +122,16 @@ function World:hideHealthBars()
 end
 
 function World:keypressed(key)
+    if key == "m" then
+        if self.music then
+            if self.music:isPlaying() then
+                self.music:pause()
+            else
+                self.music:resume()
+            end
+        end
+    end
+
     if Game.lock_input then return end
 
     if self.state == "GAMEPLAY" then

@@ -16,7 +16,7 @@ function OverworldActionBox:init(x, y, index, chara)
 
     self.font = Assets.getFont("smallnumbers")
 
-    self.usecolor = false
+    self.selected = false
 end
 
 function OverworldActionBox:setHeadIcon(icon)
@@ -25,7 +25,7 @@ end
 
 function OverworldActionBox:draw()
     -- Draw the line at the top
-    if self.usecolor then
+    if self.selected then
         love.graphics.setColor(self.chara.color)
     else
         love.graphics.setColor(51/255, 32/255, 51/255, 1)

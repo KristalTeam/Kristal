@@ -131,6 +131,8 @@ SleepMistEffect = require("src.engine.game.effects.sleepmisteffect")
 IceSpellEffect = require("src.engine.game.effects.icespelleffect")
 IceSpellBurst = require("src.engine.game.effects.icespellburst")
 
+_, LibLurker = pcall(require, "lurker")
+
 local load_in_channel
 local load_out_channel
 local load_thread
@@ -297,6 +299,11 @@ function love.keypressed(key)
         PERFORMANCE_TEST_STAGE = "UPDATE"
     elseif key == "f6" then
         DEBUG_RENDER = not DEBUG_RENDER
+    elseif key == "f8" then
+        if LibLurker then
+            print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
+            LibLurker.scan()
+        end
     elseif key == "r" and love.keyboard.isDown("lctrl") then
         if Kristal.getModOption("quickReload") then
             Kristal.quickReload()
