@@ -252,13 +252,54 @@ function World:getActorForParty(chara)
     return self.light and chara.lw_actor or chara.actor
 end
 
-function World:spawnFollower(chara, x, y)
+function World:removeFollower(chara)
     if type(chara) == "string" then
         chara = Registry.getActor(chara)
     end
-    local follower = Follower(chara, x or self.player.x, y or self.player.y)
-    follower.layer = self.layers["objects"]
-    table.insert(self.followers, follower)
+    local follower_arg = isClass(chara) and chara:includes(Follower)
+    for i,follower in ipairs(self.followers) do
+        if (follower_arg and follower == chara) or (not follower_arg and follower.actor == chara) then
+            table.remove(self.followers, i)
+            for j,temp in ipairs(Game.temp_followers) do
+                if temp == follower.actor.id or (type(temp) == "table" and temp[1] == follower.actor.id) then
+                    table.remove(Game.temp_followers, j)
+                    break
+                end
+            end
+            return follower
+        end
+    end
+end
+
+function World:addFollower(chara, options)
+    if type(chara) == "string" then
+        chara = Registry.getActor(chara)
+    end
+    options = options or {}
+    local follower
+    if isClass(chara) and chara:includes(Follower) then
+        follower = chara
+    else
+        follower = Follower(chara, self.player.x, self.player.y)
+        follower.layer = self.layers["objects"]
+        follower:setFacing(self.player.facing)
+    end
+    if options["x"] or options["y"] then
+        local ex, ey = follower:getExactPosition()
+        follower:setExactPosition(options["x"] or ex, options["y"] or ey)
+    end
+    if options["index"] then
+        table.insert(self.followers, options["index"], follower)
+    else
+        table.insert(self.followers, follower)
+    end
+    if options["temp"] == false then
+        if options["index"] then
+            table.insert(Game.temp_followers, {follower.actor.id, options["index"]})
+        else
+            table.insert(Game.temp_followers, follower.actor.id)
+        end
+    end
     self:addChild(follower)
     return follower
 end
@@ -272,12 +313,15 @@ function World:spawnParty(marker, party, extra)
             self:spawnPlayer(marker or "spawn", self:getActorForParty(party[1]))
         end
         for i = 2, #party do
-            local follower = self:spawnFollower(self:getActorForParty(party[i]))
+            local follower = self:addFollower(self:getActorForParty(party[i]))
             follower:setFacing(self.player.facing)
         end
         for _,actor in ipairs(extra or Game.temp_followers or {}) do
-            local follower = self:spawnFollower(actor)
-            follower:setFacing(self.player.facing)
+            if type(actor) == "table" then
+                self:addFollower(actor[1], {index = actor[2]})
+            else
+                self:addFollower(actor)
+            end
         end
     end
 end
@@ -569,7 +613,7 @@ function World:loadObject(name, data)
     elseif name:lower() == "transition" then
         return Transition(data)
     elseif name:lower() == "npc" then
-        return NPC(data)
+        return NPC(data.properties["actor"], data.center_x, data.center_y, data.properties)
     elseif name:lower() == "enemy" then
         return ChaserEnemy(data.properties["actor"], data.center_x, data.center_y, data)
     elseif name:lower() == "outline" then

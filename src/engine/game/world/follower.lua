@@ -3,10 +3,8 @@ local Follower, super = Class(Character)
 function Follower:init(chara, x, y, target)
     super:init(self, chara, x, y)
 
-    self.noclip = true
-
     self.index = 1
-    self.target = target or Game.world.player
+    self.target = target
 
     self.following = true
     self.returning = false
@@ -30,16 +28,21 @@ function Follower:updateIndex()
     end
 end
 
+function Follower:getTarget()
+    return self.target or self.world.player
+end
+
 function Follower:getTargetPosition()
-    if self.target and self.target.history then
+    local target = self:getTarget()
+    if target and target.history then
         local tx, ty = self.x, self.y
-        for i,v in ipairs(self.target.history) do
+        for i,v in ipairs(target.history) do
             tx, ty = v.x, v.y
-            local upper = self.target.history_time - v.time
+            local upper = target.history_time - v.time
             if upper > (FOLLOW_DELAY * self.index) then
                 if i > 1 then
-                    local prev = self.target.history[i - 1]
-                    local lower = self.target.history_time - prev.time
+                    local prev = target.history[i - 1]
+                    local lower = target.history_time - prev.time
 
                     local t = ((FOLLOW_DELAY * self.index) - lower) / (upper - lower)
 
@@ -56,7 +59,7 @@ function Follower:getTargetPosition()
 end
 
 function Follower:interprolate()
-    if self.target and self.target.history then
+    if self:getTarget() and self:getTarget().history then
         local ex, ey = self:getExactPosition()
         local tx, ty = self:getTargetPosition()
 

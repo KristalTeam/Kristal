@@ -19,6 +19,7 @@ function Player:init(chara, x, y)
     self.battle_alpha = 0
 
     self.persistent = true
+    self.noclip = false
 end
 
 function Player:onAdd(parent)
@@ -107,7 +108,7 @@ function Player:update(dt)
         end
 
         for _,follower in ipairs(self.world.followers) do
-            if follower.target == self and follower.following then
+            if follower:getTarget() == self and follower.following then
                 follower:interprolate()
             end
         end

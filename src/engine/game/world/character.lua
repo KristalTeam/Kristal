@@ -32,7 +32,7 @@ function Character:init(chara, x, y)
     self.x = math.floor(self.x)
     self.y = math.floor(self.y)
 
-    self.noclip = false
+    self.noclip = true
 
     self.spin_timer = 0
     self.spin_speed = 0
@@ -42,6 +42,28 @@ function Character:onAdd(parent)
     if parent:includes(World) then
         self.world = parent
     end
+end
+
+function Character:setActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.getActor(actor)
+    end
+
+    self.actor = actor
+
+    self.width = actor.width
+    self.height = actor.height
+
+    local hitbox = self.actor.hitbox or {0, 0, actor.width, actor.height}
+    self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
+
+    if self.sprite then
+        self.sprite:remove()
+    end
+
+    self.sprite = ActorSprite(self.actor)
+    self.sprite.facing = self.facing
+    self:addChild(self.sprite)
 end
 
 function Character:getExactPosition(x, y)
@@ -379,6 +401,35 @@ function Character:processJump()
             self.jumping = false
         end
     end
+end
+
+function Character:convertToFollower(index)
+    local follower = Follower(self.actor, self:getExactPosition())
+    follower.layer = self.layer
+    follower:setFacing(self.facing)
+    self.world:addFollower(follower, {index = index})
+    self:remove()
+    return follower
+end
+
+function Character:convertToPlayer()
+    local ex, ey = self:getExactPosition()
+    self.world:spawnPlayer(ex, ey, self.actor)
+    local player = self.world.player
+    player:setLayer(self.layer)
+    player:setFacing(self.facing)
+    self:remove()
+    return player
+end
+
+function Character:convertToNPC(properties)
+    local ex, ey = self:getExactPosition()
+    local npc = NPC(self.actor, ex, ey, properties)
+    npc.layer = self.layer
+    npc:setFacing(self.facing)
+    self.world:addChild(npc)
+    self:remove()
+    return npc
 end
 
 function Character:update(dt)

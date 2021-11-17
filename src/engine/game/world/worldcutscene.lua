@@ -30,6 +30,9 @@ function WorldCutscene:init(group, id, ...)
 end
 
 function WorldCutscene:canEnd()
+    for _,_ in pairs(self.move_targets) do
+        return false
+    end
     return not self.camera_target
 end
 
@@ -118,6 +121,8 @@ end
 function WorldCutscene:attachFollowers(return_speed, facing)
     for _,follower in ipairs(Game.world.followers) do
         follower.following = true
+
+        follower:updateIndex()
 
         return_speed = return_speed or 6
         if return_speed > 0 then

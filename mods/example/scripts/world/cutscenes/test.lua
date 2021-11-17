@@ -51,10 +51,8 @@ return function(cutscene)
 
         cutscene:text("* THAT WAS A RHETORICAL\nQUESTION!", "face_17", "susie")
 
-        cutscene:alignFollowers("up")
-
         if choice == 2 then
-            ralsei = Game.world:spawnFollower("ralsei", 680, 300)
+            ralsei = Game.world:addFollower("ralsei", {x = 680, y = 300})
             ralsei.following = false
 
             local walk_wait = cutscene:walkTo(ralsei, 160, 300, 12)
@@ -64,11 +62,18 @@ return function(cutscene)
             cutscene:wait(walk_wait)
             cutscene:text("* bY9BasRADAS/0i8wS14RApt\nLXqBoZI/AI5kZZcG/X9m++J\nBr06pSP6mrQwcIs3KoG63gS\np04pIO7UEjB744v2shkCF5axLFQExQZulj2fqou0v/w1J2ah0/4lIMaVRAaq9yYPp/xZb7B5k7GVdNAVs5Ko8Eex8F/cvaW4Y5vtRAr6byQlXLNtgn1fFwN/krpx+Nxux0YaixI2zUxd09v", "face_30", "ralsei", {auto = true})
 
-            local x, y = ralsei:getTargetPosition()
-            cutscene:wait(cutscene:walkTo(ralsei, x, y, 12, "up"))
             cutscene:wait(1)
-
             cutscene:text("* Okay", "face_7", "susie")
+
+            ralsei = ralsei:convertToPlayer()
+            kris = kris:convertToFollower(1)
+
+            Utils.removeFromTable(Game.party, Registry.getPartyMember("ralsei"))
+            table.insert(Game.party, 1, Registry.getPartyMember("ralsei"))
+
+            cutscene:alignFollowers("left")
+        else
+            cutscene:alignFollowers("up")
         end
 
         cutscene:attachFollowers()
