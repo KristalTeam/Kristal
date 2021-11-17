@@ -178,7 +178,7 @@ end
 
 function ActionBox:unselect()
     -- We have to uncommit any action that we did before.
-    Game.battle:removeAction(Game.battle.current_selecting)
+    --Game.battle:removeAction(Game.battle.current_selecting)
 end
 
 function ActionBox:drawActionBox()

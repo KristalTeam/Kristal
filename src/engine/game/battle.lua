@@ -97,6 +97,9 @@ function Battle:init()
 
     self.character_actions = {}
 
+    self.selected_character_stack = {}
+    self.selected_action_stack = {}
+
     self.current_actions = {}
     self.short_actions = {}
     self.current_action_index = 1
@@ -291,10 +294,11 @@ function Battle:onStateChange(old,new)
     elseif new == "ATTACKING" then
         self.battle_ui.encounter_text:setText("")
 
-        for _,action in ipairs(self.character_actions) do
-            if action.action == "ATTACK" then
+        for i,battler in ipairs(self.party) do
+            local action = self.character_actions[i]
+            if action and action.action == "ATTACK" then
                 self:beginAction(action)
-                table.insert(self.attackers, self.party[action.character_id])
+                table.insert(self.attackers, battler)
             end
         end
 
@@ -323,8 +327,9 @@ function Battle:onStateChange(old,new)
     elseif new == "DIALOGUEEND" then
         self.battle_ui.encounter_text:setText("")
 
-        for _,action in ipairs(self.character_actions) do
-            if action.action == "DEFEND" then
+        for i,battler in ipairs(self.party) do
+            local action = self.character_actions[i]
+            if action and action.action == "DEFEND" then
                 self:beginAction(action)
                 self:processAction(action)
             end
@@ -534,22 +539,24 @@ end
 function Battle:processActionGroup(group)
     if type(group) == "string" then
         local found = false
-        for _,action in ipairs(self.character_actions) do
-            if action.action == group then
+        for i,battler in ipairs(self.party) do
+            local action = self.character_actions[i]
+            if action and action.action == group then
                 found = true
                 self:beginAction(action)
             end
         end
         for _,action in ipairs(self.current_actions) do
-            Utils.removeFromTable(self.character_actions, action)
+            self.character_actions[action.character_id] = nil
         end
         return found
     else
-        for i,action in ipairs(self.character_actions) do
+        for i,battler in ipairs(self.party) do
             -- If the table contains the action
             -- Ex. if {"SPELL", "ITEM", "SPARE"} contains "SPARE"
-            if Utils.containsValue(group, action.action) then
-                table.remove(self.character_actions, i)
+            local action = self.character_actions[i]
+            if action and Utils.containsValue(group, action.action) then
+                self.character_actions[i] = nil
                 self:beginAction(action)
                 return true
             end
@@ -575,24 +582,6 @@ function Battle:tryProcessNextAction(force)
             end
         end
     end
-end
-
-function Battle:getActionFromCharacterIndex(index)
-    for _,action in ipairs(self.character_actions) do
-        if action.character_id == index then
-            return action
-        end
-    end
-end
-
-function Battle:countActingMembers()
-    local count = 0
-    for _, action in ipairs(self.character_actions) do
-        if action.action == "ACT" then
-            count = count + 1
-        end
-    end
-    return count
 end
 
 function Battle:getCurrentActing()
@@ -953,120 +942,140 @@ function Battle:endActionAnimation(battler, action, callback)
     end
 end
 
-function Battle:commitAction(type, target, data)
+function Battle:commitAction(type, target, data, character_id)
     data = data or {}
+
+    character_id = character_id or self.current_selecting
 
     local is_xact = type:upper() == "XACT"
     if is_xact then
         type = "ACT"
     end
 
-    local battler = self.party[self.current_selecting]
-
-    if (type:upper() == "ITEM" and data.data and data.data.item and (not data.data.item.instant)) or (type:upper() ~= "ITEM") then
-        battler:setAnimation("battle/"..type:lower().."_ready")
-        local box = self.battle_ui.action_boxes[self.current_selecting]
-        box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..type:lower())
-    end
-
-    local last_tp = self.tension_bar:getTension()
+    local tp_bar = self.tension_bar
+    local tp_diff = 0
     if data.tp then
-        if data.tp < 0 then
-            self.tension_bar:giveTension(-data.tp)
-        else
-            self.tension_bar:removeTension(data.tp)
-        end
+        tp_diff = Utils.clamp(-data.tp, -tp_bar:getTension(), tp_bar:getMaxTension() - tp_bar:getTension())
     end
 
-    if type:upper() == "ITEM" and data.data and data.data.index and data.data.item then
-        if data.data.item.result_item then
-            Game.inventory:replaceItem("item", data.data.item.result_item, data.data.index)
-        else
-            Game.inventory:removeItem("item", data.data.index)
-        end
-        data.data.item:onBattleSelect(battler, target)
-    end
-
-    table.insert(self.character_actions,
-    {
-        ["character_id"] = self.current_selecting,
+    self:commitSingleAction({
+        ["character_id"] = character_id,
         ["action"] = type:upper(),
         ["party"] = data.party,
         ["name"] = data.name,
         ["target"] = target,
         ["data"] = data.data,
-        ["tp"] = self.tension_bar:getTension() - last_tp
+        ["tp"] = tp_diff
     })
 
     if data.party then
         for _,v in ipairs(data.party) do
             local index = self:getPartyIndex(v)
 
-            self.party[index]:setAnimation("battle/"..type:lower().."_ready")
-            local other_box = self.battle_ui.action_boxes[index]
-            other_box.head_sprite:setSprite(other_box.battler.chara.head_icons.."/"..type:lower())
+            if index ~= character_id then
+                local action = self.character_actions[index]
+                if action then
+                    if action.act_parent then
+                        self:removeAction(action.act_parent)
+                    else
+                        self:removeAction(index)
+                    end
+                end
 
-            table.insert(self.character_actions,
-                {
-                    ["character_id"] = self:getPartyIndex(v),
+                self:commitSingleAction({
+                    ["character_id"] = index,
                     ["action"] = "SKIP",
                     ["reason"] = type:upper(),
                     ["name"] = data.name,
                     ["target"] = target,
                     ["data"] = data.data,
-                    ["act_parent"] = self.current_selecting
-                }
-            )
+                    ["act_parent"] = character_id
+                })
+            end
         end
     end
 
     self:nextParty()
 end
 
-function Battle:removeAction(character_id, multi_act)
-    for index, action in ipairs(self.character_actions) do
-        if action.character_id == character_id then
-            if not multi_act and action.act_parent then
-                self:removeAction(action.act_parent)
-                self.current_selecting = self.current_selecting - 1
-                return
-            end
+function Battle:removeAction(character_id)
+    local action = self.character_actions[character_id]
 
-            local battler = self.party[character_id]
-            battler:setAnimation("battle/idle")
+    if action then
+        self:removeSingleAction(action)
 
-            local box = self.battle_ui.action_boxes[character_id]
-            box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
-
-            if action.tp then
-                if action.tp < 0 then
-                    self.tension_bar:giveTension(-action.tp)
-                elseif action.tp > 0 then
-                    self.tension_bar:removeTension(action.tp)
-                end
-            end
-
-            if action.action == "ITEM" and action.data and action.data.index and action.data.item then
-                if action.data.item.result_item then
-                    Game.inventory:replaceItem("item", action.data.item, action.data.index)
-                else
-                    Game.inventory:addItem(action.data.item, action.data.index)
-                end
-                action.data.item:onBattleDeselect(battler, action.target)
-            end
-
-            table.remove(self.character_actions, index)
-
-            if action.party then
-                for _,v in ipairs(action.party) do
-                    if self:hasAction(self:getPartyIndex(v)) then
-                        self:removeAction(self:getPartyIndex(v), true)
+        if action.party then
+            for _,v in ipairs(action.party) do
+                if v ~= character_id then
+                    local action = self.character_actions[self:getPartyIndex(v)]
+                    if action then
+                        self:removeSingleAction(action)
                     end
                 end
-                return
             end
         end
     end
+end
+
+function Battle:commitSingleAction(action)
+    local battler = self.party[action.character_id]
+
+    local anim = action.action:lower()
+    if action.action == "SKIP" then
+        anim = action.reason:lower()
+    end
+
+    if (action.action == "ITEM" and action.data and action.data.item and (not action.data.item.instant)) or (action.action ~= "ITEM") then
+        battler:setAnimation("battle/"..anim.."_ready")
+        local box = self.battle_ui.action_boxes[action.character_id]
+        box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..anim)
+    end
+
+    if action.tp then
+        if action.tp > 0 then
+            self.tension_bar:giveTension(action.tp)
+        elseif action.tp < 0 then
+            self.tension_bar:removeTension(-action.tp)
+        end
+    end
+
+    if action.action == "ITEM" and action.data and action.data.index and action.data.item then
+        if action.data.item.result_item then
+            Game.inventory:replaceItem("item", action.data.item.result_item, action.data.index)
+        else
+            Game.inventory:removeItem("item", action.data.index)
+        end
+        action.data.item:onBattleSelect(battler, action.target)
+    end
+
+    self.character_actions[action.character_id] = action
+end
+
+function Battle:removeSingleAction(action)
+    local battler = self.party[action.character_id]
+    battler:setAnimation("battle/idle")
+
+    local box = self.battle_ui.action_boxes[action.character_id]
+    box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+
+    if action.tp then
+        if action.tp < 0 then
+            self.tension_bar:giveTension(-action.tp)
+        elseif action.tp > 0 then
+            self.tension_bar:removeTension(action.tp)
+        end
+    end
+
+    if action.action == "ITEM" and action.data and action.data.index and action.data.item then
+        if action.data.item.result_item then
+            Game.inventory:replaceItem("item", action.data.item, action.data.index)
+        else
+            Game.inventory:addItem(action.data.item, action.data.index)
+        end
+        action.data.item:onBattleDeselect(battler, action.target)
+    end
+
+    self.character_actions[action.character_id] = nil
 end
 
 function Battle:getPartyIndex(string_id) -- TODO: this only returns the first one... what if someone has two Susies?
@@ -1088,12 +1097,7 @@ function Battle:getPartyBattler(string_id)
 end
 
 function Battle:hasAction(character_id)
-    for _,action in ipairs(self.character_actions) do
-        if action.character_id == character_id then
-            return true
-        end
-    end
-    return false
+    return self.character_actions[character_id] ~= nil
 end
 
 function Battle:checkSolidCollision(collider)
@@ -1158,19 +1162,23 @@ function Battle:startProcessing()
 end
 
 function Battle:nextParty()
-    self.current_selecting = self.current_selecting + 1
-    if self.party[self.current_selecting] then
-        while (self.party[self.current_selecting].is_down) do
-            self.current_selecting = self.current_selecting + 1
-            if self.current_selecting > #self.party then
-                break
-            end
+    table.insert(self.selected_character_stack, self.current_selecting)
+    table.insert(self.selected_action_stack, Utils.copy(self.character_actions))
+
+    local all_done = true
+    local last_selected = self.current_selecting
+    self.current_selecting = (self.current_selecting % #self.party) + 1
+    while self.current_selecting ~= last_selected do
+        if not self:hasAction(self.current_selecting) and not self.party[self.current_selecting].is_down then
+            all_done = false
+            break
         end
+        self.current_selecting = (self.current_selecting % #self.party) + 1
     end
-    while (self:hasAction(self.current_selecting)) do
-        self.current_selecting = self.current_selecting + 1
-    end
-    if self.current_selecting > #self.party then
+
+    if all_done then
+        self.selected_character_stack = {}
+        self.selected_action_stack = {}
         self.current_action_processing = 1
         self.current_selecting = 0
         self:startProcessing()
@@ -1180,6 +1188,31 @@ function Battle:nextParty()
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
     end
+end
+
+function Battle:previousParty()
+    if #self.selected_character_stack == 0 then
+        return
+    end
+
+    self.current_selecting = self.selected_character_stack[#self.selected_character_stack] or 1
+    local new_actions = self.selected_action_stack[#self.selected_action_stack-1] or {}
+
+    for i,battler in ipairs(self.party) do
+        local old_action = self.character_actions[i]
+        local new_action = new_actions[i]
+        if new_action ~= old_action then
+            if old_action then
+                self:removeSingleAction(old_action)
+            end
+            if new_action then
+                self:commitSingleAction(new_action)
+            end
+        end
+    end
+
+    table.remove(self.selected_character_stack, #self.selected_character_stack)
+    table.remove(self.selected_action_stack, #self.selected_action_stack)
 end
 
 function Battle:nextTurn()
@@ -1331,6 +1364,13 @@ end
 --[[function Battle:startCutscene(cutscene, post_func)
     BattleScene.start(cutscene, post_func)
 end]]
+
+function Battle:sortChildren()
+    -- Sort battlers by Y position
+    table.sort(self.children, function(a, b)
+        return a.layer < b.layer or (a.layer == b.layer and (a:includes(Battler) and b:includes(Battler)) and a.y < b.y)
+    end)
+end
 
 function Battle:createTransform()
     local transform = super:createTransform(self)
@@ -1972,17 +2012,8 @@ function Battle:keypressed(key)
         elseif Input.isCancel(key) then
             local old_selecting = self.current_selecting
 
-            self.current_selecting = self.current_selecting - 1
-            if self.current_selecting < 1 then
-                self.current_selecting = old_selecting
-            end
-            while (self.party[self.current_selecting].is_down) do
-                self.current_selecting = self.current_selecting - 1
-                if self.current_selecting < 1 then
-                    self.current_selecting = old_selecting
-                    break
-                end
-            end
+            self:previousParty()
+
             if self.current_selecting ~= old_selecting then
                 self.ui_move:stop()
                 self.ui_move:play()
