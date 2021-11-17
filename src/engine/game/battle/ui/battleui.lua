@@ -157,8 +157,11 @@ function BattleUI:drawState()
                 for index, party_id in ipairs(item.party) do
                     local chara = Registry.getPartyMember(party_id)
 
-                    love.graphics.draw(Assets.getTexture(chara.head_icons .. "/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
-                    text_offset = text_offset + 30
+                    -- Draw head only if it isn't the currently selected character
+                    if Game.battle:getPartyIndex(party_id) ~= Game.battle.current_selecting then
+                        love.graphics.draw(Assets.getTexture(chara.head_icons .. "/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
+                        text_offset = text_offset + 30
+                    end
                 end
             end
 

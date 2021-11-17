@@ -52,8 +52,20 @@ function EnemyBattler:init(chara)
 
     self.last_selecting = false
 end
+
 function EnemyBattler:registerAct(name, description, party, tp)
+    if type(party) == "string" then
+        if party == "all" then
+            party = {}
+            for _,chara in ipairs(Game.party) do
+                table.insert(party, chara.id)
+            end
+        else
+            party = {party}
+        end
+    end
     local act = {
+        ["character"] = nil,
         ["name"] = name,
         ["description"] = description,
         ["party"] = party,
@@ -63,7 +75,61 @@ function EnemyBattler:registerAct(name, description, party, tp)
     table.insert(self.acts, act)
 end
 function EnemyBattler:registerShortAct(name, description, party, tp)
+    if type(party) == "string" then
+        if party == "all" then
+            party = {}
+            for _,battler in ipairs(Game.battle.party) do
+                table.insert(party, battler.id)
+            end
+        else
+            party = {party}
+        end
+    end
     local act = {
+        ["character"] = nil,
+        ["name"] = name,
+        ["description"] = description,
+        ["party"] = party,
+        ["tp"] = tp or 0,
+        ["short"] = true
+    }
+    table.insert(self.acts, act)
+end
+
+function EnemyBattler:registerActFor(char, name, description, party, tp)
+    if type(party) == "string" then
+        if party == "all" then
+            party = {}
+            for _,chara in ipairs(Game.party) do
+                table.insert(party, chara.id)
+            end
+        else
+            party = {party}
+        end
+    end
+    local act = {
+        ["character"] = char,
+        ["name"] = name,
+        ["description"] = description,
+        ["party"] = party,
+        ["tp"] = tp or 0,
+        ["short"] = false
+    }
+    table.insert(self.acts, act)
+end
+function EnemyBattler:registerShortActFor(char, name, description, party, tp)
+    if type(party) == "string" then
+        if party == "all" then
+            party = {}
+            for _,battler in ipairs(Game.battle.party) do
+                table.insert(party, battler.id)
+            end
+        else
+            party = {party}
+        end
+    end
+    local act = {
+        ["character"] = char,
         ["name"] = name,
         ["description"] = description,
         ["party"] = party,

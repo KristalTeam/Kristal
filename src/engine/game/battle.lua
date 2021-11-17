@@ -1007,9 +1007,9 @@ function Battle:removeAction(character_id)
         if action.party then
             for _,v in ipairs(action.party) do
                 if v ~= character_id then
-                    local action = self.character_actions[self:getPartyIndex(v)]
-                    if action then
-                        self:removeSingleAction(action)
+                    local iaction = self.character_actions[self:getPartyIndex(v)]
+                    if iaction then
+                        self:removeSingleAction(iaction)
                     end
                 end
             end
@@ -1851,11 +1851,14 @@ function Battle:keypressed(key)
                 local enemy = self.enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
                     local insert = true
-                    if v.party and (#v.party > 0) then
+                    if v.character and self.party[self.current_selecting].chara.id ~= v.character then
                         insert = false
+                    end
+                    if v.party and (#v.party > 0) then
                         for _,party_id in ipairs(v.party) do
-                            if self:getPartyIndex(party_id) then
-                                insert = true
+                            if not self:getPartyIndex(party_id) then
+                                insert = false
+                                break
                             end
                         end
                     end

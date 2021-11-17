@@ -33,11 +33,14 @@ function Virovirokun:init()
     self.low_health_text = "* Virovirokun looks extra sick."
 
     self:registerAct("TakeCare")
-    self:registerAct("TakeCareX", "", {"susie", "ralsei"})
-    self:registerAct("TakeCareX", "", {"noelle"})
-    self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
-    self:registerAct("R-Cook", "", {"ralsei"})
-    self:registerAct("S-Cook", "", {"susie"})
+    self:registerAct("TakeCareX", "", "all")
+    --self:registerAct("TakeCareX", "", {"kris", "susie", "ralsei"})
+    --self:registerAct("TakeCareX", "", {"kris", "noelle"})
+    self:registerShortAct("Quarantine", "Make\nenemy\nTIRED", {"kris"})
+    self:registerActFor("kris", "R-Cook", "", {"ralsei"})
+    self:registerActFor("kris", "S-Cook", "", {"susie"})
+    self:registerActFor("ralsei", "Cook")
+    self:registerActFor("susie", "Cook")
 
     self.text_override = nil
 end
@@ -117,6 +120,16 @@ function Virovirokun:onAct(battler, name)
         return
     elseif name == "S-Cook" then
         Game.battle:startActCutscene("virovirokun", "cook_susie")
+        return
+    elseif name == "Cook" then
+        if battler.chara.id == "ralsei" then
+            Game.battle:startActCutscene("virovirokun", "cook_ralsei")
+        elseif battler.chara.id == "susie" then
+            Game.battle:startActCutscene("virovirokun", "cook_susie")
+        else
+            self:addMercy(20)
+            return "* "..battler.chara.name.." cooked up a cure!"
+        end
         return
     elseif name == "Standard" then
         self:addMercy(50)

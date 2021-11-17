@@ -37,6 +37,7 @@ end
 function BattleCutscene:onEnd()
     Game.battle.battle_ui.encounter_text:setActor(nil)
     Game.battle.battle_ui.encounter_text:setFace(nil)
+    Game.battle.battle_ui.encounter_text.can_advance = false
     Game.battle.battle_ui.encounter_text.auto_advance = false
 
     for _,battler in ipairs(Game.battle.party) do
