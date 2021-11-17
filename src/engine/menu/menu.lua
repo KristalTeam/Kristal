@@ -22,7 +22,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
 Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to return to the main menu."}
 
 function Menu:enter()
-    -- STATES: MAINMENU, MODSELECT, OPTIONS
+    -- STATES: MAINMENU, MODSELECT, OPTIONS, VOLUME, CONTROLS
     self.state = "MAINMENU"
 
     love.keyboard.setKeyRepeat(true)
@@ -53,7 +53,7 @@ function Menu:enter()
     self.heart.layer = 100
     self.stage:addChild(self.heart)
 
-    self.heart_target_x = 210
+    self.heart_target_x = 196
     self.heart_target_y = 238
 
     -- Assets required for the menu
@@ -69,6 +69,8 @@ function Menu:enter()
 
     self.logo = Assets.getTexture("kristal/title_logo_shadow")
     self.selected_option = 1
+
+    self.noise_timer = 0
 end
 
 function Menu:setState(state)
@@ -285,6 +287,25 @@ function Menu:update(dt)
             self.heart_target_x = self.list.x + button_heart_x
             self.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
         end
+    elseif self.state == "VOLUME" then
+        self.noise_timer = self.noise_timer + DTMULT
+        if Input.down("left") then
+            Game:setVolume(Game:getVolume() - ((2 * DTMULT) / 100))
+            if self.noise_timer >= 3 then
+                self.noise_timer = self.noise_timer - 3
+                Assets.stopAndPlaySound("snd_noise")
+            end
+        end
+        if Input.down("right") then
+            Game:setVolume(Game:getVolume() + ((2 * DTMULT) / 100))
+            if self.noise_timer >= 3 then
+                self.noise_timer = self.noise_timer - 3
+                Assets.stopAndPlaySound("snd_noise")
+            end
+        end
+        if (not Input.down("right")) and (not Input.down("left")) then
+            self.noise_timer = 3
+        end
     end
 
     if not self.heart.visible then
@@ -308,11 +329,34 @@ function Menu:draw()
 
     if self.state == "MAINMENU" then
         love.graphics.draw(self.logo, 160, 70)
-        Menu:printShadow("Play a mod", 229, 219)
-        Menu:printShadow("Open mods folder", 229, 219 + 32)
-        Menu:printShadow("Options", 229, 219 + 64)
-    elseif self.state == "OPTIONS" then
-        Menu:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, true, 640)
+        Menu:printShadow("Play a mod", 215, 219)
+        Menu:printShadow("Open mods folder", 215, 219 + 32)
+        Menu:printShadow("Options", 215, 219 + 64)
+    elseif self.state == "OPTIONS" or self.state == "VOLUME" then
+
+        Menu:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
+
+        local menu_x = 185 - 14
+        local menu_y = 110
+
+        Menu:printShadow("Master Volume",  menu_x, menu_y + (32 * 0))
+        Menu:printShadow("Controls",       menu_x, menu_y + (32 * 1))
+        Menu:printShadow("Simplify VFX",   menu_x, menu_y + (32 * 2))
+        Menu:printShadow("Fullscreen",     menu_x, menu_y + (32 * 3))
+        Menu:printShadow("Auto-Run",       menu_x, menu_y + (32 * 4))
+        Menu:printShadow("Skip Intro",     menu_x, menu_y + (32 * 5))
+        Menu:printShadow("Display FPS",    menu_x, menu_y + (32 * 6))
+        Menu:printShadow("Back",           menu_x, menu_y + (32 * 8))
+
+        Menu:printShadow(Utils.round(Game:getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
+        Menu:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
+        Menu:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
+        Menu:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
+        Menu:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
+        Menu:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
+    elseif self.state == "CONTROLS" then
+        Menu:printShadow("Rebinding coming soon!", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
+        Menu:printShadow("(We hope.)", 0, 240 - 8 + 16, {0.7, 0.7, 0.7, 1}, true, 640)
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
 
@@ -331,6 +375,8 @@ function Menu:draw()
                 Menu:printShadow("(X) Return to main menu", 294 + (16 * 3), 454 - 8, {1, 1, 1, 1})
             end
         end
+    else
+        Menu:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, true, 640)
     end
 
     -- Draw mod preview overlays
@@ -369,17 +415,18 @@ function Menu:keypressed(key, _, is_repeat)
             elseif self.selected_option == 2 then
                 love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
             elseif self.selected_option == 3 then
-                self.heart_target_x = -8
-                self.heart_target_y = -8
+                self.heart_target_x = 152
+                self.heart_target_y = 129
+                self.selected_option = 1
                 self:setState("OPTIONS")
             end
             return
         end
         local old = self.selected_option
-        if key == "up"    then self.selected_option = self.selected_option - 1 end
-        if key == "down"  then self.selected_option = self.selected_option + 1 end
-        if key == "left"  then self.selected_option = self.selected_option - 1 end
-        if key == "right" then self.selected_option = self.selected_option + 1 end
+        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
+        if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
+        if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
+        if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
         self.selected_option = math.max(1, math.min(3, self.selected_option))
 
         if old ~= self.selected_option then
@@ -387,15 +434,76 @@ function Menu:keypressed(key, _, is_repeat)
             self.ui_move:play()
         end
 
-        self.heart_target_x = 210
+        self.heart_target_x = 196
         self.heart_target_y = 238 + (self.selected_option - 1) * 32
     elseif self.state == "OPTIONS" then
         if Input.isCancel(key) then
             self:setState("MAINMENU")
             self.ui_move:stop()
             self.ui_move:play()
-            self.heart_target_x = 210
-            self.heart_target_y = 238 + (self.selected_option - 1) * 32
+            self.heart_target_x = 196
+            self.selected_option = 3
+            self.heart_target_y = 238 + (2 * 32)
+            Kristal.saveConfig()
+            return
+        end
+        local old = self.selected_option
+        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
+        if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
+        if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
+        if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
+        self.selected_option = math.max(1, math.min(8, self.selected_option))
+
+        local y_off = (self.selected_option - 1) * 32
+        if self.selected_option >= 8 then
+            y_off = y_off + 32
+        end
+
+        self.heart_target_x = 152
+        self.heart_target_y = 129 + y_off
+
+        if old ~= self.selected_option then
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+
+        if Input.isConfirm(key) then
+            self.ui_select:stop()
+            self.ui_select:play()
+            if self.selected_option == 1 then
+                self:setState("VOLUME")
+                self.heart_target_x = 422 - 14
+            elseif self.selected_option == 2 then
+                self:setState("CONTROLS")
+                self.heart_target_x = -8
+                self.heart_target_y = -8
+            elseif self.selected_option == 3 then
+                Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
+            elseif self.selected_option == 4 then
+                Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
+                love.window.setFullscreen(Kristal.Config["fullscreen"])
+            elseif self.selected_option == 5 then
+                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
+            elseif self.selected_option == 6 then
+                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
+            elseif self.selected_option == 7 then
+                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
+            elseif self.selected_option == 8 then
+                self:setState("MAINMENU")
+                self.heart_target_x = 196
+                self.selected_option = 3
+                self.heart_target_y = 238 + (2 * 32)
+                Kristal.saveConfig()
+            end
+        end
+    elseif self.state == "VOLUME" then
+        if Input.isCancel(key) or Input.isConfirm(key) then
+            Game:setVolume(Utils.round(Game:getVolume()))
+            self:setState("OPTIONS")
+            self.ui_select:stop()
+            self.ui_select:play()
+            self.heart_target_x = 152
+            self.heart_target_y = 129 + (self.selected_option - 1) * 32
         end
     elseif self.state == "MODSELECT" then
         if key == "f5" then
@@ -427,7 +535,7 @@ function Menu:keypressed(key, _, is_repeat)
                 self:setState("MAINMENU")
                 self.ui_move:stop()
                 self.ui_move:play()
-                self.heart_target_x = 210
+                self.heart_target_x = 196
                 self.heart_target_y = 238
             end
 
@@ -435,6 +543,14 @@ function Menu:keypressed(key, _, is_repeat)
             if key == "down"  then self.list:selectDown(is_repeat) end
             if key == "left"  then self.list:pageUp(is_repeat)     end
             if key == "right" then self.list:pageDown(is_repeat)   end
+        end
+    else
+        if Input.isCancel(key) or Input.isConfirm(key) then
+            self:setState("OPTIONS")
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.heart_target_x = 152
+            self.heart_target_y = 129 + (self.selected_option - 1) * 32
         end
     end
 end

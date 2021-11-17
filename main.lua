@@ -176,8 +176,14 @@ function love.load(args)
         love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale)
     end
 
+    -- fullscreen
+    love.window.setFullscreen(Kristal.Config["fullscreen"])
+
     -- toggle vsync
     love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+
+    -- set master volume
+    Game:setVolume(Kristal.Config["volume"] / 100)
 
     -- setup structure
     love.filesystem.createDirectory("mods")
@@ -678,7 +684,11 @@ function Kristal.loadConfig()
         windowScale = 1,
         skipIntro = false,
         showFPS = false,
-        vSync = true
+        vSync = true,
+        fullscreen = false,
+        simplifyVFX = false,
+        autoRun = false,
+        volume = 100
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))

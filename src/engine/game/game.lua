@@ -350,7 +350,7 @@ function Game:encounter(encounter, transition, enemy)
 end
 
 function Game:setVolume(volume)
-    MASTER_VOLUME = volume
+    MASTER_VOLUME = math.max(0, math.min(1, volume))
     love.audio.setVolume(volume)
 end
 
