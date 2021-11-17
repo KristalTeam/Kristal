@@ -40,7 +40,7 @@ return {
         ["battle/intro"]        = {"battle/attack", 1/15, true},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
 
-        ["battle/rude_buster"]  = {"battle/rude_buster", 1/15, false, next="battle/idle"}
+        ["battle/rude_buster"]  = {"battle/rudebuster", 1/15, false, next="battle/idle"}
     },
 
     offsets = {

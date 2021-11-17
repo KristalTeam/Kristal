@@ -1,23 +1,23 @@
 local spell = Spell{
     -- Spell ID (optional, defaults to path)
-    id = "rude_buster",
+    id = "red_buster",
     -- Display name
-    name = "Rude Buster",
+    name = "Red Buster",
 
     -- Battle description
-    effect = "Rude\nDamage",
+    effect = "Red\nDamage",
     -- Menu description
-    description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic.",
+    description = "Deals large Red-elemental damage to\none foe. Depends on Attack & Magic.",
 
     -- TP cost
-    cost = 50,
+    cost = 60,
 
     -- Target mode (party, enemy, or none/nil)
     target = "enemy",
 }
 
 function spell:getCastMessage(user, target)
-    return "* "..user.chara.name.." used RUDE BUSTER!"
+    return "* "..user.chara.name.." used RED BUSTER!"
 end
 
 function spell:onCast(user, target)
@@ -37,13 +37,14 @@ function spell:onCast(user, target)
         Assets.playSound("snd_rudebuster_swing")
         local x, y = user:getRelativePos(user.width, user.height/2, Game.battle)
         local tx, ty = target:getRelativePos(target.width/2, target.height/2, Game.battle)
-        local blast = RudeBusterBeam(false, x, y, tx, ty, function(pressed)
-            local damage = math.ceil((user.chara:getStat("magic") * 5) + (user.chara:getStat("attack") * 11) - (target.defense * 3))
+        local blast = RudeBusterBeam(true, x, y, tx, ty, function(pressed)
+            local damage = math.ceil((user.chara:getStat("magic") * 6) + (user.chara:getStat("attack") * 13) - (target.defense * 6)) + 90
             if pressed then
                 damage = damage + 30
                 Assets.playSound("snd_scytheburst")
             end
-            target:flash()
+            local flash = target:flash()
+            flash.color_mask = {1, 0, 0}
             target:hurt(damage, user)
             buster_finished = true
             if anim_finished then

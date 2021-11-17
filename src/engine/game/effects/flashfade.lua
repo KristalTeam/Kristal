@@ -7,12 +7,14 @@ function FlashFade:init(texture, x, y)
     self.siner = 0
     self.target = nil
 
+    self.color_mask_alpha = 1
 end
 
 function FlashFade:update(dt)
     self.siner = self.siner + self.flash_speed * DTMULT
 
-    self.color_mask_alpha = math.sin(self.siner / 3)
+    --self.color_mask_alpha = math.sin(self.siner / 3)
+    self.alpha = math.sin(self.siner / 3)
 
     if self.siner > 4 and math.sin(self.siner / 3) < 0 then
         self:remove()

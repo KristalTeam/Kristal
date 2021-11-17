@@ -361,15 +361,15 @@ function Object:createTransform()
         transform:translate(-self.width/2, -self.height/2)
     end
     transform:translate(-self.width * self.origin_x, -self.height * self.origin_y)
-    if self.scale_x ~= 1 or self.scale_y ~= 1 then
-        transform:translate(self.width * (self.scale_origin_x or self.origin_x), self.height * (self.scale_origin_y or self.origin_y))
-        transform:scale(self.scale_x, self.scale_y)
-        transform:translate(self.width * -(self.scale_origin_x or self.origin_x), self.height * -(self.scale_origin_y or self.origin_y))
-    end
     if self.rotation ~= 0 then
         transform:translate(self.width * (self.rotation_origin_x or self.origin_x), self.height * (self.rotation_origin_y or self.origin_y))
         transform:rotate(self.rotation)
         transform:translate(self.width * -(self.rotation_origin_x or self.origin_x), self.height * -(self.rotation_origin_y or self.origin_y))
+    end
+    if self.scale_x ~= 1 or self.scale_y ~= 1 then
+        transform:translate(self.width * (self.scale_origin_x or self.origin_x), self.height * (self.scale_origin_y or self.origin_y))
+        transform:scale(self.scale_x, self.scale_y)
+        transform:translate(self.width * -(self.scale_origin_x or self.origin_x), self.height * -(self.scale_origin_y or self.origin_y))
     end
     Utils.popPerformance()
     return transform

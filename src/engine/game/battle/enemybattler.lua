@@ -348,7 +348,6 @@ function EnemyBattler:onDefeatFatal(damage, battler)
     local death = FatalEffect(self.overlay_sprite:getTexture(), death_x, death_y, function() self:remove() end)
     death:setColor(self.overlay_sprite:getDrawColor())
     death:setScale(self.overlay_sprite:getScale())
-    death.layer = 100
     self:addChild(death)
 
     self:defeat("KILLED", true)

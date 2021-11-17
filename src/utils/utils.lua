@@ -450,6 +450,11 @@ function Utils.angleDiff(a, b)
     return (r + math.pi) % (math.pi*2) - math.pi
 end
 
+function Utils.dist(x1,y1, x2,y2)
+    local dx, dy = x1-x2, y1-y2
+    return math.sqrt(dx*dx + dy*dy)
+end
+
 function Utils.startsWith(value, prefix)
     if type(value) == "string" then
         return value:sub(1, #prefix) == prefix, value:sub(#prefix + 1)
