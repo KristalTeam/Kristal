@@ -106,12 +106,15 @@ function Object:init(x, y, width, height)
     -- Origin of the object's position
     self.origin_x = 0
     self.origin_y = 0
+    self.origin_exact = false
     -- Origin of the object's scaling
     self.scale_origin_x = nil
     self.scale_origin_y = nil
+    self.scale_origin_exact = false
     -- Origin of the object's rotation
     self.rotation_origin_x = nil
     self.rotation_origin_y = nil
+    self.rotation_origin_exact = nil
 
     -- How much this object is moved by the camera (1 = normal, 0 = none)
     self.parallax_x = nil
@@ -209,14 +212,64 @@ function Object:setColor(r, g, b, a)
 end
 function Object:getColor() return self.color[1], self.color[2], self.color[3], self.alpha end
 
-function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0 end
-function Object:getOrigin() return self.origin_x, self.origin_y end
+function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0; self.origin_exact = false end
+function Object:getOrigin()
+    if not self.origin_exact then
+        return self.origin_x, self.origin_y
+    else
+        return self.origin_x / self.width, self.origin_y / self.height
+    end
+end
+function Object:setOriginExact(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0; self.origin_exact = true end
+function Object:getOriginExact()
+    if self.origin_exact then
+        return self.origin_x, self.origin_y
+    else
+        return self.origin_x * self.width, self.origin_y * self.height
+    end
+end
 
-function Object:setScaleOrigin(x, y) self.scale_origin_x = x; self.scale_origin_y = y or x end
-function Object:getScaleOrigin() return self.scale_origin_x or self.origin_x, self.scale_origin_y or self.origin_y end
+function Object:setScaleOrigin(x, y) self.scale_origin_x = x or 0; self.scale_origin_y = y or x or 0; self.scale_origin_exact = false end
+function Object:getScaleOrigin()
+    if not self.scale_origin_exact then
+        local ox, oy = self:getOrigin()
+        return self.scale_origin_x or ox, self.scale_origin_y or oy
+    else
+        local ox, oy = self:getOriginExact()
+        return (self.scale_origin_x or ox) / self.width, (self.scale_origin_y or oy) / self.height
+    end
+end
+function Object:setScaleOriginExact(x, y) self.scale_origin_x = x or 0; self.scale_origin_y = y or x or 0; self.scale_origin_exact = true end
+function Object:getScaleOriginExact()
+    if self.scale_origin_exact then
+        local ox, oy = self:getOriginExact()
+        return self.scale_origin_x or ox, self.scale_origin_y or oy
+    else
+        local ox, oy = self:getOrigin()
+        return (self.scale_origin_x or ox) * self.width, (self.scale_origin_y or oy) * self.height
+    end
+end
 
-function Object:setRotationOrigin(x, y) self.rotation_origin_x = x; self.rotation_origin_y = y or x end
-function Object:getRotationOrigin() return self.rotation_origin_x or self.origin_x, self.rotation_origin_y or self.origin_y end
+function Object:setRotationOrigin(x, y) self.rotation_origin_x = x or 0; self.rotation_origin_y = y or x or 0; self.rotation_origin_exact = false end
+function Object:getRotationOrigin()
+    if not self.rotation_origin_exact then
+        local ox, oy = self:getOrigin()
+        return self.rotation_origin_x or ox, self.rotation_origin_y or oy
+    else
+        local ox, oy = self:getOriginExact()
+        return (self.rotation_origin_x or ox) / self.width, (self.rotation_origin_y or oy) / self.height
+    end
+end
+function Object:setRotationOriginExact(x, y) self.rotation_origin_x = x or 0; self.rotation_origin_y = y or x or 0; self.rotation_origin_exact = true end
+function Object:getRotationOriginExact()
+    if self.rotation_origin_exact then
+        local ox, oy = self:getOriginExact()
+        return self.rotation_origin_x or ox, self.rotation_origin_y or oy
+    else
+        local ox, oy = self:getOrigin()
+        return (self.rotation_origin_x or ox) * self.width, (self.rotation_origin_y or oy) * self.height
+    end
+end
 
 function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
 function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 end
@@ -360,16 +413,19 @@ function Object:createTransform()
         transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)
         transform:translate(-self.width/2, -self.height/2)
     end
-    transform:translate(-self.width * self.origin_x, -self.height * self.origin_y)
+    local ox, oy = self:getOriginExact()
+    transform:translate(-ox, -oy)
     if self.rotation ~= 0 then
-        transform:translate(self.width * (self.rotation_origin_x or self.origin_x), self.height * (self.rotation_origin_y or self.origin_y))
+        local ox, oy = self:getRotationOriginExact()
+        transform:translate(ox, oy)
         transform:rotate(self.rotation)
-        transform:translate(self.width * -(self.rotation_origin_x or self.origin_x), self.height * -(self.rotation_origin_y or self.origin_y))
+        transform:translate(-ox, -oy)
     end
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
-        transform:translate(self.width * (self.scale_origin_x or self.origin_x), self.height * (self.scale_origin_y or self.origin_y))
+        local ox, oy = self:getScaleOriginExact()
+        transform:translate(ox, oy)
         transform:scale(self.scale_x, self.scale_y)
-        transform:translate(self.width * -(self.scale_origin_x or self.origin_x), self.height * -(self.scale_origin_y or self.origin_y))
+        transform:translate(-ox, -oy)
     end
     Utils.popPerformance()
     return transform

@@ -2046,8 +2046,10 @@ function Battle:keypressed(key)
         end
     elseif self.state == "ACTIONSELECT" then
         -- TODO: make this less huge!!
+        local actbox = self.battle_ui.action_boxes[self.current_selecting]
+
         if Input.isConfirm(key) then
-            self.battle_ui.action_boxes[self.current_selecting]:select()
+            actbox:select()
             self.ui_select:stop()
             self.ui_select:play()
             return
@@ -2059,25 +2061,25 @@ function Battle:keypressed(key)
             if self.current_selecting ~= old_selecting then
                 self.ui_move:stop()
                 self.ui_move:play()
-                self.battle_ui.action_boxes[self.current_selecting]:unselect()
+                actbox:unselect()
             end
             return
         elseif key == "left" then
-            self.battle_ui.action_boxes[self.current_selecting].selected_button = self.battle_ui.action_boxes[self.current_selecting].selected_button - 1
+            actbox.selected_button = actbox.selected_button - 1
             self.ui_move:stop()
             self.ui_move:play()
         elseif key == "right" then
-            self.battle_ui.action_boxes[self.current_selecting].selected_button = self.battle_ui.action_boxes[self.current_selecting].selected_button + 1
+            actbox.selected_button = actbox.selected_button + 1
             self.ui_move:stop()
             self.ui_move:play()
         end
 
-        if self.battle_ui.action_boxes[self.current_selecting].selected_button < 1 then
-            self.battle_ui.action_boxes[self.current_selecting].selected_button = 5 -- TODO: unhardcode
+        if actbox.selected_button < 1 then
+            actbox.selected_button = #actbox.buttons
         end
 
-        if self.battle_ui.action_boxes[self.current_selecting].selected_button > 5 then -- TODO: unhardcode
-            self.battle_ui.action_boxes[self.current_selecting].selected_button = 1
+        if actbox.selected_button > #actbox.buttons then
+            actbox.selected_button = 1
         end
     elseif self.state == "ATTACKING" then
         if Input.isConfirm(key) then

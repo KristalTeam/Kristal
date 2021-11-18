@@ -119,6 +119,8 @@ SnowGraveSpell = require("src.engine.game.battle.snowgravespell")
 
 BattleUI = require("src.engine.game.battle.ui.battleui")
 ActionBox = require("src.engine.game.battle.ui.actionbox")
+ActionBoxDisplay = require("src.engine.game.battle.ui.actionboxdisplay")
+ActionButton = require("src.engine.game.battle.ui.actionbutton")
 AttackBox = require("src.engine.game.battle.ui.attackbox")
 AttackBar = require("src.engine.game.battle.ui.attackbar")
 TensionBar = require("src.engine.game.battle.ui.tensionbar")
