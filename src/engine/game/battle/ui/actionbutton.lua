@@ -1,11 +1,10 @@
 local ActionButton, super = Class(Object)
 
-function ActionButton:init(type, x, y, battler, actbox)
+function ActionButton:init(type, battler, x, y)
     super:init(self, x, y)
 
     self.type = type
     self.battler = battler
-    self.actbox = actbox
 
     self.texture = Assets.getTexture("ui/battle/btn/"..type)
     self.hovered_texture = Assets.getTexture("ui/battle/btn/"..type.."_h")

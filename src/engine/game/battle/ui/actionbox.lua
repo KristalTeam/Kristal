@@ -27,24 +27,47 @@ function ActionBox:init(x, y, index, battler)
     self.box:addChild(self.name_sprite)
     self.box:addChild(self.hp_sprite)
 
-    self.buttons = {}
-
-    local btn_types = self:getButtons(battler)
-    local start_x = (213 / 2) - ((#btn_types-1) * 35 / 2) - 1
-    for i,type in ipairs(btn_types) do
-        local button = ActionButton(type, math.floor(start_x + ((i - 1) * 35)) + 0.5, 21, battler)
-        table.insert(self.buttons, button)
-        self:addChild(button)
-    end
+    self:createButtons()
 end
 
 function ActionBox:getButtons(battler)
-    local buttons = {"fight", "act", "magic", "item", "spare", "defend"}
+end
 
-    if not battler.chara.has_act then Utils.removeFromTable(buttons, "act") end
-    if not battler.chara.has_spells then Utils.removeFromTable(buttons, "magic") end
+function ActionBox:createButtons()
+    for _,button in ipairs(self.buttons or {}) do
+        button:remove()
+    end
 
-    return buttons
+    self.buttons = {}
+
+    local btn_types = {"fight", "act", "magic", "item", "spare", "defend"}
+
+    if not self.battler.chara.has_act then Utils.removeFromTable(btn_types, "act") end
+    if not self.battler.chara.has_spells then Utils.removeFromTable(btn_types, "magic") end
+
+    local mod_buttons = Kristal.modCall("getActionButtons", self.battler, btn_types)
+
+    if mod_buttons then
+        btn_types = mod_buttons
+    end
+
+    local start_x = (213 / 2) - ((#btn_types-1) * 35 / 2) - 1
+    for i,btn in ipairs(btn_types) do
+        if type(btn) == "string" then
+            local button = ActionButton(btn, self.battler, math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
+            button.actbox = self
+            table.insert(self.buttons, button)
+            self:addChild(button)
+        else
+            btn:setPosition(math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
+            btn.battler = self.battler
+            btn.actbox = self
+            table.insert(self.buttons, btn)
+            self:addChild(btn)
+        end
+    end
+
+    self.selected_button = Utils.clamp(self.selected_button, 1, #self.buttons)
 end
 
 function ActionBox:setHeadIcon(icon)

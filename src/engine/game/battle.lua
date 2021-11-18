@@ -1433,6 +1433,7 @@ function Battle:update(dt)
     for _,enemy in ipairs(self.enemies_to_remove) do
         Utils.removeFromTable(self.enemies, enemy)
     end
+    self.enemies_to_remove = {}
 
     if self.cutscene then
         if not self.cutscene.ended then
@@ -2061,7 +2062,7 @@ function Battle:keypressed(key)
             if self.current_selecting ~= old_selecting then
                 self.ui_move:stop()
                 self.ui_move:play()
-                actbox:unselect()
+                self.battle_ui.action_boxes[self.current_selecting]:unselect()
             end
             return
         elseif key == "left" then

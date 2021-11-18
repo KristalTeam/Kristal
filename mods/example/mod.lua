@@ -14,9 +14,27 @@ function Mod:init()
 
     MUSIC_VOLUMES["cybercity"] = 0.8
     MUSIC_PITCHES["cybercity"] = 0.97
+
+    self.dog_activated = false
+end
+
+function Mod:getActionButtons(battler, buttons)
+    if self.dog_activated then
+        table.insert(buttons, DogButton())
+        return buttons
+    end
 end
 
 function Mod:onKeyPressed(key)
+    if Game.battle and Game.battle.state == "ACTIONSELECT" then
+        if key == "5" then
+            Game.battle.music:play("mus_xpart_2")
+            self.dog_activated = true
+            for _,box in ipairs(Game.battle.battle_ui.action_boxes) do
+                box:createButtons()
+            end
+        end
+    end
     if not Game.lock_input then
         if key == "b" and Game.state == "OVERWORLD" then
             Game:encounter("virovirokun", true)
