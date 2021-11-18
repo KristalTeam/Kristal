@@ -337,7 +337,11 @@ function Game:encounter(encounter, transition, enemy)
     self.state = "BATTLE"
 
     self.battle = Battle()
-    self.battle:postInit(transition and "TRANSITION" or "INTRO", encounter)
+    if type(transition) == "string" then
+        self.battle:postInit(transition, encounter)
+    else
+        self.battle:postInit(transition and "TRANSITION" or "INTRO", encounter)
+    end
     self.stage:addChild(self.battle)
 end
 

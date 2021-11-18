@@ -17,7 +17,7 @@ local spell = Spell{
 }
 
 function spell:onCast(user, target)
-    target:heal(user.chara.stats.magic * 5)
+    target:heal(user.chara:getStat("magic") * 5)
 end
 
 return spell

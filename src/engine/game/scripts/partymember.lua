@@ -94,7 +94,7 @@ function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.playSound("snd_power")
     end
-    self.health = math.min(self.stats.health, self.health + amount)
+    self.health = math.min(self:getStat("health"), self.health + amount)
 end
 
 function PartyMember:onAttackHit(enemy, damage) end
@@ -168,9 +168,9 @@ end
 function PartyMember:load(data)
     self.spells = data.spells or self.spells
     self.stats = data.stats or self.stats
-    self.health = data.health or self.stats.health
     self.equipped = data.equipped or self.equipped
     self.vars = data.vars or self.vars
+    self.health = data.health or self:getStat("health")
 
     if self.onLoad then
         self:onLoad(data)

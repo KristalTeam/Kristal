@@ -60,8 +60,8 @@ function PartyBattler:hurt(amount, exact)
     else
         self.chara.health = self.chara.health - amount
         if (self.chara.health <= 0) then
-            amount = math.abs((self.chara.health - (self.chara.stats.health / 2)))
-            self.chara.health = Utils.round(((-self.chara.stats.health) / 2))
+            amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
+            self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
             --scr_dead(target)
             self:down()
         end
@@ -110,8 +110,8 @@ function PartyBattler:heal(amount)
 
     self:flash()
 
-    if self.chara.health > self.chara.stats.health then
-        self.chara.health = self.chara.stats.health
+    if self.chara.health > self.chara:getStat("health") then
+        self.chara.health = self.chara:getStat("health")
         self:statusMessage("msg", "max")
     else
         self:statusMessage("heal", amount, {0, 1, 0})

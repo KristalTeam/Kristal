@@ -68,6 +68,7 @@ function Battle:init()
     self.offset = 0
 
     self.transitioned = false
+    self.started = false
 
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY, TRANSITIONOUT
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT, DEFENDINGEND
@@ -155,18 +156,20 @@ end
 
 function Battle:postInit(state, encounter)
     self.state = state
+
     if type(encounter) == "string" then
         self.encounter = Registry.createEncounter(encounter)
     else
         self.encounter = encounter
     end
-    self:setState(state)
 
     if self.encounter.music then
         self.music = Music()
         Game.world.music:pause()
-    else
+    elseif Game.world.music then
         self.music = Game.world.music
+    else
+        self.music = Music()
     end
 
     if self.encounter.queued_enemy_spawns then
@@ -234,7 +237,19 @@ function Battle:postInit(state, encounter)
             battler.x = battler.x + (battler.actor.width/2 + offset[1]) * 2
             battler.y = battler.y + (battler.actor.height  + offset[2]) * 2
         end
+
+        if state ~= "INTRO" then
+            self:nextTurn()
+        end
     end
+
+    self:setState(state)
+end
+
+function Battle:onRemove(parent)
+    super:onRemove(self, parent)
+
+    self.music:remove()
 end
 
 function Battle:setState(state, reason)
@@ -276,7 +291,9 @@ function Battle:onStateChange(old,new)
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
 
-        if old == "INTRO" then
+        if not self.started then
+            self.started = true
+
             for _,battler in ipairs(self.party) do
                 battler:setAnimation("battle/idle")
             end
@@ -762,7 +779,6 @@ function Battle:processAction(action)
                 dmg_sprite:play(1/15, false, function(s) s:remove() end)
                 enemy.parent:addChild(dmg_sprite)
 
-                --enemy:hurt(battler.chara.stats.attack, battler)
                 Assets.stopAndPlaySound("snd_damage")
                 enemy:hurt(damage, battler)
 
@@ -1254,7 +1270,7 @@ function Battle:nextTurn()
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
         if (battler.chara.health <= 0) then
-            battler:heal(math.ceil(battler.chara.stats.health / 8))
+            battler:heal(math.ceil(battler.chara:getStat("health") / 8))
         end
     end
 
@@ -1303,6 +1319,22 @@ function Battle:checkGameOver()
     end
     self.music:stop()
     Game:gameOver(self:getSoulLocation())
+end
+
+function Battle:returnToWorld()
+    self.transition_timer = 0
+    for _,battler in ipairs(self.party) do
+        if self.party_world_characters[battler.chara.id] then
+            self.party_world_characters[battler.chara.id].visible = true
+        end
+    end
+    if self.music ~= Game.world.music then
+        self.music:stop()
+        Game.world.music:resume()
+    end
+    self:remove()
+    Game.battle = nil
+    Game.state = "OVERWORLD"
 end
 
 function Battle:setActText(text, dont_finish)
@@ -1523,19 +1555,7 @@ function Battle:updateTransitionOut(dt)
     self.transition_timer = self.transition_timer - DTMULT
 
     if self.transition_timer <= 0 or not self.transitioned then
-        self.transition_timer = 0
-        for _,battler in ipairs(self.party) do
-            if self.party_world_characters[battler.chara.id] then
-                self.party_world_characters[battler.chara.id].visible = true
-            end
-        end
-        if self.music ~= Game.world.music then
-            self.music:stop()
-            Game.world.music:resume()
-        end
-        self:remove()
-        Game.battle = nil
-        Game.state = "OVERWORLD"
+        self:returnToWorld()
         return
     end
 

@@ -224,7 +224,7 @@ function ActionBox:drawActionBox()
     love.graphics.setColor(128/255, 0, 0, 1)
     love.graphics.rectangle("fill", 128, 22 - self.box_y_offset - self.data_offset, 76, 9)
 
-    local health = (self.battler.chara.health / self.battler.chara.stats.health) * 76
+    local health = (self.battler.chara.health / self.battler.chara:getStat("health")) * 76
 
     if health > 0 then
         love.graphics.setColor(self.battler.chara.color)
@@ -234,7 +234,7 @@ function ActionBox:drawActionBox()
 
     if health <= 0 then
         love.graphics.setColor(1, 0, 0, 1)
-    elseif (self.battler.chara.health <= (self.battler.chara.stats.health / 4)) then
+    elseif (self.battler.chara.health <= (self.battler.chara:getStat("health") / 4)) then
         love.graphics.setColor(1, 1, 0, 1)
     else
         love.graphics.setColor(1, 1, 1, 1)
@@ -247,7 +247,7 @@ function ActionBox:drawActionBox()
     love.graphics.setFont(self.font)
     love.graphics.print(self.battler.chara.health, 152 - health_offset, 9 - self.box_y_offset - self.data_offset)
     love.graphics.print("/", 161, 9 - self.box_y_offset - self.data_offset)
-    love.graphics.print(self.battler.chara.stats.health, 181, 9 - self.box_y_offset - self.data_offset)
+    love.graphics.print(self.battler.chara:getStat("health"), 181, 9 - self.box_y_offset - self.data_offset)
 end
 
 function ActionBox:drawSelectionMatrix()

@@ -437,6 +437,7 @@ function Object:explode(x, y, dont_remove)
         if not dont_remove then
             self:remove()
         end
+        return e
     end
 end
 
