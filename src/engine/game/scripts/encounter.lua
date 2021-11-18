@@ -9,7 +9,7 @@ function Encounter:init()
     -- If enabled, hides the world even if the default background is disabled
     self.hide_world = false
 
-    -- The music used for this encounter (TODO: implement)
+    -- The music used for this encounter
     self.music = "battle"
 
     -- Whether characters have the X-Action option in their spell menu
@@ -17,6 +17,9 @@ function Encounter:init()
 
     -- Should the battle skip the YOU WON! text?
     self.no_end_message = false
+
+    -- Table used to spawn enemies when the battle exists, if this encounter is created before
+    self.queued_enemy_spawns = {}
 end
 
 function Encounter:onBattleStart() end
@@ -37,7 +40,12 @@ function Encounter:addEnemy(enemy, x, y, ...)
     else
         enemy_obj = enemy
     end
-    local transition = Game.battle.state == "TRANSITION"
+    local enemies = self.queued_enemy_spawns
+    local transition = false
+    if Game.battle and Game.state == "BATTLE" then
+        enemies = Game.battle.enemies
+        transition = Game.battle.state == "TRANSITION"
+    end
     if transition then
         enemy_obj:setPosition(SCREEN_WIDTH + 200, y)
     end
@@ -49,7 +57,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
             enemy_obj.target_y = y
         end
     else
-        for _,enemy in ipairs(Game.battle.enemies) do
+        for _,enemy in ipairs(enemies) do
             if not transition then
                 enemy.x = enemy.x - 10
                 enemy.y = enemy.y - 45
@@ -58,10 +66,18 @@ function Encounter:addEnemy(enemy, x, y, ...)
                 enemy.target_y = enemy.target_y - 45
             end
         end
-        enemy_obj:setPosition(550 + (10 * #Game.battle.enemies), 200 + (45 * #Game.battle.enemies))
+        local x, y = 550 + (10 * #enemies), 200 + (45 * #enemies)
+        if not transition then
+            enemy_obj:setPosition(x, y)
+        else
+            enemy_obj.target_x = x
+            enemy_obj.target_y = y
+        end
     end
-    table.insert(Game.battle.enemies, enemy_obj)
-    Game.battle:addChild(enemy_obj)
+    table.insert(enemies, enemy_obj)
+    if Game.battle and Game.state == "BATTLE" then
+        Game.battle:addChild(enemy_obj)
+    end
     return enemy_obj
 end
 

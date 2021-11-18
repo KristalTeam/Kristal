@@ -332,14 +332,6 @@ function Game:encounter(encounter, transition, enemy)
         error("Attempt to enter battle while already in battle")
     end
 
-    if type(encounter) == "string" then
-        local encounter_name = encounter
-        encounter = Registry.getEncounter(encounter_name)
-        if not encounter then
-            error("Attempt to load into non existent encounter \"" .. encounter_name .. "\"")
-        end
-    end
-
     self.encounter_enemy = enemy
 
     self.state = "BATTLE"

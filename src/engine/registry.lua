@@ -59,6 +59,14 @@ function Registry.getEncounter(id)
     return self.encounters[id]
 end
 
+function Registry.createEncounter(id, ...)
+    if self.encounters[id] then
+        return self.encounters[id](...)
+    else
+        error("Attempt to create non existent encounter \"" .. id .. "\"")
+    end
+end
+
 function Registry.getEnemy(id)
     return self.enemies[id]
 end

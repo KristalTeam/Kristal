@@ -155,7 +155,11 @@ end
 
 function Battle:postInit(state, encounter)
     self.state = state
-    self.encounter = encounter()
+    if type(encounter) == "string" then
+        self.encounter = Registry.createEncounter(encounter)
+    else
+        self.encounter = encounter
+    end
     self:setState(state)
 
     if self.encounter.music then
@@ -163,6 +167,18 @@ function Battle:postInit(state, encounter)
         Game.world.music:pause()
     else
         self.music = Game.world.music
+    end
+
+    if self.encounter.queued_enemy_spawns then
+        for _,enemy in ipairs(self.encounter.queued_enemy_spawns) do
+            if state == "TRANSITION" then
+                enemy.target_x = enemy.x
+                enemy.target_y = enemy.y
+                enemy.x = SCREEN_WIDTH + 200
+            end
+            table.insert(self.enemies, enemy)
+            self:addChild(enemy)
+        end
     end
 
     if state == "TRANSITION" then
@@ -241,7 +257,10 @@ end
 
 function Battle:onStateChange(old,new)
     if self.encounter.beforeStateChange then
-        self.encounter:beforeStateChange(old,new)
+        local result = self.encounter:beforeStateChange(old,new)
+        if result or self.state ~= new then
+            return
+        end
     end
     if new == "INTRO" then
         Assets.playSound("snd_impact", 0.7)
