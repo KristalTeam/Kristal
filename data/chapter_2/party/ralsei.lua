@@ -20,7 +20,7 @@ local character = PartyMember{
     xact_name = "R-Action",
 
     -- Spells by id
-    spells = {"pacify", "heal_prayer", "dual_heal"},
+    spells = {"pacify", "heal_prayer"},
 
     -- Current health (saved to the save file)
     health = 100,
