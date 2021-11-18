@@ -46,6 +46,7 @@ function BattleUI:init()
     self.animate_out = false
 
     self.heart_sprite = Assets.getTexture("player/heart")
+    self.arrow_sprite = Assets.getTexture("ui/page_arrow")
 end
 
 function BattleUI:beginAttack()
@@ -136,14 +137,21 @@ end
 
 function BattleUI:drawState()
     if Game.battle.state == "MENUSELECT" then
+        local page = math.ceil(Game.battle.current_menu_y / 3) - 1
+        local max_page = math.ceil(#Game.battle.menu_items / 6) - 1
+
         local x = 0
         local y = 0
         love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + (Game.battle.current_menu_y * 30))
+        love.graphics.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page*3)) * 30))
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
-        for _, item in ipairs(Game.battle.menu_items) do
+
+        local page_offset = page * 6
+        for i = page_offset+1, math.min(page_offset+6, #Game.battle.menu_items) do
+            local item = Game.battle.menu_items[i]
+
             love.graphics.setColor(1, 1, 1, 1)
             local text_offset = 0
             -- Are we able to select this?
@@ -198,9 +206,23 @@ function BattleUI:drawState()
             Game.battle.tension_bar:setTensionPreview(0)
         end
 
+        love.graphics.setColor(1, 1, 1, 1)
+        if page < max_page then
+            love.graphics.draw(self.arrow_sprite, 470, 120 + (math.sin(love.timer.getTime()*6) * 2))
+        end
+        if page > 0 then
+            love.graphics.draw(self.arrow_sprite, 470, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
+        end
+
     elseif Game.battle.state == "ENEMYSELECT" or Game.battle.state == "XACTENEMYSELECT" then
+        local enemies = Game.battle:getActiveEnemies()
+
+        local page = math.ceil(Game.battle.current_menu_y / 3) - 1
+        local max_page = math.ceil(#enemies / 3) - 1
+        local page_offset = page * 3
+
         love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))
+        love.graphics.draw(self.heart_sprite, 55, 30 + ((Game.battle.current_menu_y - page_offset) * 30))
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
@@ -211,8 +233,9 @@ function BattleUI:drawState()
         end
         love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
 
-        for index, enemy in ipairs(Game.battle:getActiveEnemies()) do
-            local y_off = (index - 1) * 30
+        for index = page_offset+1, math.min(page_offset+3, #enemies) do
+            local enemy = enemies[index]
+            local y_off = (index - page_offset - 1) * 30
             if enemy.tired and (enemy.mercy >= 100) then
                 love.graphics.setColor(1, 1, 1, 1)
 
@@ -274,15 +297,36 @@ function BattleUI:drawState()
             love.graphics.setColor(128/255, 0, 0, 1)
             love.graphics.print(math.floor(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
         end
+
+        love.graphics.setColor(1, 1, 1, 1)
+        if page < max_page then
+            love.graphics.draw(self.arrow_sprite, 20, 120 + (math.sin(love.timer.getTime()*6) * 2))
+        end
+        if page > 0 then
+            love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
+        end
     elseif Game.battle.state == "PARTYSELECT" then
+        local page = math.ceil(Game.battle.current_menu_y / 3) - 1
+        local max_page = math.ceil(#Game.battle.party / 3) - 1
+        local page_offset = page * 3
+
         love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.draw(self.heart_sprite, 55, 30 + (Game.battle.current_menu_y * 30))
+        love.graphics.draw(self.heart_sprite, 55, 30 + ((Game.battle.current_menu_y - page_offset) * 30))
 
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
-        for index, battler in ipairs(Game.battle.party) do
+
+        for index = page_offset+1, math.min(page_offset+3, #Game.battle.party) do
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.print(battler.chara.name, 80, 50 + ((index - 1) * 30))
+            love.graphics.print(Game.battle.party[index].chara.name, 80, 50 + ((index - page_offset - 1) * 30))
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+        if page < max_page then
+            love.graphics.draw(self.arrow_sprite, 20, 120 + (math.sin(love.timer.getTime()*6) * 2))
+        end
+        if page > 0 then
+            love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
         end
     end
     if Game.battle.state == "ATTACKING" or #self.attack_boxes > 0 then
