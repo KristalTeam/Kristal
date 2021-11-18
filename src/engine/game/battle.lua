@@ -1056,7 +1056,7 @@ function Battle:commitSingleAction(action)
     local battler = self.party[action.character_id]
 
     local anim = action.action:lower()
-    if action.action == "SKIP" then
+    if action.action == "SKIP" and action.reason then
         anim = action.reason:lower()
     end
 
@@ -1064,6 +1064,9 @@ function Battle:commitSingleAction(action)
         battler:setAnimation("battle/"..anim.."_ready")
         local box = self.battle_ui.action_boxes[action.character_id]
         box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..anim)
+        if not box.head_sprite:getTexture() then
+            box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+        end
     end
 
     if action.tp then
