@@ -432,8 +432,8 @@ function Battle:onStateChange(old,new)
             local stronger = "You"
 
             for _,battler in ipairs(self.party) do
-                battler.chara.level = battler.chara.level + 1
-                battler.chara:onLevelUp(battler.chara.level)
+                Game.level_up_count = Game.level_up_count + 1
+                battler.chara:onLevelUp(Game.level_up_count)
 
                 if battler.chara.id == "noelle" then
                     -- Hardcoded for now ,??

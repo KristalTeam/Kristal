@@ -1,4 +1,4 @@
-return PartyMember{
+local character = PartyMember{
     -- Party member ID (optional, defaults to path)
     id = "kris",
     -- Display name
@@ -9,8 +9,10 @@ return PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = "kris_lw",
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Leader\nCommands the party\nwith various ACTs.",
+    -- Display level (saved to the save file)
+    level = 1,
+    -- Default title / class (saved to the save file)
+    title = "Leader\nCommands the party\nwith various ACTs.",
 
     -- Whether the party member can act / use spells
     has_act = true,
@@ -73,3 +75,30 @@ return PartyMember{
     -- Message shown on gameover (optional)
     gameover_message = nil,
 }
+
+function character:onPowerSelect(menu)
+    if Utils.random() <= 0.03 then
+        menu.kris_dog = true
+    else
+        menu.kris_dog = false
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 and menu.kris_dog then
+        local frames = Assets.getFrames("misc/dog_sleep")
+        local frame = math.floor(love.timer.getTime()) % #frames + 1
+        love.graphics.print("Dog:", x, y)
+        love.graphics.draw(frames[frame], x+120, y+5, 0, 2, 2)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+
+        love.graphics.draw(icon, x+90, y+6, 0, 2, 2)
+        return true
+    end
+end
+
+return character

@@ -9,8 +9,10 @@ local character = PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = nil,
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Dark Prince\nDark-World being.\nHas friends now.",
+    -- Display level (saved to the save file)
+    level = 2,
+    -- Default title / class (saved to the save file)
+    title = "Dark Prince\nDark-World being.\nHas friends now.",
 
     -- Whether the party member can act / use spells
     has_act = false,
@@ -82,6 +84,29 @@ function character:onLevelUp(level)
     if level % 10 == 0 then
         self:increaseStat("attack", 1)
         self:increaseStat("magic", 1)
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 then
+        local icon = Assets.getTexture("ui/menu/icon/lollipop")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Sweetness", x, y)
+        love.graphics.print("97", x+130, y)
+        return true
+    elseif index == 2 then
+        local icon = Assets.getTexture("ui/menu/icon/fluff")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Fluffiness", x, y, 0, 0.8, 1)
+
+        love.graphics.draw(icon, x+130, y+6, 0, 2, 2)
+        love.graphics.draw(icon, x+150, y+6, 0, 2, 2)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+        return true
     end
 end
 

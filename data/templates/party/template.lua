@@ -7,8 +7,10 @@ local character = PartyMember{
     -- Actor ID (handles overworld/battle sprites)
     actor = "kris",
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Player",
+    -- Display level (saved to the save file)
+    level = 1,
+    -- Default title / class (saved to the save file)
+    title = "Player",
 
     -- Whether the party member can act / use spells
     has_act = true,

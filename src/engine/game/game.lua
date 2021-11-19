@@ -29,6 +29,8 @@ function Game:enter(previous_state)
 
     self.temp_followers = {}
 
+    self.level_up_count = 0
+
     self.gold = 0
     self.xp = 0
 

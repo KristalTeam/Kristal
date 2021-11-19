@@ -146,8 +146,10 @@ function DarkMenu:keypressed(key)
                 self.state = "POWERMENU"
 
                 -- The power menu does not reset the selected character, for some reason.
-                self.box = DarkBox(82, 112, 477, 277)
-                self.box.layer = -1
+                -- But we're not doing that (for now at least)
+                Input.consumePress("confirm")
+                self.box = DarkPowerMenu()
+                self.box.layer = 1
                 self:addChild(self.box)
 
                 self.ui_select:stop()
@@ -208,27 +210,6 @@ function DarkMenu:keypressed(key)
             end
             self:updateSelectedBoxes()
         end
-    elseif self.state == "POWERMENU" then
-        if Input.isCancel(key) then
-            self.ui_cancel_small:stop()
-            self.ui_cancel_small:play()
-            self.box:remove()
-            self.box = nil
-            self.state = "MAIN"
-            return
-        end
-        if Input.is("left", key) then
-            self.power_selected = self.power_selected - 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-        if Input.is("right", key) then
-            self.power_selected = self.power_selected + 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-        if self.power_selected < 1 then self.power_selected = #Game.party end
-        if self.power_selected > #Game.party then self.power_selected = 1 end
     elseif self.state == "CONFIGMENU" then
         if Input.isCancel(key) then
             self.ui_cancel_small:stop()

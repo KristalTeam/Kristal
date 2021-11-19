@@ -13,8 +13,10 @@ function PartyMember:init(o)
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     self.lw_actor = nil
 
-    -- Title / class (saved to the save file)
-    self.title = "LV1 Player"
+    -- Display level (saved to the save file)
+    self.level = 1
+    -- Default title / class (saved to the save file)
+    self.title = "Player"
 
     -- Whether the party member can act / use spells
     self.has_act = true
@@ -77,12 +79,8 @@ function PartyMember:init(o)
     -- Message shown on gameover (optional)
     self.gameover_message = nil
 
-
-    -- Current level, increased by level-ups (saved to the save file)
-    self.level = 0
-
-    -- Generic variables table (saved to the save file)
-    self.vars = {}
+    -- Character flags (saved to the save file)
+    self.flags = {}
 
     -- Load the table
     for k,v in pairs(o) do
@@ -90,16 +88,25 @@ function PartyMember:init(o)
     end
 end
 
+function PartyMember:getTitle()
+    return "LV"..self.level.." "..self.title
+end
+
+function PartyMember:onAttackHit(enemy, damage) end
+
+function PartyMember:onLevelUp(level) end
+
+function PartyMember:onPowerSelect(menu) end
+function PartyMember:onPowerDeselect(menu) end
+
+function PartyMember:drawPowerStat(index, x, y, menu) end
+
 function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.playSound("snd_power")
     end
     self.health = math.min(self:getStat("health"), self.health + amount)
 end
-
-function PartyMember:onAttackHit(enemy, damage) end
-
-function PartyMember:onLevelUp(level) end
 
 function PartyMember:increaseStat(stat, amount, max)
     self.stats[stat] = (self.stats[stat] or 0) + amount
@@ -164,6 +171,18 @@ function PartyMember:getStat(name, default)
     return (self.stats[name] or (default or 0)) + self:getEquipmentBonus(name)
 end
 
+function PartyMember:getFlag(name, default)
+    return self.flags[name] or default
+end
+
+function PartyMember:setFlag(name, value)
+    self.flags[name] = value
+end
+
+function PartyMember:addFlag(name, amount)
+    self.flags[name] = (self.flags[name] or 0) + (amount or 1)
+end
+
 function PartyMember:save()
     local data = {
         id = self.id,
@@ -171,7 +190,7 @@ function PartyMember:save()
         health = self.health,
         stats = self.stats,
         equipped = self.equipped,
-        vars = self.vars
+        flags = self.flags
     }
     if self.onSave then
         self:onSave(data)
@@ -183,7 +202,7 @@ function PartyMember:load(data)
     self.spells = data.spells or self.spells
     self.stats = data.stats or self.stats
     self.equipped = data.equipped or self.equipped
-    self.vars = data.vars or self.vars
+    self.flags = data.flags or self.flags
     self.health = data.health or self:getStat("health")
 
     if self.onLoad then

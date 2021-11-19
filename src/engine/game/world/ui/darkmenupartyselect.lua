@@ -7,6 +7,8 @@ function DarkMenuPartySelect:init(x, y)
 
     self.selected_party = 1
 
+    self.on_select = nil
+
     self.heart_siner = 0
 end
 
@@ -28,10 +30,13 @@ function DarkMenuPartySelect:update(dt)
         elseif Input.pressed("right") then
             self.selected_party = self.selected_party + 1
         end
+        self:updateSelectedParty()
         if old_selected ~= self.selected_party then
             Assets.stopAndPlaySound("ui_move")
+            if self.on_select then
+                self.on_select(self.selected_party, old_selected)
+            end
         end
-        self:updateSelectedParty()
     end
 
     for i,action_box in pairs(Game.world.healthbar.action_boxes) do

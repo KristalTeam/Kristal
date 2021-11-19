@@ -1,4 +1,4 @@
-return PartyMember{
+local character = PartyMember{
     -- Party member ID (optional, defaults to path)
     id = "ralsei",
     -- Display name
@@ -9,8 +9,10 @@ return PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = nil,
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Lonely Prince\nDark-World being.\nHas no subjects.",
+    -- Display level (saved to the save file)
+    level = 1,
+    -- Default title / class (saved to the save file)
+    title = "Lonely Prince\nDark-World being.\nHas no subjects.",
 
     -- Whether the party member can act / use spells
     has_act = false,
@@ -76,3 +78,42 @@ return PartyMember{
         "Please[wait:5],\ndon't give up!"
     },
 }
+
+function character:onPowerSelect(menu)
+    if Utils.random() <= 0.03 then
+        menu.ralsei_dog = true
+    else
+        menu.ralsei_dog = false
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 then
+        if not menu.ralsei_dog then
+            local icon = Assets.getTexture("ui/menu/icon/smile")
+            love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+            love.graphics.print("Kindness", x, y)
+            love.graphics.print("100", x+130, y)
+        else
+            local icon = Assets.getTexture("ui/menu/icon/smile_dog")
+            love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+            love.graphics.print("Dogness", x, y)
+            love.graphics.print("1", x+130, y)
+        end
+        return true
+    elseif index == 2 then
+        local icon = Assets.getTexture("ui/menu/icon/fluff")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Fluffiness", x, y, 0, 0.8, 1)
+
+        love.graphics.draw(icon, x+130, y+6, 0, 2, 2)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+        return true
+    end
+end
+
+return character

@@ -12,6 +12,7 @@ function Character:init(chara, x, y)
 
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = self.facing
+    self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
     self:setOrigin(0.5, 1)
@@ -63,6 +64,7 @@ function Character:setActor(actor)
 
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = self.facing
+    self.sprite.inherit_color = true
     self:addChild(self.sprite)
 end
 

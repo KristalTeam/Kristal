@@ -9,8 +9,10 @@ local character = PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = "noelle_lw",
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Snowcaster\nMight be able to\nuse some cool moves.",
+    -- Display level (saved to the save file)
+    level = 2,
+    -- Default title / class (saved to the save file)
+    title = "Snowcaster\nMight be able to\nuse some cool moves.",
 
     -- Whether the party member can act / use spells
     has_act = false,
@@ -72,13 +74,49 @@ local character = PartyMember{
 
     -- Message shown on gameover (optional)
     gameover_message = nil,
+
+    -- Character flags (saved to the save file)
+    flags = {
+        ["iceshocks_used"] = 0,
+        ["boldness"] = -12
+    },
 }
+
+function character:getTitle()
+    if self:getFlag("iceshocks_used", 0) > 0 then
+        return "LV"..self.level.." Frostmancer\nFreezes the enemy."
+    else
+        return "LV1 "..self.title
+    end
+end
 
 function character:onLevelUp(level)
     self:increaseStat("health", 4, 166)
     if level % 4 == 0 then
         self:increaseStat("attack", 1)
         self:increaseStat("magic", 1)
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 then
+        local icon = Assets.getTexture("ui/menu/icon/snow")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Coldness", x, y)
+        local coldness = Utils.clamp(47 + (self:getFlag("iceshocks_used", 0) * 7), 47, 100)
+        love.graphics.print(coldness, x+130, y)
+        return true
+    elseif index == 2 then
+        local icon = Assets.getTexture("ui/menu/icon/exclamation")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Boldness", x, y, 0, 0.8, 1)
+        love.graphics.print(self:getFlag("boldness", -12), x+130, y)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+        return true
     end
 end
 

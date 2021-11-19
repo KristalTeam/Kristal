@@ -9,8 +9,10 @@ local character = PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = "susie_lw",
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Dark Knight\nDoes damage using\ndark energy.",
+    -- Display level (saved to the save file)
+    level = 2,
+    -- Default title / class (saved to the save file)
+    title = "Dark Knight\nDoes damage using\ndark energy.",
 
     -- Whether the party member can act / use spells
     has_act = false,
@@ -92,6 +94,30 @@ function character:onLevelUp(level)
     if level % 10 == 0 then
         self:increaseStat("attack", 1)
         self:increaseStat("magic", 1)
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 then
+        local icon = Assets.getTexture("ui/menu/icon/demon")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Rudeness", x, y)
+        love.graphics.print("89", x+130, y)
+        return true
+    elseif index == 2 then
+        local icon = Assets.getTexture("ui/menu/icon/demon")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Purple", x, y, 0, 0.8, 1)
+        love.graphics.print("Yes", x+130, y)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+
+        love.graphics.draw(icon, x+90, y+6, 0, 2, 2)
+        love.graphics.draw(icon, x+110, y+6, 0, 2, 2)
+        return true
     end
 end
 

@@ -17,6 +17,8 @@ local spell = Spell{
 }
 
 function spell:onCast(user, target)
+    user.chara:addFlag("iceshocks_used", 1)
+
     local function createParticle(x, y)
         local sprite = Sprite("effects/icespell/snowflake", x, y)
         sprite:setOrigin(0.5, 0.5)

@@ -9,8 +9,10 @@ local character = PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = "susie_lw",
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Dark Knight\nDoes damage using\ndark energy.",
+    -- Display level (saved to the save file)
+    level = 1,
+    -- Default title / class (saved to the save file)
+    title = "Dark Knight\nDoes damage using\ndark energy.",
 
     -- Whether the party member can act / use spells
     has_act = false,
@@ -81,6 +83,30 @@ function character:onAttackHit(enemy, damage)
     if damage > 0 then
         Assets.playSound("snd_impact", 0.8)
         Game.battle.shake = 4
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 then
+        local icon = Assets.getTexture("ui/menu/icon/demon")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Rudeness", x, y)
+        love.graphics.print("99", x+130, y)
+        return true
+    elseif index == 2 then
+        local icon = Assets.getTexture("ui/menu/icon/demon")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Crudeness", x, y, 0, 0.8, 1)
+        love.graphics.print("100", x+130, y)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+
+        love.graphics.draw(icon, x+90, y+6, 0, 2, 2)
+        love.graphics.draw(icon, x+110, y+6, 0, 2, 2)
+        return true
     end
 end
 

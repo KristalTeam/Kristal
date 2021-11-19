@@ -9,8 +9,10 @@ local character = PartyMember{
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
     lw_actor = "kris_lw",
 
-    -- Title / class (saved to the save file)
-    title = "LV1 Leader\nCommands the party\nwith various ACTs.",
+    -- Display level (saved to the save file)
+    level = 2,
+    -- Default title / class (saved to the save file)
+    title = "Tactician\nCommands the party\nby ACTs. Sometimes.",
 
     -- Whether the party member can act / use spells
     has_act = true,
@@ -78,6 +80,32 @@ function character:onLevelUp(level)
     self:increaseStat("health", 2, 160)
     if level % 10 == 0 then
         self:increaseStat("attack", 1)
+    end
+end
+
+function character:onPowerSelect(menu)
+    if Utils.random() <= 0.03 then
+        menu.kris_dog = true
+    else
+        menu.kris_dog = false
+    end
+end
+
+function character:drawPowerStat(index, x, y, menu)
+    if index == 1 and menu.kris_dog then
+        local frames = Assets.getFrames("misc/dog_sleep")
+        local frame = math.floor(love.timer.getTime()) % #frames + 1
+        love.graphics.print("Dog:", x, y)
+        love.graphics.draw(frames[frame], x+120, y+5, 0, 2, 2)
+        return true
+    elseif index == 3 then
+        local icon = Assets.getTexture("ui/menu/icon/fire")
+        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        love.graphics.print("Guts:", x, y)
+
+        love.graphics.draw(icon, x+90, y+6, 0, 2, 2)
+        love.graphics.draw(icon, x+110, y+6, 0, 2, 2)
+        return true
     end
 end
 
