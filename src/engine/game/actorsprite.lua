@@ -11,12 +11,9 @@ function ActorSprite:init(actor)
     self.directional = false
     self.dir_sep = "_"
 
-    super:init(self, actor.default or "", 0, 0, actor.width, actor.height, actor.path)
+    super:init(self, "", 0, 0, actor.width, actor.height, actor.path)
 
-    self.default_anim = actor.default_anim
-    if self.default_anim then
-        self:setAnimation(self.default_anim)
-    end
+    self:resetSprite()
 
     self.offsets = actor.offsets or {}
 
@@ -38,10 +35,14 @@ function ActorSprite:init(actor)
 end
 
 function ActorSprite:resetSprite()
-    if self.default_anim then
-        self:setAnimation(self.default_anim)
+    if self.actor.default then
+        self:set(self.actor.default)
+    elseif self.actor.default_anim then
+        self:setAnimation(self.actor.default_anim)
+    elseif self.actor.default_sprite then
+        self:setSprite(self.actor.default_sprite)
     else
-        self:setSprite(self.actor.default or "")
+        self:set("")
     end
 end
 

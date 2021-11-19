@@ -9,7 +9,7 @@ return {
     flip = "right",
 
     path = "enemies/virovirokun",
-    default_anim = "idle",
+    default = "idle",
 
     animations = {
         ["idle"] = {"idle", 0.25, true},
