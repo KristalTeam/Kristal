@@ -1,9 +1,9 @@
-local DarkItemMenu, super = Class(DarkBox)
+local DarkItemMenu, super = Class(Object)
 
 function DarkItemMenu:init()
     super:init(self, 92, 112, 457, 227)
 
-    self.sx, self.sy = self.x, self.y
+    self.draw_children_below = 0
 
     self.font = Assets.getFont("main")
 
@@ -13,6 +13,10 @@ function DarkItemMenu:init()
     self.ui_cancel_small = Assets.newSound("ui_cancel_small")
 
     self.heart_sprite = Assets.getTexture("player/heart")
+
+    self.bg = DarkBox(0, 0, self.width, self.height)
+    self.bg.layer = -1
+    self:addChild(self.bg)
 
     -- States: MENU, SELECT, USE
     self.state = "MENU"
@@ -201,7 +205,7 @@ function DarkItemMenu:update(dt)
 end
 
 function DarkItemMenu:draw()
-    super:draw(self)
+    love.graphics.setFont(self.font)
 
     local headers = {"USE", "TOSS", "KEY"}
 
@@ -257,6 +261,8 @@ function DarkItemMenu:draw()
             item_y = item_y + 1
         end
     end
+
+    super:draw(self)
 end
 
 return DarkItemMenu

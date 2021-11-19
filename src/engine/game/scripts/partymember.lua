@@ -116,10 +116,24 @@ function PartyMember:getEquipment()
     if self.equipped.weapon then
         table.insert(result, Registry.getItem(self.equipped.weapon))
     end
-    for _,armor in ipairs(self.equipped.armor) do
-        table.insert(result, Registry.getItem(armor))
+    for i = 1, 2 do
+        if self.equipped.armor[i] then
+            table.insert(result, Registry.getItem(self.equipped.armor[i]))
+        end
     end
     return result
+end
+
+function PartyMember:getWeapon()
+    if self.equipped.weapon then
+        return Registry.getItem(self.equipped.weapon)
+    end
+end
+
+function PartyMember:getArmor(i)
+    if self.equipped.armor[i] then
+        return Registry.getItem(self.equipped.armor[i])
+    end
 end
 
 function PartyMember:getEquipmentBonus(stat)

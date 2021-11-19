@@ -135,27 +135,10 @@ function DarkMenu:keypressed(key)
             elseif self.selected_submenu == 2 then
                 self.state = "EQUIPMENU"
 
-                self.equip_selected = 1
-
-                self.box = DarkBox(82, 112, 477, 277)
-                self.box.layer = -1
+                Input.consumePress("confirm")
+                self.box = DarkEquipMenu()
+                self.box.layer = 1
                 self:addChild(self.box)
-
-                local char = Sprite("ui/menu/caption_char", 68 - 32, 6 - 32)
-                char:setScale(2)
-                self.box:addChild(char)
-
-                local equipped = Sprite("ui/menu/caption_equipped", 68 - 32 + 258, 6 - 32)
-                equipped:setScale(2)
-                self.box:addChild(equipped)
-
-                local stats = Sprite("ui/menu/caption_stats", 68 - 32 - 2, 6 - 32 + 130)
-                stats:setScale(2)
-                self.box:addChild(stats)
-
-                local weapons = Sprite("ui/menu/caption_weapons", 68 - 32 - 2 + 256, 6 - 32 + 130)
-                weapons:setScale(2)
-                self.box:addChild(weapons)
 
                 self.ui_select:stop()
                 self.ui_select:play()
@@ -225,26 +208,6 @@ function DarkMenu:keypressed(key)
             end
             self:updateSelectedBoxes()
         end
-    elseif self.state == "EQUIPMENU" then
-        if Input.isCancel(key) then
-            self.ui_cancel_small:stop()
-            self.ui_cancel_small:play()
-            self.box:remove()
-            self.box = nil
-            self.state = "MAIN"
-        end
-        if Input.is("left", key) then
-            self.equip_selected = self.equip_selected - 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-        if Input.is("right", key) then
-            self.equip_selected = self.equip_selected + 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-        if self.equip_selected < 1 then self.equip_selected = #Game.party end
-        if self.equip_selected > #Game.party then self.equip_selected = 1 end
     elseif self.state == "POWERMENU" then
         if Input.isCancel(key) then
             self.ui_cancel_small:stop()
@@ -334,20 +297,7 @@ function DarkMenu:draw()
     love.graphics.setFont(self.font)
     love.graphics.print("D$ " .. Game.gold, 520, 20)
 
-    self:drawStates()
-
     super:draw(self)
-end
-
-function DarkMenu:drawStates()
-    if self.state == "EQUIPMENU" then
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.rectangle("fill", 270, 88,  6,   139)
-        love.graphics.rectangle("fill", 58,  221, 58,  6)
-        love.graphics.rectangle("fill", 212, 221, 160, 6)
-        love.graphics.rectangle("fill", 504, 221, 81,  6)
-        love.graphics.rectangle("fill", 323, 221, 6,   192)
-    end
 end
 
 function DarkMenu:drawButton(index, x, y)

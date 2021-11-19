@@ -134,15 +134,20 @@ function Object:init(x, y, width, height)
     -- Whether this object can be collided with
     self.collidable = true
 
-    -- Triggers list sort / child removal
-    self.update_child_list = false
-    self.children_to_remove = {}
-
     -- Whether this object updates
     self.active = true
 
     -- Whether this object draws
     self.visible = true
+
+    -- If set, children under this layer will be drawn below this object
+    self.draw_children_below = nil
+    -- If set, children at or above this layer will be drawn above this object
+    self.draw_children_above = nil
+
+    -- Triggers list sort / child removal
+    self.update_child_list = false
+    self.children_to_remove = {}
 
     self.parent = nil
     self.children = {}
@@ -573,18 +578,28 @@ function Object:postDraw()
     Draw.popScissor()
 end
 
-function Object:drawChildren()
+function Object:drawChildren(min_layer, max_layer)
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
     end
+    if not min_layer and not max_layer then
+        min_layer = self.draw_children_below
+        max_layer = self.draw_children_above
+    end
     local oldr, oldg, oldb, olda = love.graphics.getColor()
     for _,v in ipairs(self.children) do
-        if v.visible then
+        if v.visible and (not min_layer or v.layer >= min_layer) and (not max_layer or v.layer < max_layer) then
             love.graphics.push()
             v:preDraw()
+            if v.draw_children_below then
+                v:drawChildren(nil, v.draw_children_below)
+            end
             v:draw()
             v:postDraw()
+            if v.draw_children_above then
+                v:drawChildren(v.draw_children_above)
+            end
             love.graphics.pop()
         end
     end
