@@ -6,7 +6,7 @@ function OverworldActionBox:init(x, y, index, chara)
     self.index = index
     self.chara = chara
 
-    self.head_sprite = Sprite(chara.head_icons.."/head", 13, 12)
+    self.head_sprite = Sprite(chara.head_icons.."/head", 13, 13)
     self.name_sprite = Sprite(chara.name_sprite,         51, 16)
     self.hp_sprite   = Sprite("ui/hp", 109, 24)
 

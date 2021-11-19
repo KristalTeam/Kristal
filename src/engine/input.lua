@@ -76,7 +76,24 @@ function Input.pressed(key)
         end
         return false
     else
-        return self.key_down[key]
+        return self.key_pressed[key]
+    end
+end
+
+function Input.consumePress(key)
+    if self.aliases[key] then
+        local pressed = false
+        for _,k in ipairs(self.aliases[key]) do
+            if self.key_pressed[k] then
+                self.key_pressed[k] = nil
+                pressed = true
+            end
+        end
+        return pressed
+    else
+        local pressed = self.key_pressed[key]
+        self.key_pressed[key] = nil
+        return pressed or false
     end
 end
 
