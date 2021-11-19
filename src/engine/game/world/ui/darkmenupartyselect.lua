@@ -34,6 +34,14 @@ function DarkMenuPartySelect:update(dt)
         self:updateSelectedParty()
     end
 
+    for i,action_box in pairs(Game.world.healthbar.action_boxes) do
+        if i == self.selected_party then
+            action_box.selected = true
+        else
+            action_box.selected = false
+        end
+    end
+
     super:update(self, dt)
 end
 

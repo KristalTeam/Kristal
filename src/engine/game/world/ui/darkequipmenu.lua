@@ -202,6 +202,11 @@ function DarkEquipMenu:updateDescription()
     end
 end
 
+function DarkEquipMenu:onRemove(parent)
+    super:onRemove(parent)
+    Game.world.menu:updateSelectedBoxes()
+end
+
 function DarkEquipMenu:update(dt)
     if self.state == "PARTY" then
         if Input.pressed("cancel") then
