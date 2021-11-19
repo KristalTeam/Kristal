@@ -596,10 +596,10 @@ function Object:updatePhysicsTransform()
 
     if not physics then return end
 
-    local direction = physics.match_rotation and self.rotation or physics.direction
+    local direction = (physics.match_rotation and self.rotation or physics.direction) or physics.gravity_direction or 0
 
-    if physics.gravity ~= 0 then
-        if physics.speed ~= 0 then
+    if physics.gravity and physics.gravity ~= 0 then
+        if physics.speed and physics.speed ~= 0 then
             local speed_x, speed_y = math.cos(direction) * physics.speed, math.sin(direction) * physics.speed
             local new_speed_x = speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
             local new_speed_y = speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
@@ -610,12 +610,14 @@ function Object:updatePhysicsTransform()
             end
             physics.speed = math.sqrt(new_speed_x*new_speed_x + new_speed_y*new_speed_y)
         else
+            physics.speed_x = physics.speed_x or 0
+            physics.speed_y = physics.speed_y or 0
             physics.speed_x = physics.speed_x + math.cos(physics.gravity_direction) * (physics.gravity * DTMULT)
             physics.speed_y = physics.speed_y + math.sin(physics.gravity_direction) * (physics.gravity * DTMULT)
         end
     end
 
-    if physics.spin ~= 0 then
+    if physics.spin and physics.spin ~= 0 then
         if physics.match_rotation then
             self.rotation = self.rotation + physics.spin * DTMULT
         else
@@ -623,14 +625,14 @@ function Object:updatePhysicsTransform()
         end
     end
 
-    if physics.speed ~= 0 then
-        physics.speed = Utils.approach(physics.speed, 0, physics.friction * DTMULT)
+    if physics.speed and physics.speed ~= 0 then
+        physics.speed = Utils.approach(physics.speed, 0, (physics.friction or 0) * DTMULT)
         self:move(math.cos(direction), math.sin(direction), physics.speed * DTMULT)
     end
 
-    if physics.speed_x ~= 0 or physics.speed_y ~= 0 then
-        physics.speed_x = Utils.approach(physics.speed_x, 0, physics.friction * DTMULT)
-        physics.speed_y = Utils.approach(physics.speed_y, 0, physics.friction * DTMULT)
+    if (physics.speed_x and physics.speed_x ~= 0) or (physics.speed_y and physics.speed_y ~= 0) then
+        physics.speed_x = Utils.approach(physics.speed_x or 0, 0, (physics.friction or 0) * DTMULT)
+        physics.speed_y = Utils.approach(physics.speed_y or 0, 0, (physics.friction or 0) * DTMULT)
         self:move(physics.speed_x, physics.speed_y, DTMULT)
     end
 end
@@ -640,16 +642,18 @@ function Object:updateGraphicsTransform()
 
     if not graphics then return end
 
-    if graphics.fade ~= 0 and self.alpha ~= graphics.fade_to then
+    if graphics.fade and graphics.fade ~= 0 and self.alpha ~= graphics.fade_to then
         self.alpha = Utils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
         if graphics.fade_callback and self.alpha == graphics.fade_to then
             graphics.fade_callback(self)
         end
     end
 
-    if graphics.grow ~= 0 or graphics.grow_x ~= 0 or graphics.grow_y ~= 0 then
-        self.scale_x = self.scale_x + (graphics.grow_x + graphics.grow) * DTMULT
-        self.scale_y = self.scale_y + (graphics.grow_y + graphics.grow) * DTMULT
+    if (graphics.grow and graphics.grow ~= 0)
+    or (graphics.grow_x and graphics.grow_x ~= 0)
+    or (graphics.grow_y and graphics.grow_y ~= 0) then
+        self.scale_x = self.scale_x + (graphics.grow_x or 0 + graphics.grow or 0) * DTMULT
+        self.scale_y = self.scale_y + (graphics.grow_y or 0 + graphics.grow or 0) * DTMULT
     end
     if graphics.remove_shrunk and self.scale_x <= 0 or self.scale_y <= 0 then
         self.scale_x = 0
@@ -657,7 +661,7 @@ function Object:updateGraphicsTransform()
         self:remove()
     end
 
-    if graphics.spin ~= 0 then
+    if graphics.spin and graphics.spin ~= 0 then
         self.rotation = self.rotation + graphics.spin * DTMULT
     end
 end
