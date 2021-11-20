@@ -21,6 +21,7 @@ local spell = Spell{
 
 function spell:onCast(user, target)
     -- Code the cast effect here
+    -- If you return false, you can call Game.battle:finishAction() to finish the spell
 end
 
 return spell

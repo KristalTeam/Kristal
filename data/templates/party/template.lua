@@ -6,6 +6,8 @@ local character = PartyMember{
 
     -- Actor ID (handles overworld/battle sprites)
     actor = "kris",
+    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    lw_actor = nil,
 
     -- Display level (saved to the save file)
     level = 1,
@@ -69,6 +71,13 @@ local character = PartyMember{
 
     -- Battle position offset (optional)
     battle_offset = nil,
+    -- Head icon position offset (optional)
+    head_icon_offset = nil,
+    -- Menu icon position offset (optional)
+    menu_icon_offset = nil,
+
+    -- Message shown on gameover (optional)
+    gameover_message = nil,
 }
 
 -- Function overrides go here

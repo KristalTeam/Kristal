@@ -10,6 +10,11 @@ function OverworldActionBox:init(x, y, index, chara)
     self.name_sprite = Sprite(chara.name_sprite,         51, 16)
     self.hp_sprite   = Sprite("ui/hp", 109, 24)
 
+    if chara.head_icon_offset then
+        self.head_sprite.x = self.head_sprite.x + (chara.head_icon_offset[1] or 0)
+        self.head_sprite.y = self.head_sprite.y + (chara.head_icon_offset[2] or 0)
+    end
+
     self:addChild(self.head_sprite)
     self:addChild(self.name_sprite)
     self:addChild(self.hp_sprite)

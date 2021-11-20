@@ -71,6 +71,10 @@ local character = PartyMember{
 
     -- Battle position offset (optional)
     battle_offset = {3, 1},
+    -- Head icon position offset (optional)
+    head_icon_offset = nil,
+    -- Menu icon position offset (optional)
+    menu_icon_offset = nil,
 
     -- Message shown on gameover (optional)
     gameover_message = {

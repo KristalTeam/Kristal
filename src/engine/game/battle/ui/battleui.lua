@@ -167,7 +167,12 @@ function BattleUI:drawState()
 
                     -- Draw head only if it isn't the currently selected character
                     if Game.battle:getPartyIndex(party_id) ~= Game.battle.current_selecting then
-                        love.graphics.draw(Assets.getTexture(chara.head_icons .. "/head"), text_offset + 30 + (x * 230), 50 + (y * 30))
+                        local ox, oy = 0, 0
+                        if chara.head_icon_offset then
+                            ox = ox + (chara.head_icon_offset[1] or 0)
+                            oy = oy + (chara.head_icon_offset[2] or 0)
+                        end
+                        love.graphics.draw(Assets.getTexture(chara.head_icons .. "/head"), text_offset + 30 + (x * 230) + ox, 50 + (y * 30) + oy)
                         text_offset = text_offset + 30
                     end
                 end

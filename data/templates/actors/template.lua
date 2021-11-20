@@ -16,7 +16,7 @@ return {
 
     -- Path to this actor's sprites (defaults to "")
     path = "party/kris",
-    -- This actor's default sprite, relative to the path (defaults to "")
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
     default = "world/dark",
 
     -- Table of sprite animations

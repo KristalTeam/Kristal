@@ -19,8 +19,11 @@ function ActionBox:init(x, y, index, battler)
     self.box.layer = 1
     self:addChild(self.box)
 
-    self.head_sprite = Sprite(battler.chara.head_icons.."/head", 13, 11)
-    self.name_sprite = Sprite(battler.chara.name_sprite,         51, 14)
+    self.head_offset_x = battler.chara.head_icon_offset and battler.chara.head_icon_offset[1] or 0
+    self.head_offset_y = battler.chara.head_icon_offset and battler.chara.head_icon_offset[2] or 0
+
+    self.head_sprite = Sprite(battler.chara.head_icons.."/head", 13 + self.head_offset_x, 11 + self.head_offset_y)
+    self.name_sprite = Sprite(battler.chara.name_sprite, 51, 14)
     self.hp_sprite   = Sprite("ui/hp", 109, 22)
 
     self.box:addChild(self.head_sprite)
@@ -101,7 +104,7 @@ function ActionBox:update(dt)
         self.box.y = -Ease.outCubic(3 - self.animation_timer, 32, -32, 3)
     end
 
-    self.head_sprite.y = 11 - self.data_offset
+    self.head_sprite.y = 11 - self.data_offset + self.head_offset_y
     self.name_sprite.y = 14 - self.data_offset
     self.hp_sprite.y   = 22 - self.data_offset
 

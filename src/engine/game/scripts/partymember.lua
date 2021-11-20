@@ -75,6 +75,10 @@ function PartyMember:init(o)
 
     -- Battle position offset (optional)
     self.battle_offset = nil
+    -- Head icon position offset (optional)
+    self.head_icon_offset = nil
+    -- Menu icon position offset (optional)
+    self.menu_icon_offset = nil
 
     -- Message shown on gameover (optional)
     self.gameover_message = nil
