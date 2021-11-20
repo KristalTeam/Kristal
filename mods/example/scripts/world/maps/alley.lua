@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 16,
-  nextobjectid = 86,
+  nextobjectid = 89,
   properties = {
     ["music"] = "cybercity"
   },
@@ -885,24 +885,6 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
-        },
-        {
-          id = 42,
-          name = "",
-          type = "",
-          shape = "polygon",
-          x = 640,
-          y = 240,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          polygon = {
-            { x = 0, y = 0 },
-            { x = 80, y = 80 },
-            { x = 80, y = 0 }
-          },
-          properties = {}
         }
       }
     },
@@ -1048,6 +1030,21 @@ return {
           visible = true,
           properties = {
             ["script"] = "test"
+          }
+        },
+        {
+          id = 86,
+          name = "chest",
+          type = "",
+          shape = "rectangle",
+          x = 640,
+          y = 240,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["item"] = "royal_pin"
           }
         }
       }

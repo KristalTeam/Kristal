@@ -203,6 +203,20 @@ function World:startCutscene(group, id, ...)
     return self.cutscene
 end
 
+function World:showText(text, after)
+    if type(text) ~= "table" then
+        text = {text}
+    end
+    self:startCutscene(function(cutscene)
+        for _,line in ipairs(text) do
+            cutscene:text(line)
+        end
+        if after then
+            after(cutscene)
+        end
+    end)
+end
+
 function World:spawnPlayer(...)
     local args = {...}
 
@@ -620,6 +634,8 @@ function World:loadObject(name, data)
         return Outline(data)
     elseif name:lower() == "silhouette" then
         return Silhouette(data)
+    elseif name:lower() == "chest" then
+        return TreasureChest(data.center_x, data.center_y, data.properties)
     end
 end
 

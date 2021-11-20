@@ -125,6 +125,8 @@ end
 
 function Registry.registerActor(id, tbl)
     self.actors[id] = tbl
+    tbl.animations = tbl.animations or {}
+    tbl.offsets = tbl.offsets or {}
 end
 
 function Registry.registerPartyMember(id, tbl)

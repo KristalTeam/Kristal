@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 7,
-  nextobjectid = 50,
+  nextobjectid = 51,
   properties = {
     ["light"] = true,
     ["music"] = "dogcheck"
@@ -1257,6 +1257,21 @@ return {
           properties = {
             ["actor"] = "virovirokun",
             ["encounter"] = "virovirokun_lots"
+          }
+        },
+        {
+          id = 50,
+          name = "chest",
+          type = "",
+          shape = "rectangle",
+          x = 960,
+          y = 240,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["money"] = "1"
           }
         }
       }

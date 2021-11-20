@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="7" nextobjectid="50">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="7" nextobjectid="51">
  <editorsettings>
   <export target="alley2.lua" format="lua"/>
  </editorsettings>
@@ -130,6 +130,11 @@
    <properties>
     <property name="actor" value="virovirokun"/>
     <property name="encounter" value="virovirokun_lots"/>
+   </properties>
+  </object>
+  <object id="50" name="chest" x="960" y="240" width="40" height="40">
+   <properties>
+    <property name="money" value="1"/>
    </properties>
   </object>
  </objectgroup>

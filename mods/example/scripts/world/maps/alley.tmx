@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="86">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="89">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
@@ -52,9 +52,6 @@
   <object id="28" x="600" y="360" width="40" height="120"/>
   <object id="29" x="0" y="360" width="600" height="40"/>
   <object id="33" x="-40" y="240" width="40" height="120"/>
-  <object id="42" x="640" y="240">
-   <polygon points="0,0 80,80 80,0"/>
-  </object>
  </objectgroup>
  <objectgroup color="#ff0000" id="6" name="paths">
   <object id="78" name="virovirokun" x="168.033" y="93.8198" width="425.574" height="378.984">
@@ -86,6 +83,11 @@
   <object id="84" name="interactscript" x="80" y="200" width="81" height="40">
    <properties>
     <property name="script" value="test"/>
+   </properties>
+  </object>
+  <object id="86" name="chest" x="640" y="240" width="40" height="40">
+   <properties>
+    <property name="item" value="royal_pin"/>
    </properties>
   </object>
  </objectgroup>
