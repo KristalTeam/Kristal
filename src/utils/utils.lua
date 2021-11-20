@@ -274,6 +274,12 @@ function Utils.lerp(a, b, t)
     end
 end
 
+function Utils.clampMap(val, min_a, max_a, min_b, max_b)
+    val = Utils.clamp(val, min_a, max_a)
+    local t = (val - min_a) / (max_a - min_a)
+    return Utils.lerp(min_b, max_b, t)
+end
+
 function Utils.between(val, a, b)
     return val > a and val < b
 end
