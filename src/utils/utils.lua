@@ -262,26 +262,30 @@ function Utils.approach(val, target, amount)
     return target
 end
 
-function Utils.lerp(a, b, t, mode)
+function Utils.lerp(a, b, t, oob)
     if type(a) == "table" and type(b) == "table" then
         local o = {}
         for k,v in ipairs(a) do
-            table.insert(o, Utils.lerp(v, b[k] or v, t, mode))
+            table.insert(o, Utils.lerp(v, b[k] or v, t))
         end
         return o
     else
-        if mode and mode ~= "linear" and Ease[mode] then
-            return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
-        else
-            return a + (b - a) * Utils.clamp(t, 0, 1)
-        end
+        return a + (b - a) * oob and t or Utils.clamp(t, 0, 1)
     end
+end
+
+function Utils.ease(a, b, t, mode)
+    return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
 end
 
 function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
     val = Utils.clamp(val, min_a, max_a)
     local t = (val - min_a) / (max_a - min_a)
-    return Utils.lerp(min_b, max_b, t, mode)
+    if mode and mode ~= "linear" then
+        return Utils.ease(min_b, max_b, t, mode)
+    else
+        return Utils.lerp(min_b, max_b, t)
+    end
 end
 
 function Utils.between(val, a, b)
