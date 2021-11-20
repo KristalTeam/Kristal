@@ -17,7 +17,7 @@ function ChaserEnemy:init(actor, x, y, data)
 end
 
 function ChaserEnemy:onCollide(player)
-    if not self.world.encountering_enemy and player:includes(Player) then
+    if self:isActive() and player:includes(Player) then
         local encounter = self.encounter
         if not encounter and Registry.getEnemy(self.actor.id) then
             encounter = Encounter()
@@ -87,8 +87,14 @@ function ChaserEnemy:snapToPath()
     end
 end
 
+function ChaserEnemy:isActive()
+    return not self.world.encountering_enemy and
+           not self.world:hasCutscene() and
+           self.world.state ~= "MENU"
+end
+
 function ChaserEnemy:update(dt)
-    if self.path and self.world.paths[self.path] and not self.world.encountering_enemy then
+    if self.path and self.world.paths[self.path] and self:isActive() then
         local path = self.world.paths[self.path]
 
         if self.reverse_progress then
