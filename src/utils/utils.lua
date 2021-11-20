@@ -270,7 +270,7 @@ function Utils.lerp(a, b, t, oob)
         end
         return o
     else
-        return a + (b - a) * oob and t or Utils.clamp(t, 0, 1)
+        return a + (b - a) * (oob and t or Utils.clamp(t, 0, 1))
     end
 end
 
