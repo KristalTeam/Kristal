@@ -97,7 +97,7 @@ function AttackBox:update(dt)
 end
 
 function AttackBox:draw()
-    local target_color = self.battler.chara.attack_bar_color or self.battle.chara.color
+    local target_color = self.battler.chara.attack_bar_color or self.battler.chara.color
     local box_color = self.battler.chara.attack_box_color or Utils.lerp(target_color, {0, 0, 0}, 0.5)
 
     if self.flash > 0 then
