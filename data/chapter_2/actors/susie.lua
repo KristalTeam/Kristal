@@ -47,7 +47,7 @@ return {
         ["battle/rude_buster"]  = {"battle/rudebuster", 1/15, false, next="battle/idle"},
 
         -- Cutscene animations
-        ["jump_fall"]           = {"fall", 1/15, true},
+        ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
     },
 
@@ -93,7 +93,7 @@ return {
         ["pose"] = {1, 1},
 
         ["fall"] = {0, 4},
-        ["ball"] = {-1, 6},
+        ["ball"] = {-1, -7},
         ["landed"] = {5, 2},
 
         ["shock_left"] = {0, 4},

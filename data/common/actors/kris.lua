@@ -14,6 +14,7 @@ return {
 
     animations = {
         -- Movement animations
+        ["slide"]               = {"slide", 4/30, true},
 
         -- Battle animations
         ["battle/idle"]         = {"battle/idle", 0.2, true},
@@ -33,15 +34,25 @@ return {
         ["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
-        ["battle/transition"]   = {"battle/sword_jump_down", 0.2, true},
+        ["battle/transition"]   = {"sword_jump_down", 0.2, true},
         ["battle/intro"]        = {"battle/attack", 1/15, true},
-        ["battle/victory"]      = {"battle/victory", 1/10, false}
+        ["battle/victory"]      = {"battle/victory", 1/10, false},
 
         -- Cutscene animations
+        ["jump_fall"]           = {"fall", 1/5, true},
+        ["jump_ball"]           = {"ball", 1/15, true},
     },
 
     offsets = {
         -- Movement offsets
+        ["walk/left"] = {0, 0},
+        ["walk/right"] = {0, 0},
+        ["walk/up"] = {0, 0},
+        ["walk/down"] = {0, 0},
+
+        ["walk_blush/down"] = {0, 0},
+
+        ["slide"] = {0, 0},
 
         -- Battle offsets
         ["battle/idle"] = {5, 1},
@@ -58,10 +69,32 @@ return {
         ["battle/defeat"] = {8, 5},
         ["battle/hurt"] = {5, 6},
 
-        ["battle/sword_jump_down"] = {17, 2},
         ["battle/intro"] = {8, 9},
         ["battle/victory"] = {3, 0},
 
         -- Cutscene offsets
+        ["pose"] = {4, 2},
+
+        ["fall"] = {5, 6},
+        ["ball"] = {-1, -8},
+        ["landed"] = {4, 2},
+
+        ["fell"] = {14, -1},
+
+        ["sword_jump_down"] = {19, 5}, -- (was 17,3  was this deltarune accurate?)
+        ["sword_jump_settle"] = {27, -4},
+        ["sword_jump_up"] = {17, -2},
+
+        ["hug_left"] = {4, 1},
+        ["hug_right"] = {2, 1},
+
+        ["peace"] = {0, 0},
+        ["rude_gesture"] = {0, 0},
+
+        ["reach"] = {3, 1},
+
+        ["sit"] = {3, 0},
+
+        ["t_pose"] = {4, 0},
     },
 }
