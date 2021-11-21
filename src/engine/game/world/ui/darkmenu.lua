@@ -157,7 +157,8 @@ function DarkMenu:keypressed(key)
             elseif self.selected_submenu == 4 then
                 self.state = "CONFIGMENU"
 
-                self.box = DarkBox(82, 112, 477, 277)
+                Input.consumePress("confirm")
+                self.box = DarkConfigMenu()
                 self.box.layer = -1
                 self:addChild(self.box)
 
@@ -209,14 +210,6 @@ function DarkMenu:keypressed(key)
                 end
             end
             self:updateSelectedBoxes()
-        end
-    elseif self.state == "CONFIGMENU" then
-        if Input.isCancel(key) then
-            self.ui_cancel_small:stop()
-            self.ui_cancel_small:play()
-            self.box:remove()
-            self.box = nil
-            self.state = "MAIN"
         end
     end
 end
