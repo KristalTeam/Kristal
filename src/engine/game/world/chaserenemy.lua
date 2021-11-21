@@ -55,8 +55,8 @@ function ChaserEnemy:onAdd(parent)
 end
 
 function ChaserEnemy:snapToPath()
-    if self.path and self.world.paths[self.path] then
-        local path = self.world.paths[self.path]
+    if self.path and self.world.map.paths[self.path] then
+        local path = self.world.map.paths[self.path]
 
         local progress = self.progress
         if not path.closed then
@@ -94,8 +94,8 @@ function ChaserEnemy:isActive()
 end
 
 function ChaserEnemy:update(dt)
-    if self.path and self.world.paths[self.path] and self:isActive() then
-        local path = self.world.paths[self.path]
+    if self.path and self.world.map.paths[self.path] and self:isActive() then
+        local path = self.world.map.paths[self.path]
 
         if self.reverse_progress then
             self.progress = self.progress - (self.speed / path.length) * DTMULT

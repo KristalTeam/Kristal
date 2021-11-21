@@ -1,27 +1,64 @@
 local TileLayer, super = Class(Object)
 
-function TileLayer:init(world, data)
-    super:init(self, data.offsetx, data.offsety, data.width * world.tile_width, data.height * world.tile_height)
+function TileLayer:init(map, data)
+    data = data or {}
 
-    self.world = world
+    self.map_width = data.width or map.width
+    self.map_height = data.height or map.height
 
-    self.map_width = data.width
-    self.map_height = data.height
+    super:init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width, self.map_height * map.tile_height)
 
-    self.parallax_x = data.parallaxx
-    self.parallax_y = data.parallaxy
+    self.map = map
+
+    self.parallax_x = data.parallaxx or 0
+    self.parallax_y = data.parallaxy or 0
 
     if data.tintcolor then
         self:setColor(data.tintcolor[1]/255, data.tintcolor[2]/255, data.tintcolor[3]/255)
     end
 
     self.tile_data = data.data
-    self.tile_opacity = data.opacity
+    self.tile_opacity = data.opacity or 1
+
+    if not self.tile_data then
+        self.tile_data = {}
+        for i = 1, (self.map_width * self.map_height) do
+            self.tile_data[i] = 0
+        end
+    end
 
     self.animated_tiles = {}
 
-    self.canvas = love.graphics.newCanvas(self.map_width * world.tile_width, self.map_height * world.tile_height)
+    self.canvas = love.graphics.newCanvas(self.map_width * map.tile_width, self.map_height * map.tile_height)
     self.drawn = false
+end
+
+function TileLayer:setTile(x, y, tileset, ...)
+    local index = x + (y * self.map_width) + 1
+    if type(tileset) == "number" then
+        self.tile_data[index] = tileset
+    elseif type(tileset) == "string" then
+        local tiles, first_id = self.map:getTileset(tileset)
+
+        local args = {...}
+        if #args == 2 then -- x, y
+            self.tile_data[index] = first_id + (args[1] + (args[2] * tiles.columns))
+        else -- tile index
+            self.tile_data[index] = first_id + args[1]
+        end
+    end
+    self.drawn = false
+end
+
+function TileLayer:getTile(x, y)
+    local index = x + (y * self.map_width) + 1
+
+    if self.tile_data[index] then
+        local tile = self.tile_data[index]
+        return self.map:getTileset(tile)
+    end
+
+    return nil, 0
 end
 
 function TileLayer:draw()
@@ -31,11 +68,12 @@ function TileLayer:draw()
         love.graphics.clear()
         love.graphics.push()
         love.graphics.origin()
+        self.animated_tiles = {}
         for i,xid in ipairs(self.tile_data) do
-            local tx = ((i - 1) % self.map_width) * self.world.tile_width
-            local ty = math.floor((i - 1) / self.map_width) * self.world.tile_height
+            local tx = ((i - 1) % self.map_width) * self.map.tile_width
+            local ty = math.floor((i - 1) / self.map_width) * self.map.tile_height
 
-            local tileset, id = self.world:getTileset(xid)
+            local tileset, id = self.map:getTileset(xid)
             if tileset then
                 if not tileset:getAnimation(id) then
                     tileset:drawTile(id, tx, ty)

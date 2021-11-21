@@ -70,6 +70,7 @@ Item = require("src.engine.game.scripts.item")
 HealItem = require("src.engine.game.scripts.healitem")
 Encounter = require("src.engine.game.scripts.encounter")
 Wave = require("src.engine.game.scripts.wave")
+Map = require("src.engine.game.scripts.map")
 
 ActorSprite = require("src.engine.game.actorsprite")
 Inventory = require("src.engine.game.inventory")

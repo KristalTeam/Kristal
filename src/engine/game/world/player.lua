@@ -115,7 +115,7 @@ function Player:update(dt)
     end
 
     self.world.in_battle = false
-    for _,area in ipairs(self.world.battle_areas) do
+    for _,area in ipairs(self.world.map.battle_areas) do
         if area:collidesWith(self.collider) then
             self.world.in_battle = true
             break

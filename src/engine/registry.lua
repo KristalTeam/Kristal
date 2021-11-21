@@ -26,6 +26,7 @@ function Registry.initialize(preload)
         Registry.initWaves()
         Registry.initBullets()
         Registry.initCutscenes()
+        Registry.initMaps()
 
         Kristal.modCall("onRegistered")
     end
@@ -121,6 +122,24 @@ function Registry.getBattleCutscene(group, id)
     end
 end
 
+function Registry.getMap(id)
+    return self.maps[id]
+end
+
+function Registry.createMap(id, world, ...)
+    if self.maps[id] then
+        return self.maps[id](world, self.map_data[id], ...)
+    elseif self.map_data[id] then
+        return Map(world, self.map_data[id], ...)
+    else
+        error("Attempt to create non existent map \"" .. id .. "\"")
+    end
+end
+
+function Registry.getMapData(id)
+    return self.map_data[id]
+end
+
 -- Register Functions --
 
 function Registry.registerActor(id, tbl)
@@ -166,6 +185,14 @@ end
 
 function Registry.registerBattleCutscene(id, cutscene)
     self.battle_cutscenes[id] = cutscene
+end
+
+function Registry.registerMapData(id, data)
+    self.map_data[id] = data
+end
+
+function Registry.registerMap(id, class)
+    self.maps[id] = class
 end
 
 -- Internal Functions --
@@ -292,6 +319,37 @@ function Registry.initCutscenes()
     Kristal.modCall("onRegisterCutscenes")
 end
 
+function Registry.initMaps()
+    self.maps = {}
+    self.map_data = {}
+
+    for id,data in pairs(Assets.data.map_data) do
+        self.registerMapData(id, data)
+    end
+
+    for full_path,path,data in self.iterScripts("world/maps") do
+        local split_path = Utils.split(path, "/", true)
+        if isClass(data) then
+            if split_path[#split_path] == "map" then
+                self.registerMap(table.concat(split_path, "/", 1, #split_path-1), data)
+            else
+                self.registerMap(path, data)
+            end
+        else
+            data.full_path = full_path
+            if split_path[#split_path] == "data" then
+                data.id = table.concat(split_path, "/", 1, #split_path-1)
+                self.registerMapData(data.id, data)
+            else
+                data.id = path
+                self.registerMapData(path, data)
+            end
+        end
+    end
+
+    Kristal.modCall("onRegisterMaps")
+end
+
 function Registry.iterScripts(base_path)
     local result = {}
 
@@ -368,7 +426,11 @@ function Registry.iterScripts(base_path)
     return function()
         i = i + 1
         if i <= n then
-            return result[i].full_path, result[i].path, unpack(result[i].out)
+            local full_path = result[i].full_path
+            if Mod then
+                full_path = Mod.info.path.."/"..full_path
+            end
+            return full_path, result[i].path, unpack(result[i].out)
         end
     end
 end

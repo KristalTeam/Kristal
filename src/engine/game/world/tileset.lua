@@ -2,15 +2,15 @@ local Tileset = Class()
 
 function Tileset:init(data, path)
     self.name = data.name
-    self.first_id = data.firstgid
-    self.tile_width = data.tilewidth
-    self.tile_height = data.tileheight
-    self.margin = data.margin
-    self.spacing = data.spacing
-    self.columns = data.columns
+    self.tile_count = data.tilecount or 0
+    self.tile_width = data.tilewidth or 40
+    self.tile_height = data.tileheight or 40
+    self.margin = data.margin or 0
+    self.spacing = data.spacing or 0
+    self.columns = data.columns or 0
 
     self.tile_info = {}
-    for _,v in ipairs(data.tiles) do
+    for _,v in ipairs(data.tiles or {}) do
         local info = {}
         if v.animation then
             info.animation = {duration = 0, frames={}}
@@ -22,7 +22,11 @@ function Tileset:init(data, path)
         self.tile_info[v.id] = info
     end
 
-    self.texture = Assets.getTexture(Utils.absoluteToLocalPath("assets/sprites/", data.image, path))
+    if data.image_data then
+        self.texture = love.graphics.newImage(data.image_data)
+    else
+        self.texture = Assets.getTexture(Utils.absoluteToLocalPath("assets/sprites/", data.image, path))
+    end
 end
 
 function Tileset:getAnimation(id)
