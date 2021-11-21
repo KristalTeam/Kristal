@@ -86,6 +86,12 @@ function DarkItemMenu:useItem(item, party)
             Game.inventory:removeItem(self:getCurrentItemType(), self.selected_item)
         end
     end
+    if item.type == "key" then
+        local boxes = Game.world.healthbar.action_boxes
+        for _, box in ipairs(boxes) do
+            box.selected = true
+        end
+    end
     self:updateSelectedItem()
 end
 
