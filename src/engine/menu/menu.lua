@@ -332,6 +332,7 @@ function Menu:draw()
         Menu:printShadow("Play a mod", 215, 219)
         Menu:printShadow("Open mods folder", 215, 219 + 32)
         Menu:printShadow("Options", 215, 219 + 64)
+        Menu:printShadow("Credits", 215, 219 + 96)
     elseif self.state == "OPTIONS" or self.state == "VOLUME" then
 
         Menu:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
@@ -375,6 +376,10 @@ function Menu:draw()
                 Menu:printShadow("(X) Return to main menu", 294 + (16 * 3), 454 - 8, {1, 1, 1, 1})
             end
         end
+    elseif self.state == "CREDITS" then
+        Menu:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
+        Menu:printShadow("It just... showed up one day.", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
+        Menu:printShadow("(Not really. Real page soon.)", 0, 240 - 8 + 16, {0.7, 0.7, 0.7, 1}, true, 640)
     else
         Menu:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, true, 640)
     end
@@ -419,6 +424,10 @@ function Menu:keypressed(key, _, is_repeat)
                 self.heart_target_y = 129
                 self.selected_option = 1
                 self:setState("OPTIONS")
+            elseif self.selected_option == 4 then
+                self.heart_target_x = -8
+                self.heart_target_y = -8
+                self:setState("CREDITS")
             end
             return
         end
@@ -427,7 +436,7 @@ function Menu:keypressed(key, _, is_repeat)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-        self.selected_option = math.max(1, math.min(3, self.selected_option))
+        self.selected_option = math.max(1, math.min(4, self.selected_option))
 
         if old ~= self.selected_option then
             self.ui_move:stop()
@@ -498,7 +507,7 @@ function Menu:keypressed(key, _, is_repeat)
         end
     elseif self.state == "VOLUME" then
         if Input.isCancel(key) or Input.isConfirm(key) then
-            Game:setVolume(Utils.round(Game:getVolume()))
+            Game:setVolume(Utils.round(Game:getVolume() * 100) / 100)
             self:setState("OPTIONS")
             self.ui_select:stop()
             self.ui_select:play()
@@ -543,6 +552,15 @@ function Menu:keypressed(key, _, is_repeat)
             if key == "down"  then self.list:selectDown(is_repeat) end
             if key == "left"  then self.list:pageUp(is_repeat)     end
             if key == "right" then self.list:pageDown(is_repeat)   end
+        end
+    elseif self.state == "CREDITS" then
+        if Input.isCancel(key) or Input.isConfirm(key) then
+            self:setState("MAINMENU")
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.heart_target_x = 196
+            self.selected_option = 4
+            self.heart_target_y = 238 + (3 * 32)
         end
     else
         if Input.isCancel(key) or Input.isConfirm(key) then
