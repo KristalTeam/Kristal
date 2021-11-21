@@ -315,6 +315,7 @@ function World:addFollower(chara, options)
         end
     end
     self:addChild(follower)
+    follower:updateIndex()
     return follower
 end
 

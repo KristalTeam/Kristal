@@ -50,7 +50,7 @@ function Player:interact()
     return false
 end
 
-function Player:alignFollowers(facing, x, y)
+function Player:alignFollowers(facing, x, y, dist)
     local ex, ey = self:getExactPosition()
 
     facing = facing or self.facing
@@ -69,8 +69,8 @@ function Player:alignFollowers(facing, x, y)
 
     self.history = {{x = ex, y = ey, time = self.history_time}}
     for i = 1, Game.max_followers do
-        local dist = ((i * FOLLOW_DELAY) / (1/30)) * 4
-        table.insert(self.history, {x = x + (offset_x * dist), y = y + (offset_y * dist), time = self.history_time - (i * FOLLOW_DELAY)})
+        local idist = dist and (i * dist) or (((i * FOLLOW_DELAY) / (1/30)) * 4)
+        table.insert(self.history, {x = x + (offset_x * idist), y = y + (offset_y * idist), facing = facing, time = self.history_time - (i * FOLLOW_DELAY)})
     end
 end
 
@@ -80,7 +80,7 @@ function Player:keepFollowerPositions()
     self.history = {{x = ex, y = ey, time = self.history_time}}
     for i,follower in ipairs(Game.world.followers) do
         local fex, fey = follower:getExactPosition()
-        table.insert(self.history, {x = fex, y = fey, time = self.history_time - (i * FOLLOW_DELAY)})
+        table.insert(self.history, {x = fex, y = fey, facing = follower.facing, time = self.history_time - (i * FOLLOW_DELAY)})
     end
 end
 
@@ -102,7 +102,7 @@ function Player:update(dt)
             ey = self.y
         end
 
-        table.insert(self.history, 1, {x = ex, y = ey, time = self.history_time})
+        table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end

@@ -133,8 +133,8 @@ function WorldCutscene:attachFollowers(return_speed, facing)
     return waitForFollowers
 end
 
-function WorldCutscene:alignFollowers(facing, x, y)
-    Game.world.player:alignFollowers(facing, x, y)
+function WorldCutscene:alignFollowers(facing, x, y, dist)
+    Game.world.player:alignFollowers(facing, x, y, dist)
 end
 
 function WorldCutscene:keepFollowerPositions()
@@ -184,6 +184,13 @@ function WorldCutscene:setAnimation(chara, anim)
     local done = false
     chara:setAnimation(anim, function() done = true end)
     return function() return done end
+end
+
+function WorldCutscene:resetSprite(chara)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+    chara:resetSprite()
 end
 
 function WorldCutscene:spin(chara, speed)

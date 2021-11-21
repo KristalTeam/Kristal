@@ -35,9 +35,9 @@ end
 function Follower:getTargetPosition()
     local target = self:getTarget()
     if target and target.history then
-        local tx, ty = self.x, self.y
+        local tx, ty, facing = self.x, self.y, self.facing
         for i,v in ipairs(target.history) do
-            tx, ty = v.x, v.y
+            tx, ty, facing = v.x, v.y, v.facing
             local upper = target.history_time - v.time
             if upper > (FOLLOW_DELAY * self.index) then
                 if i > 1 then
@@ -52,16 +52,16 @@ function Follower:getTargetPosition()
                 break
             end
         end
-        return tx, ty
+        return tx, ty, facing
     else
-        return self:getExactPosition()
+        return self:getExactPosition(), self.facing
     end
 end
 
 function Follower:interprolate()
     if self:getTarget() and self:getTarget().history then
         local ex, ey = self:getExactPosition()
-        local tx, ty = self:getTargetPosition()
+        local tx, ty, facing = self:getTargetPosition()
 
         local speed = 8 * DTMULT
 
@@ -69,6 +69,9 @@ function Follower:interprolate()
         local dy = Utils.approach(ey, ty, speed) - ey
 
         self:move(dx, dy)
+        if facing then
+            self:setFacing(facing)
+        end
 
         return dx, dy
     else
