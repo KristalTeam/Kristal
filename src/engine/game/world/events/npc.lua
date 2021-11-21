@@ -5,6 +5,10 @@ function NPC:init(actor, x, y, properties)
 
     properties = properties or {}
 
+    if properties["sprite"] then
+        self.sprite:set(properties["sprite"])
+    end
+
     self.solid = properties["solid"] == nil or properties["solid"]
 
     self.cutscene = properties["script"]
