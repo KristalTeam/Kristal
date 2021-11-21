@@ -333,13 +333,17 @@ function World:loadMap(map, ...)
 
     self.followers = {}
 
-    if type(map) == "string" then
+    if isClass(map) then
+        self.map = map
+    elseif type(map) == "string" then
         self.map = Registry.createMap(map, self, ...)
     elseif type(map) == "table" then
         self.map = Map(self, map, ...)
     else
         self.map = Map(self, nil, ...)
     end
+
+    self.map:load()
 
     self.light = self.map.light
 
@@ -356,18 +360,30 @@ function World:loadMap(map, ...)
     self.battle_fader.layer = self.map.battle_fader_layer
     self:addChild(self.battle_fader)
 
-    if self.map.music and self.map.music ~= "" then
-        if self.music.current ~= self.map.music then
+    self:transitionMusic(self.map.music)
+
+    self:updateCamera()
+end
+
+function World:transitionMusic(next, dont_play)
+    if next and next ~= "" then
+        if self.music.current ~= next then
             if self.music:isPlaying() then
                 self.music:fade(0, 0.1, function()
-                    self.music:play(self.map.music, 1)
+                    if not dont_play then
+                        self.music:play(next, 1)
+                    else
+                        self.music:stop()
+                    end
                 end)
-            else
-                self.music:play(self.map.music, 1)
+            elseif not dont_play then
+                self.music:play(next, 1)
             end
         else
             if not self.music:isPlaying() then
-                self.music:play(self.map.music, 1)
+                if not dont_play then
+                    self.music:play(next, 1)
+                end
             else
                 self.music:fade(1)
             end
@@ -377,13 +393,16 @@ function World:loadMap(map, ...)
             self.music:fade(0, 0.1, function() self.music:stop() end)
         end
     end
-
-    self:updateCamera()
 end
 
 function World:transition(target)
     self.state = "TRANSITION_OUT"
-    self.transition_target = target
+    self.transition_target = Utils.copy(target or {})
+    if self.transition_target.map and type(self.transition_target.map) == "string" then
+        local map = Registry.createMap(self.transition_target.map)
+        self.transition_target.map = map
+        self:transitionMusic(map.music, true)
+    end
 end
 
 function World:transitionImmediate(target)
@@ -459,6 +478,7 @@ function World:update(dt)
         self.transition_fade = Utils.approach(self.transition_fade, 1, dt / 0.25)
         if self.transition_fade == 1 then
             self:transitionImmediate(self.transition_target or {})
+            self.transition_target = nil
             self.state = "TRANSITION_IN"
         end
     elseif self.state == "TRANSITION_IN" then

@@ -5,10 +5,29 @@ function Map:init(world, data)
 
     self.data = data
 
-    self.tile_width = 40
-    self.tile_height = 40
-    self.width = 16
-    self.height = 12
+    if data and data.full_path then
+        local map_path = data.full_path
+        map_path = Utils.split(map_path, "/")
+        map_path = Utils.join(map_path, "/", 1, #map_path - 1)
+        self.full_map_path = map_path
+    else
+        self.full_map_path = Mod and Mod.info.path or ""
+    end
+
+    self.tile_width = data and data.tilewidth or 40
+    self.tile_height = data and data.tileheight or 40
+    self.width = data and data.width or 16
+    self.height = data and data.height or 12
+
+    self.music = data and data.properties and data.properties["music"]
+    self.light = data and data.properties and data.properties["light"] or false
+
+    if data and data.backgroundcolor then
+        local bgc = data.backgroundcolor
+        self.bg_color = {bgc[1]/255, bgc[2]/255, bgc[3]/255, (bgc[4] or 255)/255}
+    else
+        self.bg_color = {0, 0, 0, 0}
+    end
 
     self.tilesets = {}
     self.collision = {}
@@ -18,18 +37,20 @@ function Map:init(world, data)
     self.battle_borders = {}
     self.paths = {}
 
-    self.light = false
-
-    self.bg_color = {0, 0, 0, 0}
+    if data then
+        self:populateTilesets(data.tilesets)
+    end
 
     self.depth_per_layer = 0.1 -- its not perfect, but i doubt anyone will have 2000 layers
     self.next_layer = self.depth_per_layer
 
     self.object_layer = 1
     self.battle_fader_layer = 0.5
+end
 
-    if data then
-        self:loadMap(data)
+function Map:load()
+    if self.data then
+        self:loadMapData(self.data)
     else
         self:addTileLayer(0)
     end
@@ -104,46 +125,7 @@ function Map:addTileLayer(depth, battle_border)
     return tilelayer
 end
 
-function Map:loadMap(data)
-    if data.full_path then
-        local map_path = data.full_path
-        map_path = Utils.split(map_path, "/")
-        map_path = Utils.join(map_path, "/", 1, #map_path - 1)
-        self.full_map_path = map_path
-    else
-        self.full_map_path = Mod.info.path
-    end
-
-    self.tile_width = data.tilewidth or 40
-    self.tile_height = data.tileheight or 40
-    self.width = data.width or 16
-    self.height = data.height or 12
-
-    self:populateTilesets(data.tilesets)
-
-    for _,child in ipairs(self.world.children) do
-        if not child.persistent then
-            child:remove()
-        end
-    end
-
-    self.music = data.properties and data.properties["music"]
-    self.light = data.properties and data.properties["light"] or false
-
-    if data.backgroundcolor then
-        local bgc = data.backgroundcolor
-        self.bg_color = {bgc[1]/255, bgc[2]/255, bgc[3]/255, (bgc[4] or 255)/255}
-    else
-        self.bg_color = {0, 0, 0, 0}
-    end
-
-    self.collision = {}
-    self.battle_areas = {}
-    self.tile_layers = {}
-    self.image_layers = {}
-    self.markers = {}
-    self.paths = {}
-
+function Map:loadMapData(data)
     local object_depths = {}
     local has_battle_border = false
     for i,layer in ipairs(data.layers or {}) do
