@@ -126,6 +126,7 @@ function Battle:init()
     self.defeated_enemies = {}
 
     self.waves = {}
+    self.finished_waves = false
 
     self.state_reason = nil
     self.substate_reason = nil
@@ -1179,6 +1180,7 @@ function Battle:setWaves(waves, allow_duplicates)
         wave:remove()
     end
     self.waves = {}
+    self.finished_waves = false
     local added_wave = {}
     for _,wave in ipairs(waves) do
         local exists = (type(wave) == "string" and added_wave[wave]) or (isClass(wave) and added_wave[wave.id])
@@ -1616,12 +1618,9 @@ end
 function Battle:updateWaves(dt)
     self.wave_timer = self.wave_timer + dt
 
-    local last_done = true
     local all_done = true
     for _,wave in ipairs(self.waves) do
         if not wave.finished then
-            last_done = false
-
             if wave.time >= 0 and self.wave_timer >= wave.time then
                 wave.finished = true
             else
@@ -1630,7 +1629,8 @@ function Battle:updateWaves(dt)
         end
     end
 
-    if all_done and not last_done then
+    if all_done and not self.finished_waves then
+        self.finished_waves = true
         self.encounter:onWavesDone()
     end
 end
