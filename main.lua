@@ -79,6 +79,8 @@ Cutscene = require("src.engine.game.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")
 BattleCutscene = require("src.engine.game.battle.battlecutscene")
 
+Console = require("src.engine.game.console")
+
 World = require("src.engine.game.world")
 Tileset = require("src.engine.game.world.tileset")
 TileLayer = require("src.engine.game.world.tilelayer")
@@ -148,6 +150,7 @@ RudeBusterBeam = require("src.engine.game.effects.rudebusterbeam")
 RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 
 _, LibLurker = pcall(require, "lurker")
+utf8 = require("utf8")
 
 local load_in_channel
 local load_out_channel

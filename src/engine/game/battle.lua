@@ -1772,6 +1772,8 @@ function Battle:isValidMenuLocation()
 end
 
 function Battle:keypressed(key)
+    if Game.console.is_open then return end
+
     if true then -- TODO: DEBUG
         if key == "g" then
             self.party[self.current_selecting]:hurt(1)

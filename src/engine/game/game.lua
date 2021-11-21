@@ -11,6 +11,9 @@ function Game:enter(previous_state)
     self.world = World()
     self.stage:addChild(self.world)
 
+    self.console = Console()
+    self.stage:addChild(self.console)
+
     self.battle = nil
 
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
@@ -419,12 +422,18 @@ function Game:handleMovement()
     end
 end
 
+function Game:textinput(key)
+    self.console:textinput(key)
+end
+
 function Game:keypressed(key)
     if self.previous_state and self.previous_state.animation_active then return end
 
     if Kristal.modCall("onKeyPressed", key) then
         return
     end
+
+    self.console:keypressed(key)
 
     if self.state == "BATTLE" then
         if self.battle then
