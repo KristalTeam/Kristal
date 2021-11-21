@@ -10,9 +10,12 @@ return {
     color = {0, 1, 1},
 
     path = "party/kris/dark",
-    default = "",
+    default = "walk",
 
     animations = {
+        -- Movement animations
+
+        -- Battle animations
         ["battle/idle"]         = {"battle/idle", 0.2, true},
 
         ["battle/attack"]       = {"battle/attack", 1/15, false},
@@ -33,9 +36,14 @@ return {
         ["battle/transition"]   = {"battle/sword_jump_down", 0.2, true},
         ["battle/intro"]        = {"battle/attack", 1/15, true},
         ["battle/victory"]      = {"battle/victory", 1/10, false}
+
+        -- Cutscene animations
     },
 
     offsets = {
+        -- Movement offsets
+
+        -- Battle offsets
         ["battle/idle"] = {5, 1},
 
         ["battle/attack"] = {8, 6},
@@ -54,8 +62,6 @@ return {
         ["battle/intro"] = {8, 9},
         ["battle/victory"] = {3, 0},
 
-        --["dark_transition/dark"] = {5, 6},
-        --["dark_transition/ball"] = {5, 6},
-        --["dark_transition/landed"] = {4, 2}
+        -- Cutscene offsets
     },
 }

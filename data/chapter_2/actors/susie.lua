@@ -137,5 +137,7 @@ return {
         ["away_scratch"] = {1, 2},
 
         ["t_pose"] = {6, 0},
+
+        ["fell"] = {18, 2},
     },
 }
