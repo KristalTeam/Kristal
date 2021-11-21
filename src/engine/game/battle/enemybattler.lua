@@ -24,6 +24,9 @@ function EnemyBattler:init(chara)
     -- Affects the animation thats plays when this enemy is defeatedd (run, fatal, or none/nil)
     self.defeat_type = "run"
 
+    -- Whether this enemy can be frozen
+    self.can_freeze = true
+
     self.done_state = nil
 
     self.waves = {}
@@ -302,13 +305,19 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
 
         if on_defeat then
             on_defeat(self, amount, battler)
-        elseif self.defeat_type == "run" then
-            self:onDefeatRun()
-        elseif self.defeat_type == "fatal" then
-            self:onDefeatFatal()
         else
-            self.sprite:setAnimation("defeat")
+            self:onDefeat(amount, battler)
         end
+    end
+end
+
+function EnemyBattler:onDefeat(damage, battler)
+    if self.defeat_type == "run" then
+        self:onDefeatRun(damage, battler)
+    elseif self.defeat_type == "fatal" then
+        self:onDefeatFatal(damage, battler)
+    else
+        self.sprite:setAnimation("defeat")
     end
 end
 
@@ -370,6 +379,10 @@ function EnemyBattler:heal(amount)
 end
 
 function EnemyBattler:freeze()
+    if not self.can_freeze then
+        self:onDefeatRun()
+    end
+
     Assets.playSound("snd_petrify")
 
     self:toggleOverlay(true)
