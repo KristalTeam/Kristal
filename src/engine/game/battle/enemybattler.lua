@@ -294,11 +294,8 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
     self.health = self.health - amount
     self:statusMessage("damage", amount, battler and (battler.chara.dmg_color or battler.chara.color))
 
-    self:toggleOverlay(true)
-    self.overlay_sprite:setAnimation("hurt")
-
-    self.overlay_sprite.shake_x = 9
     self.hurt_timer = 1
+    self:onHurt(amount, battler)
 
     if self.health <= 0 then
         self.health = 0
@@ -309,6 +306,21 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
             self:onDefeat(amount, battler)
         end
     end
+end
+
+function EnemyBattler:onHurt(damage, battler)
+    if self.overlay_sprite:setAnimation("hurt") then
+        self:toggleOverlay(true)
+        self.overlay_sprite.shake_x = 9
+    else
+        self:toggleOverlay(false)
+        self.sprite.shake_x = 9
+    end
+end
+
+function EnemyBattler:onHurtEnd()
+    self:getActiveSprite().shake_x = 0
+    self:toggleOverlay(false)
 end
 
 function EnemyBattler:onDefeat(damage, battler)
@@ -334,7 +346,7 @@ function EnemyBattler:onDefeatRun(damage, battler)
 
     Game.battle.timer:after(15/30, function()
         sweat:remove()
-        self.overlay_sprite.run_away = true
+        self:getActiveSprite().run_away = true
 
         Game.battle.timer:after(15/30, function()
             self:remove()
@@ -349,14 +361,15 @@ function EnemyBattler:onDefeatFatal(damage, battler)
 
     Assets.playSound("snd_deathnoise")
 
-    self.sprite.visible = false
-    self.overlay_sprite.visible = false
-    self.overlay_sprite.shake_x = 0
+    local sprite = self:getActiveSprite()
 
-    local death_x, death_y = self.overlay_sprite:getRelativePos(0, 0, self)
-    local death = FatalEffect(self.overlay_sprite:getTexture(), death_x, death_y, function() self:remove() end)
-    death:setColor(self.overlay_sprite:getDrawColor())
-    death:setScale(self.overlay_sprite:getScale())
+    sprite.visible = false
+    sprite.shake_x = 0
+
+    local death_x, death_y = sprite:getRelativePos(0, 0, self)
+    local death = FatalEffect(sprite:getTexture(), death_x, death_y, function() self:remove() end)
+    death:setColor(sprite:getDrawColor())
+    death:setScale(sprite:getScale())
     self:addChild(death)
 
     self:defeat("KILLED", true)
@@ -453,6 +466,10 @@ function EnemyBattler:toggleOverlay(overlay)
     self.sprite.visible = not overlay
 end
 
+function EnemyBattler:getActiveSprite()
+    return self.overlay_sprite.visible and self.overlay_sprite or self.sprite
+end
+
 function EnemyBattler:setSprite(sprite, speed, loop, after)
     if not self.sprite then
         self.sprite = Sprite(sprite)
@@ -470,8 +487,7 @@ function EnemyBattler:update(dt)
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, dt)
 
         if self.hurt_timer == 0 then
-            self.overlay_sprite.shake_x = 0
-            self:toggleOverlay(false)
+            self:onHurtEnd()
         end
     end
 
