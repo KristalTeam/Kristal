@@ -28,7 +28,6 @@ function DarkConfigMenu:init()
     self.noise_timer = 0
 
     self.no1 = false
-    self.no2 = false
 end
 
 function DarkConfigMenu:update(dt)
@@ -51,7 +50,7 @@ function DarkConfigMenu:update(dt)
             elseif self.currently_selected == 5 then
                 Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.currently_selected == 6 then
-                self.no2 = true
+                Game.state = "EXIT"
             elseif self.currently_selected == 7 then
                 Game.world.menu:closeBox()
             end
@@ -127,11 +126,7 @@ function DarkConfigMenu:draw()
     love.graphics.print("Simplify VFX",    88, 38 + (2 * 32))
     love.graphics.print("Fullscreen",      88, 38 + (3 * 32))
     love.graphics.print("Auto-Run",        88, 38 + (4 * 32))
-    if self.no2 then
-        love.graphics.print("This seems hard", 88, 38 + (5 * 32))
-    else
-        love.graphics.print("Return to Title", 88, 38 + (5 * 32))
-    end
+    love.graphics.print("Return to Title", 88, 38 + (5 * 32))
     love.graphics.print("Back",            88, 38 + (6 * 32))
 
     if self.state == "VOLUME" then

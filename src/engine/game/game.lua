@@ -80,6 +80,14 @@ function Game:enter(previous_state)
     Kristal.modCall("init")
 end
 
+function Game:leave()
+    self.stage = nil
+    self.world = nil
+    self.battle = nil
+    self.inventory = nil
+    self.console = nil
+end
+
 function Game:isLight()
     return self.world and self.world.light or false
 end
@@ -278,10 +286,10 @@ function Game:updateGameOver(dt)
     end
 
     if (self.gameover_stage == 21) and (not self.music:isPlaying()) then
-        if Kristal.getModOption("quickReload") then
-            Kristal.quickReload()
-        else
+        if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
+        else
+            Kristal.returnToMenu()
         end
         self.gameover_stage = 0
     end
@@ -360,6 +368,21 @@ function Game:getVolume()
 end
 
 function Game:update(dt)
+    if self.state == "EXIT" then
+        if self.world and self.world.music then
+            self.world.music:fade(0, 0.1)
+        end
+        if self.battle and self.battle.music then
+            self.battle.music:fade(0, 0.1)
+        end
+        self.fade_white = false
+        self.fader_alpha = self.fader_alpha + (dt*2)
+        if self.fader_alpha >= 1 then
+            Kristal.returnToMenu()
+        end
+        return
+    end
+
     if self.previous_state and self.previous_state.animation_active then
         self.previous_state:update(dt)
         self.lock_input = true

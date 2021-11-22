@@ -80,6 +80,15 @@ function Draw._clearUnusedCanvases()
     self._used_canvas = {}
 end
 
+function Draw._clearStacks()
+    self._canvases = {}
+    self._used_canvas = setmetatable({},{__mode="k"})
+    self._locked_canvas = setmetatable({},{__mode="k"})
+    self._canvas_stack = {}
+
+    self._scissor_stack = {}
+end
+
 function Draw.getScissor()
     if love.graphics.getScissor() then
         local x, y, w, h = love.graphics.getScissor()

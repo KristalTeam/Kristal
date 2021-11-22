@@ -25,6 +25,13 @@ function Object.endCache()
     end
 end
 
+function Object._clearCache()
+    Object.CACHE_TRANSFORMS = false
+    Object.CACHE_ATTEMPTS = 0
+    Object.CACHED = {}
+    Object.CACHED_FULL = {}
+end
+
 function Object.uncache(obj)
     if Object.CACHE_TRANSFORMS then
         Object.CACHED[obj] = nil

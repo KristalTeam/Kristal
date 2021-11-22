@@ -330,10 +330,10 @@ function love.keypressed(key)
             LibLurker.scan()
         end
     elseif key == "r" and love.keyboard.isDown("lctrl") then
-        if Kristal.getModOption("quickReload") then
-            Kristal.quickReload()
-        else
+        if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
+        else
+            Kristal.returnToMenu()
         end
     end
 end
@@ -397,10 +397,10 @@ function love.run()
         if errorResult then
             local result = errorResult()
             if result then
-                if result == "quick_reload" then
+                if result == "reload" then
                     Mod = nil
                     errorResult = nil
-                    Kristal.quickReload()
+                    Kristal.returnToMenu()
                 else
                     if love.quit then
                         love.quit()
@@ -559,9 +559,12 @@ function Kristal.errorHandler(msg)
         copy_color[3] = copy_color[3] + (DT * 2)
 
         love.graphics.setFont(smaller_font)
-        if Kristal.getModOption("quickReload") then
+        if Kristal.getModOption("hardReset") then
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.print("Press R to go back to mod menu (Quick Reload available)", 8, 480 - 40)
+            love.graphics.print("Press ESC to restart the game", 8, 480 - 40)
+        else
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.print("Press ESC to return to mod menu", 8, 480 - 40)
         end
         love.graphics.setColor(copy_color)
         love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
@@ -588,9 +591,11 @@ function Kristal.errorHandler(msg)
             if e == "quit" then
                 return 1
             elseif e == "keypressed" and a == "escape" then
-                return "restart"
-            elseif e == "keypressed" and a == "r" and Kristal.getModOption("quickReload") then
-                return "quick_reload"
+                if Kristal.getModOption("hardReset") then
+                    return "restart"
+                else
+                    return "reload"
+                end
             elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
                 copyToClipboard()
             elseif e == "touchpressed" then
@@ -618,14 +623,28 @@ function Kristal.errorHandler(msg)
 
 end
 
-function Kristal.quickReload()
+function Kristal.returnToMenu()
+    -- Go to empty state
+    Gamestate.switch({})
+    -- Clear disruptive active globals
+    Object._clearCache()
+    Draw._clearStacks()
+    -- End the current mod
+    Kristal.modCall("unload")
     Mod = nil
     Kristal.Mods.clear()
     Kristal.clearModHooks()
-    Registry.initialize()
+    -- Stop sounds and music
     love.audio.stop()
     Music.clear()
-    Gamestate.switch({})
+    -- Reset global variables
+    Registry.restoreOverridenObjects()
+    package.loaded["src.engine.vars"] = nil
+    require("src.engine.vars")
+    -- Restore assets and registry
+    Assets.restoreData()
+    Registry.initialize()
+    -- Reload mods
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
     end)

@@ -1,6 +1,8 @@
 local Assets = {}
 local self = Assets
 
+Assets.saved_data = nil
+
 function Assets.clear()
     self.loaded = false
     self.data = {
@@ -21,13 +23,32 @@ function Assets.clear()
     self.quads = {}
     self.sounds = {}
     self.sound_instances = {}
-    self.music = nil
     self.tilesets = {}
 end
 
 function Assets.loadData(data)
     Utils.merge(self.data, data, true)
 
+    self.parseData(data)
+
+    self.loaded = true
+end
+
+function Assets.saveData()
+    self.saved_data = Utils.copy(self.data, true)
+end
+
+function Assets.restoreData()
+    if self.saved_data then
+        Assets.clear()
+        Assets.loadData(self.saved_data)
+        return true
+    else
+        return false
+    end
+end
+
+function Assets.parseData(data)
     -- thread can't create images, we do it here
     for key,image_data in pairs(data.texture_data) do
         self.data.texture[key] = love.graphics.newImage(image_data)
@@ -35,7 +56,7 @@ function Assets.loadData(data)
 
     -- create frame tables with images
     for key,ids in pairs(data.frame_ids) do
-        self.data.frames[key] = self.data.frames[key] or {}
+        self.data.frames[key] = {}
         for i,id in pairs(ids) do
             self.data.frames[key][i] = self.data.texture[id]
             self.frames_for[id] = {key, i}
@@ -60,7 +81,7 @@ function Assets.loadData(data)
         self.sounds[key] = src
     end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
-    self.data.sound_data = {}
+    --self.data.sound_data = {}
 
     -- create tilesets from tileset data
     for key,tileset_data in pairs(data.tilesets) do
@@ -68,8 +89,6 @@ function Assets.loadData(data)
         tileset.id = key
         self.tilesets[key] = tileset
     end
-
-    self.loaded = true
 end
 
 function Assets.update(dt)

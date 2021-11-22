@@ -1,6 +1,9 @@
 local Registry = {}
 local self = Registry
 
+Registry.new_objects = {}
+Registry.last_objects = {}
+
 function Registry.initialize(preload)
     if not self.preload then
         self.base_scripts = {}
@@ -32,6 +35,14 @@ function Registry.initialize(preload)
     end
 
     self.preload = preload
+end
+
+function Registry.restoreOverridenObjects()
+    for id,_ in pairs(self.new_objects) do
+        _G[id] = self.last_objects[id]
+    end
+    self.new_objects = {}
+    self.last_objects = {}
 end
 
 -- Getter Functions --
@@ -210,7 +221,12 @@ function Registry.initObjects()
 
         if _G[id] then
             print("WARNING: Object '"..id.."' already exists, replacing")
+            if not self.last_objects[id] then
+                self.last_objects[id] = _G[id]
+            end
         end
+
+        self.new_objects[id] = object
 
         _G[id] = object
     end

@@ -57,6 +57,8 @@ function Loading:beginLoad()
     Kristal.loadAssets("", "mods", "", function()
         self.loading = false
         self.load_complete = true
+
+        Assets.saveData()
     end)
 end
 
