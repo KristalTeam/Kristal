@@ -262,6 +262,11 @@ function Utils.approach(val, target, amount)
     return target
 end
 
+function Utils.approachAngle(val, target, amount)
+    local to = val + Utils.angleDiff(target, val)
+    return Utils.approach(val, to, amount)
+end
+
 function Utils.lerp(a, b, t, oob)
     if type(a) == "table" and type(b) == "table" then
         local o = {}
