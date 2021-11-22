@@ -20,6 +20,11 @@ function Game:enter(previous_state)
 
     -- BEGIN SAVE FILE VARIABLES --
 
+    self.save_name = "PLAYER"
+    self.save_id = 1
+
+    self.playtime = 0
+
     self.party = {}
     for _,id in ipairs(Kristal.getModOption("party") or {"kris"}) do
         table.insert(self.party, Registry.getPartyMember(id))
@@ -418,6 +423,8 @@ function Game:update(dt)
         self.world.active = true
         self.world.visible = true
     end
+
+    self.playtime = self.playtime + dt
 
     self.stage:update(dt)
 

@@ -74,7 +74,7 @@ function World:heal(target, amount)
     end
 end
 
-function World:openMenu()
+function World:openMenu(menu)
     if self:hasCutscene() then return end
     if self.in_battle then return end
     if not self.can_open_menu then return end
@@ -85,20 +85,24 @@ function World:openMenu()
 
     self.state = "MENU"
 
-    if not self.light then
-        self:showHealthBars()
-        self.menu = DarkMenu()
-        self.menu.layer = self.layers["ui"]
-        self:addChild(self.menu)
+    if not menu then
+        if not self.light then
+            self.menu = DarkMenu()
+        else
+            error("TODO: Light world menu")
+        end
     else
-        error("TODO: Light world menu")
+        self.menu = menu
     end
+    self.menu.layer = self.layers["ui"]
+    self:addChild(self.menu)
+    return self.menu
 end
 
 function World:closeMenu()
     self.state = "GAMEPLAY"
     if self.menu then
-        if not self.menu.animate_out then
+        if not self.menu.animate_out and self.menu.transitionOut then
             self.menu:transitionOut()
         end
     end
@@ -141,11 +145,13 @@ function World:keypressed(key)
     if self.state == "GAMEPLAY" then
         if Input.isConfirm(key) and self.player then
             self.player:interact()
+            Input.consumePress("confirm")
         elseif Input.isMenu(key) then
             self:openMenu()
+            Input.consumePress("menu")
         end
     elseif self.state == "MENU" then
-        if self.menu then
+        if self.menu and self.menu.keypressed then
             self.menu:keypressed(key)
         end
     end

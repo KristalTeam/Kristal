@@ -67,6 +67,11 @@ function DarkMenu:init()
     self.box = nil
 end
 
+function DarkMenu:onAdd(parent)
+    super:onAdd(parent)
+    Game.world:showHealthBars()
+end
+
 function DarkMenu:transitionOut()
     self.animate_out = true
     self.animation_timer = 0
