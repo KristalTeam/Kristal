@@ -16,9 +16,15 @@ function Console:init()
         ""
     }
 
+    self.command_history = {}
+
     self.input = ""
 
     self.is_open = false
+
+    self.history_index = 0
+
+    self.cursor = 0
 
     self:close()
 
@@ -56,6 +62,8 @@ end
 
 function Console:open()
     self.is_open = true
+    self.history_index = 0
+    self.cursor = utf8.len(self.input)
     love.keyboard.setTextInput(true)
     Game.lock_input = true
     love.keyboard.setKeyRepeat(true)
@@ -115,12 +123,28 @@ function Console:draw()
     love.graphics.setColor(1, 1, 1, 1)
     self:print("> " .. self.input, 8, input_pos)
 
+    love.graphics.setColor(1, 0, 1, 1)
+    local cursor_pos = self.font:getWidth("> ")
+    if self.cursor > 0 then
+        cursor_pos = self.font:getWidth(string.sub(self.input, 1, utf8.offset(self.input, self.cursor))) + cursor_pos
+    end
+    self:print("_", 8 + cursor_pos, input_pos)
+
+    love.graphics.setColor(1, 1, 1, 1)
     super:draw(self)
 end
 
 function Console:textinput(t)
     if not self.is_open then return end
-    self.input = self.input .. t
+    self:insertString(t)
+end
+
+function Console:insertString(str)
+    local string_1 = string.sub(self.input, 1, utf8.offset(self.input, self.cursor))
+    local string_2 = string.sub(self.input, utf8.offset(self.input, self.cursor) + 1, -1)
+
+    self.input = string_1 .. str .. string_2
+    self.cursor = self.cursor + utf8.len(str)
 end
 
 function Console:push(str)
@@ -132,6 +156,10 @@ function Console:log(str)
 end
 
 function Console:run(str)
+    if str ~= self.command_history[#self.command_history] then
+        table.insert(self.command_history, str)
+    end
+    self.history_index = #self.command_history + 1
     self:push("> " .. str)
     local status, error = pcall(function() self:unsafeRun(str) end)
     if not status then
@@ -160,18 +188,50 @@ function Console:keypressed(key)
 
     if not self.is_open then return end
 
-    if key == "return" then
+    if (key == "v") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+        self:insertString(love.system.getClipboardText())
+    elseif key == "return" then
         self:run(self.input)
         self.input = ""
-    end
-    if key == "backspace" then
+        self.cursor = 0
+    elseif key == "backspace" then
+        if self.cursor == 0 then return end
+
+        local string_1 = string.sub(self.input, 1, utf8.offset(self.input, self.cursor))
+        local string_2 = string.sub(self.input, utf8.offset(self.input, self.cursor) + 1, -1)
+
         -- get the byte offset to the last UTF-8 character in the string.
-        local byteoffset = utf8.offset(self.input, -1)
+        local byteoffset = utf8.offset(string_1, -1)
 
         if byteoffset then
             -- remove the last UTF-8 character.
             -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-            self.input = string.sub(self.input, 1, byteoffset - 1)
+            string_1 = string.sub(string_1, 1, byteoffset - 1)
+            self.cursor = utf8.len(string_1)
+        end
+        self.input = string_1 .. string_2
+    elseif key == "up" then
+        if #self.command_history == 0 then return end
+        if self.history_index > 1 then
+            self.history_index = self.history_index - 1
+            self.input = self.command_history[self.history_index]
+        end
+    elseif key == "down" then
+        if #self.command_history == 0 then return end
+        if self.history_index < #self.command_history + 1 then
+            self.history_index = self.history_index + 1
+            self.input = self.command_history[self.history_index]
+        end
+        if self.history_index == #self.command_history + 1 then
+            self.input = ""
+        end
+    elseif key == "left" then
+        if self.cursor > 0 then
+            self.cursor = self.cursor - 1
+        end
+    elseif key == "right" then
+        if self.cursor < utf8.len(self.input) then
+            self.cursor = self.cursor + 1
         end
     end
 end
