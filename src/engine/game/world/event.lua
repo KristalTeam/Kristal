@@ -16,6 +16,8 @@ function Event:init(x, y, w, h, o)
     self.sprite = nil
 end
 
+--[[ OPTIONAL FUNCTIONS
+
 function Event:onInteract(player, dir)
     -- Do stuff when the player interacts with this object (CONFIRM key)
     return false
@@ -24,6 +26,8 @@ end
 function Event:onCollide(player)
     -- Do stuff when the player collides with this object
 end
+
+]]--
 
 function Event:onAdd(parent)
     if parent:includes(World) then

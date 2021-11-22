@@ -29,10 +29,12 @@ function FatalEffect:init(texture, x, y, after)
         for j = 0, self.blocks_y do
             local block = {}
 
-            block.qx = (i * self.block_size)
-            block.qy = (j * self.block_size)
-            block.qw = Utils.clamp(self.block_size, 0, self.width - block.qx)
-            block.qh = Utils.clamp(self.block_size, 0, self.height - block.qy)
+            local qx = (i * self.block_size)
+            local qy = (j * self.block_size)
+            local qw = Utils.clamp(self.block_size, 0, self.width - qx)
+            local qh = Utils.clamp(self.block_size, 0, self.height - qy)
+
+            block.quad = love.graphics.newQuad(qx, qy, qw, qh, self.width, self.height)
 
             block.x = (i * self.block_size)
             block.speed = 0
@@ -81,9 +83,8 @@ function FatalEffect:draw()
     for i = 0, self.blocks_x do
         for j = 0, self.blocks_y do
             local block = self.blocks[i][j]
-            local quad = Assets.getQuad(block.qx, block.qy, block.qw, block.qh, self.texture:getWidth(), self.texture:getHeight())
             love.graphics.setColor(r, g, b, a * (1 - (block.speed / 12)))
-            love.graphics.draw(self.texture, quad, block.x, (j * self.block_size))
+            love.graphics.draw(self.texture, block.quad, block.x, (j * self.block_size))
         end
     end
 

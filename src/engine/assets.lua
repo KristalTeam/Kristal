@@ -146,11 +146,6 @@ function Assets.getFramesFor(texture)
     end
 end
 
-function Assets.getQuad(x, y, width, height, sw, sh)
-    local idstr = x..","..y..","..width..","..sw..","..sh
-    return self.quads[idstr] or love.graphics.newQuad(x, y, width, height, sw, sh)
-end
-
 function Assets.getSound(sound)
     return self.sounds[sound]
 end

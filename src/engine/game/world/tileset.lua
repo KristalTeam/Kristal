@@ -27,6 +27,16 @@ function Tileset:init(data, path)
     else
         self.texture = Assets.getTexture(Utils.absoluteToLocalPath("assets/sprites/", data.image, path))
     end
+
+    self.quads = {}
+    if self.texture then
+        local tw, th = self.texture:getWidth(), self.texture:getHeight()
+        for i = 0, self.tile_count-1 do
+            local tx = self.margin + (i % self.columns) * (self.tile_width + self.spacing)
+            local ty = self.margin + math.floor(i / self.columns) * (self.tile_height + self.spacing)
+            self.quads[i] = love.graphics.newQuad(tx, ty, self.tile_width, self.tile_height, tw, th)
+        end
+    end
 end
 
 function Tileset:getAnimation(id)
@@ -49,9 +59,7 @@ function Tileset:drawTile(id, x, y, ...)
             total_duration = total_duration + frame.duration
         end
     end
-    local tx = self.margin + (draw_id % self.columns) * (self.tile_width + self.spacing)
-    local ty = self.margin + math.floor(draw_id / self.columns) * (self.tile_height + self.spacing)
-    Draw.drawCutout(self.texture, x or 0, y or 0, tx, ty, self.tile_width, self.tile_height, ...)
+    love.graphics.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
 end
 
 return Tileset
