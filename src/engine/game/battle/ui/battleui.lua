@@ -118,7 +118,7 @@ end
 
 function BattleUI:drawActionStrip()
     -- Draw the top line of the action strip
-    love.graphics.setColor(51/255, 32/255, 51/255, 1)
+    love.graphics.setColor(PALETTE["action_strip"])
     love.graphics.rectangle("fill", 0, 0, 640, 2)
     -- Draw the background of the action strip
     love.graphics.setColor(0, 0, 0, 1)
@@ -127,7 +127,7 @@ end
 
 function BattleUI:drawActionArena()
     -- Draw the top line of the action area
-    love.graphics.setColor(51/255, 32/255, 51/255, 1)
+    love.graphics.setColor(PALETTE["action_strip"])
     love.graphics.rectangle("fill", 0, 37, 640, 3)
     -- Draw the background of the action area
     love.graphics.setColor(0, 0, 0, 1)

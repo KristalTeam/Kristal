@@ -42,7 +42,7 @@ function OverworldActionBox:draw()
     if self.selected then
         love.graphics.setColor(self.chara.color)
     else
-        love.graphics.setColor(51/255, 32/255, 51/255, 1)
+        love.graphics.setColor(PALETTE["action_strip"], 1)
     end
 
     love.graphics.setLineWidth(2)

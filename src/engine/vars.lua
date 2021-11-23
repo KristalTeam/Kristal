@@ -39,6 +39,11 @@ MUSIC_VOLUMES = {
 }
 MUSIC_PITCHES = {}
 
+-- Colors used by the engine for various things, here for customizability
+PALETTE = {
+    ["action_strip"] = {51/255, 32/255, 51/255, 1}
+}
+
 COLORS = {
     aqua = {0, 1, 1, 1},
     black = {0, 0, 0, 1},
