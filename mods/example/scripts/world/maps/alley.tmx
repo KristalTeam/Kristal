@@ -5,6 +5,7 @@
  </editorsettings>
  <properties>
   <property name="music" value="cybercity"/>
+  <property name="name" value="Test City - Sugarplum Alley"/>
  </properties>
  <tileset firstgid="1" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
  <tileset firstgid="111" source="../../../assets/sprites/tilesets/alley.tsx"/>

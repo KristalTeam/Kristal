@@ -139,9 +139,13 @@ end
 
 function Registry.createMap(id, world, ...)
     if self.maps[id] then
-        return self.maps[id](world, self.map_data[id], ...)
+        local map = self.maps[id](world, self.map_data[id], ...)
+        map.id = id
+        return map
     elseif self.map_data[id] then
-        return Map(world, self.map_data[id], ...)
+        local map = Map(world, self.map_data[id], ...)
+        map.id = id
+        return map
     else
         error("Attempt to create non existent map \"" .. id .. "\"")
     end

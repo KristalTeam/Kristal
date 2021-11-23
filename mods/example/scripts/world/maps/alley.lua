@@ -11,7 +11,8 @@ return {
   nextlayerid = 16,
   nextobjectid = 89,
   properties = {
-    ["music"] = "cybercity"
+    ["music"] = "cybercity",
+    ["name"] = "Test City - Sugarplum Alley"
   },
   tilesets = {
     {

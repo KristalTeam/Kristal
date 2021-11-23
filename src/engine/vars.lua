@@ -13,6 +13,8 @@ MOD_LOADING = false
 
 DEBUG_RENDER = false
 
+SAVES = {}
+
 LAYERS = {
     [        "bottom"] = -1000,
     ["below_battlers"] =  -200,

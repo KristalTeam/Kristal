@@ -6,6 +6,7 @@
  <properties>
   <property name="light" type="bool" value="true"/>
   <property name="music" value="dogcheck"/>
+  <property name="name" value="Test City - Banana Room"/>
  </properties>
  <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley.tsx"/>
  <tileset firstgid="362" source="../../../assets/sprites/tilesets/city_alley.tsx"/>

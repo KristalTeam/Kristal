@@ -1,6 +1,6 @@
 local Game = {}
 
-function Game:enter(previous_state)
+function Game:enter(previous_state, save_id)
     self.previous_state = previous_state
 
     -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
@@ -20,7 +20,10 @@ function Game:enter(previous_state)
 
     -- BEGIN SAVE FILE VARIABLES --
 
+    self.chapter = Kristal.getModOption("chapter") or 2
+
     self.save_name = "PLAYER"
+    self.save_level = self.chapter
     self.save_id = 1
 
     self.playtime = 0
@@ -75,7 +78,6 @@ function Game:enter(previous_state)
     end
 
     self.fader_alpha = 0
-    self.chapter = Kristal.getModOption("chapter") or 2
 
     self.music = Music()
 
@@ -119,6 +121,49 @@ function Game:gameOver(x, y)
     self.fader_alpha = 0
     self.gameover_skipping = 0
     self.fade_white = false
+end
+
+function Game:getSavePreview()
+    return {
+        name = self.save_name,
+        level = self.save_level,
+        playtime = self.playtime,
+        room_name = self.world and self.world.map and self.world.map.name or "???",
+    }
+end
+
+function Game:createSave()
+    local data = {
+        name = self.save_name,
+        level = self.save_level,
+        playtime = self.playtime,
+
+        room_name = self.world and self.world.map and self.world.map.name or "???",
+        room_id = self.world and self.world.map and self.world.map.id,
+
+        gold = self.gold,
+        xp = self.xp,
+
+        level_up_count = self.level_up_count,
+
+        temp_followers = self.temp_followers,
+    }
+
+    data.party = {}
+    for _,party in ipairs(self.party) do
+        table.insert(data.party, party.id)
+    end
+
+    data.inventory = self.inventory:save()
+
+    data.party_data = {}
+    for k,v in pairs(Registry.party_members) do
+        data.party_data[k] = v:save()
+    end
+
+    Kristal.modCall("save", data)
+
+    return data
 end
 
 function Game:updateGameOver(dt)

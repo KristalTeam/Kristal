@@ -19,6 +19,8 @@ function Map:init(world, data)
     self.width = data and data.width or 16
     self.height = data and data.height or 12
 
+    self.name = data and data.properties and data.properties["name"]
+
     self.music = data and data.properties and data.properties["music"]
     self.light = data and data.properties and data.properties["light"] or false
 

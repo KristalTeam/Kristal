@@ -12,7 +12,8 @@ return {
   nextobjectid = 51,
   properties = {
     ["light"] = true,
-    ["music"] = "dogcheck"
+    ["music"] = "dogcheck",
+    ["name"] = "Test City - Banana Room"
   },
   tilesets = {
     {
