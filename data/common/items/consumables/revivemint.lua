@@ -1,8 +1,8 @@
 local item = Item{
     -- Item ID (optional, defaults to path)
-    id = "tensionbit",
+    id = "revivemint",
     -- Display name
-    name = "TensionBit",
+    name = "ReviveMint",
 
     -- Item type (item, key, weapon, armor)
     type = "item",
@@ -10,23 +10,23 @@ local item = Item{
     icon = nil,
 
     -- Battle description
-    effect = "Raises\nTP\n32%",
+    effect = "Heal\nDowned\nAlly",
     -- Shop description
     shop = nil,
     -- Menu description
-    description = "Raises TP by 32% in battle.",
+    description = "Heals a fallen ally to MAX HP.\nA minty green crystal.",
 
     -- Shop sell price
-    price = 100,
+    price = 200,
 
     -- Consumable target mode (party, enemy, or none/nil)
-    target = nil,
+    target = "party",
     -- Where this item can be used (world, battle, all, or none/nil)
     usable_in = "all",
     -- Item this item will get turned into when consumed
     result_item = nil,
     -- Will this item be instantly consumed in battles?
-    instant = true,
+    instant = false,
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {
@@ -40,32 +40,30 @@ local item = Item{
     can_equip = {},
 
     -- Character reactions
-    reactions = {},
+    reactions = {
+        susie = {
+            susie = "I'm ALIVE!!!",
+            ralsei = "(You weren't dead)",
+        },
+        ralsei = {
+            susie = "(Don't look it)",
+            ralsei = "Ah, I'm refreshed!"
+        },
+        noelle = "Mints? I love mints!"
+    },
 }
 
-function item:onBattleSelect(user, target)
-    Game.battle.tension_bar:giveTension(32)
-
-    user:flash()
-
-    local sound = Assets.newSound("snd_cardrive")
-    sound:setPitch(1.4)
-    sound:setVolume(0.8)
-    sound:play()
-
-    user:sparkle(1, 0.625, 0.25)
-end
-
-function item:onBattleDeselect(user, target)
-    Game.battle.tension_bar:removeTension(32)
-end
-
 function item:onWorldUse(target)
-    Game.world:startCutscene(function(cutscene)
-        cutscene:text("* (You felt tense.)")
-        cutscene:text("* (... try using it in battle.)")
-    end)
-    return false
+    Game.world:heal(target, 60)
+    return true
+end
+
+function item:onBattleUse(user, target)
+    if user.chara.health <= 0 then
+        target:heal(math.abs(user.chara.health) + user.chara:getStat("health"))
+    else
+        target:heal(60)
+    end
 end
 
 return item

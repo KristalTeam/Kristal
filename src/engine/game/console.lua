@@ -62,7 +62,7 @@ end
 
 function Console:open()
     self.is_open = true
-    self.history_index = 0
+    self.history_index = #self.command_history + 1
     self.cursor = utf8.len(self.input)
     love.keyboard.setTextInput(true)
     Game.lock_input = true
@@ -215,6 +215,7 @@ function Console:keypressed(key)
         if self.history_index > 1 then
             self.history_index = self.history_index - 1
             self.input = self.command_history[self.history_index]
+            self.cursor = utf8.len(self.input)
         end
     elseif key == "down" then
         if #self.command_history == 0 then return end
@@ -225,6 +226,7 @@ function Console:keypressed(key)
         if self.history_index == #self.command_history + 1 then
             self.input = ""
         end
+        self.cursor = utf8.len(self.input)
     elseif key == "left" then
         if self.cursor > 0 then
             self.cursor = self.cursor - 1
