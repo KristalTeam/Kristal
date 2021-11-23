@@ -52,16 +52,15 @@ function item:onWorldUse(target)
     return false
 end
 
-function item:onBattleUse(user, target)
-    return false
-end
-
 function item:onBattleSelect(user, target)
     -- Do not consume (it will taste bad)
     return false
 end
 
 function item:getBattleText(user, target)
+    if Game.battle.encounter.onGlowshardUse then
+        return Game.battle.encounter:onGlowshardUse(user)
+    end
     return {"* "..user.chara.name.." used the GLOWSHARD!", "* But nothing happened..."}
 end
 

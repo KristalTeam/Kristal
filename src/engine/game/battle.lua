@@ -1846,7 +1846,7 @@ function Battle:keypressed(key)
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if not menu_item.data.item.target or menu_item.data.item.target == "none" then
+                    if not menu_item.data.item.target or menu_item.data.item.target == "none" or menu_item.data.item.target == "noselect" then
                         self:commitAction("ITEM", nil, menu_item)
                     elseif menu_item.data.item.target == "party" then
                         self:setState("PARTYSELECT", "ITEM")
