@@ -42,4 +42,9 @@ local item = HealItem{
     reactions = {},
 }
 
+function item:onBattleSelect(user, target)
+    -- Do not consume
+    return false
+end
+
 return item

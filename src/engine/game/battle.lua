@@ -1079,12 +1079,17 @@ function Battle:commitSingleAction(action)
     end
 
     if action.action == "ITEM" and action.data and action.data.index and action.data.item then
-        if action.data.item.result_item then
-            Game.inventory:replaceItem("item", action.data.item.result_item, action.data.index)
+        local result = action.data.item:onBattleSelect(battler, action.target)
+        if result or result == nil then
+            if action.data.item.result_item then
+                Game.inventory:replaceItem("item", action.data.item.result_item, action.data.index)
+            else
+                Game.inventory:removeItem("item", action.data.index)
+            end
+            action.consumed = true
         else
-            Game.inventory:removeItem("item", action.data.index)
+            action.consumed = false
         end
-        action.data.item:onBattleSelect(battler, action.target)
     end
 
     self.character_actions[action.character_id] = action
@@ -1106,10 +1111,12 @@ function Battle:removeSingleAction(action)
     end
 
     if action.action == "ITEM" and action.data and action.data.index and action.data.item then
-        if action.data.item.result_item then
-            Game.inventory:replaceItem("item", action.data.item, action.data.index)
-        else
-            Game.inventory:addItem(action.data.item, action.data.index)
+        if action.consumed then
+            if action.data.item.result_item then
+                Game.inventory:replaceItem("item", action.data.item, action.data.index)
+            else
+                Game.inventory:addItem(action.data.item, action.data.index)
+            end
         end
         action.data.item:onBattleDeselect(battler, action.target)
     end
