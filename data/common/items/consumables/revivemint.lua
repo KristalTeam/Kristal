@@ -54,7 +54,7 @@ local item = Item{
 }
 
 function item:onWorldUse(target)
-    Game.world:heal(target, 60)
+    Game.world:heal(target, math.ceil(target:getStat("health") / 2))
     return true
 end
 
@@ -62,7 +62,7 @@ function item:onBattleUse(user, target)
     if user.chara.health <= 0 then
         target:heal(math.abs(user.chara.health) + user.chara:getStat("health"))
     else
-        target:heal(60)
+        target:heal(math.ceil(user.chara:getStat("health") / 2))
     end
 end
 
