@@ -1661,6 +1661,8 @@ function Battle:draw()
         self:drawBackground()
     end
 
+    self.encounter:drawBackground(self.transition_timer / 10)
+
     if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
     end
@@ -1668,8 +1670,6 @@ function Battle:draw()
     if (self.state == "DEFENDINGEND") or (self.state == "ACTIONSELECT") or (self.state == "ACTIONS") then
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
     end
-
-    self.encounter:drawBackground(self.transition_timer / 10)
 
     love.graphics.setColor(0, 0, 0, self.background_fade_alpha) -- TODO: make this accurate!!
     -- The "foreground" background boxes have values of (17, 0, 17),
