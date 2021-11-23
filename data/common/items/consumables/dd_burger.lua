@@ -22,7 +22,7 @@ local item = HealItem{
     -- Shop sell price
     price = 110,
 
-    -- Consumable target mode (party, enemy, or none/nil)
+    -- Consumable target mode (party, enemy, noselect, or none/nil)
     target = "party",
     -- Where this item can be used (world, battle, all, or none/nil)
     usable_in = "all",

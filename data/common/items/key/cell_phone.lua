@@ -19,7 +19,7 @@ local item = Item{
     -- Shop sell price
     price = 0,
 
-    -- Consumable target mode (party, enemy, or none/nil)
+    -- Consumable target mode (party, enemy, noselect, or none/nil)
     target = "none",
     -- Where this item can be used (world, battle, all, or none/nil)
     usable_in = "world",

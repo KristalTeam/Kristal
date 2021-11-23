@@ -201,8 +201,10 @@ function DarkItemMenu:update(dt)
                     self:useItem(item, Game.party)
                 end
             else
-                self.ui_cant_select:stop()
-                self.ui_cant_select:play()
+                if item.target ~= "noselect" then
+                    self.ui_cant_select:stop()
+                    self.ui_cant_select:play()
+                end
             end
         end
     end
@@ -254,7 +256,7 @@ function DarkItemMenu:draw()
         if self.state == "MENU" then
             love.graphics.setColor(128/255, 128/255, 128/255, 1)
         else
-            if item.usable_in == "world" or item.usable_in == "all" then
+            if item.usable_in == "world" or item.usable_in == "all" or item.target == "noselect" then
                 love.graphics.setColor(1, 1, 1, 1)
             else
                 love.graphics.setColor(192/255, 192/255, 192/255, 1)

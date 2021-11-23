@@ -1,28 +1,28 @@
 local item = Item{
     -- Item ID (optional, defaults to path)
-    id = "wood_blade",
+    id = "glowshard",
     -- Display name
-    name = "Wood Blade",
+    name = "Glowshard",
 
     -- Item type (item, key, weapon, armor)
-    type = "weapon",
+    type = "item",
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/sword",
+    icon = nil,
 
     -- Battle description
-    effect = "",
+    effect = "Sell\nat\nshops",
     -- Shop description
-    shop = "Practice\nblade",
+    shop = nil,
     -- Menu description
-    description = "A wooden practice blade with a carbon-\nreinforced core.",
+    description = "A shimmering shard.\nIts value increases each Chapter.",
 
     -- Shop sell price
-    price = 60,
+    price = 100 + (Game.chapter * 50),
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    target = "noselect",
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    usable_in = "battle",
     -- Item this item will get turned into when consumed
     result_item = nil,
     -- Will this item be instantly consumed in battles?
@@ -37,16 +37,32 @@ local item = Item{
     bonus_icon = nil,
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {
-        kris = true,
-    },
+    can_equip = {},
 
     -- Character reactions
-    reactions = {
-        susie = "What's this!? A CHOPSTICK?",
-        ralsei = "That's yours, Kris...",
-        noelle = "(It has bite marks...)",
-    },
+    reactions = {},
 }
+
+if Game.chapter == 1 then
+    item.price = 100
+    item.description = "A shimmering shard.\nIts use is unknown."
+end
+
+function item:onWorldUse(target)
+    return false
+end
+
+function item:onBattleUse(user, target)
+    return false
+end
+
+function item:onBattleSelect(user, target)
+    -- Do not consume (it will taste bad)
+    return false
+end
+
+function item:getBattleText(user, target)
+    return {"* "..user.chara.name.." used the GLOWSHARD!", "* But nothing happened..."}
+end
 
 return item

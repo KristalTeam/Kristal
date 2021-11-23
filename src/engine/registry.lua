@@ -7,11 +7,12 @@ Registry.last_objects = {}
 function Registry.initialize(preload)
     if not self.preload then
         self.base_scripts = {}
+        local chapter = Kristal.getModOption("chapter") or 2
+        Game.chapter = chapter
         for _,path in ipairs(Utils.getFilesRecursive("data/common", ".lua")) do
             local chunk = love.filesystem.load("data/common/"..path..".lua")
             self.base_scripts["data/"..path] = chunk
         end
-        local chapter = Kristal.getModOption("chapter") or 2
         for _,path in ipairs(Utils.getFilesRecursive("data/chapter_"..tostring(chapter), ".lua")) do
             local chunk = love.filesystem.load("data/chapter_"..tostring(chapter).."/"..path..".lua")
             self.base_scripts["data/"..path] = chunk

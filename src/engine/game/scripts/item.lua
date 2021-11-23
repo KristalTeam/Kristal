@@ -21,7 +21,7 @@ function Item:init(o)
     -- Shop sell price
     self.price = 0
 
-    -- Consumable target mode (party, enemy, or none/nil)
+    -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil
     -- Where this item can be used (world, battle, all, or none/nil)
     self.usable_in = "all"
