@@ -35,7 +35,7 @@ function ActionButton:select()
                 ["tp"] = 0,
                 ["color"] = self.battler.chara.xact_color or self.battler.chara.color,
                 ["data"] = {
-                    ["name"] = Game.battle.enemies[Game.battle.selected_enemy]:getXAction(self.battler),
+                    ["name"] = Game.battle.enemies[1]:getXAction(self.battler),
                     ["target"] = "xact",
                     ["id"] = 0,
                     ["default"] = true,
