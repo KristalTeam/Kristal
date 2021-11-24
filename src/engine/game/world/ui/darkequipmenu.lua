@@ -407,7 +407,7 @@ function DarkEquipMenu:drawItems()
             local usable = false
             if item.type == "weapon" then
                 usable = item.can_equip[party.id]
-            elseif item.type == "armor" then
+            else
                 usable = item.can_equip[party.id] or item.can_equip[party.id] == nil
             end
             if usable then

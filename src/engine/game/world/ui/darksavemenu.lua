@@ -46,6 +46,11 @@ function DarkSaveMenu:init()
     self.selected_y = 1
 
     self.saved_file = nil
+
+    self.saves = {}
+    for i = 1, 3 do
+        self.saves[i] = Kristal.getSaveFile(i)
+    end
 end
 
 function DarkSaveMenu:updateSaveBoxSize()
@@ -119,28 +124,25 @@ function DarkSaveMenu:update(dt)
 
                 self.main_box.visible = true
                 self.save_box.visible = false
-            elseif self.selected_y ~= Game.save_id and SAVES[self.selected_y] then
+            elseif self.selected_y ~= Game.save_id and self.saves[self.selected_y] then
                 self.state = "OVERWRITE"
 
                 self.overwrite_box.visible = true
             else
                 self.state = "SAVED"
-                Assets.playSound("snd_save")
+
                 self.saved_file = self.selected_y
-                Game.save_id = self.saved_file
-                SAVES[self.saved_file] = Game:save()
+                Kristal.saveGame(self.saved_file)
+                self.saves[self.saved_file] = Kristal.getSaveFile(self.saved_file)
+
+                Assets.playSound("snd_save")
                 self:updateSaveBoxSize()
             end
         end
     elseif self.state == "SAVED" then
         if Input.pressed("cancel") or Input.pressed("confirm") then
-            self.state = "MAIN"
-
-            self.selected_x = 1
-            self.selected_y = 1
-
-            self.main_box.visible = true
-            self.save_box.visible = false
+            self:remove()
+            Game.world:closeMenu()
         end
     elseif self.state == "OVERWRITE" then
         if Input.pressed("cancel") then
@@ -156,11 +158,11 @@ function DarkSaveMenu:update(dt)
             if self.selected_x == 1 then
                 self.state = "SAVED"
 
-                Assets.playSound("snd_save")
-
                 self.saved_file = self.selected_y
-                Game.save_id = self.saved_file
-                SAVES[self.saved_file] = Game:save()
+                Kristal.saveGame(self.saved_file)
+                self.saves[self.saved_file] = Kristal.getSaveFile(self.saved_file)
+
+                Assets.playSound("snd_save")
 
                 self.selected_x = 1
                 self.overwrite_box.visible = false
@@ -210,13 +212,13 @@ function DarkSaveMenu:draw()
     elseif self.state == "SAVE" or self.state == "OVERWRITE" then
         self:drawSaveFile(0, Game:getSavePreview(), 74, 26, false, true)
 
-        self:drawSaveFile(1, SAVES[1], 74, 138, self.selected_y == 1)
+        self:drawSaveFile(1, self.saves[1], 74, 138, self.selected_y == 1)
         love.graphics.draw(self.divider_sprite, 74, 208, 0, 493, 2)
 
-        self:drawSaveFile(2, SAVES[2], 74, 222, self.selected_y == 2)
+        self:drawSaveFile(2, self.saves[2], 74, 222, self.selected_y == 2)
         love.graphics.draw(self.divider_sprite, 74, 292, 0, 493, 2)
 
-        self:drawSaveFile(3, SAVES[3], 74, 306, self.selected_y == 3)
+        self:drawSaveFile(3, self.saves[3], 74, 306, self.selected_y == 3)
         love.graphics.draw(self.divider_sprite, 74, 376, 0, 493, 2)
 
         if self.selected_y == 4 then
@@ -229,15 +231,15 @@ function DarkSaveMenu:draw()
         end
         love.graphics.print("Return", 278, 394)
     elseif self.state == "SAVED" then
-        self:drawSaveFile(self.saved_file, SAVES[self.saved_file], 74, 26, false, true)
+        self:drawSaveFile(self.saved_file, self.saves[self.saved_file], 74, 26, false, true)
 
-        self:drawSaveFile(1, SAVES[1], 74, 138, self.selected_y == 1)
+        self:drawSaveFile(1, self.saves[1], 74, 138, self.selected_y == 1)
         love.graphics.draw(self.divider_sprite, 74, 208, 0, 493, 2)
 
-        self:drawSaveFile(2, SAVES[2], 74, 222, self.selected_y == 2)
+        self:drawSaveFile(2, self.saves[2], 74, 222, self.selected_y == 2)
         love.graphics.draw(self.divider_sprite, 74, 292, 0, 493, 2)
 
-        self:drawSaveFile(3, SAVES[3], 74, 306, self.selected_y == 3)
+        self:drawSaveFile(3, self.saves[3], 74, 306, self.selected_y == 3)
     end
 
     super:draw(self)
@@ -264,7 +266,7 @@ function DarkSaveMenu:draw()
         end
 
         love.graphics.setColor(1, 1, 1)
-        drawOverwriteSave(SAVES[self.selected_y], 80, 165)
+        drawOverwriteSave(self.saves[self.selected_y], 80, 165)
         love.graphics.setColor(1, 1, 0)
         drawOverwriteSave(Game:getSavePreview(), 80, 235)
 

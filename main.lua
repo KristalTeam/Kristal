@@ -202,6 +202,7 @@ function love.load(args)
 
     -- setup structure
     love.filesystem.createDirectory("mods")
+    love.filesystem.createDirectory("saves")
 
     -- default registry
     Registry.initialize()
@@ -732,6 +733,45 @@ end
 
 function Kristal.saveConfig()
     love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
+end
+
+function Kristal.saveGame(id, data)
+    id = id or Game.save_id
+    data = data or Game:save()
+    Game.save_id = id
+    love.filesystem.createDirectory("saves/"..Mod.info.path)
+    love.filesystem.write("saves/"..Mod.info.path.."/file_"..id..".json", JSON.encode(data))
+end
+
+function Kristal.loadGame(id)
+    id = id or Game.save_id
+    local path = "saves/"..Mod.info.path.."/file_"..id..".json"
+    if love.filesystem.getInfo(path) then
+        local data = JSON.decode(love.filesystem.read(path))
+        Game:load(data, id)
+    else
+        Game:load(nil, id)
+    end
+end
+
+function Kristal.getSaveFile(id)
+    id = id or Game.save_id
+    local path = "saves/"..Mod.info.path.."/file_"..id..".json"
+    if love.filesystem.getInfo(path) then
+        return JSON.decode(love.filesystem.read(path))
+    end
+end
+
+function Kristal.saveData(file, data)
+    love.filesystem.createDirectory("saves/"..Mod.info.path)
+    love.filesystem.write("saves/"..Mod.info.path.."/"..file..".json", JSON.encode(data or {}))
+end
+
+function Kristal.loadData(file)
+    local path = "saves/"..Mod.info.path.."/"..file..".json"
+    if love.filesystem.getInfo(path) then
+        return JSON.decode(love.filesystem.read(path))
+    end
 end
 
 function Kristal.modCall(f, ...)

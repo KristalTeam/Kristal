@@ -24,6 +24,8 @@ function Game:enter(previous_state)
 
     self.music = Music()
 
+    self.auto_save = nil
+
     self:load()
 
     self.started = true
@@ -51,6 +53,72 @@ function Game:enter(previous_state)
     end
 
     Kristal.modCall("init")
+end
+
+
+function Game:leave()
+    self:clear()
+    self.console = nil
+    self.auto_save = nil
+end
+
+function Game:autoSave()
+    self.auto_save = Utils.copy(self:save(), true)
+end
+
+function Game:loadLastSave()
+    if self.auto_save then
+        self:load(self.auto_save, self.save_id)
+    else
+        Kristal.loadGame(self.save_id)
+    end
+end
+
+function Game:getSavePreview()
+    return {
+        name = self.save_name,
+        level = self.save_level,
+        playtime = self.playtime,
+        room_name = self.world and self.world.map and self.world.map.name or "???",
+    }
+end
+
+function Game:save()
+    local data = {
+        chapter = self.chapter,
+
+        name = self.save_name,
+        level = self.save_level,
+        playtime = self.playtime,
+
+        room_name = self.world and self.world.map and self.world.map.name or "???",
+        room_id = self.world and self.world.map and self.world.map.id,
+
+        gold = self.gold,
+        xp = self.xp,
+
+        level_up_count = self.level_up_count,
+
+        temp_followers = self.temp_followers,
+
+        flags = self.flags
+    }
+
+    data.party = {}
+    for _,party in ipairs(self.party) do
+        table.insert(data.party, party.id)
+    end
+
+    data.inventory = self.inventory:save()
+
+    data.party_data = {}
+    for k,v in pairs(Registry.party_members) do
+        data.party_data[k] = v:save()
+    end
+
+    Kristal.modCall("save", data)
+
+    return data
 end
 
 function Game:load(data, index)
@@ -87,15 +155,16 @@ function Game:load(data, index)
 
     self.playtime = data.playtime or 0
 
-    self.party = {}
-    for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
-        table.insert(self.party, Registry.getPartyMember(id))
-    end
-
+    Registry.initPartyMembers()
     if data.party_data then
         for k,v in pairs(data.party_data) do
             Registry.getPartyMember(k):load(v)
         end
+    end
+
+    self.party = {}
+    for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
+        table.insert(self.party, Registry.getPartyMember(id))
     end
 
     self.inventory = Inventory()
@@ -119,16 +188,13 @@ function Game:load(data, index)
         self.world:loadMap(room_id)
     end
 
+    self.flags = data.flags or {}
+
     -- END SAVE FILE VARIABLES --
 
     self.world:spawnParty()
 
     Kristal.modCall("load", data, index)
-end
-
-function Game:leave()
-    self:clear()
-    self.console = nil
 end
 
 function Game:isLight()
@@ -157,51 +223,6 @@ function Game:gameOver(x, y)
     self.fader_alpha = 0
     self.gameover_skipping = 0
     self.fade_white = false
-end
-
-function Game:getSavePreview()
-    return {
-        name = self.save_name,
-        level = self.save_level,
-        playtime = self.playtime,
-        room_name = self.world and self.world.map and self.world.map.name or "???",
-    }
-end
-
-function Game:save()
-    local data = {
-        chapter = self.chapter,
-
-        name = self.save_name,
-        level = self.save_level,
-        playtime = self.playtime,
-
-        room_name = self.world and self.world.map and self.world.map.name or "???",
-        room_id = self.world and self.world.map and self.world.map.id,
-
-        gold = self.gold,
-        xp = self.xp,
-
-        level_up_count = self.level_up_count,
-
-        temp_followers = self.temp_followers,
-    }
-
-    data.party = {}
-    for _,party in ipairs(self.party) do
-        table.insert(data.party, party.id)
-    end
-
-    data.inventory = self.inventory:save()
-
-    data.party_data = {}
-    for k,v in pairs(Registry.party_members) do
-        data.party_data[k] = v:save()
-    end
-
-    Kristal.modCall("save", data)
-
-    return Utils.copy(data, true)
 end
 
 function Game:updateGameOver(dt)
