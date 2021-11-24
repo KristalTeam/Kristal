@@ -128,7 +128,7 @@ function DarkSaveMenu:update(dt)
                 Assets.playSound("snd_save")
                 self.saved_file = self.selected_y
                 Game.save_id = self.saved_file
-                SAVES[self.saved_file] = Game:createSave()
+                SAVES[self.saved_file] = Game:save()
                 self:updateSaveBoxSize()
             end
         end
@@ -160,7 +160,7 @@ function DarkSaveMenu:update(dt)
 
                 self.saved_file = self.selected_y
                 Game.save_id = self.saved_file
-                SAVES[self.saved_file] = Game:createSave()
+                SAVES[self.saved_file] = Game:save()
 
                 self.selected_x = 1
                 self.overwrite_box.visible = false

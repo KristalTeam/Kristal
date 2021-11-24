@@ -1,57 +1,30 @@
 local Game = {}
 
-function Game:enter(previous_state, save_id)
+function Game:clear()
+    if self.world and self.world.music then
+        self.world.music:stop()
+    end
+    if self.battle and self.battle.music then
+        self.battle.music:stop()
+    end
+    self.stage = nil
+    self.world = nil
+    self.battle = nil
+    self.inventory = nil
+    --self.console = nil
+end
+
+function Game:enter(previous_state)
     self.previous_state = previous_state
 
-    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
-    self.state = "OVERWORLD"
+    self.font = Assets.getFont("main")
+    self.soul_blur = Assets.getTexture("ui/soul_blur")
 
-    self.stage = Stage()
+    self.fader_alpha = 0
 
-    self.world = World()
-    self.stage:addChild(self.world)
+    self.music = Music()
 
-    self.console = Console()
-    self.stage:addChild(self.console)
-
-    self.battle = nil
-
-    self.max_followers = Kristal.getModOption("maxFollowers") or 10
-
-    -- BEGIN SAVE FILE VARIABLES --
-
-    self.chapter = Kristal.getModOption("chapter") or 2
-
-    self.save_name = "PLAYER"
-    self.save_level = self.chapter
-    self.save_id = 1
-
-    self.playtime = 0
-
-    self.party = {}
-    for _,id in ipairs(Kristal.getModOption("party") or {"kris"}) do
-        table.insert(self.party, Registry.getPartyMember(id))
-    end
-
-    self.inventory = Inventory()
-    for _,id in ipairs(Kristal.getModOption("inventory") or {}) do
-        self.inventory:addItem(id)
-    end
-
-    self.temp_followers = {}
-
-    self.level_up_count = 0
-
-    self.gold = 0
-    self.xp = 0
-
-    if Kristal.getModOption("map") then
-        self.world:loadMap(Kristal.getModOption("map"))
-    end
-
-    -- END SAVE FILE VARIABLES --
-
-    self.world:spawnParty()
+    self:load()
 
     self.started = true
     self.lock_input = false
@@ -77,21 +50,84 @@ function Game:enter(previous_state, save_id)
         self:encounter(Kristal.getModOption("encounter"), false)
     end
 
-    self.fader_alpha = 0
-
-    self.music = Music()
-
-    self.font = Assets.getFont("main")
-    self.soul_blur = Assets.getTexture("ui/soul_blur")
-
     Kristal.modCall("init")
 end
 
-function Game:leave()
-    self.stage = nil
-    self.world = nil
+function Game:load(data, index)
+    data = data or {}
+
+    self:clear()
+
+    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
+    self.state = "OVERWORLD"
+
+    self.stage = Stage()
+
+    self.world = World()
+    self.stage:addChild(self.world)
+
+    if not self.console then
+        self.console = Console()
+        self.stage:addChild(self.console)
+    else
+        self.console:setParent(self.stage)
+    end
+
     self.battle = nil
-    self.inventory = nil
+
+    self.max_followers = Kristal.getModOption("maxFollowers") or 10
+
+    -- BEGIN SAVE FILE VARIABLES --
+
+    self.chapter = data.chapter or Kristal.getModOption("chapter") or 2
+
+    self.save_name = data.name or "PLAYER"
+    self.save_level = data.level or self.chapter
+    self.save_id = index or 1
+
+    self.playtime = data.playtime or 0
+
+    self.party = {}
+    for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
+        table.insert(self.party, Registry.getPartyMember(id))
+    end
+
+    if data.party_data then
+        for k,v in pairs(data.party_data) do
+            Registry.getPartyMember(k):load(v)
+        end
+    end
+
+    self.inventory = Inventory()
+    if data.inventory then
+        self.inventory:load(data.inventory)
+    else
+        for _,id in ipairs(Kristal.getModOption("inventory") or {}) do
+            self.inventory:addItem(id)
+        end
+    end
+
+    self.temp_followers = data.temp_followers or {}
+
+    self.level_up_count = data.level_up_count or 0
+
+    self.gold = data.gold or 0
+    self.xp = data.xp or 0
+
+    local room_id = data.room_id or Kristal.getModOption("map")
+    if room_id then
+        self.world:loadMap(room_id)
+    end
+
+    -- END SAVE FILE VARIABLES --
+
+    self.world:spawnParty()
+
+    Kristal.modCall("load", data, index)
+end
+
+function Game:leave()
+    self:clear()
     self.console = nil
 end
 
@@ -132,8 +168,10 @@ function Game:getSavePreview()
     }
 end
 
-function Game:createSave()
+function Game:save()
     local data = {
+        chapter = self.chapter,
+
         name = self.save_name,
         level = self.save_level,
         playtime = self.playtime,
@@ -163,7 +201,7 @@ function Game:createSave()
 
     Kristal.modCall("save", data)
 
-    return data
+    return Utils.copy(data, true)
 end
 
 function Game:updateGameOver(dt)
