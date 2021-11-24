@@ -23,7 +23,7 @@ return {
         ["battle/act"]          = {"battle/act", 1/15, false},
         ["battle/spell"]        = {"battle/spell", 1/15, false, next="battle/idle"},
         ["battle/item"]         = {"battle/item", 1/12, false, next="battle/idle"},
-        ["battle/spare"]        = {"battle/spare", 1/15, false, next="battle/idle"},
+        ["battle/spare"]        = {"battle/spell", 1/15, false, next="battle/idle"},
 
         ["battle/attack_ready"] = {"battle/attackready", 0.2, true},
         ["battle/act_ready"]    = {"battle/actready", 0.2, true},
