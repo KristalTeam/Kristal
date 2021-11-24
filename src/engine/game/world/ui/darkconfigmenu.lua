@@ -109,6 +109,10 @@ function DarkConfigMenu:update(dt)
 end
 
 function DarkConfigMenu:draw()
+    if Game.state == "EXIT" then
+        super:draw(self)
+        return
+    end
     love.graphics.setFont(self.font)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print("CONFIG", 188, -12)
