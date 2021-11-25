@@ -20,9 +20,10 @@ function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     love.graphics.draw(sprite, x, y, rot, xscale * 3, yscale * 3, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
-function DarkTransition:enter(previous, mod)
+function DarkTransition:enter(previous, mod, save_id)
     self.prior_state = previous
     self.mod = mod
+    self.save_id = save_id
 
     self.animation_active = true
 
@@ -546,9 +547,9 @@ function DarkTransition:draw(dont_clear)
 
             self.mod_loading = true
             self.old_velocity = self.velocity
-            Kristal.loadMod(self.mod.id, function()
+            Kristal.loadModAssets(self.mod.id, function()
                 self.mod_loading = false
-                Gamestate.switch(Kristal.States["Game"])
+                Gamestate.switch(Kristal.States["Game"], self.save_id)
             end)
         end
     end

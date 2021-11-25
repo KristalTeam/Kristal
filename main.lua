@@ -50,6 +50,8 @@ Timer = require("src.engine.objects.timer")
 
 ModList = require("src.engine.menu.modlist")
 ModButton = require("src.engine.menu.modbutton")
+FileList = require("src.engine.menu.filelist")
+FileButton = require("src.engine.menu.filebutton")
 
 DarkTransitionLine = require("src.engine.game.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.engine.game.darktransition.darktransitionparticle")
@@ -684,7 +686,24 @@ function Kristal.preloadMod(id)
     Registry.initialize(true)
 end
 
-function Kristal.loadMod(id, after)
+function Kristal.loadMod(id, save_id)
+    local mod = Kristal.Mods.getMod(id)
+
+    if not mod then return end
+
+    if mod.transition then
+        Kristal.preloadMod(mod)
+        Kristal.loadAssets(mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
+            Gamestate.switch(Kristal.States["DarkTransition"], mod, save_id)
+        end)
+    else
+        Kristal.loadModAssets(mod.id, function()
+            Gamestate.switch(Kristal.States["Game"], save_id)
+        end)
+    end
+end
+
+function Kristal.loadModAssets(id, after)
     local mod = Kristal.Mods.getMod(id)
 
     if not mod then return end
@@ -754,24 +773,28 @@ function Kristal.loadGame(id)
     end
 end
 
-function Kristal.getSaveFile(id)
+function Kristal.getSaveFile(id, path)
     id = id or Game.save_id
-    local path = "saves/"..Mod.info.path.."/file_"..id..".json"
+    local path = "saves/"..(path or Mod.info.path).."/file_"..id..".json"
     if love.filesystem.getInfo(path) then
         return JSON.decode(love.filesystem.read(path))
     end
 end
 
-function Kristal.saveData(file, data)
-    love.filesystem.createDirectory("saves/"..Mod.info.path)
-    love.filesystem.write("saves/"..Mod.info.path.."/"..file..".json", JSON.encode(data or {}))
+function Kristal.saveData(file, data, path)
+    love.filesystem.createDirectory("saves/"..(path or Mod.info.path))
+    love.filesystem.write("saves/"..(path or Mod.info.path).."/"..file..".json", JSON.encode(data or {}))
 end
 
-function Kristal.loadData(file)
-    local path = "saves/"..Mod.info.path.."/"..file..".json"
+function Kristal.loadData(file, path)
+    local path = "saves/"..(path or Mod.info.path).."/"..file..".json"
     if love.filesystem.getInfo(path) then
         return JSON.decode(love.filesystem.read(path))
     end
+end
+
+function Kristal.eraseData(file, path)
+    love.filesystem.remove("saves/"..(path or Mod.info.path).."/"..file..".json")
 end
 
 function Kristal.modCall(f, ...)

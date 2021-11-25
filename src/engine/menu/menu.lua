@@ -22,7 +22,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
 Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to return to the main menu."}
 
 function Menu:enter()
-    -- STATES: MAINMENU, MODSELECT, OPTIONS, VOLUME, CONTROLS
+    -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, CONTROLS
     self.state = "MAINMENU"
 
     love.keyboard.setKeyRepeat(true)
@@ -47,6 +47,8 @@ function Menu:enter()
 
     self.list = nil
 
+    self.files = nil
+
     self.heart = Sprite("player/heart_menu")
     self.heart.visible = true
     self.heart:setOrigin(0.5, 0.5)
@@ -70,6 +72,9 @@ function Menu:enter()
     self.logo = Assets.getTexture("kristal/title_logo_shadow")
     self.selected_option = 1
 
+    self.selected_mod_button = nil
+    self.selected_mod = nil
+
     self.noise_timer = 0
 end
 
@@ -80,7 +85,19 @@ function Menu:setState(state)
 end
 
 function Menu:onStateChange(old_state, new_state)
-    if (old_state == "MAINMENU") and (new_state == "MODSELECT") then
+    if old_state == "MODSELECT" then
+        --self.list:clearMods()
+        --self.list:remove()
+        --self.list = nil
+        self.list.active = false
+        self.list.visible = false
+    elseif old_state == "FILESELECT" then
+        self.files:remove()
+    end
+    if new_state == "MAINMENU" then
+        self.selected_mod_button = nil
+        self.selected_mod = nil
+    elseif new_state == "MODSELECT" then
         if not self.list then
             self.list = ModList(69, 70, 502, 370)
             self.list.layer = 50
@@ -90,13 +107,10 @@ function Menu:onStateChange(old_state, new_state)
             self.list.active = true
             self.list.visible = true
         end
-    end
-    if (old_state == "MODSELECT") then
-        --self.list:clearMods()
-        --self.list:remove()
-        --self.list = nil
-        self.list.active = false
-        self.list.visible = false
+    elseif new_state == "FILESELECT" then
+        self.files = FileList(self, self.selected_mod)
+        self.files.layer = 50
+        self.stage:addChild(self.files)
     end
 end
 
@@ -237,13 +251,15 @@ end
 
 function Menu:update(dt)
     local mod_button, current_mod
-    if self.list then
-        mod_button = self.list:getSelected()
-        current_mod = mod_button and mod_button.mod
+    if self.list and self.state == "MODSELECT" then
+        self.selected_mod_button = self.list:getSelected()
+        self.selected_mod = self.list:getSelectedMod()
     end
+    mod_button = self.selected_mod_button
+    current_mod = self.selected_mod
 
     -- Update fade between previews
-    if (current_mod and (current_mod.preview or mod_button.preview_script)) and (self.state == "MODSELECT") then
+    if (current_mod and (current_mod.preview or mod_button.preview_script)) then
         if mod_button.preview_script and mod_button.preview_script.hide_background ~= false then
             self.background_fade = math.max(0, self.background_fade - (dt / 0.5))
         else
@@ -287,6 +303,8 @@ function Menu:update(dt)
             self.heart_target_x = self.list.x + button_heart_x
             self.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
         end
+    elseif self.state == "FILESELECT" then
+        self.heart_target_x, self.heart_target_y = self.files:getHeartPos()
     elseif self.state == "VOLUME" then
         self.noise_timer = self.noise_timer + DTMULT
         if Input.down("left") then
@@ -376,6 +394,9 @@ function Menu:draw()
                 Menu:printShadow("(X) Return to main menu", 294 + (16 * 3), 454 - 8, {1, 1, 1, 1})
             end
         end
+    elseif self.state == "FILESELECT" then
+        local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
+        Menu:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
         Menu:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
         Menu:printShadow("It just... showed up one day.", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
@@ -523,20 +544,13 @@ function Menu:keypressed(key, _, is_repeat)
 
         if #self.list.mods > 0 then
             if Input.isConfirm(key) then
-
-                local current_mod = self.list:getSelectedMod()
-                if current_mod then
+                if self.selected_mod then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if current_mod.transition then
-                        Kristal.preloadMod(current_mod)
-                        Kristal.loadAssets(current_mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
-                            Gamestate.switch(Kristal.States["DarkTransition"], current_mod)
-                        end)
+                    if self.selected_mod["useSaves"] or (self.selected_mod["useSaves"] == nil and not self.selected_mod["encounter"]) then
+                        self:setState("FILESELECT")
                     else
-                        Kristal.loadMod(current_mod.id, function()
-                            Gamestate.switch(Kristal.States["Game"])
-                        end)
+                        Kristal.loadMod(self.selected_mod.id)
                     end
                 end
                 return
@@ -552,6 +566,10 @@ function Menu:keypressed(key, _, is_repeat)
             if key == "down"  then self.list:selectDown(is_repeat) end
             if key == "left"  then self.list:pageUp(is_repeat)     end
             if key == "right" then self.list:pageDown(is_repeat)   end
+        end
+    elseif self.state == "FILESELECT" then
+        if not is_repeat then
+            self.files:keypressed(key)
         end
     elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then

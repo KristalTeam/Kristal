@@ -14,7 +14,7 @@ function Game:clear()
     --self.console = nil
 end
 
-function Game:enter(previous_state)
+function Game:enter(previous_state, save_id)
     self.previous_state = previous_state
 
     self.font = Assets.getFont("main")
@@ -26,7 +26,11 @@ function Game:enter(previous_state)
 
     self.auto_save = nil
 
-    self:load()
+    if save_id then
+        Kristal.loadGame(save_id)
+    else
+        self:load()
+    end
 
     self.started = true
     self.lock_input = false
