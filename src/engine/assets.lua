@@ -20,7 +20,6 @@ function Assets.clear()
         map_data = {},
     }
     self.frames_for = {}
-    self.quads = {}
     self.sounds = {}
     self.sound_instances = {}
     self.tilesets = {}
@@ -35,13 +34,21 @@ function Assets.loadData(data)
 end
 
 function Assets.saveData()
-    self.saved_data = Utils.copy(self.data, true)
+    self.saved_data = {
+        data = Utils.copy(self.data, true),
+        frames_for = Utils.copy(self.frames_for, true),
+        sounds = Utils.copy(self.sounds, true),
+        tilesets = Utils.copy(self.tilesets, true)
+    }
 end
 
 function Assets.restoreData()
     if self.saved_data then
         Assets.clear()
-        Assets.loadData(self.saved_data)
+        for k,v in pairs(self.saved_data) do
+            self[k] = Utils.copy(v, true)
+        end
+        self.loaded = true
         return true
     else
         return false
