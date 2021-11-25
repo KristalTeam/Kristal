@@ -48,7 +48,9 @@ function Virovirokun:getNextWaves()
 end
 
 function Virovirokun:beforeStateChange(old, new)
-    if old == "INTRO" and not self.done_stupid_thing then
+    if old == "INTRO" and new ~= "INTRO" and not self.done_stupid_thing then
+        self.done_stupid_thing = true
+
         Game.battle:setState("NONE")
 
         for _,battler in ipairs(Game.battle.party) do
@@ -91,7 +93,6 @@ function Virovirokun:beforeStateChange(old, new)
                 src:stop()
                 src2:stop()
             elseif stage == 2 and timer >= 15 then
-                self.done_stupid_thing = true
                 Game.battle:setState("ACTIONSELECT")
                 return false
             end

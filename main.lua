@@ -337,7 +337,11 @@ function love.keypressed(key)
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
         else
-            Kristal.returnToMenu()
+            if Mod then
+                Kristal.quickReload()
+            else
+                Kristal.returnToMenu()
+            end
         end
     end
 end
@@ -627,9 +631,7 @@ function Kristal.errorHandler(msg)
 
 end
 
-function Kristal.returnToMenu()
-    -- Go to empty state
-    Gamestate.switch({})
+function Kristal.clearModState()
     -- Clear disruptive active globals
     Object._clearCache()
     Draw._clearStacks()
@@ -648,9 +650,45 @@ function Kristal.returnToMenu()
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
-    -- Reload mods
+end
+
+function Kristal.returnToMenu()
+    -- Go to empty state
+    Gamestate.switch({})
+    -- Clear the mod
+    Kristal.clearModState()
+    -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
+    end)
+end
+
+function Kristal.quickReload()
+    -- Temporarily save game variables
+    local save = Game:save()
+    local save_id = Game.save_id
+    local encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
+
+    -- Temporarily save the current mod id
+    local mod_id = Mod.info.id
+
+    -- Go to empty state
+    Gamestate.switch({})
+    -- Clear the mod
+    Kristal.clearModState()
+    -- Reload mods
+    Kristal.loadAssets("", "mods", "", function()
+        -- Reload the current mod directly
+        Kristal.loadModAssets(mod_id, function()
+            -- Switch to Game and load the temp save
+            Gamestate.switch(Game)
+            Game:load(save, save_id)
+
+            -- If we had an encounter, restart the encounter
+            if encounter then
+                Game:encounter(encounter, false)
+            end
+        end)
     end)
 end
 

@@ -37,12 +37,7 @@ function ChaserEnemy:onCollide(player)
                 self.world.encountering_enemy = false
                 Game.lock_input = false
                 Game:encounter(encounter, true, self)
-
-                for _,enemy in ipairs(self.stage:getObjects(ChaserEnemy)) do
-                    if enemy.encounter == self.encounter then
-                        enemy:remove()
-                    end
-                end
+                self:remove()
             end)
         end
     end

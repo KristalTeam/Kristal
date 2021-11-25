@@ -21,6 +21,7 @@ function Battle:init()
     self.enemy_beginning_positions = {}
 
     self.party_world_characters = {}
+    self.battler_targets = {}
 
     for i = 1, math.min(3, #Game.party) do
         local party_member = Game.party[i]
@@ -185,11 +186,11 @@ function Battle:postInit(state, encounter)
         end
     end
 
+    self.battler_targets = {}
     if state == "TRANSITION" then
         self.transitioned = true
         self.transition_timer = 0
         self.afterimage_count = 0
-        self.battler_targets = {}
         for index, battler in ipairs(self.party) do
             local target_x, target_y
             if #self.party == 1 then
@@ -237,6 +238,8 @@ function Battle:postInit(state, encounter)
             local offset = battler.chara.battle_offset or {0, 0}
             battler.x = battler.x + (battler.actor.width/2 + offset[1]) * 2
             battler.y = battler.y + (battler.actor.height  + offset[2]) * 2
+
+            table.insert(self.battler_targets, {battler.x, battler.y})
         end
 
         if state ~= "INTRO" then
@@ -462,6 +465,7 @@ function Battle:onStateChange(old,new)
         if self.music ~= Game.world.music then
             self.music:fade(0, 0.05)
         end
+        self:removeWorldEncounters()
         if Game.encounter_enemy then
             local target = Game.encounter_enemy
             for _,enemy in ipairs(self.defeated_enemies) do
@@ -1344,9 +1348,18 @@ function Battle:returnToWorld()
         self.music:stop()
         Game.world.music:resume()
     end
+    self:removeWorldEncounters()
     self:remove()
     Game.battle = nil
     Game.state = "OVERWORLD"
+end
+
+function Battle:removeWorldEncounters()
+    for _,enemy in ipairs(Game.stage:getObjects(ChaserEnemy)) do
+        if enemy.encounter == self.encounter.id then
+            enemy:remove()
+        end
+    end
 end
 
 function Battle:setActText(text, dont_finish)
@@ -1567,7 +1580,7 @@ function Battle:updateTransitionOut(dt)
 
     self.transition_timer = self.transition_timer - DTMULT
 
-    if self.transition_timer <= 0 or not self.transitioned then
+    if self.transition_timer <= 0 then--or not self.transitioned then
         self:returnToWorld()
         return
     end

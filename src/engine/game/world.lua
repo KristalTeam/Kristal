@@ -89,7 +89,9 @@ function World:openMenu(menu)
         if not self.light then
             self.menu = DarkMenu()
         else
-            error("TODO: Light world menu")
+            --error("TODO: Light world menu")
+            print("TODO: Light world menu")
+            self.menu = DarkMenu()
         end
     else
         self.menu = menu
