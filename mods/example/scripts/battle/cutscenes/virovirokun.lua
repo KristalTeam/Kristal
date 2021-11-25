@@ -18,7 +18,9 @@ return {
         -- Note: the following isn't part of the original act, it's here for testing battle cutscenes!
         cutscene:enemyText(enemy, "Dumbass")
         cutscene:gotoCutscene("virovirokun", "sussy", enemy)
-        cutscene:text("* I, uh, meant to do that.", "face_3", "susie")
+        cutscene:text("* I, uh, meant to do that.[face:1]", "face_3", "susie", {faces={
+            {"ralsei", "face_26", "rightmid", "bottommid", "It's OK, Susie..."}
+        }})
     end,
 
     sussy = function(cutscene, enemy)

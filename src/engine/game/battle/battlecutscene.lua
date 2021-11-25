@@ -155,6 +155,10 @@ function BattleCutscene:text(text, portrait, actor, options)
         options = actor
         actor = nil
     end
+    if type(portrait) == "table" then
+        options = portrait
+        portrait = nil
+    end
 
     options = options or {}
 
@@ -162,6 +166,14 @@ function BattleCutscene:text(text, portrait, actor, options)
 
     Game.battle.battle_ui.encounter_text:setActor(actor)
     Game.battle.battle_ui.encounter_text:setFace(portrait, options["x"], options["y"])
+
+    Game.battle.battle_ui.encounter_text:resetSmallFaces()
+    if options["faces"] then
+        for _,face in ipairs(options["faces"]) do
+            Game.battle.battle_ui.encounter_text:addSmallFace(face[1], face[2], face[3], face[4], face[5])
+        end
+    end
+
     Game.battle.battle_ui.encounter_text:setText(text)
 
     Game.battle.battle_ui.encounter_text.can_advance = options["advance"] or options["advance"] == nil

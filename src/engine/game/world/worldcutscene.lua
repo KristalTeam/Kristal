@@ -278,6 +278,10 @@ function WorldCutscene:text(text, portrait, actor, options)
         options = actor
         actor = nil
     end
+    if type(portrait) == "table" then
+        options = portrait
+        portrait = nil
+    end
 
     if self.textbox then
         self.textbox:remove()
@@ -308,6 +312,13 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox.active = true
     self.textbox.visible = true
     self.textbox:setFace(portrait, options["x"], options["y"])
+
+    if options["faces"] then
+        for _,face in ipairs(options["faces"]) do
+            self.textbox:addSmallFace(face[1], face[2], face[3], face[4], face[5])
+        end
+    end
+
     self.textbox:setText(text)
 
     self.textbox.can_advance = options["advance"] or options["advance"] == nil

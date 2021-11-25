@@ -1,5 +1,37 @@
 local Textbox, super = Class(Object)
 
+Textbox.SMALLFACE_X = {
+        ["left"] = 70  -38,
+     ["leftmid"] = 160 -38,
+         ["mid"] = 260 -38,
+      ["middle"] = 260 -38,
+    ["rightmid"] = 360 -38,
+       ["right"] = 400 -38,
+}
+Textbox.SMALLFACE_Y = {
+          ["top"] = -10 -4,
+          ["mid"] =  30 -4,
+       ["middle"] =  30 -4,
+    ["bottommid"] =  50 -4,
+       ["bottom"] =  68 -4,
+}
+
+Textbox.SMALLFACE_X_BATTLE = {
+        ["left"] = 60  -40,
+     ["leftmid"] = 160 -40,
+         ["mid"] = 260 -40,
+      ["middle"] = 260 -40,
+    ["rightmid"] = 360 -40,
+       ["right"] = 460 -40,
+}
+Textbox.SMALLFACE_Y_BATTLE = {
+          ["top"] = -10 -2,
+          ["mid"] =  30 -2,
+       ["middle"] =  30 -2,
+    ["bottommid"] =  45 -2,
+       ["bottom"] =  56 -2,
+}
+
 function Textbox:init(x, y, width, height, battle_box)
     super:init(self, x, y, width, height)
 
@@ -37,6 +69,18 @@ function Textbox:init(x, y, width, height, battle_box)
     self.text = DialogueText("", self.text_x, self.text_y, width, height)
     self.text.line_offset = 8 -- idk this is dumb
     self:addChild(self.text)
+
+    self.small_faces = {}
+    self.small_face_instances = {}
+
+    self.text:registerCommand("face", function(text, node)
+        local face_data = self.small_faces[tonumber(node.arguments[1])]
+        local face = SmallFaceText(face_data.text, face_data.face, face_data.x, face_data.y, face_data.actor)
+        face.layer = 0.1 + (#self.small_face_instances) * 0.01
+        self:addChild(face)
+        table.insert(self.small_face_instances, face)
+        text.state.typed_characters = text.state.typed_characters + 1
+    end)
 
     self.can_advance = not self.battle_box
     self.auto_advance = false
@@ -110,7 +154,39 @@ function Textbox:setFace(face, ox, oy)
     end
 end
 
+function Textbox:resetSmallFaces()
+    self.small_faces = {}
+    for _,smallface in ipairs(self.small_face_instances) do
+        smallface:remove()
+    end
+    self.small_face_instances = {}
+end
+
+function Textbox:addSmallFace(actor, face, x, y, text)
+    x, y = x or 0, y or 0
+    if type(x) == "string" then
+        x = self.battle_box and self.SMALLFACE_X_BATTLE[x] or self.SMALLFACE_X[x]
+    end
+    if type(y) == "string" then
+        y = self.battle_box and self.SMALLFACE_Y_BATTLE[y] or self.SMALLFACE_Y[y]
+    end
+    if type(actor) == "string" then
+        actor = Registry.getActor(actor)
+    end
+    table.insert(self.small_faces, {
+        text = text,
+        x = x,
+        y = y,
+        face = face,
+        actor = actor
+    })
+end
+
 function Textbox:setText(text)
+    for _,smallface in ipairs(self.small_face_instances) do
+        smallface:remove()
+    end
+    self.small_face_instances = {}
     if self.actor and self.actor.text_sound then
         self.text:setText("[voice:"..self.actor.text_sound.."]"..text)
     else

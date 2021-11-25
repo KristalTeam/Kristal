@@ -5,6 +5,7 @@ DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "
 function DialogueText:init(text, x, y, w, h, font, style)
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
     self.skip_speed = false
+    self.custom_command_wait = {}
 end
 
 function DialogueText:resetState()
@@ -102,14 +103,31 @@ end
 function DialogueText:isNodeInstant(node)
     if node.type == "character" then
         return false
-    elseif node.type == "modifier" and node.command == "wait" then
-        return false
+    elseif node.type == "modifier" then
+        if self.custom_command_wait[node.command] then
+            return false
+        elseif node.command == "wait" then
+            return false
+        end
     end
     return true
 end
 
 function DialogueText:isModifier(command)
     return Utils.containsValue(DialogueText.COMMANDS, command) or super:isModifier(self, command)
+end
+
+function DialogueText:registerCommand(command, func, instant)
+    super:registerCommand(self, command, func)
+    self.custom_command_wait[command] = (instant == false)
+end
+
+function DialogueText:processCustomCommand(node)
+    local result = super:processCustomCommand(self, node)
+    if self.custom_command_wait[node.command] then
+        self.state.typed_characters = self.state.typed_characters + 1
+    end
+    return result
 end
 
 function DialogueText:processModifier(node)

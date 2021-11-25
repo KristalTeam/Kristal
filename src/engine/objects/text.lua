@@ -21,7 +21,10 @@ function Text:init(text, x, y, w, h, font, style)
     self.draw_every_frame = false
     self.nodes_to_draw = {}
 
+    self.custom_commands = {}
+
     self.font = font or "main"
+    self.font_size = nil
     self.style = style
     if self.style == "GONER" then
         self.draw_every_frame = true
@@ -42,6 +45,7 @@ function Text:resetState()
     self.state = {
         color = {1, 1, 1, 1},
         font = self.font,
+        font_size = self.font_size,
         style = self.style,
         current_x = 0,
         current_y = 0,
@@ -89,7 +93,7 @@ function Text:setText(text)
 end
 
 function Text:getFont()
-    return Assets.getFont(self.font)
+    return Assets.getFont(self.font, self.font_size)
 end
 
 function Text:textToNodes(input_string)
@@ -203,17 +207,23 @@ function Text:processNode(node)
             end
         end
     elseif node.type == "modifier" then
-        self:processModifier(node)
+        if self.custom_commands[node.command] then
+            self:processCustomCommand(node)
+        else
+            self:processModifier(node)
+        end
     end
     --print(Utils.dump(node))
 end
 
 function Text:isModifier(command)
-    return Utils.containsValue(Text.COMMANDS, command)
+    return Utils.containsValue(Text.COMMANDS, command) or self.custom_commands[command]
 end
 
 function Text:processModifier(node)
-    if node.command == "color" then
+    if self.custom_commands[node.command] then
+        self:processCustomCommand(node)
+    elseif node.command == "color" then
         if self.COLORS[node.arguments[1]] then
             -- Did they input a valid color name? Let's use it.
             self.state.color = self.COLORS[node.arguments[1]]
@@ -242,8 +252,16 @@ function Text:processModifier(node)
     end
 end
 
-function Text:drawChar(node, state)
-    local font = Assets.getFont(state.font)
+function Text:registerCommand(command, func)
+    self.custom_commands[command] = func
+end
+
+function Text:processCustomCommand(node)
+    return self.custom_commands[node.command](self, node)
+end
+
+function Text:drawChar(node, state, use_color)
+    local font = Assets.getFont(state.font, state.font_size)
     local width, height = font:getWidth(node.character), font:getHeight()
 
     if state.shake >= 0 then
@@ -259,13 +277,28 @@ function Text:drawChar(node, state)
     local x, y = state.current_x + state.offset_x, state.current_y + state.offset_y
     love.graphics.setFont(font)
 
+    -- The base color, either the draw color or (1,1,1,1) depending on
+    -- if the text is drawing to a canvas
+    local cr,cg,cb,ca
+    if use_color then
+        cr, cg, cb, ca = self:getDrawColor()
+    else
+        cr, cg, cb, ca = 1, 1, 1, 1
+    end
+    -- The current state color
+    local sr, sg, sb, sa = unpack(state.color)
+    sa = sa or 1
+
+    -- The current color multiplied by the base color
+    local mr, mg, mb, ma = sr*cr, sg*cg, sb*cb, sa*ca
+
     if state.style == nil or state.style == "none" then
-        love.graphics.setColor(unpack(state.color))
+        love.graphics.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y)
     elseif state.style == "menu" then
         love.graphics.setColor(0, 0, 0)
         love.graphics.print(node.character, x+2, y+2)
-        love.graphics.setColor(unpack(state.color))
+        love.graphics.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y)
     elseif state.style == "dark" then
         local canvas = Draw.pushCanvas(width, height)
@@ -283,9 +316,12 @@ function Text:drawChar(node, state)
             love.graphics.setShader(shader)
             shader:sendColor("from", white and COLORS.dkgray or state.color)
             shader:sendColor("to", white and COLORS.navy or state.color)
-            love.graphics.setColor(1, 1, 1, white and 1 or 0.3)
+            --love.graphics.setColor(cr, cg, cb, ca * (white and 1 or 0.3))
+            local mult = white and 1 or 0.3
+            love.graphics.setColor(cr*mult, cg*mult, cb*mult, ca)
         else
-            love.graphics.setColor(state.color[1], state.color[2], state.color[3], 0.3)
+            --love.graphics.setColor(mr, mg, mb, ma * 0.3)
+            love.graphics.setColor(mr*0.3, mg*0.3, mb*0.3, ma)
         end
         love.graphics.draw(canvas, x+1, y+1)
 
@@ -296,7 +332,7 @@ function Text:drawChar(node, state)
         else
             love.graphics.setShader(last_shader)
         end
-        love.graphics.setColor(1, 1, 1)
+        love.graphics.setColor(cr,cg,cb,ca)
         love.graphics.draw(canvas, x, y)
 
         if not white then
@@ -305,27 +341,25 @@ function Text:drawChar(node, state)
     elseif state.style == "dark_menu" then
         love.graphics.setColor(0.25, 0.125, 0.25)
         love.graphics.print(node.character, x+2, y+2)
-        love.graphics.setColor(unpack(state.color))
+        love.graphics.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y)
     elseif state.style == "GONER" then
 
-        local r, g, b, a = unpack(state.color)
-
         local specfade = 1 -- This is unused for now!
         -- It's used in chapter 1, though... so let's keep it around.
-        love.graphics.setColor(r, g, b, specfade)
+        love.graphics.setColor(mr,mg,mb, ma*specfade)
         love.graphics.print(node.character, x, y)
-        love.graphics.setColor(r, g, b, ((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
+        love.graphics.setColor(mr,mg,mb, ma*((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
         love.graphics.print(node.character, x + 2, y)
         love.graphics.print(node.character, x - 2, y)
         love.graphics.print(node.character, x, y + 2)
         love.graphics.print(node.character, x, y - 2)
-        love.graphics.setColor(r, g, b, ((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
+        love.graphics.setColor(mr,mg,mb, ma*((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
         love.graphics.print(node.character, x + 2, y)
         love.graphics.print(node.character, x - 2, y)
         love.graphics.print(node.character, x, y + 2)
         love.graphics.print(node.character, x, y - 2)
-        love.graphics.setColor(r, g, b, 1)
+        love.graphics.setColor(mr,mg,mb,ma)
     end
     return width, height
 end
@@ -338,12 +372,12 @@ end
 function Text:draw()
     if self.draw_every_frame then
         for i, node in ipairs(self.nodes_to_draw) do
-            self:drawChar(node[1], node[2])
+            self:drawChar(node[1], node[2], true)
         end
     else
-        love.graphics.setBlendMode("alpha", "premultiplied")
+        --love.graphics.setBlendMode("alpha", "premultiplied")
         love.graphics.draw(self.canvas)
-        love.graphics.setBlendMode("alpha")
+        --love.graphics.setBlendMode("alpha")
     end
 
     super:draw(self)
