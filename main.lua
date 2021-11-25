@@ -796,6 +796,7 @@ function Kristal.saveGame(id, data)
     id = id or Game.save_id
     data = data or Game:save()
     Game.save_id = id
+    Game.quick_save = nil
     love.filesystem.createDirectory("saves/"..Mod.info.path)
     love.filesystem.write("saves/"..Mod.info.path.."/file_"..id..".json", JSON.encode(data))
 end

@@ -11,6 +11,8 @@ function Game:clear()
     self.world = nil
     self.battle = nil
     self.inventory = nil
+    self.fader_alpha = 0
+    self.quick_save = nil
     --self.console = nil
 end
 
@@ -20,11 +22,9 @@ function Game:enter(previous_state, save_id)
     self.font = Assets.getFont("main")
     self.soul_blur = Assets.getTexture("ui/soul_blur")
 
-    self.fader_alpha = 0
-
     self.music = Music()
 
-    self.auto_save = nil
+    self.quick_save = nil
 
     if save_id then
         Kristal.loadGame(save_id)
@@ -63,19 +63,7 @@ end
 function Game:leave()
     self:clear()
     self.console = nil
-    self.auto_save = nil
-end
-
-function Game:autoSave()
-    self.auto_save = Utils.copy(self:save(), true)
-end
-
-function Game:loadLastSave()
-    if self.auto_save then
-        self:load(self.auto_save, self.save_id)
-    else
-        Kristal.loadGame(self.save_id)
-    end
+    self.quick_save = nil
 end
 
 function Game:getSavePreview()
@@ -87,7 +75,7 @@ function Game:getSavePreview()
     }
 end
 
-function Game:save()
+function Game:save(x, y)
     local data = {
         chapter = self.chapter,
 
@@ -107,6 +95,16 @@ function Game:save()
 
         flags = self.flags
     }
+
+    if x then
+        if type(x) == "string" then
+            data.spawn_marker = x
+        elseif type(x) == "table" then
+            data.spawn_position = x
+        elseif x and y then
+            data.spawn_position = {x, y}
+        end
+    end
 
     data.party = {}
     for _,party in ipairs(self.party) do
@@ -196,7 +194,7 @@ function Game:load(data, index)
 
     -- END SAVE FILE VARIABLES --
 
-    self.world:spawnParty()
+    self.world:spawnParty(data.spawn_marker or data.spawn_position)
 
     Kristal.modCall("load", data, index)
 end
@@ -387,7 +385,7 @@ function Game:updateGameOver(dt)
         self.fader_alpha = self.fader_alpha + (0.01 * DTMULT)
         if self.gameover_timer >= 120 then
             self.gameover_stage = 11
-            self:loadTemp()
+            self:loadQuick()
         end
     end
 
@@ -437,7 +435,7 @@ function Game:updateGameOver(dt)
             self.gameover_skipping = self.gameover_skipping + 1
         end
         if (self.gameover_skipping >= 4) then
-            self:loadTemp()
+            self:loadQuick()
         end
     end
 
@@ -447,8 +445,18 @@ function Game:updateGameOver(dt)
     end
 end
 
-function Game:loadTemp()
-    error("TODO: LOAD AFTER GAME OVER")
+function Game:saveQuick(...)
+    self.quick_save = Utils.copy(self:save(...), true)
+end
+
+function Game:loadQuick()
+    local save = self.quick_save
+    if save then
+        self:load(save, self.save_id)
+    else
+        Kristal.loadGame(self.save_id)
+    end
+    self.quick_save = save
 end
 
 function Game:encounter(encounter, transition, enemy)
