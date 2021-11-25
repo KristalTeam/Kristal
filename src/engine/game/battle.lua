@@ -1798,6 +1798,11 @@ function Battle:keypressed(key)
         if key == "g" then
             self.party[self.current_selecting]:hurt(1)
         end
+        if key == "h" then
+            for _,party in ipairs(self.party) do
+                party:heal(math.huge)
+            end
+        end
         if key == "m" then
             if self.music then
                 if self.music:isPlaying() then
