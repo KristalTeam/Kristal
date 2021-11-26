@@ -34,6 +34,7 @@ function Map:init(world, data)
     self.tilesets = {}
     self.collision = {}
     self.tile_layers = {}
+    self.image_layers = {}
     self.markers = {}
     self.battle_areas = {}
     self.battle_borders = {}
