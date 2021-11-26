@@ -186,6 +186,9 @@ function love.load(args)
     -- load the settings.json
     Kristal.Config = Kristal.loadConfig()
 
+    -- load the keybinds
+    Input.loadBinds()
+
     -- pixel scaling (the good one)
     love.graphics.setDefaultFilter("nearest")
 

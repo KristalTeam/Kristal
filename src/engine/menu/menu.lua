@@ -75,6 +75,10 @@ function Menu:enter()
     self.selected_mod_button = nil
     self.selected_mod = nil
 
+    self.rebinding = false
+    self.selecting_key = false
+    self.selected_bind = 1
+
     self.noise_timer = 0
 end
 
@@ -347,62 +351,87 @@ function Menu:draw()
 
     if self.state == "MAINMENU" then
         love.graphics.draw(self.logo, 160, 70)
-        Menu:printShadow("Play a mod", 215, 219)
-        Menu:printShadow("Open mods folder", 215, 219 + 32)
-        Menu:printShadow("Options", 215, 219 + 64)
-        Menu:printShadow("Credits", 215, 219 + 96)
+        self:printShadow("Play a mod", 215, 219)
+        self:printShadow("Open mods folder", 215, 219 + 32)
+        self:printShadow("Options", 215, 219 + 64)
+        self:printShadow("Credits", 215, 219 + 96)
     elseif self.state == "OPTIONS" or self.state == "VOLUME" then
 
-        Menu:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
+        self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
 
         local menu_x = 185 - 14
         local menu_y = 110
 
-        Menu:printShadow("Master Volume",  menu_x, menu_y + (32 * 0))
-        Menu:printShadow("Controls",       menu_x, menu_y + (32 * 1))
-        Menu:printShadow("Simplify VFX",   menu_x, menu_y + (32 * 2))
-        Menu:printShadow("Fullscreen",     menu_x, menu_y + (32 * 3))
-        Menu:printShadow("Auto-Run",       menu_x, menu_y + (32 * 4))
-        Menu:printShadow("Skip Intro",     menu_x, menu_y + (32 * 5))
-        Menu:printShadow("Display FPS",    menu_x, menu_y + (32 * 6))
-        Menu:printShadow("Back",           menu_x, menu_y + (32 * 8))
+        self:printShadow("Master Volume",  menu_x, menu_y + (32 * 0))
+        self:printShadow("Controls",       menu_x, menu_y + (32 * 1))
+        self:printShadow("Simplify VFX",   menu_x, menu_y + (32 * 2))
+        self:printShadow("Fullscreen",     menu_x, menu_y + (32 * 3))
+        self:printShadow("Auto-Run",       menu_x, menu_y + (32 * 4))
+        self:printShadow("Skip Intro",     menu_x, menu_y + (32 * 5))
+        self:printShadow("Display FPS",    menu_x, menu_y + (32 * 6))
+        self:printShadow("Back",           menu_x, menu_y + (32 * 8))
 
-        Menu:printShadow(Utils.round(Game:getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
-        Menu:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
-        Menu:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
-        Menu:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
-        Menu:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
-        Menu:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
+        self:printShadow(Utils.round(Game:getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
+        self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
+        self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
+        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
+        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
+        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
     elseif self.state == "CONTROLS" then
-        Menu:printShadow("Rebinding coming soon!", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
-        Menu:printShadow("(We hope.)", 0, 240 - 8 + 16, {0.7, 0.7, 0.7, 1}, true, 640)
+        self:printShadow("( CONTROLS )", 0, 48, {1, 1, 1, 1}, true, 640)
+
+        local menu_x = 185 - 14
+        local menu_y = 110
+
+        local x_offset = 0
+
+        for index, name in ipairs(Input.order) do
+            self:printShadow(name:upper(),  menu_x, menu_y + (32 * x_offset))
+
+            self:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
+            x_offset = x_offset + 1
+        end
+
+        for name, value in pairs(Input.aliases) do
+            if not Utils.containsValue(Input.order, name) then
+                self:printShadow(name:upper(),  menu_x, menu_y + (32 * x_offset))
+
+                self:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
+                --self:printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * x_offset))
+                x_offset = x_offset + 1
+            end
+        end
+
+        self:printShadow("Reset to defaults",  menu_x, menu_y + (32 * x_offset))
+        self:printShadow("Back",  menu_x, menu_y + (32 * (x_offset + 1)))
+
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
 
         if self.loading_mods then
-            Menu:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+            self:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, true, 640)
         else
             if #self.list.mods == 0 then
                 self.heart_target_x = -8
                 self.heart_target_y = -8
                 self.list.active = false
                 self.list.visible = false
-                Menu:printShadow(Menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+                self:printShadow(Menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
             else
                 -- Draw some menu text
-                Menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
-                Menu:printShadow("(X) Return to main menu", 294 + (16 * 3), 454 - 8, {1, 1, 1, 1})
+                self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
+                self:printShadow("(X) Return to main menu", 294 + (16 * 3), 454 - 8, {1, 1, 1, 1})
             end
         end
     elseif self.state == "FILESELECT" then
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
-        Menu:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
+        self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
-        Menu:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
-        Menu:printShadow("It just... showed up one day.", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
-        Menu:printShadow("(Not really. Real page soon.)", 0, 240 - 8 + 16, {0.7, 0.7, 0.7, 1}, true, 640)
+        self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
+        self:printShadow("It just... showed up one day.", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
+        self:printShadow("(Not really. Real page soon.)", 0, 240 - 8 + 16, {0.7, 0.7, 0.7, 1}, true, 640)
     else
-        Menu:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, true, 640)
+        self:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, true, 640)
     end
 
     -- Draw mod preview overlays
@@ -427,6 +456,44 @@ function Menu:draw()
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Menu:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
+    local y_offset = 0
+    if self.selected_option == (x_offset + 1) then
+        for i, v in ipairs(Input.aliases[name]) do
+            local drawstr = Utils.titleCase(v)
+            if i < #Input.aliases[name] then
+                drawstr = drawstr .. ", "
+            end
+            if i < self.selected_bind then
+                y_offset = y_offset - self.menu_font:getWidth(drawstr) - 8
+            end
+        end
+    end
+    Draw.pushScissor()
+    Draw.scissor(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    for i, v in ipairs(Input.aliases[name]) do
+        local drawstr = Utils.titleCase(v)
+        if i < #Input.aliases[name] then
+            drawstr = drawstr .. ", "
+        end
+        local color = {1, 1, 1, 1}
+        if self.selecting_key or self.rebinding then
+            if self.selected_option == (x_offset + 1) then
+                color = {0.5, 0.5, 0.5, 1}
+            end
+        end
+        if (self.selected_option == (x_offset + 1)) and (i == self.selected_bind) then
+            color = {1, 1, 1, 1}
+            if self.rebinding then
+                color = {0, 1, 1, 1}
+            end
+        end
+        self:printShadow(drawstr, menu_x + (8 * 32) + y_offset, menu_y + (32 * x_offset), color)
+        y_offset = y_offset + self.menu_font:getWidth(drawstr) + 8
+    end
+    Draw.popScissor()
 end
 
 function Menu:keypressed(key, _, is_repeat)
@@ -502,11 +569,14 @@ function Menu:keypressed(key, _, is_repeat)
             self.ui_select:play()
             if self.selected_option == 1 then
                 self:setState("VOLUME")
-                self.heart_target_x = 422 - 14
+                self.heart_target_x = 408
             elseif self.selected_option == 2 then
                 self:setState("CONTROLS")
-                self.heart_target_x = -8
-                self.heart_target_y = -8
+                self.rebinding = false
+                self.selecting_key = false
+                self.heart_target_x = 152
+                self.heart_target_y = 129 + 0 * 32
+                self.selected_option = 1
             elseif self.selected_option == 3 then
                 Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
             elseif self.selected_option == 4 then
@@ -562,10 +632,10 @@ function Menu:keypressed(key, _, is_repeat)
                 self.heart_target_y = 238
             end
 
-            if key == "up"    then self.list:selectUp(is_repeat)   end
-            if key == "down"  then self.list:selectDown(is_repeat) end
-            if key == "left"  then self.list:pageUp(is_repeat)     end
-            if key == "right" then self.list:pageDown(is_repeat)   end
+            if Input.is("up", key)    then self.list:selectUp(is_repeat)   end
+            if Input.is("down", key)  then self.list:selectDown(is_repeat) end
+            if Input.is("left", key)  then self.list:pageUp(is_repeat)     end
+            if Input.is("right", key) then self.list:pageDown(is_repeat)   end
         end
     elseif self.state == "FILESELECT" then
         if not is_repeat then
@@ -579,6 +649,86 @@ function Menu:keypressed(key, _, is_repeat)
             self.heart_target_x = 196
             self.selected_option = 4
             self.heart_target_y = 238 + (3 * 32)
+        end
+    elseif self.state == "CONTROLS" then
+        if (not self.rebinding) and (not self.selecting_key) then
+            local old = self.selected_option
+            if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
+            if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
+            if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
+            if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
+            self.selected_option = math.max(1, math.min(Utils.tableLength(Input.aliases) + 2, self.selected_option))
+
+            if old ~= self.selected_option then
+                self.ui_move:stop()
+                self.ui_move:play()
+            end
+
+            self.heart_target_x = 152
+            self.heart_target_y = 129 + (self.selected_option - 1) * 32
+
+            if Input.isConfirm(key) then
+                self.rebinding = false
+                self.selecting_key = false
+                if (self.selected_option == Utils.tableLength(Input.aliases) + 1) then
+                    Input.loadBinds(true) -- reset binds
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                    self.selected_option = Utils.tableLength(Input.aliases) + 1
+                    self.heart_target_y = 129 + (self.selected_option - 1) * 32
+                elseif (self.selected_option == Utils.tableLength(Input.aliases) + 2) then
+                    self:setState("OPTIONS")
+                    self.selected_option = 2
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                    Input.saveBinds()
+                    self.heart_target_x = 152
+                    self.heart_target_y = 129 + 1 * 32
+                else
+                    self.rebinding = false
+                    self.selecting_key = true
+                    self.heart_target_x = 408
+                    self.selected_bind = 1
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                end
+            end
+        elseif self.selecting_key then
+            local table_key = Input.orderedNumberToKey(self.selected_option)
+
+            local old = self.selected_bind
+            if Input.is("left" , key) then self.selected_bind = self.selected_bind - 1 end
+            if Input.is("right", key) then self.selected_bind = self.selected_bind + 1 end
+            self.selected_bind = math.max(1, math.min(#Input.aliases[table_key], self.selected_bind))
+
+            if old ~= self.selected_bind then
+                self.ui_move:stop()
+                self.ui_move:play()
+            end
+
+            if Input.isConfirm(key) then
+                self.rebinding = true
+                self.selecting_key = false
+                self.heart_target_x = 408
+                self.ui_select:stop()
+                self.ui_select:play()
+            end
+            if Input.isCancel(key) then
+                self.rebinding = false
+                self.selecting_key = false
+                self.heart_target_x = 152
+                self.ui_select:stop()
+                self.ui_select:play()
+            end
+        elseif self.rebinding then
+            -- rebind!!
+            Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, key)
+
+            self.rebinding = false
+            self.heart_target_x = 152
+            self.selected_bind = 1
+            self.ui_select:stop()
+            self.ui_select:play()
         end
     else
         if Input.isCancel(key) or Input.isConfirm(key) then

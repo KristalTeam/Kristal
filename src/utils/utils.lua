@@ -515,4 +515,59 @@ function Utils.absoluteToLocalPath(prefix, image, path)
     end
 end
 
+function Utils.titleCase(str)
+    local buf = {}
+    for word in string.gfind(str, "%S+") do
+        local first, rest = string.sub(word, 1, 1), string.sub(word, 2)
+        table.insert(buf, string.upper(first) .. string.lower(rest))
+    end
+    return table.concat(buf, " ")
+end
+
+function Utils.tableLength(t)
+    local count = 0
+    for _ in pairs(t) do count = count + 1 end
+    return count
+end
+
+function Utils.keyFromNumber(t, number)
+    local count = 1
+    for key, value in pairs(t) do
+        if count == number then
+            return key
+        end
+        count = count + 1
+    end
+    return nil
+end
+
+function Utils.numberFromKey(t, name)
+    local count = 1
+    for key, value in pairs(t) do
+        if key == name then
+            return count
+        end
+        count = count + 1
+    end
+    return nil
+end
+
+function Utils.getIndex(t, value)
+    for i,v in ipairs(t) do
+        if v == value then
+            return i
+        end
+    end
+    return nil
+end
+
+function Utils.getKey(t, value)
+    for key, v in pairs(t) do
+        if v == value then
+            return key
+        end
+    end
+    return nil
+end
+
 return Utils

@@ -24,10 +24,10 @@ function PinkSoul:doMovement()
     local move_x, move_y = 0, 0
 
     -- Keyboard input:
-    if love.keyboard.isDown("left")  then move_x = move_x - 1 end
-    if love.keyboard.isDown("right") then move_x = move_x + 1 end
-    if love.keyboard.isDown("up")    then move_y = move_y + 1 end
-    if love.keyboard.isDown("down")  then move_y = move_y - 1 end
+    if Input.down("left")  then move_x = move_x - 1 end
+    if Input.down("right") then move_x = move_x + 1 end
+    if Input.down("up")    then move_y = move_y + 1 end
+    if Input.down("down")  then move_y = move_y - 1 end
 
     if move_x ~= 0 or move_y ~= 0 then
         self:move(move_x, move_y, speed * DTMULT)

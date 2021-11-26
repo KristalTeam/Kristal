@@ -1903,7 +1903,7 @@ function Battle:keypressed(key)
             self.tension_bar:setTensionPreview(0)
             self:setState("ACTIONSELECT", "CANCEL")
             return
-        elseif key == "left" then -- TODO: pagination
+        elseif Input.is("left", key) then -- TODO: pagination
             self.current_menu_x = self.current_menu_x - 1
             if self.current_menu_x < 1 then
                 self.current_menu_x = menu_width
@@ -1911,18 +1911,18 @@ function Battle:keypressed(key)
                     self.current_menu_x = 1
                 end
             end
-        elseif key == "right" then
+        elseif Input.is("right", key) then
             self.current_menu_x = self.current_menu_x + 1
             if not self:isValidMenuLocation() then
                 self.current_menu_x = 1
             end
         end
-        if key == "up" then
+        if Input.is("up", key) then
             self.current_menu_y = self.current_menu_y - 1
             if self.current_menu_y < 1 then
                 self.current_menu_y = 1 -- No wrapping in this menu.
             end
-        elseif key == "down" then
+        elseif Input.is("down", key) then
             self.current_menu_y = self.current_menu_y + 1
             if (self.current_menu_y > menu_height) or (not self:isValidMenuLocation()) then
                 self.current_menu_y = menu_height -- No wrapping in this menu.
@@ -1985,14 +1985,14 @@ function Battle:keypressed(key)
             self:setState("ACTIONSELECT", "CANCEL")
             return
         end
-        if key == "up" then
+        if Input.is("up", key) then
             self.ui_move:stop()
             self.ui_move:play()
             self.current_menu_y = self.current_menu_y - 1
             if self.current_menu_y < 1 then
                 self.current_menu_y = #self.enemies
             end
-        elseif key == "down" then
+        elseif Input.is("down", key) then
             self.ui_move:stop()
             self.ui_move:play()
             self.current_menu_y = self.current_menu_y + 1
@@ -2019,14 +2019,14 @@ function Battle:keypressed(key)
             self:setState("ACTIONSELECT", "CANCEL")
             return
         end
-        if key == "up" then
+        if Input.is("up", key) then
             self.ui_move:stop()
             self.ui_move:play()
             self.current_menu_y = self.current_menu_y - 1
             if self.current_menu_y < 1 then
                 self.current_menu_y = #self.party
             end
-        elseif key == "down" then
+        elseif Input.is("down", key) then
             self.ui_move:stop()
             self.ui_move:play()
             self.current_menu_y = self.current_menu_y + 1
@@ -2119,11 +2119,11 @@ function Battle:keypressed(key)
                 self.battle_ui.action_boxes[self.current_selecting]:unselect()
             end
             return
-        elseif key == "left" then
+        elseif Input.is("left", key) then
             actbox.selected_button = actbox.selected_button - 1
             self.ui_move:stop()
             self.ui_move:play()
-        elseif key == "right" then
+        elseif Input.is("right", key) then
             actbox.selected_button = actbox.selected_button + 1
             self.ui_move:stop()
             self.ui_move:play()

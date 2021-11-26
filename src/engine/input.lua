@@ -7,17 +7,71 @@ Input.key_down = {}
 Input.key_pressed = {}
 Input.key_released = {}
 
-Input.aliases = {
-    ["up"] = {"up"},
-    ["down"] = {"down"},
-    ["left"] = {"left"},
-    ["right"] = {"right"},
-    ["confirm"] = {"z", "return"},
-    ["cancel"] = {"x", "lshift", "rshift"},
-    ["menu"] = {"c", "lctrl", "rctrl"}
+Input.lock_stack = {}
+
+
+Input.aliases = {}
+
+Input.order = {
+    "down", "right", "up", "left", "confirm", "cancel", "menu"
 }
 
-Input.lock_stack = {}
+function Input.loadBinds(reset)
+    local defaults = {
+        ["up"] = {"up"},
+        ["down"] = {"down"},
+        ["left"] = {"left"},
+        ["right"] = {"right"},
+        ["confirm"] = {"z", "return"},
+        ["cancel"] = {"x", "lshift", "rshift"},
+        ["test"] = {"o"},
+        ["menu"] = {"c", "lctrl", "rctrl"},
+    }
+
+    if (reset == nil) or (reset == false) then
+        if love.filesystem.getInfo("keybinds.json") then
+            Utils.merge(defaults, JSON.decode(love.filesystem.read("keybinds.json")))
+        end
+    end
+
+    Input.aliases = Utils.copy(defaults)
+end
+
+function Input.orderedNumberToKey(number)
+    if number <= #Input.order then
+        return Input.order[number]
+    else
+        local index = #Input.order + 1
+        for name, value in pairs(Input.aliases) do
+            if not Utils.containsValue(Input.order, name) then
+                if index == number then
+                    return name
+                end
+                index = index + 1
+            end
+        end
+        return nil
+    end
+end
+
+function Input.saveBinds()
+    love.filesystem.write("keybinds.json", JSON.encode(Input.aliases))
+end
+
+function Input.setBind(alias, index, key)
+    local old_key = Input.aliases[alias][index]
+
+    for aliasname, lalias in pairs(Input.aliases) do
+        for keyindex, lkey in ipairs(lalias) do
+            if lkey == key then
+                print(key .. " is already bound to " .. aliasname)
+                Input.aliases[aliasname][keyindex] = old_key
+            end
+        end
+    end
+
+    Input.aliases[alias][index] = key
+end
 
 function Input.clearPressed()
     self.key_pressed = {}
