@@ -16,6 +16,10 @@ Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu"
 }
 
+function Input.getKeysFromAlias(key)
+    return Input.aliases[key]
+end
+
 function Input.loadBinds(reset)
     local defaults = {
         ["up"] = {"up"},
@@ -24,7 +28,6 @@ function Input.loadBinds(reset)
         ["right"] = {"right"},
         ["confirm"] = {"z", "return"},
         ["cancel"] = {"x", "lshift", "rshift"},
-        ["test"] = {"o"},
         ["menu"] = {"c", "lctrl", "rctrl"},
     }
 
@@ -59,18 +62,32 @@ function Input.saveBinds()
 end
 
 function Input.setBind(alias, index, key)
+    if key == "escape" then
+        if #Input.aliases[alias] > 1 then
+            table.remove(Input.aliases[alias], index)
+            return true
+        else
+            return false
+        end
+    end
+
     local old_key = Input.aliases[alias][index]
 
     for aliasname, lalias in pairs(Input.aliases) do
         for keyindex, lkey in ipairs(lalias) do
             if lkey == key then
                 print(key .. " is already bound to " .. aliasname)
-                Input.aliases[aliasname][keyindex] = old_key
+                if index > #Input.aliases[alias] then
+                    print("this is new, not allowed!!")
+                    return false
+                else
+                    Input.aliases[aliasname][keyindex] = old_key
+                end
             end
         end
     end
-
     Input.aliases[alias][index] = key
+    return true
 end
 
 function Input.clearPressed()

@@ -32,6 +32,7 @@ function Menu:enter()
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
+    self.ui_cant_select = Assets.newSound("ui_cant_select")
 
     -- Initialize variables for the background animation
     self.fader_alpha = 1
@@ -461,9 +462,9 @@ end
 function Menu:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
     local y_offset = 0
     if self.selected_option == (x_offset + 1) then
-        for i, v in ipairs(Input.aliases[name]) do
+        for i, v in ipairs(self:getKeysFromAlias(name)) do
             local drawstr = Utils.titleCase(v)
-            if i < #Input.aliases[name] then
+            if i < #self:getKeysFromAlias(name) then
                 drawstr = drawstr .. ", "
             end
             if i < self.selected_bind then
@@ -473,9 +474,9 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
     end
     Draw.pushScissor()
     Draw.scissor(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    for i, v in ipairs(Input.aliases[name]) do
+    for i, v in ipairs(self:getKeysFromAlias(name)) do
         local drawstr = Utils.titleCase(v)
-        if i < #Input.aliases[name] then
+        if i < #self:getKeysFromAlias(name) then
             drawstr = drawstr .. ", "
         end
         local color = {1, 1, 1, 1}
@@ -699,7 +700,7 @@ function Menu:keypressed(key, _, is_repeat)
             local old = self.selected_bind
             if Input.is("left" , key) then self.selected_bind = self.selected_bind - 1 end
             if Input.is("right", key) then self.selected_bind = self.selected_bind + 1 end
-            self.selected_bind = math.max(1, math.min(#Input.aliases[table_key], self.selected_bind))
+            self.selected_bind = math.max(1, math.min(#self:getKeysFromAlias(table_key), self.selected_bind))
 
             if old ~= self.selected_bind then
                 self.ui_move:stop()
@@ -722,13 +723,18 @@ function Menu:keypressed(key, _, is_repeat)
             end
         elseif self.rebinding then
             -- rebind!!
-            Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, key)
+            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, key)
 
             self.rebinding = false
             self.heart_target_x = 152
             self.selected_bind = 1
-            self.ui_select:stop()
-            self.ui_select:play()
+            if worked then
+                self.ui_select:stop()
+                self.ui_select:play()
+            else
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
+            end
         end
     else
         if Input.isCancel(key) or Input.isConfirm(key) then
@@ -739,6 +745,15 @@ function Menu:keypressed(key, _, is_repeat)
             self.heart_target_y = 129 + (self.selected_option - 1) * 32
         end
     end
+end
+
+function Menu:getKeysFromAlias(key)
+    if (self.rebinding or self.selecting_key) and (key == Input.orderedNumberToKey(self.selected_option)) then
+        local temp = Utils.copy(Input.getKeysFromAlias(key))
+        table.insert(temp, "---")
+        return temp
+    end
+    return Input.getKeysFromAlias(key)
 end
 
 function Menu:drawBackground()
