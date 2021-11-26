@@ -340,7 +340,7 @@ function love.keypressed(key)
             love.event.quit("restart")
         else
             if Mod then
-                Kristal.quickReload()
+                Kristal.quickReload(love.keyboard.isDown("lshift"))
             else
                 Kristal.returnToMenu()
             end
@@ -665,10 +665,13 @@ function Kristal.returnToMenu()
     end)
 end
 
-function Kristal.quickReload()
+function Kristal.quickReload(dont_save)
     -- Temporarily save game variables
-    local save = Game:save()
-    local save_id = Game.save_id
+    local save, save_id
+    if not dont_save then
+        save = Game:save()
+        save_id = Game.save_id
+    end
     local encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
 
     -- Temporarily save the current mod id
@@ -684,7 +687,9 @@ function Kristal.quickReload()
         Kristal.loadModAssets(mod_id, function()
             -- Switch to Game and load the temp save
             Gamestate.switch(Game)
-            Game:load(save, save_id)
+            if save then
+                Game:load(save, save_id)
+            end
 
             -- If we had an encounter, restart the encounter
             if encounter then
