@@ -123,7 +123,7 @@ function DarkConfigMenu:draw()
     love.graphics.print("Master Volume",   88, 38 + (0 * 32))
     love.graphics.setColor(1, 1, 1, 1)
     if self.no1 then
-        love.graphics.print("No not yet", 88, 38 + (1 * 32))
+        love.graphics.print("It's in the main menu just use\n                                                        that", 88, 38 + (1 * 32))
     else
         love.graphics.print("Controls",        88, 38 + (1 * 32))
     end
