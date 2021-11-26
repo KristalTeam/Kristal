@@ -1777,6 +1777,22 @@ function Battle:getActiveEnemies()
     return Utils.filter(self.enemies, function(enemy) return not enemy.done_state end)
 end
 
+function Battle:getEnemyByID(id)
+    for _,enemy in ipairs(self.enemies) do
+        if enemy.id == id then
+            return enemy
+        end
+    end
+end
+
+function Battle:getPartyByID(id)
+    for _,party_member in ipairs(self.party) do
+        if party_member.chara.id == id then
+            return party_member
+        end
+    end
+end
+
 function Battle:getItemIndex()
     return 2 * (self.current_menu_y - 1) + self.current_menu_x
 end
