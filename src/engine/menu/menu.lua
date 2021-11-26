@@ -384,27 +384,27 @@ function Menu:draw()
         local menu_x = 185 - 14
         local menu_y = 110
 
-        local x_offset = 0
+        local y_offset = 0
 
         for index, name in ipairs(Input.order) do
-            self:printShadow(name:upper(),  menu_x, menu_y + (32 * x_offset))
+            self:printShadow(name:upper(),  menu_x, menu_y + (32 * y_offset))
 
-            self:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
-            x_offset = x_offset + 1
+            self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
+            y_offset = y_offset + 1
         end
 
         for name, value in pairs(Input.aliases) do
             if not Utils.containsValue(Input.order, name) then
-                self:printShadow(name:upper(),  menu_x, menu_y + (32 * x_offset))
+                self:printShadow(name:upper(),  menu_x, menu_y + (32 * y_offset))
 
-                self:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
-                --self:printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * x_offset))
-                x_offset = x_offset + 1
+                self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
+                --self:printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * y_offset))
+                y_offset = y_offset + 1
             end
         end
 
-        self:printShadow("Reset to defaults",  menu_x, menu_y + (32 * x_offset))
-        self:printShadow("Back",  menu_x, menu_y + (32 * (x_offset + 1)))
+        self:printShadow("Reset to defaults",  menu_x, menu_y + (32 * y_offset))
+        self:printShadow("Back",  menu_x, menu_y + (32 * (y_offset + 1)))
 
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
@@ -459,16 +459,16 @@ function Menu:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function Menu:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
-    local y_offset = 0
-    if self.selected_option == (x_offset + 1) then
+function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
+    local x_offset = 0
+    if self.selected_option == (y_offset + 1) then
         for i, v in ipairs(self:getKeysFromAlias(name)) do
             local drawstr = Utils.titleCase(v)
             if i < #self:getKeysFromAlias(name) then
                 drawstr = drawstr .. ", "
             end
             if i < self.selected_bind then
-                y_offset = y_offset - self.menu_font:getWidth(drawstr) - 8
+                x_offset = x_offset - self.menu_font:getWidth(drawstr) - 8
             end
         end
     end
@@ -481,18 +481,18 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, x_offset)
         end
         local color = {1, 1, 1, 1}
         if self.selecting_key or self.rebinding then
-            if self.selected_option == (x_offset + 1) then
+            if self.selected_option == (y_offset + 1) then
                 color = {0.5, 0.5, 0.5, 1}
             end
         end
-        if (self.selected_option == (x_offset + 1)) and (i == self.selected_bind) then
+        if (self.selected_option == (y_offset + 1)) and (i == self.selected_bind) then
             color = {1, 1, 1, 1}
             if self.rebinding then
                 color = {0, 1, 1, 1}
             end
         end
-        self:printShadow(drawstr, menu_x + (8 * 32) + y_offset, menu_y + (32 * x_offset), color)
-        y_offset = y_offset + self.menu_font:getWidth(drawstr) + 8
+        self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
+        x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
     end
     Draw.popScissor()
 end
@@ -717,6 +717,7 @@ function Menu:keypressed(key, _, is_repeat)
             if Input.isCancel(key) then
                 self.rebinding = false
                 self.selecting_key = false
+                self.selected_bind = 1
                 self.heart_target_x = 152
                 self.ui_select:stop()
                 self.ui_select:play()
