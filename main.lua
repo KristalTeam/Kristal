@@ -667,12 +667,12 @@ end
 
 function Kristal.quickReload(dont_save)
     -- Temporarily save game variables
-    local save, save_id
+    local save, save_id, encounter
     if not dont_save then
         save = Game:save()
         save_id = Game.save_id
+        encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
     end
-    local encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
 
     -- Temporarily save the current mod id
     local mod_id = Mod.info.id
@@ -689,11 +689,11 @@ function Kristal.quickReload(dont_save)
             Gamestate.switch(Game)
             if save then
                 Game:load(save, save_id)
-            end
 
-            -- If we had an encounter, restart the encounter
-            if encounter then
-                Game:encounter(encounter, false)
+                -- If we had an encounter, restart the encounter
+                if encounter then
+                    Game:encounter(encounter, false)
+                end
             end
         end)
     end)
