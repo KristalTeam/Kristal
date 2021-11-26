@@ -42,7 +42,7 @@ function OverworldSoul:update(dt)
     end
 
     Object.startCache()
-    for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
+    for _,bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
         if bullet:collidesWith(self.collider) then
             self:onCollide(bullet)
         end

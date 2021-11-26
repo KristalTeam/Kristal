@@ -116,6 +116,18 @@ function Registry.createBullet(id, ...)
     end
 end
 
+function Registry.getWorldBullet(id)
+    return self.world_bullets[id]
+end
+
+function Registry.createWorldBullet(id, ...)
+    if self.world_bullets[id] then
+        return self.world_bullets[id](...)
+    else
+        error("Attempt to create non existent world bullet \"" .. id .. "\"")
+    end
+end
+
 function Registry.getWorldCutscene(group, id)
     local cutscene = self.world_cutscenes[group]
     if type(cutscene) == "table" then
@@ -193,6 +205,10 @@ end
 
 function Registry.registerBullet(id, class)
     self.bullets[id] = class
+end
+
+function Registry.registerWorldBullet(id, class)
+    self.world_bullets[id] = class
 end
 
 function Registry.registerWorldCutscene(id, cutscene)
@@ -317,10 +333,16 @@ end
 
 function Registry.initBullets()
     self.bullets = {}
+    self.world_bullets = {}
 
     for _,path,bullet in self.iterScripts("battle/bullets") do
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
+    end
+
+    for _,path,bullet in self.iterScripts("world/bullets") do
+        bullet.id = bullet.id or path
+        self.registerWorldBullet(bullet.id, bullet)
     end
 
     Kristal.modCall("onRegisterBullets")

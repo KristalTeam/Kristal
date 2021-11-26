@@ -7,9 +7,18 @@ function World:init(map)
     self.layers = {
         ["tiles"]         = 0,
         ["objects"]       = 1,
+
+        ["below_soul"]    = 100,
         ["soul"]          = 200,
-        ["bullets"]       = 300,
-        ["ui"]            = 1000
+        ["above_soul"]    = 300,
+
+        ["below_bullets"] = 300,
+        ["bullets"]       = 400,
+        ["above_bullets"] = 500,
+
+        ["below_ui"]      = 900,
+        ["ui"]            = 1000,
+        ["above_ui"]      = 1100
     }
 
 
@@ -43,6 +52,7 @@ function World:init(map)
     self.in_battle = false
     self.battle_alpha = 0
 
+    self.bullets = {}
     self.followers = {}
 
     self.cutscene = nil
@@ -71,6 +81,34 @@ function World:heal(target, amount)
                 return
             end
         end
+    end
+end
+
+function World:hurtParty(amount)
+    Assets.playSound("snd_hurt1")
+
+    self.shake_x = 4
+    self.shake_y = 4
+
+    self:showHealthBars()
+
+    local all_killed = true
+    for _,party in ipairs(Game.party) do
+        party.health = party.health - amount
+        if party.health <= 0 then
+            party.health = 1
+        else
+            all_killed = false
+        end
+        for _,char in ipairs(self.stage:getObjects(Character)) do
+            if char.actor and (char.actor.id == party.actor or char.actor.id == party.lw_actor) then
+                char:statusMessage("damage", amount)
+            end
+        end
+    end
+
+    if all_killed then
+        Game:gameOver(self.soul:getScreenPos())
     end
 end
 
@@ -113,13 +151,14 @@ end
 
 function World:showHealthBars()
     if self.light then return end
-    if self.healthbar then
-        self.healthbar:remove()
-    end
 
-    self.healthbar = HealthBar()
-    self.healthbar.layer = self.layers["ui"]
-    self:addChild(self.healthbar)
+    if self.healthbar then
+        self.healthbar:transitionIn()
+    else
+        self.healthbar = HealthBar()
+        self.healthbar.layer = self.layers["ui"]
+        self:addChild(self.healthbar)
+    end
 end
 
 function World:hideHealthBars()
@@ -333,7 +372,32 @@ function World:spawnParty(marker, party, extra)
     end
 end
 
+function World:spawnBullet(bullet, ...)
+    local new_bullet
+    if isClass(bullet) and bullet:includes(WorldBullet) then
+        new_bullet = bullet
+    elseif Registry.getWorldBullet(bullet) then
+        new_bullet = Registry.createWorldBullet(bullet, ...)
+    else
+        local x, y = ...
+        table.remove(arg, 1)
+        table.remove(arg, 1)
+        new_bullet = WorldBullet(x, y, bullet, unpack(arg))
+    end
+    new_bullet.layer = self.layers["bullets"]
+    new_bullet.world = self
+    table.insert(self.bullets, new_bullet)
+    if not new_bullet.parent then
+        self:addChild(new_bullet)
+    end
+    return new_bullet
+end
+
 function World:loadMap(map, ...)
+    if self.map then
+        self.map:unload()
+    end
+
     for _,child in ipairs(self.children) do
         if not child.persistent then
             self:removeChild(child)
@@ -472,6 +536,12 @@ function World:sortChildren()
     Utils.popPerformance()
 end
 
+function World:onRemove(parent)
+    super:onRemove(self, parent)
+
+    self.music:remove()
+end
+
 function World:update(dt)
     if self.cutscene then
         if not self.cutscene.ended then
@@ -520,25 +590,27 @@ function World:update(dt)
     self:updateCamera()
 
     if self.in_battle then
-        self.battle_alpha = math.min(self.battle_alpha + (0.04 * DTMULT), 0.52)
+        self.battle_alpha = math.min(self.battle_alpha + (0.08 * DTMULT), 1)
     else
-        self.battle_alpha = math.max(self.battle_alpha - (0.04 * DTMULT), 0)
+        self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
+
+    local half_alpha = self.battle_alpha * 0.52
 
     for _,v in ipairs(self.followers) do
-        v.sprite:setColor(1 - self.battle_alpha, 1 - self.battle_alpha, 1 - self.battle_alpha, 1)
+        v.sprite:setColor(1 - half_alpha, 1 - half_alpha, 1 - half_alpha, 1)
     end
 
-    for _,battle_border in ipairs(self.battle_borders) do
+    for _,battle_border in ipairs(self.map.battle_borders) do
         if battle_border:includes(TileLayer) then
-            battle_border.tile_opacity = (self.battle_alpha * 2)
+            battle_border.tile_opacity = self.battle_alpha
         else
-            battle_border.alpha = (self.battle_alpha * 2)
+            battle_border.alpha = self.battle_alpha
         end
     end
     if self.battle_fader then
         --self.battle_fader.layer = self.battle_border.layer - 1
-        self.battle_fader:setColor(0, 0, 0, self.battle_alpha)
+        self.battle_fader:setColor(0, 0, 0, half_alpha)
         local cam_x, cam_y = self.camera:getPosition()
         self.battle_fader.x = cam_x - 320
         self.battle_fader.y = cam_y - 240

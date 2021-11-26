@@ -63,12 +63,21 @@ function HealthBar:init()
     self.auto_hide_timer = 0
 end
 
-function HealthBar:transitionOut()
-    self.animate_out = true
-    self.animation_timer = 0
-    self.animation_done = false
+function HealthBar:transitionIn()
+    if self.animate_out then
+        self.animate_out = false
+        self.animation_timer = 0
+        self.animation_done = false
+    end
 end
 
+function HealthBar:transitionOut()
+    if not self.animate_out then
+        self.animate_out = true
+        self.animation_timer = 0
+        self.animation_done = false
+    end
+end
 
 function HealthBar:update(dt)
     self.animation_timer = self.animation_timer + DTMULT

@@ -49,15 +49,19 @@ function Map:init(world, data)
 
     self.object_layer = 1
     self.battle_fader_layer = 0.5
+
+    self.timer = Timer()
 end
 
 function Map:load()
+    self.world:addChild(self.timer)
     if self.data then
         self:loadMapData(self.data)
     else
         self:addTileLayer(0)
     end
 end
+function Map:unload() end
 
 function Map:update(dt) end
 function Map:draw() end

@@ -405,6 +405,19 @@ function Character:processJump()
     end
 end
 
+function Character:statusMessage(type, arg, color, kill)
+    local x, y = self:getRelativePos(0, self.height, self.world)
+
+    local percent = DamageNumber(type, arg, x, y - 20, color)
+    if kill then
+        percent.kill_others = true
+    end
+    percent.layer = self.world.layers["below_ui"]
+    self.world:addChild(percent)
+
+    return percent
+end
+
 function Character:convertToFollower(index)
     local follower = Follower(self.actor, self:getExactPosition())
     follower.layer = self.layer

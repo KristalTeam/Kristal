@@ -1,9 +1,7 @@
-local Bullet, super = Class(Object)
+local WorldBullet, super = Class(Object)
 
-function Bullet:init(x, y, texture)
+function WorldBullet:init(x, y, texture)
     super:init(self, x, y)
-
-    self.layer = LAYERS["bullets"]
 
     -- Add a sprite, if we provide one
     if texture then
@@ -13,39 +11,35 @@ function Bullet:init(x, y, texture)
     -- Default collider to this object's size
     self.collider = Hitbox(self, -self.width/2, -self.height/2, self.width, self.height)
 
-    -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
-    self.tp = 1.6 -- (1/10 of a defend, or cheap spell)
-    -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
-    self.time_bonus = 1
-
-    -- Damage given to the player when hit by this bullet (defaults to 5x the attacker's attack stat)
-    self.damage = nil
+    -- Damage given to the player when hit by this bullet
+    self.damage = 10
     -- Invulnerability timer to apply to the player when hit by this bullet
     self.inv_timer = (4/3)
     -- Whether this bullet gets removed on collision with the player
-    self.destroy_on_hit = true
+    self.destroy_on_hit = false
 
-    -- Whether this bullet has already been grazed (reduces graze rewards)
-    self.grazed = false
+    -- Whether this bullet gets faded in/out by the battle state
+    self.battle_fade = true
 
     -- Whether to remove this bullet when it goes offscreen
     self.remove_offscreen = true
 end
 
-function Bullet:getDamage()
-    return self.damage or (self.attacker and self.attacker.attack * 5) or 0
+function WorldBullet:getDamage()
+    return self.damage
 end
 
-function Bullet:onDamage(soul)
+function WorldBullet:onDamage(soul)
     if self:getDamage() > 0 then
-        local battler = Game.battle.party[love.math.random(#Game.battle.party)]
-        battler:hurt(self:getDamage())
+        self.world:hurtParty(self.damage)
 
         soul.inv_timer = self.inv_timer
     end
 end
 
-function Bullet:onCollide(soul)
+function WorldBullet:onCollide(soul)
+    if not self.world.in_battle then return end
+
     if soul.inv_timer == 0 then
         self:onDamage(soul)
     end
@@ -55,7 +49,7 @@ function Bullet:onCollide(soul)
     end
 end
 
-function Bullet:setSprite(texture, speed, loop, on_finished)
+function WorldBullet:setSprite(texture, speed, loop, on_finished)
     if self.sprite then
         self:removeChild(self.sprite)
     end
@@ -77,21 +71,45 @@ function Bullet:setSprite(texture, speed, loop, on_finished)
     end
 end
 
-function Bullet:isBullet(id)
+function WorldBullet:isBullet(id)
     return self:includes(Registry.getBullet(id))
 end
 
-function Bullet:update(dt)
+function WorldBullet:onAdd(parent)
+    super:onAdd(self, parent)
+    if parent:includes(World) then
+        self.world = parent
+    end
+end
+
+function WorldBullet:onRemove(parent)
+    super:onRemove(self, parent)
+    if self.world == parent then
+        self.world = nil
+    end
+end
+
+function WorldBullet:update(dt)
     super:update(self, dt)
 
     if self.remove_offscreen then
-        if self.x < -100 or self.y < -100 or self.x > SCREEN_WIDTH + 100 or self.y > SCREEN_HEIGHT + 100 then
+        local mw, mh = self.world.map.width * self.world.map.tile_width, self.world.map.height * self.world.map.tile_height
+        if self.x < -100 or self.y < -100 or self.x > mw + 100 or self.y > mh + 100 then
             self:remove()
         end
     end
 end
 
-function Bullet:draw()
+function WorldBullet:getDrawColor()
+    local r, g, b, a = super:getDrawColor(self)
+    if self.battle_fade then
+        return r, g, b, a * self.world.battle_alpha
+    else
+        return r, g, b, a
+    end
+end
+
+function WorldBullet:draw()
     super:draw(self)
 
     if DEBUG_RENDER and self.collider then
@@ -99,4 +117,4 @@ function Bullet:draw()
     end
 end
 
-return Bullet
+return WorldBullet

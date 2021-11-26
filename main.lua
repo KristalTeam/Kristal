@@ -90,6 +90,7 @@ Character = require("src.engine.game.world.character")
 Follower = require("src.engine.game.world.follower")
 Player = require("src.engine.game.world.player")
 OverworldSoul = require("src.engine.game.world.overworldsoul")
+WorldBullet = require("src.engine.game.world.worldbullet")
 ChaserEnemy = require("src.engine.game.world.chaserenemy")
 
 DarkBox = require("src.engine.game.world.ui.darkbox")
