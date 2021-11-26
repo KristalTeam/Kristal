@@ -351,11 +351,13 @@ function Battle:onStateChange(old,new)
     elseif new == "ENEMYDIALOGUE" then
         self.battle_ui.encounter_text:setText("")
         local all_done = true
+        local any_dialogue = false
         for _,enemy in ipairs(self.enemies) do
             if not enemy.done_state then
                 all_done = false
                 local dialogue = enemy:getEnemyDialogue()
                 if dialogue then
+                    any_dialogue = true
                     local textbox = self:spawnEnemyTextbox(enemy, dialogue)
                     table.insert(self.enemy_dialogue, textbox)
                 end
@@ -363,6 +365,8 @@ function Battle:onStateChange(old,new)
         end
         if all_done then
             self:setState("VICTORY")
+        elseif not any_dialogue then
+            self:setState("DIALOGUEEND")
         end
     elseif new == "DIALOGUEEND" then
         self.battle_ui.encounter_text:setText("")
