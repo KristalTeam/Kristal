@@ -38,8 +38,10 @@ end
 
 function Bullet:onDamage(soul)
     if self:getDamage() > 0 then
-        local battler = Game.battle.party[love.math.random(#Game.battle.party)]
-        battler:hurt(self:getDamage())
+        local battler = Utils.pick(Game.battle:getActiveParty())
+        if battler then
+            battler:hurt(self:getDamage())
+        end
 
         soul.inv_timer = self.inv_timer
     end

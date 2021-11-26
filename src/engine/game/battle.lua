@@ -1784,6 +1784,10 @@ function Battle:getActiveEnemies()
     return Utils.filter(self.enemies, function(enemy) return not enemy.done_state end)
 end
 
+function Battle:getActiveParty()
+    return Utils.filter(self.party, function(party) return not party.is_down end)
+end
+
 function Battle:getEnemyByID(id)
     for _,enemy in ipairs(self.enemies) do
         if enemy.id == id then
