@@ -491,13 +491,16 @@ function Battle:getSoulLocation(always_player)
     if self.soul and (not always_player) then
         return self.soul:getPosition()
     else
-        local battler = self.party[self:getPartyIndex("kris")] -- TODO: don't hardcode kris, they just need a soul
+        local main_chara = Game:getSoulPartyMember()
 
-        if not battler then
-            return -9, -9
-        else
-            return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+        if main_chara and main_chara.soul_priority >= 0 then
+            local battler = self.party[self:getPartyIndex(main_chara.id)]
+
+            if battler then
+                return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+            end
         end
+        return -9, -9
     end
 end
 
@@ -1815,9 +1818,6 @@ function Battle:keypressed(key)
     if Game.console.is_open then return end
 
     if true then -- TODO: DEBUG
-        if key == "g" then
-            self.party[self.current_selecting]:hurt(1)
-        end
         if key == "h" then
             for _,party in ipairs(self.party) do
                 party:heal(math.huge)

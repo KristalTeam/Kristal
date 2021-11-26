@@ -297,6 +297,17 @@ function World:getActorForParty(chara)
     return self.light and chara.lw_actor or chara.actor
 end
 
+function World:getPartyCharacter(party)
+    if type(party) == "string" then
+        party = Registry.getPartyMember(party)
+    end
+    for _,char in ipairs(Game.stage:getObjects(Character)) do
+        if char.actor and char.actor.id == self:getActorForParty(party) then
+            return char
+        end
+    end
+end
+
 function World:removeFollower(chara)
     if type(chara) == "string" then
         chara = Registry.getActor(chara)
@@ -622,12 +633,12 @@ function World:update(dt)
     self.update_child_list = true
     super:update(self, dt)
 
-    if self.player then
+    --[[if self.player then
         local bx, by = self.player:getRelativePos(self.player.width/2, self.player.height/2, self.soul.parent)
         self.soul.x = bx + 1
         self.soul.y = by + 11
         -- TODO: unhardcode offset (???)
-    end
+    end]]
 end
 
 function World:draw()

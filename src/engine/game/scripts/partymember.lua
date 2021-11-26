@@ -18,6 +18,9 @@ function PartyMember:init(o)
     -- Default title / class (saved to the save file)
     self.title = "Player"
 
+    -- Determines which character the soul comes from (higher number = higher priority)
+    self.soul_priority = 2
+
     -- Whether the party member can act / use spells
     self.has_act = true
     self.has_spells = false
@@ -94,6 +97,10 @@ end
 
 function PartyMember:getTitle()
     return "LV"..self.level.." "..self.title
+end
+
+function PartyMember:getGameOverMessage()
+    return self.gameover_message
 end
 
 function PartyMember:onAttackHit(enemy, damage) end

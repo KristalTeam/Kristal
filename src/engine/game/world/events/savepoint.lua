@@ -10,6 +10,9 @@ end
 
 function Savepoint:onInteract(player, dir)
     Assets.playSound("snd_power")
+    for _,party in ipairs(Game.party) do
+        party:heal(math.huge, false)
+    end
     super:onInteract(self, player, dir)
     return true
 end

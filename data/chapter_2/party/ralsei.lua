@@ -14,6 +14,9 @@ local character = PartyMember{
     -- Default title / class (saved to the save file)
     title = "Dark Prince\nDark-World being.\nHas friends now.",
 
+    -- Determines which character the soul comes from (higher number = higher priority)
+    soul_priority = -1,
+
     -- Whether the party member can act / use spells
     has_act = false,
     has_spells = true,

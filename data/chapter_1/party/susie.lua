@@ -14,6 +14,9 @@ local character = PartyMember{
     -- Default title / class (saved to the save file)
     title = "Dark Knight\nDoes damage using\ndark energy.",
 
+    -- Determines which character the soul comes from (higher number = higher priority)
+    soul_priority = 1,
+
     -- Whether the party member can act / use spells
     has_act = false,
     has_spells = true,
@@ -77,10 +80,7 @@ local character = PartyMember{
     menu_icon_offset = nil,
 
     -- Message shown on gameover (optional)
-    gameover_message = {
-        "Come on[wait:5],\nthat all you got!?",
-        "Kris[wait:5],\nget up...!"
-    },
+    gameover_message = nil -- Handled by getGameOverMessage for Susie
 }
 
 function character:onAttackHit(enemy, damage)
@@ -88,6 +88,13 @@ function character:onAttackHit(enemy, damage)
         Assets.playSound("snd_impact", 0.8)
         Game.battle.shake = 4
     end
+end
+
+function character:getGameOverMessage(main)
+    return {
+        "Come on[wait:5],\nthat all you got!?",
+        main.name.."[wait:5],\nget up...!"
+    }
 end
 
 function character:drawPowerStat(index, x, y, menu)

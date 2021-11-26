@@ -14,6 +14,9 @@ local character = PartyMember{
     -- Default title / class (saved to the save file)
     title = "Player",
 
+    -- Determines which character the soul comes from (higher number = higher priority)
+    soul_priority = 2,
+
     -- Whether the party member can act / use spells
     has_act = true,
     has_spells = false,

@@ -285,8 +285,9 @@ function Game:updateGameOver(dt)
     end
     if (self.gameover_timer >= 180) and (self.gameover_stage == 5) then
         local options = {}
+        local main_chara = self:getSoulPartyMember()
         for _, member in ipairs(self.party) do
-            if member.gameover_message then
+            if member ~= main_chara and member:getGameOverMessage(main_chara) then
                 table.insert(options, member)
             end
         end
@@ -296,7 +297,7 @@ function Game:updateGameOver(dt)
             local member = Utils.pick(options)
             local voice = Registry.getActor(member.actor).text_sound or "default"
             self.gameover_lines = {}
-            for _,dialogue in ipairs(member.gameover_message) do
+            for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
                 local full_line = "[speed:0.5][spacing:8][voice:"..voice.."]"
                 local lines = Utils.split(dialogue, "\n")
                 for i,line in ipairs(lines) do
@@ -499,6 +500,16 @@ function Game:getFlag(flag, default)
     else
         return result
     end
+end
+
+function Game:getSoulPartyMember()
+    local current
+    for _,party in ipairs(self.party) do
+        if not current or (party.soul_priority > current.soul_priority) then
+            current = party
+        end
+    end
+    return current
 end
 
 function Game:update(dt)

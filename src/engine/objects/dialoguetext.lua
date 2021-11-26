@@ -3,9 +3,9 @@ local DialogueText, super = Class(Text)
 DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing"}
 
 function DialogueText:init(text, x, y, w, h, font, style)
+    self.custom_command_wait = {}
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
     self.skip_speed = false
-    self.custom_command_wait = {}
 end
 
 function DialogueText:resetState()

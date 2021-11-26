@@ -128,8 +128,6 @@ function Player:update(dt)
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
-    self.world.soul.alpha = self.battle_alpha * 2
-
     super:update(self, dt)
 end
 
