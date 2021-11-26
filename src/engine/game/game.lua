@@ -157,6 +157,8 @@ function Game:load(data, index)
 
     self.playtime = data.playtime or 0
 
+    self.flags = data.flags or {}
+
     Registry.initPartyMembers()
     if data.party_data then
         for k,v in pairs(data.party_data) do
@@ -189,8 +191,6 @@ function Game:load(data, index)
     if room_id then
         self.world:loadMap(room_id)
     end
-
-    self.flags = data.flags or {}
 
     -- END SAVE FILE VARIABLES --
 
@@ -486,6 +486,19 @@ end
 
 function Game:getVolume()
     return MASTER_VOLUME or 1
+end
+
+function Game:setFlag(flag, value)
+    self.flags[flag] = value
+end
+
+function Game:getFlag(flag, default)
+    local result = self.flags[flag]
+    if result == nil then
+        return default
+    else
+        return result
+    end
 end
 
 function Game:update(dt)

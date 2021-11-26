@@ -176,7 +176,12 @@ function PartyMember:getStat(name, default)
 end
 
 function PartyMember:getFlag(name, default)
-    return self.flags[name] or default
+    local result = self.flags[name]
+    if result == nil then
+        return default
+    else
+        return result
+    end
 end
 
 function PartyMember:setFlag(name, value)

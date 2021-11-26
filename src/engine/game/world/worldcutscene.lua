@@ -103,7 +103,7 @@ function WorldCutscene:getCharacter(id, index)
 end
 
 function WorldCutscene:getMarker(name)
-    return Game.world:getMarker(name)
+    return Game.world.map:getMarker(name)
 end
 
 function WorldCutscene:detachFollowers()

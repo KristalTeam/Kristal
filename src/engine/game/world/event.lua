@@ -5,12 +5,22 @@ function Event:init(x, y, w, h, o)
         self.data = x
         x, y = self.data.x, self.data.y
         w, h = self.data.width, self.data.height
+    elseif type(w) == "table" then
+        self.data = w
+        w, h = self.data.width, self.data.height
+    else
+        self.data = o
     end
 
     super:init(self, x, y, w, h)
 
     -- Whether this object should stop the player
     self.solid = false
+
+    -- ID of the object in the current room (automatically set after init)
+    self.object_id = self.data and self.data.id
+    -- User-defined ID of the object used for save variables (optional, automatically set after init)
+    self.unique_id = self.data and self.data.properties and self.data.properties["uid"]
 
     -- Sprite object, gets set by setSprite()
     self.sprite = nil
@@ -41,6 +51,24 @@ function Event:onRemove(parent)
     if parent:includes(World) or parent.world then
         self.world = nil
     end
+end
+
+function Event:getUniqueID()
+    if self.unique_id then
+        return self.unique_id
+    else
+        return (self.world or Game.world).map:getUniqueID() .. "#" .. self.object_id
+    end
+end
+
+function Event:setFlag(flag, value)
+    local uid = self:getUniqueID()
+    Game:setFlag(uid..":"..flag, value)
+end
+
+function Event:getFlag(flag, default)
+    local uid = self:getUniqueID()
+    return Game:getFlag(uid..":"..flag, default)
 end
 
 function Event:setSprite(texture, speed)

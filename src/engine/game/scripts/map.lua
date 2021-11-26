@@ -61,6 +61,20 @@ end
 function Map:update(dt) end
 function Map:draw() end
 
+function Map:getUniqueID()
+    return "#"..self.id
+end
+
+function Map:setFlag(flag, value)
+    local uid = self:getUniqueID()
+    Game:setFlag(uid..":"..flag, value)
+end
+
+function Map:getFlag(flag, default)
+    local uid = self:getUniqueID()
+    return Game:getFlag(uid..":"..flag, default)
+end
+
 function Map:getMarker(name)
     local marker = self.markers[name]
     return marker and marker.center_x or (self.width * self.tile_width/2), marker and marker.center_y or (self.height * self.tile_height/2)
@@ -305,6 +319,12 @@ function Map:loadObjects(layer, depth)
 
         local obj = self:loadObject(type, v)
         if obj then
+            if not obj.object_id then
+                obj.object_id = v.id
+            end
+            if not obj.unique_id then
+                obj.unique_id = v.properties["uid"]
+            end
             obj.layer = depth
             self.world:addChild(obj)
         end

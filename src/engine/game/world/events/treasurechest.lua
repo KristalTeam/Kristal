@@ -15,18 +15,24 @@ function TreasureChest:init(x, y, properties)
     self.item = properties["item"]
     self.money = properties["money"]
 
-    self.opened = false
-
     self.solid = true
 end
 
+function TreasureChest:onAdd(parent)
+    super:onAdd(self, parent)
+
+    if self:getFlag("opened") then
+        self.sprite:setFrame(2)
+    end
+end
+
 function TreasureChest:onInteract(player, dir)
-    if self.opened then
+    if self:getFlag("opened") then
         self.world:showText("* (The chest is empty.)")
     else
         Assets.playSound("snd_locker")
         self.sprite:setFrame(2)
-        self.opened = true
+        self:setFlag("opened", true)
 
         local name, success, result_text
         if self.item then
@@ -50,7 +56,7 @@ function TreasureChest:onInteract(player, dir)
             }, function()
                 if not success then
                     self.sprite:setFrame(1)
-                    self.opened = false
+                    self:setFlag("opened", false)
                 end
             end)
         else

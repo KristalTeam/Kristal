@@ -677,7 +677,7 @@ function Object:updateGraphicsTransform()
         self.scale_x = self.scale_x + ((graphics.grow_x or 0) + (graphics.grow or 0)) * DTMULT
         self.scale_y = self.scale_y + ((graphics.grow_y or 0) + (graphics.grow or 0)) * DTMULT
     end
-    if graphics.remove_shrunk and self.scale_x <= 0 or self.scale_y <= 0 then
+    if graphics.remove_shrunk and (self.scale_x <= 0 or self.scale_y <= 0) then
         self.scale_x = 0
         self.scale_y = 0
         self:remove()
