@@ -47,6 +47,9 @@ function BattleUI:init()
 
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow")
+
+    self.sparestar = Assets.getTexture("ui/battle/sparestar")
+    self.tiredmark = Assets.getTexture("ui/battle/tiredmark")
 end
 
 function BattleUI:beginAttack()
@@ -258,12 +261,21 @@ function BattleUI:drawState()
                 love.graphics.draw(canvas, 80, 50 + y_off)
                 -- Disable the shader
                 love.graphics.setShader()
+
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
+                love.graphics.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
             elseif enemy.tired then
                 love.graphics.setColor(0, 178/255, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + y_off)
+
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
             elseif enemy.mercy >= 100 then
                 love.graphics.setColor(1, 1, 0, 1)
                 love.graphics.print(enemy.name, 80, 50 + y_off)
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
             else
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + y_off)
@@ -279,6 +291,17 @@ function BattleUI:drawState()
             end
 
             if Game.battle.state == "ENEMYSELECT" then
+                local namewidth = font:getWidth(enemy.name)
+
+                love.graphics.setColor(128/255, 128/255, 128/255, 1)
+
+                if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
+                    love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
+                else
+                    love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, 0, 0.5, 1)
+                end
+
+
                 local hp_percent = enemy.health / enemy.max_health
 
                 -- Draw the enemy's HP

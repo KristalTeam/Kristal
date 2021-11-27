@@ -100,7 +100,7 @@ function Virovirokun:onAct(battler, name)
         self:addMercy(100)
         return "* You treated Virovirokun with\ncare! It's no longer\ninfectious!"
     elseif name == "Quarantine" then
-        self.tired = true
+        self:setTired(true)
         self.text_override = "Fine..."
         return "* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]..."
 

@@ -54,6 +54,17 @@ function EnemyBattler:init(chara)
     self.hurt_timer = 0
 
     self.last_selecting = false
+
+    self.comment = ""
+end
+
+function EnemyBattler:setTired(bool)
+    self.tired = bool
+    if self.tired then
+        self.comment = "(Tired)"
+    else
+        self.comment = ""
+    end
 end
 
 function EnemyBattler:registerAct(name, description, party, tp)
