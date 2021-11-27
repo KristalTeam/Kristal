@@ -55,6 +55,9 @@ function EnemyBattler:init(chara)
     self.hurt_timer = 0
 
     self.comment = ""
+
+    -- This is always 10, except for JEVIL where it's 15
+    self.tension_divider = 10
 end
 
 function EnemyBattler:setTired(bool)

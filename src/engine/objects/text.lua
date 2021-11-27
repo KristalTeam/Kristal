@@ -98,7 +98,6 @@ end
 
 function Text:textToNodes(input_string)
     -- Very messy function to split text into text nodes.
-    -- TODO: rewrite this. Please
     local nodes = {}
     local i = 1
     while i <= #input_string do

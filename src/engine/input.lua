@@ -1,8 +1,6 @@
 local Input = {}
 local self = Input
 
--- TODO: rebinding
-
 Input.key_down = {}
 Input.key_pressed = {}
 Input.key_released = {}
