@@ -1871,7 +1871,7 @@ end
 function Battle:keypressed(key)
     if Game.console.is_open then return end
 
-    if true then -- TODO: DEBUG
+    if Kristal.Config["debug"] then
         if key == "h" then
             for _,party in ipairs(self.party) do
                 party:heal(math.huge)

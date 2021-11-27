@@ -370,7 +370,8 @@ function Menu:draw()
         self:printShadow("Auto-Run",       menu_x, menu_y + (32 * 4))
         self:printShadow("Skip Intro",     menu_x, menu_y + (32 * 5))
         self:printShadow("Display FPS",    menu_x, menu_y + (32 * 6))
-        self:printShadow("Back",           menu_x, menu_y + (32 * 8))
+        self:printShadow("Debug Hotkeys",  menu_x, menu_y + (32 * 7))
+        self:printShadow("Back",           menu_x, menu_y + (32 * 9))
 
         self:printShadow(Utils.round(Game:getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
         self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
@@ -378,6 +379,7 @@ function Menu:draw()
         self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
         self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
         self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
+        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
     elseif self.state == "CONTROLS" then
         self:printShadow("( CONTROLS )", 0, 48, {1, 1, 1, 1}, true, 640)
 
@@ -550,10 +552,10 @@ function Menu:keypressed(key, _, is_repeat)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-        self.selected_option = math.max(1, math.min(8, self.selected_option))
+        self.selected_option = math.max(1, math.min(9, self.selected_option))
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 8 then
+        if self.selected_option >= 9 then
             y_off = y_off + 32
         end
 
@@ -590,6 +592,8 @@ function Menu:keypressed(key, _, is_repeat)
             elseif self.selected_option == 7 then
                 Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
             elseif self.selected_option == 8 then
+                Kristal.Config["debug"] = not Kristal.Config["debug"]
+            elseif self.selected_option == 9 then
                 self:setState("MAINMENU")
                 self.heart_target_x = 196
                 self.selected_option = 3

@@ -175,12 +175,14 @@ end
 
 function World:keypressed(key)
     if Game.console.is_open then return end
-    if key == "m" then
-        if self.music then
-            if self.music:isPlaying() then
-                self.music:pause()
-            else
-                self.music:resume()
+    if Kristal.Config["debug"] then
+        if key == "m" then
+            if self.music then
+                if self.music:isPlaying() then
+                    self.music:pause()
+                else
+                    self.music:resume()
+                end
             end
         end
     end
