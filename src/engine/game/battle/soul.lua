@@ -55,6 +55,10 @@ function Soul:init(x, y)
 end
 
 function Soul:transitionTo(x, y, should_destroy)
+    if self.graze_sprite then
+        self.graze_sprite.timer = 0
+        self.graze_sprite.visible = false
+    end
     self.transitioning = true
     self.original_x = self.x
     self.original_y = self.y
