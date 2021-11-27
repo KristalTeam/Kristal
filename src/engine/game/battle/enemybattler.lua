@@ -240,7 +240,7 @@ function EnemyBattler:onMercy()
 end
 
 function EnemyBattler:fetchEncounterText()
-    if self.health <= (self.max_health / self.tired_percentage) then
+    if self.health <= (self.max_health * self.tired_percentage) then
         return self.low_health_text
     end
     return Utils.pick(self.text)
