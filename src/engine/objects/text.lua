@@ -64,7 +64,8 @@ function Text:resetState()
         spacing = 0,
         shake = 0,
         offset_x = 0,
-        offset_y = 0
+        offset_y = 0,
+        newline = false
     }
 end
 
@@ -184,13 +185,16 @@ function Text:processNode(node)
             local spacing = Assets.getFontData(self.font) or {}
             self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) + self.line_offset
             -- We don't want to wait on a newline, so...
+            self.state.newline = true
             self.state.progress = self.state.progress + 1
         elseif node.character == "\\" and not self.state.escaping then
             self.state.escaping = true
+            self.state.newline = false
         elseif not self.state.escaping then
             if node.character == "*" then
-                if self.state.asterisk_mode and (self.state.current_x == (font:getWidth("* ") + self.state.spacing)) then -- TODO: PLEASE UNHARDCODE
+                if self.state.asterisk_mode and self.state.newline then
                     self.state.current_x = 0
+                    self.state.newline = false
                 end
             end
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
@@ -198,6 +202,7 @@ function Text:processNode(node)
             table.insert(self.nodes_to_draw, {node, Utils.copy(self.state)})
             self.state.current_x = self.state.current_x + w + self.state.spacing
         else
+            self.state.newline = false
             self.state.escaping = false
             if node.character == "\\" or node.character == "*" then
                 local w, h = self:drawChar(node, self.state)
