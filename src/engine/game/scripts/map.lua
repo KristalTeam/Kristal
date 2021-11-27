@@ -33,6 +33,7 @@ function Map:init(world, data)
 
     self.tilesets = {}
     self.collision = {}
+    self.enemy_collision = {}
     self.tile_layers = {}
     self.image_layers = {}
     self.markers = {}
@@ -167,6 +168,8 @@ function Map:loadMapData(data)
                 self:loadMarkers(layer)
             elseif name == "collision" then
                 self:loadCollision(layer)
+            elseif name == "enemycollision" then
+                self:loadEnemyCollision(layer)
             elseif name == "paths" then
                 self:loadPaths(layer)
             elseif name == "battleareas" then
@@ -242,6 +245,10 @@ end
 
 function Map:loadCollision(layer)
     self.collision = self:loadHitboxes(layer)
+end
+
+function Map:loadEnemyCollision(layer)
+    self.enemy_collision = self:loadHitboxes(layer)
 end
 
 function Map:loadBattleAreas(layer)

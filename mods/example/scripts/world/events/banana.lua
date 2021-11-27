@@ -7,8 +7,19 @@ function Banana:init(data)
     self:setSprite("banana", 0.25)
 end
 
-function Banana:onCollide(player)
+function Banana:onCollide(chara)
     Assets.playSound("snd_item")
+
+    if chara:includes(ChaserEnemy) then
+        if chara.actor.id == "virovirokun" then
+            chara.banana_count = (chara.banana_count or 0) + 1
+            if chara.banana_count == 9 then
+                Assets.playSound("snd_won")
+                local npc = chara:convertToNPC({text = "* I had severe potassium\ndeficiency"})
+                npc:setSprite("spared")
+            end
+        end
+    end
 
     self:remove()
 end

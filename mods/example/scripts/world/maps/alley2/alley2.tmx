@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="7" nextobjectid="57">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="40" tileheight="40" infinite="0" nextlayerid="8" nextobjectid="68">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -82,6 +82,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup color="#00ffff" id="7" name="enemycollision">
+  <object id="62" x="480" y="720" width="40" height="200"/>
+  <object id="63" x="560" y="160" width="80" height="40"/>
+  <object id="67" x="720" y="720" width="320" height="40"/>
+ </objectgroup>
  <objectgroup color="#0000ff" id="2" name="collision" opacity="0.5">
   <object id="1" x="200" y="160" width="360" height="40"/>
   <object id="2" x="520" y="0" width="40" height="160"/>
@@ -131,6 +136,8 @@
   <object id="49" name="enemy" x="240" y="840" width="40" height="40">
    <properties>
     <property name="actor" value="virovirokun"/>
+    <property name="chase" type="bool" value="true"/>
+    <property name="chasespeed" type="float" value="2"/>
     <property name="encounter" value="virovirokun_lots"/>
    </properties>
   </object>

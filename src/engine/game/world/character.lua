@@ -35,6 +35,8 @@ function Character:init(chara, x, y)
 
     self.noclip = true
 
+    self.enemy_collision = false
+
     self.spin_timer = 0
     self.spin_speed = 0
 end
@@ -180,11 +182,11 @@ function Character:moveXExact(amount, move_y)
         self.x = self.x + sign
 
         if not self.noclip then
-            local collided, target = self.world:checkCollision(self.collider)
+            local collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
             if collided and not (move_y > 0) then
                 for i = 1, 3 do
                     self.y = self.y - i
-                    collided, target = self.world:checkCollision(self.collider)
+                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
                     if not collided then break end
                 end
             end
@@ -192,22 +194,22 @@ function Character:moveXExact(amount, move_y)
                 self.y = last_y
                 for i = 1, 3 do
                     self.y = self.y + i
-                    collided, target = self.world:checkCollision(self.collider)
+                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
                     if not collided then break end
                 end
             end
-    
+
             if collided then
                 self.x = last_x
                 self.y = last_y
-                
+
                 if target and target.onCollide then
                     target:onCollide(self)
                 end
-    
+
                 self.last_collided_x = true
                 return false, target
-            end 
+            end
         end
     end
     self.last_collided_x = false
@@ -224,12 +226,12 @@ function Character:moveYExact(amount, move_x)
 
         if not self.noclip then
             Object.startCache()
-            local collided, target = self.world:checkCollision(self.collider)
+            local collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
             if collided and not (move_x > 0) then
                 for i = 1, 2 do
                     Object.uncache(self)
                     self.x = self.x - i
-                    collided, target = self.world:checkCollision(self.collider)
+                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
                     if not collided then break end
                 end
             end
@@ -238,23 +240,23 @@ function Character:moveYExact(amount, move_x)
                 for i = 1, 2 do
                     Object.uncache(self)
                     self.x = self.x + i
-                    collided, target = self.world:checkCollision(self.collider)
+                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
                     if not collided then break end
                 end
             end
             Object.endCache()
-    
+
             if collided then
                 self.x = last_x
                 self.y = last_y
-                
+
                 if target and target.onCollide then
                     target:onCollide(self)
                 end
-    
+
                 self.last_collided_y = true
                 return i ~= sign, target
-            end 
+            end
         end
     end
     self.last_collided_y = false

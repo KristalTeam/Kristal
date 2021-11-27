@@ -12,7 +12,17 @@ function ChaserEnemy:init(actor, x, y, data)
     self.progress = (data.properties["progress"] or 0) % 1
     self.reverse_progress = false
 
+    self.can_chase = data.properties["chase"]
+    self.chase_speed = data.properties["chasespeed"] or 9
+    self.chase_dist = data.properties["chasedist"] or 200
+    self.chasing = false
+
+    self.alert_timer = 0
+    self.alert_icon = nil
+
     self.noclip = true
+    self.enemy_collision = true
+
     self.sprite.aura = true
 end
 
@@ -89,22 +99,59 @@ function ChaserEnemy:isActive()
 end
 
 function ChaserEnemy:update(dt)
-    if self.path and self.world.map.paths[self.path] and self:isActive() then
-        local path = self.world.map.paths[self.path]
+    if self:isActive() then
+        if self.path and self.world.map.paths[self.path] then
+            local path = self.world.map.paths[self.path]
 
-        if self.reverse_progress then
-            self.progress = self.progress - (self.speed / path.length) * DTMULT
-        else
-            self.progress = self.progress + (self.speed / path.length) * DTMULT
-        end
-        if path.closed then
-            self.progress = self.progress % 1
-        elseif self.progress > 1 or self.progress < 0 then
-            self.progress = Utils.clamp(self.progress, 0, 1)
-            self.reverse_progress = not self.reverse_progress
+            if self.reverse_progress then
+                self.progress = self.progress - (self.speed / path.length) * DTMULT
+            else
+                self.progress = self.progress + (self.speed / path.length) * DTMULT
+            end
+            if path.closed then
+                self.progress = self.progress % 1
+            elseif self.progress > 1 or self.progress < 0 then
+                self.progress = Utils.clamp(self.progress, 0, 1)
+                self.reverse_progress = not self.reverse_progress
+            end
+
+            self:snapToPath()
         end
 
-        self:snapToPath()
+        if self.alert_timer > 0 then
+            self.alert_timer = Utils.approach(self.alert_timer, 0, DTMULT)
+            if self.alert_timer == 0 then
+                self.alert_icon:remove()
+                self.alert_icon = nil
+                self.chasing = true
+                self.noclip = false
+                self:setAnimation("chasing")
+            end
+        elseif self.can_chase and not self.chasing then
+            if self.world.player then
+                Object.startCache()
+                local in_radius = self.world.player:collidesWith(CircleCollider(self.world, self.x, self.y, self.chase_dist))
+                if in_radius then
+                    local sight = LineCollider(self.world, self.x, self.y, self.world.player.x, self.world.player.y)
+                    if not self.world:checkCollision(sight, true) and not self.world:checkCollision(self.collider, true) then
+                        Assets.stopAndPlaySound("snd_alert")
+                        self.path = nil
+                        self.alert_timer = 20
+                        self.alert_icon = Sprite("effects/alert", self.width/2)
+                        self.alert_icon:setOrigin(0.5, 1)
+                        self.alert_icon.layer = 100
+                        self:addChild(self.alert_icon)
+                        self:setAnimation("alerted")
+                    end
+                end
+                Object.endCache()
+            end
+        elseif self.chasing then
+            if self.world.player then
+                local angle = Utils.angle(self.x, self.y, self.world.player.x, self.world.player.y)
+                self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
+            end
+        end
     end
 
     super:update(self, dt)

@@ -8,8 +8,8 @@ return {
   height = 30,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 7,
-  nextobjectid = 57,
+  nextlayerid = 8,
+  nextobjectid = 68,
   properties = {
     ["light"] = false,
     ["music"] = "dogcheck",
@@ -823,6 +823,60 @@ return {
     {
       type = "objectgroup",
       draworder = "topdown",
+      id = 7,
+      name = "enemycollision",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 62,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 480,
+          y = 720,
+          width = 40,
+          height = 200,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 63,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 560,
+          y = 160,
+          width = 80,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 67,
+          name = "",
+          type = "",
+          shape = "rectangle",
+          x = 720,
+          y = 720,
+          width = 320,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
       id = 2,
       name = "collision",
       visible = true,
@@ -1283,6 +1337,8 @@ return {
           visible = true,
           properties = {
             ["actor"] = "virovirokun",
+            ["chase"] = true,
+            ["chasespeed"] = 2,
             ["encounter"] = "virovirokun_lots"
           }
         },

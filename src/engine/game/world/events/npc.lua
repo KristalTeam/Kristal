@@ -40,4 +40,6 @@ function NPC:onInteract(player, dir)
     end
 end
 
+function NPC:onTextEnd() end
+
 return NPC

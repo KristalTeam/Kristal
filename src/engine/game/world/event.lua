@@ -91,4 +91,11 @@ function Event:setSprite(texture, speed)
     end
 end
 
+function Event:draw()
+    super:draw(self)
+    if DEBUG_RENDER then
+        self.collider:draw(1, 0, 1)
+    end
+end
+
 return Event

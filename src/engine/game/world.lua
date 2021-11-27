@@ -198,10 +198,15 @@ function World:keypressed(key)
     end
 end
 
-function World:getCollision()
+function World:getCollision(enemy_check)
     local col = {}
     for _,collider in ipairs(self.map.collision) do
         table.insert(col, collider)
+    end
+    if enemy_check then
+        for _,collider in ipairs(self.map.enemy_collision) do
+            table.insert(col, collider)
+        end
     end
     for _,child in ipairs(self.children) do
         if child.collider and child.solid then
@@ -211,9 +216,9 @@ function World:getCollision()
     return col
 end
 
-function World:checkCollision(collider)
+function World:checkCollision(collider, enemy_check)
     Object.startCache()
-    for _,other in ipairs(self:getCollision()) do
+    for _,other in ipairs(self:getCollision(enemy_check)) do
         if collider:collidesWith(other) then
             Object.endCache()
             return true, other.parent
@@ -650,6 +655,15 @@ function World:draw()
     super:draw(self)
 
     self.map:draw()
+
+    if DEBUG_RENDER then
+        for _,collision in ipairs(self.map.collision) do
+            collision:draw(0, 0, 1, 0.5)
+        end
+        for _,collision in ipairs(self.map.enemy_collision) do
+            collision:draw(0, 1, 1, 0.5)
+        end
+    end
 
     -- Draw transition fade
     love.graphics.setColor(0, 0, 0, self.transition_fade)
