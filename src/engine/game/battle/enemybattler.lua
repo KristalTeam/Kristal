@@ -21,7 +21,7 @@ function EnemyBattler:init(chara)
 
     self.spare_points = 0
 
-    -- Affects the animation thats plays when this enemy is defeatedd (run, fatal, or none/nil)
+    -- Affects the animation thats plays when this enemy is defeated (run, fatal, or none/nil)
     self.defeat_type = "run"
 
     -- Whether this enemy can be frozen
@@ -36,7 +36,9 @@ function EnemyBattler:init(chara)
     self.text = {
         "* Test Enemy is testing."
     }
+
     self.low_health_text = "* Enemy is feeling tired."
+    self.tired_percentage = 0.5
 
     self.dialogue = {
         "Test dialogue!"
@@ -238,7 +240,7 @@ function EnemyBattler:onMercy()
 end
 
 function EnemyBattler:fetchEncounterText()
-    if self.health <= (self.max_health / 3) then
+    if self.health <= (self.max_health / self.tired_percentage) then
         return self.low_health_text
     end
     return Utils.pick(self.text)
@@ -326,6 +328,10 @@ function EnemyBattler:onHurt(damage, battler)
     else
         self:toggleOverlay(false)
         self.sprite.shake_x = 9
+    end
+
+    if self.health <= (self.max_health / self.tired_percentage) then
+        self:setTired(true)
     end
 end
 
