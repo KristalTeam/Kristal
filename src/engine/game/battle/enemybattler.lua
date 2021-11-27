@@ -330,7 +330,7 @@ function EnemyBattler:onHurt(damage, battler)
         self.sprite.shake_x = 9
     end
 
-    if self.health <= (self.max_health / self.tired_percentage) then
+    if self.health <= (self.max_health * self.tired_percentage) then
         self:setTired(true)
     end
 end
