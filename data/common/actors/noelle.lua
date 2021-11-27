@@ -10,13 +10,14 @@ return {
     color = {1, 1, 0},
 
     path = "party/noelle/dark",
-    default = "",
+    default = "walk",
 
     text_sound = "noelle",
     portrait_path = "face/noelle",
     portrait_offset = {-12, -10},
 
     animations = {
+        -- Battle animations
         ["battle/idle"]         = {"battle/idle", 0.2, true},
 
         ["battle/attack"]       = {"battle/attack", 1/15, false},
@@ -41,6 +42,7 @@ return {
     },
 
     offsets = {
+        -- Battle offsets
         ["battle/idle"] = {3, 0},
 
         ["battle/attack"] = {8, 0},

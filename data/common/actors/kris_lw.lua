@@ -10,7 +10,7 @@ return {
     color = {0, 1, 1},
 
     path = "party/kris/light",
-    default = "",
+    default = "walk",
 
     animations = {},
 

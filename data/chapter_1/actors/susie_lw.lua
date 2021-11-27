@@ -10,7 +10,7 @@ return {
     color = {1, 0, 1},
 
     path = "party/susie/light_ch1",
-    default = "",
+    default = "walk",
 
     text_sound = "susie",
     portrait_path = "face/susie_bangs",
@@ -19,9 +19,10 @@ return {
     animations = {},
 
     offsets = {
-        ["down"] = {0, 2},
-        ["left"] = {0, 2},
-        ["right"] = {0, 2},
-        ["up"] = {0, 2},
+        -- Movement offsets
+        ["walk/down"] = {0, 2},
+        ["walk/left"] = {0, 2},
+        ["walk/right"] = {0, 2},
+        ["walk/up"] = {0, 2},
     },
 }

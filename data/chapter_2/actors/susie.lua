@@ -52,7 +52,7 @@ return {
     },
 
     offsets = {
-        -- Movement sprites
+        -- Movement offsets
         ["walk/down"] = {0, 2},
         ["walk/left"] = {0, 2},
         ["walk/right"] = {0, 2},
@@ -68,7 +68,7 @@ return {
 
         ["slide"] = {5, 12},
 
-        -- Battle sprites
+        -- Battle offsets
         ["battle/idle"] = {22, 1},
 
         ["battle/attack"] = {26, 25},
@@ -89,7 +89,7 @@ return {
 
         ["battle/rudebuster"] = {44, 33},
 
-        -- Cutscene sprites
+        -- Cutscene offsets
         ["pose"] = {1, 1},
 
         ["fall"] = {0, 4},

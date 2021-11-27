@@ -10,13 +10,14 @@ return {
     color = {0, 1, 0},
 
     path = "party/ralsei/dark_ch1",
-    default = "",
+    default = "walk",
 
     text_sound = "ralsei",
     portrait_path = "face/ralsei_hat",
     portrait_offset = {-15, -10},
 
     animations = {
+        -- Battle animations
         ["battle/idle"]         = {"battle/idle", 0.2, true},
 
         ["battle/attack"]       = {"battle/attack", 1/15, false},
@@ -36,12 +37,13 @@ return {
         --["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
-        ["battle/transition"]   = {"right_1", 1/15, false},
+        ["battle/transition"]   = {"walk/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/intro", 1/15, false},
         ["battle/victory"]      = {"battle/victory", 1/10, false}
     },
 
     offsets = {
+        -- Battle offsets
         ["battle/idle"] = {7, 2},
 
         ["battle/attack"] = {11, 3},

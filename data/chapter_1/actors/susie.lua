@@ -10,7 +10,7 @@ return {
     color = {1, 0, 1},
 
     path = "party/susie/dark_ch1",
-    default = "",
+    default = "walk",
 
     text_sound = "susie",
     portrait_path = "face/susie_bangs",
@@ -36,7 +36,7 @@ return {
         ["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
-        ["battle/transition"]   = {"right_1", 1/15, false},
+        ["battle/transition"]   = {"walk/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/attack", 1/15, true},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
 
@@ -44,11 +44,13 @@ return {
     },
 
     offsets = {
-        ["down"] = {0, 2},
-        ["left"] = {0, 2},
-        ["right"] = {0, 2},
-        ["up"] = {0, 2},
+        -- Movement offsets
+        ["walk/down"] = {0, 2},
+        ["walk/left"] = {0, 2},
+        ["walk/right"] = {0, 2},
+        ["walk/up"] = {0, 2},
 
+        -- Battle offsets
         ["battle/idle"] = {22, 1},
 
         ["battle/attack"] = {26, 25},

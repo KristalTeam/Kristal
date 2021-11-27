@@ -10,7 +10,7 @@ return {
     color = {1, 1, 0},
 
     path = "party/noelle/light",
-    default = "",
+    default = "walk",
 
     text_sound = "noelle",
     portrait_path = "face/noelle",
