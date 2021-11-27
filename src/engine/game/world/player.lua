@@ -12,6 +12,13 @@ function Player:init(chara, x, y)
         ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh)
     }
 
+    self.force_run = false
+    self.run_timer = 0
+
+    self.hurt_timer = 0
+
+    self.walk_speed = 4
+
     self.history_time = 0
     self.history = {}
 
@@ -84,7 +91,69 @@ function Player:keepFollowerPositions()
     end
 end
 
+function Player:isMovementEnabled()
+    return not Game.lock_input
+        and Game.state == "OVERWORLD"
+        and self.world.state == "GAMEPLAY"
+        and self.hurt_timer == 0
+end
+
+function Player:handleMovement()
+    local walk_x = 0
+    local walk_y = 0
+
+    if Input.down("right") then walk_x = walk_x + 1 end
+    if Input.down("left") then walk_x = walk_x - 1 end
+    if Input.down("down") then walk_y = walk_y + 1 end
+    if Input.down("up") then walk_y = walk_y - 1 end
+
+    local running = Input.down("cancel") or self.force_run
+    if Kristal.Config["autoRun"] and not self.force_run then
+        running = not running
+    end
+
+    if self.force_run then
+        self.run_timer = 200
+    end
+
+    local speed = self.walk_speed
+    if running then
+        if self.run_timer > 60 then
+            speed = speed + 5
+        elseif self.run_timer > 10 then
+            speed = speed + 4
+        else
+            speed = speed + 2
+        end
+    end
+
+    self:move(walk_x, walk_y, speed * DTMULT)
+
+    if not running or self.last_collided_x or self.last_collided_y then
+        self.run_timer = 0
+    elseif running then
+        if walk_x ~= 0 or walk_y ~= 0 then
+            self.run_timer = self.run_timer + DTMULT
+        else
+            self.run_timer = 0
+        end
+    end
+
+    if self.world.player == self and self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
+        self.world.camera.x = Utils.approach(self.world.camera.x, self.x, 12 * DTMULT)
+        self.world.camera.y = Utils.approach(self.world.camera.y, self.y - (self.height * 2)/2, 12 * DTMULT)
+    end
+end
+
 function Player:update(dt)
+    if self.hurt_timer > 0 then
+        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
+    end
+
+    if self:isMovementEnabled() then
+        self:handleMovement()
+    end
+
     if #self.history == 0 then
         local ex, ey = self:getExactPosition()
         table.insert(self.history, {x = ex, y = ey, time = 0})

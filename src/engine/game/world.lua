@@ -107,6 +107,10 @@ function World:hurtParty(amount)
         end
     end
 
+    if self.player then
+        self.player.hurt_timer = 7
+    end
+
     if all_killed then
         Game:gameOver(self.soul:getScreenPos())
     end

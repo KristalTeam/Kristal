@@ -549,13 +549,6 @@ function Game:update(dt)
         return
     end
 
-    if self.world.player and -- If the player exists,
-       not self.lock_input -- and input isn't locked,
-       and self.state == "OVERWORLD" -- and we're in the overworld state,
-       and self.world.state == "GAMEPLAY" then -- and the world is in the gameplay state,
-        Game:handleMovement()
-    end
-
     if self.state == "BATTLE" and self.battle and self.battle:isWorldHidden() then
         self.world.active = false
         self.world.visible = false
@@ -573,23 +566,6 @@ function Game:update(dt)
     end
 
     Kristal.modCall("postUpdate", dt)
-end
-
-function Game:handleMovement()
-    local walk_x = 0
-    local walk_y = 0
-
-    if Input.down("right") then walk_x = walk_x + 1 end
-    if Input.down("left") then walk_x = walk_x - 1 end
-    if Input.down("down") then walk_y = walk_y + 1 end
-    if Input.down("up") then walk_y = walk_y - 1 end
-
-    self.world.player:walk(walk_x, walk_y, Input.down("cancel"))
-
-    if self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
-        self.world.camera.x = Utils.approach(self.world.camera.x, self.world.player.x, 12 * DTMULT)
-        self.world.camera.y = Utils.approach(self.world.camera.y, self.world.player.y - (self.world.player.height * 2)/2, 12 * DTMULT)
-    end
 end
 
 function Game:textinput(key)

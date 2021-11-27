@@ -63,7 +63,7 @@ function Follower:interprolate()
         local ex, ey = self:getExactPosition()
         local tx, ty, facing = self:getTargetPosition()
 
-        local speed = 8 * DTMULT
+        local speed = 9 * DTMULT
 
         local dx = Utils.approach(ex, tx, speed) - ex
         local dy = Utils.approach(ey, ty, speed) - ey
