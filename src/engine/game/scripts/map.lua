@@ -201,6 +201,7 @@ end
 
 function Map:loadTiles(layer, name, depth)
     local tilelayer = TileLayer(self, layer)
+    tilelayer:setPosition(layer.offsetx or 0, layer.offsety or 0)
     tilelayer.layer = depth
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
@@ -249,14 +250,15 @@ end
 
 function Map:loadHitboxes(layer)
     local hitboxes = {}
+    local ox, oy = layer.offsetx or 0, layer.offsety or 0
     for _,v in ipairs(layer.objects) do
         if v.shape == "rectangle" then
-            table.insert(hitboxes, Hitbox(self.world, v.x, v.y, v.width, v.height))
+            table.insert(hitboxes, Hitbox(self.world, v.x+ox, v.y+oy, v.width, v.height))
         elseif v.shape == "polygon" then
             for i = 1, #v.polygon do
                 local j = (i % #v.polygon) + 1
-                local x1, y1 = v.x + v.polygon[i].x, v.y + v.polygon[i].y
-                local x2, y2 = v.x + v.polygon[j].x, v.y + v.polygon[j].y
+                local x1, y1 = v.x + v.polygon[i].x + ox, v.y + v.polygon[i].y + oy
+                local x2, y2 = v.x + v.polygon[j].x + ox, v.y + v.polygon[j].y + oy
                 table.insert(hitboxes, LineCollider(self.world, x1, y1, x2, y2))
             end
         end
@@ -271,19 +273,27 @@ function Map:loadMarkers(layer)
         v.center_x = v.x + v.width/2
         v.center_y = v.y + v.height/2
 
+        local marker = Utils.copy(v, true)
+
+        v.x = v.x + (layer.offsetx or 0)
+        v.y = v.y + (layer.offsety or 0)
+        v.center_x = v.center_x + (layer.offsetx or 0)
+        v.center_y = v.center_y + (layer.offsety or 0)
+
         self.markers[v.name] = v
     end
 end
 
 function Map:loadPaths(layer)
+    local ox, oy = layer.offsetx or 0, layer.offsety or 0
     for _,v in ipairs(layer.objects) do
         local path = {}
         if v.shape == "ellipse" then
             path.shape = "ellipse"
-            path.x = v.x + v.width/2
-            path.y = v.y + v.height/2
-            path.rx = v.width/2
-            path.ry = v.height/2
+            path.x = v.x + v.width/2 + ox
+            path.y = v.y + v.height/2 + oy
+            path.rx = v.width/2 + ox
+            path.ry = v.height/2 + oy
 
             -- Roughly calculte ellipse perimeter bc the actual calculation is hard
             path.length = 2*math.pi*((path.rx + path.ry)/2)
@@ -299,6 +309,9 @@ function Map:loadPaths(layer)
             if v.shape ~= "polyline" then
                 table.insert(polygon, polygon[1])
                 path.closed = true
+            end
+            for i,point in ipairs(polygon) do
+                polygon[i] = {x = point.x+ox, y = point.y+oy}
             end
             path.polygon = polygon
             path.length = 0
@@ -324,6 +337,8 @@ function Map:loadObjects(layer, depth)
 
         local obj = self:loadObject(type, v)
         if obj then
+            obj.x = obj.x + (layer.offsetx or 0)
+            obj.y = obj.y + (layer.offsety or 0)
             if not obj.object_id then
                 obj.object_id = v.id
             end
