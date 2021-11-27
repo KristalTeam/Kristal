@@ -324,6 +324,13 @@ function BattleUI:drawState()
         for index = page_offset+1, math.min(page_offset+3, #Game.battle.party) do
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.print(Game.battle.party[index].chara.name, 80, 50 + ((index - page_offset - 1) * 30))
+
+            love.graphics.setColor(128 / 255, 0, 0, 1)
+            love.graphics.rectangle("fill", 400, 50 + ((index - page_offset - 1) * 30), 101, 16)
+
+            local percentage = Game.battle.party[index].chara.health / Game.battle.party[index].chara:getStat("health")
+            love.graphics.setColor(0, 1, 0, 1)
+            love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), percentage * 101, 16)
         end
 
         love.graphics.setColor(1, 1, 1, 1)
