@@ -34,6 +34,11 @@ function EnemyTextbox:init(text, x, y, enemy)
 
     self.done = false
 
+    self.text:registerCommand("noautoskip", function(text, node)
+        Game.battle.use_textbox_timer = false
+        text.state.typed_characters = text.state.typed_characters + 1
+    end)
+
     self:next()
 end
 

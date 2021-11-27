@@ -71,6 +71,9 @@ function Battle:init()
     self.transitioned = false
     self.started = false
 
+    self.textbox_timer = 0
+    self.use_textbox_timer = true
+
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY, TRANSITIONOUT
     -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT, DEFENDINGEND
 
@@ -352,6 +355,8 @@ function Battle:onStateChange(old,new)
         self.battle_ui.encounter_text:setText("")
         local all_done = true
         local any_dialogue = false
+        self.textbox_timer = 3 * 30
+        self.use_textbox_timer = true
         for _,enemy in ipairs(self.enemies) do
             if not enemy.done_state then
                 all_done = false
@@ -1505,6 +1510,11 @@ function Battle:update(dt)
         end
     elseif self.state == "DEFENDING" then
         self:updateWaves(dt)
+    elseif self.state == "ENEMYDIALOGUE" then
+        self.textbox_timer = self.textbox_timer - DTMULT
+        if (self.textbox_timer <= 0) and self.use_textbox_timer then
+            self:advanceBoxes()
+        end
     end
 
     if self.state ~= "TRANSITIONOUT" then
@@ -1828,6 +1838,41 @@ function Battle:isValidMenuLocation()
     return true
 end
 
+function Battle:advanceBoxes()
+    local any_typing = false
+    local all_done = true
+    local to_remove = {}
+    -- Check if any dialogue is typing
+    for _,dialogue in ipairs(self.enemy_dialogue) do
+        if dialogue.text.state.typing then
+            all_done = false
+            break
+        end
+    end
+    -- Nothing is typing, try to advance
+    if all_done then
+        self.textbox_timer = 3 * 30
+        self.use_textbox_timer = true
+        for _,dialogue in ipairs(self.enemy_dialogue) do
+            dialogue:next()
+            if not dialogue.done then
+                all_done = false
+            else
+                table.insert(to_remove, dialogue)
+            end
+        end
+    end
+    -- Remove leftover dialogue
+    for _,dialogue in ipairs(to_remove) do
+        Utils.removeFromTable(self.enemy_dialogue, dialogue)
+    end
+    -- If all dialogue is done, go to DIALOGUEEND state
+    if all_done then
+        self:setState("DIALOGUEEND")
+    end
+end
+
+
 function Battle:keypressed(key)
     if Game.console.is_open then return end
 
@@ -2080,35 +2125,7 @@ function Battle:keypressed(key)
         end
     elseif self.state == "ENEMYDIALOGUE" then
         if Input.isConfirm(key) then
-            local any_typing = false
-            local all_done = true
-            local to_remove = {}
-            -- Check if any dialogue is typing
-            for _,dialogue in ipairs(self.enemy_dialogue) do
-                if dialogue.text.state.typing then
-                    all_done = false
-                    break
-                end
-            end
-            -- Nothing is typing, try to advance
-            if all_done then
-                for _,dialogue in ipairs(self.enemy_dialogue) do
-                    dialogue:next()
-                    if not dialogue.done then
-                        all_done = false
-                    else
-                        table.insert(to_remove, dialogue)
-                    end
-                end
-            end
-            -- Remove leftover dialogue
-            for _,dialogue in ipairs(to_remove) do
-                Utils.removeFromTable(self.enemy_dialogue, dialogue)
-            end
-            -- If all dialogue is done, go to DIALOGUEEND state
-            if all_done then
-                self:setState("DIALOGUEEND")
-            end
+            self:advanceBoxes()
         end
     elseif self.state == "ACTIONSELECT" then
         -- TODO: make this less huge!!
