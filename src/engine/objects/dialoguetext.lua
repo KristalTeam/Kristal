@@ -96,6 +96,9 @@ function DialogueText:playTextSound(current_node)
     end
 
     if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
+        if Kristal.modCall("onTextSound", self.state.typing_sound, current_node) then
+            return
+        end
         Assets.playSound("voice/"..self.state.typing_sound)
     end
 end
