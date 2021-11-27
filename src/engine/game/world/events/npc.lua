@@ -6,7 +6,13 @@ function NPC:init(actor, x, y, properties)
     properties = properties or {}
 
     if properties["sprite"] then
-        self.sprite:set(properties["sprite"])
+        self.sprite:setSprite(properties["sprite"])
+    elseif properties["animation"] then
+        self.sprite:setAnimation(properties["animation"])
+    end
+
+    if properties["facing"] then
+        self:setFacing(properties["facing"])
     end
 
     self.solid = properties["solid"] == nil or properties["solid"]

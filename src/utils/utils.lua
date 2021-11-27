@@ -476,20 +476,24 @@ end
 
 function Utils.startsWith(value, prefix)
     if type(value) == "string" then
-        return value:sub(1, #prefix) == prefix, value:sub(#prefix + 1)
+        if value:sub(1, #prefix) == prefix then
+            return true, value:sub(#prefix + 1)
+        else
+            return false, value
+        end
     elseif type(value) == "table" then
         if #value >= #prefix then
             local copy = Utils.copy(value)
             for i,v in ipairs(value) do
                 if prefix[i] ~= v then
-                    return false
+                    return false, value
                 end
                 table.remove(copy, 1)
             end
             return true, copy
         end
     end
-    return false
+    return false, value
 end
 
 function Utils.absoluteToLocalPath(prefix, image, path)

@@ -76,6 +76,7 @@
   <object id="74" name="enemy" x="520" y="320" width="40" height="40">
    <properties>
     <property name="actor" value="virovirokun"/>
+    <property name="chase" type="bool" value="false"/>
     <property name="encounter" value="virovirokun"/>
     <property name="path" value="virovirokun"/>
     <property name="progress" value="-0.1"/>
@@ -88,7 +89,7 @@
   </object>
   <object id="86" name="chest" x="640" y="240" width="40" height="40">
    <properties>
-    <property name="item" value="royal_pin"/>
+    <property name="item" value="tensionbit"/>
    </properties>
   </object>
  </objectgroup>

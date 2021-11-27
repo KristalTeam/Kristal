@@ -1013,6 +1013,7 @@ return {
           visible = true,
           properties = {
             ["actor"] = "virovirokun",
+            ["chase"] = false,
             ["encounter"] = "virovirokun",
             ["path"] = "virovirokun",
             ["progress"] = "-0.1"
@@ -1045,7 +1046,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["item"] = "royal_pin"
+            ["item"] = "tensionbit"
           }
         }
       }

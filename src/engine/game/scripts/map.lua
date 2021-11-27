@@ -337,23 +337,52 @@ function Map:loadObjects(layer, depth)
         v.center_x = v.x + v.width/2
         v.center_y = v.y + v.height/2
 
-        local type = v.type
+        local obj_type = v.type
         if v.type == "" then
-            type = v.name
+            obj_type = v.name
         end
 
-        local obj = self:loadObject(type, v)
-        if obj then
-            obj.x = obj.x + (layer.offsetx or 0)
-            obj.y = obj.y + (layer.offsety or 0)
-            if not obj.object_id then
-                obj.object_id = v.id
+        local uid = self:getUniqueID().."#"..tostring(v.properties["uid"] or v.id)
+        if not Game:getFlag(uid..":dont_load") then
+            local skip_loading = false
+            if v.properties["cond"] then
+                local env = setmetatable({}, {__index = function(t, k)
+                    return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
+                end})
+                skip_loading = not setfenv(loadstring("return "..v.properties["cond"]), env)()
+            elseif v.properties["flagcheck"] then
+                local inverted, flag = Utils.startsWith(v.properties["flagcheck"], "!")
+
+                local value = Game.flags[flag]
+                local is_true
+                if type(value) == "number" then
+                    is_true = value > 0
+                else
+                    is_true = value
+                end
+
+                if is_true then
+                    skip_loading = inverted
+                else
+                    skip_loading = not inverted
+                end
             end
-            if not obj.unique_id then
-                obj.unique_id = v.properties["uid"]
+
+            if not skip_loading then
+                local obj = self:loadObject(obj_type, v)
+                if obj then
+                    obj.x = obj.x + (layer.offsetx or 0)
+                    obj.y = obj.y + (layer.offsety or 0)
+                    if not obj.object_id then
+                        obj.object_id = v.id
+                    end
+                    if not obj.unique_id then
+                        obj.unique_id = v.properties["uid"]
+                    end
+                    obj.layer = depth
+                    self.world:addChild(obj)
+                end
             end
-            obj.layer = depth
-            self.world:addChild(obj)
         end
     end
 end

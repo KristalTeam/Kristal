@@ -47,6 +47,24 @@ function Character:onAdd(parent)
     end
 end
 
+function Character:getUniqueID()
+    if self.unique_id then
+        return self.unique_id
+    else
+        return (self.world or Game.world).map:getUniqueID() .. "#" .. self.object_id
+    end
+end
+
+function Character:setFlag(flag, value)
+    local uid = self:getUniqueID()
+    Game:setFlag(uid..":"..flag, value)
+end
+
+function Character:getFlag(flag, default)
+    local uid = self:getUniqueID()
+    return Game:getFlag(uid..":"..flag, default)
+end
+
 function Character:setActor(actor)
     if type(actor) == "string" then
         actor = Registry.getActor(actor)

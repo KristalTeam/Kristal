@@ -165,6 +165,7 @@
     <property name="chase" type="bool" value="true"/>
     <property name="chasespeed" type="float" value="2"/>
     <property name="encounter" value="virovirokun_lots"/>
+    <property name="flagcheck" value="!viroviro_banana"/>
    </properties>
   </object>
   <object id="50" name="chest" x="960" y="240" width="40" height="40">

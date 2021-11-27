@@ -5,8 +5,8 @@ function Inventory:init()
 end
 
 function Inventory:clear()
-    self.items     = {max = 24, sorted = true}
-    self.key_items = {max = 24, sorted = true}
+    self.items     = {max = 12, sorted = true}
+    self.key_items = {max = 12, sorted = true}
     self.weapons   = {max = 48, sorted = false}
     self.armors    = {max = 48, sorted = false}
 end

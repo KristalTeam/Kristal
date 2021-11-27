@@ -10,13 +10,16 @@ end
 function Banana:onCollide(chara)
     Assets.playSound("snd_item")
 
+    self:setFlag("dont_load", true)
+
     if chara:includes(ChaserEnemy) then
         if chara.actor.id == "virovirokun" then
-            chara.banana_count = (chara.banana_count or 0) + 1
-            if chara.banana_count == 9 then
+            chara:setFlag("bananas", chara:getFlag("bananas", 0) + 1)
+            if chara:getFlag("bananas") == 9 then
                 Assets.playSound("snd_won")
                 local npc = chara:convertToNPC({text = "* I had severe potassium\ndeficiency"})
                 npc:setSprite("spared")
+                Game:setFlag("viroviro_banana", true)
             end
         end
     end

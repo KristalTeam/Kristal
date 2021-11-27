@@ -1437,7 +1437,8 @@ return {
             ["actor"] = "virovirokun",
             ["chase"] = true,
             ["chasespeed"] = 2,
-            ["encounter"] = "virovirokun_lots"
+            ["encounter"] = "virovirokun_lots",
+            ["flagcheck"] = "!viroviro_banana"
           }
         },
         {
