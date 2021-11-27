@@ -116,6 +116,7 @@ TreasureChest = require("src.engine.game.world.events.treasurechest")
 Transition = require("src.engine.game.world.events.transition")
 NPC = require("src.engine.game.world.events.npc")
 Outline = require("src.engine.game.world.events.outline")
+SlideArea = require("src.engine.game.world.events.slidearea")
 Silhouette = require("src.engine.game.world.events.silhouette")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
 

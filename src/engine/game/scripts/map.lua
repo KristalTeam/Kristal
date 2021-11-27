@@ -392,6 +392,8 @@ function Map:loadObject(name, data)
         return Outline(data)
     elseif name:lower() == "silhouette" then
         return Silhouette(data)
+    elseif name:lower() == "slidearea" then
+        return SlideArea(data)
     elseif name:lower() == "chest" then
         return TreasureChest(data.center_x, data.center_y, data.properties)
     end

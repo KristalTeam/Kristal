@@ -140,9 +140,13 @@ function Player:handleMovement()
     end
 
     if self.world.player == self and self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
-        self.world.camera.x = Utils.approach(self.world.camera.x, self.x, 12 * DTMULT)
-        self.world.camera.y = Utils.approach(self.world.camera.y, self.y - (self.height * 2)/2, 12 * DTMULT)
+        self:moveCamera()
     end
+end
+
+function Player:moveCamera()
+    self.world.camera.x = Utils.approach(self.world.camera.x, self.x, 12 * DTMULT)
+    self.world.camera.y = Utils.approach(self.world.camera.y, self.y - (self.height * 2)/2, 12 * DTMULT)
 end
 
 function Player:update(dt)
