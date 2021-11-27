@@ -1139,7 +1139,7 @@ function Battle:removeSingleAction(action)
     self.character_actions[action.character_id] = nil
 end
 
-function Battle:getPartyIndex(string_id) -- TODO: this only returns the first one... what if someone has two Susies?
+function Battle:getPartyIndex(string_id)
     for index, battler in ipairs(self.party) do
         if battler.chara.id == string_id then
             return index
@@ -1707,11 +1707,7 @@ function Battle:draw()
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
     end
 
-    love.graphics.setColor(0, 0, 0, self.background_fade_alpha) -- TODO: make this accurate!!
-    -- The "foreground" background boxes have values of (17, 0, 17),
-    -- while the "background" background boxes have values of (9, 0, 9).
-    -- But in our engine, when we use 0.75, for some reason the foreground boxes are correct,
-    -- however the background ones are (8, 0, 8).
+    love.graphics.setColor(0, 0, 0, self.background_fade_alpha)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     super:draw(self)
