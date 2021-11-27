@@ -52,10 +52,7 @@ function EnemyBattler:init(chara)
         }
     }
 
-    self.flash_siner = 0
     self.hurt_timer = 0
-
-    self.last_selecting = false
 
     self.comment = ""
 end
@@ -69,7 +66,7 @@ function EnemyBattler:setTired(bool)
     end
 end
 
-function EnemyBattler:registerAct(name, description, party, tp)
+function EnemyBattler:registerAct(name, description, party, tp, highlight)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -86,11 +83,12 @@ function EnemyBattler:registerAct(name, description, party, tp)
         ["description"] = description,
         ["party"] = party,
         ["tp"] = tp or 0,
-        ["short"] = false
+        ["highlight"] = highlight,
+        ["short"] = false,
     }
     table.insert(self.acts, act)
 end
-function EnemyBattler:registerShortAct(name, description, party, tp)
+function EnemyBattler:registerShortAct(name, description, party, tp, highlight)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -107,12 +105,13 @@ function EnemyBattler:registerShortAct(name, description, party, tp)
         ["description"] = description,
         ["party"] = party,
         ["tp"] = tp or 0,
+        ["highlight"] = highlight,
         ["short"] = true
     }
     table.insert(self.acts, act)
 end
 
-function EnemyBattler:registerActFor(char, name, description, party, tp)
+function EnemyBattler:registerActFor(char, name, description, party, tp, highlight)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -129,11 +128,12 @@ function EnemyBattler:registerActFor(char, name, description, party, tp)
         ["description"] = description,
         ["party"] = party,
         ["tp"] = tp or 0,
+        ["highlight"] = highlight,
         ["short"] = false
     }
     table.insert(self.acts, act)
 end
-function EnemyBattler:registerShortActFor(char, name, description, party, tp)
+function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -150,6 +150,7 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp)
         ["description"] = description,
         ["party"] = party,
         ["tp"] = tp or 0,
+        ["highlight"] = highlight,
         ["short"] = true
     }
     table.insert(self.acts, act)
@@ -506,16 +507,6 @@ function EnemyBattler:update(dt)
         if self.hurt_timer == 0 then
             self:onHurtEnd()
         end
-    end
-
-    if Game.battle:isEnemySelected(self) then
-        self.flash_siner = self.flash_siner + DTMULT
-        self.sprite.color_mask = {1, 1, 1}
-        self.sprite.color_mask_alpha = -math.cos(self.flash_siner / 5) * 0.4 + 0.6
-        self.last_selecting = true
-    elseif self.last_selecting then
-        self.sprite.color_mask_alpha = 0
-        self.last_selecting = false
     end
 
     super:update(self, dt)

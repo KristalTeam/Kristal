@@ -1764,11 +1764,21 @@ function Battle:canSelectMenuItem(menu_item)
     return true
 end
 
-function Battle:isEnemySelected(enemy)
-    if self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
-        return self.enemies[self.current_menu_y] == enemy
-    elseif self.state == "MENUSELECT" and self.state_reason == "ACT" then
-        return self.enemies[self.selected_enemy] == enemy
+function Battle:isHighlighted(battler)
+    if self.state == "PARTYSELECT" then
+        return self.party[self.current_menu_y] == battler
+    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
+        return self.enemies[self.current_menu_y] == battler
+    elseif self.state == "MENUSELECT" then
+        local current_menu = self.menu_items[self:getItemIndex()]
+        if current_menu and current_menu.highlight then
+            local highlighted = current_menu.highlight
+            if isClass(highlighted) then
+                return highlighted == battler
+            elseif type(highlighted) == "table" then
+                return Utils.containsValue(highlighted, battler)
+            end
+        end
     end
     return false
 end
@@ -1962,7 +1972,8 @@ function Battle:keypressed(key)
                             ["tp"] = v.tp or 0,
                             ["description"] = v.description,
                             ["party"] = v.party,
-                            ["color"] = {1, 1, 1, 1}
+                            ["color"] = {1, 1, 1, 1},
+                            ["highlight"] = v.highlight or enemy
                         }
                         table.insert(self.menu_items, item)
                     end

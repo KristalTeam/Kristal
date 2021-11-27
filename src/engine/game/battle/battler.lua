@@ -9,6 +9,8 @@ function Battler:init(x, y, width, height)
     self:setScale(2)
 
     self.hit_count = 0
+
+    self.last_highlighted = false
 end
 
 function Battler:flash(sprite)
@@ -65,6 +67,21 @@ function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)
     end
+end
+
+function Battler:update(dt)
+    if Game.battle:isHighlighted(self) then
+        if self.sprite then
+            self.sprite.color_mask = {1, 1, 1}
+            self.sprite.color_mask_alpha = -math.cos((love.timer.getTime()*30) / 5) * 0.4 + 0.6
+        end
+        self.last_highlighted = true
+    elseif self.last_highlighted then
+        self.sprite.color_mask_alpha = 0
+        self.last_highlighted = false
+    end
+
+    super:update(self, dt)
 end
 
 return Battler
