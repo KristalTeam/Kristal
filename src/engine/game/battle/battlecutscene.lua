@@ -23,8 +23,8 @@ function BattleCutscene:update(dt)
         if battler.x == target[1] and battler.y == target[2] then
             table.insert(done_moving, battler)
         end
-        local tx = Utils.approach(battler.x, target[2], target[4] * DTMULT)
-        local ty = Utils.approach(battler.y, target[3], target[4] * DTMULT)
+        local tx = Utils.approach(battler.x, target[1], target[3] * DTMULT)
+        local ty = Utils.approach(battler.y, target[2], target[3] * DTMULT)
         battler:setPosition(tx, ty)
     end
     for _,v in ipairs(done_moving) do
