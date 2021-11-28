@@ -199,7 +199,7 @@ function Utils.hexToRgb(hex, value)
 end
 
 function Utils.rgbToHex(rgb)
-    return string.format("#%02X%02X%02X", rgb[1], rgb[2], rgb[3])
+    return string.format("#%02X%02X%02X", rgb[1]*255, rgb[2]*255, rgb[3]*255)
 end
 
 function Utils.merge(tbl, other, deep)
