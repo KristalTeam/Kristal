@@ -87,7 +87,7 @@ function Map:getMarker(name)
 end
 
 function Map:addTileset(id)
-    local tileset = Assets.getTileset(id)
+    local tileset = Registry.getTileset(id)
     if tileset then
         table.insert(self.tilesets, tileset)
         return tileset
@@ -432,8 +432,8 @@ function Map:populateTilesets(data)
     self.tilesets = {}
     for _,tileset_data in ipairs(data) do
         if tileset_data.filename then
-            local tileset_path = Utils.absoluteToLocalPath("assets/tilesets/", tileset_data.filename, self.full_map_path)
-            local tileset = Assets.getTileset(tileset_path)
+            local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", tileset_data.filename, self.full_map_path)
+            local tileset = Registry.getTileset(tileset_path)
             if not tileset then
                 error("Failed to load map \""..self.data.id.."\", tileset not found: \""..tileset_path.."\"")
             end

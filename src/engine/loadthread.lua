@@ -63,8 +63,6 @@ function resetData()
             sounds = {},
             sound_data = {},
             music = {},
-            tilesets = {},
-            map_data = {},
         }
     }
 
@@ -75,8 +73,6 @@ function resetData()
         ["fonts"] = {},
         ["sounds"] = {},
         ["music"] = {},
-        ["tilesets"] = {},
-        ["maps"] = {},
     }
 
     tileset_image_data = {}
@@ -189,47 +185,6 @@ local loaders = {
             data.assets.music[id] = full_path
         end
     end},
-    ["tilesets"] = {"assets/tilesets", function(base_dir, path, full_path)
-        local id = checkExtension(path, "json")
-        if id then
-            local tileset = json.decode(love.filesystem.read(full_path))
-            tileset.full_path = full_path
-            tileset.image_data = tileset_image_data[id]
-            data.assets.tilesets[id] = tileset
-        end
-        id = checkExtension(path, "lua")
-        if id then
-            local tileset = love.filesystem.load(full_path)()
-            tileset.full_path = full_path
-            tileset.image_data = tileset_image_data[id]
-            data.assets.tilesets[id] = tileset
-        end
-        id = checkExtension(path, "png")
-        if id then
-            local image_data = love.image.newImageData(full_path)
-            if data.assets.tilesets[id] then
-                data.assets.tilesets[id].image_data = image_data
-            else
-                tileset_image_data[id] = image_data
-            end
-        end
-    end},
-    ["maps"] = {"assets/maps", function(base_dir, path, full_path)
-        local id = checkExtension(path, "json")
-        if id then
-            local map = json.decode(love.filesystem.read(full_path))
-            map.id = id
-            map.full_path = full_path
-            data.assets.map_data[id] = map
-        end
-        id = checkExtension(path, "lua")
-        if id then
-            local map = love.filesystem.load(full_path)()
-            map.id = id
-            map.full_path = full_path
-            data.assets.map_data[id] = map
-        end
-    end}
 }
 
 function loadPath(baseDir, loader, path, pre)

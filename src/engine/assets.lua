@@ -16,13 +16,10 @@ function Assets.clear()
         font_settings = {},
         sound_data = {},
         music = {},
-        tilesets = {},
-        map_data = {},
     }
     self.frames_for = {}
     self.sounds = {}
     self.sound_instances = {}
-    self.tilesets = {}
 end
 
 function Assets.loadData(data)
@@ -38,7 +35,6 @@ function Assets.saveData()
         data = Utils.copy(self.data, true),
         frames_for = Utils.copy(self.frames_for, true),
         sounds = Utils.copy(self.sounds, true),
-        tilesets = Utils.copy(self.tilesets, true)
     }
 end
 
@@ -89,13 +85,6 @@ function Assets.parseData(data)
     end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
     --self.data.sound_data = {}
-
-    -- create tilesets from tileset data
-    for key,tileset_data in pairs(data.tilesets) do
-        local tileset = Tileset(tileset_data, tileset_data.fullpath)
-        tileset.id = key
-        self.tilesets[key] = tileset
-    end
 end
 
 function Assets.update(dt)
@@ -202,14 +191,6 @@ end
 
 function Assets.getMusicPath(music)
     return self.data.music[music]
-end
-
-function Assets.getTileset(id)
-    return self.tilesets[id]
-end
-
-function Assets.getMapData(id)
-    return self.data.map_data[id]
 end
 
 Assets.clear()

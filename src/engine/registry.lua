@@ -30,6 +30,7 @@ function Registry.initialize(preload)
         Registry.initWaves()
         Registry.initBullets()
         Registry.initCutscenes()
+        Registry.initTilesets()
         Registry.initMaps()
 
         Kristal.modCall("onRegistered")
@@ -146,6 +147,10 @@ function Registry.getBattleCutscene(group, id)
     end
 end
 
+function Registry.getTileset(id)
+    return self.tilesets[id]
+end
+
 function Registry.getMap(id)
     return self.maps[id]
 end
@@ -217,6 +222,10 @@ end
 
 function Registry.registerBattleCutscene(id, cutscene)
     self.battle_cutscenes[id] = cutscene
+end
+
+function Registry.registerTileset(id, class)
+    self.tilesets[id] = class
 end
 
 function Registry.registerMapData(id, data)
@@ -362,13 +371,19 @@ function Registry.initCutscenes()
     Kristal.modCall("onRegisterCutscenes")
 end
 
+function Registry.initTilesets()
+    self.tilesets = {}
+
+    for full_path,path,data in self.iterScripts("world/tilesets") do
+        data.full_path = full_path
+        data.id = path
+        self.registerTileset(path, Tileset(data, full_path))
+    end
+end
+
 function Registry.initMaps()
     self.maps = {}
     self.map_data = {}
-
-    for id,data in pairs(Assets.data.map_data) do
-        self.registerMapData(id, data)
-    end
 
     for full_path,path,data in self.iterScripts("world/maps") do
         local split_path = Utils.split(path, "/", true)
