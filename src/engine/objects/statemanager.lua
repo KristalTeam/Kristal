@@ -16,6 +16,8 @@ function StateManager:init(default_state, master, update_master_state)
     self.state_events = {}
     self.state_initialized = {}
 
+    self.has_state = {}
+
     self.on_state_change = nil
 
     self.routine = nil
@@ -27,12 +29,18 @@ function StateManager:addState(state, events)
         self.state_events[event] = self.state_events[event] or {}
         self.state_events[event][state] = func
     end
+    self.has_state[state] = true
 end
 
 function StateManager:removeState(state)
     for _,state_callbacks in pairs(self.state_events or {}) do
         state_callbacks[state] = nil
     end
+    self.has_state[state] = nil
+end
+
+function StateManager:hasState(state)
+    return self.has_state[state] or false
 end
 
 function StateManager:addEvent(event, state_callbacks)
@@ -100,13 +108,13 @@ function StateManager:setState(state)
     end
 
     local last_state = self.state
-    self:call("end", state)
+    self:call("leave", state)
     self.state = state
     if not self.state_initialized[self.state] then
         self:call("init")
         self.state_initialized[self.state] = true
     end
-    self:call("begin", last_state)
+    self:call("enter", last_state)
     if self.on_state_change then
         self.on_state_change(state, last_state)
     end

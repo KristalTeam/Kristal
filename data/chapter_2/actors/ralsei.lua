@@ -17,6 +17,9 @@ return {
     portrait_offset = {-15, -10},
 
     animations = {
+        -- Movement animations
+        ["slide"]               = {"slide", 4/30, true},
+
         -- Battle animations
         ["battle/idle"]         = {"battle/idle", 0.2, true},
 
@@ -48,6 +51,8 @@ return {
         ["walk/left"] = {0, 0},
         ["walk/right"] = {0, 0},
         ["walk/up"] = {1, 0},
+
+        ["slide"] = {2, -2},
 
         -- Battle offsets
         ["battle/idle"] = {2, 6},

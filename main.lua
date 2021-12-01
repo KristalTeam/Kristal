@@ -47,6 +47,7 @@ FakeClone = require("src.engine.objects.fakeclone")
 Rectangle = require("src.engine.objects.rectangle")
 HPText = require("src.engine.objects.hptext")
 Timer = require("src.engine.objects.timer")
+StateManager = require("src.engine.objects.statemanager")
 
 ModList = require("src.engine.menu.modlist")
 ModButton = require("src.engine.menu.modbutton")

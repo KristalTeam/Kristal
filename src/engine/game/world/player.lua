@@ -12,15 +12,25 @@ function Player:init(chara, x, y)
         ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh)
     }
 
+    self.state_manager = StateManager("WALK", self, true)
+    self.state_manager:addState("WALK", {update = self.updateWalk})
+    self.state_manager:addState("SLIDE", {update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide})
+
     self.force_run = false
     self.run_timer = 0
+
+    self.slide_in_place = false
 
     self.hurt_timer = 0
 
     self.walk_speed = 4
 
+    self.last_ex, self.last_ey = self:getExactPosition()
+
     self.history_time = 0
     self.history = {}
+
+    self.update_history_timer = 0
 
     self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
@@ -55,6 +65,10 @@ function Player:interact()
     end
 
     return false
+end
+
+function Player:setState(state)
+    self.state_manager:setState(state)
 end
 
 function Player:alignFollowers(facing, x, y, dist)
@@ -144,9 +158,53 @@ function Player:handleMovement()
     end
 end
 
-function Player:moveCamera()
-    self.world.camera.x = Utils.approach(self.world.camera.x, self.x, 12 * DTMULT)
-    self.world.camera.y = Utils.approach(self.world.camera.y, self.y - (self.height * 2)/2, 12 * DTMULT)
+function Player:moveCamera(speed)
+    self.world.camera.x = Utils.approach(self.world.camera.x, self.x, (speed or 12) * DTMULT)
+    self.world.camera.y = Utils.approach(self.world.camera.y, self.y - (self.height * 2)/2, (speed or 12) * DTMULT)
+end
+
+function Player:updateWalk(dt)
+    if self:isMovementEnabled() then
+        self:handleMovement()
+    end
+end
+
+function Player:beginSlide()
+    self.slide_camera_y = self.world.camera.y
+    self.sprite:setAnimation("slide")
+end
+function Player:updateSlide(dt)
+    local slide_x = 0
+    local slide_y = 0
+
+    if self:isMovementEnabled() then
+        if Input.down("right") then slide_x = slide_x + 1 end
+        if Input.down("left") then slide_x = slide_x - 1 end
+        if Input.down("down") then slide_y = slide_y + 1 end
+        if Input.down("up") then slide_y = slide_y - 1 end
+    end
+
+    if not self.slide_in_place then
+        slide_y = 2
+    end
+
+    self.run_timer = 50
+    local speed = self.walk_speed + 4
+
+    self:move(slide_x, slide_y, speed * DTMULT)
+
+    if self.world.player == self and self.world.camera_attached and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
+        self:moveCamera(16)
+    end
+end
+function Player:endSlide(next_state)
+    local ex, ey = self:getExactPosition()
+    table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time, state = next_state})
+    local start_time = self.history_time
+    self.slide_after_time = start_time
+    local delay = #self.world.followers * FOLLOW_DELAY
+    self.world.timer:tween(delay, self, {slide_after_time = start_time + delay})
+    self.sprite:resetSprite()
 end
 
 function Player:update(dt)
@@ -154,28 +212,25 @@ function Player:update(dt)
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
     end
 
-    if self:isMovementEnabled() then
-        self:handleMovement()
-    end
+    self.state_manager:update(dt)
+
+    local ex, ey = self:getExactPosition()
 
     if #self.history == 0 then
-        local ex, ey = self:getExactPosition()
         table.insert(self.history, {x = ex, y = ey, time = 0})
     end
 
-    if self.moved > 0 then
+    if self.last_collided_x then
+        ex = self.x
+    end
+    if self.last_collided_y then
+        ey = self.y
+    end
+
+    if ex ~= self.last_ex or ey ~= self.last_ey or self.update_history_timer > 0 then
         self.history_time = self.history_time + dt
 
-        local ex, ey = self:getExactPosition()
-
-        if self.last_collided_x then
-            ex = self.x
-        end
-        if self.last_collided_y then
-            ey = self.y
-        end
-
-        table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time})
+        table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time, state = self.state})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
@@ -186,6 +241,11 @@ function Player:update(dt)
             end
         end
     end
+
+    self.update_history_timer = Utils.approach(self.update_history_timer, 0, dt)
+
+    self.last_ex = ex
+    self.last_ey = ey
 
     self.world.in_battle = false
     for _,area in ipairs(self.world.map.battle_areas) do

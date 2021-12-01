@@ -102,9 +102,9 @@ end
 function Character:setFacing(dir)
     self.facing = dir
     self.sprite.facing = dir
-    if not self.sprite.directional and not self.actor.flip then
+    --[[if not self.sprite.directional and not self.actor.flip then
         self.sprite:resetSprite()
-    end
+    end]]
 end
 
 function Character:moveTo(x, y)
