@@ -539,6 +539,23 @@ function Battle:swapSoul(object)
     self:addChild(object)
 end
 
+function Battle:resetAttackers()
+    if #self.attackers > 0 then
+        for _,battler in ipairs(self.attackers) do
+            local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
+            box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+
+            if not battler:setAnimation("battle/attack_end") then
+                battler:setAnimation("battle/idle")
+            end
+        end
+        self.attackers = {}
+        if #self.battle_ui.attack_boxes >= 0 then
+            self.battle_ui:endAttack()
+        end
+    end
+end
+
 function Battle:onSubStateChange(old,new)
     if (old == "ACT") and (new ~= "ACT") then
         for _,battler in ipairs(self.party) do
