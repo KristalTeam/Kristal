@@ -379,6 +379,8 @@ function Registry.initTilesets()
         data.id = path
         self.registerTileset(path, Tileset(data, full_path))
     end
+
+    Kristal.modCall("onRegisterTilesets")
 end
 
 function Registry.initMaps()
