@@ -810,13 +810,13 @@ function Kristal.saveGame(id, data)
     data = data or Game:save()
     Game.save_id = id
     Game.quick_save = nil
-    love.filesystem.createDirectory("saves/"..Mod.info.path)
-    love.filesystem.write("saves/"..Mod.info.path.."/file_"..id..".json", JSON.encode(data))
+    love.filesystem.createDirectory("saves/"..Mod.info.id)
+    love.filesystem.write("saves/"..Mod.info.id.."/file_"..id..".json", JSON.encode(data))
 end
 
 function Kristal.loadGame(id)
     id = id or Game.save_id
-    local path = "saves/"..Mod.info.path.."/file_"..id..".json"
+    local path = "saves/"..Mod.info.id.."/file_"..id..".json"
     if love.filesystem.getInfo(path) then
         local data = JSON.decode(love.filesystem.read(path))
         Game:load(data, id)
@@ -827,26 +827,26 @@ end
 
 function Kristal.getSaveFile(id, path)
     id = id or Game.save_id
-    local path = "saves/"..(path or Mod.info.path).."/file_"..id..".json"
+    local path = "saves/"..(path or Mod.info.id).."/file_"..id..".json"
     if love.filesystem.getInfo(path) then
         return JSON.decode(love.filesystem.read(path))
     end
 end
 
 function Kristal.saveData(file, data, path)
-    love.filesystem.createDirectory("saves/"..(path or Mod.info.path))
-    love.filesystem.write("saves/"..(path or Mod.info.path).."/"..file..".json", JSON.encode(data or {}))
+    love.filesystem.createDirectory("saves/"..(path or Mod.info.id))
+    love.filesystem.write("saves/"..(path or Mod.info.id).."/"..file..".json", JSON.encode(data or {}))
 end
 
 function Kristal.loadData(file, path)
-    local path = "saves/"..(path or Mod.info.path).."/"..file..".json"
+    local path = "saves/"..(path or Mod.info.id).."/"..file..".json"
     if love.filesystem.getInfo(path) then
         return JSON.decode(love.filesystem.read(path))
     end
 end
 
 function Kristal.eraseData(file, path)
-    love.filesystem.remove("saves/"..(path or Mod.info.path).."/"..file..".json")
+    love.filesystem.remove("saves/"..(path or Mod.info.id).."/"..file..".json")
 end
 
 function Kristal.modCall(f, ...)

@@ -26,7 +26,7 @@ function FileList:init(menu, mod)
 
     self.files = {}
     for i = 1, 3 do
-        local data = Kristal.loadData("file_"..i, mod.path)
+        local data = Kristal.loadData("file_"..i, mod.id)
         local button = FileButton(self, i, data, 110, 110 + 90*(i-1), 422, 82)
         if i == 1 then
             button.selected = true
@@ -134,7 +134,7 @@ function FileList:keypressed(key)
                     if button.selected_choice == 1 and self.erase_stage == 2 then
                         self.ui_spooky_action:stop()
                         self.ui_spooky_action:play()
-                        Kristal.eraseData("file_"..button.id, self.mod.path)
+                        Kristal.eraseData("file_"..button.id, self.mod.id)
                         button:setData(nil)
                         result = "Erase complete."
                     else
@@ -155,8 +155,8 @@ function FileList:keypressed(key)
                 if button.selected_choice == 1 then
                     self.ui_spooky_action:stop()
                     self.ui_spooky_action:play()
-                    local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.path)
-                    Kristal.saveData("file_"..button.id, data, self.mod.path)
+                    local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.id)
+                    Kristal.saveData("file_"..button.id, data, self.mod.id)
                     button:setData(data)
                     button:setChoices()
                     self:setState("SELECT", "Copy complete.")
@@ -278,8 +278,8 @@ function FileList:keypressed(key)
                     else
                         self.ui_spooky_action:stop()
                         self.ui_spooky_action:play()
-                        local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.path)
-                        Kristal.saveData("file_"..selected.id, data, self.mod.path)
+                        local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.id)
+                        Kristal.saveData("file_"..selected.id, data, self.mod.id)
                         selected:setData(data)
                         self:setState("SELECT", "Copy complete.")
                         self.copied_button:setColor(1, 1, 1)

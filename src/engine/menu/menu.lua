@@ -157,7 +157,6 @@ function Menu:focus()
         if not self.loading_mods and not self.TEST_MOD_LIST then
             local mod_paths = love.filesystem.getDirectoryItems("mods")
             if not Utils.equal(mod_paths, self.last_loaded) then
-                self.loading_mods = true
                 self:reloadMods()
                 self.last_loaded = mod_paths
             end
@@ -169,6 +168,8 @@ function Menu:reloadMods()
     if self.loading_mods then return end
 
     self.loading_mods = true
+
+    Kristal.Mods.clear()
     Kristal.loadAssets("", "mods", "", function()
         self.loading_mods = false
 
@@ -204,7 +205,9 @@ function Menu:buildMods()
         end
         return
     end
-    for _,mod in ipairs(Kristal.Mods.getMods()) do
+    local sorted_mods = Utils.copy(Kristal.Mods.getMods())
+    table.sort(sorted_mods, function(a, b) return a.path:lower() < b.path:lower() end)
+    for _,mod in ipairs(sorted_mods) do
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
 
         if mod.preview then
