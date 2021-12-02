@@ -18,17 +18,7 @@ function NPC:init(actor, x, y, properties)
     self.solid = properties["solid"] == nil or properties["solid"]
 
     self.cutscene = properties["script"]
-    self.text = {}
-
-    if properties["text"] then
-        self.text = {properties["text"]}
-    else
-        local i = 1
-        while properties["text"..i] do
-            table.insert(self.text, properties["text"..i])
-            i = i + 1
-        end
-    end
+    self.text = Readable.parseText(properties)
 end
 
 function NPC:onInteract(player, dir)

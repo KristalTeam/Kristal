@@ -404,25 +404,25 @@ function Map:loadObject(name, data)
     end
     -- Kristal object loading
     if name:lower() == "savepoint" then
-        return Savepoint(data)
+        return Savepoint(Readable.parseText(data.properties), data.center_x, data.center_y)
     elseif name:lower() == "interactscript" then
-        return InteractScript(data)
+        return InteractScript(data.properties["script"], data.x, data.y, data.width, data.height)
     elseif name:lower() == "script" then
-        return Script(data)
+        return Script(data.properties["script"], data.x, data.y, data.width, data.height)
     elseif name:lower() == "readable" then
-        return Readable(data)
+        return Readable(Readable.parseText(data.properties), data.x, data.y, data.width, data.height)
     elseif name:lower() == "transition" then
-        return Transition(data)
+        return Transition(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "npc" then
         return NPC(data.properties["actor"], data.center_x, data.center_y, data.properties)
     elseif name:lower() == "enemy" then
-        return ChaserEnemy(data.properties["actor"], data.center_x, data.center_y, data)
+        return ChaserEnemy(data.properties["actor"], data.center_x, data.center_y, data.properties)
     elseif name:lower() == "outline" then
-        return Outline(data)
+        return Outline(data.x, data.y, data.width, data.height)
     elseif name:lower() == "silhouette" then
-        return Silhouette(data)
+        return Silhouette(data.x, data.y, data.width, data.height)
     elseif name:lower() == "slidearea" then
-        return SlideArea(data)
+        return SlideArea(data.x, data.y, data.width, data.height)
     elseif name:lower() == "chest" then
         return TreasureChest(data.center_x, data.center_y, data.properties)
     end

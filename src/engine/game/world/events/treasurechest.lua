@@ -3,6 +3,8 @@ local TreasureChest, super = Class(Event)
 function TreasureChest:init(x, y, properties)
     super:init(self, x, y)
 
+    properties = properties or {}
+
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 

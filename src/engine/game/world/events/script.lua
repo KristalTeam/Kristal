@@ -1,14 +1,11 @@
 local Script, super = Class(Event)
 
-function Script:init(data)
-    super:init(self, data.center_x, data.center_y, data.width, data.height)
+function Script:init(script, x, y, w, h)
+    super:init(self, x, y, w, h)
 
     self.solid = false
 
-    self.script = data.properties.script
-
-    self:setOrigin(0.5, 0.5)
-    self:setHitbox(0, 0, data.width, data.height)
+    self.script = script
 end
 
 function Script:onCollide(player)

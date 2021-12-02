@@ -1,15 +1,15 @@
 local Transition, super = Class(Event)
 
-function Transition:init(data)
-    super:init(self, data.x, data.y, data.width, data.height)
+function Transition:init(x, y, w, h, properties)
+    super:init(self, x, y, w, h)
 
-    self.collider = Hitbox(self, 0, 0, self.width, self.height)
+    properties = properties or {}
 
     self.target = {
-        map = data.properties.map,
-        x = data.properties.x,
-        y = data.properties.y,
-        marker = data.properties.marker
+        map = properties.map,
+        x = properties.x,
+        y = properties.y,
+        marker = properties.marker
     }
 end
 

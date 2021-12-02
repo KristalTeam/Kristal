@@ -1,14 +1,11 @@
 local Silhouette, super = Class(Event)
 
-function Silhouette:init(data)
-    super:init(self, data.x, data.y, data.width, data.height)
+function Silhouette:init(x, y, w, h)
+    super:init(self, x, y, w, h)
 
     self.solid = false
 
-    self:setOrigin(0, 0)
-    self:setHitbox(0, 0, data.width, data.height)
-
-    self.canvas = love.graphics.newCanvas(data.width, data.height)
+    self.canvas = love.graphics.newCanvas(self.width, self.height)
 end
 
 function Silhouette:drawCharacter(object)

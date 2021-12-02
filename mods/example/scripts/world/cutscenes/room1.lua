@@ -14,24 +14,28 @@ return {
             cutscene:setSpeaker(susie)
             cutscene:text("* Hey, think I can break\nthis wall?", "face_2")
 
+            -- Get the bottom-center of the broken wall
+            local x = event.x + event.width/2
+            local y = event.y + event.height/2
+
             -- Move Susie up to the wall
-            cutscene:walkTo(susie, event.x, event.y + 40, 4, "up")
+            cutscene:walkTo(susie, x, y + 40, 4, "up")
             -- Move other party members behind Susie
-            cutscene:walkTo(Game.world.player, event.x, event.y + 100, 2, "up")
+            cutscene:walkTo(Game.world.player, x, y + 100, 2, "up")
             if cutscene:getCharacter("ralsei") then
-                cutscene:walkTo("ralsei", event.x + 60, event.y + 100, 3, "up")
+                cutscene:walkTo("ralsei", x + 60, y + 100, 3, "up")
             end
             if cutscene:getCharacter("noelle") then
-                cutscene:walkTo("noelle", event.x - 60, event.y + 100, 3, "up")
+                cutscene:walkTo("noelle", x - 60, y + 100, 3, "up")
             end
 
             -- Wait 1.5 seconds
             cutscene:wait(1.5)
 
             -- Walk back,
-            cutscene:wait(cutscene:walkTo(susie, event.x, event.y + 60, 2, "up"))
+            cutscene:wait(cutscene:walkTo(susie, x, y + 60, 2, "up"))
             -- and run forward!
-            cutscene:wait(cutscene:walkTo(susie, event.x, event.y + 20, 8))
+            cutscene:wait(cutscene:walkTo(susie, x, y + 20, 8))
 
             -- Slam!!
             Assets.playSound("snd_impact")
@@ -39,7 +43,7 @@ return {
             susie:setSprite("shock_up")
 
             -- Slide back a bit
-            cutscene:slideTo(susie, event.x, event.y + 40, 4)
+            cutscene:slideTo(susie, x, y + 40, 4)
             cutscene:wait(1.5)
 
             -- owie

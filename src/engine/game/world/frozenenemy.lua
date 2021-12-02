@@ -1,7 +1,9 @@
 local FrozenEnemy, super = Class(Readable)
 
 function FrozenEnemy:init(actor, x, y, properties)
-    super:init(self, x, y, actor.width, actor.height, {"* (It's frozen solid...)"})
+    super:init(self, {"* (It's frozen solid...)"}, x, y, actor.width, actor.height)
+
+    properties = properties or {}
 
     self:setOrigin(0.5, 1)
     self:setScale(2)

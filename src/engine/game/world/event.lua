@@ -1,28 +1,29 @@
 local Event, super = Class(Object)
 
-function Event:init(x, y, w, h, o)
+function Event:init(x, y, w, h)
     if type(x) == "table" then
-        self.data = x
-        x, y = self.data.x, self.data.y
-        w, h = self.data.width, self.data.height
+        local data = x
+        x, y = data.x, data.y
+        w, h = data.width, data.height
     elseif type(w) == "table" then
-        self.data = w
-        w, h = self.data.width, self.data.height
-    else
-        self.data = o
+        local data = w
+        w, h = data.width, data.height
     end
 
     super:init(self, x, y, w, h)
 
-    self.collider = Hitbox(self, 0, 0, self.width, self.height)
+    self._default_collider = Hitbox(self, 0, 0, self.width, self.height)
+    if not self.collider then
+        self.collider = self._default_collider
+    end
 
     -- Whether this object should stop the player
     self.solid = false
 
     -- ID of the object in the current room (automatically set after init)
-    self.object_id = self.data and self.data.id
+    self.object_id = nil
     -- User-defined ID of the object used for save variables (optional, automatically set after init)
-    self.unique_id = self.data and self.data.properties and self.data.properties["uid"]
+    self.unique_id = nil
 
     -- Sprite object, gets set by setSprite()
     self.sprite = nil
@@ -73,7 +74,7 @@ function Event:getFlag(flag, default)
     return Game:getFlag(uid..":"..flag, default)
 end
 
-function Event:setSprite(texture, speed)
+function Event:setSprite(texture, speed, use_size)
     if texture then
         if self.sprite then
             self:removeChild(self.sprite)
@@ -84,8 +85,11 @@ function Event:setSprite(texture, speed)
             self.sprite:play(speed)
         end
         self:addChild(self.sprite)
-        if not self.collider then
+        if not self.collider or self.collider == self._default_collider then
             self.collider = Hitbox(self, 0, 0, self.sprite.width * 2, self.sprite.height * 2)
+        end
+        if use_size or use_size == nil then
+            self:setSize(self.sprite.width*2, self.sprite.height*2)
         end
     elseif self.sprite then
         self:removeChild(self.sprite)

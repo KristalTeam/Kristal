@@ -1,14 +1,11 @@
 local SlideArea, super = Class(Event)
 
-function SlideArea:init(data)
-    super:init(self, data.x, data.y, data.width, data.height)
+function SlideArea:init(x, y, w, h)
+    super:init(self, x, y, w, h)
 
-    self.solid = false
+    self.solid = true
 
     self.sliding = false
-
-    self:setOrigin(0, 0)
-    self:setHitbox(0, 0, data.width, data.height)
 end
 
 function SlideArea:onCollide(character)

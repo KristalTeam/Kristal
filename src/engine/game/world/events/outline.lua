@@ -1,14 +1,11 @@
 local Outline, super = Class(Event)
 
-function Outline:init(data)
-    super:init(self, data.x, data.y, data.width, data.height)
+function Outline:init(x, y, w, h)
+    super:init(self, x, y, w, h)
 
     self.solid = false
 
-    self:setOrigin(0, 0)
-    self:setHitbox(0, 0, data.width, data.height)
-
-    self.canvas = love.graphics.newCanvas(data.width, data.height)
+    self.canvas = love.graphics.newCanvas(self.width, self.height)
 
     self.shader = love.graphics.newShader([[
         vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {

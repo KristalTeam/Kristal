@@ -1,20 +1,20 @@
 local ChaserEnemy, super = Class(Character)
 
-function ChaserEnemy:init(actor, x, y, data)
+function ChaserEnemy:init(actor, x, y, properties)
     super:init(self, actor, x, y)
 
-    self.layer = 1
+    properties = properties or {}
 
-    self.encounter = data.properties["encounter"]
-    self.path = data.properties["path"]
-    self.speed = data.properties["speed"] or 6
+    self.encounter = properties["encounter"]
+    self.path = properties["path"]
+    self.speed = properties["speed"] or 6
 
-    self.progress = (data.properties["progress"] or 0) % 1
+    self.progress = (properties["progress"] or 0) % 1
     self.reverse_progress = false
 
-    self.can_chase = data.properties["chase"]
-    self.chase_speed = data.properties["chasespeed"] or 9
-    self.chase_dist = data.properties["chasedist"] or 200
+    self.can_chase = properties["chase"]
+    self.chase_speed = properties["chasespeed"] or 9
+    self.chase_dist = properties["chasedist"] or 200
     self.chasing = false
 
     self.alert_timer = 0
