@@ -25,7 +25,7 @@ local character = PartyMember{
     xact_name = "N-Action",
 
     -- Spells by id
-    spells = {"heal_prayer", "sleep_mist", "ice_shock", "snowgrave"},
+    spells = {"heal_prayer", "sleep_mist", "ice_shock"},
 
     -- Current health (saved to the save file)
     health = 90,
