@@ -12,6 +12,9 @@ function Player:init(chara, x, y)
         ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh)
     }
 
+    self.slide_sound = Assets.newSound("snd_paper_surf")
+    self.slide_sound:setLooping(true)
+
     self.state_manager = StateManager("WALK", self, true)
     self.state_manager:addState("WALK", {update = self.updateWalk})
     self.state_manager:addState("SLIDE", {update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide})
@@ -20,6 +23,7 @@ function Player:init(chara, x, y)
     self.run_timer = 0
 
     self.slide_in_place = false
+    self.slide_dust_timer = 0
 
     self.hurt_timer = 0
 
@@ -29,8 +33,6 @@ function Player:init(chara, x, y)
 
     self.history_time = 0
     self.history = {}
-
-    self.update_history_timer = 0
 
     self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
@@ -187,8 +189,26 @@ function Player:updateWalk(dt)
 end
 
 function Player:beginSlide()
+    self.slide_sound:play()
     self.slide_camera_y = self.world.camera.y
     self.sprite:setAnimation("slide")
+end
+function Player:updateSlideDust(dt)
+    self.slide_dust_timer = Utils.approach(self.slide_dust_timer, 0, DTMULT)
+
+    if self.slide_dust_timer == 0 then
+        self.slide_dust_timer = 3
+
+        local dust = Sprite("effects/slide_dust")
+        dust:play(1/15, false, function() dust:remove() end)
+        dust:setOrigin(0.5, 0.5)
+        dust:setScale(2, 2)
+        dust:setPosition(self:getExactPosition())
+        dust.layer = self.layer - 0.01
+        dust.physics.speed_y = -6
+        dust.physics.speed_x = Utils.random(-1, 1)
+        self.world:addChild(dust)
+    end
 end
 function Player:updateSlide(dt)
     local slide_x = 0
@@ -210,11 +230,14 @@ function Player:updateSlide(dt)
 
     self:move(slide_x, slide_y, speed * DTMULT)
 
+    self:updateSlideDust(dt)
+
     if self.world.player == self and self.world.camera_attached and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
-        self:moveCamera(16)
+        self:moveCamera(20)
     end
 end
 function Player:endSlide(next_state)
+    self.slide_sound:stop()
     self.sprite:resetSprite()
 end
 
