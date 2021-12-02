@@ -176,9 +176,6 @@ function Assets.playSound(sound, volume, pitch)
         end
         src:play()
         self.sound_instances[sound] = self.sound_instances[sound] or {}
-        for _,other in ipairs(self.sound_instances[sound]) do
-            other:setVolume(other:getVolume() * 0.25)
-        end
         table.insert(self.sound_instances[sound], src)
         return src
     end
