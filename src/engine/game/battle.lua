@@ -1426,12 +1426,21 @@ function Battle:infoText(text)
     self.battle_ui.encounter_text:setText(text or "")
 end
 
-function Battle:spawnEnemyTextbox(enemy, text)
-    local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
-    if enemy.text_offset then
-        x, y = x + enemy.text_offset[1], y + enemy.text_offset[2]
+function Battle:spawnEnemyTextbox(enemy, text, right)
+    local textbox
+    if not right then
+        local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
+        if enemy.dialogue_offset then
+            x, y = x + enemy.dialogue_offset[1], y + enemy.dialogue_offset[2]
+        end
+        textbox = EnemyTextbox(text, x, y, enemy)
+    else
+        local x, y = enemy.sprite:getRelativePos(enemy.sprite.width, enemy.sprite.height/2, self)
+        if enemy.dialogue_offset then
+            x, y = x - enemy.dialogue_offset[1], y + enemy.dialogue_offset[2]
+        end
+        textbox = EnemyTextbox(text, x, y, enemy, true)
     end
-    local textbox = EnemyTextbox(text, x, y, enemy)
     self:addChild(textbox)
     return textbox
 end

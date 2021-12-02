@@ -1,9 +1,7 @@
 local EnemyTextbox, super = Class(Object)
 
-function EnemyTextbox:init(text, x, y, enemy)
+function EnemyTextbox:init(text, x, y, speaker, right)
     super:init(self, x, y, 0, 0)
-
-    self:setOrigin(1, 0.5)
 
     self.layer = LAYERS["above_arena"] - 1
 
@@ -16,9 +14,18 @@ function EnemyTextbox:init(text, x, y, enemy)
     self.text.color = {0, 0, 0}
     self:addChild(self.text)
 
-    self.enemy = enemy
-    if self.enemy then
-        self.enemy.textbox = self
+    if right then
+        self.right = true
+        self:setOrigin(0, 0.5)
+        self.text.x = self.bubble_end:getWidth() + 5
+    else
+        self.right = false
+        self:setOrigin(1, 0.5)
+    end
+
+    self.speaker = speaker
+    if self.speaker then
+        self.speaker.textbox = self
     end
 
     self.text_list = {}
@@ -45,8 +52,8 @@ end
 function EnemyTextbox:next()
     self.current_text = self.current_text + 1
     if self.current_text > #self.text_list then
-        if self.enemy then
-            self.enemy.textbox = nil
+        if self.speaker then
+            self.speaker.textbox = nil
         end
         self.done = true
         self:remove()
@@ -58,9 +65,16 @@ function EnemyTextbox:next()
 end
 
 function EnemyTextbox:setText(text)
-    local _,lines = text:gsub("\n", "")
+    self.text.width = SCREEN_WIDTH
+    self.text.height = SCREEN_HEIGHT
 
-    local w = self.font:getWidth(text)
+    self.text:setText(text)
+
+    local parsed = self.text.display_text
+
+    local _,lines = parsed:gsub("\n", "")
+
+    local w = self.font:getWidth(parsed)
     local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())
 
     self.text.width = w
@@ -68,8 +82,6 @@ function EnemyTextbox:setText(text)
 
     self.width = w + self.bubble_end:getWidth()
     self.height = h
-
-    self.text:setText(text)
 end
 
 function EnemyTextbox:isTyping()
@@ -101,7 +113,11 @@ function EnemyTextbox:draw()
     if self.text.height < 35 then
         scale = 0.5
     end
-    love.graphics.draw(self.bubble_end, self.text.width + 5 + 1, self.text.height/2 - (self.bubble_end:getHeight()/2) * scale, 0, 1, scale)
+    if self.right then
+        love.graphics.draw(self.bubble_end, self.text.x - 5 - 1, self.text.height/2 - (self.bubble_end:getHeight()/2) * scale, 0, -1, scale)
+    else
+        love.graphics.draw(self.bubble_end, self.text.width + 5 + 1, self.text.height/2 - (self.bubble_end:getHeight()/2) * scale, 0, 1, scale)
+    end
 
     super:draw(self)
 end

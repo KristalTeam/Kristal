@@ -18,7 +18,7 @@ function DialogueText:setText(text)
 
     self.text = text
 
-    self.nodes = self:textToNodes(text)
+    self.nodes, self.display_text = self:textToNodes(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
         self.canvas = love.graphics.newCanvas(self.width, self.height)

@@ -205,7 +205,13 @@ function BattleCutscene:enemyText(enemies, text, options)
     local wait = options["wait"] or options["wait"] == nil
     local textboxes = {}
     for _,enemy in ipairs(enemies) do
-        local textbox = Game.battle:spawnEnemyTextbox(enemy, text)
+        local textbox
+        if not options["x"] and not options["y"] then
+            textbox = Game.battle:spawnEnemyTextbox(enemy, text, options["right"])
+        else
+            textbox = EnemyTextbox(text, options["x"] or 0, options["y"] or 0, enemy, options["right"])
+            Game.battle:addChild(textbox)
+        end
         textbox.can_advance = options["advance"] or options["advance"] == nil
         textbox.auto_advance = options["auto"] or false
         if not textbox.can_advance then

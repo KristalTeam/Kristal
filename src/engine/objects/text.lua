@@ -78,7 +78,7 @@ function Text:setText(text)
 
     self.text = text
 
-    self.nodes = self:textToNodes(text)
+    self.nodes, self.display_text = self:textToNodes(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
         self.canvas = love.graphics.newCanvas(self.width, self.height)
@@ -100,6 +100,7 @@ end
 function Text:textToNodes(input_string)
     -- Very messy function to split text into text nodes.
     local nodes = {}
+    local display_text = ""
     local i = 1
     while i <= #input_string do
         local current_char = input_string:sub(i,i)
@@ -150,10 +151,11 @@ function Text:textToNodes(input_string)
                 ["type"] = "character",
                 ["character"] = current_char,
             })
+            display_text = display_text..current_char
         end
         i = i + 1
     end
-    return nodes
+    return nodes, display_text
 end
 
 function Text:drawToCanvas(func, clear)
