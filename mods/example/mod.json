@@ -2,6 +2,9 @@
     "name": "Example Mod",
     "subtitle": "",
 
+    "version": "v1.0.0",
+    "engineVer": "v0.1.0",
+
     "chapter": 2,
 
     "map": "room1",

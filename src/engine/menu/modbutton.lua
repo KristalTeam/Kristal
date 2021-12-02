@@ -8,10 +8,23 @@ function ModButton:init(name, width, height, mod)
     self.id = mod and mod.id or name
 
     self.subtitle = mod and mod.subtitle
+    self.version = mod and mod.version or ""
 
     self.icon = mod and mod.icon or {Assets.getTexture("kristal/mod_icon")}
     self.icon_delay = mod and mod.iconDelay or 0.25
     self.icon_frame = 1
+
+    self.engine_versions = {}
+    local engine_ver = mod and mod.engineVer
+    if type(engine_ver) == "table" then
+        for _,ver in ipairs(engine_ver) do
+            table.insert(self.engine_versions, SemVer(ver))
+        end
+    elseif type(engine_ver) == "string" then
+        self.engine_versions = {SemVer(engine_ver)}
+    else
+        self.engine_versions = {Kristal.Version}
+    end
 
     self.selected = false
 
@@ -61,6 +74,20 @@ end
 
 function ModButton:getIconPos()
     return self.width + 8, 0
+end
+
+function ModButton:checkCompatibility()
+    local success = false
+    local highest_version
+    for _,version in ipairs(self.engine_versions) do
+        if not highest_version or highest_version < version then
+            highest_version = version
+        end
+        if version ^ Kristal.Version then
+            success = true
+        end
+    end
+    return success, highest_version
 end
 
 function ModButton:drawCoolRectangle(x, y, w, h)
@@ -118,15 +145,36 @@ function ModButton:draw()
     -- Draw the name
     love.graphics.setColor(self:getDrawColor())
     love.graphics.print(self.name, 50, name_y)
+
+    -- Set the font to the small font
+    love.graphics.setFont(self.subfont)
     if self:hasSubtitle() then
-        love.graphics.setFont(self.subfont)
         -- Draw the subtitle shadow
         love.graphics.setColor(0, 0, 0)
-        love.graphics.print(self.subtitle, 50 + 2, name_y + self.font:getHeight() + 2)
+        love.graphics.print(self.subtitle, 50 + 1, name_y + self.font:getHeight() + 1)
         -- Draw the subtitle
         love.graphics.setColor(self:getDrawColor())
         love.graphics.print(self.subtitle, 50, name_y + self.font:getHeight())
     end
+    -- Calculate version position
+    local ver_compat = self:checkCompatibility()
+    local ver_name = ver_compat and self.version or (self.version.." (!)")
+    local ver_x = self.width - 4 - self.subfont:getWidth(ver_name)
+    local ver_y = 0
+    -- Draw the version shadow
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.print(ver_name, ver_x + 1, ver_y + 1)
+    -- Draw the version
+    if self:checkCompatibility() then
+        local r,g,b,a = self:getDrawColor()
+        love.graphics.setColor(r, g, b, a)
+    else
+        local r,g,b,a = self:getDrawColor()
+        -- Slight yellow
+        love.graphics.setColor(r, g*0.75, b*0.75, a)
+    end
+    love.graphics.print(ver_name, ver_x, ver_y)
+
     Draw.popScissor()
 
     -- Draw icon

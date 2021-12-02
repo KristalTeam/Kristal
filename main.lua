@@ -7,6 +7,7 @@ LibTimer = require("src.lib.hump.timer")
 Camera = require("src.lib.hump.camera")
 JSON = require("src.lib.json")
 Ease = require("src.lib.easing")
+SemVer = require("src.lib.semver")
 
 Class = require("src.utils.class")
 require ("src.utils.graphics")
@@ -184,6 +185,9 @@ function love.load(args)
             table.insert(last_arg, arg)
         end
     end
+
+    -- load the version
+    Kristal.Version = SemVer(love.filesystem.read("VERSION"))
 
     -- load the settings.json
     Kristal.Config = Kristal.loadConfig()

@@ -61,6 +61,7 @@ function Menu:enter()
 
     -- Assets required for the menu
     self.menu_font = Assets.getFont("main")
+    self.small_font = Assets.getFont("main", 16)
 
     -- Preview fading stuff
     self.background_fade = 1
@@ -353,6 +354,9 @@ function Menu:draw()
     -- Draw the menu background
     self:drawBackground()
 
+    -- Draw the engine version
+    self:drawVersion()
+
     if self.state == "MAINMENU" then
         love.graphics.draw(self.logo, 160, 70)
         self:printShadow("Play a mod", 215, 219)
@@ -462,6 +466,36 @@ function Menu:draw()
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)
+end
+
+function Menu:drawVersion()
+    local ver_string = "v"..tostring(Kristal.Version)
+    local ver_y = SCREEN_HEIGHT - self.small_font:getHeight()
+
+    if self.state == "MAINMENU" and Kristal.Version.major == 0 then
+        ver_string = ver_string .. " (Unstable)"
+    end
+
+    love.graphics.setFont(self.small_font)
+    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.print(ver_string, 4, ver_y)
+
+    if self.selected_mod_button then
+        local compatible, mod_version = self.selected_mod_button:checkCompatibility()
+        if not compatible then
+            love.graphics.setColor(1, 0.5, 0.5, 0.75)
+            local op = "/"
+            if Kristal.Version < mod_version then
+                op = "<"
+            elseif Kristal.Version > mod_version then
+                op = ">"
+            end
+            love.graphics.print(" "..op.." v"..tostring(mod_version), 4 + self.small_font:getWidth(ver_string), ver_y)
+        end
+    end
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.setFont(self.menu_font)
 end
 
 function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
