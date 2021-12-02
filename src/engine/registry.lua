@@ -17,6 +17,10 @@ function Registry.initialize(preload)
             local chunk = love.filesystem.load("data/chapter_"..tostring(chapter).."/"..path..".lua")
             self.base_scripts["data/"..path] = chunk
         end
+        for _,path in ipairs(Utils.getFilesRecursive("datamod/chapter_"..tostring(chapter), ".lua")) do
+            local chunk = love.filesystem.load("datamod/chapter_"..tostring(chapter).."/"..path..".lua")
+            self.base_scripts["datamod/"..path] = chunk
+        end
 
         Registry.initActors()
     end
@@ -271,6 +275,9 @@ function Registry.initActors()
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
     end
+    for id,mod in self.iterMods("datamod/actors") do
+        mod(self.actors[id])
+    end
 
     Kristal.modCall("onRegisterActors")
 end
@@ -279,9 +286,16 @@ function Registry.initPartyMembers()
     self.party_members = {}
     self.party_from_actor = {}
 
+    local chars = {}
     for _,path,char in self.iterScripts("data/party") do
         char.id = char.id or path
-        self.registerPartyMember(char.id, char)
+        chars[char.id] = char
+    end
+    for id,mod in self.iterMods("datamod/party") do
+        mod(chars[id])
+    end
+    for id,char in pairs(chars) do
+        self.registerPartyMember(id, char)
     end
 end
 
@@ -291,6 +305,9 @@ function Registry.initItems()
     for _,path,item in self.iterScripts("data/items") do
         item.id = item.id or path
         self.registerItem(item.id, item)
+    end
+    for id,mod in self.iterMods("datamod/items") do
+        mod(self.items[id])
     end
 
     Kristal.modCall("onRegisterItems")
@@ -302,6 +319,9 @@ function Registry.initSpells()
     for _,path,spell in self.iterScripts("data/spells") do
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
+    end
+    for id,mod in self.iterMods("datamod/spells") do
+        mod(self.spells[id])
     end
 
     Kristal.modCall("onRegisterSpells")
@@ -491,6 +511,43 @@ function Registry.iterScripts(base_path)
                 full_path = Mod.info.path.."/"..full_path
             end
             return full_path, result[i].path, unpack(result[i].out)
+        end
+    end
+end
+
+function Registry.iterMods(base_path)
+    local result = {}
+
+    local function parse(path, chunks)
+        for full_path,chunk in pairs(chunks) do
+            if full_path:sub(1, #path) == path then
+                local id = full_path:sub(#path + 1)
+                if id:sub(1, 1) == "/" then
+                    id = id:sub(2)
+                end
+                local a, b = chunk()
+                local func = a
+                if type(a) == "string" then
+                    id = a
+                    func = b
+                end
+                table.insert(result, {id = id, func = func})
+            end
+        end
+    end
+
+    parse(base_path, self.base_scripts)
+    if Mod then
+        parse("scripts/"..base_path, Mod.info.script_chunks)
+    end
+
+    local i = 0
+---@diagnostic disable-next-line: undefined-field
+    local n = table.getn(result)
+    return function()
+        i = i + 1
+        if i <= n then
+            return result[i].id, result[i].func
         end
     end
 end
