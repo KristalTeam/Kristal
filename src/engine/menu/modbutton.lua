@@ -28,6 +28,10 @@ function ModButton:setSubtitle(subtitle)
     self.subtitle = subtitle
 end
 
+function ModButton:hasSubtitle()
+    return self.subtitle and self.subtitle ~= ""
+end
+
 function ModButton:onSelect()
     self.selected = true
     if self.preview_script and self.preview_script.onSelect then
@@ -104,7 +108,7 @@ function ModButton:draw()
     -- Draw text inside the button rectangle
     Draw.pushScissor()
     Draw.scissor(0, 0, self.width, self.height)
-    local subh = self.subtitle and self.subfont:getHeight() or 0
+    local subh = self:hasSubtitle() and self.subfont:getHeight() or 0
     -- Make name position higher if we have a subtitle
     local name_y = math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2 - (subh/2)
     love.graphics.setFont(self.font)
@@ -114,7 +118,7 @@ function ModButton:draw()
     -- Draw the name
     love.graphics.setColor(self:getDrawColor())
     love.graphics.print(self.name, 50, name_y)
-    if self.subtitle then
+    if self:hasSubtitle() then
         love.graphics.setFont(self.subfont)
         -- Draw the subtitle shadow
         love.graphics.setColor(0, 0, 0)

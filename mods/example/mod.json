@@ -1,0 +1,13 @@
+{
+    "name": "Example Mod",
+    "subtitle": "",
+
+    "chapter": 2,
+
+    "map": "room1",
+    "party": ["kris", "susie", "ralsei"],
+    "inventory": {
+        "item": ["darkburger", "darkburger", "ultimate_candy"],
+        "key": ["cell_phone"]
+    }
+}

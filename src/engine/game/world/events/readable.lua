@@ -33,6 +33,7 @@ function Readable:onInteract(player, dir)
         for _,line in ipairs(self.text) do
             cutscene:text(line)
         end
+    end):after(function()
         self:onTextEnd()
     end)
     return true

@@ -33,16 +33,12 @@ function EnemyBattler:init(chara)
 
     self.check = "Remember to change\nyour check text!"
 
-    self.text = {
-        "* Test Enemy is testing."
-    }
+    self.text = {}
 
     self.low_health_text = "* Enemy is feeling tired."
     self.tired_percentage = 0.5
 
-    self.dialogue = {
-        "Test dialogue!"
-    }
+    self.dialogue = {}
 
     self.acts = {
         {
@@ -304,7 +300,7 @@ function EnemyBattler:getXAction(battler)
 end
 
 function EnemyBattler:isXActionShort(battler)
-    return true
+    return false
 end
 
 function EnemyBattler:hurt(amount, battler, on_defeat)

@@ -14,6 +14,8 @@ function Event:init(x, y, w, h, o)
 
     super:init(self, x, y, w, h)
 
+    self.collider = Hitbox(self, 0, 0, self.width, self.height)
+
     -- Whether this object should stop the player
     self.solid = false
 

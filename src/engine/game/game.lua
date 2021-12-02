@@ -175,8 +175,10 @@ function Game:load(data, index)
     if data.inventory then
         self.inventory:load(data.inventory)
     else
-        for _,id in ipairs(Kristal.getModOption("inventory") or {}) do
-            self.inventory:addItem(id)
+        for storage,items in pairs(Kristal.getModOption("inventory") or {}) do
+            for i,item in ipairs(items) do
+                self.inventory:addItemTo(storage, item, i)
+            end
         end
     end
 
