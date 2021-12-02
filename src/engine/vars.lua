@@ -1,4 +1,4 @@
-LOAD_TESTING = false
+FRAMERATE = 1/60
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
@@ -6,16 +6,7 @@ SCREEN_HEIGHT = 480
 TILE_WIDTH = 40
 TILE_HEIGHT = 40
 
-FRAMERATE = 1/60
-
-DT = (1/60)
-DTMULT = DT * 30
-
 FOLLOW_DELAY = 0.4
-
-MOD_LOADING = false
-
-DEBUG_RENDER = false
 
 LAYERS = {
     [        "bottom"] = -1000,

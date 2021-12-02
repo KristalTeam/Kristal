@@ -1,4 +1,5 @@
 require("src.engine.vars")
+require("src.engine.statevars")
 
 _Class = require("src.lib.hump.class")
 Gamestate = require("src.lib.hump.gamestate")
@@ -302,6 +303,7 @@ end
 function love.update(dt)
     DT = dt
     DTMULT = dt * 30
+    RUNTIME = RUNTIME + dt
 
     LibTimer.update(dt)
     Music.update(dt)

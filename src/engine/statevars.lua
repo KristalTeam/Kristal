@@ -1,0 +1,8 @@
+DT = (1/60)
+DTMULT = DT * 30
+
+RUNTIME = 0
+
+MOD_LOADING = false
+
+DEBUG_RENDER = false

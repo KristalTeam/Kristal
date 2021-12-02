@@ -10,6 +10,11 @@ function Follower:init(chara, x, y, target)
     self.state_manager:addState("WALK")
     self.state_manager:addState("SLIDE", {enter = self.beginSlide, leave = self.endSlide})
 
+    self.history_time = 0
+    self.history = {}
+
+    self.needs_slide = false
+
     self.following = true
     self.returning = false
 end
@@ -22,6 +27,15 @@ function Follower:onRemove(parent)
     end
 
     super:onRemove(self, parent)
+end
+
+function Follower:onAdd(parent)
+    super:onAdd(self, parent)
+
+    local target = self:getTarget()
+    if target then
+        self:copyHistoryFrom(target)
+    end
 end
 
 function Follower:updateIndex()
@@ -37,30 +51,24 @@ function Follower:getTarget()
 end
 
 function Follower:getTargetPosition()
-    local target = self:getTarget()
-    if target and target.history then
-        local target_time = math.max(target.history_time, self.state == "SLIDE" and target.slide_after_time or 0)
-        local tx, ty, facing, state = self.x, self.y, self.facing, nil
-        for i,v in ipairs(target.history) do
-            tx, ty, facing, state = v.x, v.y, v.facing, v.state
-            local upper = target_time - v.time
-            if upper > (FOLLOW_DELAY * self.index) then
-                if i > 1 then
-                    local prev = target.history[i - 1]
-                    local lower = target_time - prev.time
+    local tx, ty, facing, state = self.x, self.y, self.facing, nil
+    for i,v in ipairs(self.history) do
+        tx, ty, facing, state = v.x, v.y, v.facing, v.state
+        local upper = self.history_time - v.time
+        if upper > (FOLLOW_DELAY * self.index) then
+            if i > 1 then
+                local prev = self.history[i - 1]
+                local lower = self.history_time - prev.time
 
-                    local t = ((FOLLOW_DELAY * self.index) - lower) / (upper - lower)
+                local t = ((FOLLOW_DELAY * self.index) - lower) / (upper - lower)
 
-                    tx = Utils.lerp(prev.x, v.x, t)
-                    ty = Utils.lerp(prev.y, v.y, t)
-                end
-                break
+                tx = Utils.lerp(prev.x, v.x, t)
+                ty = Utils.lerp(prev.y, v.y, t)
             end
+            break
         end
-        return tx, ty, facing, state
-    else
-        return self:getExactPosition(), self.facing
     end
+    return tx, ty, facing, state
 end
 
 function Follower:interprolate(slow)
@@ -94,14 +102,46 @@ function Follower:interprolate(slow)
 end
 
 function Follower:beginSlide()
+    self.needs_slide = false
     self.sprite:setAnimation("slide")
 end
 function Follower:endSlide()
     self.sprite:resetSprite()
 end
 
+function Follower:copyHistoryFrom(target)
+    self.history_time = target.history_time
+    self.history = Utils.copy(target.history)
+end
+function Follower:updateHistory(dt, moved)
+    local target = self:getTarget()
+    if target.state == "SLIDE" and self.state ~= "SLIDE" then
+        self.needs_slide = true
+    end
+
+    if moved or self.state == "SLIDE" or self.needs_slide then
+        self.history_time = self.history_time + dt
+
+        local ex, ey = target:getExactPosition()
+
+        table.insert(self.history, 1, {x = ex, y = ey, facing = target.facing, time = self.history_time, state = target.state})
+        while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
+            table.remove(self.history, #self.history)
+        end
+
+        if self.following then
+            self:interprolate()
+        end
+    end
+end
+
 function Follower:update(dt)
     self:updateIndex()
+
+    if #self.history == 0 then
+        local ex, ey = self:getExactPosition()
+        table.insert(self.history, {x = ex, y = ey, time = 0})
+    end
 
     if self.returning then
         local dx, dy = self:interprolate(true)

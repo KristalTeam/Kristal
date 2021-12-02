@@ -71,6 +71,14 @@ function Player:setState(state)
     self.state_manager:setState(state)
 end
 
+function Player:resetFollowerHistory()
+    for _,follower in ipairs(Game.world.followers) do
+        if follower:getTarget() == self then
+            follower:copyHistoryFrom(self)
+        end
+    end
+end
+
 function Player:alignFollowers(facing, x, y, dist)
     local ex, ey = self:getExactPosition()
 
@@ -93,6 +101,7 @@ function Player:alignFollowers(facing, x, y, dist)
         local idist = dist and (i * dist) or (((i * FOLLOW_DELAY) / (1/30)) * 4)
         table.insert(self.history, {x = x + (offset_x * idist), y = y + (offset_y * idist), facing = facing, time = self.history_time - (i * FOLLOW_DELAY)})
     end
+    self:resetFollowerHistory()
 end
 
 function Player:keepFollowerPositions()
@@ -100,8 +109,16 @@ function Player:keepFollowerPositions()
 
     self.history = {{x = ex, y = ey, time = self.history_time}}
     for i,follower in ipairs(Game.world.followers) do
-        local fex, fey = follower:getExactPosition()
-        table.insert(self.history, {x = fex, y = fey, facing = follower.facing, time = self.history_time - (i * FOLLOW_DELAY)})
+        if follower:getTarget() == self then
+            local fex, fey = follower:getExactPosition()
+            local new_history = {x = fex, y = fey, facing = follower.facing, time = self.history_time - (i * FOLLOW_DELAY)}
+            table.insert(self.history, new_history)
+
+            follower.history_time = self.history_time
+            follower.history = {}
+            table.insert(follower.history, self.history[1])
+            table.insert(follower.history, new_history)
+        end
     end
 end
 
@@ -198,12 +215,6 @@ function Player:updateSlide(dt)
     end
 end
 function Player:endSlide(next_state)
-    local ex, ey = self:getExactPosition()
-    table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time, state = next_state})
-    local start_time = self.history_time
-    self.slide_after_time = start_time
-    local delay = #self.world.followers * FOLLOW_DELAY
-    self.world.timer:tween(delay, self, {slide_after_time = start_time + delay})
     self.sprite:resetSprite()
 end
 
@@ -227,22 +238,20 @@ function Player:update(dt)
         ey = self.y
     end
 
-    if ex ~= self.last_ex or ey ~= self.last_ey or self.update_history_timer > 0 then
+    local moved = ex ~= self.last_ex or ey ~= self.last_ey
+
+    if moved then
         self.history_time = self.history_time + dt
 
         table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time, state = self.state})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
-
-        for _,follower in ipairs(self.world.followers) do
-            if follower:getTarget() == self and follower.following then
-                follower:interprolate()
-            end
-        end
     end
 
-    self.update_history_timer = Utils.approach(self.update_history_timer, 0, dt)
+    for _,follower in ipairs(self.world.followers) do
+        follower:updateHistory(dt, moved)
+    end
 
     self.last_ex = ex
     self.last_ey = ey
