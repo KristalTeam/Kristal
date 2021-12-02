@@ -199,14 +199,11 @@ function love.load(args)
     -- pixel scaling (the good one)
     love.graphics.setDefaultFilter("nearest")
 
-    -- scale the window if we have to
+    -- set the window size
     local window_scale = Kristal.Config["windowScale"]
-    if window_scale ~= 1 then
-        love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale)
+    if window_scale ~= 1 or Kristal.Config["fullscreen"] then
+        love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale, {fullscreen = Kristal.Config["fullscreen"]})
     end
-
-    -- fullscreen
-    love.window.setFullscreen(Kristal.Config["fullscreen"])
 
     -- toggle vsync
     love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
@@ -265,8 +262,9 @@ function love.load(args)
         Draw.setCanvas()
 
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.scale(Kristal.Config["windowScale"])
-        love.graphics.draw(SCREEN_CANVAS)
+        love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+        love.graphics.scale(Kristal.getGameScale())
+        love.graphics.draw(SCREEN_CANVAS, -SCREEN_WIDTH/2, -SCREEN_HEIGHT/2)
 
         Draw._clearUnusedCanvases()
 
@@ -787,6 +785,10 @@ function Kristal.loadModAssets(id, after)
 
         after()
     end)
+end
+
+function Kristal.getGameScale()
+    return math.min(love.graphics.getWidth() / SCREEN_WIDTH, love.graphics.getHeight() / SCREEN_HEIGHT)
 end
 
 function Kristal.loadConfig()
