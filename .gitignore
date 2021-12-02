@@ -1,6 +1,7 @@
 .vscode/
 
 mods/*
+!mods/_testmod/
 !mods/example/
 !mods/previewtest/
 !mods/z/
