@@ -83,6 +83,13 @@ local loaders = {
     -- Mod Loader
 
     ["mods"] = {"mods", function(base_dir, path, full_path)
+        local zip_id = checkExtension(path, "zip")
+        if zip_id then
+            local mounted_path = full_path
+            full_path = combinePath(base_dir, "mods", zip_id)
+            path = zip_id
+            love.filesystem.mount(mounted_path, full_path)
+        end
         if love.filesystem.getInfo(full_path.."/mod.json") then
             local mod = json.decode(love.filesystem.read(full_path.."/mod.json"))
 

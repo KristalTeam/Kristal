@@ -22,7 +22,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
 Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to return to the main menu."}
 
 function Menu:enter()
-    -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, CONTROLS
+    -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
     love.keyboard.setKeyRepeat(true)
@@ -363,7 +363,8 @@ function Menu:draw()
         self:printShadow("Open mods folder", 215, 219 + 32)
         self:printShadow("Options", 215, 219 + 64)
         self:printShadow("Credits", 215, 219 + 96)
-    elseif self.state == "OPTIONS" or self.state == "VOLUME" then
+        self:printShadow("Quit", 215, 219 + 128)
+    elseif self.state == "OPTIONS" or self.state == "VOLUME" or self.state == "WINDOWSCALE" then
 
         self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
 
@@ -373,20 +374,22 @@ function Menu:draw()
         self:printShadow("Master Volume",  menu_x, menu_y + (32 * 0))
         self:printShadow("Controls",       menu_x, menu_y + (32 * 1))
         self:printShadow("Simplify VFX",   menu_x, menu_y + (32 * 2))
-        self:printShadow("Fullscreen",     menu_x, menu_y + (32 * 3))
-        self:printShadow("Auto-Run",       menu_x, menu_y + (32 * 4))
-        self:printShadow("Skip Intro",     menu_x, menu_y + (32 * 5))
-        self:printShadow("Display FPS",    menu_x, menu_y + (32 * 6))
-        self:printShadow("Debug Hotkeys",  menu_x, menu_y + (32 * 7))
-        self:printShadow("Back",           menu_x, menu_y + (32 * 9))
+        self:printShadow("Window Scale",   menu_x, menu_y + (32 * 3))
+        self:printShadow("Fullscreen",     menu_x, menu_y + (32 * 4))
+        self:printShadow("Auto-Run",       menu_x, menu_y + (32 * 5))
+        self:printShadow("Skip Intro",     menu_x, menu_y + (32 * 6))
+        self:printShadow("Display FPS",    menu_x, menu_y + (32 * 7))
+        self:printShadow("Debug Hotkeys",  menu_x, menu_y + (32 * 8))
+        self:printShadow("Back",           menu_x, menu_y + (32 * 10))
 
         self:printShadow(Utils.round(Game:getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
         self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
-        self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
-        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
-        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
-        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
-        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
+        self:printShadow(tostring(Kristal.Config["windowScale"]).."x", menu_x + (8 * 32), menu_y + (32 * 3))
+        self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
+        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
+        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
+        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
+        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
     elseif self.state == "CONTROLS" then
         self:printShadow("( CONTROLS )", 0, 48, {1, 1, 1, 1}, true, 640)
 
@@ -556,6 +559,8 @@ function Menu:keypressed(key, _, is_repeat)
                 self.heart_target_x = -8
                 self.heart_target_y = -8
                 self:setState("CREDITS")
+            elseif self.selected_option == 5 then
+                love.event.quit()
             end
             return
         end
@@ -564,7 +569,7 @@ function Menu:keypressed(key, _, is_repeat)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-        self.selected_option = math.max(1, math.min(4, self.selected_option))
+        self.selected_option = math.max(1, math.min(5, self.selected_option))
 
         if old ~= self.selected_option then
             self.ui_move:stop()
@@ -589,10 +594,10 @@ function Menu:keypressed(key, _, is_repeat)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-        self.selected_option = math.max(1, math.min(9, self.selected_option))
+        self.selected_option = math.max(1, math.min(10, self.selected_option))
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 9 then
+        if self.selected_option >= 10 then
             y_off = y_off + 32
         end
 
@@ -620,17 +625,20 @@ function Menu:keypressed(key, _, is_repeat)
             elseif self.selected_option == 3 then
                 Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
             elseif self.selected_option == 4 then
+                self:setState("WINDOWSCALE")
+                self.heart_target_x = 408
+            elseif self.selected_option == 5 then
                 Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
                 love.window.setFullscreen(Kristal.Config["fullscreen"])
-            elseif self.selected_option == 5 then
-                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.selected_option == 6 then
-                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
+                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.selected_option == 7 then
-                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
+                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
             elseif self.selected_option == 8 then
-                Kristal.Config["debug"] = not Kristal.Config["debug"]
+                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
             elseif self.selected_option == 9 then
+                Kristal.Config["debug"] = not Kristal.Config["debug"]
+            elseif self.selected_option == 10 then
                 self:setState("MAINMENU")
                 self.heart_target_x = 196
                 self.selected_option = 3
@@ -646,6 +654,43 @@ function Menu:keypressed(key, _, is_repeat)
             self.ui_select:play()
             self.heart_target_x = 152
             self.heart_target_y = 129 + (self.selected_option - 1) * 32
+        end
+    elseif self.state == "WINDOWSCALE" then
+        if Input.isCancel(key) or Input.isConfirm(key) then
+            self:setState("OPTIONS")
+            self.ui_select:stop()
+            self.ui_select:play()
+            self.heart_target_x = 152
+            self.heart_target_y = 129 + (self.selected_option - 1) * 32
+        end
+        local scale = Kristal.Config["windowScale"]
+        if Input.is("right", key) then
+            if scale < 1 then
+                scale = scale * 2
+            else
+                scale = scale + 1
+            end
+        elseif Input.is("left", key) then
+            if scale > 0.125 then
+                if scale <= 1 then
+                    scale = scale / 2
+                else
+                    scale = scale - 1
+                end
+            else
+                Kristal.Config["windowScale"] = 1
+                self.ui_move:stop()
+                self.ui_move:play()
+                love.event.quit()
+                return
+            end
+        end
+        if Kristal.Config["windowScale"] ~= scale then
+            Kristal.Config["fullscreen"] = false
+            Kristal.Config["windowScale"] = scale
+            self.ui_move:stop()
+            self.ui_move:play()
+            love.window.setMode(SCREEN_WIDTH * scale, SCREEN_HEIGHT * scale)
         end
     elseif self.state == "MODSELECT" then
         if key == "f5" then
