@@ -60,8 +60,16 @@ end
 function Player:interact()
     local col = self.interact_collider[self.facing]
 
+    local interactables = {}
     for _,obj in ipairs(self.world.children) do
-        if obj.onInteract and obj:collidesWith(col) and obj:onInteract(self, self.facing) then
+        if obj.onInteract and obj:collidesWith(col) then
+            local rx, ry = obj:getRelativePos(obj.width/2, obj.height/2, self.parent)
+            table.insert(interactables, {obj = obj, dist = Utils.dist(self.x,self.y, rx,ry)})
+        end
+    end
+    table.sort(interactables, function(a,b) return a.dist < b.dist end)
+    for _,v in ipairs(interactables) do
+        if v.obj:onInteract(self, self.facing) then
             return true
         end
     end
