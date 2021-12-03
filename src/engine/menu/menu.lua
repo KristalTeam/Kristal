@@ -19,8 +19,6 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
     }
 ]])
 
-Menu.INTRO_TEXT = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress (X) to return to the main menu."}
-
 function Menu:enter()
     -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
@@ -113,6 +111,7 @@ function Menu:onStateChange(old_state, new_state)
             self.list.active = true
             self.list.visible = true
         end
+        self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress "..Input.getText("cancel").." to return to the main menu."}
     elseif new_state == "FILESELECT" then
         self.files = FileList(self, self.selected_mod)
         self.files.layer = 50
@@ -429,11 +428,13 @@ function Menu:draw()
                 self.heart_target_y = -8
                 self.list.active = false
                 self.list.visible = false
-                self:printShadow(Menu.INTRO_TEXT, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+                self:printShadow(self.intro_text, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
             else
                 -- Draw some menu text
                 self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
-                self:printShadow("(X) Return to main menu", 294 + (16 * 3), 454 - 8, {1, 1, 1, 1})
+
+                local return_text = Input.getText("cancel").." Return to main menu"
+                self:printShadow(return_text, 580 + (16 * 3) - self.menu_font:getWidth(return_text), 454 - 8, {1, 1, 1, 1})
             end
         end
     elseif self.state == "FILESELECT" then
@@ -699,7 +700,13 @@ function Menu:keypressed(key, _, is_repeat)
             self:reloadMods()
         end
 
-        if #self.list.mods > 0 then
+        if Input.isCancel(key) then
+            self:setState("MAINMENU")
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.heart_target_x = 196
+            self.heart_target_y = 238
+        elseif #self.list.mods > 0 then
             if Input.isConfirm(key) then
                 if self.selected_mod then
                     self.ui_select:stop()
@@ -711,12 +718,6 @@ function Menu:keypressed(key, _, is_repeat)
                     end
                 end
                 return
-            elseif Input.isCancel(key) then
-                self:setState("MAINMENU")
-                self.ui_move:stop()
-                self.ui_move:play()
-                self.heart_target_x = 196
-                self.heart_target_y = 238
             end
 
             if Input.is("up", key)    then self.list:selectUp(is_repeat)   end
