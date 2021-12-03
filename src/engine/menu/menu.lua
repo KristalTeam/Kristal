@@ -690,7 +690,7 @@ function Menu:keypressed(key, _, is_repeat)
             Kristal.Config["windowScale"] = scale
             self.ui_move:stop()
             self.ui_move:play()
-            love.window.setMode(SCREEN_WIDTH * scale, SCREEN_HEIGHT * scale)
+            Kristal.resetWindow()
         end
     elseif self.state == "MODSELECT" then
         if key == "f5" then

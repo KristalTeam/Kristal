@@ -202,7 +202,7 @@ function love.load(args)
     -- set the window size
     local window_scale = Kristal.Config["windowScale"]
     if window_scale ~= 1 or Kristal.Config["fullscreen"] then
-        love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale, {fullscreen = Kristal.Config["fullscreen"]})
+        Kristal.resetWindow()
     end
 
     -- toggle vsync
@@ -337,6 +337,9 @@ function love.keypressed(key)
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     elseif key == "f3" then
         PERFORMANCE_TEST_STAGE = "UPDATE"
+    elseif key == "f4" or (key == "return" and (love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt"))) then
+        Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
+        love.window.setFullscreen(Kristal.Config["fullscreen"])
     elseif key == "f6" then
         DEBUG_RENDER = not DEBUG_RENDER
     elseif key == "f8" then
@@ -785,6 +788,14 @@ function Kristal.loadModAssets(id, after)
 
         after()
     end)
+end
+
+function Kristal.resetWindow()
+    local window_scale = Kristal.Config["windowScale"]
+    love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale, {
+        fullscreen = Kristal.Config["fullscreen"],
+        vsync = Kristal.Config["vSync"] and 1 or 0
+    })
 end
 
 function Kristal.getGameScale()
