@@ -3,6 +3,7 @@ function love.conf(t)
     t.version = "11.0"
 
     t.window.title = "Kristal"
+    t.window.icon = "icon.png"
     t.window.width = 640
     t.window.height = 480
 end
