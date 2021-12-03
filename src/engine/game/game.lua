@@ -61,9 +61,11 @@ end
 
 
 function Game:leave()
-    self:clear()
-    self.console = nil
-    self.quick_save = nil
+    if Gamestate.current() ~= Kristal.States["DarkTransition"] then
+        --self:clear()
+        self.console = nil
+        self.quick_save = nil
+    end
 end
 
 function Game:getSavePreview()

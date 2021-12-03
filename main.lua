@@ -750,7 +750,7 @@ function Kristal.loadMod(id, save_id)
     if mod.transition then
         Kristal.preloadMod(mod)
         Kristal.loadAssets(mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
-            Gamestate.switch(Kristal.States["DarkTransition"], mod, save_id)
+            Gamestate.switch(Kristal.States["DarkTransition"], "mod", {mod, save_id})
         end)
     else
         Kristal.loadModAssets(mod.id, function()

@@ -1,9 +1,9 @@
 local DarkTransition = {}
 
 DarkTransition.SPRITE_DEPENDENCIES = {
-    "party/kris/world/light/up_*",
+    "party/kris/light/walk/up_*",
     "party/kris/dark_transition",
-    "party/susie/world/light/up_*",
+    "party/susie/light/walk/up_*",
     "party/susie/dark_transition"
 }
 
@@ -20,10 +20,13 @@ function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     love.graphics.draw(sprite, x, y, rot, xscale * 3, yscale * 3, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
-function DarkTransition:enter(previous, mod, save_id)
+function DarkTransition:enter(previous, transition_type, options)
     self.prior_state = previous
-    self.mod = mod
-    self.save_id = save_id
+    self.type = transition_type
+    if (self.type == "mod") then
+        self.mod = options.mod
+        self.save_id = options.save_id
+    end
 
     self.animation_active = true
 
@@ -39,10 +42,10 @@ function DarkTransition:enter(previous, mod, save_id)
     self.velocity = 0
     self.old_velocity = 0
     self.friction = 0
-    self.kris_x = (134 + self:camerax())
-    self.kris_y = (94  + self:cameray())
-    self.susie_x  = (162 + self:camerax())
-    self.susie_y  = (86  + self:cameray())
+    self.kris_x =   (options.kris_x  or 134) + self:camerax()
+    self.kris_y =   (options.kris_y  or 94 ) + self:cameray()
+    self.susie_x  = (options.susie_x or 162) + self:camerax()
+    self.susie_y  = (options.susie_y or 86 ) + self:cameray()
     self.susie_sprite = 0
     self.sprite_index = 0
     self.linecon = false
@@ -61,7 +64,7 @@ function DarkTransition:enter(previous, mod, save_id)
 
     -- CONFIG
     self.quick_mode = false
-    self.skiprunback = true
+    self.skiprunback = false
     self.final_y = 60
     self.kris_only = false
     self.has_head_object = false
@@ -116,8 +119,8 @@ function DarkTransition:enter(previous, mod, save_id)
         self.kris_sprite_holder:addChild(self.kris_head_object)
     end
 
-    self.spr_susieu = Assets.getFrames("party/susie/world/light/up")
-    self.spr_krisu = Assets.getFrames("party/kris/world/light/up")
+    self.spr_susieu = Assets.getFrames("party/susie/light/walk/up")
+    self.spr_krisu = Assets.getFrames("party/kris/light/walk/up")
 
     self.spr_susie_lw_fall_u = Assets.getFrames("party/susie/dark_transition/forward")
     self.spr_krisu_fall_lw = Assets.getFrames("party/kris/dark_transition/forward")
@@ -361,11 +364,15 @@ function DarkTransition:draw(dont_clear)
             self.sprite_index = self.sprite_index + 0.2 * (DT * 30)
         end
         if (math.floor(self.timer) >= 30) and not self.do_once then
-
+            if ((Game ~= nil) and (Game.world ~= nil) and (Game.world.music ~= nil)) then
+                Game.world.music:stop()
+            end
             --snd_free_all()
             self.do_once = true
             Assets.playSound("snd_locker")
-            -- Destroy the dark door object here...
+
+            print("Destroy door here")
+
             self.doorblack = 1
             self.sprite_index = 0
             self.velocity = 0
@@ -545,12 +552,16 @@ function DarkTransition:draw(dont_clear)
                 self.susie_sprite:setFrames(self.spr_susie_lw_fall_d)
             end
 
-            self.mod_loading = true
-            self.old_velocity = self.velocity
-            Kristal.loadModAssets(self.mod.id, function()
+            if self.type == "mod" then
+                self.mod_loading = true
+                self.old_velocity = self.velocity
+                Kristal.loadModAssets(self.mod.id, function()
+                    self.mod_loading = false
+                    Gamestate.switch(Kristal.States["Game"], self.save_id)
+                end)
+            else
                 self.mod_loading = false
-                Gamestate.switch(Kristal.States["Game"], self.save_id)
-            end)
+            end
         end
     end
     if (self.con == 30) then
