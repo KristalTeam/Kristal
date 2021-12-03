@@ -123,9 +123,8 @@ function World:openMenu(menu)
 
     if self.menu then
         self.menu:remove()
+        self.menu = nil
     end
-
-    self.state = "MENU"
 
     if not menu then
         if not self.light then
@@ -133,13 +132,15 @@ function World:openMenu(menu)
         else
             --error("TODO: Light world menu")
             print("TODO: Light world menu")
-            self.menu = DarkMenu()
         end
     else
         self.menu = menu
     end
-    self.menu.layer = self.layers["ui"]
-    self:addChild(self.menu)
+    if self.menu then
+        self.state = "MENU"
+        self.menu.layer = self.layers["ui"]
+        self:addChild(self.menu)
+    end
     return self.menu
 end
 
