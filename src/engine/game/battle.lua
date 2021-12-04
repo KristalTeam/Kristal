@@ -2220,20 +2220,6 @@ function Battle:keypressed(key)
                 end
             end
         end
-    elseif self.state == "DEFENDING" then
-        if key == "d" then
-            local rot = self.arena.rotation + (math.pi/2)
-            self.timer:tween(0.33, self.arena, {rotation = rot})
-        elseif key == "a" then
-            local rot = self.arena.rotation - (math.pi/2)
-            self.timer:tween(0.33, self.arena, {rotation = rot})
-        elseif key == "w" then
-            local sx, sy = self.arena.scale_x * 1.5, self.arena.scale_y * 1.5
-            self.timer:tween(0.33, self.arena, {scale_x = sx, scale_y = sy})
-        elseif key == "s" then
-            local sx, sy = self.arena.scale_x * 0.75, self.arena.scale_y * 0.75
-            self.timer:tween(0.33, self.arena, {scale_x = sx, scale_y = sy})
-        end
     end
 end
 
