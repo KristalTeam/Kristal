@@ -149,8 +149,6 @@ function Battle:init()
 
     self.xactions = {}
 
-    self.has_acted = false
-
     self.shake = 0
 
     self.background_fade_alpha = 0
@@ -1063,7 +1061,9 @@ function Battle:commitAction(type, target, data, character_id)
         end
     end
 
-    self:nextParty()
+    if self.current_selecting ~= 0 then
+        self:nextParty()
+    end
 end
 
 function Battle:removeAction(character_id)

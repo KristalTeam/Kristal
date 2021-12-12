@@ -568,7 +568,7 @@ function Object:updateChildren(dt)
         self.update_child_list = false
     end
     for _,v in ipairs(self.children) do
-        if v.active then
+        if v.active and v.parent == self then
             v:update(dt)
         end
     end
