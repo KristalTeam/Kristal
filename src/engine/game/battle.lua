@@ -1569,6 +1569,13 @@ function Battle:update(dt)
     end
 end
 
+function Battle:updateChildren(dt)
+    -- only update if Game.battle is still a reference to this
+    if Game.battle then
+        super:updateChildren(self, dt)
+    end
+end
+
 function Battle:updateIntro(dt)
     self.intro_timer = self.intro_timer + 1 * (dt * 30)
     if self.intro_timer >= 13 then
