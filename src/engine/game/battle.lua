@@ -1570,9 +1570,15 @@ function Battle:update(dt)
 end
 
 function Battle:updateChildren(dt)
-    -- only update if Game.battle is still a reference to this
-    if Game.battle then
-        super:updateChildren(self, dt)
+    if self.update_child_list then
+        self:updateChildList()
+        self.update_child_list = false
+    end
+    for _,v in ipairs(self.children) do
+        -- only update if Game.battle is still a reference to this
+        if v.active and v.parent == self and Game.battle == self then
+            v:update(dt)
+        end
     end
 end
 
