@@ -81,9 +81,9 @@ function Encounter:addEnemy(enemy, x, y, ...)
     return enemy_obj
 end
 
-function Encounter:fetchEncounterText()
+function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
-    return enemies[math.random(#enemies)]:fetchEncounterText()
+    return enemies[math.random(#enemies)]:getEncounterText()
 end
 
 function Encounter:getNextWaves()

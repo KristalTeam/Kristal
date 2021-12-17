@@ -577,8 +577,8 @@ function Battle:registerXAction(party, name, description, tp)
     table.insert(self.xactions, act)
 end
 
-function Battle:fetchEncounterText()
-    return self.encounter:fetchEncounterText()
+function Battle:getEncounterText()
+    return self.encounter:getEncounterText()
 end
 
 function Battle:processCharacterActions()
@@ -796,7 +796,7 @@ function Battle:processAction(action)
             end
 
             if damage > 0 then
-                self.tension_bar:giveTensionExact(Utils.round((action.points / enemy.tension_attack_divider)))
+                self.tension_bar:giveTensionExact(Utils.round(enemy:getAttackTension(action.points)))
 
                 local dmg_sprite = Sprite(battler.chara.attack_sprite or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
@@ -1341,7 +1341,7 @@ function Battle:nextTurn()
             box.selected_button = 1
             box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
         end
-        self.battle_ui.current_encounter_text = self:fetchEncounterText()
+        self.battle_ui.current_encounter_text = self:getEncounterText()
         self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
     end
 

@@ -51,9 +51,6 @@ function EnemyBattler:init(chara)
     self.hurt_timer = 0
 
     self.comment = ""
-
-    -- This is always 10, except for JEVIL where it's 15
-    self.tension_attack_divider = 10
 end
 
 function EnemyBattler:setTired(bool)
@@ -239,7 +236,7 @@ function EnemyBattler:onMercy()
     end
 end
 
-function EnemyBattler:fetchEncounterText()
+function EnemyBattler:getEncounterText()
     if self.health <= (self.max_health * self.tired_percentage) then
         return self.low_health_text
     end
@@ -319,6 +316,11 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
             self:onDefeat(amount, battler)
         end
     end
+end
+
+function EnemyBattler:getAttackTension(points)
+    -- In Deltarune, this is always 10, except for JEVIL where it's 15
+    return points / 10
 end
 
 function EnemyBattler:onHurt(damage, battler)
