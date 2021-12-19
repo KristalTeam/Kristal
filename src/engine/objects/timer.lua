@@ -22,6 +22,11 @@ function Timer:every(delay, func, count)
     return self.timer:every(delay, func, count)
 end
 
+function Timer:everyInstant(delay, func, count)
+    func()
+    return self.timer:every(delay, func, count)
+end
+
 function Timer:during(delay, func, after)
     return self.timer:during(delay, func, after)
 end
