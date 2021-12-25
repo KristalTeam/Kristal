@@ -1961,7 +1961,7 @@ function Battle:keypressed(key)
 
                     if menu_item.data.target == "xact" then
                         self.selected_xaction = menu_item.data
-                        self:setState("XACTENEMYSELECT")
+                        self:setState("XACTENEMYSELECT", "SPELL")
                     elseif not menu_item.data.target or menu_item.data.target == "none" then
                         self:commitAction("SPELL", nil, menu_item)
                     elseif menu_item.data.target == "enemy" then
@@ -2072,7 +2072,13 @@ function Battle:keypressed(key)
         if Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
-            self:setState("ACTIONSELECT", "CANCEL")
+            if self.state_reason == "SPELL" then
+                self:setState("MENUSELECT", "SPELL")
+            elseif self.state_reason == "ITEM" then
+                self:setState("MENUSELECT", "ITEM")
+            else
+                self:setState("ACTIONSELECT", "CANCEL")
+            end
             return
         end
         if Input.is("up", key) then
@@ -2106,7 +2112,13 @@ function Battle:keypressed(key)
         if Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
-            self:setState("ACTIONSELECT", "CANCEL")
+            if self.state_reason == "SPELL" then
+                self:setState("MENUSELECT", "SPELL")
+            elseif self.state_reason == "ITEM" then
+                self:setState("MENUSELECT", "ITEM")
+            else
+                self:setState("ACTIONSELECT", "CANCEL")
+            end
             return
         end
         if Input.is("up", key) then
