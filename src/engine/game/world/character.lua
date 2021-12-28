@@ -13,6 +13,7 @@ function Character:init(chara, x, y)
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = self.facing
     self.sprite.inherit_color = true
+    self.sprite.on_footstep = function(s, n) self:onFootstep(n) end
     self:addChild(self.sprite)
 
     self:setOrigin(0.5, 1)
@@ -85,6 +86,7 @@ function Character:setActor(actor)
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = self.facing
     self.sprite.inherit_color = true
+    self.sprite.on_footstep = function(s, n) self:onFootstep(n) end
     self:addChild(self.sprite)
 end
 
@@ -281,6 +283,13 @@ function Character:moveYExact(amount, move_x)
     return true
 end
 
+function Character:onFootstep(num)
+    if self.world and self.world.map then
+        self.world.map:onFootstep(self, num)
+    end
+    Kristal.modCall("onFootstep", self, num)
+end
+
 function Character:shake(x, y)
     self.sprite.shake_x = x or 0
     self.sprite.shake_y = y or 0
@@ -298,8 +307,8 @@ function Character:resetSprite()
     self.sprite:resetSprite()
 end
 
-function Character:setAnimation(animation)
-    self.sprite:setAnimation(animation)
+function Character:setAnimation(animation, after)
+    self.sprite:setAnimation(animation, after)
 end
 
 function Character:play(speed, loop, reset, on_finished)

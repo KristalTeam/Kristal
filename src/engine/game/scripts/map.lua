@@ -64,6 +64,8 @@ function Map:load()
 end
 function Map:unload() end
 
+function Map:onFootstep(char, num) end
+
 function Map:update(dt) end
 function Map:draw() end
 

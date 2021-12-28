@@ -62,7 +62,11 @@ function TileLayer:getTile(x, y)
 end
 
 function TileLayer:draw()
+    local r, g, b, a = self:getDrawColor()
+
     if not self.drawn then
+        love.graphics.setColor(r, g, b, a * self.tile_opacity)
+
         local old_canvas = love.graphics.getCanvas()
         Draw.setCanvas(self.canvas)
         love.graphics.clear()
@@ -88,14 +92,18 @@ function TileLayer:draw()
         self.drawn = true
     end
 
-    local r, g, b, a = self:getDrawColor()
-    love.graphics.setColor(r, g, b, a * self.tile_opacity)
+    love.graphics.setColor(1, 1, 1)
 
+    love.graphics.setBlendMode("alpha", "premultiplied")
     love.graphics.draw(self.canvas)
+    love.graphics.setBlendMode("alpha")
 
+    love.graphics.setColor(r, g, b, a * self.tile_opacity)
     for _,tile in ipairs(self.animated_tiles) do
         tile.tileset:drawTile(tile.id, tile.x, tile.y)
     end
+
+    love.graphics.setColor(1, 1, 1)
 
     super:draw(self)
 end

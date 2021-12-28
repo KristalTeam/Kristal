@@ -514,6 +514,12 @@ function World:transitionImmediate(target)
     self:spawnParty(pos)
 end
 
+function World:spawnObject(obj, layer)
+    obj.layer = self.layers[layer or "objects"]
+    self:addChild(obj)
+    return obj
+end
+
 function World:getCameraTarget()
     return self.player:getRelativePos(self.player.width/2, self.player.height/2)
 end
