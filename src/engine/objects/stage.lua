@@ -8,6 +8,9 @@ function Stage:init(x, y, w, h)
     self.objects_to_remove = {}
 
     self.stage = self
+
+    self.timer = Timer()
+    self:addChild(self.timer)
 end
 
 function Stage:getObjects(class)
