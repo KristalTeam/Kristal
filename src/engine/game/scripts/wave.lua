@@ -127,10 +127,10 @@ end
 
 function Wave:setArenaSize(width, height)
     self.arena_width = width
-    self.arena_height = height
+    self.arena_height = height or width
 
     if Game.battle.arena then
-        Game.battle.arena:setSize(width, height)
+        Game.battle.arena:setSize(width, height or width)
     end
 end
 
