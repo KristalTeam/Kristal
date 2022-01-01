@@ -83,7 +83,18 @@ end
 
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
-    return enemies[math.random(#enemies)]:getEncounterText()
+    local enemy = Utils.pick(enemies, function(v)
+        if not v.text then
+            return true
+        else
+            return #v.text > 0
+        end
+    end)
+    if enemy then
+        return enemy:getEncounterText()
+    else
+        return self.text
+    end
 end
 
 function Encounter:getNextWaves()
