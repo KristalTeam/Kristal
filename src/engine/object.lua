@@ -290,7 +290,7 @@ function Object:getLayer() return self.layer end
 function Object:setLayer(layer)
     self.layer = layer
     if self.parent then
-        self.parent.child_layer_changed = true
+        self.parent.update_child_list = true
     end
 end
 
