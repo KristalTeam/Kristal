@@ -5,13 +5,17 @@ function Bullet:init(x, y, texture)
 
     self.layer = LAYERS["bullets"]
 
+    -- Set scale and origin
+    self:setOrigin(0.5, 0.5)
+    self:setScale(2, 2)
+
     -- Add a sprite, if we provide one
     if texture then
         self:setSprite(texture, 0.25, true)
     end
 
-    -- Default collider to this object's size
-    self.collider = Hitbox(self, -self.width/2, -self.height/2, self.width, self.height)
+    -- Default collider to half this object's size
+    self.collider = Hitbox(self, self.width/4, self.height/4, self.width/2, self.height/2)
 
     -- TP added when you graze this bullet (Also given each frame after the first graze, 30x less at 30FPS)
     self.tp = 1.6 -- (1/10 of a defend, or cheap spell)
@@ -63,8 +67,6 @@ function Bullet:setSprite(texture, speed, loop, on_finished)
     end
     if texture then
         self.sprite = Sprite(texture)
-        self.sprite:setOrigin(0.5, 0.5)
-        self.sprite:setScale(2)
         self.sprite.inherit_color = true
         self:addChild(self.sprite)
 

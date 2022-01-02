@@ -5,14 +5,8 @@ function Vironeedle:init(x, y, slow, right)
 
     self.collidable = false
 
-    self:setOrigin(0.5, 0.5)
-    self:setScale(2)
-
     self:setSprite("bullets/viro_needle", 1/15, false, function() self.collidable = true end)
     self:setHitbox(4, 6.5, 7, 2)
-
-    self.sprite:setOrigin(0, 0)
-    self.sprite:setScale(1)
 
     self.infect_collider = Hitbox(self, 1, 5, 14, 5)
 
