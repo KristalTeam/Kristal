@@ -1,6 +1,10 @@
 local ActorSprite, super = Class(Sprite)
 
 function ActorSprite:init(actor)
+    if type(actor) == "string" then
+        actor = Registry.getActor(actor)
+    end
+
     self.actor = actor
     self.sprite = nil
     self.full_sprite = nil
