@@ -288,9 +288,11 @@ function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 
 
 function Object:getLayer() return self.layer end
 function Object:setLayer(layer)
-    self.layer = layer
-    if self.parent then
-        self.parent.update_child_list = true
+    if self.layer ~= layer then
+        self.layer = layer
+        if self.parent then
+            self.parent.update_child_list = true
+        end
     end
 end
 
