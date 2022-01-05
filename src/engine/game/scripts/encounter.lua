@@ -74,6 +74,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
             enemy_obj.target_y = y
         end
     end
+    enemy_obj.encounter = self
     table.insert(enemies, enemy_obj)
     if Game.battle and Game.state == "BATTLE" then
         Game.battle:addChild(enemy_obj)
