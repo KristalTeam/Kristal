@@ -461,7 +461,12 @@ function Utils.pickMultiple(tbl, amount, sort)
 end
 
 function Utils.angle(x1,y1, x2,y2)
-    return math.atan2(y2 - y1, x2 - x1)
+    if isClass(x1) and isClass(y1) and x1:includes(Object) and y1:includes(Object) then
+        local obj1, obj2 = x1, y1
+        return math.atan2(obj2.y - obj1.y, obj2.x - obj1.x)
+    else
+        return math.atan2(y2 - y1, x2 - x1)
+    end
 end
 
 function Utils.angleDiff(a, b)
