@@ -92,6 +92,18 @@ function Collider:collidesWith(other)
     return false
 end
 
-function Collider:draw() end
+function Collider:drawFor(obj, ...)
+    if obj == self.parent or not self.parent then
+        self:draw(...)
+    else
+        love.graphics.push()
+        love.graphics.origin()
+        love.graphics.applyTransform(self.parent:getFullTransform())
+        self:draw(...)
+        love.graphics.pop()
+    end
+end
+
+function Collider:draw(...) end
 
 return Collider

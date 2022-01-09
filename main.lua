@@ -50,6 +50,7 @@ Rectangle = require("src.engine.objects.rectangle")
 HPText = require("src.engine.objects.hptext")
 Timer = require("src.engine.objects.timer")
 StateManager = require("src.engine.objects.statemanager")
+Anchor = require("src.engine.objects.anchor")
 
 ModList = require("src.engine.menu.modlist")
 ModButton = require("src.engine.menu.modbutton")

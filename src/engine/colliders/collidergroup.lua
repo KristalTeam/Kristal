@@ -1,7 +1,7 @@
 local ColliderGroup, super = Class(Collider)
 
 function ColliderGroup:init(parent, colliders)
-    super:init(self, 0, 0, parent)
+    super:init(self, parent, 0, 0)
 
     self.colliders = colliders or {}
     for _,collider in ipairs(self.colliders) do
@@ -25,6 +25,12 @@ function ColliderGroup:collidesWith(other)
     end
 
     return super:collidesWith(self, other)
+end
+
+function ColliderGroup:drawFor(obj,r,g,b,a)
+    for _,collider in ipairs(self.colliders) do
+        collider:drawFor(obj,r,g,b,a)
+    end
 end
 
 function ColliderGroup:draw(r,g,b,a)
