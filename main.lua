@@ -655,6 +655,7 @@ function Kristal.clearModState()
     Mod = nil
     Kristal.Mods.clear()
     Kristal.clearModHooks()
+    Kristal.clearModSubclasses()
     -- Stop sounds and music
     love.audio.stop()
     Music.clear()
@@ -898,4 +899,15 @@ function Kristal.clearModHooks()
         hook.target[hook.name] = hook.orig
     end
     Utils.__MOD_HOOKS = {}
+end
+
+function Kristal.clearModSubclasses()
+    for class,subs in pairs(MOD_SUBCLASSES) do
+        for _,sub in ipairs(subs) do
+            if class.__includers then
+                Utils.removeFromTable(class.__includers, sub)
+            end
+        end
+    end
+    MOD_SUBCLASSES = {}
 end

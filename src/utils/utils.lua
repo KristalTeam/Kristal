@@ -100,6 +100,13 @@ function Utils.hook(target, name, hook)
     target[name] = function(...)
         return hook(orig, ...)
     end
+    if isClass(target) then
+        for _,includer in ipairs(target.__includers or {}) do
+            if includer[name] == orig then
+                Utils.hook(includer, name, hook)
+            end
+        end
+    end
 end
 
 function Utils.equal(a, b, deep)
