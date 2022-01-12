@@ -291,6 +291,10 @@ function Utils.ease(a, b, t, mode)
 end
 
 function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
+    if min_a > max_a then
+        min_a, max_a = max_a, min_a
+        min_b, max_b = max_b, min_b
+    end
     val = Utils.clamp(val, min_a, max_a)
     local t = (val - min_a) / (max_a - min_a)
     if mode and mode ~= "linear" then
