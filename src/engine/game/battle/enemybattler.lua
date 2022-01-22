@@ -198,32 +198,34 @@ function EnemyBattler:onSpareable()
 end
 
 function EnemyBattler:addMercy(amount)
-    if (self.mercy >= 100) then
+    if self.mercy >= 100 then
         -- We're already at full mercy; do nothing.
         return
     end
 
     self.mercy = self.mercy + amount
-    if (self.mercy < 0) then
+    if self.mercy < 0 then
         self.mercy = 0
     end
 
-    if (self.mercy >= 100) then
+    if self.mercy >= 100 then
         self:onSpareable()
         self.mercy = 100
     end
 
-    if (amount > 0) then
+    if amount > 0 then
         local pitch = 0.8
-        if (amount < 99) then pitch = 1 end
-        if (amount <= 50) then pitch = 1.2 end
-        if (amount <= 25) then pitch = 1.4 end
+        if amount < 99 then pitch = 1 end
+        if amount <= 50 then pitch = 1.2 end
+        if amount <= 25 then pitch = 1.4 end
 
         local src = Assets.playSound("snd_mercyadd", 0.8)
         src:setPitch(pitch)
-    end
 
-    self:statusMessage("mercy", amount)
+        self:statusMessage("mercy", amount)
+    else
+        self:statusMessage("msg", "miss")
+    end
 end
 
 function EnemyBattler:onMercy()
