@@ -319,8 +319,8 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
 end
 
 function EnemyBattler:getAttackTension(points)
-    -- In Deltarune, this is always 10, except for JEVIL where it's 15
-    return points / 10
+    -- In Deltarune, this is always 10*2.5, except for JEVIL where it's 15*2.5
+    return points / 25
 end
 
 function EnemyBattler:onHurt(damage, battler)

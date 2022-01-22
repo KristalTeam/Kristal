@@ -796,7 +796,7 @@ function Battle:processAction(action)
             end
 
             if damage > 0 then
-                self.tension_bar:giveTensionExact(Utils.round(enemy:getAttackTension(action.points)))
+                self.tension_bar:giveTension(Utils.round(enemy:getAttackTension(action.points)))
 
                 local dmg_sprite = Sprite(battler.chara.attack_sprite or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
