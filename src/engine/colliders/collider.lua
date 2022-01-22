@@ -1,16 +1,31 @@
 local Collider = Class()
 
-function Collider:init(parent, x, y)
+function Collider:init(parent, x, y, mode)
     self.parent = parent
 
     self.x = x or 0
     self.y = y or 0
+
+    mode = mode or {}
+    self.invert = mode.invert or false
+    self.inside = mode.inside or false
 
     self.collidable = true
 end
 
 function Collider:collidableCheck(other)
     return self.collidable and other and other.collidable
+end
+function Collider:insideCheck(other)
+    return not (self.inside and other.inside)
+end
+
+function Collider:applyInvert(other, val)
+    if self.invert ~= other.invert then
+        return not val
+    else
+        return val
+    end
 end
 
 function Collider:getOtherCollider(other)
@@ -89,7 +104,7 @@ function Collider:getLocalPoints(tf1,tf2, ...)
 end
 
 function Collider:collidesWith(other)
-    return false
+    return self:applyInvert(other, false)
 end
 
 function Collider:drawFor(obj, ...)
@@ -103,7 +118,20 @@ function Collider:drawFor(obj, ...)
         love.graphics.pop()
     end
 end
+function Collider:drawFillFor(obj, ...)
+    if obj == self.parent or not self.parent then
+        self:drawFill(...)
+    else
+        love.graphics.push()
+        love.graphics.origin()
+        love.graphics.applyTransform(self.parent:getFullTransform())
+        self:drawFill(...)
+        love.graphics.pop()
+    end
+end
 
 function Collider:draw(...) end
+
+function Collider:drawFill(...) end
 
 return Collider

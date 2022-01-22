@@ -1,7 +1,7 @@
 local ColliderGroup, super = Class(Collider)
 
-function ColliderGroup:init(parent, colliders)
-    super:init(self, parent, 0, 0)
+function ColliderGroup:init(parent, colliders, mode)
+    super:init(self, parent, 0, 0, mode)
 
     self.colliders = colliders or {}
     for _,collider in ipairs(self.colliders) do
@@ -20,7 +20,7 @@ function ColliderGroup:collidesWith(other)
 
     for _,collider in ipairs(self.colliders) do
         if collider:collidesWith(other) then
-            return true
+            return self:applyInvert(other, true)
         end
     end
 
@@ -32,10 +32,20 @@ function ColliderGroup:drawFor(obj,r,g,b,a)
         collider:drawFor(obj,r,g,b,a)
     end
 end
+function ColliderGroup:drawFillFor(obj,r,g,b,a)
+    for _,collider in ipairs(self.colliders) do
+        collider:drawFillFor(obj,r,g,b,a)
+    end
+end
 
 function ColliderGroup:draw(r,g,b,a)
     for _,collider in ipairs(self.colliders) do
         collider:draw(r,g,b,a)
+    end
+end
+function ColliderGroup:drawFill(r,g,b,a)
+    for _,collider in ipairs(self.colliders) do
+        collider:drawFill(r,g,b,a)
     end
 end
 
