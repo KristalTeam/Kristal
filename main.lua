@@ -62,6 +62,12 @@ DarkTransitionParticle = require("src.engine.game.darktransition.darktransitionp
 DarkTransitionSparkle = require("src.engine.game.darktransition.darktransitionsparkle")
 HeadObject = require("src.engine.game.darktransition.head_object")
 
+FXBase = require("src.engine.drawfx.fxbase")
+ShaderFX = require("src.engine.drawfx.shaderfx")
+ColorMaskFX = require("src.engine.drawfx.colormaskfx")
+AlphaFX = require("src.engine.drawfx.alphafx")
+RecolorFX = require("src.engine.drawfx.recolorfx")
+
 Collider = require("src.engine.colliders.collider")
 ColliderGroup = require("src.engine.colliders.collidergroup")
 Hitbox = require("src.engine.colliders.hitbox")

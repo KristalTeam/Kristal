@@ -737,13 +737,14 @@ function Battle:processAction(action)
         battler:setAnimation("battle/spare", function()
             enemy:onMercy()
             if not worked then
+                local recolor = enemy:addFX(RecolorFX())
                 self.timer:during(8/30, function()
-                    enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 0}, 0.12 * DTMULT)
+                    recolor.color = Utils.lerp(recolor.color, {1, 1, 0}, 0.12 * DTMULT)
                 end, function()
                     self.timer:during(8/30, function()
-                        enemy.sprite.color = Utils.lerp(enemy.sprite.color, {1, 1, 1}, 0.16 * DTMULT)
+                        recolor.color = Utils.lerp(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
                     end, function()
-                        enemy.sprite.color = {1, 1, 1}
+                        enemy:removeFX(recolor)
                     end)
                 end)
             end
@@ -1648,10 +1649,18 @@ function Battle:updateTransitionOut(dt)
     end
 
     for _,battler in ipairs(self.defeated_enemies) do
-        battler.alpha = self.transition_timer / 10
+        local fade = battler:getFX("battle_end")
+        if not fade then
+            fade = battler:addFX(AlphaFX(1), "battle_end")
+        end
+        fade.alpha = self.transition_timer / 10
     end
     for _,battler in ipairs(self.enemies) do
-        battler.alpha = self.transition_timer / 10
+        local fade = battler:getFX("battle_end")
+        if not fade then
+            fade = battler:addFX(AlphaFX(1), "battle_end")
+        end
+        fade.alpha = self.transition_timer / 10
     end
 end
 

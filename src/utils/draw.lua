@@ -6,6 +6,7 @@ local old_getScissor = love.graphics.getScissor
 Draw._canvases = {}
 Draw._used_canvas = setmetatable({},{__mode="k"})
 Draw._locked_canvas = setmetatable({},{__mode="k"})
+Draw._locked_canvas_stack = {}
 Draw._canvas_stack = {}
 
 Draw._scissor_stack = {}
@@ -14,10 +15,13 @@ function Draw.pushCanvas(...)
     local args = {...}
     table.insert(self._canvas_stack, love.graphics.getCanvas())
     local canvas, clear_canvas
-    if #args == 1 then
+    if type(args[1]) == "userdata" then
         canvas = args[1]
     else
-        local w, h = args[1], args[2]
+        local w, h = SCREEN_WIDTH, SCREEN_HEIGHT
+        if type(args[1]) == "number" then
+            w, h = args[1], args[2]
+        end
         local cid = w..","..h
         self._canvases[cid] = self._canvases[cid] or {}
         for _,cached in ipairs(self._canvases[cid]) do
@@ -32,13 +36,19 @@ function Draw.pushCanvas(...)
         end
         clear_canvas = true
     end
+    local keep_transform = false
+    if type(args[#args]) == "boolean" then
+        keep_transform = args[#args]
+    end
     if canvas then
         self._locked_canvas[canvas] = true
         self._used_canvas[canvas] = true
     end
     Draw.setCanvas{canvas, stencil=true}
     love.graphics.push()
-    love.graphics.origin()
+    if not keep_transform then
+        love.graphics.origin()
+    end
     if clear_canvas then
         love.graphics.clear()
     end
@@ -54,6 +64,24 @@ function Draw.popCanvas(keep)
     love.graphics.pop()
     Draw.setCanvas(old_canvas)
     return old_canvas
+end
+
+function Draw.unlockCanvas(canvas)
+    if canvas then
+        self._locked_canvas[canvas] = nil
+    end
+end
+
+function Draw.pushCanvasLocks()
+    local current_locks = setmetatable({},{__mode="k"})
+    for k,v in pairs(self._locked_canvas) do
+        current_locks[k] = v
+    end
+    table.insert(self._locked_canvas_stack, current_locks)
+end
+
+function Draw.popCanvasLocks()
+    self._locked_canvas = table.remove(self._locked_canvas_stack, #self._locked_canvas_stack)
 end
 
 function Draw.setCanvas(canvas)

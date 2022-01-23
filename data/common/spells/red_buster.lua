@@ -44,7 +44,7 @@ function spell:onCast(user, target)
                 Assets.playSound("snd_scytheburst")
             end
             local flash = target:flash()
-            flash.color_mask = {1, 0, 0}
+            flash.color_mask:setColor(1, 0, 0)
             target:hurt(damage, user)
             buster_finished = true
             if anim_finished then

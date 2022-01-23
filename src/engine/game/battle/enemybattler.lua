@@ -158,14 +158,14 @@ function EnemyBattler:spare(pacify)
     Game.battle.spare_sound:stop()
     Game.battle.spare_sound:play()
 
-    self.sprite.color_mask = {1, 1, 1}
-    self.sprite.color_mask_alpha = 0
+    local spare_flash = self:addFX(ColorMaskFX())
+    spare_flash.amount = 0
 
     local sparkle_timer = 0
     local parent = self.parent
 
     Game.battle.timer:during(5/30, function()
-        self.sprite.color_mask_alpha = self.sprite.color_mask_alpha + 0.2 * DTMULT
+        spare_flash.amount = spare_flash.amount + 0.2 * DTMULT
         sparkle_timer = sparkle_timer + DTMULT
         if sparkle_timer >= 0.5 then
             local x, y = Utils.random(0, self.width), Utils.random(0, self.height)
@@ -175,7 +175,7 @@ function EnemyBattler:spare(pacify)
             sparkle_timer = sparkle_timer - 0.5
         end
     end, function()
-        self.sprite.color_mask_alpha = 1
+        spare_flash.amount = 1
         local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
         local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
         img1.physics.speed_x = 4

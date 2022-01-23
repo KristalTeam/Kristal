@@ -45,16 +45,14 @@ function spell:onCast(user, target)
             z_parent:addChild(z)
         end, 8)
     else
-        if target.mercy >= 100 then
-            target:statusMessage("msg", "dumbass")
-        end
+        local recolor = target:addFX(RecolorFX())
         Game.battle.timer:during(8/30, function()
-            target.sprite.color = Utils.lerp(target.sprite.color, {0, 0, 1}, 0.12 * DTMULT)
+            recolor.color = Utils.lerp(recolor.color, {0, 0, 1}, 0.12 * DTMULT)
         end, function()
             Game.battle.timer:during(8/30, function()
-                target.sprite.color = Utils.lerp(target.sprite.color, {1, 1, 1}, 0.16 * DTMULT)
+                recolor.color = Utils.lerp(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
             end, function()
-                target.sprite.color = {1, 1, 1}
+                target:removeFX(recolor)
             end)
         end)
     end

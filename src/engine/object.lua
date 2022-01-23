@@ -133,6 +133,9 @@ function Object:init(x, y, width, height)
     self.cutout_right = nil
     self.cutout_bottom = nil
 
+    -- Post-processing effects
+    self.draw_fx = {}
+
     -- This object's sorting, higher number = renders last (above siblings)
     self.layer = 0
 
@@ -415,6 +418,42 @@ function Object:applyScissor()
     end
 end
 
+function Object:addFX(fx, id)
+    table.insert(self.draw_fx, fx)
+    fx.parent = self
+    if id then
+        fx.id = id
+    end
+    return fx
+end
+
+function Object:getFX(id)
+    if isClass(id) then
+        for _,fx in ipairs(self.draw_fx) do
+            if fx:includes(id) then
+                return fx
+            end
+        end
+    else
+        for _,fx in ipairs(self.draw_fx) do
+            if fx.id == id then
+                return fx
+            end
+        end
+    end
+end
+
+function Object:removeFX(id)
+    for i,fx in ipairs(self.draw_fx) do
+        if fx == id or fx.id == id then
+            if fx.parent == self then
+                fx.parent = nil
+            end
+            return table.remove(self.draw_fx, i)
+        end
+    end
+end
+
 function Object:createTransform()
     Utils.pushPerformance("Object#createTransform")
     local transform = love.math.newTransform()
@@ -569,6 +608,9 @@ function Object:updateChildren(dt)
         self:updateChildList()
         self.update_child_list = false
     end
+    for _,v in ipairs(self.draw_fx) do
+        v:update(dt)
+    end
     for _,v in ipairs(self.children) do
         if v.active and v.parent == self then
             v:update(dt)
@@ -599,20 +641,60 @@ function Object:drawChildren(min_layer, max_layer)
     local oldr, oldg, oldb, olda = love.graphics.getColor()
     for _,v in ipairs(self.children) do
         if v.visible and (not min_layer or v.layer >= min_layer) and (not max_layer or v.layer < max_layer) then
+            local processing_fx, canvas = v:shouldProcessDrawFX(), nil
+            if processing_fx then
+                Draw.pushCanvasLocks()
+                canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, true)
+            end
             love.graphics.push()
             v:preDraw()
             if v.draw_children_below then
                 v:drawChildren(nil, v.draw_children_below)
             end
             v:draw()
-            v:postDraw()
             if v.draw_children_above then
                 v:drawChildren(v.draw_children_above)
             end
+            v:postDraw()
             love.graphics.pop()
+            if processing_fx then
+                Draw.popCanvas(true)
+                local final_canvas = v:processDrawFX(canvas)
+                love.graphics.push()
+                love.graphics.origin()
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.draw(final_canvas)
+                love.graphics.pop()
+                Draw.popCanvasLocks()
+            end
         end
     end
     love.graphics.setColor(oldr, oldg, oldb, olda)
+end
+
+function Object:shouldProcessDrawFX()
+    for _,fx in ipairs(self.draw_fx) do
+        if fx:isActive(self) then
+            return true
+        end
+    end
+end
+
+function Object:processDrawFX(canvas)
+    table.sort(self.draw_fx, FXBase.SORTER)
+
+    for _,fx in ipairs(self.draw_fx) do
+        if fx:isActive(self) then
+            local next_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+            love.graphics.setColor(1, 1, 1)
+            fx:draw(canvas, self)
+            Draw.popCanvas(true)
+            Draw.unlockCanvas(canvas)
+            canvas = next_canvas
+        end
+    end
+
+    return canvas
 end
 
 function Object:updatePhysicsTransform()

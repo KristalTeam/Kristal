@@ -1,3 +1,19 @@
+function Mod:preInit()
+    -- make kris woobly
+    --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
+        orig(self, ...)
+
+        if self.actor.id == "kris" then
+            self:addFX(ShaderFX(Kristal.States["Menu"].BACKGROUND_SHADER, {
+                ["bg_sine"] = function() return love.timer.getTime() * 100 end,
+                ["bg_mag"] = 10,
+                ["wave_height"] = 480*2,
+                ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
+            }))
+        end
+    end)]]
+end
+
 function Mod:init()
     print("Loaded example mod!")
 

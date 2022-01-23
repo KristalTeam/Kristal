@@ -7,7 +7,7 @@ function FlashFade:init(texture, x, y)
     self.siner = 0
     self.target = nil
 
-    self.color_mask_alpha = 1
+    self.color_mask = self:addFX(ColorMaskFX())
 end
 
 function FlashFade:update(dt)

@@ -26,6 +26,8 @@ function Game:enter(previous_state, save_id)
 
     self.quick_save = nil
 
+    Kristal.modCall("preInit")
+
     if save_id then
         Kristal.loadGame(save_id)
     else

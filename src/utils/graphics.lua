@@ -34,6 +34,13 @@ function graphics.printfOutline(text, x, y, outline, limit, ...)
   love.graphics.printf(text, x, y, limit or math.huge, ...)
 end
 
+function graphics.drawCanvas(canvas, ...)
+  local mode,alphamode = love.graphics.getBlendMode()
+  love.graphics.setBlendMode(mode, "premultiplied")
+  love.graphics.draw(canvas, ...)
+  love.graphics.setBlendMode(mode, alphamode)
+end
+
 --[[ Transforms ]]--
 
 function graphics.getTransform()
