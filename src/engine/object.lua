@@ -155,6 +155,9 @@ function Object:init(x, y, width, height)
     -- If set, children at or above this layer will be drawn above this object
     self.draw_children_above = nil
 
+    -- Ignores child drawing
+    self._dont_draw_children = false
+
     -- Triggers list sort / child removal
     self.update_child_list = false
     self.children_to_remove = {}
@@ -634,6 +637,9 @@ function Object:drawChildren(min_layer, max_layer)
         self:updateChildList()
         self.update_child_list = false
     end
+    if self._dont_draw_children then
+        return
+    end
     if not min_layer and not max_layer then
         min_layer = self.draw_children_below
         max_layer = self.draw_children_above
@@ -641,35 +647,44 @@ function Object:drawChildren(min_layer, max_layer)
     local oldr, oldg, oldb, olda = love.graphics.getColor()
     for _,v in ipairs(self.children) do
         if v.visible and (not min_layer or v.layer >= min_layer) and (not max_layer or v.layer < max_layer) then
-            local processing_fx, canvas = v:shouldProcessDrawFX(), nil
-            if processing_fx then
-                Draw.pushCanvasLocks()
-                canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, true)
-            end
-            love.graphics.push()
-            v:preDraw()
-            if v.draw_children_below then
-                v:drawChildren(nil, v.draw_children_below)
-            end
-            v:draw()
-            if v.draw_children_above then
-                v:drawChildren(v.draw_children_above)
-            end
-            v:postDraw()
-            love.graphics.pop()
-            if processing_fx then
-                Draw.popCanvas(true)
-                local final_canvas = v:processDrawFX(canvas)
-                love.graphics.push()
-                love.graphics.origin()
-                love.graphics.setColor(1, 1, 1)
-                love.graphics.draw(final_canvas)
-                love.graphics.pop()
-                Draw.popCanvasLocks()
-            end
+            v:fullDraw()
         end
     end
     love.graphics.setColor(oldr, oldg, oldb, olda)
+end
+
+function Object:fullDraw(no_children)
+    local processing_fx, canvas = self:shouldProcessDrawFX(), nil
+    if processing_fx then
+        Draw.pushCanvasLocks()
+        canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, true)
+    end
+    local last_draw_children = self._dont_draw_children
+    if no_children then
+        self._dont_draw_children = true
+    end
+    love.graphics.push()
+    self:preDraw()
+    if self.draw_children_below then
+        self:drawChildren(nil, self.draw_children_below)
+    end
+    self:draw()
+    if self.draw_children_above then
+        self:drawChildren(self.draw_children_above)
+    end
+    self:postDraw()
+    love.graphics.pop()
+    self._dont_draw_children = last_draw_children
+    if processing_fx then
+        Draw.popCanvas(true)
+        local final_canvas = self:processDrawFX(canvas)
+        love.graphics.push()
+        love.graphics.origin()
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.draw(final_canvas)
+        love.graphics.pop()
+        Draw.popCanvasLocks()
+    end
 end
 
 function Object:shouldProcessDrawFX()

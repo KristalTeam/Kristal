@@ -5,34 +5,15 @@ function ArenaMask:init(layer, x, y, arena)
 
     self.layer = layer or Utils.lerp(LAYERS["below_bullets"], LAYERS["bullets"], 0.5)
     self.arena = arena
+
+    self.mask_fx = MaskFX(function() return self.arena or Game.battle.arena end)
+    self:addFX(self.mask_fx)
 end
 
-function ArenaMask:getArena()
-    return self.arena or Game.battle.arena
-end
+function ArenaMask:update(dt)
+    super:update(self, dt)
 
-function ArenaMask:preDraw()
-    super:preDraw(self)
-    local arena = self:getArena()
-    if arena and arena.visible then
-        love.graphics.stencil(function()
-            love.graphics.push()
-            love.graphics.origin()
-            love.graphics.applyTransform(arena:getFullTransform())
-            love.graphics.setColor(1, 1, 1)
-            arena:drawMask()
-            love.graphics.pop()
-        end)
-        love.graphics.setStencilTest("greater", 0)
-    end
-end
-
-function ArenaMask:postDraw()
-    local arena = self:getArena()
-    if arena and arena.visible then
-        love.graphics.setStencilTest()
-    end
-    super:postDraw(self)
+    self.mask_fx.active = #self.children > 0
 end
 
 return ArenaMask

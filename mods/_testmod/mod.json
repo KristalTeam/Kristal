@@ -9,7 +9,7 @@
     "chapter": 2,
 
     "map": "alley",
-    "party": ["kris", "noelle"],
+    "party": ["kris", "susie", "ralsei"],
     "inventory": {
         "item": ["darkburger", "darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit"],
         "key": ["cell_phone"]

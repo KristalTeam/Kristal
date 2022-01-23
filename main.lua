@@ -67,6 +67,7 @@ ShaderFX = require("src.engine.drawfx.shaderfx")
 ColorMaskFX = require("src.engine.drawfx.colormaskfx")
 AlphaFX = require("src.engine.drawfx.alphafx")
 RecolorFX = require("src.engine.drawfx.recolorfx")
+MaskFX = require("src.engine.drawfx.maskfx")
 
 Collider = require("src.engine.colliders.collider")
 ColliderGroup = require("src.engine.colliders.collidergroup")
