@@ -313,7 +313,6 @@ function EnemyBattler:hurt(amount, battler, on_defeat)
 end
 
 function EnemyBattler:checkHealth(on_defeat)
-	-- on_defeat is optional
     if self.health <= 0 then
         self.health = 0
 
