@@ -861,6 +861,11 @@ function Kristal.getSaveFile(id, path)
     end
 end
 
+function Kristal.hasAnySaves(path)
+    local path = "saves/"..(path or Mod.info.id)
+    return love.filesystem.getInfo(path) and (#love.filesystem.getDirectoryItems(path) > 0)
+end
+
 function Kristal.saveData(file, data, path)
     love.filesystem.createDirectory("saves/"..(path or Mod.info.id))
     love.filesystem.write("saves/"..(path or Mod.info.id).."/"..file..".json", JSON.encode(data or {}))

@@ -1,3 +1,6 @@
+ -- replaces mod list with "Start game", should be a string of the mod id
+TARGET_MOD = nil
+
 FRAMERATE = 1/60
 
 SCREEN_WIDTH = 640

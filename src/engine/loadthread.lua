@@ -98,7 +98,7 @@ local loaders = {
             mod.path = full_path
 
             if love.filesystem.getInfo(full_path.."/preview.lua") then
-                mod.has_preview_lua = full_path.."/preview.lua"
+                mod.preview_script_path = full_path.."/preview.lua"
             end
 
             if love.filesystem.getInfo(full_path.."/bg.png") then
@@ -109,10 +109,14 @@ local loaders = {
                 mod.icon_data = {love.image.newImageData(full_path.."/icon.png")}
             end
 
+            if love.filesystem.getInfo(full_path.."/logo.png") then
+                mod.logo_data = love.image.newImageData(full_path.."/logo.png")
+            end
+
             if love.filesystem.getInfo(full_path.."/preview") then
                 for _,file in ipairs(love.filesystem.getDirectoryItems(full_path.."/preview")) do
                     if file == "preview.lua" then
-                        mod.has_preview_lua = full_path.."/preview/preview.lua"
+                        mod.preview_script_path = full_path.."/preview/preview.lua"
                     elseif file:sub(-4) == ".png" then
                         local img_name = file:sub(1, -4)
                         local img_num
@@ -137,6 +141,8 @@ local loaders = {
                             else
                                 table.insert(mod.icon_data, 1, love.image.newImageData(full_path.."/preview/"..file))
                             end
+                        elseif file:sub(1, 4) == "logo" then
+                            mod.logo_data = love.image.newImageData(full_path.."/preview/"..file)
                         end
                     end
                 end
