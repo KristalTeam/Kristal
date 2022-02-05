@@ -104,7 +104,7 @@ function PartyBattler:heal(amount)
 
     self.chara.health = self.chara.health + amount
 
-    if (self.is_down) and self.chara.health >= 0 then
+    if (self.is_down) and self.chara.health > 0 then
         self:revive()
     end
 
