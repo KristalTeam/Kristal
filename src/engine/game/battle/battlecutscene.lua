@@ -5,6 +5,7 @@ local function _true() return true end
 function BattleCutscene:init(group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getBattleCutscene, group, id, ...)
 
+    self.changed_sprite = {}
     self.move_targets = {}
     self.waiting_for_text = nil
     self.waiting_for_enemy_text = nil
@@ -40,12 +41,9 @@ function BattleCutscene:onEnd()
     Game.battle.battle_ui.encounter_text.can_advance = false
     Game.battle.battle_ui.encounter_text.auto_advance = false
 
-    for _,battler in ipairs(Game.battle.party) do
-        battler:toggleOverlay(false)
-    end
-    for _,battler in ipairs(Game.battle.enemies) do
-        battler:toggleOverlay(false)
-    end
+    self:resetSprites()
+
+    self.move_targets = {}
 
     if self.finished_callback then
         self.finished_callback(self)
@@ -86,12 +84,10 @@ function BattleCutscene:getTarget()
 end
 
 function BattleCutscene:resetSprites()
-    for _,battler in ipairs(Game.battle.party) do
+    for battler,_ in pairs(self.changed_sprite) do
         battler:toggleOverlay(false)
     end
-    for _,battler in ipairs(Game.battle.enemies) do
-        battler:toggleOverlay(false)
-    end
+    self.changed_sprite = {}
 end
 
 function BattleCutscene:setSprite(chara, sprite, speed)
@@ -103,6 +99,7 @@ function BattleCutscene:setSprite(chara, sprite, speed)
     if speed then
         chara.overlay_sprite:play(speed, true)
     end
+    self.changed_sprite[chara] = true
 end
 
 function BattleCutscene:setAnimation(chara, anim)
@@ -112,6 +109,7 @@ function BattleCutscene:setAnimation(chara, anim)
     local done = false
     chara:toggleOverlay(true)
     chara.overlay_sprite:setAnimation(anim, function() done = true end)
+    self.changed_sprite[chara] = true
     return function() return done end
 end
 
