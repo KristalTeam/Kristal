@@ -148,6 +148,10 @@ function WorldCutscene:resetSprites()
     end
 end
 
+function WorldCutscene:spawnNPC(actor, x, y, properties)
+    return Game.world:spawnNPC(actor, x, y, properties)
+end
+
 function WorldCutscene:look(chara, dir)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)

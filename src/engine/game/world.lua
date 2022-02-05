@@ -339,7 +339,7 @@ function World:removeFollower(chara)
     end
 end
 
-function World:addFollower(chara, options)
+function World:spawnFollower(chara, options)
     if type(chara) == "string" then
         chara = Registry.getActor(chara)
     end
@@ -382,14 +382,14 @@ function World:spawnParty(marker, party, extra)
             self:spawnPlayer(marker or "spawn", self:getActorForParty(party[1]))
         end
         for i = 2, #party do
-            local follower = self:addFollower(self:getActorForParty(party[i]))
+            local follower = self:spawnFollower(self:getActorForParty(party[i]))
             follower:setFacing(self.player.facing)
         end
         for _,actor in ipairs(extra or Game.temp_followers or {}) do
             if type(actor) == "table" then
-                self:addFollower(actor[1], {index = actor[2]})
+                self:spawnFollower(actor[1], {index = actor[2]})
             else
-                self:addFollower(actor)
+                self:spawnFollower(actor)
             end
         end
     end
@@ -414,6 +414,16 @@ function World:spawnBullet(bullet, ...)
         self:addChild(new_bullet)
     end
     return new_bullet
+end
+
+function World:spawnNPC(actor, x, y, properties)
+    return self:spawnObject(NPC(actor, x, y, properties))
+end
+
+function World:spawnObject(obj, layer)
+    obj.layer = self.layers[layer or "objects"]
+    self:addChild(obj)
+    return obj
 end
 
 function World:loadMap(map, ...)
@@ -512,12 +522,6 @@ function World:transitionImmediate(target)
         pos = target.marker
     end
     self:spawnParty(pos)
-end
-
-function World:spawnObject(obj, layer)
-    obj.layer = self.layers[layer or "objects"]
-    self:addChild(obj)
-    return obj
 end
 
 function World:getCameraTarget()

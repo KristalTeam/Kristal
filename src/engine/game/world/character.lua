@@ -447,7 +447,7 @@ function Character:convertToFollower(index)
     local follower = Follower(self.actor, self:getExactPosition())
     follower.layer = self.layer
     follower:setFacing(self.facing)
-    self.world:addFollower(follower, {index = index})
+    self.world:spawnFollower(follower, {index = index})
     self:remove()
     return follower
 end

@@ -506,6 +506,32 @@ function Game:getFlag(flag, default)
     end
 end
 
+function Game:addPartyMember(chara, index)
+    if type(chara) == "string" then
+        chara = Registry.getPartyMember(chara)
+    end
+    if index then
+        table.insert(self.party, index, chara)
+    else
+        table.insert(self.party, chara)
+    end
+end
+
+function Game:removePartyMember(chara)
+    if type(chara) == "string" then
+        chara = Registry.getPartyMember(chara)
+    end
+    Utils.removeFromTable(self.party, chara)
+end
+
+function Game:movePartyMember(chara, index)
+    if type(chara) == "string" then
+        chara = Registry.getPartyMember(chara)
+    end
+    self:removePartyMember(chara)
+    self:addPartyMember(chara, index)
+end
+
 function Game:getSoulPartyMember()
     local current
     for _,party in ipairs(self.party) do

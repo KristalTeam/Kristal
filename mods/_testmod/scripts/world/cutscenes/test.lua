@@ -12,7 +12,7 @@ return function(cutscene)
         cutscene:detachCamera()
         cutscene:detachFollowers()
 
-        cutscene:setSprite(ralsei, "up", 1/15)
+        cutscene:setSprite(ralsei, "walk/up", 1/15)
         cutscene:setSpeaker("ralsei")
         cutscene:text("* Kris, Susie, look out!!!", "face_23")
 
@@ -52,7 +52,7 @@ return function(cutscene)
         cutscene:text("* THAT WAS A RHETORICAL\nQUESTION!", "face_17", "susie")
 
         if choice == 2 then
-            ralsei = Game.world:addFollower("ralsei", {x = 680, y = 300})
+            ralsei = cutscene:spawnNPC("ralsei", 680, 300)
             ralsei.following = false
 
             local walk_wait = cutscene:walkTo(ralsei, 160, 300, 12)
@@ -68,8 +68,7 @@ return function(cutscene)
             ralsei = ralsei:convertToPlayer()
             kris = kris:convertToFollower(1)
 
-            Utils.removeFromTable(Game.party, Registry.getPartyMember("ralsei"))
-            table.insert(Game.party, 1, Registry.getPartyMember("ralsei"))
+            Game:movePartyMember("ralsei", 1)
 
             cutscene:alignFollowers("left")
         else
