@@ -41,13 +41,15 @@ function Bullet:getDamage()
 end
 
 function Bullet:onDamage(soul)
-    if self:getDamage() > 0 then
+    local damage = self:getDamage()
+    if damage > 0 then
         local battler = Utils.pick(Game.battle:getActiveParty())
         if battler then
-            battler:hurt(self:getDamage())
+            battler:hurt(damage)
         end
 
         soul.inv_timer = self.inv_timer
+        soul:onDamage(self, damage)
     end
 end
 

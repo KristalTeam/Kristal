@@ -239,6 +239,10 @@ function Soul:moveYExact(amount, move_x)
     return true
 end
 
+function Soul:onDamage(bullet, amount)
+    -- Can be overridden, called when the soul actually takes damage from a bullet
+end
+
 function Soul:onCollide(bullet)
     -- Handles damage
     bullet:onCollide(self)
