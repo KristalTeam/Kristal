@@ -923,3 +923,17 @@ function Kristal.clearModSubclasses()
     end
     MOD_SUBCLASSES = {}
 end
+
+rawRequire = require
+function require(path, ...)
+    if Mod then
+        path = path:gsub("%.", "/")
+        local success, result = Kristal.executeModScript(path, ...)
+        if not success then
+            error("No script found: "..path)
+        end
+        return result
+    else
+        rawRequire(path, ...)
+    end
+end
