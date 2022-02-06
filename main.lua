@@ -934,6 +934,6 @@ function require(path, ...)
         end
         return result
     else
-        rawRequire(path, ...)
+        return rawRequire(path, ...)
     end
 end
