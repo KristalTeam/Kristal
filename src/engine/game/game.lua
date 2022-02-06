@@ -542,6 +542,26 @@ function Game:getSoulPartyMember()
     return current
 end
 
+function Game:setGameTitle(title)
+    love.window.setTitle(title)
+end
+
+function Game:getGameTitle()
+    return love.window.getTitle()
+end
+
+function Game:setGameIcon(iconData)
+    -- Make sure our icon isn't null.
+    if iconData == nil then return end
+
+    -- Change our windows title icon
+    love.window.setIcon(iconData)
+end
+
+function Game:getGameIcon()
+    return love.window.getIcon()
+end
+
 function Game:update(dt)
     if self.state == "EXIT" then
         if self.world and self.world.music then

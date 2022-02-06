@@ -1,11 +1,13 @@
  -- replaces mod list with "Start game", should be a string of the mod id
 TARGET_MOD = nil
-
+TARGET_ICON = "icon.png"
+TARGET_ICON_DATA = love.image.newImageData( TARGET_ICON )
 FRAMERATE = 1/60
 
 SCREEN_WIDTH = 640
 SCREEN_HEIGHT = 480
 
+TITLE_NAME = "Kristal"
 TILE_WIDTH = 40
 TILE_HEIGHT = 40
 

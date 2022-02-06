@@ -19,6 +19,13 @@ function Mod:init()
 end
 
 function Mod:preInit()
+    -- Set the game title to something different
+    Game:setGameTitle("Example Mod")
+
+    -- Set the windows icon to something different
+    -- For mods please use Assets.getTextureData has argument
+    Game:setGameIcon( Assets.getTextureData( "kristal/banana_1" ) )
+
     -- make kris woobly
     --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
         orig(self, ...)
