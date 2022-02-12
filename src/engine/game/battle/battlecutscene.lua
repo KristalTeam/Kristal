@@ -36,10 +36,12 @@ function BattleCutscene:update(dt)
 end
 
 function BattleCutscene:onEnd()
-    Game.battle.battle_ui.encounter_text:setActor(nil)
-    Game.battle.battle_ui.encounter_text:setFace(nil)
-    Game.battle.battle_ui.encounter_text.can_advance = false
-    Game.battle.battle_ui.encounter_text.auto_advance = false
+    if Game.battle.battle_ui then
+        Game.battle.battle_ui.encounter_text:setActor(nil)
+        Game.battle.battle_ui.encounter_text:setFace(nil)
+        Game.battle.battle_ui.encounter_text.can_advance = false
+        Game.battle.battle_ui.encounter_text.auto_advance = false
+    end
 
     self:resetSprites()
 
