@@ -142,15 +142,15 @@ function Virovirokun:onAct(battler, name)
         elseif battler.chara.id == "susie" then
             Game.battle:startActCutscene(function(cutscene)
                 cutscene:text("* Susie commiserated with the enemy!")
-                cutscene:text("* Stick it to the man,\ndude.", "face_2", "susie")
-                cutscene:text("* Even if that means\ncloning yourself, or\nwhatever.", "face_2", "susie")
+                cutscene:text("* Stick it to the man,\ndude.", "smile", "susie")
+                cutscene:text("* Even if that means\ncloning yourself, or\nwhatever.", "smile", "susie")
             end)
             return
         elseif battler.chara.id == "ralsei" then
             Game.battle:startActCutscene(function(cutscene)
                 cutscene:text("* Ralsei tried to steer the enemy\ndown the right path.")
-                cutscene:text("* Not everybody knows\nthis, but...", "face_0", "ralsei")
-                cutscene:text("* Crimes are bad. ... Did\nyou know that?",  "face_2", "ralsei")
+                cutscene:text("* Not everybody knows\nthis, but...", "smile", "ralsei")
+                cutscene:text("* Crimes are bad. ... Did\nyou know that?",  "blush_smile", "ralsei")
             end)
             return
         end

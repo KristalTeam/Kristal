@@ -12,7 +12,7 @@ return {
 
             -- All text from now is spoken by Susie
             cutscene:setSpeaker(susie)
-            cutscene:text("* Hey, think I can break\nthis wall?", "face_2")
+            cutscene:text("* Hey, think I can break\nthis wall?", "smile")
 
             -- Get the bottom-center of the broken wall
             local x = event.x + event.width/2
@@ -52,7 +52,7 @@ return {
             Assets.playSound("snd_wing")
 
             cutscene:wait(1)
-            cutscene:text("* Guess not.", "face_3")
+            cutscene:text("* Guess not.", "nervous")
 
             -- Return things to normal
             susie:resetSprite()

@@ -14,7 +14,7 @@ return function(cutscene)
 
         cutscene:setSprite(ralsei, "walk/up", 1/15)
         cutscene:setSpeaker("ralsei")
-        cutscene:text("* Kris, Susie, look out!!!", "face_23")
+        cutscene:text("* Kris, Susie, look out!!!", "owo")
 
         susie.sprite:set("shock_right")
         --Cutscene.setSprite(susie, "world/dark/shock_r")
@@ -27,14 +27,14 @@ return function(cutscene)
         cutscene:shakeCamera(8)
 
         cutscene:wait(2)
-        cutscene:text("* Yo what the fuck", "face_15", "susie")
+        cutscene:text("* Yo what the fuck", "shock", "susie")
 
         cutscene:wait(2)
         cutscene:setSprite(susie, "walk")
         cutscene:look(susie, "right")
-        cutscene:text("* Did Ralsei just, uh...", "face_15", "susie")
+        cutscene:text("* Did Ralsei just, uh...", "shock", "susie")
         cutscene:look(susie, "up")
-        cutscene:text("* Explode...?", "face_16", "susie")
+        cutscene:text("* Explode...?", "shock_nervous", "susie")
 
         local choice = 1
         local wait = cutscene:choicer({"Yes", "No"}, {wait = false})
@@ -49,7 +49,7 @@ return function(cutscene)
             cutscene:wait()
         end
 
-        cutscene:text("* THAT WAS A RHETORICAL\nQUESTION!", "face_17", "susie")
+        cutscene:text("* THAT WAS A RHETORICAL\nQUESTION!", "teeth_b", "susie")
 
         if choice == 2 then
             ralsei = cutscene:spawnNPC("ralsei", 680, 300)
@@ -60,10 +60,10 @@ return function(cutscene)
             cutscene:look(susie, "right")
 
             cutscene:wait(walk_wait)
-            cutscene:text("* bY9BasRADAS/0i8wS14RApt\nLXqBoZI/AI5kZZcG/X9m++J\nBr06pSP6mrQwcIs3KoG63gS\np04pIO7UEjB744v2shkCF5axLFQExQZulj2fqou0v/w1J2ah0/4lIMaVRAaq9yYPp/xZb7B5k7GVdNAVs5Ko8Eex8F/cvaW4Y5vtRAr6byQlXLNtgn1fFwN/krpx+Nxux0YaixI2zUxd09v", "face_30", "ralsei", {auto = true})
+            cutscene:text("* bY9BasRADAS/0i8wS14RApt\nLXqBoZI/AI5kZZcG/X9m++J\nBr06pSP6mrQwcIs3KoG63gS\np04pIO7UEjB744v2shkCF5axLFQExQZulj2fqou0v/w1J2ah0/4lIMaVRAaq9yYPp/xZb7B5k7GVdNAVs5Ko8Eex8F/cvaW4Y5vtRAr6byQlXLNtgn1fFwN/krpx+Nxux0YaixI2zUxd09v", "shock_smile", "ralsei", {auto = true})
 
             cutscene:wait(1)
-            cutscene:text("* Okay", "face_7", "susie")
+            cutscene:text("* Okay", "surprise_smile", "susie")
 
             ralsei = ralsei:convertToPlayer()
             kris = kris:convertToFollower(1)
@@ -78,7 +78,7 @@ return function(cutscene)
         cutscene:attachFollowers()
         cutscene:attachCamera()
     else
-        cutscene:text("", "face_15", "susie")
+        cutscene:text("", "shock", "susie")
     end
 
 end

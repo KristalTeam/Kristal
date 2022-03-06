@@ -13,7 +13,7 @@ return {
     default = "walk",
 
     text_sound = "noelle",
-    portrait_path = "face/noelle",
+    portrait_path = "face/noelle_lw",
     portrait_offset = {-12, -10},
 
     animations = {},
