@@ -107,6 +107,19 @@ function Wave:spawnSpriteTo(parent, texture, x,  y, layer)
     return sprite
 end
 
+function Wave:spawnObject(object, x, y)
+    return self:spawnObjectTo(Game.battle, object, x, y)
+end
+
+function Wave:spawnObjectTo(parent, object, x, y)
+    if x or y then
+        object:setPosition(x, y)
+    end
+    parent:addChild(object)
+    table.insert(self.objects, object)
+    return object
+end
+
 function Wave:setArenaPosition(x, y)
     self.arena_x = x
     self.arena_y = y

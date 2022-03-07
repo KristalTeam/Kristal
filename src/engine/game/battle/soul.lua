@@ -153,18 +153,18 @@ function Soul:moveXExact(amount, move_y)
             local collided, target = Game.battle:checkSolidCollision(self)
             if self.slope_correction then
                 if collided and not (move_y > 0) then
-                    for i = 1, 2 do
+                    for j = 1, 2 do
                         Object.uncache(self)
-                        self.y = self.y - i
+                        self.y = self.y - 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
                     end
                 end
                 if collided and not (move_y < 0) then
                     self.y = last_y
-                    for i = 1, 2 do
+                    for j = 1, 2 do
                         Object.uncache(self)
-                        self.y = self.y + i
+                        self.y = self.y + 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
                     end
@@ -203,18 +203,18 @@ function Soul:moveYExact(amount, move_x)
             local collided, target = Game.battle:checkSolidCollision(self)
             if self.slope_correction then
                 if collided and not (move_x > 0) then
-                    for i = 1, 2 do
+                    for j = 1, 2 do
                         Object.uncache(self)
-                        self.x = self.x - i
+                        self.x = self.x - 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
                     end
                 end
                 if collided and not (move_x < 0) then
                     self.x = last_x
-                    for i = 1, 2 do
+                    for j = 1, 2 do
                         Object.uncache(self)
-                        self.x = self.x + i
+                        self.x = self.x + 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
                     end
@@ -299,8 +299,8 @@ function Soul:update(dt)
             self.alpha = Utils.lerp(0, self.target_alpha or 1, self.timer / 3)
             self.sprite:setColor(self.color[1], self.color[2], self.color[3], self.alpha)
             self.timer = self.timer + (1 * DTMULT)
-            return
         end
+        return
     end
 
     -- Input movement

@@ -1,6 +1,6 @@
 local Solid, super = Class(Object)
 
-function Solid:init(x, y, width, height)
+function Solid:init(filled, x, y, width, height)
     super:init(self, x, y, width, height)
 
     if width and height then
@@ -9,6 +9,17 @@ function Solid:init(x, y, width, height)
 
     -- Damage applied to the soul when its squished against another solid by this one
     self.squish_damage = 30
+
+
+    if filled then
+        -- Default to arena green
+        self.color = {0, 0.75, 0}
+
+        -- Draw the filled collider
+        self.draw_collider = true
+    else
+        self.draw_collider = false
+    end
 end
 
 function Solid:move(x, y, speed)
@@ -70,6 +81,14 @@ function Solid:onSquished(soul)
 
         soul.inv_timer = (4/3)
     end
+end
+
+function Solid:draw()
+    if self.draw_collider and self.collider then
+        self.collider:drawFill(self:getColor())
+    end
+
+    super:draw(self)
 end
 
 return Solid

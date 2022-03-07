@@ -19,6 +19,7 @@ function Virovirokun:init()
 
     self.waves = {
         "vironeedle"
+        --"solidtest"
     }
 
     self.check = "This sick virus\nneeds affordable healthcare."
