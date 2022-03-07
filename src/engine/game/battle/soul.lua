@@ -248,6 +248,11 @@ function Soul:onCollide(bullet)
     bullet:onCollide(self)
 end
 
+function Soul:onSquished(solid)
+    -- Called when the soul is squished by a solid
+    solid:onSquished(self)
+end
+
 function Soul:doMovement()
     local speed = self.speed
 
