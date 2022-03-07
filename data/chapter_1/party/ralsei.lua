@@ -82,7 +82,7 @@ local character = PartyMember{
     -- Message shown on gameover (optional)
     gameover_message = {
         "This is not\nyour fate...!",
-        "Please[wait:5],\ndon't give up!"
+        "Please,[wait:5]\ndon't give up!"
     },
 }
 

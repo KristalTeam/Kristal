@@ -103,8 +103,8 @@ end
 
 function character:getGameOverMessage(main)
     return {
-        "Come on[wait:5],\nthat all you got!?",
-        main.name.."[wait:5],\nget up...!"
+        "Come on,[wait:5]\nthat all you got!?",
+        main.name..",[wait:5]\nget up...!"
     }
 end
 
