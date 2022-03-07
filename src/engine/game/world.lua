@@ -247,6 +247,15 @@ function World:startCutscene(group, id, ...)
     return self.cutscene
 end
 
+function World:stopCutscene()
+    if not self.cutscene then
+        error("Attempt to stop a cutscene while none are active.")
+    end
+    self.cutscene:onEnd()
+    coroutine.yield(self.cutscene)
+    self.cutscene = nil
+end
+
 function World:showText(text, after)
     if type(text) ~= "table" then
         text = {text}
