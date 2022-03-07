@@ -240,7 +240,7 @@ function World:hasCutscene()
 end
 
 function World:startCutscene(group, id, ...)
-    if self.cutscene then
+    if self.cutscene and not self.cutscene.ended then
         error("Attempt to start a cutscene while already in a cutscene.")
     end
     self.cutscene = WorldCutscene(group, id, ...)
@@ -588,8 +588,7 @@ function World:update(dt)
     if self.cutscene then
         if not self.cutscene.ended then
             self.cutscene:update(dt)
-        end
-        if self.cutscene.ended then
+        else
             self.cutscene = nil
         end
     end
