@@ -93,6 +93,21 @@ function Input.clearPressed()
     self.key_released = {}
 end
 
+function Input.clearPressedKey(key)
+    if self.aliases[key] then
+        for _,k in ipairs(self.aliases[key]) do
+            self.key_pressed[k] = false
+            self.key_released[k] = false
+            self.key_down[k] = false
+        end
+        return false
+    else
+        self.key_pressed[key] = false
+        self.key_released[key] = false
+        self.key_down[key] = false
+    end
+end
+
 function Input.lock(target)
     table.insert(self.lock_stack, target)
 end

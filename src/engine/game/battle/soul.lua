@@ -277,6 +277,7 @@ end
 function Soul:update(dt)
     if self.transitioning then
         if self.timer >= 7 then
+            Input.clearPressedKey("cancel")
             self.transitioning = false
             self.timer = 0
             if self.transition_destroy then
