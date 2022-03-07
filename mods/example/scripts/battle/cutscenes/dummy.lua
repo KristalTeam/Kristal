@@ -14,7 +14,7 @@ return {
 
         if cutscene:getCharacter("ralsei") then
             -- Ralsei text, if he's in the party
-            cutscene:text("* Aww, Susie!", "blush_pleased", "ralsei")
+            cutscene:text("* Aww,[wait:5] Susie!", "blush_pleased", "ralsei")
         end
     end
 }

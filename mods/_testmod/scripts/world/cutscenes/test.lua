@@ -14,7 +14,7 @@ return function(cutscene)
 
         cutscene:setSprite(ralsei, "walk/up", 1/15)
         cutscene:setSpeaker("ralsei")
-        cutscene:text("* Kris, Susie, look out!!!", "owo")
+        cutscene:text("* Kris,[wait:5] Susie,[wait:5] look out!!!", "owo")
 
         susie.sprite:set("shock_right")
         --Cutscene.setSprite(susie, "world/dark/shock_r")
@@ -32,7 +32,7 @@ return function(cutscene)
         cutscene:wait(2)
         cutscene:setSprite(susie, "walk")
         cutscene:look(susie, "right")
-        cutscene:text("* Did Ralsei just, uh...", "shock", "susie")
+        cutscene:text("* Did Ralsei just,[wait:5] uh...", "shock", "susie")
         cutscene:look(susie, "up")
         cutscene:text("* Explode...?", "shock_nervous", "susie")
 

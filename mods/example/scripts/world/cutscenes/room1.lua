@@ -12,7 +12,7 @@ return {
 
             -- All text from now is spoken by Susie
             cutscene:setSpeaker(susie)
-            cutscene:text("* Hey, think I can break\nthis wall?", "smile")
+            cutscene:text("* Hey,[wait:5] think I can break\nthis wall?", "smile")
 
             -- Get the bottom-center of the broken wall
             local x = event.x + event.width/2

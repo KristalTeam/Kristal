@@ -4,21 +4,21 @@ return {
             battler:heal(30)
         end
         cutscene:text("* Ralsei cooked up a cure.")
-        cutscene:text("* If you're sick, shouldn't\nyou have some soup?\nSay \"aah\"~!", "blush_pleased", "ralsei")
-        cutscene:text("* Sickness was cured! Everyone's\nHP up!")
+        cutscene:text("* If you're sick,[wait:5] shouldn't\nyou have some soup?[wait:5]\nSay \"aah\"~!", "blush_pleased", "ralsei")
+        cutscene:text("* Sickness was cured![wait:5] Everyone's\nHP up!")
     end,
 
     cook_susie = function(cutscene, battler, enemy)
         cutscene:text("* Susie cooked up a cure!")
-        cutscene:text("* What, you want me to cook\nsomething?", "smile", "susie")
+        cutscene:text("* What,[wait:5] you want me to cook\nsomething?", "smile", "susie")
         cutscene:text("* Susie put a hot dog in the\nmicrowave!")
         enemy:explode(0, 0, true)
         enemy:hurt(enemy.health * 0.75, battler)
-        cutscene:text("* She forgot to poke holes in it!\nThe hot dog exploded!")
+        cutscene:text("* She forgot to poke holes in it![wait:5]\nThe hot dog exploded!")
         -- Note: the following isn't part of the original act, it's here for testing battle cutscenes!
         cutscene:enemyText(enemy, "Dumbass")
         cutscene:gotoCutscene("virovirokun", "sussy", enemy)
-        cutscene:text("* I, uh, meant to do that.[face:1]", "nervous", "susie", {faces={
+        cutscene:text("* I,[wait:5] uh,[wait:5] meant to do that.[face:1]", "nervous", "susie", {faces={
             {"ralsei", "pleased", "rightmid", "bottommid", "It's OK, Susie..."}
         }})
     end,
