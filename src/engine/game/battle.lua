@@ -500,7 +500,11 @@ function Battle:getSoulLocation(always_player)
             local battler = self.party[self:getPartyIndex(main_chara.id)]
 
             if battler then
-                return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+                if main_chara.soul_offset then
+                    return battler:localToScreenPos(main_chara.soul_offset[1], main_chara.soul_offset[2])
+                else
+                    return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+                end
             end
         end
         return -9, -9

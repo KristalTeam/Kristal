@@ -127,7 +127,7 @@ local loaders = {
                                 break
                             end
                         end
-                        if file:sub(1, 7) == "bg" then
+                        if file:sub(1, 2) == "bg" then
                             mod.preview_data = mod.preview_data or {}
                             if img_num then
                                 mod.preview_data[img_num] = love.image.newImageData(full_path.."/preview/"..file)
