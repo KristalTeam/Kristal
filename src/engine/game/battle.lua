@@ -1189,6 +1189,7 @@ function Battle:checkSolidCollision(collider)
     end
     for _,solid in ipairs(Game.stage:getObjects(Solid)) do
         if solid:collidesWith(collider) then
+            Object.endCache()
             return true, solid
         end
     end

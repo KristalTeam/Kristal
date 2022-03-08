@@ -8,7 +8,7 @@ function Solid:init(filled, x, y, width, height)
     end
 
     -- Damage applied to the soul when its squished against another solid by this one
-    self.squish_damage = 30
+    self.squish_damage = 80
 
 
     if filled then
@@ -73,14 +73,25 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
 end
 
 function Solid:onSquished(soul)
-    if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
+    --[[if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
         local battler = Utils.pick(Game.battle:getActiveParty())
         if battler then
             battler:hurt(self.squish_damage)
         end
 
         soul.inv_timer = (4/3)
+    end]]
+
+    if self.squish_damage and self.squish_damage ~= 0 then
+        local battler = Utils.pick(Game.battle:getActiveParty())
+        if battler then
+            battler:hurt(self.squish_damage)
+        end
     end
+
+    soul:explode()
+
+    Game.battle.encounter:onWavesDone()
 end
 
 function Solid:draw()

@@ -12,16 +12,12 @@ end
 function SolidTest:onStart()
     self.start_x, self.start_y = Game.battle.arena:getCenter()
 
-    --self.solid = self:spawnObject(Solid(true, self.start_x, self.start_y, 8, 60))
-    self.solid = Solid(true, math.floor(self.start_x), math.floor(self.start_y), 8, 60)
+    self.solid = self:spawnObject(Solid(true, self.start_x, self.start_y, 8, 60))
     self.solid:setLayer(LAYERS["above_arena"])
-    --self.solid:setOrigin(0.5, 0.5)
-
-    table.insert(self.objects, self.solid)
-    Game.battle:addChild(self.solid)
+    self.solid:setOrigin(0.5, 0.5)
 end
 
---[[function SolidTest:update(dt)
+function SolidTest:update(dt)
     super:update(self, dt)
 
     self.siner = self.siner + dt
@@ -29,6 +25,6 @@ end
     if self.solid then
         self.solid:moveTo(self.start_x + math.sin(self.siner*2) * 60, self.start_y)
     end
-end]]
+end
 
 return SolidTest
