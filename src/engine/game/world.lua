@@ -382,7 +382,7 @@ function World:spawnFollower(chara, options)
     return follower
 end
 
-function World:spawnParty(marker, party, extra)
+function World:spawnParty(marker, party, extra, facing)
     party = party or Game.party or {"kris"}
     if #party > 0 then
         if type(marker) == "table" then
@@ -390,15 +390,20 @@ function World:spawnParty(marker, party, extra)
         else
             self:spawnPlayer(marker or "spawn", self:getActorForParty(party[1]))
         end
+        if facing then
+            self.player:setFacing(facing)
+        end
         for i = 2, #party do
             local follower = self:spawnFollower(self:getActorForParty(party[i]))
-            follower:setFacing(self.player.facing)
+            follower:setFacing(facing or self.player.facing)
         end
         for _,actor in ipairs(extra or Game.temp_followers or {}) do
             if type(actor) == "table" then
-                self:spawnFollower(actor[1], {index = actor[2]})
+                local follower = self:spawnFollower(actor[1], {index = actor[2]})
+                follower:setFacing(facing or self.player.facing)
             else
-                self:spawnFollower(actor)
+                local follower = self:spawnFollower(actor)
+                follower:setFacing(facing or self.player.facing)
             end
         end
     end
@@ -510,9 +515,44 @@ function World:transitionMusic(next, dont_play)
     end
 end
 
-function World:transition(target)
+--[[
+    Possible argument formats:
+        - Target table
+            e.g. ({map = "mapid", marker = "markerid", facing = "down"})
+        - Map id, [ spawn X, spawn Y, [facing] ]
+            e.g. ("mapid")
+                 ("mapid", 20, 5)
+                 ("mapid", 30, 40, "down")
+        - Map id, [ marker, [facing] ]
+            e.g. ("mapid", "markerid")
+                 ("mapid", "markerid", "up")
+]]
+local function parseTransitionTargetArgs(...)
+    local args = {...}
+    if #args == 0 then return {} end
+    if type(args[1]) ~= "table" or isClass(args[1]) then
+        local target = {map = args[1]}
+        if type(args[2]) == "number" and type(args[3]) == "number" then
+            target.x = args[2]
+            target.y = args[3]
+            if type(args[4]) == "string" then
+                target.facing = args[4]
+            end
+        elseif type(args[2]) == "string" then
+            target.marker = args[2]
+            if type(args[3]) == "string" then
+                target.facing = args[3]
+            end
+        end
+        return target
+    else
+        return args[1]
+    end
+end
+
+function World:transition(...)
     self.state = "TRANSITION_OUT"
-    self.transition_target = Utils.copy(target or {})
+    self.transition_target = parseTransitionTargetArgs(...)
     if self.transition_target.map and type(self.transition_target.map) == "string" then
         local map = Registry.createMap(self.transition_target.map)
         self.transition_target.map = map
@@ -520,7 +560,8 @@ function World:transition(target)
     end
 end
 
-function World:transitionImmediate(target)
+function World:transitionImmediate(...)
+    local target = parseTransitionTargetArgs(...)
     if target.map then
         self:loadMap(target.map)
     end
@@ -530,7 +571,7 @@ function World:transitionImmediate(target)
     elseif target.marker then
         pos = target.marker
     end
-    self:spawnParty(pos)
+    self:spawnParty(pos, nil, nil, target.facing)
 end
 
 function World:getCameraTarget()

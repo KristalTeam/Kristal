@@ -127,9 +127,6 @@ return {
         ["angry_down"] = {10, -2},
         ["turn_around"] = {12, -2},
 
-        ["head_hand_left"] = {3, 2},
-        ["head_hand_right"] = {0, 2},
-
         ["away"] = {1, 2},
         ["away_turn"] = {1, 2},
         ["away_hips"] = {1, 2},

@@ -132,6 +132,17 @@ function WorldCutscene:attachFollowers(return_speed, facing)
     end
     return waitForFollowers
 end
+function WorldCutscene:attachFollowersImmediate()
+    for _,follower in ipairs(Game.world.followers) do
+        follower.following = true
+
+        follower:updateIndex()
+
+        local tx, ty = follower:getTargetPosition()
+        follower:setExactPosition(tx, ty)
+    end
+    return _true
+end
 
 function WorldCutscene:alignFollowers(facing, x, y, dist)
     Game.world.player:alignFollowers(facing, x, y, dist)
@@ -239,6 +250,13 @@ function WorldCutscene:attachCamera(time)
     local tx, ty = Game.world:getCameraTarget()
     return self:panTo(tx, ty, time or 0.8, function() Game.world.camera_attached = true end)
 end
+function WorldCutscene:attachCameraImmediate()
+    local tx, ty = Game.world:getCameraTarget()
+    Game.world.camera_attached = true
+    Game.world.camera.x = tx
+    Game.world.camera.y = ty
+    Game.world:updateCamera()
+end
 
 function WorldCutscene:setSpeaker(actor)
     if isClass(actor) and actor:includes(Character) then
@@ -274,6 +292,17 @@ function WorldCutscene:panTo(...)
     self.camera_move_timer = 0
     self.camera_move_after = after
     return waitForCameraPan
+end
+
+local function waitForMapTransition() return Game.world.state ~= "TRANSITION_OUT" end
+function WorldCutscene:transition(...)
+    Game.world:transition(...)
+    return waitForMapTransition
+end
+
+function WorldCutscene:transitionImmediate(...)
+    Game.world:transitionImmediate(...)
+    return _true
 end
 
 local function waitForTextbox(self) return self.textbox.done end

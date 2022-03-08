@@ -47,7 +47,7 @@ return {
             cutscene:wait(1.5)
 
             -- owie
-            susie:setSprite("head_hand_left")
+            susie:setAnimation({"away_scratch", 0.25, true})
             susie:shake(4)
             Assets.playSound("snd_wing")
 
