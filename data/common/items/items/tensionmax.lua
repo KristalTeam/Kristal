@@ -1,8 +1,8 @@
 local item = Item{
     -- Item ID (optional, defaults to path)
-    id = "revivemint",
+    id = "tensionmax",
     -- Display name
-    name = "ReviveMint",
+    name = "TensionMax",
 
     -- Item type (item, key, weapon, armor)
     type = "item",
@@ -10,23 +10,23 @@ local item = Item{
     icon = nil,
 
     -- Battle description
-    effect = "Heal\nDowned\nAlly",
+    effect = "Raises\nTP\nMax",
     -- Shop description
     shop = nil,
     -- Menu description
-    description = "Heals a fallen ally to MAX HP.\nA minty green crystal.",
+    description = "Raises TP to full in battle.",
 
     -- Shop sell price
-    price = 200,
+    price = 500,
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "party",
+    target = nil,
     -- Where this item can be used (world, battle, all, or none/nil)
     usable_in = "all",
     -- Item this item will get turned into when consumed
     result_item = nil,
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    instant = true,
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {
@@ -40,31 +40,32 @@ local item = Item{
     can_equip = {},
 
     -- Character reactions
-    reactions = {
-        susie = {
-            susie = "I'm ALIVE!!!",
-            ralsei = "(You weren't dead)",
-        },
-        ralsei = {
-            susie = "(Don't look it)",
-            ralsei = "Ah, I'm refreshed!"
-        },
-        noelle = "Mints? I love mints!"
-    },
+    reactions = {},
 }
 
-function item:onWorldUse(target)
-    Game.world:heal(target, math.ceil(target:getStat("health") / 2))
-    return true
+function item:onBattleSelect(user, target)
+    Game.battle.tension_bar:giveTension(100)
+
+    user:flash()
+
+    local sound = Assets.newSound("snd_cardrive")
+    sound:setPitch(1.4)
+    sound:setVolume(0.8)
+    sound:play()
+
+    user:sparkle(1, 0.625, 0.25)
 end
 
-function item:onBattleUse(user, target)
-    if target.chara.health <= 0 then
-        target.chara.health = target.chara:getStat("health")
-        target:heal(target.chara.health)
-    else
-        target:heal(math.ceil(target.chara:getStat("health") / 2))
-    end
+function item:onBattleDeselect(user, target)
+    Game.battle.tension_bar:removeTension(100)
+end
+
+function item:onWorldUse(target)
+    Game.world:startCutscene(function(cutscene)
+        cutscene:text("* (You felt tense.)")
+        cutscene:text("* (... try using it in battle.)")
+    end)
+    return false
 end
 
 return item

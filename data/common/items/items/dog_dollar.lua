@@ -1,8 +1,8 @@
 local item = Item{
     -- Item ID (optional, defaults to path)
-    id = "revivemint",
+    id = "dog_dollar",
     -- Display name
-    name = "ReviveMint",
+    name = "DogDollar",
 
     -- Item type (item, key, weapon, armor)
     type = "item",
@@ -10,19 +10,19 @@ local item = Item{
     icon = nil,
 
     -- Battle description
-    effect = "Heal\nDowned\nAlly",
+    effect = "Not\nso\nuseful",
     -- Shop description
     shop = nil,
     -- Menu description
-    description = "Heals a fallen ally to MAX HP.\nA minty green crystal.",
+    description = "A dollar with a certain dog on it.\nIts value decreases each Chapter.",
 
     -- Shop sell price
-    price = 200,
+    price = math.ceil(100/Game.chapter),
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "party",
+    target = "noselect",
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    usable_in = "battle",
     -- Item this item will get turned into when consumed
     result_item = nil,
     -- Will this item be instantly consumed in battles?
@@ -40,31 +40,20 @@ local item = Item{
     can_equip = {},
 
     -- Character reactions
-    reactions = {
-        susie = {
-            susie = "I'm ALIVE!!!",
-            ralsei = "(You weren't dead)",
-        },
-        ralsei = {
-            susie = "(Don't look it)",
-            ralsei = "Ah, I'm refreshed!"
-        },
-        noelle = "Mints? I love mints!"
-    },
+    reactions = {},
 }
 
 function item:onWorldUse(target)
-    Game.world:heal(target, math.ceil(target:getStat("health") / 2))
-    return true
+    return false
 end
 
-function item:onBattleUse(user, target)
-    if target.chara.health <= 0 then
-        target.chara.health = target.chara:getStat("health")
-        target:heal(target.chara.health)
-    else
-        target:heal(math.ceil(target.chara:getStat("health") / 2))
-    end
+function item:onBattleSelect(user, target)
+    -- Do not consume (DON'T EAT TOBY!!!)
+    return false
+end
+
+function item:getBattleText(user, target)
+    return "* "..user.chara.name.." admired DOGDOLLAR!"
 end
 
 return item

@@ -1,8 +1,8 @@
-local item = Item{
+local item = HealItem{
     -- Item ID (optional, defaults to path)
-    id = "revivemint",
+    id = "revivebrite",
     -- Display name
-    name = "ReviveMint",
+    name = "ReviveBrite",
 
     -- Item type (item, key, weapon, armor)
     type = "item",
@@ -10,17 +10,20 @@ local item = Item{
     icon = nil,
 
     -- Battle description
-    effect = "Heal\nDowned\nAlly",
+    effect = "Revives\nteam\n100%",
     -- Shop description
-    shop = nil,
+    shop = "",
     -- Menu description
-    description = "Heals a fallen ally to MAX HP.\nA minty green crystal.",
+    description = "A breakable mint that revives all\nfallen party members to 100% HP.",
+
+    -- Amount healed (HealItem variable)
+    heal_amount = 50,
 
     -- Shop sell price
-    price = 200,
+    price = 2000,
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "party",
+    target = nil,
     -- Where this item can be used (world, battle, all, or none/nil)
     usable_in = "all",
     -- Item this item will get turned into when consumed
@@ -30,8 +33,8 @@ local item = Item{
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {
-        attack = 0,
-    },
+		attack = 0,
+	},
     -- Bonus name and icon (displayed in equip menu)
     bonus_name = nil,
     bonus_icon = nil,
@@ -39,32 +42,38 @@ local item = Item{
     -- Equippable characters (default true for armors, false for weapons)
     can_equip = {},
 
-    -- Character reactions
+    -- Character reactions (key = party member id)
     reactions = {
-        susie = {
-            susie = "I'm ALIVE!!!",
-            ralsei = "(You weren't dead)",
-        },
-        ralsei = {
-            susie = "(Don't look it)",
-            ralsei = "Ah, I'm refreshed!"
-        },
-        noelle = "Mints? I love mints!"
-    },
+		susie = "Don't throw mints at me!",
+        ralsei = "It's minty!",
+        noelle = "What are you throwing?"
+	},
 }
 
 function item:onWorldUse(target)
-    Game.world:heal(target, math.ceil(target:getStat("health") / 2))
+	for i=1, #Game.party do
+		local _target = Game.party[i]
+		if _target.health <= 0 then
+			_target.health = 0
+			item.heal_amount = _target:getStat("health")
+		else
+			item.heal_amount = 50
+		end
+		Game.world:heal(_target, item.heal_amount)
+	end
     return true
 end
 
 function item:onBattleUse(user, target)
-    if target.chara.health <= 0 then
-        target.chara.health = target.chara:getStat("health")
-        target:heal(target.chara.health)
-    else
-        target:heal(math.ceil(target.chara:getStat("health") / 2))
-    end
+	for i=1, #Game.battle.party do
+		local _target = Game.battle.party[i]
+		if _target.chara.health <= 0 then
+			_target.chara.health = 0
+			_target:heal(_target.chara:getStat("health"))
+		else
+			_target:heal(item.heal_amount)
+		end
+	end
 end
 
 return item
