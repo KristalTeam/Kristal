@@ -45,13 +45,13 @@ local item = HealItem{
         susie = "It's got crunch",
         ralsei = "How elegant!",
         noelle = "What a nice song..."
-    }
+    },
 }
 
 function item:onWorldUse(target)
-	if Assets.getSound("snd_cd_bagel_"..target.id) then
-		Assets.playSound("snd_cd_bagel_"..target.id)
-	end
+    if Assets.getSound("snd_cd_bagel_"..target.id) then
+        Assets.playSound("snd_cd_bagel_"..target.id)
+    end
     Game.world:heal(target, item.heal_amount)
     return true
 end

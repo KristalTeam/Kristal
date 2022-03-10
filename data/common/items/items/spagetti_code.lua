@@ -1,5 +1,5 @@
 local item = HealItem{
-	-- OMG THEY NAMED AN ITEM AFTER ME
+    -- OMG THEY NAMED AN ITEM AFTER ME
     -- Item ID (optional, defaults to path)
     id = "spagetti_code",
     -- Display name
@@ -34,7 +34,7 @@ local item = HealItem{
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {
-		attack = 0,
+        attack = 0,
 	},
     -- Bonus name and icon (displayed in equip menu)
     bonus_name = nil,
@@ -45,23 +45,23 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "I'm NOT wearing it.",
+        susie = "I'm NOT wearing it.",
         ralsei = "How sweet!",
         noelle = "Reminds me of one of my sweaters."
-	},
+    },
 }
 
 function item:onWorldUse(target)
-	for i=1, #Game.party do
-		Game.world:heal(Game.party[i], item.heal_amount)
-	end
+    for i=1, #Game.party do
+        Game.world:heal(Game.party[i], item.heal_amount)
+    end
     return true
 end
 
 function item:onBattleUse(user, target)
-	for i=1, #Game.battle.party do
-		Game.world:heal(Game.battle.party[i], item.heal_amount)
-	end
+    for i=1, #Game.battle.party do
+        Game.world:heal(Game.battle.party[i], item.heal_amount)
+    end
 end
 
 return item

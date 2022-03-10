@@ -40,16 +40,16 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "It's SO good!",
+        susie = "It's SO good!",
         ralsei = "K-Kris!? I...",
         noelle = "(Huh? I didn't know Kris liked this flavor.)"
-	},
+    },
 }
 
 if Game.chapter == 1  then
-	item.name = "FavSandwich"
+    item.name = "FavSandwich"
 else
-	item.name = "Favwich"
+    item.name = "Favwich"
 end
 
 return item

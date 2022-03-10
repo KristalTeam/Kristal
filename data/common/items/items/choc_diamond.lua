@@ -17,23 +17,21 @@ local item = HealItem{
     description = "It's quite small, but some\npeople REALLY like it. +??HP",
 
     -- Amount healed (HealItem variable)
-    heal_amount = 0,
-	
-	-- Custom variable for this item, determines the healing value in the overworld for each character.
-	heal_variants_overworld = {
-		["kris"] = 80, 
-		["susie"] = 20, 
-		["ralsei"] = 50, 
-		["noelle"] = 70
-	},
-	
-	-- Custom variable for this item, determines the healing value in the battle for each character.
-	heal_variants_battle = {
-		["kris"] = 80, 
-		["susie"] = 20, 
-		["ralsei"] = 50, 
-		["noelle"] = 70
-	},
+    heal_amount = 0,	
+    -- Custom variable for this item, determines the healing value in the overworld for each character.
+    heal_variants_overworld = {
+        ["kris"] = 80, 
+        ["susie"] = 20, 
+        ["ralsei"] = 50, 
+        ["noelle"] = 70
+    },	
+    -- Custom variable for this item, determines the healing value in the battle for each character.
+    heal_variants_battle = {
+        ["kris"] = 80, 
+        ["susie"] = 20, 
+        ["ralsei"] = 50, 
+        ["noelle"] = 70
+    },
 
     -- Shop sell price
     price = 20,
@@ -56,38 +54,38 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "THAT'S it?",
+        susie = "THAT'S it?",
         ralsei = "Aww, thanks, Kris!",
         noelle = "Umm, it's ok, Kris, I'll share..."
-	},
+    },
 }
 
 function item:onWorldUse(target)
-	if item.heal_variants_overworld[target.id] ~= nil then
-		if Game.party[1].id == "kris" and target.id == "noelle" then
-			Game.world:heal(Game.party[1], item.heal_amount)
-			item.heal_variants_overworld["noelle"] = 35
-		end
-		item.heal_amount = item.heal_variants_overworld[target.id]
-	else
-		item.heal_amount = item.heal_variants_overworld["kris"]
-	end
+    if item.heal_variants_overworld[target.id] ~= nil then
+        if Game.party[1].id == "kris" and target.id == "noelle" then
+            Game.world:heal(Game.party[1], item.heal_amount)
+            item.heal_variants_overworld["noelle"] = 35
+        end
+        item.heal_amount = item.heal_variants_overworld[target.id]
+    else
+        item.heal_amount = item.heal_variants_overworld["kris"]
+    end
     Game.world:heal(target, item.heal_amount)
-	item.heal_variants_overworld["noelle"] = 70
+    item.heal_variants_overworld["noelle"] = 70
     return true
 end
 
 function item:onBattleUse(user, target)
-	if Game.chapter == 1 then
-		item.heal_variants_battle = { ["kris"] = 80, ["susie"] = 30, ["ralsei"] = 30, ["noelle"] = 50 }
-	else
-		item.heal_variants_battle = { ["kris"] = 80, ["susie"] = 20, ["ralsei"] = 50, ["noelle"] = 70 }
-	end
-	if item.heal_variants_battle[target.chara.id] ~= nil then
-		item.heal_amount = item.heal_variants_battle[target.chara.id]
-	else
-		item.heal_amount = item.heal_variants_battle["kris"]
-	end
+    if Game.chapter == 1 then
+        item.heal_variants_battle = { ["kris"] = 80, ["susie"] = 30, ["ralsei"] = 30, ["noelle"] = 50 }
+    else
+        item.heal_variants_battle = { ["kris"] = 80, ["susie"] = 20, ["ralsei"] = 50, ["noelle"] = 70 }
+    end
+    if item.heal_variants_battle[target.chara.id] ~= nil then
+        item.heal_amount = item.heal_variants_battle[target.chara.id]
+    else
+        item.heal_amount = item.heal_variants_battle["kris"]
+    end
     target:heal(item.heal_amount)
 end
 

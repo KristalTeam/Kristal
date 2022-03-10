@@ -33,8 +33,8 @@ local item = HealItem{
 
     -- Equip bonuses (for weapons and armor)
     bonuses = {
-		attack = 0,
-	},
+        attack = 0,
+    },
     -- Bonus name and icon (displayed in equip menu)
     bonus_name = nil,
     bonus_icon = nil,
@@ -44,36 +44,36 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "Don't throw mints at me!",
+        susie = "Don't throw mints at me!",
         ralsei = "It's minty!",
         noelle = "What are you throwing?"
-	},
+    },
 }
 
 function item:onWorldUse(target)
-	for i=1, #Game.party do
-		local _target = Game.party[i]
-		if _target.health <= 0 then
-			_target.health = 0
-			item.heal_amount = _target:getStat("health")
-		else
-			item.heal_amount = 50
-		end
-		Game.world:heal(_target, item.heal_amount)
-	end
+    for i=1, #Game.party do
+        local _target = Game.party[i]
+        if _target.health <= 0 then
+            _target.health = 0
+            item.heal_amount = _target:getStat("health")
+        else
+            item.heal_amount = 50
+        end
+        Game.world:heal(_target, item.heal_amount)
+    end
     return true
 end
 
 function item:onBattleUse(user, target)
-	for i=1, #Game.battle.party do
-		local _target = Game.battle.party[i]
-		if _target.chara.health <= 0 then
-			_target.chara.health = 0
-			_target:heal(_target.chara:getStat("health"))
-		else
-			_target:heal(item.heal_amount)
-		end
-	end
+    for i=1, #Game.battle.party do
+        local _target = Game.battle.party[i]
+        if _target.chara.health <= 0 then
+            _target.chara.health = 0
+            _target:heal(_target.chara:getStat("health"))
+        else
+            _target:heal(item.heal_amount)
+        end
+    end
 end
 
 return item

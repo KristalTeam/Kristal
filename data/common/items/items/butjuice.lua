@@ -40,10 +40,10 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "Hell'd you call this?",
+        susie = "Hell'd you call this?",
         ralsei = "I made this.",
         noelle = "B-Brainfreeze! ... kidding!"
-	},
+    },
 }
 
 return item

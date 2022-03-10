@@ -18,13 +18,13 @@ local item = HealItem{
 
     -- Amount healed (HealItem variable)
     heal_amount = 40,
-
-	heal_variants = {
-		["kris"] = -20, 
-		["susie"] = -20, 
-		["ralsei"] = -20, 
-		["noelle"] = 0
-	},
+    -- Custom variable for this item, determines the healing value for each character.
+    heal_variants = {
+        ["kris"] = -20, 
+        ["susie"] = -20, 
+        ["ralsei"] = -20, 
+        ["noelle"] = 0
+    },
 
     -- Shop sell price
     price = 55,
@@ -49,43 +49,43 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "Ugh! ...tastes good?",
+        susie = "Ugh! ...tastes good?",
         ralsei = "Ow... er, thanks, Kris!",
         noelle = "(I'll... just pretend to drink it...)"
-	},
+    },
 }
 
 function item:onWorldUse(target)
-	if item.heal_variants[target.id] ~= nil then
-		item.heal_amount = item.heal_variants[target.id]
-	else
-		item.heal_amount = item.heal_variants["kris"]
-	end
-	if target.health > 20 then
-		target.health = target.health + item.heal_amount
-	else
-		target.health = 1
-	end
-	if target.id ~= "noelle" then
-		Assets.playSound("snd_hurt1")
-	end
+    if item.heal_variants[target.id] ~= nil then
+        item.heal_amount = item.heal_variants[target.id]
+    else
+        item.heal_amount = item.heal_variants["kris"]
+    end
+    if target.health > 20 then
+        target.health = target.health + item.heal_amount
+    else
+        target.health = 1
+    end
+    if target.id ~= "noelle" then
+        Assets.playSound("snd_hurt1")
+    end
     return true
 end
 
 function item:onBattleUse(user, target)
-	item.heal_amount = 40
+    item.heal_amount = 40
     target:heal(item.heal_amount)	
-	Game.battle.timer:every(0.25,
-		function() 
-			if target.chara.health > 1 then
-				target.chara.health = target.chara.health - 1
-			end
-		end, 
-	60)
+    Game.battle.timer:every(0.25,
+        function() 
+            if target.chara.health > 1 then
+                target.chara.health = target.chara.health - 1
+            end
+        end, 
+    60)
 end
 
 function item:getBattleText(user, target)
-   return "* "..user.chara.name.." administered the S.POISON!"
+    return "* "..user.chara.name.." administered the S.POISON!"
 end
 
 return item

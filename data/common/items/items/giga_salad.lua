@@ -17,15 +17,14 @@ local item = HealItem{
     description = "An enormous salad... but, it's just\nlettuce, so it's worthless. +4HP",
 
     -- Amount healed (HealItem variable)
-    heal_amount = 0,
-	
-	-- Custom variable for this item, determines the healing value for each character.
-	heal_variants = {
-		["kris"] = 4, 
-		["susie"] = 4, 
-		["ralsei"] = 4, 
-		["noelle"] = 90
-	},
+    heal_amount = 0,	
+    -- Custom variable for this item, determines the healing value for each character.
+    heal_variants = {
+        ["kris"] = 4, 
+        ["susie"] = 4, 
+        ["ralsei"] = 4, 
+        ["noelle"] = 90
+    },
 
     -- Shop sell price
     price = 5,
@@ -48,28 +47,28 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "Why this!?",
+        susie = "Why this!?",
         ralsei = "Let's be healthy!",
         noelle = "Something to graze on!"
-	},
+    },
 }
 
 function item:onWorldUse(target)
-	if item.heal_variants[target.id] ~= nil then
-		item.heal_amount = item.heal_variants[target.id]
-	else
-		item.heal_amount = item.heal_variants["kris"]
-	end
+    if item.heal_variants[target.id] ~= nil then
+        item.heal_amount = item.heal_variants[target.id]
+    else
+        item.heal_amount = item.heal_variants["kris"]
+    end
     Game.world:heal(target, item.heal_amount)
     return true
 end
 
 function item:onBattleUse(user, target)
-	if item.heal_variants[target.chara.id] ~= nil then
-		item.heal_amount = item.heal_variants[target.chara.id]
-	else
-		item.heal_amount = item.heal_variants["kris"]
-	end
+    if item.heal_variants[target.chara.id] ~= nil then
+        item.heal_amount = item.heal_variants[target.chara.id]
+    else
+        item.heal_amount = item.heal_variants["kris"]
+    end
     target:heal(item.heal_amount)
 end
 

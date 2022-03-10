@@ -40,24 +40,24 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		susie = "Cool, it's wriggling.",
+        susie = "Cool, it's wriggling.",
         ralsei = "Yum, is this spaghetti?",
         noelle = "Tastes like... jumprope?"
-	},
+    },
 }
 
 function item:onWorldUse(target)
-	item.heal_amount = 50
+    item.heal_amount = 50
     Game.world:heal(target, item.heal_amount)
     return true
 end
 
 function item:onBattleUse(user, target)
-	if Game.chapter == 1 then
-		item.heal_amount = 60
-	else
-		item.heal_amount = 50
-	end
+    if Game.chapter == 1 then
+        item.heal_amount = 60
+    else
+        item.heal_amount = 50
+    end
     target:heal(item.heal_amount)
 end
 

@@ -3,8 +3,8 @@ local item = HealItem{
     id = "ralsei_tea",
     -- Display name
     name = "Ralsei Tea",
-	-- Custom variable for this item to determine the owner of the tea.
-	owner = "ralsei",
+    -- Custom variable for this item to determine the owner of the tea.
+    owner = "ralsei",
 
     -- Item type (item, key, weapon, armor)
     type = "item",
@@ -20,15 +20,14 @@ local item = HealItem{
 
     -- Amount healed (HealItem variable)
     heal_amount = 0,
-
-	-- Custom variable for this item, determines the healing value for each character.
-	heal_variants = {
-		["kris"] = 60, 
-		["susie"] = 120, 
-		["ralsei"] = 10, 
-		["noelle"] = 50,
-		["thrash"] = 100
-	},
+    -- Custom variable for this item, determines the healing value for each character.
+    heal_variants = {
+        ["kris"] = 60, 
+        ["susie"] = 120, 
+        ["ralsei"] = 10, 
+        ["noelle"] = 50,
+        ["thrash"] = 100
+    },
 
     -- Shop sell price
     price = 5,
@@ -51,40 +50,40 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-		kris = {
-			susie = "(No reaction?)",
+        kris = {
+            susie = "(No reaction?)",
             ralsei = "(I'm happy!)",		
-		},
-		susie = {
-			susie = " Hey, it's like marshmallows!!",
+        },
+        susie = {
+            susie = " Hey, it's like marshmallows!!",
             ralsei = "D-don't drink so fast!",	
-		},	
+        },	
         ralsei = "Um... isn't this water?",
         noelle = "There's nothing in here!"
 	},
 }
 
 function item:onWorldUse(target)
-	if item.heal_variants[target.id] ~= nil then
-		item.heal_amount = item.heal_variants[target.id]
-	else
-		item.heal_amount = item.heal_variants["thrash"]
-	end
+    if item.heal_variants[target.id] ~= nil then
+        item.heal_amount = item.heal_variants[target.id]
+    else
+        item.heal_amount = item.heal_variants["thrash"]
+    end
     Game.world:heal(target, item.heal_amount)
     return true
 end
 
 function item:onBattleUse(user, target)
-	if item.heal_variants[target.chara.id] ~= nil then
-		if target.chara.id == item.owner then
-			item.heal_variants[item.owner] = 40
-		end	
-		item.heal_amount = item.heal_variants[target.chara.id]
-	else
-		item.heal_amount = item.heal_variants["thrash"]
-	end
+    if item.heal_variants[target.chara.id] ~= nil then
+        if target.chara.id == item.owner then
+            item.heal_variants[item.owner] = 40
+        end	
+        item.heal_amount = item.heal_variants[target.chara.id]
+    else
+        item.heal_amount = item.heal_variants["thrash"]
+    end
     target:heal(item.heal_amount)
-	item.heal_variants[item.owner] = 10
+    item.heal_variants[item.owner] = 10
 end
 
 return item
