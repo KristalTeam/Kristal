@@ -13,7 +13,7 @@ end
 
 function HealItem:onWorldUse(target)
     local amount = self:getHealAmount(target.id)
-    if self.target == "none" then
+    if self.target == "none" or not self.target then
         for _,party in ipairs(Game.party) do
             Game.world:heal(party, amount)
         end
