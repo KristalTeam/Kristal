@@ -43,17 +43,12 @@ local item = Item{
     reactions = {},
 }
 
-if Game.chapter == 1 then
-    item.price = 100
-    item.description = "A shimmering shard.\nIts use is unknown."
-end
-
 function item:onWorldUse(target)
     return false
 end
 
 function item:onBattleSelect(user, target)
-    -- Do not consume (it will taste bad)
+    -- Do not consume
     return false
 end
 

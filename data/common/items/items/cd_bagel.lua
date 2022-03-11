@@ -46,11 +46,19 @@ local item = HealItem{
         ralsei = "How elegant!",
         noelle = "What a nice song..."
     },
+    -- Sound effect that is played when a bagel is consumed in the overworld.
+    bagel_sfx = {
+        ["kris"] = "snd_cd_bagel_kris",
+        ["susie"] = "snd_cd_bagel_susie",
+        ["ralsei"] = "snd_cd_bagel_ralsei",
+        ["noelle"] = "snd_cd_bagel_noelle",
+    }
+
 }
 
 function item:onWorldUse(target)
-    if Assets.getSound("snd_cd_bagel_"..target.id) then
-        Assets.playSound("snd_cd_bagel_"..target.id)
+    if Assets.getSound(item.bagel_sfx[target.id]) then
+        Assets.playSound(item.bagel_sfx[target.id])
     end
     Game.world:heal(target, item.heal_amount)
     return true

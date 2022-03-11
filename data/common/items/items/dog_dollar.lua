@@ -48,7 +48,7 @@ function item:onWorldUse(target)
 end
 
 function item:onBattleSelect(user, target)
-    -- Do not consume (DON'T EAT TOBY!!!)
+    -- Do not consume
     return false
 end
 

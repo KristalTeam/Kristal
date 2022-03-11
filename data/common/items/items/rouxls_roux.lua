@@ -46,19 +46,4 @@ local item = HealItem{
     },
 }
 
-function item:onWorldUse(target)
-    item.heal_amount = 50
-    Game.world:heal(target, item.heal_amount)
-    return true
-end
-
-function item:onBattleUse(user, target)
-    if Game.chapter == 1 then
-        item.heal_amount = 60
-    else
-        item.heal_amount = 50
-    end
-    target:heal(item.heal_amount)
-end
-
 return item

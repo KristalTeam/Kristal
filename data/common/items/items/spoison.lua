@@ -75,9 +75,9 @@ end
 function item:onBattleUse(user, target)
     item.heal_amount = 40
     target:heal(item.heal_amount)	
-    Game.battle.timer:every(0.25,
+    Game.battle.timer:every(0.33,
         function() 
-            if target.chara.health > 1 then
+            if target ~= nil and target.chara.health > 1 then
                 target.chara.health = target.chara.health - 1
             end
         end, 

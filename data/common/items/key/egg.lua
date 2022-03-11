@@ -39,16 +39,14 @@ local item = Item{
 
     -- Character reactions (key = party member id)
     reactions = {},
+
+    use_text = "* (You used the Egg.)"
 }
 
 function item:onWorldUse()
     Game.world:startCutscene(function(cutscene)
         Assets.playSound("snd_egg")
-            if Game.chapter == 1 then
-            cutscene:text("* You used the egg.")
-        else
-            cutscene:text("* (You used the Egg.)")
-        end
+        cutscene:text(item.use_text)
     end)
 end
 

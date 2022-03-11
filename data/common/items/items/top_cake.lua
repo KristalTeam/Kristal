@@ -54,6 +54,7 @@ function item:onWorldUse(target)
     for i=1, #Game.party do
         Game.world:heal(Game.party[i], item.heal_amount)
     end
+    Assets.stopAndPlaySound("snd_power")	
     return true
 end
 

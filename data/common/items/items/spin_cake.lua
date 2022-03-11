@@ -10,14 +10,14 @@ local item = HealItem{
     icon = nil,
 
     -- Battle description
-    effect = "Heals\nteam\n~1HP",
+    effect = "Heals\nteam\n140HP",
     -- Shop description
     shop = "",
     -- Menu description
-    description = "A pastry in the shape of a top.\nHeals ~1 HP to the team.",
+    description = "A pastry in the shape of a top.\nHeals 140 HP to the team.",
 
     -- Amount healed (HealItem variable)
-    heal_amount = 80,
+    heal_amount = 140,
 
     -- Shop sell price
     price = 3,
@@ -50,18 +50,11 @@ local item = HealItem{
 	},
 }
 
-if Game.chapter == 1 then
-    item.heal_amount = 80
-else
-    item.heal_amount = 140
-end
-item.description = string.gsub(item.description, "(~1)", tostring(item.heal_amount))
-item.effect = string.gsub(item.effect, "(~1)", tostring(item.heal_amount))
-
 function item:onWorldUse(target)
     for i=1, #Game.party do
         Game.world:heal(Game.party[i], item.heal_amount)
     end
+    Assets.stopAndPlaySound("snd_power")
     return true
 end
 

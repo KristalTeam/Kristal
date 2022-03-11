@@ -52,26 +52,19 @@ local item = HealItem{
 
 function item:onWorldUse(target)
     for i=1, #Game.party do
-        local _target = Game.party[i]
-        if _target.health <= 0 then
-            _target.health = 0
-            item.heal_amount = math.ceil(_target:getStat("health")/4)
-        else
-            item.heal_amount = 10
-        end
-        Game.world:heal(_target, item.heal_amount)
+        Game.world:heal(Game.party[i], item.heal_amount)
     end
+    Assets.stopAndPlaySound("snd_power")
     return true
 end
 
 function item:onBattleUse(user, target)
     for i=1, #Game.battle.party do
-        local _target = Game.battle.party[i]
-        if _target.chara.health <= 0 then
-            _target.chara.health = 0
-            _target:heal(math.ceil(_target.chara:getStat("health")/4))
+        local target = Game.battle.party[i]
+        if target.chara.health <= 0 then
+            target:heal(math.abs(target.chara.health) + math.ceil(target.chara:getStat("health") / 4))
         else
-            _target:heal(item.heal_amount)
+            target:heal(item.heal_amount)
         end
     end
 end

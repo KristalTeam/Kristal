@@ -14,10 +14,12 @@ local item = HealItem{
     -- Shop description
     shop = "",
     -- Menu description
-    description = "A cookie shaped like Lancer's face.\nMaybe not a cookie. Heals ~1 HP?",
+    description = "A cookie shaped like Lancer's face.\nMaybe not a cookie. Heals 1 HP?",
 
     -- Amount healed (HealItem variable)
     heal_amount = 50,
+    -- Amount healed in the overworld
+    heal_amount_overworld = 1,
 
     -- Shop sell price
     price = 5,
@@ -46,25 +48,9 @@ local item = HealItem{
     },
 }
 
-if Game.chapter == 1 then
-    item.description = string.gsub(item.description, "(~1)", "5")
-else
-    item.description = string.gsub(item.description, "(~1)", "1")
-end
-
 function item:onWorldUse(target)
-    if Game.chapter == 1 then
-        item.heal_amount = 4
-    else
-        item.heal_amount = 1
-    end
-    Game.world:heal(target, item.heal_amount)
+    Game.world:heal(target, item.heal_amount_overworld)
     return true
-end
-
-function item:onBattleUse(user, target)
-    item.heal_amount = 50
-    target:heal(item.heal_amount)
 end
 
 return item

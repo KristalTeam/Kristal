@@ -23,14 +23,16 @@ local item = HealItem{
         ["kris"] = 20, 
         ["susie"] = 80, 
         ["ralsei"] = 50, 
-        ["noelle"] = 30
+        ["noelle"] = 30,
+        ["default"] = 50
 	},
     -- Custom variable for this item, determines the healing value in the battle for each character.
     heal_variants_battle = {
         ["kris"] = 20, 
         ["susie"] = 80, 
         ["ralsei"] = 50, 
-        ["noelle"] = 30
+        ["noelle"] = 30,
+        ["default"] = 50
     },
 
     -- Shop sell price
@@ -64,22 +66,17 @@ function item:onWorldUse(target)
     if item.heal_variants_overworld[target.id] ~= nil then
         item.heal_amount = item.heal_variants_overworld[target.id]
     else
-        item.heal_amount = item.heal_variants_overworld["kris"]
+        item.heal_amount = item.heal_variants_overworld["default"]
     end
     Game.world:heal(target, item.heal_amount)
     return true
 end
 
 function item:onBattleUse(user, target)
-    if Game.chapter == 1 then
-        item.heal_variants_battle = { ["kris"] = 10, ["susie"] = 90, ["ralsei"] = 60, ["noelle"] = 40 }
-    else
-        item.heal_variants_battle = { ["kris"] = 20, ["susie"] = 80, ["ralsei"] = 50, ["noelle"] = 30 }
-    end
     if item.heal_variants_battle[target.chara.id] ~= nil then
         item.heal_amount = item.heal_variants_battle[target.chara.id]
     else
-        item.heal_amount = item.heal_variants_battle["kris"]
+        item.heal_amount = item.heal_variants_battle["default"]
     end
     target:heal(item.heal_amount)
 end

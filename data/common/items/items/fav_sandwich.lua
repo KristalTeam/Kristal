@@ -2,7 +2,7 @@ local item = HealItem{
     -- Item ID (optional, defaults to path)
     id = "fav_sandwich",
     -- Display name
-    name = "FavSandwich",
+    name = "Favwich",
 
     -- Item type (item, key, weapon, armor)
     type = "item",
@@ -45,11 +45,5 @@ local item = HealItem{
         noelle = "(Huh? I didn't know Kris liked this flavor.)"
     },
 }
-
-if Game.chapter == 1  then
-    item.name = "FavSandwich"
-else
-    item.name = "Favwich"
-end
 
 return item

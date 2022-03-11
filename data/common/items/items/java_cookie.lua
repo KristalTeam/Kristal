@@ -23,7 +23,8 @@ local item = HealItem{
         ["kris"] = 100, 
         ["susie"] = 90, 
         ["ralsei"] = 90, 
-        ["noelle"] = 90
+        ["noelle"] = 90,
+		["default"] = 90
     },
 
     -- Shop sell price
@@ -57,7 +58,7 @@ function item:onWorldUse(target)
     if item.heal_variants[target.id] ~= nil then
         item.heal_amount = item.heal_variants[target.id]
     else
-        item.heal_amount = item.heal_variants["kris"]
+        item.heal_amount = item.heal_variants["default"]
     end
     Game.world:heal(target, item.heal_amount)
     return true
@@ -67,7 +68,7 @@ function item:onBattleUse(user, target)
     if item.heal_variants[target.chara.id] ~= nil then
         item.heal_amount = item.heal_variants[target.chara.id]
     else
-        item.heal_amount = item.heal_variants["kris"]
+        item.heal_amount = item.heal_variants["default"]
     end
     target:heal(item.heal_amount)
 end
