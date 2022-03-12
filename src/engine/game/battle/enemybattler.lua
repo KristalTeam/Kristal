@@ -410,7 +410,7 @@ function EnemyBattler:heal(amount)
 
     self:flash()
 
-    if self.health > self.max_health then
+    if self.health >= self.max_health then
         self.health = self.max_health
         self:statusMessage("msg", "max")
     else

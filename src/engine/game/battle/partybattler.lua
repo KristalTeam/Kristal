@@ -112,7 +112,7 @@ function PartyBattler:heal(amount)
 
     self:flash()
 
-    if self.chara.health > self.chara:getStat("health") then
+    if self.chara.health >= self.chara:getStat("health") then
         self.chara.health = self.chara:getStat("health")
         self:statusMessage("msg", "max")
     else
