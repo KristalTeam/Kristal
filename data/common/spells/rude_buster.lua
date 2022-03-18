@@ -14,6 +14,8 @@ local spell = Spell{
 
     -- Target mode (party, enemy, or none/nil)
     target = "enemy",
+
+    tags = {"rude", "damage"},
 }
 
 function spell:getCastMessage(user, target)

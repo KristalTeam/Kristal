@@ -20,7 +20,7 @@ function PartyBattler:init(chara, x, y)
     self:setAnimation("battle/idle")
 
     self.defending = false
-    self.hurt_bump_timer = 0
+    self.hurt_timer = 0
 
     self.is_down = false
 end
@@ -73,7 +73,7 @@ function PartyBattler:hurt(amount, exact)
     end
 
     self.sprite.x = -10
-    self.hurt_bump_timer = 4
+    self.hurt_timer = 4
     Game.battle.shake = 4
 
     if (not self.defending) and (not self.is_down) then
@@ -174,9 +174,9 @@ function PartyBattler:setSprite(sprite, speed, loop, after)
 end
 
 function PartyBattler:update(dt)
-    if self.hurt_bump_timer > 0 then
-        self.sprite.x = -self.hurt_bump_timer * 2
-        self.hurt_bump_timer = Utils.approach(self.hurt_bump_timer, 0, DTMULT)
+    if self.hurt_timer > 0 then
+        self.sprite.x = -self.hurt_timer * 2
+        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
     else
         self.sprite.x = 0
     end

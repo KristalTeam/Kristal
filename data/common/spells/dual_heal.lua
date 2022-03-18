@@ -14,6 +14,8 @@ local spell = Spell{
 
     -- Target mode (party, enemy, or none/nil)
     target = "none",
+
+    tags = {"heal"},
 }
 
 function spell:onCast(user, target)

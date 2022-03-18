@@ -495,10 +495,6 @@ function EnemyBattler:toggleOverlay(overlay)
     self.sprite.visible = not overlay
 end
 
-function EnemyBattler:getActiveSprite()
-    return self.overlay_sprite.visible and self.overlay_sprite or self.sprite
-end
-
 function EnemyBattler:setSprite(sprite, speed, loop, after)
     if not self.sprite then
         self.sprite = Sprite(sprite)

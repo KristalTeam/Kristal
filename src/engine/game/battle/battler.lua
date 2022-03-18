@@ -65,6 +65,10 @@ function Battler:setAnimation(animation, callback)
     return self.sprite:setAnimation(animation, callback)
 end
 
+function Battler:getActiveSprite()
+    return self.overlay_sprite.visible and self.overlay_sprite or self.sprite
+end
+
 function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then

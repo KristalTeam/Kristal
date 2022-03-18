@@ -17,6 +17,8 @@ local spell = Spell{
 
     -- (Optional) Suggests this spell when sparing a tired enemy
     pacify = true,
+
+    tags = {"spare_tired"},
 }
 
 function spell:onCast(user, target)
