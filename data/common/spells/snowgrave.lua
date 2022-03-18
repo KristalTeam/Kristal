@@ -15,6 +15,7 @@ local spell = Spell{
     -- Target mode (party, enemy, or none/nil)
     target = nil,
 
+    -- Tags that apply to this spell
     tags = {"ice", "fatal", "damage"},
 }
 

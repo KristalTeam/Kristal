@@ -15,9 +15,7 @@ local spell = Spell{
     -- Target mode (party, enemy, or none/nil)
     target = "none",
 
-    -- (Optional) Suggests this spell when sparing a tired enemy
-    pacify = true,
-
+    -- Tags that apply to this spell
     tags = {"spare_tired"},
 }
 

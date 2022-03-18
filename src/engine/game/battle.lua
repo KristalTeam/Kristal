@@ -723,7 +723,7 @@ function Battle:processAction(action)
                 for _,party in ipairs(self.party) do
                     for _,spell_id in ipairs(party.chara.spells) do
                         local spell = Registry.getSpell(spell_id)
-                        if spell.pacify then
+                        if Utils.containsValue(spell.tags, "spare_tired") then
                             found_spell = spell
                             break
                         end
