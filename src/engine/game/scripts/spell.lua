@@ -13,6 +13,10 @@ function Spell:getCastMessage(user, target)
     return "* "..user.chara.name.." cast "..self.name:upper().."!"
 end
 
+function Spell:hasTag(tag)
+    return Utils.containsValue(self.tags, tag)
+end
+
 function Spell:onCast(user, target)
     -- Returning false here allows you to call 'Game.battle:finishActionBy(user)' yourself
 end
