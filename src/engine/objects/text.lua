@@ -63,6 +63,7 @@ function Text:resetState()
         noskip = false,
         spacing = 0,
         shake = 0,
+        last_shake = self.timer,
         offset_x = 0,
         offset_y = 0,
         newline = false
@@ -78,6 +79,7 @@ function Text:setText(text)
 
     self.text = text
 
+    self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
@@ -272,12 +274,10 @@ function Text:drawChar(node, state, use_color)
     local width, height = font:getWidth(node.character), font:getHeight()
 
     if state.shake >= 0 then
-        if self.last_shake >= (1 * DTMULT) then
-            self.last_shake = 0
+        if self.timer - state.last_shake >= (1 * DTMULT) then
+            state.last_shake = self.timer
             state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
             state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
-        else
-            self.last_shake = self.last_shake + (1 * DTMULT)
         end
     end
 

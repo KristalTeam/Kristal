@@ -18,6 +18,7 @@ function DialogueText:setText(text)
 
     self.text = text
 
+    self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
