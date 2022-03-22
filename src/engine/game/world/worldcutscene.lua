@@ -79,6 +79,10 @@ function WorldCutscene:onEnd()
     Game.lock_input = false
     Game.cutscene_active = false
 
+    if Game.world.cutscene == self then
+        Game.world.cutscene = nil
+    end
+
     if self.textbox then
         self.textbox:remove()
     end

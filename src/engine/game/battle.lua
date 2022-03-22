@@ -1517,8 +1517,7 @@ function Battle:update(dt)
     if self.cutscene then
         if not self.cutscene.ended then
             self.cutscene:update(dt)
-        end
-        if self.cutscene.ended then
+        else
             self.cutscene = nil
         end
     end

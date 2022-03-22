@@ -36,6 +36,10 @@ function BattleCutscene:update(dt)
 end
 
 function BattleCutscene:onEnd()
+    if Game.battle.cutscene == self then
+        Game.battle.cutscene = nil
+    end
+
     if Game.battle.battle_ui then
         Game.battle.battle_ui.encounter_text:setActor(nil)
         Game.battle.battle_ui.encounter_text:setFace(nil)
