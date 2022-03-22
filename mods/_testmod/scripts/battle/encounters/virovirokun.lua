@@ -19,6 +19,32 @@ function Virovirokun:init()
     --Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
 end
 
+--[[function Virovirokun:getDialogueCutscene()
+    if Game.battle.turn_count == 2 then
+        local enemies = Game.battle:getActiveEnemies()
+        if #enemies == 2 then
+            return function(cutscene)
+                cutscene:enemyText(enemies[1], "My fellow Americans,")
+                cutscene:text("Obama???", "surprise_smile", "susie")
+                cutscene:enemyText(enemies[1], "let me be clear")
+
+                Assets.playSound("snd_deathnoise", 1, 0.75)
+                local alphafx = enemies[1]:addFX(AlphaFX(1))
+                Game.battle.timer:tween(1, alphafx, {alpha = 0})
+
+                cutscene:wait(2.5)
+                Game.battle:removeEnemy(enemies[1], false)
+
+                cutscene:enemyText(enemies[2], "OBAMA NOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO", {wait = false})
+
+                cutscene:after(function()
+                    Game.battle:setState("VICTORY")
+                end, true)
+            end
+        end
+    end
+end]]
+
 function Virovirokun:onGlowshardUse(user)
     local lines = ""
     for _, enemy in ipairs(Game.battle.enemies) do

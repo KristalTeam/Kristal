@@ -10,6 +10,7 @@ function Cutscene:init(func, ...)
     self.coroutine = coroutine.create(func)
 
     self.finished_callback = nil
+    self.replaced_callback = false
 
     self:resume(self, ...)
 end
@@ -49,8 +50,11 @@ end
 
 function Cutscene:after(func, replace)
     if self.ended then
-        if func then
+        if func and (replace or not self.replaced_callback) then
             func(self)
+            if replace then
+                self.replaced_callback = true
+            end
         end
         return
     end
@@ -62,6 +66,9 @@ function Cutscene:after(func, replace)
         end
     else
         self.finished_callback = func
+        if replace then
+            self.replaced_callback = true
+        end
     end
     return self
 end
