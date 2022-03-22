@@ -47,12 +47,14 @@ function Cutscene:parseFromGetter(getter, cutscene, id, ...)
     end
 end
 
-function Cutscene:after(func)
+function Cutscene:after(func, replace)
     if self.ended then
-        func(self)
+        if func then
+            func(self)
+        end
         return
     end
-    if self.finished_callback then
+    if self.finished_callback and not replace then
         local old = self.finished_callback
         self.finished_callback = function(...)
             old(...)

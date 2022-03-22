@@ -100,6 +100,8 @@ function Textbox:update(dt)
                     end
                 elseif self.text.text ~= "" then
                     self:setText("")
+                    self:setActor()
+                    self:setFace()
                     if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
                         Game.battle.cutscene.waiting_for_text = nil
                         Game.battle.cutscene:resume()

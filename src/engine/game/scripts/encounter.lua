@@ -28,6 +28,8 @@ function Encounter:onBattleEnd() end
 function Encounter:onTurnStart() end
 function Encounter:onTurnEnd() end
 
+function Encounter:getDialogueCutscene() end
+
 function Encounter:update(dt) end
 
 function Encounter:draw(fade) end

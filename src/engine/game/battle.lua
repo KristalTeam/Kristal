@@ -351,25 +351,31 @@ function Battle:onStateChange(old,new)
         end
     elseif new == "ENEMYDIALOGUE" then
         self.battle_ui.encounter_text:setText("")
-        local all_done = true
-        local any_dialogue = false
         self.textbox_timer = 3 * 30
         self.use_textbox_timer = true
-        for _,enemy in ipairs(self.enemies) do
-            if not enemy.done_state then
-                all_done = false
-                local dialogue = enemy:getEnemyDialogue()
-                if dialogue then
-                    any_dialogue = true
-                    local textbox = self:spawnEnemyTextbox(enemy, dialogue)
-                    table.insert(self.enemy_dialogue, textbox)
+        local active_enemies = self:getActiveEnemies()
+        if #active_enemies == 0 then
+            self:setState("VICTORY")
+        else
+            local cutscene_args = {self.encounter:getDialogueCutscene()}
+            if #cutscene_args > 0 then
+                self:startCutscene(unpack(cutscene_args)):after(function()
+                    self:setState("DIALOGUEEND")
+                end)
+            else
+                local any_dialogue = false
+                for _,enemy in ipairs(active_enemies) do
+                    local dialogue = enemy:getEnemyDialogue()
+                    if dialogue then
+                        any_dialogue = true
+                        local textbox = self:spawnEnemyTextbox(enemy, dialogue)
+                        table.insert(self.enemy_dialogue, textbox)
+                    end
+                end
+                if not any_dialogue then
+                    self:setState("DIALOGUEEND")
                 end
             end
-        end
-        if all_done then
-            self:setState("VICTORY")
-        elseif not any_dialogue then
-            self:setState("DIALOGUEEND")
         end
     elseif new == "DIALOGUEEND" then
         self.battle_ui.encounter_text:setText("")

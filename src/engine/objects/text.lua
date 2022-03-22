@@ -168,6 +168,7 @@ function Text:drawToCanvas(func, clear)
     end
     func()
     love.graphics.pop()
+    Draw.popScissor()
     Draw.popCanvas()
 end
 
