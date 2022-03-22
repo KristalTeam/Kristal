@@ -404,4 +404,9 @@ function WorldCutscene:choicer(choices, options)
     end
 end
 
+function WorldCutscene:startEncounter(encounter, transition, enemy)
+    Game:encounter(encounter, transition, enemy)
+    self:wait(function() return Game.battle == nil end)
+end
+
 return WorldCutscene
