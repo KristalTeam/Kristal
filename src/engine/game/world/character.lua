@@ -109,11 +109,11 @@ function Character:setFacing(dir)
     end]]
 end
 
-function Character:moveTo(x, y)
-    self:move(x - (self.x + self.partial_x), y - (self.y + self.partial_y))
+function Character:moveTo(x, y, keep_facing)
+    self:move(x - (self.x + self.partial_x), y - (self.y + self.partial_y), 1, keep_facing)
 end
 
-function Character:move(x, y, speed)
+function Character:move(x, y, speed, keep_facing)
     local movex, movey = x * (speed or 1), y * (speed or 1)
 
     local moved = false
@@ -127,7 +127,7 @@ function Character:move(x, y, speed)
         self.sprite.walk_speed = self.moved > 0 and math.max(4, self.moved) or 0
     end
 
-    if movex ~= 0 or movey ~= 0 then
+    if not keep_facing and (movex ~= 0 or movey ~= 0) then
         local dir = self.facing
         if self.sprite.directional then
             if movex > 0 then

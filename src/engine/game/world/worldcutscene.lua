@@ -49,7 +49,7 @@ function WorldCutscene:update(dt)
         local tx = Utils.approach(ex, target[2], target[4] * DTMULT)
         local ty = Utils.approach(ey, target[3], target[4] * DTMULT)
         if target[1] then
-            chara:moveTo(tx, ty)
+            chara:moveTo(tx, ty, target[6])
         else
             chara:setExactPosition(tx, ty)
         end
@@ -174,14 +174,19 @@ function WorldCutscene:look(chara, dir)
     chara:setFacing(dir)
 end
 
-function WorldCutscene:walkTo(chara, x, y, speed, facing)
+function WorldCutscene:walkTo(chara, x, y, speed, facing, keep_facing)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
     local ex, ey = chara:getExactPosition()
     if ex ~= x or ey ~= y then
-        self.move_targets[chara] = {true, x, y, speed or 4, facing}
+        if keep_facing then
+            chara:setFacing(facing)
+        end
+        self.move_targets[chara] = {true, x, y, speed or 4, facing, keep_facing}
         return function() return self.move_targets[chara] == nil end
+    elseif chara.facing and chara.facing ~= facing then
+        chara:setFacing(facing)
     end
     return _true
 end
