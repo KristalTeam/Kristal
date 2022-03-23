@@ -1,6 +1,6 @@
-local Virovirokun, super = Class(Encounter)
+local Starwalker, super = Class(Encounter)
 
-function Virovirokun:init()
+function Starwalker:init()
     super:init(self)
 
     self.text = "* Star walker has      changed forms"
@@ -18,7 +18,7 @@ function Virovirokun:init()
     --Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
 end
 
-function Virovirokun:update(dt)
+function Starwalker:update(dt)
     super:update(self, dt)
 
     if (Game.battle:getState() ~= "TRANSITION") then
@@ -29,4 +29,4 @@ function Virovirokun:update(dt)
 
 end
 
-return Virovirokun
+return Starwalker
