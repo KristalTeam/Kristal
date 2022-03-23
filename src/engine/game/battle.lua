@@ -155,6 +155,10 @@ function Battle:init()
 
     self.wave_length = 0
     self.wave_timer = 0
+
+    self.should_finish_action = false
+    self.on_finish_keep_animation = nil
+    self.on_finish_action = nil
 end
 
 function Battle:postInit(state, encounter)
@@ -940,7 +944,17 @@ function Battle:allActionsDone()
     return true
 end
 
-function Battle:finishAction(action)
+function Battle:markAsFinished(action, keep_animation)
+    if self:getState() ~= "BATTLETEXT" then
+        self:finishAction(action, keep_animation)
+    else
+        self.on_finish_keep_animation = keep_animation
+        self.on_finish_action = action
+        self.should_finish_action = true
+    end
+end
+
+function Battle:finishAction(action, keep_animation)
     action = action or self.current_actions[self.current_action_index]
 
     local battler = self.party[action.character_id]
@@ -973,12 +987,35 @@ function Battle:finishAction(action)
                     if jbattler ~= ibattler then
                         party_num = party_num + 1
 
-                        self:endActionAnimation(jbattler, iaction, callback)
+                        local dont_end = false
+                        if (keep_animation) then
+                            if Utils.containsValue(keep_animation, party) then
+                                dont_end = true
+                            end
+                        end
+
+                        if not dont_end then
+                            self:endActionAnimation(jbattler, iaction, callback)
+                        else
+                            callback()
+                        end
                     end
                 end
             end
 
-            self:endActionAnimation(ibattler, iaction, callback)
+
+            dont_end = false
+            if (keep_animation) then
+                if Utils.containsValue(keep_animation, ibattler.chara.id) then
+                    dont_end = true
+                end
+            end
+
+            if not dont_end then
+                self:endActionAnimation(ibattler, iaction, callback)
+            else
+                callback()
+            end
 
             -- TODO: Mod hooks !!!
             if iaction.action == "DEFEND" then
@@ -1017,6 +1054,44 @@ function Battle:endActionAnimation(battler, action, callback)
     else
         callback()
     end
+end
+
+function Battle:powerAct(spell_name, battler, user, target)
+    -- TODO: decrease the amount of function calls to getPartyIndex
+    -- and getPartyBattler
+    local menu_item = {
+        data = Registry.getSpell(spell_name),
+        tp = 0
+    }
+    
+    local name = self:getPartyBattler(user).chara.name
+    if user == "ralsei" then
+        -- deltarune inconsistency lol
+        name = "RALSEI"
+    end
+    self:setActText("* Your soul shined its power on\n" .. name .. "!", true)
+
+    self.timer:after(7/30, function()
+        Assets.playSound("snd_boost")
+        battler:flash()
+        self:getPartyBattler(user):flash()
+        local bx, by = self:getSoulLocation()
+        local soul = Sprite("effects/soulshine", bx, by)
+        soul:play(1/15, false, function() soul:remove() end)
+        soul:setOrigin(0.25, 0.25)
+        soul:setScale(2, 2)
+        self:addChild(soul)
+
+        local box = self.battle_ui.action_boxes[self:getPartyIndex(user)]
+        box.head_sprite:setSprite(box.battler.chara.head_icons.."/spell")
+
+    end)
+
+    self.timer:after(24/30, function()
+        self:commitAction("SPELL", target, menu_item, self:getPartyIndex(user))
+        self:markAsFinished(nil, {user})
+    end)
+    return
 end
 
 function Battle:commitAction(type, target, data, character_id)
@@ -1411,6 +1486,12 @@ function Battle:setActText(text, dont_finish)
     self:battleText(text, function()
         if not dont_finish then
             self:finishAction()
+        end
+        if self.should_finish_action then
+            self:finishAction(self.on_finish_action, self.on_finish_keep_animation)
+            self.on_finish_action = nil
+            self.on_finish_keep_animation = nil
+            self.should_finish_action = false
         end
         self:setState("ACTIONS", "BATTLETEXT")
     end)
