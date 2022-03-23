@@ -350,9 +350,9 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox.visible = true
     self.textbox:setFace(portrait, options["x"], options["y"])
 
-    if options["faces"] then
-        for _,face in ipairs(options["faces"]) do
-            self.textbox:addSmallFace(face[1], face[2], face[3], face[4], face[5])
+    if options["reactions"] then
+        for id,react in pairs(options["reactions"]) do
+            self.textbox:addReaction(id, react[1], react[2], react[3], react[4], react[5])
         end
     end
 
