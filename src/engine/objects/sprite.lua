@@ -109,7 +109,7 @@ function Sprite:setAnimation(anim)
     local func
     if type(anim) == "table" then
         local has_routine = false
-        if type(anim[1]) == "string" then
+        if type(anim[1]) == "string" or type(anim[1]) == "table" then
             self.anim_sprite = anim[1]
             self:setSprite(self.anim_sprite, true)
             if type(anim[2]) == "function" then
