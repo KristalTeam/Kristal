@@ -54,17 +54,7 @@ function PartyBattler:hurt(amount, exact)
         end
     end
 
-    if (self.chara.health <= 0) then
-        amount = Utils.round(amount / 4)
-        self.chara.health = self.chara.health - amount
-    else
-        self.chara.health = self.chara.health - amount
-        if (self.chara.health <= 0) then
-            amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
-            self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
-        end
-    end
-	self:checkHealth()
+    self:removeHealth(amount)
 
     if (self.chara.health <= 0) then
         self:statusMessage("msg", "down", nil, true)
@@ -85,6 +75,20 @@ function PartyBattler:hurt(amount, exact)
             end)
         end
     end
+end
+
+function PartyBattler:removeHealth(amount)
+    if (self.chara.health <= 0) then
+        amount = Utils.round(amount / 4)
+        self.chara.health = self.chara.health - amount
+    else
+        self.chara.health = self.chara.health - amount
+        if (self.chara.health <= 0) then
+            amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
+            self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
+        end
+    end
+    self:checkHealth()
 end
 
 function PartyBattler:down()
