@@ -92,18 +92,22 @@ function Utils.join(tbl, sep, start, len)
 end
 
 Utils.__MOD_HOOKS = {}
-function Utils.hook(target, name, hook)
+function Utils.hook(target, name, hook, exact_func)
     local orig = target[name] or function() end
     if Mod then
         table.insert(Utils.__MOD_HOOKS, 1, {target = target, name = name, hook = hook, orig = orig})
     end
-    target[name] = function(...)
-        return hook(orig, ...)
+    if not exact_func then
+        target[name] = function(...)
+            return hook(orig, ...)
+        end
+    else
+        target[name] = hook
     end
     if isClass(target) then
         for _,includer in ipairs(target.__includers or {}) do
             if includer[name] == orig then
-                Utils.hook(includer, name, hook)
+                Utils.hook(includer, name, target[name], true)
             end
         end
     end
