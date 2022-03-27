@@ -36,6 +36,10 @@ function BattleCutscene:update(dt)
 end
 
 function BattleCutscene:onEnd()
+    if Game.battle.cutscene == self then
+        Game.battle.cutscene = nil
+    end
+
     if Game.battle.battle_ui then
         Game.battle.battle_ui.encounter_text:setActor(nil)
         Game.battle.battle_ui.encounter_text:setFace(nil)
@@ -167,10 +171,10 @@ function BattleCutscene:text(text, portrait, actor, options)
     Game.battle.battle_ui.encounter_text:setActor(actor)
     Game.battle.battle_ui.encounter_text:setFace(portrait, options["x"], options["y"])
 
-    Game.battle.battle_ui.encounter_text:resetSmallFaces()
-    if options["faces"] then
-        for _,face in ipairs(options["faces"]) do
-            Game.battle.battle_ui.encounter_text:addSmallFace(face[1], face[2], face[3], face[4], face[5])
+    Game.battle.battle_ui.encounter_text:resetReactions()
+    if options["reactions"] then
+        for id,react in pairs(options["reactions"]) do
+            Game.battle.battle_ui.encounter_text:addReaction(id, react[1], react[2], react[3], react[4], react[5])
         end
     end
 

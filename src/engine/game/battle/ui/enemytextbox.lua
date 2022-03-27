@@ -91,7 +91,7 @@ end
 function EnemyTextbox:update(dt)
     if self.can_advance then
         if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
-            if not self:isTyping() and self:next() then
+            if not self:isTyping() and self:next() and Game.battle.cutscene then
                 local enemy_text = Game.battle.cutscene.waiting_for_enemy_text
                 if enemy_text and Utils.containsValue(enemy_text, self) then
                     Utils.removeFromTable(enemy_text, self)

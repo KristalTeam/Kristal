@@ -46,7 +46,7 @@ function Virovirokun:init()
     self.text_override = nil
 end
 
-function EnemyBattler:isXActionShort(battler)
+function Virovirokun:isXActionShort(battler)
     return true
 end
 

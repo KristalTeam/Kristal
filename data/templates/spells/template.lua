@@ -9,14 +9,14 @@ local spell = Spell{
     -- Menu description
     description = "Example spell.",
 
-    -- TP cost (default tp max is 250)
-    cost = 40,
+    -- TP cost
+    cost = 32,
 
     -- Target mode (party, enemy, or none/nil)
     target = "enemy",
 
-    -- (Optional) Suggests this spell when sparing a tired enemy
-    pacify = false,
+    -- Tags that apply to this spell
+    tags = {},
 }
 
 function spell:onCast(user, target)

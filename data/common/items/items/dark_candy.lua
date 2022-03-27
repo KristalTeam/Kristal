@@ -42,7 +42,7 @@ local item = HealItem{
 
     -- Character reactions (key = party member id)
     reactions = {
-        susie = "Yeahh!! That’s good!",
+        susie = "Yeahh!! That's good!",
         ralsei = {
             ralsei = "A bit burnt...?",
             susie = "Hey, feed ME!!!"

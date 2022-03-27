@@ -243,6 +243,9 @@ function World:startCutscene(group, id, ...)
     if self.cutscene and not self.cutscene.ended then
         error("Attempt to start a cutscene while already in a cutscene.")
     end
+    if Game.console.is_open then
+        Game.console:close()
+    end
     self.cutscene = WorldCutscene(group, id, ...)
     return self.cutscene
 end
@@ -477,6 +480,7 @@ function World:loadMap(map, ...)
     end
 
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.battle_fader:setParallax(0, 0)
     self.battle_fader.layer = self.map.battle_fader_layer
     self:addChild(self.battle_fader)
 
@@ -691,11 +695,7 @@ function World:update(dt)
         end
     end
     if self.battle_fader then
-        --self.battle_fader.layer = self.battle_border.layer - 1
         self.battle_fader:setColor(0, 0, 0, half_alpha)
-        local cam_x, cam_y = self.camera:getPosition()
-        self.battle_fader.x = cam_x - 320
-        self.battle_fader.y = cam_y - 240
     end
 
     self.map:update(dt)

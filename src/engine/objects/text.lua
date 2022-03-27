@@ -63,6 +63,7 @@ function Text:resetState()
         noskip = false,
         spacing = 0,
         shake = 0,
+        last_shake = self.timer,
         offset_x = 0,
         offset_y = 0,
         newline = false
@@ -78,6 +79,7 @@ function Text:setText(text)
 
     self.text = text
 
+    self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
@@ -101,11 +103,12 @@ function Text:textToNodes(input_string)
     -- Very messy function to split text into text nodes.
     local nodes = {}
     local display_text = ""
+    local last_char = ""
     local i = 1
     while i <= #input_string do
         local current_char = input_string:sub(i,i)
         local leaving_modifier = false
-        if current_char == "[" then  -- We got a [, time to see if it's a modifier
+        if current_char == "[" and last_char ~= "\\" then  -- We got a [, time to see if it's a modifier
             local j = i + 1
             local current_modifier = ""
             while j <= #input_string do
@@ -153,6 +156,7 @@ function Text:textToNodes(input_string)
             })
             display_text = display_text..current_char
         end
+        last_char = current_char
         i = i + 1
     end
     return nodes, display_text
@@ -168,6 +172,7 @@ function Text:drawToCanvas(func, clear)
     end
     func()
     love.graphics.pop()
+    Draw.popScissor()
     Draw.popCanvas()
 end
 
@@ -192,6 +197,7 @@ function Text:processNode(node)
         elseif node.character == "\\" and not self.state.escaping then
             self.state.escaping = true
             self.state.newline = false
+            self.state.typed_characters = self.state.typed_characters - 1
         elseif not self.state.escaping then
             if node.character == "*" then
                 if self.state.asterisk_mode and self.state.newline then
@@ -206,7 +212,7 @@ function Text:processNode(node)
         else
             self.state.newline = false
             self.state.escaping = false
-            if node.character == "\\" or node.character == "*" then
+            if node.character == "\\" or node.character == "*" or node.character == "[" or node.character == "]" then
                 local w, h = self:drawChar(node, self.state)
                 table.insert(self.nodes_to_draw, {node, self.state})
                 self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -271,12 +277,10 @@ function Text:drawChar(node, state, use_color)
     local width, height = font:getWidth(node.character), font:getHeight()
 
     if state.shake >= 0 then
-        if self.last_shake >= (1 * DTMULT) then
-            self.last_shake = 0
+        if self.timer - state.last_shake >= (1 * DTMULT) then
+            state.last_shake = self.timer
             state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
             state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
-        else
-            self.last_shake = self.last_shake + (1 * DTMULT)
         end
     end
 

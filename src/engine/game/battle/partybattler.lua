@@ -20,7 +20,7 @@ function PartyBattler:init(chara, x, y)
     self:setAnimation("battle/idle")
 
     self.defending = false
-    self.hurt_bump_timer = 0
+    self.hurt_timer = 0
 
     self.is_down = false
 end
@@ -54,17 +54,7 @@ function PartyBattler:hurt(amount, exact)
         end
     end
 
-    if (self.chara.health <= 0) then
-        amount = Utils.round(amount / 4)
-        self.chara.health = self.chara.health - amount
-    else
-        self.chara.health = self.chara.health - amount
-        if (self.chara.health <= 0) then
-            amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
-            self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
-        end
-    end
-	self:checkHealth()
+    self:removeHealth(amount)
 
     if (self.chara.health <= 0) then
         self:statusMessage("msg", "down", nil, true)
@@ -73,7 +63,7 @@ function PartyBattler:hurt(amount, exact)
     end
 
     self.sprite.x = -10
-    self.hurt_bump_timer = 4
+    self.hurt_timer = 4
     Game.battle.shake = 4
 
     if (not self.defending) and (not self.is_down) then
@@ -85,6 +75,20 @@ function PartyBattler:hurt(amount, exact)
             end)
         end
     end
+end
+
+function PartyBattler:removeHealth(amount)
+    if (self.chara.health <= 0) then
+        amount = Utils.round(amount / 4)
+        self.chara.health = self.chara.health - amount
+    else
+        self.chara.health = self.chara.health - amount
+        if (self.chara.health <= 0) then
+            amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
+            self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
+        end
+    end
+    self:checkHealth()
 end
 
 function PartyBattler:down()
@@ -174,9 +178,9 @@ function PartyBattler:setSprite(sprite, speed, loop, after)
 end
 
 function PartyBattler:update(dt)
-    if self.hurt_bump_timer > 0 then
-        self.sprite.x = -self.hurt_bump_timer * 2
-        self.hurt_bump_timer = Utils.approach(self.hurt_bump_timer, 0, DTMULT)
+    if self.hurt_timer > 0 then
+        self.sprite.x = -self.hurt_timer * 2
+        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
     else
         self.sprite.x = 0
     end

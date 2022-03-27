@@ -75,6 +75,12 @@ return function(cutscene)
             cutscene:alignFollowers("up")
         end
 
+        local chasers = Game.stage:getObjects(ChaserEnemy)
+        if #chasers > 0 then
+            cutscene:startEncounter(chasers[1].encounter, true, chasers[1])
+            cutscene:text("That sucked", "sincere_smile", "susie")
+        end
+
         cutscene:attachFollowers()
         cutscene:attachCamera()
     else

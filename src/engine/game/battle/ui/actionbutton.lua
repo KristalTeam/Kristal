@@ -70,7 +70,7 @@ function ActionButton:select()
         for _,spell_id in ipairs(self.battler.chara.spells) do
             local spell = Registry.getSpell(spell_id)
             local color = spell.color or {1, 1, 1, 1}
-            if spell.pacify then
+            if spell:hasTag("spare_tired") then
                 local has_tired = false
                 for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
                     if enemy.tired then
@@ -133,7 +133,7 @@ function ActionButton:hasSpecial()
                 local has_pacify = false
                 for _,spell_id in ipairs(self.battler.chara.spells) do
                     local spell = Registry.getSpell(spell_id)
-                    if spell and spell.pacify then
+                    if spell and spell:hasTag("spare_tired") then
                         has_pacify = true
                         break
                     end

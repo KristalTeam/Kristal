@@ -49,7 +49,7 @@ function WorldCutscene:update(dt)
         local tx = Utils.approach(ex, target[2], target[4] * DTMULT)
         local ty = Utils.approach(ey, target[3], target[4] * DTMULT)
         if target[1] then
-            chara:moveTo(tx, ty)
+            chara:moveTo(tx, ty, target[6])
         else
             chara:setExactPosition(tx, ty)
         end
@@ -78,6 +78,10 @@ end
 function WorldCutscene:onEnd()
     Game.lock_input = false
     Game.cutscene_active = false
+
+    if Game.world.cutscene == self then
+        Game.world.cutscene = nil
+    end
 
     if self.textbox then
         self.textbox:remove()
@@ -170,14 +174,19 @@ function WorldCutscene:look(chara, dir)
     chara:setFacing(dir)
 end
 
-function WorldCutscene:walkTo(chara, x, y, speed, facing)
+function WorldCutscene:walkTo(chara, x, y, speed, facing, keep_facing)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
     local ex, ey = chara:getExactPosition()
     if ex ~= x or ey ~= y then
-        self.move_targets[chara] = {true, x, y, speed or 4, facing}
+        if keep_facing then
+            chara:setFacing(facing)
+        end
+        self.move_targets[chara] = {true, x, y, speed or 4, facing, keep_facing}
         return function() return self.move_targets[chara] == nil end
+    elseif chara.facing and chara.facing ~= facing then
+        chara:setFacing(facing)
     end
     return _true
 end
@@ -346,9 +355,9 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox.visible = true
     self.textbox:setFace(portrait, options["x"], options["y"])
 
-    if options["faces"] then
-        for _,face in ipairs(options["faces"]) do
-            self.textbox:addSmallFace(face[1], face[2], face[3], face[4], face[5])
+    if options["reactions"] then
+        for id,react in pairs(options["reactions"]) do
+            self.textbox:addReaction(id, react[1], react[2], react[3], react[4], react[5])
         end
     end
 
@@ -402,6 +411,11 @@ function WorldCutscene:choicer(choices, options)
     else
         return waitForChoicer, self.choicebox
     end
+end
+
+function WorldCutscene:startEncounter(encounter, transition, enemy)
+    Game:encounter(encounter, transition, enemy)
+    self:wait(function() return Game.battle == nil end)
 end
 
 return WorldCutscene
