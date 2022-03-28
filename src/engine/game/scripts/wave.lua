@@ -184,15 +184,4 @@ function Wave:getAttackers()
     return result
 end
 
-function Wave:getEnemyRatio()
-    local enemies = #Game.battle:getActiveEnemies()
-    if enemies <= 1 then
-        return 1
-    elseif enemies == 2 then
-        return 1.6
-    elseif enemies >= 3 then
-        return 2.3
-    end
-end
-
 return Wave
