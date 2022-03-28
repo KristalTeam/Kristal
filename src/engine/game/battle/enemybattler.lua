@@ -50,7 +50,8 @@ function EnemyBattler:init(chara)
 
     self.hurt_timer = 0
     self.comment = ""
-	self.defeated = false
+    self.icons = {}
+    self.defeated = false
 end
 
 function EnemyBattler:setTired(bool)

@@ -244,6 +244,8 @@ function BattleUI:drawState()
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
             local enemy = enemies[index]
             local y_off = (index - page_offset - 1) * 30
+            local spare_icon = false
+            local tired_icon = false
             if enemy.tired and (enemy.mercy >= 100) then
                 love.graphics.setColor(1, 1, 1, 1)
 
@@ -265,20 +267,33 @@ function BattleUI:drawState()
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
                 love.graphics.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
+                spare_icon = true
+                tired_icon = true
             elseif enemy.tired then
                 love.graphics.setColor(0, 178/255, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + y_off)
 
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
+                tired_icon = true
             elseif enemy.mercy >= 100 then
                 love.graphics.setColor(1, 1, 0, 1)
                 love.graphics.print(enemy.name, 80, 50 + y_off)
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
+                spare_icon = true
             else
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(enemy.name, 80, 50 + y_off)
+            end
+
+            for i = 1, #enemy.icons do
+                if (spare_icon and (i == 1)) or (tired_icon and (i == 2)) then
+                    -- Skip the custom icons if we're already drawing spare/tired ones
+                else
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(enemy.icons[i], 80 + font:getWidth(enemy.name) + (i * 20), 60 + y_off)
+                end
             end
 
             if Game.battle.state == "XACTENEMYSELECT" then
