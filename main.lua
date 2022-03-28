@@ -659,7 +659,7 @@ function Kristal.clearModState()
     Object._clearCache()
     Draw._clearStacks()
     -- End the current mod
-    Kristal.modCall("unload")
+    Kristal.callEvent("unload")
     Mod = nil
     Kristal.Mods.clear()
     Kristal.clearModHooks()
