@@ -19,7 +19,7 @@ end
 function DarkBox:draw()
     self.frame = ((self.frame + (DTMULT / 10)) - 1) % #self.corner + 1
 
-    love.graphics.setColor(0, 0, 0)
+    love.graphics.setColor(0, 0, 0, self.alpha)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     love.graphics.setColor(self:getDrawColor())
