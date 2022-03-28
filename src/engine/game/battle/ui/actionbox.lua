@@ -48,7 +48,9 @@ function ActionBox:createButtons()
     if not self.battler.chara.has_act then Utils.removeFromTable(btn_types, "act") end
     if not self.battler.chara.has_spells then Utils.removeFromTable(btn_types, "magic") end
 
-    btn_types = Kristal.libCall(nil, "getActionButtons", self.battler, btn_types) or btn_types
+    for lib_id,_ in pairs(Mod.libs) do
+        btn_types = Kristal.libCall(lib_id, "getActionButtons", self.battler, btn_types) or btn_types
+    end
     btn_types = Kristal.modCall("getActionButtons", self.battler, btn_types) or btn_types
 
     local start_x = (213 / 2) - ((#btn_types-1) * 35 / 2) - 1
