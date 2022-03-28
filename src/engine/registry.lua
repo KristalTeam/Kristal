@@ -37,7 +37,7 @@ function Registry.initialize(preload)
         Registry.initTilesets()
         Registry.initMaps()
 
-        Kristal.modCall("onRegistered")
+        Kristal.callEvent("onRegistered")
     end
 
     self.preload = preload
@@ -265,7 +265,7 @@ function Registry.initObjects()
         _G[id] = object
     end
 
-    Kristal.modCall("onRegisterObjects")
+    Kristal.callEvent("onRegisterObjects")
 end
 
 function Registry.initActors()
@@ -279,7 +279,7 @@ function Registry.initActors()
         mod(self.actors[id])
     end
 
-    Kristal.modCall("onRegisterActors")
+    Kristal.callEvent("onRegisterActors")
 end
 
 function Registry.initPartyMembers()
@@ -310,7 +310,7 @@ function Registry.initItems()
         mod(self.items[id])
     end
 
-    Kristal.modCall("onRegisterItems")
+    Kristal.callEvent("onRegisterItems")
 end
 
 function Registry.initSpells()
@@ -324,7 +324,7 @@ function Registry.initSpells()
         mod(self.spells[id])
     end
 
-    Kristal.modCall("onRegisterSpells")
+    Kristal.callEvent("onRegisterSpells")
 end
 
 function Registry.initEncounters()
@@ -335,7 +335,7 @@ function Registry.initEncounters()
         self.registerEncounter(encounter.id, encounter)
     end
 
-    Kristal.modCall("onRegisterEncounters")
+    Kristal.callEvent("onRegisterEncounters")
 end
 
 function Registry.initEnemies()
@@ -346,7 +346,7 @@ function Registry.initEnemies()
         self.registerEnemy(enemy.id, enemy)
     end
 
-    Kristal.modCall("onRegisterEnemies")
+    Kristal.callEvent("onRegisterEnemies")
 end
 
 function Registry.initWaves()
@@ -357,7 +357,7 @@ function Registry.initWaves()
         self.registerWave(wave.id, wave)
     end
 
-    Kristal.modCall("onRegisterWaves")
+    Kristal.callEvent("onRegisterWaves")
 end
 
 function Registry.initBullets()
@@ -374,7 +374,7 @@ function Registry.initBullets()
         self.registerWorldBullet(bullet.id, bullet)
     end
 
-    Kristal.modCall("onRegisterBullets")
+    Kristal.callEvent("onRegisterBullets")
 end
 
 function Registry.initCutscenes()
@@ -388,7 +388,7 @@ function Registry.initCutscenes()
         self.registerBattleCutscene(path, cutscene)
     end
 
-    Kristal.modCall("onRegisterCutscenes")
+    Kristal.callEvent("onRegisterCutscenes")
 end
 
 function Registry.initTilesets()
@@ -400,7 +400,7 @@ function Registry.initTilesets()
         self.registerTileset(path, Tileset(data, full_path))
     end
 
-    Kristal.modCall("onRegisterTilesets")
+    Kristal.callEvent("onRegisterTilesets")
 end
 
 function Registry.initMaps()
@@ -427,7 +427,7 @@ function Registry.initMaps()
         end
     end
 
-    Kristal.modCall("onRegisterMaps")
+    Kristal.callEvent("onRegisterMaps")
 end
 
 function Registry.iterScripts(base_path)
@@ -495,6 +495,9 @@ function Registry.iterScripts(base_path)
 
     parse(base_path, self.base_scripts)
     if Mod then
+        for _,lib in pairs(Mod.libs) do
+            parse("scripts/"..base_path, lib.info.script_chunks)
+        end
         parse("scripts/"..base_path, Mod.info.script_chunks)
     end
 
@@ -538,6 +541,9 @@ function Registry.iterMods(base_path)
 
     parse(base_path, self.base_scripts)
     if Mod then
+        for _,lib in pairs(Mod.libs) do
+            parse("scripts/"..base_path, lib.info.script_chunks)
+        end
         parse("scripts/"..base_path, Mod.info.script_chunks)
     end
 

@@ -771,33 +771,103 @@ function Kristal.loadMod(id, save_id)
 end
 
 function Kristal.loadModAssets(id, after)
+    -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getMod(id)
 
+    -- No mod found; nothing to load
     if not mod then return end
 
-    Mod = Mod or {info = mod}
+    -- How many assets we need to load (1 for the mod, 1 for each library)
+    local load_count = 1
 
-    MOD_LOADING = true
+    -- Create the Mod table, which is a global table that
+    -- can contain a mod's custom variables and functions
+    -- with Mod.info referencing the mod data (from the .json)
+    Mod = Mod or {info = mod, libs = {}}
 
-    Kristal.loadAssets(mod.path, "all", "", function()
-        MOD_LOADING = false
+    -- Check for mod.lua
+    if mod.script_chunks["mod"] then
+        -- Execute mod.lua
+        local result = mod.script_chunks["mod"]()
+        -- If mod.lua returns a table, use that as the global Mod table (optional)
+        if type(result) == "table" then
+            Mod = result
+            if not Mod.info then
+                Mod.info = mod
+            end
+        end
+    end
 
-        if mod.script_chunks["mod"] then
-            local chunk = mod.script_chunks["mod"]
+    -- Create the Mod.libs table, which similarly to the
+    -- Mod table, can contain a library's custom variables
+    -- and functions with lib.info referncing the library data
+    Mod.libs = Mod.libs or {}
+    for lib_id,lib_info in pairs(mod.libs) do
+        local lib = {info = lib_info}
 
-            local result = chunk()
+        ACTIVE_LIB = lib
+
+        -- Check for lib.lua
+        if lib_info.script_chunks["lib"] then
+            -- Execute lib.lua
+            local result = lib_info.script_chunks["lib"]()
+            -- If lib.lua returns a table, use that as the lib table (optional)
             if type(result) == "table" then
-                Mod = result
-                if not Mod.info then
-                    Mod.info = mod
+                lib = result
+                if not lib.info then
+                    lib.info = lib_info
                 end
             end
         end
 
-        Registry.initialize()
+        ACTIVE_LIB = nil
 
-        after()
-    end)
+        -- Increase the number of loads we need to complete
+        load_count = load_count + 1
+
+        -- Add the current library to the libs table
+        Mod.libs[lib_id] = lib
+    end
+
+    -- Begin mod loading
+    MOD_LOADING = true
+
+    local function finishLoadStep()
+        -- Finish one load process
+        load_count = load_count - 1
+        -- Check if all load processes are done (mod and libraries)
+        if load_count == 0 then
+            -- Finish mod loading
+            MOD_LOADING = false
+
+            -- Whether to call the "after" function
+            local use_callback = true
+
+            -- Call preInit on all libraries
+            for lib_id,_ in pairs(Mod.libs) do
+                local lib_result = Kristal.libCall(lib_id, "preInit")
+                use_callback = use_callback and lib_result ~= false
+            end
+
+            -- Call Mod:preInit
+            local mod_result = Kristal.modCall("preInit")
+            use_callback = use_callback and mod_result ~= false
+
+            -- Initialize registry
+            Registry.initialize()
+
+            -- If any "preInit" explicitly returns false, cancel finish callback
+            if use_callback then
+                after()
+            end
+        end
+    end
+
+    -- Finally load all assets (libraries first)
+    for _,lib in pairs(Mod.libs) do
+        Kristal.loadAssets(lib.info.path, "all", "", finishLoadStep)
+    end
+    Kristal.loadAssets(mod.path, "all", "", finishLoadStep)
 end
 
 function Kristal.resetWindow()
@@ -889,6 +959,35 @@ function Kristal.modCall(f, ...)
     end
 end
 
+function Kristal.libCall(id, f, ...)
+    if not Mod then return end
+
+    if not id then
+        local result
+        for _,lib in pairs(Mod.libs) do
+            if lib[f] and type(lib[f]) == "function" then
+                local lib_result = lib[f](lib, ...)
+                result = lib_result or result
+            end
+        end
+        return result
+    else
+        local lib = Mod.libs[id]
+        if lib and lib[f] and type(lib[f]) == "function" then
+            return lib[f](lib, ...)
+        end
+    end
+end
+
+function Kristal.callEvent(f, ...)
+    if not Mod then return end
+
+    local lib_result = Kristal.libCall(nil, f, ...)
+    local mod_result = Kristal.modCall(f, ...)
+
+    return mod_result or lib_result
+end
+
 function Kristal.modGet(k)
     if Mod and Mod[k] then
         return Mod[k]
@@ -904,6 +1003,28 @@ function Kristal.executeModScript(path, ...)
         return false
     else
         return true, Mod.info.script_chunks[path](...)
+    end
+end
+
+function Kristal.executeLibScript(lib, path, ...)
+    if not Mod then
+        return false
+    end
+
+    if not lib then
+        for _,library in pairs(Mod.libs) do
+            if library.info.script_chunks[path] then
+                return true, library.info.script_chunks[path](...)
+            end
+        end
+        return false
+    else
+        local library = Mod.libs[path]
+        if not library or not library.info.script_chunks[path] then
+            return false
+        else
+            return true, library.info.script_chunks[path](...)
+        end
     end
 end
 
@@ -929,7 +1050,12 @@ rawRequire = require
 function require(path, ...)
     if Mod then
         path = path:gsub("%.", "/")
-        local success, result = Kristal.executeModScript(path, ...)
+        local success, result
+        if not ACTIVE_LIB then
+            success, result = Kristal.executeModScript(path, ...)
+        else
+            success, result = Kristal.executeLibScript(ACTIVE_LIB.info.id, path, ...)
+        end
         if not success then
             error("No script found: "..path)
         end

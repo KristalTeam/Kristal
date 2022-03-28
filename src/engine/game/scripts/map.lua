@@ -404,6 +404,21 @@ function Map:loadObject(name, data)
     if success then
         return result(data)
     end
+    -- Library object loading
+    for id,lib in pairs(Mod.libs) do
+        local obj = Kristal.libCall(id, "loadObject", self.world, name, data)
+        if obj then
+            return obj
+        else
+            if lib.Events and lib.Events[name] then
+                return lib.Events[name](data)
+            end
+        end
+        local success, result = Kristal.executeLibScript(id, "scripts/world/events/"..name)
+        if success then
+            return result(data)
+        end
+    end
     -- Kristal object loading
     if name:lower() == "savepoint" then
         return Savepoint(Readable.parseText(data.properties), data.center_x, data.center_y)

@@ -287,7 +287,7 @@ function Character:onFootstep(num)
     if self.world and self.world.map then
         self.world.map:onFootstep(self, num)
     end
-    Kristal.modCall("onFootstep", self, num)
+    Kristal.callEvent("onFootstep", self, num)
 end
 
 function Character:shake(x, y)

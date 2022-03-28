@@ -1,5 +1,5 @@
 function Mod:init()
-    print("Loaded example mod!")
+    print("Loaded test mod!")
 
     local spell = Registry.getSpell("ultimate_heal")
     Utils.hook(spell, "onCast", function(orig, self, user, target)

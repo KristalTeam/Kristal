@@ -181,7 +181,7 @@ function Player:handleMovement()
     end
 
     if self.world.player == self and self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
-        self:moveCamera()
+        self:moveCamera(math.max(speed, 12))
     end
 end
 

@@ -4,5 +4,6 @@ DTMULT = DT * 30
 RUNTIME = 0
 
 MOD_LOADING = false
+ACTIVE_LIB = nil
 
 DEBUG_RENDER = false

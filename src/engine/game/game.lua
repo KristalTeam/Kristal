@@ -26,7 +26,7 @@ function Game:enter(previous_state, save_id)
 
     self.quick_save = nil
 
-    Kristal.modCall("preInit")
+    Kristal.callEvent("init")
 
     if save_id then
         Kristal.loadGame(save_id)
@@ -58,7 +58,7 @@ function Game:enter(previous_state, save_id)
         self:encounter(Kristal.getModOption("encounter"), false)
     end
 
-    Kristal.modCall("init")
+    Kristal.callEvent("postInit")
 end
 
 
@@ -120,7 +120,7 @@ function Game:save(x, y)
         data.party_data[k] = v:save()
     end
 
-    Kristal.modCall("save", data)
+    Kristal.callEvent("save", data)
 
     return data
 end
@@ -200,7 +200,7 @@ function Game:load(data, index)
 
     self.world:spawnParty(data.spawn_marker or data.spawn_position)
 
-    Kristal.modCall("load", data, index)
+    Kristal.callEvent("load", data, index)
 end
 
 function Game:isLight()
@@ -575,7 +575,7 @@ function Game:update(dt)
         end
     end
 
-    if Kristal.modCall("preUpdate", dt) then
+    if Kristal.callEvent("preUpdate", dt) then
         return
     end
 
@@ -595,7 +595,7 @@ function Game:update(dt)
         self:updateGameOver(dt)
     end
 
-    Kristal.modCall("postUpdate", dt)
+    Kristal.callEvent("postUpdate", dt)
 end
 
 function Game:textinput(key)
@@ -605,7 +605,7 @@ end
 function Game:keypressed(key)
     if self.previous_state and self.previous_state.animation_active then return end
 
-    if Kristal.modCall("onKeyPressed", key) then
+    if Kristal.callEvent("onKeyPressed", key) then
         return
     end
 
@@ -625,7 +625,7 @@ end
 function Game:draw()
     love.graphics.clear(0, 0, 0, 1)
     love.graphics.push()
-    if Kristal.modCall("preDraw") then
+    if Kristal.callEvent("preDraw") then
         love.graphics.pop()
         if self.previous_state and self.previous_state.animation_active then
             self.previous_state:draw()
@@ -674,7 +674,7 @@ function Game:draw()
     love.graphics.setColor(1, 1, 1, 1)
 
     love.graphics.push()
-    Kristal.modCall("postDraw")
+    Kristal.callEvent("postDraw")
     love.graphics.pop()
 
     if self.previous_state and self.previous_state.animation_active then

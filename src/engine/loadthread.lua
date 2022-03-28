@@ -148,6 +148,33 @@ local loaders = {
                 end
             end
 
+            if love.filesystem.getInfo(full_path.."/libraries") then
+                for _,lib_path in ipairs(love.filesystem.getDirectoryItems(full_path.."/libraries")) do
+                    local lib_full_path = full_path.."/libraries/"..lib_path
+                    local lib_zip_id = checkExtension(lib_path, "zip")
+                    if lib_zip_id then
+                        local mounted_path = lib_full_path
+                        lib_full_path = full_path.."/libraries/"..lib_zip_id
+                        lib_path = lib_zip_id
+                        love.filesystem.mount(mounted_path, lib_full_path)
+                    end
+
+                    local lib = {}
+
+                    if love.filesystem.getInfo(lib_full_path.."/lib.json") then
+                        lib = json.decode(love.filesystem.read(lib_full_path.."/lib.json"))
+                    end
+
+                    lib.id = lib.id or lib_path
+                    lib.folder = lib_path
+                    lib.path = lib_full_path
+
+                    mod.libs = mod.libs or {}
+
+                    mod.libs[lib.id] = lib
+                end
+            end
+
             data.mods[mod.id] = mod
         end
     end},

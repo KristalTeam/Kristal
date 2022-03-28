@@ -40,6 +40,15 @@ function Mods.loadData(data)
             mod_data.script_chunks[path] = love.filesystem.load(mod_data.path.."/"..path..".lua")
         end
 
+        if mod_data.libs then
+            for _,lib_data in pairs(mod_data.libs) do
+                lib_data.script_chunks = {}
+                for _,path in ipairs(Utils.getFilesRecursive(lib_data.path, ".lua")) do
+                    lib_data.script_chunks[path] = love.filesystem.load(lib_data.path.."/"..path..".lua")
+                end
+            end
+        end
+
         self.data[mod_id] = mod_data
         if mod_data.name then
             self.named[mod_data.name] = mod_id
