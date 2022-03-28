@@ -36,6 +36,8 @@ function Text:init(text, x, y, w, h, font, style)
 
     self.timer = 0
 
+    Kristal.callEvent("registerTextCommands", self)
+
     self:resetState()
 
     self:setText(text)
