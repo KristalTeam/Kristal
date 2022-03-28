@@ -148,6 +148,8 @@ local loaders = {
                 end
             end
 
+            mod.libs = mod.libs or {}
+
             if love.filesystem.getInfo(full_path.."/libraries") then
                 for _,lib_path in ipairs(love.filesystem.getDirectoryItems(full_path.."/libraries")) do
                     local lib_full_path = full_path.."/libraries/"..lib_path
@@ -168,8 +170,6 @@ local loaders = {
                     lib.id = lib.id or lib_path
                     lib.folder = lib_path
                     lib.path = lib_full_path
-
-                    mod.libs = mod.libs or {}
 
                     mod.libs[lib.id] = lib
                 end
