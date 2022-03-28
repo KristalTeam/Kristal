@@ -288,11 +288,13 @@ function BattleUI:drawState()
             end
 
             for i = 1, #enemy.icons do
-                if (spare_icon and (i == 1)) or (tired_icon and (i == 2)) then
-                    -- Skip the custom icons if we're already drawing spare/tired ones
-                else
-                    love.graphics.setColor(1, 1, 1, 1)
-                    love.graphics.draw(enemy.icons[i], 80 + font:getWidth(enemy.name) + (i * 20), 60 + y_off)
+                if enemy.icons[i] then
+                    if (spare_icon and (i == 1)) or (tired_icon and (i == 2)) then
+                        -- Skip the custom icons if we're already drawing spare/tired ones
+                    else
+                        love.graphics.setColor(1, 1, 1, 1)
+                        love.graphics.draw(enemy.icons[i], 80 + font:getWidth(enemy.name) + (i * 20), 60 + y_off)
+                    end
                 end
             end
 
