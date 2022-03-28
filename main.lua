@@ -671,6 +671,10 @@ function Kristal.clearModState()
     Registry.restoreOverridenObjects()
     package.loaded["src.engine.vars"] = nil
     require("src.engine.vars")
+    -- Reset Game state
+    package.loaded["src.engine.game.game"] = nil
+    Kristal.States["Game"] = require("src.engine.game.game")
+    Game = Kristal.States["Game"]
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
