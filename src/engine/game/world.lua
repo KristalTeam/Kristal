@@ -438,7 +438,7 @@ function World:spawnNPC(actor, x, y, properties)
 end
 
 function World:spawnObject(obj, layer)
-    obj.layer = (type(layer) == "number" and layer) or self.layers[layer] or self.layers["objects"]
+    obj.layer = (type(layer) == "number" and layer) or self.layers[layer] or self.map.object_layer or self.layers["objects"]
     self:addChild(obj)
     return obj
 end

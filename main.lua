@@ -748,7 +748,7 @@ function Kristal.loadAssets(dir, loader, paths, after)
 end
 
 function Kristal.preloadMod(id)
-    local mod = Kristal.Mods.getMod(id)
+    local mod = Kristal.Mods.getAndLoadMod(id)
 
     if not mod then return end
 
@@ -758,7 +758,7 @@ function Kristal.preloadMod(id)
 end
 
 function Kristal.loadMod(id, save_id)
-    local mod = Kristal.Mods.getMod(id)
+    local mod = Kristal.Mods.getAndLoadMod(id)
 
     if not mod then return end
 
@@ -776,7 +776,7 @@ end
 
 function Kristal.loadModAssets(id, after)
     -- Get the mod data (loaded from mod.json)
-    local mod = Kristal.Mods.getMod(id)
+    local mod = Kristal.Mods.getAndLoadMod(id)
 
     -- No mod found; nothing to load
     if not mod then return end
