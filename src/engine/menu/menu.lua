@@ -791,6 +791,7 @@ function Menu:keypressed(key, _, is_repeat)
                         table.insert(Kristal.Config["favorites"], self.selected_mod.id)
                     end
 
+                    Kristal.saveConfig()
                     self:rebuildMods()
                 end
             end
