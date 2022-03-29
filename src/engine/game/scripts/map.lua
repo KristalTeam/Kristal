@@ -50,6 +50,7 @@ function Map:init(world, data)
 
     self.object_layer = 1
     self.battle_fader_layer = 0.5
+    self.layers = {}
 
     self.timer = Timer()
 end
@@ -178,6 +179,7 @@ function Map:loadMapData(data)
                 self:loadBattleAreas(layer)
             end
         end
+        self.layers[layer.name] = self.next_layer
         self.next_layer = self.next_layer + self.depth_per_layer
     end
 

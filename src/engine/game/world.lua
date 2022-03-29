@@ -5,7 +5,6 @@ function World:init(map)
 
 
     self.layers = {
-        ["tiles"]         = 0,
         ["objects"]       = 1,
 
         ["below_soul"]    = 100,
@@ -303,7 +302,7 @@ function World:spawnPlayer(...)
     end
 
     self.player = Player(chara, x, y)
-    self.player.layer = self.layers["objects"]
+    self.player.layer = self.map.object_layer
     self.player:setFacing(facing)
     self:addChild(self.player)
 
@@ -361,7 +360,7 @@ function World:spawnFollower(chara, options)
         follower = chara
     else
         follower = Follower(chara, self.player.x, self.player.y)
-        follower.layer = self.layers["objects"]
+        follower.layer = self.map.object_layer
         follower:setFacing(self.player.facing)
     end
     if options["x"] or options["y"] then
@@ -438,9 +437,16 @@ function World:spawnNPC(actor, x, y, properties)
 end
 
 function World:spawnObject(obj, layer)
-    obj.layer = (type(layer) == "number" and layer) or self.layers[layer] or self.map.object_layer or self.layers["objects"]
+    obj.layer = self:parseLayer(layer)
     self:addChild(obj)
     return obj
+end
+
+function World:parseLayer(layer)
+    return (type(layer) == "number" and layer)
+            or self.layers[layer]
+            or self.map.layers[layer]
+            or self.map.object_layer
 end
 
 function World:loadMap(map, ...)
@@ -469,8 +475,6 @@ function World:loadMap(map, ...)
     self.map:load()
 
     self.light = self.map.light
-
-    self.layers["objects"] = self.map.object_layer
 
     self.camera:setBounds(0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
 
