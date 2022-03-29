@@ -153,20 +153,27 @@ end
 function Map:loadMapData(data)
     local object_depths = {}
     local has_battle_border = false
+
+    for i,layer in ipairs(data.layers or {}) do
+        self.layers[layer.name] = self.next_layer
+        self.next_layer = self.next_layer + self.depth_per_layer
+    end
+
     for i,layer in ipairs(data.layers or {}) do
         local name = Utils.split(layer.name, "_")[1]
+        local depth = self.layers[layer.name]
         if not has_battle_border and name == "battleborder" then
-            self.battle_fader_layer = self.next_layer - (self.depth_per_layer/2)
+            self.battle_fader_layer = depth - (self.depth_per_layer/2)
             has_battle_border = true
         end
         if layer.type == "tilelayer" then
-            self:loadTiles(layer, name, self.next_layer)
+            self:loadTiles(layer, name, depth)
         elseif layer.type == "imagelayer" then
-            self:loadImage(layer, name, self.next_layer)
+            self:loadImage(layer, name, depth)
         elseif layer.type == "objectgroup" then
             if name == "objects" then
-                table.insert(object_depths, self.next_layer)
-                self:loadObjects(layer, self.next_layer)
+                table.insert(object_depths, depth)
+                self:loadObjects(layer, depth)
             elseif name == "markers" then
                 self:loadMarkers(layer)
             elseif name == "collision" then
@@ -179,13 +186,11 @@ function Map:loadMapData(data)
                 self:loadBattleAreas(layer)
             end
         end
-        self.layers[layer.name] = self.next_layer
-        self.next_layer = self.next_layer + self.depth_per_layer
     end
 
     self.object_layer = 1
     for i,layer in ipairs(data.layers or {}) do
-        local depth = i * self.depth_per_layer
+        local depth = self.layers[layer.name]
         if layer.type == "objectgroup" and layer.name == "markers" then
             if #object_depths == 0 then
                 self.object_layer = depth
