@@ -56,7 +56,7 @@ function DarkItemMenu:updateSelectedItem()
             self.selected_item = 1
         end
         if items[self.selected_item] then
-            Game.world.menu:setDescription(items[self.selected_item].description, true)
+            Game.world.menu:setDescription(items[self.selected_item]:getDescription(), true)
         else
             Game.world.menu:setDescription("", true)
         end

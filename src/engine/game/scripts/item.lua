@@ -71,6 +71,10 @@ function Item:applyGoldBonus(gold)
     return gold
 end
 
+function Item:getDescription()
+    return self.description
+end
+
 function Item:getReactions(id)
     if id and self.reactions[id] then
         if type(self.reactions[id]) == "table" then

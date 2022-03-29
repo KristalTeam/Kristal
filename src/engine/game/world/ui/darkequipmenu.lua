@@ -195,10 +195,10 @@ function DarkEquipMenu:updateDescription()
         else
             item = party:getArmor(self.selected_slot - 1)
         end
-        Game.world.menu:setDescription(item and item.description or "", true)
+        Game.world.menu:setDescription(item and item:getDescription() or "", true)
     elseif self.state == "ITEMS" then
         local item = self:getSelectedItem()
-        Game.world.menu:setDescription(item and item.description or "", true)
+        Game.world.menu:setDescription(item and item:getDescription() or "", true)
     end
 end
 
