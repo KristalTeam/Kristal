@@ -14,6 +14,8 @@ function ModButton:init(name, width, height, mod)
     self.icon_delay = mod and mod.iconDelay or 0.25
     self.icon_frame = 1
 
+    self.favorited_color = {1, 1, 0.7, 1}
+
     self.engine_versions = {}
     local engine_ver = mod and mod.engineVer
     if type(engine_ver) == "table" then
@@ -59,8 +61,21 @@ function ModButton:onDeselect()
     end
 end
 
+function ModButton:setFavoritedColor(r, g, b, a)
+    local r1, g1, b1, a1 = super:getDrawColor(self)
+    self.favorited_color = {r or r1, g or g1, b or b1, a or a1}
+end
+
+function ModButton:getFavoritedColor()
+    local r, g, b, a = super:getDrawColor(self)
+    return self.favorited_color[1] or r, self.favorited_color[2] or g, self.favorited_color[3] or b, self.favorited_color[4] or a
+end
+
 function ModButton:getDrawColor()
     local r, g, b, a = super:getDrawColor(self)
+    if self:isFavorited() then
+        r, g, b, a = self.favorited_color[1] or r, self.favorited_color[2] or g, self.favorited_color[3] or b, self.favorited_color[4] or a
+    end
     if not self.selected then
         return r * 0.6, g * 0.6, b * 0.7, a
     else
@@ -88,6 +103,10 @@ function ModButton:checkCompatibility()
         end
     end
     return success, highest_version
+end
+
+function ModButton:isFavorited()
+    return Utils.containsValue(Kristal.Config["favorites"], self.id)
 end
 
 function ModButton:drawCoolRectangle(x, y, w, h)
@@ -131,6 +150,14 @@ function ModButton:draw()
     -- Draw the rectangle outlines
     self:drawCoolRectangle(0, 0, self.width, self.height)
     self:drawCoolRectangle(ix, iy, self.height, self.height)
+
+    -- Draw favorites star at the heart position
+    if self:isFavorited() and not self.selected then
+        local star_x, star_y = self:getHeartPos()
+        local star_tex = Assets.getTexture("kristal/menu_star")
+        love.graphics.setColor(self:getDrawColor())
+        love.graphics.draw(star_tex, star_x - star_tex:getWidth()/2, star_y - star_tex:getHeight()/2)
+    end
 
     -- Draw text inside the button rectangle
     Draw.pushScissor()

@@ -8,7 +8,8 @@ function preview:init(mod, button, menu)
     self.particles = {}
     self.particle_timer = 0
 
-    button.color = {1, 1, 0.7}
+    button:setColor(0.7, 1, 1)
+    button:setFavoritedColor(1, 0.7, 1)
 
     self.menu = menu
 end

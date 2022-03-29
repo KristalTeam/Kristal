@@ -896,7 +896,8 @@ function Kristal.loadConfig()
         fullscreen = false,
         simplifyVFX = false,
         autoRun = false,
-        volume = 100
+        volume = 100,
+        favorites = {},
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))

@@ -58,6 +58,11 @@ function Menu:enter()
     self.heart.layer = 100
     self.stage:addChild(self.heart)
 
+    self.heart_outline = Sprite("player/heart_menu_outline", self.heart.width/2, self.heart.height/2)
+    self.heart_outline.visible = false
+    self.heart_outline:setOrigin(0.5, 0.5)
+    self.heart:addChild(self.heart_outline)
+
     self.heart_target_x = 196
     self.heart_target_y = 238
 
@@ -172,27 +177,7 @@ function Menu:reloadMods()
     Kristal.loadAssets("", "mods", "", function()
         self.loading_mods = false
 
-        local last_scroll = self.list.scroll_target
-        local last_selected = self.list:getSelectedId()
-
-        self.list:clearMods()
-        self:buildMods()
-
-        local used = {}
-        for _,mod in ipairs(self.list.mods) do
-            used[mod.id] = true
-        end
-        for k,v in pairs(self.mod_fades) do
-            if not used[k] then
-                self.mod_fades[k] = nil
-            end
-        end
-
-        local button, i = self.list:getById(last_selected)
-        if i ~= nil then
-            self.list:select(i, true)
-            self.list:setScroll(last_scroll)
-        end
+        self:rebuildMods()
     end)
 end
 
@@ -205,7 +190,11 @@ function Menu:buildMods()
         return
     end
     local sorted_mods = Utils.copy(Kristal.Mods.getMods())
-    table.sort(sorted_mods, function(a, b) return a.path:lower() < b.path:lower() end)
+    table.sort(sorted_mods, function(a, b)
+        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
+        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
+        return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
+    end)
     for _,mod in ipairs(sorted_mods) do
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
 
@@ -244,6 +233,30 @@ function Menu:buildMods()
             self.list:select(index, true)
         end
         self.has_target_saves = Kristal.hasAnySaves(TARGET_MOD)
+    end
+end
+
+function Menu:rebuildMods()
+    local last_scroll = self.list.scroll_target
+    local last_selected = self.list:getSelectedId()
+
+    self.list:clearMods()
+    self:buildMods()
+
+    local used = {}
+    for _,mod in ipairs(self.list.mods) do
+        used[mod.id] = true
+    end
+    for k,v in pairs(self.mod_fades) do
+        if not used[k] then
+            self.mod_fades[k] = nil
+        end
+    end
+
+    local button, i = self.list:getById(last_selected)
+    if i ~= nil then
+        self.list:select(i, true)
+        self.list:setScroll(last_scroll)
     end
 end
 
@@ -354,6 +367,14 @@ function Menu:update(dt)
         self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * (dt * 30)
         self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * (dt * 30)
     end
+
+    -- Toggle heart favorite outline
+    if self.state == "MODSELECT" and mod_button then
+        self.heart_outline.visible = mod_button:isFavorited()
+        self.heart_outline:setColor(mod_button:getFavoritedColor())
+    else
+        self.heart_outline.visible = false
+    end
 end
 
 function Menu:draw()
@@ -455,8 +476,8 @@ function Menu:draw()
                 -- Draw some menu text
                 self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
 
-                local return_text = Input.getText("cancel").." Return to main menu"
-                self:printShadow(return_text, 580 + (16 * 3) - self.menu_font:getWidth(return_text), 454 - 8, {1, 1, 1, 1})
+                local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
+                self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end
     elseif self.state == "FILESELECT" then
@@ -758,6 +779,20 @@ function Menu:keypressed(key, _, is_repeat)
                     end
                 end
                 return
+            elseif Input.isMenu(key) then
+                if self.selected_mod then
+                    self.ui_select:stop()
+                    self.ui_select:play()
+
+                    local is_favorited = Utils.containsValue(Kristal.Config["favorites"], self.selected_mod.id)
+                    if is_favorited then
+                        Utils.removeFromTable(Kristal.Config["favorites"], self.selected_mod.id)
+                    else
+                        table.insert(Kristal.Config["favorites"], self.selected_mod.id)
+                    end
+
+                    self:rebuildMods()
+                end
             end
 
             if Input.is("up", key)    then self.list:selectUp(is_repeat)   end
