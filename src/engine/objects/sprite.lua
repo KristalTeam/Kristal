@@ -179,14 +179,15 @@ function Sprite:_basicAnimation(wait)
                 self:setFrame(self.anim_frames[i])
                 wait(self.anim_delay)
             end
+            if not self.loop then break end
         else
-            for i = 1, #self.frames do
-                self:setFrame(i)
+            self:setFrame(1)
+            wait(self.anim_delay)
+            while self.frame < #self.frames do
+                self:setFrame(self.frame + 1)
                 wait(self.anim_delay)
             end
-        end
-        if not self.loop then
-            break
+            if not self.loop then break end
         end
     end
 end
