@@ -542,6 +542,16 @@ function Game:getSoulPartyMember()
     return current
 end
 
+function Game:getActLeader()
+    local current
+    for _,party in ipairs(self.party) do
+        if party.has_act and (not current or (party.soul_priority > current.soul_priority)) then
+            current = party
+        end
+    end
+    return current
+end
+
 function Game:update(dt)
     if self.state == "EXIT" then
         if self.world and self.world.music then

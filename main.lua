@@ -1003,6 +1003,30 @@ function Kristal.getModOption(name)
     return Mod and Mod.info and Mod.info[name]
 end
 
+function Kristal.getLibConfig(lib_id, key, merge, deep_merge)
+    if not Mod then return end
+
+    local lib = Mod.libs[lib_id]
+
+    if not lib then error("No library found: "..lib_id) end
+
+    local lib_config = lib.info and lib.info.config or {}
+    local mod_config = Mod.info and Mod.info.config and Utils.getAnyCase(Mod.info.config, lib_id) or {}
+
+    local lib_value = Utils.getAnyCase(lib_config, key)
+    local mod_value = Utils.getAnyCase(mod_config, key)
+
+    if mod_value ~= nil and lib_value == nil then
+        return mod_value
+    elseif lib_value ~= nil and mod_value == nil then
+        return lib_value
+    elseif type(lib_value) == "table" and merge then
+        return Utils.merge(Utils.copy(lib_value, true), mod_value, deep_merge)
+    else
+        return mod_value
+    end
+end
+
 function Kristal.executeModScript(path, ...)
     if not Mod or not Mod.info.script_chunks[path] then
         return false

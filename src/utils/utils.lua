@@ -594,4 +594,13 @@ function Utils.getKey(t, value)
     return nil
 end
 
+function Utils.getAnyCase(t, key)
+    for k,v in pairs(t) do
+        if type(k) == "string" and k:lower() == key:lower() then
+            return v
+        end
+    end
+    return nil
+end
+
 return Utils
