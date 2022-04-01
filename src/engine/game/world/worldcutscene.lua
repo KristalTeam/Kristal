@@ -180,12 +180,12 @@ function WorldCutscene:walkTo(chara, x, y, speed, facing, keep_facing)
     end
     local ex, ey = chara:getExactPosition()
     if ex ~= x or ey ~= y then
-        if keep_facing then
+        if facing and keep_facing then
             chara:setFacing(facing)
         end
         self.move_targets[chara] = {true, x, y, speed or 4, facing, keep_facing}
         return function() return self.move_targets[chara] == nil end
-    elseif chara.facing and chara.facing ~= facing then
+    elseif facing and chara.facing ~= facing then
         chara:setFacing(facing)
     end
     return _true
