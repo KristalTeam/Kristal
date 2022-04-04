@@ -10,6 +10,7 @@ function Game:clear()
     self.stage = nil
     self.world = nil
     self.battle = nil
+    self.shop = nil
     self.inventory = nil
     self.fader_alpha = 0
     self.quick_save = nil
@@ -150,6 +151,8 @@ function Game:load(data, index)
     end
 
     self.battle = nil
+
+    self.shop = nil
 
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
 
@@ -488,6 +491,18 @@ function Game:encounter(encounter, transition, enemy)
     self.stage:addChild(self.battle)
 end
 
+function Game:enterShop()
+    self.music:stop()
+    if self.shop then
+        error("Attempt to enter shop while already in shop")
+    end
+
+    self.state = "SHOP"
+
+    self.shop = Shop()
+    self.stage:addChild(self.shop)
+end
+
 function Game:setVolume(volume)
     MASTER_VOLUME = math.max(0, math.min(1, volume))
     love.audio.setVolume(volume)
@@ -632,6 +647,10 @@ function Game:keypressed(key)
     elseif self.state == "OVERWORLD" then
         if self.world then
             self.world:keypressed(key)
+        end
+    elseif self.state == "SHOP" then
+        if self.shop then
+            self.shop:keypressed(key)
         end
     end
 end
