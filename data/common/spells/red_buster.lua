@@ -54,7 +54,7 @@ function spell:onCast(user, target)
                 Game.battle:finishAction()
             end
         end)
-        blast.layer = LAYERS["above_ui"]
+        blast.layer = BATTLE_LAYERS["above_ui"]
         Game.battle:addChild(blast)
     end)
     return false

@@ -6,7 +6,7 @@ function IceSpellBurst:init(x, y)
     self.alpha = 1.2
     self:fadeOutAndRemove(0.1)
 
-    self.layer = LAYERS["above_battlers"] + 1
+    self.layer = BATTLE_LAYERS["above_battlers"] + 1
 
     self.timer = 0
 end

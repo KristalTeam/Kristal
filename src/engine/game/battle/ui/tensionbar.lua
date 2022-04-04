@@ -3,7 +3,7 @@ local TensionBar, super = Class(Object)
 function TensionBar:init(x, y)
     super:init(self, x, y)
 
-    self.layer = LAYERS["ui"] - 1
+    self.layer = BATTLE_LAYERS["ui"] - 1
 
     self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill")
     self.tp_bar_outline = Assets.getTexture("ui/battle/tp_bar_outline")

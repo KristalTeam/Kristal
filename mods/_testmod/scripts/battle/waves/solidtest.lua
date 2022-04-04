@@ -13,7 +13,7 @@ function SolidTest:onStart()
     self.start_x, self.start_y = Game.battle.arena:getCenter()
 
     self.solid = self:spawnObject(Solid(true, self.start_x, self.start_y, 8, 60))
-    self.solid:setLayer(LAYERS["above_arena"])
+    self.solid:setLayer(BATTLE_LAYERS["above_arena"])
     self.solid:setOrigin(0.5, 0.5)
 end
 

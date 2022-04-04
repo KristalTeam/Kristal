@@ -3,7 +3,7 @@ local Bullet, super = Class(Object)
 function Bullet:init(x, y, texture)
     super:init(self, x, y)
 
-    self.layer = LAYERS["bullets"]
+    self.layer = BATTLE_LAYERS["bullets"]
 
     -- Set scale and origin
     self:setOrigin(0.5, 0.5)

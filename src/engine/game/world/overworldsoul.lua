@@ -5,7 +5,7 @@ function OverworldSoul:init(x, y)
 
     self:setColor(1, 0, 0)
 
-    --self.layer = LAYERS["soul"]
+    --self.layer = BATTLE_LAYERS["soul"]
 
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)

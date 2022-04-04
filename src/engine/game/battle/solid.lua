@@ -3,7 +3,7 @@ local Solid, super = Class(Object)
 function Solid:init(filled, x, y, width, height)
     super:init(self, x, y, width, height)
 
-    self.layer = LAYERS["above_arena"]
+    self.layer = BATTLE_LAYERS["above_arena"]
 
     if width and height then
         self:setHitbox(0, 0, width, height)

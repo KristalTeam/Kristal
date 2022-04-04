@@ -780,7 +780,7 @@ function Battle:processAction(action)
                 local sparkle = Sprite("effects/criticalswing/sparkle", sx + Utils.random(50), sy + 30 + Utils.random(30))
                 sparkle:play(4/30, true)
                 sparkle:setScale(2)
-                sparkle.layer = LAYERS["above_battlers"]
+                sparkle.layer = BATTLE_LAYERS["above_battlers"]
                 sparkle.physics.speed_x = Utils.random(2, 6)
                 sparkle.physics.friction = -0.25
                 sparkle:fadeOutAndRemove()

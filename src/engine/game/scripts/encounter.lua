@@ -136,7 +136,7 @@ function Encounter:onDialogueEnd()
     end
 
     local arena = Arena(arena_x or SCREEN_WIDTH/2, arena_y or (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
-    arena.layer = LAYERS["arena"]
+    arena.layer = BATTLE_LAYERS["arena"]
 
     Game.battle.arena = arena
     Game.battle:addChild(arena)

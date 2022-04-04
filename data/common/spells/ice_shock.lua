@@ -26,7 +26,7 @@ function spell:onCast(user, target)
         local sprite = Sprite("effects/icespell/snowflake", x, y)
         sprite:setOrigin(0.5, 0.5)
         sprite:setScale(1.5)
-        sprite.layer = LAYERS["above_battlers"]
+        sprite.layer = BATTLE_LAYERS["above_battlers"]
         Game.battle:addChild(sprite)
         return sprite
     end
@@ -51,7 +51,7 @@ function spell:onCast(user, target)
                 effect.physics.direction = math.rad(60 * i)
                 effect.physics.speed = 8
                 effect.physics.friction = 0.2
-                effect.layer = LAYERS["above_battlers"] - 1
+                effect.layer = BATTLE_LAYERS["above_battlers"] - 1
                 Game.battle:addChild(effect)
             end
         end

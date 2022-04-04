@@ -3,7 +3,7 @@ local Battler, super = Class(Object)
 function Battler:init(x, y, width, height)
     super:init(self, x, y, width, height)
 
-    self.layer = LAYERS["battlers"]
+    self.layer = BATTLE_LAYERS["battlers"]
 
     self:setOrigin(0.5, 1)
     self:setScale(2)

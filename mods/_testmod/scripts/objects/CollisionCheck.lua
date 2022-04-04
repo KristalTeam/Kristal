@@ -3,7 +3,7 @@ local CollisionCheck, super = Class(Object)
 function CollisionCheck:init(x, y, collider)
     super:init(self, x, y)
 
-    self.layer = LAYERS["below_soul"]
+    self.layer = BATTLE_LAYERS["below_soul"]
 
     if collider then
         self.collider = collider

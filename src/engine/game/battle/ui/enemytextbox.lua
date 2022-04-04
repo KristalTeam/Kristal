@@ -3,7 +3,7 @@ local EnemyTextbox, super = Class(Object)
 function EnemyTextbox:init(text, x, y, speaker, right)
     super:init(self, x, y, 0, 0)
 
-    self.layer = LAYERS["above_arena"] - 1
+    self.layer = BATTLE_LAYERS["above_arena"] - 1
 
     self.bubble_end = Assets.getTexture("ui/battle/bubble_end")
 

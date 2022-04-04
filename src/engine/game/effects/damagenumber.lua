@@ -13,7 +13,7 @@ function DamageNumber:init(type, arg, x, y, color)
     self.color = color or {1, 1, 1}
 
     -- Halfway between UI and the layer above it
-    self.layer = Utils.lerp(LAYERS["ui"], LAYERS["above_ui"], 0.5)
+    self.layer = BATTLE_LAYERS["damage_numbers"]
 
     self.type = type or "msg"
     if self.type == "msg" then

@@ -3,7 +3,7 @@ local BattleUI, super = Class(Object)
 function BattleUI:init()
     super:init(self, 0, 480)
 
-    self.layer = LAYERS["ui"]
+    self.layer = BATTLE_LAYERS["ui"]
 
     self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, true)
     self.encounter_text.text.line_offset = 0

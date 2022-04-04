@@ -11,13 +11,14 @@ TILE_HEIGHT = 40
 
 FOLLOW_DELAY = 0.4
 
-LAYERS = {
+BATTLE_LAYERS = {
     [        "bottom"] = -1000,
     ["below_battlers"] =  -200,
     [      "battlers"] =  -100,
     ["above_battlers"] =     0, --┰-- 0
     [      "below_ui"] =     0, --┙
     [            "ui"] =   100,
+    ["damage_numbers"] =   150,
     [      "above_ui"] =   200, --┰-- 200
     [   "below_arena"] =   200, --┙
     [         "arena"] =   300,

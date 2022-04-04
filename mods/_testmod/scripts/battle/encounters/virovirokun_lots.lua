@@ -33,7 +33,7 @@ function Virovirokun:update(dt)
     if Game.battle.state == "DEFENDING" then
         if Input.pressed("menu") then
             local explosion = Game.battle.soul:explode()
-            explosion:setLayer(LAYERS["top"])
+            explosion:setLayer(BATTLE_LAYERS["top"])
         end
     end
 

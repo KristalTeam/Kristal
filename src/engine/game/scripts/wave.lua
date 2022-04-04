@@ -3,7 +3,7 @@ local Wave, super = Class(Object)
 function Wave:init()
     super:init(self)
 
-    self.layer = LAYERS["above_bullets"]
+    self.layer = BATTLE_LAYERS["above_bullets"]
 
     -- Wave arena position
     self.arena_x = nil
@@ -100,7 +100,7 @@ function Wave:spawnSpriteTo(parent, texture, x,  y, layer)
     local sprite = Sprite(texture, x, y)
     sprite:setOrigin(0.5, 0.5)
     sprite:setScale(2)
-    sprite.layer = layer or LAYERS["above_arena"]
+    sprite.layer = layer or BATTLE_LAYERS["above_arena"]
     sprite.wave = self
     parent:addChild(sprite)
     table.insert(self.objects, sprite)
