@@ -42,7 +42,19 @@ return {
 
         ["battle/transition"]   = {"walk/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/intro", 1/15, false},
-        ["battle/victory"]      = {"battle/victory", 1/10, false}
+        ["battle/victory"]      = {"battle/victory", 1/10, false},
+
+        -- Cutscene animations
+        ["jump_fall"]           = {"fall", 1/5, true},
+        ["jump_ball"]           = {"ball", 1/15, true},
+
+        ["laugh"]               = {"laugh", 4/30, true},
+
+        ["hug"]                 = {"hug", 2/9, false},
+        ["hug_stop"]            = {"hug_stop", 2/9, false},
+
+        ["wave_start"]          = {"wave_start", 5/30, false, next="wave_down"},
+        ["wave_down"]           = {"wave_down", 5/30, true}
     },
 
     offsets = {
@@ -51,6 +63,11 @@ return {
         ["walk/left"] = {0, 0},
         ["walk/right"] = {0, 0},
         ["walk/up"] = {1, 0},
+
+        ["walk_blush/down"] = {1, 0},
+        ["walk_blush/left"] = {0, 0},
+        ["walk_blush/right"] = {0, 0},
+        ["walk_blush/up"] = {1, 0},
 
         ["slide"] = {2, -2},
 
@@ -72,6 +89,27 @@ return {
         ["battle/hurt"] = {13, 2},
 
         ["battle/intro"] = {2, 6},
-        ["battle/victory"] = {0, 6}
+        ["battle/victory"] = {0, 6},
+
+        -- Cutscene offsets
+        ["pose"] = {1, 1},
+
+        ["fall"] = {10, 0},
+        ["ball"] = {0, -9},
+        ["landed"] = {1, 0},
+
+        ["hug"] = {0, 0},
+        ["hug_stop"] = {0, 0},
+
+        ["laugh"] = {2, 0},
+
+        ["shocked_behind"] = {9, -3},
+        ["surprised_down"] = {5, 1},
+
+        ["wave_start"] = {1, 0},
+        ["wave_down"] = {-1, -1},
+
+        ["splat"] = {15, -21},
+        ["stool"] = {11, -18}
     },
 }

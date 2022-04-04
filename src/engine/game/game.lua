@@ -16,7 +16,7 @@ function Game:clear()
     --self.console = nil
 end
 
-function Game:enter(previous_state, save_id)
+function Game:enter(previous_state, save_id, save_name)
     self.previous_state = previous_state
 
     self.font = Assets.getFont("main")
@@ -32,6 +32,10 @@ function Game:enter(previous_state, save_id)
         Kristal.loadGame(save_id)
     else
         self:load()
+    end
+
+    if save_name then
+        self.save_name = save_name
     end
 
     self.started = true

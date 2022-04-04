@@ -757,7 +757,7 @@ function Kristal.preloadMod(id)
     Registry.initialize(true)
 end
 
-function Kristal.loadMod(id, save_id)
+function Kristal.loadMod(id, save_id, save_name)
     local mod = Kristal.Mods.getAndLoadMod(id)
 
     if not mod then return end
@@ -769,7 +769,7 @@ function Kristal.loadMod(id, save_id)
         end)
     else
         Kristal.loadModAssets(mod.id, function()
-            Gamestate.switch(Kristal.States["Game"], save_id)
+            Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end)
     end
 end
