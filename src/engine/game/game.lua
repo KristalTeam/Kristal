@@ -62,7 +62,7 @@ function Game:enter(previous_state, save_id, save_name)
         self:encounter(Kristal.getModOption("encounter"), false)
     end
 
-    Kristal.callEvent("postInit")
+    Kristal.callEvent("postInit", self.is_new_file)
 end
 
 
@@ -130,6 +130,8 @@ function Game:save(x, y)
 end
 
 function Game:load(data, index)
+    self.is_new_file = data == nil
+
     data = data or {}
 
     self:clear()
@@ -204,7 +206,7 @@ function Game:load(data, index)
 
     self.world:spawnParty(data.spawn_marker or data.spawn_position)
 
-    Kristal.callEvent("load", data, index)
+    Kristal.callEvent("load", data, self.is_new_file, index)
 end
 
 function Game:isLight()
