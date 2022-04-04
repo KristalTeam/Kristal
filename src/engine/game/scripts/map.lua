@@ -152,16 +152,18 @@ end
 
 function Map:loadMapData(data)
     local object_depths = {}
+    local indexed_layers = {}
     local has_battle_border = false
 
     for i,layer in ipairs(data.layers or {}) do
         self.layers[layer.name] = self.next_layer
+        indexed_layers[i] = self.next_layer
         self.next_layer = self.next_layer + self.depth_per_layer
     end
 
     for i,layer in ipairs(data.layers or {}) do
         local name = Utils.split(layer.name, "_")[1]
-        local depth = self.layers[layer.name]
+        local depth = indexed_layers[i]
         if not has_battle_border and name == "battleborder" then
             self.battle_fader_layer = depth - (self.depth_per_layer/2)
             has_battle_border = true
@@ -190,7 +192,7 @@ function Map:loadMapData(data)
 
     self.object_layer = 1
     for i,layer in ipairs(data.layers or {}) do
-        local depth = self.layers[layer.name]
+        local depth = indexed_layers[i]
         if layer.type == "objectgroup" and layer.name == "markers" then
             if #object_depths == 0 then
                 self.object_layer = depth

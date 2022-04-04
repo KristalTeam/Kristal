@@ -476,6 +476,9 @@ function World:loadMap(map, ...)
 
     self.light = self.map.light
 
+    self.width = self.map.width * self.map.tile_width
+    self.height = self.map.height * self.map.tile_height
+
     self.camera:setBounds(0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
 
     if self.map.markers["spawn"] then
