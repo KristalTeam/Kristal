@@ -508,7 +508,7 @@ end
 
 function Game:setVolume(volume)
     MASTER_VOLUME = math.max(0, math.min(1, volume))
-    love.audio.setVolume(volume)
+    love.audio.setVolume(MASTER_VOLUME)
 end
 
 function Game:getVolume()
