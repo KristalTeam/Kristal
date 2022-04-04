@@ -14,6 +14,7 @@ function Game:clear()
     self.inventory = nil
     self.fader_alpha = 0
     self.quick_save = nil
+    self.lock_input = false
     --self.console = nil
 end
 
