@@ -441,6 +441,41 @@ function World:spawnObject(obj, layer)
     return obj
 end
 
+function World:getCharacter(id, index)
+    local i = 0
+    for _,chara in ipairs(Game.stage:getObjects(Character)) do
+        if chara.actor.id == id then
+            i = i + 1
+            if not index or index == i then
+                return chara
+            end
+        end
+    end
+end
+
+function World:detachFollowers()
+    for _,follower in ipairs(self.followers) do
+        follower.following = false
+    end
+end
+
+function World:attachFollowers(return_speed)
+    for _,follower in ipairs(self.followers) do
+        follower:updateIndex()
+        follower:returnToFollowing(return_speed)
+    end
+end
+function World:attachFollowersImmediate()
+    for _,follower in ipairs(self.followers) do
+        follower.following = true
+
+        follower:updateIndex()
+
+        local tx, ty = follower:getTargetPosition()
+        follower:setPosition(tx, ty)
+    end
+end
+
 function World:parseLayer(layer)
     return (type(layer) == "number" and layer)
             or self.layers[layer]

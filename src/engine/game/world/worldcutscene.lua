@@ -13,7 +13,7 @@ function WorldCutscene:init(group, id, ...)
 
     self.waiting_for_text = nil
 
-    self.move_targets = {}
+    self.moving_chars = {}
 
     self.camera_target = nil
     self.camera_start = nil
@@ -30,32 +30,20 @@ function WorldCutscene:init(group, id, ...)
 end
 
 function WorldCutscene:canEnd()
-    for _,_ in pairs(self.move_targets) do
+    if #self.moving_chars > 0 then
         return false
     end
     return not self.camera_target
 end
 
 function WorldCutscene:update(dt)
-    local done_moving = {}
-    for chara,target in pairs(self.move_targets) do
-        if chara.x == target[2] and chara.y == target[3] then
-            table.insert(done_moving, chara)
-            if target[5] then
-                chara:setFacing(target[5])
-            end
-        end
-        local tx = Utils.approach(chara.x, target[2], target[4] * DTMULT)
-        local ty = Utils.approach(chara.y, target[3], target[4] * DTMULT)
-        if target[1] then
-            chara:moveTo(tx, ty, target[6])
-        else
-            chara:setPosition(tx, ty)
+    local new_moving = {}
+    for _,chara in ipairs(self.moving_chars) do
+        if chara.move_target then
+            table.insert(new_moving, chara)
         end
     end
-    for _,v in ipairs(done_moving) do
-        self.move_targets[v] = nil
-    end
+    self.moving_chars = new_moving
 
     if self.camera_target then
         self.camera_move_timer = Utils.approach(self.camera_move_timer, self.camera_move_time, dt)
@@ -94,15 +82,7 @@ function WorldCutscene:onEnd()
 end
 
 function WorldCutscene:getCharacter(id, index)
-    local i = 0
-    for _,chara in ipairs(Game.stage:getObjects(Character)) do
-        if chara.actor.id == id then
-            i = i + 1
-            if not index or index == i then
-                return chara
-            end
-        end
-    end
+    return Game.world:getCharacter(id, index)
 end
 
 function WorldCutscene:getMarker(name)
@@ -110,40 +90,23 @@ function WorldCutscene:getMarker(name)
 end
 
 function WorldCutscene:detachFollowers()
-    for _,follower in ipairs(Game.world.followers) do
-        follower.following = false
-    end
+    Game.world:detachFollowers()
 end
 
 local function waitForFollowers(self)
     for _,follower in ipairs(Game.world.followers) do
-        if self.move_targets[follower] then return false end
+        if follower.returning then
+            return false
+        end
     end
     return true
 end
-function WorldCutscene:attachFollowers(return_speed, facing)
-    for _,follower in ipairs(Game.world.followers) do
-        follower.following = true
-
-        follower:updateIndex()
-
-        return_speed = return_speed or 6
-        if return_speed > 0 then
-            local tx, ty = follower:getTargetPosition()
-            self:walkTo(follower, tx, ty, return_speed, facing)
-        end
-    end
+function WorldCutscene:attachFollowers(return_speed)
+    Game.world:attachFollowers(return_speed)
     return waitForFollowers
 end
 function WorldCutscene:attachFollowersImmediate()
-    for _,follower in ipairs(Game.world.followers) do
-        follower.following = true
-
-        follower:updateIndex()
-
-        local tx, ty = follower:getTargetPosition()
-        follower:setPosition(tx, ty)
-    end
+    Game.world:attachFollowersImmediate()
     return _true
 end
 
@@ -177,16 +140,14 @@ function WorldCutscene:walkTo(chara, x, y, speed, facing, keep_facing)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    if chara.x ~= x or chara.y ~= y then
-        if facing and keep_facing then
-            chara:setFacing(facing)
+    if chara:walkTo(x, y, speed, facing, keep_facing) then
+        if not Utils.containsValue(self.moving_chars, chara) then
+            table.insert(self.moving_chars, chara)
         end
-        self.move_targets[chara] = {true, x, y, speed or 4, facing, keep_facing}
-        return function() return self.move_targets[chara] == nil end
-    elseif facing and chara.facing ~= facing then
-        chara:setFacing(facing)
+        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    else
+        return _true
     end
-    return _true
 end
 
 function WorldCutscene:setSprite(chara, sprite, speed)
@@ -226,11 +187,14 @@ function WorldCutscene:slideTo(chara, x, y, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    if chara.x ~= x or chara.y ~= y then
-        self.move_targets[chara] = {false, x, y, speed or 4}
-        return function() return self.move_targets[chara] == nil end
+    if chara:slideTo(x, y, speed) then
+        if not Utils.containsValue(self.moving_chars, chara) then
+            table.insert(self.moving_chars, chara)
+        end
+        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    else
+        return _true
     end
-    return _true
 end
 
 function WorldCutscene:shakeCharacter(chara, x, y)

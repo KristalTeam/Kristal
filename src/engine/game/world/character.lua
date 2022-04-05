@@ -33,6 +33,8 @@ function Character:init(chara, x, y)
 
     self.spin_timer = 0
     self.spin_speed = 0
+
+    self.move_target = nil
 end
 
 function Character:onAdd(parent)
@@ -214,6 +216,27 @@ function Character:onFootstep(num)
         self.world.map:onFootstep(self, num)
     end
     Kristal.callEvent("onFootstep", self, num)
+end
+
+function Character:walkTo(x, y, speed, facing, keep_facing)
+    if self.x ~= x or self.y ~= y then
+        if facing and keep_facing then
+            self:setFacing(facing)
+        end
+        self.move_target = {true, x, y, speed or 4, facing, keep_facing}
+        return true
+    elseif facing and self.facing ~= facing then
+        self:setFacing(facing)
+    end
+    return false
+end
+
+function Character:slideTo(x, y, speed)
+    if self.x ~= x or self.y ~= y then
+        self.move_target = {false, x, y, speed or 4}
+        return true
+    end
+    return false
 end
 
 function Character:shake(x, y)
@@ -399,6 +422,23 @@ end
 function Character:update(dt)
     if self.actor.update then
         self.actor:update(self, dt)
+    end
+
+    local target = self.move_target
+    if target then
+        if self.x == target[2] and self.y == target[3] then
+            self.move_target = nil
+            if target[5] then
+                self:setFacing(target[5])
+            end
+        end
+        local tx = Utils.approach(self.x, target[2], target[4] * DTMULT)
+        local ty = Utils.approach(self.y, target[3], target[4] * DTMULT)
+        if target[1] then
+            self:moveTo(tx, ty, target[6])
+        else
+            self:setPosition(tx, ty)
+        end
     end
 
     if self.moved > 0 then

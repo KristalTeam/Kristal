@@ -17,6 +17,7 @@ function Follower:init(chara, x, y, target)
 
     self.following = true
     self.returning = false
+    self.return_speed = 6
 end
 
 function Follower:onRemove(parent)
@@ -46,6 +47,11 @@ function Follower:updateIndex()
     end
 end
 
+function Follower:returnToFollowing(speed)
+    self.returning = true
+    self.return_speed = speed or 6
+end
+
 function Follower:getTarget()
     return self.target or self.world.player
 end
@@ -71,21 +77,19 @@ function Follower:getTargetPosition()
     return tx, ty, facing, state
 end
 
-function Follower:interprolate(slow)
+function Follower:interprolate(speed)
     if self:getTarget() and self:getTarget().history then
         local tx, ty, facing, state = self:getTargetPosition()
         local dx, dy = tx - self.x, ty - self.y
 
-        if slow then
-            local speed = 9 * DTMULT
-
-            dx = Utils.approach(self.x, tx, speed) - self.x
-            dy = Utils.approach(self.y, ty, speed) - self.y
+        if speed then
+            dx = Utils.approach(self.x, tx, speed * DTMULT) - self.x
+            dy = Utils.approach(self.y, ty, speed * DTMULT) - self.y
         end
 
         self:move(dx, dy)
 
-        if facing then
+        if facing and (not speed or (dx == 0 and dy == 0)) then
             self:setFacing(facing)
         end
 
@@ -125,7 +129,7 @@ function Follower:updateHistory(dt, moved)
             table.remove(self.history, #self.history)
         end
 
-        if self.following then
+        if self.following and not self.move_target then
             self:interprolate()
         end
     end
@@ -138,10 +142,11 @@ function Follower:update(dt)
         table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
 
-    if self.returning then
-        local dx, dy = self:interprolate(true)
+    if self.returning and not self.move_target then
+        local dx, dy = self:interprolate(self.return_speed)
         if dx == 0 and dy == 0 then
             self.returning = false
+            self.following = true
         end
     end
 
