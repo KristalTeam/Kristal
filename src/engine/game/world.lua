@@ -364,8 +364,7 @@ function World:spawnFollower(chara, options)
         follower:setFacing(self.player.facing)
     end
     if options["x"] or options["y"] then
-        local ex, ey = follower:getExactPosition()
-        follower:setExactPosition(options["x"] or ex, options["y"] or ey)
+        follower:setPosition(options["x"] or follower.x, options["y"] or follower.y)
     end
     if options["index"] then
         table.insert(self.followers, options["index"], follower)

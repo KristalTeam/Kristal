@@ -21,6 +21,7 @@ function Player:init(chara, x, y)
 
     self.force_run = false
     self.run_timer = 0
+    self.run_timer_grace = 0
 
     self.slide_in_place = false
     self.slide_dust_timer = 0
@@ -29,7 +30,8 @@ function Player:init(chara, x, y)
 
     self.walk_speed = 4
 
-    self.last_ex, self.last_ey = self:getExactPosition()
+    self.last_x = self.x
+    self.last_y = self.y
 
     self.history_time = 0
     self.history = {}
@@ -90,10 +92,8 @@ function Player:resetFollowerHistory()
 end
 
 function Player:alignFollowers(facing, x, y, dist)
-    local ex, ey = self:getExactPosition()
-
     facing = facing or self.facing
-    x, y = x or ex, y or ey
+    x, y = x or self.x, y or self.y
 
     local offset_x, offset_y = 0, 0
     if facing == "left" then
@@ -106,7 +106,7 @@ function Player:alignFollowers(facing, x, y, dist)
         offset_y = -1
     end
 
-    self.history = {{x = ex, y = ey, time = self.history_time}}
+    self.history = {{x = x, y = y, time = self.history_time}}
     for i = 1, Game.max_followers do
         local idist = dist and (i * dist) or (((i * FOLLOW_DELAY) / (1/30)) * 4)
         table.insert(self.history, {x = x + (offset_x * idist), y = y + (offset_y * idist), facing = facing, time = self.history_time - (i * FOLLOW_DELAY)})
@@ -115,13 +115,10 @@ function Player:alignFollowers(facing, x, y, dist)
 end
 
 function Player:keepFollowerPositions()
-    local ex, ey = self:getExactPosition()
-
-    self.history = {{x = ex, y = ey, time = self.history_time}}
+    self.history = {{x = self.x, y = self.y, time = self.history_time}}
     for i,follower in ipairs(Game.world.followers) do
         if follower:getTarget() == self then
-            local fex, fey = follower:getExactPosition()
-            local new_history = {x = fex, y = fey, facing = follower.facing, time = self.history_time - (i * FOLLOW_DELAY)}
+            local new_history = {x = follower.x, y = follower.y, facing = follower.facing, time = self.history_time - (i * FOLLOW_DELAY)}
             table.insert(self.history, new_history)
 
             follower.history_time = self.history_time
@@ -175,8 +172,13 @@ function Player:handleMovement()
     elseif running then
         if walk_x ~= 0 or walk_y ~= 0 then
             self.run_timer = self.run_timer + DTMULT
+            self.run_timer_grace = 0
         else
-            self.run_timer = 0
+            -- Dont reset running until 2 frames after you release the movement keys
+            if self.run_timer_grace >= 2 then
+                self.run_timer = 0
+            end
+            self.run_timer_grace = self.run_timer_grace + DTMULT
         end
     end
 
@@ -211,7 +213,7 @@ function Player:updateSlideDust(dt)
         dust:play(1/15, false, function() dust:remove() end)
         dust:setOrigin(0.5, 0.5)
         dust:setScale(2, 2)
-        dust:setPosition(self:getExactPosition())
+        dust:setPosition(self.x, self.y)
         dust.layer = self.layer - 0.01
         dust.physics.speed_y = -6
         dust.physics.speed_x = Utils.random(-1, 1)
@@ -255,26 +257,16 @@ function Player:update(dt)
     end
 
     self.state_manager:update(dt)
-
-    local ex, ey = self:getExactPosition()
-
     if #self.history == 0 then
-        table.insert(self.history, {x = ex, y = ey, time = 0})
+        table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
 
-    if self.last_collided_x then
-        ex = self.x
-    end
-    if self.last_collided_y then
-        ey = self.y
-    end
-
-    local moved = ex ~= self.last_ex or ey ~= self.last_ey
+    local moved = self.x ~= self.last_x or self.y ~= self.last_y
 
     if moved then
         self.history_time = self.history_time + dt
 
-        table.insert(self.history, 1, {x = ex, y = ey, facing = self.facing, time = self.history_time, state = self.state})
+        table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
@@ -284,8 +276,8 @@ function Player:update(dt)
         follower:updateHistory(dt, moved)
     end
 
-    self.last_ex = ex
-    self.last_ey = ey
+    self.last_x = self.x
+    self.last_y = self.y
 
     self.world.in_battle = false
     for _,area in ipairs(self.world.map.battle_areas) do

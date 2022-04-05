@@ -22,17 +22,10 @@ function Character:init(chara, x, y)
     local hitbox = self.actor.hitbox or {0, 0, chara.width, chara.height}
     self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
 
-    -- 1px movement increments
-    self.partial_x = (x % 1)
-    self.partial_y = (y % 1)
-
     self.last_collided_x = false
     self.last_collided_y = false
 
     self.moved = 0
-
-    self.x = math.floor(self.x)
-    self.y = math.floor(self.y)
 
     self.noclip = true
 
@@ -90,17 +83,6 @@ function Character:setActor(actor)
     self:addChild(self.sprite)
 end
 
-function Character:getExactPosition(x, y)
-    return self.x + self.partial_x, self.y + self.partial_y
-end
-
-function Character:setExactPosition(x, y)
-    self.x = math.floor(x)
-    self.partial_x = x - self.x
-    self.y = math.floor(y)
-    self.partial_y = y - self.y
-end
-
 function Character:setFacing(dir)
     self.facing = dir
     self.sprite.facing = dir
@@ -110,7 +92,7 @@ function Character:setFacing(dir)
 end
 
 function Character:moveTo(x, y, keep_facing)
-    self:move(x - (self.x + self.partial_x), y - (self.y + self.partial_y), 1, keep_facing)
+    self:move(x - self.x, y - self.y, 1, keep_facing)
 end
 
 function Character:move(x, y, speed, keep_facing)
@@ -160,106 +142,50 @@ function Character:move(x, y, speed, keep_facing)
 end
 
 function Character:moveX(amount, move_y)
-    if amount == 0 then
-        return false
-    end
-
-    self.partial_x = self.partial_x + amount
-
-    local move = math.floor(self.partial_x)
-    self.partial_x = self.partial_x % 1
-
-    if move ~= 0 then
-        return self:moveXExact(move, move_y)
-    else
-        return not self.last_collided_x
-    end
+    return self:doMoveAmount("x", amount, move_y)
 end
-
 function Character:moveY(amount, move_x)
+    return self:doMoveAmount("y", amount, move_x)
+end
+
+function Character:doMoveAmount(type, amount, other_amount)
+    other_amount = other_amount or 0
+
     if amount == 0 then
-        return false
+        self["last_collided_"..type] = false
+        return false, false
     end
 
-    self.partial_y = self.partial_y + amount
+    local other = type == "x" and "y" or "x"
 
-    local move = math.floor(self.partial_y)
-    self.partial_y = self.partial_y % 1
-
-    if move ~= 0 then
-        return self:moveYExact(move, move_x)
-    else
-        return not self.last_collided_y
-    end
-end
-
-function Character:moveXExact(amount, move_y)
     local sign = Utils.sign(amount)
-    for i = sign, amount, sign do
-        local last_x = self.x
-        local last_y = self.y
-
-        self.x = self.x + sign
-
-        if not self.noclip then
-            local collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
-            if collided and not (move_y > 0) then
-                for i = 1, 3 do
-                    self.y = self.y - i
-                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
-                    if not collided then break end
-                end
-            end
-            if collided and not (move_y < 0) then
-                self.y = last_y
-                for i = 1, 3 do
-                    self.y = self.y + i
-                    collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
-                    if not collided then break end
-                end
-            end
-
-            if collided then
-                self.x = last_x
-                self.y = last_y
-
-                if target and target.onCollide then
-                    target:onCollide(self)
-                end
-
-                self.last_collided_x = true
-                return false, target
-            end
+    for i = 1, math.ceil(math.abs(amount)) do
+        local moved = sign
+        if (i > math.abs(amount)) then
+            moved = (math.abs(amount) % 1) * sign
         end
-    end
-    self.last_collided_x = false
-    return true
-end
 
-function Character:moveYExact(amount, move_x)
-    local sign = Utils.sign(amount)
-    for i = sign, amount, sign do
-        local last_x = self.x
-        local last_y = self.y
+        local last_a = self[type]
+        local last_b = self[other]
 
-        self.y = self.y + sign
+        self[type] = self[type] + moved
 
         if not self.noclip then
             Object.startCache()
             local collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
-            if collided and not (move_x > 0) then
-                for i = 1, 2 do
+            if collided and not (other_amount > 0) then
+                for j = 1, 2 do
                     Object.uncache(self)
-                    self.x = self.x - i
+                    self[other] = self[other] - j
                     collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
                     if not collided then break end
                 end
             end
-            if collided and not (move_x < 0) then
-                self.x = last_x
-                for i = 1, 2 do
+            if collided and not (other_amount < 0) then
+                self[other] = last_b
+                for j = 1, 2 do
                     Object.uncache(self)
-                    self.x = self.x + i
+                    self[other] = self[other] + j
                     collided, target = self.world:checkCollision(self.collider, self.enemy_collision)
                     if not collided then break end
                 end
@@ -267,20 +193,20 @@ function Character:moveYExact(amount, move_x)
             Object.endCache()
 
             if collided then
-                self.x = last_x
-                self.y = last_y
+                self[type] = last_a
+                self[other] = last_b
 
                 if target and target.onCollide then
                     target:onCollide(self)
                 end
 
-                self.last_collided_y = true
-                return i ~= sign, target
+                self["last_collided_"..type] = true
+                return i > 1, target
             end
         end
     end
-    self.last_collided_y = false
-    return true
+    self["last_collided_"..type] = false
+    return true, false
 end
 
 function Character:onFootstep(num)
@@ -444,7 +370,7 @@ function Character:statusMessage(type, arg, color, kill)
 end
 
 function Character:convertToFollower(index)
-    local follower = Follower(self.actor, self:getExactPosition())
+    local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer
     follower:setFacing(self.facing)
     self.world:spawnFollower(follower, {index = index})
@@ -453,8 +379,7 @@ function Character:convertToFollower(index)
 end
 
 function Character:convertToPlayer()
-    local ex, ey = self:getExactPosition()
-    self.world:spawnPlayer(ex, ey, self.actor)
+    self.world:spawnPlayer(self.x, self.y, self.actor)
     local player = self.world.player
     player:setLayer(self.layer)
     player:setFacing(self.facing)
@@ -463,8 +388,7 @@ function Character:convertToPlayer()
 end
 
 function Character:convertToNPC(properties)
-    local ex, ey = self:getExactPosition()
-    local npc = NPC(self.actor, ex, ey, properties)
+    local npc = NPC(self.actor, self.x, self.y, properties)
     npc.layer = self.layer
     npc:setFacing(self.facing)
     self.world:addChild(npc)

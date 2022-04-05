@@ -73,16 +73,14 @@ end
 
 function Follower:interprolate(slow)
     if self:getTarget() and self:getTarget().history then
-        local ex, ey = self:getExactPosition()
         local tx, ty, facing, state = self:getTargetPosition()
-
-        local dx, dy = tx - ex, ty - ey
+        local dx, dy = tx - self.x, ty - self.y
 
         if slow then
             local speed = 9 * DTMULT
 
-            dx = Utils.approach(ex, tx, speed) - ex
-            dy = Utils.approach(ey, ty, speed) - ey
+            dx = Utils.approach(self.x, tx, speed) - self.x
+            dy = Utils.approach(self.y, ty, speed) - self.y
         end
 
         self:move(dx, dy)
@@ -122,9 +120,7 @@ function Follower:updateHistory(dt, moved)
     if moved or self.state == "SLIDE" or self.needs_slide then
         self.history_time = self.history_time + dt
 
-        local ex, ey = target:getExactPosition()
-
-        table.insert(self.history, 1, {x = ex, y = ey, facing = target.facing, time = self.history_time, state = target.state})
+        table.insert(self.history, 1, {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
@@ -139,8 +135,7 @@ function Follower:update(dt)
     self:updateIndex()
 
     if #self.history == 0 then
-        local ex, ey = self:getExactPosition()
-        table.insert(self.history, {x = ex, y = ey, time = 0})
+        table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
 
     if self.returning then

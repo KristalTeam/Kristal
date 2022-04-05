@@ -17,7 +17,7 @@ return function(cutscene, event, player, facing)
         cutscene:wait(0.25)
         Assets.playSound("snd_save")
         cutscene:wait(0.5)
-        Game:saveQuick(Game.world.player:getExactPosition())
+        Game:saveQuick(Game.world.player:getPosition())
         cutscene:text("* (The original   [color:yellow]Starwalker[color:reset]      \n   somehow saved your game...)")
     else
         Game.world.music:stop()
