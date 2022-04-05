@@ -39,14 +39,14 @@ end
 function WorldCutscene:update(dt)
     local done_moving = {}
     for chara,target in pairs(self.move_targets) do
-        if target.x == target[2] and target.y == target[3] then
+        if chara.x == target[2] and chara.y == target[3] then
             table.insert(done_moving, chara)
             if target[5] then
                 chara:setFacing(target[5])
             end
         end
-        local tx = Utils.approach(target.x, target[2], target[4] * DTMULT)
-        local ty = Utils.approach(target.y, target[3], target[4] * DTMULT)
+        local tx = Utils.approach(chara.x, target[2], target[4] * DTMULT)
+        local ty = Utils.approach(chara.y, target[3], target[4] * DTMULT)
         if target[1] then
             chara:moveTo(tx, ty, target[6])
         else
