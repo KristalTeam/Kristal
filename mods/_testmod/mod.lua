@@ -18,19 +18,41 @@ function Mod:init()
     self.dog_activated = false
 end
 
+Mod.wave_shader = love.graphics.newShader([[
+    extern number wave_sine;
+    extern number wave_mag;
+    extern number wave_height;
+    extern vec2 texsize;
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+    {
+        number i = texture_coords.y * texsize.y;
+        vec2 coords = vec2(max(0, min(1, texture_coords.x + (sin((i / wave_height) + (wave_sine / 30)) * wave_mag) / texsize.x)), max(0, min(1, texture_coords.y + 0.0)));
+        return Texel(texture, coords) * color;
+    }
+]])
+
 function Mod:preInit()
     -- make kris woobly
     --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
         orig(self, ...)
 
         if self.actor.id == "kris" then
-            self:addFX(ShaderFX(Kristal.States["Menu"].BACKGROUND_SHADER, {
-                ["bg_sine"] = function() return love.timer.getTime() * 100 end,
-                ["bg_mag"] = 10,
-                ["wave_height"] = 480*2,
+            self:addFX(ShaderFX(Mod.wave_shader, {
+                ["wave_sine"] = function() return love.timer.getTime() * 100 end,
+                ["wave_mag"] = 4,
+                ["wave_height"] = 4,
                 ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
             }))
         end
+    end)]]
+    --[[Utils.hook(World, "init", function(orig, self, ...)
+        orig(self, ...)
+        self:addFX(ShaderFX(Mod.wave_shader, {
+            ["bg_sine"] = function() return love.timer.getTime() * 100 end,
+            ["bg_mag"] = 10,
+            ["wave_height"] = 12,
+            ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
+        }))
     end)]]
     -- hiden ralsei
     --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)

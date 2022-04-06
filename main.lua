@@ -712,15 +712,18 @@ function Kristal.quickReload(dont_save)
     -- Reload mods
     Kristal.loadAssets("", "mods", "", function()
         -- Reload the current mod directly
-        Kristal.loadModAssets(mod_id, function()
-            -- Switch to Game and load the temp save
-            Gamestate.switch(Game)
-            if save then
-                Game:load(save, save_id)
+        Kristal.loadMod(mod_id, nil, nil, function()
+            -- Pre-initialize the current mod
+            if Kristal.preInitMod(mod_id) then
+                -- Switch to Game and load the temp save
+                Gamestate.switch(Game)
+                if save then
+                    Game:load(save, save_id)
 
-                -- If we had an encounter, restart the encounter
-                if encounter then
-                    Game:encounter(encounter, false)
+                    -- If we had an encounter, restart the encounter
+                    if encounter then
+                        Game:encounter(encounter, false)
+                    end
                 end
             end
         end)
@@ -750,41 +753,21 @@ function Kristal.loadAssets(dir, loader, paths, after)
 end
 
 function Kristal.preloadMod(id)
-    local mod = Kristal.Mods.getAndLoadMod(id)
+    --[[local mod = Kristal.Mods.getAndLoadMod(id)
 
     if not mod then return end
 
-    Mod = {info = mod}
+    Mod = {info = mod, libs = {}}]]
 
     Registry.initialize(true)
 end
 
-function Kristal.loadMod(id, save_id, save_name)
-    local mod = Kristal.Mods.getAndLoadMod(id)
-
-    if not mod then return end
-
-    if mod.transition then
-        Kristal.preloadMod(mod)
-        Kristal.loadAssets(mod.path, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
-            Gamestate.switch(Kristal.States["DarkTransition"], mod, save_id)
-        end)
-    else
-        Kristal.loadModAssets(mod.id, function()
-            Gamestate.switch(Kristal.States["Game"], save_id, save_name)
-        end)
-    end
-end
-
-function Kristal.loadModAssets(id, after)
+function Kristal.loadMod(id, save_id, save_name, after)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
 
     -- No mod found; nothing to load
     if not mod then return end
-
-    -- How many assets we need to load (1 for the mod, 1 for each library)
-    local load_count = 1
 
     -- Create the Mod table, which is a global table that
     -- can contain a mod's custom variables and functions
@@ -828,11 +811,39 @@ function Kristal.loadModAssets(id, after)
 
         ACTIVE_LIB = nil
 
-        -- Increase the number of loads we need to complete
-        load_count = load_count + 1
-
         -- Add the current library to the libs table
         Mod.libs[lib_id] = lib
+    end
+
+    if not mod.transition or after then
+        Kristal.loadModAssets(mod.id, "all", "", after or function()
+            if Kristal.preInitMod(mod.id) then
+                Gamestate.switch(Kristal.States["Game"], save_id, save_name)
+            end
+        end)
+    else
+        -- Preload assets for the transition
+        Registry.initialize(true)
+
+        Kristal.loadModAssets(mod.id, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
+            Gamestate.switch(Kristal.States["DarkTransition"], mod, save_id)
+        end)
+    end
+end
+
+function Kristal.loadModAssets(id, asset_type, asset_paths, after)
+    -- Get the mod data (loaded from mod.json)
+    local mod = Kristal.Mods.getAndLoadMod(id)
+
+    -- No mod found; nothing to load
+    if not mod then return end
+
+    -- How many assets we need to load (1 for the mod, 1 for each library)
+    local load_count = 1
+
+    -- Count each library for loading
+    for _,_ in pairs(mod.libs) do
+        load_count = load_count + 1
     end
 
     -- Begin mod loading
@@ -845,35 +856,44 @@ function Kristal.loadModAssets(id, after)
         if load_count == 0 then
             -- Finish mod loading
             MOD_LOADING = false
-
-            -- Whether to call the "after" function
-            local use_callback = true
-
-            -- Call preInit on all libraries
-            for lib_id,_ in pairs(Mod.libs) do
-                local lib_result = Kristal.libCall(lib_id, "preInit")
-                use_callback = use_callback and lib_result ~= false
-            end
-
-            -- Call Mod:preInit
-            local mod_result = Kristal.modCall("preInit")
-            use_callback = use_callback and mod_result ~= false
-
-            -- Initialize registry
-            Registry.initialize()
-
-            -- If any "preInit" explicitly returns false, cancel finish callback
-            if use_callback then
-                after()
-            end
+            
+            -- Call the after function
+            after()
         end
     end
 
     -- Finally load all assets (libraries first)
-    for _,lib in pairs(Mod.libs) do
-        Kristal.loadAssets(lib.info.path, "all", "", finishLoadStep)
+    for _,lib in pairs(mod.libs) do
+        Kristal.loadAssets(lib.path, asset_type or "all", asset_paths or "", finishLoadStep)
     end
-    Kristal.loadAssets(mod.path, "all", "", finishLoadStep)
+    Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
+end
+
+function Kristal.preInitMod(id)
+    -- Get the mod data (loaded from mod.json)
+    local mod = Kristal.Mods.getAndLoadMod(id)
+
+    -- No mod found; nothing to load
+    if not mod then return end
+
+    -- Whether to call the "after" function
+    local use_callback = true
+
+    -- Call preInit on all libraries
+    for lib_id,_ in pairs(mod.libs) do
+        local lib_result = Kristal.libCall(lib_id, "preInit")
+        use_callback = use_callback and lib_result ~= false
+    end
+
+    -- Call Mod:preInit
+    local mod_result = Kristal.modCall("preInit")
+    use_callback = use_callback and mod_result ~= false
+
+    -- Initialize registry
+    Registry.initialize()
+
+    -- Return true if no "preInit" explicitly returns false
+    return use_callback
 end
 
 function Kristal.resetWindow()

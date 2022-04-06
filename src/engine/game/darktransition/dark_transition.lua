@@ -547,9 +547,11 @@ function DarkTransition:draw(dont_clear)
 
             self.mod_loading = true
             self.old_velocity = self.velocity
-            Kristal.loadModAssets(self.mod.id, function()
+            Kristal.loadModAssets(self.mod.id, "all", "", function()
                 self.mod_loading = false
-                Gamestate.switch(Kristal.States["Game"], self.save_id)
+                if Kristal.preInitMod(self.mod.id) then
+                    Gamestate.switch(Kristal.States["Game"], self.save_id)
+                end
             end)
         end
     end
