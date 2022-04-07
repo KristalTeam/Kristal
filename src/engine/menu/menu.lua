@@ -94,6 +94,29 @@ function Menu:enter()
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
     self:buildMods()
+
+    self.left_credits = {
+        {"Lead Developers", COLORS.silver},
+        "     Nyakorita",
+        "     SylviBlossom",
+        "",
+        {"Developers", COLORS.silver},
+        "     Vitellary",
+        "",
+        {"Assets", COLORS.silver},
+        "     Toby Fox",
+        "     Temmie Chang",
+        "     DELTARUNE team"
+    }
+
+    self.right_credits = {
+        {"GitHub Contributors", COLORS.silver},
+            "Archie-osu     ",
+                  "Luna     ",
+                           "",
+              {"Documentation", COLORS.silver},
+             "Vitellary     ",
+    }
 end
 
 function Menu:setState(state)
@@ -268,15 +291,15 @@ function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
-function Menu:printShadow(text, x, y, color, center, limit)
+function Menu:printShadow(text, x, y, color, align, limit)
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.menu_font)
     love.graphics.setColor({0, 0, 0, 1})
-    love.graphics.printf(text, x + 2, y + 2, limit or self.menu_font:getWidth(text), center and "center" or "left")
+    love.graphics.printf(text, x + 2, y + 2, limit or self.menu_font:getWidth(text), align or "left")
 
     -- Draw the main text
     love.graphics.setColor(color or {1, 1, 1, 1})
-    love.graphics.printf(text, x, y, limit or self.menu_font:getWidth(text), center and "center" or "left")
+    love.graphics.printf(text, x, y, limit or self.menu_font:getWidth(text), align or "left")
 end
 
 function Menu:update(dt)
@@ -408,7 +431,7 @@ function Menu:draw()
         end
     elseif self.state == "OPTIONS" or self.state == "VOLUME" or self.state == "WINDOWSCALE" then
 
-        self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
+        self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, "center", 640)
 
         local menu_x = 185 - 14
         local menu_y = 110
@@ -433,7 +456,7 @@ function Menu:draw()
         self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
         self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
     elseif self.state == "CONTROLS" then
-        self:printShadow("( CONTROLS )", 0, 48, {1, 1, 1, 1}, true, 640)
+        self:printShadow("( CONTROLS )", 0, 48, {1, 1, 1, 1}, "center", 640)
 
         local menu_x = 185 - 14
         local menu_y = 110
@@ -464,14 +487,14 @@ function Menu:draw()
         -- Draw introduction text if no mods exist
 
         if self.loading_mods then
-            self:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+            self:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
         else
             if #self.list.mods == 0 then
                 self.heart_target_x = -8
                 self.heart_target_y = -8
                 self.list.active = false
                 self.list.visible = false
-                self:printShadow(self.intro_text, 0, 115 - 8, {1, 1, 1, 1}, true, 640)
+                self:printShadow(self.intro_text, 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
             else
                 -- Draw some menu text
                 self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
@@ -484,11 +507,29 @@ function Menu:draw()
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
-        self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, true, 640)
-        self:printShadow("It just... showed up one day.", 0, 240 - 8 - 16, {1, 1, 1, 1}, true, 640)
-        self:printShadow("(Not really. Real page soon.)", 0, 240 - 8 + 16, {0.7, 0.7, 0.7, 1}, true, 640)
+        self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+
+        for index, value in ipairs(self.left_credits) do
+            local color = {1, 1, 1, 1}
+            if type(value) == "table" then
+                color = value[2]
+                value = value[1]
+            end
+            self:printShadow(value, 32, 64 + (32 * index), color)
+        end
+
+        for index, value in ipairs(self.right_credits) do
+            local color = {1, 1, 1, 1}
+            if type(value) == "table" then
+                color = value[2]
+                value = value[1]
+            end
+            self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32)
+
+            self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
+        end
     else
-        self:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, true, 640)
+        self:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, "center", 640)
     end
 
     -- Draw mod preview overlays
@@ -618,8 +659,8 @@ function Menu:keypressed(key, _, is_repeat)
                 self.selected_option = 1
                 self:setState("OPTIONS")
             elseif self.selected_option == 4 - self.target_mod_offset then
-                self.heart_target_x = -8
-                self.heart_target_y = -8
+                self.heart_target_x = 320 - 32 - 16 + 1
+                self.heart_target_y = 480 - 16 + 1
                 self:setState("CREDITS")
             elseif self.selected_option == 5 - self.target_mod_offset then
                 love.event.quit()
@@ -808,8 +849,13 @@ function Menu:keypressed(key, _, is_repeat)
     elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
             self:setState("MAINMENU")
-            self.ui_move:stop()
-            self.ui_move:play()
+            if Input.isCancel(key) then
+                self.ui_move:stop()
+                self.ui_move:play()
+            else
+                self.ui_select:stop()
+                self.ui_select:play()
+            end
             self.heart_target_x = 196
             self.selected_option = 4 - self.target_mod_offset
             self.heart_target_y = 238 + (3 - self.target_mod_offset) * 32
