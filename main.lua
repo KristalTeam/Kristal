@@ -1097,8 +1097,8 @@ function Kristal.clearModSubclasses()
     MOD_SUBCLASSES = {}
 end
 
-rawRequire = require
-function require(path, ...)
+local _require = require
+local _newRequire = function(path, ...)
     if Mod then
         path = path:gsub("%.", "/")
         local success, result
@@ -1112,6 +1112,13 @@ function require(path, ...)
         end
         return result
     else
-        return rawRequire(path, ...)
+        return _require(path, ...)
     end
+end
+require = _newRequire
+function rawRequire(...)
+    require = _require
+    local result = {require(...)}
+    require = _newRequire
+    return unpack(result)
 end
