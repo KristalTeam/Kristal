@@ -9,7 +9,8 @@ function Transition:init(x, y, w, h, properties)
         map = properties.map,
         x = properties.x,
         y = properties.y,
-        marker = properties.marker
+        marker = properties.marker,
+        facing = properties.facing,
     }
 end
 
