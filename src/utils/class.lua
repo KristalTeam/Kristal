@@ -15,11 +15,21 @@ return setmetatable({}, {__index=_Class, __call = function(_, include, id)
             if not r then
                 error{included=include, msg="Failed to include "..include}
             end
+            if id == true then
+                id = r.id or include
+            end
             include = r
         end
         o.__includes = include
     end
     local class, super = _Class(o), setmetatable({}, {__index = function(t, k)
+        if k == "super" then
+            if include ~= nil then
+                include = getmetatable(include) and {include} or include
+                return include[1].__super
+            end
+            return nil
+        end
         return function(a, ...)
             if include ~= nil then
                 include = getmetatable(include) and {include} or include
@@ -36,6 +46,7 @@ return setmetatable({}, {__index=_Class, __call = function(_, include, id)
         end
     end})
     class.id = id
+    class.__super = super
     class.__includers = {}
     for c,_ in pairs(class.__includes_all) do
         if c ~= class then

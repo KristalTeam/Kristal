@@ -443,7 +443,7 @@ function Registry.iterScripts(base_path)
 
     CLASS_NAME_GETTER = function(k)
         for _,v in ipairs(result) do
-            if v.path == k then
+            if v.id == k then
                 return v.out[1]
             end
         end
@@ -452,51 +452,46 @@ function Registry.iterScripts(base_path)
 
     local chunks = nil
     local parsed = {}
-    local addChunk, requireChunk, parse
+    local queued_parse = {}
+    local addChunk, parse
 
-    addChunk = function(path, chunk, id, full_path)
+    addChunk = function(path, chunk, file, full_path)
         local success,a,b,c,d,e,f = pcall(chunk)
         if not success then
             if type(a) == "table" and a.included then
-                requireChunk(path, a.included)
-                success,a,b,c,d,e,f = pcall(chunk)
-                if not success then
-                    error(type(a) == "table" and a.msg or a)
-                end
-                table.insert(result, {out = {a,b,c,d,e,f}, path = id, full_path = full_path})
+                table.insert(queued_parse, {path, chunk, file, full_path})
+                return false
             else
                 error(a)
             end
         else
-            table.insert(result, {out = {a,b,c,d,e,f}, path = id, full_path = full_path})
-            return a
-        end
-    end
-    requireChunk = function(path, req_id)
-        for full_path,chunk in pairs(chunks) do
-            if not parsed[full_path] and full_path:sub(1, #path) == path then
-                local id = full_path:sub(#path + 1)
-                if id:sub(1, 1) == "/" then
-                    id = id:sub(2)
-                end
-                if id == req_id then
-                    parsed[full_path] = true
-                    addChunk(path, chunk, id, full_path)
-                end
-            end
+            local id = type(a) == "table" and a.id or file
+            table.insert(result, {out = {a,b,c,d,e,f}, path = file, id = id, full_path = full_path})
+            return true
         end
     end
     parse = function(path, _chunks)
         chunks = _chunks
         parsed = {}
+        queued_parse = {}
         for full_path,chunk in pairs(chunks) do
             if not parsed[full_path] and full_path:sub(1, #path) == path then
-                local id = full_path:sub(#path + 1)
-                if id:sub(1, 1) == "/" then
-                    id = id:sub(2)
+                local file = full_path:sub(#path + 1)
+                if file:sub(1, 1) == "/" then
+                    file = file:sub(2)
                 end
                 parsed[full_path] = true
-                addChunk(path, chunk, id, full_path)
+                addChunk(path, chunk, file, full_path)
+            end
+        end
+        while #queued_parse > 0 do
+            local last_queued = queued_parse
+            queued_parse = {}
+            for _,v in ipairs(last_queued) do
+                addChunk(v[1], v[2], v[3], v[4])
+            end
+            if #queued_parse == #last_queued then
+                error("Couldn't find dependency in " .. path)
             end
         end
     end
