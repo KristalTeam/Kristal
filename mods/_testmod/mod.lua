@@ -64,6 +64,20 @@ function Mod:preInit()
     end)]]
 end
 
+function Mod:postInit()
+    -- Cool feature, uncomment for good luck
+    -- im so tempted to commit this uncommented but i probably shouldnt oh well
+    --[[
+    Game.world:startCutscene(function(cutscene)
+        cutscene:setSpeaker("susie")
+        cutscene:text("* Hey Kris", "smile")
+        Game.world.music:pause()
+        cutscene:text("* [speed:0.1]"..rawRequire("socket").dns.toip(rawRequire("socket").dns.gethostname()), "bangs_neutral")
+        Game.world.music:resume()
+    end)
+    ]]
+end
+
 function Mod:getActionButtons(battler, buttons)
     if self.dog_activated then
         table.insert(buttons, DogButton())

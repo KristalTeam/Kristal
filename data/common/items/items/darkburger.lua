@@ -1,51 +1,53 @@
-local item = HealItem{
-    -- Item ID (optional, defaults to path)
-    id = "darkburger",
+local Darkburger, super = Class(HealItem, "darkburger")
+
+function Darkburger:init()
+    super:init(self)
+
     -- Display name
-    name = "Darkburger",
+    self.name = "Darkburger"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "Heals\n70HP",
+    self.effect = "Heals\n70HP"
     -- Shop description
-    shop = "Mysterious\nhamburger\nheals 70HP",
+    self.shop = "Mysterious\nhamburger\nheals 70HP"
     -- Menu description
-    description = "A mysterious black burger made of...\nHey, this is just burnt! +70HP",
+    self.description = "A mysterious black burger made of...\nHey, this is just burnt! +70HP"
 
     -- Amount healed (HealItem variable)
-    heal_amount = 70,
+    self.heal_amount = 70
 
     -- Shop sell price
-    price = 70,
+    self.price = 70
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "party",
+    self.target = "party"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {},
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions (key = party member id)
-    reactions = {
+    self.reactions = {
         susie = "Cooked to perfection!",
         ralsei = "A bit burnt...?",
         noelle = "I-is this real meat...?"
     }
-}
+end
 
-return item
+return Darkburger

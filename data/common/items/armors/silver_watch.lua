@@ -1,50 +1,52 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "silver_watch",
+local item, super = Class(Item, "silver_watch")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "Silver Watch",
+    self.name = "Silver Watch"
 
     -- Item type (item, key, weapon, armor)
-    type = "armor",
+    self.type = "armor"
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/armor",
+    self.icon = "ui/menu/icon/armor"
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Shop description
-    shop = "Holiday\nthemed",
+    self.shop = "Holiday\nthemed"
     -- Menu description
-    description = "Grazing bullets affects\nthe turn length by 10% more",
+    self.description = "Grazing bullets affects\nthe turn length by 10% more"
 
     -- Shop sell price
-    price = 100,
+    self.price = 100
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    self.target = nil
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
-        defense = 2,
-    },
+    self.bonuses = {
+        defense = 2
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = "GrazeTime",
-    bonus_icon = "ui/menu/icon/up",
+    self.bonus_name = "GrazeTime"
+    self.bonus_icon = "ui/menu/icon/up"
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions
-    reactions = {
+    self.reactions = {
         susie = "It's clobbering time.",
         ralsei = "I'm late, I'm late!",
         noelle = "(Th-this was mine...)",
-    },
-}
+    }
+end
 
 return item

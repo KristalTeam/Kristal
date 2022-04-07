@@ -1,8 +1,6 @@
 local Item = Class()
 
-function Item:init(o)
-    -- Item ID (optional, defaults to path)
-    self.id = nil
+function Item:init()
     -- Display name
     self.name = "Test Item"
 
@@ -41,12 +39,6 @@ function Item:init(o)
 
     -- Character reactions (key = party member id)
     self.reactions = {}
-
-    -- Load the table
-    o = o or {}
-    for k,v in pairs(o) do
-        self[k] = v
-    end
 end
 
 function Item:onEquip(character) end

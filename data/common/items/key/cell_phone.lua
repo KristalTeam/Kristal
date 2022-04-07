@@ -1,45 +1,47 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "cell_phone",
+local item, super = Class(Item, "cell_phone")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "Cell Phone",
+    self.name = "Cell Phone"
 
     -- Item type (item, key, weapon, armor)
-    type = "key",
+    self.type = "key"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Shop description
-    shop = "",
+    self.shop = ""
     -- Menu description
-    description = "It can be used to make calls.",
+    self.description = "It can be used to make calls."
 
     -- Shop sell price
-    price = 0,
+    self.price = 0
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "none",
+    self.target = "none"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "world",
+    self.usable_in = "world"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {},
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions (key = party member id)
-    reactions = {},
-}
+    self.reactions = {}
+end
 
 function item:onWorldUse()
     Game.world:startCutscene(function(cutscene)

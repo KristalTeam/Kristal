@@ -1,47 +1,49 @@
-local item = HealItem{
-    -- Item ID (optional, defaults to path)
-    id = "dark_candy",
+local DarkCandy, super = Class(HealItem, "dark_candy")
+
+function DarkCandy:init()
+    super:init(self)
+
     -- Display name
-    name = "Dark Candy",
+    self.name = "Dark Candy"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "Heals\n40HP",
+    self.effect = "Heals\n40HP"
     -- Shop description
-    shop = nil,
+    self.shop = nil
     -- Menu description
-    description = "Heals 40 HP. A red-and-black star\nthat tastes like marshmallows.",
+    self.description = "Heals 40 HP. A red-and-black star\nthat tastes like marshmallows."
 
     -- Amount healed (HealItem variable)
-    heal_amount = 40,
+    self.heal_amount = 40
 
     -- Shop sell price
-    price = 13,
+    self.price = 13
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "party",
+    self.target = "party"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {},
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions (key = party member id)
-    reactions = {
+    self.reactions = {
         susie = "Yeahh!! That's good!",
         ralsei = {
             ralsei = "A bit burnt...?",
@@ -49,6 +51,6 @@ local item = HealItem{
         },
         noelle = "Oh, it's... sticky?"
     }
-}
+end
 
-return item
+return DarkCandy

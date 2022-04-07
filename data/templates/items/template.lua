@@ -1,45 +1,48 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "test_item",
+-- Create an item and specify its ID (id is optional, defaults to file path)
+local item, super = Class(Item, "test_item")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "Test Item",
+    self.name = "Test Item"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Shop description
-    shop = "",
+    self.shop = ""
     -- Menu description
-    description = "Example item.",
+    self.description = "Example item."
 
     -- Shop sell price
-    price = 0,
+    self.price = 0
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    self.target = "none"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {},
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions (key = party member id)
-    reactions = {},
-}
+    self.reactions = {}
+end
 
 -- Function overrides go here
 

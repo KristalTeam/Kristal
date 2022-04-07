@@ -1,46 +1,48 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "revivemint",
+local item, super = Class(Item, "revivemint")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "ReviveMint",
+    self.name = "ReviveMint"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "Heal\nDowned\nAlly",
+    self.effect = "Heal\nDowned\nAlly"
     -- Shop description
-    shop = nil,
+    self.shop = nil
     -- Menu description
-    description = "Heals a fallen ally to MAX HP.\nA minty green crystal.",
+    self.description = "Heals a fallen ally to MAX HP.\nA minty green crystal."
 
     -- Shop sell price
-    price = 200,
+    self.price = 200
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "party",
+    self.target = "party"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
+    self.bonuses = {
         attack = 0,
-    },
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions
-    reactions = {
+    self.reactions = {
         susie = {
             susie = "I'm ALIVE!!!",
             ralsei = "(You weren't dead)",
@@ -50,8 +52,8 @@ local item = Item{
             ralsei = "Ah, I'm refreshed!"
         },
         noelle = "Mints? I love mints!"
-    },
-}
+    }
+end
 
 function item:onWorldUse(target)
     Game.world:heal(target, math.ceil(target:getStat("health") / 2))

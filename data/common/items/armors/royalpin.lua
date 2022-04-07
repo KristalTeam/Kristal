@@ -1,51 +1,53 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "royal_pin",
+local item, super = Class(Item, "royalpin")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "RoyalPin",
+    self.name = "RoyalPin"
 
     -- Item type (item, key, weapon, armor)
-    type = "armor",
+    self.type = "armor"
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/armor",
+    self.icon = "ui/menu/icon/armor"
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Shop description
-    shop = "Elegant\nbrooch",
+    self.shop = "Elegant\nbrooch"
     -- Menu description
-    description = "A brooch engraved with Queen's face.\nCareful of the sharp part.",
+    self.description = "A brooch engraved with Queen's face.\nCareful of the sharp part."
 
     -- Shop sell price
-    price = 1000,
+    self.price = 1000
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    self.target = nil
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
+    self.bonuses = {
         defense = 3,
         magic = 1,
-    },
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions
-    reactions = {
+    self.reactions = {
         susie = "ROACH? Oh, brooch. Heh.",
         ralsei = "I'm a cute little corkboard!",
         noelle = "Queen... gave this to me.",
-    },
-}
+    }
+end
 
 return item

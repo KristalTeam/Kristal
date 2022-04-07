@@ -96,14 +96,14 @@ function DarkEquipMenu:getEquipPreview()
     local item = self:getSelectedItem()
     if self.selected_slot == 1 then
         equipped[1] = item
-    elseif party.equipped.weapon then
-        equipped[1] = Registry.getItem(party.equipped.weapon)
+    else
+        equipped[1] = party.equipped.weapon
     end
     for i = 1, 2 do
         if self.selected_slot == i+1 then
             equipped[i+1] = item
-        elseif party.equipped.armor[i] then
-            equipped[i+1] = Registry.getItem(party.equipped.armor[i])
+        else
+            equipped[i+1] = party.equipped.armor[i]
         end
     end
     return equipped
@@ -133,18 +133,14 @@ end
 function DarkEquipMenu:getAbilityPreview()
     local party = self.party:getSelected()
     local current_abilities = {}
-    if party.equipped.weapon then
-        local item = Registry.getItem(party.equipped.weapon)
-        if item.bonus_name then
-            current_abilities[1] = {name = item.bonus_name, icon = item.bonus_icon}
-        end
+    local weapon = party.equipped.weapon
+    if weapon and weapon.bonus_name then
+        current_abilities[1] = {name = weapon.bonus_name, icon = weapon.bonus_icon}
     end
     for i = 1, 2 do
-        if party.equipped.armor[i] then
-            local item = Registry.getItem(party.equipped.armor[i])
-            if item.bonus_name then
-                current_abilities[i+1] = {name = item.bonus_name, icon = item.bonus_icon}
-            end
+        local armor = party.equipped.armor[i]
+        if armor and armor.bonus_name then
+            current_abilities[i+1] = {name = armor.bonus_name, icon = armor.bonus_icon}
         end
     end
     if self.state == "ITEMS" and self:canEquipSelected() then
@@ -299,12 +295,12 @@ function DarkEquipMenu:update(dt)
                 local swap_with
                 if self.selected_slot == 1 then
                     swap_with = party.equipped.weapon
-                    party.equipped.weapon = item and item.id or nil
+                    party.equipped.weapon = item
                 else
                     swap_with = party.equipped.armor[self.selected_slot-1]
-                    party.equipped.armor[self.selected_slot-1] = item and item.id or nil
+                    party.equipped.armor[self.selected_slot-1] = item
                 end
-                Game.inventory:replaceItem(type, swap_with and Registry.getItem(swap_with) or nil, self.selected_item[type])
+                Game.inventory:replaceItem(type, swap_with, self.selected_item[type])
 
                 self.state = "SLOTS"
                 love.keyboard.setKeyRepeat(false)

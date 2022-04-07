@@ -47,7 +47,7 @@ function PartyMember:init(o)
 
     -- Equipment (saved to the save file)
     self.equipped = {
-        weapon = "wood_blade",
+        weapon = nil,
         armor = {}
     }
 
@@ -93,6 +93,11 @@ function PartyMember:init(o)
     for k,v in pairs(o) do
         self[k] = v
     end
+
+    -- TODO: handle this in extending classes
+    self:setWeapon(self.equipped.weapon)
+    self:setArmor(1, self.equipped.armor[1])
+    self:setArmor(2, self.equipped.armor[2])
 end
 
 function PartyMember:getTitle()
@@ -132,26 +137,36 @@ end
 function PartyMember:getEquipment()
     local result = {}
     if self.equipped.weapon then
-        table.insert(result, Registry.getItem(self.equipped.weapon))
+        table.insert(result, self.equipped.weapon)
     end
     for i = 1, 2 do
         if self.equipped.armor[i] then
-            table.insert(result, Registry.getItem(self.equipped.armor[i]))
+            table.insert(result, self.equipped.armor[i])
         end
     end
     return result
 end
 
 function PartyMember:getWeapon()
-    if self.equipped.weapon then
-        return Registry.getItem(self.equipped.weapon)
-    end
+    return self.equipped.weapon
 end
 
 function PartyMember:getArmor(i)
-    if self.equipped.armor[i] then
-        return Registry.getItem(self.equipped.armor[i])
+    return self.equipped.armor[i]
+end
+
+function PartyMember:setWeapon(item)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
     end
+    self.equipped.weapon = item
+end
+
+function PartyMember:setArmor(i, item)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
+    end
+    self.equipped.armor[i] = item
 end
 
 function PartyMember:getEquipmentBonus(stat)

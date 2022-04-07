@@ -1,52 +1,54 @@
 -- Instead of Item, create a HealItem, a convenient class for consumable healing items
-local item = HealItem{
-    -- Item ID (optional, defaults to path)
-    id = "ultimate_candy",
+local item, super = Class(HealItem, "ultimate_candy")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "UltimatCandy",
+    self.name = "UltimatCandy"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "Best\nhealing",
+    self.effect = "Best\nhealing"
     -- Shop description
-    shop = "Perfection",
+    self.shop = "Perfection"
     -- Menu description
-    description = "Sparkles with perfection.\nMust be shared with everyone. +??HP",
+    self.description = "Sparkles with perfection.\nMust be shared with everyone. +??HP"
 
     -- Amount healed (HealItem variable)
-    heal_amount = 1,
+    self.heal_amount = 1
 
     -- Shop sell price
-    price = 100,
+    self.price = 100
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "none",
+    self.target = "none"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {},
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions (key = party member id)
-    reactions = {
+    self.reactions = {
         susie = "Hey! It's hollow inside!",
         ralsei = "I like the texture!",
-        noelle = "That was underwhelming..."
+        noelle = "That was underwhelming...",
     }
-}
+end
 
 return item

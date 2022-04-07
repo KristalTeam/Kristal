@@ -1200,7 +1200,7 @@ function Battle:commitSingleAction(action)
         local result = action.data.item:onBattleSelect(battler, action.target)
         if result or result == nil then
             if action.data.item.result_item then
-                Game.inventory:replaceItem("item", action.data.item.result_item, action.data.index)
+                Game.inventory:replaceItem("item", Registry.createItem(action.data.item.result_item), action.data.index)
             else
                 Game.inventory:removeItem("item", action.data.index)
             end

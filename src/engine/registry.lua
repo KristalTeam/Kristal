@@ -61,6 +61,14 @@ function Registry.getItem(id)
     return self.items[id]
 end
 
+function Registry.createItem(id, ...)
+    if self.items[id] then
+        return self.items[id](...)
+    else
+        error("Attempt to create non existent item \"" .. id .. "\"")
+    end
+end
+
 function Registry.getSpell(id)
     return self.spells[id]
 end

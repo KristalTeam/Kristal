@@ -1,10 +1,10 @@
 local HealItem, super = Class(Item)
 
-function HealItem:init(o)
+function HealItem:init()
+    super:init(self)
+
     -- Amount this item heals for by default
     self.heal_amount = 0
-
-    super:init(self, o)
 end
 
 function HealItem:getHealAmount(id)

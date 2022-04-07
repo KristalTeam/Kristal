@@ -43,8 +43,8 @@ local character = PartyMember{
 
     -- Equipment (saved to the save file)
     equipped = {
-        weapon = "snow_ring",
-        armor = {"silver_watch", "royal_pin"}
+        weapon = "snowring",
+        armor = {"silver_watch", "royalpin"}
     },
 
     -- Character color (for action box outline and hp bar)

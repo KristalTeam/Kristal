@@ -1,52 +1,62 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "white_ribbon",
+local item, super = Class(Item, "white_ribbon")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "White Ribbon",
+    self.name = "White Ribbon"
 
     -- Item type (item, key, weapon, armor)
-    type = "armor",
+    self.type = "armor"
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/armor",
+    self.icon = "ui/menu/icon/armor"
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Shop description
-    shop = "Enhances\ncuteness",
+    self.shop = "Enhances\ncuteness"
     -- Menu description
-    description = "A crinkly hair ribbon that slightly\nincreases your defense.",
+    self.description = "A crinkly hair ribbon that slightly\nincreases your defense."
 
     -- Shop sell price
-    price = 100,
+    self.price = 100
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    self.target = nil
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
-        defense = 2,
-    },
+    self.bonuses = {
+        defense = 2
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = "Cuteness",
-    bonus_icon = "ui/menu/icon/up",
+    self.bonus_name = "Cuteness"
+    self.bonus_icon = "ui/menu/icon/up"
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {
-        susie = false,
-    },
+    self.can_equip = {
+        susie = false
+    }
 
     -- Character reactions
-    reactions = {
-        susie = "I said NO! C'mon already!",
-        ralsei = "It's nice being dressed up...",
-        noelle = "... feels familiar.",
-    },
-}
+    if Game.chapter == 1 then
+        self.reactions = {
+            susie = "Nope. Not in 1st grade anymore.",
+            ralsei = "Um... D-do I look cute...?",
+            noelle = "... feels familiar.",
+        }
+    else
+        self.reactions = {
+            susie = "I said NO! C'mon already!",
+            ralsei = "It's nice being dressed up...",
+            noelle = "... feels familiar.",
+        }
+    end
+end
 
 return item

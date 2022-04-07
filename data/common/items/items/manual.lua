@@ -1,47 +1,49 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "manual",
+local item, super = Class(Item, "manual")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "Manual",
+    self.name = "Manual"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "Read\nout of\nbattle",
+    self.effect = "Read\nout of\nbattle"
     -- Shop description
-    shop = nil,
+    self.shop = nil
     -- Menu description
-    description = "Ralsei's handmade book full of\nvarious tips and tricks.",
+    self.description = "Ralsei's handmade book full of\nvarious tips and tricks."
 
     -- Shop sell price
-    price = nil,
+    self.price = nil
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    self.target = nil
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
+    self.bonuses = {
         attack = 0,
-    },
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions
-    reactions = {},
-}
+    self.reactions = {}
+end
 
 function item:onWorldUse(target)
     Game.world:startCutscene(function(cutscene)

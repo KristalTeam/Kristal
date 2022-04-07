@@ -43,7 +43,7 @@ local character = PartyMember{
 
     -- Equipment (saved to the save file)
     equipped = {
-        weapon = "snow_ring",
+        weapon = "snowring",
         armor = {"silver_watch"}
     },
 

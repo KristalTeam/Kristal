@@ -7,8 +7,8 @@ function isClass(o)
     return type(o) == "table" and getmetatable(o) and true or false
 end
 
-return setmetatable({}, {__index=_Class, __call = function(_, include, o)
-    o = o or {}
+return setmetatable({}, {__index=_Class, __call = function(_, include, id)
+    local o = {}
     if include then
         if type(include) == "string" then
             local r = CLASS_NAME_GETTER(include)
@@ -35,6 +35,7 @@ return setmetatable({}, {__index=_Class, __call = function(_, include, o)
             end
         end
     end})
+    class.id = id
     class.__includers = {}
     for c,_ in pairs(class.__includes_all) do
         if c ~= class then

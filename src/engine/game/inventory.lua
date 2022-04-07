@@ -13,7 +13,7 @@ end
 
 function Inventory:addItem(item, index)
     if type(item) == "string" then
-        item = Registry.getItem(item)
+        item = Registry.createItem(item)
     end
     if item then
         return self:addItemTo(item.type, item, index)
@@ -24,7 +24,7 @@ end
 
 function Inventory:addItemTo(storage, item, index)
     if type(item) == "string" then
-        item = Registry.getItem(item)
+        item = Registry.createItem(item)
     end
     if type(storage) == "string" then
         storage = self:getStorage(storage)
@@ -94,7 +94,7 @@ function Inventory:replaceItem(storage, item, index)
         storage = self:getStorage(item.type)
     end
     if type(item) == "string" then
-        item = Registry.getItem(item)
+        item = Registry.createItem(item)
     end
     if type(storage) == "string" then
         storage = self:getStorage(storage)
@@ -144,7 +144,7 @@ end
 
 function Inventory:tryGiveItem(item)
     if type(item) == "string" then
-        item = Registry.getItem(item)
+        item = Registry.createItem(item)
     end
     local destination = ""
     if item.type == "item" then
@@ -187,7 +187,11 @@ function Inventory:load(data)
 
     local function loadStorage(storage, from)
         for i = 1, storage.max do
-            storage[i] = Registry.getItem(from[i])
+            if Registry.getItem(from[i]) then
+                storage[i] = Registry.createItem(from[i])
+            else
+                print("LOAD ERROR: Could not load item \""..from[i].."\"")
+            end
         end
     end
 

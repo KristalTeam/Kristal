@@ -1,52 +1,54 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "wood_blade",
+local item, super = Class(Item, "wood_blade")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "Wood Blade",
+    self.name = "Wood Blade"
 
     -- Item type (item, key, weapon, armor)
-    type = "weapon",
+    self.type = "weapon"
     -- Item icon (for equipment)
-    icon = "ui/menu/icon/sword",
+    self.icon = "ui/menu/icon/sword"
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Shop description
-    shop = "Practice\nblade",
+    self.shop = "Practice\nblade"
     -- Menu description
-    description = "A wooden practice blade with a carbon-\nreinforced core.",
+    self.description = "A wooden practice blade with a carbon-\nreinforced core."
 
     -- Shop sell price
-    price = 60,
+    self.price = 60
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = nil,
+    self.target = nil
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "all",
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
+    self.bonuses = {
         attack = 0,
-    },
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {
+    self.can_equip = {
         kris = true,
-    },
+    }
 
     -- Character reactions
-    reactions = {
+    self.reactions = {
         susie = "What's this!? A CHOPSTICK?",
         ralsei = "That's yours, Kris...",
         noelle = "(It has bite marks...)",
-    },
-}
+    }
+end
 
 return item

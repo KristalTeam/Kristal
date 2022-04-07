@@ -81,7 +81,7 @@ function DarkItemMenu:useItem(item, party)
     end
     if (item.type == "item" and (result == nil or result)) or (item.type ~= "item" and result) then
         if item.result_item then
-            Game.inventory:replaceItem(self:getCurrentItemType(), item.result_item, self.selected_item)
+            Game.inventory:replaceItem(self:getCurrentItemType(), Registry.createItem(item.result_item), self.selected_item)
         else
             Game.inventory:removeItem(self:getCurrentItemType(), self.selected_item)
         end

@@ -1,47 +1,57 @@
-local item = Item{
-    -- Item ID (optional, defaults to path)
-    id = "glowshard",
+local item, super = Class(Item, "glowshard")
+
+function item:init()
+    super:init(self)
+
     -- Display name
-    name = "Glowshard",
+    self.name = "Glowshard"
 
     -- Item type (item, key, weapon, armor)
-    type = "item",
+    self.type = "item"
     -- Item icon (for equipment)
-    icon = nil,
+    self.icon = nil
 
     -- Battle description
-    effect = "Sell\nat\nshops",
+    self.effect = "Sell\nat\nshops"
     -- Shop description
-    shop = nil,
+    self.shop = nil
     -- Menu description
-    description = "A shimmering shard.\nIts value increases each Chapter.",
+    if Game.chapter == 1 then
+        self.description = "A shimmering shard.\nIts use is unknown."
+    else
+        self.description = "A shimmering shard.\nIts value increases each Chapter."
+    end
 
     -- Shop sell price
-    price = 100 + (Game.chapter * 50),
+    if Game.chapter == 1 then
+        self.price = 100
+    else
+        self.price = 100 + (Game.chapter * 50)
+    end
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
-    target = "noselect",
+    self.target = "noselect"
     -- Where this item can be used (world, battle, all, or none/nil)
-    usable_in = "battle",
+    self.usable_in = "battle"
     -- Item this item will get turned into when consumed
-    result_item = nil,
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    instant = false,
+    self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    bonuses = {
+    self.bonuses = {
         attack = 0,
-    },
+    }
     -- Bonus name and icon (displayed in equip menu)
-    bonus_name = nil,
-    bonus_icon = nil,
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    can_equip = {},
+    self.can_equip = {}
 
     -- Character reactions
-    reactions = {},
-}
+    self.reactions = {}
+end
 
 function item:onWorldUse(target)
     return false
