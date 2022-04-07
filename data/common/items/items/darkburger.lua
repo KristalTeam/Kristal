@@ -1,6 +1,6 @@
-local Darkburger, super = Class(HealItem, "darkburger")
+local item, super = Class(HealItem, "darkburger")
 
-function Darkburger:init()
+function item:init()
     super:init(self)
 
     -- Display name
@@ -50,4 +50,4 @@ function Darkburger:init()
     }
 end
 
-return Darkburger
+return item

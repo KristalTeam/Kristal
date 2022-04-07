@@ -1,6 +1,6 @@
-local DarkCandy, super = Class(HealItem, "dark_candy")
+local item, super = Class(HealItem, "dark_candy")
 
-function DarkCandy:init()
+function item:init()
     super:init(self)
 
     -- Display name
@@ -53,4 +53,4 @@ function DarkCandy:init()
     }
 end
 
-return DarkCandy
+return item
