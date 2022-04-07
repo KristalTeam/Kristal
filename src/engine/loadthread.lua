@@ -102,15 +102,17 @@ local loaders = {
             end
 
             if love.filesystem.getInfo(full_path.."/bg.png") then
-                mod.preview_data = {love.image.newImageData(full_path.."/bg.png")}
+                pcall(function() mod.preview_data = {love.image.newImageData(full_path.."/bg.png")} end)
+                -- To check if the image loaded successfully, check if pcall returned true and mod.preview_data != nil
+                -- Same goes for all the other assignments I changed
             end
 
             if love.filesystem.getInfo(full_path.."/icon.png") then
-                mod.icon_data = {love.image.newImageData(full_path.."/icon.png")}
+               pcall(function() mod.icon_data = {love.image.newImageData(full_path.."/icon.png")} end)
             end
 
             if love.filesystem.getInfo(full_path.."/logo.png") then
-                mod.logo_data = love.image.newImageData(full_path.."/logo.png")
+                pcall(function() mod.logo_data = love.image.newImageData(full_path.."/logo.png") end)
             end
 
             if love.filesystem.getInfo(full_path.."/preview") then
@@ -130,19 +132,27 @@ local loaders = {
                         if file:sub(1, 2) == "bg" then
                             mod.preview_data = mod.preview_data or {}
                             if img_num then
-                                mod.preview_data[img_num] = love.image.newImageData(full_path.."/preview/"..file)
+                                pcall(function() mod.preview_data[img_num] = love.image.newImageData(full_path.."/preview/"..file) end)
                             else
-                                table.insert(mod.preview_data, 1, love.image.newImageData(full_path.."/preview/"..file))
+                                -- A very hacky fix, don't know enough to make a better one
+                                local imageData = nil
+                                -- Only insert if the creation of ImageData actually succeeded
+                                if pcall(function() imageData = love.image.newImageData(full_path.."/preview/"..file) end) and imageData then
+                                    table.insert(mod.preview_data, 1, love.image.newImageData(full_path.."/preview/"..file))
+                                end
                             end
                         elseif file:sub(1, 4) == "icon" then
                             mod.icon_data = mod.icon_data or {}
                             if img_num then
-                                mod.icon_data[img_num] = love.image.newImageData(full_path.."/preview/"..file)
+                                pcall(function() mod.icon_data[img_num] = love.image.newImageData(full_path.."/preview/"..file) end)
                             else
-                                table.insert(mod.icon_data, 1, love.image.newImageData(full_path.."/preview/"..file))
+                                local imageData = nil
+                                if (pcall(function() imageData = love.image.newImageData(full_path.."/preview/"..file) end)) and imageData then
+                                    table.insert(mod.icon_data, 1, love.image.newImageData(full_path.."/preview/"..file))
+                                end
                             end
                         elseif file:sub(1, 4) == "logo" then
-                            mod.logo_data = love.image.newImageData(full_path.."/preview/"..file)
+                            pcall(function() mod.logo_data = love.image.newImageData(full_path.."/preview/"..file) end)
                         end
                     end
                 end
@@ -202,11 +212,11 @@ local loaders = {
     ["fonts"] = {"assets/fonts", function(base_dir, path, full_path)
         local id = checkExtension(path, "ttf")
         if id then
-            data.assets.font_data[id] = love.filesystem.newFileData(full_path)
+            pcall(function() data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
         end
         id = checkExtension(path, "png")
         if id then
-            data.assets.font_image_data[id] = love.image.newImageData(full_path)
+            pcall(function() data.assets.font_image_data[id] = love.image.newImageData(full_path) end)
         end
         id = checkExtension(path, "json")
         if id then
@@ -216,7 +226,7 @@ local loaders = {
     ["sounds"] = {"assets/sounds", function(base_dir, path, full_path)
         local id = checkExtension(path, "wav", "ogg")
         if id then
-            data.assets.sound_data[id] = love.sound.newSoundData(full_path)
+            pcall(function() data.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
         end
     end},
     ["music"] = {"assets/music", function(base_dir, path, full_path)
