@@ -210,14 +210,14 @@ function Console:keypressed(key)
             self.cursor = utf8.len(string_1)
         end
         self.input = string_1 .. string_2
-    elseif Input.is("up", key) then
+    elseif key == "up" then
         if #self.command_history == 0 then return end
         if self.history_index > 1 then
             self.history_index = self.history_index - 1
             self.input = self.command_history[self.history_index]
             self.cursor = utf8.len(self.input)
         end
-    elseif Input.is("down", key) then
+    elseif key == "down" then
         if #self.command_history == 0 then return end
         if self.history_index < #self.command_history + 1 then
             self.history_index = self.history_index + 1
@@ -227,11 +227,11 @@ function Console:keypressed(key)
             self.input = ""
         end
         self.cursor = utf8.len(self.input)
-    elseif Input.is("left", key) then
+    elseif key == "left" then
         if self.cursor > 0 then
             self.cursor = self.cursor - 1
         end
-    elseif Input.is("right", key) then
+    elseif key == "right" then
         if self.cursor < utf8.len(self.input) then
             self.cursor = self.cursor + 1
         end
