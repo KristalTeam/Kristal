@@ -102,15 +102,17 @@ local loaders = {
             end
 
             if love.filesystem.getInfo(full_path.."/bg.png") then
-                mod.preview_data = {love.image.newImageData(full_path.."/bg.png")}
+                pcall(function() mod.preview_data = {love.image.newImageData(full_path.."/bg.png")} end)
+                -- To check if the image loaded successfully, check if pcall returned true and mod.preview_data != nil
+                -- Same goes for all the other assignments I changed
             end
 
             if love.filesystem.getInfo(full_path.."/icon.png") then
-                mod.icon_data = {love.image.newImageData(full_path.."/icon.png")}
+               pcall(function() mod.icon_data = {love.image.newImageData(full_path.."/icon.png")} end)
             end
 
             if love.filesystem.getInfo(full_path.."/logo.png") then
-                mod.logo_data = love.image.newImageData(full_path.."/logo.png")
+                pcall(function() mod.logo_data = love.image.newImageData(full_path.."/logo.png") end)
             end
 
             if love.filesystem.getInfo(full_path.."/preview") then
