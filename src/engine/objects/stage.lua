@@ -30,9 +30,7 @@ function Stage:addToStage(object)
         end
     end
     object.stage = self
-    if object.onAddToStage then
-        object:onAddToStage(self)
-    end
+    object:onAddToStage(self)
     for _,child in ipairs(object.children) do
         self:addToStage(child)
     end
@@ -43,9 +41,7 @@ function Stage:removeFromStage(object)
     if object.stage == self then
         object.stage = nil
     end
-    if object.onRemoveFromStage then
-        object:onRemoveFromStage(self)
-    end
+    object:onRemoveFromStage(self)
     for _,child in ipairs(object.children) do
         self:removeFromStage(child)
     end

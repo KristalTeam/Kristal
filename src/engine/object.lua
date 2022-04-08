@@ -182,6 +182,9 @@ end
 function Object:onAdd(parent) end
 function Object:onRemove(parent) end
 
+function Object:onAddToStage(stage) end
+function Object:onRemoveFromStage(stage) end
+
 --[[ Common functions ]]--
 
 function Object:move(x, y, speed)

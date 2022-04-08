@@ -40,7 +40,24 @@ function Text:init(text, x, y, w, h, font, style)
 
     self:resetState()
 
-    self:setText(text)
+    self:setText(text, false)
+    self.writtenFirstCharacter = false
+end
+
+function Text:onAddToStage(stage)
+    if not self.writtenFirstCharacter then
+        self:drawNodesAfterCreation()
+    end
+end
+
+function Text:drawNodesAfterCreation()
+    self:drawToCanvas(function()
+        for i = 1, #self.nodes do
+            local current_node = self.nodes[i]
+            self:processNode(current_node)
+            self.state.current_node = self.state.current_node + 1
+        end
+    end, true)
 end
 
 function Text:resetState()
@@ -76,7 +93,10 @@ function Text:update(dt)
     self.timer = self.timer + DTMULT
 end
 
-function Text:setText(text)
+function Text:setText(text, draw)
+    if draw == nil then
+        draw = true
+    end
     self:resetState()
 
     self.text = text
@@ -88,13 +108,9 @@ function Text:setText(text)
         self.canvas = love.graphics.newCanvas(self.width, self.height)
     end
 
-    self:drawToCanvas(function()
-        for i = 1, #self.nodes do
-            local current_node = self.nodes[i]
-            self:processNode(current_node)
-            self.state.current_node = self.state.current_node + 1
-        end
-    end, true)
+    if draw then
+        self:drawNodesAfterCreation()
+    end
 end
 
 function Text:getFont()

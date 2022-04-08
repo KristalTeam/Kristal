@@ -13,18 +13,7 @@ function DialogueText:resetState()
     self.state["typing_sound"] = "default"
 end
 
-function DialogueText:setText(text)
-    self:resetState()
-
-    self.text = text
-
-    self.nodes_to_draw = {}
-    self.nodes, self.display_text = self:textToNodes(text)
-
-    if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
-        self.canvas = love.graphics.newCanvas(self.width, self.height)
-    end
-
+function DialogueText:drawNodesAfterCreation()
     self:drawToCanvas(function()
         local i = 1
         while i <= #self.nodes do
@@ -38,6 +27,20 @@ function DialogueText:setText(text)
             end
         end
     end, true)
+end
+
+
+function DialogueText:setText(text)
+    self:resetState()
+
+    self.text = text
+
+    self.nodes_to_draw = {}
+    self.nodes, self.display_text = self:textToNodes(text)
+
+    if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
+        self.canvas = love.graphics.newCanvas(self.width, self.height)
+    end
 end
 
 function DialogueText:update(dt)
