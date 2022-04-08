@@ -44,8 +44,9 @@ function Text:init(text, x, y, w, h, font, style)
     self.writtenFirstCharacter = false
 end
 
-function Text:onAddToStage(stage)
+function Text:onAddToStage(parent)
     if not self.writtenFirstCharacter then
+        self.writtenFirstCharacter = true
         self:drawNodesAfterCreation()
     end
 end

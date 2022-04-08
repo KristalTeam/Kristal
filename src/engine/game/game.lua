@@ -506,7 +506,7 @@ function Game:enterShop()
 
     self.state = "SHOP"
 
-    self.shop = Shop()
+    self.shop = TestShop()
     self.stage:addChild(self.shop)
 end
 

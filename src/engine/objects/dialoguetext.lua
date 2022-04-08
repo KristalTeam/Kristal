@@ -8,6 +8,10 @@ function DialogueText:init(text, x, y, w, h, font, style)
     self.skip_speed = false
 end
 
+function DialogueText:onAddToStage(parent)
+    super:onAddToStage(self, parent)
+end
+
 function DialogueText:resetState()
     super:resetState(self)
     self.state["typing_sound"] = "default"
@@ -30,7 +34,10 @@ function DialogueText:drawNodesAfterCreation()
 end
 
 
-function DialogueText:setText(text)
+function DialogueText:setText(text, draw)
+    if draw == nil then
+        draw = true
+    end
     self:resetState()
 
     self.text = text
@@ -40,6 +47,10 @@ function DialogueText:setText(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
         self.canvas = love.graphics.newCanvas(self.width, self.height)
+    end
+
+    if draw then
+        self:drawNodesAfterCreation()
     end
 end
 
