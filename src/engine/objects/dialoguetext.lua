@@ -8,8 +8,8 @@ function DialogueText:init(text, x, y, w, h, font, style)
     self.skip_speed = false
 end
 
-function DialogueText:onAddToStage(parent)
-    super:onAddToStage(self, parent)
+function DialogueText:onAddToStage(stage)
+    super:onAddToStage(self, stage)
 end
 
 function DialogueText:resetState()
