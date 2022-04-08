@@ -144,6 +144,8 @@ function Game:load(data, index)
     self.stage = Stage()
 
     self.world = World()
+    self.world.state = "TRANSITION_IN"
+    self.world.transition_fade = 1
     self.stage:addChild(self.world)
 
     if not self.console then

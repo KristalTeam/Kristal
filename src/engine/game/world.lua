@@ -692,7 +692,8 @@ function World:update(dt)
         if self.transition_fade == 0 then
             self.state = "GAMEPLAY"
         end
-    elseif self.state == "GAMEPLAY" then
+    end
+    if self.state == "GAMEPLAY" or self.state == "TRANSITION_IN" then
         -- Object collision
         local collided = {}
         Object.startCache()

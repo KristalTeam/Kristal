@@ -132,7 +132,7 @@ end
 function Player:isMovementEnabled()
     return not Game.lock_input
         and Game.state == "OVERWORLD"
-        and self.world.state == "GAMEPLAY"
+        and (self.world.state == "GAMEPLAY" or self.world.state == "TRANSITION_IN")
         and self.hurt_timer == 0
 end
 
