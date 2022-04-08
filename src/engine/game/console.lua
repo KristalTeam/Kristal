@@ -174,7 +174,7 @@ function Console:error(str)
 end
 
 function Console:stripError(str)
-    return string.match(str, '.+:1: (.+)')
+    return string.match(str, '.+:%d+: (.+)')
 end
 
 function Console:run(str)
