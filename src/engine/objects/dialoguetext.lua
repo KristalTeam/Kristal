@@ -30,10 +30,7 @@ function DialogueText:drawNodesAfterCreation()
 end
 
 
-function DialogueText:setText(text, draw)
-    if draw == nil then
-        draw = true
-    end
+function DialogueText:setText(text)
     self:resetState()
 
     self.text = text
@@ -45,8 +42,11 @@ function DialogueText:setText(text, draw)
         self.canvas = love.graphics.newCanvas(self.width, self.height)
     end
 
-    if draw then
+    if self.stage then
+        self.set_text_without_stage = false
         self:drawNodesAfterCreation()
+    else
+        self.set_text_without_stage = true
     end
 end
 

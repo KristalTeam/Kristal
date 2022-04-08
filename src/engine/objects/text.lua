@@ -40,12 +40,15 @@ function Text:init(text, x, y, w, h, font, style)
 
     self:resetState()
 
-    self:setText(text, false)
+    self:setText(text)
+    self.set_text_without_stage = true
 end
 
-function Text:onAdd(stage)
-    super:onAdd(self, stage)
-    self:drawNodesAfterCreation()
+function Text:onAddToStage(stage)
+    if self.set_text_without_stage then
+        self.set_text_without_stage = false
+        self:drawNodesAfterCreation()
+    end
 end
 
 function Text:drawNodesAfterCreation()
@@ -91,7 +94,7 @@ function Text:update(dt)
     self.timer = self.timer + DTMULT
 end
 
-function Text:setText(text, draw)
+function Text:setText(text)
     if draw == nil then
         draw = true
     end
@@ -106,8 +109,11 @@ function Text:setText(text, draw)
         self.canvas = love.graphics.newCanvas(self.width, self.height)
     end
 
-    if draw then
+    if self.stage then
+        self.set_text_without_stage = false
         self:drawNodesAfterCreation()
+    else
+        self.set_text_without_stage = true
     end
 end
 
