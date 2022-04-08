@@ -1,22 +1,35 @@
-return {
-    name = "Ralsei",
-    id = "ralsei",
+local actor, super = Class(Actor, "ralsei_ch1")
 
-    width = 23,
-    height = 43,
+function actor:init()
+    super:init(self)
 
-    hitbox = {0, 27, 19, 14},
+    -- Display name (optional)
+    self.name = "Ralsei"
 
-    color = {0, 1, 0},
+    -- Width and height for this actor, used to determine its center
+    self.width = 23
+    self.height = 43
 
-    path = "party/ralsei/dark_ch1",
-    default = "walk",
+    -- Hitbox for this actor in the overworld (optional, uses width and height by default)
+    self.hitbox = {0, 27, 19, 14}
 
-    text_sound = "ralsei",
-    portrait_path = "face/ralsei_hat",
-    portrait_offset = {-15, -10},
+    -- Color for this actor used in outline areas (optional, defaults to red)
+    self.color = {0, 1, 0}
 
-    animations = {
+    -- Path to this actor's sprites (defaults to "")
+    self.path = "party/ralsei/dark_ch1"
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
+    self.default = "walk"
+
+    -- Sound to play when this actor speaks (optional)
+    self.voice = "ralsei"
+    -- Path to this actor's portrait for dialogue (optional)
+    self.portrait_path = "face/ralsei_hat"
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = {-15, -10}
+
+    -- Table of sprite animations
+    self.animations = {
         -- Battle animations
         ["battle/idle"]         = {"battle/idle", 0.2, true},
 
@@ -40,9 +53,10 @@ return {
         ["battle/transition"]   = {"walk/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/intro", 1/15, false},
         ["battle/victory"]      = {"battle/victory", 1/10, false}
-    },
+    }
 
-    offsets = {
+    -- Table of sprite offsets (indexed by sprite name)
+    self.offsets = {
         -- Battle offsets
         ["battle/idle"] = {7, 2},
 
@@ -62,5 +76,7 @@ return {
 
         ["battle/intro"] = {3, 2},
         ["battle/victory"] = {3, 2}
-    },
-}
+    }
+end
+
+return actor

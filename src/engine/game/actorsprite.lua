@@ -2,7 +2,7 @@ local ActorSprite, super = Class(Sprite)
 
 function ActorSprite:init(actor)
     if type(actor) == "string" then
-        actor = Registry.getActor(actor)
+        actor = Registry.createActor(actor)
     end
 
     self.actor = actor

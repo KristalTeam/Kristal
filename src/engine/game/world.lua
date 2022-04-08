@@ -100,7 +100,7 @@ function World:hurtParty(amount)
             all_killed = false
         end
         for _,char in ipairs(self.stage:getObjects(Character)) do
-            if char.actor and (char.actor.id == party.actor or char.actor.id == party.lw_actor) then
+            if char.actor and (char.actor.id == party:getActor().id) then
                 char:statusMessage("damage", amount)
             end
         end
@@ -288,7 +288,7 @@ function World:spawnPlayer(...)
     end
 
     if type(chara) == "string" then
-        chara = Registry.getActor(chara)
+        chara = Registry.createActor(chara)
     end
 
     local facing = "down"
@@ -316,28 +316,21 @@ function World:spawnPlayer(...)
     end
 end
 
-function World:getActorForParty(chara)
-    return self.light and chara.lw_actor or chara.actor
-end
-
 function World:getPartyCharacter(party)
     if type(party) == "string" then
         party = Game:getPartyMember(party)
     end
     for _,char in ipairs(Game.stage:getObjects(Character)) do
-        if char.actor and char.actor.id == self:getActorForParty(party) then
+        if char.actor and char.actor.id == party:getActor().id then
             return char
         end
     end
 end
 
 function World:removeFollower(chara)
-    if type(chara) == "string" then
-        chara = Registry.getActor(chara)
-    end
     local follower_arg = isClass(chara) and chara:includes(Follower)
     for i,follower in ipairs(self.followers) do
-        if (follower_arg and follower == chara) or (not follower_arg and follower.actor == chara) then
+        if (follower_arg and follower == chara) or (not follower_arg and follower.actor.id == chara) then
             table.remove(self.followers, i)
             for j,temp in ipairs(Game.temp_followers) do
                 if temp == follower.actor.id or (type(temp) == "table" and temp[1] == follower.actor.id) then
@@ -352,7 +345,7 @@ end
 
 function World:spawnFollower(chara, options)
     if type(chara) == "string" then
-        chara = Registry.getActor(chara)
+        chara = Registry.createActor(chara)
     end
     options = options or {}
     local follower
@@ -387,15 +380,15 @@ function World:spawnParty(marker, party, extra, facing)
     party = party or Game.party or {"kris"}
     if #party > 0 then
         if type(marker) == "table" then
-            self:spawnPlayer(marker[1], marker[2], self:getActorForParty(party[1]))
+            self:spawnPlayer(marker[1], marker[2], party[1]:getActor())
         else
-            self:spawnPlayer(marker or "spawn", self:getActorForParty(party[1]))
+            self:spawnPlayer(marker or "spawn", party[1]:getActor())
         end
         if facing then
             self.player:setFacing(facing)
         end
         for i = 2, #party do
-            local follower = self:spawnFollower(self:getActorForParty(party[i]))
+            local follower = self:spawnFollower(party[i]:getActor())
             follower:setFacing(facing or self.player.facing)
         end
         for _,actor in ipairs(extra or Game.temp_followers or {}) do
@@ -442,9 +435,10 @@ function World:spawnObject(obj, layer)
 end
 
 function World:getCharacter(id, index)
+    local party_member = Game:getPartyMember(id)
     local i = 0
     for _,chara in ipairs(Game.stage:getObjects(Character)) do
-        if chara.actor.id == id then
+        if chara.actor.id == id or (party_member and chara.actor.id == party_member:getActor().id) then
             i = i + 1
             if not index or index == i then
                 return chara

@@ -26,7 +26,7 @@ function Battle:init()
     for i = 1, math.min(3, #Game.party) do
         local party_member = Game.party[i]
 
-        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == party_member.actor then
+        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == party_member:getActor().id then
             -- Create the player battler
             local player_x, player_y = Game.world.player:getScreenPos()
             local player_battler = PartyBattler(party_member, player_x, player_y)
@@ -40,7 +40,7 @@ function Battle:init()
         else
             local found = false
             for _,follower in ipairs(Game.world.followers) do
-                if follower.visible and follower.actor.id == party_member.id then
+                if follower.visible and follower.actor.id == party_member:getActor().id then
                     local chara_x, chara_y = follower:getScreenPos()
                     local chara_battler = PartyBattler(party_member, chara_x, chara_y)
                     chara_battler:setAnimation("battle/transition")

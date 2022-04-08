@@ -1,26 +1,50 @@
-return {
-    id = "starwalker",
+local actor, super = Class(Actor, "starwalker")
 
-    width = 37,
-    height = 36,
+function actor:init()
+    super:init(self)
 
-    hitbox = {0, 22, 37, 14},
+    -- Display name (optional)
+    self.name = "Starwalker"
 
-    path = "npcs/starwalker",
-    default = "starwalker",
+    -- Width and height for this actor, used to determine its center
+    self.width = 37
+    self.height = 36
 
-    animations = {
+    -- Hitbox for this actor in the overworld (optional, uses width and height by default)
+    self.hitbox = {0, 22, 37, 14}
+
+    -- Color for this actor used in outline areas (optional, defaults to red)
+    self.color = {1, 1, 0}
+
+    -- Whether this actor flips horizontally (optional, values are "right" or "left", indicating the flip direction)
+    self.flip = nil
+
+    -- Path to this actor's sprites (defaults to "")
+    self.path = "npcs/starwalker"
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
+    self.default = "starwalker"
+
+    -- Sound to play when this actor speaks (optional)
+    self.voice = nil
+    -- Path to this actor's portrait for dialogue (optional)
+    self.portrait_path = nil
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = nil
+
+    -- Table of sprite animations
+    self.animations = {
         ["wings"] = {"starwalker_wings", 0.25, true},
         ["hurt"] = {"starwalker_shoot_1", 0.5, true},
         ["shoot"] = {"starwalker_wings", 0.25, true, next="wings", frames={5,4,3,2}},
-    },
+    }
 
-    offsets = {
+    -- Table of sprite offsets (indexed by sprite name)
+    self.offsets = {
         ["starwalker"] = {0, 0},
         ["starwalker_wings"] = {6, 4},
         ["starwalker_shoot_1"] = {0, 0},
         ["starwalker_shoot_2"] = {5, 0},
-    },
+    }
+end
 
-    color = {1, 1, 0, 1}
-}
+return actor

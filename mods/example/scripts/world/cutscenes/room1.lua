@@ -33,7 +33,7 @@ return {
             cutscene:wait(1.5)
 
             -- Walk back,
-            cutscene:wait(cutscene:walkTo(susie, x, y + 60, 2, "up"))
+            cutscene:wait(cutscene:walkTo(susie, x, y + 60, 2, "up", true))
             -- and run forward!
             cutscene:wait(cutscene:walkTo(susie, x, y + 20, 8))
 

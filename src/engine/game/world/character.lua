@@ -1,13 +1,13 @@
 local Character, super = Class(Object)
 
-function Character:init(chara, x, y)
-    if type(chara) == "string" then
-        chara = Registry.getActor(chara)
+function Character:init(actor, x, y)
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
     end
 
-    super:init(self, x, y, chara.width, chara.height)
+    super:init(self, x, y, actor.width, actor.height)
 
-    self.actor = chara
+    self.actor = actor
     self.facing = "down"
 
     self.sprite = ActorSprite(self.actor)
@@ -19,7 +19,7 @@ function Character:init(chara, x, y)
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    local hitbox = self.actor.hitbox or {0, 0, chara.width, chara.height}
+    local hitbox = self.actor.hitbox or {0, 0, actor.width, actor.height}
     self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
 
     self.last_collided_x = false
@@ -63,7 +63,7 @@ end
 
 function Character:setActor(actor)
     if type(actor) == "string" then
-        actor = Registry.getActor(actor)
+        actor = Registry.createActor(actor)
     end
 
     self.actor = actor
@@ -420,9 +420,7 @@ function Character:convertToNPC(properties)
 end
 
 function Character:update(dt)
-    if self.actor.update then
-        self.actor:update(self, dt)
-    end
+    self.actor:onWorldUpdate(self, dt)
 
     local target = self.move_target
     if target then
@@ -487,9 +485,7 @@ end
 function Character:draw()
     super:draw(self)
 
-    if self.actor.draw then
-        self.actor:draw(self)
-    end
+    self.actor:onWorldDraw(self)
 
     if DEBUG_RENDER then
         self.collider:draw(0, 1, 0)

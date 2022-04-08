@@ -1,18 +1,35 @@
-return {
-    name = "Kris",
-    id = "kris",
+local actor, super = Class(Actor, "kris")
 
-    width = 19,
-    height = 37,
+function actor:init()
+    super:init(self)
 
-    hitbox = {0, 25, 19, 14},
+    -- Display name (optional)
+    self.name = "Kris"
 
-    color = {0, 1, 1},
+    -- Width and height for this actor, used to determine its center
+    self.width = 19
+    self.height = 37
 
-    path = "party/kris/dark",
-    default = "walk",
+    -- Hitbox for this actor in the overworld (optional, uses width and height by default)
+    self.hitbox = {0, 25, 19, 14}
 
-    animations = {
+    -- Color for this actor used in outline areas (optional, defaults to red)
+    self.color = {0, 1, 1}
+
+    -- Path to this actor's sprites (defaults to "")
+    self.path = "party/kris/dark"
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
+    self.default = "walk"
+
+    -- Sound to play when this actor speaks (optional)
+    self.voice = nil
+    -- Path to this actor's portrait for dialogue (optional)
+    self.portrait_path = nil
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = nil
+
+    -- Table of sprite animations
+    self.animations = {
         -- Movement animations
         ["slide"]               = {"slide", 4/30, true},
 
@@ -43,9 +60,10 @@ return {
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
-    },
+    }
 
-    offsets = {
+    -- Table of sprite offsets (indexed by sprite name)
+    self.offsets = {
         -- Movement offsets
         ["walk/left"] = {0, 0},
         ["walk/right"] = {0, 0},
@@ -98,5 +116,7 @@ return {
         ["sit"] = {3, 0},
 
         ["t_pose"] = {4, 0},
-    },
-}
+    }
+end
+
+return actor

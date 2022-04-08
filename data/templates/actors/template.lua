@@ -1,27 +1,41 @@
-return {
-    -- Actor ID (optional, defaults to path)
-    id = "test_actor",
+local actor, super = Class(Actor, "test_actor")
+
+function actor:init()
     -- Display name (optional)
-    name = "Test Actor",
+    self.name = "Test Actor"
 
     -- Width and height for this actor, used to determine its center
-    width = 16,
-    height = 16,
+    self.width = 16
+    self.height = 16
 
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
-    hitbox = nil,
+    self.hitbox = {0, 0, 16, 16}
 
     -- Color for this actor used in outline areas (optional, defaults to red)
-    color = nil,
+    self.color = {1, 0, 0}
+
+    -- Whether this actor flips horizontally (optional, values are "right" or "left", indicating the flip direction)
+    self.flip = nil
 
     -- Path to this actor's sprites (defaults to "")
-    path = "party/kris",
+    self.path = "party/kris/dark"
     -- This actor's default sprite or animation, relative to the path (defaults to "")
-    default = "world/dark",
+    self.default = "walk"
+
+    -- Sound to play when this actor speaks (optional)
+    self.voice = nil
+    -- Path to this actor's portrait for dialogue (optional)
+    self.portrait_path = nil
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = nil
 
     -- Table of sprite animations
-    animations = {},
+    self.animations = {}
 
     -- Table of sprite offsets (indexed by sprite name)
-    offsets = {},
-}
+    self.offsets = {}
+end
+
+-- Function overrides go here
+
+return actor

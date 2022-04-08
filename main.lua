@@ -78,6 +78,7 @@ PointCollider = require("src.engine.colliders.pointcollider")
 PolygonCollider = require("src.engine.colliders.polygoncollider")
 
 PartyMember = require("src.engine.game.scripts.partymember")
+Actor = require("src.engine.game.scripts.actor")
 Spell = require("src.engine.game.scripts.spell")
 Item = require("src.engine.game.scripts.item")
 HealItem = require("src.engine.game.scripts.healitem")

@@ -142,7 +142,7 @@ end
 
 function Textbox:setActor(actor)
     if type(actor) == "string" then
-        actor = Registry.getActor(actor)
+        actor = Registry.createActor(actor)
     end
     self.actor = actor
 
@@ -188,7 +188,7 @@ function Textbox:addReaction(id, actor, face, x, y, text)
         y = self.battle_box and self.REACTION_Y_BATTLE[y] or self.REACTION_Y[y]
     end
     if type(actor) == "string" then
-        actor = Registry.getActor(actor)
+        actor = Registry.createActor(actor)
     end
     self.reactions[id] = {
         text = text,
@@ -204,8 +204,8 @@ function Textbox:setText(text)
         reaction:remove()
     end
     self.reaction_instances = {}
-    if self.actor and self.actor.text_sound then
-        self.text:setText("[voice:"..self.actor.text_sound.."]"..text)
+    if self.actor and self.actor.voice then
+        self.text:setText("[voice:"..self.actor.voice.."]"..text)
     else
         self.text:setText(text)
     end

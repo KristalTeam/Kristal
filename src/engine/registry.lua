@@ -57,6 +57,14 @@ function Registry.getActor(id)
     return self.actors[id]
 end
 
+function Registry.createActor(id, ...)
+    if self.actors[id] then
+        return self.actors[id](...)
+    else
+        error("Attempt to create non existent actor \"" .. id .. "\"")
+    end
+end
+
 function Registry.getItem(id)
     return self.items[id]
 end
@@ -283,9 +291,6 @@ function Registry.initActors()
     for _,path,actor in self.iterScripts("data/actors") do
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
-    end
-    for id,mod in self.iterMods("datamod/actors") do
-        mod(self.actors[id])
     end
 
     Kristal.callEvent("onRegisterActors")

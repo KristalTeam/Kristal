@@ -6,10 +6,9 @@ function character:init()
     -- Display name
     self.name = "Kris"
 
-    -- Actor ID (handles overworld/battle sprites)
-    self.actor = "kris"
-    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
-    self.lw_actor = "kris_lw"
+    -- Actor (handles overworld/battle sprites)
+    self:setActor("kris")
+    self:setLightActor("kris_lw")
 
     -- Display level (saved to the save file)
     self.level = Game.chapter

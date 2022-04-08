@@ -2,7 +2,7 @@ local PartyBattler, super = Class(Battler)
 
 function PartyBattler:init(chara, x, y)
     self.chara = chara
-    self.actor = Registry.getActor(chara.actor)
+    self.actor = chara:getActor()
 
     super:init(self, x, y, self.actor.width, self.actor.height)
 

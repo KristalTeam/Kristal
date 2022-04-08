@@ -1,22 +1,35 @@
-return {
-    name = "Ralsei",
-    id = "ralsei",
+local actor, super = Class(Actor, "ralsei")
 
-    width = 19,
-    height = 40,
+function actor:init()
+    super:init(self)
 
-    hitbox = {0, 27, 19, 14},
+    -- Display name (optional)
+    self.name = "Ralsei"
 
-    color = {0, 1, 0},
+    -- Width and height for this actor, used to determine its center
+    self.width = 19
+    self.height = 40
 
-    path = "party/ralsei/dark",
-    default = "walk",
+    -- Hitbox for this actor in the overworld (optional, uses width and height by default)
+    self.hitbox = {0, 27, 19, 14}
 
-    text_sound = "ralsei",
-    portrait_path = "face/ralsei",
-    portrait_offset = {-15, -10},
+    -- Color for this actor used in outline areas (optional, defaults to red)
+    self.color = {0, 1, 0}
 
-    animations = {
+    -- Path to this actor's sprites (defaults to "")
+    self.path = "party/ralsei/dark"
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
+    self.default = "walk"
+
+    -- Sound to play when this actor speaks (optional)
+    self.voice = "ralsei"
+    -- Path to this actor's portrait for dialogue (optional)
+    self.portrait_path = "face/ralsei"
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = {-15, -10}
+
+    -- Table of sprite animations
+    self.animations = {
         -- Movement animations
         ["slide"]               = {"slide", 4/30, true},
 
@@ -55,9 +68,10 @@ return {
 
         ["wave_start"]          = {"wave_start", 5/30, false, next="wave_down"},
         ["wave_down"]           = {"wave_down", 5/30, true}
-    },
+    }
 
-    offsets = {
+    -- Table of sprite offsets (indexed by sprite name)
+    self.offsets = {
         -- Movement offsets
         ["walk/down"] = {1, 0},
         ["walk/left"] = {0, 0},
@@ -111,5 +125,7 @@ return {
 
         ["splat"] = {15, -21},
         ["stool"] = {11, -18}
-    },
-}
+    }
+end
+
+return actor

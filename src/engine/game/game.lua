@@ -167,7 +167,7 @@ function Game:load(data, index)
 
     self.save_name = data.name or "PLAYER"
     self.save_level = data.level or self.chapter
-    self.save_id = index or 1
+    self.save_id = index or self.save_id or 1
 
     self.playtime = data.playtime or 0
 
@@ -313,7 +313,7 @@ function Game:updateGameOver(dt)
             self.gameover_stage = 7
         else
             local member = Utils.pick(options)
-            local voice = Registry.getActor(member.actor).text_sound or "default"
+            local voice = member:getActor().voice or "default"
             self.gameover_lines = {}
             for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
                 local full_line = "[speed:0.5][spacing:8][voice:"..voice.."]"

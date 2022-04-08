@@ -1,22 +1,43 @@
-return {
-    name = "Susie",
-    id = "susie",
+local actor, super = Class(Actor, "susie")
 
-    width = 25,
-    height = 43,
+function actor:init()
+    super:init(self)
 
-    hitbox = {3, 30, 19, 14},
+    -- Display name (optional)
+    self.name = "Susie"
 
-    color = {1, 0, 1},
+    -- Width and height for this actor, used to determine its center
+    self.width = 25
+    self.height = 43
 
-    path = "party/susie/dark",
-    default = "walk",
+    -- Hitbox for this actor in the overworld (optional, uses width and height by default)
+    self.hitbox = {3, 30, 19, 14}
 
-    text_sound = "susie",
-    portrait_path = "face/susie",
-    portrait_offset = {-5, 0},
+    -- Color for this actor used in outline areas (optional, defaults to red)
+    self.color = {1, 0, 1}
 
-    animations = {
+    -- Path to this actor's sprites (defaults to "")
+    self.path = "party/susie/dark"
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
+    if Game.chapter == 1 then
+        self.default = "walk_bangs"
+    else
+        self.default = "walk"
+    end
+
+    -- Sound to play when this actor speaks (optional)
+    self.voice = "susie"
+    -- Path to this actor's portrait for dialogue (optional)
+    if Game.chapter == 1 then
+        self.portrait_path = "face/susie_bangs"
+    else
+        self.portrait_path = "face/susie"
+    end
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = {-5, 0}
+
+    -- Table of sprite animations
+    self.animations = {
         -- Movement animations
         ["slide"]               = {"slide", 4/30, true},
 
@@ -40,7 +61,7 @@ return {
         ["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
-        ["battle/transition"]   = {"walk/right_1", 1/15, false},
+        ["battle/transition"]   = {self.default.."/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/attack", 1/15, true},
         ["battle/victory"]      = {"battle/victory", 1/10, false},
 
@@ -49,14 +70,20 @@ return {
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
-    },
+    }
 
-    offsets = {
+    -- Table of sprite offsets (indexed by sprite name)
+    self.offsets = {
         -- Movement offsets
         ["walk/down"] = {0, 2},
         ["walk/left"] = {0, 2},
         ["walk/right"] = {0, 2},
         ["walk/up"] = {0, 2},
+
+        ["walk_bangs/down"] = {0, 2},
+        ["walk_bangs/left"] = {0, 2},
+        ["walk_bangs/right"] = {0, 2},
+        ["walk_bangs/up"] = {0, 2},
 
         ["walk_unhappy/down"] = {0, 2},
         ["walk_unhappy/left"] = {0, 2},
@@ -136,5 +163,7 @@ return {
         ["t_pose"] = {6, 0},
 
         ["fell"] = {18, 2},
-    },
-}
+    }
+end
+
+return actor

@@ -4,9 +4,9 @@ function PartyMember:init()
     -- Display name
     self.name = "Player"
 
-    -- Actor ID (handles overworld/battle sprites)
-    self.actor = "kris"
-    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
+    -- Actor (handles overworld/battle sprites)
+    self.actor = nil
+    -- Light World Actor (handles overworld/battle sprites in light world maps) (optional)
     self.lw_actor = nil
 
     -- Display level (saved to the save file)
@@ -118,6 +118,31 @@ function PartyMember:increaseStat(stat, amount, max)
     if stat == "health" then
         self.health = math.min(self.health + amount, self.stats[stat])
     end
+end
+
+function PartyMember:getActor(light)
+    if light == nil then
+        light = Game and Game.world and Game.world.light
+    end
+    if light then
+        return self.lw_actor or self.actor
+    else
+        return self.actor
+    end
+end
+
+function PartyMember:setActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
+    end
+    self.actor = actor
+end
+
+function PartyMember:setLightActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
+    end
+    self.lw_actor = actor
 end
 
 function PartyMember:getEquipment()

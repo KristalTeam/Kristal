@@ -1,22 +1,38 @@
-return {
-    name = "Noelle",
-    id = "noelle_lw",
+local actor, super = Class(Actor, "noelle_lw")
 
-    width = 23,
-    height = 46,
+function actor:init()
+    super:init(self)
 
-    hitbox = {2, 33, 19, 14},
+    -- Display name (optional)
+    self.name = "Noelle"
 
-    color = {1, 1, 0},
+    -- Width and height for this actor, used to determine its center
+    self.width = 23
+    self.height = 46
 
-    path = "party/noelle/light",
-    default = "walk",
+    -- Hitbox for this actor in the overworld (optional, uses width and height by default)
+    self.hitbox = {2, 33, 19, 14}
 
-    text_sound = "noelle",
-    portrait_path = "face/noelle_lw",
-    portrait_offset = {-12, -10},
+    -- Color for this actor used in outline areas (optional, defaults to red)
+    self.color = {1, 1, 0}
 
-    animations = {},
+    -- Path to this actor's sprites (defaults to "")
+    self.path = "party/noelle/light"
+    -- This actor's default sprite or animation, relative to the path (defaults to "")
+    self.default = "walk"
 
-    offsets = {},
-}
+    -- Sound to play when this actor speaks (optional)
+    self.voice = "noelle"
+    -- Path to this actor's portrait for dialogue (optional)
+    self.portrait_path = "face/noelle_lw"
+    -- Offset position for this actor's portrait (optional)
+    self.portrait_offset = {-12, -10}
+
+    -- Table of sprite animations
+    self.animations = {}
+
+    -- Table of sprite offsets (indexed by sprite name)
+    self.offsets = {}
+end
+
+return actor

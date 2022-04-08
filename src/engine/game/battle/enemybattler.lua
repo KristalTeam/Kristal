@@ -464,7 +464,7 @@ end
 
 function EnemyBattler:setActor(actor)
     if type(actor) == "string" then
-        self.actor = Registry.getActor(actor)
+        self.actor = Registry.createActor(actor)
     else
         self.actor = actor
     end

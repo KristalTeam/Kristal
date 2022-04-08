@@ -6,10 +6,12 @@ function character:init()
     -- Display name
     self.name = "Ralsei"
 
-    -- Actor ID (handles sprites)
-    self.actor = "ralsei"
-    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
-    self.lw_actor = nil
+    -- Actor (handles sprites)
+    if Game.chapter == 1 then
+        self:setActor("ralsei_ch1")
+    else
+        self:setActor("ralsei")
+    end
 
     -- Display level (saved to the save file)
     self.level = Game.chapter
