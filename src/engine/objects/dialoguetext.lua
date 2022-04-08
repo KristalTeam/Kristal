@@ -8,10 +8,6 @@ function DialogueText:init(text, x, y, w, h, font, style)
     self.skip_speed = false
 end
 
-function DialogueText:onAddToStage(stage)
-    super:onAddToStage(self, stage)
-end
-
 function DialogueText:resetState()
     super:resetState(self)
     self.state["typing_sound"] = "default"

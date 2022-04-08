@@ -41,14 +41,11 @@ function Text:init(text, x, y, w, h, font, style)
     self:resetState()
 
     self:setText(text, false)
-    self.writtenFirstCharacter = false
 end
 
-function Text:onAddToStage(stage)
-    if not self.writtenFirstCharacter then
-        self.writtenFirstCharacter = true
-        self:drawNodesAfterCreation()
-    end
+function Text:onAdd(stage)
+    super:onAdd(self, stage)
+    self:drawNodesAfterCreation()
 end
 
 function Text:drawNodesAfterCreation()
