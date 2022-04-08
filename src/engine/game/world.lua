@@ -307,6 +307,7 @@ function World:spawnPlayer(...)
     self:addChild(self.player)
 
     self.soul = OverworldSoul(x + 10, y + 24) -- TODO: unhardcode
+    self.soul:setColor(Game:getSoulColor())
     self.soul.layer = self.layers["soul"]
     self:addChild(self.soul)
 
