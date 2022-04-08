@@ -97,25 +97,25 @@ function Menu:enter()
 
     self.left_credits = {
         {"Lead Developers", COLORS.silver},
-        "     Nyakorita",
-        "     SylviBlossom",
+        "Nyakorita",
+        "SylviBlossom",
         "",
         {"Developers", COLORS.silver},
-        "     Vitellary",
+        "Vitellary",
         "",
         {"Assets", COLORS.silver},
-        "     Toby Fox",
-        "     Temmie Chang",
-        "     DELTARUNE team"
+        "Toby Fox",
+        "Temmie Chang",
+        "DELTARUNE team"
     }
 
     self.right_credits = {
         {"GitHub Contributors", COLORS.silver},
-            "Archie-osu     ",
-                  "Luna     ",
-                           "",
-              {"Documentation", COLORS.silver},
-             "Vitellary     ",
+        "Archie-osu",
+        "Luna",
+        "",
+        {"Documentation", COLORS.silver},
+        "Vitellary     ",
     }
 end
 
@@ -511,20 +511,26 @@ function Menu:draw()
 
         for index, value in ipairs(self.left_credits) do
             local color = {1, 1, 1, 1}
+            local offset = 0
             if type(value) == "table" then
                 color = value[2]
                 value = value[1]
+            else
+                offset = offset + 32
             end
-            self:printShadow(value, 32, 64 + (32 * index), color)
+            self:printShadow(value, 32 + offset, 64 + (32 * index), color)
         end
 
         for index, value in ipairs(self.right_credits) do
             local color = {1, 1, 1, 1}
+            local offset = 0
             if type(value) == "table" then
                 color = value[2]
                 value = value[1]
+            else
+                offset = offset - 32
             end
-            self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32)
+            self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32 + offset)
 
             self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
         end
