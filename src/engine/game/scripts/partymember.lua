@@ -24,7 +24,7 @@ function PartyMember:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "?-Action"
 
-    -- Spells by id
+    -- Spells
     self.spells = {}
 
     -- Current health (saved to the save file)
@@ -145,6 +145,13 @@ function PartyMember:setLightActor(actor)
     self.lw_actor = actor
 end
 
+function PartyMember:addSpell(spell)
+    if type(spell) == "string" then
+        spell = Registry.createSpell(spell)
+    end
+    table.insert(self.spells, spell)
+end
+
 function PartyMember:getEquipment()
     local result = {}
     if self.equipped.weapon then
@@ -250,12 +257,26 @@ function PartyMember:loadEquipment(data)
     end
 end
 
+function PartyMember:saveSpells()
+    local result = {}
+    for _,v in pairs(self.spells) do
+        table.insert(result, v.id)
+    end
+    return result
+end
+
+function PartyMember:loadSpells(data)
+    for _,v in ipairs(data) do
+        self:addSpell(v)
+    end
+end
+
 function PartyMember:save()
     local data = {
         id = self.id,
-        spells = self.spells,
         health = self.health,
         stats = self.stats,
+        spells = self:saveSpells(),
         equipped = self:saveEquipment(),
         flags = self.flags
     }
@@ -266,8 +287,10 @@ function PartyMember:save()
 end
 
 function PartyMember:load(data)
-    self.spells = data.spells or self.spells
     self.stats = data.stats or self.stats
+    if data.spells then
+        self:loadSpells(data.spells)
+    end
     if data.equipped then
         self:loadEquipment(data.equipped)
     end

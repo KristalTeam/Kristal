@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "pacify",
+local spell, super = Class(Spell, "pacify")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Pacify",
+    self.name = "Pacify"
 
     -- Battle description
-    effect = "Spare\nTIRED foe",
+    self.effect = "Spare\nTIRED foe"
     -- Menu description
-    description = "SPARE a tired enemy by putting them to sleep.",
+    self.description = "SPARE a tired enemy by putting them to sleep."
 
     -- TP cost
-    cost = 16,
+    self.cost = 16
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
+    self.target = "enemy"
 
     -- Tags that apply to this spell
-    tags = {"spare_tired"},
-}
+    self.tags = {"spare_tired"}
+end
 
 function spell:getCastMessage(user, target)
     if target.tired then

@@ -731,8 +731,7 @@ function Battle:processAction(action)
             if enemy.tired then
                 local found_spell = nil
                 for _,party in ipairs(self.party) do
-                    for _,spell_id in ipairs(party.chara.spells) do
-                        local spell = Registry.getSpell(spell_id)
+                    for _,spell in ipairs(party.chara.spells) do
                         if spell:hasTag("spare_tired") then
                             found_spell = spell
                             break
@@ -1056,14 +1055,19 @@ function Battle:endActionAnimation(battler, action, callback)
     end
 end
 
-function Battle:powerAct(spell_name, battler, user, target)
+function Battle:powerAct(spell, battler, user, target)
     -- TODO: decrease the amount of function calls to getPartyIndex
     -- and getPartyBattler
+
+    if type(spell) == "string" then
+        spell = Registry.createSpell(spell)
+    end
+
     local menu_item = {
-        data = Registry.getSpell(spell_name),
+        data = spell,
         tp = 0
     }
-    
+
     local name = self:getPartyBattler(user).chara.name
     if user == "ralsei" then
         -- deltarune inconsistency lol

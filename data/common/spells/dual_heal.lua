@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "dual_heal",
+local spell, super = Class(Spell, "dual_heal")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Dual Heal",
+    self.name = "Dual Heal"
 
     -- Battle description
-    effect = "Heal All\n30 HP",
+    self.effect = "Heal All\n30 HP"
     -- Menu description
-    description = "Heavenly light restores a little HP to\nall party members. Depends on Magic.",
+    self.description = "Heavenly light restores a little HP to\nall party members. Depends on Magic."
 
     -- TP cost
-    cost = 50,
+    self.cost = 50
 
     -- Target mode (party, enemy, or none/nil)
-    target = "none",
+    self.target = "none"
 
     -- Tags that apply to this spell
-    tags = {"heal"},
-}
+    self.tags = {"heal"}
+end
 
 function spell:onCast(user, target)
     for _,battler in ipairs(Game.battle.party) do

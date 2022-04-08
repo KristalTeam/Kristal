@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "heal_prayer",
+local spell, super = Class(Spell, "heal_prayer")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Heal Prayer",
+    self.name = "Heal Prayer"
 
     -- Battle description
-    effect = "Heal\nAlly",
+    self.effect = "Heal\nAlly"
     -- Menu description
-    description = "Heavenly light restores a little HP to\none party member. Depends on Magic.",
+    self.description = "Heavenly light restores a little HP to\none party member. Depends on Magic."
 
     -- TP cost
-    cost = 32,
+    self.cost = 32
 
     -- Target mode (party, enemy, or none/nil)
-    target = "party",
+    self.target = "party"
 
     -- Tags that apply to this spell
-    tags = {"heal"},
-}
+    self.tags = {"heal"}
+end
 
 function spell:onCast(user, target)
     target:heal(user.chara:getStat("magic") * 5)

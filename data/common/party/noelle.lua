@@ -25,8 +25,10 @@ function character:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "N-Action"
 
-    -- Spells by id
-    self.spells = {"heal_prayer", "sleep_mist", "ice_shock"}
+    -- Spells
+    self:addSpell("heal_prayer")
+    self:addSpell("sleep_mist")
+    self:addSpell("ice_shock")
 
     -- Current health (saved to the save file)
     if Game.chapter == 1 then

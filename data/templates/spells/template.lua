@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "test_spell",
+local spell, super = Class(Spell, "test_spell")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Test Spell",
+    self.name = "Test Spell"
 
     -- Battle description
-    effect = "Test\neffect",
+    self.effect = "Test\neffect"
     -- Menu description
-    description = "Example spell.",
+    self.description = "Example spell."
 
     -- TP cost
-    cost = 32,
+    self.cost = 32
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
+    self.target = "enemy"
 
     -- Tags that apply to this spell
-    tags = {},
-}
+    self.tags = {}
+end
 
 function spell:onCast(user, target)
     -- Code the cast effect here

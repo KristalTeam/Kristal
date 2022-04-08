@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "ultimate_heal",
+local spell, super = Class(Spell, "ultimate_heal")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "UltimatHeal",
+    self.name = "UltimatHeal"
 
     -- Battle description
-    effect = "Best\nhealing",
+    self.effect = "Best\nhealing"
     -- Menu description
-    description = "Heals 1 party member to the\nbest of Susie's ability.",
+    self.description = "Heals 1 party member to the\nbest of Susie's ability."
 
     -- TP cost
-    cost = 100,
+    self.cost = 100
 
     -- Target mode (party, enemy, or none/nil)
-    target = "party",
+    self.target = "party"
 
     -- Tags that apply to this spell
-    tags = {"heal"},
-}
+    self.tags = {"heal"}
+end
 
 function spell:getCastMessage(user, target)
     return "* "..user.chara.name.." cast ULTIMATEHEAL!"

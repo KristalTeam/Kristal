@@ -54,10 +54,10 @@ function DarkPowerMenu:getSpells()
     local spells = {}
     local party = self.party:getSelected()
     if party.has_act then
-        table.insert(spells, Registry.getSpell("_act"))
+        table.insert(spells, Registry.createSpell("_act"))
     end
     for _,spell in ipairs(party.spells) do
-        table.insert(spells, Registry.getSpell(spell))
+        table.insert(spells, spell)
     end
     return spells
 end

@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "snowgrave",
+local spell, super = Class(Spell, "snowgrave")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "SnowGrave",
+    self.name = "SnowGrave"
 
     -- Battle description
-    effect = "Fatal",
+    self.effect = "Fatal"
     -- Menu description
-    description = "Deals the fatal damage to\nall of the enemies.",
+    self.description = "Deals the fatal damage to\nall of the enemies."
 
     -- TP cost
-    cost = 200,
+    self.cost = 200
 
     -- Target mode (party, enemy, or none/nil)
-    target = nil,
+    self.target = nil
 
     -- Tags that apply to this spell
-    tags = {"ice", "fatal", "damage"},
-}
+    self.tags = {"ice", "fatal", "damage"}
+end
 
 function spell:onCast(user, target)
     local object = SnowGraveSpell(user)

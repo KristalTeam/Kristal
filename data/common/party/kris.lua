@@ -29,9 +29,6 @@ function character:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "K-Action"
 
-    -- Spells by id
-    self.spells = {}
-
     -- Current health (saved to the save file)
     if Game.chapter == 1 then
         self.health = 90

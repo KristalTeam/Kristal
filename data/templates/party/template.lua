@@ -6,10 +6,10 @@ function character:init()
     -- Display name
     self.name = "Player"
 
-    -- Actor ID (handles overworld/battle sprites)
-    self.actor = "kris"
-    -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
-    self.lw_actor = nil
+    -- Actor (handles overworld/battle sprites)
+    self:setActor("kris")
+    -- Light World Actor (handles overworld/battle sprites in light world maps) (optional)
+    self:setLightActor("kris_lw")
 
     -- Display level (saved to the save file)
     self.level = Game.chapter
@@ -26,8 +26,8 @@ function character:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "?-Action"
 
-    -- Spells by id
-    self.spells = {}
+    -- Spells
+    self:addSpell("heal_prayer")
 
     -- Current health (saved to the save file)
     self.health = 100

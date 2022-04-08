@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "rude_buster",
+local spell, super = Class(Spell, "rude_buster")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Rude Buster",
+    self.name = "Rude Buster"
 
     -- Battle description
-    effect = "Rude\nDamage",
+    self.effect = "Rude\nDamage"
     -- Menu description
-    description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic.",
+    self.description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic."
 
     -- TP cost
-    cost = 50,
+    self.cost = 50
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
+    self.target = "enemy"
 
     -- Tags that apply to this spell
-    tags = {"rude", "damage"},
-}
+    self.tags = {"rude", "damage"}
+end
 
 function spell:getCastMessage(user, target)
     return "* "..user.chara.name.." used RUDE BUSTER!"

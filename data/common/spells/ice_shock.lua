@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "ice_shock",
+local spell, super = Class(Spell, "ice_shock")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "IceShock",
+    self.name = "IceShock"
 
     -- Battle description
-    effect = "Damage\nw/ ICE",
+    self.effect = "Damage\nw/ ICE"
     -- Menu description
-    description = "Deals magical ICE damage to\none enemy.",
+    self.description = "Deals magical ICE damage to\none enemy."
 
     -- TP cost
-    cost = 16,
+    self.cost = 16
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
+    self.target = "enemy"
 
     -- Tags that apply to this spell
-    tags = {"ice", "damage"},
-}
+    self.tags = {"ice", "damage"}
+end
 
 function spell:onCast(user, target)
     user.chara:addFlag("iceshocks_used", 1)

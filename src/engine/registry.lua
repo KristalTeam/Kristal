@@ -81,6 +81,14 @@ function Registry.getSpell(id)
     return self.spells[id]
 end
 
+function Registry.createSpell(id, ...)
+    if self.spells[id] then
+        return self.spells[id](...)
+    else
+        error("Attempt to create non existent spell \"" .. id .. "\"")
+    end
+end
+
 function Registry.getPartyMember(id)
     return self.party_members[id]
 end
@@ -324,9 +332,6 @@ function Registry.initSpells()
     for _,path,spell in self.iterScripts("data/spells") do
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
-    end
-    for id,mod in self.iterMods("datamod/spells") do
-        mod(self.spells[id])
     end
 
     Kristal.callEvent("onRegisterSpells")

@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "red_buster",
+local spell, super = Class(Spell, "red_buster")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Red Buster",
+    self.name = "Red Buster"
 
     -- Battle description
-    effect = "Red\nDamage",
+    self.effect = "Red\nDamage"
     -- Menu description
-    description = "Deals large Red-elemental damage to\none foe. Depends on Attack & Magic.",
+    self.description = "Deals large Red-elemental damage to\none foe. Depends on Attack & Magic."
 
     -- TP cost
-    cost = 60,
+    self.cost = 60
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
+    self.target = "enemy"
 
     -- Tags that apply to this spell
-    tags = {"rude", "damage"},
-}
+    self.tags = {"rude", "damage"}
+end
 
 function spell:getCastMessage(user, target)
     return "* "..user.chara.name.." used RED BUSTER!"

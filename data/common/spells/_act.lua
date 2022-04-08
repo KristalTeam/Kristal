@@ -1,24 +1,26 @@
 -- This spell is only used for display in the POWER menu.
 
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "_act",
+local spell, super = Class(Spell, "_act")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "ACT",
+    self.name = "ACT"
 
     -- Battle description
-    effect = "",
+    self.effect = ""
     -- Menu description
-    description = "Do all sorts of things.\nIt isn't magic.",
+    self.description = "Do all sorts of things.\nIt isn't magic."
 
     -- TP cost
-    cost = 0,
+    self.cost = 0
 
     -- Target mode (party, enemy, or none/nil)
-    target = "enemy",
+    self.target = "enemy"
 
     -- Tags that apply to this spell
-    tags = {},
-}
+    self.tags = {}
+end
 
 return spell

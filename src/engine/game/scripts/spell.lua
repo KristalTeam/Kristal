@@ -1,12 +1,22 @@
 local Spell = Class()
 
-function Spell:init(o)
-    o = o or {}
+function Spell:init()
+    -- Display name
+    self.name = "Test Spell"
 
-    -- Load the table
-    for k,v in pairs(o) do
-        self[k] = v
-    end
+    -- Battle description
+    self.effect = ""
+    -- Menu description
+    self.description = ""
+
+    -- TP cost
+    self.cost = 0
+
+    -- Target mode (party, enemy, or none/nil)
+    self.target = nil
+
+    -- Tags that apply to this spell
+    self.tags = {}
 end
 
 function Spell:getCastMessage(user, target)

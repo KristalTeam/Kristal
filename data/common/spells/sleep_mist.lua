@@ -1,23 +1,25 @@
-local spell = Spell{
-    -- Spell ID (optional, defaults to path)
-    id = "sleep_mist",
+local spell, super = Class(Spell, "sleep_mist")
+
+function spell:init()
+    super:init(self)
+
     -- Display name
-    name = "Sleep Mist",
+    self.name = "Sleep Mist"
 
     -- Battle description
-    effect = "Spare\nTIRED foes",
+    self.effect = "Spare\nTIRED foes"
     -- Menu description
-    description = "A cold mist sweeps through,\nsparing all TIRED enemies.",
+    self.description = "A cold mist sweeps through,\nsparing all TIRED enemies."
 
     -- TP cost
-    cost = 32,
+    self.cost = 32
 
     -- Target mode (party, enemy, or none/nil)
-    target = "none",
+    self.target = "none"
 
     -- Tags that apply to this spell
-    tags = {"spare_tired"},
-}
+    self.tags = {"spare_tired"}
+end
 
 function spell:onCast(user, target)
     local count = 0

@@ -67,8 +67,7 @@ function ActionButton:select()
         end
 
         -- Now, register SPELLs as menu items.
-        for _,spell_id in ipairs(self.battler.chara.spells) do
-            local spell = Registry.getSpell(spell_id)
+        for _,spell in ipairs(self.battler.chara.spells) do
             local color = spell.color or {1, 1, 1, 1}
             if spell:hasTag("spare_tired") then
                 local has_tired = false
@@ -131,8 +130,7 @@ function ActionButton:hasSpecial()
             end
             if has_tired then
                 local has_pacify = false
-                for _,spell_id in ipairs(self.battler.chara.spells) do
-                    local spell = Registry.getSpell(spell_id)
+                for _,spell in ipairs(self.battler.chara.spells) do
                     if spell and spell:hasTag("spare_tired") then
                         has_pacify = true
                         break
