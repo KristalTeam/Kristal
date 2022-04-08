@@ -1,87 +1,109 @@
-local character = PartyMember{
+local character, super = Class(PartyMember, "susie")
+
+function character:init()
+    super:init(self)
+
     -- Party member ID (optional, defaults to path)
-    id = "susie",
+    self.id = "susie"
     -- Display name
-    name = "Susie",
+    self.name = "Susie"
 
     -- Actor ID (handles sprites)
-    actor = "susie",
+    self.actor = "susie"
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
-    lw_actor = "susie_lw",
+    self.lw_actor = "susie_lw"
 
     -- Display level (saved to the save file)
-    level = 2,
+    self.level = Game.chapter
     -- Default title / class (saved to the save file)
-    title = "Dark Knight\nDoes damage using\ndark energy.",
+    self.title = "Dark Knight\nDoes damage using\ndark energy."
 
     -- Determines which character the soul comes from (higher number = higher priority)
-    soul_priority = 1,
+    self.soul_priority = 1
 
     -- Whether the party member can act / use spells
-    has_act = false,
-    has_spells = true,
+    self.has_act = false
+    self.has_spells = true
 
     -- X-Action name (displayed in this character's spell menu)
-    xact_name = "S-Action",
+    self.xact_name = "S-Action"
 
     -- Spells by id (saved to the save file)
-    spells = {"rude_buster", "ultimate_heal"},
+    if Game.chapter == 1 then
+        self.spells = {"rude_buster"}
+    else
+        self.spells = {"rude_buster", "ultimate_heal"}
+    end
 
     -- Current health (saved to the save file)
-    health = 140,
+    if Game.chapter == 1 then
+        self.health = 110
+    else
+        self.health = 140
+    end
 
     -- Base stats (saved to the save file)
-    stats = {
-        health = 140,
-        attack = 16,
-        defense = 2,
-        magic = 1
-    },
+    if Game.chapter == 1 then
+        self.stats = {
+            health = 110,
+            attack = 14,
+            defense = 2,
+            magic = 1
+        }
+    else
+        self.stats = {
+            health = 140,
+            attack = 16,
+            defense = 2,
+            magic = 1
+        }
+    end
 
     -- Weapon icon in equip menu
-    weapon_icon = "ui/menu/equip/axe",
+    self.weapon_icon = "ui/menu/equip/axe"
 
     -- Equipment (saved to the save file)
-    equipped = {
-        weapon = "mane_ax",
-        armor = {"amber_card", "amber_card"}
-    },
+    self:setWeapon("mane_ax")
+    if Game.chapter >= 2 then
+        self:setArmor(1, "amber_card")
+        self:setArmor(2, "amber_card")
+    end
 
     -- Character color (for action box outline and hp bar)
-    color = {1, 0, 1},
+    self.color = {1, 0, 1}
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
-    dmg_color = {0.8, 0.6, 0.8},
+    self.dmg_color = {0.8, 0.6, 0.8}
     -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
-    attack_bar_color = {234/255, 121/255, 200/255},
+    self.attack_bar_color = {234/255, 121/255, 200/255}
     -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
-    attack_box_color = {0.5, 0, 0.5},
+    self.attack_box_color = {0.5, 0, 0.5}
     -- X-Action color (for the color of X-Action menu items) (defaults to the main color)
-    xact_color = {1, 0.5, 1},
+    self.xact_color = {1, 0.5, 1}
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/susie/head",
+    self.menu_icon = "party/susie/head"
     -- Path to head icons used in battle
-    head_icons = "party/susie/icon",
+    self.head_icons = "party/susie/icon"
     -- Name sprite (TODO: optional)
-    name_sprite = "party/susie/name",
+    self.name_sprite = "party/susie/name"
 
     -- Effect shown above enemy after attacking it
-    attack_sprite = "effects/attack/mash",
+    self.attack_sprite = "effects/attack/mash"
     -- Sound played when this character attacks
-    attack_sound = "snd_laz_c",
+    self.attack_sound = "snd_laz_c"
     -- Pitch of the attack sound
-    attack_pitch = 0.9,
+    self.attack_pitch = 0.9
 
     -- Battle position offset (optional)
-    battle_offset = {3, 1},
+    self.battle_offset = {3, 1}
     -- Head icon position offset (optional)
-    head_icon_offset = nil,
+    self.head_icon_offset = nil
     -- Menu icon position offset (optional)
-    menu_icon_offset = nil,
+    self.menu_icon_offset = nil
 
     -- Message shown on gameover (optional)
-    gameover_message = nil -- Handled by getGameOverMessage for Susie
-}
+    self.gameover_message = nil -- Handled by getGameOverMessage for Susie
+end
 
 function character:onAttackHit(enemy, damage)
     if damage > 0 then
@@ -91,6 +113,9 @@ function character:onAttackHit(enemy, damage)
 end
 
 function character:onLevelUp(level)
+    -- TODO: Maybe allow chapter 1 levelups?
+    if Game.chapter == 1 then return end
+
     self:increaseStat("health", 2, 190)
     if level % 2 == 0 then
         self:increaseStat("health", 1, 190)
@@ -113,13 +138,22 @@ function character:drawPowerStat(index, x, y, menu)
         local icon = Assets.getTexture("ui/menu/icon/demon")
         love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
         love.graphics.print("Rudeness", x, y)
-        love.graphics.print("89", x+130, y)
+        if Game.chapter == 1 then
+            love.graphics.print("99", x+130, y)
+        else
+            love.graphics.print("89", x+130, y)
+        end
         return true
     elseif index == 2 then
         local icon = Assets.getTexture("ui/menu/icon/demon")
         love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Purple", x, y, 0, 0.8, 1)
-        love.graphics.print("Yes", x+130, y)
+        if Game.chapter == 1 then
+            love.graphics.print("Crudeness", x, y, 0, 0.8, 1)
+            love.graphics.print("100", x+130, y)
+        else
+            love.graphics.print("Purple", x, y, 0, 0.8, 1)
+            love.graphics.print("Yes", x+130, y)
+        end
         return true
     elseif index == 3 then
         local icon = Assets.getTexture("ui/menu/icon/fire")

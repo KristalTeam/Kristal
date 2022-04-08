@@ -77,8 +77,12 @@ function Registry.getPartyMember(id)
     return self.party_members[id]
 end
 
-function Registry.getPartyMemberFromActor(id)
-    return self.party_from_actor[id]
+function Registry.createPartyMember(id, ...)
+    if self.party_members[id] then
+        return self.party_members[id](...)
+    else
+        error("Attempt to create non existent party member \"" .. id .. "\"")
+    end
 end
 
 function Registry.getEncounter(id)
@@ -195,9 +199,6 @@ end
 
 function Registry.registerPartyMember(id, tbl)
     self.party_members[id] = tbl
-    if tbl.actor then
-        self.party_from_actor[tbl.actor] = tbl
-    end
 end
 
 function Registry.registerItem(id, tbl)
@@ -292,19 +293,13 @@ end
 
 function Registry.initPartyMembers()
     self.party_members = {}
-    self.party_from_actor = {}
 
-    local chars = {}
     for _,path,char in self.iterScripts("data/party") do
         char.id = char.id or path
-        chars[char.id] = char
+        self.registerPartyMember(char.id, char)
     end
-    for id,mod in self.iterMods("datamod/party") do
-        mod(chars[id])
-    end
-    for id,char in pairs(chars) do
-        self.registerPartyMember(id, char)
-    end
+
+    Kristal.callEvent("onRegisterPartyMembers")
 end
 
 function Registry.initItems()
@@ -313,9 +308,6 @@ function Registry.initItems()
     for _,path,item in self.iterScripts("data/items") do
         item.id = item.id or path
         self.registerItem(item.id, item)
-    end
-    for id,mod in self.iterMods("datamod/items") do
-        mod(self.items[id])
     end
 
     Kristal.callEvent("onRegisterItems")

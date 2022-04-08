@@ -1,87 +1,88 @@
-local character = PartyMember{
-    -- Party member ID (optional, defaults to path)
-    id = nil,
+local character, super = Class(PartyMember, "test_character")
+
+function character:init()
+    super:init(self)
+
     -- Display name
-    name = "Player",
+    self.name = "Player"
 
     -- Actor ID (handles overworld/battle sprites)
-    actor = "kris",
+    self.actor = "kris"
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
-    lw_actor = nil,
+    self.lw_actor = nil
 
     -- Display level (saved to the save file)
-    level = 1,
+    self.level = Game.chapter
     -- Default title / class (saved to the save file)
-    title = "Player",
+    self.title = "Player"
 
     -- Determines which character the soul comes from (higher number = higher priority)
-    soul_priority = 2,
+    self.soul_priority = 2
 
     -- Whether the party member can act / use spells
-    has_act = true,
-    has_spells = false,
+    self.has_act = true
+    self.has_spells = false
 
     -- X-Action name (displayed in this character's spell menu)
-    xact_name = "?-Action",
+    self.xact_name = "?-Action"
 
     -- Spells by id
-    spells = {},
+    self.spells = {}
 
     -- Current health (saved to the save file)
-    health = 100,
+    self.health = 100
 
     -- Base stats (saved to the save file)
-    stats = {
+    self.stats = {
         health = 100,
         attack = 10,
         defense = 2,
         magic = 0
-    },
+    }
 
     -- Weapon icon in equip menu
-    weapon_icon = "ui/menu/equip/sword",
+    self.weapon_icon = "ui/menu/equip/sword"
 
     -- Equipment (saved to the save file)
-    equipped = {
-        weapon = "wood_blade",
-        armor = {}
-    },
+    self:setWeapon("wood_blade")
+    self:setArmor(1, nil)
+    self:setArmor(2, nil)
 
     -- Character color (for action box outline and hp bar)
-    color = {1, 1, 1},
+    self.color = {1, 1, 1}
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
-    dmg_color = nil,
+    self.dmg_color = nil
     -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
-    attack_bar_color = nil,
+    self.attack_bar_color = nil
     -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
-    attack_box_color = nil,
+    self.attack_box_color = nil
     -- X-Action color (for the color of X-Action menu items) (defaults to the main color)
-    xact_color = nil,
+    self.xact_color = nil
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/kris/head",
+    self.menu_icon = "party/kris/head"
     -- Path to head icons used in battle
-    head_icons = "party/kris/icon",
+    self.head_icons = "party/kris/icon"
     -- Name sprite (TODO: optional)
-    name_sprite = "party/kris/name",
+    self.name_sprite = "party/kris/name"
 
     -- Effect shown above enemy after attacking it
-    attack_sprite = "effects/attack/cut",
+    self.attack_sprite = "effects/attack/cut"
     -- Sound played when this character attacks
-    attack_sound = "snd_laz_c",
+    self.attack_sound = "snd_laz_c"
     -- Pitch of the attack sound
-    attack_pitch = 1,
+    self.attack_pitch = 1
 
     -- Battle position offset (optional)
-    battle_offset = nil,
+    self.battle_offset = nil
     -- Head icon position offset (optional)
-    head_icon_offset = nil,
+    self.head_icon_offset = nil
     -- Menu icon position offset (optional)
-    menu_icon_offset = nil,
+    self.menu_icon_offset = nil
 
     -- Message shown on gameover (optional)
-    gameover_message = nil,
-}
+    self.gameover_message = nil
+end
 
 -- Function overrides go here
 

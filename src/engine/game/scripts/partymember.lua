@@ -1,10 +1,6 @@
 local PartyMember = Class()
 
-function PartyMember:init(o)
-    o = o or {}
-
-    -- Party member ID (optional, defaults to path)
-    self.id = nil
+function PartyMember:init()
     -- Display name
     self.name = "Player"
 
@@ -88,16 +84,6 @@ function PartyMember:init(o)
 
     -- Character flags (saved to the save file)
     self.flags = {}
-
-    -- Load the table
-    for k,v in pairs(o) do
-        self[k] = v
-    end
-
-    -- TODO: handle this in extending classes
-    self:setWeapon(self.equipped.weapon)
-    self:setArmor(1, self.equipped.armor[1])
-    self:setArmor(2, self.equipped.armor[2])
 end
 
 function PartyMember:getTitle()
@@ -214,13 +200,38 @@ function PartyMember:addFlag(name, amount)
     self.flags[name] = (self.flags[name] or 0) + (amount or 1)
 end
 
+function PartyMember:saveEquipment()
+    local result = {weapon = nil, armor = {}}
+    if self.equipped.weapon then
+        result.weapon = self.equipped.weapon.id
+    end
+    for i = 1, 2 do
+        if self.equipped.armor[i] then
+            result.armor[tostring(i)] = self.equipped.armor[i].id
+        end
+    end
+    return result
+end
+
+function PartyMember:loadEquipment(data)
+    self:setWeapon(data.weapon)
+    for i = 1, 2 do
+        self:setArmor(i, nil)
+    end
+    if data.armor then
+        for k,v in pairs(data.armor) do
+            self:setArmor(tonumber(k), v)
+        end
+    end
+end
+
 function PartyMember:save()
     local data = {
         id = self.id,
         spells = self.spells,
         health = self.health,
         stats = self.stats,
-        equipped = self.equipped,
+        equipped = self:saveEquipment(),
         flags = self.flags
     }
     if self.onSave then
@@ -232,7 +243,9 @@ end
 function PartyMember:load(data)
     self.spells = data.spells or self.spells
     self.stats = data.stats or self.stats
-    self.equipped = data.equipped or self.equipped
+    if data.equipped then
+        self:loadEquipment(data.equipped)
+    end
     self.flags = data.flags or self.flags
     self.health = data.health or self:getStat("health")
 

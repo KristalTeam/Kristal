@@ -122,7 +122,7 @@ function Game:save(x, y)
     data.inventory = self.inventory:save()
 
     data.party_data = {}
-    for k,v in pairs(Registry.party_members) do
+    for k,v in pairs(self.party_data) do
         data.party_data[k] = v:save()
     end
 
@@ -171,16 +171,18 @@ function Game:load(data, index)
 
     self.flags = data.flags or {}
 
-    Registry.initPartyMembers()
+    self:initPartyMembers()
     if data.party_data then
         for k,v in pairs(data.party_data) do
-            Registry.getPartyMember(k):load(v)
+            if self.party_data[k] then
+                self.party_data[k]:load(v)
+            end
         end
     end
 
     self.party = {}
     for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
-        table.insert(self.party, Registry.getPartyMember(id))
+        table.insert(self.party, self:getPartyMember(id))
     end
 
     self.inventory = Inventory()
@@ -528,9 +530,24 @@ function Game:getFlag(flag, default)
     end
 end
 
+function Game:initPartyMembers()
+    self.party_data = {}
+    for id,_ in pairs(Registry.party_members) do
+        self.party_data[id] = Registry.createPartyMember(id)
+    end
+end
+
+function Game:getPartyMember(id)
+    if self.party_data[id] then
+        return self.party_data[id]
+    else
+        error("Party member not registered: "..id)
+    end
+end
+
 function Game:addPartyMember(chara, index)
     if type(chara) == "string" then
-        chara = Registry.getPartyMember(chara)
+        chara = self:getPartyMember(chara)
     end
     if index then
         table.insert(self.party, index, chara)
@@ -541,14 +558,14 @@ end
 
 function Game:removePartyMember(chara)
     if type(chara) == "string" then
-        chara = Registry.getPartyMember(chara)
+        chara = self:getPartyMember(chara)
     end
     Utils.removeFromTable(self.party, chara)
 end
 
 function Game:movePartyMember(chara, index)
     if type(chara) == "string" then
-        chara = Registry.getPartyMember(chara)
+        chara = self:getPartyMember(chara)
     end
     self:removePartyMember(chara)
     self:addPartyMember(chara, index)

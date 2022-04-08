@@ -166,7 +166,7 @@ function BattleUI:drawState()
                 end
 
                 for index, party_id in ipairs(item.party) do
-                    local chara = Registry.getPartyMember(party_id)
+                    local chara = Game:getPartyMember(party_id)
 
                     -- Draw head only if it isn't the currently selected character
                     if Game.battle:getPartyIndex(party_id) ~= Game.battle.current_selecting then

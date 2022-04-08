@@ -322,7 +322,7 @@ end
 
 function World:getPartyCharacter(party)
     if type(party) == "string" then
-        party = Registry.getPartyMember(party)
+        party = Game:getPartyMember(party)
     end
     for _,char in ipairs(Game.stage:getObjects(Character)) do
         if char.actor and char.actor.id == self:getActorForParty(party) then

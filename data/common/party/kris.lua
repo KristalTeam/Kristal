@@ -1,89 +1,112 @@
-local character = PartyMember{
-    -- Party member ID (optional, defaults to path)
-    id = "kris",
+local character, super = Class(PartyMember, "kris")
+
+function character:init()
+    super:init(self)
+
     -- Display name
-    name = "Kris",
+    self.name = "Kris"
 
     -- Actor ID (handles overworld/battle sprites)
-    actor = "kris",
+    self.actor = "kris"
     -- Light World Actor ID (handles overworld/battle sprites in light world maps) (optional)
-    lw_actor = "kris_lw",
+    self.lw_actor = "kris_lw"
 
     -- Display level (saved to the save file)
-    level = 2,
+    self.level = Game.chapter
     -- Default title / class (saved to the save file)
-    title = "Tactician\nCommands the party\nby ACTs. Sometimes.",
+    if Game.chapter == 1 then
+        self.title = "Leader\nCommands the party\nwith various ACTs."
+    else
+        self.title = "Tactician\nCommands the party\nby ACTs. Sometimes."
+    end
 
     -- Determines which character the soul comes from (higher number = higher priority)
-    soul_priority = 2,
+    self.soul_priority = 2
 
     -- Whether the party member can act / use spells
-    has_act = true,
-    has_spells = false,
+    self.has_act = true
+    self.has_spells = false
 
     -- X-Action name (displayed in this character's spell menu)
-    xact_name = "K-Action",
+    self.xact_name = "K-Action"
 
     -- Spells by id
-    spells = {},
+    self.spells = {}
 
     -- Current health (saved to the save file)
-    health = 120,
+    if Game.chapter == 1 then
+        self.health = 90
+    else
+        self.health = 120
+    end
 
     -- Base stats (saved to the save file)
-    stats = {
-        health = 120,
-        attack = 12,
-        defense = 2,
-        magic = 0
-    },
+    if Game.chapter == 1 then
+        self.stats = {
+            health = 90,
+            attack = 10,
+            defense = 2,
+            magic = 0
+        }
+    else
+        self.stats = {
+            health = 120,
+            attack = 12,
+            defense = 2,
+            magic = 0
+        }
+    end
 
     -- Weapon icon in equip menu
-    weapon_icon = "ui/menu/equip/sword",
+    self.weapon_icon = "ui/menu/equip/sword"
 
     -- Equipment (saved to the save file)
-    equipped = {
-        weapon = "wood_blade",
-        armor = {"amber_card", "amber_card"}
-    },
+    self:setWeapon("wood_blade")
+    if Game.chapter >= 2 then
+        self:setArmor(1, "amber_card")
+        self:setArmor(2, "amber_card")
+    end
 
     -- Character color (for action box outline and hp bar)
-    color = {0, 1, 1},
+    self.color = {0, 1, 1}
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
-    dmg_color = {0.5, 1, 1},
+    self.dmg_color = {0.5, 1, 1}
     -- Attack bar color (for the target bar used in attack mode) (defaults to the main color)
-    attack_bar_color = {0, 162/255, 232/255},
+    self.attack_bar_color = {0, 162/255, 232/255}
     -- Attack box color (for the attack area in attack mode) (defaults to darkened main color)
-    attack_box_color = {0, 0, 1},
+    self.attack_box_color = {0, 0, 1}
     -- X-Action color (for the color of X-Action menu items) (defaults to the main color)
-    xact_color = {0.5, 1, 1},
+    self.xact_color = {0.5, 1, 1}
 
     -- Head icon in the equip / power menu
-    menu_icon = "party/kris/head",
+    self.menu_icon = "party/kris/head"
     -- Path to head icons used in battle
-    head_icons = "party/kris/icon",
+    self.head_icons = "party/kris/icon"
     -- Name sprite (TODO: optional)
-    name_sprite = "party/kris/name",
+    self.name_sprite = "party/kris/name"
 
     -- Effect shown above enemy after attacking it
-    attack_sprite = "effects/attack/cut",
+    self.attack_sprite = "effects/attack/cut"
     -- Sound played when this character attacks
-    attack_sound = "snd_laz_c",
+    self.attack_sound = "snd_laz_c"
     -- Pitch of the attack sound
-    attack_pitch = 1,
+    self.attack_pitch = 1
 
     -- Battle position offset (optional)
-    battle_offset = {2, 1},
+    self.battle_offset = {2, 1}
     -- Head icon position offset (optional)
-    head_icon_offset = nil,
+    self.head_icon_offset = nil
     -- Menu icon position offset (optional)
-    menu_icon_offset = nil,
+    self.menu_icon_offset = nil
 
     -- Message shown on gameover (optional)
-    gameover_message = nil,
-}
+    self.gameover_message = nil
+end
 
 function character:onLevelUp(level)
+    -- TODO: Maybe allow chapter 1 levelups?
+    if Game.chapter == 1 then return end
+
     self:increaseStat("health", 2, 160)
     if level % 10 == 0 then
         self:increaseStat("attack", 1)
@@ -111,7 +134,9 @@ function character:drawPowerStat(index, x, y, menu)
         love.graphics.print("Guts:", x, y)
 
         love.graphics.draw(icon, x+90, y+6, 0, 2, 2)
-        love.graphics.draw(icon, x+110, y+6, 0, 2, 2)
+        if Game.chapter >= 2 then
+            love.graphics.draw(icon, x+110, y+6, 0, 2, 2)
+        end
         return true
     end
 end

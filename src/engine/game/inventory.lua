@@ -187,10 +187,12 @@ function Inventory:load(data)
 
     local function loadStorage(storage, from)
         for i = 1, storage.max do
-            if Registry.getItem(from[i]) then
-                storage[i] = Registry.createItem(from[i])
-            else
-                print("LOAD ERROR: Could not load item \""..from[i].."\"")
+            if from[i] then
+                if Registry.getItem(from[i]) then
+                    storage[i] = Registry.createItem(from[i])
+                else
+                    print("LOAD ERROR: Could not load item \""..from[i].."\"")
+                end
             end
         end
     end
