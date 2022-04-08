@@ -207,7 +207,7 @@ function DarkSaveMenu:draw()
         -- Heart
         local heart_positions_x = {142, 322}
         local heart_positions_y = {228, 270}
-        love.graphics.setColor(1, 0, 0)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, heart_positions_x[self.selected_x], heart_positions_y[self.selected_y])
     elseif self.state == "SAVE" or self.state == "OVERWRITE" then
         self:drawSaveFile(0, Game:getSavePreview(), 74, 26, false, true)
@@ -222,7 +222,7 @@ function DarkSaveMenu:draw()
         love.graphics.draw(self.divider_sprite, 74, 376, 0, 493, 2)
 
         if self.selected_y == 4 then
-            love.graphics.setColor(1, 0, 0)
+            love.graphics.setColor(Game:getSoulColor())
             love.graphics.draw(self.heart_sprite, 236, 402)
 
             love.graphics.setColor(1, 1, 0)
@@ -271,7 +271,7 @@ function DarkSaveMenu:draw()
         drawOverwriteSave(Game:getSavePreview(), 80, 235)
 
         if self.selected_x == 1 then
-            love.graphics.setColor(1, 0, 0)
+            love.graphics.setColor(Game:getSoulColor())
             love.graphics.draw(self.heart_sprite, 142, 332)
 
             love.graphics.setColor(1, 1, 0)
@@ -281,7 +281,7 @@ function DarkSaveMenu:draw()
         love.graphics.print("Save", 170, 324)
 
         if self.selected_x == 2 then
-            love.graphics.setColor(1, 0, 0)
+            love.graphics.setColor(Game:getSoulColor())
             love.graphics.draw(self.heart_sprite, 322, 332)
 
             love.graphics.setColor(1, 1, 0)
@@ -311,7 +311,7 @@ function DarkSaveMenu:drawSaveFile(index, data, x, y, selected, header)
     elseif not data then
         love.graphics.print("New File", x+193, y+22)
         if selected then
-            love.graphics.setColor(1, 0, 0)
+            love.graphics.setColor(Game:getSoulColor())
             love.graphics.draw(self.heart_sprite, x+161, y+30)
         end
     else
@@ -331,7 +331,7 @@ function DarkSaveMenu:drawSaveFile(index, data, x, y, selected, header)
         love.graphics.print(data.room_name, x + (493/2) - self.font:getWidth(data.room_name)/2, y+38)
 
         if selected and not header then
-            love.graphics.setColor(1, 0, 0)
+            love.graphics.setColor(Game:getSoulColor())
             love.graphics.draw(self.heart_sprite, x+18, y+14)
         end
     end

@@ -1,9 +1,13 @@
 local Soul, super = Class(Object)
 
-function Soul:init(x, y)
+function Soul:init(x, y, color)
     super:init(self, x, y)
 
-    self:setColor(1, 0, 0)
+    if color then
+        self:setColor(color)
+    else
+        self:setColor(1, 0, 0)
+    end
 
     self.layer = BATTLE_LAYERS["soul"]
 
@@ -313,7 +317,7 @@ function Soul:update(dt)
             self.transitioning = false
             self.timer = 0
             if self.transition_destroy then
-                Game.battle:addChild(HeartBurst(self.target_x, self.target_y))
+                Game.battle:addChild(HeartBurst(self.target_x, self.target_y, {Game:getSoulColor()}))
                 self:remove()
             else
                 self:setExactPosition(self.target_x, self.target_y)

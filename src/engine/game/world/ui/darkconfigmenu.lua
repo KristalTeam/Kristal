@@ -142,7 +142,7 @@ function DarkConfigMenu:draw()
     love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
     love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
 
-    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.setColor(Game:getSoulColor())
     love.graphics.draw(self.heart_sprite,  88 - 32 + 7, 48 + ((self.currently_selected - 1) * 32))
 
     love.graphics.setColor(1, 1, 1, 1)

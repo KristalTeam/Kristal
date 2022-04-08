@@ -523,9 +523,10 @@ end
 
 function Battle:spawnSoul(x, y)
     local bx, by = self:getSoulLocation()
-    self:addChild(HeartBurst(bx, by))
+    local color = {Game:getSoulColor()}
+    self:addChild(HeartBurst(bx, by, color))
     if not self.soul then
-        self.soul = self.encounter:createSoul(bx, by)
+        self.soul = self.encounter:createSoul(bx, by, color)
         self.soul:transitionTo(x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2)
         self.soul.target_alpha = self.soul.alpha
         self.soul.alpha = 0

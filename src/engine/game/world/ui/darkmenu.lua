@@ -32,7 +32,7 @@ function DarkMenu:init()
     -- CONFIGMENU, VOLUMESELECT, CONTROLSMENU, CONTROLSELECT
     self.state = "MAIN"
     self.state_reason = nil
-    self.heart_sprite = Assets.getTexture("player/heart")
+    self.heart_sprite = Assets.getTexture("player/heart_menu_small")
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
@@ -49,10 +49,10 @@ function DarkMenu:init()
     }
 
     self.buttons = {
-        {Assets.getTexture("ui/menu/btn/item"  ), Assets.getTexture("ui/menu/btn/item_h"  ), Assets.getTexture("ui/menu/btn/item_s"  )},
-        {Assets.getTexture("ui/menu/btn/equip" ), Assets.getTexture("ui/menu/btn/equip_h" ), Assets.getTexture("ui/menu/btn/equip_s" )},
-        {Assets.getTexture("ui/menu/btn/power" ), Assets.getTexture("ui/menu/btn/power_h" ), Assets.getTexture("ui/menu/btn/power_s" )},
-        {Assets.getTexture("ui/menu/btn/config"), Assets.getTexture("ui/menu/btn/config_h"), Assets.getTexture("ui/menu/btn/config_s")}
+        {Assets.getTexture("ui/menu/btn/item"  ), Assets.getTexture("ui/menu/btn/item_h"  )},
+        {Assets.getTexture("ui/menu/btn/equip" ), Assets.getTexture("ui/menu/btn/equip_h" )},
+        {Assets.getTexture("ui/menu/btn/power" ), Assets.getTexture("ui/menu/btn/power_h" )},
+        {Assets.getTexture("ui/menu/btn/config"), Assets.getTexture("ui/menu/btn/config_h")}
     }
 
     self.description_box = Rectangle(0, 0, SCREEN_WIDTH, 80)
@@ -283,11 +283,13 @@ function DarkMenu:drawButton(index, x, y)
     local sprite = 1
     if index == self.selected_submenu then
         sprite = 2
-        if self.state ~= "MAIN" then
-            sprite = 3
-        end
     end
     love.graphics.draw(self.buttons[index][sprite], x, y, 0, 2, 2)
+    if index == self.selected_submenu and self.state == "MAIN" then
+        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.draw(self.heart_sprite, x + 15, y + 25, 0, 2, 2, self.heart_sprite:getWidth() / 2, self.heart_sprite:getHeight() / 2)
+        love.graphics.setColor(1, 1, 1)
+    end
 end
 
 return DarkMenu

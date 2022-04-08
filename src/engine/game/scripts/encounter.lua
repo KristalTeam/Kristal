@@ -172,8 +172,8 @@ function Encounter:onWavesDone()
     end)
 end
 
-function Encounter:createSoul(x, y)
-    return Soul(x, y)
+function Encounter:createSoul(x, y, color)
+    return Soul(x, y, color)
 end
 
 return Encounter

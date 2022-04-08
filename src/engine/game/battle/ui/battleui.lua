@@ -145,7 +145,7 @@ function BattleUI:drawState()
 
         local x = 0
         local y = 0
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page*3)) * 30))
 
         local font = Assets.getFont("main")

@@ -1,7 +1,13 @@
 local HeartBurst, super = Class(Object)
 
-function HeartBurst:init(x, y)
+function HeartBurst:init(x, y, color)
     super:init(self, x, y)
+
+    if color then
+        self:setColor(color)
+    else
+        self:setColor(1, 0, 0)
+    end
 
     self:setOrigin(0.5, 0.5)
 
@@ -9,8 +15,9 @@ function HeartBurst:init(x, y)
 
     self.burst = 0
 
-    self.heart_outline = Assets.getTexture("player/heart_outline")
-    self.heart_outline_filled = Assets.getTexture("player/heart_outline_filled")
+    self.heart_outline_outer = Assets.getTexture("player/heart_outline_outer")
+    self.heart_outline_inner = Assets.getTexture("player/heart_outline_inner")
+    self.heart_outline_filled_inner = Assets.getTexture("player/heart_outline_filled_inner")
 end
 
 function HeartBurst:update(dt)
@@ -21,19 +28,25 @@ function HeartBurst:update(dt)
     super:update(self, dt)
 end
 
+function HeartBurst:drawHeartOutline(scale_x, scale_y, alpha)
+    local r,g,b,a = self:getDrawColor()
+    love.graphics.setColor(r, g, b, a * (alpha or 1))
+    love.graphics.draw(self.heart_outline_outer, 9, 9, 0, scale_x or 1, scale_y or 1, self.heart_outline_outer:getWidth()/2, self.heart_outline_outer:getHeight()/2)
+    love.graphics.setColor(1, 1, 1, a * (alpha or 1))
+    love.graphics.draw(self.heart_outline_inner, 9, 9, 0, scale_x or 1, scale_y or 1, self.heart_outline_inner:getWidth()/2, self.heart_outline_inner:getHeight()/2)
+end
+
 function HeartBurst:draw()
-
-    love.graphics.setColor(1, 1, 1, (0.8 - (self.burst / 6)))
+    local r,g,b,a = self:getDrawColor()
+    love.graphics.setColor(r, g, b, a * (0.8 - (self.burst / 6)))
     local xscale, yscale = 0.25 + self.burst, (0.25 + (self.burst / 2))
-    love.graphics.draw(self.heart_outline_filled, 9, 9, 0, xscale, yscale, self.heart_outline_filled:getWidth()/2, self.heart_outline_filled:getHeight()/2)
+    love.graphics.draw(self.heart_outline_filled_inner, 9, 9, 0, xscale, yscale, self.heart_outline_filled_inner:getWidth()/2, self.heart_outline_filled_inner:getHeight()/2)
 
-    love.graphics.setColor(1, 1, 1, (1 - (self.burst / 6)))
     xscale, yscale = (0.25 + (self.burst / 1.5)), (0.25 + (self.burst / 3))
-    love.graphics.draw(self.heart_outline, 9, 9, 0, xscale, yscale, self.heart_outline:getWidth()/2, self.heart_outline:getHeight()/2)
+    self:drawHeartOutline(xscale, yscale, (1 - (self.burst / 6)))
 
-    love.graphics.setColor(1, 1, 1, (1.2 - (self.burst / 6)))
     xscale, yscale = (0.2 + (self.burst / 2.5)), (0.2 + (self.burst / 5))
-    love.graphics.draw(self.heart_outline, 9, 9, 0, xscale, yscale, self.heart_outline:getWidth()/2, self.heart_outline:getHeight()/2)
+    self:drawHeartOutline(xscale, yscale, (1.2 - (self.burst / 6)))
 
     super:draw(self)
 

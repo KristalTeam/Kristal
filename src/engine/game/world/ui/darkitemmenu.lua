@@ -240,7 +240,7 @@ function DarkItemMenu:draw()
         heart_y = 50 + (self.item_selected_y - 1) * 30
     end
     if self.state ~= "USE" then
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, heart_x, heart_y)
     end
 

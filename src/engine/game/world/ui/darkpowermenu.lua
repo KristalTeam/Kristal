@@ -215,7 +215,7 @@ function DarkPowerMenu:drawSpells()
     end
 
     if self.state == "SPELLS" then
-        love.graphics.setColor(1, 0, 0)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
 
         if #spells > 6 then

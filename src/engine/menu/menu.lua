@@ -55,6 +55,7 @@ function Menu:enter()
     self.heart = Sprite("player/heart_menu")
     self.heart.visible = true
     self.heart:setOrigin(0.5, 0.5)
+    self.heart:setColor(1, 0, 0)
     self.heart.layer = 100
     self.stage:addChild(self.heart)
 

@@ -358,7 +358,7 @@ function DarkEquipMenu:drawEquipped()
     if self.state ~= "SLOTS" or self.selected_slot ~= 3 then love.graphics.draw(self.armor_icons[2], 220, 60, 0, 2, 2) end
 
     if self.state == "SLOTS" then
-        love.graphics.setColor(1, 0, 0)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 226, 10 + ((self.selected_slot - 1) * 30))
     end
 
@@ -422,7 +422,7 @@ function DarkEquipMenu:drawItems()
     end
 
     if self.state == "ITEMS" then
-        love.graphics.setColor(1, 0, 0)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, x - 20, y + 4 + ((self.selected_item[type] - scroll) * 27))
 
         if items.max > 6 then

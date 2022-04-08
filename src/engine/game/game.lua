@@ -22,7 +22,7 @@ function Game:enter(previous_state, save_id, save_name)
     self.previous_state = previous_state
 
     self.font = Assets.getFont("main")
-    self.soul_blur = Assets.getTexture("ui/soul_blur")
+    self.soul_blur = Assets.getTexture("player/heart_blur")
 
     self.music = Music()
 
@@ -235,7 +235,7 @@ function Game:gameOver(x, y)
     end
     self.soul = Sprite("player/heart")
     self.soul:setOrigin(0.5, 0.5)
-    self.soul:setColor(1, 0, 0, 1)
+    self.soul:setColor(self:getSoulColor())
     self.soul.x = x
     self.soul.y = y
 
@@ -593,14 +593,24 @@ function Game:getSoulPartyMember()
     return current
 end
 
+function Game:getSoulColor()
+    local chara = Game:getSoulPartyMember()
+
+    local r, g, b, a = 1, 0, 0, 1
+
+    if chara and chara.soul_priority >= 0 and chara.soul_color then
+        r, g, b, a = chara.soul_color[1] or 1, chara.soul_color[2] or 1, chara.soul_color[3] or 1, chara.soul_color[4] or 1
+    end
+
+    return r, g, b, a
+end
+
 function Game:getActLeader()
-    local current
     for _,party in ipairs(self.party) do
-        if party.has_act and (not current or (party.soul_priority > current.soul_priority)) then
-            current = party
+        if party.has_act then
+            return party
         end
     end
-    return current
 end
 
 function Game:update(dt)
@@ -712,7 +722,8 @@ function Game:draw()
                 xfade = 1
             end
 
-            love.graphics.setColor(1, 1, 1, xfade * 0.6)
+            local soul_r, soul_g, soul_b, soul_a = self:getSoulColor()
+            love.graphics.setColor(soul_r, soul_g, soul_b, soul_a * xfade * 0.6)
 
             love.graphics.draw(self.soul_blur, self.gameover_heart_x * 2, self.gameover_heart_y * 2, 0, 2, 2)
 
