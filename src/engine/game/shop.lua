@@ -65,6 +65,21 @@ function Shop:init()
     -- Same here too...
     self.sell_current_selecting = 1
 
+    self.post_dialogue_func = nil
+    self.post_dialogue_state = "NONE"
+
+    self.dialogue_table = nil
+    self.dialogue_index = 1
+
+    self.font = Assets.getFont("main")
+    self.heart_sprite = Assets.getTexture("player/heart")
+
+    self.fade_alpha = 0
+    self.fading_out = false
+    self.ease_timer = 0
+end
+
+function Shop:postInit()
     -- Construct the UI
     self.large_box = DarkBox()
     local left, top = self.large_box:getBorder()
@@ -116,28 +131,16 @@ function Shop:init()
 
     self:addChild(self.info_box)
 
-    self.post_dialogue_func = nil
-    self.post_dialogue_state = "NONE"
-
-    self.dialogue_table = nil
-    self.dialogue_index = 1
-
     self.dialogue_text = Textbox(30, 53 + 219, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, true)
     self.dialogue_text.text.line_offset = 8
 
     self.dialogue_text:setLayer(self.layers["dialogue"])
     self:addChild(self.dialogue_text)
-
-    self:setState("MAINMENU")
-
     self.dialogue_text:setText(self.encounter_text)
+end
 
-    self.font = Assets.getFont("main")
-    self.heart_sprite = Assets.getTexture("player/heart")
-
-    self.fade_alpha = 0
-    self.fading_out = false
-    self.ease_timer = 0
+function Shop:onEnter()
+    self:setState("MAINMENU")
 end
 
 function Shop:onRemove(parent)

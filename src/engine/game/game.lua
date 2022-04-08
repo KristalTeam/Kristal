@@ -499,15 +499,22 @@ function Game:encounter(encounter, transition, enemy)
 end
 
 function Game:enterShop()
-    self.music:stop()
+    -- Testing function!
+    self.world.music:stop()
+
     if self.shop then
         error("Attempt to enter shop while already in shop")
     end
 
     self.state = "SHOP"
 
+    -- Call these two when you begin to fade...
     self.shop = TestShop()
+    self.shop:postInit()
+
+    -- Let's pretend the fade just finished. Add it to the stage and then enter it.
     self.stage:addChild(self.shop)
+    self.shop:onEnter()
 end
 
 function Game:setVolume(volume)
