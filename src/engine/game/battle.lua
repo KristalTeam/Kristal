@@ -2040,6 +2040,7 @@ function Battle:keypressed(key)
         end
         if self.soul and key == "j" then
             self.soul:shatter(count)
+            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(99999)
         end
         if key == "b" then
             for _,battler in ipairs(self.party) do
