@@ -30,13 +30,6 @@ function TestShop:init()
     -- Shown when you sell something
     self.sell_yes_text = "..."
 
-    -- MAINMENU
-    self.menu_options = {
-        {"Exit", "LEAVE"},
-        {"Exit", "LEAVE"},
-        {"Exit", "LEAVE"},
-        {"Exit", "LEAVE"}
-    }
 end
 
 function TestShop:onTalk()

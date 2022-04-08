@@ -12,7 +12,7 @@ function Console:init()
     self.font = Assets.getFont(self.font_name, self.font_size)
 
     self.history = {
-        "Welcome to KRISTAL! This is the debug console. You can enter Lua here to be ran!",
+        {"Welcome to ", {0.5, 1, 1}, "KRISTAL", {1, 1, 1}, "! This is the debug console. You can enter Lua here to be ran!"},
         ""
     }
 
@@ -35,8 +35,15 @@ function Console:createEnv()
     local env = {}
 
     function env.print(str)
-        print(str)
-        self:log(str)
+        if type(str) == "table" then
+            if getmetatable(str) then
+                self:warn("Cannot print metatable")
+                return
+            else
+                str = Utils.dump(str)
+            end
+        end
+        self:log(tostring(str))
     end
 
     function env.giveItem(str)
@@ -44,7 +51,7 @@ function Console:createEnv()
         if success then
             self:log("Item has been added")
         else
-            self:log("Unable to add item (inventory full?)")
+            self:warn("Unable to add item (inventory full?)")
         end
     end
 
@@ -152,7 +159,22 @@ function Console:push(str)
 end
 
 function Console:log(str)
+    print("[CONSOLE]" .. tostring(str))
     self:push(str)
+end
+
+function Console:warn(str)
+    print("[WARNING]" .. tostring(str))
+    self:push({{1, 1, 0.5}, "[WARNING] " .. tostring(str)})
+end
+
+function Console:error(str)
+    print("[ERROR]" .. tostring(str))
+    self:push({{1, 0.5, 0.5}, "[ERROR] " .. tostring(str)})
+end
+
+function Console:stripError(str)
+    return string.match(str, '.+:1: (.+)')
 end
 
 function Console:run(str)
@@ -160,10 +182,10 @@ function Console:run(str)
         table.insert(self.command_history, str)
     end
     self.history_index = #self.command_history + 1
-    self:push("> " .. str)
+    self:push({{0.8, 0.8, 0.8}, "> " .. str})
     local status, error = pcall(function() self:unsafeRun(str) end)
     if not status then
-        self:push(error)
+        self:error(self:stripError(error))
     end
 end
 
@@ -173,7 +195,7 @@ function Console:unsafeRun(str)
         setfenv(chunk,self.env)
         self:push(chunk())
     else
-        self:push(error)
+        self:error(self:stripError(error))
     end
 end
 
