@@ -155,6 +155,9 @@ function Game:load(data, index)
         self.console:setParent(self.stage)
     end
 
+    self.fader = Fader()
+    self.stage:addChild(self.fader)
+
     self.battle = nil
 
     self.shop = nil
