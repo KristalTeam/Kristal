@@ -61,6 +61,15 @@ function Character:getFlag(flag, default)
     return Game:getFlag(uid..":"..flag, default)
 end
 
+function Character:getPartyMember()
+    for _,party in pairs(Game.party_data) do
+        local actor = party:getActor()
+        if actor and actor.id == self.actor.id then
+            return party
+        end
+    end
+end
+
 function Character:setActor(actor)
     if type(actor) == "string" then
         actor = Registry.createActor(actor)
