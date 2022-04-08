@@ -52,6 +52,33 @@ function Soul:init(x, y)
     self.slope_correction = true
 
     self.transition_destroy = false
+
+    self.shard_x_table = {-2, 0, 2, 8, 10, 12}
+    self.shard_y_table = {0, 3, 6}
+end
+
+function Soul:shatter(count)
+    Assets.playSound("snd_break2")
+
+    local shard_count = count or 6
+
+    self.shards = {}
+    for i = 1, shard_count do
+        local x_pos = self.shard_x_table[((i - 1) % #self.shard_x_table) + 1]
+        local y_pos = self.shard_y_table[((i - 1) % #self.shard_y_table) + 1]
+        local shard = Sprite("player/heart_shard", self.x + x_pos, self.y + y_pos)
+        shard:setColor(self:getColor())
+        shard.physics.direction = math.rad(Utils.random(360))
+        shard.physics.speed = 7
+        shard.physics.gravity = 0.2
+        shard.layer = self.layer
+        shard:play(5/30)
+        table.insert(self.shards, shard)
+        self.stage:addChild(shard)
+    end
+
+    self:remove()
+    Game.battle.soul = nil
 end
 
 function Soul:transitionTo(x, y, should_destroy)

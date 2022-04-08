@@ -2037,6 +2037,9 @@ function Battle:keypressed(key)
         if self.state == "DEFENDING" and key == "f" then
             self.encounter:onWavesDone()
         end
+        if self.soul and key == "j" then
+            self.soul:shatter(count)
+        end
         if key == "b" then
             for _,battler in ipairs(self.party) do
                 battler:hurt(99999)
