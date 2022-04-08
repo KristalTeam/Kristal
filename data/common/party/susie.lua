@@ -3,8 +3,6 @@ local character, super = Class(PartyMember, "susie")
 function character:init()
     super:init(self)
 
-    -- Party member ID (optional, defaults to path)
-    self.id = "susie"
     -- Display name
     self.name = "Susie"
 
