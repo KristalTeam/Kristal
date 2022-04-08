@@ -152,6 +152,15 @@ function PartyMember:addSpell(spell)
     table.insert(self.spells, spell)
 end
 
+function PartyMember:removeSpell(spell)
+    for i,v in ipairs(self.spells) do
+        if v == spell or (type(spell) == "string" and v.id == spell) then
+            table.remove(self.spells, i)
+            return
+        end
+    end
+end
+
 function PartyMember:getEquipment()
     local result = {}
     if self.equipped.weapon then
@@ -266,6 +275,7 @@ function PartyMember:saveSpells()
 end
 
 function PartyMember:loadSpells(data)
+    self.spells = {}
     for _,v in ipairs(data) do
         self:addSpell(v)
     end

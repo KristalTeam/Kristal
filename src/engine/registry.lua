@@ -7,19 +7,13 @@ Registry.last_objects = {}
 function Registry.initialize(preload)
     if not self.preload then
         self.base_scripts = {}
+
         local chapter = Kristal.getModOption("chapter") or 2
         Game.chapter = chapter
-        for _,path in ipairs(Utils.getFilesRecursive("data/common", ".lua")) do
-            local chunk = love.filesystem.load("data/common/"..path..".lua")
+
+        for _,path in ipairs(Utils.getFilesRecursive("data", ".lua")) do
+            local chunk = love.filesystem.load("data/"..path..".lua")
             self.base_scripts["data/"..path] = chunk
-        end
-        for _,path in ipairs(Utils.getFilesRecursive("data/chapter_"..tostring(chapter), ".lua")) do
-            local chunk = love.filesystem.load("data/chapter_"..tostring(chapter).."/"..path..".lua")
-            self.base_scripts["data/"..path] = chunk
-        end
-        for _,path in ipairs(Utils.getFilesRecursive("datamod/chapter_"..tostring(chapter), ".lua")) do
-            local chunk = love.filesystem.load("datamod/chapter_"..tostring(chapter).."/"..path..".lua")
-            self.base_scripts["datamod/"..path] = chunk
         end
 
         Registry.initActors()
@@ -519,46 +513,6 @@ function Registry.iterScripts(base_path)
                 full_path = Mod.info.path.."/"..full_path
             end
             return full_path, result[i].path, unpack(result[i].out)
-        end
-    end
-end
-
-function Registry.iterMods(base_path)
-    local result = {}
-
-    local function parse(path, chunks)
-        for full_path,chunk in pairs(chunks) do
-            if full_path:sub(1, #path) == path then
-                local id = full_path:sub(#path + 1)
-                if id:sub(1, 1) == "/" then
-                    id = id:sub(2)
-                end
-                local a, b = chunk()
-                local func = a
-                if type(a) == "string" then
-                    id = a
-                    func = b
-                end
-                table.insert(result, {id = id, func = func})
-            end
-        end
-    end
-
-    parse(base_path, self.base_scripts)
-    if Mod then
-        for _,lib in pairs(Mod.libs) do
-            parse("scripts/"..base_path, lib.info.script_chunks)
-        end
-        parse("scripts/"..base_path, Mod.info.script_chunks)
-    end
-
-    local i = 0
----@diagnostic disable-next-line: undefined-field
-    local n = table.getn(result)
-    return function()
-        i = i + 1
-        if i <= n then
-            return result[i].id, result[i].func
         end
     end
 end

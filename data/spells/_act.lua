@@ -11,7 +11,11 @@ function spell:init()
     -- Battle description
     self.effect = ""
     -- Menu description
-    self.description = "Do all sorts of things.\nIt isn't magic."
+    if Game.chapter == 1 then
+        self.description = "Do all sorts of things.\nIt isn't magic."
+    else
+        self.description = "You can do many things.\nDon't confuse it with magic."
+    end
 
     -- TP cost
     self.cost = 0
