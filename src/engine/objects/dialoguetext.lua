@@ -13,7 +13,7 @@ function DialogueText:resetState()
     self.state["typing_sound"] = "default"
 end
 
-function DialogueText:drawNodesAfterCreation()
+function DialogueText:processInitialNodes()
     self:drawToCanvas(function()
         local i = 1
         while i <= #self.nodes do
@@ -44,7 +44,7 @@ function DialogueText:setText(text)
 
     if self.stage then
         self.set_text_without_stage = false
-        self:drawNodesAfterCreation()
+        self:processInitialNodes()
     else
         self.set_text_without_stage = true
     end

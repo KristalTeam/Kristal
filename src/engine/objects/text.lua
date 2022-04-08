@@ -47,11 +47,11 @@ end
 function Text:onAddToStage(stage)
     if self.set_text_without_stage then
         self.set_text_without_stage = false
-        self:drawNodesAfterCreation()
+        self:processInitialNodes()
     end
 end
 
-function Text:drawNodesAfterCreation()
+function Text:processInitialNodes()
     self:drawToCanvas(function()
         for i = 1, #self.nodes do
             local current_node = self.nodes[i]
@@ -111,7 +111,7 @@ function Text:setText(text)
 
     if self.stage then
         self.set_text_without_stage = false
-        self:drawNodesAfterCreation()
+        self:processInitialNodes()
     else
         self.set_text_without_stage = true
     end
