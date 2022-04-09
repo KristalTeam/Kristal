@@ -603,4 +603,9 @@ function Utils.getAnyCase(t, key)
     return nil
 end
 
+function Utils.absClamp(value, min, max)
+    local sign = value < 0 and -1 or 1
+    return math.max(min, math.min(max, math.abs(value))) * sign
+end
+
 return Utils
