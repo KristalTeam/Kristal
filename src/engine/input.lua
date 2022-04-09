@@ -93,6 +93,12 @@ function Input.clearPressed()
     self.key_released = {}
 end
 
+-- Clears every key press, couldn't find a function that did this already :(
+function Input.clearDownPressed()
+    self.clearPressed()
+    self.key_down = {}
+end
+
 function Input.clearPressedKey(key)
     if self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do

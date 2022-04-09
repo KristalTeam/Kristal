@@ -64,6 +64,9 @@ function World:init(map)
 
     self.menu = nil
 
+    -- Reset keypresses in-case they didn't get wiped on crash
+    Input.clearDownPressed()
+
     if map then
         self:loadMap(map)
     end
