@@ -155,7 +155,7 @@ function Draw.popScissor()
 end
 
 function Draw.scissor(x, y, w, h)
-    self.scissorPoints(x, y, x+w, x+h)
+    self.scissorPoints(x, y, x+w, y+h)
 end
 
 function Draw.scissorPoints(x1, y1, x2, y2)

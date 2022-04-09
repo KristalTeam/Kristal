@@ -619,7 +619,7 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
         end
     end
     Draw.pushScissor()
-    Draw.scissor(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    Draw.scissorPoints(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     for i, v in ipairs(self:getKeysFromAlias(name)) do
         local drawstr = Utils.titleCase(v)
         if i < #self:getKeysFromAlias(name) then
