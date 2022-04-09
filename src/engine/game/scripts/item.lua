@@ -55,16 +55,28 @@ function Item:onMenuClose(menu) end
 function Item:onMenuUpdate(menu, dt) end
 function Item:onMenuDraw(menu) end
 
+function Item:getName() return self.name end
+
+function Item:getDescription() return self.description end
+function Item:getBattleDescription() return self.effect end
+function Item:getShopDescription() return self.shop end
+
+function Item:getPrice() return self.price end
+
+function Item:getStatBonuses() return self.bonuses end
+function Item:getBonusName() return self.bonus_name end
+function Item:getBonusIcon() return self.bonus_icon end
+
 function Item:getBattleText(user, target)
-    return "* "..user.chara.name.." used the "..self.name:upper().."!"
+    return "* "..user.chara.name.." used the "..self:getName():upper().."!"
 end
 
 function Item:applyGoldBonus(gold)
     return gold
 end
 
-function Item:getDescription()
-    return self.description
+function Item:getStatBonus(stat)
+    return self:getStatBonuses()[stat] or 0
 end
 
 function Item:getReactions(id)

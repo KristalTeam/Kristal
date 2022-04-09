@@ -177,7 +177,7 @@ function DarkItemMenu:update(dt)
                     end
 
                     if dropping then
-                        Game.world.menu:setDescription("Really throw away the\n" .. item.name .. "?")
+                        Game.world.menu:setDescription("Really throw away the\n" .. item:getName() .. "?")
                         Game.world.menu:partySelect("ALL", function(success, party)
                             self.state = "SELECT"
                             if success then
@@ -251,7 +251,7 @@ function DarkItemMenu:draw()
     for index, item in ipairs(inventory) do
         -- Draw the item shadow
         love.graphics.setColor(51/255, 32/255, 51/255, 1)
-        love.graphics.print(item.name, 54 + (item_x * 210) + 2, 40 + (item_y * 30) + 2)
+        love.graphics.print(item:getName(), 54 + (item_x * 210) + 2, 40 + (item_y * 30) + 2)
 
         if self.state == "MENU" then
             love.graphics.setColor(128/255, 128/255, 128/255, 1)
@@ -262,7 +262,7 @@ function DarkItemMenu:draw()
                 love.graphics.setColor(192/255, 192/255, 192/255, 1)
             end
         end
-        love.graphics.print(item.name, 54 + (item_x * 210), 40 + (item_y * 30))
+        love.graphics.print(item:getName(), 54 + (item_x * 210), 40 + (item_y * 30))
         item_x = item_x + 1
         if item_x >= 2 then
             item_x = 0

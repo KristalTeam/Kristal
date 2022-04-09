@@ -43,7 +43,7 @@ function TreasureChest:onInteract(player, dir)
                 item = Registry.createItem(self.item)
             end
             success, result_text = Game.inventory:tryGiveItem(item)
-            name = item.name
+            name = item:getName()
         elseif self.money then
             name = self.money.." Dark Dollars"
             success = true

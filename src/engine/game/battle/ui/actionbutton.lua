@@ -97,9 +97,9 @@ function ActionButton:select()
         Game.battle.menu_items = {}
         for i,item in ipairs(Game.inventory:getStorage("item")) do
             local menu_item = {
-                ["name"] = item.name,
+                ["name"] = item:getName(),
                 ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
-                ["description"] = item.effect,
+                ["description"] = item:getBattleDescription(),
                 ["data"] = {index = i, item = item}
             }
             table.insert(Game.battle.menu_items, menu_item)

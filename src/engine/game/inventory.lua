@@ -149,9 +149,9 @@ function Inventory:tryGiveItem(item)
     local destination = item:getTypeName():upper().."s"
     local result = self:addItem(item)
     if result then
-        return true, "* ([color:yellow]"..item.name.."[color:reset] was added to your\n[color:yellow]"..destination.."[color:reset].)"
+        return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your\n[color:yellow]"..destination.."[color:reset].)"
     else
-        return false, "* (You have too many [color:yellow]"..destination.."[color:reset]\nto take [color:yellow]"..item.name.."[color:reset].)"
+        return false, "* (You have too many [color:yellow]"..destination.."[color:reset]\nto take [color:yellow]"..item:getName().."[color:reset].)"
     end
 end
 

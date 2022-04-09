@@ -134,21 +134,21 @@ function DarkEquipMenu:getAbilityPreview()
     local party = self.party:getSelected()
     local current_abilities = {}
     local weapon = party.equipped.weapon
-    if weapon and weapon.bonus_name then
-        current_abilities[1] = {name = weapon.bonus_name, icon = weapon.bonus_icon}
+    if weapon and weapon:getBonusName() then
+        current_abilities[1] = {name = weapon:getBonusName(), icon = weapon.bonus_icon}
     end
     for i = 1, 2 do
         local armor = party.equipped.armor[i]
-        if armor and armor.bonus_name then
-            current_abilities[i+1] = {name = armor.bonus_name, icon = armor.bonus_icon}
+        if armor and armor:getBonusName() then
+            current_abilities[i+1] = {name = armor:getBonusName(), icon = armor.bonus_icon}
         end
     end
     if self.state == "ITEMS" and self:canEquipSelected() then
         local preview_abilities = {}
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
-            if equipment[i] and equipment[i].bonus_name then
-                preview_abilities[i] = {name = equipment[i].bonus_name, icon = equipment[i].bonus_icon}
+            if equipment[i] and equipment[i]:getBonusName() then
+                preview_abilities[i] = {name = equipment[i]:getBonusName(), icon = equipment[i].bonus_icon}
             end
         end
         return preview_abilities, current_abilities
@@ -380,7 +380,7 @@ function DarkEquipMenu:drawEquippedItem(index, x, y)
         if item.icon and Assets.getTexture(item.icon) then
             love.graphics.draw(Assets.getTexture(item.icon), x, y, 0, 2, 2)
         end
-        love.graphics.print(item.name, x + 22, y - 6)
+        love.graphics.print(item:getName(), x + 22, y - 6)
     else
         love.graphics.setColor(0.25, 0.25, 0.25)
         love.graphics.print("(Nothing)", x + 22, y - 6)
@@ -414,7 +414,7 @@ function DarkEquipMenu:drawItems()
             if item.icon and Assets.getTexture(item.icon) then
                 love.graphics.draw(Assets.getTexture(item.icon), x, y + (offset * 27), 0, 2, 2)
             end
-            love.graphics.print(item.name, x + 20, y + (offset * 27) - 6)
+            love.graphics.print(item:getName(), x + 20, y + (offset * 27) - 6)
         else
             love.graphics.setColor(0.25, 0.25, 0.25)
             love.graphics.print("---------", x + 20, y + (offset * 27) - 6)
