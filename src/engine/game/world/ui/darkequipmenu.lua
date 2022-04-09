@@ -77,17 +77,13 @@ end
 
 function DarkEquipMenu:canEquipSelected()
     local item = self:getSelectedItem()
-    if item then
-        local can_equip = item.can_equip[self.party:getSelected().id]
-        if item.type == "weapon" then
-            return can_equip or false
-        elseif item.type == "armor" then
-            return can_equip or can_equip == nil
-        end
-    elseif self:getCurrentItemType() == "weapon" or self.party:getSelected().id == "susie" then -- TODO: unhardcode
-        return false
+    local character = self.party:getSelected()
+
+    if self.selected_slot == 1 then
+        return character:canEquip(item, "weapon", self.selected_slot)
+    else
+        return character:canEquip(item, "armor", self.selected_slot - 1)
     end
-    return true
 end
 
 function DarkEquipMenu:getEquipPreview()
@@ -160,22 +156,11 @@ end
 function DarkEquipMenu:react()
     local item, party = self:getSelectedItem(), self.party:getSelected()
 
-    if item then
-        local reactions = item:getReactions(party.id)
-        for name, reaction in pairs(reactions) do
-            for index, chara in ipairs(Game.party) do
-                if name == chara.id then
-                    Game.world.healthbar.action_boxes[index].reaction_alpha = 50
-                    Game.world.healthbar.action_boxes[index].reaction_text = reaction
-                end
-            end
-        end
-    elseif party.id == "susie" then -- TODO: unhardcode
-        for index, chara in ipairs(Game.party) do
-            if chara.id == party.id then
-                Game.world.healthbar.action_boxes[index].reaction_alpha = 50
-                Game.world.healthbar.action_boxes[index].reaction_text = "Hey, hands off!"
-            end
+    for index, chara in ipairs(Game.party) do
+        local reaction = chara:getReaction(item, party)
+        if reaction then
+            Game.world.healthbar.action_boxes[index].reaction_alpha = 50
+            Game.world.healthbar.action_boxes[index].reaction_text = reaction
         end
     end
 end
@@ -401,10 +386,10 @@ function DarkEquipMenu:drawItems()
 
         if item then
             local usable = false
-            if item.type == "weapon" then
-                usable = item.can_equip[party.id]
+            if self.selected_slot == 1 then
+                usable = party:canEquip(item, "weapon", self.selected_slot)
             else
-                usable = item.can_equip[party.id] or item.can_equip[party.id] == nil
+                usable = party:canEquip(item, "armor", self.selected_slot - 1)
             end
             if usable then
                 love.graphics.setColor(1, 1, 1)

@@ -122,6 +122,12 @@ function PartyMember:increaseStat(stat, amount, max)
     end
 end
 
+function PartyMember:getReaction(item, user)
+    if item then
+        return item:getReaction(user.id, self.id)
+    end
+end
+
 function PartyMember:getActor(light)
     if light == nil then
         light = Game and Game.world and Game.world.light
@@ -196,6 +202,14 @@ function PartyMember:setArmor(i, item)
         item = Registry.createItem(item)
     end
     self.equipped.armor[i] = item
+end
+
+function PartyMember:canEquip(item, slot_type, slot_index)
+    if item then
+        return item:canEquip(self, slot_type, slot_index)
+    else
+        return slot_type ~= "weapon"
+    end
 end
 
 function PartyMember:getEquipmentBonus(stat)

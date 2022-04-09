@@ -69,13 +69,11 @@ function DarkItemMenu:useItem(item, party)
         party = {party}
     end
     for _,char in ipairs(party) do
-        local reactions = item:getReactions(char.id)
-        for name, reaction in pairs(reactions) do
-            for index, chara in ipairs(Game.party) do
-                if name == chara.id then
-                    Game.world.healthbar.action_boxes[index].reaction_alpha = 50
-                    Game.world.healthbar.action_boxes[index].reaction_text = reaction
-                end
+        for index, chara in ipairs(Game.party) do
+            local reaction = chara:getReaction(item, char)
+            if reaction then
+                Game.world.healthbar.action_boxes[index].reaction_alpha = 50
+                Game.world.healthbar.action_boxes[index].reaction_text = reaction
             end
         end
     end

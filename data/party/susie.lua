@@ -131,6 +131,30 @@ function character:getGameOverMessage(main)
     }
 end
 
+function character:canEquip(item, slot_type, slot_index)
+    if item then
+        return super:canEquip(self, item, slot_type, slot_index)
+    else
+        local item
+        if slot_type == "weapon" then
+            item = self:getWeapon()
+        elseif slot_type == "armor" then
+            item = self:getArmor(slot_index)
+        else
+            return true
+        end
+        return false
+    end
+end
+
+function character:getReaction(item, user)
+    if item or user.id ~= self.id then
+        return super:getReaction(self, item, user)
+    else
+        return "Hey, hands off!"
+    end
+end
+
 function character:drawPowerStat(index, x, y, menu)
     if index == 1 then
         local icon = Assets.getTexture("ui/menu/icon/demon")

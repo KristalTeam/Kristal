@@ -67,6 +67,8 @@ function Item:getStatBonuses() return self.bonuses end
 function Item:getBonusName() return self.bonus_name end
 function Item:getBonusIcon() return self.bonus_icon end
 
+function Item:getReactions() return self.reactions end
+
 function Item:getBattleText(user, target)
     return "* "..user.chara.name.." used the "..self:getName():upper().."!"
 end
@@ -79,15 +81,27 @@ function Item:getStatBonus(stat)
     return self:getStatBonuses()[stat] or 0
 end
 
-function Item:getReactions(id)
-    if id and self.reactions[id] then
-        if type(self.reactions[id]) == "table" then
-            return self.reactions[id]
+function Item:canEquip(character, slot_type, slot_index)
+    if self.type == "armor" then
+        return self.can_equip[character.id] ~= false
+    else
+        return self.can_equip[character.id]
+    end
+end
+
+function Item:getReaction(user_id, reactor_id)
+    local reactions = self:getReactions()
+    if reactions[user_id] then
+        if type(reactions[user_id]) == "string" then
+            if reactor_id == user_id then
+                return reactions[user_id]
+            else
+                return nil
+            end
         else
-            return {[id] = self.reactions[id]}
+            return reactions[user_id][reactor_id]
         end
     end
-    return {}
 end
 
 function Item:getTypeName()
