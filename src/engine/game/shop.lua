@@ -131,7 +131,7 @@ function Shop:postInit()
 
     self:addChild(self.info_box)
 
-    self.dialogue_text = Textbox(30, 53 + 219, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, true)
+    self.dialogue_text = Textbox(30, 53 + 219, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.dialogue_text.text.line_offset = 8
 
     self.dialogue_text:setLayer(self.layers["dialogue"])

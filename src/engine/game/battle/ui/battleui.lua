@@ -5,7 +5,7 @@ function BattleUI:init()
 
     self.layer = BATTLE_LAYERS["ui"]
 
-    self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, true)
+    self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.encounter_text.text.line_offset = 0
     self.current_encounter_text = Game.battle.encounter.text
     self.encounter_text:setText(self.current_encounter_text)

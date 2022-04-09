@@ -43,6 +43,7 @@ function BattleCutscene:onEnd()
     if Game.battle.battle_ui then
         Game.battle.battle_ui.encounter_text:setActor(nil)
         Game.battle.battle_ui.encounter_text:setFace(nil)
+        Game.battle.battle_ui.encounter_text:setFont()
         Game.battle.battle_ui.encounter_text.can_advance = false
         Game.battle.battle_ui.encounter_text.auto_advance = false
     end
@@ -176,6 +177,17 @@ function BattleCutscene:text(text, portrait, actor, options)
         for id,react in pairs(options["reactions"]) do
             Game.battle.battle_ui.encounter_text:addReaction(id, react[1], react[2], react[3], react[4], react[5])
         end
+    end
+
+    if options["font"] then
+        if type(options["font"]) == "table" then
+            -- {font, size}
+            Game.battle.battle_ui.encounter_text:setFont(options["font"][1], options["font"][2])
+        else
+            Game.battle.battle_ui.encounter_text:setFont(options["font"])
+        end
+    else
+        Game.battle.battle_ui.encounter_text:setFont()
     end
 
     Game.battle.battle_ui.encounter_text:setText(text)

@@ -54,9 +54,15 @@ return {
             cutscene:wait(1)
             cutscene:text("* Guess not.", "nervous")
 
-            -- Return things to normal
+            -- Reset Susie's sprite
             susie:resetSprite()
+
+            -- Reattach the camera
             cutscene:attachCamera()
+
+            -- Align the follower positions behind Kris's current position
+            cutscene:alignFollowers()
+            -- And reattach them, making them return to their target positions
             cutscene:attachFollowers()
         end
     end

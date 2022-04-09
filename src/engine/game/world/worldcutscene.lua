@@ -322,6 +322,15 @@ function WorldCutscene:text(text, portrait, actor, options)
         end
     end
 
+    if options["font"] then
+        if type(options["font"]) == "table" then
+            -- {font, size}
+            self.textbox:setFont(options["font"][1], options["font"][2])
+        else
+            self.textbox:setFont(options["font"])
+        end
+    end
+
     self.textbox:setText(text)
 
     self.textbox.can_advance = options["advance"] or options["advance"] == nil

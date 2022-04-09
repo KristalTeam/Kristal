@@ -32,7 +32,7 @@ Textbox.REACTION_Y_BATTLE = {
        ["bottom"] =  56 -2,
 }
 
-function Textbox:init(x, y, width, height, battle_box)
+function Textbox:init(x, y, width, height, default_font, default_font_size, battle_box)
     super:init(self, x, y, width, height)
 
     self.box = DarkBox(0, 0, width, height)
@@ -59,6 +59,12 @@ function Textbox:init(x, y, width, height, battle_box)
     end
 
     self.actor = nil
+
+    self.default_font = default_font or "main_mono"
+    self.default_font_size = default_font_size
+
+    self.font = self.default_font
+    self.font_size = self.default_font_size
 
     self.face = Sprite()
     self.face.path = "face"
@@ -171,6 +177,16 @@ function Textbox:setFace(face, ox, oy)
     end
 end
 
+function Textbox:setFont(font, size)
+    if not font then
+        self.font = self.default_font
+        self.font_size = self.default_font_size
+    else
+        self.font = font
+        self.font_size = size
+    end
+end
+
 function Textbox:resetReactions()
     self.reactions = {}
     for _,reaction in ipairs(self.reaction_instances) do
@@ -204,6 +220,8 @@ function Textbox:setText(text)
         reaction:remove()
     end
     self.reaction_instances = {}
+    self.text.font = self.font
+    self.text.font_size = self.font_size
     if self.actor and self.actor.voice then
         self.text:setText("[voice:"..self.actor.voice.."]"..text)
     else

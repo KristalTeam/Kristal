@@ -77,6 +77,7 @@ function Text:resetState()
         waiting = 0,
         skipping = false,
         asterisk_mode = false,
+        asterisk_length = 0,
         escaping = false,
         typed_string = "",
         typing_sound = "",
@@ -118,7 +119,7 @@ function Text:setText(text)
 end
 
 function Text:getFont()
-    return Assets.getFont(self.font, self.font_size)
+    return Assets.getFont(self.state.font, self.state.font_size)
 end
 
 function Text:textToNodes(input_string)
@@ -205,13 +206,14 @@ function Text:processNode(node)
         self.state.typed_string = self.state.typed_string .. node.character
         if self.state.typed_string == "* " then
             self.state.asterisk_mode = true
+            self.state.asterisk_length = font:getWidth("* ")
         end
         if node.character == "\n" then
             self.state.current_x = 0
             if self.state.asterisk_mode then
-                self.state.current_x = font:getWidth("* ") + self.state.spacing
+                self.state.current_x = self.state.asterisk_length + self.state.spacing
             end
-            local spacing = Assets.getFontData(self.font) or {}
+            local spacing = Assets.getFontData(self.state.font) or {}
             self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) + self.line_offset
             -- We don't want to wait on a newline, so...
             self.state.newline = true
@@ -270,6 +272,16 @@ function Text:processModifier(node)
         elseif #node.arguments[1] == 7 then
             -- It's 7 letters long, assume hex
             self.state.color = Utils.hexToRgb(node.arguments[1])
+        end
+    elseif node.command == "font" then
+        if node.arguments[1] == "reset" then
+            self.state.font = self.font
+            self.state.font_size = self.font_size
+        else
+            self.state.font = node.arguments[1]
+            if node.arguments[2] then
+                self.state.font_size = tonumber(node.arguments[2])
+            end
         end
     elseif node.command == "shake" then
         self.state.shake = tonumber(node.arguments[1])
