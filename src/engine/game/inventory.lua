@@ -146,16 +146,7 @@ function Inventory:tryGiveItem(item)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
-    local destination = ""
-    if item.type == "item" then
-        destination = "ITEMs"
-    elseif item.type == "key" then
-        destination = "KEY ITEMs"
-    elseif item.type == "weapon" then
-        destination = "WEAPONs"
-    elseif item.type == "armor" then
-        destination = "ARMORs"
-    end
+    local destination = item:getTypeName():upper().."s"
     local result = self:addItem(item)
     if result then
         return true, "* ([color:yellow]"..item.name.."[color:reset] was added to your\n[color:yellow]"..destination.."[color:reset].)"

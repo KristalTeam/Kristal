@@ -78,4 +78,17 @@ function Item:getReactions(id)
     return {}
 end
 
+function Item:getTypeName()
+    if self.type == "item" then
+        return "Item"
+    elseif self.type == "key" then
+        return "Key Item"
+    elseif self.type == "weapon" then
+        return "Weapon"
+    elseif self.type == "armor" then
+        return "Armor"
+    end
+    return "Unknown"
+end
+
 return Item
