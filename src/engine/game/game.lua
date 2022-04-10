@@ -650,8 +650,8 @@ function Game:update(dt)
         return
     end
 
-    if self.state == "BATTLE" and self.battle and self.battle:isWorldHidden() or
-       self.state == "SHOP"   and self.shop then
+    if (self.state == "BATTLE" and self.battle and self.battle:isWorldHidden()) or
+       (self.state == "SHOP"   and self.shop) then
         self.world.active = false
         self.world.visible = false
     else
