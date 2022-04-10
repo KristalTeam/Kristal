@@ -255,6 +255,17 @@ function Battle:postInit(state, encounter)
     self:setState(state)
 end
 
+function Battle:openUI()
+    if not self.battle_ui then
+        self.battle_ui = BattleUI()
+        self:addChild(self.battle_ui)
+    end
+    if not self.tension_bar then
+        self.tension_bar = TensionBar(-25, 40)
+        self:addChild(self.tension_bar)
+    end
+end
+
 function Battle:onRemove(parent)
     super:onRemove(self, parent)
 
@@ -312,14 +323,7 @@ function Battle:onStateChange(old,new)
             end
         end
 
-        if not self.battle_ui then
-            self.battle_ui = BattleUI()
-            self:addChild(self.battle_ui)
-        end
-        if not self.tension_bar then
-            self.tension_bar = TensionBar(-25, 40)
-            self:addChild(self.tension_bar)
-        end
+        self:openUI()
     elseif new == "ACTIONS" then
         self.battle_ui.encounter_text:setText("")
         if self.state_reason ~= "DONTPROCESS" then
@@ -1335,6 +1339,10 @@ end
 function Battle:startProcessing()
     self.has_acted = false
     self:setState("ACTIONS")
+end
+
+function Battle:setSelectedParty(index)
+    self.current_selecting = index or 0
 end
 
 function Battle:nextParty()
