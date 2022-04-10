@@ -3,6 +3,8 @@ local Shop, super = Class(Object, "shop")
 function Shop:init()
     super:init(self)
 
+    self.currency_text = "$%d"
+
     -- Shown when you first enter a shop
     self.encounter_text = "* Hee hee...[wait:5]\n* Welcome,[wait:5] travellers."
     -- Shown when you return to the main menu of the shop
@@ -12,7 +14,7 @@ function Shop:init()
     -- Shown when you're in the BUY menu
     self.buy_menu_text = "What do\nyou like\nto buy?"
     -- Shown when you're about to buy something.
-    self.buy_confirmation_text = "Buy it for\n$%d ?"
+    self.buy_confirmation_text = "Buy it for\n%s ?"
     -- Shown when you refuse to buy something
     self.buy_refuse_text = "What,\nnot good\nenough?"
     -- Shown when you buy something
@@ -40,6 +42,8 @@ function Shop:init()
     -- Shown when you sell something
     self.sell_text = "That's it\nfor that."
 
+    self.hide_storage_text = false
+
     self.layers = {
         ["large_box"] = 16,
         ["left_box"]  = 32,
@@ -58,9 +62,11 @@ function Shop:init()
     self.items = {}
 
     self:registerItem("tensionbit")
-    self:registerItem("cell_phone")
+    self:registerItem("cell_phone", 1)
     self:registerItem("snowring", 1)
     self:registerItem("amber_card")
+
+    self.background = Assets.getTexture("ui/shop/bg_seam")
 
     -- STATES: MAINMENU, BUYMENU, SELLMENU, TALKMENU, LEAVE, LEAVING, DIALOGUE
     self.state = "NONE"
@@ -314,6 +320,10 @@ function Shop:startDialogue(text,callback)
 end
 
 function Shop:registerItem(item, amount, flag)
+    return self:replaceItem(item, #self.items + 1, amount, flag)
+end
+
+function Shop:replaceItem(item, index, amount, flag)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
@@ -321,7 +331,7 @@ function Shop:registerItem(item, amount, flag)
         if flag then
             amount = Game:getFlag("shop#" .. self.id .. ":" .. flag, amount)
         end
-        table.insert(self.items, {item, amount, flag})
+        self.items[index] = {item, amount, flag}
         return true
     else
         return false
@@ -347,6 +357,7 @@ end
 
 function Shop:draw()
     self:drawBackground()
+    self:drawBackgroundCover()
 
     super:draw(self)
 
@@ -360,7 +371,7 @@ function Shop:draw()
         love.graphics.draw(self.heart_sprite, 450, 230 + (self.main_current_selecting * 40))
     elseif self.state == "BUYMENU" then
         -- Item type (item, key, weapon, armor)
-        for i = 1, 4 do
+        for i = 1, math.max(4, #self.items) do
             if i > #self.items then
                 love.graphics.setColor(COLORS.dkgray)
                 love.graphics.print("--------", 60, 220 + (i * 40))
@@ -370,18 +381,18 @@ function Shop:draw()
             else
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(self.items[i][1].name, 60, 220 + (i * 40))
-                love.graphics.print("$" .. self.items[i][1].price , 60 + 240, 220 + (i * 40))
+                love.graphics.print(string.format(self.currency_text, self.items[i][1].price), 60 + 240, 220 + (i * 40))
             end
         end
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.print("Exit", 60, 220 + (5 * 40))
+        love.graphics.print("Exit", 60, 220 + ((math.max(4, #self.items) + 1) * 40))
         love.graphics.setColor(Game:getSoulColor())
         if not self.buy_confirming then
             love.graphics.draw(self.heart_sprite, 30, 230 + (self.current_selecting * 40))
         else
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(1, 1, 1, 1)
-            local lines = Utils.split(string.format(self.buy_confirmation_text, self.items[self.current_selecting][1]:getPrice()), "\n")
+            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting][1]:getPrice())), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
@@ -454,14 +465,17 @@ function Shop:draw()
             Draw.popScissor()
 
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.setFont(self.plain_font)
 
-            local space = Game.inventory:getFreeSpace(current_item.type)
+            if not self.hide_storage_text then
+                love.graphics.setFont(self.plain_font)
 
-            if space <= 0 then
-                love.graphics.print("NO SPACE", 521, 430)
-            else    
-                love.graphics.print("Space:" .. space, 521, 430)
+                local space = Game.inventory:getFreeSpace(current_item.type)
+
+                if space <= 0 then
+                    love.graphics.print("NO SPACE", 521, 430)
+                else    
+                    love.graphics.print("Space:" .. space, 521, 430)
+                end
             end
         end
     end
@@ -472,7 +486,7 @@ function Shop:draw()
        self.state == "TALKMENU" then
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(self.font)
-        love.graphics.print("$" .. Game.gold, 440, 420)
+        love.graphics.print(string.format(self.currency_text, Game.gold), 440, 420)
     end
 
     love.graphics.setColor(0, 0, 0, self.fade_alpha)
@@ -501,8 +515,23 @@ function Shop:drawBonuses(party_member, old_item, new_item, stat, x, y)
 end
 
 function Shop:drawBackground()
+    -- First, draw a black backdrop
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    -- Draw the shop background
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.push()
+    love.graphics.scale(2, 2)
+    love.graphics.draw(self.background, 0, 0)
+    love.graphics.pop()
+end
+
+function Shop:drawBackgroundCover()
+    -- Draw background cover
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.rectangle("fill", 0, 240, SCREEN_WIDTH, SCREEN_HEIGHT)
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Shop:keypressed(key)
@@ -540,35 +569,11 @@ function Shop:keypressed(key)
                 local current_item_data = self.items[self.current_selecting]
                 local current_item = current_item_data[1]
                 if self.current_selecting_choice == 1 then
-                    if current_item:getPrice() > Game.gold then
-                        self.right_text:setText(self.buy_too_expensive_text)
-                    else
-                        -- PURCHASE THE ITEM
-                        -- Remove the gold
-                        Game.gold = Game.gold - current_item:getPrice()
-
-                        -- Decrement the stock
-                        if current_item_data[2] then
-                            current_item_data[2] = current_item_data[2] - 1
-                            if current_item_data[3] then
-                                Game:setFlag("shop#" .. self.id .. ":" .. current_item_data[3], current_item_data[2])
-                            end
-                        end
-
-                        -- Add the item to the inventory
-                        if Game.inventory:addItem(current_item) then
-                            -- Visual/auditorial feedback (did I spell that right?)
-                            Assets.playSound("snd_locker")
-                            self.right_text:setText(self.buy_text)
-                        else
-                            -- Not enough space, oops
-                            self.right_text:setText(self.buy_no_space_text)
-                        end
-                    end
+                    self:buyItem(current_item, current_item_data)
                 elseif self.current_selecting_choice == 2 then
                     self.right_text:setText(self.buy_refuse_text)
                 else
-                    self.right_text:setText("What????? did\nyou do????")
+                    self.right_text:setText("What?????[wait:5]\ndid you\ndo????")
                 end
             elseif Input.isCancel(key) then
                 self.buy_confirming = false
@@ -641,6 +646,34 @@ function Shop:keypressed(key)
                     self:setState(self.post_dialogue_state, "DIALOGUE")
                 end
             end
+        end
+    end
+end
+
+function Shop:buyItem(current_item, current_item_data)
+    if current_item:getPrice() > Game.gold then
+        self.right_text:setText(self.buy_too_expensive_text)
+    else
+        -- PURCHASE THE ITEM
+        -- Remove the gold
+        Game.gold = Game.gold - current_item:getPrice()
+
+        -- Decrement the stock
+        if current_item_data[2] then
+            current_item_data[2] = current_item_data[2] - 1
+            if current_item_data[3] then
+                Game:setFlag("shop#" .. self.id .. ":" .. current_item_data[3], current_item_data[2])
+            end
+        end
+
+        -- Add the item to the inventory
+        if Game.inventory:addItem(current_item) then
+            -- Visual/auditorial feedback (did I spell that right?)
+            Assets.playSound("snd_locker")
+            self.right_text:setText(self.buy_text)
+        else
+            -- Not enough space, oops
+            self.right_text:setText(self.buy_no_space_text)
         end
     end
 end
