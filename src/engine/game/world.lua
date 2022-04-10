@@ -679,6 +679,9 @@ function World:update(dt)
     if self.cutscene then
         if not self.cutscene.ended then
             self.cutscene:update(dt)
+            if self.stage == nil then
+                return
+            end
         else
             self.cutscene = nil
         end
