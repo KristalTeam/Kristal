@@ -59,7 +59,10 @@ function Item:getName() return self.name end
 
 function Item:getDescription() return self.description end
 function Item:getBattleDescription() return self.effect end
-function Item:getShopDescription() return self.shop end
+
+function Item:getShopDescription()
+    return (self.type == "key" and "KEYITEM" or self:getTypeName():upper()) .. "\n" .. self.shop
+end
 
 function Item:getPrice() return self.price end
 

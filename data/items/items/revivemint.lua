@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = "Heal\nDowned\nAlly"
     -- Shop description
-    self.shop = nil
+    self.shop = ""
     -- Menu description
     self.description = "Heals a fallen ally to MAX HP.\nA minty green crystal."
 

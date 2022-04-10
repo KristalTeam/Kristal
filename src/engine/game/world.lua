@@ -187,6 +187,8 @@ function World:keypressed(key)
                     self.music:resume()
                 end
             end
+        elseif key == "j" then
+            Game:enterShop()
         end
     end
 

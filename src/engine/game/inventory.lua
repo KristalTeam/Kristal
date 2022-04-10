@@ -167,6 +167,25 @@ function Inventory:getStorage(type)
     end
 end
 
+function Inventory:getFreeSpace(storage)
+    if type(storage) == "string" then
+        storage = self:getStorage(storage)
+    end
+    if storage then
+        if storage.sorted then
+            return storage.max - #storage
+        else
+            local count = 0
+            for i = 1, storage.max do
+                if not storage[i] then
+                    count = count + 1
+                end
+            end
+            return count
+        end
+    end
+    return 0
+end
 
 function Inventory:load(data)
     self:clear()

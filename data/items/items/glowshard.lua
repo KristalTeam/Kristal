@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = "Sell\nat\nshops"
     -- Shop description
-    self.shop = nil
+    self.shop = ""
     -- Menu description
     if Game.chapter == 1 then
         self.description = "A shimmering shard.\nIts use is unknown."

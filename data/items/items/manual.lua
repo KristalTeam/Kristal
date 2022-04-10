@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = "Read\nout of\nbattle"
     -- Shop description
-    self.shop = nil
+    self.shop = ""
     -- Menu description
     self.description = "Ralsei's handmade book full of\nvarious tips and tricks."
 

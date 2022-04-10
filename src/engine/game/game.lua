@@ -503,11 +503,11 @@ end
 
 function Game:enterShop()
     -- Testing function!
-    self.world.music:stop()
-
     if self.shop then
         error("Attempt to enter shop while already in shop")
     end
+
+    self.world.music:stop()
 
     self.state = "SHOP"
 

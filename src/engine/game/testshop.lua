@@ -1,8 +1,9 @@
-local TestShop, super = Class(Shop)
+local TestShop, super = Class(Shop,  "testshop")
 
 function TestShop:init()
     super:init(self)
 
+    --[[
     -- Shown when you first enter a shop
     self.encounter_text = "* (...)"
     -- Shown when you return to the main menu of the shop
@@ -26,9 +27,10 @@ function TestShop:init()
     -- Shown when you try to sell an empty spot
     self.sell_nothing_text = "..."
     -- Shown when you refuse to sell something
-    self.sell_no_text = "..."
+    self.sell_refuse_text = "..."
     -- Shown when you sell something
-    self.sell_yes_text = "..."
+    self.sell_text = "..."
+    ]]--
 
 end
 

@@ -702,11 +702,11 @@ function lume.hotswap(modname)
     for k in pairs(_G) do _G[k] = oldglobal[k] end
     err = lume.trim(e)
   end
-  local ok, oldmod = pcall(require, modname)
+  local ok, oldmod = pcall(rawRequire, modname)
   oldmod = ok and oldmod or nil
   xpcall(function()
     package.loaded[modname] = nil
-    local newmod = require(modname)
+    local newmod = rawRequire(modname)
     if type(oldmod) == "table" then update(oldmod, newmod) end
     for k, v in pairs(oldglobal) do
       if v ~= _G[k] and type(v) == "table" then
