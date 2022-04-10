@@ -13,18 +13,22 @@ function Console:init()
 
     self.history = {
         {"Welcome to ", {0.5, 1, 1}, "KRISTAL", {1, 1, 1}, "! This is the debug console. You can enter Lua here to be ran!"},
-        ""
+        "",
     }
 
     self.command_history = {}
 
-    self.input = ""
+    self.input = {""}
 
     self.is_open = false
 
     self.history_index = 0
 
-    self.cursor = 0
+    self.cursor_x = 0
+    self.cursor_y = 1
+    self.cursor_y_tallest = 1
+
+    self.flash_timer = 0
 
     self:close()
 
@@ -44,6 +48,10 @@ function Console:createEnv()
             end
         end
         self:log(tostring(str))
+    end
+
+    function env.clear()
+        self.history = {}
     end
 
     function env.giveItem(str)
@@ -70,7 +78,8 @@ end
 function Console:open()
     self.is_open = true
     self.history_index = #self.command_history + 1
-    self.cursor = utf8.len(self.input)
+    self.cursor_x = utf8.len(self.input[#self.input])
+    self.cursor_y = #self.input
     love.keyboard.setTextInput(true)
     Game.lock_input = true
     love.keyboard.setKeyRepeat(true)
@@ -84,6 +93,10 @@ function Console:close()
 end
 
 function Console:update(dt)
+    self.flash_timer = self.flash_timer + dt
+    if self.flash_timer > 1 then
+        self.flash_timer = self.flash_timer - 1
+    end
 end
 
 function Console:print(text, x, y)
@@ -114,28 +127,40 @@ function Console:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    local y_offset = self.height - #self.history
+    local y_offset = self.height
+    for line, text in ipairs(self.history) do
+        y_offset = y_offset - #Utils.split(Utils.coloredToString(text), "\n", false)
+    end
 
     for line, text in ipairs(self.history) do
         self:print(text, 8, y_offset * 16)
-        y_offset = y_offset + 1
+        y_offset = y_offset + #Utils.split(Utils.coloredToString(text), "\n", false)
         if y_offset >= self.height then
             break
         end
     end
 
     love.graphics.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", 0, input_pos, 640, 16)
+    love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
 
     love.graphics.setColor(1, 1, 1, 1)
-    self:print("> " .. self.input, 8, input_pos)
+    for i, text in ipairs(self.input) do
+        self:print("> " .. text, 8, input_pos + (i - 1) * 16)
+    end
 
     love.graphics.setColor(1, 0, 1, 1)
     local cursor_pos = self.font:getWidth("> ")
-    if self.cursor > 0 then
-        cursor_pos = self.font:getWidth(string.sub(self.input, 1, utf8.offset(self.input, self.cursor))) + cursor_pos
+    if self.cursor_x > 0 then
+        cursor_pos = self.font:getWidth(string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))) + cursor_pos
     end
-    self:print("_", 8 + cursor_pos, input_pos)
+
+    if self.flash_timer < 0.5 then
+        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+            self:print("_", 8 + cursor_pos, input_pos + ((self.cursor_y - 1) * 16))
+        else
+            self:print("|", 8 + cursor_pos - 1, input_pos + ((self.cursor_y - 1) * 16))
+        end
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
     super:draw(self)
@@ -147,11 +172,27 @@ function Console:textinput(t)
 end
 
 function Console:insertString(str)
-    local string_1 = string.sub(self.input, 1, utf8.offset(self.input, self.cursor))
-    local string_2 = string.sub(self.input, utf8.offset(self.input, self.cursor) + 1, -1)
+    self.flash_timer = 0
+    local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
+    local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
 
-    self.input = string_1 .. str .. string_2
-    self.cursor = self.cursor + utf8.len(str)
+    if self.cursor_x == 0 then
+        string_1 = ""
+        string_2 = self.input[self.cursor_y]
+    end
+
+    local split = Utils.split(string_1 .. str .. string_2, "\n", false)
+
+    split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
+    self.input[self.cursor_y] = split[1]
+    for i = 2, #split do
+        split[i] = split[i]:gsub("\n?$",""):gsub("\r","");
+        table.insert(self.input, self.cursor_y + i - 1, split[i])
+    end
+
+    self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
+    self.cursor_y = self.cursor_y + #split - 1
+    --self.cursor_x = self.cursor_y + utf8.len(str)
 end
 
 function Console:push(str)
@@ -182,8 +223,16 @@ function Console:run(str)
         table.insert(self.command_history, str)
     end
     self.history_index = #self.command_history + 1
-    self:push({{0.8, 0.8, 0.8}, "> " .. str})
-    local status, error = pcall(function() self:unsafeRun(str) end)
+    local run_string = ""
+    for i, line in ipairs(str) do
+        if i == #str then
+            run_string = run_string .. line
+        else
+            run_string = run_string .. line .. "\n"
+        end
+    end
+    self:push({{0.8, 0.8, 0.8}, "> " .. run_string})
+    local status, error = pcall(function() self:unsafeRun(run_string) end)
     if not status then
         self:error(self:stripError(error))
     end
@@ -213,49 +262,92 @@ function Console:keypressed(key)
     if (key == "v") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
         self:insertString(love.system.getClipboardText())
     elseif key == "return" then
-        self:run(self.input)
-        self.input = ""
-        self.cursor = 0
-    elseif key == "backspace" then
-        if self.cursor == 0 then return end
-
-        local string_1 = string.sub(self.input, 1, utf8.offset(self.input, self.cursor))
-        local string_2 = string.sub(self.input, utf8.offset(self.input, self.cursor) + 1, -1)
-
-        -- get the byte offset to the last UTF-8 character in the string.
-        local byteoffset = utf8.offset(string_1, -1)
-
-        if byteoffset then
-            -- remove the last UTF-8 character.
-            -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-            string_1 = string.sub(string_1, 1, byteoffset - 1)
-            self.cursor = utf8.len(string_1)
+        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
+            self:insertString("\n")
+        else
+            self:run(self.input)
+            self.input = {""}
+            self.cursor_x = 0
+            self.cursor_y = 1
+            self.flash_timer = 0
         end
-        self.input = string_1 .. string_2
+    elseif key == "tab" then
+        self:insertString("    ")
+    elseif key == "backspace" then
+        self.flash_timer = 0
+        if self.cursor_x == 0 and self.cursor_y == 1 then return end
+
+        if self.cursor_x == 0 then
+            self.cursor_y = self.cursor_y - 1
+            self.cursor_x = utf8.len(self.input[self.cursor_y])
+            self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
+            table.remove(self.input, self.cursor_y + 1)
+        else
+            local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
+            local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+
+            -- get the byte offset to the last UTF-8 character in the string.
+            local byteoffset = utf8.offset(string_1, -1)
+
+            if byteoffset then
+                -- remove the last UTF-8 character.
+                -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+                string_1 = string.sub(string_1, 1, byteoffset - 1)
+                self.cursor_x = utf8.len(string_1)
+            end
+            self.input[self.cursor_y] = string_1 .. string_2
+        end
     elseif key == "up" then
-        if #self.command_history == 0 then return end
-        if self.history_index > 1 then
-            self.history_index = self.history_index - 1
-            self.input = self.command_history[self.history_index]
-            self.cursor = utf8.len(self.input)
+        self.flash_timer = 0
+        if self.cursor_y <= 1 then
+            self.cursor_y = 1
+            if #self.command_history == 0 then return end
+            if self.history_index > 1 then
+                self.history_index = self.history_index - 1
+                self.input = self.command_history[self.history_index]
+                self.cursor_x = utf8.len(self.input[#self.input])
+                self.cursor_y = #self.input
+            end
+        else
+            self.cursor_y = self.cursor_y - 1
+            self.cursor_x = utf8.len(self.input[self.cursor_y])
         end
     elseif key == "down" then
-        if #self.command_history == 0 then return end
-        if self.history_index < #self.command_history + 1 then
-            self.history_index = self.history_index + 1
-            self.input = self.command_history[self.history_index]
+        self.flash_timer = 0
+        if self.cursor_y == #self.input then
+            if #self.command_history == 0 then return end
+            if self.history_index == #self.command_history + 1 then
+
+            else
+                self.history_index = self.history_index + 1
+                self.input = self.command_history[self.history_index] or {""}
+                self.cursor_x = utf8.len(self.input[#self.input])
+                self.cursor_y = #self.input
+            end
+            self.cursor_x = utf8.len(self.input[self.cursor_y])
+        else
+            self.cursor_y = self.cursor_y + 1
+            self.cursor_x = utf8.len(self.input[self.cursor_y])
         end
-        if self.history_index == #self.command_history + 1 then
-            self.input = ""
-        end
-        self.cursor = utf8.len(self.input)
     elseif key == "left" then
-        if self.cursor > 0 then
-            self.cursor = self.cursor - 1
+        self.flash_timer = 0
+        if self.cursor_x > 0 then
+            self.cursor_x = self.cursor_x - 1
+        else
+            if self.cursor_y ~= 1 then
+                self.cursor_y = self.cursor_y - 1
+                self.cursor_x = utf8.len(self.input[self.cursor_y])
+            end
         end
+        self.flash_timer = 0
     elseif key == "right" then
-        if self.cursor < utf8.len(self.input) then
-            self.cursor = self.cursor + 1
+        if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
+            self.cursor_x = self.cursor_x + 1
+        else
+            if self.cursor_y ~= #self.input then
+                self.cursor_y = self.cursor_y + 1
+                self.cursor_x = 0
+            end
         end
     end
 end

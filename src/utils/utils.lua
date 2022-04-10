@@ -47,6 +47,19 @@ function Utils.dump(o)
     end
 end
 
+function Utils.coloredToString(colored)
+    if type(colored) == "string" then
+        return colored
+    end
+    local str = ""
+    for line, text in ipairs(colored) do
+        if type(text) == "string" then
+            str = str .. text
+        end
+    end
+    return str
+end
+
 function Utils.splitFast(str, sep)
     local t={} ; i=1
     for str in string.gmatch(str, "([^"..sep.."]+)") do
