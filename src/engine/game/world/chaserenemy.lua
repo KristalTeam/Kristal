@@ -73,7 +73,7 @@ function ChaserEnemy:snapToPath()
             local current_dist = 0
 
             for i = 1, #path.polygon-1 do
-                local next_dist = Vector.dist(path.polygon[i].x, path.polygon[i].y, path.polygon[i+1].x, path.polygon[i+1].y)
+                local next_dist = Utils.dist(path.polygon[i].x, path.polygon[i].y, path.polygon[i+1].x, path.polygon[i+1].y)
 
                 if current_dist + next_dist > dist then
                     local x = path.x + Utils.lerp(path.polygon[i].x, path.polygon[i+1].x, (dist - current_dist) / next_dist)

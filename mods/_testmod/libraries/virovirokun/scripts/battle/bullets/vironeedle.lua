@@ -32,7 +32,7 @@ function Vironeedle:infect(other)
     self.infecting = true
     self.physics.speed = 0
     self:setLayer(math.max(self.layer, other.layer) + 0.01)
-    self:setPosition(Vector.lerp(self.x,self.y, other.x,other.y, 0.5))
+    self:setPosition(Utils.lerpPoint(self.x,self.y, other.x,other.y, 0.5))
     self.sprite:setSprite("bullets/viro_needle_pop")
     self.sprite:setAnimation(function(sprite, wait)
         for i = 1,3 do

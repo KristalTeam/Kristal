@@ -334,7 +334,7 @@ function Map:loadPaths(layer)
             path.polygon = polygon
             path.length = 0
             for i = 1, #polygon-1 do
-                path.length = path.length + Vector.dist(polygon[i].x, polygon[i].y, polygon[i+1].x, polygon[i+1].y)
+                path.length = path.length + Utils.dist(polygon[i].x, polygon[i].y, polygon[i+1].x, polygon[i+1].y)
             end
         end
         self.paths[v.name] = path

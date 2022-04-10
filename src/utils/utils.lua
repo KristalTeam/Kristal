@@ -303,6 +303,10 @@ function Utils.lerp(a, b, t, oob)
     end
 end
 
+function Utils.lerpPoint(x1, y1, x2, y2, t, oob)
+    return Utils.lerp(x1, x2, t, oob), Utils.lerp(y1, y2, t, oob)
+end
+
 function Utils.ease(a, b, t, mode)
     return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
 end
