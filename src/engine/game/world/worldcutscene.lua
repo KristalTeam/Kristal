@@ -264,7 +264,7 @@ function WorldCutscene:panTo(...)
     return waitForCameraPan
 end
 
-local function waitForMapTransition() return Game.world.state ~= "TRANSITION_OUT" end
+local function waitForMapTransition() return Game.world.state ~= "TRANSITION" end
 function WorldCutscene:transition(...)
     Game.world:transition(...)
     return waitForMapTransition
@@ -273,6 +273,48 @@ end
 function WorldCutscene:transitionImmediate(...)
     Game.world:transitionImmediate(...)
     return _true
+end
+
+function WorldCutscene:fadeOut(speed, options)
+    options = options or {}
+
+    local fader = options["global"] and Game.fader or Game.world.fader
+
+    if speed then
+        options["speed"] = speed
+    end
+
+    local fade_done = false
+
+    fader:fadeOut(function() fade_done = true end, options)
+
+    local wait_func = function() return fade_done end
+    if options["wait"] ~= false then
+        return self:wait(wait_func)
+    else
+        return wait_func
+    end
+end
+
+function WorldCutscene:fadeIn(speed, options)
+    options = options or {}
+
+    local fader = options["global"] and Game.fader or Game.world.fader
+
+    if speed then
+        options["speed"] = speed
+    end
+
+    local fade_done = false
+
+    fader:fadeIn(function() fade_done = true end, options)
+
+    local wait_func = function() return fade_done end
+    if options["wait"] then
+        return self:wait(wait_func)
+    else
+        return wait_func
+    end
 end
 
 local function waitForTextbox(self) return self.textbox.done end
@@ -297,7 +339,7 @@ function WorldCutscene:text(text, portrait, actor, options)
 
 
     self.textbox = Textbox(56, 344, 529, 103)
-    self.textbox.layer = Game.world.layers["ui"]
+    self.textbox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.textbox)
 
     actor = actor or self.textbox_actor
@@ -349,6 +391,13 @@ function WorldCutscene:text(text, portrait, actor, options)
     end
 end
 
+function WorldCutscene:closeText()
+    if self.textbox then
+        self.textbox:remove()
+        self.textbox = nil
+    end
+end
+
 local function waitForChoicer(self) return self.choicebox.done, self.choicebox.current_choice end
 function WorldCutscene:choicer(choices, options)
     if self.textbox then
@@ -359,7 +408,7 @@ function WorldCutscene:choicer(choices, options)
     if self.choicebox then self.choicebox:remove() end
 
     self.choicebox = Choicebox(56, 344, 529, 103)
-    self.choicebox.layer = Game.world.layers["ui"]
+    self.choicebox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.choicebox)
 
     for _,choice in ipairs(choices) do

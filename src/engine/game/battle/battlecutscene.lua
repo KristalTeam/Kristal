@@ -147,6 +147,48 @@ function BattleCutscene:shakeCamera(shake)
     return cameraShakeCheck
 end
 
+function BattleCutscene:fadeOut(speed, options)
+    options = options or {}
+
+    local fader = Game.fader
+
+    if speed then
+        options["speed"] = speed
+    end
+
+    local fade_done = false
+
+    fader:fadeOut(function() fade_done = true end, options)
+
+    local wait_func = function() return fade_done end
+    if options["wait"] ~= false then
+        return self:wait(wait_func)
+    else
+        return wait_func
+    end
+end
+
+function BattleCutscene:fadeIn(speed, options)
+    options = options or {}
+
+    local fader = Game.fader
+
+    if speed then
+        options["speed"] = speed
+    end
+
+    local fade_done = false
+
+    fader:fadeIn(function() fade_done = true end, options)
+
+    local wait_func = function() return fade_done end
+    if options["wait"] then
+        return self:wait(wait_func)
+    else
+        return wait_func
+    end
+end
+
 function BattleCutscene:setSpeaker(actor)
     if isClass(actor) and (actor:includes(PartyBattler) or actor:includes(EnemyBattler)) then
         actor = actor.actor

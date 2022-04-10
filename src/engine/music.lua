@@ -17,7 +17,7 @@ end
 
 function Music:fade(to, speed, callback)
     self.target_volume = to or 0
-    self.fade_speed = speed or 0.1
+    self.fade_speed = speed or (10/30)
     self.fade_callback = callback
 end
 
@@ -70,6 +70,13 @@ function Music:play(music, volume, pitch)
     end
 end
 
+function Music:setVolume(volume)
+    self.volume = volume
+    if self.source then
+        self.source:setVolume(self:getVolume())
+    end
+end
+
 function Music:stop()
     if self.source then
         self.source:stop()
@@ -92,10 +99,38 @@ function Music:isPlaying()
     return self.source and self.source:isPlaying() or false
 end
 
+function Music:canResume()
+    return self.source ~= nil and not self.source:isPlaying()
+end
+
 function Music:remove()
     Utils.removeFromTable(_handlers, self)
     if self.source then
         self.source:stop()
+    end
+end
+
+-- Static Functions
+
+local function getAll()
+    return _handlers
+end
+
+local function getPlaying()
+    local result = {}
+    for _,handler in ipairs(_handlers) do
+        if handler.source and handler.source:isPlaying() then
+            table.insert(result, handler)
+        end
+    end
+    return result
+end
+
+local function stop()
+    for _,handler in ipairs(_handlers) do
+        if handler.source and handler.source:isPlaying() then
+            handler.source:stop()
+        end
     end
 end
 
@@ -111,7 +146,7 @@ end
 local function update(dt)
     for _,handler in ipairs(_handlers) do
         if handler.fade_speed ~= 0 and handler.volume ~= handler.target_volume then
-            handler.volume = Utils.approach(handler.volume, handler.target_volume, handler.fade_speed * DTMULT)
+            handler.volume = Utils.approach(handler.volume, handler.target_volume, dt / handler.fade_speed)
 
             if handler.volume == handler.target_volume then
                 handler.fade_speed = 0
@@ -151,14 +186,13 @@ local function new(music, volume, pitch)
     return handler
 end
 
-local default = new()
 local module = {
     new = new,
     update = update,
-    clear = clear
+    clear = clear,
+    stop = stop,
+    getAll = getAll,
+    getPlaying = getPlaying
 }
-for k in pairs(Music) do
-    module[k] = function(...) return default[k](default, ...) end
-end
 
 return setmetatable(module, {__call = function(t, ...) return new(...) end})

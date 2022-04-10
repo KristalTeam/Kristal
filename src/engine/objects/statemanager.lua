@@ -103,6 +103,16 @@ end
 function StateManager:setState(state)
     if state == self.state then return end
 
+    if self.master and self.master.beforeStateChange then
+        local result = self.master:beforeStateChange(self.state, state)
+        if result then
+            if self.update_master_state and self.master.state ~= state then
+                self.master.state = state
+            end
+            return
+        end
+    end
+
     if self.update_master_state then
         self.master.state = state
     end
@@ -116,7 +126,10 @@ function StateManager:setState(state)
     end
     self:call("enter", last_state)
     if self.on_state_change then
-        self.on_state_change(state, last_state)
+        self.on_state_change(last_state, state)
+    end
+    if self.master and self.master.onStateChange then
+        self.master:onStateChange(last_state, state)
     end
 
     self.routine_wait = 0

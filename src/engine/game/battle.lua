@@ -480,7 +480,7 @@ function Battle:onStateChange(old,new)
     elseif new == "TRANSITIONOUT" then
         self.battle_ui:transitionOut()
         if self.music ~= Game.world.music then
-            self.music:fade(0, 0.05)
+            self.music:fade(0, 20/30)
         end
         self:removeWorldEncounters()
         if Game.encounter_enemy then

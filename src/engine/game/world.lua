@@ -3,26 +3,11 @@ local World, super = Class(Object)
 function World:init(map)
     super:init(self)
 
-
-    self.layers = {
-        ["objects"]       = 1,
-
-        ["below_soul"]    = 100,
-        ["soul"]          = 200,
-        ["above_soul"]    = 300,
-
-        ["below_bullets"] = 300,
-        ["bullets"]       = 400,
-        ["above_bullets"] = 500,
-
-        ["below_ui"]      = 900,
-        ["ui"]            = 1000,
-        ["above_ui"]      = 1100
-    }
-
-
-    -- states: GAMEPLAY, TRANSITION_OUT, TRANSITION_IN
-    self.state = "GAMEPLAY"
+    -- states: GAMEPLAY, TRANSITION, MENU
+    self.state_manager = StateManager("GAMEPLAY", self, true)
+    self.state_manager:addState("GAMEPLAY")
+    self.state_manager:addState("TRANSITION")
+    self.state_manager:addState("MENU")
 
     self.music = Music()
 
@@ -56,6 +41,11 @@ function World:init(map)
 
     self.cutscene = nil
 
+    self.fader = Fader()
+    self.fader.layer = WORLD_LAYERS["above_ui"]
+    self.fader.persistent = true
+    self:addChild(self.fader)
+
     self.timer = Timer()
     self.timer.persistent = true
     self:addChild(self.timer)
@@ -78,7 +68,7 @@ function World:heal(target, amount)
         for _, actionbox in ipairs(self.healthbar.action_boxes) do
             if actionbox.chara.id == target.id then
                 local text = HPText("+" .. amount, self.healthbar.x + actionbox.x + 69, self.healthbar.y + actionbox.y + 15)
-                text.layer = self.layers.ui + 1
+                text.layer = WORLD_LAYERS["ui"] + 1
                 Game.world:addChild(text)
                 return
             end
@@ -118,7 +108,11 @@ function World:hurtParty(amount)
     end
 end
 
-function World:openMenu(menu)
+function World:setState(state)
+    self.state_manager:setState(state)
+end
+
+function World:openMenu(menu, layer)
     if self:hasCutscene() then return end
     if self.in_battle then return end
     if not self.can_open_menu then return end
@@ -139,21 +133,21 @@ function World:openMenu(menu)
         self.menu = menu
     end
     if self.menu then
-        self.state = "MENU"
-        self.menu.layer = self.layers["ui"]
+        self.menu.layer = layer and self:parseLayer(layer) or WORLD_LAYERS["ui"]
         self:addChild(self.menu)
+        self:setState("MENU")
     end
     return self.menu
 end
 
 function World:closeMenu()
-    self.state = "GAMEPLAY"
     if self.menu then
         if not self.menu.animate_out and self.menu.transitionOut then
             self.menu:transitionOut()
         end
     end
     self:hideHealthBars()
+    self:setState("GAMEPLAY")
 end
 
 function World:showHealthBars()
@@ -163,7 +157,7 @@ function World:showHealthBars()
         self.healthbar:transitionIn()
     else
         self.healthbar = HealthBar()
-        self.healthbar.layer = self.layers["ui"]
+        self.healthbar.layer = WORLD_LAYERS["ui"]
         self:addChild(self.healthbar)
     end
 end
@@ -173,6 +167,22 @@ function World:hideHealthBars()
         if not self.healthbar.animate_out then
             self.healthbar:transitionOut()
         end
+    end
+end
+
+function World:onStateChange(old, new)
+    if new == "TRANSITION" then
+        self.transition_target = self.transition_target or {}
+        if self.transition_target.map and type(self.transition_target.map) == "string" then
+            local map = Registry.createMap(self.transition_target.map)
+            self.transition_target.map = map
+            self:transitionMusic(map.music, true)
+        end
+        Game.fader:transition(function()
+            self:transitionImmediate(self.transition_target or {})
+            self.transition_target = nil
+            self:setState("GAMEPLAY")
+        end)
     end
 end
 
@@ -313,7 +323,7 @@ function World:spawnPlayer(...)
 
     self.soul = OverworldSoul(x + 10, y + 24) -- TODO: unhardcode
     self.soul:setColor(Game:getSoulColor())
-    self.soul.layer = self.layers["soul"]
+    self.soul.layer = WORLD_LAYERS["soul"]
     self:addChild(self.soul)
 
     if self.camera_attached then
@@ -421,7 +431,7 @@ function World:spawnBullet(bullet, ...)
         table.remove(arg, 1)
         new_bullet = WorldBullet(x, y, bullet, unpack(arg))
     end
-    new_bullet.layer = self.layers["bullets"]
+    new_bullet.layer = WORLD_LAYERS["bullets"]
     new_bullet.world = self
     table.insert(self.bullets, new_bullet)
     if not new_bullet.parent then
@@ -478,7 +488,7 @@ end
 
 function World:parseLayer(layer)
     return (type(layer) == "number" and layer)
-            or self.layers[layer]
+            or WORLD_LAYERS[layer]
             or self.map.layers[layer]
             or self.map.object_layer
 end
@@ -534,7 +544,7 @@ function World:transitionMusic(next, dont_play)
     if next and next ~= "" then
         if self.music.current ~= next then
             if self.music:isPlaying() then
-                self.music:fade(0, 0.1, function()
+                self.music:fade(0, 10/30, function()
                     if not dont_play then
                         self.music:play(next, 1)
                     else
@@ -555,7 +565,7 @@ function World:transitionMusic(next, dont_play)
         end
     else
         if self.music:isPlaying() then
-            self.music:fade(0, 0.1, function() self.music:stop() end)
+            self.music:fade(0, 10/30, function() self.music:stop() end)
         end
     end
 end
@@ -596,13 +606,8 @@ local function parseTransitionTargetArgs(...)
 end
 
 function World:transition(...)
-    self.state = "TRANSITION_OUT"
     self.transition_target = parseTransitionTargetArgs(...)
-    if self.transition_target.map and type(self.transition_target.map) == "string" then
-        local map = Registry.createMap(self.transition_target.map)
-        self.transition_target.map = map
-        self:transitionMusic(map.music, true)
-    end
+    self:setState("TRANSITION")
 end
 
 function World:transitionImmediate(...)
@@ -679,21 +684,7 @@ function World:update(dt)
         end
     end
 
-    -- Fade transition
-    if self.state == "TRANSITION_OUT" then
-        self.transition_fade = Utils.approach(self.transition_fade, 1, dt / 0.25)
-        if self.transition_fade == 1 then
-            self:transitionImmediate(self.transition_target or {})
-            self.transition_target = nil
-            self.state = "TRANSITION_IN"
-        end
-    elseif self.state == "TRANSITION_IN" then
-        self.transition_fade = Utils.approach(self.transition_fade, 0, dt / 0.25)
-        if self.transition_fade == 0 then
-            self.state = "GAMEPLAY"
-        end
-    end
-    if self.state == "GAMEPLAY" or self.state == "TRANSITION_IN" then
+    if self.state == "GAMEPLAY" then
         -- Object collision
         local collided = {}
         Object.startCache()
@@ -772,11 +763,6 @@ function World:draw()
             collision:draw(0, 1, 1, 0.5)
         end
     end
-
-    -- Draw transition fade
-    love.graphics.setColor(0, 0, 0, self.transition_fade)
-    love.graphics.rectangle("fill", 0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
-    love.graphics.setColor(1, 1, 1)
 end
 
 return World

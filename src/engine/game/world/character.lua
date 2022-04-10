@@ -395,7 +395,7 @@ function Character:statusMessage(type, arg, color, kill)
     if kill then
         percent.kill_others = true
     end
-    percent.layer = self.world.layers["below_ui"]
+    percent.layer = WORLD_LAYERS["below_ui"]
     self.world:addChild(percent)
 
     return percent

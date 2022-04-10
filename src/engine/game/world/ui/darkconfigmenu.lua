@@ -50,7 +50,7 @@ function DarkConfigMenu:update(dt)
             elseif self.currently_selected == 5 then
                 Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.currently_selected == 6 then
-                Game.state = "EXIT"
+                Game:returnToMenu()
             elseif self.currently_selected == 7 then
                 Game.world.menu:closeBox()
             end

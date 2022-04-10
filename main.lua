@@ -238,9 +238,6 @@ function love.load(args)
     -- initialize overlay
     Kristal.Overlay:init()
 
-    -- initialize music
-    Music.init()
-
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")

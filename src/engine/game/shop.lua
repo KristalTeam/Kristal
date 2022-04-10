@@ -280,8 +280,8 @@ function Shop:leaveImmediate()
     self:remove()
     Game.shop = nil
     Game.state = "OVERWORLD"
-    Game.world.transition_fade = 1
-    Game.world.state = "TRANSITION_IN"
+    Game.fader.alpha = 1
+    Game.fader:fadeIn()
 end
 
 function Shop:onTalk()

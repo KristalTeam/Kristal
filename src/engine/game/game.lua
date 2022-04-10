@@ -74,6 +74,23 @@ function Game:leave()
     self.quick_save = nil
 end
 
+function Game:returnToMenu()
+    self.fader:fadeOut(Kristal.returnToMenu, {speed = 0.5, music = 10/30})
+    self.state = "EXIT"
+end
+
+function Game:getActiveMusic()
+    if self.state == "OVERWORLD" then
+        return self.world.music
+    elseif self.state == "BATTLE" then
+        return self.battle.music
+    elseif self.state == "SHOP" then
+        return self.shop.music
+    else
+        return self.music
+    end
+end
+
 function Game:getSavePreview()
     return {
         name = self.save_name,
@@ -144,8 +161,6 @@ function Game:load(data, index)
     self.stage = Stage()
 
     self.world = World()
-    self.world.state = "TRANSITION_IN"
-    self.world.transition_fade = 1
     self.stage:addChild(self.world)
 
     if not self.console then
@@ -156,6 +171,8 @@ function Game:load(data, index)
     end
 
     self.fader = Fader()
+    self.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+    self.fader.layer = 1000
     self.stage:addChild(self.fader)
 
     self.battle = nil
@@ -615,17 +632,7 @@ end
 
 function Game:update(dt)
     if self.state == "EXIT" then
-        if self.world and self.world.music then
-            self.world.music:fade(0, 0.1)
-        end
-        if self.battle and self.battle.music then
-            self.battle.music:fade(0, 0.1)
-        end
-        self.fade_white = false
-        self.fader_alpha = self.fader_alpha + (dt*2)
-        if self.fader_alpha >= 1 then
-            Kristal.returnToMenu()
-        end
+        self.fader:update(dt)
         return
     end
 

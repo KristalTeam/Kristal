@@ -32,6 +32,23 @@ BATTLE_LAYERS = {
     [           "top"] =  1000
 }
 
+WORLD_LAYERS = {
+    [       "bottom"] = -100,
+    [   "below_soul"] =  100,
+    [         "soul"] =  200,
+    [   "above_soul"] =  300, --┰-- 300
+    ["below_bullets"] =  300, --┙
+    [      "bullets"] =  400,
+    ["above_bullets"] =  500, --┰-- 500
+    [     "below_ui"] =  500, --┙
+    [           "ui"] =  600,
+    [     "above_ui"] =  700, --┰-- 700
+    ["below_textbox"] =  700, --┙
+    [      "textbox"] =  800,
+    ["above_textbox"] =  900,
+    [          "top"] = 1000
+}
+
 MUSIC_VOLUME = 0.7
 MUSIC_VOLUMES = {
     ["battle"] = 0.7
