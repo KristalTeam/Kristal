@@ -18,5 +18,12 @@
     "transition": false,
 
     "quickReload": true,
-    "hidden": false
+    "hidden": false,
+
+    "config": {
+        "virovirokun": {
+            "enable_cook": true,
+            "enable_quarantine": true
+        }
+    }
 }

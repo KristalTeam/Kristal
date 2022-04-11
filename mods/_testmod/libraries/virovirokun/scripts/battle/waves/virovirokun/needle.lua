@@ -1,6 +1,6 @@
-local Vironeedle, super = Class(Wave)
+local Needle, super = Class(Wave)
 
-function Vironeedle:onStart()
+function Needle:onStart()
     local attackers = self:getAttackers()
 
     local ratio = self:getEnemyRatio()
@@ -9,24 +9,24 @@ function Vironeedle:onStart()
         local arena = Game.battle.arena
 
         local x, y = arena.right + 40 + Utils.random(140), Utils.random(arena.top, arena.bottom)
-        self:spawnBullet("vironeedle", x, y, #attackers > 1)
+        self:spawnBullet("virovirokun/needle", x, y, #attackers > 1)
 
         if #attackers > 1 then
             x, y = arena.left - 40 - Utils.random(140), Utils.random(arena.top, arena.bottom)
-            self:spawnBullet("vironeedle", x, y, true, true)
+            self:spawnBullet("virovirokun/needle", x, y, true, true)
         end
     end)
 end
 
-function Vironeedle:update(dt)
+function Needle:update(dt)
     super:update(self, dt)
 
     Object.startCache()
     local infected = {}
     for _,needle in ipairs(self.bullets) do
-        if needle.collidable and needle:isBullet("vironeedle") then
+        if needle.collidable and needle:isBullet("virovirokun/needle") then
             for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
-                if not bullet:isBullet("virovirus") and (not bullet:isBullet("vironeedle") or bullet:getDirection() ~= needle:getDirection()) then
+                if not bullet:isBullet("virovirokun/virus") and (not bullet:isBullet("virovirokun/needle") or bullet:getDirection() ~= needle:getDirection()) then
                     if not infected[bullet] and bullet:collidesWith(needle.infect_collider) then
                         infected[bullet] = true
                         needle:infect(bullet)
@@ -39,7 +39,7 @@ function Vironeedle:update(dt)
     Object.endCache()
 end
 
-function Vironeedle:getEnemyRatio()
+function Needle:getEnemyRatio()
     local enemies = #Game.battle:getActiveEnemies()
     if enemies <= 1 then
         return 1
@@ -50,4 +50,4 @@ function Vironeedle:getEnemyRatio()
     end
 end
 
-return Vironeedle
+return Needle

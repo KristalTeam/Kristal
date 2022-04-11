@@ -15,31 +15,5 @@ return {
         enemy:explode(0, 0, true)
         enemy:hurt(enemy.health * 0.75, battler)
         cutscene:text("* She forgot to poke holes in it![wait:5]\nThe hot dog exploded!")
-        -- Note: the following isn't part of the original act, it's here for testing battle cutscenes!
-        cutscene:enemyText(enemy, "Dumbass")
-        cutscene:gotoCutscene("virovirokun", "sussy", enemy)
-        cutscene:text("* I,[wait:5] uh,[wait:5] meant to do that.[face:1]", "nervous", "susie", {faces={
-            {"ralsei", "pleased", "rightmid", "bottommid", "It's OK, Susie..."}
-        }})
-    end,
-
-    sussy = function(cutscene, enemy)
-        local text = {"* SUSSY", "* SUS", "* IMPOSTOR", "* AMONG US"}
-        for i = 1, 15 do
-            cutscene:text("[speed:2]"..Utils.pick(text), "teeth_b", "susie", {auto = true})
-        end
-        local wait = cutscene:enemyText(enemy, "Please shut up", {wait = false})
-        local count = 0
-        while not wait(cutscene) do
-            count = count + 1
-            cutscene:text("[speed:2]"..Utils.pick(text), "teeth_b", "susie", {auto = true})
-            if count == 60 then
-                for _,other in ipairs(Game.battle.enemies) do
-                    if other ~= enemy then
-                        wait = cutscene:enemyText(other, "Seriously shut up", {wait = false})
-                    end
-                end
-            end
-        end
-    end,
+    end
 }

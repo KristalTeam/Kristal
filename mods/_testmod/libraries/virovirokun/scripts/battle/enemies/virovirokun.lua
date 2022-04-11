@@ -18,8 +18,8 @@ function Virovirokun:init()
     self.spare_points = 20
 
     self.waves = {
-        "vironeedle"
-        --"solidtest"
+        "virovirokun/needle",
+        "virovirokun/invader"
     }
 
     self.check = "This sick virus\nneeds affordable healthcare."
@@ -35,13 +35,23 @@ function Virovirokun:init()
 
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", "all")
-    --self:registerAct("TakeCareX", "", {"kris", "susie", "ralsei"})
-    --self:registerAct("TakeCareX", "", {"kris", "noelle"})
-    self:registerShortAct("Quarantine", "Make\nenemy\nTIRED", {"kris"})
-    self:registerActFor("kris", "R-Cook", "", {"ralsei"})
-    self:registerActFor("kris", "S-Cook", "", {"susie"})
-    self:registerActFor("ralsei", "Cook")
-    self:registerActFor("susie", "Cook")
+
+    -- Unused Deltarune act
+    if Kristal.getLibConfig("virovirokun", "enable_cook") then
+        self:registerActFor("ralsei", "Cook")
+        self:registerActFor("susie", "Cook")
+
+        local act_leader = Game:getActLeader()
+        if act_leader then
+            self:registerActFor(act_leader.id, "R-Cook", "", {"ralsei"})
+            self:registerActFor(act_leader.id, "S-Cook", "", {"susie"})
+        end
+    end
+
+    -- Custom Kristal act, made for testing
+    if Kristal.getLibConfig("virovirokun", "enable_quarantine") then
+        self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
+    end
 
     self.text_override = nil
 end
@@ -51,27 +61,23 @@ function Virovirokun:isXActionShort(battler)
 end
 
 function Virovirokun:onActStart(battler, name)
-    local kris_outfit = {"kris_virokun_nurse", "kris_virokun_doctor"}
-    local sprite_lookup = {
-        ["kris"] = kris_outfit[math.random(2)],
-        ["susie"] = "susie_virokun",
-        ["ralsei"] = "ralsei_virokun",
-        ["noelle"] = "noelle_virokun"
-    }
-    local offset_lookup = {
-        ["kris"]   = {4, 12 - 18 + 8},
-        ["susie"]  = {6, 12 + 16 - 28},
-        ["ralsei"] = {4 - 10, -12 + 13},
-        ["noelle"] = {7, 0}
-    }
+    local sprite_lookup = Kristal.getLibConfig("virovirokun", "take_care_sprites", true)
+    local offset_lookup = Kristal.getLibConfig("virovirokun", "take_care_offsets", true)
+
+    local function getSpriteAndOffset(id)
+        local selected_sprite = sprite_lookup[id] or ("enemies/virovirokun/take_care/"..id)
+        if type(selected_sprite) == "table" then
+            selected_sprite = Utils.pick(sprite_lookup[id])
+        end
+        local selected_offset = offset_lookup[id] or {0, 0}
+        return selected_sprite, selected_offset[1], selected_offset[2]
+    end
 
     if name == "TakeCare" then
-        local id = battler.chara.id
-        battler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
+        battler:setActSprite(getSpriteAndOffset(battler.chara.id))
     elseif name == "TakeCareX" then
         for _,ibattler in ipairs(Game.battle.party) do
-            local id = ibattler.chara.id
-            ibattler:setActSprite(sprite_lookup[id], offset_lookup[id][1], offset_lookup[id][2])
+            ibattler:setActSprite(getSpriteAndOffset(ibattler.chara.id))
         end
     else
         super:onActStart(self, battler, name)
@@ -80,7 +86,6 @@ end
 
 function Virovirokun:onShortAct(battler, name)
     if name == "Quarantine" then
-        print("telling virovirokun to stay home, naughty naughty")
         if battler.chara.id == "kris" then
             return "* You told Virovirokun to stay home."
         else
@@ -108,9 +113,6 @@ function Virovirokun:onAct(battler, name)
         self:setTired(true)
         self.text_override = "Fine..."
         return "* You told Virovirokun to stay home.\nVirovirokun became [color:blue]TIRED[color:reset]..."
-
-        --local heck = DamageNumber("damage", love.math.random(600), 200, 200, battler.actor.dmg_color)
-        --self.parent:addChild(heck)
     elseif name == "TakeCareX" then
         for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
             if enemy.id == "virovirokun" then

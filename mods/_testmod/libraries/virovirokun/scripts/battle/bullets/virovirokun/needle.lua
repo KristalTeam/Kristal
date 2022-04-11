@@ -1,11 +1,11 @@
-local Vironeedle, super = Class(Bullet)
+local Needle, super = Class(Bullet)
 
-function Vironeedle:init(x, y, slow, right)
+function Needle:init(x, y, slow, right)
     super:init(self, x, y)
 
     self.collidable = false
 
-    self:setSprite("bullets/viro_needle", 1/15, false, function() self.collidable = true end)
+    self:setSprite("bullets/virovirokun/needle", 1/15, false, function() self.collidable = true end)
     self:setHitbox(4, 6.5, 7, 2)
 
     self.infect_collider = Hitbox(self, 1, 5, 14, 5)
@@ -26,28 +26,49 @@ function Vironeedle:init(x, y, slow, right)
     self.infecting = false
 end
 
-function Vironeedle:infect(other)
-    other:remove()
+function Needle:infect(other)
+    if not other.parent or not self.parent then return end
+
     self.collidable = false
     self.infecting = true
     self.physics.speed = 0
+
     self:setLayer(math.max(self.layer, other.layer) + 0.01)
-    self:setPosition(Utils.lerpPoint(self.x,self.y, other.x,other.y, 0.5))
-    self.sprite:setSprite("bullets/viro_needle_pop")
+
+    local ox, oy = other:getRelativePosFor(self.parent)
+
+    if other.id == self.id then
+        self:setPosition(Utils.lerpPoint(self.x,self.y, ox,oy, 0.5))
+    else
+        self:setPosition(ox, oy)
+    end
+
+    local poison_sprite = Sprite("bullets/virovirokun/poison_big", ox, oy)
+    poison_sprite:setOrigin(0.5, 0.5)
+    poison_sprite:setScale(2, 2)
+    poison_sprite:setLayer(self.layer + 0.01)
+    poison_sprite:play(2/30, false, function(sprite)
+        sprite:remove()
+    end)
+    self.parent:addChild(poison_sprite)
+
+    self.sprite:setSprite("bullets/virovirokun/needle_pop")
     self.sprite:setAnimation(function(sprite, wait)
         for i = 1,3 do
             sprite:setFrame(i)
             wait(1/30)
         end
-        local bullet = self.wave:spawnBullet("virovirus", self.x, self.y)
+        local bullet = self.wave:spawnBullet("virovirokun/virus", self.x, self.y)
         bullet:setLayer(self.layer - 0.01)
         sprite:setFrame(4)
         wait(1/30)
         self:remove()
     end)
+
+    other:remove()
 end
 
-function Vironeedle:update(dt)
+function Needle:update(dt)
     if (self.rotation == 0 and self.x > Game.battle.arena.right + 10) or (self.rotation == math.pi and self.x < Game.battle.arena.left - 10) then
         self.collidable = false
         self:fadeTo(0, 0.1)
@@ -61,7 +82,7 @@ function Vironeedle:update(dt)
     super:update(self, dt)
 end
 
-function Vironeedle:draw()
+function Needle:draw()
     super:draw(self)
 
     if DEBUG_RENDER then
@@ -69,4 +90,4 @@ function Vironeedle:draw()
     end
 end
 
-return Vironeedle
+return Needle
