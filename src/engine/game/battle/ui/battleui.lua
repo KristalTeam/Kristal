@@ -11,7 +11,7 @@ function BattleUI:init()
     self.encounter_text:setText(self.current_encounter_text)
     self:addChild(self.encounter_text)
 
-    self.choice_box = Choicebox(56, 53, 529, 103, true)
+    self.choice_box = Choicebox(56, 49, 529, 103, true)
     self.choice_box.active = false
     self.choice_box.visible = false
     self:addChild(self.choice_box)
