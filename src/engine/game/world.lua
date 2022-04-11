@@ -188,7 +188,7 @@ end
 
 function World:keypressed(key)
     if Game.console.is_open then return end
-    if Kristal.Config["debug"] then
+    if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
         if key == "m" then
             if self.music then
                 if self.music:isPlaying() then

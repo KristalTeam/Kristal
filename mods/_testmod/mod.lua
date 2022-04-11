@@ -86,7 +86,7 @@ function Mod:getActionButtons(battler, buttons)
 end
 
 function Mod:onKeyPressed(key)
-    if Kristal.Config["debug"] then
+    if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
         if Game.battle and Game.battle.state == "ACTIONSELECT" then
             if key == "5" then
                 Game.battle.music:play("mus_xpart_2")
