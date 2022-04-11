@@ -5,6 +5,7 @@ DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "
 function DialogueText:init(text, x, y, w, h, font, style)
     self.custom_command_wait = {}
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
+    self.skippable = true
     self.skip_speed = false
 end
 
@@ -52,7 +53,7 @@ end
 
 function DialogueText:update(dt)
     local speed = self.state.speed
-    if (Input.down("cancel") and not self.state.noskip) or Input.down("menu") then
+    if self.skippable and ((Input.down("cancel") and not self.state.noskip) or Input.down("menu")) then
         if not self.skip_speed then
             self.state.skipping = true
         else

@@ -373,10 +373,12 @@ function WorldCutscene:text(text, portrait, actor, options)
         end
     end
 
-    self.textbox:setText(text)
+    self.textbox:setSkippable(options["skip"] or options["skip"] == nil)
 
     self.textbox.can_advance = options["advance"] or options["advance"] == nil
     self.textbox.auto_advance = options["auto"]
+
+    self.textbox:setText(text)
 
     local wait = options["wait"] or options["wait"] == nil
     if not self.textbox.can_advance then

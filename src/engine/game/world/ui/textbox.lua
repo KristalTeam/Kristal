@@ -109,24 +109,23 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
 end
 
 function Textbox:update(dt)
-    if self.can_advance then
-        if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
-            if not self:isTyping() then
-                self.done = true
-                if not self.battle_box then
-                    self:remove()
-                    if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
-                        Game.world.cutscene.waiting_for_text = nil
-                        Game.world.cutscene:resume()
-                    end
-                elseif self.text.text ~= "" then
-                    self:setText("")
-                    self:setActor()
-                    self:setFace()
-                    if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
-                        Game.battle.cutscene.waiting_for_text = nil
-                        Game.battle.cutscene:resume()
-                    end
+    local input = self.can_advance and (Input.pressed("confirm") or Input.down("menu"))
+    if input or self.auto_advance then
+        if not self:isTyping() then
+            self.done = true
+            if not self.battle_box then
+                self:remove()
+                if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
+                    Game.world.cutscene.waiting_for_text = nil
+                    Game.world.cutscene:resume()
+                end
+            elseif self.text.text ~= "" then
+                self:setText("")
+                self:setActor()
+                self:setFace()
+                if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
+                    Game.battle.cutscene.waiting_for_text = nil
+                    Game.battle.cutscene:resume()
                 end
             end
         end
@@ -185,6 +184,10 @@ function Textbox:setFont(font, size)
         self.font = font
         self.font_size = size
     end
+end
+
+function Textbox:setSkippable(skippable)
+    self.text.skippable = skippable or false
 end
 
 function Textbox:resetReactions()

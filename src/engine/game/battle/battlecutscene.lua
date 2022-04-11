@@ -44,8 +44,15 @@ function BattleCutscene:onEnd()
         Game.battle.battle_ui.encounter_text:setActor(nil)
         Game.battle.battle_ui.encounter_text:setFace(nil)
         Game.battle.battle_ui.encounter_text:setFont()
+        Game.battle.battle_ui.encounter_text:setSkippable(true)
         Game.battle.battle_ui.encounter_text.can_advance = false
         Game.battle.battle_ui.encounter_text.auto_advance = false
+        Game.battle.battle_ui.encounter_text.active = true
+        Game.battle.battle_ui.encounter_text.visible = true
+
+        Game.battle.battle_ui.choice_box:clearChoices()
+        Game.battle.battle_ui.choice_box.active = false
+        Game.battle.battle_ui.choice_box.visible = false
     end
 
     self:resetSprites()
@@ -232,10 +239,12 @@ function BattleCutscene:text(text, portrait, actor, options)
         Game.battle.battle_ui.encounter_text:setFont()
     end
 
-    Game.battle.battle_ui.encounter_text:setText(text)
+    Game.battle.battle_ui.encounter_text:setSkippable(options["skip"] or options["skip"] == nil)
 
     Game.battle.battle_ui.encounter_text.can_advance = options["advance"] or options["advance"] == nil
     Game.battle.battle_ui.encounter_text.auto_advance = options["auto"] or false
+
+    Game.battle.battle_ui.encounter_text:setText(text)
 
     local wait = options["wait"] or options["wait"] == nil
     if not Game.battle.battle_ui.encounter_text.can_advance then
@@ -289,6 +298,30 @@ function BattleCutscene:enemyText(enemies, text, options)
             end
             return true
         end, textboxes
+    end
+end
+
+local function waitForChoicer() return Game.battle.battle_ui.choice_box.done, Game.battle.battle_ui.choice_box.current_choice end
+function BattleCutscene:choicer(choices, options)
+    options = options or {}
+
+    Game.battle.battle_ui.choice_box.active = true
+    Game.battle.battle_ui.choice_box.visible = true
+    Game.battle.battle_ui.encounter_text.active = false
+    Game.battle.battle_ui.encounter_text.visible = false
+
+    Game.battle.battle_ui.choice_box.done = false
+
+    Game.battle.battle_ui.choice_box:clearChoices()
+    for _,choice in ipairs(choices) do
+        Game.battle.battle_ui.choice_box:addChoice(choice)
+    end
+
+    if options["wait"] or options["wait"] == nil then
+        self.waiting_for_text = Game.battle.battle_ui.choice_box
+        return self:pause()
+    else
+        return waitForChoicer, Game.battle.battle_ui.choice_box
     end
 end
 

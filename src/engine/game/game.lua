@@ -571,8 +571,6 @@ end
 function Game:getPartyMember(id)
     if self.party_data[id] then
         return self.party_data[id]
-    else
-        error("Party member not registered: "..id)
     end
 end
 

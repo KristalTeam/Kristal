@@ -1,13 +1,14 @@
 local Choicebox, super = Class(Object)
 
-function Choicebox:init(x, y, width, height, no_background)
+function Choicebox:init(x, y, width, height, battle_box)
     super:init(self, x, y, width, height)
 
     self.box = DarkBox(0, 0, width, height)
     self.box.layer = -1
     self:addChild(self.box)
 
-    if no_background then
+    self.battle_box = battle_box
+    if battle_box then
         self.box.visible = false
     end
 
@@ -36,12 +37,26 @@ function Choicebox:update(dt)
     if Input.pressed("confirm") then
         if self.current_choice ~= 0 then
             self.done = true
-            self:remove()
 
-            if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
-                Game.world.cutscene.waiting_for_text = nil
-                Game.world.cutscene.choice = self.current_choice
-                Game.world.cutscene:resume(self.current_choice)
+            if not self.battle_box then
+                self:remove()
+                if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
+                    Game.world.cutscene.waiting_for_text = nil
+                    Game.world.cutscene.choice = self.current_choice
+                    Game.world.cutscene:resume(self.current_choice)
+                end
+            else
+                local selected_choice = self.current_choice
+                self:clearChoices()
+                self.active = false
+                self.visible = false
+                Game.battle.battle_ui.encounter_text.active = true
+                Game.battle.battle_ui.encounter_text.visible = true
+                if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
+                    Game.battle.cutscene.waiting_for_text = nil
+                    Game.battle.cutscene.choice = selected_choice
+                    Game.battle.cutscene:resume(selected_choice)
+                end
             end
         end
     end
@@ -92,6 +107,11 @@ function Choicebox:setSize(w, h)
 
     self.text:setSize(self.width, self.height)
     self.box:setSize(self.width, self.height)
+end
+
+function Choicebox:clearChoices()
+    self.choices = {}
+    self.current_choice = 0
 end
 
 function Choicebox:addChoice(name)
