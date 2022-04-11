@@ -12,7 +12,7 @@ function Console:init()
     self.font = Assets.getFont(self.font_name, self.font_size)
 
     self.history = {
-        {"Welcome to ", {0.5, 1, 1}, "KRISTAL", {1, 1, 1}, "! This is the debug console."},
+        "Welcome to [color:cyan]KRISTAL[color:white]! This is the debug console.",
         "You can enter Lua here to be ran! Use clear() to clear the console.",
         "",
     }
@@ -106,18 +106,64 @@ function Console:update(dt)
     end
 end
 
-function Console:print(text, x, y)
+function Console:print(text, x, y, ignore_modifiers)
+    -- loop through chars in text
+    local x_offset = 0
+
+    local in_modifier = false
+    local modifier_text = ""
+
+    for i = 1, #text do
+        local char = text:sub(i,i)
+        if char == "[" and (not ignore_modifiers) then
+            in_modifier = true
+        elseif char == "]" and (not ignore_modifiers) then
+            in_modifier = false
+            local modifier = Utils.split(modifier_text, ":", false)
+            if modifier[1] == "color" then
+                color = {1, 1, 1, 1}
+                if modifier[2] == "cyan" then
+                    color = {0.5, 1, 1, 1}
+                elseif modifier[2] == "white" then
+                    color = {1, 1, 1, 1}
+                elseif modifier[2] == "yellow" then
+                    color = {1, 1, 0.5, 1}
+                elseif modifier[2] == "red" then
+                    color = {1, 0.5, 0.5, 1}
+                elseif modifier[2] == "gray" then
+                    color = {0.8, 0.8, 0.8, 1}
+                end
+                love.graphics.setColor(color)
+            else
+                modifier_text = "[" .. modifier_text .. "]"
+                for j = 1, #modifier_text do
+                    local char2 = modifier_text:sub(j,j)
+                    self:printChar(char2, x + x_offset, y)
+                    x_offset = x_offset + self.font:getWidth(char2)
+                end
+            end
+            modifier_text = ""
+        elseif in_modifier and (not ignore_modifiers) then
+            modifier_text = modifier_text .. char
+        else
+            self:printChar(char, x + x_offset, y)
+            x_offset = x_offset + self.font:getWidth(char)
+        end
+    end
+end
+
+function Console:printChar(char, x, y)
     local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(r / 2, g / 2, b / 2, a / 2)
 
-    love.graphics.print(text, x + 1, y)
-    love.graphics.print(text, x - 1, y)
-    love.graphics.print(text, x, y + 1)
-    love.graphics.print(text, x, y - 1)
+    love.graphics.print(char, x + 1, y)
+    love.graphics.print(char, x - 1, y)
+    love.graphics.print(char, x, y + 1)
+    love.graphics.print(char, x, y - 1)
 
     love.graphics.setColor(r, g, b, a)
 
-    love.graphics.print(text, x, y)
+    love.graphics.print(char, x, y)
 end
 
 function Console:draw()
@@ -136,12 +182,16 @@ function Console:draw()
 
     local y_offset = self.height
     for line, text in ipairs(self.history) do
-        y_offset = y_offset - #Utils.split(Utils.coloredToString(text), "\n", false)
+        y_offset = y_offset - #Utils.split(text, "\n", false)
     end
 
     for line, text in ipairs(self.history) do
-        self:print(text, 8, y_offset * 16)
-        y_offset = y_offset + #Utils.split(Utils.coloredToString(text), "\n", false)
+        local lines = Utils.split(text, "\n", false)
+        for line2, text2 in ipairs(lines) do
+            self:print(text2, 8, y_offset * 16)
+            y_offset = y_offset + 1
+        end
+
         if y_offset >= self.height then
             break
         end
@@ -202,15 +252,27 @@ function Console:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
     for i, text in ipairs(self.input) do
-        self:print("> " .. text, 8, input_pos + (i - 1) * 16)
+        if #self.input == 1 then
+            self:print("> " .. text, 8, input_pos + (i - 1) * 16, true)
+        else
+            local prefix = ""
+            if i == 1 then
+                prefix = "┌ "
+            elseif i == #self.input then
+                prefix = "└ "
+            else
+                prefix = "│ "
+            end
+            self:print(prefix .. text, 8, input_pos + (i - 1) * 16, true)
+        end
     end
 
     love.graphics.setColor(1, 0, 1, 1)
     if self.flash_timer < 0.5 then
         if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
-            self:print("_", cursor_pos_x, cursor_pos_y)
+            self:print("_", cursor_pos_x, cursor_pos_y, true)
         else
-            self:print("|", cursor_pos_x, cursor_pos_y)
+            self:print("|", cursor_pos_x, cursor_pos_y, true)
         end
     end
 
@@ -354,18 +416,18 @@ function Console:push(str)
 end
 
 function Console:log(str)
-    print("[CONSOLE]" .. tostring(str))
+    print("[CONSOLE] " .. tostring(str))
     self:push(str)
 end
 
 function Console:warn(str)
-    print("[WARNING]" .. tostring(str))
-    self:push({{1, 1, 0.5}, "[WARNING] " .. tostring(str)})
+    print("[WARNING] " .. tostring(str))
+    self:push("[color:yellow][WARNING] " .. tostring(str))
 end
 
 function Console:error(str)
-    print("[ERROR]" .. tostring(str))
-    self:push({{1, 0.5, 0.5}, "[ERROR] " .. tostring(str)})
+    print("[ERROR] " .. tostring(str))
+    self:push("[color:red][ERROR] " .. tostring(str))
 end
 
 function Console:stripError(str)
@@ -378,14 +440,29 @@ function Console:run(str)
     end
     self.history_index = #self.command_history + 1
     local run_string = ""
+    local history_string = "[color:gray]"
     for i, line in ipairs(str) do
+        local prefix = "> "
+
+        if #str > 1 then
+            if i == 1 then
+                prefix = "┌ "
+            elseif i == #str then
+                prefix = "└ "
+            else
+                prefix = "│ "
+            end
+        end
+
         if i == #str then
-            run_string = run_string .. line
+            history_string = history_string .. prefix .. line
+            run_string     = run_string     ..           line
         else
-            run_string = run_string .. line .. "\n"
+            history_string = history_string .. prefix .. line .. "\n"
+            run_string     = run_string     ..           line .. "\n"
         end
     end
-    self:push({{0.8, 0.8, 0.8}, "> " .. run_string})
+    self:push(history_string)
     local status, error = pcall(function() self:unsafeRun(run_string) end)
     if not status then
         self:error(self:stripError(error))
@@ -431,6 +508,9 @@ function Console:keypressed(key)
             self.cursor_x = 0
             self.cursor_x_tallest = 0
             self.cursor_y = 1
+            self.cursor_select_x = 0
+            self.cursor_select_y = 0
+            self.selecting = false
             self.flash_timer = 0
         end
     elseif key == "tab" then
@@ -475,7 +555,14 @@ function Console:keypressed(key)
                 self.selecting = true
             end
         else
-            self.selecting = false
+            if self.selecting then
+                self.selecting = false
+                if self.cursor_y > self.cursor_select_y then
+                    self.cursor_y = self.cursor_select_y
+                    self.cursor_x = self.cursor_select_x
+                    self.cursor_x_tallest = self.cursor_x
+                end
+            end
         end
 
         self.flash_timer = 0
@@ -501,7 +588,15 @@ function Console:keypressed(key)
                 self.selecting = true
             end
         else
-            self.selecting = false
+            if self.selecting then
+                self.selecting = false
+
+                if self.cursor_y < self.cursor_select_y then
+                    self.cursor_y = self.cursor_select_y
+                    self.cursor_x = self.cursor_select_x
+                    self.cursor_x_tallest = self.cursor_x
+                end
+            end
         end
         self.flash_timer = 0
         if self.cursor_y == #self.input then
@@ -529,7 +624,15 @@ function Console:keypressed(key)
                 self.selecting = true
             end
         else
-            self.selecting = false
+            if self.selecting then
+                self.selecting = false
+                if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
+                    self.cursor_x = self.cursor_select_x
+                    self.cursor_y = self.cursor_select_y
+                    self.cursor_x_tallest = self.cursor_x
+                end
+                return
+            end
         end
         self.flash_timer = 0
         if self.cursor_x > 0 then
@@ -549,7 +652,15 @@ function Console:keypressed(key)
                 self.selecting = true
             end
         else
-            self.selecting = false
+            if self.selecting then
+                self.selecting = false
+                if (self.cursor_y < self.cursor_select_y) or (self.cursor_x < self.cursor_select_x) then
+                    self.cursor_x = self.cursor_select_x
+                    self.cursor_y = self.cursor_select_y
+                    self.cursor_x_tallest = self.cursor_x
+                end
+                return
+            end
         end
         self.flash_timer = 0
         if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
