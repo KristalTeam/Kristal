@@ -113,41 +113,48 @@ function Console:print(text, x, y, ignore_modifiers)
     local in_modifier = false
     local modifier_text = ""
 
-    for i = 1, #text do
-        local char = text:sub(i,i)
+    for char in text:gmatch(utf8.charpattern) do
+        --local char = text:sub(utf8.offset(text,i), utf8.offset(text,i))
         if char == "[" and (not ignore_modifiers) then
             in_modifier = true
         elseif char == "]" and (not ignore_modifiers) then
             in_modifier = false
             local modifier = Utils.split(modifier_text, ":", false)
             if modifier[1] == "color" then
-                color = {1, 1, 1, 1}
-                if modifier[2] == "cyan" then
-                    color = {0.5, 1, 1, 1}
-                elseif modifier[2] == "white" then
-                    color = {1, 1, 1, 1}
-                elseif modifier[2] == "yellow" then
-                    color = {1, 1, 0.5, 1}
-                elseif modifier[2] == "red" then
-                    color = {1, 0.5, 0.5, 1}
-                elseif modifier[2] == "gray" then
-                    color = {0.8, 0.8, 0.8, 1}
+                local color = {1, 1, 1, 1}
+                if modifier[2] then
+                    if Utils.startsWith(modifier[2], "#") then
+                        color = Utils.hexToRgb(modifier[2])
+                    elseif modifier[2] == "cyan" then
+                        color = {0.5, 1, 1, 1}
+                    elseif modifier[2] == "white" then
+                        color = {1, 1, 1, 1}
+                    elseif modifier[2] == "yellow" then
+                        color = {1, 1, 0.5, 1}
+                    elseif modifier[2] == "red" then
+                        color = {1, 0.5, 0.5, 1}
+                    elseif modifier[2] == "gray" then
+                        color = {0.8, 0.8, 0.8, 1}
+                    end
                 end
                 love.graphics.setColor(color)
             else
                 modifier_text = "[" .. modifier_text .. "]"
-                for j = 1, #modifier_text do
-                    local char2 = modifier_text:sub(j,j)
-                    self:printChar(char2, x + x_offset, y)
-                    x_offset = x_offset + self.font:getWidth(char2)
+                for char2 in modifier_text:gmatch(utf8.charpattern) do
+                    if char2 then
+                        self:printChar(char2, x + x_offset, y)
+                        x_offset = x_offset + self.font:getWidth(char2)
+                    end
                 end
             end
             modifier_text = ""
         elseif in_modifier and (not ignore_modifiers) then
             modifier_text = modifier_text .. char
         else
-            self:printChar(char, x + x_offset, y)
-            x_offset = x_offset + self.font:getWidth(char)
+            if char then
+                self:printChar(char, x + x_offset, y)
+                x_offset = x_offset + self.font:getWidth(char)
+            end
         end
     end
 end
