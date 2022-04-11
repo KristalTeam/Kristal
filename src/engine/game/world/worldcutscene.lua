@@ -319,7 +319,7 @@ end
 
 local function waitForTextbox(self) return self.textbox.done end
 function WorldCutscene:text(text, portrait, actor, options)
-    if type(actor) == "table" then
+    if type(actor) == "table" and not isClass(actor) then
         options = actor
         actor = nil
     end

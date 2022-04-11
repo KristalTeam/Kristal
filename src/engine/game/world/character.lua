@@ -123,15 +123,9 @@ function Character:move(x, y, speed, keep_facing)
     if not keep_facing and (movex ~= 0 or movey ~= 0) then
         local dir = self.facing
         if self.sprite.directional then
-            if movex > 0 then
-                dir = (movey ~= 0 and (dir == "down" or dir == "up")) and dir or "right"
-            elseif movex < 0 then
-                dir = (movey ~= 0 and (dir == "down" or dir == "up")) and dir or "left"
-            end
-            if movey > 0 then
-                dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "down"
-            elseif movey < 0 then
-                dir = (movex ~= 0 and (dir == "left" or dir == "right")) and dir or "up"
+            local angle = math.atan2(movey, movex)
+            if not Utils.isFacingAngle(self.facing, angle) then
+                dir = Utils.facingFromAngle(math.atan2(movey, movex))
             end
         else
             if movex > 0 then
@@ -232,7 +226,7 @@ function Character:walkTo(x, y, speed, facing, keep_facing)
         if facing and keep_facing then
             self:setFacing(facing)
         end
-        self.move_target = {true, x, y, speed or 4, facing, keep_facing}
+        self:setMoveTarget(true, x, y, speed, facing, keep_facing)
         return true
     elseif facing and self.facing ~= facing then
         self:setFacing(facing)
@@ -242,10 +236,23 @@ end
 
 function Character:slideTo(x, y, speed)
     if self.x ~= x or self.y ~= y then
-        self.move_target = {false, x, y, speed or 4}
+        self:setMoveTarget(false, x, y, speed)
         return true
     end
     return false
+end
+
+function Character:setMoveTarget(animate, x, y, speed, facing, keep_facing)
+    local angle = Utils.angle(self.x, self.y, x, y)
+    self.move_target = {
+        animate = animate,
+        x = x,
+        y = y,
+        angle = angle,
+        speed = speed or 4,
+        facing = facing,
+        keep_facing = keep_facing
+    }
 end
 
 function Character:shake(x, y)
@@ -433,16 +440,16 @@ function Character:update(dt)
 
     local target = self.move_target
     if target then
-        if self.x == target[2] and self.y == target[3] then
+        if self.x == target.x and self.y == target.y then
             self.move_target = nil
-            if target[5] then
-                self:setFacing(target[5])
+            if target.facing then
+                self:setFacing(target.facing)
             end
         end
-        local tx = Utils.approach(self.x, target[2], target[4] * DTMULT)
-        local ty = Utils.approach(self.y, target[3], target[4] * DTMULT)
-        if target[1] then
-            self:moveTo(tx, ty, target[6])
+        local tx = Utils.approach(self.x, target.x, math.abs(math.cos(target.angle)) * target.speed * DTMULT)
+        local ty = Utils.approach(self.y, target.y, math.abs(math.sin(target.angle)) * target.speed * DTMULT)
+        if target.animate then
+            self:moveTo(tx, ty, target.keep_facing)
         else
             self:setPosition(tx, ty)
         end

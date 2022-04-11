@@ -625,4 +625,35 @@ function Utils.absClamp(value, min, max)
     return math.max(min, math.min(max, math.abs(value))) * sign
 end
 
+function Utils.facingFromAngle(angle)
+    local deg = math.deg(angle) % 360
+
+    if deg >= 315 or deg <= 45 then
+        return "right"
+    elseif deg >= 45 and deg <= 135 then
+        return "down"
+    elseif deg >= 135 and deg <= 225 then
+        return "left"
+    elseif deg >= 225 and deg <= 315 then
+        return "up"
+    else
+        return "right"
+    end
+end
+
+function Utils.isFacingAngle(facing, angle)
+    local deg = math.deg(angle) % 360
+
+    if facing == "right" then
+        return deg >= 315 or deg <= 45
+    elseif facing == "down" then
+        return deg >= 45 and deg <= 135
+    elseif facing == "left" then
+        return deg >= 135 and deg <= 225
+    elseif facing == "up" then
+        return deg >= 225 and deg <= 315
+    end
+    return false
+end
+
 return Utils
