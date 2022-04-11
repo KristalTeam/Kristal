@@ -47,6 +47,18 @@ end
 
 -- Getter Functions --
 
+function Registry.getObject(id)
+    return self.new_objects[id]
+end
+
+function Registry.createObject(id, ...)
+    if self.new_objects[id] then
+        return self.new_objects[id](...)
+    else
+        error("Attempt to create non existent object \"" .. id .. "\"")
+    end
+end
+
 function Registry.getActor(id)
     return self.actors[id]
 end
@@ -268,9 +280,11 @@ function Registry.initObjects()
 
         local id = object.id or new_path
 
+        --[[
         if id:lower() == id then
             print("WARNING: Object '"..id.."' registered in lowercase!")
         end
+        ]]
 
         if _G[id] then
             print("WARNING: Object '"..id.."' already exists, replacing")

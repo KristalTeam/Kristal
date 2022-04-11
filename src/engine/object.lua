@@ -393,9 +393,20 @@ end
 function Object:getRelativePos(x, y, other)
     if not other or other == self.parent then
         return self:getTransform():transformPoint(x or 0, y or 0)
+    elseif other == self then
+        return x or 0, y or 0
     else
         local sx, sy = self:getFullTransform():transformPoint(x or 0, y or 0)
         return other:getFullTransform():inverseTransformPoint(sx, sy)
+    end
+end
+
+-- Please rename this soon
+function Object:getRelativePosFor(other)
+    if other == self then
+        return 0, 0
+    else
+        return self.parent:getRelativePos(self.x, self.y, other)
     end
 end
 
