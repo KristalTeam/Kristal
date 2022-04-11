@@ -27,20 +27,16 @@ function Shop:init()
     self.buy_no_space_text = "You're\ncarrying\ntoo much."
     -- Shown when you're in the SELL menu
     self.sell_menu_text = "What kind\nof junk\nyou got?"
-    -- Shown when you're in the SELL ITEMS menu
-    self.sell_items_text = "Alright,\ngive me\nan ITEM."
-    -- Shown when you're in the SELL WEAPONS menu
-    self.sell_weapons_text = "What WEAPON\nwill you\ngive me?"
-    -- Shown when you're in the SELL ARMOR menu
-    self.sell_armor_text = "What ARMOR\nwill you\ngive me?"
-    -- Shown when you're in the SELL POCKET ITEMS menu
-    self.sell_pocket_text = "Alright,\ngive me\nan ITEM."
     -- Shown when you try to sell an empty spot
     self.sell_nothing_text = "That's\nnothing."
+    -- Shown when you're about to sell something.
+    self.sell_confirmation_text = "Sell it for\n%s ?"
     -- Shown when you refuse to sell something
     self.sell_refuse_text = "No?"
     -- Shown when you sell something
     self.sell_text = "That's it\nfor that."
+    -- Shown when you have nothing in a storage
+    self.sell_no_storage = "You don't\nhave\nanything!"
 
     self.hide_storage_text = false
 
@@ -54,12 +50,20 @@ function Shop:init()
 
     -- MAINMENU
     self.menu_options = {
-        {"Buy",  "BUYMENU"},
+        {"Buy",  "BUYMENU" },
         {"Sell", "SELLMENU"},
         {"Talk", "TALKMENU"},
-        {"Exit", "LEAVE"}
+        {"Exit", "LEAVE"   }
     }
     self.items = {}
+
+    -- SELLMENU
+    self.sell_options = {
+        {"Sell Items",        "item",   "Alright,\ngive me\nan ITEM."    },
+        {"Sell Weapons",      "weapon", "What WEAPON\nwill you\ngive me?"},
+        {"Sell Armor",        "armor",  "What ARMOR\nwill you\ngive me?" },
+        {"Sell Pocket Items", "pocket", "Alright,\ngive me\nan ITEM."    }
+    }
 
     self:registerItem("tensionbit")
     self:registerItem("cell_phone", 1)
@@ -68,11 +72,12 @@ function Shop:init()
 
     self.background = Assets.getTexture("ui/shop/bg_seam")
 
-    -- STATES: MAINMENU, BUYMENU, SELLMENU, TALKMENU, LEAVE, LEAVING, DIALOGUE
+    -- STATES: MAINMENU, BUYMENU, SELLMENU, SELLING, TALKMENU, LEAVE, LEAVING, DIALOGUE
     self.state = "NONE"
     self.state_reason = nil
 
     self.buy_confirming = false
+    self.sell_confirming = false
 
     self.music = Music()
 
@@ -91,6 +96,11 @@ function Shop:init()
     self.main_current_selecting = 1
     -- Same here too...
     self.sell_current_selecting = 1
+    -- Oh my god
+    self.item_current_selecting = 1
+
+
+    self.item_offset = 0
 
     self.post_dialogue_func = nil
     self.post_dialogue_state = "NONE"
@@ -101,6 +111,7 @@ function Shop:init()
     self.font = Assets.getFont("main")
     self.plain_font = Assets.getFont("plain")
     self.heart_sprite = Assets.getTexture("player/heart")
+    self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
     self.stat_icons = {
         ["attack"   ] = Assets.getTexture("ui/shop/icon_attack"   ),
@@ -208,7 +219,9 @@ function Shop:getState()
 end
 
 function Shop:onStateChange(old,new)
+    love.keyboard.setKeyRepeat(false)
     self.buy_confirming = false
+    self.sell_confirming = false
     if new == "MAINMENU" then
         self.large_box.visible = false
         self.left_box.visible = true
@@ -232,11 +245,27 @@ function Shop:onStateChange(old,new)
         self.current_selecting = 1
     elseif new == "SELLMENU" then
         self.dialogue_text:setText("")
-        self.right_text:setText(self.sell_menu_text)
+        if not self.state_reason then
+            self.right_text:setText(self.sell_menu_text)
+        end
         self.large_box.visible = false
         self.left_box.visible = true
         self.right_box.visible = true
         self.info_box.visible = false
+    elseif new == "SELLING" then
+        love.keyboard.setKeyRepeat(true)
+        self.dialogue_text:setText("")
+        if self.state_reason and type(self.state_reason) == "table" and self.state_reason[3] then
+            self.right_text:setText(self.state_reason[3])
+        else
+            self.right_text:setText("Invalid\nstate\nreason")
+        end
+        self.large_box.visible = false
+        self.left_box.visible = true
+        self.right_box.visible = true
+        self.info_box.visible = false
+        self.item_current_selecting = 1
+        self.item_offset = 0
     elseif new == "TALKMENU" then
         self.dialogue_text:setText("")
         self.right_text:setText("")
@@ -367,7 +396,7 @@ function Shop:draw()
         for i = 1, #self.menu_options do
             love.graphics.print(self.menu_options[i][1], 480, 220 + (i * 40))
         end
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 450, 230 + (self.main_current_selecting * 40))
     elseif self.state == "BUYMENU" then
         -- Item type (item, key, weapon, armor)
@@ -478,11 +507,105 @@ function Shop:draw()
                 end
             end
         end
+    elseif self.state == "SELLMENU" then
+        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.draw(self.heart_sprite, 50, 230 + (self.sell_current_selecting * 40))
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setFont(self.font)
+        for i, v in ipairs(self.sell_options) do
+            love.graphics.print(v[1], 80, 220 + (i * 40))
+        end
+        love.graphics.print("Return", 80, 220 + ((#self.sell_options + 1) * 40))
+    elseif self.state == "SELLING" then
+        if self.item_current_selecting - self.item_offset > 5 then
+            self.item_offset = self.item_offset + 1
+        end
+
+        if self.item_current_selecting - self.item_offset < 1 then
+            self.item_offset = self.item_offset - 1
+        end
+
+        local inventory = Game.inventory:getStorage(self.state_reason[2])
+
+        love.graphics.setColor(Game:getSoulColor())
+
+        love.graphics.draw(self.heart_sprite, 30, 230 + ((self.item_current_selecting - self.item_offset) * 40))
+        if self.sell_confirming then
+            love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
+            love.graphics.setColor(1, 1, 1, 1)
+            local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
+            for i = 1, #lines do
+                love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
+            end
+            love.graphics.print("Yes", 60 + 420, 420 - 80)
+            love.graphics.print("No",  60 + 420, 420 - 80 + 30)
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+
+        if inventory then
+            for i = 1 + self.item_offset, self.item_offset + math.min(5, inventory.max) do
+                local item = inventory[i]
+                love.graphics.setFont(self.font)
+
+                if item then
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.print(item:getName(), 60, 220 + ((i - self.item_offset) * 40))
+                    love.graphics.print(string.format(self.currency_text, item:getSellPrice()), 60 + 240, 220 + ((i - self.item_offset) * 40))
+                else
+                    love.graphics.setColor(COLORS.dkgray)
+                    love.graphics.print("--------", 60, 220 + ((i - self.item_offset) * 40))
+                end
+            end
+
+            local max = inventory.max
+            if inventory.sorted then
+                max = #inventory
+            end
+
+            love.graphics.setColor(1, 1, 1, 1)
+
+            if max > 5 then
+
+                for i = 1, max do
+                    local percentage = (i - 1) / (max - 1)
+                    local height = 129
+    
+                    local draw_location = percentage * height
+    
+                    local tocheck = self.item_current_selecting
+                    if self.sell_confirming then
+                        tocheck = self.current_selecting_choice
+                    end
+
+                    if i == tocheck then
+                        love.graphics.rectangle("fill", 372, 292 + draw_location, 9, 9)
+                    elseif inventory.sorted then
+                        love.graphics.rectangle("fill", 372 + 3, 292 + 3 + draw_location, 3, 3)
+                    end
+                end
+
+                -- Draw arrows
+                if not self.sell_confirming then
+                    local sine_off = math.sin((love.timer.getTime()*30)/6) * 3
+                    -- Deltarune hides the arrow one item too early so we'll do that too
+                    if self.item_offset + 5 < (max - 1) then
+                        love.graphics.draw(self.arrow_sprite, 370, 149 + sine_off + 291)
+                    end
+                    if self.item_offset > 0 then
+                        love.graphics.draw(self.arrow_sprite, 370, 14 - sine_off + 291 - 25, 0, 1, -1)
+                    end
+                end
+            end
+        else
+            love.graphics.print("Invalid storage", 60, 220 + (1 * 40))
+        end
     end
 
     if self.state == "MAINMENU" or
        self.state == "BUYMENU"  or
        self.state == "SELLMENU" or
+       self.state == "SELLING"  or
        self.state == "TALKMENU" then
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(self.font)
@@ -629,6 +752,93 @@ function Shop:keypressed(key)
                 end
             end
         end
+    elseif self.state == "SELLMENU" then
+        if Input.isConfirm(key) then
+            if (self.sell_current_selecting <= #self.sell_options) then
+                self:enterSellMenu(self.sell_options[self.sell_current_selecting])
+            else
+                self:setState("MAINMENU")
+            end
+        elseif Input.isCancel(key) then
+            self:setState("MAINMENU")
+        elseif Input.is("up", key) then
+            self.sell_current_selecting = self.sell_current_selecting - 1
+            if (self.sell_current_selecting <= 0) then
+                self.sell_current_selecting = #self.sell_options + 1
+            end
+        elseif Input.is("down", key) then
+            self.sell_current_selecting = self.sell_current_selecting + 1
+            if (self.sell_current_selecting > #self.sell_options + 1) then
+                self.sell_current_selecting = 1
+            end
+        end
+    elseif self.state == "SELLING" then
+        local inventory = Game.inventory:getStorage(self.state_reason[2])
+        if inventory then
+            if self.sell_confirming then
+                if Input.isConfirm(key) then
+                    self.sell_confirming = false
+                    love.keyboard.setKeyRepeat(true)
+                    local current_item = inventory[self.item_current_selecting]
+                    if self.current_selecting_choice == 1 then
+                        self:sellItem(current_item)
+                        if inventory.sorted then
+                            if self.item_current_selecting > #inventory then
+                                self.item_current_selecting = self.item_current_selecting - 1
+                            end
+                            if self.item_current_selecting == 0 then
+                                self:setState("SELLMENU", true)
+                            end
+                        end
+                    elseif self.current_selecting_choice == 2 then
+                        self.right_text:setText(self.sell_refuse_text)
+                    else
+                        self.right_text:setText("What?????[wait:5]\ndid you\ndo????")
+                    end
+                elseif Input.isCancel(key) then
+                    self.sell_confirming = false
+                    love.keyboard.setKeyRepeat(true)
+                    self.right_text:setText(self.sell_refuse_text)
+                elseif Input.is("up", key) or Input.is("down", key) then
+                    if self.current_selecting_choice == 1 then
+                        self.current_selecting_choice = 2
+                    else
+                        self.current_selecting_choice = 1
+                    end
+                end
+            else
+                if Input.isConfirm(key) then
+                    if inventory[self.item_current_selecting] then
+                        self.sell_confirming = true
+                        love.keyboard.setKeyRepeat(false)
+                        self.current_selecting_choice = 1
+                        self.right_text:setText("")
+                    else
+                        self.right_text:setText(self.sell_nothing_text)
+                    end
+                elseif Input.isCancel(key) then
+                    self:setState("SELLMENU")
+                elseif Input.is("up", key) then
+                    self.item_current_selecting = self.item_current_selecting - 1
+                    if (self.item_current_selecting <= 0) then
+                        self.item_current_selecting = 1
+                    end
+                elseif Input.is("down", key) then
+                    local max = inventory.max
+                    if inventory.sorted then
+                        max = #inventory
+                    end
+                    self.item_current_selecting = self.item_current_selecting + 1
+                    if (self.item_current_selecting > max) then
+                        self.item_current_selecting = max
+                    end
+                end
+            end
+        else
+            if Input.isConfirm(key) or Input.isCancel(key) then
+                self:setState("MAINMENU")
+            end
+        end
     elseif self.state == "DIALOGUE" then
         if Input.isConfirm(key) then
             if not self.dialogue_text:isTyping() then
@@ -647,6 +857,18 @@ function Shop:keypressed(key)
                 end
             end
         end
+    end
+end
+
+function Shop:enterSellMenu(sell_data)
+    if not sell_data then
+        self.right_text:setText(self.sell_no_storage)
+    elseif not Game.inventory:getStorage(sell_data[2]) then
+        self.right_text:setText(self.sell_no_storage)
+    elseif #Game.inventory:getStorage(sell_data[2]) <= 0 then
+        self.right_text:setText(self.sell_no_storage)
+    else
+        self:setState("SELLING", sell_data)
     end
 end
 
@@ -676,6 +898,16 @@ function Shop:buyItem(current_item, current_item_data)
             self.right_text:setText(self.buy_no_space_text)
         end
     end
+end
+
+function Shop:sellItem(current_item)
+    -- SELL THE ITEM
+    -- Add the gold
+    Game.gold = Game.gold + current_item:getSellPrice()
+    Game.inventory:removeItemClass(current_item.type, current_item)
+
+    Assets.playSound("snd_locker")
+    self.right_text:setText(self.sell_text)
 end
 
 return Shop

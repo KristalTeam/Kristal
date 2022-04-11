@@ -13,7 +13,7 @@ function DarkPowerMenu:init()
     self.ui_cancel_small = Assets.newSound("ui_cancel_small")
 
     self.heart_sprite = Assets.getTexture("player/heart")
-    self.arrow_sprite = Assets.getTexture("ui/page_arrow")
+    self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
     self.tp_sprite = Assets.getTexture("ui/menu/caption_tp")
 

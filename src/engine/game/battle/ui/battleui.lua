@@ -46,7 +46,7 @@ function BattleUI:init()
     self.animate_out = false
 
     self.heart_sprite = Assets.getTexture("player/heart")
-    self.arrow_sprite = Assets.getTexture("ui/page_arrow")
+    self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
     self.sparestar = Assets.getTexture("ui/battle/sparestar")
     self.tiredmark = Assets.getTexture("ui/battle/tiredmark")

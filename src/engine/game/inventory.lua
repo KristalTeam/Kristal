@@ -66,6 +66,23 @@ function Inventory:addItemTo(storage, item, index)
     return false
 end
 
+function Inventory:removeItemClass(storage, item)
+    if storage and isClass(storage) then
+        storage = self:getStorage(storage.type)
+    else
+        storage = self:getStorage(storage or item.type)
+    end
+    if storage then
+        for i = 1, storage.max do
+            if storage[i] and storage[i].id == item.id then
+                self:removeItem(storage, i)
+                return true
+            end
+        end
+    end
+    return false
+end
+
 function Inventory:removeItem(storage, index)
     if isClass(storage) then
         storage = self:getStorage(storage.type)

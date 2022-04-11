@@ -13,7 +13,7 @@ function DarkEquipMenu:init()
     self.ui_cancel_small = Assets.newSound("ui_cancel_small")
 
     self.heart_sprite = Assets.getTexture("player/heart")
-    self.arrow_sprite = Assets.getTexture("ui/page_arrow")
+    self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
     self.caption_sprites = {
             ["char"] = Assets.getTexture("ui/menu/caption_char"),
