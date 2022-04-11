@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "A brooch engraved with Queen's face.\nCareful of the sharp part."
 
-    -- Shop sell price
-    self.price = 1000
+    -- Shop buy price
+    self.buy_price = 1000
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 500
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil

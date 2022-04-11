@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "Beginner's ax forged from the\nmane of a dragon whelp."
 
-    -- Shop sell price
-    self.price = 80
+    -- Shop buy price
+    self.buy_price = 80
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 40
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil

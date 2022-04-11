@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "Grazing bullets affects\nthe turn length by 10% more"
 
-    -- Shop sell price
-    self.price = 100
+    -- Shop buy price
+    self.buy_price = 1000
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 500
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil

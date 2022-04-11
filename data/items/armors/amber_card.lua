@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "A thin square charm that sticks\nto you, increasing defense."
 
-    -- Shop sell price
-    self.price = 100
+    -- Shop buy price
+    self.buy_price = 100
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 50
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil

@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "A wooden practice blade with a carbon-\nreinforced core."
 
-    -- Shop sell price
-    self.price = 60
+    -- Shop buy price
+    self.buy_price = 60
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 30
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil

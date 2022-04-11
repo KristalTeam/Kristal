@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "It can be used to make calls."
 
-    -- Shop sell price
-    self.price = 0
+    -- Shop buy price
+    self.buy_price = 0
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = nil
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = "none"

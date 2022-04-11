@@ -16,8 +16,10 @@ function Item:init()
     -- Menu description
     self.description = "Example item."
 
-    -- Shop sell price
-    self.price = 0
+    -- Shop buy price
+    self.buy_price = 0
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 0
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil
@@ -64,7 +66,8 @@ function Item:getShopDescription()
     return (self.type == "key" and "KEYITEM" or self:getTypeName():upper()) .. "\n" .. self.shop
 end
 
-function Item:getPrice() return self.price end
+function Item:getBuyPrice() return self.buy_price end
+function Item:getSellPrice() return self.sell_price end
 
 function Item:getStatBonuses() return self.bonuses end
 function Item:getBonusName() return self.bonus_name end

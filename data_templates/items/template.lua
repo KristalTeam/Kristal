@@ -19,8 +19,10 @@ function item:init()
     -- Menu description
     self.description = "Example item."
 
-    -- Shop sell price
-    self.price = 0
+    -- Shop buy price
+    self.buy_price = 0
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 0
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = "none"

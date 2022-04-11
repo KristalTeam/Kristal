@@ -381,7 +381,7 @@ function Shop:draw()
             else
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(self.items[i][1].name, 60, 220 + (i * 40))
-                love.graphics.print(string.format(self.currency_text, self.items[i][1].price), 60 + 240, 220 + (i * 40))
+                love.graphics.print(string.format(self.currency_text, self.items[i][1]:getBuyPrice()), 60 + 240, 220 + (i * 40))
             end
         end
         love.graphics.setColor(1, 1, 1, 1)
@@ -392,7 +392,7 @@ function Shop:draw()
         else
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(1, 1, 1, 1)
-            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting][1]:getPrice())), "\n")
+            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting][1]:getBuyPrice())), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
@@ -651,12 +651,12 @@ function Shop:keypressed(key)
 end
 
 function Shop:buyItem(current_item, current_item_data)
-    if current_item:getPrice() > Game.gold then
+    if current_item:getBuyPrice() > Game.gold then
         self.right_text:setText(self.buy_too_expensive_text)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
-        Game.gold = Game.gold - current_item:getPrice()
+        Game.gold = Game.gold - current_item:getBuyPrice()
 
         -- Decrement the stock
         if current_item_data[2] then

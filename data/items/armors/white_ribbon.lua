@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "A crinkly hair ribbon that slightly\nincreases your defense."
 
-    -- Shop sell price
-    self.price = 100
+    -- Shop buy price
+    self.buy_price = 90
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 45
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = nil

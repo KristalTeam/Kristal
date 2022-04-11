@@ -22,12 +22,14 @@ function item:init()
         self.description = "A shimmering shard.\nIts value increases each Chapter."
     end
 
-    -- Shop sell price
+    -- Shop buy price
     if Game.chapter == 1 then
-        self.price = 100
+        self.buy_price = 200
     else
-        self.price = 100 + (Game.chapter * 50)
+        self.buy_price = 200 + (Game.chapter * 100)
     end
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = self.buy_price / 2
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = "noselect"

@@ -21,8 +21,10 @@ function item:init()
     -- Amount healed (HealItem variable)
     self.heal_amount = 40
 
-    -- Shop sell price
-    self.price = 13
+    -- Shop buy price
+    self.buy_price = 40
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 13
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = "party"

@@ -18,8 +18,10 @@ function item:init()
     -- Menu description
     self.description = "Heals a fallen ally to MAX HP.\nA minty green crystal."
 
-    -- Shop sell price
-    self.price = 200
+    -- Shop buy price
+    self.buy_price = 400
+    -- Shop sell price (usually half of buy price)
+    self.sell_price = 200
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = "party"
