@@ -43,6 +43,8 @@ function Game:enter(previous_state, save_id, save_name)
     self.started = true
     self.lock_input = false
 
+    self.world.map:onEnter()
+
     if previous_state == Kristal.States["DarkTransition"] then
         self.started = false
 
@@ -233,7 +235,6 @@ function Game:load(data, index)
     -- END SAVE FILE VARIABLES --
 
     self.world:spawnParty(data.spawn_marker or data.spawn_position)
-    self.world.map:onEnter()
 
     Kristal.callEvent("load", data, self.is_new_file, index)
 end

@@ -181,7 +181,9 @@ function World:onStateChange(old, new)
         Game.fader:transition(function()
             self:transitionImmediate(self.transition_target or {})
             self.transition_target = nil
-            self:setState("GAMEPLAY")
+            if self.state == "TRANSITION" then
+                self:setState("GAMEPLAY")
+            end
         end)
     end
 end
