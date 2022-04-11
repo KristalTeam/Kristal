@@ -233,6 +233,7 @@ function Game:load(data, index)
     -- END SAVE FILE VARIABLES --
 
     self.world:spawnParty(data.spawn_marker or data.spawn_position)
+    self.world.map:onEnter()
 
     Kristal.callEvent("load", data, self.is_new_file, index)
 end

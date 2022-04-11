@@ -622,6 +622,7 @@ function World:transitionImmediate(...)
         pos = target.marker
     end
     self:spawnParty(pos, nil, nil, target.facing)
+    self.map:onEnter()
 end
 
 function World:getCameraTarget()
