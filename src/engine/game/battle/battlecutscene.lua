@@ -228,6 +228,13 @@ function BattleCutscene:text(text, portrait, actor, options)
         end
     end
 
+    Game.battle.battle_ui.encounter_text:resetFunctions()
+    if options["functions"] then
+        for id,func in pairs(options["functions"]) do
+            Game.battle.battle_ui.encounter_text:addFunction(id, func)
+        end
+    end
+
     if options["font"] then
         if type(options["font"]) == "table" then
             -- {font, size}

@@ -364,6 +364,12 @@ function WorldCutscene:text(text, portrait, actor, options)
         end
     end
 
+    if options["functions"] then
+        for id,func in pairs(options["functions"]) do
+            self.textbox:addFunction(id, func)
+        end
+    end
+
     if options["font"] then
         if type(options["font"]) == "table" then
             -- {font, size}

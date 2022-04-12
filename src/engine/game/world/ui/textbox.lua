@@ -218,6 +218,14 @@ function Textbox:addReaction(id, actor, face, x, y, text)
     }
 end
 
+function Textbox:resetFunctions()
+    self.text.functions = {}
+end
+
+function Textbox:addFunction(id, func)
+    self.text:addFunction(id, func)
+end
+
 function Textbox:setText(text)
     for _,reaction in ipairs(self.reaction_instances) do
         reaction:remove()

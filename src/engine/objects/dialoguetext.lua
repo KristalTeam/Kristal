@@ -1,12 +1,13 @@
 local DialogueText, super = Class(Text)
 
-DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing"}
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func"}
 
 function DialogueText:init(text, x, y, w, h, font, style)
     self.custom_command_wait = {}
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
     self.skippable = true
     self.skip_speed = false
+    self.functions = {}
 end
 
 function DialogueText:resetState()
@@ -179,6 +180,23 @@ function DialogueText:processModifier(node)
         end
     elseif node.command == "spacing" then
         self.state.spacing = tonumber(node.arguments[1])
+    elseif node.command == "func" then
+        local func = node.arguments[1]
+        if self.functions[func] then
+            local args = {}
+            for i = 2, #node.arguments do
+                table.insert(args, node.arguments[i])
+            end
+            self.functions[func](self, unpack(args))
+        end
+    end
+end
+
+function DialogueText:addFunction(id, func)
+    if id then
+        self.functions[id] = func
+    else
+        table.insert(self.functions, func)
     end
 end
 
