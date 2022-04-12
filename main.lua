@@ -170,6 +170,7 @@ RudeBusterBeam = require("src.engine.game.effects.rudebusterbeam")
 RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 
 Shop = require("src.engine.game.shop")
+Shopkeeper = require("src.engine.game.shop.shopkeeper")
 
 _, LibLurker = pcall(require, "lurker")
 utf8 = require("utf8")
