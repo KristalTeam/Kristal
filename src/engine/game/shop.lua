@@ -6,37 +6,39 @@ function Shop:init()
     self.currency_text = "$%d"
 
     -- Shown when you first enter a shop
-    self.encounter_text = "* Hee hee...[wait:5]\n* Welcome,[wait:5] travellers."
+    self.encounter_text = "* Encounter text"
     -- Shown when you return to the main menu of the shop
-    self.shop_text = "* Take your time...[wait:5]\n* Ain't like it's\nbetter spent."
+    self.shop_text = "* Shop text"
     -- Shown when you leave a shop
-    self.leaving_text = "* This is leaving text."
+    self.leaving_text = "* Leaving text"
     -- Shown when you're in the BUY menu
-    self.buy_menu_text = "What do\nyou like\nto buy?"
+    self.buy_menu_text = "Purchase\ntext"
     -- Shown when you're about to buy something.
     self.buy_confirmation_text = "Buy it for\n%s ?"
     -- Shown when you refuse to buy something
-    self.buy_refuse_text = "What,\nnot good\nenough?"
+    self.buy_refuse_text = "Buy\nrefused\ntext"
     -- Shown when you buy something
-    self.buy_text = "Thanks for\nthat."
+    self.buy_text = "Buy text"
     -- Shown when you buy something and it goes in your storage
-    self.buy_storage_text = "Thanks, it'll\nbe in your\nSTORAGE."
+    self.buy_storage_text = "Storage\nbuy text"
     -- Shown when you don't have enough money to buy something
     self.buy_too_expensive_text = "Not\nenough\nmoney."
     -- Shown when you don't have enough space to buy something.
     self.buy_no_space_text = "You're\ncarrying\ntoo much."
     -- Shown when you're in the SELL menu
-    self.sell_menu_text = "What kind\nof junk\nyou got?"
+    self.sell_menu_text = "Sell\nmenu\ntext"
     -- Shown when you try to sell an empty spot
-    self.sell_nothing_text = "That's\nnothing."
+    self.sell_nothing_text = "Sell\nnothing\attempt"
     -- Shown when you're about to sell something.
     self.sell_confirmation_text = "Sell it for\n%s ?"
     -- Shown when you refuse to sell something
-    self.sell_refuse_text = "No?"
+    self.sell_refuse_text = "Sell\nrefuse\ntext"
     -- Shown when you sell something
-    self.sell_text = "That's it\nfor that."
+    self.sell_text = "Sell\ntext"
     -- Shown when you have nothing in a storage
-    self.sell_no_storage = "You don't\nhave\nanything!"
+    self.sell_no_storage_text = "Empty\ninventory\ntext"
+    -- Shown when you enter the talk menu.
+    self.talk_text = "Talk\ntext"
 
     self.hide_storage_text = false
 
@@ -55,20 +57,30 @@ function Shop:init()
         {"Talk", "TALKMENU"},
         {"Exit", "LEAVE"   }
     }
+
     self.items = {}
+    self.talks = {}
+    self.talk_replacements = {}
 
     -- SELLMENU
     self.sell_options = {
-        {"Sell Items",        "item",   "Alright,\ngive me\nan ITEM."    },
-        {"Sell Weapons",      "weapon", "What WEAPON\nwill you\ngive me?"},
-        {"Sell Armor",        "armor",  "What ARMOR\nwill you\ngive me?" },
-        {"Sell Pocket Items", "pocket", "Alright,\ngive me\nan ITEM."    }
+        {"Sell Items",        "item",   "Item text"   },
+        {"Sell Weapons",      "weapon", "Weapon\ntext"},
+        {"Sell Armor",        "armor",  "Armor text"  },
+        {"Sell Pocket Items", "pocket", "Pocket\ntext"}
     }
 
-    self:registerItem("tensionbit")
-    self:registerItem("cell_phone", 1)
-    self:registerItem("snowring", 1)
-    self:registerItem("amber_card")
+    --self:registerItem("tensionbit")
+    --self:registerItem("cell_phone", 1)
+    --self:registerItem("snowring", 1)
+    --self:registerItem("amber_card")
+
+    --self:registerTalk("Reflect")
+    --self:registerTalk("Where I Am")
+    --self:registerTalk("Who Am I Talking To")
+    --self:registerTalk("What Is Going To Happen")
+
+    --self:registerTalkAfter("Why Am I Here", 2)
 
     self.background = Assets.getTexture("ui/shop/bg_seam")
 
@@ -130,6 +142,10 @@ function Shop:init()
 end
 
 function Shop:postInit()
+    -- Mutate talks
+
+    self:processReplacements()
+
     -- Construct the UI
     self.large_box = DarkBox()
     local left, top = self.large_box:getBorder()
@@ -197,8 +213,31 @@ function Shop:postInit()
     self.right_text:setText("")
 end
 
+function Shop:startTalk(talk)
+    if talk == "Where I Am" then
+        self:startDialogue({
+            "* Where this is isn't important.",
+            "* I mean,[wait:5] hey,[wait:5] it might be to some\npeople.",
+            "* Not you.",
+            "* No,[wait:5] this place is utterly\nworthless for you.[wait:5]\n* Not that I know how you're here,[wait:5]\ntoo.",
+            "* Actually,[wait:5] I don't think you're\nhere at all.[wait:5]\n* I'm just talking to myself.",
+            "* It's just me.",
+            "* Me and my thoughts alone."
+        })
+    elseif talk == "Why Am I Here" then
+        self:startDialogue({
+            "* I'm here for one reason.",
+            "* I may not know what it is,[wait:5] but I\nknow that it's important.",
+            "* Now that I think about it,[wait:5] I really\nknow just about nothing about\nwhat I'm doing.",
+            "* So again I ask,[wait:5] why am I here?",
+            "* I guess we'll just have to find\nout."
+        })
+    end
+end
+
 function Shop:onEnter()
     self:setState("MAINMENU")
+    self.dialogue_text:setText(self.encounter_text)
 end
 
 function Shop:onRemove(parent)
@@ -239,7 +278,11 @@ function Shop:onStateChange(old,new)
         self.info_box.height = -8
         self.box_ease_timer = 0
         self.box_ease_beginning = -8
-        self.box_ease_top = 220 - 48
+        if #self.items > 0 then
+            self.box_ease_top = 220 - 48
+        else
+            self.box_ease_top = -8
+        end
         self.box_ease_method = "outExpo"
         self.box_ease_multiplier = 1
         self.current_selecting = 1
@@ -268,11 +311,15 @@ function Shop:onStateChange(old,new)
         self.item_offset = 0
     elseif new == "TALKMENU" then
         self.dialogue_text:setText("")
-        self.right_text:setText("")
-        self.large_box.visible = true
-        self.left_box.visible = false
-        self.right_box.visible = false
+        self.right_text:setText(self.talk_text)
+        self.large_box.visible = false
+        self.left_box.visible = true
+        self.right_box.visible = true
         self.info_box.visible = false
+        if self.state_reason ~= "DIALOGUE" then
+            self.current_selecting = 1
+        end
+        self:processReplacements()
         self:onTalk()
     elseif new == "LEAVE" then
         self.right_text:setText("")
@@ -313,18 +360,7 @@ function Shop:leaveImmediate()
     Game.fader:fadeIn()
 end
 
-function Shop:onTalk()
-    self:startDialogue({
-        "* ... What is that?[wait:5] It appears\nyou have a Shadow Crystal.",
-        "* ...",
-        "* Unfortunately,[wait:5] I believe that\nyou are missing one from your\nprevious adventures.",
-        "* ...",
-        "* But,[wait:5] are you sure?[wait:5] Are you sure\nyou didn't defeat that\nclown...?",
-        "* Perhaps...[wait:5] You just haven't\nremembered that you had yet.",
-        "* That's right,[wait:5] as long as you\never defeated that enemy in the\npast...",
-        "* Then perhaps,[wait:5] even now,[wait:5] that\nCrystal might turn up somewhere\nclose...[wait:5] Perhaps!"
-    })
-end
+function Shop:onTalk() end
 
 function Shop:startDialogue(text,callback)
     self.dialogue_index = 1
@@ -337,6 +373,9 @@ function Shop:startDialogue(text,callback)
     end
     self.post_dialogue_func = nil
     self.post_dialogue_state = "MAINMENU"
+    if self.state == "TALKMENU" then
+        self.post_dialogue_state = "TALKMENU"
+    end
 
     if type(callback) == "function" then
         self.post_dialogue_func = callback
@@ -358,12 +397,42 @@ function Shop:replaceItem(item, index, amount, flag)
     end
     if item then
         if flag then
-            amount = Game:getFlag("shop#" .. self.id .. ":" .. flag, amount)
+            amount = self:getFlag(flag, amount)
         end
         self.items[index] = {item, amount, flag}
         return true
     else
         return false
+    end
+end
+
+function Shop:registerTalk(talk, color)
+    table.insert(self.talks, {talk, {color=color or COLORS.white}})
+end
+
+function Shop:replaceTalk(talk, index, color)
+    self.talks[index] = {talk, {color=color or COLORS.yellow}}
+end
+
+function Shop:registerTalkAfter(talk, index, flag, value, color)
+    table.insert(self.talk_replacements, {index, {talk, {flag=flag or ("talk_" .. tostring(index)), value=value, color=color or COLORS.yellow}}})
+end
+
+function Shop:processReplacements()
+    for i = 1, #self.talks do
+        local talk_replacement = nil
+        for j = 1, #self.talk_replacements do 
+            if self.talk_replacements[j][1] == i then
+                talk_replacement = self.talk_replacements[j][2]
+                break
+            end
+        end
+
+        if talk_replacement then
+            if self:getFlag(talk_replacement[2].flag, talk_replacement[2].value) then
+                self:replaceTalk(talk_replacement[1], i, talk_replacement[2].color)
+            end
+        end
     end
 end
 
@@ -611,6 +680,27 @@ function Shop:draw()
         else
             love.graphics.print("Invalid storage", 60, 220 + (1 * 40))
         end
+    elseif self.state == "TALKMENU" then
+        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setFont(self.font)
+        --for i, v in ipairs(self.talks) do
+        --    love.graphics.setColor(v[2].color)
+        --    love.graphics.print(v[1], 80, 220 + (i * 40))
+        --end
+        for i = 1, math.max(4, #self.talks) do
+            local v = self.talks[i]
+            if v then
+                love.graphics.setColor(v[2].color)
+                love.graphics.print(v[1], 80, 220 + (i * 40))
+            else
+                love.graphics.setColor(COLORS.dkgray)
+                love.graphics.print("--------", 80, 220 + (i * 40))
+            end
+        end
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.print("Exit", 80, 220 + ((math.max(4, #self.talks) + 1) * 40))
     end
 
     if self.state == "MAINMENU" or
@@ -657,7 +747,7 @@ function Shop:drawBackground()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.push()
     love.graphics.scale(2, 2)
-    love.graphics.draw(self.background, 0, 0)
+    --love.graphics.draw(self.background, 0, 0)
     love.graphics.pop()
 end
 
@@ -670,12 +760,6 @@ end
 
 function Shop:keypressed(key)
     if Game.console.is_open then return end
-
-    if Kristal.Config["debug"] then
-        if Input.isMenu(key) then
-            self:setState("MAINMENU")
-        end
-    end
 
     if self.state == "MAINMENU" then
         if Input.isConfirm(key) then
@@ -850,6 +934,28 @@ function Shop:keypressed(key)
                 self:setState("MAINMENU")
             end
         end
+    elseif self.state == "TALKMENU" then
+        if Input.isConfirm(key) then
+            if (self.current_selecting <= #self.talks) then
+                local talk = self.talks[self.current_selecting]
+                self:setFlag("talk_" .. self.current_selecting, true)
+                self:startTalk(talk[1])
+            elseif self.current_selecting == math.max(4, #self.talks) + 1 then
+                self:setState("MAINMENU")
+            end
+        elseif Input.isCancel(key) then
+            self:setState("MAINMENU")
+        elseif Input.is("up", key) then
+            self.current_selecting = self.current_selecting - 1
+            if (self.current_selecting <= 0) then
+                self.current_selecting = math.max(4, #self.talks) + 1
+            end
+        elseif Input.is("down", key) then
+            self.current_selecting = self.current_selecting + 1
+            if (self.current_selecting > math.max(4, #self.talks) + 1) then
+                self.current_selecting = 1
+            end
+        end
     elseif self.state == "DIALOGUE" then
         if Input.isConfirm(key) then
             if not self.dialogue_text:isTyping() then
@@ -873,11 +979,11 @@ end
 
 function Shop:enterSellMenu(sell_data)
     if not sell_data then
-        self.right_text:setText(self.sell_no_storage)
+        self.right_text:setText(self.sell_no_storage_text)
     elseif not Game.inventory:getStorage(sell_data[2]) then
-        self.right_text:setText(self.sell_no_storage)
+        self.right_text:setText(self.sell_no_storage_text)
     elseif #Game.inventory:getStorage(sell_data[2]) <= 0 then
-        self.right_text:setText(self.sell_no_storage)
+        self.right_text:setText(self.sell_no_storage_text)
     else
         self:setState("SELLING", sell_data)
     end
@@ -895,7 +1001,7 @@ function Shop:buyItem(current_item, current_item_data)
         if current_item_data[2] then
             current_item_data[2] = current_item_data[2] - 1
             if current_item_data[3] then
-                Game:setFlag("shop#" .. self.id .. ":" .. current_item_data[3], current_item_data[2])
+                self:setFlag(current_item_data[3], current_item_data[2])
             end
         end
 
@@ -909,6 +1015,14 @@ function Shop:buyItem(current_item, current_item_data)
             self.right_text:setText(self.buy_no_space_text)
         end
     end
+end
+
+function Shop:setFlag(name, value)
+    Game:setFlag("shop#" .. self.id .. ":" .. name, value)
+end
+
+function Shop:getFlag(name)
+    return Game:getFlag("shop#" .. self.id .. ":" .. name)
 end
 
 function Shop:sellItem(current_item)

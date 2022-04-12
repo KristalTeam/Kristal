@@ -32,10 +32,12 @@ function TestShop:init()
     self.sell_text = "..."
     ]]--
 
+    self.encounter_text = "* (...)"
+
 end
 
-function TestShop:onTalk()
-    self:startDialogue("* There's nobody here.")
-end
+--function TestShop:onTalk()
+--    self:startDialogue("* There's nobody here.")
+--end
 
 return TestShop
