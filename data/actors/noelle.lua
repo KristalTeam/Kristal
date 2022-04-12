@@ -51,11 +51,51 @@ function actor:init()
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
         ["battle/transition"]   = {"battle/intro", 1/15, false},
-        ["battle/victory"]      = {"battle/victory", 1/10, false}
+        ["battle/victory"]      = {"battle/victory", 1/10, false},
+
+        -- Cutscene animations
+        ["laugh"]               = {"laugh", 4/30, true},
     }
 
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
+        -- Movement offsets
+        ["walk/down"] = {0, 0},
+        ["walk/right"] = {0, 0},
+        ["walk/left"] = {0, 0},
+        ["walk/up"] = {0, 0},
+
+        ["walk_smile/down"] = {0, 0},
+        ["walk_smile/right"] = {0, 0},
+        ["walk_smile/left"] = {0, 0},
+        ["walk_smile/up"] = {0, 0},
+
+        ["walk_happy/down"] = {0, 0},
+        ["walk_happy/right"] = {0, 0},
+        ["walk_happy/left"] = {0, 0},
+        ["walk_happy/up"] = {0, 0},
+
+        ["walk_blush/down"] = {0, 0},
+        ["walk_blush/right"] = {0, 0},
+        ["walk_blush/left"] = {0, 0},
+        ["walk_blush/up"] = {0, 0},
+
+        ["walk_sad/down"] = {0, 0},
+        ["walk_sad/right"] = {0, 0},
+        ["walk_sad/left"] = {0, 0},
+        ["walk_sad/up"] = {0, 0},
+
+        ["walk_look_up/down"] = {0, 0},
+        ["walk_look_up/right"] = {0, 0},
+        ["walk_look_up/left"] = {0, 0},
+        ["walk_look_up/up"] = {0, 0},
+
+        ["walk_scared/left"] = {4, -3},
+        ["walk_scared/right"] = {-2, -3},
+
+        ["walk_mad/left"] = {2, -2},
+        ["walk_mad/right"] = {-5, -2},
+
         -- Battle offsets
         ["battle/idle"] = {3, 0},
 
@@ -75,6 +115,40 @@ function actor:init()
 
         ["battle/intro"] = {11, 7},
         ["battle/victory"] = {0, 0},
+
+        -- Cutscene offsets
+        ["blush"] = {0, 0},
+        ["blush_side"] = {0, 0},
+
+        ["hand_mouth"] = {0, 0},
+        ["hand_mouth_side"] = {0, 0},
+
+        ["laugh"] = {0, 0},
+
+        ["point_up"] = {4, -1},
+
+        ["shocked"] = {0, 0},
+        ["shocked_behind"] = {0, 0},
+
+        ["headtilt"] = {0, 1},
+
+        ["collapsed"] = {14, -29},
+        ["collapsed_look_up"] = {18, -23},
+        ["collapsed_reach"] = {14, -29},
+
+        ["hurt"] = {0, 0},
+        ["kneel"] = {0, 0},
+        ["kneel_shocked_left"] = {0, 0},
+        ["kneel_shocked_right"] = {0, 0},
+        ["kneel_smile_left"] = {0, 0},
+        ["kneel_smile_right"] = {0, 0},
+
+        ["smile_left"] = {0, 0},
+        ["smile_right"] = {0, 0},
+
+        ["head_lowered"] = {0, 0},
+        ["head_lowered_look_left"] = {0, 0},
+        ["head_lowered_look_right"] = {0, 0},
     }
 end
 
