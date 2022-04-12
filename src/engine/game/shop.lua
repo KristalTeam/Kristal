@@ -527,6 +527,17 @@ function Shop:draw()
 
         local inventory = Game.inventory:getStorage(self.state_reason[2])
 
+        if inventory and inventory.sorted then
+            if self.item_offset + 5 > #inventory then
+                if #inventory > 5 then
+                    self.item_offset = self.item_offset - 1
+                end
+            end
+            if #inventory == 5 then
+                self.item_offset = 0
+            end
+        end
+
         love.graphics.setColor(Game:getSoulColor())
 
         love.graphics.draw(self.heart_sprite, 30, 230 + ((self.item_current_selecting - self.item_offset) * 40))
