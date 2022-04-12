@@ -25,6 +25,8 @@ function Shop:init()
     self.buy_too_expensive_text = "Not\nenough\nmoney."
     -- Shown when you don't have enough space to buy something.
     self.buy_no_space_text = "You're\ncarrying\ntoo much."
+    -- Shown when something doesn't have a price
+    self.buy_no_price_text = "No\nprice\ntext"
     -- Shown when you're in the SELL menu
     self.sell_menu_text = "Sell\nmenu\ntext"
     -- Shown when you try to sell an empty spot
@@ -70,7 +72,8 @@ function Shop:init()
         {"Sell Pocket Items", "pocket", "Pocket\ntext"}
     }
 
-    --self:registerItem("tensionbit")
+    self:registerItem("tensionbit")
+    self:registerItem("manual")
     --self:registerItem("cell_phone", 1)
     --self:registerItem("snowring", 1)
     --self:registerItem("amber_card")
@@ -479,7 +482,7 @@ function Shop:draw()
             else
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(self.items[i][1].name, 60, 220 + (i * 40))
-                love.graphics.print(string.format(self.currency_text, self.items[i][1]:getBuyPrice()), 60 + 240, 220 + (i * 40))
+                love.graphics.print(string.format(self.currency_text, self.items[i][1]:getBuyPrice() or 0), 60 + 240, 220 + (i * 40))
             end
         end
         love.graphics.setColor(1, 1, 1, 1)
@@ -490,7 +493,7 @@ function Shop:draw()
         else
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(1, 1, 1, 1)
-            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting][1]:getBuyPrice())), "\n")
+            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting][1]:getBuyPrice() or 0)), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
@@ -613,7 +616,9 @@ function Shop:draw()
         if self.sell_confirming then
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(1, 1, 1, 1)
-            local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice() or 0)), "\n")
+            if inventory[self.item_current_selecting]:getSellPrice() then
+                local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
+            end
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
@@ -631,8 +636,9 @@ function Shop:draw()
                 if item then
                     love.graphics.setColor(1, 1, 1, 1)
                     love.graphics.print(item:getName(), 60, 220 + ((i - self.item_offset) * 40))
-                    -- TODO: unsellable if sell price is nil
-                    love.graphics.print(string.format(self.currency_text, item:getSellPrice() or 0), 60 + 240, 220 + ((i - self.item_offset) * 40))
+                    if item:getSellPrice() then
+                        love.graphics.print(string.format(self.currency_text, item:getSellPrice()), 60 + 240, 220 + ((i - self.item_offset) * 40))
+                    end
                 else
                     love.graphics.setColor(COLORS.dkgray)
                     love.graphics.print("--------", 60, 220 + ((i - self.item_offset) * 40))
@@ -905,10 +911,14 @@ function Shop:keypressed(key)
             else
                 if Input.isConfirm(key) then
                     if inventory[self.item_current_selecting] then
-                        self.sell_confirming = true
-                        love.keyboard.setKeyRepeat(false)
-                        self.current_selecting_choice = 1
-                        self.right_text:setText("")
+                        if inventory[self.item_current_selecting]:getSellPrice() then
+                            self.sell_confirming = true
+                            love.keyboard.setKeyRepeat(false)
+                            self.current_selecting_choice = 1
+                            self.right_text:setText("")
+                        else
+                            self.right_text:setText(self.buy_no_price_text)
+                        end
                     else
                         self.right_text:setText(self.sell_nothing_text)
                     end
@@ -991,12 +1001,12 @@ function Shop:enterSellMenu(sell_data)
 end
 
 function Shop:buyItem(current_item, current_item_data)
-    if current_item:getBuyPrice() > Game.gold then
+    if (current_item:getBuyPrice() or 0) > Game.gold then
         self.right_text:setText(self.buy_too_expensive_text)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
-        Game.gold = Game.gold - current_item:getBuyPrice()
+        Game.gold = Game.gold - current_item:getBuyPrice() or 0
 
         -- Decrement the stock
         if current_item_data[2] then

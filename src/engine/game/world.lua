@@ -200,7 +200,7 @@ function World:keypressed(key)
                 end
             end
         elseif key == "j" then
-            Game:enterShop()
+            Game:enterShop("test")
         end
     end
 
