@@ -25,8 +25,8 @@ function Shop:init()
     self.buy_too_expensive_text = "Not\nenough\nmoney."
     -- Shown when you don't have enough space to buy something.
     self.buy_no_space_text = "You're\ncarrying\ntoo much."
-    -- Shown when something doesn't have a price
-    self.buy_no_price_text = "No\nprice\ntext"
+    -- Shown when something doesn't have a sell price
+    self.sell_no_price_text = "No\nprice\ntext"
     -- Shown when you're in the SELL menu
     self.sell_menu_text = "Sell\nmenu\ntext"
     -- Shown when you try to sell an empty spot
@@ -41,6 +41,12 @@ function Shop:init()
     self.sell_no_storage_text = "Empty\ninventory\ntext"
     -- Shown when you enter the talk menu.
     self.talk_text = "Talk\ntext"
+
+    self.sell_options_text = {}
+    self.sell_options_text["item"]   = "Item text"
+    self.sell_options_text["weapon"] = "Weapon\ntext"
+    self.sell_options_text["armor"]  = "Armor text"
+    self.sell_options_text["pocket"] = "Pocket\ntext"
 
     self.hide_storage_text = false
 
@@ -66,24 +72,11 @@ function Shop:init()
 
     -- SELLMENU
     self.sell_options = {
-        {"Sell Items",        "item",   "Item text"   },
-        {"Sell Weapons",      "weapon", "Weapon\ntext"},
-        {"Sell Armor",        "armor",  "Armor text"  },
-        {"Sell Pocket Items", "pocket", "Pocket\ntext"}
+        {"Sell Items",        "item"},
+        {"Sell Weapons",      "weapon"},
+        {"Sell Armor",        "armor"},
+        {"Sell Pocket Items", "pocket"}
     }
-
-    --self:registerItem("tensionbit")
-    --self:registerItem("manual")
-    --self:registerItem("cell_phone", 1)
-    --self:registerItem("snowring", 1)
-    --self:registerItem("amber_card")
-
-    --self:registerTalk("Reflect")
-    --self:registerTalk("Where I Am")
-    --self:registerTalk("Who Am I Talking To")
-    --self:registerTalk("What Is Going To Happen")
-
-    --self:registerTalkAfter("Why Am I Here", 2)
 
     self.background = Assets.getTexture("ui/shop/bg_seam")
 
@@ -216,27 +209,7 @@ function Shop:postInit()
     self.right_text:setText("")
 end
 
-function Shop:startTalk(talk)
-    if talk == "Where I Am" then
-        self:startDialogue({
-            "* Where this is isn't important.",
-            "* I mean,[wait:5] hey,[wait:5] it might be to some\npeople.",
-            "* Not you.",
-            "* No,[wait:5] this place is utterly\nworthless for you.[wait:5]\n* Not that I know how you're here,[wait:5]\ntoo.",
-            "* Actually,[wait:5] I don't think you're\nhere at all.[wait:5]\n* I'm just talking to myself.",
-            "* It's just me.",
-            "* Me and my thoughts alone."
-        })
-    elseif talk == "Why Am I Here" then
-        self:startDialogue({
-            "* I'm here for one reason.",
-            "* I may not know what it is,[wait:5] but I\nknow that it's important.",
-            "* Now that I think about it,[wait:5] I really\nknow just about nothing about\nwhat I'm doing.",
-            "* So again I ask,[wait:5] why am I here?",
-            "* I guess we'll just have to find\nout."
-        })
-    end
-end
+function Shop:startTalk(talk) end
 
 function Shop:onEnter()
     self:setState("MAINMENU")
@@ -301,8 +274,12 @@ function Shop:onStateChange(old,new)
     elseif new == "SELLING" then
         love.keyboard.setKeyRepeat(true)
         self.dialogue_text:setText("")
-        if self.state_reason and type(self.state_reason) == "table" and self.state_reason[3] then
-            self.right_text:setText(self.state_reason[3])
+        if self.state_reason and type(self.state_reason) == "table" then
+            if self.sell_options_text[self.state_reason[2]] then
+                self.right_text:setText(self.sell_options_text[self.state_reason[2]])
+            else
+                self.right_text:setText("Invalid\nmenu\ntext")
+            end
         else
             self.right_text:setText("Invalid\nstate\nreason")
         end
@@ -616,8 +593,9 @@ function Shop:draw()
         if self.sell_confirming then
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(1, 1, 1, 1)
+            local lines = {}
             if inventory[self.item_current_selecting]:getSellPrice() then
-                local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
+                lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
             end
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
@@ -692,10 +670,6 @@ function Shop:draw()
         love.graphics.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(self.font)
-        --for i, v in ipairs(self.talks) do
-        --    love.graphics.setColor(v[2].color)
-        --    love.graphics.print(v[1], 80, 220 + (i * 40))
-        --end
         for i = 1, math.max(4, #self.talks) do
             local v = self.talks[i]
             if v then
@@ -917,7 +891,7 @@ function Shop:keypressed(key)
                             self.current_selecting_choice = 1
                             self.right_text:setText("")
                         else
-                            self.right_text:setText(self.buy_no_price_text)
+                            self.right_text:setText(self.sell_no_price_text)
                         end
                     else
                         self.right_text:setText(self.sell_nothing_text)
@@ -1032,8 +1006,8 @@ function Shop:setFlag(name, value)
     Game:setFlag("shop#" .. self.id .. ":" .. name, value)
 end
 
-function Shop:getFlag(name)
-    return Game:getFlag("shop#" .. self.id .. ":" .. name)
+function Shop:getFlag(name, default)
+    return Game:getFlag("shop#" .. self.id .. ":" .. name, default)
 end
 
 function Shop:sellItem(current_item)
