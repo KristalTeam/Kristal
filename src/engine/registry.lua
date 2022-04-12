@@ -30,6 +30,7 @@ function Registry.initialize(preload)
         Registry.initCutscenes()
         Registry.initTilesets()
         Registry.initMaps()
+        Registry.initShops()
 
         Kristal.callEvent("onRegistered")
     end
@@ -211,6 +212,18 @@ function Registry.getMapData(id)
     return self.map_data[id]
 end
 
+function Registry.getShop(id)
+    return self.shops[id]
+end
+
+function Registry.createShop(id, ...)
+    if self.shops[id] then
+        return self.shops[id](...)
+    else
+        error("Attempt to create non existent shop \"" .. id .. "\"")
+    end
+end
+
 -- Register Functions --
 
 function Registry.registerActor(id, tbl)
@@ -269,6 +282,10 @@ end
 
 function Registry.registerMap(id, class)
     self.maps[id] = class
+end
+
+function Registry.registerShop(id, class)
+    self.shops[id] = class
 end
 
 -- Internal Functions --
@@ -446,6 +463,17 @@ function Registry.initMaps()
     end
 
     Kristal.callEvent("onRegisterMaps")
+end
+
+function Registry.initShops()
+    self.shops = {}
+
+    for _,path,shop in self.iterScripts("shops") do
+        shop.id = shop.id or path
+        self.registerShop(shop.id, shop)
+    end
+
+    Kristal.callEvent("onRegisterShops")
 end
 
 function Registry.iterScripts(base_path)

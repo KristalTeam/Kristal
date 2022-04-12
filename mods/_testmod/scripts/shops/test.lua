@@ -1,4 +1,4 @@
-local TestShop, super = Class(Shop,  "testshop")
+local TestShop, super = Class(Shop,  "test")
 
 function TestShop:init()
     super:init(self)
