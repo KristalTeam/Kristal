@@ -12,7 +12,7 @@ function Shopkeeper:init()
 
 end
 
-function Shopkeper:postInit()
+function Shopkeeper:postInit()
     self.sprite:set(self.animations["idle"])
 end
 
