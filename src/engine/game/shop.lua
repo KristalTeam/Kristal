@@ -72,8 +72,8 @@ function Shop:init()
         {"Sell Pocket Items", "pocket", "Pocket\ntext"}
     }
 
-    self:registerItem("tensionbit")
-    self:registerItem("manual")
+    --self:registerItem("tensionbit")
+    --self:registerItem("manual")
     --self:registerItem("cell_phone", 1)
     --self:registerItem("snowring", 1)
     --self:registerItem("amber_card")
@@ -754,7 +754,7 @@ function Shop:drawBackground()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.push()
     love.graphics.scale(2, 2)
-    --love.graphics.draw(self.background, 0, 0)
+    love.graphics.draw(self.background, 0, 0)
     love.graphics.pop()
 end
 
