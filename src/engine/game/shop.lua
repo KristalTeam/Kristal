@@ -900,7 +900,7 @@ function Shop:buyItem(current_item, current_item_data)
         end
 
         -- Add the item to the inventory
-        if Game.inventory:addItem(current_item) then
+        if Game.inventory:addItem(current_item:clone()) then
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("snd_locker")
             self.right_text:setText(self.buy_text)

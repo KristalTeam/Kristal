@@ -74,7 +74,7 @@ function Inventory:removeItemClass(storage, item)
     end
     if storage then
         for i = 1, storage.max do
-            if storage[i] and storage[i].id == item.id then
+            if storage[i] and storage[i] == item then
                 self:removeItem(storage, i)
                 return true
             end
