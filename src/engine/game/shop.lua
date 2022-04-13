@@ -130,6 +130,8 @@ function Shop:init()
     self.box_ease_top = 220 - 48
     self.box_ease_method = "outExpo"
     self.box_ease_multiplier = 1
+
+    self.hide_price = false
 end
 
 function Shop:postInit()
@@ -497,7 +499,9 @@ function Shop:draw()
             else
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.print(self.items[i][1].name, 60, 220 + (i * 40))
-                love.graphics.print(string.format(self.currency_text, self.items[i][1]:getBuyPrice() or 0), 60 + 240, 220 + (i * 40))
+                if not self.hide_price then
+                    love.graphics.print(string.format(self.currency_text, self.items[i][1]:getBuyPrice() or 0), 60 + 240, 220 + (i * 40))
+                end
             end
         end
         love.graphics.setColor(1, 1, 1, 1)

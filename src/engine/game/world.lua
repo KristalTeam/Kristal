@@ -123,12 +123,7 @@ function World:openMenu(menu, layer)
     end
 
     if not menu then
-        if not self.light then
-            self.menu = DarkMenu()
-        else
-            --error("TODO: Light world menu")
-            print("TODO: Light world menu")
-        end
+        self:createMenu()
     else
         self.menu = menu
     end
@@ -138,6 +133,15 @@ function World:openMenu(menu, layer)
         self:setState("MENU")
     end
     return self.menu
+end
+
+function World:createMenu()
+    if not self.light then
+        self.menu = DarkMenu()
+    else
+        --error("TODO: Light world menu")
+        print("TODO: Light world menu")
+    end
 end
 
 function World:closeMenu()

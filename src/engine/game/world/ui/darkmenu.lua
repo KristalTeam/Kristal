@@ -55,6 +55,8 @@ function DarkMenu:init()
         {Assets.getTexture("ui/menu/btn/config"), Assets.getTexture("ui/menu/btn/config_h")}
     }
 
+    self.button_offset = 100
+
     self.description_box = Rectangle(0, 0, SCREEN_WIDTH, 80)
     self.description_box:setColor(0, 0, 0)
     self.description_box.visible = false
@@ -118,58 +120,16 @@ function DarkMenu:keypressed(key)
 
     if self.state == "MAIN" then
         local old_selected = self.selected_submenu
-        if Input.is("left", key) then self.selected_submenu = self.selected_submenu - 1 end
+        if Input.is("left", key)  then self.selected_submenu = self.selected_submenu - 1 end
         if Input.is("right", key) then self.selected_submenu = self.selected_submenu + 1 end
-        if self.selected_submenu < 1 then self.selected_submenu = 4 end
-        if self.selected_submenu > 4 then self.selected_submenu = 1 end
+        if self.selected_submenu < 1             then self.selected_submenu = #self.buttons end
+        if self.selected_submenu > #self.buttons then self.selected_submenu = 1             end
         if old_selected ~= self.selected_submenu then
             self.ui_move:stop()
             self.ui_move:play()
         end
         if Input.isConfirm(key) then
-            if self.selected_submenu == 1 then
-                self.state = "ITEMMENU"
-
-                Input.consumePress("confirm")
-                self.box = DarkItemMenu()
-                self.box.layer = 1
-                self:addChild(self.box)
-
-                self.ui_select:stop()
-                self.ui_select:play()
-            elseif self.selected_submenu == 2 then
-                self.state = "EQUIPMENU"
-
-                Input.consumePress("confirm")
-                self.box = DarkEquipMenu()
-                self.box.layer = 1
-                self:addChild(self.box)
-
-                self.ui_select:stop()
-                self.ui_select:play()
-            elseif self.selected_submenu == 3 then
-                self.state = "POWERMENU"
-
-                -- The power menu does not reset the selected character, for some reason.
-                -- But we're not doing that (for now at least)
-                Input.consumePress("confirm")
-                self.box = DarkPowerMenu()
-                self.box.layer = 1
-                self:addChild(self.box)
-
-                self.ui_select:stop()
-                self.ui_select:play()
-            elseif self.selected_submenu == 4 then
-                self.state = "CONFIGMENU"
-
-                Input.consumePress("confirm")
-                self.box = DarkConfigMenu()
-                self.box.layer = -1
-                self:addChild(self.box)
-
-                self.ui_select:stop()
-                self.ui_select:play()
-            end
+            self:onButtonSelect(self.selected_submenu)
         end
     elseif self.state == "PARTYSELECT" then
         if Input.isCancel(key) then
@@ -216,6 +176,52 @@ function DarkMenu:keypressed(key)
             end
             self:updateSelectedBoxes()
         end
+    end
+end
+
+function DarkMenu:onButtonSelect(button)
+    if button == 1 then
+        self.state = "ITEMMENU"
+
+        Input.consumePress("confirm")
+        self.box = DarkItemMenu()
+        self.box.layer = 1
+        self:addChild(self.box)
+
+        self.ui_select:stop()
+        self.ui_select:play()
+    elseif button == 2 then
+        self.state = "EQUIPMENU"
+
+        Input.consumePress("confirm")
+        self.box = DarkEquipMenu()
+        self.box.layer = 1
+        self:addChild(self.box)
+
+        self.ui_select:stop()
+        self.ui_select:play()
+    elseif button == 3 then
+        self.state = "POWERMENU"
+
+        -- The power menu does not reset the selected character, for some reason.
+        -- But we're not doing that (for now at least)
+        Input.consumePress("confirm")
+        self.box = DarkPowerMenu()
+        self.box.layer = 1
+        self:addChild(self.box)
+
+        self.ui_select:stop()
+        self.ui_select:play()
+    elseif button == 4 then
+        self.state = "CONFIGMENU"
+
+        Input.consumePress("confirm")
+        self.box = DarkConfigMenu()
+        self.box.layer = -1
+        self:addChild(self.box)
+
+        self.ui_select:stop()
+        self.ui_select:play()
     end
 end
 
@@ -266,12 +272,13 @@ function DarkMenu:draw()
     love.graphics.rectangle("fill", 0, 0, 640, 80)
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.desc_sprites[self.selected_submenu], 20, 24, 0, 2, 2)
+    if self.desc_sprites[self.selected_submenu] then
+        love.graphics.draw(self.desc_sprites[self.selected_submenu], 20, 24, 0, 2, 2)
+    end
 
-    self:drawButton(1, 120, 20)
-    self:drawButton(2, 220, 20)
-    self:drawButton(3, 320, 20)
-    self:drawButton(4, 420, 20)
+    for i = 1, #self.buttons do
+        self:drawButton(i, 20 + (i * self.button_offset), 20)
+    end
 
     love.graphics.setFont(self.font)
     love.graphics.print("D$ " .. Game.gold, 520, 20)
