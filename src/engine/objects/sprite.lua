@@ -49,6 +49,14 @@ function Sprite:getPath(name)
     end
 end
 
+function Sprite:set(texture)
+    if type(texture) == "table" then
+        self:setAnimation(texture)
+    else
+        self:setSprite(texture)
+    end
+end
+
 function Sprite:setSprite(texture, keep_anim)
     if type(texture) == "string" then
         texture = self:getPath(texture)
