@@ -17,7 +17,7 @@ end
 function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     local sprite = self.spr_doorblack
     love.graphics.setColor(color)
-    love.graphics.draw(sprite, x, y, rot, xscale * 3, yscale * 3, sprite:getWidth()/2, sprite:getHeight()/2)
+    love.graphics.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
 function DarkTransition:enter(previous, mod, save_id)
@@ -203,7 +203,7 @@ function DarkTransition:update(dt)
     end
 
     if self.linecon then
-        self.linetimer = self.linetimer + 1 * (dt * 30)
+        self.linetimer = self.linetimer + 1 * DTMULT
         if (self.linetimer >= 1) then
             local xrand  = math.random() * (math.pi / 2)
             local xrand2 = math.random() * (math.pi / 2)
@@ -216,7 +216,7 @@ function DarkTransition:update(dt)
 
             self.linetimer = 0
         end
-        self.linesfxtimer = self.linesfxtimer + (1 * (dt * 30))
+        self.linesfxtimer = self.linesfxtimer + (1 * DTMULT)
         if (self.linesfxtimer >= 4) then
             self.linesfxtimer = 0
 
@@ -225,31 +225,31 @@ function DarkTransition:update(dt)
     end
     if (self.friction ~= 0) then
         if (self.velocity > 0) then
-            self.velocity = self.velocity - self.friction * (dt * 30)
+            self.velocity = self.velocity - self.friction * DTMULT
             if (self.velocity < 0) then
                 self.velocity = 0
             end
         end
         if (self.velocity < 0) then
-            self.velocity = self.velocity + self.friction * (dt * 30)
+            self.velocity = self.velocity + self.friction * DTMULT
             if (self.velocity > 0) then
                 self.velocity = 0
             end
         end
     end
     if (self.velocity ~= 0) then
-        self.susie_y = self.susie_y + self.velocity * (dt * 30)
-        self.kris_y = self.kris_y + self.velocity * (dt * 30)
+        self.susie_y = self.susie_y + self.velocity * DTMULT
+        self.kris_y = self.kris_y + self.velocity * DTMULT
     end
     if (self.fake_screenshake == 1) then
         if (self.fake_shakeamount ~= 0) then
             if (self.fake_shakeamount > 0) then
-                self.fake_shakeamount = self.fake_shakeamount - 1 * (dt * 30)
+                self.fake_shakeamount = self.fake_shakeamount - 1 * DTMULT
             end
             if (self.fake_shakeamount < 0) then
-                self.fake_shakeamount = self.fake_shakeamount + 1 * (dt * 30)
+                self.fake_shakeamount = self.fake_shakeamount + 1 * DTMULT
             end
-            if (math.floor(self.timer % (1 * dt * 30)) == 0) then
+            if (math.floor(self.timer % (1 * DTMULT)) == 0) then
                 self.fake_shakeamount = self.fake_shakeamount * -1
             end
             -- because of deltatime multiplying messing up some calcs, we have to do this:
@@ -279,13 +279,13 @@ function DarkTransition:draw(dont_clear)
         love.graphics.setColor(1, 1, 1)
     end
 
-    self.index = self.index + 1 * (DT * 30)
+    self.index = self.index + 1 * DTMULT
     if (self.rect_draw == 1) then
-        self.rs = self.rs + 1 * (DT * 30)
+        self.rs = self.rs + 1 * DTMULT
         for i = 1, self.rect_amount do
-            self.rsize[i] = self.rsize[i] + (0.25 * (DT * 30))
+            self.rsize[i] = self.rsize[i] + (0.25 * DTMULT)
             if (self.quick_mode) then
-                self.rsize[i] = self.rsize[i] + (0.25 * (DT * 30))
+                self.rsize[i] = self.rsize[i] + (0.25 * DTMULT)
             end
             if (self.rsize[i] > 0) then
                 local r_darkest = (5 - (self.rsize[i] * 0.8))
@@ -335,7 +335,7 @@ function DarkTransition:draw(dont_clear)
         self.doorblack = 0
     end
     if (self.con == 9) then
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         if (self.quick_mode or self.skiprunback) then
             if (self.timer < 40) then
                 --snd_free_all()
@@ -349,7 +349,7 @@ function DarkTransition:draw(dont_clear)
                 self.friction = 0.4
                 self.timer = 45
                 self.do_once = true -- Ugly deltatime hack: skip self.timer == 30
-                self.kris_x = self.kris_x - 4 * (DT * 30)
+                self.kris_x = self.kris_x - 4 * DTMULT
 
                 self.kris_sprite:setFrames(self.spr_krisu_run)
                 if not self.kris_only then
@@ -358,7 +358,7 @@ function DarkTransition:draw(dont_clear)
             end
         end
         if (self.timer < 30) then
-            self.sprite_index = self.sprite_index + 0.2 * (DT * 30)
+            self.sprite_index = self.sprite_index + 0.2 * DTMULT
         end
         if (math.floor(self.timer) >= 30) and not self.do_once then
 
@@ -369,7 +369,7 @@ function DarkTransition:draw(dont_clear)
             self.doorblack = 1
             self.sprite_index = 0
             self.velocity = 0
-            self.kris_x = self.kris_x - 4 * (DT * 30)
+            self.kris_x = self.kris_x - 4 * DTMULT
 
             self.kris_sprite:setFrames(self.spr_krisu_run)
             if not self.kris_only then
@@ -387,15 +387,15 @@ function DarkTransition:draw(dont_clear)
             end
         end
         if (self.timer > 60 and self.timer < 68) then
-            self.kris_y = self.kris_y - 1 * (DT * 30)
-            self.sprite_index = self.sprite_index + 0.25 * (DT * 30)
+            self.kris_y = self.kris_y - 1 * DTMULT
+            self.sprite_index = self.sprite_index + 0.25 * DTMULT
         end
         if (math.floor(self.timer) >= 68) and not self.do_once3 then
             self.do_once3 = true
             self.friction = 0.15
             self.velocity = -4
-            self.susie_y = self.susie_y - 2 * (DT * 30)
-            self.susie_x = self.susie_x - 2 * (DT * 30)
+            self.susie_y = self.susie_y - 2 * DTMULT
+            self.susie_x = self.susie_x - 2 * DTMULT
             self.con = 15
             self.soundtimer = 0
 
@@ -441,7 +441,7 @@ function DarkTransition:draw(dont_clear)
         if (self.quick_mode) then
             self.soundthreshold = 3
         end
-        self.soundtimer = self.soundtimer + 1 * (DT * 30)
+        self.soundtimer = self.soundtimer + 1 * DTMULT
         if ((self.soundtimer >= self.soundthreshold) and (self.rectsound < self.rect_amount)) then
             self.soundtimer = 0
             self.snd_dtrans_square:stop()
@@ -449,12 +449,12 @@ function DarkTransition:draw(dont_clear)
             self.snd_dtrans_square:play()
             self.rectsound = self.rectsound + 1
         end
-        self.sprite_index = self.sprite_index + 0.25 * (DT * 30)
+        self.sprite_index = self.sprite_index + 0.25 * DTMULT
         if (self.velocity >= 0) then
             self.friction = 0
-            self.velocity = self.velocity + 0.005 * (DT * 30)
+            self.velocity = self.velocity + 0.005 * DTMULT
         end
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         self.threshold = 80
         if (self.quick_mode) then
             self.threshold = 30
@@ -495,9 +495,9 @@ function DarkTransition:draw(dont_clear)
         self.soundcon = 2
     end
     if (self.soundcon == 2) then
-        self.dronetimer = self.dronetimer + 1 * (DT * 30)
+        self.dronetimer = self.dronetimer + 1 * DTMULT
         if (self.quick_mode) then
-            self.dronetimer = self.dronetimer + 1 * (DT * 30)
+            self.dronetimer = self.dronetimer + 1 * DTMULT
         end
         self.dronepitch = (self.dronetimer / 80)
         if (self.dronepitch >= 1) then
@@ -507,9 +507,9 @@ function DarkTransition:draw(dont_clear)
         self.dronesfx:setPitch(self.dronepitch)
     end
     if (self.con == 18) then
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         if (self.quick_mode) then
-            self.timer = self.timer + 1 * (DT * 30)
+            self.timer = self.timer + 1 * DTMULT
         end
         self.sprite_index = ((self.timer / 36) * 5)
         self.susie_x = (self.susie_x_current - (math.sin(math.rad((self.timer * 2.5))) * self.radius))
@@ -530,8 +530,8 @@ function DarkTransition:draw(dont_clear)
         end
     end
     if (self.con == 19) then
-        self.sprite_index = self.sprite_index + 0.2 * (DT * 30)
-        self.timer = self.timer + 1 * (DT * 30)
+        self.sprite_index = self.sprite_index + 0.2 * DTMULT
+        self.timer = self.timer + 1 * DTMULT
         if (self.quick_mode) then
             self.timer = 8
         end
@@ -561,9 +561,9 @@ function DarkTransition:draw(dont_clear)
             self.susie_sprite:setFrame(math.floor(self.index / 4) + 1)
         end
 
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         if (self.quick_mode) then
-            self.timer = self.timer + 1 * (DT * 30)
+            self.timer = self.timer + 1 * DTMULT
         end
         if (self.timer >= 15) then
             if self.mod_loading then
@@ -602,7 +602,7 @@ function DarkTransition:draw(dont_clear)
         end
     end
     if (self.con == 31) then
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         self.kris_sprite:setFrame(math.floor(self.index / 4) + 1)
         self.kris_sprite_2:setFrame(math.floor(self.index / 4) + 1)
         self.kris_sprite_3:setFrame(math.floor(self.index / 4) + 1)
@@ -654,9 +654,9 @@ function DarkTransition:draw(dont_clear)
         end
         if (self.timer >= 4) then
             if (self.susie_top > 2) then
-                self.susie_top = self.susie_top - 0.5 * (DT * 30)
+                self.susie_top = self.susie_top - 0.5 * DTMULT
                 if (self.quick_mode) then
-                    self.susie_top = self.susie_top - 1.5 * (DT * 30)
+                    self.susie_top = self.susie_top - 1.5 * DTMULT
                 end
             else
                 self.susie_top = 0
@@ -669,9 +669,9 @@ function DarkTransition:draw(dont_clear)
                 self.stage_scaled:addChild(DarkTransitionParticle(x, y))
             end
             if (self.kris_top > 5) then
-                self.kris_top = self.kris_top - 0.5 * (DT * 30)
+                self.kris_top = self.kris_top - 0.5 * DTMULT
                 if (self.quick_mode) then
-                    self.kris_top = self.kris_top - 1.5 * (DT * 30)
+                    self.kris_top = self.kris_top - 1.5 * DTMULT
                 end
             else
                 self.kris_top = 0
@@ -740,9 +740,9 @@ function DarkTransition:draw(dont_clear)
             --self.megablack.y = 0
         end
         self.megablack = true
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         if (self.timer >= 0 and self.timer < 8) then
-            self.velocity = self.velocity - 0.5 * (DT * 30)
+            self.velocity = self.velocity - 0.5 * DTMULT
 
             self.kris_sprite:setFrame(1)
             if not self.kris_only then
@@ -750,7 +750,7 @@ function DarkTransition:draw(dont_clear)
             end
         end
         if (self.timer >= 8 and self.timer < 12) then
-            self.velocity = self.velocity + 1 * (DT * 30)
+            self.velocity = self.velocity + 1 * DTMULT
             self.friction = 0
 
             self.kris_sprite:setFrame(2)
@@ -759,7 +759,7 @@ function DarkTransition:draw(dont_clear)
             end
         end
         if (self.timer >= 12 and self.timer <= 14) then
-            self.velocity = self.velocity + 4 * (DT * 30)
+            self.velocity = self.velocity + 4 * DTMULT
 
             self.kris_sprite:setFrame(3)
             if not self.kris_only then
@@ -804,7 +804,7 @@ function DarkTransition:draw(dont_clear)
         end
     end
     if (self.con == 33) then
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         if (self.quick_mode and (self.timer < 31)) then
             self.timer = 31
             self.do_once4 = true -- skip timer == 14
@@ -891,7 +891,7 @@ function DarkTransition:draw(dont_clear)
 
     if (self.con == 34) then
         self.dronesfx:stop()
-        self.timer = self.timer + 1 * (DT * 30)
+        self.timer = self.timer + 1 * DTMULT
         if (self.quick_mode and self.timer < 15) then
             self.timer = 15
         end
@@ -941,9 +941,9 @@ function DarkTransition:draw(dont_clear)
             --end
         end
         if (self.timer >= 30 and self.timer < 60) then
-            self.black_fade = self.black_fade - 0.05 * (DT * 30)
+            self.black_fade = self.black_fade - 0.05 * DTMULT
             if self.quick_mode then
-                self.black_fade = self.black_fade - 0.05 * (DT * 30)
+                self.black_fade = self.black_fade - 0.05 * DTMULT
             end
             --with (megablack)
             --    image_alpha = image_alpha - 0.05
