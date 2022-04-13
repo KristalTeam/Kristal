@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.8.4",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 30,
@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 8,
-  nextobjectid = 76,
+  nextobjectid = 90,
   properties = {
     ["light"] = false,
     ["music"] = "dogcheck",
@@ -1419,7 +1419,7 @@ return {
           visible = true,
           properties = {
             ["actor"] = "starwalker",
-            ["script"] = "starwalker"
+            ["scene"] = "starwalker"
           }
         },
         {

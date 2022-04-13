@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.8.4",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -503,7 +503,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["script"] = "room1.wall"
+            ["scene"] = "room1.wall"
           }
         }
       }

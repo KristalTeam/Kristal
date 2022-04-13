@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="8" nextobjectid="90">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="8" nextobjectid="90">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -155,7 +155,7 @@
   <object id="45" name="npc" x="980" y="860">
    <properties>
     <property name="actor" value="starwalker"/>
-    <property name="script" value="starwalker"/>
+    <property name="scene" value="starwalker"/>
    </properties>
    <point/>
   </object>

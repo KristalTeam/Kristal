@@ -45,6 +45,8 @@ function Cutscene:parseFromGetter(getter, cutscene, id, ...)
                 end
             end
         end
+    else
+        error("Attempt to start nil cutscene")
     end
 end
 
