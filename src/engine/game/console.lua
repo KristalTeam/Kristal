@@ -284,6 +284,21 @@ function Console:draw()
     end
 
     love.graphics.setColor(1, 1, 1, 1)
+
+    -- FOR DEBUGGING HISTORY:
+    --[[offset = 0
+    for i, v in ipairs(self.command_history) do
+        if i == self.history_index then
+            love.graphics.setColor(1, 0, 0, 1)
+        else
+            love.graphics.setColor(1, 1, 1, 1)
+        end
+        for j, text in ipairs(v) do
+            offset = offset + 1
+            self:print(text, 8, 200 + ((offset) * 16), true)
+        end
+    end]]
+
     super:draw(self)
 end
 
@@ -442,7 +457,7 @@ function Console:stripError(str)
 end
 
 function Console:run(str)
-    if str ~= self.command_history[#self.command_history] then
+    if not Utils.equal(str, self.command_history[#self.command_history]) then
         table.insert(self.command_history, str)
     end
     self.history_index = #self.command_history + 1
@@ -578,7 +593,7 @@ function Console:keypressed(key)
             if #self.command_history == 0 then return end
             if self.history_index > 1 then
                 self.history_index = self.history_index - 1
-                self.input = self.command_history[self.history_index]
+                self.input = Utils.copy(self.command_history[self.history_index] or {""})
                 self.cursor_x = utf8.len(self.input[#self.input])
                 self.cursor_x_tallest = self.cursor_x
                 self.cursor_y = #self.input
@@ -612,7 +627,7 @@ function Console:keypressed(key)
 
             else
                 self.history_index = self.history_index + 1
-                self.input = self.command_history[self.history_index] or {""}
+                self.input = Utils.copy(self.command_history[self.history_index] or {""})
                 self.cursor_x = utf8.len(self.input[#self.input])
                 self.cursor_x_tallest = self.cursor_x
                 self.cursor_y = #self.input
