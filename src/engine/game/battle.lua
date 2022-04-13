@@ -1520,16 +1520,19 @@ function Battle:shortActText(text)
 end
 
 function Battle:battleText(text,post_func)
-    self.battletext_index = 1
-    if type(text) == "table" then
-        self.battletext_table = text
-        self.battle_ui.encounter_text:setText(text[1])
-    else
-        self.battletext_table = nil
-        self.battle_ui.encounter_text:setText(text)
-    end
-    self.post_battletext_func = post_func
-    self.post_battletext_state = self:getState()
+    local target_state = self:getState()
+
+    self.battle_ui.encounter_text:setText(text, function()
+        self.battle_ui.encounter_text:setText("")
+        if type(post_func) == "string" then
+            target_state = post_func
+        elseif type(post_func) == "function" and post_func() then
+            return
+        end
+        self:setState(target_state)
+    end)
+    self.battle_ui.encounter_text:setAdvance(true)
+
     self:setState("BATTLETEXT")
 end
 
@@ -1552,6 +1555,7 @@ function Battle:spawnEnemyTextbox(enemy, text, right)
         end
         textbox = EnemyTextbox(text, x, y, enemy, true)
     end
+    textbox:setCallback(function() textbox:remove() end)
     self:addChild(textbox)
     return textbox
 end
@@ -1649,6 +1653,17 @@ function Battle:update(dt)
         self.textbox_timer = self.textbox_timer - DTMULT
         if (self.textbox_timer <= 0) and self.use_textbox_timer then
             self:advanceBoxes()
+        else
+            local all_done = true
+            for _,textbox in ipairs(self.enemy_dialogue) do
+                if not textbox:isDone() then
+                    all_done = false
+                    break
+                end
+            end
+            if all_done then
+                self:setState("DIALOGUEEND")
+            end
         end
     end
 
@@ -1991,12 +2006,11 @@ function Battle:isValidMenuLocation()
 end
 
 function Battle:advanceBoxes()
-    local any_typing = false
     local all_done = true
     local to_remove = {}
     -- Check if any dialogue is typing
     for _,dialogue in ipairs(self.enemy_dialogue) do
-        if dialogue.text.state.typing then
+        if dialogue:isTyping() then
             all_done = false
             break
         end
@@ -2006,8 +2020,8 @@ function Battle:advanceBoxes()
         self.textbox_timer = 3 * 30
         self.use_textbox_timer = true
         for _,dialogue in ipairs(self.enemy_dialogue) do
-            dialogue:next()
-            if not dialogue.done then
+            dialogue:advance()
+            if not dialogue:isDone() then
                 all_done = false
             else
                 table.insert(to_remove, dialogue)
@@ -2259,23 +2273,7 @@ function Battle:keypressed(key)
             end
         end
     elseif self.state == "BATTLETEXT" then
-        if Input.isConfirm(key) then
-            if not self.battle_ui.encounter_text:isTyping() then
-                if self.battletext_table ~= nil then
-                    self.battletext_index = self.battletext_index + 1
-                    if self.battletext_index <= #self.battletext_table then
-                        self.battle_ui.encounter_text:setText(self.battletext_table[self.battletext_index])
-                        return
-                    end
-                end
-                self.battle_ui.encounter_text:setText("")
-                if self.post_battletext_func then
-                    self:post_battletext_func()
-                else
-                    self:setState(self.post_battletext_state, "BATTLETEXT")
-                end
-            end
-        end
+        -- Nothing here
     elseif self.state == "SHORTACTTEXT" then
         if Input.isConfirm(key) then
             if (not self.battle_ui.short_act_text_1:isTyping()) and
@@ -2292,9 +2290,7 @@ function Battle:keypressed(key)
             end
         end
     elseif self.state == "ENEMYDIALOGUE" then
-        if Input.isConfirm(key) then
-            self:advanceBoxes()
-        end
+        -- Nothing here
     elseif self.state == "ACTIONSELECT" then
         -- TODO: make this less huge!!
         local actbox = self.battle_ui.action_boxes[self.current_selecting]

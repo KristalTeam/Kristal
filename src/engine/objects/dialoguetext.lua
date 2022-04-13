@@ -8,6 +8,7 @@ function DialogueText:init(text, x, y, w, h, font, style)
         text = {text}
     end
     self.fast_skipping_timer = 0
+    self.played_first_sound = false
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
     self.skippable = true
     self.skip_speed = false
@@ -19,6 +20,8 @@ function DialogueText:init(text, x, y, w, h, font, style)
     self.can_advance = true
     self.auto_advance = false
     self.advance_callback = nil
+
+    self.done = false
 end
 
 function DialogueText:resetState()
@@ -70,6 +73,10 @@ function DialogueText:setText(text, callback)
         self.canvas = love.graphics.newCanvas(self.width, self.height)
     end
 
+    self.played_first_sound = false
+
+    self.done = false
+
     if self.stage then
         self.set_text_without_stage = false
         self:processInitialNodes()
@@ -80,6 +87,7 @@ end
 
 function DialogueText:advance()
     if #self.text_table <= 1 then
+        self.done = true
         if self.advance_callback then
             self.advance_callback()
         end
@@ -172,14 +180,16 @@ function DialogueText:updateTalkSprite(typing)
                 self.talk_sprite:play(talk_speed, true)
             elseif self.last_typing and not typing and self.talk_sprite.playing then
                 self.talk_sprite:stop()
-                self.talk_sprite.actor:onTalkEnd(self, self.talk_sprite)
+                if self.talk_sprite:includes(ActorSprite) then
+                    self.talk_sprite.actor:onTalkEnd(self, self.talk_sprite)
+                end
             end
         end
     end
 end
 
 function DialogueText:playTextSound(current_node)
-    if self.state.skipping then
+    if self.state.skipping and self.played_first_sound then
         return
     end
 
@@ -194,6 +204,7 @@ function DialogueText:playTextSound(current_node)
     end
 
     if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
+        self.played_first_sound = true
         if Kristal.callEvent("onTextSound", self.state.typing_sound, current_node) then
             return
         end
@@ -287,6 +298,10 @@ end
 
 function DialogueText:isTyping()
     return self.state.typing
+end
+
+function DialogueText:isDone()
+    return self.done
 end
 
 return DialogueText

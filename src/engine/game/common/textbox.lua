@@ -103,9 +103,11 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         table.insert(self.reaction_instances, reaction)
     end, false)
 
-    self.can_advance = not self.battle_box
-    self.auto_advance = false
-    self.done = false
+    self.advance_callback = nil
+end
+
+function Textbox:advance()
+    self.text:advance()
 end
 
 function Textbox:setSize(w, h)
@@ -161,8 +163,21 @@ function Textbox:setFont(font, size)
     end
 end
 
+function Textbox:setAuto(auto)
+    self.text.auto_advance = auto or false
+end
+
+function Textbox:setAdvance(advance)
+    self.text.can_advance = advance or false
+end
+
 function Textbox:setSkippable(skippable)
     self.text.skippable = skippable or false
+end
+
+function Textbox:setCallback(callback)
+    self.advance_callback = callback
+    self.text.advance_callback = callback
 end
 
 function Textbox:resetReactions()
@@ -201,35 +216,25 @@ function Textbox:addFunction(id, func)
     self.text:addFunction(id, func)
 end
 
-function Textbox:setText(text)
+function Textbox:setText(text, callback)
     for _,reaction in ipairs(self.reaction_instances) do
         reaction:remove()
     end
     self.reaction_instances = {}
     self.text.font = self.font
     self.text.font_size = self.font_size
-    callback = (function()
-        self.done = true
-        if not self.battle_box then
-            self:remove()
-            if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
-                Game.world.cutscene.waiting_for_text = nil
-                Game.world.cutscene:resume()
-            end
-        elseif self.text.text ~= "" then
-            self:setText("")
-            self:setActor()
-            self:setFace()
-            if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
-                Game.battle.cutscene.waiting_for_text = nil
-                Game.battle.cutscene:resume()
-            end
-        end
-    end)
     if self.actor and self.actor.voice then
-        self.text:setText("[voice:"..self.actor.voice.."]"..text, callback)
+        if type(text) ~= "table" then
+            text = {text}
+        else
+            text = Utils.copy(text)
+        end
+        for i,line in ipairs(text) do
+            text[i] = "[voice:"..self.actor.voice.."]"..line
+        end
+        self.text:setText(text, callback or self.advance_callback)
     else
-        self.text:setText(text, callback)
+        self.text:setText(text, callback or self.advance_callback)
     end
 end
 
@@ -246,7 +251,11 @@ function Textbox:getBorder()
 end
 
 function Textbox:isTyping()
-    return self.text.state.typing
+    return self.text:isTyping()
+end
+
+function Textbox:isDone()
+    return self.text:isDone()
 end
 
 return Textbox

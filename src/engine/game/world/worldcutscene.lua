@@ -11,8 +11,6 @@ function WorldCutscene:init(group, id, ...)
     self.choicebox = nil
     self.choice = 0
 
-    self.waiting_for_text = nil
-
     self.moving_chars = {}
 
     self.camera_target = nil
@@ -317,7 +315,7 @@ function WorldCutscene:fadeIn(speed, options)
     end
 end
 
-local function waitForTextbox(self) return self.textbox.done end
+local function waitForTextbox(self) return self.textbox:isDone() end
 function WorldCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" and not isClass(actor) then
         options = actor
@@ -341,6 +339,8 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox = Textbox(56, 344, 529, 103)
     self.textbox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.textbox)
+
+    self.textbox:setCallback(function() self.textbox:remove() end)
 
     actor = actor or self.textbox_actor
     if actor then
@@ -380,20 +380,18 @@ function WorldCutscene:text(text, portrait, actor, options)
     end
 
     self.textbox:setSkippable(options["skip"] or options["skip"] == nil)
-
-    self.textbox.can_advance = options["advance"] or options["advance"] == nil
-    self.textbox.auto_advance = options["auto"]
+    self.textbox:setAdvance(options["advance"] or options["advance"] == nil)
+    self.textbox:setAuto(options["auto"])
 
     self.textbox:setText(text)
 
     local wait = options["wait"] or options["wait"] == nil
-    if not self.textbox.can_advance then
+    if not self.textbox.text.can_advance then
         wait = options["wait"] -- By default, don't wait if the textbox can't advance
     end
 
     if wait then
-        self.waiting_for_text = self.textbox
-        return self:pause()
+        return self:wait(waitForTextbox)
     else
         return waitForTextbox, self.textbox
     end
@@ -433,8 +431,7 @@ function WorldCutscene:choicer(choices, options)
     self.choicebox.visible = true
 
     if options["wait"] or options["wait"] == nil then
-        self.waiting_for_text = self.choicebox
-        return self:pause()
+        return self:wait(waitForChoicer)
     else
         return waitForChoicer, self.choicebox
     end

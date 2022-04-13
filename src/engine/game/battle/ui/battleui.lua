@@ -5,10 +5,10 @@ function BattleUI:init()
 
     self.layer = BATTLE_LAYERS["ui"]
 
-    self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
-    self.encounter_text.text.can_advance = false
-    self.encounter_text.text.line_offset = 0
     self.current_encounter_text = Game.battle.encounter.text
+
+    self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
+    self.encounter_text.text.line_offset = 0
     self.encounter_text:setText(self.current_encounter_text)
     self:addChild(self.encounter_text)
 
@@ -56,6 +56,16 @@ function BattleUI:init()
 
     self.sparestar = Assets.getTexture("ui/battle/sparestar")
     self.tiredmark = Assets.getTexture("ui/battle/tiredmark")
+end
+
+function BattleUI:clearEncounterText()
+    self.encounter_text:setActor(nil)
+    self.encounter_text:setFace(nil)
+    self.encounter_text:setFont()
+    self.encounter_text:setSkippable(true)
+    self.encounter_text:setAdvance(true)
+    self.encounter_text:setAuto(false)
+    self.encounter_text:setText("")
 end
 
 function BattleUI:beginAttack()

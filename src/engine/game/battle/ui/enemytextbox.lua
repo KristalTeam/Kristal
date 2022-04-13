@@ -10,9 +10,12 @@ function EnemyTextbox:init(text, x, y, speaker, right)
     self.font = Assets.getFont("plain")
     self.font_data = Assets.getFontData("plain")
 
-    self.text = DialogueText("", 0, 0, 1, 1, "plain", "none")
+    self.text = DialogueText("", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "plain", "none")
     self.text.color = {0, 0, 0}
     self:addChild(self.text)
+
+    self.text_width = 1
+    self.text_height = 1
 
     if right then
         self.right = true
@@ -28,48 +31,64 @@ function EnemyTextbox:init(text, x, y, speaker, right)
         self.speaker.textbox = self
     end
 
-    self.text_list = {}
-    if type(text) == "table" then
-        self.text_list = text
-    else
-        self.text_list = {text}
-    end
-    self.current_text = 0
-
-    self.can_advance = false
-    self.auto_advance = false
-
-    self.done = false
+    self.advance_callback = nil
 
     self.text:registerCommand("noautoskip", function(text, node)
         Game.battle.use_textbox_timer = false
-        text.state.typed_characters = text.state.typed_characters + 1
     end)
 
-    self:next()
+    self:setText(text)
 end
 
-function EnemyTextbox:next()
-    self.current_text = self.current_text + 1
-    if self.current_text > #self.text_list then
-        if self.speaker then
-            self.speaker.textbox = nil
-        end
-        self.done = true
-        self:remove()
-        return true
+function EnemyTextbox:onRemoveFromStage(stage)
+    super:onRemoveFromStage(self, stage)
+    if self.speaker and self.speaker.textbox == self then
+        self.speaker.textbox = nil
     end
-    self.done = false
-    self:setText(self.text_list[self.current_text])
-    return false
 end
 
-function EnemyTextbox:setText(text)
-    self.text.width = SCREEN_WIDTH
-    self.text.height = SCREEN_HEIGHT
+function EnemyTextbox:advance()
+    self.text:advance()
+end
 
-    self.text:setText(text)
+function EnemyTextbox:setText(text, callback)
+    self.text:setText(text, callback or self.advance_callback)
 
+    self:updateSize()
+end
+
+function EnemyTextbox:setAuto(auto)
+    self.text.auto_advance = auto or false
+end
+
+function EnemyTextbox:setAdvance(advance)
+    self.text.can_advance = advance or false
+end
+
+function EnemyTextbox:setSkippable(skippable)
+    self.text.skippable = skippable or false
+end
+
+function EnemyTextbox:setCallback(callback)
+    self.advance_callback = callback
+    self.text.advance_callback = callback
+end
+
+function EnemyTextbox:isTyping()
+    return self.text:isTyping()
+end
+
+function EnemyTextbox:isDone()
+    return self.text:isDone()
+end
+
+function EnemyTextbox:update(dt)
+    super:update(self, dt)
+
+    self:updateSize()
+end
+
+function EnemyTextbox:updateSize()
     local parsed = self.text.display_text
 
     local _,lines = parsed:gsub("\n", "")
@@ -77,46 +96,24 @@ function EnemyTextbox:setText(text)
     local w = self.font:getWidth(parsed)
     local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())
 
-    self.text.width = w
-    self.text.height = h
+    self.text_width = w
+    self.text_height = h
 
     self.width = w + self.bubble_end:getWidth()
     self.height = h
 end
 
-function EnemyTextbox:isTyping()
-    return self.text.state.typing
-end
-
-function EnemyTextbox:update(dt)
-    if self.can_advance then
-        if Input.pressed("confirm") or self.auto_advance or Input.down("menu") then
-            if not self:isTyping() and self:next() and Game.battle.cutscene then
-                local enemy_text = Game.battle.cutscene.waiting_for_enemy_text
-                if enemy_text and Utils.containsValue(enemy_text, self) then
-                    Utils.removeFromTable(enemy_text, self)
-                    if #enemy_text == 0 then
-                        Game.battle.cutscene.waiting_for_enemy_text = nil
-                        Game.battle.cutscene:resume()
-                    end
-                end
-            end
-        end
-    end
-    super:update(self, dt)
-end
-
 function EnemyTextbox:draw()
-    love.graphics.rectangle("fill", self.text.x - 10, self.text.y - 5, self.text.width + 20, self.text.height + 10)
-    love.graphics.rectangle("fill", self.text.x - 5, self.text.y - 10, self.text.width + 10, self.text.height + 20)
+    love.graphics.rectangle("fill", self.text.x - 10, self.text.y - 5, self.text_width + 20, self.text_height + 10)
+    love.graphics.rectangle("fill", self.text.x - 5, self.text.y - 10, self.text_width + 10, self.text_height + 20)
     local scale = 1
     if self.text.height < 35 then
         scale = 0.5
     end
     if self.right then
-        love.graphics.draw(self.bubble_end, self.text.x - 5 - 1, self.text.height/2 - (self.bubble_end:getHeight()/2) * scale, 0, -1, scale)
+        love.graphics.draw(self.bubble_end, self.text.x - 5 - 1, self.text_height/2 - (self.bubble_end:getHeight()/2) * scale, 0, -1, scale)
     else
-        love.graphics.draw(self.bubble_end, self.text.width + 5 + 1, self.text.height/2 - (self.bubble_end:getHeight()/2) * scale, 0, 1, scale)
+        love.graphics.draw(self.bubble_end, self.text_width + 5 + 1, self.text_height/2 - (self.bubble_end:getHeight()/2) * scale, 0, 1, scale)
     end
 
     super:draw(self)

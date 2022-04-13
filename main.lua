@@ -87,14 +87,19 @@ Encounter = require("src.engine.game.scripts.encounter")
 Wave = require("src.engine.game.scripts.wave")
 Map = require("src.engine.game.scripts.map")
 
-ActorSprite = require("src.engine.game.actorsprite")
+ActorSprite = require("src.engine.game.common.actorsprite")
 Inventory = require("src.engine.game.inventory")
 
-Cutscene = require("src.engine.game.cutscene")
+Cutscene = require("src.engine.game.common.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")
 BattleCutscene = require("src.engine.game.battle.battlecutscene")
 
 Console = require("src.engine.game.console")
+
+DarkBox = require("src.engine.game.common.darkbox")
+Textbox = require("src.engine.game.common.textbox")
+Choicebox = require("src.engine.game.common.choicebox")
+SmallFaceText = require("src.engine.game.common.smallfacetext")
 
 World = require("src.engine.game.world")
 Tileset = require("src.engine.game.world.tileset")
@@ -106,10 +111,6 @@ OverworldSoul = require("src.engine.game.world.overworldsoul")
 WorldBullet = require("src.engine.game.world.worldbullet")
 ChaserEnemy = require("src.engine.game.world.chaserenemy")
 
-DarkBox = require("src.engine.game.world.ui.darkbox")
-Textbox = require("src.engine.game.world.ui.textbox")
-Choicebox = require("src.engine.game.world.ui.choicebox")
-SmallFaceText = require("src.engine.game.world.ui.smallfacetext")
 DarkMenu = require("src.engine.game.world.ui.darkmenu")
 DarkItemMenu = require("src.engine.game.world.ui.darkitemmenu")
 DarkEquipMenu = require("src.engine.game.world.ui.darkequipmenu")

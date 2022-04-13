@@ -41,12 +41,8 @@ function BattleCutscene:onEnd()
     end
 
     if Game.battle.battle_ui then
-        Game.battle.battle_ui.encounter_text:setActor(nil)
-        Game.battle.battle_ui.encounter_text:setFace(nil)
-        Game.battle.battle_ui.encounter_text:setFont()
-        Game.battle.battle_ui.encounter_text:setSkippable(true)
-        Game.battle.battle_ui.encounter_text.can_advance = false
-        Game.battle.battle_ui.encounter_text.auto_advance = false
+        Game.battle.battle_ui:clearEncounterText()
+
         Game.battle.battle_ui.encounter_text.active = true
         Game.battle.battle_ui.encounter_text.visible = true
 
@@ -203,7 +199,7 @@ function BattleCutscene:setSpeaker(actor)
     self.textbox_actor = actor
 end
 
-local function waitForEncounterText() return Game.battle.battle_ui.encounter_text:getText() == "" end
+local function waitForEncounterText() return Game.battle.battle_ui.encounter_text.text.text == "" end
 function BattleCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
@@ -247,20 +243,18 @@ function BattleCutscene:text(text, portrait, actor, options)
     end
 
     Game.battle.battle_ui.encounter_text:setSkippable(options["skip"] or options["skip"] == nil)
+    Game.battle.battle_ui.encounter_text:setAdvance(options["advance"] or options["advance"] == nil)
+    Game.battle.battle_ui.encounter_text:setAuto(options["auto"])
 
-    Game.battle.battle_ui.encounter_text.can_advance = options["advance"] or options["advance"] == nil
-    Game.battle.battle_ui.encounter_text.auto_advance = options["auto"] or false
-
-    Game.battle.battle_ui.encounter_text:setText(text)
+    Game.battle.battle_ui.encounter_text:setText(text, function() Game.battle.battle_ui:clearEncounterText() end)
 
     local wait = options["wait"] or options["wait"] == nil
-    if not Game.battle.battle_ui.encounter_text.can_advance then
+    if not Game.battle.battle_ui.encounter_text.text.can_advance then
         wait = options["wait"] -- By default, don't wait if the textbox can't advance
     end
 
     if wait then
-        self.waiting_for_text = Game.battle.battle_ui.encounter_text
-        return self:pause()
+        return self:wait(waitForEncounterText)
     else
         return waitForEncounterText
     end
@@ -286,25 +280,26 @@ function BattleCutscene:enemyText(enemies, text, options)
             textbox = EnemyTextbox(text, options["x"] or 0, options["y"] or 0, enemy, options["right"])
             Game.battle:addChild(textbox)
         end
-        textbox.can_advance = options["advance"] or options["advance"] == nil
-        textbox.auto_advance = options["auto"] or false
-        if not textbox.can_advance then
+        textbox:setAdvance(options["advance"] or options["advance"] == nil)
+        textbox:setAuto(options["auto"])
+        if not textbox.text.can_advance then
             wait = options["wait"]
         end
+        textbox:setCallback(function() textbox:remove() end)
         table.insert(textboxes, textbox)
     end
-    if wait then
-        self.waiting_for_enemy_text = textboxes
-        return self:pause()
-    else
-        return function()
-            for _,textbox in ipairs(textboxes) do
-                if not textbox.done then
-                    return false
-                end
+    local wait_func = function()
+        for _,textbox in ipairs(textboxes) do
+            if not textbox:isDone() then
+                return false
             end
-            return true
-        end, textboxes
+        end
+        return true
+    end
+    if wait then
+        return self:wait(wait_func)
+    else
+        return wait_func, textboxes
     end
 end
 

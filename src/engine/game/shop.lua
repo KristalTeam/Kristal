@@ -314,6 +314,7 @@ function Shop:onStateChange(old,new)
         self:onLeave()
     elseif new == "LEAVING" then
         self.right_text:setText("")
+        self.dialogue_text:setText("")
         self.large_box.visible = true
         self.left_box.visible = false
         self.right_box.visible = false
