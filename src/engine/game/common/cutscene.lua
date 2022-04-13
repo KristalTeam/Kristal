@@ -95,11 +95,7 @@ function Cutscene:update(dt)
     self.wait_timer = Utils.approach(self.wait_timer, 0, dt)
 
     if coroutine.status(self.coroutine) == "suspended" then
-        local result = {self:canResume()}
-        if result[1] then
-            table.remove(result, 1)
-            self:resume(result)
-        end
+        self:tryResume()
     elseif coroutine.status(self.coroutine) == "dead" and self:canEnd() then
         self:endCutscene()
     end
@@ -123,6 +119,16 @@ end
 function Cutscene:pause()
     self.paused = true
     return coroutine.yield()
+end
+
+function Cutscene:tryResume()
+    local result = {self:canResume()}
+    if result[1] then
+        table.remove(result, 1)
+        self:resume(result)
+        return true
+    end
+    return false
 end
 
 function Cutscene:resume(...)

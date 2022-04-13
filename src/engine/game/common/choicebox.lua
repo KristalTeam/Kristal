@@ -40,10 +40,9 @@ function Choicebox:update(dt)
 
             if not self.battle_box then
                 self:remove()
-                if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
-                    Game.world.cutscene.waiting_for_text = nil
+                if Game.world:hasCutscene() then
                     Game.world.cutscene.choice = self.current_choice
-                    Game.world.cutscene:resume(self.current_choice)
+                    Game.world.cutscene:tryResume()
                 end
             else
                 local selected_choice = self.current_choice
@@ -52,10 +51,9 @@ function Choicebox:update(dt)
                 self.visible = false
                 Game.battle.battle_ui.encounter_text.active = true
                 Game.battle.battle_ui.encounter_text.visible = true
-                if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
-                    Game.battle.cutscene.waiting_for_text = nil
+                if Game.battle:hasCutscene() then
                     Game.battle.cutscene.choice = selected_choice
-                    Game.battle.cutscene:resume(selected_choice)
+                    Game.battle.cutscene:tryResume()
                 end
             end
         end

@@ -246,7 +246,10 @@ function BattleCutscene:text(text, portrait, actor, options)
     Game.battle.battle_ui.encounter_text:setAdvance(options["advance"] or options["advance"] == nil)
     Game.battle.battle_ui.encounter_text:setAuto(options["auto"])
 
-    Game.battle.battle_ui.encounter_text:setText(text, function() Game.battle.battle_ui:clearEncounterText() end)
+    Game.battle.battle_ui.encounter_text:setText(text, function()
+        Game.battle.battle_ui:clearEncounterText()
+        self:tryResume()
+    end)
 
     local wait = options["wait"] or options["wait"] == nil
     if not Game.battle.battle_ui.encounter_text.text.can_advance then
@@ -320,8 +323,7 @@ function BattleCutscene:choicer(choices, options)
     end
 
     if options["wait"] or options["wait"] == nil then
-        self.waiting_for_text = Game.battle.battle_ui.choice_box
-        return self:pause()
+        return self:wait(waitForChoicer)
     else
         return waitForChoicer, Game.battle.battle_ui.choice_box
     end

@@ -340,8 +340,6 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.textbox)
 
-    self.textbox:setCallback(function() self.textbox:remove() end)
-
     actor = actor or self.textbox_actor
     if actor then
         self.textbox:setActor(actor)
@@ -383,7 +381,10 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox:setAdvance(options["advance"] or options["advance"] == nil)
     self.textbox:setAuto(options["auto"])
 
-    self.textbox:setText(text)
+    self.textbox:setText(text, function()
+        self.textbox:remove()
+        self:tryResume()
+    end)
 
     local wait = options["wait"] or options["wait"] == nil
     if not self.textbox.text.can_advance then
