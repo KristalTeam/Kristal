@@ -50,14 +50,6 @@ function Shop:init()
 
     self.hide_storage_text = false
 
-    self.layers = {
-        ["large_box"] = 16,
-        ["left_box"]  = 32,
-        ["right_box"] = 34,
-        ["info_box"]  = 33,
-        ["dialogue"]  = 64
-    }
-
     -- MAINMENU
     self.menu_options = {
         {"Buy",  "BUYMENU" },
@@ -91,6 +83,16 @@ function Shop:init()
 
     self.timer = Timer()
     self:addChild(self.timer)
+
+    self.shopkeeper = Shopkeeper()
+    self.shopkeeper:setPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+    self.shopkeeper.layer = SHOP_LAYERS["shopkeeper"]
+    self:addChild(self.shopkeeper)
+
+    self.bg_cover = Rectangle(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.bg_cover:setColor(0, 0, 0)
+    self.bg_cover.layer = SHOP_LAYERS["cover"]
+    self:addChild(self.bg_cover)
 
     self.current_selecting = 1
     -- self.current_selecting will be in use... so let's just add another????????
@@ -150,7 +152,7 @@ function Shop:postInit()
     self.large_box.y = SCREEN_HEIGHT - (top * 2) + 1
     self.large_box.width = SCREEN_WIDTH - (top * 4) + 1
     self.large_box.height = 213 - 37 + 1
-    self.large_box:setLayer(self.layers["large_box"])
+    self.large_box:setLayer(SHOP_LAYERS["large_box"])
 
     self.large_box.visible = false
 
@@ -163,7 +165,7 @@ function Shop:postInit()
     self.left_box.y = SCREEN_HEIGHT - (top * 2) + 1
     self.left_box.width = 338 + 14
     self.left_box.height = 213 - 37 + 1
-    self.left_box:setLayer(self.layers["left_box"])
+    self.left_box:setLayer(SHOP_LAYERS["left_box"])
 
     self:addChild(self.left_box)
 
@@ -174,7 +176,7 @@ function Shop:postInit()
     self.right_box.y = SCREEN_HEIGHT - (top * 2) + 1
     self.right_box.width = 20 + 156 + 1
     self.right_box.height = 213 - 37 + 1
-    self.right_box:setLayer(self.layers["right_box"])
+    self.right_box:setLayer(SHOP_LAYERS["right_box"])
 
     self:addChild(self.right_box)
 
@@ -187,16 +189,20 @@ function Shop:postInit()
     self.info_box.y = SCREEN_HEIGHT - (top * 2) - self.right_box.height  - (right_top * 4) + 16 + 1
     self.info_box.width = 20 + 156 + 1
     self.info_box.height = 213 - 37
-    self.info_box:setLayer(self.layers["info_box"])
+    self.info_box:setLayer(SHOP_LAYERS["info_box"])
 
     self.info_box.visible = false
 
     self:addChild(self.info_box)
 
+    local emoteCommand = function(text, node) self:onEmote(node.arguments[1]) end
+
     self.dialogue_text = Textbox(30, 53 + 219, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.dialogue_text.text.line_offset = 8
 
-    self.dialogue_text:setLayer(self.layers["dialogue"])
+    self.dialogue_text.text:registerCommand("emote", emoteCommand, true)
+
+    self.dialogue_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.dialogue_text)
     self.dialogue_text:setText(self.encounter_text)
 
@@ -204,7 +210,9 @@ function Shop:postInit()
     self.right_text = Textbox(30 + 420, 53 + 209, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.right_text.text.line_offset = 8
 
-    self.right_text:setLayer(self.layers["dialogue"])
+    self.right_text.text:registerCommand("emote", emoteCommand, true)
+
+    self.right_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.right_text)
     self.right_text:setText("")
 end
@@ -342,6 +350,11 @@ end
 
 function Shop:onTalk() end
 
+function Shop:onEmote(emote)
+    -- Default behaviour: set sprite / animation
+    self.shopkeeper:onEmote(emote)
+end
+
 function Shop:startDialogue(text,callback)
     self.dialogue_index = 1
     if type(text) == "table" then
@@ -417,12 +430,46 @@ function Shop:processReplacements()
 end
 
 function Shop:update(dt)
+    -- Update talk sprites
+    local textboxes = {self.dialogue_text, self.right_text}
+    for _,textbox in ipairs(textboxes) do
+        if self.shopkeeper.talk_sprite then
+            textbox.text.talk_sprite = self.shopkeeper.sprite
+        else
+            textbox.text.talk_sprite = nil
+        end
+    end
+
     super:update(self, dt)
 
     self.box_ease_timer = math.min(1, self.box_ease_timer + (dt * self.box_ease_multiplier))
 
     if self.state == "BUYMENU" then
         self.info_box.height = Utils.ease(self.box_ease_beginning, self.box_ease_top, self.box_ease_timer, self.box_ease_method)
+
+        if self.shopkeeper.slide then
+            local target_x = SCREEN_WIDTH/2 - 80
+            if self.shopkeeper.x > target_x + 60 then
+                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            end
+            if self.shopkeeper.x > target_x + 40 then
+                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            end
+            if self.shopkeeper.x > target_x then
+                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            end
+        end
+    elseif self.shopkeeper.slide then
+        local target_x = SCREEN_WIDTH/2
+        if self.shopkeeper.x < target_x - 50 then
+            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+        end
+        if self.shopkeeper.x < target_x - 30 then
+            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+        end
+        if self.shopkeeper.x < target_x then
+            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+        end
     end
 
     if self.fading_out then
@@ -435,7 +482,6 @@ end
 
 function Shop:draw()
     self:drawBackground()
-    self:drawBackgroundCover()
 
     super:draw(self)
 
@@ -730,13 +776,6 @@ function Shop:drawBackground()
     love.graphics.scale(2, 2)
     love.graphics.draw(self.background, 0, 0)
     love.graphics.pop()
-end
-
-function Shop:drawBackgroundCover()
-    -- Draw background cover
-    love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.rectangle("fill", 0, 240, SCREEN_WIDTH, SCREEN_HEIGHT)
-    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function Shop:keypressed(key)

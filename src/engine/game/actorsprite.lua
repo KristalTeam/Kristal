@@ -147,6 +147,14 @@ function ActorSprite:setAnimation(anim, callback)
     end
 end
 
+function ActorSprite:canTalk()
+    if self.actor.talk_sprites[self.sprite] then
+        return true, self.actor.talk_sprites[self.sprite]
+    else
+        return false, 0.25
+    end
+end
+
 function ActorSprite:updateDirection()
     if self.directional and self.last_facing ~= self.facing then
         super:setSprite(self, self:getDirectionalPath(self.sprite), true)

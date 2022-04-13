@@ -7,6 +7,8 @@ function DialogueText:init(text, x, y, w, h, font, style)
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
     self.skippable = true
     self.skip_speed = false
+    self.talk_sprite = nil
+    self.last_typing = false
     self.functions = {}
 end
 
@@ -34,8 +36,11 @@ end
 
 function DialogueText:setText(text)
     self:resetState()
+    self:updateTalkSprite(false)
 
     self.text = text
+
+    self.last_typing = false
 
     self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(text)
@@ -90,7 +95,31 @@ function DialogueText:update(dt)
         end)
     end
 
+    self:updateTalkSprite(self.state.typing)
+
     super:update(self, dt)
+
+    self.last_typing = self.state.typing
+end
+
+function DialogueText:updateTalkSprite(typing)
+    if self.talk_sprite then
+        local can_talk, talk_speed = true, 0.25
+        if self.talk_sprite:includes(ActorSprite) then
+            if typing and not self.last_typing then
+                self.talk_sprite.actor:onTalkStart(self, self.talk_sprite)
+            end
+            can_talk, talk_speed = self.talk_sprite:canTalk()
+        end
+        if can_talk then
+            if typing and not self.talk_sprite.playing then
+                self.talk_sprite:play(talk_speed, true)
+            elseif self.last_typing and not typing and self.talk_sprite.playing then
+                self.talk_sprite:stop()
+                self.talk_sprite.actor:onTalkEnd(self, self.talk_sprite)
+            end
+        end
+    end
 end
 
 function DialogueText:playTextSound(current_node)

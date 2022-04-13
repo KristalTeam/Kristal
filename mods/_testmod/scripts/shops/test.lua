@@ -54,23 +54,29 @@ function TestShop:init()
 
     self:registerTalkAfter("Myself", 1)
     self:registerTalkAfter("Why Am I Here", 2)
+
+    self.shopkeeper:setActor("shopkeepers/seam")
+    self.shopkeeper.sprite:setPosition(-24, 12)
+    self.shopkeeper.slide = true
+
+    self.background = Assets.getTexture("ui/shop/bg_seam")
 end
 
-function TestShop:drawBackground()
-end
+--[[function TestShop:drawBackground()
+end]]
 
 function TestShop:startTalk(talk)
     if talk == "Reflect" then
         self:startDialogue({
             "* Here we are.[wait:5]\n* Not saying I know where I am,[wait:5]\nbut.\n* You take what you can get.",
             "* I can't see anything.[wait:5]\n* I can only feel around.",
-            "* Which is a little odd.[wait:5] Because I\ncan't find the way out either.",
-            "* But whatever.[wait:5]\n* It's calm.[wait:5]\n* Quiet.[wait:5]\n* A great place to do some thinking.",
-            "* If I want to hear myself think.",
-            "* But that's neither here or there.[wait:5]\n* What's important is,[wait:5] we're here.",
-            "* Where is here,[wait:5] exactly?",
-            "* I don't know.",
-            "* If I knew,[wait:5] I wouldn't have said\nthat I don't know just now.",
+            "* [emote:impatient]Which is a little odd.[wait:5] Because I\ncan't find the way out either.",
+            "* [emote:laugh]But whatever.[wait:5]\n* It's calm.[wait:5]\n* Quiet.[wait:5]\n* A great place to do some thinking.",
+            "* [emote:laugh]If I want to hear myself think.",
+            "* [emote:talk]But that's neither here or there.[wait:5]\n* What's important is,[wait:5] we're here.",
+            "* [emote:oh]Where is here,[wait:5] exactly?",
+            "* [emote:laugh]I don't know.",
+            "* [emote:talk]If I knew,[wait:5] I wouldn't have said\nthat I don't know just now.",
             "* But I know exactly where we are.[wait:5]\n* Where I am.[wait:5]\n* Not like I was lying earlier.",
             "* I don't know where I am.[wait:5]\n* But I do.",
             "* All that to say,[wait:5] I know that I'm\nsupposed to be here.",

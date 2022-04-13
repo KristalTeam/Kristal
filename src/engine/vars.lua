@@ -49,6 +49,16 @@ WORLD_LAYERS = {
     [          "top"] = 1000
 }
 
+SHOP_LAYERS = {
+    ["shopkeeper"] = 16,
+    [     "cover"] = 32,
+    [ "large_box"] = 64,
+    [  "left_box"] = 128,
+    [ "right_box"] = 130,
+    [  "info_box"] = 129,
+    [  "dialogue"] = 256
+}
+
 MUSIC_VOLUME = 0.7
 MUSIC_VOLUMES = {
     ["battle"] = 0.7
