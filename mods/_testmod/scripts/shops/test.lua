@@ -55,15 +55,15 @@ function TestShop:init()
     self:registerTalkAfter("Myself", 1)
     self:registerTalkAfter("Why Am I Here", 2)
 
-    self.shopkeeper:setActor("shopkeepers/seam")
+    --[[self.shopkeeper:setActor("shopkeepers/seam")
     self.shopkeeper.sprite:setPosition(-24, 12)
     self.shopkeeper.slide = true
 
-    self.background = Assets.getTexture("ui/shop/bg_seam")
+    self.background = Assets.getTexture("ui/shop/bg_seam")]]--
 end
 
---[[function TestShop:drawBackground()
-end]]
+function TestShop:drawBackground()
+end
 
 function TestShop:startTalk(talk)
     if talk == "Reflect" then

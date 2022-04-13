@@ -101,10 +101,10 @@ function Text:setText(text)
     end
     self:resetState()
 
-    self.text = text
+    self.text = text or ""
 
     self.nodes_to_draw = {}
-    self.nodes, self.display_text = self:textToNodes(text)
+    self.nodes, self.display_text = self:textToNodes(self.text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
         self.canvas = love.graphics.newCanvas(self.width, self.height)
@@ -336,7 +336,9 @@ function Text:drawChar(node, state, use_color)
     -- The current color multiplied by the base color
     local mr, mg, mb, ma = sr*cr, sg*cg, sb*cb, sa*ca
 
-    if state.style == nil or state.style == "none" then
+    if self:processStyle(state.style) then
+        -- Empty because I don't like logic
+    elseif state.style == nil or state.style == "none" then
         love.graphics.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y)
     elseif state.style == "menu" then
@@ -406,6 +408,10 @@ function Text:drawChar(node, state, use_color)
         love.graphics.setColor(mr,mg,mb,ma)
     end
     return width, height
+end
+
+function Text:processStyle(style)
+    return false
 end
 
 function Text:isTrue(text)

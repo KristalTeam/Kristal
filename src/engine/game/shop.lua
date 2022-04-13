@@ -109,14 +109,7 @@ function Shop:init()
     -- Oh my god
     self.item_current_selecting = 1
 
-
     self.item_offset = 0
-
-    self.post_dialogue_func = nil
-    self.post_dialogue_state = "NONE"
-
-    self.dialogue_table = nil
-    self.dialogue_index = 1
 
     self.font = Assets.getFont("main")
     self.plain_font = Assets.getFont("plain")
@@ -186,7 +179,7 @@ function Shop:postInit()
     self.info_box:setOrigin(1, 1)
     self.info_box.x = SCREEN_WIDTH - (left * 2) + 1
     -- find a more elegant way to do this...
-    self.info_box.y = SCREEN_HEIGHT - (top * 2) - self.right_box.height  - (right_top * 4) + 16 + 1
+    self.info_box.y = SCREEN_HEIGHT - (top * 2) - self.right_box.height - (right_top * 4) + 16 + 1
     self.info_box.width = 20 + 156 + 1
     self.info_box.height = 213 - 37
     self.info_box:setLayer(SHOP_LAYERS["info_box"])
@@ -197,24 +190,25 @@ function Shop:postInit()
 
     local emoteCommand = function(text, node) self:onEmote(node.arguments[1]) end
 
-    self.dialogue_text = Textbox(30, 53 + 219, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
-    self.dialogue_text.text.line_offset = 8
+    self.dialogue_text = DialogueText(nil, 30, 53 + 219)
+    self.dialogue_text.line_offset = 8
 
-    self.dialogue_text.text:registerCommand("emote", emoteCommand, true)
+    self.dialogue_text:registerCommand("emote", emoteCommand, true)
 
     self.dialogue_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.dialogue_text)
     self.dialogue_text:setText(self.encounter_text)
 
+    self.right_text = DialogueText("", 30 + 420, 53 + 209)
+    self.right_text.line_offset = 8
 
-    self.right_text = Textbox(30 + 420, 53 + 209, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
-    self.right_text.text.line_offset = 8
-
-    self.right_text.text:registerCommand("emote", emoteCommand, true)
+    self.right_text:registerCommand("emote", emoteCommand, true)
 
     self.right_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.right_text)
     self.right_text:setText("")
+
+    self.talk_dialogue = {self.dialogue_text, self.right_text}
 end
 
 function Shop:startTalk(talk) end
@@ -356,25 +350,24 @@ function Shop:onEmote(emote)
 end
 
 function Shop:startDialogue(text,callback)
-    self.dialogue_index = 1
-    if type(text) == "table" then
-        self.dialogue_table = text
-        self.dialogue_text:setText(text[1])
-    else
-        self.dialogue_table = nil
-        self.dialogue_text:setText(text)
-    end
-    self.post_dialogue_func = nil
-    self.post_dialogue_state = "MAINMENU"
+    self.dialogue_text:setText(text)
+
+    local state = "MAINMENU"
     if self.state == "TALKMENU" then
-        self.post_dialogue_state = "TALKMENU"
+        state = "TALKMENU"
     end
 
-    if type(callback) == "function" then
-        self.post_dialogue_func = callback
-    elseif type(callback) == "string" then
-        self.post_dialogue_state = callback
-    end
+    self.dialogue_text.advance_callback = (function()
+        if type(callback) == "string" then
+            state = callback
+        elseif type(callback) == "function" then
+            if callback() then
+                return
+            end
+        end
+
+        self:setState(state, "DIALOGUE")
+    end)
 
     self:setState("DIALOGUE")
 
@@ -431,12 +424,11 @@ end
 
 function Shop:update(dt)
     -- Update talk sprites
-    local textboxes = {self.dialogue_text, self.right_text}
-    for _,textbox in ipairs(textboxes) do
+    for _,object in ipairs(self.talk_dialogue) do
         if self.shopkeeper.talk_sprite then
-            textbox.text.talk_sprite = self.shopkeeper.sprite
+            object.talk_sprite = self.shopkeeper.sprite
         else
-            textbox.text.talk_sprite = nil
+            object.talk_sprite = nil
         end
     end
 
@@ -978,24 +970,6 @@ function Shop:keypressed(key)
             self.current_selecting = self.current_selecting + 1
             if (self.current_selecting > math.max(4, #self.talks) + 1) then
                 self.current_selecting = 1
-            end
-        end
-    elseif self.state == "DIALOGUE" then
-        if Input.isConfirm(key) then
-            if not self.dialogue_text:isTyping() then
-                if self.dialogue_table ~= nil then
-                    self.dialogue_index = self.dialogue_index + 1
-                    if self.dialogue_index <= #self.dialogue_table then
-                        self.dialogue_text:setText(self.dialogue_table[self.dialogue_index])
-                        return
-                    end
-                end
-                self.dialogue_text:setText("")
-                if self.post_dialogue_func then
-                    self:post_dialogue_func()
-                else
-                    self:setState(self.post_dialogue_state, "DIALOGUE")
-                end
             end
         end
     end

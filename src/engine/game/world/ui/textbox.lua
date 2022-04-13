@@ -108,31 +108,6 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.done = false
 end
 
-function Textbox:update(dt)
-    local input = self.can_advance and (Input.pressed("confirm") or Input.down("menu"))
-    if input or self.auto_advance then
-        if not self:isTyping() then
-            self.done = true
-            if not self.battle_box then
-                self:remove()
-                if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
-                    Game.world.cutscene.waiting_for_text = nil
-                    Game.world.cutscene:resume()
-                end
-            elseif self.text.text ~= "" then
-                self:setText("")
-                self:setActor()
-                self:setFace()
-                if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
-                    Game.battle.cutscene.waiting_for_text = nil
-                    Game.battle.cutscene:resume()
-                end
-            end
-        end
-    end
-    super:update(self, dt)
-end
-
 function Textbox:setSize(w, h)
     self.width, self.height = w or 0, h or 0
 
@@ -233,10 +208,28 @@ function Textbox:setText(text)
     self.reaction_instances = {}
     self.text.font = self.font
     self.text.font_size = self.font_size
+    callback = (function()
+        self.done = true
+        if not self.battle_box then
+            self:remove()
+            if Game.world:hasCutscene() and Game.world.cutscene.waiting_for_text == self then
+                Game.world.cutscene.waiting_for_text = nil
+                Game.world.cutscene:resume()
+            end
+        elseif self.text.text ~= "" then
+            self:setText("")
+            self:setActor()
+            self:setFace()
+            if Game.battle:hasCutscene() and Game.battle.cutscene.waiting_for_text == self then
+                Game.battle.cutscene.waiting_for_text = nil
+                Game.battle.cutscene:resume()
+            end
+        end
+    end)
     if self.actor and self.actor.voice then
-        self.text:setText("[voice:"..self.actor.voice.."]"..text)
+        self.text:setText("[voice:"..self.actor.voice.."]"..text, callback)
     else
-        self.text:setText(text)
+        self.text:setText(text, callback)
     end
 end
 

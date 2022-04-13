@@ -4,12 +4,21 @@ DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "
 
 function DialogueText:init(text, x, y, w, h, font, style)
     self.custom_command_wait = {}
+    if type(text) == "string" then
+        text = {text}
+    end
+    self.fast_skipping_timer = 0
     super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or "dark")
     self.skippable = true
     self.skip_speed = false
     self.talk_sprite = nil
     self.last_typing = false
     self.functions = {}
+    self.text_table = text
+
+    self.can_advance = true
+    self.auto_advance = false
+    self.advance_callback = nil
 end
 
 function DialogueText:resetState()
@@ -34,16 +43,28 @@ function DialogueText:processInitialNodes()
 end
 
 
-function DialogueText:setText(text)
+function DialogueText:setText(text, callback)
+    self.advance_callback = callback or nil
     self:resetState()
     self:updateTalkSprite(false)
 
-    self.text = text
+    if self.fast_skipping_timer >= 1 then
+        self.fast_skipping_timer = self.fast_skipping_timer - 1
+    end
+
+    if type(text) == "string" then
+        text = {text}
+    end
+
+    self.text_table = text or {}
+    self.text = self.text_table[1] or ""
+
+    self.text_index = 1
 
     self.last_typing = false
 
     self.nodes_to_draw = {}
-    self.nodes, self.display_text = self:textToNodes(text)
+    self.nodes, self.display_text = self:textToNodes(self.text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
         self.canvas = love.graphics.newCanvas(self.width, self.height)
@@ -57,14 +78,49 @@ function DialogueText:setText(text)
     end
 end
 
+function DialogueText:advance()
+    if #self.text_table <= 1 then
+        if self.advance_callback then
+            self.advance_callback()
+        end
+    else
+        table.remove(self.text_table, 1)
+        self:setText(self.text_table, self.advance_callback)
+    end
+end
+
 function DialogueText:update(dt)
     local speed = self.state.speed
-    if self.skippable and ((Input.down("cancel") and not self.state.noskip) or Input.down("menu")) then
-        if not self.skip_speed then
-            self.state.skipping = true
-        else
-            speed = speed * 2
+
+    if not Game.console.is_open then
+        if Input.pressed("menu") then
+            self.fast_skipping_timer = 1
         end
+
+        local input = self.can_advance and (Input.pressed("confirm") or (Input.down("menu") and self.fast_skipping_timer >= 1))
+
+        if input or self.auto_advance then
+            if not self.state.typing then
+                self:advance()
+            end
+        end
+
+        if Input.down("menu") then
+            if self.fast_skipping_timer < 1 then
+                self.fast_skipping_timer = self.fast_skipping_timer + DTMULT
+            end
+        else
+            self.fast_skipping_timer = 0
+        end
+
+        if self.skippable and ((Input.down("cancel") and not self.state.noskip) or Input.down("menu")) then
+            if not self.skip_speed then
+                self.state.skipping = true
+            else
+                speed = speed * 2
+            end
+        end
+
     end
 
     if self.state.waiting == 0 then
