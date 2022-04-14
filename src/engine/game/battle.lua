@@ -1508,6 +1508,7 @@ function Battle:setActText(text, dont_finish)
             self.should_finish_action = false
         end
         self:setState("ACTIONS", "BATTLETEXT")
+        return true
     end)
 end
 
