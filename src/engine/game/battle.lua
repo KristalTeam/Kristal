@@ -479,6 +479,7 @@ function Battle:onStateChange(old,new)
             self:battleText(win_text, function()
                 self:setState("TRANSITIONOUT")
                 self.encounter:onBattleEnd()
+                return true
             end)
         end
     elseif new == "TRANSITIONOUT" then

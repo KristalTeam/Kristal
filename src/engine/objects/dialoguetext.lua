@@ -87,9 +87,11 @@ end
 
 function DialogueText:advance()
     if #self.text_table <= 1 then
-        self.done = true
-        if self.advance_callback then
-            self.advance_callback()
+        if not self.done then
+            self.done = true
+            if self.advance_callback then
+                self.advance_callback()
+            end
         end
     else
         table.remove(self.text_table, 1)
