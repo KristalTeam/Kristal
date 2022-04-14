@@ -4,6 +4,24 @@ local self = Registry
 Registry.new_objects = {}
 Registry.last_objects = {}
 
+Registry.paths = {
+    ["actors"]           = "data/actors",
+    ["objects"]          = "objects",
+    ["items"]            = "data/items",
+    ["spells"]           = "data/spells",
+    ["party_members"]    = "data/party",
+    ["encounters"]       = "battle/encounters",
+    ["enemies"]          = "battle/enemies",
+    ["waves"]            = "battle/waves",
+    ["bullets"]          = "battle/bullets",
+    ["world_bullets"]    = "world/bullets",
+    ["world_cutscenes"]  = "world/cutscenes",
+    ["battle_cutscenes"] = "battle/cutscenes",
+    ["tilesets"]         = "world/tilesets",
+    ["maps"]             = "world/maps",
+    ["shops"]            = "shops"
+}
+
 function Registry.initialize(preload)
     if not self.preload then
         self.base_scripts = {}
@@ -36,6 +54,8 @@ function Registry.initialize(preload)
     end
 
     self.preload = preload
+
+    Hotswapper.updateFiles("registry")
 end
 
 function Registry.restoreOverridenObjects()
@@ -291,7 +311,7 @@ end
 -- Internal Functions --
 
 function Registry.initObjects()
-    for _,path,object in self.iterScripts("objects") do
+    for _,path,object in self.iterScripts(Registry.paths["objects"]) do
         local path_tbl = Utils.split(path, "/")
         local new_path = path_tbl[#path_tbl]
 
@@ -321,7 +341,7 @@ end
 function Registry.initActors()
     self.actors = {}
 
-    for _,path,actor in self.iterScripts("data/actors") do
+    for _,path,actor in self.iterScripts(Registry.paths["actors"]) do
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
     end
@@ -332,7 +352,7 @@ end
 function Registry.initPartyMembers()
     self.party_members = {}
 
-    for _,path,char in self.iterScripts("data/party") do
+    for _,path,char in self.iterScripts(Registry.paths["party_members"]) do
         char.id = char.id or path
         self.registerPartyMember(char.id, char)
     end
@@ -343,7 +363,7 @@ end
 function Registry.initItems()
     self.items = {}
 
-    for _,path,item in self.iterScripts("data/items") do
+    for _,path,item in self.iterScripts(Registry.paths["items"]) do
         item.id = item.id or path
         self.registerItem(item.id, item)
     end
@@ -354,7 +374,7 @@ end
 function Registry.initSpells()
     self.spells = {}
 
-    for _,path,spell in self.iterScripts("data/spells") do
+    for _,path,spell in self.iterScripts(Registry.paths["spells"]) do
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
     end
@@ -365,7 +385,7 @@ end
 function Registry.initEncounters()
     self.encounters = {}
 
-    for _,path,encounter in self.iterScripts("battle/encounters") do
+    for _,path,encounter in self.iterScripts(Registry.paths["encounters"]) do
         encounter.id = encounter.id or path
         self.registerEncounter(encounter.id, encounter)
     end
@@ -376,7 +396,7 @@ end
 function Registry.initEnemies()
     self.enemies = {}
 
-    for _,path,enemy in self.iterScripts("battle/enemies") do
+    for _,path,enemy in self.iterScripts(Registry.paths["enemies"]) do
         enemy.id = enemy.id or path
         self.registerEnemy(enemy.id, enemy)
     end
@@ -387,7 +407,7 @@ end
 function Registry.initWaves()
     self.waves = {}
 
-    for _,path,wave in self.iterScripts("battle/waves") do
+    for _,path,wave in self.iterScripts(Registry.paths["waves"]) do
         wave.id = wave.id or path
         self.registerWave(wave.id, wave)
     end
@@ -399,12 +419,12 @@ function Registry.initBullets()
     self.bullets = {}
     self.world_bullets = {}
 
-    for _,path,bullet in self.iterScripts("battle/bullets") do
+    for _,path,bullet in self.iterScripts(Registry.paths["bullets"]) do
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
     end
 
-    for _,path,bullet in self.iterScripts("world/bullets") do
+    for _,path,bullet in self.iterScripts(Registry.paths["world_bullets"]) do
         bullet.id = bullet.id or path
         self.registerWorldBullet(bullet.id, bullet)
     end
@@ -416,10 +436,10 @@ function Registry.initCutscenes()
     self.world_cutscenes = {}
     self.battle_cutscenes = {}
 
-    for _,path,cutscene in self.iterScripts("world/cutscenes") do
+    for _,path,cutscene in self.iterScripts(Registry.paths["world_cutscenes"]) do
         self.registerWorldCutscene(path, cutscene)
     end
-    for _,path,cutscene in self.iterScripts("battle/cutscenes") do
+    for _,path,cutscene in self.iterScripts(Registry.paths["battle_cutscenes"]) do
         self.registerBattleCutscene(path, cutscene)
     end
 
@@ -429,7 +449,7 @@ end
 function Registry.initTilesets()
     self.tilesets = {}
 
-    for full_path,path,data in self.iterScripts("world/tilesets") do
+    for full_path,path,data in self.iterScripts(Registry.paths["tilesets"]) do
         data.full_path = full_path
         data.id = path
         self.registerTileset(path, Tileset(data, full_path))
@@ -442,7 +462,7 @@ function Registry.initMaps()
     self.maps = {}
     self.map_data = {}
 
-    for full_path,path,data in self.iterScripts("world/maps") do
+    for full_path,path,data in self.iterScripts(Registry.paths["maps"]) do
         local split_path = Utils.split(path, "/", true)
         if isClass(data) then
             if split_path[#split_path] == "map" then
@@ -468,7 +488,7 @@ end
 function Registry.initShops()
     self.shops = {}
 
-    for _,path,shop in self.iterScripts("shops") do
+    for _,path,shop in self.iterScripts(Registry.paths["shops"]) do
         shop.id = shop.id or path
         self.registerShop(shop.id, shop)
     end

@@ -173,8 +173,11 @@ RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 Shop = require("src.engine.game.shop")
 Shopkeeper = require("src.engine.game.shop.shopkeeper")
 
-_, LibLurker = pcall(require, "lurker")
+Hotswapper = require("src.hotswapper")
 utf8 = require("utf8")
+
+-- Register required in the hotswapper
+Hotswapper.updateFiles("required")
 
 local load_in_channel
 local load_out_channel
@@ -355,10 +358,8 @@ function love.keypressed(key)
     elseif key == "f6" then
         DEBUG_RENDER = not DEBUG_RENDER
     elseif key == "f8" then
-        if LibLurker then
-            print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
-            LibLurker.scan()
-        end
+        print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
+        Hotswapper.scan()
     elseif key == "r" and love.keyboard.isDown("lctrl") then
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
