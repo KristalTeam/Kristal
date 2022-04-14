@@ -520,8 +520,7 @@ function Game:encounter(encounter, transition, enemy)
     self.stage:addChild(self.battle)
 end
 
-function Game:enterShop(shop)
-    -- Testing function!
+function Game:setupShop(shop)
     if self.shop then
         error("Attempt to enter shop while already in shop")
     end
@@ -534,15 +533,18 @@ function Game:enterShop(shop)
         error("Attempt to enter shop with nil shop")
     end
 
-    self.world.music:stop()
+    self.shop = shop
+    self.shop:postInit()
+end
+
+function Game:enterShop(shop)
+    -- Add the shop to the stage and enter it.
+    if not self.shop then
+        error("Attempt to enter shop without calling setupShop")
+    end
 
     self.state = "SHOP"
 
-    -- Call these two when you begin to fade...
-    self.shop = shop
-    self.shop:postInit()
-
-    -- Let's pretend the fade just finished. Add it to the stage and then enter it.
     self.stage:addChild(self.shop)
     self.shop:onEnter()
 end

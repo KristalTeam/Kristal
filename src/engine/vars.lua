@@ -50,6 +50,7 @@ WORLD_LAYERS = {
 }
 
 SHOP_LAYERS = {
+    ["background"] = 0,
     ["shopkeeper"] = 16,
     [     "cover"] = 32,
     [ "large_box"] = 64,

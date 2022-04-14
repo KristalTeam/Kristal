@@ -181,13 +181,24 @@ function World:onStateChange(old, new)
             local map = Registry.createMap(self.transition_target.map)
             self.transition_target.map = map
             self:transitionMusic(map.music, true)
+        elseif self.transition_target.shop then
+            if type(self.transition_target.shop) == "string" then
+                local shop = Registry.createShop(self.transition_target.shop)
+                self.transition_target.shop = shop
+            end
+            Game:setupShop(self.transition_target.shop)
+            if not self.transition_target.map then
+                self.transition_target.map = self.map
+            end
+            self.transition_target.shop.transition_target = self.transition_target
+            self:transitionMusic()
         end
         Game.fader:transition(function()
             self:transitionImmediate(self.transition_target or {})
-            self.transition_target = nil
-            if self.state == "TRANSITION" then
+            if self.transition_target.map and (self.state == "TRANSITION") and (not self.transition_target.shop) then
                 self:setState("GAMEPLAY")
             end
+            self.transition_target = nil
         end)
     end
 end
@@ -618,17 +629,25 @@ end
 
 function World:transitionImmediate(...)
     local target = parseTransitionTargetArgs(...)
-    if target.map then
+    if target.map and (not target.shop) then
         self:loadMap(target.map)
     end
+
+    if target.shop then
+        Game:enterShop(target.shop)
+    end
+
     local pos
     if target.x and target.y then
         pos = {target.x, target.y}
     elseif target.marker then
         pos = target.marker
     end
-    self:spawnParty(pos, nil, nil, target.facing)
-    self.map:onEnter()
+
+    if target.map and (not target.shop) then
+        self:spawnParty(pos, nil, nil, target.facing)
+        self.map:onEnter()
+    end
 end
 
 function World:getCameraTarget()

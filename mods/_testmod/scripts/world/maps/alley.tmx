@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="89">
+<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="91">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
@@ -52,7 +52,6 @@
   <object id="26" x="720" y="240" width="40" height="240"/>
   <object id="28" x="600" y="360" width="40" height="120"/>
   <object id="29" x="0" y="360" width="600" height="40"/>
-  <object id="33" x="-40" y="240" width="40" height="120"/>
  </objectgroup>
  <objectgroup color="#ff0000" id="6" name="paths" opacity="0.5">
   <object id="78" name="virovirokun" x="168.033" y="93.8198" width="425.574" height="378.984">
@@ -61,7 +60,10 @@
  </objectgroup>
  <objectgroup color="#7f00ff" id="3" name="markers">
   <object id="16" name="spawn" x="360" y="280" width="40" height="40"/>
-  <object id="55" name="entry_down" x="680" y="440">
+  <object id="55" name="shop_exit" x="40" y="320">
+   <point/>
+  </object>
+  <object id="90" name="entry_down" x="683" y="425">
    <point/>
   </object>
  </objectgroup>
@@ -90,6 +92,12 @@
   <object id="86" name="chest" x="640" y="240" width="40" height="40">
    <properties>
     <property name="item" value="tensionbit"/>
+   </properties>
+  </object>
+  <object id="89" name="transition" x="-40" y="240" width="40" height="120">
+   <properties>
+    <property name="marker" value="shop_exit"/>
+    <property name="shop" value="test"/>
    </properties>
   </object>
  </objectgroup>

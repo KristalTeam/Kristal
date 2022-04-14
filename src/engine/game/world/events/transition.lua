@@ -7,6 +7,7 @@ function Transition:init(x, y, w, h, properties)
 
     self.target = {
         map = properties.map,
+        shop = properties.shop,
         x = properties.x,
         y = properties.y,
         marker = properties.marker,

@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.8.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 21,
@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 16,
-  nextobjectid = 89,
+  nextobjectid = 91,
   properties = {
     ["music"] = "cybercity",
     ["name"] = "Test City - Sugarplum Alley"
@@ -873,19 +873,6 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
-        },
-        {
-          id = 33,
-          name = "",
-          type = "",
-          shape = "rectangle",
-          x = -40,
-          y = 240,
-          width = 40,
-          height = 120,
-          rotation = 0,
-          visible = true,
-          properties = {}
         }
       }
     },
@@ -945,11 +932,24 @@ return {
         },
         {
           id = 55,
+          name = "shop_exit",
+          type = "",
+          shape = "point",
+          x = 40,
+          y = 320,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 90,
           name = "entry_down",
           type = "",
           shape = "point",
-          x = 680,
-          y = 440,
+          x = 683,
+          y = 425,
           width = 0,
           height = 0,
           rotation = 0,
@@ -1047,6 +1047,22 @@ return {
           visible = true,
           properties = {
             ["item"] = "tensionbit"
+          }
+        },
+        {
+          id = 89,
+          name = "transition",
+          type = "",
+          shape = "rectangle",
+          x = -40,
+          y = 240,
+          width = 40,
+          height = 120,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["marker"] = "shop_exit",
+            ["shop"] = "test"
           }
         }
       }

@@ -70,7 +70,7 @@ function Shop:init()
         {"Sell Pocket Items", "pocket"}
     }
 
-    self.background = Assets.getTexture("ui/shop/bg_seam")
+    self.background = "ui/shop/bg_seam"
 
     -- STATES: MAINMENU, BUYMENU, SELLMENU, SELLING, TALKMENU, LEAVE, LEAVING, DIALOGUE
     self.state = "NONE"
@@ -79,6 +79,7 @@ function Shop:init()
     self.buy_confirming = false
     self.sell_confirming = false
 
+    self.shop_music = ""
     self.music = Music()
 
     self.timer = Timer()
@@ -132,12 +133,19 @@ function Shop:init()
     self.box_ease_multiplier = 1
 
     self.hide_price = false
+
+    self.transition_target = nil
 end
 
 function Shop:postInit()
     -- Mutate talks
 
     self:processReplacements()
+
+    -- Make a sprite for the background
+    self.background_sprite = Sprite(self.background, 0, 0)
+    self.background_sprite:setScale(2, 2)
+    self.background_sprite.layer = SHOP_LAYERS["background"]
 
     -- Construct the UI
     self.large_box = DarkBox()
@@ -218,6 +226,10 @@ function Shop:startTalk(talk) end
 function Shop:onEnter()
     self:setState("MAINMENU")
     self.dialogue_text:setText(self.encounter_text)
+    -- Play music
+    if self.shop_music and self.shop_music ~= "" then
+        self.music:play(self.shop_music)
+    end
 end
 
 function Shop:onRemove(parent)
@@ -335,6 +347,7 @@ end
 
 function Shop:leave()
     self.fading_out = true
+    self.music:fade(0, 20/30)
 end
 
 function Shop:leaveImmediate()
@@ -343,6 +356,10 @@ function Shop:leaveImmediate()
     Game.state = "OVERWORLD"
     Game.fader.alpha = 1
     Game.fader:fadeIn()
+    Game.world:setState("GAMEPLAY")
+
+    self.transition_target.shop = nil
+    Game.world:transitionImmediate(self.transition_target)
 end
 
 function Shop:onTalk() end
@@ -763,16 +780,9 @@ function Shop:drawBonuses(party_member, old_item, new_item, stat, x, y)
 end
 
 function Shop:drawBackground()
-    -- First, draw a black backdrop
+    -- Draw a black backdrop
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-
-    -- Draw the shop background
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.push()
-    love.graphics.scale(2, 2)
-    love.graphics.draw(self.background, 0, 0)
-    love.graphics.pop()
 end
 
 function Shop:keypressed(key)
