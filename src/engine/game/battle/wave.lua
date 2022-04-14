@@ -115,6 +115,7 @@ function Wave:spawnObjectTo(parent, object, x, y)
     if x or y then
         object:setPosition(x, y)
     end
+    object.wave = self
     parent:addChild(object)
     table.insert(self.objects, object)
     return object
