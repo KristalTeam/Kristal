@@ -29,7 +29,7 @@ function ActionButton:select()
 
         -- First, register X-Actions as menu items.
 
-        if Game.battle.encounter.default_xactions then
+        if Game.battle.encounter.default_xactions and self.battler.chara.has_xact then
             local item = {
                 ["name"] = self.battler.chara.xact_name or "X-Action",
                 ["tp"] = 0,

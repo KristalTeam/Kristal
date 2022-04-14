@@ -24,6 +24,8 @@ function character:init()
     self.has_act = false
     self.has_spells = true
 
+    -- Whether the party member can use their X-Action
+    self.has_xact = true
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "S-Action"
 

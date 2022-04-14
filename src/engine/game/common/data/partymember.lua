@@ -23,6 +23,8 @@ function PartyMember:init()
     self.has_act = true
     self.has_spells = false
 
+    -- Whether the party member can use their X-Action
+    self.has_xact = true
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "?-Action"
 
