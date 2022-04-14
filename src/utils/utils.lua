@@ -326,7 +326,11 @@ function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
 end
 
 function Utils.between(val, a, b)
-    return val > a and val < b
+    if a < b then
+        return val > b and val < a
+    else
+        return val > a and val < b
+    end
 end
 
 local performance_stack = {}
