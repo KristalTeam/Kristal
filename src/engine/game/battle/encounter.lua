@@ -167,9 +167,13 @@ function Encounter:onWavesDone()
     end
 
     Game.battle.waves = {}
-    Game.battle.timer:after(15/30, function()
-        Game.battle:nextTurn()
-    end)
+    if Game.battle:hasCutscene() then
+        Game.battle.cutscene:after(function() Game.battle:nextTurn() end)
+    else
+        Game.battle.timer:after(15/30, function()
+            Game.battle:nextTurn()
+        end)
+    end
 end
 
 function Encounter:createSoul(x, y, color)
