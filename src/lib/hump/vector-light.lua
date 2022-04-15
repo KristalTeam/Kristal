@@ -163,7 +163,7 @@ return {
     -- arithmetic
     mul    = mul,
     div    = div,
-    idiv   = idiv,
+    --idiv   = idiv, -- doesn't exist?
     add    = add,
     sub    = sub,
     permul = permul,

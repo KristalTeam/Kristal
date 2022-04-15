@@ -375,6 +375,7 @@ function love.keyreleased(key)
 end
 
 function love.run()
+---@diagnostic disable-next-line: undefined-field, redundant-parameter
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
     -- We don't want the first frame's dt to include time taken by love.load.
@@ -397,6 +398,7 @@ function love.run()
                         return a or 0
                     end
                 end
+---@diagnostic disable-next-line: undefined-field
                 love.handlers[name](a,b,c,d,e,f)
             end
         end
@@ -416,6 +418,7 @@ function love.run()
             love.graphics.origin()
             love.graphics.clear(love.graphics.getBackgroundColor())
 
+---@diagnostic disable-next-line: undefined-field
             if love.draw then love.draw() end
 
             love.graphics.present()
@@ -501,7 +504,7 @@ function Kristal.errorHandler(msg)
         end
     end
 
-    if not love.graphics.isCreated() or not love.window.isOpen() then
+    if not love.window.isOpen() then
         local success, status = pcall(love.window.setMode, width, height)
         if not success or not status then
             return
@@ -830,27 +833,27 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
             Kristal.loadModAssets(mod.id, "sprites", DarkTransition.SPRITE_DEPENDENCIES, function()
                 -- LOADING CALLBACK
-                local transition = DarkTransition(function()
+                local transition = DarkTransition(function(transition)
                     Kristal.loadModAssets(mod.id, "all", "", function()
                         transition:resumeTransition()
                         if Kristal.preInitMod(mod.id) then
                             Gamestate.switch(Kristal.States["Game"], save_id)
                         end
                     end)
-                end, function()
+                end, function(transition)
                     -- END CALLBACK 
                     if Game and Game.world and Game.world.player then
 
                         local kx, ky = transition.kris_sprite:localToScreenPos(transition.kris_width / 2, 0)
-                
-                        self.world.player:setScreenPos(kx, final_y)
-                        self.world.player.visible = true
+
+                        Game.world.player:setScreenPos(kx, final_y)
+                        Game.world.player.visible = true
 
 
                     end
                 end, final_y)
                 transition.layer = 1000
-                stage:addChild(transition)
+                Kristal.stage:addChild(transition)
             end)
         else
             Assets.playSound("ui_cant_select")

@@ -536,7 +536,7 @@ function DarkTransition:draw()
             self.old_velocity = self.velocity
             if self.loading_callback then
                 self.waiting = true
-                self.loading_callback()
+                self.loading_callback(self)
             else
                 self.waiting = false
             end
@@ -945,7 +945,7 @@ function DarkTransition:draw()
             self.animation_active = false
 
             if self.end_callback then
-                self.end_callback()
+                self.end_callback(self)
             end
 
             self:remove()
