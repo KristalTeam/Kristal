@@ -44,9 +44,15 @@ function WorldCutscene:update(dt)
     self.moving_chars = new_moving
 
     if self.camera_target then
-        self.camera_move_timer = Utils.approach(self.camera_move_timer, self.camera_move_time, dt)
-        Game.world.camera.x = Utils.lerp(self.camera_start[1], self.camera_target[1], self.camera_move_timer / self.camera_move_time)
-        Game.world.camera.y = Utils.lerp(self.camera_start[2], self.camera_target[2], self.camera_move_timer / self.camera_move_time)
+        if self.camera_move_time == 0 then
+            self.camera_move_timer = 0
+            Game.world.camera.x = self.camera_target[1]
+            Game.world.camera.y = self.camera_target[2]
+        else
+            self.camera_move_timer = Utils.approach(self.camera_move_timer, self.camera_move_time, dt)
+            Game.world.camera.x = Utils.lerp(self.camera_start[1], self.camera_target[1], self.camera_move_timer / self.camera_move_time)
+            Game.world.camera.y = Utils.lerp(self.camera_start[2], self.camera_target[2], self.camera_move_timer / self.camera_move_time)
+        end
         Game.world:updateCamera()
         if self.camera_move_timer == self.camera_move_time then
             self.camera_target = nil
@@ -243,7 +249,7 @@ function WorldCutscene:panTo(...)
         time = args[3] or time
         after = args[4]
     elseif type(args[1]) == "string" then
-        local marker = Game.world.markers[args[1]]
+        local marker = Game.world.map.markers[args[1]]
         self.camera_target = {marker.center_x, marker.center_y}
         time = args[2] or time
         after = args[3]
