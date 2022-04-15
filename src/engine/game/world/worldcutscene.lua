@@ -444,9 +444,14 @@ function WorldCutscene:choicer(choices, options)
     end
 end
 
-function WorldCutscene:startEncounter(encounter, transition, enemy)
+local function waitForEncounter(self) return Game.battle == nil end
+function WorldCutscene:startEncounter(encounter, transition, enemy, wait)
     Game:encounter(encounter, transition, enemy)
-    self:wait(function() return Game.battle == nil end)
+    if wait == false then
+        return waitForEncounter
+    else
+        self:wait(waitForEncounter)
+    end
 end
 
 return WorldCutscene
