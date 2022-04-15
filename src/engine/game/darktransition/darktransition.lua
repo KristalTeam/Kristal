@@ -8,7 +8,7 @@ DarkTransition.SPRITE_DEPENDENCIES = {
 }
 
 function DarkTransition:init(loading_callback, end_callback, final_y, options)
-    super:init(self, x, y)
+    super:init(self)
 
     options = options or {}
 
@@ -47,12 +47,18 @@ function DarkTransition:init(loading_callback, end_callback, final_y, options)
     self.megablack = false
 
     -- CONFIG
-    self.quick_mode      = options["quick_mode"]      or false
-    self.skiprunback     = options["skiprunback"]     or true
-    self.final_y         = final_y / 2                or 60
-    self.kris_only       = options["kris_only"]       or false
-    self.has_head_object = options["has_head_object"] or false
-    self.sparkles        = options["sparkles"]        or 0
+    self.quick_mode = options["quick_mode"]
+    self.skiprunback = options["skiprunback"]
+    self.kris_only = options["kris_only"]
+    self.has_head_object = options["has_head_object"]
+
+    if self.quick_mode == nil then self.quick_mode = false end
+    if self.skiprunback == nil then self.skiprunback = false end
+    if self.kris_only == nil then self.kris_only = false end
+    if self.has_head_object == nil then self.has_head_object = false end
+
+    self.final_y = (final_y / 2) or 60
+    self.sparkles  = options["sparkles"] or 0
 
     self.sparestar = Assets.getFrames("effects/spare/star")
 
@@ -156,6 +162,12 @@ function DarkTransition:init(loading_callback, end_callback, final_y, options)
 
     self.black_fade = 1
     self.waiting = false
+end
+
+function DarkTransition:onAddToStage(stage)
+    if Game then
+        Game:getActiveMusic():fade(0, 20/30)
+    end
 end
 
 function DarkTransition:resumeTransition()
