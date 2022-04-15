@@ -1101,7 +1101,6 @@ function Battle:powerAct(spell, battler, user, target)
         self:commitAction("SPELL", target, menu_item, self:getPartyIndex(user))
         self:markAsFinished(nil, {user})
     end)
-    return
 end
 
 function Battle:commitAction(type, target, data, character_id)
@@ -2063,7 +2062,7 @@ function Battle:keypressed(key)
             self.encounter:onWavesDone()
         end
         if self.soul and key == "j" then
-            self.soul:shatter(count)
+            self.soul:shatter(6)
             self:getPartyBattler(Game:getSoulPartyMember().id):hurt(99999)
         end
         if key == "b" then
