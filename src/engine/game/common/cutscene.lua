@@ -122,10 +122,9 @@ function Cutscene:pause()
 end
 
 function Cutscene:tryResume()
-    local result = {self:canResume()}
-    if result[1] then
-        table.remove(result, 1)
-        self:resume(result)
+    local result, a,b,c,d,e,f = self:canResume()
+    if result then
+        self:resume(a,b,c,d,e,f)
         return true
     end
     return false

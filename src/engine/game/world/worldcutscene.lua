@@ -411,7 +411,7 @@ function WorldCutscene:closeText()
     end
 end
 
-local function waitForChoicer(self) return self.choicebox.done, self.choicebox.current_choice end
+local function waitForChoicer(self) return self.choicebox.done, self.choicebox.selected_choice end
 function WorldCutscene:choicer(choices, options)
     if self.textbox then
         self.textbox:remove()

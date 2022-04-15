@@ -15,6 +15,7 @@ function Choicebox:init(x, y, width, height, battle_box)
     self.choices = {}
 
     self.current_choice = 0
+    self.selected_choice = nil
 
     self.done = false
 
@@ -36,23 +37,24 @@ function Choicebox:update(dt)
 
     if Input.pressed("confirm") then
         if self.current_choice ~= 0 then
+            self.selected_choice = self.current_choice
+
             self.done = true
 
             if not self.battle_box then
                 self:remove()
                 if Game.world:hasCutscene() then
-                    Game.world.cutscene.choice = self.current_choice
+                    Game.world.cutscene.choice = self.selected_choice
                     Game.world.cutscene:tryResume()
                 end
             else
-                local selected_choice = self.current_choice
                 self:clearChoices()
                 self.active = false
                 self.visible = false
                 Game.battle.battle_ui.encounter_text.active = true
                 Game.battle.battle_ui.encounter_text.visible = true
                 if Game.battle:hasCutscene() then
-                    Game.battle.cutscene.choice = selected_choice
+                    Game.battle.cutscene.choice = self.selected_choice
                     Game.battle.cutscene:tryResume()
                 end
             end

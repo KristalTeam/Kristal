@@ -306,7 +306,7 @@ function BattleCutscene:enemyText(enemies, text, options)
     end
 end
 
-local function waitForChoicer() return Game.battle.battle_ui.choice_box.done, Game.battle.battle_ui.choice_box.current_choice end
+local function waitForChoicer() return Game.battle.battle_ui.choice_box.done, Game.battle.battle_ui.choice_box.selected_choice end
 function BattleCutscene:choicer(choices, options)
     options = options or {}
 
