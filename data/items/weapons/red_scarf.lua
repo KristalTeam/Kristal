@@ -14,18 +14,18 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = "Basic\nscarf"
+    self.shop = ""
     -- Menu description
     self.description = "A basic scarf made of lightly\nmagical fiber."
 
-    -- Shop buy price
-    self.buy_price = 100
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 50
+    -- Default shop price (sell price is halved)
+    self.price = 100
+    -- Whether the item can be sold
+    self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = nil
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "none"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil

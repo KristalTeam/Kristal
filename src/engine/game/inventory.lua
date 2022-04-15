@@ -17,8 +17,6 @@ function Inventory:addItem(item, index)
     end
     if item then
         return self:addItemTo(item.type, item, index)
-    else
-        return false
     end
 end
 
@@ -32,38 +30,37 @@ function Inventory:addItemTo(storage, item, index)
     if item and storage then
         if storage.sorted then
             if #storage >= storage.max then
-                return false
+                return nil
             end
             if index then
                 if index <= 0 or index > storage.max then
-                    return false
+                    return nil
                 end
                 table.insert(storage, index, item)
-                return true
+                return item
             else
                 table.insert(storage, item)
-                return true
+                return item
             end
         else
             if index then
                 if index <= 0 or index > storage.max or storage[index] then
-                    return false
+                    return nil
                 else
                     storage[index] = item
-                    return true
+                    return item
                 end
             else
                 for i = 1, storage.max do
                     if not storage[i] then
                         storage[i] = item
-                        return true
+                        return item
                     end
                 end
-                return false
+                return nil
             end
         end
     end
-    return false
 end
 
 function Inventory:removeItemClass(storage, item)

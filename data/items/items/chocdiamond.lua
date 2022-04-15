@@ -1,12 +1,12 @@
-local item, super = Class(HealItem, "darkburger")
+local item, super = Class(HealItem, "chocdiamond")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "Darkburger"
+    self.name = "ChocDiamond"
     -- Name displayed when used in battle (optional)
-    self.use_name = nil
+    self.use_name = "CHOCO DIAMOND"
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -14,21 +14,32 @@ function item:init()
     self.icon = nil
 
     -- Battle description
-    self.effect = "Heals\n70HP"
+    self.effect = "Healing\nvaries"
     -- Shop description
-    self.shop = "Mysterious\nhamburger\nheals 70HP"
+    self.shop = ""
     -- Menu description
-    self.description = "A mysterious black burger made of...\nHey, this is just burnt! +70HP"
+    self.description = "It's quite small, but some\npeople REALLY like it. +??HP"
 
     -- Amount healed (HealItem variable)
-    self.heal_amount = 70
-    -- Amount this item heals for specific characters in the overworld (optional)
-    self.world_heal_amounts = {
-        ["noelle"] = 20
+    self.heal_amount = 50
+    -- Amount this item heals for specific characters
+    self.heal_amounts = {
+        ["kris"] = 80,
+        ["susie"] = 20,
+        ["ralsei"] = 50,
+        ["noelle"] = 70
     }
 
+    -- nice
+    if Game.chapter == 1 then
+        self.battle_heal_amounts = {
+            ["susie"] = 30,
+            ["ralsei"] = 30
+        }
+    end
+
     -- Default shop price (sell price is halved)
-    self.price = 70
+    self.price = 40
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -52,10 +63,22 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-        susie = "Cooked to perfection!",
-        ralsei = "A bit burnt...?",
-        noelle = "I-is this real meat...?"
+        susie = "THAT'S it?",
+        ralsei = "Aww, thanks, Kris!",
+        noelle = "Umm, it's ok, Kris, I'll share..."
     }
+end
+
+function item:onWorldUse(target)
+    -- Noelle shares with Kris if they're in the party
+    if target.id == "noelle" and Game:hasPartyMember("kris") then
+        local heal_amount = self:getWorldHealAmount(target.id)
+        Game.world:heal("kris", heal_amount/2)
+        Game.world:heal("noelle", heal_amount/2)
+        return true
+    else
+        return super:onWorldUse(self, target)
+    end
 end
 
 return item

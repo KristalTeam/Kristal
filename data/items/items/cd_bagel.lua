@@ -1,10 +1,10 @@
-local item, super = Class(HealItem, "dd_burger")
+local item, super = Class(HealItem, "cd_bagel")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "DD-Burger"
+    self.name = "CD Bagel"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
@@ -14,21 +14,17 @@ function item:init()
     self.icon = nil
 
     -- Battle description
-    self.effect = "Heals\n60HP 2x"
+    self.effect = "Heals\n80 HP"
     -- Shop description
-    self.shop = "Double\ndarkburger\n60HP 2x"
+    self.shop = "Musical food\nwith a\ncrunch\nHeals 80HP"
     -- Menu description
-    self.description = "It's the Double-Dark-Burger.\nIt'll take two bites to finish!"
+    self.description = "A bagel with a reflective inside.\nMakes music with each bite. +80HP"
 
     -- Amount healed (HealItem variable)
-    self.heal_amount = 60
-    -- Amount this item heals for specific characters in the overworld (optional)
-    self.world_heal_amounts = {
-        ["noelle"] = 20
-    }
+    self.heal_amount = 80
 
     -- Default shop price (sell price is halved)
-    self.price = 110
+    self.price = 100
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -37,7 +33,7 @@ function item:init()
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    self.result_item = "darkburger"
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
@@ -52,10 +48,30 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-        susie = "C'mon, gimme the rest!",
-        ralsei = "M-maybe give Susie the rest?",
-        noelle = "Th... there's MORE!?"
+        susie = "It's got crunch.",
+        ralsei = "How elegant!",
+        noelle = "What a nice song..."
     }
+
+    self.sounds = {
+        ["kris"] = "cd_bagel/kris",
+        ["susie"] = "cd_bagel/susie",
+        ["ralsei"] = "cd_bagel/ralsei",
+        ["noelle"] = "cd_bagel/noelle"
+    }
+end
+
+function item:getShopDescription()
+    -- Don't automatically add item type
+    return self.shop
+end
+
+function item:onWorldUse(target)
+    local sound = self.sounds[target.id] or ("cd_bagel/"..target.id)
+    if Assets.getSound(sound) then
+        Assets.playSound(sound)
+    end
+    return super:onWorldUse(self, target)
 end
 
 return item

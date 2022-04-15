@@ -6,6 +6,8 @@ function item:init()
 
     -- Display name
     self.name = "UltimatCandy"
+    -- Name displayed when used in battle (optional)
+    self.use_name = "ULTIMATE CANDY"
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -22,14 +24,14 @@ function item:init()
     -- Amount healed (HealItem variable)
     self.heal_amount = 1
 
-    -- Shop buy price
-    self.buy_price = 100
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 50
+    -- Default shop price (sell price is halved)
+    self.price = 100
+    -- Whether the item can be sold
+    self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = "none"
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "party"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil

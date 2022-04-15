@@ -653,10 +653,7 @@ function Shop:draw()
         if self.sell_confirming then
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(1, 1, 1, 1)
-            local lines = {}
-            if inventory[self.item_current_selecting]:getSellPrice() then
-                lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
-            end
+            local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
@@ -674,7 +671,7 @@ function Shop:draw()
                 if item then
                     love.graphics.setColor(1, 1, 1, 1)
                     love.graphics.print(item:getName(), 60, 220 + ((i - self.item_offset) * 40))
-                    if item:getSellPrice() then
+                    if item:isSellable() then
                         love.graphics.print(string.format(self.currency_text, item:getSellPrice()), 60 + 240, 220 + ((i - self.item_offset) * 40))
                     end
                 else
@@ -713,8 +710,7 @@ function Shop:draw()
                 -- Draw arrows
                 if not self.sell_confirming then
                     local sine_off = math.sin((love.timer.getTime()*30)/6) * 3
-                    -- Deltarune hides the arrow one item too early so we'll do that too
-                    if self.item_offset + 5 < (max - 1) then
+                    if self.item_offset + 4 < (max - 1) then
                         love.graphics.draw(self.arrow_sprite, 370, 149 + sine_off + 291)
                     end
                     if self.item_offset > 0 then
@@ -931,7 +927,7 @@ function Shop:keypressed(key)
             else
                 if Input.isConfirm(key) then
                     if inventory[self.item_current_selecting] then
-                        if inventory[self.item_current_selecting]:getSellPrice() then
+                        if inventory[self.item_current_selecting]:isSellable() then
                             self.sell_confirming = true
                             love.keyboard.setKeyRepeat(false)
                             self.current_selecting_choice = 1
@@ -1041,7 +1037,7 @@ end
 function Shop:sellItem(current_item)
     -- SELL THE ITEM
     -- Add the gold
-    Game.gold = Game.gold + (current_item:getSellPrice() or 0)
+    Game.gold = Game.gold + current_item:getSellPrice()
     Game.inventory:removeItemClass(current_item.type, current_item)
 
     Assets.playSound("snd_locker")

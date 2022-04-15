@@ -163,46 +163,47 @@ function DarkItemMenu:update(dt)
         if Input.pressed("confirm") then
             --self.selected_item = (2 * (self.item_selected_y - 1) + self.item_selected_x)
             local item = items[self.selected_item]
-            if (item.usable_in == "world" or item.usable_in == "all") or self.item_header_selected == 2 then
-                local target = (item.target == nil or item.target == "none") and "ALL" or "SINGLE"
-                local dropping = (self.item_header_selected == 2)
-                if self:getCurrentItemType() ~= "key" then
+            if self.item_header_selected == 2 then
+                self.state = "USE"
+
+                self.ui_select:stop()
+                self.ui_select:play()
+
+                Game.world.menu:setDescription("Really throw away the\n" .. item:getName() .. "?")
+                Game.world.menu:partySelect("ALL", function(success, party)
+                    self.state = "SELECT"
+                    if success then
+                        self.ui_cancel_small:stop()
+                        self.ui_cancel_small:play()
+
+                        Game.inventory:removeItem(items, self.selected_item)
+                    end
+                    self:updateSelectedItem()
+                end)
+            elseif item.usable_in == "world" or item.usable_in == "all" then
+                if item.target == "ally" or item.target == "party" then
                     self.state = "USE"
 
-                    if target == "SINGLE" or dropping then -- yep, deltarune bug
+                    local target_type = item.target == "ally" and "SINGLE" or "ALL"
+
+                    if target_type == "SINGLE" then -- yep, deltarune bug
                         self.ui_select:stop()
                         self.ui_select:play()
                     end
 
-                    if dropping then
-                        Game.world.menu:setDescription("Really throw away the\n" .. item:getName() .. "?")
-                        Game.world.menu:partySelect("ALL", function(success, party)
-                            self.state = "SELECT"
-                            if success then
-                                self.ui_cancel_small:stop()
-                                self.ui_cancel_small:play()
-
-                                Game.inventory:removeItem(items, self.selected_item)
-                            end
-                            self:updateSelectedItem()
-                        end)
-                    else
-                        Game.world.menu:partySelect(target, function(success, party)
-                            self.state = "SELECT"
-                            if success then
-                                self:useItem(item, party)
-                            end
-                            self:updateSelectedItem()
-                        end)
-                    end
+                    Game.world.menu:partySelect(target_type, function(success, party)
+                        self.state = "SELECT"
+                        if success then
+                            self:useItem(item, party)
+                        end
+                        self:updateSelectedItem()
+                    end)
                 else
                     self:useItem(item, Game.party)
                 end
             else
-                if item.target ~= "noselect" then
-                    self.ui_cant_select:stop()
-                    self.ui_cant_select:play()
-                end
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
             end
         end
     end
@@ -254,7 +255,7 @@ function DarkItemMenu:draw()
         if self.state == "MENU" then
             love.graphics.setColor(128/255, 128/255, 128/255, 1)
         else
-            if item.usable_in == "world" or item.usable_in == "all" or item.target == "noselect" then
+            if item.usable_in == "world" or item.usable_in == "all" then
                 love.graphics.setColor(1, 1, 1, 1)
             else
                 love.graphics.setColor(192/255, 192/255, 192/255, 1)

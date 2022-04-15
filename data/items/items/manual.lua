@@ -5,6 +5,8 @@ function item:init()
 
     -- Display name
     self.name = "Manual"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -18,14 +20,14 @@ function item:init()
     -- Menu description
     self.description = "Ralsei's handmade book full of\nvarious tips and tricks."
 
-    -- Shop buy price
-    self.buy_price = 0
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = nil
+    -- Default shop price (sell price is halved)
+    self.price = 0
+    -- Whether the item can be sold
+    self.can_sell = false
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = nil
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "party"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
@@ -33,9 +35,7 @@ function item:init()
     self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    self.bonuses = {
-        attack = 0,
-    }
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
@@ -48,9 +48,7 @@ function item:init()
 end
 
 function item:onWorldUse(target)
-    Game.world:startCutscene(function(cutscene)
-        cutscene:text("* (You tried to read the manual,\nbut it was so dense it made\nyour head spin...)")
-    end)
+    Game.world:showText("* (You tried to read the manual,\nbut it was so dense it made\nyour head spin...)")
     return false
 end
 
@@ -63,7 +61,7 @@ function item:getBattleText(user, target)
     if Game.battle.encounter.onManualUse then
         return Game.battle.encounter:onManualUse(user)
     end
-    return {"* "..user.chara.name.." read the MANUAL!", "* But nothing happened..."}
+    return {"* "..user.chara.name.." read the "..self:getUseName().."!", "* But nothing happened..."}
 end
 
 return item

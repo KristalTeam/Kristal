@@ -1,10 +1,10 @@
-local item, super = Class(HealItem, "dd_burger")
+local item, super = Class(HealItem, "lancercookie")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "DD-Burger"
+    self.name = "LancerCookie"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
@@ -14,21 +14,27 @@ function item:init()
     self.icon = nil
 
     -- Battle description
-    self.effect = "Heals\n60HP 2x"
+    self.effect = "Heals\n50HP"
     -- Shop description
-    self.shop = "Double\ndarkburger\n60HP 2x"
+    self.shop = ""
     -- Menu description
-    self.description = "It's the Double-Dark-Burger.\nIt'll take two bites to finish!"
+    if Game.chapter == 1 then
+        self.description = "A cookie shaped like Lancer's face.\nMaybe not a cookie. Heals 5 HP?"
+    else
+        self.description = "A cookie shaped like Lancer's face.\nMaybe not a cookie. Heals 1 HP?"
+    end
 
-    -- Amount healed (HealItem variable)
-    self.heal_amount = 60
-    -- Amount this item heals for specific characters in the overworld (optional)
-    self.world_heal_amounts = {
-        ["noelle"] = 20
-    }
+    -- Amount this item heals for in the overworld (optional)
+    if Game.chapter == 1 then
+        self.world_heal_amount = 4
+    else
+        self.world_heal_amount = 1
+    end
+    -- Amount this item heals for in battle (optional)
+    self.battle_heal_amount = 50
 
     -- Default shop price (sell price is halved)
-    self.price = 110
+    self.price = 10
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -37,7 +43,7 @@ function item:init()
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    self.result_item = "darkburger"
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
@@ -52,9 +58,9 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-        susie = "C'mon, gimme the rest!",
-        ralsei = "M-maybe give Susie the rest?",
-        noelle = "Th... there's MORE!?"
+        susie = "Mmm... face",
+        ralsei = "(uncomfortable)",
+        noelle = "Umm, what is this? It's cute..."
     }
 end
 

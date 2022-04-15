@@ -14,18 +14,18 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = "Enhances\ncuteness"
+    self.shop = ""
     -- Menu description
     self.description = "A crinkly hair ribbon that slightly\nincreases your defense."
 
-    -- Shop buy price
-    self.buy_price = 90
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 45
+    -- Default shop price (sell price is halved)
+    self.price = 90
+    -- Whether the item can be sold
+    self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = nil
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "none"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil

@@ -1,10 +1,10 @@
-local item, super = Class(HealItem, "dd_burger")
+local item, super = Class(HealItem, "kris_tea")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "DD-Burger"
+    self.name = "Kris Tea"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
@@ -14,21 +14,24 @@ function item:init()
     self.icon = nil
 
     -- Battle description
-    self.effect = "Heals\n60HP 2x"
+    self.effect = "Healing\nvaries"
     -- Shop description
-    self.shop = "Double\ndarkburger\n60HP 2x"
+    self.shop = ""
     -- Menu description
-    self.description = "It's the Double-Dark-Burger.\nIt'll take two bites to finish!"
+    self.description = "It's own-flavored tea.\nThe flavor just says \"Kris.\""
 
     -- Amount healed (HealItem variable)
-    self.heal_amount = 60
-    -- Amount this item heals for specific characters in the overworld (optional)
-    self.world_heal_amounts = {
-        ["noelle"] = 20
+    self.heal_amount = 50
+    -- Amount this item heals for specific characters
+    self.heal_amounts = {
+        ["kris"] = 10,
+        ["susie"] = 120,
+        ["ralsei"] = 120,
+        ["noelle"] = 70
     }
 
     -- Default shop price (sell price is halved)
-    self.price = 110
+    self.price = 10
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -37,7 +40,7 @@ function item:init()
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
-    self.result_item = "darkburger"
+    self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
@@ -52,10 +55,25 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-        susie = "C'mon, gimme the rest!",
-        ralsei = "M-maybe give Susie the rest?",
-        noelle = "Th... there's MORE!?"
+        kris = {
+            susie = "(No reaction?)",
+            noelle = "(... no reaction?)"
+        },
+        susie = {
+            susie = "Hell yeah, apple juice!!",
+            ralsei = "Don't drink so fast!!"
+        },
+        ralsei = {
+            ralsei = "Tastes like blueberries!",
+            susie = "Huh? Really?"
+        },
+        noelle = "Tastes like cinnamon! (What is this aftertaste...?)"
     }
+end
+
+function item:getBattleHealAmount(id)
+    -- Dont heal less than 40HP in battles
+    return math.max(40, super:getBattleHealAmount(self, id))
 end
 
 return item

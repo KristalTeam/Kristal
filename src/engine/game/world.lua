@@ -63,6 +63,9 @@ function World:init(map)
 end
 
 function World:heal(target, amount)
+    if type(target) == "string" then
+        target = Game:getPartyMember(target)
+    end
     target:heal(amount)
     if self.healthbar then
         for _, actionbox in ipairs(self.healthbar.action_boxes) do

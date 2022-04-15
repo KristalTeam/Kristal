@@ -1,25 +1,27 @@
-local item, super = Class(Item, "wood_blade")
+local item, super = Class(Item, "dogdollar")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "Wood Blade"
+    self.name = "DogDollar"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
-    self.type = "weapon"
+    self.type = "item"
     -- Item icon (for equipment)
-    self.icon = "ui/menu/icon/sword"
+    self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Not\nso\nuseful"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "A wooden practice blade with a carbon-\nreinforced core."
+    self.description = "A dollar with a certain dog on it.\nIts value decreases each Chapter."
 
     -- Default shop price (sell price is halved)
-    self.price = 60
+    self.price = math.floor(200 / Game.chapter)
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -33,24 +35,31 @@ function item:init()
     self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    self.bonuses = {
-        attack = 0,
-    }
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {
-        kris = true,
-    }
+    self.can_equip = {}
 
     -- Character reactions
-    self.reactions = {
-        susie = "What's this!? A CHOPSTICK?",
-        ralsei = "That's yours, Kris...",
-        noelle = "(It has bite marks...)",
-    }
+    self.reactions = {}
+end
+
+function item:onWorldUse(target)
+    ---- Unused text
+    -- Game.world:showText("* (Where'd this come from?)")
+    return false
+end
+
+function item:onBattleSelect(user, target)
+    -- Do not consume (valuable currency)
+    return false
+end
+
+function item:getBattleText(user, target)
+    return "* "..user.chara.name.." admired "..self:getUseName().."!"
 end
 
 return item

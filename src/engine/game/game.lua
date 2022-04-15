@@ -602,6 +602,18 @@ function Game:removePartyMember(chara)
     Utils.removeFromTable(self.party, chara)
 end
 
+function Game:hasPartyMember(chara)
+    if type(chara) == "string" then
+        chara = self:getPartyMember(chara)
+    end
+    for _,party_member in ipairs(self.party) do
+        if party_member.id == chara.id then
+            return true
+        end
+    end
+    return false
+end
+
 function Game:movePartyMember(chara, index)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)

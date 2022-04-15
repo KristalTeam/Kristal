@@ -5,6 +5,8 @@ function item:init()
 
     -- Display name
     self.name = "Dark Candy"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -14,21 +16,21 @@ function item:init()
     -- Battle description
     self.effect = "Heals\n40HP"
     -- Shop description
-    self.shop = ""
+    self.shop = "Star-shape\ncandy that\nheals 40HP"
     -- Menu description
     self.description = "Heals 40 HP. A red-and-black star\nthat tastes like marshmallows."
 
     -- Amount healed (HealItem variable)
     self.heal_amount = 40
 
-    -- Shop buy price
-    self.buy_price = 40
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 13
+    -- Default shop price (sell price is halved)
+    self.price = 25
+    -- Whether the item can be sold
+    self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = "party"
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "ally"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
@@ -48,7 +50,7 @@ function item:init()
     self.reactions = {
         susie = "Yeahh!! That's good!",
         ralsei = {
-            ralsei = "A bit burnt...?",
+            ralsei = "Yummy!!! Marshmallows!!",
             susie = "Hey, feed ME!!!"
         },
         noelle = "Oh, it's... sticky?"

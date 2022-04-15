@@ -6,6 +6,8 @@ function item:init()
 
     -- Display name
     self.name = "Test Food"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -20,10 +22,10 @@ function item:init()
     -- Amount healed (HealItem variable)
     self.heal_amount = 100
 
-    -- Shop buy price
-    self.buy_price = 0
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 0
+    -- Default shop price (sell price is halved)
+    self.price = 0
+    -- Whether the item can be sold
+    self.can_sell = true
 
     -- Consumable target mode (party, enemy, noselect, or none/nil)
     self.target = "party"

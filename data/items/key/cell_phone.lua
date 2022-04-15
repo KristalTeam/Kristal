@@ -5,6 +5,8 @@ function item:init()
 
     -- Display name
     self.name = "Cell Phone"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "key"
@@ -18,14 +20,14 @@ function item:init()
     -- Menu description
     self.description = "It can be used to make calls."
 
-    -- Shop buy price
-    self.buy_price = 0
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = nil
+    -- Default shop price (sell price is halved)
+    self.price = 0
+    -- Whether the item can be sold
+    self.can_sell = false
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
     self.target = "none"
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "world"
     -- Item this item will get turned into when consumed
     self.result_item = nil

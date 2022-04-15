@@ -1,56 +1,53 @@
-local item, super = Class(Item, "wood_blade")
+local item, super = Class(TensionItem, "tensionmax")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "Wood Blade"
+    self.name = "TensionMax"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
-    self.type = "weapon"
+    self.type = "item"
     -- Item icon (for equipment)
-    self.icon = "ui/menu/icon/sword"
+    self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Raises\nTP\nMax"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "A wooden practice blade with a carbon-\nreinforced core."
+    self.description = "Raises TP to full in battle."
+
+    -- Amount of TP this item gives (TensionItem variable)
+    self.tp_amount = 100
 
     -- Default shop price (sell price is halved)
-    self.price = 60
+    self.price = 1000
     -- Whether the item can be sold
     self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
+    self.target = "party"
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
-    self.instant = false
+    self.instant = true
 
     -- Equip bonuses (for weapons and armor)
-    self.bonuses = {
-        attack = 0,
-    }
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {
-        kris = true,
-    }
+    self.can_equip = {}
 
     -- Character reactions
-    self.reactions = {
-        susie = "What's this!? A CHOPSTICK?",
-        ralsei = "That's yours, Kris...",
-        noelle = "(It has bite marks...)",
-    }
+    self.reactions = {}
 end
 
 return item

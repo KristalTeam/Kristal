@@ -1,10 +1,12 @@
-local item, super = Class(Item, "tensionbit")
+local item, super = Class(TensionItem, "tensionbit")
 
 function item:init()
     super:init(self)
 
     -- Display name
     self.name = "TensionBit"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -18,14 +20,17 @@ function item:init()
     -- Menu description
     self.description = "Raises TP by 32% in battle."
 
-    -- Shop buy price
-    self.buy_price = 100
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 50
+    -- Amount of TP this item gives (TensionItem variable)
+    self.tp_amount = 32
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = nil
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Default shop price (sell price is halved)
+    self.price = 100
+    -- Whether the item can be sold
+    self.can_sell = true
+
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "party"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
@@ -33,9 +38,7 @@ function item:init()
     self.instant = true
 
     -- Equip bonuses (for weapons and armor)
-    self.bonuses = {
-        attack = 0,
-    }
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
@@ -45,31 +48,6 @@ function item:init()
 
     -- Character reactions
     self.reactions = {}
-end
-
-function item:onBattleSelect(user, target)
-    Game.battle.tension_bar:giveTension(32)
-
-    user:flash()
-
-    local sound = Assets.newSound("snd_cardrive")
-    sound:setPitch(1.4)
-    sound:setVolume(0.8)
-    sound:play()
-
-    user:sparkle(1, 0.625, 0.25)
-end
-
-function item:onBattleDeselect(user, target)
-    Game.battle.tension_bar:removeTension(32)
-end
-
-function item:onWorldUse(target)
-    Game.world:startCutscene(function(cutscene)
-        cutscene:text("* (You felt tense.)")
-        cutscene:text("* (... try using it in battle.)")
-    end)
-    return false
 end
 
 return item

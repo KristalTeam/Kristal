@@ -5,6 +5,8 @@ function item:init()
 
     -- Display name
     self.name = "Glowshard"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -22,28 +24,26 @@ function item:init()
         self.description = "A shimmering shard.\nIts value increases each Chapter."
     end
 
-    -- Shop buy price
+    -- Default shop price (sell price is halved)
     if Game.chapter == 1 then
-        self.buy_price = 200
+        self.price = 200
     else
-        self.buy_price = 200 + (Game.chapter * 100)
+        self.price = 200 + (Game.chapter * 100)
     end
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = self.buy_price / 2
+    -- Whether the item can be sold
+    self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = "noselect"
-    -- Where this item can be used (world, battle, all, or none/nil)
-    self.usable_in = "battle"
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "none"
+    -- Where this item can be used (world, battle, all, or none)
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    self.bonuses = {
-        attack = 0,
-    }
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
@@ -68,7 +68,7 @@ function item:getBattleText(user, target)
     if Game.battle.encounter.onGlowshardUse then
         return Game.battle.encounter:onGlowshardUse(user)
     end
-    return {"* "..user.chara.name.." used the GLOWSHARD!", "* But nothing happened..."}
+    return {"* "..user.chara.name.." used the "..self:getUseName().."!", "* But nothing happened..."}
 end
 
 return item

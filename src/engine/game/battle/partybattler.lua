@@ -107,7 +107,7 @@ function PartyBattler:flash()
     super:flash(self, self.overlay_sprite.visible and self.overlay_sprite or self.sprite)
 end
 
-function PartyBattler:heal(amount)
+function PartyBattler:heal(amount, sparkle_color)
     Assets.stopAndPlaySound("snd_power")
 
     self.chara.health = self.chara.health + amount
@@ -123,7 +123,7 @@ function PartyBattler:heal(amount)
         self:statusMessage("heal", amount, {0, 1, 0})
     end
 
-    self:sparkle()
+    self:sparkle(unpack(sparkle_color or {}))
 end
 
 function PartyBattler:checkHealth()

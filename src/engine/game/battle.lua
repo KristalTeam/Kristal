@@ -2114,12 +2114,16 @@ function Battle:keypressed(key)
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if not menu_item.data.item.target or menu_item.data.item.target == "none" or menu_item.data.item.target == "noselect" then
+                    if not menu_item.data.item.target or menu_item.data.item.target == "none" then
                         self:commitAction("ITEM", nil, menu_item)
-                    elseif menu_item.data.item.target == "party" then
+                    elseif menu_item.data.item.target == "ally" then
                         self:setState("PARTYSELECT", "ITEM")
                     elseif menu_item.data.item.target == "enemy" then
                         self:setState("ENEMYSELECT", "ITEM")
+                    elseif menu_item.data.item.target == "party" then
+                        self:commitAction("ITEM", self.party, menu_item)
+                    elseif menu_item.data.item.target == "enemies" then
+                        self:commitAction("ITEM", self:getActiveEnemies(), menu_item)
                     end
                 end
             end

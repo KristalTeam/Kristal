@@ -5,6 +5,8 @@ function item:init()
 
     -- Display name
     self.name = "ReviveMint"
+    -- Name displayed when used in battle (optional)
+    self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
@@ -18,14 +20,14 @@ function item:init()
     -- Menu description
     self.description = "Heals a fallen ally to MAX HP.\nA minty green crystal."
 
-    -- Shop buy price
-    self.buy_price = 400
-    -- Shop sell price (usually half of buy price)
-    self.sell_price = 200
+    -- Default shop price (sell price is halved)
+    self.price = 400
+    -- Whether the item can be sold
+    self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = "party"
-    -- Where this item can be used (world, battle, all, or none/nil)
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "ally"
+    -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
@@ -33,9 +35,7 @@ function item:init()
     self.instant = false
 
     -- Equip bonuses (for weapons and armor)
-    self.bonuses = {
-        attack = 0,
-    }
+    self.bonuses = {}
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = nil
     self.bonus_icon = nil
@@ -63,10 +63,10 @@ function item:onWorldUse(target)
 end
 
 function item:onBattleUse(user, target)
-    if user.chara.health <= 0 then
-        target:heal(math.abs(user.chara.health) + user.chara:getStat("health"))
+    if target.chara.health <= 0 then
+        target:heal(math.abs(target.chara.health) + target.chara:getStat("health"))
     else
-        target:heal(math.ceil(user.chara:getStat("health") / 2))
+        target:heal(math.ceil(target.chara:getStat("health") / 2))
     end
 end
 
