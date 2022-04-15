@@ -64,7 +64,11 @@ end
 
 function Loading:update(dt)
     if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
-        Gamestate.switch(Kristal.States["Menu"])
+        if Kristal.Args["test"] then
+            Gamestate.switch(Kristal.States["Testing"])
+        else
+            Gamestate.switch(Kristal.States["Menu"])
+        end
     end
 end
 

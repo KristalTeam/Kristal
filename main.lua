@@ -26,7 +26,6 @@ Kristal.States = {
     ["Loading"] = require("src.engine.loadstate"),
     ["Menu"] = require("src.engine.menu.menu"),
     ["Game"] = require("src.engine.game.game"),
-    ["DarkTransition"] = require("src.engine.game.darktransition.dark_transition"),
     ["Testing"] = require("src.teststate"),
 }
 
@@ -173,6 +172,8 @@ RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 Shop = require("src.engine.game.shop")
 Shopkeeper = require("src.engine.game.shop.shopkeeper")
 
+DarkTransition = require("src.engine.game.darktransition.darktransition")
+
 Hotswapper = require("src.hotswapper")
 utf8 = require("utf8")
 
@@ -299,11 +300,7 @@ function love.load(args)
     load_thread:start()
 
     -- load menu
-    if Kristal.Args["test"] then
-        Gamestate.switch(Kristal.States["Testing"])
-    else
-        Gamestate.switch(Kristal.States["Loading"])
-    end
+    Gamestate.switch(Kristal.States["Loading"])
 end
 
 function love.quit()
@@ -827,9 +824,37 @@ function Kristal.loadMod(id, save_id, save_name, after)
         -- Preload assets for the transition
         Registry.initialize(true)
 
-        Kristal.loadModAssets(mod.id, "sprites", Kristal.States["DarkTransition"].SPRITE_DEPENDENCIES, function()
-            Gamestate.switch(Kristal.States["DarkTransition"], mod, save_id)
-        end)
+        if Kristal.stage then
+
+            local final_y = 320
+
+            Kristal.loadModAssets(mod.id, "sprites", DarkTransition.SPRITE_DEPENDENCIES, function()
+                -- LOADING CALLBACK
+                local transition = DarkTransition(function()
+                    Kristal.loadModAssets(mod.id, "all", "", function()
+                        transition:resumeTransition()
+                        if Kristal.preInitMod(mod.id) then
+                            Gamestate.switch(Kristal.States["Game"], save_id)
+                        end
+                    end)
+                end, function()
+                    -- END CALLBACK 
+                    if Game and Game.world and Game.world.player then
+
+                        local kx, ky = transition.kris_sprite:localToScreenPos(transition.kris_width / 2, 0)
+                
+                        self.world.player:setScreenPos(kx, final_y)
+                        self.world.player.visible = true
+
+
+                    end
+                end, final_y)
+                transition.layer = 1000
+                stage:addChild(transition)
+            end)
+        else
+            Assets.playSound("ui_cant_select")
+        end
     end
 end
 

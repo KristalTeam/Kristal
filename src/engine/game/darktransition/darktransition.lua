@@ -1,37 +1,24 @@
-local DarkTransition = {}
+local DarkTransition, super = Class(Object)
 
 DarkTransition.SPRITE_DEPENDENCIES = {
-    "party/kris/world/light/up_*",
+    "party/kris/light/walk/up_*",
     "party/kris/dark_transition",
-    "party/susie/world/light/up_*",
+    "party/susie/light/walk/up_*",
     "party/susie/dark_transition"
 }
 
-function DarkTransition:camerax()
-    return 0 -- TODO: grab camera from world.lua?
-end
-function DarkTransition:cameray()
-    return 0
-end
+function DarkTransition:init(loading_callback, end_callback, final_y, options)
+    super:init(self, x, y)
 
-function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
-    local sprite = self.spr_doorblack
-    love.graphics.setColor(color)
-    love.graphics.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
-end
+    options = options or {}
 
-function DarkTransition:enter(previous, mod, save_id)
-    self.prior_state = previous
-    self.mod = mod
-    self.save_id = save_id
+    self:setScale(2, 2)
+    self:setParallax(0, 0)
+
+    self.loading_callback = loading_callback
+    self.end_callback = end_callback
 
     self.animation_active = true
-
-    self.stage = Stage()
-
-    self.stage_scaled = Object()
-    self.stage_scaled:setScale(2)
-    self.stage:addChild(self.stage_scaled)
 
     self.con = 8
     self.timer = 0
@@ -39,10 +26,10 @@ function DarkTransition:enter(previous, mod, save_id)
     self.velocity = 0
     self.old_velocity = 0
     self.friction = 0
-    self.kris_x = (134 + self:camerax())
-    self.kris_y = (94  + self:cameray())
-    self.susie_x  = (162 + self:camerax())
-    self.susie_y  = (86  + self:cameray())
+    self.kris_x = 134
+    self.kris_y = 94
+    self.susie_x = 162
+    self.susie_y = 86
     self.susie_sprite = 0
     self.sprite_index = 0
     self.linecon = false
@@ -60,14 +47,12 @@ function DarkTransition:enter(previous, mod, save_id)
     self.megablack = false
 
     -- CONFIG
-    self.quick_mode = false
-    self.skiprunback = true
-    self.final_y = 60
-    self.kris_only = false
-    self.has_head_object = false
-    self.sparkles = 0
-
-
+    self.quick_mode      = options["quick_mode"]      or false
+    self.skiprunback     = options["skiprunback"]     or true
+    self.final_y         = final_y / 2                or 60
+    self.kris_only       = options["kris_only"]       or false
+    self.has_head_object = options["has_head_object"] or false
+    self.sparkles        = options["sparkles"]        or 0
 
     self.sparestar = Assets.getFrames("effects/spare/star")
 
@@ -92,7 +77,7 @@ function DarkTransition:enter(previous, mod, save_id)
     self.kris_sprite_holder:addChild(self.kris_sprite)
     self.kris_sprite_holder:addChild(self.kris_sprite_2)
     self.kris_sprite_holder:addChild(self.kris_sprite_3)
-    self.stage_scaled:addChild(self.kris_sprite_holder)
+    self:addChild(self.kris_sprite_holder)
 
     if not self.kris_only then
         self.susie_sprite_holder = Object(self.susie_x, self.susie_y)
@@ -107,7 +92,7 @@ function DarkTransition:enter(previous, mod, save_id)
         self.susie_sprite_holder:addChild(self.susie_sprite)
         self.susie_sprite_holder:addChild(self.susie_sprite_2)
         self.susie_sprite_holder:addChild(self.susie_sprite_3)
-        self.stage_scaled:addChild(self.susie_sprite_holder)
+        self:addChild(self.susie_sprite_holder)
     end
 
     if self.has_head_object then
@@ -116,8 +101,8 @@ function DarkTransition:enter(previous, mod, save_id)
         self.kris_sprite_holder:addChild(self.kris_head_object)
     end
 
-    self.spr_susieu = Assets.getFrames("party/susie/world/light/up")
-    self.spr_krisu = Assets.getFrames("party/kris/world/light/up")
+    self.spr_susieu = Assets.getFrames("party/susie/light/walk/up")
+    self.spr_krisu = Assets.getFrames("party/kris/light/walk/up")
 
     self.spr_susie_lw_fall_u = Assets.getFrames("party/susie/dark_transition/forward")
     self.spr_krisu_fall_lw = Assets.getFrames("party/kris/dark_transition/forward")
@@ -151,10 +136,6 @@ function DarkTransition:enter(previous, mod, save_id)
     self.kris_width = self.spr_kris_fall_d_dw[1]:getWidth()
     self.kris_height = self.spr_kris_fall_d_dw[1]:getHeight()
 
-    self.canvas = love.graphics.newCanvas(320,240)
-    -- No filtering
-    self.canvas:setFilter("nearest", "nearest")
-
     -- Some nice hacks for deltatime support, since toby is very weird with cutscenes.
     self.do_once = false
     self.do_once2 = false
@@ -174,14 +155,21 @@ function DarkTransition:enter(previous, mod, save_id)
     self.dronesfx_volume = 0
 
     self.black_fade = 1
-    self.mod_loading = false
+    self.waiting = false
+end
+
+function DarkTransition:resumeTransition()
+    self.waiting = false
+end
+
+function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
+    local sprite = self.spr_doorblack
+    love.graphics.setColor(color)
+    love.graphics.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
 function DarkTransition:update(dt)
-    if self.con < 18 then
-        self.prior_state:update(dt) -- Update the last state we were in
-    end
-    self.stage:update(dt)
+    super:update(self, dt)
 
     -- Process audio fading
     if self.drone_get_louder then
@@ -208,11 +196,11 @@ function DarkTransition:update(dt)
             local xrand  = math.random() * (math.pi / 2)
             local xrand2 = math.random() * (math.pi / 2)
 
-            local x =  (( 70 - (math.sin(xrand)  * 70)) + self:camerax())
-            local x2 = ((250 + (math.sin(xrand2) * 70)) + self:camerax())
+            local x =  ( 70 - (math.sin(xrand)  * 70))
+            local x2 = (250 + (math.sin(xrand2) * 70))
 
-            self.stage_scaled:addChild(DarkTransitionLine(x))
-            self.stage_scaled:addChild(DarkTransitionLine(x2))
+            self:addChild(DarkTransitionLine(x))
+            self:addChild(DarkTransitionLine(x2))
 
             self.linetimer = 0
         end
@@ -262,16 +250,16 @@ function DarkTransition:update(dt)
     end
 end
 
-function DarkTransition:draw(dont_clear)
-    if not dont_clear then
-        love.graphics.clear()
-    end
-    if self.con < 18 then
-        self.prior_state:draw() -- Draw the last state we were in
-    end
+function DarkTransition:draw()
+    --if not dont_clear then
+    --    love.graphics.clear()
+    --end
+    --if self.con < 18 then
+    --    self.prior_state:draw() -- Draw the last state we were in
+    --end
 
-    Draw.setCanvas(self.canvas)
-    love.graphics.clear()
+    --Draw.setCanvas(self.canvas)
+    --love.graphics.clear()
 
     if self.megablack then
         love.graphics.setColor(0, 0, 0, self.black_fade)
@@ -301,7 +289,7 @@ function DarkTransition:draw(dont_clear)
 
                 local r_color = {r_darkest, r_darkest, r_darkest, 1}
 
-                self:drawDoor((self.rx + self:camerax()), (self.ry + self:cameray()), (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), r_color)
+                self:drawDoor(self.rx, self.ry, (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), r_color)
             end
         end
     end
@@ -406,10 +394,10 @@ function DarkTransition:draw(dont_clear)
         end
         if (self.doorblack == 1) then
             love.graphics.setColor(0, 0, 0, 1)
-            local x1 = (self.rx1 + self:camerax())
-            local y1 = (self.ry1 + self:cameray())
-            local x2 = (self.rx2 + self:camerax())
-            local y2 = (self.ry2 + self:cameray())
+            local x1 = self.rx1
+            local y1 = self.ry1
+            local x2 = self.rx2
+            local y2 = self.ry2
             local w = x2 - x1
             local h = y2 - y1
             love.graphics.rectangle("fill", x1, y1, w, h)
@@ -545,14 +533,13 @@ function DarkTransition:draw(dont_clear)
                 self.susie_sprite:setFrames(self.spr_susie_lw_fall_d)
             end
 
-            self.mod_loading = true
             self.old_velocity = self.velocity
-            Kristal.loadModAssets(self.mod.id, "all", "", function()
-                self.mod_loading = false
-                if Kristal.preInitMod(self.mod.id) then
-                    Gamestate.switch(Kristal.States["Game"], self.save_id)
-                end
-            end)
+            if self.loading_callback then
+                self.waiting = true
+                self.loading_callback()
+            else
+                self.waiting = false
+            end
         end
     end
     if (self.con == 30) then
@@ -649,7 +636,7 @@ function DarkTransition:draw(dont_clear)
                 local sparkle = DarkTransitionSparkle(self.sparestar, self.kris_x + 15, self.kris_y + 15)
                 sparkle:play(1 / 15)
                 -- We need to get the stage...
-                self.stage_scaled:addChild(sparkle)
+                self:addChild(sparkle)
             end
         end
         if (self.timer >= 4) then
@@ -666,7 +653,7 @@ function DarkTransition:draw(dont_clear)
                 local x = ((self.susie_x + 3) + math.random((self.susie_width - 6)))
                 local y = (self.susie_y + self.susie_top)
 
-                self.stage_scaled:addChild(DarkTransitionParticle(x, y))
+                self:addChild(DarkTransitionParticle(x, y))
             end
             if (self.kris_top > 5) then
                 self.kris_top = self.kris_top - 0.5 * DTMULT
@@ -680,7 +667,7 @@ function DarkTransition:draw(dont_clear)
                 local x = ((self.kris_x + 3) + math.random((self.kris_width - 6)))
                 local y = (self.kris_y + self.kris_top)
 
-                self.stage_scaled:addChild(DarkTransitionParticle(x, y))
+                self:addChild(DarkTransitionParticle(x, y))
             end
         end
         self.threshold = 130
@@ -881,10 +868,10 @@ function DarkTransition:draw(dont_clear)
                 self.getup_index = 0
                 self.fake_screenshake = 1
                 self.fake_shakeamount = 8
-                self.remkrisx = (self.kris_x - self:camerax())
-                self.remkrisy = (self.kris_y - self:cameray())
-                self.remsusx  = (self.susie_x  - self:camerax())
-                self.remsusy  = (self.susie_y  - self:cameray())
+                self.remkrisx = self.kris_x
+                self.remkrisy = self.kris_y
+                self.remsusx  = self.susie_x
+                self.remsusy  = self.susie_y
             end
         end
     end
@@ -914,8 +901,6 @@ function DarkTransition:draw(dont_clear)
             self.kris_y = self.remkrisy
             self.susie_x  = self.remsusx
             self.susie_y  = self.remsusy
-            --if (global.flag[302] == 1)
-            --    global.flag[302] = 2
             --scr_become_dark()
             --dz = (global.darkzone + 1)
             --room_goto(nextroom)
@@ -945,12 +930,6 @@ function DarkTransition:draw(dont_clear)
             if self.quick_mode then
                 self.black_fade = self.black_fade - 0.05 * DTMULT
             end
-            --with (megablack)
-            --    image_alpha = image_alpha - 0.05
-            --if (quick_mode) then
-            --    with (megablack)
-            --        image_alpha = image_alpha - 0.05
-            --end
         end
         if ((math.floor(self.timer) >= 50) and not self.do_once10) then
             self.do_once10 = true
@@ -964,8 +943,12 @@ function DarkTransition:draw(dont_clear)
             self.do_once12 = true
             -- We're done!
             self.animation_active = false
-            --with (megablack)
-            --    instance_destroy()
+
+            if self.end_callback then
+                self.end_callback()
+            end
+
+            self:remove()
             --persistent = false
             --global.interact = 0
             --global.facing = 0
@@ -1004,14 +987,14 @@ function DarkTransition:draw(dont_clear)
     end
 
     -- Reset canvas to draw to
-    Draw.setCanvas(SCREEN_CANVAS)
+    --Draw.setCanvas(SCREEN_CANVAS)
 
-    -- Draw the canvas on the screen scaled by 2x
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.canvas, 0, 0, 0, 2, 2)
+    ---- Draw the canvas on the screen scaled by 2x
+    --love.graphics.setColor(1, 1, 1, 1)
+    --love.graphics.draw(self.canvas, 0, 0, 0, 2, 2)
 
-    self.stage:draw()
-
+    --self.stage:draw()
+    super:draw(self)
 end
 
 return DarkTransition

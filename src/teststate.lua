@@ -4,23 +4,23 @@ function Testing:enter()
     self.stage = Stage()
 
     self.frame = 0
-
-    self.stage.timer:script(function(wait)
-        while true do
-            print("frame[t]", self.frame)
-            wait()
-        end
-    end)
 end
 
 function Testing:update(dt)
-    print("-----")
-
     self.frame = self.frame + 1
 
-    self.stage:update(dt)
+    if Input.pressed("confirm") then
+        self.stage:addChild(DarkTransition(nil, nil, 240, {has_head_object = true}))
+    end
 
-    print("frame[u]", self.frame)
+    self.stage:update(dt)
+end
+
+function Testing:draw()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(Assets.getFont("main"))
+    love.graphics.printf("~ TESTING STATE ~", 0, 48, 640, "center")
+    self.stage:draw()
 end
 
 return Testing
