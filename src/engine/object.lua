@@ -600,6 +600,24 @@ function Object:setParent(parent)
     end
 end
 
+function Object:isFullyActive()
+    if self.stage and self.parent == self.stage then
+        return self.active
+    elseif self.stage and self.parent then
+        return self.active and self.parent:isFullyActive()
+    end
+    return false
+end
+
+function Object:isFullyVisible()
+    if self.stage and self.parent == self.stage then
+        return self.visible
+    elseif self.stage and self.parent then
+        return self.visible and self.parent:isFullyVisible()
+    end
+    return false
+end
+
 --[[ Internal functions ]]--
 
 function Object:sortChildren()
