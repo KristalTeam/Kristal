@@ -116,6 +116,7 @@ DarkPowerMenu = require("src.engine.game.world.ui.darkpowermenu")
 DarkConfigMenu = require("src.engine.game.world.ui.darkconfigmenu")
 DarkMenuPartySelect = require("src.engine.game.world.ui.darkmenupartyselect")
 DarkSaveMenu = require("src.engine.game.world.ui.darksavemenu")
+DarkStorageMenu = require("src.engine.game.world.ui.darkstoragemenu")
 HealthBar = require("src.engine.game.world.ui.healthbar")
 OverworldActionBox = require("src.engine.game.world.ui.overworldactionbox")
 

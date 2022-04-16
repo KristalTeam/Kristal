@@ -37,10 +37,10 @@ function TestShop:init()
     -- Shown when you enter the talk menu.
     self.talk_text = "Guess I\nshould\nthink."
 
-    self.sell_options_text["item"]   = "What\nshould\nI sell?"
-    self.sell_options_text["weapon"] = "What\nshould\nI sell?"
-    self.sell_options_text["armor"]  = "What\nshould\nI sell?"
-    self.sell_options_text["pocket"] = "What\nshould\nI sell?"
+    self.sell_options_text["items"]   = "What\nshould\nI sell?"
+    self.sell_options_text["weapons"] = "What\nshould\nI sell?"
+    self.sell_options_text["armosr"]  = "What\nshould\nI sell?"
+    self.sell_options_text["storage"] = "What\nshould\nI sell?"
 
     self:registerItem("cell_phone", 1)
     self:registerItem("tensionbit")

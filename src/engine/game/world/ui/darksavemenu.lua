@@ -89,6 +89,13 @@ function DarkSaveMenu:update(dt)
             elseif self.selected_x == 2 and self.selected_y == 1 then
                 self:remove()
                 Game.world:closeMenu()
+            elseif self.selected_x == 1 and self.selected_y == 2 then
+                if Game.inventory.storage_enabled then
+                    Input.consumePress("confirm")
+                    self:remove()
+                    Game.world:closeMenu()
+                    Game.world:openMenu(DarkStorageMenu())
+                end
             end
         end
     elseif self.state == "SAVE" then
@@ -200,8 +207,11 @@ function DarkSaveMenu:draw()
         -- Buttons
         love.graphics.print("Save", 170, 220)
         love.graphics.print("Return", 350, 220)
-        love.graphics.setColor(0.5, 0.5, 0.5)
+        if not Game.inventory.storage_enabled then
+            love.graphics.setColor(0.5, 0.5, 0.5)
+        end
         love.graphics.print("Storage", 170, 260)
+        love.graphics.setColor(0.5, 0.5, 0.5)
         love.graphics.print("Recruits", 350, 260)
 
         -- Heart

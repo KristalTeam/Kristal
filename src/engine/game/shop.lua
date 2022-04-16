@@ -46,7 +46,7 @@ function Shop:init()
     self.sell_options_text["items"]   = "Item text"
     self.sell_options_text["weapons"] = "Weapon\ntext"
     self.sell_options_text["armors"]  = "Armor text"
-    self.sell_options_text["pocket"] = "Pocket\ntext"
+    self.sell_options_text["storage"] = "Storage\ntext"
 
     self.hide_storage_text = false
 
@@ -67,7 +67,7 @@ function Shop:init()
         {"Sell Items",        "items"},
         {"Sell Weapons",      "weapons"},
         {"Sell Armor",        "armors"},
-        {"Sell Pocket Items", "pocket"}
+        {"Sell Pocket Items", "storage"}
     }
 
     self.background = "ui/shop/bg_seam"
@@ -995,7 +995,7 @@ function Shop:enterSellMenu(sell_data)
         self.right_text:setText(self.sell_no_storage_text)
     elseif not Game.inventory:getStorage(sell_data[2]) then
         self.right_text:setText(self.sell_no_storage_text)
-    elseif #Game.inventory:getStorage(sell_data[2]) <= 0 then
+    elseif Game.inventory:getItemCount(sell_data[2], false) == 0 then
         self.right_text:setText(self.sell_no_storage_text)
     else
         self:setState("SELLING", sell_data)
@@ -1008,7 +1008,7 @@ function Shop:buyItem(current_item, current_item_data)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
-        Game.gold = Game.gold - current_item:getBuyPrice() or 0
+        Game.gold = Game.gold - (current_item:getBuyPrice() or 0)
 
         -- Decrement the stock
         if current_item_data[2] then
@@ -1019,7 +1019,9 @@ function Shop:buyItem(current_item, current_item_data)
         end
 
         -- Add the item to the inventory
-        if Game.inventory:addItem(current_item:clone()) then
+        local new_item = Registry.createItem(current_item.id)
+        new_item:load(current_item:save())
+        if Game.inventory:addItem(new_item) then
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("snd_locker")
             self.right_text:setText(self.buy_text)

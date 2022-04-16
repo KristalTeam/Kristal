@@ -308,7 +308,7 @@ end
 
 function Text:drawChar(node, state, use_color)
     local font = Assets.getFont(state.font, state.font_size)
-    local width, height = font:getWidth(node.character), font:getHeight()
+    local width, height = math.max(1, font:getWidth(node.character)), font:getHeight()
 
     if state.shake >= 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then

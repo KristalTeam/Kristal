@@ -13,7 +13,7 @@
     "inventory": {
         "items": ["darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit", "counter"],
         "key_items": ["cell_phone"],
-        "pocket": ["favwich"]
+        "storage": ["favwich"]
     },
 
     "transition": false,
