@@ -64,6 +64,9 @@ function Game:enter(previous_state, save_id, save_name)
         end
     elseif Kristal.getModOption("encounter") then
         self:encounter(Kristal.getModOption("encounter"), false)
+    elseif Kristal.getModOption("shop") then
+        self:enterShop(Kristal.getModOption("shop"))
+        self.shop.transition_target = {map = self.world.map.id}
     end
 
     Kristal.callEvent("postInit", self.is_new_file)
@@ -540,8 +543,10 @@ end
 function Game:enterShop(shop)
     -- Add the shop to the stage and enter it.
     if not self.shop then
-        error("Attempt to enter shop without calling setupShop")
+        self:setupShop(shop)
     end
+
+    self.world.music:stop()
 
     self.state = "SHOP"
 
