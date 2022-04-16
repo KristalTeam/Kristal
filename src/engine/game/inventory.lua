@@ -1,26 +1,43 @@
 local Inventory, super = Class()
 
 function Inventory:init()
+    self.storage_for_type = {
+        ["item"]   = "items",
+        ["key"]    = "key_items",
+        ["weapon"] = "weapons",
+        ["armor"]  = "armors",
+    }
+
+    self.pocket_enabled = (Game.chapter > 1)
+
     self:clear()
 end
 
 function Inventory:clear()
-    self.items     = {max = 12, sorted = true}
-    self.key_items = {max = 12, sorted = true}
-    self.weapons   = {max = 48, sorted = false}
-    self.armors    = {max = 48, sorted = false}
+    self.storages = {
+        ["items"]     = {id = "items",     max = 12, sorted = true,  name = "ITEMs",     fallback = "pocket"},
+        ["key_items"] = {id = "key_items", max = 12, sorted = true,  name = "KEY ITEMs", fallback = nil     },
+        ["weapons"]   = {id = "weapons",   max = 48, sorted = false, name = "WEAPONs",   fallback = nil     },
+        ["armors"]    = {id = "armors",    max = 48, sorted = false, name = "ARMORs",    fallback = nil     },
+        ["pocket"]    = {id = "pocket",    max = 24, sorted = false, name = "STORAGE",   fallback = nil     },
+    }
+    self.stored_items = {}
 end
 
-function Inventory:addItem(item, index)
+function Inventory:addItem(item)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
-    if item then
-        return self:addItemTo(item.type, item, index)
-    end
+    return self:addItemTo(self:getDefaultStorage(item.type), item)
 end
 
-function Inventory:addItemTo(storage, item, index)
+function Inventory:addItemTo(storage, index, item, allow_fallback)
+    allow_fallback = (allow_fallback ~= false) and self.pocket_enabled
+    if type(index) ~= "number" then
+        allow_fallback = item
+        item = index
+        index = nil
+    end
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
@@ -28,101 +45,157 @@ function Inventory:addItemTo(storage, item, index)
         storage = self:getStorage(storage)
     end
     if item and storage then
-        if storage.sorted then
-            if #storage >= storage.max then
-                return nil
+        if not index then
+            -- No index specified, find the next free slot
+            local free_storage, free_index = self:getNextIndex(storage, 1, allow_fallback)
+            return self:setItem(free_storage, free_index, item)
+        else
+            if index <= 0 or index > storage.max then
+                -- Index out of bounds
+                return
             end
-            if index then
-                if index <= 0 or index > storage.max then
-                    return nil
+            if storage.sorted then
+                if self:isFull(storage, allow_fallback) then
+                    -- Attempt to insert into full storage
+                    return
                 end
                 table.insert(storage, index, item)
-                return item
-            else
-                table.insert(storage, item)
-                return item
-            end
-        else
-            if index then
-                if index <= 0 or index > storage.max or storage[index] then
-                    return nil
-                else
-                    storage[index] = item
-                    return item
+                self.stored_items[item] = {storage = storage.id, index = index}
+                if storage[storage.max + 1] then
+                    -- Inserting pushed item out-of-bounds, move it to fallback storage
+                    local overflow, overflow_index = self:getNextIndex(storage, storage.max + 1, allow_fallback)
+                    if not overflow or not self:setItem(overflow, overflow_index, storage[storage.max + 1]) then
+                        self.stored_items[storage[storage.max + 1]] = nil
+                        print("[WARNING] Deleted item by overflow - THIS SHOULDNT HAPPEN")
+                    end
+                    storage[storage.max + 1] = nil
                 end
-            else
-                for i = 1, storage.max do
-                    if not storage[i] then
-                        storage[i] = item
-                        return item
+                -- Update indexes in the stored_items table for all items we pushed up
+                for i = index + 1, storage.max do
+                    if storage[i] then
+                        self.stored_items[storage[i]].index = i
                     end
                 end
-                return nil
+            else
+                if storage[index] then
+                    -- Attempt to add to non-empty slot
+                    return
+                end
+                return self:setItem(storage, index, item)
             end
         end
     end
 end
 
-function Inventory:removeItemClass(storage, item)
-    if storage and isClass(storage) then
-        storage = self:getStorage(storage.type)
-    else
-        storage = self:getStorage(storage or item.type)
+function Inventory:getNextIndex(storage, index, allow_fallback)
+    allow_fallback = (allow_fallback ~= false) and self.pocket_enabled
+    if type(storage) == "string" then
+        storage = self:getStorage(storage)
     end
-    if storage then
-        for i = 1, storage.max do
-            if storage[i] and storage[i] == item then
-                self:removeItem(storage, i)
-                return true
+    index = index or 1
+    while index <= storage.max do
+        if not storage[index] then
+            return storage.id, index
+        end
+        index = index + 1
+    end
+    if storage.fallback and allow_fallback then
+        return self:getNextIndex(storage.fallback, index - storage.max)
+    end
+end
+
+function Inventory:removeItem(item)
+    local stored = self.stored_items[item]
+    if type(item) == "string" then
+        for k,v in pairs(self.stored_items) do
+            if k.id == item then
+                stored = v
+                break
             end
         end
     end
-    return false
+    return self:removeItemFrom(stored.storage, stored.index)
 end
 
-function Inventory:removeItem(storage, index)
-    if isClass(storage) then
-        storage = self:getStorage(storage.type)
-    end
+function Inventory:removeItemFrom(storage, index)
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end
     if storage then
         if not index or index <= 0 or index > storage.max then
-            return nil
+            return
         elseif storage.sorted then
-            return table.remove(storage, index)
+            local item = table.remove(storage, index)
+            self.stored_items[item] = nil
+            -- Update indexes in the stored_items table for all items we pushed down
+            for i = index, storage.max do
+                if storage[i] then
+                    self.stored_items[storage[i]].index = i
+                end
+            end
+            return item
         else
             local item = storage[index]
             storage[index] = nil
+            self.stored_items[item] = nil
             return item
         end
     end
-    return nil
 end
 
-function Inventory:replaceItem(storage, item, index)
-    if isClass(storage) then
-        index = item
-        item = storage
-        storage = self:getStorage(item.type)
+function Inventory:setItem(storage, index, item)
+    if type(storage) == "string" then
+        storage = self:getStorage(storage)
     end
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
-    if type(storage) == "string" then
-        storage = self:getStorage(storage)
-    end
     if storage then
         if not index or index <= 0 or index > storage.max then
-            return false, nil
+            return
+        elseif storage.sorted then
+            if storage[index] then
+                local old_item = table.remove(storage, index)
+                self.stored_items[old_item] = nil
+            end
+            if item then
+                table.insert(storage, index, item)
+                self.stored_items[item] = {storage = storage.id, index = index}
+            end
+            return item
         else
-            local old = storage[index]
+            if storage[index] then
+                self.stored_items[storage[index]] = nil
+            end
             storage[index] = item
-            return true, old
+            if item then
+                self.stored_items[item] = {storage = storage.id, index = index}
+            end
+            return item
         end
     end
-    return false, nil
+end
+
+function Inventory:getItemIndex(item)
+    if type(item) == "string" then
+        for k,v in pairs(self.stored_items) do
+            if k.id == item then
+                return v.storage, v.index
+            end
+        end
+    else
+        local stored = self.stored_items[item]
+        if stored then
+            return stored.storage, stored.index
+        end
+    end
+end
+
+function Inventory:replaceItem(item, new)
+    local storage, index = self:getItemIndex(item)
+    if storage and new then
+        return self:setItem(storage, index, new)
+    end
 end
 
 function Inventory:getItem(storage, index)
@@ -131,26 +204,43 @@ function Inventory:getItem(storage, index)
     end
     if storage then
         return storage[index]
-    else
-        return nil
     end
 end
 
-function Inventory:isFull(storage)
+function Inventory:hasItem(item)
+    if type(item) == "string" then
+        for k,v in pairs(self.stored_items) do
+            if k.id == item then
+                return true, k
+            end
+        end
+        return false
+    else
+        return self.stored_items[item] ~= nil, item
+    end
+end
+
+function Inventory:isFull(storage, allow_fallback)
+    allow_fallback = (allow_fallback ~= false) and self.pocket_enabled
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end
     if storage then
+        local full = false
         if storage.sorted then
-            return #storage < storage.max
+            full = #storage < storage.max
         else
             for i = 1, storage.max do
                 if not storage[i] then
                     return false
                 end
             end
-            return true
+            full = true
         end
+        if full and storage.fallback and allow_fallback then
+            return self:isFull(storage.fallback, true)
+        end
+        return full
     else
         return true
     end
@@ -160,41 +250,43 @@ function Inventory:tryGiveItem(item)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
-    local destination = item:getTypeName():upper().."s"
     local result = self:addItem(item)
     if result then
-        return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your\n[color:yellow]"..destination.."[color:reset].)"
+        local destination = self:getStorage(self.stored_items[item].storage)
+        return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your\n[color:yellow]"..destination.name.."[color:reset].)"
     else
-        return false, "* (You have too many [color:yellow]"..destination.."[color:reset]\nto take [color:yellow]"..item:getName().."[color:reset].)"
+        local destination = self:getDefaultStorage(item.type)
+        return false, "* (You have too many [color:yellow]"..destination.name.."[color:reset]\nto take [color:yellow]"..item:getName().."[color:reset].)"
     end
+end
+
+function Inventory:getDefaultStorage(type)
+    return self:getStorage(self.storage_for_type[type])
 end
 
 function Inventory:getStorage(type)
-    if type == "item" then
-        return self.items
-    elseif type == "key" then
-        return self.key_items
-    elseif type == "weapon" then
-        return self.weapons
-    elseif type == "armor" then
-        return self.armors
-    end
+    return self.storages[type]
 end
 
-function Inventory:getFreeSpace(storage)
+function Inventory:getFreeSpace(storage, allow_fallback)
+    allow_fallback = (allow_fallback ~= false) and self.pocket_enabled
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end
     if storage then
+        local count = 0
         if storage.sorted then
-            return storage.max - #storage
+            count = storage.max - #storage
         else
-            local count = 0
             for i = 1, storage.max do
                 if not storage[i] then
                     count = count + 1
                 end
             end
+        end
+        if storage.fallback and allow_fallback then
+            return count + self:getFreeSpace(storage.fallback, true)
+        else
             return count
         end
     end
@@ -204,53 +296,55 @@ end
 function Inventory:load(data)
     self:clear()
 
-    self.items.max     = data.max_items     or self.items.max
-    self.key_items.max = data.max_key_items or self.key_items.max
-    self.weapons.max   = data.max_weapons   or self.weapons.max
-    self.armors.max    = data.max_armors    or self.armors.max
+    self.pocket_enabled = data.pocket_enabled or self.pocket_enabled
 
-    local function loadStorage(storage, from)
-        for i = 1, storage.max do
-            if from[i] then
-                if Registry.getItem(from[i]) then
-                    storage[i] = Registry.createItem(from[i])
-                else
-                    print("LOAD ERROR: Could not load item \""..from[i].."\"")
-                end
-            end
+    data.storages = data.storages or {}
+    for id,storage in pairs(self.storages) do
+        if data.storages[id] then
+            self:loadStorage(storage, data.storages[id])
         end
     end
-
-    if data.items     then loadStorage(self.items,     data.items    ) end
-    if data.key_items then loadStorage(self.key_items, data.key_items) end
-    if data.weapons   then loadStorage(self.weapons,   data.weapons  ) end
-    if data.armors    then loadStorage(self.armors,    data.armors   ) end
 end
 
 function Inventory:save()
-    local data = {}
+    local data = {
+        pocket = self.pocket_enabled,
+        storages = {}
+    }
 
-    data.max_items     = self.items.max
-    data.max_key_items = self.key_items.max
-    data.max_weapons   = self.weapons.max
-    data.max_armors    = self.armors.max
-
-    local function saveStorage(storage)
-        local saved = {}
-        for i = 1, storage.max do
-            if storage[i] then
-                saved[i] = storage[i].id
-            end
-        end
-        return saved
+    for id,storage in pairs(self.storages) do
+        data.storages[id] = self:saveStorage(storage)
     end
 
-    data.items     = saveStorage(self.items)
-    data.key_items = saveStorage(self.key_items)
-    data.weapons   = saveStorage(self.weapons)
-    data.armors    = saveStorage(self.armors)
-
     return data
+end
+
+function Inventory:loadStorage(storage, data)
+    storage.max = data.max
+    for i = 1, storage.max do
+        local item = data.items[i]
+        if item then
+            if Registry.getItem(item.id) then
+                storage[i] = Registry.createItem(item.id)
+                storage[i]:load(item)
+            else
+                print("LOAD ERROR: Could not load item \""..item.id.."\"")
+            end
+        end
+    end
+end
+
+function Inventory:saveStorage(storage)
+    local saved = {
+        max = storage.max,
+        items = {}
+    }
+    for i = 1, storage.max do
+        if storage[i] then
+            saved.items[i] = storage[i]:save()
+        end
+    end
+    return saved
 end
 
 return Inventory

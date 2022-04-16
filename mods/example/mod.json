@@ -11,7 +11,7 @@
     "map": "room1",
     "party": ["kris", "susie", "ralsei"],
     "inventory": {
-        "item": ["darkburger", "darkburger", "ultimate_candy"],
-        "key": ["cell_phone"]
+        "items": ["darkburger", "darkburger", "ultimate_candy"],
+        "key_items": ["cell_phone"]
     }
 }

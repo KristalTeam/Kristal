@@ -30,10 +30,14 @@ end
 
 function DarkItemMenu:getCurrentItemType()
     if self.item_header_selected == 3 then
-        return "key"
+        return "key_items"
     else
-        return "item"
+        return "items"
     end
+end
+
+function DarkItemMenu:getCurrentStorage()
+    return Game.inventory:getStorage(self:getCurrentItemType())
 end
 
 function DarkItemMenu:getSelectedItem()
@@ -41,7 +45,7 @@ function DarkItemMenu:getSelectedItem()
 end
 
 function DarkItemMenu:updateSelectedItem()
-    local items = Game.inventory:getStorage(self:getCurrentItemType())
+    local items = self:getCurrentStorage()
     if #items == 0 then
         self.state = "MENU"
         Game.world.menu:setDescription("", false)
@@ -78,10 +82,10 @@ function DarkItemMenu:useItem(item, party)
         end
     end
     if (item.type == "item" and (result == nil or result)) or (item.type ~= "item" and result) then
-        if item.result_item then
-            Game.inventory:replaceItem(self:getCurrentItemType(), Registry.createItem(item.result_item), self.selected_item)
+        if item:hasResultItem() then
+            Game.inventory:replaceItem(item, item:createResultItem())
         else
-            Game.inventory:removeItem(self:getCurrentItemType(), self.selected_item)
+            Game.inventory:removeItem(item)
         end
     end
     if item.type == "key" then
@@ -146,7 +150,7 @@ function DarkItemMenu:update(dt)
         if Input.pressed("down") then
             self.item_selected_y = self.item_selected_y + 1
         end
-        local items = Game.inventory:getStorage(self:getCurrentItemType())
+        local items = self:getCurrentStorage()
         if self.item_selected_y < 1 then self.item_selected_y = 1 end
         if (2 * (self.item_selected_y - 1) + self.item_selected_x) > #items then
             if (#items % 2) ~= 0 then
@@ -176,7 +180,7 @@ function DarkItemMenu:update(dt)
                         self.ui_cancel_small:stop()
                         self.ui_cancel_small:play()
 
-                        Game.inventory:removeItem(items, self.selected_item)
+                        Game.inventory:removeItem(item)
                     end
                     self:updateSelectedItem()
                 end)
@@ -245,7 +249,7 @@ function DarkItemMenu:draw()
 
     local item_x = 0
     local item_y = 0
-    local inventory = Game.inventory:getStorage(self:getCurrentItemType())
+    local inventory = self:getCurrentStorage()
 
     for index, item in ipairs(inventory) do
         -- Draw the item shadow

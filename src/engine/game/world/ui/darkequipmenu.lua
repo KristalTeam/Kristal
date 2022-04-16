@@ -48,21 +48,25 @@ function DarkEquipMenu:init()
     self.selected_slot = 1
 
     self.selected_item = {
-        ["weapon"] = 1,
-        ["armor"] = 1
+        ["weapons"] = 1,
+        ["armors"] = 1
     }
     self.item_scroll = {
-        ["weapon"] = 1,
-        ["armor"] = 1
+        ["weapons"] = 1,
+        ["armors"] = 1
     }
 end
 
 function DarkEquipMenu:getCurrentItemType()
     if self.selected_slot == 1 then
-        return "weapon"
+        return "weapons"
     else
-        return "armor"
+        return "armors"
     end
+end
+
+function DarkEquipMenu:getCurrentStorage()
+    return Game.inventory:getStorage(self:getCurrentItemType())
 end
 
 function DarkEquipMenu:getSelectedItem()
@@ -71,8 +75,7 @@ function DarkEquipMenu:getSelectedItem()
 end
 
 function DarkEquipMenu:getMaxItems()
-    local type = self:getCurrentItemType()
-    return Game.inventory:getStorage(type, self.selected_item[type]).max
+    return self:getCurrentStorage().max
 end
 
 function DarkEquipMenu:canEquipSelected()
@@ -279,13 +282,13 @@ function DarkEquipMenu:update(dt)
                 Assets.playSound("snd_equip")
                 local swap_with
                 if self.selected_slot == 1 then
-                    swap_with = party.equipped.weapon
-                    party.equipped.weapon = item
+                    swap_with = party:getWeapon()
+                    party:setWeapon(item)
                 else
-                    swap_with = party.equipped.armor[self.selected_slot-1]
-                    party.equipped.armor[self.selected_slot-1] = item
+                    swap_with = party:getArmor(self.selected_slot-1)
+                    party:setArmor(self.selected_slot-1, item)
                 end
-                Game.inventory:replaceItem(type, swap_with, self.selected_item[type])
+                Game.inventory:setItem(self:getCurrentStorage(), self.selected_item[type], swap_with)
 
                 self.state = "SLOTS"
                 love.keyboard.setKeyRepeat(false)

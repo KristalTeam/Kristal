@@ -1,10 +1,10 @@
-local item, super = Class(Item, "manual")
+local item, super = Class(Item, "counter")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "Manual"
+    self.name = "Counter"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
@@ -14,19 +14,19 @@ function item:init()
     self.icon = nil
 
     -- Battle description
-    self.effect = "Read\nout of\nbattle"
+    self.effect = "Not\nso\nuseful"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Ralsei's handmade book full of\nvarious tips and tricks."
+    self.description = "Use to increase\nSaves to the save file"
 
     -- Default shop price (sell price is halved)
-    self.price = 0
+    self.price = 99999
     -- Whether the item can be sold
-    self.can_sell = false
+    self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "party"
+    self.target = "none"
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
@@ -47,21 +47,27 @@ function item:init()
     self.reactions = {}
 end
 
+function item:getName()
+    return "Counter ["..self:getFlag("count", 0).."]"
+end
+
 function item:onWorldUse(target)
-    Game.world:showText("* (You tried to read the manual,\nbut it was so dense it made\nyour head spin...)")
+    self:addFlag("count", 1)
     return false
 end
 
 function item:onBattleSelect(user, target)
-    -- Do not consume (ralsei will feel bad)
+    -- Do not consume (valuable currency)
+    self:addFlag("count", 1)
     return false
 end
 
+function item:onBattleDeselect(user, target)
+    self:addFlag("count", -1)
+end
+
 function item:getBattleText(user, target)
-    if Game.battle.encounter.onManualUse then
-        return Game.battle.encounter:onManualUse(self, user)
-    end
-    return {"* "..user.chara.name.." read the "..self:getUseName().."!", "* But nothing happened..."}
+    return "* "..user.chara.name.." checked the "..self:getUseName().."!"
 end
 
 return item

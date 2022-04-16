@@ -215,7 +215,7 @@ function Game:load(data, index)
     else
         for storage,items in pairs(Kristal.getModOption("inventory") or {}) do
             for i,item in ipairs(items) do
-                self.inventory:addItemTo(storage, item, i)
+                self.inventory:setItem(storage, i, item)
             end
         end
     end

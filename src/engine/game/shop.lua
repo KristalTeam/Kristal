@@ -43,9 +43,9 @@ function Shop:init()
     self.talk_text = "Talk\ntext"
 
     self.sell_options_text = {}
-    self.sell_options_text["item"]   = "Item text"
-    self.sell_options_text["weapon"] = "Weapon\ntext"
-    self.sell_options_text["armor"]  = "Armor text"
+    self.sell_options_text["items"]   = "Item text"
+    self.sell_options_text["weapons"] = "Weapon\ntext"
+    self.sell_options_text["armors"]  = "Armor text"
     self.sell_options_text["pocket"] = "Pocket\ntext"
 
     self.hide_storage_text = false
@@ -64,9 +64,9 @@ function Shop:init()
 
     -- SELLMENU
     self.sell_options = {
-        {"Sell Items",        "item"},
-        {"Sell Weapons",      "weapon"},
-        {"Sell Armor",        "armor"},
+        {"Sell Items",        "items"},
+        {"Sell Weapons",      "weapons"},
+        {"Sell Armor",        "armors"},
         {"Sell Pocket Items", "pocket"}
     }
 
@@ -608,7 +608,8 @@ function Shop:draw()
             if not self.hide_storage_text then
                 love.graphics.setFont(self.plain_font)
 
-                local space = Game.inventory:getFreeSpace(current_item.type)
+                local current_storage = Game.inventory:getDefaultStorage(current_item.type)
+                local space = Game.inventory:getFreeSpace(current_storage)
 
                 if space <= 0 then
                     love.graphics.print("NO SPACE", 521, 430)
@@ -1039,7 +1040,7 @@ function Shop:sellItem(current_item)
     -- SELL THE ITEM
     -- Add the gold
     Game.gold = Game.gold + current_item:getSellPrice()
-    Game.inventory:removeItemClass(current_item.type, current_item)
+    Game.inventory:removeItem(current_item)
 
     Assets.playSound("snd_locker")
     self.right_text:setText(self.sell_text)

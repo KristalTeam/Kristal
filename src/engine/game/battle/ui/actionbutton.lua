@@ -95,12 +95,12 @@ function ActionButton:select()
         Game.battle:setState("MENUSELECT", "SPELL")
     elseif self.type == "item" then
         Game.battle.menu_items = {}
-        for i,item in ipairs(Game.inventory:getStorage("item")) do
+        for i,item in ipairs(Game.inventory:getStorage("items")) do
             local menu_item = {
                 ["name"] = item:getName(),
                 ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
                 ["description"] = item:getBattleDescription(),
-                ["data"] = {index = i, item = item}
+                ["data"] = {storage = "items", index = i, item = item}
             }
             table.insert(Game.battle.menu_items, menu_item)
         end

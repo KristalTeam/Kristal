@@ -1208,10 +1208,13 @@ function Battle:commitSingleAction(action)
     if action.action == "ITEM" and action.data and action.data.index and action.data.item then
         local result = action.data.item:onBattleSelect(battler, action.target)
         if result or result == nil then
-            if action.data.item.result_item then
-                Game.inventory:replaceItem("item", Registry.createItem(action.data.item.result_item), action.data.index)
+            if action.data.item:hasResultItem() then
+                local result_item = action.data.item:createResultItem()
+                print(action.data.storage, action.data.index)
+                Game.inventory:setItem(action.data.storage, action.data.index, result_item)
+                action.result_item = result_item
             else
-                Game.inventory:removeItem("item", action.data.index)
+                Game.inventory:removeItem(action.data.item)
             end
             action.consumed = true
         else
@@ -1239,10 +1242,10 @@ function Battle:removeSingleAction(action)
 
     if action.action == "ITEM" and action.data and action.data.index and action.data.item then
         if action.consumed then
-            if action.data.item.result_item then
-                Game.inventory:replaceItem("item", action.data.item, action.data.index)
+            if action.result_item then
+                Game.inventory:setItem(action.data.storage, action.data.index, action.data.item)
             else
-                Game.inventory:addItem(action.data.item, action.data.index)
+                Game.inventory:addItemTo(action.data.storage, action.data.index, action.data.item)
             end
         end
         action.data.item:onBattleDeselect(battler, action.target)

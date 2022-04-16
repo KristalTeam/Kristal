@@ -48,6 +48,9 @@ function Item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {}
+
+    -- Item flags (for saving values to the save file)
+    self.flags = {}
 end
 
 function Item:onEquip(character) end
@@ -64,14 +67,17 @@ function Item:onMenuClose(menu) end
 function Item:onMenuUpdate(menu, dt) end
 function Item:onMenuDraw(menu) end
 
+function Item:onSave(data) end
+function Item:onLoad(data) end
+
 function Item:getName() return self.name end
-function Item:getUseName() return self.use_name or self.name:upper() end
+function Item:getUseName() return self.use_name or self:getName():upper() end
 
 function Item:getDescription() return self.description end
 function Item:getBattleDescription() return self.effect end
 
 function Item:getShopDescription()
-    return (self.type == "key" and "KEYITEM" or self:getTypeName():upper()) .. "\n" .. self.shop
+    return self:getTypeName() .. "\n" .. self.shop
 end
 
 function Item:getPrice() return self.price end
@@ -86,6 +92,11 @@ function Item:getBonusName() return self.bonus_name end
 function Item:getBonusIcon() return self.bonus_icon end
 
 function Item:getReactions() return self.reactions end
+
+function Item:hasResultItem() return self.result_item ~= nil end
+function Item:createResultItem()
+    return Registry.createItem(self.result_item)
+end
 
 function Item:getBattleText(user, target)
     return "* "..user.chara.name.." used the "..self:getUseName().."!"
@@ -124,15 +135,47 @@ end
 
 function Item:getTypeName()
     if self.type == "item" then
-        return "Item"
+        return "ITEM"
     elseif self.type == "key" then
-        return "Key Item"
+        return "KEYITEM"
     elseif self.type == "weapon" then
-        return "Weapon"
+        return "WEAPON"
     elseif self.type == "armor" then
-        return "Armor"
+        return "ARMOR"
     end
-    return "Unknown"
+    return "UNKNOWN"
+end
+
+function Item:getFlag(name, default)
+    local result = self.flags[name]
+    if result == nil then
+        return default
+    else
+        return result
+    end
+end
+
+function Item:setFlag(name, value)
+    self.flags[name] = value
+end
+
+function Item:addFlag(name, amount)
+    self.flags[name] = (self.flags[name] or 0) + (amount or 1)
+end
+
+function Item:save()
+    local data = {
+        id = self.id,
+        flags = self.flags
+    }
+    self:onSave(data)
+    return data
+end
+
+function Item:load(data)
+    self.flags = data.flags or self.flags
+
+    self:onLoad(data)
 end
 
 return Item

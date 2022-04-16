@@ -66,7 +66,7 @@ end
 
 function item:getBattleText(user, target)
     if Game.battle.encounter.onGlowshardUse then
-        return Game.battle.encounter:onGlowshardUse(user)
+        return Game.battle.encounter:onGlowshardUse(self, user)
     end
     return {"* "..user.chara.name.." used the "..self:getUseName().."!", "* But nothing happened..."}
 end

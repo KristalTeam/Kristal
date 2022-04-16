@@ -11,8 +11,9 @@
     "map": "alley",
     "party": ["kris", "susie", "ralsei"],
     "inventory": {
-        "item": ["darkburger", "darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit"],
-        "key": ["cell_phone"]
+        "items": ["darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit", "counter"],
+        "key_items": ["cell_phone"],
+        "pocket": ["favwich"]
     },
 
     "transition": false,

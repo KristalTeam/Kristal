@@ -107,6 +107,9 @@ function PartyMember:onPowerDeselect(menu) end
 
 function PartyMember:drawPowerStat(index, x, y, menu) end
 
+function PartyMember:onSave(data) end
+function PartyMember:onLoad(data) end
+
 function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.playSound("snd_power")
@@ -306,9 +309,7 @@ function PartyMember:save()
         equipped = self:saveEquipment(),
         flags = self.flags
     }
-    if self.onSave then
-        self:onSave(data)
-    end
+    self:onSave(data)
     return data
 end
 
@@ -323,9 +324,7 @@ function PartyMember:load(data)
     self.flags = data.flags or self.flags
     self.health = data.health or self:getStat("health")
 
-    if self.onLoad then
-        self:onLoad(data)
-    end
+    self:onLoad(data)
 end
 
 return PartyMember
