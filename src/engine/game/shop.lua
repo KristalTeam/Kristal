@@ -143,10 +143,12 @@ function Shop:postInit()
     self:processReplacements()
 
     -- Make a sprite for the background
-    self.background_sprite = Sprite(self.background, 0, 0)
-    self.background_sprite:setScale(2, 2)
-    self.background_sprite.layer = SHOP_LAYERS["background"]
-    self:addChild(self.background_sprite)
+    if self.background and self.background ~= "" then
+        self.background_sprite = Sprite(self.background, 0, 0)
+        self.background_sprite:setScale(2, 2)
+        self.background_sprite.layer = SHOP_LAYERS["background"]
+        self:addChild(self.background_sprite)
+    end
 
     -- Construct the UI
     self.large_box = DarkBox()

@@ -59,12 +59,9 @@ function TestShop:init()
     self.shopkeeper.sprite:setPosition(-24, 12)
     self.shopkeeper.slide = true
 
-    self.background = Assets.getTexture("ui/shop/bg_seam")]]--
-end
+    self.background = "ui/shop/bg_seam"]]--
 
-function TestShop:postInit()
-    super:postInit(self)
-    self.background_sprite:remove()
+    self.background = nil
 end
 
 function TestShop:startTalk(talk)
