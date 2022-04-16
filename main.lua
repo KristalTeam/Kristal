@@ -230,7 +230,7 @@ function love.load(args)
     love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
 
     -- set master volume
-    Game:setVolume(Kristal.Config["volume"] / 100)
+    Kristal.setVolume(Kristal.Config["masterVolume"] or 1)
 
     -- setup structure
     love.filesystem.createDirectory("mods")
@@ -665,6 +665,16 @@ function Kristal.errorHandler(msg)
 
 end
 
+function Kristal.setVolume(volume)
+    Kristal.Config["masterVolume"] = Utils.clamp(volume, 0, 1)
+    love.audio.setVolume(volume)
+    Kristal.saveConfig()
+end
+
+function Kristal.getVolume()
+    return Kristal.Config["masterVolume"]
+end
+
 function Kristal.clearModState()
     -- Clear disruptive active globals
     Object._clearCache()
@@ -955,7 +965,7 @@ function Kristal.loadConfig()
         fullscreen = false,
         simplifyVFX = false,
         autoRun = false,
-        volume = 100,
+        masterVolume = 1,
         favorites = {},
     }
     if love.filesystem.getInfo("settings.json") then

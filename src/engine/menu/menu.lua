@@ -361,14 +361,14 @@ function Menu:update(dt)
     elseif self.state == "VOLUME" then
         self.noise_timer = self.noise_timer + DTMULT
         if Input.down("left") then
-            Game:setVolume(Game:getVolume() - ((2 * DTMULT) / 100))
+            Kristal.setVolume(Kristal.getVolume() - ((2 * DTMULT) / 100))
             if self.noise_timer >= 3 then
                 self.noise_timer = self.noise_timer - 3
                 Assets.stopAndPlaySound("snd_noise")
             end
         end
         if Input.down("right") then
-            Game:setVolume(Game:getVolume() + ((2 * DTMULT) / 100))
+            Kristal.setVolume(Kristal.getVolume() + ((2 * DTMULT) / 100))
             if self.noise_timer >= 3 then
                 self.noise_timer = self.noise_timer - 3
                 Assets.stopAndPlaySound("snd_noise")
@@ -449,7 +449,7 @@ function Menu:draw()
         self:printShadow("Debug Hotkeys",  menu_x, menu_y + (32 * 8))
         self:printShadow("Back",           menu_x, menu_y + (32 * 10))
 
-        self:printShadow(Utils.round(Game:getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
+        self:printShadow(Utils.round(Kristal.getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
         self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
         self:printShadow(tostring(Kristal.Config["windowScale"]).."x", menu_x + (8 * 32), menu_y + (32 * 3))
         self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
@@ -759,7 +759,7 @@ function Menu:keypressed(key, _, is_repeat)
         end
     elseif self.state == "VOLUME" then
         if Input.isCancel(key) or Input.isConfirm(key) then
-            Game:setVolume(Utils.round(Game:getVolume() * 100) / 100)
+            Kristal.setVolume(Utils.round(Kristal.getVolume() * 100) / 100)
             self:setState("OPTIONS")
             self.ui_select:stop()
             self.ui_select:play()

@@ -554,15 +554,6 @@ function Game:enterShop(shop)
     self.shop:onEnter()
 end
 
-function Game:setVolume(volume)
-    MASTER_VOLUME = math.max(0, math.min(1, volume))
-    love.audio.setVolume(MASTER_VOLUME)
-end
-
-function Game:getVolume()
-    return MASTER_VOLUME or 1
-end
-
 function Game:setFlag(flag, value)
     self.flags[flag] = value
 end

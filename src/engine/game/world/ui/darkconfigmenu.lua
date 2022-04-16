@@ -79,7 +79,7 @@ function DarkConfigMenu:update(dt)
         self.currently_selected = Utils.clamp(self.currently_selected, 1, 7)
     elseif self.state == "VOLUME" then
         if Input.pressed("cancel") or Input.pressed("confirm") then
-            Game:setVolume(Utils.round(Game:getVolume() * 100) / 100)
+            Kristal.setVolume(Utils.round(Kristal.getVolume() * 100) / 100)
             self.ui_select:stop()
             self.ui_select:play()
             self.state = "MAIN"
@@ -88,14 +88,14 @@ function DarkConfigMenu:update(dt)
 
         self.noise_timer = self.noise_timer + DTMULT
         if Input.down("left") then
-            Game:setVolume(Game:getVolume() - ((2 * DTMULT) / 100))
+            Kristal.setVolume(Kristal.getVolume() - ((2 * DTMULT) / 100))
             if self.noise_timer >= 3 then
                 self.noise_timer = self.noise_timer - 3
                 Assets.stopAndPlaySound("snd_noise")
             end
         end
         if Input.down("right") then
-            Game:setVolume(Game:getVolume() + ((2 * DTMULT) / 100))
+            Kristal.setVolume(Kristal.getVolume() + ((2 * DTMULT) / 100))
             if self.noise_timer >= 3 then
                 self.noise_timer = self.noise_timer - 3
                 Assets.stopAndPlaySound("snd_noise")
@@ -136,7 +136,7 @@ function DarkConfigMenu:draw()
     if self.state == "VOLUME" then
         love.graphics.setColor(1, 1, 0, 1)
     end
-    love.graphics.print(Utils.round(Game:getVolume() * 100) .. "%",      348, 38 + (0 * 32))
+    love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%",      348, 38 + (0 * 32))
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 32))
     love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
