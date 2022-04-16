@@ -165,8 +165,8 @@ function DarkTransition:init(loading_callback, end_callback, final_y, options)
 end
 
 function DarkTransition:onAddToStage(stage)
-    if Game then
-        Game:getActiveMusic():fade(0, 20/30)
+    for _,music in ipairs(Music.getPlaying()) do
+        music:fade(0, 20/30)
     end
 end
 

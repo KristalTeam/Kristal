@@ -9,6 +9,8 @@ function Stage:init(x, y, w, h)
 
     self.stage = self
 
+    self.full_drawing = false
+
     self.timer = Timer()
     self:addChild(self.timer)
 end
@@ -61,13 +63,20 @@ function Stage:update(dt)
 end
 
 function Stage:draw()
-    love.graphics.push()
+    if not self.full_drawing then
+        self.full_drawing = true
+        self:fullDraw()
+        self.full_drawing = false
+    else
+        super:draw(self)
+    end
+    --[[love.graphics.push()
     love.graphics.applyTransform(self:getTransform())
     Draw.pushScissor()
     self:applyScissor()
     super:draw(self)
     Draw.popScissor()
-    love.graphics.pop()
+    love.graphics.pop()]]
 end
 
 return Stage

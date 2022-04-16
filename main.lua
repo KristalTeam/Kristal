@@ -245,6 +245,9 @@ function love.load(args)
     -- initialize overlay
     Kristal.Overlay:init()
 
+    -- global stage
+    Kristal.Stage = Stage()
+
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
@@ -256,6 +259,7 @@ function love.load(args)
             Utils.pushPerformance("Total")
         end
         orig(...)
+        Kristal.Stage:update(...)
         Kristal.Overlay:update(...)
         if PERFORMANCE_TEST then
             Utils.popPerformance()
@@ -276,6 +280,7 @@ function love.load(args)
         Draw.setCanvas(SCREEN_CANVAS)
         love.graphics.clear()
         orig(...)
+        Kristal.Stage:draw()
         Kristal.Overlay:draw()
         Draw.setCanvas()
 
@@ -829,7 +834,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
         -- Preload assets for the transition
         Registry.initialize(true)
 
-        if Kristal.stage then
+        if Kristal.Stage then
 
             local final_y = 320
 
@@ -855,7 +860,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
                     end
                 end, final_y)
                 transition.layer = 1000
-                Kristal.stage:addChild(transition)
+                Kristal.Stage:addChild(transition)
             end)
         else
             Assets.playSound("ui_cant_select")
