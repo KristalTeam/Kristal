@@ -62,7 +62,9 @@ function TestShop:init()
     self.background = Assets.getTexture("ui/shop/bg_seam")]]--
 end
 
-function TestShop:drawBackground()
+function TestShop:postInit()
+    super:postInit(self)
+    self.background_sprite:remove()
 end
 
 function TestShop:startTalk(talk)
