@@ -61,22 +61,17 @@ function Inventory:addItemTo(storage, index, item, allow_fallback)
                 end
                 index = math.min(#storage + 1, index)
                 table.insert(storage, index, item)
-                self.stored_items[item] = {storage = storage.id, index = index}
                 if storage[storage.max + 1] then
                     -- Inserting pushed item out-of-bounds, move it to fallback storage
                     local overflow, overflow_index = self:getNextIndex(storage, storage.max + 1, allow_fallback)
                     if not overflow or not self:setItem(overflow, overflow_index, storage[storage.max + 1]) then
-                        self.stored_items[storage[storage.max + 1]] = nil
                         print("[WARNING] Deleted item by overflow - THIS SHOULDNT HAPPEN")
+                    else
+                        self:updateStoredItems(overflow)
                     end
                     storage[storage.max + 1] = nil
                 end
-                -- Update indexes in the stored_items table for all items we pushed up
-                for i = index + 1, storage.max do
-                    if storage[i] then
-                        self.stored_items[storage[i]].index = i
-                    end
-                end
+                self:updateStoredItems(storage)
             else
                 if storage[index] then
                     -- Attempt to add to non-empty slot
@@ -115,6 +110,7 @@ function Inventory:removeItem(item)
             end
         end
     end
+    print(item.id, stored.storage, stored.index)
     return self:removeItemFrom(stored.storage, stored.index)
 end
 
@@ -127,18 +123,12 @@ function Inventory:removeItemFrom(storage, index)
             return
         elseif storage.sorted then
             local item = table.remove(storage, index)
-            self.stored_items[item] = nil
-            -- Update indexes in the stored_items table for all items we pushed down
-            for i = index, storage.max do
-                if storage[i] then
-                    self.stored_items[storage[i]].index = i
-                end
-            end
+            self:updateStoredItems(storage)
             return item
         else
             local item = storage[index]
             storage[index] = nil
-            self.stored_items[item] = nil
+            self:updateStoredItems(storage)
             return item
         end
     end
@@ -157,23 +147,36 @@ function Inventory:setItem(storage, index, item)
         elseif storage.sorted then
             index = math.min(#storage + 1, index)
             if storage[index] then
-                local old_item = table.remove(storage, index)
-                self.stored_items[old_item] = nil
+                table.remove(storage, index)
             end
             if item then
                 table.insert(storage, index, item)
-                self.stored_items[item] = {storage = storage.id, index = index}
             end
+            self:updateStoredItems(storage)
             return item
         else
-            if storage[index] then
-                self.stored_items[storage[index]] = nil
-            end
             storage[index] = item
-            if item then
-                self.stored_items[item] = {storage = storage.id, index = index}
-            end
+            self:updateStoredItems(storage)
             return item
+        end
+    end
+end
+
+function Inventory:updateStoredItems(storage)
+    if not storage then
+        for k,v in pairs(self.storages) do
+            self:updateStoredItems(v)
+        end
+    else
+        for k,v in pairs(self.stored_items) do
+            if v.storage == storage.id then
+                self.stored_items[k] = nil
+            end
+        end
+        for i = 1, storage.max do
+            if storage[i] then
+                self.stored_items[storage[i]] = {storage = storage.id, index = i}
+            end
         end
     end
 end
@@ -238,11 +241,9 @@ function Inventory:swapItems(storage1, index1, storage2, index2)
         else
             storage2[index2] = item1
         end
-        if item1 then
-            self.stored_items[item1] = {storage = storage2.id, index = index2}
-        end
-        if item2 then
-            self.stored_items[item2] = {storage = storage1.id, index = index1}
+        self:updateStoredItems(storage1)
+        if storage2 ~= storage1 then
+            self:updateStoredItems(storage2)
         end
     end
 end
@@ -378,6 +379,7 @@ function Inventory:load(data)
             self:loadStorage(storage, data.storages[id])
         end
     end
+    self:updateStoredItems()
 end
 
 function Inventory:save()
@@ -401,7 +403,6 @@ function Inventory:loadStorage(storage, data)
             if Registry.getItem(item.id) then
                 storage[i] = Registry.createItem(item.id)
                 storage[i]:load(item)
-                self.stored_items[storage[i]] = {storage = storage.id, index = i}
             else
                 print("LOAD ERROR: Could not load item \""..item.id.."\"")
             end

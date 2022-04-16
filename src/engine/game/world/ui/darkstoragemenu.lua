@@ -1,6 +1,6 @@
 local DarkStorageMenu, super = Class(Object)
 
-function DarkStorageMenu:init()
+function DarkStorageMenu:init(top_storage, bottom_storage)
     super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self:setParallax(0, 0)
@@ -10,6 +10,7 @@ function DarkStorageMenu:init()
     self.font = Assets.getFont("plain")
 
     self.ui_select = Assets.newSound("ui_select")
+    self.ui_cant_select = Assets.newSound("ui_cant_select")
 
     self.arrow_left = Assets.getTexture("ui/flat_arrow_left")
     self.arrow_right = Assets.getTexture("ui/flat_arrow_right")
@@ -27,55 +28,46 @@ function DarkStorageMenu:init()
     self.description = Text("---", 20, 20, SCREEN_WIDTH - 20, 100)
     self.description_box:addChild(self.description)
 
-    -- POCKET, STORAGE
-    self.state = "POCKET"
+    -- SELECT, SWAP
+    self.state = "SELECT"
 
-    self.pocket_selected_x = 1
-    self.pocket_selected_y = 1
+    self.list = 1
 
-    self.storage_selected_x = 1
-    self.storage_selected_y = 1
-    self.storage_page = 1
-    -- temporary
-    self.storage_page_max = 2
+    self.storages = {top_storage or "items", bottom_storage or "storage"}
 
-    self.pocket_text_x = 155
-    self.pocket_text_y = 144
+    self.selected_x = {1, 1}
+    self.selected_y = {1, 1}
+    self.selected_page = {1, 1}
 
-    self.storage_text_x = 155
-    self.storage_text_y = 294
+    self.text_x = {155, 155}
+    self.text_y = {144, 294}
 
-    self.heart_target_x = self.pocket_text_x - 10.5
-    self.heart_target_y = self.pocket_text_y + 8.5
+    self.arrow_y = {188, 340}
 
+    self.heart_target_x = self.text_x[1] - 10.5
+    self.heart_target_y = self.text_y[1] + 8.5
     self.heart:setPosition(self.heart_target_x, self.heart_target_y)
 end
 
-function DarkStorageMenu:getSelectedIndex(state)
-    state = state or self.state
-    if state == "POCKET" then
-        return self.pocket_selected_x + (self.pocket_selected_y - 1) * 2
-    elseif state == "STORAGE" then
-        local page_offset = (self.storage_page - 1) * 12
-        return page_offset + self.storage_selected_x + (self.storage_selected_y - 1) * 2
-    end
+function DarkStorageMenu:getStorage(list)
+    return Game.inventory:getStorage(self.storages[list or self.list])
 end
 
-function DarkStorageMenu:getSelectedStorage(state)
-    state = state or self.state
-    if state == "POCKET" then
-        return "items"
-    elseif state == "STORAGE" then
-        return "storage"
-    end
+function DarkStorageMenu:getSelectedIndex(list)
+    local page_offset = (self.selected_page[list or self.list] - 1) * 12
+    return page_offset + self.selected_x[list or self.list] + (self.selected_y[list or self.list] - 1) * 2
 end
 
-function DarkStorageMenu:getSelectedItem(state)
-    return Game.inventory:getItem(self:getSelectedStorage(state), self:getSelectedIndex(state))
+function DarkStorageMenu:getMaxPages(list)
+    return math.floor((self:getStorage(list).max - 1) / 12) + 1
+end
+
+function DarkStorageMenu:getSelectedItem(list)
+    return Game.inventory:getItem(self:getStorage(list), self:getSelectedIndex(list))
 end
 
 function DarkStorageMenu:updateDescription()
-    local item = self:getSelectedItem(self.state)
+    local item = self:getSelectedItem(self.list)
     local new_text = "---"
     if item then
         new_text = item:getDescription()
@@ -86,97 +78,81 @@ function DarkStorageMenu:updateDescription()
 end
 
 function DarkStorageMenu:update(dt)
-    if self.state == "POCKET" then
+    if Input.pressed("left") then
+        self.selected_x[self.list] = self.selected_x[self.list] - 1
+        if self.selected_x[self.list] < 1 then
+            self.selected_x[self.list] = 2
+            if self.selected_page[self.list] > 1 then
+                self.selected_page[self.list] = self.selected_page[self.list] - 1
+            else
+                self.selected_page[self.list] = self:getMaxPages(self.list)
+            end
+        end
+    end
+    if Input.pressed("right") then
+        self.selected_x[self.list] = self.selected_x[self.list] + 1
+        if self.selected_x[self.list] > 2 then
+            self.selected_x[self.list] = 1
+            if self.selected_page[self.list] < self:getMaxPages(self.list) then
+                self.selected_page[self.list] = self.selected_page[self.list] + 1
+            else
+                self.selected_page[self.list] = 1
+            end
+        end
+    end
+    if Input.pressed("up") then
+        self.selected_y[self.list] = self.selected_y[self.list] - 1
+        if self.selected_y[self.list] < 1 then
+            self.selected_y[self.list] = 6
+        end
+    end
+    if Input.pressed("down") then
+        self.selected_y[self.list] = self.selected_y[self.list] + 1
+        if self.selected_y[self.list] > 6 then
+            self.selected_y[self.list] = 1
+        end
+    end
+    if self.state == "SELECT" then
         if Input.pressed("confirm") then
-            self.state = "STORAGE"
+            if self:getStorage(self.list).max < self:getSelectedIndex(self.list) then
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
+            else
+                self.state = "SWAP"
+                self.list = 2
+            end
         elseif Input.pressed("cancel") then
             self:remove()
             Game.world:closeMenu()
         end
-        if Input.pressed("left") then
-            self.pocket_selected_x = self.pocket_selected_x - 1
-            if self.pocket_selected_x < 1 then
-                self.pocket_selected_x = 2
-            end
-        end
-        if Input.pressed("right") then
-            self.pocket_selected_x = self.pocket_selected_x + 1
-            if self.pocket_selected_x > 2 then
-                self.pocket_selected_x = 1
-            end
-        end
-        if Input.pressed("up") then
-            self.pocket_selected_y = self.pocket_selected_y - 1
-            if self.pocket_selected_y < 1 then
-                self.pocket_selected_y = 6
-            end
-        end
-        if Input.pressed("down") then
-            self.pocket_selected_y = self.pocket_selected_y + 1
-            if self.pocket_selected_y > 6 then
-                self.pocket_selected_y = 1
-            end
-        end
-    elseif self.state == "STORAGE" then
+    elseif self.state == "SWAP" then
         if Input.pressed("confirm") then
-            Game.inventory:swapItems(
-                self:getSelectedStorage("POCKET"), self:getSelectedIndex("POCKET"),
-                self:getSelectedStorage("STORAGE"), self:getSelectedIndex("STORAGE")
-            )
+            if self:getStorage(self.list).max < self:getSelectedIndex(self.list) then
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
+            else
+                Game.inventory:swapItems(
+                    self:getStorage(1), self:getSelectedIndex(1),
+                    self:getStorage(2), self:getSelectedIndex(2)
+                )
 
-            self.ui_select:stop()
-            self.ui_select:play()
+                self.ui_select:stop()
+                self.ui_select:play()
 
-            self.state = "POCKET"
+                self.state = "SELECT"
+                self.list = 1
+            end
         elseif Input.pressed("cancel") then
-            self.state = "POCKET"
-        end
-        if Input.pressed("left") then
-            self.storage_selected_x = self.storage_selected_x - 1
-            if self.storage_selected_x < 1 then
-                self.storage_selected_x = 2
-                if self.storage_page > 1 then
-                    self.storage_page = self.storage_page - 1
-                else
-                    self.storage_page = self.storage_page_max
-                end
-            end
-        end
-        if Input.pressed("right") then
-            self.storage_selected_x = self.storage_selected_x + 1
-            if self.storage_selected_x > 2 then
-                self.storage_selected_x = 1
-                if self.storage_page < self.storage_page_max then
-                    self.storage_page = self.storage_page + 1
-                else
-                    self.storage_page = 1
-                end
-            end
-        end
-        if Input.pressed("up") then
-            self.storage_selected_y = self.storage_selected_y - 1
-            if self.storage_selected_y < 1 then
-                self.storage_selected_y = 6
-            end
-        end
-        if Input.pressed("down") then
-            self.storage_selected_y = self.storage_selected_y + 1
-            if self.storage_selected_y > 6 then
-                self.storage_selected_y = 1
-            end
+            self.state = "SELECT"
+            self.list = 1
         end
     end
 
     self:updateDescription()
 
     -- Update the heart target position
-    if self.state == "POCKET" then
-        self.heart_target_x = self.pocket_text_x + (self.pocket_selected_x - 1) * 220 - 10.5
-        self.heart_target_y = self.pocket_text_y + (self.pocket_selected_y - 1) * 20  + 8.5
-    elseif self.state == "STORAGE" then
-        self.heart_target_x = self.storage_text_x + (self.storage_selected_x - 1) * 220 - 10.5
-        self.heart_target_y = self.storage_text_y + (self.storage_selected_y - 1) * 20  + 8.5
-    end
+    self.heart_target_x = self.text_x[self.list] + (self.selected_x[self.list] - 1) * 220 - 10.5
+    self.heart_target_y = self.text_y[self.list] + (self.selected_y[self.list] - 1) * 20  + 8.5
 
     -- Move the heart closer to the target
     if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
@@ -199,51 +175,51 @@ function DarkStorageMenu:draw()
     love.graphics.rectangle("fill", 44, 279, 553, 148)
     love.graphics.setLineWidth(1)
 
+    self:drawStorage(1)
+    self:drawStorage(2)
+
+    super:draw(self)
+end
+
+function DarkStorageMenu:drawStorage(list)
+    local text_x = self.text_x[list]
+    local text_y = self.text_y[list]
+
+    local name_text_x = text_x - 94
+    local name_text_y = text_y - 6
+
+    local page_text_x = name_text_x
+    local page_text_y = name_text_y + 70
+
+    local storage = self:getStorage(list)
+
     love.graphics.setFont(self.font)
 
-    local pocket_side_color = self.state == "POCKET" and {0.75, 0.75, 0.75} or {0.25, 0.25, 0.25}
-    local storage_side_color = self.state == "STORAGE" and {0.75, 0.75, 0.75} or {0.25, 0.25, 0.25}
+    love.graphics.setColor(self.list == list and {0.75, 0.75, 0.75} or {0.25, 0.25, 0.25})
+    love.graphics.print(storage.id == "items" and "POCKET" or storage.name, name_text_x, name_text_y)
 
-    love.graphics.setColor(pocket_side_color)
-    love.graphics.print("POCKET", 61, 140)
-
-    love.graphics.setColor(storage_side_color)
-    love.graphics.print("STORAGE", 61, 290)
-    love.graphics.print("Page", 61, 360)
-    love.graphics.print(self.storage_page.."/"..self.storage_page_max, 61, 380)
-
-    local pocket_color = self.state == "POCKET" and {1, 1, 1} or {0.5, 0.5, 0.5}
-    local storage_color = self.state == "STORAGE" and {1, 1, 1} or {0.5, 0.5, 0.5}
-
-    -- Draw pocket items
-    for i = 1, 2 do
-        for j = 1, 6 do
-            local x = self.pocket_text_x + (i - 1) * 220
-            local y = self.pocket_text_y + (j - 1) * 20
-            local item = Game.inventory:getItem("items", i + (j - 1) * 2)
-            if self.pocket_selected_x == i and self.pocket_selected_y == j then
-                love.graphics.setColor(1, 1, 0)
-            else
-                love.graphics.setColor(pocket_color)
-            end
-            if item then
-                love.graphics.print(item:getName(), x, y)
-            else
-                love.graphics.print("---", x, y)
-            end
-        end
+    local max_pages = self:getMaxPages(list)
+    if max_pages > 1 then
+        love.graphics.print("Page", page_text_x, page_text_y)
+        love.graphics.print(self.selected_page[list].."/"..max_pages, page_text_x, page_text_y + 20)
     end
-    -- Draw storage items
+
     for i = 1, 2 do
         for j = 1, 6 do
-            local page_offset = (self.storage_page - 1) * 12
-            local x = self.storage_text_x + (i - 1) * 220
-            local y = self.storage_text_y + (j - 1) * 20
-            local item = Game.inventory:getItem("storage", page_offset + i + (j - 1) * 2)
-            if self.storage_selected_x == i and self.storage_selected_y == j and self.state == "STORAGE" then
+            local page_offset = (self.selected_page[list] - 1) * 12
+            local item_index = page_offset + i + (j - 1) * 2
+            local x = self.text_x[list] + (i - 1) * 220
+            local y = self.text_y[list] + (j - 1) * 20
+            local storage = Game.inventory:getStorage(self.storages[list])
+            local item = Game.inventory:getItem(storage, item_index)
+            if storage.max < item_index then
+                love.graphics.setColor(0.25, 0.25, 0.25)
+            elseif self.list ~= list and list ~= 1 then
+                love.graphics.setColor(0.5, 0.5, 0.5)
+            elseif self.selected_x[list] == i and self.selected_y[list] == j then
                 love.graphics.setColor(1, 1, 0)
             else
-                love.graphics.setColor(storage_color)
+                love.graphics.setColor(1, 1, 1)
             end
             if item then
                 love.graphics.print(item:getName(), x, y)
@@ -253,16 +229,15 @@ function DarkStorageMenu:draw()
         end
     end
 
-    if self.state == "STORAGE" then
-        local left_arrow_x, left_arrow_y = 32, 340
-        local right_arrow_x, right_arrow_y = 592, 340
+    love.graphics.setColor(1, 1, 1)
+
+    if self.list == list and max_pages > 1 then
+        local left_arrow_x, left_arrow_y = 32, self.arrow_y[list]
+        local right_arrow_x, right_arrow_y = 592, self.arrow_y[list]
         local offset = Utils.round(math.sin(love.timer.getTime() * 5)) * 2
-        love.graphics.setColor(1, 1, 1)
         love.graphics.draw(self.arrow_left, left_arrow_x - offset, left_arrow_y, 0, 2, 2)
         love.graphics.draw(self.arrow_right, right_arrow_x + offset, right_arrow_y, 0, 2, 2)
     end
-
-    super:draw(self)
 end
 
 return DarkStorageMenu
