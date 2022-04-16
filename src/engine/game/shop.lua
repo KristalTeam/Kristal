@@ -154,9 +154,9 @@ function Shop:postInit()
     self.large_box = DarkBox()
     local left, top = self.large_box:getBorder()
     self.large_box:setOrigin(0, 1)
-    self.large_box.x = (left * 2)
-    self.large_box.y = SCREEN_HEIGHT - (top * 2) + 1
-    self.large_box.width = SCREEN_WIDTH - (top * 4) + 1
+    self.large_box.x = left
+    self.large_box.y = SCREEN_HEIGHT - top + 1
+    self.large_box.width = SCREEN_WIDTH - (top * 2) + 1
     self.large_box.height = 213 - 37 + 1
     self.large_box:setLayer(SHOP_LAYERS["large_box"])
 
@@ -167,8 +167,8 @@ function Shop:postInit()
     self.left_box = DarkBox()
     local left, top = self.left_box:getBorder()
     self.left_box:setOrigin(0, 1)
-    self.left_box.x = (left * 2)
-    self.left_box.y = SCREEN_HEIGHT - (top * 2) + 1
+    self.left_box.x = left
+    self.left_box.y = SCREEN_HEIGHT - top + 1
     self.left_box.width = 338 + 14
     self.left_box.height = 213 - 37 + 1
     self.left_box:setLayer(SHOP_LAYERS["left_box"])
@@ -178,8 +178,8 @@ function Shop:postInit()
     self.right_box = DarkBox()
     local left, top = self.right_box:getBorder()
     self.right_box:setOrigin(1, 1)
-    self.right_box.x = SCREEN_WIDTH - (left * 2) + 1
-    self.right_box.y = SCREEN_HEIGHT - (top * 2) + 1
+    self.right_box.x = SCREEN_WIDTH - left + 1
+    self.right_box.y = SCREEN_HEIGHT - top + 1
     self.right_box.width = 20 + 156 + 1
     self.right_box.height = 213 - 37 + 1
     self.right_box:setLayer(SHOP_LAYERS["right_box"])
@@ -190,9 +190,9 @@ function Shop:postInit()
     local left, top = self.info_box:getBorder()
     local right_left, right_top = self.right_box:getBorder()
     self.info_box:setOrigin(1, 1)
-    self.info_box.x = SCREEN_WIDTH - (left * 2) + 1
+    self.info_box.x = SCREEN_WIDTH - left + 1
     -- find a more elegant way to do this...
-    self.info_box.y = SCREEN_HEIGHT - (top * 2) - self.right_box.height - (right_top * 4) + 16 + 1
+    self.info_box.y = SCREEN_HEIGHT - top - self.right_box.height - (right_top * 2) + 16 + 1
     self.info_box.width = 20 + 156 + 1
     self.info_box.height = 213 - 37
     self.info_box:setLayer(SHOP_LAYERS["info_box"])
@@ -546,10 +546,10 @@ function Shop:draw()
             local current_item = self.items[self.current_selecting][1]
             local box_left, box_top = self.info_box:getBorder()
 
-            local left = self.info_box.x - self.info_box.width - box_left * 1.5
-            local top = self.info_box.y - self.info_box.height - box_top * 1.5
-            local width = self.info_box.width + box_left * 2 * 1.5
-            local height = self.info_box.height + box_top * 2 * 1.5
+            local left = self.info_box.x - self.info_box.width - (box_left / 2) * 1.5
+            local top = self.info_box.y - self.info_box.height - (box_top / 2) * 1.5
+            local width = self.info_box.width + box_left * 1.5
+            local height = self.info_box.height + box_top * 1.5
 
             Draw.pushScissor()
             Draw.scissor(left, top, width, height)

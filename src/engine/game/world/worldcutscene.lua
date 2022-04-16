@@ -355,7 +355,7 @@ function WorldCutscene:text(text, portrait, actor, options)
     options = options or {}
     if options["top"] then
        local bx, by = self.textbox:getBorder()
-       self.textbox.y = by
+       self.textbox.y = by + 2
     end
 
     self.textbox.active = true
@@ -431,7 +431,7 @@ function WorldCutscene:choicer(choices, options)
     options = options or {}
     if options["top"] then
        local bx, by = self.choicebox:getBorder()
-       self.choicebox.y = by
+       self.choicebox.y = by + 2
     end
 
     self.choicebox.active = true

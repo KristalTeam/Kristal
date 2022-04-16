@@ -13,7 +13,7 @@ function DarkBox:init(x, y, width, height)
 end
 
 function DarkBox:getBorder()
-    return self.left:getWidth(), self.top:getHeight()
+    return self.left:getWidth()*2, self.top:getHeight()*2
 end
 
 function DarkBox:draw()
