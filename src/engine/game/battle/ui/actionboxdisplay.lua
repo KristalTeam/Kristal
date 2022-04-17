@@ -10,7 +10,7 @@ end
 
 function ActionBoxDisplay:draw()
     if Game.battle.current_selecting == self.actbox.index then
-        love.graphics.setColor(self.actbox.battler.chara.color)
+        love.graphics.setColor(self.actbox.battler.chara:getColor())
     else
         love.graphics.setColor(PALETTE["action_strip"], 1)
     end
@@ -35,7 +35,7 @@ function ActionBoxDisplay:draw()
     local health = (self.actbox.battler.chara.health / self.actbox.battler.chara:getStat("health")) * 76
 
     if health > 0 then
-        love.graphics.setColor(self.actbox.battler.chara.color)
+        love.graphics.setColor(self.actbox.battler.chara:getColor())
         love.graphics.rectangle("fill", 128, 22 - self.actbox.data_offset, health, 9)
     end
 

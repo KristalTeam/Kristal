@@ -8,7 +8,7 @@ function AttackBox:init(battler, offset, x, y)
     self.battler = battler
     self.offset = offset
 
-    self.head_sprite = Sprite(battler.chara.head_icons.."/head", 21, 19)
+    self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 21, 19)
     self.head_sprite:setOrigin(0.5, 0.5)
     self:addChild(self.head_sprite)
 
@@ -58,7 +58,7 @@ function AttackBox:hit()
     elseif p == 2 then
         return 110
     elseif p >= 3 then
-        self.bolt:setColor(self.battler.chara.dmg_color or self.battler.chara.color)
+        self.bolt:setColor(self.battler.chara:getDamageColor())
         return 100 - (p * 2)
     end
 end
@@ -97,8 +97,8 @@ function AttackBox:update(dt)
 end
 
 function AttackBox:draw()
-    local target_color = self.battler.chara.attack_bar_color or self.battler.chara.color
-    local box_color = self.battler.chara.attack_box_color or Utils.lerp(target_color, {0, 0, 0}, 0.5)
+    local target_color = {self.battler.chara:getAttackBarColor()}
+    local box_color = {self.battler.chara:getAttackBoxColor()}
 
     if self.flash > 0 then
         box_color = Utils.lerp(box_color, {1, 1, 1}, self.flash)

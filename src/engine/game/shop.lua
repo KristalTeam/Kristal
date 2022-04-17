@@ -580,7 +580,7 @@ function Shop:draw()
                     love.graphics.setColor(1, 1, 1, 1)
 
                     if can_equip then
-                        head_path = Assets.getTexture(party_member.head_icons .. "/head")
+                        head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head")
                         if current_item.type == "armor" then
                             love.graphics.draw(self.stat_icons["defense_1"], offset_x + 470, offset_y + 127 + top)
                             love.graphics.draw(self.stat_icons["defense_2"], offset_x + 470, offset_y + 147 + top)
@@ -596,7 +596,7 @@ function Shop:draw()
                             self:drawBonuses(party_member, party_member:getWeapon(), current_item, "magic",  offset_x + 470 + 21, offset_y + 147 + top)
                         end
                     else
-                        head_path = Assets.getTexture(party_member.head_icons .. "/head_error")
+                        head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head_error")
                     end
 
                     love.graphics.draw(head_path, offset_x + 426, offset_y + 132 + top)

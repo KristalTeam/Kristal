@@ -19,11 +19,10 @@ function ActionBox:init(x, y, index, battler)
     self.box.layer = 1
     self:addChild(self.box)
 
-    self.head_offset_x = battler.chara.head_icon_offset and battler.chara.head_icon_offset[1] or 0
-    self.head_offset_y = battler.chara.head_icon_offset and battler.chara.head_icon_offset[2] or 0
+    self.head_offset_x, self.head_offset_y = battler.chara:getHeadIconOffset()
 
-    self.head_sprite = Sprite(battler.chara.head_icons.."/head", 13 + self.head_offset_x, 11 + self.head_offset_y)
-    self.name_sprite = Sprite(battler.chara.name_sprite, 51, 14)
+    self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 13 + self.head_offset_x, 11 + self.head_offset_y)
+    self.name_sprite = Sprite(battler.chara:getNameSprite(), 51, 14)
     self.hp_sprite   = Sprite("ui/hp", 109, 22)
 
     self.box:addChild(self.head_sprite)
@@ -45,8 +44,8 @@ function ActionBox:createButtons()
 
     local btn_types = {"fight", "act", "magic", "item", "spare", "defend"}
 
-    if not self.battler.chara.has_act then Utils.removeFromTable(btn_types, "act") end
-    if not self.battler.chara.has_spells then Utils.removeFromTable(btn_types, "magic") end
+    if not self.battler.chara:hasAct() then Utils.removeFromTable(btn_types, "act") end
+    if not self.battler.chara:hasSpells() then Utils.removeFromTable(btn_types, "magic") end
 
     for lib_id,_ in pairs(Mod.libs) do
         btn_types = Kristal.libCall(lib_id, "getActionButtons", self.battler, btn_types) or btn_types
@@ -73,7 +72,7 @@ function ActionBox:createButtons()
 end
 
 function ActionBox:setHeadIcon(icon)
-    self.head_sprite:setSprite(self.battler.chara.head_icons.."/"..icon)
+    self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/"..icon)
 end
 
 function ActionBox:update(dt)
@@ -139,7 +138,7 @@ function ActionBox:drawActionBox()
     love.graphics.setColor(1, 1, 1, 1)
 
     if Game.battle.current_selecting == self.index then
-        love.graphics.setColor(self.battler.chara.color)
+        love.graphics.setColor(self.battler.chara:getColor())
     else
         love.graphics.setColor(0, 0, 0, 1)
     end
@@ -156,13 +155,13 @@ function ActionBox:drawSelectionMatrix()
     love.graphics.rectangle("fill", 2, 2, 209, 35)
 
     if Game.battle.current_selecting == self.index then
-        local color = self.battler.chara.color
+        local r,g,b,a = self.battler.chara:getColor()
 
         for i = 0, 11 do
             local siner = self.selection_siner + (i * (10 * math.pi))
 
             love.graphics.setLineWidth(2)
-            love.graphics.setColor(color[1], color[2], color[3], (color[4] or 1) * math.sin(siner / 60))
+            love.graphics.setColor(r, g, b, a * math.sin(siner / 60))
             if math.cos(siner / 60) < 0 then
                 love.graphics.line(1 - (math.sin(siner / 60) * 30) + 30, 0, 1 - (math.sin(siner / 60) * 30) + 30, 37)
                 love.graphics.line(211 + (math.sin(siner / 60) * 30) - 30, 0, 211 + (math.sin(siner / 60) * 30) - 30, 37)

@@ -210,9 +210,9 @@ function Battle:postInit(state, encounter)
                 target_y = 50 + (80 * (index - 1))
             end
 
-            local offset = battler.chara.battle_offset or {0, 0}
-            target_x = target_x + (battler.actor.width/2 + offset[1]) * 2
-            target_y = target_y + (battler.actor.height  + offset[2]) * 2
+            local ox, oy = battler.chara:getBattleOffset()
+            target_x = target_x + (battler.actor.width/2 + ox) * 2
+            target_y = target_y + (battler.actor.height  + oy) * 2
             table.insert(self.battler_targets, {target_x, target_y})
         end
         if Game.encounter_enemies then
@@ -251,9 +251,9 @@ function Battle:postInit(state, encounter)
                 battler.y = 50 + (80 * (index - 1))
             end
 
-            local offset = battler.chara.battle_offset or {0, 0}
-            battler.x = battler.x + (battler.actor.width/2 + offset[1]) * 2
-            battler.y = battler.y + (battler.actor.height  + offset[2]) * 2
+            local ox, oy = battler.chara:getBattleOffset()
+            battler.x = battler.x + (battler.actor.width/2 + ox) * 2
+            battler.y = battler.y + (battler.actor.height  + oy) * 2
 
             table.insert(self.battler_targets, {battler.x, battler.y})
         end
@@ -427,7 +427,7 @@ function Battle:onStateChange(old,new)
             battler:setAnimation("battle/victory")
 
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-            box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+            box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
         end
 
         self.gold = self.gold + (math.floor((self.tension / 10)) * Game.chapter)
@@ -524,7 +524,7 @@ function Battle:getSoulLocation(always_player)
     else
         local main_chara = Game:getSoulPartyMember()
 
-        if main_chara and main_chara.soul_priority >= 0 then
+        if main_chara and main_chara:getSoulPriority() >= 0 then
             local battler = self.party[self:getPartyIndex(main_chara.id)]
 
             if battler then
@@ -574,7 +574,7 @@ function Battle:resetAttackers()
     if #self.attackers > 0 then
         for _,battler in ipairs(self.attackers) do
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-            box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+            box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
 
             if not battler:setAnimation("battle/attack_end") then
                 battler:setAnimation("battle/idle")
@@ -602,7 +602,7 @@ function Battle:registerXAction(party, name, description, tp)
         ["name"] = name,
         ["description"] = description,
         ["party"] = party,
-        ["color"] = self.party[self:getPartyIndex(party)].chara.xact_color,
+        ["color"] = {self.party[self:getPartyIndex(party)].chara:getXActColor()},
         ["tp"] = tp or 0,
         ["short"] = false
     }
@@ -750,7 +750,7 @@ function Battle:processAction(action)
             if enemy.tired then
                 local found_spell = nil
                 for _,party in ipairs(self.party) do
-                    for _,spell in ipairs(party.chara.spells) do
+                    for _,spell in ipairs(party.chara:getSpells()) do
                         if spell:hasTag("spare_tired") then
                             found_spell = spell
                             break
@@ -784,8 +784,8 @@ function Battle:processAction(action)
         end)
         self:battleText(text)
     elseif action.action == "ATTACK" then
-        local src = Assets.stopAndPlaySound(battler.chara.attack_sound or "snd_laz_c")
-        src:setPitch(battler.chara.attack_pitch or 1)
+        local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "snd_laz_c")
+        src:setPitch(battler.chara:getAttackPitch() or 1)
 
         self.actions_done_timer = 1.2
 
@@ -808,7 +808,7 @@ function Battle:processAction(action)
 
         battler:setAnimation("battle/attack", function()
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-            box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+            box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
 
             if action.target and action.target.done_state then
                 enemy = self:retargetEnemy()
@@ -831,7 +831,7 @@ function Battle:processAction(action)
             if damage > 0 then
                 self.tension_bar:giveTension(Utils.round(enemy:getAttackTension(action.points)))
 
-                local dmg_sprite = Sprite(battler.chara.attack_sprite or "effects/attack/cut")
+                local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
                 if crit then
                     dmg_sprite:setScale(2.5, 2.5)
@@ -848,7 +848,7 @@ function Battle:processAction(action)
 
                 battler.chara:onAttackHit(enemy, damage)
             else
-                enemy:statusMessage("msg", "miss", battler.chara.dmg_color or battler.chara.color)
+                enemy:statusMessage("msg", "miss", {battler.chara:getDamageColor()})
             end
 
             self:finishAction(action)
@@ -1051,7 +1051,7 @@ function Battle:endActionAnimation(battler, action, callback)
     callback = function()
         -- Reset the head sprite
         local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-        box.head_sprite:setSprite(battler.chara.head_icons.."/head")
+        box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
         if _callback then
             _callback()
         end
@@ -1107,7 +1107,7 @@ function Battle:powerAct(spell, battler, user, target)
         self:addChild(soul)
 
         local box = self.battle_ui.action_boxes[user_index]
-        box.head_sprite:setSprite(box.battler.chara.head_icons.."/spell")
+        box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/spell")
 
     end)
 
@@ -1205,9 +1205,9 @@ function Battle:commitSingleAction(action)
     if (action.action == "ITEM" and action.data and action.data.item and (not action.data.item.instant)) or (action.action ~= "ITEM") then
         battler:setAnimation("battle/"..anim.."_ready")
         local box = self.battle_ui.action_boxes[action.character_id]
-        box.head_sprite:setSprite(box.battler.chara.head_icons.."/"..anim)
+        box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/"..anim)
         if not box.head_sprite:getTexture() then
-            box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+            box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/head")
         end
     end
 
@@ -1244,7 +1244,7 @@ function Battle:removeSingleAction(action)
     battler:setAnimation("battle/idle")
 
     local box = self.battle_ui.action_boxes[action.character_id]
-    box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+    box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/head")
 
     if action.tp then
         if action.tp < 0 then
@@ -1461,7 +1461,7 @@ function Battle:nextTurn()
     if self.battle_ui then
         for _,box in ipairs(self.battle_ui.action_boxes) do
             box.selected_button = 1
-            box.head_sprite:setSprite(box.battler.chara.head_icons.."/head")
+            box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/head")
         end
         self.battle_ui.current_encounter_text = self:getEncounterText()
         self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)

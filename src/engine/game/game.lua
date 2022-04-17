@@ -625,7 +625,7 @@ end
 function Game:getSoulPartyMember()
     local current
     for _,party in ipairs(self.party) do
-        if not current or (party.soul_priority > current.soul_priority) then
+        if not current or (party:getSoulPriority() > current:getSoulPriority()) then
             current = party
         end
     end
@@ -635,13 +635,11 @@ end
 function Game:getSoulColor()
     local chara = Game:getSoulPartyMember()
 
-    local r, g, b, a = 1, 0, 0, 1
-
-    if chara and chara.soul_priority >= 0 and chara.soul_color then
-        r, g, b, a = chara.soul_color[1] or 1, chara.soul_color[2] or 1, chara.soul_color[3] or 1, chara.soul_color[4] or 1
+    if chara and chara:getSoulPriority() >= 0 then
+        return chara:getSoulColor()
     end
 
-    return r, g, b, a
+    return 1, 0, 0, 1
 end
 
 function Game:getActLeader()

@@ -313,7 +313,7 @@ end
 
 function EnemyBattler:hurt(amount, battler, on_defeat)
     self.health = self.health - amount
-    self:statusMessage("damage", amount, battler and (battler.chara.dmg_color or battler.chara.color))
+    self:statusMessage("damage", amount, battler and {battler.chara:getDamageColor()})
 
     self.hurt_timer = 1
     self:onHurt(amount, battler)

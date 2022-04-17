@@ -90,13 +90,7 @@ function PartyMember:init()
     self.flags = {}
 end
 
-function PartyMember:getTitle()
-    return "LV"..self.level.." "..self.title
-end
-
-function PartyMember:getGameOverMessage()
-    return self.gameover_message
-end
+-- Callbacks
 
 function PartyMember:onAttackHit(enemy, damage) end
 
@@ -109,6 +103,69 @@ function PartyMember:drawPowerStat(index, x, y, menu) end
 
 function PartyMember:onSave(data) end
 function PartyMember:onLoad(data) end
+
+-- Getters
+
+function PartyMember:getName() return self.name end
+function PartyMember:getTitle() return "LV"..self.level.." "..self.title end
+
+function PartyMember:getSoulPriority() return self.soul_priority end
+function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or {1, 0, 0}) end
+
+function PartyMember:hasAct() return self.has_act end
+function PartyMember:hasSpells() return self.has_spells end
+function PartyMember:hasXAct() return self.has_xact end
+
+function PartyMember:getXActName() return self.xact_name end
+
+function PartyMember:getWeaponIcon() return self.weapon_icon end
+
+function PartyMember:getColor() return Utils.unpackColor(self.color) end
+function PartyMember:getDamageColor()
+    if self.dmg_color then
+        return Utils.unpackColor(self.dmg_color)
+    else
+        return self:getColor()
+    end
+end
+function PartyMember:getAttackBarColor()
+    if self.attack_bar_color then
+        return Utils.unpackColor(self.attack_bar_color)
+    else
+        return self:getColor()
+    end
+end
+function PartyMember:getAttackBoxColor()
+    if self.attack_box_color then
+        return Utils.unpackColor(self.attack_box_color)
+    else
+        local r, g, b, a = self:getColor()
+        return r * 0.5, g * 0.5, b * 0.5, a
+    end
+end
+function PartyMember:getXActColor()
+    if self.xact_color then
+        return Utils.unpackColor(self.xact_color)
+    else
+        return self:getColor()
+    end
+end
+
+function PartyMember:getMenuIcon() return self.menu_icon end
+function PartyMember:getHeadIcons() return self.head_icons end
+function PartyMember:getNameSprite() return self.name_sprite end
+
+function PartyMember:getAttackSprite() return self.attack_sprite end
+function PartyMember:getAttackSound() return self.attack_sound end
+function PartyMember:getAttackPitch() return self.attack_pitch end
+
+function PartyMember:getBattleOffset() return unpack(self.battle_offset or {0, 0}) end
+function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or {0, 0}) end
+function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
+
+function PartyMember:getGameOverMessage() return self.gameover_message end
+
+-- Functions / Getters & Setters
 
 function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
@@ -156,6 +213,10 @@ function PartyMember:setLightActor(actor)
         actor = Registry.createActor(actor)
     end
     self.lw_actor = actor
+end
+
+function PartyMember:getSpells()
+    return self.spells
 end
 
 function PartyMember:addSpell(spell)
@@ -259,6 +320,8 @@ end
 function PartyMember:addFlag(name, amount)
     self.flags[name] = (self.flags[name] or 0) + (amount or 1)
 end
+
+-- Saving & Loading
 
 function PartyMember:saveEquipment()
     local result = {weapon = nil, armor = {}}

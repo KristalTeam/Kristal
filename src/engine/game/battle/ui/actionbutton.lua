@@ -29,11 +29,11 @@ function ActionButton:select()
 
         -- First, register X-Actions as menu items.
 
-        if Game.battle.encounter.default_xactions and self.battler.chara.has_xact then
+        if Game.battle.encounter.default_xactions and self.battler.chara:hasXAct() then
             local item = {
-                ["name"] = self.battler.chara.xact_name or "X-Action",
+                ["name"] = self.battler.chara:getXActName() or "X-Action",
                 ["tp"] = 0,
-                ["color"] = self.battler.chara.xact_color or self.battler.chara.color,
+                ["color"] = {self.battler.chara:getXActColor()},
                 ["data"] = {
                     ["name"] = Game.battle.enemies[1]:getXAction(self.battler),
                     ["target"] = "xact",
@@ -67,7 +67,7 @@ function ActionButton:select()
         end
 
         -- Now, register SPELLs as menu items.
-        for _,spell in ipairs(self.battler.chara.spells) do
+        for _,spell in ipairs(self.battler.chara:getSpells()) do
             local color = spell.color or {1, 1, 1, 1}
             if spell:hasTag("spare_tired") then
                 local has_tired = false
@@ -130,7 +130,7 @@ function ActionButton:hasSpecial()
             end
             if has_tired then
                 local has_pacify = false
-                for _,spell in ipairs(self.battler.chara.spells) do
+                for _,spell in ipairs(self.battler.chara:getSpells()) do
                     if spell and spell:hasTag("spare_tired") then
                         has_pacify = true
                         break

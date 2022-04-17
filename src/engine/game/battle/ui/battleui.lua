@@ -186,12 +186,8 @@ function BattleUI:drawState()
 
                     -- Draw head only if it isn't the currently selected character
                     if Game.battle:getPartyIndex(party_id) ~= Game.battle.current_selecting then
-                        local ox, oy = 0, 0
-                        if chara.head_icon_offset then
-                            ox = ox + (chara.head_icon_offset[1] or 0)
-                            oy = oy + (chara.head_icon_offset[2] or 0)
-                        end
-                        love.graphics.draw(Assets.getTexture(chara.head_icons .. "/head"), text_offset + 30 + (x * 230) + ox, 50 + (y * 30) + oy)
+                        local ox, oy = chara:getHeadIconOffset()
+                        love.graphics.draw(Assets.getTexture(chara:getHeadIcons() .. "/head"), text_offset + 30 + (x * 230) + ox, 50 + (y * 30) + oy)
                         text_offset = text_offset + 30
                     end
                 end
@@ -315,7 +311,7 @@ function BattleUI:drawState()
             end
 
             if Game.battle.state == "XACTENEMYSELECT" then
-                love.graphics.setColor(Game.battle.party[Game.battle.current_selecting].chara.xact_color)
+                love.graphics.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
                 if Game.battle.selected_xaction.id == 0 then
                     love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
                 else

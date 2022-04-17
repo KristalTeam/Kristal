@@ -337,7 +337,7 @@ function DarkEquipMenu:drawEquipped()
     love.graphics.setColor(1, 1, 1, 1)
 
     if self.state ~= "SLOTS" or self.selected_slot ~= 1 then
-        local weapon_icon = Assets.getTexture(party.weapon_icon)
+        local weapon_icon = Assets.getTexture(party:getWeaponIcon())
         if weapon_icon then
             love.graphics.draw(weapon_icon, 220, -4, 0, 2, 2)
         end

@@ -446,6 +446,10 @@ function Utils.unpackPolygon(points)
     return unpack(line)
 end
 
+function Utils.unpackColor(color)
+    return color[1], color[2], color[3], color[4] or 1
+end
+
 function Utils.random(a, b, c)
     if not a then
         return love.math.random()

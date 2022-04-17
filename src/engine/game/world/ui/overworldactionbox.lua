@@ -6,14 +6,13 @@ function OverworldActionBox:init(x, y, index, chara)
     self.index = index
     self.chara = chara
 
-    self.head_sprite = Sprite(chara.head_icons.."/head", 13, 13)
-    self.name_sprite = Sprite(chara.name_sprite,         51, 16)
+    self.head_sprite = Sprite(chara:getHeadIcons().."/head", 13, 13)
+    self.name_sprite = Sprite(chara:getNameSprite(),         51, 16)
     self.hp_sprite   = Sprite("ui/hp", 109, 24)
 
-    if chara.head_icon_offset then
-        self.head_sprite.x = self.head_sprite.x + (chara.head_icon_offset[1] or 0)
-        self.head_sprite.y = self.head_sprite.y + (chara.head_icon_offset[2] or 0)
-    end
+    local ox, oy = chara:getHeadIconOffset()
+    self.head_sprite.x = self.head_sprite.x + ox
+    self.head_sprite.y = self.head_sprite.y + oy
 
     self:addChild(self.head_sprite)
     self:addChild(self.name_sprite)
@@ -29,7 +28,7 @@ function OverworldActionBox:init(x, y, index, chara)
 end
 
 function OverworldActionBox:setHeadIcon(icon)
-    self.head_sprite:setSprite(self.chara.head_icons.."/"..icon)
+    self.head_sprite:setSprite(self.chara:getHeadIcons().."/"..icon)
 end
 
 function OverworldActionBox:update(dt)
@@ -40,7 +39,7 @@ end
 function OverworldActionBox:draw()
     -- Draw the line at the top
     if self.selected then
-        love.graphics.setColor(self.chara.color)
+        love.graphics.setColor(self.chara:getColor())
     else
         love.graphics.setColor(PALETTE["action_strip"], 1)
     end
@@ -55,7 +54,7 @@ function OverworldActionBox:draw()
     local health = (self.chara.health / self.chara:getStat("health")) * 76
 
     if health > 0 then
-        love.graphics.setColor(self.chara.color)
+        love.graphics.setColor(self.chara:getColor())
         love.graphics.rectangle("fill", 128, 24, health, 9)
     end
 
