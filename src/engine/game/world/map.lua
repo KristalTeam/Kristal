@@ -430,9 +430,9 @@ function Map:loadObject(name, data)
     if name:lower() == "savepoint" then
         return Savepoint(Readable.parseText(data.properties), data.center_x, data.center_y)
     elseif name:lower() == "interactscript" then
-        return InteractScript(data.properties["scene"], data.x, data.y, data.width, data.height)
+        return InteractScript(data.properties["cutscene"] or data.properties["scene"], data.x, data.y, data.width, data.height)
     elseif name:lower() == "script" then
-        return Script(data.properties["scene"], data.x, data.y, data.width, data.height)
+        return Script(data.properties["cutscene"] or data.properties["scene"], data.x, data.y, data.width, data.height)
     elseif name:lower() == "readable" then
         return Readable(Readable.parseText(data.properties), data.x, data.y, data.width, data.height)
     elseif name:lower() == "transition" then

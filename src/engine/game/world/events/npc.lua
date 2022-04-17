@@ -17,7 +17,7 @@ function NPC:init(actor, x, y, properties)
 
     self.solid = properties["solid"] == nil or properties["solid"]
 
-    self.cutscene = properties["scene"]
+    self.cutscene = properties["cutscene"] or properties["scene"]
     self.text = Readable.parseText(properties)
 end
 
