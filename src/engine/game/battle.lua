@@ -1498,7 +1498,9 @@ function Battle:returnToWorld()
     Utils.merge(all_enemies, self.enemies)
     for _,enemy in ipairs(all_enemies) do
         local world_chara = self.enemy_world_characters[enemy]
-        world_chara.visible = true
+        if world_chara then
+            world_chara.visible = true
+        end
         if not enemy.exit_on_defeat and world_chara and world_chara.parent then
             if world_chara.onReturnFromBattle then
                 world_chara:onReturnFromBattle(self.encounter, enemy)
