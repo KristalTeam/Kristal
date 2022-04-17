@@ -1075,8 +1075,9 @@ function Battle:endActionAnimation(battler, action, callback)
 end
 
 function Battle:powerAct(spell, battler, user, target)
-    -- TODO: decrease the amount of function calls to getPartyIndex
-    -- and getPartyBattler
+
+    local user_battler = self:getPartyBattler(user)
+    local user_index = self:getPartyIndex(user)
 
     if type(spell) == "string" then
         spell = Registry.createSpell(spell)
@@ -1087,7 +1088,7 @@ function Battle:powerAct(spell, battler, user, target)
         tp = 0
     }
 
-    local name = self:getPartyBattler(user).chara.name
+    local name = user_battler.chara.name
     if user == "ralsei" then
         -- deltarune inconsistency lol
         name = "RALSEI"
@@ -1097,7 +1098,7 @@ function Battle:powerAct(spell, battler, user, target)
     self.timer:after(7/30, function()
         Assets.playSound("snd_boost")
         battler:flash()
-        self:getPartyBattler(user):flash()
+        user_battler:flash()
         local bx, by = self:getSoulLocation()
         local soul = Sprite("effects/soulshine", bx, by)
         soul:play(1/15, false, function() soul:remove() end)
@@ -1105,13 +1106,13 @@ function Battle:powerAct(spell, battler, user, target)
         soul:setScale(2, 2)
         self:addChild(soul)
 
-        local box = self.battle_ui.action_boxes[self:getPartyIndex(user)]
+        local box = self.battle_ui.action_boxes[user_index]
         box.head_sprite:setSprite(box.battler.chara.head_icons.."/spell")
 
     end)
 
     self.timer:after(24/30, function()
-        self:commitAction("SPELL", target, menu_item, self:getPartyIndex(user))
+        self:commitAction("SPELL", target, menu_item, user_index)
         self:markAsFinished(nil, {user})
     end)
 end
