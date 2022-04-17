@@ -35,6 +35,7 @@ function Assets.saveData()
     self.saved_data = {
         data = Utils.copy(self.data, true),
         frames_for = Utils.copy(self.frames_for, true),
+        texture_ids = Utils.copy(self.texture_ids, true),
         sounds = Utils.copy(self.sounds, true),
     }
 end
