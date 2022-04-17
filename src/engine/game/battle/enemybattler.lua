@@ -21,8 +21,11 @@ function EnemyBattler:init(chara)
 
     self.spare_points = 0
 
-    -- Affects the animation thats plays when this enemy is defeated (run, fatal, or none/nil)
-    self.defeat_type = "run"
+    -- Whether the enemy runs/slides away when defeated/spared
+    self.exit_on_defeat = true
+
+    -- Whether this enemy is automatically spared at full mercy
+    self.auto_spare = false
 
     -- Whether this enemy can be frozen
     self.can_freeze = true
@@ -156,35 +159,37 @@ end
 function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
 
 function EnemyBattler:spare(pacify)
-    Game.battle.spare_sound:stop()
-    Game.battle.spare_sound:play()
+    if self.exit_on_defeat then
+        Game.battle.spare_sound:stop()
+        Game.battle.spare_sound:play()
 
-    local spare_flash = self:addFX(ColorMaskFX())
-    spare_flash.amount = 0
+        local spare_flash = self:addFX(ColorMaskFX())
+        spare_flash.amount = 0
 
-    local sparkle_timer = 0
-    local parent = self.parent
+        local sparkle_timer = 0
+        local parent = self.parent
 
-    Game.battle.timer:during(5/30, function()
-        spare_flash.amount = spare_flash.amount + 0.2 * DTMULT
-        sparkle_timer = sparkle_timer + DTMULT
-        if sparkle_timer >= 0.5 then
-            local x, y = Utils.random(0, self.width), Utils.random(0, self.height)
-            local sparkle = SpareSparkle(self:getRelativePos(x, y))
-            sparkle.layer = self.layer + 0.001
-            parent:addChild(sparkle)
-            sparkle_timer = sparkle_timer - 0.5
-        end
-    end, function()
-        spare_flash.amount = 1
-        local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
-        local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
-        img1.physics.speed_x = 4
-        img2.physics.speed_x = 8
-        parent:addChild(img1)
-        parent:addChild(img2)
-        self:remove()
-    end)
+        Game.battle.timer:during(5/30, function()
+            spare_flash.amount = spare_flash.amount + 0.2 * DTMULT
+            sparkle_timer = sparkle_timer + DTMULT
+            if sparkle_timer >= 0.5 then
+                local x, y = Utils.random(0, self.width), Utils.random(0, self.height)
+                local sparkle = SpareSparkle(self:getRelativePos(x, y))
+                sparkle.layer = self.layer + 0.001
+                parent:addChild(sparkle)
+                sparkle_timer = sparkle_timer - 0.5
+            end
+        end, function()
+            spare_flash.amount = 1
+            local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
+            local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
+            img1.physics.speed_x = 4
+            img2.physics.speed_x = 8
+            parent:addChild(img1)
+            parent:addChild(img2)
+            self:remove()
+        end)
+    end
 
     self:defeat(pacify and "PACIFIED" or "SPARED", false)
     self:onSpared()
@@ -212,6 +217,9 @@ function EnemyBattler:addMercy(amount)
     if self.mercy >= 100 then
         self:onSpareable()
         self.mercy = 100
+        if self.auto_spare then
+            self:spare(false)
+        end
     end
 
     if amount > 0 then
@@ -353,10 +361,8 @@ function EnemyBattler:onHurtEnd()
 end
 
 function EnemyBattler:onDefeat(damage, battler)
-    if self.defeat_type == "run" then
+    if self.exit_on_defeat then
         self:onDefeatRun(damage, battler)
-    elseif self.defeat_type == "fatal" then
-        self:onDefeatFatal(damage, battler)
     else
         self.sprite:setAnimation("defeat")
     end

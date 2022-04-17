@@ -21,6 +21,7 @@ function Battle:init()
     self.enemy_beginning_positions = {}
 
     self.party_world_characters = {}
+    self.enemy_world_characters = {}
     self.battler_targets = {}
 
     for i = 1, math.min(3, #Game.party) do
@@ -214,12 +215,22 @@ function Battle:postInit(state, encounter)
             target_y = target_y + (battler.actor.height  + offset[2]) * 2
             table.insert(self.battler_targets, {target_x, target_y})
         end
-        if Game.encounter_enemy then
-            for _,enemy in ipairs(self.enemies) do
-                if enemy.actor and enemy.actor.id == Game.encounter_enemy.actor.id then
-                    Game.encounter_enemy.visible = false
-                    enemy:setPosition(Game.encounter_enemy:getScreenPos())
-                    break
+        if Game.encounter_enemies then
+            for _,from in ipairs(Game.encounter_enemies) do
+                if not isClass(from) then
+                    local enemy = self:parseEnemyIdentifier(from[1])
+                    from[2].visible = false
+                    enemy:setPosition(from[2]:getScreenPos())
+                    self.enemy_world_characters[enemy] = from[2]
+                else
+                    for _,enemy in ipairs(self.enemies) do
+                        if enemy.actor and from.actor and enemy.actor.id == from.actor.id then
+                            from.visible = false
+                            enemy:setPosition(from:getScreenPos())
+                            self.enemy_world_characters[enemy] = from
+                            break
+                        end
+                    end
                 end
             end
         end
@@ -488,15 +499,17 @@ function Battle:onStateChange(old,new)
             self.music:fade(0, 20/30)
         end
         self:removeWorldEncounters()
-        if Game.encounter_enemy then
-            local target = Game.encounter_enemy
-            for _,enemy in ipairs(self.defeated_enemies) do
-                if enemy.done_state == "FROZEN" then
-                    local statue = FrozenEnemy(enemy.actor, target.x, target.y, {facing = target.sprite.facing})
-                    statue.layer = target.layer
-                    Game.world:addChild(statue)
-                    break
-                end
+        for _,enemy in ipairs(self.defeated_enemies) do
+            local world_chara = self.enemy_world_characters[enemy]
+            if enemy.done_state == "FROZEN" and world_chara then
+                local statue = FrozenEnemy(enemy.actor, world_chara.x, world_chara.y, {facing = world_chara.sprite.facing})
+                statue.layer = world_chara.layer
+                Game.world:addChild(statue)
+            end
+        end
+        for enemy,chara in pairs(self.enemy_world_characters) do
+            if enemy.exit_on_defeat then
+                chara.visible = true
             end
         end
     end
@@ -1480,6 +1493,18 @@ function Battle:returnToWorld()
             self.party_world_characters[battler.chara.id].visible = true
         end
     end
+    local all_enemies = {}
+    Utils.merge(all_enemies, self.defeated_enemies)
+    Utils.merge(all_enemies, self.enemies)
+    for _,enemy in ipairs(all_enemies) do
+        local world_chara = self.enemy_world_characters[enemy]
+        world_chara.visible = true
+        if not enemy.exit_on_defeat and world_chara and world_chara.parent then
+            if world_chara.onReturnFromBattle then
+                world_chara:onReturnFromBattle(self.encounter, enemy)
+            end
+        end
+    end
     if self.music ~= Game.world.music then
         self.music:stop()
         Game.world.music:resume()
@@ -1492,7 +1517,7 @@ end
 
 function Battle:removeWorldEncounters()
     for _,enemy in ipairs(Game.stage:getObjects(ChaserEnemy)) do
-        if enemy.encounter == self.encounter.id then
+        if enemy.remove_on_encounter and enemy.encounter == self.encounter.id then
             enemy:remove()
         end
     end
@@ -1762,6 +1787,10 @@ function Battle:updateTransitionOut(dt)
         return
     end
 
+    local all_enemies = {}
+    Utils.merge(all_enemies, self.enemies)
+    Utils.merge(all_enemies, self.defeated_enemies)
+
     self.transition_timer = self.transition_timer - DTMULT
 
     if self.transition_timer <= 0 then--or not self.transitioned then
@@ -1776,19 +1805,18 @@ function Battle:updateTransitionOut(dt)
         battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
     end
 
-    for _,battler in ipairs(self.defeated_enemies) do
-        local fade = battler:getFX("battle_end")
-        if not fade then
-            fade = battler:addFX(AlphaFX(1), "battle_end")
+    for _, enemy in ipairs(all_enemies) do
+        local world_chara = self.enemy_world_characters[enemy]
+        if enemy.target_x and enemy.target_y and not enemy.exit_on_defeat and world_chara and world_chara.parent then
+            enemy.x = Utils.lerp(self.enemy_beginning_positions[enemy][1], enemy.target_x, self.transition_timer / 10)
+            enemy.y = Utils.lerp(self.enemy_beginning_positions[enemy][2], enemy.target_y, self.transition_timer / 10)
+        else
+            local fade = enemy:getFX("battle_end")
+            if not fade then
+                fade = enemy:addFX(AlphaFX(1), "battle_end")
+            end
+            fade.alpha = self.transition_timer / 10
         end
-        fade.alpha = self.transition_timer / 10
-    end
-    for _,battler in ipairs(self.enemies) do
-        local fade = battler:getFX("battle_end")
-        if not fade then
-            fade = battler:addFX(AlphaFX(1), "battle_end")
-        end
-        fade.alpha = self.transition_timer / 10
     end
 end
 
@@ -1977,6 +2005,12 @@ end
 
 function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
+end
+
+function Battle:parseEnemyIdentifier(id)
+    local args = Utils.split(id, ":")
+    local enemies = Utils.filter(self.enemies, function(enemy) return enemy.id == args[1] end)
+    return enemies[args[2] and tonumber(args[2]) or 1]
 end
 
 function Battle:getEnemyByID(id)

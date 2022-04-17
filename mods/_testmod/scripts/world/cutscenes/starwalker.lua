@@ -25,14 +25,15 @@ return function(cutscene, event, player, facing)
         cutscene:text("* I,[wait:5] uh,[wait:5] what?", "sus_nervous", "susie")
         cutscene:text("* Well,[wait:5] hey,[wait:5] you know\nwhat?", "annoyed", "susie")
         cutscene:text("* You piss us off too.", "smirk", "susie")
-        Game.world.music:play("s_neo")
+        local cutscene_music = Music()
+        cutscene_music:play("s_neo")
         cutscene:detachFollowers()
         cutscene:walkTo(kris, kris.x, kris.y - 40, 1, "down", true)
         cutscene:wait(cutscene:walkTo(susie, kris.x, kris.y, 2, facing))
         cutscene:text("* If you have a problem\nwith us,[wait:5] then we have\na problem with you.", "smirk", "susie")
         cutscene:text("* Do you know what we do\nwith problems?", "smirk", "susie")
         cutscene:text("* We stomp.[wait:10] Them.[wait:10] Into.[wait:10]\nThe.[wait:10] Ground.", "smile", "susie")
-        Game.world.music:stop()
+        cutscene_music:stop()
         Assets.playSound("snd_boost")
 
         event.sprite:set("wings")
@@ -51,6 +52,11 @@ return function(cutscene, event, player, facing)
         cutscene:wait(1)
         cutscene:text("* Uh,[wait:5] what-", "surprise_frown", "susie", {auto=true})
 
-        cutscene:startEncounter("starwalker", true, event)
+        cutscene:startEncounter("starwalker", true, {{"starwalker", event}})
+
+        event.sprite:resetSprite()
+
+        cutscene:keepFollowerPositions()
+        cutscene:attachFollowers()
     end
 end

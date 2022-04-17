@@ -510,7 +510,11 @@ function Game:encounter(encounter, transition, enemy)
         error("Attempt to enter battle while already in battle")
     end
 
-    self.encounter_enemy = enemy
+    if enemy and not isClass(enemy) then
+        self.encounter_enemies = enemy
+    else
+        self.encounter_enemies = {enemy}
+    end
 
     self.state = "BATTLE"
 

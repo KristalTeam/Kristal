@@ -18,6 +18,9 @@ function Starwalker:init()
 
     self.spare_points = 0
 
+    self.exit_on_defeat = false
+    self.auto_spare = true
+
     self.waves = {
         "starwings"
         --"solidtest"
@@ -39,6 +42,13 @@ function Starwalker:init()
     self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
 
     self.text_override = nil
+end
+
+function Starwalker:onSpared()
+    super:onSpared(self)
+
+    self.sprite:resetSprite()
+    Game.battle.music:stop()
 end
 
 function Starwalker:isXActionShort(battler)

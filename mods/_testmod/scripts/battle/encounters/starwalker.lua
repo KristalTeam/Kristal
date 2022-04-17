@@ -10,6 +10,8 @@ function Starwalker:init()
     self.background = true
     self.music = "pissedmeoff"
 
+    self.no_end_message = true
+
     self.timer = 0
 
     self.mode = "normal"
@@ -38,7 +40,7 @@ end
 function Starwalker:update(dt)
     super:update(self, dt)
 
-    if (Game.battle:getState() ~= "TRANSITION") then
+    if not self.starwalker.done_state and (Game.battle:getState() ~= "TRANSITION") then
         self.timer = self.timer + (1 * DTMULT)
         
 

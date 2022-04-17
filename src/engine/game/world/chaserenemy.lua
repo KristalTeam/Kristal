@@ -23,11 +23,15 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.noclip = true
     self.enemy_collision = true
 
+    self.remove_on_encounter = true
+    self.encountered = false
+
     self.sprite.aura = true
 end
 
 function ChaserEnemy:onCollide(player)
     if self:isActive() and player:includes(Player) then
+        self.encountered = true
         local encounter = self.encounter
         if not encounter and Registry.getEnemy(self.actor.id) then
             encounter = Encounter()
@@ -47,7 +51,9 @@ function ChaserEnemy:onCollide(player)
                 self.world.encountering_enemy = false
                 Game.lock_input = false
                 Game:encounter(encounter, true, self)
-                self:remove()
+                if self.remove_on_encounter then
+                    self:remove()
+                end
             end)
         end
     end
@@ -93,7 +99,8 @@ function ChaserEnemy:snapToPath()
 end
 
 function ChaserEnemy:isActive()
-    return not self.world.encountering_enemy and
+    return not self.encountered and
+           not self.world.encountering_enemy and
            not self.world:hasCutscene() and
            self.world.state ~= "MENU"
 end
