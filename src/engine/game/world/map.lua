@@ -237,10 +237,10 @@ function Map:loadImage(layer, name, depth)
         sprite:setColor(layer.tintcolor[1]/255, layer.tintcolor[2]/255, layer.tintcolor[3]/255)
     end
     sprite:setSpeed(layer.properties["speedx"] or 0, layer.properties["speedy"] or 0)
-    if layer.properties["wrapx"] then
+    if layer.repeatx or layer.properties["wrapx"] then
         sprite.wrap_texture_x = true
     end
-    if layer.properties["wrapy"] then
+    if layer.repeaty or layer.properties["wrapy"] then
         sprite.wrap_texture_y = true
     end
     if layer.properties["fitscreen"] then
