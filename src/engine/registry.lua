@@ -1,12 +1,14 @@
 local Registry = {}
 local self = Registry
 
-Registry.new_objects = {}
-Registry.last_objects = {}
+Registry.new_globals = {}
+Registry.last_globals = {}
 
 Registry.paths = {
     ["actors"]           = "data/actors",
+    ["globals"]          = "globals",
     ["objects"]          = "objects",
+    ["drawfx"]           = "drawfx",
     ["items"]            = "data/items",
     ["spells"]           = "data/spells",
     ["party_members"]    = "data/party",
@@ -38,7 +40,9 @@ function Registry.initialize(preload)
         Registry.initActors()
     end
     if not preload then
+        Registry.initGlobals()
         Registry.initObjects()
+        Registry.initDrawFX()
         Registry.initItems()
         Registry.initSpells()
         Registry.initPartyMembers()
@@ -60,25 +64,37 @@ function Registry.initialize(preload)
     Hotswapper.updateFiles("registry")
 end
 
-function Registry.restoreOverridenObjects()
-    for id,_ in pairs(self.new_objects) do
-        _G[id] = self.last_objects[id]
+function Registry.restoreOverridenGlobals()
+    for id,_ in pairs(self.new_globals) do
+        _G[id] = self.last_globals[id]
     end
-    self.new_objects = {}
-    self.last_objects = {}
+    self.new_globals = {}
+    self.last_globals = {}
 end
 
 -- Getter Functions --
 
 function Registry.getObject(id)
-    return self.new_objects[id]
+    return self.objects[id]
 end
 
 function Registry.createObject(id, ...)
-    if self.new_objects[id] then
-        return self.new_objects[id](...)
+    if self.objects[id] then
+        return self.objects[id](...)
     else
         error("Attempt to create non existent object \"" .. id .. "\"")
+    end
+end
+
+function Registry.getDrawFX(id)
+    return self.draw_fx[id]
+end
+
+function Registry.createDrawFX(id, ...)
+    if self.draw_fx[id] then
+        return self.draw_fx[id](...)
+    else
+        error("Attempt to create non existent DrawFX \"" .. id .. "\"")
     end
 end
 
@@ -260,6 +276,19 @@ end
 
 -- Register Functions --
 
+function Registry.registerGlobal(id, value)
+    if _G[id] then
+        print("WARNING: Global '"..id.."' already exists, replacing")
+        if not self.last_globals[id] and not self.new_globals[id] then
+            self.last_globals[id] = _G[id]
+        end
+    end
+
+    self.new_globals[id] = value
+
+    _G[id] = value
+end
+
 function Registry.registerActor(id, tbl)
     self.actors[id] = tbl
     tbl.animations = tbl.animations or {}
@@ -328,32 +357,49 @@ end
 
 -- Internal Functions --
 
+function Registry.initGlobals()
+    for _,path,global in self.iterScripts(Registry.paths["globals"]) do
+        local path_tbl = Utils.split(path, "/")
+        local new_path = path_tbl[#path_tbl]
+
+        local id = type(global) == "table" and global.id or new_path
+
+        self.registerGlobal(id, global)
+    end
+
+    Kristal.callEvent("onRegisterGlobals")
+end
+
 function Registry.initObjects()
+    self.objects = {}
+
     for _,path,object in self.iterScripts(Registry.paths["objects"]) do
         local path_tbl = Utils.split(path, "/")
         local new_path = path_tbl[#path_tbl]
 
         local id = object.id or new_path
 
-        --[[
-        if id:lower() == id then
-            print("WARNING: Object '"..id.."' registered in lowercase!")
-        end
-        ]]
-
-        if _G[id] then
-            print("WARNING: Object '"..id.."' already exists, replacing")
-            if not self.last_objects[id] then
-                self.last_objects[id] = _G[id]
-            end
-        end
-
-        self.new_objects[id] = object
-
-        _G[id] = object
+        self.objects[id] = object
+        self.registerGlobal(id, object)
     end
 
     Kristal.callEvent("onRegisterObjects")
+end
+
+function Registry.initDrawFX()
+    self.draw_fx = {}
+
+    for _,path,draw_fx in self.iterScripts(Registry.paths["drawfx"]) do
+        local path_tbl = Utils.split(path, "/")
+        local new_path = path_tbl[#path_tbl]
+
+        local id = draw_fx.id or new_path
+
+        self.draw_fx[id] = draw_fx
+        self.registerGlobal(id, draw_fx)
+    end
+
+    Kristal.callEvent("onRegisterDrawFX")
 end
 
 function Registry.initActors()

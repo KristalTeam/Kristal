@@ -690,7 +690,7 @@ function Kristal.clearModState()
     love.audio.stop()
     Music.clear()
     -- Reset global variables
-    Registry.restoreOverridenObjects()
+    Registry.restoreOverridenGlobals()
     package.loaded["src.engine.vars"] = nil
     require("src.engine.vars")
     -- Reset Game state
