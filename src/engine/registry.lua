@@ -19,6 +19,7 @@ Registry.paths = {
     ["battle_cutscenes"] = "battle/cutscenes",
     ["tilesets"]         = "world/tilesets",
     ["maps"]             = "world/maps",
+    ["events"]           = "world/events",
     ["shops"]            = "shops"
 }
 
@@ -48,6 +49,7 @@ function Registry.initialize(preload)
         Registry.initCutscenes()
         Registry.initTilesets()
         Registry.initMaps()
+        Registry.initEvents()
         Registry.initShops()
 
         Kristal.callEvent("onRegistered")
@@ -232,6 +234,18 @@ function Registry.getMapData(id)
     return self.map_data[id]
 end
 
+function Registry.getEvent(id)
+    return self.events[id]
+end
+
+function Registry.createEvent(id, ...)
+    if self.events[id] then
+        return self.events[id](...)
+    else
+        error("Attempt to create non existent event \"" .. id .. "\"")
+    end
+end
+
 function Registry.getShop(id)
     return self.shops[id]
 end
@@ -302,6 +316,10 @@ end
 
 function Registry.registerMap(id, class)
     self.maps[id] = class
+end
+
+function Registry.registerEvent(id, class)
+    self.events[id] = class
 end
 
 function Registry.registerShop(id, class)
@@ -483,6 +501,17 @@ function Registry.initMaps()
     end
 
     Kristal.callEvent("onRegisterMaps")
+end
+
+function Registry.initEvents()
+    self.events = {}
+
+    for _,path,event in self.iterScripts(Registry.paths["events"]) do
+        event.id = event.id or path
+        self.registerEvent(event.id, event)
+    end
+
+    Kristal.callEvent("onRegisterEvents")
 end
 
 function Registry.initShops()

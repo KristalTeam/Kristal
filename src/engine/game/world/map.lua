@@ -411,9 +411,9 @@ function Map:loadObject(name, data)
             return events[name](data)
         end
     end
-    local success, result = Kristal.executeModScript("scripts/world/events/"..name)
-    if success then
-        return result(data)
+    local registered_event = Registry.getEvent(name)
+    if registered_event then
+        return Registry.createEvent(name, data)
     end
     -- Library object loading
     for id,lib in pairs(Mod.libs) do
@@ -424,10 +424,6 @@ function Map:loadObject(name, data)
             if lib.Events and lib.Events[name] then
                 return lib.Events[name](data)
             end
-        end
-        local success, result = Kristal.executeLibScript(id, "scripts/world/events/"..name)
-        if success then
-            return result(data)
         end
     end
     -- Kristal object loading
