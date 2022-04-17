@@ -99,7 +99,7 @@ function Item:createResultItem()
 end
 
 function Item:getBattleText(user, target)
-    return "* "..user.chara.name.." used the "..self:getUseName().."!"
+    return "* "..user.chara:getName().." used the "..self:getUseName().."!"
 end
 
 function Item:applyGoldBonus(gold)

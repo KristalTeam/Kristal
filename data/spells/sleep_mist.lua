@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "Sleep Mist"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = "Spare\nTIRED foes"
@@ -14,8 +16,8 @@ function spell:init()
     -- TP cost
     self.cost = 32
 
-    -- Target mode (party, enemy, or none/nil)
-    self.target = "none"
+    -- Target mode (ally, party, enemy, enemies, or none)
+    self.target = "enemies"
 
     -- Tags that apply to this spell
     self.tags = {"spare_tired"}
@@ -23,7 +25,7 @@ end
 
 function spell:onCast(user, target)
     local count = 0
-    for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
+    for _,enemy in ipairs(target) do
         local success = enemy.tired
 
         if success then

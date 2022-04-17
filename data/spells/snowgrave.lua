@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "SnowGrave"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = "Fatal"
@@ -14,8 +16,8 @@ function spell:init()
     -- TP cost
     self.cost = 200
 
-    -- Target mode (party, enemy, or none/nil)
-    self.target = nil
+    -- Target mode (ally, party, enemy, enemies, or none)
+    self.target = "enemies"
 
     -- Tags that apply to this spell
     self.tags = {"ice", "fatal", "damage"}

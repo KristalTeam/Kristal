@@ -61,7 +61,7 @@ function item:getBattleText(user, target)
     if Game.battle.encounter.onManualUse then
         return Game.battle.encounter:onManualUse(self, user)
     end
-    return {"* "..user.chara.name.." read the "..self:getUseName().."!", "* But nothing happened..."}
+    return {"* "..user.chara:getName().." read the "..self:getUseName().."!", "* But nothing happened..."}
 end
 
 return item

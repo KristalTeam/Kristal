@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "Dual Heal"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = "Heal All\n30 HP"
@@ -14,15 +16,15 @@ function spell:init()
     -- TP cost
     self.cost = 50
 
-    -- Target mode (party, enemy, or none/nil)
-    self.target = "none"
+    -- Target mode (ally, party, enemy, enemies, or none)
+    self.target = "party"
 
     -- Tags that apply to this spell
     self.tags = {"heal"}
 end
 
 function spell:onCast(user, target)
-    for _,battler in ipairs(Game.battle.party) do
+    for _,battler in ipairs(target) do
         battler:heal(user.chara:getStat("magic") * 5.5)
     end
 end

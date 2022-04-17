@@ -54,7 +54,7 @@ function Virovirokun:onGlowshardUse(item, user)
     end
     Game.inventory:removeItem(item)
     return {
-        "* "..user.chara.name.." used the GLOWSHARD!",
+        "* "..user.chara:getName().." used the GLOWSHARD!",
         lines,
         "* The GLOWSHARD disappeared!"
     }

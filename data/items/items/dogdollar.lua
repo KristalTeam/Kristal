@@ -59,7 +59,7 @@ function item:onBattleSelect(user, target)
 end
 
 function item:getBattleText(user, target)
-    return "* "..user.chara.name.." admired "..self:getUseName().."!"
+    return "* "..user.chara:getName().." admired "..self:getUseName().."!"
 end
 
 return item

@@ -67,7 +67,7 @@ function DarkPowerMenu:updateDescription()
         Game.world.menu:setDescription("", false)
     elseif self.state == "SPELLS" then
         local spell = self:getSpells()[self.selected_spell]
-        Game.world.menu:setDescription(spell and spell.description or "", true)
+        Game.world.menu:setDescription(spell and spell:getDescription() or "", true)
     end
 end
 
@@ -210,8 +210,8 @@ function DarkPowerMenu:drawSpells()
         local offset = i - self.scroll_y
 
         love.graphics.setColor(0.5, 0.5, 0.5)
-        love.graphics.print(tostring(spell.cost).."%", tp_x, tp_y + (offset * 25))
-        love.graphics.print(spell.name, name_x, name_y + (offset * 25))
+        love.graphics.print(tostring(spell:getTPCost()).."%", tp_x, tp_y + (offset * 25))
+        love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 
     if self.state == "SPELLS" then

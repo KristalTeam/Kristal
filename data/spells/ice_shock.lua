@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "IceShock"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = "Damage\nw/ ICE"
@@ -14,7 +16,7 @@ function spell:init()
     -- TP cost
     self.cost = 16
 
-    -- Target mode (party, enemy, or none/nil)
+    -- Target mode (ally, party, enemy, enemies, or none)
     self.target = "enemy"
 
     -- Tags that apply to this spell

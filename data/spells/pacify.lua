@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "Pacify"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = "Spare\nTIRED foe"
@@ -14,7 +16,7 @@ function spell:init()
     -- TP cost
     self.cost = 16
 
-    -- Target mode (party, enemy, or none/nil)
+    -- Target mode (ally, party, enemy, enemies, or none)
     self.target = "enemy"
 
     -- Tags that apply to this spell
@@ -22,12 +24,13 @@ function spell:init()
 end
 
 function spell:getCastMessage(user, target)
+    local message = super:getCastMessage(self, user, target)
     if target.tired then
-        return "* "..user.chara.name.." cast PACIFY!"
+        return message
     elseif target.mercy < 100 then
-        return "* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
+        return message.."\n[wait:0.25s]* But the enemy wasn't [color:blue]TIRED[color:reset]..."
     else
-        return "* "..user.chara.name.." cast PACIFY!\n[wait:0.25s]* But the foe wasn't [color:blue]TIRED[color:reset]... try\n[color:yellow]SPARING[color:reset]!"
+        return message.."\n[wait:0.25s]* But the foe wasn't [color:blue]TIRED[color:reset]... try\n[color:yellow]SPARING[color:reset]!"
     end
 end
 

@@ -7,6 +7,8 @@ function spell:init()
 
     -- Display name
     self.name = "ACT"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = ""
@@ -20,7 +22,7 @@ function spell:init()
     -- TP cost
     self.cost = 0
 
-    -- Target mode (party, enemy, or none/nil)
+    -- Target mode (ally, party, enemy, enemies, or none)
     self.target = "enemy"
 
     -- Tags that apply to this spell

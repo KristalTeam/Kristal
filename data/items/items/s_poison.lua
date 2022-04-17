@@ -65,7 +65,7 @@ function item:getShopDescription()
 end
 
 function item:getBattleText(user, target)
-    return "* "..user.chara.name.." administered "..self:getUseName().."!"
+    return "* "..user.chara:getName().." administered "..self:getUseName().."!"
 end
 
 function item:onWorldUse(target)

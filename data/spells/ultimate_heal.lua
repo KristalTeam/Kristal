@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "UltimatHeal"
+    -- Name displayed when cast (optional)
+    self.cast_name = "ULTIMATEHEAL"
 
     -- Battle description
     self.effect = "Best\nhealing"
@@ -14,15 +16,11 @@ function spell:init()
     -- TP cost
     self.cost = 100
 
-    -- Target mode (party, enemy, or none/nil)
-    self.target = "party"
+    -- Target mode (ally, party, enemy, enemies, or none)
+    self.target = "ally"
 
     -- Tags that apply to this spell
     self.tags = {"heal"}
-end
-
-function spell:getCastMessage(user, target)
-    return "* "..user.chara.name.." cast ULTIMATEHEAL!"
 end
 
 function spell:onCast(user, target)

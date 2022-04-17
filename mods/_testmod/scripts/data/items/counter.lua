@@ -67,7 +67,7 @@ function item:onBattleDeselect(user, target)
 end
 
 function item:getBattleText(user, target)
-    return "* "..user.chara.name.." checked the "..self:getUseName().."!"
+    return "* "..user.chara:getName().." checked the "..self:getUseName().."!"
 end
 
 return item

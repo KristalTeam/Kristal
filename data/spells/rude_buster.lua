@@ -5,6 +5,8 @@ function spell:init()
 
     -- Display name
     self.name = "Rude Buster"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = "Rude\nDamage"
@@ -14,7 +16,7 @@ function spell:init()
     -- TP cost
     self.cost = 50
 
-    -- Target mode (party, enemy, or none/nil)
+    -- Target mode (ally, party, enemy, enemies, or none)
     self.target = "enemy"
 
     -- Tags that apply to this spell
@@ -22,7 +24,7 @@ function spell:init()
 end
 
 function spell:getCastMessage(user, target)
-    return "* "..user.chara.name.." used RUDE BUSTER!"
+    return "* "..user.chara:getName().." used "..self:getCastName().."!"
 end
 
 function spell:onCast(user, target)

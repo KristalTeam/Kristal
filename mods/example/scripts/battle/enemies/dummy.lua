@@ -79,7 +79,7 @@ function Dummy:onAct(battler, name)
             return
         else
             -- Text for any other character (like Noelle)
-            return "* "..battler.chara.name.." straightened the\ndummy's hat."
+            return "* "..battler.chara:getName().." straightened the\ndummy's hat."
         end
     end
 

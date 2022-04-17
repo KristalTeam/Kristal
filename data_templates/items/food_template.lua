@@ -27,8 +27,8 @@ function item:init()
     -- Whether the item can be sold
     self.can_sell = true
 
-    -- Consumable target mode (party, enemy, noselect, or none/nil)
-    self.target = "party"
+    -- Consumable target mode (ally, party, enemy, enemies, or none)
+    self.target = "ally"
     -- Where this item can be used (world, battle, all, or none/nil)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed

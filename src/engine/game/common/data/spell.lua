@@ -3,6 +3,8 @@ local Spell = Class()
 function Spell:init()
     -- Display name
     self.name = "Test Spell"
+    -- Name displayed when cast (optional)
+    self.cast_name = nil
 
     -- Battle description
     self.effect = ""
@@ -12,19 +14,27 @@ function Spell:init()
     -- TP cost
     self.cost = 0
 
-    -- Target mode (party, enemy, or none/nil)
-    self.target = nil
+    -- Target mode (ally, party, enemy, enemies, or none)
+    self.target = "none"
 
     -- Tags that apply to this spell
     self.tags = {}
 end
 
-function Spell:getCastMessage(user, target)
-    return "* "..user.chara.name.." cast "..self.name:upper().."!"
-end
+function Spell:getName() return self.name end
+function Spell:getCastName() return self.cast_name or self:getName():upper() end
+
+function Spell:getDescription() return self.description end
+function Spell:getBattleDescription() return self.effect end
+
+function Spell:getTPCost() return self.cost end
 
 function Spell:hasTag(tag)
     return Utils.containsValue(self.tags, tag)
+end
+
+function Spell:getCastMessage(user, target)
+    return "* "..user.chara:getName().." cast "..self:getCastName().."!"
 end
 
 function Spell:onCast(user, target)

@@ -89,7 +89,7 @@ function Virovirokun:onShortAct(battler, name)
         if battler.chara.id == "kris" then
             return "* You told Virovirokun to stay home."
         else
-            return "* " .. battler.chara.name .. " told Virovirokun to stay home."
+            return "* " .. battler.chara:getName() .. " told Virovirokun to stay home."
         end
     elseif name == "Standard" then
         self:addMercy(50)
@@ -135,7 +135,7 @@ function Virovirokun:onAct(battler, name)
             Game.battle:startActCutscene("virovirokun", "cook_susie")
         else
             self:addMercy(20)
-            return "* "..battler.chara.name.." cooked up a cure!"
+            return "* "..battler.chara:getName().." cooked up a cure!"
         end
         return
     elseif name == "Standard" then

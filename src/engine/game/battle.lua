@@ -473,7 +473,7 @@ function Battle:onStateChange(old,new)
 
                 if battler.chara.id == "noelle" then
                     -- Hardcoded for now ,??
-                    stronger = battler.chara.name
+                    stronger = battler.chara:getName()
                 end
             end
 
@@ -757,7 +757,7 @@ function Battle:processAction(action)
                         end
                     end
                     if found_spell then
-                        text = {text, "* (Try using "..party.chara.name.."'s [color:blue]"..found_spell.name:upper().."[color:reset]!)"}
+                        text = {text, "* (Try using "..party.chara:getName().."'s [color:blue]"..found_spell:getCastName().."[color:reset]!)"}
                         break
                     end
                 end
@@ -1088,8 +1088,20 @@ function Battle:powerAct(spell, battler, user, target)
         tp = 0
     }
 
-    local name = user_battler.chara.name
-    if user == "ralsei" then
+    if target == nil then
+        if spell.target == "ally" then
+            target = user_battler
+        elseif spell.target == "party" then
+            target = self.party
+        elseif spell.target == "enemy" then
+            target = self:getActiveEnemies()[1]
+        elseif spell.target == "enemies" then
+            target = self:getActiveEnemies()
+        end
+    end
+
+    local name = user_battler.chara:getName()
+    if name == "Ralsei" then
         -- deltarune inconsistency lol
         name = "RALSEI"
     end
@@ -2141,10 +2153,14 @@ function Battle:keypressed(key)
                         self:setState("XACTENEMYSELECT", "SPELL")
                     elseif not menu_item.data.target or menu_item.data.target == "none" then
                         self:commitAction("SPELL", nil, menu_item)
+                    elseif menu_item.data.target == "ally" then
+                        self:setState("PARTYSELECT", "SPELL")
                     elseif menu_item.data.target == "enemy" then
                         self:setState("ENEMYSELECT", "SPELL")
                     elseif menu_item.data.target == "party" then
-                        self:setState("PARTYSELECT", "SPELL")
+                        self:commitAction("SPELL", self.party, menu_item)
+                    elseif menu_item.data.target == "enemies" then
+                        self:commitAction("SPELL", self:getActiveEnemies(), menu_item)
                     end
                 end
                 return
