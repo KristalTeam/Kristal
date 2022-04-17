@@ -119,6 +119,7 @@ DarkSaveMenu = require("src.engine.game.world.ui.darksavemenu")
 DarkStorageMenu = require("src.engine.game.world.ui.darkstoragemenu")
 HealthBar = require("src.engine.game.world.ui.healthbar")
 OverworldActionBox = require("src.engine.game.world.ui.overworldactionbox")
+Shopbox = require("src.engine.game.world.ui.shopbox")
 
 Event = require("src.engine.game.world.event")
 Readable = require("src.engine.game.world.events.readable")

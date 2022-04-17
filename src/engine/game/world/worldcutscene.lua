@@ -11,6 +11,8 @@ function WorldCutscene:init(group, id, ...)
     self.choicebox = nil
     self.choice = 0
 
+    self.shopbox = nil
+
     self.moving_chars = {}
 
     self.camera_target = nil
@@ -451,6 +453,21 @@ function WorldCutscene:startEncounter(encounter, transition, enemy, wait)
         return waitForEncounter
     else
         self:wait(waitForEncounter)
+    end
+end
+
+function WorldCutscene:showShop()
+    if self.shopbox then self.shopbox:remove() end
+
+    self.shopbox = Shopbox()
+    self.shopbox.layer = WORLD_LAYERS["textbox"]
+    Game.stage:addChild(self.shopbox)
+end
+
+function WorldCutscene:hideShop()
+    if self.shopbox then
+        self.shopbox:remove()
+        self.shopbox = nil
     end
 end
 
