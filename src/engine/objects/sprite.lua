@@ -266,11 +266,33 @@ end
 function Sprite:draw()
     if self.texture then
         if self.wrap_texture_x or self.wrap_texture_y then
-            self.texture:setWrap(self.wrap_texture_x and "repeat" or "clamp", self.wrap_texture_y and "repeat" or "clamp")
-            local quad = love.graphics.newQuad(-self.x, -self.y, self.width, self.height, self.texture:getWidth(), self.texture:getHeight())
-            love.graphics.draw(self.texture, quad, -self.x / self.scale_x, -self.y / self.scale_y)
-            quad:release()
-            self.texture:setWrap("clamp", "clamp")
+            local screen_l, screen_u = love.graphics.inverseTransformPoint(0, 0)
+            local screen_r, screen_d = love.graphics.inverseTransformPoint(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+            local x1, y1 = math.min(screen_l, screen_r), math.min(screen_u, screen_d)
+            local x2, y2 = math.max(screen_l, screen_r), math.max(screen_u, screen_d)
+
+            local x_offset = math.floor(x1 / self.texture:getWidth()) * self.texture:getWidth()
+            local y_offset = math.floor(y1 / self.texture:getHeight()) * self.texture:getHeight()
+
+            local wrap_width = math.ceil((x2 - x_offset) / self.texture:getWidth())
+            local wrap_height = math.ceil((y2 - y_offset) / self.texture:getHeight())
+
+            if self.wrap_texture_x and self.wrap_texture_y then
+                for i = 1, wrap_width do
+                    for j = 1, wrap_height do
+                        love.graphics.draw(self.texture, x_offset + (i-1) * self.texture:getWidth(), y_offset + (j-1) * self.texture:getHeight())
+                    end
+                end
+            elseif self.wrap_texture_x then
+                for i = 1, wrap_width do
+                    love.graphics.draw(self.texture, x_offset + (i-1) * self.texture:getWidth(), 0)
+                end
+            elseif self.wrap_texture_y then
+                for j = 1, wrap_height do
+                    love.graphics.draw(self.texture, 0, y_offset + (j-1) * self.texture:getHeight())
+                end
+            end
         else
             love.graphics.draw(self.texture)
         end
