@@ -541,6 +541,28 @@ function Utils.startsWith(value, prefix)
     return false, value
 end
 
+function Utils.endsWith(value, suffix)
+    if type(value) == "string" then
+        if value:sub(-#suffix) == suffix then
+            return true, value:sub(1, -#suffix - 1)
+        else
+            return false, value
+        end
+    elseif type(value) == "table" then
+        if #value >= #suffix then
+            local copy = Utils.copy(value)
+            for i = #value, 1, -1 do
+                if suffix[#suffix + (i - #value)] ~= copy[i] then
+                    return false, value
+                end
+                table.remove(copy, i)
+            end
+            return true, copy
+        end
+    end
+    return false, value
+end
+
 function Utils.absoluteToLocalPath(prefix, image, path)
     local current_path = Utils.split(path, "/")
     local tileset_path = Utils.split(image, "/")

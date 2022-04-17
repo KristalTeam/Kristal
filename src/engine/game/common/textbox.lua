@@ -80,17 +80,18 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.reaction_instances = {}
 
     self.text:registerCommand("face", function(text, node)
-        if self.actor and self.actor.portrait_path then
-            self.face.path = self.actor.portrait_path
+        if self.actor and self.actor:getPortraitPath() then
+            self.face.path = self.actor:getPortraitPath()
         end
         self:setFace(node.arguments[1], tonumber(node.arguments[2]), tonumber(node.arguments[3]))
     end)
     self.text:registerCommand("facec", function(text, node)
         self.face.path = "face"
         local ox, oy = tonumber(node.arguments[2]), tonumber(node.arguments[3])
-        if self.actor and self.actor.portrait_offset then
-            ox = (ox or 0) - self.actor.portrait_offset[1]
-            oy = (oy or 0) - self.actor.portrait_offset[2]
+        if self.actor then
+            local actor_ox, actor_oy = self.actor:getPortraitOffset()
+            ox = (ox or 0) - actor_ox
+            oy = (oy or 0) - actor_oy
         end
         self:setFace(node.arguments[1], ox, oy)
     end)
@@ -128,8 +129,8 @@ function Textbox:setActor(actor)
     end
     self.actor = actor
 
-    if self.actor and self.actor.portrait_path then
-        self.face.path = self.actor.portrait_path
+    if self.actor and self.actor:getPortraitPath() then
+        self.face.path = self.actor:getPortraitPath()
     else
         self.face.path = "face"
     end
@@ -138,9 +139,10 @@ end
 function Textbox:setFace(face, ox, oy)
     self.face:setSprite(face)
 
-    if self.actor and self.actor.portrait_offset then
-        ox = (ox or 0) + self.actor.portrait_offset[1]
-        oy = (oy or 0) + self.actor.portrait_offset[2]
+    if self.actor then
+        local actor_ox, actor_oy = self.actor:getPortraitOffset()
+        ox = (ox or 0) + actor_ox
+        oy = (oy or 0) + actor_oy
     end
     self.face:setPosition(self.face_x + (ox or 0), self.face_y + (oy or 0))
 
@@ -223,14 +225,14 @@ function Textbox:setText(text, callback)
     self.reaction_instances = {}
     self.text.font = self.font
     self.text.font_size = self.font_size
-    if self.actor and self.actor.voice then
+    if self.actor and self.actor:getVoice() then
         if type(text) ~= "table" then
             text = {text}
         else
             text = Utils.copy(text)
         end
         for i,line in ipairs(text) do
-            text[i] = "[voice:"..self.actor.voice.."]"..line
+            text[i] = "[voice:"..self.actor:getVoice().."]"..line
         end
         self.text:setText(text, callback or self.advance_callback)
     else

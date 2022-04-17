@@ -1,7 +1,7 @@
 local FrozenEnemy, super = Class(Readable)
 
 function FrozenEnemy:init(actor, x, y, properties)
-    super:init(self, {"* (It's frozen solid...)"}, x, y, actor.width, actor.height)
+    super:init(self, {"* (It's frozen solid...)"}, x, y, actor:getSize())
 
     properties = properties or {}
 
@@ -18,8 +18,7 @@ function FrozenEnemy:init(actor, x, y, properties)
 
     self.actor = actor
 
-    local hitbox = self.actor.hitbox or {0, 0, self.actor.width, self.actor.height}
-    self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
+    self.collider = Hitbox(self, self.actor:getHitbox())
 
     self.solid = properties and properties["solid"] or false
 

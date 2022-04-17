@@ -475,8 +475,8 @@ function EnemyBattler:setActor(actor)
         self.actor = actor
     end
 
-    self.width = self.actor.width
-    self.height = self.actor.height
+    self.width = self.actor:getWidth()
+    self.height = self.actor:getHeight()
 
     if self.sprite         then self:removeChild(self.sprite)         end
     if self.overlay_sprite then self:removeChild(self.overlay_sprite) end

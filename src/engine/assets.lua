@@ -18,6 +18,7 @@ function Assets.clear()
         music = {},
     }
     self.frames_for = {}
+    self.texture_ids = {}
     self.sounds = {}
     self.sound_instances = {}
 end
@@ -55,6 +56,7 @@ function Assets.parseData(data)
     -- thread can't create images, we do it here
     for key,image_data in pairs(data.texture_data) do
         self.data.texture[key] = love.graphics.newImage(image_data)
+        self.texture_ids[self.data.texture[key]] = key
     end
 
     -- create frame tables with images
@@ -126,6 +128,14 @@ end
 
 function Assets.getTextureData(path)
     return self.data.texture_data[path]
+end
+
+function Assets.getTextureID(texture)
+    if type(texture) == "string" then
+        return texture
+    else
+        return self.texture_ids[texture]
+    end
 end
 
 function Assets.getFrames(path)

@@ -5,7 +5,7 @@ function Character:init(actor, x, y)
         actor = Registry.createActor(actor)
     end
 
-    super:init(self, x, y, actor.width, actor.height)
+    super:init(self, x, y, actor:getSize())
 
     self.actor = actor
     self.facing = "down"
@@ -19,8 +19,7 @@ function Character:init(actor, x, y)
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    local hitbox = self.actor.hitbox or {0, 0, actor.width, actor.height}
-    self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
+    self.collider = Hitbox(self, self.actor:getHitbox())
 
     self.last_collided_x = false
     self.last_collided_y = false
@@ -77,11 +76,10 @@ function Character:setActor(actor)
 
     self.actor = actor
 
-    self.width = actor.width
-    self.height = actor.height
+    self.width = actor:getWidth()
+    self.height = actor:getHeight()
 
-    local hitbox = self.actor.hitbox or {0, 0, actor.width, actor.height}
-    self.collider = Hitbox(self, hitbox[1], hitbox[2], hitbox[3], hitbox[4])
+    self.collider = Hitbox(self, self.actor:getHitbox())
 
     if self.sprite then
         self.sprite:remove()
@@ -97,9 +95,6 @@ end
 function Character:setFacing(dir)
     self.facing = dir
     self.sprite.facing = dir
-    --[[if not self.sprite.directional and not self.actor.flip then
-        self.sprite:resetSprite()
-    end]]
 end
 
 function Character:moveTo(x, y, keep_facing)

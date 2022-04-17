@@ -211,8 +211,8 @@ function Battle:postInit(state, encounter)
             end
 
             local ox, oy = battler.chara:getBattleOffset()
-            target_x = target_x + (battler.actor.width/2 + ox) * 2
-            target_y = target_y + (battler.actor.height  + oy) * 2
+            target_x = target_x + (battler.actor:getWidth()/2 + ox) * 2
+            target_y = target_y + (battler.actor:getHeight()  + oy) * 2
             table.insert(self.battler_targets, {target_x, target_y})
         end
         if Game.encounter_enemies then
@@ -252,8 +252,8 @@ function Battle:postInit(state, encounter)
             end
 
             local ox, oy = battler.chara:getBattleOffset()
-            battler.x = battler.x + (battler.actor.width/2 + ox) * 2
-            battler.y = battler.y + (battler.actor.height  + oy) * 2
+            battler.x = battler.x + (battler.actor:getWidth()/2 + ox) * 2
+            battler.y = battler.y + (battler.actor:getHeight()  + oy) * 2
 
             table.insert(self.battler_targets, {battler.x, battler.y})
         end

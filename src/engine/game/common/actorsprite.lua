@@ -15,7 +15,7 @@ function ActorSprite:init(actor)
     self.directional = false
     self.dir_sep = "_"
 
-    super:init(self, "", 0, 0, actor.width, actor.height, actor.path)
+    super:init(self, "", 0, 0, actor:getWidth(), actor:getHeight(), actor:getSpritePath())
 
     self:resetSprite()
 
@@ -41,14 +41,12 @@ function ActorSprite:init(actor)
 end
 
 function ActorSprite:resetSprite()
-    if self.actor.default then
-        self:set(self.actor.default)
-    elseif self.actor.default_anim then
-        self:setAnimation(self.actor.default_anim)
-    elseif self.actor.default_sprite then
-        self:setSprite(self.actor.default_sprite)
+    if self.actor:getDefaultAnim() then
+        self:setAnimation(self.actor:getDefaultAnim())
+    elseif self.actor:getDefaultSprite() then
+        self:setSprite(self.actor:getDefaultSprite())
     else
-        self:set("")
+        self:set(self.actor:getDefault())
     end
 end
 
@@ -63,7 +61,7 @@ function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
 end
 
 function ActorSprite:set(name, callback)
-    if self.actor.animations[name] then
+    if self.actor:getAnimation(name) then
         self:setAnimation(name, callback)
     else
         self:setSprite(name)
@@ -74,7 +72,7 @@ function ActorSprite:set(name, callback)
 end
 
 function ActorSprite:setSprite(texture, keep_anim)
-    self.path = self.actor.path or ""
+    self.path = self.actor:getSpritePath()
     self.force_offset = nil
     self:_setSprite(texture, keep_anim)
 end
@@ -105,7 +103,7 @@ function ActorSprite:setAnimation(anim, callback)
     local last_sprite = self.sprite
     self.anim = anim
     if type(anim) == "string" then
-        anim = self.actor.animations[anim]
+        anim = self.actor:getAnimation(anim)
     end
     if anim then
         if type(anim) == "function" then
@@ -117,7 +115,7 @@ function ActorSprite:setAnimation(anim, callback)
             if type(anim.next) == "table" then
                 anim.next = Utils.pick(anim.next)
             end
-            if self.actor.animations[anim.next] then
+            if self.actor:getAnimation(anim.next) then
                 anim.callback = function(s) s:setAnimation(anim.next) end
             else
                 anim.callback = function(s) s:setSprite(anim.next) end
@@ -148,11 +146,13 @@ function ActorSprite:setAnimation(anim, callback)
 end
 
 function ActorSprite:canTalk()
-    if self.actor.talk_sprites[self.sprite] then
-        return true, self.actor.talk_sprites[self.sprite]
-    else
-        return false, 0.25
+    local options = self.actor:parseSpriteOptions(self.texture_path, true)
+    for _,sprite in ipairs(options) do
+        if self.actor:hasTalkSprite(sprite) then
+            return true, self.actor:getTalkSpeed(sprite)
+        end
     end
+    return false, 0.25
 end
 
 function ActorSprite:updateDirection()
@@ -185,11 +185,18 @@ function ActorSprite:getOffset()
     if self.force_offset then
         offset = self.force_offset
     else
-        local frames_for = Assets.getFramesFor(self.full_sprite)
+        local options = self.actor:parseSpriteOptions(self.texture_path)
+        for _,sprite in ipairs(options) do
+            if self.actor:hasOffset(sprite) then
+                offset = {self.actor:getOffset(sprite)}
+                break
+            end
+        end
+        --[[local frames_for = Assets.getFramesFor(self.full_sprite)
         local frames_for_dir = self.directional and Assets.getFramesFor(self:getDirectionalPath(self.full_sprite))
         offset = self.offsets[self.sprite] or (frames_for and self.offsets[frames_for]) or
             (self.directional and (self.offsets[self:getDirectionalPath(self.sprite)] or (frames_for_dir and self.offsets[frames_for_dir])))
-            or {0, 0}
+            or {0, 0}]]
     end
     if self.shake_x ~= 0 or self.shake_y ~= 0 then
         return {offset[1] + math.ceil(self.shake_x), offset[2] + math.ceil(self.shake_y)}
@@ -199,10 +206,10 @@ function ActorSprite:getOffset()
 end
 
 function ActorSprite:update(dt)
-    if self.actor.flip then
+    if self.actor:getFlipDirection() then
         if not self.directional then
-            local opposite = self.actor.flip == "right" and "left" or "right"
-            if self.facing == self.actor.flip then
+            local opposite = self.actor:getFlipDirection() == "right" and "left" or "right"
+            if self.facing == self.actor:getFlipDirection() then
                 self.flip_x = true
             elseif self.facing == opposite then
                 self.flip_x = false

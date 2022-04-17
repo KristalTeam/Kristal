@@ -121,7 +121,7 @@ function Mod:onKeyPressed(key)
                     player.flip_x = facing == "left"
                     player:setSprite(player.actor.battle.attack)
                     player:play(1/15, false, function()
-                        player:setSprite(player.actor.default)
+                        player:setSprite(player.actor:getDefault())
                         player.flip_x = last_flipped
 
                         Game.lock_input = false

@@ -4,7 +4,7 @@ function PartyBattler:init(chara, x, y)
     self.chara = chara
     self.actor = chara:getActor()
 
-    super:init(self, x, y, self.actor.width, self.actor.height)
+    super:init(self, x, y, self.actor:getSize())
 
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "right"
@@ -152,8 +152,8 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
 
     self:setCustomSprite(sprite, ox, oy, speed, loop, after)
 
-    local x = self.x - (self.actor.width/2 + ox) * 2
-    local y = self.y - (self.actor.height + oy) * 2
+    local x = self.x - (self.actor:getWidth()/2 + ox) * 2
+    local y = self.y - (self.actor:getHeight() + oy) * 2
     local flash = FlashFade(sprite, x, y)
     flash:setOrigin(0, 0)
     flash:setScale(self:getScale())

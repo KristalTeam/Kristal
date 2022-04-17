@@ -42,8 +42,8 @@ return function(cutscene, event, player, facing)
 
         local offset = event.sprite:getOffset()
 
-        local flash_x = event.x - (event.actor.width / 2 + offset[1]) * 2
-        local flash_y = event.y - (event.actor.height + offset[2]) * 2
+        local flash_x = event.x - (event.actor:getWidth() / 2 + offset[1]) * 2
+        local flash_y = event.y - (event.actor:getHeight() + offset[2]) * 2
 
         local flash = FlashFade("npcs/starwalker/starwalker_wings", flash_x, flash_y)
         flash.flash_speed = 0.5

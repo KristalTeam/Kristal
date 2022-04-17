@@ -6,7 +6,7 @@ function SmallFaceText:init(text, face, x, y, actor)
     self.alpha = 0
 
     if face and face ~= "" then
-        self.sprite = Sprite(face, 40, 0, nil, nil, actor and actor.portrait_path or "")
+        self.sprite = Sprite(face, 40, 0, nil, nil, actor and actor:getPortraitPath() or "")
         self.sprite.inherit_color = true
         self:addChild(self.sprite)
     end

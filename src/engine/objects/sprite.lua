@@ -82,6 +82,7 @@ function Sprite:setTextureExact(texture)
     else
         self.texture = texture
     end
+    self.texture_path = Assets.getTextureID(texture)
     if self.use_texture_size then
         if self.texture then
             self.width = self.texture:getWidth()
