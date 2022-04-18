@@ -14,10 +14,11 @@ function DarkTransitionParticle:init(x, y)
 end
 
 function DarkTransitionParticle:update(dt)
-    self.vspeed = self.vspeed - (self.friction * (dt * 30))
-    self:move(self.hspeed * (dt * 30), self.vspeed * (dt * 30))
+    self.vspeed = self.vspeed - (self.friction * DTMULT)
+    -- Divide by two, since this is drawn at 320x240 in DR
+    self:move((self.hspeed * DTMULT) / 2, (self.vspeed * DTMULT) / 2)
 
-    self.image_alpha = self.image_alpha - 0.05
+    self.image_alpha = self.image_alpha - 0.05 * DTMULT
     if (self.image_alpha <= 0) then
         self:remove()
     end

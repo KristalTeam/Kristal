@@ -153,6 +153,15 @@ function Assets.getFramesFor(texture)
     end
 end
 
+function Assets.getFramesOrTexture(path)
+    local texture = Assets.getTexture(path)
+    if texture then
+        return {texture}
+    else
+        return Assets.getFrames(path)
+    end
+end
+
 function Assets.getSound(sound)
     return self.sounds[sound]
 end

@@ -50,6 +50,12 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
 
         self.text_x = 0
         self.text_y = 0
+    elseif Game:isLight() then
+        self.face_x = 13
+        self.face_y = 6
+
+        self.text_x = 2
+        self.text_y = -2
     else
         self.face_x = 18
         self.face_y = 6

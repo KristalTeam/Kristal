@@ -162,6 +162,8 @@ function DarkTransition:init(loading_callback, end_callback, final_y, options)
 
     self.black_fade = 1
     self.waiting = false
+
+    self.particle_timer = 1
 end
 
 function DarkTransition:onAddToStage(stage)
@@ -652,6 +654,12 @@ function DarkTransition:draw()
             end
         end
         if (self.timer >= 4) then
+            local particle_amount = 0
+            while self.particle_timer >= 1 do
+                particle_amount = particle_amount + 1
+                self.particle_timer = self.particle_timer - 1
+            end
+            self.particle_timer = self.particle_timer + DTMULT
             if (self.susie_top > 2) then
                 self.susie_top = self.susie_top - 0.5 * DTMULT
                 if (self.quick_mode) then
@@ -665,7 +673,9 @@ function DarkTransition:draw()
                 local x = ((self.susie_x + 3) + math.random((self.susie_width - 6)))
                 local y = (self.susie_y + self.susie_top)
 
-                self:addChild(DarkTransitionParticle(x, y))
+                for _ = 1, particle_amount do
+                    self:addChild(DarkTransitionParticle(x, y))
+                end
             end
             if (self.kris_top > 5) then
                 self.kris_top = self.kris_top - 0.5 * DTMULT
@@ -679,7 +689,9 @@ function DarkTransition:draw()
                 local x = ((self.kris_x + 3) + math.random((self.kris_width - 6)))
                 local y = (self.kris_y + self.kris_top)
 
-                self:addChild(DarkTransitionParticle(x, y))
+                for _ = 1, particle_amount do
+                    self:addChild(DarkTransitionParticle(x, y))
+                end
             end
         end
         self.threshold = 130

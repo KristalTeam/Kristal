@@ -360,8 +360,12 @@ function WorldCutscene:text(text, portrait, actor, options)
         self.choicebox = nil
     end
 
+    local width, height = 529, 103
+    if Game:isLight() then
+        width, height = 530, 104
+    end
 
-    self.textbox = Textbox(56, 344, 529, 103)
+    self.textbox = Textbox(56, 344, width, height)
     self.textbox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.textbox)
 
