@@ -513,7 +513,7 @@ end
 
 function World:loadMap(map, ...)
     if self.map then
-        self.map:unload()
+        self.map:onExit()
     end
 
     for _,child in ipairs(self.children) do

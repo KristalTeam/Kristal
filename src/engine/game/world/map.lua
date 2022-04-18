@@ -63,9 +63,9 @@ function Map:load()
         self:addTileLayer(0)
     end
 end
-function Map:unload() end
 
 function Map:onEnter() end
+function Map:onExit() end
 
 function Map:onFootstep(char, num) end
 

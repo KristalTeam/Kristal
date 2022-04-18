@@ -15,8 +15,8 @@ return function(cutscene, event, player, facing)
                 Game.gold = Game.gold - 1
                 Assets.playSound("snd_locker")
 
-                local fx = shopbox:addFX(ColorMaskFX({1, 1, 1}, 1))
-                Game.stage.timer:tween(1.2, fx, {amount = 0}, "out-quad", function()
+                local fx = shopbox:addFX(ColorMaskFX({1, 1, 0}, 0.5))
+                Game.stage.timer:tween(1, fx, {amount = 0}, "out-quad", function()
                     shopbox:removeFX(fx)
                 end)
 
