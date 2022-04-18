@@ -327,10 +327,14 @@ function Object:setSpeed(x, y)
     end
 end
 function Object:getSpeed()
-    if self.speed ~= 0 then
-        return self.speed
+    if self.physics then
+        if self.physics.speed ~= 0 then
+            return self.physics.speed
+        else
+            return self.physics.speed_x, self.physics.speed_y
+        end
     else
-        return self.speed_x, self.speed_y
+        return 0
     end
 end
 
