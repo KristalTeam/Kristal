@@ -73,6 +73,7 @@ function Text:resetState()
         progress = 1,
         current_node = 1,
         typing = true,
+        talk_anim = true,
         speed = 1,
         waiting = 0,
         skipping = false,

@@ -5,16 +5,40 @@ return function(cutscene, event, player, facing)
     local susie = cutscene:getCharacter("susie")
     local ralsei = cutscene:getCharacter("ralsei")
 
+    if Game.gold <= 0 and not event.interacted then
+        cutscene:showShop()
+        local shopbox = cutscene.shopbox
+        cutscene:text("* Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1s]", {functions = {
+            remove = function()
+                Game.gold = Game.gold - 1
+                Assets.playSound("snd_locker")
+
+                local fx = shopbox:addFX(ColorMaskFX({1, 1, 1}, 1))
+                Game.stage.timer:tween(1, fx, {amount = 0}, "out-quad", function()
+                    shopbox:removeFX(fx)
+                end)
+            end
+        }})
+        cutscene:hideShop()
+        return
+    end
+
     if not event.interacted then
         event.interacted = true
         cutscene:showShop()
+        cutscene:setSpeaker(event)
         cutscene:text("* These [color:yellow]bananas[color:reset] are [color:yellow]Pissing[color:reset] me\noff...")
-        cutscene:text("* I'm the original   [color:yellow]Starwalker[color:reset][react:1][wait:5][react:2][wait:5][react:3][wait:5][react:sussy]", {reactions={
+        while Game.gold > 0 do
+            Game.gold = math.floor(Utils.lerp(Game.gold, 0, 0.33))
+            cutscene:wait(1/30)
+        end
+        cutscene:text("* I'm the original   [color:yellow]Starwalker[color:reset][talk:false][react:1][wait:5][react:2][wait:5][react:3][wait:5][react:sussy]", {reactions={
             {"susie", "surprise", "left", "bottom", "BottomLeft"},
             {"ralsei", "blush", "right", "top", "RightTop"},
             {"noelle", "smile", "mid", "mid", "MidMid"},
             sussy = {"susie", "surprise", "right", "bottommid", "Right BottomMid"},
         }})
+        cutscene:setSpeaker()
         cutscene:hideShop()
         cutscene:wait(0.25)
         Assets.playSound("snd_save")
@@ -23,7 +47,7 @@ return function(cutscene, event, player, facing)
         cutscene:text("* (The original   [color:yellow]Starwalker[color:reset]      \n   somehow saved your game...)")
     else
         Game.world.music:stop()
-        cutscene:text("* [color:yellow]You[color:reset] are [color:yellow]Pissing[color:reset] me off...")
+        cutscene:text("* [color:yellow]You[color:reset] are [color:yellow]Pissing[color:reset] me off...", nil, event)
         cutscene:text("* I,[wait:5] uh,[wait:5] what?", "sus_nervous", "susie")
         cutscene:text("* Well,[wait:5] hey,[wait:5] you know\nwhat?", "annoyed", "susie")
         cutscene:text("* You piss us off too.", "smirk", "susie")
@@ -60,5 +84,7 @@ return function(cutscene, event, player, facing)
 
         cutscene:keepFollowerPositions()
         cutscene:attachFollowers()
+
+        event.interacted = false
     end
 end

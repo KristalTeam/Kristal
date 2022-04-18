@@ -1,6 +1,6 @@
 local DialogueText, super = Class(Text)
 
-DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func"}
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk"}
 
 function DialogueText:init(text, x, y, w, h, font, style)
     self.custom_command_wait = {}
@@ -13,7 +13,7 @@ function DialogueText:init(text, x, y, w, h, font, style)
     self.skippable = true
     self.skip_speed = false
     self.talk_sprite = nil
-    self.last_typing = false
+    self.last_talking = false
     self.functions = {}
     self.text_table = text
 
@@ -64,7 +64,7 @@ function DialogueText:setText(text, callback)
 
     self.text_index = 1
 
-    self.last_typing = false
+    self.last_talking = false
 
     self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(self.text)
@@ -161,18 +161,18 @@ function DialogueText:update(dt)
         end)
     end
 
-    self:updateTalkSprite(self.state.typing)
+    self:updateTalkSprite(self.state.talk_anim and self.state.typing)
 
     super:update(self, dt)
 
-    self.last_typing = self.state.typing
+    self.last_talking = self.state.talk_anim and self.state.typing
 end
 
 function DialogueText:updateTalkSprite(typing)
     if self.talk_sprite then
         local can_talk, talk_speed = true, 0.25
         if self.talk_sprite:includes(ActorSprite) then
-            if typing and not self.last_typing then
+            if typing and not self.last_talking then
                 self.talk_sprite.actor:onTalkStart(self, self.talk_sprite)
             end
             can_talk, talk_speed = self.talk_sprite:canTalk()
@@ -180,11 +180,17 @@ function DialogueText:updateTalkSprite(typing)
         if can_talk then
             if typing and not self.talk_sprite.playing then
                 self.talk_sprite:play(talk_speed, true)
-            elseif self.last_typing and not typing and self.talk_sprite.playing then
-                self.talk_sprite:stop()
+            elseif self.last_talking and not typing then
+                if self.talk_sprite.playing then
+                    self.talk_sprite:stop()
+                end
                 if self.talk_sprite:includes(ActorSprite) then
                     self.talk_sprite.actor:onTalkEnd(self, self.talk_sprite)
                 end
+            end
+        elseif self.last_talking and not typing then
+            if self.talk_sprite:includes(ActorSprite) then
+                self.talk_sprite.actor:onTalkEnd(self, self.talk_sprite)
             end
         end
     end
@@ -287,6 +293,8 @@ function DialogueText:processModifier(node)
             end
             self.functions[func](self, unpack(args))
         end
+    elseif node.command == "talk" then
+        self.state.talk_anim = self:isTrue(node.arguments[1])
     end
 end
 

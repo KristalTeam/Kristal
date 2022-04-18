@@ -7,6 +7,7 @@ function WorldCutscene:init(group, id, ...)
 
     self.textbox = nil
     self.textbox_actor = nil
+    self.textbox_speaker = nil
 
     self.choicebox = nil
     self.choice = 0
@@ -234,11 +235,25 @@ function WorldCutscene:attachCameraImmediate()
     Game.world:updateCamera()
 end
 
-function WorldCutscene:setSpeaker(actor)
+function WorldCutscene:setSpeaker(actor, talk)
     if isClass(actor) and actor:includes(Character) then
-        actor = actor.actor
+        if talk ~= false then
+            self.textbox_speaker = actor.sprite
+        end
+        self.textbox_actor = actor.actor
+    elseif type(actor) == "string" and talk ~= false then
+        local chara = self:getCharacter(actor)
+        if chara then
+            self.textbox_speaker = chara.sprite
+            self.textbox_actor = chara.actor
+        else
+            self.textbox_speaker = nil
+            self.textbox_actor = actor
+        end
+    else
+        self.textbox_speaker = nil
+        self.textbox_actor = actor
     end
-    self.textbox_actor = actor
 end
 
 local function waitForCameraPan(self) return self.camera_target == nil end
@@ -334,6 +349,8 @@ function WorldCutscene:text(text, portrait, actor, options)
         portrait = nil
     end
 
+    options = options or {}
+
     if self.textbox then
         self.textbox:remove()
     end
@@ -348,13 +365,24 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.textbox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.textbox)
 
+    local speaker = self.textbox_speaker
+    if not speaker and isClass(actor) and actor:includes(Character) then
+        speaker = actor.sprite
+    end
+
+    if options["talk"] ~= false then
+        self.textbox.text.talk_sprite = speaker
+    end
+
     actor = actor or self.textbox_actor
+    if isClass(actor) and actor:includes(Character) then
+        actor = actor.actor
+    end
     if actor then
         self.textbox:setActor(actor)
     end
 
     -- TODO: change textbox position depending on player position
-    options = options or {}
     if options["top"] then
        local bx, by = self.textbox:getBorder()
        self.textbox.y = by + 2

@@ -146,7 +146,7 @@ function ActorSprite:setAnimation(anim, callback)
 end
 
 function ActorSprite:canTalk()
-    local options = self.actor:parseSpriteOptions(self.texture_path, true)
+    local options = self.actor:parseSpriteOptions(self.texture_path)
     for _,sprite in ipairs(options) do
         if self.actor:hasTalkSprite(sprite) then
             return true, self.actor:getTalkSpeed(sprite)

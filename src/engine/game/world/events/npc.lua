@@ -27,6 +27,7 @@ function NPC:onInteract(player, dir)
         return true
     elseif #self.text > 0 then
         self.world:startCutscene(function(cutscene)
+            cutscene:setSpeaker(self, true)
             for _,line in ipairs(self.text) do
                 cutscene:text(line)
             end
