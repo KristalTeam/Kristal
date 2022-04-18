@@ -33,7 +33,9 @@ function DarkBox:draw()
     for i = 1, 4 do
         local cx, cy = self.corners[i][1] * self.width, self.corners[i][2] * self.height
         local sprite = self.corner[math.floor(self.frame)]
-        love.graphics.draw(sprite, cx, cy, (i - 1) * (math.pi / 2), 2, 2, sprite:getWidth(), sprite:getHeight())
+        local width  = 2 * ((self.corners[i][1] * 2) - 1) * -1
+        local height = 2 * ((self.corners[i][2] * 2) - 1) * -1
+        love.graphics.draw(sprite, cx, cy, 0, width, height, sprite:getWidth(), sprite:getHeight())
     end
 
     super:draw(self)
