@@ -4,22 +4,58 @@ return function(cutscene, event, player, facing)
     local kris = cutscene:getCharacter("kris")
     local susie = cutscene:getCharacter("susie")
     local ralsei = cutscene:getCharacter("ralsei")
+    local noelle = cutscene:getCharacter("noelle")
 
     if Game.gold <= 0 and not event.interacted then
         cutscene:showShop()
         local shopbox = cutscene.shopbox
-        cutscene:text("* Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1s]", {functions = {
+        Game.world.music:pause()
+        cutscene:text("* Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1.2s]", {functions = {
             remove = function()
                 Game.gold = Game.gold - 1
                 Assets.playSound("snd_locker")
 
                 local fx = shopbox:addFX(ColorMaskFX({1, 1, 1}, 1))
-                Game.stage.timer:tween(1, fx, {amount = 0}, "out-quad", function()
+                Game.stage.timer:tween(1.2, fx, {amount = 0}, "out-quad", function()
                     shopbox:removeFX(fx)
                 end)
+
+                Game.world.fader:fadeIn(nil, {speed = 0.8, color = {1, 1, 1}, alpha = 1})
+
+                kris:setSprite("fell")
+                susie:setSprite("fell")
+                if ralsei then ralsei:setSprite("splat") end
+                if noelle then
+                    noelle:setSprite("collapsed")
+                    noelle.sprite.flip_x = true
+                end
             end
         }})
         cutscene:hideShop()
+        cutscene:wait(0.5)
+        if noelle then
+            noelle.sprite.flip_x = false
+            noelle:resetSprite()
+            noelle:shake(4)
+            Assets.playSound("snd_wing")
+            cutscene:wait(0.5)
+        end
+        if ralsei then
+            ralsei:resetSprite()
+            ralsei:shake(4)
+            Assets.playSound("snd_wing")
+            cutscene:wait(0.5)
+        end
+        susie:resetSprite()
+        susie:shake(4)
+        Assets.playSound("snd_wing")
+        cutscene:wait(0.5)
+        kris:resetSprite()
+        kris:shake(4)
+        Assets.playSound("snd_wing")
+        cutscene:wait(0.1)
+        Game.world.music:resume()
+        cutscene:wait(0.4)
         return
     end
 
