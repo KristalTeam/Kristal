@@ -500,9 +500,7 @@ function World:attachFollowersImmediate()
         follower.following = true
 
         follower:updateIndex()
-
-        local tx, ty = follower:getTargetPosition()
-        follower:setPosition(tx, ty)
+        follower:moveToTarget()
     end
 end
 

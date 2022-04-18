@@ -48,8 +48,13 @@ function Follower:updateIndex()
 end
 
 function Follower:returnToFollowing(speed)
-    self.returning = true
-    self.return_speed = speed or 6
+    local tx, ty = self:getTargetPosition()
+    if Utils.roughEqual(self.x, tx) and Utils.roughEqual(self.y, ty) then
+        self.following = true
+    else
+        self.returning = true
+        self.return_speed = speed or 6
+    end
 end
 
 function Follower:getTarget()
@@ -77,7 +82,7 @@ function Follower:getTargetPosition()
     return tx, ty, facing, state
 end
 
-function Follower:interprolate(speed)
+function Follower:moveToTarget(speed)
     if self:getTarget() and self:getTarget().history then
         local tx, ty, facing, state = self:getTargetPosition()
         local dx, dy = tx - self.x, ty - self.y
@@ -101,6 +106,16 @@ function Follower:interprolate(speed)
     else
         return 0, 0
     end
+end
+
+function Follower:interpolateHistory()
+    local target = self:getTarget()
+
+    local new_facing = Utils.facingFromAngle(Utils.angle(self.x, self.y, target.x, target.y))
+    self.history = {
+        {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state},
+        {x = self.x, y = self.y, facing = new_facing, time = self.history_time - (self.index * FOLLOW_DELAY), state = self.state}
+    }
 end
 
 function Follower:beginSlide()
@@ -130,7 +145,7 @@ function Follower:updateHistory(dt, moved)
         end
 
         if self.following and not self.move_target then
-            self:interprolate()
+            self:moveToTarget()
         end
     end
 end
@@ -143,7 +158,7 @@ function Follower:update(dt)
     end
 
     if self.returning and not self.move_target then
-        local dx, dy = self:interprolate(self.return_speed)
+        local dx, dy = self:moveToTarget(self.return_speed)
         if dx == 0 and dy == 0 then
             self.returning = false
             self.following = true

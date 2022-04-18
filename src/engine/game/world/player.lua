@@ -114,17 +114,10 @@ function Player:alignFollowers(facing, x, y, dist)
     self:resetFollowerHistory()
 end
 
-function Player:keepFollowerPositions()
-    self.history = {{x = self.x, y = self.y, time = self.history_time}}
+function Player:interpolateFollowers()
     for i,follower in ipairs(Game.world.followers) do
         if follower:getTarget() == self then
-            local new_history = {x = follower.x, y = follower.y, facing = follower.facing, time = self.history_time - (i * FOLLOW_DELAY)}
-            table.insert(self.history, new_history)
-
-            follower.history_time = self.history_time
-            follower.history = {}
-            table.insert(follower.history, self.history[1])
-            table.insert(follower.history, new_history)
+            follower:interpolateHistory()
         end
     end
 end

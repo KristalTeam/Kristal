@@ -121,8 +121,8 @@ function WorldCutscene:alignFollowers(facing, x, y, dist)
     Game.world.player:alignFollowers(facing, x, y, dist)
 end
 
-function WorldCutscene:keepFollowerPositions()
-    Game.world.player:keepFollowerPositions()
+function WorldCutscene:interpolateFollowers()
+    Game.world.player:interpolateFollowers()
 end
 
 function WorldCutscene:resetSprites()

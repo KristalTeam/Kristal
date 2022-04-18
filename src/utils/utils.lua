@@ -269,6 +269,10 @@ function Utils.round(value, to)
     end
 end
 
+function Utils.roughEqual(a, b)
+    return math.abs(a - b) < 0.01
+end
+
 function Utils.clamp(val, min, max)
     return math.max(min, math.min(max, val))
 end

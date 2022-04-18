@@ -82,7 +82,7 @@ return function(cutscene, event, player, facing)
 
         event.sprite:resetSprite()
 
-        cutscene:keepFollowerPositions()
+        cutscene:interpolateFollowers()
         cutscene:attachFollowers()
 
         event.interacted = false
