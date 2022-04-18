@@ -12,34 +12,6 @@ function HealthBar:init()
     self.animation_timer = 0
     self.animate_out = false
 
-    self.selected_submenu = 1
-
-    -- States: MAIN, ITEMMENU, ITEMSELECT, KEYSELECT, PARTYSELECT,
-    -- EQUIPMENU, WEAPONSELECT, REPLACEMENTSELECT, POWERMENU, SPELLSELECT,
-    -- CONFIGMENU, VOLUMESELECT, CONTROLSMENU, CONTROLSELECT
-    self.state = "MAIN"
-    self.heart_sprite = Assets.getTexture("player/heart")
-
-    self.ui_move = Assets.newSound("ui_move")
-    self.ui_select = Assets.newSound("ui_select")
-
-    self.font = Assets.getFont("main")
-    self.action_font = Assets.getFont("smallnumbers")
-
-    self.desc_sprites = {
-        Assets.getTexture("ui/menu/desc/item"),
-        Assets.getTexture("ui/menu/desc/equip"),
-        Assets.getTexture("ui/menu/desc/power"),
-        Assets.getTexture("ui/menu/desc/config")
-    }
-
-    self.buttons = {
-        {Assets.getTexture("ui/menu/btn/item"  ), Assets.getTexture("ui/menu/btn/item_h"  ), Assets.getTexture("ui/menu/btn/item_s"  )},
-        {Assets.getTexture("ui/menu/btn/equip" ), Assets.getTexture("ui/menu/btn/equip_h" ), Assets.getTexture("ui/menu/btn/equip_s" )},
-        {Assets.getTexture("ui/menu/btn/power" ), Assets.getTexture("ui/menu/btn/power_h" ), Assets.getTexture("ui/menu/btn/power_s" )},
-        {Assets.getTexture("ui/menu/btn/config"), Assets.getTexture("ui/menu/btn/config_h"), Assets.getTexture("ui/menu/btn/config_s")}
-    }
-
     self.action_boxes = {}
 
     for index, chara in ipairs(Game.party) do
