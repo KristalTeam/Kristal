@@ -95,6 +95,10 @@ function Battle:init()
     self.arena = nil
     self.soul = nil
 
+    self.music = Music()
+
+    self.resume_world_music = false
+
     self.mask = ArenaMask()
     self:addChild(self.mask)
 
@@ -171,13 +175,9 @@ function Battle:postInit(state, encounter)
         self.encounter = encounter
     end
 
-    if self.encounter.music then
-        self.music = Music()
+    if Game.world.music:isPlaying() then
+        self.resume_world_music = true
         Game.world.music:pause()
-    elseif Game.world.music then
-        self.music = Game.world.music
-    else
-        self.music = Music()
     end
 
     if self.encounter.queued_enemy_spawns then
@@ -495,9 +495,7 @@ function Battle:onStateChange(old,new)
         end
     elseif new == "TRANSITIONOUT" then
         self.battle_ui:transitionOut()
-        if self.music ~= Game.world.music then
-            self.music:fade(0, 20/30)
-        end
+        self.music:fade(0, 20/30)
         self:removeWorldEncounters()
         for _,enemy in ipairs(self.defeated_enemies) do
             local world_chara = self.enemy_world_characters[enemy]
@@ -1526,8 +1524,8 @@ function Battle:returnToWorld()
             end
         end
     end
-    if self.music ~= Game.world.music then
-        self.music:stop()
+    self.music:stop()
+    if self.resume_world_music then
         Game.world.music:resume()
     end
     self:removeWorldEncounters()
