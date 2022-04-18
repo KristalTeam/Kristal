@@ -194,7 +194,7 @@ function World:onStateChange(old, new)
                 self.transition_target.map = self.map
             end
             self.transition_target.shop.transition_target = self.transition_target
-            self:transitionMusic()
+            self:transitionMusic("", true)
         end
         Game.fader:transition(function()
             self:transitionImmediate(self.transition_target or {})
@@ -558,23 +558,17 @@ function World:loadMap(map, ...)
     self:updateCamera()
 end
 
-function World:transitionMusic(next, dont_play)
+function World:transitionMusic(next, fade_out)
     if next and next ~= "" then
         if self.music.current ~= next then
-            if self.music:isPlaying() then
-                self.music:fade(0, 10/30, function()
-                    if not dont_play then
-                        self.music:play(next, 1)
-                    else
-                        self.music:stop()
-                    end
-                end)
-            elseif not dont_play then
+            if self.music:isPlaying() and fade_out then
+                self.music:fade(0, 10/30, function() self.music:stop() end)
+            elseif not fade_out then
                 self.music:play(next, 1)
             end
         else
             if not self.music:isPlaying() then
-                if not dont_play then
+                if not fade_out then
                     self.music:play(next, 1)
                 end
             else
@@ -583,7 +577,11 @@ function World:transitionMusic(next, dont_play)
         end
     else
         if self.music:isPlaying() then
-            self.music:fade(0, 10/30, function() self.music:stop() end)
+            if fade_out then
+                self.music:fade(0, 10/30, function() self.music:stop() end)
+            else
+                self.music:stop()
+            end
         end
     end
 end
