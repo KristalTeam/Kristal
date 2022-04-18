@@ -953,6 +953,12 @@ function Battle:finishActionBy(battler)
     end
 end
 
+function Battle:finishAllActions()
+    for _,action in ipairs(self.current_actions) do
+        self:finishAction(action)
+    end
+end
+
 function Battle:allActionsDone()
     for _,action in ipairs(self.current_actions) do
         if not self.processed_action[action] then
@@ -1836,6 +1842,11 @@ function Battle:updateTransitionOut(dt)
 end
 
 function Battle:updateAttacking(dt)
+    if self.cancel_attack then
+        self:finishAllActions()
+        self:setState("ACTIONSDONE")
+        return
+    end
     if not self.attack_done then
         if #self.battle_ui.attack_boxes == 0 then
             self.battle_ui:beginAttack()

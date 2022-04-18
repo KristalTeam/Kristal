@@ -90,6 +90,7 @@ function BattleUI:beginAttack()
 end
 
 function BattleUI:endAttack()
+    Game.battle.cancel_attack = false
     for _,box in ipairs(self.attack_boxes) do
         box:remove()
     end
