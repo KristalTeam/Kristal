@@ -27,7 +27,7 @@ function Spell:getCastName() return self.cast_name or self:getName():upper() end
 function Spell:getDescription() return self.description end
 function Spell:getBattleDescription() return self.effect end
 
-function Spell:getTPCost() return self.cost end
+function Spell:getTPCost(chara) return self.cost end
 
 function Spell:hasTag(tag)
     return Utils.containsValue(self.tags, tag)

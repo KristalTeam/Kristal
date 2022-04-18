@@ -27,6 +27,14 @@ function spell:getCastMessage(user, target)
     return "* "..user.chara:getName().." used "..self:getCastName().."!"
 end
 
+function spell:getTPCost(chara)
+    local cost = super:getTPCost(self, chara)
+    if chara and chara:checkWeapon("devilsknife") then
+        cost = cost - 10
+    end
+    return cost
+end
+
 function spell:onCast(user, target)
     local buster_finished = false
     local anim_finished = false

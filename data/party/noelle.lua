@@ -111,7 +111,9 @@ function character:init()
 end
 
 function character:getTitle()
-    if self:getFlag("iceshocks_used", 0) > 0 then
+    if self:checkWeapon("thornring") then
+        return "LV"..self.level.." Ice Trancer\nReceives pain to\nbecome stronger."
+    elseif self:getFlag("iceshocks_used", 0) > 0 then
         return "LV"..self.level.." Frostmancer\nFreezes the enemy."
     else
         return "LV1 "..self.title

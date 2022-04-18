@@ -433,6 +433,18 @@ end
 function Character:update(dt)
     self.actor:onWorldUpdate(self, dt)
 
+    local party_member = self:getPartyMember()
+    if party_member then
+        if party_member:getWeapon() then
+            party_member:getWeapon():onWorldUpdate(self, dt)
+        end
+        for i = 1, 2 do
+            if party_member:getArmor(i) then
+                party_member:getArmor(i):onWorldUpdate(self, dt)
+            end
+        end
+    end
+
     local target = self.move_target
     if target then
         if self.x == target.x and self.y == target.y then

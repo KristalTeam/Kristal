@@ -110,7 +110,6 @@ function Inventory:removeItem(item)
             end
         end
     end
-    print(item.id, stored.storage, stored.index)
     return self:removeItemFrom(stored.storage, stored.index)
 end
 

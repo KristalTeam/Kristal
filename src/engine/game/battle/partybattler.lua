@@ -178,6 +178,19 @@ function PartyBattler:setSprite(sprite, speed, loop, after)
 end
 
 function PartyBattler:update(dt)
+    if self.actor then
+        self.actor:onBattleUpdate(self, dt)
+    end
+
+    if self.chara:getWeapon() then
+        self.chara:getWeapon():onBattleUpdate(self, dt)
+    end
+    for i = 1, 2 do
+        if self.chara:getArmor(i) then
+            self.chara:getArmor(i):onBattleUpdate(self, dt)
+        end
+    end
+
     if self.hurt_timer > 0 then
         self.sprite.x = -self.hurt_timer * 2
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
@@ -186,6 +199,14 @@ function PartyBattler:update(dt)
     end
 
     super:update(self, dt)
+end
+
+function PartyBattler:draw()
+    super:draw(self)
+
+    if self.actor then
+        self.actor:onBattleDraw(self)
+    end
 end
 
 return PartyBattler

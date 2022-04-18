@@ -83,7 +83,7 @@ function ActionButton:select()
             end
             local item = {
                 ["name"] = spell:getName(),
-                ["tp"] = spell:getTPCost(),
+                ["tp"] = spell:getTPCost(self.battler.chara),
                 ["description"] = spell:getBattleDescription(),
                 ["party"] = spell.party,
                 ["color"] = color,

@@ -270,6 +270,21 @@ function PartyMember:setArmor(i, item)
     self.equipped.armor[i] = item
 end
 
+function PartyMember:checkWeapon(id)
+    return self:getWeapon() and self:getWeapon().id == id or false
+end
+
+function PartyMember:checkArmor(id)
+    local result, count = false, 0
+    for i = 1, 2 do
+        if self:getArmor(i) and self:getArmor(i).id == id then
+            result = true
+            count = count + 1
+        end
+    end
+    return result, count
+end
+
 function PartyMember:canEquip(item, slot_type, slot_index)
     if item then
         return item:canEquip(self, slot_type, slot_index)

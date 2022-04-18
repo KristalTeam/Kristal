@@ -44,6 +44,9 @@ end
 function Actor:onWorldUpdate(chara, dt) end
 function Actor:onWorldDraw(chara) end
 
+function Actor:onBattleUpdate(battler, dt) end
+function Actor:onBattleDraw(battler) end
+
 function Actor:onTalkStart(text, sprite) end
 function Actor:onTalkEnd(text, sprite) end
 

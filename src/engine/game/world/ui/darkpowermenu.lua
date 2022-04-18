@@ -210,7 +210,7 @@ function DarkPowerMenu:drawSpells()
         local offset = i - self.scroll_y
 
         love.graphics.setColor(0.5, 0.5, 0.5)
-        love.graphics.print(tostring(spell:getTPCost()).."%", tp_x, tp_y + (offset * 25))
+        love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
         love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 

@@ -23,6 +23,14 @@ function spell:init()
     self.tags = {"ice", "fatal", "damage"}
 end
 
+function spell:getTPCost(chara)
+    local cost = super:getTPCost(self, chara)
+    if chara and chara:checkWeapon("thornring") then
+        cost = Utils.round(cost / 2)
+    end
+    return cost
+end
+
 function spell:onCast(user, target)
     local object = SnowGraveSpell(user)
     object.damage = math.ceil(((user.chara:getStat("magic") * 40) + 600))

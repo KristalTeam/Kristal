@@ -1,25 +1,25 @@
-local item, super = Class(Item, "mane_ax")
+local item, super = Class(Item, "ragger2")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "Mane Ax"
+    self.name = "Ragger2"
 
     -- Item type (item, key, weapon, armor)
     self.type = "weapon"
     -- Item icon (for equipment)
-    self.icon = "ui/menu/icon/axe"
+    self.icon = "ui/menu/icon/scarf"
 
     -- Battle description
     self.effect = ""
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Beginner's ax forged from the\nmane of a dragon whelp."
+    self.description = "A sharp and scratchy scarf.\nWorse healing, better attack."
 
     -- Default shop price (sell price is halved)
-    self.price = 80
+    self.price = 250
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -34,22 +34,23 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        attack = 0,
+        attack = 5,
+        magic = -1,
     }
     -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = nil
-    self.bonus_icon = nil
+    self.bonus_name = "Prickly"
+    self.bonus_icon = "ui/menu/icon/up"
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {
-        susie = true,
+        ralsei = true,
     }
 
     -- Character reactions
     self.reactions = {
-        susie = "I'm too GOOD for that.",
-        ralsei = "Ummm... it's a bit big.",
-        noelle = "It... smells nice...",
+        susie = "This is Ralsei's deal.",
+        ralsei = "I'm a prickly prince!",
+        noelle = "(It's like Santa's beard?)",
     }
 end
 

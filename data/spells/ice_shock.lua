@@ -23,6 +23,14 @@ function spell:init()
     self.tags = {"ice", "damage"}
 end
 
+function spell:getTPCost(chara)
+    local cost = super:getTPCost(self, chara)
+    if chara and chara:checkWeapon("thornring") then
+        cost = Utils.round(cost / 2)
+    end
+    return cost
+end
+
 function spell:onCast(user, target)
     user.chara:addFlag("iceshocks_used", 1)
 

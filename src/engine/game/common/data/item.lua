@@ -53,6 +53,8 @@ function Item:init()
     self.flags = {}
 end
 
+--[[ Callbacks ]]--
+
 function Item:onEquip(character) end
 
 function Item:onWorldUse(target) end
@@ -67,8 +69,14 @@ function Item:onMenuClose(menu) end
 function Item:onMenuUpdate(menu, dt) end
 function Item:onMenuDraw(menu) end
 
+-- Only for equipped
+function Item:onWorldUpdate(chara, dt) end
+function Item:onBattleUpdate(battler, dt) end
+
 function Item:onSave(data) end
 function Item:onLoad(data) end
+
+--[[ Getters ]]--
 
 function Item:getName() return self.name end
 function Item:getUseName() return self.use_name or self:getName():upper() end
@@ -101,6 +109,8 @@ end
 function Item:getBattleText(user, target)
     return "* "..user.chara:getName().." used the "..self:getUseName().."!"
 end
+
+--[[ Misc Functions ]]--
 
 function Item:applyGoldBonus(gold)
     return gold
@@ -162,6 +172,8 @@ end
 function Item:addFlag(name, amount)
     self.flags[name] = (self.flags[name] or 0) + (amount or 1)
 end
+
+-- Saving / Loading
 
 function Item:save()
     local data = {
