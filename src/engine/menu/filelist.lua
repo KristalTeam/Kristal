@@ -6,7 +6,7 @@ function FileList:init(menu, mod)
     self.menu = menu
     self.mod = mod
 
-    -- SELECT, COPY, ERASE
+    -- SELECT, COPY, ERASE, TRANSITIONING
     self.state = "SELECT"
 
     self.result_text = nil
@@ -42,7 +42,7 @@ function FileList:getTitle()
     if self.result_text then
         return self.result_text
     end
-    if self.state == "SELECT" then
+    if self.state == "SELECT" or self.state == "TRANSITIONING" then
         return "Please select a file."
     else
         if self.state == "ERASE" then
@@ -84,6 +84,9 @@ function FileList:getSelectedFile()
 end
 
 function FileList:keypressed(key)
+    if self.state == "TRANSITIONING" then
+        return
+    end
     if self.focused_button then
         local button = self.focused_button
         if Input.is("cancel", key) then
@@ -117,6 +120,7 @@ function FileList:keypressed(key)
                 self.ui_select:stop()
                 self.ui_select:play()
                 if button.selected_choice == 1 then
+                    self:setState("TRANSITIONING")
                     Kristal.loadMod(self.mod.id, self.selected_y)
                 elseif button.selected_choice == 2 then
                     button:setChoices()
@@ -409,7 +413,7 @@ function FileList:draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print(title, 80, 60)
 
-    if self.state == "SELECT" then
+    if self.state == "SELECT" or self.state == "TRANSITIONING" then
         love.graphics.setColor(0, 0, 0)
         love.graphics.print("Copy", 108+2, 380+2)
         setColor(1, 4)

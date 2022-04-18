@@ -7,7 +7,7 @@ DarkTransition.SPRITE_DEPENDENCIES = {
     "party/susie/dark_transition"
 }
 
-function DarkTransition:init(loading_callback, end_callback, final_y, options)
+function DarkTransition:init(final_y, options)
     super:init(self)
 
     options = options or {}
@@ -15,8 +15,9 @@ function DarkTransition:init(loading_callback, end_callback, final_y, options)
     self:setScale(2, 2)
     self:setParallax(0, 0)
 
-    self.loading_callback = loading_callback
-    self.end_callback = end_callback
+    self.loading_callback = nil
+    self.land_callback = nil
+    self.end_callback = nil
 
     self.animation_active = true
 
@@ -57,7 +58,7 @@ function DarkTransition:init(loading_callback, end_callback, final_y, options)
     if self.kris_only == nil then self.kris_only = false end
     if self.has_head_object == nil then self.has_head_object = false end
 
-    self.final_y = (final_y / 2) or 60
+    self.final_y = final_y or (SCREEN_HEIGHT / 2)
     self.sparkles  = options["sparkles"] or 0
 
     self.sparestar = Assets.getFrames("effects/spare/star")
@@ -861,7 +862,7 @@ function DarkTransition:draw()
                 local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
                 sound:play()
             end]]--
-            if (self.susie_y >= self.final_y - self.susie_height) then
+            if (self.susie_y >= (self.final_y / 2) - self.susie_height) then
                 -- Since our final_y is configurable, play the sound here
                 Assets.playSound("snd_dtrans_flip")
 
@@ -887,8 +888,8 @@ function DarkTransition:draw()
                 self.con = 34
                 self.timer = 0
                 self.velocity = 0
-                self.kris_y = self.final_y - self.kris_sprite.height
-                self.susie_y = self.final_y - (self.kris_only and 0 or self.susie_sprite.height)
+                self.kris_y  = (self.final_y / 2) - self.kris_sprite.height
+                self.susie_y = (self.final_y / 2) - (self.kris_only and 0 or self.susie_sprite.height)
                 self.getup_index = 0
                 self.fake_screenshake = 1
                 self.fake_shakeamount = 8
@@ -896,6 +897,10 @@ function DarkTransition:draw()
                 self.remkrisy = self.kris_y
                 self.remsusx  = self.susie_x
                 self.remsusy  = self.susie_y
+
+                if self.land_callback then
+                    self.land_callback(self)
+                end
             end
         end
     end

@@ -43,24 +43,7 @@ function Game:enter(previous_state, save_id, save_name)
     self.started = true
     self.lock_input = false
 
-    if previous_state == Kristal.States["DarkTransition"] then
-        self.started = false
-
-        local px, py = self.world.player:getScreenPos()
-        local kx, ky = previous_state.kris_sprite:localToScreenPos(previous_state.kris_width / 2, 0)
-
-        previous_state.final_y = py / 2
-
-        self.world.player:setScreenPos(kx, py)
-        self.world.player.visible = false
-
-        if not previous_state.kris_only and self.world.followers[1] then
-            local sx, sy = previous_state.susie_sprite:localToScreenPos(previous_state.susie_width / 2, 0)
-
-            self.world.followers[1]:setScreenPos(sx, py)
-            self.world.followers[1].visible = false
-        end
-    elseif Kristal.getModOption("encounter") then
+    if Kristal.getModOption("encounter") then
         self:encounter(Kristal.getModOption("encounter"), false)
     elseif Kristal.getModOption("shop") then
         self:enterShop(Kristal.getModOption("shop"))

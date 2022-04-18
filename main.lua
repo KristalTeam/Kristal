@@ -707,6 +707,10 @@ function Kristal.returnToMenu()
     Gamestate.switch({})
     -- Clear the mod
     Kristal.clearModState()
+    -- Remove anything on the stage
+    for _,object in ipairs(Kristal.Stage.children) do
+        object:remove()
+    end
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
@@ -845,37 +849,49 @@ function Kristal.loadMod(id, save_id, save_name, after)
         -- Preload assets for the transition
         Registry.initialize(true)
 
-        if Kristal.Stage then
+        local final_y = 320
 
-            local final_y = 320
-
-            Kristal.loadModAssets(mod.id, "sprites", DarkTransition.SPRITE_DEPENDENCIES, function()
-                -- LOADING CALLBACK
-                local transition = DarkTransition(function(transition)
-                    Kristal.loadModAssets(mod.id, "all", "", function()
-                        transition:resumeTransition()
-                        if Kristal.preInitMod(mod.id) then
-                            Gamestate.switch(Kristal.States["Game"], save_id)
-                        end
-                    end)
-                end, function(transition)
-                    -- END CALLBACK 
-                    if Game and Game.world and Game.world.player then
-
-                        local kx, ky = transition.kris_sprite:localToScreenPos(transition.kris_width / 2, 0)
-
-                        Game.world.player:setScreenPos(kx, final_y)
-                        Game.world.player.visible = true
-
-
+        Kristal.loadModAssets(mod.id, "sprites", DarkTransition.SPRITE_DEPENDENCIES, function()
+            local transition = DarkTransition()
+            transition.loading_callback = function()
+                Kristal.loadModAssets(mod.id, "all", "", function()
+                    transition:resumeTransition()
+                    if Kristal.preInitMod(mod.id) then
+                        Gamestate.switch(Kristal.States["Game"], save_id)
+                        local px, py = Game.world.player:getScreenPos()
+                        transition.final_y = py
                     end
-                end, final_y)
-                transition.layer = 1000
-                Kristal.Stage:addChild(transition)
-            end)
-        else
-            Assets.playSound("ui_cant_select")
-        end
+                end)
+            end
+            transition.land_callback = function()
+                if Game and Game.world and Game.world.player then
+                    local kx, ky = transition.kris_sprite:localToScreenPos(transition.kris_width / 2, 0)
+                    -- Hardcoded offsets for now...
+                    Game.world.player:setScreenPos(kx - 2, transition.final_y - 2)
+                    Game.world.player.visible = false
+                    Game.world.player:setFacing("down")
+
+                    if not transition.kris_only and Game.world.followers[1] then
+                        local sx, sy = transition.susie_sprite:localToScreenPos(transition.susie_width / 2, 0)
+                        Game.world.followers[1]:setScreenPos(sx - 2, transition.final_y - 2)
+                        Game.world.followers[1].visible = true
+                        Game.world.followers[1]:interpolateHistory()
+                        Game.world.followers[1]:setFacing("down")
+                    end
+                end
+            end
+            transition.end_callback = function()
+                if Game and Game.world and Game.world.player then
+                    Game.world.player.visible = true
+                    if not transition.kris_only and Game.world.followers[1] then
+                        Game.world.followers[1].visible = true
+                    end
+                end
+            end
+
+            transition.layer = 1000
+            Kristal.Stage:addChild(transition)
+        end)
     end
 end
 

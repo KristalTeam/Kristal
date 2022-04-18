@@ -10,7 +10,7 @@ function Testing:update(dt)
     self.frame = self.frame + 1
 
     if Input.pressed("confirm") then
-        self.stage:addChild(DarkTransition(nil, nil, 240, {has_head_object = true}))
+        self.stage:addChild(DarkTransition(240, {has_head_object = true}))
     end
 
     self.stage:update(dt)
