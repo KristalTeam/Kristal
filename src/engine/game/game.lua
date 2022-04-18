@@ -30,6 +30,8 @@ function Game:enter(previous_state, save_id, save_name)
 
     Kristal.callEvent("init")
 
+    self.lock_input = false
+
     if save_id then
         Kristal.loadGame(save_id)
     else
@@ -41,7 +43,6 @@ function Game:enter(previous_state, save_id, save_name)
     end
 
     self.started = true
-    self.lock_input = false
 
     if Kristal.getModOption("encounter") then
         self:encounter(Kristal.getModOption("encounter"), false)
