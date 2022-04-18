@@ -266,9 +266,12 @@ end
 function BattleCutscene:enemyText(enemies, text, options)
     options = options or {}
     if type(enemies) == "string" then
+        local enemy_id = enemies
         enemies = {}
-        for _,battler in ipairs(Game.party.enemies) do
-            table.insert(enemies, battler)
+        for _,battler in ipairs(Game.battle.enemies) do
+            if battler.id == enemy_id then
+                table.insert(enemies, battler)
+            end
         end
     elseif isClass(enemies) then
         enemies = {enemies}
