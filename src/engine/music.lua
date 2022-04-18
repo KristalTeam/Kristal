@@ -30,6 +30,7 @@ function Music:getPitch()
 end
 
 function Music:play(music, volume, pitch)
+    self.fade_speed = 0
     if music then
         local path = Assets.getMusicPath(music)
         if path then
@@ -78,6 +79,7 @@ function Music:setVolume(volume)
 end
 
 function Music:stop()
+    self.fade_speed = 0
     if self.source then
         self.source:stop()
     end
