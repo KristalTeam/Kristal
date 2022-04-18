@@ -3,7 +3,7 @@ local Choicebox, super = Class(Object)
 function Choicebox:init(x, y, width, height, battle_box)
     super:init(self, x, y, width, height)
 
-    self.box = DarkBox(0, 0, width, height)
+    self.box = UIBox(0, 0, width, height)
     self.box.layer = -1
     self:addChild(self.box)
 

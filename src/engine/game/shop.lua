@@ -151,7 +151,7 @@ function Shop:postInit()
     end
 
     -- Construct the UI
-    self.large_box = DarkBox()
+    self.large_box = UIBox()
     local left, top = self.large_box:getBorder()
     self.large_box:setOrigin(0, 1)
     self.large_box.x = left
@@ -164,7 +164,7 @@ function Shop:postInit()
 
     self:addChild(self.large_box)
 
-    self.left_box = DarkBox()
+    self.left_box = UIBox()
     local left, top = self.left_box:getBorder()
     self.left_box:setOrigin(0, 1)
     self.left_box.x = left
@@ -175,7 +175,7 @@ function Shop:postInit()
 
     self:addChild(self.left_box)
 
-    self.right_box = DarkBox()
+    self.right_box = UIBox()
     local left, top = self.right_box:getBorder()
     self.right_box:setOrigin(1, 1)
     self.right_box.x = SCREEN_WIDTH - left + 1
@@ -186,7 +186,7 @@ function Shop:postInit()
 
     self:addChild(self.right_box)
 
-    self.info_box = DarkBox()
+    self.info_box = UIBox()
     local left, top = self.info_box:getBorder()
     local right_left, right_top = self.right_box:getBorder()
     self.info_box:setOrigin(1, 1)

@@ -29,7 +29,7 @@ function DarkPowerMenu:init()
           ["magic"] = Assets.getTexture("ui/menu/icon/magic"),
    }
 
-    self.bg = DarkBox(0, 0, self.width, self.height)
+    self.bg = UIBox(0, 0, self.width, self.height)
     self.bg.layer = -1
     self:addChild(self.bg)
 

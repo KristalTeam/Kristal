@@ -93,7 +93,7 @@ BattleCutscene = require("src.engine.game.battle.battlecutscene")
 
 Console = require("src.engine.game.console")
 
-DarkBox = require("src.engine.game.common.darkbox")
+UIBox = require("src.engine.game.common.uibox")
 Textbox = require("src.engine.game.common.textbox")
 Choicebox = require("src.engine.game.common.choicebox")
 SmallFaceText = require("src.engine.game.common.smallfacetext")

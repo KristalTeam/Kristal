@@ -12,7 +12,7 @@ function Shopbox:init()
         end
     end
 
-    self.box = DarkBox(0, 0, 201, 57)
+    self.box = UIBox(0, 0, 201, 57)
     self.box.layer = -1
     self:addChild(self.box)
 

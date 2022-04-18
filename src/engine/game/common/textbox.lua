@@ -35,7 +35,7 @@ Textbox.REACTION_Y_BATTLE = {
 function Textbox:init(x, y, width, height, default_font, default_font_size, battle_box)
     super:init(self, x, y, width, height)
 
-    self.box = DarkBox(0, 0, width, height)
+    self.box = UIBox(0, 0, width, height)
     self.box.layer = -1
     self:addChild(self.box)
 

@@ -17,7 +17,7 @@ function DarkConfigMenu:init()
 
     self.tp_sprite = Assets.getTexture("ui/menu/caption_tp")
 
-    self.bg = DarkBox(0, 0, self.width, self.height)
+    self.bg = UIBox(0, 0, self.width, self.height)
     self.bg.layer = -1
     self:addChild(self.bg)
 

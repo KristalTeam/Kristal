@@ -15,7 +15,7 @@ function DarkSaveMenu:init()
     self.heart_sprite = Assets.getTexture("player/heart")
     self.divider_sprite = Assets.getTexture("ui/box/dark/top")
 
-    self.main_box = DarkBox(124, 130, 391, 154)
+    self.main_box = UIBox(124, 130, 391, 154)
     self.main_box.layer = -1
     self:addChild(self.main_box)
 
@@ -25,10 +25,10 @@ function DarkSaveMenu:init()
     self.save_box.visible = false
     self:addChild(self.save_box)
 
-    self.save_header = DarkBox(92, 44, 457, 42)
+    self.save_header = UIBox(92, 44, 457, 42)
     self.save_box:addChild(self.save_header)
 
-    self.save_list = DarkBox(92, 156, 457, 258)
+    self.save_list = UIBox(92, 156, 457, 258)
     self.save_box:addChild(self.save_list)
 
     self.overwrite_box = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -37,7 +37,7 @@ function DarkSaveMenu:init()
     self.overwrite_box.visible = false
     self:addChild(self.overwrite_box)
 
-    self.overwrite_box:addChild(DarkBox(42, 132, 557, 217))
+    self.overwrite_box:addChild(UIBox(42, 132, 557, 217))
 
     -- MAIN, SAVE, SAVED, OVERWRITE
     self.state = "MAIN"

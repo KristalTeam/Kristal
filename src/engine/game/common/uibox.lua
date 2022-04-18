@@ -1,6 +1,6 @@
-local DarkBox, super = Class(Object)
+local UIBox, super = Class(Object)
 
-function DarkBox:init(x, y, width, height, skin)
+function UIBox:init(x, y, width, height, skin)
     super:init(self, x, y, width, height)
 
     self.left_frame   = 0
@@ -18,11 +18,11 @@ function DarkBox:init(x, y, width, height, skin)
     self.speed = 10
 end
 
-function DarkBox:getBorder()
+function UIBox:getBorder()
     return self.left[1]:getWidth()*2, self.top[1]:getHeight()*2
 end
 
-function DarkBox:draw()
+function UIBox:draw()
     self.left_frame   = ((self.left_frame   + (DTMULT / self.speed)) - 1) % #self.left   + 1
     self.top_frame    = ((self.top_frame    + (DTMULT / self.speed)) - 1) % #self.top    + 1
     self.corner_frame = ((self.corner_frame + (DTMULT / self.speed)) - 1) % #self.corner + 1
@@ -54,4 +54,4 @@ function DarkBox:draw()
     super:draw(self)
 end
 
-return DarkBox
+return UIBox

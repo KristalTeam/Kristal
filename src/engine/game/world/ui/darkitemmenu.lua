@@ -14,7 +14,7 @@ function DarkItemMenu:init()
 
     self.heart_sprite = Assets.getTexture("player/heart")
 
-    self.bg = DarkBox(0, 0, self.width, self.height)
+    self.bg = UIBox(0, 0, self.width, self.height)
     self.bg.layer = -1
     self:addChild(self.bg)
 
