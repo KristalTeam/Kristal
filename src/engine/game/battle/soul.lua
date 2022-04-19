@@ -11,6 +11,15 @@ function Soul:init(x, y, color)
 
     self.layer = BATTLE_LAYERS["soul"]
 
+    self.graze_tp_factor   = 1
+    self.graze_time_factor = 1
+    self.graze_size_factor = 1
+    for _,party in ipairs(Game.party) do
+        self.graze_tp_factor   = math.min(3, self.graze_tp_factor   + party:getStat("graze_tp"))
+        self.graze_time_factor = math.min(3, self.graze_time_factor + party:getStat("graze_time"))
+        self.graze_size_factor = math.min(3, self.graze_size_factor + party:getStat("graze_size"))
+    end
+
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)
     self.sprite.inherit_color = true
@@ -19,6 +28,7 @@ function Soul:init(x, y, color)
     self.graze_sprite = GrazeSprite()
     self.graze_sprite:setOrigin(0.5, 0.5)
     self.graze_sprite.inherit_color = true
+    self.graze_sprite.graze_scale = self.graze_size_factor
     self:addChild(self.graze_sprite)
 
     --self.width = self.sprite.width
@@ -26,7 +36,7 @@ function Soul:init(x, y, color)
 
     self.collider = CircleCollider(self, 0, 0, 8)
 
-    self.graze_collider = CircleCollider(self, 0, 0, 25)
+    self.graze_collider = CircleCollider(self, 0, 0, 25 * self.graze_size_factor)
 
     self.original_x = x
     self.original_y = y
@@ -353,18 +363,18 @@ function Soul:update(dt)
         if self.inv_timer == 0 then
             if bullet.tp ~= 0 and bullet:collidesWith(self.graze_collider) then
                 if bullet.grazed then
-                    Game.battle.tension_bar:giveTension(bullet.tp * dt)
+                    Game.battle.tension_bar:giveTension(bullet.tp * dt * self.graze_tp_factor)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
-                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus * (dt / 30))
+                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus * (dt / 30) * self.graze_time_factor)
                     end
                     if self.graze_sprite.timer < 0.1 then
                         self.graze_sprite.timer = 0.1
                     end
                 else
                     Assets.playSound("snd_graze")
-                    Game.battle.tension_bar:giveTension(bullet.tp)
+                    Game.battle.tension_bar:giveTension(bullet.tp * self.graze_tp_factor)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
-                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus / 30)
+                        Game.battle.wave_timer = Game.battle.wave_timer + ((bullet.time_bonus / 30) * self.graze_time_factor)
                     end
                     self.graze_sprite.timer = 1/3
                     bullet.grazed = true

@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = "Holiday\nthemed"
+    self.shop = ""
     -- Menu description
     self.description = "Grazing bullets affects\nthe turn length by 10% more"
 
@@ -34,7 +34,9 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        defense = 2
+        defense = 2,
+
+        graze_time = 0.1,
     }
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = "GrazeTime"

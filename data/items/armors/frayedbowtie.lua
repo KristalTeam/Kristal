@@ -1,25 +1,25 @@
-local item, super = Class(Item, "trefoil")
+local item, super = Class(Item, "frayedbowtie")
 
 function item:init()
     super:init(self)
 
     -- Display name
-    self.name = "Trefoil"
+    self.name = "FrayedBowtie"
 
     -- Item type (item, key, weapon, armor)
-    self.type = "weapon"
+    self.type = "armor"
     -- Item icon (for equipment)
-    self.icon = "ui/menu/icon/sword"
+    self.icon = "ui/menu/icon/armor"
 
     -- Battle description
     self.effect = ""
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Mossy rapier with a clover emblem.\nIncreases $ found by 5%."
+    self.description = "An old bowtie. It seems to have\nlost much of its defensive value."
 
     -- Default shop price (sell price is halved)
-    self.price = 250
+    self.price = 100
     -- Whether the item can be sold
     self.can_sell = true
 
@@ -34,27 +34,25 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        attack = 4,
+        attack = 1,
+        defense = 1,
+        magic = 1,
     }
     -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = "Money Earned UP"
-    self.bonus_icon = "ui/menu/icon/up"
+    self.bonus_name = nil
+    self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {
-        kris = true,
+        susie = false,
     }
 
     -- Character reactions
     self.reactions = {
-        susie = "That tacky thing? No!",
-        ralsei = "Not my shade of green...",
-        noelle = "Okay! ...? What do you mean, unused!?",
+        susie = "Look. I have standards.",
+        ralsei = "It's still wearable!",
+        noelle = "(Reminds me of Asgore...)",
     }
-end
-
-function item:applyGoldBonus(gold)
-    return gold * 1.05
 end
 
 return item

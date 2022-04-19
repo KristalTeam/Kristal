@@ -606,6 +606,22 @@ function Game:movePartyMember(chara, index)
     self:addPartyMember(chara, index)
 end
 
+function Game:checkPartyEquipped(item_id)
+    local success, count = false, 0
+    for _,party in ipairs(self.party) do
+        if party:checkWeapon(item_id) then
+            success = true
+            count = count + 1
+        end
+        local armor_success, armor_count = party:checkArmor(item_id)
+        if armor_success then
+            success = true
+            count = count + armor_count
+        end
+    end
+    return success, count
+end
+
 function Game:getSoulPartyMember()
     local current
     for _,party in ipairs(self.party) do

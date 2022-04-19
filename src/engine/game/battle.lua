@@ -443,7 +443,7 @@ function Battle:onStateChange(old,new)
 
         for _,battler in ipairs(self.party) do
             for _,equipment in ipairs(battler.chara:getEquipment()) do
-                self.gold = (equipment:applyGoldBonus(self.gold) or self.gold)
+                self.gold = math.floor(equipment:applyGoldBonus(self.gold) or self.gold)
             end
         end
 
