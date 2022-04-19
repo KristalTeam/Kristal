@@ -8,10 +8,12 @@ function Script:init(script, x, y, w, h)
     self.script = script
 end
 
-function Script:onEnter(player)
-    self.world:startCutscene(self.script, self, player)
-    self.collidable = false
-    return true
+function Script:onEnter(chara)
+    if chara.is_player then
+        self.world:startCutscene(self.script, self, chara)
+        self:remove()
+        return true
+    end
 end
 
 function Script:draw()
