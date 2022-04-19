@@ -64,7 +64,11 @@ function Mod:preInit()
     end)]]
 end
 
-function Mod:postInit()
+function Mod:postInit(new_file)
+    if new_file then
+        -- Sets the collected shadow crystal counter to 1
+        Game:setFlag("shadow_crystals", 1)
+    end
     -- Cool feature, uncomment for good luck
     -- im so tempted to commit this uncommented but i probably shouldnt oh well
     --[[
@@ -76,6 +80,25 @@ function Mod:postInit()
         Game.world.music:resume()
     end)
     ]]
+end
+
+function Mod:onShadowCrystal(item)
+    if not item:getFlag("seen_horrors") then
+        item:setFlag("seen_horrors", true)
+
+        Game.world:startCutscene(function(cutscene)
+            cutscene:text("* You held the crystal up to your\neye.")
+            cutscene:text("* For some strange reason,[wait:5] for\njust a brief moment...")
+            cutscene:text("* You thought you saw-[wait:3]", {auto = true})
+            Game.world.music:pause()
+            cutscene:text("* What the fuck")
+            Game.world.player:setFacing("down")
+            cutscene:wait(2)
+            Game.world.music:resume()
+            cutscene:text("* ...but,[wait:5] it must've just been\nyour imagination.")
+        end)
+        return true
+    end
 end
 
 function Mod:getActionButtons(battler, buttons)

@@ -18,6 +18,7 @@ end
 function Cutscene:parseFromGetter(getter, cutscene, id, ...)
     self.getter = getter
     if type(cutscene) == "function" then
+        self.id = "<function>"
         return cutscene, {id, ...}
     elseif type(cutscene) == "string" then
         local dotsplit = Utils.split(cutscene, ".")

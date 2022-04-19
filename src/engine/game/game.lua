@@ -555,6 +555,10 @@ function Game:getFlag(flag, default)
     end
 end
 
+function Game:addFlag(flag, amount)
+    self.flags[flag] = (self.flags[flag] or 0) + (amount or 1)
+end
+
 function Game:initPartyMembers()
     self.party_data = {}
     for id,_ in pairs(Registry.party_members) do

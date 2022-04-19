@@ -269,6 +269,14 @@ function Inventory:hasItem(item)
     end
 end
 
+function Inventory:getItemByID(item)
+    for k,v in pairs(self.stored_items) do
+        if k.id == item then
+            return k
+        end
+    end
+end
+
 function Inventory:isFull(storage, allow_fallback)
     allow_fallback = (allow_fallback ~= false) and self.storage_enabled
     if type(storage) == "string" then
