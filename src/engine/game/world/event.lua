@@ -44,6 +44,10 @@ function Event:onEnter(player)
     -- Do stuff when the player enters this object
 end
 
+function Event:onExit(player)
+    -- Do stuff when the player leaves this object
+end
+
 ]]--
 
 function Event:onAdd(parent)

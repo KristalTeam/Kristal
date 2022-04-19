@@ -715,6 +715,7 @@ function World:update(dt)
     if self.state == "GAMEPLAY" then
         -- Object collision
         local collided = {}
+        local exited = {}
         Object.startCache()
         for _,obj in ipairs(self.children) do
             if not obj.solid and (obj.onCollide or obj.onEnter) then
@@ -724,7 +725,7 @@ function World:update(dt)
                             table.insert(collided, {obj, char})
                         end
                     elseif obj.current_colliding and obj.current_colliding[char] then
-                        obj.current_colliding[char] = nil
+                        table.insert(exited, {obj, char})
                     end
                 end
             end
@@ -743,6 +744,12 @@ function World:update(dt)
                 end
                 v[1].current_colliding[v[2]] = true
             end
+        end
+        for _,v in ipairs(exited) do
+            if v[1].onExit then
+                v[1]:onExit(v[2])
+            end
+            v[1].current_colliding[v[2]] = nil
         end
     end
 
