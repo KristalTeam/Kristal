@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "CUT ANYTHING\n2 PIECES!\nCRIMINAL!"
     -- Menu description
     self.description = "A rejected sword cut into 2 pieces.\nNot even you can equip this..."
 
@@ -47,6 +47,11 @@ function item:init()
         ralsei = "Should we fix this...?",
         noelle = "(Wh... why give this to me?)",
     }
+end
+
+function item:getShopDescription()
+    -- Don't automatically add item type
+    return self.shop
 end
 
 return item

@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "Press hilt\nto extend"
     -- Menu description
     self.description = "The blade extends when you press the hilt.\nCHA-CHK!"
 

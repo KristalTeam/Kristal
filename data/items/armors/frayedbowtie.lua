@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "EXCLUSIVE\nOFFICIAL\nSPAMTON"
     -- Menu description
     self.description = "An old bowtie. It seems to have\nlost much of its defensive value."
 
@@ -53,6 +53,11 @@ function item:init()
         ralsei = "It's still wearable!",
         noelle = "(Reminds me of Asgore...)",
     }
+end
+
+function item:getShopDescription()
+    -- Don't automatically add item type
+    return self.shop
 end
 
 return item

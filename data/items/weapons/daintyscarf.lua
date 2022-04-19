@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "Homemade\nHealing up"
     -- Menu description
     self.description = "Delicate scarf that increases healing\npower but has no attack."
 

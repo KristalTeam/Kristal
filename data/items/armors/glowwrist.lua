@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "Made\nof green wires"
     -- Menu description
     self.description = "A tough bracelet made of green wires,\nand studded with sharp glowing lights."
 

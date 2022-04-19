@@ -14,7 +14,7 @@ function item:init()
     -- Battle description
     self.effect = ""
     -- Shop description
-    self.shop = ""
+    self.shop = "A handsome\nbowtie."
     -- Menu description
     self.description = "A handsome bowtie. Looks like the brand\nname has been cut off."
 
