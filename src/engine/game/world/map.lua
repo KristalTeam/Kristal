@@ -428,7 +428,7 @@ function Map:loadObject(name, data)
     end
     -- Kristal object loading
     if name:lower() == "savepoint" then
-        return Savepoint(Readable.parseText(data.properties), data.center_x, data.center_y)
+        return Savepoint(Readable.parseText(data.properties), data.center_x, data.center_y, data.properties.marker)
     elseif name:lower() == "interactscript" then
         return InteractScript(data.properties["cutscene"] or data.properties["scene"], data.x, data.y, data.width, data.height)
     elseif name:lower() == "script" then

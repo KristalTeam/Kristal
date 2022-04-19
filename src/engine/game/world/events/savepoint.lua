@@ -1,7 +1,8 @@
 local Savepoint, super = Class(Readable)
 
-function Savepoint:init(text, x, y)
+function Savepoint:init(text, x, y, marker)
     super:init(self, text, x, y)
+    self.marker = marker
 
     self.solid = true
 
@@ -19,7 +20,7 @@ function Savepoint:onInteract(player, dir)
 end
 
 function Savepoint:onTextEnd()
-    self.world:openMenu(SaveMenu())
+    self.world:openMenu(SaveMenu(self.marker))
     --Assets.playSound("snd_save")
 end
 

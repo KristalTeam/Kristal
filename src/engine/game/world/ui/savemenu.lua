@@ -1,6 +1,6 @@
 local SaveMenu, super = Class(Object)
 
-function SaveMenu:init()
+function SaveMenu:init(marker)
     super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.parallax_x = 0
@@ -38,6 +38,8 @@ function SaveMenu:init()
     self:addChild(self.overwrite_box)
 
     self.overwrite_box:addChild(UIBox(42, 132, 557, 217))
+
+    self.marker = marker
 
     -- MAIN, SAVE, SAVED, OVERWRITE
     self.state = "MAIN"
@@ -139,7 +141,7 @@ function SaveMenu:update(dt)
                 self.state = "SAVED"
 
                 self.saved_file = self.selected_y
-                Kristal.saveGame(self.saved_file)
+                Kristal.saveGame(self.saved_file, Game:save(self.marker))
                 self.saves[self.saved_file] = Kristal.getSaveFile(self.saved_file)
 
                 Assets.playSound("snd_save")
@@ -166,7 +168,7 @@ function SaveMenu:update(dt)
                 self.state = "SAVED"
 
                 self.saved_file = self.selected_y
-                Kristal.saveGame(self.saved_file)
+                Kristal.saveGame(self.saved_file, Game:save(self.marker))
                 self.saves[self.saved_file] = Kristal.getSaveFile(self.saved_file)
 
                 Assets.playSound("snd_save")
