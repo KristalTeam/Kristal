@@ -421,11 +421,14 @@ function Character:statusMessage(type, arg, color, kill)
     return percent
 end
 
-function Character:convertToFollower(index)
+function Character:convertToFollower(index, save)
     local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer
     follower:setFacing(self.facing)
     self.world:spawnFollower(follower, {index = index})
+    if save then
+        table.insert(Game.temp_followers, {follower.actor.id, index})
+    end
     self:remove()
     return follower
 end
