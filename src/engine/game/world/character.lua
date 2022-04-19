@@ -7,6 +7,8 @@ function Character:init(actor, x, y)
 
     super:init(self, x, y, actor:getSize())
 
+    self.is_player = false
+
     self.actor = actor
     self.facing = "down"
 

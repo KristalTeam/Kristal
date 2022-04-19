@@ -3,6 +3,8 @@ local Player, super = Class(Character)
 function Player:init(chara, x, y)
     super:init(self, chara, x, y)
 
+    self.is_player = true
+
     local hx, hy, hw, hh = self.collider.x, self.collider.y, self.collider.width, self.collider.height
 
     self.interact_collider = {
