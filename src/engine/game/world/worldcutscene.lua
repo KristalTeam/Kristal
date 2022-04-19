@@ -483,7 +483,12 @@ function WorldCutscene:choicer(choices, options)
 
     if self.choicebox then self.choicebox:remove() end
 
-    self.choicebox = Choicebox(56, 344, 529, 103)
+    local width, height = 529, 103
+    if Game:isLight() then
+        width, height = 530, 104
+    end
+
+    self.choicebox = Choicebox(56, 344, width, height)
     self.choicebox.layer = WORLD_LAYERS["textbox"]
     Game.stage:addChild(self.choicebox)
 
