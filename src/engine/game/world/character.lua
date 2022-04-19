@@ -100,6 +100,10 @@ function Character:setFacing(dir)
 end
 
 function Character:moveTo(x, y, keep_facing)
+    if type(x) == "string" then
+        keep_facing = y
+        x, y = self.world:getMarker(x)
+    end
     self:move(x - self.x, y - self.y, 1, keep_facing)
 end
 
@@ -219,6 +223,12 @@ function Character:onFootstep(num)
 end
 
 function Character:walkTo(x, y, speed, facing, keep_facing)
+    if type(x) == "string" then
+        keep_facing = facing
+        facing = speed
+        speed = y
+        x, y = self.world.map:getMarker(x)
+    end
     if self.x ~= x or self.y ~= y then
         if facing and keep_facing then
             self:setFacing(facing)
@@ -232,6 +242,12 @@ function Character:walkTo(x, y, speed, facing, keep_facing)
 end
 
 function Character:slideTo(x, y, speed)
+    if type(x) == "string" then
+        keep_facing = facing
+        facing = speed
+        speed = y
+        x, y = self.world.map:getMarker(x)
+    end
     if self.x ~= x or self.y ~= y then
         self:setMoveTarget(false, x, y, speed)
         return true
