@@ -125,7 +125,7 @@ end
 
 function LightMenu:realign()
     local _, player_y = Game.world.player:localToScreenPos()
-    self.top = player_y <= 260
+    self.top = player_y > 260
 
     local offset = 0
     if self.top then

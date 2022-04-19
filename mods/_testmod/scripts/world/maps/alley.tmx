@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="91">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="91">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
  <properties>
+  <property name="light" type="bool" value="false"/>
   <property name="music" value="cybercity"/>
   <property name="name" value="Test City - Sugarplum Alley"/>
  </properties>
