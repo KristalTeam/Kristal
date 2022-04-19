@@ -36,8 +36,12 @@ function Event:onInteract(player, dir)
     return false
 end
 
-function Event:onCollide(player)
-    -- Do stuff when the player collides with this object
+function Event:onCollide(player, dt)
+    -- Do stuff every frame the player collides with the object
+end
+
+function Event:onEnter(player)
+    -- Do stuff when the player enters this object
 end
 
 ]]--

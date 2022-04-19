@@ -15,7 +15,7 @@ function Transition:init(x, y, w, h, properties)
     }
 end
 
-function Transition:onCollide(chara)
+function Transition:onEnter(chara)
     if chara == self.world.player then
         self.world:transition(self.target)
     end

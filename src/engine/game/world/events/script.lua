@@ -8,9 +8,9 @@ function Script:init(script, x, y, w, h)
     self.script = script
 end
 
-function Script:onCollide(player)
+function Script:onEnter(player)
     self.world:startCutscene(self.script, self, player)
-    self:remove()
+    self.collidable = false
     return true
 end
 

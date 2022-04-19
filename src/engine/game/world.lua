@@ -717,19 +717,32 @@ function World:update(dt)
         local collided = {}
         Object.startCache()
         for _,obj in ipairs(self.children) do
-            if not obj.solid and obj.onCollide then
+            if not obj.solid and (obj.onCollide or obj.onEnter) then
                 for _,char in ipairs(self.stage:getObjects(Character)) do
                     if obj:collidesWith(char) then
                         if not obj:includes(OverworldSoul) then
                             table.insert(collided, {obj, char})
                         end
+                    elseif obj.current_colliding and obj.current_colliding[char] then
+                        obj.current_colliding[char] = nil
                     end
                 end
             end
         end
         Object.endCache()
         for _,v in ipairs(collided) do
-            v[1]:onCollide(v[2])
+            if v[1].onCollide then
+                v[1]:onCollide(v[2], dt)
+            end
+            if not v[1].current_colliding then
+                v[1].current_colliding = {}
+            end
+            if not v[1].current_colliding[v[2]] then
+                if v[1].onEnter then
+                    v[1]:onEnter(v[2])
+                end
+                v[1].current_colliding[v[2]] = true
+            end
         end
     end
 
