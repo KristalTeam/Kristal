@@ -124,6 +124,8 @@ DarkStorageMenu = require("src.engine.game.world.ui.dark.darkstoragemenu")
 
 LightMenu = require("src.engine.game.world.ui.light.lightmenu")
 LightItemMenu = require("src.engine.game.world.ui.light.lightitemmenu")
+LightStatMenu = require("src.engine.game.world.ui.light.lightstatmenu")
+LightCellMenu = require("src.engine.game.world.ui.light.lightcellmenu")
 
 Event = require("src.engine.game.world.event")
 Readable = require("src.engine.game.world.events.readable")

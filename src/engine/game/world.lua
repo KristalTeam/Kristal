@@ -54,6 +54,8 @@ function World:init(map)
 
     self.menu = nil
 
+    self.calls = {}
+
     -- Reset keypresses in-case they didn't get wiped on crash
     Input.clearDownPressed()
 
@@ -139,7 +141,7 @@ function World:openMenu(menu, layer)
 end
 
 function World:createMenu()
-    if not self.light then
+    if not Game:isLight() then
         self.menu = DarkMenu()
     else
         self.menu = LightMenu()
@@ -156,6 +158,23 @@ function World:closeMenu()
     end
     self:hideHealthBars()
     self:setState("GAMEPLAY")
+end
+
+
+function World:setCellFlag(name, value)
+    Game:setFlag("lightmenu#cell:" .. name, value)
+end
+
+function World:getCellFlag(name, default)
+    return Game:getFlag("lightmenu#cell:" .. name, default)
+end
+
+function World:registerCall(name, scene)
+    table.insert(self.calls, {name, scene})
+end
+
+function World:replaceCall(name, index, scene)
+    self.calls[index] = {name, scene}
 end
 
 function World:showHealthBars()

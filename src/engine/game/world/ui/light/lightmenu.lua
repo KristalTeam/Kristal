@@ -97,7 +97,7 @@ function LightMenu:onButtonSelect(button)
             self.ui_select:stop()
             self.ui_select:play()
         end
-    --[[elseif button == 2 then
+    elseif button == 2 then
         self.state = "STATMENU"
         Input.consumePress("confirm")
         self.box = LightStatMenu()
@@ -114,7 +114,7 @@ function LightMenu:onButtonSelect(button)
         self:addChild(self.box)
 
         self.ui_select:stop()
-        self.ui_select:play()]]
+        self.ui_select:play()
     end
 end
 
@@ -144,7 +144,7 @@ function LightMenu:draw()
 
     love.graphics.setFont(self.font)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print("Kris", 46, 60 + offset)
+    love.graphics.print(Game.party[1]:getName(), 46, 60 + offset)
 
     love.graphics.setFont(self.font_small)
     love.graphics.print("LV  1",     46, 100 + offset)
