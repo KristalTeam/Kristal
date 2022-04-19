@@ -102,7 +102,7 @@ end
 function Character:moveTo(x, y, keep_facing)
     if type(x) == "string" then
         keep_facing = y
-        x, y = self.world:getMarker(x)
+        x, y = self.world.map:getMarker(x)
     end
     self:move(x - self.x, y - self.y, 1, keep_facing)
 end
@@ -293,13 +293,20 @@ function Character:play(speed, loop, reset, on_finished)
     self.sprite:play(speed, loop, reset, on_finished)
 end
 
-function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
+function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite, ignore_walls)
+    if type(x) == "string" then
+        land_sprite = jump_sprite
+        jump_sprite = time
+        time = speed
+        speed = y
+        x, y = self.world.map:getMarker(x)
+    end
     self.jump_start_x = self.x
     self.jump_start_y = self.y
     self.jump_x = x
     self.jump_y = y
     self.jump_speed = speed or 0
-    self.jump_time = time or 30
+    self.jump_time = time or 1
     self.jump_sprite = jump_sprite
     self.land_sprite = land_sprite
     self.fake_gravity = 0
@@ -318,13 +325,17 @@ function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
     end
     self.drawshadow = false
 
+    if ignore_walls then
+        self.jump_thru_walls = self.collidable
+        self.collidable = false
+    end
 
     self.jumping = true
 end
 
-function Character:processJump()
+function Character:processJump(dt)
     if (not self.init) then
-        self.fake_gravity = (self.jump_speed / (self.jump_time * 0.5))
+        self.fake_gravity = (self.jump_speed / ((self.jump_time*30) * 0.5))
         self.init = true
 
         self.false_end_x = self.jump_x
@@ -370,14 +381,14 @@ function Character:processJump()
         end
     end
     if (self.jump_progress == 1) then
-        self.jump_sprite_timer = self.jump_sprite_timer + 1 * DTMULT
-        if (self.jump_sprite_timer >= 5) then
+        self.jump_sprite_timer = self.jump_sprite_timer + dt
+        if (self.jump_sprite_timer >= 5/30) then
             self.sprite:set(self.jump_sprite) -- TODO: speed should be 0.25
             self.jump_progress = 2
         end
     end
     if (self.jump_progress == 2) then
-        self.jump_timer = self.jump_timer + DTMULT
+        self.jump_timer = self.jump_timer + dt
         self.jump_speed = self.jump_speed - (self.fake_gravity * DTMULT)
         self.jump_arc_y = self.jump_arc_y - (self.jump_speed * DTMULT)
         self.x = Utils.lerp(self.jump_start_x, self.false_end_x, (self.jump_timer / self.jump_time))
@@ -397,13 +408,16 @@ function Character:processJump()
     if (self.jump_progress == 3) then
         if (self.jump_use_sprites) then
             self.sprite:set(self.land_sprite)
-            self.jump_sprite_timer = self.jump_sprite_timer +  DTMULT
+            self.jump_sprite_timer = self.jump_sprite_timer +  dt
         else
-            self.jump_sprite_timer = 10
+            self.jump_sprite_timer = 10/30
         end
-        if (self.jump_sprite_timer >= 5) then
+        if (self.jump_sprite_timer >= 5/30) then
             self.sprite:resetSprite()
             self.jumping = false
+            if self.jump_thru_walls then
+                self.collidable = true
+            end
         end
     end
 end
@@ -492,7 +506,7 @@ function Character:update(dt)
     end
 
     if self.jumping then
-        self:processJump()
+        self:processJump(dt)
     end
 
     if (self.spin_speed ~= 0) then

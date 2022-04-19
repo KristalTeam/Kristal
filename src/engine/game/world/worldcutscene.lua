@@ -218,6 +218,14 @@ function WorldCutscene:slideTo(chara, x, y, speed)
     end
 end
 
+function WorldCutscene:jumpTo(chara, ...)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+    chara:jumpTo(...)
+    return function() return not chara.jumping end
+end
+
 function WorldCutscene:shakeCharacter(chara, x, y)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
