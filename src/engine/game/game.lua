@@ -98,7 +98,7 @@ function Game:save(x, y)
         room_name = self.world and self.world.map and self.world.map.name or "???",
         room_id = self.world and self.world.map and self.world.map.id,
 
-        gold = self.gold,
+        gold = self.money,
         xp = self.xp,
 
         level_up_count = self.level_up_count,
@@ -209,7 +209,7 @@ function Game:load(data, index)
 
     self.level_up_count = data.level_up_count or 0
 
-    self.gold = data.gold or 0
+    self.money = data.money or 0
     self.xp = data.xp or 0
 
     local room_id = data.room_id or Kristal.getModOption("map")

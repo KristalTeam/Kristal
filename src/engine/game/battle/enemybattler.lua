@@ -13,7 +13,7 @@ function EnemyBattler:init(chara)
     self.attack = 1
     self.defense = 0
 
-    self.gold = 0
+    self.money = 0
     self.experience = 0 -- currently useless, maybe in later chapters?
 
     self.tired = false
@@ -447,7 +447,7 @@ function EnemyBattler:freeze()
 
     Game.battle.timer:tween(20/30, self.overlay_sprite, {freeze_progress = 1})
 
-    Game.battle.gold = Game.battle.gold + 24
+    Game.battle.money = Game.battle.money + 24
     self:defeat("FROZEN", true)
 end
 
@@ -462,7 +462,7 @@ function EnemyBattler:defeat(reason, violent)
         Game.battle.used_violence = true
     end
 
-    Game.battle.gold = Game.battle.gold + self.gold
+    Game.battle.money = Game.battle.money + self.money
     Game.battle.xp = Game.battle.xp + self.experience
 
     Game.battle:removeEnemy(self, true)

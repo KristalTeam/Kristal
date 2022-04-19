@@ -13,7 +13,7 @@ function Virovirokun:init()
     self.health = 240
     self.attack = 8
     self.defense = 0
-    self.gold = 84
+    self.money = 84
 
     self.spare_points = 20
 

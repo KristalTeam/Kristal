@@ -14,7 +14,7 @@ function Starwalker:init()
     self.health = 2400
     self.attack = 8
     self.defense = 0
-    self.gold = 123456
+    self.money = 123456
 
     self.spare_points = 0
 

@@ -9,7 +9,7 @@ function Virovirokun:init()
     --self:addEnemy("virovirokun", 560, 262)
 
     self.first_viro = self:addEnemy("virovirokun")
-    self.first_viro.gold = 69
+    self.first_viro.money = 69
 
     for i = 1, 500 do
         self:addEnemy("virovirokun", Utils.random(SCREEN_WIDTH/2) + SCREEN_WIDTH + 80, Utils.random(SCREEN_HEIGHT))

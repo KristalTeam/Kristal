@@ -751,7 +751,7 @@ function Shop:draw()
        self.state == "TALKMENU" then
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(self.font)
-        love.graphics.print(string.format(self.currency_text, Game.gold), 440, 420)
+        love.graphics.print(string.format(self.currency_text, Game.money), 440, 420)
     end
 
     love.graphics.setColor(0, 0, 0, self.fade_alpha)
@@ -1003,12 +1003,12 @@ function Shop:enterSellMenu(sell_data)
 end
 
 function Shop:buyItem(current_item, current_item_data)
-    if (current_item:getBuyPrice() or 0) > Game.gold then
+    if (current_item:getBuyPrice() or 0) > Game.money then
         self.right_text:setText(self.buy_too_expensive_text)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
-        Game.gold = Game.gold - (current_item:getBuyPrice() or 0)
+        Game.money = Game.money - (current_item:getBuyPrice() or 0)
 
         -- Decrement the stock
         if current_item_data[2] then
@@ -1043,7 +1043,7 @@ end
 function Shop:sellItem(current_item)
     -- SELL THE ITEM
     -- Add the gold
-    Game.gold = Game.gold + current_item:getSellPrice()
+    Game.money = Game.money + current_item:getSellPrice()
     Game.inventory:removeItem(current_item)
 
     Assets.playSound("snd_locker")

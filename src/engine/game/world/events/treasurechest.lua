@@ -48,7 +48,7 @@ function TreasureChest:onInteract(player, dir)
             name = self.money.." Dark Dollars"
             success = true
             result_text = "* ([color:yellow]"..name.."[color:reset] was added to\nyour [color:yellow]MONEY HOLE[color:reset].)"
-            Game.gold = Game.gold + self.money
+            Game.money = Game.money + self.money
         end
 
         if name then
