@@ -293,7 +293,7 @@ function Character:play(speed, loop, reset, on_finished)
     self.sprite:play(speed, loop, reset, on_finished)
 end
 
-function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite, ignore_walls)
+function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
     if type(x) == "string" then
         land_sprite = jump_sprite
         jump_sprite = time
@@ -324,11 +324,6 @@ function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite, ignore_wa
         self.jump_use_sprites = true
     end
     self.drawshadow = false
-
-    if ignore_walls then
-        self.jump_thru_walls = self.collidable
-        self.collidable = false
-    end
 
     self.jumping = true
 end
@@ -415,9 +410,6 @@ function Character:processJump(dt)
         if (self.jump_sprite_timer >= 5/30) then
             self.sprite:resetSprite()
             self.jumping = false
-            if self.jump_thru_walls then
-                self.collidable = true
-            end
         end
     end
 end
