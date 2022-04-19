@@ -16,7 +16,7 @@ function Transition:init(x, y, w, h, properties)
 end
 
 function Transition:onEnter(chara)
-    if chara == self.world.player then
+    if chara.is_player then
         self.world:transition(self.target)
     end
 end

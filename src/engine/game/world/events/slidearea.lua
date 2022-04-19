@@ -9,7 +9,7 @@ function SlideArea:init(x, y, w, h)
 end
 
 function SlideArea:onCollide(chara, dt)
-    if chara.y <= self.y and chara:includes(Player) then
+    if chara.y <= self.y and chara.is_player then
         if not self.sliding then
             Assets.stopAndPlaySound("snd_noise")
         end
