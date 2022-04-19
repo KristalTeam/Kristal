@@ -1614,7 +1614,7 @@ end
 
 function Battle:startCutscene(group, id, ...)
     if self.cutscene then
-        error("Attempt to start a cutscene while already in a cutscene.")
+        error("Attempt to start a cutscene "..group.." while already in cutscene "..self.cutscene.id)
     end
     self.cutscene = BattleCutscene(group, id, ...)
     return self.cutscene

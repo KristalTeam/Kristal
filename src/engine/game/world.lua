@@ -275,7 +275,7 @@ end
 
 function World:startCutscene(group, id, ...)
     if self.cutscene and not self.cutscene.ended then
-        error("Attempt to start a cutscene while already in a cutscene.")
+        error("Attempt to start a cutscene "..group.." while already in cutscene "..self.cutscene.id)
     end
     if Game.console.is_open then
         Game.console:close()

@@ -25,6 +25,7 @@ function Cutscene:parseFromGetter(getter, cutscene, id, ...)
             local scene = getter(dotsplit[1], dotsplit[2])
 
             if scene then
+                self.id = cutscene
                 return scene, {id, ...}
             else
                 error("No cutscene found: "..cutscene)
@@ -33,8 +34,10 @@ function Cutscene:parseFromGetter(getter, cutscene, id, ...)
             local scene, grouped = getter(cutscene, id)
             if scene then
                 if grouped then
+                    self.id = cutscene.."."..id
                     return scene, {...}
                 else
+                    self.id = cutscene
                     return scene, {id, ...}
                 end
             else
