@@ -142,8 +142,7 @@ function World:createMenu()
     if not self.light then
         self.menu = DarkMenu()
     else
-        --error("TODO: Light world menu")
-        print("TODO: Light world menu")
+        self.menu = LightMenu()
     end
 end
 
@@ -151,6 +150,8 @@ function World:closeMenu()
     if self.menu then
         if not self.menu.animate_out and self.menu.transitionOut then
             self.menu:transitionOut()
+        elseif (not self.menu.transitionOut) and self.menu.close then
+            self.menu:close()
         end
     end
     self:hideHealthBars()

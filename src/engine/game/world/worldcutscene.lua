@@ -25,7 +25,14 @@ function WorldCutscene:init(group, id, ...)
     Game.lock_input = true
     Game.cutscene_active = true
 
-    Game.world:closeMenu()
+    if Game:isLight() then
+        if Game.world.menu.state == "ITEMMENU" then
+            Game.world.menu:closeBox()
+            Game.world.menu.state = "TEXT"
+        end
+    else
+        Game.world:closeMenu()
+    end
 
     super:init(self, scene, unpack(args))
 end
@@ -83,6 +90,12 @@ function WorldCutscene:onEnd()
 
     if self.choicebox then
         self.choicebox:remove()
+    end
+
+    if Game:isLight() then
+        if Game.world.menu and Game.world.menu.state == "TEXT" then
+            Game.world:closeMenu()
+        end
     end
 
     super:onEnd(self)
@@ -386,7 +399,10 @@ function WorldCutscene:text(text, portrait, actor, options)
         self.textbox:setActor(actor)
     end
 
-    -- TODO: change textbox position depending on player position
+    if options["top"] == nil then
+        local _, player_y = Game.world.player:localToScreenPos()
+        options["top"] = player_y <= 260
+    end
     if options["top"] then
        local bx, by = self.textbox:getBorder()
        self.textbox.y = by + 2
@@ -463,9 +479,13 @@ function WorldCutscene:choicer(choices, options)
     end
 
     options = options or {}
+    if options["top"] == nil then
+        local _, player_y = Game.world.player:localToScreenPos()
+        options["top"] = player_y <= 260
+    end
     if options["top"] then
-       local bx, by = self.choicebox:getBorder()
-       self.choicebox.y = by + 2
+        local bx, by = self.choicebox:getBorder()
+        self.choicebox.y = by + 2
     end
 
     self.choicebox.active = true

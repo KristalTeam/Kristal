@@ -1,6 +1,6 @@
-local DarkSaveMenu, super = Class(Object)
+local SaveMenu, super = Class(Object)
 
-function DarkSaveMenu:init()
+function SaveMenu:init()
     super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.parallax_x = 0
@@ -53,7 +53,7 @@ function DarkSaveMenu:init()
     end
 end
 
-function DarkSaveMenu:updateSaveBoxSize()
+function SaveMenu:updateSaveBoxSize()
     if self.state == "SAVED" then
         self.save_list.height = 210
     else
@@ -61,7 +61,7 @@ function DarkSaveMenu:updateSaveBoxSize()
     end
 end
 
-function DarkSaveMenu:update(dt)
+function SaveMenu:update(dt)
     if self.state == "MAIN" then
         if Input.pressed("cancel") then
             self:remove()
@@ -186,7 +186,7 @@ function DarkSaveMenu:update(dt)
     super:update(self, dt)
 end
 
-function DarkSaveMenu:draw()
+function SaveMenu:draw()
     love.graphics.setFont(self.font)
     if self.state == "MAIN" then
         local data = Game:getSavePreview()
@@ -302,7 +302,7 @@ function DarkSaveMenu:draw()
     end
 end
 
-function DarkSaveMenu:drawSaveFile(index, data, x, y, selected, header)
+function SaveMenu:drawSaveFile(index, data, x, y, selected, header)
     if self.saved_file then
         if self.saved_file == index then
             love.graphics.setColor(1, 1, 0)
@@ -348,4 +348,4 @@ function DarkSaveMenu:drawSaveFile(index, data, x, y, selected, header)
     love.graphics.setColor(1, 1, 1)
 end
 
-return DarkSaveMenu
+return SaveMenu

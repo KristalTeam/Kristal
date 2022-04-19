@@ -19,7 +19,7 @@ function Savepoint:onInteract(player, dir)
 end
 
 function Savepoint:onTextEnd()
-    self.world:openMenu(DarkSaveMenu())
+    self.world:openMenu(SaveMenu())
     --Assets.playSound("snd_save")
 end
 
