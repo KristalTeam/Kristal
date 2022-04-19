@@ -6,6 +6,8 @@ function ChaserEnemy:init(actor, x, y, properties)
     properties = properties or {}
 
     self.encounter = properties["encounter"]
+    self.group = properties["group"]
+
     self.path = properties["path"]
     self.speed = properties["speed"] or 6
 
@@ -51,6 +53,13 @@ function ChaserEnemy:onCollide(player)
                 self.world.encountering_enemy = false
                 Game.lock_input = false
                 Game:encounter(encounter, true, self)
+                for _,enemy in ipairs(self.stage:getObjects(ChaserEnemy)) do
+                    if enemy ~= self and self.group and enemy.group == self.group then
+                        if enemy.remove_on_encounter then
+                            enemy:remove()
+                        end
+                    end
+                end
                 if self.remove_on_encounter then
                     self:remove()
                 end

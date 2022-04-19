@@ -496,7 +496,6 @@ function Battle:onStateChange(old,new)
     elseif new == "TRANSITIONOUT" then
         self.battle_ui:transitionOut()
         self.music:fade(0, 20/30)
-        self:removeWorldEncounters()
         for _,enemy in ipairs(self.defeated_enemies) do
             local world_chara = self.enemy_world_characters[enemy]
             if enemy.done_state == "FROZEN" and world_chara then
@@ -1528,18 +1527,9 @@ function Battle:returnToWorld()
     if self.resume_world_music then
         Game.world.music:resume()
     end
-    self:removeWorldEncounters()
     self:remove()
     Game.battle = nil
     Game.state = "OVERWORLD"
-end
-
-function Battle:removeWorldEncounters()
-    for _,enemy in ipairs(Game.stage:getObjects(ChaserEnemy)) do
-        if enemy.remove_on_encounter and enemy.encounter == self.encounter.id then
-            enemy:remove()
-        end
-    end
 end
 
 function Battle:setActText(text, dont_finish)
