@@ -690,4 +690,8 @@ function Utils.isFacingAngle(facing, angle)
     return false
 end
 
+function Utils.stringInsert(str1, str2, pos)
+    return str1:sub(1, pos) .. str2 .. str1:sub(pos + 1)
+end
+
 return Utils

@@ -125,10 +125,18 @@ end
 
 function Text:textToNodes(input_string)
     -- Very messy function to split text into text nodes.
+
+    local old_state = self.state
+    self:resetState()
+
     local nodes = {}
     local display_text = ""
+    local last_space = -1
+    local last_space_char = -1
+    local last_space_state = nil
     local last_char = ""
     local i = 1
+    local text_width = 0
     while i <= #input_string do
         local current_char = input_string:sub(i,i)
         local leaving_modifier = false
@@ -151,11 +159,13 @@ function Text:textToNodes(input_string)
                     leaving_modifier = true
 
                     if self:isModifier(command) then
-                        table.insert(nodes, {
+                        local new_node = {
                             ["type"] = "modifier",
                             ["command"] = command,
                             ["arguments"] = arguments
-                        })
+                        }
+                        table.insert(nodes, new_node)
+                        self:processNode(new_node)
                     else
                         -- Whoops, invalid modifier. Let's just parse this like normal text...
                         leaving_modifier = false
@@ -174,15 +184,65 @@ function Text:textToNodes(input_string)
         if leaving_modifier then
             leaving_modifier = false
         else
-            table.insert(nodes, {
+            if current_char == " " then
+                last_space = #nodes
+                last_space_char = string.len(display_text)
+                last_space_state = Utils.copy(self.state)
+            end
+            local new_node = {
                 ["type"] = "character",
                 ["character"] = current_char,
-            })
-            display_text = display_text..current_char
+            }
+
+            local dont_add = false
+            local prior_state = Utils.copy(self.state)
+            self:processNode(new_node)
+            if self.state.current_x > self.width then
+                if last_space == -1 then
+                    self.state = prior_state
+                    local newline_node = {
+                        ["type"] = "character",
+                        ["character"] = "\n",
+                    }
+                    table.insert(nodes, newline_node)
+                    display_text = display_text .. "\n"
+                    self:processNode(newline_node)
+                    self:processNode(new_node)
+                else
+                    self.state = last_space_state
+                    local newline_node = {
+                        ["type"] = "character",
+                        ["character"] = "\n",
+                    }
+                    nodes[last_space + 1] = newline_node
+                    self:processNode(newline_node)
+                    display_text = Utils.stringInsert(display_text, "\n", last_space_char + 1)
+                    for i = last_space + 1, #nodes + 1 do
+                        if nodes[i] then
+                            self:processNode(nodes[i])
+                        end
+                    end
+                    if current_char == " " then
+                        dont_add = true
+                    else
+                        dont_add = false
+                        self:processNode(new_node)
+                    end
+                    last_space = -1
+                    last_space_char = -1
+                end
+            end
+
+            if not dont_add then
+                table.insert(nodes, new_node)
+                display_text = display_text..current_char
+            end
         end
         last_char = current_char
         i = i + 1
     end
+
+    self.state = old_state
     return nodes, display_text
 end
 
@@ -430,6 +490,10 @@ function Text:draw()
         love.graphics.draw(self.canvas)
         --love.graphics.setBlendMode("alpha")
     end
+
+    -- Uncomment to view text width:
+    --love.graphics.setColor(1, 0, 0, 1)
+    --love.graphics.line(self.width, 0, self.width, self.height)
 
     super:draw(self)
 end
