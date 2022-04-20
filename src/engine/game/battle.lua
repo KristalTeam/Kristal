@@ -1426,6 +1426,9 @@ function Battle:nextTurn()
     self.turn_count = self.turn_count + 1
     if self.turn_count > 1 then
         self.encounter:onTurnEnd()
+        for _,enemy in ipairs(self:getActiveEnemies()) do
+            enemy:onTurnEnd()
+        end
     end
 
     for _,action in ipairs(self.current_actions) do
@@ -1479,6 +1482,9 @@ function Battle:nextTurn()
     end
 
     self.encounter:onTurnStart()
+    for _,enemy in ipairs(self:getActiveEnemies()) do
+        enemy:onTurnStart()
+    end
 
     self:setState("ACTIONSELECT")
 end

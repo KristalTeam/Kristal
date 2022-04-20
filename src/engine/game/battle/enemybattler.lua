@@ -264,6 +264,11 @@ function EnemyBattler:getEnemyDialogue()
 end
 
 function EnemyBattler:getNextWaves()
+    if self.wave_override then
+        local wave = self.wave_override
+        self.wave_override = nil
+        return {wave}
+    end
     return self.waves
 end
 
@@ -294,6 +299,9 @@ function EnemyBattler:onAct(battler, name)
         return "* " .. string.upper(self.name) .. " - " .. self.check
     end
 end
+
+function EnemyBattler:onTurnStart() end
+function EnemyBattler:onTurnEnd() end
 
 function EnemyBattler:getAct(name)
     for _,act in ipairs(self.acts) do
