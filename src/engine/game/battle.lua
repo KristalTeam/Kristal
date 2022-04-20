@@ -432,18 +432,9 @@ function Battle:onStateChange(old,new)
 
         self.money = self.money + (math.floor((self.tension / 10)) * Game.chapter)
 
-
-
-        -- NOTES:
-        -- The Trefoil (unused sword) does the calculation below:
-        --     self.money = self.money + math.floor(self.money / 20)
-
-        -- the Silver Card gives you 5% more gold.
-        -- the Dealmaker gives you 30% more gold.
-
         for _,battler in ipairs(self.party) do
             for _,equipment in ipairs(battler.chara:getEquipment()) do
-                self.money = math.floor(equipment:applyGoldBonus(self.money) or self.money)
+                self.money = math.floor(equipment:applyMoneyBonus(self.money) or self.money)
             end
         end
 

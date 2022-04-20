@@ -136,7 +136,7 @@ end
 
 --[[ Misc Functions ]]--
 
-function Item:applyGoldBonus(gold)
+function Item:applyMoneyBonus(gold)
     return gold
 end
 

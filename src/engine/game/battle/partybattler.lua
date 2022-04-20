@@ -110,6 +110,8 @@ end
 function PartyBattler:heal(amount, sparkle_color)
     Assets.stopAndPlaySound("snd_power")
 
+    amount = math.floor(amount)
+
     self.chara.health = self.chara.health + amount
 
 	self:checkHealth()

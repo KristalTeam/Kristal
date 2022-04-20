@@ -51,7 +51,7 @@ function item:init()
     }
 end
 
-function item:applyGoldBonus(gold)
+function item:applyMoneyBonus(gold)
     return gold * 1.05
 end
 
