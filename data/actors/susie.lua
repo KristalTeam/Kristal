@@ -85,9 +85,9 @@ function actor:init()
         ["walk_bangs/right"] = {0, 2},
         ["walk_bangs/up"] = {0, 2},
 
-        ["walk_unhappy/down"] = {0, 2},
-        ["walk_unhappy/left"] = {0, 2},
-        ["walk_unhappy/right"] = {0, 2},
+        ["walk_unhappy/down"] = {0, 0},
+        ["walk_unhappy/left"] = {0, 0},
+        ["walk_unhappy/right"] = {0, 0},
         ["walk_unhappy/up"] = {0, 2},
 
         ["walk_back_arm/left"] = {3, 2},

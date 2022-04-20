@@ -214,7 +214,14 @@ function Game:load(data, index)
         end
     end
 
-    self.temp_followers = data.temp_followers or {}
+    if data.temp_followers then
+        self.temp_followers = data.temp_followers
+    else
+        self.temp_followers = {}
+        for _,id in ipairs(Kristal.getModOption("followers") or {}) do
+            table.insert(self.temp_followers, id)
+        end
+    end
 
     self.level_up_count = data.level_up_count or 0
 

@@ -316,6 +316,10 @@ function love.load(args)
     load_thread = love.thread.newThread("src/engine/loadthread.lua")
     load_thread:start()
 
+    if Kristal.Args["mod"] then
+        TARGET_MOD = Kristal.Args["mod"][1]
+    end
+
     -- load menu
     Gamestate.switch(Kristal.States["Loading"])
 end
