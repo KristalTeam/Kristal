@@ -39,7 +39,7 @@ function TestShop:init()
 
     self.sell_options_text["items"]   = "What\nshould\nI sell?"
     self.sell_options_text["weapons"] = "What\nshould\nI sell?"
-    self.sell_options_text["armosr"]  = "What\nshould\nI sell?"
+    self.sell_options_text["armors"]  = "What\nshould\nI sell?"
     self.sell_options_text["storage"] = "What\nshould\nI sell?"
 
     self:registerItem("cell_phone", 1)
