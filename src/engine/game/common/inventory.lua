@@ -349,10 +349,10 @@ function Inventory:tryGiveItem(item)
     local result = self:addItem(item)
     if result then
         local destination = self:getStorage(self.stored_items[item].storage)
-        return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your\n[color:yellow]"..destination.name.."[color:reset].)"
+        return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your [color:yellow]"..destination.name.."[color:reset].)"
     else
         local destination = self:getDefaultStorage(item.type)
-        return false, "* (You have too many [color:yellow]"..destination.name.."[color:reset]\nto take [color:yellow]"..item:getName().."[color:reset].)"
+        return false, "* (You have too many [color:yellow]"..destination.name.."[color:reset] to take [color:yellow]"..item:getName().."[color:reset].)"
     end
 end
 
