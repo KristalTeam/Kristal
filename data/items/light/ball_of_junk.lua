@@ -11,6 +11,8 @@ function item:init(inventory)
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
+    -- Item this item will get turned into when consumed
+    self.result_item = nil
 
     -- Ball of Junk inventory
     self.inventory = inventory or DarkInventory()

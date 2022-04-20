@@ -53,4 +53,8 @@ function item:init()
     }
 end
 
+function item:convertToLightEquip(chara)
+    return "light/wristwatch"
+end
+
 return item

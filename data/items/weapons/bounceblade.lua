@@ -54,4 +54,8 @@ function item:init()
     }
 end
 
+function item:convertToLightEquip(chara)
+    return "light/eraser"
+end
+
 return item

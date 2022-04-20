@@ -82,7 +82,7 @@ function Registry.createObject(id, ...)
     if self.objects[id] then
         return self.objects[id](...)
     else
-        error("Attempt to create non existent object \"" .. id .. "\"")
+        error("Attempt to create non existent object \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -94,7 +94,7 @@ function Registry.createDrawFX(id, ...)
     if self.draw_fx[id] then
         return self.draw_fx[id](...)
     else
-        error("Attempt to create non existent DrawFX \"" .. id .. "\"")
+        error("Attempt to create non existent DrawFX \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -106,7 +106,7 @@ function Registry.createActor(id, ...)
     if self.actors[id] then
         return self.actors[id](...)
     else
-        error("Attempt to create non existent actor \"" .. id .. "\"")
+        error("Attempt to create non existent actor \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -118,7 +118,7 @@ function Registry.createItem(id, ...)
     if self.items[id] then
         return self.items[id](...)
     else
-        error("Attempt to create non existent item \"" .. id .. "\"")
+        error("Attempt to create non existent item \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -130,7 +130,7 @@ function Registry.createSpell(id, ...)
     if self.spells[id] then
         return self.spells[id](...)
     else
-        error("Attempt to create non existent spell \"" .. id .. "\"")
+        error("Attempt to create non existent spell \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -142,7 +142,7 @@ function Registry.createPartyMember(id, ...)
     if self.party_members[id] then
         return self.party_members[id](...)
     else
-        error("Attempt to create non existent party member \"" .. id .. "\"")
+        error("Attempt to create non existent party member \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -154,7 +154,7 @@ function Registry.createEncounter(id, ...)
     if self.encounters[id] then
         return self.encounters[id](...)
     else
-        error("Attempt to create non existent encounter \"" .. id .. "\"")
+        error("Attempt to create non existent encounter \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -166,7 +166,7 @@ function Registry.createEnemy(id, ...)
     if self.enemies[id] then
         return self.enemies[id](...)
     else
-        error("Attempt to create non existent enemy \"" .. id .. "\"")
+        error("Attempt to create non existent enemy \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -178,7 +178,7 @@ function Registry.createWave(id, ...)
     if self.waves[id] then
         return self.waves[id](...)
     else
-        error("Attempt to create non existent wave \"" .. id .. "\"")
+        error("Attempt to create non existent wave \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -190,7 +190,7 @@ function Registry.createBullet(id, ...)
     if self.bullets[id] then
         return self.bullets[id](...)
     else
-        error("Attempt to create non existent bullet \"" .. id .. "\"")
+        error("Attempt to create non existent bullet \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -202,7 +202,7 @@ function Registry.createWorldBullet(id, ...)
     if self.world_bullets[id] then
         return self.world_bullets[id](...)
     else
-        error("Attempt to create non existent world bullet \"" .. id .. "\"")
+        error("Attempt to create non existent world bullet \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -242,7 +242,7 @@ function Registry.createMap(id, world, ...)
         map.id = id
         return map
     else
-        error("Attempt to create non existent map \"" .. id .. "\"")
+        error("Attempt to create non existent map \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -258,7 +258,7 @@ function Registry.createEvent(id, ...)
     if self.events[id] then
         return self.events[id](...)
     else
-        error("Attempt to create non existent event \"" .. id .. "\"")
+        error("Attempt to create non existent event \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -270,7 +270,7 @@ function Registry.createShop(id, ...)
     if self.shops[id] then
         return self.shops[id](...)
     else
-        error("Attempt to create non existent shop \"" .. id .. "\"")
+        error("Attempt to create non existent shop \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -278,7 +278,7 @@ end
 
 function Registry.registerGlobal(id, value)
     if _G[id] then
-        print("WARNING: Global '"..id.."' already exists, replacing")
+        print("WARNING: Global '"..tostring(id).."' already exists, replacing")
         if not self.last_globals[id] and not self.new_globals[id] then
             self.last_globals[id] = _G[id]
         end

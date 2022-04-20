@@ -53,4 +53,8 @@ function item:init()
     }
 end
 
+function item:convertToLightEquip()
+    return "light/pencil"
+end
+
 return item

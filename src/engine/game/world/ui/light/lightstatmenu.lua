@@ -41,8 +41,11 @@ function LightStatMenu:draw()
     love.graphics.print("EXP: 0",   172, 164)
     love.graphics.print("NEXT: 10", 172, 196)
 
-    love.graphics.print("WEAPON: Halloween Pencil", 4, 256)
-    love.graphics.print("ARMOR: Bandage", 4, 288)
+    local weapon_name = Game.party[1]:getWeapon() and Game.party[1]:getWeapon():getName() or "None"
+    local armor_name = Game.party[1]:getArmor(1) and Game.party[1]:getArmor(1):getName() or "None"
+
+    love.graphics.print("WEAPON: "..weapon_name, 4, 256)
+    love.graphics.print("ARMOR: "..armor_name, 4, 288)
 
     love.graphics.print("MONEY: 2", 4, 328)
 

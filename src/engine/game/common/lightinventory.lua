@@ -63,4 +63,14 @@ function LightInventory:convertToDark()
     return new_inventory
 end
 
+function LightInventory:getDarkInventory()
+    local junk_ball = self:getItemByID("light/ball_of_junk")
+
+    if not junk_ball then
+        junk_ball = self:addItem("light/ball_of_junk")
+    end
+
+    return junk_ball.inventory
+end
+
 return LightInventory

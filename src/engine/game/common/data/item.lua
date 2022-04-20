@@ -79,11 +79,28 @@ function Item:onMenuDraw(menu) end
 function Item:onWorldUpdate(chara, dt) end
 function Item:onBattleUpdate(battler, dt) end
 
-function Item:onCheck() end
-function Item:onToss() return true end
-
 function Item:onSave(data) end
 function Item:onLoad(data) end
+
+-- Light world / Dark world stuff
+function Item:onCheck() end
+function Item:onToss()
+    if Game:isLight() then
+        local choice = love.math.random(30)
+        if choice == 1 then
+            Game.world:showText("* You bid a quiet farewell to the " .. self:getName() .. ".")
+        elseif choice == 2 then
+            Game.world:showText("* You put the " .. self:getName() .. " on the ground and gave it a little pat.")
+        elseif choice == 3 then
+            Game.world:showText("* You threw the " .. self:getName() .. " on the ground like the piece of trash it is.")
+        elseif choice == 4 then
+            Game.world:showText("* You abandoned the " .. self:getName() .. ".")
+        else
+            Game.world:showText("* The " .. self:getName() .. " was thrown away.")
+        end
+    end
+    return true
+end
 
 function Item:convertToLight(inventory)
     return false
@@ -92,13 +109,16 @@ function Item:convertToDark(inventory)
     if self.dark_item then
         if self.dark_location then
             inventory:addItemTo(self.dark_location.storage, self.dark_location.index, self.dark_item)
+            return true
         else
-            inventory:addItem(self.dark_item)
+            return self.dark_item
         end
-        return true
     end
-    return self
+    return false
 end
+
+function Item:convertToLightEquip(chara) return self:convertToLight() end
+function Item:convertToDarkEquip(chara) return self:convertToDark() end
 
 --[[ Getters ]]--
 
@@ -200,11 +220,15 @@ end
 -- Saving / Loading
 
 function Item:save()
+    local saved_dark_item = self.dark_item
+    if isClass(self.dark_item) then
+        saved_dark_item = self.dark_item:save()
+    end
     local data = {
         id = self.id,
         flags = self.flags,
 
-        dark_item = self.dark_item and self.dark_item:save(),
+        dark_item = saved_dark_item,
         dark_location = self.dark_location
     }
     self:onSave(data)
@@ -215,8 +239,12 @@ function Item:load(data)
     self.flags = data.flags or self.flags
 
     if data.dark_item then
-        self.dark_item = Registry.createItem(data.dark_item.id)
-        self.dark_item:load(data.dark_item)
+        if type(data.dark_item) == "table" then
+            self.dark_item = Registry.createItem(data.dark_item.id)
+            self.dark_item:load(data.dark_item)
+        else
+            self.dark_item = data.dark_item
+        end
 
         self.dark_location = data.dark_location
     end

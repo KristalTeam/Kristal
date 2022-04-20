@@ -83,6 +83,7 @@ Spell = require("src.engine.game.common.data.spell")
 Item = require("src.engine.game.common.data.item")
 HealItem = require("src.engine.game.common.data.healitem")
 TensionItem = require("src.engine.game.common.data.tensionitem")
+LightEquipItem = require("src.engine.game.common.data.lightequipitem")
 
 ActorSprite = require("src.engine.game.common.actorsprite")
 Inventory = require("src.engine.game.common.inventory")

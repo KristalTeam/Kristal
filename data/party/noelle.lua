@@ -68,6 +68,10 @@ function character:init()
         self:setArmor(2, "royalpin")
     end
 
+    -- Default light world equipment item IDs (saves current equipment)
+    self.lw_weapon_default = "light/pencil"
+    self.lw_armor_default = "light/bandage"
+
     -- Character color (for action box outline and hp bar)
     self.color = {1, 1, 0}
     -- Damage color (for the number when attacking enemies) (defaults to the main color)

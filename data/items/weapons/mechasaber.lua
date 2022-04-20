@@ -53,4 +53,8 @@ function item:init()
     }
 end
 
+function item:convertToLightEquip(chara)
+    return "light/mech_pencil"
+end
+
 return item

@@ -51,6 +51,10 @@ function PartyMember:init()
         armor = {}
     }
 
+    -- Default light world equipment item IDs (saves current equipment)
+    self.lw_weapon_default = "light/pencil"
+    self.lw_armor_default = "light/bandage"
+
     -- Character color (for action box outline and hp bar)
     self.color = {1, 1, 1}
     -- Damage color (for the number when attacking enemies) (defaults to the main color)
@@ -336,29 +340,117 @@ function PartyMember:addFlag(name, amount)
     self.flags[name] = (self.flags[name] or 0) + (amount or 1)
 end
 
+function PartyMember:convertToLight()
+    local last_weapon = self:getWeapon()
+    local last_armors = {self:getArmor(1), self:getArmor(2)}
+
+    self.equipped = {weapon = nil, armor = {}}
+
+    if last_weapon then
+        local result = last_weapon:convertToLightEquip(self)
+        if result then
+            if type(result) == "string" then
+                result = Registry.createItem(result)
+            end
+            if isClass(result) then
+                self.equipped.weapon = result
+            end
+        end
+    end
+    for i = 1, 2 do
+        if last_armors[i] then
+            local result = last_armors[i]:convertToLightEquip(self)
+            if result then
+                if type(result) == "string" then
+                    result = Registry.createItem(result)
+                end
+                if isClass(result) then
+                    self.equipped.armor[1] = result
+                end
+                break
+            end
+        end
+    end
+
+    if not self.equipped.weapon then
+        self.equipped.weapon = Registry.createItem(self.lw_weapon_default)
+    end
+    if not self.equipped.armor[1] then
+        self.equipped.armor[1] = Registry.createItem(self.lw_armor_default)
+    end
+
+    self.equipped.weapon.dark_item = last_weapon
+    self.equipped.armor[1]:setFlag("dark_armors", {
+        ["1"] = last_armors[1] and last_armors[1]:save(),
+        ["2"] = last_armors[2] and last_armors[2]:save()
+    })
+end
+
+function PartyMember:convertToDark()
+    local last_weapon = self:getWeapon()
+    local last_armor = self:getArmor(1)
+
+    self.equipped = {weapon = nil, armor = {}}
+
+    if last_weapon then
+        local result = last_weapon:convertToDarkEquip(self)
+        if result then
+            if type(result) == "string" then
+                result = Registry.createItem(result)
+            end
+            if isClass(result) then
+                self.equipped.weapon = result
+            end
+        end
+    end
+    if last_armor then
+        local result = last_armor:convertToDarkEquip(self)
+        if result then
+            if type(result) == "string" then
+                result = Registry.createItem(result)
+            end
+            if isClass(result) then
+                self.equipped.armor[1] = result
+            end
+        end
+    end
+end
+
 -- Saving & Loading
 
 function PartyMember:saveEquipment()
     local result = {weapon = nil, armor = {}}
     if self.equipped.weapon then
-        result.weapon = self.equipped.weapon.id
+        result.weapon = self.equipped.weapon:save()
     end
     for i = 1, 2 do
         if self.equipped.armor[i] then
-            result.armor[tostring(i)] = self.equipped.armor[i].id
+            result.armor[tostring(i)] = self.equipped.armor[i]:save()
         end
     end
     return result
 end
 
 function PartyMember:loadEquipment(data)
-    self:setWeapon(data.weapon)
+    if type(data.weapon) == "table" then
+        local weapon = Registry.createItem(data.weapon.id)
+        weapon:load(data.weapon)
+        self:setWeapon(weapon)
+    else
+        self:setWeapon(data.weapon)
+    end
     for i = 1, 2 do
         self:setArmor(i, nil)
     end
     if data.armor then
         for k,v in pairs(data.armor) do
-            self:setArmor(tonumber(k), v)
+            if type(v) == "table" then
+                local armor = Registry.createItem(v.id)
+                armor:load(v)
+                self:setArmor(tonumber(k), armor)
+            else
+                self:setArmor(tonumber(k), v)
+            end
         end
     end
 end

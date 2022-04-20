@@ -262,10 +262,18 @@ function Game:convertToLight()
     end
 
     self.inventory = self.inventory:convertToLight()
+
+    for _,chara in pairs(self.party_data) do
+        chara:convertToLight()
+    end
 end
 
 function Game:convertToDark()
     self.inventory = self.inventory:convertToDark()
+
+    for _,chara in pairs(self.party_data) do
+        chara:convertToDark()
+    end
 
     if self:getFlag("has_cell_phone", false) then
         self.inventory:addItemTo("key_items", 1, "cell_phone")
