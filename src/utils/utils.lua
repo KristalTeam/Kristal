@@ -329,11 +329,19 @@ function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
     end
 end
 
-function Utils.between(val, a, b)
-    if a < b then
-        return val > b and val < a
+function Utils.between(val, a, b, include)
+    if include then
+        if a < b then
+            return val >= a and val <= b
+        else
+            return val >= b and val <= a
+        end
     else
-        return val > a and val < b
+        if a < b then
+            return val > a and val < b
+        else
+            return val > b and val < a
+        end
     end
 end
 
