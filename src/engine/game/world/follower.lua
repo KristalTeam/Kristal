@@ -111,6 +111,9 @@ end
 function Follower:interpolateHistory()
     local target = self:getTarget()
 
+    target.last_x = target.x
+    target.last_y = target.y
+
     local new_facing = Utils.facingFromAngle(Utils.angle(self.x, self.y, target.x, target.y))
     self.history = {
         {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state},
