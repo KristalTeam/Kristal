@@ -95,10 +95,12 @@ function Game:save(x, y)
         level = self.save_level,
         playtime = self.playtime,
 
+        light = self.light,
+
         room_name = self.world and self.world.map and self.world.map.name or "???",
         room_id = self.world and self.world.map and self.world.map.id,
 
-        gold = self.money,
+        money = self.money,
         xp = self.xp,
 
         level_up_count = self.level_up_count,
@@ -194,7 +196,14 @@ function Game:load(data, index)
         table.insert(self.party, self:getPartyMember(id))
     end
 
-    self.inventory = Inventory()
+    self.light = data.light or self.world.map.light
+
+    if self.light then
+        self.inventory = LightInventory()
+    else
+        self.inventory = DarkInventory()
+    end
+
     if data.inventory then
         self.inventory:load(data.inventory)
     else
@@ -226,8 +235,41 @@ function Game:load(data, index)
     self.world.map:onEnter()
 end
 
+function Game:setLight(light)
+    light = light or false
+
+    if self.light == light then return end
+
+    self.light = light
+
+    if self.light then
+        self:convertToLight()
+    else
+        self:convertToDark()
+    end
+end
+
 function Game:isLight()
-    return self.world and self.world.light or false
+    return self.light
+end
+
+function Game:convertToLight()
+    if self.inventory:hasItem("cell_phone") then
+        self:setFlag("has_cell_phone", true)
+        self.inventory:removeItem("cell_phone")
+    else
+        self:setFlag("has_cell_phone", false)
+    end
+
+    self.inventory = self.inventory:convertToLight()
+end
+
+function Game:convertToDark()
+    self.inventory = self.inventory:convertToDark()
+
+    if self:getFlag("has_cell_phone", false) then
+        self.inventory:addItemTo("key_items", 1, "cell_phone")
+    end
 end
 
 function Game:gameOver(x, y)

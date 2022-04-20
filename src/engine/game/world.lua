@@ -16,8 +16,6 @@ function World:init(map)
     self.width = self.map.width * self.map.tile_width
     self.height = self.map.height * self.map.tile_height
 
-    self.light = false
-
     self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.camera:setBounds()
     self.camera_attached = true
@@ -141,10 +139,10 @@ function World:openMenu(menu, layer)
 end
 
 function World:createMenu()
-    if not Game:isLight() then
-        self.menu = DarkMenu()
-    else
+    if Game:isLight() then
         self.menu = LightMenu()
+    else
+        self.menu = DarkMenu()
     end
 end
 
@@ -178,7 +176,7 @@ function World:replaceCall(name, index, scene)
 end
 
 function World:showHealthBars()
-    if self.light then return end
+    if Game.light then return end
 
     if self.healthbar then
         self.healthbar:transitionIn()
@@ -295,7 +293,16 @@ end
 
 function World:startCutscene(group, id, ...)
     if self.cutscene and not self.cutscene.ended then
-        error("Attempt to start a cutscene "..group.." while already in cutscene "..self.cutscene.id)
+        local cutscene_name = ""
+        if type(group) == "string" then
+            cutscene_name = group
+            if type(id) == "string" then
+                cutscene_name = group.."."..id
+            end
+        elseif type(group) == "function" then
+            cutscene_name = "<function>"
+        end
+        error("Attempt to start a cutscene "..cutscene_name.." while already in cutscene "..self.cutscene.id)
     end
     if Game.console.is_open then
         Game.console:close()
@@ -556,7 +563,7 @@ function World:loadMap(map, ...)
 
     self.map:load()
 
-    self.light = self.map.light
+    Game:setLight(self.map.light)
 
     self.width = self.map.width * self.map.tile_width
     self.height = self.map.height * self.map.tile_height

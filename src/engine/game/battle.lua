@@ -1604,7 +1604,16 @@ end
 
 function Battle:startCutscene(group, id, ...)
     if self.cutscene then
-        error("Attempt to start a cutscene "..group.." while already in cutscene "..self.cutscene.id)
+        local cutscene_name = ""
+        if type(group) == "string" then
+            cutscene_name = group
+            if type(id) == "string" then
+                cutscene_name = group.."."..id
+            end
+        elseif type(group) == "function" then
+            cutscene_name = "<function>"
+        end
+        error("Attempt to start a cutscene "..cutscene_name.." while already in cutscene "..self.cutscene.id)
     end
     self.cutscene = BattleCutscene(group, id, ...)
     return self.cutscene

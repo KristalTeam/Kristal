@@ -52,4 +52,8 @@ function item:onWorldUse()
     Game.world:showText("* (You used the Egg.)")
 end
 
+function item:convertToLight(inventory)
+    return "light/egg"
+end
+
 return item

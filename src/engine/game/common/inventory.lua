@@ -1,26 +1,14 @@
 local Inventory, super = Class()
 
 function Inventory:init()
-    self.storage_for_type = {
-        ["item"]   = "items",
-        ["key"]    = "key_items",
-        ["weapon"] = "weapons",
-        ["armor"]  = "armors",
-    }
-
-    self.storage_enabled = (Game.chapter > 1)
+    self.storage_for_type = {}
+    self.storage_enabled = true
 
     self:clear()
 end
 
 function Inventory:clear()
-    self.storages = {
-        ["items"]     = {id = "items",     max = 12, sorted = true,  name = "ITEMs",     fallback = "storage"},
-        ["key_items"] = {id = "key_items", max = 12, sorted = true,  name = "KEY ITEMs", fallback = nil      },
-        ["weapons"]   = {id = "weapons",   max = 48, sorted = false, name = "WEAPONs",   fallback = nil      },
-        ["armors"]    = {id = "armors",    max = 48, sorted = false, name = "ARMORs",    fallback = nil      },
-        ["storage"]   = {id = "storage",   max = 24, sorted = false, name = "STORAGE",   fallback = nil      },
-    }
+    self.storages = {}
     self.stored_items = {}
 end
 
@@ -32,12 +20,12 @@ function Inventory:addItem(item)
 end
 
 function Inventory:addItemTo(storage, index, item, allow_fallback)
-    allow_fallback = (allow_fallback ~= false) and self.storage_enabled
     if type(index) ~= "number" then
         allow_fallback = item
         item = index
         index = nil
     end
+    allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
@@ -67,11 +55,12 @@ function Inventory:addItemTo(storage, index, item, allow_fallback)
                     if not overflow or not self:setItem(overflow, overflow_index, storage[storage.max + 1]) then
                         print("[WARNING] Deleted item by overflow - THIS SHOULDNT HAPPEN")
                     else
-                        self:updateStoredItems(overflow)
+                        self:updateStoredItems(self:getStorage(overflow))
                     end
                     storage[storage.max + 1] = nil
                 end
                 self:updateStoredItems(storage)
+                return item
             else
                 if storage[index] then
                     -- Attempt to add to non-empty slot
@@ -84,7 +73,7 @@ function Inventory:addItemTo(storage, index, item, allow_fallback)
 end
 
 function Inventory:getNextIndex(storage, index, allow_fallback)
-    allow_fallback = (allow_fallback ~= false) and self.storage_enabled
+    allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end
@@ -278,14 +267,14 @@ function Inventory:getItemByID(item)
 end
 
 function Inventory:isFull(storage, allow_fallback)
-    allow_fallback = (allow_fallback ~= false) and self.storage_enabled
+    allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end
     if storage then
         local full = false
         if storage.sorted then
-            full = #storage < storage.max
+            full = #storage >= storage.max
         else
             for i = 1, storage.max do
                 if not storage[i] then
@@ -304,7 +293,7 @@ function Inventory:isFull(storage, allow_fallback)
 end
 
 function Inventory:getItemCount(storage, allow_fallback)
-    allow_fallback = (allow_fallback ~= false) and self.storage_enabled
+    allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end
@@ -329,7 +318,7 @@ function Inventory:getItemCount(storage, allow_fallback)
 end
 
 function Inventory:getFreeSpace(storage, allow_fallback)
-    allow_fallback = (allow_fallback ~= false) and self.storage_enabled
+    allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
     if type(storage) == "string" then
         storage = self:getStorage(storage)
     end

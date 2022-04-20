@@ -192,7 +192,7 @@ end
 
 function PartyMember:getActor(light)
     if light == nil then
-        light = Game and Game.world and Game.world.light
+        light = Game.light
     end
     if light then
         return self.lw_actor or self.actor

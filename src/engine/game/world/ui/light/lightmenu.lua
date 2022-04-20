@@ -74,7 +74,8 @@ function LightMenu:keypressed(key)
         local old_selected = self.current_selecting
         if Input.is("up", key)    then self.current_selecting = self.current_selecting - 1 end
         if Input.is("down", key) then self.current_selecting = self.current_selecting + 1 end
-        self.current_selecting = Utils.clamp(self.current_selecting, 1, 3) -- TODO: unhardcode max length... might conflict with textbox
+        local max_selecting = Game:getFlag("has_cell_phone", false) and 3 or 2
+        self.current_selecting = Utils.clamp(self.current_selecting, 1, max_selecting) -- TODO: unhardcode max length... might conflict with textbox
         if old_selected ~= self.current_selecting then
             self.ui_move:stop()
             self.ui_move:play()
@@ -161,7 +162,9 @@ function LightMenu:draw()
     love.graphics.print("ITEM", 84, 188 + (36 * 0))
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.print("STAT", 84, 188 + (36 * 1))
-    love.graphics.print("CELL", 84, 188 + (36 * 2))
+    if Game:getFlag("has_cell_phone", false) then
+        love.graphics.print("CELL", 84, 188 + (36 * 2))
+    end
 
     if self.state == "MAIN" then
         love.graphics.setColor(Game:getSoulColor())

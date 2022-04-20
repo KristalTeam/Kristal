@@ -49,8 +49,14 @@ function Item:init()
     -- Character reactions (key = party member id)
     self.reactions = {}
 
+    --[[ INTERNAL VARIABLES ]]--
+
     -- Item flags (for saving values to the save file)
     self.flags = {}
+
+    -- Values saved for light world item conversion
+    self.dark_item = nil
+    self.dark_location = nil
 end
 
 --[[ Callbacks ]]--
@@ -73,8 +79,26 @@ function Item:onMenuDraw(menu) end
 function Item:onWorldUpdate(chara, dt) end
 function Item:onBattleUpdate(battler, dt) end
 
+function Item:onCheck() end
+function Item:onToss() return true end
+
 function Item:onSave(data) end
 function Item:onLoad(data) end
+
+function Item:convertToLight(inventory)
+    return false
+end
+function Item:convertToDark(inventory)
+    if self.dark_item then
+        if self.dark_location then
+            inventory:addItemTo(self.dark_location.storage, self.dark_location.index, self.dark_item)
+        else
+            inventory:addItem(self.dark_item)
+        end
+        return true
+    end
+    return self
+end
 
 --[[ Getters ]]--
 
@@ -178,7 +202,10 @@ end
 function Item:save()
     local data = {
         id = self.id,
-        flags = self.flags
+        flags = self.flags,
+
+        dark_item = self.dark_item and self.dark_item:save(),
+        dark_location = self.dark_location
     }
     self:onSave(data)
     return data
@@ -186,6 +213,13 @@ end
 
 function Item:load(data)
     self.flags = data.flags or self.flags
+
+    if data.dark_item then
+        self.dark_item = Registry.createItem(data.dark_item.id)
+        self.dark_item:load(data.dark_item)
+
+        self.dark_location = data.dark_location
+    end
 
     self:onLoad(data)
 end

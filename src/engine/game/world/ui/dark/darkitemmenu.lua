@@ -180,7 +180,11 @@ function DarkItemMenu:update(dt)
                         self.ui_cancel_small:stop()
                         self.ui_cancel_small:play()
 
-                        Game.inventory:removeItem(item)
+                        local result = item:onToss()
+
+                        if result ~= false then
+                            Game.inventory:removeItem(item)
+                        end
                     end
                     self:updateSelectedItem()
                 end)

@@ -60,7 +60,7 @@ function item:getDescription()
 end
 
 function item:onWorldUse()
-    if Kristal.callEvent("onShadowCrystal", self) then
+    if Kristal.callEvent("onShadowCrystal", self, false) then
         return
     elseif not self:getFlag("used_none") then
         self:setFlag("used_none", true)
@@ -72,6 +72,12 @@ function item:onWorldUse()
     else
         Game.world:showText("* It doesn't seem very useful.")
     end
+end
+
+function item:convertToLight(inventory)
+    local glass = inventory:addItem("light/glass")
+    glass.flags = self.flags
+    return true
 end
 
 return item

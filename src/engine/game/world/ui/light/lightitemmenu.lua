@@ -77,8 +77,13 @@ function LightItemMenu:update(dt)
         end
 
         if Input.pressed("confirm") then
+            local item = Game.inventory:getItem(self.storage, self.item_selecting)
             if self.option_selecting == 1 then
-                self:useItem(Game.inventory:getStorage(self.storage)[self.item_selecting])
+                self:useItem(item)
+            elseif self.option_selecting == 2 then
+                item:onCheck()
+            else
+                self:dropItem(item)
             end
         end
     end
@@ -132,6 +137,14 @@ function LightItemMenu:useItem(item)
         else
             Game.inventory:removeItem(item)
         end
+    end
+end
+
+function LightItemMenu:dropItem(item)
+    local result = item:onToss()
+
+    if result ~= false then
+        Game.inventory:removeItem(item)
     end
 end
 

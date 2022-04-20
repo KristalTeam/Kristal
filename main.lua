@@ -85,7 +85,9 @@ HealItem = require("src.engine.game.common.data.healitem")
 TensionItem = require("src.engine.game.common.data.tensionitem")
 
 ActorSprite = require("src.engine.game.common.actorsprite")
-Inventory = require("src.engine.game.inventory")
+Inventory = require("src.engine.game.common.inventory")
+DarkInventory = require("src.engine.game.common.darkinventory")
+LightInventory = require("src.engine.game.common.lightinventory")
 
 Cutscene = require("src.engine.game.common.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")

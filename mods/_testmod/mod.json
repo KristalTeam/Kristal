@@ -12,7 +12,7 @@
     "party": ["kris", "susie", "ralsei"],
     "inventory": {
         "items": ["darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit", "counter"],
-        "key_items": ["cell_phone", "shadowcrystal"],
+        "key_items": ["cell_phone", "shadowcrystal", "egg"],
         "storage": ["favwich"]
     },
 

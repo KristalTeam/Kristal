@@ -85,7 +85,9 @@ function Mod:postInit(new_file)
     ]]
 end
 
-function Mod:onShadowCrystal(item)
+function Mod:onShadowCrystal(item, light)
+    if light then return end
+
     if not item:getFlag("seen_horrors") then
         item:setFlag("seen_horrors", true)
 
