@@ -2,14 +2,14 @@ local DialogueText, super = Class(Text)
 
 DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk"}
 
-function DialogueText:init(text, x, y, w, h, font, style)
+function DialogueText:init(text, x, y, w, h, font, style, autowrap)
     self.custom_command_wait = {}
     if type(text) == "string" then
         text = {text}
     end
     self.fast_skipping_timer = 0
     self.played_first_sound = false
-    super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or (Game:isLight() and "none" or "dark"))
+    super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, font or "main_mono", style or (Game:isLight() and "none" or "dark"), autowrap)
     self.skippable = true
     self.skip_speed = false
     self.talk_sprite = nil
