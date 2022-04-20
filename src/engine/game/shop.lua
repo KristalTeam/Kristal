@@ -201,7 +201,9 @@ function Shop:postInit()
 
     self:addChild(self.info_box)
 
-    local emoteCommand = function(text, node) self:onEmote(node.arguments[1]) end
+    local emoteCommand = function(text, node)
+        self:onEmote(node.arguments[1])
+    end
 
     self.dialogue_text = DialogueText(nil, 30, 53 + 219)
     self.dialogue_text.line_offset = 8

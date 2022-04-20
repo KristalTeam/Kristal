@@ -61,7 +61,7 @@ function Text:processInitialNodes()
     self:drawToCanvas(function()
         for i = 1, #self.nodes do
             local current_node = self.nodes[i]
-            self:processNode(current_node)
+            self:processNode(current_node, false)
             self.state.current_node = self.state.current_node + 1
         end
     end, true)
@@ -174,7 +174,7 @@ function Text:textToNodes(input_string)
                         }
                         table.insert(nodes, new_node)
                         if self.autowrap then
-                            self:processNode(new_node)
+                            self:processNode(new_node, true)
                         end
                     else
                         -- Whoops, invalid modifier. Let's just parse this like normal text...
@@ -207,7 +207,7 @@ function Text:textToNodes(input_string)
             local dont_add = false
             if self.autowrap then
                 local prior_state = Utils.copy(self.state)
-                self:processNode(new_node)
+                self:processNode(new_node, true)
                 if self.state.current_x > self.width then
                     if last_space == -1 then
                         self.state = prior_state
@@ -217,8 +217,8 @@ function Text:textToNodes(input_string)
                         }
                         table.insert(nodes, newline_node)
                         display_text = display_text .. "\n"
-                        self:processNode(newline_node)
-                        self:processNode(new_node)
+                        self:processNode(newline_node, true)
+                        self:processNode(new_node, true)
                     else
                         self.state = last_space_state
                         local newline_node = {
@@ -226,18 +226,18 @@ function Text:textToNodes(input_string)
                             ["character"] = "\n",
                         }
                         nodes[last_space + 1] = newline_node
-                        self:processNode(newline_node)
+                        self:processNode(newline_node, true)
                         display_text = Utils.stringInsert(display_text, "\n", last_space_char + 1)
                         for i = last_space + 1, #nodes + 1 do
                             if nodes[i] then
-                                self:processNode(nodes[i])
+                                self:processNode(nodes[i], true)
                             end
                         end
                         if current_char == " " then
                             dont_add = true
                         else
                             dont_add = false
-                            self:processNode(new_node)
+                            self:processNode(new_node, true)
                         end
                         last_space = -1
                         last_space_char = -1
@@ -274,7 +274,7 @@ function Text:drawToCanvas(func, clear)
     Draw.popCanvas()
 end
 
-function Text:processNode(node)
+function Text:processNode(node, dry)
     local font = self:getFont()
     if node.type == "character" then
         self.state.typed_characters = self.state.typed_characters + 1
@@ -319,9 +319,9 @@ function Text:processNode(node)
         end
     elseif node.type == "modifier" then
         if self.custom_commands[node.command] then
-            self:processCustomCommand(node)
+            self:processCustomCommand(node, dry)
         else
-            self:processModifier(node)
+            self:processModifier(node, dry)
         end
     end
     --print(Utils.dump(node))
@@ -331,9 +331,9 @@ function Text:isModifier(command)
     return Utils.containsValue(Text.COMMANDS, command) or self.custom_commands[command]
 end
 
-function Text:processModifier(node)
+function Text:processModifier(node, dry)
     if self.custom_commands[node.command] then
-        self:processCustomCommand(node)
+        self:processCustomCommand(node, dry)
     elseif node.command == "color" then
         if self.COLORS[node.arguments[1]] then
             -- Did they input a valid color name? Let's use it.
@@ -377,8 +377,8 @@ function Text:registerCommand(command, func)
     self.custom_commands[command] = func
 end
 
-function Text:processCustomCommand(node)
-    return self.custom_commands[node.command](self, node)
+function Text:processCustomCommand(node, dry)
+    return self.custom_commands[node.command](self, node, dry)
 end
 
 function Text:drawChar(node, state, use_color)

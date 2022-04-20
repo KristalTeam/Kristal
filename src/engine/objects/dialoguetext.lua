@@ -34,7 +34,7 @@ function DialogueText:processInitialNodes()
         local i = 1
         while i <= #self.nodes do
             local current_node = self.nodes[i]
-            self:processNode(current_node)
+            self:processNode(current_node, false)
             self.state.current_node = self.state.current_node + 1
             i = i + 1
             -- If the current mode is a typewriter...
@@ -150,7 +150,7 @@ function DialogueText:update(dt)
                 end
 
                 self:playTextSound(current_node)
-                self:processNode(current_node)
+                self:processNode(current_node, false)
 
                 if self.state.skipping then
                     self.state.progress = self.state.typed_characters
@@ -250,8 +250,8 @@ function DialogueText:processCustomCommand(node)
     return result
 end
 
-function DialogueText:processModifier(node)
-    super:processModifier(self, node)
+function DialogueText:processModifier(node, dry)
+    super:processModifier(self, node, dry)
 
     if node.command == "speed" then
         self.state.speed = tonumber(node.arguments[1])
@@ -285,6 +285,7 @@ function DialogueText:processModifier(node)
     elseif node.command == "spacing" then
         self.state.spacing = tonumber(node.arguments[1])
     elseif node.command == "func" then
+        if dry then return end -- Functions shouldn't be used to modify state so never run them if dry
         local func = node.arguments[1]
         if self.functions[func] then
             local args = {}
