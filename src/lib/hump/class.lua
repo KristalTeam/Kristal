@@ -36,9 +36,13 @@ local function include_helper(to, from, seen)
 
     seen[from] = to
     for k,v in pairs(from) do
-        k = include_helper({}, k, seen) -- keys might also be tables
-        if to[k] == nil then
-            to[k] = include_helper({}, v, seen)
+        if from.__dont_include and from.__dont_include[k] then
+            -- skip
+        else
+            k = include_helper({}, k, seen) -- keys might also be tables
+            if to[k] == nil then
+                to[k] = include_helper({}, v, seen)
+            end
         end
     end
     return to
@@ -96,6 +100,18 @@ local function new(class)
     class.include  = class.include  or include
     class.includes = class.includes or includes
     class.clone    = class.clone    or clone
+
+    -- keys that shouldn't be included from this class
+    class.__dont_include = {
+        ["__dont_include"] = true,
+        ["__includes"] = true,
+        ["__includes_all"] = true,
+        ["__index"] = true,
+        ["init"] = true,
+        ["include"] = true,
+        ["includes"] = true,
+        ["clone"] = true,
+    }
 
     -- constructor call
     return setmetatable(class, {__call = function(c, ...)

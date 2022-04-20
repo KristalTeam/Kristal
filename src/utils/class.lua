@@ -58,5 +58,7 @@ return setmetatable({}, {__index=_Class, __call = function(_, include, id)
             end
         end
     end
+    class.__dont_include["__super"] = true
+    class.__dont_include["__includers"] = true
     return class, super
 end})
