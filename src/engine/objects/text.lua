@@ -28,6 +28,7 @@ function Text:init(text, x, y, w, h, font, style, autowrap)
     self.nodes_to_draw = {}
 
     self.custom_commands = {}
+    self.custom_command_dry = {}
 
     self.font = font or "main"
     self.font_size = nil
@@ -373,12 +374,15 @@ function Text:processModifier(node, dry)
     end
 end
 
-function Text:registerCommand(command, func)
+function Text:registerCommand(command, func, options)
     self.custom_commands[command] = func
+    self.custom_command_dry[command] = options and options["dry"] or false
 end
 
 function Text:processCustomCommand(node, dry)
-    return self.custom_commands[node.command](self, node, dry)
+    if not dry or self.custom_command_dry[node.command] then
+        return self.custom_commands[node.command](self, node, dry)
+    end
 end
 
 function Text:drawChar(node, state, use_color)

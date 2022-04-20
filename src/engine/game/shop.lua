@@ -208,7 +208,7 @@ function Shop:postInit()
     self.dialogue_text = DialogueText(nil, 30, 53 + 219)
     self.dialogue_text.line_offset = 8
 
-    self.dialogue_text:registerCommand("emote", emoteCommand, true)
+    self.dialogue_text:registerCommand("emote", emoteCommand)
 
     self.dialogue_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.dialogue_text)
@@ -217,7 +217,7 @@ function Shop:postInit()
     self.right_text = DialogueText("", 30 + 420, 53 + 209)
     self.right_text.line_offset = 8
 
-    self.right_text:registerCommand("emote", emoteCommand, true)
+    self.right_text:registerCommand("emote", emoteCommand)
 
     self.right_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.right_text)

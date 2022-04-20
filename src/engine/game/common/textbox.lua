@@ -85,13 +85,13 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.reactions = {}
     self.reaction_instances = {}
 
-    self.text:registerCommand("face", function(text, node)
+    self.text:registerCommand("face", function(text, node, dry)
         if self.actor and self.actor:getPortraitPath() then
             self.face.path = self.actor:getPortraitPath()
         end
         self:setFace(node.arguments[1], tonumber(node.arguments[2]), tonumber(node.arguments[3]))
     end)
-    self.text:registerCommand("facec", function(text, node)
+    self.text:registerCommand("facec", function(text, node, dry)
         self.face.path = "face"
         local ox, oy = tonumber(node.arguments[2]), tonumber(node.arguments[3])
         if self.actor then
@@ -102,13 +102,13 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         self:setFace(node.arguments[1], ox, oy)
     end)
 
-    self.text:registerCommand("react", function(text, node)
+    self.text:registerCommand("react", function(text, node, dry)
         local react_data = tonumber(node.arguments[1]) and self.reactions[tonumber(node.arguments[1])] or self.reactions[node.arguments[1]]
         local reaction = SmallFaceText(react_data.text, react_data.face, react_data.x, react_data.y, react_data.actor)
         reaction.layer = 0.1 + (#self.reaction_instances) * 0.01
         self:addChild(reaction)
         table.insert(self.reaction_instances, reaction)
-    end, false)
+    end, {instant = false})
 
     self.advance_callback = nil
 end

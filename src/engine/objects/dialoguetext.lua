@@ -237,13 +237,14 @@ function DialogueText:isModifier(command)
     return Utils.containsValue(DialogueText.COMMANDS, command) or super:isModifier(self, command)
 end
 
-function DialogueText:registerCommand(command, func, instant)
-    super:registerCommand(self, command, func)
-    self.custom_command_wait[command] = (instant == false)
+function DialogueText:registerCommand(command, func, options)
+    options = options or {}
+    super:registerCommand(self, command, func, options)
+    self.custom_command_wait[command] = options["instant"] ~= false
 end
 
-function DialogueText:processCustomCommand(node)
-    local result = super:processCustomCommand(self, node)
+function DialogueText:processCustomCommand(node, dry)
+    local result = super:processCustomCommand(self, node, dry)
     if self.custom_command_wait[node.command] then
         self.state.typed_characters = self.state.typed_characters + 1
     end
