@@ -9,10 +9,15 @@ function PartyMember:init()
     -- Light World Actor (handles overworld/battle sprites in light world maps) (optional)
     self.lw_actor = nil
 
-    -- Display level (saved to the save file)
-    self.level = 1
     -- Default title / class (saved to the save file)
     self.title = "Player"
+    -- Display level (saved to the save file)
+    self.level = 1
+
+    -- Light world LV (saved to the save file)
+    self.lw_lv = 1
+    -- Light world EXP (saved to the save file)
+    self.lw_exp = 0
 
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 2
@@ -33,6 +38,8 @@ function PartyMember:init()
 
     -- Current health (saved to the save file)
     self.health = 100
+    -- Current light world health (saved to the save file)
+    self.lw_health = 20
 
     -- Base stats (saved to the save file)
     self.stats = {
@@ -40,6 +47,12 @@ function PartyMember:init()
         attack = 10,
         defense = 2,
         magic = 0
+    }
+    -- Light world stats (saved to the save file)
+    self.lw_stats = {
+        health = 20,
+        attack = 10,
+        defense = 0
     }
 
     -- Weapon icon in equip menu
@@ -92,6 +105,30 @@ function PartyMember:init()
 
     -- Character flags (saved to the save file)
     self.flags = {}
+
+    -- Light world EXP requirements
+    self.lw_exp_needed = {
+        [ 1] = 0,
+        [ 2] = 10,
+        [ 3] = 30,
+        [ 4] = 70,
+        [ 5] = 120,
+        [ 6] = 200,
+        [ 7] = 300,
+        [ 8] = 500,
+        [ 9] = 800,
+        [10] = 1200,
+        [11] = 1700,
+        [12] = 2500,
+        [13] = 3500,
+        [14] = 5000,
+        [15] = 7000,
+        [16] = 10000,
+        [17] = 15000,
+        [18] = 25000,
+        [19] = 50000,
+        [20] = 99999
+    }
 end
 
 -- Callbacks
@@ -111,7 +148,12 @@ function PartyMember:onLoad(data) end
 -- Getters
 
 function PartyMember:getName() return self.name end
-function PartyMember:getTitle() return "LV"..self.level.." "..self.title end
+function PartyMember:getTitle() return "LV"..self:getLevel().." "..self.title end
+function PartyMember:getLevel() return self.level end
+
+function PartyMember:getLightLV() return self.lw_lv end
+function PartyMember:getLightEXP() return self.lw_exp end
+function PartyMember:getLightEXPNeeded(lv) return self.lw_exp_needed[lv] or 0 end
 
 function PartyMember:getSoulPriority() return self.soul_priority end
 function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or {1, 0, 0}) end
@@ -123,6 +165,15 @@ function PartyMember:hasXAct() return self.has_xact end
 function PartyMember:getXActName() return self.xact_name end
 
 function PartyMember:getWeaponIcon() return self.weapon_icon end
+
+function PartyMember:getHealth() return Game:isLight() and self.lw_health or self.health end
+function PartyMember:getBaseStats(light)
+    if light or (light == nil and Game:isLight()) then
+        return self.lw_stats
+    else
+        return self.stats
+    end
+end
 
 function PartyMember:getColor() return Utils.unpackColor(self.color) end
 function PartyMember:getDamageColor()
@@ -175,16 +226,25 @@ function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.playSound("snd_power")
     end
-    self.health = math.min(self:getStat("health"), self.health + amount)
+    self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
+end
+
+function PartyMember:setHealth(health)
+    if Game:isLight() then
+        self.lw_health = health
+    else
+        self.health = health
+    end
 end
 
 function PartyMember:increaseStat(stat, amount, max)
-    self.stats[stat] = (self.stats[stat] or 0) + amount
-    if max and self.stats[stat] > max then
-        self.stats[stat] = max
+    local base_stats = self:getBaseStats()
+    base_stats[stat] = (base_stats[stat] or 0) + amount
+    if max and base_stats[stat] > max then
+        base_stats[stat] = max
     end
     if stat == "health" then
-        self.health = math.min(self.health + amount, self.stats[stat])
+        self:setHealth(math.min(self:getHealth() + amount, base_stats[stat]))
     end
 end
 
@@ -305,8 +365,8 @@ function PartyMember:getEquipmentBonus(stat)
     return total
 end
 
-function PartyMember:getStats()
-    local stats = Utils.copy(self.stats)
+function PartyMember:getStats(light)
+    local stats = Utils.copy(self:getBaseStats(light))
     for _,item in ipairs(self:getEquipment()) do
         for stat,amount in pairs(item:getStatBonuses()) do
             if stats[stat] then
@@ -319,8 +379,8 @@ function PartyMember:getStats()
     return stats
 end
 
-function PartyMember:getStat(name, default)
-    return (self.stats[name] or (default or 0)) + self:getEquipmentBonus(name)
+function PartyMember:getStat(name, default, light)
+    return (self:getBaseStats(light)[name] or (default or 0)) + self:getEquipmentBonus(name)
 end
 
 function PartyMember:getFlag(name, default)
@@ -384,6 +444,9 @@ function PartyMember:convertToLight()
         ["1"] = last_armors[1] and last_armors[1]:save(),
         ["2"] = last_armors[2] and last_armors[2]:save()
     })
+
+    -- For deltarune accuracy, you heal here, bc health conversion code is broken
+    self.lw_health = self:getStat("health")
 end
 
 function PartyMember:convertToDark()
@@ -473,8 +536,14 @@ end
 function PartyMember:save()
     local data = {
         id = self.id,
+        title = self.title,
+        level = self.level,
         health = self.health,
         stats = self.stats,
+        lw_lv = self.lw_lv,
+        lw_exp = self.lw_exp,
+        lw_health = self.lw_health,
+        lw_stats = self.lw_stats,
         spells = self:saveSpells(),
         equipped = self:saveEquipment(),
         flags = self.flags
@@ -484,7 +553,12 @@ function PartyMember:save()
 end
 
 function PartyMember:load(data)
+    self.title = data.title or self.title
+    self.level = data.level or self.level
     self.stats = data.stats or self.stats
+    self.lw_lv = data.lw_lv or self.lw_lv
+    self.lw_exp = data.lw_exp or self.lw_exp
+    self.lw_stats = data.lw_stats or self.lw_stats
     if data.spells then
         self:loadSpells(data.spells)
     end
@@ -492,7 +566,8 @@ function PartyMember:load(data)
         self:loadEquipment(data.equipped)
     end
     self.flags = data.flags or self.flags
-    self.health = data.health or self:getStat("health")
+    self.health = data.health or self:getStat("health", 0, false)
+    self.lw_health = data.lw_health or self:getStat("health", 0, true)
 
     self:onLoad(data)
 end

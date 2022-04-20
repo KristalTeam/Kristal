@@ -32,22 +32,26 @@ function LightStatMenu:draw()
     love.graphics.setFont(self.font)
     love.graphics.setColor(1, 1, 1, 1)
 
-    love.graphics.print("\"" .. Game.party[1]:getName() .. "\"", 4, 8)
-    love.graphics.print("LV  1", 4, 68)
-    love.graphics.print("HP  20 / 20", 4, 100)
+    local chara = Game.party[1]
 
-    love.graphics.print("AT  10 (1)", 4,   164)
-    love.graphics.print("DF  10 (0)", 4,   196)
-    love.graphics.print("EXP: 0",   172, 164)
-    love.graphics.print("NEXT: 10", 172, 196)
+    love.graphics.print("\"" .. chara:getName() .. "\"", 4, 8)
+    love.graphics.print("LV  "..chara:getLightLV(), 4, 68)
+    love.graphics.print("HP  "..chara:getHealth().." / "..chara:getStat("health"), 4, 100)
 
-    local weapon_name = Game.party[1]:getWeapon() and Game.party[1]:getWeapon():getName() or "None"
-    local armor_name = Game.party[1]:getArmor(1) and Game.party[1]:getArmor(1):getName() or "None"
+    local exp_needed = math.max(0, chara:getLightEXPNeeded(chara:getLightLV() + 1) - chara:getLightEXP())
+
+    love.graphics.print("AT  "..chara:getBaseStats()["attack"] .." ("..chara:getEquipmentBonus("attack") ..")", 4, 164)
+    love.graphics.print("DF  "..chara:getBaseStats()["defense"].." ("..chara:getEquipmentBonus("defense")..")", 4, 196)
+    love.graphics.print("EXP: "..chara:getLightEXP(),   172, 164)
+    love.graphics.print("NEXT: "..exp_needed, 172, 196)
+
+    local weapon_name = chara:getWeapon() and chara:getWeapon():getName() or "None"
+    local armor_name = chara:getArmor(1) and chara:getArmor(1):getName() or "None"
 
     love.graphics.print("WEAPON: "..weapon_name, 4, 256)
     love.graphics.print("ARMOR: "..armor_name, 4, 288)
 
-    love.graphics.print("MONEY: 2", 4, 328)
+    love.graphics.print("MONEY: "..Game.lw_money, 4, 328)
 
     super:draw(self)
 end

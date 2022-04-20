@@ -143,14 +143,16 @@ function LightMenu:draw()
         offset = 270
     end
 
+    local chara = Game.party[1]
+
     love.graphics.setFont(self.font)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(Game.party[1]:getName(), 46, 60 + offset)
+    love.graphics.print(chara:getName(), 46, 60 + offset)
 
     love.graphics.setFont(self.font_small)
-    love.graphics.print("LV  1",     46, 100 + offset)
-    love.graphics.print("HP  20/20", 46, 118 + offset)
-    love.graphics.print("$   2",     46, 136 + offset)
+    love.graphics.print("LV  "..chara:getLightLV(), 46, 100 + offset)
+    love.graphics.print("HP  "..chara:getHealth().."/"..chara:getStat("health"), 46, 118 + offset)
+    love.graphics.print("$   "..Game.lw_money, 46, 136 + offset)
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(self.font)

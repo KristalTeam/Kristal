@@ -103,6 +103,8 @@ function Game:save(x, y)
         money = self.money,
         xp = self.xp,
 
+        lw_money = self.lw_money,
+
         level_up_count = self.level_up_count,
 
         temp_followers = self.temp_followers,
@@ -227,6 +229,8 @@ function Game:load(data, index)
 
     self.money = data.money or 0
     self.xp = data.xp or 0
+
+    self.lw_money = data.lw_money or 2
 
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
