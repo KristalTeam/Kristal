@@ -44,9 +44,9 @@ function actor:init()
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         ["starwalker"] = {0, 0},
-        ["starwalker_wings"] = {6, 4},
+        ["starwalker_wings"] = {-6, -4},
         ["starwalker_shoot_1"] = {0, 0},
-        ["starwalker_shoot_2"] = {5, 0},
+        ["starwalker_shoot_2"] = {-5, 0},
     }
 end
 

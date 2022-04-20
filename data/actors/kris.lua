@@ -75,47 +75,47 @@ function actor:init()
         ["slide"] = {0, 0},
 
         -- Battle offsets
-        ["battle/idle"] = {5, 1},
+        ["battle/idle"] = {-5, -1},
 
-        ["battle/attack"] = {8, 6},
-        ["battle/attackready"] = {8, 6},
-        ["battle/act"] = {6, 6},
-        ["battle/actend"] = {6, 6},
-        ["battle/actready"] = {6, 6},
-        ["battle/item"] = {6, 6},
-        ["battle/itemready"] = {6, 6},
-        ["battle/defend"] = {5, 3},
+        ["battle/attack"] = {-8, -6},
+        ["battle/attackready"] = {-8, -6},
+        ["battle/act"] = {-6, -6},
+        ["battle/actend"] = {-6, -6},
+        ["battle/actready"] = {-6, -6},
+        ["battle/item"] = {-6, -6},
+        ["battle/itemready"] = {-6, -6},
+        ["battle/defend"] = {-5, -3},
 
-        ["battle/defeat"] = {8, 5},
-        ["battle/hurt"] = {5, 6},
+        ["battle/defeat"] = {-8, -5},
+        ["battle/hurt"] = {-5, -6},
 
-        ["battle/intro"] = {8, 9},
-        ["battle/victory"] = {3, 0},
+        ["battle/intro"] = {-8, -9},
+        ["battle/victory"] = {-3, 0},
 
         -- Cutscene offsets
-        ["pose"] = {4, 2},
+        ["pose"] = {-4, -2},
 
-        ["fall"] = {5, 6},
-        ["ball"] = {-1, -8},
-        ["landed"] = {4, 2},
+        ["fall"] = {-5, -6},
+        ["ball"] = {1, 8},
+        ["landed"] = {-4, -2},
 
-        ["fell"] = {14, -1},
+        ["fell"] = {-14, 1},
 
-        ["sword_jump_down"] = {19, 5}, -- (was 17,3  was this deltarune accurate?)
-        ["sword_jump_settle"] = {27, -4},
-        ["sword_jump_up"] = {17, -2},
+        ["sword_jump_down"] = {-19, -5},
+        ["sword_jump_settle"] = {-27, 4},
+        ["sword_jump_up"] = {-17, 2},
 
-        ["hug_left"] = {4, 1},
-        ["hug_right"] = {2, 1},
+        ["hug_left"] = {-4, -1},
+        ["hug_right"] = {-2, -1},
 
         ["peace"] = {0, 0},
         ["rude_gesture"] = {0, 0},
 
-        ["reach"] = {3, 1},
+        ["reach"] = {-3, -1},
 
-        ["sit"] = {3, 0},
+        ["sit"] = {-3, 0},
 
-        ["t_pose"] = {4, 0},
+        ["t_pose"] = {-4, 0},
     }
 end
 

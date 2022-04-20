@@ -58,24 +58,24 @@ function actor:init()
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Battle offsets
-        ["battle/idle"] = {7, 2},
+        ["battle/idle"] = {-7, -2},
 
-        ["battle/attack"] = {11, 3},
-        ["battle/attackready"] = {11, 3},
-        ["battle/act"] = {3, 2},
-        ["battle/actend"] = {3, 2},
-        ["battle/actready"] = {3, 2},
-        ["battle/spell"] = {12, 2},
-        ["battle/spellready"] = {12, 2},
-        ["battle/item"] = {8, 10},
-        ["battle/itemready"] = {8, 10},
-        ["battle/defend"] = {3, 2},
+        ["battle/attack"] = {-11, -3},
+        ["battle/attackready"] = {-11, -3},
+        ["battle/act"] = {-3, -2},
+        ["battle/actend"] = {-3, -2},
+        ["battle/actready"] = {-3, -2},
+        ["battle/spell"] = {-12, -2},
+        ["battle/spellready"] = {-12, -2},
+        ["battle/item"] = {-8, -10},
+        ["battle/itemready"] = {-8, -10},
+        ["battle/defend"] = {-3, -2},
 
-        ["battle/defeat"] = {3, 2},
-        --["battle/hurt"] = {13, 2}, -- does this exist?
+        ["battle/defeat"] = {-3, -2},
+        --["battle/hurt"] = {-13, -2}, -- does this exist?
 
-        ["battle/intro"] = {3, 2},
-        ["battle/victory"] = {3, 2}
+        ["battle/intro"] = {-3, -2},
+        ["battle/victory"] = {-3, -2}
     }
 end
 

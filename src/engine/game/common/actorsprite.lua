@@ -264,7 +264,7 @@ end
 function ActorSprite:createTransform()
     local transform = super:createTransform(self)
     local offset = self:getOffset()
-    transform:translate(-offset[1], -offset[2])
+    transform:translate(offset[1], offset[2])
     return transform
 end
 

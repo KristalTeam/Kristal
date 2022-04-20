@@ -73,58 +73,58 @@ function actor:init()
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets
-        ["walk/down"] = {1, 0},
+        ["walk/down"] = {-1, 0},
         ["walk/left"] = {0, 0},
         ["walk/right"] = {0, 0},
-        ["walk/up"] = {1, 0},
+        ["walk/up"] = {-1, 0},
 
-        ["walk_blush/down"] = {1, 0},
+        ["walk_blush/down"] = {-1, 0},
         ["walk_blush/left"] = {0, 0},
         ["walk_blush/right"] = {0, 0},
-        ["walk_blush/up"] = {1, 0},
+        ["walk_blush/up"] = {-1, 0},
 
-        ["slide"] = {2, -2},
+        ["slide"] = {-2, 2},
 
         -- Battle offsets
-        ["battle/idle"] = {2, 6},
+        ["battle/idle"] = {-2, -6},
 
-        ["battle/attack"] = {10, 6},
-        ["battle/attackready"] = {10, 6},
-        ["battle/act"] = {2, 6},
-        ["battle/actend"] = {2, 6},
-        ["battle/actready"] = {2, 6},
-        ["battle/spell"] = {11, 6},
-        ["battle/spellready"] = {11, 6},
-        ["battle/item"] = {7, 14},
-        ["battle/itemready"] = {7, 14},
-        ["battle/defend"] = {2, 6},
+        ["battle/attack"] = {-10, -6},
+        ["battle/attackready"] = {-10, -6},
+        ["battle/act"] = {-2, -6},
+        ["battle/actend"] = {-2, -6},
+        ["battle/actready"] = {-2, -6},
+        ["battle/spell"] = {-11, -6},
+        ["battle/spellready"] = {-11, -6},
+        ["battle/item"] = {-7, -14},
+        ["battle/itemready"] = {-7, -14},
+        ["battle/defend"] = {-2, -6},
 
-        ["battle/defeat"] = {2, 6},
-        ["battle/hurt"] = {13, 2},
+        ["battle/defeat"] = {-2, -6},
+        ["battle/hurt"] = {-13, -2},
 
-        ["battle/intro"] = {2, 6},
-        ["battle/victory"] = {0, 6},
+        ["battle/intro"] = {-2, -6},
+        ["battle/victory"] = {0, -6},
 
         -- Cutscene offsets
-        ["pose"] = {1, 1},
+        ["pose"] = {-1, -1},
 
-        ["fall"] = {10, 0},
-        ["ball"] = {0, -9},
-        ["landed"] = {1, 0},
+        ["fall"] = {-10, 0},
+        ["ball"] = {0, 9},
+        ["landed"] = {-1, 0},
 
         ["hug"] = {0, 0},
         ["hug_stop"] = {0, 0},
 
-        ["laugh"] = {2, 0},
+        ["laugh"] = {-2, 0},
 
-        ["shocked_behind"] = {9, -3},
-        ["surprised_down"] = {5, 1},
+        ["shocked_behind"] = {-9, 3},
+        ["surprised_down"] = {-5, -1},
 
-        ["wave_start"] = {1, 0},
-        ["wave_down"] = {-1, -1},
+        ["wave_start"] = {-1, 0},
+        ["wave_down"] = {1, 1},
 
-        ["splat"] = {15, -21},
-        ["stool"] = {11, -18}
+        ["splat"] = {-15, 21},
+        ["stool"] = {-11, 18}
     }
 end
 

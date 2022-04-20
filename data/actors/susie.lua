@@ -75,94 +75,94 @@ function actor:init()
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets
-        ["walk/down"] = {0, 2},
-        ["walk/left"] = {0, 2},
-        ["walk/right"] = {0, 2},
-        ["walk/up"] = {0, 2},
+        ["walk/down"] = {0, -2},
+        ["walk/left"] = {0, -2},
+        ["walk/right"] = {0, -2},
+        ["walk/up"] = {0, -2},
 
-        ["walk_bangs/down"] = {0, 2},
-        ["walk_bangs/left"] = {0, 2},
-        ["walk_bangs/right"] = {0, 2},
-        ["walk_bangs/up"] = {0, 2},
+        ["walk_bangs/down"] = {0, -2},
+        ["walk_bangs/left"] = {0, -2},
+        ["walk_bangs/right"] = {0, -2},
+        ["walk_bangs/up"] = {0, -2},
 
         ["walk_unhappy/down"] = {0, 0},
         ["walk_unhappy/left"] = {0, 0},
         ["walk_unhappy/right"] = {0, 0},
-        ["walk_unhappy/up"] = {0, 2},
+        ["walk_unhappy/up"] = {0, -2},
 
-        ["walk_back_arm/left"] = {3, 2},
-        ["walk_back_arm/right"] = {0, 2},
+        ["walk_back_arm/left"] = {-3, -2},
+        ["walk_back_arm/right"] = {0, -2},
 
-        ["slide"] = {5, 12},
+        ["slide"] = {-5, -12},
 
         -- Battle offsets
-        ["battle/idle"] = {22, 1},
+        ["battle/idle"] = {-22, -1},
 
-        ["battle/attack"] = {26, 25},
-        ["battle/attackready"] = {26, 25},
-        ["battle/act"] = {24, 25},
-        ["battle/actend"] = {24, 25},
-        ["battle/actready"] = {24, 25},
-        ["battle/spell"] = {22, 30},
-        ["battle/spellready"] = {22, 15},
-        ["battle/item"] = {22, 1},
-        ["battle/itemready"] = {22, 1},
-        ["battle/defend"] = {20, 23},
+        ["battle/attack"] = {-26, -25},
+        ["battle/attackready"] = {-26, -25},
+        ["battle/act"] = {-24, -25},
+        ["battle/actend"] = {-24, -25},
+        ["battle/actready"] = {-24, -25},
+        ["battle/spell"] = {-22, -30},
+        ["battle/spellready"] = {-22, -15},
+        ["battle/item"] = {-22, -1},
+        ["battle/itemready"] = {-22, -1},
+        ["battle/defend"] = {-20, -23},
 
-        ["battle/defeat"] = {22, 1},
-        ["battle/hurt"] = {22, 1},
+        ["battle/defeat"] = {-22, -1},
+        ["battle/hurt"] = {-22, -1},
 
-        ["battle/victory"] = {28, 7},
+        ["battle/victory"] = {-28, -7},
 
-        ["battle/rudebuster"] = {44, 33},
+        ["battle/rudebuster"] = {-44, -33},
 
         -- Cutscene offsets
-        ["pose"] = {1, 1},
+        ["pose"] = {-1, -1},
 
-        ["fall"] = {0, 4},
-        ["ball"] = {-1, -7},
-        ["landed"] = {5, 2},
+        ["fall"] = {0, -4},
+        ["ball"] = {1, 7},
+        ["landed"] = {-5, -2},
 
-        ["shock_left"] = {0, 4},
-        ["shock_right"] = {16, 4},
-        ["shock_down"] = {0, 2},
-        ["shock_up"] = {6, 0},
+        ["shock_left"] = {0, -4},
+        ["shock_right"] = {-16, -4},
+        ["shock_down"] = {0, -2},
+        ["shock_up"] = {-6, 0},
 
-        ["shock_behind"] = {15, 3},
-        ["shock_down_flip"] = {0, 2},
+        ["shock_behind"] = {-15, -3},
+        ["shock_down_flip"] = {0, -2},
 
-        ["laugh_left"] = {8, 2},
-        ["laugh_right"] = {4, 2},
+        ["laugh_left"] = {-8, -2},
+        ["laugh_right"] = {-4, -2},
 
-        ["point_laugh_left"] = {14, -2},
-        ["point_laugh_right"] = {0, -2},
+        ["point_laugh_left"] = {-14, 2},
+        ["point_laugh_right"] = {0, 2},
 
-        ["point_left"] = {11, -2},
-        ["point_right"] = {0, -2},
-        ["point_up"] = {2, 0},
+        ["point_left"] = {-11, 2},
+        ["point_right"] = {0, 2},
+        ["point_up"] = {-2, 0},
 
-        ["point_up_turn"] = {2, 0},
+        ["point_up_turn"] = {-2, 0},
 
-        ["playful_punch"] = {8, 0},
+        ["playful_punch"] = {-8, 0},
 
-        ["wall_left"] = {0, 2},
-        ["wall_right"] = {0, 2},
+        ["wall_left"] = {0, -2},
+        ["wall_right"] = {0, -2},
 
-        ["exasperated_left"] = {1, 0},
-        ["exasperated_right"] = {5, 0},
+        ["exasperated_left"] = {-1, 0},
+        ["exasperated_right"] = {-5, 0},
 
-        ["angry_down"] = {10, -2},
-        ["turn_around"] = {12, -2},
+        ["angry_down"] = {-10, 2},
+        ["turn_around"] = {-12, 2},
 
-        ["away"] = {1, 2},
-        ["away_turn"] = {1, 2},
-        ["away_hips"] = {1, 2},
-        ["away_hand"] = {1, 2},
-        ["away_scratch"] = {1, 2},
+        ["away"] = {-1, -2},
+        ["away_turn"] = {-1, -2},
+        ["away_hips"] = {-1, -2},
+        ["away_hand"] = {-1, -2},
+        ["away_scratch"] = {-1, -2},
 
-        ["t_pose"] = {6, 0},
+        ["t_pose"] = {-6, 0},
 
-        ["fell"] = {18, 2},
+        ["fell"] = {-18, -2},
     }
 end
 

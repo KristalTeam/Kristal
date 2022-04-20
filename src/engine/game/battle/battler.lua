@@ -19,7 +19,7 @@ end
 function Battler:flash(sprite)
     local sprite_to_use = sprite or self.sprite
     local offset = sprite_to_use:getOffset()
-    local flash = FlashFade(sprite_to_use.texture, -offset[1], -offset[2])
+    local flash = FlashFade(sprite_to_use.texture, offset[1], offset[2])
     flash.layer = 100
     self:addChild(flash)
     return flash
