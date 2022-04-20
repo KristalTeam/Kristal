@@ -378,7 +378,7 @@ end
 
 function EnemyBattler:onDefeatRun(damage, battler)
     self.hurt_timer = -1
-	self.defeated = true
+    self.defeated = true
 
     Assets.playSound("snd_defeatrun")
 

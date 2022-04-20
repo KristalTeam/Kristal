@@ -114,7 +114,7 @@ function PartyBattler:heal(amount, sparkle_color)
 
     self.chara.health = self.chara.health + amount
 
-	self:checkHealth()
+    self:checkHealth()
 
     self:flash()
 
@@ -129,8 +129,8 @@ function PartyBattler:heal(amount, sparkle_color)
 end
 
 function PartyBattler:checkHealth()
-	if (not self.is_down) and self.chara.health <= 0 then
-		self:down()
+    if (not self.is_down) and self.chara.health <= 0 then
+        self:down()
     elseif (self.is_down) and self.chara.health > 0 then
         self:revive()
     end
