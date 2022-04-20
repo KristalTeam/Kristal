@@ -579,6 +579,7 @@ function Object:addChild(child)
     table.insert(self.children, child)
     child:onAdd(self)
     self.update_child_list = true
+    return child
 end
 
 function Object:removeChild(child)
@@ -590,6 +591,7 @@ function Object:removeChild(child)
     end
     self.children_to_remove[child] = true
     self.update_child_list = true
+    return child
 end
 
 function Object:setParent(parent)
