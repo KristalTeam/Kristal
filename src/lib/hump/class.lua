@@ -107,10 +107,8 @@ local function new(class)
         ["__includes"] = true,
         ["__includes_all"] = true,
         ["__index"] = true,
-        ["init"] = true,
         ["include"] = true,
         ["includes"] = true,
-        ["clone"] = true,
     }
 
     -- constructor call
