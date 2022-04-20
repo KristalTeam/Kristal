@@ -157,11 +157,25 @@ function WorldCutscene:look(chara, dir)
     chara:setFacing(dir)
 end
 
-function WorldCutscene:walkTo(chara, x, y, speed, facing, keep_facing)
+function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    if chara:walkTo(x, y, speed, facing, keep_facing) then
+    if chara:walkTo(x, y, time, facing, keep_facing) then
+        if not Utils.containsValue(self.moving_chars, chara) then
+            table.insert(self.moving_chars, chara)
+        end
+        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    else
+        return _true
+    end
+end
+
+function WorldCutscene:walkToSpeed(chara, x, y, speed, facing, keep_facing)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+    if chara:walkToSpeed(x, y, speed, facing, keep_facing) then
         if not Utils.containsValue(self.moving_chars, chara) then
             table.insert(self.moving_chars, chara)
         end
@@ -204,11 +218,25 @@ function WorldCutscene:spin(chara, speed)
     chara:spin(speed)
 end
 
-function WorldCutscene:slideTo(chara, x, y, speed)
+function WorldCutscene:slideTo(chara, x, y, time)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    if chara:slideTo(x, y, speed) then
+    if chara:slideTo(x, y, time) then
+        if not Utils.containsValue(self.moving_chars, chara) then
+            table.insert(self.moving_chars, chara)
+        end
+        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    else
+        return _true
+    end
+end
+
+function WorldCutscene:slideToSpeed(chara, x, y, speed)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+    if chara:slideToSpeed(x, y, speed) then
         if not Utils.containsValue(self.moving_chars, chara) then
             table.insert(self.moving_chars, chara)
         end

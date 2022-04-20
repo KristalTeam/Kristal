@@ -222,7 +222,27 @@ function Character:onFootstep(num)
     Kristal.callEvent("onFootstep", self, num)
 end
 
-function Character:walkTo(x, y, speed, facing, keep_facing)
+function Character:walkTo(x, y, time, facing, keep_facing)
+    if type(x) == "string" then
+        keep_facing = facing
+        facing = time
+        time = y
+        x, y = self.world.map:getMarker(x)
+    end
+    local dist = Utils.dist(self.x, self.y, x, y)
+    return self:walkToSpeed(x, y, (dist / (time or 1)) / 30, facing, keep_facing)
+end
+
+function Character:slideTo(x, y, time)
+    if type(x) == "string" then
+        time = y
+        x, y = self.world.map:getMarker(x)
+    end
+    local dist = Utils.dist(self.x, self.y, x, y)
+    return self:slideToSpeed(x, y, (dist / (time or 1)) / 30)
+end
+
+function Character:walkToSpeed(x, y, speed, facing, keep_facing)
     if type(x) == "string" then
         keep_facing = facing
         facing = speed
@@ -241,10 +261,8 @@ function Character:walkTo(x, y, speed, facing, keep_facing)
     return false
 end
 
-function Character:slideTo(x, y, speed)
+function Character:slideToSpeed(x, y, speed)
     if type(x) == "string" then
-        keep_facing = facing
-        facing = speed
         speed = y
         x, y = self.world.map:getMarker(x)
     end
@@ -483,7 +501,10 @@ function Character:update(dt)
         local tx = Utils.approach(self.x, target.x, math.abs(math.cos(target.angle)) * target.speed * DTMULT)
         local ty = Utils.approach(self.y, target.y, math.abs(math.sin(target.angle)) * target.speed * DTMULT)
         if target.animate then
+            local last_noclip = self.noclip
+            self.noclip = true
             self:moveTo(tx, ty, target.keep_facing)
+            self.noclip = last_noclip
         else
             self:setPosition(tx, ty)
         end

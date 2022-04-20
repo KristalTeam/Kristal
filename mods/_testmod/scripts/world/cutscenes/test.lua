@@ -18,11 +18,11 @@ return function(cutscene)
 
         susie.sprite:set("shock_right")
         --Cutscene.setSprite(susie, "world/dark/shock_r")
-        cutscene:wait(cutscene:slideTo(ralsei, susie.x, susie.y, 12))
-        cutscene:slideTo(susie, susie.x - 40, susie.y, 8)
-        cutscene:wait(cutscene:slideTo(ralsei, kris.x, kris.y, 12))
+        cutscene:wait(cutscene:slideTo(ralsei, susie.x, susie.y, 0.1))
+        cutscene:slideTo(susie, susie.x - 40, susie.y, 0.1)
+        cutscene:wait(cutscene:slideTo(ralsei, kris.x, kris.y, 0.1))
         cutscene:look(kris, "right")
-        cutscene:wait(cutscene:slideTo(kris, kris.x - 40, kris.y, 8))
+        cutscene:wait(cutscene:slideTo(kris, kris.x - 40, kris.y, 0.1))
         ralsei:explode()
         cutscene:shakeCamera(8)
 
@@ -55,7 +55,7 @@ return function(cutscene)
             ralsei = cutscene:spawnNPC("ralsei", 680, 300)
             ralsei.following = false
 
-            local walk_wait = cutscene:walkTo(ralsei, 160, 300, 12)
+            local walk_wait = cutscene:walkTo(ralsei, 160, 300, 1)
             cutscene:wait(0.5)
             cutscene:look(susie, "right")
 
