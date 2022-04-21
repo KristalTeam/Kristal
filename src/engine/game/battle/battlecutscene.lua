@@ -135,6 +135,30 @@ function BattleCutscene:moveTo(chara, x, y, speed)
     return _true
 end
 
+function BattleCutscene:slideTo(obj, x, y, time, ease)
+    if type(obj) == "string" then
+        obj = self:getCharacter(obj)
+    end
+    local slided = false
+    if obj:slideTo(x, y, time, ease, function() slided = true end) then
+        return function() return slided end
+    else
+        return _true
+    end
+end
+
+function BattleCutscene:slideToSpeed(obj, x, y, speed)
+    if type(obj) == "string" then
+        obj = self:getCharacter(obj)
+    end
+    local slided = false
+    if obj:slideToSpeed(x, y, speed, function() slided = true end) then
+        return function() return slided end
+    else
+        return _true
+    end
+end
+
 function BattleCutscene:shakeCharacter(chara, x, y)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)

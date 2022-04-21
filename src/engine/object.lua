@@ -76,6 +76,9 @@ function Object:init(x, y, width, height)
 
         -- Whether direction should be based on rotation instead
         match_rotation = false,
+
+        -- Movement target for Object:slideTo
+        slide_target = nil,
     }
 
     self.graphics = {
@@ -212,6 +215,33 @@ function Object:fadeOutAndRemove(speed)
     self.graphics.fade = speed or 0.04
     self.graphics.fade_to = 0
     self.graphics.fade_callback = self.remove
+end
+
+function Object:slideTo(x, y, time, ease, after)
+    -- Ability to specify World marker for convenience in cutscenes
+    if type(x) == "string" then
+        ease = time
+        time = y
+        x, y = Game.world.map:getMarker(x)
+    end
+    if self.x ~= x or self.y ~= y then
+        self.physics.slide_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
+        return true
+    end
+    return false
+end
+
+function Object:slideToSpeed(x, y, speed, after)
+    -- Ability to specify World marker for convenience in cutscenes
+    if type(x) == "string" then
+        speed = y
+        x, y = Game.world.map:getMarker(x)
+    end
+    if self.x ~= x or self.y ~= y then
+        self.physics.slide_target = {x = x, y = y, speed = speed, after = after}
+        return true
+    end
+    return false
 end
 
 function Object:collidesWith(other)
@@ -818,6 +848,24 @@ function Object:updatePhysicsTransform()
         physics.speed_x = Utils.approach(physics.speed_x or 0, 0, (physics.friction or 0) * DTMULT)
         physics.speed_y = Utils.approach(physics.speed_y or 0, 0, (physics.friction or 0) * DTMULT)
         self:move(physics.speed_x, physics.speed_y, DTMULT)
+    end
+
+    if physics.slide_target then
+        if physics.slide_target.speed then
+            self.x = Utils.approach(self.x, physics.slide_target.x, physics.slide_target.speed * DTMULT)
+            self.y = Utils.approach(self.y, physics.slide_target.y, physics.slide_target.speed * DTMULT)
+        elseif physics.slide_target.time then
+            physics.slide_target.timer = Utils.approach(physics.slide_target.timer, physics.slide_target.time, DT)
+
+            self.x = Utils.ease(physics.slide_target.start_x, physics.slide_target.x, (physics.slide_target.timer / physics.slide_target.time), physics.slide_target.ease)
+            self.y = Utils.ease(physics.slide_target.start_y, physics.slide_target.y, (physics.slide_target.timer / physics.slide_target.time), physics.slide_target.ease)
+        end
+        if self.x == physics.slide_target.x and self.y == physics.slide_target.y then
+            if physics.slide_target.after then
+                physics.slide_target.after()
+            end
+            physics.slide_target = nil
+        end
     end
 end
 

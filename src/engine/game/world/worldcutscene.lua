@@ -200,29 +200,25 @@ function WorldCutscene:spin(chara, speed)
     chara:spin(speed)
 end
 
-function WorldCutscene:slideTo(chara, x, y, time)
-    if type(chara) == "string" then
-        chara = self:getCharacter(chara)
+function WorldCutscene:slideTo(obj, x, y, time, ease)
+    if type(obj) == "string" then
+        obj = self:getCharacter(obj)
     end
-    if chara:slideTo(x, y, time) then
-        if not Utils.containsValue(self.moving_chars, chara) then
-            table.insert(self.moving_chars, chara)
-        end
-        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    local slided = false
+    if obj:slideTo(x, y, time, ease, function() slided = true end) then
+        return function() return slided end
     else
         return _true
     end
 end
 
-function WorldCutscene:slideToSpeed(chara, x, y, speed)
-    if type(chara) == "string" then
-        chara = self:getCharacter(chara)
+function WorldCutscene:slideToSpeed(obj, x, y, speed)
+    if type(obj) == "string" then
+        obj = self:getCharacter(obj)
     end
-    if chara:slideToSpeed(x, y, speed) then
-        if not Utils.containsValue(self.moving_chars, chara) then
-            table.insert(self.moving_chars, chara)
-        end
-        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    local slided = false
+    if obj:slideToSpeed(x, y, speed, function() slided = true end) then
+        return function() return slided end
     else
         return _true
     end
