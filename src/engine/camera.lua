@@ -80,7 +80,14 @@ function Camera:approachLinear(x, y, amount)
     self:keepInBounds()
 end
 
-function Camera:panTo(x, y, time, after)
+function Camera:panTo(x, y, time, ease, after)
+    if type(x) == "string" then
+        after = ease
+        ease = time
+        time = y
+        x, y = Game.world.map:getMarker(x)
+    end
+
     local min_x, min_y = self:getMinPosition()
     local max_x, max_y = self:getMaxPosition()
 
@@ -88,8 +95,7 @@ function Camera:panTo(x, y, time, after)
     y = Utils.clamp(y, min_y, max_y)
 
     if self.x ~= x or self.y ~= y then
-        local dist = Utils.dist(self.x, self.y, x, y)
-        self.pan_target = {x = x, y = y, speed = (dist / (time or 1)) / 30, after = after}
+        self.pan_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
         return true
     else
         return false
@@ -139,7 +145,14 @@ function Camera:update(dt)
         local target_x = Utils.clamp(self.pan_target.x, min_x, max_x)
         local target_y = Utils.clamp(self.pan_target.y, min_y, max_y)
 
-        self:approachLinear(target_x, target_y, self.pan_target.speed * DTMULT)
+        if self.pan_target.time then
+            self.pan_target.timer = Utils.approach(self.pan_target.timer, self.pan_target.time, dt)
+
+            self.x = Utils.ease(self.pan_target.start_x, target_x, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
+            self.y = Utils.ease(self.pan_target.start_y, target_y, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
+        else
+            self:approachLinear(target_x, target_y, self.pan_target.speed * DTMULT)
+        end
 
         if self.x == target_x and self.y == target_y then
             local after = self.pan_target.after

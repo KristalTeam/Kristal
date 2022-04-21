@@ -253,7 +253,7 @@ end
 
 function WorldCutscene:attachCamera(time)
     local tx, ty = Game.world:getCameraTarget()
-    return self:panTo(tx, ty, time or 0.8, function() Game.world.camera_attached = true end)
+    return self:panTo(tx, ty, time or 0.8, "linear", function() Game.world.camera_attached = true end)
 end
 function WorldCutscene:attachCameraImmediate()
     local tx, ty = Game.world:getCameraTarget()
@@ -291,25 +291,29 @@ function WorldCutscene:panTo(...)
     local args = {...}
     local x, y = 0, 0
     local time = 1
+    local ease = "linear"
     local after = nil
     if type(args[1]) == "number" then
         x, y = args[1], args[2]
         time = args[3] or time
-        after = args[4]
+        ease = args[4] or ease
+        after = args[5]
     elseif type(args[1]) == "string" then
         local marker = Game.world.map.markers[args[1]]
         x, y = marker.center_x, marker.center_y
         time = args[2] or time
-        after = args[3]
+        ease = args[3] or ease
+        after = args[4]
     elseif isClass(args[1]) and args[1]:includes(Character) then
         local chara = args[1]
         x, y = chara:getRelativePos(chara.width/2, chara.height/2)
         time = args[2] or time
-        after = args[3]
+        ease = args[3] or ease
+        after = args[4]
     else
         x, y = Game.world:getCameraTarget()
     end
-    local result = Game.world.camera:panTo(x, y, time, after)
+    local result = Game.world.camera:panTo(x, y, time, ease, after)
     if not result and after then
         after()
     end

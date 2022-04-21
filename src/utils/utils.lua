@@ -312,7 +312,11 @@ function Utils.lerpPoint(x1, y1, x2, y2, t, oob)
 end
 
 function Utils.ease(a, b, t, mode)
-    return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
+    if t >= 1 then
+        return b
+    else
+        return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
+    end
 end
 
 function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
