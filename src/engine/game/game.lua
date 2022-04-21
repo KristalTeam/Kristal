@@ -198,6 +198,20 @@ function Game:load(data, index)
         table.insert(self.party, self:getPartyMember(id))
     end
 
+    if self.is_new_file then
+        for id,equipped in pairs(Kristal.getModOption("equipment") or {}) do
+            if equipped["weapon"] then
+                self.party_data[id]:setWeapon(equipped["weapon"] ~= "" and equipped["weapon"] or nil)
+            end
+            local armors = equipped["armor"] or {}
+            for i = 1, 2 do
+                if armors[i] then
+                    self.party_data[id]:setArmor(i, armors[i] ~= "" and armors[i] or nil)
+                end
+            end
+        end
+    end
+
     self.light = data.light or self.world.map.light
 
     if self.light then

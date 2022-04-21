@@ -15,6 +15,15 @@
         "key_items": ["cell_phone", "shadowcrystal", "egg"],
         "storage": ["favwich"]
     },
+    "equipment": {
+        "kris": {
+            "weapon": "wood_blade",
+            "armor": ["dealmaker", "egg"]
+        },
+        "susie": {
+            "weapon": "devilsknife"
+        }
+    },
 
     "transition": false,
 

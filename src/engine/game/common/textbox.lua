@@ -78,7 +78,10 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.face:setScale(2, 2)
     self:addChild(self.face)
 
-    self.text = DialogueText("", self.text_x, self.text_y, width, height)
+    -- Added text width for autowrapping
+    self.wrap_add_w = 16
+
+    self.text = DialogueText("", self.text_x, self.text_y, width + self.wrap_add_w, height)
     self.text.line_offset = 8 -- idk this is dumb
     self:addChild(self.text)
 
@@ -121,7 +124,7 @@ function Textbox:setSize(w, h)
     self.width, self.height = w or 0, h or 0
 
     self.face:setPosition(116 / 2, self.height /2)
-    self.text:setSize(self.width, self.height)
+    self.text:setSize(self.width + self.wrap_add_w, self.height)
     if self.face.texture then
         self.box:setSize(self.width - 116, self.height)
     else
@@ -154,10 +157,10 @@ function Textbox:setFace(face, ox, oy)
 
     if self.face.texture then
         self.text.x = self.text_x + 116
-        self.text.width = self.width - 116
+        self.text.width = self.width - 116 + self.wrap_add_w
     else
         self.text.x = self.text_x
-        self.text.width = self.width
+        self.text.width = self.width + self.wrap_add_w
     end
 end
 
