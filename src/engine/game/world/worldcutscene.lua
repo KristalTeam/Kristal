@@ -80,6 +80,14 @@ function WorldCutscene:getCharacter(id, index)
     return Game.world:getCharacter(id, index)
 end
 
+function WorldCutscene:getEvent(id)
+    return Game.world.map:getEvent(id)
+end
+
+function WorldCutscene:getEvents(name)
+    return Game.world.map:getEvents(name)
+end
+
 function WorldCutscene:getMarker(name)
     return Game.world.map:getMarker(name)
 end
