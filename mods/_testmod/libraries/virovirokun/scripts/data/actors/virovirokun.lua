@@ -22,9 +22,9 @@ function actor:init()
     }
 
     self.offsets = {
-        ["idle"] = {6, 3},
-        ["spared"] = {1, 0},
-        ["hurt"] = {2, 2},
+        ["idle"] = {-6, -3},
+        ["spared"] = {-1, 0},
+        ["hurt"] = {-2, -2},
     }
 end
 
