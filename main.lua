@@ -184,6 +184,8 @@ RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 Shop = require("src.engine.game.shop")
 Shopkeeper = require("src.engine.game.shop.shopkeeper")
 
+GameOver = require("src.engine.game.gameover")
+
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 
 Hotswapper = require("src.hotswapper")

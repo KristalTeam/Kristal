@@ -19,8 +19,6 @@ function DarkTransition:init(final_y, options)
     self.land_callback = nil
     self.end_callback = nil
 
-    self.animation_active = true
-
     self.con = 8
     self.timer = 0
     self.index = 0
@@ -971,8 +969,6 @@ function DarkTransition:draw()
         if ((math.floor(self.timer) >= 55) and not self.do_once12) then
             self.do_once12 = true
             -- We're done!
-            self.animation_active = false
-
             if self.end_callback then
                 self.end_callback(self)
             end
