@@ -508,6 +508,14 @@ function World:getCharacter(id, index)
     end
 end
 
+function World:getEvent(id)
+    return self.map:getEvent(id)
+end
+
+function World:getEvents(name)
+    return self.map:getEvents(name)
+end
+
 function World:detachFollowers()
     for _,follower in ipairs(self.followers) do
         follower.following = false

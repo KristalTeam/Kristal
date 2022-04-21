@@ -11,6 +11,28 @@ Draw._canvas_stack = {}
 
 Draw._scissor_stack = {}
 
+--[[Draw.Transformer = {
+    apply = function(self, tf) love.graphics.applyTransform(tf) end,
+    clone = function(self) error("Transformer:clone() is not implemented") end,
+    getMatrix = function(self) error("Transformer:getMatrix() is not implemented") end,
+    setMatrix = function(self, m) error("Transformer:setMatrix() is not implemented") end,
+    inverse = function(self) error("Transformer:inverse() is not implemented") end,
+    inverseTransformPoint = function(self, x, y) return love.graphics.inverseTransformPoint(x, y) end,
+    transformPoint = function(self, x, y) return love.graphics.transformPoint(x, y) end,
+    reset = function(self) love.graphics.origin() end,
+    rotate = function(self, angle) love.graphics.rotate(angle) end,
+    scale = function(self, x, y) love.graphics.scale(x, y or x) end,
+    shear = function(self, kx, ky) love.graphics.shear(kx, ky) end,
+    translate = function(self, x, y) love.graphics.translate(x, y) end,
+    setTransformation = function(self, x, y, angle, sx, sy, ox, oy, kx, ky)
+        love.graphics.translate(x, y)
+        love.graphics.rotate(angle or 0)
+        love.graphics.scale(sx or 1, sy or sx or 1)
+        love.graphics.translate(-ox or 0, -oy or 0)
+        love.graphics.shear(kx or 0, ky or 0)
+    end,
+}]]
+
 function Draw.pushCanvas(...)
     local args = {...}
     table.insert(self._canvas_stack, love.graphics.getCanvas())
@@ -36,20 +58,17 @@ function Draw.pushCanvas(...)
         end
         clear_canvas = true
     end
-    local keep_transform = false
-    if type(args[#args]) == "boolean" then
-        keep_transform = args[#args]
-    end
+    local options = type(args[#args]) == "table" and args[#args] or {}
     if canvas then
         self._locked_canvas[canvas] = true
         self._used_canvas[canvas] = true
     end
-    Draw.setCanvas{canvas, stencil=true}
+    Draw.setCanvas(canvas, {stencil = options["stencil"]})
     love.graphics.push()
-    if not keep_transform then
+    if not options["keep_transform"] then
         love.graphics.origin()
     end
-    if clear_canvas then
+    if (options["clear"] == nil and clear_canvas) or options["clear"] then
         love.graphics.clear()
     end
     return canvas
@@ -84,9 +103,14 @@ function Draw.popCanvasLocks()
     self._locked_canvas = table.remove(self._locked_canvas_stack, #self._locked_canvas_stack)
 end
 
-function Draw.setCanvas(canvas)
+function Draw.setCanvas(canvas, options)
+    options = options or {}
     if canvas then
-        love.graphics.setCanvas{canvas, stencil=true}
+        if options["stencil"] == false then
+            love.graphics.setCanvas(canvas)
+        else
+            love.graphics.setCanvas{canvas, stencil=true}
+        end
     else
         love.graphics.setCanvas()
     end

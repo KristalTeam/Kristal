@@ -720,7 +720,7 @@ function Object:fullDraw(no_children)
     local processing_fx, canvas = self:shouldProcessDrawFX(), nil
     if processing_fx then
         Draw.pushCanvasLocks()
-        canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, true)
+        canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
     end
     local last_draw_children = self._dont_draw_children
     if no_children then

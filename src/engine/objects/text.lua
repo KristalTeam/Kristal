@@ -262,7 +262,7 @@ function Text:textToNodes(input_string)
 end
 
 function Text:drawToCanvas(func, clear)
-    Draw.pushCanvas(self.canvas)
+    Draw.pushCanvas(self.canvas, {stencil = false})
     Draw.pushScissor()
     love.graphics.push()
     love.graphics.origin()
@@ -306,15 +306,21 @@ function Text:processNode(node, dry)
                 end
             end
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
-            local w, h = self:drawChar(node, self.state)
-            table.insert(self.nodes_to_draw, {node, Utils.copy(self.state)})
+            if not dry then
+                self:drawChar(node, self.state)
+                table.insert(self.nodes_to_draw, {node, Utils.copy(self.state)})
+            end
+            local w, h = self:getNodeSize(node, self.state)
             self.state.current_x = self.state.current_x + w + self.state.spacing
         else
             self.state.newline = false
             self.state.escaping = false
             if node.character == "\\" or node.character == "*" or node.character == "[" or node.character == "]" then
-                local w, h = self:drawChar(node, self.state)
-                table.insert(self.nodes_to_draw, {node, self.state})
+                if not dry then
+                    self:drawChar(node, self.state)
+                    table.insert(self.nodes_to_draw, {node, self.state})
+                end
+                local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing
             end
         end
@@ -385,9 +391,13 @@ function Text:processCustomCommand(node, dry)
     end
 end
 
+function Text:getNodeSize(node, state)
+    local font = Assets.getFont(state.font, state.font_size)
+    return math.max(1, font:getWidth(node.character)), font:getHeight()
+end
+
 function Text:drawChar(node, state, use_color)
     local font = Assets.getFont(state.font, state.font_size)
-    local width, height = math.max(1, font:getWidth(node.character)), font:getHeight()
 
     if state.shake >= 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
@@ -426,7 +436,8 @@ function Text:drawChar(node, state, use_color)
         love.graphics.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y)
     elseif state.style == "dark" then
-        local canvas = Draw.pushCanvas(width, height)
+        local w, h = self:getNodeSize(node, state)
+        local canvas = Draw.pushCanvas(w, h, {stencil = false})
         love.graphics.setColor(1, 1, 1)
         love.graphics.print(node.character)
         Draw.popCanvas()
@@ -486,7 +497,6 @@ function Text:drawChar(node, state, use_color)
         love.graphics.print(node.character, x, y - 2)
         love.graphics.setColor(mr,mg,mb,ma)
     end
-    return width, height
 end
 
 function Text:processStyle(style)

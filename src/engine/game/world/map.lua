@@ -41,6 +41,9 @@ function Map:init(world, data)
     self.battle_borders = {}
     self.paths = {}
 
+    self.events_by_name = {}
+    self.events_by_id = {}
+
     if data then
         self:populateTilesets(data.tilesets)
     end
@@ -394,6 +397,11 @@ function Map:loadObjects(layer, depth)
                     end
                     obj.layer = depth
                     self.world:addChild(obj)
+
+                    self.events_by_name[v.name] = self.events_by_name[v.name] or {}
+                    table.insert(self.events_by_name[v.name], obj)
+
+                    self.events_by_id[v.id] = obj
                 end
             end
         end
@@ -487,6 +495,20 @@ function Map:getTileset(id)
         end
     end
     return nil, 0
+end
+
+function Map:getEvent(id)
+    if type(id) == "number" then
+        return self.events_by_id[id]
+    else
+        if self.events_by_name[id] then
+            return self.events_by_name[id][1]
+        end
+    end
+end
+
+function Map:getEvents(name)
+    return self.events_by_name[name] or {}
 end
 
 return Map
