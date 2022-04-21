@@ -16,8 +16,7 @@ function World:init(map)
     self.width = self.map.width * self.map.tile_width
     self.height = self.map.height * self.map.tile_height
 
-    self.camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    self.camera:setBounds()
+    self.camera = Camera(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, true)
     self.camera_attached = true
 
     self.shake_x = 0
@@ -374,8 +373,7 @@ function World:spawnPlayer(...)
     self:addChild(self.soul)
 
     if self.camera_attached then
-        self.camera:lookAt(self.player.x, self.player.y - (self.player.height * 2)/2)
-        self:updateCamera()
+        self.camera:setPosition(self.player.x, self.player.y - (self.player.height * 2)/2)
     end
 end
 
@@ -568,11 +566,11 @@ function World:loadMap(map, ...)
     self.width = self.map.width * self.map.tile_width
     self.height = self.map.height * self.map.tile_height
 
-    self.camera:setBounds(0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
+    --self.camera:setBounds(0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
 
     if self.map.markers["spawn"] then
         local spawn = self.map.markers["spawn"]
-        self.camera:lookAt(spawn.center_x, spawn.center_y)
+        self.camera:setPosition(spawn.center_x, spawn.center_y)
     end
 
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -581,8 +579,6 @@ function World:loadMap(map, ...)
     self:addChild(self.battle_fader)
 
     self:transitionMusic(self.map.music)
-
-    self:updateCamera()
 end
 
 function World:transitionMusic(next, fade_out)
@@ -702,12 +698,6 @@ function World:updateCamera()
     end
 end
 
-function World:createTransform()
-    local transform = super:createTransform(self)
-    transform:apply(self.camera:getTransform(0, 0))
-    return transform
-end
-
 function World:sortChildren()
     Utils.pushPerformance("World#sortChildren")
     -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
@@ -780,7 +770,7 @@ function World:update(dt)
         end
     end
 
-    -- Keep camera in bounds
+    -- Camera effects (shake)
     self:updateCamera()
 
     if self.in_battle then

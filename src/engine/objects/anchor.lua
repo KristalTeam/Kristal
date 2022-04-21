@@ -16,7 +16,16 @@ function Anchor:getAnchor()
     return self.ox, self.oy
 end
 
-function Anchor:createTransform()
+function Anchor:applyTransformTo(transform)
+    -- Hacky way to translate by something other than X and Y
+    local last_x, last_y = self.x, self.y
+    self.x = self.parent.width * self.ox
+    self.y = self.parent.height * self.oy
+    super:applyTransformTo(self, transform)
+    self.x, self.y = last_x, last_y
+end
+
+--[[function Anchor:createTransform()
     local transform = love.math.newTransform()
     transform:translate(self.parent.width * self.ox, self.parent.height * self.oy)
     if (self.parallax_x or self.parallax_y) and self.parent and self.parent.camera then
@@ -42,6 +51,6 @@ function Anchor:createTransform()
         transform:translate(-ox, -oy)
     end
     return transform
-end
+end]]
 
 return Anchor

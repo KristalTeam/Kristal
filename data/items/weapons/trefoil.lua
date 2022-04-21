@@ -57,7 +57,7 @@ function item:applyMoneyBonus(gold)
     return gold * 1.05
 end
 
-function item:convertToLightEquip()
+function item:convertToLightEquip(chara)
     return "light/lucky_pencil"
 end
 

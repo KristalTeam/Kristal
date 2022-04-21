@@ -31,8 +31,8 @@ function actor:init()
     -- Offset position for this actor's portrait (optional)
     self.portrait_offset = nil
 
-        -- Table of talk sprites and their talk speeds (default 0.25)
-        self.talk_sprites = {}
+    -- Table of talk sprites and their talk speeds (default 0.25)
+    self.talk_sprites = {}
 
     -- Table of sprite animations
     self.animations = {

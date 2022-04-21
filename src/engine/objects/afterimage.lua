@@ -53,13 +53,11 @@ function AfterImage:onRemove()
     self.canvas = nil
 end
 
-function AfterImage:createTransform()
-    local transform = super:createTransform(self)
+function AfterImage:applyTransformTo(transform)
     if self.parent then
-        return self.parent:getFullTransform():inverse() * transform
-    else
-        return transform
+        transform:reset()
     end
+    super:applyTransformTo(self, transform)
 end
 
 function AfterImage:draw()

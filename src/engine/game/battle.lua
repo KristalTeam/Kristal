@@ -81,7 +81,7 @@ function Battle:init()
     self.state = "NONE"
     self.substate = "NONE"
 
-    self.camera = Camera(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.camera = Camera(self, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT, false)
 
     self.cutscene = nil
 
@@ -1642,12 +1642,6 @@ function Battle:sortChildren()
     table.sort(self.children, function(a, b)
         return a.layer < b.layer or (a.layer == b.layer and (a:includes(Battler) and b:includes(Battler)) and a.y < b.y)
     end)
-end
-
-function Battle:createTransform()
-    local transform = super:createTransform(self)
-    transform:apply(self.camera:getTransform(0, 0))
-    return transform
 end
 
 function Battle:update(dt)

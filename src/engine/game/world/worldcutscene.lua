@@ -17,12 +17,6 @@ function WorldCutscene:init(group, id, ...)
 
     self.moving_chars = {}
 
-    self.camera_target = nil
-    self.camera_start = nil
-    self.camera_move_time = 0
-    self.camera_move_timer = 0
-    self.camera_move_after = nil
-
     Game.lock_input = true
     Game.cutscene_active = true
 
@@ -42,7 +36,7 @@ function WorldCutscene:canEnd()
     if #self.moving_chars > 0 then
         return false
     end
-    return not self.camera_target
+    return Game.world.camera.pan_target == nil
 end
 
 function WorldCutscene:update(dt)
@@ -53,26 +47,6 @@ function WorldCutscene:update(dt)
         end
     end
     self.moving_chars = new_moving
-
-    if self.camera_target then
-        if self.camera_move_time == 0 then
-            self.camera_move_timer = 0
-            Game.world.camera.x = self.camera_target[1]
-            Game.world.camera.y = self.camera_target[2]
-        else
-            self.camera_move_timer = Utils.approach(self.camera_move_timer, self.camera_move_time, dt)
-            Game.world.camera.x = Utils.lerp(self.camera_start[1], self.camera_target[1], self.camera_move_timer / self.camera_move_time)
-            Game.world.camera.y = Utils.lerp(self.camera_start[2], self.camera_target[2], self.camera_move_timer / self.camera_move_time)
-        end
-        Game.world:updateCamera()
-        if self.camera_move_timer == self.camera_move_time then
-            self.camera_target = nil
-
-            if self.camera_move_after then
-                self.camera_move_after()
-            end
-        end
-    end
 
     super:update(self, dt)
 end
@@ -280,9 +254,7 @@ end
 function WorldCutscene:attachCameraImmediate()
     local tx, ty = Game.world:getCameraTarget()
     Game.world.camera_attached = true
-    Game.world.camera.x = tx
-    Game.world.camera.y = ty
-    Game.world:updateCamera()
+    Game.world.camera:setPosition(tx, ty)
 end
 
 function WorldCutscene:setSpeaker(actor, talk)
@@ -310,32 +282,33 @@ function WorldCutscene:setTextboxTop(top)
     self.textbox_top = top
 end
 
-local function waitForCameraPan(self) return self.camera_target == nil end
+local function waitForCameraPan(self) return Game.world.camera.pan_target == nil end
 function WorldCutscene:panTo(...)
     local args = {...}
+    local x, y = 0, 0
     local time = 1
     local after = nil
     if type(args[1]) == "number" then
-        self.camera_target = {args[1], args[2]}
+        x, y = args[1], args[2]
         time = args[3] or time
         after = args[4]
     elseif type(args[1]) == "string" then
         local marker = Game.world.map.markers[args[1]]
-        self.camera_target = {marker.center_x, marker.center_y}
+        x, y = marker.center_x, marker.center_y
         time = args[2] or time
         after = args[3]
     elseif isClass(args[1]) and args[1]:includes(Character) then
         local chara = args[1]
-        self.camera_target = {chara:getRelativePos(chara.width/2, chara.height/2)}
+        x, y = chara:getRelativePos(chara.width/2, chara.height/2)
         time = args[2] or time
         after = args[3]
     else
-        self.camera_target = {Game.world:getCameraTarget()}
+        x, y = Game.world:getCameraTarget()
     end
-    self.camera_start = {Game.world.camera.x, Game.world.camera.y}
-    self.camera_move_time = time or 0.8
-    self.camera_move_timer = 0
-    self.camera_move_after = after
+    local result = Game.world.camera:panTo(x, y, time, after)
+    if not result and after then
+        after()
+    end
     return waitForCameraPan
 end
 

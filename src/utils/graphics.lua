@@ -47,6 +47,10 @@ function graphics.getTransform()
   return transform:clone()
 end
 
+function graphics.getTransformRef()
+  return transform
+end
+
 function graphics.applyTransform(t)
   transform:apply(t)
   old_replaceTransform(transform)

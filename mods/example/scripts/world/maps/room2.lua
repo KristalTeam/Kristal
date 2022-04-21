@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.7.2",
+  tiledversion = "1.8.4",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 6,
-  nextobjectid = 10,
+  nextobjectid = 12,
   properties = {
     ["name"] = "Test Map - Room 2"
   },

@@ -126,6 +126,12 @@ function Object:init(x, y, width, height)
     -- How much this object is moved by the camera (1 = normal, 0 = none)
     self.parallax_x = nil
     self.parallax_y = nil
+    -- Parallax origin
+    self.parallax_origin_x = nil
+    self.parallax_origin_y = nil
+
+    -- Camera associated with this object (updates and transforms automatically)
+    self.camera = nil
 
     -- Object scissor, no scissor when nil
     self.cutout_left = nil
@@ -173,6 +179,10 @@ function Object:update(dt)
     self:updateGraphicsTransform()
 
     self:updateChildren(dt)
+
+    if self.camera then
+        self.camera:update(dt)
+    end
 end
 
 function Object:draw()
@@ -294,6 +304,9 @@ end
 
 function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
 function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 end
+
+function Object:setParallaxOrigin(x, y) self.parallax_origin_x = x; self.parallax_origin_y = y end
+function Object:getParallaxOrigin() return self.parallax_origin_x, self.parallax_origin_y end
 
 function Object:getLayer() return self.layer end
 function Object:setLayer(layer)
@@ -475,12 +488,11 @@ function Object:removeFX(id)
     end
 end
 
-function Object:createTransform()
-    Utils.pushPerformance("Object#createTransform")
-    local transform = love.math.newTransform()
+function Object:applyTransformTo(transform)
+    Utils.pushPerformance("Object#applyTransformTo")
     transform:translate(self.x, self.y)
-    if (self.parallax_x or self.parallax_y) and self.parent and self.parent.camera then
-        transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1))
+    if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
+        transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y))
     end
     if self.flip_x or self.flip_y then
         transform:translate(self.width/2, self.height/2)
@@ -501,6 +513,16 @@ function Object:createTransform()
         transform:scale(self.scale_x, self.scale_y)
         transform:translate(-ox, -oy)
     end
+    if self.camera then
+        self.camera:applyTo(transform)
+    end
+    Utils.popPerformance()
+end
+
+function Object:createTransform()
+    Utils.pushPerformance("Object#createTransform")
+    local transform = love.math.newTransform()
+    self:applyTransformTo(transform)
     Utils.popPerformance()
     return transform
 end
@@ -660,7 +682,10 @@ function Object:updateChildren(dt)
 end
 
 function Object:preDraw()
-    love.graphics.applyTransform(self:getTransform())
+    local transform = love.graphics.getTransformRef()
+    self:applyTransformTo(transform)
+    love.graphics.replaceTransform(transform)
+
     love.graphics.setColor(self:getDrawColor())
     Draw.pushScissor()
     self:applyScissor()

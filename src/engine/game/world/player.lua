@@ -183,8 +183,7 @@ function Player:handleMovement()
 end
 
 function Player:moveCamera(speed)
-    self.world.camera.x = Utils.approach(self.world.camera.x, self.x, (speed or 12) * DTMULT)
-    self.world.camera.y = Utils.approach(self.world.camera.y, self.y - (self.height * 2)/2, (speed or 12) * DTMULT)
+    self.world.camera:approach(self.x, self.y - (self.height * 2)/2, (speed or 12) * DTMULT)
 end
 
 function Player:updateWalk(dt)
