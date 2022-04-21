@@ -41,6 +41,7 @@ function Map:init(world, data)
     self.battle_borders = {}
     self.paths = {}
 
+    self.events = {}
     self.events_by_name = {}
     self.events_by_id = {}
 
@@ -126,6 +127,28 @@ function Map:setTile(x, y, tileset, ...)
     end
 
     tile_layer:setTile(x, y, tileset, unpack(args))
+end
+
+function Map:getEvent(id)
+    if type(id) == "number" then
+        return self.events_by_id[id]
+    else
+        if self.events_by_name[id] then
+            return self.events_by_name[id][1]
+        end
+    end
+end
+
+function Map:getEvents(name)
+    if not name then
+        return self.events_by_name[name] or {}
+    else
+        return self.events
+    end
+end
+
+function Map:getImageLayer(id)
+    return self.image_layers[id]
 end
 
 function Map:getTileLayer(name)
@@ -398,6 +421,8 @@ function Map:loadObjects(layer, depth)
                     obj.layer = depth
                     self.world:addChild(obj)
 
+                    table.insert(self.events, obj)
+
                     self.events_by_name[v.name] = self.events_by_name[v.name] or {}
                     table.insert(self.events_by_name[v.name], obj)
 
@@ -495,20 +520,6 @@ function Map:getTileset(id)
         end
     end
     return nil, 0
-end
-
-function Map:getEvent(id)
-    if type(id) == "number" then
-        return self.events_by_id[id]
-    else
-        if self.events_by_name[id] then
-            return self.events_by_name[id][1]
-        end
-    end
-end
-
-function Map:getEvents(name)
-    return self.events_by_name[name] or {}
 end
 
 return Map
