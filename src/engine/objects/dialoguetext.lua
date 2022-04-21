@@ -123,7 +123,7 @@ function DialogueText:update(dt)
             self.fast_skipping_timer = 0
         end
 
-        if self.skippable and ((Input.down("cancel") and not self.state.noskip) or Input.down("menu")) then
+        if self.skippable and ((Input.down("cancel") and not self.state.noskip) or (Input.down("menu") and not self.state.noskip)) then
             if not self.skip_speed then
                 self.state.skipping = true
             else

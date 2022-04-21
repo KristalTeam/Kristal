@@ -6,7 +6,9 @@ function GameOver:init(x, y)
     self.font = Assets.getFont("main")
     self.soul_blur = Assets.getTexture("player/heart_blur")
 
-    self.screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
+    if not Game:isLight() then
+        self.screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
+    end
 
     self.music = Music()
 
@@ -24,6 +26,16 @@ function GameOver:init(x, y)
     self.fade_white = false
 
     self.timer = 0
+    self.heart_x = 0
+    self.heart_y = 0
+    self.ideal_x = 0
+    self.ideal_y = 0
+
+    self.fadebuffer = 0
+
+    if Game:isLight() then
+        self.timer = 28 -- We only wanna show one frame if we're in Undertale mode
+    end
 end
 
 function GameOver:onRemove(parent)
@@ -72,26 +84,35 @@ function GameOver:update(dt)
         self.current_stage = 3
     end
     if (self.timer >= 140) and (self.current_stage == 3) then
-        self.fader_alpha = (self.timer - 140) / 10
-        if self.fader_alpha >= 1 then
-            for i = #self.shards, 1, -1 do
-                self.shards[i]:remove()
-            end
-            self.shards = {}
+        if Game:isLight() then
             self.fader_alpha = 0
             self.current_stage = 4
+        else
+            self.fader_alpha = (self.timer - 140) / 10
+            if self.fader_alpha >= 1 then
+                for i = #self.shards, 1, -1 do
+                    self.shards[i]:remove()
+                end
+                self.shards = {}
+                self.fader_alpha = 0
+                self.current_stage = 4
+            end
         end
     end
     if (self.timer >= 150) and (self.current_stage == 4) then
-        self.music:play("AUDIO_DEFEAT")
-        self.text = Sprite("ui/gameover", 0, 40)
-        self.text:setScale(2)
+        self.music:play(Game:isLight() and "determination" or "AUDIO_DEFEAT")
+        if Game:isLight() then
+            self.text = Sprite("ui/gameover_ut", 111, 32)
+        else
+            self.text = Sprite("ui/gameover", 0, 40)
+            self.text:setScale(2)
+        end
         self.alpha = 0
         self:addChild(self.text)
         self.text:setColor(1, 1, 1, self.alpha)
         self.current_stage = 5
     end
-    if (self.timer >= 180) and (self.current_stage == 5) then
+    if ((self.timer >= (Game:isLight() and 230 or 180))) and (self.current_stage == 5) then
         local options = {}
         local main_chara = Game:getSoulPartyMember()
         for _, member in ipairs(Game.party) do
@@ -106,7 +127,8 @@ function GameOver:update(dt)
             local voice = member:getActor().voice or "default"
             self.lines = {}
             for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
-                local full_line = "[speed:0.5][spacing:8][voice:"..voice.."]"
+                local spacing = Game:isLight() and 6 or 8
+                local full_line = "[speed:0.5][spacing:"..spacing.."][voice:"..voice.."]"
                 local lines = Utils.split(dialogue, "\n")
                 for i,line in ipairs(lines) do
                     if i > 1 then
@@ -117,9 +139,15 @@ function GameOver:update(dt)
                 end
                 table.insert(self.lines, full_line)
             end
-            self.dialogue = DialogueText(self.lines[1], 50*2, 151*2, nil, nil, nil, "none")
-            self.dialogue.line_offset = 14
-            self.dialogue.skip_speed = true
+            self.dialogue = DialogueText(self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 322 or 302, nil, nil, nil, "none")
+            if Game:isLight() then
+                self.dialogue.skippable = false
+                self.dialogue.line_offset = 8
+                table.insert(self.lines, "")
+            else
+                self.dialogue.skip_speed = true
+                self.dialogue.line_offset = 14
+            end
             self:addChild(self.dialogue)
             table.remove(self.lines, 1)
             self.current_stage = 6
@@ -133,6 +161,11 @@ function GameOver:update(dt)
         else
             self.dialogue:remove()
             self.current_stage = 7
+            if Game:isLight() then
+                self.music:fade(0, 2)
+                self.current_stage = 10
+                self.timer = 0
+            end
         end
     end
     if (self.current_stage == 7) then
@@ -190,9 +223,9 @@ function GameOver:update(dt)
     end
 
     if (self.current_stage == 10) then
-        self.fade_white = true
-        self.fader_alpha = self.fader_alpha + (0.01 * DTMULT)
-        if self.timer >= 120 then
+        self.fade_white = not Game:isLight()
+        self.fader_alpha = self.fader_alpha + ((Game:isLight() and 0.02 or 0.01) * DTMULT)
+        if self.timer >= (Game:isLight() and 80 or 120) then
             self.current_stage = 11
             Game:loadQuick()
         end
@@ -258,7 +291,7 @@ function GameOver:draw()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.draw(self.screenshot)
     end
-    if (self.current_stage >= 8) and (self.fadebuffer < 10) then
+    if (self.current_stage >= 8) and (self.fadebuffer < 10) and (not Game:isLight()) then
 
         local xfade = ((10 - self.fadebuffer) / 10)
         if (xfade > 1) then

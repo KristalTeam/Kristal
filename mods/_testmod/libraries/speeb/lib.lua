@@ -27,11 +27,11 @@ function lib:init()
                     Game.stage.timer:tween(2, rect, {alpha = 1}, "linear", function()
                         rect:remove()
                         Game:gameOver(0, 0)
-                        Game.soul:remove()
-                        Game.soul = nil
-                        Game.gameover_screenshot = nil
-                        Game.gameover_timer = 150
-                        Game.gameover_stage = 4
+                        Game.gameover.soul:remove()
+                        Game.gameover.soul = nil
+                        Game.gameover.screenshot = nil
+                        Game.gameover.timer = 150
+                        Game.gameover.current_stage = 4
                     end)
                 end)
             elseif self.walk_speed >= 10 then
