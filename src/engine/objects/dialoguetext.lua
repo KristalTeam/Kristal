@@ -197,7 +197,7 @@ function DialogueText:updateTalkSprite(typing)
 end
 
 function DialogueText:playTextSound(current_node)
-    if self.state.skipping and self.played_first_sound then
+    if self.state.skipping and (Input.down("cancel") or self.played_first_sound) then
         return
     end
 
