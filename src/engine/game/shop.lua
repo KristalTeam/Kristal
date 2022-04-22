@@ -398,19 +398,29 @@ function Shop:startDialogue(text,callback)
 
 end
 
-function Shop:registerItem(item, amount, flag)
-    return self:replaceItem(item, #self.items + 1, amount, flag)
+function Shop:registerItem(item, options)
+    return self:replaceItem(#self.items + 1, item, options)
 end
 
-function Shop:replaceItem(item, index, amount, flag)
+function Shop:replaceItem(index, item, options)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
     if item then
-        if flag then
-            amount = self:getFlag(flag, amount)
-        end
-        self.items[index] = {item, amount, flag}
+        options = options or {}
+        options["name"]        = options["name"]        or item:getName()
+        options["description"] = options["description"] or item:getShopDescription()
+        options["price"]       = options["price"]       or item:getBuyPrice()
+        options["bonuses"]     = options["bonuses"]     or item:getStatBonuses()
+        options["color"]       = options["color"]       or {1, 1, 1, 1}
+        options["flag"]        = options["flag"]        or ("stock_" .. tostring(index) .. "_" .. item.id)
+
+        options["stock"] = self:getFlag(options["flag"], options["stock"])
+
+        self.items[index] = {
+            item = item,
+            options = options
+        }
         return true
     else
         return false
@@ -504,7 +514,7 @@ function Shop:draw()
 
     love.graphics.setFont(self.font)
     if self.state == "MAINMENU" then
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
         for i = 1, #self.menu_options do
             love.graphics.print(self.menu_options[i][1], 480, 220 + (i * 40))
         end
@@ -513,39 +523,43 @@ function Shop:draw()
     elseif self.state == "BUYMENU" then
         -- Item type (item, key, weapon, armor)
         for i = 1, math.max(4, #self.items) do
-            if i > #self.items then
+            local item = self.items[i]
+            if not item then
+                -- If the item is null, add some empty space
                 love.graphics.setColor(COLORS.dkgray)
                 love.graphics.print("--------", 60, 220 + (i * 40))
-            elseif self.items[i][2] and (self.items[i][2] <= 0) then
+            elseif item.options["stock"] and (item.options["stock"] <= 0) then
+                -- If we've depleted the stock, show a "sold out" message
                 love.graphics.setColor(COLORS.gray)
                 love.graphics.print("--SOLD OUT--", 60, 220 + (i * 40))
             else
-                love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.print(self.items[i][1].name, 60, 220 + (i * 40))
+                love.graphics.setColor(item.options["color"])
+                love.graphics.print(item.options["name"], 60, 220 + (i * 40))
                 if not self.hide_price then
-                    love.graphics.print(string.format(self.currency_text, self.items[i][1]:getBuyPrice() or 0), 60 + 240, 220 + (i * 40))
+                    love.graphics.setColor(COLORS.white)
+                    love.graphics.print(string.format(self.currency_text, item.options["price"] or 0), 60 + 240, 220 + (i * 40))
                 end
             end
         end
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
         love.graphics.print("Exit", 60, 220 + ((math.max(4, #self.items) + 1) * 40))
         love.graphics.setColor(Game:getSoulColor())
         if not self.buy_confirming then
             love.graphics.draw(self.heart_sprite, 30, 230 + (self.current_selecting * 40))
         else
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
-            love.graphics.setColor(1, 1, 1, 1)
-            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting][1]:getBuyPrice() or 0)), "\n")
+            love.graphics.setColor(COLORS.white)
+            local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting].options["price"] or 0)), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
             end
             love.graphics.print("Yes", 60 + 420, 420 - 80)
             love.graphics.print("No",  60 + 420, 420 - 80 + 30)
         end
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
 
         if (self.current_selecting <= #self.items) then
-            local current_item = self.items[self.current_selecting][1]
+            local current_item = self.items[self.current_selecting]
             local box_left, box_top = self.info_box:getBorder()
 
             local left = self.info_box.x - self.info_box.width - (box_left / 2) * 1.5
@@ -556,10 +570,10 @@ function Shop:draw()
             Draw.pushScissor()
             Draw.scissor(left, top, width, height)
 
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.print(current_item:getShopDescription(), left + 32, top + 20)
+            love.graphics.setColor(COLORS.white)
+            love.graphics.print(current_item.options["description"], left + 32, top + 20)
 
-            if current_item.type == "armor" or current_item.type == "weapon" then
+            if current_item.item.type == "armor" or current_item.item.type == "weapon" then
                 for i = 1, #Game.party do
                     local offset_x = 0
                     local offset_y = 0
@@ -575,27 +589,27 @@ function Shop:draw()
                         offset_y = 45
                     end
                     local party_member = Game.party[i]
-                    local can_equip = party_member:canEquip(current_item)
+                    local can_equip = party_member:canEquip(current_item.item)
                     local head_path = ""
 
                     love.graphics.setFont(self.plain_font)
-                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.setColor(COLORS.white)
 
                     if can_equip then
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head")
-                        if current_item.type == "armor" then
+                        if current_item.item.type == "armor" then
                             love.graphics.draw(self.stat_icons["defense_1"], offset_x + 470, offset_y + 127 + top)
                             love.graphics.draw(self.stat_icons["defense_2"], offset_x + 470, offset_y + 147 + top)
 
                             for j = 1, 2 do
-                                self:drawBonuses(party_member, party_member:getArmor(j), current_item, "defense", offset_x + 470 + 21, offset_y + 127 + ((j - 1) * 20) + top)
+                                self:drawBonuses(party_member, party_member:getArmor(j), current_item.item, "defense", offset_x + 470 + 21, offset_y + 127 + ((j - 1) * 20) + top)
                             end
 
-                        elseif current_item.type == "weapon" then
+                        elseif current_item.item.type == "weapon" then
                             love.graphics.draw(self.stat_icons["attack"], offset_x + 470, offset_y + 127 + top)
                             love.graphics.draw(self.stat_icons["magic" ], offset_x + 470, offset_y + 147 + top)
-                            self:drawBonuses(party_member, party_member:getWeapon(), current_item, "attack", offset_x + 470 + 21, offset_y + 127 + top)
-                            self:drawBonuses(party_member, party_member:getWeapon(), current_item, "magic",  offset_x + 470 + 21, offset_y + 147 + top)
+                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.item, "attack", offset_x + 470 + 21, offset_y + 127 + top)
+                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.item, "magic",  offset_x + 470 + 21, offset_y + 147 + top)
                         end
                     else
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head_error")
@@ -607,12 +621,12 @@ function Shop:draw()
 
             Draw.popScissor()
 
-            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setColor(COLORS.white)
 
             if not self.hide_storage_text then
                 love.graphics.setFont(self.plain_font)
 
-                local current_storage = Game.inventory:getDefaultStorage(current_item.type)
+                local current_storage = Game.inventory:getDefaultStorage(current_item.item.type)
                 local space = Game.inventory:getFreeSpace(current_storage)
 
                 if space <= 0 then
@@ -625,7 +639,7 @@ function Shop:draw()
     elseif self.state == "SELLMENU" then
         love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 50, 230 + (self.sell_current_selecting * 40))
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         for i, v in ipairs(self.sell_options) do
             love.graphics.print(v[1], 80, 220 + (i * 40))
@@ -658,7 +672,7 @@ function Shop:draw()
         love.graphics.draw(self.heart_sprite, 30, 230 + ((self.item_current_selecting - self.item_offset) * 40))
         if self.sell_confirming then
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
-            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setColor(COLORS.white)
             local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
@@ -667,7 +681,7 @@ function Shop:draw()
             love.graphics.print("No",  60 + 420, 420 - 80 + 30)
         end
 
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
 
         if inventory then
             for i = 1 + self.item_offset, self.item_offset + math.min(5, inventory.max) do
@@ -675,7 +689,7 @@ function Shop:draw()
                 love.graphics.setFont(self.font)
 
                 if item then
-                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.setColor(COLORS.white)
                     love.graphics.print(item:getName(), 60, 220 + ((i - self.item_offset) * 40))
                     if item:isSellable() then
                         love.graphics.print(string.format(self.currency_text, item:getSellPrice()), 60 + 240, 220 + ((i - self.item_offset) * 40))
@@ -691,7 +705,7 @@ function Shop:draw()
                 max = #inventory
             end
 
-            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setColor(COLORS.white)
 
             if max > 5 then
 
@@ -730,7 +744,7 @@ function Shop:draw()
     elseif self.state == "TALKMENU" then
         love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         for i = 1, math.max(4, #self.talks) do
             local v = self.talks[i]
@@ -742,7 +756,7 @@ function Shop:draw()
                 love.graphics.print("--------", 80, 220 + (i * 40))
             end
         end
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
         love.graphics.print("Exit", 80, 220 + ((math.max(4, #self.talks) + 1) * 40))
     end
 
@@ -751,7 +765,7 @@ function Shop:draw()
        self.state == "SELLMENU" or
        self.state == "SELLING"  or
        self.state == "TALKMENU" then
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         love.graphics.print(string.format(self.currency_text, Game.money), 440, 420)
     end
@@ -778,7 +792,7 @@ function Shop:drawBonuses(party_member, old_item, new_item, stat, x, y)
         amount_string = "+" .. amount_string
     end
     love.graphics.print(amount_string, x, y)
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(COLORS.white)
 end
 
 function Shop:drawBackground()
@@ -813,10 +827,9 @@ function Shop:keypressed(key)
         if self.buy_confirming then
             if Input.isConfirm(key) then
                 self.buy_confirming = false
-                local current_item_data = self.items[self.current_selecting]
-                local current_item = current_item_data[1]
+                local current_item = self.items[self.current_selecting]
                 if self.current_selecting_choice == 1 then
-                    self:buyItem(current_item, current_item_data)
+                    self:buyItem(current_item)
                 elseif self.current_selecting_choice == 2 then
                     self.right_text:setText(self.buy_refuse_text)
                 else
@@ -838,8 +851,8 @@ function Shop:keypressed(key)
                 if self.current_selecting == math.max(#self.items, 4) + 1 then
                     self:setState("MAINMENU")
                 elseif self.items[self.current_selecting] then
-                    if self.items[self.current_selecting][2] then
-                        if self.items[self.current_selecting][2] <= 0 then
+                    if self.items[self.current_selecting].options["stock"] then
+                        if self.items[self.current_selecting].options["stock"] <= 0 then
                             return
                         end
                     end
@@ -1004,25 +1017,23 @@ function Shop:enterSellMenu(sell_data)
     end
 end
 
-function Shop:buyItem(current_item, current_item_data)
-    if (current_item:getBuyPrice() or 0) > Game.money then
+function Shop:buyItem(current_item)
+    if (current_item.options["price"] or 0) > Game.money then
         self.right_text:setText(self.buy_too_expensive_text)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
-        Game.money = Game.money - (current_item:getBuyPrice() or 0)
+        Game.money = Game.money - (current_item.options["price"] or 0)
 
         -- Decrement the stock
-        if current_item_data[2] then
-            current_item_data[2] = current_item_data[2] - 1
-            if current_item_data[3] then
-                self:setFlag(current_item_data[3], current_item_data[2])
-            end
+        if current_item.options["stock"] then
+            current_item.options["stock"] = current_item.options["stock"] - 1
+            self:setFlag(current_item.options["flag"], current_item.options["stock"])
         end
 
         -- Add the item to the inventory
-        local new_item = Registry.createItem(current_item.id)
-        new_item:load(current_item:save())
+        local new_item = Registry.createItem(current_item.item.id)
+        new_item:load(current_item.item:save())
         if Game.inventory:addItem(new_item) then
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("snd_locker")
