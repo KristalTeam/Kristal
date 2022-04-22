@@ -1737,10 +1737,13 @@ function Battle:updateChildren()
         self:updateChildList()
         self.update_child_list = false
     end
+    for _,v in ipairs(self.draw_fx) do
+        v:update()
+    end
     for _,v in ipairs(self.children) do
         -- only update if Game.battle is still a reference to this
         if v.active and v.parent == self and Game.battle == self then
-            v:update()
+            v:fullUpdate()
         end
     end
 end

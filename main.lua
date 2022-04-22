@@ -310,6 +310,9 @@ function love.load(args)
             PERFORMANCE_TEST = nil
         end
     end)
+    Utils.hook(love.timer, "getTime", function(orig)
+        return orig() * CURRENT_SPEED_MULT
+    end)
 
     -- start load thread
     load_in_channel = love.thread.getChannel("load_in")
@@ -336,7 +339,10 @@ end
 function love.update(dt)
     BASE_DT = dt
     if FAST_FORWARD then
+        CURRENT_SPEED_MULT = FAST_FORWARD_SPEED
         dt = dt * FAST_FORWARD_SPEED
+    else
+        CURRENT_SPEED_MULT = 1
     end
     DT = dt
     DTMULT = dt * 30

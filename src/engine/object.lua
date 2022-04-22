@@ -715,14 +715,19 @@ function Object:updateChildren()
 end
 
 function Object:fullUpdate()
-    local last_dt, last_dt_mult = DT, DTMULT
+    local used_timescale, last_dt, last_dt_mult, last_speed = false, DT, DTMULT, CURRENT_SPEED_MULT
     if self.timescale ~= 1 then
+        used_timescale = true
         DT = DT * self.timescale
         DTMULT = DTMULT * self.timescale
+        CURRENT_SPEED_MULT = CURRENT_SPEED_MULT * self.timescale
     end
     self:update()
-    DT = last_dt
-    DTMULT = last_dt_mult
+    if used_timescale then
+        DT = last_dt
+        DTMULT = last_dt_mult
+        CURRENT_SPEED_MULT = last_speed
+    end
 end
 
 function Object:preDraw()
@@ -761,6 +766,13 @@ function Object:drawChildren(min_layer, max_layer)
 end
 
 function Object:fullDraw(no_children)
+    local used_timescale, last_dt, last_dt_mult, last_speed = false, DT, DTMULT, CURRENT_SPEED_MULT
+    if self.timescale ~= 1 then
+        used_timescale = true
+        DT = DT * self.timescale
+        DTMULT = DTMULT * self.timescale
+        CURRENT_SPEED_MULT = CURRENT_SPEED_MULT * self.timescale
+    end
     local processing_fx, canvas = self:shouldProcessDrawFX(), nil
     if processing_fx then
         Draw.pushCanvasLocks()
@@ -791,6 +803,11 @@ function Object:fullDraw(no_children)
         love.graphics.draw(final_canvas)
         love.graphics.pop()
         Draw.popCanvasLocks()
+    end
+    if used_timescale then
+        DT = last_dt
+        DTMULT = last_dt_mult
+        CURRENT_SPEED_MULT = last_speed
     end
 end
 
