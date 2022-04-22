@@ -4,10 +4,10 @@ function DogButton:init()
     super:init(self, "dog")
 end
 
-function DogButton:update(dt)
+function DogButton:update()
     self:setColor(Utils.hslToRgb((love.timer.getTime()/2) % 1, 1, 0.5))
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DogButton:select()

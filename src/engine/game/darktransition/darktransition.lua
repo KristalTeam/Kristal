@@ -181,8 +181,8 @@ function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     love.graphics.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
-function DarkTransition:update(dt)
-    super:update(self, dt)
+function DarkTransition:update()
+    super:update(self)
 
     -- Process audio fading
     if self.drone_get_louder then

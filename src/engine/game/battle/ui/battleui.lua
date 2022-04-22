@@ -104,7 +104,7 @@ function BattleUI:transitionOut()
     self.animation_done = false
 end
 
-function BattleUI:update(dt)
+function BattleUI:update()
     self.animation_timer = self.animation_timer + DTMULT
 
     local max_time = self.animate_out and 6 or 12
@@ -127,7 +127,7 @@ function BattleUI:update(dt)
         box.data_offset = offset
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function BattleUI:draw()

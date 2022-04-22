@@ -99,7 +99,7 @@ function DialogueText:advance()
     end
 end
 
-function DialogueText:update(dt)
+function DialogueText:update()
     local speed = self.state.speed
 
     if not Game.console.is_open then
@@ -163,7 +163,7 @@ function DialogueText:update(dt)
 
     self:updateTalkSprite(self.state.talk_anim and self.state.typing)
 
-    super:update(self, dt)
+    super:update(self)
 
     self.last_talking = self.state.talk_anim and self.state.typing
 end

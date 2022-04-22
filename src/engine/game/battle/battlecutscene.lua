@@ -16,7 +16,7 @@ function BattleCutscene:init(group, id, ...)
     super:init(self, scene, unpack(args))
 end
 
-function BattleCutscene:update(dt)
+function BattleCutscene:update()
     if self.ended then return end
 
     local done_moving = {}
@@ -32,7 +32,7 @@ function BattleCutscene:update(dt)
         self.move_targets[v] = nil
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function BattleCutscene:onEnd()

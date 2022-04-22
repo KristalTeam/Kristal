@@ -121,8 +121,8 @@ function LightMenu:onButtonSelect(button)
     end
 end
 
-function LightMenu:update(dt)
-    super:update(self, dt)
+function LightMenu:update()
+    super:update(self)
     self:realign()
 end
 

@@ -324,7 +324,7 @@ function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
     self.jumping = true
 end
 
-function Character:processJump(dt)
+function Character:processJump(DT)
     if (not self.init) then
         self.fake_gravity = (self.jump_speed / ((self.jump_time*30) * 0.5))
         self.init = true
@@ -453,17 +453,17 @@ function Character:convertToNPC(properties)
     return npc
 end
 
-function Character:update(dt)
-    self.actor:onWorldUpdate(self, dt)
+function Character:update()
+    self.actor:onWorldUpdate(self, DT)
 
     local party_member = self:getPartyMember()
     if party_member then
         if party_member:getWeapon() then
-            party_member:getWeapon():onWorldUpdate(self, dt)
+            party_member:getWeapon():onWorldUpdate(self, DT)
         end
         for i = 1, 2 do
             if party_member:getArmor(i) then
-                party_member:getArmor(i):onWorldUpdate(self, dt)
+                party_member:getArmor(i):onWorldUpdate(self, DT)
             end
         end
     end
@@ -495,7 +495,7 @@ function Character:update(dt)
     end
 
     if self.jumping then
-        self:processJump(dt)
+        self:processJump(DT)
     end
 
     if (self.spin_speed ~= 0) then
@@ -522,7 +522,7 @@ function Character:update(dt)
         self.spin_timer = 0
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Character:spin(speed)

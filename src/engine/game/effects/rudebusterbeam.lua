@@ -25,7 +25,7 @@ function RudeBusterBeam:init(red, x, y, tx, ty, after)
     self.after_func = after
 end
 
-function RudeBusterBeam:update(dt)
+function RudeBusterBeam:update()
     self.alpha = Utils.approach(self.alpha, 1, 0.25 * DTMULT)
 
     local dir = Utils.angle(self.x, self.y, self.target_x, self.target_y)
@@ -66,7 +66,7 @@ function RudeBusterBeam:update(dt)
         self.parent:addChild(sprite)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return RudeBusterBeam

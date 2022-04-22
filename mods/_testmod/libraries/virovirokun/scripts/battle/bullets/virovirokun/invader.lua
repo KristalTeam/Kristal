@@ -22,8 +22,8 @@ function Invader:nextFrame()
     self.sprite:setFrame((self.sprite.frame % #self.sprite.frames) + 1)
 end
 
-function Invader:update(dt)
-    super:update(self, dt)
+function Invader:update()
+    super:update(self)
     --local relative_x = self:
     if self.shot_ready then
         if self.flash_timer < 8 then

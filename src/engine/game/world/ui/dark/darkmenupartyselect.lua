@@ -20,7 +20,7 @@ function DarkMenuPartySelect:updateSelectedParty()
     self.selected_party = (self.selected_party - 1) % #Game.party + 1
 end
 
-function DarkMenuPartySelect:update(dt)
+function DarkMenuPartySelect:update()
     self.heart_siner = self.heart_siner + DTMULT
 
     if self.focused then
@@ -47,7 +47,7 @@ function DarkMenuPartySelect:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DarkMenuPartySelect:draw()

@@ -73,7 +73,7 @@ function Map:onExit() end
 
 function Map:onFootstep(char, num) end
 
-function Map:update(dt) end
+function Map:update() end
 function Map:draw() end
 
 function Map:getUniqueID()

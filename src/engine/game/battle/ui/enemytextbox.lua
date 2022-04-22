@@ -82,8 +82,8 @@ function EnemyTextbox:isDone()
     return self.text:isDone()
 end
 
-function EnemyTextbox:update(dt)
-    super:update(self, dt)
+function EnemyTextbox:update()
+    super:update(self)
 
     self:updateSize()
 end

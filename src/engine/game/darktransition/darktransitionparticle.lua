@@ -13,7 +13,7 @@ function DarkTransitionParticle:init(x, y)
     self.image_alpha = 1
 end
 
-function DarkTransitionParticle:update(dt)
+function DarkTransitionParticle:update()
     self.vspeed = self.vspeed - (self.friction * DTMULT)
     -- Divide by two, since this is drawn at 320x240 in DR
     self:move((self.hspeed * DTMULT) / 2, (self.vspeed * DTMULT) / 2)
@@ -23,7 +23,7 @@ function DarkTransitionParticle:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DarkTransitionParticle:draw()

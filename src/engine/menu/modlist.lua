@@ -156,7 +156,7 @@ function ModList:setScroll(scroll)
     self.scroll_target = Utils.clamp(scroll, min_selected_scroll, max_selected_scroll)
 end
 
-function ModList:update(dt)
+function ModList:update()
     if self.selected > #self.mods then
         self:select(#self.mods)
     end
@@ -169,7 +169,7 @@ function ModList:update(dt)
     self.scroll = self.scroll + ((self.scroll_target - self.scroll) / 2) * DTMULT
     self.mod_container.y = -self.scroll
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function ModList:draw()

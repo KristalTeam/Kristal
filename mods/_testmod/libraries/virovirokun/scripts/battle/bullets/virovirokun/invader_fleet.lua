@@ -67,8 +67,8 @@ function InvaderFleet:nextFrame()
     end
 end
 
-function InvaderFleet:update(dt)
-    super:update(self, dt)
+function InvaderFleet:update()
+    super:update(self)
 
     self.move_timer = self.move_timer + DTMULT
     if self.move_timer >= self.move_interval then

@@ -45,8 +45,8 @@ function GameOver:onRemove(parent)
 end
 
 
-function GameOver:update(dt)
-    super:update(self, dt)
+function GameOver:update()
+    super:update(self)
 
     self.timer = self.timer + DTMULT
     if (self.timer >= 30) and (self.current_stage == 0) then

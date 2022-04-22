@@ -241,7 +241,7 @@ function DarkMenu:updateSelectedBoxes()
     end
 end
 
-function DarkMenu:update(dt)
+function DarkMenu:update()
     self.animation_timer = self.animation_timer + DTMULT
 
     local max_time = self.animate_out and 3 or 8
@@ -263,7 +263,7 @@ function DarkMenu:update(dt)
         self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 0, -80, max_time)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DarkMenu:draw()

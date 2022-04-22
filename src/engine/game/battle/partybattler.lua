@@ -179,17 +179,17 @@ function PartyBattler:setSprite(sprite, speed, loop, after)
     end
 end
 
-function PartyBattler:update(dt)
+function PartyBattler:update()
     if self.actor then
-        self.actor:onBattleUpdate(self, dt)
+        self.actor:onBattleUpdate(self, DT)
     end
 
     if self.chara:getWeapon() then
-        self.chara:getWeapon():onBattleUpdate(self, dt)
+        self.chara:getWeapon():onBattleUpdate(self, DT)
     end
     for i = 1, 2 do
         if self.chara:getArmor(i) then
-            self.chara:getArmor(i):onBattleUpdate(self, dt)
+            self.chara:getArmor(i):onBattleUpdate(self, DT)
         end
     end
 
@@ -200,7 +200,7 @@ function PartyBattler:update(dt)
         self.sprite.x = 0
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function PartyBattler:draw()

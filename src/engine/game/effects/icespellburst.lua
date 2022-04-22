@@ -11,10 +11,10 @@ function IceSpellBurst:init(x, y)
     self.timer = 0
 end
 
-function IceSpellBurst:update(dt)
+function IceSpellBurst:update()
     self.timer = self.timer + DTMULT
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function IceSpellBurst:draw()

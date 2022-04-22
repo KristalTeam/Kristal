@@ -14,11 +14,11 @@ function SpareZ:init(angle, x, y)
     self.physics.friction = 1
 end
 
-function SpareZ:update(dt)
+function SpareZ:update()
     self.scale_x = self.scale_x + self.grow_x * DTMULT
     self.scale_y = self.scale_y + self.grow_y * DTMULT
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return SpareZ

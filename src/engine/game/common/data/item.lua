@@ -72,12 +72,12 @@ function Item:onBattleDeselect(user, target) end
 function Item:onMenuOpen(menu) end
 function Item:onMenuClose(menu) end
 
-function Item:onMenuUpdate(menu, dt) end
+function Item:onMenuUpdate(menu, DT) end
 function Item:onMenuDraw(menu) end
 
 -- Only for equipped
-function Item:onWorldUpdate(chara, dt) end
-function Item:onBattleUpdate(battler, dt) end
+function Item:onWorldUpdate(chara, DT) end
+function Item:onBattleUpdate(battler, DT) end
 
 function Item:onSave(data) end
 function Item:onLoad(data) end

@@ -1644,7 +1644,7 @@ function Battle:sortChildren()
     end)
 end
 
-function Battle:update(dt)
+function Battle:update()
     for _,enemy in ipairs(self.enemies_to_remove) do
         Utils.removeFromTable(self.enemies, enemy)
     end
@@ -1652,20 +1652,20 @@ function Battle:update(dt)
 
     if self.cutscene then
         if not self.cutscene.ended then
-            self.cutscene:update(dt)
+            self.cutscene:update()
         else
             self.cutscene = nil
         end
     end
 
     if self.state == "TRANSITION" then
-        self:updateTransition(dt)
+        self:updateTransition(DT)
     elseif self.state == "INTRO" then
-        self:updateIntro(dt)
+        self:updateIntro(DT)
     elseif self.state == "ATTACKING" then
-        self:updateAttacking(dt)
+        self:updateAttacking(DT)
     elseif self.state == "ACTIONSDONE" then
-        self.actions_done_timer = Utils.approach(self.actions_done_timer, 0, dt)
+        self.actions_done_timer = Utils.approach(self.actions_done_timer, 0, DT)
         local any_hurt = false
         for _,enemy in ipairs(self.enemies) do
             if enemy.hurt_timer > 0 then
@@ -1686,7 +1686,7 @@ function Battle:update(dt)
             self:setState("ENEMYDIALOGUE")
         end
     elseif self.state == "DEFENDING" then
-        self:updateWaves(dt)
+        self:updateWaves(DT)
     elseif self.state == "ENEMYDIALOGUE" then
         self.textbox_timer = self.textbox_timer - DTMULT
         if (self.textbox_timer <= 0) and self.use_textbox_timer then
@@ -1706,7 +1706,7 @@ function Battle:update(dt)
     end
 
     if self.state ~= "TRANSITIONOUT" then
-        self.encounter:update(dt)
+        self.encounter:update()
     end
 
     if self.shake ~= 0 then
@@ -1725,14 +1725,14 @@ function Battle:update(dt)
 
     -- Always sort
     --self.update_child_list = true
-    super:update(self, dt)
+    super:update(self)
 
     if self.state == "TRANSITIONOUT" then
-        self:updateTransitionOut(dt)
+        self:updateTransitionOut(DT)
     end
 end
 
-function Battle:updateChildren(dt)
+function Battle:updateChildren(DT)
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
@@ -1740,19 +1740,19 @@ function Battle:updateChildren(dt)
     for _,v in ipairs(self.children) do
         -- only update if Game.battle is still a reference to this
         if v.active and v.parent == self and Game.battle == self then
-            v:update(dt)
+            v:update()
         end
     end
 end
 
-function Battle:updateIntro(dt)
+function Battle:updateIntro(DT)
     self.intro_timer = self.intro_timer + 1 * DTMULT
     if self.intro_timer >= 13 then
         self:nextTurn()
     end
 end
 
-function Battle:updateTransition(dt)
+function Battle:updateTransition(DT)
     while self.afterimage_count < math.floor(self.transition_timer) do
         for index, battler in ipairs(self.party) do
             local target_x, target_y = unpack(self.battler_targets[index])
@@ -1791,7 +1791,7 @@ function Battle:updateTransition(dt)
     end
 end
 
-function Battle:updateTransitionOut(dt)
+function Battle:updateTransitionOut(DT)
     if not self.battle_ui.animation_done then
         return
     end
@@ -1829,7 +1829,7 @@ function Battle:updateTransitionOut(dt)
     end
 end
 
-function Battle:updateAttacking(dt)
+function Battle:updateAttacking(DT)
     if self.cancel_attack then
         self:finishAllActions()
         self:setState("ACTIONSDONE")
@@ -1869,7 +1869,7 @@ function Battle:updateAttacking(dt)
     end
 end
 
-function Battle:updateWaves(dt)
+function Battle:updateWaves(DT)
     self.wave_timer = self.wave_timer + DT
 
     local all_done = true

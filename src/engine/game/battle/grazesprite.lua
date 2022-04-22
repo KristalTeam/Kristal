@@ -11,7 +11,7 @@ function GrazeSprite:init(x, y)
     self.visible = false
 end
 
-function GrazeSprite:update(dt)
+function GrazeSprite:update()
     if self.timer > 0 then
         self.visible = true
         self.timer = Utils.approach(self.timer, 0, DT)

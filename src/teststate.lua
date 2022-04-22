@@ -6,14 +6,14 @@ function Testing:enter()
     self.frame = 0
 end
 
-function Testing:update(dt)
+function Testing:update()
     self.frame = self.frame + 1
 
     if Input.pressed("confirm") then
         self.stage:addChild(DarkTransition(240, {has_head_object = true}))
     end
 
-    self.stage:update(dt)
+    self.stage:update()
 end
 
 function Testing:draw()

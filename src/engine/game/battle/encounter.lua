@@ -30,7 +30,7 @@ function Encounter:onTurnEnd() end
 
 function Encounter:getDialogueCutscene() end
 
-function Encounter:update(dt) end
+function Encounter:update() end
 
 function Encounter:draw(fade) end
 function Encounter:drawBackground(fade) end

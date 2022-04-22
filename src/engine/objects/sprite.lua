@@ -230,7 +230,7 @@ function Sprite:pause()
     self.playing = false
 end
 
-function Sprite:update(dt)
+function Sprite:update()
     if not self.anim_routine or coroutine.status(self.anim_routine) == "dead" then
         self:stop(true)
     end
@@ -261,7 +261,7 @@ function Sprite:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Sprite:draw()

@@ -8,7 +8,7 @@ function FakeClone:init(ref, x, y)
     self.auto_remove = true
 end
 
-function FakeClone:update(dt)
+function FakeClone:update()
     if self.auto_remove and not self.ref.stage then
         self:remove()
         return
@@ -16,7 +16,7 @@ function FakeClone:update(dt)
 
     self.visible = self.ref.visible
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function FakeClone:preDraw()

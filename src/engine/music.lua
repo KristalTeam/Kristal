@@ -145,7 +145,7 @@ local function clear()
     _handlers = {}
 end
 
-local function update(dt)
+local function update()
     for _,handler in ipairs(_handlers) do
         if handler.fade_speed ~= 0 and handler.volume ~= handler.target_volume then
             handler.volume = Utils.approach(handler.volume, handler.target_volume, DT / handler.fade_speed)

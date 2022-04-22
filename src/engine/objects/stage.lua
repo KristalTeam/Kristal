@@ -49,7 +49,7 @@ function Stage:removeFromStage(object)
     end
 end
 
-function Stage:update(dt)
+function Stage:update()
     for _,object in ipairs(self.objects_to_remove) do
         Utils.removeFromTable(self.objects, object)
         for class,_ in pairs(object.__includes_all) do
@@ -59,7 +59,7 @@ function Stage:update(dt)
         end
     end
     self.objects_to_remove = {}
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Stage:draw()

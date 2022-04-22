@@ -19,7 +19,7 @@ function FXBase:isActive()
     return self.active
 end
 
-function FXBase:update(dt) end
+function FXBase:update() end
 
 function FXBase:draw(texture)
     -- Draw the canvas

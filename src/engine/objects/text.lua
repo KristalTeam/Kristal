@@ -99,7 +99,7 @@ function Text:resetState()
     }
 end
 
-function Text:update(dt)
+function Text:update()
     self.timer = self.timer + DTMULT
 end
 

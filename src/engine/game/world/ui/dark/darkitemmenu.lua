@@ -97,7 +97,7 @@ function DarkItemMenu:useItem(item, party)
     self:updateSelectedItem()
 end
 
-function DarkItemMenu:update(dt)
+function DarkItemMenu:update()
     if self.state == "MENU" then
         if Input.pressed("cancel") then
             self.ui_cancel_small:stop()
@@ -216,7 +216,7 @@ function DarkItemMenu:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DarkItemMenu:draw()

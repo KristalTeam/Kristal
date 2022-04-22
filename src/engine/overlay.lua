@@ -33,7 +33,7 @@ function Overlay:init()
     self.quit_release = false
 end
 
-function Overlay:update(dt)
+function Overlay:update()
     if self.loading then
         if self.load_alpha < 1 then
             self.load_alpha = math.min(1, self.load_alpha + DT / 0.25)

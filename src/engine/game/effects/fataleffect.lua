@@ -51,7 +51,7 @@ function FatalEffect:onAdd(parent)
     self.start_color = self.color
 end
 
-function FatalEffect:update(dt)
+function FatalEffect:update()
     self.red_timer = self.red_timer + DTMULT
     self.color = Utils.mergeColor(self.start_color, {1, 0, 0}, self.red_timer / 10)
 
@@ -74,7 +74,7 @@ function FatalEffect:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function FatalEffect:draw()

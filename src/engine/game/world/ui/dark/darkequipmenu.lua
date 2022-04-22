@@ -191,7 +191,7 @@ function DarkEquipMenu:onRemove(parent)
     Game.world.menu:updateSelectedBoxes()
 end
 
-function DarkEquipMenu:update(dt)
+function DarkEquipMenu:update()
     if self.state == "PARTY" then
         if Input.pressed("cancel") then
             self.ui_cancel_small:stop()
@@ -296,10 +296,10 @@ function DarkEquipMenu:update(dt)
             end
         end
     end
-    super:update(self, dt)
+    super:update(self)
 end
 
-function DarkEquipMenu:draw(dt)
+function DarkEquipMenu:draw(DT)
     love.graphics.setFont(self.font)
 
     love.graphics.setColor(1, 1, 1, 1)

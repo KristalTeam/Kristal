@@ -29,7 +29,7 @@ function Virovirokun:init()
     --Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
 end
 
-function Virovirokun:update(dt)
+function Virovirokun:update()
     if Game.battle.state == "DEFENDING" then
         if Input.pressed("menu") then
             local explosion = Game.battle.soul:explode()
@@ -37,7 +37,7 @@ function Virovirokun:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Virovirokun:getNextWaves()

@@ -98,7 +98,7 @@ function Arena:onAdd(parent)
 
     local afterimage_timer = 0
     local afterimage_count = 0
-    Game.battle.timer:during(15/30, function(dt)
+    Game.battle.timer:during(15/30, function(DT)
         afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
 
         local real_progress = afterimage_timer / 15
@@ -137,7 +137,7 @@ function Arena:onRemove(parent)
 
     local afterimage_timer = 0
     local afterimage_count = 0
-    Game.battle.timer:during(15/30, function(dt)
+    Game.battle.timer:during(15/30, function(DT)
         afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
 
         local real_progress = 1 - (afterimage_timer / 15)
@@ -166,14 +166,14 @@ function Arena:onRemove(parent)
     end)
 end
 
-function Arena:update(dt)
+function Arena:update()
     if not Utils.equal(self.processed_shape, self.shape, true) then
         self:setShape(self.shape)
     elseif self.processed_width ~= self.width or self.processed_height ~= self.height then
         self:setSize(self.width, self.height)
     end
 
-    super:update(self, dt)
+    super:update(self)
 
     local soul = Game.battle.soul
     if soul and Game.battle.soul.collidable then

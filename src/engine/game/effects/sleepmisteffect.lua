@@ -9,7 +9,7 @@ function SleepMistEffect:init(x, y, success)
     self.siner = 0
 end
 
-function SleepMistEffect:update(dt)
+function SleepMistEffect:update()
     self.siner = self.siner + DTMULT
     self.alpha = (math.sin(self.siner / 9) - 0.3) + (self.success and 0.3 or 0)
 
@@ -17,7 +17,7 @@ function SleepMistEffect:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function SleepMistEffect:draw()

@@ -177,14 +177,14 @@ end
 
 --[[ Common overrides ]]--
 
-function Object:update(dt)
+function Object:update()
     self:updatePhysicsTransform()
     self:updateGraphicsTransform()
 
-    self:updateChildren(dt)
+    self:updateChildren(DT)
 
     if self.camera then
-        self.camera:update(dt)
+        self.camera:update()
     end
 end
 
@@ -696,17 +696,17 @@ function Object:updateChildList()
     self:sortChildren()
 end
 
-function Object:updateChildren(dt)
+function Object:updateChildren(DT)
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
     end
     for _,v in ipairs(self.draw_fx) do
-        v:update(dt)
+        v:update()
     end
     for _,v in ipairs(self.children) do
         if v.active and v.parent == self then
-            v:update(dt)
+            v:update()
         end
     end
 end

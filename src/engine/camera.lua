@@ -151,7 +151,7 @@ function Camera:keepInBounds()
     end
 end
 
-function Camera:update(dt)
+function Camera:update()
     if self.pan_target then
         local min_x, min_y = self:getMinPosition()
         local max_x, max_y = self:getMaxPosition()

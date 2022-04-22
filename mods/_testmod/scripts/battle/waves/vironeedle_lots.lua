@@ -21,8 +21,8 @@ function Vironeedle:onStart()
     end)
 end
 
-function Vironeedle:update(dt)
-    super:update(self, dt)
+function Vironeedle:update()
+    super:update(self)
 
     Object.startCache()
     local infected = {}

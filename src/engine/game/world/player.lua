@@ -191,7 +191,7 @@ function Player:moveCamera(speed)
     end
 end
 
-function Player:updateWalk(dt)
+function Player:updateWalk(DT)
     if self:isMovementEnabled() then
         self:handleMovement()
     end
@@ -202,7 +202,7 @@ function Player:beginSlide()
     self.slide_camera_y = self.world.camera.y
     self.sprite:setAnimation("slide")
 end
-function Player:updateSlideDust(dt)
+function Player:updateSlideDust(DT)
     self.slide_dust_timer = Utils.approach(self.slide_dust_timer, 0, DTMULT)
 
     if self.slide_dust_timer == 0 then
@@ -219,7 +219,7 @@ function Player:updateSlideDust(dt)
         self.world:addChild(dust)
     end
 end
-function Player:updateSlide(dt)
+function Player:updateSlide(DT)
     local slide_x = 0
     local slide_y = 0
 
@@ -239,7 +239,7 @@ function Player:updateSlide(dt)
 
     self:move(slide_x, slide_y, speed * DTMULT)
 
-    self:updateSlideDust(dt)
+    self:updateSlideDust(DT)
 
     if self.world.player == self and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
         self:moveCamera(20)
@@ -250,12 +250,12 @@ function Player:endSlide(next_state)
     self.sprite:resetSprite()
 end
 
-function Player:update(dt)
+function Player:update()
     if self.hurt_timer > 0 then
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
     end
 
-    self.state_manager:update(dt)
+    self.state_manager:update()
     if #self.history == 0 then
         table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
@@ -272,7 +272,7 @@ function Player:update(dt)
     end
 
     for _,follower in ipairs(self.world.followers) do
-        follower:updateHistory(dt, moved)
+        follower:updateHistory(DT, moved)
     end
 
     self.last_x = self.x
@@ -292,7 +292,7 @@ function Player:update(dt)
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Player:draw()

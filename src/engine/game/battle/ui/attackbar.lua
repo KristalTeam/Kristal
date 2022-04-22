@@ -14,13 +14,13 @@ function AttackBar:burst()
     self:fadeOutAndRemove(0.1)
 end
 
-function AttackBar:update(dt)
+function AttackBar:update()
     if self.bursting then
         self.scale_x = self.scale_x + self.burst_speed * DTMULT
         self.scale_y = self.scale_y + self.burst_speed * DTMULT
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function AttackBar:draw()

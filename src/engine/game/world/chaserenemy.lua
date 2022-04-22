@@ -114,7 +114,7 @@ function ChaserEnemy:isActive()
            self.world.state ~= "MENU"
 end
 
-function ChaserEnemy:update(dt)
+function ChaserEnemy:update()
     if self:isActive() then
         if self.path and self.world.map.paths[self.path] then
             local path = self.world.map.paths[self.path]
@@ -170,7 +170,7 @@ function ChaserEnemy:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return ChaserEnemy

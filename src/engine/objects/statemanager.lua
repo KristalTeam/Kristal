@@ -144,7 +144,7 @@ function StateManager:setState(state)
     end
 end
 
-function StateManager:update(dt)
+function StateManager:update()
     if self.update_master_state and self.state ~= self.master.state then
         self:setState(self.master.state)
     end
@@ -159,7 +159,7 @@ function StateManager:update(dt)
         self.routine = nil
     end
 
-    self:call("update", dt)
+    self:call("update", DT)
 end
 
 function StateManager:draw()

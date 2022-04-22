@@ -16,8 +16,8 @@ function InvaderBullet:init(x, y, buffed)
     self.exploded = false
 end
 
-function InvaderBullet:update(dt)
-    super:update(self, dt)
+function InvaderBullet:update()
+    super:update(self)
 
     if not self.exploded then
         local arena_x, arena_y = Game.battle.arena:getCenter()

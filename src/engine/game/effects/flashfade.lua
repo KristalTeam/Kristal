@@ -10,7 +10,7 @@ function FlashFade:init(texture, x, y)
     self.color_mask = self:addFX(ColorMaskFX())
 end
 
-function FlashFade:update(dt)
+function FlashFade:update()
     self.siner = self.siner + self.flash_speed * DTMULT
 
     --self.color_mask_alpha = math.sin(self.siner / 3)
@@ -20,7 +20,7 @@ function FlashFade:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return FlashFade

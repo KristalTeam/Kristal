@@ -8,7 +8,7 @@ function HeadObject:init(texture, x, y)
     self.sparestar = Assets.getFrames("effects/spare/star")
 end
 
-function HeadObject:update(dt)
+function HeadObject:update()
     if (self.breakcon == 1) then
         self.breaktimer = 0
         local flash = FlashFade(self.texture, self.x, self.y)
@@ -32,7 +32,7 @@ function HeadObject:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return HeadObject

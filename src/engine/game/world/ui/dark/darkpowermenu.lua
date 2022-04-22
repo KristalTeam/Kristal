@@ -76,7 +76,7 @@ function DarkPowerMenu:onRemove(parent)
     Game.world.menu:updateSelectedBoxes()
 end
 
-function DarkPowerMenu:update(dt)
+function DarkPowerMenu:update()
     if self.state == "PARTY" then
         if Input.pressed("cancel") then
             self.ui_cancel_small:stop()
@@ -134,7 +134,7 @@ function DarkPowerMenu:update(dt)
             self:updateDescription()
         end
     end
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DarkPowerMenu:draw()

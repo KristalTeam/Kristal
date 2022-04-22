@@ -18,10 +18,10 @@ function SpareSparkle:init(x, y)
     self.spin = 10
 end
 
-function SpareSparkle:update(dt)
+function SpareSparkle:update()
     self.rotation = self.rotation + math.rad(self.spin) * DTMULT
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return SpareSparkle

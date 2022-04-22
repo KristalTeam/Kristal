@@ -77,7 +77,7 @@ function DarkStorageMenu:updateDescription()
     end
 end
 
-function DarkStorageMenu:update(dt)
+function DarkStorageMenu:update()
     if Input.pressed("left") then
         self.selected_x[self.list] = self.selected_x[self.list] - 1
         if self.selected_x[self.list] < 1 then

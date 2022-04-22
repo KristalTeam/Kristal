@@ -87,8 +87,8 @@ function Bullet:isBullet(id)
     return self:includes(Registry.getBullet(id))
 end
 
-function Bullet:update(dt)
-    super:update(self, dt)
+function Bullet:update()
+    super:update(self)
 
     if self.remove_offscreen then
         if self.x < -100 or self.y < -100 or self.x > SCREEN_WIDTH + 100 or self.y > SCREEN_HEIGHT + 100 then

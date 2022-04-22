@@ -19,7 +19,7 @@ function Explosion:onAdd()
     Assets.playSound("snd_badexplosion")
 end
 
-function Explosion:update(dt)
+function Explosion:update()
     self.time = self.time + DT
 
     self.frame = math.floor(self.time / 0.05) + 1
@@ -27,7 +27,7 @@ function Explosion:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Explosion:draw()

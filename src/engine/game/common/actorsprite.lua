@@ -205,7 +205,7 @@ function ActorSprite:getOffset()
     end
 end
 
-function ActorSprite:update(dt)
+function ActorSprite:update()
     if self.actor:getFlipDirection() then
         if not self.directional then
             local opposite = self.actor:getFlipDirection() == "right" and "left" or "right"
@@ -258,7 +258,7 @@ function ActorSprite:update(dt)
         self.run_away_timer = self.run_away_timer + DTMULT
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function ActorSprite:applyTransformTo(transform)

@@ -90,7 +90,7 @@ function Assets.parseData(data)
     --self.data.sound_data = {}
 end
 
-function Assets.update(dt)
+function Assets.update()
     local sounds_to_remove = {}
     for key,sounds in pairs(self.sound_instances) do
         for _,sound in ipairs(sounds) do

@@ -51,7 +51,7 @@ function HealthBar:transitionOut()
     end
 end
 
-function HealthBar:update(dt)
+function HealthBar:update()
     self.animation_timer = self.animation_timer + DTMULT
     self.auto_hide_timer = self.auto_hide_timer + DTMULT
     if Game.world.menu or Game.world.in_battle then
@@ -81,7 +81,7 @@ function HealthBar:update(dt)
         self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 417, 63, max_time)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function HealthBar:draw()

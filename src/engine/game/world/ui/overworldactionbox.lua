@@ -31,9 +31,9 @@ function OverworldActionBox:setHeadIcon(icon)
     self.head_sprite:setSprite(self.chara:getHeadIcons().."/"..icon)
 end
 
-function OverworldActionBox:update(dt)
+function OverworldActionBox:update()
     self.reaction_alpha = self.reaction_alpha - DTMULT
-    super:update(self, dt)
+    super:update(self)
 end
 
 function OverworldActionBox:draw()

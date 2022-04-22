@@ -37,8 +37,8 @@ function Starwalker:setMode(mode)
     self.ease_timer = 0
 end
 
-function Starwalker:update(dt)
-    super:update(self, dt)
+function Starwalker:update()
+    super:update(self)
 
     if not self.starwalker.done_state and (Game.battle:getState() ~= "TRANSITION") then
         self.timer = self.timer + (1 * DTMULT)

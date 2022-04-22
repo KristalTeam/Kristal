@@ -18,8 +18,8 @@ function Needle:onStart()
     end)
 end
 
-function Needle:update(dt)
-    super:update(self, dt)
+function Needle:update()
+    super:update(self)
 
     Object.startCache()
     local infected = {}

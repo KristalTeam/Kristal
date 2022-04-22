@@ -496,9 +496,9 @@ function Game:getActLeader()
     end
 end
 
-function Game:update(dt)
+function Game:update()
     if self.state == "EXIT" then
-        self.fader:update(dt)
+        self.fader:update()
         return
     end
 
@@ -516,7 +516,7 @@ function Game:update(dt)
         end
     end
 
-    if Kristal.callEvent("preUpdate", dt) then
+    if Kristal.callEvent("preUpdate", DT) then
         return
     end
 
@@ -531,9 +531,9 @@ function Game:update(dt)
 
     self.playtime = self.playtime + DT
 
-    self.stage:update(dt)
+    self.stage:update()
 
-    Kristal.callEvent("postUpdate", dt)
+    Kristal.callEvent("postUpdate", DT)
 end
 
 function Game:textinput(key)

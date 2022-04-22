@@ -14,7 +14,7 @@ function IceSpellEffect:init(x, y, hexagon)
     self.timer = 0
 end
 
-function IceSpellEffect:update(dt)
+function IceSpellEffect:update()
     self.rotation = self.rotation + math.rad(self.rotation_speed * 2) * DTMULT
     self.physics.direction = self.physics.direction + math.rad(self.rotation_speed * 3) * DTMULT
 
@@ -27,7 +27,7 @@ function IceSpellEffect:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return IceSpellEffect

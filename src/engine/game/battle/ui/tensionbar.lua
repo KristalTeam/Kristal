@@ -82,7 +82,7 @@ function TensionBar:setTensionPreviewExact(amount)
     self.tension_preview = amount
 end
 
-function TensionBar:update(dt)
+function TensionBar:update()
     if self.animating_in then
         self.animation_timer = self.animation_timer + DTMULT
         if self.animation_timer > 12 then
@@ -142,7 +142,7 @@ function TensionBar:update(dt)
         self.tsiner = self.tsiner + DTMULT
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function TensionBar:draw()

@@ -60,14 +60,14 @@ function Virovirokun:onGlowshardUse(item, user)
     }
 end
 
-function Virovirokun:update(dt)
+function Virovirokun:update()
     if Game.battle.state == "DEFENDING" then
         if Input.pressed("menu") then
             Game.battle:swapSoul(PinkSoul())
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return Virovirokun

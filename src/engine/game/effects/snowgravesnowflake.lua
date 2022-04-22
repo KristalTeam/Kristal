@@ -10,8 +10,8 @@ function SnowGraveSnowflake:init(x, y)
     self.alpha = 1
 end
 
-function SnowGraveSnowflake:update(dt)
-    super:update(self, dt)
+function SnowGraveSnowflake:update()
+    super:update(self)
     self.timer = self.timer + DTMULT
     self.siner = self.siner + DTMULT
 

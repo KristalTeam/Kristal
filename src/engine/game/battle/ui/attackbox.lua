@@ -68,7 +68,7 @@ function AttackBox:miss()
     self.attacked = true
 end
 
-function AttackBox:update(dt)
+function AttackBox:update()
     if Game.battle.cancel_attack then
         self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, DTMULT/20)
     end
@@ -93,7 +93,7 @@ function AttackBox:update(dt)
         self.flash = Utils.approach(self.flash, 0, DTMULT/5)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function AttackBox:draw()

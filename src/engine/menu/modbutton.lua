@@ -124,7 +124,7 @@ function ModButton:drawCoolRectangle(x, y, w, h)
     love.graphics.rectangle("line", x - 3, y - 3, w + 6, h + 6)
 end
 
-function ModButton:update(dt)
+function ModButton:update()
     if self.selected then
         self.icon_frame = self.icon_frame + (DT / math.max(1/60, self.icon_delay))
         if math.floor(self.icon_frame) > #self.icon then
@@ -134,7 +134,7 @@ function ModButton:update(dt)
         self.icon_frame = 1
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function ModButton:draw()

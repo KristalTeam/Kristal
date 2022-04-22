@@ -21,10 +21,10 @@ function HealSparkle:init(x, y)
     self.spin = -10
 end
 
-function HealSparkle:update(dt)
+function HealSparkle:update()
     self.rotation = self.rotation + (math.rad(self.spin) * DTMULT)
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return HealSparkle

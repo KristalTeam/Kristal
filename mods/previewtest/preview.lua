@@ -14,7 +14,7 @@ function preview:init(mod, button, menu)
     self.menu = menu
 end
 
-function preview:update(dt)
+function preview:update()
     -- code here gets called every frame, before any draws
     -- to only update while the mod is selected, check self.selected (or self.fade)
 

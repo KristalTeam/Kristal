@@ -99,7 +99,7 @@ function Console:close()
     love.keyboard.setKeyRepeat(false)
 end
 
-function Console:update(dt)
+function Console:update()
     self.flash_timer = self.flash_timer + DT
     if self.flash_timer > 1 then
         self.flash_timer = self.flash_timer - 1

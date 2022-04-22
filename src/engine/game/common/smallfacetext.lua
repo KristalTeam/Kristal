@@ -18,7 +18,7 @@ function SmallFaceText:init(text, face, x, y, actor)
     self:addChild(self.text)
 end
 
-function SmallFaceText:update(dt)
+function SmallFaceText:update()
     if self.alpha < 1 then
         self.alpha = Utils.approach(self.alpha, 1, 0.2*DTMULT)
     end
@@ -28,7 +28,7 @@ function SmallFaceText:update(dt)
     if self.text.x > 70 then
         self.text.x = Utils.approach(self.text.x, 70, 10*DTMULT)
     end
-    super:update(self, dt)
+    super:update(self)
 end
 
 return SmallFaceText

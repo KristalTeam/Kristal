@@ -20,12 +20,12 @@ function HeartBurst:init(x, y, color)
     self.heart_outline_filled_inner = Assets.getTexture("player/heart_outline_filled_inner")
 end
 
-function HeartBurst:update(dt)
+function HeartBurst:update()
     self.burst = self.burst + DTMULT
 
     --self:setScale(2 - self.stretch, self.stretch + self.kill)
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function HeartBurst:drawHeartOutline(scale_x, scale_y, alpha)

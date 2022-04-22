@@ -85,13 +85,13 @@ function DamageNumber:onAdd(parent)
     self.killing = false
 end
 
-function DamageNumber:update(dt)
+function DamageNumber:update()
     if not self.start_x then
         self.start_x = self.x
         self.start_y = self.y
     end
 
-    super:update(self, dt)
+    super:update(self)
 
     self.timer = self.timer + DTMULT
 

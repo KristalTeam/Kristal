@@ -3,14 +3,14 @@ local lib = {}
 function lib:init()
     print("Loaded speeb library....watch out")
 
-    Utils.hook(Player, "update", function(orig, self, dt)
+    Utils.hook(Player, "update", function(orig, self)
         if self.run_timer > 60 then
             self.walk_speed = self.walk_speed + DT
         elseif self.walk_speed > 4 then
             self.walk_speed = 4
         end
 
-        orig(self, dt)
+        orig(self)
 
         if self.last_collided_x or self.last_collided_y then
             if self.walk_speed >= 16 then

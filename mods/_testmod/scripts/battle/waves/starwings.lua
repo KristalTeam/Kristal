@@ -34,8 +34,8 @@ function Starwings:onEnd()
     super:onEnd()
 end
 
-function Starwings:update(dt)
-    super:update(self, dt)
+function Starwings:update()
+    super:update(self)
 end
 
 return Starwings

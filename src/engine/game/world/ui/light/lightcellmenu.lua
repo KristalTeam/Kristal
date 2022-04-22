@@ -19,7 +19,7 @@ function LightCellMenu:init()
     self.current_selecting = 1
 end
 
-function LightCellMenu:update(dt)
+function LightCellMenu:update()
     if Input.pressed("cancel") then
         self.ui_move:stop()
         self.ui_move:play()
@@ -47,7 +47,7 @@ function LightCellMenu:update(dt)
         self:runCall(Game.world.calls[self.current_selecting])
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function LightCellMenu:draw()

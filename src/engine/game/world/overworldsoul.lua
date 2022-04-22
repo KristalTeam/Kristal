@@ -39,7 +39,7 @@ function OverworldSoul:onRemove(parent)
     end
 end
 
-function OverworldSoul:update(dt)
+function OverworldSoul:update()
     -- Bullet collision !!! Yay
     if self.inv_timer > 0 then
         self.inv_timer = Utils.approach(self.inv_timer, 0, DT)
@@ -96,7 +96,7 @@ function OverworldSoul:update(dt)
     self.y = Utils.lerp(sy, ty, progress * 1.5)
     self.alpha = progress
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function OverworldSoul:draw()

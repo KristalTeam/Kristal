@@ -14,11 +14,11 @@ function ArenaSprite:init(arena, x, y)
     self.background = true
 end
 
-function ArenaSprite:update(dt)
+function ArenaSprite:update()
     self.width = self.arena.width
     self.height = self.arena.height
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function ArenaSprite:draw()

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="9" nextobjectid="91">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="9" nextobjectid="92">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -174,10 +174,12 @@
    </properties>
   </object>
   <object id="69" name="slidearea" x="520" y="920" width="160" height="280"/>
-  <object id="90" name="cameratarget" x="720" y="400" width="320" height="320">
+  <object id="90" name="cameratarget" x="480" y="1200" width="240" height="240">
    <properties>
     <property name="lockx" type="bool" value="true"/>
-    <property name="locky" type="bool" value="false"/>
+    <property name="locky" type="bool" value="true"/>
+    <property name="marker" value="camtargy"/>
+    <property name="time" type="float" value="0.25"/>
    </properties>
   </object>
  </objectgroup>
@@ -190,6 +192,9 @@
   </object>
   <object id="55" name="shooter_left" x="160" y="400" width="40" height="320"/>
   <object id="56" name="shooter_right" x="480" y="400" width="40" height="320"/>
+  <object id="91" name="camtargy" x="600" y="1240">
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup color="#ff7fff" id="5" name="battleareas">
   <object id="51" x="200" y="400" width="280" height="320"/>

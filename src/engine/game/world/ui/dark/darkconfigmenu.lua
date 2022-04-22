@@ -30,7 +30,7 @@ function DarkConfigMenu:init()
     self.no1 = false
 end
 
-function DarkConfigMenu:update(dt)
+function DarkConfigMenu:update()
     if self.state == "MAIN" then
         if Input.pressed("confirm") then
             self.ui_select:stop()
@@ -105,7 +105,7 @@ function DarkConfigMenu:update(dt)
             self.noise_timer = 3
         end
     end
-    super:update(self, dt)
+    super:update(self)
 end
 
 function DarkConfigMenu:draw()

@@ -457,7 +457,7 @@ function Shop:processReplacements()
     end
 end
 
-function Shop:update(dt)
+function Shop:update()
     -- Update talk sprites
     for _,object in ipairs(self.talk_dialogue) do
         if self.shopkeeper.talk_sprite then
@@ -467,7 +467,7 @@ function Shop:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 
     self.box_ease_timer = math.min(1, self.box_ease_timer + (DT * self.box_ease_multiplier))
 

@@ -304,7 +304,7 @@ function Menu:printShadow(text, x, y, color, align, limit)
     love.graphics.printf(text, x, y, limit or self.menu_font:getWidth(text), align or "left")
 end
 
-function Menu:update(dt)
+function Menu:update()
     local mod_button, current_mod
     if self.state == "MODSELECT" or TARGET_MOD then
         self.selected_mod_button = self.list:getSelected()
@@ -341,12 +341,12 @@ function Menu:update(dt)
         if v.preview_script then
             v.preview_script.fade = self.mod_fades[v.id].fade
             v.preview_script.selected = v.selected
-            v.preview_script:update(dt)
+            v.preview_script:update()
         end
     end
 
     -- Update the stage (mod menu)
-    self.stage:update(dt)
+    self.stage:update()
 
     -- Move the heart closer to the target
     if self.state == "MODSELECT" then

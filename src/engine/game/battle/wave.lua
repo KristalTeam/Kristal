@@ -39,14 +39,14 @@ function Wave:init()
     self:addChild(self.timer)
 end
 
-function Wave:update(dt)
+function Wave:update()
     for i = 1, #self.bullets do
         if self.bullets[i] and not self.bullets[i].parent then
             table.remove(self.bullets, i)
             i = i - 1
         end
     end
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Wave:onStart() end

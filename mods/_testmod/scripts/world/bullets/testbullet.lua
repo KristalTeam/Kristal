@@ -19,12 +19,12 @@ function TestBullet:init(x, y, flip)
     self.start_x = x
 end
 
-function TestBullet:update(dt)
+function TestBullet:update()
     if math.abs(self.x - self.start_x) >= self.world.map.tile_width * 9 then
         self:fadeOutAndRemove(0.5)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return TestBullet

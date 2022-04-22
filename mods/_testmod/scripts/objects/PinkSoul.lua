@@ -37,14 +37,14 @@ function PinkSoul:doMovement()
     self.moving_y = move_y
 end
 
-function PinkSoul:update(dt)
+function PinkSoul:update()
     --[[if not self.transitioning then
         if Input.pressed("menu") then
             self:explode()
         end
     end]]
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return PinkSoul

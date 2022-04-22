@@ -8,7 +8,7 @@ function SlideArea:init(x, y, w, h)
     self.sliding = false
 end
 
-function SlideArea:onCollide(chara, dt)
+function SlideArea:onCollide(chara, DT)
     if chara.y <= self.y and chara.is_player then
         if not self.sliding then
             Assets.stopAndPlaySound("snd_noise")
@@ -21,7 +21,7 @@ function SlideArea:onCollide(chara, dt)
     end
 end
 
-function SlideArea:update(dt)
+function SlideArea:update()
     if not Game.world.player then return end
 
     if Game.world.player.y > self.y + self.height then
@@ -32,7 +32,7 @@ function SlideArea:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return SlideArea

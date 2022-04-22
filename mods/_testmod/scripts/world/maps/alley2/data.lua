@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 9,
-  nextobjectid = 91,
+  nextobjectid = 92,
   properties = {
     ["light"] = false,
     ["music"] = "dogcheck",
@@ -1474,15 +1474,17 @@ return {
           name = "cameratarget",
           type = "",
           shape = "rectangle",
-          x = 720,
-          y = 400,
-          width = 320,
-          height = 320,
+          x = 480,
+          y = 1200,
+          width = 240,
+          height = 240,
           rotation = 0,
           visible = true,
           properties = {
             ["lockx"] = true,
-            ["locky"] = false
+            ["locky"] = true,
+            ["marker"] = "camtargy",
+            ["time"] = 0.25
           }
         }
       }
@@ -1548,6 +1550,19 @@ return {
           y = 400,
           width = 40,
           height = 320,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 91,
+          name = "camtargy",
+          type = "",
+          shape = "point",
+          x = 600,
+          y = 1240,
+          width = 0,
+          height = 0,
           rotation = 0,
           visible = true,
           properties = {}

@@ -17,7 +17,7 @@ function LightStatMenu:init()
     self:addChild(self.bg)
 end
 
-function LightStatMenu:update(dt)
+function LightStatMenu:update()
     if Input.pressed("cancel") then
         self.ui_move:stop()
         self.ui_move:play()
@@ -25,7 +25,7 @@ function LightStatMenu:update(dt)
         return
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function LightStatMenu:draw()

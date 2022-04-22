@@ -386,7 +386,7 @@ function FileList:getHeartPos()
     end
 end
 
-function FileList:update(dt)
+function FileList:update()
     if self.result_timer > 0 then
         self.result_timer = Utils.approach(self.result_timer, 0, DT)
         if self.result_timer == 0 then
@@ -395,7 +395,7 @@ function FileList:update(dt)
     end
 
     self:updateSelected()
-    super:update(self, dt)
+    super:update(self)
 end
 
 function FileList:draw()

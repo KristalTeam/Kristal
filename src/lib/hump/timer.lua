@@ -29,7 +29,7 @@ Timer.__index = Timer
 
 local function _nothing_() end
 
-local function updateTimerHandle(handle, dt)
+local function updateTimerHandle(handle, DT)
         -- handle: {
         --   time = <number>,
         --   after = <function>,
@@ -50,7 +50,7 @@ local function updateTimerHandle(handle, dt)
         end
 end
 
-function Timer:update(dt)
+function Timer:update()
     -- timers may create new timers, which leads to undefined behavior
     -- in pairs() - so we need to put them in a different table first
     local to_update = {}
@@ -60,7 +60,7 @@ function Timer:update(dt)
 
     for handle in pairs(to_update) do
         if self.functions[handle] then
-            updateTimerHandle(handle, dt)
+            updateTimerHandle(handle, DT)
             if handle.count == 0 then
                 self.functions[handle] = nil
             end
@@ -158,7 +158,7 @@ __call = function(tween, self, len, subject, target, method, after, ...)
     local payload, t, args = tween_collect_payload(subject, target, {}), 0, {...}
 
     local last_s = 0
-    return self:during(len, function(dt)
+    return self:during(len, function(DT)
         t = t + DT
         local s = method(math.min(1, t/len), unpack(args))
         local ds = s - last_s

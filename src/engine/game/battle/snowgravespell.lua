@@ -28,8 +28,8 @@ function SnowGraveSpell:init(user)
     Assets.playSound("snd_snowgrave", 0.5)
 end
 
-function SnowGraveSpell:update(dt)
-    super:update(self, dt)
+function SnowGraveSpell:update()
+    super:update(self)
     self.timer = self.timer + DTMULT
     self.since_last_snowflake = self.since_last_snowflake + DTMULT 
 end

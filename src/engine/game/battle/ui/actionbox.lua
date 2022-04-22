@@ -75,7 +75,7 @@ function ActionBox:setHeadIcon(icon)
     self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/"..icon)
 end
 
-function ActionBox:update(dt)
+function ActionBox:update()
     if (Game.battle.current_selecting == self.index) then
         self.animation_timer = self.animation_timer + 1 * DTMULT
     else
@@ -116,7 +116,7 @@ function ActionBox:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function ActionBox:select()

@@ -39,7 +39,7 @@ function WorldCutscene:canEnd()
     return Game.world.camera.pan_target == nil
 end
 
-function WorldCutscene:update(dt)
+function WorldCutscene:update()
     local new_moving = {}
     for _,chara in ipairs(self.moving_chars) do
         if chara.move_target then
@@ -48,7 +48,7 @@ function WorldCutscene:update(dt)
     end
     self.moving_chars = new_moving
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function WorldCutscene:onEnd()

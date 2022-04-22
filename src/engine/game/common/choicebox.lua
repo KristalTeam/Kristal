@@ -24,7 +24,7 @@ function Choicebox:init(x, y, width, height, battle_box)
     self.heart = Assets.getTexture("player/heart_menu")
 end
 
-function Choicebox:update(dt)
+function Choicebox:update()
     local old_choice = self.current_choice
     if Input.pressed("left")  then self.current_choice = 1 end
     if Input.pressed("right") then self.current_choice = 2 end
@@ -60,7 +60,7 @@ function Choicebox:update(dt)
             end
         end
     end
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Choicebox:draw()

@@ -765,10 +765,10 @@ function World:onRemove(parent)
     self.music:remove()
 end
 
-function World:update(dt)
+function World:update()
     if self.cutscene then
         if not self.cutscene.ended then
-            self.cutscene:update(dt)
+            self.cutscene:update()
             if self.stage == nil then
                 return
             end
@@ -798,7 +798,7 @@ function World:update(dt)
         Object.endCache()
         for _,v in ipairs(collided) do
             if v[1].onCollide then
-                v[1]:onCollide(v[2], dt)
+                v[1]:onCollide(v[2], DT)
             end
             if not v[1].current_colliding then
                 v[1].current_colliding = {}
@@ -844,11 +844,11 @@ function World:update(dt)
         self.battle_fader:setColor(0, 0, 0, half_alpha)
     end
 
-    self.map:update(dt)
+    self.map:update()
 
     -- Always sort
     self.update_child_list = true
-    super:update(self, dt)
+    super:update(self)
 
     --[[if self.player then
         local bx, by = self.player:getRelativePos(self.player.width/2, self.player.height/2, self.soul.parent)

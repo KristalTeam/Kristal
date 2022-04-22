@@ -10,7 +10,7 @@ function DarkTransitionSparkle:init(texture, x, y)
     self:play(1/15)
 end
 
-function DarkTransitionSparkle:update(dt)
+function DarkTransitionSparkle:update()
     self.vspeed = self.vspeed + self.gravity * DTMULT
     self:move(self.hspeed * DTMULT, self.vspeed * DTMULT)
 
@@ -18,7 +18,7 @@ function DarkTransitionSparkle:update(dt)
         self:remove()
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return DarkTransitionSparkle

@@ -62,7 +62,7 @@ function Loading:beginLoad()
     end)
 end
 
-function Loading:update(dt)
+function Loading:update()
     if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
         if Kristal.Args["test"] then
             Gamestate.switch(Kristal.States["Testing"])

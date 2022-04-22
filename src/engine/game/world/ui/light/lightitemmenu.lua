@@ -25,7 +25,7 @@ function LightItemMenu:init()
     self.storage = Game.world.menu.storage
 end
 
-function LightItemMenu:update(dt)
+function LightItemMenu:update()
     if self.state == "ITEMSELECT" then
         if Input.pressed("cancel") then
             Game.world.menu:closeBox()
@@ -88,7 +88,7 @@ function LightItemMenu:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function LightItemMenu:draw()

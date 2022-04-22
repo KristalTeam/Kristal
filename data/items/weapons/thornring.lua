@@ -53,7 +53,7 @@ function item:init()
     }
 end
 
-function item:onBattleUpdate(battler, dt)
+function item:onBattleUpdate(battler, DT)
     battler.thorn_ring_timer = (battler.thorn_ring_timer or 0) + DTMULT
 
     if battler.thorn_ring_timer >= 6 then

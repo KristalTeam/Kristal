@@ -80,7 +80,7 @@ function Fader:fadeIn(callback, options)
     self.state = "FADEIN"
 end
 
-function Fader:update(dt)
+function Fader:update()
     if self.state == "FADEOUT" then
         self.alpha = self.alpha + (DT / self.speed)
         if (self.alpha >= 1) then

@@ -341,9 +341,9 @@ function love.update(dt)
     DTMULT = dt * 30
     RUNTIME = RUNTIME + dt
 
-    LibTimer.update(dt)
-    Music.update(dt)
-    Assets.update(dt)
+    LibTimer.update()
+    Music.update()
+    Assets.update()
 
     if load_waiting > 0 then
         local msg = load_out_channel:pop()
@@ -406,7 +406,7 @@ function love.run()
 ---@diagnostic disable-next-line: undefined-field, redundant-parameter
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
-    -- We don't want the first frame's dt to include time taken by love.load.
+    -- We don't want the first frame's DT to include time taken by love.load.
     if love.timer then love.timer.step() end
 
     local dt = 0
@@ -431,10 +431,10 @@ function love.run()
             end
         end
 
-        -- Update dt, as we'll be passing it to update
+        -- Update DT, as we'll be passing it to update
         if love.timer then dt = love.timer.step() end
 
-        -- Dt shouldn't exceed 30FPS
+        -- DT shouldn't exceed 30FPS
         dt = math.min(dt, 1/30)
 
         -- Call update and draw
@@ -615,7 +615,7 @@ function Kristal.errorHandler(msg)
             love.graphics.pop()
         end
 
-        -- dt shouldnt exceed 30FPS
+        -- DT shouldnt exceed 30FPS
         DT = math.min(love.timer.getDelta(), 1/30)
 
         copy_color[1] = copy_color[1] + (DT * 2)

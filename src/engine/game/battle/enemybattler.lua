@@ -522,7 +522,7 @@ function EnemyBattler:setSprite(sprite, speed, loop, after)
     end
 end
 
-function EnemyBattler:update(dt)
+function EnemyBattler:update()
     if self.hurt_timer > 0 then
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, DT)
 
@@ -531,7 +531,7 @@ function EnemyBattler:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return EnemyBattler

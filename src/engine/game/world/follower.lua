@@ -133,7 +133,7 @@ function Follower:copyHistoryFrom(target)
     self.history_time = target.history_time
     self.history = Utils.copy(target.history)
 end
-function Follower:updateHistory(dt, moved)
+function Follower:updateHistory(DT, moved)
     local target = self:getTarget()
     if target.state == "SLIDE" and self.state ~= "SLIDE" then
         self.needs_slide = true
@@ -153,7 +153,7 @@ function Follower:updateHistory(dt, moved)
     end
 end
 
-function Follower:update(dt)
+function Follower:update()
     self:updateIndex()
 
     if #self.history == 0 then
@@ -168,7 +168,7 @@ function Follower:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return Follower

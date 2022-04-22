@@ -93,7 +93,7 @@ function Cutscene:canEnd()
     return true
 end
 
-function Cutscene:update(dt)
+function Cutscene:update()
     if self.ended then return end
 
     self.wait_timer = Utils.approach(self.wait_timer, 0, DT)

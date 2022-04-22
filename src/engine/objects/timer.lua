@@ -43,10 +43,10 @@ function Timer:clear()
     return self.timer:clear()
 end
 
-function Timer:update(dt)
-    self.timer:update(dt)
+function Timer:update()
+    self.timer:update()
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return Timer

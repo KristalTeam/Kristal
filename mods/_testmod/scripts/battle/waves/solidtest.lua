@@ -17,8 +17,8 @@ function SolidTest:onStart()
     self.solid:setOrigin(0.5, 0.5)
 end
 
-function SolidTest:update(dt)
-    super:update(self, dt)
+function SolidTest:update()
+    super:update(self)
 
     self.siner = self.siner + DT
 

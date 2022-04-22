@@ -320,7 +320,7 @@ function Soul:doMovement()
     end
 end
 
-function Soul:update(dt)
+function Soul:update()
     if self.transitioning then
         if self.timer >= 7 then
             Input.clearPressedKey("cancel")
@@ -400,7 +400,7 @@ function Soul:update(dt)
         self.sprite:setColor(1, 1, 1)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Soul:draw()

@@ -76,7 +76,7 @@ function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     end
 end
 
-function Battler:update(dt)
+function Battler:update()
     if Game.battle:isHighlighted(self) then
         self.highlight:setColor(1, 1, 1)
         self.highlight.amount = -math.cos((love.timer.getTime()*30) / 5) * 0.4 + 0.6
@@ -86,7 +86,7 @@ function Battler:update(dt)
         self.last_highlighted = false
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 return Battler

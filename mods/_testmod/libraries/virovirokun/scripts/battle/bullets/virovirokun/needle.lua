@@ -68,7 +68,7 @@ function Needle:infect(other)
     other:remove()
 end
 
-function Needle:update(dt)
+function Needle:update()
     if (self.rotation == 0 and self.x > Game.battle.arena.right + 10) or (self.rotation == math.pi and self.x < Game.battle.arena.left - 10) then
         self.collidable = false
         self:fadeTo(0, 0.1)
@@ -79,7 +79,7 @@ function Needle:update(dt)
         self:fadeTo(1, 0.1)
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function Needle:draw()

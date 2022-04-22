@@ -63,7 +63,7 @@ function SaveMenu:updateSaveBoxSize()
     end
 end
 
-function SaveMenu:update(dt)
+function SaveMenu:update()
     if self.state == "MAIN" then
         if Input.pressed("cancel") then
             self:remove()
@@ -185,7 +185,7 @@ function SaveMenu:update(dt)
         end
     end
 
-    super:update(self, dt)
+    super:update(self)
 end
 
 function SaveMenu:draw()

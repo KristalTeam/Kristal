@@ -91,8 +91,8 @@ function WorldBullet:onRemove(parent)
     end
 end
 
-function WorldBullet:update(dt)
-    super:update(self, dt)
+function WorldBullet:update()
+    super:update(self)
 
     if self.remove_offscreen then
         local mw, mh = self.world.map.width * self.world.map.tile_width, self.world.map.height * self.world.map.tile_height
