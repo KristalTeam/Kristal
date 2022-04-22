@@ -1,0 +1,22 @@
+{
+    "id": "light",
+    "name": "Light World",
+    "subtitle": "Another testing mod...?",
+
+    "version": "v?.?.?",
+    "engineVer": "v0.1.0",
+
+    "chapter": 2,
+
+    "map": "schooldoor",
+    "party": ["kris", "susie"],
+    "inventory": {
+        "items": ["darkburger"],
+        "key_items": ["cell_phone"]
+    },
+
+    "transition": false,
+
+    "quickReload": true,
+    "hidden": false
+}
