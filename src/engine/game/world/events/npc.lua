@@ -18,12 +18,14 @@ function NPC:init(actor, x, y, properties)
     self.solid = properties["solid"] == nil or properties["solid"]
 
     self.cutscene = properties["cutscene"] or properties["scene"]
-    self.text = Readable.parseText(properties)
+    self.text = Interactable.parseText(properties)
 end
 
 function NPC:onInteract(player, dir)
     if self.cutscene then
-        self.world:startCutscene(self.cutscene, self, player, dir)
+        self.world:startCutscene(self.cutscene, self, player, dir):after(function()
+            self:onTextEnd()
+        end)
         return true
     elseif #self.text > 0 then
         self.world:startCutscene(function(cutscene)
@@ -31,6 +33,7 @@ function NPC:onInteract(player, dir)
             for _,line in ipairs(self.text) do
                 cutscene:text(line)
             end
+        end):after(function()
             self:onTextEnd()
         end)
         return true

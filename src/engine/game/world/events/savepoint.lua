@@ -1,8 +1,9 @@
-local Savepoint, super = Class(Readable)
+local Savepoint, super = Class(Interactable)
 
-function Savepoint:init(text, x, y, marker)
-    super:init(self, text, x, y)
-    self.marker = marker
+function Savepoint:init(x, y, properties)
+    super:init(self, x, y, nil, nil, properties)
+
+    self.marker = properties and properties["marker"]
 
     self.solid = true
 

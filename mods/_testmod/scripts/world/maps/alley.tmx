@@ -85,9 +85,9 @@
     <property name="progress" value="-0.1"/>
    </properties>
   </object>
-  <object id="84" name="interactscript" x="80" y="200" width="81" height="40">
+  <object id="84" name="interactable" x="80" y="200" width="81" height="40">
    <properties>
-    <property name="scene" value="test"/>
+    <property name="cutscene" value="test"/>
    </properties>
   </object>
   <object id="86" name="chest" x="640" y="240" width="40" height="40">

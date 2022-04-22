@@ -493,7 +493,7 @@ return {
         },
         {
           id = 33,
-          name = "interactscript",
+          name = "interactable",
           type = "",
           shape = "rectangle",
           x = 280,
@@ -503,7 +503,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["scene"] = "room1.wall"
+            ["cutscene"] = "room1.wall"
           }
         }
       }

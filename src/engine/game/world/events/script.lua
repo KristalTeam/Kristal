@@ -5,7 +5,7 @@ function Script:init(script, x, y, w, h, once)
 
     self.solid = false
 
-    self.script = script
+    self.cutscene = script
     self.once = once
 end
 
@@ -18,7 +18,7 @@ end
 
 function Script:onEnter(chara)
     if chara.is_player then
-        self.world:startCutscene(self.script, self, chara)
+        self.world:startCutscene(self.cutscene, self, chara)
         self:setFlag("used_once", true)
         self:remove()
         return true

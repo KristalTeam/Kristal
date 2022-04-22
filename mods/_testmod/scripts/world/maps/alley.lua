@@ -1022,7 +1022,7 @@ return {
         },
         {
           id = 84,
-          name = "interactscript",
+          name = "interactable",
           type = "",
           shape = "rectangle",
           x = 80,
@@ -1032,7 +1032,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["scene"] = "test"
+            ["cutscene"] = "test"
           }
         },
         {

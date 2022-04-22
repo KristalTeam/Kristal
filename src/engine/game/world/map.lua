@@ -461,13 +461,11 @@ function Map:loadObject(name, data)
     end
     -- Kristal object loading
     if name:lower() == "savepoint" then
-        return Savepoint(Readable.parseText(data.properties), data.center_x, data.center_y, data.properties.marker)
-    elseif name:lower() == "interactscript" then
-        return InteractScript(data.properties["cutscene"] or data.properties["scene"], data.x, data.y, data.width, data.height, data.properties["once"])
+        return Savepoint(data.center_x, data.center_y, data.properties)
+    elseif name:lower() == "interactable" then
+        return Interactable(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "script" then
-        return Script(data.properties["cutscene"] or data.properties["scene"], data.x, data.y, data.width, data.height, data.properties["once"])
-    elseif name:lower() == "readable" then
-        return Readable(Readable.parseText(data.properties), data.x, data.y, data.width, data.height)
+        return Script(data.properties["cutscene"], data.x, data.y, data.width, data.height, data.properties["once"])
     elseif name:lower() == "transition" then
         return Transition(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "npc" then

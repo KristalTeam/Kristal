@@ -1,9 +1,15 @@
-local FrozenEnemy, super = Class(Readable)
+local FrozenEnemy, super = Class(Interactable)
 
 function FrozenEnemy:init(actor, x, y, properties)
-    super:init(self, {"* (It's frozen solid...)"}, x, y, actor:getSize())
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
+    end
+    local w, h = actor:getSize()
+    super:init(self, x, y, w, h, properties)
 
     properties = properties or {}
+
+    self.text = {"* (It's frozen solid...)"}
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
