@@ -36,21 +36,21 @@ end
 function Overlay:update(dt)
     if self.loading then
         if self.load_alpha < 1 then
-            self.load_alpha = math.min(1, self.load_alpha + dt / 0.25)
+            self.load_alpha = math.min(1, self.load_alpha + DT / 0.25)
         end
-        self.load_timer = self.load_timer + dt
+        self.load_timer = self.load_timer + DT
     else
         if self.load_alpha > 0 then
-            self.load_alpha = math.max(0, self.load_alpha - dt / 0.25)
+            self.load_alpha = math.max(0, self.load_alpha - DT / 0.25)
         end
         self.load_timer = 0
     end
 
     if love.keyboard.isDown("escape") and not self.quit_release then
         if self.quit_alpha < 1 then
-            self.quit_alpha = math.min(1, self.quit_alpha + dt / 0.75)
+            self.quit_alpha = math.min(1, self.quit_alpha + DT / 0.75)
         end
-        self.quit_timer = self.quit_timer + dt
+        self.quit_timer = self.quit_timer + DT
         if self.quit_timer > 1.2 then
             if Mod ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
                 self.quit_release = true
@@ -66,7 +66,7 @@ function Overlay:update(dt)
     else
         self.quit_timer = 0
         if self.quit_alpha > 0 then
-            self.quit_alpha = math.max(0, self.quit_alpha - dt / 0.25)
+            self.quit_alpha = math.max(0, self.quit_alpha - DT / 0.25)
         end
     end
 

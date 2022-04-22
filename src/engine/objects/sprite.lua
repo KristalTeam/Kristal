@@ -236,7 +236,7 @@ function Sprite:update(dt)
     end
     if self.playing then
         if self.anim_waiting > 0 then
-            self.anim_waiting = Utils.approach(self.anim_waiting, 0, dt * self.anim_speed)
+            self.anim_waiting = Utils.approach(self.anim_waiting, 0, DT * self.anim_speed)
         end
         if self.anim_waiting == 0 and coroutine.status(self.anim_routine) == "suspended" then
             coroutine.resume(self.anim_routine, self, self.anim_wait_func)
@@ -251,7 +251,7 @@ function Sprite:update(dt)
     end
     if self.anim_callback then
         if self.anim_duration > 0 then
-            self.anim_duration = Utils.approach(self.anim_duration, 0, dt)
+            self.anim_duration = Utils.approach(self.anim_duration, 0, DT)
         elseif self.anim_duration == 0 then
             self:stop(true)
 

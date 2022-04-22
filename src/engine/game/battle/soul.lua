@@ -349,7 +349,7 @@ function Soul:update(dt)
 
     -- Bullet collision !!! Yay
     if self.inv_timer > 0 then
-        self.inv_timer = Utils.approach(self.inv_timer, 0, dt)
+        self.inv_timer = Utils.approach(self.inv_timer, 0, DT)
     end
 
     local collided_bullets = {}
@@ -363,9 +363,9 @@ function Soul:update(dt)
         if self.inv_timer == 0 then
             if bullet.tp ~= 0 and bullet:collidesWith(self.graze_collider) then
                 if bullet.grazed then
-                    Game.battle.tension_bar:giveTension(bullet.tp * dt * self.graze_tp_factor)
+                    Game.battle.tension_bar:giveTension(bullet.tp * DT * self.graze_tp_factor)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
-                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus * (dt / 30) * self.graze_time_factor)
+                        Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus * (DT / 30) * self.graze_time_factor)
                     end
                     if self.graze_sprite.timer < 0.1 then
                         self.graze_sprite.timer = 0.1
@@ -388,7 +388,7 @@ function Soul:update(dt)
     end
 
     if self.inv_timer > 0 then
-        self.inv_flash_timer = self.inv_flash_timer + dt
+        self.inv_flash_timer = self.inv_flash_timer + DT
         local amt = math.floor(self.inv_flash_timer / (4/30))
         if (amt % 2) == 1 then
             self.sprite:setColor(0.5, 0.5, 0.5)

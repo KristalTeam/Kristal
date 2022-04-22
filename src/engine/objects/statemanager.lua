@@ -150,7 +150,7 @@ function StateManager:update(dt)
     end
 
     if self.routine and coroutine.status(self.routine) == "suspended" then
-        self.routine_wait = Utils.approach(self.routine_wait, 0, dt)
+        self.routine_wait = Utils.approach(self.routine_wait, 0, DT)
         if self.routine_wait == 0 then
             coroutine.resume(self.routine)
         end

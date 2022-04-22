@@ -459,7 +459,7 @@ function Shop:update(dt)
 
     super:update(self, dt)
 
-    self.box_ease_timer = math.min(1, self.box_ease_timer + (dt * self.box_ease_multiplier))
+    self.box_ease_timer = math.min(1, self.box_ease_timer + (DT * self.box_ease_multiplier))
 
     if self.state == "BUYMENU" then
         self.info_box.height = Utils.ease(self.box_ease_beginning, self.box_ease_top, self.box_ease_timer, self.box_ease_method)
@@ -490,7 +490,7 @@ function Shop:update(dt)
     end
 
     if self.fading_out then
-        self.fade_alpha = self.fade_alpha + (dt * 2)
+        self.fade_alpha = self.fade_alpha + (DT * 2)
         if self.fade_alpha >= 1 then
             self:leaveImmediate()
         end

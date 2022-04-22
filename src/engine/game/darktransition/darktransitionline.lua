@@ -12,7 +12,7 @@ function DarkTransitionLine:init(x)
 end
 
 function DarkTransitionLine:update(dt)
-    self:move(0, self.vspeed * (dt * 30))
+    self:move(0, self.vspeed * DTMULT)
     if (self.y >= 400) then
         self.parent:removeChild(self)
     end

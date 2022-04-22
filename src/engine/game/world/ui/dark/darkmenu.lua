@@ -242,7 +242,7 @@ function DarkMenu:updateSelectedBoxes()
 end
 
 function DarkMenu:update(dt)
-    self.animation_timer = self.animation_timer + (dt * 30)
+    self.animation_timer = self.animation_timer + DTMULT
 
     local max_time = self.animate_out and 3 or 8
 

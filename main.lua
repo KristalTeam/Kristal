@@ -333,6 +333,9 @@ function love.quit()
 end
 
 function love.update(dt)
+    if FAST_FORWARD then
+        dt = dt * 4
+    end
     DT = dt
     DTMULT = dt * 30
     RUNTIME = RUNTIME + dt
@@ -374,6 +377,8 @@ function love.keypressed(key)
     elseif key == "f4" or (key == "return" and (love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt"))) then
         Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
         love.window.setFullscreen(Kristal.Config["fullscreen"])
+    elseif key == "f5" then
+        FAST_FORWARD = not FAST_FORWARD
     elseif key == "f6" then
         DEBUG_RENDER = not DEBUG_RENDER
     elseif key == "f8" then

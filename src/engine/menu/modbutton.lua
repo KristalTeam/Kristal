@@ -126,7 +126,7 @@ end
 
 function ModButton:update(dt)
     if self.selected then
-        self.icon_frame = self.icon_frame + (dt / math.max(1/60, self.icon_delay))
+        self.icon_frame = self.icon_frame + (DT / math.max(1/60, self.icon_delay))
         if math.floor(self.icon_frame) > #self.icon then
             self.icon_frame = 1
         end

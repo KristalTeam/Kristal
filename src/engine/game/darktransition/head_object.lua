@@ -17,7 +17,7 @@ function HeadObject:update(dt)
         self.breakcon = 2
     end
     if (self.breakcon == 2) then
-        self.breaktimer = self.breaktimer + 1 * (dt * 30)
+        self.breaktimer = self.breaktimer + 1 * DTMULT
         if (self.breaktimer >= 4) then
             Assets.playSound("snd_sparkle_glock")
 

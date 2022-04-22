@@ -20,7 +20,7 @@ function Explosion:onAdd()
 end
 
 function Explosion:update(dt)
-    self.time = self.time + dt
+    self.time = self.time + DT
 
     self.frame = math.floor(self.time / 0.05) + 1
     if self.frame > #self.frames then

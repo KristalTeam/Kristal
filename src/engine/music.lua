@@ -148,7 +148,7 @@ end
 local function update(dt)
     for _,handler in ipairs(_handlers) do
         if handler.fade_speed ~= 0 and handler.volume ~= handler.target_volume then
-            handler.volume = Utils.approach(handler.volume, handler.target_volume, dt / handler.fade_speed)
+            handler.volume = Utils.approach(handler.volume, handler.target_volume, DT / handler.fade_speed)
 
             if handler.volume == handler.target_volume then
                 handler.fade_speed = 0

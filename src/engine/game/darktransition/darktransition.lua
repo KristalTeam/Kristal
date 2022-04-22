@@ -186,7 +186,7 @@ function DarkTransition:update(dt)
 
     -- Process audio fading
     if self.drone_get_louder then
-        self.dronesfx_volume = self.dronesfx_volume + (dt / 4)
+        self.dronesfx_volume = self.dronesfx_volume + (DT / 4)
         if self.dronesfx_volume > 0.5 then
             self.dronesfx_volume = 0.5
             self.drone_get_louder = false
@@ -198,7 +198,7 @@ function DarkTransition:update(dt)
         if self.dronesfx_volume < 0 then
             self.dronesfx:stop()
         else
-            self.dronesfx_volume = self.dronesfx_volume - (dt / 2)
+            self.dronesfx_volume = self.dronesfx_volume - (DT / 2)
             self.dronesfx:setVolume(self.dronesfx_volume)
         end
     end

@@ -529,7 +529,7 @@ function Game:update(dt)
         self.world.visible = true
     end
 
-    self.playtime = self.playtime + dt
+    self.playtime = self.playtime + DT
 
     self.stage:update(dt)
 

@@ -134,9 +134,9 @@ function DialogueText:update(dt)
     end
 
     if self.state.waiting == 0 then
-        self.state.progress = self.state.progress + (dt * 30 * speed)
+        self.state.progress = self.state.progress + (DT * 30 * speed)
     else
-        self.state.waiting = math.max(0, self.state.waiting - dt)
+        self.state.waiting = math.max(0, self.state.waiting - DT)
     end
 
     if self.state.typing then

@@ -21,8 +21,8 @@ function preview:update(dt)
     local to_remove = {}
     for _,particle in ipairs(self.particles) do
         particle.radius = particle.radius
-        particle.radius = particle.radius - (dt * 4)
-        particle.y = particle.y - particle.speed * (dt / FRAMERATE)
+        particle.radius = particle.radius - (DT * 4)
+        particle.y = particle.y - particle.speed * (DT / FRAMERATE)
 
         if particle.radius <= 0 then
             table.insert(to_remove, particle)
@@ -33,7 +33,7 @@ function preview:update(dt)
         Utils.removeFromTable(self.particles, particle)
     end
 
-    self.particle_timer = self.particle_timer + dt
+    self.particle_timer = self.particle_timer + DT
     if self.particle_timer >= 0.25 then
         self.particle_timer = 0
         local radius = math.random() * 48 + 16

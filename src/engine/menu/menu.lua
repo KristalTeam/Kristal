@@ -316,22 +316,22 @@ function Menu:update(dt)
     -- Update fade between previews
     if (current_mod and (current_mod.preview or mod_button.preview_script)) then
         if mod_button.preview_script and mod_button.preview_script.hide_background ~= false then
-            self.background_fade = math.max(0, self.background_fade - (dt / 0.5))
+            self.background_fade = math.max(0, self.background_fade - (DT / 0.5))
         else
-            self.background_fade = math.min(1, self.background_fade + (dt / 0.5))
+            self.background_fade = math.min(1, self.background_fade + (DT / 0.5))
         end
         for k,v in pairs(self.mod_fades) do
             if k == current_mod.id and v.fade < 1 then
-                v.fade = math.min(1, v.fade + (dt / 0.5))
+                v.fade = math.min(1, v.fade + (DT / 0.5))
             elseif k ~= current_mod.id and v.fade > 0 then
-                v.fade = math.max(0, v.fade - (dt / 0.5))
+                v.fade = math.max(0, v.fade - (DT / 0.5))
             end
         end
     else
-        self.background_fade = math.min(1, self.background_fade + (dt / 0.5))
+        self.background_fade = math.min(1, self.background_fade + (DT / 0.5))
         for k,v in pairs(self.mod_fades) do
             if v.fade > 0 then
-                v.fade = math.max(0, v.fade - (dt / 0.5))
+                v.fade = math.max(0, v.fade - (DT / 0.5))
             end
         end
     end
@@ -389,8 +389,8 @@ function Menu:update(dt)
         if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
             self.heart.y = self.heart_target_y
         end
-        self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * (dt * 30)
-        self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * (dt * 30)
+        self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
+        self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
     end
 
     -- Toggle heart favorite outline
@@ -556,7 +556,7 @@ function Menu:draw()
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
     -- Change the fade opacity for the next frame
-    self.fader_alpha = math.max(0,self.fader_alpha - (0.08 * (DT * 30)))
+    self.fader_alpha = math.max(0,self.fader_alpha - (0.08 * DTMULT))
 
     -- Reset the draw color
     love.graphics.setColor(1, 1, 1, 1)

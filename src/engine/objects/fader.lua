@@ -82,7 +82,7 @@ end
 
 function Fader:update(dt)
     if self.state == "FADEOUT" then
-        self.alpha = self.alpha + (dt / self.speed)
+        self.alpha = self.alpha + (DT / self.speed)
         if (self.alpha >= 1) then
             self.alpha = 1
             self.state = "NONE"
@@ -93,7 +93,7 @@ function Fader:update(dt)
         end
     end
     if self.state == "FADEIN" then
-        self.alpha = self.alpha - (dt / self.speed)
+        self.alpha = self.alpha - (DT / self.speed)
         if (self.alpha <= 0) then
             self.alpha = 0
             self.state = "NONE"

@@ -166,7 +166,7 @@ function ModList:update(dt)
         self.scroll = self.scroll_target
     end
 
-    self.scroll = self.scroll + ((self.scroll_target - self.scroll) / 2) * (dt * 30)
+    self.scroll = self.scroll + ((self.scroll_target - self.scroll) / 2) * DTMULT
     self.mod_container.y = -self.scroll
 
     super:update(self, dt)

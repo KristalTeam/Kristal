@@ -100,7 +100,7 @@ function Console:close()
 end
 
 function Console:update(dt)
-    self.flash_timer = self.flash_timer + dt
+    self.flash_timer = self.flash_timer + DT
     if self.flash_timer > 1 then
         self.flash_timer = self.flash_timer - 1
     end

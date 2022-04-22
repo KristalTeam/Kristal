@@ -388,7 +388,7 @@ end
 
 function FileList:update(dt)
     if self.result_timer > 0 then
-        self.result_timer = Utils.approach(self.result_timer, 0, dt)
+        self.result_timer = Utils.approach(self.result_timer, 0, DT)
         if self.result_timer == 0 then
             self.result_text = nil
         end

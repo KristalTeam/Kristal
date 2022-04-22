@@ -42,7 +42,7 @@ end
 function OverworldSoul:update(dt)
     -- Bullet collision !!! Yay
     if self.inv_timer > 0 then
-        self.inv_timer = Utils.approach(self.inv_timer, 0, dt)
+        self.inv_timer = Utils.approach(self.inv_timer, 0, DT)
     end
 
     Object.startCache()
@@ -54,7 +54,7 @@ function OverworldSoul:update(dt)
     Object.endCache()
 
     if self.inv_timer > 0 then
-        self.inv_flash_timer = self.inv_flash_timer + dt
+        self.inv_flash_timer = self.inv_flash_timer + DT
         local amt = math.floor(self.inv_flash_timer / (4/30))
         if (amt % 2) == 1 then
             self.sprite:setColor(0.5, 0.5, 0.5)

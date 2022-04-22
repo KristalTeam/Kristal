@@ -84,7 +84,7 @@ end
 
 function TensionBar:update(dt)
     if self.animating_in then
-        self.animation_timer = self.animation_timer + (dt * 30)
+        self.animation_timer = self.animation_timer + DTMULT
         if self.animation_timer > 12 then
             self.animation_timer = 12
         end
@@ -95,42 +95,42 @@ function TensionBar:update(dt)
     if (math.abs((self.apparent - Game.battle.tension)) < 20) then
         self.apparent = Game.battle.tension
     elseif (self.apparent < Game.battle.tension) then
-        self.apparent = self.apparent + (20 * (DT * 30))
+        self.apparent = self.apparent + (20 * DTMULT)
     elseif (self.apparent > Game.battle.tension) then
-        self.apparent = self.apparent - (20 * (DT * 30))
+        self.apparent = self.apparent - (20 * DTMULT)
     end
     if (self.apparent ~= self.current) then
-        self.changetimer = self.changetimer + (1 * (DT * 30))
+        self.changetimer = self.changetimer + (1 * DTMULT)
         if (self.changetimer > 15) then
             if ((self.apparent - self.current) > 0) then
-                self.current = self.current + (2 * (DT * 30))
+                self.current = self.current + (2 * DTMULT)
             end
             if ((self.apparent - self.current) > 10) then
-                self.current = self.current + (2 * (DT * 30))
+                self.current = self.current + (2 * DTMULT)
             end
             if ((self.apparent - self.current) > 25) then
-                self.current = self.current + (3 * (DT * 30))
+                self.current = self.current + (3 * DTMULT)
             end
             if ((self.apparent - self.current) > 50) then
-                self.current = self.current + (4 * (DT * 30))
+                self.current = self.current + (4 * DTMULT)
             end
             if ((self.apparent - self.current) > 100) then
-                self.current = self.current + (5 * (DT * 30))
+                self.current = self.current + (5 * DTMULT)
             end
             if ((self.apparent - self.current) < 0) then
-                self.current = self.current - (2 * (DT * 30))
+                self.current = self.current - (2 * DTMULT)
             end
             if ((self.apparent - self.current) < -10) then
-                self.current = self.current - (2 * (DT * 30))
+                self.current = self.current - (2 * DTMULT)
             end
             if ((self.apparent - self.current) < -25) then
-                self.current = self.current - (3 * (DT * 30))
+                self.current = self.current - (3 * DTMULT)
             end
             if ((self.apparent - self.current) < -50) then
-                self.current = self.current - (4 * (DT * 30))
+                self.current = self.current - (4 * DTMULT)
             end
             if ((self.apparent - self.current) < -100) then
-                self.current = self.current - (5 * (DT * 30))
+                self.current = self.current - (5 * DTMULT)
             end
             if (math.abs((self.apparent - self.current)) < 3) then
                 self.current = self.apparent

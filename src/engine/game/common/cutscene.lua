@@ -96,7 +96,7 @@ end
 function Cutscene:update(dt)
     if self.ended then return end
 
-    self.wait_timer = Utils.approach(self.wait_timer, 0, dt)
+    self.wait_timer = Utils.approach(self.wait_timer, 0, DT)
 
     if coroutine.status(self.coroutine) == "suspended" then
         self:tryResume()

@@ -5,7 +5,7 @@ function lib:init()
 
     Utils.hook(Player, "update", function(orig, self, dt)
         if self.run_timer > 60 then
-            self.walk_speed = self.walk_speed + dt
+            self.walk_speed = self.walk_speed + DT
         elseif self.walk_speed > 4 then
             self.walk_speed = 4
         end

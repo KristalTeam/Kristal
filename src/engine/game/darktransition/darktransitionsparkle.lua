@@ -11,8 +11,8 @@ function DarkTransitionSparkle:init(texture, x, y)
 end
 
 function DarkTransitionSparkle:update(dt)
-    self.vspeed = self.vspeed + self.gravity * (dt * 30)
-    self:move(self.hspeed * (dt * 30), self.vspeed * (dt * 30))
+    self.vspeed = self.vspeed + self.gravity * DTMULT
+    self:move(self.hspeed * DTMULT, self.vspeed * DTMULT)
 
     if (self.y <= -30) then
         self:remove()

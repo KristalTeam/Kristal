@@ -105,7 +105,7 @@ function BattleUI:transitionOut()
 end
 
 function BattleUI:update(dt)
-    self.animation_timer = self.animation_timer + (dt * 30)
+    self.animation_timer = self.animation_timer + DTMULT
 
     local max_time = self.animate_out and 6 or 12
 

@@ -1746,7 +1746,7 @@ function Battle:updateChildren(dt)
 end
 
 function Battle:updateIntro(dt)
-    self.intro_timer = self.intro_timer + 1 * (dt * 30)
+    self.intro_timer = self.intro_timer + 1 * DTMULT
     if self.intro_timer >= 13 then
         self:nextTurn()
     end
@@ -1772,7 +1772,7 @@ function Battle:updateTransition(dt)
         self.afterimage_count = self.afterimage_count + 1
     end
 
-    self.transition_timer = self.transition_timer + 1 * (dt * 30)
+    self.transition_timer = self.transition_timer + 1 * DTMULT
 
     if self.transition_timer >= 10 then
         self.transition_timer = 10
@@ -1870,7 +1870,7 @@ function Battle:updateAttacking(dt)
 end
 
 function Battle:updateWaves(dt)
-    self.wave_timer = self.wave_timer + dt
+    self.wave_timer = self.wave_timer + DT
 
     local all_done = true
     for _,wave in ipairs(self.waves) do
@@ -1941,7 +1941,7 @@ function Battle:drawBackground()
     love.graphics.setColor(0, 0, 0, self.transition_timer / 10)
     love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH+16, SCREEN_HEIGHT+16)
 
-    self.offset = self.offset + 1 * (DT * 30)
+    self.offset = self.offset + 1 * DTMULT
 
     if self.offset > 100 then
         self.offset = self.offset - 100

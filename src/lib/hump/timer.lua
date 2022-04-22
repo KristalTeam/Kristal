@@ -37,8 +37,8 @@ local function updateTimerHandle(handle, dt)
         --   limit = <number>,
         --   count = <number>,
         -- }
-        handle.time = handle.time + dt
-        handle.during(dt, math.max(handle.limit - handle.time, 0))
+        handle.time = handle.time + DT
+        handle.during(DT, math.max(handle.limit - handle.time, 0))
 
         while handle.time >= handle.limit and handle.count > 0 do
             if handle.after(handle.after) == false then
@@ -159,7 +159,7 @@ __call = function(tween, self, len, subject, target, method, after, ...)
 
     local last_s = 0
     return self:during(len, function(dt)
-        t = t + dt
+        t = t + DT
         local s = method(math.min(1, t/len), unpack(args))
         local ds = s - last_s
         last_s = s

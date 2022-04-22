@@ -146,7 +146,7 @@ function Camera:update(dt)
         local target_y = Utils.clamp(self.pan_target.y, min_y, max_y)
 
         if self.pan_target.time then
-            self.pan_target.timer = Utils.approach(self.pan_target.timer, self.pan_target.time, dt)
+            self.pan_target.timer = Utils.approach(self.pan_target.timer, self.pan_target.time, DT)
 
             self.x = Utils.ease(self.pan_target.start_x, target_x, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
             self.y = Utils.ease(self.pan_target.start_y, target_y, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)

@@ -140,7 +140,7 @@ function Follower:updateHistory(dt, moved)
     end
 
     if moved or self.state == "SLIDE" or self.needs_slide then
-        self.history_time = self.history_time + dt
+        self.history_time = self.history_time + DT
 
         table.insert(self.history, 1, {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do

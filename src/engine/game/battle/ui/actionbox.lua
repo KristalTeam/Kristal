@@ -77,9 +77,9 @@ end
 
 function ActionBox:update(dt)
     if (Game.battle.current_selecting == self.index) then
-        self.animation_timer = self.animation_timer + 1 * (DT * 30)
+        self.animation_timer = self.animation_timer + 1 * DTMULT
     else
-        self.animation_timer = self.animation_timer - 1 * (DT * 30)
+        self.animation_timer = self.animation_timer - 1 * DTMULT
     end
 
     if self.animation_timer > 7 then

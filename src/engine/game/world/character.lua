@@ -372,14 +372,14 @@ function Character:processJump(dt)
         end
     end
     if (self.jump_progress == 1) then
-        self.jump_sprite_timer = self.jump_sprite_timer + dt
+        self.jump_sprite_timer = self.jump_sprite_timer + DT
         if (self.jump_sprite_timer >= 5/30) then
             self.sprite:set(self.jump_sprite) -- TODO: speed should be 0.25
             self.jump_progress = 2
         end
     end
     if (self.jump_progress == 2) then
-        self.jump_timer = self.jump_timer + dt
+        self.jump_timer = self.jump_timer + DT
         self.jump_speed = self.jump_speed - (self.fake_gravity * DTMULT)
         self.jump_arc_y = self.jump_arc_y - (self.jump_speed * DTMULT)
         self.x = Utils.lerp(self.jump_start_x, self.false_end_x, (self.jump_timer / self.jump_time))
@@ -399,7 +399,7 @@ function Character:processJump(dt)
     if (self.jump_progress == 3) then
         if (self.jump_use_sprites) then
             self.sprite:set(self.land_sprite)
-            self.jump_sprite_timer = self.jump_sprite_timer +  dt
+            self.jump_sprite_timer = self.jump_sprite_timer + DT
         else
             self.jump_sprite_timer = 10/30
         end

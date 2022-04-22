@@ -10,3 +10,5 @@ MOD_LOADING = false
 ACTIVE_LIB = nil
 
 DEBUG_RENDER = false
+
+FAST_FORWARD = false

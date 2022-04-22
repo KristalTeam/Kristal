@@ -20,7 +20,7 @@ end
 function SolidTest:update(dt)
     super:update(self, dt)
 
-    self.siner = self.siner + dt
+    self.siner = self.siner + DT
 
     if self.solid then
         self.solid:moveTo(self.start_x + math.sin(self.siner*2) * 60, self.start_y)

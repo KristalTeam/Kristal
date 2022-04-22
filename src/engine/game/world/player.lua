@@ -258,7 +258,7 @@ function Player:update(dt)
     local moved = self.x ~= self.last_x or self.y ~= self.last_y
 
     if moved then
-        self.history_time = self.history_time + dt
+        self.history_time = self.history_time + DT
 
         table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do

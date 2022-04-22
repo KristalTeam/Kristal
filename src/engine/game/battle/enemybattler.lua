@@ -524,7 +524,7 @@ end
 
 function EnemyBattler:update(dt)
     if self.hurt_timer > 0 then
-        self.hurt_timer = Utils.approach(self.hurt_timer, 0, dt)
+        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DT)
 
         if self.hurt_timer == 0 then
             self:onHurtEnd()
