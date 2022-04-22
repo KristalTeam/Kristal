@@ -45,7 +45,7 @@ function TestShop:init()
     self:registerItem("cell_phone", {stock = 10, color = {1, 0.8, 1, 1}, price = -14, description = "*\n|_\n(O)    Sell phoe\n|#|\n'-'", name="Pone"})
     self:registerItem("tensionbit")
     self:registerItem("manual")
-    self:registerItem("amber_card")
+    self:registerItem("amber_card", {bonuses = {defense = math.huge}})
 
     self:registerTalk("Reflect")
     self:registerTalk("Where I Am")
@@ -59,7 +59,7 @@ function TestShop:init()
     self.shopkeeper.sprite:setPosition(-24, 12)
     self.shopkeeper.slide = true
 
-    self.background = "ui/shop/bg_seam"]]--
+    self.background = "ui/shop/bg_seam"]]
 
     self.background = nil
 end

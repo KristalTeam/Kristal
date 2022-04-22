@@ -602,14 +602,14 @@ function Shop:draw()
                             love.graphics.draw(self.stat_icons["defense_2"], offset_x + 470, offset_y + 147 + top)
 
                             for j = 1, 2 do
-                                self:drawBonuses(party_member, party_member:getArmor(j), current_item.item, "defense", offset_x + 470 + 21, offset_y + 127 + ((j - 1) * 20) + top)
+                                self:drawBonuses(party_member, party_member:getArmor(j), current_item.options["bonuses"], "defense", offset_x + 470 + 21, offset_y + 127 + ((j - 1) * 20) + top)
                             end
 
                         elseif current_item.item.type == "weapon" then
                             love.graphics.draw(self.stat_icons["attack"], offset_x + 470, offset_y + 127 + top)
                             love.graphics.draw(self.stat_icons["magic" ], offset_x + 470, offset_y + 147 + top)
-                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.item, "attack", offset_x + 470 + 21, offset_y + 127 + top)
-                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.item, "magic",  offset_x + 470 + 21, offset_y + 147 + top)
+                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.options["bonuses"], "attack", offset_x + 470 + 21, offset_y + 127 + top)
+                            self:drawBonuses(party_member, party_member:getWeapon(), current_item.options["bonuses"], "magic",  offset_x + 470 + 21, offset_y + 147 + top)
                         end
                     else
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head_error")
@@ -774,14 +774,14 @@ function Shop:draw()
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
-function Shop:drawBonuses(party_member, old_item, new_item, stat, x, y)
+function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
     local old_stat = 0
 
     if old_item then
         old_stat = old_item:getStatBonus(stat) or 0
     end
 
-    local amount = (new_item:getStatBonus(stat) or 0) - old_stat
+    local amount = (bonuses[stat] or 0) - old_stat
     local amount_string = tostring(amount)
     if amount < 0 then
         love.graphics.setColor(COLORS.aqua)
