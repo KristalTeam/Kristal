@@ -191,7 +191,7 @@ function Player:moveCamera(speed)
     end
 end
 
-function Player:updateWalk(DT)
+function Player:updateWalk()
     if self:isMovementEnabled() then
         self:handleMovement()
     end
@@ -202,7 +202,7 @@ function Player:beginSlide()
     self.slide_camera_y = self.world.camera.y
     self.sprite:setAnimation("slide")
 end
-function Player:updateSlideDust(DT)
+function Player:updateSlideDust()
     self.slide_dust_timer = Utils.approach(self.slide_dust_timer, 0, DTMULT)
 
     if self.slide_dust_timer == 0 then
@@ -219,7 +219,7 @@ function Player:updateSlideDust(DT)
         self.world:addChild(dust)
     end
 end
-function Player:updateSlide(DT)
+function Player:updateSlide()
     local slide_x = 0
     local slide_y = 0
 
@@ -239,7 +239,7 @@ function Player:updateSlide(DT)
 
     self:move(slide_x, slide_y, speed * DTMULT)
 
-    self:updateSlideDust(DT)
+    self:updateSlideDust()
 
     if self.world.player == self and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
         self:moveCamera(20)

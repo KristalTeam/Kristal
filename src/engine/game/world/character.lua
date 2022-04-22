@@ -324,7 +324,7 @@ function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
     self.jumping = true
 end
 
-function Character:processJump(DT)
+function Character:processJump()
     if (not self.init) then
         self.fake_gravity = (self.jump_speed / ((self.jump_time*30) * 0.5))
         self.init = true
@@ -495,7 +495,7 @@ function Character:update()
     end
 
     if self.jumping then
-        self:processJump(DT)
+        self:processJump()
     end
 
     if (self.spin_speed ~= 0) then

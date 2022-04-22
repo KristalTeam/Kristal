@@ -159,7 +159,7 @@ function StateManager:update()
         self.routine = nil
     end
 
-    self:call("update", DT)
+    self:call("update")
 end
 
 function StateManager:draw()

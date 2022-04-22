@@ -1659,11 +1659,11 @@ function Battle:update()
     end
 
     if self.state == "TRANSITION" then
-        self:updateTransition(DT)
+        self:updateTransition()
     elseif self.state == "INTRO" then
-        self:updateIntro(DT)
+        self:updateIntro()
     elseif self.state == "ATTACKING" then
-        self:updateAttacking(DT)
+        self:updateAttacking()
     elseif self.state == "ACTIONSDONE" then
         self.actions_done_timer = Utils.approach(self.actions_done_timer, 0, DT)
         local any_hurt = false
@@ -1686,7 +1686,7 @@ function Battle:update()
             self:setState("ENEMYDIALOGUE")
         end
     elseif self.state == "DEFENDING" then
-        self:updateWaves(DT)
+        self:updateWaves()
     elseif self.state == "ENEMYDIALOGUE" then
         self.textbox_timer = self.textbox_timer - DTMULT
         if (self.textbox_timer <= 0) and self.use_textbox_timer then
@@ -1728,11 +1728,11 @@ function Battle:update()
     super:update(self)
 
     if self.state == "TRANSITIONOUT" then
-        self:updateTransitionOut(DT)
+        self:updateTransitionOut()
     end
 end
 
-function Battle:updateChildren(DT)
+function Battle:updateChildren()
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
@@ -1745,14 +1745,14 @@ function Battle:updateChildren(DT)
     end
 end
 
-function Battle:updateIntro(DT)
+function Battle:updateIntro()
     self.intro_timer = self.intro_timer + 1 * DTMULT
     if self.intro_timer >= 13 then
         self:nextTurn()
     end
 end
 
-function Battle:updateTransition(DT)
+function Battle:updateTransition()
     while self.afterimage_count < math.floor(self.transition_timer) do
         for index, battler in ipairs(self.party) do
             local target_x, target_y = unpack(self.battler_targets[index])
@@ -1791,7 +1791,7 @@ function Battle:updateTransition(DT)
     end
 end
 
-function Battle:updateTransitionOut(DT)
+function Battle:updateTransitionOut()
     if not self.battle_ui.animation_done then
         return
     end
@@ -1829,7 +1829,7 @@ function Battle:updateTransitionOut(DT)
     end
 end
 
-function Battle:updateAttacking(DT)
+function Battle:updateAttacking()
     if self.cancel_attack then
         self:finishAllActions()
         self:setState("ACTIONSDONE")
@@ -1869,7 +1869,7 @@ function Battle:updateAttacking(DT)
     end
 end
 
-function Battle:updateWaves(DT)
+function Battle:updateWaves()
     self.wave_timer = self.wave_timer + DT
 
     local all_done = true

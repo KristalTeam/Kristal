@@ -334,6 +334,7 @@ function love.quit()
 end
 
 function love.update(dt)
+    BASE_DT = dt
     if FAST_FORWARD then
         dt = dt * FAST_FORWARD_SPEED
     end

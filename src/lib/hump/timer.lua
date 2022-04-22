@@ -29,7 +29,7 @@ Timer.__index = Timer
 
 local function _nothing_() end
 
-local function updateTimerHandle(handle, DT)
+local function updateTimerHandle(handle)
         -- handle: {
         --   time = <number>,
         --   after = <function>,
@@ -38,7 +38,7 @@ local function updateTimerHandle(handle, DT)
         --   count = <number>,
         -- }
         handle.time = handle.time + DT
-        handle.during(DT, math.max(handle.limit - handle.time, 0))
+        handle.during(math.max(handle.limit - handle.time, 0))
 
         while handle.time >= handle.limit and handle.count > 0 do
             if handle.after(handle.after) == false then
@@ -60,7 +60,7 @@ function Timer:update()
 
     for handle in pairs(to_update) do
         if self.functions[handle] then
-            updateTimerHandle(handle, DT)
+            updateTimerHandle(handle)
             if handle.count == 0 then
                 self.functions[handle] = nil
             end
@@ -158,7 +158,7 @@ __call = function(tween, self, len, subject, target, method, after, ...)
     local payload, t, args = tween_collect_payload(subject, target, {}), 0, {...}
 
     local last_s = 0
-    return self:during(len, function(DT)
+    return self:during(len, function()
         t = t + DT
         local s = method(math.min(1, t/len), unpack(args))
         local ds = s - last_s

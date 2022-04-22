@@ -98,7 +98,7 @@ function Arena:onAdd(parent)
 
     local afterimage_timer = 0
     local afterimage_count = 0
-    Game.battle.timer:during(15/30, function(DT)
+    Game.battle.timer:during(15/30, function()
         afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
 
         local real_progress = afterimage_timer / 15
@@ -137,7 +137,7 @@ function Arena:onRemove(parent)
 
     local afterimage_timer = 0
     local afterimage_count = 0
-    Game.battle.timer:during(15/30, function(DT)
+    Game.battle.timer:during(15/30, function()
         afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
 
         local real_progress = 1 - (afterimage_timer / 15)

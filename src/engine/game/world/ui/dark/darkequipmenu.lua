@@ -299,7 +299,7 @@ function DarkEquipMenu:update()
     super:update(self)
 end
 
-function DarkEquipMenu:draw(DT)
+function DarkEquipMenu:draw()
     love.graphics.setFont(self.font)
 
     love.graphics.setColor(1, 1, 1, 1)

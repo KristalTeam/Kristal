@@ -145,6 +145,9 @@ function Object:init(x, y, width, height)
     -- Post-processing effects
     self.draw_fx = {}
 
+    -- Multiplier for DT for this object's update and draw
+    self.timescale = 1
+
     -- This object's sorting, higher number = renders last (above siblings)
     self.layer = 0
 
@@ -181,7 +184,7 @@ function Object:update()
     self:updatePhysicsTransform()
     self:updateGraphicsTransform()
 
-    self:updateChildren(DT)
+    self:updateChildren()
 
     if self.camera then
         self.camera:update()
@@ -696,7 +699,7 @@ function Object:updateChildList()
     self:sortChildren()
 end
 
-function Object:updateChildren(DT)
+function Object:updateChildren()
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
@@ -706,9 +709,20 @@ function Object:updateChildren(DT)
     end
     for _,v in ipairs(self.children) do
         if v.active and v.parent == self then
-            v:update()
+            v:fullUpdate()
         end
     end
+end
+
+function Object:fullUpdate()
+    local last_dt, last_dt_mult = DT, DTMULT
+    if self.timescale ~= 1 then
+        DT = DT * self.timescale
+        DTMULT = DTMULT * self.timescale
+    end
+    self:update()
+    DT = last_dt
+    DTMULT = last_dt_mult
 end
 
 function Object:preDraw()
