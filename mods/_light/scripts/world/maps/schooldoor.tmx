@@ -9,26 +9,26 @@
   <property name="name" value="School"/>
  </properties>
  <tileset firstgid="1" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
- <tileset firstgid="111" source="../../../assets/sprites/tilesets/alley.tsx"/>
- <tileset firstgid="472" source="../../../assets/sprites/tilesets/street_edges.tsx"/>
- <tileset firstgid="682" source="../../../assets/sprites/tilesets/test_battleborder.tsx"/>
- <tileset firstgid="697" source="../../../assets/sprites/tilesets/alley_animated.tsx"/>
- <tileset firstgid="733" source="../../../assets/sprites/tilesets/alley_buildings_glitch.tsx"/>
- <tileset firstgid="805" source="../tilesets/schooltiles.tsx"/>
+ <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley.tsx"/>
+ <tileset firstgid="1" source="../../../assets/sprites/tilesets/street_edges.tsx"/>
+ <tileset firstgid="1" source="../../../assets/sprites/tilesets/test_battleborder.tsx"/>
+ <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley_animated.tsx"/>
+ <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley_buildings_glitch.tsx"/>
+ <tileset firstgid="1" source="../tilesets/schooltiles.tsx"/>
  <layer id="17" name="Tile Layer 1" width="31" height="12">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,832,806,806,806,806,806,806,806,806,806,834,0,0,0,832,806,806,806,806,806,806,806,806,806,834,0,0,0,
-0,0,0,832,806,806,806,806,806,806,806,806,806,834,0,0,0,832,806,806,806,806,806,806,806,806,806,834,0,0,0,
-0,0,0,814,815,815,815,815,815,815,815,815,815,816,0,0,0,814,815,815,815,815,815,815,815,815,815,816,0,0,0,
-0,0,0,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,0,0,0,
-0,0,0,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,805,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,805,805,805,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,805,805,805,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,805,805,805,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,805,805,805,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,28,2,2,2,2,2,2,2,2,2,30,0,0,0,28,2,2,2,2,2,2,2,2,2,30,0,0,0,
+0,0,0,28,2,2,2,2,2,2,2,2,2,30,0,0,0,28,2,2,2,2,2,2,2,2,2,30,0,0,0,
+0,0,0,10,11,11,11,11,11,11,11,11,11,12,0,0,0,10,11,11,11,11,11,11,11,11,11,12,0,0,0,
+0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,
+0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="18" name="Tile Layer 2" width="31" height="12">
@@ -36,9 +36,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,808,809,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,808,809,0,0,0,0,
-0,0,0,0,817,818,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,817,818,0,0,0,0,
-0,0,0,0,826,827,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,826,827,0,0,0,0,
+0,0,0,0,4,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5,0,0,0,0,
+0,0,0,0,13,14,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,14,0,0,0,0,
+0,0,0,0,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -66,16 +66,16 @@
  <objectgroup color="#ff00ff" id="2" name="objects">
   <object id="54" name="transition" x="560" y="460" width="120" height="40">
    <properties>
-    <property name="map" value="alley2"/>
-    <property name="marker" value="entry"/>
+    <property name="map" value="schooldoor"/>
+    <property name="marker" value="entry_down"/>
    </properties>
   </object>
-  <object id="84" name="interactscript" x="160" y="200" width="81" height="40">
+  <object id="84" name="interactable" x="160" y="200" width="81" height="40">
    <properties>
     <property name="scene" value="test"/>
    </properties>
   </object>
-  <object id="100" name="interactscript" x="560" y="200" width="120" height="40">
+  <object id="100" name="interactable" x="560" y="200" width="120" height="40">
    <properties>
     <property name="scene" value="enterdark"/>
    </properties>
@@ -83,8 +83,8 @@
   <object id="101" name="darkdoor" x="576" y="124" width="88" height="112"/>
   <object id="102" name="transition" x="1000" y="200" width="80" height="40">
    <properties>
-    <property name="map" value="alley2"/>
-    <property name="marker" value="entry"/>
+    <property name="map" value="schooldoor"/>
+    <property name="marker" value="entry_down"/>
    </properties>
   </object>
  </objectgroup>
