@@ -8,12 +8,6 @@
   <property name="music" value="mus_school"/>
   <property name="name" value="School"/>
  </properties>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley.tsx"/>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/street_edges.tsx"/>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/test_battleborder.tsx"/>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley_animated.tsx"/>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/alley_buildings_glitch.tsx"/>
  <tileset firstgid="1" source="../tilesets/schooltiles.tsx"/>
  <layer id="17" name="Tile Layer 1" width="31" height="12">
   <data encoding="csv">
@@ -72,12 +66,12 @@
   </object>
   <object id="84" name="interactable" x="160" y="200" width="81" height="40">
    <properties>
-    <property name="scene" value="test"/>
+    <property name="text" value="* (The door is locked.)"/>
    </properties>
   </object>
   <object id="100" name="interactable" x="560" y="200" width="120" height="40">
    <properties>
-    <property name="scene" value="enterdark"/>
+    <property name="cutscene" value="enterdark"/>
    </properties>
   </object>
   <object id="101" name="darkdoor" x="576" y="124" width="88" height="112"/>

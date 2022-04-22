@@ -6,10 +6,10 @@ return function(cutscene)
     cutscene:detachCamera()
     cutscene:detachFollowers()
 
-    cutscene:slideTo(kris,  620 - 30, 280, 8)
-    cutscene:slideTo(susie, 620 + 30, 280, 8)
-    cutscene:panTo(620, 245, 0.4)
-    cutscene:wait(5/30)
+    cutscene:slideTo(kris,  620 - 30, 280, 0.25)
+    cutscene:slideTo(susie, 620 + 30, 280, 0.25)
+    cutscene:panTo(620, 245, 0.25)
+    cutscene:wait(0.25)
 
     kris.visible = false
     susie.visible = false

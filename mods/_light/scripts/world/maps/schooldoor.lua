@@ -18,144 +18,6 @@ return {
   },
   tilesets = {
     {
-      name = "city_alley",
-      firstgid = 1,
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 0,
-      tiles = {}
-    },
-    {
-      name = "alley",
-      firstgid = 1,
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 0,
-      tiles = {}
-    },
-    {
-      name = "street_edges",
-      firstgid = 1,
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 0,
-      tiles = {}
-    },
-    {
-      name = "test_battleborder",
-      firstgid = 1,
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 0,
-      tiles = {}
-    },
-    {
-      name = "alley_animated",
-      firstgid = 1,
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 0,
-      tiles = {}
-    },
-    {
-      name = "alley_buildings_glitch",
-      firstgid = 1,
-      tilewidth = 32,
-      tileheight = 32,
-      spacing = 0,
-      margin = 0,
-      columns = 0,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 0,
-      tiles = {}
-    },
-    {
       name = "schooltiles",
       firstgid = 1,
       tilewidth = 40,
@@ -446,7 +308,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["scene"] = "test"
+            ["text"] = "* (The door is locked.)"
           }
         },
         {
@@ -461,7 +323,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["scene"] = "enterdark"
+            ["cutscene"] = "enterdark"
           }
         },
         {
