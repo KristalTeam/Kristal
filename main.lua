@@ -335,7 +335,7 @@ end
 
 function love.update(dt)
     if FAST_FORWARD then
-        dt = dt * 4
+        dt = dt * FAST_FORWARD_SPEED
     end
     DT = dt
     DTMULT = dt * 30
