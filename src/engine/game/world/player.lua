@@ -177,13 +177,18 @@ function Player:handleMovement()
         end
     end
 
-    if self.world.player == self and self.world.camera_attached and (walk_x ~= 0 or walk_y ~= 0) then
+    if self.world.player == self and (walk_x ~= 0 or walk_y ~= 0) then
         self:moveCamera(math.max(speed, 12))
     end
 end
 
 function Player:moveCamera(speed)
-    self.world.camera:approach(self.x, self.y - (self.height * 2)/2, (speed or 12) * DTMULT)
+    if self.world.camera_attached_x then
+        self.world.camera:approach(self.x, self.world.camera.y, (speed or 12) * DTMULT)
+    end
+    if self.world.camera_attached_y then
+        self.world.camera:approach(self.world.camera.x, self.y - (self.height * 2)/2, (speed or 12) * DTMULT)
+    end
 end
 
 function Player:updateWalk(dt)
@@ -236,7 +241,7 @@ function Player:updateSlide(dt)
 
     self:updateSlideDust(dt)
 
-    if self.world.player == self and self.world.camera_attached and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
+    if self.world.player == self and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
         self:moveCamera(20)
     end
 end

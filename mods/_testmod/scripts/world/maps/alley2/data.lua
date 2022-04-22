@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 9,
-  nextobjectid = 90,
+  nextobjectid = 91,
   properties = {
     ["light"] = false,
     ["music"] = "dogcheck",
@@ -1468,6 +1468,22 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 90,
+          name = "cameratarget",
+          type = "",
+          shape = "rectangle",
+          x = 720,
+          y = 400,
+          width = 320,
+          height = 320,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["lockx"] = true,
+            ["locky"] = false
+          }
         }
       }
     },

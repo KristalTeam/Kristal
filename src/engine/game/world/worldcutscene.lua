@@ -248,16 +248,16 @@ function WorldCutscene:shakeCamera(x, y)
 end
 
 function WorldCutscene:detachCamera()
-    Game.world.camera_attached = false
+    Game.world:setCameraAttached(false)
 end
 
 function WorldCutscene:attachCamera(time)
     local tx, ty = Game.world:getCameraTarget()
-    return self:panTo(tx, ty, time or 0.8, "linear", function() Game.world.camera_attached = true end)
+    return self:panTo(tx, ty, time or 0.8, "linear", function() Game.world:setCameraAttached(true) end)
 end
 function WorldCutscene:attachCameraImmediate()
     local tx, ty = Game.world:getCameraTarget()
-    Game.world.camera_attached = true
+    Game.world:setCameraAttached(true)
     Game.world.camera:setPosition(tx, ty)
 end
 

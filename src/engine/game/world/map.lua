@@ -480,6 +480,8 @@ function Map:loadObject(name, data)
         return SlideArea(data.x, data.y, data.width, data.height)
     elseif name:lower() == "chest" then
         return TreasureChest(data.center_x, data.center_y, data.properties)
+    elseif name:lower() == "cameratarget" then
+        return CameraTarget(data.x, data.y, data.width, data.height, data.properties)
     end
 end
 
