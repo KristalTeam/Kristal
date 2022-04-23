@@ -121,7 +121,15 @@ function GameOver:update()
             end
         end
         if #options == 0 then
-            self.current_stage = 7
+            if Game:isLight() then
+                if Input.pressed("confirm") or Input.pressed("menu") then
+                    self.music:fade(0, 2)
+                    self.current_stage = 10
+                    self.timer = 0
+                end
+            else
+                self.current_stage = 7
+            end
         else
             local member = Utils.pick(options)
             local voice = member:getActor().voice or "default"
