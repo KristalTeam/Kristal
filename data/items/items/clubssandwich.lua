@@ -58,4 +58,8 @@ function item:init()
     }
 end
 
+function item:getWorldMenuName()
+    return "Clubswich"
+end
+
 return item

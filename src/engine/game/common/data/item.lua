@@ -124,6 +124,7 @@ function Item:convertToDarkEquip(chara) return self:convertToDark() end
 
 function Item:getName() return self.name end
 function Item:getUseName() return self.use_name or self:getName():upper() end
+function Item:getWorldMenuName() return self:getName() end
 
 function Item:getDescription() return self.description end
 function Item:getBattleDescription() return self.effect end
