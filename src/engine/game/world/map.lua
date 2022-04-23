@@ -419,6 +419,7 @@ function Map:loadObjects(layer, depth)
                         obj.unique_id = v.properties["uid"]
                     end
                     obj.layer = depth
+                    obj.data = v
                     self.world:addChild(obj)
 
                     table.insert(self.events, obj)
@@ -429,6 +430,11 @@ function Map:loadObjects(layer, depth)
                     self.events_by_id[v.id] = obj
                 end
             end
+        end
+    end
+    for _,event in ipairs(self.events) do
+        if event.postLoad then
+            event:postLoad()
         end
     end
 end
