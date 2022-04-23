@@ -9,19 +9,12 @@ function Character:init(actor, x, y)
 
     self.is_player = false
 
-    self.actor = actor
     self.facing = "down"
 
-    self.sprite = ActorSprite(self.actor)
-    self.sprite.facing = self.facing
-    self.sprite.inherit_color = true
-    self.sprite.on_footstep = function(s, n) self:onFootstep(n) end
-    self:addChild(self.sprite)
+    self:setActor(actor)
 
     self:setOrigin(0.5, 1)
     self:setScale(2)
-
-    self.collider = Hitbox(self, self.actor:getHitbox())
 
     self.last_collided_x = false
     self.last_collided_y = false

@@ -5,15 +5,6 @@ function Player:init(chara, x, y)
 
     self.is_player = true
 
-    local hx, hy, hw, hh = self.collider.x, self.collider.y, self.collider.width, self.collider.height
-
-    self.interact_collider = {
-        ["left"] = Hitbox(self, hx - hw/2, hy, hw, hh),
-        ["right"] = Hitbox(self, hx + hw/2, hy, hw, hh),
-        ["up"] = Hitbox(self, hx, hy - hh/2, hw, hh),
-        ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh)
-    }
-
     self.slide_sound = Assets.newSound("snd_paper_surf")
     self.slide_sound:setLooping(true)
 
@@ -59,6 +50,19 @@ function Player:onRemove(parent)
     if parent:includes(World) and parent.player == self then
         parent.player = nil
     end
+end
+
+function Player:setActor(actor)
+    super:setActor(self, actor)
+
+    local hx, hy, hw, hh = self.collider.x, self.collider.y, self.collider.width, self.collider.height
+
+    self.interact_collider = {
+        ["left"] = Hitbox(self, hx - 13, hy, hw/2 + 13, hh),
+        ["right"] = Hitbox(self, hx + hw/2, hy, hw/2 + 13, hh),
+        ["up"] = Hitbox(self, hx, hy - 19, hw, hh/2 + 19),
+        ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh/2 + 14)
+    }
 end
 
 function Player:interact()
