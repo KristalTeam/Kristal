@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.5" tiledversion="1.7.2" name="alley_buildings_glitch" tilewidth="40" tileheight="40" spacing="4" margin="2" tilecount="72" columns="8">
- <image source="alley_buildings_glitch.png" width="352" height="396"/>
+<tileset version="1.8" tiledversion="1.8.4" name="alley_buildings_glitch" tilewidth="40" tileheight="40" spacing="4" margin="2" tilecount="72" columns="8">
+ <image source="../../../assets/sprites/tilesets/alley_buildings_glitch.png" width="352" height="396"/>
  <tile id="8">
   <animation>
    <frame tileid="8" duration="1000"/>

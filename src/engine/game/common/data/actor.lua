@@ -102,7 +102,7 @@ function Actor:parseSpriteOptions(full_sprite, ignore_frames)
     local prefix = self:getSpritePath().."/"
     local is_relative, relative_sprite = Utils.startsWith(full_sprite, prefix)
     if not is_relative and self:getSpritePath() ~= "" then
-        return {}
+        return {""}
     end
 
     local result = {relative_sprite}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="94">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="97">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -8,12 +8,12 @@
   <property name="music" value="dogcheck"/>
   <property name="name" value="Test City - Banana Room"/>
  </properties>
- <tileset firstgid="1" source="../../../../assets/sprites/tilesets/alley.tsx"/>
- <tileset firstgid="362" source="../../../../assets/sprites/tilesets/city_alley.tsx"/>
- <tileset firstgid="472" source="../../../../assets/sprites/tilesets/street_edges.tsx"/>
- <tileset firstgid="682" source="../../../../assets/sprites/tilesets/alley_buildings_glitch.tsx"/>
- <tileset firstgid="754" source="../../../../assets/sprites/tilesets/alley_animated.tsx"/>
- <tileset firstgid="790" source="../../../../assets/sprites/tilesets/test_battleborder.tsx"/>
+ <tileset firstgid="1" source="../../tilesets/alley.tsx"/>
+ <tileset firstgid="362" source="../../tilesets/city_alley.tsx"/>
+ <tileset firstgid="472" source="../../tilesets/street_edges.tsx"/>
+ <tileset firstgid="682" source="../../tilesets/alley_buildings_glitch.tsx"/>
+ <tileset firstgid="754" source="../../tilesets/alley_animated.tsx"/>
+ <tileset firstgid="790" source="../../tilesets/test_battleborder.tsx"/>
  <layer id="1" name="Tile Layer 1" width="30" height="40">
   <data encoding="csv">
 260,260,260,260,261,259,260,260,260,260,260,730,260,261,434,434,259,260,714,260,260,260,260,260,746,261,259,260,260,260,
@@ -155,7 +155,7 @@
   <object id="45" name="npc" x="980" y="860">
    <properties>
     <property name="actor" value="starwalker"/>
-    <property name="scene" value="starwalker"/>
+    <property name="cutscene" value="starwalker"/>
    </properties>
    <point/>
   </object>
@@ -180,6 +180,11 @@
     <property name="locky" type="bool" value="true"/>
     <property name="marker" value="camtargy"/>
     <property name="time" type="float" value="0.25"/>
+   </properties>
+  </object>
+  <object id="96" name="script" x="480" y="1400" width="240" height="40">
+   <properties>
+    <property name="script" value="boomralsei"/>
    </properties>
   </object>
  </objectgroup>

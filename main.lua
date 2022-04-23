@@ -142,6 +142,7 @@ SlideArea = require("src.engine.game.world.events.slidearea")
 Silhouette = require("src.engine.game.world.events.silhouette")
 CameraTarget = require("src.engine.game.world.events.cameratarget")
 HideParty = require("src.engine.game.world.events.hideparty")
+SetFlagEvent = require("src.engine.game.world.events.setflagevent")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
 
 Battle = require("src.engine.game.battle")

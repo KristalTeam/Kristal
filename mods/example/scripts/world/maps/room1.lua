@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 6,
-  nextobjectid = 35,
+  nextobjectid = 37,
   properties = {
     ["name"] = "Test Map - Room 1"
   },
@@ -17,28 +17,7 @@ return {
     {
       name = "castle",
       firstgid = 1,
-      tilewidth = 40,
-      tileheight = 40,
-      spacing = 4,
-      margin = 2,
-      columns = 6,
-      image = "../../../assets/sprites/tilesets/castle.png",
-      imagewidth = 264,
-      imageheight = 308,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 40,
-        height = 40
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 42,
-      tiles = {}
+      filename = "../tilesets/castle.tsx"
     }
   },
   layers = {
@@ -503,7 +482,26 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["cutscene"] = "room1.wall"
+            ["cutscene"] = "room1.wall",
+            ["once"] = true,
+            ["setflag"] = "wall_hit"
+          }
+        },
+        {
+          id = 35,
+          name = "npc",
+          type = "",
+          shape = "point",
+          x = 300,
+          y = 160,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["actor"] = "wall",
+            ["flagcheck"] = "wall_hit",
+            ["text1"] = "* I Am the Wall Guardian.[wait:5]\n* This Wall is Off Limits for you\nno-good wall slammers."
           }
         }
       }

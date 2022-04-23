@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="20" height="24" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="35">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="20" height="24" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="37">
  <editorsettings>
   <export target="room1.lua" format="lua"/>
  </editorsettings>
@@ -115,7 +115,19 @@ you.</property>
   <object id="33" name="interactable" x="280" y="80" width="40" height="40">
    <properties>
     <property name="cutscene" value="room1.wall"/>
+    <property name="once" type="bool" value="true"/>
+    <property name="setflag" value="wall_hit"/>
    </properties>
+  </object>
+  <object id="35" name="npc" x="300" y="160">
+   <properties>
+    <property name="actor" value="wall"/>
+    <property name="flagcheck" value="wall_hit"/>
+    <property name="text1">* I Am the Wall Guardian.[wait:5]
+* This Wall is Off Limits for you
+no-good wall slammers.</property>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
  <objectgroup color="#7f00ff" id="5" name="markers">

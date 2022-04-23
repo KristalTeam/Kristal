@@ -17,28 +17,7 @@ return {
     {
       name = "castle",
       firstgid = 1,
-      tilewidth = 40,
-      tileheight = 40,
-      spacing = 4,
-      margin = 2,
-      columns = 6,
-      image = "../../../assets/sprites/tilesets/castle.png",
-      imagewidth = 264,
-      imageheight = 308,
-      objectalignment = "unspecified",
-      tileoffset = {
-        x = 0,
-        y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 40,
-        height = 40
-      },
-      properties = {},
-      wangsets = {},
-      tilecount = 42,
-      tiles = {}
+      filename = "../tilesets/castle.tsx"
     }
   },
   layers = {

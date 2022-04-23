@@ -17,11 +17,21 @@ function NPC:init(actor, x, y, properties)
 
     self.solid = properties["solid"] == nil or properties["solid"]
 
-    self.cutscene = properties["cutscene"] or properties["scene"]
+    self.cutscene = properties["cutscene"]
+    self.script = properties["script"]
     self.text = Interactable.parseText(properties)
+
+    self.set_flag = properties["setflag"]
+    self.set_value = properties["setvalue"]
 end
 
 function NPC:onInteract(player, dir)
+    if self.script then
+        Registry.getEventScript(self.script)(self, player, dir)
+    end
+    if self.set_flag then
+        Game:setFlag(self.set_flag, (self.set_value == nil and true) or self.set_value)
+    end
     if self.cutscene then
         self.world:startCutscene(self.cutscene, self, player, dir):after(function()
             self:onTextEnd()

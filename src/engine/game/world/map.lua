@@ -465,7 +465,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "interactable" then
         return Interactable(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "script" then
-        return Script(data.properties["cutscene"], data.x, data.y, data.width, data.height, data.properties["once"])
+        return Script(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "transition" then
         return Transition(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "npc" then
@@ -484,6 +484,8 @@ function Map:loadObject(name, data)
         return CameraTarget(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "hideparty" then
         return HideParty(data.x, data.y, data.width, data.height)
+    elseif name:lower() == "setflag" then
+        return SetFlagEvent(data.x, data.y, data.width, data.height, data.properties)
     end
 end
 

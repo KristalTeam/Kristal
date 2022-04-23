@@ -19,6 +19,7 @@ Registry.paths = {
     ["world_bullets"]    = "world/bullets",
     ["world_cutscenes"]  = "world/cutscenes",
     ["battle_cutscenes"] = "battle/cutscenes",
+    ["event_scripts"]    = "world/scripts",
     ["tilesets"]         = "world/tilesets",
     ["maps"]             = "world/maps",
     ["events"]           = "world/events",
@@ -51,6 +52,7 @@ function Registry.initialize(preload)
         Registry.initWaves()
         Registry.initBullets()
         Registry.initCutscenes()
+        Registry.initEventScripts()
         Registry.initTilesets()
         Registry.initMaps()
         Registry.initEvents()
@@ -224,6 +226,20 @@ function Registry.getBattleCutscene(group, id)
     end
 end
 
+function Registry.getEventScript(group, id)
+    if not id then
+        local args = Utils.split(group, ".")
+        group = args[1]
+        id = args[2]
+    end
+    local script = self.event_scripts[group]
+    if type(script) == "table" then
+        return script[id], true
+    elseif type(script) == "function" then
+        return script, false
+    end
+end
+
 function Registry.getTileset(id)
     return self.tilesets[id]
 end
@@ -333,6 +349,10 @@ end
 
 function Registry.registerBattleCutscene(id, cutscene)
     self.battle_cutscenes[id] = cutscene
+end
+
+function Registry.registerEventScript(id, script)
+    self.event_scripts[id] = script
 end
 
 function Registry.registerTileset(id, class)
@@ -508,6 +528,16 @@ function Registry.initCutscenes()
     end
 
     Kristal.callEvent("onRegisterCutscenes")
+end
+
+function Registry.initEventScripts()
+    self.event_scripts = {}
+
+    for _,path,script in self.iterScripts(Registry.paths["event_scripts"]) do
+        self.registerEventScript(path, script)
+    end
+
+    Kristal.callEvent("onRegisterEventScripts")
 end
 
 function Registry.initTilesets()

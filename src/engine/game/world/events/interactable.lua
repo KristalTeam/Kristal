@@ -8,7 +8,11 @@ function Interactable:init(x, y, width, height, properties)
     self.solid = properties["solid"] or false
 
     self.cutscene = properties["cutscene"]
+    self.script = properties["script"]
     self.text = Interactable.parseText(properties)
+
+    self.set_flag = properties["setflag"]
+    self.set_value = properties["setvalue"]
 
     self.once = properties["once"] or false
 end
@@ -21,6 +25,9 @@ function Interactable:onAdd(parent)
 end
 
 function Interactable:onInteract(player, dir)
+    if self.script then
+        Registry.getEventScript(self.script)(self, player, dir)
+    end
     local cutscene
     if self.cutscene then
         cutscene = self.world:startCutscene(self.cutscene, self, player, dir)
@@ -34,6 +41,10 @@ function Interactable:onInteract(player, dir)
     cutscene:after(function()
         self:onTextEnd()
     end)
+
+    if self.set_flag then
+        Game:setFlag(self.set_flag, (self.set_value == nil and true) or self.set_value)
+    end
 
     self:setFlag("used_once", true)
     if self.once then

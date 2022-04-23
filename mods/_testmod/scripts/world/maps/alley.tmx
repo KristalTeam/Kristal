@@ -8,12 +8,12 @@
   <property name="music" value="cybercity"/>
   <property name="name" value="Test City - Sugarplum Alley"/>
  </properties>
- <tileset firstgid="1" source="../../../assets/sprites/tilesets/city_alley.tsx"/>
- <tileset firstgid="111" source="../../../assets/sprites/tilesets/alley.tsx"/>
- <tileset firstgid="472" source="../../../assets/sprites/tilesets/street_edges.tsx"/>
- <tileset firstgid="682" source="../../../assets/sprites/tilesets/test_battleborder.tsx"/>
- <tileset firstgid="697" source="../../../assets/sprites/tilesets/alley_animated.tsx"/>
- <tileset firstgid="733" source="../../../assets/sprites/tilesets/alley_buildings_glitch.tsx"/>
+ <tileset firstgid="1" source="../tilesets/city_alley.tsx"/>
+ <tileset firstgid="111" source="../tilesets/alley.tsx"/>
+ <tileset firstgid="472" source="../tilesets/street_edges.tsx"/>
+ <tileset firstgid="682" source="../tilesets/test_battleborder.tsx"/>
+ <tileset firstgid="697" source="../tilesets/alley_animated.tsx"/>
+ <tileset firstgid="733" source="../tilesets/alley_buildings_glitch.tsx"/>
  <layer id="1" name="tiles" width="21" height="12">
   <data encoding="csv">
 512,507,519,519,521,522,523,519,519,519,599,600,601,519,519,519,519,589,590,590,590,
