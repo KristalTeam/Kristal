@@ -1292,6 +1292,14 @@ function Battle:getPartyBattler(string_id)
     return nil
 end
 
+function Battle:getEnemyBattler(string_id)
+    for _, enemy in ipairs(self.enemies) do
+        if enemy.id == string_id then
+            return enemy
+        end
+    end
+end
+
 function Battle:hasAction(character_id)
     return self.character_actions[character_id] ~= nil
 end
@@ -2028,22 +2036,6 @@ function Battle:parseEnemyIdentifier(id)
     local args = Utils.split(id, ":")
     local enemies = Utils.filter(self.enemies, function(enemy) return enemy.id == args[1] end)
     return enemies[args[2] and tonumber(args[2]) or 1]
-end
-
-function Battle:getEnemyByID(id)
-    for _,enemy in ipairs(self.enemies) do
-        if enemy.id == id then
-            return enemy
-        end
-    end
-end
-
-function Battle:getPartyByID(id)
-    for _,party_member in ipairs(self.party) do
-        if party_member.chara.id == id then
-            return party_member
-        end
-    end
 end
 
 function Battle:getItemIndex()
