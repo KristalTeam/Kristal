@@ -482,6 +482,8 @@ function Map:loadObject(name, data)
         return TreasureChest(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "cameratarget" then
         return CameraTarget(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "hideparty" then
+        return HideParty(data.x, data.y, data.width, data.height)
     end
 end
 
