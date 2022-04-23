@@ -519,9 +519,11 @@ function Text:draw()
         --love.graphics.setBlendMode("alpha")
     end
 
-    -- Uncomment to view text width:
-    --love.graphics.setColor(1, 0, 0, 1)
-    --love.graphics.line(self.width, 0, self.width, self.height)
+    if DEBUG_RENDER then
+        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", 0, 0, self.width, self.height)
+    end
 
     super:draw(self)
 end

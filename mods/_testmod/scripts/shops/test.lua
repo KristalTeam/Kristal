@@ -67,18 +67,18 @@ end
 function TestShop:startTalk(talk)
     if talk == "Reflect" then
         self:startDialogue({
-            "* Here we are.[wait:5]\n* Not saying I know where I am,[wait:5]\nbut.\n* You take what you can get.",
+            "* Here we are.[wait:5]\n* Not saying I know where I am,[wait:5] but.\n* You take what you can get.",
             "* I can't see anything.[wait:5]\n* I can only feel around.",
-            "* [emote:impatient]Which is a little odd.[wait:5] Because I\ncan't find the way out either.",
+            "* [emote:impatient]Which is a little odd.[wait:5] Because I can't find the way out either.",
             "* [emote:laugh]But whatever.[wait:5]\n* It's calm.[wait:5]\n* Quiet.[wait:5]\n* A great place to do some thinking.",
             "* [emote:laugh]If I want to hear myself think.",
             "* [emote:talk]But that's neither here or there.[wait:5]\n* What's important is,[wait:5] we're here.",
             "* [emote:oh]Where is here,[wait:5] exactly?",
             "* [emote:laugh]I don't know.",
-            "* [emote:talk]If I knew,[wait:5] I wouldn't have said\nthat I don't know just now.",
+            "* [emote:talk]If I knew,[wait:5] I wouldn't have said that I don't know just now.",
             "* But I know exactly where we are.[wait:5]\n* Where I am.[wait:5]\n* Not like I was lying earlier.",
             "* I don't know where I am.[wait:5]\n* But I do.",
-            "* All that to say,[wait:5] I know that I'm\nsupposed to be here.",
+            "* All that to say,[wait:5] I know that I'm supposed to be here.",
             "* I'm here.",
             "* And I'm supposed to be here.",
             "* That's all that matters."
@@ -89,7 +89,7 @@ function TestShop:startTalk(talk)
             self:startDialogue({
                 "* What does this even mean?[wait:5]\n* I'm fine.",
                 "* Obviously I'm fine.",
-                "* Would someone who isn't fine be\nable to make it all the way\nhere?",
+                "* Would someone who isn't fine be able to make it all the way here?",
                 "* I don't think so.",
                 "* There's nothing wrong.[wait:5]\n* I'm okay.",
                 "* I'm fine."
@@ -102,20 +102,20 @@ function TestShop:startTalk(talk)
     elseif talk == "Where I Am" then
         self:startDialogue({
             "* Where this is isn't important.",
-            "* I mean,[wait:5] hey,[wait:5] it might be to some\npeople.",
+            "* I mean,[wait:5] hey,[wait:5] it might be to some people.",
             "* Not you.",
-            "* No,[wait:5] this place is utterly\nworthless for you.[wait:5]\n* Not that I know how you're here,[wait:5]\ntoo.",
-            "* Actually,[wait:5] I don't think you're\nhere at all.[wait:5]\n* I'm just talking to myself.",
+            "* No,[wait:5] this place is utterly worthless for you.[wait:5]\n* Not that I know how you're here,[wait:5] too.",
+            "* Actually,[wait:5] I don't think you're here at all.[wait:5]\n* I'm just talking to myself.",
             "* It's just me.",
             "* Me and my thoughts alone."
         })
     elseif talk == "Why Am I Here" then
         self:startDialogue({
             "* I'm here for one reason.",
-            "* I may not know what it is,[wait:5] but I\nknow that it's important.",
-            "* Now that I think about it,[wait:5] I really\nknow just about nothing about\nwhat I'm doing.",
+            "* I may not know what it is,[wait:5] but I know that it's important.",
+            "* Now that I think about it,[wait:5] I really know just about nothing about what I'm doing.",
             "* So again I ask,[wait:5] why am I here?",
-            "* I guess we'll just have to find\nout."
+            "* I guess we'll just have to find out."
         })
     elseif talk == "Who Am I Talking To" then
         self:startDialogue({
@@ -125,13 +125,13 @@ function TestShop:startTalk(talk)
         })
     elseif talk == "What Is Going To Happen" then
         self:startDialogue({
-            "* If I knew,[wait:5] I'd be a lot more\nconfident.",
+            "* If I knew,[wait:5] I'd be a lot more confident.",
             "* I don't know why I'm not,[wait:5] though.[wait:5]\n* It must be a weird mental thing.",
-            "* Because I know I'm supposed to be\nhere.",
-            "* And everything will go how it\nshould.",
+            "* Because I know I'm supposed to be here.",
+            "* And everything will go how it should.",
             "* I really have no input on this.",
             "* ...",
-            "* So yes,[wait:5] I don't know what's going\nto happen.[wait:5]\n* But It'll work."
+            "* So yes,[wait:5] I don't know what's going to happen.[wait:5]\n* But It'll work."
         })
     end
 end
