@@ -140,7 +140,7 @@ function Map:getEvent(id)
 end
 
 function Map:getEvents(name)
-    if not name then
+    if name then
         return self.events_by_name[name] or {}
     else
         return self.events
