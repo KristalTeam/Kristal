@@ -230,8 +230,12 @@ function Object:slideTo(x, y, time, ease, after)
     if self.x ~= x or self.y ~= y then
         self.physics.slide_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
         return true
+    else
+        if after then
+            after()
+        end
+        return false
     end
-    return false
 end
 
 function Object:slideToSpeed(x, y, speed, after)
@@ -243,8 +247,12 @@ function Object:slideToSpeed(x, y, speed, after)
     if self.x ~= x or self.y ~= y then
         self.physics.slide_target = {x = x, y = y, speed = speed, after = after}
         return true
+    else
+        if after then
+            after()
+        end
+        return false
     end
-    return false
 end
 
 function Object:collidesWith(other)
