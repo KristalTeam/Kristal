@@ -181,15 +181,15 @@ end
 
 function PartyBattler:update()
     if self.actor then
-        self.actor:onBattleUpdate(self, DT)
+        self.actor:onBattleUpdate(self)
     end
 
     if self.chara:getWeapon() then
-        self.chara:getWeapon():onBattleUpdate(self, DT)
+        self.chara:getWeapon():onBattleUpdate(self)
     end
     for i = 1, 2 do
         if self.chara:getArmor(i) then
-            self.chara:getArmor(i):onBattleUpdate(self, DT)
+            self.chara:getArmor(i):onBattleUpdate(self)
         end
     end
 

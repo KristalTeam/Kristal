@@ -98,11 +98,22 @@ function Camera:panTo(x, y, time, ease, after)
         y = Utils.clamp(y, min_y, max_y)
     end
 
-    if (x and self.x ~= x) or (y and self.y ~= y) then
+    if time == 0 then
+        self:setPosition(x or self.x, y or self.y)
+        if after then
+            after()
+        end
+        return false
+    end
+
+    if time == 0 or not ((x and self.x ~= x) or (y and self.y ~= y)) then
+        if after then
+            after()
+        end
+        return false
+    else
         self.pan_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
         return true
-    else
-        return false
     end
 end
 

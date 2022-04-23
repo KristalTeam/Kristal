@@ -41,10 +41,10 @@ end
 
 -- Callbacks
 
-function Actor:onWorldUpdate(chara, DT) end
+function Actor:onWorldUpdate(chara) end
 function Actor:onWorldDraw(chara) end
 
-function Actor:onBattleUpdate(battler, DT) end
+function Actor:onBattleUpdate(battler) end
 function Actor:onBattleDraw(battler) end
 
 function Actor:onTalkStart(text, sprite) end

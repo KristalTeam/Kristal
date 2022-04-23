@@ -454,16 +454,16 @@ function Character:convertToNPC(properties)
 end
 
 function Character:update()
-    self.actor:onWorldUpdate(self, DT)
+    self.actor:onWorldUpdate(self)
 
     local party_member = self:getPartyMember()
     if party_member then
         if party_member:getWeapon() then
-            party_member:getWeapon():onWorldUpdate(self, DT)
+            party_member:getWeapon():onWorldUpdate(self)
         end
         for i = 1, 2 do
             if party_member:getArmor(i) then
-                party_member:getArmor(i):onWorldUpdate(self, DT)
+                party_member:getArmor(i):onWorldUpdate(self)
             end
         end
     end
