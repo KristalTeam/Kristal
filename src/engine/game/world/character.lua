@@ -429,7 +429,7 @@ function Character:convertToFollower(index, save)
     follower:setFacing(self.facing)
     self.world:spawnFollower(follower, {index = index})
     if save then
-        table.insert(Game.temp_followers, {follower.actor.id, index})
+        Game:addFollower(follower, index)
     end
     self:remove()
     return follower

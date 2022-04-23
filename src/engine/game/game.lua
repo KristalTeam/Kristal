@@ -496,6 +496,34 @@ function Game:getActLeader()
     end
 end
 
+function Game:addFollower(chara, index)
+    if isClass(chara) then
+        chara = chara.actor.id
+    end
+    if index then
+        table.insert(self.temp_followers, {chara, index})
+    else
+        table.insert(self.temp_followers, chara)
+    end
+end
+
+function Game:removeFollower(chara)
+    if isClass(chara) then
+        chara = chara.actor.id
+    end
+    for i,v in ipairs(self.temp_followers) do
+        if type(v) == "table" then
+            if v[1] == chara then
+                table.remove(self.temp_followers, i)
+                return
+            end
+        elseif v == chara then
+            table.remove(self.temp_followers, i)
+            return
+        end
+    end
+end
+
 function Game:update()
     if self.state == "EXIT" then
         self.fader:update()
