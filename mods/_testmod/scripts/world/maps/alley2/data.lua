@@ -1,15 +1,15 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.8.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 30,
   height = 40,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 9,
-  nextobjectid = 92,
+  nextlayerid = 11,
+  nextobjectid = 94,
   properties = {
     ["light"] = false,
     ["music"] = "dogcheck",

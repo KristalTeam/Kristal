@@ -1032,14 +1032,14 @@ function Kristal.saveGame(id, data)
     love.filesystem.write("saves/"..Mod.info.id.."/file_"..id..".json", JSON.encode(data))
 end
 
-function Kristal.loadGame(id)
+function Kristal.loadGame(id, fade)
     id = id or Game.save_id
     local path = "saves/"..Mod.info.id.."/file_"..id..".json"
     if love.filesystem.getInfo(path) then
         local data = JSON.decode(love.filesystem.read(path))
-        Game:load(data, id)
+        Game:load(data, id, fade)
     else
-        Game:load(nil, id)
+        Game:load(nil, id, fade)
     end
 end
 

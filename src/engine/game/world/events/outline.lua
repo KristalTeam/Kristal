@@ -47,7 +47,7 @@ function Outline:draw()
 
             love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-            Kristal.Shaders["AddColor"]:sendColor("inputcolor", object.actor:getColor())
+            Kristal.Shaders["AddColor"]:sendColor("inputcolor", {object.actor:getColor()})
             Kristal.Shaders["AddColor"]:send("amount", 1)
 
             love.graphics.translate(-2, 0)

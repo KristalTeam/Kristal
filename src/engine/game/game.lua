@@ -30,9 +30,9 @@ function Game:enter(previous_state, save_id, save_name)
     self.lock_input = false
 
     if save_id then
-        Kristal.loadGame(save_id)
+        Kristal.loadGame(save_id, true)
     else
-        self:load()
+        self:load(nil, nil, true)
     end
 
     if save_name then
@@ -138,7 +138,7 @@ function Game:save(x, y)
     return data
 end
 
-function Game:load(data, index)
+function Game:load(data, index, fade)
     self.is_new_file = data == nil
 
     data = data or {}
@@ -161,9 +161,12 @@ function Game:load(data, index)
     end
 
     self.fader = Fader()
-    self.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
     self.fader.layer = 1000
     self.stage:addChild(self.fader)
+
+    if fade then
+        self.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+    end
 
     self.battle = nil
 
@@ -319,10 +322,10 @@ function Game:saveQuick(...)
     self.quick_save = Utils.copy(self:save(...), true)
 end
 
-function Game:loadQuick()
+function Game:loadQuick(fade)
     local save = self.quick_save
     if save then
-        self:load(save, self.save_id)
+        self:load(save, self.save_id, fade)
     else
         Kristal.loadGame(self.save_id)
     end
