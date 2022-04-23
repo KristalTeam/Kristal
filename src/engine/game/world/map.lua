@@ -489,7 +489,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "cameratarget" then
         return CameraTarget(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "hideparty" then
-        return HideParty(data.x, data.y, data.width, data.height)
+        return HideParty(data.x, data.y, data.width, data.height, data.properties.alpha)
     elseif name:lower() == "setflag" then
         return SetFlagEvent(data.x, data.y, data.width, data.height, data.properties)
     end

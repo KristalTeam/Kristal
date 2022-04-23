@@ -1,9 +1,10 @@
 local HideParty, super = Class(Event)
 
-function HideParty:init(x, y, w, h)
+function HideParty:init(x, y, w, h, alpha)
     super:init(self, x, y, w, h)
 
     self.alphas = {}
+    self.target_alpha = alpha or 0
 end
 
 function HideParty:onEnter(chara)
@@ -12,7 +13,7 @@ function HideParty:onEnter(chara)
         for _,follower in ipairs(self.world.followers) do
             self.alphas[follower] = follower.sprite.alpha
             local mask = follower:addFX(AlphaFX(1), id)
-            self.world.timer:tween(10/30, mask, {alpha = 0})
+            self.world.timer:tween(10/30, mask, {alpha = self.target_alpha})
         end
     end
 end
