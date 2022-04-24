@@ -89,6 +89,7 @@ function Wave:spawnBulletTo(parent, bullet, ...)
     elseif not new_bullet.parent then
         Game.battle:addChild(new_bullet)
     end
+    new_bullet:onStart()
     return new_bullet
 end
 
