@@ -63,6 +63,8 @@ function resetData()
             sounds = {},
             sound_data = {},
             music = {},
+            bubble_image_data = {},
+            bubble_settings = {},
         }
     }
 
@@ -73,6 +75,7 @@ function resetData()
         ["fonts"] = {},
         ["sounds"] = {},
         ["music"] = {},
+        ["bubbles"] = {},
     }
 
     tileset_image_data = {}
@@ -233,6 +236,17 @@ local loaders = {
         local id = checkExtension(path, "mp3", "wav", "ogg")
         if id then
             data.assets.music[id] = full_path
+        end
+    end},
+    ["bubbles"] = {"assets/bubbles", function(base_dir, path, full_path)
+        local id
+        id = checkExtension(path, "png")
+        if id then
+            pcall(function() data.assets.bubble_image_data[id] = love.image.newImageData(full_path) end)
+        end
+        id = checkExtension(path, "json")
+        if id then
+            data.assets.bubble_settings[id] = json.decode(love.filesystem.read(full_path))
         end
     end},
 }

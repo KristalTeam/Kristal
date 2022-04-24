@@ -305,9 +305,9 @@ function BattleCutscene:enemyText(enemies, text, options)
     for _,enemy in ipairs(enemies) do
         local textbox
         if not options["x"] and not options["y"] then
-            textbox = Game.battle:spawnEnemyTextbox(enemy, text, options["right"])
+            textbox = Game.battle:spawnEnemyTextbox(enemy, text, options["right"], options["style"])
         else
-            textbox = EnemyTextbox(text, options["x"] or 0, options["y"] or 0, enemy, options["right"])
+            textbox = EnemyTextbox(text, options["x"] or 0, options["y"] or 0, enemy, options["right"], options["style"])
             Game.battle:addChild(textbox)
         end
         textbox:setAdvance(options["advance"] or options["advance"] == nil)

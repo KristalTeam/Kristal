@@ -1,0 +1,21 @@
+{
+    "auto": true,
+    "sprites": {
+        "left": "cyber",
+        "right": "cyber",
+        "top": "cyber",
+        "bottom": "cyber",
+        "top_left": null,
+        "top_right": null,
+        "bottom_left": null,
+        "bottom_right": null,
+        "tail": "cyber_tail",
+        "fill": "fill"
+    },
+    "text_padding": {
+        "left":   6,
+        "top":    5,
+        "right":  5,
+        "bottom": 5
+    }
+}
