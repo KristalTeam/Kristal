@@ -516,6 +516,10 @@ function Utils.pickMultiple(tbl, amount, sort)
     return t
 end
 
+function Utils.shuffle(tbl)
+    return Utils.pickMultiple(tbl, #tbl)
+end
+
 function Utils.angle(x1,y1, x2,y2)
     if isClass(x1) and isClass(y1) and x1:includes(Object) and y1:includes(Object) then
         local obj1, obj2 = x1, y1
