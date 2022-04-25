@@ -273,7 +273,9 @@ function DialogueText:processModifier(node, dry)
         end
     elseif node.command == "image" then
         self.state.typed_characters = self.state.typed_characters + 1
-        self:playTextSound({character = "a", type="character"})
+        if not dry then
+            self:playTextSound({character = "a", type="character"})
+        end
     elseif node.command == "voice" then
         if node.arguments[1] == "reset" then
             self.state.typing_sound = "default"

@@ -182,10 +182,41 @@ function Text:textToNodes(input_string)
                             ["command"] = command,
                             ["arguments"] = arguments
                         }
-                        table.insert(nodes, new_node)
                         if self.autowrap then
+                            local prior_state = Utils.copy(self.state)
                             self:processNode(new_node, true)
+                            if self.state.current_x > self.width then
+                                if last_space == -1 then
+                                    self.state = prior_state
+                                    local newline_node = {
+                                        ["type"] = "character",
+                                        ["character"] = "\n",
+                                    }
+                                    table.insert(nodes, newline_node)
+                                    display_text = display_text .. "\n"
+                                    self:processNode(newline_node, true)
+                                    self:processNode(new_node, true)
+                                else
+                                    self.state = last_space_state
+                                    local newline_node = {
+                                        ["type"] = "character",
+                                        ["character"] = "\n",
+                                    }
+                                    nodes[last_space + 1] = newline_node
+                                    self:processNode(newline_node, true)
+                                    display_text = Utils.stringInsert(display_text, "\n", last_space_char + 1)
+                                    for i = last_space + 1, #nodes + 1 do
+                                        if nodes[i] then
+                                            self:processNode(nodes[i], true)
+                                        end
+                                    end
+                                    self:processNode(new_node, true)
+                                    last_space = -1
+                                    last_space_char = -1
+                                end
+                            end
                         end
+                        table.insert(nodes, new_node)
                     else
                         -- Whoops, invalid modifier. Let's just parse this like normal text...
                         leaving_modifier = false
@@ -204,7 +235,7 @@ function Text:textToNodes(input_string)
         if leaving_modifier then
             leaving_modifier = false
         else
-            if self.autowrap and (current_char == " ") then
+            if self.autowrap and (current_char == " " or current_char == "\n") then
                 last_space = #nodes
                 last_space_char = string.len(display_text)
                 last_space_state = Utils.copy(self.state)

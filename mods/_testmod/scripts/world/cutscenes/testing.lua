@@ -8,7 +8,7 @@ return {
         cutscene:text("* I said I will come and get you out of there", "angry", "ralsei")
         cutscene:text("* Try it [image:party/susie/dark/walk_back_arm/left_1]", "smile", "susie")
         cutscene:text("* That's it!", "angry", "ralsei")
-        cutscene:text("* hoooOOOOOOOOOOOOOOOOOOO OOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "angry", "ralsei", {auto=true})
+        cutscene:text("* hoooOOOOOOOOOOOOOOOOOOO\nOOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "angry", "ralsei", {auto=true})
         cutscene:text("[image:party/ralsei/dark/walk/down_1]", nil, "ralsei")
         cutscene:text("* You know what,[wait:5] this isn't that bad [image:party/ralsei/dark/walk/down_1]", "neutral", "ralsei")
         local susie_sprite = nil
