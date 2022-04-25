@@ -223,6 +223,7 @@ end
 function Object:slideTo(x, y, time, ease, after)
     -- Ability to specify World marker for convenience in cutscenes
     if type(x) == "string" then
+        after = ease
         ease = time
         time = y
         x, y = Game.world.map:getMarker(x)
@@ -241,6 +242,7 @@ end
 function Object:slideToSpeed(x, y, speed, after)
     -- Ability to specify World marker for convenience in cutscenes
     if type(x) == "string" then
+        after = speed
         speed = y
         x, y = Game.world.map:getMarker(x)
     end
