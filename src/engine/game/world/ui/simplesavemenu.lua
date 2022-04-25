@@ -80,7 +80,7 @@ function SimpleSaveMenu:draw()
         local time_text = string.format("%d:%02d", minutes, seconds)
         love.graphics.print(time_text, self.box.x+280, self.box.y-10)
     else
-        love.graphics.print("00:00", self.box.x+280, self.box.y-10)
+        love.graphics.print("0:00", self.box.x+280, self.box.y-10)
     end
 
     if self.saved_file then
