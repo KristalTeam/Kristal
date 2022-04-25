@@ -32,9 +32,9 @@
 
     "config": {
         "kristal": {
-            "growStrongerChara": "susie",
+            //"growStrongerChara": "susie",
 
-            "ralseiStyle": 2
+            //"ralseiStyle": 2
         },
         "virovirokun": {
             "enable_cook": true,

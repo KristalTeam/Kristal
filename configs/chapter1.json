@@ -9,6 +9,8 @@
     "susieStyle": 1,                 // Susie chapter style
     "ralseiStyle": 1,                // Ralsei chapter style
 
+    "speechBubble": "round",         // Default enemy speech bubble style
+
     "enemyAuras": false,             // Red glow around overworld enemies
 
     "mercyMessages": false,          // "+X%" mercy messages

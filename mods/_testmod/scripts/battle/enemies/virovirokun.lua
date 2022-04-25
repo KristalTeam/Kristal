@@ -46,7 +46,7 @@ function Virovirokun:getNextWaves()
     if self.asleep then
         return nil
     end
-    self:getNextWaves()
+    return super:getNextWaves(self)
 end
 
 return Virovirokun
