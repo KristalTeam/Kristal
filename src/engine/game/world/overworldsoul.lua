@@ -5,10 +5,13 @@ function OverworldSoul:init(x, y)
 
     self:setColor(1, 0, 0)
 
+    self.alpha = 0
+
     --self.layer = BATTLE_LAYERS["soul"]
 
     self.sprite = Sprite("player/heart_dodge")
     self.sprite:setOrigin(0.5, 0.5)
+    self.sprite.alpha = 0 -- ??????
     self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
@@ -44,6 +47,8 @@ function OverworldSoul:update()
     if self.inv_timer > 0 then
         self.inv_timer = Utils.approach(self.inv_timer, 0, DT)
     end
+
+    self.sprite.alpha = 1 -- ??????
 
     Object.startCache()
     for _,bullet in ipairs(Game.stage:getObjects(WorldBullet)) do

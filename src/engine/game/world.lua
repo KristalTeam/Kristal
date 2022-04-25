@@ -588,6 +588,8 @@ function World:loadMap(map, ...)
 
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.battle_fader:setParallax(0, 0)
+    self.battle_fader:setColor(0, 0, 0)
+    self.battle_fader.alpha = 0
     self.battle_fader.layer = self.map.battle_fader_layer
     self:addChild(self.battle_fader)
 
