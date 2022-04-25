@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "weapon"
+    -- Light world check text
+    self.check = "Weapon 1 AT\n* Orange with black bats on it."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -22,10 +24,6 @@ function item:init()
 
     -- Default dark item conversion for this item
     self.dark_item = "spookysword"
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Halloween Pencil\" - Weapon 1 AT\n* Orange with black bats on it.")
 end
 
 return item

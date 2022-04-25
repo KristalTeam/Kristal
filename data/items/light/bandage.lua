@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "armor"
+    -- Light world check text
+    self.check = "Heals 10 HP\n* It has cartoon characters on it."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -19,10 +21,6 @@ function item:init()
         attack = 0,
         defense = 0
     }
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Bandage\" - Heals 10 HP\n* It has cartoon characters on it.")
 end
 
 function item:onWorldUse()

@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "key"
+    -- Light world check text
+    self.check = "Not too important,[wait:5] not\ntoo unimportant."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -19,10 +21,6 @@ function item:onWorldUse()
     Assets.playSound("snd_egg")
     Game.world:showText("* You used the Egg.")
     return false
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Egg\" - Not too important,[wait:5] not\ntoo unimportant.")
 end
 
 function item:onToss()

@@ -8,6 +8,8 @@ function item:init(inventory)
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
+    -- Light world check text
+    self.check = "A small ball\nof accumulated things in your\npocket."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -21,10 +23,6 @@ end
 function item:onWorldUse()
     Game.world:showText("* You looked at the junk ball in\nadmiration.[wait:5]\n* Nothing happened.")
     return false
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Ball of Junk\" - A small ball\nof accumulated things in your\npocket.")
 end
 
 function item:onToss()

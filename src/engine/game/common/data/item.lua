@@ -17,6 +17,8 @@ function Item:init()
     self.shop = ""
     -- Menu description
     self.description = "Example item."
+    -- Light world check text
+    self.check = "Example item."
 
     -- Default shop price (sell price is halved)
     self.price = 0
@@ -83,7 +85,9 @@ function Item:onSave(data) end
 function Item:onLoad(data) end
 
 -- Light world / Dark world stuff
-function Item:onCheck() end
+function Item:onCheck()
+    Game.world:showText("* \""..self:getName().."\" - "..self:getCheck())
+end
 function Item:onToss()
     if Game:isLight() then
         local choice = love.math.random(30)
@@ -128,6 +132,7 @@ function Item:getWorldMenuName() return self:getName() end
 
 function Item:getDescription() return self.description end
 function Item:getBattleDescription() return self.effect end
+function Item:getCheck() return self.check end
 
 function Item:getShopDescription()
     return self:getTypeName() .. "\n" .. self.shop

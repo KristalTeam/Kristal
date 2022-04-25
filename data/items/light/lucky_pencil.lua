@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "weapon"
+    -- Light world check text
+    self.check = "Weapon 1 AT\n* Covered in green clovers and rainbows."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -22,10 +24,6 @@ function item:init()
 
     -- Default dark item conversion for this item
     self.dark_item = "trefoil"
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Lucky Pencil\" - Weapon 1 AT\n* Covered in green clovers and rainbows.")
 end
 
 return item

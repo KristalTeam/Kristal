@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "armor"
+    -- Light world check text
+    self.check = "Armor 1 DF\n* Maybe an expensive antique.\n* Stuck before half past noon."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -22,10 +24,6 @@ function item:init()
 
     -- Default dark item conversion for this item
     self.dark_item = "silver_watch"
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Wristwatch\" - Armor 1 DF\n* Maybe an expensive antique.\n* Stuck before half past noon.")
 end
 
 return item

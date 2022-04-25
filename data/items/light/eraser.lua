@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "weapon"
+    -- Light world check text
+    self.check = "Weapon 1 AT\n* Pink,[wait:5] it bounces when thrown on the ground."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
@@ -22,10 +24,6 @@ function item:init()
 
     -- Default dark item conversion for this item
     self.dark_item = "bounceblade"
-end
-
-function item:onCheck()
-    Game.world:showText("* \"Eraser\" - Weapon 1 AT\n* Pink,[wait:5] it bounces when thrown on the ground.")
 end
 
 return item
