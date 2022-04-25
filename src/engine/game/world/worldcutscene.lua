@@ -402,7 +402,8 @@ function WorldCutscene:text(text, portrait, actor, options)
 
     self.textbox = Textbox(56, 344, width, height)
     self.textbox.layer = WORLD_LAYERS["textbox"]
-    Game.stage:addChild(self.textbox)
+    Game.world:addChild(self.textbox)
+    self.textbox:setParallax(0, 0)
 
     local speaker = self.textbox_speaker
     if not speaker and isClass(actor) and actor:includes(Character) then
@@ -499,7 +500,8 @@ function WorldCutscene:choicer(choices, options)
 
     self.choicebox = Choicebox(56, 344, width, height)
     self.choicebox.layer = WORLD_LAYERS["textbox"]
-    Game.stage:addChild(self.choicebox)
+    Game.world:addChild(self.choicebox)
+    self.choicebox:setParallax(0, 0)
 
     for _,choice in ipairs(choices) do
         self.choicebox:addChoice(choice)
@@ -540,7 +542,8 @@ function WorldCutscene:showShop()
 
     self.shopbox = Shopbox()
     self.shopbox.layer = WORLD_LAYERS["textbox"]
-    Game.stage:addChild(self.shopbox)
+    Game.world:addChild(self.shopbox)
+    self.shopbox:setParallax(0, 0)
 end
 
 function WorldCutscene:hideShop()

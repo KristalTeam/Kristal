@@ -228,6 +228,8 @@ function DialogueText:isNodeInstant(node)
             return false
         elseif node.command == "wait" then
             return false
+        elseif node.command == "image" then
+            return false
         end
     end
     return true
@@ -269,6 +271,9 @@ function DialogueText:processModifier(node, dry)
             self.state.waiting = tonumber(delay:sub(1, -1)) / 30
             self.state.typed_characters = self.state.typed_characters + 1
         end
+    elseif node.command == "image" then
+        self.state.typed_characters = self.state.typed_characters + 1
+        self:playTextSound({character = "a", type="character"})
     elseif node.command == "voice" then
         if node.arguments[1] == "reset" then
             self.state.typing_sound = "default"

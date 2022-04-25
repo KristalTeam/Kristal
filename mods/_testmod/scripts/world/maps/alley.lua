@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.8.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 21,
@@ -19,38 +19,32 @@ return {
     {
       name = "city_alley",
       firstgid = 1,
-      filename = "../tilesets/city_alley.tsx",
-      exportfilename = "../tilesets/city_alley.lua"
+      filename = "../tilesets/city_alley.tsx"
     },
     {
       name = "alley",
       firstgid = 111,
-      filename = "../tilesets/alley.tsx",
-      exportfilename = "../tilesets/alley.lua"
+      filename = "../tilesets/alley.tsx"
     },
     {
       name = "street_edges",
       firstgid = 472,
-      filename = "../tilesets/street_edges.tsx",
-      exportfilename = "../tilesets/street_edges.lua"
+      filename = "../tilesets/street_edges.tsx"
     },
     {
       name = "test_battleborder",
       firstgid = 682,
-      filename = "../tilesets/test_battleborder.tsx",
-      exportfilename = "../tilesets/test_battleborder.lua"
+      filename = "../tilesets/test_battleborder.tsx"
     },
     {
       name = "alley_animated",
       firstgid = 697,
-      filename = "../tilesets/alley_animated.tsx",
-      exportfilename = "../tilesets/alley_animated.lua"
+      filename = "../tilesets/alley_animated.tsx"
     },
     {
       name = "alley_buildings_glitch",
       firstgid = 733,
-      filename = "../tilesets/alley_buildings_glitch.tsx",
-      exportfilename = "../tilesets/alley_buildings_glitch.lua"
+      filename = "../tilesets/alley_buildings_glitch.tsx"
     }
   },
   layers = {

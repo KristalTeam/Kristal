@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake"}
+Text.COMMANDS = {"color", "font", "style", "shake", "image"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -23,6 +23,8 @@ function Text:init(text, x, y, w, h, font, style, autowrap)
     end
 
     self.autowrap = autowrap
+
+    self.sprites = {}
 
     self.draw_every_frame = false
     self.nodes_to_draw = {}
@@ -101,12 +103,19 @@ end
 
 function Text:update()
     self.timer = self.timer + DTMULT
+    super:update(self)
 end
 
 function Text:setText(text)
     if draw == nil then
         draw = true
     end
+
+    for _, sprite in ipairs(self.sprites) do
+        sprite:remove()
+    end
+    self.sprites = {}
+
     self:resetState()
 
     self.text = text or ""
@@ -376,6 +385,32 @@ function Text:processModifier(node, dry)
             if self.state.style == "GONER" then
                 self.draw_every_frame = true
             end
+        end
+    elseif node.command == "image" then
+        local x_offset = 0
+        local y_offset = 0
+        local x_scale = 1
+        local y_scale = 1
+        local speed = 1/15
+        if node.arguments[2] then x_offset = tonumber(node.arguments[2]) end
+        if node.arguments[3] then y_offset = tonumber(node.arguments[3]) end
+        if node.arguments[4] then x_scale  = tonumber(node.arguments[4]) end
+        if node.arguments[5] then y_scale  = tonumber(node.arguments[5]) end
+        if node.arguments[6] then speed    = tonumber(node.arguments[6]) end
+
+        local texture = Assets.getFramesOrTexture(node.arguments[1])
+        if texture then
+            if not dry then
+                local y = self.state.current_y + (self:getFont():getHeight() / 2)
+                local sprite = Sprite(texture, self.state.current_x + x_offset, y + y_offset)
+                sprite:setOrigin(0, 0.5)
+                sprite:setScale(x_scale, y_scale)
+                sprite.layer = self.layer + 1
+                sprite:play(speed, true)
+                self:addChild(sprite)
+                table.insert(self.sprites, sprite)
+            end
+            self.state.current_x = self.state.current_x + (texture[1]:getWidth() * x_scale) + self.state.spacing
         end
     end
 end
