@@ -1,5 +1,6 @@
 {    
     "enableStorage": false,          // Extra 48-slot item storage
+    "smallSaveMenu": true,           // Single-file save menu with no storage/recruits options
 
     "partyActions": false,           // Whether X-Actions appear in spell menu by default
 

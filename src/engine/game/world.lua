@@ -238,6 +238,12 @@ function World:keypressed(key)
             end
         elseif key == "j" then
             Game:enterShop("test")
+        elseif key == "s" then
+            if Game:isLight() or Game:getConfig("smallSaveMenu") then
+                self:openMenu(SimpleSaveMenu(Game.save_id))
+            else
+                self:openMenu(SaveMenu())
+            end
         end
     end
 

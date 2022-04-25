@@ -5,6 +5,8 @@ function Savepoint:init(x, y, properties)
 
     self.marker = properties and properties["marker"]
 
+    self.simple_menu = properties["simple"]
+
     self.solid = true
 
     self:setOrigin(0.5, 0.5)
@@ -21,8 +23,11 @@ function Savepoint:onInteract(player, dir)
 end
 
 function Savepoint:onTextEnd()
-    self.world:openMenu(SaveMenu(self.marker))
-    --Assets.playSound("snd_save")
+    if self.simple_menu or (self.simple_menu == nil and (Game:isLight() or Game:getConfig("smallSaveMenu"))) then
+        self.world:openMenu(SimpleSaveMenu(Game.save_id, self.marker))
+    else
+        self.world:openMenu(SaveMenu(self.marker))
+    end
 end
 
 return Savepoint

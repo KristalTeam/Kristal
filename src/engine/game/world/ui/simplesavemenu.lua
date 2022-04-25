@@ -1,0 +1,109 @@
+local SimpleSaveMenu, super = Class(Object)
+
+function SimpleSaveMenu:init(save_id, marker)
+    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    self.parallax_x = 0
+    self.parallax_y = 0
+
+    self.draw_children_below = 0
+
+    self.font = Assets.getFont("main")
+
+    self.heart_sprite = Assets.getTexture("player/heart")
+
+    self.box = UIBox(140, 130, 359, 109)
+    self.box.layer = -1
+    self:addChild(self.box)
+
+    self.marker = marker
+
+    -- MAIN, SAVED
+    self.state = "MAIN"
+
+    self.selected_x = 1
+
+    self.save_id = save_id or Game.save_id
+    self.saved_file = Kristal.getSaveFile(save_id)
+end
+
+function SimpleSaveMenu:update()
+    if self.state == "MAIN" then
+        if Input.pressed("cancel") then
+            self:remove()
+            Game.world:closeMenu()
+        end
+        if Input.pressed("left") or Input.pressed("right") then
+            self.selected_x = self.selected_x == 1 and 2 or 1
+        end
+        if Input.pressed("confirm") then
+            if self.selected_x == 1 then
+                self.state = "SAVED"
+
+                Kristal.saveGame(self.save_id, Game:save(self.marker))
+                self.saved_file = Kristal.getSaveFile(self.save_id)
+
+                Assets.playSound("snd_save")
+            elseif self.selected_x == 2 then
+                self:remove()
+                Game.world:closeMenu()
+            end
+        end
+    elseif self.state == "SAVED" then
+        if Input.pressed("confirm") or Input.pressed("cancel") then
+            self:remove()
+            Game.world:closeMenu()
+        end
+    end
+
+    super:update(self)
+end
+
+function SimpleSaveMenu:draw()
+    love.graphics.setFont(self.font)
+
+    if self.state == "SAVED" then
+        love.graphics.setColor(1, 1, 0)
+    else
+        love.graphics.setColor(1, 1, 1)
+    end
+
+    local name = self.saved_file and self.saved_file.name or "[EMPTY]"
+    local level = self.saved_file and self.saved_file.level or 0
+
+    love.graphics.print(name,         self.box.x,     self.box.y-10)
+    love.graphics.print("LV "..level, self.box.x+210, self.box.y-10)
+
+    if self.saved_file then
+        local minutes = math.floor(self.saved_file.playtime / 60)
+        local seconds = math.floor(self.saved_file.playtime % 60)
+        local time_text = string.format("%d:%02d", minutes, seconds)
+        love.graphics.print(time_text, self.box.x+280, self.box.y-10)
+    else
+        love.graphics.print("00:00", self.box.x+280, self.box.y-10)
+    end
+
+    if self.saved_file then
+        love.graphics.print(self.saved_file.room_name, self.box.x, self.box.y+30)
+    end
+
+    if self.state == "MAIN" then
+        love.graphics.print("Save",   self.box.x+30,  self.box.y+90)
+        love.graphics.print("Return", self.box.x+210, self.box.y+90)
+
+        love.graphics.setColor(Game:getSoulColor())
+        if self.selected_x == 1 then
+            love.graphics.draw(self.heart_sprite, self.box.x+2, self.box.y+96)
+        elseif self.selected_x == 2 then
+            love.graphics.draw(self.heart_sprite, self.box.x+182, self.box.y+96)
+        end
+    elseif self.state == "SAVED" then
+        love.graphics.print("File saved.", self.box.x+30, self.box.y+90)
+    end
+
+    love.graphics.setColor(1, 1, 1)
+
+    super:draw(self)
+end
+
+return SimpleSaveMenu
