@@ -48,6 +48,9 @@ function PartyMember:init()
         defense = 2,
         magic = 0
     }
+    -- Max stats from level-ups
+    self.max_stats = {}
+
     -- Light world stats (saved to the save file)
     self.lw_stats = {
         health = 20,
@@ -177,6 +180,12 @@ function PartyMember:getBaseStats(light)
     end
 end
 
+function PartyMember:getMaxStats() return self.max_stats end
+function PartyMember:getMaxStat(stat)
+    local max_stats = self:getMaxStats()
+    return max_stats[stat]
+end
+
 function PartyMember:getColor() return Utils.unpackColor(self.color) end
 function PartyMember:getDamageColor()
     if self.dmg_color then
@@ -242,6 +251,7 @@ end
 function PartyMember:increaseStat(stat, amount, max)
     local base_stats = self:getBaseStats()
     base_stats[stat] = (base_stats[stat] or 0) + amount
+    max = max or self:getMaxStat(stat)
     if max and base_stats[stat] > max then
         base_stats[stat] = max
     end

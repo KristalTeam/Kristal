@@ -1,7 +1,17 @@
 {    
-    "mercyBar": false,              // Mercy bar next to hp bar in enemy select
-    "mercyMessages": false,         // "+X%" mercy messages
-    "enemyBarPercentages": false,   // HP / Mercy bar percentages
+    "enableStorage": false,          // Extra 48-slot item storage
 
-    "enemyAuras": false             // Red glow around overworld enemies
+    "partyActions": false,           // Whether X-Actions appear in spell menu by default
+
+    "growStronger": false,           // Stat increases after defeating an enemy with violence
+    "growStrongerChara": null,       // Character to prioritize for the "X became stronger" message
+
+    "susieStyle": 1,                 // Susie chapter style
+    "ralseiStyle": 1,                // Ralsei chapter style
+
+    "enemyAuras": false,             // Red glow around overworld enemies
+
+    "mercyMessages": false,          // "+X%" mercy messages
+    "mercyBar": false,               // Mercy bar next to hp bar in enemy select
+    "enemyBarPercentages": false     // HP / Mercy bar percentages
 }

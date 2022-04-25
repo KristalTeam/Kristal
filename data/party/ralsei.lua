@@ -3,11 +3,13 @@ local character, super = Class(PartyMember, "ralsei")
 function character:init()
     super:init(self)
 
+    local ralsei_style = Game:getConfig("ralseiStyle")
+
     -- Display name
     self.name = "Ralsei"
 
     -- Actor (handles sprites)
-    if Game.chapter == 1 then
+    if ralsei_style == 1 then
         self:setActor("ralsei_ch1")
     else
         self:setActor("ralsei")
@@ -63,6 +65,16 @@ function character:init()
             magic = 9,
         }
     end
+    -- Max stats from level-ups
+    if Game.chapter == 1 then
+        self.max_stats = {
+            health = 100
+        }
+    else
+        self.max_stats = {
+            health = 140
+        }
+    end
 
     -- Weapon icon in equip menu
     self.weapon_icon = "ui/menu/equip/scarf"
@@ -90,7 +102,7 @@ function character:init()
     self.xact_color = {0.5, 1, 0.5}
 
     -- Head icon in the equip / power menu
-    if Game.chapter == 1 then
+    if ralsei_style == 1 then
         self.menu_icon = "party/ralsei/head_ch1"
     else
         self.menu_icon = "party/ralsei/head"
@@ -133,10 +145,7 @@ function character:getTitle()
 end
 
 function character:onLevelUp(level)
-    -- TODO: Maybe allow chapter 1 levelups?
-    if Game.chapter == 1 then return end
-
-    self:increaseStat("health", 2, 140)
+    self:increaseStat("health", 2)
     if level % 10 == 0 then
         self:increaseStat("attack", 1)
         self:increaseStat("magic", 1)

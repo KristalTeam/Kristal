@@ -477,15 +477,14 @@ function Battle:onStateChange(old,new)
         -- if (in_dojo) then
         --     win_text == "* You won the battle!"
         -- end
-        if Game.chapter >= 2 and self.used_violence then
+        if self.used_violence and Game:getConfig("growStronger") then
             local stronger = "You"
 
             for _,battler in ipairs(self.party) do
                 Game.level_up_count = Game.level_up_count + 1
                 battler.chara:onLevelUp(Game.level_up_count)
 
-                if battler.chara.id == "noelle" then
-                    -- Hardcoded for now ,??
+                if battler.chara.id == Game:getConfig("growStrongerChara") then
                     stronger = battler.chara:getName()
                 end
             end

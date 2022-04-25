@@ -222,7 +222,7 @@ function EnemyBattler:addMercy(amount)
         end
     end
 
-    if Game:getOption("mercyMessages") then
+    if Game:getConfig("mercyMessages") then
         if amount > 0 then
             local pitch = 0.8
             if amount < 99 then pitch = 1 end

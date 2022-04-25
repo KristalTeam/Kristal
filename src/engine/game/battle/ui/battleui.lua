@@ -253,8 +253,8 @@ function BattleUI:drawState()
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
 
-        local draw_mercy = Game:getOption("mercyBar")
-        local draw_percents = Game:getOption("enemyBarPercentages")
+        local draw_mercy = Game:getConfig("mercyBar")
+        local draw_percents = Game:getConfig("enemyBarPercentages")
 
         love.graphics.setColor(1, 1, 1, 1)
 

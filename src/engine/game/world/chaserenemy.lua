@@ -29,7 +29,7 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.encountered = false
 
     if properties["aura"] == nil then
-        self.sprite.aura = Game:getOption("enemyAuras")
+        self.sprite.aura = Game:getConfig("enemyAuras")
     else
         self.sprite.aura = properties["aura"]
     end

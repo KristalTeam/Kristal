@@ -58,6 +58,16 @@ function character:init()
             magic = 1
         }
     end
+    -- Max stats from level-ups
+    if Game.chapter == 1 then
+        self.max_stats = {
+            health = 140
+        }
+    else
+        self.max_stats = {
+            health = 190
+        }
+    end
 
     -- Weapon icon in equip menu
     self.weapon_icon = "ui/menu/equip/axe"
@@ -128,12 +138,9 @@ function character:onAttackHit(enemy, damage)
 end
 
 function character:onLevelUp(level)
-    -- TODO: Maybe allow chapter 1 levelups?
-    if Game.chapter == 1 then return end
-
-    self:increaseStat("health", 2, 190)
+    self:increaseStat("health", 2)
     if level % 2 == 0 then
-        self:increaseStat("health", 1, 190)
+        self:increaseStat("health", 1)
     end
     if level % 10 == 0 then
         self:increaseStat("attack", 1)

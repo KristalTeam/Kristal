@@ -63,7 +63,7 @@ function Game:returnToMenu()
     self.state = "EXIT"
 end
 
-function Game:getOption(key, merge, deep_merge)
+function Game:getConfig(key, merge, deep_merge)
     local default_config = Kristal.ChapterConfigs[Utils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
 
     if not Mod then return default_config[key] end

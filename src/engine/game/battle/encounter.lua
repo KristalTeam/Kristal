@@ -13,7 +13,7 @@ function Encounter:init()
     self.music = "battle"
 
     -- Whether characters have the X-Action option in their spell menu
-    self.default_xactions = true
+    self.default_xactions = Game:getConfig("partyActions")
 
     -- Should the battle skip the YOU WON! text?
     self.no_end_message = false

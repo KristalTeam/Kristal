@@ -10,7 +10,7 @@ function DarkInventory:init()
         ["armor"]  = "armors",
     }
 
-    self.storage_enabled = (Game.chapter > 1)
+    self.storage_enabled = Game:getConfig("enableStorage")
 
     -- Order the storages are converted to the light world
     self.convert_order = {"key_items", "weapons", "armors", "items", "storage"}
