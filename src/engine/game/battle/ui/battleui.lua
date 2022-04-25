@@ -253,11 +253,17 @@ function BattleUI:drawState()
         local font = Assets.getFont("main")
         love.graphics.setFont(font)
 
+        local draw_mercy = Game:getOption("mercyBar")
+        local draw_percents = Game:getOption("enemyBarPercentages")
+
         love.graphics.setColor(1, 1, 1, 1)
-        if Game.battle.state == "ENEMYSELECT" then
-            love.graphics.print("HP", 424, 39, 0, 1, 0.5)
+
+        if draw_mercy then
+            if Game.battle.state == "ENEMYSELECT" then
+                love.graphics.print("HP", 424, 39, 0, 1, 0.5)
+            end
+            love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
         end
-        love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
 
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
             local enemy = enemies[index]
@@ -339,26 +345,34 @@ function BattleUI:drawState()
 
                 local hp_percent = enemy.health / enemy.max_health
 
+                local hp_x = draw_mercy and 420 or 510
+
                 -- Draw the enemy's HP
                 love.graphics.setColor(128/255, 0, 0, 1)
-                love.graphics.rectangle("fill", 420, 55 + y_off, 81, 16)
+                love.graphics.rectangle("fill", hp_x, 55 + y_off, 81, 16)
 
                 love.graphics.setColor(0, 1, 0, 1)
-                love.graphics.rectangle("fill", 420, 55 + y_off, (hp_percent * 81), 16)
+                love.graphics.rectangle("fill", hp_x, 55 + y_off, (hp_percent * 81), 16)
 
-                love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.print(math.floor(hp_percent * 100) .. "%", 424, 55 + y_off, 0, 1, 0.5)
+                if draw_percents then
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.print(math.floor(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
+                end
             end
 
-            -- Draw the enemy's MERCY
-            love.graphics.setColor(255/255, 80/255, 32/255, 1)
-            love.graphics.rectangle("fill", 520, 55 + y_off, 81, 16)
+            if draw_mercy then
+                -- Draw the enemy's MERCY
+                love.graphics.setColor(255/255, 80/255, 32/255, 1)
+                love.graphics.rectangle("fill", 520, 55 + y_off, 81, 16)
 
-            love.graphics.setColor(1, 1, 0, 1)
-            love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
+                love.graphics.setColor(1, 1, 0, 1)
+                love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
 
-            love.graphics.setColor(128/255, 0, 0, 1)
-            love.graphics.print(math.floor(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                if draw_percents then
+                    love.graphics.setColor(128/255, 0, 0, 1)
+                    love.graphics.print(math.floor(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                end
+            end
         end
 
         love.graphics.setColor(1, 1, 1, 1)

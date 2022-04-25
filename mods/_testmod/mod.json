@@ -31,6 +31,13 @@
     "hidden": false,
 
     "config": {
+        "kristal": {
+            "mercyBar": true,
+            "mercyMessages": true,
+            "enemyBarPercentages": true,
+
+            "enemyAuras": true
+        },
         "virovirokun": {
             "enable_cook": true,
             "enable_quarantine": true

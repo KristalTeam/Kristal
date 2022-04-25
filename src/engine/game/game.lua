@@ -63,6 +63,27 @@ function Game:returnToMenu()
     self.state = "EXIT"
 end
 
+function Game:getOption(key, merge, deep_merge)
+    local default_config = Kristal.ChapterConfigs[Utils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
+
+    if not Mod then return default_config[key] end
+
+    local mod_config = Mod.info and Mod.info.config and Utils.getAnyCase(Mod.info.config, "Kristal") or {}
+
+    local default_value = Utils.getAnyCase(default_config, key)
+    local mod_value = Utils.getAnyCase(mod_config, key)
+
+    if mod_value ~= nil and default_value == nil then
+        return mod_value
+    elseif default_value ~= nil and mod_value == nil then
+        return default_value
+    elseif type(default_value) == "table" and merge then
+        return Utils.merge(Utils.copy(default_value, true), mod_value, deep_merge)
+    else
+        return mod_value
+    end
+end
+
 function Game:getActiveMusic()
     if self.state == "OVERWORLD" then
         return self.world.music

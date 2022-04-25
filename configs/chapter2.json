@@ -1,0 +1,7 @@
+{
+    "mercyBar": true,              // Mercy bar next to hp bar in enemy select
+    "mercyMessages": true,         // "+X%" mercy messages
+    "enemyBarPercentages": true,   // HP / Mercy bar percentages
+
+    "enemyAuras": true             // Red glow around overworld enemies
+}

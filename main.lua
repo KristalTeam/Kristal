@@ -253,6 +253,11 @@ function love.load(args)
     -- default registry
     Registry.initialize()
 
+    -- Chapter defaults
+    Kristal.ChapterConfigs = {}
+    Kristal.ChapterConfigs[1] = JSON.decode(love.filesystem.read("configs/chapter1.json"))
+    Kristal.ChapterConfigs[2] = JSON.decode(love.filesystem.read("configs/chapter2.json"))
+
     -- register gamestate calls
     Gamestate.registerEvents()
 

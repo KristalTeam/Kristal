@@ -222,18 +222,20 @@ function EnemyBattler:addMercy(amount)
         end
     end
 
-    if amount > 0 then
-        local pitch = 0.8
-        if amount < 99 then pitch = 1 end
-        if amount <= 50 then pitch = 1.2 end
-        if amount <= 25 then pitch = 1.4 end
+    if Game:getOption("mercyMessages") then
+        if amount > 0 then
+            local pitch = 0.8
+            if amount < 99 then pitch = 1 end
+            if amount <= 50 then pitch = 1.2 end
+            if amount <= 25 then pitch = 1.4 end
 
-        local src = Assets.playSound("snd_mercyadd", 0.8)
-        src:setPitch(pitch)
+            local src = Assets.playSound("snd_mercyadd", 0.8)
+            src:setPitch(pitch)
 
-        self:statusMessage("mercy", amount)
-    else
-        self:statusMessage("msg", "miss")
+            self:statusMessage("mercy", amount)
+        else
+            self:statusMessage("msg", "miss")
+        end
     end
 end
 
