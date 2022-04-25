@@ -162,16 +162,6 @@ local literal_map = {
 }
 
 
-local function next_char(str, idx, set, negate)
-  for i = idx, #str do
-    if set[str:sub(i, i)] ~= negate then
-      return i
-    end
-  end
-  return #str + 1
-end
-
-
 local function decode_error(str, idx, msg)
   local line_count = 1
   local col_count = 1
@@ -183,6 +173,54 @@ local function decode_error(str, idx, msg)
     end
   end
   error( string.format("%s at line %d col %d", msg, line_count, col_count) )
+end
+
+
+local function next_char(str, idx, set, negate)
+  for i = idx, #str do
+    if set[str:sub(i, i)] ~= negate then
+      return i
+    end
+  end
+  return #str + 1
+end
+
+-- Kristal addition: allow for comments
+local function next_char_c(str, idx, set, negate)
+  local comment_mode = false
+  local comment_block = false
+  local i = idx
+  while i <= #str do
+    local chr = str:sub(i, i)
+    if comment_mode then
+      if not comment_block and chr == "\n" then
+        comment_mode = false
+      elseif comment_block and chr == "*" and str:sub(i+1, i+1) == "/" then
+        comment_mode = false
+        i = i + 1
+      end
+    else
+      if chr == "/" then
+        local next_chr = str:sub(i + 1, i + 1)
+        comment_mode = true
+        if next_chr == "/" then
+          comment_block = false
+        elseif next_chr == "*" then
+          comment_block = true
+        else
+          decode_error(str, i+1, "unexpected character '" .. next_chr .. "'")
+        end
+        if not negate then
+          return i
+        end
+        i = i + 1
+      elseif set[chr] ~= negate then
+        return i
+      end
+    end
+    i = i + 1
+  end
+  return #str + 1
 end
 
 
@@ -257,7 +295,7 @@ end
 
 
 local function parse_number(str, i)
-  local x = next_char(str, i, delim_chars)
+  local x = next_char_c(str, i, delim_chars)
   local s = str:sub(i, x - 1)
   local n = tonumber(s)
   if not n then
@@ -268,7 +306,7 @@ end
 
 
 local function parse_literal(str, i)
-  local x = next_char(str, i, delim_chars)
+  local x = next_char_c(str, i, delim_chars)
   local word = str:sub(i, x - 1)
   if not literals[word] then
     decode_error(str, i, "invalid literal '" .. word .. "'")
@@ -283,7 +321,7 @@ local function parse_array(str, i)
   i = i + 1
   while 1 do
     local x
-    i = next_char(str, i, space_chars, true)
+    i = next_char_c(str, i, space_chars, true)
     -- Empty / end of array?
     if str:sub(i, i) == "]" then
       i = i + 1
@@ -294,7 +332,7 @@ local function parse_array(str, i)
     res[n] = x
     n = n + 1
     -- Next token
-    i = next_char(str, i, space_chars, true)
+    i = next_char_c(str, i, space_chars, true)
     local chr = str:sub(i, i)
     i = i + 1
     if chr == "]" then break end
@@ -309,7 +347,7 @@ local function parse_object(str, i)
   i = i + 1
   while 1 do
     local key, val
-    i = next_char(str, i, space_chars, true)
+    i = next_char_c(str, i, space_chars, true)
     -- Empty / end of object?
     if str:sub(i, i) == "}" then
       i = i + 1
@@ -321,17 +359,17 @@ local function parse_object(str, i)
     end
     key, i = parse(str, i)
     -- Read ':' delimiter
-    i = next_char(str, i, space_chars, true)
+    i = next_char_c(str, i, space_chars, true)
     if str:sub(i, i) ~= ":" then
       decode_error(str, i, "expected ':' after key")
     end
-    i = next_char(str, i + 1, space_chars, true)
+    i = next_char_c(str, i + 1, space_chars, true)
     -- Read value
     val, i = parse(str, i)
     -- Set
     res[key] = val
     -- Next token
-    i = next_char(str, i, space_chars, true)
+    i = next_char_c(str, i, space_chars, true)
     local chr = str:sub(i, i)
     i = i + 1
     if chr == "}" then break end
