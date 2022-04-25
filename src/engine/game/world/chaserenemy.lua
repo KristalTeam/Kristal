@@ -28,7 +28,7 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.remove_on_encounter = true
     self.encountered = false
 
-    self.sprite.aura = true
+    self.sprite.aura = properties["aura"] ~= false
 end
 
 function ChaserEnemy:onCollide(player)
