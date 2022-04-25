@@ -245,14 +245,16 @@ function DarkTransition:update()
         self.kris_y = self.kris_y + self.velocity * DTMULT
     end
     if (self.fake_screenshake == 1) then
+        self.shaketimer = self.shaketimer + DTMULT
         if (self.fake_shakeamount ~= 0) then
             if (self.fake_shakeamount > 0) then
-                self.fake_shakeamount = self.fake_shakeamount - 1 * DTMULT
+                self.fake_shakeamount = self.fake_shakeamount - DTMULT
             end
             if (self.fake_shakeamount < 0) then
-                self.fake_shakeamount = self.fake_shakeamount + 1 * DTMULT
+                self.fake_shakeamount = self.fake_shakeamount + DTMULT
             end
-            if (math.floor(self.timer % (1 * DTMULT)) == 0) then
+            while (self.shaketimer > 1) do
+                self.shaketimer = self.shaketimer - 1
                 self.fake_shakeamount = self.fake_shakeamount * -1
             end
             -- because of deltatime multiplying messing up some calcs, we have to do this:
@@ -893,6 +895,7 @@ function DarkTransition:draw()
                 self.getup_index = 0
                 self.fake_screenshake = 1
                 self.fake_shakeamount = 8
+                self.shaketimer = 0
                 self.remkrisx = self.kris_x
                 self.remkrisy = self.kris_y
                 self.remsusx  = self.susie_x
