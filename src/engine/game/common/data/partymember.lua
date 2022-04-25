@@ -135,6 +135,8 @@ end
 
 function PartyMember:onAttackHit(enemy, damage) end
 
+function PartyMember:onTurnStart(battler) end
+
 function PartyMember:onLevelUp(level) end
 
 function PartyMember:onPowerSelect(menu) end

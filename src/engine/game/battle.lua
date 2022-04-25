@@ -117,8 +117,12 @@ function Battle:init()
     self.processing_action = false
 
     self.attackers = {}
+    self.normal_attackers = {}
+    self.auto_attackers = {}
+
     self.attack_done = false
     self.cancel_attack = false
+    self.auto_attack_timer = 0
 
     self.post_battletext_func = nil
     self.post_battletext_state = "ACTIONSELECT"
@@ -322,6 +326,7 @@ function Battle:onStateChange(old,new)
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
 
+        local had_started = self.started
         if not self.started then
             self.started = true
 
@@ -335,6 +340,13 @@ function Battle:onStateChange(old,new)
         end
 
         self:openUI()
+
+        -- Workaround for autobattlers until BattleUI is created earlier
+        if not had_started then
+            for _,party in ipairs(self.party) do
+                party.chara:onTurnStart(party)
+            end
+        end
     elseif new == "ACTIONS" then
         self.battle_ui.encounter_text:setText("")
         if self.state_reason ~= "DONTPROCESS" then
@@ -354,13 +366,23 @@ function Battle:onStateChange(old,new)
     elseif new == "ATTACKING" then
         self.battle_ui.encounter_text:setText("")
 
-        for i,battler in ipairs(self.party) do
-            local action = self.character_actions[i]
-            if action and action.action == "ATTACK" then
-                self:beginAction(action)
-                table.insert(self.attackers, battler)
+        local enemies_left = self:getActiveEnemies()
+
+        if #enemies_left > 0 then
+            for i,battler in ipairs(self.party) do
+                local action = self.character_actions[i]
+                if action and action.action == "ATTACK" then
+                    self:beginAction(action)
+                    table.insert(self.attackers, battler)
+                    table.insert(self.normal_attackers, battler)
+                elseif action and action.action == "AUTOATTACK" then
+                    table.insert(self.attackers, battler)
+                    table.insert(self.auto_attackers, battler)
+                end
             end
         end
+
+        self.auto_attack_timer = 0
 
         if #self.attackers == 0 then
             self.attack_done = true
@@ -569,7 +591,9 @@ function Battle:resetAttackers()
             end
         end
         self.attackers = {}
-        if #self.battle_ui.attack_boxes >= 0 then
+        self.normal_attackers = {}
+        self.auto_attackers = {}
+        if self.battle_ui.attacking then
             self.battle_ui:endAttack()
         end
     end
@@ -771,13 +795,13 @@ function Battle:processAction(action)
             self:finishAction(action)
         end)
         self:battleText(text)
-    elseif action.action == "ATTACK" then
+    elseif action.action == "ATTACK" or action.action == "AUTOATTACK" then
         local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "snd_laz_c")
         src:setPitch(battler.chara:getAttackPitch() or 1)
 
         self.actions_done_timer = 1.2
 
-        local crit = action.points == 150
+        local crit = action.points == 150 and action.action ~= "AUTOATTACK"
         if crit then
             Assets.stopAndPlaySound("snd_criticalswing")
 
@@ -809,15 +833,18 @@ function Battle:processAction(action)
             end
 
             local damage = 0
-            if action.points > 0 then
+            if action.damage then
+                damage = action.damage
+            elseif action.points > 0 then
                 damage = Utils.round(((battler.chara:getStat("attack") * action.points) / 20) - (action.target.defense * 3))
             end
+            damage = Utils.round(enemy:getAttackDamage(damage, battler))
             if damage < 0 then
                 damage = 0
             end
 
             if damage > 0 then
-                self.tension_bar:giveTension(Utils.round(enemy:getAttackTension(action.points)))
+                self.tension_bar:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
 
                 local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
@@ -841,8 +868,19 @@ function Battle:processAction(action)
 
             self:finishAction(action)
 
+            Utils.removeFromTable(self.normal_attackers, battler)
+            Utils.removeFromTable(self.auto_attackers, battler)
+
             if not self:retargetEnemy() then
                 self.cancel_attack = true
+            elseif #self.normal_attackers == 0 and #self.auto_attackers > 0 then
+                local next_attacker = self.auto_attackers[1]
+
+                local next_action = self:getActionBy(next_attacker)
+                if next_action then
+                    self:beginAction(next_action)
+                    self:processAction(next_action)
+                end
             end
         end)
     elseif action.action == "ACT" then
@@ -897,8 +935,7 @@ function Battle:processAction(action)
         -- The spell itself handles the animation and finishing
         action.data:onStart(battler, action.target)
     elseif action.action == "ITEM" then
-        local item = action.data.item
-        local index = action.data.index
+        local item = action.data
         if item.instant then
             self:finishAction(action)
         else
@@ -924,10 +961,9 @@ function Battle:getCurrentAction()
 end
 
 function Battle:getActionBy(battler)
-    for _,action in ipairs(self.current_actions) do
-        local ibattler = self.party[action.character_id]
-        if ibattler == battler then
-            return action
+    for i,party in ipairs(self.party) do
+        if party == battler then
+            return self.character_actions[i]
         end
     end
 end
@@ -1050,7 +1086,7 @@ function Battle:endActionAnimation(battler, action, callback)
             _callback()
         end
     end
-    if action.action ~= "ATTACK" then
+    if action.action ~= "ATTACK" and action.action ~= "AUTOATTACK" then
         if battler.sprite.anim == "battle/"..action.action:lower() then
             -- Attempt to play the end animation if the sprite hasn't changed
             if not battler:setAnimation("battle/"..action.action:lower().."_end", callback) then
@@ -1118,19 +1154,38 @@ function Battle:powerAct(spell, battler, user, target)
     end)
 
     self.timer:after(24/30, function()
-        self:commitAction("SPELL", target, menu_item, user_index)
+        self:pushAction("SPELL", target, menu_item, user_index)
         self:markAsFinished(nil, {user})
     end)
 end
 
-function Battle:commitAction(type, target, data, character_id)
-    data = data or {}
-
+function Battle:pushAction(action_type, target, data, character_id)
     character_id = character_id or self.current_selecting
 
-    local is_xact = type:upper() == "XACT"
+    local battler = self.party[character_id]
+
+    self:commitAction(battler, action_type, target, data)
+
+    if self.current_selecting ~= 0 then
+        self:nextParty()
+    end
+end
+
+function Battle:commitForceAction(battler, action, target, data, extra)
+    data = data or {}
+
+    data.cancellable = false
+
+    self:commitAction(battler, action, target, data, extra)
+end
+
+function Battle:commitAction(battler, action_type, target, data, extra)
+    data = data or {}
+    extra = extra or {}
+
+    local is_xact = action_type:upper() == "XACT"
     if is_xact then
-        type = "ACT"
+        action_type = "ACT"
     end
 
     local tp_bar = self.tension_bar
@@ -1139,21 +1194,46 @@ function Battle:commitAction(type, target, data, character_id)
         tp_diff = Utils.clamp(-data.tp, -tp_bar:getTension(), tp_bar:getMaxTension() - tp_bar:getTension())
     end
 
-    self:commitSingleAction({
-        ["character_id"] = character_id,
-        ["action"] = type:upper(),
+    local party_id = self:getPartyIndex(battler.chara.id)
+
+    -- Make sure this action doesn't cancel any uncancellable actions
+    if data.party then
+        for _,v in ipairs(data.party) do
+            local index = self:getPartyIndex(v)
+
+            if index ~= party_id then
+                local action = self.character_actions[index]
+                if action then
+                    if action.cancellable == false then
+                        return
+                    end
+                    if action.act_parent then
+                        local parent_action = self.character_actions[action.act_parent]
+                        if parent_action.cancellable == false then
+                            return
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    self:commitSingleAction(Utils.merge({
+        ["character_id"] = party_id,
+        ["action"] = action_type:upper(),
         ["party"] = data.party,
         ["name"] = data.name,
         ["target"] = target,
         ["data"] = data.data,
-        ["tp"] = tp_diff
-    })
+        ["tp"] = tp_diff,
+        ["cancellable"] = data.cancellable,
+    }, extra))
 
     if data.party then
         for _,v in ipairs(data.party) do
             local index = self:getPartyIndex(v)
 
-            if index ~= character_id then
+            if index ~= party_id then
                 local action = self.character_actions[index]
                 if action then
                     if action.act_parent then
@@ -1163,21 +1243,18 @@ function Battle:commitAction(type, target, data, character_id)
                     end
                 end
 
-                self:commitSingleAction({
+                self:commitSingleAction(Utils.merge({
                     ["character_id"] = index,
                     ["action"] = "SKIP",
-                    ["reason"] = type:upper(),
+                    ["reason"] = action_type:upper(),
                     ["name"] = data.name,
                     ["target"] = target,
                     ["data"] = data.data,
-                    ["act_parent"] = character_id
-                })
+                    ["act_parent"] = party_id,
+                    ["cancellable"] = data.cancellable,
+                }, extra))
             end
         end
-    end
-
-    if self.current_selecting ~= 0 then
-        self:nextParty()
     end
 end
 
@@ -1208,7 +1285,7 @@ function Battle:commitSingleAction(action)
         anim = action.reason:lower()
     end
 
-    if (action.action == "ITEM" and action.data and action.data.item and (not action.data.item.instant)) or (action.action ~= "ITEM") then
+    if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
         battler:setAnimation("battle/"..anim.."_ready")
         local box = self.battle_ui.action_boxes[action.character_id]
         box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/"..anim)
@@ -1225,16 +1302,18 @@ function Battle:commitSingleAction(action)
         end
     end
 
-    if action.action == "ITEM" and action.data and action.data.index and action.data.item then
-        local result = action.data.item:onBattleSelect(battler, action.target)
+    if action.action == "ITEM" and action.data then
+        local result = action.data:onBattleSelect(battler, action.target)
         if result or result == nil then
-            if action.data.item:hasResultItem() then
-                local result_item = action.data.item:createResultItem()
-                print(action.data.storage, action.data.index)
-                Game.inventory:setItem(action.data.storage, action.data.index, result_item)
+            local storage, index = Game.inventory:getItemIndex(action.data)
+            action.item_storage = storage
+            action.item_index = index
+            if action.data:hasResultItem() then
+                local result_item = action.data:createResultItem()
+                Game.inventory:setItem(storage, index, result_item)
                 action.result_item = result_item
             else
-                Game.inventory:removeItem(action.data.item)
+                Game.inventory:removeItem(action.data)
             end
             action.consumed = true
         else
@@ -1260,15 +1339,15 @@ function Battle:removeSingleAction(action)
         end
     end
 
-    if action.action == "ITEM" and action.data and action.data.index and action.data.item then
+    if action.action == "ITEM" and action.data and action.item_index then
         if action.consumed then
             if action.result_item then
-                Game.inventory:setItem(action.data.storage, action.data.index, action.data.item)
+                Game.inventory:setItem(action.item_storage, action.item_index, action.data)
             else
-                Game.inventory:addItemTo(action.data.storage, action.data.index, action.data.item)
+                Game.inventory:addItemTo(action.item_storage, action.item_index, action.data)
             end
         end
-        action.data.item:onBattleDeselect(battler, action.target)
+        action.data:onBattleDeselect(battler, action.target)
     end
 
     self.character_actions[action.character_id] = nil
@@ -1417,14 +1496,20 @@ function Battle:previousParty()
         local old_action = self.character_actions[i]
         local new_action = new_actions[i]
         if new_action ~= old_action then
-            if old_action then
-                self:removeSingleAction(old_action)
-            end
-            if new_action then
-                self:commitSingleAction(new_action)
+            if old_action.cancellable == false then
+                new_actions[i] = old_action
+            else
+                if old_action then
+                    self:removeSingleAction(old_action)
+                end
+                if new_action then
+                    self:commitSingleAction(new_action)
+                end
             end
         end
     end
+
+    self.selected_action_stack[#self.selected_action_stack-1] = new_actions
 
     table.remove(self.selected_character_stack, #self.selected_character_stack)
     table.remove(self.selected_action_stack, #self.selected_action_stack)
@@ -1458,6 +1543,8 @@ function Battle:nextTurn()
     end
 
     self.attackers = {}
+    self.normal_attackers = {}
+    self.auto_attackers = {}
 
     self.current_selecting = 1
     while (self.party[self.current_selecting].is_down) do
@@ -1492,6 +1579,12 @@ function Battle:nextTurn()
     self.encounter:onTurnStart()
     for _,enemy in ipairs(self:getActiveEnemies()) do
         enemy:onTurnStart()
+    end
+
+    if self.battle_ui then
+        for _,party in ipairs(self.party) do
+            party.chara:onTurnStart(party)
+        end
     end
 
     self:setState("ACTIONSELECT")
@@ -1688,7 +1781,9 @@ function Battle:update()
                 end
             end
             self.attackers = {}
-            if #self.battle_ui.attack_boxes >= 0 then
+            self.normal_attackers = {}
+            self.auto_attackers = {}
+            if self.battle_ui.attacking then
                 self.battle_ui:endAttack()
             end
             self:setState("ENEMYDIALOGUE")
@@ -1847,8 +1942,22 @@ function Battle:updateAttacking()
         return
     end
     if not self.attack_done then
-        if #self.battle_ui.attack_boxes == 0 then
+        if not self.battle_ui.attacking then
             self.battle_ui:beginAttack()
+        end
+
+        if #self.attackers == #self.auto_attackers and self.auto_attack_timer < 4 then
+            self.auto_attack_timer = self.auto_attack_timer + DTMULT
+
+            if self.auto_attack_timer >= 4 then
+                local next_attacker = self.auto_attackers[1]
+
+                local next_action = self:getActionBy(next_attacker)
+                if next_action then
+                    self:beginAction(next_action)
+                    self:processAction(next_action)
+                end
+            end
         end
 
         local all_done = true
@@ -1868,6 +1977,10 @@ function Battle:updateAttacking()
                     all_done = false
                 end
             end
+        end
+
+        if #self.auto_attackers > 0 then
+            all_done = false
         end
 
         if all_done then
@@ -1988,8 +2101,10 @@ function Battle:canSelectMenuItem(menu_item)
     end
     if menu_item.party then
         for _,party_id in ipairs(menu_item.party) do
-            local battler = self.party[self:getPartyIndex(party_id)]
-            if (not battler) or (battler.chara.health <= 0) then
+            local party_index = self:getPartyIndex(party_id)
+            local battler = self.party[party_index]
+            local action = self.character_actions[party_index]
+            if (not battler) or (battler.chara.health <= 0) or (action and action.cancellable == false) then
                 -- They're either down, or don't exist. Either way, they're not here to do the action.
                 return false
             end
@@ -2085,6 +2200,19 @@ function Battle:advanceBoxes()
     end
 end
 
+function Battle:getTargetForItem(item, default_ally, default_enemy)
+    if not item.target or item.target == "none" then
+        return nil
+    elseif item.target == "ally" then
+        return default_ally or self.party[1]
+    elseif item.target == "enemy" then
+        return default_enemy or self:getActiveEnemies()[1]
+    elseif item.target == "party" then
+        return self.party
+    elseif item.target == "enemies" then
+        return self:getActiveEnemies()
+    end
+end
 
 function Battle:keypressed(key)
     if Game.console.is_open then return end
@@ -2132,7 +2260,7 @@ function Battle:keypressed(key)
                     self.ui_select:stop()
                     self.ui_select:play()
 
-                    self:commitAction("ACT", self.enemies[self.selected_enemy], menu_item)
+                    self:pushAction("ACT", self.enemies[self.selected_enemy], menu_item)
                 end
                 return
             elseif self.state_reason == "SPELL" then
@@ -2146,15 +2274,15 @@ function Battle:keypressed(key)
                         self.selected_xaction = menu_item.data
                         self:setState("XACTENEMYSELECT", "SPELL")
                     elseif not menu_item.data.target or menu_item.data.target == "none" then
-                        self:commitAction("SPELL", nil, menu_item)
+                        self:pushAction("SPELL", nil, menu_item)
                     elseif menu_item.data.target == "ally" then
                         self:setState("PARTYSELECT", "SPELL")
                     elseif menu_item.data.target == "enemy" then
                         self:setState("ENEMYSELECT", "SPELL")
                     elseif menu_item.data.target == "party" then
-                        self:commitAction("SPELL", self.party, menu_item)
+                        self:pushAction("SPELL", self.party, menu_item)
                     elseif menu_item.data.target == "enemies" then
-                        self:commitAction("SPELL", self:getActiveEnemies(), menu_item)
+                        self:pushAction("SPELL", self:getActiveEnemies(), menu_item)
                     end
                 end
                 return
@@ -2164,16 +2292,16 @@ function Battle:keypressed(key)
                 if self:canSelectMenuItem(menu_item) then
                     self.ui_select:stop()
                     self.ui_select:play()
-                    if not menu_item.data.item.target or menu_item.data.item.target == "none" then
-                        self:commitAction("ITEM", nil, menu_item)
-                    elseif menu_item.data.item.target == "ally" then
+                    if not menu_item.data.target or menu_item.data.target == "none" then
+                        self:pushAction("ITEM", nil, menu_item)
+                    elseif menu_item.data.target == "ally" then
                         self:setState("PARTYSELECT", "ITEM")
-                    elseif menu_item.data.item.target == "enemy" then
+                    elseif menu_item.data.target == "enemy" then
                         self:setState("ENEMYSELECT", "ITEM")
-                    elseif menu_item.data.item.target == "party" then
-                        self:commitAction("ITEM", self.party, menu_item)
-                    elseif menu_item.data.item.target == "enemies" then
-                        self:commitAction("ITEM", self:getActiveEnemies(), menu_item)
+                    elseif menu_item.data.target == "party" then
+                        self:pushAction("ITEM", self.party, menu_item)
+                    elseif menu_item.data.target == "enemies" then
+                        self:pushAction("ITEM", self:getActiveEnemies(), menu_item)
                     end
                 end
             end
@@ -2217,9 +2345,9 @@ function Battle:keypressed(key)
             self.ui_select:play()
             self.selected_enemy = self.current_menu_y
             if self.state == "XACTENEMYSELECT" then
-                self:commitAction("XACT", self.enemies[self.selected_enemy], self.selected_xaction)
+                self:pushAction("XACT", self.enemies[self.selected_enemy], self.selected_xaction)
             elseif self.state_reason == "SPARE" then
-                self:commitAction("SPARE", self.enemies[self.selected_enemy])
+                self:pushAction("SPARE", self.enemies[self.selected_enemy])
             elseif self.state_reason == "ACT" then
                 self.menu_items = {}
                 local enemy = self.enemies[self.selected_enemy]
@@ -2250,11 +2378,11 @@ function Battle:keypressed(key)
                 end
                 self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
-                self:commitAction("ATTACK", self.enemies[self.selected_enemy])
+                self:pushAction("ATTACK", self.enemies[self.selected_enemy])
             elseif self.state_reason == "SPELL" then
-                self:commitAction("SPELL", self.enemies[self.selected_enemy], self.selected_spell)
+                self:pushAction("SPELL", self.enemies[self.selected_enemy], self.selected_spell)
             elseif self.state_reason == "ITEM" then
-                self:commitAction("ITEM", self.enemies[self.selected_enemy], self.selected_item)
+                self:pushAction("ITEM", self.enemies[self.selected_enemy], self.selected_item)
             else
                 self:nextParty()
             end
@@ -2292,9 +2420,9 @@ function Battle:keypressed(key)
             self.ui_select:stop()
             self.ui_select:play()
             if self.state_reason == "SPELL" then
-                self:commitAction("SPELL", self.party[self.current_menu_y], self.selected_spell)
+                self:pushAction("SPELL", self.party[self.current_menu_y], self.selected_spell)
             elseif self.state_reason == "ITEM" then
-                self:commitAction("ITEM", self.party[self.current_menu_y], self.selected_item)
+                self:pushAction("ITEM", self.party[self.current_menu_y], self.selected_item)
             else
                 self:nextParty()
             end

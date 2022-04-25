@@ -28,6 +28,8 @@ function BattleUI:init()
     self.action_boxes = {}
     self.attack_boxes = {}
 
+    self.attacking = false
+
     local size_offset = 0
     if #Game.battle.party == 3 then
         size_offset = 0
@@ -69,7 +71,7 @@ function BattleUI:clearEncounterText()
 end
 
 function BattleUI:beginAttack()
-    local attack_order = Utils.pickMultiple(Game.battle.attackers, #Game.battle.attackers)
+    local attack_order = Utils.pickMultiple(Game.battle.normal_attackers, #Game.battle.normal_attackers)
 
     local last_offset = -1
     local offset = 0
@@ -87,6 +89,8 @@ function BattleUI:beginAttack()
             last_offset = Utils.pick{10, 15}
         end
     end
+
+    self.attacking = true
 end
 
 function BattleUI:endAttack()
@@ -95,6 +99,7 @@ function BattleUI:endAttack()
         box:remove()
     end
     self.attack_boxes = {}
+    self.attacking = false
 end
 
 function BattleUI:transitionOut()
@@ -394,7 +399,7 @@ function BattleUI:drawState()
             love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
         end
     end
-    if Game.battle.state == "ATTACKING" or #self.attack_boxes > 0 then
+    if Game.battle.state == "ATTACKING" or self.attacking then
         love.graphics.setColor(0, 0, 0.5)
         love.graphics.rectangle("fill", 79, 78, 224, 2)
         love.graphics.rectangle("fill", 79, 116, 224, 2)

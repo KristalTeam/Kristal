@@ -106,13 +106,14 @@ end
 
 Utils.__MOD_HOOKS = {}
 function Utils.hook(target, name, hook, exact_func)
-    local orig = target[name] or function() end
+    local orig = target[name]
     if Mod then
         table.insert(Utils.__MOD_HOOKS, 1, {target = target, name = name, hook = hook, orig = orig})
     end
+    local orig_func = orig or function() end
     if not exact_func then
         target[name] = function(...)
-            return hook(orig, ...)
+            return hook(orig_func, ...)
         end
     else
         target[name] = hook

@@ -349,6 +349,10 @@ function EnemyBattler:getAttackTension(points)
     return points / 25
 end
 
+function EnemyBattler:getAttackDamage(damage, battler)
+    return damage
+end
+
 function EnemyBattler:onHurt(damage, battler)
     if self.overlay_sprite:setAnimation("hurt") then
         self:toggleOverlay(true)

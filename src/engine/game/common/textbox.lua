@@ -79,7 +79,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self:addChild(self.face)
 
     -- Added text width for autowrapping
-    self.wrap_add_w = 16
+    self.wrap_add_w = battle_box and 0 or 16
 
     self.text = DialogueText("", self.text_x, self.text_y, width + self.wrap_add_w, height)
     self.text.line_offset = 8 -- idk this is dumb

@@ -107,6 +107,17 @@ function character:init()
 
     -- Message shown on gameover (optional)
     self.gameover_message = nil -- Handled by getGameOverMessage for Susie
+
+    -- Character flags (saved to the save file)
+    self.flags = {
+        ["auto_attack"] = false,
+    }
+end
+
+function character:onTurnStart(battler)
+    if self:getFlag("auto_attack", false) then
+        Game.battle:commitForceAction(battler, "AUTOATTACK", Game.battle:getActiveEnemies()[1], nil, {points = 150})
+    end
 end
 
 function character:onAttackHit(enemy, damage)

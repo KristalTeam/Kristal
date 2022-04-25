@@ -100,7 +100,7 @@ function ActionButton:select()
                 ["name"] = item:getName(),
                 ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
                 ["description"] = item:getBattleDescription(),
-                ["data"] = {storage = "items", index = i, item = item}
+                ["data"] = item
             }
             table.insert(Game.battle.menu_items, menu_item)
         end
@@ -110,7 +110,7 @@ function ActionButton:select()
     elseif self.type == "spare" then
         Game.battle:setState("ENEMYSELECT", "SPARE")
     elseif self.type == "defend" then
-        Game.battle:commitAction("DEFEND", nil, {tp = -16})
+        Game.battle:pushAction("DEFEND", nil, {tp = -16})
     end
 end
 
