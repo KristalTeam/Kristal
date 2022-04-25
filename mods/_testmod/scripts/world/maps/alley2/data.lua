@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 11,
-  nextobjectid = 107,
+  nextobjectid = 108,
   properties = {
     ["light"] = false,
     ["music"] = "dogcheck",
@@ -864,7 +864,7 @@ return {
       draworder = "topdown",
       id = 4,
       name = "markers",
-      visible = false,
+      visible = true,
       opacity = 1,
       offsetx = 0,
       offsety = 0,
@@ -936,6 +936,19 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 107,
+          name = "entry_right",
+          type = "",
+          shape = "point",
+          x = 1160,
+          y = 1400,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
         }
       }
     },
@@ -944,7 +957,7 @@ return {
       draworder = "topdown",
       id = 5,
       name = "battleareas",
-      visible = false,
+      visible = true,
       opacity = 1,
       offsetx = 0,
       offsety = 0,

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="3" nextobjectid="2">
+<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="14">
  <editorsettings>
   <export target="alley3.lua" format="lua"/>
  </editorsettings>
@@ -24,11 +24,34 @@
 296,296,296,296,296,296,296,297,296,296,296,296,296,296,296,296,296,296,296,296,296,296,296,296,296,295,296
 </data>
  </layer>
+ <objectgroup color="#0000ff" id="4" name="collision">
+  <object id="6" x="0" y="200" width="320" height="40"/>
+  <object id="7" x="280" y="160" width="40" height="40"/>
+  <object id="9" x="320" y="120" width="680" height="40"/>
+  <object id="10" x="1000" y="160" width="40" height="320"/>
+  <object id="11" x="320" y="480" width="680" height="40"/>
+  <object id="12" x="0" y="320" width="320" height="40"/>
+  <object id="13" x="280" y="360" width="40" height="120"/>
+ </objectgroup>
  <objectgroup color="#ff00ff" id="2" name="objects">
   <object id="1" name="interactable" x="360" y="120" width="40" height="40">
    <properties>
     <property name="cutscene" value="testing.image"/>
    </properties>
+  </object>
+  <object id="4" name="transition" x="-40" y="240" width="40" height="80">
+   <properties>
+    <property name="map" value="alley2"/>
+    <property name="marker" value="entry_right"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup color="#7f00ff" id="3" name="markers">
+  <object id="2" name="entry_left" x="40" y="280">
+   <point/>
+  </object>
+  <object id="5" name="spawn" x="360" y="280">
+   <point/>
   </object>
  </objectgroup>
 </map>
