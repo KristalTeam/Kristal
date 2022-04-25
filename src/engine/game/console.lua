@@ -108,6 +108,8 @@ end
 
 function Console:print(text, x, y, ignore_modifiers)
     -- loop through chars in text
+    if y < 0 then return end
+
     local x_offset = 0
 
     local in_modifier = false
@@ -187,22 +189,17 @@ function Console:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    local y_offset = self.height
-    for line, text in ipairs(self.history) do
-        y_offset = y_offset - #Utils.split(text, "\n", false)
-    end
-
-    for line, text in ipairs(self.history) do
+    y_offset = 1
+    for line = #self.history, math.max(1, #self.history - self.height), -1 do
+        local text = self.history[line]
         local lines = Utils.split(text, "\n", false)
-        for line2, text2 in ipairs(lines) do
-            self:print(text2, 8, y_offset * 16)
+        for line2 = #lines, 1, -1 do
+            local text2 = lines[line2]
+            self:print(text2, 8, (self.height - y_offset) * 16)
             y_offset = y_offset + 1
         end
-
-        if y_offset >= self.height then
-            break
-        end
     end
+
 
     love.graphics.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
