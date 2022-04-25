@@ -2223,6 +2223,10 @@ function Battle:keypressed(key)
                 party:heal(math.huge)
             end
         end
+        if key == "y" then
+            Input.clearDownPressed()
+            self:setState("VICTORY")
+        end
         if key == "m" then
             if self.music then
                 if self.music:isPlaying() then
