@@ -12,6 +12,8 @@ function DarkTransition:init(final_y, options)
 
     options = options or {}
 
+    self.persistent = true
+
     self:setScale(2, 2)
     self:setParallax(0, 0)
 

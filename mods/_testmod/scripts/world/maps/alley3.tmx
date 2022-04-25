@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="14">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="14">
  <editorsettings>
   <export target="alley3.lua" format="lua"/>
  </editorsettings>
