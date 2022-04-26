@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "image"}
+Text.COMMANDS = {"color", "font", "style", "shake", "image", "offset"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -44,6 +44,9 @@ function Text:init(text, x, y, w, h, font, style, autowrap)
     self.last_shake = 0
 
     self.timer = 0
+
+    self.max_width = 0
+    self.max_height = 0
 
     Kristal.callEvent("registerTextCommands", self)
 
@@ -119,6 +122,9 @@ function Text:setText(text)
     self:resetState()
 
     self.text = text or ""
+
+    self.max_width = 0
+    self.max_height = 0
 
     self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(self.text)
@@ -320,9 +326,10 @@ function Text:processNode(node, dry)
     if node.type == "character" then
         self.state.typed_characters = self.state.typed_characters + 1
         self.state.typed_string = self.state.typed_string .. node.character
+        local font_scale = Assets.getFontScale(self.state.font, self.state.font_size)
         if self.state.typed_string == "* " then
             self.state.asterisk_mode = true
-            self.state.asterisk_length = font:getWidth("* ")
+            self.state.asterisk_length = font:getWidth("* ") * font_scale
         end
         if node.character == "\n" then
             self.state.current_x = 0
@@ -330,7 +337,7 @@ function Text:processNode(node, dry)
                 self.state.current_x = self.state.asterisk_length + self.state.spacing
             end
             local spacing = Assets.getFontData(self.state.font) or {}
-            self.state.current_y = self.state.current_y + (spacing.lineSpacing or font:getHeight()) + self.line_offset
+            self.state.current_y = self.state.current_y + ((spacing.lineSpacing or font:getHeight()) * font_scale) + self.line_offset
             -- We don't want to wait on a newline, so...
             self.state.newline = true
             self.state.progress = self.state.progress + 1
@@ -352,6 +359,7 @@ function Text:processNode(node, dry)
             end
             local w, h = self:getNodeSize(node, self.state)
             self.state.current_x = self.state.current_x + w + self.state.spacing
+            self.max_height = math.max(self.max_height, self.state.current_y + h)
         else
             self.state.newline = false
             self.state.escaping = false
@@ -362,6 +370,7 @@ function Text:processNode(node, dry)
                 end
                 local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing
+                self.max_height = math.max(self.max_height, self.state.current_y + h)
             end
         end
     elseif node.type == "modifier" then
@@ -371,6 +380,9 @@ function Text:processNode(node, dry)
             self:processModifier(node, dry)
         end
     end
+    -- Update text size
+    self.max_width = math.max(self.max_width, self.state.current_x)
+    self.max_height = math.max(self.max_height, self.state.current_y)
     --print(Utils.dump(node))
 end
 
@@ -403,6 +415,8 @@ function Text:processModifier(node, dry)
             self.state.font = node.arguments[1]
             if node.arguments[2] then
                 self.state.font_size = tonumber(node.arguments[2])
+            else
+                self.state.font_size = nil
             end
         end
     elseif node.command == "shake" then
@@ -443,6 +457,9 @@ function Text:processModifier(node, dry)
             end
             self.state.current_x = self.state.current_x + (texture[1]:getWidth() * x_scale) + self.state.spacing
         end
+    elseif node.command == "offset" then
+        self.state.current_x = self.state.current_x + tonumber(node.arguments[1])
+        self.state.current_y = self.state.current_y + tonumber(node.arguments[2])
     end
 end
 
@@ -457,13 +474,19 @@ function Text:processCustomCommand(node, dry)
     end
 end
 
-function Text:getNodeSize(node, state)
+function Text:getNodeSize(node, state, include_scale)
     local font = Assets.getFont(state.font, state.font_size)
-    return math.max(1, font:getWidth(node.character)), font:getHeight()
+    local scale = Assets.getFontScale(state.font, state.font_size)
+    if include_scale ~= false then
+        return math.max(1, font:getWidth(node.character)*scale), font:getHeight()*scale
+    else
+        return math.max(1, font:getWidth(node.character)), font:getHeight()
+    end
 end
 
 function Text:drawChar(node, state, use_color)
     local font = Assets.getFont(state.font, state.font_size)
+    local scale = Assets.getFontScale(state.font, state.font_size)
 
     if state.shake >= 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
@@ -495,17 +518,17 @@ function Text:drawChar(node, state, use_color)
         -- Empty because I don't like logic
     elseif state.style == nil or state.style == "none" then
         love.graphics.setColor(mr,mg,mb,ma)
-        love.graphics.print(node.character, x, y)
+        love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "menu" then
         love.graphics.setColor(0, 0, 0)
-        love.graphics.print(node.character, x+2, y+2)
+        love.graphics.print(node.character, x+2, y+2, 0, scale, scale)
         love.graphics.setColor(mr,mg,mb,ma)
-        love.graphics.print(node.character, x, y)
+        love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "dark" then
         local w, h = self:getNodeSize(node, state)
         local canvas = Draw.pushCanvas(w, h, {stencil = false})
         love.graphics.setColor(1, 1, 1)
-        love.graphics.print(node.character)
+        love.graphics.print(node.character, 0, 0, 0, scale, scale)
         Draw.popCanvas()
 
         local shader = Kristal.Shaders["GradientV"]
@@ -542,25 +565,25 @@ function Text:drawChar(node, state, use_color)
         end
     elseif state.style == "dark_menu" then
         love.graphics.setColor(0.25, 0.125, 0.25)
-        love.graphics.print(node.character, x+2, y+2)
+        love.graphics.print(node.character, x+2, y+2, 0, scale, scale)
         love.graphics.setColor(mr,mg,mb,ma)
-        love.graphics.print(node.character, x, y)
+        love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "GONER" then
 
         local specfade = 1 -- This is unused for now!
         -- It's used in chapter 1, though... so let's keep it around.
         love.graphics.setColor(mr,mg,mb, ma*specfade)
-        love.graphics.print(node.character, x, y)
+        love.graphics.print(node.character, x, y, 0, scale, scale)
         love.graphics.setColor(mr,mg,mb, ma*((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
-        love.graphics.print(node.character, x + 2, y)
-        love.graphics.print(node.character, x - 2, y)
-        love.graphics.print(node.character, x, y + 2)
-        love.graphics.print(node.character, x, y - 2)
+        love.graphics.print(node.character, x + 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x - 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x, y + 2, 0, scale, scale)
+        love.graphics.print(node.character, x, y - 2, 0, scale, scale)
         love.graphics.setColor(mr,mg,mb, ma*((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
-        love.graphics.print(node.character, x + 2, y)
-        love.graphics.print(node.character, x - 2, y)
-        love.graphics.print(node.character, x, y + 2)
-        love.graphics.print(node.character, x, y - 2)
+        love.graphics.print(node.character, x + 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x - 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x, y + 2, 0, scale, scale)
+        love.graphics.print(node.character, x, y - 2, 0, scale, scale)
         love.graphics.setColor(mr,mg,mb,ma)
     end
 end

@@ -81,6 +81,10 @@ function Assets.parseData(data)
     -- create image fonts
     for key,image_data in pairs(data.font_image_data) do
         local glyphs = data.font_settings[key] and data.font_settings[key]["glyphs"] or ""
+        data.font_settings[key] = data.font_settings[key] or {}
+        if data.font_settings[key]["autoScale"] == nil then
+            data.font_settings[key]["autoScale"] = true
+        end
         self.data.fonts[key] = love.graphics.newImageFont(image_data, glyphs)
     end
 
@@ -123,8 +127,13 @@ end
 function Assets.getFont(path, size)
     local font = self.data.fonts[path]
     if font then
+        local settings = self.data.font_settings[path] or {}
         if type(font) == "table" then
-            size = size or font.default
+            if settings["autoScale"] then
+                size = font.default
+            else
+                size = size or font.default
+            end
             if not font[size] then
                 font[size] = love.graphics.newFont(self.data.font_data[path], size)
             end
@@ -137,6 +146,15 @@ end
 
 function Assets.getFontData(path)
     return self.data.font_settings[path] or {}
+end
+
+function Assets.getFontScale(path, size)
+    local data = self.data.font_settings[path]
+    if data and data["autoScale"] then
+        return (size or 1) / (data["defaultSize"] or 1)
+    else
+        return 1
+    end
 end
 
 function Assets.getTexture(path)

@@ -144,12 +144,14 @@ function EnemyTextbox:getTailWidth()
 end
 
 function EnemyTextbox:updateSize()
-    local parsed = self.text.display_text
+    --[[local parsed = self.text.display_text
 
     local _,lines = parsed:gsub("\n", "")
 
     local w = self.font:getWidth(parsed)
-    local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())
+    local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())]]
+
+    local w, h = self.text.max_width, self.text.max_height
 
     self.text_width = w
     self.text_height = h
