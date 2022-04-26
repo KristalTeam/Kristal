@@ -134,7 +134,7 @@ function Shop:init()
 
     self.hide_price = false
 
-    self.transition_target = nil
+    self.leave_options = nil
 end
 
 function Shop:postInit()
@@ -365,8 +365,13 @@ function Shop:leaveImmediate()
     Game.fader:fadeIn()
     Game.world:setState("GAMEPLAY")
 
-    self.transition_target.shop = nil
-    Game.world:transitionImmediate(self.transition_target)
+    --self.transition_target.shop = nil
+    --Game.world:transitionImmediate(self.transition_target)
+    if self.leave_options then
+        Game.world:mapTransition(self.leave_options["map"] or Game.world.map, self.leave_options["x"], self.leave_options["y"], self.leave_options["facing"])
+    else
+        Game:returnToMenu()
+    end
 end
 
 function Shop:onTalk() end
