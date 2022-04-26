@@ -270,16 +270,16 @@ function Game:load(data, index, fade)
 
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
-        self.world:loadMap(room_id)
+        if data.spawn_position then
+            self.world:loadMap(room_id, data.spawn_position[1], data.spawn_position[2], data.spawn_facing)
+        else
+            self.world:loadMap(room_id, data.spawn_marker or "spawn", data.spawn_facing)
+        end
     end
 
     -- END SAVE FILE VARIABLES --
 
-    self.world:spawnParty(data.spawn_marker or data.spawn_position)
-
     Kristal.callEvent("load", data, self.is_new_file, index)
-
-    self.world.map:onEnter()
 end
 
 function Game:setLight(light)

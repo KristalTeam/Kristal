@@ -210,10 +210,14 @@ function World:keypressed(key)
                 end
             end
         elseif key == "s" then
+            local save_pos = nil
+            if Input.keyDown("lshift") or Input.keyDown("rshift") then
+                save_pos = {self.player.x, self.player.y}
+            end
             if Game:isLight() or Game:getConfig("smallSaveMenu") then
-                self:openMenu(SimpleSaveMenu(Game.save_id))
+                self:openMenu(SimpleSaveMenu(Game.save_id, save_pos))
             else
-                self:openMenu(SaveMenu())
+                self:openMenu(SaveMenu(save_pos))
             end
         end
     end
@@ -526,11 +530,7 @@ function World:parseLayer(layer)
             or self.map.object_layer
 end
 
-function World:loadMap(map, ...)
-    if self.map then
-        self.map:onExit()
-    end
-
+function World:setupMap(map, ...)
     for _,child in ipairs(self.children) do
         if not child.persistent then
             self:removeChild(child)
@@ -558,11 +558,6 @@ function World:loadMap(map, ...)
 
     --self.camera:setBounds(0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
 
-    if self.map.markers["spawn"] then
-        local spawn = self.map.markers["spawn"]
-        self.camera:setPosition(spawn.center_x, spawn.center_y)
-    end
-
     self.battle_fader = Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     self.battle_fader:setParallax(0, 0)
     self.battle_fader:setColor(0, 0, 0)
@@ -571,6 +566,41 @@ function World:loadMap(map, ...)
     self:addChild(self.battle_fader)
 
     self:transitionMusic(self.map.music)
+end
+
+function World:loadMap(...)
+    local args = {...}
+    -- x, y, facing
+    local map = args[1]
+    local marker, x, y, facing
+    if type(args[2]) == "string" then
+        marker = args[2]
+        facing = args[3]
+    else
+        x = args[2]
+        y = args[3]
+        facing = args[4]
+    end
+
+    if self.map then
+        self.map:onExit()
+    end
+
+    self:setupMap(map)
+
+    if self.map.markers["spawn"] then
+        local spawn = self.map.markers["spawn"]
+        self.camera:setPosition(spawn.center_x, spawn.center_y)
+    end
+
+    if marker then
+        self:spawnParty(marker, nil, nil, facing)
+    else
+        self:spawnParty({x, y}, nil, nil, facing)
+    end
+
+    self.map:onEnter()
+    self:setState("GAMEPLAY")
 end
 
 function World:transitionMusic(next, fade_out)
@@ -650,32 +680,8 @@ function World:mapTransition(...)
         self:transitionMusic(map.music, true)
     end
     self:fadeInto(function()
-        self:mapTransitionImmediate(Utils.unpack(args))
+        self:loadMap(Utils.unpack(args))
     end)
-end
-
-function World:mapTransitionImmediate(...)
-    local args = {...}
-    -- x, y, facing
-    local map = args[1]
-    local marker, x, y, facing
-    if type(args[2]) == "string" then
-        marker = args[2]
-        facing = args[3]
-    else
-        x = args[2]
-        y = args[3]
-        facing = args[4]
-    end
-
-    self:loadMap(map)
-    if marker then
-        self:spawnParty(marker, nil, nil, facing)
-    else
-        self:spawnParty({x, y}, nil, nil, facing)
-    end
-    self.map:onEnter()
-    self:setState("GAMEPLAY")
 end
 
 function World:fadeInto(callback)

@@ -326,8 +326,8 @@ function WorldCutscene:mapTransition(...)
     return waitForMapTransition
 end
 
-function WorldCutscene:mapTransitionImmediate(...)
-    Game.world:mapTransitionImmediate(...)
+function WorldCutscene:switchMap(...)
+    Game.world:loadMap(...)
 end
 
 function WorldCutscene:fadeOut(speed, options)

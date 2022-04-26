@@ -22,6 +22,9 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
 
     -- Camera pan target (for automatic panning)
     self.pan_target = nil
+
+    -- Update position
+    self:keepInBounds()
 end
 
 function Camera:getBounds()
