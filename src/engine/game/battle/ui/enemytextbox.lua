@@ -37,8 +37,8 @@ function EnemyTextbox:setStyle(style)
     self.auto = self.bubble_data["auto"] or false -- Whether the bubble automatically resizes.
     self.padding = self.bubble_data["text_padding"] or {left = 0, top = 0, right = 0, bottom = 0}
     self.text_bounds = self.bubble_data["text_bounds"] or {left = 0, top = 0, width = 0, height = 0}
-    self.text_color = self.bubble_data["text_color"] or {0, 0, 0, 0}
-    self.text.color = self.text_color
+    self.text_color = self.bubble_data["text_color"] or {0, 0, 0, 1}
+    self.text:setTextColor(unpack(self.text_color))
     if self.auto then
         self.sprites = {
             left         = Assets.getBubbleImage(self.bubble_data["sprites"]["left"        ]),

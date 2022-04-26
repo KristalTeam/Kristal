@@ -34,6 +34,7 @@ function Text:init(text, x, y, w, h, font, style, autowrap)
 
     self.font = font or "main"
     self.font_size = nil
+    self.text_color = {1, 1, 1, 1}
     self.style = style
     if self.style == "GONER" then
         self.draw_every_frame = true
@@ -75,7 +76,7 @@ end
 
 function Text:resetState()
     self.state = {
-        color = {1, 1, 1, 1},
+        color = self.text_color,
         font = self.font,
         font_size = self.font_size,
         style = self.style,
@@ -399,7 +400,7 @@ function Text:processModifier(node, dry)
             self.state.color = self.COLORS[node.arguments[1]]
         elseif node.arguments[1] == "reset" then
             -- They want to reset the color.
-            self.state.color = {1, 1, 1, 1}
+            self.state.color = self.text_color
         elseif #node.arguments[1] == 6 then
             -- It's 6 letters long, assume hashless hex
             self.state.color = Utils.hexToRgb("#" .. node.arguments[1])
@@ -484,6 +485,28 @@ function Text:getNodeSize(node, state, include_scale)
     end
 end
 
+function Text:setTextColor(r, g, b, a)
+    self.text_color = {r or 1, g or 1, b or 1, a or 1}
+    self.state.color = self.text_color
+end
+
+function Text:getTextColor(state, use_base_color)
+    -- The base color, either the draw color or (1,1,1,1) depending on
+    -- if the text is drawing to a canvas
+    local cr,cg,cb,ca
+    if use_base_color then
+        cr, cg, cb, ca = self:getDrawColor()
+    else
+        cr, cg, cb, ca = 1, 1, 1, 1
+    end
+    -- The current state color
+    local sr, sg, sb, sa = unpack(state.color)
+    sa = sa or 1
+
+    -- The current color multiplied by the base color
+    return sr*cr, sg*cg, sb*cb, sa*ca
+end
+
 function Text:drawChar(node, state, use_color)
     local font = Assets.getFont(state.font, state.font_size)
     local scale = Assets.getFontScale(state.font, state.font_size)
@@ -499,6 +522,7 @@ function Text:drawChar(node, state, use_color)
     local x, y = state.current_x + state.offset_x, state.current_y + state.offset_y
     love.graphics.setFont(font)
 
+
     -- The base color, either the draw color or (1,1,1,1) depending on
     -- if the text is drawing to a canvas
     local cr,cg,cb,ca
@@ -507,12 +531,8 @@ function Text:drawChar(node, state, use_color)
     else
         cr, cg, cb, ca = 1, 1, 1, 1
     end
-    -- The current state color
-    local sr, sg, sb, sa = unpack(state.color)
-    sa = sa or 1
-
     -- The current color multiplied by the base color
-    local mr, mg, mb, ma = sr*cr, sg*cg, sb*cb, sa*ca
+    local mr, mg, mb, ma = self:getTextColor(state, use_color)
 
     if self:processStyle(state.style) then
         -- Empty because I don't like logic

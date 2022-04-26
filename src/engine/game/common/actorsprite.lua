@@ -50,6 +50,17 @@ function ActorSprite:resetSprite()
     end
 end
 
+function ActorSprite:setActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
+    end
+    self.actor = actor
+    self.width = actor:getWidth()
+    self.height = actor:getHeight()
+    self.path = actor:getSpritePath()
+    self:resetSprite()
+end
+
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self.path = ""
     if ox and oy then
