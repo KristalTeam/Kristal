@@ -320,15 +320,14 @@ function WorldCutscene:panTo(...)
     return waitForCameraPan
 end
 
-local function waitForMapTransition() return Game.world.state ~= "TRANSITION" end
-function WorldCutscene:transition(...)
-    Game.world:transition(...)
+local function waitForMapTransition() return Game.world.state ~= "FADING" end
+function WorldCutscene:mapTransition(...)
+    Game.world:mapTransition(...)
     return waitForMapTransition
 end
 
-function WorldCutscene:transitionImmediate(...)
-    Game.world:transitionImmediate(...)
-    return _true
+function WorldCutscene:mapTransitionImmediate(...)
+    Game.world:mapTransitionImmediate(...)
 end
 
 function WorldCutscene:fadeOut(speed, options)

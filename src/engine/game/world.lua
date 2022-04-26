@@ -3,10 +3,10 @@ local World, super = Class(Object)
 function World:init(map)
     super:init(self)
 
-    -- states: GAMEPLAY, TRANSITION, MENU
+    -- states: GAMEPLAY, FADING, MENU
     self.state_manager = StateManager("GAMEPLAY", self, true)
     self.state_manager:addState("GAMEPLAY")
-    self.state_manager:addState("TRANSITION")
+    self.state_manager:addState("FADING")
     self.state_manager:addState("MENU")
 
     self.music = Music()
@@ -30,7 +30,6 @@ function World:init(map)
     self.battle_borders = {}
 
     self.transition_fade = 0
-    self.transition_target = nil
 
     self.in_battle = false
     self.battle_alpha = 0
@@ -197,32 +196,6 @@ function World:hideHealthBars()
 end
 
 function World:onStateChange(old, new)
-    if new == "TRANSITION" then
-        self.transition_target = self.transition_target or {}
-        if self.transition_target.map and type(self.transition_target.map) == "string" then
-            local map = Registry.createMap(self.transition_target.map)
-            self.transition_target.map = map
-            self:transitionMusic(map.music, true)
-        elseif self.transition_target.shop then
-            if type(self.transition_target.shop) == "string" then
-                local shop = Registry.createShop(self.transition_target.shop)
-                self.transition_target.shop = shop
-            end
-            Game:setupShop(self.transition_target.shop)
-            if not self.transition_target.map then
-                self.transition_target.map = self.map
-            end
-            self.transition_target.shop.transition_target = self.transition_target
-            self:transitionMusic("", true)
-        end
-        Game.fader:transition(function()
-            self:transitionImmediate(self.transition_target or {})
-            if self.transition_target.map and (self.state == "TRANSITION") and (not self.transition_target.shop) then
-                self:setState("GAMEPLAY")
-            end
-            self.transition_target = nil
-        end)
-    end
 end
 
 function World:keypressed(key)
@@ -236,8 +209,6 @@ function World:keypressed(key)
                     self.music:resume()
                 end
             end
-        elseif key == "j" then
-            Game:enterShop("test")
         elseif key == "s" then
             if Game:isLight() or Game:getConfig("smallSaveMenu") then
                 self:openMenu(SimpleSaveMenu(Game.save_id))
@@ -665,32 +636,51 @@ local function parseTransitionTargetArgs(...)
     end
 end
 
-function World:transition(...)
-    self.transition_target = parseTransitionTargetArgs(...)
-    self:setState("TRANSITION")
+function World:shopTransition(shop, options)
+    self:fadeInto(function()
+        Game:enterShop(shop, options)
+    end)
 end
 
-function World:transitionImmediate(...)
-    local target = parseTransitionTargetArgs(...)
-    if target.map and (not target.shop) then
-        self:loadMap(target.map)
+function World:mapTransition(...)
+    local args = {...}
+    local map = args[1]
+    if type(map) == "string" then
+        local map = Registry.createMap(map)
+        self:transitionMusic(map.music, true)
+    end
+    self:fadeInto(function()
+        self:mapTransitionImmediate(Utils.unpack(args))
+    end)
+end
+
+function World:mapTransitionImmediate(...)
+    local args = {...}
+    -- x, y, facing
+    local map = args[1]
+    local marker, x, y, facing
+    if type(args[2]) == "string" then
+        marker = args[2]
+        facing = args[3]
+    else
+        x = args[2]
+        y = args[3]
+        facing = args[4]
     end
 
-    if target.shop then
-        Game:enterShop(target.shop)
+    self:loadMap(map)
+    if marker then
+        self:spawnParty(marker, nil, nil, facing)
+    else
+        self:spawnParty({x, y}, nil, nil, facing)
     end
+    self.map:onEnter()
+    self:setState("GAMEPLAY")
+end
 
-    local pos
-    if target.x and target.y then
-        pos = {target.x, target.y}
-    elseif target.marker then
-        pos = target.marker
-    end
-
-    if target.map and (not target.shop) then
-        self:spawnParty(pos, nil, nil, target.facing)
-        self.map:onEnter()
-    end
+function World:fadeInto(callback)
+    self:setState("FADING")
+    Game.fader:transition(callback)
 end
 
 function World:getCameraTarget()
