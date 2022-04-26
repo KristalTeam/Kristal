@@ -492,6 +492,8 @@ function Map:loadObject(name, data)
         return HideParty(data.x, data.y, data.width, data.height, data.properties.alpha)
     elseif name:lower() == "setflag" then
         return SetFlagEvent(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "cybertrash" then
+        return CyberTrashCan(data.center_x, data.center_y, data.properties)
     end
 end
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.2" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="93">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="21" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="16" nextobjectid="93">
  <editorsettings>
   <export target="alley.lua" format="lua"/>
  </editorsettings>
@@ -90,9 +90,9 @@
     <property name="cutscene" value="test"/>
    </properties>
   </object>
-  <object id="86" name="chest" x="640" y="240" width="40" height="40">
+  <object id="86" name="cybertrash" x="640" y="240" width="40" height="40">
    <properties>
-    <property name="item" value="tensionbit"/>
+    <property name="item" value="cd_bagel"/>
    </properties>
   </object>
   <object id="89" name="transition" x="-40" y="240" width="40" height="120">

@@ -1,7 +1,7 @@
 return {
   version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.8.2",
+  tiledversion = "1.8.4",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 21,
@@ -363,7 +363,7 @@ return {
         },
         {
           id = 86,
-          name = "chest",
+          name = "cybertrash",
           type = "",
           shape = "rectangle",
           x = 640,
@@ -373,7 +373,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["item"] = "tensionbit"
+            ["item"] = "cd_bagel"
           }
         },
         {
