@@ -44,7 +44,7 @@ function Game:enter(previous_state, save_id, save_name)
     if Kristal.getModOption("encounter") then
         self:encounter(Kristal.getModOption("encounter"), false)
     elseif Kristal.getModOption("shop") then
-        self:enterShop(Kristal.getModOption("shop"), {map = self.world.map.id})
+        self:enterShop(Kristal.getModOption("shop"), {menu = true})
     end
 
     Kristal.callEvent("postInit", self.is_new_file)
@@ -399,7 +399,9 @@ function Game:enterShop(shop, options)
         self:setupShop(shop)
     end
 
-    self.shop.leave_options = options
+    if options then
+        self.shop.leave_options = options
+    end
 
     if self.world then
         self.world.music:stop()
