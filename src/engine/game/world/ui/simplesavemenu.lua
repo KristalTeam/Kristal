@@ -68,24 +68,21 @@ function SimpleSaveMenu:draw()
         love.graphics.setColor(1, 1, 1)
     end
 
-    local name = self.saved_file and self.saved_file.name or "[EMPTY]"
-    local level = self.saved_file and self.saved_file.level or 0
+    local data = self.saved_file or {}
+    local name      = data.name      or "[EMPTY]"
+    local level     = data.level     or 0
+    local playtime  = data.playtime  or 0
+    local room_name = data.room_name or ""
 
     love.graphics.print(name,         self.box.x,     self.box.y-10)
     love.graphics.print("LV "..level, self.box.x+210, self.box.y-10)
 
-    if self.saved_file then
-        local minutes = math.floor(self.saved_file.playtime / 60)
-        local seconds = math.floor(self.saved_file.playtime % 60)
-        local time_text = string.format("%d:%02d", minutes, seconds)
-        love.graphics.print(time_text, self.box.x+280, self.box.y-10)
-    else
-        love.graphics.print("0:00", self.box.x+280, self.box.y-10)
-    end
+    local minutes = math.floor(playtime / 60)
+    local seconds = math.floor(playtime % 60)
+    local time_text = string.format("%d:%02d", minutes, seconds)
+    love.graphics.print(time_text, self.box.x+280, self.box.y-10)
 
-    if self.saved_file then
-        love.graphics.print(self.saved_file.room_name, self.box.x, self.box.y+30)
-    end
+    love.graphics.print(room_name, self.box.x, self.box.y+30)
 
     if self.state == "MAIN" then
         love.graphics.print("Save",   self.box.x+30,  self.box.y+90)
