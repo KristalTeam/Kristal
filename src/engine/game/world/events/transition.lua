@@ -18,16 +18,17 @@ end
 function Transition:onEnter(chara)
     if chara.is_player then
         local x, y = self.target.x, self.target.y
-        if self.target.marker then
-            x, y = Game.world.map:getMarker(self.target.marker)
-        end
-
         local facing = self.target.facing
+        local marker = self.target.marker
 
         if self.target.shop then
-            self.world:enterShop(self.target.shop, {x=x, y=y, facing=facing, map=self.target.map})
+            self.world:shopTransition(self.target.shop, {x=x, y=y, marker=marker, facing=facing, map=self.target.map})
         elseif self.target.map then
-            self.world:mapTransition(self.target.map, x, y, facing)
+            if marker then
+                self.world:mapTransition(self.target.map, marker, facing)
+            else
+                self.world:mapTransition(self.target.map, x, y, facing)
+            end
         end
     end
 end

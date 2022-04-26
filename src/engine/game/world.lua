@@ -636,24 +636,26 @@ local function parseTransitionTargetArgs(...)
     end
 end
 
-function World:enterShop(shop, options)
+function World:shopTransition(shop, options)
     self:fadeInto(function()
         Game:enterShop(shop, options)
     end)
 end
 
 function World:mapTransition(...)
+    local args = {...}
     local map = args[1]
     if type(map) == "string" then
         local map = Registry.createMap(map)
         self:transitionMusic(map.music, true)
     end
     self:fadeInto(function()
-        self:mapTransitionImmediate(...)
+        self:mapTransitionImmediate(Utils.unpack(args))
     end)
 end
 
 function World:mapTransitionImmediate(...)
+    local args = {...}
     -- x, y, facing
     local map = args[1]
     local marker, x, y, facing
