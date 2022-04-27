@@ -52,17 +52,6 @@ function Dummy:init()
     self:registerAct("Tell Story", "", {"ralsei"})
 end
 
-function Dummy:onTurnStart()
-    local turn = Game.battle.turn_count
-    if turn == 1 then
-        self.wave_override = "basic"
-    elseif turn == 2 then
-        self.wave_override = "aiming"
-    elseif turn == 3 then
-        self.wave_override = "movingarena"
-    end
-end
-
 function Dummy:onAct(battler, name)
     if name == "Smile" then
         -- Give the enemy 100% mercy
