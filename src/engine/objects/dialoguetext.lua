@@ -1,6 +1,6 @@
 local DialogueText, super = Class(Text)
 
-DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk"}
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk", "sound"}
 
 function DialogueText:init(text, x, y, w, h, font, style, autowrap)
     self.custom_command_wait = {}
@@ -36,6 +36,7 @@ function DialogueText:processInitialNodes()
             local current_node = self.nodes[i]
             self:processNode(current_node, false)
             self.state.current_node = self.state.current_node + 1
+            self.state.progress = self.state.typed_characters
             i = i + 1
             -- If the current mode is a typewriter...
             if not self.state.skipping and not self:isNodeInstant(current_node) then
@@ -65,6 +66,9 @@ function DialogueText:setText(text, callback)
     self.text_index = 1
 
     self.last_talking = false
+
+    self.max_width = 0
+    self.max_height = 0
 
     self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(self.text)
@@ -304,6 +308,10 @@ function DialogueText:processModifier(node, dry)
         end
     elseif node.command == "talk" then
         self.state.talk_anim = self:isTrue(node.arguments[1])
+    elseif node.command == "sound" then
+        if not dry then
+            Assets.playSound(node.arguments[1], tonumber(node.arguments[2] or "1"), tonumber(node.arguments[3] or "1"))
+        end
     end
 end
 

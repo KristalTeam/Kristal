@@ -36,6 +36,7 @@ function Map:init(world, data)
     self.enemy_collision = {}
     self.tile_layers = {}
     self.image_layers = {}
+    self.shape_layers = {}
     self.markers = {}
     self.battle_areas = {}
     self.battle_borders = {}
@@ -151,6 +152,20 @@ function Map:getImageLayer(id)
     return self.image_layers[id]
 end
 
+function Map:getShapeLayer(name)
+    return self.shape_layers[name]
+end
+
+function Map:getShapes(layer_prefix)
+    local result = {}
+    for k,v in pairs(self.shape_layers) do
+        if not layer_prefix or Utils.startsWith(k:lower(), layer_prefix) then
+            Utils.merge(result, v.objects)
+        end
+    end
+    return result
+end
+
 function Map:getTileLayer(name)
     if name then
         for _,layer in ipairs(self.tile_layers) do
@@ -190,31 +205,32 @@ function Map:loadMapData(data)
     end
 
     for i,layer in ipairs(data.layers or {}) do
-        local name = Utils.split(layer.name, "_")[1]
+        local name = layer.name:lower()
         local depth = indexed_layers[i]
-        if not has_battle_border and name == "battleborder" then
+        if not has_battle_border and Utils.startsWith(name, "battleborder") then
             self.battle_fader_layer = depth - (self.depth_per_layer/2)
             has_battle_border = true
         end
         if layer.type == "tilelayer" then
-            self:loadTiles(layer, name, depth)
+            self:loadTiles(layer, depth)
         elseif layer.type == "imagelayer" then
-            self:loadImage(layer, name, depth)
+            self:loadImage(layer, depth)
         elseif layer.type == "objectgroup" then
-            if name == "objects" then
+            if Utils.startsWith(name, "objects") then
                 table.insert(object_depths, depth)
                 self:loadObjects(layer, depth)
-            elseif name == "markers" then
+            elseif Utils.startsWith(name, "markers") then
                 self:loadMarkers(layer)
-            elseif name == "collision" then
+            elseif Utils.startsWith(name, "collision") then
                 self:loadCollision(layer)
-            elseif name == "enemycollision" then
+            elseif Utils.startsWith(name, "enemycollision") then
                 self:loadEnemyCollision(layer)
-            elseif name == "paths" then
+            elseif Utils.startsWith(name, "paths") then
                 self:loadPaths(layer)
-            elseif name == "battleareas" then
+            elseif Utils.startsWith(name, "battleareas") then
                 self:loadBattleAreas(layer)
             end
+            self:loadShapes(layer)
         end
     end
 
@@ -241,19 +257,19 @@ function Map:loadMapData(data)
     end
 end
 
-function Map:loadTiles(layer, name, depth)
+function Map:loadTiles(layer, depth)
     local tilelayer = TileLayer(self, layer)
     tilelayer:setPosition(layer.offsetx or 0, layer.offsety or 0)
     tilelayer.layer = depth
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
-    if name == "battleborder" then
+    if Utils.startsWith(layer.name:lower(), "battleborder") then
         tilelayer.tile_opacity = 0
         table.insert(self.battle_borders, tilelayer)
     end
 end
 
-function Map:loadImage(layer, name, depth)
+function Map:loadImage(layer, depth)
     local texture = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
     local sprite = Sprite(texture, layer.offsetx, layer.offsety)
     sprite:setParallax(layer.parallaxx, layer.parallaxy)
@@ -276,7 +292,7 @@ function Map:loadImage(layer, name, depth)
     sprite:setScale(layer.properties["scalex"] or 1, layer.properties["scaley"] or 1)
     self.world:addChild(sprite)
     self.image_layers[layer.name] = sprite
-    if name == "battleborder" then
+    if Utils.startsWith(layer.name:lower(), "battleborder") then
         sprite.alpha = 0
         table.insert(self.battle_borders, sprite)
     end
@@ -310,6 +326,10 @@ function Map:loadHitboxes(layer)
         end
     end
     return hitboxes
+end
+
+function Map:loadShapes(layer)
+    self.shape_layers[layer.name] = layer
 end
 
 function Map:loadMarkers(layer)
