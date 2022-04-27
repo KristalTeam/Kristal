@@ -440,6 +440,8 @@ function Battle:onStateChange(old,new)
             self.wave_length = math.max(self.wave_length, wave.time)
 
             wave:onStart()
+
+            wave.active = true
         end
     elseif new == "VICTORY" then
         self.tension_bar.animating_in = false
@@ -1440,6 +1442,9 @@ function Battle:setWaves(waves, allow_duplicates)
             self:addChild(wave)
             table.insert(self.waves, wave)
             added_wave[wave.id] = true
+
+            -- Keep wave inactive until it's time to start
+            wave.active = false
         end
     end
     return self.waves

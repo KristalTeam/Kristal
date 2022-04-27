@@ -13,6 +13,9 @@ function Dummy:init()
 
     -- Add the dummy enemy to the encounter
     self:addEnemy("dummy")
+
+    --- Uncomment this line to add another!
+    --self:addEnemy("dummy")
 end
 
 return Dummy

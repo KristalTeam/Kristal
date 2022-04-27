@@ -23,7 +23,9 @@ function Dummy:init()
 
     -- List of possible wave ids, randomly picked each turn
     self.waves = {
-        "basic"
+        "basic",
+        "aiming",
+        "movingarena"
     }
 
     -- Dialogue randomly displayed in the enemy's speech bubble
@@ -50,6 +52,17 @@ function Dummy:init()
     self:registerAct("Tell Story", "", {"ralsei"})
 end
 
+function Dummy:onTurnStart()
+    local turn = Game.battle.turn_count
+    if turn == 1 then
+        self.wave_override = "basic"
+    elseif turn == 2 then
+        self.wave_override = "aiming"
+    elseif turn == 3 then
+        self.wave_override = "movingarena"
+    end
+end
+
 function Dummy:onAct(battler, name)
     if name == "Smile" then
         -- Give the enemy 100% mercy
@@ -63,9 +76,12 @@ function Dummy:onAct(battler, name)
         }
 
     elseif name == "Tell Story" then
-        -- Make this enemy tired
-        self:setTired(true)
-        return "* You and Ralsei told the dummy\na bedtime story.\n* The dummy became [color:blue]TIRED[color:reset]..."
+        -- Loop through all enemies
+        for _, enemy in ipairs(Game.battle.enemies) do
+            -- Make the enemy tired
+            enemy:setTired(true)
+        end
+        return "* You and Ralsei told the dummy\na bedtime story.\n* The enemies became [color:blue]TIRED[color:reset]..."
 
     elseif name == "Standard" then --X-Action
         -- Give the enemy 50% mercy
