@@ -17,7 +17,6 @@ function Assets.clear()
         sound_data = {},
         music = {},
         bubbles = {},
-        bubble_image_data = {},
         bubble_settings = {},
     }
     self.frames_for = {}
@@ -95,11 +94,6 @@ function Assets.parseData(data)
     end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
     --self.data.sound_data = {}
-
-    -- create bubble images
-    for key, image_data in pairs(data.bubble_image_data) do
-        self.data.bubbles[key] = love.graphics.newImage(image_data)
-    end
 end
 
 function Assets.update()
@@ -118,10 +112,6 @@ end
 
 function Assets.getBubbleData(path)
     return self.data.bubble_settings[path] or {}
-end
-
-function Assets.getBubbleImage(path)
-    return self.data.bubbles[path]
 end
 
 function Assets.getFont(path, size)

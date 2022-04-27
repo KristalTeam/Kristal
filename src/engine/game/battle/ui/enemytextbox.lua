@@ -38,22 +38,24 @@ function EnemyTextbox:setStyle(style)
     self.padding = self.bubble_data["text_padding"] or {left = 0, top = 0, right = 0, bottom = 0}
     self.text_bounds = self.bubble_data["text_bounds"] or {left = 0, top = 0, width = 0, height = 0}
     self.text_color = self.bubble_data["text_color"] or {0, 0, 0, 1}
+    self.bubble_speed = self.bubble_data["speed"] or 0.5
+    self.bubble_anim_timer = 0
     self.text:setTextColor(unpack(self.text_color))
     if self.auto then
         self.sprites = {
-            left         = Assets.getBubbleImage(self.bubble_data["sprites"]["left"        ]),
-            right        = Assets.getBubbleImage(self.bubble_data["sprites"]["right"       ]),
-            top          = Assets.getBubbleImage(self.bubble_data["sprites"]["top"         ]),
-            bottom       = Assets.getBubbleImage(self.bubble_data["sprites"]["bottom"      ]),
-            top_left     = Assets.getBubbleImage(self.bubble_data["sprites"]["top_left"    ]),
-            top_right    = Assets.getBubbleImage(self.bubble_data["sprites"]["top_right"   ]),
-            bottom_left  = Assets.getBubbleImage(self.bubble_data["sprites"]["bottom_left" ]),
-            bottom_right = Assets.getBubbleImage(self.bubble_data["sprites"]["bottom_right"]),
-            tail         = Assets.getBubbleImage(self.bubble_data["sprites"]["tail"        ]),
-            fill         = Assets.getBubbleImage(self.bubble_data["sprites"]["fill"        ])
+            left         = self.bubble_data["sprites"]["left"        ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["left"        ]),
+            right        = self.bubble_data["sprites"]["right"       ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["right"       ]),
+            top          = self.bubble_data["sprites"]["top"         ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["top"         ]),
+            bottom       = self.bubble_data["sprites"]["bottom"      ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["bottom"      ]),
+            top_left     = self.bubble_data["sprites"]["top_left"    ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["top_left"    ]),
+            top_right    = self.bubble_data["sprites"]["top_right"   ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["top_right"   ]),
+            bottom_left  = self.bubble_data["sprites"]["bottom_left" ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["bottom_left" ]),
+            bottom_right = self.bubble_data["sprites"]["bottom_right"] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["bottom_right"]),
+            tail         = self.bubble_data["sprites"]["tail"        ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["tail"        ]),
+            fill         = self.bubble_data["sprites"]["fill"        ] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"]["fill"        ])
         }
     else
-        self.sprites = Assets.getBubbleImage(self.bubble_data["sprites"])
+        self.sprites = self.bubble_data["sprites"] and Assets.getFramesOrTexture("bubbles/"..self.bubble_data["sprites"])
     end
 
     self.text.x = self.text_bounds["left"] or 0
@@ -63,15 +65,20 @@ function EnemyTextbox:setStyle(style)
         self.text.height = self.text_bounds["height"] or SCREEN_HEIGHT
     end
 
-    if self.right then
+    if self.bubble_data["origin"] then
+        self:setOrigin(self.bubble_data["origin"][1], self.bubble_data["origin"][2])
+    elseif self.right then
         self:setOrigin(0, 0.5)
-        if self.auto then
-            local left_width, _ = self:getSpriteSize("left")
-            self.text.x = self:getTailWidth() + self.padding["left"] + left_width + 1
-        end
     else
         self:setOrigin(1, 0.5)
     end
+
+    if self.right and self.auto then
+        local left_width, _ = self:getSpriteSize("left")
+        self.text.x = self:getTailWidth() + self.padding["left"] + left_width + 1
+    end
+
+    self:updateSize()
 end
 
 function EnemyTextbox:onRemoveFromStage(stage)
@@ -119,6 +126,8 @@ end
 function EnemyTextbox:update()
     super:update(self)
 
+    self.bubble_anim_timer = self.bubble_anim_timer + DT
+
     self:updateSize()
 end
 
@@ -131,9 +140,19 @@ function EnemyTextbox:getBorder()
     return left, top, right, bottom
 end
 
+function EnemyTextbox:getSprite(name)
+    local sprite = self.auto and self.sprites[name] or self.sprites
+    if sprite then
+        local frame = math.floor(self.bubble_anim_timer / self.bubble_speed)
+
+        return sprite[(frame % #sprite) + 1]
+    end
+end
+
 function EnemyTextbox:getSpriteSize(name)
-    if self.sprites[name] then
-        return self.sprites[name]:getWidth(), self.sprites[name]:getHeight()
+    local sprite = self:getSprite(name)
+    if sprite then
+        return sprite:getWidth(), sprite:getHeight()
     end
     return 0, 0
 end
@@ -151,19 +170,23 @@ function EnemyTextbox:updateSize()
     local w = self.font:getWidth(parsed)
     local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())]]
 
-    local w, h = self.text.max_width, self.text.max_height
+    if self.auto then
+        local w, h = self.text.max_width, self.text.max_height
 
-    self.text_width = w
-    self.text_height = h
+        self.text_width = w
+        self.text_height = h
 
-    local right_width, _ = self:getSpriteSize("right")
-    self.width = w + self:getTailWidth() + right_width + self.padding["right"]
-    self.height = h
+        local right_width, _ = self:getSpriteSize("right")
+        self.width = w + self:getTailWidth() + right_width + self.padding["right"]
+        self.height = h
+    else
+        self:setSize(self:getSpriteSize())
+    end
 end
 
 function EnemyTextbox:draw()
     if not self.auto then
-        love.graphics.draw(self.sprites, 0, 0)
+        love.graphics.draw(self:getSprite(), 0, 0)
     else
         local inner_left = -self.padding["left"]
         local inner_top = -self.padding["top"]
@@ -179,31 +202,45 @@ function EnemyTextbox:draw()
             offset = self:getTailWidth() + self.padding["left"] + left_width + 1
         end
 
-        if self.sprites["fill"  ] then love.graphics.draw(self.sprites["fill"  ], offset + inner_left, inner_top, 0, inner_width / self.sprites["fill"]:getWidth(), inner_height / self.sprites["fill"]:getHeight()) end
+
+        local sprite_fill = self:getSprite("fill")
+        local sprite_tail = self:getSprite("tail")
+
+        local sprite_left   = self:getSprite("left"  )
+        local sprite_top    = self:getSprite("top"   )
+        local sprite_right  = self:getSprite("right" )
+        local sprite_bottom = self:getSprite("bottom")
+
+        local sprite_top_left     = self:getSprite("top_left"    )
+        local sprite_top_right    = self:getSprite("top_right"   )
+        local sprite_bottom_left  = self:getSprite("bottom_left" )
+        local sprite_bottom_right = self:getSprite("bottom_right")
 
 
-        if self.sprites["left"  ] then love.graphics.draw(self.sprites["left"  ], offset + inner_left - self.sprites["left"]:getWidth(), inner_top, 0, 1, inner_height / self.sprites["left"]:getHeight()) end
-        if self.sprites["top"   ] then love.graphics.draw(self.sprites["top"   ], offset + inner_left,  inner_top - self.sprites["top"]:getHeight(), 0, inner_width / self.sprites["top"]:getWidth(), 1)   end
-        if self.sprites["right" ] then love.graphics.draw(self.sprites["right" ], offset + inner_right, inner_top, 0, 1, inner_height / self.sprites["right"]:getHeight())                                 end
-        if self.sprites["bottom"] then love.graphics.draw(self.sprites["bottom"], offset + inner_left,  inner_bottom, 0, inner_width / self.sprites["bottom"]:getWidth(), 1)                               end
+        if sprite_fill then love.graphics.draw(sprite_fill, offset + inner_left, inner_top, 0, inner_width / sprite_fill:getWidth(), inner_height / sprite_fill:getHeight()) end
 
-        if self.sprites["top_left"    ] then love.graphics.draw(self.sprites["top_left"    ], offset + inner_left - self.sprites["top_left"    ]:getWidth(), inner_top - self.sprites["top_left"]:getHeight()) end
-        if self.sprites["top_right"   ] then love.graphics.draw(self.sprites["top_right"   ], offset + inner_right,                                          inner_top - self.sprites["top_left"]:getHeight()) end
-        if self.sprites["bottom_left" ] then love.graphics.draw(self.sprites["bottom_left" ], offset + inner_left - self.sprites["bottom_left" ]:getWidth(), inner_bottom                                    ) end
-        if self.sprites["bottom_right"] then love.graphics.draw(self.sprites["bottom_right"], offset + inner_right,                                          inner_bottom                                    ) end
+        if sprite_left   then love.graphics.draw(sprite_left,   offset + inner_left - sprite_left:getWidth(), inner_top,                          0, 1,                                      inner_height / sprite_left:getHeight())  end
+        if sprite_top    then love.graphics.draw(sprite_top,    offset + inner_left,                          inner_top - sprite_top:getHeight(), 0, inner_width / sprite_top:getWidth(),    1)                                       end
+        if sprite_right  then love.graphics.draw(sprite_right,  offset + inner_right,                         inner_top,                          0, 1,                                      inner_height / sprite_right:getHeight()) end
+        if sprite_bottom then love.graphics.draw(sprite_bottom, offset + inner_left,                          inner_bottom,                       0, inner_width / sprite_bottom:getWidth(), 1)                                       end
+
+        if sprite_top_left     then love.graphics.draw(sprite_top_left,     offset + inner_left - sprite_top_left:getWidth(),    inner_top - sprite_top_left:getHeight())  end
+        if sprite_top_right    then love.graphics.draw(sprite_top_right,    offset + inner_right,                                inner_top - sprite_top_right:getHeight()) end
+        if sprite_bottom_left  then love.graphics.draw(sprite_bottom_left,  offset + inner_left - sprite_bottom_left:getWidth(), inner_bottom)                             end
+        if sprite_bottom_right then love.graphics.draw(sprite_bottom_right, offset + inner_right,                                inner_bottom)                             end
 
         local scale = 1
         if self.text.height < 35 then
             scale = 0.5
         end
 
-        if self.sprites["tail"] then
+        if sprite_tail then
             if not self.right then
                 local right, _ = self:getSpriteSize("right")
-                love.graphics.draw(self.sprites["tail"], inner_right + right, (self.text_height / 2 - 1 - (self.sprites["tail"]:getHeight() / 2)) * scale, 0, 1, scale)
+                love.graphics.draw(sprite_tail, inner_right + right, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, 1, scale)
             else
                 local left, _ = self:getSpriteSize("left")
-                love.graphics.draw(self.sprites["tail"], offset + inner_left - left, (self.text_height / 2 - 1 - (self.sprites["tail"]:getHeight() / 2)) * scale, 0, -1, scale)
+                love.graphics.draw(sprite_tail, offset + inner_left - left, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, -1, scale)
             end
         end
     end

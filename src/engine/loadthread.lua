@@ -63,14 +63,13 @@ function resetData()
             sounds = {},
             sound_data = {},
             music = {},
-            bubble_image_data = {},
             bubble_settings = {},
         }
     }
 
     path_loaded = {
         ["mods"] = {},
-    
+
         ["sprites"] = {},
         ["fonts"] = {},
         ["sounds"] = {},
@@ -239,12 +238,7 @@ local loaders = {
         end
     end},
     ["bubbles"] = {"assets/bubbles", function(base_dir, path, full_path)
-        local id
-        id = checkExtension(path, "png")
-        if id then
-            pcall(function() data.assets.bubble_image_data[id] = love.image.newImageData(full_path) end)
-        end
-        id = checkExtension(path, "json")
+        local id = checkExtension(path, "json")
         if id then
             data.assets.bubble_settings[id] = json.decode(love.filesystem.read(full_path))
         end
