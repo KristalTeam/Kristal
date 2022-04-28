@@ -67,8 +67,9 @@ function DialogueText:setText(text, callback)
 
     self.last_talking = false
 
-    self.max_width = 0
-    self.max_height = 0
+    self.text_width = 0
+    self.text_height = 0
+    self.alignment_offset = {}
 
     self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(self.text)

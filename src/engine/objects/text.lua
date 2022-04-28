@@ -39,15 +39,17 @@ function Text:init(text, x, y, w, h, font, style, autowrap)
     if self.style == "GONER" then
         self.draw_every_frame = true
     end
+    self.align = "left"
     self.wrap = true
     self.canvas = love.graphics.newCanvas(w, h)
     self.line_offset = 0
     self.last_shake = 0
 
-    self.timer = 0
+    self.text_width = 0
+    self.text_height = 0
+    self.alignment_offset = {}
 
-    self.max_width = 0
-    self.max_height = 0
+    self.timer = 0
 
     Kristal.callEvent("registerTextCommands", self)
 
@@ -101,7 +103,11 @@ function Text:resetState()
         last_shake = self.timer,
         offset_x = 0,
         offset_y = 0,
-        newline = false
+        newline = false,
+        max_width = 0,
+        max_height = 0,
+        current_line = 1,
+        line_lengths = {0},
     }
 end
 
@@ -111,10 +117,6 @@ function Text:update()
 end
 
 function Text:setText(text)
-    if draw == nil then
-        draw = true
-    end
-
     for _, sprite in ipairs(self.sprites) do
         sprite:remove()
     end
@@ -124,8 +126,9 @@ function Text:setText(text)
 
     self.text = text or ""
 
-    self.max_width = 0
-    self.max_height = 0
+    self.text_width = 0
+    self.text_height = 0
+    self.alignment_offset = {}
 
     self.nodes_to_draw = {}
     self.nodes, self.display_text = self:textToNodes(self.text)
@@ -144,6 +147,14 @@ end
 
 function Text:getFont()
     return Assets.getFont(self.state.font, self.state.font_size)
+end
+
+function Text:getTextWidth()
+    return self.autowrap and self.text_width or self.state.max_width
+end
+
+function Text:getTextHeight()
+    return self.autowrap and self.text_height or self.state.max_height
 end
 
 function Text:textToNodes(input_string)
@@ -190,7 +201,7 @@ function Text:textToNodes(input_string)
                             ["arguments"] = arguments
                         }
                         if self.autowrap then
-                            local prior_state = Utils.copy(self.state)
+                            local prior_state = Utils.copy(self.state, true)
                             self:processNode(new_node, true)
                             if self.state.current_x > self.width then
                                 if last_space == -1 then
@@ -245,7 +256,7 @@ function Text:textToNodes(input_string)
             if self.autowrap and (current_char == " " or current_char == "\n") then
                 last_space = #nodes
                 last_space_char = string.len(display_text)
-                last_space_state = Utils.copy(self.state)
+                last_space_state = Utils.copy(self.state, true)
             end
             local new_node = {
                 ["type"] = "character",
@@ -254,7 +265,7 @@ function Text:textToNodes(input_string)
 
             local dont_add = false
             if self.autowrap then
-                local prior_state = Utils.copy(self.state)
+                local prior_state = Utils.copy(self.state, true)
                 self:processNode(new_node, true)
                 if self.state.current_x > self.width then
                     if last_space == -1 then
@@ -303,6 +314,20 @@ function Text:textToNodes(input_string)
     end
 
     if self.autowrap then
+        self.text_width = self.state.max_width
+        self.text_height = self.state.max_height
+
+        self.alignment_offset = {}
+        for i = 1, #self.state.line_lengths do
+            if self.align == "center" then
+                self.alignment_offset[i] = (self.text_width/2) - (self.state.line_lengths[i]/2)
+            elseif self.align == "right" then
+                self.alignment_offset[i] = self.text_width - self.state.line_lengths[i]
+            else
+                self.alignment_offset[i] = 0
+            end
+        end
+
         self.state = old_state
     end
     return nodes, display_text
@@ -342,6 +367,11 @@ function Text:processNode(node, dry)
             -- We don't want to wait on a newline, so...
             self.state.newline = true
             self.state.progress = self.state.progress + 1
+            self.state.current_line = self.state.current_line + 1
+            table.insert(self.state.line_lengths, 0)
+            if self.alignment_offset[self.state.current_line] then
+                self.state.current_x = self.state.current_x + self.alignment_offset[self.state.current_line]
+            end
         elseif node.character == "\\" and not self.state.escaping then
             self.state.escaping = true
             self.state.newline = false
@@ -356,11 +386,11 @@ function Text:processNode(node, dry)
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             if not dry then
                 self:drawChar(node, self.state)
-                table.insert(self.nodes_to_draw, {node, Utils.copy(self.state)})
+                table.insert(self.nodes_to_draw, {node, Utils.copy(self.state, true)})
             end
             local w, h = self:getNodeSize(node, self.state)
             self.state.current_x = self.state.current_x + w + self.state.spacing
-            self.max_height = math.max(self.max_height, self.state.current_y + h)
+            self.state.max_height = math.max(self.state.max_height, self.state.current_y + h)
         else
             self.state.newline = false
             self.state.escaping = false
@@ -382,8 +412,9 @@ function Text:processNode(node, dry)
         end
     end
     -- Update text size
-    self.max_width = math.max(self.max_width, self.state.current_x)
-    self.max_height = math.max(self.max_height, self.state.current_y)
+    self.state.max_width = math.max(self.state.max_width, self.state.current_x)
+    self.state.max_height = math.max(self.state.max_height, self.state.current_y)
+    self.state.line_lengths[self.state.current_line] = math.max(self.state.line_lengths[self.state.current_line], self.state.current_x)
     --print(Utils.dump(node))
 end
 

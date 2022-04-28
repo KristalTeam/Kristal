@@ -171,7 +171,7 @@ function EnemyTextbox:updateSize()
     local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())]]
 
     if self.auto then
-        local w, h = self.text.max_width, self.text.max_height
+        local w, h = self.text:getTextWidth(), self.text:getTextHeight()
 
         self.text_width = w
         self.text_height = h
