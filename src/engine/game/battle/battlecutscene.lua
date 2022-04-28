@@ -266,6 +266,8 @@ function BattleCutscene:text(text, portrait, actor, options)
         Game.battle.battle_ui.encounter_text:setFont()
     end
 
+    Game.battle.battle_ui.encounter_text:setAlign(options["align"])
+
     Game.battle.battle_ui.encounter_text:setSkippable(options["skip"] or options["skip"] == nil)
     Game.battle.battle_ui.encounter_text:setAdvance(options["advance"] or options["advance"] == nil)
     Game.battle.battle_ui.encounter_text:setAuto(options["auto"])

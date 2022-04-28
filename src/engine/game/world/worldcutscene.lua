@@ -455,6 +455,10 @@ function WorldCutscene:text(text, portrait, actor, options)
         end
     end
 
+    if options["align"] then
+        self.textbox:setAlign(options["align"])
+    end
+
     self.textbox:setSkippable(options["skip"] or options["skip"] == nil)
     self.textbox:setAdvance(options["advance"] or options["advance"] == nil)
     self.textbox:setAuto(options["auto"])

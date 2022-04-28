@@ -82,7 +82,6 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.wrap_add_w = battle_box and 0 or 14
 
     self.text = DialogueText("", self.text_x, self.text_y, width + self.wrap_add_w, SCREEN_HEIGHT)
-    self.text.line_offset = 8 -- idk this is dumb
     self:addChild(self.text)
 
     self.reactions = {}
@@ -124,7 +123,7 @@ function Textbox:setSize(w, h)
     self.width, self.height = w or 0, h or 0
 
     self.face:setPosition(116 / 2, self.height /2)
-    self.text:setSize(self.width + self.wrap_add_w, SCREEN_HEIGHT)
+    self:updateTextBounds()
     if self.face.texture then
         self.box:setSize(self.width - 116, self.height)
     else
@@ -155,13 +154,7 @@ function Textbox:setFace(face, ox, oy)
     end
     self.face:setPosition(self.face_x + (ox or 0), self.face_y + (oy or 0))
 
-    if self.face.texture then
-        self.text.x = self.text_x + 116
-        self.text.width = self.width - 116 + self.wrap_add_w
-    else
-        self.text.x = self.text_x
-        self.text.width = self.width + self.wrap_add_w
-    end
+    self:updateTextBounds()
 end
 
 function Textbox:setFont(font, size)
@@ -184,6 +177,11 @@ end
 
 function Textbox:setSkippable(skippable)
     self.text.skippable = skippable or false
+end
+
+function Textbox:setAlign(align)
+    self.text.align = align or "left"
+    self:updateTextBounds()
 end
 
 function Textbox:setCallback(callback)
@@ -251,6 +249,19 @@ end
 
 function Textbox:getText()
     return self.text.text
+end
+
+function Textbox:updateTextBounds()
+    if self.face.texture then
+        self.text.x = self.text_x + 116
+        self.text.width = self.width - 116 + self.wrap_add_w
+    else
+        self.text.x = self.text_x
+        self.text.width = self.width + self.wrap_add_w
+    end
+    if self.text.align == "right" then
+        self.text.x = self.text.x - self.wrap_add_w
+    end
 end
 
 function Textbox:getBorder()

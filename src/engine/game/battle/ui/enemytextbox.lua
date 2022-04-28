@@ -8,7 +8,7 @@ function EnemyTextbox:init(text, x, y, speaker, right, style)
     self.font = Assets.getFont("plain")
     self.font_data = Assets.getFontData("plain")
 
-    self.text = DialogueText("", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "plain", "none")
+    self.text = DialogueText("", 0, 0, 1, 1, {font = "plain", style = "none", line_offset = 0})
     self:addChild(self.text)
 
     self.text_width = 1
@@ -63,6 +63,11 @@ function EnemyTextbox:setStyle(style)
     if not self.auto then
         self.text.width  = self.text_bounds["width"]  or SCREEN_WIDTH
         self.text.height = self.text_bounds["height"] or SCREEN_HEIGHT
+        self.text.wrap = true
+        self.text.auto_size = false
+    else
+        self.text.wrap = false
+        self.text.auto_size = true
     end
 
     if self.bubble_data["origin"] then

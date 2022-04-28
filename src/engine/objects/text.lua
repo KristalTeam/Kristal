@@ -15,14 +15,15 @@ Text.COLORS = {
     ["lime"] = {0.5, 1, 0.5}
 }
 
-function Text:init(text, x, y, w, h, font, style, autowrap)
-    super:init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
-
-    if autowrap == nil then
-        autowrap = true
+function Text:init(text, x, y, w, h, options)
+    if type(w) == "table" then
+        options = w
+        w, h = SCREEN_WIDTH, SCREEN_HEIGHT
     end
 
-    self.autowrap = autowrap
+    super:init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
+
+    options = options or {}
 
     self.sprites = {}
 
@@ -32,22 +33,28 @@ function Text:init(text, x, y, w, h, font, style, autowrap)
     self.custom_commands = {}
     self.custom_command_dry = {}
 
-    self.font = font or "main"
-    self.font_size = nil
-    self.text_color = {1, 1, 1, 1}
-    self.style = style
+    self.font = options["font"] or "main"
+    self.font_size = options["font_size"] or nil
+    self.text_color = options["color"] or {1, 1, 1, 1}
+    self.style = options["style"] or "none"
     if self.style == "GONER" then
         self.draw_every_frame = true
     end
-    self.align = "left"
-    self.wrap = true
+    self.wrap = options["wrap"] ~= false
+    self.align = options["align"] or "left"
     self.canvas = love.graphics.newCanvas(w, h)
-    self.line_offset = 0
+    self.line_offset = options["line_offset"] or 0
     self.last_shake = 0
+
+    self.auto_size = options["auto_size"] or false
+
+    self.preprocess = options["preprocess"] or self.align ~= "left" or self.wrap or self.auto_size
 
     self.text_width = 0
     self.text_height = 0
     self.alignment_offset = {}
+    self.default_width = self.width
+    self.default_height = self.height
 
     self.timer = 0
 
@@ -126,6 +133,15 @@ function Text:setText(text)
 
     self.text = text or ""
 
+    if self.align ~= "left" or self.wrap or self.auto_size then
+        self.preprocess = true
+    end
+
+    if self.auto_size then
+        self.width = self.default_width
+        self.height = self.default_height
+    end
+
     self.text_width = 0
     self.text_height = 0
     self.alignment_offset = {}
@@ -135,6 +151,10 @@ function Text:setText(text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
         self.canvas = love.graphics.newCanvas(self.width, self.height)
+    end
+
+    if self.alignment_offset[1] then
+        self.state.current_x = self.state.current_x + self.alignment_offset[1]
     end
 
     if self.stage then
@@ -150,18 +170,18 @@ function Text:getFont()
 end
 
 function Text:getTextWidth()
-    return self.autowrap and self.text_width or self.state.max_width
+    return self.preprocess and self.text_width or self.state.max_width
 end
 
 function Text:getTextHeight()
-    return self.autowrap and self.text_height or self.state.max_height
+    return self.preprocess and self.text_height or self.state.max_height
 end
 
 function Text:textToNodes(input_string)
     -- Very messy function to split text into text nodes.
 
     local old_state = nil
-    if self.autowrap then
+    if self.preprocess then
         old_state = self.state
         self:resetState()
     end
@@ -200,10 +220,13 @@ function Text:textToNodes(input_string)
                             ["command"] = command,
                             ["arguments"] = arguments
                         }
-                        if self.autowrap then
-                            local prior_state = Utils.copy(self.state, true)
+                        if self.preprocess then
+                            local prior_state
+                            if self.wrap then
+                                prior_state = Utils.copy(self.state, true)
+                            end
                             self:processNode(new_node, true)
-                            if self.state.current_x > self.width then
+                            if self.wrap and self.state.current_x > self.width then
                                 if last_space == -1 then
                                     self.state = prior_state
                                     local newline_node = {
@@ -253,7 +276,7 @@ function Text:textToNodes(input_string)
         if leaving_modifier then
             leaving_modifier = false
         else
-            if self.autowrap and (current_char == " " or current_char == "\n") then
+            if self.wrap and (current_char == " " or current_char == "\n") then
                 last_space = #nodes
                 last_space_char = string.len(display_text)
                 last_space_state = Utils.copy(self.state, true)
@@ -264,10 +287,13 @@ function Text:textToNodes(input_string)
             }
 
             local dont_add = false
-            if self.autowrap then
-                local prior_state = Utils.copy(self.state, true)
+            if self.preprocess then
+                local prior_state
+                if self.wrap then
+                    prior_state = Utils.copy(self.state, true)
+                end
                 self:processNode(new_node, true)
-                if self.state.current_x > self.width then
+                if self.wrap and self.state.current_x > self.width then
                     if last_space == -1 then
                         self.state = prior_state
                         local newline_node = {
@@ -285,7 +311,7 @@ function Text:textToNodes(input_string)
                             ["character"] = "\n",
                         }
                         nodes[last_space + 1] = newline_node
-                        self:processNode(newline_node, true)
+                        --self:processNode(newline_node, true)
                         display_text = Utils.stringInsert(display_text, "\n", last_space_char + 1)
                         for i = last_space + 1, #nodes + 1 do
                             if nodes[i] then
@@ -313,16 +339,21 @@ function Text:textToNodes(input_string)
         i = i + 1
     end
 
-    if self.autowrap then
+    if self.preprocess then
         self.text_width = self.state.max_width
         self.text_height = self.state.max_height
+
+        if self.auto_size then
+            self.width = math.max(1, self.text_width)
+            self.height = math.max(1, self.text_height)
+        end
 
         self.alignment_offset = {}
         for i = 1, #self.state.line_lengths do
             if self.align == "center" then
-                self.alignment_offset[i] = (self.text_width/2) - (self.state.line_lengths[i]/2)
+                self.alignment_offset[i] = (self.width/2) - (self.state.line_lengths[i]/2)
             elseif self.align == "right" then
-                self.alignment_offset[i] = self.text_width - self.state.line_lengths[i]
+                self.alignment_offset[i] = self.width - self.state.line_lengths[i]
             else
                 self.alignment_offset[i] = 0
             end
@@ -369,7 +400,7 @@ function Text:processNode(node, dry)
             self.state.progress = self.state.progress + 1
             self.state.current_line = self.state.current_line + 1
             table.insert(self.state.line_lengths, 0)
-            if self.alignment_offset[self.state.current_line] then
+            if not dry and self.alignment_offset[self.state.current_line] then
                 self.state.current_x = self.state.current_x + self.alignment_offset[self.state.current_line]
             end
         elseif node.character == "\\" and not self.state.escaping then
@@ -401,7 +432,7 @@ function Text:processNode(node, dry)
                 end
                 local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing
-                self.max_height = math.max(self.max_height, self.state.current_y + h)
+                self.state.max_height = math.max(self.state.max_height, self.state.current_y + h)
             end
         end
     elseif node.type == "modifier" then
@@ -414,7 +445,14 @@ function Text:processNode(node, dry)
     -- Update text size
     self.state.max_width = math.max(self.state.max_width, self.state.current_x)
     self.state.max_height = math.max(self.state.max_height, self.state.current_y)
-    self.state.line_lengths[self.state.current_line] = math.max(self.state.line_lengths[self.state.current_line], self.state.current_x)
+
+    if self.state.asterisk_mode then
+        for i = 1, #self.state.line_lengths do
+            self.state.line_lengths[i] = self.state.max_width
+        end
+    else
+        self.state.line_lengths[self.state.current_line] = self.state.current_x
+    end
     --print(Utils.dump(node))
 end
 
