@@ -62,12 +62,25 @@ function World:init(map)
     end
 end
 
-function World:heal(target, amount)
+function World:heal(target, amount, text)
     if type(target) == "string" then
         target = Game:getPartyMember(target)
     end
-    target:heal(amount)
-    if self.healthbar then
+
+    local maxed = target:heal(amount)
+
+    if Game:isLight() then
+        local message
+        if maxed then
+            message = "* Your HP was maxed out."
+        else
+            message = "* You recovered " .. amount .. " HP!"
+        end
+        if text then
+            message = text .. " \n" .. message
+        end
+        Game.world:showText(message)
+    elseif self.healthbar then
         for _, actionbox in ipairs(self.healthbar.action_boxes) do
             if actionbox.chara.id == target.id then
                 local text = HPText("+" .. amount, self.healthbar.x + actionbox.x + 69, self.healthbar.y + actionbox.y + 15)
