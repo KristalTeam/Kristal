@@ -10,7 +10,7 @@ function Savepoint:init(x, y, properties)
     self.solid = true
 
     self:setOrigin(0.5, 0.5)
-    self:setSprite("world/event/savepoint", 1/6)
+    self:setSprite("world/events/savepoint", 1/6)
 end
 
 function Savepoint:onInteract(player, dir)

@@ -3,9 +3,9 @@ local Forcefield, super = Class(Event)
 function Forcefield:init(x, y, w, h, properties)
     super:init(self, x, y, w, h)
 
-    self.end_sprite = Assets.getFramesOrTexture("world/event/forcefield/end")
-    self.middle_sprite = Assets.getFramesOrTexture("world/event/forcefield/middle")
-    self.single_sprite = Assets.getFramesOrTexture("world/event/forcefield/single")
+    self.end_sprite = Assets.getFramesOrTexture("world/events/forcefield/end")
+    self.middle_sprite = Assets.getFramesOrTexture("world/events/forcefield/middle")
+    self.single_sprite = Assets.getFramesOrTexture("world/events/forcefield/single")
 
     self.anim_speed = 3/30
     self.anim_timer = 0

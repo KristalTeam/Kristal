@@ -717,6 +717,19 @@ function Utils.isFacingAngle(facing, angle)
     return false
 end
 
+function Utils.getFacingVector(facing)
+    if facing == "right" then
+        return 1, 0
+    elseif facing == "down" then
+        return 0, 1
+    elseif facing == "left" then
+        return -1, 0
+    elseif facing == "up" then
+        return 0, -1
+    end
+    return 0, 0
+end
+
 function Utils.stringInsert(str1, str2, pos)
     return str1:sub(1, pos) .. str2 .. str1:sub(pos + 1)
 end

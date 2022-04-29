@@ -8,7 +8,7 @@ function CyberTrashCan:init(x, y, properties)
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    self.sprite = Sprite("world/event/cyber_trash")
+    self.sprite = Sprite("world/events/cyber_trash")
     self:addChild(self.sprite)
 
     self:setSize(self.sprite:getSize())

@@ -34,6 +34,7 @@ function Map:init(world, data)
     self.tilesets = {}
     self.collision = {}
     self.enemy_collision = {}
+    self.block_collision = {}
     self.tile_layers = {}
     self.image_layers = {}
     self.shape_layers = {}
@@ -211,27 +212,10 @@ function Map:loadMapData(data)
             self.battle_fader_layer = depth - (self.depth_per_layer/2)
             has_battle_border = true
         end
-        if layer.type == "tilelayer" then
-            self:loadTiles(layer, depth)
-        elseif layer.type == "imagelayer" then
-            self:loadImage(layer, depth)
-        elseif layer.type == "objectgroup" then
-            if Utils.startsWith(name, "objects") then
-                table.insert(object_depths, depth)
-                self:loadObjects(layer, depth)
-            elseif Utils.startsWith(name, "markers") then
-                self:loadMarkers(layer)
-            elseif Utils.startsWith(name, "collision") then
-                self:loadCollision(layer)
-            elseif Utils.startsWith(name, "enemycollision") then
-                self:loadEnemyCollision(layer)
-            elseif Utils.startsWith(name, "paths") then
-                self:loadPaths(layer)
-            elseif Utils.startsWith(name, "battleareas") then
-                self:loadBattleAreas(layer)
-            end
-            self:loadShapes(layer)
+        if layer.type == "objectgroup" and Utils.startsWith(name, "objects") then
+            table.insert(object_depths, depth)
         end
+        self:loadLayer(layer, depth)
     end
 
     self.object_layer = 1
@@ -254,6 +238,31 @@ function Map:loadMapData(data)
                 self.object_layer = closest or depth
             end
         end
+    end
+end
+
+function Map:loadLayer(layer, depth)
+    if layer.type == "tilelayer" then
+        self:loadTiles(layer, depth)
+    elseif layer.type == "imagelayer" then
+        self:loadImage(layer, depth)
+    elseif layer.type == "objectgroup" then
+        if Utils.startsWith(layer.name:lower(), "objects") then
+            self:loadObjects(layer, depth)
+        elseif Utils.startsWith(layer.name:lower(), "markers") then
+            self:loadMarkers(layer)
+        elseif Utils.startsWith(layer.name:lower(), "collision") then
+            self:loadCollision(layer)
+        elseif Utils.startsWith(layer.name:lower(), "enemycollision") then
+            self:loadEnemyCollision(layer)
+        elseif Utils.startsWith(layer.name:lower(), "blockcollision") then
+            self:loadBlockCollision(layer)
+        elseif Utils.startsWith(layer.name:lower(), "paths") then
+            self:loadPaths(layer)
+        elseif Utils.startsWith(layer.name:lower(), "battleareas") then
+            self:loadBattleAreas(layer)
+        end
+        self:loadShapes(layer)
     end
 end
 
@@ -299,30 +308,45 @@ function Map:loadImage(layer, depth)
 end
 
 function Map:loadCollision(layer)
-    self.collision = self:loadHitboxes(layer)
+    Utils.merge(self.collision, self:loadHitboxes(layer))
 end
 
 function Map:loadEnemyCollision(layer)
-    self.enemy_collision = self:loadHitboxes(layer)
+    Utils.merge(self.enemy_collision, self:loadHitboxes(layer))
+end
+
+function Map:loadBlockCollision(layer)
+    Utils.merge(self.block_collision, self:loadHitboxes(layer))
 end
 
 function Map:loadBattleAreas(layer)
-    self.battle_areas = self:loadHitboxes(layer)
+    Utils.merge(self.battle_areas, self:loadHitboxes(layer))
 end
 
 function Map:loadHitboxes(layer)
     local hitboxes = {}
     local ox, oy = layer.offsetx or 0, layer.offsety or 0
     for _,v in ipairs(layer.objects) do
+        local properties = v.properties or {}
+        local mode = {
+            invert = properties["inverted"] or properties["outside"] or false,
+            inside = properties["inside"] or properties["outside"] or false
+        }
         if v.shape == "rectangle" then
-            table.insert(hitboxes, Hitbox(self.world, v.x+ox, v.y+oy, v.width, v.height))
-        elseif v.shape == "polygon" then
-            for i = 1, #v.polygon do
-                local j = (i % #v.polygon) + 1
-                local x1, y1 = v.x + v.polygon[i].x + ox, v.y + v.polygon[i].y + oy
-                local x2, y2 = v.x + v.polygon[j].x + ox, v.y + v.polygon[j].y + oy
-                table.insert(hitboxes, LineCollider(self.world, x1, y1, x2, y2))
+            table.insert(hitboxes, Hitbox(self.world, v.x+ox, v.y+oy, v.width, v.height, mode))
+        elseif v.shape == "polyline" then
+            for i = 1, #v.polyline-1 do
+                local j = i + 1
+                local x1, y1 = v.x + v.polyline[i].x + ox, v.y + v.polyline[i].y + oy
+                local x2, y2 = v.x + v.polyline[j].x + ox, v.y + v.polyline[j].y + oy
+                table.insert(hitboxes, LineCollider(self.world, x1, y1, x2, y2, mode))
             end
+        elseif v.shape == "polygon" then
+            local points = {}
+            for i = 1, #v.polygon do
+                table.insert(points, {v.x + v.polygon[i].x + ox, v.y + v.polygon[i].y + oy})
+            end
+            table.insert(hitboxes, PolygonCollider(self.world, points, mode))
         end
     end
     return hitboxes
@@ -516,6 +540,8 @@ function Map:loadObject(name, data)
         return CyberTrashCan(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "forcefield" then
         return Forcefield(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "pushblock" then
+        return PushBlock(data.x, data.y, data.width, data.height)
     elseif name:lower() == "toggle_controller" then
         return ToggleController(data.properties)
     end

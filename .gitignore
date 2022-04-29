@@ -6,3 +6,5 @@ mods/*
 !mods/example/
 !mods/previewtest/
 !mods/z/
+
+*.tiled-session

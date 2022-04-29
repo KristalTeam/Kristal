@@ -8,7 +8,7 @@ function TreasureChest:init(x, y, properties)
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 
-    self.sprite = Sprite("world/event/treasure_chest")
+    self.sprite = Sprite("world/events/treasure_chest")
     self:addChild(self.sprite)
 
     self:setSize(self.sprite:getSize())
