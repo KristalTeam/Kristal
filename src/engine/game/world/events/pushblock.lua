@@ -24,13 +24,15 @@ function PushBlock:onInteract(chara, facing)
         Assets.playSound("snd_noise", 0.8)
     end
 
-    if self.state ~= "IDLE" then return end
+    if self.state ~= "IDLE" then return true end
 
     if not self:checkCollision(facing) then
         self:onPush(facing)
     else
         self:onPushFail(facing)
     end
+
+    return true
 end
 
 function PushBlock:checkCollision(facing)
@@ -50,6 +52,11 @@ function PushBlock:checkCollision(facing)
             collided = true
             break
         end
+    end
+    if not collided then
+        self.collidable = false
+        collided = self.world:checkCollision(bound_check)
+        self.collidable = true
     end
     Object.endCache()
 

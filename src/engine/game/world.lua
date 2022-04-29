@@ -260,7 +260,7 @@ end
 function World:checkCollision(collider, enemy_check)
     Object.startCache()
     for _,other in ipairs(self:getCollision(enemy_check)) do
-        if collider:collidesWith(other) then
+        if collider:collidesWith(other) and collider ~= other then
             Object.endCache()
             return true, other.parent
         end

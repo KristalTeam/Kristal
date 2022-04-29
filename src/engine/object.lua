@@ -274,6 +274,10 @@ function Object:getPosition() return self.x, self.y end
 function Object:setSize(width, height) self.width = width or 0; self.height = height or width or 0 end
 function Object:getSize() return self.width, self.height end
 
+function Object:getScaledWidth() return self.width * self.scale_x end
+function Object:getScaledHeight() return self.height * self.scale_y end
+function Object:getScaledSize() return self:getScaledWidth(), self:getScaledHeight() end
+
 function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
 function Object:getScale() return self.scale_x, self.scale_y end
 
