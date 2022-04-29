@@ -25,6 +25,8 @@ function Console:init()
 
     self.history_index = 0
 
+    self.just_closed = false
+
     self:close()
 
     self.env = self:createEnv()
@@ -81,6 +83,7 @@ function Console:open()
     TextInput.submit_callback = function(...) self:onSubmit(...) end
     TextInput.up_limit_callback = function(...) self:onUpLimit(...) end
     TextInput.down_limit_callback = function(...) self:onDownLimit(...) end
+    TextInput.pressed_callback = function(...) self:onConsoleKeyPressed(...) end
 end
 
 function Console:onUpLimit()
@@ -376,14 +379,29 @@ function Console:unsafeRun(str)
     end
 end
 
-function Console:keypressed(key)
-    if key == "`" then
+function Console:onConsoleKeyPressed(key)
+    if (key == "`") then
         if self.is_open then
             self:close()
+            self.just_closed = true
         else
+            return true
+        end
+        return true
+    end
+end
+
+function Console:keypressed(key)
+    if self.just_closed then return end
+    if key == "`" then
+        if not self.is_open then
             self:open()
         end
     end
+end
+
+function Console:update()
+    self.just_closed = false
 end
 
 return Console

@@ -8,6 +8,7 @@ self.active = false
 self.submit_callback = nil
 self.up_limit_callback = nil
 self.down_limit_callback = nil
+self.pressed_callback = nil
 
 function TextInput.attachInput(tbl, options)
     Game.lock_input = true -- TODO: Instead of using lock_input, other thing should check if text input is active.
@@ -70,11 +71,17 @@ end
 
 
 function TextInput.onTextInput(t)
+    if not self.active then return end
     self.insertString(t)
 end
 
 function TextInput.onKeyPressed(key)
-    
+    if not self.active then return end
+    if self.pressed_callback then
+        if self.pressed_callback(key) then
+            return
+        end
+    end
     if (key == "c") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
         love.system.setClipboardText(self.getSelectedText())
     elseif (key == "x") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
