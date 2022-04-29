@@ -254,6 +254,14 @@ function Utils.merge(tbl, other, deep)
     return tbl
 end
 
+function Utils.mergeMultiple(...)
+    local tbl = {}
+    for _,other in ipairs{...} do
+        Utils.merge(tbl, other)
+    end
+    return tbl
+end
+
 function Utils.removeFromTable(tbl, val)
     for i,v in ipairs(tbl) do
         if v == val then
