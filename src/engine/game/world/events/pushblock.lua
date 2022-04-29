@@ -1,15 +1,21 @@
 local PushBlock, super = Class(Event)
 
-function PushBlock:init(x, y, w, h, sprite)
+function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
     super:init(self, x, y, w, h)
+
+    self.default_sprite = sprite or "world/events/push_block"
+    self.solved_sprite = solved_sprite or sprite or "world/events/push_block_solved"
+
     self:setSprite(sprite or "world/events/push_block")
     self.solid = true
 
     -- Options
-    self.push_dist = 40
-    self.push_time = 0.2
+    self.push_dist = properties["pushdist"] or 40
+    self.push_time = properties["pushtime"] or 0.2
 
-    self.play_noise = true
+    self.push_sound = properties["pushsound"] or "snd_noise"
+
+    self.lock_in_place = properties["lock"] or false
 
     -- State variables
     self.start_x = self.x
@@ -17,12 +23,12 @@ function PushBlock:init(x, y, w, h, sprite)
 
     -- IDLE, PUSH, RESET
     self.state = "IDLE"
+
+    self.solved = false
 end
 
 function PushBlock:onInteract(chara, facing)
-    if self.play_noise then
-        Assets.playSound("snd_noise", 0.8)
-    end
+    self:playPushSound()
 
     if self.state ~= "IDLE" then return true end
 
@@ -33,6 +39,12 @@ function PushBlock:onInteract(chara, facing)
     end
 
     return true
+end
+
+function PushBlock:playPushSound()
+    if self.push_sound and self.push_sound ~= "" then
+        Assets.stopAndPlaySound(self.push_sound)
+    end
 end
 
 function PushBlock:checkCollision(facing)
@@ -64,18 +76,50 @@ function PushBlock:checkCollision(facing)
 end
 
 function PushBlock:onPush(facing)
+    if self.solved then
+        if self.lock_in_place then
+            return
+        end
+
+        self.solved = false
+        self:onUnsolved()
+    end
+
+    local input_lock = Game:getConfig("pushBlockInputLock")
+
+    if input_lock then
+        Game.lock_input = true
+    end
+
     self.state = "PUSH"
     local dx, dy = Utils.getFacingVector(facing)
     self:slideTo(self.x + dx * self.push_dist, self.y + dy * self.push_dist, self.push_time, "linear", function()
         self.state = "IDLE"
         self:onPushEnd(facing)
+
+        if input_lock and not self.world.cutscene then
+            Game.lock_input = false
+        end
     end)
+end
+
+function PushBlock:onSolved()
+    self:setSprite(self.solved_sprite)
+end
+
+function PushBlock:onUnsolved()
+    self:setSprite(self.default_sprite)
 end
 
 function PushBlock:onPushEnd(facing) end
 function PushBlock:onPushFail(facing) end
 
 function PushBlock:reset()
+    if self.solved then
+        self.solved = false
+        self:onUnsolved()
+    end
+
     self.state = "RESET"
     self.collidable = false
     self.sprite:fadeTo(0, 0.2, function()

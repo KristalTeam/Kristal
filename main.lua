@@ -150,6 +150,7 @@ SetFlagEvent = require("src.engine.game.world.events.setflagevent")
 CyberTrashCan = require("src.engine.game.world.events.cybertrashcan")
 Forcefield = require("src.engine.game.world.events.forcefield")
 PushBlock = require("src.engine.game.world.events.pushblock")
+TileButton = require("src.engine.game.world.events.tilebutton")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
 
 ToggleController = require("src.engine.game.world.events.togglecontroller")

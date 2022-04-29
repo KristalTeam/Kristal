@@ -16,5 +16,8 @@
 
     "mercyMessages": true,           // "+X%" mercy messages
     "mercyBar": true,                // Mercy bar next to hp bar in enemy select
-    "enemyBarPercentages": true      // HP / Mercy bar percentages
+    "enemyBarPercentages": true,     // HP / Mercy bar percentages
+
+
+    "pushBlockInputLock": true       // Whether to lock the player's input when pushing a block
 }

@@ -541,7 +541,9 @@ function Map:loadObject(name, data)
     elseif name:lower() == "forcefield" then
         return Forcefield(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "pushblock" then
-        return PushBlock(data.x, data.y, data.width, data.height)
+        return PushBlock(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "tilebutton" then
+        return TileButton(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "toggle_controller" then
         return ToggleController(data.properties)
     end

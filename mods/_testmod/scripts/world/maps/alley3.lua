@@ -8,8 +8,8 @@ return {
   height = 14,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 10,
-  nextobjectid = 91,
+  nextlayerid = 11,
+  nextobjectid = 98,
   properties = {},
   tilesets = {
     {
@@ -60,72 +60,6 @@ return {
         296, 296, 296, 296, 296, 296, 296, 297, 122, 456, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 458, 295, 296,
         296, 296, 296, 296, 296, 296, 296, 297, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 295, 296,
         296, 296, 296, 296, 296, 296, 296, 297, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 295, 296
-      }
-    },
-    {
-      type = "tilelayer",
-      x = 0,
-      y = 0,
-      width = 27,
-      height = 14,
-      id = 9,
-      name = "Tile Layer 3",
-      visible = true,
-      opacity = 1,
-      offsetx = -15,
-      offsety = 0,
-      parallaxx = 1,
-      parallaxy = 1,
-      properties = {},
-      encoding = "lua",
-      data = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 493, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 467, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }
-    },
-    {
-      type = "tilelayer",
-      x = 0,
-      y = 0,
-      width = 27,
-      height = 14,
-      id = 8,
-      name = "Tile Layer 2",
-      visible = true,
-      opacity = 1,
-      offsetx = 15,
-      offsety = 0,
-      parallaxx = 1,
-      parallaxy = 1,
-      properties = {},
-      encoding = "lua",
-      data = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 495, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 469, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
     },
     {
@@ -248,11 +182,11 @@ return {
       properties = {},
       objects = {
         {
-          id = 89,
+          id = 91,
           name = "",
           type = "",
           shape = "polyline",
-          x = 700,
+          x = 640,
           y = 280,
           width = 0,
           height = 0,
@@ -260,18 +194,65 @@ return {
           visible = true,
           polyline = {
             { x = 0, y = 0 },
-            { x = -60, y = 0 },
-            { x = -60, y = 80 },
-            { x = -140, y = 80 },
-            { x = -140, y = 160 },
-            { x = 100, y = 160 },
-            { x = 100, y = 0 },
-            { x = 40, y = 0 },
-            { x = 40, y = -40 },
-            { x = 0, y = -40 },
+            { x = 0, y = 80 },
+            { x = -80, y = 80 },
+            { x = -80, y = 160 },
+            { x = 160, y = 160 },
+            { x = 160, y = 0 },
             { x = 0, y = 0 }
           },
           properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 10,
+      name = "objects_buttons",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 95,
+          name = "tilebutton",
+          type = "",
+          shape = "rectangle",
+          x = 680,
+          y = 280,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["blocks"] = true,
+            ["cutscene"] = "alley3.puzzle_fail",
+            ["group"] = "buton",
+            ["once"] = true
+          }
+        },
+        {
+          id = 96,
+          name = "tilebutton",
+          type = "",
+          shape = "rectangle",
+          x = 560,
+          y = 400,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["blocks"] = true,
+            ["cutscene"] = "alley3.puzzle_fail",
+            ["group"] = "buton",
+            ["once"] = true
+          }
         }
       }
     },
@@ -405,11 +386,7 @@ return {
           visible = true,
           properties = {
             ["actor"] = "starwalker",
-            ["setflag"] = "alley3_enable_forcefield",
-            ["setvalue"] = false,
-            ["text1"] = "* This [color:yellow]forcefield[color:reset] is [color:yellow]Pissing[color:reset] me off...",
-            ["text2"] = "[sound:snd_noise]* (You heard a switch go off.)",
-            ["text3"] = "* Not     [wait:5]anymore"
+            ["cutscene"] = "alley3.starwalker_disable"
           }
         },
         {
@@ -462,13 +439,29 @@ return {
           name = "pushblock",
           type = "",
           shape = "rectangle",
-          x = 700,
-          y = 240,
+          x = 720,
+          y = 320,
           width = 40,
           height = 40,
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 97,
+          name = "forcefield",
+          type = "",
+          shape = "rectangle",
+          x = 600,
+          y = 200,
+          width = 160,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["flag"] = "alley3_butons",
+            ["visible"] = true
+          }
         }
       }
     },
@@ -507,7 +500,7 @@ return {
           type = "",
           shape = "point",
           x = 800,
-          y = 280,
+          y = 240,
           width = 0,
           height = 0,
           rotation = 0,

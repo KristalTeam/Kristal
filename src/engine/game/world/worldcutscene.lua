@@ -133,7 +133,10 @@ function WorldCutscene:spawnNPC(actor, x, y, properties)
 end
 
 function WorldCutscene:look(chara, dir)
-    if type(chara) == "string" then
+    if not dir then
+        dir = chara or "down"
+        chara = Game.world.player
+    elseif type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
     chara:setFacing(dir)
