@@ -3,6 +3,8 @@ local PushBlock, super = Class(Event)
 function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
     super:init(self, x, y, w, h)
 
+    properties = properties or {}
+
     self.default_sprite = properties["sprite"] or sprite or "world/events/push_block"
     self.solved_sprite = properties["solvedsprite"] or properties["sprite"] or solved_sprite or sprite or "world/events/push_block_solved"
 
