@@ -8,7 +8,7 @@ function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
     self.default_sprite = properties["sprite"] or sprite or "world/events/push_block"
     self.solved_sprite = properties["solvedsprite"] or properties["sprite"] or solved_sprite or sprite or "world/events/push_block_solved"
 
-    self:setSprite(sprite or "world/events/push_block")
+    self:setSprite(self.default_sprite)
     self.solid = true
 
     -- Options
