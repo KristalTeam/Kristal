@@ -12,6 +12,12 @@ function Utils.copy(tbl, deep)
     return new_tbl
 end
 
+function Utils.clear(tbl)
+    for key in pairs (tbl) do
+        tbl[key] = nil
+    end
+end
+
 local function dumpKey(key)
     if type(key) == 'table' then
         return '('..tostring(key)..')'

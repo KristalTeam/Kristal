@@ -25,17 +25,6 @@ function Console:init()
 
     self.history_index = 0
 
-    self.cursor_x = 0
-    self.cursor_y = 1
-
-    self.cursor_select_x = 0
-    self.cursor_select_y = 0
-    self.selecting = false
-
-    self.cursor_x_tallest = 1
-
-    self.flash_timer = 0
-
     self:close()
 
     self.env = self:createEnv()
@@ -84,26 +73,46 @@ end
 function Console:open()
     self.is_open = true
     self.history_index = #self.command_history + 1
-    self.cursor_x = utf8.len(self.input[#self.input])
-    self.cursor_x_tallest = self.cursor_x
-    self.cursor_y = #self.input
-    love.keyboard.setTextInput(true)
-    Game.lock_input = true
-    love.keyboard.setKeyRepeat(true)
+
+    TextInput.attachInput(self.input, {
+        multiline = true,
+        enter_submits = true,
+    })
+    TextInput.submit_callback = function(...) self:onSubmit(...) end
+    TextInput.up_limit_callback = function(...) self:onUpLimit(...) end
+    TextInput.down_limit_callback = function(...) self:onDownLimit(...) end
+end
+
+function Console:onUpLimit()
+    if #self.command_history == 0 then return end
+    if self.history_index > 1 then
+        self.history_index = self.history_index - 1
+        self.input = Utils.copy(self.command_history[self.history_index] or {""})
+        TextInput.updateInput(self.input)
+        TextInput.sendCursorToEnd()
+    end
+end
+
+function Console:onDownLimit()
+    if #self.command_history == 0 then return end
+    if self.history_index == #self.command_history + 1 then
+        -- Empty
+    else
+        self.history_index = self.history_index + 1
+        self.input = Utils.copy(self.command_history[self.history_index] or {""})
+        TextInput.updateInput(self.input)
+        TextInput.sendCursorToEnd()
+    end
+    TextInput.sendCursorToEnd() -- TODO: sendCursorToEndOfLine() or smth
+end
+
+function Console:onSubmit()
+    self:run(self.input)
 end
 
 function Console:close()
     self.is_open = false
-    Game.lock_input = false
-    love.keyboard.setTextInput(false)
-    love.keyboard.setKeyRepeat(false)
-end
-
-function Console:update()
-    self.flash_timer = self.flash_timer + DT
-    if self.flash_timer > 1 then
-        self.flash_timer = self.flash_timer - 1
-    end
+    TextInput.endInput()
 end
 
 function Console:print(text, x, y, ignore_modifiers)
@@ -208,22 +217,22 @@ function Console:draw()
     local base_off = self.font:getWidth("> ") + 8
 
     local cursor_pos_x = base_off
-    if self.cursor_x > 0 then
-        cursor_pos_x = self.font:getWidth(string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))) + cursor_pos_x
+    if TextInput.cursor_x > 0 then
+        cursor_pos_x = self.font:getWidth(string.sub(self.input[TextInput.cursor_y], 1, utf8.offset(self.input[TextInput.cursor_y], TextInput.cursor_x))) + cursor_pos_x
     end
-    local cursor_pos_y = input_pos + ((self.cursor_y - 1) * 16)
+    local cursor_pos_y = input_pos + ((TextInput.cursor_y - 1) * 16)
 
-    if self.selecting then
+    if TextInput.selecting then
         love.graphics.setColor(0, 0.5, 0.5, 1)
 
         local cursor_sel_x = base_off
-        if self.cursor_select_x > 0 then
-            cursor_sel_x = self.font:getWidth(string.sub(self.input[self.cursor_select_y], 1, utf8.offset(self.input[self.cursor_select_y], self.cursor_select_x))) + cursor_sel_x
+        if TextInput.cursor_select_x > 0 then
+            cursor_sel_x = self.font:getWidth(string.sub(self.input[TextInput.cursor_select_y], 1, utf8.offset(self.input[TextInput.cursor_select_y], TextInput.cursor_select_x))) + cursor_sel_x
         end
-        local cursor_sel_y = input_pos + ((self.cursor_select_y - 1) * 16)
+        local cursor_sel_y = input_pos + ((TextInput.cursor_select_y - 1) * 16)
 
 
-        if self.cursor_select_y == self.cursor_y then
+        if TextInput.cursor_select_y == TextInput.cursor_y then
             local x = cursor_sel_x
             local y = cursor_sel_y + 16
             local width = cursor_pos_x - x
@@ -232,22 +241,22 @@ function Console:draw()
             love.graphics.rectangle("fill", x, y, width, height)
         else
             local in_front = false
-            if self.cursor_y > self.cursor_select_y then
+            if TextInput.cursor_y > TextInput.cursor_select_y then
                 in_front = true
             end
 
             if in_front then
-                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(self.font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1), 16)
+                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(self.font:getWidth(self.input[TextInput.cursor_select_y]) - cursor_sel_x + base_off, 1), 16)
                 love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, 16)
 
-                for i = self.cursor_select_y + 1, self.cursor_y - 1 do
+                for i = TextInput.cursor_select_y + 1, TextInput.cursor_y - 1 do
                     love.graphics.rectangle("fill", base_off, input_pos + (16 * (i - 1)), math.max(self.font:getWidth(self.input[i]), 1), 16)
                 end
             else
-                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(self.font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1), 16)
+                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(self.font:getWidth(self.input[TextInput.cursor_y]) - cursor_pos_x + base_off, 1), 16)
                 love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, 16)
 
-                for i = self.cursor_y + 1, self.cursor_select_y - 1 do
+                for i = TextInput.cursor_y + 1, TextInput.cursor_select_y - 1 do
                     love.graphics.rectangle("fill", base_off, input_pos + (16 * (i - 1)), math.max(self.font:getWidth(self.input[i]), 1), 16)
                 end
             end
@@ -272,8 +281,8 @@ function Console:draw()
     end
 
     love.graphics.setColor(1, 0, 1, 1)
-    if self.flash_timer < 0.5 then
-        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+    if TextInput.flash_timer < 0.5 then
+        if TextInput.cursor_x == utf8.len(self.input[TextInput.cursor_y]) then
             self:print("_", cursor_pos_x, cursor_pos_y, true)
         else
             self:print("|", cursor_pos_x, cursor_pos_y, true)
@@ -297,137 +306,6 @@ function Console:draw()
     end]]
 
     super:draw(self)
-end
-
-function Console:selectAll()
-    self.cursor_x = 0
-    self.cursor_y = 1
-    self.cursor_select_x = utf8.len(self.input[#self.input])
-    self.cursor_select_y = #self.input
-    self.selecting = true
-end
-
-function Console:removeSelection()
-    if not self.selecting then return end
-
-    local in_front = false
-    if self.cursor_y > self.cursor_select_y then
-        in_front = true
-    elseif self.cursor_y == self.cursor_select_y then
-        if self.cursor_x >= self.cursor_select_x then
-            in_front = true
-        end
-    end
-
-    local start_x, start_y, end_x, end_y = 0, 0, 0, 0
-
-    if in_front then
-        start_x = self.cursor_select_x
-        start_y = self.cursor_select_y
-        end_x = self.cursor_x
-        end_y = self.cursor_y
-    else
-        start_x = self.cursor_x
-        start_y = self.cursor_y
-        end_x = self.cursor_select_x
-        end_y = self.cursor_select_y
-    end
-
-    if start_y == end_y then
-        self.input[start_y] = string.sub(self.input[start_y], 1, start_x) .. string.sub(self.input[start_y], end_x + 1)
-    else
-        local new_input = {}
-        for i = 1, start_y - 1 do
-            table.insert(new_input, self.input[i])
-        end
-
-        for i = start_y, end_y do
-            local text = self.input[i]
-            if i == start_y then
-                text = string.sub(text, 1, start_x)
-                table.insert(new_input, text)
-            elseif i == end_y then
-                text = string.sub(text, end_x + 1)
-                new_input[start_y] = new_input[start_y] .. text
-            end
-        end
-
-        for i = end_y + 1, #self.input do
-            table.insert(new_input, self.input[i])
-        end
-        self.input = new_input
-    end
-
-    self.cursor_x = start_x
-    self.cursor_y = start_y
-    self.cursor_select_x = start_x
-    self.cursor_select_y = start_y
-    self.cursor_x_tallest = self.cursor_x
-    self.selecting = false
-end
-
-function Console:getSelectedText()
-    if not self.selecting then return "" end
-
-    local text = ""
-    if self.cursor_y == self.cursor_select_y then
-        if self.cursor_x > self.cursor_select_x then
-            text = string.sub(self.input[self.cursor_y], self.cursor_select_x + 1, self.cursor_x)
-        else
-            text = string.sub(self.input[self.cursor_y], self.cursor_x + 1, self.cursor_select_x)
-        end
-    else
-        if self.cursor_y < self.cursor_select_y then
-            text = string.sub(self.input[self.cursor_y], self.cursor_x + 1)
-            for i = self.cursor_y + 1, self.cursor_select_y - 1 do
-                text = text .. "\n" .. self.input[i]
-            end
-            text = text .. "\n" .. string.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)
-        else
-            text = string.sub(self.input[self.cursor_select_y], self.cursor_select_x + 1)
-            for i = self.cursor_select_y + 1, self.cursor_y - 1 do
-                text = text .. "\n" .. self.input[i]
-            end
-            text = text .. "\n" .. string.sub(self.input[self.cursor_y], 1, self.cursor_x)
-        end
-    end
-
-    return text
-end
-
-function Console:textinput(t)
-    if not self.is_open then return end
-    self:insertString(t)
-end
-
-function Console:insertString(str)
-
-    if self.selecting then
-        self:removeSelection()
-    end
-
-    self.flash_timer = 0
-    local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
-    local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
-
-    if self.cursor_x == 0 then
-        string_1 = ""
-        string_2 = self.input[self.cursor_y]
-    end
-
-    local split = Utils.split(string_1 .. str .. string_2, "\n", false)
-
-    split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
-    self.input[self.cursor_y] = split[1]
-    for i = 2, #split do
-        split[i] = split[i]:gsub("\n?$",""):gsub("\r","");
-        table.insert(self.input, self.cursor_y + i - 1, split[i])
-    end
-
-    self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
-    self.cursor_x_tallest = self.cursor_x
-    self.cursor_y = self.cursor_y + #split - 1
-    --self.cursor_x = self.cursor_y + utf8.len(str)
 end
 
 function Console:push(str)
@@ -455,7 +333,7 @@ end
 
 function Console:run(str)
     if not Utils.equal(str, self.command_history[#self.command_history]) then
-        table.insert(self.command_history, str)
+        table.insert(self.command_history, Utils.copy(str))
     end
     self.history_index = #self.command_history + 1
     local run_string = ""
@@ -505,192 +383,6 @@ function Console:keypressed(key)
         else
             self:open()
         end
-    end
-
-    if not self.is_open then return end
-
-    if (key == "c") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
-        love.system.setClipboardText(self:getSelectedText())
-    elseif (key == "x") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
-        love.system.setClipboardText(self:getSelectedText())
-        self:removeSelection()
-    elseif (key == "v") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
-        self:insertString(love.system.getClipboardText())
-    elseif (key == "a") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
-        self:selectAll()
-    elseif key == "return" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            self:insertString("\n")
-        else
-            self:run(self.input)
-            self.input = {""}
-            self.cursor_x = 0
-            self.cursor_x_tallest = 0
-            self.cursor_y = 1
-            self.cursor_select_x = 0
-            self.cursor_select_y = 0
-            self.selecting = false
-            self.flash_timer = 0
-        end
-    elseif key == "tab" then
-        self:insertString("    ")
-    elseif key == "backspace" then
-        self.flash_timer = 0
-
-        if self.selecting then
-            self:removeSelection()
-            return
-        end
-
-        if self.cursor_x == 0 and self.cursor_y == 1 then return end
-
-        if self.cursor_x == 0 then
-            self.cursor_y = self.cursor_y - 1
-            self.cursor_x = utf8.len(self.input[self.cursor_y])
-            self.cursor_x_tallest = self.cursor_x
-            self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
-            table.remove(self.input, self.cursor_y + 1)
-        else
-            local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
-            local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
-
-            -- get the byte offset to the last UTF-8 character in the string.
-            local byteoffset = utf8.offset(string_1, -1)
-
-            if byteoffset then
-                -- remove the last UTF-8 character.
-                -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-                string_1 = string.sub(string_1, 1, byteoffset - 1)
-                self.cursor_x = utf8.len(string_1)
-                self.cursor_x_tallest = self.cursor_x
-            end
-            self.input[self.cursor_y] = string_1 .. string_2
-        end
-    elseif key == "up" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
-            end
-        else
-            if self.selecting then
-                self.selecting = false
-                if self.cursor_y > self.cursor_select_y then
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_x_tallest = self.cursor_x
-                end
-            end
-        end
-
-        self.flash_timer = 0
-        if self.cursor_y <= 1 then
-            self.cursor_y = 1
-            if #self.command_history == 0 then return end
-            if self.history_index > 1 then
-                self.history_index = self.history_index - 1
-                self.input = Utils.copy(self.command_history[self.history_index] or {""})
-                self.cursor_x = utf8.len(self.input[#self.input])
-                self.cursor_x_tallest = self.cursor_x
-                self.cursor_y = #self.input
-            end
-        else
-            self.cursor_y = self.cursor_y - 1
-            self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
-        end
-    elseif key == "down" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
-            end
-        else
-            if self.selecting then
-                self.selecting = false
-
-                if self.cursor_y < self.cursor_select_y then
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_x_tallest = self.cursor_x
-                end
-            end
-        end
-        self.flash_timer = 0
-        if self.cursor_y == #self.input then
-            if #self.command_history == 0 then return end
-            if self.history_index == #self.command_history + 1 then
-
-            else
-                self.history_index = self.history_index + 1
-                self.input = Utils.copy(self.command_history[self.history_index] or {""})
-                self.cursor_x = utf8.len(self.input[#self.input])
-                self.cursor_x_tallest = self.cursor_x
-                self.cursor_y = #self.input
-            end
-            self.cursor_x = utf8.len(self.input[self.cursor_y])
-            self.cursor_x_tallest = self.cursor_x
-        else
-            self.cursor_y = self.cursor_y + 1
-            self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
-        end
-    elseif key == "left" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
-            end
-        else
-            if self.selecting then
-                self.selecting = false
-                if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x_tallest = self.cursor_x
-                end
-                return
-            end
-        end
-        self.flash_timer = 0
-        if self.cursor_x > 0 then
-            self.cursor_x = self.cursor_x - 1
-        else
-            if self.cursor_y ~= 1 then
-                self.cursor_y = self.cursor_y - 1
-                self.cursor_x = utf8.len(self.input[self.cursor_y])
-            end
-        end
-        self.cursor_x_tallest = self.cursor_x
-    elseif key == "right" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
-            end
-        else
-            if self.selecting then
-                self.selecting = false
-                if (self.cursor_y < self.cursor_select_y) or (self.cursor_x < self.cursor_select_x) then
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x_tallest = self.cursor_x
-                end
-                return
-            end
-        end
-        self.flash_timer = 0
-        if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
-            self.cursor_x = self.cursor_x + 1
-        else
-            if self.cursor_y ~= #self.input then
-                self.cursor_y = self.cursor_y + 1
-                self.cursor_x = 0
-            end
-        end
-        self.cursor_x_tallest = self.cursor_x
     end
 end
 

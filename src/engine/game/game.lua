@@ -593,10 +593,6 @@ function Game:update()
     Kristal.callEvent("postUpdate", DT)
 end
 
-function Game:textinput(key)
-    self.console:textinput(key)
-end
-
 function Game:keypressed(key)
 
     if Kristal.callEvent("onKeyPressed", key) then

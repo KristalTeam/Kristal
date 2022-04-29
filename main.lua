@@ -1,6 +1,8 @@
 require("src.engine.vars")
 require("src.engine.statevars")
 
+utf8 = require("utf8")
+
 _Class = require("src.lib.hump.class")
 Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
@@ -34,6 +36,7 @@ Game = Kristal.States["Game"]
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
 Input = require("src.engine.input")
+TextInput = require("src.engine.textinput")
 Registry = require("src.engine.registry")
 Camera = require("src.engine.camera")
 
@@ -196,7 +199,6 @@ GameOver = require("src.engine.game.gameover")
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 
 Hotswapper = require("src.hotswapper")
-utf8 = require("utf8")
 
 -- Register required in the hotswapper
 Hotswapper.updateFiles("required")
@@ -384,7 +386,12 @@ function love.update(dt)
     end
 end
 
+function love.textinput(key)
+    TextInput.onTextInput(key)
+end
+
 function love.keypressed(key)
+    TextInput.onKeyPressed(key)
     Input.onKeyPressed(key)
 
     if key == "f1" then

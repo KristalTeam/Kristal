@@ -250,4 +250,4 @@ function Input.getMousePosition()
     return love.mouse.getX() / (Kristal.Config["windowScale"] or 1), love.mouse.getY() / (Kristal.Config["windowScale"] or 1)
 end
 
-return Input
+return self
