@@ -94,7 +94,9 @@ function TextInput.onKeyPressed(key)
                 self.submit()
             end
         else
-            self.insertString("\n")
+            if self.multiline then
+                self.insertString("\n")
+            end
         end
     elseif key == "tab" then
         self.insertString("    ")
