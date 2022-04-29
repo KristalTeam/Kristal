@@ -145,7 +145,10 @@ CameraTarget = require("src.engine.game.world.events.cameratarget")
 HideParty = require("src.engine.game.world.events.hideparty")
 SetFlagEvent = require("src.engine.game.world.events.setflagevent")
 CyberTrashCan = require("src.engine.game.world.events.cybertrashcan")
+Forcefield = require("src.engine.game.world.events.forcefield")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
+
+ToggleController = require("src.engine.game.world.events.togglecontroller")
 
 Battle = require("src.engine.game.battle")
 Encounter = require("src.engine.game.battle.encounter")

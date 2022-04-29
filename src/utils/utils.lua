@@ -715,4 +715,19 @@ function Utils.stringInsert(str1, str2, pos)
     return str1:sub(1, pos) .. str2 .. str1:sub(pos + 1)
 end
 
+function Utils.parsePropertyList(id, properties)
+    properties = properties or {}
+    if properties[id] then
+        return {properties[id]}
+    else
+        local result = {}
+        local i = 1
+        while properties[id..i] do
+            table.insert(result, properties[id..i])
+            i = i + 1
+        end
+        return result
+    end
+end
+
 return Utils

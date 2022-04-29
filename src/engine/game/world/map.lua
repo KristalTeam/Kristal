@@ -514,6 +514,10 @@ function Map:loadObject(name, data)
         return SetFlagEvent(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "cybertrash" then
         return CyberTrashCan(data.center_x, data.center_y, data.properties)
+    elseif name:lower() == "forcefield" then
+        return Forcefield(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "toggle_controller" then
+        return ToggleController(data.properties)
     end
 end
 

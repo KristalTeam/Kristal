@@ -14,7 +14,7 @@ function Collider:init(parent, x, y, mode)
 end
 
 function Collider:collidableCheck(other)
-    return self.collidable and other and other.collidable
+    return self.collidable and other and other.collidable and (not self.parent or self.parent.collidable) and (not other.parent or other.parent.collidable)
 end
 function Collider:insideCheck(other)
     return not (self.inside and other.inside)

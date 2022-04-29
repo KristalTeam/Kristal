@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="14">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="53">
  <editorsettings>
   <export target="alley3.lua" format="lua"/>
  </editorsettings>
@@ -33,6 +33,14 @@
   <object id="12" x="0" y="320" width="320" height="40"/>
   <object id="13" x="280" y="360" width="40" height="120"/>
  </objectgroup>
+ <objectgroup color="#7f00ff" id="3" name="markers">
+  <object id="2" name="entry_left" x="40" y="280">
+   <point/>
+  </object>
+  <object id="5" name="spawn" x="360" y="280">
+   <point/>
+  </object>
+ </objectgroup>
  <objectgroup color="#ff00ff" id="2" name="objects">
   <object id="1" name="interactable" x="360" y="120" width="40" height="40">
    <properties>
@@ -45,12 +53,62 @@
     <property name="marker" value="entry_right"/>
    </properties>
   </object>
- </objectgroup>
- <objectgroup color="#7f00ff" id="3" name="markers">
-  <object id="2" name="entry_left" x="40" y="280">
+  <object id="14" name="forcefield" x="200" y="200" width="40" height="160">
+   <properties>
+    <property name="flag" value="alley3_enable_forcefield"/>
+    <property name="inverted" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="26" name="setflag" x="360" y="160" width="40" height="320">
+   <properties>
+    <property name="flag" value="alley3_enable_forcefield"/>
+    <property name="once" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="27" name="npc" x="400" y="240">
+   <properties>
+    <property name="actor" value="starwalker"/>
+    <property name="setflag" value="alley3_enable_forcefield"/>
+    <property name="setvalue" type="bool" value="false"/>
+    <property name="text1" value="* This [color:yellow]forcefield[color:reset] is [color:yellow]Pissing[color:reset] me off..."/>
+    <property name="text2" value="[sound:snd_noise]* (You heard a switch go off.)"/>
+    <property name="text3" value="* Not     [wait:5]anymore"/>
+   </properties>
    <point/>
   </object>
-  <object id="5" name="spawn" x="360" y="280">
+  <object id="29" name="setflag" x="240" y="240" width="40" height="80">
+   <properties>
+    <property name="flag" value="alley3_seen_forcefield"/>
+    <property name="once" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="30" name="setflag" x="840" y="160" width="40" height="320">
+   <properties>
+    <property name="flag" value="alley3_enable_starwalker"/>
+    <property name="once" type="bool" value="true"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup color="#7fff00" id="5" name="objects_controllers">
+  <object id="28" name="toggle_controller" x="320" y="240">
+   <properties>
+    <property name="flag" value="alley3_enable_forcefield"/>
+    <property name="target" type="object" value="29"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="32" name="toggle_controller" x="800" y="280">
+   <properties>
+    <property name="flag" value="alley3_seen_forcefield"/>
+    <property name="target" type="object" value="30"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="33" name="toggle_controller" x="460" y="180">
+   <properties>
+    <property name="flag" value="alley3_enable_starwalker"/>
+    <property name="target" type="object" value="27"/>
+   </properties>
    <point/>
   </object>
  </objectgroup>
