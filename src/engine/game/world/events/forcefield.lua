@@ -7,7 +7,7 @@ function Forcefield:init(x, y, w, h, properties)
     self.middle_sprite = Assets.getFramesOrTexture("world/event/forcefield/middle")
     self.single_sprite = Assets.getFramesOrTexture("world/event/forcefield/single")
 
-    self.anim_speed = 4/30
+    self.anim_speed = 3/30
     self.anim_timer = 0
 
     self:updateSize()
@@ -110,7 +110,8 @@ function Forcefield:update()
 end
 
 function Forcefield:draw()
-    local frame = self.anim_speed > 0 and math.floor(self.anim_timer / self.anim_speed) or 0
+    local anim_speed = Kristal.Config["simplifyVFX"] and (self.anim_speed * 4) or self.anim_speed
+    local frame = self.anim_speed > 0 and math.floor(self.anim_timer / anim_speed) or 0
 
     if self.dir == "none" then
         local sprite = self.single_sprite[(frame % #self.single_sprite) + 1]
