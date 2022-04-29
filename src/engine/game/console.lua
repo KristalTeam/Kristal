@@ -48,7 +48,11 @@ function Console:createEnv()
     end
 
     function env.clear()
-        self.history = {}
+        self.history = {""}
+    end
+
+    function env.stack()
+        self:warn(debug.traceback())
     end
 
     function env.giveItem(str)
@@ -120,7 +124,6 @@ end
 
 function Console:print(text, x, y, ignore_modifiers)
     -- loop through chars in text
-    if y < 0 then return end
 
     local x_offset = 0
 
@@ -174,6 +177,7 @@ function Console:print(text, x, y, ignore_modifiers)
 end
 
 function Console:printChar(char, x, y)
+    if y < 0 then return end
     local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(r / 2, g / 2, b / 2, a / 2)
 
@@ -201,13 +205,18 @@ function Console:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    y_offset = 1
-    for line = #self.history, math.max(1, #self.history - self.height), -1 do
-        local text = self.history[line]
+    y_offset = self.height
+
+    for line = #self.history - self.height, #self.history do
+        local lines = Utils.split(self.history[line] or "", "\n", false)
+        y_offset = y_offset - #lines
+    end
+
+    for line = #self.history - self.height, #self.history do
+        text = self.history[line] or ""
         local lines = Utils.split(text, "\n", false)
-        for line2 = #lines, 1, -1 do
-            local text2 = lines[line2]
-            self:print(text2, 8, (self.height - y_offset) * 16)
+        for i = 1, #lines do
+            self:print(lines[i] or "", 8, y_offset * 16)
             y_offset = y_offset + 1
         end
     end
@@ -326,7 +335,6 @@ function Console:warn(str)
 end
 
 function Console:error(str)
-    print("[ERROR] " .. tostring(str))
     self:push("[color:red][ERROR] " .. tostring(str))
 end
 
@@ -363,19 +371,19 @@ function Console:run(str)
         end
     end
     self:push(history_string)
-    local status, error = pcall(function() self:unsafeRun(run_string) end)
-    if not status then
-        self:error(self:stripError(error))
+    local status, err = pcall(function() self:unsafeRun(run_string) end)
+    if (not status) and err then
+        self:error(self:stripError(err))
     end
 end
 
 function Console:unsafeRun(str)
-    local chunk, error = loadstring(str)
+    local chunk, err = loadstring(str)
     if chunk then
         setfenv(chunk,self.env)
         self:push(chunk())
     else
-        self:error(self:stripError(error))
+        self:error(self:stripError(err))
     end
 end
 
