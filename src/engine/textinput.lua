@@ -396,6 +396,90 @@ function TextInput.insertString(str)
     --self.cursor_x = self.cursor_y + utf8.len(str)
 end
 
+function TextInput.draw(options)
+    local off_x = options["x"] or 0
+    local off_y = options["y"] or 0
+    local font = options["font"] or Assets.getFont("console")
+    local get_prefix = options["get_prefix"] or function() return "" end
+    local print = options["print"] or love.graphics.print
+
+    local base_off = (options["prefix_width"] or 0) + off_x
+
+    local cursor_pos_x = base_off
+    if self.cursor_x > 0 then
+        cursor_pos_x = font:getWidth(string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))) + cursor_pos_x
+    end
+    local cursor_pos_y = off_y + ((self.cursor_y - 1) * 16)
+
+    if self.selecting then
+        love.graphics.setColor(0, 0.5, 0.5, 1)
+
+        local cursor_sel_x = base_off
+        if self.cursor_select_x > 0 then
+            cursor_sel_x = font:getWidth(string.sub(self.input[self.cursor_select_y], 1, utf8.offset(self.input[self.cursor_select_y], self.cursor_select_x))) + cursor_sel_x
+        end
+        local cursor_sel_y = off_y + ((self.cursor_select_y - 1) * 16)
+
+
+        if self.cursor_select_y == self.cursor_y then
+            local x = cursor_sel_x
+            local y = cursor_sel_y + 16
+            local width = cursor_pos_x - x
+            local height = cursor_pos_y + 16 - y - 16
+
+            love.graphics.rectangle("fill", x, y, width, height)
+        else
+            local in_front = false
+            if self.cursor_y > self.cursor_select_y then
+                in_front = true
+            end
+
+            if in_front then
+                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1), 16)
+                love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, 16)
+
+                for i = self.cursor_select_y + 1, self.cursor_y - 1 do
+                    love.graphics.rectangle("fill", base_off, off_y + (16 * (i - 1)), math.max(font:getWidth(self.input[i]), 1), 16)
+                end
+            else
+                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1), 16)
+                love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, 16)
+
+                for i = self.cursor_y + 1, self.cursor_select_y - 1 do
+                    love.graphics.rectangle("fill", base_off, off_y + (16 * (i - 1)), math.max(font:getWidth(self.input[i]), 1), 16)
+                end
+            end
+        end
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
+    for i, text in ipairs(self.input) do
+        local prefix = ""
+        if #self.input == 1 then
+            prefix = get_prefix("single")
+        else
+            if i == 1 then
+                prefix = get_prefix("start")
+            elseif i == #self.input then
+                prefix = get_prefix("end")
+            else
+                prefix = get_prefix("middle")
+            end
+        end
+        print(prefix, off_x, off_y + (i - 1) * 16, true)
+        print(text, base_off, off_y + (i - 1) * 16, true)
+    end
+
+    love.graphics.setColor(1, 0, 1, 1)
+    if TextInput.flash_timer < 0.5 then
+        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+            print("_", cursor_pos_x, cursor_pos_y, true)
+        else
+            print("|", cursor_pos_x, cursor_pos_y, true)
+        end
+    end
+end
+
 self.reset()
 
 return self

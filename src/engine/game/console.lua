@@ -125,6 +125,8 @@ end
 function Console:print(text, x, y, ignore_modifiers)
     -- loop through chars in text
 
+    if text == nil then return end
+
     local x_offset = 0
 
     local in_modifier = false
@@ -225,81 +227,19 @@ function Console:draw()
     love.graphics.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
 
-
-    local base_off = self.font:getWidth("> ") + 8
-
-    local cursor_pos_x = base_off
-    if TextInput.cursor_x > 0 then
-        cursor_pos_x = self.font:getWidth(string.sub(self.input[TextInput.cursor_y], 1, utf8.offset(self.input[TextInput.cursor_y], TextInput.cursor_x))) + cursor_pos_x
-    end
-    local cursor_pos_y = input_pos + ((TextInput.cursor_y - 1) * 16)
-
-    if TextInput.selecting then
-        love.graphics.setColor(0, 0.5, 0.5, 1)
-
-        local cursor_sel_x = base_off
-        if TextInput.cursor_select_x > 0 then
-            cursor_sel_x = self.font:getWidth(string.sub(self.input[TextInput.cursor_select_y], 1, utf8.offset(self.input[TextInput.cursor_select_y], TextInput.cursor_select_x))) + cursor_sel_x
-        end
-        local cursor_sel_y = input_pos + ((TextInput.cursor_select_y - 1) * 16)
-
-
-        if TextInput.cursor_select_y == TextInput.cursor_y then
-            local x = cursor_sel_x
-            local y = cursor_sel_y + 16
-            local width = cursor_pos_x - x
-            local height = cursor_pos_y + 16 - y - 16
-
-            love.graphics.rectangle("fill", x, y, width, height)
-        else
-            local in_front = false
-            if TextInput.cursor_y > TextInput.cursor_select_y then
-                in_front = true
-            end
-
-            if in_front then
-                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(self.font:getWidth(self.input[TextInput.cursor_select_y]) - cursor_sel_x + base_off, 1), 16)
-                love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, 16)
-
-                for i = TextInput.cursor_select_y + 1, TextInput.cursor_y - 1 do
-                    love.graphics.rectangle("fill", base_off, input_pos + (16 * (i - 1)), math.max(self.font:getWidth(self.input[i]), 1), 16)
-                end
-            else
-                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(self.font:getWidth(self.input[TextInput.cursor_y]) - cursor_pos_x + base_off, 1), 16)
-                love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, 16)
-
-                for i = TextInput.cursor_y + 1, TextInput.cursor_select_y - 1 do
-                    love.graphics.rectangle("fill", base_off, input_pos + (16 * (i - 1)), math.max(self.font:getWidth(self.input[i]), 1), 16)
-                end
-            end
-        end
-    end
-
-    love.graphics.setColor(1, 1, 1, 1)
-    for i, text in ipairs(self.input) do
-        if #self.input == 1 then
-            self:print("> " .. text, 8, input_pos + (i - 1) * 16, true)
-        else
-            local prefix = ""
-            if i == 1 then
-                prefix = "┌ "
-            elseif i == #self.input then
-                prefix = "└ "
-            else
-                prefix = "│ "
-            end
-            self:print(prefix .. text, 8, input_pos + (i - 1) * 16, true)
-        end
-    end
-
-    love.graphics.setColor(1, 0, 1, 1)
-    if TextInput.flash_timer < 0.5 then
-        if TextInput.cursor_x == utf8.len(self.input[TextInput.cursor_y]) then
-            self:print("_", cursor_pos_x, cursor_pos_y, true)
-        else
-            self:print("|", cursor_pos_x, cursor_pos_y, true)
-        end
-    end
+    TextInput.draw({
+        prefix_width = self.font:getWidth("> "),
+        get_prefix = function(place)
+            if place == "start"  then return "┌ " end
+            if place == "middle" then return "│ " end
+            if place == "end"    then return "└ " end
+            if place == "single" then return "> " end
+        end,
+        x = 8,
+        y = input_pos,
+        print = function(...) self:print(...) end,
+        font = self.font
+    })
 
     love.graphics.setColor(1, 1, 1, 1)
 
