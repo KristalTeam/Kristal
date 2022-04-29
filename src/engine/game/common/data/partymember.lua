@@ -86,8 +86,8 @@ function PartyMember:init()
     self.menu_icon = "party/kris/head"
     -- Path to head icons used in battle
     self.head_icons = "party/kris/icon"
-    -- Name sprite (TODO: optional)
-    self.name_sprite = "party/kris/name"
+    -- Name sprite (optional)
+    self.name_sprite = nil
 
     -- Effect shown above enemy after attacking it
     self.attack_sprite = "effects/attack/cut"

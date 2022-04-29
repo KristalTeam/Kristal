@@ -117,7 +117,10 @@ function Menu:enter()
         "Luna",
         "",
         {"Documentation", COLORS.silver},
-        "Vitellary     ",
+        "Vitellary",
+        "",
+        {"Battle Name Font", COLORS.silver},
+        "TheCyVap",
     }
 end
 

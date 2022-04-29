@@ -109,7 +109,7 @@ function character:init()
     end
     -- Path to head icons used in battle
     self.head_icons = "party/ralsei/icon"
-    -- Name sprite (TODO: optional)
+    -- Name sprite (optional)
     self.name_sprite = "party/ralsei/name"
 
     -- Effect shown above enemy after attacking it

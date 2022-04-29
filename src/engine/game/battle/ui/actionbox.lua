@@ -22,11 +22,15 @@ function ActionBox:init(x, y, index, battler)
     self.head_offset_x, self.head_offset_y = battler.chara:getHeadIconOffset()
 
     self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 13 + self.head_offset_x, 11 + self.head_offset_y)
-    self.name_sprite = Sprite(battler.chara:getNameSprite(), 51, 14)
+
+    if battler.chara:getNameSprite() then
+        self.name_sprite = Sprite(battler.chara:getNameSprite(), 51, 14)
+        self.box:addChild(self.name_sprite)
+    end
+
     self.hp_sprite   = Sprite("ui/hp", 109, 22)
 
     self.box:addChild(self.head_sprite)
-    self.box:addChild(self.name_sprite)
     self.box:addChild(self.hp_sprite)
 
     self:createButtons()
@@ -103,7 +107,9 @@ function ActionBox:update()
     end
 
     self.head_sprite.y = 11 - self.data_offset + self.head_offset_y
-    self.name_sprite.y = 14 - self.data_offset
+    if self.name_sprite then
+        self.name_sprite.y = 14 - self.data_offset
+    end
     self.hp_sprite.y   = 22 - self.data_offset
 
     for i,button in ipairs(self.buttons) do
@@ -132,6 +138,23 @@ function ActionBox:draw()
     self:drawActionBox()
 
     super:draw(self)
+
+    if not self.name_sprite then
+        font = Assets.getFont("name")
+        love.graphics.setFont(font)
+        love.graphics.setColor(1, 1, 1, 1)
+
+        local name = self.battler.chara:getName():upper()
+        print(name)
+        local spacing = 5 - name:len()
+
+        local off = 0
+        for i = 1, name:len() do
+            local letter = name:sub(i, i)
+            love.graphics.print(letter, self.box.x + 51 + off, self.box.y + 14 - self.data_offset - 1)
+            off = off + font:getWidth(letter) + spacing
+        end
+    end
 end
 
 function ActionBox:drawActionBox()

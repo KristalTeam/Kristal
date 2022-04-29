@@ -71,7 +71,7 @@ function character:init()
     self.menu_icon = "party/kris/head"
     -- Path to head icons used in battle
     self.head_icons = "party/kris/icon"
-    -- Name sprite (TODO: optional)
+    -- Name sprite (optional)
     self.name_sprite = "party/kris/name"
 
     -- Effect shown above enemy after attacking it
