@@ -367,7 +367,7 @@ function Character:processJump()
     if (self.jump_progress == 1) then
         self.jump_sprite_timer = self.jump_sprite_timer + DT
         if (self.jump_sprite_timer >= 5/30) then
-            self.sprite:set(self.jump_sprite) -- TODO: speed should be 0.25
+            self.sprite:set(self.jump_sprite)
             self.jump_progress = 2
         end
     end

@@ -24,9 +24,6 @@ function item:init()
 end
 
 function item:onWorldUse()
-    -- TODO: Heal 10 HP
-
-    Game.world:showText("* You re-applied the bandage.")
 
     -- Recover the stored items into the inventory
     local dark_inventory = Game.inventory:getDarkInventory()
@@ -34,6 +31,15 @@ function item:onWorldUse()
     local armors = self:createArmorItems()
     if armors[1] then dark_inventory:addItem(armors[1]) end
     if armors[2] then dark_inventory:addItem(armors[2]) end
+
+    -- Heal 1 HP. This should probably be handled in a helper func, but this is fine for now?
+    local maxed = Game.party[1]:heal(1)
+
+    if maxed then
+        Game.world:showText("* You re-applied the bandage. \n* Your HP was maxed out.")
+    else
+        Game.world:showText("* You re-applied the bandage. \n* You recovered 1 HP!")
+    end
 
     -- Consume
     return true

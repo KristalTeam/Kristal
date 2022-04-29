@@ -238,6 +238,7 @@ function PartyMember:heal(amount, playsound)
         Assets.playSound("snd_power")
     end
     self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
+    return self:getStat("health") == self:getHealth()
 end
 
 function PartyMember:setHealth(health)

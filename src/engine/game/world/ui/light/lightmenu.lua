@@ -14,8 +14,7 @@ function LightMenu:init()
 
     self.selected_submenu = 1
 
-    -- TODO: Persists between closing and opening the menu
-    self.current_selecting = 1
+    self.current_selecting = Game.world.current_selecting or 1
 
     self.item_selected = 1
 
@@ -43,7 +42,7 @@ function LightMenu:init()
     self.choice_box = UIBox(56, 192, 94, 100)
     self:addChild(self.choice_box)
 
-    self.storage = "items" -- TODO: "light"
+    self.storage = "items"
 end
 
 function LightMenu:onAddToStage(stage)
@@ -52,6 +51,7 @@ function LightMenu:onAddToStage(stage)
 end
 
 function LightMenu:close()
+    Game.world.current_selecting = self.current_selecting
     Game.world.menu = nil
     self:remove()
 end
@@ -75,7 +75,7 @@ function LightMenu:keypressed(key)
         if Input.is("up", key)    then self.current_selecting = self.current_selecting - 1 end
         if Input.is("down", key) then self.current_selecting = self.current_selecting + 1 end
         local max_selecting = Game:getFlag("has_cell_phone", false) and 3 or 2
-        self.current_selecting = Utils.clamp(self.current_selecting, 1, max_selecting) -- TODO: unhardcode max length... might conflict with textbox
+        self.current_selecting = Utils.clamp(self.current_selecting, 1, max_selecting)
         if old_selected ~= self.current_selecting then
             self.ui_move:stop()
             self.ui_move:play()
