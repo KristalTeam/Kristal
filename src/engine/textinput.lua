@@ -75,8 +75,27 @@ function TextInput.onTextInput(t)
     self.insertString(t)
 end
 
+function TextInput.checkSelecting()
+    if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
+        if not self.selecting then
+            self.cursor_select_x = self.cursor_x
+            self.cursor_select_y = self.cursor_y
+            self.selecting = true
+        end
+        return "selecting"
+    end
+
+    -- Return false if we *just* stopped selecting
+    if self.selecting then
+        self.selecting = false
+        return "stopped"
+    end
+    return "not_selecting"
+end
+
 function TextInput.onKeyPressed(key)
     if not self.active then return end
+    self.flash_timer = 0
     if self.pressed_callback then
         if self.pressed_callback(key) then
             return
@@ -108,8 +127,6 @@ function TextInput.onKeyPressed(key)
     elseif key == "tab" then
         self.insertString("    ")
     elseif key == "backspace" then
-        self.flash_timer = 0
-
         if self.selecting then
             self.removeSelection()
             return
@@ -128,36 +145,51 @@ function TextInput.onKeyPressed(key)
             local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
 
             -- get the byte offset to the last UTF-8 character in the string.
-            local byteoffset = utf8.offset(string_1, -1)
+            local byteoffset = utf8.offset(string_1, -2)
 
             if byteoffset then
                 -- remove the last UTF-8 character.
                 -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
-                string_1 = string.sub(string_1, 1, byteoffset - 1)
+                string_1 = string.sub(string_1, 1, byteoffset)
                 self.cursor_x = utf8.len(string_1)
                 self.cursor_x_tallest = self.cursor_x
             end
             self.input[self.cursor_y] = string_1 .. string_2
         end
-    elseif key == "up" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
-            end
+    elseif key == "delete" then
+        if self.selecting then
+            self.removeSelection()
+            return
+        end
+
+        if self.cursor_x == utf8.len(self.input[self.cursor_y]) and self.cursor_y == #self.input then return end
+
+        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+            self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
+            table.remove(self.input, self.cursor_y + 1)
         else
-            if self.selecting then
-                self.selecting = false
-                if self.cursor_y > self.cursor_select_y then
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_x_tallest = self.cursor_x
-                end
+            local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
+            local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+
+            -- get the byte offset to the first UTF-8 character in the string.
+            local byteoffset = utf8.offset(string_2, 2)
+
+            if byteoffset then
+                -- remove the first UTF-8 character.
+                -- string.sub operates on bytes rather than UTF-8 characters, so we couldn't do string.sub(text, 1, -2).
+                string_2 = string.sub(string_2, byteoffset, -1)
+            end
+            self.input[self.cursor_y] = string_1 .. string_2
+        end
+    elseif key == "up" then
+        if self.checkSelecting() == "stopped" then
+            if self.cursor_y > self.cursor_select_y then
+                self.cursor_y = self.cursor_select_y
+                self.cursor_x = self.cursor_select_x
+                self.cursor_x_tallest = self.cursor_x
             end
         end
 
-        self.flash_timer = 0
         if self.cursor_y <= 1 then
             self.cursor_y = 1
             if self.up_limit_callback then
@@ -167,25 +199,30 @@ function TextInput.onKeyPressed(key)
             self.cursor_y = self.cursor_y - 1
             self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
         end
-    elseif key == "down" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
-            end
-        else
-            if self.selecting then
-                self.selecting = false
+    elseif key == "end" then
+        self.checkSelecting()
 
-                if self.cursor_y < self.cursor_select_y then
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_x_tallest = self.cursor_x
-                end
+        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+            self.sendCursorToEnd()
+        else
+            self.sendCursorToEndOfLine()
+        end
+    elseif key == "home" then
+        self.checkSelecting()
+
+        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+            self.sendCursorToStart()
+        else
+            self.sendCursorToStartOfLine(true)
+        end
+    elseif key == "down" then
+        if self.checkSelecting() == "stopped" then
+            if self.cursor_y < self.cursor_select_y then
+                self.cursor_y = self.cursor_select_y
+                self.cursor_x = self.cursor_select_x
+                self.cursor_x_tallest = self.cursor_x
             end
         end
-        self.flash_timer = 0
         if self.cursor_y == #self.input then
             self.cursor_x = utf8.len(self.input[self.cursor_y])
             self.cursor_x_tallest = self.cursor_x
@@ -197,24 +234,14 @@ function TextInput.onKeyPressed(key)
             self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
         end
     elseif key == "left" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
+        if self.checkSelecting() == "stopped" then
+            if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
+                self.cursor_x = self.cursor_select_x
+                self.cursor_y = self.cursor_select_y
+                self.cursor_x_tallest = self.cursor_x
             end
-        else
-            if self.selecting then
-                self.selecting = false
-                if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x_tallest = self.cursor_x
-                end
-                return
-            end
+            return
         end
-        self.flash_timer = 0
         if self.cursor_x > 0 then
             self.cursor_x = self.cursor_x - 1
         else
@@ -225,24 +252,14 @@ function TextInput.onKeyPressed(key)
         end
         self.cursor_x_tallest = self.cursor_x
     elseif key == "right" then
-        if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
-            if not self.selecting then
-                self.cursor_select_x = self.cursor_x
-                self.cursor_select_y = self.cursor_y
-                self.selecting = true
+        if self.checkSelecting() == "stopped" then
+            if (self.cursor_y < self.cursor_select_y) or (self.cursor_x < self.cursor_select_x) then
+                self.cursor_x = self.cursor_select_x
+                self.cursor_y = self.cursor_select_y
+                self.cursor_x_tallest = self.cursor_x
             end
-        else
-            if self.selecting then
-                self.selecting = false
-                if (self.cursor_y < self.cursor_select_y) or (self.cursor_x < self.cursor_select_x) then
-                    self.cursor_x = self.cursor_select_x
-                    self.cursor_y = self.cursor_select_y
-                    self.cursor_x_tallest = self.cursor_x
-                end
-                return
-            end
+            return
         end
-        self.flash_timer = 0
         if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
             self.cursor_x = self.cursor_x + 1
         else
@@ -266,6 +283,47 @@ function TextInput.sendCursorToEnd()
     self.cursor_x = utf8.len(self.input[#self.input])
     self.cursor_x_tallest = self.cursor_x
     self.cursor_y = #self.input
+end
+
+function TextInput.sendCursorToEndOfLine()
+    self.cursor_x = utf8.len(self.input[self.cursor_y])
+    self.cursor_x_tallest = self.cursor_x
+end
+
+function TextInput.sendCursorToStart()
+    self.cursor_x = 0
+    self.cursor_x_tallest = 0
+    self.cursor_y = 1
+end
+
+function TextInput.sendCursorToStartOfLine(special_identing)
+    if cursor_x == 0 then
+        cursor_x_tallest = 0
+        return
+    end
+
+    if special_identing then
+        -- Loop through the utf8 string and find the end of an indent
+        local last_space = 0
+        for i = 1, utf8.len(self.input[self.cursor_y]) do
+            local offset = utf8.offset(self.input[self.cursor_y], i)
+            local char = string.sub(self.input[self.cursor_y], offset, offset)
+            if char == " " then
+                last_space = i
+            else
+                break
+            end
+        end
+        -- We're not at the end of an indent, so send the cursor to it
+        if self.cursor_x ~= last_space then
+            self.cursor_x = last_space
+            self.cursor_x_tallest = self.cursor_x
+            return
+        -- We're at the end of an indent, let's just go to the start
+        end
+    end
+    self.cursor_x = 0
+    self.cursor_x_tallest = 0
 end
 
 function TextInput.selectAll()

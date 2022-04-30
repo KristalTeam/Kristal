@@ -96,6 +96,7 @@ function Console:onUpLimit()
         self.history_index = self.history_index - 1
         self.input = Utils.copy(self.command_history[self.history_index] or {""})
         TextInput.updateInput(self.input)
+        TextInput.selecting = false
         TextInput.sendCursorToEnd()
     end
 end
@@ -108,6 +109,7 @@ function Console:onDownLimit()
         self.history_index = self.history_index + 1
         self.input = Utils.copy(self.command_history[self.history_index] or {""})
         TextInput.updateInput(self.input)
+        TextInput.selecting = false
         TextInput.sendCursorToEnd()
     end
     TextInput.sendCursorToEnd() -- TODO: sendCursorToEndOfLine() or smth
