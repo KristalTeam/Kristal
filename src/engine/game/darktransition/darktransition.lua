@@ -268,16 +268,8 @@ function DarkTransition:update()
 end
 
 function DarkTransition:draw()
-    --if not dont_clear then
-    --    love.graphics.clear()
-    --end
-    --if self.con < 18 then
-    --    self.prior_state:draw() -- Draw the last state we were in
-    --end
-
-    --Draw.setCanvas(self.canvas)
-    --love.graphics.clear()
-
+    -- Draw a background cover.
+    -- In Deltarune, this is a 999x999 black marker.
     if self.megablack then
         love.graphics.setColor(0, 0, 0, self.black_fade)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
@@ -738,22 +730,12 @@ function DarkTransition:draw()
         end
     end
     if (self.con == 32) then
-        if (math.floor(self.timer) == 0) then
-            --self.megablack = self:scr_dark_marker(-10, -10, self.spr_whitepixel) -- TODO
-            --with (self.megablack) then
-            --    depth = 150
-            --    image_alpha = 1
-            --    y = -999
-            --    image_xscale = 999
-            --    image_yscale = 999
-            --    image_blend = c_black
-            --    persistent = true
-            --end
+        if (math.floor(self.timer) >= 2) then
+            -- In Deltarune, the megablack marker gets spawned off-screen on the first frame (0) con is 32,
+            -- and it's moved on-screen on the third frame (2).
+            -- Here, we simulate that by drawing a black background on the third frame.
+            self.megablack = true
         end
-        if (math.floor(self.timer) == 2) then
-            --self.megablack.y = 0
-        end
-        self.megablack = true
         self.timer = self.timer + 1 * DTMULT
         if (self.timer >= 0 and self.timer < 8) then
             self.velocity = self.velocity - 0.5 * DTMULT
@@ -784,7 +766,7 @@ function DarkTransition:draw()
             self.soundcon = 4
 
             -- self.dronesfx needs to fade out to 0, taking 30 deltarune frames (1 second)
-            --snd_volume(self.dronesfx, 0, 30)
+            -- snd_volume(self.dronesfx, 0, 30)
 
             -- This fade is handled at the top of the update function, when `self.soundcon` is 4.
 
@@ -854,16 +836,6 @@ function DarkTransition:draw()
             -- Goodbye accuracy :(
             -- Because we have a configurable self.final_y, we should play the sound when they reach that
 
-            --[[if (self.skiprunback and (math.floor(self.timer) >= 36) and not self.do_once6) then
-                self.do_once6 = true
-                local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
-                sound:play()
-            end
-            if (math.floor(self.timer) >= 39) and (not self.do_once7) then
-                self.do_once7 = true
-                local sound = love.audio.newSource("assets/sounds/snd_dtrans_flip.ogg", "static")
-                sound:play()
-            end]]--
             if (self.susie_y >= (self.final_y / 2) - self.susie_height) then
                 -- Since our final_y is configurable, play the sound here
                 Assets.playSound("snd_dtrans_flip")
@@ -884,8 +856,6 @@ function DarkTransition:draw()
                         self.susie_sprite:explode()
                     end
                 end
-
-                --self.kris_sprite:explode()
 
                 self.con = 34
                 self.timer = 0

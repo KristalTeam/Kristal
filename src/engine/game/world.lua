@@ -866,13 +866,6 @@ function World:update()
     -- Always sort
     self.update_child_list = true
     super:update(self)
-
-    --[[if self.player then
-        local bx, by = self.player:getRelativePos(self.player.width/2, self.player.height/2, self.soul.parent)
-        self.soul.x = bx + 1
-        self.soul.y = by + 11
-        -- TODO: unhardcode offset (???)
-    end]]
 end
 
 function World:draw()

@@ -2483,7 +2483,6 @@ function Battle:keypressed(key)
     elseif self.state == "ENEMYDIALOGUE" then
         -- Nothing here
     elseif self.state == "ACTIONSELECT" then
-        -- TODO: make this less huge!!
         local actbox = self.battle_ui.action_boxes[self.current_selecting]
 
         if Input.isConfirm(key) then
