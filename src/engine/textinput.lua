@@ -242,12 +242,44 @@ function TextInput.onKeyPressed(key)
             end
             return
         end
-        if self.cursor_x > 0 then
-            self.cursor_x = self.cursor_x - 1
-        else
-            if self.cursor_y ~= 1 then
+        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+            -- If we're at the start of a line, move to the end of the previous line.
+            if self.cursor_x == 0 then
+                if self.cursor_y == 1 then return end
                 self.cursor_y = self.cursor_y - 1
                 self.cursor_x = utf8.len(self.input[self.cursor_y])
+            end
+            -- Loop from our current position to the start of the line.
+            local hit = false
+            for i = self.cursor_x, 0, -1 do
+                if i == 0 then
+                    self.cursor_x = 0
+                    self.cursor_x_tallest = 0
+                    break
+                end
+                local offset = utf8.offset(self.input[self.cursor_y], i)
+                local char = string.sub(self.input[self.cursor_y], offset, offset)
+
+                if (not self.isPartOfWord(char)) then hit = true end
+
+                if hit then
+                    hit = false
+                    if self.cursor_x ~= i then
+                        self.cursor_x = i
+                        self.cursor_x_tallest = self.cursor_x
+                        break
+                    end
+                end
+            end
+        else
+            -- Not holding CTRL, just move to the left linke normal
+            if self.cursor_x > 0 then
+                self.cursor_x = self.cursor_x - 1
+            else
+                if self.cursor_y ~= 1 then
+                    self.cursor_y = self.cursor_y - 1
+                    self.cursor_x = utf8.len(self.input[self.cursor_y])
+                end
             end
         end
         self.cursor_x_tallest = self.cursor_x
@@ -260,12 +292,43 @@ function TextInput.onKeyPressed(key)
             end
             return
         end
-        if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
-            self.cursor_x = self.cursor_x + 1
-        else
-            if self.cursor_y ~= #self.input then
+        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+            -- If we're at the start of a line, move to the end of the previous line.
+            if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+                if self.cursor_y == #self.input then return end
                 self.cursor_y = self.cursor_y + 1
                 self.cursor_x = 0
+            end
+            -- Loop from our current position to the end of the line.
+            local hit = false
+            for i = self.cursor_x, utf8.len(self.input[self.cursor_y]) do
+                if i == utf8.len(self.input[self.cursor_y]) then
+                    self.cursor_x = i
+                    self.cursor_x_tallest = i
+                    break
+                end
+                local offset = utf8.offset(self.input[self.cursor_y], i + 1)
+                local char = string.sub(self.input[self.cursor_y], offset, offset)
+
+                if (not self.isPartOfWord(char)) then hit = true end
+
+                if hit then
+                    hit = false
+                    if self.cursor_x ~= i then
+                        self.cursor_x = i
+                        self.cursor_x_tallest = self.cursor_x
+                        break
+                    end
+                end
+            end
+        else
+            if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
+                self.cursor_x = self.cursor_x + 1
+            else
+                if self.cursor_y ~= #self.input then
+                    self.cursor_y = self.cursor_y + 1
+                    self.cursor_x = 0
+                end
             end
         end
         self.cursor_x_tallest = self.cursor_x
@@ -277,6 +340,13 @@ function TextInput.update()
     if self.flash_timer > 1 then
         self.flash_timer = self.flash_timer - 1
     end
+end
+
+function TextInput.isPartOfWord(char)
+    if char == "_" then return true end -- underscores are commonly used so we'll allow them in words
+    if char == "-" then return true end -- same with dashes
+    if char:match("%W") then return false end -- not alphanumeric, so not part of a word
+    return true -- alphanumeric, so part of a word
 end
 
 function TextInput.sendCursorToEnd()
