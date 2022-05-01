@@ -190,7 +190,6 @@ function Map:addTileLayer(depth, battle_border)
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
     if battle_border then
-        tilelayer.tile_opacity = 0
         table.insert(self.battle_borders, tilelayer)
     end
     if not depth then
@@ -299,7 +298,6 @@ function Map:loadTiles(layer, depth)
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
     if Utils.startsWith(layer.name:lower(), "battleborder") then
-        tilelayer.tile_opacity = 0
         table.insert(self.battle_borders, tilelayer)
     end
 end

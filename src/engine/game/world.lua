@@ -851,11 +851,7 @@ function World:update()
     end
 
     for _,battle_border in ipairs(self.map.battle_borders) do
-        if battle_border:includes(TileLayer) then
-            battle_border.tile_opacity = self.battle_alpha
-        else
-            battle_border.alpha = self.battle_alpha
-        end
+        battle_border.alpha = self.battle_alpha
     end
     if self.battle_fader then
         self.battle_fader:setColor(0, 0, 0, half_alpha)
