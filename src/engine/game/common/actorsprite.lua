@@ -122,16 +122,7 @@ function ActorSprite:setAnimation(anim, callback)
         else
             anim = Utils.copy(anim)
         end
-        if anim.next then
-            if type(anim.next) == "table" then
-                anim.next = Utils.pick(anim.next)
-            end
-            if self.actor:getAnimation(anim.next) then
-                anim.callback = function(s) s:setAnimation(anim.next) end
-            else
-                anim.callback = function(s) s:setSprite(anim.next) end
-            end
-        elseif anim.temp then
+        if anim.temp then
             if last_anim then
                 anim.callback = function(s) s:setAnimation(last_anim) end
             elseif last_sprite then

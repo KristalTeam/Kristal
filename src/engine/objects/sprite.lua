@@ -134,6 +134,20 @@ function Sprite:setAnimation(anim)
         self.anim_callback = anim.callback
         self.anim_waiting = 0
 
+        if anim.next then
+            local next = anim.next
+            if type(anim.next) == "table" then
+                next = Utils.pick(anim.next)
+            end
+            local old_callback = self.anim_callback
+            self.anim_callback = function(s)
+                self:set(next)
+                if old_callback then
+                    old_callback(s)
+                end
+            end
+        end
+
         if not has_routine then
             self.anim_delay = anim[2] or (1/30)
             self.loop = anim[3] or false
