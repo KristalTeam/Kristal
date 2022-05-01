@@ -9,11 +9,17 @@ function SetFlagEvent:init(x, y, width, height, properties)
     self.value = properties["value"]
 
     self.once = properties["once"]
+
+    self.map_flag = properties["mapflag"]
 end
 
 function SetFlagEvent:onEnter(chara)
     if chara.is_player then
-        Game:setFlag(self.flag, (self.value == nil and true) or self.value)
+        if self.map_flag then
+            self.world.map:setFlag(self.flag, (self.value == nil and true) or self.value)
+        else
+            Game:setFlag(self.flag, (self.value == nil and true) or self.value)
+        end
 
         if self.once then
             self:setFlag("dont_load", true)
