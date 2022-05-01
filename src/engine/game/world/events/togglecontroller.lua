@@ -27,7 +27,7 @@ function ToggleController:postLoad()
 end
 
 function ToggleController:updateTargets()
-    local flag = Game:getFlag(self.flag)
+    local flag = Game:getFlag(self.flag, false)
     local success = (self.value ~= nil and flag == self.value) or (self.value == nil and flag)
     if self.invert then
         success = not success
