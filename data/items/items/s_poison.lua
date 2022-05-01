@@ -73,13 +73,13 @@ function item:onWorldUse(target)
         return true
     end
     target.health = math.max(1, target.health - self.world_poison_amount)
-    Assets.playSound("snd_hurt1")
+    Assets.playSound("hurt")
     return true
 end
 
 function item:onBattleUse(user, target)
     target:heal(self.battle_heal_amount, {1, 0, 1})
-    Assets.playSound("snd_hurt1")
+    Assets.playSound("hurt")
 
     if target.poison_effect_timer then
         Game.battle.timer:cancel(target.poison_effect_timer)

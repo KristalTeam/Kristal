@@ -102,7 +102,7 @@ function character:init()
     -- Effect shown above enemy after attacking it
     self.attack_sprite = "effects/attack/cut"
     -- Sound played when this character attacks
-    self.attack_sound = "snd_laz_c"
+    self.attack_sound = "laz_c"
     -- Pitch of the attack sound
     self.attack_pitch = 1
 

@@ -72,7 +72,7 @@ function Soul:init(x, y, color)
 end
 
 function Soul:shatter(count)
-    Assets.playSound("snd_break2")
+    Assets.playSound("break2")
 
     local shard_count = count or 6
 
@@ -371,7 +371,7 @@ function Soul:update()
                         self.graze_sprite.timer = 0.1
                     end
                 else
-                    Assets.playSound("snd_graze")
+                    Assets.playSound("graze")
                     Game.battle.tension_bar:giveTension(bullet.tp * self.graze_tp_factor)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + ((bullet.time_bonus / 30) * self.graze_time_factor)

@@ -13,7 +13,7 @@ return {
 
             Game:setFlag("alley3_enable_forcefield", false)
             cutscene:shakeCamera(2)
-            Assets.playSound("snd_dtrans_flip")
+            Assets.playSound("dtrans_flip")
 
             cutscene:wait(1)
             cutscene:text("* Not   [wait:5]anymore")
@@ -21,7 +21,7 @@ return {
             local alpha = event:addFX(AlphaFX())
 
             Game.stage.timer:tween(1, alpha, {alpha = 0})
-            Assets.playSound("snd_mysterygo")
+            Assets.playSound("mysterygo")
 
             cutscene:wait(2)
 

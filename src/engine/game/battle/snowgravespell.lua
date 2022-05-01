@@ -25,7 +25,7 @@ function SnowGraveSpell:init(user)
     self.bg_snowfall:setWrap('repeat','repeat')
     self.bg_snowfall_quad = love.graphics.newQuad( 0, 0, 640, 480, self.bg_snowfall:getWidth(), self.bg_snowfall:getHeight())
 
-    Assets.playSound("snd_snowgrave", 0.5)
+    Assets.playSound("snowgrave", 0.5)
 end
 
 function SnowGraveSpell:update()

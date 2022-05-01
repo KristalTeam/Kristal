@@ -39,7 +39,7 @@ function RudeBusterBeam:update()
         if self.after_func then
             self.after_func(self.pressed)
         end
-        Assets.playSound("snd_rudebuster_hit")
+        Assets.playSound("rudebuster_hit")
         for i = 1, 8 do
             local burst = RudeBusterBurst(self.red, self.target_x, self.target_y, math.rad(45 + ((i - 1) * 90)), i > 4)
             burst.layer = self.layer + (0.01 * i)

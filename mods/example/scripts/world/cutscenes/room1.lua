@@ -38,7 +38,7 @@ return {
             cutscene:wait(cutscene:walkTo(susie, x, y + 20, 0.2))
 
             -- Slam!!
-            Assets.playSound("snd_impact")
+            Assets.playSound("impact")
             susie:shake(4)
             susie:setSprite("shock_up")
 
@@ -49,7 +49,7 @@ return {
             -- owie
             susie:setAnimation({"away_scratch", 0.25, true})
             susie:shake(4)
-            Assets.playSound("snd_wing")
+            Assets.playSound("wing")
 
             cutscene:wait(1)
             cutscene:text("* Guess not.", "nervous")

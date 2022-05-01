@@ -54,12 +54,12 @@ function GameOver:update()
         self.current_stage = 1
     end
     if (self.timer >= 50) and (self.current_stage == 1) then
-        Assets.playSound("snd_break1")
+        Assets.playSound("break1")
         self.soul:setSprite("player/heart_break")
         self.current_stage = 2
     end
     if (self.timer >= 90) and (self.current_stage == 2) then
-        Assets.playSound("snd_break2")
+        Assets.playSound("break2")
 
         local shard_count = 6
         local x_position_table = {-2, 0, 2, 8, 10, 12}
@@ -223,7 +223,7 @@ function GameOver:update()
         if (self.timer >= 30) then
             self.timer = 0
             self.current_stage = 10
-            local sound = Assets.newSound("snd_dtrans_lw")
+            local sound = Assets.newSound("dtrans_lw")
             sound:play()
             self.fade_white = true
         end

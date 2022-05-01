@@ -367,14 +367,14 @@ function Menu:update()
             Kristal.setVolume(Kristal.getVolume() - ((2 * DTMULT) / 100))
             if self.noise_timer >= 3 then
                 self.noise_timer = self.noise_timer - 3
-                Assets.stopAndPlaySound("snd_noise")
+                Assets.stopAndPlaySound("noise")
             end
         end
         if Input.down("right") then
             Kristal.setVolume(Kristal.getVolume() + ((2 * DTMULT) / 100))
             if self.noise_timer >= 3 then
                 self.noise_timer = self.noise_timer - 3
-                Assets.stopAndPlaySound("snd_noise")
+                Assets.stopAndPlaySound("noise")
             end
         end
         if (not Input.down("right")) and (not Input.down("left")) then

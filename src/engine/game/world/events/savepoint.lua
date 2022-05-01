@@ -14,7 +14,7 @@ function Savepoint:init(x, y, properties)
 end
 
 function Savepoint:onInteract(player, dir)
-    Assets.playSound("snd_power")
+    Assets.playSound("power")
     for _,party in ipairs(Game.party) do
         party:heal(math.huge, false)
     end

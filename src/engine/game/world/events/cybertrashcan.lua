@@ -35,7 +35,7 @@ function CyberTrashCan:onInteract(player, dir)
             "* (And found trash!)",
         })
     else
-        Assets.playSound("snd_impact")
+        Assets.playSound("impact")
         self.sprite:setFrame(2)
         self:setFlag("opened", true)
 

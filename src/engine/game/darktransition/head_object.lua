@@ -19,7 +19,7 @@ function HeadObject:update()
     if (self.breakcon == 2) then
         self.breaktimer = self.breaktimer + 1 * DTMULT
         if (self.breaktimer >= 4) then
-            Assets.playSound("snd_sparkle_glock")
+            Assets.playSound("sparkle_glock")
 
             for i = 1, 30 do
                 local x, y = self:getRelativePos(0, 0, self.parent.parent)

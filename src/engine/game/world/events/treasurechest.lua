@@ -32,7 +32,7 @@ function TreasureChest:onInteract(player, dir)
     if self:getFlag("opened") then
         self.world:showText("* (The chest is empty.)")
     else
-        Assets.playSound("snd_locker")
+        Assets.playSound("locker")
         self.sprite:setFrame(2)
         self:setFlag("opened", true)
 

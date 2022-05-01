@@ -8,7 +8,7 @@ function Banana:init(data)
 end
 
 function Banana:onCollide(chara)
-    Assets.playSound("snd_item")
+    Assets.playSound("item")
 
     self:setFlag("dont_load", true)
 
@@ -16,7 +16,7 @@ function Banana:onCollide(chara)
         if chara.actor.id == "virovirokun" then
             chara:setFlag("bananas", chara:getFlag("bananas", 0) + 1)
             if chara:getFlag("bananas") == 9 then
-                Assets.playSound("snd_won")
+                Assets.playSound("won")
                 local npc = chara:convertToNPC({text = "* I had severe potassium\ndeficiency"})
                 npc:setSprite("spared")
                 Game:setFlag("viroviro_banana", true)

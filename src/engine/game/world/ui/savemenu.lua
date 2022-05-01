@@ -144,7 +144,7 @@ function SaveMenu:update()
                 Kristal.saveGame(self.saved_file, Game:save(self.marker))
                 self.saves[self.saved_file] = Kristal.getSaveFile(self.saved_file)
 
-                Assets.playSound("snd_save")
+                Assets.playSound("save")
                 self:updateSaveBoxSize()
             end
         end
@@ -171,7 +171,7 @@ function SaveMenu:update()
                 Kristal.saveGame(self.saved_file, Game:save(self.marker))
                 self.saves[self.saved_file] = Kristal.getSaveFile(self.saved_file)
 
-                Assets.playSound("snd_save")
+                Assets.playSound("save")
 
                 self.selected_x = 1
                 self.overwrite_box.visible = false

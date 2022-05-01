@@ -93,7 +93,7 @@ function World:heal(target, amount, text)
 end
 
 function World:hurtParty(amount)
-    Assets.playSound("snd_hurt1")
+    Assets.playSound("hurt")
 
     self.shake_x = 4
     self.shake_y = 4

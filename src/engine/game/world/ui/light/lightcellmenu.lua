@@ -66,7 +66,7 @@ function LightCellMenu:draw()
 end
 
 function LightCellMenu:runCall(call)
-    Assets.playSound("snd_phone", 0.7)
+    Assets.playSound("phone", 0.7)
     Game.world.menu:closeBox()
     Game.world.menu.state = "TEXT"
     Game.world:setCellFlag(call[2], Game.world:getCellFlag(call[2], -1) + 1)

@@ -16,7 +16,7 @@ function TensionItem:onBattleSelect(user, target)
 
     user:flash()
 
-    local sound = Assets.newSound("snd_cardrive")
+    local sound = Assets.newSound("cardrive")
     sound:setPitch(1.4)
     sound:setVolume(0.8)
     sound:play()

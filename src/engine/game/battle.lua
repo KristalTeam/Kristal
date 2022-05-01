@@ -15,7 +15,7 @@ function Battle:init()
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
-    self.spare_sound = Assets.newSound("snd_spare")
+    self.spare_sound = Assets.newSound("spare")
 
     self.party_beginning_positions = {} -- Only used in TRANSITION, but whatever
     self.enemy_beginning_positions = {}
@@ -313,8 +313,8 @@ function Battle:onStateChange(old,new)
         end
     end
     if new == "INTRO" then
-        Assets.playSound("snd_impact", 0.7)
-        Assets.playSound("snd_weaponpull_fast", 0.8)
+        Assets.playSound("impact", 0.7)
+        Assets.playSound("weaponpull_fast", 0.8)
 
         for _,battler in ipairs(self.party) do
             battler:setAnimation("battle/intro")
@@ -493,7 +493,7 @@ function Battle:onStateChange(old,new)
 
             win_text = "* You won!\n* Got " .. self.money .. " D$.\n* "..stronger.." became stronger."
 
-            Assets.playSound("snd_dtrans_lw", 0.7, 2)
+            Assets.playSound("dtrans_lw", 0.7, 2)
             --scr_levelup()
         end
 
@@ -797,14 +797,14 @@ function Battle:processAction(action)
         end)
         self:battleText(text)
     elseif action.action == "ATTACK" or action.action == "AUTOATTACK" then
-        local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "snd_laz_c")
+        local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "laz_c")
         src:setPitch(battler.chara:getAttackPitch() or 1)
 
         self.actions_done_timer = 1.2
 
         local crit = action.points == 150 and action.action ~= "AUTOATTACK"
         if crit then
-            Assets.stopAndPlaySound("snd_criticalswing")
+            Assets.stopAndPlaySound("criticalswing")
 
             for i = 1, 3 do
                 local sx, sy = battler:getRelativePos(battler.width, 0)
@@ -859,7 +859,7 @@ function Battle:processAction(action)
                 dmg_sprite:play(1/15, false, function(s) s:remove() end)
                 enemy.parent:addChild(dmg_sprite)
 
-                Assets.stopAndPlaySound("snd_damage")
+                Assets.stopAndPlaySound("damage")
                 enemy:hurt(damage, battler)
 
                 battler.chara:onAttackHit(enemy, damage)
@@ -1139,7 +1139,7 @@ function Battle:powerAct(spell, battler, user, target)
     self:setActText("* Your soul shined its power on\n" .. name .. "!", true)
 
     self.timer:after(7/30, function()
-        Assets.playSound("snd_boost")
+        Assets.playSound("boost")
         battler:flash()
         user_battler:flash()
         local bx, by = self:getSoulLocation()

@@ -34,9 +34,9 @@ function spell:onCast(user, target)
 
         local parent = enemy.parent
         Game.battle.timer:after(10/30 * count, function()
-            Assets.playSound("snd_ghostappear")
+            Assets.playSound("ghostappear")
             if success then
-                Assets.playSound("snd_spell_pacify")
+                Assets.playSound("spell_pacify")
             end
 
             local x, y = enemy:getRelativePos(enemy.width/2, enemy.height/2)

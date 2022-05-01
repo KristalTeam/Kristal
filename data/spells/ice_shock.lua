@@ -48,7 +48,7 @@ function spell:onCast(user, target)
     local particles = {}
     Game.battle.timer:script(function(wait)
         wait(1/30)
-        Assets.playSound("snd_icespell")
+        Assets.playSound("icespell")
         particles[1] = createParticle(x-25, y-20)
         wait(3/30)
         particles[2] = createParticle(x+25, y-20)

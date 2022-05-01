@@ -43,7 +43,7 @@ function SimpleSaveMenu:update()
                 Kristal.saveGame(self.save_id, Game:save(self.marker))
                 self.saved_file = Kristal.getSaveFile(self.save_id)
 
-                Assets.playSound("snd_save")
+                Assets.playSound("save")
             elseif self.selected_x == 2 then
                 self:remove()
                 Game.world:closeMenu()

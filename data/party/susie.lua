@@ -104,7 +104,7 @@ function character:init()
     -- Effect shown above enemy after attacking it
     self.attack_sprite = "effects/attack/mash"
     -- Sound played when this character attacks
-    self.attack_sound = "snd_laz_c"
+    self.attack_sound = "laz_c"
     -- Pitch of the attack sound
     self.attack_pitch = 0.9
 
@@ -132,7 +132,7 @@ end
 
 function character:onAttackHit(enemy, damage)
     if damage > 0 then
-        Assets.playSound("snd_impact", 0.8)
+        Assets.playSound("impact", 0.8)
         Game.battle.shake = 4
     end
 end

@@ -18,7 +18,7 @@ function item:init()
 end
 
 function item:onWorldUse()
-    Assets.playSound("snd_egg")
+    Assets.playSound("egg")
     Game.world:showText("* You used the Egg.")
     return false
 end

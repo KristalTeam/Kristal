@@ -28,7 +28,7 @@ end
                 cutscene:text("Obama???", "surprise_smile", "susie")
                 cutscene:enemyText(enemies[1], "let me be clear")
 
-                Assets.playSound("snd_deathnoise", 1, 0.75)
+                Assets.playSound("deathnoise", 1, 0.75)
                 local alphafx = enemies[1]:addFX(AlphaFX(1))
                 Game.battle.timer:tween(1, alphafx, {alpha = 0})
 

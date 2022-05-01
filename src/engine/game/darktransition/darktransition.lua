@@ -63,7 +63,7 @@ function DarkTransition:init(final_y, options)
 
     self.sparestar = Assets.getFrames("effects/spare/star")
 
-    self.snd_dtrans_square = Assets.newSound("snd_dtrans_square")
+    self.dtrans_square = Assets.newSound("dtrans_square")
 
     self.spr_doorblack = Assets.getTexture("kristal/doorblack")
 
@@ -223,7 +223,7 @@ function DarkTransition:update()
         if (self.linesfxtimer >= 4) then
             self.linesfxtimer = 0
 
-            Assets.playSound("snd_dtrans_twinkle", 0.3, 0.6 + (math.random() * 0.6))
+            Assets.playSound("dtrans_twinkle", 0.3, 0.6 + (math.random() * 0.6))
         end
     end
     if (self.friction ~= 0) then
@@ -338,7 +338,7 @@ function DarkTransition:draw()
                 --snd_free_all()
                 if (not self.skiprunback) then
                     --snd_play(snd_locker)
-                    Assets.playSound("snd_locker")
+                    Assets.playSound("locker")
 
                     self.doorblack = 1
                 end
@@ -361,7 +361,7 @@ function DarkTransition:draw()
 
             --snd_free_all()
             self.do_once = true
-            Assets.playSound("snd_locker")
+            Assets.playSound("locker")
             -- Destroy the dark door object here...
             self.doorblack = 1
             self.sprite_index = 0
@@ -441,9 +441,9 @@ function DarkTransition:draw()
         self.soundtimer = self.soundtimer + 1 * DTMULT
         if ((self.soundtimer >= self.soundthreshold) and (self.rectsound < self.rect_amount)) then
             self.soundtimer = 0
-            self.snd_dtrans_square:stop()
-            self.snd_dtrans_square:setVolume(0.5)
-            self.snd_dtrans_square:play()
+            self.dtrans_square:stop()
+            self.dtrans_square:setVolume(0.5)
+            self.dtrans_square:play()
             self.rectsound = self.rectsound + 1
         end
         self.sprite_index = self.sprite_index + 0.25 * DTMULT
@@ -478,7 +478,7 @@ function DarkTransition:draw()
         end
     end
     if (self.soundcon == 1) then
-        self.dronesfx = Assets.newSound("snd_dtrans_drone")
+        self.dronesfx = Assets.newSound("dtrans_drone")
 
         -- Volume starts at 0 and goes to 0.5 over 60 deltarune frames (2 seconds)
         -- This is handled at the top of update
@@ -638,7 +638,7 @@ function DarkTransition:draw()
             end
 
             if self.sparkles > 0 then
-                Assets.playSound("snd_sparkle_glock")
+                Assets.playSound("sparkle_glock")
             end
 
             for i = 1, self.sparkles do
@@ -838,7 +838,7 @@ function DarkTransition:draw()
 
             if (self.susie_y >= (self.final_y / 2) - self.susie_height) then
                 -- Since our final_y is configurable, play the sound here
-                Assets.playSound("snd_dtrans_flip")
+                Assets.playSound("dtrans_flip")
 
                 self.kris_sprite:setFrames(self.spr_kris_dw_landed)
 
@@ -909,7 +909,7 @@ function DarkTransition:draw()
         end
         if ((math.floor(self.timer) >= 27) and not self.do_once9) then
             self.do_once9 = true
-            Assets.playSound("snd_him_quick")
+            Assets.playSound("him_quick")
             --with (obj_mainchara) then
             --    x = -999
             --    cutscene = true

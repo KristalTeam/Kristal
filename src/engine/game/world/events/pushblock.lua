@@ -15,7 +15,7 @@ function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
     self.push_dist = properties["pushdist"] or 40
     self.push_time = properties["pushtime"] or 0.2
 
-    self.push_sound = properties["pushsound"] or "snd_noise"
+    self.push_sound = properties["pushsound"] or "noise"
 
     self.lock_in_place = properties["lock"] or false
 

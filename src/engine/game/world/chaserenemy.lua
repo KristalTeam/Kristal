@@ -59,9 +59,9 @@ function ChaserEnemy:onCollide(player)
             self.sprite.aura = false
             Game.lock_input = true
             self.world.timer:script(function(wait)
-                Assets.playSound("snd_tensionhorn")
+                Assets.playSound("tensionhorn")
                 wait(8/30)
-                local src = Assets.playSound("snd_tensionhorn")
+                local src = Assets.playSound("tensionhorn")
                 src:setPitch(1.1)
                 wait(12/30)
                 self.world.encountering_enemy = false
@@ -164,7 +164,7 @@ function ChaserEnemy:update()
                 if in_radius then
                     local sight = LineCollider(self.world, self.x, self.y, self.world.player.x, self.world.player.y)
                     if not self.world:checkCollision(sight, true) and not self.world:checkCollision(self.collider, true) then
-                        Assets.stopAndPlaySound("snd_alert")
+                        Assets.stopAndPlaySound("alert")
                         self.path = nil
                         self.alert_timer = 20
                         self.alert_icon = Sprite("effects/alert", self.width/2)

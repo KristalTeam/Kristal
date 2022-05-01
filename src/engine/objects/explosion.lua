@@ -16,7 +16,7 @@ function Explosion:init(x, y)
 end
 
 function Explosion:onAdd()
-    Assets.playSound("snd_badexplosion")
+    Assets.playSound("badexplosion")
 end
 
 function Explosion:update()

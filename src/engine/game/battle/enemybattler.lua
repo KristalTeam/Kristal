@@ -229,7 +229,7 @@ function EnemyBattler:addMercy(amount)
             if amount <= 50 then pitch = 1.2 end
             if amount <= 25 then pitch = 1.4 end
 
-            local src = Assets.playSound("snd_mercyadd", 0.8)
+            local src = Assets.playSound("mercyadd", 0.8)
             src:setPitch(pitch)
 
             self:statusMessage("mercy", amount)
@@ -386,7 +386,7 @@ function EnemyBattler:onDefeatRun(damage, battler)
     self.hurt_timer = -1
     self.defeated = true
 
-    Assets.playSound("snd_defeatrun")
+    Assets.playSound("defeatrun")
 
     local sweat = Sprite("effects/defeat/sweat")
     sweat:setOrigin(0.5, 0.5)
@@ -409,7 +409,7 @@ end
 function EnemyBattler:onDefeatFatal(damage, battler)
     self.hurt_timer = -1
 
-    Assets.playSound("snd_deathnoise")
+    Assets.playSound("deathnoise")
 
     local sprite = self:getActiveSprite()
 
@@ -426,7 +426,7 @@ function EnemyBattler:onDefeatFatal(damage, battler)
 end
 
 function EnemyBattler:heal(amount)
-    Assets.stopAndPlaySound("snd_power")
+    Assets.stopAndPlaySound("power")
     self.health = self.health + amount
 
     self:flash()
@@ -446,7 +446,7 @@ function EnemyBattler:freeze()
         self:onDefeatRun()
     end
 
-    Assets.playSound("snd_petrify")
+    Assets.playSound("petrify")
 
     self:toggleOverlay(true)
     if not self.overlay_sprite:setAnimation("frozen") then

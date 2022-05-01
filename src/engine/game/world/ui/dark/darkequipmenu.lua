@@ -279,7 +279,7 @@ function DarkEquipMenu:update()
                 self.ui_cant_select:stop()
                 self.ui_cant_select:play()
             else
-                Assets.playSound("snd_equip")
+                Assets.playSound("equip")
                 local swap_with
                 if self.selected_slot == 1 then
                     swap_with = party:getWeapon()

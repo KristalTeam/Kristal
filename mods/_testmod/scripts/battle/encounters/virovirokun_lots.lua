@@ -57,7 +57,7 @@ function Virovirokun:beforeStateChange(old, new)
             battler:setAnimation("battle/idle")
         end
 
-        local src = Assets.playSound("snd_rumble")
+        local src = Assets.playSound("rumble")
         src:setLooping(true)
         src:setVolume(0.75)
         local src2
@@ -77,7 +77,7 @@ function Virovirokun:beforeStateChange(old, new)
                 stage = 1
                 timer = 0
 
-                src2 = Assets.playSound("snd_rumble")
+                src2 = Assets.playSound("rumble")
                 src2:setLooping(true)
                 src2:setPitch(1.5)
 

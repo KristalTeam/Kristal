@@ -4,7 +4,7 @@ return {
         cutscene:text("* Susie threw a punch at\nthe dummy.")
 
         -- Hurt the target enemy for 1 damage
-        Assets.playSound("snd_damage")
+        Assets.playSound("damage")
         enemy:hurt(1, battler)
         -- Wait 1 second
         cutscene:wait(1)

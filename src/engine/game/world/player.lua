@@ -5,7 +5,7 @@ function Player:init(chara, x, y)
 
     self.is_player = true
 
-    self.slide_sound = Assets.newSound("snd_paper_surf")
+    self.slide_sound = Assets.newSound("paper_surf")
     self.slide_sound:setLooping(true)
 
     self.state_manager = StateManager("WALK", self, true)

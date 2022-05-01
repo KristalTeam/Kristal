@@ -5,7 +5,7 @@ function LightEquipItem:showEquipText()
 end
 
 function LightEquipItem:onWorldUse(target)
-    Assets.playSound("snd_item")
+    Assets.playSound("item")
     local chara = Game.party[1]
     if self.type == "weapon" then
         if chara:getWeapon() then

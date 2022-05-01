@@ -11,7 +11,7 @@ end
 function SlideArea:onCollide(chara, DT)
     if chara.y <= self.y and chara.is_player then
         if not self.sliding then
-            Assets.stopAndPlaySound("snd_noise")
+            Assets.stopAndPlaySound("noise")
         end
 
         self.solid = false

@@ -92,7 +92,7 @@ function PartyMember:init()
     -- Effect shown above enemy after attacking it
     self.attack_sprite = "effects/attack/cut"
     -- Sound played when this character attacks
-    self.attack_sound = "snd_laz_c"
+    self.attack_sound = "laz_c"
     -- Pitch of the attack sound
     self.attack_pitch = 1
 
@@ -235,7 +235,7 @@ function PartyMember:getGameOverMessage() return self.gameover_message end
 
 function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
-        Assets.playSound("snd_power")
+        Assets.playSound("power")
     end
     self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
     return self:getStat("health") == self:getHealth()

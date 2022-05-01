@@ -43,7 +43,7 @@ return {
         susie_sprite:setScale(-2, 2)
         cutscene:wait(0.5)
         susie_sprite:setSprite("party/susie/dark/playful_punch_2")
-        Assets.playSound("snd_impact")
+        Assets.playSound("impact")
         ralsei_sprite:setSprite("party/ralsei/dark/splat")
         ralsei_sprite.physics.direction = math.rad(10)
         ralsei_sprite.physics.speed = 24

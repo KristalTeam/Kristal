@@ -156,7 +156,7 @@ function Mod:onKeyPressed(key)
                         Game.lock_input = false
                     end)
 
-                    Assets.playSound("snd_laz_c")
+                    Assets.playSound("laz_c")
 
                     local attack_box = Hitbox(player, 13, -4, 25, 47)
 

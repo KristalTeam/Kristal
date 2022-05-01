@@ -26,7 +26,7 @@ function PartyBattler:init(chara, x, y)
 end
 
 function PartyBattler:hurt(amount, exact)
-    Assets.playSound("snd_hurt1")
+    Assets.playSound("hurt")
 
     if not exact then
         local def = self.chara:getStat("defense")
@@ -108,7 +108,7 @@ function PartyBattler:flash()
 end
 
 function PartyBattler:heal(amount, sparkle_color)
-    Assets.stopAndPlaySound("snd_power")
+    Assets.stopAndPlaySound("power")
 
     amount = math.floor(amount)
 

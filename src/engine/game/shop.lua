@@ -1047,7 +1047,7 @@ function Shop:buyItem(current_item)
         new_item:load(current_item.item:save())
         if Game.inventory:addItem(new_item) then
             -- Visual/auditorial feedback (did I spell that right?)
-            Assets.playSound("snd_locker")
+            Assets.playSound("locker")
             self.right_text:setText(self.buy_text)
         else
             -- Not enough space, oops
@@ -1070,7 +1070,7 @@ function Shop:sellItem(current_item)
     Game.money = Game.money + current_item:getSellPrice()
     Game.inventory:removeItem(current_item)
 
-    Assets.playSound("snd_locker")
+    Assets.playSound("locker")
     self.right_text:setText(self.sell_text)
 end
 

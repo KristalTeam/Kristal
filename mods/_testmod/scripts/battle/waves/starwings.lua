@@ -10,11 +10,11 @@ function Starwings:onStart()
     self.encounter:setMode("shoot")
     self.timer:every(2, function ()
         self.starwalker.sprite:set("starwalker_shoot_1")
-        Assets.playSound("snd_wing")
+        Assets.playSound("wing")
 
         self.timer:after(0.5, function ()
             self.starwalker.sprite:set("starwalker_shoot_2")
-            Assets.playSound("snd_stardrop")
+            Assets.playSound("stardrop")
             for i = -1, 1 do
                 local offset = i * 15
                 local star = self:spawnBullet("bullets/star", self.starwalker.x - 20, self.starwalker.y - 40)

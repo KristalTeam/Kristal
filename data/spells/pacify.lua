@@ -36,7 +36,7 @@ end
 
 function spell:onCast(user, target)
     if target.tired then
-        Assets.playSound("snd_spell_pacify")
+        Assets.playSound("spell_pacify")
 
         target:spare(true)
 
