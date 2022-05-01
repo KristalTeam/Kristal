@@ -13,7 +13,7 @@ function Script:init(x, y, w, h, properties)
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
 
-    self.once = properties["once"]
+    self.once = properties["once"] ~= false
 end
 
 function Script:onAdd(parent)
@@ -34,8 +34,10 @@ function Script:onEnter(chara)
         if self.set_flag then
             Game:setFlag(self.set_flag, (self.set_value == nil and true) or self.set_value)
         end
-        self:setFlag("used_once", true)
-        self:remove()
+        if self.once then
+            self:setFlag("used_once", true)
+            self:remove()
+        end
         return true
     end
 end
