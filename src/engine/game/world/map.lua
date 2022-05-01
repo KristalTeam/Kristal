@@ -68,6 +68,11 @@ function Map:load()
     else
         self:addTileLayer(0)
     end
+    for _,event in ipairs(self.events) do
+        if event.postLoad then
+            event:postLoad()
+        end
+    end
 end
 
 function Map:onEnter() end
@@ -199,13 +204,34 @@ function Map:loadMapData(data)
     local indexed_layers = {}
     local has_battle_border = false
 
-    for i,layer in ipairs(data.layers or {}) do
+    local layers = {}
+
+    local function loadLayer(layer)
+        if layer.type ~= "group" then
+            table.insert(layers, layer)
+        else
+            for _,sublayer in ipairs(layer.layers) do
+                local sublayer_copy = Utils.copy(sublayer)
+                sublayer_copy.offsetx = (sublayer.offsetx or 0) + (layer.offsetx or 0)
+                sublayer_copy.offsety = (sublayer.offsety or 0) + (layer.offsety or 0)
+                sublayer_copy.parallaxx = (sublayer.parallaxx or 1) * (layer.parallaxx or 1)
+                sublayer_copy.parallaxy = (sublayer.parallaxy or 1) * (layer.parallaxy or 1)
+                loadLayer(sublayer_copy)
+            end
+        end
+    end
+
+    for _,layer in ipairs(data.layers or {}) do
+        loadLayer(Utils.copy(layer))
+    end
+
+    for i,layer in ipairs(layers) do
         self.layers[layer.name] = self.next_layer
         indexed_layers[i] = self.next_layer
         self.next_layer = self.next_layer + self.depth_per_layer
     end
 
-    for i,layer in ipairs(data.layers or {}) do
+    for i,layer in ipairs(layers) do
         local name = layer.name:lower()
         local depth = indexed_layers[i]
         if not has_battle_border and Utils.startsWith(name, "battleborder") then
@@ -219,7 +245,7 @@ function Map:loadMapData(data)
     end
 
     self.object_layer = 1
-    for i,layer in ipairs(data.layers or {}) do
+    for i,layer in ipairs(layers) do
         local depth = indexed_layers[i]
         if layer.type == "objectgroup" and layer.name == "markers" then
             if #object_depths == 0 then
@@ -474,11 +500,6 @@ function Map:loadObjects(layer, depth)
                     self.events_by_id[v.id] = obj
                 end
             end
-        end
-    end
-    for _,event in ipairs(self.events) do
-        if event.postLoad then
-            event:postLoad()
         end
     end
 end
