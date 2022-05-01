@@ -112,7 +112,7 @@ function Console:onDownLimit()
         TextInput.selecting = false
         TextInput.sendCursorToEnd()
     end
-    TextInput.sendCursorToEnd() -- TODO: sendCursorToEndOfLine() or smth
+    TextInput.sendCursorToEndOfLine()
 end
 
 function Console:onSubmit()
