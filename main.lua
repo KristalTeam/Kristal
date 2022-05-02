@@ -329,7 +329,7 @@ function love.load(args)
         love.graphics.scale(Kristal.getGameScale())
 
         if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and MOUSE_SPRITE and love.window and love.window.hasMouseFocus() then
-            love.graphics.draw(MOUSE_SPRITE, love.mouse.getX(), love.mouse.getY())
+            love.graphics.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
         end
 
         Draw._clearUnusedCanvases()
