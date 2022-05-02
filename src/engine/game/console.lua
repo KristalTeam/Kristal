@@ -12,8 +12,8 @@ function Console:init()
     self.font = Assets.getFont(self.font_name, self.font_size)
 
     self.history = {
-        "Welcome to [color:cyan]KRISTAL[color:white]! This is the debug console.",
-        "You can enter Lua here to be ran! Use clear() to clear the console.",
+        "Welcome to [color:cyan]KRISTAL[color:reset]! This is the debug console.",
+        "You can enter Lua here to be ran! Use [color:gray]clear()[color:reset] to clear the console.",
         "",
     }
 
