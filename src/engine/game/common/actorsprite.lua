@@ -17,8 +17,6 @@ function ActorSprite:init(actor)
 
     super:init(self, "", 0, 0, actor:getWidth(), actor:getHeight(), actor:getSpritePath())
 
-    self:resetSprite()
-
     self.offsets = actor.offsets or {}
 
     self.walking = false
@@ -38,9 +36,18 @@ function ActorSprite:init(actor)
     self.freeze_progress = 1
 
     self.on_footstep = nil
+
+    if actor then
+        actor:onSpriteInit(self)
+    end
+
+    self:resetSprite()
 end
 
-function ActorSprite:resetSprite()
+function ActorSprite:resetSprite(ignore_actor_callback)
+    if not ignore_actor_callback and self.actor:preResetSprite(self) then
+        return
+    end
     if self.actor:getDefaultAnim() then
         self:setAnimation(self.actor:getDefaultAnim())
     elseif self.actor:getDefaultSprite() then
@@ -48,16 +55,27 @@ function ActorSprite:resetSprite()
     else
         self:set(self.actor:getDefault())
     end
+    self.actor:onResetSprite(self)
 end
 
 function ActorSprite:setActor(actor)
     if type(actor) == "string" then
         actor = Registry.createActor(actor)
     end
+    if self.actor and self.actor.id == actor.id then
+        return
+    end
+    -- Clean up children (likely added by the actor)
+    for _,child in ipairs(self.children) do
+        self:removeChild(child)
+    end
     self.actor = actor
     self.width = actor:getWidth()
     self.height = actor:getHeight()
     self.path = actor:getSpritePath()
+
+    actor:onSpriteInit(self)
+
     self:resetSprite()
 end
 
@@ -71,7 +89,10 @@ function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self:_setSprite(texture, keep_anim)
 end
 
-function ActorSprite:set(name, callback)
+function ActorSprite:set(name, callback, ignore_actor_callback)
+    if not ignore_actor_callback and self.actor:preSet(self, name, callback) then
+        return
+    end
     if self.actor:getAnimation(name) then
         self:setAnimation(name, callback)
     else
@@ -80,12 +101,18 @@ function ActorSprite:set(name, callback)
             callback(self)
         end
     end
+    self.actor:onSet(self, name, callback)
 end
 
-function ActorSprite:setSprite(texture, keep_anim)
+function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
+    if not ignore_actor_callback and self.actor:preSetSprite(self, texture, keep_anim) then
+        return
+    end
     self.path = self.actor:getSpritePath()
     self.force_offset = nil
     self:_setSprite(texture, keep_anim)
+
+    self.actor:onSetSprite(self, texture, keep_anim)
 end
 
 function ActorSprite:_setSprite(texture, keep_anim)
@@ -109,7 +136,10 @@ function ActorSprite:_setSprite(texture, keep_anim)
     end
 end
 
-function ActorSprite:setAnimation(anim, callback)
+function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
+    if not ignore_actor_callback and self.actor:preSetAnimation(self, anim, callback) then
+        return
+    end
     local last_anim = self.anim
     local last_sprite = self.sprite
     self.anim = anim
@@ -145,6 +175,9 @@ function ActorSprite:setAnimation(anim, callback)
         end
         return false
     end
+    if not ignore_actor_callback then
+        self.actor:onSetAnimation(self, anim, callback)
+    end
 end
 
 function ActorSprite:canTalk()
@@ -162,6 +195,12 @@ function ActorSprite:updateDirection()
         super:setSprite(self, self:getDirectionalPath(self.sprite), true)
     end
     self.last_facing = self.facing
+end
+
+function ActorSprite:isSprite(sprite)
+    local options = self.actor:parseSpriteOptions(self.texture_path)
+
+    return Utils.containsValue(options, sprite)
 end
 
 function ActorSprite:isDirectional(texture)
@@ -208,6 +247,10 @@ function ActorSprite:getOffset()
 end
 
 function ActorSprite:update()
+    if self.actor:preSpriteUpdate(self) then
+        return
+    end
+
     if self.actor:getFlipDirection() then
         if not self.directional then
             local opposite = self.actor:getFlipDirection() == "right" and "left" or "right"
@@ -261,6 +304,8 @@ function ActorSprite:update()
     end
 
     super:update(self)
+
+    self.actor:onSpriteUpdate(self)
 end
 
 function ActorSprite:applyTransformTo(transform)
@@ -270,6 +315,10 @@ function ActorSprite:applyTransformTo(transform)
 end
 
 function ActorSprite:draw()
+    if self.actor:preSpriteDraw(self) then
+        return
+    end
+
     if self.texture and self.run_away then
         local r,g,b,a = self:getDrawColor()
         for i = 0, 80 do
@@ -330,6 +379,8 @@ function ActorSprite:draw()
             Draw.popScissor()
         end
     end
+
+    self.actor:onSpriteDraw(self)
 end
 
 return ActorSprite

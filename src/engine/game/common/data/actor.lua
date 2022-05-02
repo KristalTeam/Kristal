@@ -50,6 +50,27 @@ function Actor:onBattleDraw(battler) end
 function Actor:onTalkStart(text, sprite) end
 function Actor:onTalkEnd(text, sprite) end
 
+
+function Actor:onSpriteInit(sprite) end
+
+function Actor:preSet(sprite, name, callback) end
+function Actor:onSet(sprite, name, callback) end
+
+function Actor:preSetSprite(sprite, texture, keep_anim) end
+function Actor:onSetSprite(sprite, texture, keep_anim) end
+
+function Actor:preSetAnimation(sprite, anim, callback) end
+function Actor:onSetAnimation(sprite, anim, callback) end
+
+function Actor:preResetSprite(sprite) end
+function Actor:onResetSprite(sprite) end
+
+function Actor:preSpriteUpdate(sprite) end
+function Actor:onSpriteUpdate(sprite) end
+
+function Actor:preSpriteDraw(sprite) end
+function Actor:onSpriteDraw(sprite) end
+
 -- Getters
 
 function Actor:getName() return self.name or self.id end
