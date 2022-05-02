@@ -207,6 +207,11 @@ function WorldCutscene:slideTo(obj, x, y, time, ease)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
     end
+    if type(x) == "string" then
+        ease = time
+        time = y
+        x, y = Game.world.map:getMarker(x)
+    end
     local slided = false
     if obj:slideTo(x, y, time, ease, function() slided = true end) then
         return function() return slided end
@@ -218,6 +223,10 @@ end
 function WorldCutscene:slideToSpeed(obj, x, y, speed)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
+    end
+    if type(x) == "string" then
+        speed = y
+        x, y = Game.world.map:getMarker(x)
     end
     local slided = false
     if obj:slideToSpeed(x, y, speed, function() slided = true end) then
