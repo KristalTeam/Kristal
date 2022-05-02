@@ -256,7 +256,9 @@ function love.load(args)
     Kristal.setVolume(Kristal.Config["masterVolume"] or 1)
 
     -- hide mouse
-    love.mouse.setVisible(false)
+    if (not Kristal.Config["alwaysShowCursor"]) then
+        love.mouse.setVisible(false)
+    end
 
     -- make mouse sprite
     MOUSE_SPRITE = love.graphics.newImage((math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or "assets/sprites/kristal/mouse.png")
@@ -326,7 +328,7 @@ function love.load(args)
         love.graphics.reset()
         love.graphics.scale(Kristal.getGameScale())
 
-        if MOUSE_VISIBLE and MOUSE_SPRITE and love.window and love.window.hasMouseFocus() then
+        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and MOUSE_SPRITE and love.window and love.window.hasMouseFocus() then
             love.graphics.draw(MOUSE_SPRITE, love.mouse.getX(), love.mouse.getY())
         end
 
@@ -733,11 +735,32 @@ function Kristal.setVolume(volume)
     Kristal.saveConfig()
 end
 
+function Kristal.updateCursor()
+    if MOUSE_VISIBLE then
+        Kristal.showCursor()
+    elseif not MOUSE_VISIBLE then
+        Kristal.hideCursor()
+    end
+
+    if not Kristal.Config["systemCursor"] then
+        love.mouse.setVisible(false)
+    else
+        if Kristal.Config["alwaysShowCursor"] then love.mouse.setVisible(true) end
+    end
+end
+
 function Kristal.hideCursor()
+
+    if Kristal.Config["systemCursor"] and not Kristal.Config["alwaysShowCursor"] then
+        love.mouse.setVisible(false)
+    end
     MOUSE_VISIBLE = false
 end
 
 function Kristal.showCursor()
+    if Kristal.Config["systemCursor"] then
+        love.mouse.setVisible(true)
+    end
     MOUSE_VISIBLE = true
 end
 
@@ -1055,6 +1078,8 @@ function Kristal.loadConfig()
         autoRun = false,
         masterVolume = 1,
         favorites = {},
+        systemCursor = false,
+        alwaysShowCursor = false,
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
