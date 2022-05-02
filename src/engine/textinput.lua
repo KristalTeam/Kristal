@@ -11,6 +11,7 @@ self.down_limit_callback = nil
 self.pressed_callback = nil
 
 function TextInput.attachInput(tbl, options)
+    Kristal.showCursor()
     Game.lock_input = true -- TODO: Instead of using lock_input, other thing should check if text input is active.
     self.active = true
     love.keyboard.setTextInput(true)
@@ -25,6 +26,7 @@ function TextInput.updateInput(tbl)
 end
 
 function TextInput.endInput()
+    Kristal.hideCursor()
     Game.lock_input = false
     self.active = false
     love.keyboard.setTextInput(false)

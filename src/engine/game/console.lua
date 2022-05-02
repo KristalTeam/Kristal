@@ -76,6 +76,10 @@ function Console:createEnv()
     return env
 end
 
+function Console:onRemoveFromStage()
+    TextInput.endInput()
+end
+
 function Console:open()
     self.is_open = true
     self.history_index = #self.command_history + 1

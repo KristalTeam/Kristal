@@ -255,6 +255,12 @@ function love.load(args)
     -- set master volume
     Kristal.setVolume(Kristal.Config["masterVolume"] or 1)
 
+    -- hide mouse
+    love.mouse.setVisible(false)
+
+    -- make mouse sprite
+    MOUSE_SPRITE = love.graphics.newImage((math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or "assets/sprites/kristal/mouse.png")
+
     -- setup structure
     love.filesystem.createDirectory("mods")
     love.filesystem.createDirectory("saves")
@@ -316,6 +322,13 @@ function love.load(args)
         love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
         love.graphics.scale(Kristal.getGameScale())
         love.graphics.draw(SCREEN_CANVAS, -SCREEN_WIDTH/2, -SCREEN_HEIGHT/2)
+
+        love.graphics.reset()
+        love.graphics.scale(Kristal.getGameScale())
+
+        if MOUSE_VISIBLE and MOUSE_SPRITE and love.window and love.window.hasMouseFocus() then
+            love.graphics.draw(MOUSE_SPRITE, love.mouse.getX(), love.mouse.getY())
+        end
 
         Draw._clearUnusedCanvases()
 
@@ -720,6 +733,14 @@ function Kristal.setVolume(volume)
     Kristal.saveConfig()
 end
 
+function Kristal.hideCursor()
+    MOUSE_VISIBLE = false
+end
+
+function Kristal.showCursor()
+    MOUSE_VISIBLE = true
+end
+
 function Kristal.getVolume()
     return Kristal.Config["masterVolume"]
 end
@@ -759,6 +780,8 @@ function Kristal.returnToMenu()
     for _,object in ipairs(Kristal.Stage.children) do
         object:remove()
     end
+    -- End text input
+    TextInput.endInput()
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
