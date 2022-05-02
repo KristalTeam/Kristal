@@ -152,8 +152,10 @@ function Menu:onStateChange(old_state, new_state)
         self.files.layer = 50
         self.stage:addChild(self.files)
     elseif new_state == "OPTIONS" then
-        self.options_target_y = 0
-        self.options_y = 0
+        if old_state ~= "VOLUME" and old_state ~= "WINDOWSCALE" then
+            self.options_target_y = 0
+            self.options_y = 0
+        end
     end
 end
 
@@ -822,7 +824,7 @@ function Menu:keypressed(key, _, is_repeat)
             self.ui_select:stop()
             self.ui_select:play()
             self.heart_target_x = 152
-            self.heart_target_y = 129 + (self.selected_option - 1) * 32
+            self.heart_target_y = (129 + (self.selected_option - 1) * 32) + self.options_target_y
         end
     elseif self.state == "WINDOWSCALE" then
         if Input.isCancel(key) or Input.isConfirm(key) then
@@ -830,7 +832,7 @@ function Menu:keypressed(key, _, is_repeat)
             self.ui_select:stop()
             self.ui_select:play()
             self.heart_target_x = 152
-            self.heart_target_y = 129 + (self.selected_option - 1) * 32
+            self.heart_target_y = (129 + (self.selected_option - 1) * 32) + self.options_target_y
         end
         local scale = Kristal.Config["windowScale"]
         if Input.is("right", key) then

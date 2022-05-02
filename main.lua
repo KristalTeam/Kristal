@@ -256,12 +256,10 @@ function love.load(args)
     Kristal.setVolume(Kristal.Config["masterVolume"] or 1)
 
     -- hide mouse
-    if (not Kristal.Config["alwaysShowCursor"]) then
-        love.mouse.setVisible(false)
-    end
+    Kristal.hideCursor()
 
     -- make mouse sprite
-    MOUSE_SPRITE = love.graphics.newImage((math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or "assets/sprites/kristal/mouse.png")
+    MOUSE_SPRITE = love.graphics.newImage((love.math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or "assets/sprites/kristal/mouse.png")
 
     -- setup structure
     love.filesystem.createDirectory("mods")
@@ -532,8 +530,7 @@ end
 function Kristal.errorHandler(msg)
     local copy_color = {1, 1, 1, 1}
     local anim_index = 1
-    math.randomseed(os.time()) -- seed!
-    local starwalker_error = (math.random(100) <= 5) -- 5% chance for starwalker
+    local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
     local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
     local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
 
@@ -750,10 +747,13 @@ function Kristal.updateCursor()
 end
 
 function Kristal.hideCursor()
-
-    if Kristal.Config["systemCursor"] and not Kristal.Config["alwaysShowCursor"] then
+    if (not Kristal.Config["systemCursor"]) then
         love.mouse.setVisible(false)
     end
+    if (Kristal.Config["systemCursor"]) and not Kristal.Config["alwaysShowCursor"] then
+        love.mouse.setVisible(false)
+    end
+
     MOUSE_VISIBLE = false
 end
 
