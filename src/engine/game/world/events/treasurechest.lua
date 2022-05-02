@@ -1,4 +1,4 @@
-local TreasureChest, super = Class(Event)
+local TreasureChest, super = Class(Event, "chest")
 
 function TreasureChest:init(x, y, properties)
     super:init(self, x, y)

@@ -757,4 +757,21 @@ function Utils.parsePropertyList(id, properties)
     end
 end
 
+function Utils.parseFlagProperties(flag, inverted, value, default_value, properties)
+    properties = properties or {}
+    local result_inverted = false
+    local result_flag = nil
+    local result_value = default_value
+    if properties[flag] then
+        result_inverted, result_flag = Utils.startsWith(properties[flag], "!")
+    end
+    if properties[inverted] then
+        result_inverted = not result_inverted
+    end
+    if properties[value] then
+        result_value = properties[value]
+    end
+    return result_flag, result_inverted, result_value
+end
+
 return Utils

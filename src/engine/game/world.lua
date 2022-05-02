@@ -39,6 +39,12 @@ function World:init(map)
 
     self.cutscene = nil
 
+    self.controller_parent = Object()
+    self.controller_parent.layer = WORLD_LAYERS["bottom"] - 1
+    self.controller_parent.persistent = true
+    self.controller_parent.world = self
+    self:addChild(self.controller_parent)
+
     self.fader = Fader()
     self.fader.layer = WORLD_LAYERS["above_ui"]
     self.fader.persistent = true
@@ -547,6 +553,11 @@ function World:setupMap(map, ...)
     for _,child in ipairs(self.children) do
         if not child.persistent then
             self:removeChild(child)
+        end
+    end
+    for _,child in ipairs(self.controller_parent.children) do
+        if not child.persistent then
+            self.controller_parent:removeChild(child)
         end
     end
 

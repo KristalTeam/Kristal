@@ -1,4 +1,4 @@
-local ChaserEnemy, super = Class(Character)
+local ChaserEnemy, super = Class(Character, "enemy")
 
 function ChaserEnemy:init(actor, x, y, properties)
     super:init(self, actor, x, y)

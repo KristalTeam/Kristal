@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="98">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="27" height="14" tilewidth="40" tileheight="40" infinite="0" nextlayerid="12" nextobjectid="100">
  <editorsettings>
   <export target="alley3.lua" format="lua"/>
  </editorsettings>
@@ -79,7 +79,6 @@
   <object id="14" name="forcefield" x="200" y="200" width="40" height="160">
    <properties>
     <property name="flag" value="alley3_enable_forcefield"/>
-    <property name="inverted" type="bool" value="false"/>
    </properties>
   </object>
   <object id="26" name="setflag" x="360" y="160" width="40" height="320">
@@ -109,32 +108,38 @@
   </object>
   <object id="72" name="pushblock" x="600" y="360" width="40" height="40"/>
   <object id="90" name="pushblock" x="720" y="320" width="40" height="40"/>
-  <object id="97" name="forcefield" x="600" y="200" width="160" height="40">
+  <object id="99" name="interactable" x="360" y="480" width="40" height="40">
    <properties>
-    <property name="flag" value="alley3_butons"/>
-    <property name="visible" type="bool" value="true"/>
+    <property name="setflag" value="clippy"/>
    </properties>
   </object>
  </objectgroup>
- <objectgroup color="#7fff00" id="5" name="objects_controllers">
-  <object id="28" name="toggle_controller" x="320" y="240">
+ <objectgroup color="#00c000" id="5" name="controllers">
+  <object id="28" name="toggle" x="320" y="240">
    <properties>
     <property name="flag" value="alley3_enable_forcefield"/>
     <property name="target" type="object" value="29"/>
    </properties>
    <point/>
   </object>
-  <object id="32" name="toggle_controller" x="800" y="240">
+  <object id="32" name="toggle" x="800" y="240">
    <properties>
     <property name="flag" value="alley3_seen_forcefield"/>
     <property name="target" type="object" value="30"/>
    </properties>
    <point/>
   </object>
-  <object id="33" name="toggle_controller" x="460" y="180">
+  <object id="33" name="toggle" x="460" y="180">
    <properties>
     <property name="flag" value="alley3_enable_starwalker"/>
     <property name="target" type="object" value="27"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="98" name="toggle" x="240" y="400">
+   <properties>
+    <property name="flag" value="!clippy"/>
+    <property name="target" type="object" value="13"/>
    </properties>
    <point/>
   </object>

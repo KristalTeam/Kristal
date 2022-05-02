@@ -23,6 +23,7 @@ Registry.paths = {
     ["tilesets"]         = "world/tilesets",
     ["maps"]             = "world/maps",
     ["events"]           = "world/events",
+    ["controllers"]      = "world/controllers",
     ["shops"]            = "shops"
 }
 
@@ -56,6 +57,7 @@ function Registry.initialize(preload)
         Registry.initTilesets()
         Registry.initMaps()
         Registry.initEvents()
+        Registry.initControllers()
         Registry.initShops()
 
         Kristal.callEvent("onRegistered")
@@ -278,6 +280,18 @@ function Registry.createEvent(id, ...)
     end
 end
 
+function Registry.getController(id)
+    return self.controllers[id]
+end
+
+function Registry.createController(id, ...)
+    if self.controllers[id] then
+        return self.controllers[id](...)
+    else
+        error("Attempt to create non existent controller \"" .. tostring(id) .. "\"")
+    end
+end
+
 function Registry.getShop(id)
     return self.shops[id]
 end
@@ -369,6 +383,10 @@ end
 
 function Registry.registerEvent(id, class)
     self.events[id] = class
+end
+
+function Registry.registerController(id, class)
+    self.controllers[id] = class
 end
 
 function Registry.registerShop(id, class)
@@ -588,6 +606,17 @@ function Registry.initEvents()
     end
 
     Kristal.callEvent("onRegisterEvents")
+end
+
+function Registry.initControllers()
+    self.controllers = {}
+
+    for _,path,controller in self.iterScripts(Registry.paths["controllers"]) do
+        controller.id = controller.id or path
+        self.registerController(controller.id, controller)
+    end
+
+    Kristal.callEvent("onRegisterControllers")
 end
 
 function Registry.initShops()

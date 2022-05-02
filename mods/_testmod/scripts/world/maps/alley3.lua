@@ -8,8 +8,8 @@ return {
   height = 14,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 11,
-  nextobjectid = 98,
+  nextlayerid = 12,
+  nextobjectid = 100,
   properties = {},
   tilesets = {
     {
@@ -353,8 +353,7 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-            ["flag"] = "alley3_enable_forcefield",
-            ["inverted"] = false
+            ["flag"] = "alley3_enable_forcefield"
           }
         },
         {
@@ -448,19 +447,18 @@ return {
           properties = {}
         },
         {
-          id = 97,
-          name = "forcefield",
+          id = 99,
+          name = "interactable",
           type = "",
           shape = "rectangle",
-          x = 600,
-          y = 200,
-          width = 160,
+          x = 360,
+          y = 480,
+          width = 40,
           height = 40,
           rotation = 0,
           visible = true,
           properties = {
-            ["flag"] = "alley3_butons",
-            ["visible"] = true
+            ["setflag"] = "clippy"
           }
         }
       }
@@ -469,7 +467,7 @@ return {
       type = "objectgroup",
       draworder = "topdown",
       id = 5,
-      name = "objects_controllers",
+      name = "controllers",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -480,7 +478,7 @@ return {
       objects = {
         {
           id = 28,
-          name = "toggle_controller",
+          name = "toggle",
           type = "",
           shape = "point",
           x = 320,
@@ -496,7 +494,7 @@ return {
         },
         {
           id = 32,
-          name = "toggle_controller",
+          name = "toggle",
           type = "",
           shape = "point",
           x = 800,
@@ -512,7 +510,7 @@ return {
         },
         {
           id = 33,
-          name = "toggle_controller",
+          name = "toggle",
           type = "",
           shape = "point",
           x = 460,
@@ -524,6 +522,22 @@ return {
           properties = {
             ["flag"] = "alley3_enable_starwalker",
             ["target"] = { id = 27 }
+          }
+        },
+        {
+          id = 98,
+          name = "toggle",
+          type = "",
+          shape = "point",
+          x = 240,
+          y = 400,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["flag"] = "!clippy",
+            ["target"] = { id = 13 }
           }
         }
       }

@@ -153,7 +153,7 @@ PushBlock = require("src.engine.game.world.events.pushblock")
 TileButton = require("src.engine.game.world.events.tilebutton")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
 
-ToggleController = require("src.engine.game.world.events.togglecontroller")
+ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")
 
 Battle = require("src.engine.game.battle")
 Encounter = require("src.engine.game.battle.encounter")

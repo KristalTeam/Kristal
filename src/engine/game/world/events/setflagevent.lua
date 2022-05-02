@@ -1,4 +1,4 @@
-local SetFlagEvent, super = Class(Event)
+local SetFlagEvent, super = Class(Event, "setflag")
 
 function SetFlagEvent:init(x, y, width, height, properties)
     super:init(self, x, y, width, height)

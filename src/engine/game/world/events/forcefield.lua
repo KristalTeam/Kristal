@@ -18,9 +18,7 @@ function Forcefield:init(x, y, w, h, properties)
 
     self.always_visible = properties["visible"] or false
 
-    self.flag = properties["flag"]
-    self.inverted = properties["inverted"] or false
-    self.flag_value = properties["value"]
+    self.flag, self.inverted, self.flag_value = Utils.parseFlagProperties("flag", "inverted", "value", nil, properties)
 
     self:updateActive()
 end

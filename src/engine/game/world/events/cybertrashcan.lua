@@ -1,4 +1,4 @@
-local CyberTrashCan, super = Class(Event)
+local CyberTrashCan, super = Class(Event, "cybertrash")
 
 function CyberTrashCan:init(x, y, properties)
     super:init(self, x, y)

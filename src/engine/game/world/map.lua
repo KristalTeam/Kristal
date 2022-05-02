@@ -47,6 +47,12 @@ function Map:init(world, data)
     self.events_by_name = {}
     self.events_by_id = {}
 
+    self.shapes_by_id = {}
+    self.shapes_by_name = {}
+
+    self.hitboxes_by_id = {}
+    self.hitboxes_by_name = {}
+
     if data then
         self:populateTilesets(data.tilesets)
     end
@@ -151,6 +157,26 @@ function Map:getEvents(name)
         return self.events_by_name[name] or {}
     else
         return self.events
+    end
+end
+
+function Map:getShape(id)
+    if type(id) == "number" then
+        return self.shapes_by_id[id]
+    else
+        if self.shapes_by_name[id] then
+            return self.shapes_by_name[id][1]
+        end
+    end
+end
+
+function Map:getHitbox(id)
+    if type(id) == "number" then
+        return self.hitboxes_by_id[id]
+    else
+        if self.hitboxes_by_name[id] then
+            return self.hitboxes_by_name[id][1]
+        end
     end
 end
 
@@ -273,7 +299,9 @@ function Map:loadLayer(layer, depth)
         self:loadImage(layer, depth)
     elseif layer.type == "objectgroup" then
         if Utils.startsWith(layer.name:lower(), "objects") then
-            self:loadObjects(layer, depth)
+            self:loadObjects(layer, depth, "events")
+        elseif Utils.startsWith(layer.name:lower(), "controllers") then
+            self:loadObjects(layer, depth, "controllers")
         elseif Utils.startsWith(layer.name:lower(), "markers") then
             self:loadMarkers(layer)
         elseif Utils.startsWith(layer.name:lower(), "collision") then
@@ -356,21 +384,33 @@ function Map:loadHitboxes(layer)
             invert = properties["inverted"] or properties["outside"] or false,
             inside = properties["inside"] or properties["outside"] or false
         }
+        local current_hitbox
         if v.shape == "rectangle" then
-            table.insert(hitboxes, Hitbox(self.world, v.x+ox, v.y+oy, v.width, v.height, mode))
+            current_hitbox = Hitbox(self.world, v.x+ox, v.y+oy, v.width, v.height, mode)
         elseif v.shape == "polyline" then
+            local line_colliders = {}
             for i = 1, #v.polyline-1 do
                 local j = i + 1
                 local x1, y1 = v.x + v.polyline[i].x + ox, v.y + v.polyline[i].y + oy
                 local x2, y2 = v.x + v.polyline[j].x + ox, v.y + v.polyline[j].y + oy
-                table.insert(hitboxes, LineCollider(self.world, x1, y1, x2, y2, mode))
+                table.insert(line_colliders, LineCollider(self.world, x1, y1, x2, y2, mode))
             end
+            current_hitbox = ColliderGroup(self.world, line_colliders)
         elseif v.shape == "polygon" then
             local points = {}
             for i = 1, #v.polygon do
                 table.insert(points, {v.x + v.polygon[i].x + ox, v.y + v.polygon[i].y + oy})
             end
-            table.insert(hitboxes, PolygonCollider(self.world, points, mode))
+            current_hitbox = PolygonCollider(self.world, points, mode)
+        end
+
+        if current_hitbox then
+            table.insert(hitboxes, current_hitbox)
+
+            self.hitboxes_by_id[v.id] = current_hitbox
+
+            self.hitboxes_by_name[v.name] = self.hitboxes_by_name[v.name] or {}
+            table.insert(self.hitboxes_by_name[v.name], current_hitbox)
         end
     end
     return hitboxes
@@ -378,6 +418,13 @@ end
 
 function Map:loadShapes(layer)
     self.shape_layers[layer.name] = layer
+
+    for _,v in ipairs(layer.objects) do
+        self.shapes_by_id[v.id] = v
+
+        self.shapes_by_name[v.name] = self.shapes_by_name[v.name] or {}
+        table.insert(self.shapes_by_name[v.name], v)
+    end
 end
 
 function Map:loadMarkers(layer)
@@ -437,7 +484,9 @@ function Map:loadPaths(layer)
     end
 end
 
-function Map:loadObjects(layer, depth)
+function Map:loadObjects(layer, depth, layer_type)
+    local parent = layer_type == "controllers" and self.world.controller_parent or self.world
+
     for _,v in ipairs(layer.objects) do
         v.width = v.width or 0
         v.height = v.height or 0
@@ -476,7 +525,12 @@ function Map:loadObjects(layer, depth)
             end
 
             if not skip_loading then
-                local obj = self:loadObject(obj_type, v)
+                local obj
+                if layer_type == "controllers" then
+                    obj = self:loadController(obj_type, v)
+                else
+                    obj = self:loadObject(obj_type, v)
+                end
                 if obj then
                     obj.x = obj.x + (layer.offsetx or 0)
                     obj.y = obj.y + (layer.offsety or 0)
@@ -488,7 +542,7 @@ function Map:loadObjects(layer, depth)
                     end
                     obj.layer = depth
                     obj.data = v
-                    self.world:addChild(obj)
+                    parent:addChild(obj)
 
                     table.insert(self.events, obj)
 
@@ -563,7 +617,37 @@ function Map:loadObject(name, data)
         return PushBlock(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "tilebutton" then
         return TileButton(data.x, data.y, data.width, data.height, data.properties)
-    elseif name:lower() == "toggle_controller" then
+    end
+end
+
+function Map:loadController(name, data)
+    -- Mod object loading
+    local obj = Kristal.modCall("loadController", self.world, name, data)
+    if obj then
+        return obj
+    else
+        local controllers = Kristal.modGet("Controllers")
+        if controllers and controllers[name] then
+            return controllers[name](data)
+        end
+    end
+    local registered_event = Registry.getController(name)
+    if registered_event then
+        return Registry.createController(name, data)
+    end
+    -- Library object loading
+    for id,lib in pairs(Mod.libs) do
+        local obj = Kristal.libCall(id, "loadController", self.world, name, data)
+        if obj then
+            return obj
+        else
+            if lib.Controllers and lib.Controllers[name] then
+                return lib.Controllers[name](data)
+            end
+        end
+    end
+    -- Kristal object loading
+    if name:lower() == "toggle" then
         return ToggleController(data.properties)
     end
 end
