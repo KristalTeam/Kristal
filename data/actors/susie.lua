@@ -141,9 +141,9 @@ function actor:init()
 
         ["point_left"] = {-11, 2},
         ["point_right"] = {0, 2},
-        ["point_up"] = {-2, 0},
+        ["point_up"] = {-2, -12},
 
-        ["point_up_turn"] = {-2, 0},
+        ["point_up_turn"] = {-2, -12},
 
         ["playful_punch"] = {-8, 0},
 

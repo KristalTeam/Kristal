@@ -47,6 +47,11 @@ local function updateTimerHandle(handle)
             end
             handle.time = handle.time - handle.limit
             handle.count = handle.count - 1
+
+            -- Fix for infinite loop when waiting 0 seconds
+            if handle.limit == 0 then
+                break
+            end
         end
 end
 

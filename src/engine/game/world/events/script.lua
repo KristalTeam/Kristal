@@ -14,17 +14,21 @@ function Script:init(x, y, w, h, properties)
     self.set_value = properties["setvalue"]
 
     self.once = properties["once"] ~= false
+    self.temp = properties["temp"] or false
 end
 
 function Script:onAdd(parent)
     super:onAdd(self, parent)
-    if self.once and self:getFlag("used_once", false) then
+    if self.once and not self.temp and self:getFlag("used_once", false) then
         self:remove()
     end
 end
 
 function Script:onEnter(chara)
     if chara.is_player then
+        if self.cutscene and self.world:hasCutscene() then
+            return true
+        end
         if self.script then
             Registry.getEventScript(self.script)(self, chara)
         end
