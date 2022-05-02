@@ -744,12 +744,12 @@ function Menu:keypressed(key, _, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-        if self.selected_option > 12 then self.selected_option = 1  end
-        if self.selected_option < 1  then self.selected_option = 12 end
+        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if self.selected_option > 12 then self.selected_option = is_repeat and 12 or 1  end
+        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 12 end
 
         local y_off = (self.selected_option - 1) * 32
         if self.selected_option >= 12 then
