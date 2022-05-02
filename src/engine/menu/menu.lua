@@ -725,7 +725,8 @@ function Menu:keypressed(key, _, is_repeat)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-        self.selected_option = math.max(1, math.min(TARGET_MOD and 4 or 5, self.selected_option))
+        if self.selected_option > 5 - self.target_mod_offset then self.selected_option = is_repeat and (5 - self.target_mod_offset) or 1                            end
+        if self.selected_option < 1                          then self.selected_option = is_repeat and 1                            or (5 - self.target_mod_offset) end
 
         if old ~= self.selected_option then
             self.ui_move:stop()
@@ -945,7 +946,15 @@ function Menu:keypressed(key, _, is_repeat)
             self.heart_target_x = 152
             self.heart_target_y = 129 + (self.selected_option - 1) * 32
 
-            if Input.isConfirm(key) then
+            if Input.isCancel(key) then
+                self:setState("OPTIONS")
+                self.selected_option = 2
+                self.ui_select:stop()
+                self.ui_select:play()
+                Input.saveBinds()
+                self.heart_target_x = 152
+                self.heart_target_y = 129 + 1 * 32
+            elseif Input.isConfirm(key) then
                 self.rebinding = false
                 self.selecting_key = false
                 if (self.selected_option == Utils.tableLength(Input.aliases) + 1) then

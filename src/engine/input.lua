@@ -74,9 +74,7 @@ function Input.setBind(alias, index, key)
     for aliasname, lalias in pairs(Input.aliases) do
         for keyindex, lkey in ipairs(lalias) do
             if lkey == key then
-                print(key .. " is already bound to " .. aliasname)
                 if index > #Input.aliases[alias] then
-                    print("this is new, not allowed!!")
                     return false
                 else
                     Input.aliases[aliasname][keyindex] = old_key
