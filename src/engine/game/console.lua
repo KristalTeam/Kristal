@@ -333,7 +333,7 @@ function Console:unsafeRun(str)
 end
 
 function Console:onConsoleKeyPressed(key)
-    if (key == "`") then
+    if (key == "`") and not (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
         if self.is_open then
             self:close()
             self.just_closed = true

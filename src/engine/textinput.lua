@@ -153,6 +153,11 @@ function TextInput.onKeyPressed(key)
                 string_1 = string.sub(string_1, 1, byteoffset)
                 self.cursor_x = utf8.len(string_1)
                 self.cursor_x_tallest = self.cursor_x
+            else
+                -- No offset, so assume we only have one character
+                string_1 = ""
+                self.cursor_x = 0
+                self.cursor_x_tallest = 0
             end
             self.input[self.cursor_y] = string_1 .. string_2
         end
@@ -168,8 +173,15 @@ function TextInput.onKeyPressed(key)
             self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
             table.remove(self.input, self.cursor_y + 1)
         else
-            local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
-            local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+            local string_1
+            local string_2
+            if self.cursor_x ~= 0 then
+                string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
+                string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+            else
+                string_1 = ""
+                string_2 = self.input[self.cursor_y]
+            end
 
             -- get the byte offset to the first UTF-8 character in the string.
             local byteoffset = utf8.offset(string_2, 2)

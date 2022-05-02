@@ -42,7 +42,7 @@ function Menu:enter()
     self.background_image_animation = Assets.getFrames("kristal/title_bg_anim")
 
     -- Initialize variables for the menu
-    self.stage = Object()
+    self.stage = Stage()
 
     self.list = ModList(69, 70, 502, 370)
     self.list.active = false
