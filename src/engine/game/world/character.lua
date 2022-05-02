@@ -446,6 +446,15 @@ function Character:convertToNPC(properties)
     return npc
 end
 
+function Character:convertToEnemy(properties)
+    local enemy = ChaserEnemy(self.actor, self.x, self.y, properties)
+    enemy.layer = self.layer
+    enemy:setFacing(self.facing)
+    self.world:addChild(enemy)
+    self:remove()
+    return enemy
+end
+
 function Character:update()
     self.actor:onWorldUpdate(self)
 

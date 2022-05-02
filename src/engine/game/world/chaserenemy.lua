@@ -27,7 +27,7 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.can_chase = properties["chase"]
     self.chase_speed = properties["chasespeed"] or 9
     self.chase_dist = properties["chasedist"] or 200
-    self.chasing = false
+    self.chasing = properties["chasing"] or false
 
     self.alert_timer = 0
     self.alert_icon = nil
