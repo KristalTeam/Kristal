@@ -90,7 +90,7 @@ function PushBlock:onPush(facing)
     local input_lock = Game:getConfig("pushBlockInputLock")
 
     if input_lock then
-        Game.lock_input = true
+        Game.lock_movement = true
     end
 
     self.state = "PUSH"
@@ -100,7 +100,7 @@ function PushBlock:onPush(facing)
         self:onPushEnd(facing)
 
         if input_lock and not self.world.cutscene then
-            Game.lock_input = false
+            Game.lock_movement = false
         end
     end)
 end

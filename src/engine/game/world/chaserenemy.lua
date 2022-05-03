@@ -57,7 +57,7 @@ function ChaserEnemy:onCollide(player)
             self.world.encountering_enemy = true
             self.sprite:setAnimation("hurt")
             self.sprite.aura = false
-            Game.lock_input = true
+            Game.lock_movement = true
             self.world.timer:script(function(wait)
                 Assets.playSound("tensionhorn")
                 wait(8/30)
@@ -65,7 +65,7 @@ function ChaserEnemy:onCollide(player)
                 src:setPitch(1.1)
                 wait(12/30)
                 self.world.encountering_enemy = false
-                Game.lock_input = false
+                Game.lock_movement = false
                 Game:encounter(encounter, true, self)
                 for _,enemy in ipairs(self.stage:getObjects(ChaserEnemy)) do
                     if enemy ~= self and self.group and enemy.group == self.group then

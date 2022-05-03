@@ -218,7 +218,7 @@ function World:onStateChange(old, new)
 end
 
 function World:keypressed(key)
-    if Kristal.Console.is_open then return end
+    if OVERLAY_OPEN then return end
     if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
         if key == "m" then
             if self.music then
@@ -241,7 +241,7 @@ function World:keypressed(key)
         end
     end
 
-    if Game.lock_input then return end
+    if Game.lock_movement then return end
 
     if self.state == "GAMEPLAY" then
         if Input.isConfirm(key) and self.player then

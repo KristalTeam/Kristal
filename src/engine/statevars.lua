@@ -18,3 +18,6 @@ CURRENT_SPEED_MULT = 1
 
 MOUSE_VISIBLE = false
 MOUSE_SPRITE = nil
+
+OVERLAY_OPEN = false
+NOCLIP = false

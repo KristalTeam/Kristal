@@ -17,7 +17,7 @@ function WorldCutscene:init(group, id, ...)
 
     self.moving_chars = {}
 
-    Game.lock_input = true
+    Game.lock_movement = true
     Game.cutscene_active = true
 
     if Game:isLight() then
@@ -52,7 +52,7 @@ function WorldCutscene:update()
 end
 
 function WorldCutscene:onEnd()
-    Game.lock_input = false
+    Game.lock_movement = false
     Game.cutscene_active = false
 
     if Game.world.cutscene == self then

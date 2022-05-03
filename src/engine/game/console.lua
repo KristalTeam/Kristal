@@ -82,6 +82,7 @@ end
 
 function Console:open()
     self.is_open = true
+    OVERLAY_OPEN = true
     self.history_index = #self.command_history + 1
 
     TextInput.attachInput(self.input, {
@@ -125,6 +126,7 @@ end
 
 function Console:close()
     self.is_open = false
+    OVERLAY_OPEN = false
     TextInput.endInput()
 end
 
@@ -338,18 +340,14 @@ end
 
 function Console:onConsoleKeyPressed(key)
     if (key == "`") and not (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
+        Input.clearPressedKey("`")
         if self.is_open then
             self:close()
-            self.just_closed = true
         else
             return true
         end
         return true
     end
-end
-
-function Console:update()
-    self.just_closed = false
 end
 
 return Console

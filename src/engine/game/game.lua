@@ -14,7 +14,7 @@ function Game:clear()
     self.gameover = nil
     self.inventory = nil
     self.quick_save = nil
-    self.lock_input = false
+    self.lock_movement = false
 end
 
 function Game:enter(previous_state, save_id, save_name)
@@ -26,7 +26,7 @@ function Game:enter(previous_state, save_id, save_name)
 
     Kristal.callEvent("init")
 
-    self.lock_input = false
+    self.lock_movement = false
 
     if save_id then
         Kristal.loadGame(save_id, true)
@@ -271,6 +271,8 @@ function Game:load(data, index, fade)
     -- END SAVE FILE VARIABLES --
 
     Kristal.callEvent("load", data, self.is_new_file, index)
+
+    Kristal.DebugSystem:refresh()
 end
 
 function Game:setLight(light)
@@ -552,7 +554,7 @@ function Game:update()
 
     if not self.started then
         self.started = true
-        self.lock_input = false
+        self.lock_movement = false
         if self.world.player then
             self.world.player.visible = true
         end
@@ -585,6 +587,12 @@ function Game:update()
 end
 
 function Game:keypressed(key)
+    if OVERLAY_OPEN then return end
+
+    -- To work with input clearing, let's shove key processing through Input.
+    if not Input.processKeyPressedFunc(key) then
+        return
+    end
 
     if Kristal.callEvent("onKeyPressed", key) then
         return

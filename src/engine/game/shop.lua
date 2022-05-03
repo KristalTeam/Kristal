@@ -813,7 +813,7 @@ function Shop:drawBackground()
 end
 
 function Shop:keypressed(key)
-    if Kristal.Console.is_open then return end
+    if OVERLAY_OPEN then return end
 
     if self.state == "MAINMENU" then
         if Input.isConfirm(key) then

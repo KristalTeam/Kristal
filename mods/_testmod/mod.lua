@@ -124,7 +124,7 @@ function Mod:onKeyPressed(key)
                 end
             end
         end
-        if not Game.lock_input then
+        if not Game.lock_movement then
             if key == "b" and Game.state == "OVERWORLD" then
                 Input.clearDownPressed()
                 Game:encounter("virovirokun", true)
@@ -134,7 +134,7 @@ function Mod:onKeyPressed(key)
                 Game.world.player:shake(4, 0)
             end
         end
-        if Game.world.player and not Game.lock_input then
+        if Game.world.player and not Game.lock_movement then
             local player = Game.world.player
             if key == "e" then
                 player:explode()
@@ -145,7 +145,7 @@ function Mod:onKeyPressed(key)
                 local facing = player.facing
 
                 if facing == "left" or facing == "right" then
-                    Game.lock_input = true
+                    Game.lock_movement = true
 
                     player.flip_x = facing == "left"
                     player:setSprite("battle/attack")
@@ -153,7 +153,7 @@ function Mod:onKeyPressed(key)
                         player:setSprite(player.actor:getDefault())
                         player.flip_x = last_flipped
 
-                        Game.lock_input = false
+                        Game.lock_movement = false
                     end)
 
                     Assets.playSound("laz_c")

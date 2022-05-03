@@ -175,6 +175,8 @@ function Arena:update()
 
     super:update(self)
 
+    if NOCLIP then return end
+
     local soul = Game.battle.soul
     if soul and Game.battle.soul.collidable then
         Object.startCache()

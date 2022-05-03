@@ -1385,6 +1385,7 @@ function Battle:hasAction(character_id)
 end
 
 function Battle:checkSolidCollision(collider)
+    if NOCLIP then return false end
     Object.startCache()
     if self.arena then
         if self.arena:collidesWith(collider) then
@@ -2210,7 +2211,7 @@ function Battle:getTargetForItem(item, default_ally, default_enemy)
 end
 
 function Battle:keypressed(key)
-    if Kristal.Console.is_open then return end
+    if OVERLAY_OPEN then return end
 
     if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
         if key == "h" then

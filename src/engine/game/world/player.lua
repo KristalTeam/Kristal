@@ -129,7 +129,8 @@ function Player:interpolateFollowers()
 end
 
 function Player:isMovementEnabled()
-    return not Game.lock_input
+    return not OVERLAY_OPEN
+        and not Game.lock_movement
         and Game.state == "OVERWORLD"
         and self.world.state == "GAMEPLAY"
         and self.hurt_timer == 0

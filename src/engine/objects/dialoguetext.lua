@@ -130,7 +130,7 @@ end
 function DialogueText:update()
     local speed = self.state.speed
 
-    if not Kristal.Console.is_open then
+    if not OVERLAY_OPEN then
         if Input.pressed("menu") then
             self.fast_skipping_timer = 1
         end

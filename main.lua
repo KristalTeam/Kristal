@@ -407,10 +407,10 @@ function love.textinput(key)
 end
 
 function love.keypressed(key)
-    TextInput.onKeyPressed(key)
     Input.onKeyPressed(key)
-    if key == "`" then
-        if Kristal.DebugSystem:isMenuOpen() then
+    TextInput.onKeyPressed(key)
+    if key == "`" and Input.processKeyPressedFunc(key) then
+        if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
             Kristal.DebugSystem:closeMenu()
         else
             if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
@@ -419,7 +419,6 @@ function love.keypressed(key)
                 end
             else
                 if Kristal.Console then
-                    if Kristal.Console.just_closed then return end
                     if not Kristal.Console.is_open then
                         Kristal.Console:open()
                     end
@@ -832,6 +831,8 @@ function Kristal.returnToMenu()
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
     end)
+
+    Kristal.DebugSystem:refresh()
 end
 
 function Kristal.quickReload(dont_save)

@@ -168,6 +168,12 @@ function Input.pressed(key)
     end
 end
 
+function Input.processKeyPressedFunc(key)
+    if Input.pressed(key) then
+        return true
+    end
+end
+
 function Input.consumePress(key)
     if self.aliases[key] then
         local pressed = false
