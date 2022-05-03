@@ -97,7 +97,7 @@ function DebugSystem:registerDefaults()
         else
             return "Spawn The Player"
         end
-    end, nil, function()
+    end, "Spawn or remove the current player's object.", function()
         if Game.world.player then
             Game.world.player:explode()
         else
@@ -105,6 +105,9 @@ function DebugSystem:registerDefaults()
             Game.world.player:interpolateFollowers()
         end
     end, "OVERWORLD")
+
+    -- Battle specific
+    self:registerOption("Leave Battle", "Instantly complete a battle.", function() Game.battle:setState("VICTORY") end, "BATTLE")
 end
 
 function DebugSystem:getValidOptions()
