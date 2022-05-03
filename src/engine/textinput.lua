@@ -543,7 +543,7 @@ function TextInput.draw(options)
     local off_y = options["y"] or 0
     local font = options["font"] or Assets.getFont("console")
     local get_prefix = options["get_prefix"] or function() return "" end
-    local print = options["print"] or love.graphics.print
+    local print_func = options["print"] or love.graphics.print
 
     local base_off = (options["prefix_width"] or 0) + off_x
 
@@ -608,16 +608,16 @@ function TextInput.draw(options)
                 prefix = get_prefix("middle")
             end
         end
-        print(prefix, off_x, off_y + (i - 1) * 16, true)
-        print(text, base_off, off_y + (i - 1) * 16, true)
+        print_func(prefix, off_x, off_y + (i - 1) * 16, true)
+        print_func(text, base_off, off_y + (i - 1) * 16, true)
     end
 
     love.graphics.setColor(1, 0, 1, 1)
     if TextInput.flash_timer < 0.5 then
         if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
-            print("_", cursor_pos_x, cursor_pos_y, true)
+            print_func("_", cursor_pos_x, cursor_pos_y, true)
         else
-            print("|", cursor_pos_x, cursor_pos_y, true)
+            print_func("|", cursor_pos_x, cursor_pos_y, true)
         end
     end
 end

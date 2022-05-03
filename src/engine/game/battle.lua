@@ -1402,26 +1402,17 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
-function Battle:hurt(amount, element)
-    element = element or 0
-
+function Battle:hurt(amount, exact)
     -- TODO: make this accurate!
     -- See gml_GlobalScript_scr_damage for reference
 
     -- For now, let's just use a very basic system...
 
     -- Pick a random party member to take damage from
-    local party_member = self.party[math.random(#self.party)]
-    while party_member.hp <= 0 do
-        party_member = self.party[math.random(#self.party)]
+    local battler = Utils.pick(Game.battle:getActiveParty())
+    if battler then
+        battler:hurt(amount, exact)
     end
-
-    party_member:hurt(amount, element)
-
-    --self.chara.health = self.chara.health - amount
-    --self:statusMessage("max", amount)
-
-    --global.inv = (global.invc * 40)
 end
 
 function Battle:setWaves(waves, allow_duplicates)
