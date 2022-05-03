@@ -406,7 +406,7 @@ function love.textinput(key)
     TextInput.onTextInput(key)
 end
 
-function love.keypressed(key)
+function love.keypressed(key, scancode, is_repeat)
     Input.onKeyPressed(key)
     TextInput.onKeyPressed(key)
     if key == "`" and Input.processKeyPressedFunc(key) and not TextInput.active then
@@ -428,7 +428,7 @@ function love.keypressed(key)
     end
 
     if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
-        Kristal.DebugSystem:keypressed(key)
+        Kristal.DebugSystem:keypressed(key, scancode, is_repeat)
     end
 
     if key == "f1" then

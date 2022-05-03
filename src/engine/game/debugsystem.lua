@@ -66,11 +66,6 @@ function DebugSystem:registerDefaults()
 
     self:registerOption("Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
 
-    self:registerOption("Toggle Fullscreen", "Toggle between fullscreen and windowed mode.", function()
-        Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-        love.window.setFullscreen(Kristal.Config["fullscreen"])
-    end)
-
     self:registerOption("Fast Forward", function() return self:appendBool("Speed up the engine.", FAST_FORWARD) end, function() FAST_FORWARD = not FAST_FORWARD end)
     self:registerOption("Debug Rendering", function() return self:appendBool("Draw debug information.", DEBUG_RENDER) end, function() DEBUG_RENDER = not DEBUG_RENDER end)
     self:registerOption("Hotswap", "Swap out code from the files. Might be unstable.", function() Hotswapper.scan() end)
@@ -133,6 +128,7 @@ function DebugSystem:openMenu()
     Assets.playSound("ui_select")
     self:setState("MENU")
     Kristal.showCursor()
+    love.keyboard.setKeyRepeat(true) -- TODO: Text repeat stack
 end
 
 function DebugSystem:closeMenu()
@@ -141,6 +137,7 @@ function DebugSystem:closeMenu()
     Assets.playSound("ui_move")
     self:setState("IDLE")
     Kristal.hideCursor()
+    love.keyboard.setKeyRepeat(false)
 end
 
 function DebugSystem:setState(state, reason)
@@ -167,7 +164,7 @@ function DebugSystem:updateBounds(options)
     end
 end
 
-function DebugSystem:keypressed(key)
+function DebugSystem:keypressed(key, _, is_repeat)
     if self.state == "MENU" then
         local options = self:getValidOptions()
         if Input.isCancel(key) then
@@ -182,11 +179,11 @@ function DebugSystem:keypressed(key)
                 option.func()
             end
         end
-        if Input.is("down", key) then
+        if Input.is("down", key) and (not is_repeat or self.current_selecting < #options) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting + 1
         end
-        if Input.is("up", key) then
+        if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting - 1
         end
