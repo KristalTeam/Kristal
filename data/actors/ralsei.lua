@@ -7,11 +7,11 @@ function actor:init()
     self.name = "Ralsei"
 
     -- Width and height for this actor, used to determine its center
-    self.width = 19
+    self.width = 21
     self.height = 40
 
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
-    self.hitbox = {0, 27, 19, 14}
+    self.hitbox = {0, 28, 19, 14}
 
     -- Color for this actor used in outline areas (optional, defaults to red)
     self.color = {0, 1, 0}
@@ -73,15 +73,15 @@ function actor:init()
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets
-        ["walk/down"] = {-1, 0},
+        ["walk/down"] = {0, 0},
         ["walk/left"] = {0, 0},
         ["walk/right"] = {0, 0},
-        ["walk/up"] = {-1, 0},
+        ["walk/up"] = {0, 0},
 
-        ["walk_blush/down"] = {-1, 0},
+        ["walk_blush/down"] = {0, 0},
         ["walk_blush/left"] = {0, 0},
         ["walk_blush/right"] = {0, 0},
-        ["walk_blush/up"] = {-1, 0},
+        ["walk_blush/up"] = {0, 0},
 
         ["slide"] = {-2, 2},
 
@@ -110,18 +110,18 @@ function actor:init()
 
         ["fall"] = {-10, 0},
         ["ball"] = {0, 9},
-        ["landed"] = {-1, 0},
+        ["landed"] = {-2, 0},
 
         ["hug"] = {0, 0},
         ["hug_stop"] = {0, 0},
 
-        ["laugh"] = {-2, 0},
+        ["laugh"] = {-1, 0},
 
         ["shocked_behind"] = {-9, 3},
         ["surprised_down"] = {-5, -1},
 
-        ["wave_start"] = {-1, 0},
-        ["wave_down"] = {1, 1},
+        ["wave_start"] = {0, 0},
+        ["wave_down"] = {0, 1},
 
         ["splat"] = {-15, 21},
         ["stool"] = {-11, 18}
