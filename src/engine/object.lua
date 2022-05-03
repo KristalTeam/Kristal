@@ -537,10 +537,11 @@ end
 
 function Object:applyTransformTo(transform)
     Utils.pushPerformance("Object#applyTransformTo")
-    transform:translate(self.x, self.y)
     if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
-        transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y))
+        self.parent.camera:applyParallax(transform, self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y)
+        --transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y))
     end
+    transform:translate(self.x, self.y)
     if self.flip_x or self.flip_y then
         transform:translate(self.width/2, self.height/2)
         transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)

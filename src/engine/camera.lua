@@ -12,8 +12,9 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
     self.ox = 0
     self.oy = 0
 
-    -- Camera zoom (scale)
-    self.zoom = 1
+    -- Camera scale
+    self.scale_x = 1
+    self.scale_y = 1
 
     -- Camera bounds (for clamping)
     self.bounds = nil
@@ -48,7 +49,7 @@ function Camera:setBounds(x, y, width, height)
 end
 
 function Camera:getRect()
-    return self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
+    return self.x - (self.width / 2) / self.scale_x, self.y - (self.height / 2) / self.scale_y, self.width / self.scale_x, self.height / self.scale_y
 end
 
 function Camera:getPosition() return self.x, self.y end
@@ -64,9 +65,10 @@ function Camera:setOffset(ox, oy)
     self.oy = oy
 end
 
-function Camera:getZoom() return self.zoom end
-function Camera:setZoom(zoom)
-    self.zoom = zoom
+function Camera:getScale() return self.scale_x, self.scale_y end
+function Camera:setScale(sx, sy)
+    self.scale_x = sx or 1
+    self.scale_y = sy or sx or 1
     self:keepInBounds()
 end
 
@@ -147,12 +149,12 @@ end
 
 function Camera:getMinPosition()
     local x, y, w, h = self:getBounds()
-    return x + (self.width / self.zoom) / 2, y + (self.height / self.zoom) / 2
+    return x + (self.width / self.scale_x) / 2, y + (self.height / self.scale_y) / 2
 end
 
 function Camera:getMaxPosition()
     local x, y, w, h = self:getBounds()
-    return x + w - (self.width / self.zoom) / 2, y + h - (self.height / self.zoom) / 2
+    return x + w - (self.width / self.scale_x) / 2, y + h - (self.height / self.scale_y) / 2
 end
 
 function Camera:keepInBounds()
@@ -201,10 +203,8 @@ function Camera:update()
 end
 
 function Camera:getParallax(px, py, ox, oy)
-    local x, y, w, h = self:getRect()
-
-    x = x + self.ox
-    y = y + self.oy
+    local x, y = self.x - (self.width / 2) + self.ox, self.y - (self.height / 2) + self.oy
+    local w, h = self.width, self.height
 
     local parallax_x, parallax_y
 
@@ -223,9 +223,20 @@ function Camera:getParallax(px, py, ox, oy)
     return parallax_x, parallax_y
 end
 
+function Camera:applyParallax(transform, px, py, ox, oy)
+    local parallax_x, parallax_y = self:getParallax(px, py, ox, oy)
+
+    local tx, ty = -(self.width/2/self.scale_x) - (-self.x - self.ox), -(self.height/2/self.scale_y) -(-self.y - self.oy)
+    transform:translate(tx * (1 - px), ty * (1 - py))
+
+    local sx, sy = 1 + (self.scale_x - 1) * px, 1 + (self.scale_y - 1) * py
+    transform:scale(sx / self.scale_x, sy / self.scale_y)
+end
+
 function Camera:applyTo(transform)
-    transform:translate((-self.x + self.width/2) - self.ox, (-self.y + self.height/2) - self.oy)
-    transform:scale(self.zoom, self.zoom)
+    transform:scale(self.scale_x, self.scale_y)
+    transform:translate(-self.x - self.ox, -self.y - self.oy)
+    transform:translate(self.width/2/self.scale_x, self.height/2/self.scale_y)
 end
 
 function Camera:getTransform()
