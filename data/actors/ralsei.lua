@@ -121,7 +121,7 @@ function actor:init()
         ["surprised_down"] = {-5, -1},
 
         ["wave_start"] = {0, 0},
-        ["wave_down"] = {0, 1},
+        ["wave_down"] = {2, 1},
 
         ["splat"] = {-15, 21},
         ["stool"] = {-11, 18}
