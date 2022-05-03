@@ -333,7 +333,7 @@ function GameOver:draw()
 end
 
 function GameOver:keypressed(key)
-    if Game.console.is_open then return end
+    if Kristal.Console.is_open then return end
 
 end
 

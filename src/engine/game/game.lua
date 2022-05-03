@@ -15,7 +15,6 @@ function Game:clear()
     self.inventory = nil
     self.quick_save = nil
     self.lock_input = false
-    --self.console = nil
 end
 
 function Game:enter(previous_state, save_id, save_name)
@@ -53,7 +52,6 @@ end
 
 function Game:leave()
     self:clear()
-    self.console = nil
     self.quick_save = nil
 end
 
@@ -172,13 +170,6 @@ function Game:load(data, index, fade)
 
     self.world = World()
     self.stage:addChild(self.world)
-
-    if not self.console then
-        self.console = Console()
-        self.stage:addChild(self.console)
-    else
-        self.console:setParent(self.stage)
-    end
 
     self.fader = Fader()
     self.fader.layer = 1000
@@ -598,8 +589,6 @@ function Game:keypressed(key)
     if Kristal.callEvent("onKeyPressed", key) then
         return
     end
-
-    self.console:keypressed(key)
 
     if self.state == "BATTLE" then
         if self.battle then

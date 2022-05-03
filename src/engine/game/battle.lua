@@ -2210,7 +2210,7 @@ function Battle:getTargetForItem(item, default_ally, default_enemy)
 end
 
 function Battle:keypressed(key)
-    if Game.console.is_open then return end
+    if Kristal.Console.is_open then return end
 
     if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
         if key == "h" then

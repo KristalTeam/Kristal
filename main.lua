@@ -408,6 +408,9 @@ end
 function love.keypressed(key)
     TextInput.onKeyPressed(key)
     Input.onKeyPressed(key)
+    if Kristal.Console then
+        Kristal.Console:keypressed(key)
+    end
 
     if key == "f1" then
         Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
@@ -799,12 +802,12 @@ function Kristal.returnToMenu()
     Gamestate.switch({})
     -- Clear the mod
     Kristal.clearModState()
-    -- Remove anything on the stage
+    -- Remove the dark transition
     for _,object in ipairs(Kristal.Stage.children) do
-        object:remove()
+        if object:includes(DarkTransition) then
+            object:remove()
+        end
     end
-    -- End text input
-    TextInput.endInput()
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])

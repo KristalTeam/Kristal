@@ -691,6 +691,7 @@ end
 
 function Menu:keypressed(key, _, is_repeat)
     if MOD_LOADING then return end
+    if Kristal.Console.is_open then return end
 
     if self.state == "MAINMENU" then
         if Input.isConfirm(key) then

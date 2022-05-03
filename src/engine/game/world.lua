@@ -218,7 +218,7 @@ function World:onStateChange(old, new)
 end
 
 function World:keypressed(key)
-    if Game.console.is_open then return end
+    if Kristal.Console.is_open then return end
     if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
         if key == "m" then
             if self.music then
@@ -305,8 +305,8 @@ function World:startCutscene(group, id, ...)
         end
         error("Attempt to start a cutscene "..cutscene_name.." while already in cutscene "..self.cutscene.id)
     end
-    if Game.console.is_open then
-        Game.console:close()
+    if Kristal.Console.is_open then
+        Kristal.Console:close()
     end
     self.cutscene = WorldCutscene(group, id, ...)
     return self.cutscene

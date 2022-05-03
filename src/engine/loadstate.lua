@@ -64,6 +64,9 @@ end
 
 function Loading:update()
     if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
+        -- create a console
+        Kristal.Console = Console()
+        Kristal.Stage:addChild(Kristal.Console)
         if Kristal.Args["test"] then
             Gamestate.switch(Kristal.States["Testing"])
         else
