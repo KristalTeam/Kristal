@@ -67,6 +67,9 @@ function Loading:update()
         -- create a console
         Kristal.Console = Console()
         Kristal.Stage:addChild(Kristal.Console)
+        -- create the debug system
+        Kristal.DebugSystem = DebugSystem()
+        Kristal.Stage:addChild(Kristal.DebugSystem)
         if Kristal.Args["test"] then
             Gamestate.switch(Kristal.States["Testing"])
         else

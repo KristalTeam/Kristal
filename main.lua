@@ -98,6 +98,7 @@ WorldCutscene = require("src.engine.game.world.worldcutscene")
 BattleCutscene = require("src.engine.game.battle.battlecutscene")
 
 Console = require("src.engine.game.console")
+DebugSystem = require("src.engine.game.debugsystem")
 
 UIBox = require("src.engine.game.common.uibox")
 Textbox = require("src.engine.game.common.textbox")
@@ -408,8 +409,27 @@ end
 function love.keypressed(key)
     TextInput.onKeyPressed(key)
     Input.onKeyPressed(key)
-    if Kristal.Console then
-        Kristal.Console:keypressed(key)
+    if key == "`" then
+        if Kristal.DebugSystem:isMenuOpen() then
+            Kristal.DebugSystem:closeMenu()
+        else
+            if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+                if Kristal.DebugSystem then
+                    Kristal.DebugSystem:openMenu()
+                end
+            else
+                if Kristal.Console then
+                    if Kristal.Console.just_closed then return end
+                    if not Kristal.Console.is_open then
+                        Kristal.Console:open()
+                    end
+                end
+            end
+        end
+    end
+
+    if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
+        Kristal.DebugSystem:keypressed(key)
     end
 
     if key == "f1" then

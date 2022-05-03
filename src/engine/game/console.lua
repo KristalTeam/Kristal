@@ -348,15 +348,6 @@ function Console:onConsoleKeyPressed(key)
     end
 end
 
-function Console:keypressed(key)
-    if self.just_closed then return end
-    if key == "`" then
-        if not self.is_open then
-            self:open()
-        end
-    end
-end
-
 function Console:update()
     self.just_closed = false
 end
