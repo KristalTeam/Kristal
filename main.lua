@@ -409,7 +409,7 @@ end
 function love.keypressed(key)
     Input.onKeyPressed(key)
     TextInput.onKeyPressed(key)
-    if key == "`" and Input.processKeyPressedFunc(key) then
+    if key == "`" and Input.processKeyPressedFunc(key) and not TextInput.active then
         if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
             Kristal.DebugSystem:closeMenu()
         else
