@@ -18,6 +18,24 @@ function Utils.clear(tbl)
     end
 end
 
+function Utils.getClassName(class, parent_check)
+    for k,v in pairs(_G) do
+        if class.__index == v then
+            return k .. (parent_check and "" or "()")
+        end
+    end
+    for k,v in ipairs(class.__includes) do
+        local name = Utils.getClassName(v, true)
+        if name then
+            if parent_check then
+                return name
+            else
+                return name .. "(" .. (class.id or "") .. ")"
+            end
+        end
+    end
+end
+
 local function dumpKey(key)
     if type(key) == 'table' then
         return '('..tostring(key)..')'
@@ -30,6 +48,9 @@ end
 
 function Utils.dump(o)
     if type(o) == 'table' then
+        if isClass(o) then
+            return Utils.getClassName(o)
+        end
         local s = '{'
         local cn = 1
         if #o ~= 0 then
