@@ -906,10 +906,9 @@ function Object:updatePhysicsTransform()
             self.y = Utils.ease(physics.slide_target.start_y, physics.slide_target.y, (physics.slide_target.timer / physics.slide_target.time), physics.slide_target.ease)
         end
         if self.x == physics.slide_target.x and self.y == physics.slide_target.y then
-            if physics.slide_target.after then
-                physics.slide_target.after()
-            end
+            local after = physics.slide_target.after
             physics.slide_target = nil
+            if after then after() end
         end
     end
 end
