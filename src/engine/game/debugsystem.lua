@@ -20,24 +20,30 @@ function DebugSystem:init()
     self.heart_target_x = -10
     self.heart_target_y = -10
 
-    -- States: IDLE, MENU
+    -- States: IDLE, MENU, SUBMENU
     self.state = "IDLE"
     self.state_reason = nil
 
     self.current_selecting = 1
 
+    self.current_subselecting = 1
+
     self.menu_canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     self.menu_canvas:setFilter("nearest", "nearest")
 
-    self.menu_options = {}
+    self.menus = {}
 
     self:refresh()
 
+    self.current_menu = "main"
+
     self.menu_anim_timer = 1
+
+    self.menu_history = {}
 end
 
-function DebugSystem:registerConfigOption(name, description, value, callback)
-    self:registerOption(name, function()
+function DebugSystem:registerConfigOption(menu, name, description, value, callback)
+    self:registerOption(menu, name, function()
         return self:appendBool(description, Kristal.Config[value])
     end, function()
         Kristal.Config[value] = not Kristal.Config[value]
@@ -52,24 +58,78 @@ function DebugSystem:appendBool(desc, bool)
 end
 
 function DebugSystem:refresh()
-    self.menu_options = {}
+    self.menus = {}
+    self:registerMenu("~ KRISTAL DEBUG ~", "main")
+    self.current_menu = "main"
     self:registerDefaults()
-    Kristal.callEvent("registerModDebugEntries", self)
+    Kristal.callEvent("registerModDebugEntries")
+    self:registerSubMenus()
+    Kristal.callEvent("registerModDebugMenus")
+end
+
+function DebugSystem:returnMenu()
+    Input.clearPressedKey("confirm")
+    Input.clearPressedKey("cancel")
+    if #self.menu_history == 0 then
+        self:closeMenu()
+    else
+        self:enterMenu(self.menu_history[#self.menu_history].name, self.menu_history[#self.menu_history].soul, true)
+        table.remove(self.menu_history, #self.menu_history)
+    end
+end
+
+function DebugSystem:registerMenu(name, id)
+    self.menus[id] = {
+        name = name,
+        options = {}
+    }
+end
+
+function DebugSystem:enterMenu(menu, soul, skip_history)
+    if not skip_history then
+        table.insert(self.menu_history, {
+            name = self.current_menu,
+            soul = self.current_selecting
+        })
+    end
+    self.current_menu = menu
+    self.current_selecting = soul or 1
+end
+
+function DebugSystem:registerSubMenus()
+    self:registerMenu("Cutscene Select", "cutscene_select")
+    -- loop through registry and add menu options for all cutscenes
+    for group,cutscene in pairs(Registry.world_cutscenes) do
+        if type(cutscene) == "table" then
+            for id,_ in pairs(cutscene) do
+                self:registerOption("cutscene_select", group.."."..id, "Start This Cutscene", function()
+                    Game.world:startCutscene(group, id)
+                    self:closeMenu()
+                end)
+            end
+        else
+            self:registerOption("cutscene_select", group, "Start This Cutscene", function()
+                Game.world:startCutscene(group)
+                self:closeMenu()
+            end)
+        end
+    end
+    self:registerOption("cutscene_select", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 end
 
 function DebugSystem:registerDefaults()
     -- Global
-    self:registerConfigOption("Show FPS", "Toggle the FPS display.", "showFPS")
-    self:registerConfigOption("VSync", "Toggle Vsync.", "vSync", function()
+    self:registerConfigOption("main", "Show FPS", "Toggle the FPS display.", "showFPS")
+    self:registerConfigOption("main", "VSync", "Toggle Vsync.", "vSync", function()
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     end)
 
-    self:registerOption("Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
+    self:registerOption("main", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
 
-    self:registerOption("Fast Forward", function() return self:appendBool("Speed up the engine.", FAST_FORWARD) end, function() FAST_FORWARD = not FAST_FORWARD end)
-    self:registerOption("Debug Rendering", function() return self:appendBool("Draw debug information.", DEBUG_RENDER) end, function() DEBUG_RENDER = not DEBUG_RENDER end)
-    self:registerOption("Hotswap", "Swap out code from the files. Might be unstable.", function() Hotswapper.scan() end)
-    self:registerOption("Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function()
+    self:registerOption("main", "Fast Forward", function() return self:appendBool("Speed up the engine.", FAST_FORWARD) end, function() FAST_FORWARD = not FAST_FORWARD end)
+    self:registerOption("main", "Debug Rendering", function() return self:appendBool("Draw debug information.", DEBUG_RENDER) end, function() DEBUG_RENDER = not DEBUG_RENDER end)
+    self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.", function() Hotswapper.scan() end)
+    self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function()
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
         else
@@ -81,12 +141,12 @@ function DebugSystem:registerDefaults()
         end
     end)
 
-    self:registerOption("Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
+    self:registerOption("main", "Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
 
-    self:registerOption("Refresh Menu", "Refresh this menu.", function() self:refresh() end)
+    self:registerOption("main", "Refresh Menu", "Refresh this menu.", function() self:refresh() end)
 
     -- World specific
-    self:registerOption(function()
+    self:registerOption("main", function()
         if Game.world.player then
             return "Remove The Player"
         else
@@ -101,13 +161,17 @@ function DebugSystem:registerDefaults()
         end
     end, "OVERWORLD")
 
+    self:registerOption("main", "Play Cutscene", "Play a cutscene.", function()
+        self:enterMenu("cutscene_select", 1)
+    end, "OVERWORLD")
+
     -- Battle specific
-    self:registerOption("Leave Battle", "Instantly complete a battle.", function() Game.battle:setState("VICTORY") end, "BATTLE")
+    self:registerOption("main", "Leave Battle", "Instantly complete a battle.", function() Game.battle:setState("VICTORY") end, "BATTLE")
 end
 
 function DebugSystem:getValidOptions()
     local options = {}
-    for i, v in ipairs(self.menu_options) do
+    for i, v in ipairs(self.menus[self.current_menu].options) do
         if (Game and v.state == Game.state)
            or v.state == "ALL" then
 
@@ -118,8 +182,8 @@ function DebugSystem:getValidOptions()
     return options
 end
 
-function DebugSystem:registerOption(name, description, func, state)
-    table.insert(self.menu_options, {name=name, description=description, func=func, state=state or "ALL"})
+function DebugSystem:registerOption(menu, name, description, func, state)
+    table.insert(self.menus[menu].options, {name=name, description=description, func=func, state=state or "ALL"})
 end
 
 function DebugSystem:openMenu()
@@ -134,7 +198,6 @@ end
 function DebugSystem:closeMenu()
     self.menu_anim_timer = 0
     OVERLAY_OPEN = false
-    Assets.playSound("ui_move")
     self:setState("IDLE")
     Kristal.hideCursor()
     love.keyboard.setKeyRepeat(false)
@@ -151,7 +214,7 @@ function DebugSystem:onStateChange(old, new)
     self.heart_target_x = -10
     if new == "MENU" then
         self.heart_target_x = 19
-        self.heart_target_y = 35
+        self.heart_target_y = 35 + 32
     end
 end
 
@@ -160,7 +223,7 @@ function DebugSystem:updateBounds(options)
     if self.current_selecting > #options then self.current_selecting = 1 end
     if self.state == "MENU" then
         self.heart_target_x = 19
-        self.heart_target_y = (self.current_selecting - 1) * 32 + 35
+        self.heart_target_y = (self.current_selecting - 1) * 32 + 35 + 32
     end
 end
 
@@ -168,8 +231,8 @@ function DebugSystem:keypressed(key, _, is_repeat)
     if self.state == "MENU" then
         local options = self:getValidOptions()
         if Input.isCancel(key) then
-            self:closeMenu()
-            Input.clearPressedKey("cancel")
+            Assets.playSound("ui_move")
+            self:returnMenu()
             return
         end
         if Input.isConfirm(key) then
@@ -228,11 +291,14 @@ function DebugSystem:draw()
     love.graphics.setColor(0, 0, 0, 0.5)
 
     local text_offset = menu_x + 19
+    local y_off = 32
 
     Draw.setCanvas(self.menu_canvas)
     love.graphics.clear()
 
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    self:printShadow(self.menus[self.current_menu].name, 0, 16, COLORS.white, "center", 640)
 
     local options = self:getValidOptions()
     for index, option in ipairs(options) do
@@ -240,7 +306,7 @@ function DebugSystem:draw()
         if type(name) == "function" then
             name = name()
         end
-        self:printShadow(name, text_offset + 19, menu_y + (index - 1) * 32 + 16)
+        self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16)
         if self.current_selecting == index then
             if option.description then
                 local description = option.description

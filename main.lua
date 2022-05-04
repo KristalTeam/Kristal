@@ -411,6 +411,7 @@ function love.keypressed(key, scancode, is_repeat)
     TextInput.onKeyPressed(key)
     if key == "`" and Input.processKeyPressedFunc(key) and not TextInput.active then
         if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
+            Assets.playSound("ui_move")
             Kristal.DebugSystem:closeMenu()
         else
             if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
