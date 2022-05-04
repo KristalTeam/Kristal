@@ -897,8 +897,9 @@ function Object:updatePhysicsTransform()
 
     if physics.slide_target then
         if physics.slide_target.speed then
-            self.x = Utils.approach(self.x, physics.slide_target.x, physics.slide_target.speed * DTMULT)
-            self.y = Utils.approach(self.y, physics.slide_target.y, physics.slide_target.speed * DTMULT)
+            local angle = Utils.angle(self.x, self.y, physics.slide_target.x, physics.slide_target.y)
+            self.x = Utils.approach(self.x, physics.slide_target.x, physics.slide_target.speed * math.abs(math.cos(angle)) * DTMULT)
+            self.y = Utils.approach(self.y, physics.slide_target.y, physics.slide_target.speed * math.abs(math.sin(angle)) * DTMULT)
         elseif physics.slide_target.time then
             physics.slide_target.timer = Utils.approach(physics.slide_target.timer, physics.slide_target.time, DT)
 
