@@ -148,13 +148,7 @@ function Input.onKeyReleased(key)
 end
 
 function Input.down(key)
-    if self.key_groups[key] then
-        for _,k in ipairs(self.key_groups[key]) do
-            if Input.keyDown(k) then
-                return true
-            end
-        end
-    elseif self.aliases[key] then
+    if self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
             if Input.keyDown(k) then
                 return true
@@ -167,6 +161,13 @@ function Input.down(key)
 end
 
 function Input.keyDown(key)
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
+            if self.key_down[k] then
+                return true
+            end
+        end
+    end
     return self.key_down[key]
 end
 
@@ -190,6 +191,13 @@ function Input.pressed(key)
 end
 
 function Input.keyPressed(key)
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
+            if self.key_pressed[k] then
+                return true
+            end
+        end
+    end
     return self.key_pressed[key]
 end
 
@@ -219,6 +227,13 @@ function Input.released(key)
 end
 
 function Input.keyReleased(key)
+    if self.key_released[key] then
+        for _,k in ipairs(self.key_released[key]) do
+            if self.key_released[k] then
+                return true
+            end
+        end
+    end
     return self.key_released[key]
 end
 
@@ -242,6 +257,13 @@ function Input.up(key)
 end
 
 function Input.keyUp(key)
+    if self.key_down[key] then
+        for _,k in ipairs(self.key_down[key]) do
+            if self.key_down[k] then
+                return false
+            end
+        end
+    end
     return not self.key_down[key]
 end
 
