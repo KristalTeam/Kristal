@@ -45,32 +45,36 @@ function DebugSystem:init()
 end
 
 function DebugSystem:onMousePressed(x, y, button, istouch, presses)
+    local object = self:detectObject(Input.getMousePosition())
+
+    if object then
+        self.object = object
+        local recolor = self.object:addFX(RecolorFX())
+        recolor.color = {0, 1, 0}
+    end
+end
+
+function DebugSystem:detectObject(x, y)
     local hierarchy_size = -1
     local found = false
+    local object = nil
+
     if Game.stage then
         local objects = Game.stage:getObjects()
         Object.startCache()
-        for _,object in ipairs(objects) do
-            local mx, my = object:getFullTransform():inverseTransformPoint(Input.getMousePosition())
-            if mx > 0 and mx < object.width and my > 0 and my < object.height then
-                -- TEMPORARY!!
-                if not object:includes(Sprite) then
-                    if #object:getHierarchy() > hierarchy_size then
-                        hierarchy_size = #object:getHierarchy()
-                        self.object = object
-                        found = true
-                    end
-                else
-                    print("sprite found (oops)")
+        for _,instance in ipairs(objects) do
+            local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
+            if mx > 0 and mx < instance.width and my > 0 and my < instance.height then
+                if #instance:getHierarchy() > hierarchy_size then
+                    hierarchy_size = #instance:getHierarchy()
+                    object = instance
+                    found = true
                 end
             end
         end
         Object.endCache()
     end
-    if found then
-        local recolor = self.object:addFX(RecolorFX())
-        recolor.color = {0, 1, 0}
-    end
+    return object
 end
 
 function DebugSystem:registerConfigOption(menu, name, description, value, callback)
@@ -351,6 +355,15 @@ function DebugSystem:draw()
             end
         end
     end
+
+    love.graphics.setColor(0, 1, 1, 1)
+    local object = self:detectObject(Input.getMousePosition())
+
+    if object then
+        local x, y = object:localToScreenPos(0, 0)
+        love.graphics.rectangle("line", x, y, object.width * object.scale_x, object.height * object.scale_y)
+    end
+
 
     -- Reset canvas to draw to
     Draw.setCanvas(SCREEN_CANVAS)
