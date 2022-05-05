@@ -57,49 +57,8 @@ function Object:init(x, y, width, height)
     self.width = width or 0
     self.height = height or 0
 
-    self.physics = {
-        -- The speed this object moves (pixels per frame, at 30 fps)
-        speed_x = 0,
-        speed_y = 0,
-        -- The speed this object moves, in the angle of its direction (pixels per frame, at 30 fps)
-        speed = 0,
-        direction = 0, -- right
-
-        -- The amount this object should slow down (also per frame at 30 fps)
-        friction = 0,
-        -- The amount this object should accelerate in the gravity direction (also per frame at 30 fps)
-        gravity = 0,
-        gravity_direction = math.pi/2, -- down
-
-        -- The amount this object's direction rotates (per frame at 30 fps)
-        spin = 0,
-
-        -- Whether direction should be based on rotation instead
-        match_rotation = false,
-
-        -- Movement target for Object:slideTo
-        slide_target = nil,
-    }
-
-    self.graphics = {
-        -- How fast this object fades its alpha (per frame at 30 fps)
-        fade = 0,
-        -- Target alpha to fade to
-        fade_to = 0,
-        -- Function called after this object reaches target fade
-        fade_callback = nil,
-
-        -- Speed at which this object gets scaled (per frame at 30 fps)
-        grow_x = 0,
-        grow_y = 0,
-        -- Speed at which this object gets scaled in each direction (per frame at 30 fps)
-        grow = 0,
-        -- Whether this object should be removed at scale <= 0
-        remove_shrunk = false,
-
-        -- Amount this object rotates (per frame at 30 fps)
-        spin = 0
-    }
+    self:resetPhysics()
+    self:resetGraphicsTransform()
 
     -- Various draw properties
     self.color = {1, 1, 1}
@@ -202,6 +161,54 @@ function Object:onAddToStage(stage) end
 function Object:onRemoveFromStage(stage) end
 
 --[[ Common functions ]]--
+
+function Object:resetPhysics()
+    self.physics = {
+        -- The speed this object moves (pixels per frame, at 30 fps)
+        speed_x = 0,
+        speed_y = 0,
+        -- The speed this object moves, in the angle of its direction (pixels per frame, at 30 fps)
+        speed = 0,
+        direction = 0, -- right
+
+        -- The amount this object should slow down (also per frame at 30 fps)
+        friction = 0,
+        -- The amount this object should accelerate in the gravity direction (also per frame at 30 fps)
+        gravity = 0,
+        gravity_direction = math.pi/2, -- down
+
+        -- The amount this object's direction rotates (per frame at 30 fps)
+        spin = 0,
+
+        -- Whether direction should be based on rotation instead
+        match_rotation = false,
+
+        -- Movement target for Object:slideTo
+        slide_target = nil,
+    }
+end
+
+function Object:resetGraphicsTransform()
+    self.graphics = {
+        -- How fast this object fades its alpha (per frame at 30 fps)
+        fade = 0,
+        -- Target alpha to fade to
+        fade_to = 0,
+        -- Function called after this object reaches target fade
+        fade_callback = nil,
+
+        -- Speed at which this object gets scaled (per frame at 30 fps)
+        grow_x = 0,
+        grow_y = 0,
+        -- Speed at which this object gets scaled in each direction (per frame at 30 fps)
+        grow = 0,
+        -- Whether this object should be removed at scale <= 0
+        remove_shrunk = false,
+
+        -- Amount this object rotates (per frame at 30 fps)
+        spin = 0
+    }
+end
 
 function Object:move(x, y, speed)
     self.x = self.x + (x or 0) * (speed or 1)

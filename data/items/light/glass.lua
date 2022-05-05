@@ -8,6 +8,8 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "key"
+    -- Whether this item is for the light world
+    self.light = true
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"

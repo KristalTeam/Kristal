@@ -637,7 +637,7 @@ function Shop:draw()
             if not self.hide_storage_text then
                 love.graphics.setFont(self.plain_font)
 
-                local current_storage = Game.inventory:getDefaultStorage(current_item.item.type)
+                local current_storage = Game.inventory:getDefaultStorage(current_item.item)
                 local space = Game.inventory:getFreeSpace(current_storage)
 
                 if space <= 0 then

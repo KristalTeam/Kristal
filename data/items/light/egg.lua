@@ -8,6 +8,9 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "key"
+    -- Whether this item is for the light world
+    self.light = true
+
     -- Light world check text
     self.check = "Not too important,[wait:5] not\ntoo unimportant."
 

@@ -15,6 +15,7 @@ function Game:clear()
     self.inventory = nil
     self.quick_save = nil
     self.lock_movement = false
+    self.started = false
 end
 
 function Game:enter(previous_state, save_id, save_name)
@@ -185,6 +186,8 @@ function Game:load(data, index, fade)
 
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
 
+    self.light = false
+
     -- BEGIN SAVE FILE VARIABLES --
 
     self.chapter = data.chapter or Kristal.getModOption("chapter") or 2
@@ -209,38 +212,6 @@ function Game:load(data, index, fade)
     self.party = {}
     for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
         table.insert(self.party, self:getPartyMember(id))
-    end
-
-    if self.is_new_file then
-        for id,equipped in pairs(Kristal.getModOption("equipment") or {}) do
-            if equipped["weapon"] then
-                self.party_data[id]:setWeapon(equipped["weapon"] ~= "" and equipped["weapon"] or nil)
-            end
-            local armors = equipped["armor"] or {}
-            for i = 1, 2 do
-                if armors[i] then
-                    self.party_data[id]:setArmor(i, armors[i] ~= "" and armors[i] or nil)
-                end
-            end
-        end
-    end
-
-    self.light = data.light or self.world.map.light
-
-    if self.light then
-        self.inventory = LightInventory()
-    else
-        self.inventory = DarkInventory()
-    end
-
-    if data.inventory then
-        self.inventory:load(data.inventory)
-    else
-        for storage,items in pairs(Kristal.getModOption("inventory") or {}) do
-            for i,item in ipairs(items) do
-                self.inventory:setItem(storage, i, item)
-            end
-        end
     end
 
     if data.temp_followers then
@@ -268,15 +239,83 @@ function Game:load(data, index, fade)
         end
     end
 
+    if self.light then
+        self.inventory = LightInventory()
+    else
+        self.inventory = DarkInventory()
+    end
+
+    if data.inventory then
+        self.inventory:load(data.inventory)
+    else
+        local default_inv = Kristal.getModOption("inventory") or {}
+        if not self.light and not default_inv["key_items"] then
+            default_inv["key_items"] = {"cell_phone"}
+        end
+        for storage,items in pairs(default_inv) do
+            for i,item in ipairs(items) do
+                self.inventory:setItem(storage, i, item)
+            end
+        end
+    end
+
+    local loaded_light = data.light or false
+
+    -- Party members have to be converted to light initially, due to dark world defaults
+    if loaded_light ~= self.light then
+        if self.light then
+            for _,chara in pairs(self.party_data) do
+                chara:convertToLight()
+            end
+        else
+            for _,chara in pairs(self.party_data) do
+                chara:convertToDark()
+            end
+        end
+    end
+
+    if self.is_new_file then
+        if self.light then
+            Game:setFlag("has_cell_phone", Kristal.getModOption("cell") ~= false)
+        end
+
+        for id,equipped in pairs(Kristal.getModOption("equipment") or {}) do
+            if equipped["weapon"] then
+                self.party_data[id]:setWeapon(equipped["weapon"] ~= "" and equipped["weapon"] or nil)
+            end
+            local armors = equipped["armor"] or {}
+            for i = 1, 2 do
+                if armors[i] then
+                    if self.light and i == 2 then
+                        local main_armor = self.party_data[id]:getArmor(1)
+                        if not main_armor:includes(LightEquipItem) then
+                            error("Cannot set 2nd armor, 1st armor must be a LightEquipItem")
+                        end
+                        main_armor:setArmor(2, armors[i])
+                    else
+                        self.party_data[id]:setArmor(i, armors[i] ~= "" and armors[i] or nil)
+                    end
+                end
+            end
+        end
+    end
+
     -- END SAVE FILE VARIABLES --
 
     Kristal.callEvent("load", data, self.is_new_file, index)
 
     Kristal.DebugSystem:refresh()
+
+    self.started = true
 end
 
 function Game:setLight(light)
     light = light or false
+
+    if not self.started then
+        self.light = light
+        return
+    end
 
     if self.light == light then return end
 

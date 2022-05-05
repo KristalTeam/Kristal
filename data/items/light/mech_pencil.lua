@@ -8,6 +8,9 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "weapon"
+    -- Whether this item is for the light world
+    self.light = true
+
     -- Light world check text
     self.check = "1 AT\n* It's tempting to click it repeatedly."
 

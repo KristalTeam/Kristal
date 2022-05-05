@@ -24,6 +24,20 @@ function LightEquipItem:onWorldUse(target)
     return false
 end
 
+function LightEquipItem:setArmor(i, item)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
+    end
+    local current_items = self:createArmorItems()
+
+    local last_item = current_items[i]
+
+    current_items[i] = item
+    self:setArmorItems(current_items)
+
+    return last_item
+end
+
 function LightEquipItem:createArmorItems()
     local armors = self:getFlag("dark_armors")
     if armors then
@@ -51,6 +65,20 @@ function LightEquipItem:createArmorItems()
             return {}
         end
     end
+end
+
+function LightEquipItem:setArmorItems(armor_items)
+    local armors = {}
+
+    if armor_items[1] then
+        armors["1"] = armor_items[1]:save()
+    end
+
+    if armor_items[2] then
+        armors["2"] = armor_items[2]:save()
+    end
+
+    self:setFlag("dark_armors", armors)
 end
 
 function LightEquipItem:convertToDarkEquip(chara)

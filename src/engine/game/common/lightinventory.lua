@@ -58,6 +58,21 @@ function LightInventory:convertToDark()
         end
     end
 
+    for _,base_storage in pairs(self.storages) do
+        local storage = Utils.copy(base_storage)
+        for i = 1, storage.max do
+            local item = storage[i]
+            if item then
+                item.light_item = item
+                item.light_location = {storage = storage.id, index = i}
+
+                new_inventory:addItemTo("light", item)
+
+                self:removeItem(item)
+            end
+        end
+    end
+
     new_inventory.storage_enabled = was_storage_enabled
 
     return new_inventory
@@ -71,6 +86,44 @@ function LightInventory:getDarkInventory()
     end
 
     return junk_ball.inventory
+end
+
+function LightInventory:getDefaultStorage(item_type)
+    if isClass(item_type) then -- Passing in an item
+        item_type = item_type.type
+    end
+    return self:getStorage(self.storage_for_type[item_type])
+end
+
+-- Item give overrides for Dark World items
+
+function LightInventory:addItem(item, ignore_dark)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
+    end
+    if ignore_dark or item.light then
+        return super:addItem(self, item)
+    else
+        local dark_inv = self:getDarkInventory()
+        return dark_inv:addItem(item)
+    end
+end
+
+function LightInventory:tryGiveItem(item, ignore_dark)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
+    end
+    if ignore_dark or item.light then
+        return super:tryGiveItem(self, item, ignore_dark)
+    else
+        local dark_inv = self:getDarkInventory()
+        local result = dark_inv:addItem(item)
+        if result then
+            return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your [color:yellow]BALL OF JUNK[color:reset].)"
+        else
+            return false, "* (Your [color:yellow]BALL OF JUNK[color:reset] is too big to take [color:yellow]"..item:getName().."[color:reset].)"
+        end
+    end
 end
 
 return LightInventory

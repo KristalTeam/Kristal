@@ -13,18 +13,20 @@ function DarkInventory:init()
     self.storage_enabled = Game:getConfig("enableStorage")
 
     -- Order the storages are converted to the light world
-    self.convert_order = {"key_items", "weapons", "armors", "items", "storage"}
+    self.convert_order = {"key_items", "light", "weapons", "armors", "items", "storage"}
 end
 
 function DarkInventory:clear()
     super:clear(self)
 
     self.storages = {
-        ["items"]     = {id = "items",     max = 12, sorted = true,  name = "ITEMs",     fallback = "storage"},
-        ["key_items"] = {id = "key_items", max = 12, sorted = true,  name = "KEY ITEMs", fallback = nil      },
-        ["weapons"]   = {id = "weapons",   max = 48, sorted = false, name = "WEAPONs",   fallback = nil      },
-        ["armors"]    = {id = "armors",    max = 48, sorted = false, name = "ARMORs",    fallback = nil      },
-        ["storage"]   = {id = "storage",   max = 24, sorted = false, name = "STORAGE",   fallback = nil      },
+        ["items"]     = {id = "items",     max = 12, sorted = true,  name = "ITEMs",       fallback = "storage"},
+        ["key_items"] = {id = "key_items", max = 12, sorted = true,  name = "KEY ITEMs",   fallback = nil      },
+        ["weapons"]   = {id = "weapons",   max = 48, sorted = false, name = "WEAPONs",     fallback = nil      },
+        ["armors"]    = {id = "armors",    max = 48, sorted = false, name = "ARMORs",      fallback = nil      },
+        ["storage"]   = {id = "storage",   max = 24, sorted = false, name = "STORAGE",     fallback = nil      },
+
+        ["light"]     = {id = "light",     max = 28, sorted = true,  name = "LIGHT ITEMs", fallback = nil      },
     }
 end
 
@@ -41,7 +43,7 @@ function DarkInventory:convertToLight()
         for i = 1, storage.max do
             local item = storage[i]
             if item then
-                local result = item:convertToLight(new_inventory)
+                local result = item:convertToLight(new_inventory) or (storage.id == "light" and item)
 
                 if result then
                     self:removeItem(item)
@@ -65,6 +67,15 @@ function DarkInventory:convertToLight()
     new_inventory.storage_enabled = was_storage_enabled
 
     return new_inventory
+end
+
+-- Item give overrides for Light World items
+
+function DarkInventory:getDefaultStorage(item_type, ignore_convert)
+    if not ignore_convert and isClass(item_type) and item_type.light then
+        return self:getStorage("light")
+    end
+    return super:getDefaultStorage(self, item_type, ignore_convert)
 end
 
 return DarkInventory

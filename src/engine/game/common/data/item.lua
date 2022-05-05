@@ -10,15 +10,17 @@ function Item:init()
     self.type = "item"
     -- Item icon (for equipment)
     self.icon = nil
+    -- Whether this item is for the light world
+    self.light = false
 
     -- Battle description
     self.effect = ""
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Example item."
+    self.description = "Example description"
     -- Light world check text
-    self.check = "Example item."
+    self.check = "Example info"
 
     -- Default shop price (sell price is halved)
     self.price = 0
@@ -56,9 +58,12 @@ function Item:init()
     -- Item flags (for saving values to the save file)
     self.flags = {}
 
-    -- Values saved for light world item conversion
+    -- Values saved for light/dark world item conversion
     self.dark_item = nil
     self.dark_location = nil
+
+    self.light_item = nil
+    self.light_location = nil
 end
 
 --[[ Callbacks ]]--
@@ -107,6 +112,14 @@ function Item:onToss()
 end
 
 function Item:convertToLight(inventory)
+    if self.light_item then
+        if self.light_location then
+            inventory:addItemTo(self.light_location.storage, self.light_location.index, self.light_item)
+            return true
+        else
+            return self.light_item
+        end
+    end
     return false
 end
 function Item:convertToDark(inventory)
@@ -227,15 +240,18 @@ end
 
 function Item:save()
     local saved_dark_item = self.dark_item
-    if isClass(self.dark_item) then
-        saved_dark_item = self.dark_item:save()
-    end
+    local saved_light_item = self.light_item
+    if isClass(self.dark_item) then saved_dark_item = self.dark_item:save() end
+    if isClass(self.light_item) then saved_light_item = self.light_item:save() end
     local data = {
         id = self.id,
         flags = self.flags,
 
         dark_item = saved_dark_item,
-        dark_location = self.dark_location
+        dark_location = self.dark_location,
+
+        light_item = saved_light_item,
+        light_location = self.light_location,
     }
     self:onSave(data)
     return data
@@ -253,6 +269,17 @@ function Item:load(data)
         end
 
         self.dark_location = data.dark_location
+    end
+
+    if data.light_item then
+        if type(data.light_item) == "table" then
+            self.light_item = Registry.createItem(data.light_item.id)
+            self.light_item:load(data.light_item)
+        else
+            self.light_item = data.light_item
+        end
+
+        self.light_location = data.light_location
     end
 
     self:onLoad(data)

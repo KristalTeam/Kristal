@@ -8,6 +8,9 @@ function item:init(inventory)
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
+    -- Whether this item is for the light world
+    self.light = true
+
     -- Light world check text
     self.check = "A small ball\nof accumulated things in your\npocket."
 

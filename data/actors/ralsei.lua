@@ -83,6 +83,11 @@ function actor:init()
         ["walk_blush/right"] = {0, 0},
         ["walk_blush/up"] = {0, 0},
 
+        ["walk_unhappy/down"] = {0, 0},
+        ["walk_unhappy/left"] = {0, 0},
+        ["walk_unhappy/right"] = {0, 0},
+        ["walk_unhappy/up"] = {0, 0},
+
         ["slide"] = {-2, 2},
 
         -- Battle offsets

@@ -8,6 +8,9 @@ function item:init()
 
     -- Item type (item, key, weapon, armor)
     self.type = "armor"
+    -- Whether this item is for the light world
+    self.light = true
+
     -- Light world check text
     self.check = "Heals 10 HP\n* It has cartoon characters on it."
 

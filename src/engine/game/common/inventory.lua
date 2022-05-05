@@ -12,11 +12,11 @@ function Inventory:clear()
     self.stored_items = {}
 end
 
-function Inventory:addItem(item)
+function Inventory:addItem(item, ignore_convert)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
-    return self:addItemTo(self:getDefaultStorage(item.type), item)
+    return self:addItemTo(self:getDefaultStorage(item, ignore_convert), item)
 end
 
 function Inventory:addItemTo(storage, index, item, allow_fallback)
@@ -26,6 +26,7 @@ function Inventory:addItemTo(storage, index, item, allow_fallback)
         index = nil
     end
     allow_fallback = (allow_fallback == nil and self.storage_enabled) or allow_fallback
+    local item_id, storage_id = item, storage
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
@@ -342,22 +343,25 @@ function Inventory:getFreeSpace(storage, allow_fallback)
     return 0
 end
 
-function Inventory:tryGiveItem(item)
+function Inventory:tryGiveItem(item, ignore_convert)
     if type(item) == "string" then
         item = Registry.createItem(item)
     end
-    local result = self:addItem(item)
+    local result = self:addItem(item, ignore_convert)
     if result then
         local destination = self:getStorage(self.stored_items[item].storage)
         return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your [color:yellow]"..destination.name.."[color:reset].)"
     else
-        local destination = self:getDefaultStorage(item.type)
+        local destination = self:getDefaultStorage(item)
         return false, "* (You have too many [color:yellow]"..destination.name.."[color:reset] to take [color:yellow]"..item:getName().."[color:reset].)"
     end
 end
 
-function Inventory:getDefaultStorage(type)
-    return self:getStorage(self.storage_for_type[type])
+function Inventory:getDefaultStorage(item_type, ignore_convert)
+    if isClass(item_type) then -- Passing in an item
+        item_type = item_type.type
+    end
+    return self:getStorage(self.storage_for_type[item_type])
 end
 
 function Inventory:getStorage(type)

@@ -11,8 +11,7 @@
     "map": "schooldoor",
     "party": ["kris", "susie"],
     "inventory": {
-        "items": ["darkburger"],
-        "key_items": ["cell_phone"]
+        "items": ["light/mech_pencil"]
     },
 
     "transition": false,
