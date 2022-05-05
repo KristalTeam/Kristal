@@ -90,7 +90,7 @@ function LightMenu:onButtonSelect(button)
     if button == 1 then
         if Game.inventory:getItemCount(self.storage, false) > 0 then
             self.state = "ITEMMENU"
-            Input.consumePress("confirm")
+            Input.clear("confirm")
             self.box = LightItemMenu()
             self.box.layer = 1
             self:addChild(self.box)
@@ -100,7 +100,7 @@ function LightMenu:onButtonSelect(button)
         end
     elseif button == 2 then
         self.state = "STATMENU"
-        Input.consumePress("confirm")
+        Input.clear("confirm")
         self.box = LightStatMenu()
         self.box.layer = 1
         self:addChild(self.box)
@@ -109,7 +109,7 @@ function LightMenu:onButtonSelect(button)
         self.ui_select:play()
     elseif button == 3 then
         if #Game.world.calls > 0 then
-            Input.consumePress("confirm")
+            Input.clear("confirm")
             self.state = "CELLMENU"
             self.box = LightCellMenu()
             self.box.layer = 1

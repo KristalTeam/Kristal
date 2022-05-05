@@ -2213,14 +2213,14 @@ end
 function Battle:keypressed(key)
     if OVERLAY_OPEN then return end
 
-    if Kristal.Config["debug"] and (Input.keyDown("lctrl") or Input.keyDown("rctrl")) then
+    if Kristal.Config["debug"] and Input.ctrl() then
         if key == "h" then
             for _,party in ipairs(self.party) do
                 party:heal(math.huge)
             end
         end
         if key == "y" then
-            Input.clearDownPressed()
+            Input.clear(nil, true)
             self:setState("VICTORY")
         end
         if key == "m" then

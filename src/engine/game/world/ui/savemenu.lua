@@ -93,7 +93,7 @@ function SaveMenu:update()
                 Game.world:closeMenu()
             elseif self.selected_x == 1 and self.selected_y == 2 then
                 if Game.inventory.storage_enabled then
-                    Input.consumePress("confirm")
+                    Input.clear("confirm")
                     self:remove()
                     Game.world:closeMenu()
                     Game.world:openMenu(DarkStorageMenu())

@@ -126,7 +126,7 @@ function Mod:onKeyPressed(key)
         end
         if not Game.lock_movement then
             if key == "b" and Game.state == "OVERWORLD" then
-                Input.clearDownPressed()
+                Input.clear(nil, true)
                 Game:encounter("virovirokun", true)
             elseif key == "n" and Game.state == "OVERWORLD" then
                 Game:encounter("virovirokun", false)

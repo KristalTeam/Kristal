@@ -78,7 +78,7 @@ function TextInput.onTextInput(t)
 end
 
 function TextInput.checkSelecting()
-    if (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift")) then
+    if Input.shift() then
         if not self.selecting then
             self.cursor_select_x = self.cursor_x
             self.cursor_select_y = self.cursor_y
@@ -103,20 +103,18 @@ function TextInput.onKeyPressed(key)
             return
         end
     end
-    if (key == "c") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+    if (key == "c") and Input.ctrl() then
         love.system.setClipboardText(self.getSelectedText())
-    elseif (key == "x") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+    elseif (key == "x") and Input.ctrl() then
         love.system.setClipboardText(self.getSelectedText())
         self.removeSelection()
-    elseif (key == "v") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+    elseif (key == "v") and Input.ctrl() then
         self.insertString(love.system.getClipboardText())
-    elseif (key == "a") and (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+    elseif (key == "a") and Input.ctrl() then
         self.selectAll()
     elseif key == "return" then
-        local shift = (love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift"))
-
         if self.enter_submits then
-            if self.multiline and shift then
+            if self.multiline and Input.shift() then
                 self.insertString("\n")
             else
                 self.submit()
@@ -216,7 +214,7 @@ function TextInput.onKeyPressed(key)
     elseif key == "end" then
         self.checkSelecting()
 
-        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+        if Input.ctrl() then
             self.sendCursorToEnd()
         else
             self.sendCursorToEndOfLine()
@@ -224,7 +222,7 @@ function TextInput.onKeyPressed(key)
     elseif key == "home" then
         self.checkSelecting()
 
-        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+        if Input.ctrl() then
             self.sendCursorToStart()
         else
             self.sendCursorToStartOfLine(true)
@@ -256,7 +254,7 @@ function TextInput.onKeyPressed(key)
             end
             return
         end
-        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+        if Input.ctrl() then
             -- If we're at the start of a line, move to the end of the previous line.
             if self.cursor_x == 0 then
                 if self.cursor_y == 1 then return end
@@ -306,7 +304,7 @@ function TextInput.onKeyPressed(key)
             end
             return
         end
-        if (love.keyboard.isDown("lctrl") or love.keyboard.isDown("rctrl")) then
+        if Input.ctrl() then
             -- If we're at the start of a line, move to the end of the previous line.
             if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
                 if self.cursor_y == #self.input then return end

@@ -414,7 +414,7 @@ function love.keypressed(key, scancode, is_repeat)
             Assets.playSound("ui_move")
             Kristal.DebugSystem:closeMenu()
         else
-            if love.keyboard.isDown("lshift") or love.keyboard.isDown("rshift") then
+            if Input.shift() then
                 if Kristal.DebugSystem then
                     Kristal.DebugSystem:openMenu()
                 end
@@ -439,7 +439,7 @@ function love.keypressed(key, scancode, is_repeat)
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     elseif key == "f3" then
         PERFORMANCE_TEST_STAGE = "UPDATE"
-    elseif key == "f4" or (key == "return" and (love.keyboard.isDown("lalt") or love.keyboard.isDown("ralt"))) then
+    elseif key == "f4" or (key == "return" and Input.alt()) then
         Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
         love.window.setFullscreen(Kristal.Config["fullscreen"])
     elseif key == "f5" then
@@ -449,12 +449,12 @@ function love.keypressed(key, scancode, is_repeat)
     elseif key == "f8" then
         print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
         Hotswapper.scan()
-    elseif key == "r" and love.keyboard.isDown("lctrl") then
+    elseif key == "r" and Input.ctrl() then
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
         else
             if Mod then
-                Kristal.quickReload(love.keyboard.isDown("lshift"))
+                Kristal.quickReload(Input.shift())
             else
                 Kristal.returnToMenu()
             end
@@ -479,7 +479,7 @@ function love.run()
 
     local function mainLoop()
         -- Clear input from last frame
-        Input.clearPressed()
+        Input.clear()
 
         -- Process events.
         if love.event then
@@ -722,7 +722,7 @@ function Kristal.errorHandler(msg)
                 else
                     return "reload"
                 end
-            elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
+            elseif e == "keypressed" and a == "c" and Input.ctrl() then
                 copyToClipboard()
             elseif e == "touchpressed" then
                 local name = love.window.getTitle()

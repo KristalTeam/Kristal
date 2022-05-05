@@ -5,13 +5,25 @@ Input.key_down = {}
 Input.key_pressed = {}
 Input.key_released = {}
 
-Input.lock_stack = {}
-
-
 Input.aliases = {}
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu"
+}
+
+Input.key_groups = {
+    ["shift"] = {"lshift", "rshift"},
+    ["ctrl"]  = {"lctrl",  "rctrl"},
+    ["alt"]   = {"lalt",   "ralt"}
+}
+
+Input.group_for_key = {
+    ["lshift"] = "shift",
+    ["rshift"] = "shift",
+    ["lctrl"]  = "ctrl",
+    ["rctrl"]  = "ctrl",
+    ["lalt"]   = "alt",
+    ["ralt"]   = "alt"
 }
 
 function Input.getKeysFromAlias(key)
@@ -25,8 +37,8 @@ function Input.loadBinds(reset)
         ["left"] = {"left"},
         ["right"] = {"right"},
         ["confirm"] = {"z", "return"},
-        ["cancel"] = {"x", "lshift", "rshift"},
-        ["menu"] = {"c", "lctrl", "rctrl"},
+        ["cancel"] = {"x", "shift"},
+        ["menu"] = {"c", "ctrl"},
     }
 
     if (reset == nil) or (reset == false) then
@@ -61,71 +73,68 @@ end
 
 function Input.setBind(alias, index, key)
     if key == "escape" then
-        if #Input.aliases[alias] > 1 then
-            table.remove(Input.aliases[alias], index)
+        if #self.aliases[alias] > 1 then
+            table.remove(self.aliases[alias], index)
             return true
         else
             return false
         end
     end
 
-    local old_key = Input.aliases[alias][index]
+    if self.group_for_key[key] then
+        key = self.group_for_key[key]
+    end
 
-    for aliasname, lalias in pairs(Input.aliases) do
+    local old_key = self.aliases[alias][index]
+
+    for aliasname, lalias in pairs(self.aliases) do
         for keyindex, lkey in ipairs(lalias) do
             if lkey == key then
-                if index > #Input.aliases[alias] then
+                if index > #self.aliases[alias] then
                     return false
                 else
-                    Input.aliases[aliasname][keyindex] = old_key
+                    self.aliases[aliasname][keyindex] = old_key
                 end
             end
         end
     end
-    Input.aliases[alias][index] = key
+    self.aliases[alias][index] = key
     return true
 end
 
-function Input.clearPressed()
-    self.key_pressed = {}
-    self.key_released = {}
-end
-
--- Clears every key press, couldn't find a function that did this already :(
-function Input.clearDownPressed()
-    self.clearPressed()
-    self.key_down = {}
-end
-
-function Input.clearPressedKey(key)
-    if self.aliases[key] then
-        for _,k in ipairs(self.aliases[key]) do
-            self.key_pressed[k] = false
-            self.key_released[k] = false
-            self.key_down[k] = false
+function Input.clear(key, clear_down)
+    if key then
+        if self.key_groups[key] then
+            for _,k in ipairs(self.key_groups[key]) do
+                self.key_pressed[k] = false
+                self.key_released[k] = false
+                if clear_down then
+                    self.key_down[k] = false
+                end
+            end
+        elseif self.aliases[key] then
+            for _,k in ipairs(self.aliases[key]) do
+                self.key_pressed[k] = false
+                self.key_released[k] = false
+                if clear_down then
+                    self.key_down[k] = false
+                end
+            end
+            return false
+        else
+            self.key_pressed[key] = false
+            self.key_released[key] = false
+            if clear_down then
+                self.key_down[key] = false
+            end
         end
-        return false
     else
-        self.key_pressed[key] = false
-        self.key_released[key] = false
-        self.key_down[key] = false
+        self.key_pressed = {}
+        self.key_released = {}
+        if clear_down then
+            self.key_down = {}
+        end
     end
-end
-
-function Input.lock(target)
-    table.insert(self.lock_stack, target)
-end
-
-function Input.release(target)
-    if not target then
-        table.remove(self.lock_stack, #self.lock_stack)
-    else
-        Utils.removeFromTable(self.lock_stack, target)
-    end
-end
-
-function Input.check(target)
-    return self.lock_stack[#self.lock_stack] == target
 end
 
 function Input.onKeyPressed(key)
@@ -139,15 +148,21 @@ function Input.onKeyReleased(key)
 end
 
 function Input.down(key)
-    if self.aliases[key] then
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
+            if Input.keyDown(k) then
+                return true
+            end
+        end
+    elseif self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
-            if self.key_down[k] then
+            if Input.keyDown(k) then
                 return true
             end
         end
         return false
     else
-        return self.key_down[key]
+        return Input.keyDown(key)
     end
 end
 
@@ -156,38 +171,21 @@ function Input.keyDown(key)
 end
 
 function Input.pressed(key)
-    if self.aliases[key] then
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
+            if Input.keyPressed(k) then
+                return true
+            end
+        end
+    elseif self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
-            if self.key_pressed[k] then
+            if Input.keyPressed(k) then
                 return true
             end
         end
         return false
     else
-        return self.key_pressed[key]
-    end
-end
-
-function Input.processKeyPressedFunc(key)
-    if Input.pressed(key) then
-        return true
-    end
-end
-
-function Input.consumePress(key)
-    if self.aliases[key] then
-        local pressed = false
-        for _,k in ipairs(self.aliases[key]) do
-            if self.key_pressed[k] then
-                self.key_pressed[k] = nil
-                pressed = true
-            end
-        end
-        return pressed
-    else
-        local pressed = self.key_pressed[key]
-        self.key_pressed[key] = nil
-        return pressed or false
+        return Input.keyPressed(key)
     end
 end
 
@@ -195,8 +193,20 @@ function Input.keyPressed(key)
     return self.key_pressed[key]
 end
 
+function Input.processKeyPressedFunc(key)
+    -- Should this function still be called?
+    return Input.pressed(key)
+    -- This is only a single function call right now, but might need to be expanded in the future
+end
+
 function Input.released(key)
-    if self.aliases[key] then
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
+            if self.key_released[k] then
+                return true
+            end
+        end
+    elseif self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
             if self.key_released[k] then
                 return true
@@ -213,7 +223,13 @@ function Input.keyReleased(key)
 end
 
 function Input.up(key)
-    if self.aliases[key] then
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
+            if self.key_down[k] then
+                return false
+            end
+        end
+    elseif self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
             if self.key_down[k] then
                 return false
@@ -230,23 +246,54 @@ function Input.keyUp(key)
 end
 
 function Input.is(alias, key)
+    if self.group_for_key[key] then
+        return self.aliases[alias] and Utils.containsValue(self.aliases[alias], self.group_for_key[key])
+    end
     return self.aliases[alias] and Utils.containsValue(self.aliases[alias], key)
 end
 
 function Input.getText(alias)
     local name = self.aliases[alias] and self.aliases[alias][1] or alias
+    name = self.key_groups[alias] and self.key_groups[alias][1] or name
     return "["..name:upper().."]"
 end
 
+function Input.shift()
+    return self.down("shift")
+end
+
+function Input.ctrl()
+    return self.down("ctrl")
+end
+
+function Input.alt()
+    return self.down("alt")
+end
+
 function Input.isConfirm(key)
+    if self.group_for_key[key] then
+        if Utils.containsValue(self.aliases["confirm"], self.group_for_key[key]) then
+            return true
+        end
+    end
     return Utils.containsValue(self.aliases["confirm"], key)
 end
 
 function Input.isCancel(key)
+    if self.group_for_key[key] then
+        if Utils.containsValue(self.aliases["cancel"], self.group_for_key[key]) then
+            return true
+        end
+    end
     return Utils.containsValue(self.aliases["cancel"], key)
 end
 
 function Input.isMenu(key)
+    if self.group_for_key[key] then
+        if Utils.containsValue(self.aliases["menu"], self.group_for_key[key]) then
+            return true
+        end
+    end
     return Utils.containsValue(self.aliases["menu"], key)
 end
 

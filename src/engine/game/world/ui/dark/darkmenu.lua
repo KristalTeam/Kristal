@@ -133,7 +133,7 @@ function DarkMenu:keypressed(key)
         end
     elseif self.state == "PARTYSELECT" then
         if Input.isCancel(key) then
-            Input.consumePress("cancel")
+            Input.clear("cancel")
             self.ui_cancel_small:stop()
             self.ui_cancel_small:play()
 
@@ -164,7 +164,7 @@ function DarkMenu:keypressed(key)
             self:updateSelectedBoxes()
         end
         if Input.isConfirm(key) then
-            Input.consumePress("confirm")
+            Input.clear("confirm")
             self.state = self.state_reason
             self.state_reason = nil
             if self.after_party_select then
@@ -183,7 +183,7 @@ function DarkMenu:onButtonSelect(button)
     if button == 1 then
         self.state = "ITEMMENU"
 
-        Input.consumePress("confirm")
+        Input.clear("confirm")
         self.box = DarkItemMenu()
         self.box.layer = 1
         self:addChild(self.box)
@@ -193,7 +193,7 @@ function DarkMenu:onButtonSelect(button)
     elseif button == 2 then
         self.state = "EQUIPMENU"
 
-        Input.consumePress("confirm")
+        Input.clear("confirm")
         self.box = DarkEquipMenu()
         self.box.layer = 1
         self:addChild(self.box)
@@ -205,7 +205,7 @@ function DarkMenu:onButtonSelect(button)
 
         -- The power menu does not reset the selected character, for some reason.
         -- But we're not doing that (for now at least)
-        Input.consumePress("confirm")
+        Input.clear("confirm")
         self.box = DarkPowerMenu()
         self.box.layer = 1
         self:addChild(self.box)
@@ -215,7 +215,7 @@ function DarkMenu:onButtonSelect(button)
     elseif button == 4 then
         self.state = "CONFIGMENU"
 
-        Input.consumePress("confirm")
+        Input.clear("confirm")
         self.box = DarkConfigMenu()
         self.box.layer = -1
         self:addChild(self.box)

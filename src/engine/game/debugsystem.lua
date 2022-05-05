@@ -68,8 +68,8 @@ function DebugSystem:refresh()
 end
 
 function DebugSystem:returnMenu()
-    Input.clearPressedKey("confirm")
-    Input.clearPressedKey("cancel")
+    Input.clear("confirm")
+    Input.clear("cancel")
     if #self.menu_history == 0 then
         self:closeMenu()
     else
@@ -134,7 +134,7 @@ function DebugSystem:registerDefaults()
             love.event.quit("restart")
         else
             if Mod then
-                Kristal.quickReload(love.keyboard.isDown("lshift"))
+                Kristal.quickReload(Input.shift())
             else
                 Kristal.returnToMenu()
             end
