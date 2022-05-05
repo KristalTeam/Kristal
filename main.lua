@@ -406,6 +406,12 @@ function love.textinput(key)
     TextInput.onTextInput(key)
 end
 
+function love.mousepressed(...)
+    if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
+        Kristal.DebugSystem:onMousePressed(...)
+    end
+end
+
 function love.keypressed(key, scancode, is_repeat)
     Input.onKeyPressed(key)
     TextInput.onKeyPressed(key)
@@ -1089,6 +1095,11 @@ end
 
 function Kristal.getGameScale()
     return math.min(love.graphics.getWidth() / SCREEN_WIDTH, love.graphics.getHeight() / SCREEN_HEIGHT)
+end
+
+function Kristal.getSideOffsets()
+    return (love.graphics.getWidth()  - (SCREEN_WIDTH  * Kristal.getGameScale())) / 2,
+           (love.graphics.getHeight() - (SCREEN_HEIGHT * Kristal.getGameScale())) / 2
 end
 
 function Kristal.loadConfig()

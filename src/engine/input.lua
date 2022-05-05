@@ -321,7 +321,9 @@ function Input.isMenu(key)
 end
 
 function Input.getMousePosition()
-    return love.mouse.getX() / (Kristal.Config["windowScale"] or 1), love.mouse.getY() / (Kristal.Config["windowScale"] or 1)
+    local off_x, off_y = Kristal.getSideOffsets()
+    return math.floor((love.mouse.getX() - off_x) / Kristal.getGameScale()),
+           math.floor((love.mouse.getY() - off_y) / Kristal.getGameScale())
 end
 
 return self

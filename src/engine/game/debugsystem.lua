@@ -41,7 +41,16 @@ function DebugSystem:init()
 
     self.menu_history = {}
 
-    self.object = {}
+    self.object = nil
+end
+
+function DebugSystem:onMousePressed(x, y, button, istouch, presses)
+    --[[if Game.stage then
+        local objects = Game.stage:getObjects()
+        for _,object in ipairs(objects) do
+            local x, y = object:getScreenPos()
+        end
+    end]]
 end
 
 function DebugSystem:registerConfigOption(menu, name, description, value, callback)
