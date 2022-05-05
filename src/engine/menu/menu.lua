@@ -90,6 +90,11 @@ function Menu:enter()
     self.selected_mod = nil
 
     self.rebinding = false
+    self.rebinding_shift = false
+    self.rebinding_ctrl = false
+    self.rebinding_alt = false
+    self.rebinding_cmd = false
+
     self.selecting_key = false
     self.selected_bind = 1
 
@@ -511,7 +516,7 @@ function Menu:draw()
         local y_offset = 0
 
         for index, name in ipairs(Input.order) do
-            self:printShadow(name:upper(),  menu_x, menu_y + (32 * y_offset))
+            self:printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
 
             self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
             y_offset = y_offset + 1
@@ -519,7 +524,7 @@ function Menu:draw()
 
         for name, value in pairs(Input.aliases) do
             if not Utils.containsValue(Input.order, name) then
-                self:printShadow(name:upper(),  menu_x, menu_y + (32 * y_offset))
+                self:printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
 
                 self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
                 --self:printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * y_offset))
@@ -655,7 +660,7 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     local x_offset = 0
     if self.selected_option == (y_offset + 1) then
         for i, v in ipairs(self:getKeysFromAlias(name)) do
-            local drawstr = Utils.titleCase(v)
+            local drawstr = v:upper()
             if i < #self:getKeysFromAlias(name) then
                 drawstr = drawstr .. ", "
             end
@@ -667,10 +672,7 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     Draw.pushScissor()
     Draw.scissorPoints(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     for i, v in ipairs(self:getKeysFromAlias(name)) do
-        local drawstr = Utils.titleCase(v)
-        if i < #self:getKeysFromAlias(name) then
-            drawstr = drawstr .. ", "
-        end
+        local drawstr = v:upper()
         local color = {1, 1, 1, 1}
         if self.selecting_key or self.rebinding then
             if self.selected_option == (y_offset + 1) then
@@ -681,7 +683,19 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
             color = {1, 1, 1, 1}
             if self.rebinding then
                 color = {0, 1, 1, 1}
+
+                if self.rebinding_shift or self.rebinding_ctrl or self.rebinding_alt or self.rebinding_cmd then
+                    drawstr = ""
+
+                    if self.rebinding_cmd   then drawstr = "CMD+"  ..drawstr end
+                    if self.rebinding_shift then drawstr = "SHIFT+"..drawstr end
+                    if self.rebinding_alt   then drawstr = "ALT+"  ..drawstr end
+                    if self.rebinding_ctrl  then drawstr = "CTRL+" ..drawstr end
+                end
             end
+        end
+        if i < #self:getKeysFromAlias(name) then
+            drawstr = drawstr .. ", "
         end
         self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
         x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
@@ -1014,18 +1028,49 @@ function Menu:keypressed(key, _, is_repeat)
                 self.ui_select:play()
             end
         elseif self.rebinding then
-            -- rebind!!
-            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, key)
-
-            self.rebinding = false
-            self.heart_target_x = 152
-            self.selected_bind = 1
-            if worked then
-                self.ui_select:stop()
-                self.ui_select:play()
+            if key == "lshift" or key == "rshift" then
+                self.rebinding_shift = true
+            elseif key == "lctrl" or key == "rctrl" then
+                self.rebinding_ctrl = true
+            elseif key == "lalt" or key == "ralt" then
+                self.rebinding_alt = true
+            elseif key == "lgui" or key == "rgui" then
+                self.rebinding_cmd = true
             else
-                self.ui_cant_select:stop()
-                self.ui_cant_select:play()
+                local bound_key
+                if key ~= "escape" then
+                    bound_key = {key}
+
+                    -- https://ux.stackexchange.com/questions/58185/normative-ordering-for-modifier-key-combinations
+                    if self.rebinding_cmd   then table.insert(bound_key, 1, "cmd"  ) end
+                    if self.rebinding_shift then table.insert(bound_key, 1, "shift") end
+                    if self.rebinding_alt   then table.insert(bound_key, 1, "alt"  ) end
+                    if self.rebinding_ctrl  then table.insert(bound_key, 1, "ctrl" ) end
+
+                    if #bound_key == 1 then
+                        bound_key = bound_key[1]
+                    end
+                else
+                    bound_key = "escape"
+                end
+
+                -- rebind!!
+                local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key)
+
+                self.rebinding = false
+                self.rebinding_shift = false
+                self.rebinding_ctrl = false
+                self.rebinding_alt = false
+                self.rebinding_cmd = false
+                self.heart_target_x = 152
+                self.selected_bind = 1
+                if worked then
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                else
+                    self.ui_cant_select:stop()
+                    self.ui_cant_select:play()
+                end
             end
         end
     else
@@ -1039,13 +1084,67 @@ function Menu:keypressed(key, _, is_repeat)
     end
 end
 
-function Menu:getKeysFromAlias(key)
-    if (self.rebinding or self.selecting_key) and (key == Input.orderedNumberToKey(self.selected_option)) then
-        local temp = Utils.copy(Input.getKeysFromAlias(key))
-        table.insert(temp, "---")
-        return temp
+function Menu:keyreleased(key)
+    if MOD_LOADING then return end
+    if OVERLAY_OPEN then return end
+
+    if self.state == "CONTROLS" and self.rebinding then
+        -- TODO: Maybe move this into a function? Copying code is gross
+
+        local released_modifier =
+            (self.rebinding_ctrl  and (key == "lctrl"  or key == "rctrl" )) or
+            (self.rebinding_shift and (key == "lshift" or key == "rshift")) or
+            (self.rebinding_alt   and (key == "lalt"   or key == "ralt"  )) or
+            (self.rebinding_cmd   and (key == "lcmd"   or key == "rcmd"  ))
+
+        if released_modifier then
+            local bound_key = {}
+
+            -- https://ux.stackexchange.com/questions/58185/normative-ordering-for-modifier-key-combinations
+            if self.rebinding_cmd   then table.insert(bound_key, 1, "cmd"  ) end
+            if self.rebinding_shift then table.insert(bound_key, 1, "shift") end
+            if self.rebinding_alt   then table.insert(bound_key, 1, "alt"  ) end
+            if self.rebinding_ctrl  then table.insert(bound_key, 1, "ctrl" ) end
+
+            if #bound_key == 1 then
+                bound_key = bound_key[1]
+            end
+
+            -- rebind!!
+            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key)
+
+            self.rebinding = false
+            self.rebinding_shift = false
+            self.rebinding_ctrl = false
+            self.rebinding_alt = false
+            self.rebinding_cmd = false
+            self.heart_target_x = 152
+            self.selected_bind = 1
+            if worked then
+                self.ui_select:stop()
+                self.ui_select:play()
+            else
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
+            end
+        end
     end
-    return Input.getKeysFromAlias(key)
+end
+
+function Menu:getKeysFromAlias(key)
+    local keys = {}
+    for _,k in ipairs(Input.getKeysFromAlias(key)) do
+        if type(k) == "table" then
+            table.insert(keys, table.concat(k, "+"))
+        else
+            table.insert(keys, k)
+        end
+    end
+    if (self.rebinding or self.selecting_key) and (key == Input.orderedNumberToKey(self.selected_option)) then
+        table.insert(keys, "---")
+        return keys
+    end
+    return keys
 end
 
 function Menu:drawBackground()

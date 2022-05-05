@@ -415,20 +415,24 @@ end
 function love.keypressed(key, scancode, is_repeat)
     Input.onKeyPressed(key)
     TextInput.onKeyPressed(key)
-    if Input.is("console", key) and Input.processKeyPressedFunc(key) and not TextInput.active then
-        if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
-            Assets.playSound("ui_move")
-            Kristal.DebugSystem:closeMenu()
-        else
-            if Input.shift() then
-                if Kristal.DebugSystem then
+
+    if Input.processKeyPressedFunc(key) and not TextInput.active then
+        if Input.is("debug_menu", key) then
+            if Kristal.DebugSystem then
+                if Kristal.DebugSystem:isMenuOpen() then
+                    Assets.playSound("ui_move")
+                    Kristal.DebugSystem:closeMenu()
+                else
                     Kristal.DebugSystem:openMenu()
                 end
-            else
-                if Kristal.Console then
-                    if not Kristal.Console.is_open then
-                        Kristal.Console:open()
-                    end
+            end
+        elseif Input.is("console", key) then
+            if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
+                Assets.playSound("ui_move")
+                Kristal.DebugSystem:closeMenu()
+            elseif Kristal.Console then
+                if not Kristal.Console.is_open then
+                    Kristal.Console:open()
                 end
             end
         end

@@ -8,13 +8,14 @@ Input.key_released = {}
 Input.aliases = {}
 
 Input.order = {
-    "down", "right", "up", "left", "confirm", "cancel", "menu"
+    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu"
 }
 
 Input.key_groups = {
     ["shift"] = {"lshift", "rshift"},
     ["ctrl"]  = {"lctrl",  "rctrl"},
-    ["alt"]   = {"lalt",   "ralt"}
+    ["alt"]   = {"lalt",   "ralt"},
+    ["cmd"]   = {"lgui",   "rgui"}
 }
 
 Input.group_for_key = {
@@ -23,7 +24,9 @@ Input.group_for_key = {
     ["lctrl"]  = "ctrl",
     ["rctrl"]  = "ctrl",
     ["lalt"]   = "alt",
-    ["ralt"]   = "alt"
+    ["ralt"]   = "alt",
+    ["lgui"]   = "cmd",
+    ["rgui"]   = "cmd"
 }
 
 function Input.getKeysFromAlias(key)
@@ -39,12 +42,25 @@ function Input.loadBinds(reset)
         ["confirm"] = {"z", "return"},
         ["cancel"] = {"x", "shift"},
         ["menu"] = {"c", "ctrl"},
-        ["console"] = {"`"}
+        ["console"] = {"`"},
+        ["debug_menu"] = {{"shift", "`"}}
     }
 
     if (reset == nil) or (reset == false) then
         if love.filesystem.getInfo("keybinds.json") then
-            Utils.merge(defaults, JSON.decode(love.filesystem.read("keybinds.json")))
+            local user_binds = JSON.decode(love.filesystem.read("keybinds.json"))
+            for k,v in pairs(user_binds) do
+                local new_bind = {}
+                for _,key in ipairs(v) do
+                    local split = Utils.split(key, "+")
+                    if #split > 1 then
+                        table.insert(new_bind, split)
+                    else
+                        table.insert(new_bind, key)
+                    end
+                end
+                defaults[k] = new_bind
+            end
         end
     end
 
@@ -69,7 +85,19 @@ function Input.orderedNumberToKey(number)
 end
 
 function Input.saveBinds()
-    love.filesystem.write("keybinds.json", JSON.encode(Input.aliases))
+    local saved_binds = {}
+    for k,v in pairs(Input.aliases) do
+        local new_bind = {}
+        for _,key in ipairs(v) do
+            if type(key) == "table" then
+                table.insert(new_bind, table.concat(key, "+"))
+            else
+                table.insert(new_bind, key)
+            end
+        end
+        saved_binds[k] = new_bind
+    end
+    love.filesystem.write("keybinds.json", JSON.encode(saved_binds))
 end
 
 function Input.setBind(alias, index, key)
@@ -90,8 +118,9 @@ function Input.setBind(alias, index, key)
 
     for aliasname, lalias in pairs(self.aliases) do
         for keyindex, lkey in ipairs(lalias) do
-            if lkey == key then
-                if index > #self.aliases[alias] then
+            if Utils.equal(lkey, key) then
+                -- if index > #self.aliases[alias] then
+                if (#self.aliases[aliasname] == 1 and not old_key) or (aliasname == alias and index > #self.aliases[alias]) then
                     return false
                 else
                     self.aliases[aliasname][keyindex] = old_key
@@ -105,7 +134,19 @@ end
 
 function Input.clear(key, clear_down)
     if key then
-        if self.key_groups[key] then
+        if self.aliases[key] then
+            for _,k in ipairs(self.aliases[key]) do
+                local keys = type(k) == "table" and k or {k}
+                for _,l in ipairs(keys) do
+                    self.key_pressed[l] = false
+                    self.key_released[l] = false
+                    if clear_down then
+                        self.key_down[l] = false
+                    end
+                end
+            end
+            return false
+        elseif self.key_groups[key] then
             for _,k in ipairs(self.key_groups[key]) do
                 self.key_pressed[k] = false
                 self.key_released[k] = false
@@ -113,15 +154,6 @@ function Input.clear(key, clear_down)
                     self.key_down[k] = false
                 end
             end
-        elseif self.aliases[key] then
-            for _,k in ipairs(self.aliases[key]) do
-                self.key_pressed[k] = false
-                self.key_released[k] = false
-                if clear_down then
-                    self.key_down[k] = false
-                end
-            end
-            return false
         else
             self.key_pressed[key] = false
             self.key_released[key] = false
@@ -151,8 +183,18 @@ end
 function Input.down(key)
     if self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
-            if Input.keyDown(k) then
+            if type(k) == "string" and Input.keyDown(k) then
                 return true
+            elseif type(k) == "table" then
+                local success = true
+                for _,l in ipairs(k) do
+                    if not Input.keyDown(l) then
+                        success = false
+                    end
+                end
+                if success then
+                    return true
+                end
             end
         end
         return false
@@ -173,16 +215,23 @@ function Input.keyDown(key)
 end
 
 function Input.pressed(key)
-    if self.key_groups[key] then
-        for _,k in ipairs(self.key_groups[key]) do
-            if Input.keyPressed(k) then
+    if self.aliases[key] then
+        for _,k in ipairs(self.aliases[key] or {}) do
+            if type(k) == "string" and Input.keyPressed(k) then
                 return true
-            end
-        end
-    elseif self.aliases[key] then
-        for _,k in ipairs(self.aliases[key]) do
-            if Input.keyPressed(k) then
-                return true
+            elseif type(k) == "table" then
+                local any_pressed = false
+                local any_up = false
+                for _,l in ipairs(k) do
+                    if Input.keyPressed(l) then
+                        any_pressed = true
+                    elseif Input.keyUp(l) then
+                        any_up = true
+                    end
+                end
+                if any_pressed and not any_up then
+                    return true
+                end
             end
         end
         return false
@@ -209,57 +258,69 @@ function Input.processKeyPressedFunc(key)
 end
 
 function Input.released(key)
-    if self.key_groups[key] then
-        for _,k in ipairs(self.key_groups[key]) do
-            if self.key_released[k] then
+    if self.aliases[key] then
+        for _,k in ipairs(self.aliases[key]) do
+            if type(k) == "string" and Input.keyReleased(k) then
                 return true
+            elseif type(k) == "table" then
+                local any_released = false
+                local any_up_not_released = false
+                for _,l in ipairs(k) do
+                    if Input.keyReleased(l) then
+                        any_released = true
+                    elseif Input.keyUp(l) then
+                        any_up_not_released = true
+                    end
+                end
+                if any_released and not any_up_not_released then
+                    return true
+                end
             end
         end
-    elseif self.aliases[key] then
-        for _,k in ipairs(self.aliases[key]) do
+        return false
+    else
+        return Input.keyReleased(key)
+    end
+end
+
+function Input.keyReleased(key)
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
             if self.key_released[k] then
                 return true
             end
         end
         return false
-    else
-        return self.key_released[key]
-    end
-end
-
-function Input.keyReleased(key)
-    if self.key_released[key] then
-        for _,k in ipairs(self.key_released[key]) do
-            if self.key_released[k] then
-                return true
-            end
-        end
     end
     return self.key_released[key]
 end
 
 function Input.up(key)
-    if self.key_groups[key] then
-        for _,k in ipairs(self.key_groups[key]) do
-            if self.key_down[k] then
-                return false
-            end
-        end
-    elseif self.aliases[key] then
+    if self.aliases[key] then
         for _,k in ipairs(self.aliases[key]) do
-            if self.key_down[k] then
+            if type(k) == "string" and Input.keyDown(k) then
                 return false
+            elseif type(k) == "table" then
+                local success = true
+                for _,l in ipairs(k) do
+                    if not Input.keyDown(l) then
+                        success = false
+                    end
+                end
+                if success then
+                    return false
+                end
             end
         end
         return true
     else
-        return not self.key_down[key]
+        return Input.keyUp(key)
     end
 end
 
 function Input.keyUp(key)
-    if self.key_down[key] then
-        for _,k in ipairs(self.key_down[key]) do
+    if self.key_groups[key] then
+        for _,k in ipairs(self.key_groups[key]) do
             if self.key_down[k] then
                 return false
             end
@@ -270,14 +331,32 @@ end
 
 function Input.is(alias, key)
     if self.group_for_key[key] then
-        return self.aliases[alias] and Utils.containsValue(self.aliases[alias], self.group_for_key[key])
+        key = self.group_for_key[key]
     end
-    return self.aliases[alias] and Utils.containsValue(self.aliases[alias], key)
+    for _,k in ipairs(self.aliases[alias] or {}) do
+        if type(k) == "string" and k == key then
+            return true
+        elseif type(k) == "table" then
+            local success = true
+            for _,l in ipairs(k) do
+                if l ~= key and not Input.keyDown(l) then
+                    success = false
+                end
+            end
+            if success then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function Input.getText(alias)
     local name = self.aliases[alias] and self.aliases[alias][1] or alias
     name = self.key_groups[alias] and self.key_groups[alias][1] or name
+    if type(name) == "table" then
+        name = table.concat(name, "+")
+    end
     return "["..name:upper().."]"
 end
 
@@ -293,31 +372,20 @@ function Input.alt()
     return self.down("alt")
 end
 
+function Input.gui()
+    return self.down("gui")
+end
+
 function Input.isConfirm(key)
-    if self.group_for_key[key] then
-        if Utils.containsValue(self.aliases["confirm"], self.group_for_key[key]) then
-            return true
-        end
-    end
-    return Utils.containsValue(self.aliases["confirm"], key)
+    return Input.is("confirm", key)
 end
 
 function Input.isCancel(key)
-    if self.group_for_key[key] then
-        if Utils.containsValue(self.aliases["cancel"], self.group_for_key[key]) then
-            return true
-        end
-    end
-    return Utils.containsValue(self.aliases["cancel"], key)
+    return Input.is("cancel", key)
 end
 
 function Input.isMenu(key)
-    if self.group_for_key[key] then
-        if Utils.containsValue(self.aliases["menu"], self.group_for_key[key]) then
-            return true
-        end
-    end
-    return Utils.containsValue(self.aliases["menu"], key)
+    return Input.is("menu", key)
 end
 
 function Input.getMousePosition()
