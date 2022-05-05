@@ -361,7 +361,8 @@ function DebugSystem:draw()
 
     if object then
         local x, y = object:localToScreenPos(0, 0)
-        love.graphics.rectangle("line", x, y, object.width * object.scale_x, object.height * object.scale_y)
+        local x2, y2 = object:localToScreenPos(object.width, object.height)
+        love.graphics.rectangle("line", x, y, x2 - x, y2 - y)
     end
 
 
