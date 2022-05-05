@@ -55,6 +55,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
 end
 
 function DebugSystem:detectObject(x, y)
+    local object_size = math.huge
     local hierarchy_size = -1
     local found = false
     local object = nil
@@ -63,12 +64,17 @@ function DebugSystem:detectObject(x, y)
         local objects = Game.stage:getObjects()
         Object.startCache()
         for _,instance in ipairs(objects) do
-            local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
-            if mx > 0 and mx < instance.width and my > 0 and my < instance.height then
-                if #instance:getHierarchy() > hierarchy_size then
-                    hierarchy_size = #instance:getHierarchy()
-                    object = instance
-                    found = true
+            if instance:isDebugSelectable() and instance:isFullyVisible() then
+                local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
+                if mx > 0 and mx < instance.width and my > 0 and my < instance.height then
+                    local new_hierarchy_size = #instance:getHierarchy()
+                    local new_object_size = math.sqrt(instance.width * instance.height)
+                    if new_hierarchy_size > hierarchy_size or (new_hierarchy_size == hierarchy_size and new_object_size < object_size) then
+                        hierarchy_size = new_hierarchy_size
+                        object_size = new_object_size
+                        object = instance
+                        found = true
+                    end
                 end
             end
         end
@@ -357,13 +363,40 @@ function DebugSystem:draw()
     end
 
     love.graphics.setColor(0, 1, 1, 1)
-    local object = self:detectObject(Input.getMousePosition())
+
+    Object.startCache()
+    local mx, my = Input.getMousePosition()
+    local object = self:detectObject(mx, my)
 
     if object then
-        local x, y = object:localToScreenPos(0, 0)
-        local x2, y2 = object:localToScreenPos(object.width, object.height)
-        love.graphics.rectangle("line", x, y, x2 - x, y2 - y)
+        local transform = object:getFullTransform()
+        love.graphics.push()
+        love.graphics.origin()
+        love.graphics.applyTransform(transform)
+        love.graphics.rectangle("line", 0, 0, object.width, object.height)
+        love.graphics.pop()
+
+        local tooltip_font = Assets.getFont("main", 16)
+        local tooltip_text = Utils.getClassName(object)
+
+        local tooltip_width = tooltip_font:getWidth(tooltip_text)
+        local tooltip_height = tooltip_font:getHeight()
+
+        local tooltip_x = mx + 8
+        local tooltip_y = my - tooltip_font:getHeight()
+
+        if tooltip_x + tooltip_width > SCREEN_WIDTH then
+            tooltip_x = mx - tooltip_width - 4
+        end
+
+        if tooltip_y < 0 then
+            tooltip_y = my + tooltip_font:getHeight()
+        end
+
+        love.graphics.setFont(tooltip_font)
+        love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
     end
+    Object.endCache()
 
 
     -- Reset canvas to draw to

@@ -21,16 +21,16 @@ end
 function Utils.getClassName(class, parent_check)
     for k,v in pairs(_G) do
         if class.__index == v then
-            return k .. (parent_check and "" or "()")
+            return k
         end
     end
     for k,v in ipairs(class.__includes) do
         local name = Utils.getClassName(v, true)
         if name then
-            if parent_check then
-                return name
+            if not parent_check and class.id then
+                return name .. "(" .. class.id .. ")"
             else
-                return name .. "(" .. (class.id or "") .. ")"
+                return name
             end
         end
     end

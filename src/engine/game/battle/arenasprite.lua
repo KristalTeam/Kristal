@@ -12,6 +12,8 @@ function ArenaSprite:init(arena, x, y)
     self:setRotationOrigin(0.5, 0.5)
 
     self.background = true
+
+    self.debug_select = false
 end
 
 function ArenaSprite:update()

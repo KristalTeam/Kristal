@@ -18,6 +18,8 @@ function Fader:init()
     self.speed = self.default_speed
 
     self.music = nil
+
+    self.debug_select = false
 end
 
 function Fader:parseOptions(options, reset_values)

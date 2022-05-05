@@ -587,6 +587,7 @@ function World:setupMap(map, ...)
     self.battle_fader:setColor(0, 0, 0)
     self.battle_fader.alpha = 0
     self.battle_fader.layer = self.map.battle_fader_layer
+    self.battle_fader.debug_select = false
     self:addChild(self.battle_fader)
 
     self:transitionMusic(self.map.music)

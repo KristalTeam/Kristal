@@ -31,8 +31,8 @@ function Soul:init(x, y, color)
     self.graze_sprite.graze_scale = self.graze_size_factor
     self:addChild(self.graze_sprite)
 
-    --self.width = self.sprite.width
-    --self.height = self.sprite.height
+    self.width = self.sprite.width
+    self.height = self.sprite.height
 
     self.collider = CircleCollider(self, 0, 0, 8)
 

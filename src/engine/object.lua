@@ -104,6 +104,9 @@ function Object:init(x, y, width, height)
     -- Post-processing effects
     self.draw_fx = {}
 
+    -- Whether this object can be selected using debug selection
+    self.debug_select = true
+
     -- Multiplier for DT for this object's update and draw
     self.timescale = 1
 
@@ -425,6 +428,10 @@ function Object:setHitbox(x, y, w, h)
     self.collider = Hitbox(self, x, y, w, h)
 end
 
+function Object:isDebugSelectable()
+    return self.debug_select
+end
+
 function Object:shiftOrigin(ox, oy)
     local tx, ty = self:getRelativePos((ox or 0) * self.width, (oy or ox or 0) * self.height)
     self:setOrigin(ox, oy)
@@ -627,6 +634,11 @@ function Object:getHierarchy()
     end
     return tbl
 end
+
+function Object:getHierchy() return self:getHierarchy() end
+function Object:getHierarcy() return self:getHierarchy() end
+function Object:getHireachy() return self:getHierarchy() end
+
 
 function Object:remove()
     if self.parent then

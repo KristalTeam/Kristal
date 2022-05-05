@@ -25,6 +25,9 @@ function Sprite:init(texture, x, y, width, height, path)
     self.anim_callback = nil
     self.anim_waiting = 0
     self.anim_wait_func = function(s) self.anim_waiting = s; coroutine.yield() end
+
+    -- Temp solution for debug selection problems
+    self.debug_select = false
 end
 
 function Sprite:updateTexture()
