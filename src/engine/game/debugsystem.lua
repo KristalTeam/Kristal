@@ -45,12 +45,32 @@ function DebugSystem:init()
 end
 
 function DebugSystem:onMousePressed(x, y, button, istouch, presses)
-    --[[if Game.stage then
+    local hierarchy_size = -1
+    local found = false
+    if Game.stage then
         local objects = Game.stage:getObjects()
+        Object.startCache()
         for _,object in ipairs(objects) do
-            local x, y = object:getScreenPos()
+            local mx, my = object:getFullTransform():inverseTransformPoint(Input.getMousePosition())
+            if mx > 0 and mx < object.width and my > 0 and my < object.height then
+                -- TEMPORARY!!
+                if not object:includes(Sprite) then
+                    if #object:getHierarchy() > hierarchy_size then
+                        hierarchy_size = #object:getHierarchy()
+                        self.object = object
+                        found = true
+                    end
+                else
+                    print("sprite found (oops)")
+                end
+            end
         end
-    end]]
+        Object.endCache()
+    end
+    if found then
+        local recolor = self.object:addFX(RecolorFX())
+        recolor.color = {0, 1, 0}
+    end
 end
 
 function DebugSystem:registerConfigOption(menu, name, description, value, callback)
