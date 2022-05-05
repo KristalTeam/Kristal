@@ -409,7 +409,7 @@ end
 function love.keypressed(key, scancode, is_repeat)
     Input.onKeyPressed(key)
     TextInput.onKeyPressed(key)
-    if key == "`" and Input.processKeyPressedFunc(key) and not TextInput.active then
+    if Input.is("console", key) and Input.processKeyPressedFunc(key) and not TextInput.active then
         if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
             Assets.playSound("ui_move")
             Kristal.DebugSystem:closeMenu()

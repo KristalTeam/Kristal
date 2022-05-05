@@ -693,6 +693,10 @@ function Menu:keypressed(key, _, is_repeat)
     if MOD_LOADING then return end
     if OVERLAY_OPEN then return end
 
+    if not Input.processKeyPressedFunc(key) then
+        return
+    end
+
     if self.state == "MAINMENU" then
         if Input.isConfirm(key) then
             self.ui_select:stop()

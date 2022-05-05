@@ -39,6 +39,7 @@ function Input.loadBinds(reset)
         ["confirm"] = {"z", "return"},
         ["cancel"] = {"x", "shift"},
         ["menu"] = {"c", "ctrl"},
+        ["console"] = {"`"}
     }
 
     if (reset == nil) or (reset == false) then

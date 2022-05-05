@@ -40,6 +40,8 @@ function DebugSystem:init()
     self.menu_anim_timer = 1
 
     self.menu_history = {}
+
+    self.object = {}
 end
 
 function DebugSystem:registerConfigOption(menu, name, description, value, callback)

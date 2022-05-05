@@ -339,8 +339,8 @@ function Console:unsafeRun(str)
 end
 
 function Console:onConsoleKeyPressed(key)
-    if (key == "`") and not Input.shift() then
-        Input.clear("`")
+    if Input.is("console", key) and not Input.shift() then
+        Input.clear("console")
         if self.is_open then
             self:close()
         else
