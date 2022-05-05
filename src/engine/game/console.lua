@@ -37,12 +37,7 @@ function Console:createEnv()
 
     function env.print(str)
         if type(str) == "table" then
-            if getmetatable(str) then
-                self:warn("Cannot print metatable")
-                return
-            else
-                str = Utils.dump(str)
-            end
+            str = Utils.dump(str)
         end
         self:log(tostring(str))
     end
