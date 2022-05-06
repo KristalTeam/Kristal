@@ -120,11 +120,12 @@ function Input.setBind(alias, index, key)
     for aliasname, lalias in pairs(self.aliases) do
         for keyindex, lkey in ipairs(lalias) do
             if Utils.equal(lkey, key) then
-                -- if index > #self.aliases[alias] then
                 if (#self.aliases[aliasname] == 1 and not old_key) or (aliasname == alias and index > #self.aliases[alias]) then
                     return false
-                else
+                elseif old_key ~= nil then
                     self.aliases[aliasname][keyindex] = old_key
+                else
+                    table.remove(self.aliases[aliasname], keyindex)
                 end
             end
         end
