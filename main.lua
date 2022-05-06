@@ -1006,23 +1006,25 @@ function Kristal.loadMod(id, save_id, save_name, after)
                     transition:resumeTransition()
                     if Kristal.preInitMod(mod.id) then
                         Gamestate.switch(Kristal.States["Game"], save_id)
-                        local px, py = Game.world.player:getScreenPos()
-                        transition.final_y = py
+                        if Game.world and Game.world.player then
+                            local px, py = Game.world.player:getScreenPos()
+                            transition.final_y = py
+                        end
                     end
                 end)
             end
             transition.land_callback = function()
                 if Game and Game.world and Game.world.player then
                     local kx, ky = transition.kris_sprite:localToScreenPos(transition.kris_width / 2, 0)
-                    -- Hardcoded offsets for now...
+                    -- TODO: Hardcoded offsets for now... Figure out why these are required
                     Game.world.player:setScreenPos(kx - 2, transition.final_y - 2)
                     Game.world.player.visible = false
                     Game.world.player:setFacing("down")
 
                     if not transition.kris_only and Game.world.followers[1] then
                         local sx, sy = transition.susie_sprite:localToScreenPos(transition.susie_width / 2, 0)
-                        Game.world.followers[1]:setScreenPos(sx - 2, transition.final_y - 2)
-                        Game.world.followers[1].visible = true
+                        Game.world.followers[1]:setScreenPos(sx + 6, transition.final_y - 6)
+                        Game.world.followers[1].visible = false
                         Game.world.followers[1]:interpolateHistory()
                         Game.world.followers[1]:setFacing("down")
                     end

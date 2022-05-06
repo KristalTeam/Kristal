@@ -27,10 +27,10 @@ function DarkTransition:init(final_y, options)
     self.velocity = 0
     self.old_velocity = 0
     self.friction = 0
-    self.kris_x = 134
-    self.kris_y = 94
-    self.susie_x = 162
-    self.susie_y = 86
+    self.kris_x = options["kris_x"] or 134
+    self.kris_y = options["kris_y"] or 94
+    self.susie_x = options["susie_x"] or 162
+    self.susie_y = options["susie_y"] or 86
     self.susie_sprite = 0
     self.sprite_index = 0
     self.linecon = false
