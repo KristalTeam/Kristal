@@ -187,7 +187,9 @@ function Object:resetPhysics()
         match_rotation = false,
 
         -- Movement target for Object:slideTo
-        slide_target = nil,
+        move_target = nil,
+        -- Movement target for Object:slidePath
+        move_path = nil,
     }
 end
 
@@ -238,8 +240,9 @@ function Object:slideTo(x, y, time, ease, after)
         time = y
         x, y = Game.world.map:getMarker(x)
     end
+    self.physics.move_path = nil
     if self.x ~= x or self.y ~= y then
-        self.physics.slide_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
+        self.physics.move_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
         return true
     else
         if after then
@@ -256,8 +259,9 @@ function Object:slideToSpeed(x, y, speed, after)
         speed = y
         x, y = Game.world.map:getMarker(x)
     end
+    self.physics.move_path = nil
     if self.x ~= x or self.y ~= y then
-        self.physics.slide_target = {x = x, y = y, speed = speed, after = after}
+        self.physics.move_target = {x = x, y = y, speed = speed, after = after}
         return true
     else
         if after then
@@ -265,6 +269,72 @@ function Object:slideToSpeed(x, y, speed, after)
         end
         return false
     end
+end
+
+function Object:slidePath(path, options)
+    options = options or {}
+
+    -- Ability to specify World path for convenience in cutscenes
+    if type(path) == "string" then
+        local map_path = Game.world.map:getPath(path)
+        assert(map_path,                    "No path found for slidePath: " .. path)
+        assert(map_path.shape ~= "ellipse", "slidePath not compatible with ellipse paths")
+        path = {}
+        for _, point in ipairs(map_path.points) do
+            if not options["relative"] then
+                table.insert(path, {point.x, point.y})
+            else
+                table.insert(path, {point.x - map_path.points[1].x, point.y - map_path.points[1].y})
+            end
+        end
+    end
+
+    if not options["relative"] then
+        local dist_start = Utils.dist(self.x, self.y, path[1    ][1], path[1    ][2])
+        local dist_end   = Utils.dist(self.x, self.y, path[#path][1], path[#path][2])
+
+        if options["reverse"] or (options["reverse"] == nil and dist_end < dist_start) then
+            path = Utils.reverse(path)
+        end
+    end
+
+    if options["skip"] then
+        for i = 1, options["skip"] do
+            table.remove(path, 1)
+        end
+    end
+
+    if options["relative"] then
+        for _, point in ipairs(path) do
+            point[1] = point[1] + self.x
+            point[2] = point[2] + self.y
+        end
+    else
+        if options["snap"] then
+            self:setPosition(path[1][1], path[1][2])
+        elseif self.x ~= path[1][1] or self.y ~= path[1][2] then
+            table.insert(path, 1, {self.x, self.y})
+        end
+    end
+
+    local length = 0
+    for i = 1, #path - 1 do
+        length = length + Utils.dist(path[i][1], path[i][2], path[i + 1][1], path[i + 1][2])
+    end
+
+    self.physics.move_target = nil
+    self.physics.move_path = {
+        path = path,
+        length = length,
+        progress = 0,
+
+        time = options.time,
+        timer = 0,
+        speed = options.speed,
+        ease = options.ease or "linear",
+        after = options.after,
+        move_func = options.move_func
+    }
 end
 
 function Object:collidesWith(other)
@@ -914,20 +984,60 @@ function Object:updatePhysicsTransform()
         self:move(physics.speed_x, physics.speed_y, DTMULT)
     end
 
-    if physics.slide_target then
-        if physics.slide_target.speed then
-            local angle = Utils.angle(self.x, self.y, physics.slide_target.x, physics.slide_target.y)
-            self.x = Utils.approach(self.x, physics.slide_target.x, physics.slide_target.speed * math.abs(math.cos(angle)) * DTMULT)
-            self.y = Utils.approach(self.y, physics.slide_target.y, physics.slide_target.speed * math.abs(math.sin(angle)) * DTMULT)
-        elseif physics.slide_target.time then
-            physics.slide_target.timer = Utils.approach(physics.slide_target.timer, physics.slide_target.time, DT)
+    if physics.move_target then
+        local next_x, next_y = self.x, self.y
+        if physics.move_target.speed then
+            local angle = Utils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
+            next_x = Utils.approach(self.x, physics.move_target.x, physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
+            next_y = Utils.approach(self.y, physics.move_target.y, physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
+        elseif physics.move_target.time then
+            physics.move_target.timer = Utils.approach(physics.move_target.timer, physics.move_target.time, DT)
 
-            self.x = Utils.ease(physics.slide_target.start_x, physics.slide_target.x, (physics.slide_target.timer / physics.slide_target.time), physics.slide_target.ease)
-            self.y = Utils.ease(physics.slide_target.start_y, physics.slide_target.y, (physics.slide_target.timer / physics.slide_target.time), physics.slide_target.ease)
+            next_x = Utils.ease(physics.move_target.start_x, physics.move_target.x, (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+            next_y = Utils.ease(physics.move_target.start_y, physics.move_target.y, (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
         end
-        if self.x == physics.slide_target.x and self.y == physics.slide_target.y then
-            local after = physics.slide_target.after
-            physics.slide_target = nil
+        if physics.move_target.move_func then
+            physics.move_target.move_func(self, next_x - self.x, next_y - self.y)
+        else
+            self:setPosition(next_x, next_y)
+        end
+        if next_x == physics.move_target.x and next_y == physics.move_target.y then
+            local after = physics.move_target.after
+            physics.move_target = nil
+            if after then after() end
+        end
+    elseif physics.move_path then
+        if physics.move_path.speed then
+            physics.move_path.progress = Utils.approach(physics.move_path.progress, physics.move_path.length, physics.move_path.speed * DTMULT)
+        elseif physics.move_path.time then
+            physics.move_path.timer = Utils.approach(physics.move_path.timer, physics.move_path.time, DT)
+            physics.move_path.progress = (physics.move_path.timer / physics.move_path.time) * physics.move_path.length
+        end
+        local eased_progress = Utils.ease(0, physics.move_path.length, (physics.move_path.progress / physics.move_path.length), physics.move_path.ease)
+        local new_target = {self.x, self.y}
+        local traversed = 0
+        for i = 1, #physics.move_path.path - 1 do
+            local current_point = physics.move_path.path[i]
+            local next_point = physics.move_path.path[i + 1]
+
+            local current_length = Utils.dist(current_point[1], current_point[2], next_point[1], next_point[2])
+
+            if traversed + current_length > eased_progress then
+                local progress = (eased_progress - traversed) / current_length
+                new_target = Utils.lerp(current_point, next_point, progress)
+                break
+            end
+
+            traversed = traversed + current_length
+        end
+        if physics.move_path.move_func then
+            physics.move_path.move_func(self, new_target[1] - self.x, new_target[2] - self.y)
+        else
+            self:setPosition(new_target[1], new_target[2])
+        end
+        if physics.move_path.progress == physics.move_path.length then
+            local after = physics.move_path.after
+            physics.move_path = nil
             if after then after() end
         end
     end

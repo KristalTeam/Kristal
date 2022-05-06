@@ -9,6 +9,7 @@ function Stage:init(x, y, w, h)
 
     self.stage = self
 
+    self.full_updating = false
     self.full_drawing = false
 
     self.timer = Timer()
@@ -50,16 +51,22 @@ function Stage:removeFromStage(object)
 end
 
 function Stage:update()
-    for _,object in ipairs(self.objects_to_remove) do
-        Utils.removeFromTable(self.objects, object)
-        for class,_ in pairs(object.__includes_all) do
-            if class.__tracked ~= false and self.objects_by_class[class] then
-                Utils.removeFromTable(self.objects_by_class[class], object)
+    if not self.full_updating then
+        self.full_updating = true
+        self:fullUpdate()
+        self.full_updating = false
+    else
+        for _,object in ipairs(self.objects_to_remove) do
+            Utils.removeFromTable(self.objects, object)
+            for class,_ in pairs(object.__includes_all) do
+                if class.__tracked ~= false and self.objects_by_class[class] then
+                    Utils.removeFromTable(self.objects_by_class[class], object)
+                end
             end
         end
+        self.objects_to_remove = {}
+        super:update(self)
     end
-    self.objects_to_remove = {}
-    super:update(self)
 end
 
 function Stage:draw()

@@ -15,7 +15,7 @@ function WorldCutscene:init(group, id, ...)
 
     self.shopbox = nil
 
-    self.moving_chars = {}
+    self.moving_objects = {}
 
     Game.lock_movement = true
     Game.cutscene_active = true
@@ -33,7 +33,7 @@ function WorldCutscene:init(group, id, ...)
 end
 
 function WorldCutscene:canEnd()
-    if #self.moving_chars > 0 then
+    if #self.moving_objects > 0 then
         return false
     end
     return Game.world.camera.pan_target == nil
@@ -41,12 +41,12 @@ end
 
 function WorldCutscene:update()
     local new_moving = {}
-    for _,chara in ipairs(self.moving_chars) do
-        if chara.move_target then
-            table.insert(new_moving, chara)
+    for _,object in ipairs(self.moving_objects) do
+        if object.physics.move_target then
+            table.insert(new_moving, object)
         end
     end
-    self.moving_chars = new_moving
+    self.moving_objects = new_moving
 
     super:update(self)
 end
@@ -142,15 +142,15 @@ function WorldCutscene:look(chara, dir)
     chara:setFacing(dir)
 end
 
-function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing)
+function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    if chara:walkTo(x, y, time, facing, keep_facing) then
-        if not Utils.containsValue(self.moving_chars, chara) then
-            table.insert(self.moving_chars, chara)
-        end
-        return function() return not Utils.containsValue(self.moving_chars, chara) end
+    local walked = false
+    if chara:walkTo(x, y, time, facing, keep_facing, ease) then
+        chara.physics.move_target.after = Utils.override(chara.physics.move_target.after, function(orig) orig() walked = true end)
+        table.insert(self.moving_objects, chara)
+        return function() return walked end
     else
         return _true
     end
@@ -160,14 +160,30 @@ function WorldCutscene:walkToSpeed(chara, x, y, speed, facing, keep_facing)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
+    local walked = false
     if chara:walkToSpeed(x, y, speed, facing, keep_facing) then
-        if not Utils.containsValue(self.moving_chars, chara) then
-            table.insert(self.moving_chars, chara)
-        end
-        return function() return not Utils.containsValue(self.moving_chars, chara) end
+        chara.physics.move_target.after = Utils.override(chara.physics.move_target.after, function(orig) orig() walked = true end)
+        table.insert(self.moving_objects, chara)
+        return function() return walked end
     else
         return _true
     end
+end
+
+function WorldCutscene:walkPath(chara, path, options)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+
+    local walked = false
+
+    options = options or {}
+    options.after = Utils.override(options.after, function(orig) orig() walked = true end)
+
+    chara:walkPath(path, options)
+    table.insert(self.moving_objects, chara)
+
+    return function() return walked end
 end
 
 function WorldCutscene:setSprite(chara, sprite, speed)
@@ -214,6 +230,7 @@ function WorldCutscene:slideTo(obj, x, y, time, ease)
     end
     local slided = false
     if obj:slideTo(x, y, time, ease, function() slided = true end) then
+        table.insert(self.moving_objects, obj)
         return function() return slided end
     else
         return _true
@@ -230,10 +247,33 @@ function WorldCutscene:slideToSpeed(obj, x, y, speed)
     end
     local slided = false
     if obj:slideToSpeed(x, y, speed, function() slided = true end) then
+        table.insert(self.moving_objects, obj)
         return function() return slided end
     else
         return _true
     end
+end
+
+function WorldCutscene:slidePath(obj, path, options)
+    if type(obj) == "string" then
+        obj = self:getCharacter(obj)
+    end
+
+    local slided = false
+
+    options = options or {}
+    local old_after = options.after
+    options.after = function()
+        if old_after then
+            old_after()
+        end
+        slided = true
+    end
+
+    obj:slidePath(path, options)
+    table.insert(self.moving_objects, obj)
+
+    return function() return slided end
 end
 
 function WorldCutscene:jumpTo(chara, ...)

@@ -147,7 +147,7 @@ function Follower:updateHistory(DT, moved)
             table.remove(self.history, #self.history)
         end
 
-        if self.following and not self.move_target then
+        if self.following and not self.physics.move_target then
             self:moveToTarget()
         end
     end
@@ -160,7 +160,7 @@ function Follower:update()
         table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
 
-    if self.returning and not self.move_target then
+    if self.returning and not self.physics.move_target then
         local dx, dy = self:moveToTarget(self.return_speed)
         if dx == 0 and dy == 0 then
             self.returning = false

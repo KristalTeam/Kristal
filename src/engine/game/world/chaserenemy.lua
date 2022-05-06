@@ -101,12 +101,12 @@ function ChaserEnemy:snapToPath()
             local dist = progress * path.length
             local current_dist = 0
 
-            for i = 1, #path.polygon-1 do
-                local next_dist = Utils.dist(path.polygon[i].x, path.polygon[i].y, path.polygon[i+1].x, path.polygon[i+1].y)
+            for i = 1, #path.points-1 do
+                local next_dist = Utils.dist(path.points[i].x, path.points[i].y, path.points[i+1].x, path.points[i+1].y)
 
                 if current_dist + next_dist > dist then
-                    local x = path.x + Utils.lerp(path.polygon[i].x, path.polygon[i+1].x, (dist - current_dist) / next_dist)
-                    local y = path.y + Utils.lerp(path.polygon[i].y, path.polygon[i+1].y, (dist - current_dist) / next_dist)
+                    local x = Utils.lerp(path.points[i].x, path.points[i+1].x, (dist - current_dist) / next_dist)
+                    local y = Utils.lerp(path.points[i].y, path.points[i+1].y, (dist - current_dist) / next_dist)
 
                     self:moveTo(x, y)
                     break

@@ -27,8 +27,6 @@ function Character:init(actor, x, y)
 
     self.spin_timer = 0
     self.spin_speed = 0
-
-    self.move_target = nil
 end
 
 function Character:onAdd(parent)
@@ -215,15 +213,25 @@ function Character:onFootstep(num)
     Kristal.callEvent("onFootstep", self, num)
 end
 
-function Character:walkTo(x, y, time, facing, keep_facing)
+function Character:walkTo(x, y, time, facing, keep_facing, ease)
     if type(x) == "string" then
+        ease = keep_facing
         keep_facing = facing
         facing = time
         time = y
         x, y = self.world.map:getMarker(x)
     end
-    local dist = Utils.dist(self.x, self.y, x, y)
-    return self:walkToSpeed(x, y, (dist / (time or 1)) / 30, facing, keep_facing)
+
+    if self:slideTo(x, y, time, ease, function() if facing then self:setFacing(facing) end end) then
+        if facing and keep_facing then
+            self:setFacing(facing)
+        end
+        self.physics.move_target.move_func = function(_, dx, dy) self:doWalkToStep(dx, dy, keep_facing) end
+        return true
+    elseif facing and self.facing ~= facing then
+        self:setFacing(facing)
+    end
+    return false
 end
 
 function Character:walkToSpeed(x, y, speed, facing, keep_facing)
@@ -233,11 +241,12 @@ function Character:walkToSpeed(x, y, speed, facing, keep_facing)
         speed = y
         x, y = self.world.map:getMarker(x)
     end
-    if self.x ~= x or self.y ~= y then
+
+    if self:slideToSpeed(x, y, speed, function() if facing then self:setFacing(facing) end end) then
         if facing and keep_facing then
             self:setFacing(facing)
         end
-        self:setMoveTarget(x, y, speed, facing, keep_facing)
+        self.physics.move_target.move_func = function(_, dx, dy) self:doWalkToStep(dx, dy, keep_facing) end
         return true
     elseif facing and self.facing ~= facing then
         self:setFacing(facing)
@@ -245,16 +254,35 @@ function Character:walkToSpeed(x, y, speed, facing, keep_facing)
     return false
 end
 
-function Character:setMoveTarget(x, y, speed, facing, keep_facing)
-    local angle = Utils.angle(self.x, self.y, x, y)
-    self.move_target = {
-        x = x,
-        y = y,
-        angle = angle,
-        speed = speed or 4,
-        facing = facing,
-        keep_facing = keep_facing
-    }
+function Character:walkPath(path, options)
+    options = options or {}
+
+    if options["facing"] and options["keep_facing"] then
+        self:setFacing(options["facing"])
+    end
+
+    local old_after = options.after
+    options.after = function()
+        if options["facing"] then
+            self:setFacing(options["facing"])
+        end
+        if old_after then
+            old_after()
+        end
+    end
+
+    options.move_func = function(_, dx, dy)
+        self:doWalkToStep(dx, dy, options["keep_facing"])
+    end
+
+    return self:slidePath(path, options)
+end
+
+function Character:doWalkToStep(x, y, keep_facing)
+    local was_noclip = self.noclip
+    self.noclip = true
+    self:move(x, y, 1, keep_facing)
+    self.noclip = was_noclip
 end
 
 function Character:shake(x, y)
@@ -468,24 +496,6 @@ function Character:update()
                 party_member:getArmor(i):onWorldUpdate(self)
             end
         end
-    end
-
-    local target = self.move_target
-    if target then
-        if self.x == target.x and self.y == target.y then
-            self.move_target = nil
-            if target.facing then
-                self:setFacing(target.facing)
-            end
-        end
-
-        local tx = Utils.approach(self.x, target.x, math.abs(math.cos(target.angle)) * target.speed * DTMULT)
-        local ty = Utils.approach(self.y, target.y, math.abs(math.sin(target.angle)) * target.speed * DTMULT)
-
-        local last_noclip = self.noclip
-        self.noclip = true
-        self:moveTo(tx, ty, target.keep_facing)
-        self.noclip = last_noclip
     end
 
     if self.moved > 0 then

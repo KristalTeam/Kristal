@@ -158,6 +158,13 @@ function Utils.hook(target, name, hook, exact_func)
     end
 end
 
+function Utils.override(old_func, new_func)
+    old_func = old_func or function() end
+    return function(...)
+        return new_func(old_func, ...)
+    end
+end
+
 function Utils.equal(a, b, deep)
     if type(a) ~= type(b) then
         return false
@@ -558,6 +565,14 @@ end
 
 function Utils.shuffle(tbl)
     return Utils.pickMultiple(tbl, #tbl)
+end
+
+function Utils.reverse(tbl)
+    local t = {}
+    for i=#tbl,1,-1 do
+        table.insert(t, tbl[i])
+    end
+    return t
 end
 
 function Utils.angle(x1,y1, x2,y2)

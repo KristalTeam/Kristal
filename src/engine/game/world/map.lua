@@ -108,6 +108,14 @@ function Map:getMarker(name)
     return marker and marker.center_x or (self.width * self.tile_width/2), marker and marker.center_y or (self.height * self.tile_height/2)
 end
 
+function Map:hasMarker(name)
+    return self.markers[name] ~= nil
+end
+
+function Map:getPath(name)
+    return self.paths[name]
+end
+
 function Map:addTileset(id)
     local tileset = Registry.getTileset(id)
     if tileset then
@@ -463,21 +471,22 @@ function Map:loadPaths(layer)
             path.shape = "line"
             path.x = v.x
             path.y = v.y
-            local polygon = Utils.copy(v.polygon or v.polyline or {})
+            local points = Utils.copy(v.polygon or v.polyline or {})
             if v.shape == "rectangle" then
-                polygon = {{x = v.x, y = v.y}, {x = v.x + v.width, y = v.y}, {x = v.x + v.width, y = v.y + v.height}, {x = v.x, y = v.y + v.height}}
+                points = {{x = 0, y = 0}, {x = v.width, y = 0}, {x = v.width, y = v.height}, {x = 0, y = v.height}}
+            else
+                if v.shape ~= "polyline" then
+                    table.insert(points, points[1])
+                    path.closed = true
+                end
             end
-            if v.shape ~= "polyline" then
-                table.insert(polygon, polygon[1])
-                path.closed = true
+            for i,point in ipairs(points) do
+                points[i] = {x = v.x + point.x + ox, y = v.y + point.y + oy}
             end
-            for i,point in ipairs(polygon) do
-                polygon[i] = {x = point.x+ox, y = point.y+oy}
-            end
-            path.polygon = polygon
+            path.points = points
             path.length = 0
-            for i = 1, #polygon-1 do
-                path.length = path.length + Utils.dist(polygon[i].x, polygon[i].y, polygon[i+1].x, polygon[i+1].y)
+            for i = 1, #points-1 do
+                path.length = path.length + Utils.dist(points[i].x, points[i].y, points[i+1].x, points[i+1].y)
             end
         end
         self.paths[v.name] = path

@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 16,
-  nextobjectid = 93,
+  nextobjectid = 94,
   properties = {
     ["light"] = false,
     ["music"] = "cybercity",
@@ -227,6 +227,24 @@ return {
           height = 378.984,
           rotation = 0,
           visible = true,
+          properties = {}
+        },
+        {
+          id = 93,
+          name = "outta_here",
+          type = "",
+          shape = "polyline",
+          x = 380,
+          y = 300,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polyline = {
+            { x = 0, y = 0 },
+            { x = 300, y = 0 },
+            { x = 300, y = 200 }
+          },
           properties = {}
         }
       }
