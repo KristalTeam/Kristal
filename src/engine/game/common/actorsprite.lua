@@ -168,15 +168,15 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
             end
         end
         super:setAnimation(self, anim)
+        if not ignore_actor_callback then
+            self.actor:onSetAnimation(self, anim, callback)
+        end
         return true
     else
         if callback then
             callback(self)
         end
         return false
-    end
-    if not ignore_actor_callback then
-        self.actor:onSetAnimation(self, anim, callback)
     end
 end
 
