@@ -516,7 +516,7 @@ function Menu:draw()
         local menu_x = 185 - 14
         local menu_y = 110
 
-        local width = 400
+        local width = 460
         local height = 32 * 10
         local total_height = 32 * (#Input.order + 4) -- should be the amount of options there are
 
