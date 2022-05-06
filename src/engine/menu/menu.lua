@@ -161,6 +161,9 @@ function Menu:onStateChange(old_state, new_state)
             self.options_target_y = 0
             self.options_y = 0
         end
+    elseif new_state == "CONTROLS" then
+        self.options_target_y = 0
+        self.options_y = 0
     end
 end
 
@@ -417,7 +420,7 @@ function Menu:update()
         self.heart_outline.visible = false
     end
 
-    if (math.abs((self.options_target_y - self.options_y)) <= 2)then
+    if (math.abs((self.options_target_y - self.options_y)) <= 2) then
         self.options_y = self.options_target_y
     end
     self.options_y = self.options_y + ((self.options_target_y - self.options_y) / 2) * DTMULT
@@ -513,6 +516,15 @@ function Menu:draw()
         local menu_x = 185 - 14
         local menu_y = 110
 
+        local width = 400
+        local height = 32 * 10
+        local total_height = 32 * (#Input.order + 4) -- should be the amount of options there are
+
+        Draw.pushScissor()
+        Draw.scissor(menu_x, menu_y, width + 10, height + 10)
+
+        menu_y = menu_y + self.options_y
+
         local y_offset = 0
 
         for index, name in ipairs(Input.order) do
@@ -532,8 +544,19 @@ function Menu:draw()
             end
         end
 
-        self:printShadow("Reset to defaults",  menu_x, menu_y + (32 * y_offset))
-        self:printShadow("Back",  menu_x, menu_y + (32 * (y_offset + 1)))
+        self:printShadow("Reset to defaults",  menu_x, menu_y + (32 * (y_offset + 1)))
+        self:printShadow("Back",  menu_x, menu_y + (32 * (y_offset + 2)))
+
+        -- Draw the scrollbar background (lighter than the others since it's against black)
+        love.graphics.setColor({1, 1, 1, 0.5})
+        love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.options_y)
+
+        local scrollbar_height = (height / total_height) * height
+        local scrollbar_y = (-self.options_y / (total_height - height)) * (height - scrollbar_height)
+
+        Draw.popScissor()
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
@@ -964,8 +987,21 @@ function Menu:keypressed(key, _, is_repeat)
                 self.ui_move:play()
             end
 
+            local y_off = (self.selected_option - 1) * 32
+            if self.selected_option > (#Input.order + 1) then
+                y_off = y_off + 32
+            end
+
+            if y_off + self.options_target_y < 0 then
+                self.options_target_y = self.options_target_y + (0 - (y_off + self.options_target_y))
+            end
+
+            if y_off + self.options_target_y > (9 * 32) then
+                self.options_target_y = self.options_target_y + ((9 * 32) - (y_off + self.options_target_y))
+            end
+
             self.heart_target_x = 152
-            self.heart_target_y = 129 + (self.selected_option - 1) * 32
+            self.heart_target_y = 129 + y_off + self.options_target_y
 
             if Input.isCancel(key) then
                 self:setState("OPTIONS")
