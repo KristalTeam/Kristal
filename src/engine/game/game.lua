@@ -14,7 +14,6 @@ function Game:clear()
     end
     if self.music then
         self.music:stop()
-        self.music = nil
     end
     self.stage = nil
     self.world = nil
