@@ -345,6 +345,14 @@ function DebugSystem:updateBounds(options)
 end
 
 function DebugSystem:keypressed(key, _, is_repeat)
+    if Input.is("object_selector", key) then
+        if self:mouseOpen() then
+            self:closeMouse()
+        else
+            self:openMouse()
+        end
+        return
+    end
     if self.state == "MENU" then
         local options = self:getValidOptions()
         if Input.isCancel(key) then

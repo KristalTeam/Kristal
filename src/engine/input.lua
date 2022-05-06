@@ -43,7 +43,8 @@ function Input.loadBinds(reset)
         ["cancel"] = {"x", "shift"},
         ["menu"] = {"c", "ctrl"},
         ["console"] = {"`"},
-        ["debug_menu"] = {{"shift", "`"}}
+        ["debug_menu"] = {{"shift", "`"}},
+        ["object_selector"] = {{"ctrl", "o"}}
     }
 
     if (reset == nil) or (reset == false) then

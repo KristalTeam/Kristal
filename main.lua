@@ -452,7 +452,7 @@ function love.keypressed(key, scancode, is_repeat)
         end
     end
 
-    if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
+    if Kristal.DebugSystem then
         Kristal.DebugSystem:keypressed(key, scancode, is_repeat)
     end
 

@@ -707,8 +707,10 @@ function Menu:keypressed(key, _, is_repeat)
     if MOD_LOADING then return end
     if OVERLAY_OPEN then return end
 
-    if not Input.processKeyPressedFunc(key) then
-        return
+    if self.state ~= "CONTROLS" then
+        if not Input.processKeyPressedFunc(key) then
+            return
+        end
     end
 
     if self.state == "MAINMENU" then
