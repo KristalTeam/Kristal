@@ -404,7 +404,8 @@ function love.textinput(key)
     Kristal.callEvent("onTextInput", key)
 end
 
-function love.mousepressed(x, y, button, istouch, presses)
+function love.mousepressed(win_x, win_y, button, istouch, presses)
+    local x, y = Input.getMousePosition(win_x, win_y)
     if Kristal.DebugSystem then
         Kristal.DebugSystem:onMousePressed(x, y, button, istouch, presses)
     end
