@@ -29,6 +29,15 @@ function WorldBullet:init(x, y, texture)
     self.remove_offscreen = true
 end
 
+function WorldBullet:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    table.insert(info, "Damage: " .. self.damage)
+    table.insert(info, "Destroy on hit: " .. (self.destroy_on_hit and "True" or "False"))
+    table.insert(info, "Fade with battles: " .. (self.battle_fade and "True" or "False"))
+    table.insert(info, "Remove when offscreen: " .. (self.remove_offscreen and "True" or "False"))
+    return info
+end
+
 function WorldBullet:getDamage()
     return self.damage
 end

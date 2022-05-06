@@ -17,6 +17,17 @@ function Script:init(x, y, w, h, properties)
     self.temp = properties["temp"] or false
 end
 
+function Script:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    if self.cutscene  then table.insert(info, "Cutscene: "  .. self.cutscene)  end
+    if self.script    then table.insert(info, "Script: "    .. self.script)    end
+    if self.set_flag  then table.insert(info, "Set Flag: "  .. self.set_flag)  end
+    if self.set_value then table.insert(info, "Set Value: " .. self.set_value) end
+    table.insert(info, "Once: " .. (self.once and "True" or "False"))
+    table.insert(info, "Temp: " .. (self.temp and "True" or "False"))
+    return info
+end
+
 function Script:onAdd(parent)
     super:onAdd(self, parent)
     if self.once and not self.temp and self:getFlag("used_once", false) then

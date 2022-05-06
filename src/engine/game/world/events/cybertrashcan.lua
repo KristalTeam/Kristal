@@ -20,6 +20,22 @@ function CyberTrashCan:init(x, y, properties)
     self.solid = true
 end
 
+function CyberTrashCan:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    if self.item then
+        table.insert(info, "Item: " .. self.item)
+    end
+    if self.money then
+        if not Game:isLight() then
+            table.insert(info, "Money: D$ " .. self.money)
+        else
+            table.insert(info, "Gold: " .. self.money)
+        end
+    end
+    table.insert(info, "Opened: " .. (self:getFlag("opened") and "True" or "False"))
+    return info
+end
+
 function CyberTrashCan:onAdd(parent)
     super:onAdd(self, parent)
 

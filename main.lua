@@ -401,12 +401,28 @@ end
 
 function love.textinput(key)
     TextInput.onTextInput(key)
+    Kristal.callEvent("onTextInput", key)
 end
 
-function love.mousepressed(...)
-    if Kristal.DebugSystem and Kristal.DebugSystem:isMenuOpen() then
-        Kristal.DebugSystem:onMousePressed(...)
+function love.mousepressed(x, y, button, istouch, presses)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onMousePressed(x, y, button, istouch, presses)
     end
+    Kristal.callEvent("onMousePressed", x, y, button, istouch, presses)
+end
+
+function love.mousemoved(x, y, dx, dy, istouch)
+    -- Adjust to be inside of the screen
+    x, y = Input.getMousePosition(x, y)
+    dx, dy = Input.getMousePosition(dx, dy, true)
+    Kristal.callEvent("onMouseMoved", x, y, dx, dy, istouch)
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onMouseReleased(x, y, button, istouch, presses)
+    end
+    Kristal.callEvent("onMouseReleased", x, y, button, istouch, presses)
 end
 
 function love.keypressed(key, scancode, is_repeat)
@@ -471,6 +487,7 @@ end
 
 function love.keyreleased(key)
     Input.onKeyReleased(key)
+    Kristal.callEvent("onKeyReleased", key)
 end
 
 function love.run()
@@ -1121,6 +1138,7 @@ function Kristal.loadConfig()
         favorites = {},
         systemCursor = false,
         alwaysShowCursor = false,
+        objectSelectionSlowdown = true,
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))

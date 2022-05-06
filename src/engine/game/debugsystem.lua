@@ -20,8 +20,9 @@ function DebugSystem:init()
     self.heart_target_x = -10
     self.heart_target_y = -10
 
-    -- States: IDLE, MENU, SUBMENU
+    -- States: IDLE, MENU, MOUSE
     self.state = "IDLE"
+    self.old_state = "IDLE"
     self.state_reason = nil
 
     self.current_selecting = 1
@@ -38,23 +39,75 @@ function DebugSystem:init()
     self.current_menu = "main"
 
     self.menu_anim_timer = 1
+    self.circle_anim_timer = 1
 
     self.menu_history = {}
 
     self.object = nil
+    self.last_object = nil
+    self.flash_fx = self:addFX(ColorMaskFX())
+    self.flash_fx:setColor(1, 1, 1)
+    self.flash_fx.amount = 0
+    self.grabbing = false
+    self.grab_offset_x = 0
+    self.grab_offset_y = 0
+    self.hover_alpha = 0
+    self.last_hovered = nil
+    self.selected_alpha = 0
+end
+
+function DebugSystem:mouseOpen()
+    return self.state == "MOUSE"
 end
 
 function DebugSystem:onMousePressed(x, y, button, istouch, presses)
-    local object = self:detectObject(Input.getMousePosition())
+    if button == 3 then
+        if self:mouseOpen() then
+            self:closeMouse()
+        else
+            self:openMouse()
+        end
+        return
+    end
 
-    if object then
-        self.object = object
-        local recolor = self.object:addFX(RecolorFX())
-        recolor.color = {0, 1, 0}
+    if self:mouseOpen() then
+        if button == 1 then
+            local object = self:detectObject(Input.getMousePosition())
+
+            if object then
+                self:unselectObject()
+                self.object = object
+                self.last_object = object
+                self.object:addFX(self.flash_fx)
+                self.grabbing = true
+                local screen_x, screen_y = object:getScreenPos()
+                self.grab_offset_x = x - screen_x
+                self.grab_offset_y = y - screen_y
+            else
+                self:unselectObject()
+            end
+        end
+    end
+end
+
+function DebugSystem:unselectObject()
+    if self.object then
+        self.object:removeFX(self.flash_fx)
+    end
+    self.object = nil
+    self.grabbing = false
+end
+
+function DebugSystem:onMouseReleased(x, y, button, istouch, presses)
+    if button == 1 then
+        if self.grabbing then
+            self.grabbing = false
+        end
     end
 end
 
 function DebugSystem:detectObject(x, y)
+    -- TODO: Z-Order should take priority!!
     local object_size = math.huge
     local hierarchy_size = -1
     local found = false
@@ -164,6 +217,7 @@ function DebugSystem:registerDefaults()
     self:registerConfigOption("main", "VSync", "Toggle Vsync.", "vSync", function()
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     end)
+    self:registerConfigOption("main", "Object Selection Pausing", "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
     self:registerOption("main", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
 
@@ -227,28 +281,30 @@ function DebugSystem:registerOption(menu, name, description, func, state)
     table.insert(self.menus[menu].options, {name=name, description=description, func=func, state=state or "ALL"})
 end
 
+function DebugSystem:openMouse()
+    Assets.playSound("ui_select")
+    self:setState("MOUSE")
+end
+
+function DebugSystem:closeMouse()
+    Assets.playSound("ui_move")
+    self:setState("IDLE")
+end
+
 function DebugSystem:openMenu()
-    self.menu_anim_timer = 0
-    OVERLAY_OPEN = true
     Assets.playSound("ui_select")
     self:setState("MENU")
-    Kristal.showCursor()
-    love.keyboard.setKeyRepeat(true) -- TODO: Text repeat stack
 end
 
 function DebugSystem:closeMenu()
-    self.menu_anim_timer = 0
-    OVERLAY_OPEN = false
     self:setState("IDLE")
-    Kristal.hideCursor()
-    love.keyboard.setKeyRepeat(false)
 end
 
 function DebugSystem:setState(state, reason)
-    local old = self.state
+    self.old_state = self.state
     self.state = state
     self.state_reason = reason
-    self:onStateChange(old, self.state)
+    self:onStateChange(self.old_state, self.state)
 end
 
 function DebugSystem:onStateChange(old, new)
@@ -256,6 +312,25 @@ function DebugSystem:onStateChange(old, new)
     if new == "MENU" then
         self.heart_target_x = 19
         self.heart_target_y = 35 + 32
+
+        self.menu_anim_timer = 0
+        self.circle_anim_timer = 0
+        OVERLAY_OPEN = true
+
+        Kristal.showCursor()
+        love.keyboard.setKeyRepeat(true) -- TODO: Text repeat stack
+    elseif new == "MOUSE" then
+        self.last_object = nil
+        self.menu_anim_timer = 0
+        self.circle_anim_timer = 0
+        Kristal.showCursor()
+    elseif new == "IDLE" then
+        self:unselectObject()
+        self.menu_anim_timer = 0
+        OVERLAY_OPEN = false
+
+        Kristal.hideCursor()
+        love.keyboard.setKeyRepeat(false)
     end
 end
 
@@ -309,7 +384,31 @@ function DebugSystem:update()
     self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
     self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
 
+    if self.object and self.object:isRemoved() then
+        self:unselectObject()
+    end
+
+    -- Update grabbed object
+    if self.grabbing then
+        if self.object then
+            local x, y = Input.getMousePosition()
+            self.object:setScreenPos(x - self.grab_offset_x, y - self.grab_offset_y)
+        end
+    end
+
     self.menu_anim_timer = self.menu_anim_timer + DT / 0.5 -- 0.5 seconds
+    self.circle_anim_timer = self.circle_anim_timer + DT / 0.5
+
+    self.flash_fx:setColor(1, 1, 1)
+    self.flash_fx.amount = -math.cos((love.timer.getTime() * 30) / 5) * 0.4 + 0.6
+
+    if Game.stage then
+        if self.state == "MOUSE" and Kristal.Config["objectSelectionSlowdown"] then
+            Game.stage.timescale = math.max(Game.stage.timescale - (DT / 0.6), 0)
+        else
+            Game.stage.timescale = math.min(Game.stage.timescale + (DT / 0.6), 1)
+        end
+    end
 end
 
 function DebugSystem:draw()
@@ -319,17 +418,18 @@ function DebugSystem:draw()
     local menu_x = 0
     local menu_y = 0
     local menu_alpha = 0
+    local circle_alpha = 1
 
+    local circle_progress = Utils.lerp(0, 2, self.circle_anim_timer/1.4, true)
 
-    if self.state == "MENU" then
+    if self.state ~= "IDLE" then
         menu_y = Utils.ease(-32, 0, self.menu_anim_timer, "outExpo")
         menu_alpha = Utils.ease(0, 1, self.menu_anim_timer, "outExpo")
     else
         menu_y = Utils.ease(0, -32, self.menu_anim_timer, "outExpo")
         menu_alpha = Utils.ease(1, 0, self.menu_anim_timer, "outExpo")
+        circle_alpha = Utils.lerp(1, 0, self.menu_anim_timer/1.4, true)
     end
-
-    love.graphics.setColor(0, 0, 0, 0.5)
 
     local text_offset = menu_x + 19
     local y_off = 32
@@ -337,67 +437,148 @@ function DebugSystem:draw()
     Draw.setCanvas(self.menu_canvas)
     love.graphics.clear()
 
-    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    local header_name = "UNKNOWN"
 
-    self:printShadow(self.menus[self.current_menu].name, 0, 16, COLORS.white, "center", 640)
+    if self.state == "MENU" or (self.old_state == "MENU" and self.state == "IDLE") then
+        love.graphics.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    local options = self:getValidOptions()
-    for index, option in ipairs(options) do
-        local name = option.name
-        if type(name) == "function" then
-            name = name()
-        end
-        self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16)
-        if self.current_selecting == index then
-            if option.description then
-                local description = option.description
-                if type(description) == "function" then
-                    description = description()
-                end
-                local width, wrapped = self.font:getWrap(description, 580)
-                for i, line in ipairs(wrapped) do
-                    self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
+        header_name = self.menus[self.current_menu].name
+
+        local options = self:getValidOptions()
+        for index, option in ipairs(options) do
+            local name = option.name
+            if type(name) == "function" then
+                name = name()
+            end
+            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16)
+            if self.current_selecting == index then
+                if option.description then
+                    local description = option.description
+                    if type(description) == "function" then
+                        description = description()
+                    end
+                    local width, wrapped = self.font:getWrap(description, 580)
+                    for i, line in ipairs(wrapped) do
+                        self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
+                    end
                 end
             end
         end
+    elseif self.state == "MOUSE" or (self.old_state == "MOUSE" and self.state == "IDLE") then
+        header_name = "~ OBJECT SELECTION ~"
+
+        local mx, my = Input.getMousePosition()
+
+        for i = 1, 2 do
+            local prog = circle_progress - (i - 1) * 0.4
+            if prog >= 0 then
+                love.graphics.setLineWidth(2)
+                local r = prog * 40
+                alpha = 2 - (prog*1.2)
+                love.graphics.setColor(0, 1, 1, alpha * circle_alpha)
+                love.graphics.circle("line", mx, my, r, 100)
+            end
+        end
+
+        Object.startCache()
+        local mx, my = Input.getMousePosition()
+
+        local object = self.object
+        if not self.grabbing then
+            object = self:detectObject(mx, my)
+        end
+
+        local fadespeed = 0.2
+        if object or (self.hover_alpha > 0 and self.last_hovered) then
+            local useobject = object
+            if not object then
+                useobject = self.last_hovered
+            else
+                self.last_hovered = object
+                self.hover_alpha = Utils.clamp(self.hover_alpha + DT / fadespeed, 0, 1)
+            end
+            love.graphics.setColor(0, 1, 1, self.hover_alpha)
+            love.graphics.setLineWidth(1)
+            local transform = useobject:getFullTransform()
+            love.graphics.push()
+            love.graphics.origin()
+            love.graphics.applyTransform(transform)
+            love.graphics.rectangle("line", 0, 0, useobject.width, useobject.height)
+            love.graphics.pop()
+
+            local tooltip_font = Assets.getFont("main", 16)
+            local tooltip_text = Utils.getClassName(useobject)
+
+            local tooltip_width = tooltip_font:getWidth(tooltip_text)
+            local tooltip_height = tooltip_font:getHeight()
+
+            local tooltip_x = mx + 8
+            local tooltip_y = my - tooltip_font:getHeight()
+
+            if tooltip_x + tooltip_width > SCREEN_WIDTH then
+                tooltip_x = mx - tooltip_width - 4
+            end
+
+            if tooltip_y < 0 then
+                tooltip_y = my + tooltip_font:getHeight()
+            end
+
+            tooltip_x = tooltip_x + Utils.ease(0, 1, (1 - self.hover_alpha), "inCubic") * 10
+
+            love.graphics.setFont(tooltip_font)
+            love.graphics.setColor(0, 0, 0, self.hover_alpha)
+            love.graphics.print(tooltip_text, tooltip_x-1, tooltip_y)
+            love.graphics.print(tooltip_text, tooltip_x+1, tooltip_y)
+            love.graphics.print(tooltip_text, tooltip_x, tooltip_y-1)
+            love.graphics.print(tooltip_text, tooltip_x, tooltip_y+1)
+            love.graphics.setColor(1, 1, 1, self.hover_alpha)
+            love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
+        end
+        Object.endCache()
+        if not object then
+            self.hover_alpha = self.hover_alpha - DT / fadespeed
+        end
+
+        object = self.object
+        if (not object) then
+            object = self.last_object
+        end
+
+        if object then
+            if self.object then
+                self.selected_alpha = Utils.clamp(self.selected_alpha + (DT / 0.2), 0, 1)
+            else
+                self.selected_alpha = Utils.clamp(self.selected_alpha - (DT / 0.2), 0, 1)
+            end
+
+            local screen_x, screen_y = object:getScreenPos()
+
+            local slide = Utils.ease(0, 1, (1 - self.selected_alpha), "inCubic") * 40
+            local inc = 1
+            self:printShadow("Selected: " .. Utils.getClassName(object),                12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
+            self:printShadow(string.format("Position: (%i, %i)",   object.x, object.y), 12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
+            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), 12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
+
+            if object.object_id then
+                self:printShadow("World ID: " .. object.object_id,                     12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
+            end
+
+            info = object:getDebugInformation()
+
+            for i, line in ipairs(info) do
+                self:printShadow(line, 12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha})
+                inc = inc + 1
+            end
+        end
+    else
+        self.hover_alpha = 0
     end
+    self.hover_alpha = Utils.clamp(self.hover_alpha, 0, 1)
+
+    self:printShadow(header_name, 0, 16, COLORS.white, "center", 640)
 
     love.graphics.setColor(0, 1, 1, 1)
-
-    Object.startCache()
-    local mx, my = Input.getMousePosition()
-    local object = self:detectObject(mx, my)
-
-    if object then
-        local transform = object:getFullTransform()
-        love.graphics.push()
-        love.graphics.origin()
-        love.graphics.applyTransform(transform)
-        love.graphics.rectangle("line", 0, 0, object.width, object.height)
-        love.graphics.pop()
-
-        local tooltip_font = Assets.getFont("main", 16)
-        local tooltip_text = Utils.getClassName(object)
-
-        local tooltip_width = tooltip_font:getWidth(tooltip_text)
-        local tooltip_height = tooltip_font:getHeight()
-
-        local tooltip_x = mx + 8
-        local tooltip_y = my - tooltip_font:getHeight()
-
-        if tooltip_x + tooltip_width > SCREEN_WIDTH then
-            tooltip_x = mx - tooltip_width - 4
-        end
-
-        if tooltip_y < 0 then
-            tooltip_y = my + tooltip_font:getHeight()
-        end
-
-        love.graphics.setFont(tooltip_font)
-        love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
-    end
-    Object.endCache()
-
 
     -- Reset canvas to draw to
     Draw.setCanvas(SCREEN_CANVAS)
@@ -409,13 +590,14 @@ function DebugSystem:draw()
 end
 
 function DebugSystem:printShadow(text, x, y, color, align, limit)
+    local color = color or {1, 1, 1, 1}
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.font)
-    love.graphics.setColor({0, 0, 0, 1})
+    love.graphics.setColor({0, 0, 0, color[4]})
     love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left")
 
     -- Draw the main text
-    love.graphics.setColor(color or {1, 1, 1, 1})
+    love.graphics.setColor(color)
     love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left")
 end
 

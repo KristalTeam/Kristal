@@ -388,10 +388,17 @@ function Input.isMenu(key)
     return Input.is("menu", key)
 end
 
-function Input.getMousePosition()
+function Input.getMousePosition(x, y, relative)
+    local x = x or love.mouse.getX()
+    local y = y or love.mouse.getY()
     local off_x, off_y = Kristal.getSideOffsets()
-    return math.floor((love.mouse.getX() - off_x) / Kristal.getGameScale()),
-           math.floor((love.mouse.getY() - off_y) / Kristal.getGameScale())
+    local floor = math.floor
+    if relative then
+        floor = Utils.round
+        off_x, off_y = 0, 0
+    end
+    return floor((x - off_x) / Kristal.getGameScale()),
+           floor((y - off_y) / Kristal.getGameScale())
 end
 
 return self

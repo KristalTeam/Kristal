@@ -17,6 +17,17 @@ function Interactable:init(x, y, width, height, properties)
     self.once = properties["once"] or false
 end
 
+function Interactable:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    if self.cutscene  then table.insert(info, "Cutscene: "  .. self.cutscene)  end
+    if self.script    then table.insert(info, "Script: "    .. self.script)    end
+    if self.set_flag  then table.insert(info, "Set Flag: "  .. self.set_flag)  end
+    if self.set_value then table.insert(info, "Set Value: " .. self.set_value) end
+    table.insert(info, "Once: " .. (self.once and "True" or "False"))
+    table.insert(info, "Text length: " .. #self.text)
+    return info
+end
+
 function Interactable:onAdd(parent)
     super:onAdd(self, parent)
     if self.once and self:getFlag("used_once", false) then

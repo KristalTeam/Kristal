@@ -45,6 +45,21 @@ function ChaserEnemy:init(actor, x, y, properties)
     end
 end
 
+function ChaserEnemy:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    if self.path        then table.insert(info, "Path: "     .. self.path)     end
+    if self.progress    then table.insert(info, "Progress: " .. self.progress) end
+    table.insert(info, "Can chase: "           .. (self.can_chase and "True" or "False"))
+    if self.can_chase then
+        table.insert(info, "Chase speed: "         .. self.chase_speed)
+        table.insert(info, "Chase distance: "      .. self.chase_dist)
+        table.insert(info, "Chasing: "             .. (self.chasing             and "True" or "False"))
+    end
+    table.insert(info, "Remove on encounter: " .. (self.remove_on_encounter and "True" or "False"))
+    table.insert(info, "Encountered: "         .. (self.encountered         and "True" or "False"))
+    return info
+end
+
 function ChaserEnemy:onCollide(player)
     if self:isActive() and player:includes(Player) then
         self.encountered = true

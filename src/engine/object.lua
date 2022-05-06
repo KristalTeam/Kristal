@@ -502,6 +502,10 @@ function Object:isDebugSelectable()
     return self.debug_select
 end
 
+function Object:getDebugInformation()
+    return {}
+end
+
 function Object:shiftOrigin(ox, oy)
     local tx, ty = self:getRelativePos((ox or 0) * self.width, (oy or ox or 0) * self.height)
     self:setOrigin(ox, oy)
@@ -750,6 +754,10 @@ function Object:removeChild(child)
     self.children_to_remove[child] = true
     self.update_child_list = true
     return child
+end
+
+function Object:isRemoved()
+    return self.stage == nil
 end
 
 function Object:setParent(parent)

@@ -316,6 +316,20 @@ function Utils.round(value, to)
     end
 end
 
+function Utils.roundToZero(value)
+    if value == 0 then return 0 end
+    if value > 0 then return math.floor(value) end
+    if value < 0 then return math.ceil(value) end
+    return 0/0 -- return NaN lol
+end
+
+function Utils.roundFromZero(value)
+    if value == 0 then return 0 end
+    if value > 0 then return math.ceil(value) end
+    if value < 0 then return math.floor(value) end
+    return 0/0 -- return NaN lol
+end
+
 function Utils.roughEqual(a, b)
     return math.abs(a - b) < 0.01
 end

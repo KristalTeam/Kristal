@@ -31,6 +31,8 @@ function TileLayer:init(map, data)
 
     self.canvas = love.graphics.newCanvas(self.map_width * map.tile_width, self.map_height * map.tile_height)
     self.drawn = false
+
+    self.debug_select = false
 end
 
 function TileLayer:setTile(x, y, tileset, ...)

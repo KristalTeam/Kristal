@@ -8,6 +8,9 @@ function TensionBar:init(x, y)
     self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill")
     self.tp_bar_outline = Assets.getTexture("ui/battle/tp_bar_outline")
 
+    self.width = self.tp_bar_outline:getWidth()
+    self.height = self.tp_bar_outline:getHeight()
+
     self.apparent = 0
     self.current = 0
 
@@ -24,6 +27,14 @@ function TensionBar:init(x, y)
     self.tsiner = 0
 
     self.tension_preview = 0
+end
+
+function TensionBar:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    table.insert(info, "Tension: " .. self:getTension() .. "%")
+    table.insert(info, "Apparent: " .. self.apparent / 2.5)
+    table.insert(info, "Current: " .. self.current / 2.5)
+    return info
 end
 
 function TensionBar:giveTension(amount)

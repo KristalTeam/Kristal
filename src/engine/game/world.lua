@@ -58,6 +58,8 @@ function World:init(map)
 
     self.menu = nil
 
+    self.debug_select = false
+
     self.calls = {}
 
     -- Reset keypresses in-case they didn't get wiped on crash

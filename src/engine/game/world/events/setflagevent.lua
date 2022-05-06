@@ -13,6 +13,15 @@ function SetFlagEvent:init(x, y, width, height, properties)
     self.map_flag = properties["mapflag"]
 end
 
+function SetFlagEvent:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    if self.flag     then table.insert(info, "Flag: "     .. self.flag)                         end
+    if self.value    then table.insert(info, "Value: "    .. self.value)                        end
+    if self.once     then table.insert(info, "Once: "     .. (self.once and "True" or "False")) end
+    if self.map_flag then table.insert(info, "Map Flag: " .. self.map_flag)                     end
+    return info
+end
+
 function SetFlagEvent:onEnter(chara)
     if chara.is_player then
         if self.map_flag then

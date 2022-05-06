@@ -15,6 +15,17 @@ function Transition:init(x, y, w, h, properties)
     }
 end
 
+function Transition:getDebugInformation()
+    local info = super:getDebugInformation(self)
+    if self.target.map then table.insert(info, "Map: " .. self.target.map) end
+    if self.target.shop then table.insert(info, "Shop: " .. self.target.shop) end
+    if self.target.x then table.insert(info, "X: " .. self.target.x) end
+    if self.target.y then table.insert(info, "Y: " .. self.target.y) end
+    if self.target.marker then table.insert(info, "Marker: " .. self.target.marker) end
+    if self.target.facing then table.insert(info, "Facing: " .. self.target.facing) end
+    return info
+end
+
 function Transition:onEnter(chara)
     if chara.is_player then
         local x, y = self.target.x, self.target.y
