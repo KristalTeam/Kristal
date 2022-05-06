@@ -7,6 +7,15 @@ function Game:clear()
     if self.battle and self.battle.music then
         self.battle.music:stop()
     end
+    if self.stage then
+        for _,child in ipairs(self.stage.children) do
+            self.stage:removeFromStage(child)
+        end
+    end
+    if self.music then
+        self.music:stop()
+        self.music = nil
+    end
     self.stage = nil
     self.world = nil
     self.battle = nil
