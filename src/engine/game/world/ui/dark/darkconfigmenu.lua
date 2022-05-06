@@ -19,6 +19,7 @@ function DarkConfigMenu:init()
 
     self.bg = UIBox(0, 0, self.width, self.height)
     self.bg.layer = -1
+    self.bg.debug_select = false
     self:addChild(self.bg)
 
     -- MAIN, VOLUME, CONTROLS

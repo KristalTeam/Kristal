@@ -36,6 +36,7 @@ function DarkEquipMenu:init()
 
     self.bg = UIBox(0, 0, self.width, self.height)
     self.bg.layer = -1
+    self.bg.debug_select = false
     self:addChild(self.bg)
 
     self.party = DarkMenuPartySelect(8, 48)
