@@ -97,15 +97,12 @@ function Wave:spawnSprite(texture, x, y, layer)
     return self:spawnSpriteTo(Game.battle, texture, x, y, layer)
 end
 
-function Wave:spawnSpriteTo(parent, texture, x,  y, layer)
+function Wave:spawnSpriteTo(parent, texture, x, y, layer)
     local sprite = Sprite(texture, x, y)
     sprite:setOrigin(0.5, 0.5)
     sprite:setScale(2)
     sprite.layer = layer or BATTLE_LAYERS["above_arena"]
-    sprite.wave = self
-    parent:addChild(sprite)
-    table.insert(self.objects, sprite)
-    return sprite
+    return self:spawnObjectTo(parent, sprite)
 end
 
 function Wave:spawnObject(object, x, y)
@@ -119,6 +116,9 @@ function Wave:spawnObjectTo(parent, object, x, y)
     object.wave = self
     parent:addChild(object)
     table.insert(self.objects, object)
+    if object.onStart then
+        object:onStart()
+    end
     return object
 end
 
