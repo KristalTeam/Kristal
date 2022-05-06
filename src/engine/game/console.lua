@@ -326,6 +326,8 @@ end
 function Console:unsafeRun(str)
     local chunk, err = loadstring(str)
     if chunk then
+        self.env.selected = Kristal.DebugSystem.object
+        self.env["_"] = Kristal.DebugSystem.object
         setfenv(chunk,self.env)
         self:push(chunk())
     else
