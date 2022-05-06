@@ -415,8 +415,13 @@ function DebugSystem:update()
     if Game.stage then
         if self.state == "MOUSE" and Kristal.Config["objectSelectionSlowdown"] then
             Game.stage.timescale = math.max(Game.stage.timescale - (DT / 0.6), 0)
+            if Game.stage.timescale == 0 then
+                Game.stage.active = false
+                Game.stage:updateAllLayers()
+            end
         else
             Game.stage.timescale = math.min(Game.stage.timescale + (DT / 0.6), 1)
+            Game.stage.active = true
         end
     end
 end

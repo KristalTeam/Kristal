@@ -39,6 +39,15 @@ function Stage:addToStage(object)
     end
 end
 
+function Stage:updateAllLayers()
+    for _,object in ipairs(self.objects) do
+        if object.update_child_list or object.__index == World then
+            object:updateChildList()
+            object.update_child_list = false
+        end
+    end
+end
+
 function Stage:removeFromStage(object)
     table.insert(self.objects_to_remove, object)
     if object.stage == self then
@@ -51,6 +60,8 @@ function Stage:removeFromStage(object)
 end
 
 function Stage:update()
+    if not self.active then return end
+
     if not self.full_updating then
         self.full_updating = true
         self:fullUpdate()
@@ -70,6 +81,8 @@ function Stage:update()
 end
 
 function Stage:draw()
+    if not self.visible then return end
+
     if not self.full_drawing then
         self.full_drawing = true
         self:fullDraw()
