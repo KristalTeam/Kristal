@@ -38,7 +38,7 @@ function Mod:preInit()
 
         if self.actor.id == "kris" then
             self:addFX(ShaderFX(Mod.wave_shader, {
-                ["wave_sine"] = function() return love.timer.getTime() * 100 end,
+                ["wave_sine"] = function() return Kristal.getTime() * 100 end,
                 ["wave_mag"] = 4,
                 ["wave_height"] = 4,
                 ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
@@ -48,7 +48,7 @@ function Mod:preInit()
     --[[Utils.hook(World, "init", function(orig, self, ...)
         orig(self, ...)
         self:addFX(ShaderFX(Mod.wave_shader, {
-            ["bg_sine"] = function() return love.timer.getTime() * 100 end,
+            ["bg_sine"] = function() return Kristal.getTime() * 100 end,
             ["bg_mag"] = 10,
             ["wave_height"] = 12,
             ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}

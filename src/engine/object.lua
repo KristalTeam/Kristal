@@ -818,18 +818,22 @@ function Object:updateChildren()
 end
 
 function Object:fullUpdate()
-    local used_timescale, last_dt, last_dt_mult, last_speed = false, DT, DTMULT, CURRENT_SPEED_MULT
+    local used_timescale, last_dt, last_dt_mult, last_runtime = false, DT, DTMULT, RUNTIME
     if self.timescale ~= 1 then
         used_timescale = true
+        self._runtime_update_offset = (self._runtime_update_offset or 0) + (self.timescale - 1) * DT
         DT = DT * self.timescale
         DTMULT = DTMULT * self.timescale
-        CURRENT_SPEED_MULT = CURRENT_SPEED_MULT * self.timescale
+    end
+    if self._runtime_update_offset then
+        used_timescale = true
+        RUNTIME = RUNTIME + self._runtime_update_offset
     end
     self:update()
     if used_timescale then
         DT = last_dt
         DTMULT = last_dt_mult
-        CURRENT_SPEED_MULT = last_speed
+        RUNTIME = last_runtime
     end
 end
 
@@ -869,12 +873,16 @@ function Object:drawChildren(min_layer, max_layer)
 end
 
 function Object:fullDraw(no_children)
-    local used_timescale, last_dt, last_dt_mult, last_speed = false, DT, DTMULT, CURRENT_SPEED_MULT
+    local used_timescale, last_dt, last_dt_mult, last_runtime = false, DT, DTMULT, RUNTIME
     if self.timescale ~= 1 then
         used_timescale = true
+        self._runtime_draw_offset = (self._runtime_draw_offset or 0) + (self.timescale - 1) * DT
         DT = DT * self.timescale
         DTMULT = DTMULT * self.timescale
-        CURRENT_SPEED_MULT = CURRENT_SPEED_MULT * self.timescale
+    end
+    if self._runtime_draw_offset then
+        used_timescale = true
+        RUNTIME = RUNTIME + self._runtime_draw_offset
     end
     local processing_fx, canvas = self:shouldProcessDrawFX(), nil
     if processing_fx then
@@ -910,7 +918,7 @@ function Object:fullDraw(no_children)
     if used_timescale then
         DT = last_dt
         DTMULT = last_dt_mult
-        CURRENT_SPEED_MULT = last_speed
+        RUNTIME = last_runtime
     end
 end
 

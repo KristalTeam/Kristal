@@ -340,9 +340,6 @@ function love.load(args)
             PERFORMANCE_TEST = nil
         end
     end)
-    Utils.hook(love.timer, "getTime", function(orig)
-        return orig() * CURRENT_SPEED_MULT
-    end)
 
     -- start load thread
     load_in_channel = love.thread.getChannel("load_in")
@@ -757,6 +754,10 @@ function Kristal.errorHandler(msg)
         --end
     end
 
+end
+
+function Kristal.getTime()
+    return RUNTIME
 end
 
 function Kristal.setVolume(volume)

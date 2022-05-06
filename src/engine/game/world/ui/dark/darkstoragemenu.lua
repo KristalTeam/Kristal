@@ -234,7 +234,7 @@ function DarkStorageMenu:drawStorage(list)
     if self.list == list and max_pages > 1 then
         local left_arrow_x, left_arrow_y = 32, self.arrow_y[list]
         local right_arrow_x, right_arrow_y = 592, self.arrow_y[list]
-        local offset = Utils.round(math.sin(love.timer.getTime() * 5)) * 2
+        local offset = Utils.round(math.sin(Kristal.getTime() * 5)) * 2
         love.graphics.draw(self.arrow_left, left_arrow_x - offset, left_arrow_y, 0, 2, 2)
         love.graphics.draw(self.arrow_right, right_arrow_x + offset, right_arrow_y, 0, 2, 2)
     end

@@ -235,10 +235,10 @@ function BattleUI:drawState()
 
         love.graphics.setColor(1, 1, 1, 1)
         if page < max_page then
-            love.graphics.draw(self.arrow_sprite, 470, 120 + (math.sin(love.timer.getTime()*6) * 2))
+            love.graphics.draw(self.arrow_sprite, 470, 120 + (math.sin(Kristal.getTime()*6) * 2))
         end
         if page > 0 then
-            love.graphics.draw(self.arrow_sprite, 470, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
+            love.graphics.draw(self.arrow_sprite, 470, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
         end
 
     elseif Game.battle.state == "ENEMYSELECT" or Game.battle.state == "XACTENEMYSELECT" then
@@ -378,10 +378,10 @@ function BattleUI:drawState()
 
         love.graphics.setColor(1, 1, 1, 1)
         if page < max_page then
-            love.graphics.draw(self.arrow_sprite, 20, 120 + (math.sin(love.timer.getTime()*6) * 2))
+            love.graphics.draw(self.arrow_sprite, 20, 120 + (math.sin(Kristal.getTime()*6) * 2))
         end
         if page > 0 then
-            love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
+            love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
         end
     elseif Game.battle.state == "PARTYSELECT" then
         local page = math.ceil(Game.battle.current_menu_y / 3) - 1
@@ -408,10 +408,10 @@ function BattleUI:drawState()
 
         love.graphics.setColor(1, 1, 1, 1)
         if page < max_page then
-            love.graphics.draw(self.arrow_sprite, 20, 120 + (math.sin(love.timer.getTime()*6) * 2))
+            love.graphics.draw(self.arrow_sprite, 20, 120 + (math.sin(Kristal.getTime()*6) * 2))
         end
         if page > 0 then
-            love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(love.timer.getTime()*6) * 2), 0, 1, -1)
+            love.graphics.draw(self.arrow_sprite, 20, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
         end
     end
     if Game.battle.state == "ATTACKING" or self.attacking then

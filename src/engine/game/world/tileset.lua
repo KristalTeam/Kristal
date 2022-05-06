@@ -45,7 +45,7 @@ function Tileset:drawTile(id, x, y, ...)
     local draw_id = id
     local info = self.tile_info[id]
     if info and info.animation then
-        local time = love.timer.getTime()
+        local time = Kristal.getTime()
         local pos = time % info.animation.duration
         local total_duration = 0
         for _,frame in ipairs(info.animation.frames) do

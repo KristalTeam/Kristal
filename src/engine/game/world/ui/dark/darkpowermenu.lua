@@ -220,7 +220,7 @@ function DarkPowerMenu:drawSpells()
 
         if #spells > 6 then
             love.graphics.setColor(1, 1, 1)
-            local sine_off = math.sin((love.timer.getTime()*30)/12) * 3
+            local sine_off = math.sin((Kristal.getTime()*30)/12) * 3
             if self.scroll_y + 6 <= #spells then
                 love.graphics.draw(self.arrow_sprite, 469, 273 + sine_off)
             end

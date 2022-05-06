@@ -135,7 +135,7 @@ end
 function character:drawPowerStat(index, x, y, menu)
     if index == 1 and menu.kris_dog then
         local frames = Assets.getFrames("misc/dog_sleep")
-        local frame = math.floor(love.timer.getTime()) % #frames + 1
+        local frame = math.floor(Kristal.getTime()) % #frames + 1
         love.graphics.print("Dog:", x, y)
         love.graphics.draw(frames[frame], x+120, y+5, 0, 2, 2)
         return true

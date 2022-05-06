@@ -79,7 +79,7 @@ end
 function Battler:update()
     if Game.battle:isHighlighted(self) then
         self.highlight:setColor(1, 1, 1)
-        self.highlight.amount = -math.cos((love.timer.getTime()*30) / 5) * 0.4 + 0.6
+        self.highlight.amount = -math.cos((Kristal.getTime()*30) / 5) * 0.4 + 0.6
         self.last_highlighted = true
     elseif self.last_highlighted then
         self.highlight.amount = 0

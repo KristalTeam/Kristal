@@ -740,7 +740,7 @@ function Shop:draw()
 
                 -- Draw arrows
                 if not self.sell_confirming then
-                    local sine_off = math.sin((love.timer.getTime()*30)/6) * 3
+                    local sine_off = math.sin((Kristal.getTime()*30)/6) * 3
                     if self.item_offset + 4 < (max - 1) then
                         love.graphics.draw(self.arrow_sprite, 370, 149 + sine_off + 291)
                     end

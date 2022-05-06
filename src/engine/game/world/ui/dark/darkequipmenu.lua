@@ -415,7 +415,7 @@ function DarkEquipMenu:drawItems()
 
         if items.max > 6 then
             love.graphics.setColor(1, 1, 1)
-            local sine_off = math.sin((love.timer.getTime()*30)/12) * 3
+            local sine_off = math.sin((Kristal.getTime()*30)/12) * 3
             if scroll + 6 <= items.max then
                 love.graphics.draw(self.arrow_sprite, x + 187, y + 149 + sine_off)
             end
