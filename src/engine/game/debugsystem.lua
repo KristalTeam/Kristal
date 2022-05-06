@@ -564,7 +564,7 @@ function DebugSystem:draw()
                 self.current_text_align = target_text_align
             end
 
-            if self.object and self.current_text_align == target_text_align then
+            if self.object and self.current_text_align == target_text_align and not Kristal.Console.is_open then
                 self.selected_alpha = Utils.clamp(self.selected_alpha + (DT / 0.2), 0, 1)
             else
                 self.selected_alpha = Utils.clamp(self.selected_alpha - (DT / 0.2), 0, 1)

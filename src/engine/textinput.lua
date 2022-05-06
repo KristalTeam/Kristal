@@ -26,7 +26,9 @@ function TextInput.updateInput(tbl)
 end
 
 function TextInput.endInput()
-    Kristal.hideCursor()
+    if not Kristal.DebugSystem or not Kristal.DebugSystem:mouseOpen() then
+        Kristal.hideCursor()
+    end
     Game.lock_movement = false
     self.active = false
     love.keyboard.setTextInput(false)
