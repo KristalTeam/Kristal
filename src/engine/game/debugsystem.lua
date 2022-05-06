@@ -54,6 +54,7 @@ function DebugSystem:init()
     self.hover_alpha = 0
     self.last_hovered = nil
     self.selected_alpha = 0
+    self.current_text_align = "left"
 end
 
 function DebugSystem:mouseOpen()
@@ -545,7 +546,7 @@ function DebugSystem:draw()
             love.graphics.setColor(1, 1, 1, self.hover_alpha)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
         end
-        Object.endCache()
+
         if not object then
             self.hover_alpha = self.hover_alpha - DT / fadespeed
         end
@@ -556,31 +557,45 @@ function DebugSystem:draw()
         end
 
         if object then
-            if self.object then
+            local screen_x, screen_y = object:getScreenPos()
+
+            local target_text_align = screen_x < SCREEN_WIDTH/2 and "right" or "left"
+            if self.selected_alpha == 0 then
+                self.current_text_align = target_text_align
+            end
+
+            if self.object and self.current_text_align == target_text_align then
                 self.selected_alpha = Utils.clamp(self.selected_alpha + (DT / 0.2), 0, 1)
             else
                 self.selected_alpha = Utils.clamp(self.selected_alpha - (DT / 0.2), 0, 1)
             end
 
-            local screen_x, screen_y = object:getScreenPos()
-
             local slide = Utils.ease(0, 1, (1 - self.selected_alpha), "inCubic") * 40
+
+            local x_offset = 12 - slide
+            if self.current_text_align == "right" then
+                x_offset = 12 + slide
+            end
+            local limit = SCREEN_WIDTH - 24
+
             local inc = 1
-            self:printShadow("Selected: " .. Utils.getClassName(object),                12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
-            self:printShadow(string.format("Position: (%i, %i)",   object.x, object.y), 12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
-            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), 12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
+            self:printShadow("Selected: " .. Utils.getClassName(object),                x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
+            self:printShadow(string.format("Position: (%i, %i)",   object.x, object.y), x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
+            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
 
             if object.object_id then
-                self:printShadow("World ID: " .. object.object_id,                     12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}) inc = inc + 1
+                self:printShadow("World ID: " .. object.object_id,                      x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
             end
 
-            info = object:getDebugInformation()
+            local info = object:getDebugInformation()
 
             for i, line in ipairs(info) do
-                self:printShadow(line, 12 - slide, (32 * inc) + 10, {1, 1, 1, self.selected_alpha})
+                self:printShadow(line, x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit)
                 inc = inc + 1
             end
         end
+
+        Object.endCache()
     else
         self.hover_alpha = 0
     end
