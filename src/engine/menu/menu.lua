@@ -980,7 +980,8 @@ function Menu:keypressed(key, _, is_repeat)
             if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
             if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
             if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-            self.selected_option = math.max(1, math.min(Utils.tableLength(Input.aliases) + 2, self.selected_option))
+            if self.selected_option < 1 then self.selected_option = is_repeat and 1 or (Utils.tableLength(Input.aliases) + 2) end
+            if self.selected_option > Utils.tableLength(Input.aliases) + 2 then self.selected_option = is_repeat and (Utils.tableLength(Input.aliases) + 2) or 1 end
 
             if old ~= self.selected_option then
                 self.ui_move:stop()
