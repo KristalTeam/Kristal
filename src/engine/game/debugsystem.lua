@@ -119,9 +119,10 @@ function DebugSystem:detectObject(x, y)
         for _,instance in ipairs(objects) do
             if instance:isDebugSelectable() and instance:isFullyVisible() then
                 local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
-                if mx > 0 and mx < instance.width and my > 0 and my < instance.height then
+                local rect = instance:getDebugRectangle() or {0, 0, instance.width, instance.height}
+                if mx >= rect[1] and mx < rect[1]+rect[3] and my >= rect[2] and my < rect[2]+rect[4] then
                     local new_hierarchy_size = #instance:getHierarchy()
-                    local new_object_size = math.sqrt(instance.width * instance.height)
+                    local new_object_size = math.sqrt(rect[3] * rect[4])
                     if new_hierarchy_size > hierarchy_size or (new_hierarchy_size == hierarchy_size and new_object_size < object_size) then
                         hierarchy_size = new_hierarchy_size
                         object_size = new_object_size
@@ -504,7 +505,8 @@ function DebugSystem:draw()
             love.graphics.push()
             love.graphics.origin()
             love.graphics.applyTransform(transform)
-            love.graphics.rectangle("line", 0, 0, useobject.width, useobject.height)
+            local rect = useobject:getDebugRectangle() or {0, 0, useobject.width, useobject.height}
+            love.graphics.rectangle("line", rect[1], rect[2], rect[3], rect[4])
             love.graphics.pop()
 
             local tooltip_font = Assets.getFont("main", 16)

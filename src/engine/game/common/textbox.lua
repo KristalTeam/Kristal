@@ -37,6 +37,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
 
     self.box = UIBox(0, 0, width, height)
     self.box.layer = -1
+    self.box.debug_select = false
     self:addChild(self.box)
 
     self.battle_box = battle_box
@@ -270,6 +271,14 @@ function Textbox:getBorder()
     else
         return 0, 0
     end
+end
+
+function Textbox:getDebugRectangle()
+    if not self.debug_rect then
+        local bw, bh = self:getBorder()
+        return {-bw, -bh, self.width + bw*2, self.height + bh*2}
+    end
+    return super:getDebugRectangle(self)
 end
 
 function Textbox:isTyping()

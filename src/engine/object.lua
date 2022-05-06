@@ -106,6 +106,8 @@ function Object:init(x, y, width, height)
 
     -- Whether this object can be selected using debug selection
     self.debug_select = true
+    -- The debug rectangle for this object (defaults to width and height)
+    self.debug_rect = nil
 
     -- Multiplier for DT for this object's update and draw
     self.timescale = 1
@@ -500,6 +502,10 @@ end
 
 function Object:isDebugSelectable()
     return self.debug_select
+end
+
+function Object:getDebugRectangle()
+    return self.debug_rect or {0, 0, self.width, self.height}
 end
 
 function Object:getDebugInformation()

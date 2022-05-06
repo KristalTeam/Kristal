@@ -25,9 +25,15 @@ function Sprite:init(texture, x, y, width, height, path)
     self.anim_callback = nil
     self.anim_waiting = 0
     self.anim_wait_func = function(s) self.anim_waiting = s; coroutine.yield() end
+end
 
-    -- Temp solution for debug selection problems
-    self.debug_select = false
+function Sprite:isDebugSelectable()
+    if self.debug_select then
+        -- Make the sprite unselectable if it's the parent's "sprite" variable
+        return not self.parent or self.parent.sprite ~= self
+    else
+        return self.debug_select
+    end
 end
 
 function Sprite:updateTexture()

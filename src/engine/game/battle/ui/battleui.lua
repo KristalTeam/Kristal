@@ -10,6 +10,7 @@ function BattleUI:init()
     self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.encounter_text.text.line_offset = 0
     self.encounter_text:setText(self.current_encounter_text)
+    self.encounter_text.debug_rect = {-30, -12, SCREEN_WIDTH+1, 124}
     self:addChild(self.encounter_text)
 
     self.choice_box = Choicebox(56, 49, 529, 103, true)

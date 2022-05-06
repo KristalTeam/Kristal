@@ -15,12 +15,18 @@ function OverworldSoul:init(x, y)
     self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
+    self.debug_rect = {-8, -8, 16, 16}
+
     self.collider = CircleCollider(self, 0, 0, 8)
 
     self.inv_timer = 0
     self.inv_flash_timer = 0
 
     self.target_lerp = 0
+end
+
+function OverworldSoul:isDebugSelectable()
+    return self.alpha > 0 and super:isDebugSelectable(self)
 end
 
 function OverworldSoul:onCollide(bullet)

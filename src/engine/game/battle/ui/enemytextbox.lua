@@ -145,6 +145,24 @@ function EnemyTextbox:getBorder()
     return left, top, right, bottom
 end
 
+function EnemyTextbox:getDebugRectangle()
+    if not self.debug_rect then
+        local bl, bt, br, bb = self:getBorder()
+
+        local inner_left = -self.padding["left"]
+        local inner_top = -self.padding["top"]
+        local inner_right = self.text_width + self.padding["right"]
+        local inner_bottom = self.text_height + self.padding["bottom"]
+
+        local inner_width = self.padding["left"] + inner_right
+        local inner_height = self.padding["top"] + inner_bottom
+
+        -- TODO: FUck
+        return {-bl + inner_left, -bt + inner_top, inner_width + bl + br + self:getTailWidth(), inner_height + bt + bb}
+    end
+    return super:getDebugRectangle(self)
+end
+
 function EnemyTextbox:getSprite(name)
     local sprite = self.auto and self.sprites[name] or self.sprites
     if sprite then

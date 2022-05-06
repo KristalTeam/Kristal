@@ -22,6 +22,14 @@ function UIBox:getBorder()
     return self.left[1]:getWidth()*2, self.top[1]:getHeight()*2
 end
 
+function UIBox:getDebugRectangle()
+    if not self.debug_rect then
+        local bw, bh = self:getBorder()
+        return {-bw, -bh, self.width + bw*2, self.height + bh*2}
+    end
+    return super:getDebugRectangle(self)
+end
+
 function UIBox:draw()
     self.left_frame   = ((self.left_frame   + (DTMULT / self.speed)) - 1) % #self.left   + 1
     self.top_frame    = ((self.top_frame    + (DTMULT / self.speed)) - 1) % #self.top    + 1

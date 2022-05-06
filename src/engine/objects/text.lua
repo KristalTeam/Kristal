@@ -66,6 +66,13 @@ function Text:init(text, x, y, w, h, options)
     self.set_text_without_stage = true
 end
 
+function Text:getDebugRectangle()
+    if not self.debug_rect then
+        return {0, 0, self:getTextWidth(), self:getTextHeight()}
+    end
+    return super:getDebugRectangle(self)
+end
+
 function Text:onAddToStage(stage)
     if self.set_text_without_stage then
         self.set_text_without_stage = false

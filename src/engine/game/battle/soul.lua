@@ -34,6 +34,8 @@ function Soul:init(x, y, color)
     self.width = self.sprite.width
     self.height = self.sprite.height
 
+    self.debug_rect = {-8, -8, 16, 16}
+
     self.collider = CircleCollider(self, 0, 0, 8)
 
     self.graze_collider = CircleCollider(self, 0, 0, 25 * self.graze_size_factor)
