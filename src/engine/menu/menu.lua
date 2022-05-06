@@ -1019,7 +1019,7 @@ function Menu:keypressed(key, _, is_repeat)
                     self.ui_select:stop()
                     self.ui_select:play()
                     self.selected_option = Utils.tableLength(Input.aliases) + 1
-                    self.heart_target_y = 129 + (self.selected_option - 1) * 32
+                    self.heart_target_y = (129 + (self.selected_option) * 32) + self.options_target_y
                 elseif (self.selected_option == Utils.tableLength(Input.aliases) + 2) then
                     self:setState("OPTIONS")
                     self.selected_option = 2
