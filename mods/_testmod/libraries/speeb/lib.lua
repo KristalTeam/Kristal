@@ -1,7 +1,9 @@
 local lib = {}
 
+local msg_suffix = require("reqtest")
+
 function lib:init()
-    print("Loaded speeb library....watch out")
+    print("Loaded speeb library"..msg_suffix)
 
     Utils.hook(Player, "update", function(orig, self)
         if self.run_timer > 60 then

@@ -968,6 +968,9 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
         ACTIVE_LIB = lib
 
+        -- Add the current library to the libs table first, before lib.lua execution
+        Mod.libs[lib_id] = lib
+
         -- Check for lib.lua
         if lib_info.script_chunks["lib"] then
             -- Execute lib.lua
@@ -983,7 +986,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
         ACTIVE_LIB = nil
 
-        -- Add the current library to the libs table
+        -- Add the current library to the libs table (again, with the real final value)
         Mod.libs[lib_id] = lib
     end
 
@@ -1070,7 +1073,7 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
         if load_count == 0 then
             -- Finish mod loading
             MOD_LOADING = false
-            
+
             -- Call the after function
             after()
         end
@@ -1292,7 +1295,7 @@ function Kristal.executeLibScript(lib, path, ...)
         end
         return false
     else
-        local library = Mod.libs[path]
+        local library = Mod.libs[lib]
         if not library or not library.info.script_chunks[path] then
             return false
         else
