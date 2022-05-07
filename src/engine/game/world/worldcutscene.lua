@@ -378,7 +378,7 @@ function WorldCutscene:mapTransition(...)
     return waitForMapTransition
 end
 
-function WorldCutscene:switchMap(...)
+function WorldCutscene:loadMap(...)
     Game.world:loadMap(...)
 end
 
