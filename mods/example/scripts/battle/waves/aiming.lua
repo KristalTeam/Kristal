@@ -7,7 +7,7 @@ function Aiming:onStart()
         local attackers = self:getAttackers()
 
         -- Loop through all attackers
-        for _, attacker in ipairs(self:getAttackers()) do
+        for _, attacker in ipairs(attackers) do
 
             -- Get the attacker's center position
             local x, y = attacker:getRelativePos(attacker.width/2, attacker.height/2)
