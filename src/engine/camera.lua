@@ -12,8 +12,9 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
     self.ox = 0
     self.oy = 0
 
-    -- Camera zoom (scale)
-    self.zoom = 1
+    -- Camera zoom
+    self.zoom_x = 1
+    self.zoom_y = 1
 
     -- Camera bounds (for clamping)
     self.bounds = nil
@@ -48,7 +49,7 @@ function Camera:setBounds(x, y, width, height)
 end
 
 function Camera:getRect()
-    return self.x - self.width / 2, self.y - self.height / 2, self.width, self.height
+    return self.x + self.ox - (self.width / self.zoom_x / 2), self.y + self.oy - (self.height / self.zoom_y / 2), self.width / self.zoom_x, self.height / self.zoom_y
 end
 
 function Camera:getPosition() return self.x, self.y end
@@ -64,9 +65,10 @@ function Camera:setOffset(ox, oy)
     self.oy = oy
 end
 
-function Camera:getZoom() return self.zoom end
-function Camera:setZoom(zoom)
-    self.zoom = zoom
+function Camera:getZoom() return self.zoom_x, self.zoom_y end
+function Camera:setZoom(x, y)
+    self.zoom_x = x or 1
+    self.zoom_y = y or x or 1
     self:keepInBounds()
 end
 
@@ -147,12 +149,12 @@ end
 
 function Camera:getMinPosition()
     local x, y, w, h = self:getBounds()
-    return x + (self.width / self.zoom) / 2, y + (self.height / self.zoom) / 2
+    return x + (self.width / self.zoom_x) / 2, y + (self.height / self.zoom_y) / 2
 end
 
 function Camera:getMaxPosition()
     local x, y, w, h = self:getBounds()
-    return x + w - (self.width / self.zoom) / 2, y + h - (self.height / self.zoom) / 2
+    return x + w - (self.width / self.zoom_x) / 2, y + h - (self.height / self.zoom_y) / 2
 end
 
 function Camera:keepInBounds()
@@ -224,8 +226,8 @@ function Camera:getParallax(px, py, ox, oy)
 end
 
 function Camera:applyTo(transform)
-    transform:translate((-self.x + self.width/2) - self.ox, (-self.y + self.height/2) - self.oy)
-    transform:scale(self.zoom, self.zoom)
+    transform:scale(self.zoom_x, self.zoom_y)
+    transform:translate(-self.x - self.ox + (self.width / self.zoom_x / 2), -self.y - self.oy + (self.height / self.zoom_y / 2))
 end
 
 function Camera:getTransform()
