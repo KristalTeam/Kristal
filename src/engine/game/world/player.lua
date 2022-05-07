@@ -58,9 +58,15 @@ end
 function Player:onRemove(parent)
     super:onRemove(self, parent)
 
+    self.slide_sound:stop()
     if parent:includes(World) and parent.player == self then
         parent.player = nil
     end
+end
+
+function Player:onRemoveFromStage(stage)
+    super:onRemoveFromStage(stage)
+    self.slide_sound:stop()
 end
 
 function Player:setActor(actor)
