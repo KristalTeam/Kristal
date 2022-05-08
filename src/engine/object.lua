@@ -242,6 +242,7 @@ function Object:slideTo(x, y, time, ease, after)
         time = y
         x, y = Game.world.map:getMarker(x)
     end
+    time = time or 1
     self.physics.move_path = nil
     if self.x ~= x or self.y ~= y then
         self.physics.move_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
@@ -261,6 +262,7 @@ function Object:slideToSpeed(x, y, speed, after)
         speed = y
         x, y = Game.world.map:getMarker(x)
     end
+    speed = speed or 4
     self.physics.move_path = nil
     if self.x ~= x or self.y ~= y then
         self.physics.move_target = {x = x, y = y, speed = speed, after = after}
