@@ -1,5 +1,7 @@
 local Hotswapper = {}
 
+local enabled = true
+
 local dir = love.filesystem.getDirectoryItems
 local time = love.timer.getTime
 
@@ -9,6 +11,7 @@ Hotswapper.files = {
 }
 
 function Hotswapper.updateFiles(file_type)
+    if not enabled then return end
     if file_type == "required" then
         print("Updating file information for requried packages...")
         -- Loop through loaded packages
@@ -52,8 +55,10 @@ function Hotswapper.updateFiles(file_type)
 end
 
 function Hotswapper.scan()
+    if not enabled then return end
     --Hotswapper.updateFiles()
     for key, value in pairs(Hotswapper.files.required) do
+        if Hotswapper.getLastModified(value.path) == false then return end
         if value.modified ~= Hotswapper.getLastModified(value.path) then
             value.modified = Hotswapper.getLastModified(value.path)
             print("Attempting to hotswap " .. key)
@@ -74,6 +79,10 @@ function Hotswapper.getLastModified(path)
     if not path then return end
     path = path:gsub("^.\\", ""):gsub("\\", "/")
     local info = love.filesystem.getInfo(path, "file")
+    if not info then
+        print("Info is nil, disabling hotswapper...")
+        return false
+    end
     return info.modtime
 end
 
