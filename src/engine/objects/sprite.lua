@@ -24,7 +24,7 @@ function Sprite:init(texture, x, y, width, height, path)
     self.anim_duration = -1
     self.anim_callback = nil
     self.anim_waiting = 0
-    self.anim_wait_func = function(s) self.anim_waiting = s; coroutine.yield() end
+    self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
 end
 
 function Sprite:isDebugSelectable()

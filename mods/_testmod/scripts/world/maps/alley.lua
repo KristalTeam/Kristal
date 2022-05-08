@@ -9,7 +9,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 16,
-  nextobjectid = 94,
+  nextobjectid = 96,
   properties = {
     ["light"] = false,
     ["music"] = "cybercity",
