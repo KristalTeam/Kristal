@@ -193,18 +193,36 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
 end
 
 function DebugSystem:registerSubMenus()
+    self:registerMenu("Engine Options", "engine_options")
+    self:registerConfigOption("engine_options", "Show FPS", "Toggle the FPS display.", "showFPS")
+    self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function()
+        love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+    end)
+    self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
+    self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
+
+    self:registerMenu("Encounter Select", "encounter_select")
+    -- loop through registry and add menu options for all encounters
+    for id,_ in pairs(Registry.encounters) do
+        self:registerOption("encounter_select", id, "Start this encounter.", function()
+            Game:encounter(id)
+            self:closeMenu()
+        end)
+    end
+    self:registerOption("encounter_select", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
+
     self:registerMenu("Cutscene Select", "cutscene_select")
     -- loop through registry and add menu options for all cutscenes
     for group,cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then
             for id,_ in pairs(cutscene) do
-                self:registerOption("cutscene_select", group.."."..id, "Start This Cutscene", function()
+                self:registerOption("cutscene_select", group.."."..id, "Start this cutscene.", function()
                     Game.world:startCutscene(group, id)
                     self:closeMenu()
                 end)
             end
         else
-            self:registerOption("cutscene_select", group, "Start This Cutscene", function()
+            self:registerOption("cutscene_select", group, "Start this cutscene.", function()
                 Game.world:startCutscene(group)
                 self:closeMenu()
             end)
@@ -215,17 +233,15 @@ end
 
 function DebugSystem:registerDefaults()
     -- Global
-    self:registerConfigOption("main", "Show FPS", "Toggle the FPS display.", "showFPS")
-    self:registerConfigOption("main", "VSync", "Toggle Vsync.", "vSync", function()
-        love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
-    end)
     self:registerConfigOption("main", "Object Selection Pausing", "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
-    self:registerOption("main", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
+    self:registerOption("main", "Engine Options", "Configure various noningame options.", function()
+        self:enterMenu("engine_options", 1)
+    end)
 
     self:registerOption("main", "Fast Forward", function() return self:appendBool("Speed up the engine.", FAST_FORWARD) end, function() FAST_FORWARD = not FAST_FORWARD end)
     self:registerOption("main", "Debug Rendering", function() return self:appendBool("Draw debug information.", DEBUG_RENDER) end, function() DEBUG_RENDER = not DEBUG_RENDER end)
-    self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.", function() Hotswapper.scan() end)
+    self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.", function() Hotswapper.scan(); self:refresh() end)
     self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function()
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
@@ -239,8 +255,6 @@ function DebugSystem:registerDefaults()
     end)
 
     self:registerOption("main", "Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
-
-    self:registerOption("main", "Refresh Menu", "Refresh this menu.", function() self:refresh() end)
 
     -- World specific
     self:registerOption("main", function()
@@ -256,6 +270,10 @@ function DebugSystem:registerDefaults()
             Game.world:spawnPlayer(Game.world.camera.x, Game.world.camera.y, Game.party[1]:getActor())
             Game.world.player:interpolateFollowers()
         end
+    end, "OVERWORLD")
+
+    self:registerOption("main", "Start Encounter", "Start an encounter.", function()
+        self:enterMenu("encounter_select", 1)
     end, "OVERWORLD")
 
     self:registerOption("main", "Play Cutscene", "Play a cutscene.", function()
