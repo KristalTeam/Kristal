@@ -824,4 +824,28 @@ function Utils.parseFlagProperties(flag, inverted, value, default_value, propert
     return result_flag, result_inverted, result_value
 end
 
+function Utils.getPointOnPath(path, t)
+    local max_x, max_y = 0, 0
+    local traversed = 0
+    for i = 1, #path - 1 do
+        local current_point = path[i]
+        local next_point = path[i + 1]
+
+        local cx, cy = current_point.x or current_point[1], current_point.y or current_point[2]
+        local nx, ny = next_point.x or next_point[1], next_point.y or next_point[2]
+
+        local current_length = Utils.dist(cx, cy, nx, ny)
+
+        if traversed + current_length > t then
+            local progress = (t - traversed) / current_length
+            return Utils.lerp(cx, nx, progress), Utils.lerp(cy, ny, progress)
+        end
+
+        max_x, max_y = nx, ny
+
+        traversed = traversed + current_length
+    end
+    return max_x, max_y
+end
+
 return Utils

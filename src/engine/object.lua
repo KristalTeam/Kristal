@@ -289,6 +289,9 @@ function Object:slidePath(path, options)
                 table.insert(path, {point.x - map_path.points[1].x, point.y - map_path.points[1].y})
             end
         end
+        if map_path.closed and options["loop"] == nil then
+            options["loop"] = true
+        end
     end
 
     if not options["relative"] then
@@ -312,7 +315,7 @@ function Object:slidePath(path, options)
             point[2] = point[2] + self.y
         end
     else
-        if options["snap"] then
+        if options["snap"] or options["loop"] then
             self:setPosition(path[1][1], path[1][2])
         elseif self.x ~= path[1][1] or self.y ~= path[1][2] then
             table.insert(path, 1, {self.x, self.y})
@@ -327,6 +330,7 @@ function Object:slidePath(path, options)
     self.physics.move_target = nil
     self.physics.move_path = {
         path = path,
+        loop = options.loop or false,
         length = length,
         progress = 0,
 
@@ -1030,34 +1034,24 @@ function Object:updatePhysicsTransform()
         end
     elseif physics.move_path then
         if physics.move_path.speed then
-            physics.move_path.progress = Utils.approach(physics.move_path.progress, physics.move_path.length, physics.move_path.speed * DTMULT)
+            physics.move_path.progress = physics.move_path.progress + (physics.move_path.speed * DTMULT)
         elseif physics.move_path.time then
-            physics.move_path.timer = Utils.approach(physics.move_path.timer, physics.move_path.time, DT)
+            physics.move_path.timer = physics.move_path.timer + DT
             physics.move_path.progress = (physics.move_path.timer / physics.move_path.time) * physics.move_path.length
         end
-        local eased_progress = Utils.ease(0, physics.move_path.length, (physics.move_path.progress / physics.move_path.length), physics.move_path.ease)
-        local new_target = {self.x, self.y}
-        local traversed = 0
-        for i = 1, #physics.move_path.path - 1 do
-            local current_point = physics.move_path.path[i]
-            local next_point = physics.move_path.path[i + 1]
-
-            local current_length = Utils.dist(current_point[1], current_point[2], next_point[1], next_point[2])
-
-            if traversed + current_length > eased_progress then
-                local progress = (eased_progress - traversed) / current_length
-                new_target = Utils.lerp(current_point, next_point, progress)
-                break
-            end
-
-            traversed = traversed + current_length
-        end
-        if physics.move_path.move_func then
-            physics.move_path.move_func(self, new_target[1] - self.x, new_target[2] - self.y)
+        if not physics.move_path.loop then
+            physics.move_path.progress = Utils.clamp(physics.move_path.progress, 0, physics.move_path.length)
         else
-            self:setPosition(new_target[1], new_target[2])
+            physics.move_path.progress = physics.move_path.progress % physics.move_path.length
         end
-        if physics.move_path.progress == physics.move_path.length then
+        local eased_progress = Utils.ease(0, physics.move_path.length, (physics.move_path.progress / physics.move_path.length), physics.move_path.ease)
+        local target_x, target_y = Utils.getPointOnPath(physics.move_path.path, eased_progress)
+        if physics.move_path.move_func then
+            physics.move_path.move_func(self, target_x - self.x, target_y - self.y)
+        else
+            self:setPosition(target_x, target_y)
+        end
+        if not physics.move_path.loop and physics.move_path.progress >= physics.move_path.length then
             local after = physics.move_path.after
             physics.move_path = nil
             if after then after() end

@@ -473,7 +473,8 @@ function Map:loadPaths(layer)
             path.y = v.y
             local points = Utils.copy(v.polygon or v.polyline or {})
             if v.shape == "rectangle" then
-                points = {{x = 0, y = 0}, {x = v.width, y = 0}, {x = v.width, y = v.height}, {x = 0, y = v.height}}
+                points = {{x = 0, y = 0}, {x = v.width, y = 0}, {x = v.width, y = v.height}, {x = 0, y = v.height}, {x = 0, y = 0}}
+                path.closed = true
             else
                 if v.shape ~= "polyline" then
                     table.insert(points, points[1])
