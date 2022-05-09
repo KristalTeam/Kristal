@@ -1431,6 +1431,7 @@ function Battle:setWaves(waves, allow_duplicates)
             if type(wave) == "string" then
                 wave = Registry.createWave(wave)
             end
+            wave.encounter = self.encounter
             self:addChild(wave)
             table.insert(self.waves, wave)
             added_wave[wave.id] = true
@@ -2000,6 +2001,9 @@ function Battle:updateWaves()
             else
                 all_done = false
             end
+        end
+        if not wave:canEnd() then
+            all_done = false
         end
     end
 

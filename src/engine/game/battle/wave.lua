@@ -49,8 +49,13 @@ function Wave:update()
     super:update(self)
 end
 
+function Wave:onArenaEnter() end
+function Wave:onArenaExit() end
+
 function Wave:onStart() end
 function Wave:onEnd() end
+
+function Wave:canEnd() return true end
 
 function Wave:clear()
     for _,object in ipairs(self.objects) do

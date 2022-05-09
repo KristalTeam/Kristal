@@ -52,28 +52,25 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj:setPosition(SCREEN_WIDTH + 200, y)
     end
     if x and y then
+        enemy_obj.target_x = x
+        enemy_obj.target_y = y
         if not transition then
             enemy_obj:setPosition(x, y)
-        else
-            enemy_obj.target_x = x
-            enemy_obj.target_y = y
         end
     else
         for _,enemy in ipairs(enemies) do
+            enemy.target_x = enemy.target_x - 10
+            enemy.target_y = enemy.target_y - 45
             if not transition then
                 enemy.x = enemy.x - 10
                 enemy.y = enemy.y - 45
-            else
-                enemy.target_x = enemy.target_x - 10
-                enemy.target_y = enemy.target_y - 45
             end
         end
         local x, y = 550 + (10 * #enemies), 200 + (45 * #enemies)
+        enemy_obj.target_x = x
+        enemy_obj.target_y = y
         if not transition then
             enemy_obj:setPosition(x, y)
-        else
-            enemy_obj.target_x = x
-            enemy_obj.target_y = y
         end
     end
     enemy_obj.encounter = self
@@ -146,6 +143,12 @@ function Encounter:onDialogueEnd()
     soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
     Game.battle:spawnSoul(soul_x or center_x, soul_y or center_y)
 
+    for _,wave in ipairs(Game.battle.waves) do
+        if wave:onArenaEnter() then
+            wave.active = true
+        end
+    end
+
     Game.battle.timer:after(15/30, function()
         Game.battle:setState("DEFENDING")
     end)
@@ -156,9 +159,10 @@ function Encounter:onWavesDone()
     Game.battle:returnSoul()
 
     for _,wave in ipairs(Game.battle.waves) do
-        wave:onEnd()
-        wave:clear()
-        wave:remove()
+        if not wave:onEnd() then
+            wave:clear()
+            wave:remove()
+        end
     end
 
     if Game.battle.arena then
@@ -166,11 +170,26 @@ function Encounter:onWavesDone()
         Game.battle.arena = nil
     end
 
+    local function exitWaves()
+        for _,wave in ipairs(Game.battle.waves) do
+            wave:onArenaExit()
+
+            if wave.parent then
+                wave:clear()
+                wave:remove()
+            end
+        end
+    end
+
     Game.battle.waves = {}
     if Game.battle:hasCutscene() then
-        Game.battle.cutscene:after(function() Game.battle:nextTurn() end)
+        Game.battle.cutscene:after(function()
+            exitWaves()
+            Game.battle:nextTurn()
+        end)
     else
         Game.battle.timer:after(15/30, function()
+            exitWaves()
             Game.battle:nextTurn()
         end)
     end

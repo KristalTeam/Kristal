@@ -203,6 +203,16 @@ function ActorSprite:isSprite(sprite)
     return Utils.containsValue(options, sprite)
 end
 
+function ActorSprite:getValueForSprite(tbl)
+    local options = self.actor:parseSpriteOptions(self.texture_path)
+
+    for _,sprite in ipairs(options) do
+        if tbl[sprite] then
+            return tbl[sprite]
+        end
+    end
+end
+
 function ActorSprite:isDirectional(texture)
     if not Assets.getTexture(texture) and not Assets.getFrames(texture) then
         if Assets.getTexture(texture.."_left") or Assets.getFrames(texture.."_left") then
