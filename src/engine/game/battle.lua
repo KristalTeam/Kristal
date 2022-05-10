@@ -940,7 +940,10 @@ function Battle:processAction(action)
         if item.instant then
             self:finishAction(action)
         else
-            self:battleText(item:getBattleText(battler, action.target))
+            local text = item:getBattleText(battler, action.target)
+            if text then
+                self:battleText(text)
+            end
             battler:setAnimation("battle/item", function()
                 local result = item:onBattleUse(battler, action.target)
                 if result or result == nil then
