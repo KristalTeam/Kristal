@@ -47,14 +47,21 @@ WORLD_LAYERS = {
 }
 
 SHOP_LAYERS = {
-    ["background"] = 0,
-    ["shopkeeper"] = 16,
-    [     "cover"] = 32,
-    [ "large_box"] = 64,
-    [  "left_box"] = 128,
-    [ "right_box"] = 130,
-    [  "info_box"] = 129,
-    [  "dialogue"] = 256
+    [      "background"] = -100,
+    ["below_shopkeeper"] =  100,
+    [      "shopkeeper"] =  200,
+    ["above_shopkeeper"] =  300,
+    [     "below_boxes"] =  300,
+    [           "cover"] =  400,
+    [       "large_box"] =  450,
+    [        "left_box"] =  500,
+    [        "info_box"] =  550,
+    [       "right_box"] =  600,
+    [     "above_boxes"] =  700,
+    [  "below_dialogue"] =  700,
+    [        "dialogue"] =  800,
+    [  "above_dialogue"] =  900,
+    [             "top"] = 1000
 }
 
 MUSIC_VOLUME = 0.7
