@@ -156,12 +156,11 @@ end
 
 function DebugSystem:refresh()
     self.menus = {}
-    self:registerMenu("~ KRISTAL DEBUG ~", "main")
+    self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
     self:registerDefaults()
-    Kristal.callEvent("registerModDebugEntries")
     self:registerSubMenus()
-    Kristal.callEvent("registerModDebugMenus")
+    Kristal.callEvent("registerDebugOptions", self)
 end
 
 function DebugSystem:returnMenu()
@@ -175,7 +174,7 @@ function DebugSystem:returnMenu()
     end
 end
 
-function DebugSystem:registerMenu(name, id)
+function DebugSystem:registerMenu(id, name)
     self.menus[id] = {
         name = name,
         options = {}
@@ -194,7 +193,7 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
 end
 
 function DebugSystem:registerSubMenus()
-    self:registerMenu("Engine Options", "engine_options")
+    self:registerMenu("engine_options", "Engine Options")
     self:registerConfigOption("engine_options", "Show FPS", "Toggle the FPS display.", "showFPS")
     self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function()
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
@@ -202,7 +201,7 @@ function DebugSystem:registerSubMenus()
     self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
     self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
-    self:registerMenu("Encounter Select", "encounter_select")
+    self:registerMenu("encounter_select", "Encounter Select")
     -- loop through registry and add menu options for all encounters
     for id,_ in pairs(Registry.encounters) do
         self:registerOption("encounter_select", id, "Start this encounter.", function()
@@ -212,7 +211,7 @@ function DebugSystem:registerSubMenus()
     end
     self:registerOption("encounter_select", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
-    self:registerMenu("Cutscene Select", "cutscene_select")
+    self:registerMenu("cutscene_select", "Cutscene Select")
     -- loop through registry and add menu options for all cutscenes
     for group,cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then

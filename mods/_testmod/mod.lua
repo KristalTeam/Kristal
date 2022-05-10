@@ -32,18 +32,18 @@ Mod.wave_shader = love.graphics.newShader([[
 ]])
 
 function Mod:preInit()
-    -- make kris woobly
+    -- make characters woobly
     --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
         orig(self, ...)
 
-        if self.actor.id == "kris" then
-            self:addFX(ShaderFX(Mod.wave_shader, {
-                ["wave_sine"] = function() return Kristal.getTime() * 100 end,
-                ["wave_mag"] = 4,
-                ["wave_height"] = 4,
-                ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
-            }))
-        end
+        local fx = self:addFX(ShaderFX(Mod.wave_shader, {
+            ["wave_sine"] = function() return Kristal.getTime() * 100 end,
+            ["wave_mag"] = 4,
+            ["wave_height"] = 4,
+            ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
+        }), "funky_mode")
+        -- only activate when its funky time,,,,
+        fx.active = false
     end)]]
     --[[Utils.hook(World, "init", function(orig, self, ...)
         orig(self, ...)
@@ -83,6 +83,25 @@ function Mod:postInit(new_file)
         Game.world.music:resume()
     end)
     ]]
+end
+
+function Mod:registerDebugOptions(debug)
+    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end)
+
+    debug:registerMenu("funky_menu", "Funky Menu")
+    debug:registerOption("funky_menu", "Hi", "nice to meet u", function() print("hi") end)
+    debug:registerOption("funky_menu", "Funker", function() return debug:appendBool("Toggle Funky Mode.....", Game.world.player:getFX("funky_mode")) end, function()
+        if Game.world.player:getFX("funky_mode") then
+            Game.world.player:removeFX("funky_mode")
+        else
+            Game.world.player:addFX(ShaderFX(Mod.wave_shader, {
+                ["wave_sine"] = function() return Kristal.getTime() * 100 end,
+                ["wave_mag"] = 4,
+                ["wave_height"] = 4,
+                ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
+            }), "funky_mode")
+        end
+    end, "OVERWORLD")
 end
 
 function Mod:onShadowCrystal(item, light)
