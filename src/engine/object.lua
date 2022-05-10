@@ -506,7 +506,7 @@ function Object:setHitbox(x, y, w, h)
     self.collider = Hitbox(self, x, y, w, h)
 end
 
-function Object:isDebugSelectable()
+function Object:canDebugSelect()
     return self.debug_select
 end
 
@@ -514,7 +514,7 @@ function Object:getDebugRectangle()
     return self.debug_rect or {0, 0, self.width, self.height}
 end
 
-function Object:getDebugInformation()
+function Object:getDebugInfo()
     return {}
 end
 
