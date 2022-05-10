@@ -55,6 +55,7 @@ function DebugSystem:init()
     self.last_hovered = nil
     self.selected_alpha = 0
     self.current_text_align = "left"
+    self.release_timer = 0
 end
 
 function DebugSystem:mouseOpen()
@@ -403,6 +404,11 @@ function DebugSystem:isMenuOpen()
 end
 
 function DebugSystem:update()
+
+    self.release_timer = self.release_timer + (DT * (Game.stage and Game.stage.timescale or 1))
+    if self.grabbing then
+        self.release_timer = 0
+    end
     if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
         self.heart.x = self.heart_target_x
     end
@@ -421,6 +427,7 @@ function DebugSystem:update()
         if self.object then
             local x, y = Input.getMousePosition()
             self.object:setScreenPos(x - self.grab_offset_x, y - self.grab_offset_y)
+            self.object.debug_x, self.object.debug_y = self.object.x, self.object.y
         end
     end
 

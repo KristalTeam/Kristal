@@ -123,6 +123,15 @@ function ChaserEnemy:snapToPath()
                     local x = Utils.lerp(path.points[i].x, path.points[i+1].x, (dist - current_dist) / next_dist)
                     local y = Utils.lerp(path.points[i].y, path.points[i+1].y, (dist - current_dist) / next_dist)
 
+                    if self.debug_x and self.debug_y and Kristal.DebugSystem.last_object == self then
+                        x = Utils.ease(self.debug_x, x, Kristal.DebugSystem.release_timer, "outCubic")
+                        y = Utils.ease(self.debug_y, y, Kristal.DebugSystem.release_timer, "outCubic")
+                        if Kristal.DebugSystem.release_timer >= 1 then
+                            self.debug_x = nil
+                            self.debug_y = nil
+                        end
+                    end
+
                     self:moveTo(x, y)
                     break
                 else
@@ -131,7 +140,19 @@ function ChaserEnemy:snapToPath()
             end
         elseif path.shape == "ellipse" then
             local angle = progress * (math.pi*2)
-            self:moveTo(path.x + math.cos(angle) * path.rx, path.y + math.sin(angle) * path.ry)
+            local x = path.x + math.cos(angle) * path.rx
+            local y = path.y + math.sin(angle) * path.ry
+
+            if self.debug_x and self.debug_y and Kristal.DebugSystem.last_object == self then
+                x = Utils.ease(self.debug_x, x, Kristal.DebugSystem.release_timer, "outCubic")
+                y = Utils.ease(self.debug_y, y, Kristal.DebugSystem.release_timer, "outCubic")
+                if Kristal.DebugSystem.release_timer >= 1 then
+                    self.debug_x = nil
+                    self.debug_y = nil
+                end
+            end
+
+            self:moveTo(x, y)
         end
     end
 end
