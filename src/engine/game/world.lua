@@ -100,7 +100,7 @@ function World:heal(target, amount, text)
     end
 end
 
-function World:hurtParty(amount)
+function World:hurtParty(battler, amount)
     Assets.playSound("hurt")
 
     self.shake_x = 4
@@ -108,18 +108,29 @@ function World:hurtParty(amount)
 
     self:showHealthBars()
 
-    local all_killed = true
+    if type(battler) == "number" then
+        amount = battler
+        battler = nil
+    end
+
+    local any_killed = false
+    local any_alive = false
     for _,party in ipairs(Game.party) do
-        party.health = party.health - amount
-        if party.health <= 0 then
-            party.health = 1
-        else
-            all_killed = false
-        end
-        for _,char in ipairs(self.stage:getObjects(Character)) do
-            if char.actor and (char.actor.id == party:getActor().id) then
-                char:statusMessage("damage", amount)
+        if not battler or battler == party.id or battler == party then
+            party.health = party.health - amount
+            if party.health <= 0 then
+                party.health = 1
+                any_killed = true
+            elseif party.health > 1 then
+                any_alive = true
             end
+            for _,char in ipairs(self.stage:getObjects(Character)) do
+                if char.actor and (char.actor.id == party:getActor().id) then
+                    char:statusMessage("damage", amount)
+                end
+            end
+        elseif party.health > 1 then
+            any_alive = true
         end
     end
 
@@ -127,9 +138,14 @@ function World:hurtParty(amount)
         self.player.hurt_timer = 7
     end
 
-    if all_killed then
+    if any_killed and not any_alive then
         Game:gameOver(self.soul:getScreenPos())
+        return true
+    elseif battler then
+        return any_killed
     end
+
+    return false
 end
 
 function World:setState(state)
@@ -563,6 +579,7 @@ function World:setupMap(map, ...)
         end
     end
 
+    self.healthbar = nil
     self.followers = {}
 
     if isClass(map) then
