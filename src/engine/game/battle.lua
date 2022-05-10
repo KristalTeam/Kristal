@@ -1675,6 +1675,9 @@ end
 
 function Battle:spawnEnemyTextbox(enemy, text, right, style)
     local textbox
+    if not style and enemy.dialogue_bubble then
+        style = enemy.dialogue_bubble
+    end
     if not right then
         local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
         if enemy.dialogue_offset then

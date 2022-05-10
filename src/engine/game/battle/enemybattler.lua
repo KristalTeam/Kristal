@@ -41,6 +41,9 @@ function EnemyBattler:init(chara)
     self.low_health_text = "* Enemy is feeling tired."
     self.tired_percentage = 0.5
 
+    -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
+    self.dialogue_bubble = nil
+
     self.dialogue = {}
 
     self.acts = {
