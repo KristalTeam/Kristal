@@ -35,11 +35,20 @@ end
 function Console:createEnv()
     local env = {}
 
-    function env.print(str)
-        if type(str) == "table" then
-            str = Utils.dump(str)
+    function env.print(...)
+        local arg = {...}
+        local print_string = ""
+
+        for i, str in ipairs(arg) do
+            if type(str) == "table" then
+                str = Utils.dump(str)
+            end
+            print_string = print_string .. tostring(str)
+            if i ~= arg.n then
+                print_string = print_string  .. "    "
+            end
         end
-        self:log(tostring(str))
+        self:log(print_string)
     end
 
     function env.clear()
