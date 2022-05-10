@@ -17,8 +17,8 @@ function Script:init(x, y, w, h, properties)
     self.temp = properties["temp"] or false
 end
 
-function Script:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function Script:getDebugInfo()
+    local info = super:getDebugInfo(self)
     if self.cutscene  then table.insert(info, "Cutscene: "  .. self.cutscene)  end
     if self.script    then table.insert(info, "Script: "    .. self.script)    end
     if self.set_flag  then table.insert(info, "Set Flag: "  .. self.set_flag)  end

@@ -20,8 +20,8 @@ function CyberTrashCan:init(x, y, properties)
     self.solid = true
 end
 
-function CyberTrashCan:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function CyberTrashCan:getDebugInfo()
+    local info = super:getDebugInfo(self)
     if self.item then
         table.insert(info, "Item: " .. self.item)
     end

@@ -45,8 +45,8 @@ function ChaserEnemy:init(actor, x, y, properties)
     end
 end
 
-function ChaserEnemy:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function ChaserEnemy:getDebugInfo()
+    local info = super:getDebugInfo(self)
     if self.path        then table.insert(info, "Path: "     .. self.path)     end
     if self.progress    then table.insert(info, "Progress: " .. self.progress) end
     table.insert(info, "Can chase: "           .. (self.can_chase and "True" or "False"))

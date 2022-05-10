@@ -119,7 +119,7 @@ function DebugSystem:detectObject(x, y)
         local objects = Game.stage:getObjects()
         Object.startCache()
         for _,instance in ipairs(objects) do
-            if instance:isDebugSelectable() and instance:isFullyVisible() then
+            if instance:canDebugSelect() and instance:isFullyVisible() then
                 local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
                 local rect = instance:getDebugRectangle() or {0, 0, instance.width, instance.height}
                 if mx >= rect[1] and mx < rect[1]+rect[3] and my >= rect[2] and my < rect[2]+rect[4] then
@@ -616,7 +616,7 @@ function DebugSystem:draw()
                 self:printShadow("World ID: " .. object.object_id,                      x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
             end
 
-            local info = object:getDebugInformation()
+            local info = object:getDebugInfo()
 
             for i, line in ipairs(info) do
                 self:printShadow(line, x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit)

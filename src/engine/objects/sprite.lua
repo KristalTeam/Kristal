@@ -27,7 +27,7 @@ function Sprite:init(texture, x, y, width, height, path)
     self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
 end
 
-function Sprite:isDebugSelectable()
+function Sprite:canDebugSelect()
     if self.debug_select then
         -- Make the sprite unselectable if it's the parent's "sprite" variable
         return not self.parent or self.parent.sprite ~= self

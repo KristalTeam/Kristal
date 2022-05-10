@@ -31,8 +31,8 @@ function FrozenEnemy:init(actor, x, y, properties)
     self.encounter = properties and properties["encounter"]
 end
 
-function FrozenEnemy:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function FrozenEnemy:getDebugInfo()
+    local info = super:getDebugInfo(self)
     table.insert(info, "Actor: " .. self.actor)
     return info
 end

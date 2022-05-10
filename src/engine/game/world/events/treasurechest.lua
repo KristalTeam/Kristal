@@ -20,8 +20,8 @@ function TreasureChest:init(x, y, properties)
     self.solid = true
 end
 
-function TreasureChest:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function TreasureChest:getDebugInfo()
+    local info = super:getDebugInfo(self)
     if self.item then
         table.insert(info, "Item: " .. self.item)
     end

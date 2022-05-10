@@ -25,8 +25,8 @@ function OverworldSoul:init(x, y)
     self.target_lerp = 0
 end
 
-function OverworldSoul:isDebugSelectable()
-    return self.alpha > 0 and super:isDebugSelectable(self)
+function OverworldSoul:canDebugSelect()
+    return self.alpha > 0 and super:canDebugSelect(self)
 end
 
 function OverworldSoul:onCollide(bullet)

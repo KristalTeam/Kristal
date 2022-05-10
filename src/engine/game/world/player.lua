@@ -36,8 +36,8 @@ function Player:init(chara, x, y)
     self.noclip = false
 end
 
-function Player:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function Player:getDebugInfo()
+    local info = super:getDebugInfo(self)
     table.insert(info, "Walk speed: " .. self.walk_speed)
     table.insert(info, "Run timer: " .. self.run_timer)
     table.insert(info, "Run timer grace: " .. self.run_timer_grace)

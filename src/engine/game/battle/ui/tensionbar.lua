@@ -29,8 +29,8 @@ function TensionBar:init(x, y)
     self.tension_preview = 0
 end
 
-function TensionBar:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function TensionBar:getDebugInfo()
+    local info = super:getDebugInfo(self)
     table.insert(info, "Tension: " .. self:getTension() .. "%")
     table.insert(info, "Apparent: " .. self.apparent / 2.5)
     table.insert(info, "Current: " .. self.current / 2.5)

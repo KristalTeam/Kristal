@@ -34,8 +34,8 @@ function DialogueText:init(text, x, y, w, h, options)
     self.done = false
 end
 
-function DialogueText:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function DialogueText:getDebugInfo()
+    local info = super:getDebugInfo(self)
     table.insert(info, "Node count: " .. #self.nodes)
     table.insert(info, "Progress: " .. math.floor(self.state.progress))
     table.insert(info, "Current node: " .. self.state.current_node)

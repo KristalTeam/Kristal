@@ -15,8 +15,8 @@ function Transition:init(x, y, w, h, properties)
     }
 end
 
-function Transition:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function Transition:getDebugInfo()
+    local info = super:getDebugInfo(self)
     if self.target.map then table.insert(info, "Map: " .. self.target.map) end
     if self.target.shop then table.insert(info, "Shop: " .. self.target.shop) end
     if self.target.x then table.insert(info, "X: " .. self.target.x) end

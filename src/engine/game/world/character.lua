@@ -29,8 +29,8 @@ function Character:init(actor, x, y)
     self.spin_speed = 0
 end
 
-function Character:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function Character:getDebugInfo()
+    local info = super:getDebugInfo(self)
     table.insert(info, "Actor: " .. self.actor.name)
     table.insert(info, "Noclip: " .. (self.noclip and "True" or "False"))
     return info

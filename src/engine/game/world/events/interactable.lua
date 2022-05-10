@@ -17,8 +17,8 @@ function Interactable:init(x, y, width, height, properties)
     self.once = properties["once"] or false
 end
 
-function Interactable:getDebugInformation()
-    local info = super:getDebugInformation(self)
+function Interactable:getDebugInfo()
+    local info = super:getDebugInfo(self)
     if self.cutscene  then table.insert(info, "Cutscene: "  .. self.cutscene)  end
     if self.script    then table.insert(info, "Script: "    .. self.script)    end
     if self.set_flag  then table.insert(info, "Set Flag: "  .. self.set_flag)  end
