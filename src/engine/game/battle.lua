@@ -1420,7 +1420,9 @@ end
 
 function Battle:startProcessing()
     self.has_acted = false
-    self:setState("ACTIONS")
+    if not self.encounter:onActionsStart() then
+        self:setState("ACTIONS")
+    end
 end
 
 function Battle:setSelectedParty(index)
@@ -1761,7 +1763,9 @@ function Battle:update()
             if self.battle_ui.attacking then
                 self.battle_ui:endAttack()
             end
-            self:setState("ENEMYDIALOGUE")
+            if not self.encounter:onActionsEnd() then
+                self:setState("ENEMYDIALOGUE")
+            end
         end
     elseif self.state == "DEFENDING" then
         self:updateWaves()
