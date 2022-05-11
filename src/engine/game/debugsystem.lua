@@ -2,7 +2,7 @@ local DebugSystem, super = Class(Object)
 
 function DebugSystem:init()
     super:init(self, 0, 0)
-    self.layer = 10000000 - 1
+    self.layer = 10000000 - 2
 
     self.font_size = 32
     self.font_name = "main"
@@ -56,6 +56,8 @@ function DebugSystem:init()
     self.selected_alpha = 0
     self.current_text_align = "left"
     self.release_timer = 0
+
+    self.context = nil
 end
 
 function DebugSystem:getStage()
@@ -68,7 +70,20 @@ function DebugSystem:mouseOpen()
     return self.state == "MOUSE"
 end
 
+function DebugSystem:selectObject(object)
+    self:unselectObject()
+    self.object = object
+    self.last_object = object
+    self.object:addFX(self.flash_fx)
+end
+
 function DebugSystem:onMousePressed(x, y, button, istouch, presses)
+    if self.context then
+        if self.context:onMousePressed(x, y, button, istouch, presses) then
+            return
+        end
+    end
+
     if button == 3 then
         if self:mouseOpen() then
             self:closeMouse()
@@ -79,20 +94,49 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
     end
 
     if self:mouseOpen() then
-        if button == 1 then
+        if button == 1 or button == 2 then
             local object = self:detectObject(Input.getMousePosition())
 
             if object then
-                self:unselectObject()
-                self.object = object
-                self.last_object = object
-                self.object:addFX(self.flash_fx)
-                self.grabbing = true
+                self:selectObject(object)
+                self.grabbing = (button == 1) -- right clicking should not drag
                 local screen_x, screen_y = object:getScreenPos()
                 self.grab_offset_x = x - screen_x
                 self.grab_offset_y = y - screen_y
             else
                 self:unselectObject()
+            end
+
+            if button == 2 then
+                if self.object then
+                    self.context = ContextMenu(Utils.getClassName(self.object))
+                    self.context:addMenuItem("Delete", "Delete this object", function()
+                        self.object:remove()
+                        self:unselectObject()
+                    end)
+                    self.context:addMenuItem("Explode", "'cuz it's funny", function() self.object:explode() end)
+                else
+                    self.context = ContextMenu("Debug")
+                    if Game.world then
+                        if Game.world.player then
+                            self.context:addMenuItem("Teleport", "Teleport the player to\nthe current position.", function()
+                                Game.world.player:setScreenPos(Input.getMousePosition())
+                                Game.world.player:interpolateFollowers()
+                                self:selectObject(Game.world.player)
+                            end)
+                        else
+                            self.context:addMenuItem("Spawn player", "Spawn the player at the\ncurrent position.", function()
+                                Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
+                                Game.world.player:setScreenPos(Input.getMousePosition())
+                                Game.world.player:interpolateFollowers()
+                                self:selectObject(Game.world.player)
+                            end)
+                        end
+                    end
+                end
+                Kristal.callEvent("registerDebugContext", self.context, self.object)
+                self.context:setPosition(Input.getMousePosition())
+                self:addChild(self.context)
             end
         end
     end
@@ -107,7 +151,10 @@ function DebugSystem:unselectObject()
 end
 
 function DebugSystem:onMouseReleased(x, y, button, istouch, presses)
-    if button == 1 then
+    if self.context then
+        self.context:onMouseReleased(x, y, button, istouch, presses)
+    end
+    if button == 1 or button == 2 then
         if self.grabbing then
             self.grabbing = false
         end
@@ -456,6 +503,7 @@ function DebugSystem:update()
             stage.active = true
         end
     end
+    super:update(self)
 end
 
 function DebugSystem:draw()

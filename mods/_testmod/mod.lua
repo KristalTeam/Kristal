@@ -85,11 +85,31 @@ function Mod:postInit(new_file)
     ]]
 end
 
+function Mod:registerDebugContext(context, object)
+    if not object then
+        object = Game.stage
+    end
+    context:addMenuItem("Funkify", "Toggle Funky Mode.....", function()
+        if object:getFX("funky_mode") then
+            object:removeFX("funky_mode")
+        else
+            object:addFX(ShaderFX(Mod.wave_shader, {
+                ["wave_sine"] = function() return Kristal.getTime() * 100 end,
+                ["wave_mag"] = 4,
+                ["wave_height"] = 4,
+                ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
+            }), "funky_mode")
+        end
+    end)
+end
+
 function Mod:registerDebugOptions(debug)
     debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end)
 
     debug:registerMenu("funky_menu", "Funky Menu")
     debug:registerOption("funky_menu", "Hi", "nice to meet u", function() print("hi") end)
+    debug:registerOption("funky_menu", "Bye", "bye", function() print("bye") end)
+    debug:registerOption("funky_menu", "Quit", "quit", function() print("quit") end)
     debug:registerOption("funky_menu", "Funker", function() return debug:appendBool("Toggle Funky Mode.....", Game.world.player:getFX("funky_mode")) end, function()
         if Game.world.player:getFX("funky_mode") then
             Game.world.player:removeFX("funky_mode")

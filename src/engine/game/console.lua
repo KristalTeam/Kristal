@@ -2,7 +2,7 @@ local Console, super = Class(Object)
 
 function Console:init()
     super:init(self, 0, 0)
-    self.layer = 10000000
+    self.layer = 10000000 - 1
 
     self.height = 12
 
