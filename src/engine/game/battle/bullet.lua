@@ -59,7 +59,7 @@ function Bullet:onCollide(soul)
     end
 end
 
-function Bullet:onStart() end
+function Bullet:onWaveSpawn(wave) end
 
 function Bullet:setSprite(texture, speed, loop, on_finished)
     if self.sprite then

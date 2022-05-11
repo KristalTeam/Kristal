@@ -94,7 +94,7 @@ function Wave:spawnBulletTo(parent, bullet, ...)
     elseif not new_bullet.parent then
         Game.battle:addChild(new_bullet)
     end
-    new_bullet:onStart()
+    new_bullet:onWaveSpawn()
     return new_bullet
 end
 
@@ -121,8 +121,8 @@ function Wave:spawnObjectTo(parent, object, x, y)
     object.wave = self
     parent:addChild(object)
     table.insert(self.objects, object)
-    if object.onStart then
-        object:onStart()
+    if object.onWaveSpawn then
+        object:onWaveSpawn()
     end
     return object
 end
