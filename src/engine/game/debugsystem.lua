@@ -134,7 +134,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                             end)
                         end
                     end
-                    self.context:addMenuItem("Select object", "Select an object\nby name.", function()
+                    self.context:addMenuItem("Select object", "Select an object by name.", function()
                         self.window = DebugWindow("Select Object", "Enter the name of the object to select.", "input", function(text)
                             local stage = self:getStage()
                             if stage then
