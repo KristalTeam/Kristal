@@ -249,7 +249,9 @@ function Console:draw()
         end,
         x = 8,
         y = input_pos,
-        print = function(...) self:print(...) end,
+        print = function(text, x, y)
+            self:print(text, x, y, true)
+        end,
         font = self.font
     })
 

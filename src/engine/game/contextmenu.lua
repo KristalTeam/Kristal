@@ -25,6 +25,8 @@ function ContextMenu:init(name)
     self.canvas:setFilter("nearest", "nearest")
 
     self.closing = false
+
+    self.adjusted = false
 end
 
 function ContextMenu:close()
@@ -88,6 +90,25 @@ function ContextMenu:onMouseReleased(x, y, button, istouch, presses)
     return
 end
 
+function ContextMenu:getScreenBounds()
+    local x, y = self:localToScreenPos(0, 0)
+    local x2, y2 = self:localToScreenPos(self.width, self.height)
+    return x, y, x2, y2
+end
+
+function ContextMenu:adjustToCorner()
+    self:calculateSize()
+    local screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+    local mouse_x, mouse_y = Input.getMousePosition()
+    if screen_right > SCREEN_WIDTH then
+        self:setScreenPos(mouse_x - (screen_right - screen_left), screen_top)
+        screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+    end
+    if screen_bottom > SCREEN_HEIGHT then
+        self:setScreenPos(screen_left, mouse_y - (screen_bottom - screen_top))
+    end
+end
+
 function ContextMenu:addMenuItem(name, description, callback, options)
     options = options or {}
     local item = {
@@ -101,35 +122,58 @@ function ContextMenu:addMenuItem(name, description, callback, options)
     table.insert(self.items, item)
 end
 
+function ContextMenu:calculateSize()
+    self.width  = self:getInnerWidth()  + (self:getHorizontalPadding() * 2)
+    self.height = self:getInnerHeight() + (self:getVerticalPadding()   * 2)
+end
+
+function ContextMenu:keepInBounds()
+    local screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+
+    if screen_left < 0 then
+        self:setScreenPos(0, screen_top)
+        screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+    end
+    if screen_right > SCREEN_WIDTH then
+        self:setScreenPos(SCREEN_WIDTH - (screen_right - screen_left), screen_top)
+        screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+    end
+
+    if screen_top < 0 then
+        self:setScreenPos(screen_left, 0)
+        screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+    end
+    if screen_bottom > SCREEN_HEIGHT then
+        self:setScreenPos(screen_left, SCREEN_HEIGHT - (screen_bottom - screen_top))
+        screen_left, screen_top, screen_right, screen_bottom = self:getScreenBounds()
+    end
+end
+
 function ContextMenu:update()
     if self.closing then
         self.anim_timer = self.anim_timer - DT
         if self.anim_timer <= 0 then
             self:remove()
+            Kristal.DebugSystem.last_context = nil
             return
         end
     else
         self.anim_timer = self.anim_timer + DT
     end
-    local inner_width = self:getInnerWidth()
-    local inner_height = self:getInnerHeight()
 
-    self.width  = inner_width  + (self:getHorizontalPadding() * 2)
-    self.height = inner_height + (self:getVerticalPadding()   * 2)
-
-    self:setOrigin(0, 0)
-    screen_x, screen_y = self:localToScreenPos(self.width, self.height)
-    if screen_x > SCREEN_WIDTH then
-        self.origin_x = 1
-    end
-    if screen_y > SCREEN_HEIGHT then
-        self.origin_y = 1
-    end
-
+    local mouse_x, mouse_y = Input.getMousePosition()
     if self.grabbing then
-        local x, y = Input.getMousePosition()
-        self.x = x - self.grab_offset_x
-        self.y = y - self.grab_offset_y
+        self.x = mouse_x - self.grab_offset_x
+        self.y = mouse_y - self.grab_offset_y
+    end
+
+    self:calculateSize()
+
+    if self.adjusted then
+        self:keepInBounds()
+    else
+        self.adjusted = false
+        self:adjustToCorner()
     end
 
     super:update(self)
@@ -175,6 +219,16 @@ function ContextMenu:isMouseOver(x1, y1, x2, y2)
 end
 
 function ContextMenu:draw()
+    local bg_color = {0.156863, 0.172549, 0.211765, 0.8}
+    local highlighted_color = {1, 0.070588, 0.466667, 0.8}
+
+    if self.adjusted then
+        self:keepInBounds()
+    else
+        self.adjusted = false
+        self:adjustToCorner()
+    end
+
     local padding_x = self:getHorizontalPadding()
     local padding_y = self:getVerticalPadding()
 
@@ -187,7 +241,7 @@ function ContextMenu:draw()
     local tooltip_to_draw = nil
     if self.name then
         offset = offset + self.font:getHeight() + 4 -- name has 4 extra pixels
-        love.graphics.setColor(0.156863, 0.172549, 0.211765, 0.8)
+        love.graphics.setColor(bg_color)
         love.graphics.rectangle("fill", 0, 0, self.width, offset)
     
         love.graphics.setColor(1, 1, 1, 1)
@@ -199,10 +253,10 @@ function ContextMenu:draw()
 
     for i, item in ipairs(self.items) do
         if self:isMouseOver(0, offset, self.width, offset + item.height) then
-            love.graphics.setColor(1, 0.070588, 0.466667, 0.8)
+            love.graphics.setColor(highlighted_color)
             tooltip_to_draw = item
         else
-            love.graphics.setColor(0.156863, 0.172549, 0.211765, 0.8)
+            love.graphics.setColor(bg_color)
         end
         love.graphics.rectangle("fill", 0, offset, self.width, item.height)
 
@@ -211,8 +265,17 @@ function ContextMenu:draw()
         offset = offset + item.height
     end
 
-    love.graphics.setColor(0.156863, 0.172549, 0.211765, 0.8)
+    love.graphics.setColor(bg_color)
     love.graphics.rectangle("fill", 0, offset, self.width, self.height - offset)
+
+    love.graphics.setColor(1, 1, 1, 1)
+
+    -- Reset canvas to draw to
+    Draw.popCanvas()
+
+    local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
+    love.graphics.setColor(1, 1, 1, anim)
+    love.graphics.draw(self.canvas, 0, 12 - (anim * 12))
 
     if tooltip_to_draw then
         local mouse_x, mouse_y = self:getLocalMousePosition()
@@ -224,20 +287,23 @@ function ContextMenu:draw()
         tooltip_width  = tooltip_width  + self.font:getWidth (tooltip_to_draw.description)
         tooltip_height = tooltip_height + self.font:getHeight() * #Utils.split(tooltip_to_draw.description, "\n", false)
 
-        love.graphics.rectangle("fill", tooltip_x, tooltip_y, tooltip_width, tooltip_height)
+        if tooltip_x + tooltip_width > self:screenToLocalPos(SCREEN_WIDTH, SCREEN_HEIGHT) then
+            tooltip_x = mouse_x - tooltip_width - 4
+        end
+
+        local tooltip = Draw.pushCanvas(tooltip_width, tooltip_height)
+        love.graphics.clear()
+        love.graphics.setColor(bg_color)
+
+        love.graphics.rectangle("fill", 0, 0, tooltip_width, tooltip_height)
 
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.print(tooltip_to_draw.description, tooltip_x + tooltip_padding_x, tooltip_y + tooltip_padding_y - 2)
+        love.graphics.print(tooltip_to_draw.description, tooltip_padding_x, tooltip_padding_y - 2)
+
+        Draw.popCanvas()
+        love.graphics.setColor(1, 1, 1, anim)
+        love.graphics.draw(tooltip, tooltip_x + (12 - (anim * 12)), tooltip_y)
     end
-
-    love.graphics.setColor(1, 1, 1, 1)
-
-    -- Reset canvas to draw to
-    Draw.popCanvas()
-
-    local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
-    love.graphics.setColor(1, 1, 1, anim)
-    love.graphics.draw(self.canvas, 0, 12 - (anim * 12))
 
     super:draw(self)
 end

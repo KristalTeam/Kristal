@@ -58,6 +58,7 @@ function DebugSystem:init()
     self.release_timer = 0
 
     self.context = nil
+    self.last_context = nil
 end
 
 function DebugSystem:getStage()
@@ -78,6 +79,11 @@ function DebugSystem:selectObject(object)
 end
 
 function DebugSystem:onMousePressed(x, y, button, istouch, presses)
+    if self.window then
+        self.window:onMousePressed(x, y, button, istouch, presses)
+        return
+    end
+
     if self.context then
         if self.context:onMousePressed(x, y, button, istouch, presses) then
             return
@@ -109,12 +115,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
 
             if button == 2 then
                 if self.object then
-                    self.context = ContextMenu(Utils.getClassName(self.object))
-                    self.context:addMenuItem("Delete", "Delete this object", function()
-                        self.object:remove()
-                        self:unselectObject()
-                    end)
-                    self.context:addMenuItem("Explode", "'cuz it's funny", function() self.object:explode() end)
+                    self:openObjectContext(self.object)
                 else
                     self.context = ContextMenu("Debug")
                     if Game.world then
@@ -133,13 +134,51 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                             end)
                         end
                     end
+                    self.context:addMenuItem("Select object", "Select an object\nby name.", function()
+                        self.window = DebugWindow("Select Object", "Enter the name of the object to select.", "input", function(text)
+                            local stage = self:getStage()
+                            if stage then
+                                local objects = stage:getObjects()
+                                Object.startCache()
+                                for _,instance in ipairs(objects) do
+                                    if Utils.getClassName(instance):lower() == text:lower() then
+                                        self:selectObject(instance)
+                                        self:openObjectContext(instance)
+                                        break
+                                    end
+                                end
+                                Object.endCache()
+                            end
+                        end)
+                        self.window:setPosition(Input.getMousePosition())
+                        self:addChild(self.window)
+                    end)
+                    Kristal.callEvent("registerDebugContext", self.context, self.object)
+                    self.context:setPosition(Input.getMousePosition())
+                    self:addChild(self.context)
                 end
-                Kristal.callEvent("registerDebugContext", self.context, self.object)
-                self.context:setPosition(Input.getMousePosition())
-                self:addChild(self.context)
             end
         end
     end
+end
+
+function DebugSystem:openObjectContext(object)
+    self.context = ContextMenu(Utils.getClassName(object))
+    self.last_context = self.context
+    self.context:addMenuItem("Delete", "Delete this object", function()
+        object:remove()
+        self:unselectObject()
+    end)
+    if object.visible then
+        self.context:addMenuItem("Hide", "Hide this object.", function() object.visible = false end)
+    else
+        self.context:addMenuItem("Show", "Show this object.", function() object.visible = true  end)
+    end
+    self.context:addMenuItem("Explode", "'cuz it's funny", function() object:explode() end)
+
+    Kristal.callEvent("registerDebugContext", self.context, self.object)
+    self.context:setPosition(Input.getMousePosition())
+    self:addChild(self.context)
 end
 
 function DebugSystem:unselectObject()
@@ -151,6 +190,12 @@ function DebugSystem:unselectObject()
 end
 
 function DebugSystem:onMouseReleased(x, y, button, istouch, presses)
+    if self.window then
+        self.grabbing = false
+        self.window:onMouseReleased(x, y, button, istouch, presses)
+        return
+    end
+
     if self.context then
         self.context:onMouseReleased(x, y, button, istouch, presses)
     end
@@ -311,21 +356,6 @@ function DebugSystem:registerDefaults()
     self:registerOption("main", "Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
 
     -- World specific
-    self:registerOption("main", function()
-        if Game.world.player then
-            return "Remove The Player"
-        else
-            return "Spawn The Player"
-        end
-    end, "Spawn or remove the current player's object.", function()
-        if Game.world.player then
-            Game.world.player:explode()
-        else
-            Game.world:spawnPlayer(Game.world.camera.x, Game.world.camera.y, Game.party[1]:getActor())
-            Game.world.player:interpolateFollowers()
-        end
-    end, "OVERWORLD")
-
     self:registerOption("main", "Start Encounter", "Start an encounter.", function()
         self:enterMenu("encounter_select", 1)
     end, "OVERWORLD")
@@ -580,7 +610,7 @@ function DebugSystem:draw()
         local mx, my = Input.getMousePosition()
 
         local object = self.object
-        if not self.grabbing then
+        if (not self.grabbing) and (not self.context) then
             object = self:detectObject(mx, my)
         end
 
@@ -620,15 +650,19 @@ function DebugSystem:draw()
                 tooltip_y = my + tooltip_font:getHeight()
             end
 
-            tooltip_x = tooltip_x + Utils.ease(0, 1, (1 - self.hover_alpha), "inCubic") * 10
+            local tooltip_alpha = self.hover_alpha
+            if self.last_context then
+                tooltip_alpha = tooltip_alpha * (1 - (self.last_context.anim_timer/0.2))
+            end
+            tooltip_x = tooltip_x + Utils.ease(0, 1, (1 - tooltip_alpha), "inCubic") * 10
 
             love.graphics.setFont(tooltip_font)
-            love.graphics.setColor(0, 0, 0, self.hover_alpha)
+            love.graphics.setColor(0, 0, 0, tooltip_alpha)
             love.graphics.print(tooltip_text, tooltip_x-1, tooltip_y)
             love.graphics.print(tooltip_text, tooltip_x+1, tooltip_y)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y-1)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y+1)
-            love.graphics.setColor(1, 1, 1, self.hover_alpha)
+            love.graphics.setColor(1, 1, 1, tooltip_alpha)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
         end
 

@@ -100,6 +100,7 @@ BattleCutscene = require("src.engine.game.battle.battlecutscene")
 Console = require("src.engine.game.console")
 DebugSystem = require("src.engine.game.debugsystem")
 ContextMenu = require("src.engine.game.contextmenu")
+DebugWindow = require("src.engine.game.debugwindow")
 
 UIBox = require("src.engine.game.common.uibox")
 Textbox = require("src.engine.game.common.textbox")

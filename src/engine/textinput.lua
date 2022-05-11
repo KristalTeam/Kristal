@@ -608,16 +608,16 @@ function TextInput.draw(options)
                 prefix = get_prefix("middle")
             end
         end
-        print_func(prefix, off_x, off_y + (i - 1) * 16, true)
-        print_func(text, base_off, off_y + (i - 1) * 16, true)
+        print_func(prefix, off_x, off_y + (i - 1) * 16)
+        print_func(text, base_off, off_y + (i - 1) * 16)
     end
 
     love.graphics.setColor(1, 0, 1, 1)
     if TextInput.flash_timer < 0.5 then
         if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
-            print_func("_", cursor_pos_x, cursor_pos_y, true)
+            print_func("_", cursor_pos_x, cursor_pos_y)
         else
-            print_func("|", cursor_pos_x, cursor_pos_y, true)
+            print_func("|", cursor_pos_x, cursor_pos_y)
         end
     end
 end
