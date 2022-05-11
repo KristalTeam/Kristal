@@ -58,6 +58,12 @@ function DebugSystem:init()
     self.release_timer = 0
 end
 
+function DebugSystem:getStage()
+    if Gamestate.current() then
+        return Gamestate.current().stage
+    end
+end
+
 function DebugSystem:mouseOpen()
     return self.state == "MOUSE"
 end
@@ -115,8 +121,9 @@ function DebugSystem:detectObject(x, y)
     local found = false
     local object = nil
 
-    if Game.stage then
-        local objects = Game.stage:getObjects()
+    local stage = self:getStage()
+    if stage then
+        local objects = stage:getObjects()
         Object.startCache()
         for _,instance in ipairs(objects) do
             if instance:canDebugSelect() and instance:isFullyVisible() then
@@ -403,8 +410,9 @@ function DebugSystem:isMenuOpen()
 end
 
 function DebugSystem:update()
+    local stage = self:getStage()
 
-    self.release_timer = self.release_timer + (DT * (Game.stage and Game.stage.timescale or 1))
+    self.release_timer = self.release_timer + (DT * (stage and stage.timescale or 1))
     if self.grabbing then
         self.release_timer = 0
     end
@@ -436,16 +444,16 @@ function DebugSystem:update()
     self.flash_fx:setColor(1, 1, 1)
     self.flash_fx.amount = -math.cos((love.timer.getTime() * 30) / 5) * 0.4 + 0.6
 
-    if Game.stage then
+    if stage then
         if self.state == "MOUSE" and Kristal.Config["objectSelectionSlowdown"] then
-            Game.stage.timescale = math.max(Game.stage.timescale - (DT / 0.6), 0)
-            if Game.stage.timescale == 0 then
-                Game.stage.active = false
-                Game.stage:updateAllLayers()
+            stage.timescale = math.max(stage.timescale - (DT / 0.6), 0)
+            if stage.timescale == 0 then
+                stage.active = false
+                stage:updateAllLayers()
             end
         else
-            Game.stage.timescale = math.min(Game.stage.timescale + (DT / 0.6), 1)
-            Game.stage.active = true
+            stage.timescale = math.min(stage.timescale + (DT / 0.6), 1)
+            stage.active = true
         end
     end
 end
