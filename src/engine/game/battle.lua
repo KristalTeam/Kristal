@@ -754,48 +754,20 @@ function Battle:processAction(action)
     end
 
     if action.action == "SPARE" then
-        local worked = enemy.mercy >= 100
-        local text
-        if worked then
-            text = "* " .. party_member.name .. " spared " .. enemy.name .. "!"
-        else
-            text = "* " .. party_member.name .. " spared " .. enemy.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
-            if enemy.tired then
-                local found_spell = nil
-                for _,party in ipairs(self.party) do
-                    for _,spell in ipairs(party.chara:getSpells()) do
-                        if spell:hasTag("spare_tired") then
-                            found_spell = spell
-                            break
-                        end
-                    end
-                    if found_spell then
-                        text = {text, "* (Try using "..party.chara:getName().."'s [color:blue]"..found_spell:getCastName().."[color:reset]!)"}
-                        break
-                    end
-                end
-                if not found_spell then
-                    text = {text, "* (Try using [color:blue]ACTs[color:reset]!)"}
-                end
-            end
-        end
+        local worked = enemy:canSpare()
+
         battler:setAnimation("battle/spare", function()
-            enemy:onMercy()
+            enemy:onMercy(battler)
             if not worked then
-                local recolor = enemy:addFX(RecolorFX())
-                self.timer:during(8/30, function()
-                    recolor.color = Utils.lerp(recolor.color, {1, 1, 0}, 0.12 * DTMULT)
-                end, function()
-                    self.timer:during(8/30, function()
-                        recolor.color = Utils.lerp(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
-                    end, function()
-                        enemy:removeFX(recolor)
-                    end)
-                end)
+                enemy:mercyFlash()
             end
             self:finishAction(action)
         end)
-        self:battleText(text)
+
+        local text = enemy:getSpareText(battler, worked)
+        if text then
+            self:battleText(text)
+        end
     elseif action.action == "ATTACK" or action.action == "AUTOATTACK" then
         local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "laz_c")
         src:setPitch(battler.chara:getAttackPitch() or 1)

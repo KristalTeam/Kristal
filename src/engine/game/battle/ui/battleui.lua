@@ -270,47 +270,61 @@ function BattleUI:drawState()
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
             local enemy = enemies[index]
             local y_off = (index - page_offset - 1) * 30
-            local spare_icon = false
-            local tired_icon = false
-            if enemy.tired and (enemy.mercy >= 100) then
-                love.graphics.setColor(1, 1, 1, 1)
 
+            local name_colors = enemy:getNameColors()
+            if type(name_colors) ~= "table" then
+                name_colors = {name_colors}
+            end
+
+            if #name_colors <= 1 then
+                love.graphics.setColor(name_colors[1] or {1, 1, 1})
+                love.graphics.print(enemy.name, 80, 50 + y_off)
+            else
                 -- Draw the enemy name to a canvas first
                 local canvas = Draw.pushCanvas(font:getWidth(enemy.name), font:getHeight())
+                love.graphics.setColor(1, 1, 1)
                 love.graphics.print(enemy.name)
                 Draw.popCanvas()
 
-                -- Use the horizontal gradient shader for the spare/tired color
-                local shader = Kristal.Shaders["GradientH"]
+                -- Define our gradient
+                local color_canvas = Draw.pushCanvas(#name_colors, 1)
+                for i = 1, #name_colors do
+                    -- Draw a pixel for the color
+                    love.graphics.setColor(name_colors[i])
+                    love.graphics.rectangle("fill", i-1, 0, 1, 1)
+                end
+                Draw.popCanvas()
+
+                -- Reset the color
+                love.graphics.setColor(1, 1, 1)
+
+                -- Use the dynamic gradient shader for the spare/tired colors
+                local shader = Kristal.Shaders["DynGradient"]
                 love.graphics.setShader(shader)
-                shader:send("from", {1, 1, 0, 1}) -- Left color: Spare
-                shader:send("to", {0, 0.7, 1, 1}) -- Right color: Tired
+                -- Send the gradient colors
+                shader:send("colors", color_canvas)
+                shader:send("colorSize", {#name_colors, 1})
                 -- Draw the canvas from before to apply the gradient over it
                 love.graphics.draw(canvas, 80, 50 + y_off)
                 -- Disable the shader
                 love.graphics.setShader()
+            end
 
-                love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setColor(1, 1, 1)
+
+            local spare_icon = false
+            local tired_icon = false
+            if enemy.tired and enemy:canSpare() then
                 love.graphics.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
                 love.graphics.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
                 spare_icon = true
                 tired_icon = true
             elseif enemy.tired then
-                love.graphics.setColor(0, 178/255, 1, 1)
-                love.graphics.print(enemy.name, 80, 50 + y_off)
-
-                love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.draw(self.tiredmark, 80 + font:getWidth(enemy.name) + 40, 60 + y_off)
                 tired_icon = true
             elseif enemy.mercy >= 100 then
-                love.graphics.setColor(1, 1, 0, 1)
-                love.graphics.print(enemy.name, 80, 50 + y_off)
-                love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.draw(self.sparestar, 80 + font:getWidth(enemy.name) + 20, 60 + y_off)
                 spare_icon = true
-            else
-                love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.print(enemy.name, 80, 50 + y_off)
             end
 
             for i = 1, #enemy.icons do

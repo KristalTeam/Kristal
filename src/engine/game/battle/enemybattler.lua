@@ -1,11 +1,11 @@
 local EnemyBattler, super = Class(Battler)
 
-function EnemyBattler:init(chara)
+function EnemyBattler:init(actor)
     super:init(self)
     self.name = "Test Enemy"
 
-    if chara then
-        self:setCharacter(chara)
+    if actor then
+        self:setActor(actor)
     end
 
     self.max_health = 100
@@ -159,8 +159,6 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
     table.insert(self.acts, act)
 end
 
-function EnemyBattler:setText(...)  print("TODO: implement!") end -- TODO
-
 function EnemyBattler:spare(pacify)
     if self.exit_on_defeat then
         Game.battle.spare_sound:stop()
@@ -198,6 +196,37 @@ function EnemyBattler:spare(pacify)
     self:onSpared()
 end
 
+function EnemyBattler:getSpareText(battler, success)
+    if success then
+        return "* " .. battler.chara:getName() .. " spared " .. self.name .. "!"
+    else
+        local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
+        if self.tired then
+            local found_spell = nil
+            for _,party in ipairs(Game.battle.party) do
+                for _,spell in ipairs(party.chara:getSpells()) do
+                    if spell:hasTag("spare_tired") then
+                        found_spell = spell
+                        break
+                    end
+                end
+                if found_spell then
+                    text = {text, "* (Try using "..party.chara:getName().."'s [color:blue]"..found_spell:getCastName().."[color:reset]!)"}
+                    break
+                end
+            end
+            if not found_spell then
+                text = {text, "* (Try using [color:blue]ACTs[color:reset]!)"}
+            end
+        end
+        return text
+    end
+end
+
+function EnemyBattler:canSpare()
+    return self.mercy >= 100
+end
+
 function EnemyBattler:onSpared()
     self:setAnimation("spared")
 end
@@ -218,8 +247,11 @@ function EnemyBattler:addMercy(amount)
     end
 
     if self.mercy >= 100 then
-        self:onSpareable()
         self.mercy = 100
+    end
+
+    if self:canSpare() then
+        self:onSpareable()
         if self.auto_spare then
             self:spare(false)
         end
@@ -242,14 +274,40 @@ function EnemyBattler:addMercy(amount)
     end
 end
 
-function EnemyBattler:onMercy()
-    if self.mercy >= 100 then
+function EnemyBattler:onMercy(battler)
+    if self:canSpare() then
         self:spare()
         return true
     else
         self:addMercy(self.spare_points)
         return false
     end
+end
+
+function EnemyBattler:mercyFlash(color)
+    color = color or {1, 1, 0}
+
+    local recolor = self:addFX(RecolorFX())
+    Game.battle.timer:during(8/30, function()
+        recolor.color = Utils.lerp(recolor.color, color, 0.12 * DTMULT)
+    end, function()
+        Game.battle.timer:during(8/30, function()
+            recolor.color = Utils.lerp(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
+        end, function()
+            self:removeFX(recolor)
+        end)
+    end)
+end
+
+function EnemyBattler:getNameColors()
+    local result = {}
+    if self:canSpare() then
+        table.insert(result, {1, 1, 0})
+    end
+    if self.tired then
+        table.insert(result, {0, 0.7, 1})
+    end
+    return result
 end
 
 function EnemyBattler:getEncounterText()
