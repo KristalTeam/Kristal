@@ -161,7 +161,8 @@ function ChaserEnemy:isActive()
     return not self.encountered and
            not self.world.encountering_enemy and
            not self.world:hasCutscene() and
-           self.world.state ~= "MENU"
+           self.world.state ~= "MENU" and
+           Game.state == "OVERWORLD"
 end
 
 function ChaserEnemy:update()
