@@ -184,6 +184,8 @@ function EnemyBattler:spare(pacify)
             spare_flash.amount = 1
             local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
             local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
+            img1:addFX(ColorMaskFX())
+            img2:addFX(ColorMaskFX())
             img1.physics.speed_x = 4
             img2.physics.speed_x = 8
             parent:addChild(img1)
