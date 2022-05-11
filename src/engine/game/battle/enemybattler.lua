@@ -38,7 +38,9 @@ function EnemyBattler:init(actor)
 
     self.text = {}
 
-    self.low_health_text = "* Enemy is feeling tired."
+    self.low_health_text = nil
+    self.spareable_text = nil
+
     self.tired_percentage = 0.5
 
     -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
@@ -313,8 +315,11 @@ function EnemyBattler:getNameColors()
 end
 
 function EnemyBattler:getEncounterText()
-    if self.health <= (self.max_health * self.tired_percentage) then
+    if self.low_health_text and self.health <= (self.max_health * self.tired_percentage) then
         return self.low_health_text
+    end
+    if self.spareable_text and self:canSpare() then
+        return self.spareable_text
     end
     return Utils.pick(self.text)
 end
