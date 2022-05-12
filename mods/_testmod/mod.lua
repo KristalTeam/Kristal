@@ -104,7 +104,7 @@ function Mod:registerDebugContext(context, object)
 end
 
 function Mod:registerDebugOptions(debug)
-    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end)
+    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end, "OVERWORLD")
 
     debug:registerMenu("funky_menu", "Funky Menu")
     debug:registerOption("funky_menu", "Hi", "nice to meet u", function() print("hi") end)

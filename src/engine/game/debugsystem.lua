@@ -365,7 +365,7 @@ function DebugSystem:registerDefaults()
     end, "OVERWORLD")
 
     -- Battle specific
-    self:registerOption("main", "Leave Battle", "Instantly complete a battle.", function() Game.battle:setState("VICTORY") end, "BATTLE")
+    self:registerOption("main", "End Battle", "Instantly complete a battle.", function() Game.battle:setState("VICTORY") end, "BATTLE")
 end
 
 function DebugSystem:getValidOptions()

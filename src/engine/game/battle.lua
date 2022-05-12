@@ -444,6 +444,8 @@ function Battle:onStateChange(old,new)
             wave.active = true
         end
     elseif new == "VICTORY" then
+        self.current_selecting = 0
+
         self.tension_bar.animating_in = false
         self.tension_bar.physics.speed_x = -10
         self.tension_bar.physics.friction = -0.4
