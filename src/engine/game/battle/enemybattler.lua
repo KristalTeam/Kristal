@@ -1,11 +1,11 @@
 local EnemyBattler, super = Class(Battler)
 
-function EnemyBattler:init(actor)
+function EnemyBattler:init(actor, use_overlay)
     super:init(self)
     self.name = "Test Enemy"
 
     if actor then
-        self:setActor(actor)
+        self:setActor(actor, use_overlay)
     end
 
     self.max_health = 100
@@ -424,13 +424,11 @@ function EnemyBattler:getAttackDamage(damage, battler)
 end
 
 function EnemyBattler:onHurt(damage, battler)
-    if self.overlay_sprite:setAnimation("hurt") then
-        self:toggleOverlay(true)
-        self.overlay_sprite.shake_x = 9
-    else
+    self:toggleOverlay(true)
+    if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
-        self.sprite.shake_x = 9
     end
+    self:getActiveSprite().shake_x = 9
 
     if self.health <= (self.max_health * self.tired_percentage) then
         self:setTired(true)
@@ -517,17 +515,19 @@ function EnemyBattler:freeze()
     Assets.playSound("petrify")
 
     self:toggleOverlay(true)
-    if not self.overlay_sprite:setAnimation("frozen") then
-        self.overlay_sprite:setAnimation("hurt")
+
+    local sprite = self:getActiveSprite()
+    if not sprite:setAnimation("frozen") then
+        sprite:setAnimation("hurt")
     end
-    self.overlay_sprite.shake_x = 0
+    sprite.shake_x = 0
 
     self.hurt_timer = -1
 
-    self.overlay_sprite.frozen = true
-    self.overlay_sprite.freeze_progress = 0
+    sprite.frozen = true
+    sprite.freeze_progress = 0
 
-    Game.battle.timer:tween(20/30, self.overlay_sprite, {freeze_progress = 1})
+    Game.battle.timer:tween(20/30, sprite, {freeze_progress = 1})
 
     Game.battle.money = Game.battle.money + 24
     self:defeat("FROZEN", true)
@@ -550,7 +550,7 @@ function EnemyBattler:defeat(reason, violent)
     Game.battle:removeEnemy(self, true)
 end
 
-function EnemyBattler:setActor(actor)
+function EnemyBattler:setActor(actor, use_overlay)
     if type(actor) == "string" then
         self.actor = Registry.createActor(actor)
     else
@@ -566,22 +566,25 @@ function EnemyBattler:setActor(actor)
     self.sprite = ActorSprite(self.actor)
     self.sprite.facing = "left"
     self.sprite.inherit_color = true
-
-    self.overlay_sprite = ActorSprite(self.actor)
-    self.overlay_sprite.facing = "left"
-    self.overlay_sprite.visible = false
-    self.overlay_sprite.inherit_color = true
-
     self:addChild(self.sprite)
-    self:addChild(self.overlay_sprite)
+
+    if use_overlay ~= false then
+        self.overlay_sprite = ActorSprite(self.actor)
+        self.overlay_sprite.facing = "left"
+        self.overlay_sprite.visible = false
+        self.overlay_sprite.inherit_color = true
+        self:addChild(self.overlay_sprite)
+    end
 end
 
 function EnemyBattler:toggleOverlay(overlay)
     if overlay == nil then
         overlay = self.sprite.visible
     end
-    self.overlay_sprite.visible = overlay
-    self.sprite.visible = not overlay
+    if self.overlay_sprite then
+        self.overlay_sprite.visible = overlay
+        self.sprite.visible = not overlay
+    end
 end
 
 function EnemyBattler:setSprite(sprite, speed, loop, after)
