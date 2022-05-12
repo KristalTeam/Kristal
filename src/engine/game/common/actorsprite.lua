@@ -12,6 +12,9 @@ function ActorSprite:init(actor)
     self.facing = "down"
     self.last_facing = "down"
 
+    self.temp_anim = nil
+    self.temp_sprite = nil
+
     self.directional = false
     self.dir_sep = "_"
 
@@ -122,6 +125,9 @@ function ActorSprite:_setSprite(texture, keep_anim)
 
     if not keep_anim then
         self.anim = nil
+
+        self.temp_anim = nil
+        self.temp_sprite = nil
     end
 
     self.sprite = texture
@@ -140,8 +146,8 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preSetAnimation(self, anim, callback) then
         return
     end
-    local last_anim = self.anim
-    local last_sprite = self.sprite
+    local last_anim = self.temp_anim or self.anim
+    local last_sprite = self.temp_sprite or self.sprite
     self.anim = anim
     if type(anim) == "string" then
         anim = self.actor:getAnimation(anim)
@@ -155,9 +161,14 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
         if anim.temp then
             if last_anim then
                 anim.callback = function(s) s:setAnimation(last_anim) end
+                self.temp_anim = last_anim
             elseif last_sprite then
                 anim.callback = function(s) s:setSprite(last_sprite) end
+                self.temp_sprite = last_sprite
             end
+        else
+            self.temp_anim = nil
+            self.temp_sprite = nil
         end
         if callback then
             if anim.callback then
@@ -173,6 +184,8 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
         end
         return true
     else
+        self.temp_anim = nil
+        self.temp_sprite = nil
         if callback then
             callback(self)
         end
