@@ -1390,6 +1390,7 @@ function Battle:hurt(amount, exact)
     local battler = Utils.pick(Game.battle:getActiveParty())
     if battler then
         battler:hurt(amount, exact)
+        return {battler}
     end
 end
 
