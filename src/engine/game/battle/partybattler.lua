@@ -25,7 +25,7 @@ function PartyBattler:init(chara, x, y)
     self.is_down = false
 end
 
-function PartyBattler:hurt(amount, exact)
+function PartyBattler:hurt(amount, exact, color)
     Assets.playSound("hurt")
 
     if not exact then
@@ -57,9 +57,9 @@ function PartyBattler:hurt(amount, exact)
     self:removeHealth(amount)
 
     if (self.chara.health <= 0) then
-        self:statusMessage("msg", "down", nil, true)
+        self:statusMessage("msg", "down", color, true)
     else
-        self:statusMessage("damage", amount, nil, true)
+        self:statusMessage("damage", amount, color, true)
     end
 
     self.sprite.x = -10
