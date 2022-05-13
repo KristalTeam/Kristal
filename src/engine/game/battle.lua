@@ -1670,7 +1670,13 @@ function Battle:spawnEnemyTextbox(enemy, text, right, style)
         end
         textbox = EnemyTextbox(text, x, y, enemy, true, style)
     end
-    textbox:setCallback(function() textbox:remove() end)
+    enemy.textbox = textbox
+    enemy:onTextboxSpawn(textbox)
+    textbox:setCallback(function()
+        enemy:onTextboxRemove(textbox)
+        textbox:remove()
+        enemy.textbox = nil
+    end)
     self:addChild(textbox)
     return textbox
 end

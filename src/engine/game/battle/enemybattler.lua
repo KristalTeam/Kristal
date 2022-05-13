@@ -389,6 +389,9 @@ function EnemyBattler:isXActionShort(battler)
     return false
 end
 
+function EnemyBattler:onTextboxSpawn(textbox) end
+function EnemyBattler:onTextboxRemove(textbox) end
+
 function EnemyBattler:hurt(amount, battler, on_defeat)
     self.health = self.health - amount
     self:statusMessage("damage", amount, battler and {battler.chara:getDamageColor()})
