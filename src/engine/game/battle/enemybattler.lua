@@ -30,6 +30,9 @@ function EnemyBattler:init(actor, use_overlay)
     -- Whether this enemy can be frozen
     self.can_freeze = true
 
+    -- Whether this enemy can be selected or not
+    self.selectable = true
+
     self.done_state = nil
 
     self.waves = {}

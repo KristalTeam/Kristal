@@ -2397,18 +2397,32 @@ function Battle:keypressed(key)
             return
         end
         if Input.is("up", key) then
-            self.ui_move:stop()
-            self.ui_move:play()
-            self.current_menu_y = self.current_menu_y - 1
-            if self.current_menu_y < 1 then
-                self.current_menu_y = #self.enemies
+            old_location = self.current_menu_y
+            repeat
+                -- Keep decrementing until there's a selectable enemy.
+                self.current_menu_y = self.current_menu_y - 1
+                if self.current_menu_y < 1 then
+                    self.current_menu_y = #self.enemies
+                end
+            until (self.enemies[self.current_menu_y].selectable)
+
+            if self.current_menu_y ~= old_location then
+                self.ui_move:stop()
+                self.ui_move:play()
             end
         elseif Input.is("down", key) then
-            self.ui_move:stop()
-            self.ui_move:play()
-            self.current_menu_y = self.current_menu_y + 1
-            if self.current_menu_y > #self.enemies then
-                self.current_menu_y = 1
+            old_location = self.current_menu_y
+            repeat
+                -- Keep decrementing until there's a selectable enemy.
+                self.current_menu_y = self.current_menu_y + 1
+                if self.current_menu_y > #self.enemies then
+                    self.current_menu_y = 1
+                end
+            until (self.enemies[self.current_menu_y].selectable)
+
+            if self.current_menu_y ~= old_location then
+                self.ui_move:stop()
+                self.ui_move:play()
             end
         end
     elseif self.state == "PARTYSELECT" then
