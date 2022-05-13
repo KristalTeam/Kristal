@@ -173,6 +173,7 @@ function DebugSystem:openObjectContext(object)
         local clone = object:clone()
         clone:removeFX("debug_flash")
         object.parent:addChild(clone)
+        clone:setScreenPos(Input.getMousePosition())
         self:selectObject(clone)
     end)
     if object.visible then
