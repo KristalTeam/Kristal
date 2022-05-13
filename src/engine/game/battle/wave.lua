@@ -191,4 +191,8 @@ function Wave:getAttackers()
     return result
 end
 
+function Wave:canDeepCopy()
+    return false
+end
+
 return Wave

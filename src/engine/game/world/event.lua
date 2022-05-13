@@ -116,4 +116,12 @@ function Event:draw()
     end
 end
 
+function Event:onClone(src)
+    super:onClone(self, src)
+    if src.world then
+        self.object_id = src.world.map.next_object_id + 1
+        src.world.map.next_object_id = src.world.map.next_object_id + 1
+    end
+end
+
 return Event

@@ -134,4 +134,11 @@ function Collider:draw(...) end
 
 function Collider:drawFill(...) end
 
+function Collider:canDeepCopy()
+    return true
+end
+function Collider:canDeepCopyKey(key)
+    return key ~= "parent"
+end
+
 return Collider

@@ -40,4 +40,11 @@ function FXBase:getObjectBounds()
     return x/SCREEN_WIDTH, y/SCREEN_HEIGHT, w/SCREEN_WIDTH, h/SCREEN_HEIGHT
 end
 
+function FXBase:canDeepCopy()
+    return true
+end
+function FXBase:canDeepCopyKey(key)
+    return key ~= "parent"
+end
+
 return FXBase

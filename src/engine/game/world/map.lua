@@ -60,6 +60,8 @@ function Map:init(world, data)
     self.depth_per_layer = 0.1 -- its not perfect, but i doubt anyone will have 2000 layers
     self.next_layer = self.depth_per_layer
 
+    self.next_object_id = 0
+
     self.object_layer = 1
     self.battle_fader_layer = 0.5
     self.layers = {}
@@ -559,7 +561,10 @@ function Map:loadObjects(layer, depth, layer_type)
                     self.events_by_name[v.name] = self.events_by_name[v.name] or {}
                     table.insert(self.events_by_name[v.name], obj)
 
-                    self.events_by_id[v.id] = obj
+                    if v.id then
+                        self.events_by_id[v.id] = obj
+                        self.next_object_id = math.max(self.next_object_id, v.id)
+                    end
                 end
             end
         end

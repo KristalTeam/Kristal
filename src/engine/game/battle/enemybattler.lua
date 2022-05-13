@@ -611,4 +611,8 @@ function EnemyBattler:update()
     super:update(self)
 end
 
+function EnemyBattler:canDeepCopy()
+    return false
+end
+
 return EnemyBattler

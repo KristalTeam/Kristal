@@ -1,13 +1,32 @@
 local Utils = {}
 
-function Utils.copy(tbl, deep)
+function Utils.copy(tbl, deep, seen)
+    if tbl == nil then return nil end
     local new_tbl = {}
+    return Utils.copyInto(new_tbl, tbl, deep, seen)
+end
+
+function Utils.copyInto(new_tbl, tbl, deep, seen)
+    if tbl == nil then return nil end
+    seen = seen or {}
+    seen[tbl] = new_tbl
     for k,v in pairs(tbl) do
         if type(v) == "table" and deep then
-            new_tbl[k] = Utils.copy(v, true)
+            if seen[v] then
+                new_tbl[k] = seen[v]
+            elseif (not isClass(v) or v:canDeepCopy()) and (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) then
+                new_tbl[k] = {}
+                Utils.copyInto(new_tbl[k], v, true, seen)
+            else
+                new_tbl[k] = v
+            end
         else
             new_tbl[k] = v
         end
+    end
+    setmetatable(new_tbl, getmetatable(tbl))
+    if new_tbl.onClone then
+        new_tbl:onClone(tbl)
     end
     return new_tbl
 end

@@ -99,4 +99,8 @@ function Stage:draw()
     love.graphics.pop()]]
 end
 
+function Stage:canDeepCopy()
+    return false
+end
+
 return Stage

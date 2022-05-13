@@ -2536,4 +2536,8 @@ function Battle:keypressed(key)
     end
 end
 
+function Battle:canDeepCopy()
+    return false
+end
+
 return Battle

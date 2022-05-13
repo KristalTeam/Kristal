@@ -915,4 +915,8 @@ function World:draw()
     end
 end
 
+function World:canDeepCopy()
+    return false
+end
+
 return World

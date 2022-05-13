@@ -31,7 +31,8 @@ BATTLE_LAYERS = {
 
 WORLD_LAYERS = {
     [       "bottom"] = -100,
-    [   "below_soul"] =  100,
+    [ "above_events"] =  100, --┰-- 100
+    [   "below_soul"] =  100, --┙
     [         "soul"] =  200,
     [   "above_soul"] =  300, --┰-- 300
     ["below_bullets"] =  300, --┙

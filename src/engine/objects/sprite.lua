@@ -16,6 +16,7 @@ function Sprite:init(texture, x, y, width, height, path)
     self.playing = false
     self.anim_speed = 1
 
+    self.anim_routine_func = nil
     self.anim_routine = nil
 
     self.anim_sprite = ""
@@ -167,6 +168,7 @@ function Sprite:setAnimation(anim)
     elseif type(anim) == "function" then
         func = anim
     end
+    self.anim_routine_func = func
     self.anim_routine = coroutine.create(func)
     self.playing = true
 
@@ -240,6 +242,7 @@ function Sprite:stop(keep_frame)
     self.loop = false
 
     self.anim_waiting = 0
+    self.anim_routine_func = nil
     self.anim_routine = nil
     self.anim_frames = nil
 
@@ -251,6 +254,16 @@ end
 
 function Sprite:pause()
     self.playing = false
+end
+
+function Sprite:onClone(src)
+    super:onClone(self, src)
+
+    self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
+    if self.anim_routine and coroutine.status(self.anim_routine) ~= "dead" then
+        self.anim_routine = coroutine.create(self.anim_routine_func)
+        coroutine.resume(self.anim_routine, self, self.anim_wait_func)
+    end
 end
 
 function Sprite:update()

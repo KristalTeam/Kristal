@@ -59,4 +59,8 @@ function Tileset:drawTile(id, x, y, ...)
     love.graphics.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
 end
 
+function Tileset:canDeepCopy()
+    return false
+end
+
 return Tileset

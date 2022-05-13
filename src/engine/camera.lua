@@ -236,4 +236,11 @@ function Camera:getTransform()
     return transform
 end
 
+function Camera:canDeepCopy()
+    return true
+end
+function Camera:canDeepCopyKey(key)
+    return key ~= "parent"
+end
+
 return Camera

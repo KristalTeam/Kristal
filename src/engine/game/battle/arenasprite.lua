@@ -46,4 +46,8 @@ function ArenaSprite:drawBackground()
     end
 end
 
+function ArenaSprite:canDeepCopyKey(key)
+    return super:canDeepCopyKey(self, key) and key ~= "arena"
+end
+
 return ArenaSprite

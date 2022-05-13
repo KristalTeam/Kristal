@@ -75,7 +75,7 @@ function DebugSystem:selectObject(object)
     self:unselectObject()
     self.object = object
     self.last_object = object
-    self.object:addFX(self.flash_fx)
+    self.object:addFX(self.flash_fx, "debug_flash")
 end
 
 function DebugSystem:onMousePressed(x, y, button, istouch, presses)
@@ -168,6 +168,12 @@ function DebugSystem:openObjectContext(object)
     self.context:addMenuItem("Delete", "Delete this object", function()
         object:remove()
         self:unselectObject()
+    end)
+    self.context:addMenuItem("Clone", "Clone this object", function()
+        local clone = object:clone()
+        clone:removeFX("debug_flash")
+        object.parent:addChild(clone)
+        self:selectObject(clone)
     end)
     if object.visible then
         self.context:addMenuItem("Hide", "Hide this object.", function() object.visible = false end)

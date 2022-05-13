@@ -1090,4 +1090,19 @@ function Object:updateGraphicsTransform()
     end
 end
 
+function Object:onClone(src)
+    if self.parent and self.parent.children and not Utils.containsValue(self.parent.children, self) then
+        print("Fuck me "..Utils.getClassName(self))
+        self.parent = nil
+    end
+    self.stage = nil
+end
+
+function Object:canDeepCopy()
+    return true
+end
+function Object:canDeepCopyKey(key)
+    return key ~= "parent"
+end
+
 return Object

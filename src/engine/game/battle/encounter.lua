@@ -202,4 +202,8 @@ function Encounter:createSoul(x, y, color)
     return Soul(x, y, color)
 end
 
+function Encounter:canDeepCopy()
+    return false
+end
+
 return Encounter

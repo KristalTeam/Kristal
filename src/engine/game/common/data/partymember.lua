@@ -585,4 +585,8 @@ function PartyMember:load(data)
     self:onLoad(data)
 end
 
+function PartyMember:canDeepCopy()
+    return false
+end
+
 return PartyMember

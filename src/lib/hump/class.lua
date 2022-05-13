@@ -56,7 +56,8 @@ end
 
 -- returns a deep copy of `other'
 local function clone(other)
-    return setmetatable(include({}, other), getmetatable(other))
+    return Utils.copy(other, true)
+    --return setmetatable(include({}, other), getmetatable(other))
 end
 
 local function get_all_includes(class)
@@ -100,6 +101,9 @@ local function new(class)
     class.include  = class.include  or include
     class.includes = class.includes or includes
     class.clone    = class.clone    or clone
+
+    class.canDeepCopy    = class.canDeepCopy    or function() return true end
+    class.canDeepCopyKey = class.canDeepCopyKey or function(key) return true end
 
     -- keys that shouldn't be included from this class
     class.__dont_include = {
