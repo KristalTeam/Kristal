@@ -43,10 +43,12 @@ end
 function Bullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
-        Game.battle:hurt(damage)
+        local battlers = Game.battle:hurt(damage)
         soul.inv_timer = self.inv_timer
         soul:onDamage(self, damage)
+        return battlers
     end
+    return {}
 end
 
 function Bullet:onCollide(soul)

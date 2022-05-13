@@ -1392,6 +1392,7 @@ function Battle:hurt(amount, exact)
         battler:hurt(amount, exact)
         return {battler}
     end
+    return {}
 end
 
 function Battle:setWaves(waves, allow_duplicates)
