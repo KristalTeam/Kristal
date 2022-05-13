@@ -73,6 +73,7 @@ function Soul:init(x, y, color)
     self.shard_y_table = {0, 3, 6}
 
     self.can_move = true
+    self.allow_focus = true
 end
 
 function Soul:shatter(count)
@@ -303,7 +304,9 @@ function Soul:doMovement()
 
     -- Do speed calculations here if required.
 
-    if Input.down("cancel") then speed = speed / 2 end -- Focus mode.
+    if self.allow_focus then
+        if Input.down("cancel") then speed = speed / 2 end -- Focus mode.
+    end
 
     local move_x, move_y = 0, 0
 
