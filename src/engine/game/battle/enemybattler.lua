@@ -414,10 +414,14 @@ function EnemyBattler:checkHealth(on_defeat)
             if on_defeat then
                 on_defeat(self, amount, battler)
             else
-                self:onDefeat(amount, battler)
+                self:forceDefeat(amount, battler)
             end
         end
     end
+end
+
+function EnemyBattler:forceDefeat(amount, battler)
+    self:onDefeat(amount, battler)
 end
 
 function EnemyBattler:getAttackTension(points)
