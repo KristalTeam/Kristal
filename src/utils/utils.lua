@@ -14,7 +14,7 @@ function Utils.copyInto(new_tbl, tbl, deep, seen)
         if type(v) == "table" and deep then
             if seen[v] then
                 new_tbl[k] = seen[v]
-            elseif (not isClass(v) or v:canDeepCopy()) and (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) then
+            elseif (not isClass(v) or (v.canDeepCopy and v:canDeepCopy())) and (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) then
                 new_tbl[k] = {}
                 Utils.copyInto(new_tbl[k], v, true, seen)
             else
