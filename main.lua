@@ -482,7 +482,13 @@ function love.keypressed(key, scancode, is_repeat)
             love.event.quit("restart")
         else
             if Mod then
-                Kristal.quickReload(Input.shift())
+                if Input.alt() then
+                    Kristal.quickReload("none")
+                elseif Input.shift() then
+                    Kristal.quickReload("save")
+                else
+                    Kristal.quickReload("temp")
+                end
             else
                 Kristal.returnToMenu()
             end
@@ -869,13 +875,16 @@ function Kristal.returnToMenu()
     Kristal.DebugSystem:refresh()
 end
 
-function Kristal.quickReload(dont_save)
+-- Mode can be "temp", "save", or "none"
+function Kristal.quickReload(mode)
     -- Temporarily save game variables
     local save, save_id, encounter
-    if not dont_save then
+    if mode == "temp" then
         save = Game:save()
         save_id = Game.save_id
         encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
+    elseif mode == "save" then
+        save_id = Game.save_id
     end
 
     -- Temporarily save the current mod id
@@ -888,21 +897,25 @@ function Kristal.quickReload(dont_save)
     -- Reload mods
     Kristal.loadAssets("", "mods", "", function()
         -- Reload the current mod directly
-        Kristal.loadMod(mod_id, nil, nil, function()
-            -- Pre-initialize the current mod
-            if Kristal.preInitMod(mod_id) then
-                -- Switch to Game and load the temp save
-                Gamestate.switch(Game)
-                if save then
-                    Game:load(save, save_id)
+        if mode ~= "save" then
+            Kristal.loadMod(mod_id, nil, nil, function()
+                -- Pre-initialize the current mod
+                if Kristal.preInitMod(mod_id) then
+                    -- Switch to Game and load the temp save
+                    Gamestate.switch(Game)
+                    if save then
+                        Game:load(save, save_id)
 
-                    -- If we had an encounter, restart the encounter
-                    if encounter then
-                        Game:encounter(encounter, false)
+                        -- If we had an encounter, restart the encounter
+                        if encounter then
+                            Game:encounter(encounter, false)
+                        end
                     end
                 end
-            end
-        end)
+            end)
+        else
+            Kristal.loadMod(mod_id, save_id)
+        end
     end)
 end
 
@@ -994,7 +1007,9 @@ function Kristal.loadMod(id, save_id, save_name, after)
         Mod.libs[lib_id] = lib
     end
 
-    if not mod.transition or after then
+    local new_file = not save_id or not Kristal.hasSaveFile(save_id, mod.id)
+
+    if not new_file or not mod.transition or after then
         Kristal.loadModAssets(mod.id, "all", "", after or function()
             if Kristal.preInitMod(mod.id) then
                 Gamestate.switch(Kristal.States["Game"], save_id, save_name)
@@ -1186,6 +1201,12 @@ function Kristal.getSaveFile(id, path)
     if love.filesystem.getInfo(path) then
         return JSON.decode(love.filesystem.read(path))
     end
+end
+
+function Kristal.hasSaveFile(id, path)
+    id = id or Game.save_id
+    local path = "saves/"..(path or Mod.info.id).."/file_"..id..".json"
+    return love.filesystem.getInfo(path) ~= nil
 end
 
 function Kristal.hasAnySaves(path)
