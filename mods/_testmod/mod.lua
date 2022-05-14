@@ -93,12 +93,13 @@ function Mod:registerDebugContext(context, object)
         if object:getFX("funky_mode") then
             object:removeFX("funky_mode")
         else
+            local offset = Utils.random(0, 100)
             object:addFX(ShaderFX(Mod.wave_shader, {
-                ["wave_sine"] = function() return Kristal.getTime() * 100 end,
+                ["wave_sine"] = function() return (Kristal.getTime() + offset) * 100 end,
                 ["wave_mag"] = 4,
                 ["wave_height"] = 4,
                 ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
-            }), "funky_mode")
+            }, true), "funky_mode")
         end
     end)
 end

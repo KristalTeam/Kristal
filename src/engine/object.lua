@@ -857,10 +857,12 @@ function Object:fullUpdate()
     end
 end
 
-function Object:preDraw()
-    local transform = love.graphics.getTransformRef()
-    self:applyTransformTo(transform)
-    love.graphics.replaceTransform(transform)
+function Object:preDraw(dont_transform)
+    if not dont_transform then
+        local transform = love.graphics.getTransformRef()
+        self:applyTransformTo(transform)
+        love.graphics.replaceTransform(transform)
+    end
 
     love.graphics.setColor(self:getDrawColor())
     Draw.pushScissor()
@@ -904,17 +906,22 @@ function Object:fullDraw(no_children)
         used_timescale = true
         RUNTIME = RUNTIME + self._runtime_draw_offset
     end
-    local processing_fx, canvas = self:shouldProcessDrawFX(), nil
+    local processing_fx, fx_transform, fx_screen = self:shouldProcessDrawFX()
+    local fx_off_x, fx_off_y = math.floor(SCREEN_WIDTH/2 - self.width/2), math.floor(SCREEN_HEIGHT/2 - self.height/2)
+    local canvas = nil
     if processing_fx then
         Draw.pushCanvasLocks()
-        canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
+        canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = not fx_transform})
+        if fx_transform then
+            love.graphics.translate(fx_off_x, fx_off_y)
+        end
     end
     local last_draw_children = self._dont_draw_children
     if no_children then
         self._dont_draw_children = true
     end
     love.graphics.push()
-    self:preDraw()
+    self:preDraw(fx_transform)
     if self.draw_children_below then
         self:drawChildren(nil, self.draw_children_below)
     end
@@ -927,12 +934,34 @@ function Object:fullDraw(no_children)
     self._dont_draw_children = last_draw_children
     if processing_fx then
         Draw.popCanvas(true)
-        local final_canvas = self:processDrawFX(canvas)
-        love.graphics.push()
-        love.graphics.origin()
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.draw(final_canvas)
-        love.graphics.pop()
+        local final_canvas = canvas
+        if fx_transform then
+            final_canvas = self:processDrawFX(canvas, true)
+            love.graphics.push()
+            local current_transform = love.graphics.getTransformRef()
+            self:applyTransformTo(current_transform)
+            love.graphics.replaceTransform(current_transform)
+            if fx_screen then
+                local screen_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.draw(final_canvas, -fx_off_x, -fx_off_y)
+                Draw.popCanvas(true)
+                Draw.unlockCanvas(final_canvas)
+                final_canvas = screen_canvas
+            else
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.draw(final_canvas, -fx_off_x, -fx_off_y)
+            end
+            love.graphics.pop()
+        end
+        if fx_screen then
+            final_canvas = self:processDrawFX(final_canvas, false)
+            love.graphics.push()
+            love.graphics.origin()
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.draw(final_canvas)
+            love.graphics.pop()
+        end
         Draw.popCanvasLocks()
     end
     if used_timescale then
@@ -943,18 +972,22 @@ function Object:fullDraw(no_children)
 end
 
 function Object:shouldProcessDrawFX()
+    local any_active, any_transformed, any_screen = false, false, false
     for _,fx in ipairs(self.draw_fx) do
         if fx:isActive(self) then
-            return true
+            any_active = true
+            any_transformed = any_transformed or fx.transformed
+            any_screen = any_screen or not fx.transformed
         end
     end
+    return any_active, any_transformed, any_screen
 end
 
-function Object:processDrawFX(canvas)
+function Object:processDrawFX(canvas, transformed)
     table.sort(self.draw_fx, FXBase.SORTER)
 
     for _,fx in ipairs(self.draw_fx) do
-        if fx:isActive(self) then
+        if fx:isActive(self) and (transformed == nil or fx.transformed == transformed) then
             local next_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
             love.graphics.setColor(1, 1, 1)
             fx:draw(canvas, self)

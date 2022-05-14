@@ -1,9 +1,11 @@
 local ShaderFX, super = Class(FXBase)
 
-function ShaderFX:init(shader, vars, priority)
+function ShaderFX:init(shader, vars, transformed, priority)
     super:init(self, priority or 0)
 
     self.shader = shader
+
+    self.transformed = transformed or false
 
     self.vars = vars or {}
 end
