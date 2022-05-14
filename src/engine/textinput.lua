@@ -9,6 +9,7 @@ self.submit_callback = nil
 self.up_limit_callback = nil
 self.down_limit_callback = nil
 self.pressed_callback = nil
+self.text_callback = nil
 
 function TextInput.attachInput(tbl, options)
     Kristal.showCursor()
@@ -45,8 +46,13 @@ function TextInput.reset(options)
     if options ~= false then
         options = options or {}
         -- Our defaults should allow text editor-like input
-        self.multiline = options.multiline or true
-        self.enter_submits = options.enter_submits or false
+        if options.multiline          == nil then options.multiline          = true  end
+        if options.enter_submits      == nil then options.enter_submits      = false end
+        if options.clear_after_submit == nil then options.clear_after_submit = true  end
+        self.multiline = options.multiline
+        self.enter_submits = options.enter_submits
+        self.clear_after_submit = options.clear_after_submit
+        self.text_restriction = options.text_restriction
     end
 
     self.selecting = false
@@ -70,13 +76,16 @@ function TextInput.submit()
     else
         print("WARNING: No submit callback set!")
     end
-    self.clear()
+    if self.clear_after_submit then
+        self.clear()
+    end
 end
 
 
 function TextInput.onTextInput(t)
     if not self.active then return end
     self.insertString(t)
+    if self.text_callback then self.text_callback(key) end
 end
 
 function TextInput.checkSelecting()
@@ -510,6 +519,25 @@ end
 
 function TextInput.insertString(str)
 
+    if self.text_restriction then
+        local newstr = ""
+        for i = 1, utf8.len(str) do
+            local offset = utf8.offset(str, i)
+            local char = string.sub(str, offset, offset)
+            local rest = self.text_restriction(char)
+            if rest then
+                if type(rest) == "string" then
+                    newstr = newstr .. rest
+                else
+                    newstr = newstr .. char
+                end
+            end
+        end
+        str = newstr
+    end
+
+    if str == "" then return end
+
     if self.selecting then
         self.removeSelection()
     end
@@ -551,7 +579,7 @@ function TextInput.draw(options)
     if self.cursor_x > 0 then
         cursor_pos_x = font:getWidth(string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))) + cursor_pos_x
     end
-    local cursor_pos_y = off_y + ((self.cursor_y - 1) * 16)
+    local cursor_pos_y = off_y + ((self.cursor_y - 1) * font:getHeight())
 
     if self.selecting then
         love.graphics.setColor(0, 0.5, 0.5, 1)
@@ -560,14 +588,14 @@ function TextInput.draw(options)
         if self.cursor_select_x > 0 then
             cursor_sel_x = font:getWidth(string.sub(self.input[self.cursor_select_y], 1, utf8.offset(self.input[self.cursor_select_y], self.cursor_select_x))) + cursor_sel_x
         end
-        local cursor_sel_y = off_y + ((self.cursor_select_y - 1) * 16)
+        local cursor_sel_y = off_y + ((self.cursor_select_y - 1) * font:getHeight())
 
 
         if self.cursor_select_y == self.cursor_y then
             local x = cursor_sel_x
-            local y = cursor_sel_y + 16
+            local y = cursor_sel_y + font:getHeight()
             local width = cursor_pos_x - x
-            local height = cursor_pos_y + 16 - y - 16
+            local height = cursor_pos_y + font:getHeight() - y - font:getHeight()
 
             love.graphics.rectangle("fill", x, y, width, height)
         else
@@ -577,18 +605,18 @@ function TextInput.draw(options)
             end
 
             if in_front then
-                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1), 16)
-                love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, 16)
+                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1), font:getHeight())
+                love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, font:getHeight())
 
                 for i = self.cursor_select_y + 1, self.cursor_y - 1 do
-                    love.graphics.rectangle("fill", base_off, off_y + (16 * (i - 1)), math.max(font:getWidth(self.input[i]), 1), 16)
+                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(self.input[i]), 1), font:getHeight())
                 end
             else
-                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1), 16)
-                love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, 16)
+                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1), font:getHeight())
+                love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, font:getHeight())
 
                 for i = self.cursor_y + 1, self.cursor_select_y - 1 do
-                    love.graphics.rectangle("fill", base_off, off_y + (16 * (i - 1)), math.max(font:getWidth(self.input[i]), 1), 16)
+                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(self.input[i]), 1), font:getHeight())
                 end
             end
         end
@@ -608,8 +636,8 @@ function TextInput.draw(options)
                 prefix = get_prefix("middle")
             end
         end
-        print_func(prefix, off_x, off_y + (i - 1) * 16)
-        print_func(text, base_off, off_y + (i - 1) * 16)
+        print_func(prefix, off_x, off_y + (i - 1) * font:getHeight())
+        print_func(text, base_off, off_y + (i - 1) * font:getHeight())
     end
 
     love.graphics.setColor(1, 0, 1, 1)

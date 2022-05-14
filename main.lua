@@ -57,6 +57,7 @@ Anchor = require("src.engine.objects.anchor")
 
 ModList = require("src.engine.menu.modlist")
 ModButton = require("src.engine.menu.modbutton")
+ModCreateButton = require("src.engine.menu.modcreatebutton")
 FileList = require("src.engine.menu.filelist")
 FileButton = require("src.engine.menu.filebutton")
 
@@ -380,6 +381,7 @@ function love.update(dt)
     LibTimer.update()
     Music.update()
     Assets.update()
+    TextInput.update()
 
     if load_waiting > 0 then
         local msg = load_out_channel:pop()

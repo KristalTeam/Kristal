@@ -26,6 +26,10 @@ function ModList:getSelectedMod()
     return selected and selected.mod
 end
 
+function ModList:isOnCreate()
+    return self.selected == #self.mods
+end
+
 function ModList:getSelectedId()
     local selected = self.mods[self.selected]
     return selected and selected.id

@@ -130,6 +130,8 @@ function Menu:enter()
         {"Battle Name Font", COLORS.silver},
         "TheCyVap",
     }
+
+    self.create = {}
 end
 
 function Menu:setState(state)
@@ -164,7 +166,17 @@ function Menu:onStateChange(old_state, new_state)
     elseif new_state == "CONTROLS" then
         self.options_target_y = 0
         self.options_y = 0
+    elseif new_state == "CREATE" then
+        self.selected_option = 1
+        self:onCreateEnter()
+        self:setSubState("MENU")
     end
+end
+
+function Menu:setSubState(state)
+    local old_state = self.substate
+    self.substate = state
+    self:onSubStateChange(old_state, self.substate)
 end
 
 function Menu:leave()
@@ -267,6 +279,9 @@ function Menu:buildMods()
             self.list:addMod(button)
         end
     end
+    local button = ModCreateButton(424 + 70, 42)
+    self.list:addMod(button)
+
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
 
     if TARGET_MOD then
@@ -289,7 +304,9 @@ function Menu:rebuildMods()
 
     local used = {}
     for _,mod in ipairs(self.list.mods) do
-        used[mod.id] = true
+        if mod.id then
+            used[mod.id] = true
+        end
     end
     for k,v in pairs(self.mod_fades) do
         if not used[k] then
@@ -413,7 +430,7 @@ function Menu:update()
     end
 
     -- Toggle heart favorite outline
-    if self.state == "MODSELECT" and mod_button then
+    if self.state == "MODSELECT" and mod_button and mod_button.isFavorited then
         self.heart_outline.visible = mod_button:isFavorited()
         self.heart_outline:setColor(mod_button:getFavoritedColor())
     else
@@ -609,8 +626,11 @@ function Menu:draw()
 
             self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
         end
+    elseif self.state == "CREATE" then
+        self:drawCreate()
     else
-        self:printShadow("Nothing here for now!", 0, 240 - 8, {1, 1, 1, 1}, "center", 640)
+        self:printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
+        self:printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
     end
 
     -- Draw mod preview overlays
@@ -649,7 +669,7 @@ function Menu:drawVersion()
         love.graphics.setColor(1, 1, 1, 0.5)
         love.graphics.print(ver_string, 4, ver_y)
 
-        if self.selected_mod_button then
+        if self.selected_mod_button and self.selected_mod_button.checkCompatibility then
             local compatible, mod_version = self.selected_mod_button:checkCompatibility()
             if not compatible then
                 love.graphics.setColor(1, 0.5, 0.5, 0.75)
@@ -923,7 +943,13 @@ function Menu:keypressed(key, _, is_repeat)
             self.heart_target_y = 238
         elseif #self.list.mods > 0 then
             if Input.isConfirm(key) then
-                if self.selected_mod then
+                if self.list:isOnCreate() then
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                    self.heart_target_x = 64 - 19
+                    self.heart_target_y = 128 + 19
+                    self:setState("CREATE")
+                elseif self.selected_mod then
                     self.ui_select:stop()
                     self.ui_select:play()
                     if self.selected_mod["useSaves"] or (self.selected_mod["useSaves"] == nil and not self.selected_mod["encounter"]) then
@@ -1112,14 +1138,236 @@ function Menu:keypressed(key, _, is_repeat)
                 end
             end
         end
+    elseif self.state == "CREATE" then
+        self:handleCreateInput(key)
     else
         if Input.isCancel(key) or Input.isConfirm(key) then
-            self:setState("OPTIONS")
+            self:setState("MAINMENU")
             self.ui_move:stop()
             self.ui_move:play()
-            self.heart_target_x = 152
-            self.heart_target_y = 129 + (self.selected_option - 1) * 32
+            self.heart_target_x = 196
+            self.heart_target_y = 238
         end
+    end
+end
+
+function Menu:onCreateEnter()
+    self.create = {
+        name = {""},
+        id = {""},
+        adjusted = true,
+    }
+end
+
+function Menu:handleCreateInput(key)
+    if self.substate == "MENU" then
+        if Input.isCancel(key) then
+            self:setState("MODSELECT")
+            self.ui_move:stop()
+            self.ui_move:play()
+            return
+        end
+        local old = self.selected_option
+        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if self.selected_option > 3 then self.selected_option = is_repeat and 3 or 1    end
+        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 3    end
+
+        local y_off = (self.selected_option - 1) * 32
+        if self.selected_option >= 3 then
+            y_off = y_off + 32
+        end
+
+        self.heart_target_x = 45
+        self.heart_target_y = 147 + y_off
+
+        if old ~= self.selected_option then
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+
+        if Input.isConfirm(key) then
+            if self.selected_option == 1 then
+                self.ui_select:stop()
+                self.ui_select:play()
+                self:setSubState("NAME")
+            elseif self.selected_option == 2 then
+                self.ui_select:stop()
+                self.ui_select:play()
+                self:setSubState("ID")
+            elseif self.selected_option == 3 then
+                if self.create["name"][1] == "" or self.create["id"][1] == "" then
+                    self.ui_cant_select:stop()
+                    self.ui_cant_select:play()
+                    return
+                end
+                self.ui_select:stop()
+                self.ui_select:play()
+                self:createMod()
+                self:setState("MODSELECT")
+            end
+        end
+    elseif self.substate == "NAME" then
+        if key == "escape" then
+            self:setSubState("MENU")
+            self:onCreateCancel("name")
+            self.ui_move:stop()
+            self.ui_move:play()
+            return
+        end
+    elseif self.substate == "ID" then
+        if key == "escape" then
+            self:onCreateCancel("id")
+            self:setSubState("MENU")
+            self.ui_move:stop()
+            self.ui_move:play()
+            return
+        end
+    end
+end
+
+function Menu:onSubStateChange(old, new)
+    if new == "MENU" then
+        self.heart_target_x = 45
+    elseif new == "NAME" then
+        self.heart_target_x = 45 + 167
+        self:openInput("name")
+    elseif new == "ID" then
+        self.heart_target_x = 45 + 167
+        self:openInput("id", function(letter)
+            local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
+            if Utils.containsValue(disallowed, letter) then
+                return false
+            end
+            if letter == " "  then return "_" end
+            return letter:lower()
+        end)
+    end
+end
+
+function Menu:disallowWindowsFolders(str, auto)
+    -- Check if STR is a disallowed file name in windows (e.g. "CON")
+    if Utils.containsValue({"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}, str:upper()) then
+        if not auto then Assets.playSound("locker") end
+        str = "disallowed_id"
+    end
+    return str
+end
+
+function Menu:adjustCreateID()
+    local str = self.create.name[1]
+
+    str = self:disallowWindowsFolders(str, true)
+
+    local newstr = ""
+    for i = 1, utf8.len(str) do
+        local offset = utf8.offset(str, i)
+        local char = string.sub(str, offset, offset)
+        local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
+        if Utils.containsValue(disallowed, char) then
+            char = ""
+        end
+        if char == " " then char = "_" end
+        newstr = newstr .. char:lower()
+    end
+    self.create.id[1] = newstr
+    self.create.adjusted = true
+end
+
+function Menu:openInput(id, restriction)
+    TextInput.attachInput(self.create[id], {
+        multiline = false,
+        enter_submits = true,
+        clear_after_submit = false,
+        text_restriction = restriction,
+    })
+    TextInput.submit_callback = function(...) self:onCreateSubmit(id, ...) end
+    if id == "name" then
+        TextInput.text_callback = function() self:attemptUpdateID("name") end
+    else
+        TextInput.text_callback = nil
+    end
+end
+
+function Menu:attemptUpdateID(id)
+    if (id == "name" or id == "id") and self.create.id[1] == "" then
+        self:adjustCreateID()
+    end
+    if (id == "name" and self.create.adjusted) then
+        self:adjustCreateID()
+    end
+end
+
+function Menu:createMod()
+    local name = self.create.name[1]
+    local id = self.create.id[1]
+    print("Mod created: " .. name .. " (" .. id .. ")")
+    print("(not actually lol)")
+end
+
+function Menu:onCreateSubmit(id)
+    self.ui_select:stop()
+    self.ui_select:play()
+    TextInput.input = {""}
+    TextInput.endInput()
+
+    if id == "id" then
+        self.create.adjusted = false
+        self.create["id"][1] = self:disallowWindowsFolders(self.create["id"][1], false)
+    end
+
+    self:attemptUpdateID(id)
+
+    self:setSubState("MENU")
+end
+
+function Menu:onCreateCancel()
+    TextInput.input = {""}
+    TextInput.endInput()
+    self:setSubState("MENU")
+end
+
+function Menu:drawCreate()
+    self:printShadow("Create New Mod", 0, 48, {1, 1, 1, 1}, "center", 640)
+
+    local menu_x = 64
+    local menu_y = 128
+
+    self:drawInputLine("Mod name: ", menu_x, menu_y + (32 * 0), "name")
+    self:drawInputLine("Mod ID:   ", menu_x, menu_y + (32 * 1), "id")
+
+    self:printShadow(  "Create Mod", menu_x, menu_y + (32 * 3))
+
+    self:printShadow("(This feature is W.I.P, it doesn't do anything)", 0, menu_y + (32 * 5), COLORS.silver, "center", 640)
+
+    if TextInput.active and (self.substate ~= "MENU") then
+        TextInput.draw({
+            x = self.create.input_pos_x,
+            y = self.create.input_pos_y,
+            font = self.menu_font,
+            print = function(text, x, y) self:printShadow(text, x, y) end,
+        })
+    end
+end
+
+function Menu:drawInputLine(name, x, y, id)
+    self:printShadow(name, x, y)
+    love.graphics.setLineWidth(2)
+    local line_x  = x + 128 + 32 + 16
+    local line_x2 = line_x + 416 - 32
+    local line_y = 32 - 4 - 1 + 2
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
+    love.graphics.setColor(COLORS.silver)
+    love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
+
+    if self.create[id] ~= TextInput.input then
+        self:printShadow(self.create[id][1], line_x, y)
+    else
+        self.create.input_pos_x = line_x
+        self.create.input_pos_y = y
     end
 end
 
