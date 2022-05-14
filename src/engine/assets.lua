@@ -202,11 +202,20 @@ function Assets.startSound(sound)
     end
 end
 
-function Assets.stopSound(sound)
+function Assets.stopSound(sound, actually_stop)
     for _,src in ipairs(self.sound_instances[sound] or {}) do
-        src:stop()
+        if actually_stop then
+            src:stop()
+        else
+            src:setVolume(0)
+            if src:isLooping() then
+                src:setLooping(false)
+            end
+        end
     end
-    self.sound_instances[sound] = {}
+    if actually_stop then
+        self.sound_instances[sound] = {}
+    end
 end
 
 function Assets.playSound(sound, volume, pitch)
@@ -225,8 +234,8 @@ function Assets.playSound(sound, volume, pitch)
     end
 end
 
-function Assets.stopAndPlaySound(sound, volume, pitch)
-    self.stopSound(sound)
+function Assets.stopAndPlaySound(sound, volume, pitch, actually_stop)
+    self.stopSound(sound, actually_stop)
     return self.playSound(sound, volume, pitch)
 end
 
