@@ -57,13 +57,14 @@ function Map:init(world, data)
         self:populateTilesets(data.tilesets)
     end
 
-    self.depth_per_layer = 0.1 -- its not perfect, but i doubt anyone will have 2000 layers
+    self.depth_per_layer = 0.1 -- its not perfect, but i doubt anyone will have 1000 layers
     self.next_layer = self.depth_per_layer
 
     self.next_object_id = 0
 
     self.object_layer = 1
     self.battle_fader_layer = 0.5
+    self.tile_layer = 0
     self.layers = {}
 
     self.timer = Timer()
@@ -236,6 +237,7 @@ end
 
 function Map:loadMapData(data)
     local object_depths = {}
+    local tile_depths = {}
     local indexed_layers = {}
     local has_battle_border = false
 
@@ -276,29 +278,64 @@ function Map:loadMapData(data)
         if layer.type == "objectgroup" and Utils.startsWith(name, "objects") then
             table.insert(object_depths, depth)
         end
+        if layer.type == "tilelayer" and not Utils.startsWith(name, "battleborder") then
+            table.insert(tile_depths, depth)
+        end
         self:loadLayer(layer, depth)
     end
 
     self.object_layer = 1
+
+    local nameless_object_layer = nil
+    local has_markers_layer = false
     for i,layer in ipairs(layers) do
+        local name = layer.name:lower()
         local depth = indexed_layers[i]
-        if layer.type == "objectgroup" and layer.name == "markers" then
-            if #object_depths == 0 then
-                self.object_layer = depth
-            else
-                local closest
-                for _,obj_depth in ipairs(object_depths) do
-                    if not closest then
-                        closest = obj_depth
-                    elseif math.abs(depth - obj_depth) <= math.abs(depth - closest) then
-                        closest = obj_depth
-                    else
-                        break
+        if layer.type == "objectgroup" then
+            if Utils.startsWith(name, "markers") then
+                has_markers_layer = true
+                if #object_depths == 0 then
+                    -- If there are no object layers, set the object depth to the marker layer's depth
+                    self.object_layer = depth
+                else
+                    -- Otherwise, set the object depth to the closest object layer's depth
+                    local closest
+                    for _,obj_depth in ipairs(object_depths) do
+                        if not closest then
+                            closest = obj_depth
+                        elseif math.abs(depth - obj_depth) <= math.abs(depth - closest) then
+                            closest = obj_depth
+                        else
+                            break
+                        end
                     end
+                    self.object_layer = closest or depth
                 end
-                self.object_layer = closest or depth
+            elseif not has_markers_layer then
+                -- If there is no markers layer, set the object layer to the highest object layer
+                if name == "objects" then
+                    nameless_object_layer = depth
+                end
+                self.object_layer = depth
             end
         end
+    end
+    -- If no marker layers, prioritize object layers without a custom name
+    if nameless_object_layer and not has_markers_layer then
+        self.object_layer = nameless_object_layer
+    end
+
+    -- Set the tile layer depth to the closest tile layer below the object layer
+    self.tile_layer = 0
+    for _,depth in ipairs(tile_depths) do
+        if depth >= self.object_layer then break end
+
+        self.tile_layer = depth
+    end
+
+    -- If no battleborder layer, set the battle fader layer depth to be below the object layer
+    if not has_battle_border then
+        self.battle_fader_layer = self.object_layer - (self.depth_per_layer/2)
     end
 end
 
