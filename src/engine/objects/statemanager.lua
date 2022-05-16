@@ -67,8 +67,8 @@ function StateManager:callOn(state, event, ...)
     end
 end
 
-function StateManager:call(event)
-    self:callOn(self.state, event)
+function StateManager:call(event, ...)
+    self:callOn(self.state, event, ...)
 end
 
 function StateManager:doIf(...)
@@ -100,7 +100,7 @@ function StateManager:hook(state, event, func)
     end
 end
 
-function StateManager:setState(state)
+function StateManager:setState(state, ...)
     if state == self.state then return end
 
     if self.master and self.master.beforeStateChange then
@@ -118,18 +118,18 @@ function StateManager:setState(state)
     end
 
     local last_state = self.state
-    self:call("leave", state)
+    self:call("leave", state, ...)
     self.state = state
     if not self.state_initialized[self.state] then
         self:call("init")
         self.state_initialized[self.state] = true
     end
-    self:call("enter", last_state)
+    self:call("enter", last_state, ...)
     if self.on_state_change then
-        self.on_state_change(last_state, state)
+        self.on_state_change(last_state, state, ...)
     end
     if self.master and self.master.onStateChange then
-        self.master:onStateChange(last_state, state)
+        self.master:onStateChange(last_state, state, ...)
     end
 
     self.routine_wait = 0
@@ -138,7 +138,8 @@ function StateManager:setState(state)
             self.routine_wait =  time
             coroutine.yield()
         end
-        self.routine = coroutine.create(function() self:call("coroutine", wait) end)
+        local args = {...}
+        self.routine = coroutine.create(function() self:call("coroutine", wait, Utils.unpack(args)) end)
     else
         self.routine = nil
     end

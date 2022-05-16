@@ -16,6 +16,7 @@ function Player:init(chara, x, y)
     self.run_timer = 0
     self.run_timer_grace = 0
 
+    self.current_slide_area = nil
     self.slide_in_place = false
     self.slide_dust_timer = 0
 
@@ -102,8 +103,8 @@ function Player:interact()
     return false
 end
 
-function Player:setState(state)
-    self.state_manager:setState(state)
+function Player:setState(state, ...)
+    self.state_manager:setState(state, ...)
 end
 
 function Player:resetFollowerHistory()
@@ -219,9 +220,10 @@ function Player:updateWalk()
     end
 end
 
-function Player:beginSlide()
+function Player:beginSlide(last_state, in_place)
     self.slide_sound:play()
     self.slide_camera_y = self.world.camera.y
+    self.slide_in_place = in_place or false
     self.sprite:setAnimation("slide")
 end
 function Player:updateSlideDust()

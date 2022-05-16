@@ -451,6 +451,10 @@ function Map:loadHitboxes(layer)
             current_hitbox = PolygonCollider(self.world, points, mode)
         end
 
+        if properties["enabled"] == false then
+            current_hitbox.collidable = false
+        end
+
         if current_hitbox then
             table.insert(hitboxes, current_hitbox)
 
@@ -652,7 +656,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "silhouette" then
         return Silhouette(data.x, data.y, data.width, data.height)
     elseif name:lower() == "slidearea" then
-        return SlideArea(data.x, data.y, data.width, data.height)
+        return SlideArea(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "chest" then
         return TreasureChest(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "cameratarget" then
