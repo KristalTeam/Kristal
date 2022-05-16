@@ -150,6 +150,9 @@ function PartyMember:drawPowerStat(index, x, y, menu) end
 function PartyMember:onSave(data) end
 function PartyMember:onLoad(data) end
 
+function PartyMember:onEquip(item, item2) return true end
+function PartyMember:onUnequip(item, item2) return true end
+
 -- Getters
 
 function PartyMember:getName() return self.name end

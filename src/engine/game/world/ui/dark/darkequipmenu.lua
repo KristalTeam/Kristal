@@ -280,15 +280,31 @@ function DarkEquipMenu:update()
                 self.ui_cant_select:stop()
                 self.ui_cant_select:play()
             else
+                local swap_with = (self.selected_slot == 1) and party:getWeapon() or party:getArmor(self.selected_slot - 1)
+
+                local can_continue = true
+
+                if item      and (not item     :onEquip  (party,     swap_with)) then can_continue = false end
+                if swap_with and (not swap_with:onUnequip(party,     item     )) then can_continue = false end
+                if item      and (not party    :onUnequip(item,      swap_with)) then can_continue = false end
+                if swap_with and (not party    :onEquip  (swap_with, item     )) then can_continue = false end
+
+                -- If one of the functions returned false, don't continue
+
+                if (not can_continue) then
+                    self.ui_cant_select:stop()
+                    self.ui_cant_select:play()
+                    return
+                end
+
                 Assets.playSound("equip")
-                local swap_with
+
                 if self.selected_slot == 1 then
-                    swap_with = party:getWeapon()
                     party:setWeapon(item)
                 else
-                    swap_with = party:getArmor(self.selected_slot-1)
                     party:setArmor(self.selected_slot-1, item)
                 end
+
                 Game.inventory:setItem(self:getCurrentStorage(), self.selected_item[type], swap_with)
 
                 self.state = "SLOTS"

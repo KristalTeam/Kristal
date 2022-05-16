@@ -68,7 +68,8 @@ end
 
 --[[ Callbacks ]]--
 
-function Item:onEquip(character) end
+function Item:onEquip(character, replacement) return true end
+function Item:onUnequip(character, replacement) return true end
 
 function Item:onWorldUse(target) end
 function Item:onBattleUse(user, target) end
