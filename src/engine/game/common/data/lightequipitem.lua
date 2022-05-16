@@ -7,19 +7,27 @@ end
 function LightEquipItem:onWorldUse(target)
     Assets.playSound("item")
     local chara = Game.party[1]
+    local replacing = nil
     if self.type == "weapon" then
         if chara:getWeapon() then
-            Game.inventory:replaceItem(self, chara:getWeapon())
+            replacing = chara:getWeapon()
+            replacing:onUnequip(chara, self)
+            Game.inventory:replaceItem(self, replacing)
         end
         chara:setWeapon(self)
     elseif self.type == "armor" then
         if chara:getArmor(1) then
-            Game.inventory:replaceItem(self, chara:getArmor(1))
+            replacing = chara:getArmor(1)
+            replacing:onUnequip(chara, self)
+            Game.inventory:replaceItem(self, replacing)
         end
         chara:setArmor(1, self)
     else
         error("LightEquipItem "..self.id.." invalid type: "..self.type)
     end
+
+    self:onEquip(chara, replacing)
+
     self:showEquipText()
     return false
 end

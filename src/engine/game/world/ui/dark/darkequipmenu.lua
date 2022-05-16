@@ -286,8 +286,8 @@ function DarkEquipMenu:update()
 
                 if item      and (not item     :onEquip  (party,     swap_with)) then can_continue = false end
                 if swap_with and (not swap_with:onUnequip(party,     item     )) then can_continue = false end
-                if item      and (not party    :onUnequip(item,      swap_with)) then can_continue = false end
-                if swap_with and (not party    :onEquip  (swap_with, item     )) then can_continue = false end
+                if               (not party    :onEquip  (item,      swap_with)) then can_continue = false end
+                if               (not party    :onUnequip(swap_with, item     )) then can_continue = false end
 
                 -- If one of the functions returned false, don't continue
 
