@@ -583,9 +583,23 @@ function WorldCutscene:choicer(choices, options)
 end
 
 local function waitForEncounter(self) return Game.battle == nil end
-function WorldCutscene:startEncounter(encounter, transition, enemy, wait)
+function WorldCutscene:startEncounter(encounter, transition, enemy, options)
+    options = options or {}
+    transition = transition ~= false
     Game:encounter(encounter, transition, enemy)
-    if wait == false then
+    if options.on_start then
+        if transition and (type(transition) == "boolean" or transition == "TRANSITION") then
+            Game.battle.timer:script(function(wait)
+                while Game.battle.state == "TRANSITION" do
+                    wait()
+                end
+                options.on_start()
+            end)
+        else
+            options.on_start()
+        end
+    end
+    if options.wait == false then
         return waitForEncounter
     else
         self:wait(waitForEncounter)
