@@ -28,6 +28,9 @@ function actor:init()
     -- Offset position for this actor's portrait (optional)
     self.portrait_offset = {-15, -10}
 
+    -- Whether this actor as a follower will blush when close to the player
+    self.can_blush = true
+
     -- Table of sprite animations
     self.animations = {
         -- Movement animations

@@ -29,6 +29,9 @@ function actor:init()
     -- Offset position for this actor's portrait (optional)
     self.portrait_offset = nil
 
+    -- Whether this actor as a follower will blush when close to the player
+    self.can_blush = false
+
     -- Table of talk sprites and their talk speeds (default 0.25)
     self.talk_sprites = {}
 

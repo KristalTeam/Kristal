@@ -18,6 +18,8 @@ function Follower:init(chara, x, y, target)
     self.following = true
     self.returning = false
     self.return_speed = 6
+
+    self.blush_timer = 0
 end
 
 function Follower:onRemove(parent)
@@ -134,6 +136,9 @@ function Follower:copyHistoryFrom(target)
     self.history = Utils.copy(target.history)
 end
 function Follower:updateHistory(DT, moved)
+    if moved then
+        self.blush_timer = 0
+    end
     local target = self:getTarget()
     if target.state == "SLIDE" and self.state ~= "SLIDE" then
         self.needs_slide = true
@@ -166,6 +171,39 @@ function Follower:update()
             self.returning = false
             self.following = true
         end
+    end
+
+    local can_blush = self.actor.can_blush
+    local can_move = Game.world and Game.world.player and Game.world.player:isMovementEnabled()
+    local using_walk_sprites = self.sprite.sprite == "walk" or self.sprite.sprite == "walk_blush"
+
+    if can_blush and using_walk_sprites and can_move then
+        self.blush_timer = self.blush_timer + DT
+
+        local player = Game.world.player
+        local player_x, player_y = player:getRelativePos(player.width/2, player.height/2, Game.world)
+        local follower_x, follower_y = self:getRelativePos(self.width/2, self.height/2, Game.world)
+        distance_x = (player_x - follower_x)
+        distance_y = (player_y - follower_y)
+        if ((math.abs(distance_x) <= 20) and (math.abs(distance_y) <= 14)) then
+            if (distance_x <= 0 and (player.facing == "right")) then
+                self.blush_timer = self.blush_timer + DT
+            elseif (distance_x >= 0 and (player.facing == "left")) then
+                self.blush_timer = self.blush_timer + DT
+            end
+        else
+            self.blush_timer = 0
+        end
+
+        if self.blush_timer >= 10 then
+            self.sprite:set("walk_blush")
+        end
+    else
+        self.blush_timer = 0
+    end
+
+    if (self.blush_timer < 10) and using_walk_sprites then
+        self.sprite:set("walk")
     end
 
     super:update(self)
