@@ -867,4 +867,53 @@ function Utils.getPointOnPath(path, t)
     return max_x, max_y
 end
 
+function Utils.format(str, tbl)
+    local processed = {}
+    for i,v in pairs(tbl) do
+        table.insert(processed, i)
+        if str:gsub("{"..i.."}", v) ~= str then
+            str = str:gsub("{"..i.."}", v)
+        elseif str:gsub("{}", v, 1) ~= str then
+            str = str:gsub("{}", tostring(v), 1)
+        else
+            error("Attempt to format string with no match")
+        end
+    end
+    for k,v in pairs(tbl) do
+        if not Utils.containsValue(processed, k) then -- ipairs already did this
+            table.insert(proccessed, k) -- unneeded but just in case we need to expand this function later
+            if str:gsub("{"..k.."}", v) ~= str then
+                str = str:gsub("{"..k.."}", tostring(v))
+            else
+                error("Attempt to format string with no match for key \"" .. k .. "\"")
+            end
+        end
+    end
+    -- TODO: If there's still {} left, let's try to run its contents as code
+    return str
+end
+
+function Utils.findFiles(folder, base, path)
+    -- getDirectoryItems but recursive.
+    -- The base argument is solely to remove stuff.
+    -- The path is what we should append to the start of the file name.
+
+    local base_folder = base or (folder .. "/")
+    local path = path or ""
+    local files = {}
+    for _, f in ipairs(love.filesystem.getDirectoryItems(folder)) do
+        local info = love.filesystem.getInfo(folder .. "/" .. f)
+        if info.type == "directory" then
+            table.insert(files, path .. (f:gsub(base_folder,"",1)))
+            local new_path = path .. f .. "/"
+            for _, ff in ipairs(Utils.findFiles(folder.."/"..f, base_folder, new_path)) do
+                table.insert(files, (ff:gsub(base_folder,"",1)))
+            end
+        else
+            table.insert(files, ((folder.."/"..f):gsub(base_folder,"",1)))
+        end
+    end
+    return files
+end
+
 return Utils

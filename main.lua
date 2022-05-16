@@ -470,10 +470,10 @@ function love.keypressed(key, scancode, is_repeat)
     elseif key == "f4" or (key == "return" and Input.alt()) then
         Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
         love.window.setFullscreen(Kristal.Config["fullscreen"])
-    elseif key == "f5" then
-        FAST_FORWARD = not FAST_FORWARD
     elseif key == "f6" then
         DEBUG_RENDER = not DEBUG_RENDER
+    elseif key == "f7" then
+        FAST_FORWARD = not FAST_FORWARD
     elseif key == "f8" then
         print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
         Hotswapper.scan()

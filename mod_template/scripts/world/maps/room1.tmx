@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="20" height="24" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="37">
+ <editorsettings>
+  <export target="room1.lua" format="lua"/>
+ </editorsettings>
+ <properties>
+  <property name="name" value="Test Map - Room 1"/>
+ </properties>
+ <tileset firstgid="1" source="../tilesets/castle.tsx"/>
+ <layer id="1" name="tiles" width="20" height="24">
+  <data encoding="csv">
+0,22,13,23,23,13,23,23,23,13,23,23,13,24,0,0,0,0,0,0,
+0,22,23,23,23,23,23,21,23,23,23,23,23,24,0,0,0,0,0,0,
+0,26,27,27,27,27,27,27,27,27,27,27,27,28,0,0,0,0,0,0,
+0,6,7,7,7,7,7,7,7,7,7,7,7,8,0,0,0,0,0,0,
+0,10,11,11,11,11,11,11,11,11,11,11,11,12,0,0,0,0,0,0,
+0,10,11,11,11,11,11,11,11,11,11,11,11,11,7,7,7,7,7,7,
+0,10,11,11,11,11,11,11,11,11,11,11,11,11,15,15,15,15,15,15,
+0,10,11,11,11,11,11,11,11,11,11,11,11,12,0,0,0,0,0,0,
+0,14,15,15,11,11,11,11,11,11,11,15,15,16,0,0,0,0,0,0,
+0,0,0,0,14,15,11,11,11,15,16,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,18,19,20,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,22,23,24,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,22,9,24,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,10,11,12,0,
+0,0,0,0,0,0,2,3,4,0,0,0,0,0,0,0,10,11,12,0,
+0,6,7,7,7,7,11,11,11,7,7,7,7,7,7,7,11,11,12,0,
+0,10,11,11,11,11,11,11,11,11,11,11,11,11,15,15,15,15,16,0,
+0,10,11,11,11,11,11,11,11,11,11,11,11,12,0,0,0,0,0,0,
+0,10,11,11,11,11,11,11,11,11,11,11,11,12,0,0,0,0,0,0,
+0,14,15,15,15,15,15,15,15,15,15,15,15,16,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="2" name="decal" width="20" height="24">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,30,31,32,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,34,35,36,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,38,39,40,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup color="#0000ff" id="3" name="collision" opacity="0.5">
+  <object id="1" x="40" y="80" width="520" height="40"/>
+  <object id="2" x="560" y="120" width="40" height="80"/>
+  <object id="3" x="600" y="160" width="200" height="40"/>
+  <object id="4" x="560" y="280" width="40" height="80"/>
+  <object id="5" x="600" y="280" width="200" height="40"/>
+  <object id="6" x="440" y="360" width="120" height="40"/>
+  <object id="7" x="360" y="400" width="80" height="40"/>
+  <object id="8" x="360" y="680" width="280" height="40"/>
+  <object id="9" x="560" y="800" width="40" height="120"/>
+  <object id="10" x="40" y="920" width="520" height="40"/>
+  <object id="11" x="0" y="720" width="40" height="200"/>
+  <object id="12" x="40" y="680" width="200" height="40"/>
+  <object id="14" x="160" y="400" width="80" height="40"/>
+  <object id="15" x="40" y="360" width="120" height="40"/>
+  <object id="16" x="0" y="120" width="40" height="240"/>
+  <object id="17" x="200" y="440" width="40" height="240"/>
+  <object id="18" x="360" y="440" width="40" height="240"/>
+  <object id="23" x="600" y="640" width="40" height="40"/>
+  <object id="24" x="640" y="600" width="120" height="40"/>
+  <object id="25" x="760" y="640" width="40" height="160"/>
+  <object id="26" x="600" y="800" width="160" height="40"/>
+ </objectgroup>
+ <objectgroup color="#ff00ff" id="4" name="objects">
+  <object id="19" name="npc" x="480" y="840" width="40" height="40">
+   <properties>
+    <property name="actor" value="starwalker"/>
+    <property name="text1">* These [color:yellow]stairs[color:reset] are [color:yellow]Pissing[color:reset] me
+off...</property>
+    <property name="text2" value="* I'm the original   [color:yellow]Starwalker[color:reset]"/>
+   </properties>
+  </object>
+  <object id="27" name="savepoint" x="80" y="210" width="40" height="40">
+   <properties>
+    <property name="text1">* Silence echoes in the darkness
+of this familiar-yet-different
+scenery.</property>
+    <property name="text2">* The power of avoiding copying
+official music shines within
+you.</property>
+   </properties>
+  </object>
+  <object id="28" name="squeak" x="680" y="600" width="40" height="40"/>
+  <object id="29" name="transition" x="800" y="200" width="40" height="80">
+   <properties>
+    <property name="map" value="room2"/>
+    <property name="marker" value="entry"/>
+   </properties>
+  </object>
+  <object id="33" name="interactable" x="280" y="80" width="40" height="40">
+   <properties>
+    <property name="cutscene" value="room1.wall"/>
+    <property name="once" type="bool" value="true"/>
+    <property name="setflag" value="wall_hit"/>
+   </properties>
+  </object>
+  <object id="35" name="npc" x="300" y="160">
+   <properties>
+    <property name="actor" value="wall"/>
+    <property name="flagcheck" value="wall_hit"/>
+    <property name="text1">* I Am the Wall Guardian.[wait:5]
+* This Wall is Off Limits for you
+no-good wall slammers.</property>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup color="#7f00ff" id="5" name="markers">
+  <object id="20" name="spawn" x="300" y="250">
+   <point/>
+  </object>
+  <object id="30" name="entry" x="760" y="240">
+   <point/>
+  </object>
+ </objectgroup>
+</map>

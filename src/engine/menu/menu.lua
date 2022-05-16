@@ -1198,11 +1198,17 @@ function Menu:handleCreateInput(key)
                 self.ui_select:play()
                 self:setSubState("ID")
             elseif self.selected_option == 3 then
-                if self.create["name"][1] == "" or self.create["id"][1] == "" then
+                local valid = true
+                if self.create["name"][1] == "" or self.create["id"][1] == "" then valid = false end
+                if love.filesystem.getInfo("mods/" .. self.create["id"][1] .. "/") then valid = false end
+
+                if not valid then
                     self.ui_cant_select:stop()
                     self.ui_cant_select:play()
                     return
                 end
+
+
                 self.ui_select:stop()
                 self.ui_select:play()
                 self:createMod()
@@ -1303,8 +1309,54 @@ end
 function Menu:createMod()
     local name = self.create.name[1]
     local id = self.create.id[1]
-    print("Mod created: " .. name .. " (" .. id .. ")")
-    print("(not actually lol)")
+
+    -- Create the directory
+    local dir = "mods/" .. id .. "/"
+
+    if not love.filesystem.getInfo(dir) then
+        love.filesystem.createDirectory(dir)
+    end
+
+    -- Copy the files from mod_template
+    local files = Utils.findFiles("mod_template")
+    for i, file in ipairs(files) do
+        local src = "mod_template/" .. file
+        local dst = dir .. file
+        dst = dst:gsub("modid", id)
+        local info = love.filesystem.getInfo(src)
+        if info then
+            if info.type == "file" then
+                if file == "mod.json" then
+                    -- Special handling in case we're mod.json
+                    local data = love.filesystem.read("string", src)
+                    data = Utils.format(data, {
+                        id = id,
+                        name = name,
+                        engineVer = "v" .. tostring(Kristal.Version),
+                        chapter = 2
+                    })
+
+                    local write_file = love.filesystem.newFile(dst)
+                    write_file:open("w")
+                    write_file:write(data)
+                    write_file:close()
+                else
+                    -- Copy the file
+                    local data = love.filesystem.read("data", src)
+                    local write_file = love.filesystem.newFile(dst)
+                    write_file:open("w")
+                    write_file:write(data)
+                    write_file:close()
+                end
+            else
+                -- Create the directory
+                love.filesystem.createDirectory(dst)
+            end
+        end
+    end
+
+    -- Reload mods
+    self:reloadMods()
 end
 
 function Menu:onCreateSubmit(id)
