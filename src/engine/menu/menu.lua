@@ -1156,6 +1156,9 @@ function Menu:onCreateEnter()
         name = {""},
         id = {""},
         adjusted = true,
+        base_chapter_selected = 2,
+        base_chapters = {1, 2},
+        transition = false,
     }
 end
 
@@ -1172,11 +1175,11 @@ function Menu:handleCreateInput(key)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 3 then self.selected_option = is_repeat and 3 or 1    end
-        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 3    end
+        if self.selected_option > 5 then self.selected_option = is_repeat and 5 or 1    end
+        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 5    end
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 3 then
+        if self.selected_option >= 5 then
             y_off = y_off + 32
         end
 
@@ -1198,6 +1201,14 @@ function Menu:handleCreateInput(key)
                 self.ui_select:play()
                 self:setSubState("ID")
             elseif self.selected_option == 3 then
+                self.ui_select:stop()
+                self.ui_select:play()
+                self:setSubState("CHAPTER")
+            elseif self.selected_option == 4 then
+                self.ui_select:stop()
+                self.ui_select:play()
+                self.create["transition"] = not self.create["transition"]
+            elseif self.selected_option == 5 then
                 local valid = true
                 if self.create["name"][1] == "" or self.create["id"][1] == "" then valid = false end
                 if love.filesystem.getInfo("mods/" .. self.create["id"][1] .. "/") then valid = false end
@@ -1231,6 +1242,25 @@ function Menu:handleCreateInput(key)
             self.ui_move:play()
             return
         end
+    elseif self.substate == "CHAPTER" then
+        if Input.isConfirm(key) or Input.isCancel(key) then
+            self:setSubState("MENU")
+            self.ui_select:stop()
+            self.ui_select:play()
+            return
+        end
+        if Input.is("left", key) then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.create.base_chapter_selected = self.create.base_chapter_selected - 1
+            if self.create.base_chapter_selected < 1 then self.create.base_chapter_selected = 2 end
+        end
+        if Input.is("right", key) then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.create.base_chapter_selected = self.create.base_chapter_selected + 1
+            if self.create.base_chapter_selected > 2 then self.create.base_chapter_selected = 1 end
+        end
     end
 end
 
@@ -1250,6 +1280,8 @@ function Menu:onSubStateChange(old, new)
             if letter == " "  then return "_" end
             return letter:lower()
         end)
+    elseif new == "CHAPTER" then
+        self.heart_target_x = 45 + 167 + 64
     end
 end
 
@@ -1333,7 +1365,8 @@ function Menu:createMod()
                         id = id,
                         name = name,
                         engineVer = "v" .. tostring(Kristal.Version),
-                        chapter = 2
+                        chapter = self.create.base_chapters[self.create.base_chapter_selected],
+                        transition = self.create.transition and "true" or "false",
                     })
 
                     local write_file = love.filesystem.newFile(dst)
@@ -1387,12 +1420,36 @@ function Menu:drawCreate()
     local menu_x = 64
     local menu_y = 128
 
-    self:drawInputLine("Mod name: ", menu_x, menu_y + (32 * 0), "name")
-    self:drawInputLine("Mod ID:   ", menu_x, menu_y + (32 * 1), "id")
+    self:drawInputLine("Mod name: ",        menu_x, menu_y + (32 * 0), "name")
+    self:drawInputLine("Mod ID:   ",        menu_x, menu_y + (32 * 1), "id")
+    self:printShadow(  "Base chapter: ",    menu_x, menu_y + (32 * 2))
+    self:printShadow(  "Dark transition: ", menu_x, menu_y + (32 * 3))
+    self:printShadow(  "Create Mod",        menu_x, menu_y + (32 * 5))
 
-    self:printShadow(  "Create Mod", menu_x, menu_y + (32 * 3))
+    local off = 256
+    self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "base_chapter_selected", self.create.base_chapters, "CHAPTER")
+    self:drawCheckbox(menu_x + off, menu_y + (32 * 3), "transition")
 
-    self:printShadow("(This feature is W.I.P, it doesn't do anything)", 0, menu_y + (32 * 5), COLORS.silver, "center", 640)
+    if self.selected_option == 1 then
+        self:printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, COLORS.silver, "center", 640)
+    elseif self.selected_option == 2 then
+        self:printShadow("The ID of your mod. Must be unique.", 0, 480 - 32, COLORS.silver, "center", 640)
+    elseif self.selected_option == 3 then
+        self:printShadow("The chapter to base your mod off of in", 0, 480 - 64 - 32, COLORS.silver, "center", 640)
+        self:printShadow("terms of features. Individual features", 0, 480 - 64, COLORS.silver, "center", 640)
+        self:printShadow("can be toggled in the config.", 0, 480 - 32, COLORS.silver, "center", 640)
+    elseif self.selected_option == 4 then
+        self:printShadow("Whether the dark world transition should play", 0, 480 - 64, COLORS.silver, "center", 640)
+        self:printShadow("when loading your mod.", 0, 480 - 32, COLORS.silver, "center", 640)
+    elseif self.selected_option == 5 then
+        if self.create.id[1] == "" then
+            self:printShadow("You must enter a valid ID.", 0, 480 - 32, {1, 0.6, 0.6, 1}, "center", 640)
+        elseif self.create.name[1] == "" then
+            self:printShadow("You must enter a valid name.", 0, 480 - 32, {1, 0.6, 0.6, 1}, "center", 640)
+        else
+            self:printShadow("Create the mod.", 0, 480 - 32, COLORS.silver, "center", 640)
+        end
+    end
 
     if TextInput.active and (self.substate ~= "MENU") then
         TextInput.draw({
@@ -1401,6 +1458,32 @@ function Menu:drawCreate()
             font = self.menu_font,
             print = function(text, x, y) self:printShadow(text, x, y) end,
         })
+    end
+end
+
+function Menu:drawSelectionField(x, y, id, options, state)
+    self:printShadow(options[self.create[id]], x, y)
+    if self.substate == state then
+        love.graphics.setColor(COLORS.white)
+        off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
+        love.graphics.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
+        love.graphics.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
+    end
+end
+
+function Menu:drawCheckbox(x, y, id)
+    x = x - 8
+    local checked = self.create[id]
+    love.graphics.setLineWidth(2)
+    love.graphics.setColor(COLORS.black)
+    love.graphics.rectangle("line", x + 2 + 2, y + 2 + 2, 32 - 4, 32 - 4)
+    love.graphics.setColor(checked and COLORS.white or COLORS.silver)
+    love.graphics.rectangle("line", x + 2, y + 2, 32 - 4, 32 - 4)
+    if checked then
+        love.graphics.setColor(COLORS.black)
+        love.graphics.rectangle("line", x + 6 + 2, y + 6 + 2, 32 - 12, 32 - 12)
+        love.graphics.setColor(COLORS.aqua)
+        love.graphics.rectangle("fill", x + 6, y + 6, 32 - 12, 32 - 12)
     end
 end
 
