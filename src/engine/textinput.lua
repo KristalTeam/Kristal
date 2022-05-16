@@ -152,8 +152,40 @@ function TextInput.onKeyPressed(key)
             self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
             table.remove(self.input, self.cursor_y + 1)
         else
-            local string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
-            local string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+            local string_1
+            local string_2
+
+            if Input.ctrl() then
+                local starting_position = self.cursor_x
+                local ending_position = self.cursor_x + 1
+
+                -- Loop from our current position to the start of the line.
+                local hit = false
+                for i = ending_position, 0, -1 do
+                    if i == 0 then
+                        starting_position = 0
+                        break
+                    end
+                    local offset = utf8.offset(self.input[self.cursor_y], i)
+                    local char = string.sub(self.input[self.cursor_y], offset, offset)
+
+                    if (not self.isPartOfWord(char)) then hit = true end
+
+                    if hit then
+                        hit = false
+                        if starting_position ~= i then
+                            starting_position = i
+                            break
+                        end
+                    end
+                end
+                string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], starting_position))
+                string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], ending_position), -1)
+            else
+
+                string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
+                string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+            end
 
             -- get the byte offset to the last UTF-8 character in the string.
             local byteoffset = utf8.offset(string_1, -2)
@@ -186,12 +218,44 @@ function TextInput.onKeyPressed(key)
         else
             local string_1
             local string_2
-            if self.cursor_x ~= 0 then
-                string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
-                string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+            if Input.ctrl() then
+                -- Loop from our current position to the end of the line.
+                local starting_position = self.cursor_x
+                local ending_position   = self.cursor_x
+                local hit = false
+                for i = starting_position, utf8.len(self.input[self.cursor_y]) do
+                    if i == utf8.len(self.input[self.cursor_y]) then
+                        ending_position = i
+                        break
+                    end
+                    local offset = utf8.offset(self.input[self.cursor_y], i + 1)
+                    local char = string.sub(self.input[self.cursor_y], offset, offset)
+
+                    if (not self.isPartOfWord(char)) then hit = true end
+
+                    if hit then
+                        hit = false
+                        if ending_position ~= i then
+                            ending_position = i
+                            break
+                        end
+                    end
+                end
+                if starting_position ~= 0 then
+                    string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], starting_position))
+                    string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], ending_position), -1)
+                else
+                    string_1 = ""
+                    string_2 = string.sub(self.input[self.cursor_y], utf8.offset(self.input[self.cursor_y], ending_position), -1)
+                end
             else
-                string_1 = ""
-                string_2 = self.input[self.cursor_y]
+                if self.cursor_x ~= 0 then
+                    string_1 = string.sub(self.input[self.cursor_y], 1, utf8.offset(self.input[self.cursor_y], self.cursor_x))
+                    string_2 = string.sub(self.input[self.cursor_y],    utf8.offset(self.input[self.cursor_y], self.cursor_x) + 1, -1)
+                else
+                    string_1 = ""
+                    string_2 = self.input[self.cursor_y]
+                end
             end
 
             -- get the byte offset to the first UTF-8 character in the string.
