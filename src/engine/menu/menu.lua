@@ -71,6 +71,9 @@ function Menu:enter()
     self.options_target_y = 0
     self.options_y = 0
 
+    self.config_target_y = 0
+    self.config_y = 0
+
     -- Assets required for the menu
     self.menu_font = Assets.getFont("main")
     self.small_font = Assets.getFont("main", 16)
@@ -167,8 +170,16 @@ function Menu:onStateChange(old_state, new_state)
         self.options_target_y = 0
         self.options_y = 0
     elseif new_state == "CREATE" then
+        if old_state ~= "CONFIG" then
+            self.selected_option = 1
+            self:onCreateEnter()
+            self:setSubState("MENU")
+        else
+            self.selected_option = 5
+        end
+    elseif new_state == "CONFIG" then
         self.selected_option = 1
-        self:onCreateEnter()
+        self:onConfigEnter()
         self:setSubState("MENU")
     end
 end
@@ -441,6 +452,11 @@ function Menu:update()
         self.options_y = self.options_target_y
     end
     self.options_y = self.options_y + ((self.options_target_y - self.options_y) / 2) * DTMULT
+
+    if (math.abs((self.config_target_y - self.config_y)) <= 2) then
+        self.config_y = self.config_target_y
+    end
+    self.config_y = self.config_y + ((self.config_target_y - self.config_y) / 2) * DTMULT
 end
 
 function Menu:optionsShown()
@@ -628,6 +644,8 @@ function Menu:draw()
         end
     elseif self.state == "CREATE" then
         self:drawCreate()
+    elseif self.state == "CONFIG" then
+        self:drawConfig()
     else
         self:printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
         self:printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
@@ -1140,6 +1158,8 @@ function Menu:keypressed(key, _, is_repeat)
         end
     elseif self.state == "CREATE" then
         self:handleCreateInput(key)
+    elseif self.state == "CONFIG" then
+        self:handleConfigInput(key)
     else
         if Input.isCancel(key) or Input.isConfirm(key) then
             self:setState("MAINMENU")
@@ -1159,7 +1179,33 @@ function Menu:onCreateEnter()
         base_chapter_selected = 2,
         base_chapters = {1, 2},
         transition = false,
+        config = {}
     }
+
+    self:registerConfigOption("enableStorage",       "Enable Storage",           "Extra 48-slot item storage",                                "selection", {nil, true, false})
+    self:registerConfigOption("smallSaveMenu",       "Small Save Menu",          "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
+    self:registerConfigOption("partyActions",        "X-Actions",                "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
+    self:registerConfigOption("growStronger",        "Grow Stronger",            "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
+    self:registerConfigOption("growStrongerChara",   "Grow Stronger Character",  "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
+    self:registerConfigOption("susieStyle",          "Susie Style",              "What sprite set Susie should use",                          "selection", {nil, 1, 2})
+    self:registerConfigOption("ralseiStyle",         "Ralsei Style",             "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
+    self:registerConfigOption("speechBubble",        "Speech Bubble Style",      "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
+    self:registerConfigOption("enemyAuras",          "Enemy Aura",               "The red aura around enemies",                               "selection", {nil, true, false})
+    self:registerConfigOption("mercyMessages",       "Mercy Messages",           "Seeing +X% when an enemy's mercy goes up",                  "selection", {nil, true, false})
+    self:registerConfigOption("mercyBar",            "Mercy Bar",                "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
+    self:registerConfigOption("enemyBarPercentages", "Stat Bar Percentages",     "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
+    self:registerConfigOption("pushBlockInputLock",  "Push Block Input Locking", "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
+end
+
+function Menu:registerConfigOption(id, name, description, type, options)
+    table.insert(self.create.config, {
+        id = id,
+        name = name,
+        description = description,
+        type = type,
+        options = options,
+        selected = 1
+    })
 end
 
 function Menu:handleCreateInput(key)
@@ -1175,11 +1221,11 @@ function Menu:handleCreateInput(key)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 5 then self.selected_option = is_repeat and 5 or 1    end
-        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 5    end
+        if self.selected_option > 6 then self.selected_option = is_repeat and 6 or 1    end
+        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 6    end
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 5 then
+        if self.selected_option >= 6 then
             y_off = y_off + 32
         end
 
@@ -1209,6 +1255,12 @@ function Menu:handleCreateInput(key)
                 self.ui_select:play()
                 self.create["transition"] = not self.create["transition"]
             elseif self.selected_option == 5 then
+                self.ui_select:stop()
+                self.ui_select:play()
+                self.heart_target_x = 64 - 19
+                self.heart_target_y = 128 + 19
+                self:setState("CONFIG")
+            elseif self.selected_option == 6 then
                 local valid = true
                 if self.create["name"][1] == "" or self.create["id"][1] == "" then valid = false end
                 if love.filesystem.getInfo("mods/" .. self.create["id"][1] .. "/") then valid = false end
@@ -1264,24 +1316,197 @@ function Menu:handleCreateInput(key)
     end
 end
 
-function Menu:onSubStateChange(old, new)
-    if new == "MENU" then
+
+function Menu:onConfigEnter()
+    self.config_target_y = 0
+    self.config_y = 0
+end
+
+function Menu:handleConfigInput(key)
+    if self.substate == "MENU" then
+        if Input.isCancel(key) then
+            local y_off = (5 - 1) * 32
+            self.heart_target_x = 45
+            self.heart_target_y = 147 + y_off
+            self:setState("CREATE")
+            self.ui_move:stop()
+            self.ui_move:play()
+            return
+        end
+        local old = self.selected_option
+        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if self.selected_option > (#self.create.config + 1) then self.selected_option = is_repeat and (#self.create.config + 1) or 1                            end
+        if self.selected_option < 1                         then self.selected_option = is_repeat and 1                         or (#self.create.config + 1)    end
+
+        local y_off = (self.selected_option - 1) * 32
+        if self.selected_option >= #self.create.config + 1 then
+            y_off = y_off + 32
+        end
+
+        if y_off + self.config_target_y < 0 then
+            self.config_target_y = self.config_target_y + (0 - (y_off + self.config_target_y))
+        end
+
+        if y_off + self.config_target_y > (7 * 32) then
+            self.config_target_y = self.config_target_y + ((7 * 32) - (y_off + self.config_target_y))
+        end
+
         self.heart_target_x = 45
-    elseif new == "NAME" then
-        self.heart_target_x = 45 + 167
-        self:openInput("name")
-    elseif new == "ID" then
-        self.heart_target_x = 45 + 167
-        self:openInput("id", function(letter)
-            local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
-            if Utils.containsValue(disallowed, letter) then
-                return false
+        self.heart_target_y = 147 + y_off + self.config_target_y
+
+        if old ~= self.selected_option then
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+
+        if Input.isConfirm(key) then
+            if self.selected_option == (#self.create.config + 1) then
+                local y_off = (5 - 1) * 32
+                self.heart_target_x = 45
+                self.heart_target_y = 147 + y_off
+                self:setState("CREATE")
+                self.ui_select:stop()
+                self.ui_select:play()
+                return
+            else
+                self.heart_target_x = self.heart_target_x + 45 + 167 + 140
+                self:setSubState("SELECTION")
+                self.ui_select:stop()
+                self.ui_select:play()
             end
-            if letter == " "  then return "_" end
-            return letter:lower()
-        end)
-    elseif new == "CHAPTER" then
-        self.heart_target_x = 45 + 167 + 64
+        end
+    elseif self.substate == "SELECTION" then
+        local value = self.create.config[self.selected_option]
+        if Input.isConfirm(key) or Input.isCancel(key) then
+            local y_off = (self.selected_option - 1) * 32
+            self.heart_target_x = 45
+            self.heart_target_y = 147 + y_off + self.config_target_y
+            self:setSubState("MENU")
+            self.ui_select:stop()
+            self.ui_select:play()
+            return
+        end
+        if Input.is("left", key) then
+            self.ui_move:stop()
+            self.ui_move:play()
+            value.selected = value.selected - 1
+            if value.selected < 1 then value.selected = #value.options end
+        end
+        if Input.is("right", key) then
+            self.ui_move:stop()
+            self.ui_move:play()
+            value.selected = value.selected + 1
+            if value.selected > #value.options then value.selected = 1 end
+        end
+    end
+end
+
+
+function Menu:drawConfig()
+    self:printShadow("Edit Feature Config", 0, 48, {1, 1, 1, 1}, "center", 640)
+
+    local menu_x = 64
+    local menu_y = 128
+
+    local width = 540
+    local height = 32 * 8
+    local total_height = 32 * (#self.create.config + 2)
+
+    Draw.pushScissor()
+    Draw.scissor(menu_x, menu_y, width + 10, height + 10)
+
+    menu_y = menu_y + self.config_y
+    for index, config_option in ipairs(self.create.config) do
+        local y_off = (index - 1) * 32
+        local x_off = 0
+
+        local x = menu_x + x_off
+        local y = menu_y + y_off
+        self:printShadow(config_option.name, x, y, color, "left", 640)
+
+        local option = config_option.options[config_option.selected]
+        local option_text = option
+        if (option == nil)   then option_text = "Default" end
+        if (option == true)  then option_text = "True"    end
+        if (option == false) then option_text = "False"   end
+
+        self:printShadow(option_text, x + 140 + 256, y)
+
+        if self.substate == "SELECTION" and self.selected_option == index then
+            local width = self.menu_font:getWidth(option_text)
+            love.graphics.setColor(COLORS.white)
+            off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
+            love.graphics.draw(Assets.getTexture("kristal/menu_arrow_left"),  x + 140 + 256 - 16 - 8 - off, y + 4, 0, 2, 2)
+            love.graphics.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 140 + width + 256 + 6 + off, y + 4, 0, 2, 2)
+        end
+    end
+
+    self:printShadow("Back", menu_x, menu_y + (#self.create.config + 1) * 32, color, "left", 640)
+
+    -- Draw the scrollbar background
+    love.graphics.setColor({1, 1, 1, 0.5})
+    love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.config_y)
+
+    local scrollbar_height = (height / total_height) * height
+    local scrollbar_y = (-self.config_y / (total_height - height)) * (height - scrollbar_height)
+
+    Draw.popScissor()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.config_y, 4, scrollbar_height)
+
+    local option = self.create.config[self.selected_option]
+    local text
+    if option then
+        text = option.description
+    else
+        text = "Return to the mod creation menu"
+    end
+
+    local width, wrapped = self.menu_font:getWrap(text, 580)
+    for i, line in ipairs(wrapped) do
+        self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.silver, "center", 640)
+    end
+
+
+end
+
+function Menu:drawSelectionField(x, y, id, options, state)
+    if self.state == "CREATE" then
+        self:printShadow(options[self.create[id]], x, y)
+    elseif self.state == "CONFIG" then
+        self:printShadow(options[self.config[id]], x, y)
+    end
+
+    if self.substate == state then
+        love.graphics.setColor(COLORS.white)
+        off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
+
+    end
+end
+
+function Menu:onSubStateChange(old, new)
+    if self.state == "CREATE" then
+        if new == "MENU" then
+            self.heart_target_x = 45
+        elseif new == "NAME" then
+            self.heart_target_x = 45 + 167
+            self:openInput("name")
+        elseif new == "ID" then
+            self.heart_target_x = 45 + 167
+            self:openInput("id", function(letter)
+                local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
+                if Utils.containsValue(disallowed, letter) then
+                    return false
+                end
+                if letter == " "  then return "_" end
+                return letter:lower()
+            end)
+        elseif new == "CHAPTER" then
+            self.heart_target_x = 45 + 167 + 64
+        end
     end
 end
 
@@ -1342,6 +1567,39 @@ function Menu:createMod()
     local name = self.create.name[1]
     local id = self.create.id[1]
 
+    config_formatted = "            "
+    for i, option in ipairs(self.create.config) do
+        local chosen = option.options[option.selected]
+        local text = chosen
+
+        if chosen == true  then
+            text = "true"
+        elseif chosen == false then
+            text = "false"
+        elseif type(chosen) == "number" then
+            text = tostring(chosen)
+        elseif type(chosen) == "string" then
+            text = "\"" .. chosen .. "\""
+        else
+            text = "UNHANDLED_TYPE_REPORT_TO_DEVS"
+        end
+
+        if chosen ~= nil then
+            config_formatted = config_formatted .. "// " .. option.description .. "\n            "
+            config_formatted = config_formatted .. "\"" .. option.id .. "\": " .. text .. "," .. "\n            "
+        end
+    end
+    config_formatted = config_formatted .. "// End of config"
+
+    local formatting_dict = {
+        id = id,
+        name = name,
+        engineVer = "v" .. tostring(Kristal.Version),
+        chapter = self.create.base_chapters[self.create.base_chapter_selected],
+        transition = self.create.transition and "true" or "false",
+        config = config_formatted
+    }
+
     -- Create the directory
     local dir = "mods/" .. id .. "/"
 
@@ -1361,13 +1619,7 @@ function Menu:createMod()
                 if file == "mod.json" then
                     -- Special handling in case we're mod.json
                     local data = love.filesystem.read("string", src)
-                    data = Utils.format(data, {
-                        id = id,
-                        name = name,
-                        engineVer = "v" .. tostring(Kristal.Version),
-                        chapter = self.create.base_chapters[self.create.base_chapter_selected],
-                        transition = self.create.transition and "true" or "false",
-                    })
+                    data = Utils.format(data, formatting_dict)
 
                     local write_file = love.filesystem.newFile(dst)
                     write_file:open("w")
@@ -1424,7 +1676,8 @@ function Menu:drawCreate()
     self:drawInputLine("Mod ID:   ",        menu_x, menu_y + (32 * 1), "id")
     self:printShadow(  "Base chapter: ",    menu_x, menu_y + (32 * 2))
     self:printShadow(  "Dark transition: ", menu_x, menu_y + (32 * 3))
-    self:printShadow(  "Create Mod",        menu_x, menu_y + (32 * 5))
+    self:printShadow(  "Edit feature config", menu_x, menu_y + (32 * 4))
+    self:printShadow(  "Create mod",        menu_x, menu_y + (32 * 6))
 
     local off = 256
     self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "base_chapter_selected", self.create.base_chapters, "CHAPTER")
@@ -1442,6 +1695,8 @@ function Menu:drawCreate()
         self:printShadow("Whether the dark world transition should play", 0, 480 - 64, COLORS.silver, "center", 640)
         self:printShadow("when loading your mod.", 0, 480 - 32, COLORS.silver, "center", 640)
     elseif self.selected_option == 5 then
+        self:printShadow("Edit individual Kristal features.", 0, 480 - 32, COLORS.silver, "center", 640)
+    elseif self.selected_option == 6 then
         if self.create.id[1] == "" then
             self:printShadow("You must enter a valid ID.", 0, 480 - 32, {1, 0.6, 0.6, 1}, "center", 640)
         elseif self.create.name[1] == "" then
@@ -1463,6 +1718,7 @@ end
 
 function Menu:drawSelectionField(x, y, id, options, state)
     self:printShadow(options[self.create[id]], x, y)
+
     if self.substate == state then
         love.graphics.setColor(COLORS.white)
         off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
