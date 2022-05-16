@@ -1,11 +1,17 @@
 local FakeClone, super = Class(Object)
 
-function FakeClone:init(ref, x, y)
-    super:init(self, x, y)
+function FakeClone:init(ref, x, y, copy_transform)
+    super:init(self, x, y, ref and ref.width, ref and ref.height)
 
     self.ref = ref
 
+    self.copy_transform = copy_transform ~= false
+
     self.auto_remove = true
+end
+
+function FakeClone:getDebugRectangle()
+    return self.ref:getDebugRectangle()
 end
 
 function FakeClone:update()
@@ -19,33 +25,27 @@ function FakeClone:update()
     super:update(self)
 end
 
-function FakeClone:preDraw()
-    self.last_ref_x = self.ref.x
-    self.last_ref_y = self.ref.y
+function FakeClone:applyTransformTo(transform)
+    super:applyTransformTo(self, transform)
 
-    self.ref.x = 0
-    self.ref.y = 0
-
-    super:preDraw(self)
-
-    self.ref:preDraw(self)
+    if self.copy_transform then
+        local last_ref_x, last_ref_y = self.ref.x, self.ref.y
+        self.ref.x, self.ref.y = 0, 0
+        self.ref:applyTransformTo(transform)
+        self.ref.x, self.ref.y = last_ref_x, last_ref_y
+    end
 end
 
 function FakeClone:draw()
     self.visible = false
-    self.ref:draw()
+    self.ref:fullDraw(false, true)
     self.visible = true
 
     super:draw(self)
 end
 
-function FakeClone:postDraw()
-    self.ref:postDraw()
-
-    super:postDraw(self)
-
-    self.ref.x = self.last_ref_x
-    self.ref.y = self.last_ref_y
+function FakeClone:canDeepCopyKey(key)
+    return super:canDeepCopyKey(self, key) and key ~= "ref"
 end
 
 return FakeClone

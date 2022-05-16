@@ -894,7 +894,7 @@ function Object:drawChildren(min_layer, max_layer)
     love.graphics.setColor(oldr, oldg, oldb, olda)
 end
 
-function Object:fullDraw(no_children)
+function Object:fullDraw(no_children, dont_transform)
     local used_timescale, last_dt, last_dt_mult, last_runtime = false, DT, DTMULT, RUNTIME
     if self.timescale ~= 1 then
         used_timescale = true
@@ -921,7 +921,7 @@ function Object:fullDraw(no_children)
         self._dont_draw_children = true
     end
     love.graphics.push()
-    self:preDraw(fx_transform)
+    self:preDraw(fx_transform or dont_transform)
     if self.draw_children_below then
         self:drawChildren(nil, self.draw_children_below)
     end
@@ -938,9 +938,11 @@ function Object:fullDraw(no_children)
         if fx_transform then
             final_canvas = self:processDrawFX(canvas, true)
             love.graphics.push()
-            local current_transform = love.graphics.getTransformRef()
-            self:applyTransformTo(current_transform)
-            love.graphics.replaceTransform(current_transform)
+            if not dont_transform then
+                local current_transform = love.graphics.getTransformRef()
+                self:applyTransformTo(current_transform)
+                love.graphics.replaceTransform(current_transform)
+            end
             if fx_screen then
                 local screen_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
                 love.graphics.setColor(1, 1, 1)
