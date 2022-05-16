@@ -39,12 +39,11 @@ end
 
 function Player:getDebugInfo()
     local info = super:getDebugInfo(self)
+    table.insert(info, "State: " .. self.state)
     table.insert(info, "Walk speed: " .. self.walk_speed)
     table.insert(info, "Run timer: " .. self.run_timer)
-    table.insert(info, "Run timer grace: " .. self.run_timer_grace)
-    table.insert(info, "Slide in place: " .. (self.slide_in_place and "True" or "False"))
-    table.insert(info, "Slide dust timer: " .. self.slide_dust_timer)
     table.insert(info, "Hurt timer: " .. self.hurt_timer)
+    table.insert(info, "Slide in place: " .. (self.slide_in_place and "True" or "False"))
     return info
 end
 

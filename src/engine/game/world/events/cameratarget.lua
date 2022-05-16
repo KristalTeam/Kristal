@@ -14,6 +14,8 @@ function CameraTarget:init(x, y, w, h, properties)
 
     self.time = properties["time"] or 0.25
     self.return_time = properties["returntime"] or 0.25
+
+    self.entered = false
 end
 
 function CameraTarget:getTargetPosition()
@@ -27,6 +29,8 @@ end
 function CameraTarget:onCollide(chara)
     if chara.is_player then
         local x, y = self:getTargetPosition()
+
+        self.entered = true
 
         if self.lock_x then
             self.world:setCameraAttachedX(false)
@@ -43,8 +47,18 @@ end
 
 function CameraTarget:onExit(chara)
     if chara.is_player then
+        self.entered = false
         self.world:returnCamera(self.return_time)
     end
+end
+
+function CameraTarget:onRemove(parent)
+    if self.entered and self.world then
+        local tx, ty = self.world:getCameraTarget()
+        self.world:setCameraAttached(true)
+        self.world.camera:setPosition(tx, ty)
+    end
+    super:onRemove(self, parent)
 end
 
 return CameraTarget
