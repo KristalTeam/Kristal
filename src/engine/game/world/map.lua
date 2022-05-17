@@ -281,7 +281,9 @@ function Map:loadMapData(data)
         if layer.type == "tilelayer" and not Utils.startsWith(name, "battleborder") then
             table.insert(tile_depths, depth)
         end
-        self:loadLayer(layer, depth)
+        if not Kristal.callEvent("loadLayer", self, layer, depth) then
+            self:loadLayer(layer, depth)
+        end
     end
 
     self.object_layer = 1
@@ -673,6 +675,8 @@ function Map:loadObject(name, data)
         return PushBlock(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "tilebutton" then
         return TileButton(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "magicglass" then
+        return MagicGlass(data.x, data.y, data.width, data.height)
     end
 end
 

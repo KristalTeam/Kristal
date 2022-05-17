@@ -16,6 +16,7 @@ function ChaserEnemy:init(actor, x, y, properties)
     end
 
     self.encounter = properties["encounter"]
+    self.enemy = properties["enemy"]
     self.group = properties["group"]
 
     self.path = properties["path"]
@@ -64,7 +65,7 @@ function ChaserEnemy:onCollide(player)
     if self:isActive() and player:includes(Player) then
         self.encountered = true
         local encounter = self.encounter
-        if not encounter and Registry.getEnemy(self.actor.id) then
+        if not encounter and Registry.getEnemy(self.enemy or self.actor.id) then
             encounter = Encounter()
             encounter:addEnemy(self.actor.id)
         end
@@ -81,7 +82,11 @@ function ChaserEnemy:onCollide(player)
                 wait(12/30)
                 self.world.encountering_enemy = false
                 Game.lock_movement = false
-                Game:encounter(encounter, true, self)
+                local enemy_target = self
+                if self.enemy then
+                    enemy_target = {{self.enemy, self}}
+                end
+                Game:encounter(encounter, true, enemy_target)
                 for _,enemy in ipairs(self.stage:getObjects(ChaserEnemy)) do
                     if enemy ~= self and self.group and enemy.group == self.group then
                         if enemy.remove_on_encounter then

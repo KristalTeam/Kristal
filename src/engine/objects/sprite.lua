@@ -37,6 +37,11 @@ function Sprite:canDebugSelect()
     end
 end
 
+function Sprite:setWrap(x, y)
+    self.wrap_texture_x = x or false
+    self.wrap_texture_y = y or (y == nil and x) or false
+end
+
 function Sprite:updateTexture()
     if self.frames then
         self:setTextureExact(self.frames[self.frame], true)
