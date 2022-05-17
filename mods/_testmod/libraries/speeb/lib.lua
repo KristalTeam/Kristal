@@ -1,6 +1,6 @@
 local lib = {}
 
-local msg_suffix = require("reqtest")
+local msg_suffix = libRequire("speeb", "reqtest")
 
 function lib:init()
     print("Loaded speeb library"..msg_suffix)

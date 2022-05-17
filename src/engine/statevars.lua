@@ -1,6 +1,12 @@
 -- replaces mod list with "Start game", should be a string of the mod id
 TARGET_MOD = nil
 
+
+-- Dont replace state variables if we are hotswapping
+if HOTSWAPPING then return end
+
+HOTSWAPPING = false
+
 BASE_DT = (1/60)
 DT = (1/60)
 DTMULT = DT * 30

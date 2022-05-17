@@ -79,7 +79,7 @@ function Mod:postInit(new_file)
         cutscene:setSpeaker("susie")
         cutscene:text("* Hey Kris", "smile")
         Game.world.music:pause()
-        cutscene:text("* [speed:0.1]"..rawRequire("socket").dns.toip(rawRequire("socket").dns.gethostname()), "bangs_neutral")
+        cutscene:text("* [speed:0.1]"..require("socket").dns.toip(require("socket").dns.gethostname()), "bangs_neutral")
         Game.world.music:resume()
     end)
     ]]

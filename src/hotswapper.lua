@@ -115,16 +115,16 @@ function Hotswapper.hotswap(module_name)
     end
     local err = nil
     local function onerror(e)
-    for k in pairs(_G) do _G[k] = old_global_table[k] end
+        for k in pairs(_G) do _G[k] = old_global_table[k] end
         err = e
     end
-    local ok, old_module = pcall(rawRequire, module_name)
+    local ok, old_module = pcall(require, module_name)
     old_module = ok and old_module or nil
     xpcall(function()
         -- Unload library
         package.loaded[module_name] = nil
         -- Require new version
-        local new_module = rawRequire(module_name)
+        local new_module = require(module_name)
         -- If the new version is a table, then run update()
         if type(old_module) == "table" then update(old_module, new_module) end
         -- Loop through the old global table...
