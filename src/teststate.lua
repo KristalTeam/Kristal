@@ -3,23 +3,19 @@ local Testing = {}
 function Testing:enter()
     self.stage = Stage()
 
-    self.frame = 0
+    self.draw_text = true
 end
 
 function Testing:update()
-    self.frame = self.frame + 1
-
-    if Input.pressed("confirm") then
-        self.stage:addChild(DarkTransition(240, {has_head_object = true}))
-    end
-
     self.stage:update()
 end
 
 function Testing:draw()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setFont(Assets.getFont("main"))
-    love.graphics.printf("~ TESTING STATE ~", 0, 48, 640, "center")
+    if self.draw_text then
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setFont(Assets.getFont("main"))
+        love.graphics.printf("~ TESTING STATE ~", 0, 16, 640, "center")
+    end
     self.stage:draw()
 end
 

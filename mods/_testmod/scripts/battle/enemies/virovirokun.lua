@@ -60,7 +60,11 @@ function Virovirokun:onAct(battler, name)
             v.text_override = "Zzz..."
         end
         self:addMercy(100)
-        return "* Ralsei tells Virovirokun a story.[wait:5]\n* The enemies fell asleep!"
+        local susie = Game.battle:getPartyBattler("susie")
+        if susie then
+            susie:setSleeping(true)
+        end
+        return "* Ralsei tells Virovirokun a story.[wait:5]\n* The enemies fell asleep![wait:5]\n* Susie fell asleep too!"
     elseif name == "Red" then
         self.become_red = true
         self:setColor(1, 0, 0)

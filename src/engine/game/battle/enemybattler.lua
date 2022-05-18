@@ -395,9 +395,9 @@ end
 function EnemyBattler:onTextboxSpawn(textbox) end
 function EnemyBattler:onTextboxRemove(textbox) end
 
-function EnemyBattler:hurt(amount, battler, on_defeat)
+function EnemyBattler:hurt(amount, battler, on_defeat, color)
     self.health = self.health - amount
-    self:statusMessage("damage", amount, battler and {battler.chara:getDamageColor()})
+    self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
 
     self.hurt_timer = 1
     self:onHurt(amount, battler)

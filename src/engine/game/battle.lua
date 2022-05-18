@@ -331,7 +331,7 @@ function Battle:onStateChange(old,new)
             self.started = true
 
             for _,battler in ipairs(self.party) do
-                battler:setAnimation("battle/idle")
+                battler:resetSprite()
             end
 
             if self.encounter.music then
@@ -450,10 +450,14 @@ function Battle:onStateChange(old,new)
         self.tension_bar.physics.speed_x = -10
         self.tension_bar.physics.friction = -0.4
         for _,battler in ipairs(self.party) do
+            battler:setSleeping(false)
+            battler.defending = false
+            battler.action = nil
+
             battler:setAnimation("battle/victory")
 
             local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-            box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
+            box:resetHeadIcon()
         end
 
         self.money = self.money + (math.floor((self.tension / 10)) * Game.chapter)
@@ -586,11 +590,12 @@ end
 function Battle:resetAttackers()
     if #self.attackers > 0 then
         for _,battler in ipairs(self.attackers) do
-            local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-            box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
+            if battler.action then
+                battler.action.icon = nil
+            end
 
             if not battler:setAnimation("battle/attack_end") then
-                battler:setAnimation("battle/idle")
+                battler:resetSprite()
             end
         end
         self.attackers = {}
@@ -794,8 +799,7 @@ function Battle:processAction(action)
         end
 
         battler:setAnimation("battle/attack", function()
-            local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-            box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
+            action.icon = nil
 
             if action.target and action.target.done_state then
                 enemy = self:retargetEnemy()
@@ -1030,7 +1034,7 @@ function Battle:finishAction(action, keep_animation)
             end
 
 
-            dont_end = false
+            local dont_end = false
             if (keep_animation) then
                 if Utils.containsValue(keep_animation, ibattler.chara.id) then
                     dont_end = true
@@ -1057,9 +1061,14 @@ end
 function Battle:endActionAnimation(battler, action, callback)
     local _callback = callback
     callback = function()
+        -- Remove the battler's action icon
+        if battler.action then
+            battler.action.icon = nil
+        end
         -- Reset the head sprite
         local box = self.battle_ui.action_boxes[self:getPartyIndex(battler.chara.id)]
-        box.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
+        --box:setHeadIcon("head")
+        box:resetHeadIcon()
         if _callback then
             _callback()
         end
@@ -1068,11 +1077,11 @@ function Battle:endActionAnimation(battler, action, callback)
         if battler.sprite.anim == "battle/"..action.action:lower() then
             -- Attempt to play the end animation if the sprite hasn't changed
             if not battler:setAnimation("battle/"..action.action:lower().."_end", callback) then
-                battler:setAnimation("battle/idle")
+                battler:resetSprite()
             end
         else
             -- Otherwise, play idle animation
-            battler:setAnimation("battle/idle")
+            battler:resetSprite()
             if callback then
                 callback()
             end
@@ -1126,8 +1135,8 @@ function Battle:powerAct(spell, battler, user, target)
         soul:setScale(2, 2)
         self:addChild(soul)
 
-        local box = self.battle_ui.action_boxes[user_index]
-        box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/spell")
+        --[[local box = self.battle_ui.action_boxes[user_index]
+        box:setHeadIcon("spell")]]
 
     end)
 
@@ -1173,6 +1182,9 @@ function Battle:commitAction(battler, action_type, target, data, extra)
     end
 
     local party_id = self:getPartyIndex(battler.chara.id)
+
+    -- Dont commit action for an inactive party member
+    if not battler:isActive() then return end
 
     -- Make sure this action doesn't cancel any uncancellable actions
     if data.party then
@@ -1265,11 +1277,7 @@ function Battle:commitSingleAction(action)
 
     if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
         battler:setAnimation("battle/"..anim.."_ready")
-        local box = self.battle_ui.action_boxes[action.character_id]
-        box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/"..anim)
-        if not box.head_sprite:getTexture() then
-            box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/head")
-        end
+        action.icon = anim
     end
 
     if action.tp then
@@ -1299,15 +1307,14 @@ function Battle:commitSingleAction(action)
         end
     end
 
+    battler.action = action
+
     self.character_actions[action.character_id] = action
 end
 
 function Battle:removeSingleAction(action)
     local battler = self.party[action.character_id]
-    battler:setAnimation("battle/idle")
-
-    local box = self.battle_ui.action_boxes[action.character_id]
-    box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/head")
+    battler:resetSprite()
 
     if action.tp then
         if action.tp < 0 then
@@ -1327,6 +1334,8 @@ function Battle:removeSingleAction(action)
         end
         action.data:onBattleDeselect(battler, action.target)
     end
+
+    battler.action = nil
 
     self.character_actions[action.character_id] = nil
 end
@@ -1441,7 +1450,7 @@ function Battle:nextParty()
     local last_selected = self.current_selecting
     self.current_selecting = (self.current_selecting % #self.party) + 1
     while self.current_selecting ~= last_selected do
-        if not self:hasAction(self.current_selecting) and not self.party[self.current_selecting].is_down then
+        if not self:hasAction(self.current_selecting) and self.party[self.current_selecting]:isActive() then
             all_done = false
             break
         end
@@ -1518,6 +1527,7 @@ function Battle:nextTurn()
         if (battler.chara.health <= 0) then
             battler:heal(math.ceil(battler.chara:getStat("health") / 8))
         end
+        battler.action = nil
     end
 
     self.attackers = {}
@@ -1525,7 +1535,7 @@ function Battle:nextTurn()
     self.auto_attackers = {}
 
     self.current_selecting = 1
-    while (self.party[self.current_selecting].is_down) do
+    while not (self.party[self.current_selecting]:isActive()) do
         self.current_selecting = self.current_selecting + 1
         if self.current_selecting > #self.party then
             print("WARNING: nobody up! this shouldn't happen...")
@@ -1543,7 +1553,8 @@ function Battle:nextTurn()
     if self.battle_ui then
         for _,box in ipairs(self.battle_ui.action_boxes) do
             box.selected_button = 1
-            box.head_sprite:setSprite(box.battler.chara:getHeadIcons().."/head")
+            --box:setHeadIcon("head")
+            box:resetHeadIcon()
         end
         self.battle_ui.current_encounter_text = self:getEncounterText()
         self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
@@ -1764,7 +1775,7 @@ function Battle:update()
         if self.actions_done_timer == 0 and not any_hurt then
             for _,battler in ipairs(self.attackers) do
                 if not battler:setAnimation("battle/attack_end") then
-                    battler:setAnimation("battle/idle")
+                    battler:resetSprite()
                 end
             end
             self.attackers = {}
@@ -2096,8 +2107,8 @@ function Battle:canSelectMenuItem(menu_item)
             local party_index = self:getPartyIndex(party_id)
             local battler = self.party[party_index]
             local action = self.character_actions[party_index]
-            if (not battler) or (battler.chara.health <= 0) or (action and action.cancellable == false) then
-                -- They're either down, or don't exist. Either way, they're not here to do the action.
+            if (not battler) or (not battler:isActive()) or (action and action.cancellable == false) then
+                -- They're either down, asleep, or don't exist. Either way, they're not here to do the action.
                 return false
             end
         end

@@ -19,10 +19,14 @@ function PartyBattler:init(chara, x, y)
     -- default to the idle animation, handle the battle intro elsewhere
     self:setAnimation("battle/idle")
 
+    self.action = nil
+
     self.defending = false
     self.hurt_timer = 0
+    self.hurting = false
 
     self.is_down = false
+    self.sleeping = false
 end
 
 function PartyBattler:hurt(amount, exact, color)
@@ -67,10 +71,16 @@ function PartyBattler:hurt(amount, exact, color)
     Game.battle.shake = 4
 
     if (not self.defending) and (not self.is_down) then
+        self.sleeping = false
+        self.hurting = true
         self:toggleOverlay(true)
-        self.overlay_sprite:setAnimation("battle/hurt", function() self:toggleOverlay(false) end)
+        self.overlay_sprite:setAnimation("battle/hurt", function()
+            self.hurting = false
+            self:toggleOverlay(false)
+        end)
         if not self.overlay_sprite.anim_frames then -- backup if the ID doesn't animate, so it doesn't get stuck with the hurt animation
             Game.battle.timer:after(0.5, function()
+                self.hurting = false
                 self:toggleOverlay(false)
             end)
         end
@@ -93,9 +103,32 @@ end
 
 function PartyBattler:down()
     self.is_down = true
+    self.sleeping = false
     self:toggleOverlay(true)
     self.overlay_sprite:setAnimation("battle/defeat")
+    if self.action then
+        Game.battle:removeAction(Game.battle:getPartyIndex(self.chara.id))
+    end
     Game.battle:checkGameOver()
+end
+
+function PartyBattler:setSleeping(sleeping)
+    if self.sleeping == (sleeping or false) then return end
+
+    if sleeping then
+        if self.is_down then return end
+        self.sleeping = true
+        self:toggleOverlay(true)
+        if not self.overlay_sprite:setAnimation("battle/sleep") then
+            self.overlay_sprite:setAnimation("battle/defeat")
+        end
+        if self.action then
+            Game.battle:removeAction(Game.battle:getPartyIndex(self.chara.id))
+        end
+    else
+        self.sleeping = false
+        self:toggleOverlay(false)
+    end
 end
 
 function PartyBattler:revive()
@@ -141,6 +174,23 @@ function PartyBattler:statusMessage(...)
     message.y = message.y - 4
 end
 
+function PartyBattler:isActive()
+    return not self.is_down and not self.sleeping
+end
+
+function PartyBattler:getHeadIcon()
+    if self.sleeping then
+        return "sleep"
+    elseif self.defending then
+        return "defend"
+    elseif self.action and self.action.icon then
+        return self.action.icon
+    elseif self.hurting then
+        return "head_hurt"
+    else
+        return "head"
+    end
+end
 
 function PartyBattler:toggleOverlay(overlay)
     if overlay == nil then
@@ -148,6 +198,10 @@ function PartyBattler:toggleOverlay(overlay)
     end
     self.overlay_sprite.visible = overlay
     self.sprite.visible = not overlay
+end
+
+function PartyBattler:resetSprite()
+    self:setAnimation("battle/idle")
 end
 
 function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)

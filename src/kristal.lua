@@ -512,6 +512,18 @@ function Kristal.errorHandler(msg)
 
 end
 
+function Kristal.setState(state, ...)
+    if type(state) == "string" then
+        Gamestate.switch(Kristal.States[state], ...)
+    else
+        Gamestate.switch(state, ...)
+    end
+end
+
+function Kristal.getState()
+    return Gamestate.current()
+end
+
 function Kristal.getTime()
     return RUNTIME
 end

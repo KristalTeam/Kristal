@@ -21,7 +21,11 @@ function ActionBox:init(x, y, index, battler)
 
     self.head_offset_x, self.head_offset_y = battler.chara:getHeadIconOffset()
 
-    self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 13 + self.head_offset_x, 11 + self.head_offset_y)
+    self.head_sprite = Sprite(battler.chara:getHeadIcons().."/"..battler:getHeadIcon(), 13 + self.head_offset_x, 11 + self.head_offset_y)
+    if not self.head_sprite:getTexture() then
+        self.head_sprite:setSprite(battler.chara:getHeadIcons().."/head")
+    end
+    self.force_head_sprite = false
 
     if battler.chara:getNameSprite() then
         self.name_sprite = Sprite(battler.chara:getNameSprite(), 51, 14)
@@ -76,7 +80,16 @@ function ActionBox:createButtons()
 end
 
 function ActionBox:setHeadIcon(icon)
+    self.force_head_sprite = true
     self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/"..icon)
+end
+
+function ActionBox:resetHeadIcon()
+    self.force_head_sprite = false
+    self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon())
+    if not self.head_sprite:getTexture() then
+        self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
+    end
 end
 
 function ActionBox:update()
@@ -111,6 +124,14 @@ function ActionBox:update()
         self.name_sprite.y = 14 - self.data_offset
     end
     self.hp_sprite.y   = 22 - self.data_offset
+
+    local current_head = self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon()
+    if not self.force_head_sprite and self.head_sprite.sprite ~= current_head then
+        self.head_sprite:setSprite(current_head)
+        if not self.head_sprite:getTexture() then
+            self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
+        end
+    end
 
     for i,button in ipairs(self.buttons) do
         if (Game.battle.current_selecting == self.index) then
