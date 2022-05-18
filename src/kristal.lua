@@ -601,6 +601,8 @@ function Kristal.returnToMenu()
     end)
 
     Kristal.DebugSystem:refresh()
+    -- End input if it's open, might cause weirdness with the console
+    TextInput.endInput()
 end
 
 -- Mode can be "temp", "save", or "none"
