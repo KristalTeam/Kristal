@@ -503,11 +503,8 @@ function Kristal.errorHandler(msg)
             end
         end
 
+        DT = love.timer.step()
         draw()
-
-        --if love.timer then
-        --    love.timer.sleep(0.1)
-        --end
     end
 
 end
