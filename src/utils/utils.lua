@@ -826,6 +826,27 @@ function Utils.parsePropertyList(id, properties)
     end
 end
 
+function Utils.parsePropertyMultiList(id, properties)
+    local single_list = Utils.parsePropertyList(id, properties)
+    if #single_list > 0 then
+        return {single_list}
+    else
+        local result = {}
+        local i = 1
+        while properties[id..i.."_1"] do
+            local list = {}
+            local j = 1
+            while properties[id..i.."_"..j] do
+                table.insert(list, properties[id..i.."_"..j])
+                j = j + 1
+            end
+            table.insert(result, list)
+            i = i + 1
+        end
+        return result
+    end
+end
+
 function Utils.parseFlagProperties(flag, inverted, value, default_value, properties)
     properties = properties or {}
     local result_inverted = false

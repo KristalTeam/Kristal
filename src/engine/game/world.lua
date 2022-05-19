@@ -609,7 +609,9 @@ function World:setupMap(map, ...)
     self.battle_fader.debug_select = false
     self:addChild(self.battle_fader)
 
-    self:transitionMusic(self.map.music)
+    if not self.map.keep_music then
+        self:transitionMusic(self.map.music)
+    end
 end
 
 function World:loadMap(...)
@@ -721,7 +723,9 @@ function World:mapTransition(...)
     local map = args[1]
     if type(map) == "string" then
         local map = Registry.createMap(map)
-        self:transitionMusic(map.music, true)
+        if not map.keep_music then
+            self:transitionMusic(map.music, true)
+        end
     end
     self:fadeInto(function()
         self:loadMap(Utils.unpack(args))

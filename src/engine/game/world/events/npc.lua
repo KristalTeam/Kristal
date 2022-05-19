@@ -15,17 +15,23 @@ function NPC:init(actor, x, y, properties)
         self:setFacing(properties["facing"])
     end
 
+    self.talk = properties["talk"] ~= false
+
     self.solid = properties["solid"] == nil or properties["solid"]
 
     self.cutscene = properties["cutscene"]
     self.script = properties["script"]
-    self.text = Interactable.parseText(properties)
+    self.text = Utils.parsePropertyMultiList("text", properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
+
+    self.interact_count = 0
 end
 
 function NPC:onInteract(player, dir)
+    self.interact_count = self.interact_count + 1
+
     if self.script then
         Registry.getEventScript(self.script)(self, player, dir)
     end
@@ -39,8 +45,12 @@ function NPC:onInteract(player, dir)
         return true
     elseif #self.text > 0 then
         self.world:startCutscene(function(cutscene)
-            cutscene:setSpeaker(self, true)
-            for _,line in ipairs(self.text) do
+            cutscene:setSpeaker(self, self.talk)
+            local text = self.text
+            if type(text[self.interact_count]) == "table" then
+                text = text[self.interact_count]
+            end
+            for _,line in ipairs(text) do
                 cutscene:text(line)
             end
         end):after(function()

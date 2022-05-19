@@ -22,6 +22,8 @@ function Map:init(world, data)
     self.name = data and data.properties and data.properties["name"]
 
     self.music = data and data.properties and data.properties["music"]
+    self.keep_music = data and data.properties and data.properties["keepmusic"]
+
     self.light = data and data.properties and data.properties["light"] or false
 
     if data and data.backgroundcolor then

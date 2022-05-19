@@ -9,12 +9,14 @@ function Interactable:init(x, y, width, height, properties)
 
     self.cutscene = properties["cutscene"]
     self.script = properties["script"]
-    self.text = Interactable.parseText(properties)
+    self.text = Utils.parsePropertyMultiList("text", properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
 
     self.once = properties["once"] or false
+
+    self.interact_count = 0
 end
 
 function Interactable:getDebugInfo()
@@ -36,6 +38,8 @@ function Interactable:onAdd(parent)
 end
 
 function Interactable:onInteract(player, dir)
+    self.interact_count = self.interact_count + 1
+
     if self.script then
         Registry.getEventScript(self.script)(self, player, dir)
     end
@@ -44,7 +48,11 @@ function Interactable:onInteract(player, dir)
         cutscene = self.world:startCutscene(self.cutscene, self, player, dir)
     else
         cutscene = self.world:startCutscene(function(c)
-            for _,line in ipairs(self.text) do
+            local text = self.text
+            if type(text[self.interact_count]) == "table" then
+                text = text[self.interact_count]
+            end
+            for _,line in ipairs(text) do
                 c:text(line)
             end
         end)
@@ -66,20 +74,5 @@ function Interactable:onInteract(player, dir)
 end
 
 function Interactable:onTextEnd() end
-
-function Interactable.parseText(properties)
-    properties = properties or {}
-    if properties["text"] then
-        return {properties["text"]}
-    else
-        local text = {}
-        local i = 1
-        while properties["text"..i] do
-            table.insert(text, properties["text"..i])
-            i = i + 1
-        end
-        return text
-    end
-end
 
 return Interactable
