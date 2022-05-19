@@ -25,7 +25,7 @@ function ActorSprite:init(actor)
 
     self.walking = false
     self.walk_speed = 4
-    self.walk_frame = 1
+    self.walk_frame = 2
 
     self.shake_x = 0
     self.shake_y = 0
