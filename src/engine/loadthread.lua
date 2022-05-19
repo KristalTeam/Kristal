@@ -51,6 +51,7 @@ end
 function resetData()
     data = {
         mods = {},
+        failed_mods = {},
         assets = {
             texture = {},
             texture_data = {},
@@ -93,7 +94,17 @@ local loaders = {
             love.filesystem.mount(mounted_path, full_path)
         end
         if love.filesystem.getInfo(full_path.."/mod.json") then
-            local mod = json.decode(love.filesystem.read(full_path.."/mod.json"))
+            local ok, mod = pcall(json.decode, love.filesystem.read(full_path.."/mod.json"))
+
+            if not ok then
+                table.insert(data.failed_mods, {
+                    path = path,
+                    error = mod
+                })
+                print("WARNING: Mod \""..path.."\" has an invalid mod.json!")
+                -- TODO: failed_mods is currently unused, show an in-engine error
+                return
+            end
 
             mod.id = mod.id or path
             mod.folder = path
@@ -175,8 +186,19 @@ local loaders = {
 
                     local lib = {}
 
+                    ok = true
+
                     if love.filesystem.getInfo(lib_full_path.."/lib.json") then
-                        lib = json.decode(love.filesystem.read(lib_full_path.."/lib.json"))
+                        ok, lib = pcall(json.decode, love.filesystem.read(lib_full_path.."/lib.json"))
+                    end
+
+                    if not ok then
+                        table.insert(data.failed_mods, {
+                            path = path,
+                            error = lib
+                        })
+                        print("WARNING: Mod \""..path.."\" has a library with an invalid lib.json!")
+                        -- TODO: failed_mods is currently unused, show an in-engine error
                     end
 
                     lib.id = lib.id or lib_path
@@ -222,7 +244,11 @@ local loaders = {
         end
         id = checkExtension(path, "json")
         if id then
-            data.assets.font_settings[id] = json.decode(love.filesystem.read(full_path))
+            local ok, data = pcall(json.decode, love.filesystem.read(full_path))
+            if not ok then
+                error("Font \""..path.."\" has an invalid json file!")
+            end
+            data.assets.font_settings[id] = data
         end
     end},
     ["sounds"] = {"assets/sounds", function(base_dir, path, full_path)
