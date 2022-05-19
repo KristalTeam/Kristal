@@ -244,11 +244,11 @@ local loaders = {
         end
         id = checkExtension(path, "json")
         if id then
-            local ok, data = pcall(json.decode, love.filesystem.read(full_path))
+            local ok, loaded_data = pcall(json.decode, love.filesystem.read(full_path))
             if not ok then
                 error("Font \""..path.."\" has an invalid json file!")
             end
-            data.assets.font_settings[id] = data
+            data.assets.font_settings[id] = loaded_data
         end
     end},
     ["sounds"] = {"assets/sounds", function(base_dir, path, full_path)
