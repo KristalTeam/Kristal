@@ -35,6 +35,9 @@ function Actor:init()
     -- Table of talk sprites and their talk speeds (default 0.25)
     self.talk_sprites = {}
 
+    -- Table of sprites that have a unique flip value, if self.flip is not set
+    self.flip_sprites = {}
+
     -- Table of sprite animations
     self.animations = {}
 
@@ -98,8 +101,6 @@ function Actor:getColor()
     end
 end
 
-function Actor:getFlipDirection() return self.flip end
-
 function Actor:getSpritePath() return self.path or "" end
 
 function Actor:getDefaultSprite() return self.default_sprite end
@@ -110,6 +111,8 @@ function Actor:getVoice() return self.voice end
 
 function Actor:getPortraitPath() return self.portrait_path end
 function Actor:getPortraitOffset() return unpack(self.portrait_offset or {0, 0}) end
+
+function Actor:getFlipDirection(sprite) return self.flip or self.flip_sprites[sprite] end
 
 function Actor:hasTalkSprite(sprite) return self.talk_sprites[sprite] ~= nil end
 function Actor:getTalkSpeed(sprite) return self.talk_sprites[sprite] or 0.25 end

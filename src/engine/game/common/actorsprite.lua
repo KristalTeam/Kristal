@@ -11,6 +11,7 @@ function ActorSprite:init(actor)
     self.anim = nil
     self.facing = "down"
     self.last_facing = "down"
+    self.sprite_options = {}
 
     self.temp_anim = nil
     self.temp_sprite = nil
@@ -45,6 +46,8 @@ function ActorSprite:init(actor)
     end
 
     self:resetSprite()
+
+    self.last_flippable = actor:getFlipDirection(self)
 end
 
 function ActorSprite:resetSprite(ignore_actor_callback)
@@ -59,6 +62,12 @@ function ActorSprite:resetSprite(ignore_actor_callback)
         self:set(self.actor:getDefault())
     end
     self.actor:onResetSprite(self)
+end
+
+function ActorSprite:setTextureExact(texture)
+    super:setTextureExact(self, texture)
+
+    self.sprite_options = self.actor:parseSpriteOptions(self.texture_path)
 end
 
 function ActorSprite:setActor(actor)
@@ -194,8 +203,7 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
 end
 
 function ActorSprite:canTalk()
-    local options = self.actor:parseSpriteOptions(self.texture_path)
-    for _,sprite in ipairs(options) do
+    for _,sprite in ipairs(self.sprite_options) do
         if self.actor:hasTalkSprite(sprite) then
             return true, self.actor:getTalkSpeed(sprite)
         end
@@ -211,15 +219,11 @@ function ActorSprite:updateDirection()
 end
 
 function ActorSprite:isSprite(sprite)
-    local options = self.actor:parseSpriteOptions(self.texture_path)
-
-    return Utils.containsValue(options, sprite)
+    return Utils.containsValue(self.sprite_options, sprite)
 end
 
 function ActorSprite:getValueForSprite(tbl)
-    local options = self.actor:parseSpriteOptions(self.texture_path)
-
-    for _,sprite in ipairs(options) do
+    for _,sprite in ipairs(self.sprite_options) do
         if tbl[sprite] then
             return tbl[sprite]
         end
@@ -249,8 +253,7 @@ function ActorSprite:getOffset()
     if self.force_offset then
         offset = self.force_offset
     else
-        local options = self.actor:parseSpriteOptions(self.texture_path)
-        for _,sprite in ipairs(options) do
+        for _,sprite in ipairs(self.sprite_options) do
             if self.actor:hasOffset(sprite) then
                 offset = {self.actor:getOffset(sprite)}
                 break
@@ -274,10 +277,16 @@ function ActorSprite:update()
         return
     end
 
-    if self.actor:getFlipDirection() then
+    local flip_dir
+    for _,sprite in ipairs(self.sprite_options) do
+        flip_dir = self.actor:getFlipDirection(sprite)
+        if flip_dir then break end
+    end
+
+    if flip_dir then
         if not self.directional then
-            local opposite = self.actor:getFlipDirection() == "right" and "left" or "right"
-            if self.facing == self.actor:getFlipDirection() then
+            local opposite = flip_dir == "right" and "left" or "right"
+            if self.facing == flip_dir then
                 self.flip_x = true
             elseif self.facing == opposite then
                 self.flip_x = false
@@ -285,6 +294,10 @@ function ActorSprite:update()
         else
             self.flip_x = false
         end
+        self.last_flippable = true
+    elseif self.last_flippable then
+        self.last_flippable = false
+        self.flip_x = false
     end
 
     if not self.playing then
