@@ -11,6 +11,9 @@ function Savepoint:init(x, y, properties)
 
     self:setOrigin(0.5, 0.5)
     self:setSprite("world/events/savepoint", 1/6)
+
+    self.text_once = properties["text_once"]
+    self.used = false
 end
 
 function Savepoint:onInteract(player, dir)
@@ -18,6 +21,16 @@ function Savepoint:onInteract(player, dir)
     for _,party in ipairs(Game.party) do
         party:heal(math.huge, false)
     end
+
+    if self.text_once and self.used then
+        self:onTextEnd()
+        return
+    end
+
+    if self.text_once then
+        self.used = true
+    end
+
     super:onInteract(self, player, dir)
     return true
 end

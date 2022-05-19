@@ -53,6 +53,10 @@ function Object:init(x, y, width, height)
     self.x = x or 0
     self.y = y or 0
 
+    -- Save the initial position
+    self.init_x = self.x
+    self.init_y = self.y
+
     -- Initialize this object's size
     self.width = width or 0
     self.height = height or 0
