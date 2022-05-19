@@ -145,6 +145,7 @@ Forcefield = require("src.engine.game.world.events.forcefield")
 PushBlock = require("src.engine.game.world.events.pushblock")
 TileButton = require("src.engine.game.world.events.tilebutton")
 MagicGlass = require("src.engine.game.world.events.magicglass")
+TileObject = require("src.engine.game.world.events.tileobject")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
 
 ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")

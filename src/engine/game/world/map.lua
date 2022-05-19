@@ -680,6 +680,10 @@ function Map:loadObject(name, data)
     elseif name:lower() == "magicglass" then
         return MagicGlass(data.x, data.y, data.width, data.height)
     end
+    if data.gid then
+        local tileset, tile_id = self:getTileset(data.gid)
+        return TileObject(tileset, tile_id, data.x, data.y, data.width, data.height)
+    end
 end
 
 function Map:loadController(name, data)
