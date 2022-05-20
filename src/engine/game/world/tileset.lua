@@ -61,7 +61,7 @@ end
 
 function Tileset:getTileSize(id)
     local info = self.tile_info[id]
-    if info.width and info.height then
+    if info and info.width and info.height then
         return info.width, info.height
     else
         return self.tile_width, self.tile_height
