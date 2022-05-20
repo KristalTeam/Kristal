@@ -210,14 +210,14 @@ function TensionBar:draw()
 
         local theight = 196 - ((self.current / Game.battle.max_tension) * 196)
         local theight2 = theight + ((self.tension_preview / Game.battle.max_tension) * 196)
-        -- Note: DOESNT cause a visual bug. Sorry
-        if (theight2 > 196) then
-            theight2 = 196
+        -- Note: causes a visual bug.
+        if (theight2 > ((0 + 196) - 1)) then
+            theight2 = ((0 + 196) - 1)
             color_to_set = {COLORS.dkgray[1], COLORS.dkgray[2], COLORS.dkgray[3], 0.7}
         end
 
         Draw.pushScissor()
-        Draw.scissorPoints(0, theight2 + 1, 25, math.floor(theight + 1))
+        Draw.scissorPoints(0, theight2 + 1, 25, theight + 1)
 
         -- No idea how Deltarune draws this, cause this code was added in Kristal:
         local r,g,b,_ = love.graphics.getColor()
