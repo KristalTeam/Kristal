@@ -84,6 +84,7 @@ function ActionButton:select()
             local item = {
                 ["name"] = spell:getName(),
                 ["tp"] = spell:getTPCost(self.battler.chara),
+                ["unusable"] = not spell:isUsable(self.battler.chara),
                 ["description"] = spell:getBattleDescription(),
                 ["party"] = spell.party,
                 ["color"] = color,

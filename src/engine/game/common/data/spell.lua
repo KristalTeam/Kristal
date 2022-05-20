@@ -13,6 +13,8 @@ function Spell:init()
 
     -- TP cost
     self.cost = 0
+    -- Whether the spell can be used
+    self.usable = true
 
     -- Target mode (ally, party, enemy, enemies, or none)
     self.target = "none"
@@ -28,6 +30,7 @@ function Spell:getDescription() return self.description end
 function Spell:getBattleDescription() return self.effect end
 
 function Spell:getTPCost(chara) return self.cost end
+function Spell:isUsable(chara) return self.usable end
 
 function Spell:hasTag(tag)
     return Utils.containsValue(self.tags, tag)
