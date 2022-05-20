@@ -126,7 +126,7 @@ end
 
 function character:onTurnStart(battler)
     if self:getFlag("auto_attack", false) then
-        Game.battle:commitForceAction(battler, "AUTOATTACK", Game.battle:getActiveEnemies()[1], nil, {points = 150})
+        Game.battle:pushForcedAction(battler, "AUTOATTACK", Game.battle:getActiveEnemies()[1], nil, {points = 150})
     end
 end
 

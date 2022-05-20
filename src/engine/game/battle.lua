@@ -1146,24 +1146,24 @@ function Battle:powerAct(spell, battler, user, target)
     end)
 end
 
-function Battle:pushAction(action_type, target, data, character_id)
-    character_id = character_id or self.current_selecting
-
-    local battler = self.party[character_id]
-
-    self:commitAction(battler, action_type, target, data)
-
-    if self.current_selecting ~= 0 then
-        self:nextParty()
-    end
-end
-
-function Battle:commitForceAction(battler, action, target, data, extra)
+function Battle:pushForcedAction(battler, action, target, data, extra)
     data = data or {}
 
     data.cancellable = false
 
-    self:commitAction(battler, action, target, data, extra)
+    self:pushAction(action, target, data, self:getPartyIndex(battler.chara.id), extra)
+end
+
+function Battle:pushAction(action_type, target, data, character_id, extra)
+    character_id = character_id or self.current_selecting
+
+    local battler = self.party[character_id]
+
+    self:commitAction(battler, action_type, target, data, extra)
+
+    if self.current_selecting == character_id then
+        self:nextParty()
+    end
 end
 
 function Battle:commitAction(battler, action_type, target, data, extra)
