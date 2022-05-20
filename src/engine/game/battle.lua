@@ -1576,7 +1576,9 @@ function Battle:nextTurn()
         end
     end
 
-    self:setState("ACTIONSELECT")
+    if self.current_selecting ~= 0 then
+        self:setState("ACTIONSELECT")
+    end
 end
 
 function Battle:checkGameOver()
