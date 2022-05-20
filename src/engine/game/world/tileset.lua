@@ -1,6 +1,8 @@
 local Tileset = Class()
 
 function Tileset:init(data, path)
+    self.path = path
+
     self.id = data.id
     self.name = data.name
     self.tile_count = data.tilecount or 0
@@ -9,6 +11,7 @@ function Tileset:init(data, path)
     self.margin = data.margin or 0
     self.spacing = data.spacing or 0
     self.columns = data.columns or 0
+    self.object_alignment = data.objectalignment or "unspecified"
 
     self.tile_info = {}
     for _,v in ipairs(data.tiles or {}) do
@@ -20,10 +23,25 @@ function Tileset:init(data, path)
                 info.animation.duration = info.animation.duration + (anim.duration / 1000)
             end
         end
+        if v.image then
+            local image_path = Utils.absoluteToLocalPath("assets/sprites/", v.image, path)
+            info.texture = Assets.getTexture(image_path)
+            if not info.texture then
+                error("Could not load tileset tile texture: "..image_path)
+            end
+            info.width = v.width
+            info.height = v.height
+        end
         self.tile_info[v.id] = info
     end
 
-    self.texture = Assets.getTexture(Utils.absoluteToLocalPath("assets/sprites/", data.image, path))
+    if data.image then
+        local image_path = Utils.absoluteToLocalPath("assets/sprites/", data.image, path)
+        self.texture = Assets.getTexture(image_path)
+        if not self.texture then
+            error("Could not load tileset texture: "..image_path)
+        end
+    end
 
     self.quads = {}
     if self.texture then
@@ -41,22 +59,40 @@ function Tileset:getAnimation(id)
     return info and info.animation
 end
 
-function Tileset:drawTile(id, x, y, ...)
-    local draw_id = id
+function Tileset:getTileSize(id)
+    local info = self.tile_info[id]
+    if info.width and info.height then
+        return info.width, info.height
+    else
+        return self.tile_width, self.tile_height
+    end
+end
+
+function Tileset:getDrawTile(id)
     local info = self.tile_info[id]
     if info and info.animation then
         local time = Kristal.getTime()
         local pos = time % info.animation.duration
         local total_duration = 0
         for _,frame in ipairs(info.animation.frames) do
-            draw_id = frame.id
+            id = frame.id
             if pos < total_duration + frame.duration then
                 break
             end
             total_duration = total_duration + frame.duration
         end
     end
-    love.graphics.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
+    return id
+end
+
+function Tileset:drawTile(id, x, y, ...)
+    local draw_id = self:getDrawTile(id)
+    local info = self.tile_info[draw_id]
+    if info and info.texture then
+        love.graphics.draw(info.texture, x or 0, y or 0, ...)
+    else
+        love.graphics.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
+    end
 end
 
 function Tileset:canDeepCopy()
