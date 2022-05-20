@@ -140,19 +140,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                     end
                     if self.copied_object then
                         self.context:addMenuItem("Paste", "Paste the copied object.", function()
-                            local new_object = self.copied_object_temp and self.copied_object or self.copied_object:clone()
-                            if self.copied_object_parent then
-                                self.copied_object_parent:addChild(new_object)
-                            else
-                                self:getStage():addChild(new_object)
-                            end
-                            new_object:setScreenPos(Input.getMousePosition())
-                            self:selectObject(new_object)
-                            if self.copied_object_temp then
-                                self.copied_object = nil
-                                self.copied_object_parent = nil
-                                self.copied_object_temp = false
-                            end
+                            self:pasteObject()
                         end)
                     end
                     self.context:addMenuItem("Select object", "Select an object by name.", function()
@@ -198,29 +186,14 @@ function DebugSystem:openObjectContext(object)
         self:selectObject(clone)
     end)
     self.context:addMenuItem("Copy", "Copy this object to paste it later", function()
-        self.copied_object = object:clone()
-        self.copied_object:removeFX("debug_flash")
-        self.copied_object_temp = false
-        self.copied_object_parent = object.parent
+        self:copyObject(object)
     end)
     self.context:addMenuItem("Cut", "Cut this object to paste it later", function()
-        self.copied_object = object
-        self.copied_object_parent = object.parent
-        self.copied_object_temp = true
-        self:unselectObject()
-        object:remove()
+        self:cutObject(object)
     end)
     if self.copied_object then
         self.context:addMenuItem("Paste Into", "Paste the copied object into this one", function()
-            local new_object = self.copied_object_temp and self.copied_object or self.copied_object:clone()
-            object:addChild(new_object)
-            new_object:setScreenPos(Input.getMousePosition())
-            self:selectObject(new_object)
-            if self.copied_object_temp then
-                self.copied_object = nil
-                self.copied_object_parent = nil
-                self.copied_object_temp = false
-            end
+            self:pasteObject(object)
         end)
     end
     if object.visible then
@@ -233,6 +206,49 @@ function DebugSystem:openObjectContext(object)
     Kristal.callEvent("registerDebugContext", self.context, self.object)
     self.context:setPosition(Input.getMousePosition())
     self:addChild(self.context)
+end
+
+function DebugSystem:copyObject(object)
+    self.copied_object = object:clone()
+    self.copied_object:removeFX("debug_flash")
+    self.copied_object_temp = false
+    self.copied_object_parent = object.parent
+end
+
+function DebugSystem:cutObject(object)
+    self.copied_object = object
+    self.copied_object_parent = object.parent
+    self.copied_object_temp = true
+    self:unselectObject()
+    object:remove()
+end
+
+function DebugSystem:pasteObject(object)
+    if not self.copied_object then return end
+
+    local new_object = self.copied_object_temp and self.copied_object or self.copied_object:clone()
+
+    if not new_object then return end
+
+    if object then
+        -- We're pasting into another object
+        object:addChild(new_object)
+    else
+        -- We're not pasting into an object
+        if self.copied_object_parent then
+            self.copied_object_parent:addChild(new_object)
+        else
+            self:getStage():addChild(new_object)
+        end
+    end
+
+    new_object:setScreenPos(Input.getMousePosition())
+    self:selectObject(new_object)
+    if self.copied_object_temp then
+        self.copied_object = nil
+        self.copied_object_parent = nil
+        self.copied_object_temp = false
+    end
 end
 
 function DebugSystem:unselectObject()
@@ -533,6 +549,14 @@ function DebugSystem:keypressed(key, _, is_repeat)
             self.current_selecting = self.current_selecting - 1
         end
         self:updateBounds(options)
+    elseif self.state == "MOUSE" then
+        if (key == "c") and Input.ctrl() and self.object then
+            self:copyObject(self.object)
+        elseif (key == "x") and Input.ctrl() and self.object then
+            self:cutObject(self.object)
+        elseif (key == "v") and Input.ctrl() then
+            self:pasteObject()
+        end
     end
 end
 
