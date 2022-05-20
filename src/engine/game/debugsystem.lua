@@ -556,6 +556,9 @@ function DebugSystem:keypressed(key, _, is_repeat)
             self:cutObject(self.object)
         elseif (key == "v") and Input.ctrl() then
             self:pasteObject()
+        elseif (key == "delete") and self.object then
+            self.object:remove()
+            self:unselectObject()
         end
     end
 end
