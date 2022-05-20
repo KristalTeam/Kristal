@@ -18,7 +18,9 @@ function Player:init(chara, x, y)
 
     self.current_slide_area = nil
     self.slide_in_place = false
+    self.slide_lock_movement = false
     self.slide_dust_timer = 0
+    self.slide_land_timer = 0
 
     self.hurt_timer = 0
 
@@ -148,6 +150,7 @@ end
 function Player:isMovementEnabled()
     return not OVERLAY_OPEN
         and not Game.lock_movement
+        and not self.slide_lock_movement
         and Game.state == "OVERWORLD"
         and self.world.state == "GAMEPLAY"
         and self.hurt_timer == 0
@@ -219,10 +222,12 @@ function Player:updateWalk()
     end
 end
 
-function Player:beginSlide(last_state, in_place)
+function Player:beginSlide(last_state, in_place, lock_movement)
     self.slide_sound:play()
     self.slide_camera_y = self.world.camera.y
     self.slide_in_place = in_place or false
+    self.slide_lock_movement = lock_movement or false
+    self.slide_land_timer = 0
     self.sprite:setAnimation("slide")
 end
 function Player:updateSlideDust()
@@ -269,13 +274,26 @@ function Player:updateSlide()
     end
 end
 function Player:endSlide(next_state)
-    self.slide_sound:stop()
-    self.sprite:resetSprite()
+    if self.slide_lock_movement then
+        self.slide_land_timer = 4
+    else
+        self.slide_sound:stop()
+        self.sprite:resetSprite()
+    end
 end
 
 function Player:update()
     if self.hurt_timer > 0 then
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
+    end
+
+    if self.slide_land_timer > 0 and self.state ~= "SLIDE" then
+        self.slide_land_timer = Utils.approach(self.slide_land_timer, 0, DTMULT)
+        if self.slide_land_timer == 0 then
+            self.slide_sound:stop()
+            self.sprite:resetSprite()
+            self.slide_lock_movement = false
+        end
     end
 
     self.state_manager:update()

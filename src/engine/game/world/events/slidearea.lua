@@ -1,7 +1,9 @@
 local SlideArea, super = Class(Event)
 
-function SlideArea:init(x, y, w, h)
+function SlideArea:init(x, y, w, h, properties)
     super:init(self, x, y, w, h)
+
+    self.lock_movement = properties["lock"] or false
 end
 
 function SlideArea:onEnter(chara)
@@ -10,7 +12,7 @@ function SlideArea:onEnter(chara)
             Assets.stopAndPlaySound("noise")
         end
 
-        chara:setState("SLIDE")
+        chara:setState("SLIDE", false, self.lock_movement)
 
         chara.current_slide_area = self
     end

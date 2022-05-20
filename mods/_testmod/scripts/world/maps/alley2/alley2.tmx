@@ -174,7 +174,11 @@
     <property name="money" value="1"/>
    </properties>
   </object>
-  <object id="69" name="slidearea" x="520" y="920" width="160" height="280"/>
+  <object id="69" name="slidearea" x="520" y="920" width="160" height="280">
+   <properties>
+    <property name="lock" type="bool" value="false"/>
+   </properties>
+  </object>
   <object id="90" name="cameratarget" x="480" y="1200" width="240" height="240">
    <properties>
     <property name="lockx" type="bool" value="true"/>

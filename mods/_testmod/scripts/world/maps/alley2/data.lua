@@ -806,7 +806,9 @@ return {
           height = 280,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["lock"] = false
+          }
         },
         {
           id = 90,
