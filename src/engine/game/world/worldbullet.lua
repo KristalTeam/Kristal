@@ -51,7 +51,7 @@ function WorldBullet:onDamage(soul)
 end
 
 function WorldBullet:onCollide(soul)
-    if not self.world.in_battle then return end
+    if not self.world:inBattle() then return end
 
     if soul.inv_timer == 0 then
         self:onDamage(soul)

@@ -54,7 +54,7 @@ end
 function HealthBar:update()
     self.animation_timer = self.animation_timer + DTMULT
     self.auto_hide_timer = self.auto_hide_timer + DTMULT
-    if Game.world.menu or Game.world.in_battle then
+    if Game.world.menu or Game.world:inBattle() then
         -- If we're in an overworld battle, or the menu is open, we don't want the health bar to disappear
         self.auto_hide_timer = 0
     end

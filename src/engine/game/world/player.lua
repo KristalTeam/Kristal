@@ -319,15 +319,17 @@ function Player:update()
     self.last_x = self.x
     self.last_y = self.y
 
-    self.world.in_battle = false
+    self.world.in_battle_area = false
     for _,area in ipairs(self.world.map.battle_areas) do
         if area:collidesWith(self.collider) then
-            self.world.in_battle = true
+            if not self.world.in_battle_area then
+                self.world.in_battle_area = true
+            end
             break
         end
     end
 
-    if self.world.in_battle then
+    if self.world:inBattle() then
         self.battle_alpha = math.min(self.battle_alpha + (0.04 * DTMULT), 0.8)
     else
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)

@@ -32,6 +32,7 @@ function World:init(map)
     self.transition_fade = 0
 
     self.in_battle = false
+    self.in_battle_area = false
     self.battle_alpha = 0
 
     self.bullets = {}
@@ -154,7 +155,7 @@ end
 
 function World:openMenu(menu, layer)
     if self:hasCutscene() then return end
-    if self.in_battle then return end
+    if self:inBattle() then return end
     if not self.can_open_menu then return end
 
     if self.menu then
@@ -817,6 +818,14 @@ function World:onRemove(parent)
     self.music:remove()
 end
 
+function World:setBattle(value)
+    self.in_battle = value
+end
+
+function World:inBattle()
+    return self.in_battle or self.in_battle_area
+end
+
 function World:update()
     if self.cutscene then
         if not self.cutscene.ended then
@@ -873,7 +882,7 @@ function World:update()
     -- Camera effects (shake)
     self:updateCamera()
 
-    if self.in_battle then
+    if self:inBattle() then
         self.battle_alpha = math.min(self.battle_alpha + (0.08 * DTMULT), 1)
     else
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
