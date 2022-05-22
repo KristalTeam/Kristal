@@ -239,8 +239,16 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.keypressed(key, scancode, is_repeat)
+
     Input.onKeyPressed(key)
     TextInput.onKeyPressed(key)
+
+    if Input.ctrl() and Input.shift() and Input.alt() and key == "t" then
+        Input.loadBinds(true) -- reset binds
+        Input.saveBinds()
+        Assets.playSound("impact")
+        return
+    end
 
     if Input.processKeyPressedFunc(key) and not TextInput.active then
         if Input.is("debug_menu", key) then

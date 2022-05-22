@@ -591,6 +591,8 @@ function Menu:draw()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
+        self:printShadow("CTRL+SHIFT+ALT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
+
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
 
