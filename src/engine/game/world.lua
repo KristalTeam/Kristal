@@ -610,6 +610,10 @@ function World:setupMap(map, ...)
     self.battle_fader.debug_select = false
     self:addChild(self.battle_fader)
 
+    self.in_battle = false
+    self.in_battle_area = false
+    self.battle_alpha = 0
+
     if not self.map.keep_music then
         self:transitionMusic(self.map.music)
     end
