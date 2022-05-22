@@ -97,6 +97,16 @@ function Character:setFacing(dir)
     self.sprite.facing = dir
 end
 
+function Character:faceTowards(target)
+    self:setFacing(Utils.facingFromAngle(Utils.angle(self.x, self.y, target.x, target.y)))
+end
+
+function Character:facePlayer()
+    if Game.world and Game.world.player then
+        self:faceTowards(Game.world.player)
+    end
+end
+
 function Character:moveTo(x, y, keep_facing)
     if type(x) == "string" then
         keep_facing = y
