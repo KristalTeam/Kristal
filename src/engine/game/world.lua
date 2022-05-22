@@ -104,9 +104,7 @@ end
 function World:hurtParty(battler, amount)
     Assets.playSound("hurt")
 
-    self.shake_x = 4
-    self.shake_y = 4
-
+    self:shakeCamera()
     self:showHealthBars()
 
     if type(battler) == "number" then
