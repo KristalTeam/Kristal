@@ -765,6 +765,11 @@ function World:returnCamera(time)
     self.camera_return_target = {start_x = self.camera.x, start_y = self.camera.y, time = time or 0.5, timer = 0}
 end
 
+function World:shakeCamera(x, y)
+    Game.world.shake_x = x or 4
+    Game.world.shake_y = y or x or 4
+end
+
 function World:updateCamera()
     if self.camera_return_target then
         self.camera_return_target.timer = Utils.approach(self.camera_return_target.timer, self.camera_return_target.time, DT)

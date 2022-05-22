@@ -294,8 +294,7 @@ end
 
 local function waitForCameraShake() return Game.world.shake_x == 0 and Game.world.shake_y == 0 end
 function WorldCutscene:shakeCamera(x, y)
-    Game.world.shake_x = x or 0
-    Game.world.shake_y = y or x or 0
+    Game.world:shakeCamera(x, y)
     return waitForCameraShake
 end
 
