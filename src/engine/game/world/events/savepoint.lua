@@ -29,15 +29,13 @@ function Savepoint:onInteract(player, dir)
     end
 
     super:onInteract(self, player, dir)
-
-    for _,party in ipairs(Game.party) do
-        party:heal(math.huge, false)
-    end
-
     return true
 end
 
 function Savepoint:onTextEnd()
+    for _,party in ipairs(Game.party) do
+        party:heal(math.huge, false)
+    end
     if self.simple_menu or (self.simple_menu == nil and (Game:isLight() or Game:getConfig("smallSaveMenu"))) then
         self.world:openMenu(SimpleSaveMenu(Game.save_id, self.marker))
     else
