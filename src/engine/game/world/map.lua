@@ -34,6 +34,9 @@ function Map:init(world, data)
     end
 
     self.tilesets = {}
+    self.tileset_gids = {}
+    self.max_gid = 0
+
     self.collision = {}
     self.enemy_collision = {}
     self.block_collision = {}
@@ -125,6 +128,8 @@ function Map:addTileset(id)
     local tileset = Registry.getTileset(id)
     if tileset then
         table.insert(self.tilesets, tileset)
+        self.tileset_gids[tileset] = self.max_gid + 1
+        self.max_gid = self.max_gid + tileset.tilecount
         return tileset
     else
         error("No tileset with id '"..id.."'")
@@ -722,36 +727,37 @@ end
 function Map:populateTilesets(data)
     self.tilesets = {}
     for _,tileset_data in ipairs(data) do
+        local tileset
         if tileset_data.filename then
             local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", tileset_data.filename, self.full_map_path)
-            local tileset = Registry.getTileset(tileset_path)
+            tileset = Registry.getTileset(tileset_path)
             if not tileset then
                 error("Failed to load map \""..self.data.id.."\", tileset not found: \""..tileset_path.."\"")
             end
-            table.insert(self.tilesets, tileset)
         else
-            table.insert(self.tilesets, Tileset(tileset_data, self.full_map_path))
+            tileset = Tileset(tileset_data, self.full_map_path)
         end
+        table.insert(self.tilesets, tileset)
+        local gid = tileset_data.firstgid or (self.max_gid + 1)
+        self.tileset_gids[tileset] = gid
+        self.max_gid = math.max(self.max_gid, gid + tileset.tile_count - 1)
     end
 end
 
 function Map:getTileset(id)
     if type(id) == "number" then
         id = Utils.parseTileGid(id)
-        local first_id = 1
         for _,v in ipairs(self.tilesets) do
+            local first_id = self.tileset_gids[v]
             if id >= first_id and id < first_id + v.tile_count then
                 return v, (id - first_id)
             end
-            first_id = first_id + v.tile_count
         end
     elseif type(id) == "string" then
-        local first_id = 1
         for _,v in ipairs(self.tilesets) do
             if v.name == id then
-                return v, first_id
+                return v, self.tileset_gids[v]
             end
-            first_id = first_id + v.tile_count
         end
     end
     return nil, 0
