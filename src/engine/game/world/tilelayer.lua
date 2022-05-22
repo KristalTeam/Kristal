@@ -79,12 +79,13 @@ function TileLayer:draw()
             local tx = ((i - 1) % self.map_width) * self.map.tile_width
             local ty = math.floor((i - 1) / self.map_width) * self.map.tile_height
 
-            local tileset, id = self.map:getTileset(xid)
+            local gid, flip_x, flip_y, flip_diag = Utils.parseTileGid(xid)
+            local tileset, id = self.map:getTileset(gid)
             if tileset then
                 if not tileset:getAnimation(id) then
-                    tileset:drawTile(id, tx, ty)
+                    tileset:drawTileFlipped(id, tx, ty, flip_x, flip_y, flip_diag)
                 else
-                    table.insert(self.animated_tiles, {tileset = tileset, id = id, x = tx, y = ty})
+                    table.insert(self.animated_tiles, {tileset = tileset, id = id, x = tx, y = ty, flip_x = flip_x, flip_y = flip_y, flip_diag = flip_diag})
                 end
             end
         end
@@ -106,7 +107,7 @@ function TileLayer:draw()
 
     love.graphics.setColor(r, g, b, a * self.tile_opacity)
     for _,tile in ipairs(self.animated_tiles) do
-        tile.tileset:drawTile(tile.id, tile.x, tile.y)
+        tile.tileset:drawTileFlipped(tile.id, tile.x, tile.y, tile.flip_x, tile.flip_y, tile.flip_diag)
     end
 
     love.graphics.setColor(1, 1, 1)

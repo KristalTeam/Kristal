@@ -937,4 +937,11 @@ function Utils.findFiles(folder, base, path)
     return files
 end
 
+function Utils.parseTileGid(id)
+    return bit.band(id, 268435455),
+           bit.band(id, 2147483648) ~= 0,
+           bit.band(id, 1073741824) ~= 0,
+           bit.band(id, 536870912) ~= 0
+end
+
 return Utils

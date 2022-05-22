@@ -681,8 +681,9 @@ function Map:loadObject(name, data)
         return MagicGlass(data.x, data.y, data.width, data.height)
     end
     if data.gid then
-        local tileset, tile_id = self:getTileset(data.gid)
-        return TileObject(tileset, tile_id, data.x, data.y, data.width, data.height)
+        local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
+        local tileset, tile_id = self:getTileset(gid)
+        return TileObject(tileset, tile_id, data.x, data.y, data.width, data.height, math.rad(data.rotation or 0), flip_x, flip_y)
     end
 end
 
@@ -736,6 +737,7 @@ end
 
 function Map:getTileset(id)
     if type(id) == "number" then
+        id = Utils.parseTileGid(id)
         local first_id = 1
         for _,v in ipairs(self.tilesets) do
             if id >= first_id and id < first_id + v.tile_count then

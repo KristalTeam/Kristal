@@ -95,6 +95,24 @@ function Tileset:drawTile(id, x, y, ...)
     end
 end
 
+function Tileset:drawTileFlipped(id, x, y, flip_x, flip_y, flip_diag)
+    local draw_id = self:getDrawTile(id)
+    local w, h = self:getTileSize(draw_id)
+
+    local rot = 0
+    if flip_diag then
+        flip_y = not flip_y
+        rot = -math.pi / 2
+    end
+
+    local info = self.tile_info[draw_id]
+    if info and info.texture then
+        love.graphics.draw(info.texture, (x or 0) + w/2, (y or 0) + h/2, rot, flip_x and -1 or 1, flip_y and -1 or 1, w/2, h/2)
+    else
+        love.graphics.draw(self.texture, self.quads[draw_id], (x or 0) + w/2, (y or 0) + h/2, rot, flip_x and -1 or 1, flip_y and -1 or 1, w/2, h/2)
+    end
+end
+
 function Tileset:canDeepCopy()
     return false
 end
