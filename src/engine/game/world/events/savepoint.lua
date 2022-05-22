@@ -18,9 +18,6 @@ end
 
 function Savepoint:onInteract(player, dir)
     Assets.playSound("power")
-    for _,party in ipairs(Game.party) do
-        party:heal(math.huge, false)
-    end
 
     if self.text_once and self.used then
         self:onTextEnd()
@@ -32,6 +29,11 @@ function Savepoint:onInteract(player, dir)
     end
 
     super:onInteract(self, player, dir)
+
+    for _,party in ipairs(Game.party) do
+        party:heal(math.huge, false)
+    end
+
     return true
 end
 

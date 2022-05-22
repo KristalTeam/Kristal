@@ -1,5 +1,23 @@
 local Utils = {}
 
+function Utils.all(tbl)
+    for i = 1, #tbl do
+        if not tbl[i] then
+            return false
+        end
+    end
+    return true
+end
+
+function Utils.any(tbl)
+    for i = 1, #tbl do
+        if tbl[i] then
+            return true
+        end
+    end
+    return false
+end
+
 function Utils.copy(tbl, deep, seen)
     if tbl == nil then return nil end
     local new_tbl = {}
