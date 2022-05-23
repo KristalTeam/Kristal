@@ -112,49 +112,7 @@ function Encounter:getNextWaves()
 end
 
 function Encounter:onDialogueEnd()
-    Game.battle:setWaves(self:getNextWaves())
-
-    local soul_x, soul_y, soul_offset_x, soul_offset_y
-    local arena_x, arena_y, arena_w, arena_h, arena_shape
-    for _,wave in ipairs(Game.battle.waves) do
-        soul_x = wave.soul_start_x or soul_x
-        soul_y = wave.soul_start_y or soul_y
-        soul_offset_x = wave.soul_offset_x or soul_offset_x
-        soul_offset_y = wave.soul_offset_y or soul_offset_y
-        arena_x = wave.arena_x or arena_x
-        arena_y = wave.arena_y or arena_y
-        arena_w = wave.arena_width and math.max(wave.arena_width, arena_w or 0) or arena_w
-        arena_h = wave.arena_height and math.max(wave.arena_height, arena_h or 0) or arena_h
-        if wave.arena_shape then
-            arena_shape = wave.arena_shape
-        end
-    end
-
-    if not arena_shape then
-        arena_w, arena_h = arena_w or 142, arena_h or 142
-        arena_shape = {{0, 0}, {arena_w, 0}, {arena_w, arena_h}, {0, arena_h}}
-    end
-
-    local arena = Arena(arena_x or SCREEN_WIDTH/2, arena_y or (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
-    arena.layer = BATTLE_LAYERS["arena"]
-
-    Game.battle.arena = arena
-    Game.battle:addChild(arena)
-
-    local center_x, center_y = arena:getCenter()
-    soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
-    soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
-    Game.battle:spawnSoul(soul_x or center_x, soul_y or center_y)
-
-    for _,wave in ipairs(Game.battle.waves) do
-        if wave:onArenaEnter() then
-            wave.active = true
-        end
-    end
-
-    Game.battle.timer:after(15/30, function()
-        Game.battle:setState("DEFENDING")
-    end)
+    Game.battle:setState("DEFENDINGBEGIN")
 end
 
 function Encounter:onWavesDone()
