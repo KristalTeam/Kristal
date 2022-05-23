@@ -510,6 +510,11 @@ function Object:setHitbox(x, y, w, h)
     self.collider = Hitbox(self, x, y, w, h)
 end
 
+-- Used in World exclusively
+function Object:getSortPosition()
+    return self:getRelativePos(self.width/2, self.height/2)
+end
+
 function Object:canDebugSelect()
     return self.debug_select
 end

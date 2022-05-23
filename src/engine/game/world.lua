@@ -808,12 +808,21 @@ end
 
 function World:sortChildren()
     Utils.pushPerformance("World#sortChildren")
-    -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
     Object.startCache()
+    local positions = {}
+    for _,child in ipairs(self.children) do
+        local x, y = child:getSortPosition()
+        positions[child] = {x = x, y = y}
+    end
     table.sort(self.children, function(a, b)
-        local ax, ay = a:getRelativePos(a.width/2, a.height, self)
-        local bx, by = b:getRelativePos(b.width/2, b.height, self)
-        return a.layer < b.layer or (a.layer == b.layer and (math.floor(ay) < math.floor(by) or(math.floor(ay) == math.floor(by) and (b == self.player or (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
+        local a_pos, b_pos = positions[a], positions[b]
+        local ax, ay = a_pos.x, a_pos.y
+        local bx, by = b_pos.x, b_pos.y
+        -- Sort children by Y position, or by follower index if it's a follower/player (so the player is always on top)
+        return a.layer < b.layer or
+              (a.layer == b.layer and (math.floor(ay) < math.floor(by) or
+              (math.floor(ay) == math.floor(by) and (b == self.player or
+              (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
     end)
     Object.endCache()
     Utils.popPerformance()
