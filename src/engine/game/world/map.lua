@@ -626,6 +626,8 @@ function Map:loadObject(name, data)
     local obj = Kristal.modCall("loadObject", self.world, name, data)
     if obj then
         return obj
+    elseif type(obj) == "boolean" then -- don't load the object if it returns false
+        return
     else
         local events = Kristal.modGet("Events")
         if events and events[name] then
