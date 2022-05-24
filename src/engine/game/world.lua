@@ -530,6 +530,26 @@ function World:getCharacter(id, index)
     end
 end
 
+function World:getActionBox(party_member)
+    if not self.healthbar then return nil end
+    if type(party_member) == "string" then
+        party_member = Game:getPartyMember(party_member)
+    end
+    for _,box in ipairs(self.healthbar.action_boxes) do
+        if box.chara == party_member then
+            return box
+        end
+    end
+    return nil
+end
+
+function World:partyReact(party_member, text, display_time)
+    local action_box = self:getActionBox(party_member)
+    if action_box then
+        action_box:react(text, display_time)
+    end
+end
+
 function World:getEvent(id)
     return self.map:getEvent(id)
 end
