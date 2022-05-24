@@ -319,6 +319,7 @@ function Battle:onStateChange(old,new)
         end
     end
     if new == "INTRO" then
+        self.intro_timer = 0
         Assets.playSound("impact", 0.7)
         Assets.playSound("weaponpull_fast", 0.8)
 
@@ -465,6 +466,11 @@ function Battle:onStateChange(old,new)
             battler:setSleeping(false)
             battler.defending = false
             battler.action = nil
+
+            if battler.chara.health < 1 then
+                battler:revive()
+                battler.chara:setHealth(Utils.round(battler.chara:getStat("health") / 8))
+            end
 
             battler:setAnimation("battle/victory")
 
@@ -1972,7 +1978,10 @@ end
 
 function Battle:updateIntro()
     self.intro_timer = self.intro_timer + 1 * DTMULT
-    if self.intro_timer >= 13 then
+    if self.intro_timer >= 15 then -- TODO: find out why this is 15 instead of 13
+        for _,v in ipairs(self.party) do
+            v:setAnimation("battle/idle")
+        end
         self:nextTurn()
     end
 end
