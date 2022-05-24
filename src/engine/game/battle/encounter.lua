@@ -116,44 +116,7 @@ function Encounter:onDialogueEnd()
 end
 
 function Encounter:onWavesDone()
-    Game.battle:setState("DEFENDINGEND")
-    Game.battle:returnSoul()
-
-    for _,wave in ipairs(Game.battle.waves) do
-        if not wave:onEnd() then
-            wave:clear()
-            wave:remove()
-        end
-    end
-
-    if Game.battle.arena then
-        Game.battle.arena:remove()
-        Game.battle.arena = nil
-    end
-
-    local function exitWaves()
-        for _,wave in ipairs(Game.battle.waves) do
-            wave:onArenaExit()
-
-            if wave.parent then
-                wave:clear()
-                wave:remove()
-            end
-        end
-    end
-
-    Game.battle.waves = {}
-    if Game.battle:hasCutscene() then
-        Game.battle.cutscene:after(function()
-            exitWaves()
-            Game.battle:nextTurn()
-        end)
-    else
-        Game.battle.timer:after(15/30, function()
-            exitWaves()
-            Game.battle:nextTurn()
-        end)
-    end
+    Game.battle:setState("DEFENDINGEND", "WAVEENDED")
 end
 
 function Encounter:createSoul(x, y, color)

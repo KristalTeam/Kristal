@@ -1,6 +1,6 @@
 local TensionBar, super = Class(Object)
 
-function TensionBar:init(x, y)
+function TensionBar:init(x, y, dont_animate)
     super:init(self, x, y)
 
     self.layer = BATTLE_LAYERS["ui"] - 1
@@ -21,7 +21,13 @@ function TensionBar:init(x, y)
 
     self.parallax_y = 0
 
-    self.animating_in = false
+    -- still dont understand nil logic
+    if dont_animate then
+        self.animating_in = false
+    else
+        self.animating_in = true
+    end
+
     self.animation_timer = 0
 
     self.tsiner = 0
@@ -32,6 +38,8 @@ end
 
 function TensionBar:show()
     if not self.shown then
+        self:resetPhysics()
+        self.x = -25
         self.shown = true
         self.animating_in = true
         self.animation_timer = 0

@@ -168,6 +168,8 @@ function Battle:init()
     self.should_finish_action = false
     self.on_finish_keep_animation = nil
     self.on_finish_action = nil
+
+    self.defending_begin_timer = 0
 end
 
 function Battle:postInit(state, encounter)
@@ -199,7 +201,7 @@ function Battle:postInit(state, encounter)
     self.battle_ui = BattleUI()
     self:addChild(self.battle_ui)
 
-    self.tension_bar = TensionBar(-25, 40)
+    self.tension_bar = TensionBar(-25, 40, true)
     self:addChild(self.tension_bar)
 
     self.battler_targets = {}
@@ -326,6 +328,10 @@ function Battle:onStateChange(old,new)
 
         self.encounter:onBattleStart()
     elseif new == "ACTIONSELECT" then
+        if self.current_selecting < 1 or self.current_selecting > #self.party then
+            self:nextTurn()
+        end
+
         if self.state_reason == "CANCEL" then
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         end
@@ -452,6 +458,7 @@ function Battle:onStateChange(old,new)
         self.current_selecting = 0
 
         self.tension_bar.animating_in = false
+        self.tension_bar.shown = false
         self.tension_bar.physics.speed_x = -10
         self.tension_bar.physics.friction = -0.4
         for _,battler in ipairs(self.party) do
@@ -560,26 +567,75 @@ function Battle:onStateChange(old,new)
 
         local arena = Arena(arena_x or SCREEN_WIDTH/2, arena_y or (SCREEN_HEIGHT - 155)/2 + 10, arena_shape)
         arena.layer = BATTLE_LAYERS["arena"]
-    
+
         self.arena = arena
         self:addChild(arena)
-    
+
         local center_x, center_y = arena:getCenter()
         soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
         soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
         self:spawnSoul(soul_x or center_x, soul_y or center_y)
-    
+
         for _,wave in ipairs(Game.battle.waves) do
             if wave:onArenaEnter() then
                 wave.active = true
             end
         end
 
-        self.timer:after(15/30, function()
-            -- TODO: Manually track this timer because what if someone wants to exit this state?
-            self:setState("DEFENDING")
-        end)
+        self.defending_begin_timer = 0
     end
+
+    -- List of states that should remove the arena.
+    -- A whitelist is better than a blacklist in case the modder adds more states.
+    -- And in case the modder adds more states and wants the arena to be removed, they can remove the arena themselves.
+    local remove_arena = {"DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "XACTENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"}
+
+    if Utils.containsValue(remove_arena, new) then
+        self:returnSoul()
+        if self.arena then
+            self.arena:remove()
+            self.arena = nil
+        end
+    end
+
+    if old == "DEFENDING" then
+        self:returnSoul()
+        for _,wave in ipairs(self.waves) do
+            if not wave:onEnd() then
+                wave:clear()
+                wave:remove()
+            end
+        end
+
+        local function exitWaves()
+            for _,wave in ipairs(self.waves) do
+                wave:onArenaExit()
+
+                if wave.parent then
+                    wave:clear()
+                    wave:remove()
+                end
+            end
+        end
+
+        self.waves = {}
+        if self:hasCutscene() then
+            self.cutscene:after(function()
+                exitWaves()
+                if self.state_reason == "WAVEENDED" then
+                    self:nextTurn()
+                end
+            end)
+        else
+            self.timer:after(15/30, function()
+                exitWaves()
+                if self.state_reason == "WAVEENDED" then
+                    self:nextTurn()
+                end
+            end)
+        end
+    end
+
     if self.encounter.onStateChange then
         self.encounter:onStateChange(old,new)
     end
@@ -619,11 +675,14 @@ function Battle:spawnSoul(x, y)
     end
 end
 
-function Battle:returnSoul()
+function Battle:returnSoul(dont_destroy)
+    if dont_destroy == nil then dont_destroy = false end
     local bx, by = self:getSoulLocation(true)
-
     if self.soul then
-        self.soul:transitionTo(bx, by, true)
+        self.soul:transitionTo(bx, by, not dont_destroy)
+        if not dont_destroy then
+            self.soul = nil
+        end
     end
 end
 
@@ -1615,8 +1674,7 @@ function Battle:nextTurn()
     end
 
     if self.soul then
-        self.soul:remove()
-        self.soul = nil
+        self:returnSoul()
     end
 
     self.encounter:onTurnStart()
@@ -1843,6 +1901,11 @@ function Battle:update()
             if not self.encounter:onActionsEnd() then
                 self:setState("ENEMYDIALOGUE")
             end
+        end
+    elseif self.state == "DEFENDINGBEGIN" then
+        self.defending_begin_timer = self.defending_begin_timer + DTMULT
+        if self.defending_begin_timer >= 15 then
+            self:setState("DEFENDING")
         end
     elseif self.state == "DEFENDING" then
         self:updateWaves()
@@ -2104,7 +2167,7 @@ function Battle:draw()
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
     end
 
-    if (self.state == "DEFENDINGEND") or (self.state == "ACTIONSELECT") or (self.state == "ACTIONS") then
+    if Utils.containsValue({"DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT"}, self.state) then
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
     end
 
