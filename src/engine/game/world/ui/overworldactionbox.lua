@@ -32,7 +32,7 @@ function OverworldActionBox:setHeadIcon(icon)
 end
 
 function OverworldActionBox:react(text, display_time)
-    self.reaction_alpha = display_time or 50
+    self.reaction_alpha = display_time and (display_time * 30) or 50
     self.reaction_text = text
 end
 
