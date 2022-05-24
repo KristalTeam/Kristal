@@ -2478,6 +2478,7 @@ function Battle:keypressed(key)
         if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
+            if #self.enemies == 0 then return end
             self.selected_enemy = self.current_menu_y
             if self.state == "XACTENEMYSELECT" then
                 self:pushAction("XACT", self.enemies[self.selected_enemy], self.selected_xaction)
@@ -2536,6 +2537,7 @@ function Battle:keypressed(key)
             return
         end
         if Input.is("up", key) then
+            if #self.enemies == 0 then return end
             old_location = self.current_menu_y
             repeat
                 -- Keep decrementing until there's a selectable enemy.
@@ -2551,6 +2553,7 @@ function Battle:keypressed(key)
             end
         elseif Input.is("down", key) then
             old_location = self.current_menu_y
+            if #self.enemies == 0 then return end
             repeat
                 -- Keep decrementing until there's a selectable enemy.
                 self.current_menu_y = self.current_menu_y + 1
