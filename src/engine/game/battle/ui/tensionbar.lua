@@ -1,7 +1,21 @@
 local TensionBar, super = Class(Object)
 
+--[[
+    Some quick notes about the tension bar:
+
+    "apparent" and "current" are still off of 250.
+    This is because of how Deltarune draws the tensionbar,
+    theres no way I would be able to keep accuracy if I didn't do it.
+
+    Max tension is now 100 by default.
+    Setting it to 1000 will make Heal Prayer cost 3.2% TP (displayed as 3% in the menu.)
+    Setting it to 1 will make Heal Prayer cost 3200% TP.
+
+    Tension is no longer stored in the tensionbar, it is now stored in Game.
+]]
+
 function TensionBar:init(x, y, dont_animate)
-    super:init(self, x, y)
+    super:init(self, x or -25, y or 40)
 
     self.layer = BATTLE_LAYERS["ui"] - 1
 
@@ -48,67 +62,28 @@ end
 
 function TensionBar:getDebugInfo()
     local info = super:getDebugInfo(self)
-    table.insert(info, "Tension: " .. self:getTension() .. "%")
-    table.insert(info, "Apparent: " .. self.apparent / 2.5)
-    table.insert(info, "Current: " .. self.current / 2.5)
+    table.insert(info, "Tension: "  .. Utils.round(self:getPercentageFor(Game:getTension()) * 100) .. "%")
+    table.insert(info, "Apparent: " .. Utils.round(self.apparent / 2.5))
+    table.insert(info, "Current: "  .. Utils.round(self.current / 2.5))
     return info
 end
 
-function TensionBar:giveTension(amount)
-    return self:giveTensionExact(amount * 2.5) / 2.5
-end
-
-function TensionBar:removeTension(amount)
-    return self:removeTensionExact(amount * 2.5) / 2.5
-end
-
-function TensionBar:setTension(amount)
-    self:setTensionExact(amount * 2.5)
-end
-
-function TensionBar:getTension()
-    return Game.battle.tension / 2.5
-end
-
-function TensionBar:setMaxTension(amount)
-    Game.battle.max_tension = amount * 2.5
-end
-
-function TensionBar:getMaxTension()
-    return Game.battle.max_tension / 2.5
+function TensionBar:getTension250()
+    return self:getPercentageFor(Game:getTension()) * 250
 end
 
 function TensionBar:setTensionPreview(amount)
-    self:setTensionPreviewExact(amount * 2.5)
-end
-
-function TensionBar:giveTensionExact(amount)
-    local start = Game.battle.tension
-    Game.battle.tension = Game.battle.tension + amount
-    if Game.battle.tension > Game.battle.max_tension then
-        Game.battle.tension = Game.battle.max_tension
-    end
-    self.tension_preview = 0
-    return Game.battle.tension - start
-end
-
-function TensionBar:removeTensionExact(amount)
-    local start = Game.battle.tension
-    Game.battle.tension = Game.battle.tension - amount
-    if Game.battle.tension < 0 then
-        Game.battle.tension = 0
-    end
-    self.tension_preview = 0
-    return start - Game.battle.tension
-end
-
-function TensionBar:setTensionExact(amount)
-    Game.battle.tension = Utils.clamp(amount, 0, Game.battle.max_tension)
-end
-
-function TensionBar:setTensionPreviewExact(amount)
     self.tension_preview = amount
 end
+
+function TensionBar:getPercentageFor(variable)
+    return variable / Game:getMaxTension()
+end
+
+function TensionBar:getPercentageFor250(variable)
+    return variable / 250
+end
+
 
 function TensionBar:update()
     if self.animating_in then
@@ -121,11 +96,11 @@ function TensionBar:update()
         self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)
     end
 
-    if (math.abs((self.apparent - Game.battle.tension)) < 20) then
-        self.apparent = Game.battle.tension
-    elseif (self.apparent < Game.battle.tension) then
+    if (math.abs((self.apparent - self:getTension250())) < 20) then
+        self.apparent = self:getTension250()
+    elseif (self.apparent < self:getTension250()) then
         self.apparent = self.apparent + (20 * DTMULT)
-    elseif (self.apparent > Game.battle.tension) then
+    elseif (self.apparent > self:getTension250()) then
         self.apparent = self.apparent - (20 * DTMULT)
     end
     if (self.apparent ~= self.current) then
@@ -180,26 +155,26 @@ function TensionBar:draw()
 
     love.graphics.setColor(128/255, 0, 0, 1)
     Draw.pushScissor()
-    Draw.scissorPoints(0, 0, 25, 196 - ((self.current / Game.battle.max_tension) * 196) + 1)
+    Draw.scissorPoints(0, 0, 25, 196 - (self:getPercentageFor250(self.current) * 196) + 1)
     love.graphics.draw(self.tp_bar_fill, 0, 0)
     Draw.popScissor()
 
     if (self.apparent < self.current) then
         love.graphics.setColor(1, 0, 0, 1)
         Draw.pushScissor()
-        Draw.scissorPoints(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1, 25, 196)
+        Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1, 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
         love.graphics.setColor(255 / 255, 160 / 255, 64 / 255, 1)
         Draw.pushScissor()
-        Draw.scissorPoints(0, 196 - ((self.apparent / Game.battle.max_tension) * 196) + 1 + ((self.tension_preview / Game.battle.max_tension) * 196), 25, 196)
+        Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.apparent) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent > self.current) then
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
-        Draw.scissorPoints(0, 196 - ((self.apparent / Game.battle.max_tension) * 196) + 1, 25, 196)
+        Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.apparent) * 196) + 1, 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
@@ -208,7 +183,7 @@ function TensionBar:draw()
             love.graphics.setColor(255 / 255, 208 / 255, 32 / 255, 1)
         end
         Draw.pushScissor()
-        Draw.scissorPoints(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1 + ((self.tension_preview / Game.battle.max_tension) * 196), 25, 196)
+        Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent == self.current) then
@@ -217,7 +192,7 @@ function TensionBar:draw()
             love.graphics.setColor(255 / 255, 208 / 255, 32 / 255, 1)
         end
         Draw.pushScissor()
-        Draw.scissorPoints(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1 + ((self.tension_preview / Game.battle.max_tension) * 196), 25, 196)
+        Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end
@@ -226,8 +201,8 @@ function TensionBar:draw()
         local alpha = (math.abs((math.sin((self.tsiner / 8)) * 0.5)) + 0.2)
         local color_to_set = {1, 1, 1, alpha}
 
-        local theight = 196 - ((self.current / Game.battle.max_tension) * 196)
-        local theight2 = theight + ((self.tension_preview / Game.battle.max_tension) * 196)
+        local theight = 196 - (self:getPercentageFor250(self.current) * 196)
+        local theight2 = theight + (self:getPercentageFor(self.tension_preview) * 196)
         -- Note: causes a visual bug.
         if (theight2 > ((0 + 196) - 1)) then
             theight2 = ((0 + 196) - 1)
@@ -261,11 +236,11 @@ function TensionBar:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.tp_text, -30, 30)
 
-    local tamt = math.floor(((self.apparent / Game.battle.max_tension) * 100))
+    local tamt = math.floor(self:getPercentageFor250(self.apparent) * 100)
     self.maxed = false
     love.graphics.setFont(self.font)
     if (tamt < 100) then
-        love.graphics.print(tostring(math.floor((self.apparent / Game.battle.max_tension) * 100)), -30, 70)
+        love.graphics.print(tostring(math.floor(self:getPercentageFor250(self.apparent) * 100)), -30, 70)
         love.graphics.print("%", -25, 95)
     end
     if (tamt >= 100) then

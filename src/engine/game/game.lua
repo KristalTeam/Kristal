@@ -129,6 +129,9 @@ function Game:save(x, y)
         money = self.money,
         xp = self.xp,
 
+        tension = self.tension,
+        max_tension = self.max_tension,
+
         lw_money = self.lw_money,
 
         level_up_count = self.level_up_count,
@@ -235,6 +238,9 @@ function Game:load(data, index, fade)
 
     self.money = data.money or 0
     self.xp = data.xp or 0
+
+    self.tension = data.tension or 0
+    self.max_tension = data.max_tension or 100
 
     self.lw_money = data.lw_money or 2
 
@@ -591,6 +597,49 @@ function Game:removeFollower(chara)
             return
         end
     end
+end
+
+
+function Game:giveTension(amount)
+    local start = self:getTension()
+    self:setTension(self:getTension() + amount)
+    if self:getTension() > self:getMaxTension() then
+        Game:setTension(self:getMaxTension())
+    end
+    self:setTensionPreview(0)
+    return self:getTension() - start
+end
+
+function Game:setTensionPreview(amount)
+    if Game.battle and Game.battle.tension_bar then
+        Game.battle.tension_bar:setTensionPreview(amount)
+    end
+end
+
+function Game:removeTension(amount)
+    local start = self:getTension()
+    self:setTension(self:getTension() - amount)
+    if self:getTension() < 0 then
+        self:setTension(0)
+    end
+    self:setTensionPreview(0)
+    return start - self:getTension()
+end
+
+function Game:setTension(amount, dont_clamp)
+    Game.tension = dont_clamp and amount or Utils.clamp(amount, 0, Game.max_tension)
+end
+
+function Game:getTension()
+    return self.tension or 0
+end
+
+function Game:setMaxTension(amount)
+    self.max_tension = amount
+end
+
+function Game:getMaxTension()
+    return Game.max_tension or 100
 end
 
 function Game:update()

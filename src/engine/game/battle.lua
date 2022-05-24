@@ -938,7 +938,7 @@ function Battle:processAction(action)
             end
 
             if damage > 0 then
-                self.tension_bar:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
+                Game:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
 
                 local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
@@ -1293,7 +1293,7 @@ function Battle:commitAction(battler, action_type, target, data, extra)
     local tp_bar = self.tension_bar
     local tp_diff = 0
     if data.tp then
-        tp_diff = Utils.clamp(-data.tp, -tp_bar:getTension(), tp_bar:getMaxTension() - tp_bar:getTension())
+        tp_diff = Utils.clamp(-data.tp, -Game:getTension(), Game:getMaxTension() - Game:getTension())
     end
 
     local party_id = self:getPartyIndex(battler.chara.id)
@@ -1397,9 +1397,9 @@ function Battle:commitSingleAction(action)
 
     if action.tp then
         if action.tp > 0 then
-            self.tension_bar:giveTension(action.tp)
+            Game:giveTension(action.tp)
         elseif action.tp < 0 then
-            self.tension_bar:removeTension(-action.tp)
+            Game:removeTension(-action.tp)
         end
     end
 
@@ -1433,9 +1433,9 @@ function Battle:removeSingleAction(action)
 
     if action.tp then
         if action.tp < 0 then
-            self.tension_bar:giveTension(-action.tp)
+            Game:giveTension(-action.tp)
         elseif action.tp > 0 then
-            self.tension_bar:removeTension(action.tp)
+            Game:removeTension(action.tp)
         end
     end
 
@@ -1710,6 +1710,7 @@ function Battle:checkGameOver()
 end
 
 function Battle:returnToWorld()
+    Game:setTension(0)
     self.transition_timer = 0
     for _,battler in ipairs(self.party) do
         if self.party_world_characters[battler.chara.id] then
@@ -2227,7 +2228,7 @@ function Battle:canSelectMenuItem(menu_item)
     if menu_item.unusable then
         return false
     end
-    if menu_item.tp and (menu_item.tp > self.tension_bar:getTension()) then
+    if menu_item.tp and (menu_item.tp > Game:getTension()) then
         return false
     end
     if menu_item.party then
