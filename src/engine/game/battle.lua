@@ -1296,7 +1296,6 @@ function Battle:commitAction(battler, action_type, target, data, extra)
         action_type = "ACT"
     end
 
-    local tp_bar = self.tension_bar
     local tp_diff = 0
     if data.tp then
         tp_diff = Utils.clamp(-data.tp, -Game:getTension(), Game:getMaxTension() - Game:getTension())

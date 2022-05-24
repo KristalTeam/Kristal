@@ -25,7 +25,7 @@ function TensionItem:onBattleSelect(user, target)
 end
 
 function TensionItem:onBattleDeselect(user, target)
-    Game.battle.tension_bar:removeTension(self.tension_given or 0)
+    Game:removeTension(self.tension_given or 0)
 end
 
 function TensionItem:onWorldUse(target)
