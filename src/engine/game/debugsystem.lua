@@ -526,6 +526,9 @@ function DebugSystem:keypressed(key, _, is_repeat)
         end
         return
     end
+
+    if TextInput.active then return end
+
     if self.state == "MENU" then
         local options = self:getValidOptions()
         if Input.isCancel(key) then

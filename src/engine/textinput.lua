@@ -13,7 +13,6 @@ self.text_callback = nil
 
 function TextInput.attachInput(tbl, options)
     Kristal.showCursor()
-    Game.lock_movement = true -- TODO: Instead of using lock_movement, other thing should check if text input is active.
     self.active = true
     love.keyboard.setTextInput(true)
     love.keyboard.setKeyRepeat(true)
@@ -30,7 +29,6 @@ function TextInput.endInput()
     if not Kristal.DebugSystem or not Kristal.DebugSystem:mouseOpen() then
         Kristal.hideCursor()
     end
-    Game.lock_movement = false
     self.active = false
     love.keyboard.setTextInput(false)
     love.keyboard.setKeyRepeat(false)
