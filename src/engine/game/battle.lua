@@ -547,6 +547,12 @@ function Battle:onStateChange(old,new)
                 chara.visible = true
             end
         end
+        for _,battler in ipairs(self.party) do
+            local index = self:getPartyIndex(battler.chara.id)
+            if index then
+                self.battler_targets[index] = {battler:getPosition()}
+            end
+        end
     elseif new == "DEFENDINGBEGIN" then
         self:setWaves(self.encounter:getNextWaves())
 
