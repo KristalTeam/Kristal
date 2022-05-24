@@ -21,12 +21,21 @@ function TensionBar:init(x, y)
 
     self.parallax_y = 0
 
-    self.animating_in = true
+    self.animating_in = false
     self.animation_timer = 0
 
     self.tsiner = 0
 
     self.tension_preview = 0
+    self.shown = false
+end
+
+function TensionBar:show()
+    if not self.shown then
+        self.shown = true
+        self.animating_in = true
+        self.animation_timer = 0
+    end
 end
 
 function TensionBar:getDebugInfo()
@@ -98,6 +107,7 @@ function TensionBar:update()
         self.animation_timer = self.animation_timer + DTMULT
         if self.animation_timer > 12 then
             self.animation_timer = 12
+            self.animating_in = false
         end
 
         self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)

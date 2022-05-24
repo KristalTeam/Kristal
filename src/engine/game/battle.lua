@@ -85,7 +85,7 @@ function Battle:init()
 
     self.cutscene = nil
 
-    self.current_selecting = 1
+    self.current_selecting = 0
 
     self.turn_count = 0
 
@@ -196,6 +196,12 @@ function Battle:postInit(state, encounter)
         end
     end
 
+    self.battle_ui = BattleUI()
+    self:addChild(self.battle_ui)
+
+    self.tension_bar = TensionBar(-25, 40)
+    self:addChild(self.tension_bar)
+
     self.battler_targets = {}
     if state == "TRANSITION" then
         self.transitioned = true
@@ -270,14 +276,12 @@ function Battle:postInit(state, encounter)
     self:setState(state)
 end
 
-function Battle:openUI()
-    if not self.battle_ui then
-        self.battle_ui = BattleUI()
-        self:addChild(self.battle_ui)
+function Battle:showUI()
+    if self.battle_ui then
+        self.battle_ui:transitionIn()
     end
-    if not self.tension_bar then
-        self.tension_bar = TensionBar(-25, 40)
-        self:addChild(self.tension_bar)
+    if self.tension_bar then
+        self.tension_bar:show()
     end
 end
 
@@ -339,9 +343,10 @@ function Battle:onStateChange(old,new)
             end
         end
 
-        self:openUI()
+        self:showUI()
 
         -- Workaround for autobattlers until BattleUI is created earlier
+        -- TODO: BattleUI is now created earlier, do something with this
         if not had_started then
             for _,party in ipairs(self.party) do
                 party.chara:onTurnStart(party)
@@ -1601,7 +1606,11 @@ function Battle:nextTurn()
             --box:setHeadIcon("head")
             box:resetHeadIcon()
         end
-        self.battle_ui.current_encounter_text = self:getEncounterText()
+        if self.state == "INTRO" then
+            self.battle_ui.current_encounter_text = self.encounter.text
+        else
+            self.battle_ui.current_encounter_text = self:getEncounterText()
+        end
         self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
     end
 

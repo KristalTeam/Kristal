@@ -9,7 +9,7 @@ function BattleUI:init()
 
     self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.encounter_text.text.line_offset = 0
-    self.encounter_text:setText(self.current_encounter_text)
+    self.encounter_text:setText("")
     self.encounter_text.debug_rect = {-30, -12, SCREEN_WIDTH+1, 124}
     self:addChild(self.encounter_text)
 
@@ -50,9 +50,11 @@ function BattleUI:init()
     self.parallax_x = 0
     self.parallax_y = 0
 
-    self.animation_done = false
+    self.animation_done = true
     self.animation_timer = 0
     self.animate_out = false
+
+    self.shown = false
 
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
@@ -104,34 +106,48 @@ function BattleUI:endAttack()
     self.attacking = false
 end
 
+function BattleUI:transitionIn()
+    if not self.shown then
+        self.animate_out = false
+        self.animation_timer = 0
+        self.animation_done = false
+        self.shown = true
+    end
+end
+
 function BattleUI:transitionOut()
     -- TODO: Accurate transition-out animation
-    self.animate_out = true
-    self.animation_timer = 0
-    self.animation_done = false
+    if self.shown then
+        self.animate_out = true
+        self.animation_timer = 0
+        self.animation_done = false
+        self.shown = false
+    end
 end
 
 function BattleUI:update()
-    self.animation_timer = self.animation_timer + DTMULT
+    if not self.animation_done then
+        self.animation_timer = self.animation_timer + DTMULT
 
-    local max_time = self.animate_out and 6 or 12
+        local max_time = self.animate_out and 6 or 12
 
-    if self.animation_timer > max_time + 1 then
-        self.animation_done = true
-        self.animation_timer = max_time + 1
-    end
+        if self.animation_timer > max_time + 1 then
+            self.animation_done = true
+            self.animation_timer = max_time + 1
+        end
 
-    local offset
-    if not self.animate_out then
-        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 480, 325 - 480, max_time)
-        offset = self.y - Ease.outCubic(self.animation_timer - 1, 480, 325 - 480, max_time)
-    else
-        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 325, 480 - 325, max_time)
-        offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), 325, 480 - 325, max_time)
-    end
+        local offset
+        if not self.animate_out then
+            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 480, 325 - 480, max_time)
+            offset = self.y - Ease.outCubic(self.animation_timer - 1, 480, 325 - 480, max_time)
+        else
+            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 325, 480 - 325, max_time)
+            offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), 325, 480 - 325, max_time)
+        end
 
-    for _, box in ipairs(self.action_boxes) do
-        box.data_offset = offset
+        for _, box in ipairs(self.action_boxes) do
+            box.data_offset = offset
+        end
     end
 
     super:update(self)
