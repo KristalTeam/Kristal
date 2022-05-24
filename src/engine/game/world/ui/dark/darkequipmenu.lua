@@ -163,8 +163,7 @@ function DarkEquipMenu:react()
     for index, chara in ipairs(Game.party) do
         local reaction = chara:getReaction(item, party)
         if reaction then
-            Game.world.healthbar.action_boxes[index].reaction_alpha = 50
-            Game.world.healthbar.action_boxes[index].reaction_text = reaction
+            Game.world.healthbar.action_boxes[index]:react(reaction)
         end
     end
 end
