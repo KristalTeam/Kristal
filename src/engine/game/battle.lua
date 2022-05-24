@@ -2539,7 +2539,10 @@ function Battle:keypressed(key)
         if Input.is("up", key) then
             if #self.enemies == 0 then return end
             old_location = self.current_menu_y
+            local give_up = 0
             repeat
+                give_up = give_up + 1
+                if give_up > 100 then return end
                 -- Keep decrementing until there's a selectable enemy.
                 self.current_menu_y = self.current_menu_y - 1
                 if self.current_menu_y < 1 then
@@ -2554,7 +2557,10 @@ function Battle:keypressed(key)
         elseif Input.is("down", key) then
             old_location = self.current_menu_y
             if #self.enemies == 0 then return end
+            local give_up = 0
             repeat
+                give_up = give_up + 1
+                if give_up > 100 then return end
                 -- Keep decrementing until there's a selectable enemy.
                 self.current_menu_y = self.current_menu_y + 1
                 if self.current_menu_y > #self.enemies then
