@@ -15,6 +15,11 @@ local TensionBar, super = Class(Object)
 ]]
 
 function TensionBar:init(x, y, dont_animate)
+    if Game.world and (not x) then
+        local x2 = Game.world.camera:getRect()
+        x = x2 - 25
+    end
+
     super:init(self, x or -25, y or 40)
 
     self.layer = BATTLE_LAYERS["ui"] - 1
@@ -53,7 +58,7 @@ end
 function TensionBar:show()
     if not self.shown then
         self:resetPhysics()
-        self.x = -25
+        self.x = self.init_x
         self.shown = true
         self.animating_in = true
         self.animation_timer = 0
@@ -93,7 +98,7 @@ function TensionBar:update()
             self.animating_in = false
         end
 
-        self.x = Ease.outCubic(self.animation_timer, -25, 25 + 38, 12)
+        self.x = Ease.outCubic(self.animation_timer, self.init_x, 25 + 38, 12)
     end
 
     if (math.abs((self.apparent - self:getTension250())) < 20) then

@@ -372,7 +372,7 @@ function Soul:update()
         if self.inv_timer == 0 then
             if bullet.tp ~= 0 and bullet:collidesWith(self.graze_collider) then
                 if bullet.grazed then
-                    Game.battle.tension_bar:giveTension(bullet.tp * DT * self.graze_tp_factor)
+                    Game:giveTension(bullet.tp * DT * self.graze_tp_factor)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + (bullet.time_bonus * (DT / 30) * self.graze_time_factor)
                     end
@@ -381,7 +381,7 @@ function Soul:update()
                     end
                 else
                     Assets.playSound("graze")
-                    Game.battle.tension_bar:giveTension(bullet.tp * self.graze_tp_factor)
+                    Game:giveTension(bullet.tp * self.graze_tp_factor)
                     if Game.battle.wave_timer < Game.battle.wave_length - (1/3) then
                         Game.battle.wave_timer = Game.battle.wave_timer + ((bullet.time_bonus / 30) * self.graze_time_factor)
                     end
