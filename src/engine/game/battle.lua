@@ -138,6 +138,8 @@ function Battle:init()
     self.enemies_to_remove = {}
     self.defeated_enemies = {}
 
+    self.seen_encounter_text = false
+
     self.waves = {}
     self.finished_waves = false
 
@@ -319,6 +321,7 @@ function Battle:onStateChange(old,new)
         end
     end
     if new == "INTRO" then
+        self.seen_encounter_text = false
         self.intro_timer = 0
         Assets.playSound("impact", 0.7)
         Assets.playSound("weaponpull_fast", 0.8)
@@ -1676,7 +1679,8 @@ function Battle:nextTurn()
             --box:setHeadIcon("head")
             box:resetHeadIcon()
         end
-        if self.state == "INTRO" then
+        if self.state == "INTRO" or self.state_reason == "INTRO" or not self.seen_encounter_text then
+            self.seen_encounter_text = true
             self.battle_ui.current_encounter_text = self.encounter.text
         else
             self.battle_ui.current_encounter_text = self:getEncounterText()
@@ -1988,7 +1992,8 @@ function Battle:updateIntro()
         for _,v in ipairs(self.party) do
             v:setAnimation("battle/idle")
         end
-        self:nextTurn()
+        self:setState("ACTIONSELECT", "INTRO")
+        --self:nextTurn()
     end
 end
 
