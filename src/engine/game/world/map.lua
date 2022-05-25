@@ -388,6 +388,9 @@ end
 
 function Map:loadImage(layer, depth)
     local texture = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
+    if not texture then
+        error("Invalid image location for layer " .. layer.name)
+    end
     local sprite = Sprite(texture, layer.offsetx, layer.offsety)
     sprite:setParallax(layer.parallaxx, layer.parallaxy)
     sprite.alpha = layer.opacity

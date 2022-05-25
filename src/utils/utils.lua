@@ -699,10 +699,12 @@ function Utils.absoluteToLocalPath(prefix, image, path)
     Utils.merge(current_path, tileset_path)
     local final_path = table.concat(current_path, "/")
     local _,ind = final_path:find(prefix)
+    if not ind then return false end
     final_path = final_path:sub(ind + 1)
     local ext = final_path
     while ext:find("%.") do
         _,ind = ext:find("%.")
+        if not ind then return false end
         ext = ext:sub(ind + 1)
     end
     if ext == final_path then
