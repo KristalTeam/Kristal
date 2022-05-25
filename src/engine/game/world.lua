@@ -646,10 +646,12 @@ function World:loadMap(...)
     if type(args[2]) == "string" then
         marker = args[2]
         facing = args[3]
-    else
+    elseif type(args[2]) == "number" then
         x = args[2]
         y = args[3]
         facing = args[4]
+    else
+        marker = "spawn"
     end
 
     if self.map then
@@ -669,8 +671,15 @@ function World:loadMap(...)
         self:spawnParty({x, y}, nil, nil, facing)
     end
 
-    self.map:onEnter()
     self:setState("GAMEPLAY")
+
+    for _,event in ipairs(self.map.events) do
+        if event.postLoad then
+            event:postLoad()
+        end
+    end
+
+    self.map:onEnter()
 end
 
 function World:transitionMusic(next, fade_out)

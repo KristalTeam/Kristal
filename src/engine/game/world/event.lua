@@ -48,11 +48,10 @@ function Event:onExit(player)
     -- Do stuff when the player leaves this object
 end
 
-function Event:postLoad()
-    -- Do stuff after every event has been loaded
-end
-
 ]]--
+
+function Event:onLoad() end -- Do stuff after the map has been loaded
+function Event:postLoad() end -- Do stuff after the entire world has been loaded
 
 function Event:onAdd(parent)
     if parent:includes(World) then

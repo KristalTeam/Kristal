@@ -10,7 +10,7 @@ function ToggleController:init(properties)
     self.target_objs = Utils.parsePropertyList("target", properties)
 end
 
-function ToggleController:postLoad()
+function ToggleController:onLoad()
     self.targets = {}
     self.target_colliders = {}
     for _,obj in ipairs(self.target_objs) do

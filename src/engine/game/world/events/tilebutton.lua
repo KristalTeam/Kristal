@@ -35,7 +35,7 @@ function TileButton:init(x, y, w, h, properties, idle_sprite, pressed_sprite)
     self.pressed = false
 end
 
-function TileButton:postLoad()
+function TileButton:onLoad()
     self:checkCompletion()
 end
 

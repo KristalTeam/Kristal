@@ -83,8 +83,8 @@ function Map:load()
         self:addTileLayer(0)
     end
     for _,event in ipairs(self.events) do
-        if event.postLoad then
-            event:postLoad()
+        if event.onLoad then
+            event:onLoad()
         end
     end
 end
