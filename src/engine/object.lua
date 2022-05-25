@@ -512,7 +512,7 @@ end
 
 -- Used in World exclusively
 function Object:getSortPosition()
-    return self:getRelativePos(self.width/2, self.height/2)
+    return self:getRelativePos(self.width/2, self.height)
 end
 
 function Object:canDebugSelect()

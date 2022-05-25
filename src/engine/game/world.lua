@@ -599,6 +599,8 @@ function World:setupMap(map, ...)
         end
     end
 
+    self:updateChildList()
+
     self.healthbar = nil
     self.followers = {}
 
