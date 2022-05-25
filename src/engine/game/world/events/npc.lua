@@ -11,9 +11,13 @@ function NPC:init(actor, x, y, properties)
         self.sprite:setAnimation(properties["animation"])
     end
 
+    self.start_facing = properties["facing"] or "down"
+
     if properties["facing"] then
         self:setFacing(properties["facing"])
     end
+
+    self.turn = properties["turn"] ~= false
 
     self.talk = properties["talk"] ~= false
 
@@ -30,6 +34,9 @@ function NPC:init(actor, x, y, properties)
 end
 
 function NPC:onInteract(player, dir)
+    if self.turn then
+        self:facePlayer()
+    end
     self.interact_count = self.interact_count + 1
 
     if self.script then
@@ -60,6 +67,10 @@ function NPC:onInteract(player, dir)
     end
 end
 
-function NPC:onTextEnd() end
+function NPC:onTextEnd()
+    if self.turn then
+        self:setFacing(self.start_facing)
+    end
+end
 
 return NPC

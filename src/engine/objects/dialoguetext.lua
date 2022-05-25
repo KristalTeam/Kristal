@@ -1,6 +1,6 @@
 local DialogueText, super = Class(Text)
 
-DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk", "sound"}
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk", "sound", "next"}
 
 function DialogueText:init(text, x, y, w, h, options)
     if type(w) == "table" then
@@ -345,6 +345,10 @@ function DialogueText:processModifier(node, dry)
     elseif node.command == "sound" then
         if not dry then
             Assets.playSound(node.arguments[1], tonumber(node.arguments[2] or "1"), tonumber(node.arguments[3] or "1"))
+        end
+    elseif node.command == "next" then
+        if not dry then
+            self:advance()
         end
     end
 end
