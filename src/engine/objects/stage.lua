@@ -18,9 +18,9 @@ end
 
 function Stage:getObjects(class)
     if class then
-        return self.objects_by_class[class] or {}
+        return Utils.filter(self.objects_by_class[class] or {}, function(o) return o.stage == self end)
     else
-        return self.objects
+        return Utils.filter(self.objects, function(o) return o.stage == self end)
     end
 end
 
