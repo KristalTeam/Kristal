@@ -13,6 +13,8 @@ function Tileset:init(data, path)
     self.columns = data.columns or 0
     self.object_alignment = data.objectalignment or "unspecified"
 
+    self.id_count = self.tile_count
+
     self.tile_info = {}
     for _,v in ipairs(data.tiles or {}) do
         local info = {}
@@ -33,6 +35,7 @@ function Tileset:init(data, path)
             info.height = v.height
         end
         self.tile_info[v.id] = info
+        self.id_count = math.max(self.id_count, v.id + 1)
     end
 
     if data.image then

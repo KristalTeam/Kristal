@@ -746,7 +746,7 @@ function Map:populateTilesets(data)
         table.insert(self.tilesets, tileset)
         local gid = tileset_data.firstgid or (self.max_gid + 1)
         self.tileset_gids[tileset] = gid
-        self.max_gid = math.max(self.max_gid, gid + tileset.tile_count - 1)
+        self.max_gid = math.max(self.max_gid, gid + tileset.id_count)
     end
 end
 
@@ -755,7 +755,7 @@ function Map:getTileset(id)
         id = Utils.parseTileGid(id)
         for _,v in ipairs(self.tilesets) do
             local first_id = self.tileset_gids[v]
-            if id >= first_id and id < first_id + v.tile_count then
+            if id >= first_id and id < first_id + v.id_count then
                 return v, (id - first_id)
             end
         end
