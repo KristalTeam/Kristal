@@ -266,7 +266,7 @@ local loaders = {
         end
     end},
     ["videos"] = {"assets/videos", function(base_dir, path, full_path)
-        local id = checkExtension(path, "ogg")
+        local id = checkExtension(path, "ogg", "ogv")
         if id then
             data.assets.videos[id] = full_path
         end
