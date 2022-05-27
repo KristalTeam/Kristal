@@ -8,7 +8,6 @@ function Starwalker:init()
     self.starwalker = self:addEnemy("starwalker", 530, 238)
 
     self.background = true
-    self.music = "pissedmeoff"
 
     self.no_end_message = true
 
