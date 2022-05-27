@@ -1,9 +1,9 @@
 local actor, super = Class(Actor, "susie")
 
-function actor:init()
+function actor:init(style)
     super:init(self)
 
-    local susie_style = Game:getConfig("susieStyle")
+    local susie_style = style or Game:getConfig("susieStyle")
 
     -- Display name (optional)
     self.name = "Susie"

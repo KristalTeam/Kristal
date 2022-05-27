@@ -9,11 +9,7 @@ function character:init()
     self.name = "Ralsei"
 
     -- Actor (handles sprites)
-    if ralsei_style == 1 then
-        self:setActor("ralsei_ch1")
-    else
-        self:setActor("ralsei")
-    end
+    self:setActor("ralsei")
 
     -- Display level (saved to the save file)
     self.level = Game.chapter
