@@ -746,7 +746,7 @@ function Map:populateTilesets(data)
         table.insert(self.tilesets, tileset)
         local gid = tileset_data.firstgid or (self.max_gid + 1)
         self.tileset_gids[tileset] = gid
-        self.max_gid = math.max(self.max_gid, gid + tileset.id_count)
+        self.max_gid = math.max(self.max_gid, gid + tileset.id_count - 1)
     end
 end
 

@@ -16,6 +16,7 @@ function Assets.clear()
         font_settings = {},
         sound_data = {},
         music = {},
+        videos = {},
         bubbles = {},
         bubble_settings = {},
     }
@@ -241,6 +242,17 @@ end
 
 function Assets.getMusicPath(music)
     return self.data.music[music]
+end
+
+function Assets.getVideoPath(video)
+    return self.data.videos[video]
+end
+
+function Assets.newVideo(video, load_audio)
+    if not self.data.videos[video] then
+        error("No video found: "..video)
+    end
+    return love.graphics.newVideo(self.data.videos[video], {audio = load_audio})
 end
 
 Assets.clear()

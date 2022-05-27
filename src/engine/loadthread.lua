@@ -64,6 +64,7 @@ function resetData()
             sounds = {},
             sound_data = {},
             music = {},
+            videos = {},
             bubble_settings = {},
         }
     }
@@ -75,6 +76,7 @@ function resetData()
         ["fonts"] = {},
         ["sounds"] = {},
         ["music"] = {},
+        ["videos"] = {},
         ["bubbles"] = {},
     }
 
@@ -261,6 +263,15 @@ local loaders = {
         local id = checkExtension(path, "mp3", "wav", "ogg")
         if id then
             data.assets.music[id] = full_path
+        end
+    end},
+    ["videos"] = {"assets/videos", function(base_dir, path, full_path)
+        local id = checkExtension(path, "ogg")
+        if id then
+            data.assets.videos[id] = full_path
+        end
+        if checkExtension(path, "mp4", "mov", "wmv", "flv", "avi", "webm", "mkv") then
+            error("\""..path.."\" unsupported - must use Ogg Theora videos.")
         end
     end},
     ["bubbles"] = {"assets/bubbles", function(base_dir, path, full_path)
