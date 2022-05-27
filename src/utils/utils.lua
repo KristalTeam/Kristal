@@ -302,6 +302,12 @@ function Utils.rgbToHex(rgb)
     return string.format("#%02X%02X%02X", rgb[1]*255, rgb[2]*255, rgb[3]*255)
 end
 
+function Utils.parseColorProperty(property)
+    local str = "#"..string.sub(property, 4)
+    local a = tonumber(string.sub(property, 2, 3), 16)/256
+    return Utils.hexToRgb(str, a)
+end
+
 function Utils.merge(tbl, other, deep)
     if #tbl > 0 and #other > 0 then
         for _,v in ipairs(other) do
