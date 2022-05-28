@@ -10,6 +10,7 @@ LibTimer = require("src.lib.hump.timer")
 JSON = require("src.lib.json")
 Ease = require("src.lib.easing")
 SemVer = require("src.lib.semver")
+require("src.lib.stable_sort")
 
 Class = require("src.utils.class")
 require ("src.utils.graphics")
@@ -201,20 +202,21 @@ Hotswapper = require("src.hotswapper")
 -- Register required in the hotswapper
 Hotswapper.updateFiles("required")
 
-
-
 function love.run()
+    if not love.timer then
+        error("love.timer is required")
+    end
+
 ---@diagnostic disable-next-line: undefined-field, redundant-parameter
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
     -- We don't want the first frame's DT to include time taken by love.load.
     if love.timer then love.timer.step() end
 
-    local dt = 0
+    local accumulator = 0
+    local error_result
 
-    local errorResult
-
-    local function mainLoop()
+    local function doUpdate(dt)
         -- Clear input from last frame
         Input.clear()
 
@@ -232,17 +234,13 @@ function love.run()
             end
         end
 
-        -- Update DT, as we'll be passing it to update
-        if love.timer then dt = love.timer.step() end
-
-        -- DT shouldn't exceed 30FPS
-        dt = math.min(dt, 1/30)
-
-        -- Call update and draw
+        -- Call update
         if love.update then
             love.update(dt)
         end
+    end
 
+    local function doDraw()
         if love.graphics and love.graphics.isActive() then
             love.graphics.origin()
             love.graphics.clear(love.graphics.getBackgroundColor())
@@ -252,18 +250,45 @@ function love.run()
 
             love.graphics.present()
         end
+    end
 
-        if love.timer then love.timer.sleep(0.001) end
+    local function mainLoop()
+        if FRAMERATE > 0 then
+            local tick_rate = 1 / FRAMERATE
+
+            local dt = love.timer.step()
+            accumulator = accumulator + dt
+
+            local update = false
+            while accumulator >= tick_rate do
+                accumulator = accumulator - tick_rate
+                update = true
+            end
+
+            if update then
+                local ret = doUpdate(tick_rate)
+                if ret then return ret end
+                doDraw()
+            end
+        else
+            local dt = math.min(love.timer.step(), 1/30)
+
+            local ret = doUpdate(dt)
+            if ret then return ret end
+
+            doDraw()
+        end
+        love.timer.sleep(0.001)
     end
 
     -- Main loop time.
     return function()
-        if errorResult then
-            local result = errorResult()
+        if error_result then
+            local result = error_result()
             if result then
                 if result == "reload" then
                     Mod = nil
-                    errorResult = nil
+                    error_result = nil
                     Kristal.returnToMenu()
                 else
                     if love.quit then
@@ -277,7 +302,7 @@ function love.run()
             if success then
                 return result
             else
-                errorResult = result
+                error_result = result
             end
         end
     end

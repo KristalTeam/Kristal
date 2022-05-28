@@ -1868,7 +1868,7 @@ end]]
 
 function Battle:sortChildren()
     -- Sort battlers by Y position
-    table.sort(self.children, function(a, b)
+    table.stable_sort(self.children, function(a, b)
         return a.layer < b.layer or (a.layer == b.layer and (a:includes(Battler) and b:includes(Battler)) and a.y < b.y)
     end)
 end
@@ -1959,6 +1959,20 @@ function Battle:update()
     else
         self.camera.ox = 0
         self.camera.oy = 0
+    end
+
+    self.offset = self.offset + 1 * DTMULT
+
+    if self.offset > 100 then
+        self.offset = self.offset - 100
+    end
+
+    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
+        self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
+    end
+
+    if Utils.containsValue({"DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT"}, self.state) then
+        self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
     end
 
     -- Always sort
@@ -2183,14 +2197,6 @@ function Battle:draw()
 
     self.encounter:drawBackground(self.transition_timer / 10)
 
-    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
-        self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
-    end
-
-    if Utils.containsValue({"DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT"}, self.state) then
-        self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
-    end
-
     love.graphics.setColor(0, 0, 0, self.background_fade_alpha)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
@@ -2206,12 +2212,6 @@ end
 function Battle:drawBackground()
     love.graphics.setColor(0, 0, 0, self.transition_timer / 10)
     love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH+16, SCREEN_HEIGHT+16)
-
-    self.offset = self.offset + 1 * DTMULT
-
-    if self.offset > 100 then
-        self.offset = self.offset - 100
-    end
 
     love.graphics.setLineStyle("rough")
     love.graphics.setLineWidth(1)

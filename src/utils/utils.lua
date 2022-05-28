@@ -351,6 +351,26 @@ function Utils.containsValue(tbl, val)
     return false
 end
 
+function Utils.floor(value, to)
+    if not to then
+        return math.floor(value)
+    elseif to == 0 then
+        return 0
+    else
+        return math.floor(value/to)*to
+    end
+end
+
+function Utils.ceil(value, to)
+    if not to then
+        return math.ceil(value)
+    elseif to == 0 then
+        return 0
+    else
+        return math.ceil(value/to)*to
+    end
+end
+
 function Utils.round(value, to)
     if not to then
         return math.floor(value + 0.5)

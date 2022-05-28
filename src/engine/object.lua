@@ -644,33 +644,56 @@ function Object:removeFX(id)
     end
 end
 
-function Object:applyTransformTo(transform)
+function Object:applyTransformTo(transform, floor_x, floor_y)
     Utils.pushPerformance("Object#applyTransformTo")
-    transform:translate(self.x, self.y)
+    if not floor_x then
+        transform:translate(self.x, self.y)
+    else
+        transform:translate(Utils.floor(self.x, floor_x), Utils.floor(self.y, floor_y))
+    end
     if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
-        transform:translate(self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y))
+        local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y)
+        if not floor_x then
+            transform:translate(px, py)
+        else
+            transform:translate(Utils.floor(px, floor_x), Utils.floor(py, floor_y))
+        end
     end
     if self.flip_x or self.flip_y then
         transform:translate(self.width/2, self.height/2)
         transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)
         transform:translate(-self.width/2, -self.height/2)
     end
+    if floor_x then
+        floor_x = floor_x / self.scale_x
+        floor_y = floor_y / self.scale_y
+    end
     local ox, oy = self:getOriginExact()
-    transform:translate(-ox, -oy)
+    if not floor_x then
+        transform:translate(-ox, -oy)
+    else
+        transform:translate(-Utils.floor(ox, floor_x), -Utils.floor(oy, floor_y))
+    end
     if self.rotation ~= 0 then
         local ox, oy = self:getRotationOriginExact()
+        if floor_x then
+            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+        end
         transform:translate(ox, oy)
         transform:rotate(self.rotation)
         transform:translate(-ox, -oy)
     end
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
         local ox, oy = self:getScaleOriginExact()
+        if floor_x then
+            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+        end
         transform:translate(ox, oy)
         transform:scale(self.scale_x, self.scale_y)
         transform:translate(-ox, -oy)
     end
     if self.camera then
-        self.camera:applyTo(transform)
+        self.camera:applyTo(transform, floor_x, floor_y)
     end
     Utils.popPerformance()
 end
@@ -814,7 +837,7 @@ end
 --[[ Internal functions ]]--
 
 function Object:sortChildren()
-    table.sort(self.children, Object.LAYER_SORT)
+    table.stable_sort(self.children, Object.LAYER_SORT)
 end
 
 function Object:updateChildList()
@@ -869,8 +892,18 @@ end
 function Object:preDraw(dont_transform)
     if not dont_transform then
         local transform = love.graphics.getTransformRef()
-        self:applyTransformTo(transform)
+        self:applyTransformTo(transform, 1/CURRENT_SCALE_X, 1/CURRENT_SCALE_Y)
         love.graphics.replaceTransform(transform)
+
+        self._last_draw_scale_x = CURRENT_SCALE_X
+        self._last_draw_scale_y = CURRENT_SCALE_Y
+
+        CURRENT_SCALE_X = CURRENT_SCALE_X * self.scale_x
+        CURRENT_SCALE_Y = CURRENT_SCALE_Y * self.scale_y
+        if self.camera then
+            CURRENT_SCALE_X = CURRENT_SCALE_X * self.camera.zoom_x
+            CURRENT_SCALE_Y = CURRENT_SCALE_Y * self.camera.zoom_y
+        end
     end
 
     love.graphics.setColor(self:getDrawColor())
@@ -880,6 +913,11 @@ end
 
 function Object:postDraw()
     Draw.popScissor()
+
+    CURRENT_SCALE_X = self._last_draw_scale_x or CURRENT_SCALE_X
+    CURRENT_SCALE_Y = self._last_draw_scale_y or CURRENT_SCALE_Y
+
+    self._last_draw_scale_x, self._last_draw_scale_y = nil, nil
 end
 
 function Object:drawChildren(min_layer, max_layer)
@@ -995,7 +1033,7 @@ function Object:shouldProcessDrawFX()
 end
 
 function Object:processDrawFX(canvas, transformed)
-    table.sort(self.draw_fx, FXBase.SORTER)
+    table.stable_sort(self.draw_fx, FXBase.SORTER)
 
     for _,fx in ipairs(self.draw_fx) do
         if fx:isActive(self) and (transformed == nil or fx.transformed == transformed) then

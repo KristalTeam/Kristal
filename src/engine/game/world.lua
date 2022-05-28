@@ -846,7 +846,7 @@ function World:sortChildren()
         local x, y = child:getSortPosition()
         positions[child] = {x = x, y = y}
     end
-    table.sort(self.children, function(a, b)
+    table.stable_sort(self.children, function(a, b)
         local a_pos, b_pos = positions[a], positions[b]
         local ax, ay = a_pos.x, a_pos.y
         local bx, by = b_pos.x, b_pos.y

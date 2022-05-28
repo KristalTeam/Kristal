@@ -97,7 +97,7 @@ function Overlay:draw()
     -- Draw the FPS counter text
     if Kristal.Config and Kristal.Config["showFPS"] then
         love.graphics.setFont(self.font)
-        local text = love.timer.getFPS().." FPS"
+        local text = love.timer.getFPS() .. " FPS"
         local x = SCREEN_WIDTH - self.font:getWidth(text) - 2
         local y = -4
         love.graphics.setColor(0, 0, 0)

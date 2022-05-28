@@ -225,9 +225,19 @@ function Camera:getParallax(px, py, ox, oy)
     return parallax_x, parallax_y
 end
 
-function Camera:applyTo(transform)
+function Camera:applyTo(transform, ceil_x, ceil_y)
     transform:scale(self.zoom_x, self.zoom_y)
-    transform:translate(-self.x - self.ox + (self.width / self.zoom_x / 2), -self.y - self.oy + (self.height / self.zoom_y / 2))
+
+    local tx = -self.x - self.ox + (self.width / self.zoom_x / 2)
+    local ty = -self.y - self.oy + (self.height / self.zoom_y / 2)
+
+    if ceil_x then
+        ceil_x = ceil_x / self.zoom_x
+        ceil_y = ceil_y / self.zoom_y
+        transform:translate(Utils.ceil(tx, ceil_x), Utils.ceil(ty, ceil_y))
+    else
+        transform:translate(tx, ty)
+    end
 end
 
 function Camera:getTransform()

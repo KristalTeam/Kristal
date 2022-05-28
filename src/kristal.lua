@@ -64,6 +64,9 @@ function love.load(args)
     -- toggle vsync
     love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
 
+    -- update framerate
+    FRAMERATE = Kristal.Config["fps"]
+
     -- set master volume
     Kristal.setVolume(Kristal.Config["masterVolume"] or 1)
 
@@ -906,7 +909,8 @@ function Kristal.loadConfig()
         windowScale = 1,
         skipIntro = false,
         showFPS = false,
-        vSync = false,
+        fps = 60,
+        vSync = true,
         debug = false,
         fullscreen = false,
         simplifyVFX = false,

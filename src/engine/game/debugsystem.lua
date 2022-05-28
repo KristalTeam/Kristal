@@ -364,11 +364,26 @@ end
 function DebugSystem:registerSubMenus()
     self:registerMenu("engine_options", "Engine Options")
     self:registerConfigOption("engine_options", "Show FPS", "Toggle the FPS display.", "showFPS")
+    self:registerOption("engine_options", "Target FPS", function()
+        local fps_text = Kristal.Config["fps"] > 0 and tostring(Kristal.Config["fps"]) or "Unlimited"
+        return "Set the target FPS. ("..fps_text..")"
+    end, function()
+        self:enterMenu("engine_option_fps", 1)
+    end)
     self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function()
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     end)
     self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
     self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
+
+    self:registerMenu("engine_option_fps", "Target FPS")
+    self:registerOption("engine_option_fps", "Unlimited", "Set the target FPS to unlimited.", function() Kristal.Config["fps"] = 0; FRAMERATE = 0 end)
+    self:registerOption("engine_option_fps", "30", "Set the target FPS to 30.", function() Kristal.Config["fps"] = 30; FRAMERATE = 30 end)
+    self:registerOption("engine_option_fps", "60", "Set the target FPS to 60.", function() Kristal.Config["fps"] = 60; FRAMERATE = 60 end)
+    self:registerOption("engine_option_fps", "120", "Set the target FPS to 120.", function() Kristal.Config["fps"] = 120; FRAMERATE = 120 end)
+    self:registerOption("engine_option_fps", "144", "Set the target FPS to 144.", function() Kristal.Config["fps"] = 144; FRAMERATE = 144 end)
+    self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.", function() Kristal.Config["fps"] = 240; FRAMERATE = 240 end)
+    self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
     self:registerMenu("encounter_select", "Encounter Select")
     -- loop through registry and add menu options for all encounters

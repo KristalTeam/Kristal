@@ -335,6 +335,10 @@ function ActorSprite:update()
         end
     end
 
+    if self.aura then
+        self.aura_siner = self.aura_siner + 0.25 * DTMULT
+    end
+
     if self.run_away then
         self.run_away_timer = self.run_away_timer + DTMULT
     end
@@ -366,7 +370,6 @@ function ActorSprite:draw()
     end
 
     if self.texture and self.aura then
-        self.aura_siner = self.aura_siner + 0.25 * DTMULT
         for i = 1, 5 do
             local aura = (i * 9) + ((self.aura_siner * 3) % 9)
             local aurax = (aura * 0.75) + (math.sin(aura / 4) * 4)

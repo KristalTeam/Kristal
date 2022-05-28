@@ -84,6 +84,9 @@ function Stage:draw()
     if not self.visible then return end
 
     if not self.full_drawing then
+        CURRENT_SCALE_X = 1
+        CURRENT_SCALE_Y = 1
+
         self.full_drawing = true
         self:fullDraw()
         self.full_drawing = false
