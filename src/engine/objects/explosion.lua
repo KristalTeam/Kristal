@@ -5,7 +5,7 @@ function Explosion:init(x, y)
 
     self.frames = Assets.getFrames("misc/realistic_explosion")
     self.frame = 1
-    self.speed = 1
+    self.speed = 0.5
 
     self.time = 0
 
@@ -20,9 +20,9 @@ function Explosion:onAdd()
 end
 
 function Explosion:update()
-    self.time = self.time + DT
+    self.time = self.time + (self.speed * DTMULT)
 
-    self.frame = math.floor(self.time / 0.05) + 1
+    self.frame = math.floor(self.time) + 1
     if self.frame > #self.frames then
         self:remove()
     end
