@@ -78,6 +78,14 @@ function Music:setVolume(volume)
     end
 end
 
+function Music:seek(time)
+    self.source:seek(time)
+end
+
+function Music:tell()
+    return self.source:tell()
+end
+
 function Music:stop()
     self.fade_speed = 0
     if self.source then

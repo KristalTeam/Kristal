@@ -32,6 +32,8 @@ function DialogueText:init(text, x, y, w, h, options)
     self.advance_callback = nil
 
     self.done = false
+
+    self.should_advance = false
 end
 
 function DialogueText:getDebugInfo()
@@ -82,8 +84,6 @@ function DialogueText:setText(text, callback)
 
     self.text_table = text or {}
     self.text = self.text_table[1] or ""
-
-    self.text_index = 1
 
     self.last_talking = false
 
@@ -147,7 +147,8 @@ function DialogueText:update()
 
         local input = self.can_advance and (Input.pressed("confirm") or (Input.down("menu") and self.fast_skipping_timer >= 1))
 
-        if input or self.auto_advance then
+        if input or self.auto_advance or self.should_advance then
+            self.should_advance = false
             if not self.state.typing then
                 self:advance()
             end
@@ -348,7 +349,7 @@ function DialogueText:processModifier(node, dry)
         end
     elseif node.command == "next" then
         if not dry then
-            self:advance()
+            self.should_advance = true
         end
     end
 end
