@@ -279,10 +279,10 @@ function love.keypressed(key, scancode, is_repeat)
         Kristal.DebugSystem:keypressed(key, scancode, is_repeat)
     end
 
-    if key == "f1" then
-        love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
-    elseif key == "f2" or Input.is("fast_forward", key) then
+    if key == "f2" or Input.is("fast_forward", key) then
         FAST_FORWARD = not FAST_FORWARD
+    elseif key == "f3" then
+        love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
     elseif key == "f4" or (key == "return" and Input.alt()) then
         Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
         love.window.setFullscreen(Kristal.Config["fullscreen"])
