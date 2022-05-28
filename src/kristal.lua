@@ -280,19 +280,14 @@ function love.keypressed(key, scancode, is_repeat)
     end
 
     if key == "f1" then
-        Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
-    elseif key == "f2" then
-        Kristal.Config["vSync"] = not Kristal.Config["vSync"]
-        love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
-    elseif key == "f3" then
-        PERFORMANCE_TEST_STAGE = "UPDATE"
+        love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
+    elseif key == "f2" or Input.is("fast_forward", key) then
+        FAST_FORWARD = not FAST_FORWARD
     elseif key == "f4" or (key == "return" and Input.alt()) then
         Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
         love.window.setFullscreen(Kristal.Config["fullscreen"])
     elseif key == "f6" then
         DEBUG_RENDER = not DEBUG_RENDER
-    elseif key == "f7" then
-        FAST_FORWARD = not FAST_FORWARD
     elseif key == "f8" then
         print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
         Hotswapper.scan()

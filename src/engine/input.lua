@@ -8,7 +8,7 @@ Input.key_released = {}
 Input.aliases = {}
 
 Input.order = {
-    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu"
+    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
 }
 
 Input.key_groups = {
@@ -44,7 +44,8 @@ function Input.loadBinds(reset)
         ["menu"] = {"c", "ctrl"},
         ["console"] = {"`"},
         ["debug_menu"] = {{"shift", "`"}},
-        ["object_selector"] = {{"ctrl", "o"}}
+        ["object_selector"] = {{"ctrl", "o"}},
+        ["fast_forward"] = {{"ctrl", "g"}}
     }
 
     if (reset == nil) or (reset == false) then

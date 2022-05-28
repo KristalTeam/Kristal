@@ -613,7 +613,7 @@ function Menu:draw()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
-        self:printShadow("CTRL+SHIFT+ALT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
+        self:printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
 
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
@@ -1107,7 +1107,7 @@ function Menu:keypressed(key, _, is_repeat)
             end
 
             local y_off = (self.selected_option - 1) * 32
-            if self.selected_option > (#Input.order + 1) then
+            if self.selected_option > (Utils.tableLength(Input.aliases)) then
                 y_off = y_off + 32
             end
 
