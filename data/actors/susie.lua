@@ -77,6 +77,10 @@ function actor:init(style)
         ["jump_ball"]           = {"ball", 1/15, true},
     }
 
+    if susie_style == 1 then
+        self.animations["battle/transition"] = {"bangs_wall_right", 0, true}
+    end
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets
@@ -152,6 +156,9 @@ function actor:init(style)
 
         ["wall_left"] = {0, -2},
         ["wall_right"] = {0, -2},
+
+        ["bangs_wall_left"] = {0, -2},
+        ["bangs_wall_right"] = {0, -2},
 
         ["exasperated_left"] = {-1, 0},
         ["exasperated_right"] = {-5, 0},

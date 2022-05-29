@@ -65,6 +65,10 @@ function actor:init()
         ["jump_ball"]           = {"ball", 1/15, true},
     }
 
+    if Game.chapter == 1 then
+        self.animations["battle/transition"] = {"walk/right", 0, true}
+    end
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets
