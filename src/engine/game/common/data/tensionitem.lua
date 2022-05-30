@@ -12,7 +12,7 @@ function TensionItem:getTensionAmount()
 end
 
 function TensionItem:onBattleSelect(user, target)
-    self.tension_given = Game.battle.tension_bar:giveTension(self:getTensionAmount())
+    self.tension_given = Game:giveTension(self:getTensionAmount())
 
     user:flash()
 
