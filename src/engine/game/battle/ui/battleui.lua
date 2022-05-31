@@ -462,7 +462,7 @@ function BattleUI:drawState()
         local max_page = math.ceil(#Game.battle.party / 3) - 1
         local page_offset = page * 3
 
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 55, 30 + ((Game.battle.current_menu_y - page_offset) * 30))
 
         local font = Assets.getFont("main")
