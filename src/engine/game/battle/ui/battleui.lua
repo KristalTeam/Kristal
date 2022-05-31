@@ -217,12 +217,49 @@ function BattleUI:drawState()
                 end
             end
 
+            if item.icons then
+                if not able then
+                    -- We're not able to select this, so make the heads gray.
+                    love.graphics.setColor(COLORS.gray)
+                end
+
+                for _, icon in ipairs(item.icons) do
+                    if type(icon) == "string" then
+                        icon = {icon, false, 0, 0, nil}
+                    end
+                    if not icon[2] then
+                        local texture = Assets.getTexture(icon[1])
+                        love.graphics.draw(texture, text_offset + 30 + (x * 230) + (icon[3] or 0), 50 + (y * 30) + (icon[4] or 0))
+                        text_offset = text_offset + (icon[5] or texture:getWidth())
+                    end
+                end
+            end
+
             if able then
                 love.graphics.setColor(item.color or {1, 1, 1, 1})
             else
                 love.graphics.setColor(COLORS.gray)
             end
             love.graphics.print(item.name, text_offset + 30 + (x * 230), 50 + (y * 30))
+            text_offset = text_offset + font:getWidth(item.name)
+
+            if item.icons then
+                if able then
+                    love.graphics.setColor(1, 1, 1)
+                end
+
+                for _, icon in ipairs(item.icons) do
+                    if type(icon) == "string" then
+                        icon = {icon, false, 0, 0, nil}
+                    end
+                    if icon[2] then
+                        local texture = Assets.getTexture(icon[1])
+                        love.graphics.draw(texture, text_offset + 30 + (x * 230) + (icon[3] or 0), 50 + (y * 30) + (icon[4] or 0))
+                        text_offset = text_offset + (icon[5] or texture:getWidth())
+                    end
+                end
+            end
+
             if x == 0 then
                 x = 1
             else
