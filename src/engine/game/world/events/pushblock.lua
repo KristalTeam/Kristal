@@ -17,6 +17,8 @@ function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
 
     self.push_sound = properties["pushsound"] or "noise"
 
+    self.press_buttons = properties["pressbuttons"] ~= false
+
     self.lock_in_place = properties["lock"] or false
 
     -- State variables
