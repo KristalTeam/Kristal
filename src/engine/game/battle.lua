@@ -502,7 +502,7 @@ function Battle:onStateChange(old,new)
             Game.money = 0
         end
 
-        local win_text = "* You won!\n* Got " .. self.xp .. " EXP and " .. self.money .. " D$."
+        local win_text = "* You won!\n* Got " .. self.xp .. " EXP and " .. self.money .. " "..Game:getConfig("darkCurrencyShort").."."
         -- if (in_dojo) then
         --     win_text == "* You won the battle!"
         -- end
@@ -518,7 +518,7 @@ function Battle:onStateChange(old,new)
                 end
             end
 
-            win_text = "* You won!\n* Got " .. self.money .. " D$.\n* "..stronger.." became stronger."
+            win_text = "* You won!\n* Got " .. self.money .. " "..Game:getConfig("darkCurrencyShort")..".\n* "..stronger.." became stronger."
 
             Assets.playSound("dtrans_lw", 0.7, 2)
             --scr_levelup()

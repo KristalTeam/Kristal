@@ -936,7 +936,7 @@ end
 
 function Utils.format(str, tbl)
     local processed = {}
-    for i,v in pairs(tbl) do
+    for i,v in ipairs(tbl) do
         table.insert(processed, i)
         if str:gsub("{"..i.."}", v) ~= str then
             str = str:gsub("{"..i.."}", v)
@@ -948,7 +948,7 @@ function Utils.format(str, tbl)
     end
     for k,v in pairs(tbl) do
         if not Utils.containsValue(processed, k) then -- ipairs already did this
-            table.insert(proccessed, k) -- unneeded but just in case we need to expand this function later
+            table.insert(processed, k) -- unneeded but just in case we need to expand this function later
             if str:gsub("{"..k.."}", v) ~= str then
                 str = str:gsub("{"..k.."}", tostring(v))
             else
@@ -1024,6 +1024,13 @@ function Utils.colliderFromShape(parent, data, x, y, properties)
     end
 
     return current_hitbox
+end
+
+function Utils.padSpacing(str, len)
+    for i = #str, (len - 1) do
+        str = str .. " "
+    end
+    return str
 end
 
 return Utils

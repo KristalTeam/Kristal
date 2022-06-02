@@ -281,7 +281,7 @@ function DarkMenu:draw()
     end
 
     love.graphics.setFont(self.font)
-    love.graphics.print("D$ " .. Game.money, 520, 20)
+    love.graphics.print(Game:getConfig("darkCurrencyShort") .. " " .. Game.money, 520, 20)
 
     super:draw(self)
 end

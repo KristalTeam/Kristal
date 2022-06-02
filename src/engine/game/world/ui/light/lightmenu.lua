@@ -154,7 +154,7 @@ function LightMenu:draw()
     love.graphics.setFont(self.font_small)
     love.graphics.print("LV  "..chara:getLightLV(), 46, 100 + offset)
     love.graphics.print("HP  "..chara:getHealth().."/"..chara:getStat("health"), 46, 118 + offset)
-    love.graphics.print("$   "..Game.lw_money, 46, 136 + offset)
+    love.graphics.print(Utils.padSpacing(Game:getConfig("lightCurrencyShort"), 4)..Game.lw_money, 46, 136 + offset)
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(self.font)
