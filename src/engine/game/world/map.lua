@@ -438,42 +438,14 @@ function Map:loadHitboxes(layer)
     local hitboxes = {}
     local ox, oy = layer.offsetx or 0, layer.offsety or 0
     for _,v in ipairs(layer.objects) do
-        local properties = v.properties or {}
-        local mode = {
-            invert = properties["inverted"] or properties["outside"] or false,
-            inside = properties["inside"] or properties["outside"] or false
-        }
-        local current_hitbox
-        if v.shape == "rectangle" then
-            current_hitbox = Hitbox(self.world, v.x+ox, v.y+oy, v.width, v.height, mode)
-        elseif v.shape == "polyline" then
-            local line_colliders = {}
-            for i = 1, #v.polyline-1 do
-                local j = i + 1
-                local x1, y1 = v.x + v.polyline[i].x + ox, v.y + v.polyline[i].y + oy
-                local x2, y2 = v.x + v.polyline[j].x + ox, v.y + v.polyline[j].y + oy
-                table.insert(line_colliders, LineCollider(self.world, x1, y1, x2, y2, mode))
-            end
-            current_hitbox = ColliderGroup(self.world, line_colliders)
-        elseif v.shape == "polygon" then
-            local points = {}
-            for i = 1, #v.polygon do
-                table.insert(points, {v.x + v.polygon[i].x + ox, v.y + v.polygon[i].y + oy})
-            end
-            current_hitbox = PolygonCollider(self.world, points, mode)
-        end
+        local hitbox = Utils.colliderFromShape(self.world, v, v.x+ox, v.y+oy, v.properties)
+        if hitbox then
+            table.insert(hitboxes, hitbox)
 
-        if properties["enabled"] == false then
-            current_hitbox.collidable = false
-        end
-
-        if current_hitbox then
-            table.insert(hitboxes, current_hitbox)
-
-            self.hitboxes_by_id[v.id] = current_hitbox
+            self.hitboxes_by_id[v.id] = hitbox
 
             self.hitboxes_by_name[v.name] = self.hitboxes_by_name[v.name] or {}
-            table.insert(self.hitboxes_by_name[v.name], current_hitbox)
+            table.insert(self.hitboxes_by_name[v.name], hitbox)
         end
     end
     return hitboxes

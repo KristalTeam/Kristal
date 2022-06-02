@@ -990,4 +990,40 @@ function Utils.parseTileGid(id)
            bit.band(id, 536870912) ~= 0
 end
 
+function Utils.colliderFromShape(parent, data, x, y, properties)
+    x, y = x or 0, y or 0
+    properties = properties or {}
+
+    local mode = {
+        invert = properties["inverted"] or properties["outside"] or false,
+        inside = properties["inside"] or properties["outside"] or false
+    }
+
+    local current_hitbox
+    if data.shape == "rectangle" then
+        current_hitbox = Hitbox(parent, x, y, data.width, data.height, mode)
+    elseif data.shape == "polyline" then
+        local line_colliders = {}
+        for i = 1, #data.polyline-1 do
+            local j = i + 1
+            local x1, y1 = x + data.polyline[i].x, y + data.polyline[i].y
+            local x2, y2 = x + data.polyline[j].x, y + data.polyline[j].y
+            table.insert(line_colliders, LineCollider(parent, x1, y1, x2, y2, mode))
+        end
+        current_hitbox = ColliderGroup(parent, line_colliders)
+    elseif data.shape == "polygon" then
+        local points = {}
+        for i = 1, #data.polygon do
+            table.insert(points, {x + data.polygon[i].x, y + data.polygon[i].y})
+        end
+        current_hitbox = PolygonCollider(parent, points, mode)
+    end
+
+    if properties["enabled"] == false then
+        current_hitbox.collidable = false
+    end
+
+    return current_hitbox
+end
+
 return Utils
