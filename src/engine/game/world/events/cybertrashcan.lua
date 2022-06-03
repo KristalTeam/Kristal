@@ -27,9 +27,9 @@ function CyberTrashCan:getDebugInfo()
     end
     if self.money then
         if not Game:isLight() then
-            table.insert(info, "Money: D$ " .. self.money)
+            table.insert(info, "Money: " .. Game:getConfig("darkCurrencyShort") .. " " .. self.money)
         else
-            table.insert(info, "Gold: " .. self.money)
+            table.insert(info, Game:getConfig("lightCurrency").. ": " .. Game:getConfig("lightCurrencyShort") .. " " .. self.money)
         end
     end
     table.insert(info, "Opened: " .. (self:getFlag("opened") and "True" or "False"))
@@ -64,7 +64,7 @@ function CyberTrashCan:onInteract(player, dir)
             success, result_text = Game.inventory:tryGiveItem(item)
             name = item:getName()
         elseif self.money then
-            name = self.money.." Dark Dollars"
+            name = self.money.." "..Game:getConfig("darkCurrency")
             success = true
             result_text = "* ([color:yellow]"..name.."[color:reset] was added to your [color:yellow]MONEY HOLE[color:reset].)"
             Game.money = Game.money + self.money

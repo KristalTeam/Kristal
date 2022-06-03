@@ -51,7 +51,7 @@ function LightStatMenu:draw()
     love.graphics.print("WEAPON: "..weapon_name, 4, 256)
     love.graphics.print("ARMOR: "..armor_name, 4, 288)
 
-    love.graphics.print("MONEY: "..Game.lw_money, 4, 328)
+    love.graphics.print(Game:getConfig("lightCurrency"):upper()..": "..Game.lw_money, 4, 328)
 
     super:draw(self)
 end
