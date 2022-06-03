@@ -2391,7 +2391,8 @@ function Battle:keypressed(key)
             end
         end
         if key == "k" then
-            self.tension = 250 * 2
+            -- Set it directly so it's not capped by the max
+            Game.tension = (Game:getMaxTension() * 2)
         end
     end
 
