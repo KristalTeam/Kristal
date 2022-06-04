@@ -396,11 +396,8 @@ end
 -- Internal Functions --
 
 function Registry.initGlobals()
-    for _,path,global in self.iterScripts(Registry.paths["globals"]) do
-        local path_tbl = Utils.split(path, "/")
-        local new_path = path_tbl[#path_tbl]
-
-        local id = type(global) == "table" and global.id or new_path
+    for _,path,global in self.iterScripts(Registry.paths["globals"], true) do
+        local id = type(global) == "table" and global.id or path
 
         self.registerGlobal(id, global)
     end
@@ -411,11 +408,8 @@ end
 function Registry.initObjects()
     self.objects = {}
 
-    for _,path,object in self.iterScripts(Registry.paths["objects"]) do
-        local path_tbl = Utils.split(path, "/")
-        local new_path = path_tbl[#path_tbl]
-
-        local id = object.id or new_path
+    for _,path,object in self.iterScripts(Registry.paths["objects"], true) do
+        local id = object.id or path
 
         self.objects[id] = object
         self.registerGlobal(id, object)
@@ -427,11 +421,8 @@ end
 function Registry.initDrawFX()
     self.draw_fx = {}
 
-    for _,path,draw_fx in self.iterScripts(Registry.paths["drawfx"]) do
-        local path_tbl = Utils.split(path, "/")
-        local new_path = path_tbl[#path_tbl]
-
-        local id = draw_fx.id or new_path
+    for _,path,draw_fx in self.iterScripts(Registry.paths["drawfx"], true) do
+        local id = draw_fx.id or path
 
         self.draw_fx[id] = draw_fx
         self.registerGlobal(id, draw_fx)
@@ -630,7 +621,7 @@ function Registry.initShops()
     Kristal.callEvent("onRegisterShops")
 end
 
-function Registry.iterScripts(base_path)
+function Registry.iterScripts(base_path, exclude_folder)
     local result = {}
 
     CLASS_NAME_GETTER = function(k)
@@ -657,8 +648,13 @@ function Registry.iterScripts(base_path)
                 error(a)
             end
         else
-            local id = type(a) == "table" and a.id or file
-            table.insert(result, {out = {a,b,c,d,e,f}, path = file, id = id, full_path = full_path})
+            local result_path = file
+            if exclude_folder then
+                local split_path = Utils.split(file, "/", true)
+                result_path = split_path[#split_path]
+            end
+            local id = type(a) == "table" and a.id or result_path
+            table.insert(result, {out = {a,b,c,d,e,f}, path = result_path, id = id, full_path = full_path})
             return true
         end
     end

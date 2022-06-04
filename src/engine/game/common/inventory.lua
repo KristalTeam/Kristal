@@ -349,7 +349,7 @@ function Inventory:tryGiveItem(item, ignore_convert)
     end
     local result = self:addItem(item, ignore_convert)
     if result then
-        local destination = self:getStorage(self.stored_items[item].storage)
+        local destination = self:getStorage(self.stored_items[result].storage)
         return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your [color:yellow]"..destination.name.."[color:reset].)"
     else
         local destination = self:getDefaultStorage(item)

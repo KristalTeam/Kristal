@@ -277,7 +277,9 @@ function Battle:postInit(state, encounter)
         end
     end
 
-    self:setState(state)
+    if not self.encounter:onBattleInit() then
+        self:setState(state)
+    end
 end
 
 function Battle:showUI()

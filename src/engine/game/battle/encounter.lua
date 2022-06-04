@@ -22,6 +22,7 @@ function Encounter:init()
     self.queued_enemy_spawns = {}
 end
 
+function Encounter:onBattleInit() end
 function Encounter:onBattleStart() end
 function Encounter:onBattleEnd() end
 

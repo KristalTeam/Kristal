@@ -1026,9 +1026,13 @@ function Utils.colliderFromShape(parent, data, x, y, properties)
     return current_hitbox
 end
 
-function Utils.padSpacing(str, len)
+function Utils.padSpacing(str, len, beginning)
     for i = #str, (len - 1) do
-        str = str .. " "
+        if beginning then
+            str = " " .. str
+        else
+            str = str .. " "
+        end
     end
     return str
 end
