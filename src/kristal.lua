@@ -279,7 +279,9 @@ function love.keypressed(key, scancode, is_repeat)
         Kristal.DebugSystem:keypressed(key, scancode, is_repeat)
     end
 
-    if key == "f2" or Input.is("fast_forward", key) then
+    local console_open = Kristal.Console and Kristal.Console.is_open
+
+    if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
         FAST_FORWARD = not FAST_FORWARD
     elseif key == "f3" then
         love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
@@ -291,7 +293,7 @@ function love.keypressed(key, scancode, is_repeat)
     elseif key == "f8" then
         print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
         Hotswapper.scan()
-    elseif key == "r" and Input.ctrl() then
+    elseif key == "r" and Input.ctrl() and not console_open then
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
         else
