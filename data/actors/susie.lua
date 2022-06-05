@@ -168,9 +168,9 @@ function actor:init(style)
 
         ["away"] = {-1, -2},
         ["away_turn"] = {-1, -2},
-        ["away_hips"] = {-1, -2},
-        ["away_hand"] = {-1, -2},
-        ["away_scratch"] = {-1, -2},
+        ["away_hips"] = {-2, -1},
+        ["away_hand"] = {-2, -2},
+        ["away_scratch"] = {-2, -2},
 
         ["t_pose"] = {-6, 0},
 
