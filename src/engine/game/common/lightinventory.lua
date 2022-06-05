@@ -27,6 +27,8 @@ function LightInventory:clear()
         ["box_a"] = {id = "box_a", max = 10, sorted = true, name = "BOX",       fallback = "box_b"},
         ["box_b"] = {id = "box_b", max = 10, sorted = true, name = "BOX",       fallback = nil    },
     }
+
+    Kristal.callEvent("createLightInventory", self)
 end
 
 function LightInventory:convertToDark()
