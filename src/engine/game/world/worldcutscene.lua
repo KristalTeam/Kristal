@@ -92,6 +92,14 @@ function WorldCutscene:getMarker(name)
     return Game.world.map:getMarker(name)
 end
 
+function WorldCutscene:enableMovement()
+    Game.lock_movement = false
+end
+
+function WorldCutscene:disableMovement()
+    Game.lock_movement = true
+end
+
 function WorldCutscene:detachFollowers()
     Game.world:detachFollowers()
 end

@@ -262,10 +262,10 @@ function World:keypressed(key)
     if Game.lock_movement then return end
 
     if self.state == "GAMEPLAY" then
-        if Input.isConfirm(key) and self.player then
+        if Input.isConfirm(key) and self.player and not self:isTextboxOpen() then
             self.player:interact()
             Input.clear("confirm")
-        elseif Input.isMenu(key) then
+        elseif Input.isMenu(key) and not self:hasCutscene() then
             self:openMenu()
             Input.clear("menu")
         end
@@ -274,6 +274,10 @@ function World:keypressed(key)
             self.menu:keypressed(key)
         end
     end
+end
+
+function World:isTextboxOpen()
+    return self:hasCutscene() and self.cutscene.textbox and self.cutscene.textbox.stage ~= nil
 end
 
 function World:getCollision(enemy_check)
