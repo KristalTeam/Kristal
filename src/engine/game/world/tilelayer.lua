@@ -10,8 +10,8 @@ function TileLayer:init(map, data)
 
     self.map = map
 
-    self.parallax_x = data.parallaxx or 0
-    self.parallax_y = data.parallaxy or 0
+    self.parallax_x = data.parallaxx or 1
+    self.parallax_y = data.parallaxy or 1
 
     if data.tintcolor then
         self:setColor(data.tintcolor[1]/255, data.tintcolor[2]/255, data.tintcolor[3]/255)
