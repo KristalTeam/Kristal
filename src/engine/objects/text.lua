@@ -37,7 +37,7 @@ function Text:init(text, x, y, w, h, options)
     self.font_size = options["font_size"] or nil
     self.text_color = options["color"] or {1, 1, 1, 1}
     self.style = options["style"] or "none"
-    if self.style == "GONER" then
+    if self:isStyleAnimated(self.style) then
         self.draw_every_frame = true
     end
     self.wrap = options["wrap"] ~= false
@@ -504,7 +504,7 @@ function Text:processModifier(node, dry)
             self.state.style = "none"
         else
             self.state.style = node.arguments[1]
-            if self.state.style == "GONER" then
+            if self:isStyleAnimated(self.state.style) then
                 self.draw_every_frame = true
             end
         end
@@ -610,7 +610,11 @@ function Text:drawChar(node, state, use_color)
     -- The current color multiplied by the base color
     local mr, mg, mb, ma = self:getTextColor(state, use_color)
 
-    if self:processStyle(state.style) then
+    love.graphics.setColor(mr,mg,mb,ma)
+
+    if Kristal.callEvent("onDrawText", self, node, state, x, y, scale, font, use_color) then
+        -- Empty because I don't like logic
+    elseif self:processStyle(state.style) then
         -- Empty because I don't like logic
     elseif state.style == nil or state.style == "none" then
         love.graphics.setColor(mr,mg,mb,ma)
@@ -682,6 +686,10 @@ function Text:drawChar(node, state, use_color)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
         love.graphics.setColor(mr,mg,mb,ma)
     end
+end
+
+function Text:isStyleAnimated(style)
+    return style == "GONER" or Kristal.callEvent("isTextStyleAnimated", style, self)
 end
 
 function Text:processStyle(style)
