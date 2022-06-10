@@ -527,6 +527,38 @@ function Object:getDebugInfo()
     return {}
 end
 
+function Object:getDebugOptions(context)
+    context:addMenuItem("Delete", "Delete this object", function()
+        self:remove()
+        self:unselectObject()
+    end)
+    context:addMenuItem("Clone", "Clone this object", function()
+        local clone = self:clone()
+        clone:removeFX("debug_flash")
+        self.parent:addChild(clone)
+        clone:setScreenPos(Input.getMousePosition())
+        self:selectObject(clone)
+    end)
+    context:addMenuItem("Copy", "Copy this object to paste it later", function()
+        self:copyObject(self)
+    end)
+    context:addMenuItem("Cut", "Cut this object to paste it later", function()
+        self:cutObject(self)
+    end)
+    if Kristal.DebugSystem and Kristal.DebugSystem.copied_object then
+        context:addMenuItem("Paste Into", "Paste the copied object into this one", function()
+            self:pasteObject(self)
+        end)
+    end
+    if self.visible then
+        context:addMenuItem("Hide", "Hide this object.", function() self.visible = false end)
+    else
+        context:addMenuItem("Show", "Show this object.", function() self.visible = true  end)
+    end
+    context:addMenuItem("Explode", "'cuz it's funny", function() self:explode() end)
+    return context
+end
+
 function Object:shiftOrigin(ox, oy)
     local tx, ty = self:getRelativePos((ox or 0) * self.width, (oy or ox or 0) * self.height)
     self:setOrigin(ox, oy)

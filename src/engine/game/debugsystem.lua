@@ -172,36 +172,8 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
 end
 
 function DebugSystem:openObjectContext(object)
-    self.context = ContextMenu(Utils.getClassName(object))
+    self.context = object:getDebugOptions(ContextMenu(Utils.getClassName(object)))
     self.last_context = self.context
-    self.context:addMenuItem("Delete", "Delete this object", function()
-        object:remove()
-        self:unselectObject()
-    end)
-    self.context:addMenuItem("Clone", "Clone this object", function()
-        local clone = object:clone()
-        clone:removeFX("debug_flash")
-        object.parent:addChild(clone)
-        clone:setScreenPos(Input.getMousePosition())
-        self:selectObject(clone)
-    end)
-    self.context:addMenuItem("Copy", "Copy this object to paste it later", function()
-        self:copyObject(object)
-    end)
-    self.context:addMenuItem("Cut", "Cut this object to paste it later", function()
-        self:cutObject(object)
-    end)
-    if self.copied_object then
-        self.context:addMenuItem("Paste Into", "Paste the copied object into this one", function()
-            self:pasteObject(object)
-        end)
-    end
-    if object.visible then
-        self.context:addMenuItem("Hide", "Hide this object.", function() object.visible = false end)
-    else
-        self.context:addMenuItem("Show", "Show this object.", function() object.visible = true  end)
-    end
-    self.context:addMenuItem("Explode", "'cuz it's funny", function() object:explode() end)
 
     Kristal.callEvent("registerDebugContext", self.context, self.object)
     self.context:setPosition(Input.getMousePosition())

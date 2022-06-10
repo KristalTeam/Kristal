@@ -49,6 +49,12 @@ function Player:getDebugInfo()
     return info
 end
 
+function Player:getDebugOptions(context)
+    context = super:getDebugOptions(self, context)
+    context:addMenuItem("Toggle force run", "Toggle if the player is forced to run or not", function() self.force_run = not self.force_run end)
+    return context
+end
+
 function Player:onAdd(parent)
     super:onAdd(self, parent)
 
