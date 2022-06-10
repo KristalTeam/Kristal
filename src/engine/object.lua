@@ -530,7 +530,9 @@ end
 function Object:getDebugOptions(context)
     context:addMenuItem("Delete", "Delete this object", function()
         self:remove()
-        self:unselectObject()
+        if Kristal.DebugSystem then
+            Kristal.DebugSystem:unselectObject()
+        end
     end)
     context:addMenuItem("Clone", "Clone this object", function()
         local clone = self:clone()

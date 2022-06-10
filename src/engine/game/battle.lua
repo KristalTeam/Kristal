@@ -463,10 +463,13 @@ function Battle:onStateChange(old,new)
     elseif new == "VICTORY" then
         self.current_selecting = 0
 
-        self.tension_bar.animating_in = false
-        self.tension_bar.shown = false
-        self.tension_bar.physics.speed_x = -10
-        self.tension_bar.physics.friction = -0.4
+        if self.tension_bar then
+            self.tension_bar.animating_in = false
+            self.tension_bar.shown = false
+            self.tension_bar.physics.speed_x = -10
+            self.tension_bar.physics.friction = -0.4
+        end
+
         for _,battler in ipairs(self.party) do
             battler:setSleeping(false)
             battler.defending = false
@@ -2457,7 +2460,7 @@ function Battle:keypressed(key)
         elseif Input.isCancel(key) then
             self.ui_move:stop()
             self.ui_move:play()
-            self.tension_bar:setTensionPreview(0)
+            Game:setTensionPreview(0)
             self:setState("ACTIONSELECT", "CANCEL")
             return
         elseif Input.is("left", key) then -- TODO: pagination
