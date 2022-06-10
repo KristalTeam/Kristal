@@ -1633,9 +1633,13 @@ end
 function Battle:nextTurn()
     self.turn_count = self.turn_count + 1
     if self.turn_count > 1 then
-        self.encounter:onTurnEnd()
+        if self.encounter:onTurnEnd() then
+            return
+        end
         for _,enemy in ipairs(self:getActiveEnemies()) do
-            enemy:onTurnEnd()
+            if enemy:onTurnEnd() then
+                return
+            end
         end
     end
 

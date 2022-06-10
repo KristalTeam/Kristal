@@ -230,7 +230,6 @@ end
 
 function Player:beginSlide(last_state, in_place, lock_movement)
     self.slide_sound:play()
-    self.slide_camera_y = self.world.camera.y
     self.slide_in_place = in_place or false
     self.slide_lock_movement = lock_movement or false
     self.slide_land_timer = 0
