@@ -336,6 +336,9 @@ function Battle:onStateChange(old,new)
     elseif new == "ACTIONSELECT" then
         if self.current_selecting < 1 or self.current_selecting > #self.party then
             self:nextTurn()
+            if self.state ~= "ACTIONSELECT" then
+                return
+            end
         end
 
         if self.state_reason == "CANCEL" then
