@@ -109,6 +109,9 @@ function PartyMember:init()
     -- Character flags (saved to the save file)
     self.flags = {}
 
+    -- Temporary stat buffs in battles
+    self.stat_buffs = {}
+
     -- Light world EXP requirements
     self.lw_exp_needed = {
         [ 1] = 0,

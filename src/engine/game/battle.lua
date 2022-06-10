@@ -543,6 +543,15 @@ function Battle:onStateChange(old,new)
             end)
         end
     elseif new == "TRANSITIONOUT" then
+        self.current_selecting = 0
+
+        if self.tension_bar and self.tension_bar.shown then
+            self.tension_bar.animating_in = false
+            self.tension_bar.shown = false
+            self.tension_bar.physics.speed_x = -10
+            self.tension_bar.physics.friction = -0.4
+        end
+
         self.battle_ui:transitionOut()
         self.music:fade(0, 20/30)
         for _,enemy in ipairs(self.defeated_enemies) do
