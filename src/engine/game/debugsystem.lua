@@ -164,7 +164,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                         self.window:setPosition(Input.getMousePosition())
                         self:addChild(self.window)
                     end)
-                    Kristal.callEvent("registerDebugContext", self.context, self.object)
+                    Kristal.callEvent("registerDebugContext", self.context, nil)
                     self.context:setPosition(Input.getMousePosition())
                     self:addChild(self.context)
                 end
