@@ -1641,7 +1641,7 @@ function Menu:createMod()
     local name = self.create.name[1]
     local id = self.create.id[1]
 
-    config_formatted = "            "
+    local config_formatted = "            "
     for i, option in ipairs(self.create.config) do
         local chosen = option.options[option.selected]
         local text = chosen

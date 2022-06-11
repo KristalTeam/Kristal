@@ -63,6 +63,8 @@ function DebugSystem:init()
 
     self.context = nil
     self.last_context = nil
+
+    self.search_text = {""}
 end
 
 function DebugSystem:getStage()
@@ -315,10 +317,11 @@ function DebugSystem:returnMenu()
     end
 end
 
-function DebugSystem:registerMenu(id, name)
+function DebugSystem:registerMenu(id, name, type)
     self.menus[id] = {
         name = name,
-        options = {}
+        options = {},
+        type = type or "menu",
     }
 end
 
@@ -331,6 +334,49 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
     end
     self.current_menu = menu
     self.current_selecting = soul or 1
+
+    if self.menus[self.current_menu].type == "search" then
+        self.search = {""}
+        --self:sortMenuOptions(self.current_menu)
+
+        self:startTextInput()
+    end
+end
+
+function DebugSystem:startTextInput()
+    TextInput.attachInput(self.search, {
+        multiline = false,
+        enter_submits = true,
+        clear_after_submit = false
+    })
+
+    TextInput.submit_callback = function(...)
+        Assets.playSound("ui_select")
+        self.current_selecting = self.current_selecting + 1
+        self:updateBounds(self:getValidOptions())
+        if (self.current_selecting ~= 0) then
+            TextInput.endInput()
+        end
+        love.keyboard.setKeyRepeat(true)
+    end
+
+    TextInput.pressed_callback = function(key)
+        if key == "down" then
+            TextInput.endInput()
+            love.keyboard.setKeyRepeat(true)
+        end
+    end
+end
+
+function DebugSystem:sortMenuOptions(options, filter)
+    table.sort(options, function(a, b)
+        return a.name < b.name
+    end)
+    if filter then
+        Utils.filterInPlace(options, function(item)
+            return Utils.startsWith(item.name:lower(), filter:lower())
+        end)
+    end
 end
 
 function DebugSystem:registerSubMenus()
@@ -357,7 +403,16 @@ function DebugSystem:registerSubMenus()
     self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.", function() Kristal.Config["fps"] = 240; FRAMERATE = 240 end)
     self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
-    self:registerMenu("encounter_select", "Encounter Select")
+    self:registerMenu("give_item", "Give Item", "search")
+
+    for id, item_data in pairs(Registry.items) do
+        local item = item_data()
+        self:registerOption("give_item", item.name, "Add "..item.name.." to the inventory.", function()
+            Game.inventory:tryGiveItem(item)
+        end)
+    end
+
+    self:registerMenu("encounter_select", "Encounter Select", "search")
     -- loop through registry and add menu options for all encounters
     for id,_ in pairs(Registry.encounters) do
         self:registerOption("encounter_select", id, "Start this encounter.", function()
@@ -365,9 +420,8 @@ function DebugSystem:registerSubMenus()
             self:closeMenu()
         end)
     end
-    self:registerOption("encounter_select", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
-    self:registerMenu("cutscene_select", "Cutscene Select")
+    self:registerMenu("cutscene_select", "Cutscene Select", "search")
     -- loop through registry and add menu options for all cutscenes
     for group,cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then
@@ -384,7 +438,6 @@ function DebugSystem:registerSubMenus()
             end)
         end
     end
-    self:registerOption("cutscene_select", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 end
 
 function DebugSystem:registerDefaults()
@@ -412,13 +465,17 @@ function DebugSystem:registerDefaults()
 
     self:registerOption("main", "Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
 
+    self:registerOption("main", "Give Item", "Give an item.", function()
+        self:enterMenu("give_item", 0)
+    end)
+
     -- World specific
     self:registerOption("main", "Start Encounter", "Start an encounter.", function()
-        self:enterMenu("encounter_select", 1)
+        self:enterMenu("encounter_select", 0)
     end, "OVERWORLD")
 
     self:registerOption("main", "Play Cutscene", "Play a cutscene.", function()
-        self:enterMenu("cutscene_select", 1)
+        self:enterMenu("cutscene_select", 0)
     end, "OVERWORLD")
 
     -- Battle specific
@@ -433,6 +490,9 @@ function DebugSystem:getValidOptions()
 
             table.insert(options, v)
         end
+    end
+    if self.menus[self.current_menu].type == "search" then
+        self:sortMenuOptions(options, self.search[1])
     end
     self:updateBounds(options)
     return options
@@ -496,11 +556,17 @@ function DebugSystem:onStateChange(old, new)
 end
 
 function DebugSystem:updateBounds(options)
-    if self.current_selecting <= 0 then self.current_selecting = #options end
-    if self.current_selecting > #options then self.current_selecting = 1 end
+    local limit = (self.menus[self.current_menu].type == "search") and 0 or 1
+    if self.current_selecting < limit then self.current_selecting = #options end
+    if self.current_selecting > #options then self.current_selecting = limit end
     if self.state == "MENU" then
         self.heart_target_x = 19
-        self.heart_target_y = (self.current_selecting - 1) * 32 + 35 + 32
+        local is_search = (self.menus[self.current_menu].type == "search")
+        self.heart_target_y = (self.current_selecting - 1) * 32 + 35 + 32 + (is_search and 64 or 0)
+        if (self.current_selecting == 0) and is_search then
+            self.heart_target_x = self.heart_target_x + 128 - 6
+            self.heart_target_y = self.heart_target_y - 32 + 16
+        end
     end
 end
 
@@ -517,6 +583,7 @@ function DebugSystem:keypressed(key, _, is_repeat)
     if TextInput.active then return end
 
     if self.state == "MENU" then
+
         local options = self:getValidOptions()
         if Input.isCancel(key) then
             Assets.playSound("ui_move")
@@ -530,15 +597,21 @@ function DebugSystem:keypressed(key, _, is_repeat)
                 option.func()
             end
         end
+
+        local is_search = (self.menus[self.current_menu].type == "search")
+        local limit = is_search and 0 or 1
         if Input.is("down", key) and (not is_repeat or self.current_selecting < #options) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting + 1
         end
-        if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
+        if Input.is("up", key) and (not is_repeat or self.current_selecting > limit) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting - 1
         end
         self:updateBounds(options)
+        if is_search and (self.current_selecting == 0) and not TextInput.active then
+            self:startTextInput()
+        end
     elseif self.state == "MOUSE" then
         if (key == "c") and Input.ctrl() and self.object then
             self:copyObject(self.object)
@@ -643,6 +716,31 @@ function DebugSystem:draw()
         love.graphics.setColor(0, 0, 0, 0.5)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
+        local is_search = (self.menus[self.current_menu].type == "search")
+
+        if is_search then
+            local line_width = 320
+            -- Get the left size of the line if it's centered
+            local x = (640 - line_width) / 2
+            local y = y_off + menu_y + 32
+
+            love.graphics.setLineWidth(2)
+            local line_x  = x
+            local line_x2 = line_x + line_width
+            local line_y = 32 - 4 - 1 + 2
+            love.graphics.setColor(0, 0, 0, 1)
+            love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
+            love.graphics.setColor(COLORS.silver)
+            love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
+
+            TextInput.draw({
+                x = x,
+                y = y,
+                font = self.font,
+                print = function(text, x, y) self:printShadow(text, x, y) end,
+            })
+        end
+
         header_name = self.menus[self.current_menu].name
 
         local options = self:getValidOptions()
@@ -651,7 +749,7 @@ function DebugSystem:draw()
             if type(name) == "function" then
                 name = name()
             end
-            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16)
+            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0))
             if self.current_selecting == index then
                 if option.description then
                     local description = option.description

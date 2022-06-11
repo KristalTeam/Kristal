@@ -624,6 +624,17 @@ function Utils.filter(tbl, filter)
     return t
 end
 
+function Utils.filterInPlace(tbl, filter)
+    local i = 1
+    while i <= #tbl do
+        if not filter(tbl[i]) then
+            table.remove(tbl, i)
+        else
+            i = i + 1
+        end
+    end
+end
+
 function Utils.pick(tbl, sort)
     tbl = sort and Utils.filter(tbl, sort) or tbl
     return tbl[love.math.random(#tbl)]
