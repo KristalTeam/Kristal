@@ -83,7 +83,7 @@ end
 function TextInput.onTextInput(t)
     if not self.active then return end
     self.insertString(t)
-    if self.text_callback then self.text_callback(key) end
+    if self.text_callback then self.text_callback(t) end
 end
 
 function TextInput.checkSelecting()
