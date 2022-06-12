@@ -29,36 +29,65 @@ function PartyBattler:init(chara, x, y)
     self.sleeping = false
 end
 
-function PartyBattler:hurt(amount, exact, color)
-    Assets.playSound("hurt")
+function PartyBattler:canTarget()
+    return (not self.is_down)
+end
 
-    if not exact then
-        local def = self.chara:getStat("defense")
-        local max_hp = self.chara:getStat("health")
+function PartyBattler:calculateDamage(amount)
+    local def = self.chara:getStat("defense")
+    local max_hp = self.chara:getStat("health")
 
-        local threshold_a = (max_hp / 5)
-        local threshold_b = (max_hp / 8)
-        for i = 1, def do
-            if amount > threshold_a then
-                amount = amount - 3
-            elseif amount > threshold_b then
-                amount = amount - 2
-            else
-                amount = amount - 1
-            end
-        end
-
-        amount = Utils.round(amount)
-
-        if self.defending then
-            amount = math.ceil((2 * amount) / 3)
-        end
-        if amount < 1 then
-            amount = 1
+    local threshold_a = (max_hp / 5)
+    local threshold_b = (max_hp / 8)
+    for i = 1, def do
+        if amount > threshold_a then
+            amount = amount - 3
+        elseif amount > threshold_b then
+            amount = amount - 2
+        else
+            amount = amount - 1
         end
     end
 
-    self:removeHealth(amount)
+    return math.max(amount, 1)
+end
+
+function PartyBattler:calculateDamageSimple(amount)
+    return math.ceil(amount - (self.chara:getStat("defense") * 3))
+end
+
+function PartyBattler:getElementReduction(element)
+    -- TODO: Placeholder
+    return 1
+end
+
+function PartyBattler:hurt(amount, exact, color, options)
+    options = options or {}
+
+    if not options["all"] then
+        Assets.playSound("hurt")
+        if not exact then
+            amount = self:calculateDamage(amount)
+            if self.defending then
+                amount = math.ceil((2 * amount) / 3)
+            end
+        end
+
+        self:removeHealth(amount)
+    else
+        -- We're targeting everyone.
+        if not exact then
+            amount = self:calculateDamage(amount)
+            local element = 0
+            amount = math.ceil((amount * self:getElementReduction(element)))
+
+            if self.defending then
+                amount = math.ceil((3 * amount) / 4) -- Slightly different than the above
+            end
+
+            self:removeHealthBroken(amount) -- Use a separate function for cleanliness
+        end
+    end
 
     if (self.chara.health <= 0) then
         self:statusMessage("msg", "down", color, true)
@@ -97,6 +126,15 @@ function PartyBattler:removeHealth(amount)
             amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
             self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
         end
+    end
+    self:checkHealth()
+end
+
+function PartyBattler:removeHealthBroken(amount)
+    self.chara.health = self.chara.health - amount
+    if (self.chara.health <= 0) then
+        -- BUG: Use Kris' max health...
+        self.chara.health = Utils.round(((-Game.party[1]:getStat("health")) / 2))
     end
     self:checkHealth()
 end

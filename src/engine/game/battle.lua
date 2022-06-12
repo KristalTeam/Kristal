@@ -1523,19 +1523,112 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
-function Battle:hurt(amount, exact)
-    -- TODO: make this accurate!
-    -- See gml_GlobalScript_scr_damage for reference
-
-    -- For now, let's just use a very basic system...
-
-    -- Pick a random party member to take damage from
-    local battler = Utils.pick(Game.battle:getActiveParty())
-    if battler then
-        battler:hurt(amount, exact)
-        return {battler}
+function Battle:selectRandomTarget()
+    -- This is "scr_randomtarget_old". For some reason, the "new" function isn't used.
+    local none_targetable = true
+    for _,battler in ipairs(self.party) do
+        if battler:canTarget() then
+            none_targetable = false
+            break
+        end
     end
-    return {}
+
+    if none_targetable then
+        return "ALL"
+    end
+
+    -- Pick random party member
+    local target = nil
+    while not target do
+        local party = Utils.pick(self.party)
+        if party:canTarget() then
+            target = party
+        end
+    end
+
+    return target
+end
+
+function Battle:hurt(amount, exact, target)
+    -- Note: 0, 1 and 2 are to target a specific party member.
+    -- In Kristal, we'll allow them to be objects as well.
+    -- Also in Kristal, they're 1, 2 and 3.
+    -- 3 is "ALL" in Kristal,
+    -- while 4 is "ANY".
+    target = target or "ANY"
+
+    -- Alright, first let's try to adjust targets.
+
+    if type(target) == "number" then
+        target = self.party[target]
+    end
+
+    if isClass(target) and target:includes(PartyBattler) then
+        if (not target) or (target.chara.health <= 0) then -- Why doesn't this look at :canTarget()? Weird.
+            target = self:selectRandomTarget()
+        end
+    end
+
+    if target == "ANY" then
+        target = self:selectRandomTarget()
+
+        -- Calculate the average HP of the party.
+        -- This is "scr_party_hpaverage", which gets called multiple times in the original script.
+        -- We'll only do it once here, just for the slight optimization. This won't affect accuracy.
+
+        -- Speaking of accuracy, this function doesn't work at all!
+        -- It contains a bug which causes it to always return 0, unless all party members are at full health.
+        -- This is because of a random floor() call.
+        -- I won't bother making the code accurate; all that matters is the output.
+
+        local party_average_hp = 1
+
+        for _,battler in ipairs(self.party) do
+            if battler.chara.health ~= battler.chara:getStat("health") then
+                party_average_hp = 0
+                break
+            end
+        end
+
+        -- Retarget... twice.
+        -- This is supposed to 
+        if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
+            target = self:selectRandomTarget()
+        end
+        if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
+            target = self:selectRandomTarget()
+        end
+
+        -- If we landed on Kris (or, well, the first party member), and their health is low, retarget (plot armor lol)
+        if (target == self.party[1]) and ((target.chara.health / target.chara:getStat("health")) < 0.35) then
+            target = self:selectRandomTarget()
+        end
+
+        -- Make sure they don't fade out, I guess?
+
+        --with (global.charinstance[target])
+        --{
+        --    image_blend = c_white
+        --    darkify = false
+        --}
+    end
+
+    -- Now it's time to actually damage them!
+    if isClass(target) and target:includes(PartyBattler) then
+        target:hurt(amount, exact)
+        return {target}
+    end
+
+    if target == "ALL" then
+        Assets.playSound("hurt")
+        for _,battler in ipairs(self.party) do
+            if not battler.is_down then
+                battler:hurt(amount, exact, nil, {all = true})
+            end
+        end
+        -- Return the battlers who aren't down, aka the ones we hit.
+        return Utils.filter(self.party, function(item) return not item.is_down end)
+    end
 end
 
 function Battle:setWaves(waves, allow_duplicates)
