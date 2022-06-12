@@ -207,70 +207,64 @@ function Battle:postInit(state, encounter)
     self:addChild(self.tension_bar)
 
     self.battler_targets = {}
-    if state == "TRANSITION" then
-        self.transitioned = true
-        self.transition_timer = 0
-        self.afterimage_count = 0
-        for index, battler in ipairs(self.party) do
-            local target_x, target_y
-            if #self.party == 1 then
-                target_x = 80
-                target_y = 140
-            elseif #self.party == 2 then
-                target_x = 80
-                target_y = 100 + (80 * (index - 1))
-            elseif #self.party == 3 then
-                target_x = 80
-                target_y = 50 + (80 * (index - 1))
-            end
-
-            local ox, oy = battler.chara:getBattleOffset()
-            target_x = target_x + (battler.actor:getWidth()/2 + ox) * 2
-            target_y = target_y + (battler.actor:getHeight()  + oy) * 2
-            table.insert(self.battler_targets, {target_x, target_y})
+    for index, battler in ipairs(self.party) do
+        local target_x, target_y
+        if #self.party == 1 then
+            target_x = 80
+            target_y = 140
+        elseif #self.party == 2 then
+            target_x = 80
+            target_y = 100 + (80 * (index - 1))
+        elseif #self.party == 3 then
+            target_x = 80
+            target_y = 50 + (80 * (index - 1))
         end
-        if Game.encounter_enemies then
-            for _,from in ipairs(Game.encounter_enemies) do
-                if not isClass(from) then
-                    local enemy = self:parseEnemyIdentifier(from[1])
-                    from[2].visible = false
+
+        local ox, oy = battler.chara:getBattleOffset()
+        target_x = target_x + (battler.actor:getWidth()/2 + ox) * 2
+        target_y = target_y + (battler.actor:getHeight()  + oy) * 2
+        table.insert(self.battler_targets, {target_x, target_y})
+
+        if state == "TRANSITION" then
+            battler:setPosition(target_x, target_y)
+        end
+    end
+
+    for _,enemy in ipairs(self.enemies) do
+        self.enemy_beginning_positions[enemy] = {enemy.x, enemy.y}
+    end
+    if Game.encounter_enemies then
+        for _,from in ipairs(Game.encounter_enemies) do
+            if not isClass(from) then
+                local enemy = self:parseEnemyIdentifier(from[1])
+                from[2].visible = false
+                self.enemy_beginning_positions[enemy] = {from[2]:getScreenPos()}
+                self.enemy_world_characters[enemy] = from[2]
+                if state == "TRANSITION" then
                     enemy:setPosition(from[2]:getScreenPos())
-                    self.enemy_world_characters[enemy] = from[2]
-                else
-                    for _,enemy in ipairs(self.enemies) do
-                        if enemy.actor and from.actor and enemy.actor.id == from.actor.id then
-                            from.visible = false
+                end
+            else
+                for _,enemy in ipairs(self.enemies) do
+                    if enemy.actor and from.actor and enemy.actor.id == from.actor.id then
+                        from.visible = false
+                        self.enemy_beginning_positions[enemy] = {from:getScreenPos()}
+                        self.enemy_world_characters[enemy] = from
+                        if state == "TRANSITION" then
                             enemy:setPosition(from:getScreenPos())
-                            self.enemy_world_characters[enemy] = from
-                            break
                         end
+                        break
                     end
                 end
             end
         end
-        for _,enemy in ipairs(self.enemies) do
-            self.enemy_beginning_positions[enemy] = {enemy.x, enemy.y}
-        end
+    end
+
+    if state == "TRANSITION" then
+        self.transitioned = true
+        self.transition_timer = 0
+        self.afterimage_count = 0
     else
         self.transition_timer = 10
-        for index, battler in ipairs(self.party) do
-            if #self.party == 1 then
-                battler.x = 80
-                battler.y = 140
-            elseif #self.party == 2 then
-                battler.x = 80
-                battler.y = 100 + (80 * (index - 1))
-            elseif #self.party == 3 then
-                battler.x = 80
-                battler.y = 50 + (80 * (index - 1))
-            end
-
-            local ox, oy = battler.chara:getBattleOffset()
-            battler.x = battler.x + (battler.actor:getWidth()/2 + ox) * 2
-            battler.y = battler.y + (battler.actor:getHeight()  + oy) * 2
-
-            table.insert(self.battler_targets, {battler.x, battler.y})
-        end
 
         if state ~= "INTRO" then
             self:nextTurn()
