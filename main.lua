@@ -265,13 +265,23 @@ function love.run()
                 update = true
             end
 
+            FPS_TIMER = FPS_TIMER + dt
+            if FPS_TIMER >= 1 then
+                FPS = FPS_COUNTER
+                FPS_COUNTER = 0
+                FPS_TIMER = FPS_TIMER - 1
+            end
+
             if update then
+                FPS_COUNTER = FPS_COUNTER + 1
                 local ret = doUpdate(tick_rate)
                 if ret then return ret end
                 doDraw()
             end
         else
             local dt = math.min(love.timer.step(), 1/30)
+
+            FPS = love.timer.getFPS()
 
             local ret = doUpdate(dt)
             if ret then return ret end

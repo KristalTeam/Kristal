@@ -13,6 +13,10 @@ BASE_DT = (1/60)
 DT = (1/60)
 DTMULT = DT * 30
 
+FPS = 0
+FPS_COUNTER = 0
+FPS_TIMER = 0
+
 RUNTIME = 0
 
 MOD_LOADING = false
