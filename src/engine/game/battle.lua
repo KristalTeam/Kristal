@@ -225,7 +225,7 @@ function Battle:postInit(state, encounter)
         target_y = target_y + (battler.actor:getHeight()  + oy) * 2
         table.insert(self.battler_targets, {target_x, target_y})
 
-        if state == "TRANSITION" then
+        if state ~= "TRANSITION" then
             battler:setPosition(target_x, target_y)
         end
     end
