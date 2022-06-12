@@ -27,6 +27,16 @@ function PartyBattler:init(chara, x, y)
 
     self.is_down = false
     self.sleeping = false
+
+    self.should_darken = false
+    self.darken_timer = 0
+    self.darken_fx = self:addFX(RecolorFX())
+
+    self.target_sprite = Sprite("ui/battle/chartarget")
+    self.target_sprite:play(10/30)
+    self:addChild(self.target_sprite)
+
+    self.targeted = false
 end
 
 function PartyBattler:canTarget()
@@ -216,6 +226,10 @@ function PartyBattler:isActive()
     return not self.is_down and not self.sleeping
 end
 
+function PartyBattler:isTargeted()
+    return self.targeted
+end
+
 function PartyBattler:getHeadIcon()
     if self.sleeping then
         return "sleep"
@@ -292,12 +306,30 @@ function PartyBattler:update()
         self.sprite.x = 0
     end
 
+    self.target_sprite.visible = false
+    if self:isTargeted() then
+        if (Game:getConfig("targetSystem")) and (Game.battle.state == "ENEMYDIALOGUE") then
+            self.target_sprite.visible = true
+        end
+    elseif self.should_darken then
+        if (self.darken_timer < 15) then
+            self.darken_timer = self.darken_timer + DTMULT
+        end
+    else
+        if not self.should_darken then
+            if self.darken_timer > 0 then
+                self.darken_timer = self.darken_timer - (3 * DTMULT)
+            end
+        end
+    end
+
+    self.darken_fx.color = {1 - (self.darken_timer / 30), 1 - (self.darken_timer / 30), 1 - (self.darken_timer / 30)}
+
     super:update(self)
 end
 
 function PartyBattler:draw()
     super:draw(self)
-
     if self.actor then
         self.actor:onBattleDraw(self)
     end

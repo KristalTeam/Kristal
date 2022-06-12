@@ -172,6 +172,8 @@ function Battle:init()
     self.on_finish_action = nil
 
     self.defending_begin_timer = 0
+
+    self.darkify = false
 end
 
 function Battle:postInit(state, encounter)
@@ -412,6 +414,9 @@ function Battle:onStateChange(old,new)
         if #active_enemies == 0 then
             self:setState("VICTORY")
         else
+            for _,enemy in ipairs(active_enemies) do
+                enemy.current_target = enemy:getTarget()
+            end
             local cutscene_args = {self.encounter:getDialogueCutscene()}
             if #cutscene_args > 0 then
                 self:startCutscene(unpack(cutscene_args)):after(function()
@@ -621,6 +626,9 @@ function Battle:onStateChange(old,new)
         if self.arena then
             self.arena:remove()
             self.arena = nil
+        end
+        for _,battler in ipairs(self.party) do
+            battler.targeted = false
         end
     end
 
@@ -1523,8 +1531,8 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
-function Battle:selectRandomTarget()
-    -- This is "scr_randomtarget_old". For some reason, the "new" function isn't used.
+function Battle:selectRandomTargetOld()
+    -- This is "scr_randomtarget_old".
     local none_targetable = true
     for _,battler in ipairs(self.party) do
         if battler:canTarget() then
@@ -1546,7 +1554,57 @@ function Battle:selectRandomTarget()
         end
     end
 
+    target.should_darken = false
+    target.darken_timer = 0
+    target.targeted = true
     return target
+end
+
+function Battle:selectRandomTarget()
+    -- This is "scr_randomtarget".
+    local target = self:selectRandomTargetOld()
+
+    if (not Game:getConfig("targetSystem")) and (target ~= "ALL") then
+        for _,battler in ipairs(self.party) do
+            if battler:canTarget() then
+                battler.targeted = true
+            end
+        end
+        return "ANY"
+    end
+
+    return target
+end
+
+function Battle:targetAll()
+    for _,battler in ipairs(self.party) do
+        if battler:canTarget() then
+            battler.targeted = true
+        end
+    end
+    return "ALL"
+end
+
+function Battle:targetAny()
+    for _,battler in ipairs(self.party) do
+        if battler:canTarget() then
+            battler.targeted = true
+        end
+    end
+    return "ANY"
+end
+
+function Battle:target(target)
+    if type(target) == "number" then
+        target = self.party[target]
+    end
+
+    if target and target:canTarget() then
+        target.targeted = true
+        return target
+    end
+
+    return self:targetAny()
 end
 
 function Battle:hurt(amount, exact, target)
@@ -1565,12 +1623,12 @@ function Battle:hurt(amount, exact, target)
 
     if isClass(target) and target:includes(PartyBattler) then
         if (not target) or (target.chara.health <= 0) then -- Why doesn't this look at :canTarget()? Weird.
-            target = self:selectRandomTarget()
+            target = self:selectRandomTargetOld()
         end
     end
 
     if target == "ANY" then
-        target = self:selectRandomTarget()
+        target = self:selectRandomTargetOld()
 
         -- Calculate the average HP of the party.
         -- This is "scr_party_hpaverage", which gets called multiple times in the original script.
@@ -1591,26 +1649,21 @@ function Battle:hurt(amount, exact, target)
         end
 
         -- Retarget... twice.
-        -- This is supposed to 
         if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
-            target = self:selectRandomTarget()
+            target = self:selectRandomTargetOld()
         end
         if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
-            target = self:selectRandomTarget()
+            target = self:selectRandomTargetOld()
         end
 
         -- If we landed on Kris (or, well, the first party member), and their health is low, retarget (plot armor lol)
         if (target == self.party[1]) and ((target.chara.health / target.chara:getStat("health")) < 0.35) then
-            target = self:selectRandomTarget()
+            target = self:selectRandomTargetOld()
         end
 
-        -- Make sure they don't fade out, I guess?
-
-        --with (global.charinstance[target])
-        --{
-        --    image_blend = c_white
-        --    darkify = false
-        --}
+        -- They got hit, so un-darken them
+        target.should_darken = false
+        target.targeted = true
     end
 
     -- Now it's time to actually damage them!
@@ -2077,10 +2130,22 @@ function Battle:update()
 
     if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
+        if not self.darkify then
+            self.darkify = true
+            for _,battler in ipairs(self.party) do
+                battler.should_darken = true
+            end
+        end
     end
 
     if Utils.containsValue({"DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT"}, self.state) then
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
+        if self.darkify then
+            self.darkify = false
+            for _,battler in ipairs(self.party) do
+                battler.should_darken = false
+            end
+        end
     end
 
     -- Always sort

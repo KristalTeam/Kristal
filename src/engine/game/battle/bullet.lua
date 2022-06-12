@@ -36,6 +36,10 @@ function Bullet:init(x, y, texture)
     self.remove_offscreen = true
 end
 
+function Bullet:getTarget()
+    return self.attacker and self.attacker.current_target or "ANY"
+end
+
 function Bullet:getDamage()
     return self.damage or (self.attacker and self.attacker.attack * 5) or 0
 end
@@ -43,7 +47,7 @@ end
 function Bullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
-        local battlers = Game.battle:hurt(damage)
+        local battlers = Game.battle:hurt(damage, false, self:getTarget())
         soul.inv_timer = self.inv_timer
         soul:onDamage(self, damage)
         return battlers

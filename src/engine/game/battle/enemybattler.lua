@@ -63,6 +63,8 @@ function EnemyBattler:init(actor, use_overlay)
     self.comment = ""
     self.icons = {}
     self.defeated = false
+
+    self.current_target = "ANY"
 end
 
 function EnemyBattler:setTired(bool)
@@ -325,6 +327,10 @@ function EnemyBattler:getEncounterText()
         return self.spareable_text
     end
     return Utils.pick(self.text)
+end
+
+function EnemyBattler:getTarget()
+    return Game.battle:selectRandomTarget()
 end
 
 function EnemyBattler:getEnemyDialogue()

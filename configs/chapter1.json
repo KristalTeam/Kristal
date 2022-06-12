@@ -18,7 +18,7 @@
     "mercyBar": false,               // Mercy bar next to hp bar in enemy select
     "enemyBarPercentages": false,    // HP / Mercy bar percentages
 
-
+    "targetSystem": true,            // Whether the target system should be used or not
 
     "darkCurrency": "Dark Dollars",  // Full currency name for the Dark World
     "darkCurrencyShort": "D$",       // Short currency name for the Dark World
