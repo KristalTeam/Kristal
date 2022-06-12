@@ -330,7 +330,7 @@ function EnemyBattler:getEncounterText()
 end
 
 function EnemyBattler:getTarget()
-    return Game.battle:selectRandomTarget()
+    return Game.battle:randomTarget()
 end
 
 function EnemyBattler:getEnemyDialogue()

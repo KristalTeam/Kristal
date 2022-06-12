@@ -1531,7 +1531,7 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
-function Battle:selectRandomTargetOld()
+function Battle:randomTargetOld()
     -- This is "scr_randomtarget_old".
     local none_targetable = true
     for _,battler in ipairs(self.party) do
@@ -1560,9 +1560,9 @@ function Battle:selectRandomTargetOld()
     return target
 end
 
-function Battle:selectRandomTarget()
+function Battle:randomTarget()
     -- This is "scr_randomtarget".
-    local target = self:selectRandomTargetOld()
+    local target = self:randomTargetOld()
 
     if (not Game:getConfig("targetSystem")) and (target ~= "ALL") then
         for _,battler in ipairs(self.party) do
@@ -1623,12 +1623,12 @@ function Battle:hurt(amount, exact, target)
 
     if isClass(target) and target:includes(PartyBattler) then
         if (not target) or (target.chara.health <= 0) then -- Why doesn't this look at :canTarget()? Weird.
-            target = self:selectRandomTargetOld()
+            target = self:randomTargetOld()
         end
     end
 
     if target == "ANY" then
-        target = self:selectRandomTargetOld()
+        target = self:randomTargetOld()
 
         -- Calculate the average HP of the party.
         -- This is "scr_party_hpaverage", which gets called multiple times in the original script.
@@ -1650,15 +1650,15 @@ function Battle:hurt(amount, exact, target)
 
         -- Retarget... twice.
         if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
-            target = self:selectRandomTargetOld()
+            target = self:randomTargetOld()
         end
         if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
-            target = self:selectRandomTargetOld()
+            target = self:randomTargetOld()
         end
 
         -- If we landed on Kris (or, well, the first party member), and their health is low, retarget (plot armor lol)
         if (target == self.party[1]) and ((target.chara.health / target.chara:getStat("health")) < 0.35) then
-            target = self:selectRandomTargetOld()
+            target = self:randomTargetOld()
         end
 
         -- They got hit, so un-darken them
