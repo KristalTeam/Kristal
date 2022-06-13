@@ -67,8 +67,26 @@ function PartyBattler:calculateDamageSimple(amount)
 end
 
 function PartyBattler:getElementReduction(element)
-    -- TODO: Placeholder
-    return 1
+    -- TODO: this
+
+    if (element == 0) then return 1 end
+
+    -- dummy values since we don't have elements
+    local armor_elements = {
+        {element = 0, element_reduce_amount = 0},
+        {element = 0, element_reduce_amount = 0}
+    }
+
+    local reduction = 1
+    for i = 1, 2 do
+        local item = armor_elements[i]
+        if (item.element ~= 0) then
+            if     (item.element == 10)                                   then reduction = reduction - item.element_reduce_amount
+            elseif (item.element == 9 and (element == 2 or element == 8)) then reduction = reduction - item.element_reduce_amount
+            elseif (item.element == element)                              then reduction = reduction - item.element_reduce_amount end
+        end
+    end
+    return math.max(0.25, reduction)
 end
 
 function PartyBattler:hurt(amount, exact, color, options)
@@ -81,6 +99,9 @@ function PartyBattler:hurt(amount, exact, color, options)
             if self.defending then
                 amount = math.ceil((2 * amount) / 3)
             end
+            -- we don't have elements right now
+            local element = 0
+            amount = math.ceil((amount * self:getElementReduction(element)))
         end
 
         self:removeHealth(amount)
@@ -88,6 +109,7 @@ function PartyBattler:hurt(amount, exact, color, options)
         -- We're targeting everyone.
         if not exact then
             amount = self:calculateDamage(amount)
+            -- we don't have elements right now
             local element = 0
             amount = math.ceil((amount * self:getElementReduction(element)))
 
