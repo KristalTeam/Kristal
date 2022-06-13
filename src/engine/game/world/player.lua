@@ -318,7 +318,7 @@ function Player:update()
     end
 
     for _,follower in ipairs(self.world.followers) do
-        follower:updateHistory(DT, moved)
+        follower:updateHistory(moved)
     end
 
     self.last_x = self.x

@@ -135,7 +135,7 @@ function Follower:copyHistoryFrom(target)
     self.history_time = target.history_time
     self.history = Utils.copy(target.history)
 end
-function Follower:updateHistory(DT, moved)
+function Follower:updateHistory(moved)
     if moved then
         self.blush_timer = 0
     end
