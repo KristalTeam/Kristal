@@ -16,6 +16,8 @@ function Player:init(chara, x, y)
     self.run_timer = 0
     self.run_timer_grace = 0
 
+    self.auto_moving = false
+
     self.current_slide_area = nil
     self.slide_in_place = false
     self.slide_lock_movement = false
@@ -226,11 +228,11 @@ function Player:updateWalk()
     if self:isMovementEnabled() then
         self:handleMovement()
     end
-    self:updateHistory()
 end
 
 function Player:beginSlide(last_state, in_place, lock_movement)
     self.slide_sound:play()
+    self.auto_moving = true
     self.slide_in_place = in_place or false
     self.slide_lock_movement = lock_movement or false
     self.slide_land_timer = 0
@@ -278,8 +280,6 @@ function Player:updateSlide()
     if self.world.player == self and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
         self:moveCamera(20)
     end
-
-    self:updateHistory(true)
 end
 function Player:endSlide(next_state)
     if self.slide_lock_movement then
@@ -288,14 +288,17 @@ function Player:endSlide(next_state)
         self.slide_sound:stop()
         self.sprite:resetSprite()
     end
+    self.auto_moving = false
 end
 
-function Player:updateHistory(auto)
+function Player:updateHistory()
     if #self.history == 0 then
         table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
 
     local moved = self.x ~= self.last_x or self.y ~= self.last_y
+
+    local auto = self.auto_moving
 
     if moved then
         self.history_time = self.history_time + DT
@@ -329,6 +332,8 @@ function Player:update()
     end
 
     self.state_manager:update()
+
+    self:updateHistory()
 
     self.world.in_battle_area = false
     for _,area in ipairs(self.world.map.battle_areas) do
