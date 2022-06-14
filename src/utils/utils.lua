@@ -1,18 +1,34 @@
 local Utils = {}
 
-function Utils.all(tbl)
-    for i = 1, #tbl do
-        if not tbl[i] then
-            return false
+function Utils.all(tbl, func)
+    if not func then
+        for i = 1, #tbl do
+            if not tbl[i] then
+                return false
+            end
+        end
+    else
+        for i = 1, #tbl do
+            if not func(tbl[i]) then
+                return false
+            end
         end
     end
     return true
 end
 
-function Utils.any(tbl)
-    for i = 1, #tbl do
-        if tbl[i] then
-            return true
+function Utils.any(tbl, func)
+    if not func then
+        for i = 1, #tbl do
+            if tbl[i] then
+                return true
+            end
+        end
+    else
+        for i = 1, #tbl do
+            if func(tbl[i]) then
+                return true
+            end
         end
     end
     return false

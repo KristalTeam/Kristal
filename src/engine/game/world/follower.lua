@@ -13,8 +13,6 @@ function Follower:init(chara, x, y, target)
     self.history_time = 0
     self.history = {}
 
-    self.needs_slide = false
-
     self.following = true
     self.returning = false
     self.return_speed = 6
@@ -64,9 +62,9 @@ function Follower:getTarget()
 end
 
 function Follower:getTargetPosition()
-    local tx, ty, facing, state = self.x, self.y, self.facing, nil
+    local tx, ty, facing, state, args = self.x, self.y, self.facing, nil, {}
     for i,v in ipairs(self.history) do
-        tx, ty, facing, state = v.x, v.y, v.facing, v.state
+        tx, ty, facing, state, args = v.x, v.y, v.facing, v.state, v.state_args
         local upper = self.history_time - v.time
         if upper > (FOLLOW_DELAY * self.index) then
             if i > 1 then
@@ -81,12 +79,12 @@ function Follower:getTargetPosition()
             break
         end
     end
-    return tx, ty, facing, state
+    return tx, ty, facing, state, args
 end
 
 function Follower:moveToTarget(speed)
     if self:getTarget() and self:getTarget().history then
-        local tx, ty, facing, state = self:getTargetPosition()
+        local tx, ty, facing, state, args = self:getTargetPosition()
         local dx, dy = tx - self.x, ty - self.y
 
         if speed then
@@ -101,7 +99,7 @@ function Follower:moveToTarget(speed)
         end
 
         if state and self.state_manager:hasState(state) then
-            self.state_manager:setState(state)
+            self.state_manager:setState(state, unpack(args))
         end
 
         return dx, dy
@@ -124,30 +122,41 @@ function Follower:interpolateHistory()
 end
 
 function Follower:beginSlide()
-    self.needs_slide = false
     self.sprite:setAnimation("slide")
 end
 function Follower:endSlide()
     self.sprite:resetSprite()
 end
 
+function Follower:isAutoMoving()
+    local target_time = FOLLOW_DELAY * self.index
+    for i,v in ipairs(self.history) do
+        if v.auto then
+            return true
+        end
+        if (self.history_time - v.time) > target_time then
+            break
+        end
+    end
+    return false
+end
+
 function Follower:copyHistoryFrom(target)
     self.history_time = target.history_time
     self.history = Utils.copy(target.history)
 end
-function Follower:updateHistory(moved)
+function Follower:updateHistory(moved, auto)
     if moved then
         self.blush_timer = 0
     end
     local target = self:getTarget()
-    if target.state == "SLIDE" and self.state ~= "SLIDE" then
-        self.needs_slide = true
-    end
 
-    if moved or self.state == "SLIDE" or self.needs_slide then
+    local auto_move = auto or self:isAutoMoving()
+
+    if moved or auto_move then
         self.history_time = self.history_time + DT
 
-        table.insert(self.history, 1, {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state})
+        table.insert(self.history, 1, {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state, state_args = target.state_manager.args, auto = auto})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
@@ -172,6 +181,8 @@ function Follower:update()
             self.following = true
         end
     end
+
+    self.state_manager:update()
 
     local can_blush = self.actor.can_blush
     local can_move = Game.world and Game.world.player and Game.world.player:isMovementEnabled()

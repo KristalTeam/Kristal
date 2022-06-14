@@ -16,6 +16,8 @@ function StateManager:init(default_state, master, update_master_state)
     self.state_events = {}
     self.state_initialized = {}
 
+    self.args = {}
+
     self.has_state = {}
 
     self.on_state_change = nil
@@ -124,6 +126,7 @@ function StateManager:setState(state, ...)
         self:call("init")
         self.state_initialized[self.state] = true
     end
+    self.args = {...}
     self:call("enter", last_state, ...)
     if self.on_state_change then
         self.on_state_change(last_state, state, ...)

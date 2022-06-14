@@ -226,6 +226,7 @@ function Player:updateWalk()
     if self:isMovementEnabled() then
         self:handleMovement()
     end
+    self:updateHistory()
 end
 
 function Player:beginSlide(last_state, in_place, lock_movement)
@@ -277,6 +278,8 @@ function Player:updateSlide()
     if self.world.player == self and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
         self:moveCamera(20)
     end
+
+    self:updateHistory(true)
 end
 function Player:endSlide(next_state)
     if self.slide_lock_movement then
@@ -285,6 +288,30 @@ function Player:endSlide(next_state)
         self.slide_sound:stop()
         self.sprite:resetSprite()
     end
+end
+
+function Player:updateHistory(auto)
+    if #self.history == 0 then
+        table.insert(self.history, {x = self.x, y = self.y, time = 0})
+    end
+
+    local moved = self.x ~= self.last_x or self.y ~= self.last_y
+
+    if moved then
+        self.history_time = self.history_time + DT
+
+        table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state, state_args = self.state_manager.args, auto = auto})
+        while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
+            table.remove(self.history, #self.history)
+        end
+    end
+
+    for _,follower in ipairs(self.world.followers) do
+        follower:updateHistory(moved, auto)
+    end
+
+    self.last_x = self.x
+    self.last_y = self.y
 end
 
 function Player:update()
@@ -302,27 +329,6 @@ function Player:update()
     end
 
     self.state_manager:update()
-    if #self.history == 0 then
-        table.insert(self.history, {x = self.x, y = self.y, time = 0})
-    end
-
-    local moved = self.x ~= self.last_x or self.y ~= self.last_y
-
-    if moved then
-        self.history_time = self.history_time + DT
-
-        table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state})
-        while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
-            table.remove(self.history, #self.history)
-        end
-    end
-
-    for _,follower in ipairs(self.world.followers) do
-        follower:updateHistory(moved)
-    end
-
-    self.last_x = self.x
-    self.last_y = self.y
 
     self.world.in_battle_area = false
     for _,area in ipairs(self.world.map.battle_areas) do
