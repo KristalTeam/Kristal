@@ -706,11 +706,12 @@ function Map:populateTilesets(data)
     self.tilesets = {}
     for _,tileset_data in ipairs(data) do
         local tileset
-        if tileset_data.filename then
-            local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", tileset_data.filename, self.full_map_path)
+        local filename = tileset_data.exportfilename or tileset_data.filename
+        if filename then
+            local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", filename, self.full_map_path)
             tileset = Registry.getTileset(tileset_path)
             if not tileset then
-                error("Failed to load map \""..self.data.id.."\", tileset not found: \""..tileset_data.filename.."\"")
+                error("Failed to load map \""..self.data.id.."\", tileset not found: \""..filename.."\"")
             end
         else
             tileset = Tileset(tileset_data, self.full_map_path)
