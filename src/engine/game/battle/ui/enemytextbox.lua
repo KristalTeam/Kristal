@@ -98,7 +98,19 @@ function EnemyTextbox:advance()
 end
 
 function EnemyTextbox:setText(text, callback)
-    self.text:setText(text, callback or self.advance_callback)
+    if self.speaker and self.speaker.actor and self.speaker.actor:getVoice() then
+        if type(text) ~= "table" then
+            text = {text}
+        else
+            text = Utils.copy(text)
+        end
+        for i,line in ipairs(text) do
+            text[i] = "[voice:"..self.speaker.actor:getVoice().."]"..line
+        end
+        self.text:setText(text, callback or self.advance_callback)
+    else
+        self.text:setText(text, callback or self.advance_callback)
+    end
 
     self:updateSize()
 end
