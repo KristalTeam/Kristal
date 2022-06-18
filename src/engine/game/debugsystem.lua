@@ -373,9 +373,37 @@ function DebugSystem:sortMenuOptions(options, filter)
         return a.name < b.name
     end)
     if filter then
-        Utils.filterInPlace(options, function(item)
-            return Utils.startsWith(item.name:lower(), filter:lower())
-        end)
+
+        local copied_options = Utils.copy(options)
+
+        -- Make two tables, one for starting WITH the filter, and one for CONTAINING the filter.
+
+        local start_with = {}
+        for i = #copied_options, 1, -1 do
+            local item = copied_options[i]
+            if Utils.startsWith(item.name:lower(), filter:lower()) then
+                table.insert(start_with, 1, item)
+                table.remove(copied_options, i)
+            end
+        end
+
+        local contains = {}
+        for i = #copied_options, 1, -1 do
+            local item = copied_options[i]
+            if Utils.contains(item.name:lower(), filter:lower()) then
+                table.insert(contains, 1, item)
+                table.remove(copied_options, i)
+            end
+        end
+
+        Utils.clear(options)
+        for _,item in ipairs(start_with) do
+            table.insert(options, item)
+        end
+
+        for _,item in ipairs(contains) do
+            table.insert(options, item)
+        end
     end
 end
 
