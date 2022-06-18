@@ -440,6 +440,20 @@ function DebugSystem:registerSubMenus()
         end)
     end
 
+    self:registerMenu("select_map", "Select Map", "search")
+    -- Registry.map_data instead of Registry.maps
+    for id,_ in pairs(Registry.map_data) do
+        self:registerOption("select_map", id, "Teleport to this map.", function()
+            if Game.world.cutscene then
+                Game.world:stopCutscene()
+            end
+            Game.lock_movement = false
+            Game.world:loadMap(id)
+            self:closeMenu()
+        end)
+    end
+
+
     self:registerMenu("encounter_select", "Encounter Select", "search")
     -- loop through registry and add menu options for all encounters
     for id,_ in pairs(Registry.encounters) do
@@ -493,11 +507,17 @@ function DebugSystem:registerDefaults()
 
     self:registerOption("main", "Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
 
+    -- Need a way to specify whether something should show up in the Kristal main menu or not
+    -- (or just non-gameplay states)
     self:registerOption("main", "Give Item", "Give an item.", function()
         self:enterMenu("give_item", 0)
     end)
 
     -- World specific
+    self:registerOption("main", "Select Map", "Switch to a new map.", function()
+        self:enterMenu("select_map", 0)
+    end, "OVERWORLD")
+
     self:registerOption("main", "Start Encounter", "Start an encounter.", function()
         self:enterMenu("encounter_select", 0)
     end, "OVERWORLD")
