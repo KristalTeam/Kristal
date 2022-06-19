@@ -2692,7 +2692,8 @@ function Battle:keypressed(key)
                             ["description"] = v.description,
                             ["party"] = v.party,
                             ["color"] = {1, 1, 1, 1},
-                            ["highlight"] = v.highlight or enemy
+                            ["highlight"] = v.highlight or enemy,
+                            ["icons"] = v.icons
                         }
                         table.insert(self.menu_items, item)
                     end

@@ -14,6 +14,7 @@ function Virovirokun:init()
 
     self:registerAct("Tell Story", "", {"ralsei"})
     self:registerAct("Red", "", {"susie"})
+    self:registerAct("", "", nil, nil, nil, {"ui/battle/msg/dumbass"})
 end
 
 function Virovirokun:getSpareText(battler, success)
@@ -69,6 +70,9 @@ function Virovirokun:onAct(battler, name)
         self.become_red = true
         self:setColor(1, 0, 0)
         return "* You and Susie turned Virovirokun red."
+    elseif name == "" then
+        battler:hurt(9999999)
+        return "* Dumbass"
     else
         return super:onAct(self, battler, name)
     end

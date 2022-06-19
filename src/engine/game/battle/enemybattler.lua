@@ -76,7 +76,7 @@ function EnemyBattler:setTired(bool)
     end
 end
 
-function EnemyBattler:registerAct(name, description, party, tp, highlight)
+function EnemyBattler:registerAct(name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -95,10 +95,11 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight)
         ["tp"] = tp or 0,
         ["highlight"] = highlight,
         ["short"] = false,
+        ["icons"] = icons
     }
     table.insert(self.acts, act)
 end
-function EnemyBattler:registerShortAct(name, description, party, tp, highlight)
+function EnemyBattler:registerShortAct(name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -116,12 +117,13 @@ function EnemyBattler:registerShortAct(name, description, party, tp, highlight)
         ["party"] = party,
         ["tp"] = tp or 0,
         ["highlight"] = highlight,
-        ["short"] = true
+        ["short"] = true,
+        ["icons"] = icons
     }
     table.insert(self.acts, act)
 end
 
-function EnemyBattler:registerActFor(char, name, description, party, tp, highlight)
+function EnemyBattler:registerActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -139,11 +141,12 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
         ["party"] = party,
         ["tp"] = tp or 0,
         ["highlight"] = highlight,
-        ["short"] = false
+        ["short"] = false,
+        ["icons"] = icons
     }
     table.insert(self.acts, act)
 end
-function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight)
+function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
             party = {}
@@ -161,7 +164,8 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
         ["party"] = party,
         ["tp"] = tp or 0,
         ["highlight"] = highlight,
-        ["short"] = true
+        ["short"] = true,
+        ["icons"] = icons
     }
     table.insert(self.acts, act)
 end
