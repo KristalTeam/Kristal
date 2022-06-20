@@ -13,10 +13,14 @@ function Explosion:init(x, y)
     self.height = self.frames[1]:getHeight()
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
+
+    self.play_sound = true
 end
 
 function Explosion:onAdd()
-    Assets.playSound("badexplosion")
+    if self.play_sound then
+        Assets.playSound("badexplosion")
+    end
 end
 
 function Explosion:update()

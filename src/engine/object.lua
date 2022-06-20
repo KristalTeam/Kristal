@@ -798,11 +798,13 @@ function Object:remove()
     end
 end
 
-function Object:explode(x, y, dont_remove)
+function Object:explode(x, y, dont_remove, options)
     if self.parent then
+        options = options or {}
         local rx, ry = self:getRelativePos(self.width/2 + (x or 0), self.height/2 + (y or 0))
         local e = Explosion(rx, ry)
         e.layer = self.layer + 0.001
+        e.play_sound = options["play_sound"] ~= false
         self.parent:addChild(e)
         if not dont_remove then
             self:remove()
