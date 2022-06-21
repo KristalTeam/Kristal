@@ -129,7 +129,7 @@ function PartyBattler:hurt(amount, exact, color, options)
 
     self.sprite.x = -10
     self.hurt_timer = 4
-    Game.battle.shake = 4
+    Game.battle:shakeCamera(4)
 
     if (not self.defending) and (not self.is_down) then
         self.sleeping = false

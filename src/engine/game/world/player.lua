@@ -155,6 +155,10 @@ function Player:interpolateFollowers()
     end
 end
 
+function Player:isCameraAttachable()
+    return not (self.state == "SLIDE" and self.slide_in_place)
+end
+
 function Player:isMovementEnabled()
     return not OVERLAY_OPEN
         and not Game.lock_movement
@@ -208,19 +212,6 @@ function Player:handleMovement()
             end
             self.run_timer_grace = self.run_timer_grace + DTMULT
         end
-    end
-
-    if self.world.player == self and (walk_x ~= 0 or walk_y ~= 0) then
-        self:moveCamera(math.max(speed, 12))
-    end
-end
-
-function Player:moveCamera(speed)
-    if self.world.camera_attached_x then
-        self.world.camera:approach(self.x, self.world.camera.y, (speed or 12) * DTMULT)
-    end
-    if self.world.camera_attached_y then
-        self.world.camera:approach(self.world.camera.x, self.y - (self.height * 2)/2, (speed or 12) * DTMULT)
     end
 end
 
@@ -276,10 +267,6 @@ function Player:updateSlide()
     self:move(slide_x, slide_y, speed * DTMULT)
 
     self:updateSlideDust()
-
-    if self.world.player == self and (slide_x ~= 0 or slide_y ~= 0) and not self.slide_in_place then
-        self:moveCamera(20)
-    end
 end
 function Player:endSlide(next_state)
     if self.slide_lock_movement then

@@ -8,6 +8,44 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
     self.width = width or SCREEN_WIDTH
     self.height = height or SCREEN_HEIGHT
 
+    self.state_manager = StateManager("ATTACHED", self, true)
+    self.state_manager:addState("STATIC")
+    self.state_manager:addState("ATTACHED", {enter = self.beginAttached, update = self.updateAttached, leave = self.endAttached})
+    self.state_manager:addState("PAN", {update = self.updatePanning})
+
+    -- Camera modifiers (position, offset, bounds - smoothly transitioned between)
+    self.mods = {
+        x =      {value = 0,   state = "INACTIVE", x = true,  y = false},
+        y =      {value = 0,   state = "INACTIVE", x = false, y = true },
+        ox =     {value = 0,   state = "INACTIVE", x = true,  y = false},
+        oy =     {value = 0,   state = "INACTIVE", x = false, y = true },
+        bounds = {value = nil, state = "INACTIVE", x = true,  y = true }
+    }
+    -- Order camera modifiers are processed in
+    self.mod_order = {"x", "y", "ox", "oy", "bounds"}
+    -- Whether modifiers have been updated this frame
+    self.updated_mods = false
+
+    -- Default modifier approach speed and time
+    self.default_approach_speed = 16
+    self.defaut_approach_time = 0.25
+    -- Current modifier approach settings
+    self.lerper = {
+        type = "speed",
+        speed = self.default_approach_speed,
+        time = self.defaut_approach_time,
+        timer = 0, start_x = nil, start_y = nil
+    }
+
+    -- Camera target
+    self.target = nil
+    -- Optional function to get the camera target, if not set explicitly
+    self.target_getter = nil
+
+    -- Whether the camera is attached to the target
+    self.attached_x = true
+    self.attached_y = true
+
     -- Camera offset
     self.ox = 0
     self.oy = 0
@@ -15,6 +53,14 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
     -- Camera zoom
     self.zoom_x = 1
     self.zoom_y = 1
+
+    -- Camera shake
+    self.shake_x = 0
+    self.shake_y = 0
+    -- Camera shake friction (How much the shake decreases)
+    self.shake_friction = 0
+    -- Camera shake timer (used to invert the shake)
+    self.shake_timer = 0
 
     -- Camera bounds (for clamping)
     self.bounds = nil
@@ -26,6 +72,10 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
 
     -- Update position
     self:keepInBounds()
+end
+
+function Camera:setState(state)
+    self.state_manager:setState(state)
 end
 
 function Camera:getBounds()
@@ -49,7 +99,8 @@ function Camera:setBounds(x, y, width, height)
 end
 
 function Camera:getRect()
-    return self.x + self.ox - (self.width / self.zoom_x / 2), self.y + self.oy - (self.height / self.zoom_y / 2), self.width / self.zoom_x, self.height / self.zoom_y
+    local x, y = self:getOffsetPos()
+    return x - (self.width / self.zoom_x / 2), y - (self.height / self.zoom_y / 2), self.width / self.zoom_x, self.height / self.zoom_y
 end
 
 function Camera:getPosition() return self.x, self.y end
@@ -65,6 +116,14 @@ function Camera:setOffset(ox, oy)
     self.oy = oy
 end
 
+function Camera:getOffsetPos()
+    local shake_x, shake_y = math.ceil(self.shake_x), math.ceil(self.shake_y)
+    if Kristal.Config["simplifyVFX"] then
+        shake_x, shake_y = 0, 0
+    end
+    return self.x + self.ox + shake_x, self.y + self.oy + shake_y
+end
+
 function Camera:getZoom() return self.zoom_x, self.zoom_y end
 function Camera:setZoom(x, y)
     self.zoom_x = x or 1
@@ -73,16 +132,28 @@ function Camera:setZoom(x, y)
 end
 
 function Camera:approach(x, y, amount)
+    local angle = Utils.angle(self.x, self.y, x, y)
+    self.x = Utils.approach(self.x, x, math.abs(math.cos(angle)) * amount)
+    self.y = Utils.approach(self.y, y, math.abs(math.sin(angle)) * amount)
+    self:keepInBounds()
+end
+
+function Camera:approachDirect(x, y, amount)
     self.x = Utils.approach(self.x, x, amount)
     self.y = Utils.approach(self.y, y, amount)
     self:keepInBounds()
 end
 
-function Camera:approachLinear(x, y, amount)
-    local angle = Utils.angle(self.x, self.y, x, y)
-    self.x = Utils.approach(self.x, x, math.abs(math.cos(angle)) * amount)
-    self.y = Utils.approach(self.y, y, math.abs(math.sin(angle)) * amount)
-    self:keepInBounds()
+function Camera:shake(x, y, friction)
+    self.shake_x = x or 4
+    self.shake_y = y or x or 4
+    self.shake_friction = friction or 1
+    self.shake_timer = 0
+end
+
+function Camera:stopShake()
+    self.shake_x = 0
+    self.shake_y = 0
 end
 
 function Camera:panTo(x, y, time, ease, after)
@@ -105,20 +176,23 @@ function Camera:panTo(x, y, time, ease, after)
 
     if time == 0 then
         self:setPosition(x or self.x, y or self.y)
+        self:setState("STATIC")
         if after then
             after()
         end
         return false
     end
 
-    if time == 0 or not ((x and self.x ~= x) or (y and self.y ~= y)) then
+    if (x and self.x ~= x) or (y and self.y ~= y) then
+        self.pan_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
+        self:setState("PAN")
+        return true
+    else
+        self:setState("STATIC")
         if after then
             after()
         end
         return false
-    else
-        self.pan_target = {x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y, ease = ease or "linear", after = after}
-        return true
     end
 end
 
@@ -140,21 +214,121 @@ function Camera:panToSpeed(x, y, speed, after)
     end
 
     if (x and self.x ~= x) or (y and self.y ~= y) then
+        self:setState("PAN")
         self.pan_target = {x = x, y = y, speed = speed, after = after}
         return true
     else
+        if after then
+            after()
+        end
         return false
     end
 end
 
-function Camera:getMinPosition()
-    local x, y, w, h = self:getBounds()
-    return x + (self.width / self.zoom_x) / 2, y + (self.height / self.zoom_y) / 2
+function Camera:getTarget()
+    if self.target and self.target.stage then
+        return self.target
+    elseif self.target_getter then
+        local target = self.target_getter()
+        if target and target.stage then
+            return target
+        end
+    end
 end
 
-function Camera:getMaxPosition()
-    local x, y, w, h = self:getBounds()
-    return x + w - (self.width / self.zoom_x) / 2, y + h - (self.height / self.zoom_y) / 2
+function Camera:getTargetPosition()
+    local x, y = self.x, self.y
+
+    local target = self:getTarget()
+    if target and target:isCameraAttachable() then
+        local ox, oy = target:getCameraOriginExact()
+        x, y = target:getRelativePos(ox, oy, self.parent)
+    end
+
+    local min_x, min_y = self:getMinPosition()
+    local max_x, max_y = self:getMaxPosition()
+
+    x = Utils.clamp(x, min_x, max_x)
+    y = Utils.clamp(y, min_y, max_y)
+
+    return x, y
+end
+
+function Camera:setAttached(attached_x, attached_y)
+    if attached_y == nil then
+        attached_y = attached_x
+    end
+    self.attached_x = attached_x or false
+    self.attached_y = attached_y or false
+    if self.attached_x or self.attached_y and self.state_manager.state ~= "ATTACHED" then
+        self:setState("ATTACHED", attached_x or false, attached_y or false)
+    elseif not self.attached_x and not self.attached_y and self.state_manager.state == "ATTACHED" then
+        self:setState("STATIC")
+    end
+end
+
+function Camera:setModifier(name, value, approach_speed, approach_type)
+    if approach_speed == true or approach_speed == "instant" then
+        approach_type = "instant"
+    end
+    local instant = approach_type == "instant"
+    if not instant then
+        self.lerper.type = approach_type or "speed"
+        if self.lerper.type == "speed" then
+            self.lerper.speed = approach_speed or self.default_approach_speed
+        elseif self.lerper.type == "time" then
+            self.lerper.time = approach_speed or self.default_approach_time
+            self.lerper.timer = 0
+            self.lerper.start_x = self.x
+            self.lerper.start_y = self.y
+        end
+    end
+    if value == nil then
+        self.mods[name].value = nil
+        if self.mods[name].state ~= "INACTIVE" then
+            self.mods[name].state = instant and "INACTIVE" or "OUT"
+        end
+    else
+        self.mods[name].value = value
+        self.mods[name].state = instant and "ACTIVE" or "IN"
+    end
+end
+
+function Camera:resetModifiers(immediate)
+    for name, mod in pairs(self.mods) do
+        mod.value = nil
+        if mod.state ~= "INACTIVE" then
+            mod.state = immediate and "INACTIVE" or "OUT"
+        end
+    end
+    self.lerper = {
+        type = "speed",
+        speed = self.default_approach_speed,
+        time = self.defaut_approach_time,
+        timer = 0, start_x = nil, start_y = nil
+    }
+end
+
+function Camera:getMinPosition(bx, by, bw, bh)
+    if not self.keep_in_bounds then
+        return -math.huge, -math.huge
+    else
+        if not bx then
+            bx, by, bw, bh = self:getBounds()
+        end
+        return bx + (self.width / self.zoom_x) / 2, by + (self.height / self.zoom_y) / 2
+    end
+end
+
+function Camera:getMaxPosition(bx, by, bw, bh)
+    if not self.keep_in_bounds then
+        return math.huge, math.huge
+    else
+        if not bx then
+            bx, by, bw, bh = self:getBounds()
+        end
+        return bx + bw - (self.width / self.zoom_x) / 2, by + bh - (self.height / self.zoom_y) / 2
+    end
 end
 
 function Camera:keepInBounds()
@@ -167,46 +341,215 @@ function Camera:keepInBounds()
     end
 end
 
-function Camera:update()
-    if self.pan_target then
+function Camera:moveTo(x, y)
+    local target_x, target_y = x, y
+    if self.keep_in_bounds then
         local min_x, min_y = self:getMinPosition()
         local max_x, max_y = self:getMaxPosition()
+        target_x = Utils.clamp(target_x, min_x, max_x)
+        target_y = Utils.clamp(target_y, min_y, max_y)
+    end
 
-        local target_x = self.pan_target.x and Utils.clamp(self.pan_target.x, min_x, max_x) or self.x
-        local target_y = self.pan_target.y and Utils.clamp(self.pan_target.y, min_y, max_y) or self.y
+    --local approach_speed = Utils.dist(self.x, self.y, x, y)
+    --approach_speed = math.max(min_speed or 12, approach_speed * 1.5)
 
-        if self.pan_target.time then
-            self.pan_target.timer = Utils.approach(self.pan_target.timer, self.pan_target.time, DT)
+    local approach_x, approach_y = false, false
 
-            if self.pan_target.x then
-                self.x = Utils.ease(self.pan_target.start_x, target_x, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
-            end
-            if self.pan_target.y then
-                self.y = Utils.ease(self.pan_target.start_y, target_y, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
-            end
+    self.updated_mods = true
+
+    for _,v in ipairs(self.mod_order) do
+        local mod = self.mods[v]
+        if mod.state == "IN" or mod.state == "ACTIVE" then
+            local mod_x, mod_y = self:processMod(v, self.mods[v], target_x, target_y)
+            target_x = mod_x or target_x
+            target_y = mod_y or target_y
+        end
+        if mod.state == "IN" or mod.state == "OUT" then
+            approach_x = approach_x or mod.x
+            approach_y = approach_y or mod.y
+        end
+    end
+
+    if self.keep_in_bounds then
+        local min_x, min_y = self:getMinPosition()
+        local max_x, max_y = self:getMaxPosition()
+        target_x = Utils.clamp(target_x, min_x, max_x)
+        target_y = Utils.clamp(target_y, min_y, max_y)
+    end
+
+    if self.lerper.type == "time" then
+        if not self.lerper.start_x then
+            self.lerper.start_x = self.x
+        end
+        if not self.lerper.start_y then
+            self.lerper.start_y = self.y
+        end
+        self.lerper.timer = Utils.approach(self.lerper.timer, self.lerper.time, DT)
+
+        if approach_x and approach_y then
+            self.x, self.y = Utils.lerpPoint(
+                self.lerper.start_x, self.lerper.start_y,
+                target_x, target_y,
+                self.lerper.timer / self.lerper.time)
+        elseif approach_x then
+            self.x = Utils.lerp(self.lerper.start_x, target_x, self.lerper.timer / self.lerper.time)
+            self.y = target_y
+        elseif approach_y then
+            self.x = target_x
+            self.y = Utils.lerp(self.lerper.start_y, target_y, self.lerper.timer / self.lerper.time)
         else
-            self:approachLinear(target_x, target_y, self.pan_target.speed * DTMULT)
+            self.x = target_x
+            self.y = target_y
         end
+    elseif self.lerper.type == "speed" then
+        if approach_x and approach_y then
+            self:approach(target_x, target_y, self.lerper.speed * DTMULT)
+        elseif approach_x then
+            self.x = Utils.approach(self.x, target_x, self.lerper.speed * DTMULT)
+            self.y = target_y
+        elseif approach_y then
+            self.x = target_x
+            self.y = Utils.approach(self.y, target_y, self.lerper.speed * DTMULT)
+        else
+            self.x = target_x
+            self.y = target_y
+        end
+    elseif self.lerper.type == "instant" then
+        self.x = target_x
+        self.y = target_y
+    end
 
-        if self.x == target_x and self.y == target_y then
-            local after = self.pan_target.after
-
-            self.pan_target = nil
-
-            if after then
-                after()
+    for k,v in pairs(self.mods) do
+        if (not v.x or self.x == target_x) and (not v.y or self.y == target_y) then
+            if v.state == "IN" then
+                v.state = "ACTIVE"
+            elseif v.state == "OUT" then
+                v.state = "INACTIVE"
             end
         end
+    end
+
+    return not approach_x, not approach_y
+end
+
+function Camera:processMod(name, mod, x, y)
+    if name == "x" then
+        return mod.value, y
+    elseif name == "y" then
+        return x, mod.value
+    elseif name == "ox" then
+        return x + mod.value, y
+    elseif name == "oy" then
+        return x, y + mod.value
+    elseif name == "bounds" then
+        local bx, by, bw, bh = self:getBounds()
+
+        local temp_bx, temp_by = mod.value[1], mod.value[2]
+        local temp_bw, temp_bh = mod.value[3], mod.value[4]
+
+        local bx2, by2 = bx + bw, by + bh
+        local temp_bx2, temp_by2 = temp_bx + temp_bw, temp_by + temp_bh
+
+        local target_bx, target_by = math.max(bx, temp_bx), math.max(by, temp_by)
+        local target_bw, target_bh = math.min(bx2, temp_bx2) - target_bx, math.min(by2, temp_by2) - target_by
+
+        local min_x, min_y = self:getMinPosition(target_bx, target_by, target_bw, target_bh)
+        local max_x, max_y = self:getMaxPosition(target_bx, target_by, target_bw, target_bh)
+
+        return Utils.clamp(x, min_x, max_x), Utils.clamp(y, min_y, max_y)
+    end
+end
+
+function Camera:update()
+    if self.shake_x ~= 0 or self.shake_y ~= 0 then
+        self.shake_timer = self.shake_timer + DTMULT
+        if self.shake_timer >= 1 then
+            self.shake_x = self.shake_x * -1
+            self.shake_y = self.shake_y * -1
+            self.shake_timer = self.shake_timer - 1
+        end
+        if self.shake_friction then
+            self.shake_x = Utils.approach(self.shake_x, 0, self.shake_friction * DTMULT)
+            self.shake_y = Utils.approach(self.shake_y, 0, self.shake_friction * DTMULT)
+        end
+    end
+
+    self.updated_mods = false
+
+    self.state_manager:update()
+
+    if not self.updated_mods then
+        for k,v in pairs(self.mods) do
+            if v.state == "ACTIVE" then
+                v.state = "IN"
+            end
+        end
+        self.lerper.timer = 0
+        self.lerper.start_x = nil
+        self.lerper.start_y = nil
     end
 
     self:keepInBounds()
 end
 
+--[[ State Callbacks ]]--
+function Camera:beginAttached(last_state, attach_x, attach_y)
+    if attach_x ~= nil then self.attached_x = attach_x else self.attached_x = true end
+    if attach_y ~= nil then self.attached_y = attach_y else self.attached_y = true end
+end
+function Camera:updateAttached()
+    local target_x, target_y = self:getTargetPosition()
+
+    if not self.attached_x then target_x = self.x end
+    if not self.attached_y then target_y = self.y end
+
+    self:moveTo(target_x, target_y)
+end
+function Camera:endAttached()
+    self.attached_x = false
+    self.attached_y = false
+end
+
+function Camera:updatePanning()
+    if not self.pan_target then
+        self:setState("STATIC")
+        return
+    end
+
+    local min_x, min_y = self:getMinPosition()
+    local max_x, max_y = self:getMaxPosition()
+
+    local pan_x = self.pan_target.x and Utils.clamp(self.pan_target.x, min_x, max_x) or self.x
+    local pan_y = self.pan_target.y and Utils.clamp(self.pan_target.y, min_y, max_y) or self.y
+
+    if self.pan_target.time then
+        self.pan_target.timer = Utils.approach(self.pan_target.timer, self.pan_target.time, DT)
+
+        if self.pan_target.x then
+            self.x = Utils.ease(self.pan_target.start_x, pan_x, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
+        end
+        if self.pan_target.y then
+            self.y = Utils.ease(self.pan_target.start_y, pan_y, self.pan_target.timer / self.pan_target.time, self.pan_target.ease)
+        end
+    else
+        self:approach(pan_x, pan_y, self.pan_target.speed * DTMULT)
+    end
+
+    if self.x == pan_x and self.y == pan_y then
+        local after = self.pan_target.after
+
+        self.pan_target = nil
+
+        self:setState("STATIC")
+
+        if after then
+            after()
+        end
+    end
+end
+
 function Camera:getParallax(px, py, ox, oy)
     local x, y, w, h = self:getRect()
-
-    x = x + self.ox
-    y = y + self.oy
 
     local parallax_x, parallax_y
 
@@ -228,8 +571,10 @@ end
 function Camera:applyTo(transform, ceil_x, ceil_y)
     transform:scale(self.zoom_x, self.zoom_y)
 
-    local tx = -self.x - self.ox + (self.width / self.zoom_x / 2)
-    local ty = -self.y - self.oy + (self.height / self.zoom_y / 2)
+    local x, y = self:getOffsetPos()
+
+    local tx = -x + (self.width / self.zoom_x / 2)
+    local ty = -y + (self.height / self.zoom_y / 2)
 
     if ceil_x then
         ceil_x = ceil_x / self.zoom_x

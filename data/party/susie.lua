@@ -133,7 +133,7 @@ end
 function character:onAttackHit(enemy, damage)
     if damage > 0 then
         Assets.playSound("impact", 0.8)
-        Game.battle.shake = 4
+        Game.battle:shakeCamera(4)
     end
 end
 

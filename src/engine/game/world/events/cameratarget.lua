@@ -12,8 +12,11 @@ function CameraTarget:init(x, y, w, h, properties)
     self.lock_x = properties["lockx"] ~= false
     self.lock_y = properties["locky"] ~= false
 
-    self.time = properties["time"] or 0.25
-    self.return_time = properties["returntime"] or 0.25
+    self.speed = properties["speed"]
+    self.return_speed = properties["returnspeed"]
+
+    self.time = properties["time"]
+    self.return_time = properties["returntime"]
 
     self.entered = false
 end
@@ -26,21 +29,17 @@ function CameraTarget:getTargetPosition()
     end
 end
 
-function CameraTarget:onCollide(chara)
+function CameraTarget:onEnter(chara)
     if chara.is_player then
         local x, y = self:getTargetPosition()
 
-        self.entered = true
+        local approach_type = self.time and "time" or "speed"
 
         if self.lock_x then
-            self.world:setCameraAttachedX(false)
+            self.world.camera:setModifier("x", x, self.time or self.speed, approach_type)
         end
         if self.lock_y then
-            self.world:setCameraAttachedY(false)
-        end
-
-        if not self.world.camera.pan_target then
-            self.world.camera:panTo(self.lock_x and x or nil, self.lock_y and y or nil, self.time)
+            self.world.camera:setModifier("y", y, self.time or self.speed, approach_type)
         end
     end
 end
@@ -48,17 +47,19 @@ end
 function CameraTarget:onExit(chara)
     if chara.is_player then
         self.entered = false
-        self.world:returnCamera(self.return_time)
-    end
-end
 
-function CameraTarget:onRemove(parent)
-    if self.entered and self.world then
-        local tx, ty = self.world:getCameraTarget()
-        self.world:setCameraAttached(true)
-        self.world.camera:setPosition(tx, ty)
+        local approach_speed = self.return_time or self.return_speed or self.time or self.speed
+        local approach_type = (self.return_time and "time") or
+                              (self.return_speed and "speed") or
+                              (self.time and "time") or "speed"
+
+        if self.lock_x then
+            self.world.camera:setModifier("x", nil, approach_speed, approach_type)
+        end
+        if self.lock_y then
+            self.world.camera:setModifier("y", nil, approach_speed, approach_type)
+        end
     end
-    super:onRemove(self, parent)
 end
 
 return CameraTarget

@@ -89,6 +89,11 @@ function Object:init(x, y, width, height)
     self.rotation_origin_y = nil
     self.rotation_origin_exact = nil
 
+    -- Origin where the camera will attach to for this object
+    self.camera_origin_x = 0.5
+    self.camera_origin_y = 0.5
+    self.camera_origin_exact = false
+
     -- How much this object is moved by the camera (1 = normal, 0 = none)
     self.parallax_x = nil
     self.parallax_y = nil
@@ -440,6 +445,25 @@ function Object:getRotationOriginExact()
         return (self.rotation_origin_x or ox) * self.width, (self.rotation_origin_y or oy) * self.height
     end
 end
+
+function Object:setCameraOrigin(x, y) self.camera_origin_x = x or 0; self.camera_origin_y = y or x or 0; self.camera_origin_exact = false end
+function Object:getCameraOrigin()
+    if not self.camera_origin_exact then
+        return self.camera_origin_x, self.camera_origin_y
+    else
+        return self.camera_origin_x / self.width, self.camera_origin_y / self.height
+    end
+end
+function Object:setCameraOriginExact(x, y) self.camera_origin_x = x or 0; self.camera_origin_y = y or x or 0; self.camera_origin_exact = true end
+function Object:getCameraOriginExact()
+    if self.camera_origin_exact then
+        return self.camera_origin_x, self.camera_origin_y
+    else
+        return self.camera_origin_x * self.width, self.camera_origin_y * self.height
+    end
+end
+
+function Object:isCameraAttachable() return true end
 
 function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
 function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 end

@@ -168,9 +168,9 @@ function BattleCutscene:shakeCharacter(chara, x, y)
     return function() return chara.sprite.shake_x == 0 and chara.sprite.shake_y == 0 end
 end
 
-local function cameraShakeCheck() return Game.battle.shake == 0 end
-function BattleCutscene:shakeCamera(shake)
-    Game.battle.shake = shake
+local function cameraShakeCheck() return Game.battle.camera.shake_x == 0 and Game.battle.camera.shake_y == 0 end
+function BattleCutscene:shakeCamera(x, y, friction)
+    Game.battle:shakeCamera(x, y, friction)
     return cameraShakeCheck
 end
 

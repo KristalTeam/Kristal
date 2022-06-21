@@ -160,8 +160,6 @@ function Battle:init()
 
     self.xactions = {}
 
-    self.shake = 0
-
     self.background_fade_alpha = 0
 
     self.wave_length = 0
@@ -1531,6 +1529,10 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
+function Battle:shakeCamera(x, y, friction)
+    self.camera:shake(x, y, friction)
+end
+
 function Battle:randomTargetOld()
     -- This is "scr_randomtarget_old".
     local none_targetable = true
@@ -2106,20 +2108,6 @@ function Battle:update()
 
     if self.state ~= "TRANSITIONOUT" then
         self.encounter:update()
-    end
-
-    if self.shake ~= 0 then
-        local last_shake = math.ceil(self.shake)
-        self.camera.ox = last_shake
-        self.camera.oy = last_shake
-        self.shake = Utils.approach(self.shake, 0, DTMULT)
-        local new_shake = math.ceil(self.shake)
-        if new_shake ~= last_shake then
-            self.shake = self.shake * -1
-        end
-    else
-        self.camera.ox = 0
-        self.camera.oy = 0
     end
 
     self.offset = self.offset + 1 * DTMULT

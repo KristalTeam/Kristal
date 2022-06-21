@@ -65,13 +65,9 @@ function Virovirokun:beforeStateChange(old, new)
         local timer = 0
         local stage = 0
 
-        local shake = 5
-        Game.battle.timer:every(1/30, function()
-            if stage < 2 then
-                Game.battle.camera.x = SCREEN_WIDTH/2 + shake
-                shake = shake * -1
-            end
+        Game.battle:shakeCamera(5, 5, 0)
 
+        Game.battle.timer:every(1/30, function()
             timer = timer + 1
             if stage == 0 and timer >= 60 then
                 stage = 1
@@ -90,6 +86,7 @@ function Virovirokun:beforeStateChange(old, new)
             elseif stage == 1 and timer >= 30 then
                 stage = 2
                 timer = 0
+                Game.battle:shakeCamera(0)
                 src:stop()
                 src2:stop()
             elseif stage == 2 and timer >= 15 then

@@ -99,7 +99,7 @@ function Follower:moveToTarget(speed)
         end
 
         if state and self.state_manager:hasState(state) then
-            self.state_manager:setState(state, unpack(args))
+            self.state_manager:setState(state, unpack(args or {}))
         end
 
         return dx, dy

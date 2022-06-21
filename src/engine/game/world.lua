@@ -17,12 +17,9 @@ function World:init(map)
     self.height = self.map.height * self.map.tile_height
 
     self.camera = Camera(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, true)
-    self.camera_attached_x = true
-    self.camera_attached_y = true
-    self.camera_return_target = nil
-
-    self.shake_x = 0
-    self.shake_y = 0
+    self.camera.target_getter = function()
+        return self:getCameraTarget()
+    end
 
     self.player = nil
     self.soul = nil
@@ -396,10 +393,10 @@ function World:spawnPlayer(...)
     self.soul.layer = WORLD_LAYERS["soul"]
     self:addChild(self.soul)
 
-    if self.camera_attached_x then
+    if self.camera.attached_x then
         self.camera:setPosition(self.player.x, self.camera.y)
     end
-    if self.camera_attached_y then
+    if self.camera.attached_y then
         self.camera:setPosition(self.camera.x, self.player.y - (self.player.height * 2)/2)
     end
 end
@@ -608,6 +605,9 @@ function World:setupMap(map, ...)
     self.healthbar = nil
     self.followers = {}
 
+    self.camera:resetModifiers(true)
+    self.camera:setAttached(true)
+
     if isClass(map) then
         self.map = map
     elseif type(map) == "string" then
@@ -777,69 +777,26 @@ function World:fadeInto(callback)
 end
 
 function World:getCameraTarget()
-    return self.player:getRelativePos(self.player.width/2, self.player.height/2)
+    if self.camera.target and self.camera.target.stage then
+        return self.camera.target
+    else
+        return self.player
+    end
+end
+
+function World:setCameraTarget(target)
+    self.camera.target = target
 end
 
 function World:setCameraAttached(attached_x, attached_y)
-    if attached_y == nil then
-        attached_y = attached_x
-    end
-    if not attached_x or not attached_y then
-        self.camera_returning = false
-    end
-    self.camera_attached_x = attached_x or false
-    self.camera_attached_y = attached_y or false
+    self.camera:setAttached(attached_x, attached_y)
 end
 
-function World:setCameraAttachedX(attached) self:setCameraAttached(attached, self.camera_attached_y) end
-function World:setCameraAttachedY(attached) self:setCameraAttached(self.camera_attached_x, attached) end
+function World:setCameraAttachedX(attached) self:setCameraAttached(attached, self.camera.attached_x) end
+function World:setCameraAttachedY(attached) self:setCameraAttached(self.camera.attached_y, attached) end
 
-function World:returnCamera(time)
-    self:setCameraAttached(false)
-    self.camera_return_target = {start_x = self.camera.x, start_y = self.camera.y, time = time or 0.5, timer = 0}
-end
-
-function World:shakeCamera(x, y)
-    Game.world.shake_x = x or 4
-    Game.world.shake_y = y or x or 4
-end
-
-function World:updateCamera()
-    if self.camera_return_target then
-        self.camera_return_target.timer = Utils.approach(self.camera_return_target.timer, self.camera_return_target.time, DT)
-
-        local target_x, target_y = self:getCameraTarget()
-
-        local x = Utils.lerp(self.camera_return_target.start_x, target_x, self.camera_return_target.timer / self.camera_return_target.time)
-        local y = Utils.lerp(self.camera_return_target.start_y, target_y, self.camera_return_target.timer / self.camera_return_target.time)
-
-        self.camera:setPosition(x, y)
-
-        if self.camera_return_target.timer >= self.camera_return_target.time then
-            self.camera_return_target = nil
-            self:setCameraAttached(true)
-        end
-    end
-
-    if self.shake_x ~= 0 or self.shake_y ~= 0 then
-        local last_shake_x = math.ceil(self.shake_x)
-        local last_shake_y = math.ceil(self.shake_y)
-        self.camera.ox = last_shake_x
-        self.camera.oy = last_shake_y
-        self.shake_x = Utils.approach(self.shake_x, 0, DTMULT)
-        self.shake_y = Utils.approach(self.shake_y, 0, DTMULT)
-        local new_shake_x = math.ceil(self.shake_x)
-        if new_shake_x ~= last_shake_x then
-            self.shake_x = self.shake_x * -1
-        end
-        local new_shake_y = math.ceil(self.shake_y)
-        if new_shake_y ~= last_shake_y then
-            self.shake_y = self.shake_y * -1
-        end
-    else
-        self.camera.ox = 0
-        self.camera.oy = 0
-    end
+function World:shakeCamera(x, y, friction)
+    self.camera:shake(x, y, friction)
 end
 
 function World:sortChildren()
@@ -930,9 +887,6 @@ function World:update()
             v[1].current_colliding[v[2]] = nil
         end
     end
-
-    -- Camera effects (shake)
-    self:updateCamera()
 
     if self:inBattle() then
         self.battle_alpha = math.min(self.battle_alpha + (0.08 * DTMULT), 1)

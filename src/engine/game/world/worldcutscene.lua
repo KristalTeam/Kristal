@@ -300,9 +300,9 @@ function WorldCutscene:shakeCharacter(chara, x, y)
     return function() return chara.sprite.shake_x == 0 and chara.sprite.shake_y == 0 end
 end
 
-local function waitForCameraShake() return Game.world.shake_x == 0 and Game.world.shake_y == 0 end
-function WorldCutscene:shakeCamera(x, y)
-    Game.world:shakeCamera(x, y)
+local function waitForCameraShake() return Game.world.camera.shake_x == 0 and Game.world.camera.shake_y == 0 end
+function WorldCutscene:shakeCamera(x, y, friction)
+    Game.world.camera:shake(x, y, friction)
     return waitForCameraShake
 end
 
@@ -311,11 +311,11 @@ function WorldCutscene:detachCamera()
 end
 
 function WorldCutscene:attachCamera(time)
-    local tx, ty = Game.world:getCameraTarget()
+    local tx, ty = Game.world.camera:getTargetPosition()
     return self:panTo(tx, ty, time or 0.8, "linear", function() Game.world:setCameraAttached(true) end)
 end
 function WorldCutscene:attachCameraImmediate()
-    local tx, ty = Game.world:getCameraTarget()
+    local tx, ty = Game.world.camera:getTargetPosition()
     Game.world:setCameraAttached(true)
     Game.world.camera:setPosition(tx, ty)
 end

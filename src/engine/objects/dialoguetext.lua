@@ -333,7 +333,7 @@ function DialogueText:processModifier(node, dry)
         self.state.spacing = tonumber(node.arguments[1])
     elseif node.command == "func" then
         if dry then return end -- Functions shouldn't be used to modify state so never run them if dry
-        local func = node.arguments[1]
+        local func = tonumber(node.arguments[1]) or node.arguments[1]
         if self.functions[func] then
             local args = {}
             for i = 2, #node.arguments do
