@@ -7,7 +7,12 @@ function OverworldActionBox:init(x, y, index, chara)
     self.chara = chara
 
     self.head_sprite = Sprite(chara:getHeadIcons().."/head", 13, 13)
-    self.name_sprite = Sprite(chara:getNameSprite(),         51, 16)
+
+    if chara:getNameSprite() then
+        self.name_sprite = Sprite(chara:getNameSprite(), 51, 16)
+        self:addChild(self.name_sprite)
+    end
+
     self.hp_sprite   = Sprite("ui/hp", 109, 24)
 
     local ox, oy = chara:getHeadIconOffset()
@@ -15,7 +20,6 @@ function OverworldActionBox:init(x, y, index, chara)
     self.head_sprite.y = self.head_sprite.y + oy
 
     self:addChild(self.head_sprite)
-    self:addChild(self.name_sprite)
     self:addChild(self.hp_sprite)
 
     self.font = Assets.getFont("smallnumbers")
@@ -78,6 +82,23 @@ function OverworldActionBox:draw()
     love.graphics.print(self.chara.health, 152 - health_offset, 11)
     love.graphics.print("/", 161, 11)
     love.graphics.print(self.chara:getStat("health"), 181, 11)
+
+    -- Draw name text if there's no sprite
+    if not self.name_sprite then
+        local font = Assets.getFont("name")
+        love.graphics.setFont(font)
+        love.graphics.setColor(1, 1, 1, 1)
+
+        local name = self.chara:getName():upper()
+        local spacing = 5 - name:len()
+
+        local off = 0
+        for i = 1, name:len() do
+            local letter = name:sub(i, i)
+            love.graphics.print(letter, self.x + 51 + off, self.y + 16 - 1)
+            off = off + font:getWidth(letter) + spacing
+        end
+    end
 
     local reaction_x = -1
 

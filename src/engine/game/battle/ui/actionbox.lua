@@ -161,12 +161,11 @@ function ActionBox:draw()
     super:draw(self)
 
     if not self.name_sprite then
-        font = Assets.getFont("name")
+        local font = Assets.getFont("name")
         love.graphics.setFont(font)
         love.graphics.setColor(1, 1, 1, 1)
 
         local name = self.battler.chara:getName():upper()
-        print(name)
         local spacing = 5 - name:len()
 
         local off = 0
