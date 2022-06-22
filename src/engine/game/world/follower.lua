@@ -18,6 +18,8 @@ function Follower:init(chara, x, y, target)
     self.return_speed = 6
 
     self.blush_timer = 0
+
+    self.blushing = false
 end
 
 function Follower:onRemove(parent)
@@ -194,8 +196,8 @@ function Follower:update()
         local player = Game.world.player
         local player_x, player_y = player:getRelativePos(player.width/2, player.height/2, Game.world)
         local follower_x, follower_y = self:getRelativePos(self.width/2, self.height/2, Game.world)
-        distance_x = (player_x - follower_x)
-        distance_y = (player_y - follower_y)
+        local distance_x = (player_x - follower_x)
+        local distance_y = (player_y - follower_y)
         if ((math.abs(distance_x) <= 20) and (math.abs(distance_y) <= 14)) then
             if (distance_x <= 0 and (player.facing == "right")) then
                 self.blush_timer = self.blush_timer + DT
@@ -207,14 +209,20 @@ function Follower:update()
         end
 
         if self.blush_timer >= 10 then
-            self.sprite:set("walk_blush")
+            if not self.blushing then
+                self.sprite:set("walk_blush")
+            end
+            self.blushing = true
         end
     else
         self.blush_timer = 0
     end
 
     if (self.blush_timer < 10) and using_walk_sprites then
-        self.sprite:set("walk")
+        if self.blushing then
+            self.sprite:set("walk")
+        end
+        self.blushing = false
     end
 
     super:update(self)
