@@ -630,6 +630,8 @@ function Battle:onStateChange(old,new)
         end
     end
 
+    local ending_wave = self.state_reason == "WAVEENDED"
+
     if old == "DEFENDING" then
         self:returnSoul()
         for _,wave in ipairs(self.waves) do
@@ -654,14 +656,14 @@ function Battle:onStateChange(old,new)
         if self:hasCutscene() then
             self.cutscene:after(function()
                 exitWaves()
-                if self.state_reason == "WAVEENDED" then
+                if ending_wave then
                     self:nextTurn()
                 end
             end)
         else
             self.timer:after(15/30, function()
                 exitWaves()
-                if self.state_reason == "WAVEENDED" then
+                if ending_wave then
                     self:nextTurn()
                 end
             end)
