@@ -28,7 +28,71 @@ function DarkConfigMenu:init()
     self.currently_selected = 0
     self.noise_timer = 0
 
-    self.no1 = false
+    self.reset_flash_timer = 0
+    self.rebinding = false
+end
+
+function DarkConfigMenu:keypressed(key)
+
+    if self.state == "CONTROLS" then
+        if self.rebinding then
+            local worked = Input.setBind(Input.orderedNumberToKey(self.currently_selected), 1, key)
+
+            self.rebinding = false
+
+            if worked then
+                self.ui_select:stop()
+                self.ui_select:play()
+            else
+                self.ui_cant_select:stop()
+                self.ui_cant_select:play()
+            end
+
+            return
+        end
+        if Input.pressed("confirm") then
+
+            if self.currently_selected < 8 then
+                self.ui_select:stop()
+                self.ui_select:play()
+                self.rebinding = true
+                return
+            end
+
+            if self.currently_selected == 8 then
+                Assets.playSound("levelup")
+
+                Input.loadBinds(true) -- reset binds
+                Input.saveBinds()
+                self.reset_flash_timer = 10
+            end
+
+            if self.currently_selected == 9 then
+                self.reset_flash_timer = 0
+                self.state = "MAIN"
+                self.currently_selected = 2
+                self.ui_select:stop()
+                self.ui_select:play()
+                Input.clear("confirm", true)
+            end
+            return
+        end
+
+        local old_selected = self.currently_selected
+        if Input.pressed("up") then
+            self.currently_selected = self.currently_selected - 1
+        end
+        if Input.pressed("down") then
+            self.currently_selected = self.currently_selected + 1
+        end
+
+        self.currently_selected = Utils.clamp(self.currently_selected, 1, 9)
+
+        if old_selected ~= self.currently_selected then
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+    end
 end
 
 function DarkConfigMenu:update()
@@ -41,8 +105,8 @@ function DarkConfigMenu:update()
                 self.state = "VOLUME"
                 self.noise_timer = 0
             elseif self.currently_selected == 2 then
-                --self.state = "CONTROLS"
-                self.no1 = true
+                self.state = "CONTROLS"
+                self.currently_selected = 1
             elseif self.currently_selected == 3 then
                 Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
             elseif self.currently_selected == 4 then
@@ -106,6 +170,9 @@ function DarkConfigMenu:update()
             self.noise_timer = 3
         end
     end
+
+    self.reset_flash_timer = math.max(self.reset_flash_timer - DTMULT, 0)
+
     super:update(self)
 end
 
@@ -116,35 +183,78 @@ function DarkConfigMenu:draw()
     end
     love.graphics.setFont(self.font)
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print("CONFIG", 188, -12)
 
-    if self.state == "VOLUME" then
-        love.graphics.setColor(1, 1, 0, 1)
-    end
-    love.graphics.print("Master Volume",   88, 38 + (0 * 32))
-    love.graphics.setColor(1, 1, 1, 1)
-    if self.no1 then
-        love.graphics.print("It's in the main menu just use\n                                                        that", 88, 38 + (1 * 32))
-    else
+    if self.state ~= "CONTROLS" then
+        love.graphics.print("CONFIG", 188, -12)
+
+        if self.state == "VOLUME" then
+            love.graphics.setColor(1, 1, 0, 1)
+        end
+        love.graphics.print("Master Volume",   88, 38 + (0 * 32))
+        love.graphics.setColor(1, 1, 1, 1)
         love.graphics.print("Controls",        88, 38 + (1 * 32))
-    end
-    love.graphics.print("Simplify VFX",    88, 38 + (2 * 32))
-    love.graphics.print("Fullscreen",      88, 38 + (3 * 32))
-    love.graphics.print("Auto-Run",        88, 38 + (4 * 32))
-    love.graphics.print("Return to Title", 88, 38 + (5 * 32))
-    love.graphics.print("Back",            88, 38 + (6 * 32))
+        love.graphics.print("Simplify VFX",    88, 38 + (2 * 32))
+        love.graphics.print("Fullscreen",      88, 38 + (3 * 32))
+        love.graphics.print("Auto-Run",        88, 38 + (4 * 32))
+        love.graphics.print("Return to Title", 88, 38 + (5 * 32))
+        love.graphics.print("Back",            88, 38 + (6 * 32))
 
-    if self.state == "VOLUME" then
-        love.graphics.setColor(1, 1, 0, 1)
-    end
-    love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%",      348, 38 + (0 * 32))
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 32))
-    love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
-    love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
+        if self.state == "VOLUME" then
+            love.graphics.setColor(1, 1, 0, 1)
+        end
+        love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%",      348, 38 + (0 * 32))
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 32))
+        love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
+        love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
 
-    love.graphics.setColor(Game:getSoulColor())
-    love.graphics.draw(self.heart_sprite,  88 - 32 + 7, 48 + ((self.currently_selected - 1) * 32))
+        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
+    else
+        love.graphics.print("Function", 23,  -12)
+        love.graphics.print("Key",      243, -12) -- If you're using a gamepad, this should be Button
+
+        for index, name in ipairs(Input.order) do
+            if index > 7 then
+                break
+            end
+            love.graphics.setColor(1, 1, 1, 1)
+            if self.currently_selected == index then
+                if self.rebinding then
+                    love.graphics.setColor(1, 0, 0, 1)
+                else
+                    love.graphics.setColor(0, 1, 1, 1)
+                end
+            end
+            love.graphics.print(name:gsub("_", " "):upper(),  23, 0 + (28 * index))
+
+            local alias = Input.getKeysFromAlias(name)[1]
+            if type(alias) ~= "string" then
+                alias = "TODO"
+            end
+            love.graphics.print(Utils.titleCase(alias), 243, 0 + (28 * index))
+        end
+
+        love.graphics.setColor(1, 1, 1, 1)
+        if self.currently_selected == 8 then
+            love.graphics.setColor(0, 1, 1, 1)
+        end
+
+        if (self.reset_flash_timer > 0) then
+            love.graphics.setColor(Utils.mergeColor(COLORS.aqua, COLORS.yellow, ((self.reset_flash_timer / 10) - 0.1)))
+        end
+
+        love.graphics.print("Reset to default", 23, 0 + (28 * 8))
+
+        love.graphics.setColor(1, 1, 1, 1)
+        if self.currently_selected == 9 then
+            love.graphics.setColor(0, 1, 1, 1)
+        end
+        love.graphics.print("Finish", 23, 0 + (28 * 9))
+
+        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.draw(self.heart_sprite,  -2, 36 + ((self.currently_selected - 1) * 28))
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
 

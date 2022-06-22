@@ -111,6 +111,12 @@ function DarkMenu:partySelect(mode, after)
 end
 
 function DarkMenu:keypressed(key)
+    if self.box then
+        if self.box.keypressed then
+            self.box:keypressed(key)
+        end
+    end
+
     if (Input.isMenu(key) or Input.isCancel(key)) and self.state == "MAIN" then
         Game.world:closeMenu()
         return
