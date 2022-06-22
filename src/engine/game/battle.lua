@@ -714,9 +714,6 @@ function Battle:returnSoul(dont_destroy)
     local bx, by = self:getSoulLocation(true)
     if self.soul then
         self.soul:transitionTo(bx, by, not dont_destroy)
-        if not dont_destroy then
-            self.soul = nil
-        end
     end
 end
 

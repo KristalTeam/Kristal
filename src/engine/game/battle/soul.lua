@@ -76,6 +76,14 @@ function Soul:init(x, y, color)
     self.allow_focus = true
 end
 
+function Soul:onRemove(parent)
+    super:onRemove(self, parent)
+
+    if parent == Game.battle and Game.battle.soul == self then
+        Game.battle.soul = nil
+    end
+end
+
 function Soul:shatter(count)
     Assets.playSound("break2")
 
