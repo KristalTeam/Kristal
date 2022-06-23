@@ -65,6 +65,9 @@ function DebugSystem:init()
     self.last_context = nil
 
     self.search_text = {""}
+
+    self.menu_y = 0
+    self.menu_target_y = 0
 end
 
 function DebugSystem:getStage()
@@ -435,7 +438,7 @@ function DebugSystem:registerSubMenus()
 
     for id, item_data in pairs(Registry.items) do
         local item = item_data()
-        self:registerOption("give_item", item.name, "Add "..item.name.." to the inventory.", function()
+        self:registerOption("give_item", item.name, item.description, function()
             Game.inventory:tryGiveItem(item)
         end)
     end
@@ -610,10 +613,26 @@ function DebugSystem:updateBounds(options)
     if self.state == "MENU" then
         self.heart_target_x = 19
         local is_search = (self.menus[self.current_menu].type == "search")
-        self.heart_target_y = (self.current_selecting - 1) * 32 + 35 + 32 + (is_search and 64 or 0)
+
+        local y_off = (self.current_selecting - 1) * 32
+
+        if y_off + self.menu_target_y < 0 then
+            self.menu_target_y = self.menu_target_y + (0 - (y_off + self.menu_target_y))
+        end
+
+        local scroll_limit = is_search and 8 or 10
+
+        if y_off + self.menu_target_y > (scroll_limit * 32) then
+            self.menu_target_y = self.menu_target_y + ((scroll_limit * 32) - (y_off + self.menu_target_y))
+        end
+
+
+
+        self.heart_target_y = (self.current_selecting - 1) * 32 + 35 + 32 + (is_search and 64 or 0) + self.menu_target_y
         if (self.current_selecting == 0) and is_search then
             self.heart_target_x = self.heart_target_x + 128 - 6
-            self.heart_target_y = self.heart_target_y - 32 + 16
+            self.heart_target_y = self.heart_target_y - 32 + 16 - self.menu_target_y
+            self.menu_target_y = 0
         end
     end
 end
@@ -693,6 +712,11 @@ function DebugSystem:update()
     end
     self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
     self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
+
+    if (math.abs((self.menu_target_y - self.menu_y)) <= 2) then
+        self.menu_y = self.menu_target_y
+    end
+    self.menu_y = self.menu_y + ((self.menu_target_y - self.menu_y) / 2) * DTMULT
 
     if self.object and self.object:isRemoved() then
         self:unselectObject()
@@ -791,26 +815,33 @@ function DebugSystem:draw()
 
         header_name = self.menus[self.current_menu].name
 
+        local search_off = (is_search and 64 or 0)
+
+        Draw.pushScissor()
+        Draw.scissor(text_offset + 19, y_off + menu_y + 16 + search_off, 480, 320 + 48 - search_off)
+
         local options = self:getValidOptions()
         for index, option in ipairs(options) do
             local name = option.name
             if type(name) == "function" then
                 name = name()
             end
-            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0))
-            if self.current_selecting == index then
-                if option.description then
-                    local description = option.description
-                    if type(description) == "function" then
-                        description = description()
-                    end
-                    local width, wrapped = self.font:getWrap(description, 580)
-                    for i, line in ipairs(wrapped) do
-                        self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
-                    end
-                end
+            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
+        end
+        Draw.popScissor()
+
+        local option = options[self.current_selecting]
+        if option and option.description then
+            local description = option.description
+            if type(description) == "function" then
+                description = description()
+            end
+            local width, wrapped = self.font:getWrap(description, 580)
+            for i, line in ipairs(wrapped) do
+                self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
             end
         end
+
     elseif self.state == "MOUSE" or (self.old_state == "MOUSE" and self.state == "IDLE") then
         header_name = "~ OBJECT SELECTION ~"
 
