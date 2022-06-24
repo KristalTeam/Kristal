@@ -1732,6 +1732,8 @@ function Menu:onCreateSubmit(id)
 
     self:attemptUpdateID(id)
 
+    Input.clear("return")
+
     self:setSubState("MENU")
 end
 
