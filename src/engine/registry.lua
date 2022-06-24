@@ -679,7 +679,11 @@ function Registry.iterScripts(base_path, exclude_folder)
                 addChunk(v[1], v[2], v[3], v[4])
             end
             if #queued_parse == #last_queued then
-                error("Couldn't find dependency in " .. path)
+                local failed = {}
+                for _,v in ipairs(last_queued) do
+                    table.insert(failed, v[3])
+                end
+                error("Couldn't find dependency in " .. path .. " for " .. table.concat(failed, ", "))
             end
         end
     end
