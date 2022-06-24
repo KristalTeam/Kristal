@@ -256,7 +256,7 @@ end
 
 function Input.processKeyPressedFunc(key)
     -- Should this function still be called?
-    return Input.pressed(key)
+    return Input.keyPressed(key)
     -- This is only a single function call right now, but might need to be expanded in the future
 end
 
