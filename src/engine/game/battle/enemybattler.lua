@@ -33,6 +33,10 @@ function EnemyBattler:init(actor, use_overlay)
     -- Whether this enemy can be selected or not
     self.selectable = true
 
+    -- Whether mercy is disabled for this enemy, like snowgrave Spamton NEO.
+    -- This only affects the visual mercy bar.
+    self.disable_mercy = false
+
     self.done_state = nil
 
     self.waves = {}

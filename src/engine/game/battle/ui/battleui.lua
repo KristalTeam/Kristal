@@ -440,12 +440,19 @@ function BattleUI:drawState()
                 end
                 love.graphics.rectangle("fill", 520, 55 + y_off, 81, 16)
 
-                love.graphics.setColor(1, 1, 0, 1)
-                love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
-
-                if draw_percents and enemy.selectable then
+                if enemy.disable_mercy then
                     love.graphics.setColor(128/255, 0, 0, 1)
-                    love.graphics.print(math.floor(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                    love.graphics.setLineWidth(2)
+                    love.graphics.line(520, 56 + y_off, 520 + 81, 56 + y_off + 16 - 1)
+                    love.graphics.line(520, 56 + y_off + 16 - 1, 520 + 81, 56 + y_off)
+                else
+                    love.graphics.setColor(1, 1, 0, 1)
+                    love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
+
+                    if draw_percents and enemy.selectable then
+                        love.graphics.setColor(128/255, 0, 0, 1)
+                        love.graphics.print(math.floor(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                    end
                 end
             end
         end
