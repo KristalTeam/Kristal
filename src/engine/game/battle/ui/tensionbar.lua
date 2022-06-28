@@ -230,10 +230,10 @@ function TensionBar:draw()
     end
 
 
-    if ((self.apparent > 20) and (self.apparent < Game.battle.max_tension)) then
+    if ((self.apparent > 20) and (self.apparent < 250)) then
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
-        Draw.scissorPoints(0, 196 - ((self.current / Game.battle.max_tension) * 196) + 1, 25, 196 - ((self.current / Game.battle.max_tension) * 196) + 3)
+        Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1, 25, 196 - (self:getPercentageFor250(self.current) * 196) + 3)
         love.graphics.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end

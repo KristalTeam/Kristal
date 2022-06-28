@@ -5,9 +5,6 @@ function Battle:init()
 
     self.party = {}
 
-    self.max_tension = 250
-    self.tension = 0
-
     self.money = 0
     self.xp = 0
 
@@ -486,7 +483,7 @@ function Battle:onStateChange(old,new)
             box:resetHeadIcon()
         end
 
-        self.money = self.money + (math.floor((self.tension / 10)) * Game.chapter)
+        self.money = self.money + (math.floor(((Game:getTension() * 2.5) / 10)) * Game.chapter)
 
         for _,battler in ipairs(self.party) do
             for _,equipment in ipairs(battler.chara:getEquipment()) do
@@ -2711,7 +2708,7 @@ function Battle:keypressed(key)
         end
         if Input.is("up", key) then
             if #self.enemies == 0 then return end
-            old_location = self.current_menu_y
+            local old_location = self.current_menu_y
             local give_up = 0
             repeat
                 give_up = give_up + 1
@@ -2728,7 +2725,7 @@ function Battle:keypressed(key)
                 self.ui_move:play()
             end
         elseif Input.is("down", key) then
-            old_location = self.current_menu_y
+            local old_location = self.current_menu_y
             if #self.enemies == 0 then return end
             local give_up = 0
             repeat
