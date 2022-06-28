@@ -784,7 +784,7 @@ function DebugSystem:draw()
 
     local header_name = "UNKNOWN"
 
-    if self.state == "MENU" or (self.old_state == "MENU" and self.state == "IDLE") then
+    if self.state == "MENU" or (self.old_state == "MENU" and self.state == "IDLE" and (menu_alpha > 0)) then
         love.graphics.setColor(0, 0, 0, 0.5)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
@@ -842,7 +842,7 @@ function DebugSystem:draw()
             end
         end
 
-    elseif self.state == "MOUSE" or (self.old_state == "MOUSE" and self.state == "IDLE") then
+    elseif self.state == "MOUSE" or (self.old_state == "MOUSE" and self.state == "IDLE" and (menu_alpha > 0)) then
         header_name = "~ OBJECT SELECTION ~"
 
         local mx, my = Input.getMousePosition()
@@ -939,6 +939,10 @@ function DebugSystem:draw()
                 self.selected_alpha = Utils.clamp(self.selected_alpha + (DT / 0.2), 0, 1)
             else
                 self.selected_alpha = Utils.clamp(self.selected_alpha - (DT / 0.2), 0, 1)
+            end
+
+            if self.selected_alpha == 0 then
+                self.last_object = nil
             end
 
             local slide = Utils.ease(0, 1, (1 - self.selected_alpha), "inCubic") * 40
