@@ -1810,7 +1810,7 @@ function Battle:nextTurn()
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
         if (battler.chara.health <= 0) then
-            battler:heal(math.ceil(battler.chara:getStat("health") / 8))
+            battler:heal(math.ceil(battler.chara:getStat("health") / 8), nil, true)
         end
         battler.action = nil
     end
