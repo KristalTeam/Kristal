@@ -134,6 +134,8 @@ function Arena:onRemove(parent)
     orig_sprite:setOrigin(0.5, 0.5)
     parent:addChild(orig_sprite)
     orig_sprite:setLayer(self.layer)
+    orig_sprite.rotation = self.rotation
+    local rotation = self.rotation
 
     local afterimage_timer = 0
     local afterimage_count = 0
@@ -144,7 +146,7 @@ function Arena:onRemove(parent)
 
         orig_sprite:setScale(real_progress, real_progress)
         orig_sprite.alpha = 0.5 + (0.5 * real_progress)
-        orig_sprite.rotation = (math.pi) * (1 - real_progress)
+        orig_sprite.rotation = rotation + ((math.pi) * (1 - real_progress))
 
         while afterimage_count < math.floor(afterimage_timer) do
             afterimage_count = afterimage_count + 1
@@ -157,7 +159,7 @@ function Arena:onRemove(parent)
             afterimg:fadeOutAndRemove()
             afterimg.background = false
             afterimg.alpha = 0.6 - (0.5 * progress)
-            afterimg.rotation = (math.pi) * (1 - progress)
+            afterimg.rotation = rotation + ((math.pi) * (1 - progress))
             parent:addChild(afterimg)
             afterimg:setLayer(self.layer + (1 - progress))
         end
