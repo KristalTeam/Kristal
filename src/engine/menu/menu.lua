@@ -1231,9 +1231,9 @@ function Menu:keypressed(key, _, is_repeat)
             end
         end
     elseif self.state == "CREATE" then
-        self:handleCreateInput(key)
+        self:handleCreateInput(key, is_repeat)
     elseif self.state == "CONFIG" then
-        self:handleConfigInput(key)
+        self:handleConfigInput(key, is_repeat)
     else
         if Input.isCancel(key) or Input.isConfirm(key) then
             self:setState("MAINMENU")
@@ -1283,7 +1283,7 @@ function Menu:registerConfigOption(id, name, description, type, options)
     })
 end
 
-function Menu:handleCreateInput(key)
+function Menu:handleCreateInput(key, is_repeat)
     if self.substate == "MENU" then
         if Input.isCancel(key) then
             self:setState("MODSELECT")
@@ -1356,14 +1356,14 @@ function Menu:handleCreateInput(key)
     elseif self.substate == "NAME" then
         if key == "escape" then
             self:setSubState("MENU")
-            self:onCreateCancel("name")
+            self:onCreateCancel()
             self.ui_move:stop()
             self.ui_move:play()
             return
         end
     elseif self.substate == "ID" then
         if key == "escape" then
-            self:onCreateCancel("id")
+            self:onCreateCancel()
             self:setSubState("MENU")
             self.ui_move:stop()
             self.ui_move:play()
@@ -1397,7 +1397,7 @@ function Menu:onConfigEnter()
     self.config_y = 0
 end
 
-function Menu:handleConfigInput(key)
+function Menu:handleConfigInput(key, is_repeat)
     if self.substate == "MENU" then
         if Input.isCancel(key) then
             local y_off = (5 - 1) * 32
@@ -1500,7 +1500,7 @@ function Menu:drawConfig()
 
         local x = menu_x + x_off
         local y = menu_y + y_off
-        self:printShadow(config_option.name, x, y, color, "left", 640)
+        self:printShadow(config_option.name, x, y, nil, "left", 640)
 
         local option = config_option.options[config_option.selected]
         local option_text = option
@@ -1513,13 +1513,13 @@ function Menu:drawConfig()
         if self.substate == "SELECTION" and self.selected_option == index then
             local width = self.menu_font:getWidth(option_text)
             love.graphics.setColor(COLORS.white)
-            off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
+            local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
             love.graphics.draw(Assets.getTexture("kristal/menu_arrow_left"),  x + 140 + 256 - 16 - 8 - off, y + 4, 0, 2, 2)
             love.graphics.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 140 + width + 256 + 6 + off, y + 4, 0, 2, 2)
         end
     end
 
-    self:printShadow("Back", menu_x, menu_y + (#self.create.config + 1) * 32, color, "left", 640)
+    self:printShadow("Back", menu_x, menu_y + (#self.create.config + 1) * 32, nil, "left", 640)
 
     -- Draw the scrollbar background
     love.graphics.setColor({1, 1, 1, 0.5})
@@ -1546,20 +1546,6 @@ function Menu:drawConfig()
     end
 
 
-end
-
-function Menu:drawSelectionField(x, y, id, options, state)
-    if self.state == "CREATE" then
-        self:printShadow(options[self.create[id]], x, y)
-    elseif self.state == "CONFIG" then
-        self:printShadow(options[self.config[id]], x, y)
-    end
-
-    if self.substate == state then
-        love.graphics.setColor(COLORS.white)
-        off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
-
-    end
 end
 
 function Menu:onSubStateChange(old, new)
@@ -1621,7 +1607,7 @@ function Menu:openInput(id, restriction)
         clear_after_submit = false,
         text_restriction = restriction,
     })
-    TextInput.submit_callback = function(...) self:onCreateSubmit(id, ...) end
+    TextInput.submit_callback = function(...) self:onCreateSubmit(id) end
     if id == "name" then
         TextInput.text_callback = function() self:attemptUpdateID("name") end
     else
@@ -1794,11 +1780,15 @@ function Menu:drawCreate()
 end
 
 function Menu:drawSelectionField(x, y, id, options, state)
-    self:printShadow(options[self.create[id]], x, y)
+    if self.state == "CREATE" then
+        self:printShadow(options[self.create[id]], x, y)
+    elseif self.state == "CONFIG" then
+        self:printShadow(options[self.config[id]], x, y)
+    end
 
     if self.substate == state then
         love.graphics.setColor(COLORS.white)
-        off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
+        local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
         love.graphics.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
         love.graphics.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
     end
