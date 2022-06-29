@@ -76,6 +76,7 @@ PALETTE = {
     ["tension_decrease"] = {1, 0, 0, 1},
     ["tension_fill"] = {255/255, 160/255, 64/255, 1},
     ["tension_max"] = {255/255, 208/255, 32/255, 1},
+    ["tension_maxtext"] = {1, 1, 0, 1},
 }
 
 COLORS = {

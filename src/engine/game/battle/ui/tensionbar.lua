@@ -251,7 +251,7 @@ function TensionBar:draw()
     if (tamt >= 100) then
         self.maxed = true
 
-        love.graphics.setColor(1, 1, 0, 1)
+        love.graphics.setColor(PALETTE["tension_maxtext"])
 
         love.graphics.print("M", -28, 70)
         love.graphics.print("A", -24, 90)
