@@ -9,6 +9,7 @@ function TileLayer:init(map, data)
     super:init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width, self.map_height * map.tile_height)
 
     self.map = map
+    self.name = data.name
 
     self.parallax_x = data.parallaxx or 1
     self.parallax_y = data.parallaxy or 1
