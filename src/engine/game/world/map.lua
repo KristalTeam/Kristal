@@ -530,8 +530,8 @@ function Map:loadObjects(layer, depth, layer_type)
         v.center_x = v.x + v.width/2
         v.center_y = v.y + v.height/2
 
-        local obj_type = v.type
-        if v.type == "" then
+        local obj_type = v.type or v.class
+        if obj_type == "" then
             obj_type = v.name
         end
 
