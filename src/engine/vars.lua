@@ -71,7 +71,11 @@ MUSIC_PITCHES = {}
 
 -- Colors used by the engine for various things, here for customizability
 PALETTE = {
-    ["action_strip"] = {51/255, 32/255, 51/255, 1}
+    ["action_strip"] = {51/255, 32/255, 51/255, 1},
+    ["tension_back"] = {128/255, 0, 0, 1},
+    ["tension_decrease"] = {1, 0, 0, 1},
+    ["tension_fill"] = {255/255, 160/255, 64/255, 1},
+    ["tension_max"] = {255/255, 208/255, 32/255, 1},
 }
 
 COLORS = {
