@@ -79,6 +79,19 @@ function Cutscene:after(func, replace)
     return self
 end
 
+function Cutscene:during(func, replace)
+    if self.ended then return end
+    if self.update_callback and not replace then
+        local old = self.update_callback
+        self.update_callback = function(...)
+            old(...)
+            func(...)
+        end
+    else
+        self.update_callback = func
+    end
+end
+
 function Cutscene:canResume()
     if self.wait_timer > 0 or self.paused then
         return false
@@ -98,6 +111,9 @@ function Cutscene:update()
 
     self.wait_timer = Utils.approach(self.wait_timer, 0, DT)
 
+    if self.update_callback and not self.paused then
+        self:update_callback()
+    end
     if coroutine.status(self.coroutine) == "suspended" then
         self:tryResume()
     elseif coroutine.status(self.coroutine) == "dead" and self:canEnd() then
@@ -107,7 +123,7 @@ end
 
 function Cutscene:onEnd()
     if self.finished_callback then
-        self.finished_callback(self)
+        self:finished_callback()
     end
 end
 
