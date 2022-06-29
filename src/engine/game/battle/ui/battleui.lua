@@ -426,7 +426,7 @@ function BattleUI:drawState()
 
                     if draw_percents then
                         love.graphics.setColor(1, 1, 1, 1)
-                        love.graphics.print(math.floor(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
+                        love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
                     end
                 end
             end
