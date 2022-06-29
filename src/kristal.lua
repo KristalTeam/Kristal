@@ -345,7 +345,7 @@ function Kristal.errorHandler(msg)
         }
     end
 
-    msg = tostring(msg)
+    msg = tostring(msg or "nil")
 
     error_printer(msg, 2)
 
@@ -401,11 +401,16 @@ function Kristal.errorHandler(msg)
     local split = Utils.split(msg, ": ")
 
     local function draw()
+
         local pos = 32
         local ypos = pos
         love.graphics.origin()
         love.graphics.clear(0, 0, 0, 1)
         love.graphics.scale(window_scale)
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setFont(smaller_font)
+        love.graphics.printf("Kristal v" .. tostring(Kristal.Version), -20, 10, 640, "right")
 
         love.graphics.setFont(font)
 
