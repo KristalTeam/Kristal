@@ -875,17 +875,17 @@ function Kristal.preInitMod(id)
     -- Call preInit on all libraries
     for lib_id,_ in pairs(mod.libs) do
         local lib_result = Kristal.libCall(lib_id, "preInit")
-        use_callback = use_callback and lib_result ~= false
+        use_callback = use_callback and not lib_result
     end
 
     -- Call Mod:preInit
     local mod_result = Kristal.modCall("preInit")
-    use_callback = use_callback and mod_result ~= false
+    use_callback = use_callback and not mod_result
 
     -- Initialize registry
     Registry.initialize()
 
-    -- Return true if no "preInit" explicitly returns false
+    -- Return true if no "preInit" explicitly returns true
     return use_callback
 end
 
