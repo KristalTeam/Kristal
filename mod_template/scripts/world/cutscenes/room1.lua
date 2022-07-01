@@ -64,6 +64,7 @@ return {
             cutscene:alignFollowers()
             -- And reattach them, making them return to their target positions
             cutscene:attachFollowers()
+            Game:setFlag("wall_hit", true)
         end
     end
 }
