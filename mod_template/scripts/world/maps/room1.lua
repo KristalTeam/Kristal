@@ -483,8 +483,7 @@ return {
           visible = true,
           properties = {
             ["cutscene"] = "room1.wall",
-            ["once"] = true,
-            ["setflag"] = "wall_hit"
+            ["once"] = true
           }
         },
         {
