@@ -24,7 +24,7 @@ function actor:init()
     -- Sound to play when this actor speaks (optional)
     self.voice = "noelle"
     -- Path to this actor's portrait for dialogue (optional)
-    self.portrait_path = "face/noelle_lw"
+    self.portrait_path = "face/noelle"
     -- Offset position for this actor's portrait (optional)
     self.portrait_offset = {-12, -10}
 
