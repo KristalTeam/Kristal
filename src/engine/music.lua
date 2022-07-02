@@ -78,6 +78,13 @@ function Music:setVolume(volume)
     end
 end
 
+function Music:setPitch(pitch)
+    self.pitch = pitch
+    if self.source then
+        self.source:setPitch(self:getPitch())
+    end
+end
+
 function Music:seek(time)
     self.source:seek(time)
 end
