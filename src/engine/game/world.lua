@@ -259,9 +259,10 @@ function World:keypressed(key)
     if Game.lock_movement then return end
 
     if self.state == "GAMEPLAY" then
-        if Input.isConfirm(key) and self.player and not self:isTextboxOpen() then
-            self.player:interact()
-            Input.clear("confirm")
+        if Input.isConfirm(key) and self.player and not self:hasCutscene() then
+            if self.player:interact() then
+                Input.clear("confirm")
+            end
         elseif Input.isMenu(key) and not self:hasCutscene() then
             self:openMenu(nil, WORLD_LAYERS["ui"] + 1)
             Input.clear("menu")
