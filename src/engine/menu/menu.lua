@@ -129,9 +129,6 @@ function Menu:enter()
         "",
         {"Documentation", COLORS.silver},
         "Vitellary",
-        "",
-        {"Battle Name Font", COLORS.silver},
-        "TheCyVap",
     }
 
     self.create = {}
