@@ -95,7 +95,7 @@ function OverworldActionBox:draw()
         local off = 0
         for i = 1, name:len() do
             local letter = name:sub(i, i)
-            love.graphics.print(letter, self.x + 51 + off, self.y + 16 - 1)
+            love.graphics.print(letter, 51 + off, 16 - 1)
             off = off + font:getWidth(letter) + spacing
         end
     end
