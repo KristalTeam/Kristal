@@ -59,4 +59,46 @@ return {
         cutscene:wait(wait)
         susie_sprite:remove()
     end,
+    goner = function(cutscene)
+        local function gonerText(str)
+            local text = DialogueText("[speed:0.3][spacing:6][style:GONER][voice:none]" .. str, 80 * 2, 50 * 2, 640, 480, {auto_size = true})
+            text.layer = WORLD_LAYERS["top"] + 100
+            text.skip_speed = true
+            text.parallax_x = 0
+            text.parallax_y = 0
+            Game.world:addChild(text)
+
+            cutscene:wait(function() return text.done end)
+            Game.world.timer:tween(1, text, {alpha = 0})
+            cutscene:wait(1)
+            text:remove()
+        end
+
+        cutscene:fadeOut(0.5, {music = true})
+        local background = GonerBackground()
+        background.layer = WORLD_LAYERS["top"]
+        Game.world:addChild(background)
+
+        gonerText("FIRST.[wait:20]")
+        gonerText("YOU MUST CREATE[wait:40]\nA VESSEL.[wait:20]")
+        local ralsei_sprite = Sprite("party/ralsei/dark/blunt")
+        ralsei_sprite.x = 320
+        ralsei_sprite.y = 240
+        ralsei_sprite.parallax_x = 0
+        ralsei_sprite.parallax_y = 0
+        ralsei_sprite:setOrigin(0.5, 0.5)
+        ralsei_sprite:setScale(2)
+        ralsei_sprite.layer = WORLD_LAYERS["top"] + 100
+        ralsei_sprite.alpha = 0
+        ralsei_sprite.graphics.fade = 0.01
+        ralsei_sprite.graphics.fade_to = 1
+        Game.world:addChild(ralsei_sprite)
+
+        cutscene:during(function()
+            ralsei_sprite.y = 240 + math.sin(Kristal.getTime() * 2) * 6
+        end)
+
+        gonerText("THIS SHOULD BE[wait:40]\nGOOD ENOUGH.[wait:20]")
+
+    end,
 }
