@@ -17,7 +17,7 @@ function GonerBackground:init()
     self.timer = Timer()
     self.timer:every(40/30, function()
         self.ob_depth = self.ob_depth - 0.001
-        local piece = self:addChild(GonerBackgroundPiece())
+        local piece = self:addChild(GonerBackgroundPiece(self.sprite))
         piece.stretch_speed = 0.01 * self.OBM
         piece.layer = self.ob_depth
     end)

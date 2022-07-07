@@ -435,7 +435,7 @@ function Text:processNode(node, dry)
             if node.character == "\\" or node.character == "*" or node.character == "[" or node.character == "]" then
                 if not dry then
                     self:drawChar(node, self.state)
-                    table.insert(self.nodes_to_draw, {node, self.state})
+                    table.insert(self.nodes_to_draw, {node, Utils.copy(self.state, true)})
                 end
                 local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing

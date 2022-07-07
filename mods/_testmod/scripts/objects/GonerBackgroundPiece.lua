@@ -1,9 +1,9 @@
 local GonerBackgroundPiece, super = Class(Object)
 
-function GonerBackgroundPiece:init()
+function GonerBackgroundPiece:init(sprite)
     super:init(self, 0, 0, 320, 240)
 
-    self.sprite = Assets.getTexture("IMAGE_DEPTH")
+    self.sprite = sprite
 
     self.timer = 0
     self.alpha = 0.2
