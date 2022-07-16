@@ -465,6 +465,11 @@ end
 function World:spawnParty(marker, party, extra, facing)
     party = party or Game.party or {"kris"}
     if #party > 0 then
+        for i,chara in ipairs(party) do
+            if type(chara) == "string" then
+                party[i] = Game:getPartyMember(chara)
+            end
+        end
         if type(marker) == "table" then
             self:spawnPlayer(marker[1], marker[2], party[1]:getActor())
         else
