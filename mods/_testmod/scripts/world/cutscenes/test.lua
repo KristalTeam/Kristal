@@ -14,15 +14,24 @@ return function(cutscene)
 
         cutscene:setSprite(ralsei, "walk/up", 1/15)
         cutscene:setSpeaker("ralsei")
-        cutscene:text("* Kris,[wait:5] Susie,[wait:5] look out!!!", "owo")
+        if kris then
+            cutscene:text("* Kris,[wait:5] Susie,[wait:5] look out!!!", "owo")
+        else
+            cutscene:text("* Susie,[wait:5] look out!!!", "owo")
+        end
 
         susie.sprite:set("shock_right")
         --Cutscene.setSprite(susie, "world/dark/shock_r")
-        cutscene:wait(cutscene:slideTo(ralsei, susie.x, susie.y, 0.1))
-        cutscene:slideTo(susie, susie.x - 40, susie.y, 0.1)
-        cutscene:wait(cutscene:slideTo(ralsei, kris.x, kris.y, 0.1))
-        cutscene:look(kris, "right")
-        cutscene:wait(cutscene:slideTo(kris, kris.x - 40, kris.y, 0.1))
+        if kris then
+            cutscene:wait(cutscene:slideTo(ralsei, susie.x, susie.y, 0.1))
+            cutscene:slideTo(susie, susie.x - 40, susie.y, 0.1)
+            cutscene:wait(cutscene:slideTo(ralsei, kris.x, kris.y, 0.1))
+            cutscene:look(kris, "right")
+            cutscene:wait(cutscene:slideTo(kris, kris.x - 40, kris.y, 0.1))
+        else
+            cutscene:wait(cutscene:slideTo(ralsei, susie.x, susie.y, 0.1))
+            cutscene:slideTo(susie, susie.x - 40, susie.y, 0.1)
+        end
         ralsei:explode()
         cutscene:shakeCamera(8)
 
@@ -31,25 +40,28 @@ return function(cutscene)
 
         cutscene:wait(2)
         cutscene:setSprite(susie, "walk")
-        cutscene:look(susie, "right")
-        cutscene:text("* Did Ralsei just,[wait:5] uh...", "shock", "susie")
-        cutscene:look(susie, "up")
-        cutscene:text("* Explode...?", "shock_nervous", "susie")
 
         local choice = 1
-        local wait = cutscene:choicer({"Yes", "No"}, {wait = false})
-        local timer = 0
-        while timer < 0.75 do
-            local chosen, chosen_n = wait(cutscene)
-            if chosen then
-                choice = chosen_n
-                break
+        if kris then
+            cutscene:look(susie, "right")
+            cutscene:text("* Did Ralsei just,[wait:5] uh...", "shock", "susie")
+            cutscene:look(susie, "up")
+            cutscene:text("* Explode...?", "shock_nervous", "susie")
+            
+            local wait = cutscene:choicer({"Yes", "No"}, {wait = false})
+            local timer = 0
+            while timer < 0.75 do
+                local chosen, chosen_n = wait(cutscene)
+                if chosen then
+                    choice = chosen_n
+                    break
+                end
+                timer = timer + DT
+                cutscene:wait()
             end
-            timer = timer + DT
-            cutscene:wait()
-        end
 
-        cutscene:text("* THAT WAS A RHETORICAL\nQUESTION!", "teeth_b", "susie")
+            cutscene:text("* THAT WAS A RHETORICAL\nQUESTION!", "teeth_b", "susie")
+        end
 
         if choice == 2 then
             ralsei = cutscene:spawnNPC("ralsei", 680, 300)
@@ -72,6 +84,7 @@ return function(cutscene)
 
             cutscene:alignFollowers("left")
         else
+            Game:removePartyMember("ralsei")
             cutscene:alignFollowers("up")
         end
 

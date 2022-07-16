@@ -6,12 +6,12 @@ return function(cutscene)
     cutscene:detachFollowers()
 
     cutscene:setSpeaker("susie")
-    cutscene:text("Hey, Kris...", "neutral_side")
+    cutscene:text("* Hey, Kris...", "neutral_side")
     cutscene:wait(cutscene:walkTo(susie, kris.x + 40, susie.y, 1.5))
 
     susie:setSprite("playful_punch_1")
     local kris_flying = true
-    cutscene:text("Where the [wait:10][face:teeth][func:punch]FUCK[wait:10][face:smirk] are we-[wait:2]", "smirk", "susie", {
+    cutscene:text("* Where the [wait:10][face:teeth][func:punch]FUCK[wait:10][face:smirk] are we-[wait:2]", "smirk", "susie", {
         functions = {
             punch = function()
                 susie:setSprite("playful_punch_2")
@@ -32,7 +32,7 @@ return function(cutscene)
         auto = true,
     })
     susie:setSprite("shock_left")
-    cutscene:text("Wait shit", "shock")
+    cutscene:text("* Wait shit", "shock")
 
     cutscene:wait(function() return not kris_flying end)
     cutscene:wait(0.5)
@@ -59,8 +59,8 @@ return function(cutscene)
     cutscene:wait(1)
 
     cutscene:setTextboxTop(false)
-    cutscene:text("Uhh", "shock_down")
-    cutscene:text("Sorry Kris", "shock_nervous")
+    cutscene:text("* Uhh", "shock_down")
+    cutscene:text("* Sorry Kris", "shock_nervous")
 
     Game:removePartyMember("kris")
     kris:convertToCharacter()
@@ -68,6 +68,6 @@ return function(cutscene)
     ralsei:updateIndex()
     cutscene:interpolateFollowers()
     cutscene:alignFollowers("left")
-    cutscene:wait(cutscene:attachFollowers())
+    cutscene:wait(cutscene:attachFollowers(3))
     susie:setSprite("walk")
 end
