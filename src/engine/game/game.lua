@@ -507,6 +507,18 @@ function Game:removePartyMember(chara)
     Utils.removeFromTable(self.party, chara)
 end
 
+function Game:setPartyMembers(...)
+    local args = {...}
+    self.party = {}
+    for i,chara in ipairs(args) do
+        if type(chara) == "string" then
+            self.party[i] = self:getPartyMember(chara)
+        else
+            self.party[i] = chara
+        end
+    end
+end
+
 function Game:hasPartyMember(chara)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
