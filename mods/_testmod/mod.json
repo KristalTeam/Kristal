@@ -8,7 +8,7 @@
 
     "chapter": 2,
 
-    "map": "alley",
+    "map": "16x16test",
     "party": ["kris", "susie", "ralsei"],
     "inventory": {
         "items": ["darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit", "counter"],

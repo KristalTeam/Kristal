@@ -1,7 +1,8 @@
 return {
-  version = "1.5",
+  version = "1.9",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.9.0",
+  class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 21,
@@ -9,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 16,
-  nextobjectid = 95,
+  nextobjectid = 96,
   properties = {
     ["light"] = false,
     ["music"] = "cybercity",
@@ -56,6 +57,7 @@ return {
       height = 12,
       id = 1,
       name = "tiles",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -87,6 +89,7 @@ return {
       height = 12,
       id = 5,
       name = "battleborder",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -115,6 +118,7 @@ return {
       draworder = "topdown",
       id = 4,
       name = "collision",
+      class = "",
       visible = true,
       opacity = 0.5,
       offsetx = 0,
@@ -126,7 +130,7 @@ return {
         {
           id = 23,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 0,
           y = 200,
@@ -139,7 +143,7 @@ return {
         {
           id = 24,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 320,
           y = 160,
@@ -152,7 +156,7 @@ return {
         {
           id = 25,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 440,
           y = 200,
@@ -165,7 +169,7 @@ return {
         {
           id = 26,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 720,
           y = 240,
@@ -178,7 +182,7 @@ return {
         {
           id = 28,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 600,
           y = 360,
@@ -191,7 +195,7 @@ return {
         {
           id = 29,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 0,
           y = 360,
@@ -208,6 +212,7 @@ return {
       draworder = "topdown",
       id = 6,
       name = "paths",
+      class = "",
       visible = true,
       opacity = 0.5,
       offsetx = 0,
@@ -219,7 +224,7 @@ return {
         {
           id = 78,
           name = "virovirokun",
-          type = "",
+          class = "",
           shape = "ellipse",
           x = 168.033,
           y = 93.8198,
@@ -232,7 +237,7 @@ return {
         {
           id = 93,
           name = "outta_here",
-          type = "",
+          class = "",
           shape = "polyline",
           x = 380,
           y = 300,
@@ -254,6 +259,7 @@ return {
       draworder = "topdown",
       id = 3,
       name = "markers",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -265,7 +271,7 @@ return {
         {
           id = 16,
           name = "spawn",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 360,
           y = 280,
@@ -278,7 +284,7 @@ return {
         {
           id = 55,
           name = "shop_exit",
-          type = "",
+          class = "",
           shape = "point",
           x = 40,
           y = 320,
@@ -291,7 +297,7 @@ return {
         {
           id = 90,
           name = "entry_down",
-          type = "",
+          class = "",
           shape = "point",
           x = 683,
           y = 425,
@@ -308,6 +314,7 @@ return {
       draworder = "topdown",
       id = 2,
       name = "objects",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -319,7 +326,7 @@ return {
         {
           id = 2,
           name = "savepoint",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 360,
           y = 185,
@@ -332,7 +339,7 @@ return {
         {
           id = 54,
           name = "transition",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 640,
           y = 480,
@@ -348,7 +355,7 @@ return {
         {
           id = 74,
           name = "enemy",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 520,
           y = 320,
@@ -367,7 +374,7 @@ return {
         {
           id = 84,
           name = "interactable",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 80,
           y = 200,
@@ -382,7 +389,7 @@ return {
         {
           id = 86,
           name = "cybertrash",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 640,
           y = 240,
@@ -397,7 +404,7 @@ return {
         {
           id = 89,
           name = "transition",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = -40,
           y = 240,

@@ -22,7 +22,9 @@ return function(cutscene, event, player, facing)
 
                 Game.world.fader:fadeIn(nil, {speed = 0.8, color = {1, 1, 1}, alpha = 1})
 
-                kris:setSprite("fell")
+                if kris then
+                    kris:setSprite("fell")
+                end
                 susie:setSprite("fell")
                 if ralsei then ralsei:setSprite("splat") end
                 if noelle then
@@ -46,13 +48,20 @@ return function(cutscene, event, player, facing)
             Assets.playSound("wing")
             cutscene:wait(0.5)
         end
-        susie:resetSprite()
-        susie:shake(4)
-        Assets.playSound("wing")
-        cutscene:wait(0.5)
-        kris:resetSprite()
-        kris:shake(4)
-        Assets.playSound("wing")
+        if kris then
+            susie:resetSprite()
+            susie:shake(4)
+            Assets.playSound("wing")
+            cutscene:wait(0.5)
+            kris:resetSprite()
+            kris:shake(4)
+            Assets.playSound("wing")
+        else
+            cutscene:wait(0.5)
+            susie:resetSprite()
+            susie:shake(4)
+            Assets.playSound("wing")
+        end
         cutscene:wait(0.1)
         Game.world.music:resume()
         cutscene:wait(0.4)
@@ -90,8 +99,10 @@ return function(cutscene, event, player, facing)
         local cutscene_music = Music()
         cutscene_music:play("s_neo")
         cutscene:detachFollowers()
-        cutscene:walkTo(kris, kris.x, kris.y - 40, 1, "down", true)
-        cutscene:wait(cutscene:walkTo(susie, kris.x, kris.y, 1, facing))
+        if kris then
+            cutscene:walkTo(kris, kris.x, kris.y - 40, 1, "down", true)
+            cutscene:wait(cutscene:walkTo(susie, kris.x, kris.y, 1, facing))
+        end
         cutscene:text("* If you have a problem\nwith us,[wait:5] then we have\na problem with you.", "smirk", "susie")
         cutscene:text("* Do you know what we do\nwith problems?", "smirk", "susie")
         cutscene:text("* We stomp.[wait:10] Them.[wait:10] Into.[wait:10]\nThe.[wait:10] Ground.", "smile", "susie")
