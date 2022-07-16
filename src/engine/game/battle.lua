@@ -2038,14 +2038,6 @@ function Battle:update()
     end
     self.enemies_to_remove = {}
 
-    if self.cutscene then
-        if not self.cutscene.ended then
-            self.cutscene:update()
-        else
-            self.cutscene = nil
-        end
-    end
-
     if self.state == "TRANSITION" then
         self:updateTransition()
     elseif self.state == "INTRO" then
@@ -2136,6 +2128,14 @@ function Battle:update()
     --self.update_child_list = true
     super:update(self)
 
+    if self.cutscene then
+        if not self.cutscene.ended then
+            self.cutscene:update()
+        else
+            self.cutscene = nil
+        end
+    end
+    
     if self.state == "TRANSITIONOUT" then
         self:updateTransitionOut()
     end

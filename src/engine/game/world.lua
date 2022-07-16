@@ -842,17 +842,6 @@ function World:inBattle()
 end
 
 function World:update()
-    if self.cutscene then
-        if not self.cutscene.ended then
-            self.cutscene:update()
-            if self.stage == nil then
-                return
-            end
-        else
-            self.cutscene = nil
-        end
-    end
-
     if self.state == "GAMEPLAY" then
         -- Object collision
         local collided = {}
@@ -918,6 +907,18 @@ function World:update()
     -- Always sort
     self.update_child_list = true
     super:update(self)
+
+    -- Update cutscene after updating objects
+    if self.cutscene then
+        if not self.cutscene.ended then
+            self.cutscene:update()
+            if self.stage == nil then
+                return
+            end
+        else
+            self.cutscene = nil
+        end
+    end
 end
 
 function World:draw()
