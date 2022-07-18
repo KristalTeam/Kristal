@@ -1210,8 +1210,12 @@ function Object:updateGraphicsTransform()
 
     if graphics.fade and graphics.fade ~= 0 and self.alpha ~= graphics.fade_to then
         self.alpha = Utils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
-        if graphics.fade_callback and self.alpha == graphics.fade_to then
-            graphics.fade_callback(self)
+        if self.alpha == graphics.fade_to then
+            if graphics.fade_callback then
+                graphics.fade_callback(self)
+            end
+            graphics.fade = 0
+            graphics.fade_to = 0
         end
     end
 
