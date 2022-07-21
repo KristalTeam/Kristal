@@ -3,6 +3,8 @@ local Follower, super = Class(Character)
 function Follower:init(chara, x, y, target)
     super:init(self, chara, x, y)
 
+    self.is_follower = true
+
     self.index = 1
     self.target = target
 
@@ -14,6 +16,7 @@ function Follower:init(chara, x, y, target)
     self.history = {}
 
     self.following = true
+    self.follow_delay = FOLLOW_DELAY
     self.returning = false
     self.return_speed = 6
 
@@ -49,6 +52,20 @@ function Follower:updateIndex()
     end
 end
 
+--- Gets the delay in seconds this follower will follow its target's position,
+--- taking into account the delay of followers in front of itself.
+function Follower:getFollowDelay()
+    local total_delay = 0
+
+    for i,v in ipairs(self.world.followers) do
+        total_delay = total_delay + v.follow_delay
+
+        if v == self then break end
+    end
+
+    return total_delay
+end
+
 function Follower:returnToFollowing(speed)
     local tx, ty = self:getTargetPosition()
     if Utils.roughEqual(self.x, tx) and Utils.roughEqual(self.y, ty) then
@@ -64,16 +81,17 @@ function Follower:getTarget()
 end
 
 function Follower:getTargetPosition()
+    local follow_delay = self:getFollowDelay()
     local tx, ty, facing, state, args = self.x, self.y, self.facing, nil, {}
     for i,v in ipairs(self.history) do
         tx, ty, facing, state, args = v.x, v.y, v.facing, v.state, v.state_args
         local upper = self.history_time - v.time
-        if upper > (FOLLOW_DELAY * self.index) then
+        if upper > follow_delay then
             if i > 1 then
                 local prev = self.history[i - 1]
                 local lower = self.history_time - prev.time
 
-                local t = ((FOLLOW_DELAY * self.index) - lower) / (upper - lower)
+                local t = (follow_delay - lower) / (upper - lower)
 
                 tx = Utils.lerp(prev.x, v.x, t)
                 ty = Utils.lerp(prev.y, v.y, t)
@@ -119,7 +137,7 @@ function Follower:interpolateHistory()
     local new_facing = Utils.facingFromAngle(Utils.angle(self.x, self.y, target.x, target.y))
     self.history = {
         {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state, state_args = target.state_manager.args},
-        {x = self.x, y = self.y, facing = new_facing, time = self.history_time - (self.index * FOLLOW_DELAY), state = self.state, state_args = target.state_manager.args}
+        {x = self.x, y = self.y, facing = new_facing, time = self.history_time - self:getFollowDelay(), state = self.state, state_args = target.state_manager.args}
     }
 end
 
@@ -131,7 +149,7 @@ function Follower:endSlide()
 end
 
 function Follower:isAutoMoving()
-    local target_time = FOLLOW_DELAY * self.index
+    local target_time = self:getFollowDelay()
     for i,v in ipairs(self.history) do
         if v.auto then
             return true
