@@ -173,4 +173,13 @@ function Cutscene:gotoCutscene(func, ...)
     end
 end
 
+function Cutscene:playSound(sound, volume, pitch)
+    local src = Assets.playSound(sound, volume, pitch)
+    return function()
+        if not Utils.containsValue(Assets.sound_instances[sound], src) then
+            return true
+        end
+    end
+end
+
 return Cutscene
