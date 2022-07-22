@@ -30,6 +30,7 @@ function HealthBar:init()
         local action_box = OverworldActionBox(x_pos, 0, index, chara)
         self:addChild(action_box)
         table.insert(self.action_boxes, action_box)
+        chara:onActionBox(action_box, true)
     end
 
     self.auto_hide_timer = 0

@@ -45,6 +45,7 @@ function BattleUI:init()
         local action_box = ActionBox(size_offset + (index - 1) * 213, 0, index, battler)
         self:addChild(action_box)
         table.insert(self.action_boxes, action_box)
+        battler.chara:onActionBox(action_box, false)
     end
 
     self.parallax_x = 0

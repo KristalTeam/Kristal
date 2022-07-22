@@ -156,6 +156,8 @@ function PartyMember:onLoad(data) end
 function PartyMember:onEquip(item, item2) return true end
 function PartyMember:onUnequip(item, item2) return true end
 
+function PartyMember:onActionBox(box, overworld) end
+
 -- Getters
 
 function PartyMember:getName() return self.name end
