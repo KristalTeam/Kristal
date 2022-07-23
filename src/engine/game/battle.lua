@@ -1885,6 +1885,11 @@ function Battle:checkGameOver()
         end
     end
     self.music:stop()
+    if self:getState() == "DEFENDING" then
+        for _,wave in ipairs(self.waves) do
+            wave:onDeath()
+        end
+    end
     Game:gameOver(self:getSoulLocation())
 end
 
