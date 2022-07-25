@@ -70,8 +70,6 @@ function Mod:postInit(new_file)
         Game:setFlag("shadow_crystals", 1)
     end
 
-    Game.world:registerCall("Call Home", "cell.home")
-
     -- Cool feature, uncomment for good luck
     -- im so tempted to commit this uncommented but i probably shouldnt oh well
     --[[
@@ -83,6 +81,10 @@ function Mod:postInit(new_file)
         Game.world.music:resume()
     end)
     ]]
+end
+
+function Mod:load()
+    Game.world:registerCall("Call Home", "cell.home")
 end
 
 function Mod:registerDebugContext(context, object)
