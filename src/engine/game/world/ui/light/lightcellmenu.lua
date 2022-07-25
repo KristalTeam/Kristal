@@ -36,7 +36,7 @@ function LightCellMenu:update()
         self.current_selecting = self.current_selecting + 1
     end
 
-    self.current_selecting = Utils.clamp(self.current_selecting, 1, Game.inventory:getItemCount(self.storage, false))
+    self.current_selecting = Utils.clamp(self.current_selecting, 1, #Game.world.calls)
 
     if self.current_selecting ~= old_selecting then
         self.ui_move:stop()
