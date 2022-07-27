@@ -116,7 +116,6 @@ you.</property>
    <properties>
     <property name="cutscene" value="room1.wall"/>
     <property name="once" type="bool" value="true"/>
-    <property name="setflag" value="wall_hit"/>
    </properties>
   </object>
   <object id="35" name="npc" x="300" y="160">
