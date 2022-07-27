@@ -126,6 +126,7 @@ function Menu:enter()
         {"GitHub Contributors", COLORS.silver},
         "Archie-osu",
         "Luna",
+        "prokube",
         "",
         {"Documentation", COLORS.silver},
         "Vitellary",
