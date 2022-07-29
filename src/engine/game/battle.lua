@@ -635,7 +635,7 @@ function Battle:onStateChange(old,new)
     if old == "DEFENDING" then
         self:returnSoul()
         for _,wave in ipairs(self.waves) do
-            if not wave:onEnd() then
+            if not wave:onEnd(false) then
                 wave:clear()
                 wave:remove()
             end
@@ -1687,7 +1687,7 @@ end
 
 function Battle:setWaves(waves, allow_duplicates)
     for _,wave in ipairs(self.waves) do
-        wave:onEnd()
+        wave:onEnd(false)
         wave:clear()
         wave:remove()
     end
@@ -1887,7 +1887,7 @@ function Battle:checkGameOver()
     self.music:stop()
     if self:getState() == "DEFENDING" then
         for _,wave in ipairs(self.waves) do
-            wave:onDeath()
+            wave:onEnd(true)
         end
     end
     Game:gameOver(self:getSoulLocation())
