@@ -38,6 +38,7 @@ function ChaserEnemy:init(actor, x, y, properties)
 
     self.remove_on_encounter = true
     self.encountered = false
+    self.once = properties["once"] or false
 
     if properties["aura"] == nil then
         self.sprite.aura = Game:getConfig("enemyAuras")
@@ -92,10 +93,16 @@ function ChaserEnemy:onCollide(player)
                         if enemy.remove_on_encounter then
                             enemy:remove()
                         end
+                        if enemy.once then
+                            enemy:setFlag("dont_load", true)
+                        end
                     end
                 end
                 if self.remove_on_encounter then
                     self:remove()
+                end
+                if self.once then
+                    self:setFlag("dont_load", true)
                 end
             end)
         end
