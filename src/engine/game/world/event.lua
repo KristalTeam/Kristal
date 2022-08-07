@@ -63,7 +63,9 @@ end
 
 function Event:onRemove(parent)
     if self.data then
-        Utils.removeFromTable(self.world.map.events_by_name[self.data.name], self)
+        if self.world.map.events_by_name[self.data.name] then
+            Utils.removeFromTable(self.world.map.events_by_name[self.data.name], self)
+        end
         if self.world.map.events_by_id[self.data.id] then
             Utils.removeFromTable(self.world.map.events_by_id[self.data.id], self)
         end
