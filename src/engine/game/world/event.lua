@@ -62,6 +62,12 @@ function Event:onAdd(parent)
 end
 
 function Event:onRemove(parent)
+    if self.data then
+        Utils.removeFromTable(self.world.map.events_by_name[self.data.name], self)
+        if self.world.map.events_by_id[self.data.id] then
+            Utils.removeFromTable(self.world.map.events_by_id[self.data.id], self)
+        end
+    end
     if parent:includes(World) or parent.world then
         self.world = nil
     end
