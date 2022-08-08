@@ -1890,6 +1890,9 @@ function Battle:checkGameOver()
             wave:onEnd(true)
         end
     end
+    if self.encounter:onGameOver() then
+        return
+    end
     Game:gameOver(self:getSoulLocation())
 end
 
