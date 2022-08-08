@@ -94,6 +94,8 @@ function Map:onExit() end
 
 function Map:onFootstep(char, num) end
 
+function Map:onGameOver() end
+
 function Map:update() end
 function Map:draw() end
 

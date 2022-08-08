@@ -135,7 +135,9 @@ function World:hurtParty(battler, amount)
     end
 
     if any_killed and not any_alive then
-        Game:gameOver(self.soul:getScreenPos())
+        if not self.map:onGameOver() then
+            Game:gameOver(self.soul:getScreenPos())
+        end
         return true
     elseif battler then
         return any_killed
