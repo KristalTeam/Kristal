@@ -180,7 +180,7 @@ function Battle:postInit(state, encounter)
         self.encounter = encounter
     end
 
-    if Game.world.music:isPlaying() then
+    if Game.world.music:isPlaying() and self.encounter.music then
         self.resume_world_music = true
         Game.world.music:pause()
     end
