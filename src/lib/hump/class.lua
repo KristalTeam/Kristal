@@ -80,6 +80,49 @@ local function includes(class, other)
     return class.__includes_all[other] and true or false
 end
 
+local function index(class, t, k)
+    local cv = rawget(class, k)
+    if cv ~= nil then
+        return cv
+    end
+    local gv = rawget(class, "__getters")[k]
+    if gv ~= nil then
+        return gv(t)
+    end
+end
+
+local function newindex(class, t, k, v)
+    local iv = rawget(class, "__setters")[k]
+    if iv ~= nil then
+        iv(t, v)
+        return
+    end
+    rawset(t, k, v)
+end
+
+local function class_index(t, k)
+    local prop = rawget(t, "__propfuncs")[k]
+    if prop ~= nil then
+        return prop
+    end
+end
+
+local function class__newindex(t, k, v)
+    if type(k) == "string" then
+        local property_part = k:sub(1, 4)
+        if property_part == "get_" then
+            rawget(t, "__propfuncs")[k] = v
+            rawget(t, "__getters")[k:sub(5)] = v
+            return
+        elseif property_part == "set_" then
+            rawget(t, "__propfuncs")[k] = v
+            rawget(t, "__setters")[k:sub(5)] = v
+            return
+        end
+    end
+    rawset(t, k, v)
+end
+
 local function new(class)
     -- mixins
     class = class or {}  -- class can be nil
@@ -96,21 +139,29 @@ local function new(class)
     end
 
     -- class implementation
-    class.__index  = class
-    class.init     = class.init     or class[1] or function() end
-    class.include  = class.include  or include
-    class.includes = class.includes or includes
-    class.clone    = class.clone    or clone
+    class.__class     = class
+    --class.__index     = class
+    class.__index     = function(t, k)    return index(class, t, k) end
+    class.__newindex  = function(t, k, v) newindex(class, t, k, v)  end
+    class.__getters   = class.__getters or {}
+    class.__setters   = class.__setters or {}
+    class.__propfuncs = class.__propfuncs or {}
+    class.init        = class.init      or class[1] or function() end
+    class.include     = class.include   or include
+    class.includes    = class.includes  or includes
+    class.clone       = class.clone     or clone
 
     class.canDeepCopy    = class.canDeepCopy    or function() return true end
     class.canDeepCopyKey = class.canDeepCopyKey or function(key) return true end
 
     -- keys that shouldn't be included from this class
     class.__dont_include = {
+        ["__class"] = true,
         ["__dont_include"] = true,
         ["__includes"] = true,
         ["__includes_all"] = true,
         ["__index"] = true,
+        ["__newIndex"] = true,
         ["include"] = true,
         ["includes"] = true,
     }
@@ -118,9 +169,10 @@ local function new(class)
     -- constructor call
     return setmetatable(class, {__call = function(c, ...)
         local o = setmetatable({}, c)
+        rawset(o, "__class", c)
         o:init(...)
         return o
-    end})
+    end, __index = class_index, __newindex = class__newindex})
 end
 
 -- interface for cross class-system compatibility (see https://github.com/bartbes/Class-Commons).

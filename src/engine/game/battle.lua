@@ -3,6 +3,8 @@ local Battle, super = Class(Object)
 function Battle:init()
     super:init(self)
 
+    self.y_sorted = true
+
     self.party = {}
 
     self.money = 0
@@ -1511,20 +1513,16 @@ end
 
 function Battle:checkSolidCollision(collider)
     if NOCLIP then return false end
-    Object.startCache()
     if self.arena then
         if self.arena:collidesWith(collider) then
-            Object.endCache()
             return true, self.arena
         end
     end
     for _,solid in ipairs(Game.stage:getObjects(Solid)) do
         if solid:collidesWith(collider) then
-            Object.endCache()
             return true, solid
         end
     end
-    Object.endCache()
     return false
 end
 

@@ -591,11 +591,88 @@ function Camera:getTransform()
     return transform
 end
 
+function Camera:markTransformDirty()
+    if self.parent then
+        self.parent:markTransformDirty()
+        for _,child in ipairs(self.parent.children) do
+            if child.parallax_x or child.parallax_y then
+                child:markTransformDirty()
+            end
+        end
+    end
+end
+
 function Camera:canDeepCopy()
     return true
 end
 function Camera:canDeepCopyKey(key)
     return key ~= "parent"
+end
+
+-- Internal Getters / Setters
+
+function Camera:get_x() return rawget(self, "_x") end
+function Camera:get_y() return rawget(self, "_y") end
+
+function Camera:set_x(value)
+    if rawget(self, "_x") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_x", value)
+    end
+end
+function Camera:set_y(value)
+    if rawget(self, "_y") ~= value then
+        rawset(self, "_y", value)
+        self:markTransformDirty()
+    end
+end
+
+function Camera:get_scale_x() return rawget(self, "_scale_x") end
+function Camera:get_scale_y() return rawget(self, "_scale_y") end
+
+function Camera:set_scale_x(value)
+    if rawget(self, "_scale_x") ~= value then
+        rawset(self, "_scale_x", value)
+        self:markTransformDirty()
+    end
+end
+function Camera:set_scale_y(value)
+    if rawget(self, "_scale_y") ~= value then
+        rawset(self, "_scale_y", value)
+        self:markTransformDirty()
+    end
+end
+
+function Camera:get_ox() return rawget(self, "_ox") end
+function Camera:get_oy() return rawget(self, "_oy") end
+
+function Camera:set_ox(value)
+    if rawget(self, "_ox") ~= value then
+        rawset(self, "_ox", value)
+        self:markTransformDirty()
+    end
+end
+function Camera:set_oy(value)
+    if rawget(self, "_oy") ~= value then
+        rawset(self, "_oy", value)
+        self:markTransformDirty()
+    end
+end
+
+function Camera:get_shake_x() return rawget(self, "_shake_x") end
+function Camera:get_shake_y() return rawget(self, "_shake_y") end
+
+function Camera:set_shake_x(value)
+    if rawget(self, "_shake_x") ~= value then
+        rawset(self, "_shake_x", value)
+        self:markTransformDirty()
+    end
+end
+function Camera:set_shake_y(value)
+    if rawget(self, "_shake_y") ~= value then
+        rawset(self, "_shake_y", value)
+        self:markTransformDirty()
+    end
 end
 
 return Camera

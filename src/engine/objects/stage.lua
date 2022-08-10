@@ -41,7 +41,7 @@ end
 
 function Stage:updateAllLayers()
     for _,object in ipairs(self.objects) do
-        if object.update_child_list or object.__index == World then
+        if object.update_child_list or object.__class == World then
             object:updateChildList()
             object.update_child_list = false
         end

@@ -23,7 +23,6 @@ function MagicGlass:init(x, y, w, h)
 end
 
 function MagicGlass:update()
-    Object.startCache()
     for i,collider in ipairs(self.glass_colliders) do
         local any_collided = false
         for _,char in ipairs(Game.stage:getObjects(Character)) do
@@ -38,7 +37,6 @@ function MagicGlass:update()
             self.tile_alphas[i] = Utils.lerp(self.tile_alphas[i], 0, 0.125 * DTMULT)
         end
     end
-    Object.endCache()
 
     super:update(self)
 end

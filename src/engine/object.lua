@@ -1,52 +1,7 @@
 local Object = Class()
 
 Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
-
-Object.CACHE_TRANSFORMS = false
-Object.CACHE_ATTEMPTS = 0
-Object.CACHED = {}
-Object.CACHED_FULL = {}
-
-function Object.startCache()
-    Object.CACHE_ATTEMPTS = Object.CACHE_ATTEMPTS + 1
-    if Object.CACHE_ATTEMPTS == 1 then
-        Object.CACHED = {}
-        Object.CACHED_FULL = {}
-        Object.CACHE_TRANSFORMS = true
-    end
-end
-
-function Object.endCache()
-    Object.CACHE_ATTEMPTS = Object.CACHE_ATTEMPTS - 1
-    if Object.CACHE_ATTEMPTS == 0 then
-        Object.CACHED = {}
-        Object.CACHED_FULL = {}
-        Object.CACHE_TRANSFORMS = false
-    end
-end
-
-function Object._clearCache()
-    Object.CACHE_TRANSFORMS = false
-    Object.CACHE_ATTEMPTS = 0
-    Object.CACHED = {}
-    Object.CACHED_FULL = {}
-end
-
-function Object.uncache(obj)
-    if Object.CACHE_TRANSFORMS then
-        Object.CACHED[obj] = nil
-        Object.uncacheFull(obj)
-    end
-end
-
-function Object.uncacheFull(obj)
-    if Object.CACHE_TRANSFORMS then
-        Object.CACHED_FULL[obj] = nil
-        for _,child in ipairs(obj.children) do
-            Object.uncacheFull(child)
-        end
-    end
-end
+Object.Y_SORT = function(a, b) return a.layer < b.layer or (a.layer == b.layer and math.floor(a.y) < math.floor(b.y)) end
 
 function Object:init(x, y, width, height)
     -- Intitialize this object's position (optional args)
@@ -140,8 +95,20 @@ function Object:init(x, y, width, height)
     -- If set, children at or above this layer will be drawn above this object
     self.draw_children_above = nil
 
+    -- Whether children on the same layer will be sorted by their Y value
+    self.y_sorted = false
+
     -- Ignores child drawing
     self._dont_draw_children = false
+
+    -- The cached transforms for this object
+    self._cached_transform = nil
+    self._cached_stage_transform = nil
+    self._cached_draw_transform = nil
+    -- Whether this object's transform needs to be recomputed
+    self._transform_dirty = true
+    self._stage_transform_dirty = true
+    self._draw_transform_dirty = true
 
     -- Triggers list sort / child removal
     self.update_child_list = false
@@ -702,7 +669,7 @@ function Object:removeFX(id)
     end
 end
 
-function Object:applyTransformTo(transform, floor_x, floor_y)
+--[[function Object:applyTransformTo(transform, floor_x, floor_y)
     Utils.pushPerformance("Object#applyTransformTo")
     if not floor_x then
         transform:translate(self.x, self.y)
@@ -754,51 +721,140 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
         self.camera:applyTo(transform, floor_x, floor_y)
     end
     Utils.popPerformance()
+end]]
+
+function Object:createTransform(floor_x, floor_y)
+    local transform = love.math.newTransform()
+    if not floor_x then
+        transform:translate(self.x, self.y)
+    else
+        transform:translate(Utils.floor(self.x, floor_x), Utils.floor(self.y, floor_y))
+    end
+    if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
+        local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y)
+        if not floor_x then
+            transform:translate(px, py)
+        else
+            transform:translate(Utils.floor(px, floor_x), Utils.floor(py, floor_y))
+        end
+    end
+    if self.flip_x or self.flip_y then
+        transform:translate(self.width/2, self.height/2)
+        transform:scale(self.flip_x and -1 or 1, self.flip_y and -1 or 1)
+        transform:translate(-self.width/2, -self.height/2)
+    end
+    if floor_x then
+        floor_x = floor_x / self.scale_x
+        floor_y = floor_y / self.scale_y
+    end
+    local ox, oy = self:getOriginExact()
+    if not floor_x then
+        transform:translate(-ox, -oy)
+    else
+        transform:translate(-Utils.floor(ox, floor_x), -Utils.floor(oy, floor_y))
+    end
+    if self.rotation ~= 0 then
+        local ox, oy = self:getRotationOriginExact()
+        if floor_x then
+            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+        end
+        transform:translate(ox, oy)
+        transform:rotate(self.rotation)
+        transform:translate(-ox, -oy)
+    end
+    if self.scale_x ~= 1 or self.scale_y ~= 1 then
+        local ox, oy = self:getScaleOriginExact()
+        if floor_x then
+            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+        end
+        transform:translate(ox, oy)
+        transform:scale(self.scale_x, self.scale_y)
+        transform:translate(-ox, -oy)
+    end
+    if self.camera then
+        self.camera:applyTo(transform, floor_x, floor_y)
+    end
+    return transform
 end
 
-function Object:createTransform()
+--[[function Object:createTransform()
     Utils.pushPerformance("Object#createTransform")
     local transform = love.math.newTransform()
     self:applyTransformTo(transform)
     Utils.popPerformance()
     return transform
-end
+end]]
 
 function Object:getTransform()
-    if Object.CACHE_TRANSFORMS then
-        if not Object.CACHED[self] then
-            Object.CACHED[self] = self:createTransform()
-        end
-        return Object.CACHED[self]
-    else
-        return self:createTransform()
+    if not self._transform_dirty and self:needsTransformUpdate() then
+        self:markTransformDirty()
     end
+    if self._transform_dirty then
+        self._transform_dirty = false
+        self._cached_transform = self:createTransform()
+    end
+    return self._cached_transform
+end
+
+function Object:getDrawTransform(floor_x, floor_y)
+    if not self._draw_transform_dirty and self:needsTransformUpdate() then
+        self:markTransformDirty()
+    end
+    if self._draw_transform_dirty then
+        self._draw_transform_dirty = false
+
+        local tf = self:getFullTransform():clone()
+        local mat = {tf:getMatrix()}
+        mat[4] = math.floor(mat[4])
+        mat[8] = math.floor(mat[8])
+        tf:setMatrix("row", mat)
+
+        self._cached_draw_transform = tf
+    end
+    return self._cached_draw_transform
 end
 
 function Object:getFullTransform(i)
     i = i or 0
     if i <= 0 then
-        if Object.CACHE_TRANSFORMS then
-            if not Object.CACHED_FULL[self] then
-                if not self.parent then
-                    Object.CACHED_FULL[self] = self:getTransform()
-                else
-                    Object.CACHED_FULL[self] = self.parent:getFullTransform() * self:getTransform()
-                end
-            end
-            return Object.CACHED_FULL[self]
-        else
+        if not self._stage_transform_dirty and self:needsTransformUpdate() then
+            self:markTransformDirty()
+        end
+        if self._stage_transform_dirty then
+            self._stage_transform_dirty = false
             if not self.parent then
-                return self:getTransform()
+                self._cached_stage_transform = self:getTransform()
             else
-                return self.parent:getFullTransform():apply(self:getTransform())
+                self._cached_stage_transform = self.parent:getFullTransform() * self:getTransform()
             end
         end
+        return self._cached_stage_transform
     elseif self.parent then
         return self.parent:getFullTransform(i - 1)
     else
         return love.math.newTransform()
     end
+end
+
+--- Checked at the start of the `getTransform` functions; calls `markTransformDirty` if true. \
+--- Does not return / override the value of `_transform_dirty`.
+function Object:needsTransformUpdate()
+    return false
+end
+
+function Object:markTransformDirty(full_only)
+    if not self._transform_dirty then
+        if not full_only then
+            self._transform_dirty = true
+        end
+    end
+    if not self._stage_transform_dirty then
+        self._stage_transform_dirty = true
+        for _,child in ipairs(self.children or {}) do
+            child:markTransformDirty(true)
+        end
+    end
+    self._draw_transform_dirty = true
 end
 
 function Object:getHierarchy()
@@ -897,7 +953,7 @@ end
 --[[ Internal functions ]]--
 
 function Object:sortChildren()
-    table.stable_sort(self.children, Object.LAYER_SORT)
+    table.stable_sort(self.children, self.y_sorted and Object.Y_SORT or Object.LAYER_SORT)
 end
 
 function Object:updateChildList()
@@ -951,9 +1007,11 @@ end
 
 function Object:preDraw(dont_transform)
     if not dont_transform then
-        local transform = love.graphics.getTransformRef()
+        --[[local transform = love.graphics.getTransformRef()
         self:applyTransformTo(transform, 1/CURRENT_SCALE_X, 1/CURRENT_SCALE_Y)
-        love.graphics.replaceTransform(transform)
+        love.graphics.replaceTransform(transform)]]
+        --love.graphics.applyTransform(self:getDrawTransform(1/CURRENT_SCALE_X, 1/CURRENT_SCALE_Y))
+        love.graphics.replaceTransform(self:getDrawTransform())
 
         self._last_draw_scale_x = CURRENT_SCALE_X
         self._last_draw_scale_y = CURRENT_SCALE_Y
@@ -1046,9 +1104,10 @@ function Object:fullDraw(no_children, dont_transform)
             final_canvas = self:processDrawFX(canvas, true)
             love.graphics.push()
             if not dont_transform then
-                local current_transform = love.graphics.getTransformRef()
+                --[[local current_transform = love.graphics.getTransformRef()
                 self:applyTransformTo(current_transform)
-                love.graphics.replaceTransform(current_transform)
+                love.graphics.replaceTransform(current_transform)]]
+                love.graphics.replaceTransform(self:getTransform())
             end
             if fx_screen then
                 local screen_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
@@ -1249,5 +1308,127 @@ end
 function Object:canDeepCopyKey(key)
     return key ~= "parent"
 end
+
+-- Internal Getters / Setters
+
+function Object:get_layer()
+    return rawget(self, "_layer")
+end
+function Object:set_layer(value)
+    if rawget(self, "_layer") ~= value then
+        rawset(self, "_layer", value)
+        if self.parent then
+            self.parent.update_child_list = true
+        end
+    end
+end
+
+function Object:get_y()
+    return rawget(self, "_y")
+end
+function Object:set_y(value)
+    if rawget(self, "_y") ~= value then
+        rawset(self, "_y", value)
+        self:markTransformDirty()
+        if self.parent then
+            self.parent.update_child_list = true
+        end
+    end
+end
+
+
+local function registerTransformProperty(field)
+    local pfield = "_"..field
+    Object["get_"..field] = function(o) return rawget(o,pfield) end
+    Object["set_"..field] = function(o,v)
+        if rawget(o,pfield) ~= v then
+            o:markTransformDirty()
+            rawset(o,pfield,v)
+        end
+    end
+end
+
+registerTransformProperty("x")
+--registerTransformProperty("y")
+registerTransformProperty("width")
+registerTransformProperty("height")
+registerTransformProperty("scale_x")
+registerTransformProperty("scale_y")
+registerTransformProperty("rotation")
+registerTransformProperty("flip_x")
+registerTransformProperty("flip_y")
+registerTransformProperty("origin_x")
+registerTransformProperty("origin_y")
+registerTransformProperty("origin_exact")
+registerTransformProperty("scale_origin_x")
+registerTransformProperty("scale_origin_y")
+registerTransformProperty("scale_origin_exact")
+registerTransformProperty("rotation_origin_x")
+registerTransformProperty("rotation_origin_y")
+registerTransformProperty("rotation_origin_exact")
+registerTransformProperty("camera_origin_x")
+registerTransformProperty("camera_origin_y")
+registerTransformProperty("camera_origin_exact")
+registerTransformProperty("parallax_x")
+registerTransformProperty("parallax_y")
+registerTransformProperty("parallax_origin_x")
+registerTransformProperty("parallax_origin_y")
+registerTransformProperty("camera")
+
+--[[
+function Object:get_x() return rawget(self, "_x") end
+function Object:set_x(value)
+    if rawget(self, "_x") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_x", value)
+    end
+end
+function Object:get_y() return rawget(self, "_y") end
+function Object:set_y(value)
+    if rawget(self, "_y") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_y", value)
+    end
+end
+
+function Object:get_width() return rawget(self, "_width") end
+function Object:set_width(value)
+    if rawget(self, "_width") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_width", value)
+    end
+end
+function Object:get_height() return rawget(self, "_height") end
+function Object:set_height(value)
+    if rawget(self, "_height") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_height", value)
+    end
+end
+
+function Object:get_scale_x() return rawget(self, "_scale_x") end
+function Object:set_scale_x(value)
+    if rawget(self, "_scale_x") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_scale_x", value)
+    end
+end
+function Object:get_scale_y() return rawget(self, "_scale_y") end
+function Object:set_scale_y(value)
+    if rawget(self, "_scale_y") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_scale_y", value)
+    end
+end
+
+function Object:get_rotation() return rawget(self, "_rotation") end
+function Object:set_rotation(value)
+    if rawget(self, "_rotation") ~= value then
+        self:markTransformDirty()
+        rawset(self, "_rotation", value)
+    end
+end
+]]
+
 
 return Object

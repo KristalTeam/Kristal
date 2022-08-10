@@ -47,6 +47,9 @@ function ActorSprite:init(actor)
 
     self:resetSprite()
 
+    local offset = self:getOffset()
+    self.last_offset_x = offset[1]
+    self.last_offset_y = offset[2]
     self.last_flippable = actor:getFlipDirection(self)
 end
 
@@ -346,12 +349,36 @@ function ActorSprite:update()
     super:update(self)
 
     self.actor:onSpriteUpdate(self)
+
+    local offset = self:getOffset()
+    if offset[1] ~= self.last_offset_x or offset[2] ~= self.last_offset_y then
+        self:markTransformDirty()
+    end
+    self.last_offset_x = offset[1]
+    self.last_offset_y = offset[2]
 end
 
-function ActorSprite:applyTransformTo(transform)
+--[[function ActorSprite:applyTransformTo(transform)
     super:applyTransformTo(self, transform)
     local offset = self:getOffset()
     transform:translate(offset[1], offset[2])
+end]]
+
+function ActorSprite:needsTransformUpdate()
+    local offset = self:getOffset()
+    return super:needsTransformUpdate(self) or self.last_offset_x ~= offset[1] or self.last_offset_y ~= offset[2]
+end
+
+function ActorSprite:createTransform(floor_x, floor_y)
+    local transform = super:createTransform(self, floor_x, floor_y)
+
+    local offset = self:getOffset()
+    transform:translate(offset[1], offset[2])
+
+    self.last_offset_x = offset[1]
+    self.last_offset_y = offset[2]
+
+    return transform
 end
 
 function ActorSprite:draw()

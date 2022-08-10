@@ -42,7 +42,6 @@ end
 function TileButton:update()
     if self.block_activated then
 
-        Object.startCache()
         local collided = nil
         for _,block in ipairs(Game.stage:getObjects(PushBlock)) do
             if block.press_buttons ~= false and block:collidesWith(self) then
@@ -50,7 +49,6 @@ function TileButton:update()
                 break
             end
         end
-        Object.endCache()
 
         if self:setPressed(collided ~= nil) and self.pressed then
             collided.solved = true

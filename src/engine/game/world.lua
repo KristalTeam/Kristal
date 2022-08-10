@@ -60,6 +60,8 @@ function World:init(map)
 
     self.calls = {}
 
+    self.y_sorted = true
+
     -- Reset keypresses in-case they didn't get wiped on crash
     Input.clear(nil, true)
 
@@ -299,14 +301,11 @@ function World:getCollision(enemy_check)
 end
 
 function World:checkCollision(collider, enemy_check)
-    Object.startCache()
     for _,other in ipairs(self:getCollision(enemy_check)) do
         if collider:collidesWith(other) and collider ~= other then
-            Object.endCache()
             return true, other.parent
         end
     end
-    Object.endCache()
     return false
 end
 
@@ -809,7 +808,6 @@ end
 
 function World:sortChildren()
     Utils.pushPerformance("World#sortChildren")
-    Object.startCache()
     local positions = {}
     for _,child in ipairs(self.children) do
         local x, y = child:getSortPosition()
@@ -825,7 +823,6 @@ function World:sortChildren()
               (math.floor(ay) == math.floor(by) and (b == self.player or
               (a:includes(Follower) and b:includes(Follower) and b.index < a.index)))))
     end)
-    Object.endCache()
     Utils.popPerformance()
 end
 
@@ -848,7 +845,6 @@ function World:update()
         -- Object collision
         local collided = {}
         local exited = {}
-        Object.startCache()
         for _,obj in ipairs(self.children) do
             if not obj.solid and (obj.onCollide or obj.onEnter) then
                 for _,char in ipairs(self.stage:getObjects(Character)) do
@@ -862,7 +858,6 @@ function World:update()
                 end
             end
         end
-        Object.endCache()
         for _,v in ipairs(collided) do
             if v[1].onCollide then
                 v[1]:onCollide(v[2], DT)
@@ -907,7 +902,7 @@ function World:update()
     self.map:update()
 
     -- Always sort
-    self.update_child_list = true
+    --self.update_child_list = true
     super:update(self)
 
     -- Update cutscene after updating objects

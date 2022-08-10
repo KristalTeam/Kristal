@@ -24,7 +24,6 @@ end
 function Vironeedle:update()
     super:update(self)
 
-    Object.startCache()
     local infected = {}
     for _,needle in ipairs(self.bullets) do
         if needle.collidable and needle:isBullet("virovirokun/needle") then
@@ -39,7 +38,6 @@ function Vironeedle:update()
             end
         end
     end
-    Object.endCache()
 end
 
 return Vironeedle

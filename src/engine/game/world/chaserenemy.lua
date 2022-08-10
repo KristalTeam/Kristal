@@ -208,7 +208,6 @@ function ChaserEnemy:update()
             end
         elseif self.can_chase and not self.chasing then
             if self.world.player then
-                Object.startCache()
                 local in_radius = self.world.player:collidesWith(CircleCollider(self.world, self.x, self.y, self.chase_dist))
                 if in_radius then
                     local sight = LineCollider(self.world, self.x, self.y, self.world.player.x, self.world.player.y)
@@ -223,7 +222,6 @@ function ChaserEnemy:update()
                         self:setAnimation("alerted")
                     end
                 end
-                Object.endCache()
             end
         elseif self.chasing then
             if self.world.player then

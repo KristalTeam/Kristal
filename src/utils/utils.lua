@@ -73,7 +73,7 @@ end
 
 function Utils.getClassName(class, parent_check)
     for k,v in pairs(_G) do
-        if class.__index == v then
+        if class.__class == v then
             return k
         end
     end

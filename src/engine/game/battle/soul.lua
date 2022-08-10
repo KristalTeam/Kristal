@@ -202,13 +202,10 @@ function Soul:moveXExact(amount, move_y)
         self.x = self.x + sign
 
         if not self.noclip then
-            Object.uncache(self)
-            Object.startCache()
             local collided, target = Game.battle:checkSolidCollision(self)
             if self.slope_correction then
                 if collided and not (move_y > 0) then
                     for j = 1, 2 do
-                        Object.uncache(self)
                         self.y = self.y - 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
@@ -217,14 +214,12 @@ function Soul:moveXExact(amount, move_y)
                 if collided and not (move_y < 0) then
                     self.y = last_y
                     for j = 1, 2 do
-                        Object.uncache(self)
                         self.y = self.y + 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
                     end
                 end
             end
-            Object.endCache()
 
             if collided then
                 self.x = last_x
@@ -252,13 +247,10 @@ function Soul:moveYExact(amount, move_x)
         self.y = self.y + sign
 
         if not self.noclip then
-            Object.uncache(self)
-            Object.startCache()
             local collided, target = Game.battle:checkSolidCollision(self)
             if self.slope_correction then
                 if collided and not (move_x > 0) then
                     for j = 1, 2 do
-                        Object.uncache(self)
                         self.x = self.x - 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
@@ -267,14 +259,12 @@ function Soul:moveYExact(amount, move_x)
                 if collided and not (move_x < 0) then
                     self.x = last_x
                     for j = 1, 2 do
-                        Object.uncache(self)
                         self.x = self.x + 1
                         collided, target = Game.battle:checkSolidCollision(self)
                         if not collided then break end
                     end
                 end
             end
-            Object.endCache()
 
             if collided then
                 self.x = last_x
@@ -370,7 +360,6 @@ function Soul:update()
     end
 
     local collided_bullets = {}
-    Object.startCache()
     for _,bullet in ipairs(Game.stage:getObjects(Bullet)) do
         if bullet:collidesWith(self.collider) then
             -- Store collided bullets to a table before calling onCollide
@@ -399,7 +388,6 @@ function Soul:update()
             end
         end
     end
-    Object.endCache()
     for _,bullet in ipairs(collided_bullets) do
         self:onCollide(bullet)
     end

@@ -153,7 +153,6 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                             local stage = self:getStage()
                             if stage then
                                 local objects = stage:getObjects()
-                                Object.startCache()
                                 for _,instance in ipairs(objects) do
                                     if Utils.getClassName(instance):lower() == text:lower() then
                                         self:selectObject(instance)
@@ -161,7 +160,6 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                                         break
                                     end
                                 end
-                                Object.endCache()
                             end
                         end)
                         self.window:setPosition(Input.getMousePosition())
@@ -263,7 +261,6 @@ function DebugSystem:detectObject(x, y)
     local stage = self:getStage()
     if stage then
         local objects = stage:getObjects()
-        Object.startCache()
         for _,instance in ipairs(objects) do
             if instance:canDebugSelect() and instance:isFullyVisible() then
                 local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
@@ -280,7 +277,6 @@ function DebugSystem:detectObject(x, y)
                 end
             end
         end
-        Object.endCache()
     end
     return object
 end
@@ -858,7 +854,6 @@ function DebugSystem:draw()
             end
         end
 
-        Object.startCache()
         local mx, my = Input.getMousePosition()
 
         local object = self.object
@@ -969,8 +964,6 @@ function DebugSystem:draw()
                 inc = inc + 1
             end
         end
-
-        Object.endCache()
     else
         self.hover_alpha = 0
     end

@@ -94,7 +94,6 @@ function InvaderFleet:update()
     local force_target = 0
     local temp_move = self.dir * self.move_amount
     if self.shot_timer < (self.fleet_size == 1 and 12 or 16) and self.buffed then
-        Object.startCache()
         for i,invader in ipairs(self.invaders) do
             if invader.stage then
                 local next_x = invader.x + ((temp_move / self.move_interval) * 16)
@@ -110,7 +109,6 @@ function InvaderFleet:update()
             end
             temp_move = -temp_move
         end
-        Object.endCache()
     end
 
     if (self.shot_timer <= 0 and self.y < Game.battle.arena.top + 50) or force_shot then

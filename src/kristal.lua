@@ -585,7 +585,6 @@ end
 
 function Kristal.clearModState()
     -- Clear disruptive active globals
-    Object._clearCache()
     Draw._clearStacks()
     -- End the current mod
     Kristal.callEvent("unload")

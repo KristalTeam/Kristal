@@ -27,10 +27,8 @@ end
 function Solid:move(x, y, speed)
     local movex, movey = x * (speed or 1), y * (speed or 1)
 
-    Object.startCache()
     local collided_x = self:doMoveAmount(movex, 1, 0)
     local collided_y = self:doMoveAmount(movey, 0, 1)
-    Object.endCache()
 
     return collided_x or collided_y
 end
@@ -44,7 +42,6 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
 
     local soul_collided = false
 
-    Object.startCache()
     for i = 1, math.ceil(math.abs(amount)) do
         local moved = sign
         if (i > math.abs(amount)) then
@@ -53,7 +50,6 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
 
         self.x = self.x + (moved * x_mult)
         self.y = self.y + (moved * y_mult)
-        Object.uncache(self)
 
         for _,soul in ipairs(self.stage:getObjects(Soul)) do
             if self:collidesWith(soul) then
@@ -61,7 +57,6 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
 
                 self.collidable = false
                 local _,collided = soul:move(sign * x_mult, sign * y_mult)
-                Object.uncache(soul)
                 if collided then
                     soul:onSquished(self)
                 end
@@ -69,7 +64,6 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
             end
         end
     end
-    Object.endCache()
 
     return soul_collided
 end

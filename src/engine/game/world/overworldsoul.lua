@@ -56,13 +56,11 @@ function OverworldSoul:update()
 
     self.sprite.alpha = 1 -- ??????
 
-    Object.startCache()
     for _,bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
         if bullet:collidesWith(self.collider) then
             self:onCollide(bullet)
         end
     end
-    Object.endCache()
 
     if self.inv_timer > 0 then
         self.inv_flash_timer = self.inv_flash_timer + DT

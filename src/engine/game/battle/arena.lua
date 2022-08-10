@@ -181,7 +181,6 @@ function Arena:update()
 
     local soul = Game.battle.soul
     if soul and Game.battle.soul.collidable then
-        Object.startCache()
         local angle_diff = self.clockwise and -(math.pi/2) or (math.pi/2)
         for _,line in ipairs(self.collider.colliders) do
             local angle
@@ -191,14 +190,12 @@ function Arena:update()
                     local x2, y2 = self:getRelativePos(line.x2, line.y2, Game.battle)
                     angle = Utils.angle(x1, y1, x2, y2)
                 end
-                Object.uncache(soul)
                 soul:setPosition(
                     soul.x + (math.cos(angle + angle_diff)),
                     soul.y + (math.sin(angle + angle_diff))
                 )
             end
         end
-        Object.endCache()
     end
 end
 

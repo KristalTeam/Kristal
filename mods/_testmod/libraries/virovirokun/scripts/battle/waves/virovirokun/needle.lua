@@ -21,7 +21,6 @@ end
 function Needle:update()
     super:update(self)
 
-    Object.startCache()
     local infected = {}
     for _,needle in ipairs(self.bullets) do
         if needle.collidable and needle:isBullet("virovirokun/needle") then
@@ -36,7 +35,6 @@ function Needle:update()
             end
         end
     end
-    Object.endCache()
 end
 
 function Needle:getEnemyRatio()

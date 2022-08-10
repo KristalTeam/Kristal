@@ -62,7 +62,6 @@ function PushBlock:checkCollision(facing)
 
     local bound_check = Hitbox(self.world, x1 + 1, y1 + 1, x2 - x1 - 2, y2 - y1 - 2)
 
-    Object.startCache()
     for _,collider in ipairs(Game.world.map.block_collision) do
         if collider:collidesWith(bound_check) then
             collided = true
@@ -74,7 +73,6 @@ function PushBlock:checkCollision(facing)
         collided = self.world:checkCollision(bound_check)
         self.collidable = true
     end
-    Object.endCache()
 
     return collided
 end
