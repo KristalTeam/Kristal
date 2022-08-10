@@ -60,6 +60,38 @@ function Battler:statusMessage(x, y, type, arg, color, kill)
     return percent
 end
 
+function Battler:spawnSpeechBubble(text, right, style)
+    local bubble
+    if not style and self.dialogue_bubble then
+        style = self.dialogue_bubble
+    end
+    if not right then
+        local x, y = self.sprite:getRelativePos(0, self.sprite.height/2, Game.battle)
+        if self.dialogue_offset then
+            x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
+        end
+        bubble = SpeechBubble(text, x, y, self, false, style)
+    else
+        local x, y = self.sprite:getRelativePos(self.sprite.width, self.sprite.height/2, Game.battle)
+        if self.dialogue_offset then
+            x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
+        end
+        bubble = SpeechBubble(text, x, y, self, true, style)
+    end
+    self.bubble = bubble
+    self:onBubbleSpawn(bubble)
+    bubble:setCallback(function()
+        self:onBubbleRemove(bubble)
+        bubble:remove()
+        self.bubble = nil
+    end)
+    Game.battle:addChild(bubble)
+    return bubble
+end
+
+function Battler:onBubbleSpawn(bubble) end
+function Battler:onBubbleRemove(bubble) end
+
 -- Shorthand for convenience
 function Battler:setAnimation(animation, callback)
     return self.sprite:setAnimation(animation, callback)

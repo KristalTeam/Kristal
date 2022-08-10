@@ -1,6 +1,6 @@
-local EnemyTextbox, super = Class(Object)
+local SpeechBubble, super = Class(Object)
 
-function EnemyTextbox:init(text, x, y, speaker, right, style)
+function SpeechBubble:init(text, x, y, speaker, right, style)
     super:init(self, x, y, 0, 0)
 
     self.layer = BATTLE_LAYERS["above_arena"] - 1
@@ -18,7 +18,7 @@ function EnemyTextbox:init(text, x, y, speaker, right, style)
 
     self.speaker = speaker
     if self.speaker then
-        self.speaker.textbox = self
+        self.speaker.bubble = self
     end
 
     self.advance_callback = nil
@@ -31,7 +31,7 @@ function EnemyTextbox:init(text, x, y, speaker, right, style)
     self:setText(text)
 end
 
-function EnemyTextbox:setStyle(style)
+function SpeechBubble:setStyle(style)
     self.bubble = style or Game:getConfig("speechBubble")
     self.bubble_data = Assets.getBubbleData(self.bubble)
     self.auto = self.bubble_data["auto"] or false -- Whether the bubble automatically resizes.
@@ -86,18 +86,18 @@ function EnemyTextbox:setStyle(style)
     self:updateSize()
 end
 
-function EnemyTextbox:onRemoveFromStage(stage)
+function SpeechBubble:onRemoveFromStage(stage)
     super:onRemoveFromStage(self, stage)
-    if self.speaker and self.speaker.textbox == self then
-        self.speaker.textbox = nil
+    if self.speaker and self.speaker.bubble == self then
+        self.speaker.bubble = nil
     end
 end
 
-function EnemyTextbox:advance()
+function SpeechBubble:advance()
     self.text:advance()
 end
 
-function EnemyTextbox:setText(text, callback)
+function SpeechBubble:setText(text, callback)
     if self.speaker and self.speaker.actor and self.speaker.actor:getVoice() then
         if type(text) ~= "table" then
             text = {text}
@@ -115,32 +115,32 @@ function EnemyTextbox:setText(text, callback)
     self:updateSize()
 end
 
-function EnemyTextbox:setAuto(auto)
+function SpeechBubble:setAuto(auto)
     self.text.auto_advance = auto or false
 end
 
-function EnemyTextbox:setAdvance(advance)
+function SpeechBubble:setAdvance(advance)
     self.text.can_advance = advance or false
 end
 
-function EnemyTextbox:setSkippable(skippable)
+function SpeechBubble:setSkippable(skippable)
     self.text.skippable = skippable or false
 end
 
-function EnemyTextbox:setCallback(callback)
+function SpeechBubble:setCallback(callback)
     self.advance_callback = callback
     self.text.advance_callback = callback
 end
 
-function EnemyTextbox:isTyping()
+function SpeechBubble:isTyping()
     return self.text:isTyping()
 end
 
-function EnemyTextbox:isDone()
+function SpeechBubble:isDone()
     return self.text:isDone()
 end
 
-function EnemyTextbox:update()
+function SpeechBubble:update()
     super:update(self)
 
     self.bubble_anim_timer = self.bubble_anim_timer + DT
@@ -148,7 +148,7 @@ function EnemyTextbox:update()
     self:updateSize()
 end
 
-function EnemyTextbox:getBorder()
+function SpeechBubble:getBorder()
     -- Lua is a bad language
     local left,  _      = self:getSpriteSize("left")
     local _,     top    = self:getSpriteSize("top")
@@ -157,7 +157,7 @@ function EnemyTextbox:getBorder()
     return left, top, right, bottom
 end
 
-function EnemyTextbox:getDebugRectangle()
+function SpeechBubble:getDebugRectangle()
     if not self.debug_rect then
         local bl, bt, br, bb = self:getBorder()
 
@@ -175,7 +175,7 @@ function EnemyTextbox:getDebugRectangle()
     return super:getDebugRectangle(self)
 end
 
-function EnemyTextbox:getSprite(name)
+function SpeechBubble:getSprite(name)
     local sprite = self.auto and self.sprites[name] or self.sprites
     if sprite then
         local frame = math.floor(self.bubble_anim_timer / self.bubble_speed)
@@ -184,7 +184,7 @@ function EnemyTextbox:getSprite(name)
     end
 end
 
-function EnemyTextbox:getSpriteSize(name)
+function SpeechBubble:getSpriteSize(name)
     local sprite = self:getSprite(name)
     if sprite then
         return sprite:getWidth(), sprite:getHeight()
@@ -192,12 +192,12 @@ function EnemyTextbox:getSpriteSize(name)
     return 0, 0
 end
 
-function EnemyTextbox:getTailWidth()
+function SpeechBubble:getTailWidth()
     local tail_width, _ = self:getSpriteSize("tail")
     return tail_width
 end
 
-function EnemyTextbox:updateSize()
+function SpeechBubble:updateSize()
     --[[local parsed = self.text.display_text
 
     local _,lines = parsed:gsub("\n", "")
@@ -219,7 +219,7 @@ function EnemyTextbox:updateSize()
     end
 end
 
-function EnemyTextbox:draw()
+function SpeechBubble:draw()
     if not self.auto then
         love.graphics.draw(self:getSprite(), 0, 0)
     else
@@ -283,4 +283,4 @@ function EnemyTextbox:draw()
     super:draw(self)
 end
 
-return EnemyTextbox
+return SpeechBubble

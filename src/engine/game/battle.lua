@@ -426,8 +426,8 @@ function Battle:onStateChange(old,new)
                     local dialogue = enemy:getEnemyDialogue()
                     if dialogue then
                         any_dialogue = true
-                        local textbox = self:spawnEnemyTextbox(enemy, dialogue)
-                        table.insert(self.enemy_dialogue, textbox)
+                        local bubble = enemy:spawnSpeechBubble(dialogue)
+                        table.insert(self.enemy_dialogue, bubble)
                     end
                 end
                 if not any_dialogue then
@@ -1971,35 +1971,6 @@ end
 
 function Battle:infoText(text)
     self.battle_ui.encounter_text:setText(text or "")
-end
-
-function Battle:spawnEnemyTextbox(enemy, text, right, style)
-    local textbox
-    if not style and enemy.dialogue_bubble then
-        style = enemy.dialogue_bubble
-    end
-    if not right then
-        local x, y = enemy.sprite:getRelativePos(0, enemy.sprite.height/2, self)
-        if enemy.dialogue_offset then
-            x, y = x + enemy.dialogue_offset[1], y + enemy.dialogue_offset[2]
-        end
-        textbox = EnemyTextbox(text, x, y, enemy, false, style)
-    else
-        local x, y = enemy.sprite:getRelativePos(enemy.sprite.width, enemy.sprite.height/2, self)
-        if enemy.dialogue_offset then
-            x, y = x - enemy.dialogue_offset[1], y + enemy.dialogue_offset[2]
-        end
-        textbox = EnemyTextbox(text, x, y, enemy, true, style)
-    end
-    enemy.textbox = textbox
-    enemy:onTextboxSpawn(textbox)
-    textbox:setCallback(function()
-        enemy:onTextboxRemove(textbox)
-        textbox:remove()
-        enemy.textbox = nil
-    end)
-    self:addChild(textbox)
-    return textbox
 end
 
 function Battle:hasCutscene()

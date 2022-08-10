@@ -289,40 +289,40 @@ function BattleCutscene:text(text, portrait, actor, options)
     end
 end
 
-function BattleCutscene:enemyText(enemies, text, options)
+function BattleCutscene:battlerText(battlers, text, options)
     options = options or {}
-    if type(enemies) == "string" then
-        local enemy_id = enemies
-        enemies = {}
+    if type(battlers) == "string" then
+        local enemy_id = battlers
+        battlers = {}
         for _,battler in ipairs(Game.battle.enemies) do
             if battler.id == enemy_id then
-                table.insert(enemies, battler)
+                table.insert(battlers, battler)
             end
         end
-    elseif isClass(enemies) then
-        enemies = {enemies}
+    elseif isClass(battlers) then
+        battlers = {battlers}
     end
     local wait = options["wait"] or options["wait"] == nil
-    local textboxes = {}
-    for _,enemy in ipairs(enemies) do
-        local textbox
+    local bubbles = {}
+    for _,enemy in ipairs(battlers) do
+        local bubble
         if not options["x"] and not options["y"] then
-            textbox = Game.battle:spawnEnemyTextbox(enemy, text, options["right"], options["style"])
+            bubble = enemy:spawnSpeechBubble(text, options["right"], options["style"])
         else
-            textbox = EnemyTextbox(text, options["x"] or 0, options["y"] or 0, enemy, options["right"], options["style"])
-            Game.battle:addChild(textbox)
+            bubble = SpeechBubble(text, options["x"] or 0, options["y"] or 0, enemy, options["right"], options["style"])
+            Game.battle:addChild(bubble)
         end
-        textbox:setAdvance(options["advance"] or options["advance"] == nil)
-        textbox:setAuto(options["auto"])
-        if not textbox.text.can_advance then
+        bubble:setAdvance(options["advance"] or options["advance"] == nil)
+        bubble:setAuto(options["auto"])
+        if not bubble.text.can_advance then
             wait = options["wait"]
         end
-        textbox:setCallback(function() textbox:remove() end)
-        table.insert(textboxes, textbox)
+        bubble:setCallback(function() bubble:remove() end)
+        table.insert(bubbles, bubble)
     end
     local wait_func = function()
-        for _,textbox in ipairs(textboxes) do
-            if not textbox:isDone() then
+        for _,bubble in ipairs(bubbles) do
+            if not bubble:isDone() then
                 return false
             end
         end
@@ -331,7 +331,7 @@ function BattleCutscene:enemyText(enemies, text, options)
     if wait then
         return self:wait(wait_func)
     else
-        return wait_func, textboxes
+        return wait_func, bubbles
     end
 end
 
