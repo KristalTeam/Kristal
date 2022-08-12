@@ -368,9 +368,9 @@ function Shop:leaveImmediate()
     if self.leave_options["menu"] then
         Game:returnToMenu()
     elseif self.leave_options["x"] then
-        Game.world:mapTransition(self.leave_options["map"] or Game.world.map, self.leave_options["x"], self.leave_options["y"], self.leave_options["facing"])
+        Game.world:mapTransition(self.leave_options["map"] or Game.world.map.id, self.leave_options["x"], self.leave_options["y"], self.leave_options["facing"])
     elseif self.leave_options["marker"] then
-        Game.world:mapTransition(self.leave_options["map"] or Game.world.map, self.leave_options["marker"], self.leave_options["facing"])
+        Game.world:mapTransition(self.leave_options["map"] or Game.world.map.id, self.leave_options["marker"], self.leave_options["facing"])
     else
         if self.leave_options["facing"] then
             Game.world.player:setFacing(self.leave_options["facing"])
