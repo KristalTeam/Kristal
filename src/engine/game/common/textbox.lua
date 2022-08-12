@@ -233,19 +233,22 @@ function Textbox:setText(text, callback)
     self.reaction_instances = {}
     self.text.font = self.font
     self.text.font_size = self.font_size
-    if self.actor and self.actor:getVoice() then
-        if type(text) ~= "table" then
-            text = {text}
-        else
-            text = Utils.copy(text)
+    if self.actor then
+        if self.actor:getVoice() then
+            if type(text) ~= "table" then
+                text = {text}
+            else
+                text = Utils.copy(text)
+            end
+            for i,line in ipairs(text) do
+                text[i] = "[voice:"..self.actor:getVoice().."]"..line
+            end
         end
-        for i,line in ipairs(text) do
-            text[i] = "[voice:"..self.actor:getVoice().."]"..line
+        if self.actor:getIndentString() then
+            self.text.indent_string = self.actor:getIndentString()
         end
-        self.text:setText(text, callback or self.advance_callback)
-    else
-        self.text:setText(text, callback or self.advance_callback)
     end
+    self.text:setText(text, callback or self.advance_callback)
 end
 
 function Textbox:getText()

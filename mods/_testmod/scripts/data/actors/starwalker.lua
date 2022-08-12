@@ -26,6 +26,7 @@ function actor:init()
 
     -- Sound to play when this actor speaks (optional)
     self.voice = nil
+    self.indent_string = "*** "
     -- Path to this actor's portrait for dialogue (optional)
     self.portrait_path = nil
     -- Offset position for this actor's portrait (optional)

@@ -10,7 +10,7 @@ return function(cutscene, event, player, facing)
         cutscene:showShop()
         local shopbox = cutscene.shopbox
         Game.world.music:pause()
-        cutscene:text("* Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1.2s]", {functions = {
+        cutscene:text("*** Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1.2s]", {functions = {
             remove = function()
                 Game.money = Game.money - 1
                 Assets.playSound("locker")
@@ -72,12 +72,12 @@ return function(cutscene, event, player, facing)
         event.interacted = true
         cutscene:showShop()
         cutscene:setSpeaker(event)
-        cutscene:text("* These [color:yellow]bananas[color:reset] are [color:yellow]Pissing[color:reset] me\noff...")
+        cutscene:text("*** These [color:yellow]bananas[color:reset] are [color:yellow]Pissing[color:reset] me\noff...")
         while Game.money > 0 do
             Game.money = math.floor(Utils.lerp(Game.money, 0, 0.33))
             cutscene:wait(1/30)
         end
-        cutscene:text("* I'm the original   [color:yellow]Starwalker[color:reset][talk:false][react:1][wait:5][react:2][wait:5][react:3][wait:5][react:sussy]", {reactions={
+        cutscene:text("*** I'm the original   [color:yellow]Starwalker[color:reset][talk:false][react:1][wait:5][react:2][wait:5][react:3][wait:5][react:sussy]", {reactions={
             {"susie", "surprise", "left", "bottom", "BottomLeft"},
             {"ralsei", "blush", "right", "top", "RightTop"},
             {"noelle", "smile", "mid", "mid", "MidMid"},
@@ -92,7 +92,7 @@ return function(cutscene, event, player, facing)
         cutscene:text("* (The original   [color:yellow]Starwalker[color:reset][wait:6]\n   somehow saved your game...)")
     else
         Game.world.music:stop()
-        cutscene:text("* [color:yellow]You[color:reset] are [color:yellow]Pissing[color:reset] me off...", nil, event)
+        cutscene:text("*** [color:yellow]You[color:reset] are [color:yellow]Pissing[color:reset] me off...", nil, event)
         cutscene:text("* I,[wait:5] uh,[wait:5] what?", "sus_nervous", "susie")
         cutscene:text("* Well,[wait:5] hey,[wait:5] you know\nwhat?", "annoyed", "susie")
         cutscene:text("* You piss us off too.", "smirk", "susie")

@@ -8,7 +8,7 @@ return {
 
     starwalker_disable = function(cutscene, event)
         if Game:getFlag("alley3_enable_forcefield") then
-            cutscene:text("* This [color:yellow]forcefield[color:reset] is [color:yellow]Pissing[color:reset] me off...")
+            cutscene:text("*** This [color:yellow]forcefield[color:reset] is [color:yellow]Pissing[color:reset] me off...")
             cutscene:wait(0.25)
 
             Game:setFlag("alley3_enable_forcefield", false)
@@ -16,7 +16,7 @@ return {
             Assets.playSound("dtrans_flip")
 
             cutscene:wait(1)
-            cutscene:text("* Not   [wait:5]anymore")
+            cutscene:text("*** Not   [wait:5]anymore")
         else
             local alpha = event:addFX(AlphaFX())
 

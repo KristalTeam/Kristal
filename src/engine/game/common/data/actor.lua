@@ -24,6 +24,8 @@ function Actor:init()
 
     -- Sound to play when this actor speaks (optional)
     self.voice = nil
+    -- Indent style for the actor (optional)
+    self.indent_string = nil
     -- Path to this actor's portrait for dialogue (optional)
     self.portrait_path = nil
     -- Offset position for this actor's portrait (optional)
@@ -108,6 +110,7 @@ function Actor:getDefaultAnim() return self.default_anim end
 function Actor:getDefault() return self:getDefaultAnim() or self:getDefaultSprite() or self.default or "" end
 
 function Actor:getVoice() return self.voice end
+function Actor:getIndentString() return self.indent_string end
 
 function Actor:getPortraitPath() return self.portrait_path end
 function Actor:getPortraitOffset() return unpack(self.portrait_offset or {0, 0}) end

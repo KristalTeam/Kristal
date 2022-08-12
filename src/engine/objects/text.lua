@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "image", "offset"}
+Text.COMMANDS = {"color", "font", "style", "shake", "image", "offset", "indent"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -47,6 +47,7 @@ function Text:init(text, x, y, w, h, options)
     self.last_shake = 0
 
     self.auto_size = options["auto_size"] or false
+    self.indent_string = options["indent_string"] or "* "
 
     self.preprocess = options["preprocess"] or self.align ~= "left" or self.wrap or self.auto_size
 
@@ -106,8 +107,9 @@ function Text:resetState()
         speed = 1,
         waiting = 0,
         skipping = false,
-        asterisk_mode = false,
-        asterisk_length = 0,
+        indent_string = self.indent_string,
+        indent_mode = false,
+        indent_length = 0,
         escaping = false,
         typed_string = "",
         typing_sound = "",
@@ -391,14 +393,14 @@ function Text:processNode(node, dry)
         self.state.typed_characters = self.state.typed_characters + 1
         self.state.typed_string = self.state.typed_string .. node.character
         local font_scale = Assets.getFontScale(self.state.font, self.state.font_size)
-        if self.state.typed_string == "* " then
-            self.state.asterisk_mode = true
-            self.state.asterisk_length = font:getWidth("* ") * font_scale
+        if self.state.typed_string == self.state.indent_string then
+            self.state.indent_mode = true
+            self.state.indent_length = font:getWidth(self.state.indent_string) * font_scale
         end
         if node.character == "\n" then
             self.state.current_x = 0
-            if self.state.asterisk_mode then
-                self.state.current_x = self.state.asterisk_length + self.state.spacing
+            if self.state.indent_mode then
+                self.state.current_x = self.state.indent_length + self.state.spacing
             end
             local spacing = Assets.getFontData(self.state.font) or {}
             self.state.current_y = self.state.current_y + ((spacing.lineSpacing or font:getHeight()) * font_scale) + self.line_offset
@@ -415,8 +417,8 @@ function Text:processNode(node, dry)
             self.state.newline = false
             self.state.typed_characters = self.state.typed_characters - 1
         elseif not self.state.escaping then
-            if node.character == "*" then
-                if self.state.asterisk_mode and self.state.newline then
+            if node.character == self.state.indent_string:sub(1,1) then
+                if self.state.indent_mode and self.state.newline then
                     self.state.current_x = 0
                     self.state.newline = false
                 end
@@ -432,7 +434,7 @@ function Text:processNode(node, dry)
         else
             self.state.newline = false
             self.state.escaping = false
-            if node.character == "\\" or node.character == "*" or node.character == "[" or node.character == "]" then
+            if node.character == "\\" or node.character == self.state.indent_string:sub(1,1) or node.character == "[" or node.character == "]" then
                 if not dry then
                     self:drawChar(node, self.state)
                     table.insert(self.nodes_to_draw, {node, Utils.copy(self.state, true)})
@@ -453,7 +455,7 @@ function Text:processNode(node, dry)
     self.state.max_width = math.max(self.state.max_width, self.state.current_x)
     self.state.max_height = math.max(self.state.max_height, self.state.current_y)
 
-    if self.state.asterisk_mode then
+    if self.state.indent_mode then
         for i = 1, #self.state.line_lengths do
             self.state.line_lengths[i] = self.state.max_width
         end
@@ -537,6 +539,8 @@ function Text:processModifier(node, dry)
     elseif node.command == "offset" then
         self.state.current_x = self.state.current_x + tonumber(node.arguments[1])
         self.state.current_y = self.state.current_y + tonumber(node.arguments[2])
+    elseif node.command == "indent" then
+        self.state.indent_string = node.arguments[1]
     end
 end
 
