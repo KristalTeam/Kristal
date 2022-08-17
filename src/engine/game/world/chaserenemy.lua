@@ -226,14 +226,18 @@ function ChaserEnemy:update()
                 Object.endCache()
             end
         elseif self.chasing then
-            if self.world.player then
-                local angle = Utils.angle(self.x, self.y, self.world.player.x, self.world.player.y)
-                self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
-            end
+            self:chaseMovement()
         end
     end
 
     super:update(self)
+end
+
+function ChaserEnemy:chaseMovement()
+    if self.world.player then
+        local angle = Utils.angle(self.x, self.y, self.world.player.x, self.world.player.y)
+        self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
+    end
 end
 
 return ChaserEnemy
