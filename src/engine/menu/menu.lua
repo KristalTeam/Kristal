@@ -510,7 +510,7 @@ function Menu:draw()
 
         local width = 320
         local height = 32 * 10
-        local total_height = 32 * 15 -- should be the amount of options there are
+        local total_height = 32 * 16 -- should be the amount of options there are
 
         Draw.pushScissor()
         Draw.scissor(menu_x, menu_y, width + 10, height + 10)
@@ -522,35 +522,37 @@ function Menu:draw()
         self:printShadow("Simplify VFX",      menu_x, menu_y + (32 * 2))
         self:printShadow("Window Scale",      menu_x, menu_y + (32 * 3))
         self:printShadow("Fullscreen",        menu_x, menu_y + (32 * 4))
-        self:printShadow("Target FPS",        menu_x, menu_y + (32 * 5))
-        self:printShadow("VSync",             menu_x, menu_y + (32 * 6))
-        self:printShadow("Auto-Run",          menu_x, menu_y + (32 * 7))
-        self:printShadow("Skip Intro",        menu_x, menu_y + (32 * 8))
-        self:printShadow("Display FPS",       menu_x, menu_y + (32 * 9))
-        self:printShadow("Debug Hotkeys",     menu_x, menu_y + (32 * 10))
-        self:printShadow("Use System Mouse",  menu_x, menu_y + (32 * 11))
-        self:printShadow("Always Show Mouse", menu_x, menu_y + (32 * 12))
-        self:printShadow("Back",              menu_x, menu_y + (32 * 14))
+        self:printShadow("Show Borders",      menu_x, menu_y + (32 * 5))
+        self:printShadow("Target FPS",        menu_x, menu_y + (32 * 6))
+        self:printShadow("VSync",             menu_x, menu_y + (32 * 7))
+        self:printShadow("Auto-Run",          menu_x, menu_y + (32 * 8))
+        self:printShadow("Skip Intro",        menu_x, menu_y + (32 * 9))
+        self:printShadow("Display FPS",       menu_x, menu_y + (32 * 10))
+        self:printShadow("Debug Hotkeys",     menu_x, menu_y + (32 * 11))
+        self:printShadow("Use System Mouse",  menu_x, menu_y + (32 * 12))
+        self:printShadow("Always Show Mouse", menu_x, menu_y + (32 * 13))
+        self:printShadow("Back",              menu_x, menu_y + (32 * 15))
 
         self:printShadow(Utils.round(Kristal.getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
         self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
         self:printShadow(tostring(Kristal.Config["windowScale"]).."x", menu_x + (8 * 32), menu_y + (32 * 3))
         self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
+        self:printShadow(Kristal.getBorderName(), menu_x + (8 * 32), menu_y + (32 * 5))
         if Kristal.Config["fps"] > 0 then
-            self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 5))
+            self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 6))
         else
             love.graphics.setColor(0, 0, 0)
-            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 5) + 11, 0, 2, 2)
+            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 6) + 11, 0, 2, 2)
             love.graphics.setColor(1, 1, 1)
-            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 5) + 9, 0, 2, 2)
+            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 6) + 9, 0, 2, 2)
         end
-        self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 6))
-        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
-        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
-        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 9))
-        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 10))
-        self:printShadow(Kristal.Config["systemCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 11))
-        self:printShadow(Kristal.Config["alwaysShowCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 12))
+        self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
+        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
+        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 9))
+        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 10))
+        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 11))
+        self:printShadow(Kristal.Config["systemCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 12))
+        self:printShadow(Kristal.Config["alwaysShowCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 13))
 
         -- Draw the scrollbar background
         love.graphics.setColor({0, 0, 0, 0.5})
@@ -855,11 +857,11 @@ function Menu:keypressed(key, _, is_repeat)
         if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
         if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
         if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 14 then self.selected_option = is_repeat and 14 or 1  end
-        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 14 end
+        if self.selected_option > 15 then self.selected_option = is_repeat and 15 or 1  end
+        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 15 end
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 14 then
+        if self.selected_option >= 15 then
             y_off = y_off + 32
         end
 
@@ -901,26 +903,33 @@ function Menu:keypressed(key, _, is_repeat)
                 Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
                 love.window.setFullscreen(Kristal.Config["fullscreen"])
             elseif self.selected_option == 6 then
+                if Kristal.Config["borders"] == "off" then
+                    Kristal.Config["borders"] = "dynamic"
+                else
+                    Kristal.Config["borders"] = "off"
+                end
+                Kristal.resetWindow()
+            elseif self.selected_option == 7 then
                 self:setState("FPSOPTION")
                 self.heart_target_x = 408
-            elseif self.selected_option == 7 then
+            elseif self.selected_option == 8 then
                 Kristal.Config["vSync"] = not Kristal.Config["vSync"]
                 love.window.setVSync(Kristal.Config["vSync"])
-            elseif self.selected_option == 8 then
-                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.selected_option == 9 then
-                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
+                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.selected_option == 10 then
-                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
+                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
             elseif self.selected_option == 11 then
-                Kristal.Config["debug"] = not Kristal.Config["debug"]
+                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
             elseif self.selected_option == 12 then
+                Kristal.Config["debug"] = not Kristal.Config["debug"]
+            elseif self.selected_option == 13 then
                 Kristal.Config["systemCursor"] = not Kristal.Config["systemCursor"]
                 Kristal.updateCursor()
-            elseif self.selected_option == 13 then
+            elseif self.selected_option == 14 then
                 Kristal.Config["alwaysShowCursor"] = not Kristal.Config["alwaysShowCursor"]
                 Kristal.updateCursor()
-            elseif self.selected_option == 14 then
+            elseif self.selected_option == 15 then
                 self:setState("MAINMENU")
                 self.heart_target_x = 196
                 self.selected_option = 3

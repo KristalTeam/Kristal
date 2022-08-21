@@ -57,7 +57,7 @@ function love.load(args)
 
     -- set the window size
     local window_scale = Kristal.Config["windowScale"]
-    if window_scale ~= 1 or Kristal.Config["fullscreen"] then
+    if window_scale ~= 1 or Kristal.Config["fullscreen"] or Kristal.bordersEnabled() then
         Kristal.resetWindow()
     end
 
@@ -75,6 +75,8 @@ function love.load(args)
 
     -- make mouse sprite
     MOUSE_SPRITE = love.graphics.newImage((love.math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or "assets/sprites/kristal/mouse.png")
+
+    BORDER_SPRITE = love.graphics.newImage("assets/sprites/borders/castle.png")
 
     -- setup structure
     love.filesystem.createDirectory("mods")
@@ -134,6 +136,17 @@ function love.load(args)
         Draw.setCanvas()
 
         love.graphics.setColor(1, 1, 1, 1)
+
+        if Kristal.bordersEnabled() then
+            local border_sprite = Kristal.getBorderSprite()
+            if border_sprite then
+                love.graphics.scale(Kristal.getGameScale())
+                love.graphics.draw(border_sprite, 0, 0, 0, BORDER_SCALE)
+                love.graphics.reset()
+            end
+        end
+
+        -- Draw the game canvas
         love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
         love.graphics.scale(Kristal.getGameScale())
         love.graphics.draw(SCREEN_CANVAS, -SCREEN_WIDTH/2, -SCREEN_HEIGHT/2)
@@ -891,14 +904,57 @@ end
 
 function Kristal.resetWindow()
     local window_scale = Kristal.Config["windowScale"]
-    love.window.setMode(SCREEN_WIDTH * window_scale, SCREEN_HEIGHT * window_scale, {
+    local window_width  = SCREEN_WIDTH * window_scale
+    local window_height = SCREEN_HEIGHT * window_scale
+
+    if Kristal.bordersEnabled() then
+        local border_width, border_height = Kristal.getRelativeBorderSize()
+        window_width  = window_width  + border_width
+        window_height = window_height + border_height
+    end
+
+    love.window.setMode(window_width, window_height, {
         fullscreen = Kristal.Config["fullscreen"],
-        vsync = Kristal.Config["vSync"] and 1 or 0
+        vsync = Kristal.Config["vSync"]
     })
 end
 
+function Kristal.bordersEnabled()
+    return Kristal.Config["borders"] ~= "off"
+end
+
+function Kristal.getBorderSize()
+    if Kristal.bordersEnabled() then
+        return (BORDER_WIDTH * BORDER_SCALE) * Kristal.Config["windowScale"], (BORDER_HEIGHT * BORDER_SCALE) * Kristal.Config["windowScale"]
+    end
+    return 0, 0
+end
+
+function Kristal.getRelativeBorderSize()
+    if Kristal.bordersEnabled() then
+        return ((BORDER_WIDTH  * BORDER_SCALE) - SCREEN_WIDTH ) * Kristal.Config["windowScale"],
+               ((BORDER_HEIGHT * BORDER_SCALE) - SCREEN_HEIGHT) * Kristal.Config["windowScale"]
+    end
+    return 0, 0
+end
+
+function Kristal.getBorderSprite()
+    if not REGISTRY_LOADED then
+        return nil
+    end
+    return BORDER_SPRITE
+end
+
+function Kristal.getBorderName()
+    return Kristal.Config["borders"]:upper()
+end
+
 function Kristal.getGameScale()
-    return math.min(love.graphics.getWidth() / SCREEN_WIDTH, love.graphics.getHeight() / SCREEN_HEIGHT)
+    if Kristal.bordersEnabled() then
+        return math.min(love.graphics.getWidth() / (BORDER_WIDTH * BORDER_SCALE), love.graphics.getHeight() / (BORDER_HEIGHT * BORDER_SCALE))
+    else
+        return math.min(love.graphics.getWidth() / SCREEN_WIDTH, love.graphics.getHeight() / SCREEN_HEIGHT)
+    end
 end
 
 function Kristal.getSideOffsets()
@@ -922,6 +978,7 @@ function Kristal.loadConfig()
         systemCursor = false,
         alwaysShowCursor = false,
         objectSelectionSlowdown = true,
+        borders = "off"
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
