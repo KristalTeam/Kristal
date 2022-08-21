@@ -137,10 +137,16 @@ function love.load(args)
 
         if Kristal.bordersEnabled() then
             local border_sprite = Kristal.getBorderSprite()
-            if border_sprite then
-                love.graphics.scale(Kristal.getGameScale())
-                love.graphics.setColor(1, 1, 1, BORDER_ALPHA)
-                love.graphics.draw(border_sprite, 0, 0, 0, BORDER_SCALE)
+            local border_texture = border_sprite
+
+            if type(border_sprite) == "string" then
+                border_texture = Assets.getTexture(border_sprite)
+            end
+
+            love.graphics.scale(Kristal.getGameScale())
+            love.graphics.setColor(1, 1, 1, BORDER_ALPHA)
+            if border_texture then
+                love.graphics.draw(border_texture, 0, 0, 0, BORDER_SCALE)
             end
             Kristal.callEvent("onBorderDraw", border_sprite)
             love.graphics.setColor(1, 1, 1, 1)
@@ -956,18 +962,17 @@ function Kristal.getBorderSprite()
     if border[1] == "dynamic" then
         return Kristal.processDynamicBorder()
     elseif border[3] then
-        if type(border[3]) == "string" then
-            return Assets.getTexture(border[3])
-        elseif type(border[3]) == "function" then
+        if type(border[3]) == "function" then
             return border[3]()
         end
+        return border[3]
     end
     return nil
 end
 
 function Kristal.processDynamicBorder()
     if Kristal.getState() == Game then
-        return Assets.getTexture(Game:getBorder())
+        return Game:getBorder()
     elseif Kristal.getState() == Kristal.States["Menu"] then
         if not Kristal.stageTransitionExists() then
             Kristal.showBorder(0.5)
