@@ -66,7 +66,11 @@ function Game:leave()
 end
 
 function Game:getBorder()
-    -- TODO: mod callback!
+    local mod_border = Kristal.callEvent("getBorder")
+    if mod_border then
+        return mod_border
+    end
+
     if self.state == "GAMEOVER" then
         Kristal.hideBorder(0)
         return nil

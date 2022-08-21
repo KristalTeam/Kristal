@@ -141,9 +141,10 @@ function love.load(args)
                 love.graphics.scale(Kristal.getGameScale())
                 love.graphics.setColor(1, 1, 1, BORDER_ALPHA)
                 love.graphics.draw(border_sprite, 0, 0, 0, BORDER_SCALE)
-                love.graphics.setColor(1, 1, 1, 1)
-                love.graphics.reset()
             end
+            Kristal.callEvent("onBorderDraw", border_sprite)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.reset()
         end
 
         -- Draw the game canvas
