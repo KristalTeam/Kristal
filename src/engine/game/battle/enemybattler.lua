@@ -413,10 +413,10 @@ function EnemyBattler:hurt(amount, battler, on_defeat, color)
     self.hurt_timer = 1
     self:onHurt(amount, battler)
 
-    self:checkHealth(on_defeat)
+    self:checkHealth(on_defeat, amount, battler)
 end
 
-function EnemyBattler:checkHealth(on_defeat)
+function EnemyBattler:checkHealth(on_defeat, amount, battler)
     -- on_defeat is optional
     if self.health <= 0 then
         self.health = 0
