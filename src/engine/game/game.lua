@@ -66,15 +66,16 @@ function Game:leave()
 end
 
 function Game:getBorder()
+    if self.state == "GAMEOVER" then
+        Kristal.hideBorder(0)
+        return nil
+    end
+
     local mod_border = Kristal.callEvent("getBorder")
     if mod_border then
         return mod_border
     end
 
-    if self.state == "GAMEOVER" then
-        Kristal.hideBorder(0)
-        return nil
-    end
     if Game:isLight() then
         Game:setBorder("leaves")
     end
