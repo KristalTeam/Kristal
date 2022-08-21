@@ -5,6 +5,17 @@ BORDER_WIDTH = 1924
 BORDER_HEIGHT = 1084
 BORDER_SCALE = 0.5
 
+BORDER_ALPHA = 0
+BORDER_FADING = "OUT"
+BORDER_FADE_TIME = 0.5
+
+BORDER_TYPES = {
+    {"off",     "OFF",     nil},
+    {"dynamic", "Dynamic", nil},
+    {"simple",  "Simple",  "borders/simple"},
+    {"none",    "None",    nil}
+}
+
 TILE_WIDTH = 40
 TILE_HEIGHT = 40
 

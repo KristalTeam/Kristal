@@ -24,6 +24,7 @@ function Game:clear()
     self.quick_save = nil
     self.lock_movement = false
     self.started = false
+    self.border = "simple"
 end
 
 function Game:enter(previous_state, save_id, save_name)
@@ -64,8 +65,26 @@ function Game:leave()
     self.quick_save = nil
 end
 
+function Game:getBorder()
+    -- TODO: mod callback!
+    if self.state == "GAMEOVER" then
+        Kristal.hideBorder(0)
+        return nil
+    end
+    if Game:isLight() then
+        Game:setBorder("leaves")
+    end
+
+    return "borders/" .. self.border
+end
+
+function Game:setBorder(path)
+    self.border = path
+end
+
 function Game:returnToMenu()
     self.fader:fadeOut(Kristal.returnToMenu, {speed = 0.5, music = 10/30})
+    Kristal.hideBorder(0.5)
     self.state = "EXIT"
 end
 
@@ -174,6 +193,11 @@ function Game:load(data, index, fade)
     data = data or {}
 
     self:clear()
+
+    if not Kristal.stageTransitionExists() then
+        BORDER_ALPHA = 0
+        Kristal.showBorder(1)
+    end
 
     -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
     self.state = "OVERWORLD"
@@ -380,7 +404,7 @@ function Game:gameOver(x, y)
     if self.shop     then self.shop    :remove() end
     if self.gameover then self.gameover:remove() end
 
-    self.gameover = GameOver(x, y)
+    self.gameover = GameOver(x or 0, y or 0)
     self.stage:addChild(self.gameover)
 end
 

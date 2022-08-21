@@ -160,7 +160,7 @@ function Menu:onStateChange(old_state, new_state)
         self.files.layer = 50
         self.stage:addChild(self.files)
     elseif new_state == "OPTIONS" then
-        if old_state ~= "VOLUME" and old_state ~= "WINDOWSCALE" and old_state ~= "FPSOPTION" then
+        if old_state ~= "VOLUME" and old_state ~= "WINDOWSCALE" and old_state ~= "FPSOPTION" and old_state ~= "BORDER" then
             self.options_target_y = 0
             self.options_y = 0
         end
@@ -469,7 +469,7 @@ function Menu:update()
 end
 
 function Menu:optionsShown()
-    return self.state == "OPTIONS" or self.state == "VOLUME" or self.state == "WINDOWSCALE" or self.state == "FPSOPTION"
+    return self.state == "OPTIONS" or self.state == "VOLUME" or self.state == "WINDOWSCALE" or self.state == "FPSOPTION" or self.state == "BORDER"
 end
 
 function Menu:draw()
@@ -508,7 +508,7 @@ function Menu:draw()
         local menu_x = 185 - 14
         local menu_y = 110
 
-        local width = 320
+        local width = 360
         local height = 32 * 10
         local total_height = 32 * 16 -- should be the amount of options there are
 
@@ -522,7 +522,7 @@ function Menu:draw()
         self:printShadow("Simplify VFX",      menu_x, menu_y + (32 * 2))
         self:printShadow("Window Scale",      menu_x, menu_y + (32 * 3))
         self:printShadow("Fullscreen",        menu_x, menu_y + (32 * 4))
-        self:printShadow("Show Borders",      menu_x, menu_y + (32 * 5))
+        self:printShadow("Border",            menu_x, menu_y + (32 * 5))
         self:printShadow("Target FPS",        menu_x, menu_y + (32 * 6))
         self:printShadow("VSync",             menu_x, menu_y + (32 * 7))
         self:printShadow("Auto-Run",          menu_x, menu_y + (32 * 8))
@@ -903,12 +903,8 @@ function Menu:keypressed(key, _, is_repeat)
                 Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
                 love.window.setFullscreen(Kristal.Config["fullscreen"])
             elseif self.selected_option == 6 then
-                if Kristal.Config["borders"] == "off" then
-                    Kristal.Config["borders"] = "dynamic"
-                else
-                    Kristal.Config["borders"] = "off"
-                end
-                Kristal.resetWindow()
+                self:setState("BORDER")
+                self.heart_target_x = 408
             elseif self.selected_option == 7 then
                 self:setState("FPSOPTION")
                 self.heart_target_x = 408
@@ -945,6 +941,40 @@ function Menu:keypressed(key, _, is_repeat)
             self.ui_select:play()
             self.heart_target_x = 152
             self.heart_target_y = (129 + (self.selected_option - 1) * 32) + self.options_target_y
+        end
+    elseif self.state == "BORDER" then
+        if Input.isCancel(key) or Input.isConfirm(key) then
+            self:setState("OPTIONS")
+            self.ui_select:stop()
+            self.ui_select:play()
+            self.heart_target_x = 152
+            self.heart_target_y = (129 + (self.selected_option - 1) * 32) + self.options_target_y
+        end
+        local border_index = -1
+        for current_index, border in ipairs(BORDER_TYPES) do
+            if border[1] == Kristal.Config["borders"] then
+                border_index = current_index
+            end
+        end
+        if border_index == -1 then
+            border_index = 1
+        end
+        local old_index = border_index
+        if Input.is("left", key) then
+            border_index = math.max(border_index - 1, 1)
+        end
+        if Input.is("right", key) then
+            border_index = math.min(border_index + 1, #BORDER_TYPES)
+        end
+        if old_index ~= border_index then
+            self.ui_move:stop()
+            self.ui_move:play()
+            Kristal.Config["borders"] = BORDER_TYPES[border_index][1]
+            if BORDER_TYPES[border_index][1] == "off" then
+                Kristal.resetWindow()
+            elseif BORDER_TYPES[old_index][1] == "off" then
+                Kristal.resetWindow()
+            end
         end
     elseif self.state == "FPSOPTION" then
         if Input.isCancel(key) or Input.isConfirm(key) then

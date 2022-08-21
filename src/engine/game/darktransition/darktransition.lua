@@ -21,6 +21,8 @@ function DarkTransition:init(final_y, options)
     self.land_callback = nil
     self.end_callback = nil
 
+    Kristal.hideBorder(1)
+
     self.con = 8
     self.timer = 0
     self.index = 0
@@ -910,6 +912,7 @@ function DarkTransition:draw()
         if ((math.floor(self.timer) >= 27) and not self.do_once9) then
             self.do_once9 = true
             Assets.playSound("him_quick")
+            Kristal.showBorder(1)
             --with (obj_mainchara) then
             --    x = -999
             --    cutscene = true
