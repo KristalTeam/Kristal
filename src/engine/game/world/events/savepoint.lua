@@ -33,6 +33,8 @@ function Savepoint:onInteract(player, dir)
 end
 
 function Savepoint:onTextEnd()
+    if not self.world then return end
+
     for _,party in ipairs(Game.party) do
         party:heal(math.huge, false)
     end
