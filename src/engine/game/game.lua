@@ -70,11 +70,13 @@ function Game:getBorder()
 end
 
 function Game:setBorder(border, time)
+    time = time or 1
+
     if not Kristal.stageTransitionExists() then
         if time == 0 then
             Kristal.showBorder(0)
         elseif time > 0 and Kristal.getBorder() ~= border then
-            Kristal.transitionBorder(time or 1)
+            Kristal.transitionBorder(time)
         end
     end
 
