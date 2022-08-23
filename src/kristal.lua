@@ -136,21 +136,30 @@ function love.load(args)
         love.graphics.setColor(1, 1, 1, 1)
 
         if Kristal.bordersEnabled() then
-            local border_sprite = Kristal.getBorderSprite()
-            local border_texture = border_sprite
+            local border = Kristal.getBorder()
 
-            if type(border_sprite) == "string" then
-                border_texture = Assets.getTexture(border_sprite)
+            local dynamic = Kristal.Config["borders"] == "dynamic"
+
+            if dynamic and BORDER_FADING == "OUT" and BORDER_FADE_FROM then
+                border = BORDER_FADE_FROM
             end
 
-            love.graphics.scale(Kristal.getGameScale())
-            love.graphics.setColor(1, 1, 1, BORDER_ALPHA)
-            if border_texture then
-                love.graphics.draw(border_texture, 0, 0, 0, BORDER_SCALE)
+            if border then
+                local border_texture = Assets.getTexture("borders/"..border)
+
+                love.graphics.scale(Kristal.getGameScale())
+                love.graphics.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
+                if border_texture then
+                    love.graphics.draw(border_texture, 0, 0, 0, BORDER_SCALE)
+                end
+                if dynamic then
+                    Kristal.callEvent("onBorderDraw", border, border_texture)
+                end
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.reset()
             end
-            Kristal.callEvent("onBorderDraw", border_sprite)
-            love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.reset()
+
+            LAST_BORDER = border
         end
 
         -- Draw the game canvas
@@ -211,6 +220,11 @@ function love.update(dt)
 
     if BORDER_FADING == "OUT" then
         BORDER_ALPHA = BORDER_ALPHA - (dt / BORDER_FADE_TIME)
+        if BORDER_ALPHA <= 0 and BORDER_TRANSITIONING then
+            BORDER_FADING = "IN"
+            BORDER_FADE_FROM = nil
+            BORDER_TRANSITIONING = false
+        end
     elseif BORDER_FADING == "IN" then
         BORDER_ALPHA = BORDER_ALPHA + (dt / BORDER_FADE_TIME)
     end
@@ -952,7 +966,7 @@ function Kristal.getRelativeBorderSize()
     return 0, 0
 end
 
-function Kristal.getBorderSprite()
+function Kristal.getBorder()
     if not REGISTRY_LOADED then
         return nil
     end
@@ -974,10 +988,7 @@ function Kristal.processDynamicBorder()
     if Kristal.getState() == Game then
         return Game:getBorder()
     elseif Kristal.getState() == Kristal.States["Menu"] then
-        if not Kristal.stageTransitionExists() then
-            Kristal.showBorder(0.5)
-        end
-        return Assets.getTexture("borders/castle")
+        return "castle"
     end
 end
 
@@ -985,14 +996,28 @@ function Kristal.stageTransitionExists()
     return #Kristal.Stage:getObjects(DarkTransition) ~= 0
 end
 
-function Kristal.hideBorder(speed)
+function Kristal.hideBorder(time, keep_old)
     BORDER_FADING = "OUT"
-    BORDER_FADE_TIME = speed or 0.5
+    BORDER_FADE_TIME = time or 0.5
+    BORDER_FADE_FROM = keep_old and LAST_BORDER or nil
+    BORDER_TRANSITIONING = false
 end
 
-function Kristal.showBorder(speed)
+function Kristal.transitionBorder(time)
+    if BORDER_ALPHA > 0 then
+        BORDER_FADING = "OUT"
+    end
+    BORDER_FADE_TIME = (time or 1) / 2
+    BORDER_FADE_FROM = LAST_BORDER
+    BORDER_TRANSITIONING = true
+end
+
+function Kristal.showBorder(time)
     BORDER_FADING = "IN"
-    BORDER_FADE_TIME = speed or 0.5
+    BORDER_FADE_TIME = time or 0.5
+    BORDER_FADE_FROM = nil
+    BORDER_TRANSITIONING = false
+    LAST_BORDER = Kristal.getBorder()
 end
 
 function Kristal.getBorderName()

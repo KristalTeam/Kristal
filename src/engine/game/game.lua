@@ -66,25 +66,19 @@ function Game:leave()
 end
 
 function Game:getBorder()
-    if self.state == "GAMEOVER" then
-        Kristal.hideBorder(0)
-        return nil
-    end
-
-    local mod_border = Kristal.callEvent("getBorder")
-    if mod_border then
-        return mod_border
-    end
-
-    if Game:isLight() then
-        Game:setBorder("leaves")
-    end
-
-    return "borders/" .. self.border
+    return self.border
 end
 
-function Game:setBorder(path)
-    self.border = path
+function Game:setBorder(border, time)
+    if not Kristal.stageTransitionExists() then
+        if time == 0 then
+            Kristal.showBorder(0)
+        elseif Kristal.getBorder() ~= border then
+            Kristal.transitionBorder(time or 1)
+        end
+    end
+
+    self.border = border
 end
 
 function Game:returnToMenu()
@@ -275,7 +269,10 @@ function Game:load(data, index, fade)
 
     self.lw_money = data.lw_money or 2
 
-    self.border = data.border or "simple"
+    self.border = data.border
+    if not self.border then
+        self.border = self.light and "leaves" or "castle"
+    end
 
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
@@ -407,6 +404,8 @@ function Game:convertToDark()
 end
 
 function Game:gameOver(x, y)
+    Kristal.hideBorder(0)
+
     self.state = "GAMEOVER"
     if self.battle   then self.battle  :remove() end
     if self.world    then self.world   :remove() end

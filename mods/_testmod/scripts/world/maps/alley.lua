@@ -1,7 +1,7 @@
 return {
   version = "1.9",
   luaversion = "5.1",
-  tiledversion = "1.9.0",
+  tiledversion = "1.9.1",
   class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
@@ -12,6 +12,7 @@ return {
   nextlayerid = 16,
   nextobjectid = 96,
   properties = {
+    ["border"] = "castle",
     ["light"] = false,
     ["music"] = "cybercity",
     ["name"] = "Test City - Sugarplum Alley"

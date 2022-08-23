@@ -628,6 +628,8 @@ function World:setupMap(map, ...)
 
     self.map:load()
 
+    local dark_transitioned = self.map.light ~= Game:isLight()
+
     Game:setLight(self.map.light)
 
     self.width = self.map.width * self.map.tile_width
@@ -646,6 +648,13 @@ function World:setupMap(map, ...)
     self.in_battle = false
     self.in_battle_area = false
     self.battle_alpha = 0
+
+    if not Kristal.stageTransitionExists() then
+        local map_border = self.map:getBorder(dark_transitioned)
+        if map_border then
+            Game:setBorder(map_border)
+        end
+    end
 
     if not self.map.keep_music then
         self:transitionMusic(self.map.music)
@@ -772,6 +781,11 @@ function World:mapTransition(...)
         local map = Registry.createMap(map)
         if not map.keep_music then
             self:transitionMusic(map.music, true)
+        end
+        local dark_transition = map.light ~= Game:isLight()
+        local map_border = map:getBorder(dark_transition)
+        if map_border then
+            Game:setBorder(map_border, 1)
         end
     end
     self:fadeInto(function()

@@ -28,6 +28,8 @@ function Menu:enter()
     -- Load menu music
     self.music = Music("mod_menu", 1, 0.95)
 
+    Kristal.showBorder(0.5)
+
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
     self.ui_cant_select = Assets.newSound("ui_cant_select")

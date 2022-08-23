@@ -26,6 +26,8 @@ function Map:init(world, data)
 
     self.light = data and data.properties and data.properties["light"] or false
 
+    self.border = data and data.properties and data.properties["border"]
+
     if data and data.backgroundcolor then
         local bgc = data.backgroundcolor
         self.bg_color = {bgc[1]/255, bgc[2]/255, bgc[3]/255, (bgc[4] or 255)/255}
@@ -98,6 +100,14 @@ function Map:onGameOver() end
 
 function Map:update() end
 function Map:draw() end
+
+function Map:getBorder(dark_transition)
+    if self.border then
+        return self.border
+    elseif dark_transition then
+        return self.light and "leaves" or "castle"
+    end
+end
 
 function Map:getUniqueID()
     return "#"..self.id

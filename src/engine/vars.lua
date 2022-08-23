@@ -8,11 +8,14 @@ BORDER_SCALE = 0.5
 BORDER_ALPHA = 0
 BORDER_FADING = "OUT"
 BORDER_FADE_TIME = 0.5
+BORDER_FADE_FROM = nil
+BORDER_TRANSITIONING = false
+LAST_BORDER = nil
 
 BORDER_TYPES = {
     {"off",     "OFF",     nil},
     {"dynamic", "Dynamic", nil},
-    {"simple",  "Simple",  "borders/simple"},
+    {"simple",  "Simple",  "simple"},
     {"none",    "None",    nil}
 }
 
