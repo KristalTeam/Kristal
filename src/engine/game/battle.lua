@@ -2850,7 +2850,7 @@ function Battle:keypressed(key)
                     end
                 end
 
-                if closest < 15 and closest > -5 then
+                if closest and closest < 15 and closest > -5 then
                     for _,attack in ipairs(closest_attacks) do
                         local points = attack:hit()
 
