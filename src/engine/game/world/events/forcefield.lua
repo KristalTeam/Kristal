@@ -75,6 +75,10 @@ function Forcefield:updateActive()
     end
 end
 
+function Forcefield:onInteract(player, dir)
+    Game.world:showText("* (It appears to be some kind of forcefield.)")
+end
+
 function Forcefield:update()
     self.anim_timer = self.anim_timer + DT
 
