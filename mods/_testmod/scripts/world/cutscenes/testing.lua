@@ -101,4 +101,9 @@ return {
         gonerText("THIS SHOULD BE[wait:40]\nGOOD ENOUGH.[wait:20]")
 
     end,
+    japanese = function(cutscene)
+        cutscene:text("＊ 本当にいいんですか？", "surprise_smile", "susie")
+        cutscene:text("* Susie what the fuck are you talking about", "smile", "ralsei")
+        cutscene:text("＊ 誰かが設定を少し変えてしまい、元に戻せません。", "surprise_smile", "susie")
+    end
 }

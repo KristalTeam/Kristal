@@ -1,5 +1,28 @@
 local Utils = {}
 
+function Utils.sub(s,i,j)
+    i = i or 1
+    j = j or -1
+    if i<1 or j<1 then
+        local n = utf8.len(s)
+        if not n then return nil end
+        if i<0 then i = n+1+i end
+        if j<0 then j = n+1+j end
+        if i<0 then i = 1 end
+        if j<0 then j = 1 end
+        if j<i then return "" end
+        if i>n then i = n end
+        if j>n then j = n end
+    end
+    if j<i then return "" end
+    i = utf8.offset(s,i)
+    j = utf8.offset(s,j+1)
+    if i and j then return string.sub(s,i,j-1)
+       elseif i then return string.sub(s,i)
+       else return ""
+    end
+ end
+
 function Utils.all(tbl, func)
     if not func then
         for i = 1, #tbl do
@@ -157,15 +180,15 @@ function Utils.split(str, sep, remove_empty)
     local t = {}
     local i = 1
     local s = ""
-    while i <= #str do
-        if str:sub(i, i + (#sep - 1)) == sep then
+    while i <= utf8.len(str) do
+        if Utils.sub(str, i, i + (utf8.len(sep) - 1)) == sep then
             if not remove_empty or s ~= "" then
                 table.insert(t, s)
             end
             s = ""
             i = i + (#sep - 1)
         else
-            s = s .. str:sub(i, i)
+            s = s .. Utils.sub(str, i, i)
         end
         i = i + 1
     end

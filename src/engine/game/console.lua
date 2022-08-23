@@ -326,7 +326,7 @@ function Console:run(str)
     end
     self:push(history_string)
     if Utils.startsWith(run_string, "=") then
-        run_string = "print(" .. run_string:sub(2) .. ")"
+        run_string = "print(" .. Utils.sub(run_string, 2) .. ")"
     end
     local status, err = pcall(function() self:unsafeRun(run_string) end)
     if (not status) and err then
