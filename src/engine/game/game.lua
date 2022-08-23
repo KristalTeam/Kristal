@@ -160,6 +160,8 @@ function Game:save(x, y)
 
         level_up_count = self.level_up_count,
 
+        border = self.border,
+
         temp_followers = self.temp_followers,
 
         flags = self.flags
@@ -272,6 +274,8 @@ function Game:load(data, index, fade)
     self.max_tension = data.max_tension or 100
 
     self.lw_money = data.lw_money or 2
+
+    self.border = data.border or "simple"
 
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
