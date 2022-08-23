@@ -1018,8 +1018,13 @@ function Kristal.getGameScale()
 end
 
 function Kristal.getSideOffsets()
-    return (love.graphics.getWidth()  - (SCREEN_WIDTH  * Kristal.getGameScale())) / 2,
-           (love.graphics.getHeight() - (SCREEN_HEIGHT * Kristal.getGameScale())) / 2
+    if Kristal.bordersEnabled() then
+        return (love.graphics.getWidth()  - ((BORDER_WIDTH * BORDER_SCALE)  * Kristal.getGameScale())) / 2,
+               (love.graphics.getHeight() - ((BORDER_HEIGHT * BORDER_SCALE) * Kristal.getGameScale())) / 2
+    else
+        return (love.graphics.getWidth()  - (SCREEN_WIDTH  * Kristal.getGameScale())) / 2,
+               (love.graphics.getHeight() - (SCREEN_HEIGHT * Kristal.getGameScale())) / 2
+    end
 end
 
 function Kristal.loadConfig()
