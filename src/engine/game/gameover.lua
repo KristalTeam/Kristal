@@ -147,14 +147,14 @@ function GameOver:update()
                 end
                 table.insert(self.lines, full_line)
             end
-            self.dialogue = DialogueText(self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 322 or 302, {style = "none"})
+            self.dialogue = DialogueText(self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 320 or 300, {style = "none"})
             if Game:isLight() then
                 self.dialogue.skippable = false
-                self.dialogue.line_offset = 8
+                self.dialogue.line_offset = 4
                 table.insert(self.lines, "")
             else
                 self.dialogue.skip_speed = true
-                self.dialogue.line_offset = 14
+                self.dialogue.line_offset = 10
             end
             self:addChild(self.dialogue)
             table.remove(self.lines, 1)
@@ -164,7 +164,7 @@ function GameOver:update()
     if (self.current_stage == 6) and Input.pressed("confirm") and (not self.dialogue:isTyping()) then
         if #self.lines > 0 then
             self.dialogue:setText(self.lines[1])
-            self.dialogue.line_offset = 14
+            self.dialogue.line_offset = 10
             table.remove(self.lines, 1)
         else
             self.dialogue:remove()
@@ -212,7 +212,7 @@ function GameOver:update()
                     self.text:remove()
                     self.current_stage = 20
 
-                    self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 60*2, 81*2, {style = "GONER", line_offset = 14})
+                    self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 10})
                     self:addChild(self.dialogue)
                 end
             end

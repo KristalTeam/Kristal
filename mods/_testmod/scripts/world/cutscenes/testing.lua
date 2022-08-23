@@ -61,7 +61,7 @@ return {
     end,
     goner = function(cutscene)
         local function gonerText(str)
-            local text = DialogueText("[speed:0.3][spacing:6][style:GONER][voice:none]" .. str, 80 * 2, 50 * 2, 640, 480, {auto_size = true})
+            local text = DialogueText("[speed:0.3][spacing:6][style:GONER][voice:none]" .. str, 160, 100, 640, 480, {auto_size = true})
             text.layer = WORLD_LAYERS["top"] + 100
             text.skip_speed = true
             text.parallax_x = 0

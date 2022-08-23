@@ -205,7 +205,7 @@ function Shop:postInit()
         self:onEmote(node.arguments[1])
     end
 
-    self.dialogue_text = DialogueText(nil, 30, 53 + 219, 372, 194)
+    self.dialogue_text = DialogueText(nil, 30, 270, 372, 194)
 
     self.dialogue_text:registerCommand("emote", emoteCommand)
 
@@ -213,7 +213,7 @@ function Shop:postInit()
     self:addChild(self.dialogue_text)
     self.dialogue_text:setText(self.encounter_text)
 
-    self.right_text = DialogueText("", 30 + 420, 53 + 209, 176, 206)
+    self.right_text = DialogueText("", 30 + 420, 260, 176, 206)
 
     self.right_text:registerCommand("emote", emoteCommand)
 

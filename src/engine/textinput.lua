@@ -594,7 +594,7 @@ end
 function TextInput.draw(options)
     local off_x = options["x"] or 0
     local off_y = options["y"] or 0
-    local font = options["font"] or Assets.getFont("console")
+    local font = options["font"] or Assets.getFont("main_mono", 16)
     local get_prefix = options["get_prefix"] or function() return "" end
     local print_func = options["print"] or love.graphics.print
 

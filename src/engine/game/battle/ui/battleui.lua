@@ -8,7 +8,7 @@ function BattleUI:init()
     self.current_encounter_text = Game.battle.encounter.text
 
     self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
-    self.encounter_text.text.line_offset = 0
+    self.encounter_text.text.line_offset = -4
     self.encounter_text:setText("")
     self.encounter_text.debug_rect = {-30, -12, SCREEN_WIDTH+1, 124}
     self:addChild(self.encounter_text)
@@ -18,9 +18,9 @@ function BattleUI:init()
     self.choice_box.visible = false
     self:addChild(self.choice_box)
 
-    self.short_act_text_1 = DialogueText("", 30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
-    self.short_act_text_2 = DialogueText("", 30, 53 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
-    self.short_act_text_3 = DialogueText("", 30, 53 + 30 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
+    self.short_act_text_1 = DialogueText("", 30, 51, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
+    self.short_act_text_2 = DialogueText("", 30, 51 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
+    self.short_act_text_3 = DialogueText("", 30, 51 + 30 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
     self:addChild(self.short_act_text_1)
     self:addChild(self.short_act_text_2)
     self:addChild(self.short_act_text_3)

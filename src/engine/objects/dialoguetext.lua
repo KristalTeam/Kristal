@@ -11,7 +11,7 @@ function DialogueText:init(text, x, y, w, h, options)
 
     options["font"] = options["font"] or "main_mono"
     options["style"] = options["style"] or (Game:isLight() and "none" or "dark")
-    options["line_offset"] = options["line_offset"] or 8
+    options["line_offset"] = options["line_offset"] or 4
 
     self.custom_command_wait = {}
     if type(text) == "string" then

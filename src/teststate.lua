@@ -6,7 +6,7 @@ function Testing:enter()
     self.draw_text = true
 
     self.test_string = "* 本当にいいんですか？"
-    self.font = Assets.getFont("ja_main", 28)
+    self.font = Assets.getFont("ja_main", 32)
 
     self.draw_count = 0
 end
