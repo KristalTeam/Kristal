@@ -29,6 +29,7 @@ function ActorSprite:init(actor)
 
     self.shake_x = 0
     self.shake_y = 0
+    self.shake_timer = 0
 
     self.aura = false
     self.aura_siner = 0
@@ -317,22 +318,15 @@ function ActorSprite:update()
     end
 
     if self.shake_x ~= 0 or self.shake_y ~= 0 then
-        local last_shake_x = math.ceil(self.shake_x)
-        local last_shake_y = math.ceil(self.shake_y)
+        self.shake_timer = self.shake_timer + DTMULT
 
-        self.shake_x = Utils.approach(self.shake_x, 0, DTMULT/2)
-        self.shake_y = Utils.approach(self.shake_y, 0, DTMULT/2)
-
-        local new_shake_x = math.ceil(self.shake_x)
-        local new_shake_y = math.ceil(self.shake_y)
-
-        if new_shake_x ~= last_shake_x then
-            self.shake_x = self.shake_x * math.pow(-1, math.abs(new_shake_x - last_shake_x))
+        if self.shake_timer >= 2 then
+            self.shake_x = -Utils.approach(self.shake_x, 0, 1)
+            self.shake_y = -Utils.approach(self.shake_y, 0, 1)
+            self.shake_timer = self.shake_timer - 2
         end
-
-        if new_shake_y ~= last_shake_y then
-            self.shake_y = self.shake_y * math.pow(-1, math.abs(new_shake_y - last_shake_y))
-        end
+    else
+        self.shake_timer = 0
     end
 
     if self.aura then
