@@ -15,6 +15,9 @@ function Mod:init()
     MUSIC_VOLUMES["cybercity"] = 0.8
     MUSIC_PITCHES["cybercity"] = 0.97
 
+    MUSIC_VOLUMES["cybercity_alt"] = 0.8
+    MUSIC_PITCHES["cybercity_alt"] = 1.2
+
     self.dog_activated = false
 end
 
@@ -69,6 +72,8 @@ function Mod:postInit(new_file)
         -- Sets the collected shadow crystal counter to 1
         Game:setFlag("shadow_crystals", 1)
     end
+
+    Game:setBorder("city")
 
     -- Cool feature, uncomment for good luck
     -- im so tempted to commit this uncommented but i probably shouldnt oh well

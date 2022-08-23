@@ -9,7 +9,7 @@ function Starwalker:init()
 
     self.background = true
 
-    self.no_end_message = true
+    self.no_end_message = false
 
     self.timer = 0
 
@@ -41,7 +41,6 @@ function Starwalker:update()
 
     if not self.starwalker.done_state and (Game.battle:getState() ~= "TRANSITION") then
         self.timer = self.timer + (1 * DTMULT)
-        
 
         local wanted_x = self.starwalker.old_x
         local wanted_y = self.starwalker.old_y
@@ -67,6 +66,9 @@ function Starwalker:update()
         end
     end
 
+    for _,enemy in pairs(Game.battle.enemy_world_characters) do
+        enemy:remove()
+    end
 end
 
 return Starwalker

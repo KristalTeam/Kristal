@@ -125,7 +125,24 @@ return function(cutscene, event, player, facing)
         cutscene:wait(1)
         cutscene:text("* Uh,[wait:5] what-", "surprise_frown", "susie", {auto=true})
 
-        cutscene:startEncounter("starwalker", true, {{"starwalker", event}})
+        local encounter = cutscene:startEncounter("starwalker", true, {{"starwalker", event}})
+
+        local defeated_enemies = encounter:getDefeatedEnemies()
+
+        local done_state = defeated_enemies[1].done_state
+
+        if done_state == "VIOLENCED" or done_state == "KILLED" or done_state == "FROZEN" then
+            cutscene:wait(1)
+            cutscene:text("* Hey,[wait:5] uh.", "neutral", "susie")
+            cutscene:text("* I know they were in our way,[wait:5] but...", "annoyed_down", "susie")
+            susie:setFacing("up")
+            cutscene:text("* What happened to the ACTing thing?", "neutral", "susie")
+            cutscene:text("* ...", "annoyed_down", "susie")
+            Assets.playSound("ominous")
+            cutscene:wait(1.5)
+            Game.world.music:play("cybercity_alt")
+            kris:setFacing("down")
+        end
 
         event.sprite:resetSprite()
 

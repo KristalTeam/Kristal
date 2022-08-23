@@ -1923,6 +1923,7 @@ function Battle:returnToWorld()
         Game.world.music:resume()
     end
     self:remove()
+    self.encounter.defeated_enemies = self.defeated_enemies
     Game.battle = nil
     Game.state = "OVERWORLD"
 end

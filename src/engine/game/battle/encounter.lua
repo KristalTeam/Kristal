@@ -20,6 +20,9 @@ function Encounter:init()
 
     -- Table used to spawn enemies when the battle exists, if this encounter is created before
     self.queued_enemy_spawns = {}
+
+    -- A copy of Battle.defeated_enemies, used to determine how an enemy has been defeated.
+    self.defeated_enemies = nil
 end
 
 function Encounter:onBattleInit() end
@@ -128,6 +131,10 @@ end
 
 function Encounter:canDeepCopy()
     return false
+end
+
+function Encounter:getDefeatedEnemies()
+    return self.defeated_enemies or Game.battle.defeated_enemies
 end
 
 return Encounter

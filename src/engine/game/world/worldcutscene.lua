@@ -612,7 +612,7 @@ function WorldCutscene:startEncounter(encounter, transition, enemy, options)
     if options.wait == false then
         return waitForEncounter, battle_encounter
     else
-        self:wait(waitForEncounter)
+        return self:wait(waitForEncounter)
     end
 end
 

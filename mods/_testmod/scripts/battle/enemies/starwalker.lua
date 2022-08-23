@@ -18,7 +18,7 @@ function Starwalker:init()
 
     self.spare_points = 0
 
-    self.exit_on_defeat = false
+    self.exit_on_defeat = true
     self.auto_spare = true
 
     self.waves = {
