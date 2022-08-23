@@ -76,7 +76,6 @@ function Assets.parseData(data)
     for key,file_data in pairs(data.font_data) do
         local default = data.font_settings[key] and data.font_settings[key]["defaultSize"] or 12
         self.data.fonts[key] = {default = default}
-        self.data.fonts[key][default] = love.graphics.newFont(file_data, default)
     end
     -- create image fonts
     for key,image_data in pairs(data.font_image_data) do
@@ -86,6 +85,21 @@ function Assets.parseData(data)
             data.font_settings[key]["autoScale"] = true
         end
         self.data.fonts[key] = love.graphics.newImageFont(image_data, glyphs)
+    end
+    -- set up image font fallbacks
+    for key,_ in pairs(data.font_image_data) do
+        if data.font_settings[key]["fallbacks"] then
+            local fallbacks = {}
+            for _,fallback in ipairs(data.font_settings["fallbacks"]) do
+                local font = self.data.fonts[fallback["font"]]
+                if type(font) == "table" then
+                    error("Attempt to use TTF fallback on image font: " .. key)
+                else
+                    table.insert(fallbacks, font)
+                end
+            end
+            self.data.fonts[key]:setFallbacks(unpack(fallbacks))
+        end
     end
 
     -- create single-instance audio sources
@@ -126,7 +140,24 @@ function Assets.getFont(path, size)
                 size = size or font.default
             end
             if not font[size] then
-                font[size] = love.graphics.newFont(self.data.font_data[path], size)
+                font[size] = love.graphics.newFont(self.data.font_data[path], size, settings["hinting"] or "mono")
+
+                if settings["fallbacks"] then
+                    local fallbacks = {}
+
+                    for _,fallback in ipairs(settings["fallbacks"]) do
+                        local fb_font = self.data.fonts[fallback["font"]]
+
+                        if type(fb_font) ~= "table" then
+                            error("Attempt to use image fallback on TTF font: " .. path)
+                        else
+                            local ratio = (fallback["size"] or fb_font.default) / font.default
+                            table.insert(fallbacks, self.getFont(fallback["font"], size * ratio))
+                        end
+                    end
+
+                    font[size]:setFallbacks(unpack(fallbacks))
+                end
             end
             return font[size]
         else

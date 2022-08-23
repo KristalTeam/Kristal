@@ -1,3 +1,10 @@
 {
-    "defaultSize": 32
+    "defaultSize": 32,
+
+    "fallbacks": [
+        {
+            "font": "ja_main",
+            "size": 28
+        }
+    ]
 }
