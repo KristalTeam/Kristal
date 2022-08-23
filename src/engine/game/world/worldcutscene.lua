@@ -589,7 +589,6 @@ function WorldCutscene:choicer(choices, options)
     end
 end
 
-local function waitForEncounter(self) return Game.battle == nil end
 function WorldCutscene:startEncounter(encounter, transition, enemy, options)
     options = options or {}
     transition = transition ~= false
@@ -606,8 +605,12 @@ function WorldCutscene:startEncounter(encounter, transition, enemy, options)
             options.on_start()
         end
     end
+
+    local battle_encounter = Game.battle.encounter
+    local function waitForEncounter(self) return (Game.battle == nil), battle_encounter end
+
     if options.wait == false then
-        return waitForEncounter
+        return waitForEncounter, battle_encounter
     else
         self:wait(waitForEncounter)
     end
