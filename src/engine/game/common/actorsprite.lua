@@ -320,7 +320,7 @@ function ActorSprite:update()
     if self.shake_x ~= 0 or self.shake_y ~= 0 then
         self.shake_timer = self.shake_timer + DTMULT
 
-        if self.shake_timer >= 2 then
+        while self.shake_timer >= 2 do
             self.shake_x = -Utils.approach(self.shake_x, 0, 1)
             self.shake_y = -Utils.approach(self.shake_y, 0, 1)
             self.shake_timer = self.shake_timer - 2
