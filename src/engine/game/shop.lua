@@ -812,7 +812,7 @@ function Shop:drawBackground()
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
-function Shop:keypressed(key)
+function Shop:onKeyPressed(key)
     if OVERLAY_OPEN then return end
 
     if self.state == "MAINMENU" then

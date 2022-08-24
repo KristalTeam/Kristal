@@ -332,7 +332,7 @@ function GameOver:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function GameOver:keypressed(key)
+function GameOver:onKeyPressed(key)
     if OVERLAY_OPEN then return end
 
 end

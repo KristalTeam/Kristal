@@ -737,33 +737,28 @@ function Game:update()
     Kristal.callEvent("postUpdate", DT)
 end
 
-function Game:keypressed(key)
+function Game:onKeyPressed(key, is_repeat)
     if OVERLAY_OPEN then return end
 
-    -- To work with input clearing, let's shove key processing through Input.
-    if not Input.processKeyPressedFunc(key) then
-        return
-    end
-
-    if Kristal.callEvent("onKeyPressed", key) then
+    if Kristal.callEvent("onKeyPressed", key, is_repeat) then
         return
     end
 
     if self.state == "BATTLE" then
         if self.battle then
-            self.battle:keypressed(key)
+            self.battle:onKeyPressed(key)
         end
     elseif self.state == "OVERWORLD" then
         if self.world then
-            self.world:keypressed(key)
+            self.world:onKeyPressed(key, is_repeat)
         end
     elseif self.state == "SHOP" then
         if self.shop then
-            self.shop:keypressed(key)
+            self.shop:onKeyPressed(key)
         end
     elseif self.state == "GAMEOVER" then
         if self.gameover then
-            self.gameover:keypressed(key)
+            self.gameover:onKeyPressed(key)
         end
     end
 end
