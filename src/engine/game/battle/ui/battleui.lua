@@ -8,7 +8,7 @@ function BattleUI:init()
     self.current_encounter_text = Game.battle.encounter.text
 
     self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
-    self.encounter_text.text.line_offset = -4
+    self.encounter_text.text.line_offset = 0
     self.encounter_text:setText("")
     self.encounter_text.debug_rect = {-30, -12, SCREEN_WIDTH+1, 124}
     self:addChild(self.encounter_text)

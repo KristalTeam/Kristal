@@ -43,7 +43,7 @@ function Text:init(text, x, y, w, h, options)
     self.wrap = options["wrap"] ~= false
     self.align = options["align"] or "left"
     self.canvas = love.graphics.newCanvas(w, h)
-    self.line_offset = options["line_offset"] or -4
+    self.line_offset = options["line_offset"] or 0
     self.last_shake = 0
 
     self.auto_size = options["auto_size"] or false

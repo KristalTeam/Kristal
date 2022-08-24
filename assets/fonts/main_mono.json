@@ -1,5 +1,6 @@
 {
     "defaultSize": 32,
+    "lineSpacing": 28,
 
     "fallbacks": [
         {
