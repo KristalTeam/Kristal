@@ -307,11 +307,9 @@ function Battle:getState()
 end
 
 function Battle:onStateChange(old,new)
-    if self.encounter.beforeStateChange then
-        local result = self.encounter:beforeStateChange(old,new)
-        if result or self.state ~= new then
-            return
-        end
+    local result = self.encounter:beforeStateChange(old,new)
+    if result or self.state ~= new then
+        return
     end
     if new == "INTRO" then
         self.seen_encounter_text = false
@@ -359,9 +357,7 @@ function Battle:onStateChange(old,new)
             end
             local party = self.party[self.current_selecting]
             party.chara:onActionSelect(party, false)
-            if self.encounter.onCharacterTurn then
-                self.encounter:onCharacterTurn(party, false)
-            end
+            self.encounter:onCharacterTurn(party, false)
         end
     elseif new == "ACTIONS" then
         self.battle_ui.encounter_text:setText("")
@@ -672,9 +668,7 @@ function Battle:onStateChange(old,new)
         end
     end
 
-    if self.encounter.onStateChange then
-        self.encounter:onStateChange(old,new)
-    end
+    self.encounter:onStateChange(old,new)
 end
 
 function Battle:getSoulLocation(always_player)
@@ -1753,9 +1747,7 @@ function Battle:nextParty()
         else
             local party = self.party[self.current_selecting]
             party.chara:onActionSelect(party, false)
-            if self.encounter.onCharacterTurn then
-                self.encounter:onCharacterTurn(party, false)
-            end
+            self.encounter:onCharacterTurn(party, false)
         end
     end
 end
@@ -1792,9 +1784,7 @@ function Battle:previousParty()
 
     local party = self.party[self.current_selecting]
     party.chara:onActionSelect(party, true)
-    if self.encounter.onCharacterTurn then
-        self.encounter:onCharacterTurn(party, true)
-    end
+    self.encounter:onCharacterTurn(party, true)
 end
 
 function Battle:nextTurn()
