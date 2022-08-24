@@ -357,8 +357,10 @@ function Battle:onStateChange(old,new)
             for _,party in ipairs(self.party) do
                 party.chara:onTurnStart(party)
             end
+            local party = self.party[self.current_selecting]
+            party.chara:onActionSelect(party, false)
             if self.encounter.onCharacterTurn then
-                self.encounter:onCharacterTurn(self.party[self.current_selecting], false)
+                self.encounter:onCharacterTurn(party, false)
             end
         end
     elseif new == "ACTIONS" then
@@ -1749,8 +1751,10 @@ function Battle:nextParty()
             self:setState("ACTIONSELECT")
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
         else
+            local party = self.party[self.current_selecting]
+            party.chara:onActionSelect(party, false)
             if self.encounter.onCharacterTurn then
-                self.encounter:onCharacterTurn(self.party[self.current_selecting], false)
+                self.encounter:onCharacterTurn(party, false)
             end
         end
     end
@@ -1786,8 +1790,10 @@ function Battle:previousParty()
     table.remove(self.selected_character_stack, #self.selected_character_stack)
     table.remove(self.selected_action_stack, #self.selected_action_stack)
 
+    local party = self.party[self.current_selecting]
+    party.chara:onActionSelect(party, true)
     if self.encounter.onCharacterTurn then
-        self.encounter:onCharacterTurn(self.party[self.current_selecting], true)
+        self.encounter:onCharacterTurn(party, true)
     end
 end
 

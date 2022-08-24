@@ -142,6 +142,7 @@ end
 function PartyMember:onAttackHit(enemy, damage) end
 
 function PartyMember:onTurnStart(battler) end
+function PartyMember:onActionSelect(battler, undo) end
 
 function PartyMember:onLevelUp(level) end
 
