@@ -25,6 +25,8 @@ function Encounter:init()
     self.defeated_enemies = nil
 end
 
+-- Callbacks
+
 function Encounter:onBattleInit() end
 function Encounter:onBattleStart() end
 function Encounter:onBattleEnd() end
@@ -35,6 +37,11 @@ function Encounter:onTurnEnd() end
 function Encounter:onActionsStart() end
 function Encounter:onActionsEnd() end
 
+function Encounter:onCharacterTurn(battler, undo) end
+
+function Encounter:beforeStateChange(old, new) end
+function Encounter:onStateChange(old, new) end
+
 function Encounter:onGameOver() end
 
 function Encounter:getDialogueCutscene() end
@@ -43,6 +50,8 @@ function Encounter:update() end
 
 function Encounter:draw(fade) end
 function Encounter:drawBackground(fade) end
+
+-- Functions
 
 function Encounter:addEnemy(enemy, x, y, ...)
     local enemy_obj
