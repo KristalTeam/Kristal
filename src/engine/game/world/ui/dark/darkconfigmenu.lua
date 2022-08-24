@@ -32,7 +32,7 @@ function DarkConfigMenu:init()
     self.rebinding = false
 end
 
-function DarkConfigMenu:keypressed(key)
+function DarkConfigMenu:onKeyPressed(key)
 
     if self.state == "CONTROLS" then
         if self.rebinding then

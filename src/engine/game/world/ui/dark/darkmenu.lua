@@ -110,10 +110,10 @@ function DarkMenu:partySelect(mode, after)
     self:updateSelectedBoxes()
 end
 
-function DarkMenu:keypressed(key)
+function DarkMenu:onKeyPressed(key)
     if self.box then
         if self.box.keypressed then
-            self.box:keypressed(key)
+            self.box:onKeyPressed(key)
         end
     end
 

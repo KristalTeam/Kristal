@@ -210,7 +210,7 @@ function Loading:draw()
     love.graphics.setColor(1, 1, 1, 1)
 end
 
-function Loading:keypressed(key)
+function Loading:onKeyPressed(key)
     self.key_check = true
     self.skipped = true
     if not self.loading and not self.load_complete then

@@ -790,7 +790,7 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     Draw.popScissor()
 end
 
-function Menu:keypressed(key, _, is_repeat)
+function Menu:onKeyPressed(key, _, is_repeat)
     if MOD_LOADING then return end
     if OVERLAY_OPEN then return end
 
@@ -1114,7 +1114,7 @@ function Menu:keypressed(key, _, is_repeat)
         end
     elseif self.state == "FILESELECT" then
         if not is_repeat then
-            self.files:keypressed(key)
+            self.files:onKeyPressed(key)
         end
     elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then

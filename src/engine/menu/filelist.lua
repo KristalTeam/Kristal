@@ -83,7 +83,7 @@ function FileList:getSelectedFile()
     return self.files[self.selected_y]
 end
 
-function FileList:keypressed(key)
+function FileList:onKeyPressed(key)
     if self.state == "TRANSITIONING" then
         return
     end
