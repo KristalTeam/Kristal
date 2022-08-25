@@ -64,7 +64,7 @@ function LightMenu:closeBox()
     end
 end
 
-function LightMenu:keypressed(key)
+function LightMenu:onKeyPressed(key)
     if (Input.isMenu(key) or Input.isCancel(key)) and self.state == "MAIN" then
         Game.world:closeMenu()
         return

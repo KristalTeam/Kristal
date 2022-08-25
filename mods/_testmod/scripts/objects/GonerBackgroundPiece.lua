@@ -1,7 +1,9 @@
 local GonerBackgroundPiece, super = Class(Object)
 
-function GonerBackgroundPiece:init(sprite)
-    super:init(self, 0, 0, 320, 240)
+function GonerBackgroundPiece:init(sprite, x, y)
+    super:init(self, 320/2, 240/2, 320, 240)
+
+    self:setOrigin(0.5, 0.5)
 
     self.sprite = sprite
 
@@ -38,10 +40,10 @@ end
 function GonerBackgroundPiece:draw()
     if (self.timer > 2) then
         love.graphics.setColor(1, 1, 1, ((0.2 + self.alpha) - self.o_insurance) + self.b_insurance)
-        love.graphics.draw(self.sprite, 160, 120, 0, ( 1 + self.xstretch), ( 1 + self.ystretch))
-        love.graphics.draw(self.sprite, 160, 120, 0, (-1 - self.xstretch), ( 1 + self.ystretch))
-        love.graphics.draw(self.sprite, 160, 120, 0, (-1 - self.xstretch), (-1 - self.ystretch))
-        love.graphics.draw(self.sprite, 160, 120, 0, ( 1 + self.xstretch), (-1 - self.ystretch))
+        love.graphics.draw(self.sprite, 0, 0, 0, ( 1 + self.xstretch), ( 1 + self.ystretch))
+        love.graphics.draw(self.sprite, 0, 0, 0, (-1 - self.xstretch), ( 1 + self.ystretch))
+        love.graphics.draw(self.sprite, 0, 0, 0, (-1 - self.xstretch), (-1 - self.ystretch))
+        love.graphics.draw(self.sprite, 0, 0, 0, ( 1 + self.xstretch), (-1 - self.ystretch))
     end
 end
 

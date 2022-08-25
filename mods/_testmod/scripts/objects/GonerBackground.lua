@@ -1,7 +1,7 @@
 local GonerBackground, super = Class(Object)
 
-function GonerBackground:init()
-    super:init(self, 0, 0, 320, 240)
+function GonerBackground:init(x, y)
+    super:init(self, x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2, 320, 240)
     self:setScale(2)
     self:setOrigin(0, 0)
 
@@ -17,7 +17,7 @@ function GonerBackground:init()
     self.timer = Timer()
     self.timer:every(40/30, function()
         self.ob_depth = self.ob_depth - 0.001
-        local piece = self:addChild(GonerBackgroundPiece(self.sprite))
+        local piece = self:addChild(GonerBackgroundPiece(self.sprite, self.x, self.y))
         piece.stretch_speed = 0.01 * self.OBM
         piece.layer = self.ob_depth
     end)

@@ -2500,7 +2500,7 @@ function Battle:getTargetForItem(item, default_ally, default_enemy)
     end
 end
 
-function Battle:keypressed(key)
+function Battle:onKeyPressed(key)
     if OVERLAY_OPEN then return end
 
     if Kristal.Config["debug"] and Input.ctrl() then

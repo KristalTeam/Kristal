@@ -1,6 +1,9 @@
 local Input = {}
 local self = Input
 
+Input.gamepad_left_x = 0
+Input.gamepad_left_y = 0
+
 Input.key_down = {}
 Input.key_pressed = {}
 Input.key_released = {}
@@ -35,13 +38,13 @@ end
 
 function Input.loadBinds(reset)
     local defaults = {
-        ["up"] = {"up"},
-        ["down"] = {"down"},
-        ["left"] = {"left"},
-        ["right"] = {"right"},
-        ["confirm"] = {"z", "return"},
-        ["cancel"] = {"x", "shift"},
-        ["menu"] = {"c", "ctrl"},
+        ["up"] = {"up", "gamepad:up", "gamepad:dpup"},
+        ["down"] = {"down", "gamepad:down", "gamepad:dpdown"},
+        ["left"] = {"left", "gamepad:left", "gamepad:dpleft"},
+        ["right"] = {"right", "gamepad:right", "gamepad:dpright"},
+        ["confirm"] = {"z", "return", "gamepad:a"},
+        ["cancel"] = {"x", "shift", "gamepad:b"},
+        ["menu"] = {"c", "ctrl", "gamepad:y"},
         ["console"] = {"`"},
         ["debug_menu"] = {{"shift", "`"}},
         ["object_selector"] = {{"ctrl", "o"}},
@@ -173,14 +176,48 @@ function Input.clear(key, clear_down)
     end
 end
 
-function Input.onKeyPressed(key)
+function love.gamepadaxis(joystick, axis, value)
+    local threshold = 0.5
+	if axis == "leftx" then
+        self.gamepad_left_x = value
+
+        if (value < -threshold) then if not Input.keyDown("gamepad:left" ) then Input.onKeyPressed("gamepad:left" , false) end else if Input.keyDown("gamepad:left" ) then Input.onKeyReleased("gamepad:left" ) end end
+        if (value >  threshold) then if not Input.keyDown("gamepad:right") then Input.onKeyPressed("gamepad:right", false) end else if Input.keyDown("gamepad:right") then Input.onKeyReleased("gamepad:right") end end
+
+	elseif axis == "lefty" then
+        self.gamepad_left_y = value
+
+        if (value < -threshold) then if not Input.keyDown("gamepad:up"  ) then Input.onKeyPressed("gamepad:up"  , false) end else if Input.keyDown("gamepad:up"  ) then Input.onKeyReleased("gamepad:up"  ) end end
+        if (value >  threshold) then if not Input.keyDown("gamepad:down") then Input.onKeyPressed("gamepad:down", false) end else if Input.keyDown("gamepad:down") then Input.onKeyReleased("gamepad:down") end end
+	end
+end
+
+function Input.onKeyPressed(key, is_repeat)
     self.key_down[key] = true
     self.key_pressed[key] = true
+
+    local state = Kristal.getState()
+    if state.onKeyPressed then
+        state:onKeyPressed(key, is_repeat)
+    end
 end
 
 function Input.onKeyReleased(key)
     self.key_down[key] = false
     self.key_released[key] = true
+
+    local state = Kristal.getState()
+    if state.onKeyReleased then
+        state:onKeyReleased(key)
+    end
+end
+
+function love.gamepadpressed(joystick, button)
+    Input.onKeyPressed("gamepad:" .. button, false)
+end
+
+function love.gamepadreleased(joystick, button)
+    Input.onKeyReleased("gamepad:" .. button)
 end
 
 function Input.down(key)
