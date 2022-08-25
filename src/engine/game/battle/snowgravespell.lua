@@ -26,12 +26,27 @@ function SnowGraveSpell:init(user)
     self.bg_snowfall_quad = love.graphics.newQuad( 0, 0, 640, 480, self.bg_snowfall:getWidth(), self.bg_snowfall:getHeight())
 
     Assets.playSound("snowgrave", 0.5)
+
+    self.hurt_enemies = false
 end
 
 function SnowGraveSpell:update()
     super:update(self)
     self.timer = self.timer + DTMULT
-    self.since_last_snowflake = self.since_last_snowflake + DTMULT 
+    self.since_last_snowflake = self.since_last_snowflake + DTMULT
+
+    if self.hurt_enemies then
+        self.hurt_enemies = false
+        for i, enemy in ipairs(Game.battle.enemies) do
+            if enemy then
+                enemy.hit_count = 0
+                enemy:hurt(self.damage + Utils.round(math.random(100)), self.caster, enemy.onDefeatFatal)
+                if enemy.health > 0 then
+                    enemy:flash()
+                end
+            end
+        end
+    end
 end
 
 function SnowGraveSpell:drawTiled(x, y, alpha)
@@ -104,16 +119,9 @@ function SnowGraveSpell:draw()
 
     if ((not self.hurt) and ((self.timer >= 95) and (self.damage > 0))) then
         self.hurt = true
-        for i, enemy in ipairs(Game.battle.enemies) do
-            if enemy then
-                enemy.hit_count = 0
-                enemy:hurt(self.damage + Utils.round(math.random(100)), self.caster, enemy.onDefeatFatal)
-                if enemy.health > 0 then
-                    enemy:flash()
-                end
-            end
-        end
+        self.hurt_enemies = true
     end
+
     if (self.timer >= 90) then
         if (self.bgalpha > 0) then
             self.bgalpha = self.bgalpha - 0.02 * DTMULT
