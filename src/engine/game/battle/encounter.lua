@@ -43,6 +43,7 @@ function Encounter:beforeStateChange(old, new) end
 function Encounter:onStateChange(old, new) end
 
 function Encounter:onGameOver() end
+function Encounter:onReturnToWorld(events) end
 
 function Encounter:getDialogueCutscene() end
 
