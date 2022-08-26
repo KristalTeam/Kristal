@@ -473,7 +473,7 @@ function Input.getButtonSprite(button)
         if type == "xbox"   then return "xbox/y"             end
     end
     if button == "gamepad:back" then
-        if type == "switch" then return "switch/minux"       end
+        if type == "switch" then return "switch/minus"       end
         if type == "ps4"    then return "ps4/options"        end
         if type == "xbox"   then return "xbox/view"          end
     end
