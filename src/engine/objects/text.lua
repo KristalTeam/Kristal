@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "image", "offset", "indent"}
+Text.COMMANDS = {"color", "font", "style", "shake", "image", "button", "offset", "indent"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -133,7 +133,10 @@ function Text:update()
 end
 
 function Text:setText(text)
+    print("SEtting text")
+
     for _, sprite in ipairs(self.sprites) do
+        print("Removing sprite: " .. sprite.texture_path)
         sprite:remove()
     end
     self.sprites = {}
@@ -222,6 +225,30 @@ function Text:textToNodes(input_string)
                     end
 
                     leaving_modifier = true
+
+                    -- The bind modifier will either insert text or a different modifer
+                    if command == "bind" then
+                        local bind_key = Input.getPrimaryBind(arguments[1])
+
+                        -- Only add gamepad button if a gamepad binding exists
+                        if bind_key and Input.usingGamepad() then
+                            -- We're already processing a modifier, so just change it to the button modifier
+                            command = "button"
+                            arguments = {bind_key}
+                        else
+                            -- Writing key text, pretend we're not in a modifier
+                            leaving_modifier = false
+                            i = old_i
+
+                            -- Cut out the bind modifier from the text and insert the key name
+                            local input_text = Input.getText(arguments[1])
+                            input_string = Utils.sub(input_string, 1, i - 1) .. input_text .. Utils.sub(input_string, j + 1)
+                            current_char = Utils.sub(input_string, i, i)
+
+                            -- Go back and parse the rest like normal text
+                            break
+                        end
+                    end
 
                     if self:isModifier(command) then
                         local new_node = {
@@ -536,6 +563,19 @@ function Text:processModifier(node, dry)
             end
             self.state.current_x = self.state.current_x + (texture[1]:getWidth() * x_scale) + self.state.spacing
         end
+    elseif node.command == "button" then
+        if not dry then
+            local texture = "kristal/buttons/"..Input.getButtonSprite(node.arguments[1])
+
+            local y = self.state.current_y + (self:getFont():getHeight() / 2)
+            local sprite = Sprite(texture, self.state.current_x, y)
+            sprite:setOrigin(0, 0.5)
+            sprite:setScale(2, 2)
+            sprite.layer = self.layer + 1
+            self:addChild(sprite)
+            table.insert(self.sprites, sprite)
+        end
+        self.state.current_x = self.state.current_x + 32
     elseif node.command == "offset" then
         self.state.current_x = self.state.current_x + tonumber(node.arguments[1])
         self.state.current_y = self.state.current_y + tonumber(node.arguments[2])

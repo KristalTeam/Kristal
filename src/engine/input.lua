@@ -140,6 +140,18 @@ function Input.setBind(alias, index, key)
     return true
 end
 
+function Input.getPrimaryBind(alias, gamepad)
+    if gamepad == nil then
+        gamepad = Input.usingGamepad()
+    end
+    for _,key in ipairs(Input.aliases[alias]) do
+        local is_gamepad = type(key) == "string" and Utils.startsWith(key, "gamepad:")
+        if is_gamepad == gamepad then
+            return key
+        end
+    end
+end
+
 function Input.clear(key, clear_down)
     if key then
         if self.aliases[key] then
@@ -399,14 +411,15 @@ function Input.is(alias, key)
     return false
 end
 
-function Input.getText(alias)
-    local name = self.aliases[alias] and self.aliases[alias][1] or alias
+function Input.getText(alias, gamepad)
+    local name = Input.getPrimaryBind(alias, gamepad) or "unbound"
     name = self.key_groups[alias] and self.key_groups[alias][1] or name
     if type(name) == "table" then
         name = table.concat(name, "+")
     else
-        if Utils.startsWith(name, "gamepad:") then
-            return "[image:" .. Input.getButtonSprite(name) .. "]"
+        local is_gamepad, gamepad_button = Utils.startsWith(name, "gamepad:")
+        if is_gamepad then
+            return "[button:" .. gamepad_button .. "]"
         end
     end
     return "["..name:upper().."]"
@@ -441,6 +454,10 @@ function Input.getButtonSprite(button)
             return str .. "_dark"
         end
         return str
+    end
+
+    if not Utils.startsWith(button, "gamepad:") then
+        button = "gamepad:" .. button
     end
 
     if button == "gamepad:left" then

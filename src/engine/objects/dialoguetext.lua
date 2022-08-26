@@ -70,6 +70,11 @@ end
 
 
 function DialogueText:setText(text, callback)
+    for _, sprite in ipairs(self.sprites) do
+        sprite:remove()
+    end
+    self.sprites = {}
+
     self.advance_callback = callback or nil
     self:resetState()
     self:updateTalkSprite(false)
