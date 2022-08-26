@@ -287,8 +287,6 @@ end
 
 function love.keypressed(key, scancode, is_repeat)
 
-    Input.active_gamepad = nil
-
     if Input.ctrl() and Input.shift() and Input.alt() and key == "t" then -- Panic button for binds
         Input.loadBinds(true) -- reset binds
         Input.saveBinds()
@@ -298,6 +296,10 @@ function love.keypressed(key, scancode, is_repeat)
 
     Input.onKeyPressed(key, is_repeat)
     TextInput.onKeyPressed(key)
+
+    if not TextInput.active then
+        Input.active_gamepad = nil
+    end
 
     if Input.processKeyPressedFunc(key) and not TextInput.active then
         if Input.is("debug_menu", key) then

@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "image", "button", "offset", "indent"}
+Text.COMMANDS = {"color", "font", "style", "shake", "image", "bind", "button", "offset", "indent"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -133,10 +133,7 @@ function Text:update()
 end
 
 function Text:setText(text)
-    print("SEtting text")
-
     for _, sprite in ipairs(self.sprites) do
-        print("Removing sprite: " .. sprite.texture_path)
         sprite:remove()
     end
     self.sprites = {}
