@@ -29,12 +29,12 @@
  </layer>
  <objectgroup color="#0000ff" id="4" name="collision">
   <object id="7" x="1160" y="280" width="40" height="40"/>
-  <object id="9" x="440" y="240" width="720" height="40"/>
+  <object id="9" x="120" y="240" width="1040" height="40"/>
   <object id="10" x="1160" y="440" width="120" height="40"/>
-  <object id="11" x="480" y="600" width="680" height="40"/>
+  <object id="11" x="120" y="600" width="1040" height="40"/>
   <object id="100" x="1160" y="320" width="120" height="40"/>
   <object id="103" x="1160" y="480" width="40" height="120"/>
-  <object id="104" x="440" y="280" width="40" height="320"/>
+  <object id="104" x="80" y="280" width="40" height="320"/>
  </objectgroup>
  <objectgroup color="#00ffff" id="6" name="blockcollision"/>
  <objectgroup id="10" name="objects_buttons"/>
