@@ -434,7 +434,7 @@ end
 function Input.getButtonSprite(button)
     local invert = false
 
-    local type = Input.getControllerType()
+    local type = Input.getControllerType() or "xbox"
 
     local cb = function(str)
         if invert then
@@ -443,6 +443,18 @@ function Input.getButtonSprite(button)
         return str
     end
 
+    if button == "gamepad:left" then
+        return "common/left_stick_left"
+    end
+    if button == "gamepad:right" then
+        return "common/left_stick_right"
+    end
+    if button == "gamepad:up" then
+        return "common/left_stick_up"
+    end
+    if button == "gamepad:down" then
+        return "common/left_stick_down"
+    end
     if button == "gamepad:dpleft" then
         if type == "switch" then return "switch/left"        end
         if type == "ps4"    then return cb("ps4/dpad_left")  end
@@ -485,18 +497,18 @@ function Input.getButtonSprite(button)
     end
     if button == "gamepad:back" then
         if type == "switch" then return "switch/minus"       end
-        if type == "ps4"    then return "ps4/options"        end
+        if type == "ps4"    then return "ps4/share"          end
         if type == "xbox"   then return "xbox/view"          end
     end
     if button == "gamepad:start" then
         if type == "switch" then return "switch/plus"        end
-        if type == "ps4"    then return "unknown"            end
+        if type == "ps4"    then return "ps4/options"        end
         if type == "xbox"   then return "xbox/menu"          end
     end
     if button == "gamepad:guide" then
         if type == "switch" then return "switch/home"        end
-        if type == "ps4"    then return "unknown"            end
-        if type == "xbox"   then return "unknown"            end
+        if type == "ps4"    then return "ps4/ps"             end
+        if type == "xbox"   then return "xbox/xbox"          end
     end
     if button == "gamepad:leftshoulder" then
         if type == "switch" then return "switch/l"           end
