@@ -112,7 +112,7 @@ end
 
 function DarkMenu:onKeyPressed(key)
     if self.box then
-        if self.box.keypressed then
+        if self.box.onKeyPressed then
             self.box:onKeyPressed(key)
         end
     end

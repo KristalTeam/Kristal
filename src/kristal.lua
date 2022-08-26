@@ -64,6 +64,9 @@ function love.load(args)
     -- toggle vsync
     love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
 
+    -- register gamepad mapping DB
+    love.joystick.loadGamepadMappings("gamecontrollerdb.txt")
+
     -- update framerate
     FRAMERATE = Kristal.Config["fps"]
 
@@ -283,6 +286,8 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.keypressed(key, scancode, is_repeat)
+
+    Input.active_gamepad = nil
 
     if Input.ctrl() and Input.shift() and Input.alt() and key == "t" then -- Panic button for binds
         Input.loadBinds(true) -- reset binds

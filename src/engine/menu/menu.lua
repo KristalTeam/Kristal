@@ -748,6 +748,9 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     if self.selected_option == (y_offset + 1) then
         for i, v in ipairs(self:getKeysFromAlias(name)) do
             local drawstr = v:upper()
+            if Utils.startsWith(v, "gamepad:") then
+                drawstr = "     "
+            end
             if i < #self:getKeysFromAlias(name) then
                 drawstr = drawstr .. ", "
             end
@@ -760,6 +763,11 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     Draw.scissorPoints(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     for i, v in ipairs(self:getKeysFromAlias(name)) do
         local drawstr = v:upper()
+        local btn = nil
+        if Utils.startsWith(v, "gamepad:") then
+            drawstr = "     "
+            btn = Input.getButtonTexture(v)
+        end
         local color = {1, 1, 1, 1}
         if self.selecting_key or self.rebinding then
             if self.selected_option == (y_offset + 1) then
@@ -785,6 +793,12 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
             drawstr = drawstr .. ", "
         end
         self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
+        if btn then
+            love.graphics.setColor(0, 0, 0, 1)
+            love.graphics.draw(btn, menu_x + (8 * 32) + x_offset + 2, menu_y + (32 * y_offset) + 4, 0, 2, 2)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(btn, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset) + 2, 0, 2, 2)
+        end
         x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
     end
     Draw.popScissor()
@@ -829,10 +843,10 @@ function Menu:onKeyPressed(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1 end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1 end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1 end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1 end
         if self.selected_option > 5 - self.target_mod_offset then self.selected_option = is_repeat and (5 - self.target_mod_offset) or 1                            end
         if self.selected_option < 1                          then self.selected_option = is_repeat and 1                            or (5 - self.target_mod_offset) end
 
@@ -855,10 +869,10 @@ function Menu:onKeyPressed(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
         if self.selected_option > 15 then self.selected_option = is_repeat and 15 or 1  end
         if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 15 end
 
@@ -1133,10 +1147,10 @@ function Menu:onKeyPressed(key, is_repeat)
     elseif self.state == "CONTROLS" then
         if (not self.rebinding) and (not self.selecting_key) then
             local old = self.selected_option
-            if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
-            if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
-            if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
-            if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
+            if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1 end
+            if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1 end
+            if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1 end
+            if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1 end
             if self.selected_option < 1 then self.selected_option = is_repeat and 1 or (Utils.tableLength(Input.aliases) + 2) end
             if self.selected_option > Utils.tableLength(Input.aliases) + 2 then self.selected_option = is_repeat and (Utils.tableLength(Input.aliases) + 2) or 1 end
 
@@ -1331,10 +1345,10 @@ function Menu:handleCreateInput(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
         if self.selected_option > 6 then self.selected_option = is_repeat and 6 or 1    end
         if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 6    end
 
@@ -1448,10 +1462,10 @@ function Menu:handleConfigInput(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
         if self.selected_option > (#self.create.config + 1) then self.selected_option = is_repeat and (#self.create.config + 1) or 1                            end
         if self.selected_option < 1                         then self.selected_option = is_repeat and 1                         or (#self.create.config + 1)    end
 
