@@ -413,7 +413,18 @@ function Input.getText(alias)
 end
 
 function Input.getControllerType()
-    return "switch"
+    if not Input.active_gamepad then return nil end
+
+    local name = Input.active_gamepad:getName():lower()
+
+    local con = function(str) return Utils.contains(name, str) end
+    if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
+        return "switch"
+    end
+    if con("sony") or con("playstation") or con("%f[%a]ps") then
+        return "ps4"
+    end
+    return "xbox"
 end
 
 function Input.getButtonTexture(button)
