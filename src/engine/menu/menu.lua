@@ -156,7 +156,6 @@ function Menu:onStateChange(old_state, new_state)
     elseif new_state == "MODSELECT" then
         self.list.active = true
         self.list.visible = true
-        self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress "..Input.getText("cancel").." to return to the main menu."}
     elseif new_state == "FILESELECT" then
         self.files = FileList(self, self.selected_mod)
         self.files.layer = 50
@@ -628,13 +627,73 @@ function Menu:draw()
                 self.heart_target_y = -8
                 self.list.active = false
                 self.list.visible = false
-                self:printShadow(self.intro_text, 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
+
+                self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue."}
+                self:printShadow(self.intro_text, 0, 160 - 8, {1, 1, 1, 1}, "center", 640)
+
+                local string_part_1 = "Press "
+                local string_part_2 = Input.getText("cancel")
+                local string_part_3 = " to return to the main menu."
+
+                local part_2_width = self.menu_font:getWidth(string_part_2)
+                if Input.usingGamepad() then
+                    part_2_width = 32
+                end
+
+                local total_width = self.menu_font:getWidth(string_part_1) + part_2_width + self.menu_font:getWidth(string_part_3)
+
+                -- Draw each part, using total_width to center it
+                self:printShadow(string_part_1, 320 - (total_width / 2), 480 - 32, COLORS.silver)
+
+                local part_2_xpos = 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1)
+                if Input.usingGamepad() then
+                    love.graphics.setColor(0, 0, 0, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
+                else
+                    self:printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
+                end
+                self:printShadow(string_part_3, 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32, COLORS.silver)
             else
                 -- Draw some menu text
                 self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
 
-                local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
-                self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
+                local control_menu_width = 0
+                local control_cancel_width = 0
+                if Input.usingGamepad() then
+                    control_menu_width = 32
+                    control_cancel_width = 32
+                else
+                    control_menu_width = self.menu_font:getWidth(Input.getText("menu"))
+                    control_cancel_width = self.menu_font:getWidth(Input.getText("cancel"))
+                end
+
+                local x_pos = self.menu_font:getWidth(" Back")
+                self:printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                x_pos = x_pos + control_cancel_width
+                if Input.usingGamepad() then
+                    love.graphics.setColor(0, 0, 0, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                else
+                    self:printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                end
+                local fav = self.heart_outline.visible and " Unfavorite  " or " Favorite  "
+                x_pos = x_pos + self.menu_font:getWidth(fav)
+                self:printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                x_pos = x_pos + control_menu_width
+                if Input.usingGamepad() then
+                    love.graphics.setColor(0, 0, 0, 1)
+                    love.graphics.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                else
+                    self:printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                end
+                --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
+                --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end
     elseif self.state == "FILESELECT" then

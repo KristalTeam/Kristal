@@ -411,7 +411,7 @@ function Input.is(alias, key)
     return false
 end
 
-function Input.getText(alias, gamepad)
+function Input.getText(alias, gamepad, return_sprite)
     local name = Input.getPrimaryBind(alias, gamepad) or "unbound"
     name = self.key_groups[alias] and self.key_groups[alias][1] or name
     if type(name) == "table" then
@@ -419,6 +419,9 @@ function Input.getText(alias, gamepad)
     else
         local is_gamepad, gamepad_button = Utils.startsWith(name, "gamepad:")
         if is_gamepad then
+            if return_sprite then
+                return Input.getButtonTexture(gamepad_button)
+            end
             return "[button:" .. gamepad_button .. "]"
         end
     end
