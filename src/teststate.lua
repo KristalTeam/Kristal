@@ -9,6 +9,16 @@ function Testing:update()
     self.stage:update()
 end
 
+function Testing:onKeyPressed()
+    local joystick = Input.active_gamepad
+    if joystick then
+        print("--------")
+        print(joystick:getName())
+        print(joystick:getGUID())
+        print(joystick:getDeviceInfo())
+    end
+end
+
 function Testing:draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(self.font)

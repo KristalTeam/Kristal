@@ -1,6 +1,8 @@
 local Input = {}
 local self = Input
 
+Input.active_gamepad = nil
+
 Input.gamepad_left_x = 0
 Input.gamepad_left_y = 0
 
@@ -38,10 +40,10 @@ end
 
 function Input.loadBinds(reset)
     local defaults = {
-        ["up"] = {"up", "gamepad:up", "gamepad:dpup"},
-        ["down"] = {"down", "gamepad:down", "gamepad:dpdown"},
-        ["left"] = {"left", "gamepad:left", "gamepad:dpleft"},
-        ["right"] = {"right", "gamepad:right", "gamepad:dpright"},
+        ["up"] = {"up", "gamepad:dpup", "gamepad:up"},
+        ["down"] = {"down", "gamepad:dpdown", "gamepad:down"},
+        ["left"] = {"left", "gamepad:dpleft", "gamepad:left"},
+        ["right"] = {"right", "gamepad:dpright", "gamepad:right"},
         ["confirm"] = {"z", "return", "gamepad:a"},
         ["cancel"] = {"x", "shift", "gamepad:b"},
         ["menu"] = {"c", "ctrl", "gamepad:y"},
@@ -177,6 +179,7 @@ function Input.clear(key, clear_down)
 end
 
 function love.gamepadaxis(joystick, axis, value)
+    Input.active_gamepad = joystick
     local threshold = 0.5
 	if axis == "leftx" then
         self.gamepad_left_x = value
@@ -212,7 +215,12 @@ function Input.onKeyReleased(key)
     end
 end
 
+function Input.usingGamepad()
+    return Input.active_gamepad ~= nil
+end
+
 function love.gamepadpressed(joystick, button)
+    Input.active_gamepad = joystick
     Input.onKeyPressed("gamepad:" .. button, false)
 end
 
@@ -396,9 +404,361 @@ function Input.getText(alias)
     name = self.key_groups[alias] and self.key_groups[alias][1] or name
     if type(name) == "table" then
         name = table.concat(name, "+")
+    else
+        if Utils.startsWith(name, "gamepad:") then
+            return "[image:" .. Input.getButtonSprite(name) .. "]"
+        end
     end
     return "["..name:upper().."]"
 end
+
+function Input.getControllerType()
+    return "switch"
+end
+
+function Input.getButtonTexture(button)
+    return Assets.getTexture("kristal/buttons/" .. Input.getButtonSprite(button))
+end
+
+function Input.getButtonSprite(button)
+    local invert = false
+
+    local type = Input.getControllerType()
+
+    local cb = function(str)
+        if invert then
+            return str .. "_dark"
+        end
+        return str
+    end
+
+    if button == "gamepad:dpleft" then
+        if type == "switch" then return "switch/left"        end
+        if type == "ps4"    then return cb("ps4/dpad_left")  end
+        if type == "xbox"   then return "xbox/left"          end
+    end
+    if button == "gamepad:dpright" then
+        if type == "switch" then return "switch/right"       end
+        if type == "ps4"    then return cb("ps4/dpad_right") end
+        if type == "xbox"   then return "xbox/right"         end
+    end
+    if button == "gamepad:dpup" then
+        if type == "switch" then return "switch/up"          end
+        if type == "ps4"    then return cb("ps4/dpad_up")    end
+        if type == "xbox"   then return "xbox/up"            end
+    end
+    if button == "gamepad:dpdown" then
+        if type == "switch" then return "switch/down"        end
+        if type == "ps4"    then return cb("ps4/dpad_down")  end
+        if type == "xbox"   then return "xbox/down"          end
+    end
+    if button == "gamepad:a" then
+        if type == "switch" then return "switch/a"           end
+        if type == "ps4"    then return "ps4/cross"          end
+        if type == "xbox"   then return "xbox/a"             end
+    end
+    if button == "gamepad:b" then
+        if type == "switch" then return "switch/b"           end
+        if type == "ps4"    then return "ps4/circle"         end
+        if type == "xbox"   then return "xbox/b"             end
+    end
+    if button == "gamepad:x" then
+        if type == "switch" then return "switch/x"           end
+        if type == "ps4"    then return "ps4/square"         end
+        if type == "xbox"   then return "xbox/x"             end
+    end
+    if button == "gamepad:y" then
+        if type == "switch" then return "switch/y"           end
+        if type == "ps4"    then return "ps4/triangle"       end
+        if type == "xbox"   then return "xbox/y"             end
+    end
+    if button == "gamepad:back" then
+        if type == "switch" then return "switch/minux"       end
+        if type == "ps4"    then return "ps4/options"        end
+        if type == "xbox"   then return "xbox/view"          end
+    end
+    if button == "gamepad:start" then
+        if type == "switch" then return "switch/plus"        end
+        if type == "ps4"    then return "unknown"            end
+        if type == "xbox"   then return "xbox/menu"          end
+    end
+    if button == "gamepad:guide" then
+        if type == "switch" then return "switch/home"        end
+        if type == "ps4"    then return "unknown"            end
+        if type == "xbox"   then return "unknown"            end
+    end
+    if button == "gamepad:leftshoulder" then
+        if type == "switch" then return "switch/l"           end
+        if type == "ps4"    then return "ps4/l1"             end
+        if type == "xbox"   then return "xbox/left_bumper"   end
+    end
+    if button == "gamepad:rightshoulder" then
+        if type == "switch" then return "switch/r"           end
+        if type == "ps4"    then return "ps4/r1"             end
+        if type == "xbox"   then return "xbox/right_bumper"  end
+    end
+    if button == "gamepad:lefttrigger" then
+        if type == "switch" then return "switch/zl"          end
+        if type == "ps4"    then return "ps4/l2"             end
+        if type == "xbox"   then return "xbox/left_trigger"  end
+    end
+    if button == "gamepad:righttrigger" then
+        if type == "switch" then return "switch/zr"          end
+        if type == "ps4"    then return "ps4/r2"             end
+        if type == "xbox"   then return "xbox/right_trigger" end
+    end
+    if button == "gamepad:leftstick" then
+        if type == "switch" then return "switch/lStickClick" end
+        if type == "ps4"    then return "ps4/l3"             end
+        if type == "xbox"   then return "xbox/left_stick"    end
+    end
+    if button == "gamepad:rightstick" then
+        if type == "switch" then return "switch/rStickClick" end
+        if type == "ps4"    then return "ps4/r3"             end
+        if type == "xbox"   then return "xbox/right_stick"   end
+    end
+
+    return "unknown"
+end
+
+--[[
+    local is_dualshock = (os_type == os_ps4 || obj_gamecontroller.gamepad_type == true)
+            var button_sprite = button_questionmark
+            var invert = (is_dualshock && (global.typer == 50 || global.typer == 70 || global.typer == 71))
+            if isString
+            {
+                if (control == "A")
+                {
+                    button_sprite = button_xbox_left
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_left_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_left_dark : button_ps4_dpad_left)
+                    return button_sprite;
+                }
+                if (control == "D")
+                {
+                    button_sprite = button_xbox_right
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_right_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_right_dark : button_ps4_dpad_right)
+                    return button_sprite;
+                }
+                if (control == "W")
+                {
+                    button_sprite = button_xbox_up
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_up_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_up_dark : button_ps4_dpad_up)
+                    return button_sprite;
+                }
+                if (control == "S")
+                {
+                    button_sprite = button_xbox_down
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_down_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_down_dark : button_ps4_dpad_down)
+                    return button_sprite;
+                }
+                if (control == "Z")
+                    button = global.button0
+                if (control == "X")
+                    button = global.button1
+                if (control == "C")
+                    button = global.button2
+            }
+            else
+            {
+                button = control
+                if (control == gp_padl)
+                {
+                    button_sprite = button_xbox_left
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_left_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_left_dark : button_ps4_dpad_left)
+                    return button_sprite;
+                }
+                if (control == gp_padr)
+                {
+                    button_sprite = button_xbox_right
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_right_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_right_dark : button_ps4_dpad_right)
+                    return button_sprite;
+                }
+                if (control == gp_padu)
+                {
+                    button_sprite = button_xbox_up
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_up_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_up_dark : button_ps4_dpad_up)
+                    return button_sprite;
+                }
+                if (control == gp_padd)
+                {
+                    button_sprite = button_xbox_down
+                    if (os_type == os_switch)
+                        button_sprite = button_switch_down_0
+                    else if is_dualshock
+                        button_sprite = (invert ? button_ps4_dpad_down_dark : button_ps4_dpad_down)
+                    return button_sprite;
+                }
+            }
+            if (button == gp_face1)
+            {
+                button_sprite = button_xbox_a
+                if is_dualshock
+                    button_sprite = button_ps4_cross_0
+                if (os_type == os_switch)
+                    button_sprite = button_switch_b_0
+                return button_sprite;
+            }
+            if (button == gp_face2)
+            {
+                button_sprite = button_xbox_b
+                if is_dualshock
+                    button_sprite = button_ps4_circle_0
+                if (os_type == os_switch)
+                    button_sprite = button_switch_a_0
+                return button_sprite;
+            }
+            if (button == gp_face3)
+            {
+                button_sprite = button_xbox_x
+                if is_dualshock
+                    button_sprite = button_ps4_square_0
+                if (os_type == os_switch)
+                    button_sprite = button_switch_y_0
+                return button_sprite;
+            }
+            if (button == gp_face4)
+            {
+                button_sprite = button_xbox_y
+                if is_dualshock
+                    button_sprite = button_ps4_triangle_0
+                if (os_type == os_switch)
+                    button_sprite = button_switch_x_0
+                return button_sprite;
+            }
+            if (button == gp_shoulderl)
+            {
+                button_sprite = button_xbox_left_bumper
+                if is_dualshock
+                    button_sprite = button_ps4_l1
+                if (os_type == os_switch)
+                    button_sprite = button_switch_l_0
+                return button_sprite;
+            }
+            if (button == gp_shoulderlb)
+            {
+                button_sprite = button_xbox_left_trigger
+                if is_dualshock
+                    button_sprite = button_ps4_l2
+                if (os_type == os_switch)
+                    button_sprite = button_switch_zl_0
+                return button_sprite;
+            }
+            if (button == gp_shoulderr)
+            {
+                button_sprite = button_xbox_right_bumper
+                if is_dualshock
+                    button_sprite = button_ps4_r1
+                if (os_type == os_switch)
+                    button_sprite = button_switch_r_0
+                return button_sprite;
+            }
+            if (button == gp_shoulderrb)
+            {
+                button_sprite = button_xbox_right_trigger
+                if is_dualshock
+                    button_sprite = button_ps4_r2
+                if (os_type == os_switch)
+                    button_sprite = button_switch_zr_0
+                return button_sprite;
+            }
+            if (button == gp_stickl)
+            {
+                button_sprite = button_xbox_left_stick
+                if is_dualshock
+                    button_sprite = button_ps4_l3_0
+                if (os_type == os_switch)
+                    button_sprite = button_switch_lStickClick_0
+                return button_sprite;
+            }
+            if (button == gp_stickr)
+            {
+                button_sprite = button_xbox_right_stick
+                if is_dualshock
+                    button_sprite = button_ps4_r3_0
+                if (os_type == os_switch)
+                    button_sprite = button_switch_rStickClick_0
+                return button_sprite;
+            }
+            if (button == gp_select)
+            {
+                button_sprite = button_xbox_menu
+                if is_dualshock
+                    button_sprite = button_ps4_touchpad
+                if (os_type == os_switch)
+                    button_sprite = button_switch_minus_0
+                return button_sprite;
+            }
+            if (button == gp_start)
+            {
+                button_sprite = button_xbox_share
+                if is_dualshock
+                    return button_ps4_options;
+                if (os_type == os_switch)
+                    button_sprite = button_switch_plus_0
+                return button_sprite;
+            }
+            if (button == gp_padl)
+            {
+                button_sprite = button_xbox_left
+                if (os_type == os_switch)
+                    button_sprite = button_switch_left_0
+                else if is_dualshock
+                    button_sprite = (invert ? button_ps4_dpad_left_dark : button_ps4_dpad_left)
+                return button_sprite;
+            }
+            if (button == gp_padr)
+            {
+                button_sprite = button_xbox_right
+                if (os_type == os_switch)
+                    button_sprite = button_switch_right_0
+                else if is_dualshock
+                    button_sprite = (invert ? button_ps4_dpad_right_dark : button_ps4_dpad_right)
+                return button_sprite;
+            }
+            if (button == gp_padu)
+            {
+                button_sprite = button_xbox_up
+                if (os_type == os_switch)
+                    button_sprite = button_switch_up_0
+                else if is_dualshock
+                    button_sprite = (invert ? button_ps4_dpad_up_dark : button_ps4_dpad_up)
+                return button_sprite;
+            }
+            if (button == gp_padd)
+            {
+                button_sprite = button_xbox_down
+                if (os_type == os_switch)
+                    button_sprite = button_switch_down_0
+                else if is_dualshock
+                    button_sprite = (invert ? button_ps4_dpad_down_dark : button_ps4_dpad_down)
+                return button_sprite;
+            }
+            return button_sprite;
+        }
+        
+        
+]]
 
 function Input.shift()
     return self.down("shift")

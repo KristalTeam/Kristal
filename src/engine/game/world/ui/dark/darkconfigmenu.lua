@@ -32,11 +32,33 @@ function DarkConfigMenu:init()
     self.rebinding = false
 end
 
+function DarkConfigMenu:getBindNumberFromIndex(current_index)
+    local shown_bind = 1
+    local alias = Input.orderedNumberToKey(current_index)
+    local keys = Input.getKeysFromAlias(alias)
+    for index, current_key in ipairs(keys) do
+        if Input.usingGamepad() then
+            if Utils.startsWith(current_key, "gamepad:") then
+                shown_bind = index
+                break
+            end
+        else
+            if not Utils.startsWith(current_key, "gamepad:") then
+                shown_bind = index
+                break
+            end
+        end
+    end
+    return shown_bind
+end
+
 function DarkConfigMenu:onKeyPressed(key)
 
     if self.state == "CONTROLS" then
         if self.rebinding then
-            local worked = Input.setBind(Input.orderedNumberToKey(self.currently_selected), 1, key)
+            local shown_bind = self:getBindNumberFromIndex(self.currently_selected)
+
+            local worked = Input.setBind(Input.orderedNumberToKey(self.currently_selected), shown_bind, key)
 
             self.rebinding = false
 
@@ -212,7 +234,7 @@ function DarkConfigMenu:draw()
         love.graphics.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
     else
         love.graphics.print("Function", 23,  -12)
-        love.graphics.print("Key",      243, -12) -- If you're using a gamepad, this should be Button
+        love.graphics.print(Input.usingGamepad() and "Button" or "Key", 243, -12)
 
         for index, name in ipairs(Input.order) do
             if index > 7 then
@@ -228,11 +250,17 @@ function DarkConfigMenu:draw()
             end
             love.graphics.print(name:gsub("_", " "):upper(),  23, 0 + (28 * index))
 
-            local alias = Input.getKeysFromAlias(name)[1]
+            local shown_bind = self:getBindNumberFromIndex(index)
+
+            local alias = Input.getKeysFromAlias(name)[shown_bind]
             if type(alias) ~= "string" then
                 alias = "TODO"
             end
-            love.graphics.print(Utils.titleCase(alias), 243, 0 + (28 * index))
+            if Utils.startsWith(alias, "gamepad:") then
+                love.graphics.draw(Input.getButtonTexture(alias), 243, 0 + (28 * index), 0, 2, 2)
+            else
+                love.graphics.print(Utils.titleCase(alias), 243, 0 + (28 * index))
+            end
         end
 
         love.graphics.setColor(1, 1, 1, 1)
