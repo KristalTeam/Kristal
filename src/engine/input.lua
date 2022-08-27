@@ -6,6 +6,10 @@ Input.connected_gamepad = nil
 
 Input.gamepad_left_x = 0
 Input.gamepad_left_y = 0
+Input.gamepad_right_x = 0
+Input.gamepad_right_y = 0
+Input.gamepad_left_trigger = 0
+Input.gamepad_right_trigger = 0
 
 Input.key_down = {}
 Input.key_pressed = {}
@@ -45,6 +49,32 @@ Input.group_for_key = {
     ["lgui"]   = "cmd",
     ["rgui"]   = "cmd"
 }
+
+function Input.getThumbstick(stick)
+    local x, y = self.gamepad_left_x, self.gamepad_left_y
+    local magnitude = math.sqrt(x * x + y * y)
+    if magnitude > 1 then
+        x = x / magnitude
+        y = y / magnitude
+    end
+    return x, y
+end
+
+function Input.getLeftThumbstick()
+    return Input.getThumbstick("left")
+end
+
+function Input.getRightThumbstick()
+    return Input.getThumbstick("right")
+end
+
+function Input.getLeftTrigger()
+    return self.gamepad_left_trigger
+end
+
+function Input.getRightTrigger()
+    return self.gamepad_right_trigger
+end
 
 function Input.getBoundKeys(key, gamepad)
     if gamepad == nil then
@@ -276,7 +306,15 @@ function love.gamepadaxis(joystick, axis, value)
 
         if (value < -threshold) then if not Input.keyDown("gamepad:up"  ) then Input.onKeyPressed("gamepad:up"  , false) end else if Input.keyDown("gamepad:up"  ) then Input.onKeyReleased("gamepad:up"  ) end end
         if (value >  threshold) then if not Input.keyDown("gamepad:down") then Input.onKeyPressed("gamepad:down", false) end else if Input.keyDown("gamepad:down") then Input.onKeyReleased("gamepad:down") end end
-	end
+    elseif axis == "rightx" then
+        self.gamepad_right_x = value
+    elseif axis == "righty" then
+        self.gamepad_right_y = value
+    elseif axis == "triggerleft" then
+        self.gamepad_left_trigger = value
+    elseif axis == "triggerright" then
+        self.gamepad_right_trigger = value
+    end
 end
 
 function Input.onKeyPressed(key, is_repeat)
