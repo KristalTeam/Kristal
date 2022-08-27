@@ -35,7 +35,7 @@ end
 function DarkConfigMenu:getBindNumberFromIndex(current_index)
     local shown_bind = 1
     local alias = Input.orderedNumberToKey(current_index)
-    local keys = Input.getKeysFromAlias(alias)
+    local keys = Input.getBoundKeys(alias, Input.usingGamepad())
     for index, current_key in ipairs(keys) do
         if Input.usingGamepad() then
             if Utils.startsWith(current_key, "gamepad:") then
@@ -58,7 +58,7 @@ function DarkConfigMenu:onKeyPressed(key)
         if self.rebinding then
             local shown_bind = self:getBindNumberFromIndex(self.currently_selected)
 
-            local worked = Input.setBind(Input.orderedNumberToKey(self.currently_selected), shown_bind, key)
+            local worked = key ~= "escape" and Input.setBind(Input.orderedNumberToKey(self.currently_selected), shown_bind, key, Input.usingGamepad())
 
             self.rebinding = false
 
@@ -84,7 +84,7 @@ function DarkConfigMenu:onKeyPressed(key)
             if self.currently_selected == 8 then
                 Assets.playSound("levelup")
 
-                Input.loadBinds(true) -- reset binds
+                Input.resetBinds()
                 Input.saveBinds()
                 self.reset_flash_timer = 10
             end
@@ -252,7 +252,7 @@ function DarkConfigMenu:draw()
 
             local shown_bind = self:getBindNumberFromIndex(index)
 
-            local alias = Input.getKeysFromAlias(name)[shown_bind]
+            local alias = Input.getBoundKeys(name, Input.usingGamepad())[shown_bind]
             if type(alias) ~= "string" then
                 alias = "TODO"
             end

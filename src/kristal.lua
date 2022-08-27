@@ -288,7 +288,7 @@ end
 function love.keypressed(key, scancode, is_repeat)
 
     if Input.ctrl() and Input.shift() and Input.alt() and key == "t" then -- Panic button for binds
-        Input.loadBinds(true) -- reset binds
+        Input.resetBinds()
         Input.saveBinds()
         Assets.playSound("impact")
         return
