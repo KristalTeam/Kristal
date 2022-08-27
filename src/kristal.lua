@@ -310,13 +310,9 @@ function Kristal.onKeyPressed(key, is_repeat)
             Input.active_gamepad = nil
         end
 
-        if not OVERLAY_OPEN then
-            local cancelled = Kristal.callEvent("onKeyPressed", key, is_repeat)
-
-            local state = Kristal.getState()
-            if not cancelled and state.onKeyPressed then
-                state:onKeyPressed(key, is_repeat)
-            end
+        local state = Kristal.getState()
+        if state.onKeyPressed and not OVERLAY_OPEN then
+            state:onKeyPressed(key, is_repeat)
         end
     end
 
@@ -389,10 +385,8 @@ end
 
 function Kristal.onKeyReleased(key)
     if not TextInput.active and not OVERLAY_OPEN then
-        local cancelled = Kristal.callEvent("onKeyReleased", key)
-
         local state = Kristal.getState()
-        if not cancelled and state.onKeyReleased then
+        if state.onKeyReleased then
             state:onKeyReleased(key)
         end
     end

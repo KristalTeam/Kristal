@@ -739,6 +739,11 @@ function Game:update()
 end
 
 function Game:onKeyPressed(key, is_repeat)
+    if Kristal.callEvent("onKeyPressed", key, is_repeat) then
+        -- Mod:onKeyPressed returned true, cancel default behaviour
+        return
+    end
+
     if is_repeat and not self.key_repeat then
         -- Ignore key repeat unless enabled by a game state
         return
@@ -761,6 +766,10 @@ function Game:onKeyPressed(key, is_repeat)
             self.gameover:onKeyPressed(key)
         end
     end
+end
+
+function Game:onKeyReleased(key)
+    Kristal.callEvent("onKeyReleased", key)
 end
 
 function Game:draw()
