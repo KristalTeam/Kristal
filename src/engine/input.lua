@@ -10,10 +10,21 @@ Input.key_down = {}
 Input.key_pressed = {}
 Input.key_released = {}
 
-Input.aliases = {}
+Input.key_bindings = {}
+Input.gamepad_bindings = {}
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
+}
+
+Input.required_binds = {
+    ["down"] = true,
+    ["right"] = true,
+    ["up"] = true,
+    ["left"] = true,
+    ["confirm"] = true,
+    ["cancel"] = true,
+    ["menu"] = true
 }
 
 Input.key_groups = {
@@ -34,44 +45,86 @@ Input.group_for_key = {
     ["rgui"]   = "cmd"
 }
 
-function Input.getKeysFromAlias(key)
-    return Input.aliases[key]
+function Input.getBoundKeys(key, gamepad)
+    if gamepad == nil then
+        local key_bindings = Input.key_bindings[key]
+        local gamepad_bindings = Input.gamepad_bindings[key]
+
+        if not key_bindings and not gamepad_bindings then
+            return nil
+        end
+
+        local bindings = {}
+        for _,bind in ipairs(key_bindings or {}) do
+            table.insert(bindings, bind)
+        end
+        for _,bind in ipairs(gamepad_bindings or {}) do
+            table.insert(bindings, bind)
+        end
+        return bindings
+    elseif gamepad then
+        return Input.gamepad_bindings[key]
+    else
+        return Input.key_bindings[key]
+    end
 end
 
-function Input.loadBinds(reset)
-    local defaults = {
-        ["up"] = {"up", "gamepad:dpup", "gamepad:up"},
-        ["down"] = {"down", "gamepad:dpdown", "gamepad:down"},
-        ["left"] = {"left", "gamepad:dpleft", "gamepad:left"},
-        ["right"] = {"right", "gamepad:dpright", "gamepad:right"},
-        ["confirm"] = {"z", "return", "gamepad:a"},
-        ["cancel"] = {"x", "shift", "gamepad:b"},
-        ["menu"] = {"c", "ctrl", "gamepad:y"},
-        ["console"] = {"`"},
-        ["debug_menu"] = {{"shift", "`"}},
-        ["object_selector"] = {{"ctrl", "o"}},
-        ["fast_forward"] = {{"ctrl", "g"}}
-    }
-
-    if (reset == nil) or (reset == false) then
-        if love.filesystem.getInfo("keybinds.json") then
-            local user_binds = JSON.decode(love.filesystem.read("keybinds.json"))
-            for k,v in pairs(user_binds) do
-                local new_bind = {}
-                for _,key in ipairs(v) do
-                    local split = Utils.split(key, "+")
-                    if #split > 1 then
-                        table.insert(new_bind, split)
-                    else
-                        table.insert(new_bind, key)
-                    end
-                end
-                defaults[k] = new_bind
-            end
-        end
+function Input.resetBinds(gamepad)
+    if gamepad ~= true then
+        Input.key_bindings = {
+            ["up"] = {"up"},
+            ["down"] = {"down"},
+            ["left"] = {"left"},
+            ["right"] = {"right"},
+            ["confirm"] = {"z", "return"},
+            ["cancel"] = {"x", "shift"},
+            ["menu"] = {"c", "ctrl"},
+            ["console"] = {"`"},
+            ["debug_menu"] = {{"shift", "`"}},
+            ["object_selector"] = {{"ctrl", "o"}},
+            ["fast_forward"] = {{"ctrl", "g"}}
+        }
     end
 
-    Input.aliases = Utils.copy(defaults)
+    if gamepad ~= false then
+        Input.gamepad_bindings = {
+            ["up"] = {"gamepad:dpup", "gamepad:up"},
+            ["down"] = {"gamepad:dpdown", "gamepad:down"},
+            ["left"] = {"gamepad:dpleft", "gamepad:left"},
+            ["right"] = {"gamepad:dpright", "gamepad:right"},
+            ["confirm"] = {"gamepad:a"},
+            ["cancel"] = {"gamepad:b"},
+            ["menu"] = {"gamepad:y"},
+            ["console"] = {},
+            ["debug_menu"] = {},
+            ["object_selector"] = {},
+            ["fast_forward"] = {}
+        }
+    end
+end
+
+function Input.loadBinds()
+    Input.resetBinds()
+
+    if love.filesystem.getInfo("keybinds.json") then
+        local user_binds = JSON.decode(love.filesystem.read("keybinds.json"))
+        for k,v in pairs(user_binds) do
+            local key_bind = {}
+            local gamepad_bind = {}
+            for _,key in ipairs(v) do
+                local split = Utils.split(key, "+")
+                if #split > 1 then
+                    table.insert(key_bind, split)
+                elseif Utils.startsWith(key, "gamepad:") then
+                    table.insert(gamepad_bind, key)
+                else
+                    table.insert(key_bind, key)
+                end
+            end
+            Input.key_bindings[k] = key_bind
+            Input.gamepad_bindings[k] = gamepad_bind
+        end
+    end
 end
 
 function Input.orderedNumberToKey(number)
@@ -79,7 +132,7 @@ function Input.orderedNumberToKey(number)
         return Input.order[number]
     else
         local index = #Input.order + 1
-        for name, value in pairs(Input.aliases) do
+        for name, value in pairs(Input.key_bindings) do
             if not Utils.containsValue(Input.order, name) then
                 if index == number then
                     return name
@@ -92,8 +145,16 @@ function Input.orderedNumberToKey(number)
 end
 
 function Input.saveBinds()
+    local all_binds = {}
+    for k,v in pairs(Input.key_bindings) do
+        all_binds[k] = Utils.copy(v)
+    end
+    for k,v in pairs(Input.gamepad_bindings) do
+        all_binds[k] = Utils.merge(all_binds[k] or {}, v)
+    end
+
     local saved_binds = {}
-    for k,v in pairs(Input.aliases) do
+    for k,v in pairs(all_binds) do
         local new_bind = {}
         for _,key in ipairs(v) do
             if type(key) == "table" then
@@ -107,36 +168,44 @@ function Input.saveBinds()
     love.filesystem.write("keybinds.json", JSON.encode(saved_binds))
 end
 
-function Input.setBind(alias, index, key)
+function Input.setBind(alias, index, key, gamepad)
+    local bindings = gamepad and Input.gamepad_bindings or Input.key_bindings
+
     if key == "escape" then
-        if #self.aliases[alias] > 1 then
-            table.remove(self.aliases[alias], index)
+        if #bindings[alias] > 1 or not Input.required_binds[alias] then
+            table.remove(bindings[alias], index)
             return true
         else
             return false
         end
     end
 
+    local is_gamepad_button = Utils.startsWith(key, "gamepad:")
+    if is_gamepad_button ~= gamepad or false then
+        -- Cannot assign gamepad button to key or vice versa
+        return false
+    end
+
     if self.group_for_key[key] then
         key = self.group_for_key[key]
     end
 
-    local old_key = self.aliases[alias][index]
+    local old_key = bindings[alias][index]
 
-    for aliasname, lalias in pairs(self.aliases) do
+    for aliasname, lalias in pairs(bindings) do
         for keyindex, lkey in ipairs(lalias) do
             if Utils.equal(lkey, key) then
-                if (#self.aliases[aliasname] == 1 and not old_key) or (aliasname == alias and index > #self.aliases[alias]) then
+                if (#bindings[aliasname] == 1 and not old_key) or (aliasname == alias and index > #bindings[alias]) then
                     return false
                 elseif old_key ~= nil then
-                    self.aliases[aliasname][keyindex] = old_key
+                    bindings[aliasname][keyindex] = old_key
                 else
-                    table.remove(self.aliases[aliasname], keyindex)
+                    table.remove(bindings[aliasname], keyindex)
                 end
             end
         end
     end
-    self.aliases[alias][index] = key
+    bindings[alias][index] = key
     return true
 end
 
@@ -144,18 +213,15 @@ function Input.getPrimaryBind(alias, gamepad)
     if gamepad == nil then
         gamepad = Input.usingGamepad()
     end
-    for _,key in ipairs(Input.aliases[alias]) do
-        local is_gamepad = type(key) == "string" and Utils.startsWith(key, "gamepad:")
-        if is_gamepad == gamepad then
-            return key
-        end
-    end
+    local bindings = Input.getBoundKeys(alias, gamepad)
+    return bindings and bindings[1] or nil
 end
 
 function Input.clear(key, clear_down)
     if key then
-        if self.aliases[key] then
-            for _,k in ipairs(self.aliases[key]) do
+        local bindings = Input.getBoundKeys(key)
+        if bindings then
+            for _,k in ipairs(bindings) do
                 local keys = type(k) == "table" and k or {k}
                 for _,l in ipairs(keys) do
                     self.key_pressed[l] = false
@@ -191,8 +257,12 @@ function Input.clear(key, clear_down)
 end
 
 function love.gamepadaxis(joystick, axis, value)
-    Input.active_gamepad = joystick
     local threshold = 0.5
+
+    if math.abs(value) > threshold then
+        Input.active_gamepad = joystick
+    end
+
 	if axis == "leftx" then
         self.gamepad_left_x = value
 
@@ -241,8 +311,9 @@ function love.gamepadreleased(joystick, button)
 end
 
 function Input.down(key)
-    if self.aliases[key] then
-        for _,k in ipairs(self.aliases[key]) do
+    local bindings = Input.getBoundKeys(key)
+    if bindings then
+        for _,k in ipairs(bindings) do
             if type(k) == "string" and Input.keyDown(k) then
                 return true
             elseif type(k) == "table" then
@@ -275,8 +346,9 @@ function Input.keyDown(key)
 end
 
 function Input.pressed(key)
-    if self.aliases[key] then
-        for _,k in ipairs(self.aliases[key] or {}) do
+    local bindings = Input.getBoundKeys(key)
+    if bindings then
+        for _,k in ipairs(bindings) do
             if type(k) == "string" and Input.keyPressed(k) then
                 return true
             elseif type(k) == "table" then
@@ -318,8 +390,9 @@ function Input.processKeyPressedFunc(key)
 end
 
 function Input.released(key)
-    if self.aliases[key] then
-        for _,k in ipairs(self.aliases[key]) do
+    local bindings = Input.getBoundKeys(key)
+    if bindings then
+        for _,k in ipairs(bindings) do
             if type(k) == "string" and Input.keyReleased(k) then
                 return true
             elseif type(k) == "table" then
@@ -356,8 +429,9 @@ function Input.keyReleased(key)
 end
 
 function Input.up(key)
-    if self.aliases[key] then
-        for _,k in ipairs(self.aliases[key]) do
+    local bindings = Input.getBoundKeys(key)
+    if bindings then
+        for _,k in ipairs(bindings) do
             if type(k) == "string" and Input.keyDown(k) then
                 return false
             elseif type(k) == "table" then
@@ -393,7 +467,7 @@ function Input.is(alias, key)
     if self.group_for_key[key] then
         key = self.group_for_key[key]
     end
-    for _,k in ipairs(self.aliases[alias] or {}) do
+    for _,k in ipairs(Input.getBoundKeys(alias) or {}) do
         if type(k) == "string" and k == key then
             return true
         elseif type(k) == "table" then

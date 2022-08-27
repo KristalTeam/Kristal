@@ -19,6 +19,8 @@ BORDER_TYPES = {
     {"none",    "None",    nil}
 }
 
+USING_CONSOLE = false
+
 TILE_WIDTH = 40
 TILE_HEIGHT = 40
 
