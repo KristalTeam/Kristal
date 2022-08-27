@@ -13,7 +13,10 @@ Input.gamepad_right_trigger = 0
 
 Input.key_down = {}
 Input.key_pressed = {}
+Input.key_repeated = {}
 Input.key_released = {}
+
+Input.key_down_timer = {}
 
 Input.key_bindings = {}
 Input.gamepad_bindings = {}
@@ -226,7 +229,9 @@ function Input.setBind(alias, index, key, gamepad)
     for aliasname, lalias in pairs(bindings) do
         for keyindex, lkey in ipairs(lalias) do
             if Utils.equal(lkey, key) then
-                if (#bindings[aliasname] == 1 and not old_key) or (aliasname == alias and index > #bindings[alias]) then
+                if #bindings[aliasname] == 1 and not old_key and Input.required_binds[aliasname] then
+                    return false
+                elseif aliasname == alias and index > #bindings[alias] then
                     return false
                 elseif old_key ~= nil then
                     bindings[aliasname][keyindex] = old_key
@@ -256,9 +261,11 @@ function Input.clear(key, clear_down)
                 local keys = type(k) == "table" and k or {k}
                 for _,l in ipairs(keys) do
                     self.key_pressed[l] = false
+                    self.key_repeated[l] = false
                     self.key_released[l] = false
                     if clear_down then
                         self.key_down[l] = false
+                        self.key_down_timer[l] = nil
                     end
                 end
             end
@@ -266,23 +273,29 @@ function Input.clear(key, clear_down)
         elseif self.key_groups[key] then
             for _,k in ipairs(self.key_groups[key]) do
                 self.key_pressed[k] = false
+                self.key_repeated[k] = false
                 self.key_released[k] = false
                 if clear_down then
                     self.key_down[k] = false
+                    self.key_down_timer[k] = nil
                 end
             end
         else
             self.key_pressed[key] = false
+            self.key_repeated[key] = false
             self.key_released[key] = false
             if clear_down then
                 self.key_down[key] = false
+                self.key_down_timer[key] = nil
             end
         end
     else
         self.key_pressed = {}
+        self.key_repeated = {}
         self.key_released = {}
         if clear_down then
             self.key_down = {}
+            self.key_down_timer = {}
         end
     end
 end
@@ -318,22 +331,40 @@ function love.gamepadaxis(joystick, axis, value)
 end
 
 function Input.onKeyPressed(key, is_repeat)
-    self.key_down[key] = true
-    self.key_pressed[key] = true
+    if not is_repeat then
+        self.key_down[key] = true
+        self.key_pressed[key] = true
 
-    local state = Kristal.getState()
-    if state.onKeyPressed then
-        state:onKeyPressed(key, is_repeat)
+        self.key_repeated[key] = false
+        self.key_down_timer[key] = 0
     end
+
+    Kristal.onKeyPressed(key, is_repeat)
 end
 
 function Input.onKeyReleased(key)
     self.key_down[key] = false
     self.key_released[key] = true
+    
+    self.key_repeated[key] = false
+    self.key_down_timer[key] = nil
 
-    local state = Kristal.getState()
-    if state.onKeyReleased then
-        state:onKeyReleased(key)
+    Kristal.onKeyReleased(key)
+end
+
+function Input.update()
+    -- Clear input from last frame
+    Input.clear()
+
+    for key,down in pairs(self.key_down) do
+        if down then
+            self.key_down_timer[key] = self.key_down_timer[key] + DT
+            if self.key_down_timer[key] >= KEY_REPEAT_DELAY then
+                self.key_repeated[key] = true
+                self.key_down_timer[key] = self.key_down_timer[key] - KEY_REPEAT_INTERVAL
+                Input.onKeyPressed(key, true)
+            end
+        end
     end
 end
 
@@ -404,17 +435,17 @@ function Input.keyDown(key)
     return self.key_down[key]
 end
 
-function Input.pressed(key)
+function Input.pressed(key, repeatable)
     local bindings = Input.getBoundKeys(key)
     if bindings then
         for _,k in ipairs(bindings) do
-            if type(k) == "string" and Input.keyPressed(k) then
+            if type(k) == "string" and Input.keyPressed(k, repeatable) then
                 return true
             elseif type(k) == "table" then
                 local any_pressed = false
                 local any_up = false
                 for _,l in ipairs(k) do
-                    if Input.keyPressed(l) then
+                    if Input.keyPressed(l, repeatable) then
                         any_pressed = true
                     elseif Input.keyUp(l) then
                         any_up = true
@@ -427,24 +458,24 @@ function Input.pressed(key)
         end
         return false
     else
-        return Input.keyPressed(key)
+        return Input.keyPressed(key, repeatable)
     end
 end
 
-function Input.keyPressed(key)
+function Input.keyPressed(key, repeatable)
     if self.key_groups[key] then
         for _,k in ipairs(self.key_groups[key]) do
-            if self.key_pressed[k] then
+            if self.key_pressed[k] or (repeatable and self.key_repeated[k]) then
                 return true
             end
         end
     end
-    return self.key_pressed[key]
+    return self.key_pressed[key] or (repeatable and self.key_repeated[key])
 end
 
-function Input.processKeyPressedFunc(key)
+function Input.processKeyPressedFunc(key, repeatable)
     -- Should this function still be called?
-    return Input.keyPressed(key)
+    return Input.keyPressed(key, repeatable)
     -- This is only a single function call right now, but might need to be expanded in the future
 end
 

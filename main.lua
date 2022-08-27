@@ -221,8 +221,8 @@ function love.run()
     local error_result
 
     local function doUpdate(dt)
-        -- Clear input from last frame
-        Input.clear()
+        -- Update pressed keys, handle key repeat
+        Input.update()
 
         -- Process events.
         if love.event then

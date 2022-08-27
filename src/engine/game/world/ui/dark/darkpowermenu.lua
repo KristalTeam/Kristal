@@ -96,7 +96,6 @@ function DarkPowerMenu:update()
                 self.selected_spell = 1
                 self.scroll_y = 1
 
-                love.keyboard.setKeyRepeat(true)
                 self:updateDescription()
             else
                 self.ui_select:stop()
@@ -111,17 +110,16 @@ function DarkPowerMenu:update()
             self.ui_cancel_small:play()
 
             self.party.focused = true
-            
-            love.keyboard.setKeyRepeat(false)
+
             self:updateDescription()
             return
         end
         local spells = self:getSpells()
         local old_selected = self.selected_spell
-        if Input.pressed("up") then
+        if Input.pressed("up", true) then
             self.selected_spell = self.selected_spell - 1
         end
-        if Input.pressed("down") then
+        if Input.pressed("down", true) then
             self.selected_spell = self.selected_spell + 1
         end
         self.selected_spell = Utils.clamp(self.selected_spell, 1, #spells)

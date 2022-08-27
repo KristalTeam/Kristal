@@ -253,7 +253,7 @@ function Shop:getState()
 end
 
 function Shop:onStateChange(old,new)
-    love.keyboard.setKeyRepeat(false)
+    Game.key_repeat = false
     self.buy_confirming = false
     self.sell_confirming = false
     if new == "MAINMENU" then
@@ -292,7 +292,7 @@ function Shop:onStateChange(old,new)
         self.right_box.visible = true
         self.info_box.visible = false
     elseif new == "SELLING" then
-        love.keyboard.setKeyRepeat(true)
+        Game.key_repeat = true
         self.dialogue_text:setText("")
         if self.state_reason and type(self.state_reason) == "table" then
             if self.sell_options_text[self.state_reason[2]] then
@@ -812,9 +812,7 @@ function Shop:drawBackground()
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
-function Shop:onKeyPressed(key)
-    if OVERLAY_OPEN then return end
-
+function Shop:onKeyPressed(key, is_repeat)
     if self.state == "MAINMENU" then
         if Input.isConfirm(key) then
             local selection = self.menu_options[self.main_current_selecting][2]
@@ -926,7 +924,7 @@ function Shop:onKeyPressed(key)
             if self.sell_confirming then
                 if Input.isConfirm(key) then
                     self.sell_confirming = false
-                    love.keyboard.setKeyRepeat(true)
+                    Game.key_repeat = true
                     local current_item = inventory[self.item_current_selecting]
                     if self.current_selecting_choice == 1 then
                         self:sellItem(current_item)
@@ -945,7 +943,7 @@ function Shop:onKeyPressed(key)
                     end
                 elseif Input.isCancel(key) then
                     self.sell_confirming = false
-                    love.keyboard.setKeyRepeat(true)
+                    Game.key_repeat = true
                     self.right_text:setText(self.sell_refuse_text)
                 elseif Input.is("up", key) or Input.is("down", key) then
                     if self.current_selecting_choice == 1 then
@@ -955,11 +953,11 @@ function Shop:onKeyPressed(key)
                     end
                 end
             else
-                if Input.isConfirm(key) then
+                if Input.isConfirm(key) and not is_repeat then
                     if inventory[self.item_current_selecting] then
                         if inventory[self.item_current_selecting]:isSellable() then
                             self.sell_confirming = true
-                            love.keyboard.setKeyRepeat(false)
+                            Game.key_repeat = false
                             self.current_selecting_choice = 1
                             self.right_text:setText("")
                         else
@@ -968,7 +966,7 @@ function Shop:onKeyPressed(key)
                     else
                         self.right_text:setText(self.sell_nothing_text)
                     end
-                elseif Input.isCancel(key) then
+                elseif Input.isCancel(key) and not is_repeat then
                     self:setState("SELLMENU")
                 elseif Input.is("up", key) then
                     self.item_current_selecting = self.item_current_selecting - 1
