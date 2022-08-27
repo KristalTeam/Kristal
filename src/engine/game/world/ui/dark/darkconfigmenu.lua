@@ -56,9 +56,9 @@ function DarkConfigMenu:onKeyPressed(key)
 
     if self.state == "CONTROLS" then
         if self.rebinding then
-            local shown_bind = self:getBindNumberFromIndex(self.currently_selected)
+            local gamepad = Utils.startsWith(key, "gamepad:")
 
-            local worked = key ~= "escape" and Input.setBind(Input.orderedNumberToKey(self.currently_selected), shown_bind, key, Input.usingGamepad())
+            local worked = key ~= "escape" and Input.setBind(Input.orderedNumberToKey(self.currently_selected), 1, key, gamepad)
 
             self.rebinding = false
 
@@ -84,7 +84,13 @@ function DarkConfigMenu:onKeyPressed(key)
             if self.currently_selected == 8 then
                 Assets.playSound("levelup")
 
-                Input.resetBinds()
+                if USING_CONSOLE then
+                    Input.resetBinds(true) -- Console, no keyboard, only reset gamepad binds
+                elseif Input.hasGamepad() then
+                    Input.resetBinds() -- PC, keyboard and gamepad, reset all binds
+                else
+                    Input.resetBinds(false) -- PC, no gamepad, only reset keyboard binds
+                end
                 Input.saveBinds()
                 self.reset_flash_timer = 10
             end
@@ -234,7 +240,13 @@ function DarkConfigMenu:draw()
         love.graphics.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
     else
         love.graphics.print("Function", 23,  -12)
-        love.graphics.print(Input.usingGamepad() and "Button" or "Key", 243, -12)
+        -- Console accuracy for the Heck of it
+        if not USING_CONSOLE then
+            love.graphics.print("Key", 243, -12)
+        end
+        if Input.hasGamepad() then
+            love.graphics.print(USING_CONSOLE and "Button" or "Gamepad", 353, -12)
+        end
 
         for index, name in ipairs(Input.order) do
             if index > 7 then
@@ -248,18 +260,31 @@ function DarkConfigMenu:draw()
                     love.graphics.setColor(0, 1, 1, 1)
                 end
             end
-            love.graphics.print(name:gsub("_", " "):upper(),  23, 0 + (28 * index))
+            love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (29 * index))
 
             local shown_bind = self:getBindNumberFromIndex(index)
 
-            local alias = Input.getBoundKeys(name, Input.usingGamepad())[shown_bind]
-            if type(alias) ~= "string" then
-                alias = "TODO"
+            if not USING_CONSOLE then
+                local alias = Input.getBoundKeys(name, false)[1]
+                if type(alias) == "table" then
+                    local title_cased = {}
+                    for _, word in ipairs(alias) do
+                        table.insert(title_cased, Utils.titleCase(word))
+                    end
+                    love.graphics.print(table.concat(title_cased, "+"), 243, 0 + (28 * index))
+                elseif alias ~= nil then
+                    love.graphics.print(Utils.titleCase(alias), 243, 0 + (28 * index))
+                end
             end
-            if Utils.startsWith(alias, "gamepad:") then
-                love.graphics.draw(Input.getButtonTexture(alias), 243, 0 + (28 * index), 0, 2, 2)
-            else
-                love.graphics.print(Utils.titleCase(alias), 243, 0 + (28 * index))
+
+            love.graphics.setColor(1, 1, 1)
+
+            if Input.hasGamepad() then
+                local alias = Input.getBoundKeys(name, true)[1]
+                if alias then
+                    local btn_tex = Input.getButtonTexture(alias)
+                    love.graphics.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth()/2, 0)
+                end
             end
         end
 
@@ -272,16 +297,16 @@ function DarkConfigMenu:draw()
             love.graphics.setColor(Utils.mergeColor(COLORS.aqua, COLORS.yellow, ((self.reset_flash_timer / 10) - 0.1)))
         end
 
-        love.graphics.print("Reset to default", 23, 0 + (28 * 8))
+        love.graphics.print("Reset to default", 23, -4 + (29 * 8))
 
         love.graphics.setColor(1, 1, 1, 1)
         if self.currently_selected == 9 then
             love.graphics.setColor(0, 1, 1, 1)
         end
-        love.graphics.print("Finish", 23, 0 + (28 * 9))
+        love.graphics.print("Finish", 23, -4 + (29 * 9))
 
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite,  -2, 36 + ((self.currently_selected - 1) * 28))
+        love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
     end
 
     love.graphics.setColor(1, 1, 1, 1)
