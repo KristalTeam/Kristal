@@ -2,6 +2,7 @@ local Input = {}
 local self = Input
 
 Input.active_gamepad = nil
+Input.connected_gamepad = nil
 
 Input.gamepad_left_x = 0
 Input.gamepad_left_y = 0
@@ -261,6 +262,7 @@ function love.gamepadaxis(joystick, axis, value)
 
     if math.abs(value) > threshold then
         Input.active_gamepad = joystick
+        Input.connected_gamepad = joystick
     end
 
 	if axis == "leftx" then
@@ -301,8 +303,27 @@ function Input.usingGamepad()
     return Input.active_gamepad ~= nil
 end
 
+function Input.hasGamepad()
+    return Input.connected_gamepad ~= nil
+end
+
+function love.joystickadded(joystick)
+    Input.connected_gamepad = joystick
+    Input.active_gamepad = joystick
+end
+
+function love.joystickremoved(joystick)
+    if Input.active_gamepad == joystick then
+        Input.active_gamepad = nil
+    end
+    if Input.connected_gamepad == joystick then
+        Input.connected_gamepad = love.joystick.getJoysticks()[1]
+    end
+end
+
 function love.gamepadpressed(joystick, button)
     Input.active_gamepad = joystick
+    Input.connected_gamepad = joystick
     Input.onKeyPressed("gamepad:" .. button, false)
 end
 
@@ -503,9 +524,9 @@ function Input.getText(alias, gamepad, return_sprite)
 end
 
 function Input.getControllerType()
-    if not Input.active_gamepad then return nil end
+    if not Input.connected_gamepad then return nil end
 
-    local name = Input.active_gamepad:getName():lower()
+    local name = Input.connected_gamepad:getName():lower()
 
     local con = function(str) return Utils.contains(name, str) end
     if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
