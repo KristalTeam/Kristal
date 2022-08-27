@@ -23,8 +23,6 @@ function Menu:enter()
     -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
-    love.keyboard.setKeyRepeat(true)
-
     -- Load menu music
     self.music = Music("mod_menu", 1, 0.95)
 
@@ -192,7 +190,6 @@ function Menu:setSubState(state)
 end
 
 function Menu:leave()
-    love.keyboard.setKeyRepeat(false)
     self.music:stop()
 end
 
@@ -876,10 +873,9 @@ end
 
 function Menu:onKeyPressed(key, is_repeat)
     if MOD_LOADING then return end
-    if OVERLAY_OPEN then return end
 
     if self.state ~= "CONTROLS" then
-        if not Input.processKeyPressedFunc(key) then
+        if not Input.processKeyPressedFunc(key, true) then
             return
         end
     end
@@ -1196,10 +1192,10 @@ function Menu:onKeyPressed(key, is_repeat)
                 end
             end
 
-            if Input.is("up", key)    then self.list:selectUp(is_repeat)   end
-            if Input.is("down", key)  then self.list:selectDown(is_repeat) end
-            if Input.is("left", key)  then self.list:pageUp(is_repeat)     end
-            if Input.is("right", key) then self.list:pageDown(is_repeat)   end
+            if Input.is("up", key)                      then self.list:selectUp(is_repeat)   end
+            if Input.is("down", key)                    then self.list:selectDown(is_repeat) end
+            if Input.is("left", key)  and not is_repeat then self.list:pageUp(is_repeat)     end
+            if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat)   end
         end
     elseif self.state == "FILESELECT" then
         if not is_repeat then
@@ -1330,6 +1326,8 @@ function Menu:onKeyPressed(key, is_repeat)
                 self.ui_select:play()
             end
         elseif self.rebinding then
+            Input.clear(key)
+
             local gamepad = self.control_menu == "gamepad"
             if not gamepad and key == "lshift" or key == "rshift" then
                 self.rebinding_shift = true
@@ -1982,9 +1980,8 @@ function Menu:drawInputLine(name, x, y, id)
     end
 end
 
-function Menu:keyreleased(key)
+function Menu:onKeyReleased(key)
     if MOD_LOADING then return end
-    if OVERLAY_OPEN then return end
 
     if self.state == "CONTROLS" and self.rebinding then
         -- TODO: Maybe move this into a function? Copying code is gross

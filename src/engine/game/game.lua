@@ -23,6 +23,7 @@ function Game:clear()
     self.inventory = nil
     self.quick_save = nil
     self.lock_movement = false
+    self.key_repeat = false
     self.started = false
     self.border = "simple"
 end
@@ -729,9 +730,8 @@ function Game:update()
 end
 
 function Game:onKeyPressed(key, is_repeat)
-    if OVERLAY_OPEN then return end
-
-    if Kristal.callEvent("onKeyPressed", key, is_repeat) then
+    if is_repeat and not self.key_repeat then
+        -- Ignore key repeat unless enabled by a game state
         return
     end
 
@@ -741,11 +741,11 @@ function Game:onKeyPressed(key, is_repeat)
         end
     elseif self.state == "OVERWORLD" then
         if self.world then
-            self.world:onKeyPressed(key, is_repeat)
+            self.world:onKeyPressed(key)
         end
     elseif self.state == "SHOP" then
         if self.shop then
-            self.shop:onKeyPressed(key)
+            self.shop:onKeyPressed(key, is_repeat)
         end
     elseif self.state == "GAMEOVER" then
         if self.gameover then

@@ -347,6 +347,8 @@ function Console:unsafeRun(str)
 end
 
 function Console:onConsoleKeyPressed(key)
+    if not Input.processKeyPressedFunc(key) then return end
+
     if Input.is("console", key) and not Input.shift() then
         Input.clear("console")
         if self.is_open then

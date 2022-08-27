@@ -360,13 +360,24 @@ function DebugSystem:startTextInput()
         if (self.current_selecting ~= 0) then
             TextInput.endInput()
         end
-        love.keyboard.setKeyRepeat(true)
+        --love.keyboard.setKeyRepeat(true)
     end
 
+    Input.clear("down")
+    Input.clear("gamepad:down")
+    Input.clear("gamepad:dpdown")
+
     TextInput.pressed_callback = function(key)
-        if key == "down" then
+        if not Input.processKeyPressedFunc(key) then return end
+
+        if key == "down" or key == "gamepad:down" or key == "gamepad:dpdown" then
             TextInput.endInput()
-            love.keyboard.setKeyRepeat(true)
+
+            if self.current_selecting < #self:getValidOptions() then
+                Assets.playSound("ui_move")
+                self.current_selecting = self.current_selecting + 1
+            end
+            --love.keyboard.setKeyRepeat(true)
         end
     end
 end
@@ -590,7 +601,7 @@ function DebugSystem:onStateChange(old, new)
         OVERLAY_OPEN = true
 
         Kristal.showCursor()
-        love.keyboard.setKeyRepeat(true) -- TODO: Text repeat stack
+        --love.keyboard.setKeyRepeat(true) -- TODO: Text repeat stack
     elseif new == "MOUSE" then
         self.last_object = nil
         self.menu_anim_timer = 0
@@ -602,7 +613,7 @@ function DebugSystem:onStateChange(old, new)
         OVERLAY_OPEN = false
 
         Kristal.hideCursor()
-        love.keyboard.setKeyRepeat(false)
+        --love.keyboard.setKeyRepeat(false)
     end
 end
 
@@ -637,8 +648,10 @@ function DebugSystem:updateBounds(options)
     end
 end
 
-function DebugSystem:keypressed(key, _, is_repeat)
-    if Input.is("object_selector", key) then
+function DebugSystem:onKeyPressed(key, is_repeat)
+    if not Input.processKeyPressedFunc(key, is_repeat) then return end
+
+    if Input.is("object_selector", key) and not is_repeat then
         if self:mouseOpen() then
             self:closeMouse()
         else
@@ -679,7 +692,7 @@ function DebugSystem:keypressed(key, _, is_repeat)
         if is_search and (self.current_selecting == 0) and not TextInput.active then
             self:startTextInput()
         end
-    elseif self.state == "MOUSE" then
+    elseif self.state == "MOUSE" and not is_repeat then
         if (key == "c") and Input.ctrl() and self.object then
             self:copyObject(self.object)
         elseif (key == "x") and Input.ctrl() and self.object then
