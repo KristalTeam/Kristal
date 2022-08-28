@@ -173,8 +173,15 @@ function love.load(args)
         love.graphics.reset()
         love.graphics.scale(Kristal.getGameScale())
 
-        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and MOUSE_SPRITE and love.window and love.window.hasMouseFocus() then
-            love.graphics.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
+        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
+            if Input.usingGamepad() then
+                love.graphics.setColor(0, 0, 0, 0.5)
+                love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+            elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
+                love.graphics.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
+            end
         end
 
         Draw._clearUnusedCanvases()
@@ -232,6 +239,15 @@ function love.update(dt)
         BORDER_ALPHA = BORDER_ALPHA + (dt / BORDER_FADE_TIME)
     end
     BORDER_ALPHA = Utils.clamp(BORDER_ALPHA, 0, 1)
+
+    if MOUSE_VISIBLE then
+        local cursor_speed = (16 * (dt * 30))
+        local thumb_x, thumb_y = Input.getLeftThumbstick()
+        Input.gamepad_cursor_x = Input.gamepad_cursor_x + thumb_x * cursor_speed
+        Input.gamepad_cursor_y = Input.gamepad_cursor_y + thumb_y * cursor_speed
+        Input.gamepad_cursor_x = Utils.clamp(Input.gamepad_cursor_x, 0, love.graphics.getWidth() / Kristal.getGameScale())
+        Input.gamepad_cursor_y = Utils.clamp(Input.gamepad_cursor_y, 0, love.graphics.getHeight() / Kristal.getGameScale())
+    end
 
     LibTimer.update()
     Music.update()
