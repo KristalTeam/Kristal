@@ -25,6 +25,7 @@
 
     "lightCurrency": "Money",        // Full currency name for the Light World
     "lightCurrencyShort": "$",       // Short currency name for the Light World
+    "tpName": "TP",                  // Name of Tension Points in battles
 
     "pushBlockInputLock": true       // Whether to lock the player's input when pushing a block
 }

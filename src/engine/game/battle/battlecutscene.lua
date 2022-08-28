@@ -358,4 +358,24 @@ function BattleCutscene:choicer(choices, options)
     end
 end
 
+function BattleCutscene:closeText()
+    local choice_box = Game.battle.battle_ui.choice_box
+    local text = Game.battle.battle_ui.encounter_text
+    if choice_box.active then
+        choice_box:clearChoices()
+        choice_box.active = false
+        choice_box.visible = false
+        text.active = true
+        text.visible = true
+    end
+    for _,battler in ipairs(Utils.mergeMultiple(Game.battle.party, Game.battle:getActiveEnemies())) do
+        if battler.bubble then
+            battler:onBubbleRemove(battler.bubble)
+            battler.bubble:remove()
+            battler.bubble = nil
+        end
+    end
+    Game.battle.battle_ui:clearEncounterText()
+end
+
 return BattleCutscene

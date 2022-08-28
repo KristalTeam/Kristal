@@ -1297,10 +1297,18 @@ function Battle:pushAction(action_type, target, data, character_id, extra)
 
     local battler = self.party[character_id]
 
+    local current_state = self:getState()
+
     self:commitAction(battler, action_type, target, data, extra)
 
     if self.current_selecting == character_id then
-        self:nextParty()
+        if current_state == self:getState() then
+            self:nextParty()
+        elseif self.cutscene then
+            self.cutscene:after(function()
+                self:nextParty()
+            end)
+        end
     end
 end
 
@@ -1407,27 +1415,9 @@ end
 function Battle:commitSingleAction(action)
     local battler = self.party[action.character_id]
 
-    local anim = action.action:lower()
-    if action.action == "SKIP" and action.reason then
-        anim = action.reason:lower()
-    end
-
-    if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
-        battler:setAnimation("battle/"..anim.."_ready")
-        action.icon = anim
-    end
-
-    if action.tp then
-        if action.tp > 0 then
-            Game:giveTension(action.tp)
-        elseif action.tp < 0 then
-            Game:removeTension(-action.tp)
-        end
-    end
-
     if action.action == "ITEM" and action.data then
         local result = action.data:onBattleSelect(battler, action.target)
-        if result or result == nil then
+        if result ~= false then
             local storage, index = Game.inventory:getItemIndex(action.data)
             action.item_storage = storage
             action.item_index = index
@@ -1441,6 +1431,39 @@ function Battle:commitSingleAction(action)
             action.consumed = true
         else
             action.consumed = false
+        end
+    end
+    
+    local anim = action.action:lower()
+    if action.action == "SPELL" and action.data then
+        local result = action.data:onSelect(battler, action.target)
+        if result ~= false then
+            if action.tp then
+                if action.tp > 0 then
+                    Game:giveTension(action.tp)
+                elseif action.tp < 0 then
+                    Game:removeTension(-action.tp)
+                end
+            end
+            battler:setAnimation("battle/"..anim.."_ready")
+            action.icon = anim
+        end
+    else
+        if action.tp then
+            if action.tp > 0 then
+                Game:giveTension(action.tp)
+            elseif action.tp < 0 then
+                Game:removeTension(-action.tp)
+            end
+        end
+        
+        if action.action == "SKIP" and action.reason then
+            anim = action.reason:lower()
+        end
+    
+        if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
+            battler:setAnimation("battle/"..anim.."_ready")
+            action.icon = anim
         end
     end
 
@@ -1470,6 +1493,8 @@ function Battle:removeSingleAction(action)
             end
         end
         action.data:onBattleDeselect(battler, action.target)
+    elseif action.action == "SPELL" and action.data then
+        action.data:onDeselect(battler, action.target)
     end
 
     battler.action = nil

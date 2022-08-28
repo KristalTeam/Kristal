@@ -54,4 +54,7 @@ function Spell:onStart(user, target)
     end)
 end
 
+function Spell:onSelect(user, target) end
+function Spell:onDeselect(user, target) end
+
 return Spell

@@ -10,6 +10,7 @@
 
     "map": "alley",
     "party": ["kris", "susie", "ralsei"],
+    //"party": ["kris", "noelle"], // for testing snowgrave
     "inventory": {
         "items": ["darkburger", "darkburger", "darkburger", "darkburger", "dd_burger", "dumburger", "tensionbit", "tensionbit", "counter"],
         "key_items": ["cell_phone", "shadowcrystal", "egg"],
