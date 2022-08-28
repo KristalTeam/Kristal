@@ -648,6 +648,15 @@ function DebugSystem:updateBounds(options)
     end
 end
 
+function DebugSystem:onKeyReleased(key)
+    if self.state == "SELECTION" then
+        -- Gamepad
+        if (key == "gamepad:a") and Input.usingGamepad() then
+            self:unselectObject()
+        end
+    end
+end
+
 function DebugSystem:onKeyPressed(key, is_repeat)
     if not Input.processKeyPressedFunc(key, is_repeat) then return end
 
@@ -693,6 +702,23 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self:startTextInput()
         end
     elseif self.state == "SELECTION" and not is_repeat then
+        -- Gamepad
+        if (key == "gamepad:a") and Input.usingGamepad() then
+            local object = self:detectObject(Input.getCurrentCursorPosition())
+
+            if object then
+                self:selectObject(object)
+                self.grabbing = true
+                local screen_x, screen_y = object:getScreenPos()
+                local x, y = Input.getCurrentCursorPosition()
+                self.grab_offset_x = x - screen_x
+                self.grab_offset_y = y - screen_y
+            else
+                self:unselectObject()
+            end
+        end
+
+        -- Other
         if (key == "c") and Input.ctrl() and self.object then
             self:copyObject(self.object)
         elseif (key == "x") and Input.ctrl() and self.object then
