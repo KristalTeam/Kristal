@@ -1282,10 +1282,8 @@ function Menu:onKeyPressed(key, is_repeat)
                 -- (Gamepad) Configure Deadzone
                 elseif self.control_menu == "gamepad" and self.selected_option == option_count - 2 then
                     self.music:stop()
-                    for i = 1, 20 do
-                        Assets.playSound("impact")
-                        Assets.playSound("badexplosion", 1, 0.2)
-                    end
+                    Assets.playSound("impact")
+                    Assets.playSound("badexplosion", 1, 0.2)
                     Kristal.setState({})
                     --while true do end
                 else
