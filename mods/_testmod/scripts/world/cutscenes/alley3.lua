@@ -8,6 +8,7 @@ return {
 
     starwalker_disable = function(cutscene, event)
         if Game:getFlag("alley3_enable_forcefield") then
+            cutscene:setSpeaker("starwalker")
             cutscene:text("*** This [color:yellow]forcefield[color:reset] is [color:yellow]Pissing[color:reset] me off...")
             cutscene:wait(0.25)
 
