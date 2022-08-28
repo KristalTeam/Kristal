@@ -122,10 +122,10 @@ function Input.resetBinds(gamepad)
 
     if gamepad ~= false then
         Input.gamepad_bindings = {
-            ["up"] = {"gamepad:dpup", "gamepad:up"},
-            ["down"] = {"gamepad:dpdown", "gamepad:down"},
-            ["left"] = {"gamepad:dpleft", "gamepad:left"},
-            ["right"] = {"gamepad:dpright", "gamepad:right"},
+            ["up"] = {"gamepad:dpup", "gamepad:lsup"},
+            ["down"] = {"gamepad:dpdown", "gamepad:lsdown"},
+            ["left"] = {"gamepad:dpleft", "gamepad:lsleft"},
+            ["right"] = {"gamepad:dpright", "gamepad:lsright"},
             ["confirm"] = {"gamepad:a"},
             ["cancel"] = {"gamepad:b"},
             ["menu"] = {"gamepad:y"},
@@ -301,7 +301,10 @@ function Input.clear(key, clear_down)
 end
 
 function love.gamepadaxis(joystick, axis, value)
-    local threshold = 0.5
+    local stick_threshold = 0.5
+    local trigger_threshold = 0.9
+
+    local threshold = (axis == "triggerleft" or axis == "triggerright") and trigger_threshold or stick_threshold
 
     if math.abs(value) > threshold then
         Input.active_gamepad = joystick
@@ -311,22 +314,36 @@ function love.gamepadaxis(joystick, axis, value)
 	if axis == "leftx" then
         self.gamepad_left_x = value
 
-        if (value < -threshold) then if not Input.keyDown("gamepad:left" ) then Input.onKeyPressed("gamepad:left" , false) end else if Input.keyDown("gamepad:left" ) then Input.onKeyReleased("gamepad:left" ) end end
-        if (value >  threshold) then if not Input.keyDown("gamepad:right") then Input.onKeyPressed("gamepad:right", false) end else if Input.keyDown("gamepad:right") then Input.onKeyReleased("gamepad:right") end end
+        if (value < -threshold) then if not Input.keyDown("gamepad:lsleft" ) then Input.onKeyPressed("gamepad:lsleft" , false) end else if Input.keyDown("gamepad:lsleft" ) then Input.onKeyReleased("gamepad:lsleft" ) end end
+        if (value >  threshold) then if not Input.keyDown("gamepad:lsright") then Input.onKeyPressed("gamepad:lsright", false) end else if Input.keyDown("gamepad:lsright") then Input.onKeyReleased("gamepad:lsright") end end
 
 	elseif axis == "lefty" then
         self.gamepad_left_y = value
 
-        if (value < -threshold) then if not Input.keyDown("gamepad:up"  ) then Input.onKeyPressed("gamepad:up"  , false) end else if Input.keyDown("gamepad:up"  ) then Input.onKeyReleased("gamepad:up"  ) end end
-        if (value >  threshold) then if not Input.keyDown("gamepad:down") then Input.onKeyPressed("gamepad:down", false) end else if Input.keyDown("gamepad:down") then Input.onKeyReleased("gamepad:down") end end
+        if (value < -threshold) then if not Input.keyDown("gamepad:lsup"  ) then Input.onKeyPressed("gamepad:lsup"  , false) end else if Input.keyDown("gamepad:lsup"  ) then Input.onKeyReleased("gamepad:lsup"  ) end end
+        if (value >  threshold) then if not Input.keyDown("gamepad:lsdown") then Input.onKeyPressed("gamepad:lsdown", false) end else if Input.keyDown("gamepad:lsdown") then Input.onKeyReleased("gamepad:lsdown") end end
+
     elseif axis == "rightx" then
         self.gamepad_right_x = value
+
+        if (value < -threshold) then if not Input.keyDown("gamepad:rsleft" ) then Input.onKeyPressed("gamepad:rsleft" , false) end else if Input.keyDown("gamepad:rsleft" ) then Input.onKeyReleased("gamepad:rsleft" ) end end
+        if (value >  threshold) then if not Input.keyDown("gamepad:rsright") then Input.onKeyPressed("gamepad:rsright", false) end else if Input.keyDown("gamepad:rsright") then Input.onKeyReleased("gamepad:rsright") end end
+
     elseif axis == "righty" then
         self.gamepad_right_y = value
+
+        if (value < -threshold) then if not Input.keyDown("gamepad:rsup"  ) then Input.onKeyPressed("gamepad:rsup"  , false) end else if Input.keyDown("gamepad:rsup"  ) then Input.onKeyReleased("gamepad:rsup"  ) end end
+        if (value >  threshold) then if not Input.keyDown("gamepad:rsdown") then Input.onKeyPressed("gamepad:rsdown", false) end else if Input.keyDown("gamepad:rsdown") then Input.onKeyReleased("gamepad:rsdown") end end
+
     elseif axis == "triggerleft" then
         self.gamepad_left_trigger = value
+
+        if (value > threshold) then if not Input.keyDown("gamepad:lefttrigger") then Input.onKeyPressed("gamepad:lefttrigger", false) end else if Input.keyDown("gamepad:lefttrigger") then Input.onKeyReleased("gamepad:lefttrigger") end end
+
     elseif axis == "triggerright" then
         self.gamepad_right_trigger = value
+
+        if (value > threshold) then if not Input.keyDown("gamepad:righttrigger") then Input.onKeyPressed("gamepad:righttrigger", false) end else if Input.keyDown("gamepad:righttrigger") then Input.onKeyReleased("gamepad:righttrigger") end end
     end
 end
 
@@ -611,121 +628,61 @@ function Input.getButtonTexture(button)
     return Assets.getTexture("kristal/buttons/" .. Input.getButtonSprite(button))
 end
 
+Input.button_sprites = {
+    ["lsleft"]  = "common/left_stick_left",
+    ["lsright"] = "common/left_stick_right",
+    ["lsup"]    = "common/left_stick_up",
+    ["lsdown"]  = "common/left_stick_down",
+
+    ["rsleft"]  = "common/right_stick_left",
+    ["rsright"] = "common/right_stick_right",
+    ["rsup"]    = "common/right_stick_up",
+    ["rsdown"]  = "common/right_stick_down",
+
+    ["dpleft"]  = {switch = "switch/left",  ps4 = "ps4/dpad_left",  xbox = "xbox/left"},
+    ["dpright"] = {switch = "switch/right", ps4 = "ps4/dpad_right", xbox = "xbox/right"},
+    ["dpup"]    = {switch = "switch/up",    ps4 = "ps4/dpad_up",    xbox = "xbox/up"},
+    ["dpdown"]  = {switch = "switch/down",  ps4 = "ps4/dpad_down",  xbox = "xbox/down"},
+
+    ["a"]       = {switch = "switch/a", ps4 = "ps4/cross",    xbox = "xbox/a"},
+    ["b"]       = {switch = "switch/b", ps4 = "ps4/circle",   xbox = "xbox/b"},
+    ["x"]       = {switch = "switch/x", ps4 = "ps4/square",   xbox = "xbox/x"},
+    ["y"]       = {switch = "switch/y", ps4 = "ps4/triangle", xbox = "xbox/y"},
+
+    ["start"]   = {switch = "switch/plus",  ps4 = "ps4/options", xbox = "xbox/menu"},
+    ["back"]    = {switch = "switch/minus", ps4 = "ps4/share",   xbox = "xbox/view"},
+    ["guide"]   = {switch = "switch/home",  ps4 = "ps4/ps",      xbox = "xbox/xbox"},
+
+    ["leftshoulder"]  = {switch = "switch/l",           ps4 = "ps4/l1", xbox = "xbox/left_bumper"},
+    ["rightshoulder"] = {switch = "switch/r",           ps4 = "ps4/r1", xbox = "xbox/right_bumper"},
+    ["lefttrigger"]   = {switch = "switch/zl",          ps4 = "ps4/l2", xbox = "xbox/left_trigger"},
+    ["righttrigger"]  = {switch = "switch/zr",          ps4 = "ps4/r2", xbox = "xbox/right_trigger"},
+    ["leftstick"]     = {switch = "switch/lStickClick", ps4 = "ps4/l3", xbox = "xbox/left_stick"},
+    ["rightstick"]    = {switch = "switch/rStickClick", ps4 = "ps4/r3", xbox = "xbox/right_stick"},
+}
+
 function Input.getButtonSprite(button)
-    local invert = false
+    --local invert = false
 
-    local type = Input.getControllerType() or "xbox"
+    local controller_type = Input.getControllerType() or "xbox"
 
-    local cb = function(str)
+    --[[local cb = function(str)
         if invert then
             return str .. "_dark"
         end
         return str
-    end
+    end]]
 
-    if not Utils.startsWith(button, "gamepad:") then
-        button = "gamepad:" .. button
-    end
+    -- Get the button name without the "gamepad:" prefix
+    local _, short = Utils.startsWith(button, "gamepad:")
 
-    if button == "gamepad:left" then
-        return "common/left_stick_left"
-    end
-    if button == "gamepad:right" then
-        return "common/left_stick_right"
-    end
-    if button == "gamepad:up" then
-        return "common/left_stick_up"
-    end
-    if button == "gamepad:down" then
-        return "common/left_stick_down"
-    end
-    if button == "gamepad:dpleft" then
-        if type == "switch" then return "switch/left"        end
-        if type == "ps4"    then return cb("ps4/dpad_left")  end
-        if type == "xbox"   then return "xbox/left"          end
-    end
-    if button == "gamepad:dpright" then
-        if type == "switch" then return "switch/right"       end
-        if type == "ps4"    then return cb("ps4/dpad_right") end
-        if type == "xbox"   then return "xbox/right"         end
-    end
-    if button == "gamepad:dpup" then
-        if type == "switch" then return "switch/up"          end
-        if type == "ps4"    then return cb("ps4/dpad_up")    end
-        if type == "xbox"   then return "xbox/up"            end
-    end
-    if button == "gamepad:dpdown" then
-        if type == "switch" then return "switch/down"        end
-        if type == "ps4"    then return cb("ps4/dpad_down")  end
-        if type == "xbox"   then return "xbox/down"          end
-    end
-    if button == "gamepad:a" then
-        if type == "switch" then return "switch/a"           end
-        if type == "ps4"    then return "ps4/cross"          end
-        if type == "xbox"   then return "xbox/a"             end
-    end
-    if button == "gamepad:b" then
-        if type == "switch" then return "switch/b"           end
-        if type == "ps4"    then return "ps4/circle"         end
-        if type == "xbox"   then return "xbox/b"             end
-    end
-    if button == "gamepad:x" then
-        if type == "switch" then return "switch/x"           end
-        if type == "ps4"    then return "ps4/square"         end
-        if type == "xbox"   then return "xbox/x"             end
-    end
-    if button == "gamepad:y" then
-        if type == "switch" then return "switch/y"           end
-        if type == "ps4"    then return "ps4/triangle"       end
-        if type == "xbox"   then return "xbox/y"             end
-    end
-    if button == "gamepad:back" then
-        if type == "switch" then return "switch/minus"       end
-        if type == "ps4"    then return "ps4/share"          end
-        if type == "xbox"   then return "xbox/view"          end
-    end
-    if button == "gamepad:start" then
-        if type == "switch" then return "switch/plus"        end
-        if type == "ps4"    then return "ps4/options"        end
-        if type == "xbox"   then return "xbox/menu"          end
-    end
-    if button == "gamepad:guide" then
-        if type == "switch" then return "switch/home"        end
-        if type == "ps4"    then return "ps4/ps"             end
-        if type == "xbox"   then return "xbox/xbox"          end
-    end
-    if button == "gamepad:leftshoulder" then
-        if type == "switch" then return "switch/l"           end
-        if type == "ps4"    then return "ps4/l1"             end
-        if type == "xbox"   then return "xbox/left_bumper"   end
-    end
-    if button == "gamepad:rightshoulder" then
-        if type == "switch" then return "switch/r"           end
-        if type == "ps4"    then return "ps4/r1"             end
-        if type == "xbox"   then return "xbox/right_bumper"  end
-    end
-    if button == "gamepad:lefttrigger" then
-        if type == "switch" then return "switch/zl"          end
-        if type == "ps4"    then return "ps4/l2"             end
-        if type == "xbox"   then return "xbox/left_trigger"  end
-    end
-    if button == "gamepad:righttrigger" then
-        if type == "switch" then return "switch/zr"          end
-        if type == "ps4"    then return "ps4/r2"             end
-        if type == "xbox"   then return "xbox/right_trigger" end
-    end
-    if button == "gamepad:leftstick" then
-        if type == "switch" then return "switch/lStickClick" end
-        if type == "ps4"    then return "ps4/l3"             end
-        if type == "xbox"   then return "xbox/left_stick"    end
-    end
-    if button == "gamepad:rightstick" then
-        if type == "switch" then return "switch/rStickClick" end
-        if type == "ps4"    then return "ps4/r3"             end
-        if type == "xbox"   then return "xbox/right_stick"   end
-    end
+    local sprite = Input.button_sprites[short]
 
-    return "unknown"
+    if type(sprite) == "table" then
+        return sprite[controller_type] or "unknown"
+    else
+        return sprite or "unknown"
+    end
 end
 
 --[[

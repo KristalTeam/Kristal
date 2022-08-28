@@ -364,13 +364,13 @@ function DebugSystem:startTextInput()
     end
 
     Input.clear("down")
-    Input.clear("gamepad:down")
+    Input.clear("gamepad:lsdown")
     Input.clear("gamepad:dpdown")
 
     TextInput.pressed_callback = function(key)
         if not Input.processKeyPressedFunc(key) then return end
 
-        if key == "down" or key == "gamepad:down" or key == "gamepad:dpdown" then
+        if key == "down" or key == "gamepad:lsdown" or key == "gamepad:dpdown" then
             TextInput.endInput()
 
             if self.current_selecting < #self:getValidOptions() then
