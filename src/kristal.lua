@@ -400,6 +400,9 @@ function Kristal.onKeyPressed(key, is_repeat)
 end
 
 function Kristal.onKeyReleased(key)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onKeyReleased(key)
+    end
     if not TextInput.active and not OVERLAY_OPEN then
         local state = Kristal.getState()
         if state.onKeyReleased then
