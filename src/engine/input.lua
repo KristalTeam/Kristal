@@ -21,6 +21,10 @@ Input.key_down_timer = {}
 Input.key_bindings = {}
 Input.gamepad_bindings = {}
 
+Input.gamepad_cursor_size = 10
+Input.gamepad_cursor_x = (love.graphics.getWidth()  / 2) - (Input.gamepad_cursor_size / 2)
+Input.gamepad_cursor_y = (love.graphics.getHeight() / 2) - (Input.gamepad_cursor_size / 2)
+
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
 }
@@ -963,6 +967,26 @@ function Input.getMousePosition(x, y, relative)
     end
     return floor((x - off_x) / Kristal.getGameScale()),
            floor((y - off_y) / Kristal.getGameScale())
+end
+
+function Input.getGamepadCursorPosition(x, y, relative)
+    local x = x or (self.gamepad_cursor_x * Kristal.getGameScale())
+    local y = y or (self.gamepad_cursor_y * Kristal.getGameScale())
+    local off_x, off_y = Kristal.getSideOffsets()
+    local floor = math.floor
+    if relative then
+        floor = Utils.round
+        off_x, off_y = 0, 0
+    end
+    return floor((x - off_x) / Kristal.getGameScale()),
+           floor((y - off_y) / Kristal.getGameScale())
+end
+
+function Input.getCurrentCursorPosition(x, y, relative)
+    if self.usingGamepad() then
+        return self.getGamepadCursorPosition(x, y, relative)
+    end
+    return self.getMousePosition(x, y, relative)
 end
 
 return self

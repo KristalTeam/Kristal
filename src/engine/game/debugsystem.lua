@@ -20,7 +20,7 @@ function DebugSystem:init()
     self.heart_target_x = -10
     self.heart_target_y = -10
 
-    -- States: IDLE, MENU, MOUSE
+    -- States: IDLE, MENU, SELECTION
     self.state = "IDLE"
     self.old_state = "IDLE"
     self.state_reason = nil
@@ -76,8 +76,8 @@ function DebugSystem:getStage()
     end
 end
 
-function DebugSystem:mouseOpen()
-    return self.state == "MOUSE"
+function DebugSystem:selectionOpen()
+    return self.state == "SELECTION"
 end
 
 function DebugSystem:selectObject(object)
@@ -100,17 +100,17 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
     end
 
     if button == 3 then
-        if self:mouseOpen() then
-            self:closeMouse()
+        if self:selectionOpen() then
+            self:closeSelection()
         else
-            self:openMouse()
+            self:openSelection()
         end
         return
     end
 
-    if self:mouseOpen() then
+    if self:selectionOpen() then
         if button == 1 or button == 2 then
-            local object = self:detectObject(Input.getMousePosition())
+            local object = self:detectObject(Input.getCurrentCursorPosition())
 
             if object then
                 self:selectObject(object)
@@ -130,14 +130,14 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                     if Game.world then
                         if Game.world.player then
                             self.context:addMenuItem("Teleport", "Teleport the player to\nthe current position.", function()
-                                Game.world.player:setScreenPos(Input.getMousePosition())
+                                Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
                                 Game.world.player:interpolateFollowers()
                                 self:selectObject(Game.world.player)
                             end)
                         else
                             self.context:addMenuItem("Spawn player", "Spawn the player at the\ncurrent position.", function()
                                 Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
-                                Game.world.player:setScreenPos(Input.getMousePosition())
+                                Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
                                 Game.world.player:interpolateFollowers()
                                 self:selectObject(Game.world.player)
                             end)
@@ -164,11 +164,11 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                                 Object.endCache()
                             end
                         end)
-                        self.window:setPosition(Input.getMousePosition())
+                        self.window:setPosition(Input.getCurrentCursorPosition())
                         self:addChild(self.window)
                     end)
                     Kristal.callEvent("registerDebugContext", self.context, nil)
-                    self.context:setPosition(Input.getMousePosition())
+                    self.context:setPosition(Input.getCurrentCursorPosition())
                     self:addChild(self.context)
                 end
             end
@@ -181,7 +181,7 @@ function DebugSystem:openObjectContext(object)
     self.last_context = self.context
 
     Kristal.callEvent("registerDebugContext", self.context, self.object)
-    self.context:setPosition(Input.getMousePosition())
+    self.context:setPosition(Input.getCurrentCursorPosition())
     self:addChild(self.context)
 end
 
@@ -219,7 +219,7 @@ function DebugSystem:pasteObject(object)
         end
     end
 
-    new_object:setScreenPos(Input.getMousePosition())
+    new_object:setScreenPos(Input.getCurrentCursorPosition())
     self:selectObject(new_object)
     if self.copied_object_temp then
         self.copied_object = nil
@@ -564,12 +564,12 @@ function DebugSystem:registerOption(menu, name, description, func, state)
     table.insert(self.menus[menu].options, {name=name, description=description, func=func, state=state or "ALL"})
 end
 
-function DebugSystem:openMouse()
+function DebugSystem:openSelection()
     Assets.playSound("ui_select")
-    self:setState("MOUSE")
+    self:setState("SELECTION")
 end
 
-function DebugSystem:closeMouse()
+function DebugSystem:closeSelection()
     Assets.playSound("ui_move")
     self:setState("IDLE")
 end
@@ -602,7 +602,7 @@ function DebugSystem:onStateChange(old, new)
 
         Kristal.showCursor()
         --love.keyboard.setKeyRepeat(true) -- TODO: Text repeat stack
-    elseif new == "MOUSE" then
+    elseif new == "SELECTION" then
         self.last_object = nil
         self.menu_anim_timer = 0
         self.circle_anim_timer = 0
@@ -652,10 +652,10 @@ function DebugSystem:onKeyPressed(key, is_repeat)
     if not Input.processKeyPressedFunc(key, is_repeat) then return end
 
     if Input.is("object_selector", key) and not is_repeat then
-        if self:mouseOpen() then
-            self:closeMouse()
+        if self:selectionOpen() then
+            self:closeSelection()
         else
-            self:openMouse()
+            self:openSelection()
         end
         return
     end
@@ -692,7 +692,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
         if is_search and (self.current_selecting == 0) and not TextInput.active then
             self:startTextInput()
         end
-    elseif self.state == "MOUSE" and not is_repeat then
+    elseif self.state == "SELECTION" and not is_repeat then
         if (key == "c") and Input.ctrl() and self.object then
             self:copyObject(self.object)
         elseif (key == "x") and Input.ctrl() and self.object then
@@ -742,7 +742,7 @@ function DebugSystem:update()
     -- Update grabbed object
     if self.grabbing then
         if self.object then
-            local x, y = Input.getMousePosition()
+            local x, y = Input.getCurrentCursorPosition()
             self.object:setScreenPos(x - self.grab_offset_x, y - self.grab_offset_y)
             self.object.debug_x, self.object.debug_y = self.object.x, self.object.y
         end
@@ -755,7 +755,7 @@ function DebugSystem:update()
     self.flash_fx.amount = -math.cos((love.timer.getTime() * 30) / 5) * 0.4 + 0.6
 
     if stage then
-        if self.state == "MOUSE" and Kristal.Config["objectSelectionSlowdown"] then
+        if self.state == "SELECTION" and Kristal.Config["objectSelectionSlowdown"] then
             stage.timescale = math.max(stage.timescale - (DT / 0.6), 0)
             if stage.timescale == 0 then
                 stage.active = false
@@ -855,10 +855,10 @@ function DebugSystem:draw()
             end
         end
 
-    elseif self.state == "MOUSE" or (self.old_state == "MOUSE" and self.state == "IDLE" and (menu_alpha > 0)) then
+    elseif self.state == "SELECTION" or (self.old_state == "SELECTION" and self.state == "IDLE" and (menu_alpha > 0)) then
         header_name = "~ OBJECT SELECTION ~"
 
-        local mx, my = Input.getMousePosition()
+        local mx, my = Input.getCurrentCursorPosition()
 
         for i = 1, 2 do
             local prog = circle_progress - (i - 1) * 0.4
@@ -872,7 +872,7 @@ function DebugSystem:draw()
         end
 
         Object.startCache()
-        local mx, my = Input.getMousePosition()
+        local mx, my = Input.getCurrentCursorPosition()
 
         local object = self.object
         if (not self.grabbing) and (not self.context) then
