@@ -496,6 +496,10 @@ function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
     end
 end
 
+function Utils.sin(val, min, max)
+    return Utils.clampMap(math.sin(val), -1,1, min or -1,max or 1)
+end
+
 function Utils.between(val, a, b, include)
     if include then
         if a < b then
