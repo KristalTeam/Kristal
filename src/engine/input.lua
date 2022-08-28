@@ -58,12 +58,26 @@ Input.group_for_key = {
 }
 
 function Input.getThumbstick(stick)
-    local x, y = self.gamepad_left_x, self.gamepad_left_y
+    local x, y, deadzone
+    if stick == "left" then
+        x, y = self.gamepad_left_x, self.gamepad_left_y
+        deadzone = Kristal.Config["leftStickDeadzone"]
+    elseif stick == "right" then
+        x, y = self.gamepad_right_x, self.gamepad_right_y
+        deadzone = Kristal.Config["rightStickDeadzone"]
+    end
     local magnitude = math.sqrt(x * x + y * y)
+    if magnitude < (deadzone * deadzone) then
+        return 0, 0
+    end
     if magnitude > 1 then
         x = x / magnitude
         y = y / magnitude
+        magnitude = 1
     end
+    local magmult = (magnitude - deadzone) / (1 - deadzone)
+    x = x * magmult
+    y = y * magmult
     return x, y
 end
 

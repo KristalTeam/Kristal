@@ -1113,7 +1113,9 @@ function Kristal.loadConfig()
         systemCursor = false,
         alwaysShowCursor = false,
         objectSelectionSlowdown = true,
-        borders = "off"
+        borders = "off",
+        leftStickDeadzone = 0.2,
+        rightStickDeadzone = 0.2
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
