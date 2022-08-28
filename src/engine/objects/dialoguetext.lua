@@ -70,6 +70,11 @@ end
 
 
 function DialogueText:setText(text, callback)
+    for _, sprite in ipairs(self.sprites) do
+        sprite:remove()
+    end
+    self.sprites = {}
+
     self.advance_callback = callback or nil
     self:resetState()
     self:updateTalkSprite(false)
@@ -269,6 +274,8 @@ function DialogueText:isNodeInstant(node)
             return false
         elseif node.command == "image" then
             return false
+        elseif node.command == "button" then
+            return false
         end
     end
     return true
@@ -350,6 +357,11 @@ function DialogueText:processModifier(node, dry)
     elseif node.command == "next" then
         if not dry then
             self.should_advance = true
+        end
+    elseif node.command == "button" then
+        self.state.typed_characters = self.state.typed_characters + 1
+        if not dry then
+            self:playTextSound({character = "a", type="character"})
         end
     end
 end

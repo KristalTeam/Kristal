@@ -26,7 +26,7 @@ function TextInput.updateInput(tbl)
 end
 
 function TextInput.endInput()
-    if not Kristal.DebugSystem or not Kristal.DebugSystem:mouseOpen() then
+    if not Kristal.DebugSystem or not Kristal.DebugSystem:selectionOpen() then
         Kristal.hideCursor()
     end
     self.active = false

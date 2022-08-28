@@ -23,8 +23,6 @@ function Menu:enter()
     -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
-    love.keyboard.setKeyRepeat(true)
-
     -- Load menu music
     self.music = Music("mod_menu", 1, 0.95)
 
@@ -94,6 +92,8 @@ function Menu:enter()
     self.selected_mod_button = nil
     self.selected_mod = nil
 
+    self.control_menu = "keyboard"
+
     self.rebinding = false
     self.rebinding_shift = false
     self.rebinding_ctrl = false
@@ -156,7 +156,6 @@ function Menu:onStateChange(old_state, new_state)
     elseif new_state == "MODSELECT" then
         self.list.active = true
         self.list.visible = true
-        self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue.\n\nPress "..Input.getText("cancel").." to return to the main menu."}
     elseif new_state == "FILESELECT" then
         self.files = FileList(self, self.selected_mod)
         self.files.layer = 50
@@ -191,7 +190,6 @@ function Menu:setSubState(state)
 end
 
 function Menu:leave()
-    love.keyboard.setKeyRepeat(false)
     self.music:stop()
 end
 
@@ -512,7 +510,7 @@ function Menu:draw()
 
         local width = 360
         local height = 32 * 10
-        local total_height = 32 * 16 -- should be the amount of options there are
+        local total_height = 32 * 17 -- should be the amount of options there are
 
         Draw.pushScissor()
         Draw.scissor(menu_x, menu_y, width + 10, height + 10)
@@ -520,41 +518,42 @@ function Menu:draw()
         menu_y = menu_y + self.options_y
 
         self:printShadow("Master Volume",     menu_x, menu_y + (32 * 0))
-        self:printShadow("Controls",          menu_x, menu_y + (32 * 1))
-        self:printShadow("Simplify VFX",      menu_x, menu_y + (32 * 2))
-        self:printShadow("Window Scale",      menu_x, menu_y + (32 * 3))
-        self:printShadow("Fullscreen",        menu_x, menu_y + (32 * 4))
-        self:printShadow("Border",            menu_x, menu_y + (32 * 5))
-        self:printShadow("Target FPS",        menu_x, menu_y + (32 * 6))
-        self:printShadow("VSync",             menu_x, menu_y + (32 * 7))
-        self:printShadow("Auto-Run",          menu_x, menu_y + (32 * 8))
-        self:printShadow("Skip Intro",        menu_x, menu_y + (32 * 9))
-        self:printShadow("Display FPS",       menu_x, menu_y + (32 * 10))
-        self:printShadow("Debug Hotkeys",     menu_x, menu_y + (32 * 11))
-        self:printShadow("Use System Mouse",  menu_x, menu_y + (32 * 12))
-        self:printShadow("Always Show Mouse", menu_x, menu_y + (32 * 13))
-        self:printShadow("Back",              menu_x, menu_y + (32 * 15))
+        self:printShadow("Keyboard Controls", menu_x, menu_y + (32 * 1))
+        self:printShadow("Gamepad Controls",  menu_x, menu_y + (32 * 2))
+        self:printShadow("Simplify VFX",      menu_x, menu_y + (32 * 3))
+        self:printShadow("Window Scale",      menu_x, menu_y + (32 * 4))
+        self:printShadow("Fullscreen",        menu_x, menu_y + (32 * 5))
+        self:printShadow("Border",            menu_x, menu_y + (32 * 6))
+        self:printShadow("Target FPS",        menu_x, menu_y + (32 * 7))
+        self:printShadow("VSync",             menu_x, menu_y + (32 * 8))
+        self:printShadow("Auto-Run",          menu_x, menu_y + (32 * 9))
+        self:printShadow("Skip Intro",        menu_x, menu_y + (32 * 10))
+        self:printShadow("Display FPS",       menu_x, menu_y + (32 * 11))
+        self:printShadow("Debug Hotkeys",     menu_x, menu_y + (32 * 12))
+        self:printShadow("Use System Mouse",  menu_x, menu_y + (32 * 13))
+        self:printShadow("Always Show Mouse", menu_x, menu_y + (32 * 14))
+        self:printShadow("Back",              menu_x, menu_y + (32 * 16))
 
         self:printShadow(Utils.round(Kristal.getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
-        self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 2))
-        self:printShadow(tostring(Kristal.Config["windowScale"]).."x", menu_x + (8 * 32), menu_y + (32 * 3))
-        self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 4))
-        self:printShadow(Kristal.getBorderName(), menu_x + (8 * 32), menu_y + (32 * 5))
+        self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
+        self:printShadow(tostring(Kristal.Config["windowScale"]).."x", menu_x + (8 * 32), menu_y + (32 * 4))
+        self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
+        self:printShadow(Kristal.getBorderName(), menu_x + (8 * 32), menu_y + (32 * 6))
         if Kristal.Config["fps"] > 0 then
-            self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 6))
+            self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 7))
         else
             love.graphics.setColor(0, 0, 0)
-            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 6) + 11, 0, 2, 2)
+            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 7) + 11, 0, 2, 2)
             love.graphics.setColor(1, 1, 1)
-            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 6) + 9, 0, 2, 2)
+            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 7) + 9, 0, 2, 2)
         end
-        self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 7))
-        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
-        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 9))
-        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 10))
-        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 11))
-        self:printShadow(Kristal.Config["systemCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 12))
-        self:printShadow(Kristal.Config["alwaysShowCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 13))
+        self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
+        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 9))
+        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 10))
+        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 11))
+        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 12))
+        self:printShadow(Kristal.Config["systemCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 13))
+        self:printShadow(Kristal.Config["alwaysShowCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 14))
 
         -- Draw the scrollbar background
         love.graphics.setColor({0, 0, 0, 0.5})
@@ -568,7 +567,7 @@ function Menu:draw()
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
     elseif self.state == "CONTROLS" then
-        self:printShadow("( CONTROLS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        self:printShadow("( "..self.control_menu:upper().." CONTROLS )", 0, 48, {1, 1, 1, 1}, "center", 640)
 
         local menu_x = 185 - 14
         local menu_y = 110
@@ -591,7 +590,8 @@ function Menu:draw()
             y_offset = y_offset + 1
         end
 
-        for name, value in pairs(Input.aliases) do
+        local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
+        for name, value in pairs(bind_list) do
             if not Utils.containsValue(Input.order, name) then
                 self:printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
 
@@ -601,8 +601,15 @@ function Menu:draw()
             end
         end
 
-        self:printShadow("Reset to defaults",  menu_x, menu_y + (32 * (y_offset + 1)))
-        self:printShadow("Back",  menu_x, menu_y + (32 * (y_offset + 2)))
+        y_offset = y_offset + 1
+
+        if self.control_menu == "gamepad" then
+            self:printShadow("Configure Deadzone",  menu_x, menu_y + (32 * y_offset))
+            y_offset = y_offset + 1
+        end
+
+        self:printShadow("Reset to defaults", menu_x, menu_y + (32 * y_offset))
+        self:printShadow("Back", menu_x, menu_y + (32 * (y_offset + 1)))
 
         -- Draw the scrollbar background (lighter than the others since it's against black)
         love.graphics.setColor({1, 1, 1, 0.5})
@@ -628,13 +635,73 @@ function Menu:draw()
                 self.heart_target_y = -8
                 self.list.active = false
                 self.list.visible = false
-                self:printShadow(self.intro_text, 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
+
+                self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue."}
+                self:printShadow(self.intro_text, 0, 160 - 8, {1, 1, 1, 1}, "center", 640)
+
+                local string_part_1 = "Press "
+                local string_part_2 = Input.getText("cancel")
+                local string_part_3 = " to return to the main menu."
+
+                local part_2_width = self.menu_font:getWidth(string_part_2)
+                if Input.usingGamepad() then
+                    part_2_width = 32
+                end
+
+                local total_width = self.menu_font:getWidth(string_part_1) + part_2_width + self.menu_font:getWidth(string_part_3)
+
+                -- Draw each part, using total_width to center it
+                self:printShadow(string_part_1, 320 - (total_width / 2), 480 - 32, COLORS.silver)
+
+                local part_2_xpos = 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1)
+                if Input.usingGamepad() then
+                    love.graphics.setColor(0, 0, 0, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
+                else
+                    self:printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
+                end
+                self:printShadow(string_part_3, 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32, COLORS.silver)
             else
                 -- Draw some menu text
                 self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
 
-                local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
-                self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
+                local control_menu_width = 0
+                local control_cancel_width = 0
+                if Input.usingGamepad() then
+                    control_menu_width = 32
+                    control_cancel_width = 32
+                else
+                    control_menu_width = self.menu_font:getWidth(Input.getText("menu"))
+                    control_cancel_width = self.menu_font:getWidth(Input.getText("cancel"))
+                end
+
+                local x_pos = self.menu_font:getWidth(" Back")
+                self:printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                x_pos = x_pos + control_cancel_width
+                if Input.usingGamepad() then
+                    love.graphics.setColor(0, 0, 0, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                else
+                    self:printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                end
+                local fav = self.heart_outline.visible and " Unfavorite  " or " Favorite  "
+                x_pos = x_pos + self.menu_font:getWidth(fav)
+                self:printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                x_pos = x_pos + control_menu_width
+                if Input.usingGamepad() then
+                    love.graphics.setColor(0, 0, 0, 1)
+                    love.graphics.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    love.graphics.setColor(1, 1, 1, 1)
+                    love.graphics.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                else
+                    self:printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                end
+                --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
+                --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end
     elseif self.state == "FILESELECT" then
@@ -746,9 +813,12 @@ end
 function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     local x_offset = 0
     if self.selected_option == (y_offset + 1) then
-        for i, v in ipairs(self:getKeysFromAlias(name)) do
+        for i, v in ipairs(self:getBoundKeys(name)) do
             local drawstr = v:upper()
-            if i < #self:getKeysFromAlias(name) then
+            if Utils.startsWith(v, "gamepad:") then
+                drawstr = "     "
+            end
+            if i < #self:getBoundKeys(name) then
                 drawstr = drawstr .. ", "
             end
             if i < self.selected_bind then
@@ -758,8 +828,13 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     end
     Draw.pushScissor()
     Draw.scissorPoints(380, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    for i, v in ipairs(self:getKeysFromAlias(name)) do
+    for i, v in ipairs(self:getBoundKeys(name)) do
         local drawstr = v:upper()
+        local btn = nil
+        if Utils.startsWith(v, "gamepad:") then
+            drawstr = "     "
+            btn = Input.getButtonTexture(v)
+        end
         local color = {1, 1, 1, 1}
         if self.selecting_key or self.rebinding then
             if self.selected_option == (y_offset + 1) then
@@ -781,10 +856,16 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
                 end
             end
         end
-        if i < #self:getKeysFromAlias(name) then
+        if i < #self:getBoundKeys(name) then
             drawstr = drawstr .. ", "
         end
         self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
+        if btn then
+            love.graphics.setColor(0, 0, 0, 1)
+            love.graphics.draw(btn, menu_x + (8 * 32) + x_offset + 2, menu_y + (32 * y_offset) + 4, 0, 2, 2)
+            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.draw(btn, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset) + 2, 0, 2, 2)
+        end
         x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
     end
     Draw.popScissor()
@@ -792,10 +873,9 @@ end
 
 function Menu:onKeyPressed(key, is_repeat)
     if MOD_LOADING then return end
-    if OVERLAY_OPEN then return end
 
     if self.state ~= "CONTROLS" then
-        if not Input.processKeyPressedFunc(key) then
+        if not Input.processKeyPressedFunc(key, true) then
             return
         end
     end
@@ -829,10 +909,10 @@ function Menu:onKeyPressed(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1 end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1 end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1 end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1 end
         if self.selected_option > 5 - self.target_mod_offset then self.selected_option = is_repeat and (5 - self.target_mod_offset) or 1                            end
         if self.selected_option < 1                          then self.selected_option = is_repeat and 1                            or (5 - self.target_mod_offset) end
 
@@ -855,15 +935,15 @@ function Menu:onKeyPressed(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 15 then self.selected_option = is_repeat and 15 or 1  end
-        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 15 end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
+        if self.selected_option > 16 then self.selected_option = is_repeat and 16 or 1  end
+        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 16 end
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 15 then
+        if self.selected_option >= 16 then
             y_off = y_off + 32
         end
 
@@ -889,45 +969,50 @@ function Menu:onKeyPressed(key, is_repeat)
             if self.selected_option == 1 then
                 self:setState("VOLUME")
                 self.heart_target_x = 408
-            elseif self.selected_option == 2 then
+            elseif self.selected_option == 2 or self.selected_option == 3 then
                 self:setState("CONTROLS")
+                if self.selected_option == 3 then
+                    self.control_menu = "gamepad"
+                else
+                    self.control_menu = "keyboard"
+                end
                 self.rebinding = false
                 self.selecting_key = false
                 self.heart_target_x = 152
                 self.heart_target_y = 129 + 0 * 32
                 self.selected_option = 1
-            elseif self.selected_option == 3 then
-                Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
             elseif self.selected_option == 4 then
+                Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
+            elseif self.selected_option == 5 then
                 self:setState("WINDOWSCALE")
                 self.heart_target_x = 408
-            elseif self.selected_option == 5 then
+            elseif self.selected_option == 6 then
                 Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
                 love.window.setFullscreen(Kristal.Config["fullscreen"])
-            elseif self.selected_option == 6 then
+            elseif self.selected_option == 7 then
                 self:setState("BORDER")
                 self.heart_target_x = 408
-            elseif self.selected_option == 7 then
+            elseif self.selected_option == 8 then
                 self:setState("FPSOPTION")
                 self.heart_target_x = 408
-            elseif self.selected_option == 8 then
+            elseif self.selected_option == 9 then
                 Kristal.Config["vSync"] = not Kristal.Config["vSync"]
                 love.window.setVSync(Kristal.Config["vSync"])
-            elseif self.selected_option == 9 then
-                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.selected_option == 10 then
-                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
+                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
             elseif self.selected_option == 11 then
-                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
+                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
             elseif self.selected_option == 12 then
-                Kristal.Config["debug"] = not Kristal.Config["debug"]
+                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
             elseif self.selected_option == 13 then
+                Kristal.Config["debug"] = not Kristal.Config["debug"]
+            elseif self.selected_option == 14 then
                 Kristal.Config["systemCursor"] = not Kristal.Config["systemCursor"]
                 Kristal.updateCursor()
-            elseif self.selected_option == 14 then
+            elseif self.selected_option == 15 then
                 Kristal.Config["alwaysShowCursor"] = not Kristal.Config["alwaysShowCursor"]
                 Kristal.updateCursor()
-            elseif self.selected_option == 15 then
+            elseif self.selected_option == 16 then
                 self:setState("MAINMENU")
                 self.heart_target_x = 196
                 self.selected_option = 3
@@ -1107,10 +1192,10 @@ function Menu:onKeyPressed(key, is_repeat)
                 end
             end
 
-            if Input.is("up", key)    then self.list:selectUp(is_repeat)   end
-            if Input.is("down", key)  then self.list:selectDown(is_repeat) end
-            if Input.is("left", key)  then self.list:pageUp(is_repeat)     end
-            if Input.is("right", key) then self.list:pageDown(is_repeat)   end
+            if Input.is("up", key)                      then self.list:selectUp(is_repeat)   end
+            if Input.is("down", key)                    then self.list:selectDown(is_repeat) end
+            if Input.is("left", key)  and not is_repeat then self.list:pageUp(is_repeat)     end
+            if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat)   end
         end
     elseif self.state == "FILESELECT" then
         if not is_repeat then
@@ -1132,13 +1217,19 @@ function Menu:onKeyPressed(key, is_repeat)
         end
     elseif self.state == "CONTROLS" then
         if (not self.rebinding) and (not self.selecting_key) then
+            local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
+            local option_count = Utils.tableLength(bind_list) + 2
+            if self.control_menu == "gamepad" then
+                option_count = option_count + 1
+            end
+
             local old = self.selected_option
-            if Input.is("up"   , key) then self.selected_option = self.selected_option - 1 end
-            if Input.is("down" , key) then self.selected_option = self.selected_option + 1 end
-            if Input.is("left" , key) then self.selected_option = self.selected_option - 1 end
-            if Input.is("right", key) then self.selected_option = self.selected_option + 1 end
-            if self.selected_option < 1 then self.selected_option = is_repeat and 1 or (Utils.tableLength(Input.aliases) + 2) end
-            if self.selected_option > Utils.tableLength(Input.aliases) + 2 then self.selected_option = is_repeat and (Utils.tableLength(Input.aliases) + 2) or 1 end
+            if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1 end
+            if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1 end
+            if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1 end
+            if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1 end
+            if self.selected_option < 1            then self.selected_option = is_repeat and 1 or option_count end
+            if self.selected_option > option_count then self.selected_option = is_repeat and option_count or 1 end
 
             if old ~= self.selected_option then
                 self.ui_move:stop()
@@ -1146,7 +1237,7 @@ function Menu:onKeyPressed(key, is_repeat)
             end
 
             local y_off = (self.selected_option - 1) * 32
-            if self.selected_option > (Utils.tableLength(Input.aliases)) then
+            if self.selected_option > (Utils.tableLength(bind_list)) then
                 y_off = y_off + 32
             end
 
@@ -1163,22 +1254,24 @@ function Menu:onKeyPressed(key, is_repeat)
 
             if Input.isCancel(key) then
                 self:setState("OPTIONS")
-                self.selected_option = 2
+                self.selected_option = self.control_menu == "gamepad" and 3 or 2
                 self.ui_select:stop()
                 self.ui_select:play()
                 Input.saveBinds()
                 self.heart_target_x = 152
-                self.heart_target_y = 129 + 1 * 32
+                self.heart_target_y = 129 + (self.selected_option - 1) * 32
             elseif Input.isConfirm(key) then
                 self.rebinding = false
                 self.selecting_key = false
-                if (self.selected_option == Utils.tableLength(Input.aliases) + 1) then
-                    Input.loadBinds(true) -- reset binds
+                 -- Reset to Defaults
+                if (self.selected_option == option_count - 1) then
+                    Input.resetBinds(self.control_menu == "gamepad")
                     self.ui_select:stop()
                     self.ui_select:play()
-                    self.selected_option = Utils.tableLength(Input.aliases) + 1
+                    self.selected_option = option_count - 1
                     self.heart_target_y = (129 + (self.selected_option) * 32) + self.options_target_y
-                elseif (self.selected_option == Utils.tableLength(Input.aliases) + 2) then
+                -- Back
+                elseif (self.selected_option == option_count) then
                     self:setState("OPTIONS")
                     self.selected_option = 2
                     self.ui_select:stop()
@@ -1186,6 +1279,13 @@ function Menu:onKeyPressed(key, is_repeat)
                     Input.saveBinds()
                     self.heart_target_x = 152
                     self.heart_target_y = 129 + 1 * 32
+                -- (Gamepad) Configure Deadzone
+                elseif self.control_menu == "gamepad" and self.selected_option == option_count - 2 then
+                    self.music:stop()
+                    Assets.playSound("impact")
+                    Assets.playSound("badexplosion", 1, 0.2)
+                    Kristal.setState({})
+                    --while true do end
                 else
                     self.rebinding = false
                     self.selecting_key = true
@@ -1201,7 +1301,7 @@ function Menu:onKeyPressed(key, is_repeat)
             local old = self.selected_bind
             if Input.is("left" , key) then self.selected_bind = self.selected_bind - 1 end
             if Input.is("right", key) then self.selected_bind = self.selected_bind + 1 end
-            self.selected_bind = math.max(1, math.min(#self:getKeysFromAlias(table_key), self.selected_bind))
+            self.selected_bind = math.max(1, math.min(#self:getBoundKeys(table_key), self.selected_bind))
 
             if old ~= self.selected_bind then
                 self.ui_move:stop()
@@ -1224,48 +1324,58 @@ function Menu:onKeyPressed(key, is_repeat)
                 self.ui_select:play()
             end
         elseif self.rebinding then
-            if key == "lshift" or key == "rshift" then
+            Input.clear(key)
+
+            local gamepad = self.control_menu == "gamepad"
+            if not gamepad and key == "lshift" or key == "rshift" then
                 self.rebinding_shift = true
-            elseif key == "lctrl" or key == "rctrl" then
+            elseif not gamepad and key == "lctrl" or key == "rctrl" then
                 self.rebinding_ctrl = true
-            elseif key == "lalt" or key == "ralt" then
+            elseif not gamepad and key == "lalt" or key == "ralt" then
                 self.rebinding_alt = true
-            elseif key == "lgui" or key == "rgui" then
+            elseif not gamepad and key == "lgui" or key == "rgui" then
                 self.rebinding_cmd = true
             else
+                local valid_key = true
                 local bound_key
                 if key ~= "escape" then
-                    bound_key = {key}
+                    if gamepad ~= Utils.startsWith(key, "gamepad:") then
+                        valid_key = false
+                    else
+                        bound_key = {key}
 
-                    -- https://ux.stackexchange.com/questions/58185/normative-ordering-for-modifier-key-combinations
-                    if self.rebinding_cmd   then table.insert(bound_key, 1, "cmd"  ) end
-                    if self.rebinding_shift then table.insert(bound_key, 1, "shift") end
-                    if self.rebinding_alt   then table.insert(bound_key, 1, "alt"  ) end
-                    if self.rebinding_ctrl  then table.insert(bound_key, 1, "ctrl" ) end
+                        -- https://ux.stackexchange.com/questions/58185/normative-ordering-for-modifier-key-combinations
+                        if self.rebinding_cmd   then table.insert(bound_key, 1, "cmd"  ) end
+                        if self.rebinding_shift then table.insert(bound_key, 1, "shift") end
+                        if self.rebinding_alt   then table.insert(bound_key, 1, "alt"  ) end
+                        if self.rebinding_ctrl  then table.insert(bound_key, 1, "ctrl" ) end
 
-                    if #bound_key == 1 then
-                        bound_key = bound_key[1]
+                        if #bound_key == 1 then
+                            bound_key = bound_key[1]
+                        end
                     end
                 else
                     bound_key = "escape"
                 end
 
-                -- rebind!!
-                local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key)
+                if valid_key then
+                    -- rebind!!
+                    local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key, self.control_menu == "gamepad")
 
-                self.rebinding = false
-                self.rebinding_shift = false
-                self.rebinding_ctrl = false
-                self.rebinding_alt = false
-                self.rebinding_cmd = false
-                self.heart_target_x = 152
-                self.selected_bind = 1
-                if worked then
-                    self.ui_select:stop()
-                    self.ui_select:play()
-                else
-                    self.ui_cant_select:stop()
-                    self.ui_cant_select:play()
+                    self.rebinding = false
+                    self.rebinding_shift = false
+                    self.rebinding_ctrl = false
+                    self.rebinding_alt = false
+                    self.rebinding_cmd = false
+                    self.heart_target_x = 152
+                    self.selected_bind = 1
+                    if worked then
+                        self.ui_select:stop()
+                        self.ui_select:play()
+                    else
+                        self.ui_cant_select:stop()
+                        self.ui_cant_select:play()
+                    end
                 end
             end
         end
@@ -1331,10 +1441,10 @@ function Menu:handleCreateInput(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
         if self.selected_option > 6 then self.selected_option = is_repeat and 6 or 1    end
         if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 6    end
 
@@ -1448,10 +1558,10 @@ function Menu:handleConfigInput(key, is_repeat)
             return
         end
         local old = self.selected_option
-        if Input.is("up"   , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("down" , key) then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) then self.selected_option = self.selected_option + 1  end
+        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
+        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
+        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
+        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
         if self.selected_option > (#self.create.config + 1) then self.selected_option = is_repeat and (#self.create.config + 1) or 1                            end
         if self.selected_option < 1                         then self.selected_option = is_repeat and 1                         or (#self.create.config + 1)    end
 
@@ -1868,9 +1978,8 @@ function Menu:drawInputLine(name, x, y, id)
     end
 end
 
-function Menu:keyreleased(key)
+function Menu:onKeyReleased(key)
     if MOD_LOADING then return end
-    if OVERLAY_OPEN then return end
 
     if self.state == "CONTROLS" and self.rebinding then
         -- TODO: Maybe move this into a function? Copying code is gross
@@ -1915,9 +2024,9 @@ function Menu:keyreleased(key)
     end
 end
 
-function Menu:getKeysFromAlias(key)
+function Menu:getBoundKeys(key)
     local keys = {}
-    for _,k in ipairs(Input.getKeysFromAlias(key)) do
+    for _,k in ipairs(Input.getBoundKeys(key, self.control_menu == "gamepad")) do
         if type(k) == "table" then
             table.insert(keys, table.concat(k, "+"))
         else

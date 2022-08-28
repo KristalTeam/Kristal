@@ -234,8 +234,6 @@ function World:onStateChange(old, new)
 end
 
 function World:onKeyPressed(key)
-    if OVERLAY_OPEN then return end
-    if TextInput.active then return end
     if Kristal.Config["debug"] and Input.ctrl() then
         if key == "m" then
             if self.music then

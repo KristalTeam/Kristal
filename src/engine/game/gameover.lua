@@ -333,8 +333,7 @@ function GameOver:draw()
 end
 
 function GameOver:onKeyPressed(key)
-    if OVERLAY_OPEN then return end
-
+    -- ?
 end
 
 return GameOver

@@ -19,6 +19,11 @@ BORDER_TYPES = {
     {"none",    "None",    nil}
 }
 
+USING_CONSOLE = false
+
+KEY_REPEAT_DELAY = 0.4
+KEY_REPEAT_INTERVAL = 0.075
+
 TILE_WIDTH = 40
 TILE_HEIGHT = 40
 

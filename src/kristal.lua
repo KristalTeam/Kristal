@@ -64,6 +64,9 @@ function love.load(args)
     -- toggle vsync
     love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
 
+    -- register gamepad mapping DB
+    love.joystick.loadGamepadMappings("gamecontrollerdb.txt")
+
     -- update framerate
     FRAMERATE = Kristal.Config["fps"]
 
@@ -170,8 +173,15 @@ function love.load(args)
         love.graphics.reset()
         love.graphics.scale(Kristal.getGameScale())
 
-        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and MOUSE_SPRITE and love.window and love.window.hasMouseFocus() then
-            love.graphics.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
+        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
+            if Input.usingGamepad() then
+                love.graphics.setColor(0, 0, 0, 0.5)
+                love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+                love.graphics.setColor(1, 1, 1, 1)
+                love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+            elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
+                love.graphics.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
+            end
         end
 
         Draw._clearUnusedCanvases()
@@ -230,6 +240,15 @@ function love.update(dt)
     end
     BORDER_ALPHA = Utils.clamp(BORDER_ALPHA, 0, 1)
 
+    if MOUSE_VISIBLE then
+        local cursor_speed = (16 * (dt * 30))
+        local thumb_x, thumb_y = Input.getLeftThumbstick()
+        Input.gamepad_cursor_x = Input.gamepad_cursor_x + thumb_x * cursor_speed
+        Input.gamepad_cursor_y = Input.gamepad_cursor_y + thumb_y * cursor_speed
+        Input.gamepad_cursor_x = Utils.clamp(Input.gamepad_cursor_x, 0, love.graphics.getWidth() / Kristal.getGameScale())
+        Input.gamepad_cursor_y = Utils.clamp(Input.gamepad_cursor_y, 0, love.graphics.getHeight() / Kristal.getGameScale())
+    end
+
     LibTimer.update()
     Music.update()
     Assets.update()
@@ -283,20 +302,40 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 function love.keypressed(key, scancode, is_repeat)
+    if not is_repeat then
+        Input.onKeyPressed(key, false)
+    else
+        TextInput.onKeyPressed(key)
+    end
+end
 
-    if Input.ctrl() and Input.shift() and Input.alt() and key == "t" then -- Panic button for binds
-        Input.loadBinds(true) -- reset binds
+function love.keyreleased(key)
+    Input.onKeyReleased(key)
+end
+
+function Kristal.onKeyPressed(key, is_repeat)
+    if Input.ctrl() and Input.shift() and Input.alt() and key == "t" and not is_repeat then -- Panic button for binds
+        Input.resetBinds()
         Input.saveBinds()
         Assets.playSound("impact")
         return
     end
 
-    Input.onKeyPressed(key, is_repeat)
-    TextInput.onKeyPressed(key)
+    if not TextInput.active then
+        if not Utils.startsWith(key, "gamepad:") then
+            Input.active_gamepad = nil
+        end
+
+        local state = Kristal.getState()
+        if state.onKeyPressed and not OVERLAY_OPEN then
+            state:onKeyPressed(key, is_repeat)
+        end
+    end
 
     if Input.processKeyPressedFunc(key) and not TextInput.active then
         if Input.is("debug_menu", key) then
             if Kristal.DebugSystem then
+                Input.clear("debug_menu")
                 if Kristal.DebugSystem:isMenuOpen() then
                     Assets.playSound("ui_move")
                     Kristal.DebugSystem:closeMenu()
@@ -310,6 +349,7 @@ function love.keypressed(key, scancode, is_repeat)
                 Kristal.DebugSystem:closeMenu()
             elseif Kristal.Console then
                 if not Kristal.Console.is_open then
+                    Input.clear("console")
                     Kristal.Console:open()
                 end
             end
@@ -317,45 +357,58 @@ function love.keypressed(key, scancode, is_repeat)
     end
 
     if Kristal.DebugSystem then
-        Kristal.DebugSystem:keypressed(key, scancode, is_repeat)
+        Kristal.DebugSystem:onKeyPressed(key, is_repeat)
     end
 
     local console_open = Kristal.Console and Kristal.Console.is_open
 
-    if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
-        FAST_FORWARD = not FAST_FORWARD
-    elseif key == "f3" then
-        love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
-    elseif key == "f4" or (key == "return" and Input.alt()) then
-        Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-        love.window.setFullscreen(Kristal.Config["fullscreen"])
-    elseif key == "f6" then
-        DEBUG_RENDER = not DEBUG_RENDER
-    elseif key == "f8" then
-        print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
-        Hotswapper.scan()
-    elseif key == "r" and Input.ctrl() and not console_open then
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
-        else
-            if Mod then
-                if Input.alt() then
-                    Kristal.quickReload("none")
-                elseif Input.shift() then
-                    Kristal.quickReload("save")
-                else
-                    Kristal.quickReload("temp")
-                end
+    if not is_repeat then
+        if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
+            FAST_FORWARD = not FAST_FORWARD
+        elseif key == "f3" then
+            love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
+        elseif key == "f4" or (key == "return" and Input.alt()) then
+            Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
+            love.window.setFullscreen(Kristal.Config["fullscreen"])
+        elseif key == "f6" then
+            DEBUG_RENDER = not DEBUG_RENDER
+        elseif key == "f8" then
+            print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
+            Hotswapper.scan()
+        elseif key == "r" and Input.ctrl() and not console_open then
+            if Kristal.getModOption("hardReset") then
+                love.event.quit("restart")
             else
-                Kristal.returnToMenu()
+                if Mod then
+                    if Input.alt() then
+                        Kristal.quickReload("none")
+                    elseif Input.shift() then
+                        Kristal.quickReload("save")
+                    else
+                        Kristal.quickReload("temp")
+                    end
+                else
+                    Kristal.returnToMenu()
+                end
             end
         end
     end
+
+    if not is_repeat then
+        TextInput.onKeyPressed(key)
+    end
 end
 
-function love.keyreleased(key)
-    Input.onKeyReleased(key)
-    Kristal.callEvent("onKeyReleased", key)
+function Kristal.onKeyReleased(key)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onKeyReleased(key)
+    end
+    if not TextInput.active and not OVERLAY_OPEN then
+        local state = Kristal.getState()
+        if state.onKeyReleased then
+            state:onKeyReleased(key)
+        end
+    end
 end
 
 local function error_printer(msg, layer)
@@ -1063,7 +1116,9 @@ function Kristal.loadConfig()
         systemCursor = false,
         alwaysShowCursor = false,
         objectSelectionSlowdown = true,
-        borders = "off"
+        borders = "off",
+        leftStickDeadzone = 0.2,
+        rightStickDeadzone = 0.2
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))
