@@ -260,7 +260,7 @@ function DarkConfigMenu:draw()
                     love.graphics.setColor(0, 1, 1, 1)
                 end
             end
-            love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (29 * index))
+            love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (28 * index) + 4)
 
             local shown_bind = self:getBindNumberFromIndex(index)
 
@@ -283,7 +283,7 @@ function DarkConfigMenu:draw()
                 local alias = Input.getBoundKeys(name, true)[1]
                 if alias then
                     local btn_tex = Input.getButtonTexture(alias)
-                    love.graphics.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth()/2, 0)
+                    love.graphics.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2, btn_tex:getWidth()/2, 0)
                 end
             end
         end
@@ -297,16 +297,16 @@ function DarkConfigMenu:draw()
             love.graphics.setColor(Utils.mergeColor(COLORS.aqua, COLORS.yellow, ((self.reset_flash_timer / 10) - 0.1)))
         end
 
-        love.graphics.print("Reset to default", 23, -4 + (29 * 8))
+        love.graphics.print("Reset to default", 23, -4 + (28 * 8) + 4)
 
         love.graphics.setColor(1, 1, 1, 1)
         if self.currently_selected == 9 then
             love.graphics.setColor(0, 1, 1, 1)
         end
-        love.graphics.print("Finish", 23, -4 + (29 * 9))
+        love.graphics.print("Finish", 23, -4 + (28 * 9) + 4)
 
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
+        love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 28) + 2)
     end
 
     love.graphics.setColor(1, 1, 1, 1)
