@@ -235,6 +235,7 @@ function Battle:postInit(state, encounter)
             if not isClass(from) then
                 local enemy = self:parseEnemyIdentifier(from[1])
                 from[2].visible = false
+                from[2].battler = enemy
                 self.enemy_beginning_positions[enemy] = {from[2]:getScreenPos()}
                 self.enemy_world_characters[enemy] = from[2]
                 if state == "TRANSITION" then
@@ -244,6 +245,7 @@ function Battle:postInit(state, encounter)
                 for _,enemy in ipairs(self.enemies) do
                     if enemy.actor and from.actor and enemy.actor.id == from.actor.id then
                         from.visible = false
+                        from.battler = enemy
                         self.enemy_beginning_positions[enemy] = {from:getScreenPos()}
                         self.enemy_world_characters[enemy] = from
                         if state == "TRANSITION" then
@@ -2206,6 +2208,11 @@ function Battle:updateTransitionOut()
     self.transition_timer = self.transition_timer - DTMULT
 
     if self.transition_timer <= 0 then--or not self.transitioned then
+        local enemies = {}
+        for k,v in pairs(self.enemy_world_characters) do
+            table.insert(enemies, v)
+        end
+        self.encounter:onReturnToWorld(enemies)
         self:returnToWorld()
         return
     end
