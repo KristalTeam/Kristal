@@ -674,6 +674,8 @@ function Map:loadObject(name, data)
         return TileButton(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "magicglass" then
         return MagicGlass(data.x, data.y, data.width, data.height)
+    elseif name:lower() == "warpdoor" then
+        return WarpDoor(data.x, data.y, data.properties)
     end
     if data.gid then
         local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)

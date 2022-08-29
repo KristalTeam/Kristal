@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 11,
-  nextobjectid = 111,
+  nextobjectid = 114,
   properties = {
     ["border"] = "city",
     ["light"] = false,
@@ -592,6 +592,19 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          id = 113,
+          name = "door_exit",
+          class = "",
+          shape = "point",
+          x = 320,
+          y = 280,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
         }
       }
     },
@@ -1000,6 +1013,25 @@ return {
           properties = {
             ["map"] = "alley4",
             ["marker"] = "entry_right"
+          }
+        },
+        {
+          id = 112,
+          name = "warpdoor",
+          class = "",
+          shape = "point",
+          x = 320,
+          y = 220,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["flag1"] = "viroviro_banana",
+            ["map1"] = "alley2",
+            ["map2"] = "16x16test",
+            ["name1"] = "Circle Alley",
+            ["name2"] = "super mario"
           }
         }
       }

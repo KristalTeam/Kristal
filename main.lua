@@ -151,6 +151,7 @@ TileButton = require("src.engine.game.world.events.tilebutton")
 MagicGlass = require("src.engine.game.world.events.magicglass")
 TileObject = require("src.engine.game.world.events.tileobject")
 FrozenEnemy = require("src.engine.game.world.frozenenemy")
+WarpDoor = require("src.engine.game.world.events.warpdoor")
 
 ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")
 

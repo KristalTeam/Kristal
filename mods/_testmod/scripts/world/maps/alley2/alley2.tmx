@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="111">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="114">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -147,6 +147,9 @@
   <object id="110" name="entry_left" x="40" y="1400">
    <point/>
   </object>
+  <object id="113" name="door_exit" x="320" y="280">
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup color="#ff00ff" id="3" name="objects">
   <object id="14" name="savepoint" x="580" y="740" width="40" height="40"/>
@@ -224,6 +227,16 @@
     <property name="map" value="alley4"/>
     <property name="marker" value="entry_right"/>
    </properties>
+  </object>
+  <object id="112" name="warpdoor" x="320" y="220">
+   <properties>
+    <property name="flag1" value="viroviro_banana"/>
+    <property name="map1" value="alley2"/>
+    <property name="map2" value="16x16test"/>
+    <property name="name1" value="Circle Alley"/>
+    <property name="name2" value="super mario"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
  <objectgroup color="#ff7fff" id="5" name="battleareas">
