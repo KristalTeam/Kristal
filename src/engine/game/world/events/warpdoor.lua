@@ -32,13 +32,11 @@ function WarpDoor:init(x, y, properties)
         else
             self.names[i] = Utils.titleCase(properties["map"..i])
         end
-        self.maps[self.names[i]] = properties["map"..i]
-        if properties["marker"..i] then
-            self.markers[i] = properties["marker"..i]
-        end
         if properties["flag"..i] then
             self.flags[i] = properties["flag"..i]
         end
+        self.maps[self.names[i]] = properties["map"..i]
+        self.markers[self.names[i]] = properties["marker"..i]
         i = i + 1
     end
 end
@@ -60,7 +58,8 @@ function WarpDoor:onInteract(chara, facing)
             table.insert(choices, "Cancel")
             local choice_i = cutscene:choicer(choices)
             if choice_i < #choices then
-                local map = self.maps[choices[choice_i]]
+                local name = choices[choice_i]
+                local map = self.maps[name]
                 if map == self.world.map.id then
                     cutscene:text("* (Amazingly,[wait:5] you are already there.)")
                 else
@@ -78,8 +77,7 @@ function WarpDoor:onInteract(chara, facing)
                         speed = 0,
                     })
                     cutscene:wait(1)
-                    cutscene:loadMap(map, self.markers[choice] or "spawn")
-                    cutscene:look("down")
+                    cutscene:loadMap(map, self.markers[name] or "spawn", "down")
                     Game.world.fader:fadeIn(nil, {
                         speed = 0.25,
                     })
