@@ -205,21 +205,7 @@ function Battle:postInit(state, encounter)
 
     self.battler_targets = {}
     for index, battler in ipairs(self.party) do
-        local target_x, target_y
-        if #self.party == 1 then
-            target_x = 80
-            target_y = 140
-        elseif #self.party == 2 then
-            target_x = 80
-            target_y = 100 + (80 * (index - 1))
-        elseif #self.party == 3 then
-            target_x = 80
-            target_y = 50 + (80 * (index - 1))
-        end
-
-        local ox, oy = battler.chara:getBattleOffset()
-        target_x = target_x + (battler.actor:getWidth()/2 + ox) * 2
-        target_y = target_y + (battler.actor:getHeight()  + oy) * 2
+        local target_x, target_y = self.encounter:getPartyPosition(index)
         table.insert(self.battler_targets, {target_x, target_y})
 
         if state ~= "TRANSITION" then
