@@ -496,7 +496,7 @@ function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
     end
 end
 
-function Utils.sin(val, min, max)
+function Utils.wave(val, min, max)
     return Utils.clampMap(math.sin(val), -1,1, min or -1,max or 1)
 end
 
