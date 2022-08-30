@@ -87,23 +87,7 @@ function ChaserEnemy:onCollide(player)
                 if self.enemy then
                     enemy_target = {{self.enemy, self}}
                 end
-                Game:encounter(encounter, true, enemy_target)
-                for _,enemy in ipairs(self.stage:getObjects(ChaserEnemy)) do
-                    if enemy ~= self and self.group and enemy.group == self.group then
-                        if enemy.remove_on_encounter then
-                            enemy:remove()
-                        end
-                        if enemy.once then
-                            enemy:setFlag("dont_load", true)
-                        end
-                    end
-                end
-                if self.remove_on_encounter then
-                    self:remove()
-                end
-                if self.once then
-                    self:setFlag("dont_load", true)
-                end
+                Game:encounter(encounter, true, enemy_target, self)
             end)
         end
     end
@@ -113,6 +97,43 @@ function ChaserEnemy:onAdd(parent)
     super:onAdd(self, parent)
 
     self:snapToPath()
+end
+
+function ChaserEnemy:getGroupedEnemies(include_self)
+    local group = {}
+    if include_self then
+        table.insert(group, self)
+    end
+    for _,enemy in ipairs(self.stage:getObjects(ChaserEnemy)) do
+        if enemy ~= self and self.group and enemy.group == self.group then
+            table.insert(group, enemy)
+        end
+    end
+    return group
+end
+
+function ChaserEnemy:onEncounterStart(primary, encounter)
+    self.visible = false
+end
+
+function ChaserEnemy:onEncounterTransitionOut(primary, encounter)
+    local enemy = Game.battle:getEnemyFromCharacter(self)
+    if enemy and enemy.done_state == "FROZEN" then
+        local statue = FrozenEnemy(self.actor, self.x, self.y, {facing = self.sprite.facing})
+        statue.layer = self.layer
+        Game.world:addChild(statue)
+    end
+end
+
+function ChaserEnemy:onEncounterEnd(primary, encounter)
+    if self.remove_on_encounter then
+        self:remove()
+    else
+        self.visible = true
+    end
+    if self.once then
+        self:setFlag("dont_load", true)
+    end
 end
 
 function ChaserEnemy:snapToPath()

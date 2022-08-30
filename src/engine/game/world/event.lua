@@ -78,19 +78,25 @@ end
 function Event:getUniqueID()
     if self.unique_id then
         return self.unique_id
-    else
+    elseif self.object_id then
         return (self.world or Game.world).map:getUniqueID() .. "#" .. self.object_id
     end
 end
 
 function Event:setFlag(flag, value)
     local uid = self:getUniqueID()
-    Game:setFlag(uid..":"..flag, value)
+    if uid then
+        Game:setFlag(uid..":"..flag, value)
+    end
 end
 
 function Event:getFlag(flag, default)
     local uid = self:getUniqueID()
-    return Game:getFlag(uid..":"..flag, default)
+    if uid then
+        return Game:getFlag(uid..":"..flag, default)
+    else
+        return default
+    end
 end
 
 function Event:setSprite(texture, speed, use_size)

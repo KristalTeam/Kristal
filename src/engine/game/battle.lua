@@ -21,6 +21,8 @@ function Battle:init()
     self.enemy_world_characters = {}
     self.battler_targets = {}
 
+    self.encounter_context = nil
+
     for i = 1, math.min(3, #Game.party) do
         local party_member = Game.party[i]
 
@@ -241,6 +243,12 @@ function Battle:postInit(state, encounter)
                     end
                 end
             end
+        end
+    end
+
+    if self.encounter_context and self.encounter_context:includes(ChaserEnemy) then
+        for _,enemy in ipairs(self.encounter_context:getGroupedEnemies(true)) do
+            enemy:onEncounterStart(enemy == self.encounter_context, self.encounter)
         end
     end
 
@@ -537,23 +545,15 @@ function Battle:onStateChange(old,new)
 
         self.battle_ui:transitionOut()
         self.music:fade(0, 20/30)
-        for _,enemy in ipairs(self.defeated_enemies) do
-            local world_chara = self.enemy_world_characters[enemy]
-            if enemy.done_state == "FROZEN" and world_chara then
-                local statue = FrozenEnemy(enemy.actor, world_chara.x, world_chara.y, {facing = world_chara.sprite.facing})
-                statue.layer = world_chara.layer
-                Game.world:addChild(statue)
-            end
-        end
-        for enemy,chara in pairs(self.enemy_world_characters) do
-            if enemy.exit_on_defeat then
-                chara.visible = true
-            end
-        end
         for _,battler in ipairs(self.party) do
             local index = self:getPartyIndex(battler.chara.id)
             if index then
                 self.battler_targets[index] = {battler:getPosition()}
+            end
+        end
+        if self.encounter_context and self.encounter_context:includes(ChaserEnemy) then
+            for _,enemy in ipairs(self.encounter_context:getGroupedEnemies(true)) do
+                enemy:onEncounterTransitionOut(enemy == self.encounter_context, self.encounter)
             end
         end
     elseif new == "DEFENDINGBEGIN" then
@@ -1514,6 +1514,19 @@ function Battle:getEnemyBattler(string_id)
     end
 end
 
+function Battle:getEnemyFromCharacter(chara)
+    for _, enemy in ipairs(self.enemies) do
+        if self.enemy_world_characters[enemy] == chara then
+            return enemy
+        end
+    end
+    for _, enemy in ipairs(self.defeated_enemies) do
+        if self.enemy_world_characters[enemy] == chara then
+            return enemy
+        end
+    end
+end
+
 function Battle:hasAction(character_id)
     return self.character_actions[character_id] ~= nil
 end
@@ -1925,6 +1938,11 @@ function Battle:returnToWorld()
             if world_chara.onReturnFromBattle then
                 world_chara:onReturnFromBattle(self.encounter, enemy)
             end
+        end
+    end
+    if self.encounter_context and self.encounter_context:includes(ChaserEnemy) then
+        for _,enemy in ipairs(self.encounter_context:getGroupedEnemies(true)) do
+            enemy:onEncounterEnd(enemy == self.encounter_context, self.encounter)
         end
     end
     self.music:stop()

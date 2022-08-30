@@ -435,7 +435,7 @@ function Game:loadQuick(fade)
     self.quick_save = save
 end
 
-function Game:encounter(encounter, transition, enemy)
+function Game:encounter(encounter, transition, enemy, context)
     if transition == nil then transition = true end
 
     if self.battle then
@@ -451,11 +451,17 @@ function Game:encounter(encounter, transition, enemy)
     self.state = "BATTLE"
 
     self.battle = Battle()
+
+    if context then
+        self.battle.encounter_context = context
+    end
+
     if type(transition) == "string" then
         self.battle:postInit(transition, encounter)
     else
         self.battle:postInit(transition and "TRANSITION" or "INTRO", encounter)
     end
+
     self.stage:addChild(self.battle)
 end
 
