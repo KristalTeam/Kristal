@@ -86,7 +86,7 @@ function Character:setActor(actor)
         self.sprite:remove()
     end
 
-    self.sprite = ActorSprite(self.actor)
+    self.sprite = self.actor:createSprite()
     self.sprite.facing = self.facing
     self.sprite.inherit_color = true
     self.sprite.on_footstep = function(s, n) self:onFootstep(n) end

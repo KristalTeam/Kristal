@@ -14,7 +14,7 @@ function FrozenEnemy:init(actor, x, y, properties)
     self:setOrigin(0.5, 1)
     self:setScale(2)
 
-    self.sprite = ActorSprite(actor)
+    self.sprite = actor:createSprite()
     self.sprite.facing = properties and properties["facing"] or "left"
     if not self.sprite:setAnimation("frozen") then
         self.sprite:setAnimation("hurt")

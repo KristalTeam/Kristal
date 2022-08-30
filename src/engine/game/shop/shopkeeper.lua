@@ -26,7 +26,7 @@ function Shopkeeper:setActor(actor)
     if self.sprite then
         self.sprite:remove()
     end
-    self.sprite = ActorSprite(actor)
+    self.sprite = actor:createSprite()
     self.sprite:setScale(2, 2)
     self.sprite:setOrigin(0.5, 1)
     self:addChild(self.sprite)

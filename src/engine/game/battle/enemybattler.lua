@@ -584,13 +584,13 @@ function EnemyBattler:setActor(actor, use_overlay)
     if self.sprite         then self:removeChild(self.sprite)         end
     if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
 
-    self.sprite = ActorSprite(self.actor)
+    self.sprite = self.actor:createSprite()
     self.sprite.facing = "left"
     self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
     if use_overlay ~= false then
-        self.overlay_sprite = ActorSprite(self.actor)
+        self.overlay_sprite = self.actor:createSprite()
         self.overlay_sprite.facing = "left"
         self.overlay_sprite.visible = false
         self.overlay_sprite.inherit_color = true

@@ -6,10 +6,10 @@ function PartyBattler:init(chara, x, y)
 
     super:init(self, x, y, self.actor:getSize())
 
-    self.sprite = ActorSprite(self.actor)
+    self.sprite = self.actor:createSprite()
     self.sprite.facing = "right"
 
-    self.overlay_sprite = ActorSprite(self.actor)
+    self.overlay_sprite = self.actor:createSprite()
     self.overlay_sprite.facing = "right"
     self.overlay_sprite.visible = false
 

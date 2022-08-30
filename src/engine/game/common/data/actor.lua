@@ -58,7 +58,6 @@ function Actor:onBattleDraw(battler) end
 function Actor:onTalkStart(text, sprite) end
 function Actor:onTalkEnd(text, sprite) end
 
-
 function Actor:onSpriteInit(sprite) end
 
 function Actor:preSet(sprite, name, callback) end
@@ -126,6 +125,9 @@ function Actor:hasOffset(sprite) return self.offsets[sprite] ~= nil end
 function Actor:getOffset(sprite) return unpack(self.offsets[sprite] or {0, 0}) end
 
 -- Misc Functions
+function Actor:createSprite()
+    return ActorSprite(self)
+end
 
 -- horrific
 function Actor:parseSpriteOptions(full_sprite, ignore_frames)
