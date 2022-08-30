@@ -13,6 +13,7 @@ function Transition:init(x, y, w, h, properties)
         marker = properties.marker,
         facing = properties.facing,
     }
+    self.stairs = properties.stairs
 end
 
 function Transition:getDebugInfo()
@@ -32,6 +33,9 @@ function Transition:onEnter(chara)
         local facing = self.target.facing
         local marker = self.target.marker
 
+        if self.stairs then
+            Assets.playSound("escaped")
+        end
         if self.target.shop then
             self.world:shopTransition(self.target.shop, {x=x, y=y, marker=marker, facing=facing, map=self.target.map})
         elseif self.target.map then
