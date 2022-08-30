@@ -29,8 +29,6 @@ function BattleOutlineFX:draw(texture)
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    love.graphics.drawCanvas(texture)
-
     local outline = Draw.pushCanvas(texture:getWidth(), texture:getHeight())
 
     love.graphics.clear()
@@ -54,9 +52,6 @@ function BattleOutlineFX:draw(texture)
     love.graphics.translate(0, 2 * mult_y)
     love.graphics.drawCanvas(texture)
 
-    love.graphics.translate(0, -1 * mult_y)
-    shader:send("inputcolor", {32/255, 32/255, 32/255})
-
     love.graphics.drawCanvas(texture)
 
     Draw.popCanvas()
@@ -65,7 +60,15 @@ function BattleOutlineFX:draw(texture)
 
     love.graphics.setColor(1, 1, 1, self.amount)
     love.graphics.drawCanvas(outline)
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(1, 1, 1)
+
+    love.graphics.setShader(shader)
+    shader:send("inputcolor", {32/255, 32/255, 32/255})
+    shader:send("amount", self.amount)
+
+    love.graphics.drawCanvas(texture)
+
+    love.graphics.setShader(last_shader)
 end
 
 return BattleOutlineFX
