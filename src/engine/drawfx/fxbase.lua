@@ -30,7 +30,7 @@ function FXBase:draw(texture)
     love.graphics.drawCanvas(texture)
 end
 
-function FXBase:getObjectBounds()
+function FXBase:getObjectBounds(shader)
     if not self.transformed then
         Object.startCache()
         local x1,y1 = self.parent:localToScreenPos(0, 0)
@@ -42,7 +42,11 @@ function FXBase:getObjectBounds()
         local x, y = math.min(x1,x2,x3,x4), math.min(y1,y2,y3,y4)
         local w, h = math.max(x1,x2,x3,x4) - x, math.max(y1,y2,y3,y4) - y
 
-        return x/SCREEN_WIDTH, y/SCREEN_HEIGHT, w/SCREEN_WIDTH, h/SCREEN_HEIGHT
+        if shader then
+            return x/SCREEN_WIDTH, y/SCREEN_HEIGHT, w/SCREEN_WIDTH, h/SCREEN_HEIGHT
+        else
+            return x, y, w, h
+        end
     else
         return SCREEN_WIDTH/2 - (self.parent.width/2), SCREEN_HEIGHT/2 - (self.parent.height/2), self.parent.width, self.parent.height
     end
