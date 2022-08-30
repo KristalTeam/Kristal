@@ -41,7 +41,7 @@ function Player:init(chara, x, y)
     self.noclip = false
 
     self.outlinefx = self:addFX(BattleOutlineFX())
-    self:setOutlineColor()
+    self.outlinefx:setAlpha(self.battle_alpha)
 end
 
 function Player:getDebugInfo()
@@ -341,7 +341,7 @@ function Player:update()
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
-    self:setOutlineColor()
+    self.outlinefx:setAlpha(self.battle_alpha)
 
     super:update(self)
 end
@@ -354,10 +354,6 @@ function Player:draw()
     if DEBUG_RENDER then
         col:draw(1, 0, 0, 0.5)
     end
-end
-
-function Player:setOutlineColor()
-    self.outlinefx:setAlpha(self.battle_alpha)
 end
 
 return Player
