@@ -39,6 +39,9 @@ function Player:init(chara, x, y)
 
     self.persistent = true
     self.noclip = false
+
+    self.outlinefx = self:addFX(BattleOutlineFX())
+    self:setOutlineColor()
 end
 
 function Player:getDebugInfo()
@@ -338,6 +341,8 @@ function Player:update()
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
+    self:setOutlineColor()
+
     super:update(self)
 end
 
@@ -346,7 +351,7 @@ function Player:draw()
     super:draw(self)
 
     -- Now we need to draw their battle mode overlay
-    if self.battle_alpha > 0 then
+    --[[if self.battle_alpha > 0 then
         Draw.pushCanvas(self.battle_canvas)
 
         -- Let's draw in the middle of the canvas so the left doesnt get cut off
@@ -396,12 +401,16 @@ function Player:draw()
         love.graphics.draw(self.battle_canvas, -320 / 2, -240 / 2)
 
         love.graphics.setColor(1, 1, 1, 1)
-    end
-
+    end]]
+    super:draw(self)
     local col = self.interact_collider[self.facing]
     if DEBUG_RENDER then
         col:draw(1, 0, 0, 0.5)
     end
+end
+
+function Player:setOutlineColor()
+    self.outlinefx:setAlpha(self.battle_alpha)
 end
 
 return Player

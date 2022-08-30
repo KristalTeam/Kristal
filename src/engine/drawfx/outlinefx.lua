@@ -5,7 +5,7 @@ function OutlineFX:init(color, settings, priority)
 
     settings = settings or {}
 
-    self.color = color or {1, 1, 1}
+    self.color = color or {1, 1, 1, 1}
     self.thickness = settings["thickness"] or 1
     self.amount = settings["amount"] or 1
     self.cutout = settings["cutout"]
