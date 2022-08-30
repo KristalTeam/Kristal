@@ -52,8 +52,6 @@ function BattleOutlineFX:draw(texture)
     love.graphics.translate(0, 2 * mult_y)
     love.graphics.drawCanvas(texture)
 
-    love.graphics.drawCanvas(texture)
-
     Draw.popCanvas()
 
     love.graphics.setShader(last_shader)
