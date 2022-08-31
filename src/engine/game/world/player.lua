@@ -192,11 +192,11 @@ function Player:handleMovement()
     local speed = self.walk_speed
     if running then
         if self.run_timer > 60 then
-            speed = speed + 5
+            speed = speed * 2.25
         elseif self.run_timer > 10 then
-            speed = speed + 4
+            speed = speed * 2
         else
-            speed = speed + 2
+            speed = speed * 1.5
         end
     end
 
