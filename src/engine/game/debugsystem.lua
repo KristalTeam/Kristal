@@ -674,12 +674,12 @@ function DebugSystem:onKeyPressed(key, is_repeat)
     if self.state == "MENU" then
 
         local options = self:getValidOptions()
-        if Input.isCancel(key) then
+        if Input.isCancel(key) and not is_repeat then
             Assets.playSound("ui_move")
             self:returnMenu()
             return
         end
-        if Input.isConfirm(key) then
+        if Input.isConfirm(key) and not is_repeat then
             local option = options[self.current_selecting]
             if option then
                 Assets.playSound("ui_select")
