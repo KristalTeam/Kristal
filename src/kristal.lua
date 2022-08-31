@@ -332,7 +332,7 @@ function Kristal.onKeyPressed(key, is_repeat)
         end
     end
 
-    if Input.processKeyPressedFunc(key) and not TextInput.active then
+    if Input.shouldProcess(key) and not TextInput.active then
         if Input.is("debug_menu", key) then
             if Kristal.DebugSystem then
                 Input.clear("debug_menu")
@@ -362,7 +362,7 @@ function Kristal.onKeyPressed(key, is_repeat)
 
     local console_open = Kristal.Console and Kristal.Console.is_open
 
-    if not is_repeat then
+    if not is_repeat and Input.shouldProcess(key) then
         if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
             FAST_FORWARD = not FAST_FORWARD
         elseif key == "f3" then

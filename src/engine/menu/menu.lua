@@ -875,7 +875,7 @@ function Menu:onKeyPressed(key, is_repeat)
     if MOD_LOADING then return end
 
     if self.state ~= "CONTROLS" then
-        if not Input.processKeyPressedFunc(key, true) then
+        if not Input.shouldProcess(key, true) then
             return
         end
     end

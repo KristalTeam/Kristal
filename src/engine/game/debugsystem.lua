@@ -368,7 +368,7 @@ function DebugSystem:startTextInput()
     Input.clear("gamepad:dpdown")
 
     TextInput.pressed_callback = function(key)
-        if not Input.processKeyPressedFunc(key) then return end
+        if not Input.shouldProcess(key) then return end
 
         if key == "down" or key == "gamepad:lsdown" or key == "gamepad:dpdown" then
             TextInput.endInput()
@@ -658,7 +658,7 @@ function DebugSystem:onKeyReleased(key)
 end
 
 function DebugSystem:onKeyPressed(key, is_repeat)
-    if not Input.processKeyPressedFunc(key, is_repeat) then return end
+    if not Input.shouldProcess(key, is_repeat) then return end
 
     if Input.is("object_selector", key) and not is_repeat then
         if self:selectionOpen() then
