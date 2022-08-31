@@ -393,7 +393,7 @@ function Input.update()
 
     for key,down in pairs(self.key_down) do
         if down then
-            self.key_down_timer[key] = self.key_down_timer[key] + DT
+            self.key_down_timer[key] = self.key_down_timer[key] + BASE_DT
             if self.key_down_timer[key] >= KEY_REPEAT_DELAY then
                 self.key_repeated[key] = true
                 self.key_down_timer[key] = self.key_down_timer[key] - KEY_REPEAT_INTERVAL
