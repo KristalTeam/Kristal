@@ -12,6 +12,8 @@ function Cutscene:init(func, ...)
     self.finished_callback = nil
     self.replaced_callback = false
 
+    self.during_stack = {}
+
     self:resume(self, ...)
 end
 
@@ -81,15 +83,10 @@ end
 
 function Cutscene:during(func, replace)
     if self.ended then return end
-    if self.update_callback and not replace then
-        local old = self.update_callback
-        self.update_callback = function(...)
-            old(...)
-            func(...)
-        end
-    else
-        self.update_callback = func
+    if replace then
+        self.during_stack = {}
     end
+    table.insert(self.during_stack, func)
 end
 
 function Cutscene:canResume()
@@ -111,8 +108,17 @@ function Cutscene:update()
 
     self.wait_timer = Utils.approach(self.wait_timer, 0, DT)
 
-    if self.update_callback and not self.paused then
-        self:update_callback()
+    if #self.during_stack > 0 and not self.paused then
+        local to_remove = {}
+        for _,func in ipairs(self.during_stack) do
+            local result = func()
+            if result == false then
+                table.insert(to_remove, func)
+            end
+        end
+        for _,v in ipairs(to_remove) do
+            Utils.removeFromTable(self.during_stack, v)
+        end
     end
     if coroutine.status(self.coroutine) == "suspended" then
         self:tryResume()
