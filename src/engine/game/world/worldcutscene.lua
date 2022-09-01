@@ -431,7 +431,7 @@ function WorldCutscene:fadeIn(speed, options)
     end
 end
 
-local function waitForTextbox(self) return self.textbox:isDone() end
+local function waitForTextbox(self) return not self.textbox or self.textbox:isDone() end
 function WorldCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" and not isClass(actor) then
         options = actor
