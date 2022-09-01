@@ -40,10 +40,11 @@ function UIBox:draw()
     local top_width   = self.top[1]:getWidth()
     local top_height  = self.top[1]:getHeight()
 
-    love.graphics.setColor(0, 0, 0, self.alpha)
+    local r,g,b,a = self:getDrawColor()
+    love.graphics.setColor(0, 0, 0, a)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
-    love.graphics.setColor(self:getDrawColor())
+    love.graphics.setColor(r, g, b, a)
 
     love.graphics.draw(self.left[math.floor(self.left_frame)], 0, 0, 0, 2, self.height / left_height, left_width, 0)
     love.graphics.draw(self.left[math.floor(self.left_frame)], self.width, 0, math.pi, 2, self.height / left_height, left_width, left_height)
