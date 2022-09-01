@@ -8,7 +8,7 @@ Shaders["GradientH"] = love.graphics.newShader([[
     {
         vec4 froma = vec4(from.r, from.g, from.b, 1);
         vec4 toa = vec4(to.r, to.g, to.b, 1);
-        return Texel(tex, texture_coords) * (froma + (toa - froma) * mod(texture_coords.x / scale, 1)) * color;
+        return Texel(tex, texture_coords) * (froma + (toa - froma) * mod(texture_coords.x / scale, 1.0)) * color;
     }
 ]])
 
@@ -20,7 +20,7 @@ Shaders["GradientV"] = love.graphics.newShader([[
     {
         vec4 froma = vec4(from.r, from.g, from.b, 1);
         vec4 toa = vec4(to.r, to.g, to.b, 1);
-        return Texel(tex, texture_coords) * (froma + (toa - froma) * mod(texture_coords.y / scale, 1)) * color;
+        return Texel(tex, texture_coords) * (froma + (toa - froma) * mod(texture_coords.y / scale, 1.0)) * color;
     }
 ]])
 
@@ -33,13 +33,13 @@ Shaders["DynGradient"] = love.graphics.newShader([[
 
     vec4 effect( vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords )
     {
-        float cx = texture_coords.x * (colorSize.x - 1) + 0.5;
-        float cy = texture_coords.y * (colorSize.y - 1) + 0.5;
+        float cx = texture_coords.x * (colorSize.x - 1.0) + 0.5;
+        float cy = texture_coords.y * (colorSize.y - 1.0) + 0.5;
 
-        float from_x = (max(0, floor(cx - 0.5)) + 0.5) / colorSize.x;
+        float from_x = (max(0.0, floor(cx - 0.5)) + 0.5) / colorSize.x;
         float to_x = from_x + 1.0 / colorSize.x;
 
-        float from_y = (max(0, floor(cy - 1)) + 0.5) / colorSize.y;
+        float from_y = (max(0.0, floor(cy - 1.0)) + 0.5) / colorSize.y;
         float to_y = from_y + 1.0 / colorSize.y;
 
         vec4 color_upper = mix(Texel(colors, vec2(from_x, from_y)), Texel(colors, vec2(to_x, from_y)), cx - (from_x * colorSize.x));
@@ -74,7 +74,7 @@ Shaders["AddColor"] = love.graphics.newShader([[
 
 Shaders["Mask"] = love.graphics.newShader[[
     vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
-        if (Texel(tex, texture_coords).a == 0) {
+        if (Texel(tex, texture_coords).a == 0.0) {
             // a discarded pixel wont be applied as the stencil.
             discard;
         }

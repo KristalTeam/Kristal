@@ -13,8 +13,8 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
     {
         number i = texture_coords.y * texsize.y;
         number bg_minus = ((bg_mag * (i / wave_height)) * 1.3);
-        number wave_mag = max(0, bg_mag - bg_minus);
-        vec2 coords = vec2(max(0, min(1, texture_coords.x + (sine_mul * sin((i / 8) + (bg_sine / 30)) * wave_mag) / texsize.x)), max(0, min(1, texture_coords.y + 0.0)));
+        number wave_mag = max(0.0, bg_mag - bg_minus);
+        vec2 coords = vec2(max(0.0, min(1.0, texture_coords.x + (sine_mul * sin((i / 8.0) + (bg_sine / 30.0)) * wave_mag) / texsize.x)), max(0.0, min(1.0, texture_coords.y + 0.0)));
         return Texel(texture, coords) * color;
     }
 ]])
