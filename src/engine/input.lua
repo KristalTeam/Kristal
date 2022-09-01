@@ -57,7 +57,7 @@ Input.group_for_key = {
     ["rgui"]   = "cmd"
 }
 
-function Input.getThumbstick(stick)
+function Input.getThumbstick(stick, raw)
     local x, y, deadzone
     if stick == "left" then
         x, y = self.gamepad_left_x, self.gamepad_left_y
@@ -67,7 +67,7 @@ function Input.getThumbstick(stick)
         deadzone = Kristal.Config["rightStickDeadzone"]
     end
     local magnitude = math.sqrt(x * x + y * y)
-    if magnitude > 1 then
+    if not raw and magnitude > 1 then
         x = x / magnitude
         y = y / magnitude
         magnitude = 1
@@ -75,9 +75,11 @@ function Input.getThumbstick(stick)
     if magnitude <= deadzone then
         return 0, 0
     end
-    local magmult = (magnitude - deadzone) / (1 - deadzone)
-    x = x * magmult
-    y = y * magmult
+    if not raw then
+        local magmult = (magnitude - deadzone) / (1 - deadzone)
+        x = x * magmult
+        y = y * magmult
+    end
     return x, y
 end
 
@@ -332,26 +334,34 @@ function love.gamepadaxis(joystick, axis, value)
 	if axis == "leftx" then
         self.gamepad_left_x = value
 
-        if (value < -threshold) then if not Input.keyDown("gamepad:lsleft" ) then Input.onKeyPressed("gamepad:lsleft" , false) end else if Input.keyDown("gamepad:lsleft" ) then Input.onKeyReleased("gamepad:lsleft" ) end end
-        if (value >  threshold) then if not Input.keyDown("gamepad:lsright") then Input.onKeyPressed("gamepad:lsright", false) end else if Input.keyDown("gamepad:lsright") then Input.onKeyReleased("gamepad:lsright") end end
+        local adjusted,_ = Input.getThumbstick("left", true)
+
+        if (adjusted < -threshold) then if not Input.keyDown("gamepad:lsleft" ) then Input.onKeyPressed("gamepad:lsleft" , false) end else if Input.keyDown("gamepad:lsleft" ) then Input.onKeyReleased("gamepad:lsleft" ) end end
+        if (adjusted >  threshold) then if not Input.keyDown("gamepad:lsright") then Input.onKeyPressed("gamepad:lsright", false) end else if Input.keyDown("gamepad:lsright") then Input.onKeyReleased("gamepad:lsright") end end
 
 	elseif axis == "lefty" then
         self.gamepad_left_y = value
 
-        if (value < -threshold) then if not Input.keyDown("gamepad:lsup"  ) then Input.onKeyPressed("gamepad:lsup"  , false) end else if Input.keyDown("gamepad:lsup"  ) then Input.onKeyReleased("gamepad:lsup"  ) end end
-        if (value >  threshold) then if not Input.keyDown("gamepad:lsdown") then Input.onKeyPressed("gamepad:lsdown", false) end else if Input.keyDown("gamepad:lsdown") then Input.onKeyReleased("gamepad:lsdown") end end
+        local _,adjusted = Input.getThumbstick("left", true)
+
+        if (adjusted < -threshold) then if not Input.keyDown("gamepad:lsup"  ) then Input.onKeyPressed("gamepad:lsup"  , false) end else if Input.keyDown("gamepad:lsup"  ) then Input.onKeyReleased("gamepad:lsup"  ) end end
+        if (adjusted >  threshold) then if not Input.keyDown("gamepad:lsdown") then Input.onKeyPressed("gamepad:lsdown", false) end else if Input.keyDown("gamepad:lsdown") then Input.onKeyReleased("gamepad:lsdown") end end
 
     elseif axis == "rightx" then
         self.gamepad_right_x = value
 
-        if (value < -threshold) then if not Input.keyDown("gamepad:rsleft" ) then Input.onKeyPressed("gamepad:rsleft" , false) end else if Input.keyDown("gamepad:rsleft" ) then Input.onKeyReleased("gamepad:rsleft" ) end end
-        if (value >  threshold) then if not Input.keyDown("gamepad:rsright") then Input.onKeyPressed("gamepad:rsright", false) end else if Input.keyDown("gamepad:rsright") then Input.onKeyReleased("gamepad:rsright") end end
+        local adjusted,_ = Input.getThumbstick("right", true)
+
+        if (adjusted < -threshold) then if not Input.keyDown("gamepad:rsleft" ) then Input.onKeyPressed("gamepad:rsleft" , false) end else if Input.keyDown("gamepad:rsleft" ) then Input.onKeyReleased("gamepad:rsleft" ) end end
+        if (adjusted >  threshold) then if not Input.keyDown("gamepad:rsright") then Input.onKeyPressed("gamepad:rsright", false) end else if Input.keyDown("gamepad:rsright") then Input.onKeyReleased("gamepad:rsright") end end
 
     elseif axis == "righty" then
         self.gamepad_right_y = value
 
-        if (value < -threshold) then if not Input.keyDown("gamepad:rsup"  ) then Input.onKeyPressed("gamepad:rsup"  , false) end else if Input.keyDown("gamepad:rsup"  ) then Input.onKeyReleased("gamepad:rsup"  ) end end
-        if (value >  threshold) then if not Input.keyDown("gamepad:rsdown") then Input.onKeyPressed("gamepad:rsdown", false) end else if Input.keyDown("gamepad:rsdown") then Input.onKeyReleased("gamepad:rsdown") end end
+        local _,adjusted = Input.getThumbstick("right", true)
+
+        if (adjusted < -threshold) then if not Input.keyDown("gamepad:rsup"  ) then Input.onKeyPressed("gamepad:rsup"  , false) end else if Input.keyDown("gamepad:rsup"  ) then Input.onKeyReleased("gamepad:rsup"  ) end end
+        if (adjusted >  threshold) then if not Input.keyDown("gamepad:rsdown") then Input.onKeyPressed("gamepad:rsdown", false) end else if Input.keyDown("gamepad:rsdown") then Input.onKeyReleased("gamepad:rsdown") end end
 
     elseif axis == "triggerleft" then
         self.gamepad_left_trigger = value
@@ -981,6 +991,10 @@ function Input.isThumbstick(key, which)
             key == "gamepad:rsright" or
             key == "gamepad:rsup" or
             key == "gamepad:rsdown"))
+end
+
+function Input.isGamepad(key)
+    return Utils.startsWith(key, "gamepad:")
 end
 
 function Input.getMousePosition(x, y, relative)

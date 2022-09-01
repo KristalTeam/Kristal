@@ -668,6 +668,8 @@ function Menu:draw()
                 deadzone = Kristal.Config["rightStickDeadzone"]
             end
 
+            love.graphics.setColor(0, 0, 0)
+            love.graphics.circle("fill", x + 2, y + 4, radius + 1)
             love.graphics.setColor(0.33, 0.33, 0.33)
             love.graphics.circle("fill", x, y, radius)
             love.graphics.setColor(0.16, 0.16, 0.16)
@@ -1282,10 +1284,12 @@ function Menu:onKeyPressed(key, is_repeat)
                 end
             end
 
-            if Input.is("up", key)                      then self.list:selectUp(is_repeat)   end
-            if Input.is("down", key)                    then self.list:selectDown(is_repeat) end
-            if Input.is("left", key)  and not is_repeat then self.list:pageUp(is_repeat)     end
-            if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat)   end
+            if Input.is("up", key) then self.list:selectUp(is_repeat) end
+            if Input.is("down", key) then self.list:selectDown(is_repeat) end
+            if not Input.isGamepad(key) then
+                if Input.is("left", key) and not is_repeat then self.list:pageUp(is_repeat) end
+                if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat) end
+            end
         end
     elseif self.state == "FILESELECT" then
         if not is_repeat then
