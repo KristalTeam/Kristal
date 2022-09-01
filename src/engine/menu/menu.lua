@@ -129,6 +129,7 @@ function Menu:enter()
     self.right_credits = {
         {"GitHub Contributors", COLORS.silver},
         "Archie-osu",
+        "Dobby233Liu",
         "Luna",
         "prokube",
         "",
