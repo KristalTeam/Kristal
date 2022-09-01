@@ -99,6 +99,10 @@ function Event:getFlag(flag, default)
     end
 end
 
+function Event:addFlag(flag, amt)
+    self:setFlag(self:getFlag(flag, 0) + (amt or 1))
+end
+
 function Event:setSprite(texture, speed, use_size)
     if texture then
         if self.sprite then
