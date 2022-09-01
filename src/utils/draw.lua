@@ -215,7 +215,7 @@ function Draw.getQuad(x, y, w, h, sw, sh)
 end
 
 function Draw.drawPart(texture, x, y, cx, cy, cw, ch, ...)
-    local quad = Draw.getQuad(x, y, cx, cy, texture:getWidth(), texture:getHeight())
+    local quad = Draw.getQuad(cx, cy, cw, ch, texture:getWidth(), texture:getHeight())
     love.graphics.draw(texture, quad, x, y, ...)
 end
 
