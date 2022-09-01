@@ -120,6 +120,10 @@ function Cutscene:update()
             Utils.removeFromTable(self.during_stack, v)
         end
     end
+
+    -- Check ended again, incase the cutscene is ended in a during callback
+    if self.ended then return end
+
     if coroutine.status(self.coroutine) == "suspended" then
         self:tryResume()
     elseif coroutine.status(self.coroutine) == "dead" and self:canEnd() then
