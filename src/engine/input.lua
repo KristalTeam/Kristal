@@ -67,13 +67,13 @@ function Input.getThumbstick(stick)
         deadzone = Kristal.Config["rightStickDeadzone"]
     end
     local magnitude = math.sqrt(x * x + y * y)
-    if magnitude < deadzone then
-        return 0, 0
-    end
     if magnitude > 1 then
         x = x / magnitude
         y = y / magnitude
         magnitude = 1
+    end
+    if magnitude <= deadzone then
+        return 0, 0
     end
     local magmult = (magnitude - deadzone) / (1 - deadzone)
     x = x * magmult
@@ -968,6 +968,19 @@ end
 
 function Input.isMenu(key)
     return Input.is("menu", key)
+end
+
+function Input.isThumbstick(key, which)
+    return ((not which or which == "left") and (
+            key == "gamepad:lsleft" or
+            key == "gamepad:lsright" or
+            key == "gamepad:lsup" or
+            key == "gamepad:lsdown")) or
+        ((not which or which == "right") and (
+            key == "gamepad:rsleft" or
+            key == "gamepad:rsright" or
+            key == "gamepad:rsup" or
+            key == "gamepad:rsdown"))
 end
 
 function Input.getMousePosition(x, y, relative)

@@ -676,15 +676,15 @@ function Menu:draw()
             love.graphics.circle("line", x, y, radius)
 
             local magnitude = math.sqrt(stick_x * stick_x + stick_y * stick_y)
-            if magnitude < deadzone then
-                love.graphics.setColor(1, 0, 0)
-            else
-                love.graphics.setColor(0, 1, 0)
-            end
             if magnitude > 1 then
                 stick_x = stick_x / magnitude
                 stick_y = stick_y / magnitude
                 magnitude = 1
+            end
+            if magnitude <= deadzone then
+                love.graphics.setColor(1, 0, 0)
+            else
+                love.graphics.setColor(0, 1, 0)
             end
 
             local cx, cy = x + (stick_x * (radius - 8)), y + (stick_y * (radius - 8))
@@ -1479,15 +1479,17 @@ function Menu:onKeyPressed(key, is_repeat)
                 self.ui_select:play()
             end
             local last_selected = self.selected_option
-            if Input.is("down", key) then
-                self.selected_option = 3
-            elseif Input.is("up", key) then
-                self.selected_option = 1
-            end
-            if Input.is("right", key) and self.selected_option == 1 then
-                self.selected_option = 2
-            elseif Input.is("left", key) and self.selected_option == 2 then
-                self.selected_option = 1
+            if not Input.isThumbstick(key) then
+                if Input.is("down", key) then
+                    self.selected_option = 3
+                elseif Input.is("up", key) then
+                    self.selected_option = 1
+                end
+                if Input.is("right", key) and self.selected_option == 1 then
+                    self.selected_option = 2
+                elseif Input.is("left", key) and self.selected_option == 2 then
+                    self.selected_option = 1
+                end
             end
             if last_selected ~= self.selected_option then
                 self.ui_move:stop()
@@ -1522,14 +1524,16 @@ function Menu:onKeyPressed(key, is_repeat)
             end
             local config_name = (self.selected_option == 1 and "left" or "right") .. "StickDeadzone"
             local deadzone = Kristal.Config[config_name]
-            if Input.is("left", key) then
-                deadzone = math.max(0, deadzone - 0.01)
-                self.ui_move:stop()
-                self.ui_move:play()
-            elseif Input.is("right", key) then
-                deadzone = math.min(1, deadzone + 0.01)
-                self.ui_move:stop()
-                self.ui_move:play()
+            if not Input.isThumbstick(key) then
+                if Input.is("left", key) then
+                    deadzone = math.max(0, deadzone - 0.01)
+                    self.ui_move:stop()
+                    self.ui_move:play()
+                elseif Input.is("right", key) then
+                    deadzone = math.min(1, deadzone + 0.01)
+                    self.ui_move:stop()
+                    self.ui_move:play()
+                end
             end
             Kristal.Config[config_name] = deadzone
         end
