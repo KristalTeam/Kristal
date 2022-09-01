@@ -617,6 +617,8 @@ function Kristal.errorHandler(msg)
         end
 
         draw()
+
+        love.timer.sleep(0.01)
     end
 
 end
