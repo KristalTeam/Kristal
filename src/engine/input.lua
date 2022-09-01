@@ -67,7 +67,7 @@ function Input.getThumbstick(stick)
         deadzone = Kristal.Config["rightStickDeadzone"]
     end
     local magnitude = math.sqrt(x * x + y * y)
-    if magnitude < (deadzone * deadzone) then
+    if magnitude < deadzone then
         return 0, 0
     end
     if magnitude > 1 then

@@ -94,6 +94,8 @@ function Menu:enter()
 
     self.control_menu = "keyboard"
 
+    self.state_stack = {}
+
     self.rebinding = false
     self.rebinding_shift = false
     self.rebinding_ctrl = false
@@ -187,6 +189,32 @@ function Menu:setSubState(state)
     local old_state = self.substate
     self.substate = state
     self:onSubStateChange(old_state, self.substate)
+end
+
+function Menu:pushState(new_state)
+    table.insert(self.state_stack, {
+        state = self.state,
+        substate = self.substate,
+        selected_option = self.selected_option,
+        heart_target_x = self.heart_target_x,
+        heart_target_y = self.heart_target_y,
+        options_target_y = self.options_target_y,
+        options_y = self.options_y,
+    })
+    if new_state then
+        self:setState(new_state)
+    end
+end
+
+function Menu:popState()
+    local state = table.remove(self.state_stack)
+    self:setState(state.state)
+    self:setSubState(state.substate)
+    self.selected_option = state.selected_option
+    self.heart_target_x = state.heart_target_x
+    self.heart_target_y = state.heart_target_y
+    self.options_target_y = state.options_target_y
+    self.options_y = state.options_y
 end
 
 function Menu:leave()
@@ -623,7 +651,69 @@ function Menu:draw()
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
         self:printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
+    elseif self.state == "DEADZONE" then
+        self:printShadow("( DEADZONE CONFIG )", 0, 48, {1, 1, 1, 1}, "center", 640)
 
+        love.graphics.setLineStyle("rough")
+        love.graphics.setLineWidth(2)
+
+        local function drawStick(type, x, y, radius)
+            local stick_x, stick_y, deadzone
+
+            if type == "left" then
+                stick_x, stick_y = Input.gamepad_left_x, Input.gamepad_left_y
+                deadzone = Kristal.Config["leftStickDeadzone"]
+            elseif type == "right" then
+                stick_x, stick_y = Input.gamepad_right_x, Input.gamepad_right_y
+                deadzone = Kristal.Config["rightStickDeadzone"]
+            end
+
+            love.graphics.setColor(0.33, 0.33, 0.33)
+            love.graphics.circle("fill", x, y, radius)
+            love.graphics.setColor(0.16, 0.16, 0.16)
+            love.graphics.circle("fill", x, y, radius * deadzone)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.circle("line", x, y, radius)
+
+            local magnitude = math.sqrt(stick_x * stick_x + stick_y * stick_y)
+            if magnitude < deadzone then
+                love.graphics.setColor(1, 0, 0)
+            else
+                love.graphics.setColor(0, 1, 0)
+            end
+            if magnitude > 1 then
+                stick_x = stick_x / magnitude
+                stick_y = stick_y / magnitude
+                magnitude = 1
+            end
+
+            local cx, cy = x + (stick_x * (radius - 8)), y + (stick_y * (radius - 8))
+            love.graphics.circle("line", cx, cy, 8)
+            love.graphics.circle("fill", cx, cy, 2)
+        end
+
+        drawStick("left", 200, 200, 80)
+        drawStick("right", 440, 200, 80)
+
+        local function drawSlider(index, type, x, y)
+            local color = {1, 1, 1, 1}
+            if self.selected_option == index and self.substate == "SLIDER" then
+                color = {0, 1, 1, 1}
+            end
+
+            self:printShadow("<", x, y, color)
+            self:printShadow(">", x + 80, y, color)
+
+            local deadzone = Kristal.Config[type .. "StickDeadzone"]
+            deadzone = math.floor(deadzone * 100)
+
+            self:printShadow(deadzone .. "%", x + 16, y, color, "center", 64)
+        end
+
+        drawSlider(1, "left", 152, 296)
+        drawSlider(2, "right", 392, 296)
+
+        self:printShadow("Back", 286, 364)
     elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
 
@@ -1281,11 +1371,13 @@ function Menu:onKeyPressed(key, is_repeat)
                     self.heart_target_y = 129 + 1 * 32
                 -- (Gamepad) Configure Deadzone
                 elseif self.control_menu == "gamepad" and self.selected_option == option_count - 2 then
-                    self.music:stop()
-                    Assets.playSound("impact")
-                    Assets.playSound("badexplosion", 1, 0.2)
-                    Kristal.setState({})
-                    --while true do end
+                    self:pushState("DEADZONE")
+                    self:setSubState("SELECT")
+                    self.selected_option = 1
+                    self.ui_select:stop()
+                    self.ui_select:play()
+                    self.heart_target_x = 152 - 18
+                    self.heart_target_y = 296 + 16
                 else
                     self.rebinding = false
                     self.selecting_key = true
@@ -1378,6 +1470,68 @@ function Menu:onKeyPressed(key, is_repeat)
                     end
                 end
             end
+        end
+    elseif self.state == "DEADZONE" then
+        if self.substate == "SELECT" then
+            if Input.isCancel(key) then
+                self:popState()
+                self.ui_select:stop()
+                self.ui_select:play()
+            end
+            local last_selected = self.selected_option
+            if Input.is("down", key) then
+                self.selected_option = 3
+            elseif Input.is("up", key) then
+                self.selected_option = 1
+            end
+            if Input.is("right", key) and self.selected_option == 1 then
+                self.selected_option = 2
+            elseif Input.is("left", key) and self.selected_option == 2 then
+                self.selected_option = 1
+            end
+            if last_selected ~= self.selected_option then
+                self.ui_move:stop()
+                self.ui_move:play()
+            end
+            if self.selected_option == 1 then
+                self.heart_target_x = 152 - 18
+                self.heart_target_y = 296 + 16
+            elseif self.selected_option == 2 then
+                self.heart_target_x = 392 - 18
+                self.heart_target_y = 296 + 16
+            elseif self.selected_option == 3 then
+                self.heart_target_x = 270
+                self.heart_target_y = 382
+            end
+            if Input.isConfirm(key) then
+                self.ui_select:stop()
+                self.ui_select:play()
+
+                if self.selected_option == 3 then
+                    self:popState()
+                else
+                    self:setSubState("SLIDER")
+                end
+            end
+        elseif self.substate == "SLIDER" then
+            if not is_repeat and (Input.isCancel(key) or Input.isConfirm(key)) then
+                self:setSubState("SELECT")
+                self.ui_select:stop()
+                self.ui_select:play()
+                Kristal.saveConfig()
+            end
+            local config_name = (self.selected_option == 1 and "left" or "right") .. "StickDeadzone"
+            local deadzone = Kristal.Config[config_name]
+            if Input.is("left", key) then
+                deadzone = math.max(0, deadzone - 0.01)
+                self.ui_move:stop()
+                self.ui_move:play()
+            elseif Input.is("right", key) then
+                deadzone = math.min(1, deadzone + 0.01)
+                self.ui_move:stop()
+                self.ui_move:play()
+            end
+            Kristal.Config[config_name] = deadzone
         end
     elseif self.state == "CREATE" then
         self:handleCreateInput(key, is_repeat)
