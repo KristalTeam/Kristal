@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.9" tiledversion="1.9.0" name="smw" tilewidth="16" tileheight="16" spacing="2" tilecount="3844" columns="62">
+<tileset version="1.9" tiledversion="1.9.1" name="smw" tilewidth="8" tileheight="8" spacing="1" tilecount="3844" columns="62" tilerendersize="grid">
  <editorsettings>
   <export target="smw.lua" format="lua"/>
  </editorsettings>
- <image source="../../../assets/sprites/tilesets/smw.png" width="1130" height="1128"/>
+ <image source="../../../assets/sprites/tilesets/smw.png" width="565" height="564"/>
  <tile id="0">
   <animation>
    <frame tileid="0" duration="200"/>

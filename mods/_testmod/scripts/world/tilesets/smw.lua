@@ -1,19 +1,19 @@
 return {
   version = "1.9",
   luaversion = "5.1",
-  tiledversion = "1.9.0",
+  tiledversion = "1.9.1",
   name = "smw",
   class = "",
-  tilewidth = 16,
-  tileheight = 16,
-  spacing = 2,
+  tilewidth = 8,
+  tileheight = 8,
+  spacing = 1,
   margin = 0,
   columns = 62,
   image = "../../../assets/sprites/tilesets/smw.png",
-  imagewidth = 1130,
-  imageheight = 1128,
+  imagewidth = 565,
+  imageheight = 564,
   objectalignment = "unspecified",
-  tilerendersize = "tile",
+  tilerendersize = "grid",
   fillmode = "stretch",
   tileoffset = {
     x = 0,
@@ -21,8 +21,8 @@ return {
   },
   grid = {
     orientation = "orthogonal",
-    width = 16,
-    height = 16
+    width = 8,
+    height = 8
   },
   properties = {},
   wangsets = {},

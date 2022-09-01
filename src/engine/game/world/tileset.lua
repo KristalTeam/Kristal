@@ -12,6 +12,8 @@ function Tileset:init(data, path)
     self.spacing = data.spacing or 0
     self.columns = data.columns or 0
     self.object_alignment = data.objectalignment or "unspecified"
+    self.fill_grid = data.tilerendersize == "grid"
+    self.preserve_aspect_fit = data.fillmode == "preserve-aspect-fit"
 
     self.id_count = self.tile_count
 
@@ -31,8 +33,15 @@ function Tileset:init(data, path)
             if not info.texture then
                 error("Could not load tileset tile texture: "..image_path)
             end
-            info.width = v.width
-            info.height = v.height
+            info.x = v.x or 0
+            info.y = v.y or 0
+            info.width = v.width or info.texture:getWidth()
+            info.height = v.height or info.texture:getHeight()
+
+            if info.x ~= 0 or info.y ~= 0 or info.width ~= info.texture:getWidth() or info.height ~= info.texture:getHeight() then
+                print("Found quad for tile " .. v.id .. " in tileset " .. self.id)
+                info.quad = love.graphics.newQuad(info.x, info.y, info.width, info.height, info.texture:getWidth(), info.texture:getHeight())
+            end
         end
         self.tile_info[v.id] = info
         self.id_count = math.max(self.id_count, v.id + 1)
@@ -91,16 +100,24 @@ end
 function Tileset:drawTile(id, x, y, ...)
     local draw_id = self:getDrawTile(id)
     local info = self.tile_info[draw_id]
+
     if info and info.texture then
-        love.graphics.draw(info.texture, x or 0, y or 0, ...)
+        if not info.quad then
+            love.graphics.draw(info.texture, x or 0, y or 0, ...)
+        else
+            love.graphics.draw(info.texture, info.quad, x or 0, y or 0, ...)
+        end
     else
         love.graphics.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
     end
 end
 
-function Tileset:drawTileFlipped(id, x, y, flip_x, flip_y, flip_diag)
+function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
     local draw_id = self:getDrawTile(id)
     local w, h = self:getTileSize(draw_id)
+
+    x, y = x or 0, y or 0
+    gw, gh = gw or w, gh or h
 
     local rot = 0
     if flip_diag then
@@ -108,11 +125,27 @@ function Tileset:drawTileFlipped(id, x, y, flip_x, flip_y, flip_diag)
         rot = -math.pi / 2
     end
 
+    local sx, sy = 1, 1
+    if self.fill_grid and gw and gh and (w ~= gw or h ~= gh) then
+        sx = gw / w
+        sy = gh / h
+        if self.preserve_aspect_fit then
+            sx = math.min(sx, sy)
+            sy = sx
+        end
+    end
+
+    local ox, oy = (w * sx) / 2, (h * sy) / 2
+
     local info = self.tile_info[draw_id]
     if info and info.texture then
-        love.graphics.draw(info.texture, (x or 0) + w/2, (y or 0) + h/2, rot, flip_x and -1 or 1, flip_y and -1 or 1, w/2, h/2)
+        if not info.quad then
+            love.graphics.draw(info.texture, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+        else
+            love.graphics.draw(info.texture, info.quad, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+        end
     else
-        love.graphics.draw(self.texture, self.quads[draw_id], (x or 0) + w/2, (y or 0) + h/2, rot, flip_x and -1 or 1, flip_y and -1 or 1, w/2, h/2)
+        love.graphics.draw(self.texture, self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
     end
 end
 

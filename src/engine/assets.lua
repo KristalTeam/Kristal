@@ -24,6 +24,7 @@ function Assets.clear()
     self.texture_ids = {}
     self.sounds = {}
     self.sound_instances = {}
+    self.quads = {}
 end
 
 function Assets.loadData(data)
@@ -216,6 +217,14 @@ function Assets.getFramesOrTexture(path)
     else
         return Assets.getFrames(path)
     end
+end
+
+function Assets.getQuad(x, y, w, h, sw, sh)
+    local key = x..","..y..","..w..","..h..","..sw..","..sh
+    if not self.quads[key] then
+        self.quads[key] = love.graphics.newQuad(x, y, w, h, sw, sh)
+    end
+    return self.quads[key]
 end
 
 function Assets.getSound(sound)
