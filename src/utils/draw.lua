@@ -11,6 +11,8 @@ Draw._canvas_stack = {}
 
 Draw._scissor_stack = {}
 
+Draw._quads = setmetatable({},{__mode="v"})
+
 --[[Draw.Transformer = {
     apply = function(self, tf) love.graphics.applyTransform(tf) end,
     clone = function(self) error("Transformer:clone() is not implemented") end,
@@ -202,9 +204,31 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     end
 end
 
-function Draw.drawCutout(texture, x, y, cx, cy, cw, ch, ...)
-    local quad = love.graphics.newQuad(cx, cy, cw, ch, texture:getWidth(), texture:getHeight())
+function Draw.getQuad(x, y, w, h, sw, sh)
+    local quad_id = x..","..y..","..w..","..h..","..sw..","..sh
+    local quad = self._quads[quad_id]
+    if not quad then
+        quad = love.graphics.newQuad(x, y, w, h, sw, sh)
+        self._quads[quad_id] = quad
+    end
+    return quad
+end
+
+function Draw.drawPart(texture, x, y, cx, cy, cw, ch, ...)
+    local quad = Draw.getQuad(x, y, cx, cy, texture:getWidth(), texture:getHeight())
     love.graphics.draw(texture, quad, x, y, ...)
+end
+
+function Draw.drawCanvas(canvas, ...)
+    local mode,alphamode = love.graphics.getBlendMode()
+    love.graphics.setBlendMode(mode, "premultiplied")
+    love.graphics.draw(canvas, ...)
+    love.graphics.setBlendMode(mode, alphamode)
+end
+
+function Draw.drawCanvasPart(canvas, x, y, cx, cy, cw, ch, ...)
+    local quad = Draw.getQuad(cx, cy, cw, ch, canvas:getWidth(), canvas:getHeight())
+    Draw.drawCanvas(canvas, quad, x, y, ...)
 end
 
 --- Modes: `none`

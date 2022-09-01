@@ -25,7 +25,7 @@ function ColorMaskFX:draw(texture)
     love.graphics.setShader(shader)
     shader:send("inputcolor", {self:getColor()})
     shader:send("amount", self.amount)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     shader:send("amount", 1)
     love.graphics.setShader(last_shader)
 end

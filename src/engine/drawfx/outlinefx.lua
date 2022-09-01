@@ -45,7 +45,7 @@ function OutlineFX:draw(texture)
     if self.cutout then
         love.graphics.stencil((function()
             love.graphics.setShader(self.cutout_shader)
-            love.graphics.drawCanvas(texture)
+            Draw.drawCanvas(texture)
             love.graphics.setShader()
         end), "replace", 1)
 
@@ -60,22 +60,22 @@ function OutlineFX:draw(texture)
 
     -- Left
     love.graphics.translate(-1 * mult_x, 0)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     -- Right
     love.graphics.translate(2 * mult_x, 0)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     -- Up
     love.graphics.translate(-1 * mult_x, -1 * mult_y)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     -- Down
     love.graphics.translate(0, 2 * mult_y)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
 
     -- Center
     if self.cutout then
         love.graphics.translate(0, -1 * mult_y)
         love.graphics.setShader(last_shader)
-        love.graphics.drawCanvas(texture)
+        Draw.drawCanvas(texture)
         love.graphics.setStencilTest()
     end
 
@@ -83,13 +83,13 @@ function OutlineFX:draw(texture)
 
 
     love.graphics.setColor(1, 1, 1, self.color[4])
-    love.graphics.drawCanvas(outline)
+    Draw.drawCanvas(outline)
     love.graphics.setColor(1, 1, 1, 1)
 
     -- Center
     if not self.cutout then
         love.graphics.setShader(last_shader)
-        love.graphics.drawCanvas(texture)
+        Draw.drawCanvas(texture)
     end
 end
 

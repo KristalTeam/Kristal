@@ -20,7 +20,7 @@ function ShaderFX:draw(texture)
             self.shader:send(k, v)
         end
     end
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     love.graphics.setShader(last_shader)
 end
 

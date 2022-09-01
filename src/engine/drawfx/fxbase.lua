@@ -27,7 +27,7 @@ function FXBase:update() end
 
 function FXBase:draw(texture)
     -- Draw the canvas
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
 end
 
 function FXBase:getObjectBounds(shader)

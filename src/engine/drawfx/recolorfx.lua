@@ -20,7 +20,7 @@ end
 
 function RecolorFX:draw(texture)
     love.graphics.setColor(self.color)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
 end
 
 return RecolorFX

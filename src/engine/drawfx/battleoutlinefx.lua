@@ -41,30 +41,30 @@ function BattleOutlineFX:draw(texture)
 
     -- Left
     love.graphics.translate(-1 * mult_x, 0)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     -- Right
     love.graphics.translate(2 * mult_x, 0)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     -- Up
     love.graphics.translate(-1 * mult_x, -1 * mult_y)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     -- Down
     love.graphics.translate(0, 2 * mult_y)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
 
     Draw.popCanvas()
 
     love.graphics.setShader(last_shader)
 
     love.graphics.setColor(1, 1, 1, self.amount)
-    love.graphics.drawCanvas(outline)
+    Draw.drawCanvas(outline)
     love.graphics.setColor(1, 1, 1)
 
     love.graphics.setShader(shader)
     shader:send("inputcolor", {32/255, 32/255, 32/255})
     shader:send("amount", self.amount)
 
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
 
     love.graphics.setShader(last_shader)
 end

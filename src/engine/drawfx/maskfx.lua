@@ -44,7 +44,7 @@ function MaskFX:draw(texture)
         love.graphics.setShader(last_shader)
     end, "replace", 1)
     love.graphics.setStencilTest("greater", 0)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
     love.graphics.setStencilTest()
 end
 

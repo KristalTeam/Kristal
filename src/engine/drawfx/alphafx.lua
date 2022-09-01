@@ -12,7 +12,7 @@ end
 
 function AlphaFX:draw(texture)
     love.graphics.setColor(1, 1, 1, self.alpha)
-    love.graphics.drawCanvas(texture)
+    Draw.drawCanvas(texture)
 end
 
 return AlphaFX
