@@ -207,4 +207,29 @@ function Draw.drawCutout(texture, x, y, cx, cy, cw, ch, ...)
     love.graphics.draw(texture, quad, x, y, ...)
 end
 
+--- Modes: `none`
+--- - `none`: Creates a canvas based on object size and draws the object at 0,0 (not transformed)
+---   - extra arguments: `no_children`, `pad_x`, `pad_y`
+function Draw.captureObject(object, mode, ...)
+    -- TODO: Add more modes (centered canvas, absolute screen canvas, full width/height including children ?)
+
+    mode = mode or "none"
+
+    if mode == "none" then
+        local no_children, pad_x, pad_y = ...
+
+        no_children = no_children or false
+        pad_x = pad_x or 0
+        pad_y = pad_y or 0
+
+        local canvas = Draw.pushCanvas(object.width + (pad_x * 2), object.height + (pad_y * 2))
+        love.graphics.translate(pad_x, pad_y)
+        object:drawSelf(no_children, true)
+        Draw.popCanvas(true)
+        return canvas
+    else
+        error("No draw mode: "..tostring(mode))
+    end
+end
+
 return Draw

@@ -1001,6 +1001,25 @@ function Object:drawChildren(min_layer, max_layer)
     love.graphics.setColor(oldr, oldg, oldb, olda)
 end
 
+function Object:drawSelf(no_children, dont_transform)
+    local last_draw_children = self._dont_draw_children
+    if no_children then
+        self._dont_draw_children = true
+    end
+    love.graphics.push()
+    self:preDraw(dont_transform)
+    if self.draw_children_below then
+        self:drawChildren(nil, self.draw_children_below)
+    end
+    self:draw()
+    if self.draw_children_above then
+        self:drawChildren(self.draw_children_above)
+    end
+    self:postDraw()
+    love.graphics.pop()
+    self._dont_draw_children = last_draw_children
+end
+
 function Object:fullDraw(no_children, dont_transform)
     local used_timescale, last_dt, last_dt_mult, last_runtime = false, DT, DTMULT, RUNTIME
     if self.timescale ~= 1 then
@@ -1023,22 +1042,7 @@ function Object:fullDraw(no_children, dont_transform)
             love.graphics.translate(fx_off_x, fx_off_y)
         end
     end
-    local last_draw_children = self._dont_draw_children
-    if no_children then
-        self._dont_draw_children = true
-    end
-    love.graphics.push()
-    self:preDraw(fx_transform or dont_transform)
-    if self.draw_children_below then
-        self:drawChildren(nil, self.draw_children_below)
-    end
-    self:draw()
-    if self.draw_children_above then
-        self:drawChildren(self.draw_children_above)
-    end
-    self:postDraw()
-    love.graphics.pop()
-    self._dont_draw_children = last_draw_children
+    self:drawSelf(no_children, fx_transform or dont_transform)
     if processing_fx then
         Draw.popCanvas(true)
         local final_canvas = canvas
