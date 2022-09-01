@@ -32,6 +32,10 @@ function TileObject:draw()
     local tile_width, tile_height = self.tileset:getTileSize(self.tileset:getDrawTile(self.tile))
     local sx = self.width / tile_width * (self.tile_flip_x and -1 or 1)
     local sy = self.height / tile_height * (self.tile_flip_y and -1 or 1)
+    if self.tileset.preserve_aspect_fit then
+        sx = Utils.absMin(sx, sy)
+        sy = sx
+    end
     self.tileset:drawTile(self.tile, self.width/2, self.height/2, 0, sx, sy, tile_width/2, tile_height/2)
 end
 

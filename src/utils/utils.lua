@@ -867,6 +867,14 @@ function Utils.absClamp(value, min, max)
     return math.max(min, math.min(max, math.abs(value))) * sign
 end
 
+function Utils.absMin(a, b)
+    return math.abs(b) < math.abs(a) and b or a
+end
+
+function Utils.absMax(a, b)
+    return math.abs(b) > math.abs(a) and b or a
+end
+
 function Utils.facingFromAngle(angle)
     local deg = math.deg(angle) % 360
 

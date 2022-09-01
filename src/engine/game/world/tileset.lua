@@ -129,7 +129,7 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
         sx = gw / w
         sy = gh / h
         if self.preserve_aspect_fit then
-            sx = math.min(sx, sy)
+            sx = Utils.absMin(sx, sy)
             sy = sx
         end
     end
