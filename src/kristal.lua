@@ -469,6 +469,7 @@ function Kristal.errorHandler(msg)
     end
 
     -- Reset state.
+    if Input then Input.clear(nil, true) end
     if love.mouse then
         love.mouse.setVisible(true)
         love.mouse.setGrabbed(false)

@@ -60,9 +60,6 @@ function World:init(map)
 
     self.calls = {}
 
-    -- Reset keypresses in-case they didn't get wiped on crash
-    Input.clear(nil, true)
-
     if map then
         self:loadMap(map)
     end
