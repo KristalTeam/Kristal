@@ -39,7 +39,6 @@ function Tileset:init(data, path)
             info.height = v.height or info.texture:getHeight()
 
             if info.x ~= 0 or info.y ~= 0 or info.width ~= info.texture:getWidth() or info.height ~= info.texture:getHeight() then
-                print("Found quad for tile " .. v.id .. " in tileset " .. self.id)
                 info.quad = love.graphics.newQuad(info.x, info.y, info.width, info.height, info.texture:getWidth(), info.texture:getHeight())
             end
         end
