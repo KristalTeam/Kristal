@@ -21,6 +21,8 @@ Input.key_down_timer = {}
 Input.key_bindings = {}
 Input.gamepad_bindings = {}
 
+Input.gamepad_locked = false
+
 Input.gamepad_cursor_size = 10
 Input.gamepad_cursor_x = (love.graphics.getWidth()  / 2) - (Input.gamepad_cursor_size / 2)
 Input.gamepad_cursor_y = (love.graphics.getHeight() / 2) - (Input.gamepad_cursor_size / 2)
@@ -470,6 +472,7 @@ function Input.down(key)
 end
 
 function Input.keyDown(key)
+    if self.gamepad_locked and Input.isGamepad(key) then return false end
     if self.key_groups[key] then
         for _,k in ipairs(self.key_groups[key]) do
             if self.key_down[k] then
@@ -508,6 +511,7 @@ function Input.pressed(key, repeatable)
 end
 
 function Input.keyPressed(key, repeatable)
+    if self.gamepad_locked and Input.isGamepad(key) then return false end
     if self.key_groups[key] then
         for _,k in ipairs(self.key_groups[key]) do
             if self.key_pressed[k] or (repeatable and self.key_repeated[k]) then
@@ -552,6 +556,7 @@ function Input.released(key)
 end
 
 function Input.keyReleased(key)
+    if self.gamepad_locked and Input.isGamepad(key) then return false end
     if self.key_groups[key] then
         for _,k in ipairs(self.key_groups[key]) do
             if self.key_released[k] then
@@ -588,6 +593,7 @@ function Input.up(key)
 end
 
 function Input.keyUp(key)
+    if self.gamepad_locked and Input.isGamepad(key) then return true end
     if self.key_groups[key] then
         for _,k in ipairs(self.key_groups[key]) do
             if self.key_down[k] then

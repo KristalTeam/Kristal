@@ -591,6 +591,7 @@ function DebugSystem:setState(state, reason)
 end
 
 function DebugSystem:onStateChange(old, new)
+    Input.gamepad_locked = false
     self.heart_target_x = -10
     if new == "MENU" then
         self.heart_target_x = 19
@@ -606,6 +607,7 @@ function DebugSystem:onStateChange(old, new)
         self.last_object = nil
         self.menu_anim_timer = 0
         self.circle_anim_timer = 0
+        Input.gamepad_locked = true
         Kristal.showCursor()
     elseif new == "IDLE" then
         self:unselectObject()
@@ -658,7 +660,10 @@ function DebugSystem:onKeyReleased(key)
 end
 
 function DebugSystem:onKeyPressed(key, is_repeat)
+    local was_locked = Input.gamepad_locked
+    Input.gamepad_locked = false
     if not Input.shouldProcess(key, is_repeat) then return end
+    Input.gamepad_locked = was_locked
 
     if Input.is("object_selector", key) and not is_repeat then
         if self:selectionOpen() then

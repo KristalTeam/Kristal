@@ -280,6 +280,7 @@ function love.textinput(key)
 end
 
 function love.mousepressed(win_x, win_y, button, istouch, presses)
+    Input.active_gamepad = nil
     local x, y = Input.getMousePosition(win_x, win_y)
     if Kristal.DebugSystem then
         Kristal.DebugSystem:onMousePressed(x, y, button, istouch, presses)
@@ -321,7 +322,7 @@ function Kristal.onKeyPressed(key, is_repeat)
         return
     end
 
-    if not TextInput.active then
+    if not TextInput.active and not (Input.gamepad_locked and Input.isGamepad(key)) then
         if not Utils.startsWith(key, "gamepad:") then
             Input.active_gamepad = nil
         end
