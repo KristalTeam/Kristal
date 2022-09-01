@@ -57,6 +57,10 @@ function Object:init(x, y, width, height)
     self.init_x = self.x
     self.init_y = self.y
 
+    -- Save the previous position
+    self.last_x = self.x
+    self.last_x = self.y
+
     -- Initialize this object's size
     self.width = width or 0
     self.height = height or 0
@@ -941,6 +945,8 @@ function Object:fullUpdate()
         used_timescale = true
         RUNTIME = RUNTIME + self._runtime_update_offset
     end
+    self.last_x = self.x
+    self.last_y = self.y
     self:update()
     if used_timescale then
         DT = last_dt
