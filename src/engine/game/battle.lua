@@ -1984,7 +1984,7 @@ function Battle:battleText(text,post_func)
     local target_state = self:getState()
 
     self.battle_ui.encounter_text:setText(text, function()
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
         if type(post_func) == "string" then
             target_state = post_func
         elseif type(post_func) == "function" and post_func() then
