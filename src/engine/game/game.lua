@@ -613,7 +613,8 @@ function Game:getSoulColor()
     local chara = Game:getSoulPartyMember()
 
     if chara and chara:getSoulPriority() >= 0 then
-        return chara:getSoulColor()
+        local r, g, b, a = chara:getSoulColor()
+        return r, g, b, a or 1
     end
 
     return 1, 0, 0, 1
