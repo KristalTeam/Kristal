@@ -48,9 +48,9 @@ function spell:onCast(user, target)
         anim_finished = false
         user:setAnimation("battle/attack", finishAnim)
     end
-    Game.battle.timer:after(10/30, function()
+    Game.battle.timer:after(15/30, function()
         Assets.playSound("rudebuster_swing")
-        local x, y = user:getRelativePos(user.width, user.height/2, Game.battle)
+        local x, y = user:getRelativePos(user.width, user.height/2 - 10, Game.battle)
         local tx, ty = target:getRelativePos(target.width/2, target.height/2, Game.battle)
         local blast = RudeBusterBeam(false, x, y, tx, ty, function(pressed)
             local damage = math.ceil((user.chara:getStat("magic") * 5) + (user.chara:getStat("attack") * 11) - (target.defense * 3))
