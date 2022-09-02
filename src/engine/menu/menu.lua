@@ -1575,6 +1575,8 @@ function Menu:onCreateEnter()
     self:registerConfigOption("growStrongerChara",   "Grow Stronger Character",  "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
     self:registerConfigOption("susieStyle",          "Susie Style",              "What sprite set Susie should use",                          "selection", {nil, 1, 2})
     self:registerConfigOption("ralseiStyle",         "Ralsei Style",             "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
+    self:registerConfigOption("oldTensionBar",       "Old Tension Bar",          "Whether the Tension Bar uses blocky corners or not.",       "selection", {nil, true, false})
+    self:registerConfigOption("oldUIPositions",      "Old UI Positions",         "Whether to use Chapter 1 positions of UI elements or not.", "selection", {nil, true, false})
     self:registerConfigOption("targetSystem",        "Targeting System",         "Whether battles should use the targeting system or not",    "selection", {nil, true, false})
     self:registerConfigOption("speechBubble",        "Speech Bubble Style",      "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
     self:registerConfigOption("enemyAuras",          "Enemy Aura",               "The red aura around enemies",                               "selection", {nil, true, false})

@@ -61,6 +61,11 @@ function ActionBox:createButtons()
     btn_types = Kristal.modCall("getActionButtons", self.battler, btn_types) or btn_types
 
     local start_x = (213 / 2) - ((#btn_types-1) * 35 / 2) - 1
+
+    if (#btn_types <= 6) and Game:getConfig("oldUIPositions") then
+        start_x = 30
+    end
+
     for i,btn in ipairs(btn_types) do
         if type(btn) == "string" then
             local button = ActionButton(btn, self.battler, math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
@@ -178,18 +183,14 @@ function ActionBox:draw()
 end
 
 function ActionBox:drawActionBox()
-    love.graphics.setColor(1, 1, 1, 1)
-
     if Game.battle.current_selecting == self.index then
         love.graphics.setColor(self.battler.chara:getColor())
-    else
-        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.setLineWidth(2)
+        love.graphics.line(1  , 2, 1,   37)
+        love.graphics.line(Game:getConfig("oldUIPositions") and 211 or 212, 2, Game:getConfig("oldUIPositions") and 211 or 212, 37)
+        love.graphics.line(0  , 6, 212, 6 )
     end
-
-    love.graphics.setLineWidth(2)
-    love.graphics.line(1  , 2, 1,   37)
-    love.graphics.line(212, 2, 212, 37)
-    love.graphics.line(0  , 6, 213, 6 )
+    love.graphics.setColor(1, 1, 1, 1)
 end
 
 function ActionBox:drawSelectionMatrix()

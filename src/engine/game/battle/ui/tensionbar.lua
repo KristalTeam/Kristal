@@ -24,8 +24,13 @@ function TensionBar:init(x, y, dont_animate)
 
     self.layer = BATTLE_LAYERS["ui"] - 1
 
-    self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill")
-    self.tp_bar_outline = Assets.getTexture("ui/battle/tp_bar_outline")
+    if Game:getConfig("oldTensionBar") then
+        self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill_old")
+        self.tp_bar_outline = Assets.getTexture("ui/battle/tp_bar_outline_old")
+    else
+        self.tp_bar_fill = Assets.getTexture("ui/battle/tp_bar_fill")
+        self.tp_bar_outline = Assets.getTexture("ui/battle/tp_bar_outline")
+    end
 
     self.width = self.tp_bar_outline:getWidth()
     self.height = self.tp_bar_outline:getHeight()

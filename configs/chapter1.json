@@ -10,6 +10,9 @@
     "susieStyle": 1,                 // Susie chapter style
     "ralseiStyle": 1,                // Ralsei chapter style
 
+    "oldTensionBar": true,           // Syle of TP bar
+    "oldUIPositions": true,          // Old positions of various UI elements
+
     "speechBubble": "round",         // Default enemy speech bubble style
 
     "enemyAuras": false,             // Red glow around overworld enemies

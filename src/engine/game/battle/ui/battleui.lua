@@ -32,17 +32,25 @@ function BattleUI:init()
     self.attacking = false
 
     local size_offset = 0
+    local box_gap = 0
     if #Game.battle.party == 3 then
         size_offset = 0
+        box_gap = 0
     elseif #Game.battle.party == 2 then
         size_offset = 108
+        box_gap = 1
+        if Game:getConfig("oldUIPositions") then
+            size_offset = 106
+            box_gap = 7
+        end
     elseif #Game.battle.party == 1 then
         size_offset = 213
+        box_gap = 0
     end
 
 
     for index,battler in ipairs(Game.battle.party) do
-        local action_box = ActionBox(size_offset + (index - 1) * 213, 0, index, battler)
+        local action_box = ActionBox(size_offset+ (index - 1) * (213 + box_gap), 0, index, battler)
         self:addChild(action_box)
         table.insert(self.action_boxes, action_box)
         battler.chara:onActionBox(action_box, false)
@@ -163,10 +171,10 @@ end
 function BattleUI:drawActionStrip()
     -- Draw the top line of the action strip
     love.graphics.setColor(PALETTE["action_strip"])
-    love.graphics.rectangle("fill", 0, 0, 640, 2)
+    love.graphics.rectangle("fill", 0, Game:getConfig("oldUIPositions") and 1 or 0, 640, Game:getConfig("oldUIPositions") and 3 or 2)
     -- Draw the background of the action strip
     love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.rectangle("fill", 0, 2, 640, 35)
+    love.graphics.rectangle("fill", 0, Game:getConfig("oldUIPositions") and 4 or 2, 640, Game:getConfig("oldUIPositions") and 33 or 35)
 end
 
 function BattleUI:drawActionArena()
