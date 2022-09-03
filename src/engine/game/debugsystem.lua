@@ -20,7 +20,7 @@ function DebugSystem:init()
     self.heart_target_x = -10
     self.heart_target_y = -10
 
-    -- States: IDLE, MENU, SELECTION
+    -- States: IDLE, MENU, SELECTION, FACES
     self.state = "IDLE"
     self.old_state = "IDLE"
     self.state_reason = nil
@@ -68,6 +68,10 @@ function DebugSystem:init()
 
     self.menu_y = 0
     self.menu_target_y = 0
+
+    self.faces_y = 0
+
+    self.mouse_clicked = false
 end
 
 function DebugSystem:getStage()
@@ -174,6 +178,8 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
             end
         end
     end
+
+    self.mouse_clicked = true
 end
 
 function DebugSystem:openObjectContext(object)
@@ -527,6 +533,10 @@ function DebugSystem:registerDefaults()
         self:enterMenu("give_item", 0)
     end)
 
+    self:registerOption("main", "Portrait Viewer", "Enter the portrait viewer menu.", function()
+        self:setState("FACES")
+    end)
+
     -- World specific
     self:registerOption("main", "Select Map", "Switch to a new map.", function()
         self:enterMenu("select_map", 0)
@@ -616,6 +626,9 @@ function DebugSystem:onStateChange(old, new)
 
         Kristal.hideCursor()
         --love.keyboard.setKeyRepeat(false)
+    elseif new == "FACES" then
+        Input.gamepad_locked = true
+        Kristal.showCursor()
     end
 end
 
@@ -734,6 +747,12 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self.object:remove()
             self:unselectObject()
         end
+    elseif self.state == "FACES" then
+        if (Input.isCancel(key) or Input.isConfirm(key)) and not is_repeat then
+            Assets.playSound("ui_select")
+            self:setState("MENU")
+            return
+        end
     end
 end
 
@@ -798,6 +817,10 @@ function DebugSystem:update()
         end
     end
     super:update(self)
+end
+
+function DebugSystem:onWheelMoved(x, y)
+    self.faces_y = self.faces_y + (y * 32)
 end
 
 function DebugSystem:draw()
@@ -885,6 +908,86 @@ function DebugSystem:draw()
                 self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.gray, "center", 640)
             end
         end
+    elseif self.state == "FACES" then
+        header_name = "~ PORTRAIT VIEWER ~"
+        love.graphics.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+        love.graphics.setColor(1, 1, 1, 1)
+
+        local textures = {}
+        for _, id in pairs(Assets.texture_ids) do
+            if Utils.startsWith(id, "face/") then
+                table.insert(textures, id:sub(6))
+            end
+        end
+
+        -- Sort textures alphabetically
+        table.sort(textures, function(a, b)
+            return a:lower() < b:lower()
+        end)
+
+        Draw.pushScissor()
+        Draw.scissorPoints(0, 92, 640, 480 - 32 - 16)
+
+        local name = "Press CONFIRM to go back."
+
+        local gap = 128
+        local x_offset = 64
+        local y_offset = 96
+        local faces_per_row = 4
+        local total_height = (math.ceil(#textures / faces_per_row) * gap)
+
+        self.faces_y = Utils.clamp(self.faces_y, -(total_height - 480 + 48 + 96), 0)
+
+        for i, texture_id in ipairs(textures) do
+            local x = (i - 1) % faces_per_row
+            local y = math.floor((i - 1) / faces_per_row)
+            local texture = Assets.getTexture("face/" .. texture_id)
+            love.graphics.draw(texture, x_offset + (x * gap), y_offset + (self.faces_y + (y * gap)), 0, 2, 2)
+
+            local width = texture:getWidth() * 2
+            local height = texture:getHeight() * 2
+
+            local mx, my = Input.getCurrentCursorPosition()
+
+            if mx > x_offset + (x * gap) and mx < x_offset + (x * gap) + width and
+               my > y_offset + (self.faces_y + (y * gap)) and my < y_offset + (self.faces_y + (y * gap)) + height then
+                love.graphics.setLineWidth(2)
+                love.graphics.setColor(0, 1, 1, 1)
+                love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1, width + 2, height + 2)
+                love.graphics.setColor(1, 1, 1, 1)
+
+                name = texture_id
+                if self.clicked_name == name then
+                    name = "Copied to clipboard!"
+                else
+                    self.clicked_name = nil
+                end
+
+                if self.mouse_clicked then
+                    self.clicked_name = texture_id
+                    local filename = texture_id
+                    -- Remove everything before the last slash
+                    filename = Utils.split(filename, "/")[#Utils.split(filename, "/")]
+                    love.system.setClipboardText(filename)
+                    Assets.playSound("ui_select")
+                end
+            end
+        end
+
+        -- Draw scrollbar
+        local scrollbar_height = 480 - y_offset - 48
+        local scrollbar_y = 96 + (scrollbar_height * (-self.faces_y / total_height))
+        love.graphics.setColor(1, 1, 1, 0.5)
+        love.graphics.rectangle("fill", 640 - 16, 96, 4, 480 - 96 - 48)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.rectangle("fill", 640 - 16, scrollbar_y, 4, scrollbar_height * (scrollbar_height / total_height))
+        love.graphics.setColor(1, 1, 1, 1)
+
+        Draw.popScissor()
+
+        self:printShadow(name, 0, 480 - 32, COLORS.gray, "center", 640)
 
     elseif self.state == "SELECTION" or (self.old_state == "SELECTION" and self.state == "IDLE" and (menu_alpha > 0)) then
         header_name = "~ OBJECT SELECTION ~"
@@ -896,7 +999,7 @@ function DebugSystem:draw()
             if prog >= 0 then
                 love.graphics.setLineWidth(2)
                 local r = prog * 40
-                alpha = 2 - (prog*1.2)
+                local alpha = 2 - (prog*1.2)
                 love.graphics.setColor(0, 1, 1, alpha * circle_alpha)
                 love.graphics.circle("line", mx, my, r, 100)
             end
@@ -1029,6 +1132,8 @@ function DebugSystem:draw()
 
     love.graphics.setColor(1, 1, 1, menu_alpha)
     love.graphics.draw(self.menu_canvas, 0, 0)
+
+    self.mouse_clicked = false
 
     super:draw(self)
 end

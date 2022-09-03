@@ -447,6 +447,12 @@ function love.gamepadreleased(joystick, button)
     Input.onKeyReleased("gamepad:" .. button)
 end
 
+function love.wheelmoved(x, y)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onWheelMoved(x, y)
+    end
+end
+
 function Input.down(key)
     local bindings = Input.getBoundKeys(key)
     if bindings then
