@@ -28,9 +28,6 @@ function Player:init(chara, x, y)
 
     self.walk_speed = 4
 
-    self.last_x = self.x
-    self.last_y = self.y
-
     self.history_time = 0
     self.history = {}
 
@@ -302,9 +299,6 @@ function Player:updateHistory()
     for _,follower in ipairs(self.world.followers) do
         follower:updateHistory(moved, auto)
     end
-
-    self.last_x = self.x
-    self.last_y = self.y
 end
 
 function Player:update()
