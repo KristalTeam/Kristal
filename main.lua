@@ -257,7 +257,7 @@ function love.run()
     end
 
     local function mainLoop()
-        if FRAMERATE > 0 then
+        if FRAMERATE > 0 and not FAST_FORWARD then
             local tick_rate = 1 / FRAMERATE
 
             local dt = love.timer.step()
