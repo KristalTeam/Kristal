@@ -54,8 +54,9 @@ function NPC:onInteract(player, dir)
         self.world:startCutscene(function(cutscene)
             cutscene:setSpeaker(self, self.talk)
             local text = self.text
-            if type(text[self.interact_count]) == "table" then
-                text = text[self.interact_count]
+            local text_index = Utils.clamp(self.interact_count, 1, #text)
+            if type(text[text_index]) == "table" then
+                text = text[text_index]
             end
             for _,line in ipairs(text) do
                 cutscene:text(line)

@@ -542,6 +542,12 @@ function Map:loadObjects(layer, depth, layer_type)
         v.center_x = v.x + v.width/2
         v.center_y = v.y + v.height/2
 
+        if v.gid then
+            local tx,ty,tw,th = self:getTileObjectRect(v)
+            v.center_x = tx + tw/2
+            v.center_y = ty + th/2
+        end
+
         local obj_type = v.type or v.class
         if obj_type == "" then
             obj_type = v.name
@@ -637,6 +643,12 @@ function Map:loadObject(name, data)
             end
         end
     end
+    local chara_x, chara_y = data.center_x, data.center_y
+    if data.gid then
+        local tx,ty,tw,th = self:getTileObjectRect(data)
+        chara_x = tx + tw/2
+        chara_y = ty + th
+    end
     -- Kristal object loading
     if name:lower() == "savepoint" then
         return Savepoint(data.center_x, data.center_y, data.properties)
@@ -647,9 +659,9 @@ function Map:loadObject(name, data)
     elseif name:lower() == "transition" then
         return Transition(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "npc" then
-        return NPC(data.properties["actor"], data.center_x, data.center_y, data.properties)
+        return NPC(data.properties["actor"], chara_x, chara_y, data.properties)
     elseif name:lower() == "enemy" then
-        return ChaserEnemy(data.properties["actor"], data.center_x, data.center_y, data.properties)
+        return ChaserEnemy(data.properties["actor"], chara_x, chara_y, data.properties)
     elseif name:lower() == "outline" then
         return Outline(data.x, data.y, data.width, data.height)
     elseif name:lower() == "silhouette" then
@@ -754,6 +766,15 @@ function Map:getTileset(id)
         end
     end
     return nil, 0
+end
+
+function Map:getTileObjectRect(data)
+    local gid = Utils.parseTileGid(data.gid)
+    local tileset = self:getTileset(gid)
+
+    local origin = TileObject.ORIGINS[tileset.object_alignment] or TileObject.ORIGINS["unspecified"]
+
+    return data.x - (origin[1] * data.width), data.y - (origin[2] * data.height), data.width, data.height
 end
 
 return Map
