@@ -8,6 +8,7 @@ function UIBox:init(x, y, width, height, skin)
     self.corner_frame = 0
 
     self.skin = skin or (Game:isLight() and "light" or "dark")
+    self.fill_color = {0,0,0}
 
     self.left   = Assets.getFramesOrTexture("ui/box/" .. self.skin .. "/left")
     self.top    = Assets.getFramesOrTexture("ui/box/" .. self.skin .. "/top")
@@ -40,8 +41,9 @@ function UIBox:draw()
     local top_width   = self.top[1]:getWidth()
     local top_height  = self.top[1]:getHeight()
 
-    local r,g,b,a = self:getDrawColor()
-    love.graphics.setColor(0, 0, 0, a)
+    local  r, g, b,a = self:getDrawColor()
+    local fr,fg,fb   = unpack(self.fill_color)
+    love.graphics.setColor(fr,fg,fb,a)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     love.graphics.setColor(r, g, b, a)
