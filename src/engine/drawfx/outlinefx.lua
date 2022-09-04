@@ -39,13 +39,17 @@ function OutlineFX:draw(texture)
     local outline = Draw.pushCanvas(texture:getWidth(), texture:getHeight())
 
     if self.cutout then
-        love.graphics.stencil((function()
-            love.graphics.setShader(self.cutout_shader)
-            Draw.drawCanvas(texture)
-            love.graphics.setShader()
-        end), "replace", 1)
 
-        love.graphics.setStencilTest("less", 1)
+
+        love.graphics.setColorMask(false)
+        love.graphics.setStencilMode("replace", "always", 1)
+
+        love.graphics.setShader(self.cutout_shader)
+        Draw.drawCanvas(texture)
+        love.graphics.setShader()
+
+        love.graphics.setStencilMode("keep", "less", 1)
+        love.graphics.setColorMask(true)
     end
 
     local shader = Kristal.Shaders["AddColor"]
@@ -72,7 +76,7 @@ function OutlineFX:draw(texture)
         love.graphics.translate(0, -1 * mult_y)
         love.graphics.setShader(last_shader)
         Draw.drawCanvas(texture)
-        love.graphics.setStencilTest()
+        love.graphics.setStencilMode()
     end
 
     Draw.popCanvas()
