@@ -87,7 +87,7 @@ end
 
 function HealthBar:draw()
     -- Draw the black background
-    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.setColor(PALETTE["world_fill"])
     love.graphics.rectangle("fill", 0, 2, 640, 61)
 
     super:draw(self)

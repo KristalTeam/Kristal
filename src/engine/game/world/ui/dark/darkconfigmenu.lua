@@ -210,16 +210,16 @@ function DarkConfigMenu:draw()
         return
     end
     love.graphics.setFont(self.font)
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(PALETTE["world_text"])
 
     if self.state ~= "CONTROLS" then
         love.graphics.print("CONFIG", 188, -12)
 
         if self.state == "VOLUME" then
-            love.graphics.setColor(1, 1, 0, 1)
+            love.graphics.setColor(PALETTE["world_text_selected"])
         end
         love.graphics.print("Master Volume",   88, 38 + (0 * 32))
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(PALETTE["world_text"])
         love.graphics.print("Controls",        88, 38 + (1 * 32))
         love.graphics.print("Simplify VFX",    88, 38 + (2 * 32))
         love.graphics.print("Fullscreen",      88, 38 + (3 * 32))
@@ -228,10 +228,10 @@ function DarkConfigMenu:draw()
         love.graphics.print("Back",            88, 38 + (6 * 32))
 
         if self.state == "VOLUME" then
-            love.graphics.setColor(1, 1, 0, 1)
+            love.graphics.setColor(PALETTE["world_text_selected"])
         end
         love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%",      348, 38 + (0 * 32))
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(PALETTE["world_text"])
         love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 32))
         love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
         love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
@@ -252,12 +252,12 @@ function DarkConfigMenu:draw()
             if index > 7 then
                 break
             end
-            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setColor(PALETTE["world_text"])
             if self.currently_selected == index then
                 if self.rebinding then
-                    love.graphics.setColor(1, 0, 0, 1)
+                    love.graphics.setColor(PALETTE["world_text_rebind"])
                 else
-                    love.graphics.setColor(0, 1, 1, 1)
+                    love.graphics.setColor(PALETTE["world_text_hover"])
                 end
             end
             love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (28 * index) + 4)
@@ -288,20 +288,20 @@ function DarkConfigMenu:draw()
             end
         end
 
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(PALETTE["world_text"])
         if self.currently_selected == 8 then
-            love.graphics.setColor(0, 1, 1, 1)
+            love.graphics.setColor(PALETTE["world_text_hover"])
         end
 
         if (self.reset_flash_timer > 0) then
-            love.graphics.setColor(Utils.mergeColor(COLORS.aqua, COLORS.yellow, ((self.reset_flash_timer / 10) - 0.1)))
+            love.graphics.setColor(Utils.mergeColor(PALETTE["world_text_hover"], PALETTE["world_text_selected"], ((self.reset_flash_timer / 10) - 0.1)))
         end
 
         love.graphics.print("Reset to default", 23, -4 + (28 * 8) + 4)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(PALETTE["world_text"])
         if self.currently_selected == 9 then
-            love.graphics.setColor(0, 1, 1, 1)
+            love.graphics.setColor(PALETTE["world_text_hover"])
         end
         love.graphics.print("Finish", 23, -4 + (28 * 9) + 4)
 

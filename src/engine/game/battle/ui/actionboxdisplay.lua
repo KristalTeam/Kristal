@@ -24,10 +24,10 @@ function ActionBoxDisplay:draw()
         love.graphics.line(212, 2, 212, 36)
     end
 
-    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.setColor(PALETTE["action_fill"])
     love.graphics.rectangle("fill", 2, Game:getConfig("oldUIPositions") and 3 or 2, 209, Game:getConfig("oldUIPositions") and 34 or 35)
 
-    love.graphics.setColor(128/255, 0, 0, 1)
+    love.graphics.setColor(PALETTE["action_health_bg"])
     love.graphics.rectangle("fill", 128, 22 - self.actbox.data_offset, 76, 9)
 
     local health = (self.actbox.battler.chara.health / self.actbox.battler.chara:getStat("health")) * 76
@@ -39,11 +39,11 @@ function ActionBoxDisplay:draw()
 
 
     if health <= 0 then
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(PALETTE["action_health_text_down"])
     elseif (self.actbox.battler.chara.health <= (self.actbox.battler.chara:getStat("health") / 4)) then
-        love.graphics.setColor(1, 1, 0, 1)
+        love.graphics.setColor(PALETTE["action_health_text_low"])
     else
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(PALETTE["action_health_text"])
     end
 
 

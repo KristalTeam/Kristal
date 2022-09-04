@@ -63,9 +63,9 @@ function SimpleSaveMenu:draw()
     love.graphics.setFont(self.font)
 
     if self.state == "SAVED" then
-        love.graphics.setColor(1, 1, 0)
+        love.graphics.setColor(PALETTE["world_text_selected"])
     else
-        love.graphics.setColor(1, 1, 1)
+        love.graphics.setColor(PALETTE["world_text"])
     end
 
     local data = self.saved_file or {}

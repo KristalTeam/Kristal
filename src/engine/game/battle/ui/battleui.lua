@@ -173,7 +173,7 @@ function BattleUI:drawActionStrip()
     love.graphics.setColor(PALETTE["action_strip"])
     love.graphics.rectangle("fill", 0, Game:getConfig("oldUIPositions") and 1 or 0, 640, Game:getConfig("oldUIPositions") and 3 or 2)
     -- Draw the background of the action strip
-    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.setColor(PALETTE["action_fill"])
     love.graphics.rectangle("fill", 0, Game:getConfig("oldUIPositions") and 4 or 2, 640, Game:getConfig("oldUIPositions") and 33 or 35)
 end
 
@@ -182,7 +182,7 @@ function BattleUI:drawActionArena()
     love.graphics.setColor(PALETTE["action_strip"])
     love.graphics.rectangle("fill", 0, 37, 640, 3)
     -- Draw the background of the action area
-    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.setColor(PALETTE["action_fill"])
     love.graphics.rectangle("fill", 0, 40, 640, 115)
     self:drawState()
 end
@@ -289,7 +289,7 @@ function BattleUI:drawState()
         end
 
         if current_item.tp and current_item.tp ~= 0 then
-            love.graphics.setColor(255/255, 160/255, 64/255)
+            love.graphics.setColor(PALETTE["tension_desc"])
             love.graphics.print(math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% "..Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32))
             Game:setTensionPreview(current_item.tp)
         else
@@ -427,14 +427,14 @@ function BattleUI:drawState()
 
                 if enemy.selectable then
                     -- Draw the enemy's HP
-                    love.graphics.setColor(128/255, 0, 0, 1)
+                    love.graphics.setColor(PALETTE["action_health_bg"])
                     love.graphics.rectangle("fill", hp_x, 55 + y_off, 81, 16)
 
-                    love.graphics.setColor(0, 1, 0, 1)
+                    love.graphics.setColor(PALETTE["action_health"])
                     love.graphics.rectangle("fill", hp_x, 55 + y_off, (hp_percent * 81), 16)
 
                     if draw_percents then
-                        love.graphics.setColor(1, 1, 1, 1)
+                        love.graphics.setColor(PALETTE["action_health_text"])
                         love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
                     end
                 end
@@ -443,14 +443,14 @@ function BattleUI:drawState()
             if draw_mercy then
                 -- Draw the enemy's MERCY
                 if enemy.selectable then
-                    love.graphics.setColor(255/255, 80/255, 32/255, 1)
+                    love.graphics.setColor(PALETTE["battle_mercy_bg"])
                 else
                     love.graphics.setColor(127/255, 127/255, 127/255, 1)
                 end
                 love.graphics.rectangle("fill", 520, 55 + y_off, 81, 16)
 
                 if enemy.disable_mercy then
-                    love.graphics.setColor(128/255, 0, 0, 1)
+                    love.graphics.setColor(PALETTE["battle_mercy_text"])
                     love.graphics.setLineWidth(2)
                     love.graphics.line(520, 56 + y_off, 520 + 81, 56 + y_off + 16 - 1)
                     love.graphics.line(520, 56 + y_off + 16 - 1, 520 + 81, 56 + y_off)
@@ -459,7 +459,7 @@ function BattleUI:drawState()
                     love.graphics.rectangle("fill", 520, 55 + y_off, ((enemy.mercy / 100) * 81), 16)
 
                     if draw_percents and enemy.selectable then
-                        love.graphics.setColor(128/255, 0, 0, 1)
+                        love.graphics.setColor(PALETTE["battle_mercy_text"])
                         love.graphics.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
                     end
                 end
@@ -488,11 +488,11 @@ function BattleUI:drawState()
             love.graphics.setColor(1, 1, 1, 1)
             love.graphics.print(Game.battle.party[index].chara:getName(), 80, 50 + ((index - page_offset - 1) * 30))
 
-            love.graphics.setColor(128 / 255, 0, 0, 1)
+            love.graphics.setColor(PALETTE["action_health_bg"])
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), 101, 16)
 
             local percentage = Game.battle.party[index].chara.health / Game.battle.party[index].chara:getStat("health")
-            love.graphics.setColor(0, 1, 0, 1)
+            love.graphics.setColor(PALETTE["action_health"])
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), percentage * 101, 16)
         end
 
@@ -505,7 +505,7 @@ function BattleUI:drawState()
         end
     end
     if Game.battle.state == "ATTACKING" or self.attacking then
-        love.graphics.setColor(0, 0, 0.5)
+        love.graphics.setColor(PALETTE["battle_attack_lines"])
         love.graphics.rectangle("fill", 79, 78, 224, 2)
         love.graphics.rectangle("fill", 79, 116, 224, 2)
     end

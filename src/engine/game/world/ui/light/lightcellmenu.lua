@@ -52,10 +52,9 @@ end
 
 function LightCellMenu:draw()
     love.graphics.setFont(self.font)
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(PALETTE["world_text"])
 
     for index, call in ipairs(Game.world.calls) do
-        love.graphics.setColor(1, 1, 1, 1)
         love.graphics.print(call[1], 20, -28 + (index * 32))
     end
 

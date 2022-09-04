@@ -93,21 +93,19 @@ end
 
 function LightItemMenu:draw()
     love.graphics.setFont(self.font)
-    love.graphics.setColor(1, 1, 1, 1)
-
 
     local inventory = Game.inventory:getStorage(self.storage)
 
     for index, item in ipairs(inventory) do
         if item.usable_in == "world" or item.usable_in == "all" then
-            love.graphics.setColor(1, 1, 1, 1)
+            love.graphics.setColor(PALETTE["world_text"])
         else
-            love.graphics.setColor(192/255, 192/255, 192/255, 1)
+            love.graphics.setColor(PALETTE["world_text_unusable"])
         end
         love.graphics.print(item:getName(), 20, -28 + (index * 32))
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setColor(PALETTE["world_text"])
     love.graphics.print("USE" , 20 , 284)
     love.graphics.print("INFO", 116, 284)
     love.graphics.print("DROP", 230, 284)

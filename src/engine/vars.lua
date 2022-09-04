@@ -93,14 +93,46 @@ MUSIC_VOLUMES = {
 MUSIC_PITCHES = {}
 
 -- Colors used by the engine for various things, here for customizability
-PALETTE = {
+local palette_data = {
+    ["battle_mercy_bg"] = {255/255, 80/255, 32/255, 1},
+    ["battle_mercy_text"] = {128/255, 0, 0, 1},
+    ["battle_attack_lines"] = {0, 0, 0.5, 1},
+
+    ["world_fill"] = {0, 0, 0, 1},
+    ["world_border"] = {1, 1, 1, 1},
+    ["world_text"] = {1, 1, 1, 1},
+    ["world_text_selected"] = {1, 1, 0, 1},
+    ["world_text_hover"] = {0, 1, 1, 1},
+    ["world_text_rebind"] = {1, 0, 0, 1},
+    ["world_text_shadow"] = {51/255, 32/255, 51/255, 1},
+    ["world_text_unusable"] = {192/255, 192/255, 192/255, 1},
+    ["world_gray"] = {128/255, 128/255, 128/255, 1},
+    ["world_dark_gray"] = {0.25, 0.25, 0.25, 1},
+    ["world_light_gray"] = {0.75, 0.75, 0.75, 1},
+    ["world_header"] = {1, 1, 1, 1},
+    ["world_header_selected"] = {255/255, 160/255, 64/255, 1},
+    ["world_save_other"] = {68/255, 68/255, 68/255, 1},
+
     ["action_strip"] = {51/255, 32/255, 51/255, 1},
+    ["action_fill"] = {0, 0, 0, 1},
+    ["action_health_bg"] = {128/255, 0, 0, 1},
+    ["action_health_text_down"] = {1, 0, 0, 1},
+    ["action_health_text_low"] = {1, 1, 0, 1},
+    ["action_health_text"] = {1, 1, 1, 1},
+    ["action_health"] = {0, 1, 0, 1},
+
     ["tension_back"] = {128/255, 0, 0, 1},
     ["tension_decrease"] = {1, 0, 0, 1},
     ["tension_fill"] = {255/255, 160/255, 64/255, 1},
     ["tension_max"] = {255/255, 208/255, 32/255, 1},
     ["tension_maxtext"] = {1, 1, 0, 1},
+    ["tension_desc"] = {255/255, 160/255, 64/255, 1},
 }
+PALETTE = {}
+setmetatable(PALETTE, {
+    __index = function(t, i) return Kristal.callEvent("getPaletteColor", i) or palette_data[i] end,
+    __newindex = function(t, k, v) palette_data[k] = v end,
+})
 
 COLORS = {
     aqua = {0, 1, 1, 1},

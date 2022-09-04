@@ -50,14 +50,14 @@ function OverworldActionBox:draw()
     if self.selected then
         love.graphics.setColor(self.chara:getColor())
     else
-        love.graphics.setColor(PALETTE["action_strip"], 1)
+        love.graphics.setColor(PALETTE["action_strip"])
     end
 
     love.graphics.setLineWidth(2)
     love.graphics.line(0, 1, 213, 1)
 
     -- Draw health
-    love.graphics.setColor(128/255, 0, 0, 1)
+    love.graphics.setColor(PALETTE["action_health_bg"])
     love.graphics.rectangle("fill", 128, 24, 76, 9)
 
     local health = (self.chara.health / self.chara:getStat("health")) * 76
@@ -68,11 +68,11 @@ function OverworldActionBox:draw()
     end
 
     if health <= 0 then
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(PALETTE["action_health_text_down"])
     elseif (self.chara.health <= (self.chara:getStat("health") / 4)) then
-        love.graphics.setColor(1, 1, 0, 1)
+        love.graphics.setColor(PALETTE["action_health_text_low"])
     else
-        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setColor(PALETTE["action_health_text"])
     end
 
     local health_offset = 0

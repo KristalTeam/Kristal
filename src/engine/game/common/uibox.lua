@@ -7,7 +7,7 @@ function UIBox:init(x, y, width, height, skin)
     self.top_frame    = 0
     self.corner_frame = 0
 
-    self.skin = skin or (Game:isLight() and "light" or "dark")
+    self.skin = skin or Kristal.callEvent("getUISkin") or (Game:isLight() and "light" or "dark")
     self.fill_color = {0,0,0}
 
     self.left   = Assets.getFramesOrTexture("ui/box/" .. self.skin .. "/left")
