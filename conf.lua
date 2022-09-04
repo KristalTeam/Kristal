@@ -14,7 +14,7 @@ function love.conf(t)
 
     t.identity = "kristal"
 
-    t.version = "11.5"
+    t.version = "12.0"
 
     t.window.title = "Kristal"
     t.window.icon = "icon.png"
