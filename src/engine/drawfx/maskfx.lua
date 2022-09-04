@@ -44,6 +44,7 @@ function MaskFX:draw(texture)
 
     love.graphics.setColorMask(false)
     love.graphics.setStencilMode("replace", "always", 1)
+    love.graphics.clear()
 
     local last_shader = love.graphics.getShader()
     love.graphics.setShader(Kristal.Shaders["Mask"])

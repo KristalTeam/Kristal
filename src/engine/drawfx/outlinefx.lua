@@ -43,6 +43,7 @@ function OutlineFX:draw(texture)
 
         love.graphics.setColorMask(false)
         love.graphics.setStencilMode("replace", "always", 1)
+        love.graphics.clear()
 
         love.graphics.setShader(self.cutout_shader)
         Draw.drawCanvas(texture)
