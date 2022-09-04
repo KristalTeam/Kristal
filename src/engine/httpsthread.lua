@@ -1,5 +1,5 @@
 ---@diagnostic disable: lowercase-global
-https = require("src.lib.https")
+https = require("https")
 
 -- Channels for thread communications
 in_channel = love.thread.getChannel("https_in")

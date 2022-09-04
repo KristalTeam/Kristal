@@ -45,15 +45,18 @@ end
 function Outline:draw()
     super.draw(self)
 
-    local canvas = Draw.pushCanvas(self.width, self.height)
-    love.graphics.clear()
-
-    love.graphics.translate(-self.x, -self.y)
-
     for _, object in ipairs(Game.world.children) do
         if object:includes(Character) then
-            love.graphics.stencil((function() self:drawMask(object) end), "replace", 1)
-            love.graphics.setStencilTest("less", 1)
+            local canvas = Draw.pushCanvas(self.width, self.height)
+            love.graphics.translate(-self.x, -self.y)
+
+            love.graphics.clear()
+            love.graphics.setStencilMode("draw", 1, "replace")
+
+            self:drawMask(object)
+
+            love.graphics.setStencilMode("test", 0, "greater")
+            love.graphics.setColorMask(true)
 
             love.graphics.setShader(Kristal.Shaders["AddColor"])
 
@@ -77,14 +80,13 @@ function Outline:draw()
             love.graphics.translate(0, 2)
 
             love.graphics.setShader()
+            love.graphics.setStencilMode()
 
-            love.graphics.setStencilTest()
+            Draw.popCanvas()
+
+            Draw.draw(canvas)
         end
     end
-
-    Draw.popCanvas()
-
-    Draw.draw(canvas)
 end
 
 return Outline

@@ -1048,16 +1048,15 @@ end
 function Input.getControllerType()
     if not Input.connected_gamepad then return nil end
 
-    local name = Input.connected_gamepad:getName():lower()
-
-    local con = function(str) return StringUtils.contains(name, str) end
-    if con("nintendo") or con("switch") or con("joy-con") or con("wii") or con("gamecube") or con("nso") or con("nes") then
+    local type = Input.connected_gamepad:getGamepadType()
+    if type == "switchpro" or type == "joyconleft" or type == "joyconright" or type == "joyconpair" then
         return "switch"
     end
-    if con("sony") or con("playstation") or con("%f[%a]ps") or con("dualshock") or con("dualsense") or con("dualforce") then
+    if type == "ps3" or type == "ps4" or type == "ps5" then
         return "ps4"
     end
-    return "xbox"
+
+    return "xbox" -- unknown, xbox360, xboxone, amazonluna, stadia, virtual, shield
 end
 
 ---@param bind string
