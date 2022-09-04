@@ -559,6 +559,17 @@ function Battle:onStateChange(old,new)
     elseif new == "DEFENDINGBEGIN" then
         self:setWaves(self.encounter:getNextWaves())
 
+        self.current_selecting = 0
+        self.battle_ui.encounter_text:setText("")
+
+        if self.state_reason then
+            self:setWaves(self.state_reason)
+        end
+
+        if self.arena then
+            self.arena:remove()
+        end
+
         local soul_x, soul_y, soul_offset_x, soul_offset_y
         local arena_x, arena_y, arena_w, arena_h, arena_shape
         for _,wave in ipairs(self.waves) do
@@ -618,8 +629,7 @@ function Battle:onStateChange(old,new)
 
     local ending_wave = self.state_reason == "WAVEENDED"
 
-    if old == "DEFENDING" then
-        self:returnSoul()
+    if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" then
         for _,wave in ipairs(self.waves) do
             if not wave:onEnd(false) then
                 wave:clear()

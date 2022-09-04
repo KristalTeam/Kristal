@@ -500,6 +500,24 @@ function DebugSystem:registerSubMenus()
             end)
         end
     end
+
+    self:registerMenu("wave_select", "Wave Select", "search")
+    -- loop through registry and add menu options for all waves
+    local waves_list = {}
+    for id,_ in pairs(Registry.waves) do
+        table.insert(waves_list, id)
+    end
+
+    table.sort(waves_list, function(a, b)
+        return a < b
+    end)
+
+    for _,id in ipairs(waves_list) do
+        self:registerOption("wave_select", id, "Start this wave.", function()
+            Game.battle:setState("DEFENDINGBEGIN", {id})
+            self:closeMenu()
+        end)
+    end
 end
 
 function DebugSystem:registerDefaults()
@@ -551,7 +569,13 @@ function DebugSystem:registerDefaults()
     end, "OVERWORLD")
 
     -- Battle specific
-    self:registerOption("main", "End Battle", "Instantly complete a battle.", function() Game.battle:setState("VICTORY") end, "BATTLE")
+    self:registerOption("main", "Start Wave", "Start a wave.", function()
+        self:enterMenu("wave_select")
+    end, "BATTLE")
+
+    self:registerOption("main", "End Battle", "Instantly complete a battle.", function()
+        Game.battle:setState("VICTORY")
+    end, "BATTLE")
 end
 
 function DebugSystem:getValidOptions()
