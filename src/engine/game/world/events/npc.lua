@@ -17,7 +17,7 @@ function NPC:init(actor, x, y, properties)
         self:setFacing(properties["facing"])
     end
 
-    self.turn = properties["turn"] ~= false
+    self.turn = properties["turn"] or false
 
     self.talk = properties["talk"] ~= false
 
