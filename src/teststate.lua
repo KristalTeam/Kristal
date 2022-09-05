@@ -13,6 +13,18 @@ function Testing:enter()
 end
 
 function Testing:update()
+    if Input.pressed("h") then
+        Kristal.fetch("https://api.github.com/repos/KristalTeam/Kristal/commits?per_page=1", {
+            headers = {
+                ["User-Agent"] = "Kristal/" .. tostring(Kristal.Version)
+            },
+            callback = function(resp, body, headers)
+                print(body)
+                --local json = JSON.decode(body)
+                --print(json[1]["sha"])
+            end
+        })
+    end
     self.stage:update()
 end
 

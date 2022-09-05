@@ -48,10 +48,6 @@ end
 function Kristal.fetch(url, options)
     options = options or {}
 
-    if not HTTPS_AVAILABLE then
-        return false
-    end
-
     Kristal.HTTPS.waiting = Kristal.HTTPS.waiting + 1
 
     if options.callback then
@@ -178,22 +174,14 @@ function love.load(args)
     Kristal.HTTPS.in_channel = love.thread.getChannel("https_in")
     Kristal.HTTPS.out_channel = love.thread.getChannel("https_out")
 
-    if HTTPS_AVAILABLE then
-        Kristal.HTTPS.thread = love.thread.newThread("src/engine/httpsthread.lua")
-        Kristal.HTTPS.thread:start()
-    end
+    Kristal.HTTPS.thread = love.thread.newThread("src/engine/httpsthread.lua")
+    Kristal.HTTPS.thread:start()
 
     -- TARGET_MOD being already set -> mod developer has
     -- a preference for auto mod start. We particularly wouldn't
     -- want the user to overwrite this since it can break some mods
     if not TARGET_MOD and Kristal.Args["auto-mod-start"] then
         AUTO_MOD_START = true
-    end
-
-    -- TARGET_MOD being already set -> is defined by the mod developer
-    -- and we wouldn't want the user to overwrite it
-    if not TARGET_MOD and Kristal.Args["mod"] then
-        TARGET_MOD = Kristal.Args["mod"][1]
     end
 
     -- load menu
