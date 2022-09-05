@@ -19,9 +19,9 @@ function Testing:update()
                 ["User-Agent"] = "Kristal/" .. tostring(Kristal.Version)
             },
             callback = function(resp, body, headers)
-                print(body)
-                --local json = JSON.decode(body)
-                --print(json[1]["sha"])
+                --print(body)
+                local json = JSON.decode(body)
+                print(Utils.dump(json['sha']))
             end
         })
     end
