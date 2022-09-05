@@ -72,6 +72,10 @@ function DebugSystem:init()
     self.faces_y = 0
 
     self.mouse_clicked = false
+
+    self.playing_sound = nil
+    self.old_music_volume = 1
+    self.music_needs_reset = false
 end
 
 function DebugSystem:getStage()
@@ -315,9 +319,27 @@ function DebugSystem:refresh()
     Kristal.callEvent("registerDebugOptions", self)
 end
 
+function DebugSystem:fadeMusicOut()
+    local music = Game:getActiveMusic()
+    if music then
+        self.old_music_volume = music.volume
+        self.music_needs_reset = true
+        music:fade(0.15, 0.5)
+    end
+end
+
+function DebugSystem:fadeMusicIn()
+    local music = Game:getActiveMusic()
+    if music and self.music_needs_reset then
+        music:fade(self.old_music_volume, 0.5)
+    end
+    self.music_needs_reset = false
+end
+
 function DebugSystem:returnMenu()
     Input.clear("confirm")
     Input.clear("cancel")
+    self:fadeMusicIn()
     if #self.menu_history == 0 then
         self:closeMenu()
     else
@@ -518,6 +540,18 @@ function DebugSystem:registerSubMenus()
             self:closeMenu()
         end)
     end
+
+    self:registerMenu("sound_test", "Sound Test", "search")
+
+    for id, _ in pairs(Assets.sounds) do
+        self:registerOption("sound_test", id, "Play this sound.", function()
+            if self.playing_sound then
+                self.playing_sound:stop()
+            end
+            self.playing_sound = Assets.playSound(id)
+        end)
+    end
+
 end
 
 function DebugSystem:registerDefaults()
@@ -555,6 +589,12 @@ function DebugSystem:registerDefaults()
         self:setState("FACES")
     end)
 
+    self:registerOption("main", "Sound Test", "Enter the sound test menu.", function()
+        self:fadeMusicOut()
+        self:enterMenu("sound_test", 0)
+    end)
+
+
     -- World specific
     self:registerOption("main", "Select Map", "Switch to a new map.", function()
         self:enterMenu("select_map", 0)
@@ -570,7 +610,7 @@ function DebugSystem:registerDefaults()
 
     -- Battle specific
     self:registerOption("main", "Start Wave", "Start a wave.", function()
-        self:enterMenu("wave_select")
+        self:enterMenu("wave_select", 0)
     end, "BATTLE")
 
     self:registerOption("main", "End Battle", "Instantly complete a battle.", function()
@@ -654,6 +694,13 @@ function DebugSystem:onStateChange(old, new)
         Input.gamepad_locked = true
         Kristal.showCursor()
     end
+
+    self:fadeMusicIn()
+
+    if old == "IDLE" and new == "MENU" and self.current_menu == "sound_test" then
+        self:fadeMusicOut()
+    end
+
 end
 
 function DebugSystem:updateBounds(options)
