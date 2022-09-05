@@ -28,6 +28,9 @@ function Player:init(chara, x, y)
 
     self.walk_speed = 4
 
+    self.last_move_x = self.x
+    self.last_move_y = self.y
+
     self.history_time = 0
     self.history = {}
 
@@ -283,7 +286,7 @@ function Player:updateHistory()
         table.insert(self.history, {x = self.x, y = self.y, time = 0})
     end
 
-    local moved = self.x ~= self.last_x or self.y ~= self.last_y
+    local moved = self.x ~= self.last_move_x or self.y ~= self.last_move_y
 
     local auto = self.auto_moving
 
@@ -299,6 +302,9 @@ function Player:updateHistory()
     for _,follower in ipairs(self.world.followers) do
         follower:updateHistory(moved, auto)
     end
+
+    self.last_move_x = self.x
+    self.last_move_y = self.y
 end
 
 function Player:update()
