@@ -75,6 +75,9 @@ function actor:init(style)
         -- Cutscene animations
         ["jump_fall"]           = {"fall", 1/5, true},
         ["jump_ball"]           = {"ball", 1/15, true},
+
+        ["diagonal_kick_right"] = {"diagonal_kick_right", 4/30, false},
+        ["diagonal_kick_left"] = {"diagonal_kick_left", 4/30, false}
     }
 
     if susie_style == 1 then
@@ -93,6 +96,11 @@ function actor:init(style)
         ["walk_bangs/left"] = {0, -2},
         ["walk_bangs/right"] = {0, -2},
         ["walk_bangs/up"] = {0, -2},
+
+        ["walk_bangs_unhappy/down"] = {0, -2},
+        ["walk_bangs_unhappy/left"] = {0, -2},
+        ["walk_bangs_unhappy/right"] = {0, -2},
+        ["walk_bangs_unhappy/up"] = {0, -2},
 
         ["walk_unhappy/down"] = {0, 0},
         ["walk_unhappy/left"] = {0, 0},
@@ -175,6 +183,12 @@ function actor:init(style)
         ["t_pose"] = {-6, 0},
 
         ["fell"] = {-18, -2},
+
+        ["kneel_right"] = {-4, -2},
+        ["kneel_left"] = {-12, -2},
+
+        ["diagonal_kick_right"] = {-5, -1},
+        ["diagonal_kick_left"] = {-3, -1},
     }
 end
 
