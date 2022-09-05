@@ -2682,7 +2682,9 @@ function Battle:onKeyPressed(key)
             self.selected_enemy = self.current_menu_y
             if self.state == "XACTENEMYSELECT" then
                 local xaction = Utils.copy(self.selected_xaction)
-                xaction.name = self.enemies[self.selected_enemy]:getXAction(self.party[self.current_selecting])
+                if xaction.default then
+                    xaction.name = self.enemies[self.selected_enemy]:getXAction(self.party[self.current_selecting])
+                end
                 self:pushAction("XACT", self.enemies[self.selected_enemy], xaction)
             elseif self.state_reason == "SPARE" then
                 self:pushAction("SPARE", self.enemies[self.selected_enemy])
