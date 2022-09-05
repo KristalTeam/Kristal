@@ -1930,6 +1930,10 @@ end
 
 function Battle:returnToWorld()
     Game:setTension(0)
+    self.encounter:setFlag("done", true)
+    if self.used_violence then
+        self.encounter:setFlag("violenced", true)
+    end
     self.transition_timer = 0
     for _,battler in ipairs(self.party) do
         if self.party_world_characters[battler.chara.id] then

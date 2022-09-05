@@ -636,4 +636,16 @@ function EnemyBattler:canDeepCopy()
     return false
 end
 
+function EnemyBattler:setFlag(flag, value)
+    Game:setFlag("enemy#"..self.id..":"..flag, value)
+end
+
+function EnemyBattler:getFlag(flag, default)
+    return Game:getFlag("enemy#"..self.id..":"..flag, default)
+end
+
+function EnemyBattler:addFlag(flag, amount)
+    Game:addFlag("enemy#"..self.id..":"..flag, amount)
+end
+
 return EnemyBattler

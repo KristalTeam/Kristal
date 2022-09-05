@@ -167,4 +167,16 @@ function Encounter:getDefeatedEnemies()
     return self.defeated_enemies or Game.battle.defeated_enemies
 end
 
+function Encounter:setFlag(flag, value)
+    Game:setFlag("encounter#"..self.id..":"..flag, value)
+end
+
+function Encounter:getFlag(flag, default)
+    return Game:getFlag("encounter#"..self.id..":"..flag, default)
+end
+
+function Encounter:addFlag(flag, amount)
+    Game:addFlag("encounter#"..self.id..":"..flag, amount)
+end
+
 return Encounter
