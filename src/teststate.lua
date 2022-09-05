@@ -14,7 +14,7 @@ end
 
 function Testing:update()
     if Input.pressed("h") then
-        Kristal.fetch("https://api.github.com/repos/KristalTeam/Kristal/commits?per_page=1", {
+        Kristal.fetch("https://api.github.com/repos/KristalTeam/Kristal/commits/main?per_page=1", {
             headers = {
                 ["User-Agent"] = "Kristal/" .. tostring(Kristal.Version)
             },
