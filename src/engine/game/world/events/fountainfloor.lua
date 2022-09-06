@@ -26,7 +26,7 @@ end
 
 function FountainFloor:draw()
     if self.fountain then
-        Draw.setColor(self.fountain.floor_color)
+        Draw.setColor(self.fountain.bg_color)
     end
 
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
