@@ -15,8 +15,6 @@ function DarkFountain:init(x, y)
     -- Use the DarkFountain:drawMask() function to mask the fountain
     self.mask_fx = self:addFX(MaskFX(self))
 
-    self.hue = 0
-
     self.siner = 0
     self.bg_siner = 0
     self.hscroll = 0

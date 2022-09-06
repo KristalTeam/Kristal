@@ -9,8 +9,8 @@ return {
   height = 12,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 5,
-  nextobjectid = 4,
+  nextlayerid = 6,
+  nextobjectid = 5,
   properties = {},
   tilesets = {},
   layers = {
@@ -80,6 +80,35 @@ return {
           shape = "point",
           x = 320,
           y = 280,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 5,
+      name = "controllers",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 4,
+          name = "fountainshadow",
+          class = "",
+          shape = "point",
+          x = 80,
+          y = 80,
           width = 0,
           height = 0,
           rotation = 0,

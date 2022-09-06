@@ -30,15 +30,9 @@ function OutlineFX:draw(texture)
 
     local object = self.parent
 
-    local mult_x = self.thickness
-    local mult_y = self.thickness
-
-    local hierarchy = object:getHierarchy()
-
-    for _, parent in ipairs(hierarchy) do
-        mult_x = mult_x * parent.scale_x
-        mult_y = mult_y * parent.scale_y
-    end
+    local mult_x, mult_y = object:getFullScale()
+    mult_x = mult_x * self.thickness
+    mult_y = mult_y * self.thickness
 
     local outline = Draw.pushCanvas(texture:getWidth(), texture:getHeight())
 

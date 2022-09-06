@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="16" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="5" nextobjectid="4">
+<map version="1.9" tiledversion="1.9.1" orientation="orthogonal" renderorder="right-down" width="16" height="12" tilewidth="40" tileheight="40" infinite="0" nextlayerid="6" nextobjectid="5">
  <layer id="1" name="Tile Layer 1" width="16" height="12">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -19,6 +19,11 @@
  <objectgroup color="#ff00ff" id="2" name="objects_bg">
   <object id="1" name="fountainfloor" x="200" y="280" width="240" height="200"/>
   <object id="2" name="darkfountain" x="320" y="280">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup color="#007f00" id="5" name="controllers">
+  <object id="4" name="fountainshadow" x="80" y="80">
    <point/>
   </object>
  </objectgroup>

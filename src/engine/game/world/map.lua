@@ -729,6 +729,8 @@ function Map:loadController(name, data)
     -- Kristal object loading
     if name:lower() == "toggle" then
         return ToggleController(data.properties)
+    elseif name:lower() == "fountainshadow" then
+        return FountainShadowController(data.properties)
     end
 end
 

@@ -815,10 +815,15 @@ function Object:getHierarchy()
     return tbl
 end
 
-function Object:getHierchy() return self:getHierarchy() end
-function Object:getHierarcy() return self:getHierarchy() end
-function Object:getHireachy() return self:getHierarchy() end
-
+function Object:getFullScale()
+    local sx, sy = self.scale_x, self.scale_y
+    if self.parent then
+        local psx, psy = self.parent:getFullScale()
+        sx = sx * psx
+        sy = sy * psy
+    end
+    return sx, sy
+end
 
 function Object:remove()
     if self.parent then

@@ -66,6 +66,8 @@ RecolorFX = require("src.engine.drawfx.recolorfx")
 MaskFX = require("src.engine.drawfx.maskfx")
 OutlineFX = require("src.engine.drawfx.outlinefx")
 BattleOutlineFX = require("src.engine.drawfx.battleoutlinefx")
+ShadowFX = require("src.engine.drawfx.shadowfx")
+FountainShadowFX = require("src.engine.drawfx.fountainshadowfx")
 
 Collider = require("src.engine.colliders.collider")
 ColliderGroup = require("src.engine.colliders.collidergroup")
@@ -157,6 +159,7 @@ DarkFountain = require("src.engine.game.world.events.darkfountain")
 FountainFloor = require("src.engine.game.world.events.fountainfloor")
 
 ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")
+FountainShadowController = require("src.engine.game.world.events.controllers.fountainshadowcontroller")
 
 Battle = require("src.engine.game.battle")
 Encounter = require("src.engine.game.battle.encounter")
