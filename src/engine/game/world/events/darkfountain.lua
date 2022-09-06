@@ -69,7 +69,7 @@ function DarkFountain:draw()
     local color = {self:getDrawColor()}
 
     Draw.setColor(self.bg_color)
-    love.graphics.rectangle("fill", 0, 0, self.width, self.height)
+    love.graphics.rectangle("fill", 1, 1, self.width-2, self.height-2)
     Draw.setColor(color, 0.7 * self.eyebody)
     Draw.drawWrapped(self.bg_texture, true, true, -self.siner, -self.siner, 0, 2, 2)
     Draw.setColor(color, 0.3 * self.eyebody)
