@@ -688,6 +688,10 @@ function Map:loadObject(name, data)
         return MagicGlass(data.x, data.y, data.width, data.height)
     elseif name:lower() == "warpdoor" then
         return WarpDoor(data.x, data.y, data.properties)
+    elseif name:lower() == "darkfountain" then
+        return DarkFountain(data.x, data.y)
+    elseif name:lower() == "fountainfloor" then
+        return FountainFloor(data.x, data.y, data.width, data.height)
     end
     if data.gid then
         local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
