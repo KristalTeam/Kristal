@@ -821,7 +821,11 @@ function DebugSystem:onKeyPressed(key, is_repeat)
     elseif self.state == "FACES" then
         if (Input.isCancel(key) or Input.isConfirm(key)) and not is_repeat then
             Assets.playSound("ui_select")
-            self:setState("MENU")
+            if self.state_reason then
+                self:setState("IDLE")
+            else
+                self:setState("MENU")
+            end
             return
         end
     end
@@ -1037,11 +1041,30 @@ function DebugSystem:draw()
                 end
 
                 if self.mouse_clicked then
-                    self.clicked_name = texture_id
-                    local filename = texture_id
-                    -- Remove everything before the last slash
-                    filename = Utils.split(filename, "/")[#Utils.split(filename, "/")]
-                    love.system.setClipboardText(filename)
+                    if self.state_reason then
+                        local split = Utils.split(texture_id, "/")
+                        local face  = split[#split]
+                        local path  = split[#split - 1]
+
+                        if path then
+                            -- Loop through all actors in registry
+                            for id, actor in pairs(Registry.actors) do
+                                if actor().portrait_path == ("face/" .. path) then
+                                    self.state_reason:setActor(id)
+                                    break
+                                end
+                            end
+                        end
+
+                        self.state_reason:setFace(face)
+                        self:setState("SELECTION")
+                    else
+                        self.clicked_name = texture_id
+                        local filename = texture_id
+                        -- Remove everything before the last slash
+                        filename = Utils.split(filename, "/")[#Utils.split(filename, "/")]
+                        love.system.setClipboardText(filename)
+                    end
                     Assets.playSound("ui_select")
                 end
             end
