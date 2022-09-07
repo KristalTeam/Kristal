@@ -39,6 +39,11 @@ function FXBase:getObjectBounds(shader)
         local x4,y4 = self.parent:localToScreenPos(0, self.parent.height)
         Object.endCache()
 
+        x1,y1 = math.floor(x1), math.floor(y1)
+        x2,y2 = math.floor(x2), math.floor(y2)
+        x3,y3 = math.floor(x3), math.floor(y3)
+        x4,y4 = math.floor(x4), math.floor(y4)
+
         local x, y = math.min(x1,x2,x3,x4), math.min(y1,y2,y3,y4)
         local w, h = math.max(x1,x2,x3,x4) - x, math.max(y1,y2,y3,y4) - y
 
