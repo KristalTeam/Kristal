@@ -771,7 +771,9 @@ function DebugSystem:onKeyPressed(key, is_repeat)
         if Input.isConfirm(key) and not is_repeat then
             local option = options[self.current_selecting]
             if option then
-                Assets.playSound("ui_select")
+                if self.current_menu ~= "sound_test" then
+                    Assets.playSound("ui_select")
+                end
                 option.func()
             end
         end
