@@ -267,7 +267,7 @@ function Game:load(data, index, fade)
 
     self.level_up_count = data.level_up_count or 0
 
-    self.money = data.money or 0
+    self.money = data.money or Kristal.getModOption("money") or 0
     self.xp = data.xp or 0
 
     self.tension = data.tension or 0
