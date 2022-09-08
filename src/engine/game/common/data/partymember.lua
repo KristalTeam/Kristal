@@ -321,6 +321,15 @@ function PartyMember:removeSpell(spell)
     end
 end
 
+function PartyMember:hasSpell(spell)
+    for i,v in ipairs(self.spells) do
+        if v == spell or (type(spell) == "string" and v.id == spell) then
+            return true
+        end
+    end
+    return false
+end
+
 function PartyMember:getEquipment()
     local result = {}
     if self.equipped.weapon then
