@@ -17,6 +17,9 @@ function CyberTrashCan:init(x, y, properties)
     self.item = properties["item"]
     self.money = properties["money"]
 
+    self.set_flag = properties["setflag"]
+    self.set_value = properties["setvalue"]
+
     self.solid = true
 end
 
@@ -93,6 +96,11 @@ function CyberTrashCan:onInteract(player, dir)
                 "* (You dug through the trash...)",
                 "* (And found trash!)",
             })
+            success = true
+        end
+
+        if success and self.set_flag then
+            Game:setFlag(self.set_flag, (self.set_value == nil and true) or self.set_value)
         end
     end
 end

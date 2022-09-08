@@ -17,6 +17,9 @@ function TreasureChest:init(x, y, properties)
     self.item = properties["item"]
     self.money = properties["money"]
 
+    self.set_flag = properties["setflag"]
+    self.set_value = properties["setvalue"]
+
     self.solid = true
 end
 
@@ -79,6 +82,11 @@ function TreasureChest:onInteract(player, dir)
             end)
         else
             self.world:showText("* (The chest is empty.)")
+            success = true
+        end
+
+        if success and self.set_flag then
+            Game:setFlag(self.set_flag, (self.set_value == nil and true) or self.set_value)
         end
     end
 end
