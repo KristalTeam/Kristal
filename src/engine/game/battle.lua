@@ -557,11 +557,10 @@ function Battle:onStateChange(old,new)
             end
         end
     elseif new == "DEFENDINGBEGIN" then
-        self:setWaves(self.encounter:getNextWaves())
-
         self.current_selecting = 0
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
 
+        self:setWaves(self.encounter:getNextWaves())
         if self.state_reason then
             self:setWaves(self.state_reason)
         end
