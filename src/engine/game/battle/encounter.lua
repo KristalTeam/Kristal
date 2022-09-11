@@ -128,7 +128,7 @@ function Encounter:getNextWaves()
 end
 
 function Encounter:getPartyPosition(index)
-    local x, y
+    local x, y = 0, 0
     if #Game.battle.party == 1 then
         x = 80
         y = 140
