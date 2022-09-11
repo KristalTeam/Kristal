@@ -7,7 +7,7 @@ function SlideArea:init(x, y, w, h, properties)
 end
 
 function SlideArea:onCollide(chara)
-    if chara.last_y < self.y + self.height and chara.is_player then
+    if (chara.last_y or chara.y) < self.y + self.height and chara.is_player then
         if chara.state ~= "SLIDE" then
             if self:checkAgainstWall(chara) then return end
 
