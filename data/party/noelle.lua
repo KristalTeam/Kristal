@@ -35,38 +35,20 @@ function character:init()
     self:addSpell("ice_shock")
 
     -- Current health (saved to the save file)
-    if Game.chapter == 1 then
-        self.health = 60
-    else
-        self.health = 90
-    end
+    self.health = 90
 
     -- Base stats (saved to the save file)
-    if Game.chapter == 1 then
-        self.stats = {
-            health = 60,
-            attack = 1,
-            defense = 1,
-            magic = 9
-        }
-    else
-        self.stats = {
-            health = 90,
-            attack = 3,
-            defense = 1,
-            magic = 11
-        }
-    end
+    self.stats = {
+        health = 90,
+        attack = 3,
+        defense = 1,
+        magic = 11
+    }
+
     -- Max stats from level-ups
-    if Game.chapter == 1 then
-        self.max_stats = {
-            health = 136
-        }
-    else
-        self.max_stats = {
-            health = 166
-        }
-    end
+    self.max_stats = {
+        health = 166
+    }
 
     -- Weapon icon in equip menu
     self.weapon_icon = "ui/menu/equip/ring"
