@@ -20,6 +20,8 @@ function Fader:init()
     self.music = nil
 
     self.debug_select = false
+
+    self.blocky = false
 end
 
 function Fader:parseOptions(options, reset_values)
@@ -28,6 +30,7 @@ function Fader:parseOptions(options, reset_values)
     self.speed = options["speed"] or (reset_values and self.default_speed or self.speed)
     self.fade_color = options["color"] or (reset_values and self.color or self.fade_color)
     self.alpha = options["alpha"] or self.alpha
+    self.blocky = options["blocky"] or self.blocky
 
     return options
 end
@@ -109,7 +112,17 @@ end
 
 function Fader:draw()
     local color = Utils.copy(self.fade_color)
-    color[4] = self.alpha * (color[4] or 1)
+    local alpha = self.alpha * (color[4] or 1)
+
+    if self.blocky then
+        if self.state == "FADEIN" then
+            alpha = (math.floor(alpha * 4) / 4)
+        else
+            alpha = (math.ceil(alpha * 4) / 4)
+        end
+    end
+
+    color[4] = alpha
     love.graphics.setColor(color)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
