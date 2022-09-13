@@ -116,6 +116,13 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.advance_callback = nil
 end
 
+function Textbox:update()
+    if not self:isTyping() then
+        self.face:stop()
+    end
+    super:update(self)
+end
+
 function Textbox:advance()
     self.text:advance()
 end
@@ -147,6 +154,7 @@ end
 
 function Textbox:setFace(face, ox, oy)
     self.face:setSprite(face)
+    self.face:play(4/30)
 
     if self.actor then
         local actor_ox, actor_oy = self.actor:getPortraitOffset()
