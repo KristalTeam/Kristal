@@ -409,6 +409,7 @@ function Registry.initObjects()
     self.objects = {}
 
     for _,path,object in self.iterScripts(Registry.paths["objects"], true) do
+        assert(object ~= nil, '"objects/'..path..'.lua" does not return value')
         local id = object.id or path
 
         self.objects[id] = object
@@ -422,6 +423,7 @@ function Registry.initDrawFX()
     self.draw_fx = {}
 
     for _,path,draw_fx in self.iterScripts(Registry.paths["drawfx"], true) do
+        assert(draw_fx ~= nil, '"drawfx/'..path..'.lua" does not return value')
         local id = draw_fx.id or path
 
         self.draw_fx[id] = draw_fx
@@ -435,6 +437,7 @@ function Registry.initActors()
     self.actors = {}
 
     for _,path,actor in self.iterScripts(Registry.paths["actors"]) do
+        assert(actor ~= nil, '"actors/'..path..'.lua" does not return value')
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
     end
@@ -446,6 +449,7 @@ function Registry.initPartyMembers()
     self.party_members = {}
 
     for _,path,char in self.iterScripts(Registry.paths["party_members"]) do
+        assert(char ~= nil, '"party/'..path..'.lua" does not return value')
         char.id = char.id or path
         self.registerPartyMember(char.id, char)
     end
@@ -457,6 +461,7 @@ function Registry.initItems()
     self.items = {}
 
     for _,path,item in self.iterScripts(Registry.paths["items"]) do
+        assert(item ~= nil, '"items/'..path..'.lua" does not return value')
         item.id = item.id or path
         self.registerItem(item.id, item)
     end
@@ -468,6 +473,7 @@ function Registry.initSpells()
     self.spells = {}
 
     for _,path,spell in self.iterScripts(Registry.paths["spells"]) do
+        assert(spell ~= nil, '"spells/'..path..'.lua" does not return value')
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
     end
@@ -479,6 +485,7 @@ function Registry.initEncounters()
     self.encounters = {}
 
     for _,path,encounter in self.iterScripts(Registry.paths["encounters"]) do
+        assert(encounter ~= nil, '"encounters/'..path..'.lua" does not return value')
         encounter.id = encounter.id or path
         self.registerEncounter(encounter.id, encounter)
     end
@@ -490,6 +497,7 @@ function Registry.initEnemies()
     self.enemies = {}
 
     for _,path,enemy in self.iterScripts(Registry.paths["enemies"]) do
+        assert(enemy ~= nil, '"enemies/'..path..'.lua" does not return value')
         enemy.id = enemy.id or path
         self.registerEnemy(enemy.id, enemy)
     end
@@ -501,6 +509,7 @@ function Registry.initWaves()
     self.waves = {}
 
     for _,path,wave in self.iterScripts(Registry.paths["waves"]) do
+        assert(wave ~= nil, '"waves/'..path..'.lua" does not return value')
         wave.id = wave.id or path
         self.registerWave(wave.id, wave)
     end
@@ -513,11 +522,13 @@ function Registry.initBullets()
     self.world_bullets = {}
 
     for _,path,bullet in self.iterScripts(Registry.paths["bullets"]) do
+        assert(bullet ~= nil, '"battle/bullets/'..path..'.lua" does not return value')
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
     end
 
     for _,path,bullet in self.iterScripts(Registry.paths["world_bullets"]) do
+        assert(bullet ~= nil, '"world/bullets/'..path..'.lua" does not return value')
         bullet.id = bullet.id or path
         self.registerWorldBullet(bullet.id, bullet)
     end
@@ -530,9 +541,11 @@ function Registry.initCutscenes()
     self.battle_cutscenes = {}
 
     for _,path,cutscene in self.iterScripts(Registry.paths["world_cutscenes"]) do
+        assert(cutscene ~= nil, '"world/cutscenes/'..path..'.lua" does not return value')
         self.registerWorldCutscene(path, cutscene)
     end
     for _,path,cutscene in self.iterScripts(Registry.paths["battle_cutscenes"]) do
+        assert(cutscene ~= nil, '"battle/cutscenes/'..path..'.lua" does not return value')
         self.registerBattleCutscene(path, cutscene)
     end
 
@@ -543,6 +556,7 @@ function Registry.initEventScripts()
     self.event_scripts = {}
 
     for _,path,script in self.iterScripts(Registry.paths["event_scripts"]) do
+        assert(script ~= nil, '"scripts/'..path..'.lua" does not return value')
         self.registerEventScript(path, script)
     end
 
@@ -592,6 +606,7 @@ function Registry.initEvents()
     self.events = {}
 
     for _,path,event in self.iterScripts(Registry.paths["events"]) do
+        assert(event ~= nil, '"events/'..path..'.lua" does not return value')
         event.id = event.id or path
         self.registerEvent(event.id, event)
     end
@@ -603,6 +618,7 @@ function Registry.initControllers()
     self.controllers = {}
 
     for _,path,controller in self.iterScripts(Registry.paths["controllers"]) do
+        assert(controller ~= nil, '"controllers/'..path..'.lua" does not return value')
         controller.id = controller.id or path
         self.registerController(controller.id, controller)
     end
@@ -614,6 +630,7 @@ function Registry.initShops()
     self.shops = {}
 
     for _,path,shop in self.iterScripts(Registry.paths["shops"]) do
+        assert(shop ~= nil, '"shops/'..path..'.lua" does not return value')
         shop.id = shop.id or path
         self.registerShop(shop.id, shop)
     end
