@@ -350,6 +350,7 @@ function BattleCutscene:choicer(choices, options)
     for _,choice in ipairs(choices) do
         Game.battle.battle_ui.choice_box:addChoice(choice)
     end
+    Game.battle.battle_ui.choice_box:setColors(options["color"], options["highlight"])
 
     if options["wait"] or options["wait"] == nil then
         return self:wait(waitForChoicer)

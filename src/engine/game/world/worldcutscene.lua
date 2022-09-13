@@ -560,7 +560,7 @@ function WorldCutscene:choicer(choices, options)
         width, height = 530, 104
     end
 
-    self.choicebox = Choicebox(56, 344, width, height)
+    self.choicebox = Choicebox(56, 344, width, height, false, options)
     self.choicebox.layer = WORLD_LAYERS["textbox"]
     Game.world:addChild(self.choicebox)
     self.choicebox:setParallax(0, 0)
