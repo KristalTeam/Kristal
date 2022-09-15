@@ -22,6 +22,7 @@ function SpeechBubble:init(text, x, y, speaker, right, style)
     end
 
     self.advance_callback = nil
+    self.line_advance_callback = nil
 
     self.text:registerCommand("noautoskip", function(text, node)
         Game.battle.use_textbox_timer = false
@@ -97,7 +98,7 @@ function SpeechBubble:advance()
     self.text:advance()
 end
 
-function SpeechBubble:setText(text, callback)
+function SpeechBubble:setText(text, callback, line_callback)
     if self.speaker and self.speaker.actor and self.speaker.actor:getVoice() then
         if type(text) ~= "table" then
             text = {text}
@@ -107,9 +108,9 @@ function SpeechBubble:setText(text, callback)
         for i,line in ipairs(text) do
             text[i] = "[voice:"..self.speaker.actor:getVoice().."]"..line
         end
-        self.text:setText(text, callback or self.advance_callback)
+        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_advance_callback)
     else
-        self.text:setText(text, callback or self.advance_callback)
+        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_advance_callback)
     end
 
     self:updateSize()
@@ -130,6 +131,11 @@ end
 function SpeechBubble:setCallback(callback)
     self.advance_callback = callback
     self.text.advance_callback = callback
+end
+
+function SpeechBubble:setLineCallback(callback)
+    self.line_advance_callback = callback
+    self.text.line_advance_callback = callback
 end
 
 function SpeechBubble:isTyping()

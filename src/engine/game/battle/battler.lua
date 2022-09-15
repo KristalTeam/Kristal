@@ -85,6 +85,9 @@ function Battler:spawnSpeechBubble(text, right, style)
         bubble:remove()
         self.bubble = nil
     end)
+    bubble:setLineCallback(function()
+        Game.battle.textbox_timer = 3 * 30
+    end)
     Game.battle:addChild(bubble)
     return bubble
 end
