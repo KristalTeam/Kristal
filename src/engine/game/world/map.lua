@@ -61,7 +61,7 @@ function Map:init(world, data)
     self.hitboxes_by_name = {}
 
     if data then
-        self:populateTilesets(data.tilesets)
+        self:populateTilesets(data.tilesets or {})
     end
 
     self.depth_per_layer = 0.1 -- its not perfect, but i doubt anyone will have 1000 layers
