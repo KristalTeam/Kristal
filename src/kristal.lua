@@ -416,6 +416,10 @@ local function error_printer(msg, layer)
     print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
 end
 
+--- Kristal alternative to the default love.errorhandler. \
+--- Called when an error occurs.
+---@param  msg string           The error message.
+---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg)
     local copy_color = {1, 1, 1, 1}
     local anim_index = 1
@@ -623,6 +627,13 @@ function Kristal.errorHandler(msg)
 
 end
 
+--- Switches the Gamestate to the given one.
+---@param state table|string The gamestate to switch to.
+---| "Loading" # The loading state, before entering the main menu.
+---| "Menu"    # The main menu state.
+---| "Game"    # The game state, entered when loading a mod.
+---| "Testing" # The testing state, used in development.
+---@param ... any Arguments passed to the gamestate.
 function Kristal.setState(state, ...)
     if type(state) == "string" then
         Gamestate.switch(Kristal.States[state], ...)
@@ -631,20 +642,25 @@ function Kristal.setState(state, ...)
     end
 end
 
+---@return table state The current Gamestate.
 function Kristal.getState()
     return Gamestate.current()
 end
 
+---@return number runtime The current runtime (`RUNTIME`), affected by timescale / fast-forward.
 function Kristal.getTime()
     return RUNTIME
 end
 
+--- Sets the master volume to the given value and saves it to the config.
+---@param volume number The volume to set.
 function Kristal.setVolume(volume)
     Kristal.Config["masterVolume"] = Utils.clamp(volume, 0, 1)
     love.audio.setVolume(volume)
     Kristal.saveConfig()
 end
 
+--- Called internally to make sure the correct cursor is displayed.
 function Kristal.updateCursor()
     if MOUSE_VISIBLE then
         Kristal.showCursor()
@@ -659,6 +675,7 @@ function Kristal.updateCursor()
     end
 end
 
+--- Hides the mouse cursor.
 function Kristal.hideCursor()
     if (not Kristal.Config["systemCursor"]) then
         love.mouse.setVisible(false)
@@ -670,6 +687,7 @@ function Kristal.hideCursor()
     MOUSE_VISIBLE = false
 end
 
+--- Shows the mouse cursor.
 function Kristal.showCursor()
     if Kristal.Config["systemCursor"] then
         love.mouse.setVisible(true)
@@ -677,10 +695,14 @@ function Kristal.showCursor()
     MOUSE_VISIBLE = true
 end
 
+--- Returns the current master volume from the config.
+---@return number volume The current master volume.
 function Kristal.getVolume()
     return Kristal.Config["masterVolume"]
 end
 
+--- Clears all state expected to be changed by mods. \
+--- Called internally when exiting or reloading a mod.
 function Kristal.clearModState()
     -- Clear disruptive active globals
     Object._clearCache()
@@ -707,6 +729,7 @@ function Kristal.clearModState()
     Registry.initialize()
 end
 
+--- Exits the current mod and returns to the Kristal menu.
 function Kristal.returnToMenu()
     -- Go to empty state
     Gamestate.switch({})
@@ -730,7 +753,11 @@ function Kristal.returnToMenu()
     end
 end
 
--- Mode can be "temp", "save", or "none"
+--- Reloads the current mod.
+---@param mode string The mode to reload the mod in.
+---| "temp" # Creates a temp-save and reloads the mod from there.
+---| "save" # Reloads the mod from the last save.
+---| "none" # Fully reloads the mod from the start of the game.
 function Kristal.quickReload(mode)
     -- Temporarily save game variables
     local save, save_id, encounter
@@ -774,6 +801,8 @@ function Kristal.quickReload(mode)
     end)
 end
 
+--- Clears all currently loaded assets. Called internally in the Loading state.
+---@param include_mods boolean Whether to clear loaded mods.
 function Kristal.clearAssets(include_mods)
     Assets.clear()
     if include_mods then
@@ -781,6 +810,11 @@ function Kristal.clearAssets(include_mods)
     end
 end
 
+--- Loads assets of the specified type from the given directory, and calls the given callback when done.
+---@param dir    string       The directory to load assets from.
+---@param loader string       The type of assets to load.
+---@param paths? string|table The specific asset paths to load.
+---@param after? function     The function to call when done.
 function Kristal.loadAssets(dir, loader, paths, after)
     Kristal.Overlay.setLoading(true)
     Kristal.Loader.waiting = Kristal.Loader.waiting + 1
@@ -796,16 +830,12 @@ function Kristal.loadAssets(dir, loader, paths, after)
     Kristal.Loader.next_key = Kristal.Loader.next_key + 1
 end
 
-function Kristal.preloadMod(id)
-    --[[local mod = Kristal.Mods.getAndLoadMod(id)
-
-    if not mod then return end
-
-    Mod = {info = mod, libs = {}}]]
-
-    Registry.initialize(true)
-end
-
+--- Initializes the specified mod and loads its assets. \
+--- If an `after` callback is not provided, enters the mod, including dark transition if enabled.
+---@param id         string   The id of the mod to load.
+---@param save_id?   number   The id of the save to load the mod from. (1-3)
+---@param save_name? string   The name to use for the save file.
+---@param after?     function The function to call after assets have been loaded.
 function Kristal.loadMod(id, save_id, save_name, after)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
@@ -922,6 +952,11 @@ function Kristal.loadMod(id, save_id, save_name, after)
     end
 end
 
+--- Loads assets from a mod and its libraries. Called internally by `Kristal.loadMod`.
+---@param id           string       The id of the mod to load assets from.
+---@param asset_type?  string       The type of assets to load. (Defaults to "all")
+---@param asset_paths? string|table The specific asset paths to load.
+---@param after        function     The function to call after assets have been loaded.
 function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
@@ -960,12 +995,15 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end
 
+--- Called internally. Calls the `preInit` event on the mod and initializes the registry.
+---@param id string        The id of the mod to pre-initialize.
+---@return boolean success Whether the mod should use default handling to enter the game.
 function Kristal.preInitMod(id)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
 
     -- No mod found; nothing to load
-    if not mod then return end
+    if not mod then return false end
 
     -- Whether to call the "after" function
     local use_callback = true
@@ -987,6 +1025,7 @@ function Kristal.preInitMod(id)
     return use_callback
 end
 
+--- Called internally. Resets the window properties to the user config.
 function Kristal.resetWindow()
     local window_scale = Kristal.Config["windowScale"]
     local window_width  = SCREEN_WIDTH * window_scale
@@ -1004,10 +1043,14 @@ function Kristal.resetWindow()
     })
 end
 
+---@return boolean enabled  Whether borders are enabled.
 function Kristal.bordersEnabled()
     return Kristal.Config["borders"] ~= "off"
 end
 
+--- Returns the dimensions of the screen border, or (0, 0) if borders are disabled.
+---@return number width  The width of the border.
+---@return number height The height of the border.
 function Kristal.getBorderSize()
     if Kristal.bordersEnabled() then
         return (BORDER_WIDTH * BORDER_SCALE) * Kristal.Config["windowScale"], (BORDER_HEIGHT * BORDER_SCALE) * Kristal.Config["windowScale"]
@@ -1015,6 +1058,9 @@ function Kristal.getBorderSize()
     return 0, 0
 end
 
+--- Returns the dimensions of the screen border relative to the game's size.
+---@return number width  The width of the border.
+---@return number height The height of the border.
 function Kristal.getRelativeBorderSize()
     if Kristal.bordersEnabled() then
         return ((BORDER_WIDTH  * BORDER_SCALE) - SCREEN_WIDTH ) * Kristal.Config["windowScale"],
@@ -1023,6 +1069,7 @@ function Kristal.getRelativeBorderSize()
     return 0, 0
 end
 
+---@return string|nil border The currently displayed border, or `nil` if borders are disabled.
 function Kristal.getBorder()
     if not REGISTRY_LOADED then
         return nil
@@ -1041,6 +1088,7 @@ function Kristal.getBorder()
     return nil
 end
 
+---@return string|nil border The currently displayed border if dynamic borders are enabled.
 function Kristal.processDynamicBorder()
     if Kristal.getState() == Game then
         return Game:getBorder()
@@ -1049,10 +1097,15 @@ function Kristal.processDynamicBorder()
     end
 end
 
+--- Called internally to determine whether borders should be set.
+---@return boolean exists Whether a stage transition exists. (currently only if `DarkTransition` exists)
 function Kristal.stageTransitionExists()
     return #Kristal.Stage:getObjects(DarkTransition) ~= 0
 end
 
+--- Fades out the screen border.
+---@param time?     number  The time it takes to fade out the border. Defaults to `0.5`.
+---@param keep_old? boolean Whether the old border stays during fadeout. Defaults to `false`.
 function Kristal.hideBorder(time, keep_old)
     BORDER_FADING = "OUT"
     BORDER_FADE_TIME = time or 0.5
@@ -1060,6 +1113,8 @@ function Kristal.hideBorder(time, keep_old)
     BORDER_TRANSITIONING = false
 end
 
+--- Transitions the screen border, fading it out and then back in to the current border.
+---@param time? number The total time it takes to fade in and out. Defaults to `1`.
 function Kristal.transitionBorder(time)
     if BORDER_ALPHA > 0 then
         BORDER_FADING = "OUT"
@@ -1069,6 +1124,9 @@ function Kristal.transitionBorder(time)
     BORDER_TRANSITIONING = true
 end
 
+
+--- Fades in the screen border.
+---@param time? number The time it takes to fade in the border. Defaults to `0.5`.
 function Kristal.showBorder(time)
     BORDER_FADING = "IN"
     BORDER_FADE_TIME = time or 0.5
@@ -1077,11 +1135,15 @@ function Kristal.showBorder(time)
     LAST_BORDER = Kristal.getBorder()
 end
 
+---@return string name The name of the current border config option.
 function Kristal.getBorderName()
     local border = Kristal.getBorderData(Kristal.Config["borders"])
     return border[2]
 end
 
+--- Returns the border data table for the given border config id.
+---@param id string The id of the border to get.
+---@return table data The border data.
 function Kristal.getBorderData(id)
     for _,border in ipairs(BORDER_TYPES) do
         if border[1] == id then
@@ -1091,6 +1153,7 @@ function Kristal.getBorderData(id)
     return BORDER_TYPES[1]
 end
 
+---@return number scale The current game scale, based on the window dimensions.
 function Kristal.getGameScale()
     if Kristal.bordersEnabled() then
         return math.min(love.graphics.getWidth() / (BORDER_WIDTH * BORDER_SCALE), love.graphics.getHeight() / (BORDER_HEIGHT * BORDER_SCALE))
@@ -1099,11 +1162,16 @@ function Kristal.getGameScale()
     end
 end
 
+--- Returns the offsets of the game display, for calculating screen position.
+---@return number x The x offset.
+---@return number y The y offset.
 function Kristal.getSideOffsets()
     return (love.graphics.getWidth()  - (SCREEN_WIDTH  * Kristal.getGameScale())) / 2,
            (love.graphics.getHeight() - (SCREEN_HEIGHT * Kristal.getGameScale())) / 2
 end
 
+--- Called internally. Loads the saved user config, with default values.
+---@return table config The user config.
 function Kristal.loadConfig()
     local config = {
         windowScale = 1,
@@ -1130,10 +1198,14 @@ function Kristal.loadConfig()
     return config
 end
 
+--- Saves the current config table to the `settings.json`.
 function Kristal.saveConfig()
     love.filesystem.write("settings.json", JSON.encode(Kristal.Config))
 end
 
+--- Saves the game.
+---@param id?   number The save file index to save to. (Defaults to the currently loaded save index)
+---@param data? table  The data to save to the file. (Defaults to the output of `Game:save()`)
 function Kristal.saveGame(id, data)
     id = id or Game.save_id
     data = data or Game:save()
@@ -1143,6 +1215,9 @@ function Kristal.saveGame(id, data)
     love.filesystem.write("saves/"..Mod.info.id.."/file_"..id..".json", JSON.encode(data))
 end
 
+--- Loads the game from a save file.
+---@param id?   number  The save file index to load. (Defaults to the currently loaded save index)
+---@param fade? boolean Whether the game should fade in after loading. (Defaults to `false`)
 function Kristal.loadGame(id, fade)
     id = id or Game.save_id
     local path = "saves/"..Mod.info.id.."/file_"..id..".json"
@@ -1154,47 +1229,81 @@ function Kristal.loadGame(id, fade)
     end
 end
 
+--- Returns the data from the specified save file.
+---@param id?   number    The save file index to load. (Defaults to the currently loaded save index)
+---@param path? string    The save folder to load from. (Defaults to the current mod's save folder)
+---@return table|nil data The data loaded from the save file, or `nil` if the file doesn't exist.
 function Kristal.getSaveFile(id, path)
     id = id or Game.save_id
-    local path = "saves/"..(path or Mod.info.id).."/file_"..id..".json"
-    if love.filesystem.getInfo(path) then
-        return JSON.decode(love.filesystem.read(path))
+    local full_path = "saves/"..(path or Mod.info.id).."/file_"..id..".json"
+    if love.filesystem.getInfo(full_path) then
+        return JSON.decode(love.filesystem.read(full_path))
     end
+    return nil
 end
 
+--- Returns whether the specified save file exists.
+---@param id?   number    The save file index to check. (Defaults to the currently loaded save index)
+---@param path? string    The save folder to check. (Defaults to the current mod's save folder)
+---@return boolean exists Whether the save file exists.
 function Kristal.hasSaveFile(id, path)
     id = id or Game.save_id
-    local path = "saves/"..(path or Mod.info.id).."/file_"..id..".json"
-    return love.filesystem.getInfo(path) ~= nil
+    local full_path = "saves/"..(path or Mod.info.id).."/file_"..id..".json"
+    return love.filesystem.getInfo(full_path) ~= nil
 end
 
+--- Returns whether the specified save folder has any save files.
+---@param path? string    The save folder to check. (Defaults to the current mod's save folder)
+---@return boolean exists Whether the save folder has any save files.
 function Kristal.hasAnySaves(path)
-    local path = "saves/"..(path or Mod.info.id)
-    return love.filesystem.getInfo(path) and (#love.filesystem.getDirectoryItems(path) > 0)
+    local full_path = "saves/"..(path or Mod.info.id)
+    return love.filesystem.getInfo(full_path) and (#love.filesystem.getDirectoryItems(path) > 0)
 end
 
+--- Saves the given data to a file in the save folder.
+---@param file  string The file name to save to.
+---@param data  table  The data to save.
+---@param path? string The save folder to save to. (Defaults to the current mod's save folder)
 function Kristal.saveData(file, data, path)
     love.filesystem.createDirectory("saves/"..(path or Mod.info.id))
     love.filesystem.write("saves/"..(path or Mod.info.id).."/"..file..".json", JSON.encode(data or {}))
 end
 
+--- Loads and returns the data from a file in the save folder.
+---@param file  string    The file name to load.
+---@param path? string    The save folder to load from. (Defaults to the current mod's save folder)
+---@return table|nil data The data loaded from the file, or `nil` if the file doesn't exist.
 function Kristal.loadData(file, path)
-    local path = "saves/"..(path or Mod.info.id).."/"..file..".json"
-    if love.filesystem.getInfo(path) then
-        return JSON.decode(love.filesystem.read(path))
+    local full_path = "saves/"..(path or Mod.info.id).."/"..file..".json"
+    if love.filesystem.getInfo(full_path) then
+        return JSON.decode(love.filesystem.read(full_path))
     end
 end
 
+--- Erases a file from the save folder.
+---@param file  string The file name to erase.
+---@param path? string The save folder to erase from. (Defaults to the current mod's save folder)
 function Kristal.eraseData(file, path)
     love.filesystem.remove("saves/"..(path or Mod.info.id).."/"..file..".json")
 end
 
+--- Calls a function from the current `Mod`, if it exists.
+---@param f   string The function name to call.
+---@param ... any    The arguments to pass to the function.
+---@return ...       The returned values from the function call, if it exists.
 function Kristal.modCall(f, ...)
     if Mod and Mod[f] and type(Mod[f]) == "function" then
         return Mod[f](Mod, ...)
     end
 end
 
+--- Calls a function from the specified library, if it exists. \
+--- If `id` is not specified, the function will be called in all libraries, and the return value \
+--- will be `or`'d between libraries.
+---@param id  string|nil The library ID to call the function from, or `nil` to call in all libraries.
+---@param f   string     The function name to call.
+---@param ... any        The arguments to pass to the function.
+---@return ...           The returned values from the function call, if it exists.
 function Kristal.libCall(id, f, ...)
     if not Mod then return end
 
@@ -1215,6 +1324,10 @@ function Kristal.libCall(id, f, ...)
     end
 end
 
+--- Calls a function from all libraries, and then the current mod.
+---@param f   string  The function name to call.
+---@param ... any     The arguments to pass to the function.
+---@return any result The result of the function calls `or`'d together.
 function Kristal.callEvent(f, ...)
     if not Mod then return end
 
@@ -1224,16 +1337,42 @@ function Kristal.callEvent(f, ...)
     return mod_result or lib_result
 end
 
-function Kristal.modGet(k)
-    if Mod and Mod[k] then
-        return Mod[k]
+--- Gets a value from the current `Mod`.
+---@param key string The key of the value to get.
+---@return any value The value at the key, or `nil` if it doesn't exist.
+function Kristal.modGet(key)
+    if Mod and Mod[key] then
+        return Mod[key]
     end
 end
 
-function Kristal.getModOption(name)
-    return Mod and Mod.info and Mod.info[name]
+--- Gets a value from the current mod's `mod.json`.
+---@param key string The key of the value to get.
+---@return any value The value at the key, or `nil` if it doesn't exist.
+function Kristal.getModOption(key)
+    return Mod and Mod.info and Mod.info[key]
 end
 
+--- Gets a library config option, defined in either `lib.json` or modified by the `mod.json`. \
+--- Default values can be defined inside your library's `lib.json`:
+--- ```json
+--- "config": {
+---    "option": "value"
+--- }
+--- ```
+--- These can then be overridden inside a `mod.json` like so:
+--- ```json
+--- "config": {
+---    "your_library_id": {
+---        "option": "new value"
+---    }
+--- }
+--- ```
+---@param lib_id      string  The library ID to get the config option from.
+---@param key         string  The key of the config option to get.
+---@param merge?      boolean If the option is a table, whether to merge it with the default value. (Defaults to `false`)
+---@param deep_merge? boolean If merge is enabled, whether to merge the tables deeply. (Defaults to `false`)
+---@return any value          The value of the config option, or `nil` if it doesn't exist.
 function Kristal.getLibConfig(lib_id, key, merge, deep_merge)
     if not Mod then return end
 
@@ -1258,6 +1397,11 @@ function Kristal.getLibConfig(lib_id, key, merge, deep_merge)
     end
 end
 
+--- Executes a `.lua` script inside the mod folder.
+---@param path string      The script name to execute.
+---@param ...  any         The arguments to pass to the script.
+---@return boolean success Whether the script was executed successfully.
+---@return any     ...     The returned values from the script.
 function Kristal.executeModScript(path, ...)
     if not Mod or not Mod.info.script_chunks[path] then
         return false
@@ -1266,6 +1410,13 @@ function Kristal.executeModScript(path, ...)
     end
 end
 
+--- Executes a `.lua` script inside the specified library folder. \
+--- If `id` is not specified, the first script found from any library will be executed.
+---@param lib  string|nil  The library ID to execute the script from, or `nil` to execute from any library.
+---@param path string      The script name to execute.
+---@param ...  any         The arguments to pass to the script.
+---@return boolean success Whether the script was executed successfully.
+---@return any     ...     The returned values from the script.
 function Kristal.executeLibScript(lib, path, ...)
     if not Mod then
         return false
@@ -1288,6 +1439,8 @@ function Kristal.executeLibScript(lib, path, ...)
     end
 end
 
+--- Clears all mod-defined hooks from `Utils.hook`, and restores the original functions. \
+--- Called internally when a mod is unloaded.
 function Kristal.clearModHooks()
     for _,hook in ipairs(Utils.__MOD_HOOKS) do
         hook.target[hook.name] = hook.orig
@@ -1295,6 +1448,8 @@ function Kristal.clearModHooks()
     Utils.__MOD_HOOKS = {}
 end
 
+--- Removes all mod-defined classes from base classes' `__includers` table.
+--- Called internally when a mod is unloaded.
 function Kristal.clearModSubclasses()
     for class,subs in pairs(MOD_SUBCLASSES) do
         for _,sub in ipairs(subs) do
@@ -1306,6 +1461,10 @@ function Kristal.clearModSubclasses()
     MOD_SUBCLASSES = {}
 end
 
+--- Executes a `.lua` script inside the mod folder.
+---@param path string  The script name to execute.
+---@param ...  any     The arguments to pass to the script.
+---@return any ...     The returned values from the script.
 ---@diagnostic disable-next-line: lowercase-global
 function modRequire(path, ...)
     path = path:gsub("%.", "/")
@@ -1316,6 +1475,11 @@ function modRequire(path, ...)
     return result
 end
 
+--- Executes a `.lua` script inside the specified library folder.
+---@param lib  string  The library ID to execute the script from.
+---@param path string  The script name to execute.
+---@param ...  any     The arguments to pass to the script.
+---@return any ...     The returned values from the script.
 ---@diagnostic disable-next-line: lowercase-global
 function libRequire(lib, path, ...)
     path = path:gsub("%.", "/")
