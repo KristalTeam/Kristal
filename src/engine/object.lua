@@ -1,3 +1,35 @@
+--- The base class of all objects in Kristal. \
+--- When added to the stage, an object will be updated and rendered.
+---
+---@class Object
+---@field x      number The X position of the object.
+---@field y      number The Y position of the object.
+---@field width  number The width of the object.
+---@field height number The height of the object.
+---
+--- The color of the object in the form {R, G, B}. \
+--- The values of R, G, and B are between 0 and 1.
+---@field color table
+---
+---@field alpha    number  The alpha transparency of the object, between 0 (invisible) and 1 (fully visible).
+---@field scale_x  number  The X scale of the object.
+---@field scale_y  number  The Y scale of the object.
+---@field rotation number  The rotation of the object, in radians. (`0` is right, positive is clockwise)
+---@field flip_x   boolean Whether the object is flipped horizontally.
+---@field flip_y   boolean Whether the object is flipped vertically.
+---
+---@field inherit_color boolean Whether the object's color will be multiplied by its parent's color.
+---
+--- TODO: Document the rest of the fields
+---@field origin_x number
+---@field origin_y number
+---
+---@field init_x   number  The X position of the object when it was created.
+---@field init_y   number  The Y position of the object when it was created.
+---@field last_x   number  The X position of the object in the previous frame.
+---@field last_y   number  The Y position of the object in the previous frame.
+---
+---@overload fun(x?:number, y?:number, width?:number, height?:number) : Object
 local Object = Class()
 
 Object.LAYER_SORT = function(a, b) return a.layer < b.layer end
@@ -7,6 +39,9 @@ Object.CACHE_ATTEMPTS = 0
 Object.CACHED = {}
 Object.CACHED_FULL = {}
 
+--- Begin caching the transforms of all objects. \
+--- This should be called before any collision checks, and ended with Object.endCache(). \
+--- If an object is moved mid-cache, call Object.uncache() on it.
 function Object.startCache()
     Object.CACHE_ATTEMPTS = Object.CACHE_ATTEMPTS + 1
     if Object.CACHE_ATTEMPTS == 1 then
@@ -16,6 +51,7 @@ function Object.startCache()
     end
 end
 
+--- End caching the transforms of all objects (started with Object.startCache()).
 function Object.endCache()
     Object.CACHE_ATTEMPTS = Object.CACHE_ATTEMPTS - 1
     if Object.CACHE_ATTEMPTS == 0 then
@@ -25,6 +61,7 @@ function Object.endCache()
     end
 end
 
+--- *(Called internally)* Clears all cached transforms, and force-stops caching.
 function Object._clearCache()
     Object.CACHE_TRANSFORMS = false
     Object.CACHE_ATTEMPTS = 0
@@ -32,6 +69,8 @@ function Object._clearCache()
     Object.CACHED_FULL = {}
 end
 
+--- Uncache an object's transform, if Object.startCache() is active. \
+--- This recalculates the object's transform and all of its children, incase it was moved.
 function Object.uncache(obj)
     if Object.CACHE_TRANSFORMS then
         Object.CACHED[obj] = nil
@@ -39,6 +78,7 @@ function Object.uncache(obj)
     end
 end
 
+--- *(Called internally)* Uncaches an object's full transform, including all of its children.
 function Object.uncacheFull(obj)
     if Object.CACHE_TRANSFORMS then
         Object.CACHED_FULL[obj] = nil
