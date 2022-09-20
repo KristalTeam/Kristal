@@ -82,7 +82,7 @@ function AttackBox:update()
             local afterimg = AttackBar(self.bolt_start_x - (self.afterimage_count * AttackBox.BOLTSPEED * 2), 0, 6, 38)
             afterimg.layer = 3
             afterimg.alpha = 0.4
-            afterimg:fadeOutAndRemove()
+            afterimg:fadeOutSpeedAndRemove()
             self:addChild(afterimg)
         end
     end

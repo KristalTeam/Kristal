@@ -14,14 +14,14 @@ function TestBullet:init(x, y, flip)
     self.physics.friction = -0.5
 
     self.alpha = 0
-    self:fadeTo(1, 0.1)
+    self:fadeToSpeed(1, 0.1)
 
     self.start_x = x
 end
 
 function TestBullet:update()
     if math.abs(self.x - self.start_x) >= self.world.map.tile_width * 9 then
-        self:fadeOutAndRemove(0.5)
+        self:fadeOutSpeedAndRemove(0.5)
     end
 
     super:update(self)

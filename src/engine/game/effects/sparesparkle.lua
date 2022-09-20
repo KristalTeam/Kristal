@@ -9,7 +9,7 @@ function SpareSparkle:init(x, y)
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 
-    self:fadeOutAndRemove(0.1)
+    self:fadeOutSpeedAndRemove(0.1)
 
     self.physics.speed_x = -3
     self.physics.friction = 0.05

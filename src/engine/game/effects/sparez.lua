@@ -4,7 +4,7 @@ function SpareZ:init(angle, x, y)
     super:init(self, "effects/spare/z", x, y)
 
     self:setOrigin(0.5, 0.5)
-    self:fadeOutAndRemove(0.1)
+    self:fadeOutSpeedAndRemove(0.1)
 
     self.grow_x = 0.2
     self.grow_y = 0.2

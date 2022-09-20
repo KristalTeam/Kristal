@@ -54,7 +54,7 @@ function RudeBusterBeam:update()
         self.afterimg_timer = 0
 
         local sprite = Sprite(self.red and "effects/rudebuster/beam_red" or "effects/rudebuster/beam", self.x, self.y)
-        sprite:fadeOutAndRemove()
+        sprite:fadeOutSpeedAndRemove()
         sprite:setOrigin(0.5, 0.5)
         sprite:setScale(2, 1.8)
         sprite.rotation = self.rotation

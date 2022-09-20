@@ -14,7 +14,7 @@ function HPText:init(text, x, y)
     self:addChild(self.timer)
 
     self.timer:after(8/30, function()
-        self:fadeOutAndRemove(1 / 8)
+        self:fadeOutSpeedAndRemove(1 / 8)
     end)
 end
 

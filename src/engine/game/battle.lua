@@ -926,7 +926,7 @@ function Battle:processAction(action)
                 sparkle.layer = BATTLE_LAYERS["above_battlers"]
                 sparkle.physics.speed_x = Utils.random(2, 6)
                 sparkle.physics.friction = -0.25
-                sparkle:fadeOutAndRemove()
+                sparkle:fadeOutSpeedAndRemove()
                 self:addChild(sparkle)
             end
         end

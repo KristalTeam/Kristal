@@ -6,7 +6,7 @@ function RudeBusterBurst:init(red, x, y, angle, slow)
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 
-    self:fadeOutAndRemove()
+    self:fadeOutSpeedAndRemove()
     self:play(1/15, true)
 
     self.rotation = angle

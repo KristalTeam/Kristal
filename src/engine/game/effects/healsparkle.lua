@@ -9,7 +9,7 @@ function HealSparkle:init(x, y)
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
 
-    self:fadeOutAndRemove(0.1)
+    self:fadeOutSpeedAndRemove(0.1)
 
     self.rotation = love.math.random() * math.rad(360)
 

@@ -11,7 +11,7 @@ end
 
 function AttackBar:burst()
     self.bursting = true
-    self:fadeOutAndRemove(0.1)
+    self:fadeOutSpeedAndRemove(0.1)
 end
 
 function AttackBar:update()

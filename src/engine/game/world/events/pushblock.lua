@@ -126,11 +126,11 @@ function PushBlock:reset()
 
     self.state = "RESET"
     self.collidable = false
-    self.sprite:fadeTo(0, 0.2, function()
+    self.sprite:fadeToSpeed(0, 0.2, function()
         self.x = self.start_x
         self.y = self.start_y
         self:onReset()
-        self.sprite:fadeTo(1, 0.2, function()
+        self.sprite:fadeToSpeed(1, 0.2, function()
             self.collidable = true
             self.state = "IDLE"
         end)

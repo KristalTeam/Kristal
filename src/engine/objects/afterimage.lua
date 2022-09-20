@@ -6,7 +6,7 @@ function AfterImage:init(sprite, fade, speed)
     self.sprite = sprite
 
     self.alpha = fade
-    self:fadeOutAndRemove(speed)
+    self:fadeOutSpeedAndRemove(speed)
 
     self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     Draw.setCanvas(self.canvas)

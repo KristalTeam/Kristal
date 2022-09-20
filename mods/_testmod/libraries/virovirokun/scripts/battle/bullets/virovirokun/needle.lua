@@ -71,12 +71,12 @@ end
 function Needle:update()
     if (self.rotation == 0 and self.x > Game.battle.arena.right + 10) or (self.rotation == math.pi and self.x < Game.battle.arena.left - 10) then
         self.collidable = false
-        self:fadeTo(0, 0.1)
+        self:fadeToSpeed(0, 0.1)
         if self.alpha == 0 then
             self:remove()
         end
     else
-        self:fadeTo(1, 0.1)
+        self:fadeToSpeed(1, 0.1)
     end
 
     super:update(self)
