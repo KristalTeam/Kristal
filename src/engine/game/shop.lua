@@ -85,6 +85,8 @@ function Shop:init()
     self.timer = Timer()
     self:addChild(self.timer)
 
+    self.voice = nil
+
     self.shopkeeper = Shopkeeper()
     self.shopkeeper:setPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
     self.shopkeeper.layer = SHOP_LAYERS["shopkeeper"]
@@ -211,7 +213,7 @@ function Shop:postInit()
 
     self.dialogue_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.dialogue_text)
-    self.dialogue_text:setText(self.encounter_text)
+    self:setDialogueText(self.encounter_text)
 
     self.right_text = DialogueText("", 30 + 420, 260, 176, 206)
 
@@ -219,7 +221,7 @@ function Shop:postInit()
 
     self.right_text:setLayer(SHOP_LAYERS["dialogue"])
     self:addChild(self.right_text)
-    self.right_text:setText("")
+    self:setRightText("")
 
     self.talk_dialogue = {self.dialogue_text, self.right_text}
 end
@@ -228,7 +230,7 @@ function Shop:startTalk(talk) end
 
 function Shop:onEnter()
     self:setState("MAINMENU")
-    self.dialogue_text:setText(self.encounter_text)
+    self:setDialogueText(self.encounter_text)
     -- Play music
     if self.shop_music and self.shop_music ~= "" then
         self.music:play(self.shop_music)
@@ -239,6 +241,34 @@ function Shop:onRemove(parent)
     super:onRemove(self, parent)
 
     self.music:remove()
+end
+
+function Shop:getVoice()
+    return self.voice
+end
+
+function Shop:getVoicedText(text)
+    local voice = self:getVoice()
+
+    if not voice then return text end
+
+    if type(text) == "table" then
+        local voiced_text = {}
+        for _,v in ipairs(text) do
+            table.insert(voiced_text, "[voice:"..voice.."]"..v)
+        end
+        return voiced_text
+    else
+        return "[voice:"..voice.."]"..text
+    end
+end
+
+function Shop:setDialogueText(text, no_voice)
+    self.dialogue_text:setText(no_voice and text or self:getVoicedText(text))
+end
+
+function Shop:setRightText(text, no_voice)
+    self.right_text:setText(no_voice and text or self:getVoicedText(text))
 end
 
 function Shop:setState(state, reason)
@@ -262,11 +292,11 @@ function Shop:onStateChange(old,new)
         self.right_box.visible = true
         self.info_box.visible = false
         self.dialogue_text.width = 372
-        self.dialogue_text:setText(self.shop_text)
-        self.right_text:setText("")
+        self:setDialogueText(self.shop_text)
+        self:setRightText("")
     elseif new == "BUYMENU" then
-        self.dialogue_text:setText("")
-        self.right_text:setText(self.buy_menu_text)
+        self:setDialogueText("")
+        self:setRightText(self.buy_menu_text)
         self.large_box.visible = false
         self.left_box.visible = true
         self.right_box.visible = true
@@ -283,9 +313,9 @@ function Shop:onStateChange(old,new)
         self.box_ease_multiplier = 1
         self.current_selecting = 1
     elseif new == "SELLMENU" then
-        self.dialogue_text:setText("")
+        self:setDialogueText("")
         if not self.state_reason then
-            self.right_text:setText(self.sell_menu_text)
+            self:setRightText(self.sell_menu_text)
         end
         self.large_box.visible = false
         self.left_box.visible = true
@@ -293,15 +323,15 @@ function Shop:onStateChange(old,new)
         self.info_box.visible = false
     elseif new == "SELLING" then
         Game.key_repeat = true
-        self.dialogue_text:setText("")
+        self:setDialogueText("")
         if self.state_reason and type(self.state_reason) == "table" then
             if self.sell_options_text[self.state_reason[2]] then
-                self.right_text:setText(self.sell_options_text[self.state_reason[2]])
+                self:setRightText(self.sell_options_text[self.state_reason[2]])
             else
-                self.right_text:setText("Invalid\nmenu\ntext")
+                self:setRightText("Invalid\nmenu\ntext")
             end
         else
-            self.right_text:setText("Invalid\nstate\nreason")
+            self:setRightText("Invalid\nstate\nreason")
         end
         self.large_box.visible = false
         self.left_box.visible = true
@@ -310,8 +340,8 @@ function Shop:onStateChange(old,new)
         self.item_current_selecting = 1
         self.item_offset = 0
     elseif new == "TALKMENU" then
-        self.dialogue_text:setText("")
-        self.right_text:setText(self.talk_text)
+        self:setDialogueText("")
+        self:setRightText(self.talk_text)
         self.large_box.visible = false
         self.left_box.visible = true
         self.right_box.visible = true
@@ -322,15 +352,15 @@ function Shop:onStateChange(old,new)
         self:processReplacements()
         self:onTalk()
     elseif new == "LEAVE" then
-        self.right_text:setText("")
+        self:setRightText("")
         self.large_box.visible = true
         self.left_box.visible = false
         self.right_box.visible = false
         self.info_box.visible = false
         self:onLeave()
     elseif new == "LEAVING" then
-        self.right_text:setText("")
-        self.dialogue_text:setText("")
+        self:setRightText("")
+        self:setDialogueText("")
         self.large_box.visible = true
         self.left_box.visible = false
         self.right_box.visible = false
@@ -338,7 +368,7 @@ function Shop:onStateChange(old,new)
         self:leave()
     elseif new == "DIALOGUE" then
         self.dialogue_text.width = 598
-        self.right_text:setText("")
+        self:setRightText("")
         self.large_box.visible = true
         self.left_box.visible = false
         self.right_box.visible = false
@@ -394,7 +424,7 @@ function Shop:startDialogue(text,callback)
     end
 
     self:setState("DIALOGUE")
-    self.dialogue_text:setText(text)
+    self:setDialogueText(text)
 
     self.dialogue_text.advance_callback = (function()
         if type(callback) == "string" then
@@ -840,13 +870,13 @@ function Shop:onKeyPressed(key, is_repeat)
                 if self.current_selecting_choice == 1 then
                     self:buyItem(current_item)
                 elseif self.current_selecting_choice == 2 then
-                    self.right_text:setText(self.buy_refuse_text)
+                    self:setRightText(self.buy_refuse_text)
                 else
-                    self.right_text:setText("What?????[wait:5]\ndid you\ndo????")
+                    self:setRightText("What?????[wait:5]\ndid you\ndo????")
                 end
             elseif Input.isCancel(key) then
                 self.buy_confirming = false
-                self.right_text:setText(self.buy_refuse_text)
+                self:setRightText(self.buy_refuse_text)
             elseif Input.is("up", key) or Input.is("down", key) then
                 if self.current_selecting_choice == 1 then
                     self.current_selecting_choice = 2
@@ -867,7 +897,7 @@ function Shop:onKeyPressed(key, is_repeat)
                     end
                     self.buy_confirming = true
                     self.current_selecting_choice = 1
-                    self.right_text:setText("")
+                    self:setRightText("")
                 end
             elseif Input.isCancel(key) then
                 self:setState("MAINMENU")
@@ -937,14 +967,14 @@ function Shop:onKeyPressed(key, is_repeat)
                             end
                         end
                     elseif self.current_selecting_choice == 2 then
-                        self.right_text:setText(self.sell_refuse_text)
+                        self:setRightText(self.sell_refuse_text)
                     else
-                        self.right_text:setText("What?????[wait:5]\ndid you\ndo????")
+                        self:setRightText("What?????[wait:5]\ndid you\ndo????")
                     end
                 elseif Input.isCancel(key) then
                     self.sell_confirming = false
                     Game.key_repeat = true
-                    self.right_text:setText(self.sell_refuse_text)
+                    self:setRightText(self.sell_refuse_text)
                 elseif Input.is("up", key) or Input.is("down", key) then
                     if self.current_selecting_choice == 1 then
                         self.current_selecting_choice = 2
@@ -959,12 +989,12 @@ function Shop:onKeyPressed(key, is_repeat)
                             self.sell_confirming = true
                             Game.key_repeat = false
                             self.current_selecting_choice = 1
-                            self.right_text:setText("")
+                            self:setRightText("")
                         else
-                            self.right_text:setText(self.sell_no_price_text)
+                            self:setRightText(self.sell_no_price_text)
                         end
                     else
-                        self.right_text:setText(self.sell_nothing_text)
+                        self:setRightText(self.sell_nothing_text)
                     end
                 elseif Input.isCancel(key) and not is_repeat then
                     self:setState("SELLMENU")
@@ -1016,11 +1046,11 @@ end
 
 function Shop:enterSellMenu(sell_data)
     if not sell_data then
-        self.right_text:setText(self.sell_no_storage_text)
+        self:setRightText(self.sell_no_storage_text)
     elseif not Game.inventory:getStorage(sell_data[2]) then
-        self.right_text:setText(self.sell_no_storage_text)
+        self:setRightText(self.sell_no_storage_text)
     elseif Game.inventory:getItemCount(sell_data[2], false) == 0 then
-        self.right_text:setText(self.sell_no_storage_text)
+        self:setRightText(self.sell_no_storage_text)
     else
         self:setState("SELLING", sell_data)
     end
@@ -1028,7 +1058,7 @@ end
 
 function Shop:buyItem(current_item)
     if (current_item.options["price"] or 0) > Game.money then
-        self.right_text:setText(self.buy_too_expensive_text)
+        self:setRightText(self.buy_too_expensive_text)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
@@ -1046,10 +1076,10 @@ function Shop:buyItem(current_item)
         if Game.inventory:addItem(new_item) then
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("locker")
-            self.right_text:setText(self.buy_text)
+            self:setRightText(self.buy_text)
         else
             -- Not enough space, oops
-            self.right_text:setText(self.buy_no_space_text)
+            self:setRightText(self.buy_no_space_text)
         end
     end
 end
@@ -1069,7 +1099,7 @@ function Shop:sellItem(current_item)
     Game.inventory:removeItem(current_item)
 
     Assets.playSound("locker")
-    self.right_text:setText(self.sell_text)
+    self:setRightText(self.sell_text)
 end
 
 return Shop
