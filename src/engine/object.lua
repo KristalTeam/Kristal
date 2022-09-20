@@ -157,6 +157,8 @@ end
 
 --[[ Common overrides ]]--
 
+--- *(Override)* Called every frame by its parent if the object is active. \
+--- By default, updates its physics and graphics tables, and its children.
 function Object:update()
     self:updatePhysicsTransform()
     self:updateGraphicsTransform()
@@ -168,18 +170,34 @@ function Object:update()
     end
 end
 
+--- *(Override)* Called every frame by its parent during drawing if the object is visible. \
+--- By default, draws its children.
 function Object:draw()
     self:drawChildren()
 end
 
+--- *(Override)* Called when the object is added to a parent object via `parent:addChild(self)` or `self:setParent(parent)`.
+---@param parent Object The parent that the object is being added to.
 function Object:onAdd(parent) end
+
+--- *(Override)* Called when the object is removed from its parent object via `self:remove()`, `parent:removeChild(self)`, or `self:setParent(new_parent)`.
+---@param parent Object The parent that the object is being removed from.
 function Object:onRemove(parent) end
 
+--- *(Override)* Called when the object is first added to the Game stage, via `parent:addChild(self)` or `self:setParent(parent)`. \
+--- Will not be called when changing to a new parent via `self:setParent(new_parent)` if the object had a parent prior.
+---@param stage Object The Stage object that the object is being added to.
 function Object:onAddToStage(stage) end
+
+--- *(Override)* Called when the object is removed from the Game stage via `self:remove()` or `parent:removeChild(self)`. \
+--- Will not be called when changing to a new parent via `self:setParent(new_parent)`.
+---@param stage Object The Stage object that the object was a child of.
 function Object:onRemoveFromStage(stage) end
 
 --[[ Common functions ]]--
 
+--- Resets all of the object's `physics` table values to their default values, \
+--- making it so it will stop moving if it was before.
 function Object:resetPhysics()
     self.physics = {
         -- The speed this object moves (pixels per frame, at 30 fps)
@@ -208,6 +226,8 @@ function Object:resetPhysics()
     }
 end
 
+--- Resets all of the object's `graphics` table values to their default values, \
+--- making it so it will stop transforming if it was before.
 function Object:resetGraphicsTransform()
     self.graphics = {
         -- How fast this object fades its alpha (per frame at 30 fps)
@@ -230,23 +250,60 @@ function Object:resetGraphicsTransform()
     }
 end
 
+--- Moves the object's `x` and `y` values by the specified values.
+---@param x      number How much to add to the object's `x` value.
+---@param y      number How much to add to the object's `y` value.
+---@param speed? number How much to multiply the `x` and `y` movement by. (Defaults to 1)
 function Object:move(x, y, speed)
     self.x = self.x + (x or 0) * (speed or 1)
     self.y = self.y + (y or 0) * (speed or 1)
 end
 
-function Object:fadeTo(target, speed, callback)
+--- Fades the object's `alpha` to the specified value over `time` seconds.
+---@param target    number   The alpha value that the object's `alpha` should approach.
+---@param time?     number   The amount of time, in seconds, that the fade should take. (Defaults to 1 second)
+---@param callback? function A function that will be called when the alpha value is reached. Receives `self` as an argument.
+function Object:fadeTo(target, time, callback)
+    self:fadeToSpeed(target, (time or 1) / 30 * math.abs(self.alpha - target), callback)
+end
+
+--- Fades the object's `alpha` to the specified value at a speed of `speed` per frame.
+---@param target    number   The alpha value that the object's `alpha` should approach.
+---@param speed?    number   The amount that the object's `alpha` should approach the target value, per frame at 30FPS. (Defaults to 0.04)
+---@param callback? function A function that will be called when the alpha value is reached. Receives `self` as an argument.
+function Object:fadeToSpeed(target, speed, callback)
     self.graphics.fade = speed or 0.04
     self.graphics.fade_to = target or 0
     self.graphics.fade_callback = callback
 end
 
-function Object:fadeOutAndRemove(speed)
+--- Fades the object's `alpha` to 0 over `time` seconds, then removes it.
+---@param time? number The amount of time, in seconds, that the fade should take. (Defaults to 1 second)
+function Object:fadeOutAndRemove(time)
+    self:fadeOutSpeedAndRemove((time or 1) / 30 * self.alpha)
+end
+
+--- Fades the object's `alpha` to 0 at a speed of `speed` per frame, then removes it.
+---@param speed? number The amount that the object's `alpha` should approach the target value, per frame at 30FPS. (Defaults to 0.04)
+function Object:fadeOutSpeedAndRemove(speed)
     self.graphics.fade = speed or 0.04
     self.graphics.fade_to = 0
     self.graphics.fade_callback = self.remove
 end
 
+--- Moves the object's `x` and `y` values to the new specified position over `time` seconds.
+---@param x      number   The new `x` value to approach.
+---@param y      number   The new `y` value to approach.
+---@param time?  number   The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param ease?  string   The ease type to use when moving to the new position. (Defaults to "linear")
+---@param after? function A function that will be called when the target position is reached. Receives no arguments.
+---@return boolean success Whether the sliding will occur. False if the object's current position is already at the specified position, and true otherwise.
+---@overload fun(self:Object, marker:string, time?:number, ease?:string, after?:function): success:boolean
+---@param marker string   A map marker whose position the object should approach.
+---@param time?  number   The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param ease?  string   The ease type to use when moving to the new position. (Defaults to "linear")
+---@param after? function A function that will be called when the target position is reached. Receives no arguments.
+---@return boolean success Whether the sliding will occur. False if the object's current position is already at the specified position, and true otherwise.
 function Object:slideTo(x, y, time, ease, after)
     -- Ability to specify World marker for convenience in cutscenes
     if type(x) == "string" then
@@ -268,6 +325,16 @@ function Object:slideTo(x, y, time, ease, after)
     end
 end
 
+--- Moves the object's `x` and `y` values to the new specified position at a speed of `speed` pixels per frame.
+---@param x      number   The new `x` value to approach.
+---@param y      number   The new `y` value to approach.
+---@param speed? number   The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to 4)
+---@param after? function A function that will be called when the target position is reached. Receives no arguments.
+---@overload fun(self:Object, marker:string, time?:number, ease?:string, after?:function): success:boolean
+---@param marker string   A map marker whose position the object should approach.
+---@param speed? number   The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to 4)
+---@param after? function A function that will be called when the target position is reached. Receives no arguments.
+---@return boolean success Whether the sliding will occur. False if the object's current position is already at the specified position, and true otherwise.
 function Object:slideToSpeed(x, y, speed, after)
     -- Ability to specify World marker for convenience in cutscenes
     if type(x) == "string" then
@@ -288,6 +355,29 @@ function Object:slideToSpeed(x, y, speed, after)
     end
 end
 
+--@param options? table A table defining additional properties that the path should follow:
+--| "time" # The amount of time, in seconds, that the object should take to travel along the full path.
+--| "speed" # The speed at which the object should travel along the path, in pixels per frame at 30FPS.
+--| "ease" # 
+--| "relative" # Whether the path should be relative to the object's current position, or simply set its position directly.
+--| "loop" # Whether the path should loop back to the first point when reaching the end, or if it should stop.
+--| "reverse" # If true, reverse all of the points on the path.
+--| "skip" # A number defining how many points of the path to skip.
+--| "snap" # Whether the object's position should immediately "snap" to the first point, or if its initial position should be counted as a point on the path.
+
+--- Moves the object along a path of points.
+---@param path     table A table containing a list of tables with two number values in each, defining a list of points the object should follow.
+---@param options? table A table defining additional properties that the path should use.
+---| "time" # The amount of time, in seconds, that the object should take to travel along the full path.
+---| "speed" # The speed at which the object should travel along the path, in pixels per frame at 30FPS.
+---| "ease" # The ease type to use when travelling along the path. Unused if `speed` is specified instead of `time`. (Defaults to "linear")
+---| "after" # A function that will be called when the end of the path is reached. Receives no arguments.
+---| "move_func" # A function called every frame while the object is travelling along the path. Receives `self` and the `x` and `y` offset from the previous frame as arguments.
+---| "relative" # Whether the path should be relative to the object's current position, or simply set its position directly.
+---| "loop" # Whether the path should loop back to the first point when reaching the end, or if it should stop.
+---| "reverse" # If true, reverse all of the points on the path.
+---| "skip" # A number defining how many points of the path to skip.
+---| "snap" # Whether the object's position should immediately "snap" to the first point, or if its initial position should be counted as a point on the path.
 function Object:slidePath(path, options)
     options = options or {}
 
@@ -358,6 +448,9 @@ function Object:slidePath(path, options)
     }
 end
 
+--- Whether the object is colliding with another object or collider.
+---@param other Object|Collider The object or collider to check collision with.
+---@return boolean collided Whether the collision occurred or not.
 function Object:collidesWith(other)
     if other and self.collidable and self.collider then
         if isClass(other) and other:includes(Object) then
@@ -369,19 +462,51 @@ function Object:collidesWith(other)
     return false
 end
 
+--- Sets the object's `x` and `y` values to the specified position.
+---@param x number The value to set `x` to.
+---@param y number The value to set `y` to.
 function Object:setPosition(x, y) self.x = x or 0; self.y = y or 0 end
+--- Returns the position of the object.
+---@return number x The `x` position of the object.
+---@return number y The `y` position of the object.
 function Object:getPosition() return self.x, self.y end
 
+--- Sets the object's `width` and `height` values to the specified size.
+---@param width   number The value to set `width` to.
+---@param height? number The value to set `height` to. (Defaults to the `width` parameter)
 function Object:setSize(width, height) self.width = width or 0; self.height = height or width or 0 end
+--- Returns the size of the object.
+---@return number width The `width` value of the object.
+---@return number height The `height` value of the object.
 function Object:getSize() return self.width, self.height end
 
+--- Returns the width of the object, accounting for scale.
+---@return number width The `width` of the object multiplied by its `scale_x`.
 function Object:getScaledWidth() return self.width * self.scale_x end
+--- Returns the height of the object, accounting for scale.
+---@return number height The `height` of the object multiplied by its `scale_y`.
 function Object:getScaledHeight() return self.height * self.scale_y end
+--- Returns the size of the object, accounting for scale.
+---@return number width The `width` of the object multiplied by its `scale_x`.
+---@return number height The `height` of the object multiplied by its `scale_y`.
 function Object:getScaledSize() return self:getScaledWidth(), self:getScaledHeight() end
 
+--- Sets the object's `scale_x` and `scale_y` values to the specified scale.
+---@param x  number The value to set `scale_x` to.
+---@param y? number The value to set `scale_y` to. (Defaults to the `x` parameter)
 function Object:setScale(x, y) self.scale_x = x or 1; self.scale_y = y or x or 1 end
+--- Returns the scale of the object.
+---@return number x The `scale_x` value of the object.
+---@return number y The `scale_y` value of the object.
 function Object:getScale() return self.scale_x, self.scale_y end
 
+--- Sets the object's `color` and `alpha` values to the specified color.
+---@param r  number The red value to set for the object's `color`.
+---@param g  number The green value to set for the object's `color`.
+---@param b  number The blue value to set for the object's `color`.
+---@param a? number The value to set `alpha` to. (Doesn't change alpha if unspecified)
+---@overload fun(self:Object, color:{r:number, g:number, b:number, a?:number})
+---@param color table The value to set `color` to. Can optionally define a 4th value to set alpha.
 function Object:setColor(r, g, b, a)
     if type(r) == "table" then
         r, g, b, a = unpack(r)
@@ -389,9 +514,21 @@ function Object:setColor(r, g, b, a)
     self.color = {r, g, b};
     self.alpha = a or self.alpha
 end
+--- Returns the values of the object's `color` and `alpha` values.
+---@return number r The red value of the object's `color`.
+---@return number g The green value of the object's `color`.
+---@return number b The blue value of the object's `color`.
+---@return number a The `alpha` value of the object.
 function Object:getColor() return self.color[1], self.color[2], self.color[3], self.alpha end
 
+--- Sets the object's `origin_x` and `origin_y` values to the specified origin, and sets `origin_exact` to false. \
+--- The origin set by this function will therefore be a ratio relative to the object's width and height.
+---@param x  number The value to set `origin_x` to.
+---@param y? number The value to set `origin_y` to. (Defaults to the `x` parameter)
 function Object:setOrigin(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0; self.origin_exact = false end
+--- Returns the origin of the object, simplifying to be a ratio relative to its width and height if its current origin is exact.
+---@return number x The horizontal origin of the object.
+---@return number y The vertical origin of the object.
 function Object:getOrigin()
     if not self.origin_exact then
         return self.origin_x, self.origin_y
@@ -399,7 +536,14 @@ function Object:getOrigin()
         return self.origin_x / self.width, self.origin_y / self.height
     end
 end
+--- Sets the object's `origin_x` and `origin_y` values to the specified origin, and sets `origin_exact` to true. \
+--- The origin set by this function will therefore be in exact pixels.
+---@param x  number The value to set `origin_x` to.
+---@param y? number The value to set `origin_y` to. (Defaults to the `x` parameter)
 function Object:setOriginExact(x, y) self.origin_x = x or 0; self.origin_y = y or x or 0; self.origin_exact = true end
+--- Returns the origin of the object, multiplying to give the exact pixels if its current origin is not exact.
+---@return number x The horizontal origin of the object.
+---@return number y The vertical origin of the object.
 function Object:getOriginExact()
     if self.origin_exact then
         return self.origin_x, self.origin_y
@@ -408,7 +552,15 @@ function Object:getOriginExact()
     end
 end
 
+--- Sets the object's `scale_origin_x` and `scale_origin_y` values to the specified origin, and sets `scale_origin_exact` to false. \
+--- The scaling origin set by this function will therefore be a ratio relative to the object's width and height.
+---@param x  number The value to set `scale_origin_x` to.
+---@param y? number The value to set `scale_origin_y` to. (Defaults to the `x` parameter)
 function Object:setScaleOrigin(x, y) self.scale_origin_x = x or 0; self.scale_origin_y = y or x or 0; self.scale_origin_exact = false end
+--- Returns the scaling origin of the object, simplifying to be a ratio relative to its width and height if its current scaling origin is exact. \
+--- If the object doesn't have a scaling origin defined, it will return `self:getOrigin()` instead.
+---@return number x The horizontal scaling origin of the object.
+---@return number y The vertical scaling origin of the object.
 function Object:getScaleOrigin()
     if not self.scale_origin_exact then
         local ox, oy = self:getOrigin()
@@ -418,7 +570,15 @@ function Object:getScaleOrigin()
         return (self.scale_origin_x or ox) / self.width, (self.scale_origin_y or oy) / self.height
     end
 end
+--- Sets the object's `scale_origin_x` and `scale_origin_y` values to the specified origin, and sets `scale_origin_exact` to true. \
+--- The scaling origin set by this function will therefore be in exact pixels.
+---@param x  number The value to set `scale_origin_x` to.
+---@param y? number The value to set `scale_origin_y` to. (Defaults to the `x` parameter)
 function Object:setScaleOriginExact(x, y) self.scale_origin_x = x or 0; self.scale_origin_y = y or x or 0; self.scale_origin_exact = true end
+--- Returns the scaling origin of the object, multiplying to give the exact pixels if its current scaling origin is not exact. \
+--- If the object doesn't have a scaling origin defined, it will return `self:getOriginExact()` instead.
+---@return number x The horizontal scaling origin of the object.
+---@return number y The vertical scaling origin of the object.
 function Object:getScaleOriginExact()
     if self.scale_origin_exact then
         local ox, oy = self:getOriginExact()
@@ -429,7 +589,15 @@ function Object:getScaleOriginExact()
     end
 end
 
+--- Sets the object's `rotation_origin_x` and `rotation_origin_y` values to the specified origin, and sets `rotation_origin_exact` to false. \
+--- The rotation origin set by this function will therefore be a ratio relative to the object's width and height.
+---@param x  number The value to set `rotation_origin_x` to.
+---@param y? number The value to set `rotation_origin_y` to. (Defaults to the `x` parameter)
 function Object:setRotationOrigin(x, y) self.rotation_origin_x = x or 0; self.rotation_origin_y = y or x or 0; self.rotation_origin_exact = false end
+--- Returns the rotation origin of the object, simplifying to be a ratio relative to its width and height if its current rotation origin is exact. \
+--- If the object doesn't have a rotation origin defined, it will return `self:getOrigin()` instead.
+---@return number x The horizontal rotation origin of the object.
+---@return number y The vertical rotation origin of the object.
 function Object:getRotationOrigin()
     if not self.rotation_origin_exact then
         local ox, oy = self:getOrigin()
@@ -439,7 +607,15 @@ function Object:getRotationOrigin()
         return (self.rotation_origin_x or ox) / self.width, (self.rotation_origin_y or oy) / self.height
     end
 end
+--- Sets the object's `rotation_origin_x` and `rotation_origin_y` values to the specified origin, and sets `rotation_origin_exact` to true. \
+--- The rotation origin set by this function will therefore be in exact pixels.
+---@param x  number The value to set `rotation_origin_x` to.
+---@param y? number The value to set `rotation_origin_y` to. (Defaults to the `x` parameter)
 function Object:setRotationOriginExact(x, y) self.rotation_origin_x = x or 0; self.rotation_origin_y = y or x or 0; self.rotation_origin_exact = true end
+--- Returns the rotation origin of the object, multiplying to give the exact pixels if its current rotation origin is not exact. \
+--- If the object doesn't have a rotation origin defined, it will return `self:getOriginExact()` instead.
+---@return number x The horizontal rotation origin of the object.
+---@return number y The vertical rotation origin of the object.
 function Object:getRotationOriginExact()
     if self.rotation_origin_exact then
         local ox, oy = self:getOriginExact()
@@ -450,7 +626,14 @@ function Object:getRotationOriginExact()
     end
 end
 
+--- Sets the object's `camera_origin_x` and `camera_origin_y` values to the specified origin, and sets `camera_origin_exact` to false. \
+--- The camera origin set by this function will therefore be a ratio relative to the object's width and height.
+---@param x  number The value to set `camera_origin_x` to.
+---@param y? number The value to set `camera_origin_y` to. (Defaults to the `x` parameter)
 function Object:setCameraOrigin(x, y) self.camera_origin_x = x or 0; self.camera_origin_y = y or x or 0; self.camera_origin_exact = false end
+--- Returns the camera origin of the object, simplifying to be a ratio relative to its width and height if its current camera origin is exact.
+---@return number x The horizontal camera origin of the object.
+---@return number y The vertical camera origin of the object.
 function Object:getCameraOrigin()
     if not self.camera_origin_exact then
         return self.camera_origin_x, self.camera_origin_y
@@ -458,7 +641,14 @@ function Object:getCameraOrigin()
         return self.camera_origin_x / self.width, self.camera_origin_y / self.height
     end
 end
+--- Sets the object's `camera_origin_x` and `camera_origin_y` values to the specified origin, and sets `camera_origin_exact` to true. \
+--- The camera origin set by this function will therefore be in exact pixels.
+---@param x  number The value to set `camera_origin_x` to.
+---@param y? number The value to set `camera_origin_y` to. (Defaults to the `x` parameter)
 function Object:setCameraOriginExact(x, y) self.camera_origin_x = x or 0; self.camera_origin_y = y or x or 0; self.camera_origin_exact = true end
+--- Returns the camera origin of the object, multiplying to give the exact pixels if its current camera origin is not exact.
+---@return number x The horizontal camera origin of the object.
+---@return number y The vertical camera origin of the object.
 function Object:getCameraOriginExact()
     if self.camera_origin_exact then
         return self.camera_origin_x, self.camera_origin_y
@@ -467,15 +657,34 @@ function Object:getCameraOriginExact()
     end
 end
 
+--- *(Override)* \
+--- By default, returns true.
+---@return boolean attached Whether a Camera attached to this object should follow it.
 function Object:isCameraAttachable() return true end
 
+--- Sets the object's `parallax_x` and `parallax_y` to the specified parallax.
+---@param x number The value to set `parallax_x` to.
+---@param y number The value to set `parallax_y` to.
 function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
+--- Returns the parallax of the object.
+---@return number x The `parallax_x` value of the object.
+---@return number y The `parallax_y` value of the object.
 function Object:getParallax() return self.parallax_x or 1, self.parallax_y or 1 end
 
+--- Sets the object's `parallax_origin_x` and `parallax_origin_y` values to the specified origin.
+---@param x number The value to set `parallax_origin_x` to.
+---@param y number The value to set `parallax_origin_y` to.
 function Object:setParallaxOrigin(x, y) self.parallax_origin_x = x; self.parallax_origin_y = y end
+--- Returns the parallax origin of the object.
+---@return number x The `parallax_origin_x` value of the object.
+---@return number y The `parallax_origin_y` value of the object.
 function Object:getParallaxOrigin() return self.parallax_origin_x, self.parallax_origin_y end
 
+--- Returns the layer of the object.
+---@return number The `layer` value of the object.
 function Object:getLayer() return self.layer end
+--- Sets the object's `layer`, and updates its position in its parent's children list.
+---@param layer number The value to set `layer` to.
 function Object:setLayer(layer)
     if self.layer ~= layer then
         self.layer = layer
@@ -485,16 +694,31 @@ function Object:setLayer(layer)
     end
 end
 
+--- Sets the object's `cutout` values to the specified cutout.
+---@param left   number|nil The value to set `cutout_left` to.
+---@param top    number|nil The value to set `cutout_top` to.
+---@param right  number|nil The value to set `cutout_right` to.
+---@param bottom number|nil The value to set `cutout_bottom` to.
 function Object:setCutout(left, top, right, bottom)
     self.cutout_left = left
     self.cutout_top = top
     self.cutout_right = right
     self.cutout_bottom = bottom
 end
+--- Returns the object's `cutout` values.
+---@return number|nil The `cutout_left` value of the object.
+---@return number|nil The `cutout_top` value of the object.
+---@return number|nil The `cutout_right` value of the object.
+---@return number|nil The `cutout_bottom` value of the object.
 function Object:getCutout()
     return self.cutout_left, self.cutout_top, self.cutout_right, self.cutout_bottom
 end
 
+--- Sets the object's speed in its `physics` table.
+---@param x number The value to set `physics.speed_x` to.
+---@param y number The value to set `physics.speed_y` to.
+---@overload fun(self:Object, speed:number)
+---@param speed number The value to set `physics.speed` to.
 function Object:setSpeed(x, y)
     if x and y then
         self.physics.speed = 0
@@ -506,18 +730,39 @@ function Object:setSpeed(x, y)
         self.physics.speed_y = 0
     end
 end
-function Object:getSpeed()
+--- Returns the velocity and direction of the object's physics, converting `physics.speed_x` and `physics.speed_y` if necessary.
+---@return number speed     The linear speed the object moves at.
+---@return number direction The direction the object is moving in.
+function Object:getSpeedDir()
     if self.physics then
-        if self.physics.speed ~= 0 then
-            return self.physics.speed
+        if self.physics.speed and self.physics.speed ~= 0 then
+            return self.physics.speed, self:getDirection()
         else
-            return self.physics.speed_x, self.physics.speed_y
+            local speed_x, speed_y = self.physics.speed_x or 0, self.physics.speed_y or 0
+            if speed_x ~= 0 or speed_y ~= 0 then
+                return Utils.dist(0, 0, speed_x, speed_y), Utils.angle(0, 0, speed_x, speed_y)
+            end
         end
-    else
-        return 0
     end
+    return 0, 0
+end
+--- Returns the horizontal and vertical speed of the object's physics, converting `physics.speed` and `physics.direction` if necessary
+---@return number speed_x The horizontal speed of the object.
+---@return number speed_y The vertical speed of the object.
+function Object:getSpeedXY()
+    if self.physics then
+        if self.physics.speed and self.physics.speed ~= 0 then
+            local direction = self:getDirection()
+            return self.physics.speed * math.cos(direction), self.physics.speed * math.sin(direction)
+        else
+            return self.physics.speed_x or 0, self.physics.speed_y or 0
+        end
+    end
+    return 0, 0
 end
 
+--- Sets the object's movement direction to the specified direction, or its rotation if `physics.match_rotation` is true.
+---@param dir number The value to set `physics.direction` or `rotation` to.
 function Object:setDirection(dir)
     if self.physics.match_rotation then
         self.rotation = dir
@@ -525,36 +770,67 @@ function Object:setDirection(dir)
         self.physics.direction = dir
     end
 end
+--- Returns the object's `physics.direction`, or the object's `rotation` if `physics.match_rotation` is true.
+---@return number dir The movement direction of the object.
 function Object:getDirection()
-    return self.physics.match_rotation and self.rotation or self.physics.direction
+    return (self.physics.match_rotation and self.rotation) or self.physics.direction or 0
 end
 
+--- Returns the dimensions of the object's `collider` if that collider is a Hitbox.
+---@return number The `x` position of the collider, relative to the object.
+---@return number The `y` position of the collider, relative to the object.
+---@return number The `width` of the collider, in pixels.
+---@return number The `height` of the collider, in pixels.
 function Object:getHitbox()
     if self.collider and self.collider:includes(Hitbox) then
         return self.collider.x, self.collider.y, self.collider.width, self.collider.height
     end
 end
+--- Sets the object's `collider` to a new Hitbox with the specified dimensions.
+---@param x number The `x` position of the collider, relative to the object.
+---@param y number The `y` position of the collider, relative to the object.
+---@param w number The `width` of the collider, in pixels.
+---@param h number The `height` of the collider, in pixels.
 function Object:setHitbox(x, y, w, h)
     self.collider = Hitbox(self, x, y, w, h)
 end
 
--- Used in World exclusively
+--- *(Override)* Used by World to determine what position should be used when sorting its layer. \
+--- By default, returns `self:getRelativePos(self.width/2, self.height)`.
+---@return number x The horizontal position to use.
+---@return number y The vertical position to use.
 function Object:getSortPosition()
     return self:getRelativePos(self.width/2, self.height)
 end
 
+--- *(Override)* \
+--- By default, returns `self.debug_select`.
+---@return boolean can_select Whether the object can be selected by the Object Selection debug feature.
 function Object:canDebugSelect()
     return self.debug_select
 end
 
+--- *(Override)* Returns a table defining the rectangle to use for selecting the object with the Object Selection debug feature. \
+--- By default, returns `self.debug_rect`, or a rectangle with the same width and height as the object if `self.debug_rect` is `nil`.
+---@return table rectangle A table containing 4 number values, defining the `x`, `y`, `width` and `height` of the selection rectangle.
 function Object:getDebugRectangle()
     return self.debug_rect or {0, 0, self.width, self.height}
 end
 
+--- *(Override)* \
+--- By default, returns an empty table.
+---@return table info A list of strings to display if the object is selected by the Object Selection debug feature.
 function Object:getDebugInfo()
     return {}
 end
-
+--- *(Override)* Defines options that can be used when selecting the object with the Object Selection debug feature. \
+--- By default, defines options that all objects use.
+---@param context ContextMenu The menu object containing the debug options that can be used.
+--- To define an option, use `context:addMenuItem(name: string, description: string, code: function)`, where:
+--- - `name` defines the name that appears in the menu.
+--- - `description` defines the text that appears when hovering over the option.
+--- - `code` is the function that will be called when selecting the option.
+---@return ContextMenu context The modified menu object.
 function Object:getDebugOptions(context)
     context:addMenuItem("Delete", "Delete this object", function()
         self:remove()
@@ -589,12 +865,18 @@ function Object:getDebugOptions(context)
     return context
 end
 
+--- Sets the object's origin to the specified values, and adjusts its position so that it stays in the same place visually.
+---@param ox  number The value to set `origin_x` to.
+---@param oy? number The value to set `origin_y` to. (Defaults to the `ox` parameter)
 function Object:shiftOrigin(ox, oy)
     local tx, ty = self:getRelativePos((ox or 0) * self.width, (oy or ox or 0) * self.height)
     self:setOrigin(ox, oy)
     self:setPosition(tx, ty)
 end
 
+--- Sets the object's position relative to the topleft of the game window.
+---@param x number The `x` position for the object.
+---@param y number The `y` position for the object.
 function Object:setScreenPos(x, y)
     if self.parent then
         self:setPosition(self.parent:getFullTransform():inverseTransformPoint(x or 0, y or 0))
@@ -602,6 +884,9 @@ function Object:setScreenPos(x, y)
         self:setPosition(x, y)
     end
 end
+--- Returns the object's position relative to the topleft of the game window.
+---@return number x The `x` position of the object.
+---@return number y The `y` position of the object.
 function Object:getScreenPos()
     if self.parent then
         return self.parent:getFullTransform():transformPoint(self.x, self.y)
@@ -610,21 +895,30 @@ function Object:getScreenPos()
     end
 end
 
+--- Returns the specified position for the object, relative to the object's stage.
+---@param x number The `x` position relative to the object.
+---@param y number The `y` position relative to the object.
+---@return number x The new `x` position relative to the object's stage.
+---@return number y The new `y` position relative to the object's stage.
 function Object:localToScreenPos(x, y)
     return self:getFullTransform():transformPoint(x or 0, y or 0)
 end
 
+--- Returns the specified position for the object's stage, relative to this object.
+---@param x number The `x` position relative to the object's stage.
+---@param y number The `y` position relative to the object's stage.
+---@return number x The new `x` position relative to the object.
+---@return number y The new `y` position relative to the object.
 function Object:screenToLocalPos(x, y)
     return self:getFullTransform():inverseTransformPoint(x or 0, y or 0)
 end
 
-function Object:setRelativePos(x, y, other)
-    -- ill be honest idk what this does it just feels weird to not have a setter
-    other = other or self.parent
-    local sx, sy = other:getFullTransform():inverseTransformPoint(x, y)
-    local cx, cy = self:getFullTransform():transformPoint(sx, sy)
-    self:setPosition(self:getTransform():inverseTransformPoint(cx, cy))
-end
+--- Returns the specified position for the object, relative to another object.
+---@param x     number The `x` position relative to the object.
+---@param y     number The `y` position relative to the object.
+---@param other Object The object the returned values should be relative to.
+---@return number x The new `x` position relative to the `other` object.
+---@return number y The new `y` position relative to the `other` object.
 function Object:getRelativePos(x, y, other)
     if not other or other == self.parent then
         return self:getTransform():transformPoint(x or 0, y or 0)
@@ -636,7 +930,10 @@ function Object:getRelativePos(x, y, other)
     end
 end
 
--- Please rename this soon
+--- Returns the object's position, relative to another object.
+---@param other Object The object the returned values should be relative to.
+---@return number x The new `x` position relative to the `other` object.
+---@return number y The new `y` position relative to the `other` object.
 function Object:getRelativePosFor(other)
     if other == self then
         return 0, 0
@@ -645,6 +942,7 @@ function Object:getRelativePosFor(other)
     end
 end
 
+---@return Object stage The object's highest parent.
 function Object:getStage()
     if self.parent and self.parent.parent then
         return self.parent:getStage()
@@ -653,6 +951,12 @@ function Object:getStage()
     end
 end
 
+--- Returns the object's color and alpha. \
+--- If the object's `inherit_color` is true, the result is multiplied by its parent's color and alpha, to get the color it should draw at.
+---@return number r The red value of the object's draw color.
+---@return number g The green value of the object's draw color.
+---@return number b The blue value of the object's draw color.
+---@return number a The object's draw alpha.
 function Object:getDrawColor()
     local r, g, b = unpack(self.color)
     if self.inherit_color and self.parent then
@@ -663,6 +967,7 @@ function Object:getDrawColor()
     end
 end
 
+--- Called during drawing to apply cutouts.
 function Object:applyScissor()
     local left, top, right, bottom = self:getCutout()
     if left or top or right or bottom then
@@ -670,6 +975,10 @@ function Object:applyScissor()
     end
 end
 
+--- Adds a visual effect to the object.
+---@param fx  DrawFX The DrawFX instance to add to the object.
+---@param id? string An optional string ID that can be used to reference the DrawFX in other functions.
+---@return DrawFX fx The DrawFX instance that was added to the object.
 function Object:addFX(fx, id)
     table.insert(self.draw_fx, fx)
     fx.parent = self
@@ -679,10 +988,13 @@ function Object:addFX(fx, id)
     return fx
 end
 
+--- Returns a DrawFX added to the object.
+---@param id string|class|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
+---@return DrawFX|nil fx A DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
 function Object:getFX(id)
     if isClass(id) then
         for _,fx in ipairs(self.draw_fx) do
-            if fx:includes(id) then
+            if fx:includes(id) or fx == id then
                 return fx
             end
         end
@@ -695,14 +1007,17 @@ function Object:getFX(id)
     end
 end
 
+--- Removes the specified DrawFX from the object.
+---@param id string|class|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
+---@return DrawFX|nil fx The removed DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
 function Object:removeFX(id)
-    for i,fx in ipairs(self.draw_fx) do
-        if fx == id or fx.id == id then
-            if fx.parent == self then
-                fx.parent = nil
-            end
-            return table.remove(self.draw_fx, i)
+    local fx = self:getFX(id)
+    if fx then
+        if fx.parent == self then
+            fx.parent = nil
         end
+        Utils.removeFromTable(self.draw_fx, fx)
+        return fx
     end
 end
 
@@ -805,6 +1120,7 @@ function Object:getFullTransform(i)
     end
 end
 
+---@return table hierarchy A table of all parents between this object and its stage (inclusive).
 function Object:getHierarchy()
     local tbl = {self}
     if self.parent then
@@ -815,6 +1131,9 @@ function Object:getHierarchy()
     return tbl
 end
 
+--- Returns the object's scale, multiplied by its parent's full scale.
+---@return number x The horizontal scale of the object.
+---@return number y The vertical scale of the object.
 function Object:getFullScale()
     local sx, sy = self.scale_x, self.scale_y
     if self.parent then
@@ -825,12 +1144,19 @@ function Object:getFullScale()
     return sx, sy
 end
 
+--- Removes the object from its parent.
 function Object:remove()
     if self.parent then
         self.parent:removeChild(self)
     end
 end
 
+---@param x? number The explosion's horizontal offset.
+---@param y? number The explosion's vertical offset.
+---@param dont_remove? boolean Whether the object should not be removed.
+---@param options? table Additional properties.
+---| "play_sound" # Whether it should play the sound. (Defaults to true)
+---@return Explosion
 function Object:explode(x, y, dont_remove, options)
     if self.parent then
         options = options or {}
@@ -846,6 +1172,10 @@ function Object:explode(x, y, dont_remove, options)
     end
 end
 
+--- Adds the specified object as a child to this object, and adds it to a stage if it was not added to one previously. \
+--- Calls `child:onAdd(self)`.
+---@param child Object The object to be added.
+---@return Object child The object that was added.
 function Object:addChild(child)
     child.parent = self
     if self.stage and child.stage ~= self.stage then
@@ -857,6 +1187,10 @@ function Object:addChild(child)
     return child
 end
 
+--- Removes the specified object from this object's children, and removes it from its stage. \
+--- Calls `child:onRemove(self)`.
+---@param child Object The object to be removed.
+---@return Object child The object that was removed.
 function Object:removeChild(child)
     if child.parent == self then
         child.parent = nil
@@ -869,10 +1203,13 @@ function Object:removeChild(child)
     return child
 end
 
+---@return boolean has_stage Whether the object has a parent or not.
 function Object:isRemoved()
     return self.stage == nil
 end
 
+--- Sets the object's parent, removing it from its previous parent if it had one.
+---@param parent Object The object to add `self` to.
 function Object:setParent(parent)
     if self.parent ~= parent then
         local old_parent = self.parent
@@ -885,6 +1222,8 @@ function Object:setParent(parent)
     end
 end
 
+--- Returns whether the object and its parents are active, determining whether the object should be updated or not.
+---@return boolean active Whether the object and its parents are active.
 function Object:isFullyActive()
     if self.stage and self.parent == self.stage then
         return self.active
@@ -894,6 +1233,8 @@ function Object:isFullyActive()
     return false
 end
 
+--- Returns whether the object and its parents are visible, determining whether the object should be drawn or not.
+---@return boolean visible Whether the object and its parents are visible.
 function Object:isFullyVisible()
     if self.stage and self.parent == self.stage then
         return self.visible
