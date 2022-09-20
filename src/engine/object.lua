@@ -2,32 +2,116 @@
 --- When added to the stage, an object will be updated and rendered.
 ---
 ---@class Object
----@field x      number The X position of the object.
----@field y      number The Y position of the object.
+---@field x      number The horizontal position of the object, relative to its parent.
+---@field y      number The vertical position of the object, relative to its parent.
 ---@field width  number The width of the object.
 ---@field height number The height of the object.
+---
+---@field init_x   number  The horizontal position of the object when it was created.
+---@field init_y   number  The vertical position of the object when it was created.
+---@field last_x   number  The horizontal position of the object in the previous frame.
+---@field last_y   number  The vertical position of the object in the previous frame.
 ---
 --- The color of the object in the form {R, G, B}. \
 --- The values of R, G, and B are between 0 and 1.
 ---@field color table
 ---
 ---@field alpha    number  The alpha transparency of the object, between 0 (invisible) and 1 (fully visible).
----@field scale_x  number  The X scale of the object.
----@field scale_y  number  The Y scale of the object.
+---@field scale_x  number  The horizontal scale of the object.
+---@field scale_y  number  The vertical scale of the object.
 ---@field rotation number  The rotation of the object, in radians. (`0` is right, positive is clockwise)
 ---@field flip_x   boolean Whether the object is flipped horizontally.
 ---@field flip_y   boolean Whether the object is flipped vertically.
 ---
 ---@field inherit_color boolean Whether the object's color will be multiplied by its parent's color.
 ---
---- TODO: Document the rest of the fields
----@field origin_x number
----@field origin_y number
+---@field physics physics_table A table of data, defining ways the object should automatically move when updating.
+---@field graphics graphics_table A table of data, defining ways the object's properties should automatically update.
 ---
----@field init_x   number  The X position of the object when it was created.
----@field init_y   number  The Y position of the object when it was created.
----@field last_x   number  The X position of the object in the previous frame.
----@field last_y   number  The Y position of the object in the previous frame.
+--- The horizontal origin of the object. \
+--- Origin is used to define the point that the object is scaled, rotated, and positioned from. \
+--- This determines where the position (0, 0) is within the object. \
+--- \
+--- If `origin_exact` is false, the origin will be a ratio relative to the object's `width` and `height`, meaning an origin of 0.5, 0.5 will cause the object to be centered. \
+--- If it is true, then the origin will be measured in exact pixels.
+---@field origin_x number
+--- The vertical origin of the object. \
+--- Origin is used to define the point that the object is scaled, rotated, and positioned from. \
+--- This determines where the position (0, 0) is within the object. \
+--- \
+--- If `origin_exact` is false, the origin will be a ratio relative to the object's `width` and `height`, meaning an origin of 0.5, 0.5 will cause the object to be centered. \
+--- If it is true, then the origin will be measured in exact pixels.
+---@field origin_y number
+---@field origin_exact boolean Whether the object's origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
+--- The horizontal scale origin of the object. \
+--- Scale origin overrides the object's origin, and defines where the object will scale from.
+---@field scale_origin_x number|nil
+--- The vertical scale origin of the object. \
+--- Scale origin overrides the object's origin, and defines where the object will scale from.
+---@field scale_origin_y number|nil
+---@field scale_origin_exact boolean Whether the object's scale origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
+--- The horizontal rotation origin of the object. \
+--- Rotation origin overrides the object's origin, and defines where the object will rotate from.
+---@field rotation_origin_x number|nil
+--- The vertical rotation origin of the object. \
+--- Rotation origin overrides the object's origin, and defines where the object will rotate from.
+---@field rotation_origin_y number|nil
+---@field rotation_origin_exact boolean Whether the object's rotation origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
+---
+--- The horizontal camera origin of the object. (Defaults to 0.5) \
+--- Camera origin defines what position on the object a camera attached to it should follow.
+---@field camera_origin_x number
+--- The vertical camera origin of the object. (Defaults to 0.5) \
+--- Camera origin defines what position on the object a camera attached to it should follow.
+---@field camera_origin_y number
+---@field camera_origin_exact boolean Whether the object's camera origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)
+---
+--- How much an object's position will be affected by the camera horizontally. \
+--- A value of 1 means it fully moves with the camera (aka default behavior), and a value of 0 means it will not move at all when the camera moves. \
+--- Parallax will only affect an object if its parent has a camera.
+---@field parallax_x number|nil
+--- How much an object's position will be affected by the camera vertically. \
+--- A value of 1 means it fully moves with the camera (aka default behavior), and a value of 0 means it will not move at all when the camera moves. \
+--- Parallax will only affect an object if its parent has a camera.
+---@field parallax_y number|nil
+---@field parallax_origin_x number The horizontal position on the object's parent that the object's parallax will orient around.
+---@field parallax_origin_y number The vertical position on the object's parent that the object's parallax will orient around.
+---@field camera Camera|nil A camera instance that will automatically move and scale the object and its children. Should be `nil` for most objects.
+---
+---@field cutout_left number|nil The amount of pixels to cut from the left of the object when drawing.
+---@field cutout_top number|nil The amount of pixels to cut from the top of the object when drawing.
+---@field cutout_right number|nil The amount of pixels to cut from the right of the object when drawing.
+---@field cutout_bottom number|nil The amount of pixels to cut from the bottom of the object when drawing.
+---
+---@field draw_fx table A list of all DrawFX that are being applied to the object.
+---
+---@field debug_select boolean Whether the object can be selected by the Object Selection debug feature. (Defaults to true)
+---@field debug_rect table|nil Defines the rectangle used for selecting the object with the Object Selection debug feature.
+---
+---@field timescale number A multiplier that determines the speed at which the object updates.
+---
+--- The layer of the object within its parent. \
+--- Objects update and draw their children in order sorted by layer. Objects with a higher layer will update and draw later than objects with lower layers. \
+--- \
+--- All children of an object will draw at the same visual layer as the parent. In other words, a child cannot render above an object that is higher than its parent, even if its own layer is higher.
+---@field layer number
+---
+---@field collider Collider|nil A Collider class used to check collision with other objects.
+---@field collidable boolean Whether the object should be able to collide with other objects.
+---
+---@field active boolean Whether the object should update itself and its children.
+---@field visible boolean Whether the object should draw itself and its children.
+---
+---@field draw_children_below number|nil If defined, children with a layer less than this value will be drawn underneath the object.
+---@field draw_children_above number|nil If defined, children with a layer greater than this value will be drawn above the object.
+---
+---@field _dont_draw_children boolean *(Used internally)* Whether the object should draw its children or not.
+---
+---@field update_child_list boolean *(Used internally)* If true, the object will re-sort its children list.
+---@field children_to_remove table *(Used internally)* A list of children for the object to remove next time it updates.
+---
+---@field parent Object|nil The object's parent.
+---@field children = table A list of all of this object's children.
 ---
 ---@overload fun(x?:number, y?:number, width?:number, height?:number) : Object
 local Object = Class()
@@ -236,6 +320,19 @@ function Object:onRemoveFromStage(stage) end
 
 --[[ Common functions ]]--
 
+---@class physics_table
+---@field speed_x   number The horizontal speed of the object, in pixels per frame at 30FPS.
+---@field speed_y   number The vertical speed of the object, in pixels per frame at 30FPS.
+---@field speed     number The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
+---@field direction number The angle at which the object will move, in radians.
+---@field friction  number The amount the object's speed will slow down, per frame at 30FPS.
+---@field gravity   number The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
+---@field gravity_direction number The angle at which the object's gravity will accelerate towards, in radians.
+---@field spin      number The amount this object's direction will change, in radians per frame at 30FPS.
+---@field match_rotation    boolean Whether the object's rotation should also define its direction. (Defaults to false)
+---@field move_target   table A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
+---@field move_path     table A table containing data defined by `Object:slidePath()`.
+
 --- Resets all of the object's `physics` table values to their default values, \
 --- making it so it will stop moving if it was before.
 function Object:resetPhysics()
@@ -265,6 +362,16 @@ function Object:resetPhysics()
         move_path = nil,
     }
 end
+
+---@class graphics_table
+---@field fade      number The amount the object's alpha should approach its target value, per frame at 30FPS.
+---@field fade_to   number The target alpha to approach.
+---@field fade_callback function|nil A function that will be called when the object's alpha reaches its target value.
+---@field grow_x    number The amount the object's `scale_x` will increase, per frame at 30FPS.
+---@field grow_y    number The amount the object's `scale_y` will increase, per frame at 30FPS.
+---@field grow      number The amount the object's `scale_x` and `scale_y` will increase, per frame at 30FPS.
+---@field remove_shrunk boolean If true, the object will remove itself if its scale goes below 0. (Defaults to false)
+---@field spin      number The amount the object's `rotation` will change, per frame at 30FPS.
 
 --- Resets all of the object's `graphics` table values to their default values, \
 --- making it so it will stop transforming if it was before.
@@ -1015,7 +1122,9 @@ function Object:applyScissor()
     end
 end
 
---- Adds a visual effect to the object.
+--- Adds a DrawFX to the object. \
+--- DrawFX are classes that can apply visual effects to an object when drawing it. \
+--- Each effect will be applied in sequence, with effects of higher priority rendering later.
 ---@param fx  DrawFX The DrawFX instance to add to the object.
 ---@param id? string An optional string ID that can be used to reference the DrawFX in other functions.
 ---@return DrawFX fx The DrawFX instance that was added to the object.
