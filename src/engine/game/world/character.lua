@@ -95,7 +95,7 @@ end
 
 function Character:setFacing(dir)
     self.facing = dir
-    self.sprite.facing = dir
+    self.sprite:setFacing(dir)
 end
 
 function Character:faceTowards(target)
