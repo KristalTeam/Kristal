@@ -330,8 +330,8 @@ function Object:onRemoveFromStage(stage) end
 ---@field gravity_direction number The angle at which the object's gravity will accelerate towards, in radians.
 ---@field spin      number The amount this object's direction will change, in radians per frame at 30FPS.
 ---@field match_rotation    boolean Whether the object's rotation should also define its direction. (Defaults to false)
----@field move_target   table A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
----@field move_path     table A table containing data defined by `Object:slidePath()`.
+---@field move_target?   table A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
+---@field move_path?     table A table containing data defined by `Object:slidePath()`.
 
 --- Resets all of the object's `physics` table values to their default values, \
 --- making it so it will stop moving if it was before.
@@ -1061,9 +1061,9 @@ function Object:screenToLocalPos(x, y)
 end
 
 --- Returns the specified position for the object, relative to another object.
----@param x     number The `x` position relative to the object.
----@param y     number The `y` position relative to the object.
----@param other Object The object the returned values should be relative to.
+---@param x      number The `x` position relative to the object.
+---@param y      number The `y` position relative to the object.
+---@param other? Object The object the returned values should be relative to.
 ---@return number x The new `x` position relative to the `other` object.
 ---@return number y The new `y` position relative to the `other` object.
 function Object:getRelativePos(x, y, other)
@@ -1089,7 +1089,7 @@ function Object:getRelativePosFor(other)
     end
 end
 
----@return Object stage The object's highest parent.
+---@return Object|nil stage The object's highest parent.
 function Object:getStage()
     if self.parent and self.parent.parent then
         return self.parent:getStage()
@@ -1305,7 +1305,7 @@ end
 ---@param dont_remove? boolean Whether the object should not be removed.
 ---@param options? table Additional properties.
 ---| "play_sound" # Whether it should play the sound. (Defaults to true)
----@return Explosion
+---@return Explosion|nil
 function Object:explode(x, y, dont_remove, options)
     if self.parent then
         options = options or {}
