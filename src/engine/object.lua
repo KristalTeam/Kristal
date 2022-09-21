@@ -111,7 +111,7 @@
 ---@field children_to_remove table *(Used internally)* A list of children for the object to remove next time it updates.
 ---
 ---@field parent Object|nil The object's parent.
----@field children = table A list of all of this object's children.
+---@field children table A list of all of this object's children.
 ---
 ---@overload fun(x?:number, y?:number, width?:number, height?:number) : Object
 local Object = Class()
