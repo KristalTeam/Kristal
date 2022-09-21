@@ -363,6 +363,15 @@ function Object:resetPhysics()
     }
 end
 
+--- Resets the object's `physics` and sets new values for it.
+---@param physics physics_table A table of values to set for the object's physics.
+function Object:setPhysics(physics)
+    self:resetPhysics()
+    for k,v in pairs(physics) do
+        self.physics[k] = v
+    end
+end
+
 ---@class graphics_table
 ---@field fade      number The amount the object's alpha should approach its target value, per frame at 30FPS.
 ---@field fade_to   number The target alpha to approach.
@@ -395,6 +404,15 @@ function Object:resetGraphicsTransform()
         -- Amount this object rotates (per frame at 30 fps)
         spin = 0
     }
+end
+
+--- Resets the object's `graphics` and sets new values for it.
+---@param graphics graphics_table A table of values to set for the object's graphics transformation.
+function Object:setGraphics(graphics)
+    self:resetGraphicsTransform()
+    for k,v in pairs(graphics) do
+        self.graphics[k] = v
+    end
 end
 
 --- Moves the object's `x` and `y` values by the specified values.
