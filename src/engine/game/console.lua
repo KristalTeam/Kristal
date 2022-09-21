@@ -32,8 +32,16 @@ function Console:init()
     self.env = self:createEnv()
 end
 
+function Console:update()
+    self.env:update()
+end
+
 function Console:createEnv()
     local env = {}
+
+    function env.update()
+
+    end
 
     function env.print(...)
         local arg = {...}
