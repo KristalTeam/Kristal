@@ -280,13 +280,12 @@ function Game:load(data, index, fade)
         self.border = self.light and "leaves" or "castle"
     end
 
+    local map = nil
     local room_id = data.room_id or Kristal.getModOption("map")
     if room_id then
-        if data.spawn_position then
-            self.world:loadMap(room_id, data.spawn_position[1], data.spawn_position[2], data.spawn_facing)
-        else
-            self.world:loadMap(room_id, data.spawn_marker or "spawn", data.spawn_facing)
-        end
+        map = Registry.createMap(room_id, self.world)
+
+        self.light = map.light or false
     end
 
     if self.light then
@@ -353,6 +352,15 @@ function Game:load(data, index, fade)
     -- END SAVE FILE VARIABLES --
 
     Kristal.callEvent("load", data, self.is_new_file, index)
+
+    -- Load the map if we have one
+    if map then
+        if data.spawn_position then
+            self.world:loadMap(map, data.spawn_position[1], data.spawn_position[2], data.spawn_facing)
+        else
+            self.world:loadMap(map, data.spawn_marker or "spawn", data.spawn_facing)
+        end
+    end
 
     Kristal.DebugSystem:refresh()
 
