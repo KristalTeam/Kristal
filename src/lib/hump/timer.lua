@@ -91,6 +91,9 @@ function Timer:every(delay, after, count)
 end
 
 function Timer:cancel(handle)
+    if type(handle) == "table" and handle.handle then
+        handle = handle.handle
+    end
     self.functions[handle] = nil
 end
 
@@ -99,11 +102,13 @@ function Timer:clear()
 end
 
 function Timer:script(f)
+    local container = { handle = nil }
     local co = coroutine.wrap(f)
     co(function(t)
-        self:after(t or 0, co)
+        container.handle = self:after(t or 0, co)
         coroutine.yield()
     end)
+    return container
 end
 
 Timer.tween = setmetatable({
