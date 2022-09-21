@@ -1257,7 +1257,7 @@ end
 ---@return boolean exists Whether the save folder has any save files.
 function Kristal.hasAnySaves(path)
     local full_path = "saves/"..(path or Mod.info.id)
-    return love.filesystem.getInfo(full_path) and (#love.filesystem.getDirectoryItems(path) > 0)
+    return love.filesystem.getInfo(full_path) and (#love.filesystem.getDirectoryItems(full_path) > 0)
 end
 
 --- Saves the given data to a file in the save folder.
