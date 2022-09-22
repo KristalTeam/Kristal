@@ -10,10 +10,10 @@ function ArenaMask:init(layer, x, y, arena)
     self:addFX(self.mask_fx)
 end
 
-function ArenaMask:update()
-    super:update(self)
-
+function ArenaMask:fullDraw(...)
     self.mask_fx.active = #self.children > 0
+
+    super:fullDraw(self, ...)
 end
 
 return ArenaMask
