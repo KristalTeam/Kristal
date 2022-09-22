@@ -9,6 +9,8 @@ function MaskFX:init(mask, draw_children, priority)
     else
         self.draw_children = mask ~= nil
     end
+
+    self.inverted = false
 end
 
 function MaskFX:draw(texture)
@@ -43,7 +45,11 @@ function MaskFX:draw(texture)
         love.graphics.draw(mask)
         love.graphics.setShader(last_shader)
     end, "replace", 1)
-    love.graphics.setStencilTest("greater", 0)
+    if not self.inverted then
+        love.graphics.setStencilTest("greater", 0)
+    else
+        love.graphics.setStencilTest("less", 1)
+    end
     Draw.drawCanvas(texture)
     love.graphics.setStencilTest()
 end
