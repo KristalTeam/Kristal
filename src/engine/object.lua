@@ -429,7 +429,7 @@ end
 ---@param time?     number   The amount of time, in seconds, that the fade should take. (Defaults to 1 second)
 ---@param callback? function A function that will be called when the alpha value is reached. Receives `self` as an argument.
 function Object:fadeTo(target, time, callback)
-    self:fadeToSpeed(target, (time or 1) / 30 * math.abs(self.alpha - target), callback)
+    self:fadeToSpeed(target, (1 / (time or 1)) / 30 * math.abs(self.alpha - target), callback)
 end
 
 --- Fades the object's `alpha` to the specified value at a speed of `speed` per frame.
@@ -445,7 +445,7 @@ end
 --- Fades the object's `alpha` to 0 over `time` seconds, then removes it.
 ---@param time? number The amount of time, in seconds, that the fade should take. (Defaults to 1 second)
 function Object:fadeOutAndRemove(time)
-    self:fadeOutSpeedAndRemove((time or 1) / 30 * self.alpha)
+    self:fadeOutSpeedAndRemove((1 / (time or 1)) / 30 * self.alpha)
 end
 
 --- Fades the object's `alpha` to 0 at a speed of `speed` per frame, then removes it.
