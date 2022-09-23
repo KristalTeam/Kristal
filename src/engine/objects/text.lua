@@ -368,7 +368,7 @@ function Text:textToNodes(input_string)
                 display_text = display_text .. current_char
             end
         end
-        last_char = current_char
+        last_char = current_char or ""
         i = i + 1
     end
 
@@ -516,14 +516,10 @@ function Text:processModifier(node, dry)
             self.state.font_size = self.font_size
         else
             self.state.font = node.arguments[1]
-            if node.arguments[2] then
-                self.state.font_size = tonumber(node.arguments[2])
-            else
-                self.state.font_size = nil
-            end
+            self.state.font_size = tonumber(node.arguments[2])
         end
     elseif node.command == "shake" then
-        self.state.shake = tonumber(node.arguments[1])
+        self.state.shake = tonumber(node.arguments[1]) or 0
         self.draw_every_frame = true
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
@@ -535,16 +531,11 @@ function Text:processModifier(node, dry)
             end
         end
     elseif node.command == "image" then
-        local x_offset = 0
-        local y_offset = 0
-        local x_scale = 1
-        local y_scale = 1
-        local speed = 1/15
-        if node.arguments[2] then x_offset = tonumber(node.arguments[2]) end
-        if node.arguments[3] then y_offset = tonumber(node.arguments[3]) end
-        if node.arguments[4] then x_scale  = tonumber(node.arguments[4]) end
-        if node.arguments[5] then y_scale  = tonumber(node.arguments[5]) end
-        if node.arguments[6] then speed    = tonumber(node.arguments[6]) end
+        local x_offset = tonumber(node.arguments[2]) or 0
+        local y_offset = tonumber(node.arguments[3]) or 0
+        local x_scale  = tonumber(node.arguments[4]) or 1
+        local y_scale  = tonumber(node.arguments[5]) or 1
+        local speed    = tonumber(node.arguments[6]) or (1/15)
 
         local texture = Assets.getFramesOrTexture(node.arguments[1])
         if texture then
