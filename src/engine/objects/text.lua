@@ -628,7 +628,7 @@ function Text:drawChar(node, state, use_color)
     local font = Assets.getFont(state.font, state.font_size)
     local scale = Assets.getFontScale(state.font, state.font_size)
 
-    if state.shake >= 0 then
+    if state.shake > 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
             state.last_shake = self.timer
             state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
