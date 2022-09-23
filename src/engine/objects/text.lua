@@ -519,7 +519,7 @@ function Text:processModifier(node, dry)
             self.state.font_size = tonumber(node.arguments[2])
         end
     elseif node.command == "shake" then
-        self.state.shake = tonumber(node.arguments[1]) or 0
+        self.state.shake = tonumber(node.arguments[1]) or 1
         self.draw_every_frame = true
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
