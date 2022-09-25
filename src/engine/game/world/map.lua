@@ -8,7 +8,7 @@ function Map:init(world, data)
     if data and data.full_path then
         local map_path = data.full_path
         map_path = Utils.split(map_path, "/")
-        map_path = Utils.join(map_path, "/", 1, #map_path - 1)
+        map_path = table.concat(map_path, "/", 1, #map_path - 1)
         self.full_map_path = map_path
     else
         self.full_map_path = Mod and Mod.info.path or ""

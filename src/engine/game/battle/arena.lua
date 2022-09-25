@@ -55,14 +55,12 @@ function Arena:setShape(shape)
 
     self.border_line = {Utils.unpackPolygon(Utils.getPolygonOffset(self.shape, self.line_width/2))}
 
-    local edges = Utils.getPolygonEdges(self.shape)
-
-    self.clockwise = Utils.isPolygonClockwise(edges)
+    self.clockwise = Utils.isPolygonClockwise(self.shape)
 
     self.area_collider = PolygonCollider(self, Utils.copy(shape, true))
 
     self.collider.colliders = {}
-    for _,v in ipairs(edges) do
+    for _,v in ipairs(Utils.getPolygonEdges(self.shape)) do
         table.insert(self.collider.colliders, LineCollider(self, v[1][1], v[1][2], v[2][1], v[2][2]))
     end
 end
