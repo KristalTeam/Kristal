@@ -123,6 +123,11 @@ function Map:getFlag(flag, default)
     return Game:getFlag(uid..":"..flag, default)
 end
 
+function Map:addFlag(flag, amount)
+    local uid = self:getUniqueID()
+    Game:addFlag(uid..":"..flag, amount)
+end
+
 function Map:getMarker(name)
     local marker = self.markers[name]
     return marker and marker.center_x or (self.width * self.tile_width/2), marker and marker.center_y or (self.height * self.tile_height/2)
