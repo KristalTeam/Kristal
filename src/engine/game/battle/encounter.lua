@@ -176,7 +176,7 @@ function Encounter:getFlag(flag, default)
 end
 
 function Encounter:addFlag(flag, amount)
-    Game:addFlag("encounter#"..self.id..":"..flag, amount)
+    return Game:addFlag("encounter#"..self.id..":"..flag, amount)
 end
 
 return Encounter

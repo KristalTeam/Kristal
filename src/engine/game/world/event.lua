@@ -100,7 +100,10 @@ function Event:getFlag(flag, default)
 end
 
 function Event:addFlag(flag, amt)
-    self:setFlag(self:getFlag(flag, 0) + (amt or 1))
+    local uid = self:getUniqueID()
+    if uid then
+        return Game:addFlag(uid..":"..flag, amt)
+    end
 end
 
 function Event:setSprite(texture, speed, use_size)

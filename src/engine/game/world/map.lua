@@ -125,7 +125,7 @@ end
 
 function Map:addFlag(flag, amount)
     local uid = self:getUniqueID()
-    Game:addFlag(uid..":"..flag, amount)
+    return Game:addFlag(uid..":"..flag, amount)
 end
 
 function Map:getMarker(name)

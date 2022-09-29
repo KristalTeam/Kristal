@@ -526,6 +526,7 @@ end
 
 function Game:addFlag(flag, amount)
     self.flags[flag] = (self.flags[flag] or 0) + (amount or 1)
+    return self.flags[flag]
 end
 
 function Game:initPartyMembers()

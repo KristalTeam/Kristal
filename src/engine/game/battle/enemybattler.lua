@@ -645,7 +645,7 @@ function EnemyBattler:getFlag(flag, default)
 end
 
 function EnemyBattler:addFlag(flag, amount)
-    Game:addFlag("enemy#"..self.id..":"..flag, amount)
+    return Game:addFlag("enemy#"..self.id..":"..flag, amount)
 end
 
 return EnemyBattler

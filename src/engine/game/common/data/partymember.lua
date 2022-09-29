@@ -429,6 +429,7 @@ end
 
 function PartyMember:addFlag(name, amount)
     self.flags[name] = (self.flags[name] or 0) + (amount or 1)
+    return self.flags[name]
 end
 
 function PartyMember:convertToLight()
