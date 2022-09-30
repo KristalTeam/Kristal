@@ -339,12 +339,12 @@ function Soul:update()
     if self.transitioning then
         if self.timer >= 7 then
             Input.clear("cancel")
-            self.transitioning = false
             self.timer = 0
             if self.transition_destroy then
                 Game.battle:addChild(HeartBurst(self.target_x, self.target_y, {Game:getSoulColor()}))
                 self:remove()
             else
+                self.transitioning = false
                 self:setExactPosition(self.target_x, self.target_y)
             end
         else
