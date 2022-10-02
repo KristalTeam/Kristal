@@ -88,7 +88,8 @@ function Actor:getSize() return self:getWidth(), self:getHeight() end
 
 function Actor:getHitbox()
     if self.hitbox then
-        return unpack(self.hitbox)
+        local x, y, w, h = unpack(self.hitbox)
+        return x or 0, y or 0, w or self:getWidth(), h or self:getHeight()
     else
         return 0, 0, self:getWidth(), self:getHeight()
     end
