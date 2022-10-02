@@ -1,5 +1,18 @@
 local Tileset = Class()
 
+Tileset.ORIGINS = {
+    ["unspecified"] = {0,   1  },
+    ["topleft"]     = {0,   0  },
+    ["top"]         = {0.5, 0  },
+    ["topright"]    = {1,   0  },
+    ["left"]        = {0,   0.5},
+    ["center"]      = {0.5, 0.5},
+    ["right"]       = {1,   0.5},
+    ["bottomleft"]  = {0,   1  },
+    ["bottom"]      = {0.5, 1  },
+    ["bottomright"] = {1,   1  },
+}
+
 function Tileset:init(data, path)
     self.path = path
 
@@ -134,7 +147,7 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
         end
     end
 
-    local ox, oy = (w * sx) / 2, (h * sy) / 2
+    local ox, oy = (w * sx) / 2, gh - (h * sy) / 2
 
     local info = self.tile_info[draw_id]
     if info and info.texture then

@@ -783,7 +783,7 @@ function Map:getTileObjectRect(data)
     local gid = Utils.parseTileGid(data.gid)
     local tileset = self:getTileset(gid)
 
-    local origin = TileObject.ORIGINS[tileset.object_alignment] or TileObject.ORIGINS["unspecified"]
+    local origin = Tileset.ORIGINS[tileset.object_alignment] or Tileset.ORIGINS["unspecified"]
 
     return data.x - (origin[1] * data.width), data.y - (origin[2] * data.height), data.width, data.height
 end
