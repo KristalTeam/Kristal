@@ -1,6 +1,6 @@
 local SmallFaceText, super = Class(Object)
 
-function SmallFaceText:init(text, face, x, y, actor)
+function SmallFaceText:init(text, x, y, face, actor)
     super:init(self, x, y)
 
     self.alpha = 0

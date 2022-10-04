@@ -78,10 +78,10 @@ return function(cutscene, event, player, facing)
             cutscene:wait(1/30)
         end
         cutscene:text("*** I'm the original   [color:yellow]Starwalker[color:reset][talk:false][react:1][wait:5][react:2][wait:5][react:3][wait:5][react:sussy]", {reactions={
-            {"susie", "surprise", "left", "bottom", "BottomLeft"},
-            {"ralsei", "blush", "right", "top", "RightTop"},
-            {"noelle", "smile", "mid", "mid", "MidMid"},
-            sussy = {"susie", "surprise", "right", "bottommid", "Right BottomMid"},
+            {"BottomLeft", "left", "bottom", "surprise", "susie"},
+            {"RightTop", "right", "top", "blush", "ralsei"},
+            {"MidMid", "mid", "mid", "smile", "noelle"},
+            sussy = {"Right BottomMid", "right", "bottommid", "surprise", "susie"},
         }})
         cutscene:setSpeaker()
         cutscene:hideShop()

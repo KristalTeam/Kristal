@@ -107,7 +107,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
 
     self.text:registerCommand("react", function(text, node, dry)
         local react_data = tonumber(node.arguments[1]) and self.reactions[tonumber(node.arguments[1])] or self.reactions[node.arguments[1]]
-        local reaction = SmallFaceText(react_data.text, react_data.face, react_data.x, react_data.y, react_data.actor)
+        local reaction = SmallFaceText(react_data.text, react_data.x, react_data.y, react_data.face, react_data.actor)
         reaction.layer = 0.1 + (#self.reaction_instances) * 0.01
         self:addChild(reaction)
         table.insert(self.reaction_instances, reaction)
@@ -206,7 +206,7 @@ function Textbox:resetReactions()
     self.reaction_instances = {}
 end
 
-function Textbox:addReaction(id, actor, face, x, y, text)
+function Textbox:addReaction(id, text, x, y, face, actor)
     x, y = x or 0, y or 0
     if type(x) == "string" then
         x = self.battle_box and self.REACTION_X_BATTLE[x] or self.REACTION_X[x]
