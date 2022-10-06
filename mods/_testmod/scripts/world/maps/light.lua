@@ -11,7 +11,9 @@ return {
   tileheight = 40,
   nextlayerid = 15,
   nextobjectid = 113,
-  properties = {},
+  properties = {
+    ["light"] = true
+  },
   tilesets = {
     {
       name = "alley_animated",
