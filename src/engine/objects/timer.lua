@@ -50,6 +50,7 @@ end
 
 function Timer:approach(time, from, to, callback, easing, after)
     local t = 0
+    callback(from)
     return self:during(math.huge, function()
         t = t + DT
         local value = Utils.ease(from, to, t / time, easing or "linear")
