@@ -15,6 +15,8 @@ function Virovirokun:init()
     self:registerAct("Tell Story", "", {"ralsei"})
     self:registerAct("Red", "", {"susie"})
     self:registerAct("", "", nil, nil, nil, {"ui/battle/msg/dumbass"})
+    self:registerAct("Red Buster", "Red\nDamage", "susie", 60)
+    self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
 end
 
 function Virovirokun:getSpareText(battler, success)
@@ -48,7 +50,11 @@ end
 
 function Virovirokun:onAct(battler, name)
     self.acted_once = true
-    if name == "Warning" then
+    if name == "DualHeal" then
+        Game.battle:powerAct("dual_heal", battler, "ralsei")
+    elseif name == "Red Buster" then
+        Game.battle:powerAct("red_buster", battler, "susie", self)
+    elseif name == "Warning" then
         self.susie_warned = true
         self.comment = "(Warned)"
         return "* You told Virovirokun to watch out for Susie's attacks.[wait:5]\n* It went on guard."
