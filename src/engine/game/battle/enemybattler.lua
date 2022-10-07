@@ -383,7 +383,19 @@ end
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
-        return "* " .. string.upper(self.name) .. " - " .. self.check
+        if type(self.check) == "table" then
+            local tbl = {}
+            for i,check in ipairs(self.check) do
+                if i == 1 then
+                    table.insert(tbl, "* " .. string.upper(self.name) .. " - " .. check)
+                else
+                    table.insert(tbl, "* " .. check)
+                end
+            end
+            return tbl
+        else
+            return "* " .. string.upper(self.name) .. " - " .. self.check
+        end
     end
 end
 
