@@ -10,6 +10,14 @@ function Timer:init(active)
     end
 end
 
+function Timer:pause(handle)
+    self.timer:pause(handle)
+end
+
+function Timer:unpause(handle)
+    self.timer:unpause(handle)
+end
+
 function Timer:after(delay, func)
     return self.timer:after(delay, func)
 end
