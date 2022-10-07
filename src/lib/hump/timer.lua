@@ -38,7 +38,9 @@ local function updateTimerHandle(handle)
         --   count = <number>,
         -- }
         handle.time = handle.time + DT
-        handle.during(math.max(handle.limit - handle.time, 0))
+        if handle.during(math.max(handle.limit - handle.time, 0)) == false then
+            handle.count = 0
+        end
 
         while handle.time >= handle.limit and handle.count > 0 do
             if handle.after(handle.after) == false then

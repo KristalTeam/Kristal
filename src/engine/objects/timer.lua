@@ -24,7 +24,10 @@ end
 
 function Timer:everyInstant(delay, func, count)
     func()
-    return self.timer:every(delay, func, count)
+    if not count or count > 1 then
+        return self.timer:every(delay, func, (count or math.huge) - 1)
+    end
+    return {}
 end
 
 function Timer:during(delay, func, after)
@@ -33,6 +36,29 @@ end
 
 function Timer:tween(duration, subject, target, method, after, ...)
     return self.timer:tween(duration, subject, target, method, after, ...)
+end
+
+function Timer:doWhile(condition, func, after)
+    return self.timer:during(math.huge, function()
+        if not condition() then
+            if after then after() end
+            return false
+        end
+        func()
+    end)
+end
+
+function Timer:approach(time, from, to, callback, easing, after)
+    local t = 0
+    return self:during(math.huge, function()
+        t = t + DT
+        local value = Utils.ease(from, to, t / time, easing or "linear")
+        callback(value)
+        if t >= time then
+            if after then after() end
+            return false
+        end
+    end)
 end
 
 function Timer:cancel(handle)
