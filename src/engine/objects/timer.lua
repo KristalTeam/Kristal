@@ -56,6 +56,10 @@ function Timer:doWhile(condition, func, after)
     end)
 end
 
+function Timer:afterCond(condition, func)
+    return self:doWhile(function() return not condition() end, function() end, func)
+end
+
 function Timer:approach(time, from, to, callback, easing, after)
     local t = 0
     callback(from)
