@@ -6,8 +6,10 @@ function NPC:init(actor, x, y, properties)
     properties = properties or {}
 
     if properties["sprite"] then
+        self.idle_sprite = properties["sprite"]
         self.sprite:setSprite(properties["sprite"])
     elseif properties["animation"] then
+        self.idle_animation = properties["animation"]
         self.sprite:setAnimation(properties["animation"])
     end
 
@@ -20,6 +22,7 @@ function NPC:init(actor, x, y, properties)
     self.turn = properties["turn"] or false
 
     self.talk = properties["talk"] ~= false
+    self.talk_sprite = properties["talksprite"]
 
     self.solid = properties["solid"] == nil or properties["solid"]
 
@@ -34,6 +37,9 @@ function NPC:init(actor, x, y, properties)
 end
 
 function NPC:onInteract(player, dir)
+    if self.talk_sprite then
+        self:setSprite(self.talk_sprite)
+    end
     if self.turn then
         self:facePlayer()
     end
@@ -69,6 +75,19 @@ function NPC:onInteract(player, dir)
 end
 
 function NPC:onTextEnd()
+    if self.talk_sprite then
+        if self.idle_sprite then
+            self.sprite:setSprite(self.idle_sprite)
+        elseif self.idle_animation then
+            self.sprite:setAnimation(self.idle_animation)
+        elseif self.actor:getDefaultSprite() then
+            self.sprite:setSprite(self.actor:getDefaultSprite())
+        elseif self.actor:getDefaultAnim() then
+            self.sprite:setAnimation(self.actor:getDefaultAnim())
+        elseif self.actor:getDefault() then
+            self.sprite:set(self.actor:getDefault())
+        end
+    end
     if self.turn then
         self:setFacing(self.start_facing)
     end
