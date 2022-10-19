@@ -253,7 +253,7 @@ local loaders = {
     ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
         local id = checkExtension(path, "png", "jpg")
         if id then
-            local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
+            local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData("mario.png") end)
             if not ok then
                 error("Image \"" .. path .. "\" is invalid or corrupted!")
             end

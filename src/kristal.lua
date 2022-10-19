@@ -217,6 +217,18 @@ function love.load(args)
         TARGET_MOD = Kristal.Args["mod"][1]
     end
 
+    if not love.filesystem.getInfo("mario.png") then
+        local main_font = love.graphics.newFont("assets/fonts/main.ttf", 32)
+        Gamestate.switch({
+            draw = function()
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.setFont(main_font)
+                love.graphics.printf("Please insert mario.png into the base Kristal folder and restart", 0, 0, SCREEN_WIDTH)
+            end
+        })
+        return
+    end
+
     -- load menu
     Gamestate.switch(Kristal.States["Loading"])
 end
