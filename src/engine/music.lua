@@ -209,7 +209,8 @@ local module = {
     clear = clear,
     stop = stop,
     getAll = getAll,
-    getPlaying = getPlaying
+    getPlaying = getPlaying,
+    lib = Music,
 }
 
 return setmetatable(module, {__call = function(t, ...) return new(...) end})
