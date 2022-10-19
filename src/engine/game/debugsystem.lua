@@ -583,7 +583,7 @@ function DebugSystem:registerDefaults()
     -- (or just non-gameplay states)
     self:registerOption("main", "Give Item", "Give an item.", function()
         self:enterMenu("give_item", 0)
-    end)
+    end, "GAME")
 
     self:registerOption("main", "Portrait Viewer", "Enter the portrait viewer menu.", function()
         self:setState("FACES")
@@ -620,8 +620,10 @@ end
 
 function DebugSystem:getValidOptions()
     local options = {}
+    local in_game = Kristal.getState() == Kristal.States["Game"]
     for i, v in ipairs(self.menus[self.current_menu].options) do
-        if (Game and v.state == Game.state)
+        if (in_game and (v.state == Game.state or v.state == "GAME"))
+           or (not in_game and v.state == "MAINMENU")
            or v.state == "ALL" then
 
             table.insert(options, v)
