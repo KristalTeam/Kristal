@@ -2,6 +2,7 @@ local SpeechBubble, super = Class(Object)
 
 function SpeechBubble:init(text, x, y, options, speaker)
     super:init(self, x, y, 0, 0)
+    options = options or {}
 
     self.layer = BATTLE_LAYERS["above_arena"] - 1
 
