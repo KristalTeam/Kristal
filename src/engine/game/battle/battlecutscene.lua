@@ -307,9 +307,9 @@ function BattleCutscene:battlerText(battlers, text, options)
     for _,enemy in ipairs(battlers) do
         local bubble
         if not options["x"] and not options["y"] then
-            bubble = enemy:spawnSpeechBubble(text, options["right"], options["style"])
+            bubble = enemy:spawnSpeechBubble(text, options)
         else
-            bubble = SpeechBubble(text, options["x"] or 0, options["y"] or 0, enemy, options["right"], options["style"])
+            bubble = SpeechBubble(text, options["x"] or 0, options["y"] or 0, options, enemy)
             Game.battle:addChild(bubble)
         end
         bubble:setAdvance(options["advance"] or options["advance"] == nil)
@@ -317,7 +317,14 @@ function BattleCutscene:battlerText(battlers, text, options)
         if not bubble.text.can_advance then
             wait = options["wait"]
         end
-        bubble:setCallback(function() bubble:remove() end)
+        bubble:setCallback(function()
+            bubble:remove()
+            local after = options["after"]
+            if after then after() end
+        end)
+        if options["line_callback"] then
+            bubble:setLineCallback(options["line_callback"])
+        end
         table.insert(bubbles, bubble)
     end
     local wait_func = function()

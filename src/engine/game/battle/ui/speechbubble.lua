@@ -1,6 +1,6 @@
 local SpeechBubble, super = Class(Object)
 
-function SpeechBubble:init(text, x, y, speaker, right, style)
+function SpeechBubble:init(text, x, y, options, speaker)
     super:init(self, x, y, 0, 0)
 
     self.layer = BATTLE_LAYERS["above_arena"] - 1
@@ -8,27 +8,36 @@ function SpeechBubble:init(text, x, y, speaker, right, style)
     self.font = Assets.getFont("plain")
     self.font_data = Assets.getFontData("plain")
 
-    self.text = DialogueText("", 0, 0, 1, 1, {font = "plain", style = "none", line_offset = 0})
+    self.text = DialogueText("", 0, 0, 1, 1, {
+        font = options["font"] or "plain",
+        style = options["style"] or "none",
+        line_offset = 0,
+    })
     self:addChild(self.text)
 
     self.text_width = 1
     self.text_height = 1
 
-    self.right = right
+    self.right = options["right"]
 
     self.speaker = speaker
+    self.actor = options["actor"]
+    if type(self.actor) == "string" then
+        self.actor = Registry.createActor(actor)
+    end
     if self.speaker then
+        self.actor = self.speaker.actor
         self.speaker.bubble = self
     end
 
-    self.advance_callback = nil
-    self.line_advance_callback = nil
+    self:setCallback(options["after"])
+    self:setLineCallback(options["line_callback"])
 
     self.text:registerCommand("noautoskip", function(text, node)
         Game.battle.use_textbox_timer = false
     end)
 
-    self:setStyle(style)
+    self:setStyle(options["style"])
     self:setText(text)
 end
 
@@ -99,18 +108,18 @@ function SpeechBubble:advance()
 end
 
 function SpeechBubble:setText(text, callback, line_callback)
-    if self.speaker and self.speaker.actor and self.speaker.actor:getVoice() then
+    if self.actor and self.actor:getVoice() then
         if type(text) ~= "table" then
             text = {text}
         else
             text = Utils.copy(text)
         end
         for i,line in ipairs(text) do
-            text[i] = "[voice:"..self.speaker.actor:getVoice().."]"..line
+            text[i] = "[voice:"..self.actor:getVoice().."]"..line
         end
-        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_advance_callback)
+        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
     else
-        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_advance_callback)
+        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
     end
 
     self:updateSize()
@@ -134,8 +143,8 @@ function SpeechBubble:setCallback(callback)
 end
 
 function SpeechBubble:setLineCallback(callback)
-    self.line_advance_callback = callback
-    self.text.line_advance_callback = callback
+    self.line_callback = callback
+    self.text.line_callback = callback
 end
 
 function SpeechBubble:isTyping()

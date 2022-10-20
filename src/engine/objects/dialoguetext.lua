@@ -30,7 +30,8 @@ function DialogueText:init(text, x, y, w, h, options)
     self.can_advance = true
     self.auto_advance = false
     self.advance_callback = nil
-    self.line_advance_callback = nil
+    self.line_callback = nil
+    self.line_index = 1
 
     self.done = false
 
@@ -69,7 +70,6 @@ function DialogueText:processInitialNodes()
     end, true)
 end
 
-
 function DialogueText:setText(text, callback, line_callback)
     for _, sprite in ipairs(self.sprites) do
         sprite:remove()
@@ -77,7 +77,10 @@ function DialogueText:setText(text, callback, line_callback)
     self.sprites = {}
 
     self.advance_callback = callback or nil
-    self.line_advance_callback = line_callback or nil
+    self.line_callback = line_callback or nil
+    if self.line_callback then
+        self.line_callback(self.line_index)
+    end
     self:resetState()
     self:updateTalkSprite(false)
 
@@ -131,19 +134,18 @@ function DialogueText:setText(text, callback, line_callback)
 end
 
 function DialogueText:advance()
+    self.line_index = self.line_index + 1
     if #self.text_table <= 1 then
         if not self.done then
             self.done = true
+            self.line_index = 1
             if self.advance_callback then
                 self.advance_callback()
             end
         end
     else
-        if self.line_advance_callback then
-            self.line_advance_callback()
-        end
         table.remove(self.text_table, 1)
-        self:setText(self.text_table, self.advance_callback, self.line_advance_callback)
+        self:setText(self.text_table, self.advance_callback, self.line_callback)
     end
 end
 
