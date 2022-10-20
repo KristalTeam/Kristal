@@ -1030,12 +1030,21 @@ function Object:getDebugOptions(context)
     return context
 end
 
---- Sets the object's origin to the specified values, and adjusts its position so that it stays in the same place visually.
+--- Sets the object's relative origin to the specified values, and adjusts its position so that it stays in the same place visually.
 ---@param ox  number The value to set `origin_x` to.
 ---@param oy? number The value to set `origin_y` to. (Defaults to the `ox` parameter)
 function Object:shiftOrigin(ox, oy)
     local tx, ty = self:getRelativePos((ox or 0) * self.width, (oy or ox or 0) * self.height)
     self:setOrigin(ox, oy)
+    self:setPosition(tx, ty)
+end
+
+--- Sets the object's exact origin to the specified values, and adjusts its position so that it stays in the same place visually.
+---@param ox  number The value to set `origin_x` to.
+---@param oy? number The value to set `origin_y` to. (Defaults to the `ox` parameter)
+function Object:shiftOriginExact(ox, oy)
+    local tx, ty = self:getRelativePos(ox or 0, oy or ox or 0)
+    self:setOriginExact(ox, oy)
     self:setPosition(tx, ty)
 end
 
