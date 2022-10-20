@@ -569,12 +569,15 @@ function Map:loadObjects(layer, depth, layer_type)
             elseif v.properties["flagcheck"] then
                 local inverted, flag = Utils.startsWith(v.properties["flagcheck"], "!")
 
-                local value = Game.flags[flag]
+                local result = Game.flags[uid..":"..flag] or Game.flags[flag]
+                local value = v.properties["flagvalue"]
                 local is_true
-                if type(value) == "number" then
-                    is_true = value > 0
+                if value ~= nil then
+                    is_true = result == value
+                elseif type(result) == "number" then
+                    is_true = result > 0
                 else
-                    is_true = value
+                    is_true = result
                 end
 
                 if is_true then
