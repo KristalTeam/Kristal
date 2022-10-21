@@ -148,6 +148,24 @@ function SpeechBubble:setLineCallback(callback)
     self.text.line_callback = callback
 end
 
+function SpeechBubble:setRight(right)
+    self.right = right
+    if not self.bubble_data["origin"] then
+        if self.right then
+            self:setOrigin(0, 0.5)
+        else
+            self:setOrigin(1, 0.5)
+        end
+    end
+    self.text.x = self.text_bounds["left"] or 0
+    self.text.y = self.text_bounds["top"]  or 0
+    if self.right and self.auto then
+        local left_width, _ = self:getSpriteSize("left")
+        self.text.x = self:getTailWidth() + self.padding["left"] + left_width + 1
+    end
+    self:updateSize()
+end
+
 function SpeechBubble:isTyping()
     return self.text:isTyping()
 end
