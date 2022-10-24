@@ -45,6 +45,7 @@ HPText = require("src.engine.objects.hptext")
 Timer = require("src.engine.objects.timer")
 StateManager = require("src.engine.objects.statemanager")
 Anchor = require("src.engine.objects.anchor")
+Callback = require("src.engine.objects.callback")
 Video = require("src.engine.objects.video")
 
 ModList = require("src.engine.menu.modlist")
