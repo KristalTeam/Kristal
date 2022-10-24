@@ -968,6 +968,25 @@ function Utils.randomAxis()
     return t
 end
 
+--- Returns the coordinates a random point along the border of the specified rectangle.
+---@param x number The horizontal position of the topleft of the rectangle.
+---@param y number The vertical position of the topleft of the rectangle.
+---@param w number The width of the rectangle.
+---@param h number The height of the rectangle.
+---@return number x The horizontal position of a random point on the rectangle border.
+---@return number y The vertical position of a random point on the rectangle border.
+function Utils.randomPointOnBorder(x, y, w, h)
+    if love.math.random() < 0.5 then
+        local sx = (love.math.random() < 0.5) and x or x+w
+        local sy = love.math.random(y, y+h)
+        return sx, sy
+    else
+        local sx = love.math.random(x, x+w)
+        local sy = (love.math.random() < 0.5) and y or y+h
+        return sx, sy
+    end
+end
+
 --- Returns a new table containing only values that a function returns true for.
 ---@param tbl table An array of values.
 ---@param filter fun(v:any):boolean A function that should return `true` for all values in the table to keep, and `false` for values to discard.
