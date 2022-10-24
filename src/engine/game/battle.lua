@@ -2696,7 +2696,7 @@ function Battle:onKeyPressed(key)
                 self.menu_items = {}
                 local enemy = self.enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
-                    local insert = true
+                    local insert = not v.hidden
                     if v.character and self.party[self.current_selecting].chara.id ~= v.character then
                         insert = false
                     end

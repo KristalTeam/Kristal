@@ -102,6 +102,7 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
         ["icons"] = icons
     }
     table.insert(self.acts, act)
+    return act
 end
 function EnemyBattler:registerShortAct(name, description, party, tp, highlight, icons)
     if type(party) == "string" then
@@ -125,6 +126,7 @@ function EnemyBattler:registerShortAct(name, description, party, tp, highlight, 
         ["icons"] = icons
     }
     table.insert(self.acts, act)
+    return act
 end
 
 function EnemyBattler:registerActFor(char, name, description, party, tp, highlight, icons)
