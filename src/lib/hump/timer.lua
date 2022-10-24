@@ -181,12 +181,12 @@ __call = function(tween, self, len, subject, target, method, after, ...)
     local function tween_collect_payload(subject, target, out)
         for k,v in pairs(target) do
             local ref = subject[k]
-            assert(type(v) == type(ref), 'Type mismatch in field "'..k..'".')
+            assert(type(v) == type(ref), 'Type mismatch in field "'..tostring(k)..'".')
             if type(v) == 'table' then
                 tween_collect_payload(ref, v, out)
             else
                 local ok, delta = pcall(function() return (v-ref)*1 end)
-                assert(ok, 'Field "'..k..'" does not support arithmetic operations')
+                assert(ok, 'Field "'..tostring(k)..'" does not support arithmetic operations')
                 out[#out+1] = {subject, k, delta}
             end
         end
