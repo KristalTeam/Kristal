@@ -190,7 +190,7 @@ function Object:init(x, y, width, height)
     self.height = height or 0
 
     self:resetPhysics()
-    self:resetGraphicsTransform()
+    self:resetGraphics()
 
     -- Various draw properties
     self.color = {1, 1, 1}
@@ -384,7 +384,7 @@ end
 
 --- Resets all of the object's `graphics` table values to their default values, \
 --- making it so it will stop transforming if it was before.
-function Object:resetGraphicsTransform()
+function Object:resetGraphics()
     self.graphics = {
         -- How fast this object fades its alpha (per frame at 30 fps)
         fade = 0,
@@ -409,7 +409,7 @@ end
 --- Resets the object's `graphics` and sets new values for it.
 ---@param graphics graphics_table A table of values to set for the object's graphics transformation.
 function Object:setGraphics(graphics)
-    self:resetGraphicsTransform()
+    self:resetGraphics()
     for k,v in pairs(graphics) do
         self.graphics[k] = v
     end
