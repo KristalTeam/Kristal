@@ -261,16 +261,29 @@ end
 
 function Assets.playSound(sound, volume, pitch)
     if self.sounds[sound] then
-        local src = self.sounds[sound]:clone()
-        if volume then
-            src:setVolume(volume)
-        end
-        if pitch then
-            src:setPitch(pitch)
-        end
-        src:play()
         self.sound_instances[sound] = self.sound_instances[sound] or {}
-        table.insert(self.sound_instances[sound], src)
+        local src
+        local function play(v)
+            src = self.sounds[sound]:clone()
+            if v then
+                src:setVolume(v)
+            end
+            if pitch then
+                src:setPitch(pitch)
+            end
+            src:play()
+            table.insert(self.sound_instances[sound], src)
+        end
+        if volume and volume > 1 then
+            for _=1,math.floor(volume) do
+                play(1)
+            end
+            if volume % 1 > 0 then
+                play(volume % 1)
+            end
+        else
+            play(volume)
+        end
         return src
     end
 end
