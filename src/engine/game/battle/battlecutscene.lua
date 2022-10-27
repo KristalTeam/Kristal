@@ -187,12 +187,7 @@ function BattleCutscene:fadeOut(speed, options)
 
     fader:fadeOut(function() fade_done = true end, options)
 
-    local wait_func = function() return fade_done end
-    if options["wait"] ~= false then
-        return self:wait(wait_func)
-    else
-        return wait_func
-    end
+    return function() return fade_done end
 end
 
 function BattleCutscene:fadeIn(speed, options)
@@ -208,12 +203,7 @@ function BattleCutscene:fadeIn(speed, options)
 
     fader:fadeIn(function() fade_done = true end, options)
 
-    local wait_func = function() return fade_done end
-    if options["wait"] then
-        return self:wait(wait_func)
-    else
-        return wait_func
-    end
+    return function() return fade_done end
 end
 
 function BattleCutscene:setSpeaker(actor)

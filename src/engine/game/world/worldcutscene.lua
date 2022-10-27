@@ -402,12 +402,7 @@ function WorldCutscene:fadeOut(speed, options)
 
     fader:fadeOut(function() fade_done = true end, options)
 
-    local wait_func = function() return fade_done end
-    if options["wait"] ~= false then
-        return self:wait(wait_func)
-    else
-        return wait_func
-    end
+    return function() return fade_done end
 end
 
 function WorldCutscene:fadeIn(speed, options)
@@ -423,12 +418,7 @@ function WorldCutscene:fadeIn(speed, options)
 
     fader:fadeIn(function() fade_done = true end, options)
 
-    local wait_func = function() return fade_done end
-    if options["wait"] then
-        return self:wait(wait_func)
-    else
-        return wait_func
-    end
+    return function() return fade_done end
 end
 
 local function waitForTextbox(self) return not self.textbox or self.textbox:isDone() end
