@@ -1427,7 +1427,9 @@ function Object:sortChildren()
 end
 
 function Object:updateChildList()
-    for child,_ in pairs(self.children_to_remove) do
+    local to_remove = Utils.copy(self.children_to_remove)
+    self.children_to_remove = {}
+    for child,_ in pairs(to_remove) do
         for i,v in ipairs(self.children) do
             if v == child then
                 child:onRemove(self)
@@ -1436,7 +1438,6 @@ function Object:updateChildList()
             end
         end
     end
-    self.children_to_remove = {}
     self:sortChildren()
 end
 
