@@ -2714,7 +2714,7 @@ function Battle:onKeyPressed(key)
                             ["tp"] = v.tp or 0,
                             ["description"] = v.description,
                             ["party"] = v.party,
-                            ["color"] = {1, 1, 1, 1},
+                            ["color"] = v.color or {1, 1, 1, 1},
                             ["highlight"] = v.highlight or enemy,
                             ["icons"] = v.icons
                         }
