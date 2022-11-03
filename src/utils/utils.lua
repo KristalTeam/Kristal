@@ -1047,11 +1047,56 @@ end
 
 --- Returns a table containing the values of an array in reverse order.
 ---@param tbl table An array of values.
+---@param group? number If defined,
 ---@return table result The new table containing the values of the specified array.
-function Utils.reverse(tbl)
+function Utils.reverse(tbl, group)
     local t = {}
+    tbl = group and Utils.group(tbl, group) or Utils.copy(tbl)
     for i=#tbl,1,-1 do
         table.insert(t, tbl[i])
+    end
+    if group then
+        t = Utils.flatten(t)
+    end
+    return t
+end
+
+--- Merges a list of tables containing values into a single table containing each table's contents.
+---@param tbl table The array of tables to merge.
+---@param deep? boolean If true, tables contained inside listed tables will also be merged.
+---@return table result The new table containing all values.
+function Utils.flatten(tbl, deep)
+    local t = {}
+    for _,o in ipairs(tbl) do
+        if type(o) == "table" and not isClass(o) then
+            for _,v in ipairs(deep and Utils.flatten(o, true) or o) do
+                table.insert(t, v)
+            end
+        else
+            table.insert(t, o)
+        end
+    end
+    return t
+end
+
+--- Creates a table grouping values of a table into a series of tables.
+---@param tbl table The table to group values from.
+---@param count number The amount of values that should belong in each group. If the table does not divide evenly, the final group of the returned table will be incomplete.
+---@return table result The table containing the grouped values.
+function Utils.group(tbl, count)
+    local t = {}
+    local i = 0
+    while i <= #tbl do
+        local o = {}
+        for _=1,count do
+            i = i + 1
+            if tbl[i] then
+                table.insert(o, tbl[i])
+            else break end
+        end
+        if #o > 0 then
+            table.insert(t, o)
+        end
     end
     return t
 end
