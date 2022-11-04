@@ -1047,7 +1047,7 @@ end
 
 --- Returns a table containing the values of an array in reverse order.
 ---@param tbl table An array of values.
----@param group? number If defined,
+---@param group? number If defined, the values will be grouped into sets of the specified size, and those sets will be reversed.
 ---@return table result The new table containing the values of the specified array.
 function Utils.reverse(tbl, group)
     local t = {}
