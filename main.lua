@@ -47,6 +47,8 @@ StateManager = require("src.engine.objects.statemanager")
 Anchor = require("src.engine.objects.anchor")
 Callback = require("src.engine.objects.callback")
 Video = require("src.engine.objects.video")
+GonerChoice = require("src.engine.objects.gonerchoice")
+GonerKeyboard = require("src.engine.objects.gonerkeyboard")
 
 ModList = require("src.engine.menu.modlist")
 ModButton = require("src.engine.menu.modbutton")

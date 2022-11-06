@@ -459,8 +459,8 @@ function Utils.parseColorProperty(property)
     local str = "#"..string.sub(property, 4)
     local a = tonumber(string.sub(property, 2, 3), 16)/256
     return Utils.hexToRgb(str, a)
-end
 
+end
 --- Merges the values of one table into another one.
 ---@param tbl table The table to merge values into.
 ---@param other table The table to copy values from.
@@ -1633,6 +1633,20 @@ function Utils.padSpacing(str, len, beginning)
         end
     end
     return str
+end
+
+--- Limits the specified value to be between 2 bounds, wrapping around if it exceeds it.
+---@param val number The value to wrap.
+---@param min number The minimum bound. If not specified, defaults to `1` for array wrapping.
+---@param max number The maximum bound.
+---@return number result The new wrapped number.
+---@overload fun(val:number, max:number):number
+function Utils.clampWrap(val, min, max)
+    if not max then
+        max = min
+        min = 1
+    end
+    return (val - min) % (max - min + 1) + min
 end
 
 return Utils

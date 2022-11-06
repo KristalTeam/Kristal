@@ -60,18 +60,30 @@ return {
         susie_sprite:remove()
     end,
     goner = function(cutscene)
-        local function gonerText(str)
-            local text = DialogueText("[speed:0.3][spacing:6][style:GONER][voice:none]" .. str, 160, 100, 640, 480, {auto_size = true})
+        local text
+
+        local function gonerTextFade(wait)
+            local this_text = text
+            Game.world.timer:tween(1, this_text, {alpha = 0}, "linear", function()
+                this_text:remove()
+            end)
+            if wait ~= false then
+                cutscene:wait(1)
+            end
+        end
+
+        local function gonerText(str, advance)
+            text = DialogueText("[speed:0.5][spacing:6][style:GONER][voice:none]" .. str, 160, 100, 640, 480, {auto_size = true})
             text.layer = WORLD_LAYERS["top"] + 100
             text.skip_speed = true
             text.parallax_x = 0
             text.parallax_y = 0
             Game.world:addChild(text)
 
-            cutscene:wait(function() return text.done end)
-            Game.world.timer:tween(1, text, {alpha = 0})
-            cutscene:wait(1)
-            text:remove()
+            if advance ~= false then
+                cutscene:wait(function() return not text:isTyping() end)
+                gonerTextFade(true)
+            end
         end
 
         cutscene:fadeOut(0.5, {music = true})
@@ -94,12 +106,108 @@ return {
         ralsei_sprite.graphics.fade_to = 1
         Game.world:addChild(ralsei_sprite)
 
+        local ralsei_y = {240}
+
         cutscene:during(function()
-            ralsei_sprite.y = 240 + math.sin(Kristal.getTime() * 2) * 6
+            ralsei_sprite.y = ralsei_y[1] + math.sin(Kristal.getTime() * 2) * 6
         end)
 
-        gonerText("THIS SHOULD BE[wait:40]\nGOOD ENOUGH.[wait:20]")
+        gonerText("THIS SHOULD BE[wait:40]\nGOOD ENOUGH.[wait:20]", false)
 
+        cutscene:wait(4)
+
+        local chosen = nil
+        local choicer = GonerChoice(220, 360, {
+            {{"YES",0,0},{"<<"},{">>"},{"NO",160,0}}
+        }, function(choice)
+            chosen = choice
+        end)
+        choicer:setSelectedOption(2, 1)
+        choicer:setSoulPosition(80, 0)
+        Game.stage:addChild(choicer)
+
+        cutscene:wait(function() return chosen ~= nil end)
+
+        gonerTextFade()
+
+        if chosen == "YES" then
+            gonerText("EXCELLENT.[wait:20]")
+            gonerText("TRULY[wait:40]\nEXCELLENT.[wait:20]")
+        else
+            gonerText("WHY?[wait:20]")
+        end
+
+        Game.world.timer:tween(1, ralsei_y, {360})
+
+        cutscene:wait(0.75)
+
+        gonerText("WHAT IS ITS NAME?", false)
+        text.x = 136
+        text.y = 40
+
+        local ralsei_name
+        local namer = GonerKeyboard(-1, "default", function(name)
+            ralsei_name = name
+        end, function(key, x, y, namer)
+            if namer.text == "GASTE" and key == "R" then
+                Game.stage.timescale = 0
+                Game.stage.active = false
+                Kristal.Stage.timer:after(0.1, function()
+                    Kristal.returnToMenu()
+                end)
+            end
+        end)
+        Game.stage:addChild(namer)
+
+        cutscene:wait(function() return ralsei_name ~= nil end)
+
+        Game.world.timer:tween(1, ralsei_y, {240})
+
+        gonerTextFade()
+
+        if ralsei_name ~= "RALSEI" then
+            gonerText("WRONG.[wait:40]\nYOU ARE SO[wait:40] STUPID.[wait:20]")
+            gonerText(ralsei_name.."?[wait:20]")
+        else
+            gonerText("BING BONG.[wait:40]\nCORRECT-O.[wait:20]")
+        end
+        gonerText("ITS NAME[wait:40]\nIS RALSEI.[wait:20]")
+    end,
+    goner_choice = function(cutscene)
+        cutscene:fadeOut(0.5, {music = true})
+        cutscene:wait(1)
+
+        local done = false
+        local choicer = GonerChoice(220, 360, {
+            {{"YES",0,0},{"<<"},{">>"},{"NO",160,0}}
+        }, function(choice)
+            print("Picked " .. choice)
+            done = true
+        end)
+        choicer:setSelectedOption(2, 1)
+        choicer:setSoulPosition(80, 0)
+        Game.stage:addChild(choicer)
+
+        cutscene:wait(function() return done end)
+
+        local chosen_name
+        local namer = GonerKeyboard(12, "default", function(name)
+            print("Entered name: "..name)
+            chosen_name = name
+        end, function(key, x, y, namer)
+            if namer.text == "GASTE" and key == "R" then
+                Game.stage.timescale = 0
+                Game.stage.active = false
+                Kristal.Stage.timer:after(0.1, function()
+                    Kristal.returnToMenu()
+                end)
+            end
+        end)
+        Game.stage:addChild(namer)
+
+        cutscene:wait(function() return chosen_name ~= nil end)
+
+        cutscene:fadeIn(0.5, {music = true})
     end,
     japanese = function(cutscene)
         cutscene:text("＊ 本当にいいんですか？", "surprise_smile", "susie")

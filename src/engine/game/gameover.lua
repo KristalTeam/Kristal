@@ -26,12 +26,6 @@ function GameOver:init(x, y)
     self.fade_white = false
 
     self.timer = 0
-    self.heart_x = 0
-    self.heart_y = 0
-    self.ideal_x = 0
-    self.ideal_y = 0
-
-    self.fadebuffer = 0
 
     if Game:isLight() then
         self.timer = 28 -- We only wanna show one frame if we're in Undertale mode
@@ -176,45 +170,28 @@ function GameOver:update()
             end
         end
     end
+
     if (self.current_stage == 7) then
+        self.choicer = GonerChoice(160, 360, {
+            {{"CONTINUE",0,0},{"GIVE UP",220,0}}
+        })
+        self:addChild(self.choicer)
         self.current_stage = 8
-        self.selected = 1
-        self.fadebuffer = 10
-        self.ideal_x = 80 + (self.font:getWidth("CONTINUE") / 4 - 10)
-        self.ideal_y = 180
-        self.heart_x = self.ideal_x
-        self.heart_y = self.ideal_y
-        self.choicer_done = false
     end
 
     if (self.current_stage == 8) then
-        self.fadebuffer = self.fadebuffer - DTMULT
+        if self.choicer.choice then
+            self.music:stop()
 
-        if self.fadebuffer < 0 then
-            if Input.pressed("left") then self.selected = 1 end
-            if Input.pressed("right") then self.selected = 2 end
-            if self.selected == 1 then
-                self.ideal_x = 80   + (self.font:getWidth("CONTINUE") / 4 - 10)  --((string_width(NAME[CURX][CURY]) / 2) - 10)
-                self.ideal_y = 180
-            else
-                self.ideal_x = 190  + (self.font:getWidth("GIVE UP") / 4 - 10)
-                self.ideal_y = 180
-            end
+            if self.choicer.choice_x == 1 then
+                self.current_stage = 9
+                self.timer = 0
+            elseif self.choicer.choice_x == 2 then
+                self.text:remove()
+                self.current_stage = 20
 
-            if Input.pressed("confirm") then
-                self.choicer_done = true
-                self.music:stop()
-                if self.selected == 1 then
-                    self.current_stage = 9
-
-                    self.timer = 0
-                else
-                    self.text:remove()
-                    self.current_stage = 20
-
-                    self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 14})
-                    self:addChild(self.dialogue)
-                end
+                self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 14})
+                self:addChild(self.dialogue)
             end
         end
     end
@@ -254,28 +231,6 @@ function GameOver:update()
         self.current_stage = 0
     end
 
-    if (self.choicer_done) then
-        if self.fadebuffer < 0 then
-            self.fadebuffer = 0
-        end
-        self.fadebuffer = self.fadebuffer + DTMULT
-    end
-
-    if (self.current_stage >= 8) and self.fadebuffer < 10 then
-        if (math.abs(self.heart_x - self.ideal_x) <= 2) then
-            self.heart_x = self.ideal_x
-        end
-        if (math.abs(self.heart_y - self.ideal_y) <= 2) then
-            self.heart_y = self.ideal_y
-        end
-
-        local HEARTDIFF = ((self.ideal_x - self.heart_x) * 0.3)
-        self.heart_x = self.heart_x + (HEARTDIFF * DTMULT)
-
-        HEARTDIFF = ((self.ideal_y - self.heart_y) * 0.3)
-        self.heart_y = self.heart_y + (HEARTDIFF * DTMULT)
-    end
-
     if ((self.timer >= 80) and (self.timer < 150)) then
         if Input.pressed("confirm") then
             self.skipping = self.skipping + 1
@@ -297,30 +252,6 @@ function GameOver:draw()
     if self.screenshot then
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.draw(self.screenshot)
-    end
-    if (self.current_stage >= 8) and (self.fadebuffer < 10) and (not Game:isLight()) then
-
-        local xfade = ((10 - self.fadebuffer) / 10)
-        if (xfade > 1) then
-            xfade = 1
-        end
-
-        local soul_r, soul_g, soul_b, soul_a = Game:getSoulColor()
-        love.graphics.setColor(soul_r, soul_g, soul_b, soul_a * xfade * 0.6)
-
-        love.graphics.draw(self.soul_blur, self.heart_x * 2, self.heart_y * 2, 0, 2, 2)
-
-        love.graphics.setFont(self.font)
-        love.graphics.setColor(1, 1, 1, xfade)
-        if self.selected == 1 then
-            love.graphics.setColor(1, 1, 0, xfade)
-        end
-        love.graphics.print("CONTINUE", 160, 360)
-        love.graphics.setColor(1, 1, 1, xfade)
-        if self.selected == 2 then
-            love.graphics.setColor(1, 1, 0, xfade)
-        end
-        love.graphics.print("GIVE UP", 380, 360)
     end
 
     if self.fade_white then
