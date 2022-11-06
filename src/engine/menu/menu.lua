@@ -20,7 +20,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
 ]])
 
 function Menu:enter()
-    -- STATES: MAINMENU, MODSELECT, FILESELECT, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
+    -- STATES: MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
     -- Load menu music
@@ -51,6 +51,12 @@ function Menu:enter()
     self.stage:addChild(self.list)
 
     self.files = nil
+
+    self.naming_screen = nil
+
+    self.fader = Fader()
+    self.fader.layer = 10000
+    self.stage:addChild(self.fader)
 
     self.heart = Sprite("player/heart_menu")
     self.heart.visible = true
@@ -152,7 +158,16 @@ function Menu:onStateChange(old_state, new_state)
         self.list.active = false
         self.list.visible = false
     elseif old_state == "FILESELECT" then
-        self.files:remove()
+        if new_state == "FILENAME" then
+            self.files.active = false
+            self.files.visible = false
+        else
+            self.files:remove()
+            self.files = nil
+        end
+    elseif old_state == "FILENAME" or old_state == "DEFAULTNAME" then
+        self.naming_screen:remove()
+        self.heart.visible = true
     end
     if new_state == "MAINMENU" then
         self.selected_mod_button = nil
@@ -161,11 +176,51 @@ function Menu:onStateChange(old_state, new_state)
         self.list.active = true
         self.list.visible = true
     elseif new_state == "FILESELECT" then
-        self.files = FileList(self, self.selected_mod)
-        self.files.layer = 50
-        self.stage:addChild(self.files)
+        if old_state == "FILENAME" then
+            self.files.visible = true
+            self.files.active = true
+        else
+            self.files = FileList(self, self.selected_mod)
+            self.files.layer = 50
+            self.stage:addChild(self.files)
+        end
+    elseif new_state == "FILENAME" then
+        local mod = self.selected_mod
+        self.naming_screen = FileNamer(12, function(name)
+            Kristal.loadMod(mod.id, self.files.selected_y, name)
+
+            if mod.transition then
+                self.naming_screen.name_preview.visible = false
+                self.naming_screen.text:setText("")
+            elseif self.naming_screen.do_fadeout then
+                self.fader:fadeOut{speed = 0.5, color = {0, 0, 0}}
+            else
+                self.fader.fade_color = {0, 0, 0}
+                self.fader.alpha = 1
+            end
+        end, nil, nil, mod.nameInput ~= "force" and Kristal.Config["defaultName"])
+        self.naming_screen.cancel_callback = function()
+            self:setState("FILESELECT")
+        end
+        self.naming_screen.do_fadeout = mod.whiteFade ~= false and not mod.transition
+        self.naming_screen.layer = 50
+        self.stage:addChild(self.naming_screen)
+        self.heart.visible = false
+    elseif new_state == "DEFAULTNAME" then
+        local mod = self.selected_mod
+        self.naming_screen = FileNamer(12, function(name)
+            Kristal.Config["defaultName"] = name
+            self:setState("OPTIONS")
+        end, nil, nil, Kristal.Config["defaultName"], true)
+        self.naming_screen.cancel_callback = function()
+            Kristal.Config["defaultName"] = ""
+            self:setState("OPTIONS")
+        end
+        self.naming_screen.layer = 50
+        self.stage:addChild(self.naming_screen)
+        self.heart.visible = false
     elseif new_state == "OPTIONS" then
-        if old_state ~= "VOLUME" and old_state ~= "WINDOWSCALE" and old_state ~= "FPSOPTION" and old_state ~= "BORDER" then
+        if old_state ~= "VOLUME" and old_state ~= "WINDOWSCALE" and old_state ~= "FPSOPTION" and old_state ~= "BORDER" and old_state ~= "DEFAULTNAME" then
             self.options_target_y = 0
             self.options_y = 0
         end
@@ -465,18 +520,20 @@ function Menu:update()
         end
     end
 
-    if not self.heart.visible then
-        self.heart.visible = true
-        self.heart:setPosition(self.heart_target_x, self.heart_target_y)
-    else
-        if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
-            self.heart.x = self.heart_target_x
+    if self.state ~= "FILENAME" and self.state ~= "DEFAULTNAME" then
+        if not self.heart.visible then
+            self.heart.visible = true
+            self.heart:setPosition(self.heart_target_x, self.heart_target_y)
+        else
+            if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
+                self.heart.x = self.heart_target_x
+            end
+            if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
+                self.heart.y = self.heart_target_y
+            end
+            self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
+            self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
         end
-        if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
-            self.heart.y = self.heart_target_y
-        end
-        self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
-        self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
     end
 
     -- Toggle heart favorite outline
@@ -540,7 +597,7 @@ function Menu:draw()
 
         local width = 360
         local height = 32 * 10
-        local total_height = 32 * 17 -- should be the amount of options there are
+        local total_height = 32 * 19 -- should be the amount of options there are
 
         Draw.pushScissor()
         Draw.scissor(menu_x, menu_y, width + 10, height + 10)
@@ -562,7 +619,9 @@ function Menu:draw()
         self:printShadow("Debug Hotkeys",     menu_x, menu_y + (32 * 12))
         self:printShadow("Use System Mouse",  menu_x, menu_y + (32 * 13))
         self:printShadow("Always Show Mouse", menu_x, menu_y + (32 * 14))
-        self:printShadow("Back",              menu_x, menu_y + (32 * 16))
+        self:printShadow("Default Name",      menu_x, menu_y + (32 * 15))
+        self:printShadow("Skip Name Entry",   menu_x, menu_y + (32 * 16))
+        self:printShadow("Back",              menu_x, menu_y + (32 * 18))
 
         self:printShadow(Utils.round(Kristal.getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
         self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
@@ -584,6 +643,8 @@ function Menu:draw()
         self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 12))
         self:printShadow(Kristal.Config["systemCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 13))
         self:printShadow(Kristal.Config["alwaysShowCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 14))
+        self:printShadow(Kristal.Config["defaultName"], menu_x + (8 * 32), menu_y + (32 * 15))
+        self:printShadow(Kristal.Config["skipNameEntry"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 16))
 
         -- Draw the scrollbar background
         love.graphics.setColor({0, 0, 0, 0.5})
@@ -798,9 +859,11 @@ function Menu:draw()
                 --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end
-    elseif self.state == "FILESELECT" then
-        local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
-        self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
+    elseif self.state == "FILESELECT" or self.state == "FILENAME" then
+        if not Kristal.stageTransitionExists() then
+            local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
+            self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
+        end
     elseif self.state == "CREDITS" then
         self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
 
@@ -833,6 +896,8 @@ function Menu:draw()
         self:drawCreate()
     elseif self.state == "CONFIG" then
         self:drawConfig()
+    elseif self.state == "DEFAULTNAME" then
+        -- nothing
     else
         self:printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
         self:printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
@@ -1033,11 +1098,11 @@ function Menu:onKeyPressed(key, is_repeat)
         if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
         if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
         if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 16 then self.selected_option = is_repeat and 16 or 1  end
-        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 16 end
+        if self.selected_option > 18 then self.selected_option = is_repeat and 18 or 1  end
+        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 18 end
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 16 then
+        if self.selected_option >= 18 then
             y_off = y_off + 32
         end
 
@@ -1107,6 +1172,10 @@ function Menu:onKeyPressed(key, is_repeat)
                 Kristal.Config["alwaysShowCursor"] = not Kristal.Config["alwaysShowCursor"]
                 Kristal.updateCursor()
             elseif self.selected_option == 16 then
+                self:setState("DEFAULTNAME")
+            elseif self.selected_option == 17 then
+                Kristal.Config["skipNameEntry"] = not Kristal.Config["skipNameEntry"]
+            elseif self.selected_option == 18 then
                 self:setState("MAINMENU")
                 self.heart_target_x = 196
                 self.selected_option = 3
@@ -1297,6 +1366,8 @@ function Menu:onKeyPressed(key, is_repeat)
         if not is_repeat then
             self.files:onKeyPressed(key)
         end
+    elseif self.state == "FILENAME" or self.state == "DEFAULTNAME" then
+        -- this needs to be here apparently
     elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
             self:setState("MAINMENU")
@@ -1707,7 +1778,7 @@ function Menu:handleCreateInput(key, is_repeat)
 end
 
 
-function Menu:onConfigEnter()
+function Menu:onConfigEnter(old_state)
     self.config_target_y = 0
     self.config_y = 0
 end

@@ -120,8 +120,23 @@ function FileList:onKeyPressed(key)
                 self.ui_select:stop()
                 self.ui_select:play()
                 if button.selected_choice == 1 then
-                    self:setState("TRANSITIONING")
-                    Kristal.loadMod(self.mod.id, self.selected_y)
+                    local skip_naming = button.data ~= nil
+                        or self.mod.nameInput == "none" or self.mod.nameInput == false
+                        or Kristal.Config["skipNameEntry"] and self.mod.nameInput ~= "force"
+
+                    if skip_naming then
+                        self:setState("TRANSITIONING")
+                        local save_name = nil
+                        if not button.data and Kristal.Config["skipNameEntry"] and Kristal.Config["defaultName"] ~= "" then
+                            save_name = Kristal.Config["defaultName"]
+                        end
+                        Kristal.loadMod(self.mod.id, self.selected_y, save_name)
+                    else
+                        self.menu:setState("FILENAME")
+
+                        button:setChoices()
+                        self.focused_button = nil
+                    end
                 elseif button.selected_choice == 2 then
                     button:setChoices()
                     self.focused_button = nil

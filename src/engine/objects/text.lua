@@ -1,6 +1,6 @@
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "image", "bind", "button", "offset", "indent"}
+Text.COMMANDS = {"color", "font", "style", "shake", "image", "bind", "button", "offset", "indent", "spacing"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -569,6 +569,8 @@ function Text:processModifier(node, dry)
         self.state.current_y = self.state.current_y + tonumber(node.arguments[2])
     elseif node.command == "indent" then
         self.state.indent_string = node.arguments[1]
+    elseif node.command == "spacing" then
+        self.state.spacing = tonumber(node.arguments[1])
     end
 end
 

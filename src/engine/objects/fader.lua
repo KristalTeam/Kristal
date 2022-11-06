@@ -72,6 +72,10 @@ function Fader:transition(middle_callback, end_callback, options)
 end
 
 function Fader:fadeOut(callback, options)
+    if type(callback) == "table" then
+        options = callback
+        callback = nil
+    end
     self:parseOptions(options, true)
     self:parseMusicFade(0, options)
     self.callback_function = callback
@@ -79,6 +83,10 @@ function Fader:fadeOut(callback, options)
 end
 
 function Fader:fadeIn(callback, options)
+    if type(callback) == "table" then
+        options = callback
+        callback = nil
+    end
     self:parseOptions(options, false)
     self:parseMusicFade(1, options)
     self.callback_function = callback

@@ -1,13 +1,13 @@
 local GonerChoice, super = Class(Object)
 
-function GonerChoice:init(x, y, choices, on_complete)
+function GonerChoice:init(x, y, choices, on_complete, on_select)
     super:init(self, x, y)
 
     self.choices = choices or {
         {{"YES",0,0},{"NO",80,0}}
     }
 
-    self.on_select = nil
+    self.on_select = on_select
     self.on_cancel = nil
     self.on_hover = nil
     self.on_complete = on_complete
@@ -15,6 +15,7 @@ function GonerChoice:init(x, y, choices, on_complete)
     self.choice = nil
     self.choice_x = nil
     self.choice_y = nil
+
     self.done = false
 
     -- FADEIN, CHOICE, FADEOUT
@@ -35,6 +36,7 @@ function GonerChoice:init(x, y, choices, on_complete)
     self.wrap_y = false
 
     self.teleport = false
+    self.cancel_repeat = false
 
     self.selected_x = 1
     self.selected_y = 1
@@ -208,7 +210,7 @@ function GonerChoice:update()
 
         if Input.pressed("confirm") then
             self:select(self.selected_x, self.selected_y)
-        elseif Input.pressed("cancel") then
+        elseif Input.pressed("cancel", self.cancel_repeat) then
             local choice = self:getChoice(self.selected_x, self.selected_y)
 
             self:onCancel(choice, self.selected_x, self.selected_y)
@@ -242,6 +244,8 @@ function GonerChoice:update()
 end
 
 function GonerChoice:finish(callback)
+    if self.state == "FADEOUT" then return end
+
     self.state = "FADEOUT"
 
     local choice = self:getChoice(self.selected_x, self.selected_y)

@@ -1,6 +1,6 @@
 local DialogueText, super = Class(Text)
 
-DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "spacing", "func", "talk", "sound", "next"}
+DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "func", "talk", "sound", "next"}
 
 function DialogueText:init(text, x, y, w, h, options)
     if type(w) == "table" then
@@ -343,8 +343,6 @@ function DialogueText:processModifier(node, dry)
         else
             self.state.noskip = true
         end
-    elseif node.command == "spacing" then
-        self.state.spacing = tonumber(node.arguments[1])
     elseif node.command == "func" then
         if dry then return end -- Functions shouldn't be used to modify state so never run them if dry
         local func = tonumber(node.arguments[1]) or node.arguments[1]

@@ -25,14 +25,21 @@ function GonerKeyboard:init(limit, mode, callback, key_callback)
     self.callback = callback
     self.key_callback = key_callback
 
+    self.allow_empty = false
+
     self.choicer = GonerChoice()
     self.choicer:setSoulOffset(0, -4)
     self.choicer:setWrap(true)
+    self.choicer.soul.alpha = 0.5
     self.choicer.soul_speed = 0.5
     self.choicer.teleport = true
+    self.choicer.cancel_repeat = true
     self.choicer.on_select = function(choice, x, y)
         self:onSelect(choice, x, y)
         return false
+    end
+    self.choicer.on_cancel = function(choice, x, y)
+        self:undoCharacter()
     end
     self.choicer.on_complete = function(choice, x, y)
         self:onComplete(self.text)
@@ -46,7 +53,8 @@ function GonerKeyboard:init(limit, mode, callback, key_callback)
     self.font = Assets.getFont("main")
 
     self.text = ""
-    self.finished = false
+    self.fade_out = false
+    self.done = false
 end
 
 function GonerKeyboard:setMode(mode)
@@ -106,6 +114,7 @@ function GonerKeyboard:onComplete(text)
     if self.callback then
         self.callback(text, self)
     end
+    self.done = true
     self:remove()
 end
 
@@ -122,8 +131,12 @@ function GonerKeyboard:addCharacter(key)
 end
 
 function GonerKeyboard:finish()
-    self.finished = true
-    self.choicer:finish()
+    if self.fade_out then return end
+
+    if self.allow_empty or self.text ~= "" then
+        self.fade_out = true
+        self.choicer:finish()
+    end
 end
 
 function GonerKeyboard:draw()

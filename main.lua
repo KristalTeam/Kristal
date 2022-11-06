@@ -55,6 +55,7 @@ ModButton = require("src.engine.menu.modbutton")
 ModCreateButton = require("src.engine.menu.modcreatebutton")
 FileList = require("src.engine.menu.filelist")
 FileButton = require("src.engine.menu.filebutton")
+FileNamer = require("src.engine.menu.filenamer")
 
 DarkTransitionLine = require("src.engine.game.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.engine.game.darktransition.darktransitionparticle")
