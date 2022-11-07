@@ -458,11 +458,12 @@ end
 ---@param property string The property string to convert.
 ---@return table rgba The converted RGBA table.
 function Utils.parseColorProperty(property)
+    if not property then return nil end
     local str = "#"..string.sub(property, 4)
     local a = tonumber(string.sub(property, 2, 3), 16)/256
     return Utils.hexToRgb(str, a)
-
 end
+
 --- Merges the values of one table into another one.
 ---@param tbl table The table to merge values into.
 ---@param other table The table to copy values from.
