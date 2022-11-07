@@ -158,3 +158,6 @@ COLORS = {
 for _,v in pairs(COLORS) do
     setmetatable(v, {__call = function(c, a) return {c[1], c[2], c[3], a or 1} end})
 end
+
+ALPHABET = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
+FACINGS = {"right", "down", "left", "up"}
