@@ -659,24 +659,25 @@ end
 function World:loadMap(...)
     local args = {...}
     -- x, y, facing
-    local map = args[1]
+    local map = table.remove(args, 1)
     local marker, x, y, facing
-    if type(args[2]) == "string" then
-        marker = args[2]
-        facing = args[3]
-    elseif type(args[2]) == "number" then
-        x = args[2]
-        y = args[3]
-        facing = args[4]
+    if type(args[1]) == "string" then
+        marker = table.remove(args, 1)
+    elseif type(args[1]) == "number" then
+        x = table.remove(args, 1)
+        y = table.remove(args, 1)
     else
         marker = "spawn"
+    end
+    if args[1] then
+        facing = table.remove(args, 1)
     end
 
     if self.map then
         self.map:onExit()
     end
 
-    self:setupMap(map)
+    self:setupMap(map, unpack(args))
 
     if self.map.markers["spawn"] then
         local spawn = self.map.markers["spawn"]
