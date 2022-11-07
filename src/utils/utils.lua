@@ -1624,13 +1624,23 @@ function Utils.colliderFromShape(parent, data, x, y, properties)
     return current_hitbox
 end
 
-function Utils.padSpacing(str, len, beginning)
-    for i = #str, (len - 1) do
+--- Returns a string with a specified length, filling it with empty spaces by default. Used to make strings consistent lengths for UI. \
+--- If the specified string has a length greater than the desired length, it will not be adjusted.
+---@param str string The string to extend.
+---@param len number The amount of characters the returned string should be.
+---@param beginning? boolean If true, the beginning of the string will be filled instead of the end.
+---@param with? string If specified, the string will be filled with this specified string, instead of with spaces.
+---@return string result The new padded result.
+function Utils.padString(str, len, beginning, with)
+    with = with or " "
+    local i = #str
+    while i < len do
         if beginning then
-            str = " " .. str
+            str = with .. str
         else
-            str = str .. " "
+            str = str .. with
         end
+        i = i + #with
     end
     return str
 end
