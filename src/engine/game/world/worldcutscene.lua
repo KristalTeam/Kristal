@@ -379,6 +379,36 @@ function WorldCutscene:panTo(...)
     return waitForCameraPan
 end
 
+function WorldCutscene:panToSpeed(...)
+    local args = {...}
+    local x, y = 0, 0
+    local speed = 4
+    local ease = "linear"
+    local after = nil
+    if type(args[1]) == "number" then
+        x, y = args[1], args[2]
+        speed = args[3] or speed
+        after = args[4]
+    elseif type(args[1]) == "string" then
+        local marker = Game.world.map.markers[args[1]]
+        x, y = marker.center_x, marker.center_y
+        speed = args[2] or speed
+        after = args[3]
+    elseif isClass(args[1]) and args[1]:includes(Character) then
+        local chara = args[1]
+        x, y = chara:getRelativePos(chara.width/2, chara.height/2)
+        speed = args[2] or speed
+        after = args[3]
+    else
+        x, y = Game.world:getCameraTarget()
+    end
+    local result = Game.world.camera:panToSpeed(x, y, speed, after)
+    if not result and after then
+        after()
+    end
+    return waitForCameraPan
+end
+
 local function waitForMapTransition() return Game.world.state ~= "FADING" end
 function WorldCutscene:mapTransition(...)
     Game.world:mapTransition(...)
