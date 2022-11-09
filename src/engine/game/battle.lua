@@ -454,6 +454,7 @@ function Battle:onStateChange(old,new)
 
             wave.active = true
         end
+        self.soul:onWaveStart()
     elseif new == "VICTORY" then
         self.current_selecting = 0
 

@@ -84,6 +84,8 @@ function Soul:onRemove(parent)
     end
 end
 
+function Soul:onWaveStart() end
+
 function Soul:shatter(count)
     Assets.playSound("break2")
 
