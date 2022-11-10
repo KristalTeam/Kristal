@@ -564,13 +564,8 @@ function Object:slidePath(path, options)
         end
     end
 
-    if not options["relative"] then
-        local dist_start = Utils.dist(self.x, self.y, path[1    ][1], path[1    ][2])
-        local dist_end   = Utils.dist(self.x, self.y, path[#path][1], path[#path][2])
-
-        if options["reverse"] or (options["reverse"] == nil and dist_end < dist_start) then
-            path = Utils.reverse(path)
-        end
+    if not options["relative"] and options["reverse"] then
+        path = Utils.reverse(path)
     end
 
     if options["skip"] then
