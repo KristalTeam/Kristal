@@ -128,8 +128,7 @@ function Draw._clearUnusedCanvases()
             Utils.removeFromTable(canvases, v)
         end
     end
-    self._locked_canvas = {}
-    self._used_canvas = {}
+    self._used_canvas = setmetatable({},{__mode="k"})
 end
 
 function Draw._clearStacks()
