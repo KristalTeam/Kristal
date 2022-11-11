@@ -11,6 +11,8 @@ Draw._canvas_stack = {}
 
 Draw._scissor_stack = {}
 
+Draw._shader_stack = {}
+
 --[[Draw.Transformer = {
     apply = function(self, tf) love.graphics.applyTransform(tf) end,
     clone = function(self) error("Transformer:clone() is not implemented") end,
@@ -138,6 +140,7 @@ function Draw._clearStacks()
     self._canvas_stack = {}
 
     self._scissor_stack = {}
+    self._shader_stack = {}
 end
 
 function Draw.getScissor()
@@ -199,6 +202,26 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     else
         love.graphics.intersectScissor(min_sx, min_sy, max_sx - min_sx, max_sy - min_sy)
     end
+end
+
+function Draw.pushShader(shader, vars)
+    if type(shader) == "string" then
+        shader = Kristal.Shaders[shader]
+    end
+    table.insert(self._shader_stack, 1, love.graphics.getShader())
+    for k,v in pairs(vars) do
+        if type(v) == "function" then
+            shader:send(k, v())
+        else
+            shader:send(k, v)
+        end
+    end
+    love.graphics.setShader(shader)
+    return shader
+end
+
+function Draw.popShader()
+    love.graphics.setShader(table.remove(self._shader_stack, 1))
 end
 
 function Draw.setColor(r, g, b, a)
