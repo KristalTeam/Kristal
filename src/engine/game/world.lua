@@ -158,10 +158,9 @@ function World:openMenu(menu, layer)
     end
 
     if not menu then
-        self:createMenu()
-    else
-        self.menu = menu
+        menu = self:createMenu()
     end
+    self.menu = menu
     if self.menu then
         self.menu.layer = layer and self:parseLayer(layer) or WORLD_LAYERS["ui"]
         self:addChild(self.menu)
@@ -171,11 +170,14 @@ function World:openMenu(menu, layer)
 end
 
 function World:createMenu()
+    local menu = Kristal.callEvent("createMenu")
+    if menu then return menu end
     if Game:isLight() then
-        self.menu = LightMenu()
+        menu = LightMenu()
     else
-        self.menu = DarkMenu()
+        menu = DarkMenu()
     end
+    return menu
 end
 
 function World:closeMenu()
