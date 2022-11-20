@@ -616,20 +616,28 @@ function Battle:onStateChange(old,new)
     -- And in case the modder adds more states and wants the arena to be removed, they can remove the arena themselves.
     local remove_arena = {"DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "XACTENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"}
 
+    local should_end = true
     if Utils.containsValue(remove_arena, new) then
-        self:returnSoul()
-        if self.arena then
-            self.arena:remove()
-            self.arena = nil
+        for _,wave in ipairs(self.waves) do
+            if wave:beforeEnd() then
+                should_end = false
+            end
         end
-        for _,battler in ipairs(self.party) do
-            battler.targeted = false
+        if should_end then
+            self:returnSoul()
+            if self.arena then
+                self.arena:remove()
+                self.arena = nil
+            end
+            for _,battler in ipairs(self.party) do
+                battler.targeted = false
+            end
         end
     end
 
     local ending_wave = self.state_reason == "WAVEENDED"
 
-    if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" then
+    if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" and should_end then
         for _,wave in ipairs(self.waves) do
             if not wave:onEnd(false) then
                 wave:clear()

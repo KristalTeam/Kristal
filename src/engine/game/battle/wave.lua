@@ -54,6 +54,7 @@ function Wave:onArenaExit() end
 
 function Wave:onStart() end
 function Wave:onEnd(death) end
+function Wave:beforeEnd() end
 
 function Wave:canEnd() return true end
 
