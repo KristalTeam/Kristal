@@ -823,9 +823,9 @@ end
 function Object:isCameraAttachable() return true end
 
 --- Sets the object's `parallax_x` and `parallax_y` to the specified parallax.
----@param x number The value to set `parallax_x` to.
----@param y number The value to set `parallax_y` to.
-function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or 1 end
+---@param x  number The value to set `parallax_x` to.
+---@param y? number The value to set `parallax_y` to. (Defaults to the `x` parameter)
+function Object:setParallax(x, y) self.parallax_x = x or 1; self.parallax_y = y or x or 1 end
 --- Returns the parallax of the object.
 ---@return number x The `parallax_x` value of the object.
 ---@return number y The `parallax_y` value of the object.
