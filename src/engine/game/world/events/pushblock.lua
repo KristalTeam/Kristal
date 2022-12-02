@@ -20,6 +20,7 @@ function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
     self.press_buttons = properties["pressbuttons"] ~= false
 
     self.lock_in_place = properties["lock"] or false
+    self.input_lock = properties["inputlock"]
 
     -- State variables
     self.start_x = self.x
@@ -90,6 +91,9 @@ function PushBlock:onPush(facing)
     end
 
     local input_lock = Game:getConfig("pushBlockInputLock")
+    if self.input_lock ~= nil then
+        input_lock = self.input_lock
+    end
 
     if input_lock then
         Game.lock_movement = true
