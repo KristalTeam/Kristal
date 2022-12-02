@@ -150,12 +150,12 @@ function WorldCutscene:look(chara, dir)
     chara:setFacing(dir)
 end
 
-function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease)
+function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease, after)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
     local walked = false
-    if chara:walkTo(x, y, time, facing, keep_facing, ease) then
+    if chara:walkTo(x, y, time, facing, keep_facing, ease, after) then
         chara.physics.move_target.after = Utils.override(chara.physics.move_target.after, function(orig) orig() walked = true end)
         table.insert(self.moving_objects, chara)
         return function() return walked end
@@ -164,12 +164,12 @@ function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease)
     end
 end
 
-function WorldCutscene:walkToSpeed(chara, x, y, speed, facing, keep_facing)
+function WorldCutscene:walkToSpeed(chara, x, y, speed, facing, keep_facing, after)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
     local walked = false
-    if chara:walkToSpeed(x, y, speed, facing, keep_facing) then
+    if chara:walkToSpeed(x, y, speed, facing, keep_facing, after) then
         chara.physics.move_target.after = Utils.override(chara.physics.move_target.after, function(orig) orig() walked = true end)
         table.insert(self.moving_objects, chara)
         return function() return walked end

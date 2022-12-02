@@ -231,8 +231,9 @@ function Character:onFootstep(num)
     Kristal.callEvent("onFootstep", self, num)
 end
 
-function Character:walkTo(x, y, time, facing, keep_facing, ease)
+function Character:walkTo(x, y, time, facing, keep_facing, ease, after)
     if type(x) == "string" then
+        after = ease
         ease = keep_facing
         keep_facing = facing
         facing = time
@@ -240,7 +241,10 @@ function Character:walkTo(x, y, time, facing, keep_facing, ease)
         x, y = self.world.map:getMarker(x)
     end
 
-    if self:slideTo(x, y, time, ease, function() if facing then self:setFacing(facing) end end) then
+    if self:slideTo(x, y, time, ease, function()
+        if facing then self:setFacing(facing) end
+        if after then after(self) end
+    end) then
         if facing and keep_facing then
             self:setFacing(facing)
         end
@@ -252,15 +256,19 @@ function Character:walkTo(x, y, time, facing, keep_facing, ease)
     return false
 end
 
-function Character:walkToSpeed(x, y, speed, facing, keep_facing)
+function Character:walkToSpeed(x, y, speed, facing, keep_facing, after)
     if type(x) == "string" then
+        after = keep_facing
         keep_facing = facing
         facing = speed
         speed = y
         x, y = self.world.map:getMarker(x)
     end
 
-    if self:slideToSpeed(x, y, speed, function() if facing then self:setFacing(facing) end end) then
+    if self:slideToSpeed(x, y, speed, function()
+        if facing then self:setFacing(facing) end
+        if after then after(self) end
+    end) then
         if facing and keep_facing then
             self:setFacing(facing)
         end
