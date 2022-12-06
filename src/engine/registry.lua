@@ -7,6 +7,7 @@ Registry.last_globals = {}
 Registry.paths = {
     ["actors"]           = "data/actors",
     ["globals"]          = "globals",
+    ["hooks"]            = "hooks",
     ["objects"]          = "objects",
     ["drawfx"]           = "drawfx",
     ["items"]            = "data/items",
@@ -407,6 +408,14 @@ end
 
 function Registry.initObjects()
     self.objects = {}
+
+    for _,path,object in self.iterScripts(Registry.paths["hooks"], true) do
+        assert(object ~= nil, '"hooks/'..path..'.lua" does not return value')
+        local id = object.id or path
+
+        self.objects[id] = object
+        self.registerGlobal(id, object)
+    end
 
     for _,path,object in self.iterScripts(Registry.paths["objects"], true) do
         assert(object ~= nil, '"objects/'..path..'.lua" does not return value')
