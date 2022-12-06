@@ -551,6 +551,7 @@ function Game:addPartyMember(chara, index)
     else
         table.insert(self.party, chara)
     end
+    return chara
 end
 
 function Game:removePartyMember(chara)
@@ -558,6 +559,7 @@ function Game:removePartyMember(chara)
         chara = self:getPartyMember(chara)
     end
     Utils.removeFromTable(self.party, chara)
+    return chara
 end
 
 function Game:setPartyMembers(...)
@@ -590,6 +592,7 @@ function Game:movePartyMember(chara, index)
     end
     self:removePartyMember(chara)
     self:addPartyMember(chara, index)
+    return chara
 end
 
 function Game:checkPartyEquipped(item_id)
