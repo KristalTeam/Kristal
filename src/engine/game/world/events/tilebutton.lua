@@ -157,7 +157,7 @@ function TileButton:onCollide(chara)
 end
 
 function TileButton:onExit(chara)
-    if (chara.is_player and self.player_activated) or (not chara.is_player and self.npc_activated) then
+    if ((chara.is_player and self.player_activated) or (not chara.is_player and self.npc_activated)) and not self.keep_down then
         self:setPressed(false)
     end
 end
