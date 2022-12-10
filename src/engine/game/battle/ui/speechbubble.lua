@@ -6,12 +6,9 @@ function SpeechBubble:init(text, x, y, options, speaker)
 
     self.layer = BATTLE_LAYERS["above_arena"] - 1
 
-    self.font = Assets.getFont("plain")
-    self.font_data = Assets.getFontData("plain")
-
     self.text = DialogueText("", 0, 0, 1, 1, {
         font = options["font"] or "plain",
-        style = options["style"] or "none",
+        style = "none",
         line_offset = 0,
     })
     self:addChild(self.text)
@@ -24,7 +21,7 @@ function SpeechBubble:init(text, x, y, options, speaker)
     self.speaker = speaker
     self.actor = options["actor"]
     if type(self.actor) == "string" then
-        self.actor = Registry.createActor(actor)
+        self.actor = Registry.createActor(self.actor)
     end
     if self.speaker then
         self.actor = self.speaker.actor
@@ -115,7 +112,7 @@ function SpeechBubble:setText(text, callback, line_callback)
         else
             text = Utils.copy(text)
         end
-        for i,line in ipairs(text) do
+        for i,line in ipairs(text or {}) do
             text[i] = "[voice:"..self.actor:getVoice().."]"..line
         end
         self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
@@ -232,13 +229,6 @@ function SpeechBubble:getTailWidth()
 end
 
 function SpeechBubble:updateSize()
-    --[[local parsed = self.text.display_text
-
-    local _,lines = parsed:gsub("\n", "")
-
-    local w = self.font:getWidth(parsed)
-    local h = self.font_data["lineSpacing"] * (lines + 1) - (self.font_data["lineSpacing"] - self.font:getHeight())]]
-
     if self.auto then
         local w, h = self.text:getTextWidth(), self.text:getTextHeight()
 

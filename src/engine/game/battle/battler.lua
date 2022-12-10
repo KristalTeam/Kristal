@@ -63,8 +63,8 @@ end
 function Battler:spawnSpeechBubble(text, options)
     options = options or {}
     local bubble
-    if not style and self.dialogue_bubble then
-        style = self.dialogue_bubble
+    if not options["style"] and self.dialogue_bubble then
+        options["style"] = self.dialogue_bubble
     end
     if not options["right"] then
         local x, y = self.sprite:getRelativePos(0, self.sprite.height/2, Game.battle)
