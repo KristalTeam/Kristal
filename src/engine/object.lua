@@ -321,17 +321,17 @@ function Object:onRemoveFromStage(stage) end
 --[[ Common functions ]]--
 
 ---@class physics_table
----@field speed_x   number The horizontal speed of the object, in pixels per frame at 30FPS.
----@field speed_y   number The vertical speed of the object, in pixels per frame at 30FPS.
----@field speed     number The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
----@field direction number The angle at which the object will move, in radians.
----@field friction  number The amount the object's speed will slow down, per frame at 30FPS.
----@field gravity   number The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
----@field gravity_direction number The angle at which the object's gravity will accelerate towards, in radians.
----@field spin      number The amount this object's direction will change, in radians per frame at 30FPS.
+---@field speed_x           number  The horizontal speed of the object, in pixels per frame at 30FPS.
+---@field speed_y           number  The vertical speed of the object, in pixels per frame at 30FPS.
+---@field speed             number  The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
+---@field direction         number  The angle at which the object will move, in radians.
+---@field friction          number  The amount the object's speed will slow down, per frame at 30FPS.
+---@field gravity           number  The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
+---@field gravity_direction number  The angle at which the object's gravity will accelerate towards, in radians.
+---@field spin              number  The amount this object's direction will change, in radians per frame at 30FPS.
 ---@field match_rotation    boolean Whether the object's rotation should also define its direction. (Defaults to false)
----@field move_target?   table A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
----@field move_path?     table A table containing data defined by `Object:slidePath()`.
+---@field move_target?      table   A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
+---@field move_path?        table   A table containing data defined by `Object:slidePath()`.
 
 --- Resets all of the object's `physics` table values to their default values, \
 --- making it so it will stop moving if it was before.
@@ -373,14 +373,19 @@ function Object:setPhysics(physics)
 end
 
 ---@class graphics_table
----@field fade      number The amount the object's alpha should approach its target value, per frame at 30FPS.
----@field fade_to   number The target alpha to approach.
----@field fade_callback function|nil A function that will be called when the object's alpha reaches its target value.
----@field grow_x    number The amount the object's `scale_x` will increase, per frame at 30FPS.
----@field grow_y    number The amount the object's `scale_y` will increase, per frame at 30FPS.
----@field grow      number The amount the object's `scale_x` and `scale_y` will increase, per frame at 30FPS.
----@field remove_shrunk boolean If true, the object will remove itself if its scale goes below 0. (Defaults to false)
----@field spin      number The amount the object's `rotation` will change, per frame at 30FPS.
+---@field fade           number       The amount the object's alpha should approach its target value, per frame at 30FPS.
+---@field fade_to        number       The target alpha to approach.
+---@field fade_callback  function|nil A function that will be called when the object's alpha reaches its target value.
+---@field grow_x         number       The amount the object's `scale_x` will increase, per frame at 30FPS.
+---@field grow_y         number       The amount the object's `scale_y` will increase, per frame at 30FPS.
+---@field grow           number       The amount the object's `scale_x` and `scale_y` will increase, per frame at 30FPS.
+---@field remove_shrunk  boolean      If true, the object will remove itself if its scale goes below 0. (Defaults to false)
+---@field spin           number       The amount the object's `rotation` will change, per frame at 30FPS.
+---@field shake_x        number       The amount the object will shake in the `x` axis, per frame at 30FPS.
+---@field shake_y        number       The amount the object will shake in the `y` axis, per frame at 30FPS.
+---@field shake_friction number       The amount the object's shake will slow down, per frame at 30FPS.
+---@field shake_delay    number       The time it takes for the object to invert its shake direction, in frames.
+---@field shake_timer    number       *(Used internally)* A timer used to invert the object's shake direction.
 
 --- Resets all of the object's `graphics` table values to their default values, \
 --- making it so it will stop transforming if it was before.
@@ -402,7 +407,17 @@ function Object:resetGraphics()
         remove_shrunk = false,
 
         -- Amount this object rotates (per frame at 30 fps)
-        spin = 0
+        spin = 0,
+
+        -- Shake amount
+        shake_x = 0,
+        shake_y = 0,
+        -- Shake friction (How much the shake decreases)
+        shake_friction = 0,
+        -- Shake speed (How much time it takes to invert the shake)
+        shake_delay = 2,
+        -- Shake timer (used to invert the shake)
+        shake_timer = 0
     }
 end
 
@@ -454,6 +469,25 @@ function Object:fadeOutSpeedAndRemove(speed)
     self.graphics.fade = speed or 0.04
     self.graphics.fade_to = 0
     self.graphics.fade_callback = self.remove
+end
+
+--- Makes the object shake by the specified amount.
+---@param x?        number   The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number   The amount of shake in the `y` direction. (Defaults to `0`)
+---@param friction? number   The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `0.5`)
+---@param delay?    number   The time it takes for the object to invert its shake direction, in frames. (Defaults to `2`)
+function Object:shake(x, y, friction, delay)
+    self.graphics.shake_x = x or 4
+    self.graphics.shake_y = y or 0
+    self.graphics.shake_friction = friction or 0.5
+    self.graphics.shake_delay = delay or 2
+    self.graphics.shake_timer = 0
+end
+
+--- Stops the object from shaking.
+function Object:stopShake()
+    self.graphics.shake_x = 0
+    self.graphics.shake_y = 0
 end
 
 --- Moves the object's `x` and `y` values to the new specified position over `time` seconds.
@@ -1243,6 +1277,14 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if self.camera then
         self.camera:applyTo(transform, floor_x, floor_y)
     end
+    if self.graphics and ((self.graphics.shake_x and self.graphics.shake_x ~= 0) or (self.graphics.shake_y and self.graphics.shake_y ~= 0)) then
+        local shake_x, shake_y = math.ceil(self.graphics.shake_x), math.ceil(self.graphics.shake_y)
+        if not floor_x then
+            transform:translate(shake_x, shake_y)
+        else
+            transform:translate(Utils.floor(shake_x, floor_x), Utils.floor(shake_y, floor_y))
+        end
+    end
     Utils.popPerformance()
 end
 
@@ -1761,6 +1803,19 @@ function Object:updateGraphicsTransform()
 
     if graphics.spin and graphics.spin ~= 0 then
         self.rotation = self.rotation + graphics.spin * DTMULT
+    end
+
+    if graphics.shake_x ~= 0 or graphics.shake_y ~= 0 then
+        graphics.shake_timer = graphics.shake_timer + DTMULT
+        if graphics.shake_timer >= graphics.shake_delay then
+            graphics.shake_x = graphics.shake_x * -1
+            graphics.shake_y = graphics.shake_y * -1
+            graphics.shake_timer = graphics.shake_timer - graphics.shake_delay
+        end
+        if graphics.shake_friction then
+            graphics.shake_x = Utils.approach(graphics.shake_x, 0, graphics.shake_friction * DTMULT)
+            graphics.shake_y = Utils.approach(graphics.shake_y, 0, graphics.shake_friction * DTMULT)
+        end
     end
 end
 

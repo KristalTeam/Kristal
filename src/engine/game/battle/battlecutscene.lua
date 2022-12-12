@@ -159,13 +159,13 @@ function BattleCutscene:slideToSpeed(obj, x, y, speed)
     end
 end
 
-function BattleCutscene:shakeCharacter(chara, x, y)
+function BattleCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    chara.sprite:shake(x, y)
-    chara.overlay_sprite:shake(x, y)
-    return function() return chara.sprite.shake_x == 0 and chara.sprite.shake_y == 0 end
+    chara.sprite:shake(x, y, friction, delay)
+    chara.overlay_sprite:shake(x, y, friction, delay)
+    return function() return chara.sprite.graphics.shake_x == 0 and chara.sprite.graphics.shake_y == 0 end
 end
 
 local function cameraShakeCheck() return Game.battle.camera.shake_x == 0 and Game.battle.camera.shake_y == 0 end

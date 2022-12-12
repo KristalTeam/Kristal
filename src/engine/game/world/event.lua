@@ -129,6 +129,30 @@ function Event:setSprite(texture, speed, use_size)
     end
 end
 
+function Event:shakeSelf(x, y, friction, delay)
+    super:shake(self, x, y, friction, delay)
+end
+
+function Event:stopShakeSelf()
+    super:stopShake(self)
+end
+
+function Event:shake(x, y, friction, delay)
+    if self.sprite then
+        self.sprite:shake(x, y, friction, delay)
+    else
+        self:shakeSelf(x, y, friction, delay)
+    end
+end
+
+function Event:stopShake()
+    if self.sprite then
+        self.sprite:stopShake()
+    else
+        self:stopShakeSelf()
+    end
+end
+
 function Event:draw()
     super:draw(self)
     if DEBUG_RENDER then

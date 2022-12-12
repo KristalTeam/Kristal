@@ -463,7 +463,7 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite().shake_x = 9
+    self:getActiveSprite():shake(9)
 
     if self.health <= (self.max_health * self.tired_percentage) then
         self:setTired(true)
@@ -471,7 +471,7 @@ function EnemyBattler:onHurt(damage, battler)
 end
 
 function EnemyBattler:onHurtEnd()
-    self:getActiveSprite().shake_x = 0
+    self:getActiveSprite():stopShake()
     self:toggleOverlay(false)
 end
 
@@ -515,7 +515,7 @@ function EnemyBattler:onDefeatFatal(damage, battler)
     local sprite = self:getActiveSprite()
 
     sprite.visible = false
-    sprite.shake_x = 0
+    sprite:stopShake()
 
     local death_x, death_y = sprite:getRelativePos(0, 0, self)
     local death = FatalEffect(sprite:getTexture(), death_x, death_y, function() self:remove() end)
@@ -555,7 +555,7 @@ function EnemyBattler:freeze()
     if not sprite:setAnimation("frozen") then
         sprite:setAnimation("hurt")
     end
-    sprite.shake_x = 0
+    sprite:stopShake()
 
     self.hurt_timer = -1
 

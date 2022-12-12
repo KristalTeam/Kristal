@@ -311,9 +311,28 @@ function Character:doWalkToStep(x, y, keep_facing)
     self.noclip = was_noclip
 end
 
-function Character:shake(x, y)
-    self.sprite.shake_x = x or 0
-    self.sprite.shake_y = y or 0
+function Character:shakeSelf(x, y, friction, delay)
+    super:shake(self, x, y, friction, delay)
+end
+
+function Character:stopShakeSelf()
+    super:stopShake(self)
+end
+
+function Character:shake(x, y, friction, delay)
+    if self.sprite then
+        self.sprite:shake(x, y, friction, delay)
+    else
+        self:shakeSelf(x, y, friction, delay)
+    end
+end
+
+function Character:stopShake()
+    if self.sprite then
+        self.sprite:stopShake()
+    else
+        self:stopShakeSelf()
+    end
 end
 
 function Character:setSprite(sprite)

@@ -292,12 +292,12 @@ function WorldCutscene:jumpTo(chara, ...)
     return function() return not chara.jumping end
 end
 
-function WorldCutscene:shakeCharacter(chara, x, y)
+function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
-    chara:shake(x, y)
-    return function() return chara.sprite.shake_x == 0 and chara.sprite.shake_y == 0 end
+    chara:shake(x, y, friction, delay)
+    return function() return chara.sprite.graphics.shake_x == 0 and chara.sprite.graphics.shake_y == 0 end
 end
 
 local function waitForCameraShake() return Game.world.camera.shake_x == 0 and Game.world.camera.shake_y == 0 end

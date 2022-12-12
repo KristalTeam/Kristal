@@ -27,10 +27,6 @@ function ActorSprite:init(actor)
     self.walk_speed = 4
     self.walk_frame = 2
 
-    self.shake_x = 0
-    self.shake_y = 0
-    self.shake_timer = 0
-
     self.aura = false
     self.aura_siner = 0
 
@@ -271,11 +267,7 @@ function ActorSprite:getOffset()
             (self.directional and (self.offsets[self:getDirectionalPath(self.sprite)] or (frames_for_dir and self.offsets[frames_for_dir])))
             or {0, 0}]]
     end
-    if self.shake_x ~= 0 or self.shake_y ~= 0 then
-        return {offset[1] + math.ceil(self.shake_x), offset[2] + math.ceil(self.shake_y)}
-    else
-        return offset
-    end
+    return offset
 end
 
 function ActorSprite:update()
@@ -320,18 +312,6 @@ function ActorSprite:update()
         end
 
         self:updateDirection()
-    end
-
-    if self.shake_x ~= 0 or self.shake_y ~= 0 then
-        self.shake_timer = self.shake_timer + DTMULT
-
-        while self.shake_timer >= 2 do
-            self.shake_x = -Utils.approach(self.shake_x, 0, 1)
-            self.shake_y = -Utils.approach(self.shake_y, 0, 1)
-            self.shake_timer = self.shake_timer - 2
-        end
-    else
-        self.shake_timer = 0
     end
 
     if self.aura then
