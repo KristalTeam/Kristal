@@ -384,7 +384,7 @@ end
 ---@field shake_x        number       The amount the object will shake in the `x` axis, per frame at 30FPS.
 ---@field shake_y        number       The amount the object will shake in the `y` axis, per frame at 30FPS.
 ---@field shake_friction number       The amount the object's shake will slow down, per frame at 30FPS.
----@field shake_delay    number       The time it takes for the object to invert its shake direction, in frames.
+---@field shake_delay    number       The time it takes for the object to invert its shake direction, in seconds.
 ---@field shake_timer    number       *(Used internally)* A timer used to invert the object's shake direction.
 
 --- Resets all of the object's `graphics` table values to their default values, \
@@ -415,7 +415,7 @@ function Object:resetGraphics()
         -- Shake friction (How much the shake decreases)
         shake_friction = 0,
         -- Shake speed (How much time it takes to invert the shake)
-        shake_delay = 2,
+        shake_delay = 2/30,
         -- Shake timer (used to invert the shake)
         shake_timer = 0
     }
@@ -475,12 +475,12 @@ end
 ---@param x?        number   The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y?        number   The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number   The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `0.5`)
----@param delay?    number   The time it takes for the object to invert its shake direction, in frames. (Defaults to `2`)
+---@param delay?    number   The time it takes for the object to invert its shake direction, in seconds. (Defaults to `2/30`)
 function Object:shake(x, y, friction, delay)
     self.graphics.shake_x = x or 4
     self.graphics.shake_y = y or 0
     self.graphics.shake_friction = friction or 0.5
-    self.graphics.shake_delay = delay or 2
+    self.graphics.shake_delay = delay or (2/30)
     self.graphics.shake_timer = 0
 end
 
@@ -1806,11 +1806,11 @@ function Object:updateGraphicsTransform()
     end
 
     if (graphics.shake_x and graphics.shake_x ~= 0) or (graphics.shake_y and graphics.shake_y ~= 0) then
-        graphics.shake_timer = (graphics.shake_timer or 0) + DTMULT
-        if graphics.shake_timer >= (graphics.shake_delay or 2) then
+        graphics.shake_timer = (graphics.shake_timer or 0) + DT
+        while graphics.shake_timer >= (graphics.shake_delay or (2/30)) do
             graphics.shake_x = (graphics.shake_x or 0) * -1
             graphics.shake_y = (graphics.shake_y or 0) * -1
-            graphics.shake_timer = graphics.shake_timer - (graphics.shake_delay or 2)
+            graphics.shake_timer = graphics.shake_timer - (graphics.shake_delay or (2/30))
         end
         if graphics.shake_friction and graphics.shake_friction ~= 0 then
             graphics.shake_x = Utils.approach(graphics.shake_x or 0, 0, graphics.shake_friction * DTMULT)
