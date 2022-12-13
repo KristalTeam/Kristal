@@ -90,8 +90,7 @@ function Menu:enter()
 
     -- Preview music
     self.mod_music = {}
-    self.mod_music_volume = {}
-    self.mod_music_sync = {}
+    self.mod_music_options = {}
 
     -- Load the mods
     self.loading_mods = false
@@ -369,8 +368,7 @@ function Menu:buildMods()
         v:remove()
     end
     self.mod_music = {}
-    self.mod_music_volume = {}
-    self.mod_music_sync = {}
+    self.mod_music_options = {}
 
     for _,mod in ipairs(sorted_mods) do
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
@@ -403,8 +401,11 @@ function Menu:buildMods()
 
             self.mod_music[mod.id] = music
 
-            self.mod_music_volume[mod.id] = mod.info and mod.info["previewVolume"] or 1
-            self.mod_music_sync[mod.id] = mod.info and mod.info["previewMusicSync"] or false
+            self.mod_music_options[mod.id] = {
+                volume = mod["previewVolume"]     or 1,
+                sync   = mod["previewMusicSync"]  or false,
+                pause  = mod["previewMusicPause"] or false,
+            }
         end
 
         if not mod.hidden then
@@ -437,7 +438,7 @@ function Menu:buildMods()
             self.music:remove()
 
             self.music = self.mod_music[TARGET_MOD]
-            self.music:setVolume(self.mod_music_volume[TARGET_MOD])
+            self.music:setVolume(self.mod_music_options[TARGET_MOD].volume)
             self.music:play()
         end
     end
@@ -524,7 +525,7 @@ function Menu:update()
     if not TARGET_MOD and not Kristal.stageTransitionExists() then
         local fade_waiting = false
         for k,v in pairs(self.mod_music) do
-            if v:isPlaying() and v.volume > (self.mod_music_volume[k] * 0.1) then
+            if v:isPlaying() and v.volume > (self.mod_music_options[k].volume * 0.1) then
                 fade_waiting = true
                 break
             end
@@ -532,10 +533,11 @@ function Menu:update()
 
         if current_mod and self.mod_music[current_mod.id] then
             local mod_music = self.mod_music[current_mod.id]
+            local options = self.mod_music_options[current_mod.id]
 
             if not mod_music:isPlaying() and not fade_waiting and self.music.volume == 0 then
                 mod_music:setVolume(0)
-                if self.mod_music_sync[current_mod.id] then
+                if options.sync then
                     mod_music:play()
                     mod_music:seek(self.music:tell())
                 else
@@ -543,7 +545,7 @@ function Menu:update()
                 end
             end
             if mod_music:isPlaying() then
-                mod_music:fade(self.mod_music_volume[current_mod.id], 0.5)
+                mod_music:fade(options.volume, 0.5)
             end
 
             if self.music.volume > 0 then
@@ -557,7 +559,11 @@ function Menu:update()
 
         for k,v in pairs(self.mod_music) do
             if (not current_mod or k ~= current_mod.id) and v:isPlaying() then
-                v:fade(0, 0.5, function(music) music:pause() end)
+                if self.mod_music_options[k].pause then
+                    v:fade(0, 0.5, function(music) music:pause() end)
+                else
+                    v:fade(0, 0.5, function(music) music:stop() end)
+                end
             end
         end
     end
