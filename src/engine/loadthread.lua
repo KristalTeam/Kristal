@@ -130,10 +130,20 @@ local loaders = {
                 pcall(function() mod.logo_data = love.image.newImageData(full_path.."/logo.png") end)
             end
 
+            local music_extensions = {"mp3", "ogg", "wav"}
+            for _,ext in ipairs(music_extensions) do
+                if love.filesystem.getInfo(full_path.."/preview."..ext) then
+                    mod.preview_music_path = full_path.."/preview."..ext
+                    break
+                end
+            end
+
             if love.filesystem.getInfo(full_path.."/preview") then
                 for _,file in ipairs(love.filesystem.getDirectoryItems(full_path.."/preview")) do
                     if file == "preview.lua" then
                         mod.preview_script_path = full_path.."/preview/preview.lua"
+                    elseif file == "preview.ogg" or file == "preview.mp3" or file == "preview.wav" then
+                        mod.preview_music_path = full_path.."/preview/"..file
                     elseif file:sub(-4) == ".png" then
                         local img_name = file:sub(1, -4)
                         local img_num

@@ -11,6 +11,8 @@ function Music:init()
     self.fade_speed = 0
     self.fade_callback = nil
 
+    self.removed = false
+
     self.current = nil
     self.source = nil
 end
@@ -30,32 +32,47 @@ function Music:getPitch()
 end
 
 function Music:play(music, volume, pitch)
-    self.fade_speed = 0
     if music then
         local path = Assets.getMusicPath(music)
-        if path then
-            if volume then
-                self.volume = volume
+        if not path then
+            return
+        end
+        self:playFile(path, volume, pitch, music)
+    else
+        self:playFile(nil, volume, pitch)
+    end
+end
+
+function Music:playFile(path, volume, pitch, name)
+    if self.removed then
+        return
+    end
+
+    self.fade_speed = 0
+
+    if path then
+        name = name or path
+        if volume then
+            self.volume = volume
+        end
+        if self.current ~= name or not self.source or not self.source:isPlaying() then
+            if self.source then
+                self.source:stop()
             end
-            if self.current ~= music or not self.source or not self.source:isPlaying() then
-                if self.source then
-                    self.source:stop()
-                end
-                self.current = music
-                self.pitch = pitch or 1
-                self.source = love.audio.newSource(path, "stream")
+            self.current = name
+            self.pitch = pitch or 1
+            self.source = love.audio.newSource(path, "stream")
+            self.source:setVolume(self:getVolume())
+            self.source:setPitch(self:getPitch())
+            self.source:setLooping(true)
+            self.source:play()
+        else
+            if volume then
                 self.source:setVolume(self:getVolume())
+            end
+            if pitch then
+                self.pitch = pitch
                 self.source:setPitch(self:getPitch())
-                self.source:setLooping(true)
-                self.source:play()
-            else
-                if volume then
-                    self.source:setVolume(self:getVolume())
-                end
-                if pitch then
-                    self.pitch = pitch
-                    self.source:setPitch(self:getPitch())
-                end
             end
         end
     elseif self.source then
@@ -124,7 +141,9 @@ function Music:remove()
     Utils.removeFromTable(_handlers, self)
     if self.source then
         self.source:stop()
+        self.source = nil
     end
+    self.removed = true
 end
 
 -- Static Functions
@@ -169,7 +188,7 @@ local function update()
                 handler.fade_speed = 0
 
                 if handler.fade_callback then
-                    handler.fade_callback()
+                    handler:fade_callback()
                 end
             end
         end

@@ -24,7 +24,7 @@ function Menu:enter()
     self.state = "MAINMENU"
 
     -- Load menu music
-    self.music = Music("mod_menu", 1, 0.95)
+    self.music = Music() -- "mod_menu", 1, 0.95
 
     Kristal.showBorder(0.5)
 
@@ -88,6 +88,11 @@ function Menu:enter()
     self.background_fade = 1
     self.mod_fades = {}
 
+    -- Preview music
+    self.mod_music = {}
+    self.mod_music_volume = {}
+    self.mod_music_sync = {}
+
     -- Load the mods
     self.loading_mods = false
     self.last_loaded = nil
@@ -117,6 +122,10 @@ function Menu:enter()
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
     self:buildMods()
+
+    if not self.music:isPlaying() then
+        self.music:play("mod_menu", 1, 0.95)
+    end
 
     self.left_credits = {
         {"Lead Developers", COLORS.silver},
@@ -274,8 +283,16 @@ function Menu:popState()
     self.options_y = state.options_y
 end
 
+function Menu:stopMusic()
+    self.music:remove()
+    for _,v in ipairs(self.mod_music) do
+        v:remove()
+    end
+    self.mod_music = {}
+end
+
 function Menu:leave()
-    self.music:stop()
+    self:stopMusic()
 end
 
 function Menu:drawMenuRectangle(x, y, width, height, color)
@@ -339,12 +356,22 @@ function Menu:buildMods()
         end
         return
     end
+
     local sorted_mods = Utils.copy(Kristal.Mods.getMods())
     table.sort(sorted_mods, function(a, b)
         local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
         local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
         return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
     end)
+
+    self.mod_fades = {}
+    for k,v in pairs(self.mod_music) do
+        v:remove()
+    end
+    self.mod_music = {}
+    self.mod_music_volume = {}
+    self.mod_music_sync = {}
+
     for _,mod in ipairs(sorted_mods) do
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
 
@@ -369,6 +396,17 @@ function Menu:buildMods()
             end
         end
 
+        if mod.preview_music_path then
+            local music = Music()
+            music:playFile(mod.preview_music_path, 0, 1)
+            music:stop()
+
+            self.mod_music[mod.id] = music
+
+            self.mod_music_volume[mod.id] = mod.info and mod.info["previewVolume"] or 1
+            self.mod_music_sync[mod.id] = mod.info and mod.info["previewMusicSync"] or false
+        end
+
         if not mod.hidden then
             self.list:addMod(button)
         end
@@ -379,13 +417,29 @@ function Menu:buildMods()
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
 
     if TARGET_MOD then
-        local _,index = self.list:getById(TARGET_MOD)
+        local target_button,index = self.list:getById(TARGET_MOD)
         if not index then
             error("No mod found: "..TARGET_MOD)
         else
             self.list:select(index, true)
         end
         self.has_target_saves = Kristal.hasAnySaves(TARGET_MOD)
+
+        if self.mod_fades[TARGET_MOD] then
+            self.mod_fades[TARGET_MOD].fade = 1
+
+            if target_button.preview_script and target_button.preview_script.hide_background ~= false then
+                self.background_fade = 0
+            end
+        end
+
+        if self.mod_music[TARGET_MOD] then
+            self.music:remove()
+
+            self.music = self.mod_music[TARGET_MOD]
+            self.music:setVolume(self.mod_music_volume[TARGET_MOD])
+            self.music:play()
+        end
     end
 end
 
@@ -462,6 +516,48 @@ function Menu:update()
         for k,v in pairs(self.mod_fades) do
             if v.fade > 0 then
                 v.fade = math.max(0, v.fade - (DT / 0.5))
+            end
+        end
+    end
+
+    -- Update preview music fading
+    if not TARGET_MOD and not Kristal.stageTransitionExists() then
+        local fade_waiting = false
+        for k,v in pairs(self.mod_music) do
+            if v:isPlaying() and v.volume > (self.mod_music_volume[k] * 0.1) then
+                fade_waiting = true
+                break
+            end
+        end
+
+        if current_mod and self.mod_music[current_mod.id] then
+            local mod_music = self.mod_music[current_mod.id]
+
+            if not mod_music:isPlaying() and not fade_waiting and self.music.volume == 0 then
+                mod_music:setVolume(0)
+                if self.mod_music_sync[current_mod.id] then
+                    mod_music:play()
+                    mod_music:seek(self.music:tell())
+                else
+                    mod_music:resume()
+                end
+            end
+            if mod_music:isPlaying() then
+                mod_music:fade(self.mod_music_volume[current_mod.id], 0.5)
+            end
+
+            if self.music.volume > 0 then
+                self.music:fade(0, 0.5)
+            end
+        else
+            if not fade_waiting and self.music.volume < 1 then
+                self.music:fade(1, 0.5)
+            end
+        end
+
+        for k,v in pairs(self.mod_music) do
+            if (not current_mod or k ~= current_mod.id) and v:isPlaying() then
+                v:fade(0, 0.5, function(music) music:pause() end)
             end
         end
     end

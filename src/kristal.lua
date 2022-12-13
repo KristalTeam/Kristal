@@ -1098,9 +1098,21 @@ function Kristal.processDynamicBorder()
 end
 
 --- Called internally to determine whether borders should be set.
----@return boolean exists Whether a stage transition exists. (currently only if `DarkTransition` exists)
+---@return boolean exists Whether a stage transition exists.
 function Kristal.stageTransitionExists()
-    return #Kristal.Stage:getObjects(DarkTransition) ~= 0
+    if #Kristal.Stage:getObjects(DarkTransition) ~= 0 then
+        return true
+    end
+
+    if Kristal.getState() == Kristal.States["Menu"] then
+        for _,obj in ipairs(Kristal.States["Menu"].stage:getObjects(FileNamer)) do
+            if obj.state == "FADEOUT" then
+                return true
+            end
+        end
+    end
+
+    return false
 end
 
 --- Fades out the screen border.
