@@ -1106,7 +1106,7 @@ function Kristal.stageTransitionExists()
 
     if Kristal.getState() == Kristal.States["Menu"] then
         for _,obj in ipairs(Kristal.States["Menu"].stage:getObjects(FileNamer)) do
-            if obj.state == "FADEOUT" then
+            if obj.state == "FADEOUT" or obj.state == "DONE" then
                 return true
             end
         end
