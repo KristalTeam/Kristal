@@ -284,7 +284,7 @@ end
 
 function Menu:stopMusic()
     self.music:remove()
-    for _,v in ipairs(self.mod_music) do
+    for _,v in pairs(self.mod_music) do
         v:remove()
     end
     self.mod_music = {}
