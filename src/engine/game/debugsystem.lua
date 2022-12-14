@@ -1140,6 +1140,8 @@ function DebugSystem:draw()
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
         end
 
+        self:printShadow(string.format("Mouse: (%i, %i)", mx, my), 12, 480 - 32 + Utils.lerp(16, 0, menu_alpha), {1, 1, 1, 1})
+
         if not object then
             self.hover_alpha = self.hover_alpha - DT / fadespeed
         end
