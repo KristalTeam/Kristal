@@ -13,6 +13,7 @@ function Player:init(chara, x, y)
     self.state_manager:addState("SLIDE", {update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide})
 
     self.force_run = false
+    self.force_walk = false
     self.run_timer = 0
     self.run_timer_grace = 0
 
@@ -57,6 +58,7 @@ end
 function Player:getDebugOptions(context)
     context = super:getDebugOptions(self, context)
     context:addMenuItem("Toggle force run", "Toggle if the player is forced to run or not", function() self.force_run = not self.force_run end)
+    context:addMenuItem("Toggle force walk", "Toggle if the player is forced to walk or not", function() self.force_walk = not self.force_walk end)
     return context
 end
 
@@ -180,12 +182,12 @@ function Player:handleMovement()
     if Input.down("down") then walk_y = walk_y + 1 end
     if Input.down("up") then walk_y = walk_y - 1 end
 
-    local running = Input.down("cancel") or self.force_run
-    if Kristal.Config["autoRun"] and not self.force_run then
+    local running = (Input.down("cancel") or self.force_run) and not self.force_walk
+    if Kristal.Config["autoRun"] and not self.force_run and not self.force_walk then
         running = not running
     end
 
-    if self.force_run then
+    if self.force_run and not self.force_walk then
         self.run_timer = 200
     end
 
