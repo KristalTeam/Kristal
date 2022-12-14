@@ -206,8 +206,8 @@ function PartyBattler:revive()
     self:toggleOverlay(false)
 end
 
-function PartyBattler:flash()
-    super:flash(self, self.overlay_sprite.visible and self.overlay_sprite or self.sprite)
+function PartyBattler:flash(sprite, offset_x, offset_y, layer)
+    super:flash(self, sprite or self.overlay_sprite.visible and self.overlay_sprite or self.sprite, offset_x, offset_y, layer)
 end
 
 function PartyBattler:heal(amount, sparkle_color, show_up)

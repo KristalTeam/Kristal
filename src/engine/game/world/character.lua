@@ -335,6 +335,11 @@ function Character:stopShake()
     end
 end
 
+function Character:flash(sprite, offset_x, offset_y, layer)
+    local sprite_to_use = sprite or self.sprite
+    return sprite_to_use:flash(offset_x, offset_y, layer)
+end
+
 function Character:setSprite(sprite)
     self.sprite:setSprite(sprite)
 end

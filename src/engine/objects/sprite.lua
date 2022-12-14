@@ -338,6 +338,13 @@ function Sprite:pause()
     self.playing = false
 end
 
+function Sprite:flash(offset_x, offset_y, layer)
+    local flash = FlashFade(self.texture, offset_x or 0, offset_y or 0)
+    flash.layer = layer or 100 -- TODO: Unhardcode?
+    self:addChild(flash)
+    return flash
+end
+
 function Sprite:onClone(src)
     super:onClone(self, src)
 

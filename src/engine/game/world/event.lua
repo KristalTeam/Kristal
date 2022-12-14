@@ -153,6 +153,11 @@ function Event:stopShake()
     end
 end
 
+function Event:flash(sprite, offset_x, offset_y, layer)
+    local sprite_to_use = sprite or self.sprite
+    return sprite_to_use:flash(offset_x, offset_y, layer)
+end
+
 function Event:draw()
     super:draw(self)
     if DEBUG_RENDER then

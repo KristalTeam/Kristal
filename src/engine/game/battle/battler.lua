@@ -16,13 +16,9 @@ function Battler:init(x, y, width, height)
     self.last_highlighted = false
 end
 
-function Battler:flash(sprite)
+function Battler:flash(sprite, offset_x, offset_y, layer)
     local sprite_to_use = sprite or self.sprite
-    local offset = sprite_to_use:getOffset()
-    local flash = FlashFade(sprite_to_use.texture, offset[1], offset[2])
-    flash.layer = 100
-    self:addChild(flash)
-    return flash
+    return sprite_to_use:flash(offset_x, offset_y, layer)
 end
 
 function Battler:sparkle(r, g, b)
