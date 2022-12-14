@@ -42,8 +42,6 @@ function WarpDoor:init(x, y, properties)
 end
 
 function WarpDoor:onInteract(chara, facing)
-    if facing ~= "up" then return end
-
     if not self.open then
         Game.world:showText("* (It's a lone doorframe.)[wait:5]\n* (But for some reason,[wait:5] you can't\nsee through it...)")
     else
