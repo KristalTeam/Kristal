@@ -42,7 +42,7 @@ end
 function WorldCutscene:update()
     local new_moving = {}
     for _,object in ipairs(self.moving_objects) do
-        if object.physics.move_target then
+        if object.stage and object.physics.move_target then
             table.insert(new_moving, object)
         end
     end
