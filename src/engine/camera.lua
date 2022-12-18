@@ -54,6 +54,9 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
     self.zoom_x = 1
     self.zoom_y = 1
 
+    -- Camera rotation
+    self.rotation = 0
+
     -- Camera shake
     self.shake_x = 0
     self.shake_y = 0
@@ -98,9 +101,14 @@ function Camera:setBounds(x, y, width, height)
     end
 end
 
-function Camera:getRect()
+function Camera:getRect(scaled)
     local x, y = self:getOffsetPos()
-    return x - (self.width / self.zoom_x / 2), y - (self.height / self.zoom_y / 2), self.width / self.zoom_x, self.height / self.zoom_y
+
+    if scaled ~= false then
+        return x - (self.width / self.zoom_x / 2), y - (self.height / self.zoom_y / 2), self.width / self.zoom_x, self.height / self.zoom_y
+    else
+        return x - (self.width / 2), y - (self.height / 2), self.width, self.height
+    end
 end
 
 function Camera:getPosition() return self.x, self.y end
@@ -549,7 +557,7 @@ function Camera:updatePanning()
 end
 
 function Camera:getParallax(px, py, ox, oy)
-    local x, y, w, h = self:getRect()
+    local x, y, w, h = self:getRect(false)
 
     local parallax_x, parallax_y
 
@@ -569,20 +577,28 @@ function Camera:getParallax(px, py, ox, oy)
 end
 
 function Camera:applyTo(transform, ceil_x, ceil_y)
+    if self.rotation ~= 0 then
+        transform:translate(self.width/2, self.height/2)
+        transform:rotate(self.rotation)
+        transform:translate(-self.width/2, -self.height/2)
+    end
+
     transform:scale(self.zoom_x, self.zoom_y)
 
     local x, y = self:getOffsetPos()
 
-    local tx = -x + (self.width / self.zoom_x / 2)
-    local ty = -y + (self.height / self.zoom_y / 2)
+    local tw = self.width / self.zoom_x / 2
+    local th = self.height / self.zoom_y / 2
+
+    local tx = -x + tw
+    local ty = -y + th
 
     if ceil_x then
-        ceil_x = ceil_x / self.zoom_x
-        ceil_y = ceil_y / self.zoom_y
-        transform:translate(Utils.ceil(tx, ceil_x), Utils.ceil(ty, ceil_y))
-    else
-        transform:translate(tx, ty)
+        tx = Utils.ceil(tx, ceil_x / self.zoom_x)
+        ty = Utils.ceil(ty, ceil_y / self.zoom_y)
     end
+
+    transform:translate(tx, ty)
 end
 
 function Camera:getTransform()
