@@ -646,6 +646,9 @@ function Input.getText(alias, gamepad, return_sprite)
             return "[button:" .. gamepad_button .. "]"
         end
     end
+    if return_sprite then
+        return Assets.getTexture("kristal/buttons/unknown")
+    end
     return "["..name:upper().."]"
 end
 
