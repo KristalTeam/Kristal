@@ -1,3 +1,5 @@
+---@class GrazeSprite : Object
+---@overload fun(...) : GrazeSprite
 local GrazeSprite, super = Class(Object)
 
 function GrazeSprite:init(x, y)
