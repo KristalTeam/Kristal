@@ -1,3 +1,5 @@
+---@class PushBlock : Event
+---@overload fun(...) : PushBlock
 local PushBlock, super = Class(Event)
 
 function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)

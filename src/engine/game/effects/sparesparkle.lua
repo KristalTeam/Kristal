@@ -1,3 +1,5 @@
+---@class SpareSparkle : Sprite
+---@overload fun(...) : SpareSparkle
 local SpareSparkle, super = Class(Sprite)
 
 function SpareSparkle:init(x, y)

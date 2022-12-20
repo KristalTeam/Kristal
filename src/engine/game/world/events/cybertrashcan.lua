@@ -1,3 +1,5 @@
+---@class CyberTrashCan : Event
+---@overload fun(...) : CyberTrashCan
 local CyberTrashCan, super = Class(Event, "cybertrash")
 
 function CyberTrashCan:init(x, y, properties)

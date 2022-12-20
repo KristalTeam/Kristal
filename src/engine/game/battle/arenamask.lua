@@ -1,3 +1,5 @@
+---@class ArenaMask : Object
+---@overload fun(...) : ArenaMask
 local ArenaMask, super = Class(Object)
 
 function ArenaMask:init(layer, x, y, arena)

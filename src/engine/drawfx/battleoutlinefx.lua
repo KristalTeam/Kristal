@@ -1,3 +1,5 @@
+---@class BattleOutlineFX : FXBase
+---@overload fun(...) : BattleOutlineFX
 local BattleOutlineFX, super = Class(FXBase)
 
 function BattleOutlineFX:init(priority)

@@ -1,3 +1,5 @@
+---@class FountainFloor : Event
+---@overload fun(...) : FountainFloor
 local FountainFloor, super = Class(Event)
 
 function FountainFloor:init(x, y, width, height)

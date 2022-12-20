@@ -1,3 +1,5 @@
+---@class Encounter
+---@overload fun(...) : Encounter
 local Encounter = Class()
 
 function Encounter:init()

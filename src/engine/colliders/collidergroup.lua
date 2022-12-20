@@ -1,3 +1,5 @@
+---@class ColliderGroup : Collider
+---@overload fun(...) : ColliderGroup
 local ColliderGroup, super = Class(Collider)
 
 function ColliderGroup:init(parent, colliders, mode)

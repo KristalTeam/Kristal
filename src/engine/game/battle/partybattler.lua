@@ -1,3 +1,5 @@
+---@class PartyBattler : Battler
+---@overload fun(...) : PartyBattler
 local PartyBattler, super = Class(Battler)
 
 function PartyBattler:init(chara, x, y)

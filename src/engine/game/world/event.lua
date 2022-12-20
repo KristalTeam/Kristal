@@ -1,3 +1,5 @@
+---@class Event : Object
+---@overload fun(...) : Event
 local Event, super = Class(Object)
 
 function Event:init(x, y, w, h)

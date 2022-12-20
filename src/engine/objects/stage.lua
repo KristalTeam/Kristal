@@ -1,3 +1,5 @@
+---@class Stage : Object
+---@overload fun(...) : Stage
 local Stage, super = Class(Object)
 
 function Stage:init(x, y, w, h)

@@ -1,3 +1,5 @@
+---@class FountainShadowController : Event
+---@overload fun(...) : FountainShadowController
 local FountainShadowController, super = Class(Event, "fountainshadow")
 
 function FountainShadowController:init(properties)

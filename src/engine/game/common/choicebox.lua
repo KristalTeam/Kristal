@@ -1,3 +1,5 @@
+---@class Choicebox : Object
+---@overload fun(...) : Choicebox
 local Choicebox, super = Class(Object)
 
 function Choicebox:init(x, y, width, height, battle_box, options)

@@ -1,3 +1,5 @@
+---@class TreasureChest : Event
+---@overload fun(...) : TreasureChest
 local TreasureChest, super = Class(Event, "chest")
 
 function TreasureChest:init(x, y, properties)

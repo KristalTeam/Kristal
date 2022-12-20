@@ -1,3 +1,5 @@
+---@class FountainShadowFX : ShadowFX
+---@overload fun(...) : FountainShadowFX
 local FountainShadowFX, super = Class(ShadowFX)
 
 function FountainShadowFX:init(priority)

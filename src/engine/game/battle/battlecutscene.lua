@@ -1,3 +1,5 @@
+---@class BattleCutscene : Cutscene
+---@overload fun(...) : BattleCutscene
 local BattleCutscene, super = Class(Cutscene)
 
 local function _true() return true end

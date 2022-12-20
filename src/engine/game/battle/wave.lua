@@ -1,3 +1,5 @@
+---@class Wave : Object
+---@overload fun(...) : Wave
 local Wave, super = Class(Object)
 
 function Wave:init()

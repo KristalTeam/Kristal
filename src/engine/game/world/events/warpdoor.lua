@@ -1,3 +1,5 @@
+---@class WarpDoor : Event
+---@overload fun(...) : WarpDoor
 local WarpDoor, super = Class(Event, "warpdoor")
 
 function WarpDoor:init(x, y, properties)

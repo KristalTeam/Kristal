@@ -1,3 +1,5 @@
+---@class DarkFountain : Event
+---@overload fun(...) : DarkFountain
 local DarkFountain, super = Class(Event)
 
 function DarkFountain:init(x, y)

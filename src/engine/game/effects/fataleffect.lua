@@ -1,3 +1,5 @@
+---@class FatalEffect : Object
+---@overload fun(...) : FatalEffect
 local FatalEffect, super = Class(Object)
 
 function FatalEffect:init(texture, x, y, after)

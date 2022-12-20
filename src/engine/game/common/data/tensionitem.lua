@@ -1,3 +1,5 @@
+---@class TensionItem : Item
+---@overload fun(...) : TensionItem
 local TensionItem, super = Class(Item)
 
 function TensionItem:init()

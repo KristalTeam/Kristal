@@ -1,3 +1,5 @@
+---@class ActionBoxDisplay : Object
+---@overload fun(...) : ActionBoxDisplay
 local ActionBoxDisplay, super = Class(Object)
 
 function ActionBoxDisplay:init(actbox, x, y)

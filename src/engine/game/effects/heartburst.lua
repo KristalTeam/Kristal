@@ -1,3 +1,5 @@
+---@class HeartBurst : Object
+---@overload fun(...) : HeartBurst
 local HeartBurst, super = Class(Object)
 
 function HeartBurst:init(x, y, color)

@@ -1,3 +1,5 @@
+---@class ActionButton : Object
+---@overload fun(...) : ActionButton
 local ActionButton, super = Class(Object)
 
 function ActionButton:init(type, battler, x, y)

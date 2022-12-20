@@ -1,3 +1,5 @@
+---@class Actor
+---@overload fun(...) : Actor
 local Actor = Class()
 
 function Actor:init()

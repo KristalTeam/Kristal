@@ -1,3 +1,5 @@
+---@class FXBase
+---@overload fun(...) : FXBase
 local FXBase = Class()
 
 FXBase.SORTER = function(a, b) return (a.transformed and not b.transformed) or (a.transformed == b.transformed and a.priority > b.priority) end

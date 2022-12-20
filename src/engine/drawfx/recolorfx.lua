@@ -1,3 +1,5 @@
+---@class RecolorFX : FXBase
+---@overload fun(...) : RecolorFX
 local RecolorFX, super = Class(FXBase)
 
 function RecolorFX:init(r,g,b,a, priority)

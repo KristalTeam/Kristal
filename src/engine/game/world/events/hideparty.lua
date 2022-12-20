@@ -1,3 +1,5 @@
+---@class HideParty : Event
+---@overload fun(...) : HideParty
 local HideParty, super = Class(Event)
 
 function HideParty:init(x, y, w, h, alpha)

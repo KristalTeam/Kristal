@@ -1,3 +1,5 @@
+---@class FileButton : Object
+---@overload fun(...) : FileButton
 local FileButton, super = Class(Object)
 
 function FileButton:init(list, id, data, x, y, width, height)

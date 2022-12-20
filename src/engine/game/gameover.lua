@@ -1,3 +1,5 @@
+---@class GameOver : Object
+---@overload fun(...) : GameOver
 local GameOver, super = Class(Object, "gameover")
 
 function GameOver:init(x, y)

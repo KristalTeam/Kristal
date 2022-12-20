@@ -1,3 +1,5 @@
+---@class ToggleController : Event
+---@overload fun(...) : ToggleController
 local ToggleController, super = Class(Event, "toggle")
 
 function ToggleController:init(properties)

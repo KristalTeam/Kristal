@@ -1,3 +1,5 @@
+---@class IceSpellEffect : Sprite
+---@overload fun(...) : IceSpellEffect
 local IceSpellEffect, super = Class(Sprite)
 
 function IceSpellEffect:init(x, y, hexagon)

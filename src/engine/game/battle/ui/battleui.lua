@@ -1,3 +1,5 @@
+---@class BattleUI : Object
+---@overload fun(...) : BattleUI
 local BattleUI, super = Class(Object)
 
 function BattleUI:init()

@@ -1,3 +1,5 @@
+---@class GonerKeyboard : Object
+---@overload fun(...) : GonerKeyboard
 local GonerKeyboard, super = Class(Object)
 
 -- For japanese support in the future maybe

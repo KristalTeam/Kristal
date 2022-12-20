@@ -1,3 +1,5 @@
+---@class Music
+---@overload fun(...) : Music
 local Music = {}
 
 local _handlers = {}

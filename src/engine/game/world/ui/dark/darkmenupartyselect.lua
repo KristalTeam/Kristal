@@ -1,3 +1,5 @@
+---@class DarkMenuPartySelect : Object
+---@overload fun(...) : DarkMenuPartySelect
 local DarkMenuPartySelect, super = Class(Object)
 
 function DarkMenuPartySelect:init(x, y)

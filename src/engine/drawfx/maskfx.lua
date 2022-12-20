@@ -1,3 +1,5 @@
+---@class MaskFX : FXBase
+---@overload fun(...) : MaskFX
 local MaskFX, super = Class(FXBase)
 
 function MaskFX:init(mask, draw_children, priority)

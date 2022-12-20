@@ -1,3 +1,5 @@
+---@class Solid : Object
+---@overload fun(...) : Solid
 local Solid, super = Class(Object)
 
 function Solid:init(filled, x, y, width, height)

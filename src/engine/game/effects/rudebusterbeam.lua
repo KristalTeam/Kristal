@@ -1,3 +1,5 @@
+---@class RudeBusterBeam : Sprite
+---@overload fun(...) : RudeBusterBeam
 local RudeBusterBeam, super = Class(Sprite)
 
 function RudeBusterBeam:init(red, x, y, tx, ty, after)

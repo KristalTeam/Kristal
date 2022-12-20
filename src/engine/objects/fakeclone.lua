@@ -1,3 +1,5 @@
+---@class FakeClone : Object
+---@overload fun(...) : FakeClone
 local FakeClone, super = Class(Object)
 
 function FakeClone:init(ref, x, y, copy_transform)

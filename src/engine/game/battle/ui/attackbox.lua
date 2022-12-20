@@ -1,3 +1,5 @@
+---@class AttackBox : Object
+---@overload fun(...) : AttackBox
 local AttackBox, super = Class(Object)
 
 AttackBox.BOLTSPEED = 8

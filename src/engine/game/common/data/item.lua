@@ -1,3 +1,5 @@
+---@class Item
+---@overload fun(...) : Item
 local Item = Class()
 
 function Item:init()

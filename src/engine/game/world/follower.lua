@@ -1,3 +1,5 @@
+---@class Follower : Character
+---@overload fun(...) : Follower
 local Follower, super = Class(Character)
 
 function Follower:init(chara, x, y, target)

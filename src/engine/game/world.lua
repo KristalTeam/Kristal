@@ -1,3 +1,5 @@
+---@class World : Object
+---@overload fun(...) : World
 local World, super = Class(Object)
 
 function World:init(map)

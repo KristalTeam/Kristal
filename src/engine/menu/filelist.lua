@@ -1,3 +1,5 @@
+---@class FileList : Object
+---@overload fun(...) : FileList
 local FileList, super = Class(Object)
 
 function FileList:init(menu, mod)

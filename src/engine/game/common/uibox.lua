@@ -1,3 +1,5 @@
+---@class UIBox : Object
+---@overload fun(...) : UIBox
 local UIBox, super = Class(Object)
 
 function UIBox:init(x, y, width, height, skin)

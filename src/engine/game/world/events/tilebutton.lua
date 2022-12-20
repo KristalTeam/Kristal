@@ -1,3 +1,5 @@
+---@class TileButton : Event
+---@overload fun(...) : TileButton
 local TileButton, super = Class(Event)
 
 function TileButton:init(x, y, w, h, properties, idle_sprite, pressed_sprite)

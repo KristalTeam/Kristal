@@ -1,3 +1,5 @@
+---@class CircleCollider : Collider
+---@overload fun(...) : CircleCollider
 local CircleCollider, super = Class(Collider)
 
 function CircleCollider:init(parent, x, y, radius, mode)

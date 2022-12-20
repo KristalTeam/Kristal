@@ -1,3 +1,5 @@
+---@class Explosion : Object
+---@overload fun(...) : Explosion
 local Explosion, super = Class(Object)
 
 function Explosion:init(x, y)

@@ -1,3 +1,5 @@
+---@class Gradient : FXBase
+---@overload fun(...) : Gradient
 local Gradient, super = Class(FXBase)
 
 function Gradient:init(from, to, alpha, dir, bounds)

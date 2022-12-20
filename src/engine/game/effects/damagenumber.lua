@@ -1,3 +1,5 @@
+---@class DamageNumber : Object
+---@overload fun(...) : DamageNumber
 local DamageNumber, super = Class(Object)
 
 -- Types: "mercy", "damage", "msg"

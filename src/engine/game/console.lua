@@ -1,3 +1,5 @@
+---@class Console : Object
+---@overload fun(...) : Console
 local Console, super = Class(Object)
 
 function Console:init()

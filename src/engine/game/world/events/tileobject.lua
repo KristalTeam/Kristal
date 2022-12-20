@@ -1,3 +1,5 @@
+---@class TileObject : Event
+---@overload fun(...) : TileObject
 local TileObject, super = Class(Event)
 
 function TileObject:init(tileset, tile, x, y, w, h, rotation, flip_x, flip_y)

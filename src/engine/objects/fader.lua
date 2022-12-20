@@ -1,3 +1,5 @@
+---@class Fader : Object
+---@overload fun(...) : Fader
 local Fader, super = Class(Object)
 
 function Fader:init()

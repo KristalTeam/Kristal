@@ -1,3 +1,5 @@
+---@class LightInventory : Inventory
+---@overload fun(...) : LightInventory
 local LightInventory, super = Class(Inventory)
 
 function LightInventory:init()

@@ -1,3 +1,5 @@
+---@class Shop : Object
+---@overload fun(...) : Shop
 local Shop, super = Class(Object, "shop")
 
 function Shop:init()

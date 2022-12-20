@@ -1,3 +1,5 @@
+---@class ModList : Object
+---@overload fun(...) : ModList
 local ModList, super = Class(Object)
 
 function ModList:init(x, y, width, height)

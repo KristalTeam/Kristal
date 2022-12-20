@@ -1,3 +1,5 @@
+---@class HealSparkle : Sprite
+---@overload fun(...) : HealSparkle
 local HealSparkle, super = Class(Sprite)
 
 function HealSparkle:init(x, y)

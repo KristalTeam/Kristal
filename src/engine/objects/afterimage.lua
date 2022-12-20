@@ -1,3 +1,5 @@
+---@class AfterImage : Object
+---@overload fun(...) : AfterImage
 local AfterImage, super = Class(Object)
 
 function AfterImage:init(sprite, fade, speed)

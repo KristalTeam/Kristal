@@ -1,3 +1,5 @@
+---@class ChaserEnemy : Character
+---@overload fun(...) : ChaserEnemy
 local ChaserEnemy, super = Class(Character, "enemy")
 
 function ChaserEnemy:init(actor, x, y, properties)

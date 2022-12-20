@@ -1,3 +1,5 @@
+---@class IceSpellBurst : Object
+---@overload fun(...) : IceSpellBurst
 local IceSpellBurst, super = Class(Object)
 
 function IceSpellBurst:init(x, y)

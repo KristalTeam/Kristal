@@ -1,3 +1,5 @@
+---@class HPText : Object
+---@overload fun(...) : HPText
 local HPText, super = Class(Object)
 
 function HPText:init(text, x, y)

@@ -1,3 +1,5 @@
+---@class DarkTransitionSparkle : Sprite
+---@overload fun(...) : DarkTransitionSparkle
 local DarkTransitionSparkle, super = Class(Sprite)
 
 function DarkTransitionSparkle:init(texture, x, y)

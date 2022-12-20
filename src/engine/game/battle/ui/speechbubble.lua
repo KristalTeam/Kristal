@@ -1,3 +1,5 @@
+---@class SpeechBubble : Object
+---@overload fun(...) : SpeechBubble
 local SpeechBubble, super = Class(Object)
 
 function SpeechBubble:init(text, x, y, options, speaker)

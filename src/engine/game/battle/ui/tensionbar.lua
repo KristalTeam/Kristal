@@ -1,3 +1,5 @@
+---@class TensionBar : Object
+---@overload fun(...) : TensionBar
 local TensionBar, super = Class(Object)
 
 --[[

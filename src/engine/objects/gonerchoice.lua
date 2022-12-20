@@ -1,3 +1,5 @@
+---@class GonerChoice : Object
+---@overload fun(...) : GonerChoice
 local GonerChoice, super = Class(Object)
 
 function GonerChoice:init(x, y, choices, on_complete, on_select)

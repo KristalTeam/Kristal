@@ -1,3 +1,5 @@
+---@class Cutscene
+---@overload fun(...) : Cutscene
 local Cutscene, super = Class()
 
 function Cutscene:init(func, ...)

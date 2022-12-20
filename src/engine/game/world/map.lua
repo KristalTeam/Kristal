@@ -1,3 +1,5 @@
+---@class Map
+---@overload fun(...) : Map
 local Map = Class()
 
 function Map:init(world, data)

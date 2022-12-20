@@ -1,3 +1,5 @@
+---@class SmallFaceText : Object
+---@overload fun(...) : SmallFaceText
 local SmallFaceText, super = Class(Object)
 
 function SmallFaceText:init(text, x, y, face, actor)

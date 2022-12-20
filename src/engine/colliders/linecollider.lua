@@ -1,3 +1,5 @@
+---@class LineCollider : Collider
+---@overload fun(...) : LineCollider
 local LineCollider, super = Class(Collider)
 
 function LineCollider:init(parent, x1, y1, x2, y2, mode)

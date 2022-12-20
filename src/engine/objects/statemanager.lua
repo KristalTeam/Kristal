@@ -1,3 +1,5 @@
+---@class StateManager : Object
+---@overload fun(...) : StateManager
 local StateManager, super = Class(Object)
 
 function StateManager:init(default_state, master, update_master_state)

@@ -1,3 +1,5 @@
+---@class OverworldSoul : Object
+---@overload fun(...) : OverworldSoul
 local OverworldSoul, super = Class(Object)
 
 function OverworldSoul:init(x, y)

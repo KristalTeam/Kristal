@@ -1,3 +1,5 @@
+---@class TileLayer : Object
+---@overload fun(...) : TileLayer
 local TileLayer, super = Class(Object)
 
 function TileLayer:init(map, data)

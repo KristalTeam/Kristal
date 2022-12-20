@@ -1,3 +1,5 @@
+---@class SimpleSaveMenu : Object
+---@overload fun(...) : SimpleSaveMenu
 local SimpleSaveMenu, super = Class(Object)
 
 function SimpleSaveMenu:init(save_id, marker)

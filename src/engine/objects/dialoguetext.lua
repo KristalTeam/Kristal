@@ -1,3 +1,5 @@
+---@class DialogueText : Text
+---@overload fun(...) : DialogueText
 local DialogueText, super = Class(Text)
 
 DialogueText.COMMANDS = {"voice", "noskip", "speed", "instant", "stopinstant", "wait", "func", "talk", "sound", "next"}

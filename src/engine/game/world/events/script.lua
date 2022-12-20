@@ -1,3 +1,5 @@
+---@class Script : Event
+---@overload fun(...) : Script
 local Script, super = Class(Event)
 
 function Script:init(x, y, w, h, properties)

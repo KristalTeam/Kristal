@@ -1,3 +1,5 @@
+---@class PointCollider : Collider
+---@overload fun(...) : PointCollider
 local PointCollider, super = Class(Collider)
 
 function PointCollider:init(parent, x, y, mode)

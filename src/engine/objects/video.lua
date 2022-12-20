@@ -1,3 +1,5 @@
+---@class Video : Object
+---@overload fun(...) : Video
 local Video, super = Class(Object)
 
 function Video:init(video, load_audio, x, y, w, h)

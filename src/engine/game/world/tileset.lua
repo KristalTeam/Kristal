@@ -1,3 +1,5 @@
+---@class Tileset
+---@overload fun(...) : Tileset
 local Tileset = Class()
 
 Tileset.ORIGINS = {

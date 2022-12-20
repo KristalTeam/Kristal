@@ -1,3 +1,5 @@
+---@class Ellipse : Object
+---@overload fun(...) : Ellipse
 local Ellipse, super = Class(Object)
 
 function Ellipse:init(x, y, rx, ry)

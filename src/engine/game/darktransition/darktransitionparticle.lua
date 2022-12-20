@@ -1,3 +1,5 @@
+---@class DarkTransitionParticle : Object
+---@overload fun(...) : DarkTransitionParticle
 local DarkTransitionParticle, super = Class(Object)
 
 function DarkTransitionParticle:init(x, y)

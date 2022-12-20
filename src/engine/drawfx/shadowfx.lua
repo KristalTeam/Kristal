@@ -1,3 +1,5 @@
+---@class ShadowFX : FXBase
+---@overload fun(...) : ShadowFX
 local ShadowFX, super = Class(FXBase)
 
 function ShadowFX:init(alpha, highlight, scale, priority)

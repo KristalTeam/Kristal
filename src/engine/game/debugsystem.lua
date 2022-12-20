@@ -1,3 +1,5 @@
+---@class DebugSystem : Object
+---@overload fun(...) : DebugSystem
 local DebugSystem, super = Class(Object)
 
 function DebugSystem:init()

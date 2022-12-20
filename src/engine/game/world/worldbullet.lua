@@ -1,3 +1,5 @@
+---@class WorldBullet : Object
+---@overload fun(...) : WorldBullet
 local WorldBullet, super = Class(Object)
 
 function WorldBullet:init(x, y, texture)

@@ -1,3 +1,5 @@
+---@class MagicGlass : Event
+---@overload fun(...) : MagicGlass
 local MagicGlass, super = Class(Event)
 
 function MagicGlass:init(x, y, w, h)

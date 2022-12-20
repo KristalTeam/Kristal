@@ -1,3 +1,5 @@
+---@class SnowGraveSpell : Object
+---@overload fun(...) : SnowGraveSpell
 local SnowGraveSpell, super = Class(Object)
 
 function SnowGraveSpell:init(user)

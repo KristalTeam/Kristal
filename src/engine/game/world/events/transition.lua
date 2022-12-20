@@ -1,3 +1,5 @@
+---@class Transition : Event
+---@overload fun(...) : Transition
 local Transition, super = Class(Event)
 
 function Transition:init(x, y, w, h, properties)

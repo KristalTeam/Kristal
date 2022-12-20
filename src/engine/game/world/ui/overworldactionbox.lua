@@ -1,3 +1,5 @@
+---@class OverworldActionBox : Object
+---@overload fun(...) : OverworldActionBox
 local OverworldActionBox, super = Class(Object)
 
 function OverworldActionBox:init(x, y, index, chara)

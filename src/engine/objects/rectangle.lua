@@ -1,3 +1,5 @@
+---@class Rectangle : Object
+---@overload fun(...) : Rectangle
 local Rectangle, super = Class(Object)
 
 function Rectangle:init(x, y, width, height)

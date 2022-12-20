@@ -1,3 +1,5 @@
+---@class ArenaSprite : Object
+---@overload fun(...) : ArenaSprite
 local ArenaSprite, super = Class(Object)
 
 function ArenaSprite:init(arena, x, y)

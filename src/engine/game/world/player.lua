@@ -1,3 +1,5 @@
+---@class Player : Character
+---@overload fun(...) : Player
 local Player, super = Class(Character)
 
 function Player:init(chara, x, y)

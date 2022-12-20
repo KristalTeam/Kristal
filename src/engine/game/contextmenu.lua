@@ -1,3 +1,5 @@
+---@class ContextMenu : Object
+---@overload fun(...) : ContextMenu
 local ContextMenu, super = Class(Object)
 
 function ContextMenu:init(name)

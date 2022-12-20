@@ -1,3 +1,5 @@
+---@class DarkStorageMenu : Object
+---@overload fun(...) : DarkStorageMenu
 local DarkStorageMenu, super = Class(Object)
 
 function DarkStorageMenu:init(top_storage, bottom_storage)

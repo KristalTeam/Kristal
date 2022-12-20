@@ -1,3 +1,5 @@
+---@class Outline : Event
+---@overload fun(...) : Outline
 local Outline, super = Class(Event)
 
 function Outline:init(x, y, w, h)

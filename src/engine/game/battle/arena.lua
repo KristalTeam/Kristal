@@ -1,3 +1,5 @@
+---@class Arena : Object
+---@overload fun(...) : Arena
 local Arena, super = Class(Object)
 
 function Arena:init(x, y, shape)

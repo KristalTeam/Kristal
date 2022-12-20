@@ -1,3 +1,5 @@
+---@class FlashFade : Sprite
+---@overload fun(...) : FlashFade
 local FlashFade, super = Class(Sprite)
 
 function FlashFade:init(texture, x, y)

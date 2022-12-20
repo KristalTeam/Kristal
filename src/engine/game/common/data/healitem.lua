@@ -1,3 +1,5 @@
+---@class HealItem : Item
+---@overload fun(...) : HealItem
 local HealItem, super = Class(Item)
 
 function HealItem:init()

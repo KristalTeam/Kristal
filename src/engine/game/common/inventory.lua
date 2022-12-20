@@ -1,3 +1,5 @@
+---@class Inventory
+---@overload fun(...) : Inventory
 local Inventory, super = Class()
 
 function Inventory:init()

@@ -1,3 +1,5 @@
+---@class FileNamer : Object
+---@overload fun(...) : FileNamer
 local FileNamer, super = Class(Object)
 
 function FileNamer:init(limit, callback, name_text, confirm_text, default_name, default_name_select)

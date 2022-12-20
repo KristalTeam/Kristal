@@ -1,3 +1,5 @@
+---@class AttackBar : Object
+---@overload fun(...) : AttackBar
 local AttackBar, super = Class(Object)
 
 function AttackBar:init(x, y, width, height)

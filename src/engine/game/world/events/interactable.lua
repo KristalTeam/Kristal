@@ -1,3 +1,5 @@
+---@class Interactable : Event
+---@overload fun(...) : Interactable
 local Interactable, super = Class(Event)
 
 function Interactable:init(x, y, width, height, properties)

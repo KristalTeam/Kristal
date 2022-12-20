@@ -1,3 +1,5 @@
+---@class PartyMember
+---@overload fun(...) : PartyMember
 local PartyMember = Class()
 
 function PartyMember:init()

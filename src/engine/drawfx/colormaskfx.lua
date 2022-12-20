@@ -1,3 +1,5 @@
+---@class ColorMaskFX : FXBase
+---@overload fun(...) : ColorMaskFX
 local ColorMaskFX, super = Class(FXBase)
 
 function ColorMaskFX:init(color, amount, priority)

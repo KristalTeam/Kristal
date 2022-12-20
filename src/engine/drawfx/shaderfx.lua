@@ -1,3 +1,5 @@
+---@class ShaderFX : FXBase
+---@overload fun(...) : ShaderFX
 local ShaderFX, super = Class(FXBase)
 
 function ShaderFX:init(shader, vars, transformed, priority)

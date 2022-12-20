@@ -1,3 +1,5 @@
+---@class NPC : Character
+---@overload fun(...) : NPC
 local NPC, super = Class(Character)
 
 function NPC:init(actor, x, y, properties)

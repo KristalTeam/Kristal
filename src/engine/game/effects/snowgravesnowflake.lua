@@ -1,3 +1,5 @@
+---@class SnowGraveSnowflake : Object
+---@overload fun(...) : SnowGraveSnowflake
 local SnowGraveSnowflake, super = Class(Object)
 
 function SnowGraveSnowflake:init(x, y)

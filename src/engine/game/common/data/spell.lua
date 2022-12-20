@@ -1,3 +1,5 @@
+---@class Spell
+---@overload fun(...) : Spell
 local Spell = Class()
 
 function Spell:init()

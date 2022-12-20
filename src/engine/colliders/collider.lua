@@ -1,3 +1,5 @@
+---@class Collider
+---@overload fun(...) : Collider
 local Collider = Class()
 
 function Collider:init(parent, x, y, mode)

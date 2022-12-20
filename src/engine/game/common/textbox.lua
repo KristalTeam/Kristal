@@ -1,3 +1,5 @@
+---@class Textbox : Object
+---@overload fun(...) : Textbox
 local Textbox, super = Class(Object)
 
 Textbox.REACTION_X = {

@@ -1,3 +1,5 @@
+---@class Callback : Object
+---@overload fun(...) : Callback
 local Callback, super = Class(Object)
 
 function Callback:init(o)

@@ -1,3 +1,5 @@
+---@class EnemyBattler : Battler
+---@overload fun(...) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
 function EnemyBattler:init(actor, use_overlay)

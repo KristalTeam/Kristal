@@ -1,3 +1,5 @@
+---@class CameraTarget : Event
+---@overload fun(...) : CameraTarget
 local CameraTarget, super = Class(Event)
 
 function CameraTarget:init(x, y, w, h, properties)

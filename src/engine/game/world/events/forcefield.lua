@@ -1,3 +1,5 @@
+---@class Forcefield : Event
+---@overload fun(...) : Forcefield
 local Forcefield, super = Class(Event)
 
 function Forcefield:init(x, y, w, h, properties)

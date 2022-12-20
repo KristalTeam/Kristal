@@ -1,3 +1,5 @@
+---@class ModButton : Object
+---@overload fun(...) : ModButton
 local ModButton, super = Class(Object)
 
 function ModButton:init(name, width, height, mod)

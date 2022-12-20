@@ -1,3 +1,5 @@
+---@class FrozenEnemy : Interactable
+---@overload fun(...) : FrozenEnemy
 local FrozenEnemy, super = Class(Interactable)
 
 function FrozenEnemy:init(actor, x, y, properties)

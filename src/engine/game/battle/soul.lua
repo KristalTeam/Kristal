@@ -1,3 +1,5 @@
+---@class Soul : Object
+---@overload fun(...) : Soul
 local Soul, super = Class(Object)
 
 function Soul:init(x, y, color)

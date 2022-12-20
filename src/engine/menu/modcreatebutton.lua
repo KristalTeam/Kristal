@@ -1,3 +1,5 @@
+---@class ModCreateButton : Object
+---@overload fun(...) : ModCreateButton
 local ModCreateButton, super = Class(Object)
 
 function ModCreateButton:init(width, height)

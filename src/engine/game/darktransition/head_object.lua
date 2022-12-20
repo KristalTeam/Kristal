@@ -1,3 +1,5 @@
+---@class HeadObject : Sprite
+---@overload fun(...) : HeadObject
 local HeadObject, super = Class(Sprite)
 
 function HeadObject:init(texture, x, y)

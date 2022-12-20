@@ -1,3 +1,5 @@
+---@class Bullet : Object
+---@overload fun(...) : Bullet
 local Bullet, super = Class(Object)
 
 function Bullet:init(x, y, texture)

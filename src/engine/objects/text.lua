@@ -1,3 +1,5 @@
+---@class Text : Object
+---@overload fun(...) : Text
 local Text, super = Class(Object)
 
 Text.COMMANDS = {"color", "font", "style", "shake", "image", "bind", "button", "offset", "indent", "spacing"}

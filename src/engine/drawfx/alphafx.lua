@@ -1,3 +1,5 @@
+---@class AlphaFX : FXBase
+---@overload fun(...) : AlphaFX
 local AlphaFX, super = Class(FXBase)
 
 function AlphaFX:init(alpha, priority)

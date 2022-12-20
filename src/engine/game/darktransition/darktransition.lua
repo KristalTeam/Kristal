@@ -1,3 +1,5 @@
+---@class DarkTransition : Object
+---@overload fun(...) : DarkTransition
 local DarkTransition, super = Class(Object)
 
 DarkTransition.SPRITE_DEPENDENCIES = {

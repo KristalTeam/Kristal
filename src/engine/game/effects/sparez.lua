@@ -1,3 +1,5 @@
+---@class SpareZ : Sprite
+---@overload fun(...) : SpareZ
 local SpareZ, super = Class(Sprite)
 
 function SpareZ:init(angle, x, y)

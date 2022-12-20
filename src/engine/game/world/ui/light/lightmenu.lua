@@ -1,3 +1,5 @@
+---@class LightMenu : Object
+---@overload fun(...) : LightMenu
 local LightMenu, super = Class(Object)
 
 function LightMenu:init()

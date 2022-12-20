@@ -1,3 +1,5 @@
+---@class SlideArea : Event
+---@overload fun(...) : SlideArea
 local SlideArea, super = Class(Event)
 
 function SlideArea:init(x, y, w, h, properties)

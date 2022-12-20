@@ -1,3 +1,5 @@
+---@class Camera
+---@overload fun(...) : Camera
 local Camera = Class()
 
 function Camera:init(parent, x, y, width, height, keep_in_bounds)

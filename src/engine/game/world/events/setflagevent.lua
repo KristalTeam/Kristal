@@ -1,3 +1,5 @@
+---@class SetFlagEvent : Event
+---@overload fun(...) : SetFlagEvent
 local SetFlagEvent, super = Class(Event, "setflag")
 
 function SetFlagEvent:init(x, y, width, height, properties)

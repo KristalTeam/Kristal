@@ -1,3 +1,5 @@
+---@class DarkTransitionLine : Object
+---@overload fun(...) : DarkTransitionLine
 local DarkTransitionLine, super = Class(Object)
 
 function DarkTransitionLine:init(x)

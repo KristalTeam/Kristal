@@ -1,3 +1,5 @@
+---@class DebugWindow : Object
+---@overload fun(...) : DebugWindow
 local DebugWindow, super = Class(Object)
 
 function DebugWindow:init(name, text, type, callback)

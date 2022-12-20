@@ -1,3 +1,5 @@
+---@class Savepoint : Interactable
+---@overload fun(...) : Savepoint
 local Savepoint, super = Class(Interactable)
 
 function Savepoint:init(x, y, properties)

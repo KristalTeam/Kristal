@@ -1,3 +1,5 @@
+---@class Character : Object
+---@overload fun(...) : Character
 local Character, super = Class(Object)
 
 function Character:init(actor, x, y)

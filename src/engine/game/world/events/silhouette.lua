@@ -1,3 +1,5 @@
+---@class Silhouette : Event
+---@overload fun(...) : Silhouette
 local Silhouette, super = Class(Event)
 
 function Silhouette:init(x, y, w, h)

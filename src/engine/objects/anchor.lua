@@ -1,3 +1,5 @@
+---@class Anchor : Object
+---@overload fun(...) : Anchor
 local Anchor, super = Class(Object)
 
 function Anchor:init(ox, oy)

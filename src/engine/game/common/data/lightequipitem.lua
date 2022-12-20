@@ -1,3 +1,5 @@
+---@class LightEquipItem : Item
+---@overload fun(...) : LightEquipItem
 local LightEquipItem, super = Class(Item)
 
 function LightEquipItem:showEquipText()

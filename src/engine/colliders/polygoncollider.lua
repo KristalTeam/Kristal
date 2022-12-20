@@ -1,3 +1,5 @@
+---@class PolygonCollider : Collider
+---@overload fun(...) : PolygonCollider
 local PolygonCollider, super = Class(Collider)
 
 function PolygonCollider:init(parent, points, mode)

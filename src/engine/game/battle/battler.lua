@@ -1,3 +1,5 @@
+---@class Battler : Object
+---@overload fun(...) : Battler
 local Battler, super = Class(Object)
 
 function Battler:init(x, y, width, height)

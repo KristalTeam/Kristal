@@ -1,3 +1,5 @@
+---@class ActorSprite : Sprite
+---@overload fun(...) : ActorSprite
 local ActorSprite, super = Class(Sprite)
 
 function ActorSprite:init(actor)

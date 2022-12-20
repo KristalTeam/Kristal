@@ -1,3 +1,5 @@
+---@class SleepMistEffect : Object
+---@overload fun(...) : SleepMistEffect
 local SleepMistEffect, super = Class(Object)
 
 function SleepMistEffect:init(x, y, success)

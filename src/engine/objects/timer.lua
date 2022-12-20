@@ -1,3 +1,5 @@
+---@class Timer : Object
+---@overload fun(...) : Timer
 local Timer, super = Class(Object)
 
 function Timer:init(active)

@@ -1,3 +1,5 @@
+---@class OutlineFX : FXBase
+---@overload fun(...) : OutlineFX
 local OutlineFX, super = Class(FXBase)
 
 function OutlineFX:init(color, settings, priority)
