@@ -3,11 +3,23 @@ MOD_SUBCLASSES = {}
 DEFAULT_CLASS_NAME_GETTER = function(k) return _G[k] end
 CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER
 
+---@diagnostic disable-next-line: lowercase-global
 function isClass(o)
     return type(o) == "table" and getmetatable(o) and true or false
 end
 
-return setmetatable({}, {__index=_Class, __call = function(_, include, id)
+
+--- Creates a new class, which can then be instantiated by calling it as a function.
+---
+---@generic T : table
+---
+---@param include? T|string  # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
+---@param id? string|boolean # The id of the class used for registry. If `true`, will use the `id` field of the included class.
+---
+---@return T class           # The new class, extended from `include` if provided.
+---@return T super           # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
+---
+return function(include, id, ctype)
     local o = {}
     if include then
         if type(include) == "string" then
@@ -61,4 +73,4 @@ return setmetatable({}, {__index=_Class, __call = function(_, include, id)
     class.__dont_include["__super"] = true
     class.__dont_include["__includers"] = true
     return class, super
-end})
+end
