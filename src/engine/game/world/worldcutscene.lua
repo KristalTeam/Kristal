@@ -31,7 +31,7 @@ function WorldCutscene:init(group, id, ...)
         Game.world:closeMenu()
     end
 
-    super:init(self, scene, unpack(args))
+    super.init(self, scene, unpack(args))
 end
 
 function WorldCutscene:canEnd()
@@ -50,7 +50,7 @@ function WorldCutscene:update()
     end
     self.moving_objects = new_moving
 
-    super:update(self)
+    super.update(self)
 end
 
 function WorldCutscene:onEnd()
@@ -75,7 +75,7 @@ function WorldCutscene:onEnd()
         end
     end
 
-    super:onEnd(self)
+    super.onEnd(self)
 end
 
 function WorldCutscene:getCharacter(id, index)

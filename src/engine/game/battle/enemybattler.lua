@@ -3,7 +3,7 @@
 local EnemyBattler, super = Class(Battler)
 
 function EnemyBattler:init(actor, use_overlay)
-    super:init(self)
+    super.init(self)
     self.name = "Test Enemy"
 
     if actor then
@@ -571,7 +571,7 @@ function EnemyBattler:freeze()
 end
 
 function EnemyBattler:statusMessage(...)
-    super:statusMessage(self, self.width/2, self.height/2, ...)
+    super.statusMessage(self, self.width/2, self.height/2, ...)
 end
 
 function EnemyBattler:defeat(reason, violent)
@@ -645,7 +645,7 @@ function EnemyBattler:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function EnemyBattler:canDeepCopy()

@@ -3,7 +3,7 @@
 local Hitbox, super = Class(Collider)
 
 function Hitbox:init(parent, x, y, width, height, mode)
-    super:init(self, parent, x, y, mode)
+    super.init(self, parent, x, y, mode)
 
     self.width = width or 0
     self.height = height or 0
@@ -46,7 +46,7 @@ function Hitbox:collidesWith(other)
         end
     end
 
-    return super:collidesWith(self, other)
+    return super.collidesWith(self, other)
 end
 
 -- Note: returns polygon

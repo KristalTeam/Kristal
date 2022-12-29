@@ -3,7 +3,7 @@
 local OutlineFX, super = Class(FXBase)
 
 function OutlineFX:init(color, settings, priority)
-    super:init(self, priority or 0)
+    super.init(self, priority or 0)
 
     settings = settings or {}
 
@@ -24,7 +24,7 @@ function OutlineFX:getColor()
 end
 
 function OutlineFX:isActive()
-    return super:isActive(self) and self.amount > 0
+    return super.isActive(self) and self.amount > 0
 end
 
 function OutlineFX:draw(texture)

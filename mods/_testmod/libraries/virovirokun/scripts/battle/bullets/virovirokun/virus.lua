@@ -1,7 +1,7 @@
 local Virus, super = Class(Bullet)
 
 function Virus:init(x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setSprite("bullets/virovirokun/virus", 3/30, true)
     self:setHitbox(5, 5, 6, 6)

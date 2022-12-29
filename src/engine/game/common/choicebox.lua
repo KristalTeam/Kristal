@@ -3,7 +3,7 @@
 local Choicebox, super = Class(Object)
 
 function Choicebox:init(x, y, width, height, battle_box, options)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.box = UIBox(0, 0, width, height)
     self.box.layer = -1
@@ -65,11 +65,11 @@ function Choicebox:update()
             end
         end
     end
-    super:update(self)
+    super.update(self)
 end
 
 function Choicebox:draw()
-    super:draw(self)
+    super.draw(self)
     love.graphics.setFont(self.font)
     if self.choices[1] then
         love.graphics.setColor(self.main_colors[1])

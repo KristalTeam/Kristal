@@ -3,7 +3,7 @@
 local Wave, super = Class(Object)
 
 function Wave:init()
-    super:init(self)
+    super.init(self)
 
     self.layer = BATTLE_LAYERS["above_bullets"]
 
@@ -48,7 +48,7 @@ function Wave:update()
             i = i - 1
         end
     end
-    super:update(self)
+    super.update(self)
 end
 
 function Wave:onArenaEnter() end

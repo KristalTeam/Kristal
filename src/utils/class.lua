@@ -19,7 +19,7 @@ end
 ---@return T class           # The new class, extended from `include` if provided.
 ---@return T super           # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
 ---
-return function(include, id, ctype)
+return function(include, id)
     local o = {}
     if include then
         if type(include) == "string" then

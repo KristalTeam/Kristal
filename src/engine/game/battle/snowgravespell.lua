@@ -3,7 +3,7 @@
 local SnowGraveSpell, super = Class(Object)
 
 function SnowGraveSpell:init(user)
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
 
     self.caster = user
 
@@ -33,7 +33,7 @@ function SnowGraveSpell:init(user)
 end
 
 function SnowGraveSpell:update()
-    super:update(self)
+    super.update(self)
     self.timer = self.timer + DTMULT
     self.since_last_snowflake = self.since_last_snowflake + DTMULT
 
@@ -80,7 +80,7 @@ function SnowGraveSpell:createSnowflake(x, y)
 end
 
 function SnowGraveSpell:draw()
-    super:draw(self)
+    super.draw(self)
 
     love.graphics.setColor(1, 1, 1, self.bgalpha)
     love.graphics.draw(self.bg)

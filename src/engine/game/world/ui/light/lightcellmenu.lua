@@ -3,7 +3,7 @@
 local LightCellMenu, super = Class(Object)
 
 function LightCellMenu:init()
-    super:init(self, 212, 76, 298, 222)
+    super.init(self, 212, 76, 298, 222)
 
     self.draw_children_below = 0
 
@@ -49,7 +49,7 @@ function LightCellMenu:update()
         self:runCall(Game.world.calls[self.current_selecting])
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function LightCellMenu:draw()
@@ -63,7 +63,7 @@ function LightCellMenu:draw()
     love.graphics.setColor(Game:getSoulColor())
     love.graphics.draw(self.heart_sprite, -4, -20 + (32 * self.current_selecting), 0, 2, 2)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function LightCellMenu:runCall(call)

@@ -3,7 +3,7 @@
 local LightInventory, super = Class(Inventory)
 
 function LightInventory:init()
-    super:init(self)
+    super.init(self)
 
     -- Oops ! All "items"
     self.storage_for_type = {
@@ -22,7 +22,7 @@ function LightInventory:init()
 end
 
 function LightInventory:clear()
-    super:clear(self)
+    super.clear(self)
 
     self.storages = {
         ["items"] = {id = "items", max = 8,  sorted = true, name = "INVENTORY", fallback = "box_a"},
@@ -106,7 +106,7 @@ function LightInventory:addItem(item, ignore_dark)
         item = Registry.createItem(item)
     end
     if ignore_dark or item.light then
-        return super:addItem(self, item)
+        return super.addItem(self, item)
     else
         local dark_inv = self:getDarkInventory()
         return dark_inv:addItem(item)
@@ -118,7 +118,7 @@ function LightInventory:tryGiveItem(item, ignore_dark)
         item = Registry.createItem(item)
     end
     if ignore_dark or item.light then
-        return super:tryGiveItem(self, item, ignore_dark)
+        return super.tryGiveItem(self, item, ignore_dark)
     else
         local dark_inv = self:getDarkInventory()
         local result = dark_inv:addItem(item)

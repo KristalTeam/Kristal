@@ -3,7 +3,7 @@
 local IceSpellEffect, super = Class(Sprite)
 
 function IceSpellEffect:init(x, y, hexagon)
-    super:init(self, hexagon and "effects/icespell/hexagon" or "effects/icespell/snowflake", x, y)
+    super.init(self, hexagon and "effects/icespell/hexagon" or "effects/icespell/snowflake", x, y)
 
     self:setOrigin(0.5, 0.5)
     self:setScale(1.5)
@@ -29,7 +29,7 @@ function IceSpellEffect:update()
         self:remove()
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return IceSpellEffect

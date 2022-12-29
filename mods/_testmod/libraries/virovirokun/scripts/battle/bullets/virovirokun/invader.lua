@@ -1,7 +1,7 @@
 local Invader, super = Class(Bullet, "virovirokun/invader")
 
 function Invader:init(x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setSprite("bullets/virovirokun/invader")
     self:setHitbox(0, 1, 16, 14)
@@ -23,7 +23,7 @@ function Invader:nextFrame()
 end
 
 function Invader:update()
-    super:update(self)
+    super.update(self)
     --local relative_x = self:
     if self.shot_ready then
         if self.flash_timer < 8 then

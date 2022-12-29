@@ -1,7 +1,7 @@
 local item, super = Class(HealItem, "kris_tea")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Kris Tea"
@@ -73,7 +73,7 @@ end
 
 function item:getBattleHealAmount(id)
     -- Dont heal less than 40HP in battles
-    return math.max(40, super:getBattleHealAmount(self, id))
+    return math.max(40, super.getBattleHealAmount(self, id))
 end
 
 return item

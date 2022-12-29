@@ -3,7 +3,7 @@
 local DarkConfigMenu, super = Class(Object)
 
 function DarkConfigMenu:init()
-    super:init(self, 82, 112, 477, 277)
+    super.init(self, 82, 112, 477, 277)
 
     self.draw_children_below = 0
 
@@ -203,12 +203,12 @@ function DarkConfigMenu:update()
 
     self.reset_flash_timer = math.max(self.reset_flash_timer - DTMULT, 0)
 
-    super:update(self)
+    super.update(self)
 end
 
 function DarkConfigMenu:draw()
     if Game.state == "EXIT" then
-        super:draw(self)
+        super.draw(self)
         return
     end
     love.graphics.setFont(self.font)
@@ -313,7 +313,7 @@ function DarkConfigMenu:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return DarkConfigMenu

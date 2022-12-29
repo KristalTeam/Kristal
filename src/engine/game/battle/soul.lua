@@ -3,7 +3,7 @@
 local Soul, super = Class(Object)
 
 function Soul:init(x, y, color)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     if color then
         self:setColor(color)
@@ -79,7 +79,7 @@ function Soul:init(x, y, color)
 end
 
 function Soul:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 
     if parent == Game.battle and Game.battle.soul == self then
         Game.battle.soul = nil
@@ -421,11 +421,11 @@ function Soul:update()
         self.sprite:setColor(1, 1, 1)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function Soul:draw()
-    super:draw(self)
+    super.draw(self)
 
     if DEBUG_RENDER then
         self.collider:draw(0, 1, 0)

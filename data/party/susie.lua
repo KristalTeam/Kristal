@@ -1,7 +1,7 @@
 local character, super = Class(PartyMember, "susie")
 
 function character:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Susie"
@@ -157,7 +157,7 @@ end
 
 function character:canEquip(item, slot_type, slot_index)
     if item then
-        return super:canEquip(self, item, slot_type, slot_index)
+        return super.canEquip(self, item, slot_type, slot_index)
     else
         local item
         if slot_type == "weapon" then
@@ -173,7 +173,7 @@ end
 
 function character:getReaction(item, user)
     if item or user.id ~= self.id then
-        return super:getReaction(self, item, user)
+        return super.getReaction(self, item, user)
     else
         return "Hey, hands off!"
     end

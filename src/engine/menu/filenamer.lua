@@ -3,7 +3,7 @@
 local FileNamer, super = Class(Object)
 
 function FileNamer:init(limit, callback, name_text, confirm_text, default_name, default_name_select)
-    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     -- KEYBOARD, CONFIRM, FADEOUT, DONE, TRANSITION
     self.state = ""
@@ -164,11 +164,11 @@ function FileNamer:update()
         self.name_preview.y = 80 + self.name_zoom
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function FileNamer:draw()
-    super:draw(self)
+    super.draw(self)
 
     if self.whiten > 0 then
         love.graphics.setColor(1, 1, 1, self.whiten)

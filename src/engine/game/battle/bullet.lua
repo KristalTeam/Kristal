@@ -3,7 +3,7 @@
 local Bullet, super = Class(Object)
 
 function Bullet:init(x, y, texture)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.layer = BATTLE_LAYERS["bullets"]
 
@@ -94,7 +94,7 @@ function Bullet:isBullet(id)
 end
 
 function Bullet:update()
-    super:update(self)
+    super.update(self)
 
     if self.remove_offscreen then
         if self.x < -100 or self.y < -100 or self.x > SCREEN_WIDTH + 100 or self.y > SCREEN_HEIGHT + 100 then
@@ -104,7 +104,7 @@ function Bullet:update()
 end
 
 function Bullet:draw()
-    super:draw(self)
+    super.draw(self)
 
     if DEBUG_RENDER and self.collider then
         self.collider:drawFor(self, 1, 0, 0)

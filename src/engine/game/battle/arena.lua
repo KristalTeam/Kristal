@@ -3,7 +3,7 @@
 local Arena, super = Class(Object)
 
 function Arena:init(x, y, shape)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setOrigin(0.5, 0.5)
 
@@ -175,7 +175,7 @@ function Arena:update()
         self:setSize(self.width, self.height)
     end
 
-    super:update(self)
+    super.update(self)
 
     if NOCLIP then return end
 
@@ -211,7 +211,7 @@ function Arena:drawMask()
 end
 
 function Arena:draw()
-    super:draw(self)
+    super.draw(self)
 
     if DEBUG_RENDER and self.collider then
         self.collider:draw(0, 0, 1)

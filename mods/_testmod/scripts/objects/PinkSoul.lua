@@ -1,7 +1,7 @@
 local PinkSoul, super = Class(Soul)
 
 function PinkSoul:init(x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setColor(1, 0, 0.75)
 
@@ -11,7 +11,7 @@ end
 function PinkSoul:onCollide(bullet)
     self:explode()
 
-    super:onCollide(self, bullet)
+    super.onCollide(self, bullet)
 end
 
 function PinkSoul:doMovement()
@@ -44,7 +44,7 @@ function PinkSoul:update()
         end
     end]]
 
-    super:update(self)
+    super.update(self)
 end
 
 return PinkSoul

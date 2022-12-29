@@ -1,7 +1,7 @@
 local spell, super = Class(Spell, "red_buster")
 
 function spell:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Red Buster"

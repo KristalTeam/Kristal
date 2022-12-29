@@ -1,7 +1,7 @@
 local Battle, super = Class(Battle)
 
 function Battle:init()
-    super:init(self)
+    super.init(self)
 end
 
 
@@ -48,12 +48,12 @@ end
 function Battle:drawBackground()
     local moveby = Utils.ease(200, 0, self.transition_timer / 10, "outCubic")
     love.graphics.translate(0, moveby)
-    super:drawBackground(self)
+    super.drawBackground(self)
     love.graphics.translate(0, -moveby)
 end
 
 function Battle:onStateChange(old,new)
-    super:onStateChange(self, old, new)
+    super.onStateChange(self, old, new)
     if new == "INTRO" then
 
         local bx, by = self:getSoulLocation()

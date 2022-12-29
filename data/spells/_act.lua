@@ -3,7 +3,7 @@
 local spell, super = Class(Spell, "_act")
 
 function spell:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "ACT"

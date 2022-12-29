@@ -7,7 +7,7 @@ function FrozenEnemy:init(actor, x, y, properties)
         actor = Registry.createActor(actor)
     end
     local w, h = actor:getSize()
-    super:init(self, x, y, w, h, properties)
+    super.init(self, x, y, w, h, properties)
 
     properties = properties or {}
 
@@ -34,13 +34,13 @@ function FrozenEnemy:init(actor, x, y, properties)
 end
 
 function FrozenEnemy:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     table.insert(info, "Actor: " .. self.actor)
     return info
 end
 
 function FrozenEnemy:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     if self.encounter then
         -- remove object if we haven't recorded a frozen encounter for this room

@@ -3,7 +3,7 @@
 local LightMenu, super = Class(Object)
 
 function LightMenu:init()
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
 
     self.layer = 1 -- TODO
 
@@ -124,7 +124,7 @@ function LightMenu:onButtonSelect(button)
 end
 
 function LightMenu:update()
-    super:update(self)
+    super.update(self)
     self:realign()
 end
 
@@ -140,7 +140,7 @@ function LightMenu:realign()
 end
 
 function LightMenu:draw()
-    super:draw(self)
+    super.draw(self)
 
     local offset = 0
     if self.top then

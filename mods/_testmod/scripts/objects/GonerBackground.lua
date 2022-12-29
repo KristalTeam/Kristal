@@ -1,7 +1,7 @@
 local GonerBackground, super = Class(Object)
 
 function GonerBackground:init(x, y)
-    super:init(self, x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2, 320, 240)
+    super.init(self, x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2, 320, 240)
     self:setScale(2)
     self:setOrigin(0, 0)
 
@@ -35,7 +35,7 @@ function GonerBackground:update()
     end
     self.music:setPitch(self.music_pitch)
 
-    super:update(self)
+    super.update(self)
 end
 
 return GonerBackground

@@ -3,7 +3,7 @@
 local SlideArea, super = Class(Event)
 
 function SlideArea:init(x, y, w, h, properties)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.lock_movement = properties["lock"] or false
 end
@@ -51,7 +51,7 @@ function SlideArea:update()
         Game.world.player.current_slide_area = nil
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function SlideArea:checkAgainstWall(chara)

@@ -3,7 +3,7 @@
 local TensionItem, super = Class(Item)
 
 function TensionItem:init()
-    super:init(self)
+    super.init(self)
 
     -- Amount of TP this item gives
     self.tp_amount = 0

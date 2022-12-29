@@ -15,7 +15,7 @@ function BattleCutscene:init(group, id, ...)
     self.last_battle_state = Game.battle.state
     Game.battle:setState("CUTSCENE")
 
-    super:init(self, scene, unpack(args))
+    super.init(self, scene, unpack(args))
 end
 
 function BattleCutscene:update()
@@ -34,7 +34,7 @@ function BattleCutscene:update()
         self.move_targets[v] = nil
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function BattleCutscene:onEnd()

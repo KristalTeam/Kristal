@@ -3,7 +3,7 @@
 local FakeClone, super = Class(Object)
 
 function FakeClone:init(ref, x, y, copy_transform)
-    super:init(self, x, y, ref and ref.width, ref and ref.height)
+    super.init(self, x, y, ref and ref.width, ref and ref.height)
 
     self.ref = ref
 
@@ -24,11 +24,11 @@ function FakeClone:update()
 
     self.visible = self.ref.visible
 
-    super:update(self)
+    super.update(self)
 end
 
 function FakeClone:applyTransformTo(transform)
-    super:applyTransformTo(self, transform)
+    super.applyTransformTo(self, transform)
 
     if self.copy_transform then
         local last_ref_x, last_ref_y = self.ref.x, self.ref.y
@@ -43,11 +43,11 @@ function FakeClone:draw()
     self.ref:fullDraw(false, true)
     self.visible = true
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function FakeClone:canDeepCopyKey(key)
-    return super:canDeepCopyKey(self, key) and key ~= "ref"
+    return super.canDeepCopyKey(self, key) and key ~= "ref"
 end
 
 return FakeClone

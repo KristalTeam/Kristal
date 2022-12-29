@@ -5,7 +5,7 @@ local TileObject, super = Class(Event)
 function TileObject:init(tileset, tile, x, y, w, h, rotation, flip_x, flip_y)
     local tile_width, tile_height = tileset:getTileSize(tile)
 
-    super:init(self, x, y, w or self.tile_width, h or self.tile_height)
+    super.init(self, x, y, w or self.tile_width, h or self.tile_height)
 
     self.tileset = tileset
     self.tile = tile

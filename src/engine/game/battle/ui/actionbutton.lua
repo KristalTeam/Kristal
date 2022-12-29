@@ -3,7 +3,7 @@
 local ActionButton, super = Class(Object)
 
 function ActionButton:init(type, battler, x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.type = type
     self.battler = battler
@@ -164,7 +164,7 @@ function ActionButton:draw()
         end
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return ActionButton

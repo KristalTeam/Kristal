@@ -3,7 +3,7 @@
 local UIBox, super = Class(Object)
 
 function UIBox:init(x, y, width, height, skin)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.left_frame   = 0
     self.top_frame    = 0
@@ -30,7 +30,7 @@ function UIBox:getDebugRectangle()
         local bw, bh = self:getBorder()
         return {-bw, -bh, self.width + bw*2, self.height + bh*2}
     end
-    return super:getDebugRectangle(self)
+    return super.getDebugRectangle(self)
 end
 
 function UIBox:draw()
@@ -64,7 +64,7 @@ function UIBox:draw()
         love.graphics.draw(sprite, cx, cy, 0, width, height, sprite:getWidth(), sprite:getHeight())
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return UIBox

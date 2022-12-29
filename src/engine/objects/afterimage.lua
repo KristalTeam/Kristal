@@ -3,7 +3,7 @@
 local AfterImage, super = Class(Object)
 
 function AfterImage:init(sprite, fade, speed)
-    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.sprite = sprite
 
@@ -59,12 +59,12 @@ function AfterImage:applyTransformTo(transform)
     if self.parent then
         transform:reset()
     end
-    super:applyTransformTo(self, transform)
+    super.applyTransformTo(self, transform)
 end
 
 function AfterImage:draw()
     love.graphics.draw(self.canvas)
-    super:draw(self)
+    super.draw(self)
 end
 
 return AfterImage

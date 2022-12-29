@@ -3,7 +3,7 @@
 local WarpDoor, super = Class(Event, "warpdoor")
 
 function WarpDoor:init(x, y, properties)
-    super:init(self, x, y)
+    super.init(self, x, y)
     self:setSprite("world/events/shortcut_door_off")
     self:setOrigin(0.5, 1)
     self.solid = true

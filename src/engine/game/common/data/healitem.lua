@@ -3,7 +3,7 @@
 local HealItem, super = Class(Item)
 
 function HealItem:init()
-    super:init(self)
+    super.init(self)
 
     -- Amount this item heals
     self.heal_amount = 0

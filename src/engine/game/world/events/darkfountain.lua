@@ -3,7 +3,7 @@
 local DarkFountain, super = Class(Event)
 
 function DarkFountain:init(x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setOrigin(0.5, 1)
 
@@ -64,7 +64,7 @@ function DarkFountain:update()
         self.bg_siner = self.bg_siner - 7
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function DarkFountain:draw()
@@ -91,7 +91,7 @@ function DarkFountain:draw()
     Draw.setColor(color, 1)
     Draw.draw(self.bottom_texture, 0, self.height - 280, 0, 2, 2)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function DarkFountain:drawMask()

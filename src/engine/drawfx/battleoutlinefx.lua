@@ -3,11 +3,11 @@
 local BattleOutlineFX, super = Class(FXBase)
 
 function BattleOutlineFX:init(priority)
-    super:init(self, priority or 0)
+    super.init(self, priority or 0)
 end
 
 function BattleOutlineFX:isActive()
-    return super:isActive(self) and self.amount > 0
+    return super.isActive(self) and self.amount > 0
 end
 
 function BattleOutlineFX:setAlpha(alpha)

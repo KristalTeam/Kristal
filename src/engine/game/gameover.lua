@@ -3,7 +3,7 @@
 local GameOver, super = Class(Object, "gameover")
 
 function GameOver:init(x, y)
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
 
     self.font = Assets.getFont("main")
     self.soul_blur = Assets.getTexture("player/heart_blur")
@@ -35,14 +35,14 @@ function GameOver:init(x, y)
 end
 
 function GameOver:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 
     self.music:remove()
 end
 
 
 function GameOver:update()
-    super:update(self)
+    super.update(self)
 
     self.timer = self.timer + DTMULT
     if (self.timer >= 30) and (self.current_stage == 0) then
@@ -249,7 +249,7 @@ function GameOver:update()
 end
 
 function GameOver:draw()
-    super:draw(self)
+    super.draw(self)
 
     if self.screenshot then
         love.graphics.setColor(1, 1, 1, 1)

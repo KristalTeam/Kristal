@@ -1,7 +1,7 @@
 local item, super = Class(Item, "shadowcrystal")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "ShadowCrystal"
@@ -52,7 +52,7 @@ function item:getCollected()
 end
 
 function item:getDescription()
-    local desc = super:getDescription(self)
+    local desc = super.getDescription(self)
     if self:getCollected() > 0 then
         desc = desc .. "\nYou have collected [" .. self:getCollected() .. "]."
     end

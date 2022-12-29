@@ -3,7 +3,7 @@
 local Shopkeeper, super = Class(Object)
 
 function Shopkeeper:init()
-    super:init(self)
+    super.init(self)
 
     -- Whether the shopkeeper slides
     -- out of the way in the buy menu.

@@ -6,7 +6,7 @@ function PartyBattler:init(chara, x, y)
     self.chara = chara
     self.actor = chara:getActor()
 
-    super:init(self, x, y, self.actor:getSize())
+    super.init(self, x, y, self.actor:getSize())
 
     self.sprite = self.actor:createSprite()
     self.sprite.facing = "right"
@@ -209,7 +209,7 @@ function PartyBattler:revive()
 end
 
 function PartyBattler:flash(sprite, offset_x, offset_y, layer)
-    super:flash(self, sprite or self.overlay_sprite.visible and self.overlay_sprite or self.sprite, offset_x, offset_y, layer)
+    super.flash(self, sprite or self.overlay_sprite.visible and self.overlay_sprite or self.sprite, offset_x, offset_y, layer)
 end
 
 function PartyBattler:heal(amount, sparkle_color, show_up)
@@ -249,7 +249,7 @@ function PartyBattler:checkHealth()
 end
 
 function PartyBattler:statusMessage(...)
-    local message = super:statusMessage(self, 0, self.height/2, ...)
+    local message = super.statusMessage(self, 0, self.height/2, ...)
     message.y = message.y - 4
 end
 
@@ -356,11 +356,11 @@ function PartyBattler:update()
 
     self.darken_fx.color = {1 - (self.darken_timer / 30), 1 - (self.darken_timer / 30), 1 - (self.darken_timer / 30)}
 
-    super:update(self)
+    super.update(self)
 end
 
 function PartyBattler:draw()
-    super:draw(self)
+    super.draw(self)
     if self.actor then
         self.actor:onBattleDraw(self)
     end

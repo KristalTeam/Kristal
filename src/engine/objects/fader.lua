@@ -3,7 +3,7 @@
 local Fader, super = Class(Object)
 
 function Fader:init()
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
     self.width = SCREEN_WIDTH
     self.height = SCREEN_HEIGHT
 
@@ -137,7 +137,7 @@ function Fader:draw()
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     love.graphics.setColor(1, 1, 1, 1)
-    super:draw(self)
+    super.draw(self)
 end
 
 return Fader

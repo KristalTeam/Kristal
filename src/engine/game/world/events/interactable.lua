@@ -3,7 +3,7 @@
 local Interactable, super = Class(Event)
 
 function Interactable:init(x, y, width, height, properties)
-    super:init(self, x, y, width or TILE_WIDTH, height or TILE_HEIGHT)
+    super.init(self, x, y, width or TILE_WIDTH, height or TILE_HEIGHT)
 
     properties = properties or {}
 
@@ -22,7 +22,7 @@ function Interactable:init(x, y, width, height, properties)
 end
 
 function Interactable:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     if self.cutscene  then table.insert(info, "Cutscene: "  .. self.cutscene)  end
     if self.script    then table.insert(info, "Script: "    .. self.script)    end
     if self.set_flag  then table.insert(info, "Set Flag: "  .. self.set_flag)  end
@@ -33,7 +33,7 @@ function Interactable:getDebugInfo()
 end
 
 function Interactable:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
     if self.once and self:getFlag("used_once", false) then
         self:remove()
     end

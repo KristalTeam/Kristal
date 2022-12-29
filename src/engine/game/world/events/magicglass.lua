@@ -3,7 +3,7 @@
 local MagicGlass, super = Class(Event)
 
 function MagicGlass:init(x, y, w, h)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.texture = Assets.getTexture("world/events/magical_glass")
 
@@ -42,7 +42,7 @@ function MagicGlass:update()
     end
     Object.endCache()
 
-    super:update(self)
+    super.update(self)
 end
 
 function MagicGlass:draw()
@@ -57,7 +57,7 @@ function MagicGlass:draw()
         end
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return MagicGlass

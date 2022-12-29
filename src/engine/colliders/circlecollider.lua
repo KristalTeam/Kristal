@@ -3,7 +3,7 @@
 local CircleCollider, super = Class(Collider)
 
 function CircleCollider:init(parent, x, y, radius, mode)
-    super:init(self, parent, x, y, mode)
+    super.init(self, parent, x, y, mode)
 
     self.radius = radius
 end
@@ -45,7 +45,7 @@ function CircleCollider:collidesWith(other)
         end
     end
 
-    return super:collidesWith(self, other)
+    return super.collidesWith(self, other)
 end
 
 function CircleCollider:getShapeFor(other)

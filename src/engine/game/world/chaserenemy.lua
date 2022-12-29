@@ -3,7 +3,7 @@
 local ChaserEnemy, super = Class(Character, "enemy")
 
 function ChaserEnemy:init(actor, x, y, properties)
-    super:init(self, actor, x, y)
+    super.init(self, actor, x, y)
 
     properties = properties or {}
 
@@ -50,7 +50,7 @@ function ChaserEnemy:init(actor, x, y, properties)
 end
 
 function ChaserEnemy:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     if self.path        then table.insert(info, "Path: "     .. self.path)     end
     if self.progress    then table.insert(info, "Progress: " .. self.progress) end
     table.insert(info, "Can chase: "           .. (self.can_chase and "True" or "False"))
@@ -96,7 +96,7 @@ function ChaserEnemy:onCollide(player)
 end
 
 function ChaserEnemy:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     self:snapToPath()
 end
@@ -253,7 +253,7 @@ function ChaserEnemy:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function ChaserEnemy:chaseMovement()

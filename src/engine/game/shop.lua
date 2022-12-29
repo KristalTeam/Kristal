@@ -3,7 +3,7 @@
 local Shop, super = Class(Object, "shop")
 
 function Shop:init()
-    super:init(self)
+    super.init(self)
 
     self.currency_text = "$%d"
 
@@ -240,7 +240,7 @@ function Shop:onEnter()
 end
 
 function Shop:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 
     self.music:remove()
 end
@@ -510,7 +510,7 @@ function Shop:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 
     self.box_ease_timer = math.min(1, self.box_ease_timer + (DT * self.box_ease_multiplier))
 
@@ -553,7 +553,7 @@ end
 function Shop:draw()
     self:drawBackground()
 
-    super:draw(self)
+    super.draw(self)
 
     love.graphics.setFont(self.font)
     if self.state == "MAINMENU" then

@@ -1,7 +1,7 @@
 local Needle, super = Class(Bullet)
 
 function Needle:init(x, y, slow, right)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.collidable = false
 
@@ -79,11 +79,11 @@ function Needle:update()
         self:fadeToSpeed(1, 0.1)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function Needle:draw()
-    super:draw(self)
+    super.draw(self)
 
     if DEBUG_RENDER then
         self.infect_collider:draw(1, 0, 1, 0.5)

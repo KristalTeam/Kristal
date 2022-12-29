@@ -1,7 +1,7 @@
 local item, super = Class(HealItem, "dark_candy")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Dark Candy"

@@ -65,7 +65,7 @@ function LightEquipItem:createArmorItems()
 
         return armor_items
     else
-        local armor_result = super:convertToDark(self)
+        local armor_result = super.convertToDark(self)
         if type(armor_result) == "string" then
             armor_result = Registry.createItem(armor_result)
         end
@@ -116,7 +116,7 @@ function LightEquipItem:convertToDark(inventory)
         end
         return true
     else
-        return super:convertToDark(self, inventory)
+        return super.convertToDark(self, inventory)
     end
 end
 

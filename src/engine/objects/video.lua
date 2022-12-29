@@ -12,7 +12,7 @@ function Video:init(video, load_audio, x, y, w, h)
         w, h = self.video_width, self.video_height
     end
 
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.queued_play = false
     self.looping = false
@@ -62,7 +62,7 @@ function Video:setLooping(loop)
 end
 
 function Video:onRemoveFromStage(stage)
-    super:onRemoveFromStage(self, stage)
+    super.onRemoveFromStage(self, stage)
 
     if self.video:isPlaying() then
         self.video:pause()
@@ -82,7 +82,7 @@ function Video:update()
         self.video:play()
     end
 
-    super:update(self)
+    super.update(self)
 
     self.was_playing = self.video:isPlaying()
 end
@@ -91,7 +91,7 @@ function Video:draw()
     local scale_x, scale_y = self.width / self.video_width, self.height / self.video_height
     love.graphics.draw(self.video, 0, 0, 0, scale_x, scale_y)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return Video

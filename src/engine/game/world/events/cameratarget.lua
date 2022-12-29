@@ -3,7 +3,7 @@
 local CameraTarget, super = Class(Event)
 
 function CameraTarget:init(x, y, w, h, properties)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.solid = false
 

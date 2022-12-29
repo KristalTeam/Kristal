@@ -3,7 +3,7 @@
 local ActionBoxDisplay, super = Class(Object)
 
 function ActionBoxDisplay:init(actbox, x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.font = Assets.getFont("smallnumbers")
 
@@ -58,7 +58,7 @@ function ActionBoxDisplay:draw()
     local string_width = self.font:getWidth(tostring(self.actbox.battler.chara:getStat("health")))
     love.graphics.print(self.actbox.battler.chara:getStat("health"), 205 - string_width, 9 - self.actbox.data_offset)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return ActionBoxDisplay

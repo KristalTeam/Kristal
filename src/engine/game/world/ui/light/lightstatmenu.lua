@@ -3,7 +3,7 @@
 local LightStatMenu, super = Class(Object)
 
 function LightStatMenu:init()
-    super:init(self, 212, 76, 298, 370)
+    super.init(self, 212, 76, 298, 370)
 
     self.draw_children_below = 0
 
@@ -27,7 +27,7 @@ function LightStatMenu:update()
         return
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function LightStatMenu:draw()
@@ -55,7 +55,7 @@ function LightStatMenu:draw()
 
     love.graphics.print(Game:getConfig("lightCurrency"):upper()..": "..Game.lw_money, 4, 328)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return LightStatMenu

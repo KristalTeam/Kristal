@@ -3,7 +3,7 @@
 local BattleUI, super = Class(Object)
 
 function BattleUI:init()
-    super:init(self, 0, 480)
+    super.init(self, 0, 480)
 
     self.layer = BATTLE_LAYERS["ui"]
 
@@ -161,13 +161,13 @@ function BattleUI:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function BattleUI:draw()
     self:drawActionArena()
     self:drawActionStrip()
-    super:draw(self)
+    super.draw(self)
 end
 
 function BattleUI:drawActionStrip()

@@ -3,7 +3,7 @@
 local DarkEquipMenu, super = Class(Object)
 
 function DarkEquipMenu:init()
-    super:init(self, 82, 112, 477, 277)
+    super.init(self, 82, 112, 477, 277)
 
     self.draw_children_below = 0
 
@@ -189,7 +189,7 @@ function DarkEquipMenu:updateDescription()
 end
 
 function DarkEquipMenu:onRemove(parent)
-    super:onRemove(parent)
+    super.onRemove(parent)
     Game.world.menu:updateSelectedBoxes()
 end
 
@@ -311,7 +311,7 @@ function DarkEquipMenu:update()
             end
         end
     end
-    super:update(self)
+    super.update(self)
 end
 
 function DarkEquipMenu:draw()
@@ -339,7 +339,7 @@ function DarkEquipMenu:draw()
     self:drawItems()
     self:drawStats()
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function DarkEquipMenu:drawChar()

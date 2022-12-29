@@ -1,7 +1,7 @@
 local spell, super = Class(Spell, "pacify")
 
 function spell:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Pacify"
@@ -24,7 +24,7 @@ function spell:init()
 end
 
 function spell:getCastMessage(user, target)
-    local message = super:getCastMessage(self, user, target)
+    local message = super.getCastMessage(self, user, target)
     if target.tired then
         return message
     elseif target.mercy < 100 then

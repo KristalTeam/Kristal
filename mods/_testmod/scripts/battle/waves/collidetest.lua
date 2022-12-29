@@ -1,7 +1,7 @@
 local CollideTest, super = Class(Wave)
 
 function CollideTest:init()
-    super:init(self)
+    super.init(self)
 
     self.time = -1
 end

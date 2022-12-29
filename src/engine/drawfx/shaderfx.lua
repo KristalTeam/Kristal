@@ -3,7 +3,7 @@
 local ShaderFX, super = Class(FXBase)
 
 function ShaderFX:init(shader, vars, transformed, priority)
-    super:init(self, priority or 0)
+    super.init(self, priority or 0)
 
     self.shader = shader
 

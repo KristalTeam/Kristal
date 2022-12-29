@@ -3,7 +3,7 @@
 local HPText, super = Class(Object)
 
 function HPText:init(text, x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
     self.text = text
     self:setOrigin(0, 0)
     self.color = {0, 1, 0}
@@ -25,7 +25,7 @@ function HPText:draw()
     love.graphics.print(self.text, 0, 0)
 
     love.graphics.setColor(1, 1, 1, 1)
-    super:draw(self)
+    super.draw(self)
 end
 
 return HPText

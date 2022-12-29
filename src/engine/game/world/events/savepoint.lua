@@ -3,7 +3,7 @@
 local Savepoint, super = Class(Interactable)
 
 function Savepoint:init(x, y, properties)
-    super:init(self, x, y, nil, nil, properties)
+    super.init(self, x, y, nil, nil, properties)
 
     self.marker = properties and properties["marker"]
 
@@ -30,7 +30,7 @@ function Savepoint:onInteract(player, dir)
         self.used = true
     end
 
-    super:onInteract(self, player, dir)
+    super.onInteract(self, player, dir)
     return true
 end
 

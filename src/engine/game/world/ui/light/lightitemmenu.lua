@@ -3,7 +3,7 @@
 local LightItemMenu, super = Class(Object)
 
 function LightItemMenu:init()
-    super:init(self, 212, 76, 298, 314)
+    super.init(self, 212, 76, 298, 314)
 
     self.draw_children_below = 0
 
@@ -90,7 +90,7 @@ function LightItemMenu:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function LightItemMenu:draw()
@@ -125,7 +125,7 @@ function LightItemMenu:draw()
         end
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function LightItemMenu:useItem(item)

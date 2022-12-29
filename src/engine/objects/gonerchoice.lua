@@ -3,7 +3,7 @@
 local GonerChoice, super = Class(Object)
 
 function GonerChoice:init(x, y, choices, on_complete, on_select)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.choices = choices or {
         {{"YES",0,0},{"NO",80,0}}
@@ -242,7 +242,7 @@ function GonerChoice:update()
         self.soul.y = self.soul.y + (dy * DTMULT)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function GonerChoice:finish(callback)
@@ -355,7 +355,7 @@ function GonerChoice:moveSelection(x, y, dx, dy)
 end
 
 function GonerChoice:draw()
-    super:draw(self)
+    super.draw(self)
 
     love.graphics.setFont(self.font)
     for y, row in ipairs(self.choices) do

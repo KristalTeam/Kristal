@@ -3,7 +3,7 @@
 local DarkInventory, super = Class(Inventory)
 
 function DarkInventory:init()
-    super:init(self)
+    super.init(self)
 
     self.storage_for_type = {
         ["item"]   = "items",
@@ -19,7 +19,7 @@ function DarkInventory:init()
 end
 
 function DarkInventory:clear()
-    super:clear(self)
+    super.clear(self)
 
     self.storages = {
         ["items"]     = {id = "items",     max = 12, sorted = true,  name = "ITEMs",       fallback = "storage"},
@@ -79,7 +79,7 @@ function DarkInventory:getDefaultStorage(item_type, ignore_convert)
     if not ignore_convert and isClass(item_type) and item_type.light then
         return self:getStorage("light")
     end
-    return super:getDefaultStorage(self, item_type, ignore_convert)
+    return super.getDefaultStorage(self, item_type, ignore_convert)
 end
 
 return DarkInventory

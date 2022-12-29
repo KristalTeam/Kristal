@@ -1,7 +1,7 @@
 local TestBullet, super = Class(WorldBullet)
 
 function TestBullet:init(x, y, flip)
-    super:init(self, x, y, "bullets/smile_bullet")
+    super.init(self, x, y, "bullets/smile_bullet")
 
     if flip then
         self.flip_x = true
@@ -24,7 +24,7 @@ function TestBullet:update()
         self:fadeOutSpeedAndRemove(0.5)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return TestBullet

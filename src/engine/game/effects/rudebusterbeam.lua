@@ -3,7 +3,7 @@
 local RudeBusterBeam, super = Class(Sprite)
 
 function RudeBusterBeam:init(red, x, y, tx, ty, after)
-    super:init(self, red and "effects/rudebuster/beam_red" or "effects/rudebuster/beam", x, y)
+    super.init(self, red and "effects/rudebuster/beam_red" or "effects/rudebuster/beam", x, y)
 
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
@@ -68,7 +68,7 @@ function RudeBusterBeam:update()
         self.parent:addChild(sprite)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return RudeBusterBeam

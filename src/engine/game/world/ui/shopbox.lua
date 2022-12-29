@@ -3,7 +3,7 @@
 local Shopbox, super = Class(Object)
 
 function Shopbox:init()
-    super:init(self, 56, 220)
+    super.init(self, 56, 220)
 
     self:setParallax(0, 0)
 
@@ -22,7 +22,7 @@ function Shopbox:init()
 end
 
 function Shopbox:draw()
-    super:draw(self)
+    super.draw(self)
 
     local pocket = Game.inventory:getFreeSpace("items", false)
     local storage = Game.inventory:getFreeSpace("storage")

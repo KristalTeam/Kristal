@@ -3,7 +3,7 @@
 local PointCollider, super = Class(Collider)
 
 function PointCollider:init(parent, x, y, mode)
-    super:init(self, parent, x, y, mode)
+    super.init(self, parent, x, y, mode)
 end
 
 function PointCollider:collidesWith(other)
@@ -43,7 +43,7 @@ function PointCollider:collidesWith(other)
         end
     end
 
-    return super:collidesWith(self, other)
+    return super.collidesWith(self, other)
 end
 
 function PointCollider:getShapeFor(other)

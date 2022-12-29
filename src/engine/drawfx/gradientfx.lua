@@ -3,7 +3,7 @@
 local Gradient, super = Class(FXBase)
 
 function Gradient:init(from, to, alpha, dir, bounds)
-    super:init(self, 200)
+    super.init(self, 200)
     self.from = from
     self.from[4] = 1
     self.to = to

@@ -1,7 +1,7 @@
 local item, super = Class(HealItem, "chocdiamond")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "ChocDiamond"
@@ -77,7 +77,7 @@ function item:onWorldUse(target)
         Game.world:heal("noelle", heal_amount/2)
         return true
     else
-        return super:onWorldUse(self, target)
+        return super.onWorldUse(self, target)
     end
 end
 

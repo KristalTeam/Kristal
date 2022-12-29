@@ -10,7 +10,7 @@ DarkTransition.SPRITE_DEPENDENCIES = {
 }
 
 function DarkTransition:init(final_y, options)
-    super:init(self)
+    super.init(self)
 
     options = options or {}
 
@@ -188,7 +188,7 @@ function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
 end
 
 function DarkTransition:update()
-    super:update(self)
+    super.update(self)
 
     -- Process audio fading
     if self.drone_get_louder then
@@ -999,7 +999,7 @@ function DarkTransition:draw()
     --love.graphics.draw(self.canvas, 0, 0, 0, 2, 2)
 
     --self.stage:draw()
-    super:draw(self)
+    super.draw(self)
 end
 
 return DarkTransition

@@ -3,7 +3,7 @@
 local Outline, super = Class(Event)
 
 function Outline:init(x, y, w, h)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.solid = false
 
@@ -35,7 +35,7 @@ function Outline:drawMask(object)
 end
 
 function Outline:draw()
-    super:draw(self)
+    super.draw(self)
 
     Draw.pushCanvas(self.canvas)
     love.graphics.clear()

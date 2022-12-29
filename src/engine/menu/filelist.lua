@@ -3,7 +3,7 @@
 local FileList, super = Class(Object)
 
 function FileList:init(menu, mod)
-    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.menu = menu
     self.mod = mod
@@ -412,7 +412,7 @@ function FileList:update()
     end
 
     self:updateSelected()
-    super:update(self)
+    super.update(self)
 end
 
 function FileList:draw()
@@ -452,7 +452,7 @@ function FileList:draw()
         love.graphics.print("Cancel", 110, 380)
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return FileList

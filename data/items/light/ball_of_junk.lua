@@ -1,7 +1,7 @@
 local item, super = Class(Item, "light/ball_of_junk")
 
 function item:init(inventory)
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Ball of Junk"

@@ -1,7 +1,7 @@
 local spell, super = Class(Spell, "heal_prayer")
 
 function spell:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Heal Prayer"

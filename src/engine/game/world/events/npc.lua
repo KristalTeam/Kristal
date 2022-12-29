@@ -3,7 +3,7 @@
 local NPC, super = Class(Character)
 
 function NPC:init(actor, x, y, properties)
-    super:init(self, actor, x, y)
+    super.init(self, actor, x, y)
 
     properties = properties or {}
 

@@ -3,7 +3,7 @@
 local ShadowFX, super = Class(FXBase)
 
 function ShadowFX:init(alpha, highlight, scale, priority)
-    super:init(self, priority)
+    super.init(self, priority)
 
     self.alpha = alpha or 0.75
     self.highlight = highlight or {0, 0, 0, 0}
@@ -33,7 +33,7 @@ function ShadowFX:setHighlight(r, g, b, a)
 end
 
 function ShadowFX:isActive()
-    return super:isActive(self) and self:getAlpha() > 0
+    return super.isActive(self) and self:getAlpha() > 0
 end
 
 function ShadowFX:draw(texture)

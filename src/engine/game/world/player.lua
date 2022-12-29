@@ -3,7 +3,7 @@
 local Player, super = Class(Character)
 
 function Player:init(chara, x, y)
-    super:init(self, chara, x, y)
+    super.init(self, chara, x, y)
 
     self.is_player = true
 
@@ -48,7 +48,7 @@ function Player:init(chara, x, y)
 end
 
 function Player:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     table.insert(info, "State: " .. self.state)
     table.insert(info, "Walk speed: " .. self.walk_speed)
     table.insert(info, "Run timer: " .. self.run_timer)
@@ -58,14 +58,14 @@ function Player:getDebugInfo()
 end
 
 function Player:getDebugOptions(context)
-    context = super:getDebugOptions(self, context)
+    context = super.getDebugOptions(self, context)
     context:addMenuItem("Toggle force run", "Toggle if the player is forced to run or not", function() self.force_run = not self.force_run end)
     context:addMenuItem("Toggle force walk", "Toggle if the player is forced to walk or not", function() self.force_walk = not self.force_walk end)
     return context
 end
 
 function Player:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     if parent:includes(World) and not parent.player then
         parent.player = self
@@ -73,7 +73,7 @@ function Player:onAdd(parent)
 end
 
 function Player:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 
     self.slide_sound:stop()
     if parent:includes(World) and parent.player == self then
@@ -82,12 +82,12 @@ function Player:onRemove(parent)
 end
 
 function Player:onRemoveFromStage(stage)
-    super:onRemoveFromStage(stage)
+    super.onRemoveFromStage(stage)
     self.slide_sound:stop()
 end
 
 function Player:setActor(actor)
-    super:setActor(self, actor)
+    super.setActor(self, actor)
 
     local hx, hy, hw, hh = self.collider.x, self.collider.y, self.collider.width, self.collider.height
 
@@ -347,12 +347,12 @@ function Player:update()
 
     self.outlinefx:setAlpha(self.battle_alpha)
 
-    super:update(self)
+    super.update(self)
 end
 
 function Player:draw()
     -- Draw the player
-    super:draw(self)
+    super.draw(self)
 
     local col = self.interact_collider[self.facing]
     if DEBUG_RENDER then

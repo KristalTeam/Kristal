@@ -5,7 +5,7 @@ local GrazeSprite, super = Class(Object)
 function GrazeSprite:init(x, y)
     self.texture = Assets.getTexture("player/graze")
 
-    super:init(self, x, y, self.texture:getWidth(), self.texture:getHeight())
+    super.init(self, x, y, self.texture:getWidth(), self.texture:getHeight())
 
     self.graze_scale = 1
 
@@ -47,7 +47,7 @@ function GrazeSprite:draw()
         love.graphics.pop()
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return GrazeSprite

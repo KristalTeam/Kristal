@@ -3,7 +3,7 @@
 local PolygonCollider, super = Class(Collider)
 
 function PolygonCollider:init(parent, points, mode)
-    super:init(self, parent, 0, 0, mode)
+    super.init(self, parent, 0, 0, mode)
 
     self.points = points
 end
@@ -45,7 +45,7 @@ function PolygonCollider:collidesWith(other)
         end
     end
 
-    return super:collidesWith(self, other)
+    return super.collidesWith(self, other)
 end
 
 function PolygonCollider:getShapeFor(other)

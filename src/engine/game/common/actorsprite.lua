@@ -21,7 +21,7 @@ function ActorSprite:init(actor)
     self.directional = false
     self.dir_sep = "_"
 
-    super:init(self, "", 0, 0, actor:getWidth(), actor:getHeight(), actor:getSpritePath())
+    super.init(self, "", 0, 0, actor:getWidth(), actor:getHeight(), actor:getSpritePath())
 
     self.offsets = actor.offsets or {}
 
@@ -64,7 +64,7 @@ function ActorSprite:resetSprite(ignore_actor_callback)
 end
 
 function ActorSprite:setTextureExact(texture)
-    super:setTextureExact(self, texture)
+    super.setTextureExact(self, texture)
 
     self.sprite_options = self.actor:parseSpriteOptions(self.texture_path)
 end
@@ -143,10 +143,10 @@ function ActorSprite:_setSprite(texture, keep_anim)
     self.directional, self.dir_sep = self:isDirectional(self.full_sprite)
 
     if self.directional then
-        super:setSprite(self, self:getDirectionalPath(self.sprite), keep_anim)
+        super.setSprite(self, self:getDirectionalPath(self.sprite), keep_anim)
     else
         self.walk_frame = 1
-        super:setSprite(self, self.sprite, keep_anim)
+        super.setSprite(self, self.sprite, keep_anim)
     end
 end
 
@@ -186,7 +186,7 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
                 anim.callback = callback
             end
         end
-        super:setAnimation(self, anim)
+        super.setAnimation(self, anim)
         if not ignore_actor_callback then
             self.actor:onSetAnimation(self, anim, callback)
         end
@@ -217,7 +217,7 @@ end
 
 function ActorSprite:updateDirection()
     if self.directional and self.last_facing ~= self.facing then
-        super:setSprite(self, self:getDirectionalPath(self.sprite), true)
+        super.setSprite(self, self:getDirectionalPath(self.sprite), true)
     end
     self.last_facing = self.facing
 end
@@ -324,13 +324,13 @@ function ActorSprite:update()
         self.run_away_timer = self.run_away_timer + DTMULT
     end
 
-    super:update(self)
+    super.update(self)
 
     self.actor:onSpriteUpdate(self)
 end
 
 function ActorSprite:applyTransformTo(transform)
-    super:applyTransformTo(self, transform)
+    super.applyTransformTo(self, transform)
     local offset = self:getOffset()
     transform:translate(offset[1], offset[2])
 end
@@ -364,7 +364,7 @@ function ActorSprite:draw()
         love.graphics.setColor(self:getDrawColor())
     end
 
-    super:draw(self)
+    super.draw(self)
 
     if self.texture and self.frozen then
         if self.freeze_progress < 1 then

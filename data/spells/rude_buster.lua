@@ -1,7 +1,7 @@
 local spell, super = Class(Spell, "rude_buster")
 
 function spell:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Rude Buster"
@@ -28,7 +28,7 @@ function spell:getCastMessage(user, target)
 end
 
 function spell:getTPCost(chara)
-    local cost = super:getTPCost(self, chara)
+    local cost = super.getTPCost(self, chara)
     if chara and chara:checkWeapon("devilsknife") then
         cost = cost - 10
     end

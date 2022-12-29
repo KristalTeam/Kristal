@@ -3,7 +3,7 @@
 local Follower, super = Class(Character)
 
 function Follower:init(chara, x, y, target)
-    super:init(self, chara, x, y)
+    super.init(self, chara, x, y)
 
     self.is_follower = true
 
@@ -34,11 +34,11 @@ function Follower:onRemove(parent)
         table.remove(self.world.followers, self.index)
     end
 
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 end
 
 function Follower:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     local target = self:getTarget()
     if target then
@@ -245,7 +245,7 @@ function Follower:update()
         self.blushing = false
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return Follower

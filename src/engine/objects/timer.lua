@@ -3,7 +3,7 @@
 local Timer, super = Class(Object)
 
 function Timer:init(active)
-    super:init(self)
+    super.init(self)
 
     self.timer = LibTimer.new()
 
@@ -87,7 +87,7 @@ end
 function Timer:update()
     self.timer:update()
 
-    super:update(self)
+    super.update(self)
 end
 
 return Timer

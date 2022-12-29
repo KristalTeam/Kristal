@@ -1,7 +1,7 @@
 local item, super = Class("wood_blade", true)
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     self.name = "Epic Blade"
 
@@ -16,7 +16,7 @@ function item:init()
 end
 
 function item:getDescription()
-    return super.super:getDescription(self)
+    return super.super.getDescription(self)
 end
 
 return item

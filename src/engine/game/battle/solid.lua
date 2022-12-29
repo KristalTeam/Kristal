@@ -3,7 +3,7 @@
 local Solid, super = Class(Object)
 
 function Solid:init(filled, x, y, width, height)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.layer = BATTLE_LAYERS["above_arena"]
 
@@ -103,7 +103,7 @@ function Solid:draw()
         self.collider:drawFill(self:getColor())
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return Solid

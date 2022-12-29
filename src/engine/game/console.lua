@@ -3,7 +3,7 @@
 local Console, super = Class(Object)
 
 function Console:init()
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
     self.layer = 10000000 - 1
 
     self.height = 12
@@ -281,7 +281,7 @@ function Console:draw()
         end
     end]]
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function Console:push(str)

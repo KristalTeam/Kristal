@@ -19,7 +19,7 @@ GonerKeyboard.MODES = {
 }
 
 function GonerKeyboard:init(limit, mode, callback, key_callback)
-    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.limit = limit or -1
     self.mode = nil
@@ -87,7 +87,7 @@ function GonerKeyboard:createKeyboardChoices(mode)
 end
 
 function GonerKeyboard:update()
-    super:update(self)
+    super.update(self)
 
     self.alpha = self.choicer.alpha
 end
@@ -142,7 +142,7 @@ function GonerKeyboard:finish()
 end
 
 function GonerKeyboard:draw()
-    super:draw(self)
+    super.draw(self)
 
     love.graphics.setFont(self.font)
 

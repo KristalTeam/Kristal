@@ -3,7 +3,7 @@
 local DarkMenu, super = Class(Object)
 
 function DarkMenu:init()
-    super:init(self, 0, -80)
+    super.init(self, 0, -80)
 
     self.layer = 1 -- TODO
 
@@ -72,7 +72,7 @@ function DarkMenu:init()
 end
 
 function DarkMenu:onAdd(parent)
-    super:onAdd(parent)
+    super.onAdd(parent)
     Game.world:showHealthBars()
 end
 
@@ -271,7 +271,7 @@ function DarkMenu:update()
         self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 0, -80, max_time)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function DarkMenu:draw()
@@ -291,7 +291,7 @@ function DarkMenu:draw()
     love.graphics.setFont(self.font)
     love.graphics.print(Game:getConfig("darkCurrencyShort") .. " " .. Game.money, 520, 20)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function DarkMenu:drawButton(index, x, y)

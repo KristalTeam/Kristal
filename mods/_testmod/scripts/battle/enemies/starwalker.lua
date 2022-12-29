@@ -1,7 +1,7 @@
 local Starwalker, super = Class(EnemyBattler)
 
 function Starwalker:init()
-    super:init(self)
+    super.init(self)
 
     self.name = "Starwalker"
     self:setActor("starwalker")
@@ -45,7 +45,7 @@ function Starwalker:init()
 end
 
 function Starwalker:onSpared()
-    super:onSpared(self)
+    super.onSpared(self)
 
     self.sprite:resetSprite()
     Game.battle.music:stop()
@@ -56,7 +56,7 @@ function Starwalker:isXActionShort(battler)
 end
 
 function Starwalker:onActStart(battler, name)
-    super:onActStart(self, battler, name)
+    super.onActStart(self, battler, name)
 end
 
 function Starwalker:onAct(battler, name)
@@ -75,7 +75,7 @@ function Starwalker:onAct(battler, name)
             return "* Susie more like sussy\n(it got [color:yellow]absorbed)"
         end
     end
-    return super:onAct(self, battler, name)
+    return super.onAct(self, battler, name)
 end
 
 function Starwalker:onShortAct(battler, name)

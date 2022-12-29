@@ -3,7 +3,7 @@
 local DarkPowerMenu, super = Class(Object)
 
 function DarkPowerMenu:init()
-    super:init(self, 82, 112, 477, 277)
+    super.init(self, 82, 112, 477, 277)
 
     self.draw_children_below = 0
 
@@ -75,7 +75,7 @@ function DarkPowerMenu:updateDescription()
 end
 
 function DarkPowerMenu:onRemove(parent)
-    super:onRemove(parent)
+    super.onRemove(parent)
     Game.world.menu:updateSelectedBoxes()
 end
 
@@ -135,7 +135,7 @@ function DarkPowerMenu:update()
             self:updateDescription()
         end
     end
-    super:update(self)
+    super.update(self)
 end
 
 function DarkPowerMenu:draw()
@@ -154,7 +154,7 @@ function DarkPowerMenu:draw()
     self:drawStats()
     self:drawSpells()
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function DarkPowerMenu:drawChar()

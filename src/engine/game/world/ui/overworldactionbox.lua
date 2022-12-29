@@ -3,7 +3,7 @@
 local OverworldActionBox, super = Class(Object)
 
 function OverworldActionBox:init(x, y, index, chara)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.index = index
     self.chara = chara
@@ -44,7 +44,7 @@ end
 
 function OverworldActionBox:update()
     self.reaction_alpha = self.reaction_alpha - DTMULT
-    super:update(self)
+    super.update(self)
 end
 
 function OverworldActionBox:draw()
@@ -112,7 +112,7 @@ function OverworldActionBox:draw()
     love.graphics.setColor(1, 1, 1, self.reaction_alpha / 6)
     love.graphics.print(self.reaction_text, reaction_x, 43, 0, 0.5, 0.5)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return OverworldActionBox

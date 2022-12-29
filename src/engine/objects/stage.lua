@@ -3,7 +3,7 @@
 local Stage, super = Class(Object)
 
 function Stage:init(x, y, w, h)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.objects = {}
     self.objects_by_class = {}
@@ -78,7 +78,7 @@ function Stage:update()
             end
         end
         self.objects_to_remove = {}
-        super:update(self)
+        super.update(self)
     end
 end
 
@@ -93,13 +93,13 @@ function Stage:draw()
         self:fullDraw()
         self.full_drawing = false
     else
-        super:draw(self)
+        super.draw(self)
     end
     --[[love.graphics.push()
     love.graphics.applyTransform(self:getTransform())
     Draw.pushScissor()
     self:applyScissor()
-    super:draw(self)
+    super.draw(self)
     Draw.popScissor()
     love.graphics.pop()]]
 end

@@ -5,7 +5,7 @@ local AttackBox, super = Class(Object)
 AttackBox.BOLTSPEED = 8
 
 function AttackBox:init(battler, offset, x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.battler = battler
     self.offset = offset
@@ -95,7 +95,7 @@ function AttackBox:update()
         self.flash = Utils.approach(self.flash, 0, DTMULT/5)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function AttackBox:draw()
@@ -116,7 +116,7 @@ function AttackBox:draw()
 
     love.graphics.setLineWidth(1)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return AttackBox

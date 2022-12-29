@@ -3,7 +3,7 @@
 local FountainFloor, super = Class(Event)
 
 function FountainFloor:init(x, y, width, height)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self:setColor(0, 1, 0)
 
@@ -19,7 +19,7 @@ function FountainFloor:postLoad()
 end
 
 function FountainFloor:update()
-    super:update(self)
+    super.update(self)
 
     self.siner = self.siner + DTMULT
 

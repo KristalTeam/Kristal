@@ -1,7 +1,7 @@
 local GonerBackgroundPiece, super = Class(Object)
 
 function GonerBackgroundPiece:init(sprite, x, y)
-    super:init(self, 320/2, 240/2, 320, 240)
+    super.init(self, 320/2, 240/2, 320, 240)
 
     self:setOrigin(0.5, 0.5)
 
@@ -34,7 +34,7 @@ function GonerBackgroundPiece:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function GonerBackgroundPiece:draw()

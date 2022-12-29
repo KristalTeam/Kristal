@@ -1,7 +1,7 @@
 local Starwings, super = Class(Wave)
 
 function Starwings:init()
-    super:init(self)
+    super.init(self)
     self.time = -1
     self.starwalker = self:getAttackers()[1]
 end
@@ -31,11 +31,11 @@ end
 function Starwings:onEnd()
     self.encounter:setMode("normal")
     self.starwalker.sprite:set("wings")
-    super:onEnd()
+    super.onEnd()
 end
 
 function Starwings:update()
-    super:update(self)
+    super.update(self)
 end
 
 return Starwings

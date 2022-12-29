@@ -3,11 +3,11 @@
 local FountainShadowController, super = Class(Event, "fountainshadow")
 
 function FountainShadowController:init(properties)
-    super:init(self)
+    super.init(self)
 end
 
 function FountainShadowController:update()
-    super:update(self)
+    super.update(self)
 
     if not self.stage then return end
 

@@ -3,7 +3,7 @@
 local ActionBox, super = Class(Object)
 
 function ActionBox:init(x, y, index, battler)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.animation_timer = 0
     self.selection_siner = 0
@@ -150,7 +150,7 @@ function ActionBox:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function ActionBox:select()
@@ -165,7 +165,7 @@ function ActionBox:draw()
     self:drawSelectionMatrix()
     self:drawActionBox()
 
-    super:draw(self)
+    super.draw(self)
 
     if not self.name_sprite then
         local font = Assets.getFont("name")

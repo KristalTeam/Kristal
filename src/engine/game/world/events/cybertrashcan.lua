@@ -3,7 +3,7 @@
 local CyberTrashCan, super = Class(Event, "cybertrash")
 
 function CyberTrashCan:init(x, y, properties)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     properties = properties or {}
 
@@ -26,7 +26,7 @@ function CyberTrashCan:init(x, y, properties)
 end
 
 function CyberTrashCan:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     if self.item then
         table.insert(info, "Item: " .. self.item)
     end
@@ -42,7 +42,7 @@ function CyberTrashCan:getDebugInfo()
 end
 
 function CyberTrashCan:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     if self:getFlag("opened") then
         self.sprite:setFrame(2)

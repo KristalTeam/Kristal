@@ -3,7 +3,7 @@
 local SaveMenu, super = Class(Object)
 
 function SaveMenu:init(marker)
-    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self.parallax_x = 0
     self.parallax_y = 0
@@ -187,7 +187,7 @@ function SaveMenu:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function SaveMenu:draw()
@@ -256,7 +256,7 @@ function SaveMenu:draw()
         self:drawSaveFile(3, self.saves[3], 74, 306, self.selected_y == 3)
     end
 
-    super:draw(self)
+    super.draw(self)
 
     if self.state == "OVERWRITE" then
         love.graphics.setColor(PALETTE["world_text"])

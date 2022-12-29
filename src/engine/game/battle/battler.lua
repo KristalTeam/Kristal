@@ -3,7 +3,7 @@
 local Battler, super = Class(Object)
 
 function Battler:init(x, y, width, height)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.layer = BATTLE_LAYERS["battlers"]
 
@@ -124,7 +124,7 @@ function Battler:update()
         self.last_highlighted = false
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return Battler

@@ -3,7 +3,7 @@
 local TileButton, super = Class(Event)
 
 function TileButton:init(x, y, w, h, properties, idle_sprite, pressed_sprite)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.idle_sprite = properties["sprite"] or idle_sprite or "world/events/glowtile/idle"
     self.pressed_sprite = properties["pressedsprite"] or properties["sprite"] or pressed_sprite or idle_sprite or "world/events/glowtile/pressed"
@@ -60,7 +60,7 @@ function TileButton:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function TileButton:setPressed(pressed)

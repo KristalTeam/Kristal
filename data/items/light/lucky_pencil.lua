@@ -1,7 +1,7 @@
 local item, super = Class(LightEquipItem, "light/lucky_pencil")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Lucky Pencil"

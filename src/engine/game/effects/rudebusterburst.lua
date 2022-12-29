@@ -3,7 +3,7 @@
 local RudeBusterBurst, super = Class(Sprite)
 
 function RudeBusterBurst:init(red, x, y, angle, slow)
-    super:init(self, red and "effects/rudebuster/beam_red" or "effects/rudebuster/beam", x, y)
+    super.init(self, red and "effects/rudebuster/beam_red" or "effects/rudebuster/beam", x, y)
 
     self:setOrigin(0.5, 0.5)
     self:setScale(2)
@@ -24,7 +24,7 @@ function RudeBusterBurst:update()
     self.physics.speed = self.physics.speed * (slow_down ^ DTMULT)
     self.scale_x = self.scale_x * (0.8 ^ DTMULT)
 
-    super:update(self)
+    super.update(self)
 end
 
 return RudeBusterBurst

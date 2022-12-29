@@ -1,7 +1,7 @@
 local actor, super = Class(Actor, "ralsei")
 
 function actor:init(style)
-    super:init(self)
+    super.init(self)
 
     local ralsei_style = style or Game:getConfig("ralseiStyle")
 

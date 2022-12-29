@@ -3,7 +3,7 @@
 local AttackBar, super = Class(Object)
 
 function AttackBar:init(x, y, width, height)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self:setScaleOrigin(0.5, 0.5)
 
@@ -22,13 +22,13 @@ function AttackBar:update()
         self.scale_y = self.scale_y + self.burst_speed * DTMULT
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function AttackBar:draw()
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return AttackBar

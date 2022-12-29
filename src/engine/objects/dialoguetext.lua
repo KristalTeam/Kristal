@@ -21,7 +21,7 @@ function DialogueText:init(text, x, y, w, h, options)
     end
     self.fast_skipping_timer = 0
     self.played_first_sound = false
-    super:init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, options)
+    super.init(self, text, x or 0, y or 0, w or SCREEN_WIDTH, h or SCREEN_HEIGHT, options)
     self.skippable = true
     self.skip_speed = false
     self.talk_sprite = nil
@@ -41,7 +41,7 @@ function DialogueText:init(text, x, y, w, h, options)
 end
 
 function DialogueText:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     table.insert(info, "Node count: " .. #self.nodes)
     table.insert(info, "Progress: " .. math.floor(self.state.progress))
     table.insert(info, "Current node: " .. self.state.current_node)
@@ -51,7 +51,7 @@ function DialogueText:getDebugInfo()
 end
 
 function DialogueText:resetState()
-    super:resetState(self)
+    super.resetState(self)
     self.state["typing_sound"] = "default"
 end
 
@@ -216,7 +216,7 @@ function DialogueText:update()
 
     self:updateTalkSprite(self.state.talk_anim and self.state.typing)
 
-    super:update(self)
+    super.update(self)
 
     self.last_talking = self.state.talk_anim and self.state.typing
 end
@@ -291,17 +291,17 @@ function DialogueText:isNodeInstant(node)
 end
 
 function DialogueText:isModifier(command)
-    return Utils.containsValue(DialogueText.COMMANDS, command) or super:isModifier(self, command)
+    return Utils.containsValue(DialogueText.COMMANDS, command) or super.isModifier(self, command)
 end
 
 function DialogueText:registerCommand(command, func, options)
     options = options or {}
-    super:registerCommand(self, command, func, options)
+    super.registerCommand(self, command, func, options)
     self.custom_command_wait[command] = options["instant"] ~= false
 end
 
 function DialogueText:processCustomCommand(node, dry)
-    local result = super:processCustomCommand(self, node, dry)
+    local result = super.processCustomCommand(self, node, dry)
     if self.custom_command_wait[node.command] then
         self.state.typed_characters = self.state.typed_characters + 1
     end
@@ -309,7 +309,7 @@ function DialogueText:processCustomCommand(node, dry)
 end
 
 function DialogueText:processModifier(node, dry)
-    super:processModifier(self, node, dry)
+    super.processModifier(self, node, dry)
 
     if node.command == "speed" then
         self.state.speed = tonumber(node.arguments[1])

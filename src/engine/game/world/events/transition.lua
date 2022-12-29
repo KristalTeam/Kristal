@@ -3,7 +3,7 @@
 local Transition, super = Class(Event)
 
 function Transition:init(x, y, w, h, properties)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     properties = properties or {}
 
@@ -19,7 +19,7 @@ function Transition:init(x, y, w, h, properties)
 end
 
 function Transition:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     if self.target.map then table.insert(info, "Map: " .. self.target.map) end
     if self.target.shop then table.insert(info, "Shop: " .. self.target.shop) end
     if self.target.x then table.insert(info, "X: " .. self.target.x) end

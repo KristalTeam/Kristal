@@ -3,7 +3,7 @@
 local DarkStorageMenu, super = Class(Object)
 
 function DarkStorageMenu:init(top_storage, bottom_storage)
-    super:init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     self:setParallax(0, 0)
 
@@ -180,7 +180,7 @@ function DarkStorageMenu:draw()
     self:drawStorage(1)
     self:drawStorage(2)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function DarkStorageMenu:drawStorage(list)

@@ -1,7 +1,7 @@
 local Starwalker, super = Class(Encounter)
 
 function Starwalker:init()
-    super:init(self)
+    super.init(self)
 
     self.text = "* Star walker has      changed forms"
 
@@ -37,7 +37,7 @@ function Starwalker:setMode(mode)
 end
 
 function Starwalker:update()
-    super:update(self)
+    super.update(self)
 
     if not self.starwalker.done_state and (Game.battle:getState() ~= "TRANSITION") then
         self.timer = self.timer + (1 * DTMULT)

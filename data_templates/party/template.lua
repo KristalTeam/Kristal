@@ -1,7 +1,7 @@
 local character, super = Class(PartyMember, "test_character")
 
 function character:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Player"

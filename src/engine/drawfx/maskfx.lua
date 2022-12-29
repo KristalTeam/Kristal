@@ -3,7 +3,7 @@
 local MaskFX, super = Class(FXBase)
 
 function MaskFX:init(mask, draw_children, priority)
-    super:init(self, priority or 1000)
+    super.init(self, priority or 1000)
 
     self.mask = mask
     if draw_children ~= nil then

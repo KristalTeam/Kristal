@@ -1,7 +1,7 @@
 local InvaderFleet, super = Class(Bullet, "virovirokun/invader_fleet")
 
 function InvaderFleet:init(x, y, fleet_size, fleet_speed, dir, buffed)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     -- Arguments
     self.fleet_size = fleet_size or 1
@@ -26,7 +26,7 @@ function InvaderFleet:init(x, y, fleet_size, fleet_speed, dir, buffed)
 end
 
 function InvaderFleet:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     local fleet_width = (self.fleet_size * 16)
 
@@ -68,7 +68,7 @@ function InvaderFleet:nextFrame()
 end
 
 function InvaderFleet:update()
-    super:update(self)
+    super.update(self)
 
     self.move_timer = self.move_timer + DTMULT
     if self.move_timer >= self.move_interval then

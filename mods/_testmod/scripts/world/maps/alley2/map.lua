@@ -1,7 +1,7 @@
 local Alley2, super = Class(Map)
 
 function Alley2:load()
-    super:load(self)
+    super.load(self)
 
     self.timer:every(0.5, function()
         if self.world:inBattle() then

@@ -35,7 +35,7 @@ Textbox.REACTION_Y_BATTLE = {
 }
 
 function Textbox:init(x, y, width, height, default_font, default_font_size, battle_box)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.box = UIBox(0, 0, width, height)
     self.box.layer = -1
@@ -122,7 +122,7 @@ function Textbox:update()
     if not self:isTyping() then
         self.face:stop()
     end
-    super:update(self)
+    super.update(self)
 end
 
 function Textbox:advance()
@@ -291,7 +291,7 @@ function Textbox:getDebugRectangle()
         local bw, bh = self:getBorder()
         return {-bw, -bh, self.width + bw*2, self.height + bh*2}
     end
-    return super:getDebugRectangle(self)
+    return super.getDebugRectangle(self)
 end
 
 function Textbox:isTyping()

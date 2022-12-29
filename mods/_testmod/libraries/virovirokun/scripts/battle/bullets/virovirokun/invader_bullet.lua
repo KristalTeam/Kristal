@@ -1,7 +1,7 @@
 local InvaderBullet, super = Class(Bullet, "virovirokun/invader_bullet")
 
 function InvaderBullet:init(x, y, buffed)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setSprite("bullets/virovirokun/invader_bullet", 3/30, true)
     self:setHitbox(7, 10, 1, 4)
@@ -17,7 +17,7 @@ function InvaderBullet:init(x, y, buffed)
 end
 
 function InvaderBullet:update()
-    super:update(self)
+    super.update(self)
 
     if not self.exploded then
         local arena_x, arena_y = Game.battle.arena:getCenter()

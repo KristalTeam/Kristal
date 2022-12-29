@@ -3,7 +3,7 @@
 local SetFlagEvent, super = Class(Event, "setflag")
 
 function SetFlagEvent:init(x, y, width, height, properties)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     properties = properties or {}
 
@@ -16,7 +16,7 @@ function SetFlagEvent:init(x, y, width, height, properties)
 end
 
 function SetFlagEvent:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     if self.flag     then table.insert(info, "Flag: "     .. self.flag)                         end
     if self.value    then table.insert(info, "Value: "    .. self.value)                        end
     if self.once     then table.insert(info, "Once: "     .. (self.once and "True" or "False")) end

@@ -3,7 +3,7 @@
 local HealthBar, super = Class(Object)
 
 function HealthBar:init()
-    super:init(self, 0, -80)
+    super.init(self, 0, -80)
 
     self.layer = 1 -- TODO
 
@@ -84,7 +84,7 @@ function HealthBar:update()
         self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 417, 63, max_time)
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function HealthBar:draw()
@@ -92,7 +92,7 @@ function HealthBar:draw()
     love.graphics.setColor(PALETTE["world_fill"])
     love.graphics.rectangle("fill", 0, 2, 640, 61)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return HealthBar

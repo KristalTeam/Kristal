@@ -3,7 +3,7 @@
 local Forcefield, super = Class(Event)
 
 function Forcefield:init(x, y, w, h, properties)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.end_sprite = Assets.getFramesOrTexture("world/events/forcefield/end")
     self.middle_sprite = Assets.getFramesOrTexture("world/events/forcefield/middle")
@@ -110,7 +110,7 @@ function Forcefield:update()
 
     self:updateActive()
 
-    super:update(self)
+    super.update(self)
 end
 
 function Forcefield:draw()
@@ -147,7 +147,7 @@ function Forcefield:draw()
         love.graphics.draw(end_sprite, self.end_x,   self.end_y,   rot + math.rad(180), 2, 2, end_sprite:getWidth()/2, end_sprite:getHeight()/2)
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return Forcefield

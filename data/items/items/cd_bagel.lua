@@ -1,7 +1,7 @@
 local item, super = Class(HealItem, "cd_bagel")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "CD Bagel"
@@ -71,7 +71,7 @@ function item:onWorldUse(target)
     if Assets.getSound(sound) then
         Assets.playSound(sound)
     end
-    return super:onWorldUse(self, target)
+    return super.onWorldUse(self, target)
 end
 
 return item

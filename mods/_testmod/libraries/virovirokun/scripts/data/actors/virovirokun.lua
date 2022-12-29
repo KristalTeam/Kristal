@@ -1,7 +1,7 @@
 local actor, super = Class(Actor, "virovirokun")
 
 function actor:init()
-    super:init(self)
+    super.init(self)
 
     self.name = "Virovirokun"
 

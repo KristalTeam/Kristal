@@ -3,7 +3,7 @@
 local HeartBurst, super = Class(Object)
 
 function HeartBurst:init(x, y, color)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     if color then
         self:setColor(color)
@@ -27,7 +27,7 @@ function HeartBurst:update()
 
     --self:setScale(2 - self.stretch, self.stretch + self.kill)
 
-    super:update(self)
+    super.update(self)
 end
 
 function HeartBurst:drawHeartOutline(scale_x, scale_y, alpha)
@@ -50,7 +50,7 @@ function HeartBurst:draw()
     xscale, yscale = (0.2 + (self.burst / 2.5)), (0.2 + (self.burst / 5))
     self:drawHeartOutline(xscale, yscale, (1.2 - (self.burst / 6)))
 
-    super:draw(self)
+    super.draw(self)
 
     if self.burst > 10 then
         self:remove()

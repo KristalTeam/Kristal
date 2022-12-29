@@ -3,7 +3,7 @@
 local ModList, super = Class(Object)
 
 function ModList:init(x, y, width, height)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.ui_move = Assets.newSound("ui_move")
 
@@ -175,7 +175,7 @@ function ModList:update()
     self.scroll = self.scroll + ((self.scroll_target - self.scroll) / 2) * DTMULT
     self.mod_container.y = -self.scroll
 
-    super:update(self)
+    super.update(self)
 end
 
 function ModList:draw()
@@ -194,7 +194,7 @@ function ModList:draw()
 
     Draw.pushScissor()
     Draw.scissor(0, 0, self.width, self.height)
-    super:draw(self)
+    super.draw(self)
     Draw.popScissor()
 end
 

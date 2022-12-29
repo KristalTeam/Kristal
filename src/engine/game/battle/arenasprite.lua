@@ -3,7 +3,7 @@
 local ArenaSprite, super = Class(Object)
 
 function ArenaSprite:init(arena, x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.arena = arena
 
@@ -22,7 +22,7 @@ function ArenaSprite:update()
     self.width = self.arena.width
     self.height = self.arena.height
 
-    super:update(self)
+    super.update(self)
 end
 
 function ArenaSprite:draw()
@@ -31,7 +31,7 @@ function ArenaSprite:draw()
         self:drawBackground()
     end
 
-    super:draw(self)
+    super.draw(self)
 
     local r,g,b,a = self:getDrawColor()
     local arena_r,arena_g,arena_b,arena_a = self.arena:getDrawColor()
@@ -49,7 +49,7 @@ function ArenaSprite:drawBackground()
 end
 
 function ArenaSprite:canDeepCopyKey(key)
-    return super:canDeepCopyKey(self, key) and key ~= "arena"
+    return super.canDeepCopyKey(self, key) and key ~= "arena"
 end
 
 return ArenaSprite

@@ -1,7 +1,7 @@
 local character, super = Class("noelle", true)
 
 function character:init()
-    super:init(self)
+    super.init(self)
 
     self:addSpell("snowgrave")
 end

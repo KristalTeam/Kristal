@@ -24,7 +24,7 @@ end
 function Aiming:update()
     -- Code here gets called every frame
 
-    super:update(self)
+    super.update(self)
 end
 
 return Aiming

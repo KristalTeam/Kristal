@@ -1,7 +1,7 @@
 local Virovirokun, super = Class(Encounter)
 
 function Virovirokun:init()
-    super:init(self)
+    super.init(self)
 
     self.text = "* Virovirokun floated in!"
 
@@ -67,7 +67,7 @@ function Virovirokun:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return Virovirokun

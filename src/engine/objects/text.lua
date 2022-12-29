@@ -23,7 +23,7 @@ function Text:init(text, x, y, w, h, options)
         w, h = SCREEN_WIDTH, SCREEN_HEIGHT
     end
 
-    super:init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
+    super.init(self, x, y, w or SCREEN_WIDTH, h or SCREEN_HEIGHT)
 
     options = options or {}
 
@@ -73,7 +73,7 @@ function Text:getDebugRectangle()
     if not self.debug_rect then
         return {0, 0, self:getTextWidth(), self:getTextHeight()}
     end
-    return super:getDebugRectangle(self)
+    return super.getDebugRectangle(self)
 end
 
 function Text:onAddToStage(stage)
@@ -131,7 +131,7 @@ end
 
 function Text:update()
     self.timer = self.timer + DTMULT
-    super:update(self)
+    super.update(self)
 end
 
 function Text:setText(text)
@@ -754,7 +754,7 @@ function Text:draw()
         love.graphics.rectangle("line", 0, 0, self.width, self.height)
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return Text

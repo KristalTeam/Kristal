@@ -1,7 +1,7 @@
 local character, super = Class(PartyMember, "ralsei")
 
 function character:init()
-    super:init(self)
+    super.init(self)
 
     local ralsei_style = Game:getConfig("ralseiStyle")
 
@@ -137,7 +137,7 @@ function character:getTitle()
             return "LV"..self.level.." Fluffy Prince\nWeak, but has nice\nhealing powers."
         end
     end
-    return super:getTitle(self)
+    return super.getTitle(self)
 end
 
 function character:onLevelUp(level)

@@ -3,7 +3,7 @@
 local FileButton, super = Class(Object)
 
 function FileButton:init(list, id, data, x, y, width, height)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.list = list
     self.data = data
@@ -43,7 +43,7 @@ function FileButton:setChoices(choices, prompt)
 end
 
 function FileButton:getDrawColor()
-    local r, g, b, a = super:getDrawColor(self)
+    local r, g, b, a = super.getDrawColor(self)
     if not self.selected then
         return r * 0.6, g * 0.6, b * 0.7, a
     else

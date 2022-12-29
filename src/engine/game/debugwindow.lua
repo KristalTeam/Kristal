@@ -3,7 +3,7 @@
 local DebugWindow, super = Class(Object)
 
 function DebugWindow:init(name, text, type, callback)
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
     self.layer = 10000000 + 1
 
     -- VERY hardcoded object to handle message boxes used for debug purposes.
@@ -170,7 +170,7 @@ function DebugWindow:update()
     self:calculateSize()
     self:keepInBounds()
 
-    super:update(self)
+    super.update(self)
 end
 
 function DebugWindow:getLocalMousePosition()
@@ -285,7 +285,7 @@ function DebugWindow:draw()
     love.graphics.setColor(1, 1, 1, anim)
     love.graphics.draw(self.canvas, 0, 12 - (anim * 12))
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return DebugWindow

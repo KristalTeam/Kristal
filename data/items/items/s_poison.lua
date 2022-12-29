@@ -1,7 +1,7 @@
 local item, super = Class(Item, "s_poison")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "S.POISON"

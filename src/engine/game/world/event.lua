@@ -12,7 +12,7 @@ function Event:init(x, y, w, h)
         w, h = data.width, data.height
     end
 
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self._default_collider = Hitbox(self, 0, 0, self.width, self.height)
     if not self.collider then
@@ -132,11 +132,11 @@ function Event:setSprite(texture, speed, use_size)
 end
 
 function Event:shakeSelf(x, y, friction, delay)
-    super:shake(self, x, y, friction, delay)
+    super.shake(self, x, y, friction, delay)
 end
 
 function Event:stopShakeSelf()
-    super:stopShake(self)
+    super.stopShake(self)
 end
 
 function Event:shake(x, y, friction, delay)
@@ -161,14 +161,14 @@ function Event:flash(sprite, offset_x, offset_y, layer)
 end
 
 function Event:draw()
-    super:draw(self)
+    super.draw(self)
     if DEBUG_RENDER then
         self.collider:draw(1, 0, 1)
     end
 end
 
 function Event:onClone(src)
-    super:onClone(self, src)
+    super.onClone(self, src)
     if src.world then
         self.object_id = src.world.map.next_object_id + 1
         src.world.map.next_object_id = src.world.map.next_object_id + 1

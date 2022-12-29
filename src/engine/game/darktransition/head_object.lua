@@ -3,7 +3,7 @@
 local HeadObject, super = Class(Sprite)
 
 function HeadObject:init(texture, x, y)
-    super:init(self, texture, x, y)
+    super.init(self, texture, x, y)
 
     self.breakcon = 0
     self.breaktimer = 0
@@ -34,7 +34,7 @@ function HeadObject:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 return HeadObject

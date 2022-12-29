@@ -3,7 +3,7 @@
 local World, super = Class(Object)
 
 function World:init(map)
-    super:init(self)
+    super.init(self)
 
     -- states: GAMEPLAY, FADING, MENU
     self.state_manager = StateManager("GAMEPLAY", self, true)
@@ -844,7 +844,7 @@ function World:sortChildren()
 end
 
 function World:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 
     self.music:remove()
 end
@@ -922,7 +922,7 @@ function World:update()
 
     -- Always sort
     self.update_child_list = true
-    super:update(self)
+    super.update(self)
 
     -- Update cutscene after updating objects
     if self.cutscene then
@@ -943,7 +943,7 @@ function World:draw()
     love.graphics.rectangle("fill", 0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
     love.graphics.setColor(1, 1, 1)
 
-    super:draw(self)
+    super.draw(self)
 
     self.map:draw()
 

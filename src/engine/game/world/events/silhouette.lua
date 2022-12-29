@@ -3,7 +3,7 @@
 local Silhouette, super = Class(Event)
 
 function Silhouette:init(x, y, w, h)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.solid = false
 
@@ -19,7 +19,7 @@ function Silhouette:drawCharacter(object)
 end
 
 function Silhouette:draw()
-    super:draw(self)
+    super.draw(self)
 
     Draw.pushCanvas(self.canvas)
     love.graphics.clear()

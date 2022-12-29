@@ -3,7 +3,7 @@
 local OverworldSoul, super = Class(Object)
 
 function OverworldSoul:init(x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self:setColor(1, 0, 0)
 
@@ -28,7 +28,7 @@ function OverworldSoul:init(x, y)
 end
 
 function OverworldSoul:canDebugSelect()
-    return self.alpha > 0 and super:canDebugSelect(self)
+    return self.alpha > 0 and super.canDebugSelect(self)
 end
 
 function OverworldSoul:onCollide(bullet)
@@ -37,14 +37,14 @@ function OverworldSoul:onCollide(bullet)
 end
 
 function OverworldSoul:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
     if parent:includes(World) then
         self.world = parent
     end
 end
 
 function OverworldSoul:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
     if self.world == parent then
         self.world = nil
     end
@@ -109,11 +109,11 @@ function OverworldSoul:update()
     self.y = Utils.lerp(sy, ty, progress * 1.5)
     self.alpha = progress
 
-    super:update(self)
+    super.update(self)
 end
 
 function OverworldSoul:draw()
-    super:draw(self)
+    super.draw(self)
 
     if DEBUG_RENDER then
         self.collider:draw(0, 1, 0)

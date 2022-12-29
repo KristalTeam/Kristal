@@ -3,7 +3,7 @@
 local LineCollider, super = Class(Collider)
 
 function LineCollider:init(parent, x1, y1, x2, y2, mode)
-    super:init(self, parent, x1, y1, mode)
+    super.init(self, parent, x1, y1, mode)
 
     self.x2 = x2
     self.y2 = y2
@@ -46,7 +46,7 @@ function LineCollider:collidesWith(other, symmetrical)
         end
     end
 
-    return super:collidesWith(self, other)
+    return super.collidesWith(self, other)
 end
 
 function LineCollider:getShapeFor(other)

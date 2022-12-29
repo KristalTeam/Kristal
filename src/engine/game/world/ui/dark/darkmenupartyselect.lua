@@ -3,7 +3,7 @@
 local DarkMenuPartySelect, super = Class(Object)
 
 function DarkMenuPartySelect:init(x, y)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.focused = false
 
@@ -49,7 +49,7 @@ function DarkMenuPartySelect:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function DarkMenuPartySelect:draw()
@@ -67,7 +67,7 @@ function DarkMenuPartySelect:draw()
         love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(frames[(math.floor(self.heart_siner/20)-1)%#frames+1], (self.selected_party-1)*50 + 10, -18)
     end
-    super:draw(self)
+    super.draw(self)
 end
 
 return DarkMenuPartySelect

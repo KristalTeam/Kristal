@@ -3,7 +3,7 @@
 local Battle, super = Class(Object)
 
 function Battle:init()
-    super:init(self)
+    super.init(self)
 
     self.party = {}
 
@@ -281,7 +281,7 @@ function Battle:showUI()
 end
 
 function Battle:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
 
     self.music:remove()
 end
@@ -2177,7 +2177,7 @@ function Battle:update()
 
     -- Always sort
     --self.update_child_list = true
-    super:update(self)
+    super.update(self)
     
     if self.state == "TRANSITIONOUT" then
         self:updateTransitionOut()
@@ -2405,7 +2405,7 @@ function Battle:draw()
     love.graphics.setColor(0, 0, 0, self.background_fade_alpha)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    super:draw(self)
+    super.draw(self)
 
     self.encounter:draw(self.transition_timer / 10)
 

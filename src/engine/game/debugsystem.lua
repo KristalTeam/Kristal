@@ -3,7 +3,7 @@
 local DebugSystem, super = Class(Object)
 
 function DebugSystem:init()
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
     self.layer = 10000000 - 2
 
     self.font_size = 32
@@ -893,7 +893,7 @@ function DebugSystem:update()
             stage.active = true
         end
     end
-    super:update(self)
+    super.update(self)
 end
 
 function DebugSystem:onWheelMoved(x, y)
@@ -1214,7 +1214,7 @@ function DebugSystem:draw()
 
     self.mouse_clicked = false
 
-    super:draw(self)
+    super.draw(self)
 end
 
 function DebugSystem:printShadow(text, x, y, color, align, limit)

@@ -3,7 +3,7 @@
 local ContextMenu, super = Class(Object)
 
 function ContextMenu:init(name)
-    super:init(self, 0, 0)
+    super.init(self, 0, 0)
     self.layer = 10000000
 
     self.font_size = 16
@@ -178,7 +178,7 @@ function ContextMenu:update()
         self:adjustToCorner()
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function ContextMenu:getHorizontalPadding()
@@ -307,7 +307,7 @@ function ContextMenu:draw()
         love.graphics.draw(tooltip, tooltip_x + (12 - (anim * 12)), tooltip_y)
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return ContextMenu

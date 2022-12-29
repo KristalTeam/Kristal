@@ -1,7 +1,7 @@
 local CollisionCheck, super = Class(Object)
 
 function CollisionCheck:init(x, y, collider)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.layer = BATTLE_LAYERS["below_soul"]
 
@@ -17,7 +17,7 @@ function CollisionCheck:draw()
     else
         self.collider:drawFill(0, 0.5, 1)
     end
-    super:draw(self)
+    super.draw(self)
 end
 
 return CollisionCheck

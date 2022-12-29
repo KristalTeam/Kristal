@@ -2,7 +2,7 @@
 local item, super = Class(Item, "test_item")
 
 function item:init()
-    super:init(self)
+    super.init(self)
 
     -- Display name
     self.name = "Test Item"

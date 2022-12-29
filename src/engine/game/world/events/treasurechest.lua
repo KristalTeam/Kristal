@@ -3,7 +3,7 @@
 local TreasureChest, super = Class(Event, "chest")
 
 function TreasureChest:init(x, y, properties)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     properties = properties or {}
 
@@ -26,7 +26,7 @@ function TreasureChest:init(x, y, properties)
 end
 
 function TreasureChest:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     if self.item then
         table.insert(info, "Item: " .. self.item)
     end
@@ -42,7 +42,7 @@ function TreasureChest:getDebugInfo()
 end
 
 function TreasureChest:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
 
     if self:getFlag("opened") then
         self.sprite:setFrame(2)

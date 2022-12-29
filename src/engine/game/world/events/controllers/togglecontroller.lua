@@ -3,7 +3,7 @@
 local ToggleController, super = Class(Event, "toggle")
 
 function ToggleController:init(properties)
-    super:init(self)
+    super.init(self)
 
     properties = properties or {}
 
@@ -62,7 +62,7 @@ end
 function ToggleController:update()
     self:updateTargets()
 
-    super:update(self)
+    super.update(self)
 end
 
 return ToggleController

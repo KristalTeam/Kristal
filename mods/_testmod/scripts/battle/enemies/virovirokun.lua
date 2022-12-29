@@ -1,7 +1,7 @@
 local Virovirokun, super = Class("virovirokun", true)
 
 function Virovirokun:init()
-    super:init(self)
+    super.init(self)
 
     if Game:getPartyMember("susie"):getFlag("auto_attack") then
         self:registerAct("Warning")
@@ -20,7 +20,7 @@ function Virovirokun:init()
 end
 
 function Virovirokun:getSpareText(battler, success)
-    local result = super:getSpareText(self, battler, success)
+    local result = super.getSpareText(self, battler, success)
     if not success then
         if type(result) ~= "table" then
             result = {result}
@@ -31,7 +31,7 @@ function Virovirokun:getSpareText(battler, success)
 end
 
 function Virovirokun:mercyFlash(color)
-    super:mercyFlash(self, color or {0, 1, 0})
+    super.mercyFlash(self, color or {0, 1, 0})
 end
 
 function Virovirokun:getNameColors()
@@ -80,7 +80,7 @@ function Virovirokun:onAct(battler, name)
         battler:hurt(9999999)
         return "* Dumbass"
     else
-        return super:onAct(self, battler, name)
+        return super.onAct(self, battler, name)
     end
 end
 
@@ -88,7 +88,7 @@ function Virovirokun:getAttackDamage(damage, battler)
     if self.susie_warned and battler.chara.id == "susie" then
         return 0
     else
-        return super:getAttackDamage(self, damage, battler)
+        return super.getAttackDamage(self, damage, battler)
     end
 end
 
@@ -96,7 +96,7 @@ function Virovirokun:getNextWaves()
     if self.asleep then
         return nil
     end
-    return super:getNextWaves(self)
+    return super.getNextWaves(self)
 end
 
 return Virovirokun

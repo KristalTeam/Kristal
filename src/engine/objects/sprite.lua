@@ -37,7 +37,7 @@
 local Sprite, super = Class(Object)
 
 function Sprite:init(texture, x, y, width, height, path)
-    super:init(self, x, y, width, height)
+    super.init(self, x, y, width, height)
 
     self.use_texture_size = (width == nil)
     self.path = path or ""
@@ -346,7 +346,7 @@ function Sprite:flash(offset_x, offset_y, layer)
 end
 
 function Sprite:onClone(src)
-    super:onClone(self, src)
+    super.onClone(self, src)
 
     self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
     if self.anim_routine and coroutine.status(self.anim_routine) ~= "dead" then
@@ -386,7 +386,7 @@ function Sprite:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function Sprite:draw()
@@ -424,7 +424,7 @@ function Sprite:draw()
         end
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return Sprite

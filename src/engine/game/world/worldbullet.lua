@@ -3,7 +3,7 @@
 local WorldBullet, super = Class(Object)
 
 function WorldBullet:init(x, y, texture)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     -- Set scale and origin
     self:setOrigin(0.5, 0.5)
@@ -32,7 +32,7 @@ function WorldBullet:init(x, y, texture)
 end
 
 function WorldBullet:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     table.insert(info, "Damage: " .. self.damage)
     table.insert(info, "Destroy on hit: " .. (self.destroy_on_hit and "True" or "False"))
     table.insert(info, "Fade with battles: " .. (self.battle_fade and "True" or "False"))
@@ -89,21 +89,21 @@ function WorldBullet:isBullet(id)
 end
 
 function WorldBullet:onAdd(parent)
-    super:onAdd(self, parent)
+    super.onAdd(self, parent)
     if parent:includes(World) then
         self.world = parent
     end
 end
 
 function WorldBullet:onRemove(parent)
-    super:onRemove(self, parent)
+    super.onRemove(self, parent)
     if self.world == parent then
         self.world = nil
     end
 end
 
 function WorldBullet:update()
-    super:update(self)
+    super.update(self)
 
     if self.remove_offscreen then
         local mw, mh = self.world.map.width * self.world.map.tile_width, self.world.map.height * self.world.map.tile_height
@@ -114,7 +114,7 @@ function WorldBullet:update()
 end
 
 function WorldBullet:getDrawColor()
-    local r, g, b, a = super:getDrawColor(self)
+    local r, g, b, a = super.getDrawColor(self)
     if self.battle_fade then
         return r, g, b, a * self.world.battle_alpha
     else
@@ -123,7 +123,7 @@ function WorldBullet:getDrawColor()
 end
 
 function WorldBullet:draw()
-    super:draw(self)
+    super.draw(self)
 
     if DEBUG_RENDER and self.collider then
         self.collider:draw(1, 0, 0)

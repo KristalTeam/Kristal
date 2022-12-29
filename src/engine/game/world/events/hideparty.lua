@@ -3,7 +3,7 @@
 local HideParty, super = Class(Event)
 
 function HideParty:init(x, y, w, h, alpha)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     self.alphas = {}
     self.target_alpha = alpha or 0

@@ -3,7 +3,7 @@
 local SpeechBubble, super = Class(Object)
 
 function SpeechBubble:init(text, x, y, options, speaker)
-    super:init(self, x, y, 0, 0)
+    super.init(self, x, y, 0, 0)
     options = options or {}
 
     self.layer = BATTLE_LAYERS["above_arena"] - 1
@@ -97,7 +97,7 @@ function SpeechBubble:setStyle(style)
 end
 
 function SpeechBubble:onRemoveFromStage(stage)
-    super:onRemoveFromStage(self, stage)
+    super.onRemoveFromStage(self, stage)
     if self.speaker and self.speaker.bubble == self then
         self.speaker.bubble = nil
     end
@@ -174,7 +174,7 @@ function SpeechBubble:isDone()
 end
 
 function SpeechBubble:update()
-    super:update(self)
+    super.update(self)
 
     self.bubble_anim_timer = self.bubble_anim_timer + DT
 
@@ -205,7 +205,7 @@ function SpeechBubble:getDebugRectangle()
         -- TODO: FUck
         return {-bl + inner_left, -bt + inner_top, inner_width + bl + br + self:getTailWidth(), inner_height + bt + bb}
     end
-    return super:getDebugRectangle(self)
+    return super.getDebugRectangle(self)
 end
 
 function SpeechBubble:getSprite(name)
@@ -306,7 +306,7 @@ function SpeechBubble:draw()
         end
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return SpeechBubble

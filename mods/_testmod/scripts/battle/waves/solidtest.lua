@@ -1,7 +1,7 @@
 local SolidTest, super = Class(Wave)
 
 function SolidTest:init()
-    super:init(self)
+    super.init(self)
 
     self.time = -1
 
@@ -18,7 +18,7 @@ function SolidTest:onStart()
 end
 
 function SolidTest:update()
-    super:update(self)
+    super.update(self)
 
     self.siner = self.siner + DT
 

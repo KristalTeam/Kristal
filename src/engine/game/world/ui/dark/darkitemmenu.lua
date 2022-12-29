@@ -3,7 +3,7 @@
 local DarkItemMenu, super = Class(Object)
 
 function DarkItemMenu:init()
-    super:init(self, 92, 112, 457, 227)
+    super.init(self, 92, 112, 457, 227)
 
     self.draw_children_below = 0
 
@@ -219,7 +219,7 @@ function DarkItemMenu:update()
         end
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function DarkItemMenu:draw()
@@ -280,7 +280,7 @@ function DarkItemMenu:draw()
         end
     end
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return DarkItemMenu

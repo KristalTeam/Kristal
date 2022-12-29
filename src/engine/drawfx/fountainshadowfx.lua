@@ -3,7 +3,7 @@
 local FountainShadowFX, super = Class(ShadowFX)
 
 function FountainShadowFX:init(priority)
-    super:init(self, 1, nil, 3, priority)
+    super.init(self, 1, nil, 3, priority)
 
     self.shadow_offset = 2
 end

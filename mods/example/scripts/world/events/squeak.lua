@@ -1,7 +1,7 @@
 local Squeak, super = Class(Event)
 
 function Squeak:init(data)
-    super:init(self, data)
+    super.init(self, data)
 end
 
 function Squeak:onInteract(player, dir)

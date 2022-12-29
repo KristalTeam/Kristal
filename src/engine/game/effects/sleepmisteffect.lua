@@ -3,7 +3,7 @@
 local SleepMistEffect, super = Class(Object)
 
 function SleepMistEffect:init(x, y, success)
-    super:init(self, x, y)
+    super.init(self, x, y)
 
     self.texture = Assets.getTexture("effects/icespell/mist")
 
@@ -19,7 +19,7 @@ function SleepMistEffect:update()
         self:remove()
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function SleepMistEffect:draw()
@@ -31,7 +31,7 @@ function SleepMistEffect:draw()
     love.graphics.draw(self.texture, x, y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
     love.graphics.draw(self.texture, -x, -y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return SleepMistEffect

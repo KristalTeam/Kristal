@@ -3,7 +3,7 @@
 local PushBlock, super = Class(Event)
 
 function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     properties = properties or {}
 

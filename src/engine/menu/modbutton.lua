@@ -3,7 +3,7 @@
 local ModButton, super = Class(Object)
 
 function ModButton:init(name, width, height, mod)
-    super:init(self, 0, 0, width, height)
+    super.init(self, 0, 0, width, height)
 
     self.name = name
     self.mod = mod
@@ -64,17 +64,17 @@ function ModButton:onDeselect()
 end
 
 function ModButton:setFavoritedColor(r, g, b, a)
-    local r1, g1, b1, a1 = super:getDrawColor(self)
+    local r1, g1, b1, a1 = super.getDrawColor(self)
     self.favorited_color = {r or r1, g or g1, b or b1, a or a1}
 end
 
 function ModButton:getFavoritedColor()
-    local r, g, b, a = super:getDrawColor(self)
+    local r, g, b, a = super.getDrawColor(self)
     return self.favorited_color[1] or r, self.favorited_color[2] or g, self.favorited_color[3] or b, self.favorited_color[4] or a
 end
 
 function ModButton:getDrawColor()
-    local r, g, b, a = super:getDrawColor(self)
+    local r, g, b, a = super.getDrawColor(self)
     if self:isFavorited() then
         r, g, b, a = self.favorited_color[1] or r, self.favorited_color[2] or g, self.favorited_color[3] or b, self.favorited_color[4] or a
     end
@@ -136,7 +136,7 @@ function ModButton:update()
         self.icon_frame = 1
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function ModButton:draw()

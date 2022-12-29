@@ -3,7 +3,7 @@
 local ModCreateButton, super = Class(Object)
 
 function ModCreateButton:init(width, height)
-    super:init(self, 0, 0, width, height)
+    super.init(self, 0, 0, width, height)
 
     self.name = "Create a new mod"
     self.subtitle = ""
@@ -56,7 +56,7 @@ function ModCreateButton:drawCoolRectangle(x, y, w, h)
 end
 
 function ModCreateButton:update()
-    super:update(self)
+    super.update(self)
 end
 
 function ModCreateButton:draw()

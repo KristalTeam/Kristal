@@ -7,7 +7,7 @@ function Character:init(actor, x, y)
         actor = Registry.createActor(actor)
     end
 
-    super:init(self, x, y, actor:getSize())
+    super.init(self, x, y, actor:getSize())
 
     self.is_player = false
     self.is_follower = false
@@ -33,7 +33,7 @@ function Character:init(actor, x, y)
 end
 
 function Character:getDebugInfo()
-    local info = super:getDebugInfo(self)
+    local info = super.getDebugInfo(self)
     table.insert(info, "Actor: " .. self.actor.name)
     table.insert(info, "Noclip: " .. (self.noclip and "True" or "False"))
     return info
@@ -314,11 +314,11 @@ function Character:doWalkToStep(x, y, keep_facing)
 end
 
 function Character:shakeSelf(x, y, friction, delay)
-    super:shake(self, x, y, friction, delay)
+    super.shake(self, x, y, friction, delay)
 end
 
 function Character:stopShakeSelf()
-    super:stopShake(self)
+    super.stopShake(self)
 end
 
 function Character:shake(x, y, friction, delay)
@@ -595,7 +595,7 @@ function Character:update()
         self.spin_timer = 0
     end
 
-    super:update(self)
+    super.update(self)
 end
 
 function Character:spin(speed)
@@ -603,7 +603,7 @@ function Character:spin(speed)
 end
 
 function Character:draw()
-    super:draw(self)
+    super.draw(self)
 
     self.actor:onWorldDraw(self)
 

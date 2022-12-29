@@ -8,7 +8,7 @@ function TileLayer:init(map, data)
     self.map_width = data.width or map.width
     self.map_height = data.height or map.height
 
-    super:init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width, self.map_height * map.tile_height)
+    super.init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width, self.map_height * map.tile_height)
 
     self.map = map
     self.name = data.name
@@ -118,7 +118,7 @@ function TileLayer:draw()
 
     love.graphics.setColor(1, 1, 1)
 
-    super:draw(self)
+    super.draw(self)
 end
 
 return TileLayer
