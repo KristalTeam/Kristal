@@ -2167,7 +2167,7 @@ function Menu:createMod()
             if info.type == "file" then
                 if file == "mod.json" then
                     -- Special handling in case we're mod.json
-                    local data = love.filesystem.read("string", src)
+                    local data = love.filesystem.read("string", src) --[[@as string]]
                     data = Utils.format(data, formatting_dict)
 
                     local write_file = love.filesystem.newFile(dst)

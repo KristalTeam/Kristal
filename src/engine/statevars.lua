@@ -7,10 +7,10 @@ if HOTSWAPPING then return end
 
 HOTSWAPPING = false
 
-FRAMERATE = 60
+FRAMERATE = 30
 
-BASE_DT = (1/60)
-DT = (1/60)
+BASE_DT = (1/30)
+DT = (1/30)
 DTMULT = DT * 30
 
 FPS = 0
