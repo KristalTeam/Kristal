@@ -16,7 +16,7 @@ function FileNamer:init(limit, callback, name_text, confirm_text, default_name, 
     self.name_text    = Kristal.States.Menu.selected_mod.nameText or name_text    or ("[style:GONER][spacing:3.2]ENTER YOUR OWN NAME.")
     self.confirm_text = Kristal.States.Menu.selected_mod.confirmText or confirm_text or ("[style:GONER][spacing:3.2]THIS IS YOUR NAME.")
 	
-	self.crash = Kristal.States.Menu.selected_mod.namesCrash or {"GASTER"}
+    self.crash = Kristal.States.Menu.selected_mod.namesCrash or {"GASTER"}
 
     self.callback = callback
     self.cancel_callback = nil
@@ -86,16 +86,16 @@ function FileNamer:setState(state)
             self.name = text
             self:setState("CONFIRM")
         end, function(key, x, y, namer)
-			for k,v in pairs(self.crash) do
-				if namer.text .. key == v then
-					love.audio.stop()
-					self.stage.timescale = 0
-					for _,child in ipairs(self.stage.children) do
-						child.active = false
-					end
-					love.event.quit("restart")
-				end
-			end
+            for k,v in pairs(self.crash) do
+                if namer.text .. key == v then
+                    love.audio.stop()
+                    self.stage.timescale = 0
+                    for _,child in ipairs(self.stage.children) do
+                        child.active = false
+                    end
+                    love.event.quit("restart")
+                end
+            end
         end)
         if self.name == self.default_name and self.default_name ~= "" then
             self.keyboard.text = self.default_name
@@ -104,45 +104,45 @@ function FileNamer:setState(state)
         end
         self:addChild(self.keyboard)
     elseif state == "CONFIRM" then
-		local confirm_text = self.confirm_text
-		for k,v in pairs(Kristal.States.Menu.selected_mod.namesMessages) do
-			if k == self.name then
-				confirm_text = v
-			end
-		end
+        local confirm_text = self.confirm_text
+        for k,v in pairs(Kristal.States.Menu.selected_mod.namesMessages) do
+            if k == self.name then
+                confirm_text = v
+            end
+        end
         self.text:setText(confirm_text)
         self.text.x = self.text.init_x - 4
         self.name_preview = Text(self.name, SCREEN_WIDTH/2, 80, {wrap = false, font = "main", auto_size = true})
         self.name_preview:setOrigin(0.5, 0)
         self:addChild(self.name_preview)
         self.name_zoom = 0
-		local allow = true
-		for k,v in pairs(Kristal.States.Menu.selected_mod.namesDeny) do
-			if v == self.name then
-				allow = false
-			end
-		end
-		if allow then
-			self.choicer = GonerChoice(220, 360, {
-				{{"NO",0,0},{"<<"},{">>"},{"YES",160,0}}
-			}, nil, function(choice, x, y)
-				if choice == "YES" then
-					if self.do_fadeout then
-						self:setState("FADEOUT")
-					else
-						self:setState("DONE")
-					end
-				elseif choice == "NO" then
-					self:setState("KEYBOARD")
-				end
-			end)
-		else
-			self.choicer = GonerChoice(220, 360, {
-				{{"NO",0,0}}
-			}, nil, function(choice, x, y)
-				self:setState("KEYBOARD")
-			end)
-		end
+        local allow = true
+        for k,v in pairs(Kristal.States.Menu.selected_mod.namesDeny) do
+            if v == self.name then
+                allow = false
+            end
+        end
+        if allow then
+            self.choicer = GonerChoice(220, 360, {
+                {{"NO",0,0},{"<<"},{">>"},{"YES",160,0}}
+            }, nil, function(choice, x, y)
+                if choice == "YES" then
+                    if self.do_fadeout then
+                        self:setState("FADEOUT")
+                    else
+                        self:setState("DONE")
+                    end
+                elseif choice == "NO" then
+                    self:setState("KEYBOARD")
+                end
+            end)
+        else
+            self.choicer = GonerChoice(220, 360, {
+                {{"NO",0,0}}
+            }, nil, function(choice, x, y)
+                self:setState("KEYBOARD")
+            end)
+        end
         if self.name == self.default_name and self.default_name ~= "" then
             self.choicer:setSelectedOption(4, 1)
             self.choicer:resetSoulPosition()
