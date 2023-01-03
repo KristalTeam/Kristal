@@ -105,7 +105,7 @@ function FileNamer:setState(state)
         self:addChild(self.keyboard)
     elseif state == "CONFIRM" then
         local confirm_text = self.confirm_text
-        for k,v in pairs(Kristal.States.Menu.selected_mod.namesMessages) do
+        for k,v in pairs(self.mod.namesMessages or {}) do
             if k == self.name then
                 confirm_text = v
             end
