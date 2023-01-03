@@ -117,7 +117,7 @@ function FileNamer:setState(state)
         self:addChild(self.name_preview)
         self.name_zoom = 0
         local allow = true
-        for k,v in pairs(Kristal.States.Menu.selected_mod.namesDeny) do
+        for k,v in pairs(self.mod.namesDeny or {}) do
             if v == self.name then
                 allow = false
             end
