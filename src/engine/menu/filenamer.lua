@@ -13,10 +13,12 @@ function FileNamer:init(limit, callback, name_text, confirm_text, default_name, 
 
     self.default_name = default_name or ""
 
-    self.name_text    = Kristal.States.Menu.selected_mod.nameText or name_text    or ("[style:GONER][spacing:3.2]ENTER YOUR OWN NAME.")
-    self.confirm_text = Kristal.States.Menu.selected_mod.confirmText or confirm_text or ("[style:GONER][spacing:3.2]THIS IS YOUR NAME.")
+    self.mod = Kristal.States.Menu.selected_mod or {}
+
+    self.name_text    = self.mod.nameText or name_text    or ("[style:GONER][spacing:3.2]ENTER YOUR OWN NAME.")
+    self.confirm_text = self.mod.confirmText or confirm_text or ("[style:GONER][spacing:3.2]THIS IS YOUR NAME.")
 	
-    self.crash = Kristal.States.Menu.selected_mod.namesCrash or {"GASTER"}
+    self.crash = self.mod.namesCrash or {"GASTER"}
 
     self.callback = callback
     self.cancel_callback = nil
