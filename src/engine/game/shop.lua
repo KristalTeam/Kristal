@@ -484,17 +484,14 @@ end
 
 function Shop:processReplacements()
     for i = 1, #self.talks do
-        local talk_replacement = nil
-        for j = 1, #self.talk_replacements do 
+        -- Replace talk option if any replacements flag is set
+        -- (Replacements registered later have higher priority)
+        for j = 1, #self.talk_replacements do
             if self.talk_replacements[j][1] == i then
-                talk_replacement = self.talk_replacements[j][2]
-                break
-            end
-        end
-
-        if talk_replacement then
-            if self:getFlag(talk_replacement[2].flag, talk_replacement[2].value) then
-                self:replaceTalk(talk_replacement[1], i, talk_replacement[2].color)
+                local talk_replacement = self.talk_replacements[j][2]
+                if self:getFlag(talk_replacement[2].flag, talk_replacement[2].value) then
+                    self:replaceTalk(talk_replacement[1], i, talk_replacement[2].color)
+                end
             end
         end
     end
