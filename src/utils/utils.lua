@@ -1269,11 +1269,30 @@ end
 ---@generic T
 ---@param tbl T[]                # An array of values.
 ---@param sort? fun(v:T):boolean # If specified, the table will be sorted via `Utils.filter(tbl, sort)` before selecting a value.
+---@param remove? boolean        # If true, the selected value will be removed from the given table.
 ---@return T result              # The randomly selected value.
 ---
-function Utils.pick(tbl, sort)
-    tbl = sort and Utils.filter(tbl, sort) or tbl
-    return tbl[love.math.random(#tbl)]
+function Utils.pick(tbl, sort, remove)
+    if sort then
+        local indexes = {}
+        for i,v in ipairs(tbl) do
+            if sort(v) then
+                table.insert(indexes, i)
+            end
+        end
+        local i = indexes[love.math.random(#indexes)]
+        if remove then
+            return table.remove(tbl, i)
+        else
+            return tbl[i]
+        end
+    else
+        if remove then
+            return table.remove(tbl, love.math.random(#tbl))
+        else
+            return tbl[love.math.random(#tbl)]
+        end
+    end
 end
 
 ---
@@ -1285,11 +1304,21 @@ end
 ---@param sort? fun(v:T):boolean # If specified, the table will be sorted via `Utils.filter(tbl, sort)` before selecting a value.
 ---@return T result              # A table containing the randomly selected values.
 ---
-function Utils.pickMultiple(tbl, amount, sort)
-    tbl = sort and Utils.filter(tbl, sort) or Utils.copy(tbl)
+function Utils.pickMultiple(tbl, amount, sort, remove)
     local t = {}
+    local indexes = {}
+    for i,v in ipairs(tbl) do
+        if not sort or sort(v) then
+            table.insert(indexes, i)
+        end
+    end
     for _=1,amount do
-        table.insert(t, table.remove(tbl, love.math.random(#tbl)))
+        local i = table.remove(indexes, love.math.random(#indexes))
+        if remove then
+            table.insert(t, table.remove(tbl, i))
+        else
+            table.insert(t, tbl[i])
+        end
     end
     return t
 end
