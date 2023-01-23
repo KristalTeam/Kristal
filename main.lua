@@ -162,6 +162,7 @@ FrozenEnemy = require("src.engine.game.world.frozenenemy")
 WarpDoor = require("src.engine.game.world.events.warpdoor")
 DarkFountain = require("src.engine.game.world.events.darkfountain")
 FountainFloor = require("src.engine.game.world.events.fountainfloor")
+QuicksaveEvent = require("src.engine.game.world.events.quicksave")
 
 ToggleController = require("src.engine.game.world.events.controllers.togglecontroller")
 FountainShadowController = require("src.engine.game.world.events.controllers.fountainshadowcontroller")
