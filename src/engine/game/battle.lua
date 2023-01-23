@@ -702,7 +702,7 @@ end
 
 function Battle:spawnSoul(x, y)
     local bx, by = self:getSoulLocation()
-    local color = {Game:getSoulColor()}
+    local color = {self.encounter:getSoulColor()}
     self:addChild(HeartBurst(bx, by, color))
     if not self.soul then
         self.soul = self.encounter:createSoul(bx, by, color)

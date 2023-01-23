@@ -196,7 +196,7 @@ function BattleUI:drawState()
 
         local x = 0
         local y = 0
-        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.setColor(Game.battle.encounter:getSoulColor())
         love.graphics.draw(self.heart_sprite, 5 + ((Game.battle.current_menu_x - 1) * 230), 30 + ((Game.battle.current_menu_y - (page*3)) * 30))
 
         local font = Assets.getFont("main")
@@ -313,7 +313,7 @@ function BattleUI:drawState()
         local max_page = math.ceil(#enemies / 3) - 1
         local page_offset = page * 3
 
-        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.setColor(Game.battle.encounter:getSoulColor())
         love.graphics.draw(self.heart_sprite, 55, 30 + ((Game.battle.current_menu_y - page_offset) * 30))
 
         local font = Assets.getFont("main")
@@ -480,7 +480,7 @@ function BattleUI:drawState()
         local max_page = math.ceil(#Game.battle.party / 3) - 1
         local page_offset = page * 3
 
-        love.graphics.setColor(Game:getSoulColor())
+        love.graphics.setColor(Game.battle.encounter:getSoulColor())
         love.graphics.draw(self.heart_sprite, 55, 30 + ((Game.battle.current_menu_y - page_offset) * 30))
 
         local font = Assets.getFont("main")
