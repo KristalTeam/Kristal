@@ -677,6 +677,89 @@ function Utils.containsValue(tbl, val)
 end
 
 ---
+--- Rotates the values of a 2-dimensional array. \
+--- As an example, the following table:
+--- ```lua
+--- {
+---     {1, 2},
+---     {3, 4},
+--- }
+--- ```
+--- would result in this when passed into the function, rotating it clockwise:
+--- ```lua
+--- {
+---     {3, 1},
+---     {4, 2},
+--- }
+--- ```
+---
+---@param tbl table     # The table array to rotate the values of.
+---@param ccw? boolean  # Whether the rotation should be counterclockwise.
+---@return table result # The new rotated array.
+---
+function Utils.rotateTable(tbl, ccw)
+    local result = {}
+    local max = 0
+    for _,v in ipairs(tbl) do
+        if type(v) ~= "table" then
+            error("table contains non-table value: "..v)
+        else
+            max = math.max(max, #v)
+        end
+    end
+    for i=1,max do
+        result[i] = {}
+        for j=1,#tbl do
+            if ccw then
+                result[i][j] = tbl[j][(max+1)-i]
+            else
+                result[i][j] = tbl[(#tbl+1)-j][i]
+            end
+        end
+    end
+    return result
+end
+
+---
+--- Flips the values of a 2-dimensional array, such that its columns become its rows, and vice versa. \
+--- As an example, the following table:
+--- ```lua
+--- {
+---     {1, 2},
+---     {3, 4},
+--- }
+--- ```
+--- would result in this when passed into the function:
+--- ```lua
+--- {
+---     {1, 3},
+---     {2, 4},
+--- }
+--- ```
+---
+---@param tbl table     # The table array to flip the values of.
+---@return table result # The new flipped array.
+---
+function Utils.flipTable(tbl)
+    local result = {}
+    local max = 0
+    for _,v in ipairs(tbl) do
+        if type(v) ~= "table" then
+            error("table contains non-table value: "..v)
+        else
+            max = math.max(max, #v)
+        end
+    end
+    for i=1,max do
+        result[i] = {}
+        for j=1,#tbl do
+            result[i][j] = tbl[j][i]
+        end
+    end
+    return result
+end
+
+---
 --- Rounds the specified value down to the nearest integer.
 ---
 ---@param value number   # The value to round.
