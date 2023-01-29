@@ -1758,6 +1758,21 @@ function Utils.getKey(t, value)
 end
 
 ---
+--- Returns a list of every key in a table.
+---
+---@generic T
+---@param t table<T, any> # The table to get the keys from.
+---@return T[] result     # An array of each key in the table.
+---
+function Utils.getKeys(t)
+    local result = {}
+    for key,_ in pairs(t) do
+        table.insert(result, key)
+    end
+    return result
+end
+
+---
 --- Returns the value found for a string index, ignoring case-sensitivity.
 ---
 ---@generic V
