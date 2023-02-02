@@ -493,9 +493,11 @@ end
 
 function Game:enterShop(shop, options)
     -- Add the shop to the stage and enter it.
-    if not self.shop then
-        self:setupShop(shop)
+    if self.shop then
+        self.shop:leaveImmediate()
     end
+
+    self:setupShop(shop)
 
     if options then
         self.shop.leave_options = options
