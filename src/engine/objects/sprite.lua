@@ -62,6 +62,8 @@ function Sprite:init(texture, x, y, width, height, path)
     self.anim_callback = nil
     self.anim_waiting = 0
     self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
+
+    self:resetCrossFade()
 end
 
 ---@see Object.canDebugSelect
@@ -345,6 +347,39 @@ function Sprite:flash(offset_x, offset_y, layer)
     return flash
 end
 
+function Sprite:setCrossFadeTexture(texture)
+    if type(texture) == "string" then
+        texture = self:getPath(texture)
+        self.crossfade_texture = Assets.getTexture(texture)
+    else
+        self.crossfade_texture = texture
+    end
+    self.crossfade_texture_path = Assets.getTextureID(texture)
+end
+
+function Sprite:resetCrossFade()
+    self.crossfade_alpha = 0
+    self.crossfade_texture = nil
+    self.crossfade_texture_path = nil
+    self.crossfade_speed = 0
+    self.crossfade_out = false
+    self.crossfade_after = nil
+end
+
+function Sprite:crossFadeTo(texture, time, fade_out, after)
+    self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), fade_out)
+end
+
+function Sprite:crossFadeToSpeed(texture, speed, fade_out, after)
+    self:setCrossFadeTexture(texture)
+    self.crossfade_speed = speed or 0.04
+    self.crossfade_out = fade_out
+    self.crossfade_after = function(self)
+        self:setTexture(texture)
+        if after then after(self) end
+    end
+end
+
 function Sprite:onClone(src)
     super.onClone(self, src)
 
@@ -358,6 +393,12 @@ end
 function Sprite:update()
     if not self.anim_routine or coroutine.status(self.anim_routine) == "dead" then
         self:stop(true)
+    end
+    if self.crossfade_speed ~= 0 and self.crossfade_alpha ~= 1 then
+        self.crossfade_alpha = Utils.approach(self.crossfade_alpha, 1, self.crossfade_speed*DTMULT)
+        if self.crossfade_alpha == 1 and self.crossfade_after then
+            self.crossfade_after(self)
+        end
     end
     if self.playing then
         if self.anim_waiting > 0 then
@@ -390,6 +431,23 @@ function Sprite:update()
 end
 
 function Sprite:draw()
+    local r,g,b,a = self:getDrawColor()
+    local function drawSprite(...)
+        if self.crossfade_alpha > 0 and self.crossfade_texture ~= nil then
+            if self.crossfade_out then
+                love.graphics.setColor(r,g,b, Utils.lerp(a, 0, self.crossfade_alpha))
+                love.graphics.draw(self.texture, ...)
+            else
+                love.graphics.setColor(r,g,b,a)
+                love.graphics.draw(self.texture, ...)
+            end
+            love.graphics.setColor(r,g,b, Utils.lerp(0, a, self.crossfade_alpha))
+            love.graphics.draw(self.crossfade_texture, ...)
+        else
+            love.graphics.setColor(r,g,b,a)
+            love.graphics.draw(self.texture, ...)
+        end
+    end
     if self.texture then
         if self.wrap_texture_x or self.wrap_texture_y then
             local screen_l, screen_u = love.graphics.inverseTransformPoint(0, 0)
@@ -407,20 +465,20 @@ function Sprite:draw()
             if self.wrap_texture_x and self.wrap_texture_y then
                 for i = 1, wrap_width do
                     for j = 1, wrap_height do
-                        love.graphics.draw(self.texture, x_offset + (i-1) * self.texture:getWidth(), y_offset + (j-1) * self.texture:getHeight())
+                        drawSprite(x_offset + (i-1) * self.texture:getWidth(), y_offset + (j-1) * self.texture:getHeight())
                     end
                 end
             elseif self.wrap_texture_x then
                 for i = 1, wrap_width do
-                    love.graphics.draw(self.texture, x_offset + (i-1) * self.texture:getWidth(), 0)
+                    drawSprite(x_offset + (i-1) * self.texture:getWidth(), 0)
                 end
             elseif self.wrap_texture_y then
                 for j = 1, wrap_height do
-                    love.graphics.draw(self.texture, 0, y_offset + (j-1) * self.texture:getHeight())
+                    drawSprite(0, y_offset + (j-1) * self.texture:getHeight())
                 end
             end
         else
-            love.graphics.draw(self.texture)
+            drawSprite()
         end
     end
 
