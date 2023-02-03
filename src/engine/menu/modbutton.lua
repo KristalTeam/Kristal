@@ -64,6 +64,9 @@ function ModButton:onDeselect()
 end
 
 function ModButton:setFavoritedColor(r, g, b, a)
+    if type(r) == "table" then
+        r, g, b, a = unpack(r)
+    end
     local r1, g1, b1, a1 = super.getDrawColor(self)
     self.favorited_color = {r or r1, g or g1, b or b1, a or a1}
 end

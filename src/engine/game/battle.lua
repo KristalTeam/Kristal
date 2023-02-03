@@ -702,7 +702,7 @@ end
 
 function Battle:spawnSoul(x, y)
     local bx, by = self:getSoulLocation()
-    local color = {Game:getSoulColor()}
+    local color = {self.encounter:getSoulColor()}
     self:addChild(HeartBurst(bx, by, color))
     if not self.soul then
         self.soul = self.encounter:createSoul(bx, by, color)
@@ -785,7 +785,16 @@ function Battle:processCharacterActions()
 
     self.current_action_index = 1
 
-    local order = {"ACT", "XACT", {"SPELL", "ITEM", "SPARE"}, "SKIP"}
+    local order = {"ACT", {"SPELL", "ITEM", "SPARE"}}
+
+    for lib_id,_ in pairs(Mod.libs) do
+        order = Kristal.libCall(lib_id, "getActionOrder", order, self.encounter) or order
+    end
+    order = Kristal.modCall("getActionOrder", order, self.encounter) or order
+
+    -- Always process SKIP actions at the end
+    table.insert(order, "SKIP")
+
     for _,action_group in ipairs(order) do
         if self:processActionGroup(action_group) then
             self:tryProcessNextAction()

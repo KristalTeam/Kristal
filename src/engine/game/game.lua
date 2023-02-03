@@ -493,9 +493,11 @@ end
 
 function Game:enterShop(shop, options)
     -- Add the shop to the stage and enter it.
-    if not self.shop then
-        self:setupShop(shop)
+    if self.shop then
+        self.shop:leaveImmediate()
     end
+
+    self:setupShop(shop)
 
     if options then
         self.shop.leave_options = options
@@ -622,6 +624,11 @@ function Game:getSoulPartyMember()
 end
 
 function Game:getSoulColor()
+    local mr, mg, mb, ma = Kristal.callEvent("getSoulColor")
+    if mr ~= nil then
+        return mr, mg, mb, ma or 1
+    end
+    
     local chara = Game:getSoulPartyMember()
 
     if chara and chara:getSoulPriority() >= 0 then

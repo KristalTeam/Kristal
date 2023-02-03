@@ -147,6 +147,7 @@ function Menu:enter()
         "Dobby233Liu",
         "Luna",
         "prokube",
+        "AcousticJamm",
         "",
         {"Documentation", COLORS.silver},
         "Vitellary",

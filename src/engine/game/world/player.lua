@@ -29,6 +29,8 @@ function Player:init(chara, x, y)
 
     self.hurt_timer = 0
 
+    self.moving_x = 0
+    self.moving_y = 0
     self.walk_speed = 4
 
     self.last_move_x = self.x
@@ -184,6 +186,9 @@ function Player:handleMovement()
     if Input.down("down") then walk_y = walk_y + 1 end
     if Input.down("up") then walk_y = walk_y - 1 end
 
+    self.moving_x = walk_x
+    self.moving_y = walk_y
+
     local running = (Input.down("cancel") or self.force_run) and not self.force_walk
     if Kristal.Config["autoRun"] and not self.force_run and not self.force_walk then
         running = not running
@@ -226,6 +231,10 @@ function Player:updateWalk()
     if self:isMovementEnabled() then
         self:handleMovement()
     end
+end
+
+function Player:isMoving()
+    return self.moving_x ~= 0 or self.moving_y ~= 0
 end
 
 function Player:beginSlide(last_state, in_place, lock_movement)

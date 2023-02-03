@@ -91,7 +91,7 @@ function Assets.parseData(data)
     for key,_ in pairs(data.font_image_data) do
         if data.font_settings[key]["fallbacks"] then
             local fallbacks = {}
-            for _,fallback in ipairs(data.font_settings["fallbacks"]) do
+            for _,fallback in ipairs(data.font_settings[key]["fallbacks"]) do
                 local font = self.data.fonts[fallback["font"]]
                 if type(font) == "table" then
                     error("Attempt to use TTF fallback on image font: " .. key)

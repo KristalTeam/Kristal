@@ -149,6 +149,10 @@ function Encounter:getPartyPosition(index)
     return x, y
 end
 
+function Encounter:getSoulColor()
+    return Game:getSoulColor()
+end
+
 function Encounter:onDialogueEnd()
     Game.battle:setState("DEFENDINGBEGIN")
 end

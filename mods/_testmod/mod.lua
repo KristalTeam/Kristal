@@ -92,6 +92,12 @@ function Mod:load()
     Game.world:registerCall("Call Home", "cell.home")
 end
 
+--[[
+function Mod:getActionOrder(order, encounter)
+    return {{"SPELL", "ITEM", "SPARE"}, "ACT"}
+end
+]]
+
 function Mod:registerDebugContext(context, object)
     if not object then
         object = Game.stage

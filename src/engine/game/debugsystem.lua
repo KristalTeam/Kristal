@@ -507,6 +507,14 @@ function DebugSystem:registerSubMenus()
         end)
     end
 
+    self:registerMenu("select_shop", "Enter Shop", "search")
+    for id,_ in pairs(Registry.shops) do
+        self:registerOption("select_shop", id, "Enter this shop.", function()
+            Game:enterShop(id)
+            self:closeMenu()
+        end)
+    end
+
     self:registerMenu("cutscene_select", "Cutscene Select", "search")
     -- loop through registry and add menu options for all cutscenes
     for group,cutscene in pairs(Registry.world_cutscenes) do
@@ -606,6 +614,10 @@ function DebugSystem:registerDefaults()
         self:enterMenu("encounter_select", 0)
     end, "OVERWORLD")
 
+    self:registerOption("main", "Enter Shop", "Enter a shop.", function()
+        self:enterMenu("select_shop", 0)
+    end, "OVERWORLD")
+
     self:registerOption("main", "Play Cutscene", "Play a cutscene.", function()
         self:enterMenu("cutscene_select", 0)
     end, "OVERWORLD")
@@ -618,6 +630,7 @@ function DebugSystem:registerDefaults()
     self:registerOption("main", "End Battle", "Instantly complete a battle.", function()
         Game.battle:setState("VICTORY")
     end, "BATTLE")
+
 end
 
 function DebugSystem:getValidOptions()

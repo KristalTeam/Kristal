@@ -57,7 +57,7 @@ function PartyMember:init()
     self.lw_stats = {
         health = 20,
         attack = 10,
-        defense = 0
+        defense = 10
     }
 
     -- Weapon icon in equip menu

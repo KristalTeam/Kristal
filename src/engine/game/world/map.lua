@@ -55,6 +55,7 @@ function Map:init(world, data)
     self.events = {}
     self.events_by_name = {}
     self.events_by_id = {}
+    self.events_by_layer = {}
 
     self.shapes_by_id = {}
     self.shapes_by_name = {}
@@ -543,6 +544,7 @@ end
 function Map:loadObjects(layer, depth, layer_type)
     local parent = layer_type == "controllers" and self.world.controller_parent or self.world
 
+    self.events_by_layer[layer.name] = {}
     for _,v in ipairs(layer.objects) do
         v.width = v.width or 0
         v.height = v.height or 0
@@ -613,6 +615,7 @@ function Map:loadObjects(layer, depth, layer_type)
 
                     self.events_by_name[v.name] = self.events_by_name[v.name] or {}
                     table.insert(self.events_by_name[v.name], obj)
+                    table.insert(self.events_by_layer[layer.name], obj)
 
                     if v.id then
                         self.events_by_id[v.id] = obj
@@ -702,6 +705,8 @@ function Map:loadObject(name, data)
         return DarkFountain(data.x, data.y)
     elseif name:lower() == "fountainfloor" then
         return FountainFloor(data.x, data.y, data.width, data.height)
+    elseif name:lower() == "quicksave" then
+        return QuicksaveEvent(data.x, data.y, data.width, data.height, data.properties["marker"])
     end
     if data.gid then
         local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
