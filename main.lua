@@ -73,6 +73,7 @@ BattleOutlineFX = require("src.engine.drawfx.battleoutlinefx")
 ShadowFX = require("src.engine.drawfx.shadowfx")
 FountainShadowFX = require("src.engine.drawfx.fountainshadowfx")
 GradientFX = require("src.engine.drawfx.gradientfx")
+ScissorFX = require("src.engine.drawfx.scissorfx")
 
 Collider = require("src.engine.colliders.collider")
 ColliderGroup = require("src.engine.colliders.collidergroup")
