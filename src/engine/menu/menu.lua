@@ -20,7 +20,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
 ]])
 
 function Menu:enter()
-    -- STATES: MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
+    -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
     -- Load menu music
@@ -154,6 +154,12 @@ function Menu:enter()
     }
 
     self.create = {}
+
+    if #Kristal.Mods.failed_mods > 0 then
+        self:setState("MODERROR")
+        self.heart_target_x = 320 - 32 - 16 + 1 - 11
+        self.heart_target_y = 480 - 16 + 1
+    end
 end
 
 function Menu:setState(state)
@@ -480,14 +486,17 @@ function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
 end
 
 function Menu:printShadow(text, x, y, color, align, limit)
+
+    local font_width = self.menu_font:getWidth(Utils.getCombinedText(text))
+
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.menu_font)
     love.graphics.setColor({0, 0, 0, 1})
-    love.graphics.printf(text, x + 2, y + 2, limit or self.menu_font:getWidth(text), align or "left")
+    love.graphics.printf(text, x + 2, y + 2, limit or font_width, align or "left")
 
     -- Draw the main text
     love.graphics.setColor(color or {1, 1, 1, 1})
-    love.graphics.printf(text, x, y, limit or self.menu_font:getWidth(text), align or "left")
+    love.graphics.printf(text, x, y, limit or font_width, align or "left")
 end
 
 function Menu:update()
@@ -669,7 +678,54 @@ function Menu:draw()
     -- Draw the engine version
     self:drawVersion()
 
-    if self.state == "MAINMENU" then
+    if self.state == "MODERROR" then
+        local failed_mods = Kristal.Mods.failed_mods or {}
+        local plural = #failed_mods == 1 and "mod" or "mods"
+        self:printShadow({{255, 255, 0}, tostring(#failed_mods), {255, 255, 255}, " " .. plural .. " failed to load!"}, -1, 96, nil, "center", 640)
+
+        local moderrors = 0
+        local liberrors = 0
+
+        for k,v in pairs(failed_mods) do
+            if v.file == "mod.json" then
+                moderrors = moderrors + 1
+            elseif v.file == "lib.json" then
+                liberrors = liberrors + 1
+            end
+        end
+
+        local y = 128
+
+        if moderrors > 0 then
+            self:printShadow({"The following mods have invalid ", {196, 196, 196}, "mod.json", {255, 255, 255}, " files:"}, -1, y, nil, "center", 640)
+
+            y = y + 64
+
+            for k,v in pairs(failed_mods) do
+                if v.file == "mod.json" then
+                    self:printShadow({{255, 127, 127}, v.path}, -1, y, nil, "center", 640)
+                    y = y + 32
+                end
+            end
+            y = y + 32
+        end
+
+        if liberrors > 0 then
+            self:printShadow({"The following mods use invalid ", {196, 196, 196}, "lib.json", {255, 255, 255}, " files:"}, -1, y, nil, "center", 640)
+
+            y = y + 64
+
+            for k,v in pairs(failed_mods) do
+                if v.file == "lib.json" then
+                    self:printShadow({{255, 127, 127}, v.path}, -1, y, nil, "center", 640)
+                    y = y + 32
+                end
+            end
+        end
+
+        self:printShadow("Got it", -1, 454 - 8, nil, "center", 640)
+
+    elseif self.state == "MAINMENU" then
         local logo_img = self.selected_mod and self.selected_mod.logo or self.logo
 
         love.graphics.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
@@ -1724,8 +1780,9 @@ function Menu:onKeyPressed(key, is_repeat)
     else
         if Input.isCancel(key) or Input.isConfirm(key) then
             self:setState("MAINMENU")
-            self.ui_move:stop()
-            self.ui_move:play()
+            local sound = Input.isConfirm(key) and self.ui_select or self.ui_move
+            sound:stop()
+            sound:play()
             self.heart_target_x = 196
             self.heart_target_y = 238
         end

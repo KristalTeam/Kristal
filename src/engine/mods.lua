@@ -6,9 +6,11 @@ function Mods.clear()
     self.list = {}
     self.data = {}
     self.named = {}
+    self.failed_mods = {}
 end
 
-function Mods.loadData(data)
+function Mods.loadData(data, failed_mods)
+    self.failed_mods = failed_mods or {}
     for mod_id,mod_data in pairs(data) do
         if self.data[mod_id] then
             local old_mod = self.data[mod_id]

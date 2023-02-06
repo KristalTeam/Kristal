@@ -264,7 +264,7 @@ function love.update(dt)
             end
 
             Assets.loadData(msg.data.assets)
-            Kristal.Mods.loadData(msg.data.mods)
+            Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
 
             if Kristal.Loader.end_funcs[msg.key] then
                 Kristal.Loader.end_funcs[msg.key]()
