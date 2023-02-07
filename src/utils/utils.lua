@@ -1229,6 +1229,23 @@ function Utils.unpackPolygon(points)
     return unpack(line)
 end
 
+--- Returns the bounds of a rectangle containing every point of a polygon.
+---
+---@param points point[] # An array of tables with two number values each, defining the points of a polygon.
+---@return number x      # The horizontal position of the bounds.
+---@return number y      # The vertical position of the bounds.
+---@return number width  # The width of the bounds.
+---@return number height # The height of the bounds.
+---
+function Utils.getPolygonBounds(points)
+    local min_x, min_y, max_x, max_y
+    for _,point in ipairs(points) do
+        min_x, min_y = math.min(min_x or point[1], point[1]), math.min(min_y or point[2], point[2])
+        max_x, max_y = math.max(max_x or point[1], point[1]), math.max(max_y or point[2], point[2])
+    end
+    return min_x, min_y, (max_x - min_x), (max_y - min_y)
+end
+
 ---
 --- Returns the values of an RGB table individually.
 ---
