@@ -2,7 +2,7 @@
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "image", "bind", "button", "offset", "indent", "spacing"}
+Text.COMMANDS = {"color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing"}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -119,6 +119,9 @@ function Text:resetState()
         spacing = 0,
         shake = 0,
         last_shake = self.timer,
+        wave_distance = 2,
+        wave_offset = 30,
+        wave_direction = 0,
         offset_x = 0,
         offset_y = 0,
         newline = false,
@@ -131,6 +134,7 @@ end
 
 function Text:update()
     self.timer = self.timer + DTMULT
+    self.state.wave_direction = self.state.wave_direction + (20 * DTMULT)
     super.update(self)
 end
 
@@ -523,6 +527,11 @@ function Text:processModifier(node, dry)
     elseif node.command == "shake" then
         self.state.shake = tonumber(node.arguments[1]) or 1
         self.draw_every_frame = true
+    elseif node.command == "wave" then
+        -- [wave:0] to disable!
+        self.state.wave_distance = tonumber(node.arguments[1]) or 2
+        self.state.wave_offset = tonumber(node.arguments[2]) or 30
+        self.draw_every_frame = true
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
             self.state.style = "none"
@@ -629,6 +638,17 @@ function Text:drawChar(node, state, use_color)
             state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
             state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
         end
+    end
+
+    if state.wave_distance > 0 then
+        local direction = self.state.wave_direction + (state.wave_offset * state.typed_characters)
+        local speed = state.wave_distance
+
+        local xspeed = math.cos(math.rad(-direction)) * speed
+        local yspeed = math.sin(math.rad(-direction)) * speed
+
+        state.offset_x = xspeed * 0.7 + 10
+        state.offset_y = yspeed * 0.7
     end
 
     local x, y = state.current_x + state.offset_x, state.current_y + state.offset_y
