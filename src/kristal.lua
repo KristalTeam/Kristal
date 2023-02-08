@@ -727,6 +727,8 @@ function Kristal.clearModState()
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
+    love.window.setTitle("Kristal")
+    love.window.setIcon(love.image.newImageData("icon.png"))
 end
 
 --- Exits the current mod and returns to the Kristal menu.
