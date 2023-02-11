@@ -387,8 +387,9 @@ function DebugSystem:startTextInput()
         Assets.playSound("ui_select")
         self.current_selecting = self.current_selecting + 1
         self:updateBounds(self:getValidOptions())
-        if (self.current_selecting ~= 0) then
-            TextInput.endInput()
+        TextInput.endInput()
+        if (self.current_selecting == 0) then
+            self:returnMenu()
         end
         --love.keyboard.setKeyRepeat(true)
     end
