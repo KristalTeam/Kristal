@@ -464,6 +464,7 @@ function DebugSystem:registerSubMenus()
     self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function()
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     end)
+    self:registerConfigOption("engine_options", "Frame Skip", "Toggle frame skipping.", "frameSkip")
     self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
     self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 

@@ -269,6 +269,8 @@ function love.run()
     end
 
     local function mainLoop()
+        local frame_skip = Kristal and Kristal.Config and Kristal.Config["frameSkip"]
+
         if FRAMERATE > 0 and not FAST_FORWARD then
             local tick_rate = 1 / FRAMERATE
 
@@ -290,12 +292,18 @@ function love.run()
 
             if update then
                 FPS_COUNTER = FPS_COUNTER + 1
-                local ret = doUpdate(tick_rate)
+                local update_dt = tick_rate
+                if frame_skip then
+                    update_dt = math.min(math.max(dt, tick_rate), 1/20) -- Limit dt to at least 20fps if frameSkip is enabled to avoid huge breakage
+                end
+                local ret = doUpdate(update_dt)
                 if ret then return ret end
                 doDraw()
             end
         else
-            local dt = math.min(love.timer.step(), 1/30)
+            -- Limit dt to 30fps (or 20fps if frameSkip is enabled)
+            -- Don't want to go unlimited or else collision and other stuff might break
+            local dt = math.min(love.timer.step(), frame_skip and (1/20) or (1/30))
 
             FPS = love.timer.getFPS()
 
