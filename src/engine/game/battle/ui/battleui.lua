@@ -148,12 +148,13 @@ function BattleUI:update()
         end
 
         local offset
+        local lower, upper = self:getTransitionBounds()
         if not self.animate_out then
-            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 480, 325 - 480, max_time)
-            offset = self.y - Ease.outCubic(self.animation_timer - 1, 480, 325 - 480, max_time)
+            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), lower, upper - lower, max_time)
+            offset = self.y - Ease.outCubic(self.animation_timer - 1, lower, upper - lower, max_time)
         else
-            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 325, 480 - 325, max_time)
-            offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), 325, 480 - 325, max_time)
+            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), upper, lower - upper, max_time)
+            offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), upper, lower - upper, max_time)
         end
 
         for _, box in ipairs(self.action_boxes) do
@@ -162,6 +163,10 @@ function BattleUI:update()
     end
 
     super.update(self)
+end
+
+function BattleUI:getTransitionBounds()
+    return 480, 325
 end
 
 function BattleUI:draw()
