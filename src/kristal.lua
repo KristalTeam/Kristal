@@ -264,7 +264,7 @@ function love.update(dt)
             end
 
             Assets.loadData(msg.data.assets)
-            Kristal.Mods.loadData(msg.data.mods)
+            Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
 
             if Kristal.Loader.end_funcs[msg.key] then
                 Kristal.Loader.end_funcs[msg.key]()
@@ -727,6 +727,8 @@ function Kristal.clearModState()
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
+    love.window.setTitle("Kristal")
+    love.window.setIcon(love.image.newImageData("icon.png"))
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -1191,6 +1193,7 @@ function Kristal.loadConfig()
         showFPS = false,
         fps = 30,
         vSync = false,
+        frameSkip = false,
         debug = false,
         fullscreen = false,
         simplifyVFX = false,

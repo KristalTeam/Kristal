@@ -241,6 +241,10 @@ function DarkConfigMenu:draw()
         love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
     else
+
+        -- NOTE: This is forced to true if using a PlayStation in DELTARUNE... Kristal doesn't have a PlayStation port though.
+        local dualshock = Input.getControllerType() == "ps4"
+
         love.graphics.print("Function", 23,  -12)
         -- Console accuracy for the Heck of it
         if not USING_CONSOLE then
@@ -262,7 +266,12 @@ function DarkConfigMenu:draw()
                     love.graphics.setColor(PALETTE["world_text_hover"])
                 end
             end
-            love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (28 * index) + 4)
+
+            if dualshock then
+                love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (29 * index))
+            else
+                love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (28 * index) + 4)
+            end
 
             local shown_bind = self:getBindNumberFromIndex(index)
 
@@ -285,7 +294,11 @@ function DarkConfigMenu:draw()
                 local alias = Input.getBoundKeys(name, true)[1]
                 if alias then
                     local btn_tex = Input.getButtonTexture(alias)
-                    love.graphics.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2, btn_tex:getWidth()/2, 0)
+                    if dualshock then
+                        love.graphics.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth()/2, 0)
+                    else
+                        love.graphics.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2, btn_tex:getWidth()/2, 0)
+                    end
                 end
             end
         end
@@ -299,16 +312,30 @@ function DarkConfigMenu:draw()
             love.graphics.setColor(Utils.mergeColor(PALETTE["world_text_hover"], PALETTE["world_text_selected"], ((self.reset_flash_timer / 10) - 0.1)))
         end
 
-        love.graphics.print("Reset to default", 23, -4 + (28 * 8) + 4)
+        if dualshock then
+            love.graphics.print("Reset to default", 23, -4 + (29 * 8))
+        else
+            love.graphics.print("Reset to default", 23, -4 + (28 * 8) + 4)
+        end
 
         love.graphics.setColor(PALETTE["world_text"])
         if self.currently_selected == 9 then
             love.graphics.setColor(PALETTE["world_text_hover"])
         end
-        love.graphics.print("Finish", 23, -4 + (28 * 9) + 4)
+
+        if dualshock then
+            love.graphics.print("Finish", 23, -4 + (29 * 9))
+        else
+            love.graphics.print("Finish", 23, -4 + (28 * 9) + 4)
+        end
 
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 28) + 2)
+
+        if dualshock then
+            love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
+        else
+            love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 28) + 2)
+        end
     end
 
     love.graphics.setColor(1, 1, 1, 1)

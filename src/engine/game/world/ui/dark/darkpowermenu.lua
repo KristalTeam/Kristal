@@ -53,6 +53,10 @@ function DarkPowerMenu:init()
     self.scroll_y = 1
 end
 
+function DarkPowerMenu:getSpellLimit()
+    return 6
+end
+
 function DarkPowerMenu:getSpells()
     local spells = {}
     local party = self.party:getSelected()
@@ -75,7 +79,7 @@ function DarkPowerMenu:updateDescription()
 end
 
 function DarkPowerMenu:onRemove(parent)
-    super.onRemove(parent)
+    super.onRemove(self, parent)
     Game.world.menu:updateSelectedBoxes()
 end
 
@@ -113,6 +117,8 @@ function DarkPowerMenu:update()
 
             self.party.focused = true
 
+            self.scroll_y = 1
+
             self:updateDescription()
             return
         end
@@ -126,8 +132,9 @@ function DarkPowerMenu:update()
         end
         self.selected_spell = Utils.clamp(self.selected_spell, 1, #spells)
         if self.selected_spell ~= old_selected then
-            local min_scroll = math.max(1, self.selected_spell - 5)
-            local max_scroll = math.min(math.max(1, #spells - 5), self.selected_spell)
+            local spell_limit = self:getSpellLimit()
+            local min_scroll = math.max(1, self.selected_spell - (spell_limit - 1))
+            local max_scroll = math.min(math.max(1, #spells - (spell_limit - 1)), self.selected_spell)
             self.scroll_y = Utils.clamp(self.scroll_y, min_scroll, max_scroll)
 
             self.ui_move:stop()
@@ -207,7 +214,9 @@ function DarkPowerMenu:drawSpells()
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(self.tp_sprite, tp_x, tp_y - 5)
 
-    for i = self.scroll_y, math.min(#spells, self.scroll_y + 5) do
+    local spell_limit = self:getSpellLimit()
+
+    for i = self.scroll_y, math.min(#spells, self.scroll_y + (spell_limit - 1)) do
         local spell = spells[i]
         local offset = i - self.scroll_y
 
@@ -216,24 +225,38 @@ function DarkPowerMenu:drawSpells()
         love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 
+    -- Draw scroll arrows if needed
+    if #spells > spell_limit then
+        love.graphics.setColor(1, 1, 1)
+
+        -- Move the arrows up and down only if we're in the spell selection state
+        local sine_off = 0
+        if self.state == "SPELLS" then
+            sine_off = math.sin((Kristal.getTime()*30)/12) * 3
+        end
+
+        if self.scroll_y > 1 then
+            -- up arrow
+            love.graphics.draw(self.arrow_sprite, 469, (name_y + 25 - 3) - sine_off, 0, 1, -1)
+        end
+        if self.scroll_y + spell_limit <= #spells then
+            -- down arrow
+            love.graphics.draw(self.arrow_sprite, 469, (name_y + (25 * spell_limit) - 12) + sine_off)
+        end
+    end
+
     if self.state == "SPELLS" then
         love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
 
-        if #spells > 6 then
-            love.graphics.setColor(1, 1, 1)
-            local sine_off = math.sin((Kristal.getTime()*30)/12) * 3
-            if self.scroll_y + 6 <= #spells then
-                love.graphics.draw(self.arrow_sprite, 469, 273 + sine_off)
-            end
-            if self.scroll_y > 1 then
-                love.graphics.draw(self.arrow_sprite, 469, 138 - sine_off, 0, 1, -1)
-            end
+        -- Draw scrollbar if needed (unless the spell limit is 2, in which case the scrollbar is too small)
+        if spell_limit > 2 and #spells > spell_limit then
+            local scrollbar_height = (spell_limit - 2) * 25
             love.graphics.setColor(0.25, 0.25, 0.25)
-            love.graphics.rectangle("fill", 473, 148, 6, 119)
-            local percent = (self.scroll_y - 1) / (#spells - 6)
+            love.graphics.rectangle("fill", 473, name_y + 30, 6, scrollbar_height)
+            local percent = (self.scroll_y - 1) / (#spells - spell_limit)
             love.graphics.setColor(1, 1, 1)
-            love.graphics.rectangle("fill", 473, 148 + math.floor(percent * (119-6)), 6, 6)
+            love.graphics.rectangle("fill", 473, name_y + 30 + math.floor(percent * (scrollbar_height-6)), 6, 6)
         end
     end
 end

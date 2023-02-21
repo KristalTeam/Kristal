@@ -101,10 +101,10 @@ local loaders = {
             if not ok then
                 table.insert(data.failed_mods, {
                     path = path,
-                    error = mod
+                    error = mod,
+                    file = "mod.json"
                 })
                 print("WARNING: Mod \""..path.."\" has an invalid mod.json!")
-                -- TODO: failed_mods is currently unused, show an in-engine error
                 return
             end
 
@@ -207,10 +207,11 @@ local loaders = {
                     if not ok then
                         table.insert(data.failed_mods, {
                             path = path,
-                            error = lib
+                            error = lib,
+                            file = "lib.json"
                         })
                         print("WARNING: Mod \""..path.."\" has a library with an invalid lib.json!")
-                        -- TODO: failed_mods is currently unused, show an in-engine error
+                        return
                     end
 
                     lib.id = lib.id or lib_path
