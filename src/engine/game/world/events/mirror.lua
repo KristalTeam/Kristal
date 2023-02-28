@@ -17,7 +17,7 @@ end
 
 function Mirror:drawCharacter(object)
 	love.graphics.push()
-    local last_scale_y = object.scale_y
+        local last_scale_y = object.scale_y
 	object:preDraw()
 	local oyd = object.y - self.bottom
 	love.graphics.translate(0, -oyd + self.offset)
@@ -36,6 +36,9 @@ function Mirror:drawCharacter(object)
 				change = true
 			end
 		end
+	end
+	if change then
+	        object.sprite.flip_x = true
 	end
 	object.sprite:setTextureExact(object.actor.path .. "/" .. newsprite)
 	object:draw()
