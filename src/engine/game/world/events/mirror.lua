@@ -25,7 +25,7 @@ function Mirror:drawCharacter(object)
 	local t = self:split(oldsprite,"_")
 	local pathless = t[1]
 	local frame = t[2]
-	local newsprite = oldsprite .. "_" .. frame
+	local newsprite = oldsprite
 	local mirror = object.actor.mirror
 	local change = false
 	if mirror then
