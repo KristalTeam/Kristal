@@ -163,6 +163,24 @@ function actor:initChapter2()
         ["wave_down"]           = {"wave_down", 5/30, true}
     }
 
+    -- Tables of sprites to change into in mirrors
+    self.mirror_sprites = {
+        ["walk/down"] = "walk/up",
+        ["walk/up"] = "walk/down",
+        ["walk/left"] = "walk/left",
+        ["walk/right"] = "walk/right",
+
+        ["walk_unhappy/down"] = "walk_unhappy/up",
+        ["walk_unhappy/up"] = "walk_unhappy/down",
+        ["walk_unhappy/left"] = "walk_unhappy/left",
+        ["walk_unhappy/right"] = "walk_unhappy/right",
+        
+        ["walk_blush/down"] = "walk_blush/up",
+        ["walk_blush/up"] = "walk_blush/down",
+        ["walk_blush/left"] = "walk_blush/left",
+        ["walk_blush/right"] = "walk_blush/right",
+    }
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets

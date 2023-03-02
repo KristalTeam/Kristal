@@ -84,6 +84,29 @@ function actor:init(style)
         self.animations["battle/transition"] = {"bangs_wall_right", 0, true}
     end
 
+    -- Tables of sprites to change into in mirrors
+    self.mirror_sprites = {
+        ["walk/down"] = "walk/up",
+        ["walk/up"] = "walk/down",
+        ["walk/left"] = "walk/left",
+        ["walk/right"] = "walk/right",
+
+        ["walk_unhappy/down"] = "walk_unhappy/up",
+        ["walk_unhappy/up"] = "walk_unhappy/down",
+        ["walk_unhappy/left"] = "walk_unhappy/left",
+        ["walk_unhappy/right"] = "walk_unhappy/right",
+
+        ["walk_bangs/down"] = "walk_bangs/up",
+        ["walk_bangs/up"] = "walk_bangs/down",
+        ["walk_bangs/left"] = "walk_bangs/left",
+        ["walk_bangs/right"] = "walk_bangs/right",
+
+        ["walk_bangs_unhappy/down"] = "walk_bangs_unhappy/up",
+        ["walk_bangs_unhappy/up"] = "walk_bangs_unhappy/down",
+        ["walk_bangs_unhappy/left"] = "walk_bangs_unhappy/left",
+        ["walk_bangs_unhappy/right"] = "walk_bangs_unhappy/right",
+    }
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets

@@ -60,6 +60,42 @@ function actor:init()
         ["laugh"]               = {"laugh", 4/30, true},
     }
 
+    -- Tables of sprites to change into in mirrors
+    self.mirror_sprites = {
+        ["walk/down"] = "walk/up",
+        ["walk/up"] = "walk/down",
+        ["walk/left"] = "walk/left",
+        ["walk/right"] = "walk/right",
+
+        ["walk_happy/down"] = "walk_happy/up",
+        ["walk_happy/up"] = "walk_happy/down",
+        ["walk_happy/left"] = "walk_happy/left",
+        ["walk_happy/right"] = "walk_happy/right",
+        
+        ["walk_blush/down"] = "walk_blush/up",
+        ["walk_blush/up"] = "walk_blush/down",
+        ["walk_blush/left"] = "walk_blush/left",
+        ["walk_blush/right"] = "walk_blush/right",
+
+        ["walk_lookup/down"] = "walk_lookup/up",
+        ["walk_lookup/up"] = "walk_lookup/down",
+        ["walk_lookup/left"] = "walk_lookup/left",
+        ["walk_lookup/right"] = "walk_lookup/right",
+
+        ["walk_sad/down"] = "walk_sad/up",
+        ["walk_sad/up"] = "walk_sad/down",
+        ["walk_sad/left"] = "walk_sad/left",
+        ["walk_sad/right"] = "walk_sad/right",
+
+        ["walk_smile/down"] = "walk_smile/up",
+        ["walk_smile/up"] = "walk_smile/down",
+        ["walk_smile/left"] = "walk_smile/left",
+        ["walk_smile/right"] = "walk_smile/right",
+
+        ["walk_mad/left"] = "walk_mad/left",
+        ["walk_mad/right"] = "walk_mad/right",
+    }
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets

@@ -69,6 +69,14 @@ function actor:init()
         self.animations["battle/transition"] = {"walk/right", 0, true}
     end
 
+    -- Tables of sprites to change into in mirrors
+    self.mirror_sprites = {
+        ["walk/down"] = "walk/up",
+        ["walk/up"] = "walk/down",
+        ["walk/left"] = "walk/left",
+        ["walk/right"] = "walk/right",
+    }
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets

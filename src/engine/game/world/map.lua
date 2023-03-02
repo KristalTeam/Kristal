@@ -681,6 +681,8 @@ function Map:loadObject(name, data)
         return Silhouette(data.x, data.y, data.width, data.height)
     elseif name:lower() == "slidearea" then
         return SlideArea(data.x, data.y, data.width, data.height, data.properties)
+    elseif name:lower() == "mirror" then
+        return MirrorArea(data.x, data.y, data.width, data.height, data.properties)
     elseif name:lower() == "chest" then
         return TreasureChest(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "cameratarget" then

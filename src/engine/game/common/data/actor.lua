@@ -42,6 +42,14 @@ function Actor:init()
     -- Table of sprites that have a unique flip value, if self.flip is not set
     self.flip_sprites = {}
 
+    -- Tables of sprites to change into in mirrors
+    self.mirror_sprites = {
+        ["walk/down"] = "walk/up",
+        ["walk/up"] = "walk/down",
+        ["walk/left"] = "walk/left",
+        ["walk/right"] = "walk/right",
+    }
+
     -- Table of sprite animations
     self.animations = {}
 

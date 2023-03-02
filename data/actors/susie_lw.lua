@@ -42,6 +42,19 @@ function actor:init()
     -- Table of sprite animations
     self.animations = {}
 
+    -- Tables of sprites to change into in mirrors
+    self.mirror_sprites = {
+        ["walk/down"] = "walk/up",
+        ["walk/up"] = "walk/down",
+        ["walk/left"] = "walk/left",
+        ["walk/right"] = "walk/right",
+
+        ["walk_bangs/down"] = "walk_bangs/up",
+        ["walk_bangs/up"] = "walk_bangs/down",
+        ["walk_bangs/left"] = "walk_bangs/left",
+        ["walk_bangs/right"] = "walk_bangs/right",
+    }
+
     -- Table of sprite offsets (indexed by sprite name)
     self.offsets = {
         -- Movement offsets
