@@ -566,6 +566,9 @@ function Battle:onStateChange(old,new)
         self:setWaves(self.encounter:getNextWaves())
         if self.state_reason then
             self:setWaves(self.state_reason)
+            for i,enemy in ipairs(self.enemies) do
+                enemy.selected_wave = self.state_reason[1]
+            end
         end
 
         if self.arena then
