@@ -108,7 +108,18 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     end)
 
     self.text:registerCommand("react", function(text, node, dry)
-        local react_data = tonumber(node.arguments[1]) and self.reactions[tonumber(node.arguments[1])] or self.reactions[node.arguments[1]]
+        local react_data
+        if #node.arguments > 1 then
+            react_data = {
+                text = node.arguments[1],
+                x = tonumber(node.arguments[2]) or (self.battle_box and self.REACTION_X_BATTLE[node.arguments[2]] or self.REACTION_X[node.arguments[2]]),
+                y = tonumber(node.arguments[3]) or (self.battle_box and self.REACTION_Y_BATTLE[node.arguments[3]] or self.REACTION_Y[node.arguments[3]]),
+                face = node.arguments[4],
+                actor = node.arguments[5] and Registry.createActor(node.arguments[5]),
+            }
+        else
+            react_data = tonumber(node.arguments[1]) and self.reactions[tonumber(node.arguments[1])] or self.reactions[node.arguments[1]]
+        end
         local reaction = SmallFaceText(react_data.text, react_data.x, react_data.y, react_data.face, react_data.actor)
         reaction.layer = 0.1 + (#self.reaction_instances) * 0.01
         self:addChild(reaction)

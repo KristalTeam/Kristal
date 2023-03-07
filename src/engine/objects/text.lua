@@ -224,7 +224,31 @@ function Text:textToNodes(input_string)
                     local command = split[1]
                     local arguments = {}
                     if #split > 1 then
-                        arguments = Utils.splitFast(split[2], ",")
+                        -- arguments = Utils.splitFast(split[2], ",")
+                        local k = 1
+                        local k_start = 1
+                        local escaping = false
+                        local arg = ""
+                        while k <= utf8.len(split[2]) do
+                            local char = Utils.sub(split[2], k, k)
+                            if escaping then
+                                escaping = false
+                                arg = arg..char
+                            else
+                                if char == "\\" then
+                                    escaping = true
+                                elseif char == "," then
+                                    table.insert(arguments, arg)
+                                    arg = ""
+                                    k_start = k + 1
+                                elseif k == utf8.len(split[2]) then
+                                    table.insert(arguments, arg..char)
+                                else
+                                    arg = arg..char
+                                end
+                            end
+                            k = k + 1
+                        end
                     end
 
                     leaving_modifier = true
