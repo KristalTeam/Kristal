@@ -350,6 +350,10 @@ function Character:setCustomSprite(sprite, ox, oy)
     self.sprite:setCustomSprite(sprite, ox, oy)
 end
 
+function Character:setWalkSprite(sprite)
+    self.sprite:setWalkSprite(sprite)
+end
+
 function Character:resetSprite()
     self.sprite:resetSprite()
 end

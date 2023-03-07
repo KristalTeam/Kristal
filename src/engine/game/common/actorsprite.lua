@@ -28,6 +28,7 @@ function ActorSprite:init(actor)
     self.walking = false
     self.walk_speed = 4
     self.walk_frame = 2
+    self.walk_override = false
 
     self.aura = false
     self.aura_siner = 0
@@ -119,6 +120,7 @@ function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preSetSprite(self, texture, keep_anim) then
         return
     end
+    self.walk_override = false
     self.path = self.actor:getSpritePath()
     self.force_offset = nil
     self:_setSprite(texture, keep_anim)
@@ -199,6 +201,11 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
         end
         return false
     end
+end
+
+function ActorSprite:setWalkSprite(texture)
+    self:setSprite(texture)
+    self.walk_override = true
 end
 
 function ActorSprite:canTalk()
@@ -302,14 +309,14 @@ function ActorSprite:update()
 
     if not self.playing then
         local floored_frame = math.floor(self.walk_frame)
-        if floored_frame ~= self.walk_frame or (self.directional and self.walking) then
+        if floored_frame ~= self.walk_frame or ((self.directional or self.walk_override) and self.walking) then
             self.walk_frame = Utils.approach(self.walk_frame, floored_frame + 1, DT * (self.walk_speed > 0 and self.walk_speed or 1))
             local last_frame = self.frame
             self:setFrame(floored_frame)
             if self.frame ~= last_frame and self.on_footstep and self.frame % 2 == 0 then
                 self.on_footstep(self, math.floor(self.frame/2))
             end
-        elseif self.directional and self.frames and not self.walking then
+        elseif (self.directional or self.walk_override) and self.frames and not self.walking then
             self:setFrame(1)
         end
 
