@@ -358,23 +358,23 @@ function Battle:onStateChange(old,new)
             self.encounter:onCharacterTurn(party, false)
         end
     elseif new == "ACTIONS" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
         if self.state_reason ~= "DONTPROCESS" then
             self:tryProcessNextAction()
         end
     elseif new == "ENEMYSELECT" or new == "XACTENEMYSELECT" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
         self.selected_enemy = 1
     elseif new == "PARTYSELECT" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
     elseif new == "MENUSELECT" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
         self.current_menu_x = 1
         self.current_menu_y = 1
     elseif new == "ATTACKING" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
 
         local enemies_left = self:getActiveEnemies()
 
@@ -401,7 +401,7 @@ function Battle:onStateChange(old,new)
             self.attack_done = false
         end
     elseif new == "ENEMYDIALOGUE" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
         self.textbox_timer = 3 * 30
         self.use_textbox_timer = true
         local active_enemies = self:getActiveEnemies()
@@ -432,7 +432,7 @@ function Battle:onStateChange(old,new)
             end
         end
     elseif new == "DIALOGUEEND" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
 
         for i,battler in ipairs(self.party) do
             local action = self.character_actions[i]
@@ -1062,7 +1062,7 @@ function Battle:processAction(action)
     elseif action.action == "SKIP" then
         return true
     elseif action.action == "SPELL" then
-        self.battle_ui.encounter_text:setText("")
+        self.battle_ui:clearEncounterText()
 
         -- The spell itself handles the animation and finishing
         action.data:onStart(battler, action.target)
@@ -2006,7 +2006,7 @@ end
 
 function Battle:shortActText(text)
     self:setState("SHORTACTTEXT")
-    self.battle_ui.encounter_text:setText("")
+    self.battle_ui:clearEncounterText()
 
     self.battle_ui.short_act_text_1:setText(text[1] or "")
     self.battle_ui.short_act_text_2:setText(text[2] or "")
