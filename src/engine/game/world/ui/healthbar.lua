@@ -95,4 +95,11 @@ function HealthBar:draw()
     super.draw(self)
 end
 
+function HealthBar:react(chara, reaction)
+    local index = Game:getPartyIndex(chara)
+    if index and self.action_boxes[index] then
+        self.action_boxes[index]:react(reaction)
+    end
+end
+
 return HealthBar

@@ -597,6 +597,18 @@ function Game:movePartyMember(chara, index)
     return chara
 end
 
+function Game:getPartyIndex(chara)
+    if type(chara) == "string" then
+        chara = self:getPartyMember(chara)
+    end
+    for i,party_member in ipairs(self.party) do
+        if party_member.id == chara.id then
+            return i
+        end
+    end
+    return nil
+end
+
 function Game:checkPartyEquipped(item_id)
     local success, count = false, 0
     for _,party in ipairs(self.party) do
