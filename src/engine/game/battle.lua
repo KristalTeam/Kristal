@@ -964,13 +964,7 @@ function Battle:processAction(action)
                 end
             end
 
-            local damage = 0
-            if action.damage then
-                damage = action.damage
-            elseif action.points > 0 then
-                damage = Utils.round(((battler.chara:getStat("attack") * action.points) / 20) - (action.target.defense * 3))
-            end
-            damage = Utils.round(enemy:getAttackDamage(damage, battler))
+            local damage = Utils.round(enemy:getAttackDamage(action.damage or 0, battler, action.points or 0))
             if damage < 0 then
                 damage = 0
             end

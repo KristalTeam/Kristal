@@ -456,8 +456,11 @@ function EnemyBattler:getAttackTension(points)
     return points / 25
 end
 
-function EnemyBattler:getAttackDamage(damage, battler)
-    return damage
+function EnemyBattler:getAttackDamage(damage, battler, points)
+    if damage > 0 then
+        return damage
+    end
+    return ((battler.chara:getStat("attack") * points) / 20) - (self.defense * 3)
 end
 
 function EnemyBattler:onHurt(damage, battler)
