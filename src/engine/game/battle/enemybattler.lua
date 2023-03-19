@@ -463,6 +463,8 @@ function EnemyBattler:getAttackDamage(damage, battler, points)
     return ((battler.chara:getStat("attack") * points) / 20) - (self.defense * 3)
 end
 
+function EnemyBattler:getDamageSound() end
+
 function EnemyBattler:onHurt(damage, battler)
     self:toggleOverlay(true)
     if not self:getActiveSprite():setAnimation("hurt") then

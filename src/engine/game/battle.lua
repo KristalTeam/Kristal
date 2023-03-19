@@ -984,7 +984,10 @@ function Battle:processAction(action)
                 dmg_sprite:play(1/15, false, function(s) s:remove() end)
                 enemy.parent:addChild(dmg_sprite)
 
-                Assets.stopAndPlaySound("damage")
+                local sound = enemy:getDamageSound() or "damage"
+                if sound and type(sound) == "string" then
+                    Assets.stopAndPlaySound(sound)
+                end
                 enemy:hurt(damage, battler)
 
                 battler.chara:onAttackHit(enemy, damage)
