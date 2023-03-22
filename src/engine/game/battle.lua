@@ -1656,6 +1656,26 @@ function Battle:target(target)
     return self:targetAny()
 end
 
+function Battle:getPartyFromTarget(target)
+    if type(target) == "number" then
+        return {self.party[target]}
+    elseif isClass(target) then
+        return {target}
+    elseif type(target) == "string" then
+        if target == "ANY" then
+            return {Utils.pick(self.party)}
+        elseif target == "ALL" then
+            return Utils.copy(self.party)
+        else
+            for _,battler in ipairs(self.party) do
+                if battler.chara.id == string.lower(target) then
+                    return {battler}
+                end
+            end
+        end
+    end
+end
+
 function Battle:hurt(amount, exact, target)
     -- Note: 0, 1 and 2 are to target a specific party member.
     -- In Kristal, we'll allow them to be objects as well.
