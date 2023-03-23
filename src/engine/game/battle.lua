@@ -563,9 +563,20 @@ function Battle:onStateChange(old,new)
         self.current_selecting = 0
         self.battle_ui:clearEncounterText()
 
-        self:setWaves(self.encounter:getNextWaves())
         if self.state_reason then
             self:setWaves(self.state_reason)
+            local enemy_found = false
+            for i,enemy in ipairs(self.enemies) do
+                if Utils.containsValue(enemy.waves, self.state_reason[1]) then
+                    enemy.selected_wave = self.state_reason[1]
+                    enemy_found = true
+                end
+            end
+            if not enemy_found then
+                self.enemies[love.math.random(1, #self.enemies)].selected_wave = self.state_reason[1]
+            end
+        else
+            self:setWaves(self.encounter:getNextWaves())
         end
 
         if self.arena then
