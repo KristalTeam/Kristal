@@ -191,6 +191,7 @@ function World:closeMenu()
         end
     end
     self:hideHealthBars()
+    self.menu = nil
     self:setState("GAMEPLAY")
 end
 

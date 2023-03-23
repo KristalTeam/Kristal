@@ -48,6 +48,9 @@ function DarkItemMenu:getSelectedItem()
 end
 
 function DarkItemMenu:updateSelectedItem()
+    if not Game.world.menu or (Game.world.menu ~= self.parent) then -- will be true if an item creates a new menu
+        return
+    end
     local items = self:getCurrentStorage()
     if #items == 0 then
         self.state = "MENU"
