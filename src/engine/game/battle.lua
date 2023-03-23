@@ -570,7 +570,6 @@ function Battle:onStateChange(old,new)
                 if Utils.containsValue(enemy.waves, self.state_reason[1]) then
                     enemy.selected_wave = self.state_reason[1]
                     enemy_found = true
-                    break
                 end
             end
             if not enemy_found then
