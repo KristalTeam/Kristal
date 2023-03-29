@@ -15,6 +15,8 @@ function Wave:init()
     self.arena_height = nil
     -- Wave arena shape (overrides all rectangle options)
     self.arena_shape = nil
+    -- Whether the wave should spawn an arena
+    self.has_arena = true
 
     -- Position the soul will transition to at the start of the wave
     self.soul_start_x = nil
