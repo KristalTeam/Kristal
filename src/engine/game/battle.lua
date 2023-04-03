@@ -670,15 +670,10 @@ function Battle:onStateChange(old,new)
         local function exitWaves()
             for _,wave in ipairs(self.waves) do
                 wave:onArenaExit()
-
-                if wave.parent then
-                    wave:clear()
-                    wave:remove()
-                end
             end
+            self.waves = {}
         end
 
-        self.waves = {}
         if self:hasCutscene() then
             self.cutscene:after(function()
                 exitWaves()
