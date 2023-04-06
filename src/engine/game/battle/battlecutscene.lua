@@ -284,10 +284,15 @@ end
 function BattleCutscene:battlerText(battlers, text, options)
     options = options or {}
     if type(battlers) == "string" then
-        local enemy_id = battlers
+        local id = battlers
         battlers = {}
         for _,battler in ipairs(Game.battle.enemies) do
-            if battler.id == enemy_id then
+            if battler.id == id then
+                table.insert(battlers, battler)
+            end
+        end
+        for _,battler in ipairs(Game.battle.party) do
+            if battler.chara.id == id then
                 table.insert(battlers, battler)
             end
         end
@@ -296,12 +301,12 @@ function BattleCutscene:battlerText(battlers, text, options)
     end
     local wait = options["wait"] or options["wait"] == nil
     local bubbles = {}
-    for _,enemy in ipairs(battlers) do
+    for _,battler in ipairs(battlers) do
         local bubble
         if not options["x"] and not options["y"] then
-            bubble = enemy:spawnSpeechBubble(text, options)
+            bubble = battler:spawnSpeechBubble(text, options)
         else
-            bubble = SpeechBubble(text, options["x"] or 0, options["y"] or 0, options, enemy)
+            bubble = SpeechBubble(text, options["x"] or 0, options["y"] or 0, options, battler)
             Game.battle:addChild(bubble)
         end
         bubble:setAdvance(options["advance"] or options["advance"] == nil)
