@@ -46,6 +46,8 @@ function TestShop:init()
     self:registerItem("tensionbit")
     self:registerItem("manual")
     self:registerItem("amber_card", {bonuses = {defense = math.huge}})
+    self:registerItem("amber_card", {bonuses = {defense = math.huge}})
+    self:registerItem("amber_card", {bonuses = {defense = math.huge}})
 
     self:registerTalk("Reflect")
     self:registerTalk("Where I Am")

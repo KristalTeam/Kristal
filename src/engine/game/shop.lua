@@ -561,31 +561,54 @@ function Shop:draw()
         love.graphics.setColor(Game:getSoulColor())
         love.graphics.draw(self.heart_sprite, 450, 230 + (self.main_current_selecting * 40))
     elseif self.state == "BUYMENU" then
+
+        while self.current_selecting - self.item_offset > 5 do
+            self.item_offset = self.item_offset + 1
+        end
+
+        while self.current_selecting - self.item_offset < 1 do
+            self.item_offset = self.item_offset - 1
+        end
+
+        if self.item_offset + 5 > #self.items + 1 then
+            if #self.items + 1 > 5 then
+                self.item_offset = self.item_offset - 1
+            end
+        end
+
+        if #self.items + 1 == 5 then
+            self.item_offset = 0
+        end
+
         -- Item type (item, key, weapon, armor)
-        for i = 1, math.max(4, #self.items) do
+        for i = 1 + self.item_offset, self.item_offset + math.min(5, #self.items) do
+            if i == #self.items + 1 then break end
+            local y = 220 + ((i - self.item_offset) * 40)
             local item = self.items[i]
             if not item then
                 -- If the item is null, add some empty space
                 love.graphics.setColor(COLORS.dkgray)
-                love.graphics.print("--------", 60, 220 + (i * 40))
+                love.graphics.print("--------", 60, y)
             elseif item.options["stock"] and (item.options["stock"] <= 0) then
                 -- If we've depleted the stock, show a "sold out" message
                 love.graphics.setColor(COLORS.gray)
-                love.graphics.print("--SOLD OUT--", 60, 220 + (i * 40))
+                love.graphics.print("--SOLD OUT--", 60, y)
             else
                 love.graphics.setColor(item.options["color"])
-                love.graphics.print(item.options["name"], 60, 220 + (i * 40))
+                love.graphics.print(item.options["name"], 60, y)
                 if not self.hide_price then
                     love.graphics.setColor(COLORS.white)
-                    love.graphics.print(string.format(self.currency_text, item.options["price"] or 0), 60 + 240, 220 + (i * 40))
+                    love.graphics.print(string.format(self.currency_text, item.options["price"] or 0), 60 + 240, y)
                 end
             end
         end
         love.graphics.setColor(COLORS.white)
-        love.graphics.print("Exit", 60, 220 + ((math.max(4, #self.items) + 1) * 40))
+        if self.item_offset == #self.items - 4 then
+            love.graphics.print("Exit", 60, 220 + (#self.items + 1 - self.item_offset) * 40)
+        end
         love.graphics.setColor(Game:getSoulColor())
         if not self.buy_confirming then
-            love.graphics.draw(self.heart_sprite, 30, 230 + (self.current_selecting * 40))
+            love.graphics.draw(self.heart_sprite, 30, 230 + ((self.current_selecting - self.item_offset) * 40))
         else
             love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(COLORS.white)
