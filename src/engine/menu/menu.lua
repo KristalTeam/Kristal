@@ -1820,6 +1820,7 @@ function Menu:onCreateEnter()
     self:registerConfigOption("mercyBar",            "Mercy Bar",                "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
     self:registerConfigOption("enemyBarPercentages", "Stat Bar Percentages",     "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
     self:registerConfigOption("pushBlockInputLock",  "Push Block Input Locking", "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
+    self:registerConfigOption("healWhenDown",        "Heal Downed Party",        "Heal downed party members. Always true in DELTARUNE.",      "selection", {nil, true, false})
 end
 
 function Menu:registerConfigOption(id, name, description, type, options)
