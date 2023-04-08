@@ -472,10 +472,7 @@ function Battle:onStateChange(old,new)
             battler.defending = false
             battler.action = nil
 
-            local shouldHeal = Game:getConfig("healWhenDown")
-            shouldHeal = shouldHeal == nil or shouldHeal -- Heal by default
-
-            if battler.chara:getHealth() < 1 and shouldHeal then
+            if battler.chara:getHealth() < 1 and PartyMember:canAutoHeal() then
                 battler:revive()
                 battler.chara:setHealth(Utils.round(battler.chara:getStat("health") / 8))
             end

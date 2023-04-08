@@ -390,6 +390,10 @@ function PartyMember:canEquip(item, slot_type, slot_index)
     end
 end
 
+function PartyMember:canAutoHeal()
+    return true
+end
+
 function PartyMember:getEquipmentBonus(stat)
     local total = 0
     for _,item in ipairs(self:getEquipment()) do

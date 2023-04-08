@@ -30,6 +30,5 @@
     "lightCurrencyShort": "$",       // Short currency name for the Light World
     "tpName": "TP",                  // Name of Tension Points in battles
 
-    "pushBlockInputLock": true,      // Whether to lock the player's input when pushing a block
-    "healWhenDown": true             // Whether to heal downed party members or not
+    "pushBlockInputLock": true       // Whether to lock the player's input when pushing a block
 }
