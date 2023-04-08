@@ -167,7 +167,7 @@ end
 function DarkPowerMenu:drawChar()
     local party = self.party:getSelected()
     love.graphics.setColor(PALETTE["world_text"])
-    love.graphics.print(party.name, 48, -7)
+    love.graphics.print(party:getName(), 48, -7)
     love.graphics.print(party:getTitle(), 238, -7)
 end
 

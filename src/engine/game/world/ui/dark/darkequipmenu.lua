@@ -345,7 +345,7 @@ end
 function DarkEquipMenu:drawChar()
     local party = self.party:getSelected()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(party.name, 53, -5)
+    love.graphics.print(party:getName(), 53, -5)
 end
 
 function DarkEquipMenu:drawEquipped()
