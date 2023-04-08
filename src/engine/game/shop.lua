@@ -1133,11 +1133,11 @@ function Shop:setMoney(amount)
 end
 
 function Shop:addMoney(amount)
-    self:setMoney(Game.money + amount)
+    self:setMoney(self:getMoney() + amount)
 end
 
 function Shop:removeMoney(amount)
-    self:setMoney(Game.money - amount)
+    self:setMoney(self:getMoney() - amount)
 end
 
 return Shop
