@@ -830,7 +830,7 @@ function Shop:draw()
        self.state == "TALKMENU" then
         love.graphics.setColor(COLORS.white)
         love.graphics.setFont(self.font)
-        love.graphics.print(string.format(self.currency_text, Game.money), 440, 420)
+        love.graphics.print(string.format(self.currency_text, self:getMoney()), 440, 420)
     end
 
     love.graphics.setColor(0, 0, 0, self.fade_alpha)
@@ -1079,12 +1079,12 @@ function Shop:enterSellMenu(sell_data)
 end
 
 function Shop:buyItem(current_item)
-    if (current_item.options["price"] or 0) > Game.money then
+    if (current_item.options["price"] or 0) > self:getMoney() then
         self:setRightText(self.buy_too_expensive_text)
     else
         -- PURCHASE THE ITEM
         -- Remove the gold
-        Game.money = Game.money - (current_item.options["price"] or 0)
+        self:removeMoney(current_item.options["price"] or 0)
 
         -- Decrement the stock
         if current_item.options["stock"] then
@@ -1117,11 +1117,27 @@ end
 function Shop:sellItem(current_item)
     -- SELL THE ITEM
     -- Add the gold
-    Game.money = Game.money + current_item:getSellPrice()
+    self:addMoney(current_item:getSellPrice())
     Game.inventory:removeItem(current_item)
 
     Assets.playSound("locker")
     self:setRightText(self.sell_text)
+end
+
+function Shop:getMoney()
+    return Game.money
+end
+
+function Shop:setMoney(amount)
+    Game.money = amount
+end
+
+function Shop:addMoney(amount)
+    self:setMoney(Game.money + amount)
+end
+
+function Shop:removeMoney(amount)
+    self:setMoney(Game.money - amount)
 end
 
 return Shop
