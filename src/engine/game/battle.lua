@@ -472,9 +472,9 @@ function Battle:onStateChange(old,new)
             battler.defending = false
             battler.action = nil
 
-            if battler.chara:getHealth() < 1 and PartyMember:canAutoHeal() then
+            if battler.chara:getHealth() < 1 and battler.chara:canAutoHeal() then
                 battler:revive()
-                battler.chara:setHealth(Utils.round(battler.chara:getStat("health") / 8))
+                battler.chara:setHealth(battler.chara:autoHealAmount())
             end
 
             battler:setAnimation("battle/victory")

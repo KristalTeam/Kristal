@@ -394,6 +394,10 @@ function PartyMember:canAutoHeal()
     return true
 end
 
+function PartyMember:autoHealAmount()
+    return Utils.round(self:getStat("health") / 8)
+end
+
 function PartyMember:getEquipmentBonus(stat)
     local total = 0
     for _,item in ipairs(self:getEquipment()) do
