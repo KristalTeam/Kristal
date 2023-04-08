@@ -62,7 +62,7 @@ function OverworldActionBox:draw()
     love.graphics.setColor(PALETTE["action_health_bg"])
     love.graphics.rectangle("fill", 128, 24, 76, 9)
 
-    local health = (self.chara.health / self.chara:getStat("health")) * 76
+    local health = (self.chara:getHealth() / self.chara:getStat("health")) * 76
 
     if health > 0 then
         love.graphics.setColor(self.chara:getColor())
@@ -71,17 +71,17 @@ function OverworldActionBox:draw()
 
     if health <= 0 then
         love.graphics.setColor(PALETTE["action_health_text_down"])
-    elseif (self.chara.health <= (self.chara:getStat("health") / 4)) then
+    elseif (self.chara:getHealth() <= (self.chara:getStat("health") / 4)) then
         love.graphics.setColor(PALETTE["action_health_text_low"])
     else
         love.graphics.setColor(PALETTE["action_health_text"])
     end
 
     local health_offset = 0
-    health_offset = (#tostring(self.chara.health) - 1) * 8
+    health_offset = (#tostring(self.chara:getHealth()) - 1) * 8
 
     love.graphics.setFont(self.font)
-    love.graphics.print(self.chara.health, 152 - health_offset, 11)
+    love.graphics.print(self.chara:getHealth(), 152 - health_offset, 11)
     love.graphics.print("/", 161, 11)
     love.graphics.print(self.chara:getStat("health"), 181, 11)
 

@@ -72,7 +72,7 @@ function item:onWorldUse(target)
     if target.id == "noelle" then
         return true
     end
-    target.health = math.max(1, target.health - self.world_poison_amount)
+    target:setHealth(math.max(1, target:getHealth() - self.world_poison_amount))
     Assets.playSound("hurt")
     return true
 end
@@ -90,8 +90,8 @@ function item:onBattleUse(user, target)
         if poison_left == 0 then
             return false
         end
-        if target.chara.health > 1 then
-            target.chara.health = target.chara.health - 1
+        if target.chara:getHealth() > 1 then
+            target.chara:setHealth(target.chara:getHealth() - 1)
             poison_left = poison_left - 1
         else
             poison_left = 0

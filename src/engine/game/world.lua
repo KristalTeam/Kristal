@@ -112,11 +112,11 @@ function World:hurtParty(battler, amount)
     local any_alive = false
     for _,party in ipairs(Game.party) do
         if not battler or battler == party.id or battler == party then
-            party.health = party.health - amount
-            if party.health <= 0 then
-                party.health = 1
+            party:setHealth(party:getHealth() - amount)
+            if party:getHealth() <= 0 then
+                party.setHealth(1)
                 any_killed = true
-            elseif party.health > 1 then
+            elseif party:getHealth() > 1 then
                 any_alive = true
             end
             for _,char in ipairs(self.stage:getObjects(Character)) do
@@ -124,7 +124,7 @@ function World:hurtParty(battler, amount)
                     char:statusMessage("damage", amount)
                 end
             end
-        elseif party.health > 1 then
+        elseif party:getHealth() > 1 then
             any_alive = true
         end
     end

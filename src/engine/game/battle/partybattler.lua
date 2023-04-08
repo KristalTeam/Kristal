@@ -123,7 +123,7 @@ function PartyBattler:hurt(amount, exact, color, options)
         end
     end
 
-    if (self.chara.health <= 0) then
+    if (self.chara:getHealth() <= 0) then
         self:statusMessage("msg", "down", color, true)
     else
         self:statusMessage("damage", amount, color, true)
@@ -151,24 +151,24 @@ function PartyBattler:hurt(amount, exact, color, options)
 end
 
 function PartyBattler:removeHealth(amount)
-    if (self.chara.health <= 0) then
+    if (self.chara:getHealth() <= 0) then
         amount = Utils.round(amount / 4)
-        self.chara.health = self.chara.health - amount
+        self.chara:setHealth(self.chara:getHealth() - amount)
     else
-        self.chara.health = self.chara.health - amount
-        if (self.chara.health <= 0) then
-            amount = math.abs((self.chara.health - (self.chara:getStat("health") / 2)))
-            self.chara.health = Utils.round(((-self.chara:getStat("health")) / 2))
+        self.chara:setHealth(self.chara:getHealth() - amount)
+        if (self.chara:getHealth() <= 0) then
+            amount = math.abs((self.chara:getHealth() - (self.chara:getStat("health") / 2)))
+            self.chara:setHealth(Utils.round(((-self.chara:getStat("health")) / 2)))
         end
     end
     self:checkHealth()
 end
 
 function PartyBattler:removeHealthBroken(amount)
-    self.chara.health = self.chara.health - amount
-    if (self.chara.health <= 0) then
+    self.chara:setHealth(self.chara:getHealth() - amount)
+    if (self.chara:getHealth() <= 0) then
         -- BUG: Use Kris' max health...
-        self.chara.health = Utils.round(((-Game.party[1]:getStat("health")) / 2))
+        self.chara:setHealth(Utils.round(((-Game.party[1]:getStat("health")) / 2)))
     end
     self:checkHealth()
 end
@@ -217,15 +217,15 @@ function PartyBattler:heal(amount, sparkle_color, show_up)
 
     amount = math.floor(amount)
 
-    self.chara.health = self.chara.health + amount
+    self.chara:setHealth(self.chara:getHealth() + amount)
 
     local was_down = self.is_down
     self:checkHealth()
 
     self:flash()
 
-    if self.chara.health >= self.chara:getStat("health") then
-        self.chara.health = self.chara:getStat("health")
+    if self.chara:getHealth() >= self.chara:getStat("health") then
+        self.chara:setHealth(self.chara:getStat("health"))
         self:statusMessage("msg", "max")
     else
         if show_up then
@@ -241,9 +241,9 @@ function PartyBattler:heal(amount, sparkle_color, show_up)
 end
 
 function PartyBattler:checkHealth()
-    if (not self.is_down) and self.chara.health <= 0 then
+    if (not self.is_down) and self.chara:getHealth() <= 0 then
         self:down()
-    elseif (self.is_down) and self.chara.health > 0 then
+    elseif (self.is_down) and self.chara:getHealth() > 0 then
         self:revive()
     end
 end

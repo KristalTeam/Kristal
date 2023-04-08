@@ -498,7 +498,7 @@ function BattleUI:drawState()
             love.graphics.setColor(PALETTE["action_health_bg"])
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), 101, 16)
 
-            local percentage = Game.battle.party[index].chara.health / Game.battle.party[index].chara:getStat("health")
+            local percentage = Game.battle.party[index].chara:getHealth() / Game.battle.party[index].chara:getStat("health")
             love.graphics.setColor(PALETTE["action_health"])
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), percentage * 101, 16)
         end

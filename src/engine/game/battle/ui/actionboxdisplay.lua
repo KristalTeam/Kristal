@@ -32,7 +32,7 @@ function ActionBoxDisplay:draw()
     love.graphics.setColor(PALETTE["action_health_bg"])
     love.graphics.rectangle("fill", 128, 22 - self.actbox.data_offset, 76, 9)
 
-    local health = (self.actbox.battler.chara.health / self.actbox.battler.chara:getStat("health")) * 76
+    local health = (self.actbox.battler.chara:getHealth() / self.actbox.battler.chara:getStat("health")) * 76
 
     if health > 0 then
         love.graphics.setColor(self.actbox.battler.chara:getColor())
@@ -42,7 +42,7 @@ function ActionBoxDisplay:draw()
 
     if health <= 0 then
         love.graphics.setColor(PALETTE["action_health_text_down"])
-    elseif (self.actbox.battler.chara.health <= (self.actbox.battler.chara:getStat("health") / 4)) then
+    elseif (self.actbox.battler.chara:getHealth() <= (self.actbox.battler.chara:getStat("health") / 4)) then
         love.graphics.setColor(PALETTE["action_health_text_low"])
     else
         love.graphics.setColor(PALETTE["action_health_text"])
@@ -50,10 +50,10 @@ function ActionBoxDisplay:draw()
 
 
     local health_offset = 0
-    health_offset = (#tostring(self.actbox.battler.chara.health) - 1) * 8
+    health_offset = (#tostring(self.actbox.battler.chara:getHealth()) - 1) * 8
 
     love.graphics.setFont(self.font)
-    love.graphics.print(self.actbox.battler.chara.health, 152 - health_offset, 9 - self.actbox.data_offset)
+    love.graphics.print(self.actbox.battler.chara:getHealth(), 152 - health_offset, 9 - self.actbox.data_offset)
     love.graphics.print("/", 161, 9 - self.actbox.data_offset)
     local string_width = self.font:getWidth(tostring(self.actbox.battler.chara:getStat("health")))
     love.graphics.print(self.actbox.battler.chara:getStat("health"), 205 - string_width, 9 - self.actbox.data_offset)

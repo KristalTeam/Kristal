@@ -472,7 +472,7 @@ function Battle:onStateChange(old,new)
             battler.defending = false
             battler.action = nil
 
-            if battler.chara.health < 1 then
+            if battler.chara:getHealth() < 1 then
                 battler:revive()
                 battler.chara:setHealth(Utils.round(battler.chara:getStat("health") / 8))
             end
@@ -1706,7 +1706,7 @@ function Battle:hurt(amount, exact, target)
     end
 
     if isClass(target) and target:includes(PartyBattler) then
-        if (not target) or (target.chara.health <= 0) then -- Why doesn't this look at :canTarget()? Weird.
+        if (not target) or (target.chara:getHealth() <= 0) then -- Why doesn't this look at :canTarget()? Weird.
             target = self:randomTargetOld()
         end
     end
@@ -1726,22 +1726,22 @@ function Battle:hurt(amount, exact, target)
         local party_average_hp = 1
 
         for _,battler in ipairs(self.party) do
-            if battler.chara.health ~= battler.chara:getStat("health") then
+            if battler.chara:getHealth() ~= battler.chara:getStat("health") then
                 party_average_hp = 0
                 break
             end
         end
 
         -- Retarget... twice.
-        if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
+        if target.chara:getHealth() / target.chara:getStat("health") < (party_average_hp / 2) then
             target = self:randomTargetOld()
         end
-        if target.chara.health / target.chara:getStat("health") < (party_average_hp / 2) then
+        if target.chara:getHealth() / target.chara:getStat("health") < (party_average_hp / 2) then
             target = self:randomTargetOld()
         end
 
         -- If we landed on Kris (or, well, the first party member), and their health is low, retarget (plot armor lol)
-        if (target == self.party[1]) and ((target.chara.health / target.chara:getStat("health")) < 0.35) then
+        if (target == self.party[1]) and ((target.chara:getHealth() / target.chara:getStat("health")) < 0.35) then
             target = self:randomTargetOld()
         end
 
@@ -1900,7 +1900,7 @@ function Battle:nextTurn()
 
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
-        if (battler.chara.health <= 0) then
+        if (battler.chara:getHealth() <= 0) then
             battler:heal(math.ceil(battler.chara:getStat("health") / 8), nil, true)
         end
         battler.action = nil

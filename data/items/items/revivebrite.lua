@@ -60,8 +60,8 @@ end
 
 function item:onBattleUse(user, target)
     for _,battler in ipairs(Game.battle.party) do
-        if battler.chara.health <= 0 then
-            battler:heal(math.abs(battler.chara.health) + battler.chara:getStat("health"))
+        if battler.chara:getHealth() <= 0 then
+            battler:heal(math.abs(battler.chara:getHealth()) + battler.chara:getStat("health"))
         else
             battler:heal(50)
         end
