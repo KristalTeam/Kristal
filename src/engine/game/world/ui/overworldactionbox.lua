@@ -83,7 +83,8 @@ function OverworldActionBox:draw()
     love.graphics.setFont(self.font)
     love.graphics.print(self.chara:getHealth(), 152 - health_offset, 11)
     love.graphics.print("/", 161, 11)
-    love.graphics.print(self.chara:getStat("health"), 181, 11)
+    local string_width = self.font:getWidth(tostring(self.chara:getStat("health")))
+    love.graphics.print(self.chara:getStat("health"), 205 - string_width, 11)
 
     -- Draw name text if there's no sprite
     if not self.name_sprite then
