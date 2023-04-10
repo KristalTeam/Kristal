@@ -84,11 +84,11 @@ function Virovirokun:onAct(battler, name)
     end
 end
 
-function Virovirokun:getAttackDamage(damage, battler)
+function Virovirokun:getAttackDamage(damage, battler, points)
     if self.susie_warned and battler.chara.id == "susie" then
         return 0
     else
-        return super.getAttackDamage(self, damage, battler)
+        return super.getAttackDamage(self, damage, battler, points)
     end
 end
 
