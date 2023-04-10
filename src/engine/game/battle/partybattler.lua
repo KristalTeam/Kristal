@@ -251,6 +251,11 @@ end
 function PartyBattler:statusMessage(...)
     local message = super.statusMessage(self, 0, self.height/2, ...)
     message.y = message.y - 4
+    return message
+end
+
+function PartyBattler:recruitMessage(...)
+    return super.recruitMessage(self, ...)
 end
 
 function PartyBattler:isActive()

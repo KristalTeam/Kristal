@@ -500,6 +500,16 @@ function Character:statusMessage(type, arg, color, kill)
     return percent
 end
 
+function Character:recruitMessage(type, color)
+    local x, y = self:getRelativePos(0, self.height, self.world)
+
+    local message = RecruitMessage(type, x, y - 40, color)
+    message.layer = WORLD_LAYERS["below_ui"]
+    self.world:addChild(message)
+
+    return message
+end
+
 function Character:convertToFollower(index, save)
     local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer

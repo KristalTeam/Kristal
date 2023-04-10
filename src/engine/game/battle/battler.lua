@@ -58,6 +58,15 @@ function Battler:statusMessage(x, y, type, arg, color, kill)
     return percent
 end
 
+function Battler:recruitMessage(x, y, type)
+    x, y = self:getRelativePos(x, y)
+
+    local recruit = RecruitMessage(type, x, y - 40)
+    self.parent:addChild(recruit)
+
+    return recruit
+end
+
 function Battler:spawnSpeechBubble(text, options)
     options = options or {}
     local bubble

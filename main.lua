@@ -195,6 +195,7 @@ SpeechBubble = require("src.engine.game.battle.ui.speechbubble")
 
 FlashFade = require("src.engine.game.effects.flashfade")
 DamageNumber = require("src.engine.game.effects.damagenumber")
+RecruitMessage = require("src.engine.game.effects.recruitmessage")
 HeartBurst = require("src.engine.game.effects.heartburst")
 HealSparkle = require("src.engine.game.effects.healsparkle")
 SpareSparkle = require("src.engine.game.effects.sparesparkle")

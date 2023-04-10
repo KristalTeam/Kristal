@@ -564,6 +564,8 @@ function EnemyBattler:freeze()
     end
     sprite:stopShake()
 
+    self:recruitMessage("frozen")
+
     self.hurt_timer = -1
 
     sprite.frozen = true
@@ -576,7 +578,11 @@ function EnemyBattler:freeze()
 end
 
 function EnemyBattler:statusMessage(...)
-    super.statusMessage(self, self.width/2, self.height/2, ...)
+    return super.statusMessage(self, self.width/2, self.height/2, ...)
+end
+
+function EnemyBattler:recruitMessage(...)
+    return super.recruitMessage(self, self.width/2, self.height/2, ...)
 end
 
 function EnemyBattler:defeat(reason, violent)
