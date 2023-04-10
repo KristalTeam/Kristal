@@ -598,7 +598,7 @@ function Kristal.errorHandler(msg)
                 else
                     return "reload"
                 end
-            elseif e == "keypressed" and a == "c" and Input.ctrl() then
+            elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
                 copyToClipboard()
             elseif e == "touchpressed" then
                 local name = love.window.getTitle()
