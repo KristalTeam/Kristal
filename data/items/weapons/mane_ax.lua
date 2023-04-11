@@ -41,9 +41,7 @@ function item:init()
     self.bonus_icon = nil
 
     -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {
-        susie = true,
-    }
+    self.can_equip = {}
 
     -- Character reactions
     self.reactions = {
