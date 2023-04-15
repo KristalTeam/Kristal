@@ -46,8 +46,6 @@ function TestShop:init()
     self:registerItem("tensionbit")
     self:registerItem("manual")
     self:registerItem("amber_card", {bonuses = {defense = math.huge}})
-    self:registerItem("amber_card", {bonuses = {defense = math.huge}})
-    self:registerItem("amber_card", {bonuses = {defense = math.huge}})
 
     self:registerTalk("Reflect")
     self:registerTalk("Where I Am")
@@ -133,7 +131,7 @@ function TestShop:startTalk(talk)
             "* And everything will go how it should.",
             "* I really have no input on this.",
             "* ...",
-            "* So yes,[wait:5] I don't know what's going to happen.[wait:5]\n* But It'll work."
+            "* So yes,[wait:5] I don't know what's going to happen.[wait:5]\n* But it'll work."
         })
     end
 end

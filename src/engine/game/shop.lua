@@ -581,8 +581,8 @@ function Shop:draw()
         end
 
         -- Item type (item, key, weapon, armor)
-        for i = 1 + self.item_offset, self.item_offset + math.min(5, #self.items) do
-            if i == #self.items + 1 then break end
+        for i = 1 + self.item_offset, self.item_offset + math.max(4, math.min(5, #self.items)) do
+            if i == math.max(4, #self.items) + 1 then break end
             local y = 220 + ((i - self.item_offset) * 40)
             local item = self.items[i]
             if not item then
@@ -603,8 +603,8 @@ function Shop:draw()
             end
         end
         love.graphics.setColor(COLORS.white)
-        if self.item_offset == #self.items - 4 then
-            love.graphics.print("Exit", 60, 220 + (#self.items + 1 - self.item_offset) * 40)
+        if self.item_offset == math.max(4, #self.items) - 4 then
+            love.graphics.print("Exit", 60, 220 + (math.max(4, #self.items) + 1 - self.item_offset) * 40)
         end
         love.graphics.setColor(Game:getSoulColor())
         if not self.buy_confirming then
@@ -694,7 +694,7 @@ function Shop:draw()
 
                 if space <= 0 then
                     love.graphics.print("NO SPACE", 521, 430)
-                else    
+                else
                     love.graphics.print("Space:" .. space, 521, 430)
                 end
             end
@@ -775,9 +775,9 @@ function Shop:draw()
                 for i = 1, max do
                     local percentage = (i - 1) / (max - 1)
                     local height = 129
-    
+
                     local draw_location = percentage * height
-    
+
                     local tocheck = self.item_current_selecting
                     if self.sell_confirming then
                         tocheck = self.current_selecting_choice
