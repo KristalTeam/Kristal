@@ -395,6 +395,7 @@ function PartyMember:canAutoHeal()
 end
 
 function PartyMember:autoHealAmount()
+    -- TODO: Is this round or ceil? Both were used before this function was added.
     return Utils.round(self:getStat("health") / 8)
 end
 

@@ -472,7 +472,7 @@ function Battle:onStateChange(old,new)
             battler.defending = false
             battler.action = nil
 
-            if battler.chara:getHealth() < 1 and battler.chara:canAutoHeal() then
+            if battler.chara:getHealth() <= 0 then
                 battler:revive()
                 battler.chara:setHealth(battler.chara:autoHealAmount())
             end
@@ -1900,8 +1900,8 @@ function Battle:nextTurn()
 
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
-        if (battler.chara:getHealth() <= 0) then
-            battler:heal(math.ceil(battler.chara:getStat("health") / 8), nil, true)
+        if (battler.chara:getHealth() <= 0) and battler.chara:canAutoHeal() then
+            battler:heal(battler.chara:autoHealAmount(), nil, true)
         end
         battler.action = nil
     end
