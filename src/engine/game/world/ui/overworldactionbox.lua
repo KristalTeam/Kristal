@@ -69,21 +69,25 @@ function OverworldActionBox:draw()
         love.graphics.rectangle("fill", 128, 24, health, 9)
     end
 
+    local color = PALETTE["action_health_text"]
     if health <= 0 then
-        love.graphics.setColor(PALETTE["action_health_text_down"])
+        color = PALETTE["action_health_text_down"]
     elseif (self.chara:getHealth() <= (self.chara:getStat("health") / 4)) then
-        love.graphics.setColor(PALETTE["action_health_text_low"])
+        color = PALETTE["action_health_text_low"]
     else
-        love.graphics.setColor(PALETTE["action_health_text"])
+        color = PALETTE["action_health_text"]
     end
 
     local health_offset = 0
     health_offset = (#tostring(self.chara:getHealth()) - 1) * 8
 
+    love.graphics.setColor(color)
     love.graphics.setFont(self.font)
     love.graphics.print(self.chara:getHealth(), 152 - health_offset, 11)
+    love.graphics.setColor(PALETTE["action_health_text"])
     love.graphics.print("/", 161, 11)
     local string_width = self.font:getWidth(tostring(self.chara:getStat("health")))
+    love.graphics.setColor(color)
     love.graphics.print(self.chara:getStat("health"), 205 - string_width, 11)
 
     -- Draw name text if there's no sprite
