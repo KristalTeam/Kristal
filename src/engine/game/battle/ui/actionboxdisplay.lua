@@ -36,7 +36,7 @@ function ActionBoxDisplay:draw()
 
     if health > 0 then
         love.graphics.setColor(self.actbox.battler.chara:getColor())
-        love.graphics.rectangle("fill", 128, 22 - self.actbox.data_offset, health, 9)
+        love.graphics.rectangle("fill", 128, 22 - self.actbox.data_offset, math.ceil(health), 9)
     end
 
 

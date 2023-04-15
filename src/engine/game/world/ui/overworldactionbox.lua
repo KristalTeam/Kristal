@@ -66,7 +66,7 @@ function OverworldActionBox:draw()
 
     if health > 0 then
         love.graphics.setColor(self.chara:getColor())
-        love.graphics.rectangle("fill", 128, 24, health, 9)
+        love.graphics.rectangle("fill", 128, 24, math.ceil(health), 9)
     end
 
     local color = PALETTE["action_health_text"]
