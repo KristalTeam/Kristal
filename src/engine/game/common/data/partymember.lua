@@ -246,7 +246,7 @@ function PartyMember:getGameOverMessage() return self.gameover_message end
 
 function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
-        Assets.playSound("power")
+        Assets.stopAndPlaySound("power")
     end
     self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
     return self:getStat("health") == self:getHealth()
