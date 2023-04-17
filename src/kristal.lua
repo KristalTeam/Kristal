@@ -446,7 +446,11 @@ function Kristal.errorHandler(msg)
 
     msg = tostring(msg or "nil")
 
-    error_printer(msg, 2)
+    local critical = msg == "critical error"
+
+    if not critical then
+        error_printer(msg, 2)
+    end
 
     if not love.window or not love.graphics or not love.event then
         return
@@ -494,7 +498,10 @@ function Kristal.errorHandler(msg)
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    local trace = debug.traceback("", 2)
+    local trace = ""
+    if not critical then
+        trace = debug.traceback("", 2)
+    end
 
     love.graphics.origin()
 
@@ -514,23 +521,37 @@ function Kristal.errorHandler(msg)
 
         love.graphics.setFont(font)
 
-        local _,lines = font:getWrap("Error at "..split[#split-1].." - "..split[#split], 640 - pos)
+        if not critical then
+            local _,lines = font:getWrap("Error at "..split[#split-1].." - "..split[#split], 640 - pos)
 
-        love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, 640 - pos)
-        ypos = ypos + (32 * #lines)
+            love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, 640 - pos)
+            ypos = ypos + (32 * #lines)
 
-        for l in trace:gmatch("(.-)\n") do
-            if not l:match("boot.lua") then
-                if l:match("stack traceback:") then
-                    love.graphics.setFont(font)
-                    love.graphics.printf("Traceback:", pos, ypos, 640 - pos)
-                    ypos = ypos + 32
-                else
-                    love.graphics.setFont(smaller_font)
-                    love.graphics.printf(l, pos, ypos, 640 - pos)
-                    ypos = ypos + 16
+            for l in trace:gmatch("(.-)\n") do
+                if not l:match("boot.lua") then
+                    if l:match("stack traceback:") then
+                        love.graphics.setFont(font)
+                        love.graphics.printf("Traceback:", pos, ypos, 640 - pos)
+                        ypos = ypos + 32
+                    else
+                        if ypos >= 480 - 40 - 32 then
+                            love.graphics.printf("...", pos, ypos, 640 - pos)
+                            break
+                        end
+                        love.graphics.setFont(smaller_font)
+                        love.graphics.printf(l, pos, ypos, 640 - pos)
+                        ypos = ypos + 16
+                    end
                 end
             end
+        else
+            love.graphics.printf("Critical Error", pos, ypos, 640 - pos)
+
+            love.graphics.setFont(font)
+            love.graphics.printf("Known causes:", pos, ypos + 64, 640 - pos)
+
+            love.graphics.setFont(smaller_font)
+            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, 640 - pos)
         end
 
         if starwalker_error then
@@ -563,13 +584,15 @@ function Kristal.errorHandler(msg)
         love.graphics.setFont(smaller_font)
         if Kristal.getModOption("hardReset") then
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.print("Press ESC to restart the game", 8, 480 - 40)
+            love.graphics.print("Press ESC to restart the game", 8, 480 - (critical and 20 or 40))
         else
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.print("Press ESC to return to mod menu", 8, 480 - 40)
+            love.graphics.print("Press ESC to return to mod menu", 8, 480 - (critical and 20 or 40))
         end
-        love.graphics.setColor(copy_color)
-        love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
+        if not critical then
+            love.graphics.setColor(copy_color)
+            love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
+        end
         love.graphics.setColor(1, 1, 1, 1)
 
         love.graphics.present()
@@ -598,13 +621,13 @@ function Kristal.errorHandler(msg)
                 else
                     return "reload"
                 end
-            elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") then
+            elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
                 copyToClipboard()
             elseif e == "touchpressed" then
                 local name = love.window.getTitle()
                 if #name == 0 or name == "Untitled" then name = "Game" end
                 local buttons = {"OK", "Cancel"}
-                if love.system then
+                if love.system and not critical then
                     buttons[3] = "Copy to clipboard"
                 end
                 local pressed = love.window.showMessageBox("Quit "..name.."?", "", buttons)

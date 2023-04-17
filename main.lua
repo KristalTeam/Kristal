@@ -337,8 +337,10 @@ function love.run()
             local success, result = xpcall(mainLoop, Kristal.errorHandler)
             if success then
                 return result
-            else
+            elseif type(result) == "function" then
                 error_result = result
+            else
+                error_result = Kristal.errorHandler("critical error")
             end
         end
     end
