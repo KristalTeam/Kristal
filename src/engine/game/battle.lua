@@ -2645,9 +2645,12 @@ function Battle:onKeyPressed(key)
         local menu_height = math.ceil(#self.menu_items / 2)
 
         if Input.isConfirm(key) then
+            local menu_item = self.menu_items[self:getItemIndex()]
+            local can_select = self:canSelectMenuItem(menu_item)
+            if Game.battle.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
+            if Kristal.callEvent("onBattleMenuSelect", self.state_reason, menu_item, can_select) then return end
             if self.state_reason == "ACT" then
-                local menu_item = self.menu_items[self:getItemIndex()]
-                if self:canSelectMenuItem(menu_item) then
+                if can_select then
                     self.ui_select:stop()
                     self.ui_select:play()
 
@@ -2655,9 +2658,8 @@ function Battle:onKeyPressed(key)
                 end
                 return
             elseif self.state_reason == "SPELL" then
-                local menu_item = self.menu_items[self:getItemIndex()]
                 self.selected_spell = menu_item
-                if self:canSelectMenuItem(menu_item) then
+                if can_select then
                     self.ui_select:stop()
                     self.ui_select:play()
 
@@ -2678,9 +2680,8 @@ function Battle:onKeyPressed(key)
                 end
                 return
             elseif self.state_reason == "ITEM" then
-                local menu_item = self.menu_items[self:getItemIndex()]
                 self.selected_item = menu_item
-                if self:canSelectMenuItem(menu_item) then
+                if can_select then
                     self.ui_select:stop()
                     self.ui_select:play()
                     if not menu_item.data.target or menu_item.data.target == "none" then
@@ -2695,11 +2696,6 @@ function Battle:onKeyPressed(key)
                         self:pushAction("ITEM", self:getActiveEnemies(), menu_item)
                     end
                 end
-            else
-                local menu_item = self.menu_items[self:getItemIndex()]
-                local can_select = self:canSelectMenuItem(menu_item)
-                if Game.battle.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
-                Kristal.callEvent("onBattleMenuSelect", self.state_reason, menu_item, can_select)
             end
         elseif Input.isCancel(key) then
             self.ui_move:stop()
