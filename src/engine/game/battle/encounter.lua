@@ -44,6 +44,9 @@ function Encounter:onCharacterTurn(battler, undo) end
 function Encounter:beforeStateChange(old, new) end
 function Encounter:onStateChange(old, new) end
 
+function Encounter:onActionSelect(battler, button) end
+function Encounter:onMenuSelect(state, item, can_select) end
+
 function Encounter:onGameOver() end
 function Encounter:onReturnToWorld(events) end
 

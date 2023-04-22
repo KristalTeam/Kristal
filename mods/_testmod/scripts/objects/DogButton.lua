@@ -10,13 +10,13 @@ function DogButton:update()
     super.update(self)
 end
 
-function DogButton:select()
-    self:explode()
-    Mod.dog_activated = false
-    Game.battle.music:stop()
-    for _,box in ipairs(Game.battle.battle_ui.action_boxes) do
-        box:createButtons()
-    end
-end
+-- function DogButton:select()
+--     self:explode()
+--     Mod.dog_activated = false
+--     Game.battle.music:stop()
+--     for _,box in ipairs(Game.battle.battle_ui.action_boxes) do
+--         box:createButtons()
+--     end
+-- end
 
 return DogButton

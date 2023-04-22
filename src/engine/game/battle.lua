@@ -2695,6 +2695,11 @@ function Battle:onKeyPressed(key)
                         self:pushAction("ITEM", self:getActiveEnemies(), menu_item)
                     end
                 end
+            else
+                local menu_item = self.menu_items[self:getItemIndex()]
+                local can_select = self:canSelectMenuItem(menu_item)
+                if Game.battle.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
+                Kristal.callEvent("onBattleMenuSelect", self.state_reason, menu_item, can_select)
             end
         elseif Input.isCancel(key) then
             self.ui_move:stop()

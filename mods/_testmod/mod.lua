@@ -166,11 +166,46 @@ function Mod:getActionButtons(battler, buttons)
     end
 end
 
+function Mod:onActionSelect(battler, button)
+    if button.type == "dog" then
+        Game.battle.menu_items = {}
+        for i,amount in ipairs{"One", "Two", "Three", "A hundred"} do
+            table.insert(Game.battle.menu_items, {
+                ["name"] = amount,
+                ["amount"] = (amount == "A hundred") and 100 or i,
+                ["description"] = "How many?",
+            })
+        end
+        Game.battle:setState("MENUSELECT", "DOG")
+        return true
+    end
+end
+
+function Mod:onBattleMenuSelect(state, item, can_select)
+    if state == "DOG" and can_select then
+        if item.amount == 1 then
+            Assets.playSound("pombark", 1)
+            Game.battle:pushAction("SKIP")
+        else
+            Game.battle:setState("NONE")
+            Game.battle.timer:script(function(wait)
+                local delay = 0.5
+                for i=1,item.amount do
+                    Assets.stopAndPlaySound("pombark", 1)
+                    wait(delay)
+                    delay = Utils.approach(delay, 2/30, 1/30)
+                end
+                Game.battle:pushAction("SKIP")
+            end)
+        end
+    end
+end
+
 function Mod:onKeyPressed(key)
     if Kristal.Config["debug"] then
         if Game.battle and Game.battle.state == "ACTIONSELECT" then
             if key == "5" then
-                Game.battle.music:play("mus_xpart_2")
+                -- Game.battle.music:play("mus_xpart_2")
                 self.dog_activated = true
                 for _,box in ipairs(Game.battle.battle_ui.action_boxes) do
                     box:createButtons()
