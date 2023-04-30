@@ -279,7 +279,7 @@ function DarkItemMenu:draw()
     local item_y = 0
     local inventory = self:getCurrentStorage()
 
-    for index, item in ipairs(inventory) do
+    for _, item in ipairs(inventory) do
         -- Draw the item shadow
         love.graphics.setColor(PALETTE["world_text_shadow"])
         local name = item:getWorldMenuName()
@@ -300,7 +300,10 @@ function DarkItemMenu:draw()
             item_x = 0
             item_y = item_y + 1
         end
+    end
 
+    for _, item in ipairs(inventory) do
+        love.graphics.setColor(1,1,1)
         item:onMenuDraw(self.parent)
     end
 
