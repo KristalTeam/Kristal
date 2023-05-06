@@ -77,6 +77,9 @@ function DarkMenu:onAdd(parent)
 end
 
 function DarkMenu:transitionOut()
+    if Game.world.menu == self then
+        Game.world.menu = nil
+    end
     self.animate_out = true
     self.animation_timer = 0
     self.animation_done = false
@@ -258,7 +261,7 @@ function DarkMenu:update()
         self.animation_done = true
         self.animation_timer = max_time + 1
         if self.animate_out then
-            Game.world.menu = nil
+            -- Game.world.menu = nil
             self:remove()
             return
         end
