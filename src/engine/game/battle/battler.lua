@@ -14,6 +14,7 @@ function Battler:init(x, y, width, height)
 
     self.highlight = self:addFX(ColorMaskFX())
     self.highlight.amount = 0
+    self.flash_timer = 0
 
     self.last_highlighted = false
 end
@@ -126,10 +127,12 @@ end
 function Battler:update()
     if Game.battle:isHighlighted(self) then
         self.highlight:setColor(1, 1, 1)
-        self.highlight.amount = -math.cos((Kristal.getTime()*30) / 5) * 0.4 + 0.6
+        self.flash_timer = self.flash_timer + DTMULT
+        self.highlight.amount = -math.cos((self.flash_timer) / 5) * 0.4 + 0.6
         self.last_highlighted = true
     elseif self.last_highlighted then
         self.highlight.amount = 0
+        self.flash_timer = 0
         self.last_highlighted = false
     end
 
