@@ -17,8 +17,11 @@ function Savepoint:init(x, y, properties)
     self.text_once = properties["text_once"]
     self.used = false
 
+    -- The hitbox is ALMOST half the size of the sprite, but not quite.
+    -- It's 9 pixels tall, 10 pixels away from the top.
+    -- So divide by 2, round, then multiply by 2 to get the right size for 2x.
     local width, height = self:getSize()
-    self:setHitbox(0, height / 2, width, height / 2)
+    self:setHitbox(0, math.ceil(height / 4) * 2, width, math.floor(height / 4) * 2)
 end
 
 function Savepoint:onInteract(player, dir)
