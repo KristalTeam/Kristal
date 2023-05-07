@@ -118,7 +118,7 @@ function World:hurtParty(battler, amount)
             if party:getHealth() <= 0 then
                 party:setHealth(1)
                 any_killed = true
-            elseif party:getHealth() > 1 then
+            else
                 any_alive = true
             end
 
@@ -129,7 +129,7 @@ function World:hurtParty(battler, amount)
                     char:statusMessage("damage", dealt_amount)
                 end
             end
-        elseif party:getHealth() > 1 then
+        elseif party:getHealth() > amount then
             any_alive = true
         end
     end
