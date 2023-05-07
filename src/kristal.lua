@@ -760,12 +760,7 @@ function Kristal.returnToMenu()
     Gamestate.switch({})
     -- Clear the mod
     Kristal.clearModState()
-    -- Remove the dark transition
-    for _,object in ipairs(Kristal.Stage.children) do
-        if object:includes(DarkTransition) then
-            object:remove()
-        end
-    end
+
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
         Gamestate.switch(Kristal.States["Menu"])
@@ -917,64 +912,11 @@ function Kristal.loadMod(id, save_id, save_name, after)
         Mod.libs[lib_id] = lib
     end
 
-    local new_file = not save_id or not Kristal.hasSaveFile(save_id, mod.id)
-
-    if not new_file or not mod.transition or after then
-        Kristal.loadModAssets(mod.id, "all", "", after or function()
-            if Kristal.preInitMod(mod.id) then
-                Gamestate.switch(Kristal.States["Game"], save_id, save_name)
-            end
-        end)
-    else
-        -- Preload assets for the transition
-        Registry.initialize(true)
-
-        local final_y = 320
-
-        Kristal.loadModAssets(mod.id, "sprites", DarkTransition.SPRITE_DEPENDENCIES, function()
-            local transition = DarkTransition()
-            transition.loading_callback = function()
-                Kristal.loadModAssets(mod.id, "all", "", function()
-                    transition:resumeTransition()
-                    if Kristal.preInitMod(mod.id) then
-                        Gamestate.switch(Kristal.States["Game"], save_id)
-                        if Game.world and Game.world.player then
-                            local px, py = Game.world.player:getScreenPos()
-                            transition.final_y = py
-                        end
-                    end
-                end)
-            end
-            transition.land_callback = function()
-                if Game and Game.world and Game.world.player then
-                    local kx, ky = transition.kris_sprite:localToScreenPos(transition.kris_width / 2, 0)
-                    -- TODO: Hardcoded offsets for now... Figure out why these are required
-                    Game.world.player:setScreenPos(kx - 2, transition.final_y - 2)
-                    Game.world.player.visible = false
-                    Game.world.player:setFacing("down")
-
-                    if not transition.kris_only and Game.world.followers[1] then
-                        local sx, sy = transition.susie_sprite:localToScreenPos(transition.susie_width / 2, 0)
-                        Game.world.followers[1]:setScreenPos(sx + 6, transition.final_y - 6)
-                        Game.world.followers[1].visible = false
-                        Game.world.followers[1]:interpolateHistory()
-                        Game.world.followers[1]:setFacing("down")
-                    end
-                end
-            end
-            transition.end_callback = function()
-                if Game and Game.world and Game.world.player then
-                    Game.world.player.visible = true
-                    if not transition.kris_only and Game.world.followers[1] then
-                        Game.world.followers[1].visible = true
-                    end
-                end
-            end
-
-            transition.layer = 1000
-            Kristal.Stage:addChild(transition)
-        end)
-    end
+    Kristal.loadModAssets(mod.id, "all", "", after or function()
+        if Kristal.preInitMod(mod.id) then
+            Gamestate.switch(Kristal.States["Game"], save_id, save_name)
+        end
+    end)
 end
 
 --- Loads assets from a mod and its libraries. Called internally by `Kristal.loadMod`.
@@ -1120,24 +1062,6 @@ function Kristal.processDynamicBorder()
     elseif Kristal.getState() == Kristal.States["Menu"] then
         return "castle"
     end
-end
-
---- Called internally to determine whether borders should be set.
----@return boolean exists Whether a stage transition exists.
-function Kristal.stageTransitionExists()
-    if #Kristal.Stage:getObjects(DarkTransition) ~= 0 then
-        return true
-    end
-
-    if Kristal.getState() == Kristal.States["Menu"] then
-        for _,obj in ipairs(Kristal.States["Menu"].stage:getObjects(FileNamer)) do
-            if obj.state == "FADEOUT" or obj.state == "DONE" then
-                return true
-            end
-        end
-    end
-
-    return false
 end
 
 --- Fades out the screen border.

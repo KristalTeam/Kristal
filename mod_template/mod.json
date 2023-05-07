@@ -44,9 +44,6 @@
         }
     },
 
-    // Whether selecting your mod starts the dark world transition in the main menu or not.
-    "transition": {transition},
-
     // Should never be true, but just in case. Restarts the entire engine when leaving the mod.
     // If you need this, you're most likely doing something wrong.
     "hardReset": false,

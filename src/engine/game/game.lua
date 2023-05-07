@@ -73,12 +73,10 @@ end
 function Game:setBorder(border, time)
     time = time or 1
 
-    if not Kristal.stageTransitionExists() then
-        if time == 0 then
-            Kristal.showBorder(0)
-        elseif time > 0 and Kristal.getBorder() ~= border then
-            Kristal.transitionBorder(time)
-        end
+    if time == 0 then
+        Kristal.showBorder(0)
+    elseif time > 0 and Kristal.getBorder() ~= border then
+        Kristal.transitionBorder(time)
     end
 
     self.border = border
@@ -201,10 +199,8 @@ function Game:load(data, index, fade)
 
     self:clear()
 
-    if not Kristal.stageTransitionExists() then
-        BORDER_ALPHA = 0
-        Kristal.showBorder(1)
-    end
+    BORDER_ALPHA = 0
+    Kristal.showBorder(1)
 
     -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
     self.state = "OVERWORLD"

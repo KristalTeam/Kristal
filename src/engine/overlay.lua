@@ -52,7 +52,7 @@ function Overlay:update()
         end
         self.quit_timer = self.quit_timer + DT
         if self.quit_timer > 1.2 then
-            if Mod ~= nil or Gamestate.current() == Kristal.States["DarkTransition"] then
+            if Mod ~= nil then
                 self.quit_release = true
                 if Kristal.getModOption("hardReset") then
                     love.event.quit("restart")

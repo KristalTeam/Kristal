@@ -532,7 +532,7 @@ function Menu:update()
     end
 
     -- Update preview music fading
-    if not TARGET_MOD and not Kristal.stageTransitionExists() then
+    if not TARGET_MOD then
         local fade_waiting = false
         for k,v in pairs(self.mod_music) do
             if v:isPlaying() and v.volume > (self.mod_music_options[k].volume * 0.1) then
@@ -1021,10 +1021,8 @@ function Menu:draw()
             end
         end
     elseif self.state == "FILESELECT" or self.state == "FILENAME" then
-        if not Kristal.stageTransitionExists() then
-            local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
-            self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
-        end
+        local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
+        self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
         self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
 
@@ -1846,11 +1844,11 @@ function Menu:handleCreateInput(key, is_repeat)
         if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
         if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
         if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 6 then self.selected_option = is_repeat and 6 or 1    end
-        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 6    end
+        if self.selected_option > 5 then self.selected_option = is_repeat and 5 or 1    end
+        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or 5    end
 
         local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 6 then
+        if self.selected_option >= 5 then
             y_off = y_off + 32
         end
 
@@ -1878,14 +1876,10 @@ function Menu:handleCreateInput(key, is_repeat)
             elseif self.selected_option == 4 then
                 self.ui_select:stop()
                 self.ui_select:play()
-                self.create["transition"] = not self.create["transition"]
-            elseif self.selected_option == 5 then
-                self.ui_select:stop()
-                self.ui_select:play()
                 self.heart_target_x = 64 - 19
                 self.heart_target_y = 128 + 19
                 self:setState("CONFIG")
-            elseif self.selected_option == 6 then
+            elseif self.selected_option == 5 then
                 local valid = true
                 if self.create["name"][1] == "" or self.create["id"][1] == "" then valid = false end
                 if love.filesystem.getInfo("mods/" .. self.create["id"][1] .. "/") then valid = false end
@@ -2288,13 +2282,12 @@ function Menu:drawCreate()
     self:drawInputLine("Mod name: ",        menu_x, menu_y + (32 * 0), "name")
     self:drawInputLine("Mod ID:   ",        menu_x, menu_y + (32 * 1), "id")
     self:printShadow(  "Base chapter: ",    menu_x, menu_y + (32 * 2))
-    self:printShadow(  "Dark transition: ", menu_x, menu_y + (32 * 3))
-    self:printShadow(  "Edit feature config", menu_x, menu_y + (32 * 4))
-    self:printShadow(  "Create mod",        menu_x, menu_y + (32 * 6))
+    self:printShadow(  "Edit feature config", menu_x, menu_y + (32 * 3))
+    self:printShadow(  "Create mod",        menu_x, menu_y + (32 * 5))
 
     local off = 256
     self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "base_chapter_selected", self.create.base_chapters, "CHAPTER")
-    self:drawCheckbox(menu_x + off, menu_y + (32 * 3), "transition")
+    --self:drawCheckbox(menu_x + off, menu_y + (32 * 3), "transition")
 
     if self.selected_option == 1 then
         self:printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, COLORS.silver, "center", 640)
@@ -2305,11 +2298,8 @@ function Menu:drawCreate()
         self:printShadow("terms of features. Individual features", 0, 480 - 64, COLORS.silver, "center", 640)
         self:printShadow("can be toggled in the config.", 0, 480 - 32, COLORS.silver, "center", 640)
     elseif self.selected_option == 4 then
-        self:printShadow("Whether the dark world transition should play", 0, 480 - 64, COLORS.silver, "center", 640)
-        self:printShadow("when loading your mod.", 0, 480 - 32, COLORS.silver, "center", 640)
-    elseif self.selected_option == 5 then
         self:printShadow("Edit individual Kristal features.", 0, 480 - 32, COLORS.silver, "center", 640)
-    elseif self.selected_option == 6 then
+    elseif self.selected_option == 5 then
         if self.create.id[1] == "" then
             self:printShadow("You must enter a valid ID.", 0, 480 - 32, {1, 0.6, 0.6, 1}, "center", 640)
         elseif self.create.name[1] == "" then

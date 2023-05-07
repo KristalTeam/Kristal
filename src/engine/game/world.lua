@@ -654,11 +654,9 @@ function World:setupMap(map, ...)
     self.in_battle_area = false
     self.battle_alpha = 0
 
-    if not Kristal.stageTransitionExists() then
-        local map_border = self.map:getBorder(dark_transitioned)
-        if map_border then
-            Game:setBorder(map_border)
-        end
+    local map_border = self.map:getBorder(dark_transitioned)
+    if map_border then
+        Game:setBorder(map_border)
     end
 
     if not self.map.keep_music then
