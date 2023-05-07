@@ -438,7 +438,7 @@ function BattleUI:drawState()
                     love.graphics.rectangle("fill", hp_x, 55 + y_off, 81, 16)
 
                     love.graphics.setColor(PALETTE["action_health"])
-                    love.graphics.rectangle("fill", hp_x, 55 + y_off, (hp_percent * 81), 16)
+                    love.graphics.rectangle("fill", hp_x, 55 + y_off, math.ceil(hp_percent * 81), 16)
 
                     if draw_percents then
                         love.graphics.setColor(PALETTE["action_health_text"])
