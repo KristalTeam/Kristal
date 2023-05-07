@@ -16,6 +16,9 @@ function Savepoint:init(x, y, properties)
 
     self.text_once = properties["text_once"]
     self.used = false
+
+    local width, height = self:getSize()
+    self:setHitbox(0, height / 2, width, height / 2)
 end
 
 function Savepoint:onInteract(player, dir)
