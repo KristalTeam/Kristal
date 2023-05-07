@@ -65,14 +65,14 @@ function DarkMenu:init()
     self.description_box.layer = 10
     self:addChild(self.description_box)
 
-    self.description = Text("", 20, 10, SCREEN_WIDTH - 20, SCREEN_HEIGHT - 10)
+    self.description = Text("", 20, 10, SCREEN_WIDTH - 20, 80 - 16)
     self.description_box:addChild(self.description)
 
     self.box = nil
 end
 
 function DarkMenu:onAdd(parent)
-    super.onAdd(parent)
+    super.onAdd(self, parent)
     Game.world:showHealthBars()
 end
 
