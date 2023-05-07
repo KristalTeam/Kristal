@@ -1,7 +1,7 @@
 {
     "id": "testmod",
     "name": "Test Mod",
-    "subtitle": "A testing mod full of various stuff and things",
+    "subtitle": "For Kristal development, NOT an example mod!",
 
     "version": "v?.?.?",
     "engineVer": "v0.8.1-dev",

@@ -1,7 +1,7 @@
 {
     "id": "light",
     "name": "Light World",
-    "subtitle": "Another testing mod...?",
+    "subtitle": "For Kristal development, NOT an example mod!",
 
     "version": "v?.?.?",
     "engineVer": "v0.8.1-dev",
