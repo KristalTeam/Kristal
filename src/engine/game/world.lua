@@ -6,6 +6,7 @@ function World:init(map)
     super.init(self)
 
     -- states: GAMEPLAY, FADING, MENU
+    self.state = "" -- Make warnings shut up, TODO: fix this
     self.state_manager = StateManager("GAMEPLAY", self, true)
     self.state_manager:addState("GAMEPLAY")
     self.state_manager:addState("FADING")
@@ -112,16 +113,20 @@ function World:hurtParty(battler, amount)
     local any_alive = false
     for _,party in ipairs(Game.party) do
         if not battler or battler == party.id or battler == party then
+            local current_health = party:getHealth()
             party:setHealth(party:getHealth() - amount)
             if party:getHealth() <= 0 then
-                party.setHealth(1)
+                party:setHealth(1)
                 any_killed = true
             elseif party:getHealth() > 1 then
                 any_alive = true
             end
+
+            local dealt_amount = current_health - party:getHealth()
+
             for _,char in ipairs(self.stage:getObjects(Character)) do
-                if char.actor and (char.actor.id == party:getActor().id) then
-                    char:statusMessage("damage", amount)
+                if char.actor and (char.actor.id == party:getActor().id) and dealt_amount > 0 then
+                    char:statusMessage("damage", dealt_amount)
                 end
             end
         elseif party:getHealth() > 1 then
