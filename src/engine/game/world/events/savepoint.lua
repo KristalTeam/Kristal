@@ -5,16 +5,18 @@ local Savepoint, super = Class(Interactable)
 function Savepoint:init(x, y, properties)
     super.init(self, x, y, nil, nil, properties)
 
-    self.marker = properties and properties["marker"]
+    properties = properties or {}
 
+    self.marker = properties["marker"]
     self.simple_menu = properties["simple"]
+    self.text_once = properties["text_once"]
+    self.heals = properties["heals"] ~= false
 
     self.solid = true
 
     self:setOrigin(0.5, 0.5)
     self:setSprite("world/events/savepoint", 1/6)
 
-    self.text_once = properties["text_once"]
     self.used = false
 
     -- The hitbox is ALMOST half the size of the sprite, but not quite.
@@ -43,9 +45,12 @@ end
 function Savepoint:onTextEnd()
     if not self.world then return end
 
-    for _,party in ipairs(Game.party) do
-        party:heal(math.huge, false)
+    if self.heals then
+        for _,party in ipairs(Game.party) do
+            party:heal(math.huge, false)
+        end
     end
+
     if self.simple_menu or (self.simple_menu == nil and (Game:isLight() or Game:getConfig("smallSaveMenu"))) then
         self.world:openMenu(SimpleSaveMenu(Game.save_id, self.marker))
     else
