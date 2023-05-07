@@ -1,7 +1,8 @@
+---@class MirrorArea : Event
 local MirrorArea, super = Class(Event)
 
 function MirrorArea:init(x, y, w, h, properties)
-    super:init(self, x, y, w, h)
+    super.init(self, x, y, w, h)
 
     properties = properties or {}
 
@@ -49,7 +50,7 @@ function MirrorArea:drawCharacter(chara)
 end
 
 function MirrorArea:draw()
-    super:draw(self)
+    super.draw(self)
 
     Draw.pushCanvas(self.canvas)
     love.graphics.clear()
