@@ -60,7 +60,7 @@ function Console:createEnv()
     end
 
     function env.clear()
-        self.history = {""}
+        self.history = {}
     end
 
     function env.stack()

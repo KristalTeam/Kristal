@@ -163,6 +163,9 @@ function Sprite:setTextureExact(texture)
     else
         self.texture = texture
     end
+    if not self.texture then
+        Kristal.Console:warn("Texture not found: " .. Utils.dump(texture))
+    end
     self.texture_path = Assets.getTextureID(texture)
     if self.use_texture_size then
         if self.texture then
