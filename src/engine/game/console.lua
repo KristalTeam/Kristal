@@ -13,11 +13,11 @@ function Console:init()
 
     self.font = Assets.getFont(self.font_name, self.font_size)
 
-    self.history = {
-        "Welcome to [color:cyan]KRISTAL[color:reset]! This is the debug console.",
-        "You can enter Lua here to be ran! Use [color:gray]clear()[color:reset] to clear the console.",
-        "",
-    }
+    self.history = {}
+
+    self:push("Welcome to [color:cyan]KRISTAL[color:reset]! This is the debug console.")
+    self:push("You can enter Lua here to be ran! Use [color:gray]clear()[color:reset] to clear the console.")
+    self:push("")
 
     self.command_history = {}
 
@@ -26,8 +26,6 @@ function Console:init()
     self.is_open = false
 
     self.history_index = 0
-
-    self.just_closed = false
 
     self:close()
 
@@ -144,75 +142,38 @@ function Console:close()
     TextInput.endInput()
 end
 
-function Console:print(text, x, y, ignore_modifiers)
-    -- loop through chars in text
+function Console:print(text, x, y)
 
     if text == nil then return end
 
     local x_offset = 0
 
-    local in_modifier = false
-    local modifier_text = ""
+    local color = {1, 1, 1, 1}
 
-    for char in text:gmatch(utf8.charpattern) do
-        --local char = text:sub(utf8.offset(text,i), utf8.offset(text,i))
-        if char == "[" and (not ignore_modifiers) then
-            in_modifier = true
-        elseif char == "]" and (not ignore_modifiers) then
-            in_modifier = false
-            local modifier = Utils.split(modifier_text, ":", false)
-            if modifier[1] == "color" then
-                local color = {1, 1, 1, 1}
-                if modifier[2] then
-                    if Utils.startsWith(modifier[2], "#") then
-                        color = Utils.hexToRgb(modifier[2])
-                    elseif modifier[2] == "cyan" then
-                        color = {0.5, 1, 1, 1}
-                    elseif modifier[2] == "white" then
-                        color = {1, 1, 1, 1}
-                    elseif modifier[2] == "yellow" then
-                        color = {1, 1, 0.5, 1}
-                    elseif modifier[2] == "red" then
-                        color = {1, 0.5, 0.5, 1}
-                    elseif modifier[2] == "gray" then
-                        color = {0.8, 0.8, 0.8, 1}
-                    end
-                end
-                love.graphics.setColor(color)
-            else
-                modifier_text = "[" .. modifier_text .. "]"
-                for char2 in modifier_text:gmatch(utf8.charpattern) do
-                    if char2 then
-                        self:printChar(char2, x + x_offset, y)
-                        x_offset = x_offset + self.font:getWidth(char2)
-                    end
-                end
-            end
-            modifier_text = ""
-        elseif in_modifier and (not ignore_modifiers) then
-            modifier_text = modifier_text .. char
+    for _,line in ipairs(text) do
+        love.graphics.setColor(color)
+        if type(line) == "table" then
+            color = line
         else
-            if char then
-                self:printChar(char, x + x_offset, y)
-                x_offset = x_offset + self.font:getWidth(char)
-            end
+            self:printOutlined(line, x + x_offset, y)
+            x_offset = x_offset + self.font:getWidth(line)
         end
     end
 end
 
-function Console:printChar(char, x, y)
+function Console:printOutlined(text, x, y)
     if y < 0 then return end
     local r, g, b, a = love.graphics.getColor()
     love.graphics.setColor(r / 2, g / 2, b / 2, a / 2)
 
-    love.graphics.print(char, x + 1, y)
-    love.graphics.print(char, x - 1, y)
-    love.graphics.print(char, x, y + 1)
-    love.graphics.print(char, x, y - 1)
+    love.graphics.print(text, x + 1, y)
+    love.graphics.print(text, x - 1, y)
+    love.graphics.print(text, x, y + 1)
+    love.graphics.print(text, x, y - 1)
 
     love.graphics.setColor(r, g, b, a)
 
-    love.graphics.print(char, x, y)
+    love.graphics.print(text, x, y)
 end
 
 function Console:draw()
@@ -232,17 +193,13 @@ function Console:draw()
     local y_offset = self.height
 
     for line = #self.history - self.height, #self.history do
-        local lines = Utils.split(self.history[line] or "", "\n", false)
-        y_offset = y_offset - #lines
+        --local lines = Utils.split(self.history[line] or "", "\n", false)
+        y_offset = y_offset - 1
     end
 
     for line = #self.history - self.height, #self.history do
-        local text = self.history[line] or ""
-        local lines = Utils.split(text, "\n", false)
-        for i = 1, #lines do
-            self:print(lines[i] or "", 8, y_offset * 16)
-            y_offset = y_offset + 1
-        end
+        self:print(self.history[line] or {""}, 8, y_offset * 16)
+        y_offset = y_offset + 1
     end
 
 
@@ -260,7 +217,7 @@ function Console:draw()
         x = 8,
         y = input_pos,
         print = function(text, x, y)
-            self:print(text, x, y, true)
+            self:print({text}, x, y)
         end,
         font = self.font
     })
@@ -285,7 +242,57 @@ function Console:draw()
 end
 
 function Console:push(str)
-    table.insert(self.history, str)
+    if str == nil then return end
+
+    for _,line in ipairs(Utils.split(str, "\n", false)) do
+        local text = {}
+        local current = ""
+        local in_modifier = false
+        local modifier_text = ""
+
+        for char in line:gmatch(utf8.charpattern) do
+            if char == "[" then
+                table.insert(text, current)
+                current = ""
+                in_modifier = true
+            elseif char == "]" and in_modifier then
+                current = ""
+                in_modifier = false
+                local modifier = Utils.split(modifier_text, ":", false)
+                if modifier[1] == "color" then
+                    local color = {1, 1, 1, 1}
+                    if modifier[2] then
+                        if Utils.startsWith(modifier[2], "#") then
+                            color = Utils.hexToRgb(modifier[2])
+                        elseif modifier[2] == "cyan" then
+                            color = {0.5, 1, 1, 1}
+                        elseif modifier[2] == "white" then
+                            color = {1, 1, 1, 1}
+                        elseif modifier[2] == "yellow" then
+                            color = {1, 1, 0.5, 1}
+                        elseif modifier[2] == "red" then
+                            color = {1, 0.5, 0.5, 1}
+                        elseif modifier[2] == "gray" then
+                            color = {0.8, 0.8, 0.8, 1}
+                        end
+                    end
+                    table.insert(text, color)
+                else
+                    modifier_text = "[" .. modifier_text .. "]"
+                    table.insert(text, modifier_text)
+                end
+                modifier_text = ""
+            elseif in_modifier then
+                modifier_text = modifier_text .. char
+            else
+                current = current .. char
+            end
+        end
+
+        table.insert(text, current)
+
+        table.insert(self.history, text)
+    end
 end
 
 function Console:log(str)
@@ -312,17 +319,17 @@ function Console:run(str)
     end
     self.history_index = #self.command_history + 1
     local run_string = ""
-    local history_string = "[color:gray]"
+    local history_string = ""
     for i, line in ipairs(str) do
-        local prefix = "> "
+        local prefix = "[color:gray]> "
 
         if #str > 1 then
             if i == 1 then
-                prefix = "┌ "
+                prefix = "[color:gray]┌ "
             elseif i == #str then
-                prefix = "└ "
+                prefix = "[color:gray]└ "
             else
-                prefix = "│ "
+                prefix = "[color:gray]│ "
             end
         end
 
@@ -341,6 +348,7 @@ function Console:run(str)
     local status, err = pcall(function() self:unsafeRun(run_string) end)
     if (not status) and err then
         self:error(self:stripError(err))
+        print(err)
     end
 end
 
