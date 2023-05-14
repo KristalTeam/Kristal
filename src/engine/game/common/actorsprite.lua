@@ -21,7 +21,7 @@ function ActorSprite:init(actor)
     self.directional = false
     self.dir_sep = "_"
 
-    super.init(self, "", 0, 0, actor:getWidth(), actor:getHeight(), actor:getSpritePath())
+    super.init(self, nil, 0, 0, actor:getWidth(), actor:getHeight(), actor:getSpritePath())
 
     self.offsets = actor.offsets or {}
 
@@ -129,6 +129,17 @@ function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
 end
 
 function ActorSprite:_setSprite(texture, keep_anim)
+    if not texture then
+        self.texture = nil
+        self.anim = nil
+        self.temp_anim = nil
+        self.temp_sprite = nil
+        self.sprite = nil
+        self.full_sprite = nil
+        self.directional = false
+        return
+    end
+
     if type(texture) ~= "string" then
         error("Texture must be a string")
     end

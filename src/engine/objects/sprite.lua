@@ -89,7 +89,7 @@ end
 --- If the sprite has no frames, this will do nothing.
 function Sprite:updateTexture()
     if self.frames then
-        self:setTextureExact(self.frames[self.frame], true)
+        self:setTextureExact(self.frames[self.frame])
     end
 end
 
@@ -163,7 +163,7 @@ function Sprite:setTextureExact(texture)
     else
         self.texture = texture
     end
-    if not self.texture then
+    if (not self.texture) and (texture ~= nil) then
         Kristal.Console:warn("Texture not found: " .. Utils.dump(texture))
     end
     self.texture_path = Assets.getTextureID(texture)
@@ -188,7 +188,7 @@ end
 
 --- *(Called internally)* Sets the current sprite to a list of frames, and updates the texture.  \
 --- **Note**: *Ignores `path` and single-frame textures. Use `Sprite:setSprite()` instead.*
----@param frames table  The frames to set the sprite to.
+---@param frames string|table  The frames to set the sprite to.
 ---@param keep_anim? boolean  If `true`, this will not interrupt the current animation. Otherwise, any animation will be stopped.
 function Sprite:setFrames(frames, keep_anim)
     if type(frames) == "string" then
