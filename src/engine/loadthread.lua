@@ -104,7 +104,7 @@ local loaders = {
                     error = mod,
                     file = "mod.json"
                 })
-                print("WARNING: Mod \""..path.."\" has an invalid mod.json!")
+                Kristal.Console:warn("Mod \""..path.."\" has an invalid mod.json!")
                 return
             end
 
@@ -210,7 +210,7 @@ local loaders = {
                             error = lib,
                             file = "lib.json"
                         })
-                        print("WARNING: Mod \""..path.."\" has a library with an invalid lib.json!")
+                        Kristal.Console:warn("Mod \""..path.."\" has a library with an invalid lib.json!")
                         return
                     end
 

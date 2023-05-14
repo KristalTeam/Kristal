@@ -310,7 +310,7 @@ end
 function Registry.registerGlobal(id, value, no_warning)
     if _G[id] then
         if not no_warning then
-            print("WARNING: Global '"..tostring(id).."' already exists, replacing")
+            Kristal.Console:warn("Global '"..tostring(id).."' already exists, replacing")
         end
         if not self.last_globals[id] and not self.new_globals[id] then
             self.last_globals[id] = _G[id]

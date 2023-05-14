@@ -397,7 +397,7 @@ function Menu:buildMods()
                     button.preview_script:init(mod, button, self)
                 end
             else
-                print("preview.lua error in "..mod.name..": "..result)
+                Kristal.Console:warn("preview.lua error in "..mod.name..": "..result)
             end
         end
 

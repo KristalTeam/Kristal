@@ -1914,7 +1914,7 @@ function Battle:nextTurn()
     while not (self.party[self.current_selecting]:isActive()) do
         self.current_selecting = self.current_selecting + 1
         if self.current_selecting > #self.party then
-            print("WARNING: nobody up! this shouldn't happen...")
+            Kristal.Console:warn("Nobody up! This shouldn't happen...")
             self.current_selecting = 1
             break
         end

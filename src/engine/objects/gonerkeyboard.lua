@@ -106,7 +106,7 @@ function GonerKeyboard:onSelect(key, x, y)
     elseif key == "END" then
         self:finish()
     elseif #key > 1 then
-        print("Unknown command: " .. key)
+        Kristal.Console:warn("Unknown command: " .. key)
     else
         self:addCharacter(key)
     end

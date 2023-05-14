@@ -78,7 +78,7 @@ function TextInput.submit()
     if self.submit_callback then
         self.submit_callback()
     else
-        print("WARNING: No submit callback set!")
+        Kristal.Console:warn("No submit callback set!")
     end
     if self.clear_after_submit then
         self.clear()

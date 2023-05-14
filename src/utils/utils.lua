@@ -1073,11 +1073,11 @@ function Utils.printPerformance()
             for _,v in ipairs(times) do
                 n = n + v
             end
-            print("["..PERFORMANCE_TEST_STAGE.."] "..k.. " | "..#times.." calls | "..(n / #times).." | Total: "..n)
+            Kristal.Console:log("["..PERFORMANCE_TEST_STAGE.."] "..k.. " | "..#times.." calls | "..(n / #times).." | Total: "..n)
         end
     end
     if PERFORMANCE_TEST["Total"] then
-        print("["..PERFORMANCE_TEST_STAGE.."] Total: "..PERFORMANCE_TEST["Total"][1])
+        Kristal.Console:log("["..PERFORMANCE_TEST_STAGE.."] Total: "..PERFORMANCE_TEST["Total"][1])
     end
 end
 
