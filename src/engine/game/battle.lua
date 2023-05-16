@@ -461,10 +461,7 @@ function Battle:onStateChange(old,new)
         self.current_selecting = 0
 
         if self.tension_bar then
-            self.tension_bar.animating_in = false
-            self.tension_bar.shown = false
-            self.tension_bar.physics.speed_x = -10
-            self.tension_bar.physics.friction = -0.4
+            self.tension_bar:hide()
         end
 
         for _,battler in ipairs(self.party) do

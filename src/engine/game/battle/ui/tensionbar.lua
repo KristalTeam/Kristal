@@ -72,6 +72,15 @@ function TensionBar:show()
     end
 end
 
+function TensionBar:hide()
+    if self.shown then
+        self.animating_in = false
+        self.shown = false
+        self.physics.speed_x = -10
+        self.physics.friction = -0.4
+    end
+end
+
 function TensionBar:getDebugInfo()
     local info = super.getDebugInfo(self)
     table.insert(info, "Tension: "  .. Utils.round(self:getPercentageFor(Game:getTension()) * 100) .. "%")

@@ -53,7 +53,11 @@ function EnemyBattler:init(actor, use_overlay)
     self.tired_percentage = 0.5
 
     -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
+    -- This is set to nil in `battler.lua` as well, but it's here for completion's sake.
     self.dialogue_bubble = nil
+
+    -- The offset for the speech bubble, also set in `battler.lua`
+    self.dialogue_offset = {0, 0}
 
     self.dialogue = {}
 
@@ -599,39 +603,15 @@ function EnemyBattler:defeat(reason, violent)
 end
 
 function EnemyBattler:setActor(actor, use_overlay)
-    if type(actor) == "string" then
-        self.actor = Registry.createActor(actor)
-    else
-        self.actor = actor
-    end
+    super.setActor(self, actor, use_overlay)
 
-    self.width = self.actor:getWidth()
-    self.height = self.actor:getHeight()
-
-    if self.sprite         then self:removeChild(self.sprite)         end
-    if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
-
-    self.sprite = self.actor:createSprite()
-    self.sprite.facing = "left"
-    self.sprite.inherit_color = true
-    self:addChild(self.sprite)
-
-    if use_overlay ~= false then
-        self.overlay_sprite = self.actor:createSprite()
-        self.overlay_sprite.facing = "left"
-        self.overlay_sprite.visible = false
-        self.overlay_sprite.inherit_color = true
-        self:addChild(self.overlay_sprite)
-    end
-end
-
-function EnemyBattler:toggleOverlay(overlay)
-    if overlay == nil then
-        overlay = self.sprite.visible
+    if self.sprite then
+        self.sprite.facing = "left"
+        self.sprite.inherit_color = true
     end
     if self.overlay_sprite then
-        self.overlay_sprite.visible = overlay
-        self.sprite.visible = not overlay
+        self.overlay_sprite.facing = "left"
+        self.overlay_sprite.inherit_color = true
     end
 end
 

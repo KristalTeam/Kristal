@@ -17,6 +17,47 @@ function Battler:init(x, y, width, height)
     self.flash_timer = 0
 
     self.last_highlighted = false
+
+    self.sprite = nil
+    self.overlay_sprite = nil
+
+    self.dialogue_offset = {0, 0}
+
+    -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
+    self.dialogue_bubble = nil
+end
+
+function Battler:setActor(actor, use_overlay)
+    if type(actor) == "string" then
+        self.actor = Registry.createActor(actor)
+    else
+        self.actor = actor
+    end
+
+    self.width = self.actor:getWidth()
+    self.height = self.actor:getHeight()
+
+    if self.sprite         then self:removeChild(self.sprite)         end
+    if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
+
+    self.sprite = self.actor:createSprite()
+    self:addChild(self.sprite)
+
+    if use_overlay ~= false then
+        self.overlay_sprite = self.actor:createSprite()
+        self.overlay_sprite.visible = false
+        self:addChild(self.overlay_sprite)
+    end
+end
+
+function Battler:toggleOverlay(overlay)
+    if overlay == nil then
+        overlay = self.sprite.visible
+    end
+    if self.overlay_sprite then
+        self.overlay_sprite.visible = overlay
+        self.sprite.visible = not overlay
+    end
 end
 
 function Battler:flash(sprite, offset_x, offset_y, layer)
@@ -76,15 +117,11 @@ function Battler:spawnSpeechBubble(text, options)
     end
     if not options["right"] then
         local x, y = self.sprite:getRelativePos(0, self.sprite.height/2, Game.battle)
-        if self.dialogue_offset then
-            x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
-        end
+        x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
         bubble = SpeechBubble(text, x, y, options, self)
     else
         local x, y = self.sprite:getRelativePos(self.sprite.width, self.sprite.height/2, Game.battle)
-        if self.dialogue_offset then
-            x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
-        end
+        x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
         bubble = SpeechBubble(text, x, y, options, self)
     end
     self.bubble = bubble
