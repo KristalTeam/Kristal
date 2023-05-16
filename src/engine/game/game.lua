@@ -499,7 +499,7 @@ function Game:enterShop(shop, options)
         self.shop.leave_options = options
     end
 
-    if self.world then
+    if self.world and self.shop.shop_music then
         self.world.music:stop()
     end
 
