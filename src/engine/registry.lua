@@ -727,7 +727,7 @@ function Registry.iterScripts(base_path, exclude_folder)
     CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER
 
     local i = 0
----@diagnostic disable-next-line: undefined-field
+---@diagnostic disable-next-line: undefined-field, deprecated
     local n = table.getn(result)
     return function()
         i = i + 1

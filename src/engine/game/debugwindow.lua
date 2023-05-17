@@ -98,7 +98,7 @@ function DebugWindow:onMouseReleased(x, y, button, istouch, presses)
     end
 
     if #self.buttons > 0 then
-        button_off = 0
+        local button_off = 0
         for i = #self.buttons, 1, -1 do
             local button = self.buttons[i]
             local width = self.font:getWidth(button) + 20
@@ -252,7 +252,7 @@ function DebugWindow:draw()
 
     if #self.buttons > 0 then
         -- loop through buttons in reverse
-        button_off = 0
+        local button_off = 0
         for i = #self.buttons, 1, -1 do
             local button = self.buttons[i]
 

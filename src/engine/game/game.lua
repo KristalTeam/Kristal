@@ -387,14 +387,17 @@ function Game:isLight()
 end
 
 function Game:convertToLight()
-    if self.inventory:hasItem("cell_phone") then
+    local inventory = self.inventory
+    ---@cast inventory DarkInventory
+
+    if inventory:hasItem("cell_phone") then
         self:setFlag("has_cell_phone", true)
-        self.inventory:removeItem("cell_phone")
+        inventory:removeItem("cell_phone")
     else
         self:setFlag("has_cell_phone", false)
     end
 
-    self.inventory = self.inventory:convertToLight()
+    self.inventory = inventory:convertToLight()
 
     for _,chara in pairs(self.party_data) do
         chara:convertToLight()
@@ -402,7 +405,10 @@ function Game:convertToLight()
 end
 
 function Game:convertToDark()
-    self.inventory = self.inventory:convertToDark()
+    local inventory = self.inventory
+    ---@cast inventory LightInventory
+
+    self.inventory = inventory:convertToDark()
 
     for _,chara in pairs(self.party_data) do
         chara:convertToDark()

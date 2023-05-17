@@ -101,9 +101,9 @@ function Console:open()
         multiline = true,
         enter_submits = true,
     })
-    TextInput.submit_callback = function(...) self:onSubmit(...) end
-    TextInput.up_limit_callback = function(...) self:onUpLimit(...) end
-    TextInput.down_limit_callback = function(...) self:onDownLimit(...) end
+    TextInput.submit_callback = function(...) self:onSubmit() end
+    TextInput.up_limit_callback = function(...) self:onUpLimit() end
+    TextInput.down_limit_callback = function(...) self:onDownLimit() end
     TextInput.pressed_callback = function(...) self:onConsoleKeyPressed(...) end
 end
 
