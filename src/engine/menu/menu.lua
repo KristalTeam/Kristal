@@ -148,6 +148,7 @@ function Menu:enter()
         "Luna",
         "prokube",
         "AcousticJamm",
+        "Simbel",
         "",
         {"Documentation", COLORS.silver},
         "Vitellary",
