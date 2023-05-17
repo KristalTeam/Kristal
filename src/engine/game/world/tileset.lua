@@ -46,7 +46,7 @@ function Tileset:init(data, path)
             local image_path = Utils.absoluteToLocalPath("assets/sprites/", v.image, path)
             info.texture = Assets.getTexture(image_path)
             if not info.texture then
-                error("Could not load tileset tile texture: "..image_path)
+                error("Could not load tileset tile texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
             end
             info.x = v.x or 0
             info.y = v.y or 0
@@ -65,7 +65,7 @@ function Tileset:init(data, path)
         local image_path = Utils.absoluteToLocalPath("assets/sprites/", data.image, path)
         self.texture = Assets.getTexture(image_path)
         if not self.texture then
-            error("Could not load tileset texture: "..image_path)
+            error("Could not load tileset texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
         end
     end
 
