@@ -52,6 +52,10 @@ function Encounter:onReturnToWorld(events) end
 
 function Encounter:getDialogueCutscene() end
 
+function Encounter:getVictoryMoney(money) end
+function Encounter:getVictoryXP(xp) end
+function Encounter:getVictoryText(text, money, xp) end
+
 function Encounter:update() end
 
 function Encounter:draw(fade) end

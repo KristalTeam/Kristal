@@ -490,6 +490,8 @@ function Battle:onStateChange(old,new)
 
         self.money = math.floor(self.money)
 
+        self.money = self.encounter:getVictoryMoney(self.money) or self.money
+        self.xp = self.encounter:getVictoryXP(self.xp) or self.xp
         -- if (in_dojo) then
         --     self.money = 0
         -- end
@@ -522,6 +524,8 @@ function Battle:onStateChange(old,new)
             Assets.playSound("dtrans_lw", 0.7, 2)
             --scr_levelup()
         end
+
+        win_text = self.encounter:getVictoryText(win_text, self.money, self.xp) or win_text
 
         if self.encounter.no_end_message then
             self:setState("TRANSITIONOUT")
