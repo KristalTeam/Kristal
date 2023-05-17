@@ -638,19 +638,14 @@ function Shop:draw()
 
             if current_item.item.type == "armor" or current_item.item.type == "weapon" then
                 for i = 1, #Game.party do
-                    local offset_x = 0
-                    local offset_y = 0
-                    -- TODO: more than 3 party member support
-                    if i == 1 then
-                        offset_x = 0
-                        offset_y = 0
-                    elseif i == 2 then
-                        offset_x = 100
-                        offset_y = 0
-                    elseif i == 3 then
-                        offset_x = 0
-                        offset_y = 45
-                    end
+                    -- Turn the index into a 2 wide grid (0-indexed)
+                    local transformed_x = (i - 1) % 2
+                    local transformed_y = math.floor((i - 1) / 2)
+
+                    -- Transform the grid into coordinates
+                    local offset_x = transformed_x * 100
+                    local offset_y = transformed_y * 45
+
                     local party_member = Game.party[i]
                     local can_equip = party_member:canEquip(current_item.item)
                     local head_path = ""
