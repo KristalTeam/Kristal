@@ -112,6 +112,7 @@ local palette_data = {
     ["world_header"] = {1, 1, 1, 1},
     ["world_header_selected"] = {255/255, 160/255, 64/255, 1},
     ["world_save_other"] = {68/255, 68/255, 68/255, 1},
+    ["world_action_icon"] = {255/255, 160/255, 64/255, 1},
 
     ["action_strip"] = {51/255, 32/255, 51/255, 1},
     ["action_fill"] = {0, 0, 0, 1},
