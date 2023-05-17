@@ -137,12 +137,12 @@ function DarkEquipMenu:getAbilityPreview()
     local current_abilities = {}
     local weapon = party.equipped.weapon
     if weapon and weapon:getBonusName() then
-        current_abilities[1] = {name = weapon:getBonusName(), icon = weapon.bonus_icon}
+        current_abilities[1] = {name = weapon:getBonusName(), icon = weapon.bonus_icon, color = weapon.bonus_color}
     end
     for i = 1, 2 do
         local armor = party.equipped.armor[i]
         if armor and armor:getBonusName() then
-            current_abilities[i+1] = {name = armor:getBonusName(), icon = armor.bonus_icon}
+            current_abilities[i+1] = {name = armor:getBonusName(), icon = armor.bonus_icon, color = armor.bonus_color}
         end
     end
     if self.state == "ITEMS" and self:canEquipSelected() then
@@ -150,7 +150,7 @@ function DarkEquipMenu:getAbilityPreview()
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
             if equipment[i] and equipment[i]:getBonusName() then
-                preview_abilities[i] = {name = equipment[i]:getBonusName(), icon = equipment[i].bonus_icon}
+                preview_abilities[i] = {name = equipment[i]:getBonusName(), icon = equipment[i].bonus_icon, color = equipment[i].bonus_color}
             end
         end
         return preview_abilities, current_abilities
@@ -486,7 +486,7 @@ function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
         local yoff = self.state == "ITEMS" and -6 or 2
         local texture = Assets.getTexture(abilities[index].icon)
         if texture then
-            love.graphics.setColor(255/255, 160/255, 64/255)
+            love.graphics.setColor(abilities[index].color)
             love.graphics.draw(texture, x, y + yoff, 0, 2, 2)
         end
     end

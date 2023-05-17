@@ -49,6 +49,9 @@ function Item:init()
     self.bonus_name = nil
     self.bonus_icon = nil
 
+    -- The color of the bonus icon, always orange in DELTARUNE
+    self.bonus_color = {255/255, 160/255, 64/255}
+
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}
 
