@@ -29,8 +29,6 @@ function DebugSystem:init()
 
     self.current_selecting = 1
 
-    self.current_subselecting = 1
-
     self.menu_canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     self.menu_canvas:setFilter("nearest", "nearest")
 
@@ -601,6 +599,10 @@ function DebugSystem:registerDefaults()
         self:setState("FACES")
     end)
 
+    self:registerOption("main", "Flag Editor", "Enter the flag editor menu.", function()
+        self:setState("FLAGS")
+    end)
+
     self:registerOption("main", "Sound Test", "Enter the sound test menu.", function()
         self:fadeMusicOut()
         self:enterMenu("sound_test", 0)
@@ -690,7 +692,9 @@ function DebugSystem:onStateChange(old, new)
         self.heart_target_x = 19
         self.heart_target_y = 35 + 32
 
-        self.menu_anim_timer = 0
+        if old == "IDLE" then
+            self.menu_anim_timer = 0
+        end
         self.circle_anim_timer = 0
         OVERLAY_OPEN = true
 
@@ -712,6 +716,14 @@ function DebugSystem:onStateChange(old, new)
     elseif new == "FACES" then
         Input.gamepad_locked = true
         Kristal.showCursor()
+    elseif new == "FLAGS" then
+        self.heart_target_x = 19
+        self.heart_target_y = 35 + 32
+        self.current_subselecting = self.current_selecting
+        self.current_selecting = 1
+
+        self.circle_anim_timer = 0
+        OVERLAY_OPEN = true
     end
 
     self:fadeMusicIn()
@@ -723,12 +735,16 @@ function DebugSystem:onStateChange(old, new)
 end
 
 function DebugSystem:updateBounds(options)
-    local limit = (self.menus[self.current_menu].type == "search") and 0 or 1
+    local is_search = (self.menus[self.current_menu].type == "search")
+    if self.state == "FLAGS" then
+        is_search = false
+    end
+
+    local limit = is_search and 0 or 1
     if self.current_selecting < limit then self.current_selecting = #options end
     if self.current_selecting > #options then self.current_selecting = limit end
-    if self.state == "MENU" then
+    if self.state == "MENU" or self.state == "FLAGS" then
         self.heart_target_x = 19
-        local is_search = (self.menus[self.current_menu].type == "search")
 
         local y_off = (self.current_selecting - 1) * 32
 
@@ -845,6 +861,32 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self:setState("MENU")
             return
         end
+    elseif self.state == "FLAGS" then
+        if Input.isCancel(key) and not is_repeat then
+            Assets.playSound("ui_select")
+            self:setState("MENU")
+            self.current_selecting = self.current_subselecting
+            return
+        elseif Input.isConfirm(key) then
+            local keys = Utils.getKeys(Game.flags)
+            if type(Game:getFlag(keys[self.current_selecting])) == "boolean" then
+                Game:setFlag(keys[self.current_selecting], not Game:getFlag(keys[self.current_selecting]))
+                Assets.playSound("ui_select")
+            else
+                Assets.playSound("ui_cant_select")
+            end
+        end
+
+        if Input.is("down", key) and (not is_repeat or self.current_selecting < #Game.flags) then
+            Assets.playSound("ui_move")
+            self.current_selecting = self.current_selecting + 1
+        end
+        if Input.is("up", key) and (not is_repeat or self.current_selecting > #Game.flags) then
+            Assets.playSound("ui_move")
+            self.current_selecting = self.current_selecting - 1
+        end
+        self:updateBounds(Utils.getKeys(Game.flags))
+
     end
 end
 
@@ -1080,7 +1122,24 @@ function DebugSystem:draw()
         Draw.popScissor()
 
         self:printShadow(name, 0, 480 - 32, COLORS.gray, "center", 640)
+    elseif self.state == "FLAGS" then
+        header_name = "~ FLAG EDITOR ~"
+        love.graphics.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
+        love.graphics.setColor(1, 1, 1, 1)
+
+        local name = "Press CANCEL to go back."
+
+        Draw.pushScissor()
+        Draw.scissor(text_offset + 19, y_off + menu_y + 16, 640, 320 + 48)
+        for index, key in pairs(Utils.getKeys(Game.flags)) do
+            self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
+            self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y, {1, 1, 1, 1}, "right", 640)
+        end
+        Draw.popScissor()
+
+        self:printShadow(name, 0, 480 - 32, COLORS.gray, "center", 640)
     elseif self.state == "SELECTION" or (self.old_state == "SELECTION" and self.state == "IDLE" and (menu_alpha > 0)) then
         header_name = "~ OBJECT SELECTION ~"
 
