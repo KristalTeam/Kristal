@@ -1099,8 +1099,8 @@ function Object:getScreenPos()
 end
 
 --- Returns the specified position for the object, relative to the object's stage.
----@param x number The `x` position relative to the object.
----@param y number The `y` position relative to the object.
+---@param x? number The `x` position relative to the object.
+---@param y? number The `y` position relative to the object.
 ---@return number x The new `x` position relative to the object's stage.
 ---@return number y The new `y` position relative to the object's stage.
 function Object:localToScreenPos(x, y)
@@ -1108,8 +1108,8 @@ function Object:localToScreenPos(x, y)
 end
 
 --- Returns the specified position for the object's stage, relative to this object.
----@param x number The `x` position relative to the object's stage.
----@param y number The `y` position relative to the object's stage.
+---@param x? number The `x` position relative to the object's stage.
+---@param y? number The `y` position relative to the object's stage.
 ---@return number x The new `x` position relative to the object.
 ---@return number y The new `y` position relative to the object.
 function Object:screenToLocalPos(x, y)
@@ -1117,8 +1117,8 @@ function Object:screenToLocalPos(x, y)
 end
 
 --- Returns the specified position for the object, relative to another object.
----@param x      number The `x` position relative to the object.
----@param y      number The `y` position relative to the object.
+---@param x?     number The `x` position relative to the object.
+---@param y?     number The `y` position relative to the object.
 ---@param other? Object The object the returned values should be relative to.
 ---@return number x The new `x` position relative to the `other` object.
 ---@return number y The new `y` position relative to the `other` object.
