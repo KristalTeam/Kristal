@@ -25,47 +25,7 @@ function Battle:init()
 
     self.encounter_context = nil
 
-    for i = 1, math.min(3, #Game.party) do
-        local party_member = Game.party[i]
-
-        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == party_member:getActor().id then
-            -- Create the player battler
-            local player_x, player_y = Game.world.player:getScreenPos()
-            local player_battler = PartyBattler(party_member, player_x, player_y)
-            player_battler:setAnimation("battle/transition")
-            self:addChild(player_battler)
-            table.insert(self.party,player_battler)
-            table.insert(self.party_beginning_positions, {player_x, player_y})
-            self.party_world_characters[party_member.id] = Game.world.player
-
-            Game.world.player.visible = false
-        else
-            local found = false
-            for _,follower in ipairs(Game.world.followers) do
-                if follower.visible and follower.actor.id == party_member:getActor().id then
-                    local chara_x, chara_y = follower:getScreenPos()
-                    local chara_battler = PartyBattler(party_member, chara_x, chara_y)
-                    chara_battler:setAnimation("battle/transition")
-                    self:addChild(chara_battler)
-                    table.insert(self.party, chara_battler)
-                    table.insert(self.party_beginning_positions, {chara_x, chara_y})
-                    self.party_world_characters[party_member.id] = follower
-
-                    follower.visible = false
-
-                    found = true
-                    break
-                end
-            end
-            if not found then
-                local chara_battler = PartyBattler(party_member, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-                chara_battler:setAnimation("transition")
-                self:addChild(chara_battler)
-                table.insert(self.party, chara_battler)
-                table.insert(self.party_beginning_positions, {chara_battler.x, chara_battler.y})
-            end
-        end
-    end
+    self:createPartyBattlers()
 
     self.intro_timer = 0
     self.offset = 0
@@ -173,6 +133,50 @@ function Battle:init()
     self.defending_begin_timer = 0
 
     self.darkify = false
+end
+
+function Battle:createPartyBattlers()
+    for i = 1, math.min(3, #Game.party) do
+        local party_member = Game.party[i]
+
+        if Game.world.player and Game.world.player.visible and Game.world.player.actor.id == party_member:getActor().id then
+            -- Create the player battler
+            local player_x, player_y = Game.world.player:getScreenPos()
+            local player_battler = PartyBattler(party_member, player_x, player_y)
+            player_battler:setAnimation("battle/transition")
+            self:addChild(player_battler)
+            table.insert(self.party,player_battler)
+            table.insert(self.party_beginning_positions, {player_x, player_y})
+            self.party_world_characters[party_member.id] = Game.world.player
+
+            Game.world.player.visible = false
+        else
+            local found = false
+            for _,follower in ipairs(Game.world.followers) do
+                if follower.visible and follower.actor.id == party_member:getActor().id then
+                    local chara_x, chara_y = follower:getScreenPos()
+                    local chara_battler = PartyBattler(party_member, chara_x, chara_y)
+                    chara_battler:setAnimation("battle/transition")
+                    self:addChild(chara_battler)
+                    table.insert(self.party, chara_battler)
+                    table.insert(self.party_beginning_positions, {chara_x, chara_y})
+                    self.party_world_characters[party_member.id] = follower
+
+                    follower.visible = false
+
+                    found = true
+                    break
+                end
+            end
+            if not found then
+                local chara_battler = PartyBattler(party_member, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+                chara_battler:setAnimation("transition")
+                self:addChild(chara_battler)
+                table.insert(self.party, chara_battler)
+                table.insert(self.party_beginning_positions, {chara_battler.x, chara_battler.y})
+            end
+        end
+    end
 end
 
 function Battle:postInit(state, encounter)
@@ -1458,7 +1462,7 @@ function Battle:commitSingleAction(action)
             action.consumed = false
         end
     end
-    
+
     local anim = action.action:lower()
     if action.action == "SPELL" and action.data then
         local result = action.data:onSelect(battler, action.target)
@@ -1481,11 +1485,11 @@ function Battle:commitSingleAction(action)
                 Game:removeTension(-action.tp)
             end
         end
-        
+
         if action.action == "SKIP" and action.reason then
             anim = action.reason:lower()
         end
-    
+
         if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
             battler:setAnimation("battle/"..anim.."_ready")
             action.icon = anim
@@ -2217,7 +2221,7 @@ function Battle:update()
     -- Always sort
     --self.update_child_list = true
     super.update(self)
-    
+
     if self.state == "TRANSITIONOUT" then
         self:updateTransitionOut()
     end
@@ -2893,72 +2897,80 @@ function Battle:onKeyPressed(key)
     elseif self.state == "ENEMYDIALOGUE" then
         -- Nothing here
     elseif self.state == "ACTIONSELECT" then
-        local actbox = self.battle_ui.action_boxes[self.current_selecting]
-
-        if Input.isConfirm(key) then
-            actbox:select()
-            self.ui_select:stop()
-            self.ui_select:play()
-            return
-        elseif Input.isCancel(key) then
-            local old_selecting = self.current_selecting
-
-            self:previousParty()
-
-            if self.current_selecting ~= old_selecting then
-                self.ui_move:stop()
-                self.ui_move:play()
-                self.battle_ui.action_boxes[self.current_selecting]:unselect()
-            end
-            return
-        elseif Input.is("left", key) then
-            actbox.selected_button = actbox.selected_button - 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        elseif Input.is("right", key) then
-            actbox.selected_button = actbox.selected_button + 1
-            self.ui_move:stop()
-            self.ui_move:play()
-        end
-
-        if actbox.selected_button < 1 then
-            actbox.selected_button = #actbox.buttons
-        end
-
-        if actbox.selected_button > #actbox.buttons then
-            actbox.selected_button = 1
-        end
+        self:handleActionSelectInput(key)
     elseif self.state == "ATTACKING" then
-        if Input.isConfirm(key) then
-            if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
-                local closest
-                local closest_attacks = {}
+        self:handleAttackingInput(key)
+    end
+end
 
-                for _,attack in ipairs(self.battle_ui.attack_boxes) do
-                    if not attack.attacked then
-                        local close = attack:getClose()
-                        if not closest then
-                            closest = close
-                            table.insert(closest_attacks, attack)
-                        elseif close == closest then
-                            table.insert(closest_attacks, attack)
-                        elseif close < closest then
-                            closest = close
-                            closest_attacks = {attack}
-                        end
+function Battle:handleActionSelectInput(key)
+    local actbox = self.battle_ui.action_boxes[self.current_selecting]
+
+    if Input.isConfirm(key) then
+        actbox:select()
+        self.ui_select:stop()
+        self.ui_select:play()
+        return
+    elseif Input.isCancel(key) then
+        local old_selecting = self.current_selecting
+
+        self:previousParty()
+
+        if self.current_selecting ~= old_selecting then
+            self.ui_move:stop()
+            self.ui_move:play()
+            self.battle_ui.action_boxes[self.current_selecting]:unselect()
+        end
+        return
+    elseif Input.is("left", key) then
+        actbox.selected_button = actbox.selected_button - 1
+        self.ui_move:stop()
+        self.ui_move:play()
+    elseif Input.is("right", key) then
+        actbox.selected_button = actbox.selected_button + 1
+        self.ui_move:stop()
+        self.ui_move:play()
+    end
+
+    if actbox.selected_button < 1 then
+        actbox.selected_button = #actbox.buttons
+    end
+
+    if actbox.selected_button > #actbox.buttons then
+        actbox.selected_button = 1
+    end
+end
+
+function Battle:handleAttackingInput(key)
+    if Input.isConfirm(key) then
+        if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
+            local closest
+            local closest_attacks = {}
+
+            for _,attack in ipairs(self.battle_ui.attack_boxes) do
+                if not attack.attacked then
+                    local close = attack:getClose()
+                    if not closest then
+                        closest = close
+                        table.insert(closest_attacks, attack)
+                    elseif close == closest then
+                        table.insert(closest_attacks, attack)
+                    elseif close < closest then
+                        closest = close
+                        closest_attacks = {attack}
                     end
                 end
+            end
 
-                if closest and closest < 15 and closest > -5 then
-                    for _,attack in ipairs(closest_attacks) do
-                        local points = attack:hit()
+            if closest and closest < 15 and closest > -5 then
+                for _,attack in ipairs(closest_attacks) do
+                    local points = attack:hit()
 
-                        local action = self:getActionBy(attack.battler)
-                        action.points = points
+                    local action = self:getActionBy(attack.battler)
+                    action.points = points
 
-                        if self:processAction(action) then
-                            self:finishAction(action)
-                        end
+                    if self:processAction(action) then
+                        self:finishAction(action)
                     end
                 end
             end

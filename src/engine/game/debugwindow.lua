@@ -114,8 +114,6 @@ function DebugWindow:onMouseReleased(x, y, button, istouch, presses)
             end
         end
     end
-
-    return
 end
 
 function DebugWindow:getScreenBounds()
