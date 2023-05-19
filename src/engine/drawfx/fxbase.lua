@@ -1,3 +1,4 @@
+---@alias DrawFX FXBase
 ---@class FXBase
 ---@overload fun(...) : FXBase
 local FXBase = Class()
