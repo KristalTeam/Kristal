@@ -473,6 +473,17 @@ function DebugSystem:registerSubMenus()
     self:registerOption("engine_option_fps", "120", "Set the target FPS to 120.", function() Kristal.Config["fps"] = 120; FRAMERATE = 120 end)
     self:registerOption("engine_option_fps", "144", "Set the target FPS to 144.", function() Kristal.Config["fps"] = 144; FRAMERATE = 144 end)
     self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.", function() Kristal.Config["fps"] = 240; FRAMERATE = 240 end)
+    self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function()
+        self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function(text)
+            local fps = tonumber(text)
+            if fps then
+                Kristal.Config["fps"] = fps
+                FRAMERATE = fps
+            end
+        end)
+        self.window:setPosition(Input.getCurrentCursorPosition())
+        self:addChild(self.window)
+    end)
     self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
     self:registerMenu("give_item", "Give Item", "search")
@@ -565,6 +576,10 @@ function DebugSystem:registerSubMenus()
 end
 
 function DebugSystem:registerDefaults()
+    local in_game = function() return Kristal.getState() == Game end
+    local in_battle = function() return in_game() and Game.state == "BATTLE" end
+    local in_overworld = function() return in_game() and Game.state == "OVERWORLD" end
+
     -- Global
     self:registerConfigOption("main", "Object Selection Pausing", "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
@@ -580,71 +595,69 @@ function DebugSystem:registerDefaults()
             love.event.quit("restart")
         else
             if Mod then
-                Kristal.quickReload(Input.shift())
+                Kristal.quickReload(Input.shift() and "save" or "temp")
             else
                 Kristal.returnToMenu()
             end
         end
     end)
 
-    self:registerOption("main", "Noclip", function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end, function() NOCLIP = not NOCLIP end)
+    self:registerOption("main", "Noclip",
+        function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
+        function() NOCLIP = not NOCLIP end,
+        in_game
+    )
 
-    -- Need a way to specify whether something should show up in the Kristal main menu or not
-    -- (or just non-gameplay states)
     self:registerOption("main", "Give Item", "Give an item.", function()
         self:enterMenu("give_item", 0)
-    end, "GAME")
+    end, in_game)
 
     self:registerOption("main", "Portrait Viewer", "Enter the portrait viewer menu.", function()
         self:setState("FACES")
-    end)
+    end, in_game)
 
     self:registerOption("main", "Flag Editor", "Enter the flag editor menu.", function()
         self:setState("FLAGS")
-    end)
+    end, in_game)
 
     self:registerOption("main", "Sound Test", "Enter the sound test menu.", function()
         self:fadeMusicOut()
         self:enterMenu("sound_test", 0)
-    end)
+    end, in_game)
 
 
     -- World specific
     self:registerOption("main", "Select Map", "Switch to a new map.", function()
         self:enterMenu("select_map", 0)
-    end, "OVERWORLD")
+    end, in_overworld)
 
     self:registerOption("main", "Start Encounter", "Start an encounter.", function()
         self:enterMenu("encounter_select", 0)
-    end, "OVERWORLD")
+    end, in_overworld)
 
     self:registerOption("main", "Enter Shop", "Enter a shop.", function()
         self:enterMenu("select_shop", 0)
-    end, "OVERWORLD")
+    end, in_overworld)
 
     self:registerOption("main", "Play Cutscene", "Play a cutscene.", function()
         self:enterMenu("cutscene_select", 0)
-    end, "OVERWORLD")
+    end, in_overworld)
 
     -- Battle specific
     self:registerOption("main", "Start Wave", "Start a wave.", function()
         self:enterMenu("wave_select", 0)
-    end, "BATTLE")
+    end, in_battle)
 
     self:registerOption("main", "End Battle", "Instantly complete a battle.", function()
         Game.battle:setState("VICTORY")
-    end, "BATTLE")
+    end, in_battle)
 
 end
 
 function DebugSystem:getValidOptions()
     local options = {}
-    local in_game = Kristal.getState() == Kristal.States["Game"]
     for i, v in ipairs(self.menus[self.current_menu].options) do
-        if (in_game and (v.state == Game.state or v.state == "GAME"))
-           or (not in_game and v.state == "MAINMENU")
-           or v.state == "ALL" then
-
+        if (v.visible_func == nil or v.visible_func()) then
             table.insert(options, v)
         end
     end
@@ -655,8 +668,13 @@ function DebugSystem:getValidOptions()
     return options
 end
 
-function DebugSystem:registerOption(menu, name, description, func, state)
-    table.insert(self.menus[menu].options, {name=name, description=description, func=func, state=state or "ALL"})
+function DebugSystem:registerOption(menu, name, description, func, visible_func)
+    table.insert(self.menus[menu].options, {
+        name = name,
+        description = description,
+        func = func,
+        visible_func = visible_func
+    })
 end
 
 function DebugSystem:openSelection()
@@ -1184,7 +1202,7 @@ function DebugSystem:draw()
             love.graphics.pop()
 
             local tooltip_font = Assets.getFont("main", 16)
-            local tooltip_text = Utils.getClassName(useobject)
+            local tooltip_text = Utils.getClassName(useobject) or ""
 
             local tooltip_width = tooltip_font:getWidth(tooltip_text)
             local tooltip_height = tooltip_font:getHeight()

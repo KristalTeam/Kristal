@@ -58,6 +58,7 @@ function DebugWindow:init(name, text, type, callback)
 end
 
 function DebugWindow:close()
+    TextInput.endInput()
     if Kristal.DebugSystem.window == self then
         Kristal.DebugSystem.window = nil
     end
@@ -191,7 +192,6 @@ function DebugWindow:getVerticalPadding()
 end
 
 function DebugWindow:onSubmit()
-    TextInput.endInput()
     if self.callback then
         self.callback(self.input_lines[1])
     end

@@ -118,7 +118,7 @@ function Mod:registerDebugContext(context, object)
 end
 
 function Mod:registerDebugOptions(debug)
-    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end, "OVERWORLD")
+    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end)
 
     debug:registerMenu("funky_menu", "Funky Menu")
     debug:registerOption("funky_menu", "Hi", "nice to meet u", function() print("hi") end)
@@ -135,7 +135,7 @@ function Mod:registerDebugOptions(debug)
                 ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
             }), "funky_mode")
         end
-    end, "OVERWORLD")
+    end)
 end
 
 function Mod:onShadowCrystal(item, light)
