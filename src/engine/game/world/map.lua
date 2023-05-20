@@ -712,7 +712,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "sprite" then
         local sprite = Sprite(data.properties["texture"], data.x, data.y)
         sprite:play(data.properties["speed"], true)
-        sprite:setScale(data.properties["scalex"] or 1, data.properties["scaley"] or 1)
+        sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
         return sprite
     end
     if data.gid then
