@@ -710,8 +710,9 @@ function Map:loadObject(name, data)
     elseif name:lower() == "quicksave" then
         return QuicksaveEvent(data.x, data.y, data.width, data.height, data.properties["marker"])
     elseif name:lower() == "sprite" then
-        local sprite = Sprite(data.properties["texture"], data.x, data.y, data.width, data.height)
+        local sprite = Sprite(data.properties["texture"], data.x, data.y)
         sprite:play(data.properties["speed"], true)
+        sprite:setScale(data.properties["scalex"] or 1, data.properties["scaley"] or 1)
         return sprite
     end
     if data.gid then
