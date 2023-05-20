@@ -709,6 +709,8 @@ function Map:loadObject(name, data)
         return FountainFloor(data.x, data.y, data.width, data.height)
     elseif name:lower() == "quicksave" then
         return QuicksaveEvent(data.x, data.y, data.width, data.height, data.properties["marker"])
+    elseif name:lower() == "sprite" then
+        return Sprite(data.properties["texture"], data.x, data.y, data.width, data.height, data.properties)
     end
     if data.gid then
         local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
