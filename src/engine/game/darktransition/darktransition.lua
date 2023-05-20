@@ -2,12 +2,12 @@
 ---@overload fun(...) : DarkTransition
 local DarkTransition, super = Class(Object)
 
-DarkTransition.SPRITE_DEPENDENCIES = {
+--[[DarkTransition.SPRITE_DEPENDENCIES = {
     "party/kris/light/walk/up_*",
     "party/kris/dark_transition",
     "party/susie/light/walk/up_*",
     "party/susie/dark_transition"
-}
+}]]--
 
 function DarkTransition:init(final_y, options)
     super.init(self)
@@ -35,7 +35,6 @@ function DarkTransition:init(final_y, options)
     self.kris_y = options["kris_y"] or 94
     self.susie_x = options["susie_x"] or 162
     self.susie_y = options["susie_y"] or 86
-    self.susie_sprite = 0
     self.sprite_index = 0
     self.linecon = false
     self.linetimer = 0
@@ -166,8 +165,6 @@ function DarkTransition:init(final_y, options)
     self.dronesfx_volume = 0
 
     self.black_fade = 1
-    self.waiting = false
-
     self.particle_timer = 1
 end
 
@@ -175,10 +172,6 @@ function DarkTransition:onAddToStage(stage)
     for _,music in ipairs(Music.getPlaying()) do
         music:fade(0, 20/30)
     end
-end
-
-function DarkTransition:resumeTransition()
-    self.waiting = false
 end
 
 function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
@@ -546,12 +539,8 @@ function DarkTransition:draw()
                 self.susie_sprite:setFrames(self.spr_susie_lw_fall_d)
             end
 
-            self.old_velocity = self.velocity
             if self.loading_callback then
-                self.waiting = true
                 self.loading_callback(self)
-            else
-                self.waiting = false
             end
         end
     end
@@ -566,38 +555,32 @@ function DarkTransition:draw()
             self.timer = self.timer + 1 * DTMULT
         end
         if (self.timer >= 15) then
-            if self.mod_loading then
-                self.old_velocity = self.velocity
-                -- While we're waiting for the mod to load, let's let them float
-                self.velocity = math.sin(self.timer / 100) * 0.5
-            else
-                self.velocity = self.old_velocity
-                self.con = 31
-                self.timer = 0
-                self.susie_top = self.susie_height
-                self.kris_top = self.kris_height
+            self.velocity = self.old_velocity
+            self.con = 31
+            self.timer = 0
+            self.susie_top = self.susie_height
+            self.kris_top = self.kris_height
 
-                self.kris_sprite_2:setFrames(self.spr_kris_fall_d_white)
-                self.kris_sprite_3:setFrames(self.spr_kris_fall_d_dw)
+            self.kris_sprite_2:setFrames(self.spr_kris_fall_d_white)
+            self.kris_sprite_3:setFrames(self.spr_kris_fall_d_dw)
 
-                self.kris_sprite.cutout_bottom = 0
-                self.kris_sprite_2.cutout_top = self.kris_top
-                self.kris_sprite_3.cutout_top = self.kris_top
+            self.kris_sprite.cutout_bottom = 0
+            self.kris_sprite_2.cutout_top = self.kris_top
+            self.kris_sprite_3.cutout_top = self.kris_top
 
-                self.kris_sprite_2.visible = true
-                self.kris_sprite_3.visible = true
+            self.kris_sprite_2.visible = true
+            self.kris_sprite_3.visible = true
 
-                if not self.kris_only then
-                    self.susie_sprite_2:setFrames(self.spr_susie_white_fall_d)
-                    self.susie_sprite_3:setFrames(self.spr_susie_dw_fall_d)
+            if not self.kris_only then
+                self.susie_sprite_2:setFrames(self.spr_susie_white_fall_d)
+                self.susie_sprite_3:setFrames(self.spr_susie_dw_fall_d)
 
-                    self.susie_sprite.cutout_bottom = 0
-                    self.susie_sprite_2.cutout_top = self.susie_top
-                    self.susie_sprite_3.cutout_top = self.susie_top
+                self.susie_sprite.cutout_bottom = 0
+                self.susie_sprite_2.cutout_top = self.susie_top
+                self.susie_sprite_3.cutout_top = self.susie_top
 
-                    self.susie_sprite_2.visible = true
-                    self.susie_sprite_3.visible = true
-                end
+                self.susie_sprite_2.visible = true
+                self.susie_sprite_3.visible = true
             end
         end
     end
