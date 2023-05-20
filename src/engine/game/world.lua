@@ -660,7 +660,7 @@ function World:setupMap(map, ...)
     end
 
     if not self.map.keep_music then
-        self:transitionMusic(self.map.music)
+        self:transitionMusic(Kristal.callEvent("onMapMusic", self.map, self.map.music) or self.map.music)
     end
 end
 
@@ -784,7 +784,7 @@ function World:mapTransition(...)
     if type(map) == "string" then
         local map = Registry.createMap(map)
         if not map.keep_music then
-            self:transitionMusic(map.music, true)
+            self:transitionMusic(Kristal.callEvent("onMapMusic", self.map, self.map.music) or map.music, true)
         end
         local dark_transition = map.light ~= Game:isLight()
         local map_border = map:getBorder(dark_transition)
