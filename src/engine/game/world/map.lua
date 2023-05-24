@@ -780,10 +780,15 @@ end
 function Map:getTileset(id)
     if type(id) == "number" then
         id = Utils.parseTileGid(id)
-        for _,v in ipairs(self.tilesets) do
-            local first_id = self.tileset_gids[v]
-            if id >= first_id and id < first_id + v.id_count then
-                return v, (id - first_id)
+        for i = 1, #self.tilesets do
+            local tileset = self.tilesets[i]
+            local first_id = self.tileset_gids[tileset]
+            local next_id = first_id + tileset.id_count
+            if i < #self.tilesets then
+                next_id = self.tileset_gids[self.tilesets[i + 1]]
+            end
+            if id >= first_id and id < next_id then
+                return tileset, (id - first_id)
             end
         end
     elseif type(id) == "string" then
