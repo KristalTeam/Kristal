@@ -897,13 +897,16 @@ function Battle:beginAction(action)
         self:setSubState(action.action)
     end
 
+    -- Call mod callbacks for adding new beginAction behaviour
+    if Kristal.callEvent("onBattleActionBegin", action, action.action, battler, enemy) then
+        return
+    end
+
     if action.action == "ACT" then
         -- Play the ACT animation by default
         battler:setAnimation("battle/act")
         -- Enemies might change the ACT animation, so run onActStart here
         enemy:onActStart(battler, action.name)
-    else
-        -- TODO: Proper beginAction hook for mods
     end
 end
 
@@ -930,6 +933,19 @@ function Battle:processAction(action)
         end
     end
 
+    -- Call mod callbacks for onBattleAction to either add new behaviour for an action or override existing behaviour
+    -- Note: non-immediate actions require explicit "return false"!
+    local callback_result = Kristal.modCall("onBattleAction", action, action.action, battler, enemy)
+    if callback_result ~= nil then
+        return callback_result
+    end
+    for lib_id,_ in pairs(Mod.libs) do
+        callback_result = Kristal.libCall(lib_id, "onBattleAction", action, action.action, battler, enemy)
+        if callback_result ~= nil then
+            return callback_result
+        end
+    end
+
     if action.action == "SPARE" then
         local worked = enemy:canSpare()
 
@@ -945,6 +961,9 @@ function Battle:processAction(action)
         if text then
             self:battleText(text)
         end
+
+        return false
+
     elseif action.action == "ATTACK" or action.action == "AUTOATTACK" then
         local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "laz_c")
         src:setPitch(battler.chara:getAttackPitch() or 1)
@@ -1029,6 +1048,9 @@ function Battle:processAction(action)
                 end
             end
         end)
+
+        return false
+
     elseif action.action == "ACT" then
         -- fun fact: this would have only been a single function call
         -- if stupid multi-acts didn't exist
@@ -1073,13 +1095,20 @@ function Battle:processAction(action)
                 self:setActText(text)
             end
         end
+
+        return false
+
     elseif action.action == "SKIP" then
         return true
+
     elseif action.action == "SPELL" then
         self.battle_ui:clearEncounterText()
 
         -- The spell itself handles the animation and finishing
         action.data:onStart(battler, action.target)
+
+        return false
+
     elseif action.action == "ITEM" then
         local item = action.data
         if item.instant then
@@ -1096,11 +1125,16 @@ function Battle:processAction(action)
                 end
             end)
         end
+        return false
+
     elseif action.action == "DEFEND" then
         battler:setAnimation("battle/defend")
         battler.defending = true
+        return false
+
     else
         -- we don't know how to handle this...
+        Kristal.Console:warn("Unhandled battle action: " .. tostring(action.action))
         return true
     end
 end
@@ -1214,10 +1248,11 @@ function Battle:finishAction(action, keep_animation)
                 callback()
             end
 
-            -- TODO: Mod hooks !!!
             if iaction.action == "DEFEND" then
                 ibattler.defending = false
             end
+
+            Kristal.callEvent("onBattleActionEnd", iaction, iaction.action, ibattler, iaction.target, dont_end)
         end
     else
         -- Process actions if we can
@@ -1239,6 +1274,9 @@ function Battle:endActionAnimation(battler, action, callback)
         if _callback then
             _callback()
         end
+    end
+    if Kristal.callEvent("onBattleActionEndAnimation", action, action.action, battler, action.target, callback, _callback) then
+        return
     end
     if action.action ~= "ATTACK" and action.action ~= "AUTOATTACK" then
         if battler.sprite.anim == "battle/"..action.action:lower() then
@@ -1444,6 +1482,13 @@ end
 function Battle:commitSingleAction(action)
     local battler = self.party[action.character_id]
 
+    battler.action = action
+    self.character_actions[action.character_id] = action
+
+    if Kristal.callEvent("onBattleActionCommit", action, action.action, battler, action.target) then
+        return
+    end
+
     if action.action == "ITEM" and action.data then
         local result = action.data:onBattleSelect(battler, action.target)
         if result ~= false then
@@ -1498,14 +1543,17 @@ function Battle:commitSingleAction(action)
             end
         end
     end
-
-    battler.action = action
-
-    self.character_actions[action.character_id] = action
 end
 
 function Battle:removeSingleAction(action)
     local battler = self.party[action.character_id]
+
+    if Kristal.callEvent("onBattleActionUndo", action, action.action, battler, action.target) then
+        battler.action = nil
+        self.character_actions[action.character_id] = nil
+        return
+    end
+
     battler:resetSprite()
 
     if action.tp then
@@ -1530,7 +1578,6 @@ function Battle:removeSingleAction(action)
     end
 
     battler.action = nil
-
     self.character_actions[action.character_id] = nil
 end
 
