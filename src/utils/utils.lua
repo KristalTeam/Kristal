@@ -185,7 +185,7 @@ end
 local function dumpKey(key)
     if type(key) == 'table' then
         return '('..tostring(key)..')'
-    elseif type(key) == 'string' and not key:find("[^%a_%-]") then
+    elseif type(key) == 'string' and (not key:find("[^%w_]") and not tonumber(key:sub(1,1)) and key ~= "") then
         return key
     else
         return '['..Utils.dump(key)..']'
