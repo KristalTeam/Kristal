@@ -20,6 +20,15 @@ function SoulAppearance:init(x, y)
     self:setColor(1, 0, 0, 1)
 end
 
+function SoulAppearance:hide()
+    Assets.playSound("AUDIO_APPEARANCE")
+    self.t = self.t - 2
+    self.momentum = -0.5
+    if self.t <= -10 then
+        self:remove()
+    end
+end
+
 function SoulAppearance:draw()
     super.draw(self)
 
