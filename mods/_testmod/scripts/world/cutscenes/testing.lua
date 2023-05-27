@@ -92,6 +92,12 @@ return {
         Game.world:addChild(background)
 
         gonerText("FIRST.[wait:20]")
+
+        local soul = SoulAppearance(320, 240)
+        soul.layer = WORLD_LAYERS["top"] + 100
+        Game.world:addChild(soul)
+        cutscene:wait(4)
+
         gonerText("YOU MUST CREATE[wait:40]\nA VESSEL.[wait:20]")
         local ralsei_sprite = Sprite("party/ralsei/dark/blunt")
         ralsei_sprite.x = 320
