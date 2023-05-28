@@ -1,3 +1,5 @@
+---@class GonerBackground : Object
+---@overload fun(...) : GonerBackground
 local GonerBackground, super = Class(Object)
 
 function GonerBackground:init(x, y)

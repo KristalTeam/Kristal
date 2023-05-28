@@ -31,7 +31,7 @@ end
 function Starwings:onEnd()
     self.encounter:setMode("normal")
     self.starwalker.sprite:set("wings")
-    super.onEnd()
+    super.onEnd(self)
 end
 
 function Starwings:update()

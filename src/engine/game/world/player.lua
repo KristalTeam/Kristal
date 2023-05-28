@@ -45,13 +45,15 @@ function Player:init(chara, x, y)
     self.persistent = true
     self.noclip = false
 
-    self.outlinefx = self:addFX(BattleOutlineFX())
-    self.outlinefx:setAlpha(self.battle_alpha)
+    local outlinefx = BattleOutlineFX()
+    outlinefx:setAlpha(self.battle_alpha)
+
+    self.outlinefx = self:addFX(outlinefx)
 end
 
 function Player:getDebugInfo()
     local info = super.getDebugInfo(self)
-    table.insert(info, "State: " .. self.state)
+    table.insert(info, "State: " .. self.state_manager.state)
     table.insert(info, "Walk speed: " .. self.walk_speed)
     table.insert(info, "Run timer: " .. self.run_timer)
     table.insert(info, "Hurt timer: " .. self.hurt_timer)
@@ -84,7 +86,7 @@ function Player:onRemove(parent)
 end
 
 function Player:onRemoveFromStage(stage)
-    super.onRemoveFromStage(stage)
+    super.onRemoveFromStage(self, stage)
     self.slide_sound:stop()
 end
 
@@ -165,7 +167,7 @@ function Player:interpolateFollowers()
 end
 
 function Player:isCameraAttachable()
-    return not (self.state == "SLIDE" and self.slide_in_place)
+    return not (self.state_manager.state == "SLIDE" and self.slide_in_place)
 end
 
 function Player:isMovementEnabled()
@@ -306,7 +308,7 @@ function Player:updateHistory()
     if moved then
         self.history_time = self.history_time + DT
 
-        table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state, state_args = self.state_manager.args, auto = auto})
+        table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state_manager.state, state_args = self.state_manager.args, auto = auto})
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
@@ -325,7 +327,7 @@ function Player:update()
         self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
     end
 
-    if self.slide_land_timer > 0 and self.state ~= "SLIDE" then
+    if self.slide_land_timer > 0 and self.state_manager.state ~= "SLIDE" then
         self.slide_land_timer = Utils.approach(self.slide_land_timer, 0, DTMULT)
         if self.slide_land_timer == 0 then
             self.slide_sound:stop()
@@ -354,7 +356,8 @@ function Player:update()
         self.battle_alpha = math.max(self.battle_alpha - (0.08 * DTMULT), 0)
     end
 
-    self.outlinefx:setAlpha(self.battle_alpha)
+    local outlinefx = self.outlinefx --[[@as BattleOutlineFX]]
+    outlinefx:setAlpha(self.battle_alpha)
 
     super.update(self)
 end

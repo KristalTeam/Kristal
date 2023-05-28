@@ -48,7 +48,7 @@ function FatalEffect:init(texture, x, y, after)
 end
 
 function FatalEffect:onAdd(parent)
-    super.onAdd(parent)
+    super.onAdd(self, parent)
 
     self.start_color = self.color
 end

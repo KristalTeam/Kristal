@@ -1,3 +1,5 @@
+---@class Virovirokun : Encounter
+---@overload fun(...) : Virovirokun
 local Virovirokun, super = Class(Encounter)
 
 function Virovirokun:init()

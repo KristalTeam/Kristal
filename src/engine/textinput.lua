@@ -423,8 +423,8 @@ function TextInput.sendCursorToStart()
 end
 
 function TextInput.sendCursorToStartOfLine(special_identing)
-    if cursor_x == 0 then
-        cursor_x_tallest = 0
+    if self.cursor_x == 0 then
+        self.cursor_x_tallest = 0
         return
     end
 
@@ -601,7 +601,7 @@ function TextInput.draw(options)
     local off_x = options["x"] or 0
     local off_y = options["y"] or 0
     local font = options["font"] or Assets.getFont("main_mono", 16)
-    local get_prefix = options["get_prefix"] or function() return "" end
+    local get_prefix = options["get_prefix"] or function(prefix) return "" end
     local print_func = options["print"] or love.graphics.print
 
     local base_off = (options["prefix_width"] or 0) + off_x

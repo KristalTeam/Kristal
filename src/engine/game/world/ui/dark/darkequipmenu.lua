@@ -189,7 +189,7 @@ function DarkEquipMenu:updateDescription()
 end
 
 function DarkEquipMenu:onRemove(parent)
-    super.onRemove(parent)
+    super.onRemove(self, parent)
     Game.world.menu:updateSelectedBoxes()
 end
 

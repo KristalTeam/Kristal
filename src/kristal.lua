@@ -53,7 +53,8 @@ function love.load(args)
     Input.loadBinds()
 
     -- pixel scaling (the good one)
-    love.graphics.setDefaultFilter("nearest")
+    -- the second nearest isn't needed, but the love2d extension marks the second argument as required for some reason
+    love.graphics.setDefaultFilter("nearest", "nearest")
 
     -- set the window size
     local window_scale = Kristal.Config["windowScale"]

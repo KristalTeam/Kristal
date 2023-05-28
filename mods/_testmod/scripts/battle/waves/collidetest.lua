@@ -1,3 +1,5 @@
+---@class CollideTest : Wave
+---@overload fun(...) : CollideTest
 local CollideTest, super = Class(Wave)
 
 function CollideTest:init()
