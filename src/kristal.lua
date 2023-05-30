@@ -516,9 +516,15 @@ function Kristal.errorHandler(msg)
         love.graphics.clear(0, 0, 0, 1)
         love.graphics.scale(window_scale)
 
+        local version_string = "Kristal v" .. tostring(Kristal.Version)
+        local trimmed_commit = GitFinder:FetchTrimmedCommit()
+        if trimmed_commit then
+            version_string = version_string .. " (" .. trimmed_commit .. ")"
+        end
+
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
-        love.graphics.printf("Kristal v" .. tostring(Kristal.Version), -20, 10, 640, "right")
+        love.graphics.printf(version_string, -20, 10, 640, "right")
 
         love.graphics.setFont(font)
 

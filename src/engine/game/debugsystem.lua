@@ -464,6 +464,8 @@ function DebugSystem:registerSubMenus()
     end)
     self:registerConfigOption("engine_options", "Frame Skip", "Toggle frame skipping.", "frameSkip")
     self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
+    self:registerOption("engine_options", "Force GC", "Force a garbage collection.", function() collectgarbage("collect") end)
+    self:registerOption("engine_options", "Force Crash", "Force a crash.", function() error("Debug crash!") end)
     self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
 
     self:registerMenu("engine_option_fps", "Target FPS")
