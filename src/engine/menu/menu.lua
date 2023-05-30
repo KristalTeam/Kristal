@@ -1086,8 +1086,13 @@ function Menu:draw()
 end
 
 function Menu:drawVersion()
-    local ver_string = "v"..tostring(Kristal.Version)
+    local ver_string = "v" .. tostring(Kristal.Version)
     local ver_y = SCREEN_HEIGHT - self.small_font:getHeight()
+
+    local trimmed_commit = GitFinder:FetchTrimmedCommit()
+    if trimmed_commit then
+        ver_string = ver_string .. " (" .. trimmed_commit .. ")"
+    end
 
     if not TARGET_MOD then
 

@@ -15,6 +15,7 @@ require("src.lib.stable_sort")
 Class = require("src.utils.class")
 require ("src.utils.graphics")
 
+GitFinder = require("src.utils.gitfinder")
 Utils = require("src.utils.utils")
 CollisionUtil = require("src.utils.collision")
 Draw = require("src.utils.draw")
