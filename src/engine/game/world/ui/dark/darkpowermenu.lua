@@ -153,9 +153,9 @@ function DarkPowerMenu:draw()
     love.graphics.rectangle("fill", 212, 104, 6, 200)
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.caption_sprites[  "char"],  42, -28, 0, 2, 2)
-    love.graphics.draw(self.caption_sprites[ "stats"],  42,  98, 0, 2, 2)
-    love.graphics.draw(self.caption_sprites["spells"], 298,  98, 0, 2, 2)
+    Draw.draw(self.caption_sprites[  "char"],  42, -28, 0, 2, 2)
+    Draw.draw(self.caption_sprites[ "stats"],  42,  98, 0, 2, 2)
+    Draw.draw(self.caption_sprites["spells"], 298,  98, 0, 2, 2)
 
     self:drawChar()
     self:drawStats()
@@ -174,9 +174,9 @@ end
 function DarkPowerMenu:drawStats()
     local party = self.party:getSelected()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
-    love.graphics.draw(self.stat_icons["defense"], -8, 149, 0, 2, 2)
-    love.graphics.draw(self.stat_icons[  "magic"], -8, 174, 0, 2, 2)
+    Draw.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
+    Draw.draw(self.stat_icons["defense"], -8, 149, 0, 2, 2)
+    Draw.draw(self.stat_icons[  "magic"], -8, 174, 0, 2, 2)
     love.graphics.print( "Attack:", 18, 118)
     love.graphics.print("Defense:", 18, 143)
     love.graphics.print(  "Magic:", 18, 168)
@@ -212,7 +212,7 @@ function DarkPowerMenu:drawSpells()
     end
 
     love.graphics.setColor(1, 1, 1)
-    love.graphics.draw(self.tp_sprite, tp_x, tp_y - 5)
+    Draw.draw(self.tp_sprite, tp_x, tp_y - 5)
 
     local spell_limit = self:getSpellLimit()
 
@@ -237,17 +237,17 @@ function DarkPowerMenu:drawSpells()
 
         if self.scroll_y > 1 then
             -- up arrow
-            love.graphics.draw(self.arrow_sprite, 469, (name_y + 25 - 3) - sine_off, 0, 1, -1)
+            Draw.draw(self.arrow_sprite, 469, (name_y + 25 - 3) - sine_off, 0, 1, -1)
         end
         if self.scroll_y + spell_limit <= #spells then
             -- down arrow
-            love.graphics.draw(self.arrow_sprite, 469, (name_y + (25 * spell_limit) - 12) + sine_off)
+            Draw.draw(self.arrow_sprite, 469, (name_y + (25 * spell_limit) - 12) + sine_off)
         end
     end
 
     if self.state == "SPELLS" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
+        Draw.draw(self.heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
 
         -- Draw scrollbar if needed (unless the spell limit is 2, in which case the scrollbar is too small)
         if spell_limit > 2 and #spells > spell_limit then

@@ -1096,7 +1096,7 @@ function DebugSystem:draw()
             local x = (i - 1) % faces_per_row
             local y = math.floor((i - 1) / faces_per_row)
             local texture = Assets.getTexture("face/" .. texture_id)
-            love.graphics.draw(texture, x_offset + (x * gap), y_offset + (self.faces_y + (y * gap)), 0, 2, 2)
+            Draw.draw(texture, x_offset + (x * gap), y_offset + (self.faces_y + (y * gap)), 0, 2, 2)
 
             local width = texture:getWidth() * 2
             local height = texture:getHeight() * 2
@@ -1302,7 +1302,7 @@ function DebugSystem:draw()
     Draw.setCanvas(SCREEN_CANVAS)
 
     love.graphics.setColor(1, 1, 1, menu_alpha)
-    love.graphics.draw(self.menu_canvas, 0, 0)
+    Draw.draw(self.menu_canvas, 0, 0)
 
     self.mouse_clicked = false
 

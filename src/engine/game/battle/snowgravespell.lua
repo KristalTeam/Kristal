@@ -62,7 +62,7 @@ function SnowGraveSpell:drawTiled(x, y, alpha)
 
     while cur_y + y < 480 do
         while cur_x + x < 640 do
-            love.graphics.draw(self.bg_snowfall, cur_x + x, cur_y + y, 0, 2, 2)
+            Draw.draw(self.bg_snowfall, cur_x + x, cur_y + y, 0, 2, 2)
             cur_x = cur_x + width
         end
         cur_x = -(width * math.ceil(x / width))
@@ -83,7 +83,7 @@ function SnowGraveSpell:draw()
     super.draw(self)
 
     love.graphics.setColor(1, 1, 1, self.bgalpha)
-    love.graphics.draw(self.bg)
+    Draw.draw(self.bg)
 
     self:drawTiled((self.snowspeed / 1.5), (self.timer * 6), self.bgalpha)
     self:drawTiled((self.snowspeed), (self.timer * 8), self.bgalpha * 2)

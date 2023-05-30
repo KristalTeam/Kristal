@@ -284,7 +284,7 @@ function DarkMenu:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
     if self.desc_sprites[self.selected_submenu] then
-        love.graphics.draw(self.desc_sprites[self.selected_submenu], 20, 24, 0, 2, 2)
+        Draw.draw(self.desc_sprites[self.selected_submenu], 20, 24, 0, 2, 2)
     end
 
     for i = 1, #self.buttons do
@@ -302,10 +302,10 @@ function DarkMenu:drawButton(index, x, y)
     if index == self.selected_submenu then
         sprite = 2
     end
-    love.graphics.draw(self.buttons[index][sprite], x, y, 0, 2, 2)
+    Draw.draw(self.buttons[index][sprite], x, y, 0, 2, 2)
     if index == self.selected_submenu and self.state == "MAIN" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, x + 15, y + 25, 0, 2, 2, self.heart_sprite:getWidth() / 2, self.heart_sprite:getHeight() / 2)
+        Draw.draw(self.heart_sprite, x + 15, y + 25, 0, 2, 2, self.heart_sprite:getWidth() / 2, self.heart_sprite:getHeight() / 2)
         love.graphics.setColor(1, 1, 1)
     end
 end

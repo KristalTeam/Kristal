@@ -277,7 +277,7 @@ function ContextMenu:draw()
 
     local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
     love.graphics.setColor(1, 1, 1, anim)
-    love.graphics.draw(self.canvas, 0, 12 - (anim * 12))
+    Draw.draw(self.canvas, 0, 12 - (anim * 12))
 
     if tooltip_to_draw then
         local mouse_x, mouse_y = self:getLocalMousePosition()
@@ -304,7 +304,7 @@ function ContextMenu:draw()
 
         Draw.popCanvas()
         love.graphics.setColor(1, 1, 1, anim)
-        love.graphics.draw(tooltip, tooltip_x + (12 - (anim * 12)), tooltip_y)
+        Draw.draw(tooltip, tooltip_x + (12 - (anim * 12)), tooltip_y)
     end
 
     super.draw(self)

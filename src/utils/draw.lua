@@ -242,13 +242,13 @@ end
 
 function Draw.drawPart(texture, x, y, cx, cy, cw, ch, ...)
     local quad = Assets.getQuad(cx, cy, cw, ch, texture:getWidth(), texture:getHeight())
-    love.graphics.draw(texture, quad, x, y, ...)
+    Draw.draw(texture, quad, x, y, ...)
 end
 
 function Draw.drawCanvas(canvas, ...)
     local mode,alphamode = love.graphics.getBlendMode()
     love.graphics.setBlendMode(mode, "premultiplied")
-    love.graphics.draw(canvas, ...)
+    Draw.draw(canvas, ...)
     love.graphics.setBlendMode(mode, alphamode)
 end
 
@@ -289,16 +289,16 @@ function Draw.drawWrapped(drawable, wrap_x, wrap_y, x, y, r, sx, sy, ox, oy, kx,
     if wrap_x and wrap_y then
         for i = 1, wrap_width do
             for j = 1, wrap_height do
-                love.graphics.draw(drawable, x_offset + (i-1) * dw, y_offset + (j-1) * dh)
+                Draw.draw(drawable, x_offset + (i-1) * dw, y_offset + (j-1) * dh)
             end
         end
     elseif wrap_x then
         for i = 1, wrap_width do
-            love.graphics.draw(drawable, x_offset + (i-1) * dw, 0)
+            Draw.draw(drawable, x_offset + (i-1) * dw, 0)
         end
     elseif wrap_y then
         for j = 1, wrap_height do
-            love.graphics.draw(drawable, 0, y_offset + (j-1) * dh)
+            Draw.draw(drawable, 0, y_offset + (j-1) * dh)
         end
     end
 

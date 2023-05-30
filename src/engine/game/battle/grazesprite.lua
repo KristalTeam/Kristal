@@ -26,10 +26,10 @@ function GrazeSprite:draw()
     local r,g,b,a = self:getDrawColor()
 
     love.graphics.setColor(r/2, g/2, b/2, self.timer / 0.2)
-    love.graphics.draw(self.texture)
+    Draw.draw(self.texture)
 
     love.graphics.setColor(1, 1, 1, (self.timer / 0.2) - 0.2)
-    love.graphics.draw(self.texture)
+    Draw.draw(self.texture)
 
     if self.graze_scale ~= 1 then
         love.graphics.push()
@@ -39,10 +39,10 @@ function GrazeSprite:draw()
         love.graphics.translate(-self.width/2, -self.height/2)
 
         love.graphics.setColor(r/2, g/2, b/2, self.timer / 0.2)
-        love.graphics.draw(self.texture)
+        Draw.draw(self.texture)
 
         love.graphics.setColor(1, 1, 1, (self.timer / 0.2) - 0.2)
-        love.graphics.draw(self.texture)
+        Draw.draw(self.texture)
 
         love.graphics.pop()
     end

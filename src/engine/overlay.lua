@@ -81,7 +81,7 @@ function Overlay:draw()
     love.graphics.scale(2)
     love.graphics.setColor(1, 1, 1, self.quit_alpha)
     local quit_frame = (math.floor(self.quit_timer / 0.25) % #self.quit_frames) + 1
-    love.graphics.draw(self.quit_frames[quit_frame])
+    Draw.draw(self.quit_frames[quit_frame])
     love.graphics.pop()
 
     -- Draw the load text
@@ -91,7 +91,7 @@ function Overlay:draw()
     love.graphics.setColor(1, 1, 1, self.load_alpha)
     local load_frame = (math.floor(self.load_timer / 0.25) % #self.load_frames) + 1
     local load_texture = self.load_frames[load_frame]
-    love.graphics.draw(load_texture, 0, -load_texture:getHeight())
+    Draw.draw(load_texture, 0, -load_texture:getHeight())
     love.graphics.pop()
 
     -- Draw the FPS counter text

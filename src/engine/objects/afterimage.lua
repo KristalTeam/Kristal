@@ -63,7 +63,7 @@ function AfterImage:applyTransformTo(transform)
 end
 
 function AfterImage:draw()
-    love.graphics.draw(self.canvas)
+    Draw.draw(self.canvas)
     super.draw(self)
 end
 

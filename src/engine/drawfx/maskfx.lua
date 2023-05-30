@@ -44,7 +44,7 @@ function MaskFX:draw(texture)
     love.graphics.stencil(function()
         local last_shader = love.graphics.getShader()
         love.graphics.setShader(Kristal.Shaders["Mask"])
-        love.graphics.draw(mask)
+        Draw.draw(mask)
         love.graphics.setShader(last_shader)
     end, "replace", 1)
     if not self.inverted then

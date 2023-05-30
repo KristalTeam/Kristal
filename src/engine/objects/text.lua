@@ -728,7 +728,7 @@ function Text:drawChar(node, state, use_color)
             --love.graphics.setColor(mr, mg, mb, ma * 0.3)
             love.graphics.setColor(mr*0.3, mg*0.3, mb*0.3, ma)
         end
-        love.graphics.draw(canvas, x+1, y+1)
+        Draw.draw(canvas, x+1, y+1)
 
         if not white then
             love.graphics.setShader(shader)
@@ -738,7 +738,7 @@ function Text:drawChar(node, state, use_color)
             love.graphics.setShader(last_shader)
         end
         love.graphics.setColor(cr,cg,cb,ca)
-        love.graphics.draw(canvas, x, y)
+        Draw.draw(canvas, x, y)
 
         if not white then
             love.graphics.setShader(last_shader)
@@ -788,7 +788,7 @@ function Text:draw()
         end
     else
         --love.graphics.setBlendMode("alpha", "premultiplied")
-        love.graphics.draw(self.canvas)
+        Draw.draw(self.canvas)
         --love.graphics.setBlendMode("alpha")
     end
 

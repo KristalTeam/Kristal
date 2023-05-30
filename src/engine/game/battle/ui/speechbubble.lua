@@ -247,7 +247,7 @@ end
 
 function SpeechBubble:draw()
     if not self.auto then
-        love.graphics.draw(self:getSprite(), 0, 0)
+        Draw.draw(self:getSprite(), 0, 0)
     else
         local inner_left = -self.padding["left"]
         local inner_top = -self.padding["top"]
@@ -278,17 +278,17 @@ function SpeechBubble:draw()
         local sprite_bottom_right = self:getSprite("bottom_right")
 
 
-        if sprite_fill then love.graphics.draw(sprite_fill, offset + inner_left, inner_top, 0, inner_width / sprite_fill:getWidth(), inner_height / sprite_fill:getHeight()) end
+        if sprite_fill then Draw.draw(sprite_fill, offset + inner_left, inner_top, 0, inner_width / sprite_fill:getWidth(), inner_height / sprite_fill:getHeight()) end
 
-        if sprite_left   then love.graphics.draw(sprite_left,   offset + inner_left - sprite_left:getWidth(), inner_top,                          0, 1,                                      inner_height / sprite_left:getHeight())  end
-        if sprite_top    then love.graphics.draw(sprite_top,    offset + inner_left,                          inner_top - sprite_top:getHeight(), 0, inner_width / sprite_top:getWidth(),    1)                                       end
-        if sprite_right  then love.graphics.draw(sprite_right,  offset + inner_right,                         inner_top,                          0, 1,                                      inner_height / sprite_right:getHeight()) end
-        if sprite_bottom then love.graphics.draw(sprite_bottom, offset + inner_left,                          inner_bottom,                       0, inner_width / sprite_bottom:getWidth(), 1)                                       end
+        if sprite_left   then Draw.draw(sprite_left,   offset + inner_left - sprite_left:getWidth(), inner_top,                          0, 1,                                      inner_height / sprite_left:getHeight())  end
+        if sprite_top    then Draw.draw(sprite_top,    offset + inner_left,                          inner_top - sprite_top:getHeight(), 0, inner_width / sprite_top:getWidth(),    1)                                       end
+        if sprite_right  then Draw.draw(sprite_right,  offset + inner_right,                         inner_top,                          0, 1,                                      inner_height / sprite_right:getHeight()) end
+        if sprite_bottom then Draw.draw(sprite_bottom, offset + inner_left,                          inner_bottom,                       0, inner_width / sprite_bottom:getWidth(), 1)                                       end
 
-        if sprite_top_left     then love.graphics.draw(sprite_top_left,     offset + inner_left - sprite_top_left:getWidth(),    inner_top - sprite_top_left:getHeight())  end
-        if sprite_top_right    then love.graphics.draw(sprite_top_right,    offset + inner_right,                                inner_top - sprite_top_right:getHeight()) end
-        if sprite_bottom_left  then love.graphics.draw(sprite_bottom_left,  offset + inner_left - sprite_bottom_left:getWidth(), inner_bottom)                             end
-        if sprite_bottom_right then love.graphics.draw(sprite_bottom_right, offset + inner_right,                                inner_bottom)                             end
+        if sprite_top_left     then Draw.draw(sprite_top_left,     offset + inner_left - sprite_top_left:getWidth(),    inner_top - sprite_top_left:getHeight())  end
+        if sprite_top_right    then Draw.draw(sprite_top_right,    offset + inner_right,                                inner_top - sprite_top_right:getHeight()) end
+        if sprite_bottom_left  then Draw.draw(sprite_bottom_left,  offset + inner_left - sprite_bottom_left:getWidth(), inner_bottom)                             end
+        if sprite_bottom_right then Draw.draw(sprite_bottom_right, offset + inner_right,                                inner_bottom)                             end
 
         local scale = 1
         if self.text.height < 35 then
@@ -298,10 +298,10 @@ function SpeechBubble:draw()
         if sprite_tail then
             if not self.right then
                 local right, _ = self:getSpriteSize("right")
-                love.graphics.draw(sprite_tail, inner_right + right, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, 1, scale)
+                Draw.draw(sprite_tail, inner_right + right, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, 1, scale)
             else
                 local left, _ = self:getSpriteSize("left")
-                love.graphics.draw(sprite_tail, offset + inner_left - left, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, -1, scale)
+                Draw.draw(sprite_tail, offset + inner_left - left, (self.text_height / 2 - 1 - (sprite_tail:getHeight() / 2)) * scale, 0, -1, scale)
             end
         end
     end

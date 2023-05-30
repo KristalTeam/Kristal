@@ -222,22 +222,22 @@ function SaveMenu:draw()
         local heart_positions_x = {142, 322}
         local heart_positions_y = {228, 270}
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, heart_positions_x[self.selected_x], heart_positions_y[self.selected_y])
+        Draw.draw(self.heart_sprite, heart_positions_x[self.selected_x], heart_positions_y[self.selected_y])
     elseif self.state == "SAVE" or self.state == "OVERWRITE" then
         self:drawSaveFile(0, Game:getSavePreview(), 74, 26, false, true)
 
         self:drawSaveFile(1, self.saves[1], 74, 138, self.selected_y == 1)
-        love.graphics.draw(self.divider_sprite, 74, 208, 0, 493, 2)
+        Draw.draw(self.divider_sprite, 74, 208, 0, 493, 2)
 
         self:drawSaveFile(2, self.saves[2], 74, 222, self.selected_y == 2)
-        love.graphics.draw(self.divider_sprite, 74, 292, 0, 493, 2)
+        Draw.draw(self.divider_sprite, 74, 292, 0, 493, 2)
 
         self:drawSaveFile(3, self.saves[3], 74, 306, self.selected_y == 3)
-        love.graphics.draw(self.divider_sprite, 74, 376, 0, 493, 2)
+        Draw.draw(self.divider_sprite, 74, 376, 0, 493, 2)
 
         if self.selected_y == 4 then
             love.graphics.setColor(Game:getSoulColor())
-            love.graphics.draw(self.heart_sprite, 236, 402)
+            Draw.draw(self.heart_sprite, 236, 402)
 
             love.graphics.setColor(PALETTE["world_text_selected"])
         else
@@ -248,10 +248,10 @@ function SaveMenu:draw()
         self:drawSaveFile(self.saved_file, self.saves[self.saved_file], 74, 26, false, true)
 
         self:drawSaveFile(1, self.saves[1], 74, 138, self.selected_y == 1)
-        love.graphics.draw(self.divider_sprite, 74, 208, 0, 493, 2)
+        Draw.draw(self.divider_sprite, 74, 208, 0, 493, 2)
 
         self:drawSaveFile(2, self.saves[2], 74, 222, self.selected_y == 2)
-        love.graphics.draw(self.divider_sprite, 74, 292, 0, 493, 2)
+        Draw.draw(self.divider_sprite, 74, 292, 0, 493, 2)
 
         self:drawSaveFile(3, self.saves[3], 74, 306, self.selected_y == 3)
     end
@@ -286,7 +286,7 @@ function SaveMenu:draw()
 
         if self.selected_x == 1 then
             love.graphics.setColor(Game:getSoulColor())
-            love.graphics.draw(self.heart_sprite, 142, 332)
+            Draw.draw(self.heart_sprite, 142, 332)
 
             love.graphics.setColor(PALETTE["world_text_selected"])
         else
@@ -296,7 +296,7 @@ function SaveMenu:draw()
 
         if self.selected_x == 2 then
             love.graphics.setColor(Game:getSoulColor())
-            love.graphics.draw(self.heart_sprite, 322, 332)
+            Draw.draw(self.heart_sprite, 322, 332)
 
             love.graphics.setColor(PALETTE["world_text_selected"])
         else
@@ -326,7 +326,7 @@ function SaveMenu:drawSaveFile(index, data, x, y, selected, header)
         love.graphics.print("New File", x+193, y+22)
         if selected then
             love.graphics.setColor(Game:getSoulColor())
-            love.graphics.draw(self.heart_sprite, x+161, y+30)
+            Draw.draw(self.heart_sprite, x+161, y+30)
         end
     else
         if self.saved_file or header then
@@ -346,7 +346,7 @@ function SaveMenu:drawSaveFile(index, data, x, y, selected, header)
 
         if selected and not header then
             love.graphics.setColor(Game:getSoulColor())
-            love.graphics.draw(self.heart_sprite, x+18, y+14)
+            Draw.draw(self.heart_sprite, x+18, y+14)
         end
     end
     love.graphics.setColor(1, 1, 1)

@@ -483,7 +483,7 @@ function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
 
     local index = #sprite > 1 and ((math.floor(subimg) % (#sprite - 1)) + 1) or 1
 
-    love.graphics.draw(sprite[index], math.floor(x), math.floor(y))
+    Draw.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
 function Menu:printShadow(text, x, y, color, align, limit)
@@ -729,8 +729,8 @@ function Menu:draw()
     elseif self.state == "MAINMENU" then
         local logo_img = self.selected_mod and self.selected_mod.logo or self.logo
 
-        love.graphics.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
-        --love.graphics.draw(self.selected_mod and self.selected_mod.logo or self.logo, 160, 70)
+        Draw.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
+        --Draw.draw(self.selected_mod and self.selected_mod.logo or self.logo, 160, 70)
 
         if TARGET_MOD then
             if self.has_target_saves then
@@ -793,9 +793,9 @@ function Menu:draw()
             self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 7))
         else
             love.graphics.setColor(0, 0, 0)
-            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 7) + 11, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 7) + 11, 0, 2, 2)
             love.graphics.setColor(1, 1, 1)
-            love.graphics.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 7) + 9, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 7) + 9, 0, 2, 2)
         end
         self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
         self:printShadow(Kristal.Config["frameSkip"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 9))
@@ -973,9 +973,9 @@ function Menu:draw()
                 local part_2_xpos = 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1)
                 if Input.usingGamepad() then
                     love.graphics.setColor(0, 0, 0, 1)
-                    love.graphics.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
+                    Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
                     love.graphics.setColor(1, 1, 1, 1)
-                    love.graphics.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
+                    Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
                 else
                     self:printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
                 end
@@ -999,9 +999,9 @@ function Menu:draw()
                 x_pos = x_pos + control_cancel_width
                 if Input.usingGamepad() then
                     love.graphics.setColor(0, 0, 0, 1)
-                    love.graphics.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
                     love.graphics.setColor(1, 1, 1, 1)
-                    love.graphics.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                    Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
                     self:printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 end
@@ -1011,9 +1011,9 @@ function Menu:draw()
                 x_pos = x_pos + control_menu_width
                 if Input.usingGamepad() then
                     love.graphics.setColor(0, 0, 0, 1)
-                    love.graphics.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
                     love.graphics.setColor(1, 1, 1, 1)
-                    love.graphics.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                    Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
                     self:printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 end
@@ -1181,9 +1181,9 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
         self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
         if btn then
             love.graphics.setColor(0, 0, 0, 1)
-            love.graphics.draw(btn, menu_x + (8 * 32) + x_offset + 2, menu_y + (32 * y_offset) + 4, 0, 2, 2)
+            Draw.draw(btn, menu_x + (8 * 32) + x_offset + 2, menu_y + (32 * y_offset) + 4, 0, 2, 2)
             love.graphics.setColor(1, 1, 1, 1)
-            love.graphics.draw(btn, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset) + 2, 0, 2, 2)
+            Draw.draw(btn, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset) + 2, 0, 2, 2)
         end
         x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
     end
@@ -2059,8 +2059,8 @@ function Menu:drawConfig()
             local width = self.menu_font:getWidth(option_text)
             love.graphics.setColor(COLORS.white)
             local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
-            love.graphics.draw(Assets.getTexture("kristal/menu_arrow_left"),  x + 140 + 256 - 16 - 8 - off, y + 4, 0, 2, 2)
-            love.graphics.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 140 + width + 256 + 6 + off, y + 4, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  x + 140 + 256 - 16 - 8 - off, y + 4, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 140 + width + 256 + 6 + off, y + 4, 0, 2, 2)
         end
     end
 
@@ -2330,8 +2330,8 @@ function Menu:drawSelectionField(x, y, id, options, state)
     if self.substate == state then
         love.graphics.setColor(COLORS.white)
         local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
-        love.graphics.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
-        love.graphics.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
     end
 end
 
@@ -2450,9 +2450,9 @@ function Menu:drawBackground()
 
         self.BACKGROUND_SHADER:send("sine_mul", 1)
         love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
-        love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+        Draw.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
         self.BACKGROUND_SHADER:send("sine_mul", -1)
-        love.graphics.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
+        Draw.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
         love.graphics.setColor(1, 1, 1, 1)
 
         love.graphics.setShader()
@@ -2466,7 +2466,7 @@ function Menu:drawBackground()
 
         -- Draw the canvas on the screen scaled by 2x
         love.graphics.setColor(1, 1, 1, self.background_fade)
-        love.graphics.draw(self.bg_canvas, 0, 0, 0, 2, 2)
+        Draw.draw(self.bg_canvas, 0, 0, 0, 2, 2)
     end
 
     -- Draw mod previews
@@ -2484,7 +2484,7 @@ function Menu:drawBackground()
             -- Draw canvas scaled 2x to the screen
             Draw.setCanvas(SCREEN_CANVAS)
             love.graphics.setColor(1, 1, 1, mod_preview.fade)
-            love.graphics.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
+            Draw.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
         end
         if v.preview_script and v.preview_script.draw then
             -- Draw from the mod's preview script

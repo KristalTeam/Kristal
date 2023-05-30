@@ -172,31 +172,31 @@ end
 
 function TensionBar:draw()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.tp_bar_outline, 0, 0)
+    Draw.draw(self.tp_bar_outline, 0, 0)
 
     love.graphics.setColor(PALETTE["tension_back"])
     Draw.pushScissor()
     Draw.scissorPoints(0, 0, 25, 196 - (self:getPercentageFor250(self.current) * 196) + 1)
-    love.graphics.draw(self.tp_bar_fill, 0, 0)
+    Draw.draw(self.tp_bar_fill, 0, 0)
     Draw.popScissor()
 
     if (self.apparent < self.current) then
         love.graphics.setColor(PALETTE["tension_decrease"])
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1, 25, 196)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
         love.graphics.setColor(PALETTE["tension_fill"])
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.apparent) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent > self.current) then
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.apparent) * 196) + 1, 25, 196)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
         love.graphics.setColor(PALETTE["tension_fill"])
@@ -205,7 +205,7 @@ function TensionBar:draw()
         end
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent == self.current) then
         love.graphics.setColor(PALETTE["tension_fill"])
@@ -214,7 +214,7 @@ function TensionBar:draw()
         end
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end
 
@@ -236,10 +236,10 @@ function TensionBar:draw()
         -- No idea how Deltarune draws this, cause this code was added in Kristal:
         local r,g,b,_ = love.graphics.getColor()
         love.graphics.setColor(r, g, b, 0.7)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         -- And back to the translated code:
         love.graphics.setColor(color_to_set)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
         love.graphics.setColor(1, 1, 1, 1)
@@ -250,12 +250,12 @@ function TensionBar:draw()
         love.graphics.setColor(1, 1, 1, 1)
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1, 25, 196 - (self:getPercentageFor250(self.current) * 196) + 3)
-        love.graphics.draw(self.tp_bar_fill, 0, 0)
+        Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.tp_text, -30, 30)
+    Draw.draw(self.tp_text, -30, 30)
 
     local tamt = math.floor(self:getPercentageFor250(self.apparent) * 100)
     self.maxed = false

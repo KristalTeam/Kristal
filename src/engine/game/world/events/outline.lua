@@ -76,7 +76,7 @@ function Outline:draw()
 
     Draw.popCanvas()
 
-    love.graphics.draw(self.canvas)
+    Draw.draw(self.canvas)
 end
 
 return Outline

@@ -43,7 +43,7 @@ function Silhouette:draw()
     Draw.popCanvas()
 
     love.graphics.setColor(0, 0, 0, 0.5)
-    love.graphics.draw(self.canvas)
+    Draw.draw(self.canvas)
     love.graphics.setColor(1, 1, 1, 1)
 end
 

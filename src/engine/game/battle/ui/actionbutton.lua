@@ -156,13 +156,13 @@ end
 
 function ActionButton:draw()
     if self.selectable and self.hovered then
-        love.graphics.draw(self.hovered_texture or self.texture)
+        Draw.draw(self.hovered_texture or self.texture)
     else
-        love.graphics.draw(self.texture)
+        Draw.draw(self.texture)
         if self.selectable and self.special_texture and self:hasSpecial() then
             local r,g,b,a = self:getDrawColor()
             love.graphics.setColor(r,g,b,a * (0.4 + math.sin((Kristal.getTime() * 30) / 6) * 0.4))
-            love.graphics.draw(self.special_texture)
+            Draw.draw(self.special_texture)
         end
     end
 

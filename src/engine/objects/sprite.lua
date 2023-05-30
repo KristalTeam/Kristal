@@ -439,13 +439,13 @@ function Sprite:draw()
     local function drawSprite(...)
         if self.crossfade_alpha > 0 and self.crossfade_texture ~= nil then
             love.graphics.setColor(r, g, b, self.crossfade_out and Utils.lerp(a, 0, self.crossfade_alpha) or a)
-            love.graphics.draw(self.texture, ...)
+            Draw.draw(self.texture, ...)
 
             love.graphics.setColor(r, g, b, Utils.lerp(0, a, self.crossfade_alpha))
-            love.graphics.draw(self.crossfade_texture, ...)
+            Draw.draw(self.crossfade_texture, ...)
         else
             love.graphics.setColor(r, g, b, a)
-            love.graphics.draw(self.texture, ...)
+            Draw.draw(self.texture, ...)
         end
     end
     if self.texture then

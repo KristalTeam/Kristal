@@ -117,12 +117,12 @@ function Tileset:drawTile(id, x, y, ...)
 
     if info and info.texture then
         if not info.quad then
-            love.graphics.draw(info.texture, x or 0, y or 0, ...)
+            Draw.draw(info.texture, x or 0, y or 0, ...)
         else
-            love.graphics.draw(info.texture, info.quad, x or 0, y or 0, ...)
+            Draw.draw(info.texture, info.quad, x or 0, y or 0, ...)
         end
     else
-        love.graphics.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
+        Draw.draw(self.texture, self.quads[draw_id], x or 0, y or 0, ...)
     end
 end
 
@@ -154,12 +154,12 @@ function Tileset:drawGridTile(id, x, y, gw, gh, flip_x, flip_y, flip_diag)
     local info = self.tile_info[draw_id]
     if info and info.texture then
         if not info.quad then
-            love.graphics.draw(info.texture, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+            Draw.draw(info.texture, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
         else
-            love.graphics.draw(info.texture, info.quad, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+            Draw.draw(info.texture, info.quad, (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
         end
     else
-        love.graphics.draw(self.texture, self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
+        Draw.draw(self.texture, self.quads[draw_id], (x or 0) + ox, (y or 0) + oy, rot, flip_x and -sx or sx, flip_y and -sy or sy, w/2, h/2)
     end
 end
 

@@ -50,18 +50,18 @@ function UIBox:draw()
 
     love.graphics.setColor(r, g, b, a)
 
-    love.graphics.draw(self.left[math.floor(self.left_frame)], 0, 0, 0, 2, self.height / left_height, left_width, 0)
-    love.graphics.draw(self.left[math.floor(self.left_frame)], self.width, 0, math.pi, 2, self.height / left_height, left_width, left_height)
+    Draw.draw(self.left[math.floor(self.left_frame)], 0, 0, 0, 2, self.height / left_height, left_width, 0)
+    Draw.draw(self.left[math.floor(self.left_frame)], self.width, 0, math.pi, 2, self.height / left_height, left_width, left_height)
 
-    love.graphics.draw(self.top[math.floor(self.top_frame)], 0, 0, 0, self.width / top_width, 2, 0, top_height)
-    love.graphics.draw(self.top[math.floor(self.top_frame)], 0, self.height, math.pi, self.width / top_width, 2, top_width, top_height)
+    Draw.draw(self.top[math.floor(self.top_frame)], 0, 0, 0, self.width / top_width, 2, 0, top_height)
+    Draw.draw(self.top[math.floor(self.top_frame)], 0, self.height, math.pi, self.width / top_width, 2, top_width, top_height)
 
     for i = 1, 4 do
         local cx, cy = self.corners[i][1] * self.width, self.corners[i][2] * self.height
         local sprite = self.corner[math.floor(self.corner_frame)]
         local width  = 2 * ((self.corners[i][1] * 2) - 1) * -1
         local height = 2 * ((self.corners[i][2] * 2) - 1) * -1
-        love.graphics.draw(sprite, cx, cy, 0, width, height, sprite:getWidth(), sprite:getHeight())
+        Draw.draw(sprite, cx, cy, 0, width, height, sprite:getWidth(), sprite:getHeight())
     end
 
     super.draw(self)

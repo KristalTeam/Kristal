@@ -61,7 +61,7 @@ function LightCellMenu:draw()
     end
 
     love.graphics.setColor(Game:getSoulColor())
-    love.graphics.draw(self.heart_sprite, -4, -20 + (32 * self.current_selecting), 0, 2, 2)
+    Draw.draw(self.heart_sprite, -4, -20 + (32 * self.current_selecting), 0, 2, 2)
 
     super.draw(self)
 end

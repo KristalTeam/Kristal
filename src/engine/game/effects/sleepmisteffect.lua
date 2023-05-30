@@ -28,8 +28,8 @@ function SleepMistEffect:draw()
 
     local r,g,b,a = self:getDrawColor()
     love.graphics.setColor(r, g, b, a * 0.8)
-    love.graphics.draw(self.texture, x, y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
-    love.graphics.draw(self.texture, -x, -y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
+    Draw.draw(self.texture, x, y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
+    Draw.draw(self.texture, -x, -y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
 
     super.draw(self)
 end

@@ -281,7 +281,7 @@ function DebugWindow:draw()
 
     local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
     love.graphics.setColor(1, 1, 1, anim)
-    love.graphics.draw(self.canvas, 0, 12 - (anim * 12))
+    Draw.draw(self.canvas, 0, 12 - (anim * 12))
 
     super.draw(self)
 end

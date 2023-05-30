@@ -11,7 +11,7 @@ function ScissorFX:draw(texture)
     Draw.pushScissor()
     local ox, oy = self:getObjectBounds()
     Draw.scissor(self.x + ox, self.y + oy, self.width, self.height)
-    love.graphics.draw(texture)
+    Draw.draw(texture)
     Draw.popScissor()
 end
 

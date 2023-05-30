@@ -108,7 +108,7 @@ function TileLayer:draw()
     else
         love.graphics.setBlendMode("alpha")
     end
-    love.graphics.draw(self.canvas)
+    Draw.draw(self.canvas)
     love.graphics.setBlendMode("alpha")
 
     love.graphics.setColor(r, g, b, a * self.tile_opacity)

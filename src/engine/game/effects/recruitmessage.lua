@@ -91,7 +91,7 @@ function RecruitMessage:draw()
     love.graphics.setColor(r, g, b, a * self.alpha)
 
     -- TODO: figure out why this X value is like this... in gamemaker its a simple `draw_self()`
-    love.graphics.draw(self.texture, self.texture:getWidth() -self.x + self.start_x - (self.width * self.stretch_x) / 2, 0, 0, self.stretch_x, self.stretch_y)
+    Draw.draw(self.texture, self.texture:getWidth() -self.x + self.start_x - (self.width * self.stretch_x) / 2, 0, 0, self.stretch_x, self.stretch_y)
 
     if (self.second_number > 1) then
         love.graphics.setFont(Assets.getFont("goldnumbers"))

@@ -177,7 +177,7 @@ end
 function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     local sprite = self.spr_doorblack
     love.graphics.setColor(color)
-    love.graphics.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
+    Draw.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
 function DarkTransition:update()
@@ -979,7 +979,7 @@ function DarkTransition:draw()
 
     ---- Draw the canvas on the screen scaled by 2x
     --love.graphics.setColor(1, 1, 1, 1)
-    --love.graphics.draw(self.canvas, 0, 0, 0, 2, 2)
+    --Draw.draw(self.canvas, 0, 0, 0, 2, 2)
 
     --self.stage:draw()
     super.draw(self)

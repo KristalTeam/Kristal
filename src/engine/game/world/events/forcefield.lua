@@ -119,7 +119,7 @@ function Forcefield:draw()
 
     if self.dir == "none" then
         local sprite = self.single_sprite[(frame % #self.single_sprite) + 1]
-        love.graphics.draw(sprite, self.start_x, self.start_y, 0, 2, 2, sprite:getWidth()/2, sprite:getHeight()/2)
+        Draw.draw(sprite, self.start_x, self.start_y, 0, 2, 2, sprite:getWidth()/2, sprite:getHeight()/2)
     else
         local end_sprite = self.end_sprite[(frame % #self.end_sprite) + 1]
         local middle_sprite = self.middle_sprite[(frame % #self.middle_sprite) + 1]
@@ -140,11 +140,11 @@ function Forcefield:draw()
             elseif self.dir == "down" then
                 mid_y = self.start_y + 20 + (20 * mid_scale) + ((i - 1) * 40 * mid_scale)
             end
-            love.graphics.draw(middle_sprite, mid_x, mid_y, rot, sx, sy, middle_sprite:getWidth()/2, middle_sprite:getHeight()/2)
+            Draw.draw(middle_sprite, mid_x, mid_y, rot, sx, sy, middle_sprite:getWidth()/2, middle_sprite:getHeight()/2)
         end
 
-        love.graphics.draw(end_sprite, self.start_x, self.start_y, rot,                 2, 2, end_sprite:getWidth()/2, end_sprite:getHeight()/2)
-        love.graphics.draw(end_sprite, self.end_x,   self.end_y,   rot + math.rad(180), 2, 2, end_sprite:getWidth()/2, end_sprite:getHeight()/2)
+        Draw.draw(end_sprite, self.start_x, self.start_y, rot,                 2, 2, end_sprite:getWidth()/2, end_sprite:getHeight()/2)
+        Draw.draw(end_sprite, self.end_x,   self.end_y,   rot + math.rad(180), 2, 2, end_sprite:getWidth()/2, end_sprite:getHeight()/2)
     end
 
     super.draw(self)

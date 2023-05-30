@@ -87,7 +87,7 @@ function Loading:drawScissor(image, left, top, width, height, x, y, alpha)
     love.graphics.setScissor(scissor_x, scissor_y, width, height)
 
     love.graphics.setColor(1, 1, 1, alpha)
-    love.graphics.draw(image, math.floor(x) - left, math.floor(y) - top)
+    Draw.draw(image, math.floor(x) - left, math.floor(y) - top)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setScissor()
     love.graphics.pop()
@@ -98,7 +98,7 @@ function Loading:drawSprite(image, x, y, alpha)
     love.graphics.setScissor()
 
     love.graphics.setColor(1, 1, 1, alpha)
-    love.graphics.draw(image, math.floor(x), math.floor(y), 0, 1, 1, image:getWidth()/2, image:getHeight()/2)
+    Draw.draw(image, math.floor(x), math.floor(y), 0, 1, 1, image:getWidth()/2, image:getHeight()/2)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.pop()
 end
@@ -187,7 +187,7 @@ function Loading:draw()
 
     -- Draw the canvas on the screen scaled by 2x
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.logo_canvas, 0, 0, 0, 2, 2)
+    Draw.draw(self.logo_canvas, 0, 0, 0, 2, 2)
 
     if self.skipped then
         -- Draw the screen fade

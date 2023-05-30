@@ -24,7 +24,7 @@ function Gradient:draw(texture)
     shader:send("angle", self.dir)
     local bx, by, bw, bh = unpack(self.bounds or {self:getObjectBounds()})
     shader:send("bounds", {bx/SCREEN_WIDTH, by/SCREEN_HEIGHT, bw/SCREEN_WIDTH, bh/SCREEN_HEIGHT})
-    love.graphics.draw(texture)
+    Draw.draw(texture)
     love.graphics.setShader(last_shader)
 end
 

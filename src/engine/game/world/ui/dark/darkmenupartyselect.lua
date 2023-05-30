@@ -60,12 +60,12 @@ function DarkMenuPartySelect:draw()
             love.graphics.setColor(1, 1, 1, 1)
         end
         local ox, oy = party:getMenuIconOffset()
-        love.graphics.draw(Assets.getTexture(party:getMenuIcon()), (i-1)*50 + (ox*2), oy*2, 0, 2, 2)
+        Draw.draw(Assets.getTexture(party:getMenuIcon()), (i-1)*50 + (ox*2), oy*2, 0, 2, 2)
     end
     if self.focused then
         local frames = Assets.getFrames("player/heart_harrows")
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(frames[(math.floor(self.heart_siner/20)-1)%#frames+1], (self.selected_party-1)*50 + 10, -18)
+        Draw.draw(frames[(math.floor(self.heart_siner/20)-1)%#frames+1], (self.selected_party-1)*50 + 10, -18)
     end
     super.draw(self)
 end

@@ -559,7 +559,7 @@ function Shop:draw()
             love.graphics.print(self.menu_options[i][1], 480, 220 + (i * 40))
         end
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, 450, 230 + (self.main_current_selecting * 40))
+        Draw.draw(self.heart_sprite, 450, 230 + (self.main_current_selecting * 40))
     elseif self.state == "BUYMENU" then
 
         while self.current_selecting - self.item_offset > 5 do
@@ -608,9 +608,9 @@ function Shop:draw()
         end
         love.graphics.setColor(Game:getSoulColor())
         if not self.buy_confirming then
-            love.graphics.draw(self.heart_sprite, 30, 230 + ((self.current_selecting - self.item_offset) * 40))
+            Draw.draw(self.heart_sprite, 30, 230 + ((self.current_selecting - self.item_offset) * 40))
         else
-            love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
+            Draw.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(COLORS.white)
             local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting].options["price"] or 0)), "\n")
             for i = 1, #lines do
@@ -656,16 +656,16 @@ function Shop:draw()
                     if can_equip then
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head")
                         if current_item.item.type == "armor" then
-                            love.graphics.draw(self.stat_icons["defense_1"], offset_x + 470, offset_y + 127 + top)
-                            love.graphics.draw(self.stat_icons["defense_2"], offset_x + 470, offset_y + 147 + top)
+                            Draw.draw(self.stat_icons["defense_1"], offset_x + 470, offset_y + 127 + top)
+                            Draw.draw(self.stat_icons["defense_2"], offset_x + 470, offset_y + 147 + top)
 
                             for j = 1, 2 do
                                 self:drawBonuses(party_member, party_member:getArmor(j), current_item.options["bonuses"], "defense", offset_x + 470 + 21, offset_y + 127 + ((j - 1) * 20) + top)
                             end
 
                         elseif current_item.item.type == "weapon" then
-                            love.graphics.draw(self.stat_icons["attack"], offset_x + 470, offset_y + 127 + top)
-                            love.graphics.draw(self.stat_icons["magic" ], offset_x + 470, offset_y + 147 + top)
+                            Draw.draw(self.stat_icons["attack"], offset_x + 470, offset_y + 127 + top)
+                            Draw.draw(self.stat_icons["magic" ], offset_x + 470, offset_y + 147 + top)
                             self:drawBonuses(party_member, party_member:getWeapon(), current_item.options["bonuses"], "attack", offset_x + 470 + 21, offset_y + 127 + top)
                             self:drawBonuses(party_member, party_member:getWeapon(), current_item.options["bonuses"], "magic",  offset_x + 470 + 21, offset_y + 147 + top)
                         end
@@ -673,7 +673,7 @@ function Shop:draw()
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head_error")
                     end
 
-                    love.graphics.draw(head_path, offset_x + 426, offset_y + 132 + top)
+                    Draw.draw(head_path, offset_x + 426, offset_y + 132 + top)
                 end
             end
 
@@ -696,7 +696,7 @@ function Shop:draw()
         end
     elseif self.state == "SELLMENU" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, 50, 230 + (self.sell_current_selecting * 40))
+        Draw.draw(self.heart_sprite, 50, 230 + (self.sell_current_selecting * 40))
         love.graphics.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         for i, v in ipairs(self.sell_options) do
@@ -727,9 +727,9 @@ function Shop:draw()
 
         love.graphics.setColor(Game:getSoulColor())
 
-        love.graphics.draw(self.heart_sprite, 30, 230 + ((self.item_current_selecting - self.item_offset) * 40))
+        Draw.draw(self.heart_sprite, 30, 230 + ((self.item_current_selecting - self.item_offset) * 40))
         if self.sell_confirming then
-            love.graphics.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
+            Draw.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
             love.graphics.setColor(COLORS.white)
             local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
             for i = 1, #lines do
@@ -789,10 +789,10 @@ function Shop:draw()
                 if not self.sell_confirming then
                     local sine_off = math.sin((Kristal.getTime()*30)/6) * 3
                     if self.item_offset + 4 < (max - 1) then
-                        love.graphics.draw(self.arrow_sprite, 370, 149 + sine_off + 291)
+                        Draw.draw(self.arrow_sprite, 370, 149 + sine_off + 291)
                     end
                     if self.item_offset > 0 then
-                        love.graphics.draw(self.arrow_sprite, 370, 14 - sine_off + 291 - 25, 0, 1, -1)
+                        Draw.draw(self.arrow_sprite, 370, 14 - sine_off + 291 - 25, 0, 1, -1)
                     end
                 end
             end
@@ -801,7 +801,7 @@ function Shop:draw()
         end
     elseif self.state == "TALKMENU" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
+        Draw.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
         love.graphics.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         for i = 1, math.max(4, #self.talks) do

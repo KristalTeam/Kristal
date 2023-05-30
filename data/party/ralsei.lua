@@ -162,36 +162,36 @@ function character:drawPowerStat(index, x, y, menu)
             -- Chapter 1 Ralsei "Kindness" stat (doggable)
             if not menu.ralsei_dog then
                 local icon = Assets.getTexture("ui/menu/icon/smile")
-                love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+                Draw.draw(icon, x-26, y+6, 0, 2, 2)
                 love.graphics.print("Kindness", x, y)
                 love.graphics.print("100", x+130, y)
             else
                 local icon = Assets.getTexture("ui/menu/icon/smile_dog")
-                love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+                Draw.draw(icon, x-26, y+6, 0, 2, 2)
                 love.graphics.print("Dogness", x, y)
                 love.graphics.print("1", x+130, y)
             end
         else
             -- Chapter 2 Ralsei "Sweetness" stat (non-doggable)
             local icon = Assets.getTexture("ui/menu/icon/lollipop")
-            love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+            Draw.draw(icon, x-26, y+6, 0, 2, 2)
             love.graphics.print("Sweetness", x, y)
             love.graphics.print("97", x+130, y)
         end
         return true
     elseif index == 2 then
         local icon = Assets.getTexture("ui/menu/icon/fluff")
-        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        Draw.draw(icon, x-26, y+6, 0, 2, 2)
         love.graphics.print("Fluffiness", x, y, 0, 0.8, 1)
 
-        love.graphics.draw(icon, x+130, y+6, 0, 2, 2)
+        Draw.draw(icon, x+130, y+6, 0, 2, 2)
         if Game.chapter >= 2 then
-            love.graphics.draw(icon, x+150, y+6, 0, 2, 2)
+            Draw.draw(icon, x+150, y+6, 0, 2, 2)
         end
         return true
     elseif index == 3 then
         local icon = Assets.getTexture("ui/menu/icon/fire")
-        love.graphics.draw(icon, x-26, y+6, 0, 2, 2)
+        Draw.draw(icon, x-26, y+6, 0, 2, 2)
         love.graphics.print("Guts:", x, y)
         return true
     end

@@ -325,13 +325,13 @@ function DarkEquipMenu:draw()
     love.graphics.rectangle("fill", 241, 109, 6,   192)
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.caption_sprites[    "char"],  36, -26, 0, 2, 2)
-    love.graphics.draw(self.caption_sprites["equipped"], 294, -26, 0, 2, 2)
-    love.graphics.draw(self.caption_sprites[   "stats"],  34, 104, 0, 2, 2)
+    Draw.draw(self.caption_sprites[    "char"],  36, -26, 0, 2, 2)
+    Draw.draw(self.caption_sprites["equipped"], 294, -26, 0, 2, 2)
+    Draw.draw(self.caption_sprites[   "stats"],  34, 104, 0, 2, 2)
     if self.selected_slot == 1 then
-        love.graphics.draw(self.caption_sprites["weapons"], 290, 104, 0, 2, 2)
+        Draw.draw(self.caption_sprites["weapons"], 290, 104, 0, 2, 2)
     else
-        love.graphics.draw(self.caption_sprites["armors"], 290, 104, 0, 2, 2)
+        Draw.draw(self.caption_sprites["armors"], 290, 104, 0, 2, 2)
     end
 
     self:drawChar()
@@ -355,15 +355,15 @@ function DarkEquipMenu:drawEquipped()
     if self.state ~= "SLOTS" or self.selected_slot ~= 1 then
         local weapon_icon = Assets.getTexture(party:getWeaponIcon())
         if weapon_icon then
-            love.graphics.draw(weapon_icon, 220, -4, 0, 2, 2)
+            Draw.draw(weapon_icon, 220, -4, 0, 2, 2)
         end
     end
-    if self.state ~= "SLOTS" or self.selected_slot ~= 2 then love.graphics.draw(self.armor_icons[1], 220, 30, 0, 2, 2) end
-    if self.state ~= "SLOTS" or self.selected_slot ~= 3 then love.graphics.draw(self.armor_icons[2], 220, 60, 0, 2, 2) end
+    if self.state ~= "SLOTS" or self.selected_slot ~= 2 then Draw.draw(self.armor_icons[1], 220, 30, 0, 2, 2) end
+    if self.state ~= "SLOTS" or self.selected_slot ~= 3 then Draw.draw(self.armor_icons[2], 220, 60, 0, 2, 2) end
 
     if self.state == "SLOTS" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, 226, 10 + ((self.selected_slot - 1) * 30))
+        Draw.draw(self.heart_sprite, 226, 10 + ((self.selected_slot - 1) * 30))
     end
 
     for i = 1, 3 do
@@ -382,7 +382,7 @@ function DarkEquipMenu:drawEquippedItem(index, x, y)
     if item then
         love.graphics.setColor(1, 1, 1)
         if item.icon and Assets.getTexture(item.icon) then
-            love.graphics.draw(Assets.getTexture(item.icon), x, y, 0, 2, 2)
+            Draw.draw(Assets.getTexture(item.icon), x, y, 0, 2, 2)
         end
         love.graphics.print(item:getName(), x + 22, y - 6)
     else
@@ -416,7 +416,7 @@ function DarkEquipMenu:drawItems()
                 love.graphics.setColor(0.5, 0.5, 0.5)
             end
             if item.icon and Assets.getTexture(item.icon) then
-                love.graphics.draw(Assets.getTexture(item.icon), x, y + (offset * 27), 0, 2, 2)
+                Draw.draw(Assets.getTexture(item.icon), x, y + (offset * 27), 0, 2, 2)
             end
             love.graphics.print(item:getName(), x + 20, y + (offset * 27) - 6)
         else
@@ -427,16 +427,16 @@ function DarkEquipMenu:drawItems()
 
     if self.state == "ITEMS" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, x - 20, y + 4 + ((self.selected_item[type] - scroll) * 27))
+        Draw.draw(self.heart_sprite, x - 20, y + 4 + ((self.selected_item[type] - scroll) * 27))
 
         if items.max > 6 then
             love.graphics.setColor(1, 1, 1)
             local sine_off = math.sin((Kristal.getTime()*30)/12) * 3
             if scroll + 6 <= items.max then
-                love.graphics.draw(self.arrow_sprite, x + 187, y + 149 + sine_off)
+                Draw.draw(self.arrow_sprite, x + 187, y + 149 + sine_off)
             end
             if scroll > 1 then
-                love.graphics.draw(self.arrow_sprite, x + 187, y + 14 - sine_off, 0, 1, -1)
+                Draw.draw(self.arrow_sprite, x + 187, y + 14 - sine_off, 0, 1, -1)
             end
             love.graphics.setColor(0.25, 0.25, 0.25)
             love.graphics.rectangle("fill", x + 191, y + 24, 6, 119)
@@ -450,9 +450,9 @@ end
 function DarkEquipMenu:drawStats()
     local party = self.party:getSelected()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
-    love.graphics.draw(self.stat_icons["defense"], -8, 151, 0, 2, 2)
-    love.graphics.draw(self.stat_icons[  "magic"], -8, 178, 0, 2, 2)
+    Draw.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
+    Draw.draw(self.stat_icons["defense"], -8, 151, 0, 2, 2)
+    Draw.draw(self.stat_icons[  "magic"], -8, 178, 0, 2, 2)
     love.graphics.print( "Attack:", 18, 118)
     love.graphics.print("Defense:", 18, 145)
     love.graphics.print(  "Magic:", 18, 172)
@@ -487,7 +487,7 @@ function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
         local texture = Assets.getTexture(abilities[index].icon)
         if texture then
             love.graphics.setColor(abilities[index].color)
-            love.graphics.draw(texture, x, y + yoff, 0, 2, 2)
+            Draw.draw(texture, x, y + yoff, 0, 2, 2)
         end
     end
     if name ~= comp_name then

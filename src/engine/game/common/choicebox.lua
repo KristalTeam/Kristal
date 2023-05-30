@@ -104,7 +104,7 @@ function Choicebox:draw()
     local heart_y = soul_positions[self.current_choice + 1][2]
 
     love.graphics.setColor(Game:getSoulColor())
-    love.graphics.draw(self.heart, heart_x, heart_y, 0, 2, 2)
+    Draw.draw(self.heart, heart_x, heart_y, 0, 2, 2)
 end
 
 function Choicebox:setSize(w, h)

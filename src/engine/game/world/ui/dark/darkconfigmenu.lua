@@ -239,7 +239,7 @@ function DarkConfigMenu:draw()
         love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
 
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
+        Draw.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
     else
 
         -- NOTE: This is forced to true if using a PlayStation in DELTARUNE... Kristal doesn't have a PlayStation port though.
@@ -295,9 +295,9 @@ function DarkConfigMenu:draw()
                 if alias then
                     local btn_tex = Input.getButtonTexture(alias)
                     if dualshock then
-                        love.graphics.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth()/2, 0)
+                        Draw.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth()/2, 0)
                     else
-                        love.graphics.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2, btn_tex:getWidth()/2, 0)
+                        Draw.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2, btn_tex:getWidth()/2, 0)
                     end
                 end
             end
@@ -332,9 +332,9 @@ function DarkConfigMenu:draw()
         love.graphics.setColor(Game:getSoulColor())
 
         if dualshock then
-            love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
+            Draw.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
         else
-            love.graphics.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 28) + 2)
+            Draw.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 28) + 2)
         end
     end
 

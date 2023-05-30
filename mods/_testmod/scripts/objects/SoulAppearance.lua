@@ -34,7 +34,7 @@ function SoulAppearance:draw()
 
     local function draw_sprite_part_ext(left, top, width, height, x, y, xscale, yscale)
         -- TODO: optimize?
-        love.graphics.draw(self.sprite, love.graphics.newQuad(left, top, width, height, self.sprite:getDimensions()), x, y, 0, xscale, yscale)
+        Draw.draw(self.sprite, love.graphics.newQuad(left, top, width, height, self.sprite:getDimensions()), x, y, 0, xscale, yscale)
     end
 
     local function draw_sprite_part(left, top, width, height, x, y)
@@ -57,7 +57,7 @@ function SoulAppearance:draw()
     end
 
     if (self.t >= self.m) then
-        love.graphics.draw(self.sprite, 0, 0)
+        Draw.draw(self.sprite, 0, 0)
     end
 
     if (self.momentum > 0) then

@@ -160,7 +160,7 @@ function DamageNumber:draw()
         love.graphics.setColor(r, g, b, a * (1 - self.kill))
 
         if self.texture then
-            love.graphics.draw(self.texture, 30, 0)
+            Draw.draw(self.texture, 30, 0)
         elseif self.text then
             love.graphics.setFont(self.font)
             love.graphics.print(self.text, 30, 0)

@@ -89,7 +89,7 @@ end
 
 function Video:draw()
     local scale_x, scale_y = self.width / self.video_width, self.height / self.video_height
-    love.graphics.draw(self.video, 0, 0, 0, scale_x, scale_y)
+    Draw.draw(self.video, 0, 0, 0, scale_x, scale_y)
 
     super.draw(self)
 end

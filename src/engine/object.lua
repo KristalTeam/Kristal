@@ -1623,13 +1623,13 @@ function Object:fullDraw(no_children, dont_transform)
             if fx_screen then
                 local screen_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
                 love.graphics.setColor(1, 1, 1)
-                love.graphics.draw(final_canvas, -fx_off_x, -fx_off_y)
+                Draw.draw(final_canvas, -fx_off_x, -fx_off_y)
                 Draw.popCanvas(true)
                 Draw.unlockCanvas(final_canvas)
                 final_canvas = screen_canvas
             else
                 love.graphics.setColor(1, 1, 1)
-                love.graphics.draw(final_canvas, -fx_off_x, -fx_off_y)
+                Draw.draw(final_canvas, -fx_off_x, -fx_off_y)
             end
             love.graphics.pop()
         end
@@ -1638,7 +1638,7 @@ function Object:fullDraw(no_children, dont_transform)
             love.graphics.push()
             love.graphics.origin()
             love.graphics.setColor(1, 1, 1)
-            love.graphics.draw(final_canvas)
+            Draw.draw(final_canvas)
             love.graphics.pop()
         end
         Draw.popCanvasLocks()

@@ -154,7 +154,7 @@ function love.load(args)
                 love.graphics.scale(Kristal.getGameScale())
                 love.graphics.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
                 if border_texture then
-                    love.graphics.draw(border_texture, 0, 0, 0, BORDER_SCALE)
+                    Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
                 end
                 if dynamic then
                     Kristal.callEvent("onBorderDraw", border, border_texture)
@@ -169,7 +169,7 @@ function love.load(args)
         -- Draw the game canvas
         love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
         love.graphics.scale(Kristal.getGameScale())
-        love.graphics.draw(SCREEN_CANVAS, -SCREEN_WIDTH/2, -SCREEN_HEIGHT/2)
+        Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH/2, -SCREEN_HEIGHT/2)
 
         love.graphics.reset()
         love.graphics.scale(Kristal.getGameScale())
@@ -181,7 +181,7 @@ function love.load(args)
                 love.graphics.setColor(1, 1, 1, 1)
                 love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
             elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
-                love.graphics.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
+                Draw.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
             end
         end
 
@@ -556,11 +556,11 @@ function Kristal.errorHandler(msg)
         end
 
         if starwalker_error then
-            love.graphics.draw(starwalkertext, 640 - starwalkertext:getWidth() - 20, 480 - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
+            Draw.draw(starwalkertext, 640 - starwalkertext:getWidth() - 20, 480 - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
 
             love.graphics.push()
             love.graphics.scale(2, 2)
-            love.graphics.draw(starwalker, 320 - starwalker:getWidth(), 240 - starwalker:getHeight())
+            Draw.draw(starwalker, 320 - starwalker:getWidth(), 240 - starwalker:getHeight())
             love.graphics.pop()
         else
             anim_index = anim_index + (DT * 4)
@@ -572,7 +572,7 @@ function Kristal.errorHandler(msg)
 
             love.graphics.push()
             love.graphics.scale(2, 2)
-            love.graphics.draw(banana, 320 - banana:getWidth(), 240 - banana:getHeight())
+            Draw.draw(banana, 320 - banana:getWidth(), 240 - banana:getHeight())
             love.graphics.pop()
         end
 

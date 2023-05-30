@@ -114,14 +114,14 @@ function LightItemMenu:draw()
 
     love.graphics.setColor(Game:getSoulColor())
     if self.state == "ITEMSELECT" then
-        love.graphics.draw(self.heart_sprite, -4, -20 + (32 * self.item_selecting), 0, 2, 2)
+        Draw.draw(self.heart_sprite, -4, -20 + (32 * self.item_selecting), 0, 2, 2)
     else
         if self.option_selecting == 1 then
-            love.graphics.draw(self.heart_sprite, -4, 292, 0, 2, 2)
+            Draw.draw(self.heart_sprite, -4, 292, 0, 2, 2)
         elseif self.option_selecting == 2 then
-            love.graphics.draw(self.heart_sprite, 92, 292, 0, 2, 2)
+            Draw.draw(self.heart_sprite, 92, 292, 0, 2, 2)
         elseif self.option_selecting == 3 then
-            love.graphics.draw(self.heart_sprite, 206, 292, 0, 2, 2)
+            Draw.draw(self.heart_sprite, 206, 292, 0, 2, 2)
         end
     end
 

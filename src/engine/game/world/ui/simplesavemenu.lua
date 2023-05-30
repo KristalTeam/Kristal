@@ -92,9 +92,9 @@ function SimpleSaveMenu:draw()
 
         love.graphics.setColor(Game:getSoulColor())
         if self.selected_x == 1 then
-            love.graphics.draw(self.heart_sprite, self.box.x+2, self.box.y+96)
+            Draw.draw(self.heart_sprite, self.box.x+2, self.box.y+96)
         elseif self.selected_x == 2 then
-            love.graphics.draw(self.heart_sprite, self.box.x+182, self.box.y+96)
+            Draw.draw(self.heart_sprite, self.box.x+182, self.box.y+96)
         end
     elseif self.state == "SAVED" then
         love.graphics.print("File saved.", self.box.x+30, self.box.y+90)

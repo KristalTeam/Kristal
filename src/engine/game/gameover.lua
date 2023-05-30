@@ -253,7 +253,7 @@ function GameOver:draw()
 
     if self.screenshot then
         love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.draw(self.screenshot)
+        Draw.draw(self.screenshot)
     end
 
     if self.fade_white then

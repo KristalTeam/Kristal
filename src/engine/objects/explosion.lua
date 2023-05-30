@@ -37,7 +37,7 @@ function Explosion:update()
 end
 
 function Explosion:draw()
-    love.graphics.draw(self.frames[self.frame])
+    Draw.draw(self.frames[self.frame])
     super.draw(self)
 end
 

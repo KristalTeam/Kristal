@@ -178,7 +178,7 @@ function LightMenu:draw()
 
     if self.state == "MAIN" then
         love.graphics.setColor(Game:getSoulColor())
-        love.graphics.draw(self.heart_sprite, 56, 160 + (36 * self.current_selecting), 0, 2, 2)
+        Draw.draw(self.heart_sprite, 56, 160 + (36 * self.current_selecting), 0, 2, 2)
     end
 end
 

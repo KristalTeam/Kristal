@@ -25,9 +25,9 @@ end
 function SnowGraveSnowflake:draw()
     super.draw(self)
 
-    love.graphics.draw(self.snowflake, 0, 0, 0, (math.sin(self.siner) * 2), 2, self.snowflake:getWidth() / 2, self.snowflake:getHeight() / 2)
-    love.graphics.draw(self.snowflake,  (math.sin((self.siner / 3)) * 30), 0, 0, (math.sin((self.siner / 3)) * 2), 2, self.snowflake:getWidth() / 2, self.snowflake:getHeight() / 2)
-    love.graphics.draw(self.snowflake, -(math.sin((self.siner / 3)) * 30), 0, 0, (math.sin((self.siner / 3)) * 2), 2, self.snowflake:getWidth() / 2, self.snowflake:getHeight() / 2)
+    Draw.draw(self.snowflake, 0, 0, 0, (math.sin(self.siner) * 2), 2, self.snowflake:getWidth() / 2, self.snowflake:getHeight() / 2)
+    Draw.draw(self.snowflake,  (math.sin((self.siner / 3)) * 30), 0, 0, (math.sin((self.siner / 3)) * 2), 2, self.snowflake:getWidth() / 2, self.snowflake:getHeight() / 2)
+    Draw.draw(self.snowflake, -(math.sin((self.siner / 3)) * 30), 0, 0, (math.sin((self.siner / 3)) * 2), 2, self.snowflake:getWidth() / 2, self.snowflake:getHeight() / 2)
 end
 
 return SnowGraveSnowflake

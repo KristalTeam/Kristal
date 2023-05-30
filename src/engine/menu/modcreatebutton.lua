@@ -73,7 +73,7 @@ function ModCreateButton:draw()
         local plus_x, plus_y = self:getHeartPos()
         local plus_tex = Assets.getTexture("kristal/menu_plus")
         love.graphics.setColor(self:getDrawColor())
-        love.graphics.draw(plus_tex, plus_x - plus_tex:getWidth()/2, plus_y - plus_tex:getHeight()/2)
+        Draw.draw(plus_tex, plus_x - plus_tex:getWidth()/2, plus_y - plus_tex:getHeight()/2)
     end
 
     -- Draw text inside the button rectangle

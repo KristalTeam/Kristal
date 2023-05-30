@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
-local function __NULL__() end
+local function __NULL__(...) end
 
  -- default gamestate produces error on every callback
 local state_init = setmetatable({leave = __NULL__},

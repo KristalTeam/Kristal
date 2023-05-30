@@ -161,7 +161,7 @@ function ModButton:draw()
         local star_x, star_y = self:getHeartPos()
         local star_tex = Assets.getTexture("kristal/menu_star")
         love.graphics.setColor(self:getDrawColor())
-        love.graphics.draw(star_tex, star_x - star_tex:getWidth()/2, star_y - star_tex:getHeight()/2)
+        Draw.draw(star_tex, star_x - star_tex:getWidth()/2, star_y - star_tex:getHeight()/2)
     end
 
     -- Draw text inside the button rectangle
@@ -215,10 +215,10 @@ function ModButton:draw()
         local x, y = ix + self.height/2 - icon:getWidth(), iy + self.height/2 - icon:getHeight()
         -- Draw the icon shadow
         love.graphics.setColor(0, 0, 0)
-        love.graphics.draw(icon, x + 2, y + 2, 0, 2, 2)
+        Draw.draw(icon, x + 2, y + 2, 0, 2, 2)
         -- Draw the icon
         love.graphics.setColor(self:getDrawColor())
-        love.graphics.draw(icon, x, y, 0, 2, 2)
+        Draw.draw(icon, x, y, 0, 2, 2)
     end
 end
 
