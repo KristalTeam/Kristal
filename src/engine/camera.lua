@@ -30,12 +30,12 @@ function Camera:init(parent, x, y, width, height, keep_in_bounds)
 
     -- Default modifier approach speed and time
     self.default_approach_speed = 16
-    self.defaut_approach_time = 0.25
+    self.default_approach_time = 0.25
     -- Current modifier approach settings
     self.lerper = {
         type = "speed",
         speed = self.default_approach_speed,
-        time = self.defaut_approach_time,
+        time = self.default_approach_time,
         timer = 0, start_x = nil, start_y = nil
     }
 
@@ -271,7 +271,7 @@ function Camera:setAttached(attached_x, attached_y)
     self.attached_x = attached_x or false
     self.attached_y = attached_y or false
     if self.attached_x or self.attached_y and self.state_manager.state ~= "ATTACHED" then
-        self:setState("ATTACHED", attached_x or false, attached_y or false)
+        self:setState("ATTACHED")
     elseif not self.attached_x and not self.attached_y and self.state_manager.state == "ATTACHED" then
         self:setState("STATIC")
     end
@@ -314,7 +314,7 @@ function Camera:resetModifiers(immediate)
     self.lerper = {
         type = "speed",
         speed = self.default_approach_speed,
-        time = self.defaut_approach_time,
+        time = self.default_approach_time,
         timer = 0, start_x = nil, start_y = nil
     }
 end

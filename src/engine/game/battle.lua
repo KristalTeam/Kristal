@@ -1301,6 +1301,11 @@ function Battle:powerAct(spell, battler, user, target)
     local user_battler = self:getPartyBattler(user)
     local user_index = self:getPartyIndex(user)
 
+    if user_battler == nil then
+        Kristal.Console:error("Invalid power act user: " .. tostring(user))
+        return
+    end
+
     if type(spell) == "string" then
         spell = Registry.createSpell(spell)
     end
