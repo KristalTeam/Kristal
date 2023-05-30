@@ -527,9 +527,9 @@ function Text:processModifier(node, dry)
     if self.custom_commands[node.command] then
         self:processCustomCommand(node, dry)
     elseif node.command == "color" then
-        if self.COLORS[node.arguments[1]] then
+        if Text.COLORS[node.arguments[1]] then
             -- Did they input a valid color name? Let's use it.
-            self.state.color = self.COLORS[node.arguments[1]]
+            self.state.color = Text.COLORS[node.arguments[1]]
         elseif node.arguments[1] == "reset" then
             -- They want to reset the color.
             self.state.color = self.text_color
