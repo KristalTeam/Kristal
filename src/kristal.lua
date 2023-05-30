@@ -508,6 +508,12 @@ function Kristal.errorHandler(msg)
 
     local split = Utils.split(msg, ": ")
 
+    local version_string = "Kristal v" .. tostring(Kristal.Version)
+    local trimmed_commit = GitFinder:FetchTrimmedCommit()
+    if trimmed_commit then
+        version_string = version_string .. " (" .. trimmed_commit .. ")"
+    end
+
     local function draw()
 
         local pos = 32
@@ -515,12 +521,6 @@ function Kristal.errorHandler(msg)
         love.graphics.origin()
         love.graphics.clear(0, 0, 0, 1)
         love.graphics.scale(window_scale)
-
-        local version_string = "Kristal v" .. tostring(Kristal.Version)
-        local trimmed_commit = GitFinder:FetchTrimmedCommit()
-        if trimmed_commit then
-            version_string = version_string .. " (" .. trimmed_commit .. ")"
-        end
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
@@ -608,7 +608,7 @@ function Kristal.errorHandler(msg)
     local function copyToClipboard()
         if not love.system then return end
         copy_color = {0, 1, 0, 1}
-        love.system.setClipboardText(trace)
+        love.system.setClipboardText(tostring(msg) .. "\n" .. trace .. "\n\n" .. version_string)
         draw()
     end
 
