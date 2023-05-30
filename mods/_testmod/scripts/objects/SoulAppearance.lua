@@ -32,28 +32,19 @@ end
 function SoulAppearance:draw()
     super.draw(self)
 
-    local function draw_sprite_part_ext(left, top, width, height, x, y, xscale, yscale)
-        -- TODO: optimize?
-        Draw.draw(self.sprite, love.graphics.newQuad(left, top, width, height, self.sprite:getDimensions()), x, y, 0, xscale, yscale)
-    end
-
-    local function draw_sprite_part(left, top, width, height, x, y)
-        draw_sprite_part_ext(left, top, width, height, x, y, 1, 1)
-    end
-
     if (self.t <= 0) then
         self.xs = (1 + (self.t / 10))
         if (self.xs < 0) then
             self.xs = 0
         end
 
-        draw_sprite_part_ext(0, self.m, self.width, 1, ((0 - ((self.width / 2) * self.xs)) + (self.width / 2)), self.m - 400, self.xs, 800)
+        Draw.drawPart(self.sprite, ((0 - ((self.width / 2) * self.xs)) + (self.width / 2)), self.m - 400, 0, self.m, self.width, 1, 0, self.xs, 800)
     end
 
     if ((self.t > 0) and (self.t < self.m)) then
-        draw_sprite_part(0, (self.m - self.t), self.width, (1 + (self.t * 2)), 0, ((0 - self.t) + self.m))
-        draw_sprite_part_ext(0, ((self.m - self.t) - 1), self.width, 1, 0, (((0 - 400) - self.t) + self.m), 1, 400)
-        draw_sprite_part_ext(0, (self.m + self.t), self.width, 1, 0, ((0 + self.t) + self.m), 1, 400)
+        Draw.drawPart(self.sprite, 0, ((0 - self.t) + self.m), 0, (self.m - self.t), self.width, (1 + (self.t * 2)))
+        Draw.drawPart(self.sprite, 0, (((0 - 400) - self.t) + self.m), 0, ((self.m - self.t) - 1), self.width, 1, 0, 1, 400)
+        Draw.drawPart(self.sprite, 0, ((0 + self.t) + self.m), 0, (self.m + self.t), self.width, 1, 0, 1, 400)
     end
 
     if (self.t >= self.m) then
