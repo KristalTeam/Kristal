@@ -1543,7 +1543,7 @@ function Battle:commitSingleAction(action)
         if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
             battler:setAnimation("battle/"..anim.."_ready")
             action.icon = anim
-            if action.action == "AUTOATTACK" then
+            if action.action == "AUTOATTACK" or action.action == "SKIP" then
                 action.icon = nil
             end
         end
