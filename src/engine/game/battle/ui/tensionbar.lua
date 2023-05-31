@@ -105,8 +105,7 @@ function TensionBar:getPercentageFor250(variable)
     return variable / 250
 end
 
-
-function TensionBar:update()
+function TensionBar:processSlideIn()
     if self.animating_in then
         self.animation_timer = self.animation_timer + DTMULT
         if self.animation_timer > 12 then
@@ -116,7 +115,9 @@ function TensionBar:update()
 
         self.x = Ease.outCubic(self.animation_timer, self.init_x, 25 + 38, 12)
     end
+end
 
+function TensionBar:processTension()
     if (math.abs((self.apparent - self:getTension250())) < 20) then
         self.apparent = self:getTension250()
     elseif (self.apparent < self:getTension250()) then
@@ -166,20 +167,50 @@ function TensionBar:update()
     if (self.tension_preview > 0) then
         self.tsiner = self.tsiner + DTMULT
     end
+end
+
+function TensionBar:update()
+    self:processSlideIn()
+    self:processTension()
 
     super.update(self)
 end
 
-function TensionBar:draw()
+function TensionBar:drawText()
     love.graphics.setColor(1, 1, 1, 1)
-    Draw.draw(self.tp_bar_outline, 0, 0)
+    Draw.draw(self.tp_text, -30, 30)
 
+    local tamt = math.floor(self:getPercentageFor250(self.apparent) * 100)
+    self.maxed = false
+    love.graphics.setFont(self.font)
+    if (tamt < 100) then
+        love.graphics.print(tostring(math.floor(self:getPercentageFor250(self.apparent) * 100)), -30, 70)
+        love.graphics.print("%", -25, 95)
+    end
+    if (tamt >= 100) then
+        self.maxed = true
+
+        self:drawMaxText()
+    end
+end
+
+function TensionBar:drawMaxText()
+    love.graphics.setColor(PALETTE["tension_maxtext"])
+
+    love.graphics.print("M", -28, 70)
+    love.graphics.print("A", -24, 90)
+    love.graphics.print("X", -20, 110)
+end
+
+function TensionBar:drawBack()
     love.graphics.setColor(PALETTE["tension_back"])
     Draw.pushScissor()
     Draw.scissorPoints(0, 0, 25, 196 - (self:getPercentageFor250(self.current) * 196) + 1)
     Draw.draw(self.tp_bar_fill, 0, 0)
     Draw.popScissor()
+end
 
+function TensionBar:drawFill()
     if (self.apparent < self.current) then
         love.graphics.setColor(PALETTE["tension_decrease"])
         Draw.pushScissor()
@@ -253,26 +284,16 @@ function TensionBar:draw()
         Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     end
+end
 
+function TensionBar:draw()
     love.graphics.setColor(1, 1, 1, 1)
-    Draw.draw(self.tp_text, -30, 30)
+    Draw.draw(self.tp_bar_outline, 0, 0)
 
-    local tamt = math.floor(self:getPercentageFor250(self.apparent) * 100)
-    self.maxed = false
-    love.graphics.setFont(self.font)
-    if (tamt < 100) then
-        love.graphics.print(tostring(math.floor(self:getPercentageFor250(self.apparent) * 100)), -30, 70)
-        love.graphics.print("%", -25, 95)
-    end
-    if (tamt >= 100) then
-        self.maxed = true
+    self:drawBack()
+    self:drawFill()
 
-        love.graphics.setColor(PALETTE["tension_maxtext"])
-
-        love.graphics.print("M", -28, 70)
-        love.graphics.print("A", -24, 90)
-        love.graphics.print("X", -20, 110)
-    end
+    self:drawText()
 
     super.draw(self)
 end
