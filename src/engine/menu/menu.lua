@@ -149,7 +149,7 @@ function Menu:enter()
         "prokube",
         "AcousticJamm",
         "Simbel",
-        "",
+        "Bor",
         {"Documentation", COLORS.silver},
         "Vitellary",
     }
