@@ -109,6 +109,7 @@ DebugWindow = require("src.engine.game.debugwindow")
 UIBox = require("src.engine.game.common.uibox")
 Textbox = require("src.engine.game.common.textbox")
 Choicebox = require("src.engine.game.common.choicebox")
+TextChoicebox = require("src.engine.game.common.textchoicebox")
 SmallFaceText = require("src.engine.game.common.smallfacetext")
 
 World = require("src.engine.game.world")

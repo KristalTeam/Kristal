@@ -15,6 +15,8 @@ function WorldCutscene:init(group, id, ...)
     self.choicebox = nil
     self.choice = 0
 
+    self.textchoicebox = nil
+
     self.shopbox = nil
 
     self.moving_objects = {}
@@ -61,13 +63,7 @@ function WorldCutscene:onEnd()
         Game.world.cutscene = nil
     end
 
-    if self.textbox then
-        self.textbox:remove()
-    end
-
-    if self.choicebox then
-        self.choicebox:remove()
-    end
+    self:closeText()
 
     if Game:isLight() then
         if Game.world.menu and Game.world.menu.state == "TEXT" then
@@ -466,14 +462,7 @@ function WorldCutscene:text(text, portrait, actor, options)
 
     options = options or {}
 
-    if self.textbox then
-        self.textbox:remove()
-    end
-
-    if self.choicebox then
-        self.choicebox:remove()
-        self.choicebox = nil
-    end
+    self:closeText()
 
     local width, height = 529, 103
     if Game:isLight() then
@@ -566,16 +555,21 @@ function WorldCutscene:closeText()
         self.textbox:remove()
         self.textbox = nil
     end
+
+    if self.choicebox then
+        self.choicebox:remove()
+        self.choicebox = nil
+    end
+
+    if self.textchoicebox then
+        self.textchoicebox:remove()
+        self.textchoicebox = nil
+    end
 end
 
 local function waitForChoicer(self) return self.choicebox.done, self.choicebox.selected_choice end
 function WorldCutscene:choicer(choices, options)
-    if self.textbox then
-        self.textbox:remove()
-        self.textbox = nil
-    end
-
-    if self.choicebox then self.choicebox:remove() end
+    self:closeText()
 
     local width, height = 529, 103
     if Game:isLight() then
@@ -608,6 +602,104 @@ function WorldCutscene:choicer(choices, options)
         return self:wait(waitForChoicer)
     else
         return waitForChoicer, self.choicebox
+    end
+end
+
+local function waitForTextChoicer(self) return not self.textchoicebox or self.textchoicebox:isDone(), self.textchoicebox.selected_choice end
+function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
+    if type(actor) == "table" and not isClass(actor) then
+        options = actor
+        actor = nil
+    end
+    if type(portrait) == "table" then
+        options = portrait
+        portrait = nil
+    end
+
+    options = options or {}
+
+    self:closeText()
+
+    local width, height = 529, 103
+    if Game:isLight() then
+        width, height = 530, 104
+    end
+
+    self.textchoicebox = TextChoicebox(56, 344, width, height)
+    self.textchoicebox.layer = WORLD_LAYERS["textbox"]
+    Game.world:addChild(self.textchoicebox)
+    self.textchoicebox:setParallax(0, 0)
+
+    for _,choice in ipairs(choices) do
+        self.textchoicebox:addChoice(choice)
+    end
+
+    local speaker = self.textbox_speaker
+    if not speaker and isClass(actor) and actor:includes(Character) then
+        speaker = actor.sprite
+    end
+
+    if options["talk"] ~= false then
+        self.textchoicebox.text.talk_sprite = speaker
+    end
+
+    actor = actor or self.textbox_actor
+    if isClass(actor) and actor:includes(Character) then
+        actor = actor.actor
+    end
+    if actor then
+        self.textchoicebox:setActor(actor)
+    end
+
+    if options["top"] == nil and self.textbox_top == nil then
+        local _, player_y = Game.world.player:localToScreenPos()
+        options["top"] = player_y > 260
+    end
+    if options["top"] or (options["top"] == nil and self.textbox_top) then
+       local bx, by = self.textchoicebox:getBorder()
+       self.textchoicebox.y = by + 2
+    end
+
+    self.textchoicebox.active = true
+    self.textchoicebox.visible = true
+    self.textchoicebox:setFace(portrait, options["x"], options["y"])
+
+    if options["reactions"] then
+        for id,react in pairs(options["reactions"]) do
+            self.textchoicebox:addReaction(id, react[1], react[2], react[3], react[4], react[5])
+        end
+    end
+
+    if options["functions"] then
+        for id,func in pairs(options["functions"]) do
+            self.textchoicebox:addFunction(id, func)
+        end
+    end
+
+    if options["font"] then
+        if type(options["font"]) == "table" then
+            -- {font, size}
+            self.textchoicebox:setFont(options["font"][1], options["font"][2])
+        else
+            self.textchoicebox:setFont(options["font"])
+        end
+    end
+
+    if options["align"] then
+        self.textchoicebox:setAlign(options["align"])
+    end
+
+    self.textchoicebox:setSkippable(options["skip"] or options["skip"] == nil)
+
+    self.textchoicebox:setText(text, function()
+        self.textchoicebox:remove()
+        self:tryResume()
+    end)
+
+    if options["wait"] or options["wait"] == nil then
+        return self:wait(waitForTextChoicer)
+    else
+        return waitForTextChoicer, self.textchoicebox
     end
 end
 

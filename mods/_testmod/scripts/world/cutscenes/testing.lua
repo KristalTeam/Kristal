@@ -219,5 +219,13 @@ return {
         cutscene:text("＊ 本当にいいんですか？", "surprise_smile", "susie")
         cutscene:text("* Susie what the fuck are you talking about", "smile", "ralsei")
         cutscene:text("＊ 誰かが設定を少し変えてしまい、元に戻せません。", "surprise_smile", "susie")
+    end,
+    ut_choicer = function(cutscene)
+        local choice = cutscene:textChoicer("* Do you wanna be partners?", {"Not yet", "Yes"}, "smile", "noelle")
+        if choice == 1 then
+            cutscene:text("* Umm,[wait:5] OK.[wait:5]\n* You just keep doing your thing,[wait:5] Kris.", "smile_closed", "noelle")
+        else
+            cutscene:text("* Wait,[wait:5] what're we talking about again?", "smile_closed", "noelle")
+        end
     end
 }
