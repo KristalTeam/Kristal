@@ -154,6 +154,34 @@ function Menu:enter()
         "Vitellary",
     }
 
+    self.left_credits2 = {
+        {"GitHub Contributors", COLORS.silver},
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+    }
+
+    self.right_credits2 = {
+        {"GitHub Contributors", COLORS.silver},
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+    }
+
     self.create = {}
 
     if #Kristal.Mods.failed_mods > 0 then
@@ -1026,6 +1054,9 @@ function Menu:draw()
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
         self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 400, 52, 0, 2, 2)
+        love.graphics.setColor(COLORS.silver)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  222, 52, 0, 2, 2)
 
         for index, value in ipairs(self.left_credits) do
             local color = {1, 1, 1, 1}
@@ -1040,6 +1071,37 @@ function Menu:draw()
         end
 
         for index, value in ipairs(self.right_credits) do
+            local color = {1, 1, 1, 1}
+            local offset = 0
+            if type(value) == "table" then
+                color = value[2]
+                value = value[1]
+            else
+                offset = offset - 32
+            end
+            self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32 + offset)
+
+            self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
+        end
+    elseif self.state == "CREDITS2" then
+        self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  222, 52, 0, 2, 2)
+        love.graphics.setColor(COLORS.silver)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 400, 52, 0, 2, 2)
+
+        for index, value in ipairs(self.left_credits2) do
+            local color = {1, 1, 1, 1}
+            local offset = 0
+            if type(value) == "table" then
+                color = value[2]
+                value = value[1]
+            else
+                offset = offset + 32
+            end
+            self:printShadow(value, 32 + offset, 64 + (32 * index), color)
+        end
+
+        for index, value in ipairs(self.right_credits2) do
             local color = {1, 1, 1, 1}
             local offset = 0
             if type(value) == "table" then
@@ -1548,6 +1610,30 @@ function Menu:onKeyPressed(key, is_repeat)
             self.heart_target_x = 196
             self.selected_option = 4 - self.target_mod_offset
             self.heart_target_y = 238 + (3 - self.target_mod_offset) * 32
+        end
+        if Input.is("right", key) and not Input.usingGamepad() then
+            self:setState("CREDITS2")
+            self.ui_move:stop()
+            self.ui_move:play()
+        end
+    elseif self.state == "CREDITS2" then
+        if Input.isCancel(key) or Input.isConfirm(key) then
+            self:setState("MAINMENU")
+            if Input.isCancel(key) then
+                self.ui_move:stop()
+                self.ui_move:play()
+            else
+                self.ui_select:stop()
+                self.ui_select:play()
+            end
+            self.heart_target_x = 196
+            self.selected_option = 4 - self.target_mod_offset
+            self.heart_target_y = 238 + (3 - self.target_mod_offset) * 32
+        end
+        if Input.is("left", key) and not Input.usingGamepad() then
+            self:setState("CREDITS")
+            self.ui_move:stop()
+            self.ui_move:play()
         end
     elseif self.state == "CONTROLS" then
         if (not self.rebinding) and (not self.selecting_key) then
