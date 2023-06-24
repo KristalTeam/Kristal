@@ -32,7 +32,10 @@ function actor:init()
     self.can_blush = false
 
     -- Table of sprite animations
-    self.animations = {}
+    self.animations = {
+        -- Cutscene animations
+        ["sit"] = {"sit", 0.25, true},
+    }
 
     -- Tables of sprites to change into in mirrors
     self.mirror_sprites = {
@@ -43,7 +46,19 @@ function actor:init()
     }
 
     -- Table of sprite offsets (indexed by sprite name)
-    self.offsets = {}
+    self.offsets = {
+        -- Cutscene offsets
+        ["fall"] = {-8, -2},
+
+        ["fallen"] = {-8, 16},
+
+        ["sit"] = {-4, -8},
+
+        ["ghostwalk_lf"] = {-4, 3},
+        ["ghostwalk_lu"] = {-4, 3},
+        ["ghostwalk_rf"] = {-4, 3},
+        ["ghostwalk_ru"] = {-4, 3},
+    }
 end
 
 return actor
