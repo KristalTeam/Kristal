@@ -40,7 +40,17 @@ function actor:init()
     self.can_blush = false
 
     -- Table of sprite animations
-    self.animations = {}
+    self.animations = {
+        -- Cutscene animations
+        ["look_up_left_walk"] = {"look_up_left_walk", 0.25, true},
+
+        ["kick"] = {"kick", 0.1, false},
+        ["slam"] = {"slam", 0.1, false},
+
+        ["sit"] = {"sit", 0.25, true},
+
+        ["eat_chalk"] = {"eat_chalk", 0.15, false},
+    }
 
     -- Tables of sprites to change into in mirrors
     self.mirror_sprites = {
@@ -67,6 +77,39 @@ function actor:init()
         ["walk_bangs/left"] = {0, -2},
         ["walk_bangs/right"] = {0, -2},
         ["walk_bangs/up"] = {0, -2},
+
+        -- Cutscene offsets
+        ["chill"] = {2, -2},
+
+        ["disappointed_chalk_box"] = {0, -2},
+        ["hold_chalk_box"] = {0, -2},
+        ["blink"] = {0, -2},
+
+        ["look_up"] = {0, -2},
+
+        ["eat_chalk"] = {0, -2},
+
+        ["fall"] = {-2, -2},
+
+        ["shock_down"] = {0, -2},
+        ["shock_down_flip"] = {0, -2},
+
+        ["laugh_left"] = {-8, -2},
+        ["laugh_right"] = {-4, -2},
+
+        ["playful_punch"] = {-8, 0},
+        ["playful_punch_shock"] = {-8, 0},
+
+        ["look_up_left_walk"] = {0, -2},
+
+        ["kick"] = {-5, 0},
+        ["slam"] = {-6, -5},
+
+        ["angry_down"] = {-10, 2},
+        ["turn_around"] = {-12, 2},
+
+        ["away_scratch"] = {-2, -2},
+
     }
 end
 
