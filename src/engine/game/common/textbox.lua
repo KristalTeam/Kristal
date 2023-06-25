@@ -79,6 +79,15 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.face.path = "face"
     self.face:setPosition(self.face_x, self.face_y)
     self.face:setScale(2, 2)
+    self.face.getDebugOptions = function(self2, context)
+        context = super:getDebugOptions(self2, context)
+        if Kristal.DebugSystem then
+            context:addMenuItem("Change", "Change this portrait to a different one", function()
+                Kristal.DebugSystem:setState("FACES", self)
+            end)
+        end
+        return context
+    end
     self:addChild(self.face)
 
     -- Added text width for autowrapping
