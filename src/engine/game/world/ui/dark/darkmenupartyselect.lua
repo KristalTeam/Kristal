@@ -12,6 +12,8 @@ function DarkMenuPartySelect:init(x, y)
     self.on_select = nil
 
     self.heart_siner = 0
+
+    self.highlight_party = true
 end
 
 function DarkMenuPartySelect:getSelected()
@@ -41,11 +43,13 @@ function DarkMenuPartySelect:update()
         end
     end
 
-    for i,action_box in pairs(Game.world.healthbar.action_boxes) do
-        if i == self.selected_party then
-            action_box.selected = true
-        else
-            action_box.selected = false
+    if self.highlight_party then
+        for i,action_box in pairs(Game.world.healthbar.action_boxes) do
+            if i == self.selected_party then
+                action_box.selected = true
+            else
+                action_box.selected = false
+            end
         end
     end
 

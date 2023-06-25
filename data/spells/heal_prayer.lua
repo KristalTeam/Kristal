@@ -32,7 +32,7 @@ function spell:hasWorldUsage(chara)
 end
 
 function spell:onWorldCast(chara)
-    Game.world:showText("* Placeholder!")
+    Game.world:heal(chara, 100)
 end
 
 return spell

@@ -38,6 +38,7 @@ function DarkPowerMenu:init()
 
     self.party = DarkMenuPartySelect(8, 48)
     self.party.focused = true
+    self.party.highlight_party = false
     self:addChild(self.party)
 
     self.party.on_select = function(new, old)
@@ -126,12 +127,18 @@ function DarkPowerMenu:update()
         end
         if Input.pressed("confirm") then
             local spell = self:getSpells()[self.selected_spell]
-            if Game:getConfig("overworldSpells") and
-               (spell:hasWorldUsage(self.party:getSelected())) and
-               (Game:getTension() >= spell:getTPCost(self.party:getSelected())) then
-                self.ui_select:stop()
-                self.ui_select:play()
-                spell:onWorldCast(self.party:getSelected())
+            if self:canCast(spell) then
+                self.state = "USE"
+                if spell.target == "ally" or spell.target == "party" then
+
+                    local target_type = spell.target == "ally" and "SINGLE" or "ALL"
+
+                    self:selectParty(target_type, spell)
+                else
+                    Game:removeTension(spell:getTPCost())
+                    spell:onWorldCast()
+                    self.state = "SPELLS"
+                end
             end
         end
         local spells = self:getSpells()
@@ -155,6 +162,29 @@ function DarkPowerMenu:update()
         end
     end
     super.update(self)
+end
+
+function DarkPowerMenu:selectParty(target_type, spell)
+    Game.world.menu:partySelect(target_type, function(success, party)
+        if success then
+            Game:removeTension(spell:getTPCost())
+            spell:onWorldCast(party)
+            if self:canCast(spell) then
+                self:selectParty(target_type, spell)
+            else
+                self.state = "SPELLS"
+            end
+        else
+            self.state = "SPELLS"
+        end
+    end)
+end
+
+function DarkPowerMenu:canCast(spell)
+    if not Game:getConfig("overworldSpells") then return false end
+    if Game:getTension() < spell:getTPCost(self.party:getSelected()) then return false end
+
+    return (spell:hasWorldUsage(self.party:getSelected()))
 end
 
 function DarkPowerMenu:draw()
@@ -232,9 +262,7 @@ function DarkPowerMenu:drawSpells()
         local spell = spells[i]
         local offset = i - self.scroll_y
 
-        if (not Game:getConfig("overworldSpells")) or
-           (not spell:hasWorldUsage(self.party:getSelected())) or
-           (Game:getTension() < spell:getTPCost(self.party:getSelected())) then
+        if not self:canCast(spell) then
             Draw.setColor(0.5, 0.5, 0.5)
         else
             Draw.setColor(1, 1, 1)
