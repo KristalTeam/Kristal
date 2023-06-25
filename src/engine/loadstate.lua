@@ -86,9 +86,9 @@ function Loading:drawScissor(image, left, top, width, height, x, y, alpha)
     local scissor_y = ((math.floor(y) >= 0) and math.floor(y) or 0)
     love.graphics.setScissor(scissor_x, scissor_y, width, height)
 
-    love.graphics.setColor(1, 1, 1, alpha)
+    Draw.setColor(1, 1, 1, alpha)
     Draw.draw(image, math.floor(x) - left, math.floor(y) - top)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     love.graphics.setScissor()
     love.graphics.pop()
 end
@@ -97,9 +97,9 @@ function Loading:drawSprite(image, x, y, alpha)
     love.graphics.push()
     love.graphics.setScissor()
 
-    love.graphics.setColor(1, 1, 1, alpha)
+    Draw.setColor(1, 1, 1, alpha)
     Draw.draw(image, math.floor(x), math.floor(y), 0, 1, 1, image:getWidth()/2, image:getHeight()/2)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     love.graphics.pop()
 end
 
@@ -186,12 +186,12 @@ function Loading:draw()
     Draw.setCanvas(SCREEN_CANVAS)
 
     -- Draw the canvas on the screen scaled by 2x
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.logo_canvas, 0, 0, 0, 2, 2)
 
     if self.skipped then
         -- Draw the screen fade
-        love.graphics.setColor(0, 0, 0, self.fader_alpha)
+        Draw.setColor(0, 0, 0, self.fader_alpha)
         love.graphics.rectangle("fill", 0, 0, 640, 480)
 
         if self.fader_alpha > 1 then
@@ -207,7 +207,7 @@ function Loading:draw()
     end
 
     -- Reset the draw color
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 function Loading:onKeyPressed(key)

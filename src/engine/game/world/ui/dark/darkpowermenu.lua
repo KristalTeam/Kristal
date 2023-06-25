@@ -148,11 +148,11 @@ end
 function DarkPowerMenu:draw()
     love.graphics.setFont(self.font)
 
-    love.graphics.setColor(PALETTE["world_border"])
+    Draw.setColor(PALETTE["world_border"])
     love.graphics.rectangle("fill", -24, 104, 525, 6)
     love.graphics.rectangle("fill", 212, 104, 6, 200)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.caption_sprites[  "char"],  42, -28, 0, 2, 2)
     Draw.draw(self.caption_sprites[ "stats"],  42,  98, 0, 2, 2)
     Draw.draw(self.caption_sprites["spells"], 298,  98, 0, 2, 2)
@@ -166,14 +166,14 @@ end
 
 function DarkPowerMenu:drawChar()
     local party = self.party:getSelected()
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
     love.graphics.print(party:getName(), 48, -7)
     love.graphics.print(party:getTitle(), 238, -7)
 end
 
 function DarkPowerMenu:drawStats()
     local party = self.party:getSelected()
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
     Draw.draw(self.stat_icons["defense"], -8, 149, 0, 2, 2)
     Draw.draw(self.stat_icons[  "magic"], -8, 174, 0, 2, 2)
@@ -187,10 +187,10 @@ function DarkPowerMenu:drawStats()
     for i = 1, 3 do
         local x, y = 18, 168 + (i * 25)
         love.graphics.setFont(self.font)
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
         love.graphics.push()
         if not party:drawPowerStat(i, x, y, self) then
-            love.graphics.setColor(PALETTE["world_dark_gray"])
+            Draw.setColor(PALETTE["world_dark_gray"])
             love.graphics.print("???", x, y)
         end
         love.graphics.pop()
@@ -211,7 +211,7 @@ function DarkPowerMenu:drawSpells()
         name_x, name_y = 302, 118
     end
 
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
     Draw.draw(self.tp_sprite, tp_x, tp_y - 5)
 
     local spell_limit = self:getSpellLimit()
@@ -220,14 +220,14 @@ function DarkPowerMenu:drawSpells()
         local spell = spells[i]
         local offset = i - self.scroll_y
 
-        love.graphics.setColor(0.5, 0.5, 0.5)
+        Draw.setColor(0.5, 0.5, 0.5)
         love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
         love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 
     -- Draw scroll arrows if needed
     if #spells > spell_limit then
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
 
         -- Move the arrows up and down only if we're in the spell selection state
         local sine_off = 0
@@ -246,16 +246,16 @@ function DarkPowerMenu:drawSpells()
     end
 
     if self.state == "SPELLS" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, tp_x - 20, tp_y + 10 + ((self.selected_spell - self.scroll_y) * 25))
 
         -- Draw scrollbar if needed (unless the spell limit is 2, in which case the scrollbar is too small)
         if spell_limit > 2 and #spells > spell_limit then
             local scrollbar_height = (spell_limit - 2) * 25
-            love.graphics.setColor(0.25, 0.25, 0.25)
+            Draw.setColor(0.25, 0.25, 0.25)
             love.graphics.rectangle("fill", 473, name_y + 30, 6, scrollbar_height)
             local percent = (self.scroll_y - 1) / (#spells - spell_limit)
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             love.graphics.rectangle("fill", 473, name_y + 30 + math.floor(percent * (scrollbar_height-6)), 6, 6)
         end
     end

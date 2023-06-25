@@ -195,9 +195,9 @@ function FileNamer:draw()
     super.draw(self)
 
     if self.whiten > 0 then
-        love.graphics.setColor(1, 1, 1, self.whiten)
+        Draw.setColor(1, 1, 1, self.whiten)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
     end
 end
 

@@ -21,7 +21,7 @@ function RecolorFX:isActive()
 end
 
 function RecolorFX:draw(texture)
-    love.graphics.setColor(self.color)
+    Draw.setColor(self.color)
     Draw.drawCanvas(texture)
 end
 

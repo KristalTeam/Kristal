@@ -161,7 +161,7 @@ function ActionButton:draw()
         Draw.draw(self.texture)
         if self.selectable and self.special_texture and self:hasSpecial() then
             local r,g,b,a = self:getDrawColor()
-            love.graphics.setColor(r,g,b,a * (0.4 + math.sin((Kristal.getTime() * 30) / 6) * 0.4))
+            Draw.setColor(r,g,b,a * (0.4 + math.sin((Kristal.getTime() * 30) / 6) * 0.4))
             Draw.draw(self.special_texture)
         end
     end

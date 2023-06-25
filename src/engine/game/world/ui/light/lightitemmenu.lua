@@ -100,19 +100,19 @@ function LightItemMenu:draw()
 
     for index, item in ipairs(inventory) do
         if item.usable_in == "world" or item.usable_in == "all" then
-            love.graphics.setColor(PALETTE["world_text"])
+            Draw.setColor(PALETTE["world_text"])
         else
-            love.graphics.setColor(PALETTE["world_text_unusable"])
+            Draw.setColor(PALETTE["world_text_unusable"])
         end
         love.graphics.print(item:getName(), 20, -28 + (index * 32))
     end
 
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
     love.graphics.print("USE" , 20 , 284)
     love.graphics.print("INFO", 116, 284)
     love.graphics.print("DROP", 230, 284)
 
-    love.graphics.setColor(Game:getSoulColor())
+    Draw.setColor(Game:getSoulColor())
     if self.state == "ITEMSELECT" then
         Draw.draw(self.heart_sprite, -4, -20 + (32 * self.item_selecting), 0, 2, 2)
     else

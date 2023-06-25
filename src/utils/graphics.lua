@@ -18,7 +18,7 @@ end
 function graphics.printfOutline(text, x, y, outline, limit, ...)
   local old_color = {love.graphics.getColor()}
 
-  love.graphics.setColor(0, 0, 0)
+  Draw.setColor(0, 0, 0)
 
   local drawn = {}
   for i = -(outline or 1),(outline or 1) do
@@ -29,7 +29,7 @@ function graphics.printfOutline(text, x, y, outline, limit, ...)
     end
   end
 
-  love.graphics.setColor(unpack(old_color))
+  Draw.setColor(unpack(old_color))
 
   love.graphics.printf(text, x, y, limit or math.huge, ...)
 end

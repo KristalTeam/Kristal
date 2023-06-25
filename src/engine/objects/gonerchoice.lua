@@ -367,10 +367,10 @@ function GonerChoice:draw()
 
             if not self:isHidden(choice, x, y) then
                 if self.selected_x == x and self.selected_y == y then
-                    love.graphics.setColor(1, 1, 0, self.alpha)
+                    Draw.setColor(1, 1, 0, self.alpha)
                     love.graphics.print(text, tx, ty)
                 else
-                    love.graphics.setColor(1, 1, 1, self.alpha)
+                    Draw.setColor(1, 1, 1, self.alpha)
                     love.graphics.print(text, tx, ty)
                 end
             end

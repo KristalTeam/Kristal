@@ -68,7 +68,7 @@ function FileButton:drawCoolRectangle(x, y, w, h)
     love.graphics.setLineWidth(1)
     love.graphics.setLineStyle("rough")
     -- Set the color
-    love.graphics.setColor(self:getDrawColor())
+    Draw.setColor(self:getDrawColor())
     -- Draw the rectangles
     love.graphics.rectangle("line", x, y, w + 1, h + 1)
     -- Increase the width and height by one instead of two to produce the broken effect
@@ -80,7 +80,7 @@ end
 
 function FileButton:draw()
     -- Draw the transparent background
-    love.graphics.setColor(0, 0, 0, 0.5)
+    Draw.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     -- Draw the rectangle outline
@@ -92,55 +92,55 @@ function FileButton:draw()
 
     if not self.prompt then
         -- Draw the name shadow
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.name, 50 + 2, 10 + 2)
         -- Draw the name
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         love.graphics.print(self.name, 50, 10)
 
         -- Draw the time shadow
         local time_x = self.width-64-self.font:getWidth(self.time)
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.time, time_x + 2, 10 + 2)
         -- Draw the time
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         love.graphics.print(self.time, time_x, 10)
     else
         -- Draw the prompt shadow
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.prompt, 50 + 2, 10 + 2)
         -- Draw the prompt
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         love.graphics.print(self.prompt, 50, 10)
     end
 
     if not self.choices then
         -- Draw the area shadow
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.area, 50 + 2, 44 + 2)
         -- Draw the area
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         love.graphics.print(self.area, 50, 44)
     else
         -- Draw the shadow for choice 1
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.choices[1], 70+2, 44+2)
         -- Draw choice 1
         if self.selected_choice == 1 then
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
         else
-            love.graphics.setColor(0.6, 0.6, 0.7)
+            Draw.setColor(0.6, 0.6, 0.7)
         end
         love.graphics.print(self.choices[1], 70, 44)
 
         -- Draw the shadow for choice 2
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.choices[2], 250+2, 44+2)
         -- Draw choice 2
         if self.selected_choice == 2 then
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
         else
-            love.graphics.setColor(0.6, 0.6, 0.7)
+            Draw.setColor(0.6, 0.6, 0.7)
         end
         love.graphics.print(self.choices[2], 250, 44)
     end

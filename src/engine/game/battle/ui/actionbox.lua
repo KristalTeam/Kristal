@@ -170,7 +170,7 @@ function ActionBox:draw()
     if not self.name_sprite then
         local font = Assets.getFont("name")
         love.graphics.setFont(font)
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         local name = self.battler.chara:getName():upper()
         local spacing = 5 - name:len()
@@ -186,18 +186,18 @@ end
 
 function ActionBox:drawActionBox()
     if Game.battle.current_selecting == self.index then
-        love.graphics.setColor(self.battler.chara:getColor())
+        Draw.setColor(self.battler.chara:getColor())
         love.graphics.setLineWidth(2)
         love.graphics.line(1  , 2, 1,   37)
         love.graphics.line(Game:getConfig("oldUIPositions") and 211 or 212, 2, Game:getConfig("oldUIPositions") and 211 or 212, 37)
         love.graphics.line(0  , 6, 212, 6 )
     end
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 function ActionBox:drawSelectionMatrix()
     -- Draw the background of the selection matrix
-    love.graphics.setColor(0, 0, 0, 1)
+    Draw.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 2, 2, 209, 35)
 
     if Game.battle.current_selecting == self.index then
@@ -207,14 +207,14 @@ function ActionBox:drawSelectionMatrix()
             local siner = self.selection_siner + (i * (10 * math.pi))
 
             love.graphics.setLineWidth(2)
-            love.graphics.setColor(r, g, b, a * math.sin(siner / 60))
+            Draw.setColor(r, g, b, a * math.sin(siner / 60))
             if math.cos(siner / 60) < 0 then
                 love.graphics.line(1 - (math.sin(siner / 60) * 30) + 30, 0, 1 - (math.sin(siner / 60) * 30) + 30, 37)
                 love.graphics.line(211 + (math.sin(siner / 60) * 30) - 30, 0, 211 + (math.sin(siner / 60) * 30) - 30, 37)
             end
         end
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
     end
 end
 

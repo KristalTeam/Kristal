@@ -418,35 +418,35 @@ end
 function FileList:draw()
     local function setColor(x, y)
         if self.selected_x == x and self.selected_y == y then
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
         else
-            love.graphics.setColor(0.6, 0.6, 0.7)
+            Draw.setColor(0.6, 0.6, 0.7)
         end
     end
 
     local title = self:getTitle()
-    love.graphics.setColor(0, 0, 0)
+    Draw.setColor(0, 0, 0)
     love.graphics.print(title, 80+2, 60+2)
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
     love.graphics.print(title, 80, 60)
 
     if self.state == "SELECT" or self.state == "TRANSITIONING" then
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print("Copy", 108+2, 380+2)
         setColor(1, 4)
         love.graphics.print("Copy", 108, 380)
 
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print("Erase", 280+2, 380+2)
         setColor(2, 4)
         love.graphics.print("Erase", 280, 380)
 
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print("Back", 468+2, 380+2)
         setColor(3, 4)
         love.graphics.print("Back", 468, 380)
     else
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print("Cancel", 110+2, 380+2)
         setColor(1, 4)
         love.graphics.print("Cancel", 110, 380)

@@ -24,7 +24,7 @@ end
 function DarkTransitionLine:draw()
     love.graphics.setLineWidth(self.image_xscale)
     love.graphics.setLineStyle("rough")
-    love.graphics.setColor(1, 1, 1, 0.5)
+    Draw.setColor(1, 1, 1, 0.5)
     love.graphics.line(0, 0, 0, self.image_yscale)
 
     super.draw(self)

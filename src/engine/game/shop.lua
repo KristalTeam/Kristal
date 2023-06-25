@@ -554,11 +554,11 @@ function Shop:draw()
 
     love.graphics.setFont(self.font)
     if self.state == "MAINMENU" then
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         for i = 1, #self.menu_options do
             love.graphics.print(self.menu_options[i][1], 480, 220 + (i * 40))
         end
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 450, 230 + (self.main_current_selecting * 40))
     elseif self.state == "BUYMENU" then
 
@@ -587,31 +587,31 @@ function Shop:draw()
             local item = self.items[i]
             if not item then
                 -- If the item is null, add some empty space
-                love.graphics.setColor(COLORS.dkgray)
+                Draw.setColor(COLORS.dkgray)
                 love.graphics.print("--------", 60, y)
             elseif item.options["stock"] and (item.options["stock"] <= 0) then
                 -- If we've depleted the stock, show a "sold out" message
-                love.graphics.setColor(COLORS.gray)
+                Draw.setColor(COLORS.gray)
                 love.graphics.print("--SOLD OUT--", 60, y)
             else
-                love.graphics.setColor(item.options["color"])
+                Draw.setColor(item.options["color"])
                 love.graphics.print(item.options["name"], 60, y)
                 if not self.hide_price then
-                    love.graphics.setColor(COLORS.white)
+                    Draw.setColor(COLORS.white)
                     love.graphics.print(string.format(self.currency_text, item.options["price"] or 0), 60 + 240, y)
                 end
             end
         end
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         if self.item_offset == math.max(4, #self.items) - 4 then
             love.graphics.print("Exit", 60, 220 + (math.max(4, #self.items) + 1 - self.item_offset) * 40)
         end
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         if not self.buy_confirming then
             Draw.draw(self.heart_sprite, 30, 230 + ((self.current_selecting - self.item_offset) * 40))
         else
             Draw.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
-            love.graphics.setColor(COLORS.white)
+            Draw.setColor(COLORS.white)
             local lines = Utils.split(string.format(self.buy_confirmation_text, string.format(self.currency_text, self.items[self.current_selecting].options["price"] or 0)), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
@@ -619,7 +619,7 @@ function Shop:draw()
             love.graphics.print("Yes", 60 + 420, 420 - 80)
             love.graphics.print("No",  60 + 420, 420 - 80 + 30)
         end
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
 
         if (self.current_selecting <= #self.items) then
             local current_item = self.items[self.current_selecting]
@@ -633,7 +633,7 @@ function Shop:draw()
             Draw.pushScissor()
             Draw.scissor(left, top, width, height)
 
-            love.graphics.setColor(COLORS.white)
+            Draw.setColor(COLORS.white)
             love.graphics.print(current_item.options["description"], left + 32, top + 20)
 
             if current_item.item.type == "armor" or current_item.item.type == "weapon" then
@@ -651,7 +651,7 @@ function Shop:draw()
                     local head_path = ""
 
                     love.graphics.setFont(self.plain_font)
-                    love.graphics.setColor(COLORS.white)
+                    Draw.setColor(COLORS.white)
 
                     if can_equip then
                         head_path = Assets.getTexture(party_member:getHeadIcons() .. "/head")
@@ -679,7 +679,7 @@ function Shop:draw()
 
             Draw.popScissor()
 
-            love.graphics.setColor(COLORS.white)
+            Draw.setColor(COLORS.white)
 
             if not self.hide_storage_text then
                 love.graphics.setFont(self.plain_font)
@@ -695,9 +695,9 @@ function Shop:draw()
             end
         end
     elseif self.state == "SELLMENU" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 50, 230 + (self.sell_current_selecting * 40))
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         for i, v in ipairs(self.sell_options) do
             love.graphics.print(v[1], 80, 220 + (i * 40))
@@ -725,12 +725,12 @@ function Shop:draw()
             end
         end
 
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
 
         Draw.draw(self.heart_sprite, 30, 230 + ((self.item_current_selecting - self.item_offset) * 40))
         if self.sell_confirming then
             Draw.draw(self.heart_sprite, 30 + 420, 230 + 80 + 10 + (self.current_selecting_choice * 30))
-            love.graphics.setColor(COLORS.white)
+            Draw.setColor(COLORS.white)
             local lines = Utils.split(string.format(self.sell_confirmation_text, string.format(self.currency_text, inventory[self.item_current_selecting]:getSellPrice())), "\n")
             for i = 1, #lines do
                 love.graphics.print(lines[i], 60 + 400, 420 - 160 + ((i - 1) * 30))
@@ -739,7 +739,7 @@ function Shop:draw()
             love.graphics.print("No",  60 + 420, 420 - 80 + 30)
         end
 
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
 
         if inventory then
             for i = 1 + self.item_offset, self.item_offset + math.min(5, inventory.max) do
@@ -747,13 +747,13 @@ function Shop:draw()
                 love.graphics.setFont(self.font)
 
                 if item then
-                    love.graphics.setColor(COLORS.white)
+                    Draw.setColor(COLORS.white)
                     love.graphics.print(item:getName(), 60, 220 + ((i - self.item_offset) * 40))
                     if item:isSellable() then
                         love.graphics.print(string.format(self.currency_text, item:getSellPrice()), 60 + 240, 220 + ((i - self.item_offset) * 40))
                     end
                 else
-                    love.graphics.setColor(COLORS.dkgray)
+                    Draw.setColor(COLORS.dkgray)
                     love.graphics.print("--------", 60, 220 + ((i - self.item_offset) * 40))
                 end
             end
@@ -763,7 +763,7 @@ function Shop:draw()
                 max = #inventory
             end
 
-            love.graphics.setColor(COLORS.white)
+            Draw.setColor(COLORS.white)
 
             if max > 5 then
 
@@ -800,21 +800,21 @@ function Shop:draw()
             love.graphics.print("Invalid storage", 60, 220 + (1 * 40))
         end
     elseif self.state == "TALKMENU" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         for i = 1, math.max(4, #self.talks) do
             local v = self.talks[i]
             if v then
-                love.graphics.setColor(v[2].color)
+                Draw.setColor(v[2].color)
                 love.graphics.print(v[1], 80, 220 + (i * 40))
             else
-                love.graphics.setColor(COLORS.dkgray)
+                Draw.setColor(COLORS.dkgray)
                 love.graphics.print("--------", 80, 220 + (i * 40))
             end
         end
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         love.graphics.print("Exit", 80, 220 + ((math.max(4, #self.talks) + 1) * 40))
     end
 
@@ -823,12 +823,12 @@ function Shop:draw()
        self.state == "SELLMENU" or
        self.state == "SELLING"  or
        self.state == "TALKMENU" then
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         love.graphics.setFont(self.font)
         love.graphics.print(string.format(self.currency_text, self:getMoney()), 440, 420)
     end
 
-    love.graphics.setColor(0, 0, 0, self.fade_alpha)
+    Draw.setColor(0, 0, 0, self.fade_alpha)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
@@ -842,20 +842,20 @@ function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
     local amount = (bonuses[stat] or 0) - old_stat
     local amount_string = tostring(amount)
     if amount < 0 then
-        love.graphics.setColor(COLORS.aqua)
+        Draw.setColor(COLORS.aqua)
     elseif amount == 0 then
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
     elseif amount > 0 then
-        love.graphics.setColor(COLORS.yellow)
+        Draw.setColor(COLORS.yellow)
         amount_string = "+" .. amount_string
     end
     love.graphics.print(amount_string, x, y)
-    love.graphics.setColor(COLORS.white)
+    Draw.setColor(COLORS.white)
 end
 
 function Shop:drawBackground()
     -- Draw a black backdrop
-    love.graphics.setColor(0, 0, 0, 1)
+    Draw.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 

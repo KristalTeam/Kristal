@@ -79,7 +79,7 @@ function Overlay:draw()
     -- Draw the quit text
     love.graphics.push()
     love.graphics.scale(2)
-    love.graphics.setColor(1, 1, 1, self.quit_alpha)
+    Draw.setColor(1, 1, 1, self.quit_alpha)
     local quit_frame = (math.floor(self.quit_timer / 0.25) % #self.quit_frames) + 1
     Draw.draw(self.quit_frames[quit_frame])
     love.graphics.pop()
@@ -88,7 +88,7 @@ function Overlay:draw()
     love.graphics.push()
     love.graphics.translate(0, SCREEN_HEIGHT)
     love.graphics.scale(2)
-    love.graphics.setColor(1, 1, 1, self.load_alpha)
+    Draw.setColor(1, 1, 1, self.load_alpha)
     local load_frame = (math.floor(self.load_timer / 0.25) % #self.load_frames) + 1
     local load_texture = self.load_frames[load_frame]
     Draw.draw(load_texture, 0, -load_texture:getHeight())
@@ -100,7 +100,7 @@ function Overlay:draw()
         local text = FPS .. " FPS"
         local x = SCREEN_WIDTH - self.font:getWidth(text) - 2
         local y = -4
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         for ox = -1, 1 do
             for oy = -1, 1 do
                 if ox ~= 0 or oy ~= 0 then
@@ -108,12 +108,12 @@ function Overlay:draw()
                 end
             end
         end
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
         love.graphics.print(text, x, y) 
     end
 
     -- Reset the color
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 return Overlay

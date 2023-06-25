@@ -109,9 +109,9 @@ function AttackBox:draw()
     love.graphics.setLineWidth(2)
     love.graphics.setLineStyle("rough")
 
-    love.graphics.setColor(box_color)
+    Draw.setColor(box_color)
     love.graphics.rectangle("line", 80, 1, (15 * AttackBox.BOLTSPEED) + 3, 36)
-    love.graphics.setColor(target_color)
+    Draw.setColor(target_color)
     love.graphics.rectangle("line", 83, 1, 8, 36)
 
     love.graphics.setLineWidth(1)

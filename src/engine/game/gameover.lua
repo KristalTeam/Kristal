@@ -252,17 +252,17 @@ function GameOver:draw()
     super.draw(self)
 
     if self.screenshot then
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         Draw.draw(self.screenshot)
     end
 
     if self.fade_white then
-        love.graphics.setColor(1, 1, 1, self.fader_alpha)
+        Draw.setColor(1, 1, 1, self.fader_alpha)
     else
-        love.graphics.setColor(0, 0, 0, self.fader_alpha)
+        Draw.setColor(0, 0, 0, self.fader_alpha)
     end
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 function GameOver:onKeyPressed(key)

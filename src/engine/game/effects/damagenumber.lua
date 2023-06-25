@@ -157,7 +157,7 @@ end
 function DamageNumber:draw()
     if self.timer >= self.delay then
         local r, g, b, a = self:getDrawColor()
-        love.graphics.setColor(r, g, b, a * (1 - self.kill))
+        Draw.setColor(r, g, b, a * (1 - self.kill))
 
         if self.texture then
             Draw.draw(self.texture, 30, 0)

@@ -238,15 +238,15 @@ function ContextMenu:draw()
     love.graphics.clear()
 
     love.graphics.setFont(self.font)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     local offset = self:getVerticalPadding()
     local tooltip_to_draw = nil
     if self.name then
         offset = offset + self.font:getHeight() + 4 -- name has 4 extra pixels
-        love.graphics.setColor(bg_color)
+        Draw.setColor(bg_color)
         love.graphics.rectangle("fill", 0, 0, self.width, offset)
     
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.print(self.name, padding_x, padding_y)
     
         love.graphics.setLineWidth(2)
@@ -255,28 +255,28 @@ function ContextMenu:draw()
 
     for i, item in ipairs(self.items) do
         if self:isMouseOver(0, offset, self.width, offset + item.height) then
-            love.graphics.setColor(highlighted_color)
+            Draw.setColor(highlighted_color)
             tooltip_to_draw = item
         else
-            love.graphics.setColor(bg_color)
+            Draw.setColor(bg_color)
         end
         love.graphics.rectangle("fill", 0, offset, self.width, item.height)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.print(item.name or "", padding_x, padding_y + offset - 3)
         offset = offset + item.height
     end
 
-    love.graphics.setColor(bg_color)
+    Draw.setColor(bg_color)
     love.graphics.rectangle("fill", 0, offset, self.width, self.height - offset)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     -- Reset canvas to draw to
     Draw.popCanvas()
 
     local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
-    love.graphics.setColor(1, 1, 1, anim)
+    Draw.setColor(1, 1, 1, anim)
     Draw.draw(self.canvas, 0, 12 - (anim * 12))
 
     if tooltip_to_draw then
@@ -295,15 +295,15 @@ function ContextMenu:draw()
 
         local tooltip = Draw.pushCanvas(tooltip_width, tooltip_height)
         love.graphics.clear()
-        love.graphics.setColor(bg_color)
+        Draw.setColor(bg_color)
 
         love.graphics.rectangle("fill", 0, 0, tooltip_width, tooltip_height)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.print(tooltip_to_draw.description, tooltip_padding_x, tooltip_padding_y - 2)
 
         Draw.popCanvas()
-        love.graphics.setColor(1, 1, 1, anim)
+        Draw.setColor(1, 1, 1, anim)
         Draw.draw(tooltip, tooltip_x + (12 - (anim * 12)), tooltip_y)
     end
 

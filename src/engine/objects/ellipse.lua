@@ -15,7 +15,7 @@ function Ellipse:draw()
     love.graphics.setLineWidth(self.line_width)
     love.graphics.ellipse(self.line and "line" or "fill", self.width/2, self.height/2, self.width/2, self.height/2)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     super.draw(self)
 end
 

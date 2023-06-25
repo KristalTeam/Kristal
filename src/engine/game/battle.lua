@@ -2474,13 +2474,13 @@ end
 
 function Battle:debugPrintOutline(string, x, y, color)
     color = color or {love.graphics.getColor()}
-    love.graphics.setColor(0, 0, 0, 1)
+    Draw.setColor(0, 0, 0, 1)
     love.graphics.print(string, x - 1, y)
     love.graphics.print(string, x + 1, y)
     love.graphics.print(string, x, y - 1)
     love.graphics.print(string, x, y + 1)
 
-    love.graphics.setColor(color)
+    Draw.setColor(color)
     love.graphics.print(string, x, y)
 end
 
@@ -2488,7 +2488,7 @@ function Battle:drawDebug()
     local font = Assets.getFont("main", 16)
     love.graphics.setFont(font)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     self:debugPrintOutline("State: "    .. self.state   , 4, 0)
     self:debugPrintOutline("Substate: " .. self.substate, 4, 0 + 16)
 end
@@ -2500,7 +2500,7 @@ function Battle:draw()
 
     self.encounter:drawBackground(self.transition_timer / 10)
 
-    love.graphics.setColor(0, 0, 0, self.background_fade_alpha)
+    Draw.setColor(0, 0, 0, self.background_fade_alpha)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     super.draw(self)
@@ -2513,20 +2513,20 @@ function Battle:draw()
 end
 
 function Battle:drawBackground()
-    love.graphics.setColor(0, 0, 0, self.transition_timer / 10)
+    Draw.setColor(0, 0, 0, self.transition_timer / 10)
     love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH+16, SCREEN_HEIGHT+16)
 
     love.graphics.setLineStyle("rough")
     love.graphics.setLineWidth(1)
 
     for i = 2, 16 do
-        love.graphics.setColor(66 / 255, 0, 66 / 255, (self.transition_timer / 10) / 2)
+        Draw.setColor(66 / 255, 0, 66 / 255, (self.transition_timer / 10) / 2)
         love.graphics.line(0, -210 + (i * 50) + math.floor(self.offset / 2), 640, -210 + (i * 50) + math.floor(self.offset / 2))
         love.graphics.line(-200 + (i * 50) + math.floor(self.offset / 2), 0, -200 + (i * 50) + math.floor(self.offset / 2), 480)
     end
 
     for i = 3, 16 do
-        love.graphics.setColor(66 / 255, 0, 66 / 255, self.transition_timer / 10)
+        Draw.setColor(66 / 255, 0, 66 / 255, self.transition_timer / 10)
         love.graphics.line(0, -100 + (i * 50) - math.floor(self.offset), 640, -100 + (i * 50) - math.floor(self.offset))
         love.graphics.line(-100 + (i * 50) - math.floor(self.offset), 0, -100 + (i * 50) - math.floor(self.offset), 480)
     end

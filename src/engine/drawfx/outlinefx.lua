@@ -78,9 +78,9 @@ function OutlineFX:draw(texture)
     Draw.popCanvas()
 
 
-    love.graphics.setColor(1, 1, 1, self.color[4])
+    Draw.setColor(1, 1, 1, self.color[4])
     Draw.drawCanvas(outline)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     -- Center
     if not self.cutout then

@@ -150,7 +150,7 @@ function LightMenu:draw()
     local chara = Game.party[1]
 
     love.graphics.setFont(self.font)
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
     love.graphics.print(chara:getName(), 46, 60 + offset)
 
     love.graphics.setFont(self.font_small)
@@ -160,24 +160,24 @@ function LightMenu:draw()
 
     love.graphics.setFont(self.font)
     if Game.inventory:getItemCount(self.storage, false) <= 0 then
-        love.graphics.setColor(PALETTE["world_gray"])
+        Draw.setColor(PALETTE["world_gray"])
     else
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
     end
     love.graphics.print("ITEM", 84, 188 + (36 * 0))
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
     love.graphics.print("STAT", 84, 188 + (36 * 1))
     if Game:getFlag("has_cell_phone", false) then
         if #Game.world.calls > 0 then
-            love.graphics.setColor(PALETTE["world_text"])
+            Draw.setColor(PALETTE["world_text"])
         else
-            love.graphics.setColor(PALETTE["world_gray"])
+            Draw.setColor(PALETTE["world_gray"])
         end
         love.graphics.print("CELL", 84, 188 + (36 * 2))
     end
 
     if self.state == "MAIN" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 56, 160 + (36 * self.current_selecting), 0, 2, 2)
     end
 end

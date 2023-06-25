@@ -24,7 +24,7 @@ function HPText:draw()
     love.graphics.setFont(self.font)
     love.graphics.print(self.text, 0, 0)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     super.draw(self)
 end
 

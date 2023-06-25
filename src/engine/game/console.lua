@@ -151,7 +151,7 @@ function Console:print(text, x, y)
     local color = {1, 1, 1, 1}
 
     for _,line in ipairs(text) do
-        love.graphics.setColor(color)
+        Draw.setColor(color)
         if type(line) == "table" then
             color = line
         else
@@ -164,14 +164,14 @@ end
 function Console:printOutlined(text, x, y)
     if y < 0 then return end
     local r, g, b, a = love.graphics.getColor()
-    love.graphics.setColor(r / 2, g / 2, b / 2, a / 2)
+    Draw.setColor(r / 2, g / 2, b / 2, a / 2)
 
     love.graphics.print(text, x + 1, y)
     love.graphics.print(text, x - 1, y)
     love.graphics.print(text, x, y + 1)
     love.graphics.print(text, x, y - 1)
 
-    love.graphics.setColor(r, g, b, a)
+    Draw.setColor(r, g, b, a)
 
     love.graphics.print(text, x, y)
 end
@@ -180,15 +180,15 @@ function Console:draw()
     if not self.is_open then return end
     love.graphics.setFont(self.font)
 
-    love.graphics.setColor(0, 0, 0, 0.4)
+    Draw.setColor(0, 0, 0, 0.4)
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
     local input_pos = (self.height + 1) * 16
 
-    love.graphics.setColor(0, 0, 0, 0.6)
+    Draw.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", 0, 0, 640, self.height * 16)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     local y_offset = self.height
 
@@ -203,7 +203,7 @@ function Console:draw()
     end
 
 
-    love.graphics.setColor(0, 0, 0, 0.6)
+    Draw.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", 0, input_pos, 640, #self.input * 16)
 
     TextInput.draw({
@@ -222,15 +222,15 @@ function Console:draw()
         font = self.font
     })
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     -- FOR DEBUGGING HISTORY:
     --[[offset = 0
     for i, v in ipairs(self.command_history) do
         if i == self.history_index then
-            love.graphics.setColor(1, 0, 0, 1)
+            Draw.setColor(1, 0, 0, 1)
         else
-            love.graphics.setColor(1, 1, 1, 1)
+            Draw.setColor(1, 1, 1, 1)
         end
         for j, text in ipairs(v) do
             offset = offset + 1

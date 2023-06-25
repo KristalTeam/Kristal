@@ -54,13 +54,13 @@ end
 
 function LightCellMenu:draw()
     love.graphics.setFont(self.font)
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
 
     for index, call in ipairs(Game.world.calls) do
         love.graphics.print(call[1], 20, -28 + (index * 32))
     end
 
-    love.graphics.setColor(Game:getSoulColor())
+    Draw.setColor(Game:getSoulColor())
     Draw.draw(self.heart_sprite, -4, -20 + (32 * self.current_selecting), 0, 2, 2)
 
     super.draw(self)

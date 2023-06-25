@@ -53,7 +53,7 @@ function PolygonCollider:getShapeFor(other)
 end
 
 function PolygonCollider:draw(r,g,b,a)
-    love.graphics.setColor(r,g,b,a)
+    Draw.setColor(r,g,b,a)
     love.graphics.setLineWidth(1)
     local unpacked = {}
     for _,point in ipairs(self.points) do
@@ -63,10 +63,10 @@ function PolygonCollider:draw(r,g,b,a)
     table.insert(unpacked, unpacked[1])
     table.insert(unpacked, unpacked[2])
     love.graphics.line(unpack(unpacked))
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 function PolygonCollider:drawFill(r,g,b,a)
-    love.graphics.setColor(r,g,b,a)
+    Draw.setColor(r,g,b,a)
     local unpacked = {}
     for _,point in ipairs(self.points) do
         table.insert(unpacked, point[1])
@@ -76,7 +76,7 @@ function PolygonCollider:drawFill(r,g,b,a)
     for _,triangle in ipairs(triangles) do
         love.graphics.polygon("fill", triangle)
     end
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 return PolygonCollider

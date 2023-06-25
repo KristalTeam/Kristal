@@ -51,16 +51,16 @@ function PointCollider:getShapeFor(other)
 end
 
 function PointCollider:draw(r,g,b,a)
-    love.graphics.setColor(r,g,b,a)
+    Draw.setColor(r,g,b,a)
     love.graphics.setPointSize(3)
     love.graphics.points(self.x, self.y)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 function PointCollider:drawFill(r,g,b,a)
-    love.graphics.setColor(r,g,b,a)
+    Draw.setColor(r,g,b,a)
     love.graphics.setPointSize(5)
     love.graphics.points(self.x, self.y)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 return PointCollider

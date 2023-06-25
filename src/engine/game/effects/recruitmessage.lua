@@ -88,7 +88,7 @@ end
 
 function RecruitMessage:draw()
     local r, g, b, a = self:getDrawColor()
-    love.graphics.setColor(r, g, b, a * self.alpha)
+    Draw.setColor(r, g, b, a * self.alpha)
 
     -- TODO: figure out why this X value is like this... in gamemaker its a simple `draw_self()`
     Draw.draw(self.texture, self.texture:getWidth() -self.x + self.start_x - (self.width * self.stretch_x) / 2, 0, 0, self.stretch_x, self.stretch_y)

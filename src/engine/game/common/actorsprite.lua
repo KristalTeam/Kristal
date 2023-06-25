@@ -362,7 +362,7 @@ function ActorSprite:draw()
         local r,g,b,a = self:getDrawColor()
         for i = 0, 80 do
             local alph = a * 0.4
-            love.graphics.setColor(r,g,b, ((alph - (self.run_away_timer / 8)) + (i / 200)))
+            Draw.setColor(r,g,b, ((alph - (self.run_away_timer / 8)) + (i / 200)))
             Draw.draw(self.texture, i * 2, 0)
         end
         return
@@ -376,10 +376,10 @@ function ActorSprite:draw()
             local auray = 45 * Ease.inSine(aura / 45, 0, 1, 1)
             local aurayscale = math.min(1, 80 / self.texture:getHeight())
 
-            love.graphics.setColor(1, 0, 0, (1 - (auray / 45)) * 0.5)
+            Draw.setColor(1, 0, 0, (1 - (auray / 45)) * 0.5)
             Draw.draw(self.texture, -((aurax / 180) * self.texture:getWidth()), -((auray / 82) * self.texture:getHeight() * aurayscale), 0, 1 + ((aurax/36) * 0.5), 1 + (((auray / 36) * aurayscale) * 0.5))
         end
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
     end
 
     super.draw(self)
@@ -398,18 +398,18 @@ function ActorSprite:draw()
 
         local r,g,b,a = self:getDrawColor()
 
-        love.graphics.setColor(0, 0, 1, a * 0.8)
+        Draw.setColor(0, 0, 1, a * 0.8)
         Draw.draw(self.texture, -1, -1)
-        love.graphics.setColor(0, 0, 1, a * 0.4)
+        Draw.setColor(0, 0, 1, a * 0.4)
         Draw.draw(self.texture, 1, -1)
         Draw.draw(self.texture, -1, 1)
-        love.graphics.setColor(0, 0, 1, a * 0.8)
+        Draw.setColor(0, 0, 1, a * 0.8)
         Draw.draw(self.texture, 1, 1)
 
         love.graphics.setShader(last_shader)
 
         love.graphics.setBlendMode("add")
-        love.graphics.setColor(0.8, 0.8, 0.9, a * 0.4)
+        Draw.setColor(0.8, 0.8, 0.9, a * 0.4)
         Draw.draw(self.texture)
         love.graphics.setBlendMode("alpha")
 

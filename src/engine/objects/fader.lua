@@ -133,10 +133,10 @@ function Fader:draw()
     end
 
     color[4] = alpha
-    love.graphics.setColor(color)
+    Draw.setColor(color)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     super.draw(self)
 end
 

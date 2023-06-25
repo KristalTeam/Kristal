@@ -137,7 +137,7 @@ function love.load(args)
         Kristal.Overlay:draw()
         Draw.setCanvas()
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         if Kristal.bordersEnabled() then
             local border = Kristal.getBorder()
@@ -152,14 +152,14 @@ function love.load(args)
                 local border_texture = Assets.getTexture("borders/"..border)
 
                 love.graphics.scale(Kristal.getGameScale())
-                love.graphics.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
+                Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
                 if border_texture then
                     Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
                 end
                 if dynamic then
                     Kristal.callEvent("onBorderDraw", border, border_texture)
                 end
-                love.graphics.setColor(1, 1, 1, 1)
+                Draw.setColor(1, 1, 1, 1)
                 love.graphics.reset()
             end
 
@@ -176,9 +176,9 @@ function love.load(args)
 
         if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
             if Input.usingGamepad() then
-                love.graphics.setColor(0, 0, 0, 0.5)
+                Draw.setColor(0, 0, 0, 0.5)
                 love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
-                love.graphics.setColor(1, 1, 1, 1)
+                Draw.setColor(1, 1, 1, 1)
                 love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
             elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
                 Draw.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(), love.mouse.getY() / Kristal.getGameScale())
@@ -497,7 +497,7 @@ function Kristal.errorHandler(msg)
 
     love.graphics.reset()
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     local trace = ""
     if not critical then
@@ -522,7 +522,7 @@ function Kristal.errorHandler(msg)
         love.graphics.clear(0, 0, 0, 1)
         love.graphics.scale(window_scale)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
         love.graphics.printf(version_string, -20, 10, 640, "right")
 
@@ -590,17 +590,17 @@ function Kristal.errorHandler(msg)
 
         love.graphics.setFont(smaller_font)
         if Kristal.getModOption("hardReset") then
-            love.graphics.setColor(1, 1, 1, 1)
+            Draw.setColor(1, 1, 1, 1)
             love.graphics.print("Press ESC to restart the game", 8, 480 - (critical and 20 or 40))
         else
-            love.graphics.setColor(1, 1, 1, 1)
+            Draw.setColor(1, 1, 1, 1)
             love.graphics.print("Press ESC to return to mod menu", 8, 480 - (critical and 20 or 40))
         end
         if not critical then
-            love.graphics.setColor(copy_color)
+            Draw.setColor(copy_color)
             love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
         end
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         love.graphics.present()
     end

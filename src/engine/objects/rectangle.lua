@@ -16,7 +16,7 @@ function Rectangle:draw()
     love.graphics.setLineWidth(self.line_width)
     love.graphics.rectangle(self.line and "line" or "fill", 0, 0, self.width, self.height)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     super.draw(self)
 end
 

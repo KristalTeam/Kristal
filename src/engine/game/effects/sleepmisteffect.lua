@@ -27,7 +27,7 @@ function SleepMistEffect:draw()
     local x, y = math.sin(self.siner / 6) * amp, (math.cos(self.siner / 6) * amp) / 2
 
     local r,g,b,a = self:getDrawColor()
-    love.graphics.setColor(r, g, b, a * 0.8)
+    Draw.setColor(r, g, b, a * 0.8)
     Draw.draw(self.texture, x, y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
     Draw.draw(self.texture, -x, -y, 0, 3, 2, self.texture:getWidth()/2, self.texture:getHeight()/2)
 

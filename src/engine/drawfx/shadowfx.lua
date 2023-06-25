@@ -60,22 +60,22 @@ function ShadowFX:draw(texture)
 
     local sx, sy = self.parent:getFullScale()
 
-    love.graphics.setColor(0, 0, 0)
+    Draw.setColor(0, 0, 0)
     Draw.draw(texture, 0, sy * 2)
 
     if canvas then
         Draw.popCanvas()
 
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
         Draw.drawCanvas(texture)
 
-        love.graphics.setColor(1, 1, 1, alpha)
+        Draw.setColor(1, 1, 1, alpha)
         Draw.draw(canvas)
     end
 
     local ox, oy, ow, oh = self:getObjectBounds()
 
-    love.graphics.setColor(0, 0, 0, alpha)
+    Draw.setColor(0, 0, 0, alpha)
     Draw.draw(texture, ox, oy+oh + (self.shadow_offset * sy), 0, 1, -self:getScale(), ox, oy+oh)
 end
 

@@ -30,7 +30,7 @@ end
 
 function DarkTransitionParticle:draw()
     love.graphics.setPointSize(2 * 2)
-    love.graphics.setColor(1, 1, 1, self.image_alpha)
+    Draw.setColor(1, 1, 1, self.image_alpha)
     love.graphics.points(0, 0)
 
     super.draw(self)

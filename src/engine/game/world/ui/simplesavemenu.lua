@@ -65,9 +65,9 @@ function SimpleSaveMenu:draw()
     love.graphics.setFont(self.font)
 
     if self.state == "SAVED" then
-        love.graphics.setColor(PALETTE["world_text_selected"])
+        Draw.setColor(PALETTE["world_text_selected"])
     else
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
     end
 
     local data = self.saved_file or {}
@@ -90,7 +90,7 @@ function SimpleSaveMenu:draw()
         love.graphics.print("Save",   self.box.x+30,  self.box.y+90)
         love.graphics.print("Return", self.box.x+210, self.box.y+90)
 
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         if self.selected_x == 1 then
             Draw.draw(self.heart_sprite, self.box.x+2, self.box.y+96)
         elseif self.selected_x == 2 then
@@ -100,7 +100,7 @@ function SimpleSaveMenu:draw()
         love.graphics.print("File saved.", self.box.x+30, self.box.y+90)
     end
 
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
 
     super.draw(self)
 end

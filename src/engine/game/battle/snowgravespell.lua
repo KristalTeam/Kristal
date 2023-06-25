@@ -52,7 +52,7 @@ function SnowGraveSpell:update()
 end
 
 function SnowGraveSpell:drawTiled(x, y, alpha)
-    love.graphics.setColor(1, 1, 1, alpha)
+    Draw.setColor(1, 1, 1, alpha)
 
     local width = (self.bg_snowfall:getWidth() * 2)
     local height = (self.bg_snowfall:getHeight() * 2)
@@ -82,7 +82,7 @@ end
 function SnowGraveSpell:draw()
     super.draw(self)
 
-    love.graphics.setColor(1, 1, 1, self.bgalpha)
+    Draw.setColor(1, 1, 1, self.bgalpha)
     Draw.draw(self.bg)
 
     self:drawTiled((self.snowspeed / 1.5), (self.timer * 6), self.bgalpha)

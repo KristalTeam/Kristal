@@ -1532,7 +1532,7 @@ function Object:preDraw(dont_transform)
         end
     end
 
-    love.graphics.setColor(self:getDrawColor())
+    Draw.setColor(self:getDrawColor())
     Draw.pushScissor()
     self:applyScissor()
 end
@@ -1564,7 +1564,7 @@ function Object:drawChildren(min_layer, max_layer)
             v:fullDraw()
         end
     end
-    love.graphics.setColor(oldr, oldg, oldb, olda)
+    Draw.setColor(oldr, oldg, oldb, olda)
 end
 
 function Object:drawSelf(no_children, dont_transform)
@@ -1622,13 +1622,13 @@ function Object:fullDraw(no_children, dont_transform)
             end
             if fx_screen then
                 local screen_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT, {keep_transform = true})
-                love.graphics.setColor(1, 1, 1)
+                Draw.setColor(1, 1, 1)
                 Draw.draw(final_canvas, -fx_off_x, -fx_off_y)
                 Draw.popCanvas(true)
                 Draw.unlockCanvas(final_canvas)
                 final_canvas = screen_canvas
             else
-                love.graphics.setColor(1, 1, 1)
+                Draw.setColor(1, 1, 1)
                 Draw.draw(final_canvas, -fx_off_x, -fx_off_y)
             end
             love.graphics.pop()
@@ -1637,7 +1637,7 @@ function Object:fullDraw(no_children, dont_transform)
             final_canvas = self:processDrawFX(final_canvas, false)
             love.graphics.push()
             love.graphics.origin()
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             Draw.draw(final_canvas)
             love.graphics.pop()
         end
@@ -1668,7 +1668,7 @@ function Object:processDrawFX(canvas, transformed)
     for _,fx in ipairs(self.draw_fx) do
         if fx:isActive(self) and (transformed == nil or fx.transformed == transformed) then
             local next_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             fx:draw(canvas, self)
             Draw.popCanvas(true)
             Draw.unlockCanvas(canvas)

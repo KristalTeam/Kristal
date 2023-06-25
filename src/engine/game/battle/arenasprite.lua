@@ -27,7 +27,7 @@ end
 
 function ArenaSprite:draw()
     if self.background then
-        love.graphics.setColor(self.arena:getBackgroundColor())
+        Draw.setColor(self.arena:getBackgroundColor())
         self:drawBackground()
     end
 
@@ -36,7 +36,7 @@ function ArenaSprite:draw()
     local r,g,b,a = self:getDrawColor()
     local arena_r,arena_g,arena_b,arena_a = self.arena:getDrawColor()
 
-    love.graphics.setColor(r * arena_r, g * arena_g, b * arena_b, a * arena_a)
+    Draw.setColor(r * arena_r, g * arena_g, b * arena_b, a * arena_a)
     love.graphics.setLineStyle("rough")
     love.graphics.setLineWidth(self.arena.line_width)
     love.graphics.line(unpack(self.arena.border_line))

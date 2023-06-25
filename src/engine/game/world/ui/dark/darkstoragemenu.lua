@@ -169,10 +169,10 @@ end
 
 function DarkStorageMenu:draw()
     love.graphics.setLineWidth(4)
-    love.graphics.setColor(PALETTE["world_border"])
+    Draw.setColor(PALETTE["world_border"])
     love.graphics.rectangle("line", 42, 122, 557, 155)
     love.graphics.rectangle("line", 42, 277, 557, 152)
-    love.graphics.setColor(PALETTE["world_fill"])
+    Draw.setColor(PALETTE["world_fill"])
     love.graphics.rectangle("fill", 44, 124, 553, 151)
     love.graphics.rectangle("fill", 44, 279, 553, 148)
     love.graphics.setLineWidth(1)
@@ -197,7 +197,7 @@ function DarkStorageMenu:drawStorage(list)
 
     love.graphics.setFont(self.font)
 
-    love.graphics.setColor(self.list == list and PALETTE["world_light_gray"] or PALETTE["world_dark_gray"])
+    Draw.setColor(self.list == list and PALETTE["world_light_gray"] or PALETTE["world_dark_gray"])
     love.graphics.print(storage.id == "items" and "POCKET" or storage.name, name_text_x, name_text_y)
 
     local max_pages = self:getMaxPages(list)
@@ -215,13 +215,13 @@ function DarkStorageMenu:drawStorage(list)
             local storage = Game.inventory:getStorage(self.storages[list])
             local item = Game.inventory:getItem(storage, item_index)
             if storage.max < item_index then
-                love.graphics.setColor(PALETTE["world_dark_gray"])
+                Draw.setColor(PALETTE["world_dark_gray"])
             elseif self.list ~= list and list ~= 1 then
-                love.graphics.setColor(PALETTE["world_gray"])
+                Draw.setColor(PALETTE["world_gray"])
             elseif self.selected_x[list] == i and self.selected_y[list] == j then
-                love.graphics.setColor(PALETTE["world_text_selected"])
+                Draw.setColor(PALETTE["world_text_selected"])
             else
-                love.graphics.setColor(PALETTE["world_text"])
+                Draw.setColor(PALETTE["world_text"])
             end
             if item then
                 love.graphics.print(item:getName(), x, y)
@@ -231,7 +231,7 @@ function DarkStorageMenu:drawStorage(list)
         end
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     if self.list == list and max_pages > 1 then
         local left_arrow_x, left_arrow_y = 32, self.arrow_y[list]
         local right_arrow_x, right_arrow_y = 592, self.arrow_y[list]

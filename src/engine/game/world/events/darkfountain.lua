@@ -95,7 +95,7 @@ function DarkFountain:draw()
 end
 
 function DarkFountain:drawMask()
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 end
 

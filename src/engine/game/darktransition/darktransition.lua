@@ -176,7 +176,7 @@ end
 
 function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     local sprite = self.spr_doorblack
-    love.graphics.setColor(color)
+    Draw.setColor(color)
     Draw.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
 end
 
@@ -268,9 +268,9 @@ function DarkTransition:draw()
     -- Draw a background cover.
     -- In Deltarune, this is a 999x999 black marker.
     if self.megablack then
-        love.graphics.setColor(0, 0, 0, self.black_fade)
+        Draw.setColor(0, 0, 0, self.black_fade)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
     end
 
     self.index = self.index + 1 * DTMULT
@@ -399,7 +399,7 @@ function DarkTransition:draw()
             end
         end
         if (self.doorblack == 1) then
-            love.graphics.setColor(0, 0, 0, 1)
+            Draw.setColor(0, 0, 0, 1)
             local x1 = self.rx1
             local y1 = self.ry1
             local x2 = self.rx2
@@ -978,7 +978,7 @@ function DarkTransition:draw()
     --Draw.setCanvas(SCREEN_CANVAS)
 
     ---- Draw the canvas on the screen scaled by 2x
-    --love.graphics.setColor(1, 1, 1, 1)
+    --Draw.setColor(1, 1, 1, 1)
     --Draw.draw(self.canvas, 0, 0, 0, 2, 2)
 
     --self.stage:draw()

@@ -15,7 +15,7 @@ end
 
 function Gradient:draw(texture)
     local last_shader = love.graphics.getShader()
-    love.graphics.setColor(1,1,1)
+    Draw.setColor(1,1,1)
     local shader = Kristal.Shaders["AngleGradient"]
     love.graphics.setShader(shader)
     shader:sendColor("from", self.from)

@@ -72,7 +72,7 @@ function TileLayer:draw()
     local grid_w, grid_h = self.map.tile_width, self.map.tile_height
 
     if not self.drawn then
-        love.graphics.setColor(r, g, b, self.tile_opacity)
+        Draw.setColor(r, g, b, self.tile_opacity)
 
         local old_canvas = love.graphics.getCanvas()
         Draw.setCanvas(self.canvas)
@@ -101,7 +101,7 @@ function TileLayer:draw()
         self.drawn = true
     end
 
-    love.graphics.setColor(1, 1, 1, a)
+    Draw.setColor(1, 1, 1, a)
 
     if a == 1 then
         love.graphics.setBlendMode("alpha", "premultiplied")
@@ -111,12 +111,12 @@ function TileLayer:draw()
     Draw.draw(self.canvas)
     love.graphics.setBlendMode("alpha")
 
-    love.graphics.setColor(r, g, b, a * self.tile_opacity)
+    Draw.setColor(r, g, b, a * self.tile_opacity)
     for _,tile in ipairs(self.animated_tiles) do
         tile.tileset:drawGridTile(tile.id, tile.x, tile.y, grid_w, grid_h, tile.flip_x, tile.flip_y, tile.flip_diag)
     end
 
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
 
     super.draw(self)
 end

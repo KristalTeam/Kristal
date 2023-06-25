@@ -32,7 +32,7 @@ end
 
 function LightStatMenu:draw()
     love.graphics.setFont(self.font)
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
 
     local chara = Game.party[1]
 

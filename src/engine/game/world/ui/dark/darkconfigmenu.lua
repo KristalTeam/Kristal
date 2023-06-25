@@ -212,16 +212,16 @@ function DarkConfigMenu:draw()
         return
     end
     love.graphics.setFont(self.font)
-    love.graphics.setColor(PALETTE["world_text"])
+    Draw.setColor(PALETTE["world_text"])
 
     if self.state ~= "CONTROLS" then
         love.graphics.print("CONFIG", 188, -12)
 
         if self.state == "VOLUME" then
-            love.graphics.setColor(PALETTE["world_text_selected"])
+            Draw.setColor(PALETTE["world_text_selected"])
         end
         love.graphics.print("Master Volume",   88, 38 + (0 * 32))
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
         love.graphics.print("Controls",        88, 38 + (1 * 32))
         love.graphics.print("Simplify VFX",    88, 38 + (2 * 32))
         love.graphics.print("Fullscreen",      88, 38 + (3 * 32))
@@ -230,15 +230,15 @@ function DarkConfigMenu:draw()
         love.graphics.print("Back",            88, 38 + (6 * 32))
 
         if self.state == "VOLUME" then
-            love.graphics.setColor(PALETTE["world_text_selected"])
+            Draw.setColor(PALETTE["world_text_selected"])
         end
         love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%",      348, 38 + (0 * 32))
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
         love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 32))
         love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
         love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
 
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
     else
 
@@ -258,12 +258,12 @@ function DarkConfigMenu:draw()
             if index > 7 then
                 break
             end
-            love.graphics.setColor(PALETTE["world_text"])
+            Draw.setColor(PALETTE["world_text"])
             if self.currently_selected == index then
                 if self.rebinding then
-                    love.graphics.setColor(PALETTE["world_text_rebind"])
+                    Draw.setColor(PALETTE["world_text_rebind"])
                 else
-                    love.graphics.setColor(PALETTE["world_text_hover"])
+                    Draw.setColor(PALETTE["world_text_hover"])
                 end
             end
 
@@ -288,7 +288,7 @@ function DarkConfigMenu:draw()
                 end
             end
 
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
 
             if Input.hasGamepad() then
                 local alias = Input.getBoundKeys(name, true)[1]
@@ -303,13 +303,13 @@ function DarkConfigMenu:draw()
             end
         end
 
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
         if self.currently_selected == 8 then
-            love.graphics.setColor(PALETTE["world_text_hover"])
+            Draw.setColor(PALETTE["world_text_hover"])
         end
 
         if (self.reset_flash_timer > 0) then
-            love.graphics.setColor(Utils.mergeColor(PALETTE["world_text_hover"], PALETTE["world_text_selected"], ((self.reset_flash_timer / 10) - 0.1)))
+            Draw.setColor(Utils.mergeColor(PALETTE["world_text_hover"], PALETTE["world_text_selected"], ((self.reset_flash_timer / 10) - 0.1)))
         end
 
         if dualshock then
@@ -318,9 +318,9 @@ function DarkConfigMenu:draw()
             love.graphics.print("Reset to default", 23, -4 + (28 * 8) + 4)
         end
 
-        love.graphics.setColor(PALETTE["world_text"])
+        Draw.setColor(PALETTE["world_text"])
         if self.currently_selected == 9 then
-            love.graphics.setColor(PALETTE["world_text_hover"])
+            Draw.setColor(PALETTE["world_text_hover"])
         end
 
         if dualshock then
@@ -329,7 +329,7 @@ function DarkConfigMenu:draw()
             love.graphics.print("Finish", 23, -4 + (28 * 9) + 4)
         end
 
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
 
         if dualshock then
             Draw.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
@@ -338,7 +338,7 @@ function DarkConfigMenu:draw()
         end
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     super.draw(self)
 end

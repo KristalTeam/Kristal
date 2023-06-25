@@ -13,7 +13,7 @@ function AlphaFX:isActive()
 end
 
 function AlphaFX:draw(texture)
-    love.graphics.setColor(1, 1, 1, self.alpha)
+    Draw.setColor(1, 1, 1, self.alpha)
     Draw.drawCanvas(texture)
 end
 

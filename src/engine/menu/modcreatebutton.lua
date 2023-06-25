@@ -45,7 +45,7 @@ function ModCreateButton:drawCoolRectangle(x, y, w, h)
     love.graphics.setLineWidth(1)
     love.graphics.setLineStyle("rough")
     -- Set the color
-    love.graphics.setColor(self:getDrawColor())
+    Draw.setColor(self:getDrawColor())
     -- Draw the rectangles
     love.graphics.rectangle("line", x, y, w + 1, h + 1)
     -- Increase the width and height by one instead of two to produce the broken effect
@@ -62,7 +62,7 @@ end
 function ModCreateButton:draw()
 
     -- Draw the transparent backgrounds
-    love.graphics.setColor(0, 0, 0, 0.5)
+    Draw.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
 
     -- Draw the rectangle outline
@@ -72,7 +72,7 @@ function ModCreateButton:draw()
     if not self.selected then
         local plus_x, plus_y = self:getHeartPos()
         local plus_tex = Assets.getTexture("kristal/menu_plus")
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         Draw.draw(plus_tex, plus_x - plus_tex:getWidth()/2, plus_y - plus_tex:getHeight()/2)
     end
 
@@ -84,10 +84,10 @@ function ModCreateButton:draw()
     local name_y = math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2
     love.graphics.setFont(self.font)
     -- Draw the name shadow
-    love.graphics.setColor(0, 0, 0)
+    Draw.setColor(0, 0, 0)
     love.graphics.print(self.name, 50 + 2, name_y + 2)
     -- Draw the name
-    love.graphics.setColor(self:getDrawColor())
+    Draw.setColor(self:getDrawColor())
     love.graphics.print(self.name, 50, name_y)
 
     Draw.popScissor()

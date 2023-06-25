@@ -613,7 +613,7 @@ function TextInput.draw(options)
     local cursor_pos_y = off_y + ((self.cursor_y - 1) * font:getHeight())
 
     if self.selecting then
-        love.graphics.setColor(0, 0.5, 0.5, 1)
+        Draw.setColor(0, 0.5, 0.5, 1)
 
         local cursor_sel_x = base_off
         if self.cursor_select_x > 0 then
@@ -653,7 +653,7 @@ function TextInput.draw(options)
         end
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     for i, text in ipairs(self.input) do
         local prefix = ""
         if #self.input == 1 then
@@ -671,7 +671,7 @@ function TextInput.draw(options)
         print_func(text, base_off, off_y + (i - 1) * font:getHeight())
     end
 
-    love.graphics.setColor(1, 0, 1, 1)
+    Draw.setColor(1, 0, 1, 1)
     if (TextInput.flash_timer < 0.5) and self.active then
         if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
             print_func("_", cursor_pos_x, cursor_pos_y)

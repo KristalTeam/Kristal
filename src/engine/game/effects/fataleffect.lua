@@ -85,7 +85,7 @@ function FatalEffect:draw()
     for i = 0, self.blocks_x do
         for j = 0, self.blocks_y do
             local block = self.blocks[i][j]
-            love.graphics.setColor(r, g, b, a * (1 - (block.speed / 12)))
+            Draw.setColor(r, g, b, a * (1 - (block.speed / 12)))
             Draw.draw(self.texture, block.quad, block.x, (j * self.block_size))
         end
     end

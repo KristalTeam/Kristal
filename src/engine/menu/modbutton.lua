@@ -119,7 +119,7 @@ function ModButton:drawCoolRectangle(x, y, w, h)
     love.graphics.setLineWidth(1)
     love.graphics.setLineStyle("rough")
     -- Set the color
-    love.graphics.setColor(self:getDrawColor())
+    Draw.setColor(self:getDrawColor())
     -- Draw the rectangles
     love.graphics.rectangle("line", x, y, w + 1, h + 1)
     -- Increase the width and height by one instead of two to produce the broken effect
@@ -147,7 +147,7 @@ function ModButton:draw()
     local ix, iy = self:getIconPos()
 
     -- Draw the transparent backgrounds
-    love.graphics.setColor(0, 0, 0, 0.5)
+    Draw.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     -- Draw the icon background
     love.graphics.rectangle("fill", ix, iy, self.height, self.height)
@@ -160,7 +160,7 @@ function ModButton:draw()
     if self:isFavorited() and not self.selected then
         local star_x, star_y = self:getHeartPos()
         local star_tex = Assets.getTexture("kristal/menu_star")
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         Draw.draw(star_tex, star_x - star_tex:getWidth()/2, star_y - star_tex:getHeight()/2)
     end
 
@@ -172,20 +172,20 @@ function ModButton:draw()
     local name_y = math.floor((self.height/2 - self.font:getHeight()/2) / 2) * 2 - (subh/2)
     love.graphics.setFont(self.font)
     -- Draw the name shadow
-    love.graphics.setColor(0, 0, 0)
+    Draw.setColor(0, 0, 0)
     love.graphics.print(self.name, 50 + 2, name_y + 2)
     -- Draw the name
-    love.graphics.setColor(self:getDrawColor())
+    Draw.setColor(self:getDrawColor())
     love.graphics.print(self.name, 50, name_y)
 
     -- Set the font to the small font
     love.graphics.setFont(self.subfont)
     if self:hasSubtitle() then
         -- Draw the subtitle shadow
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(self.subtitle, 50 + 1, name_y + self.font:getHeight() + 1)
         -- Draw the subtitle
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         love.graphics.print(self.subtitle, 50, name_y + self.font:getHeight())
     end
     -- Calculate version position
@@ -194,16 +194,16 @@ function ModButton:draw()
     local ver_x = self.width - 4 - self.subfont:getWidth(ver_name)
     local ver_y = 0
     -- Draw the version shadow
-    love.graphics.setColor(0, 0, 0)
+    Draw.setColor(0, 0, 0)
     love.graphics.print(ver_name, ver_x + 1, ver_y + 1)
     -- Draw the version
     if self:checkCompatibility() then
         local r,g,b,a = self:getDrawColor()
-        love.graphics.setColor(r, g, b, a)
+        Draw.setColor(r, g, b, a)
     else
         local r,g,b,a = self:getDrawColor()
         -- Slight yellow
-        love.graphics.setColor(r, g*0.75, b*0.75, a)
+        Draw.setColor(r, g*0.75, b*0.75, a)
     end
     love.graphics.print(ver_name, ver_x, ver_y)
 
@@ -214,10 +214,10 @@ function ModButton:draw()
     if icon then
         local x, y = ix + self.height/2 - icon:getWidth(), iy + self.height/2 - icon:getHeight()
         -- Draw the icon shadow
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         Draw.draw(icon, x + 2, y + 2, 0, 2, 2)
         -- Draw the icon
-        love.graphics.setColor(self:getDrawColor())
+        Draw.setColor(self:getDrawColor())
         Draw.draw(icon, x, y, 0, 2, 2)
     end
 end

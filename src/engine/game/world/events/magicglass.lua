@@ -51,7 +51,7 @@ function MagicGlass:draw()
     local id = 1
     for i = 1, self.tiles_x do
         for j = 1, self.tiles_y do
-            love.graphics.setColor(r, g, b, a * self.tile_alphas[id])
+            Draw.setColor(r, g, b, a * self.tile_alphas[id])
             Draw.draw(self.texture, (i - 1) * 40, (j - 1) * 40, 0, 2, 2)
             id = id + 1
         end

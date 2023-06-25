@@ -317,14 +317,14 @@ end
 function DarkEquipMenu:draw()
     love.graphics.setFont(self.font)
 
-    love.graphics.setColor(PALETTE["world_border"])
+    Draw.setColor(PALETTE["world_border"])
     love.graphics.rectangle("fill", 188, -24,  6,  139)
     love.graphics.rectangle("fill", -24, 109, 58,  6)
     love.graphics.rectangle("fill", 130, 109, 160, 6)
     love.graphics.rectangle("fill", 422, 109, 81,  6)
     love.graphics.rectangle("fill", 241, 109, 6,   192)
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.caption_sprites[    "char"],  36, -26, 0, 2, 2)
     Draw.draw(self.caption_sprites["equipped"], 294, -26, 0, 2, 2)
     Draw.draw(self.caption_sprites[   "stats"],  34, 104, 0, 2, 2)
@@ -344,13 +344,13 @@ end
 
 function DarkEquipMenu:drawChar()
     local party = self.party:getSelected()
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     love.graphics.print(party:getName(), 53, -5)
 end
 
 function DarkEquipMenu:drawEquipped()
     local party = self.party:getSelected()
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     if self.state ~= "SLOTS" or self.selected_slot ~= 1 then
         local weapon_icon = Assets.getTexture(party:getWeaponIcon())
@@ -362,7 +362,7 @@ function DarkEquipMenu:drawEquipped()
     if self.state ~= "SLOTS" or self.selected_slot ~= 3 then Draw.draw(self.armor_icons[2], 220, 60, 0, 2, 2) end
 
     if self.state == "SLOTS" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 226, 10 + ((self.selected_slot - 1) * 30))
     end
 
@@ -380,13 +380,13 @@ function DarkEquipMenu:drawEquippedItem(index, x, y)
         item = party:getArmor(index-1)
     end
     if item then
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
         if item.icon and Assets.getTexture(item.icon) then
             Draw.draw(Assets.getTexture(item.icon), x, y, 0, 2, 2)
         end
         love.graphics.print(item:getName(), x + 22, y - 6)
     else
-        love.graphics.setColor(PALETTE["world_dark_gray"])
+        Draw.setColor(PALETTE["world_dark_gray"])
         love.graphics.print("(Nothing)", x + 22, y - 6)
     end
 end
@@ -411,26 +411,26 @@ function DarkEquipMenu:drawItems()
                 usable = party:canEquip(item, "armor", self.selected_slot - 1)
             end
             if usable then
-                love.graphics.setColor(1, 1, 1)
+                Draw.setColor(1, 1, 1)
             else
-                love.graphics.setColor(0.5, 0.5, 0.5)
+                Draw.setColor(0.5, 0.5, 0.5)
             end
             if item.icon and Assets.getTexture(item.icon) then
                 Draw.draw(Assets.getTexture(item.icon), x, y + (offset * 27), 0, 2, 2)
             end
             love.graphics.print(item:getName(), x + 20, y + (offset * 27) - 6)
         else
-            love.graphics.setColor(0.25, 0.25, 0.25)
+            Draw.setColor(0.25, 0.25, 0.25)
             love.graphics.print("---------", x + 20, y + (offset * 27) - 6)
         end
     end
 
     if self.state == "ITEMS" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, x - 20, y + 4 + ((self.selected_item[type] - scroll) * 27))
 
         if items.max > 6 then
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             local sine_off = math.sin((Kristal.getTime()*30)/12) * 3
             if scroll + 6 <= items.max then
                 Draw.draw(self.arrow_sprite, x + 187, y + 149 + sine_off)
@@ -438,10 +438,10 @@ function DarkEquipMenu:drawItems()
             if scroll > 1 then
                 Draw.draw(self.arrow_sprite, x + 187, y + 14 - sine_off, 0, 1, -1)
             end
-            love.graphics.setColor(0.25, 0.25, 0.25)
+            Draw.setColor(0.25, 0.25, 0.25)
             love.graphics.rectangle("fill", x + 191, y + 24, 6, 119)
             local percent = (scroll - 1) / (items.max - 6)
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             love.graphics.rectangle("fill", x + 191, y + 24 + math.floor(percent * (119-6)), 6, 6)
         end
     end
@@ -449,7 +449,7 @@ end
 
 function DarkEquipMenu:drawStats()
     local party = self.party:getSelected()
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
     Draw.draw(self.stat_icons["defense"], -8, 151, 0, 2, 2)
     Draw.draw(self.stat_icons[  "magic"], -8, 178, 0, 2, 2)
@@ -470,11 +470,11 @@ function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare)
     local stat_num = stats[stat] or 0
     local comp_num = compare[stat] or 0
     if stat_num > comp_num then
-        love.graphics.setColor(1, 1, 0)
+        Draw.setColor(1, 1, 0)
     elseif stat_num < comp_num then
-        love.graphics.setColor(1, 0, 0)
+        Draw.setColor(1, 0, 0)
     else
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
     end
     love.graphics.print(stat_num, x, y)
 end
@@ -486,21 +486,21 @@ function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
         local yoff = self.state == "ITEMS" and -6 or 2
         local texture = Assets.getTexture(abilities[index].icon)
         if texture then
-            love.graphics.setColor(abilities[index].color)
+            Draw.setColor(abilities[index].color)
             Draw.draw(texture, x, y + yoff, 0, 2, 2)
         end
     end
     if name ~= comp_name then
         if name ~= nil then
-            love.graphics.setColor(1, 1, 0)
+            Draw.setColor(1, 1, 0)
         else
-            love.graphics.setColor(1, 0, 0)
+            Draw.setColor(1, 0, 0)
         end
     else
         if (name and self.state ~= "ITEMS") or (self.state == "ITEMS" and self.selected_slot == index and self:canEquipSelected()) then
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
         else
-            love.graphics.setColor(0.25, 0.25, 0.25)
+            Draw.setColor(0.25, 0.25, 0.25)
         end
     end
     love.graphics.print(name or "(No ability.)", x + 26, y - 6)

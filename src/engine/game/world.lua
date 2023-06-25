@@ -943,9 +943,9 @@ end
 
 function World:draw()
     -- Draw background
-    love.graphics.setColor(self.map.bg_color or {0, 0, 0, 0})
+    Draw.setColor(self.map.bg_color or {0, 0, 0, 0})
     love.graphics.rectangle("fill", 0, 0, self.map.width * self.map.tile_width, self.map.height * self.map.tile_height)
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
 
     super.draw(self)
 

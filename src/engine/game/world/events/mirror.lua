@@ -58,9 +58,9 @@ function MirrorArea:draw()
     self:drawMirror()
     Draw.popCanvas()
 
-    love.graphics.setColor(1, 1, 1, self.opacity)
+    Draw.setColor(1, 1, 1, self.opacity)
     Draw.draw(self.canvas)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 return MirrorArea

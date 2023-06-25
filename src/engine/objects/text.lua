@@ -690,24 +690,24 @@ function Text:drawChar(node, state, use_color)
     -- The current color multiplied by the base color
     local mr, mg, mb, ma = self:getTextColor(state, use_color)
 
-    love.graphics.setColor(mr,mg,mb,ma)
+    Draw.setColor(mr,mg,mb,ma)
 
     if Kristal.callEvent("onDrawText", self, node, state, x, y, scale, font, use_color) then
         -- Empty because I don't like logic
     elseif self:processStyle(state.style) then
         -- Empty because I don't like logic
     elseif state.style == nil or state.style == "none" then
-        love.graphics.setColor(mr,mg,mb,ma)
+        Draw.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "menu" then
-        love.graphics.setColor(0, 0, 0)
+        Draw.setColor(0, 0, 0)
         love.graphics.print(node.character, x+2, y+2, 0, scale, scale)
-        love.graphics.setColor(mr,mg,mb,ma)
+        Draw.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "dark" then
         local w, h = self:getNodeSize(node, state)
         local canvas = Draw.pushCanvas(w, h, {stencil = false})
-        love.graphics.setColor(1, 1, 1)
+        Draw.setColor(1, 1, 1)
         love.graphics.print(node.character, 0, 0, 0, scale, scale)
         Draw.popCanvas()
 
@@ -721,12 +721,12 @@ function Text:drawChar(node, state, use_color)
             love.graphics.setShader(shader)
             shader:sendColor("from", white and COLORS.dkgray or state.color)
             shader:sendColor("to", white and COLORS.navy or state.color)
-            --love.graphics.setColor(cr, cg, cb, ca * (white and 1 or 0.3))
+            --Draw.setColor(cr, cg, cb, ca * (white and 1 or 0.3))
             local mult = white and 1 or 0.3
-            love.graphics.setColor(cr*mult, cg*mult, cb*mult, ca)
+            Draw.setColor(cr*mult, cg*mult, cb*mult, ca)
         else
-            --love.graphics.setColor(mr, mg, mb, ma * 0.3)
-            love.graphics.setColor(mr*0.3, mg*0.3, mb*0.3, ma)
+            --Draw.setColor(mr, mg, mb, ma * 0.3)
+            Draw.setColor(mr*0.3, mg*0.3, mb*0.3, ma)
         end
         Draw.draw(canvas, x+1, y+1)
 
@@ -737,34 +737,34 @@ function Text:drawChar(node, state, use_color)
         else
             love.graphics.setShader(last_shader)
         end
-        love.graphics.setColor(cr,cg,cb,ca)
+        Draw.setColor(cr,cg,cb,ca)
         Draw.draw(canvas, x, y)
 
         if not white then
             love.graphics.setShader(last_shader)
         end
     elseif state.style == "dark_menu" then
-        love.graphics.setColor(0.25, 0.125, 0.25)
+        Draw.setColor(0.25, 0.125, 0.25)
         love.graphics.print(node.character, x+2, y+2, 0, scale, scale)
-        love.graphics.setColor(mr,mg,mb,ma)
+        Draw.setColor(mr,mg,mb,ma)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "GONER" then
 
         local specfade = 1 -- This is unused for now!
         -- It's used in chapter 1, though... so let's keep it around.
-        love.graphics.setColor(mr,mg,mb, ma*specfade)
+        Draw.setColor(mr,mg,mb, ma*specfade)
         love.graphics.print(node.character, x, y, 0, scale, scale)
-        love.graphics.setColor(mr,mg,mb, ma*((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
+        Draw.setColor(mr,mg,mb, ma*((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
         love.graphics.print(node.character, x + 2, y, 0, scale, scale)
         love.graphics.print(node.character, x - 2, y, 0, scale, scale)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
-        love.graphics.setColor(mr,mg,mb, ma*((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
+        Draw.setColor(mr,mg,mb, ma*((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
         love.graphics.print(node.character, x + 2, y, 0, scale, scale)
         love.graphics.print(node.character, x - 2, y, 0, scale, scale)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
-        love.graphics.setColor(mr,mg,mb,ma)
+        Draw.setColor(mr,mg,mb,ma)
     end
 end
 
@@ -793,7 +793,7 @@ function Text:draw()
     end
 
     if DEBUG_RENDER then
-        love.graphics.setColor(1, 0, 0, 1)
+        Draw.setColor(1, 0, 0, 1)
         love.graphics.setLineWidth(2)
         love.graphics.rectangle("line", 0, 0, self.width, self.height)
     end

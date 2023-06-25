@@ -209,16 +209,16 @@ function DebugWindow:draw()
     love.graphics.clear()
 
     love.graphics.setFont(self.font)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     local offset = self:getVerticalPadding()
     local tooltip_to_draw = nil
 
     offset = offset + self.font:getHeight() + 4 -- name has 4 extra pixels
-    love.graphics.setColor(bg_color)
+    Draw.setColor(bg_color)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
     
     -- Draw the window name
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     love.graphics.print(self.name, padding_x, padding_y)
     
     -- Draw the window name line
@@ -233,7 +233,7 @@ function DebugWindow:draw()
 
     love.graphics.setLineWidth(1)
     if self.type == "input" then
-        love.graphics.setColor(bg_color)
+        Draw.setColor(bg_color)
         love.graphics.rectangle("fill", padding_x, offset, self.width - (padding_x * 2), 20)
 
         TextInput.draw({
@@ -244,7 +244,7 @@ function DebugWindow:draw()
 
         offset = offset + 20 + 8
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.line(padding_x, offset-8, self.width - padding_x, offset-8)
     end
 
@@ -261,26 +261,26 @@ function DebugWindow:draw()
             button_off = button_off + width + 20
 
             if self:isMouseOver(x, offset, x + width, offset + 20) then
-                love.graphics.setColor(highlighted_color)
+                Draw.setColor(highlighted_color)
             else
-                love.graphics.setColor(bg_color)
+                Draw.setColor(bg_color)
             end
 
             love.graphics.rectangle("fill", x, offset, width, 20, 5, 5)
-            love.graphics.setColor(1, 1, 1, 1)
+            Draw.setColor(1, 1, 1, 1)
             love.graphics.rectangle("line", x, offset, width, 20, 5, 5)
 
             love.graphics.print(button, x + 10, offset + 1)
         end
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     -- Reset canvas to draw to
     Draw.popCanvas()
 
     local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
-    love.graphics.setColor(1, 1, 1, anim)
+    Draw.setColor(1, 1, 1, anim)
     Draw.draw(self.canvas, 0, 12 - (anim * 12))
 
     super.draw(self)

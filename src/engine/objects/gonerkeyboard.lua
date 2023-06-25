@@ -147,9 +147,9 @@ function GonerKeyboard:draw()
     love.graphics.setFont(self.font)
 
     if self.limit >= 0 and #self.text >= self.limit then
-        love.graphics.setColor(1, 1, 0, self.alpha)
+        Draw.setColor(1, 1, 0, self.alpha)
     else
-        love.graphics.setColor(1, 1, 1, self.alpha)
+        Draw.setColor(1, 1, 1, self.alpha)
     end
 
     local w = self.font:getWidth(self.text)

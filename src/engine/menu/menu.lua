@@ -305,14 +305,14 @@ end
 function Menu:drawMenuRectangle(x, y, width, height, color)
     love.graphics.push()
     -- Draw the transparent background
-    love.graphics.setColor(0, 0, 0, 0.5)
+    Draw.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle("fill", x, y, width, height)
 
     -- Make sure the line is a single pixel wide
     love.graphics.setLineWidth(1)
     love.graphics.setLineStyle("rough")
     -- Set the color
-    love.graphics.setColor(color)
+    Draw.setColor(color)
     -- Draw the rectangles
     love.graphics.rectangle("line", x,     y,     width + 1, height + 1)
     -- Increase the width and height by one instead of two to produce the broken effect
@@ -479,7 +479,7 @@ function Menu:rebuildMods()
 end
 
 function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
-    love.graphics.setColor(1, 1, 1, alpha)
+    Draw.setColor(1, 1, 1, alpha)
 
     local index = #sprite > 1 and ((math.floor(subimg) % (#sprite - 1)) + 1) or 1
 
@@ -492,11 +492,11 @@ function Menu:printShadow(text, x, y, color, align, limit)
 
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.menu_font)
-    love.graphics.setColor({0, 0, 0, 1})
+    Draw.setColor({0, 0, 0, 1})
     love.graphics.printf(text, x + 2, y + 2, limit or font_width, align or "left")
 
     -- Draw the main text
-    love.graphics.setColor(color or {1, 1, 1, 1})
+    Draw.setColor(color or {1, 1, 1, 1})
     love.graphics.printf(text, x, y, limit or font_width, align or "left")
 end
 
@@ -792,9 +792,9 @@ function Menu:draw()
         if Kristal.Config["fps"] > 0 then
             self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 7))
         else
-            love.graphics.setColor(0, 0, 0)
+            Draw.setColor(0, 0, 0)
             Draw.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 7) + 11, 0, 2, 2)
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             Draw.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 7) + 9, 0, 2, 2)
         end
         self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
@@ -809,14 +809,14 @@ function Menu:draw()
         self:printShadow(Kristal.Config["skipNameEntry"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 17))
 
         -- Draw the scrollbar background
-        love.graphics.setColor({0, 0, 0, 0.5})
+        Draw.setColor({0, 0, 0, 0.5})
         love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.options_y)
 
         local scrollbar_height = (height / total_height) * height
         local scrollbar_y = (-self.options_y / (total_height - height)) * (height - scrollbar_height)
 
         Draw.popScissor()
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
     elseif self.state == "CONTROLS" then
@@ -865,14 +865,14 @@ function Menu:draw()
         self:printShadow("Back", menu_x, menu_y + (32 * (y_offset + 1)))
 
         -- Draw the scrollbar background (lighter than the others since it's against black)
-        love.graphics.setColor({1, 1, 1, 0.5})
+        Draw.setColor({1, 1, 1, 0.5})
         love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.options_y)
 
         local scrollbar_height = (height / total_height) * height
         local scrollbar_y = (-self.options_y / (total_height - height)) * (height - scrollbar_height)
 
         Draw.popScissor()
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
         self:printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
@@ -893,13 +893,13 @@ function Menu:draw()
                 deadzone = Kristal.Config["rightStickDeadzone"]
             end
 
-            love.graphics.setColor(0, 0, 0)
+            Draw.setColor(0, 0, 0)
             love.graphics.circle("fill", x + 2, y + 4, radius + 1)
-            love.graphics.setColor(0.33, 0.33, 0.33)
+            Draw.setColor(0.33, 0.33, 0.33)
             love.graphics.circle("fill", x, y, radius)
-            love.graphics.setColor(0.16, 0.16, 0.16)
+            Draw.setColor(0.16, 0.16, 0.16)
             love.graphics.circle("fill", x, y, radius * deadzone)
-            love.graphics.setColor(1, 1, 1)
+            Draw.setColor(1, 1, 1)
             love.graphics.circle("line", x, y, radius)
 
             local magnitude = math.sqrt(stick_x * stick_x + stick_y * stick_y)
@@ -909,9 +909,9 @@ function Menu:draw()
                 magnitude = 1
             end
             if magnitude <= deadzone then
-                love.graphics.setColor(1, 0, 0)
+                Draw.setColor(1, 0, 0)
             else
-                love.graphics.setColor(0, 1, 0)
+                Draw.setColor(0, 1, 0)
             end
 
             local cx, cy = x + (stick_x * (radius - 8)), y + (stick_y * (radius - 8))
@@ -972,9 +972,9 @@ function Menu:draw()
 
                 local part_2_xpos = 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1)
                 if Input.usingGamepad() then
-                    love.graphics.setColor(0, 0, 0, 1)
+                    Draw.setColor(0, 0, 0, 1)
                     Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
-                    love.graphics.setColor(1, 1, 1, 1)
+                    Draw.setColor(1, 1, 1, 1)
                     Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
                 else
                     self:printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
@@ -998,9 +998,9 @@ function Menu:draw()
                 self:printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 x_pos = x_pos + control_cancel_width
                 if Input.usingGamepad() then
-                    love.graphics.setColor(0, 0, 0, 1)
+                    Draw.setColor(0, 0, 0, 1)
                     Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
-                    love.graphics.setColor(1, 1, 1, 1)
+                    Draw.setColor(1, 1, 1, 1)
                     Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
                     self:printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
@@ -1010,9 +1010,9 @@ function Menu:draw()
                 self:printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 x_pos = x_pos + control_menu_width
                 if Input.usingGamepad() then
-                    love.graphics.setColor(0, 0, 0, 1)
+                    Draw.setColor(0, 0, 0, 1)
                     Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
-                    love.graphics.setColor(1, 1, 1, 1)
+                    Draw.setColor(1, 1, 1, 1)
                     Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
                     self:printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
@@ -1075,14 +1075,14 @@ function Menu:draw()
     self.stage:draw()
 
     -- Draw the screen fade
-    love.graphics.setColor(0, 0, 0, self.fader_alpha)
+    Draw.setColor(0, 0, 0, self.fader_alpha)
     love.graphics.rectangle("fill", 0, 0, 640, 480)
 
     -- Change the fade opacity for the next frame
     self.fader_alpha = math.max(0,self.fader_alpha - (0.08 * DTMULT))
 
     -- Reset the draw color
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 function Menu:drawVersion()
@@ -1101,13 +1101,13 @@ function Menu:drawVersion()
         end
 
         love.graphics.setFont(self.small_font)
-        love.graphics.setColor(1, 1, 1, 0.5)
+        Draw.setColor(1, 1, 1, 0.5)
         love.graphics.print(ver_string, 4, ver_y)
 
         if self.selected_mod_button and self.selected_mod_button.checkCompatibility then
             local compatible, mod_version = self.selected_mod_button:checkCompatibility()
             if not compatible then
-                love.graphics.setColor(1, 0.5, 0.5, 0.75)
+                Draw.setColor(1, 0.5, 0.5, 0.75)
                 local op = "/"
                 if Kristal.Version < mod_version then
                     op = "<"
@@ -1126,11 +1126,11 @@ function Menu:drawVersion()
         end
 
         love.graphics.setFont(self.small_font)
-        love.graphics.setColor(1, 1, 1, 0.5)
+        Draw.setColor(1, 1, 1, 0.5)
         love.graphics.print(full_ver, 4, ver_y)
     end
 
-    love.graphics.setColor(1, 1, 1)
+    Draw.setColor(1, 1, 1)
     love.graphics.setFont(self.menu_font)
 end
 
@@ -1185,9 +1185,9 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
         end
         self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
         if btn then
-            love.graphics.setColor(0, 0, 0, 1)
+            Draw.setColor(0, 0, 0, 1)
             Draw.draw(btn, menu_x + (8 * 32) + x_offset + 2, menu_y + (32 * y_offset) + 4, 0, 2, 2)
-            love.graphics.setColor(1, 1, 1, 1)
+            Draw.setColor(1, 1, 1, 1)
             Draw.draw(btn, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset) + 2, 0, 2, 2)
         end
         x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
@@ -2062,7 +2062,7 @@ function Menu:drawConfig()
 
         if self.substate == "SELECTION" and self.selected_option == index then
             local width = self.menu_font:getWidth(option_text)
-            love.graphics.setColor(COLORS.white)
+            Draw.setColor(COLORS.white)
             local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
             Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  x + 140 + 256 - 16 - 8 - off, y + 4, 0, 2, 2)
             Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 140 + width + 256 + 6 + off, y + 4, 0, 2, 2)
@@ -2072,14 +2072,14 @@ function Menu:drawConfig()
     self:printShadow("Back", menu_x, menu_y + (#self.create.config + 1) * 32, nil, "left", 640)
 
     -- Draw the scrollbar background
-    love.graphics.setColor({1, 1, 1, 0.5})
+    Draw.setColor({1, 1, 1, 0.5})
     love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.config_y)
 
     local scrollbar_height = (height / total_height) * height
     local scrollbar_y = (-self.config_y / (total_height - height)) * (height - scrollbar_height)
 
     Draw.popScissor()
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
     love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.config_y, 4, scrollbar_height)
 
     local option = self.create.config[self.selected_option]
@@ -2333,7 +2333,7 @@ function Menu:drawSelectionField(x, y, id, options, state)
     end
 
     if self.substate == state then
-        love.graphics.setColor(COLORS.white)
+        Draw.setColor(COLORS.white)
         local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
         Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
         Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
@@ -2344,14 +2344,14 @@ function Menu:drawCheckbox(x, y, id)
     x = x - 8
     local checked = self.create[id]
     love.graphics.setLineWidth(2)
-    love.graphics.setColor(COLORS.black)
+    Draw.setColor(COLORS.black)
     love.graphics.rectangle("line", x + 2 + 2, y + 2 + 2, 32 - 4, 32 - 4)
-    love.graphics.setColor(checked and COLORS.white or COLORS.silver)
+    Draw.setColor(checked and COLORS.white or COLORS.silver)
     love.graphics.rectangle("line", x + 2, y + 2, 32 - 4, 32 - 4)
     if checked then
-        love.graphics.setColor(COLORS.black)
+        Draw.setColor(COLORS.black)
         love.graphics.rectangle("line", x + 6 + 2, y + 6 + 2, 32 - 12, 32 - 12)
-        love.graphics.setColor(COLORS.aqua)
+        Draw.setColor(COLORS.aqua)
         love.graphics.rectangle("fill", x + 6, y + 6, 32 - 12, 32 - 12)
     end
 end
@@ -2362,9 +2362,9 @@ function Menu:drawInputLine(name, x, y, id)
     local line_x  = x + 128 + 32 + 16
     local line_x2 = line_x + 416 - 32
     local line_y = 32 - 4 - 1 + 2
-    love.graphics.setColor(0, 0, 0, 1)
+    Draw.setColor(0, 0, 0, 1)
     love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
-    love.graphics.setColor(COLORS.silver)
+    Draw.setColor(COLORS.silver)
     love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
 
     if self.create[id] ~= TextInput.input then
@@ -2454,11 +2454,11 @@ function Menu:drawBackground()
         self.BACKGROUND_SHADER:send("texsize", {self.background_image_wave:getWidth(), self.background_image_wave:getHeight()})
 
         self.BACKGROUND_SHADER:send("sine_mul", 1)
-        love.graphics.setColor(1, 1, 1, self.background_alpha * 0.8)
+        Draw.setColor(1, 1, 1, self.background_alpha * 0.8)
         Draw.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
         self.BACKGROUND_SHADER:send("sine_mul", -1)
         Draw.draw(self.background_image_wave, 0, math.floor(-10 - (self.background_alpha * 20)))
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         love.graphics.setShader()
 
@@ -2470,7 +2470,7 @@ function Menu:drawBackground()
         Draw.setCanvas(SCREEN_CANVAS)
 
         -- Draw the canvas on the screen scaled by 2x
-        love.graphics.setColor(1, 1, 1, self.background_fade)
+        Draw.setColor(1, 1, 1, self.background_fade)
         Draw.draw(self.bg_canvas, 0, 0, 0, 2, 2)
     end
 
@@ -2488,7 +2488,7 @@ function Menu:drawBackground()
 
             -- Draw canvas scaled 2x to the screen
             Draw.setCanvas(SCREEN_CANVAS)
-            love.graphics.setColor(1, 1, 1, mod_preview.fade)
+            Draw.setColor(1, 1, 1, mod_preview.fade)
             Draw.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
         end
         if v.preview_script and v.preview_script.draw then
@@ -2500,7 +2500,7 @@ function Menu:drawBackground()
     end
 
     -- Reset the draw color
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 return Menu

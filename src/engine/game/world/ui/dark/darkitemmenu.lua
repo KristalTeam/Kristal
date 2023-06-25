@@ -250,11 +250,11 @@ function DarkItemMenu:draw()
 
     for i,name in ipairs(headers) do
         if self.state == "MENU" then
-            love.graphics.setColor(PALETTE["world_header"])
+            Draw.setColor(PALETTE["world_header"])
         elseif self.item_header_selected == i then
-            love.graphics.setColor(PALETTE["world_header_selected"])
+            Draw.setColor(PALETTE["world_header_selected"])
         else
-            love.graphics.setColor(PALETTE["world_gray"])
+            Draw.setColor(PALETTE["world_gray"])
         end
         local x = 88 + ((i - 1) * 120)
         love.graphics.print(name, x, -2)
@@ -271,7 +271,7 @@ function DarkItemMenu:draw()
         heart_y = 50 + (self.item_selected_y - 1) * 30
     end
     if self.state ~= "USE" then
-        love.graphics.setColor(Game:getSoulColor())
+        Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, heart_x, heart_y)
     end
 
@@ -281,17 +281,17 @@ function DarkItemMenu:draw()
 
     for _, item in ipairs(inventory) do
         -- Draw the item shadow
-        love.graphics.setColor(PALETTE["world_text_shadow"])
+        Draw.setColor(PALETTE["world_text_shadow"])
         local name = item:getWorldMenuName()
         love.graphics.print(name, 54 + (item_x * 210) + 2, 40 + (item_y * 30) + 2)
 
         if self.state == "MENU" then
-            love.graphics.setColor(PALETTE["world_gray"])
+            Draw.setColor(PALETTE["world_gray"])
         else
             if item.usable_in == "world" or item.usable_in == "all" then
-                love.graphics.setColor(PALETTE["world_text"])
+                Draw.setColor(PALETTE["world_text"])
             else
-                love.graphics.setColor(PALETTE["world_text_unusable"])
+                Draw.setColor(PALETTE["world_text_unusable"])
             end
         end
         love.graphics.print(name, 54 + (item_x * 210), 40 + (item_y * 30))
@@ -303,7 +303,7 @@ function DarkItemMenu:draw()
     end
 
     for _, item in ipairs(inventory) do
-        love.graphics.setColor(1,1,1)
+        Draw.setColor(1,1,1)
         item:onMenuDraw(self.parent)
     end
 

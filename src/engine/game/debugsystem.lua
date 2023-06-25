@@ -979,7 +979,7 @@ end
 
 function DebugSystem:draw()
     love.graphics.setFont(self.font)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 
     local menu_x = 0
     local menu_y = 0
@@ -1006,7 +1006,7 @@ function DebugSystem:draw()
     local header_name = "UNKNOWN"
 
     if self.state == "MENU" or (self.old_state == "MENU" and self.state == "IDLE" and (menu_alpha > 0)) then
-        love.graphics.setColor(0, 0, 0, 0.5)
+        Draw.setColor(0, 0, 0, 0.5)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
         local is_search = (self.menus[self.current_menu].type == "search")
@@ -1021,9 +1021,9 @@ function DebugSystem:draw()
             local line_x  = x
             local line_x2 = line_x + line_width
             local line_y = 32 - 4 - 1 + 2
-            love.graphics.setColor(0, 0, 0, 1)
+            Draw.setColor(0, 0, 0, 1)
             love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
-            love.graphics.setColor(COLORS.silver)
+            Draw.setColor(COLORS.silver)
             love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
 
             TextInput.draw({
@@ -1064,10 +1064,10 @@ function DebugSystem:draw()
         end
     elseif self.state == "FACES" then
         header_name = "~ PORTRAIT VIEWER ~"
-        love.graphics.setColor(0, 0, 0, 0.5)
+        Draw.setColor(0, 0, 0, 0.5)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         local textures = {}
         for _, id in pairs(Assets.texture_ids) do
@@ -1108,9 +1108,9 @@ function DebugSystem:draw()
             if mx > x_offset + (x * gap) and mx < x_offset + (x * gap) + width and
                my > y_offset + (self.faces_y + (y * gap)) and my < y_offset + (self.faces_y + (y * gap)) + height then
                 love.graphics.setLineWidth(2)
-                love.graphics.setColor(0, 1, 1, 1)
+                Draw.setColor(0, 1, 1, 1)
                 love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1, width + 2, height + 2)
-                love.graphics.setColor(1, 1, 1, 1)
+                Draw.setColor(1, 1, 1, 1)
 
                 name = texture_id
                 if self.clicked_name == name then
@@ -1133,21 +1133,21 @@ function DebugSystem:draw()
         -- Draw scrollbar
         local scrollbar_height = 480 - y_offset - 48
         local scrollbar_y = 96 + (scrollbar_height * (-self.faces_y / total_height))
-        love.graphics.setColor(1, 1, 1, 0.5)
+        Draw.setColor(1, 1, 1, 0.5)
         love.graphics.rectangle("fill", 640 - 16, 96, 4, 480 - 96 - 48)
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", 640 - 16, scrollbar_y, 4, scrollbar_height * (scrollbar_height / total_height))
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         Draw.popScissor()
 
         self:printShadow(name, 0, 480 - 32, COLORS.gray, "center", 640)
     elseif self.state == "FLAGS" then
         header_name = "~ FLAG EDITOR ~"
-        love.graphics.setColor(0, 0, 0, 0.5)
+        Draw.setColor(0, 0, 0, 0.5)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
 
         local name = "Press CANCEL to go back."
 
@@ -1171,7 +1171,7 @@ function DebugSystem:draw()
                 love.graphics.setLineWidth(2)
                 local r = prog * 40
                 local alpha = 2 - (prog*1.2)
-                love.graphics.setColor(0, 1, 1, alpha * circle_alpha)
+                Draw.setColor(0, 1, 1, alpha * circle_alpha)
                 love.graphics.circle("line", mx, my, r, 100)
             end
         end
@@ -1193,7 +1193,7 @@ function DebugSystem:draw()
                 self.last_hovered = object
                 self.hover_alpha = Utils.clamp(self.hover_alpha + DT / fadespeed, 0, 1)
             end
-            love.graphics.setColor(0, 1, 1, self.hover_alpha)
+            Draw.setColor(0, 1, 1, self.hover_alpha)
             love.graphics.setLineWidth(1)
             local transform = useobject:getFullTransform()
             love.graphics.push()
@@ -1227,12 +1227,12 @@ function DebugSystem:draw()
             tooltip_x = tooltip_x + Utils.ease(0, 1, (1 - tooltip_alpha), "inCubic") * 10
 
             love.graphics.setFont(tooltip_font)
-            love.graphics.setColor(0, 0, 0, tooltip_alpha)
+            Draw.setColor(0, 0, 0, tooltip_alpha)
             love.graphics.print(tooltip_text, tooltip_x-1, tooltip_y)
             love.graphics.print(tooltip_text, tooltip_x+1, tooltip_y)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y-1)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y+1)
-            love.graphics.setColor(1, 1, 1, tooltip_alpha)
+            Draw.setColor(1, 1, 1, tooltip_alpha)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
         end
 
@@ -1298,12 +1298,12 @@ function DebugSystem:draw()
 
     self:printShadow(header_name, 0, 16, COLORS.white, "center", 640)
 
-    love.graphics.setColor(0, 1, 1, 1)
+    Draw.setColor(0, 1, 1, 1)
 
     -- Reset canvas to draw to
     Draw.setCanvas(SCREEN_CANVAS)
 
-    love.graphics.setColor(1, 1, 1, menu_alpha)
+    Draw.setColor(1, 1, 1, menu_alpha)
     Draw.draw(self.menu_canvas, 0, 0)
 
     self.mouse_clicked = false
@@ -1315,11 +1315,11 @@ function DebugSystem:printShadow(text, x, y, color, align, limit)
     local color = color or {1, 1, 1, 1}
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.font)
-    love.graphics.setColor({0, 0, 0, color[4]})
+    Draw.setColor({0, 0, 0, color[4]})
     love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left")
 
     -- Draw the main text
-    love.graphics.setColor(color)
+    Draw.setColor(color)
     love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left")
 end
 

@@ -54,15 +54,15 @@ function CircleCollider:getShapeFor(other)
 end
 
 function CircleCollider:draw(r,g,b,a)
-    love.graphics.setColor(r,g,b,a)
+    Draw.setColor(r,g,b,a)
     love.graphics.setLineWidth(1)
     love.graphics.circle("line", self.x, self.y, self.radius)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 function CircleCollider:drawFill(r,g,b,a)
-    love.graphics.setColor(r,g,b,a)
+    Draw.setColor(r,g,b,a)
     love.graphics.circle("fill", self.x, self.y, self.radius)
-    love.graphics.setColor(1, 1, 1, 1)
+    Draw.setColor(1, 1, 1, 1)
 end
 
 return CircleCollider

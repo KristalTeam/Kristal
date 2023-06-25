@@ -182,13 +182,13 @@ function ModList:draw()
     -- Draw the scrollbar (only if we have to)
     if #self.mods > 5 then
         -- Draw the scrollbar background
-        love.graphics.setColor({0, 0, 0, 0.5})
+        Draw.setColor({0, 0, 0, 0.5})
         love.graphics.rectangle("fill", self.width + 2, 0, 4, self.height)
 
         local scrollbar_height = (self.height / self.mod_list_height) * self.height
         local scrollbar_y = (self.scroll / math.max(self.mod_list_height - self.height, 0)) * (self.height - scrollbar_height)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        Draw.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", self.width + 2, scrollbar_y, 4, scrollbar_height)
     end
 
