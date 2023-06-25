@@ -34,6 +34,10 @@ function Spell:getBattleDescription() return self.effect end
 function Spell:getTPCost(chara) return self.cost end
 function Spell:isUsable(chara) return self.usable end
 
+function Spell:hasWorldUsage(chara) return false end
+
+function Spell:onWorldCast(chara) end
+
 function Spell:hasTag(tag)
     return Utils.containsValue(self.tags, tag)
 end

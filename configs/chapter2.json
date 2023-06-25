@@ -30,5 +30,7 @@
     "lightCurrencyShort": "$",       // Short currency name for the Light World
     "tpName": "TP",                  // Name of Tension Points in battles
 
-    "pushBlockInputLock": true       // Whether to lock the player's input when pushing a block
+    "pushBlockInputLock": true,      // Whether to lock the player's input when pushing a block
+    "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
+    "overworldSpells": false         // Whether spells should be usable in the overworld
 }

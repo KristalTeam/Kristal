@@ -27,4 +27,12 @@ function spell:onCast(user, target)
     target:heal(user.chara:getStat("magic") * 5)
 end
 
+function spell:hasWorldUsage(chara)
+    return true
+end
+
+function spell:onWorldCast(chara)
+    Game.world:showText("* Placeholder!")
+end
+
 return spell

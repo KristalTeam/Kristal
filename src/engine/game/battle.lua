@@ -2037,7 +2037,9 @@ function Battle:checkGameOver()
 end
 
 function Battle:returnToWorld()
-    Game:setTension(0)
+    if not Game:getConfig("keepTensionAfterBattle") then
+        Game:setTension(0)
+    end
     self.encounter:setFlag("done", true)
     if self.used_violence then
         self.encounter:setFlag("violenced", true)

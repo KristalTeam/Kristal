@@ -277,7 +277,7 @@ function Menu:onStateChange(old_state, new_state)
             self:onCreateEnter()
             self:setSubState("MENU")
         else
-            self.selected_option = 5
+            self.selected_option = 4
         end
     elseif new_state == "CONFIG" then
         self.selected_option = 1
@@ -1894,22 +1894,24 @@ function Menu:onCreateEnter()
         config = {}
     }
 
-    self:registerConfigOption("enableStorage",       "Enable Storage",           "Extra 48-slot item storage",                                "selection", {nil, true, false})
-    self:registerConfigOption("smallSaveMenu",       "Small Save Menu",          "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
-    self:registerConfigOption("partyActions",        "X-Actions",                "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
-    self:registerConfigOption("growStronger",        "Grow Stronger",            "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
-    self:registerConfigOption("growStrongerChara",   "Grow Stronger Character",  "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
-    self:registerConfigOption("susieStyle",          "Susie Style",              "What sprite set Susie should use",                          "selection", {nil, 1, 2})
-    self:registerConfigOption("ralseiStyle",         "Ralsei Style",             "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
-    self:registerConfigOption("oldTensionBar",       "Old Tension Bar",          "Whether the Tension Bar uses blocky corners or not.",       "selection", {nil, true, false})
-    self:registerConfigOption("oldUIPositions",      "Old UI Positions",         "Whether to use Chapter 1 positions of UI elements or not.", "selection", {nil, true, false})
-    self:registerConfigOption("targetSystem",        "Targeting System",         "Whether battles should use the targeting system or not",    "selection", {nil, true, false})
-    self:registerConfigOption("speechBubble",        "Speech Bubble Style",      "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
-    self:registerConfigOption("enemyAuras",          "Enemy Aura",               "The red aura around enemies",                               "selection", {nil, true, false})
-    self:registerConfigOption("mercyMessages",       "Mercy Messages",           "Seeing +X% when an enemy's mercy goes up",                  "selection", {nil, true, false})
-    self:registerConfigOption("mercyBar",            "Mercy Bar",                "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
-    self:registerConfigOption("enemyBarPercentages", "Stat Bar Percentages",     "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
-    self:registerConfigOption("pushBlockInputLock",  "Push Block Input Locking", "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
+    self:registerConfigOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                "selection", {nil, true, false})
+    self:registerConfigOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
+    self:registerConfigOption("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
+    self:registerConfigOption("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
+    self:registerConfigOption("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
+    self:registerConfigOption("susieStyle",             "Susie Style",               "What sprite set Susie should use",                          "selection", {nil, 1, 2})
+    self:registerConfigOption("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
+    self:registerConfigOption("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",       "selection", {nil, true, false})
+    self:registerConfigOption("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.", "selection", {nil, true, false})
+    self:registerConfigOption("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",    "selection", {nil, true, false})
+    self:registerConfigOption("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
+    self:registerConfigOption("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                               "selection", {nil, true, false})
+    self:registerConfigOption("mercyMessages",          "Mercy Messages",            "Seeing +X% when an enemy's mercy goes up",                  "selection", {nil, true, false})
+    self:registerConfigOption("mercyBar",               "Mercy Bar",                 "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
+    self:registerConfigOption("enemyBarPercentages",    "Stat Bar Percentages",      "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
+    self:registerConfigOption("pushBlockInputLock",     "Push Block Input Locking",  "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
+    self:registerConfigOption("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",   "selection", {nil, true, false})
+    self:registerConfigOption("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",          "selection", {nil, true, false})
 end
 
 function Menu:registerConfigOption(id, name, description, type, options)
@@ -2036,7 +2038,7 @@ end
 function Menu:handleConfigInput(key, is_repeat)
     if self.substate == "MENU" then
         if Input.isCancel(key) then
-            local y_off = (5 - 1) * 32
+            local y_off = (4 - 1) * 32
             self.heart_target_x = 45
             self.heart_target_y = 147 + y_off
             self:setState("CREATE")

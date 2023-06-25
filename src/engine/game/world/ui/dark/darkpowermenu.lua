@@ -80,7 +80,9 @@ end
 
 function DarkPowerMenu:onRemove(parent)
     super.onRemove(self, parent)
-    Game.world.menu:updateSelectedBoxes()
+    if Game.world.menu then
+        Game.world.menu:updateSelectedBoxes()
+    end
 end
 
 function DarkPowerMenu:update()
@@ -121,6 +123,16 @@ function DarkPowerMenu:update()
 
             self:updateDescription()
             return
+        end
+        if Input.pressed("confirm") then
+            local spell = self:getSpells()[self.selected_spell]
+            if Game:getConfig("overworldSpells") and
+               (spell:hasWorldUsage(self.party:getSelected())) and
+               (Game:getTension() >= spell:getTPCost(self.party:getSelected())) then
+                self.ui_select:stop()
+                self.ui_select:play()
+                spell:onWorldCast(self.party:getSelected())
+            end
         end
         local spells = self:getSpells()
         local old_selected = self.selected_spell
@@ -220,7 +232,13 @@ function DarkPowerMenu:drawSpells()
         local spell = spells[i]
         local offset = i - self.scroll_y
 
-        Draw.setColor(0.5, 0.5, 0.5)
+        if (not Game:getConfig("overworldSpells")) or
+           (not spell:hasWorldUsage(self.party:getSelected())) or
+           (Game:getTension() < spell:getTPCost(self.party:getSelected())) then
+            Draw.setColor(0.5, 0.5, 0.5)
+        else
+            Draw.setColor(1, 1, 1)
+        end
         love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
         love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
     end
