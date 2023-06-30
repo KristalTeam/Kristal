@@ -793,7 +793,7 @@ function DebugSystem:onKeyReleased(key)
     if self.state == "SELECTION" then
         -- Gamepad
         if (key == "gamepad:a") and Input.usingGamepad() then
-            self:unselectObject()
+            self.grabbing = false
         end
     end
 end
