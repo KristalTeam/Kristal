@@ -127,6 +127,7 @@ ChaserEnemy = require("src.engine.game.world.chaserenemy")
 
 SaveMenu = require("src.engine.game.world.ui.savemenu")
 SimpleSaveMenu = require("src.engine.game.world.ui.simplesavemenu")
+LightSaveMenu = require("src.engine.game.world.ui.lightsavemenu")
 HealthBar = require("src.engine.game.world.ui.healthbar")
 OverworldActionBox = require("src.engine.game.world.ui.overworldactionbox")
 Shopbox = require("src.engine.game.world.ui.shopbox")
