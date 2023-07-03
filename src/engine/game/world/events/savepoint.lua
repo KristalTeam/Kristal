@@ -51,7 +51,9 @@ function Savepoint:onTextEnd()
         end
     end
 
-    if self.simple_menu or (self.simple_menu == nil and (Game:isLight() or Game:getConfig("smallSaveMenu"))) then
+    if Game:isLight() then
+        self.world:openMenu(LightSaveMenu(Game.save_id, self.marker))
+    elseif self.simple_menu or (self.simple_menu == nil and Game:getConfig("smallSaveMenu")) then
         self.world:openMenu(SimpleSaveMenu(Game.save_id, self.marker))
     else
         self.world:openMenu(SaveMenu(self.marker))
