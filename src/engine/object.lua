@@ -1,7 +1,7 @@
 --- The base class of all objects in Kristal. \
 --- When added to the stage, an object will be updated and rendered.
 ---
----@class Object : BaseClass
+---@class Object : Class
 ---@field x      number The horizontal position of the object, relative to its parent.
 ---@field y      number The vertical position of the object, relative to its parent.
 ---@field width  number The width of the object.
@@ -702,7 +702,7 @@ function Object:setColor(r, g, b, a)
     if type(r) == "table" then
         r, g, b, a = unpack(r)
     end
-    self.color = {r, g, b};
+    self.color = {r, g, b}
     self.alpha = a or self.alpha
 end
 --- Returns the values of the object's `color` and `alpha` values.
@@ -1192,7 +1192,7 @@ function Object:addFX(fx, id)
 end
 
 --- Returns a DrawFX added to the object.
----@param id string|BaseClass|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
+---@param id string|Class|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
 ---@return DrawFX|nil fx A DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
 function Object:getFX(id)
     if isClass(id) then
@@ -1211,7 +1211,7 @@ function Object:getFX(id)
 end
 
 --- Removes the specified DrawFX from the object.
----@param id string|BaseClass|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
+---@param id string|Class|DrawFX A string referring to the ID of a DrawFX, the class type that a DrawFX includes, or a DrawFX instance.
 ---@return DrawFX|nil fx The removed DrawFX instance if the object has one that matches the ID, or `nil` otherwise.
 function Object:removeFX(id)
     local fx = self:getFX(id)

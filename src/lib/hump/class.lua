@@ -1,4 +1,3 @@
----@diagnostic disable: undefined-global
 --[[
 Copyright (c) 2010-2013 Matthias Richter
 
@@ -25,10 +24,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
+
+---@class _Class
+---@field __includes _Class[]
+---@field __includes_all { [_Class]: boolean }
+---@field __dont_include { [string]: boolean }
+---@field init fun(self: _Class, ...)
+---@overload fun(self: _Class, ...) : _Class
+local _self = {}
+
 local function include_helper(to, from, seen)
     if from == nil then
         return to
-    elseif type(from) ~= 'table' then
+    elseif type(from) ~= "table" then
         return from
     elseif seen[from] then
         return seen[from]
@@ -48,18 +56,26 @@ local function include_helper(to, from, seen)
     return to
 end
 
--- deeply copies `other' into `class'. keys in `other' that are already
--- defined in `class' are omitted
-local function include(class, other)
+-- deeply copies `other` into `class`. keys in `other` that are already
+-- defined in `class` are omitted
+---@generic T : _Class
+---@param class `T`
+---@param other _Class
+---@return T
+function _self.include(class, other)
     return include_helper(class, other, {})
 end
 
--- returns a deep copy of `other'
-local function clone(other)
+-- returns a deep copy of `other`
+---@generic T : _Class
+---@param other `T`
+---@return T
+function _self.clone(other)
     return Utils.copy(other, true)
     --return setmetatable(include({}, other), getmetatable(other))
 end
 
+---@param class _Class
 local function get_all_includes(class)
     local includes = {[class] = true}
     for _, other in ipairs(class.__includes) do
@@ -73,14 +89,20 @@ local function get_all_includes(class)
     return includes
 end
 
-local function includes(class, other)
+---@param class _Class
+---@param other _Class
+---@return boolean
+function _self.includes(class, other)
     if type(other) == "string" then
         other = _G[other]
     end
     return class.__includes_all[other] and true or false
 end
 
-local function new(class)
+---@generic T : _Class
+---@param class `T`
+---@return T
+function _self.new(class)
     -- mixins
     class = class or {}  -- class can be nil
     class.__includes = class.__includes or {}
@@ -92,15 +114,15 @@ local function new(class)
         if type(other) == "string" then
             other = _G[other]
         end
-        include(class, other)
+        _self.include(class, other)
     end
 
     -- class implementation
     class.__index  = class
     class.init     = class.init     or class[1] or function() end
-    class.include  = class.include  or include
-    class.includes = class.includes or includes
-    class.clone    = class.clone    or clone
+    class.include  = class.include  or _self.include
+    class.includes = class.includes or _self.includes
+    class.clone    = class.clone    or _self.clone
 
     class.canDeepCopy    = class.canDeepCopy    or function() return true end
     class.canDeepCopyKey = class.canDeepCopyKey or function(key) return true end
@@ -116,7 +138,9 @@ local function new(class)
     }
 
     -- constructor call
+    ---@overload fun(self: _Class, ...) : _Class
     return setmetatable(class, {__call = function(c, ...)
+        ---@type _Class
         local o = setmetatable({}, c)
         o:init(...)
         return o
@@ -124,18 +148,16 @@ local function new(class)
 end
 
 -- interface for cross class-system compatibility (see https://github.com/bartbes/Class-Commons).
+---@diagnostic disable-next-line: undefined-global
 if class_commons ~= false and not common then
     ---@diagnostic disable-next-line: lowercase-global
-    common = {}
+    common = common or {}
     function common.class(name, prototype, parent)
-        return new{__includes = {prototype, parent}}
+        return _self.new{__includes = {prototype, parent}}
     end
     function common.instance(class, ...)
         return class(...)
     end
 end
 
-
--- the module
-return setmetatable({new = new, include = include, includes = includes, clone = clone},
-    {__call = function(_,...) return new(...) end})
+return setmetatable(_self, {__call = function(_,...) return _self.new(...) end})

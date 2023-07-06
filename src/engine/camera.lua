@@ -1,4 +1,4 @@
----@class Camera : BaseClass
+---@class Camera : Class
 ---@overload fun(...) : Camera
 local Camera = Class()
 

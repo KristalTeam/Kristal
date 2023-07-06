@@ -3,21 +3,20 @@ MOD_SUBCLASSES = {}
 DEFAULT_CLASS_NAME_GETTER = function(k) return _G[k] end
 CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER
 
+---@param o table
 ---@diagnostic disable-next-line: lowercase-global
 function isClass(o)
     return type(o) == "table" and getmetatable(o) and true or false
 end
 
----@class BaseClass
----@overload fun() : BaseClass
+---@class Class : _Class
+---@overload fun(self: Class, ...) : Class
 ---@field id string|nil The ID of the class.
----@field super table|BaseClass|nil The base class of the class.
----@field clone fun(self: BaseClass) : BaseClass Makes a clone of the class.
----@field includes fun(self: BaseClass, class: table|BaseClass) : included : boolean Returns whether if `self` is a child class of `class`.
+---@field super Class|nil The base class of the class.
 
 --- Creates a new class, which can then be instantiated by calling it as a function.
 ---
----@generic T : table|BaseClass
+---@generic T : Class
 ---
 ---@param include? T|string  # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
 ---@param id? string|boolean # The id of the class used for registry. If `true`, will use the `id` field of the included class.

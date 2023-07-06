@@ -1,4 +1,4 @@
----@class Item : BaseClass
+---@class Item : Class
 ---@overload fun(...) : Item
 local Item = Class()
 

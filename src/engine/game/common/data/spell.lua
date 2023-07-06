@@ -1,4 +1,4 @@
----@class Spell : BaseClass
+---@class Spell : Class
 ---@overload fun(...) : Spell
 local Spell = Class()
 

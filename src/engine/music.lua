@@ -1,4 +1,4 @@
----@class Music : BaseClass
+---@class Music : Class
 ---@overload fun(...) : Music
 local Music = {}
 

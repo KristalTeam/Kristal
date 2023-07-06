@@ -1,4 +1,4 @@
----@class Map : BaseClass
+---@class Map : Class
 ---@overload fun(...) : Map
 local Map = Class()
 
