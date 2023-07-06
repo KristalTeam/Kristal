@@ -9,8 +9,8 @@ function isClass(o)
 end
 
 ---@class BaseClass
----@field id string
----@field super BaseClass
+---@field id string|nil
+---@field super table|BaseClass|nil
 ---@field clone fun()
 ---@field includes fun(self: BaseClass, class: BaseClass) : boolean
 ---@overload fun() : BaseClass
