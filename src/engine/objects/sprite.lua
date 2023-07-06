@@ -33,7 +33,7 @@
 ---@field anim_routine_func Sprite.anim_func|nil      *(Read-only)* The function of the current sprite animation.
 ---@field anim_wait_func    Sprite.wait_func          *(Read-only)* The function used to wait for the next frame of the animation.
 ---
----@overload fun(texture:string|love.Image, x?:number, y?:number, width?:number, height?:number, path?:string) : Sprite
+---@overload fun(texture:string|love.Image|nil, x?:number, y?:number, width?:number, height?:number, path?:string) : Sprite
 local Sprite, super = Class(Object)
 
 function Sprite:init(texture, x, y, width, height, path)

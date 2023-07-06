@@ -105,7 +105,7 @@ function love.load(args)
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
-    PERFORMANCE_TEST = {}
+    PERFORMANCE_TEST = nil
     ---@type string|nil
     PERFORMANCE_TEST_STAGE = nil
 
@@ -532,37 +532,46 @@ function Kristal.errorHandler(msg)
 
         love.graphics.setFont(font)
 
+        local warp = 640 - pos*2
         if not critical then
-            local _,lines = font:getWrap("Error at "..split[#split-1].." - "..split[#split], 640 - pos)
-
+            local header = "Error at "..split[#split-1].." - "..split[#split]
+            local _,lines = font:getWrap(header, warp)
+            local header_line_height = 32
+            if #lines > 2 then
+                love.graphics.setFont(smaller_font)
+                header_line_height = 16
+                _,lines = smaller_font:getWrap(header, warp)
+            end
             love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, 640 - pos)
-            ypos = ypos + (32 * #lines)
+            ypos = ypos + (header_line_height * #lines)
+            love.graphics.setFont(font)
 
             for l in trace:gmatch("(.-)\n") do
                 if not l:match("boot.lua") then
                     if l:match("stack traceback:") then
                         love.graphics.setFont(font)
-                        love.graphics.printf("Traceback:", pos, ypos, 640 - pos)
+                        love.graphics.printf("Traceback:", pos, ypos, warp)
                         ypos = ypos + 32
                     else
                         if ypos >= 480 - 40 - 32 then
-                            love.graphics.printf("...", pos, ypos, 640 - pos)
+                            love.graphics.printf("...", pos, ypos, warp)
                             break
                         end
                         love.graphics.setFont(smaller_font)
-                        love.graphics.printf(l, pos, ypos, 640 - pos)
-                        ypos = ypos + 16
+                        local _,e_lines = smaller_font:getWrap(l, warp)
+                        love.graphics.printf(l, pos, ypos, warp)
+                        ypos = ypos + 16*#e_lines
                     end
                 end
             end
         else
-            love.graphics.printf("Critical Error", pos, ypos, 640 - pos)
+            love.graphics.printf("Critical Error", pos, ypos, warp)
 
             love.graphics.setFont(font)
-            love.graphics.printf("Known causes:", pos, ypos + 64, 640 - pos)
+            love.graphics.printf("Known causes:", pos, ypos + 64, warp)
 
             love.graphics.setFont(smaller_font)
-            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, 640 - pos)
+            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, warp)
         end
 
         if starwalker_error then

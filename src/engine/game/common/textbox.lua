@@ -75,7 +75,7 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
     self.font = self.default_font
     self.font_size = self.default_font_size
 
-    self.face = Sprite("", self.face_x, self.face_y, nil, nil, "face")
+    self.face = Sprite(nil, self.face_x, self.face_y, nil, nil, "face")
     self.face:setScale(2, 2)
     self.face.getDebugOptions = function(self2, context)
         context = super.getDebugOptions(self2, context)
