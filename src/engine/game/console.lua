@@ -250,6 +250,7 @@ function Console:push(str)
         local in_modifier = false
         local modifier_text = ""
 
+        ---@diagnostic disable-next-line: undefined-field
         for char in line:gmatch(utf8.charpattern) do
             if char == "[" then
                 table.insert(text, current)
