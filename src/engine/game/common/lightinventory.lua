@@ -101,6 +101,7 @@ end
 
 -- Item give overrides for Dark World items
 
+---@return Item|nil
 function LightInventory:addItem(item, ignore_dark)
     if type(item) == "string" then
         item = Registry.createItem(item)

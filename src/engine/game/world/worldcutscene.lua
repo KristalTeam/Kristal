@@ -343,7 +343,12 @@ function WorldCutscene:setTextboxTop(top)
     self.textbox_top = top
 end
 
+---@param self WorldCutscene
 local function waitForCameraPan(self) return Game.world.camera.pan_target == nil end
+---@overload fun(self: WorldCutscene, x: number, y: number, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
+---@overload fun(self: WorldCutscene, marker: string, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
+---@overload fun(self: WorldCutscene, chara: Character, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
+---@overload fun() : fun(self: WorldCutscene)
 function WorldCutscene:panTo(...)
     local args = {...}
     local x, y = 0, 0
@@ -368,7 +373,7 @@ function WorldCutscene:panTo(...)
         ease = args[3] or ease
         after = args[4]
     else
-        x, y = Game.world:getCameraTarget()
+        x, y = Game.world:getCameraTarget():getPosition()
     end
     local result = Game.world.camera:panTo(x, y, time, ease, after)
     if not result and after then
@@ -377,11 +382,14 @@ function WorldCutscene:panTo(...)
     return waitForCameraPan
 end
 
+---@overload fun(self: WorldCutscene, x: number, y: number, speed?: number, after?: fun()) : fun(self: WorldCutscene)
+---@overload fun(self: WorldCutscene, marker: string, speed?: number, after?: fun()) : fun(self: WorldCutscene)
+---@overload fun(self: WorldCutscene, chara: Character, speed?: number, after?: fun()) : fun(self: WorldCutscene)
+---@overload fun() : fun(self: WorldCutscene)
 function WorldCutscene:panToSpeed(...)
     local args = {...}
     local x, y = 0, 0
     local speed = 4
-    local ease = "linear"
     local after = nil
     if type(args[1]) == "number" then
         x, y = args[1], args[2]
@@ -398,7 +406,7 @@ function WorldCutscene:panToSpeed(...)
         speed = args[2] or speed
         after = args[3]
     else
-        x, y = Game.world:getCameraTarget()
+        x, y = Game.world:getCameraTarget():getPosition()
     end
     local result = Game.world.camera:panToSpeed(x, y, speed, after)
     if not result and after then
