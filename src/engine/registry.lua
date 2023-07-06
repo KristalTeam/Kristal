@@ -690,7 +690,11 @@ function Registry.iterScripts(base_path, exclude_folder)
         chunks = _chunks
         parsed = {}
         queued_parse = {}
-        for full_path,chunk in pairs(chunks) do
+        -- WORKAROUND: Script chunks may be spread around without particular order
+        -- so we're going to sort them
+        -- For some reason this also seems to uhh increase loading speed (for Dark Place
+        -- at least)
+        for full_path,chunk in Utils.orderedPairs(chunks) do
             if not parsed[full_path] and full_path:sub(1, #path) == path then
                 local file = full_path:sub(#path + 1)
                 if file:sub(1, 1) == "/" then
