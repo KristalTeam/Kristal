@@ -9,11 +9,11 @@ function isClass(o)
 end
 
 ---@class BaseClass
----@field id string|nil
----@field super table|BaseClass|nil
----@field clone fun()
----@field includes fun(self: BaseClass, class: BaseClass) : boolean
 ---@overload fun() : BaseClass
+---@field id string|nil The ID of the class.
+---@field super table|BaseClass|nil The base class of the class.
+---@field clone fun(self: BaseClass) : BaseClass Makes a clone of the class.
+---@field includes fun(self: BaseClass, class: table|BaseClass) : included : boolean Returns whether if `self` is a child class of `class`.
 
 --- Creates a new class, which can then be instantiated by calling it as a function.
 ---
