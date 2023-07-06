@@ -33,7 +33,7 @@ return function(include, id)
         if type(include) == "string" then
             local r = CLASS_NAME_GETTER(include)
             if not r then
-                error("Failed to include "..include)
+                error{included=include, msg="Failed to include "..include}
             end
             if id == true then
                 id = r.id or include
