@@ -120,61 +120,66 @@ function Menu:enter()
     self.has_target_saves = false
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
-    self.left_credits = {
-        {"Lead Developers", COLORS.silver},
-        "Nyakorita",
-        "SylviBlossom",
-        "",
-        {"Developers", COLORS.silver},
-        "Vitellary",
-        "",
-        {"Assets", COLORS.silver},
-        "Toby Fox",
-        "Temmie Chang",
-        "DELTARUNE team"
+    ---@type ({text: string, color: number[]}|string)[][]
+    self.credits = {
+        {
+            {
+                {"Lead Developers", COLORS.silver},
+                "Nyakorita",
+                "SylviBlossom",
+                "",
+                {"Developers", COLORS.silver},
+                "Vitellary",
+                "",
+                {"Assets", COLORS.silver},
+                "Toby Fox",
+                "Temmie Chang",
+                "DELTARUNE team"
+            },
+            {
+                {"GitHub Contributors", COLORS.silver},
+                "Agent 7",
+                "Archie-osu",
+                "Dobby233Liu",
+                "Luna",
+                "prokube",
+                "AcousticJamm",
+                "Simbel",
+                "Bor",
+                {"Documentation", COLORS.silver},
+                "Vitellary",
+            }
+        },
+        --[[{
+            {
+                {"GitHub Contributors", COLORS.silver},
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            },
+            {
+                {"GitHub Contributors", COLORS.silver},
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+            }
+        }]]
     }
-
-    self.right_credits = {
-        {"GitHub Contributors", COLORS.silver},
-        "Agent 7",
-        "Archie-osu",
-        "Dobby233Liu",
-        "Luna",
-        "prokube",
-        "AcousticJamm",
-        "Simbel",
-        "Bor",
-        {"Documentation", COLORS.silver},
-        "Vitellary",
-    }
-
-    self.left_credits2 = {
-        {"GitHub Contributors", COLORS.silver},
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        ""
-    }
-
-    self.right_credits2 = {
-        {"GitHub Contributors", COLORS.silver},
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-    }
+    self.credits_page = 1
 
     self.create = {}
 
@@ -1060,11 +1065,19 @@ function Menu:draw()
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
         self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 400, 52, 0, 2, 2)
-        love.graphics.setColor(COLORS.silver)
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  222, 52, 0, 2, 2)
+        if self.credits_page >= #self.credits then
+            love.graphics.setColor(COLORS.silver)
+        end
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"),    400, 52, 0, 2, 2)
+        love.graphics.setColor(COLORS.white)
+        if self.credits_page <= 1 then
+            love.graphics.setColor(COLORS.silver)
+        end
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),     222, 52, 0, 2, 2)
+        love.graphics.setColor(COLORS.white)
 
-        for index, value in ipairs(self.left_credits) do
+        local page = self.credits[self.credits_page]
+        for index, value in ipairs(page[1]) do
             local color = {1, 1, 1, 1}
             local offset = 0
             if type(value) == "table" then
@@ -1075,8 +1088,7 @@ function Menu:draw()
             end
             self:printShadow(value, 32 + offset, 64 + (32 * index), color)
         end
-
-        for index, value in ipairs(self.right_credits) do
+        for index, value in ipairs(page[2]) do
             local color = {1, 1, 1, 1}
             local offset = 0
             if type(value) == "table" then
@@ -1086,40 +1098,9 @@ function Menu:draw()
                 offset = offset - 32
             end
             self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32 + offset)
-
-            self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
-        end
-    elseif self.state == "CREDITS2" then
-        self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  222, 52, 0, 2, 2)
-        love.graphics.setColor(COLORS.silver)
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 400, 52, 0, 2, 2)
-
-        for index, value in ipairs(self.left_credits2) do
-            local color = {1, 1, 1, 1}
-            local offset = 0
-            if type(value) == "table" then
-                color = value[2]
-                value = value[1]
-            else
-                offset = offset + 32
-            end
-            self:printShadow(value, 32 + offset, 64 + (32 * index), color)
         end
 
-        for index, value in ipairs(self.right_credits2) do
-            local color = {1, 1, 1, 1}
-            local offset = 0
-            if type(value) == "table" then
-                color = value[2]
-                value = value[1]
-            else
-                offset = offset - 32
-            end
-            self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32 + offset)
-
-            self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
-        end
+        self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
     elseif self.state == "CREATE" then
         self:drawCreate()
     elseif self.state == "CONFIG" then
@@ -1384,7 +1365,7 @@ function Menu:onKeyPressed(key, is_repeat)
                 self.heart_target_x = 408
             elseif self.selected_option == 9 then
                 Kristal.Config["vSync"] = not Kristal.Config["vSync"]
-                love.window.setVSync(Kristal.Config["vSync"])
+                love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
             elseif self.selected_option == 10 then
                 Kristal.Config["frameSkip"] = not Kristal.Config["frameSkip"]
             elseif self.selected_option == 11 then
@@ -1600,6 +1581,7 @@ function Menu:onKeyPressed(key, is_repeat)
         -- this needs to be here apparently
     elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
+            self.credits_page = 1
             self:setState("MAINMENU")
             if Input.isCancel(key) then
                 self.ui_move:stop()
@@ -1611,28 +1593,17 @@ function Menu:onKeyPressed(key, is_repeat)
             self.heart_target_x = 196
             self.selected_option = 4 - self.target_mod_offset
             self.heart_target_y = 238 + (3 - self.target_mod_offset) * 32
+        end
+        local page_now = self.credits_page
+        if Input.is("left", key) and not Input.usingGamepad() then
+            page_now = page_now - 1
         end
         if Input.is("right", key) and not Input.usingGamepad() then
-            self:setState("CREDITS2")
-            self.ui_move:stop()
-            self.ui_move:play()
+            page_now = page_now + 1
         end
-    elseif self.state == "CREDITS2" then
-        if Input.isCancel(key) or Input.isConfirm(key) then
-            self:setState("MAINMENU")
-            if Input.isCancel(key) then
-                self.ui_move:stop()
-                self.ui_move:play()
-            else
-                self.ui_select:stop()
-                self.ui_select:play()
-            end
-            self.heart_target_x = 196
-            self.selected_option = 4 - self.target_mod_offset
-            self.heart_target_y = 238 + (3 - self.target_mod_offset) * 32
-        end
-        if Input.is("left", key) and not Input.usingGamepad() then
-            self:setState("CREDITS")
+        page_now = Utils.clamp(page_now, 1, #self.credits)
+        if page_now ~= self.credits_page then
+            self.credits_page = page_now
             self.ui_move:stop()
             self.ui_move:play()
         end
