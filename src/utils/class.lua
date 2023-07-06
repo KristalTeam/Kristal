@@ -9,6 +9,9 @@ function isClass(o)
     return type(o) == "table" and getmetatable(o) and true or false
 end
 
+-- FIXME: currently these annoations still seem a bit broken
+-- It certainly gets rid of some warning though
+
 ---@class Class : _Class
 ---@overload fun(self: Class, ...) : Class
 ---@field id string|nil The ID of the class.

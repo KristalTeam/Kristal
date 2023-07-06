@@ -1550,11 +1550,11 @@ end
 ---
 --- Returns the angle from one point to another, or from one object's position to another's.
 ---
----@param x1 number     # The horizontal position of the first point.
----@param y1 number     # The vertical position of the first point.
----@param x2 number     # The horizontal position of the second point.
----@param y2 number     # The vertical position of the second point.
----@return number angle # The angle from the first point to the second point.
+---@param x1 number|Object  # The horizontal position of the first point.
+---@param y1 number|Object  # The vertical position of the first point.
+---@param x2 number|Object  # The horizontal position of the second point.
+---@param y2 number|Object  # The vertical position of the second point.
+---@return number angle     # The angle from the first point to the second point.
 ---
 ---@overload fun(obj1:Object, obj2:Object): angle:number
 ---
