@@ -536,14 +536,8 @@ function Kristal.errorHandler(msg)
         if not critical then
             local header = "Error at "..split[#split-1].." - "..split[#split]
             local _,lines = font:getWrap(header, warp)
-            local header_line_height = 32
-            if #lines > 2 then
-                love.graphics.setFont(smaller_font)
-                header_line_height = 16
-                _,lines = smaller_font:getWrap(header, warp)
-            end
             love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, 640 - pos)
-            ypos = ypos + (header_line_height * #lines)
+            ypos = ypos + (32 * #lines)
             love.graphics.setFont(font)
 
             for l in trace:gmatch("(.-)\n") do
