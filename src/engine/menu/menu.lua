@@ -120,12 +120,6 @@ function Menu:enter()
     self.has_target_saves = false
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
-    self:buildMods()
-
-    if not self.music:isPlaying() then
-        self.music:play("mod_menu", 1, 0.95)
-    end
-
     self.left_credits = {
         {"Lead Developers", COLORS.silver},
         "Nyakorita",
@@ -183,6 +177,18 @@ function Menu:enter()
     }
 
     self.create = {}
+
+    self:buildMods()
+
+    self.ver_string = "v" .. tostring(Kristal.Version)
+    local trimmed_commit = GitFinder:fetchTrimmedCommit()
+    if trimmed_commit then
+        self.ver_string = self.ver_string .. " (" .. trimmed_commit .. ")"
+    end
+
+    if not self.music:isPlaying() then
+        self.music:play("mod_menu", 1, 0.95)
+    end
 
     if #Kristal.Mods.failed_mods > 0 then
         self:setState("MODERROR")
@@ -1148,16 +1154,11 @@ function Menu:draw()
 end
 
 function Menu:drawVersion()
-    local ver_string = "v" .. tostring(Kristal.Version)
     local ver_y = SCREEN_HEIGHT - self.small_font:getHeight()
-
-    local trimmed_commit = GitFinder:FetchTrimmedCommit()
-    if trimmed_commit then
-        ver_string = ver_string .. " (" .. trimmed_commit .. ")"
-    end
 
     if not TARGET_MOD then
 
+        local ver_string = self.ver_string
         if self.state == "MAINMENU" and Kristal.Version.major == 0 then
             ver_string = ver_string .. " (Unstable)"
         end
@@ -1180,7 +1181,7 @@ function Menu:drawVersion()
             end
         end
     else
-        local full_ver = "Kristal: "..ver_string
+        local full_ver = "Kristal: "..self.ver_string
 
         if self.selected_mod.version then
             ver_y = ver_y - self.small_font:getHeight()

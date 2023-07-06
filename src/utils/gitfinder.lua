@@ -1,37 +1,40 @@
+-- Contains helper functions to retrieve the current revision of the engine, \
+-- in case it was cloned as a Git repo.
 local GitFinder = {}
 
-function GitFinder:FetchCurrentCommit()
-    -- Check if the .git directory exists
-    if love.filesystem.getInfo(".git") then
-        -- Check if the HEAD file exists
-        if love.filesystem.getInfo(".git/HEAD") then
-            -- Read the file
-            local head = love.filesystem.read(".git/HEAD")
-            -- Check if the file contains a reference
-            if head:find("ref: ") then
-                -- Get the reference, stripping any newlines
-                local ref = head:match("ref: (.*)"):gsub("\n", ""):gsub("\r", "")
-                -- Check if the reference exists
-                if love.filesystem.getInfo(".git/" .. ref) then
-                    -- Read the reference
-                    local commit = love.filesystem.read(".git/" .. ref)
-                    -- Return the commit
-                    return commit
-                end
-            else
-                -- Return the commit
-                return head
-            end
-        end
+-- If true, the engine is cloned as a git repo, the otherwise if false.
+GitFinder.is_git_repo = love.filesystem.getInfo(".git") ~= nil
+
+-- Retrieves the engine's current commit (revision), if it was cloned as a Git repo. \
+-- May fail if the engine is not a Git repo, the repo is broken, etc.
+---@return string|nil commit The SHA-1 hash for the current commit, or nil in case of failure
+function GitFinder:fetchCurrentCommit()
+    if not GitFinder.is_git_repo then return end
+
+    -- Get current HEAD
+    local head, _ = love.filesystem.read(".git/HEAD")
+    if not head then return end
+    -- Try to get the reference it may point to
+    local ref = head:match("^ref: ([^\r\n]*)")
+    if ref then -- HEAD is not detached
+        -- Read the ref's correspending file, which contains the hash of the commit that it points to
+        local commit, _ = love.filesystem.read(".git/" .. ref)
+        return commit
+    else -- HEAD is detached
+        -- The file just contains the hash of the commit it's at
+        return head
     end
 end
 
-function GitFinder:FetchTrimmedCommit()
-    -- Fetch the current commit
-    local commit = self:FetchCurrentCommit()
-    -- Check if the commit exists
+-- Returns the first 7 characters of engine's current commit (revision).
+---@return string|nil commit nil in case of failure
+function GitFinder:fetchTrimmedCommit()
+    if not GitFinder.is_git_repo then return end
+
+    local commit = self:fetchCurrentCommit()
+    -- Check if we managed to obtain the current commit's hash
     if commit then
-        -- Trim the commit
+        -- Return the first 7 characters of it
         return commit:sub(1, 7)
     end
 end
