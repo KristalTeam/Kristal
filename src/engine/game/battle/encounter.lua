@@ -1,4 +1,4 @@
----@class Encounter
+---@class Encounter : BaseClass
 ---@overload fun(...) : Encounter
 local Encounter = Class()
 

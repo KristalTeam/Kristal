@@ -1,4 +1,4 @@
----@class Tileset
+---@class Tileset : BaseClass
 ---@overload fun(...) : Tileset
 local Tileset = Class()
 

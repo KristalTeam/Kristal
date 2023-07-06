@@ -1,4 +1,4 @@
----@class Collider
+---@class Collider : BaseClass
 ---@overload fun(...) : Collider
 local Collider = Class()
 

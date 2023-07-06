@@ -1,4 +1,4 @@
----@class PartyMember
+---@class PartyMember : BaseClass
 ---@overload fun(...) : PartyMember
 local PartyMember = Class()
 
