@@ -249,7 +249,9 @@ function Game:load(data, index, fade)
 
     self.party = {}
     for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
-        table.insert(self.party, self:getPartyMember(id))
+        local ally = self:getPartyMember(id)
+        assert(ally, string.format("Attempted to add non-existent member \"%s\" to the party", id))
+        table.insert(self.party, ally)
     end
 
     if data.temp_followers then
