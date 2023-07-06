@@ -1515,7 +1515,6 @@ end
 
 function Object:preDraw(dont_transform)
     if not dont_transform then
-        ---@diagnostic disable-next-line: undefined-field
         local transform = love.graphics.getTransformRef()
         self:applyTransformTo(transform, 1/CURRENT_SCALE_X, 1/CURRENT_SCALE_Y)
         love.graphics.replaceTransform(transform)
@@ -1615,7 +1614,6 @@ function Object:fullDraw(no_children, dont_transform)
             final_canvas = self:processDrawFX(canvas, true)
             love.graphics.push()
             if not dont_transform then
-                ---@diagnostic disable-next-line: undefined-field
                 local current_transform = love.graphics.getTransformRef()
                 self:applyTransformTo(current_transform)
                 love.graphics.replaceTransform(current_transform)
