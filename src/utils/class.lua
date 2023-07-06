@@ -17,7 +17,7 @@ end
 
 --- Creates a new class, which can then be instantiated by calling it as a function.
 ---
----@generic T : BaseClass
+---@generic T : table|BaseClass
 ---
 ---@param include? T|string  # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
 ---@param id? string|boolean # The id of the class used for registry. If `true`, will use the `id` field of the included class.
