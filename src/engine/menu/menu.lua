@@ -1065,16 +1065,18 @@ function Menu:draw()
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
         self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
-        if self.credits_page >= #self.credits then
-            love.graphics.setColor(COLORS.silver)
+        if #self.credits > 1 then
+            if self.credits_page >= #self.credits then
+                love.graphics.setColor(COLORS.silver)
+            end
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"),    400, 52, 0, 2, 2)
+            love.graphics.setColor(COLORS.white)
+            if self.credits_page <= 1 then
+                love.graphics.setColor(COLORS.silver)
+            end
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),     222, 52, 0, 2, 2)
+            love.graphics.setColor(COLORS.white)
         end
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"),    400, 52, 0, 2, 2)
-        love.graphics.setColor(COLORS.white)
-        if self.credits_page <= 1 then
-            love.graphics.setColor(COLORS.silver)
-        end
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),     222, 52, 0, 2, 2)
-        love.graphics.setColor(COLORS.white)
 
         local page = self.credits[self.credits_page]
         for index, value in ipairs(page[1]) do
