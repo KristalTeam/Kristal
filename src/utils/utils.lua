@@ -1691,30 +1691,32 @@ function Utils.endsWith(value, suffix)
 end
 
 -- TODO: this function is a mess please comment it later
-
+---@param prefix string base directory of images in the mod
+---@param image string raw image path specified by tileset/map
+---@param path string path of tileset/map, `image` is relative to this
+---@return string|nil final_path nil in case of error
 function Utils.absoluteToLocalPath(prefix, image, path)
-    local current_path = Utils.split(path, "/")
-    local tileset_path = Utils.split(image, "/")
-    while tileset_path[1] == ".." do
-        table.remove(tileset_path, 1)
-        table.remove(current_path, #current_path)
+    prefix = Mod.info.path .. "/" .. prefix
+
+    -- Split paths by seperator
+    local base_path = Utils.split(path, "/")
+    local dest_path = Utils.split(image, "/")
+    while dest_path[1] == ".." do
+        -- Move up one directory
+        table.remove(base_path, #base_path)
+        table.remove(dest_path, 1)
     end
-    Utils.merge(current_path, tileset_path)
-    local final_path = table.concat(current_path, "/")
-    local _,ind = final_path:find(prefix)
-    if not ind then return false end
-    final_path = final_path:sub(ind + 1)
-    local ext = final_path
-    while ext:find("%.") do
-        _,ind = ext:find("%.")
-        if not ind then return false end
-        ext = ext:sub(ind + 1)
-    end
-    if ext == final_path then
-        return final_path
-    else
-        return final_path:sub(1, -#ext - 2)
-    end
+
+    local final_path = table.concat(Utils.merge(base_path, dest_path), "/")
+
+    -- Strip prefix
+    local has_prefix
+    has_prefix, final_path = Utils.startsWith(final_path, prefix)
+    --print(prefix, final_path, has_prefix)
+    if not has_prefix then return nil end
+
+    -- Strip extension
+    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0))
 end
 
 ---
@@ -2281,6 +2283,74 @@ function Utils.clampWrap(val, min, max)
         min = 1
     end
     return (val - min) % (max - min + 1) + min
+end
+
+---@see http://lua-users.org/wiki/SortedIteration
+---@private
+local function __genOrderedIndex(t)
+    local ordered_index = {}
+    for key in pairs(t) do
+        table.insert(ordered_index, key)
+    end
+    table.sort(ordered_index)
+    return ordered_index
+end
+
+-- Equivalent of the next function, but returns the keys in the alphabetic
+-- order. We use a temporary ordered key table that is stored in the
+-- table being iterated.
+---@generic K
+---@generic V
+---@param table table<K,V>
+---@param index? K
+---@return K|nil
+---@return V|nil
+---@see http://lua-users.org/wiki/SortedIteration
+function Utils.orderedNext(table, index)
+    local key = nil
+    if index == nil then
+        -- the first time, generate the index
+        table.__ordidx = __genOrderedIndex(table)
+        key = table.__ordidx[1]
+    else
+        -- fetch the next value
+        for i = 1, #table.__ordidx do
+            if table.__ordidx[i] == index then
+                key = table.__ordidx[i+1]
+            end
+        end
+    end
+
+    if key then
+        return key, table[key]
+    end
+
+    -- no more value to return, cleanup
+    table.__ordidx = nil
+end
+
+-- Equivalent of the pairs() function on tables. Allows to iterate
+-- in order
+---@generic K
+---@generic V
+---@param t table<K, V> The table to iterate
+---@return fun(table: table<K,V>, index?: K):K,V next
+---@return table<K, V> t
+---@return nil
+---@see http://lua-users.org/wiki/SortedIteration
+function Utils.orderedPairs(t)
+    return Utils.orderedNext, t, nil
+end
+
+---@param path string
+---@return string dirname
+---@see https://stackoverflow.com/a/12191225
+function Utils.getDirname(path)
+    ---@type string
+    local dirname, _, _ = string.match(path, "(.-)([^/]-%.?([^%./]*))$")
+    local trailing_slashes = dirname:find("/+$", 2)
+    if trailing_slashes then dirname = dirname:sub(1, trailing_slashes - 1) end
+    return dirname
 end
 
 return Utils
