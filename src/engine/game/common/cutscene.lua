@@ -1,4 +1,4 @@
----@class Cutscene
+---@class Cutscene : BaseClass
 ---@overload fun(...) : Cutscene
 local Cutscene, super = Class()
 
