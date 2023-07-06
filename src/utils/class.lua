@@ -8,10 +8,16 @@ function isClass(o)
     return type(o) == "table" and getmetatable(o) and true or false
 end
 
+---@class BaseClass
+---@field id string
+---@field super BaseClass
+---@field clone fun()
+---@field includes fun(self: BaseClass, class: BaseClass) : boolean
+---@overload fun() : BaseClass
 
 --- Creates a new class, which can then be instantiated by calling it as a function.
 ---
----@generic T : table
+---@generic T : BaseClass
 ---
 ---@param include? T|string  # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
 ---@param id? string|boolean # The id of the class used for registry. If `true`, will use the `id` field of the included class.
@@ -25,7 +31,7 @@ return function(include, id)
         if type(include) == "string" then
             local r = CLASS_NAME_GETTER(include)
             if not r then
-                error{included=include, msg="Failed to include "..include}
+                error("Failed to include "..include)
             end
             if id == true then
                 id = r.id or include

@@ -105,6 +105,10 @@ function love.load(args)
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
+    PERFORMANCE_TEST = {}
+    ---@type string|nil
+    PERFORMANCE_TEST_STAGE = nil
+
     -- setup hooks
     Utils.hook(love, "update", function(orig, ...)
         if PERFORMANCE_TEST_STAGE == "UPDATE" then

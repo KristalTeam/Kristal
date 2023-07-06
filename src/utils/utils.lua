@@ -974,7 +974,7 @@ end
 ---| "outQuad"
 ---| "inOutQuad"
 ---| "outInQuad"
----| "inCubic "
+---| "inCubic"
 ---| "outCubic"
 ---| "inOutCubic"
 ---| "outInCubic"
@@ -1725,6 +1725,8 @@ end
 ---
 function Utils.titleCase(str)
     local buf = {}
+    -- FIXME:
+    ---@diagnostic disable-next-line: undefined-field
     for word in string.gfind(str, "%S+") do
         local first, rest = string.sub(word, 1, 1), string.sub(word, 2)
         table.insert(buf, string.upper(first) .. string.lower(rest))

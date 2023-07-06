@@ -125,6 +125,7 @@ end
 
 -- interface for cross class-system compatibility (see https://github.com/bartbes/Class-Commons).
 if class_commons ~= false and not common then
+    ---@diagnostic disable-next-line: lowercase-global
     common = {}
     function common.class(name, prototype, parent)
         return new{__includes = {prototype, parent}}
