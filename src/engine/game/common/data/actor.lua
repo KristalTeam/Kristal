@@ -1,4 +1,4 @@
----@class Actor : BaseClass
+---@class Actor : Class
 ---@overload fun(...) : Actor
 local Actor = Class()
 

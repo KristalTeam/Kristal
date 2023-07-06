@@ -1,4 +1,4 @@
----@class Inventory : BaseClass
+---@class Inventory : Class
 ---@overload fun(...) : Inventory
 local Inventory, super = Class()
 
