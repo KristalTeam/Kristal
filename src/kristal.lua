@@ -509,7 +509,7 @@ function Kristal.errorHandler(msg)
     local split = Utils.split(msg, ": ")
 
     local version_string = "Kristal v" .. tostring(Kristal.Version)
-    local trimmed_commit = GitFinder:FetchTrimmedCommit()
+    local trimmed_commit = GitFinder:fetchTrimmedCommit()
     if trimmed_commit then
         version_string = version_string .. " (" .. trimmed_commit .. ")"
     end
