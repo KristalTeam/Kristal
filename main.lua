@@ -1,6 +1,7 @@
 require("src.engine.vars")
 require("src.engine.statevars")
 
+---@diagnostic disable-next-line: lowercase-global
 utf8 = require("utf8")
 
 _Class = require("src.lib.hump.class")
