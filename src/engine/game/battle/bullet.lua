@@ -1,5 +1,7 @@
 ---@class Bullet : Object
 ---@overload fun(...) : Bullet
+---@field attacker EnemyBattler
+---@field wave Wave
 local Bullet, super = Class(Object)
 
 function Bullet:init(x, y, texture)
