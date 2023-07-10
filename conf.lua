@@ -6,6 +6,7 @@ function love.conf(t)
     -- 2 - make sure the name of the game is correctly presented.
 
     t.identity = "kristal"
+    -- TODO: hmm
     t.version = "11.0"
 
     t.window.title = "Kristal"
