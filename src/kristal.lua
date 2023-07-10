@@ -23,12 +23,17 @@ Kristal.Loader = {
     end_funcs = {}
 }
 
+PERFORMANCE_TEST = nil
+---@type string|nil
+PERFORMANCE_TEST_STAGE = nil
+
 end
 
 function love.load(args)
     --[[
         Launch args:
             --wait: Pauses the load screen until a key is pressed
+            --test: Enter the testing state
     ]]
 
     -- read args
@@ -43,84 +48,51 @@ function love.load(args)
         end
     end
 
-    -- load the version
-    Kristal.Version = SemVer(love.filesystem.read("VERSION"))
-
-    -- load the settings.json
-    Kristal.Config = Kristal.loadConfig()
-
-    -- load the keybinds
-    Input.loadBinds()
-
     Kristal.icon = love.window.getIcon()
     Kristal.window_name = love.window.getTitle()
 
+    -- load the version
+    Kristal.Version = SemVer(love.filesystem.read("VERSION"))
+
+    -- load settings.json
+    Kristal.Config = Kristal.loadConfig()
+
+    -- update framerate
+    FRAMERATE = Kristal.Config["fps"]
+    -- toggle vsync
+    love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     -- pixel scaling (the good one)
     -- the second nearest isn't needed, but the love2d extension marks the second argument as required for some reason
     love.graphics.setDefaultFilter("nearest", "nearest")
-
     -- set the window size
     local window_scale = Kristal.Config["windowScale"]
     if window_scale ~= 1 or Kristal.Config["fullscreen"] or Kristal.bordersEnabled() then
         Kristal.resetWindow()
     end
 
-    -- toggle vsync
-    love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
-
-    -- register gamepad mapping DB
-    love.joystick.loadGamepadMappings("gamecontrollerdb.txt")
-
-    -- update framerate
-    FRAMERATE = Kristal.Config["fps"]
-
-    -- set master volume
-    Kristal.setVolume(Kristal.Config["masterVolume"] or 0.6)
-
-    -- hide mouse
-    Kristal.hideCursor()
-
-    -- make mouse sprite
-    MOUSE_SPRITE = love.graphics.newImage((love.math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or "assets/sprites/kristal/mouse.png")
-
-    -- setup structure
-    love.filesystem.createDirectory("mods")
-    love.filesystem.createDirectory("saves")
-
-    -- default registry
-    Registry.initialize()
-
-    -- Chapter defaults
-    Kristal.ChapterConfigs = {}
-    Kristal.ChapterConfigs[1] = JSON.decode(love.filesystem.read("configs/chapter1.json"))
-    Kristal.ChapterConfigs[2] = JSON.decode(love.filesystem.read("configs/chapter2.json"))
-
-    -- register gamestate calls
-    Gamestate.registerEvents()
-
-    -- initialize overlay
-    Kristal.Overlay:init()
-
-    -- global stage
-    Kristal.Stage = Stage()
-
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
+    -- global stage
+    Kristal.Stage = Stage()
+    -- initialize overlay
+    Kristal.Overlay:init()
 
-    PERFORMANCE_TEST = nil
-    ---@type string|nil
-    PERFORMANCE_TEST_STAGE = nil
-
-    -- setup hooks
-    Utils.hook(love, "update", function(orig, ...)
+    -- register gamestate calls
+    Gamestate.registerEvents()
+    -- These events rely on game state calls being registered
+    -- thus they are added later
+    Utils.hook(love, "update", function(orig, dt)
         if PERFORMANCE_TEST_STAGE == "UPDATE" then
             PERFORMANCE_TEST = {}
             Utils.pushPerformance("Total")
         end
-        orig(...)
+
+        orig(dt)
+
         Kristal.Stage:update()
         Kristal.Overlay:update()
+
         if PERFORMANCE_TEST then
             Utils.popPerformance()
             print("-------- PERFORMANCE --------")
@@ -202,12 +174,40 @@ function love.load(args)
         end
     end)
 
+    -- register gamepad mapping DB
+    love.joystick.loadGamepadMappings("gamecontrollerdb.txt")
+    -- load the keybinds
+    Input.loadBinds()
+
+    -- set master volume
+    Kristal.setVolume(Kristal.Config["masterVolume"] or 0.6)
+
+    -- hide mouse
+    Kristal.hideCursor()
+    -- make mouse sprite
+    MOUSE_SPRITE = love.graphics.newImage((love.math.random(1000) <= 1)
+                        and "assets/sprites/kristal/starwalker.png"
+                        or "assets/sprites/kristal/mouse.png")
+
     -- start load thread
     Kristal.Loader.in_channel = love.thread.getChannel("load_in")
     Kristal.Loader.out_channel = love.thread.getChannel("load_out")
-
     Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
     Kristal.Loader.thread:start()
+
+    -- setup structure
+    love.filesystem.createDirectory("mods")
+    love.filesystem.createDirectory("saves")
+    -- default registry
+    Registry.initialize()
+
+    -- Chapter defaults
+    Kristal.ChapterConfigs = {}
+    for chapter = 1, 2 do
+        Kristal.ChapterConfigs[chapter] = JSON.decode(
+            love.filesystem.read("configs/chapter"..chapter..".json")
+        )
+    end
 
     -- TARGET_MOD being already set -> is defined by the mod developer
     -- and we wouldn't want the user to overwrite it
@@ -215,15 +215,7 @@ function love.load(args)
         TARGET_MOD = Kristal.Args["mod"][1]
     end
 
-    -- load menu
-    Gamestate.switch(Kristal.States["Loading"])
-end
-
-function love.quit()
-    Kristal.saveConfig()
-    if Kristal.Loader.thread and Kristal.Loader.thread:isRunning() then
-        Kristal.Loader.in_channel:push("stop")
-    end
+    Kristal.setState("Loading")
 end
 
 function love.update(dt)
@@ -281,6 +273,13 @@ function love.update(dt)
                 Kristal.Loader.end_funcs[msg.key] = nil
             end
         end
+    end
+end
+
+function love.quit()
+    Kristal.saveConfig()
+    if Kristal.Loader.thread and Kristal.Loader.thread:isRunning() then
+        Kristal.Loader.in_channel:push("stop")
     end
 end
 
