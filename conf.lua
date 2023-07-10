@@ -5,7 +5,7 @@ function love.conf(t)
     -- 1 - make sure user settings for the actual engine is not loaded;
     -- 2 - make sure the name of the game is correctly presented during
     -- startup. (Even when mod.json>setWindowTitle is true, we can only
-    -- do that when all mods are loaded.)
+    -- do that when loading finishes.)
 
     t.identity = "kristal"
     -- TODO: hmm
