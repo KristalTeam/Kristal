@@ -1,7 +1,3 @@
--- replaces mod list with "Start game", should be a string of the mod id
-TARGET_MOD = nil
-
-
 -- Dont replace state variables if we are hotswapping
 if HOTSWAPPING then return end
 
