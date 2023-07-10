@@ -52,6 +52,9 @@ function love.load(args)
     -- load the keybinds
     Input.loadBinds()
 
+    Kristal.icon = love.window.getIcon()
+    Kristal.window_name = love.window.getTitle()
+
     -- pixel scaling (the good one)
     -- the second nearest isn't needed, but the love2d extension marks the second argument as required for some reason
     love.graphics.setDefaultFilter("nearest", "nearest")
@@ -750,25 +753,30 @@ function Kristal.clearModState()
     -- End the current mod
     Kristal.callEvent("unload")
     Mod = nil
+
     Kristal.Mods.clear()
     Kristal.clearModHooks()
     Kristal.clearModSubclasses()
+
     -- Stop sounds and music
     love.audio.stop()
     Music.clear()
+
     -- Reset global variables
     Registry.restoreOverridenGlobals()
+
     package.loaded["src.engine.vars"] = nil
     require("src.engine.vars")
     -- Reset Game state
     package.loaded["src.engine.game.game"] = nil
     Kristal.States["Game"] = require("src.engine.game.game")
     Game = Kristal.States["Game"]
+
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
-    love.window.setTitle("Kristal")
-    love.window.setIcon(love.image.newImageData("icon.png"))
+    love.window.setIcon(Kristal.icon)
+    love.window.setTitle(Kristal.window_name)
 end
 
 --- Exits the current mod and returns to the Kristal menu.
