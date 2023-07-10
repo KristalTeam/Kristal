@@ -206,7 +206,9 @@ function love.load(args)
     Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
     Kristal.Loader.thread:start()
 
-    if Kristal.Args["mod"] then
+    -- TARGET_MOD being already set -> is defined by the mod developer
+    -- and we wouldn't want the user to overwrite it
+    if not TARGET_MOD and Kristal.Args["mod"] then
         TARGET_MOD = Kristal.Args["mod"][1]
     end
 
