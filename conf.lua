@@ -3,7 +3,8 @@ function love.conf(t)
     -- to change "identity" and "window.title" to fit it.
     -- This is to:
     -- 1 - make sure user settings for the actual engine is not loaded;
-    -- 2 - make sure the name of the game is correctly presented.
+    -- 2 - make sure the name of the game is correctly presented during
+    -- startup.
 
     t.identity = "kristal"
     -- TODO: hmm

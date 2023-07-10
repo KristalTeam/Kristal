@@ -59,6 +59,8 @@ function Loading:beginLoad()
         self.load_complete = true
 
         Assets.saveData()
+
+        love.window.setTitle(Kristal.getDesiredWindowTitle())
     end)
 end
 
