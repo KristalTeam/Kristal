@@ -10,7 +10,6 @@ function AfterImage:init(sprite, fade, speed)
     self.alpha = fade
     self:fadeOutSpeedAndRemove(speed)
 
-    local old_canvas = love.graphics.getCanvas()
     self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     Draw.setCanvas(self.canvas)
     love.graphics.push()
@@ -20,7 +19,7 @@ function AfterImage:init(sprite, fade, speed)
     Draw.setColor(self.sprite:getDrawColor())
     self.sprite:draw()
     love.graphics.pop()
-    Draw.setCanvas(old_canvas)
+    Draw.setCanvas()
 
     local sox, soy = self.sprite:getScaleOrigin()
     local rox, roy = self.sprite:getRotationOrigin()
