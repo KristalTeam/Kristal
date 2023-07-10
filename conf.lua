@@ -1,10 +1,11 @@
 function love.conf(t)
     -- If you intend to create a standalone game from this engine, make sure
-    -- to change "identity" and "window.title" to fit it.
+    -- to change "identity", "window.title" and "window.icon" to fit it.
     -- This is to:
     -- 1 - make sure user settings for the actual engine is not loaded;
     -- 2 - make sure the name of the game is correctly presented during
-    -- startup.
+    -- startup. (Even when mod.json>setWindowTitle is true, we can only
+    -- do that when all mods are loaded.)
 
     t.identity = "kristal"
     -- TODO: hmm
