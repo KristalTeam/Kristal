@@ -96,7 +96,7 @@ function Game:getConfig(key, merge, deep_merge)
     local mod_result = Kristal.callEvent("getConfig", key)
     if mod_result ~= nil then return mod_result end
 
-    local mod_config = Mod.info and Mod.info.config and Utils.getAnyCase(Mod.info.config, "Kristal") or {}
+    local mod_config = Mod.info and Mod.info.config and Utils.getAnyCase(Mod.info.config, "kristal") or {}
 
     local default_value = Utils.getAnyCase(default_config, key)
     local mod_value = Utils.getAnyCase(mod_config, key)
