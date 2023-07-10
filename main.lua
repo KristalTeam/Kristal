@@ -1,5 +1,6 @@
 require("src.engine.vars")
 require("src.engine.statevars")
+require("src.engine.vendcust")
 
 ---@diagnostic disable-next-line: lowercase-global
 utf8 = require("utf8")
