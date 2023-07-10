@@ -2505,7 +2505,7 @@ function Menu:drawBackground()
 
     if not (TARGET_MOD and self.selected_mod.preview) then
         -- We need to draw the background on a canvas
-        Draw.setCanvas(self.bg_canvas)
+        Draw.pushCanvas(self.bg_canvas)
         love.graphics.clear(0, 0, 0, 1)
 
         -- Set the shader to use
@@ -2529,7 +2529,7 @@ function Menu:drawBackground()
         self:drawAnimStrip(self.background_image_animation, ((self.animation_sine / 12) + 0.8), 0, (((10 - (self.background_alpha * 20)) + 240) - 70), (self.background_alpha * 0.7))
 
         -- Reset canvas to draw to
-        Draw.setCanvas(SCREEN_CANVAS)
+        Draw.popCanvas()
 
         -- Draw the canvas on the screen scaled by 2x
         Draw.setColor(1, 1, 1, self.background_fade)
@@ -2541,7 +2541,7 @@ function Menu:drawBackground()
         local mod_preview = self.mod_fades[v.id]
         if v.mod and v.mod.preview and mod_preview.fade > 0 then
             -- Draw to the mod's preview canvas
-            Draw.setCanvas(mod_preview.canvas)
+            Draw.pushCanvas(mod_preview.canvas)
             love.graphics.clear(0, 0, 0, 1)
 
             self:drawAnimStrip(v.mod.preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
@@ -2549,7 +2549,7 @@ function Menu:drawBackground()
             self:drawAnimStrip(v.mod.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
 
             -- Draw canvas scaled 2x to the screen
-            Draw.setCanvas(SCREEN_CANVAS)
+            Draw.popCanvas()
             Draw.setColor(1, 1, 1, mod_preview.fade)
             Draw.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
         end

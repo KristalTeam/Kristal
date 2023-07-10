@@ -28,6 +28,7 @@ CURRENT_SCALE_X = 1
 CURRENT_SCALE_Y = 1
 
 MOUSE_VISIBLE = false
+---@type love.Image?
 MOUSE_SPRITE = nil
 
 OVERLAY_OPEN = false
