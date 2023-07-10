@@ -53,7 +53,7 @@ function love.load(args)
     Input.loadBinds()
 
     Kristal.icon = love.window.getIcon()
-    Kristal.window_name = love.window.getTitle()
+    Kristal.game_default_name = love.window.getTitle()
 
     -- pixel scaling (the good one)
     -- the second nearest isn't needed, but the love2d extension marks the second argument as required for some reason
@@ -776,7 +776,7 @@ function Kristal.clearModState()
     Assets.restoreData()
     Registry.initialize()
     love.window.setIcon(Kristal.icon)
-    love.window.setTitle(Kristal.window_name)
+    love.window.setTitle(Kristal.getDesiredWindowTitle())
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -985,6 +985,14 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
         Kristal.loadAssets(lib.path, asset_type or "all", asset_paths or "", finishLoadStep)
     end
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
+end
+
+--- Called internally. Gets the intended title of the game window.
+function Kristal.getDesiredWindowTitle()
+    local target_mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD)
+    local use_target_mod_name = target_mod
+        and (target_mod.setWindowTitle == nil or target_mod.setWindowTitle)
+    return use_target_mod_name and target_mod.name or Kristal.game_default_name
 end
 
 --- Called internally. Calls the `preInit` event on the mod and initializes the registry.
