@@ -15,8 +15,9 @@ Tileset.ORIGINS = {
     ["bottomright"] = {1,   1  },
 }
 
-function Tileset:init(data, path)
+function Tileset:init(data, path, base_dir)
     self.path = path
+    self.base_dir = base_dir or Utils.getDirname(self.path)
 
     self.id = data.id
     self.name = data.name
@@ -33,36 +34,36 @@ function Tileset:init(data, path)
     self.id_count = self.tile_count
 
     self.tile_info = {}
-    for _,v in ipairs(data.tiles or {}) do
+    for _,tile in ipairs(data.tiles or {}) do
         local info = {}
-        if v.animation then
+        if tile.animation then
             info.animation = {duration = 0, frames={}}
-            for _,anim in ipairs(v.animation) do
+            for _,anim in ipairs(tile.animation) do
                 table.insert(info.animation.frames, {id = anim.tileid, duration = anim.duration / 1000})
                 info.animation.duration = info.animation.duration + (anim.duration / 1000)
             end
         end
-        if v.image then
-            local image_path = Utils.absoluteToLocalPath("assets/sprites/", v.image, Utils.getDirname(path))
+        if tile.image then
+            local image_path = Utils.absoluteToLocalPath("assets/sprites/", tile.image, self.base_dir)
             info.texture = Assets.getTexture(image_path)
             if not info.texture then
                 error("Could not load tileset tile texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
             end
-            info.x = v.x or 0
-            info.y = v.y or 0
-            info.width = v.width or info.texture:getWidth()
-            info.height = v.height or info.texture:getHeight()
+            info.x = tile.x or 0
+            info.y = tile.y or 0
+            info.width = tile.width or info.texture:getWidth()
+            info.height = tile.height or info.texture:getHeight()
 
             if info.x ~= 0 or info.y ~= 0 or info.width ~= info.texture:getWidth() or info.height ~= info.texture:getHeight() then
                 info.quad = love.graphics.newQuad(info.x, info.y, info.width, info.height, info.texture:getWidth(), info.texture:getHeight())
             end
         end
-        self.tile_info[v.id] = info
-        self.id_count = math.max(self.id_count, v.id + 1)
+        self.tile_info[tile.id] = info
+        self.id_count = math.max(self.id_count, tile.id + 1)
     end
 
     if data.image then
-        local image_path = Utils.absoluteToLocalPath("assets/sprites/", data.image, Utils.getDirname(path))
+        local image_path = Utils.absoluteToLocalPath("assets/sprites/", data.image, self.base_dir)
         self.texture = Assets.getTexture(image_path)
         if not self.texture then
             error("Could not load tileset texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")

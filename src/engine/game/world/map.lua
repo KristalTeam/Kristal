@@ -768,7 +768,7 @@ function Map:populateTilesets(data)
                 error("Failed to load map \""..self.data.id.."\", tileset not found: \""..filename.."\"")
             end
         else
-            tileset = Tileset(tileset_data, self.full_map_path)
+            tileset = Tileset(tileset_data, self.full_map_path.."/"..self.data.id, self.full_map_path)
         end
         table.insert(self.tilesets, tileset)
         local gid = tileset_data.firstgid or (self.max_gid + 1)
