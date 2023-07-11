@@ -580,7 +580,7 @@ function Registry.initTilesets()
     for full_path,path,data in self.iterScripts(Registry.paths["tilesets"]) do
         data.full_path = full_path
         data.id = path
-        self.registerTileset(path, Tileset(data, full_path))
+        self.registerTileset(path, Tileset(data, full_path, Utils.getDirname(full_path)))
     end
 
     Kristal.callEvent("onRegisterTilesets")
