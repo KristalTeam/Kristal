@@ -776,7 +776,7 @@ function Kristal.clearModState()
     Assets.restoreData()
     Registry.initialize()
     love.window.setIcon(Kristal.icon)
-    love.window.setTitle(Kristal.getDesiredWindowTitle())
+    love.window.setTitle(Kristal.game_default_name)
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -788,6 +788,7 @@ function Kristal.returnToMenu()
 
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
+        love.window.setTitle(Kristal.getDesiredWindowTitle())
         Gamestate.switch(Kristal.States["Menu"])
     end)
 
@@ -823,6 +824,7 @@ function Kristal.quickReload(mode)
     Kristal.clearModState()
     -- Reload mods
     Kristal.loadAssets("", "mods", "", function()
+        love.window.setTitle(Kristal.getDesiredWindowTitle())
         -- Reload the current mod directly
         if mode ~= "save" then
             Kristal.loadMod(mod_id, nil, nil, function()
