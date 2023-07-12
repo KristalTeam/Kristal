@@ -2674,7 +2674,7 @@ function Battle:addMenuItem(tbl)
         ["party"] = tbl.party or {},
         ["color"] = tbl.color or {1, 1, 1, 1},
         ["data"] = tbl.data or nil,
-        ["callback"] = tbl.callback or nil,
+        ["callback"] = tbl.callback or function() end,
         ["highlight"] = tbl.highlight or nil,
         ["icons"] = tbl.icons or nil
     }
@@ -2728,53 +2728,11 @@ function Battle:onKeyPressed(key)
             local can_select = self:canSelectMenuItem(menu_item)
             if Game.battle.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
             if Kristal.callEvent("onBattleMenuSelect", self.state_reason, menu_item, can_select) then return end
-            if self.state_reason == "ACT" then
-                if can_select then
-                    self.ui_select:stop()
-                    self.ui_select:play()
-
-                    self:pushAction("ACT", self.enemies[self.selected_enemy], menu_item)
-                end
+            if can_select then
+                self.ui_select:stop()
+                self.ui_select:play()
+                menu_item["callback"](menu_item)
                 return
-            elseif self.state_reason == "SPELL" then
-                self.selected_spell = menu_item
-                if can_select then
-                    self.ui_select:stop()
-                    self.ui_select:play()
-
-                    if menu_item.data.target == "xact" then
-                        self.selected_xaction = menu_item.data
-                        self:setState("XACTENEMYSELECT", "SPELL")
-                    elseif not menu_item.data.target or menu_item.data.target == "none" then
-                        self:pushAction("SPELL", nil, menu_item)
-                    elseif menu_item.data.target == "ally" then
-                        self:setState("PARTYSELECT", "SPELL")
-                    elseif menu_item.data.target == "enemy" then
-                        self:setState("ENEMYSELECT", "SPELL")
-                    elseif menu_item.data.target == "party" then
-                        self:pushAction("SPELL", self.party, menu_item)
-                    elseif menu_item.data.target == "enemies" then
-                        self:pushAction("SPELL", self:getActiveEnemies(), menu_item)
-                    end
-                end
-                return
-            elseif self.state_reason == "ITEM" then
-                self.selected_item = menu_item
-                if can_select then
-                    self.ui_select:stop()
-                    self.ui_select:play()
-                    if not menu_item.data.target or menu_item.data.target == "none" then
-                        self:pushAction("ITEM", nil, menu_item)
-                    elseif menu_item.data.target == "ally" then
-                        self:setState("PARTYSELECT", "ITEM")
-                    elseif menu_item.data.target == "enemy" then
-                        self:setState("ENEMYSELECT", "ITEM")
-                    elseif menu_item.data.target == "party" then
-                        self:pushAction("ITEM", self.party, menu_item)
-                    elseif menu_item.data.target == "enemies" then
-                        self:pushAction("ITEM", self:getActiveEnemies(), menu_item)
-                    end
-                end
             end
         elseif Input.isCancel(key) then
             self.ui_move:stop()
@@ -2848,7 +2806,10 @@ function Battle:onKeyPressed(key)
                             ["party"] = v.party,
                             ["color"] = v.color or {1, 1, 1, 1},
                             ["highlight"] = v.highlight or enemy,
-                            ["icons"] = v.icons
+                            ["icons"] = v.icons,
+                            ["callback"] = function(menu_item)
+                                self:pushAction("ACT", enemy, menu_item)
+                            end
                         })
                     end
                 end

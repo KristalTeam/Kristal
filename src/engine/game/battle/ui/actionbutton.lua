@@ -34,36 +34,48 @@ function ActionButton:select()
         -- First, register X-Actions as menu items.
 
         if Game.battle.encounter.default_xactions and self.battler.chara:hasXAct() then
+            local spell = {
+                ["name"] = Game.battle.enemies[1]:getXAction(self.battler),
+                ["target"] = "xact",
+                ["id"] = 0,
+                ["default"] = true,
+                ["party"] = {},
+                ["tp"] = 0
+            }
+
             Game.battle:addMenuItem({
                 ["name"] = self.battler.chara:getXActName() or "X-Action",
                 ["tp"] = 0,
                 ["color"] = {self.battler.chara:getXActColor()},
-                ["data"] = {
-                    ["name"] = Game.battle.enemies[1]:getXAction(self.battler),
-                    ["target"] = "xact",
-                    ["id"] = 0,
-                    ["default"] = true,
-                    ["party"] = {},
-                    ["tp"] = 0
-                }
+                ["data"] = spell,
+                ["callback"] = function(menu_item)
+                    Game.battle.selected_xaction = spell
+                    Game.battle:setState("XACTENEMYSELECT", "SPELL")
+                end
             })
         end
 
         for id, action in ipairs(Game.battle.xactions) do
             if action.party == self.battler.chara.id then
+                local spell = {
+                    ["name"] = action.name,
+                    ["target"] = "xact",
+                    ["id"] = id,
+                    ["default"] = false,
+                    ["party"] = {},
+                    ["tp"] = action.tp or 0
+                }
+
                 Game.battle:addMenuItem({
                     ["name"] = action.name,
                     ["tp"] = action.tp or 0,
                     ["description"] = action.description,
                     ["color"] = action.color or {1, 1, 1, 1},
-                    ["data"] = {
-                        ["name"] = action.name,
-                        ["target"] = "xact",
-                        ["id"] = id,
-                        ["default"] = false,
-                        ["party"] = {},
-                        ["tp"] = action.tp or 0
-                    }
+                    ["data"] = spell,
+                    ["callback"] = function(menu_item)
+                        Game.battle.selected_xaction = spell
+                        Game.battle:setState("XACTENEMYSELECT", "SPELL")
+                    end
                 })
             end
         end
@@ -90,7 +102,22 @@ function ActionButton:select()
                 ["description"] = spell:getBattleDescription(),
                 ["party"] = spell.party,
                 ["color"] = color,
-                ["data"] = spell
+                ["data"] = spell,
+                ["callback"] = function(menu_item)
+                    Game.battle.selected_spell = menu_item
+
+                    if not spell.target or spell.target == "none" then
+                        Game.battle:pushAction("SPELL", nil, menu_item)
+                    elseif spell.target == "ally" then
+                        Game.battle:setState("PARTYSELECT", "SPELL")
+                    elseif spell.target == "enemy" then
+                        Game.battle:setState("ENEMYSELECT", "SPELL")
+                    elseif spell.target == "party" then
+                        Game.battle:pushAction("SPELL", Game.battle.party, menu_item)
+                    elseif spell.target == "enemies" then
+                        Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
+                    end
+                end
             })
         end
 
@@ -102,7 +129,22 @@ function ActionButton:select()
                 ["name"] = item:getName(),
                 ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
                 ["description"] = item:getBattleDescription(),
-                ["data"] = item
+                ["data"] = item,
+                ["callback"] = function(menu_item)
+                    Game.battle.selected_item = menu_item
+
+                    if not item.target or item.target == "none" then
+                        Game.battle:pushAction("ITEM", nil, menu_item)
+                    elseif item.target == "ally" then
+                        Game.battle:setState("PARTYSELECT", "ITEM")
+                    elseif item.target == "enemy" then
+                        Game.battle:setState("ENEMYSELECT", "ITEM")
+                    elseif item.target == "party" then
+                        Game.battle:pushAction("ITEM", Game.battle.party, menu_item)
+                    elseif item.target == "enemies" then
+                        Game.battle:pushAction("ITEM", Game.battle:getActiveEnemies(), menu_item)
+                    end
+                end
             })
         end
         if #Game.battle.menu_items > 0 then
