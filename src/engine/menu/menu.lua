@@ -390,6 +390,7 @@ function Menu:reloadMods()
     Kristal.loadAssets("", "mods", "", function()
         self.loading_mods = false
 
+        love.window.setTitle(Kristal.getDesiredWindowTitle())
         self:rebuildMods()
     end)
 end
