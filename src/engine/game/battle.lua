@@ -2673,7 +2673,10 @@ function Battle:addMenuItem(tbl)
         ["description"] = tbl.description or "",
         ["party"] = tbl.party or {},
         ["color"] = tbl.color or {1, 1, 1, 1},
-        ["data"] = tbl.data or nil
+        ["data"] = tbl.data or nil,
+        ["callback"] = tbl.callback or nil,
+        ["highlight"] = tbl.highlight or nil,
+        ["icons"] = tbl.icons or nil
     }
     table.insert(self.menu_items, tbl)
 end
