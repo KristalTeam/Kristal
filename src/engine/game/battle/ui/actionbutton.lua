@@ -29,12 +29,12 @@ function ActionButton:select()
     elseif self.type == "act" then
         Game.battle:setState("ENEMYSELECT", "ACT")
     elseif self.type == "magic" then
-        Game.battle.menu_items = {}
+        Game.battle:clearMenuItems()
 
         -- First, register X-Actions as menu items.
 
         if Game.battle.encounter.default_xactions and self.battler.chara:hasXAct() then
-            local item = {
+            Game.battle:addMenuItem({
                 ["name"] = self.battler.chara:getXActName() or "X-Action",
                 ["tp"] = 0,
                 ["color"] = {self.battler.chara:getXActColor()},
@@ -46,13 +46,12 @@ function ActionButton:select()
                     ["party"] = {},
                     ["tp"] = 0
                 }
-            }
-            table.insert(Game.battle.menu_items, item)
+            })
         end
 
         for id, action in ipairs(Game.battle.xactions) do
             if action.party == self.battler.chara.id then
-                local item = {
+                Game.battle:addMenuItem({
                     ["name"] = action.name,
                     ["tp"] = action.tp or 0,
                     ["description"] = action.description,
@@ -65,8 +64,7 @@ function ActionButton:select()
                         ["party"] = {},
                         ["tp"] = action.tp or 0
                     }
-                }
-                table.insert(Game.battle.menu_items, item)
+                })
             end
         end
 
@@ -85,7 +83,7 @@ function ActionButton:select()
                     color = {0, 178/255, 1, 1}
                 end
             end
-            local item = {
+            Game.battle:addMenuItem({
                 ["name"] = spell:getName(),
                 ["tp"] = spell:getTPCost(self.battler.chara),
                 ["unusable"] = not spell:isUsable(self.battler.chara),
@@ -93,21 +91,19 @@ function ActionButton:select()
                 ["party"] = spell.party,
                 ["color"] = color,
                 ["data"] = spell
-            }
-            table.insert(Game.battle.menu_items, item)
+            })
         end
 
         Game.battle:setState("MENUSELECT", "SPELL")
     elseif self.type == "item" then
-        Game.battle.menu_items = {}
+        Game.battle:clearMenuItems()
         for i,item in ipairs(Game.inventory:getStorage("items")) do
-            local menu_item = {
+            Game.battle:addMenuItem({
                 ["name"] = item:getName(),
                 ["unusable"] = item.usable_in ~= "all" and item.usable_in ~= "battle",
                 ["description"] = item:getBattleDescription(),
                 ["data"] = item
-            }
-            table.insert(Game.battle.menu_items, menu_item)
+            })
         end
         if #Game.battle.menu_items > 0 then
             Game.battle:setState("MENUSELECT", "ITEM")

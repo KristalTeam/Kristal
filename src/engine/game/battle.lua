@@ -2661,6 +2661,23 @@ function Battle:getTargetForItem(item, default_ally, default_enemy)
     end
 end
 
+function Battle:clearMenuItems()
+    self.menu_items = {}
+end
+
+function Battle:addMenuItem(tbl)
+    tbl = {
+        ["name"] = tbl.name or "",
+        ["tp"] = tbl.tp or 0,
+        ["unusable"] = tbl.unusable or false,
+        ["description"] = tbl.description or "",
+        ["party"] = tbl.party or {},
+        ["color"] = tbl.color or {1, 1, 1, 1},
+        ["data"] = tbl.data or nil
+    }
+    table.insert(self.menu_items, tbl)
+end
+
 function Battle:onKeyPressed(key)
     if Kristal.Config["debug"] and Input.ctrl() then
         if key == "h" then
@@ -2805,7 +2822,7 @@ function Battle:onKeyPressed(key)
             elseif self.state_reason == "SPARE" then
                 self:pushAction("SPARE", self.enemies[self.selected_enemy])
             elseif self.state_reason == "ACT" then
-                self.menu_items = {}
+                self:clearMenuItems()
                 local enemy = self.enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
                     local insert = not v.hidden
@@ -2821,7 +2838,7 @@ function Battle:onKeyPressed(key)
                         end
                     end
                     if insert then
-                        local item = {
+                        self:addMenuItem({
                             ["name"] = v.name,
                             ["tp"] = v.tp or 0,
                             ["description"] = v.description,
@@ -2829,8 +2846,7 @@ function Battle:onKeyPressed(key)
                             ["color"] = v.color or {1, 1, 1, 1},
                             ["highlight"] = v.highlight or enemy,
                             ["icons"] = v.icons
-                        }
-                        table.insert(self.menu_items, item)
+                        })
                     end
                 end
                 self:setState("MENUSELECT", "ACT")
