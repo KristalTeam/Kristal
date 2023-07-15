@@ -1,0 +1,35 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-linux:
+    name: Build (ubuntu)
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ./kristal
+
+      - name: Install Dependencies
+        run: |
+          pip3 install pe_tools
+
+      - name: Download LÖVE
+        run: |
+          curl -L https://github.com/love2d/love/releases/download/11.4/love-11.4-win64.zip -o love.zip
+          7z x love.zip
+          rm love.zip
+
+      - name: Build
+        run: |
+          python3 ./kristal/build.py --kristal ./kristal --love ./love-11.4-win64
+
+      - name: Upload Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: ./output
