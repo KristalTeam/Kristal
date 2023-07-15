@@ -321,32 +321,32 @@ function SaveMenu:drawSaveFile(index, data, x, y, selected, header)
         end
     end
     if self.saved_file == index and not header then
-        love.graphics.print("File Saved", x+180, y+22)
+        love.graphics.print("File Saved", x + 180, y + 22)
     elseif not data then
-        love.graphics.print("New File", x+193, y+22)
+        love.graphics.print("New File", x + 193, y + 22)
         if selected then
             Draw.setColor(Game:getSoulColor())
-            Draw.draw(self.heart_sprite, x+161, y+30)
+            Draw.draw(self.heart_sprite, x + 161, y + 30)
         end
     else
         if self.saved_file or header then
-            love.graphics.print("LV "..data.level, x+26, y+6)
+            love.graphics.print("LV "..data.level, x + 26, y + 6)
         else
-            love.graphics.print("LV "..data.level, x+50, y+6)
+            love.graphics.print("LV "..data.level, x + 50, y + 6)
         end
 
-        love.graphics.print(data.name, x + (493/2) - self.font:getWidth(data.name)/2, y+6)
+        love.graphics.print(data.name, x + (493 / 2) - self.font:getWidth(data.name) / 2, y + 6)
 
         local minutes = math.floor(data.playtime / 60)
         local seconds = math.floor(data.playtime % 60)
         local time_text = string.format("%d:%02d", minutes, seconds)
-        love.graphics.print(time_text, x+467 - self.font:getWidth(time_text), y+6)
+        love.graphics.print(time_text, x + 467 - self.font:getWidth(time_text), y + 6)
 
-        love.graphics.print(data.room_name, x + (493/2) - self.font:getWidth(data.room_name)/2, y+38)
+        love.graphics.print(data.room_name, x + (493 / 2) - self.font:getWidth(data.room_name) / 2, y + 38)
 
         if selected and not header then
             Draw.setColor(Game:getSoulColor())
-            Draw.draw(self.heart_sprite, x+18, y+14)
+            Draw.draw(self.heart_sprite, x + 18, y + 14)
         end
     end
     Draw.setColor(1, 1, 1)
