@@ -288,7 +288,7 @@ function DarkMenu:draw()
     end
 
     for i = 1, #self.buttons do
-        self:drawButton(i, 20 + (i * self.button_offset), 20)
+        self:drawButton(i, 120 + ((i - 1) * self.button_offset), 20)
     end
 
     love.graphics.setFont(self.font)
