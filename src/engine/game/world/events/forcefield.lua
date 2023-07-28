@@ -79,6 +79,8 @@ end
 
 function Forcefield:onInteract(player, dir)
     Game.world:showText("* (It appears to be some kind of forcefield.)")
+
+    return true
 end
 
 function Forcefield:update()

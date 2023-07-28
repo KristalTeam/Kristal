@@ -91,6 +91,8 @@ function TreasureChest:onInteract(player, dir)
             Game:setFlag(self.set_flag, (self.set_value == nil and true) or self.set_value)
         end
     end
+
+    return true
 end
 
 return TreasureChest

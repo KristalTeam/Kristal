@@ -87,6 +87,8 @@ function WarpDoor:onInteract(chara, facing)
             end
         end)
     end
+
+    return true
 end
 
 function WarpDoor:updateOpen()
