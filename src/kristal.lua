@@ -523,6 +523,10 @@ function Kristal.errorHandler(msg)
         version_string = version_string .. " (" .. trimmed_commit .. ")"
     end
     -- TODO: mod version
+    local mod_string = ""
+    if Mod then
+        mod_string = "Mod: " .. tostring(Mod.info.id) .. " ".. tostring(Mod.info.version)
+    end
 
     local function draw()
 
@@ -535,6 +539,8 @@ function Kristal.errorHandler(msg)
         Draw.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
         love.graphics.printf(version_string, -20, 10, 640, "right")
+
+        love.graphics.printf(mod_string, 20, 10, 640)
 
         love.graphics.setFont(font)
 
@@ -621,7 +627,7 @@ function Kristal.errorHandler(msg)
     local function copyToClipboard()
         if not love.system then return end
         copy_color = {0, 1, 0, 1}
-        love.system.setClipboardText(tostring(msg) .. "\n" .. trace .. "\n\n" .. version_string)
+        love.system.setClipboardText(tostring(msg) .. "\n" .. trace .. "\n\n" .. version_string .. "\n" .. mod_string)
         draw()
     end
 
