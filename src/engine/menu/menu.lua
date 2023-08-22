@@ -150,10 +150,10 @@ function Menu:enter()
                 "Vitellary",
             }
         },
-        --[[{
+        {
             {
                 {"GitHub Contributors", COLORS.silver},
-                "",
+                "MrOinky",
                 "",
                 "",
                 "",
@@ -177,7 +177,7 @@ function Menu:enter()
                 "",
                 "",
             }
-        }]]
+        }
     }
     self.credits_page = 1
 
