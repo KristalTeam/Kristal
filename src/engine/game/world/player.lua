@@ -348,7 +348,7 @@ function Player:update()
     self:updateHistory()
 
     if not Game.world.cutscene and not Game.world.menu then
-        self.interact_buffer = self.interact_buffer - DTMULT
+        self.interact_buffer = Utils.approach(self.interact_buffer, 0, DT)
     end
 
     self.world.in_battle_area = false
