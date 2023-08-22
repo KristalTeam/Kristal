@@ -524,9 +524,23 @@ function Kristal.errorHandler(msg)
     end
     -- TODO: mod version
     local mod_string = ""
+    local lib_string = ""
+
+    local w = 0
+    local h = 18
     if Mod then
-        mod_string = "Mod: " .. tostring(Mod.info.id) .. " ".. tostring(Mod.info.version)
+        mod_string = "Mod: " .. Mod.info.id .. " " .. (Mod.info.version or "v?.?.?")
+        if Utils.tableLength(Mod.libs) > 0 then
+            lib_string = "Libraries:"
+            for _, lib in pairs(Mod.libs) do
+                local line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
+                lib_string = lib_string .. "\n" .. line
+                w = math.max(w, #line * 7)
+                h = h + 16
+            end
+        end
     end
+    local show_libraries = false
 
     local function draw()
 
@@ -539,7 +553,6 @@ function Kristal.errorHandler(msg)
         Draw.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
         love.graphics.printf(version_string, -20, 10, 640, "right")
-
         love.graphics.printf(mod_string, 20, 10, 640)
 
         love.graphics.setFont(font)
@@ -619,7 +632,13 @@ function Kristal.errorHandler(msg)
             Draw.setColor(copy_color)
             love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
         end
-        Draw.setColor(1, 1, 1, 1)
+
+        if show_libraries then
+            Draw.setColor(0, 0, 0, 0.7)
+            love.graphics.rectangle("fill", 20, 38, w + 4, h + 2)
+            Draw.setColor(1, 1, 1, 1)
+            love.graphics.printf(lib_string, 22, 40, 640, "left")
+        end
 
         love.graphics.present()
     end
@@ -627,7 +646,7 @@ function Kristal.errorHandler(msg)
     local function copyToClipboard()
         if not love.system then return end
         copy_color = {0, 1, 0, 1}
-        love.system.setClipboardText(tostring(msg) .. "\n" .. trace .. "\n\n" .. version_string .. "\n" .. mod_string)
+        love.system.setClipboardText(tostring(msg) .. "\n" .. trace .. "\n\n" .. version_string .. "\n" .. mod_string .. "\n" .. lib_string)
         draw()
     end
 
@@ -652,21 +671,42 @@ function Kristal.errorHandler(msg)
             elseif e == "touchpressed" then
                 local name = love.window.getTitle()
                 if #name == 0 or name == "Untitled" then name = "Game" end
-                local buttons = {"OK", "Cancel"}
+                local buttons = {"Yes", "No", enterbutton = 1, escapebutton = 2}
                 if love.system and not critical then
                     buttons[3] = "Copy to clipboard"
                 end
-                local pressed = love.window.showMessageBox("Quit "..name.."?", "", buttons)
+                local errormessage = Kristal.getModOption("hardReset") and "Would you like to restart Kristal?" or "Would you like to return to the Kristal menu?"
+                local pressed = love.window.showMessageBox(name, errormessage, buttons)
                 if pressed == 1 then
-                    return 1
+                    
+                    if Kristal.getModOption("hardReset") then
+                        return "restart"
+                    else
+                        return "reload"
+                    end
                 elseif pressed == 3 then
                     copyToClipboard()
                 end
+            elseif e == "gamepadpressed" and b == "a" then
+                if Kristal.getModOption("hardReset") then
+                    return "restart"
+                else
+                    return "reload"
+                end
+            elseif e == "gamepadpressed" and b == "y" then
+                copyToClipboard()
             end
         end
 
         if love.timer then
             DT = love.timer.step()
+        end
+
+        local x, y = love.mouse:getPosition()
+        
+        show_libraries = false
+        if 20 < x and x < 20 + #mod_string*7 and 10 < y and y < 26 then
+            show_libraries = true
         end
 
         draw()
