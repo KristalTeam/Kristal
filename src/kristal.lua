@@ -522,7 +522,7 @@ function Kristal.errorHandler(msg)
     if trimmed_commit then
         version_string = version_string .. " (" .. trimmed_commit .. ")"
     end
-    -- TODO: mod version
+    
     local mod_string = ""
     local lib_string = ""
 
