@@ -120,21 +120,23 @@ function Menu:enter()
     self.has_target_saves = false
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
-    ---@type ({text: string, color: number[]}|string)[][]
+    ---@alias creditsline string|{[1]: string, [2]: number[]}
+    ---@type {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
     self.credits = {
         {
+            "Kristal Engine",
             {
                 {"Lead Developers", COLORS.silver},
                 "Nyakorita",
                 "SylviBlossom",
-                "",
-                {"Developers", COLORS.silver},
-                "Vitellary",
+                "vitellary",
                 "",
                 {"Assets", COLORS.silver},
                 "Toby Fox",
                 "Temmie Chang",
-                "DELTARUNE team"
+                "DELTARUNE team",
+                "",
+                "",
             },
             {
                 {"GitHub Contributors", COLORS.silver},
@@ -146,14 +148,15 @@ function Menu:enter()
                 "AcousticJamm",
                 "Simbel",
                 "Bor",
-                {"Documentation", COLORS.silver},
-                "Vitellary",
+                "MrOinky",
+                "",
             }
-        },
-        {
+        }
+        --[[{
+            "Kristal Engine",
             {
                 {"GitHub Contributors", COLORS.silver},
-                "MrOinky",
+                "",
                 "",
                 "",
                 "",
@@ -177,7 +180,7 @@ function Menu:enter()
                 "",
                 "",
             }
-        }
+        }]]
     }
     self.credits_page = 1
 
@@ -1065,22 +1068,31 @@ function Menu:draw()
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
-        self:printShadow("( CREDITS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        local page = self.credits[self.credits_page]
+
+        local title = page[1]:upper()
+        local title_width = self.menu_font:getWidth(title)
+
+        self:printShadow("( CREDITS )", 0, 20, COLORS.silver, "center", 640)
+        self:printShadow(title,         0, 50, {1, 1, 1, 1},  "center", 640)
+
         if #self.credits > 1 then
             if self.credits_page >= #self.credits then
                 love.graphics.setColor(COLORS.silver)
             end
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"),    400, 52, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8, 54, 0, 2, 2)
             love.graphics.setColor(COLORS.white)
             if self.credits_page <= 1 then
                 love.graphics.setColor(COLORS.silver)
             end
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),     222, 52, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26, 54, 0, 2, 2)
             love.graphics.setColor(COLORS.white)
         end
 
-        local page = self.credits[self.credits_page]
-        for index, value in ipairs(page[1]) do
+        local left_column = page[2]
+        local right_column = page[3] or {}
+
+        for index, value in ipairs(left_column) do
             local color = {1, 1, 1, 1}
             local offset = 0
             if type(value) == "table" then
@@ -1091,7 +1103,7 @@ function Menu:draw()
             end
             self:printShadow(value, 32 + offset, 64 + (32 * index), color)
         end
-        for index, value in ipairs(page[2]) do
+        for index, value in ipairs(right_column) do
             local color = {1, 1, 1, 1}
             local offset = 0
             if type(value) == "table" then
