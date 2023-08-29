@@ -29,6 +29,9 @@ function Event:init(x, y, w, h)
 
     -- Sprite object, gets set by setSprite()
     self.sprite = nil
+
+    -- Duration that the player cannot interact with events for on finishing interaction (in seconds)
+    self.interact_buffer = (5/30)
 end
 
 --[[ OPTIONAL FUNCTIONS

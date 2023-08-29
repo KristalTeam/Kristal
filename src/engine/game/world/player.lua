@@ -39,6 +39,8 @@ function Player:init(chara, x, y)
     self.history_time = 0
     self.history = {}
 
+    self.interact_buffer = 0
+
     self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
 
@@ -104,6 +106,10 @@ function Player:setActor(actor)
 end
 
 function Player:interact()
+    if self.interact_buffer > 0 then
+        return true
+    end
+
     local col = self.interact_collider[self.facing]
 
     local interactables = {}
@@ -116,6 +122,7 @@ function Player:interact()
     table.sort(interactables, function(a,b) return a.dist < b.dist end)
     for _,v in ipairs(interactables) do
         if v.obj:onInteract(self, self.facing) then
+            self.interact_buffer = v.obj.interact_buffer or 0
             return true
         end
     end
@@ -339,6 +346,10 @@ function Player:update()
     self.state_manager:update()
 
     self:updateHistory()
+
+    if not Game.world.cutscene and not Game.world.menu then
+        self.interact_buffer = Utils.approach(self.interact_buffer, 0, DT)
+    end
 
     self.world.in_battle_area = false
     for _,area in ipairs(self.world.map.battle_areas) do

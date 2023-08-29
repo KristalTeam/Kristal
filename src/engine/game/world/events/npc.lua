@@ -36,6 +36,8 @@ function NPC:init(actor, x, y, properties)
     self.set_value = properties["setvalue"]
 
     self.interact_count = 0
+
+    self.interact_buffer = (5/30)
 end
 
 function NPC:onInteract(player, dir)
