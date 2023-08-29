@@ -31,7 +31,7 @@ function Event:init(x, y, w, h)
     self.sprite = nil
 
     -- Duration that the player cannot interact with events for on finishing interaction (in seconds)
-    self.buffer = (5/30)
+    self.interact_buffer = (5/30)
 end
 
 --[[ OPTIONAL FUNCTIONS

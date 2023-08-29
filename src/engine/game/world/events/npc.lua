@@ -37,7 +37,7 @@ function NPC:init(actor, x, y, properties)
 
     self.interact_count = 0
 
-    self.buffer = 5
+    self.interact_buffer = (5/30)
 end
 
 function NPC:onInteract(player, dir)

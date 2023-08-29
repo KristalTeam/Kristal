@@ -122,7 +122,7 @@ function Player:interact()
     table.sort(interactables, function(a,b) return a.dist < b.dist end)
     for _,v in ipairs(interactables) do
         if v.obj:onInteract(self, self.facing) then
-            self.interact_buffer = v.obj.buffer or 0
+            self.interact_buffer = v.obj.interact_buffer or 0
             return true
         end
     end
