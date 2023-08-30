@@ -120,6 +120,13 @@ function Menu:enter()
     self.has_target_saves = false
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
+    ---@type table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
+    self.options = {}
+    self.options_pages = {}
+    self.options_page_index = 1
+
+    self:initializeOptions()
+
     ---@alias creditsline string|{[1]: string, [2]: number[]}
     ---@type {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
     self.credits = {
@@ -151,7 +158,7 @@ function Menu:enter()
                 "MrOinky",
                 "",
             }
-        }
+        },
         --[[{
             "Kristal Engine",
             {
@@ -382,6 +389,135 @@ function Menu:focus()
             end
         end
     end
+end
+
+
+--- Adds a page to the options menu.
+---@param id   string # The id of the page, referred to when adding options.
+---@param name string # The name of the page, displayed in the options menu.
+function Menu:registerOptionsPage(id, name)
+    if Utils.containsValue(self.options_pages, id) then
+        return
+    end
+
+    table.insert(self.options_pages, id)
+
+    self.options[id] = {
+        id = id,
+        name = name,
+        options = {}
+    }
+end
+
+--- Adds an option to the menu's options list.
+---@param page     string|string[]             # The page (or pages) the option should be added to. Must be registered with `registerOptionsPage` first.
+---@param name     string                      # The name of the option, displayed in the options list.
+---@param value?   fun(x:number, y:number):any # A function which is called to get the value displayed for the option.
+---@param callback fun()                       # A function called when the user selects this option.
+function Menu:registerOption(page, name, value, callback)
+    local pages = type(page) == "table" and page or {page}
+
+    for _, page_id in ipairs(pages) do
+        table.insert(self.options[page_id].options, {
+            name = name,
+            value = value,
+            callback = callback
+        })
+    end
+end
+
+--- *(Called internally)*  
+--- Convenience method to add a menu option based on a config option which is toggled on and off.
+---@param page   string|string[]         # The page (or pages) the option should be added to. Must be registered with `registerOptionsPage` first.
+---@param name   string                  # The name of the option, displayed in the options list.
+---@param config string                  # The config option to toggle.
+---@param callback? fun(toggled:boolean) # Additional callback for when the option is toggled.
+function Menu:registerConfigOption(page, name, config, callback)
+    self:registerOption(page, name, function()
+        return Kristal.Config[config] and "ON" or "OFF"
+    end, function()
+        Kristal.Config[config] = not Kristal.Config[config]
+        if callback then
+            callback(Kristal.Config[config])
+        end
+    end)
+end
+
+function Menu:initializeOptions()
+    -- TODO: Organize options
+    self:registerOptionsPage("engine", "ENGINE OPTIONS")
+
+
+    self:registerOption("engine", "Master Volume", function()
+        return Utils.round(Kristal.getVolume() * 100) .. "%"
+    end, function()
+        self:setState("VOLUME")
+        self.heart_target_x = 408
+    end)
+
+    local function enterControls(type)
+        self:setState("CONTROLS")
+        self.control_menu = type
+        self.rebinding = false
+        self.selecting_key = false
+        self.heart_target_x = 152
+        self.heart_target_y = 129 + 0 * 32
+        self.selected_option = 1
+    end
+    self:registerOption("engine", "Keyboard Controls", nil, function() enterControls("keyboard") end)
+    self:registerOption("engine", "Gamepad Controls", nil, function() enterControls("gamepad") end)
+
+    self:registerConfigOption("engine", "Simplify VFX", "simplifyVFX")
+
+    self:registerOption("engine", "Window Scale", function()
+        return tostring(Kristal.Config["windowScale"]) .. "x"
+    end, function()
+        self:setState("WINDOWSCALE")
+        self.heart_target_x = 408
+    end)
+
+    self:registerConfigOption("engine", "Fullscreen", "fullscreen", function(toggled)
+        love.window.setFullscreen(toggled)
+    end)
+
+    self:registerOption("engine", "Border", function()
+        return Kristal.getBorderName()
+    end, function ()
+        self:setState("BORDER")
+        self.heart_target_x = 408
+    end)
+
+    self:registerOption("engine", "Target FPS", function(x, y)
+        if Kristal.Config["fps"] > 0 then
+            return Kristal.Config["fps"]
+        else
+            Draw.setColor(0, 0, 0)
+            Draw.draw(Assets.getTexture("kristal/menu_infinity"), x + 2, y + 11, 0, 2, 2)
+            Draw.setColor(1, 1, 1)
+            Draw.draw(Assets.getTexture("kristal/menu_infinity"), x, y + 9, 0, 2, 2)
+        end
+    end, function()
+        self:setState("FPSOPTION")
+        self.heart_target_x = 408
+    end)
+
+    self:registerConfigOption("engine", "VSync", "vSync", function(toggled)
+        love.window.setVSync(toggled and 1 or 0)
+    end)
+    self:registerConfigOption("engine", "Frame Skip", "frameSkip")
+    self:registerConfigOption("engine", "Auto-Run", "autoRun")
+    self:registerConfigOption("engine", "Skip Intro", "skipIntro")
+    self:registerConfigOption("engine", "Display FPS", "showFPS")
+    self:registerConfigOption("engine", "Debug Hotkeys", "debug")
+    self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
+    self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
+
+    self:registerOption("engine", "Default Name", function()
+        return Kristal.Config["defaultName"]
+    end, function()
+        self:setState("DEFAULTNAME")
+    end)
+    self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
 end
 
 function Menu:reloadMods()
@@ -792,78 +928,67 @@ function Menu:draw()
             self:printShadow("Quit", 215, 219 + 128)
         end
     elseif self:optionsShown() then
+        local page = self.options_pages[self.options_page_index]
+        local options = self.options[page].options
 
-        self:printShadow("( OPTIONS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        local title = self.options[page].name
+        local title_width = self.menu_font:getWidth(title)
+
+        self:printShadow("( OPTIONS )", 0, 0,  COLORS.silver, "center", 640)
+        self:printShadow(title,         0, 48, {1, 1, 1, 1},  "center", 640)
+
+        if self.state == "OPTIONS" and #self.options_pages > 1 then
+            love.graphics.setColor(COLORS.white)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8,  52, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  320 - (title_width / 2) - 26, 52, 0, 2, 2)
+        end
 
         local menu_x = 185 - 14
         local menu_y = 110
 
         local width = 360
         local height = 32 * 10
-        local total_height = 32 * 20 -- should be the amount of options there are
+        local total_height = 32 * #options
 
         Draw.pushScissor()
         Draw.scissor(menu_x, menu_y, width + 10, height + 10)
 
         menu_y = menu_y + self.options_y
 
-        self:printShadow("Master Volume",     menu_x, menu_y + (32 * 0))
-        self:printShadow("Keyboard Controls", menu_x, menu_y + (32 * 1))
-        self:printShadow("Gamepad Controls",  menu_x, menu_y + (32 * 2))
-        self:printShadow("Simplify VFX",      menu_x, menu_y + (32 * 3))
-        self:printShadow("Window Scale",      menu_x, menu_y + (32 * 4))
-        self:printShadow("Fullscreen",        menu_x, menu_y + (32 * 5))
-        self:printShadow("Border",            menu_x, menu_y + (32 * 6))
-        self:printShadow("Target FPS",        menu_x, menu_y + (32 * 7))
-        self:printShadow("VSync",             menu_x, menu_y + (32 * 8))
-        self:printShadow("Frame Skip",        menu_x, menu_y + (32 * 9))
-        self:printShadow("Auto-Run",          menu_x, menu_y + (32 * 10))
-        self:printShadow("Skip Intro",        menu_x, menu_y + (32 * 11))
-        self:printShadow("Display FPS",       menu_x, menu_y + (32 * 12))
-        self:printShadow("Debug Hotkeys",     menu_x, menu_y + (32 * 13))
-        self:printShadow("Use System Mouse",  menu_x, menu_y + (32 * 14))
-        self:printShadow("Always Show Mouse", menu_x, menu_y + (32 * 15))
-        self:printShadow("Default Name",      menu_x, menu_y + (32 * 16))
-        self:printShadow("Skip Name Entry",   menu_x, menu_y + (32 * 17))
-        self:printShadow("Back",              menu_x, menu_y + (32 * 19))
+        for i, option in ipairs(options) do
+            local y = menu_y + 32 * (i - 1)
 
-        self:printShadow(Utils.round(Kristal.getVolume() * 100) .. "%",  menu_x + (8 * 32), menu_y + (32 * 0))
-        self:printShadow(Kristal.Config["simplifyVFX"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 3))
-        self:printShadow(tostring(Kristal.Config["windowScale"]).."x", menu_x + (8 * 32), menu_y + (32 * 4))
-        self:printShadow(Kristal.Config["fullscreen"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 5))
-        self:printShadow(Kristal.getBorderName(), menu_x + (8 * 32), menu_y + (32 * 6))
-        if Kristal.Config["fps"] > 0 then
-            self:printShadow(tostring(Kristal.Config["fps"]), menu_x + (8 * 32), menu_y + (32 * 7))
-        else
-            Draw.setColor(0, 0, 0)
-            Draw.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32) + 2, menu_y + (32 * 7) + 11, 0, 2, 2)
-            Draw.setColor(1, 1, 1)
-            Draw.draw(Assets.getTexture("kristal/menu_infinity"), menu_x + (8 * 32), menu_y + (32 * 7) + 9, 0, 2, 2)
+            self:printShadow(option.name, menu_x, y)
+
+            local value_x = menu_x + (32 * 8)
+            local value = option.value and option.value(value_x, y) or nil
+
+            if value then
+                self:printShadow(tostring(value), value_x, y)
+            end
         end
-        self:printShadow(Kristal.Config["vSync"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 8))
-        self:printShadow(Kristal.Config["frameSkip"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 9))
-        self:printShadow(Kristal.Config["autoRun"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 10))
-        self:printShadow(Kristal.Config["skipIntro"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 11))
-        self:printShadow(Kristal.Config["showFPS"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 12))
-        self:printShadow(Kristal.Config["debug"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 13))
-        self:printShadow(Kristal.Config["systemCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 14))
-        self:printShadow(Kristal.Config["alwaysShowCursor"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 15))
-        self:printShadow(Kristal.Config["defaultName"], menu_x + (8 * 32), menu_y + (32 * 16))
-        self:printShadow(Kristal.Config["skipNameEntry"] and "ON" or "OFF", menu_x + (8 * 32), menu_y + (32 * 17))
 
-        -- Draw the scrollbar background
-        Draw.setColor({0, 0, 0, 0.5})
-        love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.options_y)
+        -- Draw the scrollbar background if the menu scrolls
+        if total_height > height then
+            Draw.setColor({0, 0, 0, 0.5})
+            love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.options_y)
 
-        local scrollbar_height = (height / total_height) * height
-        local scrollbar_y = (-self.options_y / (total_height - height)) * (height - scrollbar_height)
+            local scrollbar_height = (height / total_height) * height
+            local scrollbar_y = (-self.options_y / (total_height - height)) * (height - scrollbar_height)
 
-        Draw.popScissor()
-        Draw.setColor(1, 1, 1, 1)
-        love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
+            Draw.popScissor()
+            Draw.setColor(1, 1, 1, 1)
+            love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
+        else
+            Draw.popScissor()
+        end
+
+        self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
 
     elseif self.state == "CONTROLS" then
-        self:printShadow("( "..self.control_menu:upper().." CONTROLS )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        self:printShadow("( OPTIONS )", 0, 0, COLORS.silver, "center", 640)
+
+        self:printShadow(""..self.control_menu:upper().." CONTROLS", 0, 48, {1, 1, 1, 1}, "center", 640)
 
         local menu_x = 185 - 14
         local menu_y = 110
@@ -920,7 +1045,9 @@ function Menu:draw()
 
         self:printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
     elseif self.state == "DEADZONE" then
-        self:printShadow("( DEADZONE CONFIG )", 0, 48, {1, 1, 1, 1}, "center", 640)
+        self:printShadow("( OPTIONS )", 0, 0, COLORS.silver, "center", 640)
+
+        self:printShadow("DEADZONE CONFIG", 0, 48, {1, 1, 1, 1}, "center", 640)
 
         love.graphics.setLineStyle("rough")
         love.graphics.setLineWidth(2)
@@ -1073,19 +1200,19 @@ function Menu:draw()
         local title = page[1]:upper()
         local title_width = self.menu_font:getWidth(title)
 
-        self:printShadow("( CREDITS )", 0, 20, COLORS.silver, "center", 640)
-        self:printShadow(title,         0, 50, {1, 1, 1, 1},  "center", 640)
+        self:printShadow("( CREDITS )", 0, 0,  COLORS.silver, "center", 640)
+        self:printShadow(title,         0, 48, {1, 1, 1, 1},  "center", 640)
 
         if #self.credits > 1 then
             if self.credits_page >= #self.credits then
                 love.graphics.setColor(COLORS.silver)
             end
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8, 54, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8, 52, 0, 2, 2)
             love.graphics.setColor(COLORS.white)
             if self.credits_page <= 1 then
                 love.graphics.setColor(COLORS.silver)
             end
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26, 54, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26, 52, 0, 2, 2)
             love.graphics.setColor(COLORS.white)
         end
 
@@ -1317,31 +1444,55 @@ function Menu:onKeyPressed(key, is_repeat)
             Kristal.saveConfig()
             return
         end
-        local old = self.selected_option
+
+        local move_noise = false
+
+        local old_page = self.options_page_index
+        if Input.is("left" , key) then self.options_page_index = self.options_page_index - 1  end
+        if Input.is("right", key) then self.options_page_index = self.options_page_index + 1  end
+        self.options_page_index = (self.options_page_index - 1) % #self.options_pages + 1
+
+        if self.options_page_index ~= old_page then
+            move_noise = true
+            self.selected_option = 1
+            self.options_target_y = 0
+            self.options_y = 0
+        end
+
+        local page = self.options_pages[self.options_page_index]
+        local options = self.options[page].options
+        local max_option = #options + 1
+
+        local old_option = self.selected_option
         if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
         if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
-        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1  end
-        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1  end
-        if self.selected_option > 19 then self.selected_option = is_repeat and 19 or 1  end
-        if self.selected_option < 1  then self.selected_option = is_repeat and 1  or 19 end
+        if self.selected_option > max_option then self.selected_option = is_repeat and max_option or 1          end
+        if self.selected_option < 1          then self.selected_option = is_repeat and 1          or max_option end
 
-        local y_off = (self.selected_option - 1) * 32
-        if self.selected_option >= 19 then
-            y_off = y_off + 32
+        if old_option ~= self.selected_option then
+            move_noise = true
         end
 
-        if y_off + self.options_target_y < 0 then
-            self.options_target_y = self.options_target_y + (0 - (y_off + self.options_target_y))
+        if self.selected_option < max_option then
+            local y_off = (self.selected_option - 1) * 32
+
+            if y_off + self.options_target_y < 0 then
+                self.options_target_y = self.options_target_y + (0 - (y_off + self.options_target_y))
+            end
+
+            if y_off + self.options_target_y > (9 * 32) then
+                self.options_target_y = self.options_target_y + ((9 * 32) - (y_off + self.options_target_y))
+            end
+
+            self.heart_target_x = 152
+            self.heart_target_y = 129 + y_off + self.options_target_y
+        else
+            -- "Back" button
+            self.heart_target_x = 320 - 32 - 16 + 1
+            self.heart_target_y = 480 - 16 + 1
         end
 
-        if y_off + self.options_target_y > (9 * 32) then
-            self.options_target_y = self.options_target_y + ((9 * 32) - (y_off + self.options_target_y))
-        end
-
-        self.heart_target_x = 152
-        self.heart_target_y = 129 + y_off + self.options_target_y
-
-        if old ~= self.selected_option then
+        if move_noise then
             self.ui_move:stop()
             self.ui_move:play()
         end
@@ -1349,64 +1500,16 @@ function Menu:onKeyPressed(key, is_repeat)
         if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
-            if self.selected_option == 1 then
-                self:setState("VOLUME")
-                self.heart_target_x = 408
-            elseif self.selected_option == 2 or self.selected_option == 3 then
-                self:setState("CONTROLS")
-                if self.selected_option == 3 then
-                    self.control_menu = "gamepad"
-                else
-                    self.control_menu = "keyboard"
-                end
-                self.rebinding = false
-                self.selecting_key = false
-                self.heart_target_x = 152
-                self.heart_target_y = 129 + 0 * 32
-                self.selected_option = 1
-            elseif self.selected_option == 4 then
-                Kristal.Config["simplifyVFX"] = not Kristal.Config["simplifyVFX"]
-            elseif self.selected_option == 5 then
-                self:setState("WINDOWSCALE")
-                self.heart_target_x = 408
-            elseif self.selected_option == 6 then
-                Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
-                love.window.setFullscreen(Kristal.Config["fullscreen"])
-            elseif self.selected_option == 7 then
-                self:setState("BORDER")
-                self.heart_target_x = 408
-            elseif self.selected_option == 8 then
-                self:setState("FPSOPTION")
-                self.heart_target_x = 408
-            elseif self.selected_option == 9 then
-                Kristal.Config["vSync"] = not Kristal.Config["vSync"]
-                love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
-            elseif self.selected_option == 10 then
-                Kristal.Config["frameSkip"] = not Kristal.Config["frameSkip"]
-            elseif self.selected_option == 11 then
-                Kristal.Config["autoRun"] = not Kristal.Config["autoRun"]
-            elseif self.selected_option == 12 then
-                Kristal.Config["skipIntro"] = not Kristal.Config["skipIntro"]
-            elseif self.selected_option == 13 then
-                Kristal.Config["showFPS"] = not Kristal.Config["showFPS"]
-            elseif self.selected_option == 14 then
-                Kristal.Config["debug"] = not Kristal.Config["debug"]
-            elseif self.selected_option == 15 then
-                Kristal.Config["systemCursor"] = not Kristal.Config["systemCursor"]
-                Kristal.updateCursor()
-            elseif self.selected_option == 16 then
-                Kristal.Config["alwaysShowCursor"] = not Kristal.Config["alwaysShowCursor"]
-                Kristal.updateCursor()
-            elseif self.selected_option == 17 then
-                self:setState("DEFAULTNAME")
-            elseif self.selected_option == 18 then
-                Kristal.Config["skipNameEntry"] = not Kristal.Config["skipNameEntry"]
-            elseif self.selected_option == 19 then
+
+            if self.selected_option == max_option then
+                -- "Back" button
                 self:setState("MAINMENU")
                 self.heart_target_x = 196
                 self.selected_option = 3
                 self.heart_target_y = 238 + (2 * 32)
                 Kristal.saveConfig()
+            else
+                options[self.selected_option].callback()
             end
         end
     elseif self.state == "VOLUME" then
@@ -1881,27 +1984,27 @@ function Menu:onCreateEnter()
         config = {}
     }
 
-    self:registerConfigOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                "selection", {nil, true, false})
-    self:registerConfigOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
-    self:registerConfigOption("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
-    self:registerConfigOption("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
-    self:registerConfigOption("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
-    self:registerConfigOption("susieStyle",             "Susie Style",               "What sprite set Susie should use",                          "selection", {nil, 1, 2})
-    self:registerConfigOption("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
-    self:registerConfigOption("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",       "selection", {nil, true, false})
-    self:registerConfigOption("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.", "selection", {nil, true, false})
-    self:registerConfigOption("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",    "selection", {nil, true, false})
-    self:registerConfigOption("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
-    self:registerConfigOption("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                               "selection", {nil, true, false})
-    self:registerConfigOption("mercyMessages",          "Mercy Messages",            "Seeing +X% when an enemy's mercy goes up",                  "selection", {nil, true, false})
-    self:registerConfigOption("mercyBar",               "Mercy Bar",                 "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
-    self:registerConfigOption("enemyBarPercentages",    "Stat Bar Percentages",      "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
-    self:registerConfigOption("pushBlockInputLock",     "Push Block Input Locking",  "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
-    self:registerConfigOption("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",   "selection", {nil, true, false})
-    self:registerConfigOption("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",          "selection", {nil, true, false})
+    self:registerCreateModConfig("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                "selection", {nil, true, false})
+    self:registerCreateModConfig("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
+    self:registerCreateModConfig("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
+    self:registerCreateModConfig("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
+    self:registerCreateModConfig("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
+    self:registerCreateModConfig("susieStyle",             "Susie Style",               "What sprite set Susie should use",                          "selection", {nil, 1, 2})
+    self:registerCreateModConfig("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
+    self:registerCreateModConfig("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",       "selection", {nil, true, false})
+    self:registerCreateModConfig("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.", "selection", {nil, true, false})
+    self:registerCreateModConfig("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",    "selection", {nil, true, false})
+    self:registerCreateModConfig("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
+    self:registerCreateModConfig("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                               "selection", {nil, true, false})
+    self:registerCreateModConfig("mercyMessages",          "Mercy Messages",            "Seeing +X% when an enemy's mercy goes up",                  "selection", {nil, true, false})
+    self:registerCreateModConfig("mercyBar",               "Mercy Bar",                 "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
+    self:registerCreateModConfig("enemyBarPercentages",    "Stat Bar Percentages",      "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
+    self:registerCreateModConfig("pushBlockInputLock",     "Push Block Input Locking",  "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
+    self:registerCreateModConfig("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",   "selection", {nil, true, false})
+    self:registerCreateModConfig("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",          "selection", {nil, true, false})
 end
 
-function Menu:registerConfigOption(id, name, description, type, options)
+function Menu:registerCreateModConfig(id, name, description, type, options)
     table.insert(self.create.config, {
         id = id,
         name = name,
