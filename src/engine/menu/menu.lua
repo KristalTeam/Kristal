@@ -191,6 +191,9 @@ function Menu:enter()
     }
     self.credits_page = 1
 
+    self.page_scroll_direction = "right"
+    self.page_scroll_timer = 0
+
     self.create = {}
 
     self:buildMods()
@@ -444,11 +447,15 @@ function Menu:registerConfigOption(page, name, config, callback)
 end
 
 function Menu:initializeOptions()
-    -- TODO: Organize options
-    self:registerOptionsPage("engine", "ENGINE OPTIONS")
+    self:registerOptionsPage("general", "GENERAL")
+    self:registerOptionsPage("graphics", "GRAPHICS")
+    self:registerOptionsPage("engine", "ENGINE")
 
+    ---------------------
+    -- General Options
+    ---------------------
 
-    self:registerOption("engine", "Master Volume", function()
+    self:registerOption("general", "Master Volume", function()
         return Utils.round(Kristal.getVolume() * 100) .. "%"
     end, function()
         self:setState("VOLUME")
@@ -464,30 +471,36 @@ function Menu:initializeOptions()
         self.heart_target_y = 129 + 0 * 32
         self.selected_option = 1
     end
-    self:registerOption("engine", "Keyboard Controls", nil, function() enterControls("keyboard") end)
-    self:registerOption("engine", "Gamepad Controls", nil, function() enterControls("gamepad") end)
+    self:registerOption("general", "Keyboard Controls", nil, function() enterControls("keyboard") end)
+    self:registerOption("general", "Gamepad Controls", nil, function() enterControls("gamepad") end)
 
-    self:registerConfigOption("engine", "Simplify VFX", "simplifyVFX")
+    self:registerConfigOption("general", "Auto-Run", "autoRun")
 
-    self:registerOption("engine", "Window Scale", function()
+    ---------------------
+    -- Graphics Options
+    ---------------------
+
+    self:registerConfigOption({"general", "graphics"}, "Fullscreen", "fullscreen", function(toggled)
+        love.window.setFullscreen(toggled)
+    end)
+
+    self:registerOption({"general", "graphics"}, "Window Scale", function()
         return tostring(Kristal.Config["windowScale"]) .. "x"
     end, function()
         self:setState("WINDOWSCALE")
         self.heart_target_x = 408
     end)
 
-    self:registerConfigOption("engine", "Fullscreen", "fullscreen", function(toggled)
-        love.window.setFullscreen(toggled)
-    end)
-
-    self:registerOption("engine", "Border", function()
+    self:registerOption({"general", "graphics"}, "Border", function()
         return Kristal.getBorderName()
     end, function ()
         self:setState("BORDER")
         self.heart_target_x = 408
     end)
 
-    self:registerOption("engine", "Target FPS", function(x, y)
+    self:registerConfigOption({"general", "graphics"}, "Simplify VFX", "simplifyVFX")
+
+    self:registerOption("graphics", "Target FPS", function(x, y)
         if Kristal.Config["fps"] > 0 then
             return Kristal.Config["fps"]
         else
@@ -501,16 +514,17 @@ function Menu:initializeOptions()
         self.heart_target_x = 408
     end)
 
-    self:registerConfigOption("engine", "VSync", "vSync", function(toggled)
+    self:registerConfigOption("graphics", "VSync", "vSync", function(toggled)
         love.window.setVSync(toggled and 1 or 0)
     end)
-    self:registerConfigOption("engine", "Frame Skip", "frameSkip")
-    self:registerConfigOption("engine", "Auto-Run", "autoRun")
+    self:registerConfigOption("graphics", "Frame Skip", "frameSkip")
+
+    ---------------------
+    -- Engine Options
+    ---------------------
+
     self:registerConfigOption("engine", "Skip Intro", "skipIntro")
     self:registerConfigOption("engine", "Display FPS", "showFPS")
-    self:registerConfigOption("engine", "Debug Hotkeys", "debug")
-    self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
-    self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
 
     self:registerOption("engine", "Default Name", function()
         return Kristal.Config["defaultName"]
@@ -518,6 +532,10 @@ function Menu:initializeOptions()
         self:setState("DEFAULTNAME")
     end)
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
+
+    self:registerConfigOption("engine", "Debug Hotkeys", "debug")
+    self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
+    self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
 end
 
 function Menu:reloadMods()
@@ -845,6 +863,10 @@ function Menu:update()
         self.config_y = self.config_target_y
     end
     self.config_y = self.config_y + ((self.config_target_y - self.config_y) / 2) * DTMULT
+
+    if self.page_scroll_timer > 0 then
+        self.page_scroll_timer = Utils.approach(self.page_scroll_timer, 0, DT)
+    end
 end
 
 function Menu:optionsShown()
@@ -939,8 +961,19 @@ function Menu:draw()
 
         if self.state == "OPTIONS" and #self.options_pages > 1 then
             love.graphics.setColor(COLORS.white)
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8,  52, 0, 2, 2)
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  320 - (title_width / 2) - 26, 52, 0, 2, 2)
+
+            local l_offset, r_offset = 0, 0
+
+            if self.page_scroll_timer > 0 then
+                if self.page_scroll_direction == "left" then
+                    l_offset = -4
+                elseif self.page_scroll_direction == "right" then
+                    r_offset = 4
+                end
+            end
+
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8  + r_offset, 52, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  320 - (title_width / 2) - 26 + l_offset, 52, 0, 2, 2)
         end
 
         local menu_x = 185 - 14
@@ -1204,15 +1237,25 @@ function Menu:draw()
         self:printShadow(title,         0, 48, {1, 1, 1, 1},  "center", 640)
 
         if #self.credits > 1 then
+            local l_offset, r_offset = 0, 0
+
+            if self.page_scroll_timer > 0 then
+                if self.page_scroll_direction == "left" then
+                    l_offset = -4
+                elseif self.page_scroll_direction == "right" then
+                    r_offset = 4
+                end
+            end
+
             if self.credits_page >= #self.credits then
                 love.graphics.setColor(COLORS.silver)
             end
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8, 52, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8 + r_offset, 52, 0, 2, 2)
             love.graphics.setColor(COLORS.white)
             if self.credits_page <= 1 then
                 love.graphics.setColor(COLORS.silver)
             end
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26, 52, 0, 2, 2)
+            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26 + l_offset, 52, 0, 2, 2)
             love.graphics.setColor(COLORS.white)
         end
 
@@ -1447,9 +1490,16 @@ function Menu:onKeyPressed(key, is_repeat)
 
         local move_noise = false
 
+        local page_dir = "right"
         local old_page = self.options_page_index
-        if Input.is("left" , key) then self.options_page_index = self.options_page_index - 1  end
-        if Input.is("right", key) then self.options_page_index = self.options_page_index + 1  end
+        if Input.is("left" , key) then
+            self.options_page_index = self.options_page_index - 1
+            page_dir = "left"
+        end
+        if Input.is("right", key) then
+            self.options_page_index = self.options_page_index + 1
+            page_dir = "right"
+        end
         self.options_page_index = (self.options_page_index - 1) % #self.options_pages + 1
 
         if self.options_page_index ~= old_page then
@@ -1457,6 +1507,8 @@ function Menu:onKeyPressed(key, is_repeat)
             self.selected_option = 1
             self.options_target_y = 0
             self.options_y = 0
+            self.page_scroll_direction = page_dir
+            self.page_scroll_timer = 0.1
         end
 
         local page = self.options_pages[self.options_page_index]
@@ -1712,18 +1764,23 @@ function Menu:onKeyPressed(key, is_repeat)
             self.selected_option = 4 - self.target_mod_offset
             self.heart_target_y = 238 + (3 - self.target_mod_offset) * 32
         end
+        local page_dir = "right"
         local page_now = self.credits_page
-        if Input.is("left", key) and not Input.usingGamepad() then
+        if Input.is("left", key) then
             page_now = page_now - 1
+            page_dir = "left"
         end
-        if Input.is("right", key) and not Input.usingGamepad() then
+        if Input.is("right", key) then
             page_now = page_now + 1
+            page_dir = "right"
         end
         page_now = Utils.clamp(page_now, 1, #self.credits)
         if page_now ~= self.credits_page then
             self.credits_page = page_now
             self.ui_move:stop()
             self.ui_move:play()
+            self.page_scroll_direction = page_dir
+            self.page_scroll_timer = 0.1
         end
     elseif self.state == "CONTROLS" then
         if (not self.rebinding) and (not self.selecting_key) then
