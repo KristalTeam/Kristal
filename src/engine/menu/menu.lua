@@ -23,6 +23,11 @@ function Menu:enter()
     -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
+    self.file_select = MenuFileSelect()
+
+    self.state_manager = StateManager("MAINMENU", self, true)
+    self.state_manager:addState("FILESELECT", self.file_select)
+
     -- Load menu music
     self.music = Music() -- "mod_menu", 1, 0.95
 
@@ -216,23 +221,22 @@ function Menu:enter()
 end
 
 function Menu:setState(state)
-    local old_state = self.state
-    self.state = state
-    self:onStateChange(old_state, self.state)
+    self.state_manager:setState(state)
 end
 
 function Menu:onStateChange(old_state, new_state)
+    print("State change: " .. tostring(old_state) .. " -> " .. tostring(new_state))
     if old_state == "MODSELECT" then
         self.list.active = false
         self.list.visible = false
-    elseif old_state == "FILESELECT" then
+    --[[elseif old_state == "FILESELECT" then
         if new_state == "FILENAME" then
             self.files.active = false
             self.files.visible = false
         else
             self.files:remove()
             self.files = nil
-        end
+        end]]
     elseif old_state == "FILENAME" or old_state == "DEFAULTNAME" then
         self.naming_screen:remove()
         self.heart.visible = true
@@ -243,7 +247,7 @@ function Menu:onStateChange(old_state, new_state)
     elseif new_state == "MODSELECT" then
         self.list.active = true
         self.list.visible = true
-    elseif new_state == "FILESELECT" then
+    --[[elseif new_state == "FILESELECT" then
         if old_state == "FILENAME" then
             self.files.visible = true
             self.files.active = true
@@ -251,11 +255,11 @@ function Menu:onStateChange(old_state, new_state)
             self.files = FileList(self, self.selected_mod)
             self.files.layer = 50
             self.stage:addChild(self.files)
-        end
+        end]]
     elseif new_state == "FILENAME" then
         local mod = self.selected_mod
         self.naming_screen = FileNamer(12, function(name)
-            Kristal.loadMod(mod.id, self.files.selected_y, name)
+            Kristal.loadMod(mod.id, self.file_select.selected_y, name)
 
             if mod.transition then
                 self.naming_screen.name_preview.visible = false
@@ -799,6 +803,9 @@ function Menu:update()
     -- Update the stage (mod menu)
     self.stage:update()
 
+    -- Update the current state
+    self.state_manager:update()
+
     -- Move the heart closer to the target
     if self.state == "MODSELECT" then
         if mod_button then
@@ -807,8 +814,8 @@ function Menu:update()
             self.heart_target_x = self.list.x + button_heart_x
             self.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
         end
-    elseif self.state == "FILESELECT" then
-        self.heart_target_x, self.heart_target_y = self.files:getHeartPos()
+    --[[elseif self.state == "FILESELECT" then
+        self.heart_target_x, self.heart_target_y = self.files:getHeartPos()]]
     elseif self.state == "VOLUME" then
         self.noise_timer = self.noise_timer + DTMULT
         if Input.down("left") then
@@ -879,6 +886,11 @@ function Menu:draw()
 
     -- Draw the engine version
     self:drawVersion()
+
+    -- Draw the current state
+    love.graphics.push()
+    self.state_manager:draw()
+    love.graphics.pop()
 
     if self.state == "MODERROR" then
         local failed_mods = Kristal.Mods.failed_mods or {}
@@ -1224,7 +1236,8 @@ function Menu:draw()
                 --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end
-    elseif self.state == "FILESELECT" or self.state == "FILENAME" then
+    --elseif self.state == "FILESELECT" or self.state == "FILENAME" then
+    elseif self.state == "FILENAME" then
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
     elseif self.state == "CREDITS" then
@@ -1293,8 +1306,8 @@ function Menu:draw()
     elseif self.state == "DEFAULTNAME" then
         -- nothing
     else
-        self:printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
-        self:printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
+        --self:printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
+        --self:printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
     end
 
     -- Draw mod preview overlays
@@ -1743,10 +1756,10 @@ function Menu:onKeyPressed(key, is_repeat)
                 if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat) end
             end
         end
-    elseif self.state == "FILESELECT" then
+    --[[elseif self.state == "FILESELECT" then
         if not is_repeat then
             self.files:onKeyPressed(key)
-        end
+        end]]
     elseif self.state == "FILENAME" or self.state == "DEFAULTNAME" then
         -- this needs to be here apparently
     elseif self.state == "CREDITS" then
@@ -2019,6 +2032,13 @@ function Menu:onKeyPressed(key, is_repeat)
     elseif self.state == "CONFIG" then
         self:handleConfigInput(key, is_repeat)
     else
+        -- Check input for the current state
+        local handled = self.state_manager:call("keypressed", key)
+
+        if handled then
+            return
+        end
+
         if Input.isCancel(key) or Input.isConfirm(key) then
             self:setState("MAINMENU")
             local sound = Input.isConfirm(key) and self.ui_select or self.ui_move

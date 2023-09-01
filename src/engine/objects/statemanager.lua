@@ -16,6 +16,7 @@ function StateManager:init(default_state, master, update_master_state)
     end
 
     self.state_events = {}
+    self.state_handler = {}
     self.state_initialized = {}
 
     self.args = {}
@@ -29,10 +30,20 @@ function StateManager:init(default_state, master, update_master_state)
 end
 
 function StateManager:addState(state, events)
-    for event,func in pairs(events or {}) do
-        self.state_events[event] = self.state_events[event] or {}
-        self.state_events[event][state] = func
+    if isClass(events) and events:includes(StateClass) then
+        self.state_handler[state] = events
+
+        events = events.registered_events
     end
+
+    for event,func in pairs(events or {}) do
+        local event_name = event:lower()
+        self.state_events[event_name] = self.state_events[event_name] or {}
+        self.state_events[event_name][state] = func
+
+        print("Registered '" .. event_name .. "' for state '" .. state .. "'")
+    end
+
     self.has_state[state] = true
 end
 
@@ -41,18 +52,23 @@ function StateManager:removeState(state)
         state_callbacks[state] = nil
     end
     self.has_state[state] = nil
+    self.state_handler[state] = nil
 end
 
 function StateManager:hasState(state)
     return self.has_state[state] or false
 end
 
+function StateManager:getHandler(state)
+    return self.state_handler[state]
+end
+
 function StateManager:addEvent(event, state_callbacks)
-    Utils.merge(self.state_events[event], state_callbacks or {})
+    Utils.merge(self.state_events[event:lower()], state_callbacks or {})
 end
 
 function StateManager:removeEvent(event)
-    self.state_events[event] = nil
+    self.state_events[event:lower()] = nil
 end
 
 function StateManager:hasEvent(event, state)
@@ -72,7 +88,7 @@ function StateManager:callOn(state, event, ...)
 end
 
 function StateManager:call(event, ...)
-    self:callOn(self.state, event, ...)
+    return self:callOn(self.state, event, ...)
 end
 
 function StateManager:doIf(...)
