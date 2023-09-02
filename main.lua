@@ -54,7 +54,9 @@ Video = require("src.engine.objects.video")
 GonerChoice = require("src.engine.objects.gonerchoice")
 GonerKeyboard = require("src.engine.objects.gonerkeyboard")
 
+MenuMain = require("src.engine.menu.menumain")
 MenuFileSelect = require("src.engine.menu.menufileselect")
+MenuFileName = require("src.engine.menu.menufilename")
 
 ModList = require("src.engine.menu.objects.modlist")
 ModButton = require("src.engine.menu.objects.modbutton")

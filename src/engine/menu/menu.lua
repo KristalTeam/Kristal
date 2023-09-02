@@ -23,10 +23,14 @@ function Menu:enter()
     -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "MAINMENU"
 
+    self.main_screen = MenuMain()
     self.file_select = MenuFileSelect()
+    self.file_name_screen = MenuFileName()
 
-    self.state_manager = StateManager("MAINMENU", self, true)
+    self.state_manager = StateManager("NONE", self, true)
+    self.state_manager:addState("MAINMENU", self.main_screen)
     self.state_manager:addState("FILESELECT", self.file_select)
+    self.state_manager:addState("FILENAME", self.file_name_screen)
 
     -- Load menu music
     self.music = Music() -- "mod_menu", 1, 0.95
@@ -55,8 +59,6 @@ function Menu:enter()
     self.list.layer = 50
     self.stage:addChild(self.list)
 
-    self.files = nil
-
     self.naming_screen = nil
 
     self.fader = Fader()
@@ -76,8 +78,8 @@ function Menu:enter()
     self.heart_outline:setOrigin(0.5, 0.5)
     self.heart:addChild(self.heart_outline)
 
-    self.heart_target_x = 196
-    self.heart_target_y = 238
+    self.heart_target_x = 0
+    self.heart_target_y = 0
 
     self.options_target_y = 0
     self.options_y = 0
@@ -217,6 +219,8 @@ function Menu:enter()
         self:setState("MODERROR")
         self.heart_target_x = 320 - 32 - 16 + 1 - 11
         self.heart_target_y = 480 - 16 + 1
+    else
+        self:setState("MAINMENU")
     end
 end
 
@@ -225,7 +229,6 @@ function Menu:setState(state)
 end
 
 function Menu:onStateChange(old_state, new_state)
-    print("State change: " .. tostring(old_state) .. " -> " .. tostring(new_state))
     if old_state == "MODSELECT" then
         self.list.active = false
         self.list.visible = false
@@ -237,14 +240,14 @@ function Menu:onStateChange(old_state, new_state)
             self.files:remove()
             self.files = nil
         end]]
-    elseif old_state == "FILENAME" or old_state == "DEFAULTNAME" then
+    elseif --[[old_state == "FILENAME" or]] old_state == "DEFAULTNAME" then
         self.naming_screen:remove()
         self.heart.visible = true
     end
-    if new_state == "MAINMENU" then
+    --[[if new_state == "MAINMENU" then
         self.selected_mod_button = nil
-        self.selected_mod = nil
-    elseif new_state == "MODSELECT" then
+        self.selected_mod = nil]]
+    if new_state == "MODSELECT" then
         self.list.active = true
         self.list.visible = true
     --[[elseif new_state == "FILESELECT" then
@@ -256,7 +259,7 @@ function Menu:onStateChange(old_state, new_state)
             self.files.layer = 50
             self.stage:addChild(self.files)
         end]]
-    elseif new_state == "FILENAME" then
+    --[[elseif new_state == "FILENAME" then
         local mod = self.selected_mod
         self.naming_screen = FileNamer(12, function(name)
             Kristal.loadMod(mod.id, self.file_select.selected_y, name)
@@ -277,17 +280,25 @@ function Menu:onStateChange(old_state, new_state)
         self.naming_screen.do_fadeout = mod.whiteFade ~= false and not mod.transition
         self.naming_screen.layer = 50
         self.stage:addChild(self.naming_screen)
-        self.heart.visible = false
+        self.heart.visible = false]]
     elseif new_state == "DEFAULTNAME" then
         local mod = self.selected_mod
-        self.naming_screen = FileNamer(12, function(name)
-            Kristal.Config["defaultName"] = name
-            self:setState("OPTIONS")
-        end, nil, nil, Kristal.Config["defaultName"], true)
-        self.naming_screen.cancel_callback = function()
-            Kristal.Config["defaultName"] = ""
-            self:setState("OPTIONS")
-        end
+        self.naming_screen = FileNamer({
+            name = Kristal.Config["defaultName"],
+            limit = 12,
+            start_confirm = true,
+
+            mod = mod,
+
+            on_confirm = function(name)
+                Kristal.Config["defaultName"] = name
+                self:setState("OPTIONS")
+            end,
+            on_cancel = function()
+                Kristal.Config["defaultName"] = ""
+                self:setState("OPTIONS")
+            end
+        })
         self.naming_screen.layer = 50
         self.stage:addChild(self.naming_screen)
         self.heart.visible = false
@@ -837,20 +848,15 @@ function Menu:update()
         end
     end
 
-    if self.state ~= "FILENAME" and self.state ~= "DEFAULTNAME" then
-        if not self.heart.visible then
-            self.heart.visible = true
-            self.heart:setPosition(self.heart_target_x, self.heart_target_y)
-        else
-            if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
-                self.heart.x = self.heart_target_x
-            end
-            if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
-                self.heart.y = self.heart_target_y
-            end
-            self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
-            self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
+    if self.heart.visible then
+        if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
+            self.heart.x = self.heart_target_x
         end
+        if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
+            self.heart.y = self.heart_target_y
+        end
+        self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
+        self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
     end
 
     -- Toggle heart favorite outline
@@ -939,7 +945,7 @@ function Menu:draw()
 
         self:printShadow("Got it", -1, 454 - 8, nil, "center", 640)
 
-    elseif self.state == "MAINMENU" then
+    --[[elseif self.state == "MAINMENU" then
         local logo_img = self.selected_mod and self.selected_mod.logo or self.logo
 
         Draw.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
@@ -960,7 +966,7 @@ function Menu:draw()
             self:printShadow("Options", 215, 219 + 64)
             self:printShadow("Credits", 215, 219 + 96)
             self:printShadow("Quit", 215, 219 + 128)
-        end
+        end]]
     elseif self:optionsShown() then
         local page = self.options_pages[self.options_page_index]
         local options = self.options[page].options
@@ -1236,10 +1242,9 @@ function Menu:draw()
                 --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end
-    --elseif self.state == "FILESELECT" or self.state == "FILENAME" then
-    elseif self.state == "FILENAME" then
+    --[[elseif self.state == "FILESELECT" or self.state == "FILENAME" then
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
-        self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
+        self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})]]
     elseif self.state == "CREDITS" then
         local page = self.credits[self.credits_page]
 
@@ -1446,7 +1451,7 @@ function Menu:onKeyPressed(key, is_repeat)
         end
     end
 
-    if self.state == "MAINMENU" then
+    --[[if self.state == "MAINMENU" then
         if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
@@ -1488,8 +1493,8 @@ function Menu:onKeyPressed(key, is_repeat)
         end
 
         self.heart_target_x = 196
-        self.heart_target_y = 238 + (self.selected_option - 1) * 32
-    elseif self.state == "OPTIONS" then
+        self.heart_target_y = 238 + (self.selected_option - 1) * 32]]
+    if self.state == "OPTIONS" then
         if Input.isCancel(key) then
             self:setState("MAINMENU")
             self.ui_move:stop()
@@ -1760,8 +1765,11 @@ function Menu:onKeyPressed(key, is_repeat)
         if not is_repeat then
             self.files:onKeyPressed(key)
         end]]
-    elseif self.state == "FILENAME" or self.state == "DEFAULTNAME" then
-        -- this needs to be here apparently
+    --[[elseif self.state == "FILENAME" or self.state == "DEFAULTNAME" then
+        -- this needs to be here apparently]]
+        -- not anymore
+    elseif self.state == "DEFAULTNAME" then
+        -- wait actually kinda
     elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
             self.credits_page = 1
@@ -2033,20 +2041,7 @@ function Menu:onKeyPressed(key, is_repeat)
         self:handleConfigInput(key, is_repeat)
     else
         -- Check input for the current state
-        local handled = self.state_manager:call("keypressed", key)
-
-        if handled then
-            return
-        end
-
-        if Input.isCancel(key) or Input.isConfirm(key) then
-            self:setState("MAINMENU")
-            local sound = Input.isConfirm(key) and self.ui_select or self.ui_move
-            sound:stop()
-            sound:play()
-            self.heart_target_x = 196
-            self.heart_target_y = 238
-        end
+        self.state_manager:call("keypressed", key, is_repeat)
     end
 end
 

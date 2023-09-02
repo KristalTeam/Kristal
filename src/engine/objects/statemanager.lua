@@ -40,8 +40,6 @@ function StateManager:addState(state, events)
         local event_name = event:lower()
         self.state_events[event_name] = self.state_events[event_name] or {}
         self.state_events[event_name][state] = func
-
-        print("Registered '" .. event_name .. "' for state '" .. state .. "'")
     end
 
     self.has_state[state] = true

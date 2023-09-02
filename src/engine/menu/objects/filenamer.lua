@@ -1,27 +1,40 @@
 ---@class FileNamer : Object
----@overload fun(...) : FileNamer
+---@overload fun(options?:table) : FileNamer
 local FileNamer, super = Class(Object)
 
-function FileNamer:init(limit, callback, name_text, confirm_text, default_name, default_name_select)
+--function FileNamer:init(limit, callback, name_text, confirm_text, default_name, default_name_select)
+function FileNamer:init(options)
     super.init(self, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    options = options or {}
 
     -- KEYBOARD, CONFIRM, FADEOUT, DONE, TRANSITION
     self.state = ""
 
-    self.name = default_name or ""
-    self.name_limit = limit or 12
+    self.name = options.name or ""
+    self.name_limit = options.limit or 12
 
-    self.default_name = default_name or ""
+    self.default_name = options.name or ""
 
-    self.mod = Kristal.States.Menu.selected_mod or {}
+    local mod = options.mod or {}
 
-    self.name_text    = self.mod.nameText or name_text    or ("[style:GONER][spacing:3.2]ENTER YOUR OWN NAME.")
-    self.confirm_text = self.mod.confirmText or confirm_text or ("[style:GONER][spacing:3.2]THIS IS YOUR NAME.")
-	
-    self.crash = self.mod.namesCrash or {"GASTER"}
+    self.name_text    = options.name_text    or mod["nameText"]    or "ENTER YOUR OWN NAME."
+    self.confirm_text = options.confirm_text or mod["confirmText"] or "THIS IS YOUR NAME."
 
-    self.callback = callback
-    self.cancel_callback = nil
+    if options.goner_style ~= false then
+        self.name_text    = "[style:GONER][spacing:3.2]" .. self.name_text
+        self.confirm_text = "[style:GONER][spacing:3.2]" .. self.confirm_text
+        self.goner_style = true
+    else
+        self.goner_style = false
+    end
+
+    self.crash_names   = options.crash_names   or mod["namesCrash"]    or {"GASTER"}
+    self.deny_names    = options.deny_names    or mod["namesDeny"]     or {}
+    self.name_messages = options.name_messages or mod["namesMessages"] or {}
+
+    self.callback = options.on_confirm
+    self.cancel_callback = options.on_cancel
 
     self.text = Text("", 136, 40, {wrap = false, font = "main_mono"})
     self:addChild(self.text)
@@ -30,7 +43,7 @@ function FileNamer:init(limit, callback, name_text, confirm_text, default_name, 
     self.choicer = nil
     self.name_preview = nil
 
-    self.do_fadeout = false
+    self.do_fadeout = options.white_fade
 
     self.whiten = 0
     self.name_zoom = 0
@@ -38,7 +51,7 @@ function FileNamer:init(limit, callback, name_text, confirm_text, default_name, 
     self.timer = Timer()
     self:addChild(self.timer)
 
-    if default_name_select and self.default_name ~= "" then
+    if options.start_confirm and self.default_name ~= "" then
         self:setState("CONFIRM")
     else
         self:setState("KEYBOARD")
@@ -88,7 +101,7 @@ function FileNamer:setState(state)
             self.name = text
             self:setState("CONFIRM")
         end, function(key, x, y, namer)
-            for k,v in pairs(self.crash) do
+            for k,v in pairs(self.crash_names) do
                 if namer.text .. key == v then
                     love.audio.stop()
                     self.stage.timescale = 0
@@ -107,7 +120,7 @@ function FileNamer:setState(state)
         self:addChild(self.keyboard)
     elseif state == "CONFIRM" then
         local confirm_text = self.confirm_text
-        for k,v in pairs(self.mod.namesMessages or {}) do
+        for k,v in pairs(self.name_messages) do
             if k == self.name then
                 confirm_text = v
             end
@@ -119,7 +132,7 @@ function FileNamer:setState(state)
         self:addChild(self.name_preview)
         self.name_zoom = 0
         local allow = true
-        for k,v in pairs(self.mod.namesDeny or {}) do
+        for k,v in pairs(self.deny_names) do
             if v == self.name then
                 allow = false
             end

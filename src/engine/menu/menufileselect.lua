@@ -1,13 +1,8 @@
 ---@class MenuFileSelect : StateClass
----@overload fun(...) : MenuFileSelect
+---@overload fun() : MenuFileSelect
 local MenuFileSelect, super = Class(StateClass)
 
 function MenuFileSelect:init()
-    self.ui_move = Assets.newSound("ui_move")
-    self.ui_select = Assets.newSound("ui_select")
-    self.ui_cancel = Assets.newSound("ui_cancel")
-    self.ui_spooky_action = Assets.newSound("ui_spooky_action")
-
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
@@ -28,7 +23,9 @@ function MenuFileSelect:onEnter(menu, from)
     end
 
     self.mod = menu.selected_mod
+
     self.container = menu.stage:addChild(Object())
+    self.container:setLayer(50)
 
     -- SELECT, COPY, ERASE, TRANSITIONING
     self.state = "SELECT"
@@ -67,8 +64,8 @@ function MenuFileSelect:onLeave(menu, next)
     end
 end
 
-function MenuFileSelect:onKeyPressed(menu, key)
-    if self.state == "TRANSITIONING" then
+function MenuFileSelect:onKeyPressed(menu, key, is_repeat)
+    if is_repeat or self.state == "TRANSITIONING" then
         return true
     end
     if self.focused_button then
@@ -85,24 +82,20 @@ function MenuFileSelect:onKeyPressed(menu, key)
                 self.erase_stage = 1
             end
             self.focused_button = nil
-            self.ui_cancel:stop()
-            self.ui_cancel:play()
+            Assets.stopAndPlaySound("ui_cancel")
             return true
         end
         if Input.is("left", key) and button.selected_choice == 2 then
             button.selected_choice = 1
-            self.ui_move:stop()
-            self.ui_move:play()
+            Assets.stopAndPlaySound("ui_move")
         end
         if Input.is("right", key) and button.selected_choice == 1 then
             button.selected_choice = 2
-            self.ui_move:stop()
-            self.ui_move:play()
+            Assets.stopAndPlaySound("ui_move")
         end
         if Input.is("confirm", key) then
             if self.state == "SELECT" then
-                self.ui_select:stop()
-                self.ui_select:play()
+                Assets.stopAndPlaySound("ui_select")
                 if button.selected_choice == 1 then
                     local skip_naming = button.data ~= nil
                         or self.mod.nameInput == "none" or self.mod.nameInput == false
@@ -127,22 +120,19 @@ function MenuFileSelect:onKeyPressed(menu, key)
                 end
             elseif self.state == "ERASE" then
                 if button.selected_choice == 1 and self.erase_stage == 1 then
-                    self.ui_select:stop()
-                    self.ui_select:play()
+                    Assets.stopAndPlaySound("ui_select")
                     button:setColor(1, 0, 0)
                     button:setChoices({"Yes!", "No!"}, "Really erase it?")
                     self.erase_stage = 2
                 else
                     local result
                     if button.selected_choice == 1 and self.erase_stage == 2 then
-                        self.ui_spooky_action:stop()
-                        self.ui_spooky_action:play()
+                        Assets.stopAndPlaySound("ui_spooky_action")
                         Kristal.eraseData("file_"..button.id, self.mod.id)
                         button:setData(nil)
                         result = "Erase complete."
                     else
-                        self.ui_select:stop()
-                        self.ui_select:play()
+                        Assets.stopAndPlaySound("ui_select")
                     end
                     button:setChoices()
                     button:setColor(1, 1, 1)
@@ -156,8 +146,7 @@ function MenuFileSelect:onKeyPressed(menu, key)
                 end
             elseif self.state == "COPY" then
                 if button.selected_choice == 1 then
-                    self.ui_spooky_action:stop()
-                    self.ui_spooky_action:play()
+                    Assets.stopAndPlaySound("ui_spooky_action")
                     local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.id)
                     Kristal.saveData("file_"..button.id, data, self.mod.id)
                     button:setData(data)
@@ -170,8 +159,7 @@ function MenuFileSelect:onKeyPressed(menu, key)
                     self.selected_y = 4
                     self:updateSelected()
                 elseif button.selected_choice == 2 then
-                    self.ui_select:stop()
-                    self.ui_select:play()
+                    Assets.stopAndPlaySound("ui_select")
                     button:setChoices()
                     self:setState("SELECT")
                     self.copied_button:setColor(1, 1, 1)
@@ -192,13 +180,11 @@ function MenuFileSelect:onKeyPressed(menu, key)
                 menu.heart_target_x = 196
                 menu.heart_target_y = 238
             end
-            self.ui_cancel:stop()
-            self.ui_cancel:play()
+            Assets.stopAndPlaySound("ui_cancel")
             return true
         end
         if Input.is("confirm", key) then
-            self.ui_select:stop()
-            self.ui_select:play()
+            Assets.stopAndPlaySound("ui_select")
             if self.selected_y <= 3 then
                 self.focused_button = self:getSelectedFile()
                 if self.focused_button.data then
@@ -242,14 +228,12 @@ function MenuFileSelect:onKeyPressed(menu, key)
             self.selected_x = Utils.clamp(self.selected_x, 1, 3)
         end
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
-            self.ui_move:stop()
-            self.ui_move:play()
+            Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
         end
     elseif self.state == "COPY" then
         if Input.is("cancel", key) then
-            self.ui_cancel:stop()
-            self.ui_cancel:play()
+            Assets.stopAndPlaySound("ui_cancel")
             if self.copied_button then
                 self.selected_y = self.copied_button.id
                 self.copied_button:setColor(1, 1, 1)
@@ -268,31 +252,26 @@ function MenuFileSelect:onKeyPressed(menu, key)
                 if not self.copied_button then
                     local button = self:getSelectedFile()
                     if button.data then
-                        self.ui_select:stop()
-                        self.ui_select:play()
+                        Assets.stopAndPlaySound("ui_select")
                         self.copied_button = self:getSelectedFile()
                         self.copied_button:setColor(1, 1, 0.5)
                         self.selected_y = 1
                         self:updateSelected()
                     else
-                        self.ui_cancel:stop()
-                        self.ui_cancel:play()
+                        Assets.stopAndPlaySound("ui_cancel")
                         self:setResultText("It can't be copied.")
                     end
                 else
                     local selected = self:getSelectedFile()
                     if selected == self.copied_button then
-                        self.ui_cancel:stop()
-                        self.ui_cancel:play()
+                        Assets.stopAndPlaySound("ui_cancel")
                         self:setResultText("You can't copy there.")
                     elseif selected.data then
-                        self.ui_select:stop()
-                        self.ui_select:play()
+                        Assets.stopAndPlaySound("ui_select")
                         self.focused_button = selected
                         self.focused_button:setChoices({"Yes", "No"}, "Copy over this file?")
                     else
-                        self.ui_spooky_action:stop()
-                        self.ui_spooky_action:play()
+                        Assets.stopAndPlaySound("ui_spooky_action")
                         local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.id)
                         Kristal.saveData("file_"..selected.id, data, self.mod.id)
                         selected:setData(data)
@@ -305,8 +284,7 @@ function MenuFileSelect:onKeyPressed(menu, key)
                     end
                 end
             elseif self.selected_y == 4 then
-                self.ui_select:stop()
-                self.ui_select:play()
+                Assets.stopAndPlaySound("ui_select")
                 self:setState("SELECT")
                 if self.copied_button then
                     self.copied_button:setColor(1, 1, 1)
@@ -324,14 +302,12 @@ function MenuFileSelect:onKeyPressed(menu, key)
         self.selected_x = 1
         self.selected_y = Utils.clamp(self.selected_y, 1, 4)
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
-            self.ui_move:stop()
-            self.ui_move:play()
+            Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
         end
     elseif self.state == "ERASE" then
         if Input.is("cancel", key) then
-            self.ui_cancel:stop()
-            self.ui_cancel:play()
+            Assets.stopAndPlaySound("ui_cancel")
             self:setState("SELECT")
             self.selected_x = 2
             self.selected_y = 4
@@ -344,16 +320,13 @@ function MenuFileSelect:onKeyPressed(menu, key)
                 if button.data then
                     self.focused_button = button
                     self.focused_button:setChoices({"Yes", "No"}, "Erase this file?")
-                    self.ui_select:stop()
-                    self.ui_select:play()
+                    Assets.stopAndPlaySound("ui_select")
                 else
                     self:setResultText("There's nothing to erase.")
-                    self.ui_cancel:stop()
-                    self.ui_cancel:play()
+                    Assets.stopAndPlaySound("ui_cancel")
                 end
             elseif self.selected_y == 4 then
-                self.ui_select:stop()
-                self.ui_select:play()
+                Assets.stopAndPlaySound("ui_select")
                 self:setState("SELECT")
                 self.selected_x = 2
                 self.selected_y = 4
@@ -367,8 +340,7 @@ function MenuFileSelect:onKeyPressed(menu, key)
         self.selected_x = 1
         self.selected_y = Utils.clamp(self.selected_y, 1, 4)
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
-            self.ui_move:stop()
-            self.ui_move:play()
+            Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
         end
     end
@@ -393,40 +365,22 @@ function MenuFileSelect:draw(menu)
     local mod_name = string.upper(self.mod.name or self.mod.id)
     menu:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
 
-    local function setColor(x, y)
+    local function getColor(x, y)
         if self.selected_x == x and self.selected_y == y then
-            Draw.setColor(1, 1, 1)
+            return {1, 1, 1, 1}
         else
-            Draw.setColor(0.6, 0.6, 0.7)
+            return {0.6, 0.6, 0.7, 1}
         end
     end
 
-    local title = self:getTitle()
-    Draw.setColor(0, 0, 0)
-    love.graphics.print(title, 80+2, 60+2)
-    Draw.setColor(1, 1, 1)
-    love.graphics.print(title, 80, 60)
+    menu:printShadow(self:getTitle(), 80, 60, {1, 1, 1, 1})
 
     if self.state == "SELECT" or self.state == "TRANSITIONING" then
-        Draw.setColor(0, 0, 0)
-        love.graphics.print("Copy", 108+2, 380+2)
-        setColor(1, 4)
-        love.graphics.print("Copy", 108, 380)
-
-        Draw.setColor(0, 0, 0)
-        love.graphics.print("Erase", 280+2, 380+2)
-        setColor(2, 4)
-        love.graphics.print("Erase", 280, 380)
-
-        Draw.setColor(0, 0, 0)
-        love.graphics.print("Back", 468+2, 380+2)
-        setColor(3, 4)
-        love.graphics.print("Back", 468, 380)
+        menu:printShadow("Copy", 108, 380, getColor(1, 4))
+        menu:printShadow("Erase", 280, 380, getColor(2, 4))
+        menu:printShadow("Back", 468, 380, getColor(3, 4))
     else
-        Draw.setColor(0, 0, 0)
-        love.graphics.print("Cancel", 110+2, 380+2)
-        setColor(1, 4)
-        love.graphics.print("Cancel", 110, 380)
+        menu:printShadow("Cancel", 110, 380, getColor(1, 4))
     end
 end
 
