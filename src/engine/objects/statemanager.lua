@@ -136,19 +136,27 @@ function StateManager:setState(state, ...)
     end
 
     local last_state = self.state
-    self:call("leave", state, ...)
+    local redirect, redirect_args = self:call("leave", state, ...)
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
+        return
+    end
     self.state = state
     if not self.state_initialized[self.state] then
         self:call("init")
         self.state_initialized[self.state] = true
     end
     self.args = {...}
-    self:call("enter", last_state, ...)
+    local redirect, redirect_args = self:call("enter", last_state, ...)
     if self.on_state_change then
         self.on_state_change(last_state, state, ...)
     end
     if self.master and self.master.onStateChange then
         self.master:onStateChange(last_state, state, ...)
+    end
+
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
     end
 
     self.routine_wait = 0

@@ -5,8 +5,6 @@ local ModList, super = Class(Object)
 function ModList:init(x, y, width, height)
     super.init(self, x, y, width, height)
 
-    self.ui_move = Assets.newSound("ui_move")
-
     self.scroll = 0
     self.scroll_target = 0
 
@@ -72,8 +70,7 @@ function ModList:select(i, mute)
     self.selected = i
     if last_selected ~= self.selected then
         if not mute then
-            self.ui_move:stop()
-            self.ui_move:play()
+            Assets.stopAndPlaySound("ui_move")
         end
         if self.mods[last_selected] then
             self.mods[last_selected]:onDeselect()

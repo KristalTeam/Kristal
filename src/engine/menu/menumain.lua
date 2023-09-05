@@ -14,9 +14,6 @@ function MenuMain:init()
 end
 
 function MenuMain:onEnter(menu, from)
-    menu.selected_mod = nil
-    menu.selected_mod_button = nil
-
     if TARGET_MOD then
         self.options = {
             {"play",    menu.has_target_saves and "Load game" or "Start game"},

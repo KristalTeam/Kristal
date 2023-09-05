@@ -1,3 +1,4 @@
+---@class Menu
 local Menu = {}
 
 Menu.TEST_MOD_LIST = false
@@ -20,18 +21,6 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
 ]])
 
 function Menu:enter()
-    -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
-    self.state = "MAINMENU"
-
-    self.main_screen = MenuMain()
-    self.file_select = MenuFileSelect()
-    self.file_name_screen = MenuFileName()
-
-    self.state_manager = StateManager("NONE", self, true)
-    self.state_manager:addState("MAINMENU", self.main_screen)
-    self.state_manager:addState("FILESELECT", self.file_select)
-    self.state_manager:addState("FILENAME", self.file_name_screen)
-
     -- Load menu music
     self.music = Music() -- "mod_menu", 1, 0.95
 
@@ -53,11 +42,22 @@ function Menu:enter()
     -- Initialize variables for the menu
     self.stage = Stage()
 
-    self.list = ModList(69, 70, 502, 370)
-    self.list.active = false
-    self.list.visible = false
-    self.list.layer = 50
-    self.stage:addChild(self.list)
+    self.state = "MAINMENU"
+
+    self.main_screen = MenuMain()
+    self.mod_list = MenuModList()
+    self.mod_error = MenuModError()
+    self.file_select = MenuFileSelect()
+    self.file_name_screen = MenuFileName()
+
+    -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
+    self.state = "NONE"
+    self.state_manager = StateManager("NONE", self, true)
+    self.state_manager:addState("MAINMENU", self.main_screen)
+    self.state_manager:addState("MODSELECT", self.mod_list)
+    self.state_manager:addState("MODERROR", self.mod_error)
+    self.state_manager:addState("FILESELECT", self.file_select)
+    self.state_manager:addState("FILENAME", self.file_name_screen)
 
     self.naming_screen = nil
 
@@ -91,23 +91,10 @@ function Menu:enter()
     self.menu_font = Assets.getFont("main")
     self.small_font = Assets.getFont("main", 16)
 
-    -- Preview fading stuff
     self.background_fade = 1
-    self.mod_fades = {}
-
-    -- Preview music
-    self.mod_music = {}
-    self.mod_music_options = {}
-
-    -- Load the mods
-    self.loading_mods = false
-    self.last_loaded = nil
 
     self.logo = Assets.getTexture("kristal/title_logo_shadow")
     self.selected_option = 1
-
-    self.selected_mod_button = nil
-    self.selected_mod = nil
 
     self.control_menu = "keyboard"
 
@@ -124,7 +111,7 @@ function Menu:enter()
 
     self.noise_timer = 0
 
-    self.has_target_saves = false
+    self.has_target_saves = TARGET_MOD and Kristal.hasAnySaves(TARGET_MOD) or false
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
     ---@type table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
@@ -203,7 +190,7 @@ function Menu:enter()
 
     self.create = {}
 
-    self:buildMods()
+    self.mod_list:buildModList()
 
     self.ver_string = "v" .. tostring(Kristal.Version)
     local trimmed_commit = GitFinder:fetchTrimmedCommit()
@@ -217,8 +204,6 @@ function Menu:enter()
 
     if #Kristal.Mods.failed_mods > 0 then
         self:setState("MODERROR")
-        self.heart_target_x = 320 - 32 - 16 + 1 - 11
-        self.heart_target_y = 480 - 16 + 1
     else
         self:setState("MAINMENU")
     end
@@ -229,7 +214,7 @@ function Menu:setState(state)
 end
 
 function Menu:onStateChange(old_state, new_state)
-    if old_state == "MODSELECT" then
+    --[[if old_state == "MODSELECT" then
         self.list.active = false
         self.list.visible = false
     --[[elseif old_state == "FILESELECT" then
@@ -240,14 +225,15 @@ function Menu:onStateChange(old_state, new_state)
             self.files:remove()
             self.files = nil
         end]]
-    elseif --[[old_state == "FILENAME" or]] old_state == "DEFAULTNAME" then
+    --elseif old_state == "FILENAME" or old_state == "DEFAULTNAME" then
+    if old_state == "DEFAULTNAME" then
         self.naming_screen:remove()
         self.heart.visible = true
     end
     --[[if new_state == "MAINMENU" then
         self.selected_mod_button = nil
         self.selected_mod = nil]]
-    if new_state == "MODSELECT" then
+    --[[if new_state == "MODSELECT" then
         self.list.active = true
         self.list.visible = true
     --[[elseif new_state == "FILESELECT" then
@@ -281,7 +267,7 @@ function Menu:onStateChange(old_state, new_state)
         self.naming_screen.layer = 50
         self.stage:addChild(self.naming_screen)
         self.heart.visible = false]]
-    elseif new_state == "DEFAULTNAME" then
+    if new_state == "DEFAULTNAME" then
         local mod = self.selected_mod
         self.naming_screen = FileNamer({
             name = Kristal.Config["defaultName"],
@@ -357,16 +343,11 @@ function Menu:popState()
     self.options_y = state.options_y
 end
 
-function Menu:stopMusic()
+function Menu:leave()
     self.music:remove()
-    for _,v in pairs(self.mod_music) do
+    for _,v in pairs(self.mod_list.music) do
         v:remove()
     end
-    self.mod_music = {}
-end
-
-function Menu:leave()
-    self:stopMusic()
 end
 
 function Menu:drawMenuRectangle(x, y, width, height, color)
@@ -398,13 +379,11 @@ function Menu:init()
 end
 
 function Menu:focus()
-    if self.state == "MODSELECT" then
-        if not self.loading_mods and not self.TEST_MOD_LIST then
-            local mod_paths = love.filesystem.getDirectoryItems("mods")
-            if not Utils.equal(mod_paths, self.last_loaded) then
-                self:reloadMods()
-                self.last_loaded = mod_paths
-            end
+    if not TARGET_MOD and not self.mod_list.loading_mods then
+        local mod_paths = love.filesystem.getDirectoryItems("mods")
+        if not Utils.equal(mod_paths, self.mod_list.last_loaded) then
+            self.mod_list:reloadMods()
+            self.mod_list.last_loaded = mod_paths
         end
     end
 end
@@ -553,143 +532,6 @@ function Menu:initializeOptions()
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
 end
 
-function Menu:reloadMods()
-    if self.loading_mods then return end
-
-    self.loading_mods = true
-
-    Kristal.Mods.clear()
-    Kristal.loadAssets("", "mods", "", function()
-        self.loading_mods = false
-
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
-        self:rebuildMods()
-    end)
-end
-
-function Menu:buildMods()
-    self.built_mods = true
-    if self.TEST_MOD_LIST then
-        for i = 1,self.TEST_MOD_COUNT do
-            self.list:addMod(ModButton("Example Mod "..i, 424, 62))
-        end
-        return
-    end
-
-    local sorted_mods = Utils.copy(Kristal.Mods.getMods())
-    table.sort(sorted_mods, function(a, b)
-        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
-        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
-        return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
-    end)
-
-    self.mod_fades = {}
-    for k,v in pairs(self.mod_music) do
-        v:remove()
-    end
-    self.mod_music = {}
-    self.mod_music_options = {}
-
-    for _,mod in ipairs(sorted_mods) do
-        local button = ModButton(mod.name or mod.id, 424, 62, mod)
-
-        if mod.preview then
-            self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
-            if not self.mod_fades[mod.id].canvas then
-                self.mod_fades[mod.id].canvas = love.graphics.newCanvas(320, 240)
-            end
-        end
-
-        if mod.preview_script_path then
-            local chunk = love.filesystem.load(mod.preview_script_path)
-            local success, result = pcall(chunk, mod.path)
-            if success then
-                self.mod_fades[mod.id] = self.mod_fades[mod.id] or {fade = 0}
-                button.preview_script = result
-                if button.preview_script.init then
-                    button.preview_script:init(mod, button, self)
-                end
-            else
-                Kristal.Console:warn("preview.lua error in "..mod.name..": "..result)
-            end
-        end
-
-        if mod.preview_music_path then
-            local music = Music()
-            music:playFile(mod.preview_music_path, 0, 1)
-            music:stop()
-
-            self.mod_music[mod.id] = music
-
-            self.mod_music_options[mod.id] = {
-                volume = mod["previewVolume"]     or 1,
-                sync   = mod["previewMusicSync"]  or false,
-                pause  = mod["previewMusicPause"] or false,
-            }
-        end
-
-        if not mod.hidden then
-            self.list:addMod(button)
-        end
-    end
-    local button = ModCreateButton(424 + 70, 42)
-    self.list:addMod(button)
-
-    self.last_loaded = love.filesystem.getDirectoryItems("mods")
-
-    if TARGET_MOD then
-        local target_button,index = self.list:getById(TARGET_MOD)
-        if not index then
-            error("No mod found: "..TARGET_MOD)
-        else
-            self.list:select(index, true)
-        end
-        self.has_target_saves = Kristal.hasAnySaves(TARGET_MOD)
-
-        if self.mod_fades[TARGET_MOD] then
-            self.mod_fades[TARGET_MOD].fade = 1
-
-            if target_button.preview_script and target_button.preview_script.hide_background ~= false then
-                self.background_fade = 0
-            end
-        end
-
-        if self.mod_music[TARGET_MOD] then
-            self.music:remove()
-
-            self.music = self.mod_music[TARGET_MOD]
-            self.music:setVolume(self.mod_music_options[TARGET_MOD].volume)
-            self.music:play()
-        end
-    end
-end
-
-function Menu:rebuildMods()
-    local last_scroll = self.list.scroll_target
-    local last_selected = self.list:getSelectedId()
-
-    self.list:clearMods()
-    self:buildMods()
-
-    local used = {}
-    for _,mod in ipairs(self.list.mods) do
-        if mod.id then
-            used[mod.id] = true
-        end
-    end
-    for k,v in pairs(self.mod_fades) do
-        if not used[k] then
-            self.mod_fades[k] = nil
-        end
-    end
-
-    local button, i = self.list:getById(last_selected)
-    if i ~= nil then
-        self.list:select(i, true)
-        self.list:setScroll(last_scroll)
-    end
-end
-
 function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     Draw.setColor(1, 1, 1, alpha)
 
@@ -713,33 +555,33 @@ function Menu:printShadow(text, x, y, color, align, limit)
 end
 
 function Menu:update()
-    local mod_button, current_mod
     if self.state == "MODSELECT" or TARGET_MOD then
-        self.selected_mod_button = self.list:getSelected()
-        self.selected_mod = self.list:getSelectedMod()
+        self.selected_mod = self.mod_list:getSelectedMod()
+        self.selected_mod_button = self.mod_list:getSelectedButton()
     end
-    mod_button = self.selected_mod_button
-    current_mod = self.selected_mod
+    local mod = self.selected_mod
+    local mod_button = self.selected_mod_button
 
     -- Update fade between previews
-    if (current_mod and (current_mod.preview or mod_button.preview_script)) then
-        if mod_button.preview_script and mod_button.preview_script.hide_background ~= false then
+    if mod and (mod.preview or self.mod_list.scripts[mod.id]) then
+        local script = self.mod_list.scripts[mod.id]
+        if script and script.hide_background ~= false then
             self.background_fade = math.max(0, self.background_fade - (DT / 0.5))
         else
             self.background_fade = math.min(1, self.background_fade + (DT / 0.5))
         end
-        for k,v in pairs(self.mod_fades) do
-            if k == current_mod.id and v.fade < 1 then
-                v.fade = math.min(1, v.fade + (DT / 0.5))
-            elseif k ~= current_mod.id and v.fade > 0 then
-                v.fade = math.max(0, v.fade - (DT / 0.5))
+        for k,v in pairs(self.mod_list.fades) do
+            if k == mod.id and v < 1 then
+                self.mod_list.fades[k] = math.min(1, v + (DT / 0.5))
+            elseif k ~= mod.id and v > 0 then
+                self.mod_list.fades[k] = math.max(0, v - (DT / 0.5))
             end
         end
     else
         self.background_fade = math.min(1, self.background_fade + (DT / 0.5))
-        for k,v in pairs(self.mod_fades) do
-            if v.fade > 0 then
-                v.fade = math.max(0, v.fade - (DT / 0.5))
+        for k,v in pairs(self.mod_list.fades) do
+            if v > 0 then
+                self.mod_list.fades[k] = math.max(0, v - (DT / 0.5))
             end
         end
     end
@@ -747,16 +589,16 @@ function Menu:update()
     -- Update preview music fading
     if not TARGET_MOD then
         local fade_waiting = false
-        for k,v in pairs(self.mod_music) do
-            if v:isPlaying() and v.volume > (self.mod_music_options[k].volume * 0.1) then
+        for k,v in pairs(self.mod_list.music) do
+            if v:isPlaying() and v.volume > (self.mod_list.music_options[k].volume * 0.1) then
                 fade_waiting = true
                 break
             end
         end
 
-        if current_mod and self.mod_music[current_mod.id] then
-            local mod_music = self.mod_music[current_mod.id]
-            local options = self.mod_music_options[current_mod.id]
+        if mod and self.mod_list.music[mod.id] then
+            local mod_music = self.mod_list.music[mod.id]
+            local options = self.mod_list.music_options[mod.id]
 
             if not mod_music:isPlaying() and not fade_waiting and self.music.volume == 0 then
                 mod_music:setVolume(0)
@@ -780,9 +622,9 @@ function Menu:update()
             end
         end
 
-        for k,v in pairs(self.mod_music) do
-            if (not current_mod or k ~= current_mod.id) and v:isPlaying() then
-                if self.mod_music_options[k].pause then
+        for k,v in pairs(self.mod_list.music) do
+            if (not mod or k ~= mod.id) and v:isPlaying() then
+                if self.mod_list.music_options[k].pause then
                     v:fade(0, 0.5, function(music) music:pause() end)
                 else
                     v:fade(0, 0.5, function(music) music:stop() end)
@@ -803,11 +645,15 @@ function Menu:update()
     end
 
     -- Update preview scripts
-    for k,v in pairs(self.list.mods) do
-        if v.preview_script then
-            v.preview_script.fade = self.mod_fades[v.id].fade
-            v.preview_script.selected = v.selected
-            v.preview_script:update()
+    for k,v in pairs(self.mod_list.scripts) do
+        v.fade = self.mod_list.fades[k]
+        v.selected = self.mod_list:getSelectedButton() == mod_button
+        if v.update then
+            local success, msg = pcall(v.update, v)
+            if not success then
+                Kristal.Console:warn("preview.lua error in "..Kristal.Mods.getMod(k).name..": "..msg)
+                self.mod_list.scripts[k] = nil
+            end
         end
     end
 
@@ -818,16 +664,16 @@ function Menu:update()
     self.state_manager:update()
 
     -- Move the heart closer to the target
-    if self.state == "MODSELECT" then
+    --[[if self.state == "MODSELECT" then
         if mod_button then
             local lhx, lhy = mod_button:getHeartPos()
             local button_heart_x, button_heart_y = mod_button:getRelativePos(lhx, lhy, self.list)
             self.heart_target_x = self.list.x + button_heart_x
             self.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
-        end
+        end]]
     --[[elseif self.state == "FILESELECT" then
         self.heart_target_x, self.heart_target_y = self.files:getHeartPos()]]
-    elseif self.state == "VOLUME" then
+    if self.state == "VOLUME" then
         self.noise_timer = self.noise_timer + DTMULT
         if Input.down("left") then
             Kristal.setVolume(Kristal.getVolume() - ((2 * DTMULT) / 100))
@@ -857,14 +703,6 @@ function Menu:update()
         end
         self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
         self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
-    end
-
-    -- Toggle heart favorite outline
-    if self.state == "MODSELECT" and mod_button and mod_button.isFavorited then
-        self.heart_outline.visible = mod_button:isFavorited()
-        self.heart_outline:setColor(mod_button:getFavoritedColor())
-    else
-        self.heart_outline.visible = false
     end
 
     if (math.abs((self.options_target_y - self.options_y)) <= 2) then
@@ -898,7 +736,7 @@ function Menu:draw()
     self.state_manager:draw()
     love.graphics.pop()
 
-    if self.state == "MODERROR" then
+    --[[if self.state == "MODERROR" then
         local failed_mods = Kristal.Mods.failed_mods or {}
         local plural = #failed_mods == 1 and "mod" or "mods"
         self:printShadow({{255, 255, 0}, tostring(#failed_mods), {255, 255, 255}, " " .. plural .. " failed to load!"}, -1, 96, nil, "center", 640)
@@ -943,7 +781,7 @@ function Menu:draw()
             end
         end
 
-        self:printShadow("Got it", -1, 454 - 8, nil, "center", 640)
+        self:printShadow("Got it", -1, 454 - 8, nil, "center", 640)]]
 
     --[[elseif self.state == "MAINMENU" then
         local logo_img = self.selected_mod and self.selected_mod.logo or self.logo
@@ -967,7 +805,7 @@ function Menu:draw()
             self:printShadow("Credits", 215, 219 + 96)
             self:printShadow("Quit", 215, 219 + 128)
         end]]
-    elseif self:optionsShown() then
+    if self:optionsShown() then
         local page = self.options_pages[self.options_page_index]
         local options = self.options[page].options
 
@@ -1162,7 +1000,7 @@ function Menu:draw()
         drawSlider(2, "right", 392, 296)
 
         self:printShadow("Back", 286, 364)
-    elseif self.state == "MODSELECT" then
+    --[[elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
 
         if self.loading_mods then
@@ -1241,7 +1079,7 @@ function Menu:draw()
                 --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
                 --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
-        end
+        end]]
     --[[elseif self.state == "FILESELECT" or self.state == "FILENAME" then
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
         self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})]]
@@ -1316,10 +1154,14 @@ function Menu:draw()
     end
 
     -- Draw mod preview overlays
-    for k,v in pairs(self.list.mods) do
-        if v.preview_script and v.preview_script.drawOverlay then
+    for modid,script in pairs(self.mod_list.scripts) do
+        if script.drawOverlay then
             love.graphics.push()
-            v.preview_script:drawOverlay()
+            local success, msg = pcall(script.drawOverlay, script)
+            if not success then
+                Kristal.Console:warn("preview.lua error in "..Kristal.Mods.getMod(modid).name..": "..msg)
+                self.mod_list.scripts[modid] = nil
+            end
             love.graphics.pop()
         end
     end
@@ -1351,8 +1193,8 @@ function Menu:drawVersion()
         Draw.setColor(1, 1, 1, 0.5)
         love.graphics.print(ver_string, 4, ver_y)
 
-        if self.selected_mod_button and self.selected_mod_button.checkCompatibility then
-            local compatible, mod_version = self.selected_mod_button:checkCompatibility()
+        if self.mod_list:getSelectedMod() then
+            local compatible, mod_version = self.mod_list:checkCompatibility()
             if not compatible then
                 Draw.setColor(1, 0.5, 0.5, 0.75)
                 local op = "/"
@@ -1706,7 +1548,7 @@ function Menu:onKeyPressed(key, is_repeat)
             self.ui_move:play()
             Kristal.resetWindow()
         end
-    elseif self.state == "MODSELECT" then
+    --[[elseif self.state == "MODSELECT" then
         if key == "f5" then
             self.ui_select:stop()
             self.ui_select:play()
@@ -1760,7 +1602,7 @@ function Menu:onKeyPressed(key, is_repeat)
                 if Input.is("left", key) and not is_repeat then self.list:pageUp(is_repeat) end
                 if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat) end
             end
-        end
+        end]]
     --[[elseif self.state == "FILESELECT" then
         if not is_repeat then
             self.files:onKeyPressed(key)
@@ -2725,26 +2567,33 @@ function Menu:drawBackground()
     end
 
     -- Draw mod previews
-    for k,v in pairs(self.list.mods) do
-        local mod_preview = self.mod_fades[v.id]
-        if v.mod and v.mod.preview and mod_preview.fade > 0 then
-            -- Draw to the mod's preview canvas
-            Draw.setCanvas(mod_preview.canvas)
+    for _,mod in ipairs(self.mod_list.mods) do
+        local fade = self.mod_list.fades[mod.id]
+        if mod.preview and fade > 0 then
+            -- Draw to mod's preview to a small canvas
+            local canvas = Draw.pushCanvas(320, 240, {clear = false})
             love.graphics.clear(0, 0, 0, 1)
 
-            self:drawAnimStrip(v.mod.preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
-            self:drawAnimStrip(v.mod.preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
-            self:drawAnimStrip(v.mod.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
+            self:drawAnimStrip(mod.preview, ( self.animation_sine / 12),        0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.46))
+            self:drawAnimStrip(mod.preview, ((self.animation_sine / 12) + 0.4), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.56))
+            self:drawAnimStrip(mod.preview, ((self.animation_sine / 12) + 0.8), 0, (10 - (self.background_alpha * 20)), (self.background_alpha * 0.7))
+
+            Draw.popCanvas()
 
             -- Draw canvas scaled 2x to the screen
-            Draw.setCanvas(SCREEN_CANVAS)
-            Draw.setColor(1, 1, 1, mod_preview.fade)
-            Draw.draw(mod_preview.canvas, 0, 0, 0, 2, 2)
+            Draw.setColor(1, 1, 1, fade)
+            Draw.draw(canvas, 0, 0, 0, 2, 2)
         end
-        if v.preview_script and v.preview_script.draw then
+
+        local script = self.mod_list.scripts[mod.id]
+        if script and script.draw then
             -- Draw from the mod's preview script
             love.graphics.push()
-            v.preview_script:draw()
+            local success, msg = pcall(script.draw, script)
+            if not success then
+                Kristal.Console:warn("preview.lua error in "..mod.name..": "..msg)
+                self.mod_list.scripts[mod.id] = nil
+            end
             love.graphics.pop()
         end
     end

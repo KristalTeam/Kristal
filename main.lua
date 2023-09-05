@@ -25,6 +25,7 @@ Draw = require("src.utils.draw")
 Kristal = require("src.kristal")
 -- Ease of access for game variables
 Game = Kristal.States["Game"]
+Menu = Kristal.States["Menu"]
 
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
@@ -55,6 +56,8 @@ GonerChoice = require("src.engine.objects.gonerchoice")
 GonerKeyboard = require("src.engine.objects.gonerkeyboard")
 
 MenuMain = require("src.engine.menu.menumain")
+MenuModList = require("src.engine.menu.menumodlist")
+MenuModError = require("src.engine.menu.menumoderror")
 MenuFileSelect = require("src.engine.menu.menufileselect")
 MenuFileName = require("src.engine.menu.menufilename")
 
