@@ -428,7 +428,7 @@ end
 
 --- Kristal alternative to the default love.errorhandler. \
 --- Called when an error occurs.
----@param  msg string           The error message.
+---@param  msg string|table     The error message.
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg)
     local copy_color = {1, 1, 1, 1}
@@ -454,12 +454,25 @@ function Kristal.errorHandler(msg)
         }
     end
 
+    local critical = false
+    local trace = nil
+    if type(msg) == "table" then
+        if msg.critical then
+            critical = true
+            msg = "critical error"
+        elseif msg.msg then
+            local split = Utils.split(msg.msg, "\n")
+            trace = table.concat(split, "\n", 2)
+            msg = split[1]
+        end
+    end
+
     msg = tostring(msg or "nil")
 
-    local critical = msg == "critical error"
-
-    if not critical then
+    if not critical and not trace then
         error_printer(msg, 2)
+    elseif trace then
+        print("Error: " .. msg .. "\n" .. trace)
     end
 
     if not love.window or not love.graphics or not love.event then
@@ -508,9 +521,11 @@ function Kristal.errorHandler(msg)
 
     Draw.setColor(1, 1, 1, 1)
 
-    local trace = ""
-    if not critical then
-        trace = debug.traceback("", 2)
+    if not trace then
+        trace = ""
+        if not critical then
+            trace = debug.traceback("", 2)
+        end
     end
 
     love.graphics.origin()

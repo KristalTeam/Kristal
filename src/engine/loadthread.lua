@@ -104,7 +104,7 @@ local loaders = {
                     error = mod,
                     file = "mod.json"
                 })
-                Kristal.Console:warn("Mod \""..path.."\" has an invalid mod.json!")
+                print("[WARNING] Mod \""..path.."\" has an invalid mod.json!")
                 return
             end
 
@@ -210,7 +210,7 @@ local loaders = {
                             error = lib,
                             file = "lib.json"
                         })
-                        Kristal.Console:warn("Mod \""..path.."\" has a library with an invalid lib.json!")
+                        print("[WARNING] Mod \""..path.."\" has a library with an invalid lib.json!")
                         return
                     end
 
@@ -231,7 +231,10 @@ local loaders = {
     ["sprites"] = {"assets/sprites", function(base_dir, path, full_path)
         local id = checkExtension(path, "png", "jpg")
         if id then
-            data.assets.texture_data[id] = love.image.newImageData(full_path)
+            local ok = pcall(function() data.assets.texture_data[id] = love.image.newImageData(full_path) end)
+            if not ok then
+                error("Image \""..path.."\" is invalid or corrupted!")
+            end
             for i = 3,1,-1 do
                 local num = tonumber(id:sub(-i))
                 if num then
@@ -288,7 +291,11 @@ local loaders = {
     ["bubbles"] = {"assets/bubbles", function(base_dir, path, full_path)
         local id = checkExtension(path, "json")
         if id then
-            data.assets.bubble_settings[id] = json.decode(love.filesystem.read(full_path))
+            local ok, loaded_data = pcall(json.decode, love.filesystem.read(full_path))
+            if not ok then
+                error("Bubble \""..path.."\" has an invalid json file!")
+            end
+            data.assets.bubble_settings[id] = loaded_data
         end
     end},
 }

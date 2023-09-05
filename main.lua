@@ -251,6 +251,8 @@ function love.run()
                     if not love.quit or not love.quit() then
                         return a or 0
                     end
+                elseif name == "threaderror" then
+                    error({msg = b})
                 end
 ---@diagnostic disable-next-line: undefined-field
                 love.handlers[name](a,b,c,d,e,f)
@@ -345,7 +347,7 @@ function love.run()
             elseif type(result) == "function" then
                 error_result = result
             else
-                error_result = Kristal.errorHandler("critical error")
+                error_result = Kristal.errorHandler({critical = true})
             end
         end
     end
