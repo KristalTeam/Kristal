@@ -696,24 +696,11 @@ function Battle:onStateChange(old,new)
     self.encounter:onStateChange(old,new)
 end
 
-function Battle:getSoulLocation(always_player)
-    if self.soul and (not always_player) then
+function Battle:getSoulLocation(always_origin)
+    if self.soul and (not always_origin) then
         return self.soul:getPosition()
     else
-        local main_chara = Game:getSoulPartyMember()
-
-        if main_chara and main_chara:getSoulPriority() >= 0 then
-            local battler = self.party[self:getPartyIndex(main_chara.id)]
-
-            if battler then
-                if main_chara.soul_offset then
-                    return battler:localToScreenPos(main_chara.soul_offset[1], main_chara.soul_offset[2])
-                else
-                    return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
-                end
-            end
-        end
-        return -9, -9
+        return self.encounter:getSoulSpawnLocation()
     end
 end
 
