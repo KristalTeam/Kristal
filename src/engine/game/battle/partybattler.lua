@@ -132,13 +132,17 @@ function PartyBattler:hurt(amount, exact, color, options)
         self.hurting = true
         self:toggleOverlay(true)
         self.overlay_sprite:setAnimation("battle/hurt", function()
-            self.hurting = false
-            self:toggleOverlay(false)
+            if self.hurting then
+                self.hurting = false
+                self:toggleOverlay(false)
+            end
         end)
         if not self.overlay_sprite.anim_frames then -- backup if the ID doesn't animate, so it doesn't get stuck with the hurt animation
             Game.battle.timer:after(0.5, function()
-                self.hurting = false
-                self:toggleOverlay(false)
+                if self.hurting then
+                    self.hurting = false
+                    self:toggleOverlay(false)
+                end
             end)
         end
     end
@@ -170,6 +174,7 @@ end
 function PartyBattler:down()
     self.is_down = true
     self.sleeping = false
+    self.hurting = false
     self:toggleOverlay(true)
     self.overlay_sprite:setAnimation("battle/defeat")
     if self.action then
