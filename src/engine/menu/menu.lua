@@ -156,7 +156,7 @@ function Menu:enter()
                 "Simbel",
                 "Bor",
                 "MrOinky",
-                "",
+                "sjl057",
             }
         },
         --[[{
