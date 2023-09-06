@@ -1340,7 +1340,7 @@ function Battle:powerAct(spell, battler, user, target)
         user_battler:flash()
         local bx, by = self:getSoulLocation()
         local soul = Sprite("effects/soulshine", bx, by)
-        soul:play(1/15, false, function() soul:remove() end)
+        soul:play(1/30, false, function() soul:remove() end)
         soul:setOrigin(0.25, 0.25)
         soul:setScale(2, 2)
         self:addChild(soul)
@@ -1460,6 +1460,7 @@ function Battle:commitAction(battler, action_type, target, data, extra)
                     ["act_parent"] = party_id,
                     ["cancellable"] = data.cancellable,
                 }, extra))
+                self:getPartyBattler(v).action.icon = action_type:lower()
             end
         end
     end
