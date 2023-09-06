@@ -540,20 +540,6 @@ function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     Draw.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
-function Menu:printShadow(text, x, y, color, align, limit)
-
-    local font_width = self.menu_font:getWidth(Utils.getCombinedText(text))
-
-    -- Draw the shadow, offset by two pixels to the bottom right
-    love.graphics.setFont(self.menu_font)
-    Draw.setColor({0, 0, 0, 1})
-    love.graphics.printf(text, x + 2, y + 2, limit or font_width, align or "left")
-
-    -- Draw the main text
-    Draw.setColor(color or {1, 1, 1, 1})
-    love.graphics.printf(text, x, y, limit or font_width, align or "left")
-end
-
 function Menu:update()
     if self.state == "MODSELECT" or TARGET_MOD then
         self.selected_mod = self.mod_list:getSelectedMod()
@@ -739,7 +725,7 @@ function Menu:draw()
     --[[if self.state == "MODERROR" then
         local failed_mods = Kristal.Mods.failed_mods or {}
         local plural = #failed_mods == 1 and "mod" or "mods"
-        self:printShadow({{255, 255, 0}, tostring(#failed_mods), {255, 255, 255}, " " .. plural .. " failed to load!"}, -1, 96, nil, "center", 640)
+        Draw.printShadow({{255, 255, 0}, tostring(#failed_mods), {255, 255, 255}, " " .. plural .. " failed to load!"}, -1, 96, 2, "center", 640)
 
         local moderrors = 0
         local liberrors = 0
@@ -755,13 +741,13 @@ function Menu:draw()
         local y = 128
 
         if moderrors > 0 then
-            self:printShadow({"The following mods have invalid ", {196, 196, 196}, "mod.json", {255, 255, 255}, " files:"}, -1, y, nil, "center", 640)
+            Draw.printShadow({"The following mods have invalid ", {196, 196, 196}, "mod.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
 
             y = y + 64
 
             for k,v in pairs(failed_mods) do
                 if v.file == "mod.json" then
-                    self:printShadow({{255, 127, 127}, v.path}, -1, y, nil, "center", 640)
+                    Draw.printShadow({{255, 127, 127}, v.path}, -1, y, 2, "center", 640)
                     y = y + 32
                 end
             end
@@ -769,19 +755,19 @@ function Menu:draw()
         end
 
         if liberrors > 0 then
-            self:printShadow({"The following mods use invalid ", {196, 196, 196}, "lib.json", {255, 255, 255}, " files:"}, -1, y, nil, "center", 640)
+            Draw.printShadow({"The following mods use invalid ", {196, 196, 196}, "lib.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
 
             y = y + 64
 
             for k,v in pairs(failed_mods) do
                 if v.file == "lib.json" then
-                    self:printShadow({{255, 127, 127}, v.path}, -1, y, nil, "center", 640)
+                    Draw.printShadow({{255, 127, 127}, v.path}, -1, y, 2, "center", 640)
                     y = y + 32
                 end
             end
         end
 
-        self:printShadow("Got it", -1, 454 - 8, nil, "center", 640)]]
+        Draw.printShadow("Got it", -1, 454 - 8, 2, "center", 640)]]
 
     --[[elseif self.state == "MAINMENU" then
         local logo_img = self.selected_mod and self.selected_mod.logo or self.logo
@@ -791,19 +777,19 @@ function Menu:draw()
 
         if TARGET_MOD then
             if self.has_target_saves then
-                self:printShadow("Load game", 215, 219)
+                Draw.printShadow("Load game", 215, 219)
             else
-                self:printShadow("Start game", 215, 219)
+                Draw.printShadow("Start game", 215, 219)
             end
-            self:printShadow("Options", 215, 219 + 32)
-            self:printShadow("Credits", 215, 219 + 64)
-            self:printShadow("Quit", 215, 219 + 96)
+            Draw.printShadow("Options", 215, 219 + 32)
+            Draw.printShadow("Credits", 215, 219 + 64)
+            Draw.printShadow("Quit", 215, 219 + 96)
         else
-            self:printShadow("Play a mod", 215, 219)
-            self:printShadow("Open mods folder", 215, 219 + 32)
-            self:printShadow("Options", 215, 219 + 64)
-            self:printShadow("Credits", 215, 219 + 96)
-            self:printShadow("Quit", 215, 219 + 128)
+            Draw.printShadow("Play a mod", 215, 219)
+            Draw.printShadow("Open mods folder", 215, 219 + 32)
+            Draw.printShadow("Options", 215, 219 + 64)
+            Draw.printShadow("Credits", 215, 219 + 96)
+            Draw.printShadow("Quit", 215, 219 + 128)
         end]]
     if self:optionsShown() then
         local page = self.options_pages[self.options_page_index]
@@ -812,8 +798,11 @@ function Menu:draw()
         local title = self.options[page].name
         local title_width = self.menu_font:getWidth(title)
 
-        self:printShadow("( OPTIONS )", 0, 0,  COLORS.silver, "center", 640)
-        self:printShadow(title,         0, 48, {1, 1, 1, 1},  "center", 640)
+        Draw.setColor(COLORS.silver)
+        Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
+
+        Draw.setColor(1, 1, 1)
+        Draw.printShadow(title, 0, 48, 2, "center", 640)
 
         if self.state == "OPTIONS" and #self.options_pages > 1 then
             love.graphics.setColor(COLORS.white)
@@ -847,13 +836,13 @@ function Menu:draw()
         for i, option in ipairs(options) do
             local y = menu_y + 32 * (i - 1)
 
-            self:printShadow(option.name, menu_x, y)
+            Draw.printShadow(option.name, menu_x, y)
 
             local value_x = menu_x + (32 * 8)
             local value = option.value and option.value(value_x, y) or nil
 
             if value then
-                self:printShadow(tostring(value), value_x, y)
+                Draw.printShadow(tostring(value), value_x, y)
             end
         end
 
@@ -872,12 +861,14 @@ function Menu:draw()
             Draw.popScissor()
         end
 
-        self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
+        Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)
 
     elseif self.state == "CONTROLS" then
-        self:printShadow("( OPTIONS )", 0, 0, COLORS.silver, "center", 640)
+        Draw.setColor(COLORS.silver)
+        Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
 
-        self:printShadow(""..self.control_menu:upper().." CONTROLS", 0, 48, {1, 1, 1, 1}, "center", 640)
+        Draw.setColor(1, 1, 1)
+        Draw.printShadow(""..self.control_menu:upper().." CONTROLS", 0, 48, 2, "center", 640)
 
         local menu_x = 185 - 14
         local menu_y = 110
@@ -894,7 +885,7 @@ function Menu:draw()
         local y_offset = 0
 
         for index, name in ipairs(Input.order) do
-            self:printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
+            Draw.printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
 
             self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
             y_offset = y_offset + 1
@@ -903,10 +894,10 @@ function Menu:draw()
         local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
         for name, value in pairs(bind_list) do
             if not Utils.containsValue(Input.order, name) then
-                self:printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
+                Draw.printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
 
                 self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
-                --self:printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * y_offset))
+                --Draw.printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * y_offset))
                 y_offset = y_offset + 1
             end
         end
@@ -914,12 +905,12 @@ function Menu:draw()
         y_offset = y_offset + 1
 
         if self.control_menu == "gamepad" then
-            self:printShadow("Configure Deadzone",  menu_x, menu_y + (32 * y_offset))
+            Draw.printShadow("Configure Deadzone",  menu_x, menu_y + (32 * y_offset))
             y_offset = y_offset + 1
         end
 
-        self:printShadow("Reset to defaults", menu_x, menu_y + (32 * y_offset))
-        self:printShadow("Back", menu_x, menu_y + (32 * (y_offset + 1)))
+        Draw.printShadow("Reset to defaults", menu_x, menu_y + (32 * y_offset))
+        Draw.printShadow("Back", menu_x, menu_y + (32 * (y_offset + 1)))
 
         -- Draw the scrollbar background (lighter than the others since it's against black)
         Draw.setColor({1, 1, 1, 0.5})
@@ -932,11 +923,15 @@ function Menu:draw()
         Draw.setColor(1, 1, 1, 1)
         love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.options_y, 4, scrollbar_height)
 
-        self:printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, COLORS.silver, "center", 640)
+        Draw.setColor(COLORS.silver)
+        Draw.printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, 2, "center", 640)
+        Draw.setColor(1, 1, 1)
     elseif self.state == "DEADZONE" then
-        self:printShadow("( OPTIONS )", 0, 0, COLORS.silver, "center", 640)
+        Draw.setColor(COLORS.silver)
+        Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
 
-        self:printShadow("DEADZONE CONFIG", 0, 48, {1, 1, 1, 1}, "center", 640)
+        Draw.setColor(1, 1, 1)
+        Draw.printShadow("DEADZONE CONFIG", 0, 48, 2, "center", 640)
 
         love.graphics.setLineStyle("rough")
         love.graphics.setLineWidth(2)
@@ -982,29 +977,32 @@ function Menu:draw()
         drawStick("right", 440, 200, 80)
 
         local function drawSlider(index, type, x, y)
-            local color = {1, 1, 1, 1}
             if self.selected_option == index and self.substate == "SLIDER" then
-                color = {0, 1, 1, 1}
+                Draw.setColor(0, 1, 1)
+            else
+                Draw.setColor(1, 1, 1)
             end
 
-            self:printShadow("<", x, y, color)
-            self:printShadow(">", x + 80, y, color)
+            Draw.printShadow("<", x, y)
+            Draw.printShadow(">", x + 80, y)
 
             local deadzone = Kristal.Config[type .. "StickDeadzone"]
             deadzone = math.floor(deadzone * 100)
 
-            self:printShadow(deadzone .. "%", x + 16, y, color, "center", 64)
+            Draw.printShadow(deadzone .. "%", x + 16, y, 2, "center", 64)
         end
+
+        Draw.setColor(1, 1, 1)
 
         drawSlider(1, "left", 152, 296)
         drawSlider(2, "right", 392, 296)
 
-        self:printShadow("Back", 286, 364)
+        Draw.printShadow("Back", 286, 364)
     --[[elseif self.state == "MODSELECT" then
         -- Draw introduction text if no mods exist
 
         if self.loading_mods then
-            self:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
+            Draw.printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
         else
             if #self.list.mods == 0 then
                 self.heart_target_x = -8
@@ -1013,7 +1011,7 @@ function Menu:draw()
                 self.list.visible = false
 
                 self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue."}
-                self:printShadow(self.intro_text, 0, 160 - 8, {1, 1, 1, 1}, "center", 640)
+                Draw.printShadow(self.intro_text, 0, 160 - 8, {1, 1, 1, 1}, "center", 640)
 
                 local string_part_1 = "Press "
                 local string_part_2 = Input.getText("cancel")
@@ -1027,7 +1025,7 @@ function Menu:draw()
                 local total_width = self.menu_font:getWidth(string_part_1) + part_2_width + self.menu_font:getWidth(string_part_3)
 
                 -- Draw each part, using total_width to center it
-                self:printShadow(string_part_1, 320 - (total_width / 2), 480 - 32, COLORS.silver)
+                Draw.printShadow(string_part_1, 320 - (total_width / 2), 480 - 32, COLORS.silver)
 
                 local part_2_xpos = 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1)
                 if Input.usingGamepad() then
@@ -1036,12 +1034,12 @@ function Menu:draw()
                     Draw.setColor(1, 1, 1, 1)
                     Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
                 else
-                    self:printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
+                    Draw.printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
                 end
-                self:printShadow(string_part_3, 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32, COLORS.silver)
+                Draw.printShadow(string_part_3, 320 - (total_width / 2) + self.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32, COLORS.silver)
             else
                 -- Draw some menu text
-                self:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
+                Draw.printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
 
                 local control_menu_width = 0
                 local control_cancel_width = 0
@@ -1054,7 +1052,7 @@ function Menu:draw()
                 end
 
                 local x_pos = self.menu_font:getWidth(" Back")
-                self:printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                Draw.printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 x_pos = x_pos + control_cancel_width
                 if Input.usingGamepad() then
                     Draw.setColor(0, 0, 0, 1)
@@ -1062,11 +1060,11 @@ function Menu:draw()
                     Draw.setColor(1, 1, 1, 1)
                     Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
-                    self:printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                    Draw.printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 end
                 local fav = self.heart_outline.visible and " Unfavorite  " or " Favorite  "
                 x_pos = x_pos + self.menu_font:getWidth(fav)
-                self:printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                Draw.printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 x_pos = x_pos + control_menu_width
                 if Input.usingGamepad() then
                     Draw.setColor(0, 0, 0, 1)
@@ -1074,23 +1072,26 @@ function Menu:draw()
                     Draw.setColor(1, 1, 1, 1)
                     Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
                 else
-                    self:printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                    Draw.printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
                 end
                 --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
-                --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
+                --Draw.printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
             end
         end]]
     --[[elseif self.state == "FILESELECT" or self.state == "FILENAME" then
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
-        self:printShadow(mod_name, 16, 8, {1, 1, 1, 1})]]
+        Draw.printShadow(mod_name, 16, 8, {1, 1, 1, 1})]]
     elseif self.state == "CREDITS" then
         local page = self.credits[self.credits_page]
 
         local title = page[1]:upper()
         local title_width = self.menu_font:getWidth(title)
 
-        self:printShadow("( CREDITS )", 0, 0,  COLORS.silver, "center", 640)
-        self:printShadow(title,         0, 48, {1, 1, 1, 1},  "center", 640)
+        Draw.setColor(COLORS.silver)
+        Draw.printShadow("( CREDITS )", 0, 0, 2, "center", 640)
+
+        Draw.setColor(1, 1, 1)
+        Draw.printShadow(title, 0, 48, 2, "center", 640)
 
         if #self.credits > 1 then
             local l_offset, r_offset = 0, 0
@@ -1127,7 +1128,8 @@ function Menu:draw()
             else
                 offset = offset + 32
             end
-            self:printShadow(value, 32 + offset, 64 + (32 * index), color)
+            Draw.setColor(color)
+            Draw.printShadow(value, 32 + offset, 64 + (32 * index))
         end
         for index, value in ipairs(right_column) do
             local color = {1, 1, 1, 1}
@@ -1138,10 +1140,12 @@ function Menu:draw()
             else
                 offset = offset - 32
             end
-            self:printShadow(value, 0, 64 + (32 * index), color, "right", 640 - 32 + offset)
+            Draw.setColor(color)
+            Draw.printShadow(value, 0, 64 + (32 * index), 2, "right", 640 - 32 + offset)
         end
 
-        self:printShadow("Back", 0, 454 - 8, {1, 1, 1, 1}, "center", 640)
+        Draw.setColor(1, 1, 1)
+        Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)
     elseif self.state == "CREATE" then
         self:drawCreate()
     elseif self.state == "CONFIG" then
@@ -1149,8 +1153,8 @@ function Menu:draw()
     elseif self.state == "DEFAULTNAME" then
         -- nothing
     else
-        --self:printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
-        --self:printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
+        --Draw.printShadow("Nothing here for now!", 0, 240 - 8 - 16, {1, 1, 1, 1}, "center", 640)
+        --Draw.printShadow("(...how'd you manage that?)", 0, 240 - 8 + 16, COLORS.silver, "center", 640)
     end
 
     -- Draw mod preview overlays
@@ -1272,7 +1276,8 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
         if i < #self:getBoundKeys(name) then
             drawstr = drawstr .. ", "
         end
-        self:printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset), color)
+        Draw.setColor(color)
+        Draw.printShadow(drawstr, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset))
         if btn then
             Draw.setColor(0, 0, 0, 1)
             Draw.draw(btn, menu_x + (8 * 32) + x_offset + 2, menu_y + (32 * y_offset) + 4, 0, 2, 2)
@@ -1280,6 +1285,7 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
             Draw.draw(btn, menu_x + (8 * 32) + x_offset, menu_y + (32 * y_offset) + 2, 0, 2, 2)
         end
         x_offset = x_offset + self.menu_font:getWidth(drawstr) + 8
+        Draw.setColor(1, 1, 1)
     end
     Draw.popScissor()
 end
@@ -2123,7 +2129,7 @@ end
 
 
 function Menu:drawConfig()
-    self:printShadow("Edit Feature Config", 0, 48, {1, 1, 1, 1}, "center", 640)
+    Draw.printShadow("Edit Feature Config", 0, 48, 2, "center", 640)
 
     local menu_x = 64
     local menu_y = 128
@@ -2142,7 +2148,7 @@ function Menu:drawConfig()
 
         local x = menu_x + x_off
         local y = menu_y + y_off
-        self:printShadow(config_option.name, x, y, nil, "left", 640)
+        Draw.printShadow(config_option.name, x, y, 2, "left", 640)
 
         local option = config_option.options[config_option.selected]
         local option_text = option
@@ -2150,7 +2156,7 @@ function Menu:drawConfig()
         if (option == true)  then option_text = "True"    end
         if (option == false) then option_text = "False"   end
 
-        self:printShadow(option_text, x + 140 + 256, y)
+        Draw.printShadow(option_text, x + 140 + 256, y)
 
         if self.substate == "SELECTION" and self.selected_option == index then
             local width = self.menu_font:getWidth(option_text)
@@ -2161,7 +2167,7 @@ function Menu:drawConfig()
         end
     end
 
-    self:printShadow("Back", menu_x, menu_y + (#self.create.config + 1) * 32, nil, "left", 640)
+    Draw.printShadow("Back", menu_x, menu_y + (#self.create.config + 1) * 32, 2, "left", 640)
 
     -- Draw the scrollbar background
     Draw.setColor({1, 1, 1, 0.5})
@@ -2181,13 +2187,14 @@ function Menu:drawConfig()
     else
         text = "Return to the mod creation menu"
     end
+    Draw.setColor(COLORS.silver)
 
     local width, wrapped = self.menu_font:getWrap(text, 580)
     for i, line in ipairs(wrapped) do
-        self:printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), COLORS.silver, "center", 640)
+        Draw.printShadow(line, 0, 480 + (32 * i) - (32 * (#wrapped + 1)), 2, "center", 640)
     end
 
-
+    Draw.setColor(1, 1, 1)
 end
 
 function Menu:onSubStateChange(old, new)
@@ -2372,56 +2379,62 @@ function Menu:onCreateCancel()
 end
 
 function Menu:drawCreate()
-    self:printShadow("Create New Mod", 0, 48, {1, 1, 1, 1}, "center", 640)
+    Draw.printShadow("Create New Mod", 0, 48, "center", 640)
 
     local menu_x = 64
     local menu_y = 128
 
-    self:drawInputLine("Mod name: ",        menu_x, menu_y + (32 * 0), "name")
-    self:drawInputLine("Mod ID:   ",        menu_x, menu_y + (32 * 1), "id")
-    self:printShadow(  "Base chapter: ",    menu_x, menu_y + (32 * 2))
-    self:printShadow(  "Edit feature config", menu_x, menu_y + (32 * 3))
-    self:printShadow(  "Create mod",        menu_x, menu_y + (32 * 5))
+    self:drawInputLine("Mod name: ",          menu_x, menu_y + (32 * 0), "name")
+    self:drawInputLine("Mod ID:   ",          menu_x, menu_y + (32 * 1), "id")
+    Draw.printShadow(  "Base chapter: ",      menu_x, menu_y + (32 * 2))
+    Draw.printShadow(  "Edit feature config", menu_x, menu_y + (32 * 3))
+    Draw.printShadow(  "Create mod",          menu_x, menu_y + (32 * 5))
 
     local off = 256
     self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "base_chapter_selected", self.create.base_chapters, "CHAPTER")
     --self:drawCheckbox(menu_x + off, menu_y + (32 * 3), "transition")
 
+    Draw.setColor(COLORS.silver)
+
     if self.selected_option == 1 then
-        self:printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, COLORS.silver, "center", 640)
+        Draw.printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 2 then
-        self:printShadow("The ID of your mod. Must be unique.", 0, 480 - 32, COLORS.silver, "center", 640)
+        Draw.printShadow("The ID of your mod. Must be unique.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 3 then
-        self:printShadow("The chapter to base your mod off of in", 0, 480 - 64 - 32, COLORS.silver, "center", 640)
-        self:printShadow("terms of features. Individual features", 0, 480 - 64, COLORS.silver, "center", 640)
-        self:printShadow("can be toggled in the config.", 0, 480 - 32, COLORS.silver, "center", 640)
+        Draw.printShadow("The chapter to base your mod off of in", 0, 480 - 64 - 32, 2, "center", 640)
+        Draw.printShadow("terms of features. Individual features", 0, 480 - 64, 2, "center", 640)
+        Draw.printShadow("can be toggled in the config.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 4 then
-        self:printShadow("Edit individual Kristal features.", 0, 480 - 32, COLORS.silver, "center", 640)
+        Draw.printShadow("Edit individual Kristal features.", 0, 480 - 32, 2, "center", 640)
     elseif self.selected_option == 5 then
         if self.create.id[1] == "" then
-            self:printShadow("You must enter a valid ID.", 0, 480 - 32, {1, 0.6, 0.6, 1}, "center", 640)
+            Draw.setColor(1, 0.6, 0.6)
+            Draw.printShadow("You must enter a valid ID.", 0, 480 - 32, 2, "center", 640)
         elseif self.create.name[1] == "" then
-            self:printShadow("You must enter a valid name.", 0, 480 - 32, {1, 0.6, 0.6, 1}, "center", 640)
+            Draw.setColor(1, 0.6, 0.6)
+            Draw.printShadow("You must enter a valid name.", 0, 480 - 32, 2, "center", 640)
         else
-            self:printShadow("Create the mod.", 0, 480 - 32, COLORS.silver, "center", 640)
+            Draw.printShadow("Create the mod.", 0, 480 - 32, 2, "center", 640)
         end
     end
+
+    Draw.setColor(1, 1, 1)
 
     if TextInput.active and (self.substate ~= "MENU") then
         TextInput.draw({
             x = self.create.input_pos_x,
             y = self.create.input_pos_y,
             font = self.menu_font,
-            print = function(text, x, y) self:printShadow(text, x, y) end,
+            print = function(text, x, y) Draw.printShadow(text, x, y) end,
         })
     end
 end
 
 function Menu:drawSelectionField(x, y, id, options, state)
     if self.state == "CREATE" then
-        self:printShadow(options[self.create[id]], x, y)
+        Draw.printShadow(options[self.create[id]], x, y)
     elseif self.state == "CONFIG" then
-        self:printShadow(options[self.config[id]], x, y)
+        Draw.printShadow(options[self.config[id]], x, y)
     end
 
     if self.substate == state then
@@ -2449,7 +2462,7 @@ function Menu:drawCheckbox(x, y, id)
 end
 
 function Menu:drawInputLine(name, x, y, id)
-    self:printShadow(name, x, y)
+    Draw.printShadow(name, x, y)
     love.graphics.setLineWidth(2)
     local line_x  = x + 128 + 32 + 16
     local line_x2 = line_x + 416 - 32
@@ -2460,7 +2473,7 @@ function Menu:drawInputLine(name, x, y, id)
     love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
 
     if self.create[id] ~= TextInput.input then
-        self:printShadow(self.create[id][1], line_x, y)
+        Draw.printShadow(self.create[id][1], line_x, y)
     else
         self.create.input_pos_x = line_x
         self.create.input_pos_y = y

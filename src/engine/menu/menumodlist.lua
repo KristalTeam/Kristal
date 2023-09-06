@@ -166,13 +166,13 @@ end
 
 function MenuModList:draw(menu)
     if self.loading_mods then
-        menu:printShadow("Loading mods...", 0, 115 - 8, {1, 1, 1, 1}, "center", 640)
+        Draw.printShadow("Loading mods...", 0, 115 - 8, 2, "center", 640)
     else
         if #self.list.mods == 0 then
             -- Draw introduction text if no mods exist
 
             self.intro_text = {{1, 1, 1, 1}, "Welcome to Kristal,\nthe DELTARUNE fangame engine!\n\nAdd mods to the ", {1, 1, 0, 1}, "mods folder", {1, 1, 1, 1}, "\nto continue."}
-            menu:printShadow(self.intro_text, 0, 160 - 8, {1, 1, 1, 1}, "center", 640)
+            Draw.printShadow(self.intro_text, 0, 160 - 8, 2, "center", 640)
 
             local string_part_1 = "Press "
             local string_part_2 = Input.getText("cancel")
@@ -186,7 +186,8 @@ function MenuModList:draw(menu)
             local total_width = menu.menu_font:getWidth(string_part_1) + part_2_width + menu.menu_font:getWidth(string_part_3)
 
             -- Draw each part, using total_width to center it
-            menu:printShadow(string_part_1, 320 - (total_width / 2), 480 - 32, COLORS.silver)
+            Draw.setColor(COLORS.silver)
+            Draw.printShadow(string_part_1, 320 - (total_width / 2), 480 - 32)
 
             local part_2_xpos = 320 - (total_width / 2) + menu.menu_font:getWidth(string_part_1)
             if Input.usingGamepad() then
@@ -195,12 +196,15 @@ function MenuModList:draw(menu)
                 Draw.setColor(1, 1, 1, 1)
                 Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
             else
-                menu:printShadow(string_part_2, part_2_xpos, 480 - 32, COLORS.silver)
+                Draw.printShadow(string_part_2, part_2_xpos, 480 - 32)
             end
-            menu:printShadow(string_part_3, 320 - (total_width / 2) + menu.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32, COLORS.silver)
+            Draw.setColor(COLORS.silver)
+            Draw.printShadow(string_part_3, 320 - (total_width / 2) + menu.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32)
+
+            Draw.setColor(1, 1, 1)
         else
             -- Draw some menu text
-            menu:printShadow("Choose your world.", 80, 34 - 8, {1, 1, 1, 1})
+            Draw.printShadow("Choose your world.", 80, 34 - 8)
 
             local control_menu_width = 0
             local control_cancel_width = 0
@@ -216,7 +220,7 @@ function MenuModList:draw(menu)
             local favorited = button and button:includes(ModButton) and button:isFavorited()
 
             local x_pos = menu.menu_font:getWidth(" Back")
-            menu:printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+            Draw.printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8)
             x_pos = x_pos + control_cancel_width
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
@@ -224,11 +228,11 @@ function MenuModList:draw(menu)
                 Draw.setColor(1, 1, 1, 1)
                 Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
             else
-                menu:printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                Draw.printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8)
             end
             local fav = favorited and " Unfavorite  " or " Favorite  "
             x_pos = x_pos + menu.menu_font:getWidth(fav)
-            menu:printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+            Draw.printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8)
             x_pos = x_pos + control_menu_width
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
@@ -236,10 +240,10 @@ function MenuModList:draw(menu)
                 Draw.setColor(1, 1, 1, 1)
                 Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
             else
-                menu:printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8, {1, 1, 1, 1})
+                Draw.printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8)
             end
             --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
-            --self:printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
+            --Draw.printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})
         end
     end
 end

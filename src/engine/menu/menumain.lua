@@ -97,7 +97,7 @@ function MenuMain:draw(menu)
     --Draw.draw(self.selected_mod and self.selected_mod.logo or self.logo, 160, 70)
 
     for i, option in ipairs(self.options) do
-        menu:printShadow(option[2], 215, 219 + 32 * (i - 1))
+        Draw.printShadow(option[2], 215, 219 + 32 * (i - 1))
     end
 end
 

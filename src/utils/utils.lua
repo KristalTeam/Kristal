@@ -442,8 +442,8 @@ end
 ---
 --- Concatenates exclusively string values within a table.
 ---
----@param text table     # The table of values to combine.
----@return string result # The concatenated string.
+---@param text table|string # The table of values to combine.
+---@return string result    # The concatenated string.
 ---
 function Utils.getCombinedText(text)
     if type(text) == "table" then

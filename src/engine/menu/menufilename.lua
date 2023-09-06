@@ -53,7 +53,7 @@ end
 
 function MenuFileName:draw(menu)
     local mod_name = string.upper(menu.selected_mod.name or menu.selected_mod.id)
-    menu:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
+    Draw.printShadow(mod_name, 16, 8)
 end
 
 return MenuFileName

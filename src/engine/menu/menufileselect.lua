@@ -363,25 +363,31 @@ end
 
 function MenuFileSelect:draw(menu)
     local mod_name = string.upper(self.mod.name or self.mod.id)
-    menu:printShadow(mod_name, 16, 8, {1, 1, 1, 1})
+    Draw.printShadow(mod_name, 16, 8)
 
-    local function getColor(x, y)
+    Draw.printShadow(self:getTitle(), 80, 60)
+
+    local function setColor(x, y)
         if self.selected_x == x and self.selected_y == y then
-            return {1, 1, 1, 1}
+            Draw.setColor(1, 1, 1)
         else
-            return {0.6, 0.6, 0.7, 1}
+            Draw.setColor(0.6, 0.6, 0.7)
         end
     end
 
-    menu:printShadow(self:getTitle(), 80, 60, {1, 1, 1, 1})
-
     if self.state == "SELECT" or self.state == "TRANSITIONING" then
-        menu:printShadow("Copy", 108, 380, getColor(1, 4))
-        menu:printShadow("Erase", 280, 380, getColor(2, 4))
-        menu:printShadow("Back", 468, 380, getColor(3, 4))
+        setColor(1, 4)
+        Draw.printShadow("Copy", 108, 380)
+        setColor(2, 4)
+        Draw.printShadow("Erase", 280, 380)
+        setColor(3, 4)
+        Draw.printShadow("Back", 468, 380)
     else
-        menu:printShadow("Cancel", 110, 380, getColor(1, 4))
+        setColor(1, 4)
+        Draw.printShadow("Cancel", 110, 380)
     end
+
+    Draw.setColor(1, 1, 1)
 end
 
 -------------------------------------------------------------------------------
