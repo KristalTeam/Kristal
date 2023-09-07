@@ -479,25 +479,26 @@ function Kristal.errorHandler(msg)
         return
     end
 
-    local width  = SCREEN_WIDTH
-    local height = SCREEN_HEIGHT
-
-    local window_scale = 1
-
-    if Kristal.Config then
-        window_scale = Kristal.Config["windowScale"] or 1
-        if window_scale ~= 1 then
-            local width  = SCREEN_WIDTH  * window_scale
-            local height = SCREEN_HEIGHT * window_scale
-        end
-    end
-
     if not love.window.isOpen() then
-        local success, status = pcall(love.window.setMode, width, height)
+        local width, height = SCREEN_WIDTH, SCREEN_HEIGHT
+        if Kristal.Config and Kristal.Config["borders"] ~= "off" then
+            width, height = BORDER_WIDTH * BORDER_SCALE, BORDER_HEIGHT * BORDER_SCALE
+        end
+        local success, status = pcall(love.window.setMode, width, SCREEN_HEIGHT * height)
         if not success or not status then
             return
         end
     end
+
+    local window_scale = 1
+    if Kristal.Config and Kristal.Config["borders"] ~= "off" then
+        window_scale = math.min(love.graphics.getWidth() / (BORDER_WIDTH * BORDER_SCALE), love.graphics.getHeight() / (BORDER_HEIGHT * BORDER_SCALE))
+    else
+        window_scale = math.min(love.graphics.getWidth() / SCREEN_WIDTH, love.graphics.getHeight() / SCREEN_HEIGHT)
+    end
+
+    local window_width = love.graphics.getWidth() / window_scale
+    local window_height = love.graphics.getHeight() / window_scale
 
     -- Reset state.
     if Input then Input.clear(nil, true) end
@@ -537,7 +538,7 @@ function Kristal.errorHandler(msg)
     if trimmed_commit then
         version_string = version_string .. " (" .. trimmed_commit .. ")"
     end
-    
+
     local mod_string = ""
     local lib_string = ""
 
@@ -567,16 +568,16 @@ function Kristal.errorHandler(msg)
 
         Draw.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
-        love.graphics.printf(version_string, -20, 10, 640, "right")
-        love.graphics.printf(mod_string, 20, 10, 640)
+        love.graphics.printf(version_string, -20, 10, window_width, "right")
+        love.graphics.printf(mod_string, 20, 10, window_width)
 
         love.graphics.setFont(font)
 
-        local warp = 640 - pos*2
+        local warp = window_width - pos*2
         if not critical then
             local header = "Error at "..split[#split-1].." - "..split[#split]
             local _,lines = font:getWrap(header, warp)
-            love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, 640 - pos)
+            love.graphics.printf({"Error at ", {0.6, 0.6, 0.6, 1}, split[#split-1], {1, 1, 1, 1}, " - " .. split[#split]}, pos, ypos, window_width - pos)
             ypos = ypos + (32 * #lines)
             love.graphics.setFont(font)
 
@@ -587,7 +588,7 @@ function Kristal.errorHandler(msg)
                         love.graphics.printf("Traceback:", pos, ypos, warp)
                         ypos = ypos + 32
                     else
-                        if ypos >= 480 - 40 - 32 then
+                        if ypos >= window_height - 40 - 32 then
                             love.graphics.printf("...", pos, ypos, warp)
                             break
                         end
@@ -609,11 +610,11 @@ function Kristal.errorHandler(msg)
         end
 
         if starwalker_error then
-            Draw.draw(starwalkertext, 640 - starwalkertext:getWidth() - 20, 480 - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
+            Draw.draw(starwalkertext, window_width - starwalkertext:getWidth() - 20, window_height - starwalkertext:getHeight() - (starwalker:getHeight() * 2))
 
             love.graphics.push()
             love.graphics.scale(2, 2)
-            Draw.draw(starwalker, 320 - starwalker:getWidth(), 240 - starwalker:getHeight())
+            Draw.draw(starwalker, (window_width / 2) - starwalker:getWidth(), (window_height / 2) - starwalker:getHeight())
             love.graphics.pop()
         else
             anim_index = anim_index + (DT * 4)
@@ -625,7 +626,7 @@ function Kristal.errorHandler(msg)
 
             love.graphics.push()
             love.graphics.scale(2, 2)
-            Draw.draw(banana, 320 - banana:getWidth(), 240 - banana:getHeight())
+            Draw.draw(banana, (window_width / 2) - banana:getWidth(), (window_height / 2) - banana:getHeight())
             love.graphics.pop()
         end
 
@@ -638,21 +639,21 @@ function Kristal.errorHandler(msg)
         love.graphics.setFont(smaller_font)
         if Kristal.getModOption("hardReset") then
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.print("Press ESC to restart the game", 8, 480 - (critical and 20 or 40))
+            love.graphics.print("Press ESC to restart the game", 8, window_height - (critical and 20 or 40))
         else
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.print("Press ESC to return to mod menu", 8, 480 - (critical and 20 or 40))
+            love.graphics.print("Press ESC to return to mod menu", 8, window_height - (critical and 20 or 40))
         end
         if not critical then
             Draw.setColor(copy_color)
-            love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, 480 - 20)
+            love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, window_height - 20)
         end
 
         if show_libraries then
             Draw.setColor(0, 0, 0, 0.7)
             love.graphics.rectangle("fill", 20, 38, w + 4, h + 2)
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.printf(lib_string, 22, 40, 640, "left")
+            love.graphics.printf(lib_string, 22, 40, window_width, "left")
         end
 
         love.graphics.present()
@@ -693,7 +694,6 @@ function Kristal.errorHandler(msg)
                 local errormessage = Kristal.getModOption("hardReset") and "Would you like to restart Kristal?" or "Would you like to return to the Kristal menu?"
                 local pressed = love.window.showMessageBox(name, errormessage, buttons)
                 if pressed == 1 then
-                    
                     if Kristal.getModOption("hardReset") then
                         return "restart"
                     else
@@ -718,7 +718,7 @@ function Kristal.errorHandler(msg)
         end
 
         local x, y = love.mouse:getPosition()
-        
+
         show_libraries = false
         if 20 < x and x < 20 + #mod_string*7 and 10 < y and y < 26 then
             show_libraries = true
