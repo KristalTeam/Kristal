@@ -912,12 +912,14 @@ function Battle:processAction(action)
 
     self.current_processing_action = action
 
+    local next_enemy = self:retargetEnemy()
+    if not next_enemy then
+        return true
+    end
+
     if enemy and enemy.done_state then
-        enemy = self:retargetEnemy()
-        action.target = enemy
-        if not enemy then
-            return true
-        end
+        enemy = next_enemy
+        action.target = next_enemy
     end
 
     -- Call mod callbacks for onBattleAction to either add new behaviour for an action or override existing behaviour
