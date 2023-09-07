@@ -562,6 +562,11 @@ function Battle:onStateChange(old,new)
             end
         end
     elseif new == "DEFENDINGBEGIN" then
+        if self.state_reason == "CUTSCENE" then
+            self:setState("DEFENDING")
+            return
+        end
+
         self.current_selecting = 0
         self.battle_ui:clearEncounterText()
 
