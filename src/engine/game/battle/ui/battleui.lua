@@ -100,7 +100,7 @@ function BattleUI:beginAttack()
 
         local battler = attack_order[i]
         local index = Game.battle:getPartyIndex(battler.chara.id)
-        local attack_box = AttackBox(battler, 30 + offset, 0, 40 + (38 * (index - 1)))
+        local attack_box = AttackBox(battler, 30 + offset, index, 0, 40 + (38 * (index - 1)))
         attack_box.layer = -10 + (index * 0.01)
         self:addChild(attack_box)
         table.insert(self.attack_boxes, attack_box)
@@ -537,8 +537,19 @@ function BattleUI:drawState()
     end
     if Game.battle.state == "ATTACKING" or self.attacking then
         Draw.setColor(PALETTE["battle_attack_lines"])
-        love.graphics.rectangle("fill", 79, 78, 224, 2)
-        love.graphics.rectangle("fill", 79, 116, 224, 2)
+        if not Game:getConfig("oldUIPositions") then
+            -- Chapter 2 attack lines
+            love.graphics.rectangle("fill", 79, 78, 224, 2)
+            love.graphics.rectangle("fill", 79, 116, 224, 2)
+        else
+            -- Chapter 1 attack lines
+            local has_index = {}
+            for _,box in ipairs(self.attack_boxes) do
+                has_index[box.index] = true
+            end
+            love.graphics.rectangle("fill", has_index[2] and 77 or 2, 78, has_index[2] and 226 or 301, 3)
+            love.graphics.rectangle("fill", has_index[3] and 77 or 2, 116, has_index[3] and 226 or 301, 3)
+        end
     end
 end
 

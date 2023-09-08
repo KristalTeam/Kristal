@@ -4,11 +4,12 @@ local AttackBox, super = Class(Object)
 
 AttackBox.BOLTSPEED = 8
 
-function AttackBox:init(battler, offset, x, y)
+function AttackBox:init(battler, offset, index, x, y)
     super.init(self, x, y)
 
     self.battler = battler
     self.offset = offset
+    self.index = index
 
     self.head_sprite = Sprite(battler.chara:getHeadIcons().."/head", 21, 19)
     self.head_sprite:setOrigin(0.5, 0.5)
@@ -114,10 +115,15 @@ function AttackBox:draw()
     love.graphics.setLineWidth(2)
     love.graphics.setLineStyle("rough")
 
+    local ch1_offset = Game:getConfig("oldUIPositions")
+
     Draw.setColor(box_color)
-    love.graphics.rectangle("line", 80, 1, (15 * AttackBox.BOLTSPEED) + 3, 36)
+    love.graphics.rectangle("line", 80, ch1_offset and 0 or 1, (15 * AttackBox.BOLTSPEED) + 3, ch1_offset and 37 or 36)
+
     Draw.setColor(target_color)
     love.graphics.rectangle("line", 83, 1, 8, 36)
+    Draw.setColor(0, 0, 0)
+    love.graphics.rectangle("fill", 84, 2, 6, 34)
 
     love.graphics.setLineWidth(1)
 
