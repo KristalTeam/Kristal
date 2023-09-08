@@ -1035,7 +1035,7 @@ function Battle:processAction(action)
             elseif #self.normal_attackers == 0 and #self.auto_attackers > 0 then
                 local next_attacker = self.auto_attackers[1]
 
-                local next_action = self:getActionBy(next_attacker)
+                local next_action = self:getActionBy(next_attacker, true)
                 if next_action then
                     self:beginAction(next_action)
                     self:processAction(next_action)
@@ -1137,10 +1137,25 @@ function Battle:getCurrentAction()
     return self.current_actions[self.current_action_index]
 end
 
-function Battle:getActionBy(battler)
+function Battle:getActionBy(battler, ignore_current)
     for i,party in ipairs(self.party) do
         if party == battler then
-            return self.character_actions[i]
+            local action = self.character_actions[i]
+            if action then
+                return action
+            end
+            break
+        end
+    end
+
+    if ignore_current then
+        return nil
+    end
+
+    for _,action in ipairs(self.current_actions) do
+        local ibattler = self.party[action.character_id]
+        if ibattler == battler then
+            return action
         end
     end
 end
@@ -1167,6 +1182,20 @@ function Battle:allActionsDone()
         end
     end
     return true
+end
+
+function Battle:clearActionIcon(battler)
+    local action
+
+    if not battler then
+        action = self:getCurrentAction()
+    else
+        action = self:getActionBy(battler)
+    end
+
+    if action then
+        action.icon = nil
+    end
 end
 
 function Battle:markAsFinished(action, keep_animation)
@@ -2401,7 +2430,7 @@ function Battle:updateAttacking()
             if self.auto_attack_timer >= 4 then
                 local next_attacker = self.auto_attackers[1]
 
-                local next_action = self:getActionBy(next_attacker)
+                local next_action = self:getActionBy(next_attacker, true)
                 if next_action then
                     self:beginAction(next_action)
                     self:processAction(next_action)
@@ -2416,7 +2445,7 @@ function Battle:updateAttacking()
                 if close <= -5 then
                     attack:miss()
 
-                    local action = self:getActionBy(attack.battler)
+                    local action = self:getActionBy(attack.battler, true)
                     action.points = 0
 
                     if self:processAction(action) then
@@ -2994,7 +3023,7 @@ function Battle:handleAttackingInput(key)
                 for _,attack in ipairs(closest_attacks) do
                     local points = attack:hit()
 
-                    local action = self:getActionBy(attack.battler)
+                    local action = self:getActionBy(attack.battler, true)
                     action.points = points
 
                     if self:processAction(action) then
