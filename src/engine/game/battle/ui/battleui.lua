@@ -88,13 +88,20 @@ end
 function BattleUI:beginAttack()
     local attack_order = Utils.pickMultiple(Game.battle.normal_attackers, #Game.battle.normal_attackers)
 
+    for _,box in ipairs(self.attack_boxes) do
+        box:remove()
+    end
+    self.attack_boxes = {}
+
     local last_offset = -1
     local offset = 0
     for i = 1, #attack_order do
         offset = offset + last_offset
 
         local battler = attack_order[i]
-        local attack_box = AttackBox(battler, 30 + offset, 0, 40 + (38 * (Game.battle:getPartyIndex(battler.chara.id) - 1)))
+        local index = Game.battle:getPartyIndex(battler.chara.id)
+        local attack_box = AttackBox(battler, 30 + offset, 0, 40 + (38 * (index - 1)))
+        attack_box.layer = -10 + (index * 0.01)
         self:addChild(attack_box)
         table.insert(self.attack_boxes, attack_box)
 
@@ -111,10 +118,8 @@ end
 function BattleUI:endAttack()
     Game.battle.cancel_attack = false
     for _,box in ipairs(self.attack_boxes) do
-        box:remove()
+        box:endAttack()
     end
-    self.attack_boxes = {}
-    self.attacking = false
 end
 
 function BattleUI:transitionIn()
@@ -159,6 +164,25 @@ function BattleUI:update()
 
         for _, box in ipairs(self.action_boxes) do
             box.data_offset = offset
+        end
+    end
+
+    if self.attacking then
+        local all_done = true
+
+        for _,box in ipairs(self.attack_boxes) do
+            if not box.removing or box.fade_rect.alpha < 1 then
+                all_done = false
+                break
+            end
+        end
+
+        if all_done then
+            for _,box in ipairs(self.attack_boxes) do
+                box:remove()
+            end
+            self.attack_boxes = {}
+            self.attacking = false
         end
     end
 

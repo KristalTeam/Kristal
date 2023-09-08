@@ -24,7 +24,7 @@ function AttackBox:init(battler, offset, x, y)
     self.bolt.layer = 1
     self:addChild(self.bolt)
 
-    self.fade_rect = Rectangle(0, 0, SCREEN_WIDTH, 38)
+    self.fade_rect = Rectangle(0, 0, SCREEN_WIDTH, 300)
     self.fade_rect:setColor(0, 0, 0, 0)
     self.fade_rect.layer = 2
     self:addChild(self.fade_rect)
@@ -35,6 +35,7 @@ function AttackBox:init(battler, offset, x, y)
     self.flash = 0
 
     self.attacked = false
+    self.removing = false
 end
 
 function AttackBox:getClose()
@@ -70,9 +71,13 @@ function AttackBox:miss()
     self.attacked = true
 end
 
+function AttackBox:endAttack()
+    self.removing = true
+end
+
 function AttackBox:update()
-    if Game.battle.cancel_attack then
-        self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, DTMULT/20)
+    if self.removing or Game.battle.cancel_attack then
+        self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
     end
 
     if not self.attacked then
