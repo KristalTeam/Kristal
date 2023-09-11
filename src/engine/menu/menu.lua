@@ -44,11 +44,11 @@ function Menu:enter()
 
     self.state = "MAINMENU"
 
-    self.main_screen = MenuMain()
-    self.mod_list = MenuModList()
-    self.mod_error = MenuModError()
-    self.file_select = MenuFileSelect()
-    self.file_name_screen = MenuFileName()
+    self.main_screen = MenuMain(self)
+    self.mod_list = MenuModList(self)
+    self.mod_error = MenuModError(self)
+    self.file_select = MenuFileSelect(self)
+    self.file_name_screen = MenuFileName(self)
 
     -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "NONE"

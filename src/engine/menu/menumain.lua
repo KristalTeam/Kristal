@@ -1,22 +1,29 @@
 ---@class MenuMain : StateClass
----@overload fun() : MenuMain
+---
+---@field menu Menu
+---
+---@overload fun(menu:Menu) : MenuMain
 local MenuMain, super = Class(StateClass)
 
-function MenuMain:init()
-    self.logo = Assets.getTexture("kristal/title_logo_shadow")
-    self.selected_option = 1
+function MenuMain:init(menu)
+    self.menu = menu
 
+    self.logo = Assets.getTexture("kristal/title_logo_shadow")
+
+    self.selected_option = 1
+end
+
+function MenuMain:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
-
     self:registerEvent("draw", self.draw)
 end
 
-function MenuMain:onEnter(menu, from)
+function MenuMain:onEnter(old_state)
     if TARGET_MOD then
         self.options = {
-            {"play",    menu.has_target_saves and "Load game" or "Start game"},
+            {"play",    self.menu.has_target_saves and "Load game" or "Start game"},
             {"options", "Options"},
             {"credits", "Credits"},
             {"quit",    "Quit"},
@@ -31,14 +38,14 @@ function MenuMain:onEnter(menu, from)
         }
     end
 
-    menu.heart_target_x = 196
-    menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
+    self.menu.heart_target_x = 196
+    self.menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
 end
 
-function MenuMain:onLeave(menu, to)
+function MenuMain:onLeave(new_state)
 end
 
-function MenuMain:onKeyPressed(menu, key, is_repeat)
+function MenuMain:onKeyPressed(key, is_repeat)
     if Input.isConfirm(key) then
         Assets.stopAndPlaySound("ui_select")
 
@@ -46,9 +53,9 @@ function MenuMain:onKeyPressed(menu, key, is_repeat)
 
         if option == "play" then
             if not TARGET_MOD then
-                menu:setState("MODSELECT")
-            elseif menu.has_target_saves then
-                menu:setState("FILESELECT")
+                self.menu:setState("MODSELECT")
+            elseif self.menu.has_target_saves then
+                self.menu:setState("FILESELECT")
             else
                 Kristal.loadMod(TARGET_MOD, 1)
             end
@@ -57,15 +64,15 @@ function MenuMain:onKeyPressed(menu, key, is_repeat)
             love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
 
         elseif option == "options" then
-            menu.heart_target_x = 152
-            menu.heart_target_y = 129
-            menu.selected_option = 1 -- TODO: Remove
-            menu:setState("OPTIONS")
+            self.menu.heart_target_x = 152
+            self.menu.heart_target_y = 129
+            self.menu.selected_option = 1 -- TODO: Remove
+            self.menu:setState("OPTIONS")
 
         elseif option == "credits" then
-            menu.heart_target_x = 320 - 32 - 16 + 1
-            menu.heart_target_y = 480 - 16 + 1
-            menu:setState("CREDITS")
+            self.menu.heart_target_x = 320 - 32 - 16 + 1
+            self.menu.heart_target_y = 480 - 16 + 1
+            self.menu:setState("CREDITS")
 
         elseif option == "quit" then
             love.event.quit()
@@ -86,12 +93,12 @@ function MenuMain:onKeyPressed(menu, key, is_repeat)
         Assets.stopAndPlaySound("ui_move")
     end
 
-    menu.heart_target_x = 196
-    menu.heart_target_y = 238 + (self.selected_option - 1) * 32
+    self.menu.heart_target_x = 196
+    self.menu.heart_target_y = 238 + (self.selected_option - 1) * 32
 end
 
-function MenuMain:draw(menu)
-    local logo_img = menu.selected_mod and menu.selected_mod.logo or self.logo
+function MenuMain:draw()
+    local logo_img = self.menu.selected_mod and self.menu.selected_mod.logo or self.logo
 
     Draw.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
     --Draw.draw(self.selected_mod and self.selected_mod.logo or self.logo, 160, 70)

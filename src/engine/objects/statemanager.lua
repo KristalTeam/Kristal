@@ -27,11 +27,21 @@ function StateManager:init(default_state, master, update_master_state)
 
     self.routine = nil
     self.routine_wait = 0
+
+    self.state_stack = {}
+    self.args_stack = {}
+    self.routine_stack = {}
 end
 
 function StateManager:addState(state, events)
     if isClass(events) and events:includes(StateClass) then
         self.state_handler[state] = events
+
+        events.state_manager = self
+
+        if not events.registered_events then
+            events:registerEvents(self.master)
+        end
 
         events = events.registered_events
     end
@@ -170,6 +180,98 @@ function StateManager:setState(state, ...)
     else
         self.routine = nil
     end
+end
+
+--- *(Experimental)*
+function StateManager:pushState(state, ...)
+    if state == self.state then return end
+
+    if self.update_master_state then
+        self.master.state = state
+    end
+
+    local last_state = self.state
+
+    self:call("pause", state, ...)
+
+    table.insert(self.state_stack, self.state)
+    table.insert(self.args_stack, self.args)
+    table.insert(self.routine_stack, self.routine or "no")
+
+    self.state = state
+    self.args = {...}
+    self.routine = nil
+
+    if not self.state_initialized[self.state] then
+        self:call("init")
+        self.state_initialized[self.state] = true
+    end
+
+    local redirect, redirect_args = self:call("enter", last_state, ...)
+
+    if self.on_state_change then
+        self.on_state_change(last_state, state, ...)
+    end
+    if self.master and self.master.onStateChange then
+        self.master:onStateChange(last_state, state, ...)
+    end
+
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
+    end
+
+    self.routine_wait = 0
+    if self:hasEvent("coroutine") then
+        local function wait(time)
+            self.routine_wait =  time
+            coroutine.yield()
+        end
+        local args = {...}
+        self.routine = coroutine.create(function() self:call("coroutine", wait, Utils.unpack(args)) end)
+    end
+end
+
+--- *(Experimental)*
+function StateManager:popState(...)
+    if #self.state_stack == 0 then
+        error("Attempt to pop state with an empty stack")
+    end
+
+    local state = table.remove(self.state_stack, #self.state_stack)
+    local args = table.remove(self.args_stack, #self.args_stack)
+    local routine = table.remove(self.routine_stack, #self.routine_stack)
+
+    if self.update_master_state then
+        self.master.state = state
+    end
+
+    local last_state = self.state
+
+    self:call("leave", state, ...)
+
+    self.state = state
+    self.args = args
+
+    if type(routine) == "string" then
+        self.routine = nil
+    else
+        self.routine = routine
+    end
+
+    local redirect, redirect_args = self:call("resume", last_state, ...)
+
+    if self.on_state_change then
+        self.on_state_change(last_state, state, ...)
+    end
+    if self.master and self.master.onStateChange then
+        self.master:onStateChange(last_state, state, ...)
+    end
+
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
+    end
+
+    self.routine_wait = 0
 end
 
 function StateManager:update()

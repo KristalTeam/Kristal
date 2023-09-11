@@ -1,12 +1,18 @@
 ---@class MenuFileSelect : StateClass
----@overload fun() : MenuFileSelect
+---
+---@field menu Menu
+---
+---@overload fun(menu:Menu) : MenuFileSelect
 local MenuFileSelect, super = Class(StateClass)
 
-function MenuFileSelect:init()
+function MenuFileSelect:init(menu)
+    self.menu = menu
+end
+
+function MenuFileSelect:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
-
     self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
 end
@@ -15,16 +21,16 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuFileSelect:onEnter(menu, from)
-    if from == "FILENAME" then
+function MenuFileSelect:onEnter(old_state)
+    if old_state == "FILENAME" then
         self.container.visible = true
         self.container.active = true
         return
     end
 
-    self.mod = menu.selected_mod
+    self.mod = self.menu.selected_mod
 
-    self.container = menu.stage:addChild(Object())
+    self.container = self.menu.stage:addChild(Object())
     self.container:setLayer(50)
 
     -- SELECT, COPY, ERASE, TRANSITIONING
@@ -54,8 +60,8 @@ function MenuFileSelect:onEnter(menu, from)
     self.bottom_row_heart = {80, 250, 440}
 end
 
-function MenuFileSelect:onLeave(menu, next)
-    if next == "FILENAME" then
+function MenuFileSelect:onLeave(new_state)
+    if new_state == "FILENAME" then
         self.container.visible = false
         self.container.active = false
     else
@@ -64,7 +70,7 @@ function MenuFileSelect:onLeave(menu, next)
     end
 end
 
-function MenuFileSelect:onKeyPressed(menu, key, is_repeat)
+function MenuFileSelect:onKeyPressed(key, is_repeat)
     if is_repeat or self.state == "TRANSITIONING" then
         return true
     end
@@ -109,7 +115,7 @@ function MenuFileSelect:onKeyPressed(menu, key, is_repeat)
                         end
                         Kristal.loadMod(self.mod.id, self.selected_y, save_name)
                     else
-                        menu:setState("FILENAME")
+                        self.menu:setState("FILENAME")
 
                         button:setChoices()
                         self.focused_button = nil
@@ -174,11 +180,11 @@ function MenuFileSelect:onKeyPressed(menu, key, is_repeat)
     elseif self.state == "SELECT" then
         if Input.is("cancel", key) then
             if not TARGET_MOD then
-                menu:setState("MODSELECT")
+                self.menu:setState("MODSELECT")
             else
-                menu:setState("MAINMENU")
-                menu.heart_target_x = 196
-                menu.heart_target_y = 238
+                self.menu:setState("MAINMENU")
+                self.menu.heart_target_x = 196
+                self.menu.heart_target_y = 238
             end
             Assets.stopAndPlaySound("ui_cancel")
             return true
@@ -206,11 +212,11 @@ function MenuFileSelect:onKeyPressed(menu, key, is_repeat)
                     self:updateSelected()
                 elseif self.selected_x == 3 then
                     if not TARGET_MOD then
-                        menu:setState("MODSELECT")
+                        self.menu:setState("MODSELECT")
                     else
-                        menu:setState("MAINMENU")
-                        menu.heart_target_x = 196
-                        menu.heart_target_y = 238
+                        self.menu:setState("MAINMENU")
+                        self.menu.heart_target_x = 196
+                        self.menu.heart_target_y = 238
                     end
                 end
             end
@@ -348,7 +354,7 @@ function MenuFileSelect:onKeyPressed(menu, key, is_repeat)
     return true
 end
 
-function MenuFileSelect:update(menu)
+function MenuFileSelect:update()
     if self.result_timer > 0 then
         self.result_timer = Utils.approach(self.result_timer, 0, DT)
         if self.result_timer == 0 then
@@ -358,10 +364,10 @@ function MenuFileSelect:update(menu)
 
     self:updateSelected()
 
-    menu.heart_target_x, menu.heart_target_y = self:getHeartPos()
+    self.menu.heart_target_x, self.menu.heart_target_y = self:getHeartPos()
 end
 
-function MenuFileSelect:draw(menu)
+function MenuFileSelect:draw()
     local mod_name = string.upper(self.mod.name or self.mod.id)
     Draw.printShadow(mod_name, 16, 8)
 

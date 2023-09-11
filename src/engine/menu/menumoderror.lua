@@ -1,18 +1,29 @@
 ---@class MenuModError : StateClass
----@overload fun() : MenuModError
+---
+---@field menu Menu
+---
+---@overload fun(menu:Menu) : MenuModError
 local MenuModError, super = Class(StateClass)
 
-function MenuModError:init()
+function MenuModError:init(menu)
+    self.menu = menu
+end
+
+function MenuModError:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("draw", self.draw)
 end
 
-function MenuModError:onEnter(menu, from)
-    menu.heart_target_x = 320 - 32 - 16 + 1 - 11
-    menu.heart_target_y = 480 - 16 + 1
+-------------------------------------------------------------------------------
+-- Callbacks
+-------------------------------------------------------------------------------
+
+function MenuModError:onEnter(old_state)
+    self.menu.heart_target_x = 320 - 32 - 16 + 1 - 11
+    self.menu.heart_target_y = 480 - 16 + 1
 end
 
-function MenuModError:draw(menu)
+function MenuModError:draw()
     local failed_mods = Kristal.Mods.failed_mods or {}
     local plural = #failed_mods == 1 and "mod" or "mods"
     Draw.printShadow({{255, 255, 0}, tostring(#failed_mods), {255, 255, 255}, " " .. plural .. " failed to load!"}, -1, 96, 2, "center", 640)

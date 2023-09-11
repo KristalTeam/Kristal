@@ -1,9 +1,12 @@
 ---@class StateClass : Class
 ---
+---@field state_manager StateManager
 ---@field registered_events table<string, function>|nil
 ---
 ---@overload fun() : StateClass
 local StateClass, super = Class()
+
+function StateClass:registerEvents(master) end
 
 --- Register an event for this class.
 ---@param event string # The name of the event to register.
@@ -14,21 +17,33 @@ function StateClass:registerEvent(event, func)
     end
 
     if func then
-        self.registered_events[event] = function(...) return func(self, ...) end
+        if self.state_manager.master then
+            self.registered_events[event] = function(master, ...) return func(self, ...) end
+        else
+            self.registered_events[event] = function(...) return func(self, ...) end
+        end
         return
     end
 
     local class_func = self[event]
 
     if class_func then
-        self.registered_events[event] = function(...) return class_func(self, ...) end
+        if self.state_manager.master then
+            self.registered_events[event] = function(master, ...) return class_func(self, ...) end
+        else
+            self.registered_events[event] = function(...) return class_func(self, ...) end
+        end
         return
     end
 
     for k, v in Utils.iterClass(self) do
         if type(k) == "string" and type(v) == "function" then
             if k:lower() == event or k:lower() == "on" .. event then
-                self.registered_events[event] = function(...) return v(self, ...) end
+                if self.state_manager.master then
+                    self.registered_events[event] = function(master, ...) return v(self, ...) end
+                else
+                    self.registered_events[event] = function(...) return v(self, ...) end
+                end
                 return
             end
         end

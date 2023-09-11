@@ -1,5 +1,7 @@
 ---@class MenuModList : StateClass
 ---
+---@field menu Menu
+---
 ---@field list ModList
 ---
 ---@field mods table[]
@@ -14,10 +16,12 @@
 ---
 ---@field active boolean
 ---
----@overload fun() : MenuModList
+---@overload fun(menu:Menu) : MenuModList
 local MenuModList, super = Class(StateClass)
 
-function MenuModList:init()
+function MenuModList:init(menu)
+    self.menu = menu
+
     self.list = nil
 
     self.mods = {}
@@ -32,16 +36,21 @@ function MenuModList:init()
     self.last_loaded = {}
 
     self.active = false
+end
 
+function MenuModList:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
-
     self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
 end
 
-function MenuModList:onEnter(menu, from)
+-------------------------------------------------------------------------------
+-- Callbacks
+-------------------------------------------------------------------------------
+
+function MenuModList:onEnter(old_state)
     self.active = true
 
     if not self.list then
@@ -56,7 +65,7 @@ function MenuModList:onEnter(menu, from)
     end
 end
 
-function MenuModList:onLeave(menu, to)
+function MenuModList:onLeave(new_state)
     if self.list then
         self.list.active = false
         self.list.visible = false
@@ -64,15 +73,15 @@ function MenuModList:onLeave(menu, to)
 
     self.active = false
 
-    menu.heart_outline.visible = false
+    self.menu.heart_outline.visible = false
 
-    if to == "MAINMENU" then
-        menu.selected_mod = nil
-        menu.selected_mod_button = nil
+    if new_state == "MAINMENU" then
+        self.menu.selected_mod = nil
+        self.menu.selected_mod_button = nil
     end
 end
 
-function MenuModList:onKeyPressed(menu, key, is_repeat)
+function MenuModList:onKeyPressed(key, is_repeat)
     if key == "f5" then
         Assets.stopAndPlaySound("ui_select")
 
@@ -83,7 +92,7 @@ function MenuModList:onKeyPressed(menu, key, is_repeat)
     if Input.isCancel(key) then
         Assets.stopAndPlaySound("ui_move")
 
-        menu:setState("MAINMENU")
+        self.menu:setState("MAINMENU")
         return true
 
     elseif #self.list.mods > 0 then
@@ -92,14 +101,14 @@ function MenuModList:onKeyPressed(menu, key, is_repeat)
         if Input.isConfirm(key) then
             if self.list:isOnCreate() then
                 Assets.stopAndPlaySound("ui_select")
-                menu.heart_target_x = 64 - 19
-                menu.heart_target_y = 128 + 19
-                menu:setState("CREATE")
+                self.menu.heart_target_x = 64 - 19
+                self.menu.heart_target_y = 128 + 19
+                self.menu:setState("CREATE")
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
                 if mod["useSaves"] or (mod["useSaves"] == nil and not mod["encounter"]) then
-                    menu:setState("FILESELECT")
+                    self.menu:setState("FILESELECT")
                 else
                     Kristal.loadMod(mod.id)
                 end
@@ -134,10 +143,10 @@ function MenuModList:onKeyPressed(menu, key, is_repeat)
     end
 end
 
-function MenuModList:update(menu)
+function MenuModList:update()
     if #self.list.mods == 0 then
-        menu.heart_target_x = -8
-        menu.heart_target_y = -8
+        self.menu.heart_target_x = -8
+        self.menu.heart_target_y = -8
         self.list.active = false
         self.list.visible = false
         return
@@ -151,20 +160,20 @@ function MenuModList:update(menu)
     if button then
         local lhx, lhy = button:getHeartPos()
         local button_heart_x, button_heart_y = button:getRelativePos(lhx, lhy, self.list)
-        menu.heart_target_x = self.list.x + button_heart_x
-        menu.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
+        self.menu.heart_target_x = self.list.x + button_heart_x
+        self.menu.heart_target_y = self.list.y + button_heart_y - (self.list.scroll_target - self.list.scroll)
     end
 
     if button and button:includes(ModButton) then
         ---@cast button ModButton
-        menu.heart_outline.visible = button:isFavorited()
-        menu.heart_outline:setColor(button:getFavoritedColor())
+        self.menu.heart_outline.visible = button:isFavorited()
+        self.menu.heart_outline:setColor(button:getFavoritedColor())
     else
-        menu.heart_outline.visible = false
+        self.menu.heart_outline.visible = false
     end
 end
 
-function MenuModList:draw(menu)
+function MenuModList:draw()
     if self.loading_mods then
         Draw.printShadow("Loading mods...", 0, 115 - 8, 2, "center", 640)
     else
@@ -178,18 +187,18 @@ function MenuModList:draw(menu)
             local string_part_2 = Input.getText("cancel")
             local string_part_3 = " to return to the main menu."
 
-            local part_2_width = menu.menu_font:getWidth(string_part_2)
+            local part_2_width = self.menu.menu_font:getWidth(string_part_2)
             if Input.usingGamepad() then
                 part_2_width = 32
             end
 
-            local total_width = menu.menu_font:getWidth(string_part_1) + part_2_width + menu.menu_font:getWidth(string_part_3)
+            local total_width = self.menu.menu_font:getWidth(string_part_1) + part_2_width + self.menu.menu_font:getWidth(string_part_3)
 
             -- Draw each part, using total_width to center it
             Draw.setColor(COLORS.silver)
             Draw.printShadow(string_part_1, 320 - (total_width / 2), 480 - 32)
 
-            local part_2_xpos = 320 - (total_width / 2) + menu.menu_font:getWidth(string_part_1)
+            local part_2_xpos = 320 - (total_width / 2) + self.menu.menu_font:getWidth(string_part_1)
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
                 Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
@@ -199,7 +208,7 @@ function MenuModList:draw(menu)
                 Draw.printShadow(string_part_2, part_2_xpos, 480 - 32)
             end
             Draw.setColor(COLORS.silver)
-            Draw.printShadow(string_part_3, 320 - (total_width / 2) + menu.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32)
+            Draw.printShadow(string_part_3, 320 - (total_width / 2) + self.menu.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32)
 
             Draw.setColor(1, 1, 1)
         else
@@ -212,14 +221,14 @@ function MenuModList:draw(menu)
                 control_menu_width = 32
                 control_cancel_width = 32
             else
-                control_menu_width = menu.menu_font:getWidth(Input.getText("menu"))
-                control_cancel_width = menu.menu_font:getWidth(Input.getText("cancel"))
+                control_menu_width = self.menu.menu_font:getWidth(Input.getText("menu"))
+                control_cancel_width = self.menu.menu_font:getWidth(Input.getText("cancel"))
             end
 
             local button = self:getSelectedButton()
             local favorited = button and button:includes(ModButton) and button:isFavorited()
 
-            local x_pos = menu.menu_font:getWidth(" Back")
+            local x_pos = self.menu.menu_font:getWidth(" Back")
             Draw.printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8)
             x_pos = x_pos + control_cancel_width
             if Input.usingGamepad() then
@@ -231,7 +240,7 @@ function MenuModList:draw(menu)
                 Draw.printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8)
             end
             local fav = favorited and " Unfavorite  " or " Favorite  "
-            x_pos = x_pos + menu.menu_font:getWidth(fav)
+            x_pos = x_pos + self.menu.menu_font:getWidth(fav)
             Draw.printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8)
             x_pos = x_pos + control_menu_width
             if Input.usingGamepad() then
@@ -247,6 +256,10 @@ function MenuModList:draw(menu)
         end
     end
 end
+
+-------------------------------------------------------------------------------
+-- Class Methods
+-------------------------------------------------------------------------------
 
 ---@return table
 function MenuModList:getSelectedMod()
@@ -288,7 +301,7 @@ function MenuModList:reloadMods()
     Kristal.Mods.clear()
     Kristal.loadAssets("", "mods", "", function()
         if #Kristal.Mods.failed_mods > 0 then
-            Menu:setState("MODERROR")
+            self.menu:setState("MODERROR")
         end
 
         self.loading_mods = false
@@ -307,7 +320,7 @@ function MenuModList:buildModList()
     if not self.list then
         self.list = ModList(69, 70, 502, 370)
         self.list.layer = 50
-        Menu.stage:addChild(self.list)
+        self.menu.stage:addChild(self.list)
 
         if not self.active then
             self.list.active = false
@@ -424,16 +437,16 @@ function MenuModList:buildModList()
             self.fades[TARGET_MOD] = 1
 
             if self.scripts[TARGET_MOD] and self.scripts[TARGET_MOD].hide_background ~= false then
-                Menu.background_fade = 0
+                self.menu.background_fade = 0
             end
         end
 
         if self.music[TARGET_MOD] then
-            Menu.music:remove()
+            self.menu.music:remove()
 
-            Menu.music = self.music[TARGET_MOD]
-            Menu.music:setVolume(self.music_options[TARGET_MOD].volume)
-            Menu.music:play()
+            self.menu.music = self.music[TARGET_MOD]
+            self.menu.music:setVolume(self.music_options[TARGET_MOD].volume)
+            self.menu.music:play()
         end
     end
 
