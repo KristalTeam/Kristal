@@ -474,7 +474,7 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite():shake(9)
+    self:getActiveSprite():shake(9, 0, 0.5, 2/30)
 
     if self.health <= (self.max_health * self.tired_percentage) then
         self:setTired(true)
