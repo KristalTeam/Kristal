@@ -12,6 +12,7 @@
 
     "oldTensionBar": false,          // Syle of TP bar
     "oldUIPositions": false,         // Old positions of various UI elements
+    "prioritySpareableText": false,  // Whether enemies' spareable text should be prioritized over their tired / low-health text
 
     "speechBubble": "cyber",         // Default enemy speech bubble style
 
