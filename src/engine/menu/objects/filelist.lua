@@ -206,7 +206,7 @@ function FileList:onKeyPressed(key)
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
             else
-                self.menu:setState("MAINMENU")
+                self.menu:setState("TITLE")
                 self.menu.heart_target_x = 196
                 self.menu.heart_target_y = 238
             end
@@ -240,7 +240,7 @@ function FileList:onKeyPressed(key)
                     if not TARGET_MOD then
                         self.menu:setState("MODSELECT")
                     else
-                        self.menu:setState("MAINMENU")
+                        self.menu:setState("TITLE")
                         self.menu.heart_target_x = 196
                         self.menu.heart_target_y = 238
                     end

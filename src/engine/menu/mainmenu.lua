@@ -191,8 +191,8 @@ function MainMenu:enter()
     --}
     --self.credits_page = 1
 
-    --self.page_scroll_direction = "right"
-    --self.page_scroll_timer = 0
+    self.page_scroll_direction = "right"
+    self.page_scroll_timer = 0
 
     --self.create = {}
 
@@ -236,7 +236,7 @@ function MainMenu:onStateChange(old_state, new_state)
         self.naming_screen:remove()
         self.heart.visible = true
     end
-    --[[if new_state == "MAINMENU" then
+    --[[if new_state == "TITLE" then
         self.selected_mod_button = nil
         self.selected_mod = nil]]
     --[[if new_state == "MODSELECT" then
@@ -708,9 +708,9 @@ function MainMenu:update()
     end
     self.config_y = self.config_y + ((self.config_target_y - self.config_y) / 2) * DTMULT]]
 
-    --[[if self.page_scroll_timer > 0 then
+    if self.page_scroll_timer > 0 then
         self.page_scroll_timer = Utils.approach(self.page_scroll_timer, 0, DT)
-    end]]
+    end
 end
 
 function MainMenu:optionsShown()
@@ -776,7 +776,7 @@ function MainMenu:draw()
 
         Draw.printShadow("Got it", -1, 454 - 8, 2, "center", 640)]]
 
-    --[[elseif self.state == "MAINMENU" then
+    --[[elseif self.state == "TITLE" then
         local logo_img = self.selected_mod and self.selected_mod.logo or self.logo
 
         Draw.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
@@ -1196,7 +1196,7 @@ function MainMenu:drawVersion()
     if not TARGET_MOD then
 
         local ver_string = self.ver_string
-        if self.state == "MAINMENU" and Kristal.Version.major == 0 then
+        if self.state == "TITLE" and Kristal.Version.major == 0 then
             ver_string = ver_string .. " (Unstable)"
         end
 
@@ -1306,7 +1306,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
         end
     end
 
-    --[[if self.state == "MAINMENU" then
+    --[[if self.state == "TITLE" then
         if Input.isConfirm(key) then
             self.ui_select:stop()
             self.ui_select:play()
@@ -1351,7 +1351,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
         self.heart_target_y = 238 + (self.selected_option - 1) * 32]]
     if self.state == "OPTIONS" then
         if Input.isCancel(key) then
-            self:setState("MAINMENU")
+            self:setState("TITLE")
             self.ui_move:stop()
             self.ui_move:play()
             self.heart_target_x = 196
@@ -1428,7 +1428,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
 
             if self.selected_option == max_option then
                 -- "Back" button
-                self:setState("MAINMENU")
+                self:setState("TITLE")
                 self.heart_target_x = 196
                 self.selected_option = 3
                 self.heart_target_y = 238 + (2 * 32)
@@ -1569,7 +1569,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
         end
 
         if Input.isCancel(key) then
-            self:setState("MAINMENU")
+            self:setState("TITLE")
             self.ui_move:stop()
             self.ui_move:play()
             self.heart_target_x = 196
@@ -1628,7 +1628,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
     --[[elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
             self.credits_page = 1
-            self:setState("MAINMENU")
+            self:setState("TITLE")
             if Input.isCancel(key) then
                 self.ui_move:stop()
                 self.ui_move:play()

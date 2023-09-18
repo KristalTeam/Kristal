@@ -106,7 +106,7 @@ end
 
 function MainMenuCredits:onKeyPressed(key, is_repeat)
     if Input.isCancel(key) or Input.isConfirm(key) then
-        self.menu:setState("MAINMENU")
+        self.menu:setState("TITLE")
 
         if Input.isCancel(key) then
             Assets.stopAndPlaySound("ui_move")
@@ -114,7 +114,7 @@ function MainMenuCredits:onKeyPressed(key, is_repeat)
             Assets.stopAndPlaySound("ui_select")
         end
 
-        self.menu.main_screen:selectOption("credits")
+        self.menu.title_screen:selectOption("credits")
     end
 
     local page_dir = "right"

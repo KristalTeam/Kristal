@@ -75,7 +75,7 @@ function MainMenuModList:onLeave(new_state)
 
     self.menu.heart_outline.visible = false
 
-    if new_state == "MAINMENU" then
+    if new_state == "TITLE" then
         self.menu.selected_mod = nil
         self.menu.selected_mod_button = nil
     end
@@ -92,7 +92,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
     if Input.isCancel(key) then
         Assets.stopAndPlaySound("ui_move")
 
-        self.menu:setState("MAINMENU")
+        self.menu:setState("TITLE")
         return true
 
     elseif #self.list.mods > 0 then
