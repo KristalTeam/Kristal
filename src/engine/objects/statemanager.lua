@@ -234,7 +234,8 @@ end
 --- *(Experimental)*
 function StateManager:popState(...)
     if #self.state_stack == 0 then
-        error("Attempt to pop state with an empty stack")
+        self:setState(self.default_state)
+        return
     end
 
     local state = table.remove(self.state_stack, #self.state_stack)

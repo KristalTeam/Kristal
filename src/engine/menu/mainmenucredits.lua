@@ -172,12 +172,21 @@ function MainMenuCredits:draw()
             end
         end
 
-        if self.selected_page < #self.pages then
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8 + r_offset, 52, 0, 2, 2)
+        if self.selected_page >= #self.pages then
+            Draw.setColor(COLORS.silver, 0.5)
+        else
+            Draw.setColor(COLORS.white)
         end
-        if self.selected_page > 1 then
-            Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26 + l_offset, 52, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8 + r_offset, 52, 0, 2, 2)
+
+        if self.selected_page == 1 then
+            Draw.setColor(COLORS.silver, 0.5)
+        else
+            Draw.setColor(COLORS.white)
         end
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26 + l_offset, 52, 0, 2, 2)
+
+        Draw.setColor(COLORS.white)
     end
 
     local left_column = page[2]

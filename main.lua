@@ -56,6 +56,7 @@ GonerChoice = require("src.engine.objects.gonerchoice")
 GonerKeyboard = require("src.engine.objects.gonerkeyboard")
 
 MainMenuTitle = require("src.engine.menu.mainmenutitle")
+MainMenuOptions = require("src.engine.menu.mainmenuoptions")
 MainMenuCredits = require("src.engine.menu.mainmenucredits")
 MainMenuModList = require("src.engine.menu.mainmenumodlist")
 MainMenuModCreate = require("src.engine.menu.mainmenumodcreate")

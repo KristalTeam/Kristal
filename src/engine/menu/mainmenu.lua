@@ -45,6 +45,7 @@ function MainMenu:enter()
     self.state = "TITLE"
 
     self.title_screen = MainMenuTitle(self)
+    self.options = MainMenuOptions(self)
     self.credits = MainMenuCredits(self)
     self.mod_list = MainMenuModList(self)
     self.mod_create = MainMenuModCreate(self)
@@ -57,6 +58,7 @@ function MainMenu:enter()
     self.state = "NONE"
     self.state_manager = StateManager("NONE", self, true)
     self.state_manager:addState("TITLE", self.title_screen)
+    self.state_manager:addState("OPTIONS", self.options)
     self.state_manager:addState("CREDITS", self.credits)
     self.state_manager:addState("MODSELECT", self.mod_list)
     self.state_manager:addState("MODCREATE", self.mod_create)
@@ -87,11 +89,11 @@ function MainMenu:enter()
     self.heart_target_x = 0
     self.heart_target_y = 0
 
-    self.options_target_y = 0
-    self.options_y = 0
+    --self.options_target_y = 0
+    --self.options_y = 0
 
-    self.config_target_y = 0
-    self.config_y = 0
+    --self.config_target_y = 0
+    --self.config_y = 0
 
     -- Assets required for the menu
     self.menu_font = Assets.getFont("main")
@@ -115,17 +117,17 @@ function MainMenu:enter()
     self.selecting_key = false
     self.selected_bind = 1
 
-    self.noise_timer = 0
+    --self.noise_timer = 0
 
     self.has_target_saves = TARGET_MOD and Kristal.hasAnySaves(TARGET_MOD) or false
     self.target_mod_offset = TARGET_MOD and 1 or 0
 
-    ---@type table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
-    self.options = {}
-    self.options_pages = {}
-    self.options_page_index = 1
+    -----@type table<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>
+    --self.options = {}
+    --self.options_pages = {}
+    --self.options_page_index = 1
 
-    self:initializeOptions()
+    --self:initializeOptions()
 
     -----@alias creditsline string|{[1]: string, [2]: number[]}
     -----@type {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
@@ -191,8 +193,8 @@ function MainMenu:enter()
     --}
     --self.credits_page = 1
 
-    self.page_scroll_direction = "right"
-    self.page_scroll_timer = 0
+    --self.page_scroll_direction = "right"
+    --self.page_scroll_timer = 0
 
     --self.create = {}
 
@@ -294,11 +296,11 @@ function MainMenu:onStateChange(old_state, new_state)
         self.naming_screen.layer = 50
         self.stage:addChild(self.naming_screen)
         self.heart.visible = false
-    elseif new_state == "OPTIONS" then
+    --[[elseif new_state == "OPTIONS" then
         if old_state ~= "VOLUME" and old_state ~= "WINDOWSCALE" and old_state ~= "FPSOPTION" and old_state ~= "BORDER" and old_state ~= "DEFAULTNAME" then
             self.options_target_y = 0
             self.options_y = 0
-        end
+        end]]
     elseif new_state == "CONTROLS" then
         self.options_target_y = 0
         self.options_y = 0
@@ -396,6 +398,7 @@ function MainMenu:focus()
 end
 
 
+--[[
 --- Adds a page to the options menu.
 ---@param id   string # The id of the page, referred to when adding options.
 ---@param name string # The name of the page, displayed in the options menu.
@@ -538,6 +541,7 @@ function MainMenu:initializeOptions()
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
 end
+]]
 
 function MainMenu:drawAnimStrip(sprite, subimg, x, y, alpha)
     Draw.setColor(1, 1, 1, alpha)
@@ -666,7 +670,7 @@ function MainMenu:update()
         end]]
     --[[elseif self.state == "FILESELECT" then
         self.heart_target_x, self.heart_target_y = self.files:getHeartPos()]]
-    if self.state == "VOLUME" then
+    --[[if self.state == "VOLUME" then
         self.noise_timer = self.noise_timer + DTMULT
         if Input.down("left") then
             Kristal.setVolume(Kristal.getVolume() - ((2 * DTMULT) / 100))
@@ -685,7 +689,7 @@ function MainMenu:update()
         if (not Input.down("right")) and (not Input.down("left")) then
             self.noise_timer = 3
         end
-    end
+    end]]
 
     if self.heart.visible then
         if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
@@ -698,24 +702,24 @@ function MainMenu:update()
         self.heart.y = self.heart.y + ((self.heart_target_y - self.heart.y) / 2) * DTMULT
     end
 
-    if (math.abs((self.options_target_y - self.options_y)) <= 2) then
+    --[[if (math.abs((self.options_target_y - self.options_y)) <= 2) then
         self.options_y = self.options_target_y
     end
-    self.options_y = self.options_y + ((self.options_target_y - self.options_y) / 2) * DTMULT
+    self.options_y = self.options_y + ((self.options_target_y - self.options_y) / 2) * DTMULT]]
 
     --[[if (math.abs((self.config_target_y - self.config_y)) <= 2) then
         self.config_y = self.config_target_y
     end
     self.config_y = self.config_y + ((self.config_target_y - self.config_y) / 2) * DTMULT]]
 
-    if self.page_scroll_timer > 0 then
+    --[[if self.page_scroll_timer > 0 then
         self.page_scroll_timer = Utils.approach(self.page_scroll_timer, 0, DT)
-    end
+    end]]
 end
 
-function MainMenu:optionsShown()
+--[[function MainMenu:optionsShown()
     return self.state == "OPTIONS" or self.state == "VOLUME" or self.state == "WINDOWSCALE" or self.state == "FPSOPTION" or self.state == "BORDER"
-end
+end]]
 
 function MainMenu:draw()
     -- Draw the menu background
@@ -798,7 +802,7 @@ function MainMenu:draw()
             Draw.printShadow("Credits", 215, 219 + 96)
             Draw.printShadow("Quit", 215, 219 + 128)
         end]]
-    if self:optionsShown() then
+    --[[if self:optionsShown() then
         local page = self.options_pages[self.options_page_index]
         local options = self.options[page].options
 
@@ -868,9 +872,9 @@ function MainMenu:draw()
             Draw.popScissor()
         end
 
-        Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)
+        Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)]]
 
-    elseif self.state == "CONTROLS" then
+    if self.state == "CONTROLS" then
         Draw.setColor(COLORS.silver)
         Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
 
@@ -1349,7 +1353,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
 
         self.heart_target_x = 196
         self.heart_target_y = 238 + (self.selected_option - 1) * 32]]
-    if self.state == "OPTIONS" then
+    --[[if self.state == "OPTIONS" then
         if Input.isCancel(key) then
             self:setState("TITLE")
             self.ui_move:stop()
@@ -1560,7 +1564,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
             self.ui_move:stop()
             self.ui_move:play()
             Kristal.resetWindow()
-        end
+        end]]
     --[[elseif self.state == "MODSELECT" then
         if key == "f5" then
             self.ui_select:stop()
@@ -1623,7 +1627,7 @@ function MainMenu:onKeyPressed(key, is_repeat)
     --[[elseif self.state == "FILENAME" or self.state == "DEFAULTNAME" then
         -- this needs to be here apparently]]
         -- not anymore
-    elseif self.state == "DEFAULTNAME" then
+    if self.state == "DEFAULTNAME" then
         -- wait actually kinda
     --[[elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
