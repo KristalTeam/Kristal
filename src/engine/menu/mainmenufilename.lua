@@ -1,15 +1,15 @@
----@class MenuFileName : StateClass
+---@class MainMenuFileName : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
----@overload fun(menu:Menu) : MenuFileName
-local MenuFileName, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuFileName
+local MainMenuFileName, super = Class(StateClass)
 
-function MenuFileName:init(menu)
+function MainMenuFileName:init(menu)
     self.menu = menu
 end
 
-function MenuFileName:registerEvents()
+function MainMenuFileName:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("draw", self.draw)
@@ -19,7 +19,7 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuFileName:onEnter(old_state)
+function MainMenuFileName:onEnter(old_state)
     local mod = self.menu.selected_mod
 
     self.file_namer = FileNamer({
@@ -54,16 +54,16 @@ function MenuFileName:onEnter(old_state)
     self.menu.heart.visible = false
 end
 
-function MenuFileName:onLeave(new_state)
+function MainMenuFileName:onLeave(new_state)
     self.file_namer:remove()
     self.file_namer = nil
 
     self.menu.heart.visible = true
 end
 
-function MenuFileName:draw()
+function MainMenuFileName:draw()
     local mod_name = string.upper(self.menu.selected_mod.name or self.menu.selected_mod.id)
     Draw.printShadow(mod_name, 16, 8)
 end
 
-return MenuFileName
+return MainMenuFileName

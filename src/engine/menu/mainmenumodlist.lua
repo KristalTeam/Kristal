@@ -1,6 +1,6 @@
----@class MenuModList : StateClass
+---@class MainMenuModList : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
 ---@field list ModList
 ---
@@ -16,10 +16,10 @@
 ---
 ---@field active boolean
 ---
----@overload fun(menu:Menu) : MenuModList
-local MenuModList, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuModList
+local MainMenuModList, super = Class(StateClass)
 
-function MenuModList:init(menu)
+function MainMenuModList:init(menu)
     self.menu = menu
 
     self.list = nil
@@ -38,7 +38,7 @@ function MenuModList:init(menu)
     self.active = false
 end
 
-function MenuModList:registerEvents()
+function MainMenuModList:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
@@ -50,7 +50,7 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuModList:onEnter(old_state)
+function MainMenuModList:onEnter(old_state)
     self.active = true
 
     if not self.list then
@@ -65,7 +65,7 @@ function MenuModList:onEnter(old_state)
     end
 end
 
-function MenuModList:onLeave(new_state)
+function MainMenuModList:onLeave(new_state)
     if self.list then
         self.list.active = false
         self.list.visible = false
@@ -81,7 +81,7 @@ function MenuModList:onLeave(new_state)
     end
 end
 
-function MenuModList:onKeyPressed(key, is_repeat)
+function MainMenuModList:onKeyPressed(key, is_repeat)
     if key == "f5" then
         Assets.stopAndPlaySound("ui_select")
 
@@ -141,7 +141,7 @@ function MenuModList:onKeyPressed(key, is_repeat)
     end
 end
 
-function MenuModList:update()
+function MainMenuModList:update()
     if #self.list.mods == 0 then
         self.menu.heart_target_x = -8
         self.menu.heart_target_y = -8
@@ -171,7 +171,7 @@ function MenuModList:update()
     end
 end
 
-function MenuModList:draw()
+function MainMenuModList:draw()
     if self.loading_mods then
         Draw.printShadow("Loading mods...", 0, 115 - 8, 2, "center", 640)
     else
@@ -262,16 +262,16 @@ end
 -------------------------------------------------------------------------------
 
 ---@return table
-function MenuModList:getSelectedMod()
+function MainMenuModList:getSelectedMod()
     return self.list:getSelectedMod()
 end
 
 ---@return ModButton|ModCreateButton
-function MenuModList:getSelectedButton()
+function MainMenuModList:getSelectedButton()
     return self.list:getSelected()
 end
 
-function MenuModList:checkCompatibility()
+function MainMenuModList:checkCompatibility()
     local mod = self:getSelectedMod()
 
     if not mod then
@@ -293,7 +293,7 @@ function MenuModList:checkCompatibility()
     return success, highest_version
 end
 
-function MenuModList:reloadMods()
+function MainMenuModList:reloadMods()
     if self.loading_mods then return end
 
     self.loading_mods = true
@@ -311,7 +311,7 @@ function MenuModList:reloadMods()
     end)
 end
 
-function MenuModList:buildModList()
+function MainMenuModList:buildModList()
     -- Remember the last selected mod
     local last_scroll = self.list and self.list.scroll_target
     local last_selected = self.list and self.list:getSelectedId()
@@ -457,4 +457,4 @@ function MenuModList:buildModList()
     end
 end
 
-return MenuModList
+return MainMenuModList

@@ -8,7 +8,7 @@ Kristal.Overlay = require("src.engine.overlay")
 Kristal.Shaders = require("src.engine.shaders")
 Kristal.States = {
     ["Loading"] = require("src.engine.loadstate"),
-    ["Menu"] = require("src.engine.menu.menu"),
+    ["MainMenu"] = require("src.engine.menu.mainmenu"),
     ["Game"] = require("src.engine.game.game"),
     ["Testing"] = require("src.teststate"),
 }
@@ -835,7 +835,7 @@ function Kristal.returnToMenu()
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function()
         love.window.setTitle(Kristal.getDesiredWindowTitle())
-        Gamestate.switch(Kristal.States["Menu"])
+        Gamestate.switch(MainMenu)
     end)
 
     Kristal.DebugSystem:refresh()
@@ -1140,7 +1140,7 @@ end
 function Kristal.processDynamicBorder()
     if Kristal.getState() == Game then
         return Game:getBorder()
-    elseif Kristal.getState() == Kristal.States["Menu"] then
+    elseif Kristal.getState() == MainMenu then
         return "castle"
     end
 end

@@ -76,7 +76,7 @@ function Loading:update()
         if Kristal.Args["test"] then
             Gamestate.switch(Kristal.States["Testing"])
         else
-            Gamestate.switch(Kristal.States["Menu"])
+            Gamestate.switch(Kristal.States["MainMenu"])
         end
     end
 end

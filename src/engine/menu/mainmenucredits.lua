@@ -1,6 +1,6 @@
----@class MenuCredits : StateClass
+---@class MainMenuCredits : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
 ---@field pages {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
 ---
@@ -8,12 +8,12 @@
 ---@field scroll_direction string
 ---@field scroll_timer number
 ---
----@overload fun(menu:Menu) : MenuCredits
-local MenuCredits, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuCredits
+local MainMenuCredits, super = Class(StateClass)
 
 ---@alias creditsline string|{[1]: string, [2]: number[]}
 
-function MenuCredits:init(menu)
+function MainMenuCredits:init(menu)
     self.menu = menu
 
     self.pages = {
@@ -82,7 +82,7 @@ function MenuCredits:init(menu)
     self.scroll_timer = 0
 end
 
-function MenuCredits:registerEvents(master)
+function MainMenuCredits:registerEvents(master)
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("keypressed", self.onKeyPressed)
 
@@ -94,7 +94,7 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuCredits:onEnter(old_state)
+function MainMenuCredits:onEnter(old_state)
     self.selected_page = 1
 
     self.scroll_direction = "right"
@@ -104,7 +104,7 @@ function MenuCredits:onEnter(old_state)
     self.menu.heart_target_y = 480 - 16 + 1
 end
 
-function MenuCredits:onKeyPressed(key, is_repeat)
+function MainMenuCredits:onKeyPressed(key, is_repeat)
     if Input.isCancel(key) or Input.isConfirm(key) then
         self.menu:setState("MAINMENU")
 
@@ -141,13 +141,13 @@ function MenuCredits:onKeyPressed(key, is_repeat)
     end
 end
 
-function MenuCredits:update()
+function MainMenuCredits:update()
     if self.scroll_timer > 0 then
         self.scroll_timer = Utils.approach(self.scroll_timer, 0, DT)
     end
 end
 
-function MenuCredits:draw()
+function MainMenuCredits:draw()
     local menu_font = Assets.getFont("main")
 
     local page = self.pages[self.selected_page]
@@ -212,4 +212,4 @@ function MenuCredits:draw()
     Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)
 end
 
-return MenuCredits
+return MainMenuCredits

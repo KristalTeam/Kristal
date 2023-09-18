@@ -1,6 +1,6 @@
----@class MenuModConfig : StateClass
+---@class MainMenuModConfig : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
 ---@field options table
 ---@field selected_option number
@@ -10,10 +10,10 @@
 ---@field scroll_target_y number
 ---@field scroll_y number
 ---
----@overload fun(menu:Menu) : MenuModConfig
-local MenuModConfig, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuModConfig
+local MainMenuModConfig, super = Class(StateClass)
 
-function MenuModConfig:init(menu)
+function MainMenuModConfig:init(menu)
     self.menu = menu
 
     self:registerOptions()
@@ -25,7 +25,7 @@ function MenuModConfig:init(menu)
     self.scroll_y = 0
 end
 
-function MenuModConfig:registerEvents()
+function MainMenuModConfig:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("update", self.update)
@@ -36,14 +36,14 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuModConfig:onEnter(old_state)
+function MainMenuModConfig:onEnter(old_state)
     self.selected_option = 1
 
     self.scroll_target_y = 0
     self.scroll_y = 0
 end
 
-function MenuModConfig:onKeyPressed(key, is_repeat)
+function MainMenuModConfig:onKeyPressed(key, is_repeat)
     if not self.editing then
         if Input.isCancel(key) then
             self.menu:setState("MODCREATE")
@@ -113,14 +113,14 @@ function MenuModConfig:onKeyPressed(key, is_repeat)
     end
 end
 
-function MenuModConfig:update()
+function MainMenuModConfig:update()
     if (math.abs((self.scroll_target_y - self.scroll_y)) <= 2) then
         self.scroll_y = self.scroll_target_y
     end
     self.scroll_y = self.scroll_y + ((self.scroll_target_y - self.scroll_y) / 2) * DTMULT
 end
 
-function MenuModConfig:draw()
+function MainMenuModConfig:draw()
     local menu_font = Assets.getFont("main")
 
     Draw.printShadow("Edit Feature Config", 0, 48, 2, "center", 640)
@@ -195,7 +195,7 @@ end
 -- Class Methods
 -------------------------------------------------------------------------------
 
-function MenuModConfig:registerOptions()
+function MainMenuModConfig:registerOptions()
     self.options = {}
 
     self:registerOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                "selection", {nil, true, false})
@@ -218,7 +218,7 @@ function MenuModConfig:registerOptions()
     self:registerOption("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",          "selection", {nil, true, false})
 end
 
-function MenuModConfig:registerOption(id, name, description, type, options)
+function MainMenuModConfig:registerOption(id, name, description, type, options)
     table.insert(self.options, {
         id = id,
         name = name,
@@ -229,4 +229,4 @@ function MenuModConfig:registerOption(id, name, description, type, options)
     })
 end
 
-return MenuModConfig
+return MainMenuModConfig

@@ -1,15 +1,15 @@
----@class MenuFileSelect : StateClass
+---@class MainMenuFileSelect : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
----@overload fun(menu:Menu) : MenuFileSelect
-local MenuFileSelect, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuFileSelect
+local MainMenuFileSelect, super = Class(StateClass)
 
-function MenuFileSelect:init(menu)
+function MainMenuFileSelect:init(menu)
     self.menu = menu
 end
 
-function MenuFileSelect:registerEvents()
+function MainMenuFileSelect:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
@@ -21,7 +21,7 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuFileSelect:onEnter(old_state)
+function MainMenuFileSelect:onEnter(old_state)
     if old_state == "FILENAME" then
         self.container.visible = true
         self.container.active = true
@@ -60,7 +60,7 @@ function MenuFileSelect:onEnter(old_state)
     self.bottom_row_heart = {80, 250, 440}
 end
 
-function MenuFileSelect:onLeave(new_state)
+function MainMenuFileSelect:onLeave(new_state)
     if new_state == "FILENAME" then
         self.container.visible = false
         self.container.active = false
@@ -70,7 +70,7 @@ function MenuFileSelect:onLeave(new_state)
     end
 end
 
-function MenuFileSelect:onKeyPressed(key, is_repeat)
+function MainMenuFileSelect:onKeyPressed(key, is_repeat)
     if is_repeat or self.state == "TRANSITIONING" then
         return true
     end
@@ -354,7 +354,7 @@ function MenuFileSelect:onKeyPressed(key, is_repeat)
     return true
 end
 
-function MenuFileSelect:update()
+function MainMenuFileSelect:update()
     if self.result_timer > 0 then
         self.result_timer = Utils.approach(self.result_timer, 0, DT)
         if self.result_timer == 0 then
@@ -367,7 +367,7 @@ function MenuFileSelect:update()
     self.menu.heart_target_x, self.menu.heart_target_y = self:getHeartPos()
 end
 
-function MenuFileSelect:draw()
+function MainMenuFileSelect:draw()
     local mod_name = string.upper(self.mod.name or self.mod.id)
     Draw.printShadow(mod_name, 16, 8)
 
@@ -400,7 +400,7 @@ end
 -- Class Methods
 -------------------------------------------------------------------------------
 
-function MenuFileSelect:getTitle()
+function MainMenuFileSelect:getTitle()
     if self.result_text then
         return self.result_text
     end
@@ -421,17 +421,17 @@ function MenuFileSelect:getTitle()
     end
 end
 
-function MenuFileSelect:setState(state, result_text)
+function MainMenuFileSelect:setState(state, result_text)
     self:setResultText(result_text)
     self.state = state
 end
 
-function MenuFileSelect:setResultText(text)
+function MainMenuFileSelect:setResultText(text)
     self.result_text = text
     self.result_timer = 3
 end
 
-function MenuFileSelect:updateSelected()
+function MainMenuFileSelect:updateSelected()
     for i,file in ipairs(self.files) do
         if i == self.selected_y or (self.state == "COPY" and self.copied_button == file) then
             file.selected = true
@@ -441,11 +441,11 @@ function MenuFileSelect:updateSelected()
     end
 end
 
-function MenuFileSelect:getSelectedFile()
+function MainMenuFileSelect:getSelectedFile()
     return self.files[self.selected_y]
 end
 
-function MenuFileSelect:getHeartPos()
+function MainMenuFileSelect:getHeartPos()
     if self.selected_y <= 3 then
         local button = self:getSelectedFile()
         local hx, hy = button:getHeartPos()
@@ -456,4 +456,4 @@ function MenuFileSelect:getHeartPos()
     end
 end
 
-return MenuFileSelect
+return MainMenuFileSelect

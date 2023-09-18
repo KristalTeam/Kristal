@@ -1,11 +1,11 @@
----@class MenuMain : StateClass
+---@class MainMenuTitle : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
----@overload fun(menu:Menu) : MenuMain
-local MenuMain, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuTitle
+local MainMenuTitle, super = Class(StateClass)
 
-function MenuMain:init(menu)
+function MainMenuTitle:init(menu)
     self.menu = menu
 
     self.logo = Assets.getTexture("kristal/title_logo_shadow")
@@ -13,7 +13,7 @@ function MenuMain:init(menu)
     self.selected_option = 1
 end
 
-function MenuMain:registerEvents()
+function MainMenuTitle:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
@@ -24,7 +24,7 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuMain:onEnter(old_state)
+function MainMenuTitle:onEnter(old_state)
     if TARGET_MOD then
         self.options = {
             {"play",    self.menu.has_target_saves and "Load game" or "Start game"},
@@ -46,10 +46,10 @@ function MenuMain:onEnter(old_state)
     self.menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
 end
 
-function MenuMain:onLeave(new_state)
+function MainMenuTitle:onLeave(new_state)
 end
 
-function MenuMain:onKeyPressed(key, is_repeat)
+function MainMenuTitle:onKeyPressed(key, is_repeat)
     if Input.isConfirm(key) then
         Assets.stopAndPlaySound("ui_select")
 
@@ -99,7 +99,7 @@ function MenuMain:onKeyPressed(key, is_repeat)
     self.menu.heart_target_y = 238 + (self.selected_option - 1) * 32
 end
 
-function MenuMain:draw()
+function MainMenuTitle:draw()
     local logo_img = self.menu.selected_mod and self.menu.selected_mod.logo or self.logo
 
     Draw.draw(logo_img, SCREEN_WIDTH/2 - logo_img:getWidth()/2, 105 - logo_img:getHeight()/2)
@@ -114,7 +114,7 @@ end
 -- Class Methods
 -------------------------------------------------------------------------------
 
-function MenuMain:selectOption(id)
+function MainMenuTitle:selectOption(id)
     for i, options in ipairs(self.options) do
         if options[1] == id then
             self.selected_option = i
@@ -129,4 +129,4 @@ function MenuMain:selectOption(id)
     return false
 end
 
-return MenuMain
+return MainMenuTitle

@@ -1,6 +1,6 @@
----@class MenuModCreate : StateClass
+---@class MainMenuModCreate : StateClass
 ---
----@field menu Menu
+---@field menu MainMenu
 ---
 ---@field state string
 ---@field state_manager StateManager
@@ -14,15 +14,15 @@
 ---@field input_pos_x number
 ---@field input_pos_y number
 ---
----@overload fun(menu:Menu) : MenuModCreate
-local MenuModCreate, super = Class(StateClass)
+---@overload fun(menu:MainMenu) : MainMenuModCreate
+local MainMenuModCreate, super = Class(StateClass)
 
 ---@class modcreateoptions
 ---@field name {[1]: string}
 ---@field id {[1]: string}
 ---@field chapter number
 
-function MenuModCreate:init(menu)
+function MainMenuModCreate:init(menu)
     self.menu = menu
 
     self.state_manager = StateManager("NONE", self, true)
@@ -41,7 +41,7 @@ function MenuModCreate:init(menu)
     self.input_pos_y = 0
 end
 
-function MenuModCreate:registerEvents()
+function MainMenuModCreate:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("draw", self.draw)
@@ -51,7 +51,7 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MenuModCreate:onEnter(old_state)
+function MainMenuModCreate:onEnter(old_state)
     if old_state == "MODCONFIG" then
         self.selected_option = 4
 
@@ -82,7 +82,7 @@ function MenuModCreate:onEnter(old_state)
     self.menu.heart_target_y = 147
 end
 
-function MenuModCreate:onKeyPressed(key, is_repeat)
+function MainMenuModCreate:onKeyPressed(key, is_repeat)
     if self.state == "MENU" then
         if Input.isCancel(key) then
             self.menu:setState("MODSELECT")
@@ -181,7 +181,7 @@ function MenuModCreate:onKeyPressed(key, is_repeat)
     end
 end
 
-function MenuModCreate:draw()
+function MainMenuModCreate:draw()
     Draw.printShadow("Create New Mod", 0, 48, 2, "center", 640)
 
     local menu_x = 64
@@ -237,11 +237,11 @@ end
 -- Class Methods
 -------------------------------------------------------------------------------
 
-function MenuModCreate:setState(state)
+function MainMenuModCreate:setState(state)
     self.state_manager:setState(state)
 end
 
-function MenuModCreate:onStateChange(old_state, state)
+function MainMenuModCreate:onStateChange(old_state, state)
     if state == "MENU" then
         self.menu.heart_target_x = 45
     elseif state == "NAME" then
@@ -262,13 +262,13 @@ function MenuModCreate:onStateChange(old_state, state)
     end
 end
 
-function MenuModCreate:onInputCancel()
+function MainMenuModCreate:onInputCancel()
     TextInput.input = {""}
     TextInput.endInput()
     self:setState("MENU")
 end
 
-function MenuModCreate:onInputSubmit(id)
+function MainMenuModCreate:onInputSubmit(id)
     Assets.stopAndPlaySound("ui_select")
     TextInput.input = {""}
     TextInput.endInput()
@@ -285,7 +285,7 @@ function MenuModCreate:onInputSubmit(id)
     self:setState("MENU")
 end
 
-function MenuModCreate:disallowWindowsFolders(str, auto)
+function MainMenuModCreate:disallowWindowsFolders(str, auto)
     -- Check if STR is a disallowed file name in windows (e.g. "CON")
     if Utils.containsValue({"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}, str:upper()) then
         if not auto then Assets.playSound("locker") end
@@ -294,7 +294,7 @@ function MenuModCreate:disallowWindowsFolders(str, auto)
     return str
 end
 
-function MenuModCreate:adjustCreateID()
+function MainMenuModCreate:adjustCreateID()
     local str = self.options["name"][1]
 
     str = self:disallowWindowsFolders(str, true)
@@ -314,7 +314,7 @@ function MenuModCreate:adjustCreateID()
     self.id_adjusted = true
 end
 
-function MenuModCreate:openInput(id, restriction)
+function MainMenuModCreate:openInput(id, restriction)
     TextInput.attachInput(self.options[id], {
         multiline = false,
         enter_submits = true,
@@ -329,7 +329,7 @@ function MenuModCreate:openInput(id, restriction)
     end
 end
 
-function MenuModCreate:attemptUpdateID(id)
+function MainMenuModCreate:attemptUpdateID(id)
     if (id == "name" or id == "id") and self.options["id"][1] == "" then
         self:adjustCreateID()
     end
@@ -338,7 +338,7 @@ function MenuModCreate:attemptUpdateID(id)
     end
 end
 
-function MenuModCreate:createMod()
+function MainMenuModCreate:createMod()
     local name = self.options["name"][1]
     local id = self.options["id"][1]
 
@@ -419,7 +419,7 @@ function MenuModCreate:createMod()
     self.menu.mod_list:reloadMods()
 end
 
-function MenuModCreate:drawSelectionField(x, y, id, options, state)
+function MainMenuModCreate:drawSelectionField(x, y, id, options, state)
     Draw.printShadow(options[self.options[id]], x, y)
 
     if self.state == state then
@@ -430,7 +430,7 @@ function MenuModCreate:drawSelectionField(x, y, id, options, state)
     end
 end
 
-function MenuModCreate:drawCheckbox(x, y, id)
+function MainMenuModCreate:drawCheckbox(x, y, id)
     x = x - 8
     local checked = self.options[id]
     love.graphics.setLineWidth(2)
@@ -446,7 +446,7 @@ function MenuModCreate:drawCheckbox(x, y, id)
     end
 end
 
-function MenuModCreate:drawInputLine(name, x, y, id)
+function MainMenuModCreate:drawInputLine(name, x, y, id)
     Draw.printShadow(name, x, y)
     love.graphics.setLineWidth(2)
     local line_x  = x + 128 + 32 + 16
@@ -466,4 +466,4 @@ function MenuModCreate:drawInputLine(name, x, y, id)
     end
 end
 
-return MenuModCreate
+return MainMenuModCreate

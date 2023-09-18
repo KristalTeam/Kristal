@@ -1,10 +1,10 @@
----@class Menu
-local Menu = {}
+---@class MainMenu
+local MainMenu = {}
 
-Menu.TEST_MOD_LIST = false
-Menu.TEST_MOD_COUNT = 0
+MainMenu.TEST_MOD_LIST = false
+MainMenu.TEST_MOD_COUNT = 0
 
-Menu.BACKGROUND_SHADER = love.graphics.newShader([[
+MainMenu.BACKGROUND_SHADER = love.graphics.newShader([[
     extern number bg_sine;
     extern number bg_mag;
     extern number wave_height;
@@ -20,7 +20,7 @@ Menu.BACKGROUND_SHADER = love.graphics.newShader([[
     }
 ]])
 
-function Menu:enter()
+function MainMenu:enter()
     -- Load menu music
     self.music = Music() -- "mod_menu", 1, 0.95
 
@@ -42,21 +42,21 @@ function Menu:enter()
     -- Initialize variables for the menu
     self.stage = Stage()
 
-    self.state = "MAINMENU"
+    self.state = "TITLE"
 
-    self.main_screen = MenuMain(self)
-    self.credits = MenuCredits(self)
-    self.mod_list = MenuModList(self)
-    self.mod_create = MenuModCreate(self)
-    self.mod_config = MenuModConfig(self)
-    self.mod_error = MenuModError(self)
-    self.file_select = MenuFileSelect(self)
-    self.file_name_screen = MenuFileName(self)
+    self.title_screen = MainMenuTitle(self)
+    self.credits = MainMenuCredits(self)
+    self.mod_list = MainMenuModList(self)
+    self.mod_create = MainMenuModCreate(self)
+    self.mod_config = MainMenuModConfig(self)
+    self.mod_error = MainMenuModError(self)
+    self.file_select = MainMenuFileSelect(self)
+    self.file_name_screen = MainMenuFileName(self)
 
     -- STATES: MODERROR, MAINMENU, MODSELECT, FILESELECT, FILENAME, DEFAULTNAME, OPTIONS, VOLUME, WINDOWSCALE, CONTROLS
     self.state = "NONE"
     self.state_manager = StateManager("NONE", self, true)
-    self.state_manager:addState("MAINMENU", self.main_screen)
+    self.state_manager:addState("TITLE", self.title_screen)
     self.state_manager:addState("CREDITS", self.credits)
     self.state_manager:addState("MODSELECT", self.mod_list)
     self.state_manager:addState("MODCREATE", self.mod_create)
@@ -211,15 +211,15 @@ function Menu:enter()
     if #Kristal.Mods.failed_mods > 0 then
         self:setState("MODERROR")
     else
-        self:setState("MAINMENU")
+        self:setState("TITLE")
     end
 end
 
-function Menu:setState(state)
+function MainMenu:setState(state)
     self.state_manager:setState(state)
 end
 
-function Menu:onStateChange(old_state, new_state)
+function MainMenu:onStateChange(old_state, new_state)
     --[[if old_state == "MODSELECT" then
         self.list.active = false
         self.list.visible = false
@@ -318,13 +318,13 @@ function Menu:onStateChange(old_state, new_state)
     end]]
 end
 
-function Menu:setSubState(state)
+function MainMenu:setSubState(state)
     local old_state = self.substate
     self.substate = state
     self:onSubStateChange(old_state, self.substate)
 end
 
-function Menu:pushState(new_state)
+function MainMenu:pushState(new_state)
     table.insert(self.state_stack, {
         state = self.state,
         substate = self.substate,
@@ -339,7 +339,7 @@ function Menu:pushState(new_state)
     end
 end
 
-function Menu:popState()
+function MainMenu:popState()
     local state = table.remove(self.state_stack)
     self:setState(state.state)
     self:setSubState(state.substate)
@@ -350,14 +350,14 @@ function Menu:popState()
     self.options_y = state.options_y
 end
 
-function Menu:leave()
+function MainMenu:leave()
     self.music:remove()
     for _,v in pairs(self.mod_list.music) do
         v:remove()
     end
 end
 
-function Menu:drawMenuRectangle(x, y, width, height, color)
+function MainMenu:drawMenuRectangle(x, y, width, height, color)
     love.graphics.push()
     -- Draw the transparent background
     Draw.setColor(0, 0, 0, 0.5)
@@ -378,14 +378,14 @@ function Menu:drawMenuRectangle(x, y, width, height, color)
     love.graphics.pop()
 end
 
-function Menu:init()
+function MainMenu:init()
     -- We'll draw the background on a canvas, then resize it 2x
     self.bg_canvas = love.graphics.newCanvas(320,240)
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
 end
 
-function Menu:focus()
+function MainMenu:focus()
     if not TARGET_MOD and not self.mod_list.loading_mods then
         local mod_paths = love.filesystem.getDirectoryItems("mods")
         if not Utils.equal(mod_paths, self.mod_list.last_loaded) then
@@ -399,7 +399,7 @@ end
 --- Adds a page to the options menu.
 ---@param id   string # The id of the page, referred to when adding options.
 ---@param name string # The name of the page, displayed in the options menu.
-function Menu:registerOptionsPage(id, name)
+function MainMenu:registerOptionsPage(id, name)
     if Utils.containsValue(self.options_pages, id) then
         return
     end
@@ -418,7 +418,7 @@ end
 ---@param name     string                      # The name of the option, displayed in the options list.
 ---@param value?   fun(x:number, y:number):any # A function which is called to get the value displayed for the option.
 ---@param callback fun()                       # A function called when the user selects this option.
-function Menu:registerOption(page, name, value, callback)
+function MainMenu:registerOption(page, name, value, callback)
     local pages = type(page) == "table" and page or {page}
 
     for _, page_id in ipairs(pages) do
@@ -436,7 +436,7 @@ end
 ---@param name   string                  # The name of the option, displayed in the options list.
 ---@param config string                  # The config option to toggle.
 ---@param callback? fun(toggled:boolean) # Additional callback for when the option is toggled.
-function Menu:registerConfigOption(page, name, config, callback)
+function MainMenu:registerConfigOption(page, name, config, callback)
     self:registerOption(page, name, function()
         return Kristal.Config[config] and "ON" or "OFF"
     end, function()
@@ -447,7 +447,7 @@ function Menu:registerConfigOption(page, name, config, callback)
     end)
 end
 
-function Menu:initializeOptions()
+function MainMenu:initializeOptions()
     self:registerOptionsPage("general", "GENERAL")
     self:registerOptionsPage("graphics", "GRAPHICS")
     self:registerOptionsPage("engine", "ENGINE")
@@ -539,7 +539,7 @@ function Menu:initializeOptions()
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
 end
 
-function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
+function MainMenu:drawAnimStrip(sprite, subimg, x, y, alpha)
     Draw.setColor(1, 1, 1, alpha)
 
     local index = #sprite > 1 and ((math.floor(subimg) % (#sprite - 1)) + 1) or 1
@@ -547,7 +547,7 @@ function Menu:drawAnimStrip(sprite, subimg, x, y, alpha)
     Draw.draw(sprite[index], math.floor(x), math.floor(y))
 end
 
-function Menu:update()
+function MainMenu:update()
     if self.state == "MODSELECT" or TARGET_MOD then
         self.selected_mod = self.mod_list:getSelectedMod()
         self.selected_mod_button = self.mod_list:getSelectedButton()
@@ -713,11 +713,11 @@ function Menu:update()
     end]]
 end
 
-function Menu:optionsShown()
+function MainMenu:optionsShown()
     return self.state == "OPTIONS" or self.state == "VOLUME" or self.state == "WINDOWSCALE" or self.state == "FPSOPTION" or self.state == "BORDER"
 end
 
-function Menu:draw()
+function MainMenu:draw()
     -- Draw the menu background
     self:drawBackground()
 
@@ -1190,7 +1190,7 @@ function Menu:draw()
     Draw.setColor(1, 1, 1, 1)
 end
 
-function Menu:drawVersion()
+function MainMenu:drawVersion()
     local ver_y = SCREEN_HEIGHT - self.small_font:getHeight()
 
     if not TARGET_MOD then
@@ -1234,7 +1234,7 @@ function Menu:drawVersion()
     love.graphics.setFont(self.menu_font)
 end
 
-function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
+function MainMenu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     local x_offset = 0
     if self.selected_option == (y_offset + 1) then
         for i, v in ipairs(self:getBoundKeys(name)) do
@@ -1297,7 +1297,7 @@ function Menu:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     Draw.popScissor()
 end
 
-function Menu:onKeyPressed(key, is_repeat)
+function MainMenu:onKeyPressed(key, is_repeat)
     if MOD_LOADING then return end
 
     if self.state ~= "CONTROLS" then
@@ -1900,7 +1900,7 @@ function Menu:onKeyPressed(key, is_repeat)
     end
 end
 
---[[function Menu:onCreateEnter()
+--[[function MainMenu:onCreateEnter()
     self.create = {
         name = {""},
         id = {""},
@@ -1912,7 +1912,7 @@ end
     }
 
     self:registerCreateModConfig("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                "selection", {nil, true, false})
-    self:registerCreateModConfig("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
+    self:registerCreateModConfig("smallSaveMenu",          "Small Save MainMenu",           "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
     self:registerCreateModConfig("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
     self:registerCreateModConfig("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
     self:registerCreateModConfig("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
@@ -1931,7 +1931,7 @@ end
     self:registerCreateModConfig("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",          "selection", {nil, true, false})
 end
 
-function Menu:registerCreateModConfig(id, name, description, type, options)
+function MainMenu:registerCreateModConfig(id, name, description, type, options)
     table.insert(self.create.config, {
         id = id,
         name = name,
@@ -1942,7 +1942,7 @@ function Menu:registerCreateModConfig(id, name, description, type, options)
     })
 end
 
-function Menu:handleCreateInput(key, is_repeat)
+function MainMenu:handleCreateInput(key, is_repeat)
     if self.substate == "MENU" then
         if Input.isCancel(key) then
             self:setState("MODSELECT")
@@ -2047,12 +2047,12 @@ function Menu:handleCreateInput(key, is_repeat)
 end]]
 
 
---[[function Menu:onConfigEnter(old_state)
+--[[function MainMenu:onConfigEnter(old_state)
     self.config_target_y = 0
     self.config_y = 0
 end
 
-function Menu:handleConfigInput(key, is_repeat)
+function MainMenu:handleConfigInput(key, is_repeat)
     if self.substate == "MENU" then
         if Input.isCancel(key) then
             self:setState("MODCREATE")
@@ -2129,7 +2129,7 @@ function Menu:handleConfigInput(key, is_repeat)
 end
 
 
-function Menu:drawConfig()
+function MainMenu:drawConfig()
     Draw.printShadow("Edit Feature Config", 0, 48, 2, "center", 640)
 
     local menu_x = 64
@@ -2198,7 +2198,7 @@ function Menu:drawConfig()
     Draw.setColor(1, 1, 1)
 end]]
 
-function Menu:onSubStateChange(old, new)
+function MainMenu:onSubStateChange(old, new)
     --[[if self.state == "CREATE" then
         if new == "MENU" then
             self.heart_target_x = 45
@@ -2221,7 +2221,7 @@ function Menu:onSubStateChange(old, new)
     end]]
 end
 
---function Menu:disallowWindowsFolders(str, auto)
+--function MainMenu:disallowWindowsFolders(str, auto)
 --    -- Check if STR is a disallowed file name in windows (e.g. "CON")
 --    if Utils.containsValue({"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}, str:upper()) then
 --        if not auto then Assets.playSound("locker") end
@@ -2230,7 +2230,7 @@ end
 --    return str
 --end
 --
---function Menu:adjustCreateID()
+--function MainMenu:adjustCreateID()
 --    local str = self.create.name[1]
 --
 --    str = self:disallowWindowsFolders(str, true)
@@ -2250,7 +2250,7 @@ end
 --    self.create.adjusted = true
 --end
 --
---function Menu:openInput(id, restriction)
+--function MainMenu:openInput(id, restriction)
 --    TextInput.attachInput(self.create[id], {
 --        multiline = false,
 --        enter_submits = true,
@@ -2265,7 +2265,7 @@ end
 --    end
 --end
 --
---function Menu:attemptUpdateID(id)
+--function MainMenu:attemptUpdateID(id)
 --    if (id == "name" or id == "id") and self.create.id[1] == "" then
 --        self:adjustCreateID()
 --    end
@@ -2274,7 +2274,7 @@ end
 --    end
 --end
 --
---function Menu:createMod()
+--function MainMenu:createMod()
 --    local name = self.create.name[1]
 --    local id = self.create.id[1]
 --
@@ -2355,7 +2355,7 @@ end
 --    self:reloadMods()
 --end
 --
---function Menu:onCreateSubmit(id)
+--function MainMenu:onCreateSubmit(id)
 --    self.ui_select:stop()
 --    self.ui_select:play()
 --    TextInput.input = {""}
@@ -2373,13 +2373,13 @@ end
 --    self:setSubState("MENU")
 --end
 --
---function Menu:onCreateCancel()
+--function MainMenu:onCreateCancel()
 --    TextInput.input = {""}
 --    TextInput.endInput()
 --    self:setSubState("MENU")
 --end
 --
---function Menu:drawCreate()
+--function MainMenu:drawCreate()
 --    Draw.printShadow("Create New Mod", 0, 48, "center", 640)
 --
 --    local menu_x = 64
@@ -2431,7 +2431,7 @@ end
 --    end
 --end
 --
---function Menu:drawSelectionField(x, y, id, options, state)
+--function MainMenu:drawSelectionField(x, y, id, options, state)
 --    if self.state == "MODCREATE" then
 --        Draw.printShadow(options[self.create[id]], x, y)
 --    elseif self.state == "CONFIG" then
@@ -2446,7 +2446,7 @@ end
 --    end
 --end
 --
---function Menu:drawCheckbox(x, y, id)
+--function MainMenu:drawCheckbox(x, y, id)
 --    x = x - 8
 --    local checked = self.create[id]
 --    love.graphics.setLineWidth(2)
@@ -2462,7 +2462,7 @@ end
 --    end
 --end
 --
---function Menu:drawInputLine(name, x, y, id)
+--function MainMenu:drawInputLine(name, x, y, id)
 --    Draw.printShadow(name, x, y)
 --    love.graphics.setLineWidth(2)
 --    local line_x  = x + 128 + 32 + 16
@@ -2481,7 +2481,7 @@ end
 --    end
 --end
 
-function Menu:onKeyReleased(key)
+function MainMenu:onKeyReleased(key)
     if MOD_LOADING then return end
 
     if self.state == "CONTROLS" and self.rebinding then
@@ -2527,7 +2527,7 @@ function Menu:onKeyReleased(key)
     end
 end
 
-function Menu:getBoundKeys(key)
+function MainMenu:getBoundKeys(key)
     local keys = {}
     for _,k in ipairs(Input.getBoundKeys(key, self.control_menu == "gamepad")) do
         if type(k) == "table" then
@@ -2543,7 +2543,7 @@ function Menu:getBoundKeys(key)
     return keys
 end
 
-function Menu:drawBackground()
+function MainMenu:drawBackground()
     -- This code was originally 30 fps, so we need a deltatime variable to multiply some values by
     local dt_mult = DT * 30
 
@@ -2616,4 +2616,4 @@ function Menu:drawBackground()
     Draw.setColor(1, 1, 1, 1)
 end
 
-return Menu
+return MainMenu

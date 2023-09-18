@@ -25,7 +25,7 @@ Draw = require("src.utils.draw")
 Kristal = require("src.kristal")
 -- Ease of access for game variables
 Game = Kristal.States["Game"]
-Menu = Kristal.States["Menu"]
+MainMenu = Kristal.States["MainMenu"]
 
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
@@ -55,14 +55,14 @@ Video = require("src.engine.objects.video")
 GonerChoice = require("src.engine.objects.gonerchoice")
 GonerKeyboard = require("src.engine.objects.gonerkeyboard")
 
-MenuMain = require("src.engine.menu.menumain")
-MenuCredits = require("src.engine.menu.menucredits")
-MenuModList = require("src.engine.menu.menumodlist")
-MenuModCreate = require("src.engine.menu.menumodcreate")
-MenuModConfig = require("src.engine.menu.menumodconfig")
-MenuModError = require("src.engine.menu.menumoderror")
-MenuFileSelect = require("src.engine.menu.menufileselect")
-MenuFileName = require("src.engine.menu.menufilename")
+MainMenuTitle = require("src.engine.menu.mainmenutitle")
+MainMenuCredits = require("src.engine.menu.mainmenucredits")
+MainMenuModList = require("src.engine.menu.mainmenumodlist")
+MainMenuModCreate = require("src.engine.menu.mainmenumodcreate")
+MainMenuModConfig = require("src.engine.menu.mainmenumodconfig")
+MainMenuModError = require("src.engine.menu.mainmenumoderror")
+MainMenuFileSelect = require("src.engine.menu.mainmenufileselect")
+MainMenuFileName = require("src.engine.menu.mainmenufilename")
 
 ModList = require("src.engine.menu.objects.modlist")
 ModButton = require("src.engine.menu.objects.modbutton")
