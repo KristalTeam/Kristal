@@ -101,9 +101,7 @@ function MenuModList:onKeyPressed(key, is_repeat)
         if Input.isConfirm(key) then
             if self.list:isOnCreate() then
                 Assets.stopAndPlaySound("ui_select")
-                self.menu.heart_target_x = 64 - 19
-                self.menu.heart_target_y = 128 + 19
-                self.menu:setState("CREATE")
+                self.menu:setState("MODCREATE")
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
@@ -177,6 +175,8 @@ function MenuModList:draw()
     if self.loading_mods then
         Draw.printShadow("Loading mods...", 0, 115 - 8, 2, "center", 640)
     else
+        local menu_font = Assets.getFont("main")
+
         if #self.list.mods == 0 then
             -- Draw introduction text if no mods exist
 
@@ -187,18 +187,18 @@ function MenuModList:draw()
             local string_part_2 = Input.getText("cancel")
             local string_part_3 = " to return to the main menu."
 
-            local part_2_width = self.menu.menu_font:getWidth(string_part_2)
+            local part_2_width = menu_font:getWidth(string_part_2)
             if Input.usingGamepad() then
                 part_2_width = 32
             end
 
-            local total_width = self.menu.menu_font:getWidth(string_part_1) + part_2_width + self.menu.menu_font:getWidth(string_part_3)
+            local total_width = menu_font:getWidth(string_part_1) + part_2_width + menu_font:getWidth(string_part_3)
 
             -- Draw each part, using total_width to center it
             Draw.setColor(COLORS.silver)
             Draw.printShadow(string_part_1, 320 - (total_width / 2), 480 - 32)
 
-            local part_2_xpos = 320 - (total_width / 2) + self.menu.menu_font:getWidth(string_part_1)
+            local part_2_xpos = 320 - (total_width / 2) + menu_font:getWidth(string_part_1)
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
                 Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
@@ -208,7 +208,7 @@ function MenuModList:draw()
                 Draw.printShadow(string_part_2, part_2_xpos, 480 - 32)
             end
             Draw.setColor(COLORS.silver)
-            Draw.printShadow(string_part_3, 320 - (total_width / 2) + self.menu.menu_font:getWidth(string_part_1) + part_2_width, 480 - 32)
+            Draw.printShadow(string_part_3, 320 - (total_width / 2) + menu_font:getWidth(string_part_1) + part_2_width, 480 - 32)
 
             Draw.setColor(1, 1, 1)
         else
@@ -221,14 +221,14 @@ function MenuModList:draw()
                 control_menu_width = 32
                 control_cancel_width = 32
             else
-                control_menu_width = self.menu.menu_font:getWidth(Input.getText("menu"))
-                control_cancel_width = self.menu.menu_font:getWidth(Input.getText("cancel"))
+                control_menu_width = menu_font:getWidth(Input.getText("menu"))
+                control_cancel_width = menu_font:getWidth(Input.getText("cancel"))
             end
 
             local button = self:getSelectedButton()
             local favorited = button and button:includes(ModButton) and button:isFavorited()
 
-            local x_pos = self.menu.menu_font:getWidth(" Back")
+            local x_pos = menu_font:getWidth(" Back")
             Draw.printShadow(" Back", 580 + (16 * 3) - x_pos, 454 - 8)
             x_pos = x_pos + control_cancel_width
             if Input.usingGamepad() then
@@ -240,7 +240,7 @@ function MenuModList:draw()
                 Draw.printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8)
             end
             local fav = favorited and " Unfavorite  " or " Favorite  "
-            x_pos = x_pos + self.menu.menu_font:getWidth(fav)
+            x_pos = x_pos + menu_font:getWidth(fav)
             Draw.printShadow(fav, 580 + (16 * 3) - x_pos, 454 - 8)
             x_pos = x_pos + control_menu_width
             if Input.usingGamepad() then

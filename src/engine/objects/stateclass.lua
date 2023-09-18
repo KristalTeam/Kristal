@@ -1,6 +1,6 @@
 ---@class StateClass : Class
 ---
----@field state_manager StateManager
+---@field parent StateManager
 ---@field registered_events table<string, function>|nil
 ---
 ---@overload fun() : StateClass
@@ -17,7 +17,7 @@ function StateClass:registerEvent(event, func)
     end
 
     if func then
-        if self.state_manager.master then
+        if self.parent.master then
             self.registered_events[event] = function(master, ...) return func(self, ...) end
         else
             self.registered_events[event] = function(...) return func(self, ...) end
@@ -28,7 +28,7 @@ function StateClass:registerEvent(event, func)
     local class_func = self[event]
 
     if class_func then
-        if self.state_manager.master then
+        if self.parent.master then
             self.registered_events[event] = function(master, ...) return class_func(self, ...) end
         else
             self.registered_events[event] = function(...) return class_func(self, ...) end
@@ -39,7 +39,7 @@ function StateClass:registerEvent(event, func)
     for k, v in Utils.iterClass(self) do
         if type(k) == "string" and type(v) == "function" then
             if k:lower() == event or k:lower() == "on" .. event then
-                if self.state_manager.master then
+                if self.parent.master then
                     self.registered_events[event] = function(master, ...) return v(self, ...) end
                 else
                     self.registered_events[event] = function(...) return v(self, ...) end

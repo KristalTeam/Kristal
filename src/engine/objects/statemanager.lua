@@ -37,7 +37,7 @@ function StateManager:addState(state, events)
     if isClass(events) and events:includes(StateClass) then
         self.state_handler[state] = events
 
-        events.state_manager = self
+        events.parent = self
 
         if not events.registered_events then
             events:registerEvents(self.master)

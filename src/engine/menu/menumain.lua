@@ -20,6 +20,10 @@ function MenuMain:registerEvents()
     self:registerEvent("draw", self.draw)
 end
 
+-------------------------------------------------------------------------------
+-- Callbacks
+-------------------------------------------------------------------------------
+
 function MenuMain:onEnter(old_state)
     if TARGET_MOD then
         self.options = {
@@ -70,8 +74,6 @@ function MenuMain:onKeyPressed(key, is_repeat)
             self.menu:setState("OPTIONS")
 
         elseif option == "credits" then
-            self.menu.heart_target_x = 320 - 32 - 16 + 1
-            self.menu.heart_target_y = 480 - 16 + 1
             self.menu:setState("CREDITS")
 
         elseif option == "quit" then
@@ -106,6 +108,25 @@ function MenuMain:draw()
     for i, option in ipairs(self.options) do
         Draw.printShadow(option[2], 215, 219 + 32 * (i - 1))
     end
+end
+
+-------------------------------------------------------------------------------
+-- Class Methods
+-------------------------------------------------------------------------------
+
+function MenuMain:selectOption(id)
+    for i, options in ipairs(self.options) do
+        if options[1] == id then
+            self.selected_option = i
+
+            self.menu.heart_target_x = 196
+            self.menu.heart_target_y = 238 + (self.selected_option - 1) * 32
+
+            return true
+        end
+    end
+
+    return false
 end
 
 return MenuMain

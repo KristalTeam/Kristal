@@ -45,7 +45,10 @@ function Menu:enter()
     self.state = "MAINMENU"
 
     self.main_screen = MenuMain(self)
+    self.credits = MenuCredits(self)
     self.mod_list = MenuModList(self)
+    self.mod_create = MenuModCreate(self)
+    self.mod_config = MenuModConfig(self)
     self.mod_error = MenuModError(self)
     self.file_select = MenuFileSelect(self)
     self.file_name_screen = MenuFileName(self)
@@ -54,7 +57,10 @@ function Menu:enter()
     self.state = "NONE"
     self.state_manager = StateManager("NONE", self, true)
     self.state_manager:addState("MAINMENU", self.main_screen)
+    self.state_manager:addState("CREDITS", self.credits)
     self.state_manager:addState("MODSELECT", self.mod_list)
+    self.state_manager:addState("MODCREATE", self.mod_create)
+    self.state_manager:addState("MODCONFIG", self.mod_config)
     self.state_manager:addState("MODERROR", self.mod_error)
     self.state_manager:addState("FILESELECT", self.file_select)
     self.state_manager:addState("FILENAME", self.file_name_screen)
@@ -121,74 +127,74 @@ function Menu:enter()
 
     self:initializeOptions()
 
-    ---@alias creditsline string|{[1]: string, [2]: number[]}
-    ---@type {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
-    self.credits = {
-        {
-            "Kristal Engine",
-            {
-                {"Lead Developers", COLORS.silver},
-                "Nyakorita",
-                "SylviBlossom",
-                "vitellary",
-                "",
-                {"Assets", COLORS.silver},
-                "Toby Fox",
-                "Temmie Chang",
-                "DELTARUNE team",
-                "",
-                "",
-            },
-            {
-                {"GitHub Contributors", COLORS.silver},
-                "Agent 7",
-                "Archie-osu",
-                "Dobby233Liu",
-                "Luna",
-                "prokube",
-                "AcousticJamm",
-                "Simbel",
-                "Bor",
-                "MrOinky",
-                "",
-            }
-        },
-        --[[{
-            "Kristal Engine",
-            {
-                {"GitHub Contributors", COLORS.silver},
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-            },
-            {
-                {"GitHub Contributors", COLORS.silver},
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-            }
-        }]]
-    }
-    self.credits_page = 1
+    -----@alias creditsline string|{[1]: string, [2]: number[]}
+    -----@type {[1]: string, [2]: creditsline[], [3]: creditsline[]|nil}[]
+    --self.credits = {
+    --    {
+    --        "Kristal Engine",
+    --        {
+    --            {"Lead Developers", COLORS.silver},
+    --            "Nyakorita",
+    --            "SylviBlossom",
+    --            "vitellary",
+    --            "",
+    --            {"Assets", COLORS.silver},
+    --            "Toby Fox",
+    --            "Temmie Chang",
+    --            "DELTARUNE team",
+    --            "",
+    --            "",
+    --        },
+    --        {
+    --            {"GitHub Contributors", COLORS.silver},
+    --            "Agent 7",
+    --            "Archie-osu",
+    --            "Dobby233Liu",
+    --            "Luna",
+    --            "prokube",
+    --            "AcousticJamm",
+    --            "Simbel",
+    --            "Bor",
+    --            "MrOinky",
+    --            "",
+    --        }
+    --    },
+    --    --[[{
+    --        "Kristal Engine",
+    --        {
+    --            {"GitHub Contributors", COLORS.silver},
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            ""
+    --        },
+    --        {
+    --            {"GitHub Contributors", COLORS.silver},
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --            "",
+    --        }
+    --    }]]
+    --}
+    --self.credits_page = 1
 
-    self.page_scroll_direction = "right"
-    self.page_scroll_timer = 0
+    --self.page_scroll_direction = "right"
+    --self.page_scroll_timer = 0
 
-    self.create = {}
+    --self.create = {}
 
     self.mod_list:buildModList()
 
@@ -296,19 +302,20 @@ function Menu:onStateChange(old_state, new_state)
     elseif new_state == "CONTROLS" then
         self.options_target_y = 0
         self.options_y = 0
-    elseif new_state == "CREATE" then
+    end
+    --[[elseif new_state == "CREATE" then
         if old_state ~= "CONFIG" then
             self.selected_option = 1
             self:onCreateEnter()
             self:setSubState("MENU")
         else
             self.selected_option = 4
-        end
-    elseif new_state == "CONFIG" then
+        end]]
+    --[[elseif new_state == "CONFIG" then
         self.selected_option = 1
         self:onConfigEnter()
         self:setSubState("MENU")
-    end
+    end]]
 end
 
 function Menu:setSubState(state)
@@ -696,14 +703,14 @@ function Menu:update()
     end
     self.options_y = self.options_y + ((self.options_target_y - self.options_y) / 2) * DTMULT
 
-    if (math.abs((self.config_target_y - self.config_y)) <= 2) then
+    --[[if (math.abs((self.config_target_y - self.config_y)) <= 2) then
         self.config_y = self.config_target_y
     end
-    self.config_y = self.config_y + ((self.config_target_y - self.config_y) / 2) * DTMULT
+    self.config_y = self.config_y + ((self.config_target_y - self.config_y) / 2) * DTMULT]]
 
-    if self.page_scroll_timer > 0 then
+    --[[if self.page_scroll_timer > 0 then
         self.page_scroll_timer = Utils.approach(self.page_scroll_timer, 0, DT)
-    end
+    end]]
 end
 
 function Menu:optionsShown()
@@ -1081,7 +1088,7 @@ function Menu:draw()
     --[[elseif self.state == "FILESELECT" or self.state == "FILENAME" then
         local mod_name = string.upper(self.selected_mod.name or self.selected_mod.id)
         Draw.printShadow(mod_name, 16, 8, {1, 1, 1, 1})]]
-    elseif self.state == "CREDITS" then
+    --[[elseif self.state == "CREDITS" then
         local page = self.credits[self.credits_page]
 
         local title = page[1]:upper()
@@ -1145,11 +1152,11 @@ function Menu:draw()
         end
 
         Draw.setColor(1, 1, 1)
-        Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)
-    elseif self.state == "CREATE" then
-        self:drawCreate()
-    elseif self.state == "CONFIG" then
-        self:drawConfig()
+        Draw.printShadow("Back", 0, 454 - 8, 2, "center", 640)]]
+    --[[elseif self.state == "CREATE" then
+        self:drawCreate()]]
+    --[[elseif self.state == "CONFIG" then
+        self:drawConfig()]]
     elseif self.state == "DEFAULTNAME" then
         -- nothing
     else
@@ -1618,7 +1625,7 @@ function Menu:onKeyPressed(key, is_repeat)
         -- not anymore
     elseif self.state == "DEFAULTNAME" then
         -- wait actually kinda
-    elseif self.state == "CREDITS" then
+    --[[elseif self.state == "CREDITS" then
         if Input.isCancel(key) or Input.isConfirm(key) then
             self.credits_page = 1
             self:setState("MAINMENU")
@@ -1650,7 +1657,7 @@ function Menu:onKeyPressed(key, is_repeat)
             self.ui_move:play()
             self.page_scroll_direction = page_dir
             self.page_scroll_timer = 0.1
-        end
+        end]]
     elseif self.state == "CONTROLS" then
         if (not self.rebinding) and (not self.selecting_key) then
             local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
@@ -1883,17 +1890,17 @@ function Menu:onKeyPressed(key, is_repeat)
             end
             Kristal.Config[config_name] = deadzone
         end
-    elseif self.state == "CREATE" then
-        self:handleCreateInput(key, is_repeat)
-    elseif self.state == "CONFIG" then
-        self:handleConfigInput(key, is_repeat)
+    --[[elseif self.state == "CREATE" then
+        self:handleCreateInput(key, is_repeat)]]
+    --[[elseif self.state == "CONFIG" then
+        self:handleConfigInput(key, is_repeat)]]
     else
         -- Check input for the current state
         self.state_manager:call("keypressed", key, is_repeat)
     end
 end
 
-function Menu:onCreateEnter()
+--[[function Menu:onCreateEnter()
     self.create = {
         name = {""},
         id = {""},
@@ -2037,10 +2044,10 @@ function Menu:handleCreateInput(key, is_repeat)
             if self.create.base_chapter_selected > 2 then self.create.base_chapter_selected = 1 end
         end
     end
-end
+end]]
 
 
-function Menu:onConfigEnter(old_state)
+--[[function Menu:onConfigEnter(old_state)
     self.config_target_y = 0
     self.config_y = 0
 end
@@ -2048,10 +2055,7 @@ end
 function Menu:handleConfigInput(key, is_repeat)
     if self.substate == "MENU" then
         if Input.isCancel(key) then
-            local y_off = (4 - 1) * 32
-            self.heart_target_x = 45
-            self.heart_target_y = 147 + y_off
-            self:setState("CREATE")
+            self:setState("MODCREATE")
             self.ui_move:stop()
             self.ui_move:play()
             return
@@ -2087,10 +2091,7 @@ function Menu:handleConfigInput(key, is_repeat)
 
         if Input.isConfirm(key) then
             if self.selected_option == (#self.create.config + 1) then
-                local y_off = (5 - 1) * 32
-                self.heart_target_x = 45
-                self.heart_target_y = 147 + y_off
-                self:setState("CREATE")
+                self:setState("MODCREATE")
                 self.ui_select:stop()
                 self.ui_select:play()
                 return
@@ -2195,10 +2196,10 @@ function Menu:drawConfig()
     end
 
     Draw.setColor(1, 1, 1)
-end
+end]]
 
 function Menu:onSubStateChange(old, new)
-    if self.state == "CREATE" then
+    --[[if self.state == "CREATE" then
         if new == "MENU" then
             self.heart_target_x = 45
         elseif new == "NAME" then
@@ -2217,268 +2218,268 @@ function Menu:onSubStateChange(old, new)
         elseif new == "CHAPTER" then
             self.heart_target_x = 45 + 167 + 64
         end
-    end
+    end]]
 end
 
-function Menu:disallowWindowsFolders(str, auto)
-    -- Check if STR is a disallowed file name in windows (e.g. "CON")
-    if Utils.containsValue({"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}, str:upper()) then
-        if not auto then Assets.playSound("locker") end
-        str = "disallowed_id"
-    end
-    return str
-end
-
-function Menu:adjustCreateID()
-    local str = self.create.name[1]
-
-    str = self:disallowWindowsFolders(str, true)
-
-    local newstr = ""
-    for i = 1, utf8.len(str) do
-        local offset = utf8.offset(str, i)
-        local char = string.sub(str, offset, offset)
-        local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
-        if Utils.containsValue(disallowed, char) then
-            char = ""
-        end
-        if char == " " then char = "_" end
-        newstr = newstr .. char:lower()
-    end
-    self.create.id[1] = newstr
-    self.create.adjusted = true
-end
-
-function Menu:openInput(id, restriction)
-    TextInput.attachInput(self.create[id], {
-        multiline = false,
-        enter_submits = true,
-        clear_after_submit = false,
-        text_restriction = restriction,
-    })
-    TextInput.submit_callback = function(...) self:onCreateSubmit(id) end
-    if id == "name" then
-        TextInput.text_callback = function() self:attemptUpdateID("name") end
-    else
-        TextInput.text_callback = nil
-    end
-end
-
-function Menu:attemptUpdateID(id)
-    if (id == "name" or id == "id") and self.create.id[1] == "" then
-        self:adjustCreateID()
-    end
-    if (id == "name" and self.create.adjusted) then
-        self:adjustCreateID()
-    end
-end
-
-function Menu:createMod()
-    local name = self.create.name[1]
-    local id = self.create.id[1]
-
-    local config_formatted = "            "
-    for i, option in ipairs(self.create.config) do
-        local chosen = option.options[option.selected]
-        local text = chosen
-
-        if chosen == true  then
-            text = "true"
-        elseif chosen == false then
-            text = "false"
-        elseif type(chosen) == "number" then
-            text = tostring(chosen)
-        elseif type(chosen) == "string" then
-            text = "\"" .. chosen .. "\""
-        else
-            text = "UNHANDLED_TYPE_REPORT_TO_DEVS"
-        end
-
-        if chosen ~= nil then
-            config_formatted = config_formatted .. "// " .. option.description .. "\n            "
-            config_formatted = config_formatted .. "\"" .. option.id .. "\": " .. text .. "," .. "\n            "
-        end
-    end
-    config_formatted = config_formatted .. "// End of config"
-
-    local formatting_dict = {
-        id = id,
-        name = name,
-        engineVer = "v" .. tostring(Kristal.Version),
-        chapter = self.create.base_chapters[self.create.base_chapter_selected],
-        transition = self.create.transition and "true" or "false",
-        config = config_formatted
-    }
-
-    -- Create the directory
-    local dir = "mods/" .. id .. "/"
-
-    if not love.filesystem.getInfo(dir) then
-        love.filesystem.createDirectory(dir)
-    end
-
-    -- Copy the files from mod_template
-    local files = Utils.findFiles("mod_template")
-    for i, file in ipairs(files) do
-        local src = "mod_template/" .. file
-        local dst = dir .. file
-        dst = dst:gsub("modid", id)
-        local info = love.filesystem.getInfo(src)
-        if info then
-            if info.type == "file" then
-                if file == "mod.json" then
-                    -- Special handling in case we're mod.json
-                    local data = love.filesystem.read("string", src) --[[@as string]]
-                    data = Utils.format(data, formatting_dict)
-
-                    local write_file = love.filesystem.newFile(dst)
-                    write_file:open("w")
-                    write_file:write(data)
-                    write_file:close()
-                else
-                    -- Copy the file
-                    local data = love.filesystem.read("data", src)
-                    local write_file = love.filesystem.newFile(dst)
-                    write_file:open("w")
-                    write_file:write(data)
-                    write_file:close()
-                end
-            else
-                -- Create the directory
-                love.filesystem.createDirectory(dst)
-            end
-        end
-    end
-
-    -- Reload mods
-    self:reloadMods()
-end
-
-function Menu:onCreateSubmit(id)
-    self.ui_select:stop()
-    self.ui_select:play()
-    TextInput.input = {""}
-    TextInput.endInput()
-
-    if id == "id" then
-        self.create.adjusted = false
-        self.create["id"][1] = self:disallowWindowsFolders(self.create["id"][1], false)
-    end
-
-    self:attemptUpdateID(id)
-
-    Input.clear("return")
-
-    self:setSubState("MENU")
-end
-
-function Menu:onCreateCancel()
-    TextInput.input = {""}
-    TextInput.endInput()
-    self:setSubState("MENU")
-end
-
-function Menu:drawCreate()
-    Draw.printShadow("Create New Mod", 0, 48, "center", 640)
-
-    local menu_x = 64
-    local menu_y = 128
-
-    self:drawInputLine("Mod name: ",          menu_x, menu_y + (32 * 0), "name")
-    self:drawInputLine("Mod ID:   ",          menu_x, menu_y + (32 * 1), "id")
-    Draw.printShadow(  "Base chapter: ",      menu_x, menu_y + (32 * 2))
-    Draw.printShadow(  "Edit feature config", menu_x, menu_y + (32 * 3))
-    Draw.printShadow(  "Create mod",          menu_x, menu_y + (32 * 5))
-
-    local off = 256
-    self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "base_chapter_selected", self.create.base_chapters, "CHAPTER")
-    --self:drawCheckbox(menu_x + off, menu_y + (32 * 3), "transition")
-
-    Draw.setColor(COLORS.silver)
-
-    if self.selected_option == 1 then
-        Draw.printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, 2, "center", 640)
-    elseif self.selected_option == 2 then
-        Draw.printShadow("The ID of your mod. Must be unique.", 0, 480 - 32, 2, "center", 640)
-    elseif self.selected_option == 3 then
-        Draw.printShadow("The chapter to base your mod off of in", 0, 480 - 64 - 32, 2, "center", 640)
-        Draw.printShadow("terms of features. Individual features", 0, 480 - 64, 2, "center", 640)
-        Draw.printShadow("can be toggled in the config.", 0, 480 - 32, 2, "center", 640)
-    elseif self.selected_option == 4 then
-        Draw.printShadow("Edit individual Kristal features.", 0, 480 - 32, 2, "center", 640)
-    elseif self.selected_option == 5 then
-        if self.create.id[1] == "" then
-            Draw.setColor(1, 0.6, 0.6)
-            Draw.printShadow("You must enter a valid ID.", 0, 480 - 32, 2, "center", 640)
-        elseif self.create.name[1] == "" then
-            Draw.setColor(1, 0.6, 0.6)
-            Draw.printShadow("You must enter a valid name.", 0, 480 - 32, 2, "center", 640)
-        else
-            Draw.printShadow("Create the mod.", 0, 480 - 32, 2, "center", 640)
-        end
-    end
-
-    Draw.setColor(1, 1, 1)
-
-    if TextInput.active and (self.substate ~= "MENU") then
-        TextInput.draw({
-            x = self.create.input_pos_x,
-            y = self.create.input_pos_y,
-            font = self.menu_font,
-            print = function(text, x, y) Draw.printShadow(text, x, y) end,
-        })
-    end
-end
-
-function Menu:drawSelectionField(x, y, id, options, state)
-    if self.state == "CREATE" then
-        Draw.printShadow(options[self.create[id]], x, y)
-    elseif self.state == "CONFIG" then
-        Draw.printShadow(options[self.config[id]], x, y)
-    end
-
-    if self.substate == state then
-        Draw.setColor(COLORS.white)
-        local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
-    end
-end
-
-function Menu:drawCheckbox(x, y, id)
-    x = x - 8
-    local checked = self.create[id]
-    love.graphics.setLineWidth(2)
-    Draw.setColor(COLORS.black)
-    love.graphics.rectangle("line", x + 2 + 2, y + 2 + 2, 32 - 4, 32 - 4)
-    Draw.setColor(checked and COLORS.white or COLORS.silver)
-    love.graphics.rectangle("line", x + 2, y + 2, 32 - 4, 32 - 4)
-    if checked then
-        Draw.setColor(COLORS.black)
-        love.graphics.rectangle("line", x + 6 + 2, y + 6 + 2, 32 - 12, 32 - 12)
-        Draw.setColor(COLORS.aqua)
-        love.graphics.rectangle("fill", x + 6, y + 6, 32 - 12, 32 - 12)
-    end
-end
-
-function Menu:drawInputLine(name, x, y, id)
-    Draw.printShadow(name, x, y)
-    love.graphics.setLineWidth(2)
-    local line_x  = x + 128 + 32 + 16
-    local line_x2 = line_x + 416 - 32
-    local line_y = 32 - 4 - 1 + 2
-    Draw.setColor(0, 0, 0, 1)
-    love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
-    Draw.setColor(COLORS.silver)
-    love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
-
-    if self.create[id] ~= TextInput.input then
-        Draw.printShadow(self.create[id][1], line_x, y)
-    else
-        self.create.input_pos_x = line_x
-        self.create.input_pos_y = y
-    end
-end
+--function Menu:disallowWindowsFolders(str, auto)
+--    -- Check if STR is a disallowed file name in windows (e.g. "CON")
+--    if Utils.containsValue({"CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"}, str:upper()) then
+--        if not auto then Assets.playSound("locker") end
+--        str = "disallowed_id"
+--    end
+--    return str
+--end
+--
+--function Menu:adjustCreateID()
+--    local str = self.create.name[1]
+--
+--    str = self:disallowWindowsFolders(str, true)
+--
+--    local newstr = ""
+--    for i = 1, utf8.len(str) do
+--        local offset = utf8.offset(str, i)
+--        local char = string.sub(str, offset, offset)
+--        local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
+--        if Utils.containsValue(disallowed, char) then
+--            char = ""
+--        end
+--        if char == " " then char = "_" end
+--        newstr = newstr .. char:lower()
+--    end
+--    self.create.id[1] = newstr
+--    self.create.adjusted = true
+--end
+--
+--function Menu:openInput(id, restriction)
+--    TextInput.attachInput(self.create[id], {
+--        multiline = false,
+--        enter_submits = true,
+--        clear_after_submit = false,
+--        text_restriction = restriction,
+--    })
+--    TextInput.submit_callback = function(...) self:onCreateSubmit(id) end
+--    if id == "name" then
+--        TextInput.text_callback = function() self:attemptUpdateID("name") end
+--    else
+--        TextInput.text_callback = nil
+--    end
+--end
+--
+--function Menu:attemptUpdateID(id)
+--    if (id == "name" or id == "id") and self.create.id[1] == "" then
+--        self:adjustCreateID()
+--    end
+--    if (id == "name" and self.create.adjusted) then
+--        self:adjustCreateID()
+--    end
+--end
+--
+--function Menu:createMod()
+--    local name = self.create.name[1]
+--    local id = self.create.id[1]
+--
+--    local config_formatted = "            "
+--    for i, option in ipairs(self.create.config) do
+--        local chosen = option.options[option.selected]
+--        local text = chosen
+--
+--        if chosen == true  then
+--            text = "true"
+--        elseif chosen == false then
+--            text = "false"
+--        elseif type(chosen) == "number" then
+--            text = tostring(chosen)
+--        elseif type(chosen) == "string" then
+--            text = "\"" .. chosen .. "\""
+--        else
+--            text = "UNHANDLED_TYPE_REPORT_TO_DEVS"
+--        end
+--
+--        if chosen ~= nil then
+--            config_formatted = config_formatted .. "// " .. option.description .. "\n            "
+--            config_formatted = config_formatted .. "\"" .. option.id .. "\": " .. text .. "," .. "\n            "
+--        end
+--    end
+--    config_formatted = config_formatted .. "// End of config"
+--
+--    local formatting_dict = {
+--        id = id,
+--        name = name,
+--        engineVer = "v" .. tostring(Kristal.Version),
+--        chapter = self.create.base_chapters[self.create.base_chapter_selected],
+--        transition = self.create.transition and "true" or "false",
+--        config = config_formatted
+--    }
+--
+--    -- Create the directory
+--    local dir = "mods/" .. id .. "/"
+--
+--    if not love.filesystem.getInfo(dir) then
+--        love.filesystem.createDirectory(dir)
+--    end
+--
+--    -- Copy the files from mod_template
+--    local files = Utils.findFiles("mod_template")
+--    for i, file in ipairs(files) do
+--        local src = "mod_template/" .. file
+--        local dst = dir .. file
+--        dst = dst:gsub("modid", id)
+--        local info = love.filesystem.getInfo(src)
+--        if info then
+--            if info.type == "file" then
+--                if file == "mod.json" then
+--                    -- Special handling in case we're mod.json
+--                    local data = love.filesystem.read("string", src) --[[@as string]]
+--                    data = Utils.format(data, formatting_dict)
+--
+--                    local write_file = love.filesystem.newFile(dst)
+--                    write_file:open("w")
+--                    write_file:write(data)
+--                    write_file:close()
+--                else
+--                    -- Copy the file
+--                    local data = love.filesystem.read("data", src)
+--                    local write_file = love.filesystem.newFile(dst)
+--                    write_file:open("w")
+--                    write_file:write(data)
+--                    write_file:close()
+--                end
+--            else
+--                -- Create the directory
+--                love.filesystem.createDirectory(dst)
+--            end
+--        end
+--    end
+--
+--    -- Reload mods
+--    self:reloadMods()
+--end
+--
+--function Menu:onCreateSubmit(id)
+--    self.ui_select:stop()
+--    self.ui_select:play()
+--    TextInput.input = {""}
+--    TextInput.endInput()
+--
+--    if id == "id" then
+--        self.create.adjusted = false
+--        self.create["id"][1] = self:disallowWindowsFolders(self.create["id"][1], false)
+--    end
+--
+--    self:attemptUpdateID(id)
+--
+--    Input.clear("return")
+--
+--    self:setSubState("MENU")
+--end
+--
+--function Menu:onCreateCancel()
+--    TextInput.input = {""}
+--    TextInput.endInput()
+--    self:setSubState("MENU")
+--end
+--
+--function Menu:drawCreate()
+--    Draw.printShadow("Create New Mod", 0, 48, "center", 640)
+--
+--    local menu_x = 64
+--    local menu_y = 128
+--
+--    self:drawInputLine("Mod name: ",          menu_x, menu_y + (32 * 0), "name")
+--    self:drawInputLine("Mod ID:   ",          menu_x, menu_y + (32 * 1), "id")
+--    Draw.printShadow(  "Base chapter: ",      menu_x, menu_y + (32 * 2))
+--    Draw.printShadow(  "Edit feature config", menu_x, menu_y + (32 * 3))
+--    Draw.printShadow(  "Create mod",          menu_x, menu_y + (32 * 5))
+--
+--    local off = 256
+--    self:drawSelectionField(menu_x + off, menu_y + (32 * 2), "base_chapter_selected", self.create.base_chapters, "CHAPTER")
+--    --self:drawCheckbox(menu_x + off, menu_y + (32 * 3), "transition")
+--
+--    Draw.setColor(COLORS.silver)
+--
+--    if self.selected_option == 1 then
+--        Draw.printShadow("The name of your mod. Shows in the menu.", 0, 480 - 32, 2, "center", 640)
+--    elseif self.selected_option == 2 then
+--        Draw.printShadow("The ID of your mod. Must be unique.", 0, 480 - 32, 2, "center", 640)
+--    elseif self.selected_option == 3 then
+--        Draw.printShadow("The chapter to base your mod off of in", 0, 480 - 64 - 32, 2, "center", 640)
+--        Draw.printShadow("terms of features. Individual features", 0, 480 - 64, 2, "center", 640)
+--        Draw.printShadow("can be toggled in the config.", 0, 480 - 32, 2, "center", 640)
+--    elseif self.selected_option == 4 then
+--        Draw.printShadow("Edit individual Kristal features.", 0, 480 - 32, 2, "center", 640)
+--    elseif self.selected_option == 5 then
+--        if self.create.id[1] == "" then
+--            Draw.setColor(1, 0.6, 0.6)
+--            Draw.printShadow("You must enter a valid ID.", 0, 480 - 32, 2, "center", 640)
+--        elseif self.create.name[1] == "" then
+--            Draw.setColor(1, 0.6, 0.6)
+--            Draw.printShadow("You must enter a valid name.", 0, 480 - 32, 2, "center", 640)
+--        else
+--            Draw.printShadow("Create the mod.", 0, 480 - 32, 2, "center", 640)
+--        end
+--    end
+--
+--    Draw.setColor(1, 1, 1)
+--
+--    if TextInput.active and (self.substate ~= "MENU") then
+--        TextInput.draw({
+--            x = self.create.input_pos_x,
+--            y = self.create.input_pos_y,
+--            font = self.menu_font,
+--            print = function(text, x, y) Draw.printShadow(text, x, y) end,
+--        })
+--    end
+--end
+--
+--function Menu:drawSelectionField(x, y, id, options, state)
+--    if self.state == "MODCREATE" then
+--        Draw.printShadow(options[self.create[id]], x, y)
+--    elseif self.state == "CONFIG" then
+--        Draw.printShadow(options[self.config[id]], x, y)
+--    end
+--
+--    if self.substate == state then
+--        Draw.setColor(COLORS.white)
+--        local off = (math.sin(Kristal.getTime() / 0.2) * 2) + 2
+--        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), x - 16 - 8 - off, y + 4, 0, 2, 2)
+--        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), x + 16 + 8 - 4 + off, y + 4, 0, 2, 2)
+--    end
+--end
+--
+--function Menu:drawCheckbox(x, y, id)
+--    x = x - 8
+--    local checked = self.create[id]
+--    love.graphics.setLineWidth(2)
+--    Draw.setColor(COLORS.black)
+--    love.graphics.rectangle("line", x + 2 + 2, y + 2 + 2, 32 - 4, 32 - 4)
+--    Draw.setColor(checked and COLORS.white or COLORS.silver)
+--    love.graphics.rectangle("line", x + 2, y + 2, 32 - 4, 32 - 4)
+--    if checked then
+--        Draw.setColor(COLORS.black)
+--        love.graphics.rectangle("line", x + 6 + 2, y + 6 + 2, 32 - 12, 32 - 12)
+--        Draw.setColor(COLORS.aqua)
+--        love.graphics.rectangle("fill", x + 6, y + 6, 32 - 12, 32 - 12)
+--    end
+--end
+--
+--function Menu:drawInputLine(name, x, y, id)
+--    Draw.printShadow(name, x, y)
+--    love.graphics.setLineWidth(2)
+--    local line_x  = x + 128 + 32 + 16
+--    local line_x2 = line_x + 416 - 32
+--    local line_y = 32 - 4 - 1 + 2
+--    Draw.setColor(0, 0, 0, 1)
+--    love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
+--    Draw.setColor(COLORS.silver)
+--    love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
+--
+--    if self.create[id] ~= TextInput.input then
+--        Draw.printShadow(self.create[id][1], line_x, y)
+--    else
+--        self.create.input_pos_x = line_x
+--        self.create.input_pos_y = y
+--    end
+--end
 
 function Menu:onKeyReleased(key)
     if MOD_LOADING then return end
