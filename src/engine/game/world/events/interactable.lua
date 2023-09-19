@@ -78,4 +78,15 @@ end
 
 function Interactable:onTextEnd() end
 
+function Interactable:applyTileObject(data, map)
+   local tile = map:createTileObject(data, 0, 0, self.width, self.height)
+
+   local ox, oy = tile:getOrigin()
+   self:setOrigin(ox, oy)
+
+   tile:setPosition(ox * self.width, oy * self.height)
+
+   self:addChild(tile)
+end
+
 return Interactable
