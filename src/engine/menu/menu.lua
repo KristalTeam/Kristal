@@ -2041,24 +2041,26 @@ function Menu:onCreateEnter()
         config = {}
     }
 
-    self:registerCreateModConfig("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                "selection", {nil, true, false})
-    self:registerCreateModConfig("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",    "selection", {nil, true, false})
-    self:registerCreateModConfig("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",         "selection", {nil, true, false})
-    self:registerCreateModConfig("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",     "selection", {nil, true, false})
-    self:registerCreateModConfig("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",  "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
-    self:registerCreateModConfig("susieStyle",             "Susie Style",               "What sprite set Susie should use",                          "selection", {nil, 1, 2})
-    self:registerCreateModConfig("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                         "selection", {nil, 1, 2})
-    self:registerCreateModConfig("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",       "selection", {nil, true, false})
-    self:registerCreateModConfig("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.", "selection", {nil, true, false})
-    self:registerCreateModConfig("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",    "selection", {nil, true, false})
-    self:registerCreateModConfig("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                "selection", {nil, "round", "cyber"}) -- unhardcode
-    self:registerCreateModConfig("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                               "selection", {nil, true, false})
-    self:registerCreateModConfig("mercyMessages",          "Mercy Messages",            "Seeing +X% when an enemy's mercy goes up",                  "selection", {nil, true, false})
-    self:registerCreateModConfig("mercyBar",               "Mercy Bar",                 "Whether the mercy bar should appear or not",                "selection", {nil, true, false})
-    self:registerCreateModConfig("enemyBarPercentages",    "Stat Bar Percentages",      "Whether the HP and Mercy bars should show percentages",     "selection", {nil, true, false})
-    self:registerCreateModConfig("pushBlockInputLock",     "Push Block Input Locking",  "Whether pushing a block should freeze the player",          "selection", {nil, true, false})
-    self:registerCreateModConfig("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",   "selection", {nil, true, false})
-    self:registerCreateModConfig("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",          "selection", {nil, true, false})
+    self:registerCreateModConfig("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                                         "selection", {nil, true, false})
+    self:registerCreateModConfig("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",                             "selection", {nil, true, false})
+    self:registerCreateModConfig("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",                                  "selection", {nil, true, false})
+    self:registerCreateModConfig("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",                              "selection", {nil, true, false})
+    self:registerCreateModConfig("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",                           "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
+    self:registerCreateModConfig("susieStyle",             "Susie Style",               "What sprite set Susie should use",                                                   "selection", {nil, 1, 2})
+    self:registerCreateModConfig("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                                                  "selection", {nil, 1, 2})
+    self:registerCreateModConfig("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",                                "selection", {nil, true, false})
+    self:registerCreateModConfig("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.",                          "selection", {nil, true, false})
+    self:registerCreateModConfig("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",                             "selection", {nil, true, false})
+    self:registerCreateModConfig("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                                         "selection", {nil, "round", "cyber"}) -- unhardcode
+    self:registerCreateModConfig("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                                                        "selection", {nil, true, false})
+    self:registerCreateModConfig("mercyMessages",          "Mercy Messages",            "Seeing +X% when an enemy's mercy goes up",                                           "selection", {nil, true, false})
+    self:registerCreateModConfig("mercyBar",               "Mercy Bar",                 "Whether the mercy bar should appear or not",                                         "selection", {nil, true, false})
+    self:registerCreateModConfig("enemyBarPercentages",    "Stat Bar Percentages",      "Whether the HP and Mercy bars should show percentages",                              "selection", {nil, true, false})
+    self:registerCreateModConfig("prioritySpareableText",  "Priority Spareable Text",   "Whether enemies' spareable text should be prioritized over tired / low-health text", "selection", {nil, true, false})
+    self:registerCreateModConfig("pushBlockInputLock",     "Push Block Input Locking",  "Whether pushing a block should freeze the player",                                   "selection", {nil, true, false})
+    self:registerCreateModConfig("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",                            "selection", {nil, true, false})
+    self:registerCreateModConfig("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",                                   "selection", {nil, true, false})
+    self:registerCreateModConfig("damageUnderflowFix",     "Damage Underflow Fix",      "If disabled, negative enemy damage heals the enemy",                                 "selection", {nil, true, false})
 end
 
 function Menu:registerCreateModConfig(id, name, description, type, options)

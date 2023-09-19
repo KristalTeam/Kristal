@@ -1022,7 +1022,7 @@ function Battle:processAction(action)
 
                 battler.chara:onAttackHit(enemy, damage)
             else
-                enemy:statusMessage("msg", "miss", {battler.chara:getDamageColor()})
+                enemy:hurt(0, battler)
             end
 
             self:finishAction(action)

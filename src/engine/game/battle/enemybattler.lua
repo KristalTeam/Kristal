@@ -440,11 +440,20 @@ function EnemyBattler:isXActionShort(battler)
 end
 
 function EnemyBattler:hurt(amount, battler, on_defeat, color)
+    if amount == 0 or (amount < 0 and Game:getConfig("damageUnderflowFix")) then
+        self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+
+        self:onDodge(battler)
+        return
+    end
+
     self.health = self.health - amount
     self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
 
-    self.hurt_timer = 1
-    self:onHurt(amount, battler)
+    if amount > 0 then
+        self.hurt_timer = 1
+        self:onHurt(amount, battler)
+    end
 
     self:checkHealth(on_defeat, amount, battler)
 end
@@ -498,6 +507,8 @@ function EnemyBattler:onHurtEnd()
     self:getActiveSprite():stopShake()
     self:toggleOverlay(false)
 end
+
+function EnemyBattler:onDodge(battler) end
 
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then
