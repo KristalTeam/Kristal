@@ -868,7 +868,7 @@ function World:update()
         local exited = {}
         Object.startCache()
         for _,obj in ipairs(self.children) do
-            if not obj.solid and (obj.onCollide or obj.onEnter) then
+            if not obj.solid and (obj.onCollide or obj.onEnter or obj.onExit) then
                 for _,char in ipairs(self.stage:getObjects(Character)) do
                     if obj:collidesWith(char) then
                         if not obj:includes(OverworldSoul) then
