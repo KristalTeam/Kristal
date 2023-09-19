@@ -73,14 +73,19 @@ function spell:onCast(user, target)
         end
         wait(4/30)
 
-        local min_magic = Utils.clamp(user.chara:getStat("magic") - 10, 1, 999)
-        local damage = math.ceil((min_magic * 30) + 90 + Utils.random(10))
+        local damage = self:getDamage(user, target)
         target:hurt(damage, user, function() target:freeze() end)
 
         Game.battle:finishActionBy(user)
     end)
 
     return false
+end
+
+function spell:getDamage(user, target)
+    local min_magic = Utils.clamp(user.chara:getStat("magic") - 10, 1, 999)
+
+    return math.ceil((min_magic * 30) + 90 + Utils.random(10))
 end
 
 return spell
