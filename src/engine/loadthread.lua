@@ -4,6 +4,11 @@ require("love.sound")
 
 json = require("src.lib.json")
 
+--[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
+    love.filesystem.mount("mod_template/assets", "mods/example/assets")
+    love.filesystem.mount("mod_template/scripts", "mods/example/scripts")
+end]]
+
 function string.split(str, sep, remove_empty)
     local t = {}
     local i = 1
@@ -97,6 +102,10 @@ local loaders = {
         end
         if love.filesystem.getInfo(full_path.."/mod.json") then
             local ok, mod = pcall(json.decode, love.filesystem.read(full_path.."/mod.json"))
+
+            if love.filesystem.getInfo(full_path.."/_GENERATED_FROM_MOD_TEMPLATE") then
+                full_path = "mod_template"
+            end
 
             if not ok then
                 table.insert(data.failed_mods, {
