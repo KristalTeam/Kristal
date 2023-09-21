@@ -2,6 +2,8 @@
 ---
 ---@field menu MainMenu
 ---
+---@field file_namer FileNamer
+---
 ---@overload fun(menu:MainMenu) : MainMenuFileName
 local MainMenuFileName, super = Class(StateClass)
 

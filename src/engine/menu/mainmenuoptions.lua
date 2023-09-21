@@ -439,8 +439,8 @@ end
 -- Class Methods
 -------------------------------------------------------------------------------
 
-function MainMenuOptions:setState(state)
-    self.state_manager:setState(state)
+function MainMenuOptions:setState(state, ...)
+    self.state_manager:setState(state, ...)
 end
 
 function MainMenuOptions:getHeartPos()
@@ -529,13 +529,7 @@ function MainMenuOptions:initializeOptions()
     end)
 
     local function enterControls(type)
-        self.menu:setState("CONTROLS")
-        self.menu.control_menu = type
-        self.menu.rebinding = false
-        self.menu.selecting_key = false
-        self.menu.heart_target_x = 152
-        self.menu.heart_target_y = 129 + 0 * 32
-        self.menu.selected_option = 1
+        self.menu:pushState("CONTROLS", type)
     end
     self:registerOption("general", "Keyboard Controls", nil, function() enterControls("keyboard") end)
     self:registerOption("general", "Gamepad Controls", nil, function() enterControls("gamepad") end)
@@ -592,7 +586,7 @@ function MainMenuOptions:initializeOptions()
     self:registerOption("engine", "Default Name", function()
         return Kristal.Config["defaultName"]
     end, function()
-        self:setState("DEFAULTNAME")
+        self.menu:pushState("DEFAULTNAME")
     end)
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
 

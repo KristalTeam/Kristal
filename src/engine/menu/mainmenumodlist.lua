@@ -93,6 +93,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
         Assets.stopAndPlaySound("ui_move")
 
         self.menu:setState("TITLE")
+        self.menu.title_screen:selectOption("play")
         return true
 
     elseif #self.list.mods > 0 then

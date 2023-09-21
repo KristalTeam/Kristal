@@ -183,8 +183,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 self.menu:setState("MODSELECT")
             else
                 self.menu:setState("TITLE")
-                self.menu.heart_target_x = 196
-                self.menu.heart_target_y = 238
+                self.menu.title_screen:selectOption("play")
             end
             Assets.stopAndPlaySound("ui_cancel")
             return true
@@ -215,8 +214,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         self.menu:setState("MODSELECT")
                     else
                         self.menu:setState("TITLE")
-                        self.menu.heart_target_x = 196
-                        self.menu.heart_target_y = 238
+                        self.menu.title_screen:selectOption("play")
                     end
                 end
             end

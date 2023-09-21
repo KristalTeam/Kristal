@@ -2,6 +2,12 @@
 ---
 ---@field menu MainMenu
 ---
+---@field logo love.Image
+---@field has_target_saves boolean
+---
+---@field options table
+---@field selected_option number
+---
 ---@overload fun(menu:MainMenu) : MainMenuTitle
 local MainMenuTitle, super = Class(StateClass)
 
@@ -15,7 +21,6 @@ end
 
 function MainMenuTitle:registerEvents()
     self:registerEvent("enter", self.onEnter)
-    self:registerEvent("leave", self.onLeave)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("draw", self.draw)
 end
@@ -25,9 +30,11 @@ end
 -------------------------------------------------------------------------------
 
 function MainMenuTitle:onEnter(old_state)
+    self.has_target_saves = TARGET_MOD and Kristal.hasAnySaves(TARGET_MOD) or false
+
     if TARGET_MOD then
         self.options = {
-            {"play",    self.menu.has_target_saves and "Load game" or "Start game"},
+            {"play",    self.has_target_saves and "Load game" or "Start game"},
             {"options", "Options"},
             {"credits", "Credits"},
             {"quit",    "Quit"},
@@ -46,9 +53,6 @@ function MainMenuTitle:onEnter(old_state)
     self.menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
 end
 
-function MainMenuTitle:onLeave(new_state)
-end
-
 function MainMenuTitle:onKeyPressed(key, is_repeat)
     if Input.isConfirm(key) then
         Assets.stopAndPlaySound("ui_select")
@@ -58,7 +62,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
         if option == "play" then
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
-            elseif self.menu.has_target_saves then
+            elseif self.has_target_saves then
                 self.menu:setState("FILESELECT")
             else
                 Kristal.loadMod(TARGET_MOD, 1)
@@ -68,9 +72,6 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
 
         elseif option == "options" then
-            self.menu.heart_target_x = 152
-            self.menu.heart_target_y = 129
-            self.menu.selected_option = 1 -- TODO: Remove
             self.menu:setState("OPTIONS")
 
         elseif option == "credits" then

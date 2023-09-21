@@ -41,6 +41,9 @@ function MainMenuModConfig:onEnter(old_state)
 
     self.scroll_target_y = 0
     self.scroll_y = 0
+
+    self.menu.heart_target_x = 64 - 19
+    self.menu.heart_target_y = 128 + 19
 end
 
 function MainMenuModConfig:onKeyPressed(key, is_repeat)

@@ -125,8 +125,6 @@ function MainMenuModCreate:onKeyPressed(key, is_repeat)
 
             elseif self.selected_option == 4 then
                 Assets.stopAndPlaySound("ui_select")
-                self.menu.heart_target_x = 64 - 19
-                self.menu.heart_target_y = 128 + 19
                 self.menu:setState("MODCONFIG")
 
             elseif self.selected_option == 5 then
@@ -237,8 +235,8 @@ end
 -- Class Methods
 -------------------------------------------------------------------------------
 
-function MainMenuModCreate:setState(state)
-    self.state_manager:setState(state)
+function MainMenuModCreate:setState(state, ...)
+    self.state_manager:setState(state, ...)
 end
 
 function MainMenuModCreate:onStateChange(old_state, state)
