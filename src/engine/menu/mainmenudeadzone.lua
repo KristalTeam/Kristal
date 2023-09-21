@@ -23,6 +23,7 @@ end
 function MainMenuDeadzone:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("keypressed", self.onKeyPressed)
+    self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
 end
 
