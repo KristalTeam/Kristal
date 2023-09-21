@@ -442,8 +442,8 @@ end
 ---
 --- Concatenates exclusively string values within a table.
 ---
----@param text table     # The table of values to combine.
----@return string result # The concatenated string.
+---@param text table|string # The table of values to combine.
+---@return string result    # The concatenated string.
 ---
 function Utils.getCombinedText(text)
     if type(text) == "table" then
@@ -2351,6 +2351,39 @@ function Utils.getDirname(path)
     local trailing_slashes = dirname:find("/+$", 2)
     if trailing_slashes then dirname = dirname:sub(1, trailing_slashes - 1) end
     return dirname
+end
+
+local special_class_variables = {
+    __dont_include = true,
+    __includes = true,
+    __includes_all = true,
+    __index = true,
+    __super = true,
+    __includers = true,
+
+    init = true,
+    include = true,
+    includes = true,
+    clone = true,
+    canDeepCopy = true,
+    canDeepCopyKey = true
+}
+
+local function next_noclassvars(t, k)
+    local v
+    repeat
+        k, v = next(t, k)
+    until not special_class_variables[k]
+    return k, v
+end
+
+--- Iterates through the fields of a class (e.g. `pairs`) excluding special class variables and functions
+---@generic T : table
+---@generic K, V
+---@param class T
+---@return (fun(table: table<K, V>, index?: K):K, V), T
+function Utils.iterClass(class)
+    return next_noclassvars, class
 end
 
 return Utils

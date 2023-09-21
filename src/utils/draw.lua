@@ -307,6 +307,33 @@ function Draw.drawWrapped(drawable, wrap_x, wrap_y, x, y, r, sx, sy, ox, oy, kx,
     end
 end
 
+---
+--- Draws text with a black drop shadow behind it.
+---
+---@param text string|table     # A text string, or table of color-formatted text.
+---@param x? number             # The position on the x-axis.
+---@param y? number             # The position on the y-axis.
+---@param offset? number        # The offset of the drop shadow. (Defaults to 2)
+---@param align? love.AlignMode # The alignment.
+---@param limit? number         # Wrap the line after this many horizontal pixels.
+---
+function Draw.printShadow(text, x, y, offset, align, limit)
+    x, y = x or 0, y or 0
+    offset = offset or 2
+
+    local r, g, b, a = love.graphics.getColor()
+
+    local width = love.graphics.getFont():getWidth(Utils.getCombinedText(text))
+
+    -- Draw the shadow, offset by a given amount of pixels to the bottom right
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.printf(text, x + offset, y + offset, limit or width, align or "left")
+
+    -- Draw the main text
+    love.graphics.setColor(r, g, b, a)
+    love.graphics.printf(text, x, y, limit or width, align or "left")
+end
+
 --- Modes: `none`
 --- - `none`: Creates a canvas based on object size and draws the object at 0,0 (not transformed)
 ---   - extra arguments: `no_children`, `pad_x`, `pad_y`
