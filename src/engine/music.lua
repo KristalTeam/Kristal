@@ -8,6 +8,9 @@ function Music:init()
     self.volume = 1
 
     self.pitch = 1
+    self.looping = true
+
+    self.started = false
 
     self.target_volume = 0
     self.fade_speed = 0
@@ -66,8 +69,9 @@ function Music:playFile(path, volume, pitch, name)
             self.source = love.audio.newSource(path, "stream")
             self.source:setVolume(self:getVolume())
             self.source:setPitch(self:getPitch())
-            self.source:setLooping(true)
+            self.source:setLooping(self.looping)
             self.source:play()
+            self.started = true
         else
             if volume then
                 self.source:setVolume(self:getVolume())
@@ -87,6 +91,7 @@ function Music:playFile(path, volume, pitch, name)
             self.source:setPitch(self:getPitch())
         end
         self.source:play()
+        self.started = true
     end
 end
 
@@ -104,6 +109,13 @@ function Music:setPitch(pitch)
     end
 end
 
+function Music:setLooping(loop)
+    self.looping = loop
+    if self.source then
+        self.source:setLooping(loop)
+    end
+end
+
 function Music:seek(time)
     self.source:seek(time)
 end
@@ -117,18 +129,21 @@ function Music:stop()
     if self.source then
         self.source:stop()
     end
+    self.started = false
 end
 
 function Music:pause()
     if self.source then
         self.source:pause()
     end
+    self.started = false
 end
 
 function Music:resume()
     if self.source then
         self.source:play()
     end
+    self.started = true
 end
 
 function Music:isPlaying()
@@ -145,6 +160,7 @@ function Music:remove()
         self.source:stop()
         self.source = nil
     end
+    self.started = false
     self.removed = true
 end
 

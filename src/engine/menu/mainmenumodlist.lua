@@ -376,17 +376,19 @@ function MainMenuModList:buildModList()
 
         -- Load the mod's preview music
         if mod.preview_music_path then
-            local music = Music()
-            music:playFile(mod.preview_music_path, 0, 1)
-            music:stop()
-
-            self.music[mod.id] = music
-
             self.music_options[mod.id] = {
                 volume = mod["previewVolume"]     or 1,
                 sync   = mod["previewMusicSync"]  or false,
                 pause  = mod["previewMusicPause"] or false,
+                loop   = mod["previewMusicLoop"] == nil and true or mod["previewMusicLoop"],
             }
+
+            local music = Music()
+            music:playFile(mod.preview_music_path, 0, 1)
+            music:setLooping(self.music_options[mod.id].loop)
+            music:stop()
+
+            self.music[mod.id] = music
         end
 
         -- Get the engine versions this mod is compatible with

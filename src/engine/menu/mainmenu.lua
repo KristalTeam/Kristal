@@ -190,7 +190,7 @@ function MainMenu:update()
     if not TARGET_MOD then
         local fade_waiting = false
         for k,v in pairs(self.mod_list.music) do
-            if v:isPlaying() and v.volume > (self.mod_list.music_options[k].volume * 0.1) then
+            if v.started and v.volume > (self.mod_list.music_options[k].volume * 0.1) then
                 fade_waiting = true
                 break
             end
@@ -200,7 +200,7 @@ function MainMenu:update()
             local mod_music = self.mod_list.music[mod.id]
             local options = self.mod_list.music_options[mod.id]
 
-            if not mod_music:isPlaying() and not fade_waiting and self.music.volume == 0 then
+            if not mod_music.started and not fade_waiting and self.music.volume == 0 then
                 mod_music:setVolume(0)
                 if options.sync then
                     mod_music:play()
@@ -223,8 +223,10 @@ function MainMenu:update()
         end
 
         for k,v in pairs(self.mod_list.music) do
-            if (not mod or k ~= mod.id) and v:isPlaying() then
-                if self.mod_list.music_options[k].pause then
+            if (not mod or k ~= mod.id) and v.started then
+                if not v:isPlaying() then
+                    v:stop()
+                elseif self.mod_list.music_options[k].pause then
                     v:fade(0, 0.5, function(music) music:pause() end)
                 else
                     v:fade(0, 0.5, function(music) music:stop() end)
