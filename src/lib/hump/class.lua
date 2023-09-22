@@ -24,13 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ]]--
 
-
----@class _Class
----@field __includes _Class[]
----@field __includes_all { [_Class]: boolean }
----@field __dont_include { [string]: boolean }
----@field init fun(self: _Class, ...)
----@overload fun(self: _Class, ...) : _Class
 local _self = {}
 
 local function include_helper(to, from, seen)
@@ -56,26 +49,15 @@ local function include_helper(to, from, seen)
     return to
 end
 
--- deeply copies `other` into `class`. keys in `other` that are already
--- defined in `class` are omitted
----@generic T : _Class
----@param class `T`
----@param other _Class
----@return T
 function _self.include(class, other)
     return include_helper(class, other, {})
 end
 
--- returns a deep copy of `other`
----@generic T : _Class
----@param other `T`
----@return T
 function _self.clone(other)
     return Utils.copy(other, true)
     --return setmetatable(include({}, other), getmetatable(other))
 end
 
----@param class _Class
 local function get_all_includes(class)
     local includes = {[class] = true}
     for _, other in ipairs(class.__includes) do
@@ -89,9 +71,6 @@ local function get_all_includes(class)
     return includes
 end
 
----@param class _Class
----@param other _Class
----@return boolean
 function _self.includes(class, other)
     if type(other) == "string" then
         other = _G[other]
@@ -99,9 +78,6 @@ function _self.includes(class, other)
     return class.__includes_all[other] and true or false
 end
 
----@generic T : _Class
----@param class `T`
----@return T
 function _self.new(class)
     -- mixins
     class = class or {}  -- class can be nil
@@ -138,9 +114,9 @@ function _self.new(class)
     }
 
     -- constructor call
-    ---@overload fun(self: _Class, ...) : _Class
+    ---@overload fun(self: Class, ...) : Class
     return setmetatable(class, {__call = function(c, ...)
-        ---@type _Class
+        ---@type Class
         local o = setmetatable({}, c)
         o:init(...)
         return o
