@@ -319,7 +319,7 @@ function MainMenuModCreate:openInput(id, restriction)
         clear_after_submit = false,
         text_restriction = restriction,
     })
-    TextInput.submit_callback = function(...) self:onInputSubmit(id) end
+    TextInput.submit_callback = function() self:onInputSubmit(id) end
     if id == "name" then
         TextInput.text_callback = function() self:attemptUpdateID("name") end
     else
