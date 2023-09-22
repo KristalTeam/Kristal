@@ -49,6 +49,11 @@ function MainMenuTitle:onEnter(old_state)
         }
     end
 
+    if not TARGET_MOD then
+        self.menu.selected_mod = nil
+        self.menu.selected_mod_button = nil
+    end
+
     self.menu.heart_target_x = 196
     self.menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
 end

@@ -74,11 +74,6 @@ function MainMenuModList:onLeave(new_state)
     self.active = false
 
     self.menu.heart_outline.visible = false
-
-    if new_state == "TITLE" then
-        self.menu.selected_mod = nil
-        self.menu.selected_mod_button = nil
-    end
 end
 
 function MainMenuModList:onKeyPressed(key, is_repeat)
