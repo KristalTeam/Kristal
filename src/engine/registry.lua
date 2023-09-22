@@ -453,8 +453,6 @@ end
 ---@param class Actor
 function Registry.registerActor(id, class)
     self.actors[id] = class
-    class.animations = class.animations or {}
-    class.offsets = class.offsets or {}
 end
 
 ---@param id string
