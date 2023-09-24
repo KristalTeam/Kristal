@@ -370,8 +370,8 @@ end
 ---
 --- Returns whether two tables have an equivalent set of values.
 ---
----@param a table          # The first table to compare.
----@param b table          # The second table to compare.
+---@param a any            # The first table to compare.
+---@param b any            # The second table to compare.
 ---@param deep? boolean    # Whether table values within these tables should also be compared using `Utils.equal()`.
 ---@return boolean success # Whether the sets of values for the two tables were equivalent.
 ---

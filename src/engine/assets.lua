@@ -1,5 +1,33 @@
+---@class Assets
+---
+---@field loaded boolean
+---
+---@field data Assets.data
+---
+---@field frames_for table<string, {[1]: string, [2]: number}>
+---@field texture_ids table<love.Image, string>
+---@field sounds table<string, love.Source>
+---@field sound_instances table<string, love.Source[]>
+---@field quads table<string, love.Quad>
+---
+---@field saved_data table|nil
+---
 local Assets = {}
 local self = Assets
+
+---@class Assets.data
+---@field texture table<string, love.Image>
+---@field texture_data table<string, love.ImageData>
+---@field frames table<string, love.Image[]>
+---@field frame_ids table<string, string[]>
+---@field fonts table<string, love.Font|{default: number, [number]: love.Font}>
+---@field font_data table<string, love.Data>
+---@field font_image_data table<string, love.ImageData>
+---@field font_settings table<string, table>
+---@field sound_data table<string, love.SoundData>
+---@field music table<string, string>
+---@field videos table<string, string>
+---@field bubble_settings table<string, table>
 
 Assets.saved_data = nil
 
@@ -27,6 +55,7 @@ function Assets.clear()
     self.quads = {}
 end
 
+---@param data Assets.data
 function Assets.loadData(data)
     Utils.merge(self.data, data, true)
 
@@ -44,6 +73,7 @@ function Assets.saveData()
     }
 end
 
+---@return boolean
 function Assets.restoreData()
     if self.saved_data then
         Assets.clear()
@@ -57,6 +87,7 @@ function Assets.restoreData()
     end
 end
 
+---@param data Assets.data
 function Assets.parseData(data)
     -- thread can't create images, we do it here
     for key,image_data in pairs(data.texture_data) do
@@ -126,10 +157,15 @@ function Assets.update()
     end
 end
 
+---@param path string
+---@return table
 function Assets.getBubbleData(path)
     return self.data.bubble_settings[path] or {}
 end
 
+---@param path string
+---@param size? number
+---@return love.Font
 function Assets.getFont(path, size)
     local font = self.data.fonts[path]
     if font then
@@ -141,6 +177,7 @@ function Assets.getFont(path, size)
                 size = size or font.default
             end
             if not font[size] then
+                ---@diagnostic disable-next-line: param-type-mismatch
                 font[size] = love.graphics.newFont(self.data.font_data[path], size, settings["hinting"] or "mono")
 
                 if settings["fallbacks"] then
@@ -165,12 +202,19 @@ function Assets.getFont(path, size)
             return font
         end
     end
+    ---@diagnostic disable-next-line: return-type-mismatch
+    return nil
 end
 
+---@param path string
+---@return table
 function Assets.getFontData(path)
     return self.data.font_settings[path] or {}
 end
 
+---@param path string
+---@param size? number
+---@return number
 function Assets.getFontScale(path, size)
     local data = self.data.font_settings[path]
     if data and data["autoScale"] then
@@ -180,14 +224,20 @@ function Assets.getFontScale(path, size)
     end
 end
 
+---@param path string
+---@return love.Image
 function Assets.getTexture(path)
     return self.data.texture[path]
 end
 
+---@param path string
+---@return love.ImageData
 function Assets.getTextureData(path)
     return self.data.texture_data[path]
 end
 
+---@param texture love.Image|string
+---@return string
 function Assets.getTextureID(texture)
     if type(texture) == "string" then
         return texture
@@ -196,20 +246,32 @@ function Assets.getTextureID(texture)
     end
 end
 
+---@param path string
+---@return love.Image[]
 function Assets.getFrames(path)
     return self.data.frames[path]
 end
 
+---@param path string
+---@return string[]
 function Assets.getFrameIds(path)
     return self.data.frame_ids[path]
 end
 
+---@param texture string
+---@return string texture, number frame
 function Assets.getFramesFor(texture)
     if self.frames_for[texture] then
+        -- annoying type annotations
+        ---@diagnostic disable-next-line: return-type-mismatch
         return unpack(self.frames_for[texture])
     end
+    ---@diagnostic disable-next-line: return-type-mismatch
+    return nil, nil
 end
 
+---@param path string
+---@return love.Image[]
 function Assets.getFramesOrTexture(path)
     local texture = Assets.getTexture(path)
     if texture then
@@ -219,6 +281,13 @@ function Assets.getFramesOrTexture(path)
     end
 end
 
+---@param x number
+---@param y number
+---@param w number
+---@param h number
+---@param sw number
+---@param sh number
+---@return love.Quad
 function Assets.getQuad(x, y, w, h, sw, sh)
     local key = x..","..y..","..w..","..h..","..sw..","..sh
     if not self.quads[key] then
@@ -227,22 +296,32 @@ function Assets.getQuad(x, y, w, h, sw, sh)
     return self.quads[key]
 end
 
+---@param sound string
+---@return love.Source
 function Assets.getSound(sound)
     return self.sounds[sound]
 end
 
+---@param sound string
+---@return love.Source
 function Assets.newSound(sound)
     return self.sounds[sound]:clone()
 end
 
+---@param sound string
+---@return love.Source
 function Assets.startSound(sound)
     if self.sounds[sound] then
         self.sounds[sound]:stop()
         self.sounds[sound]:play()
         return self.sounds[sound]
     end
+    ---@diagnostic disable-next-line: return-type-mismatch
+    return nil
 end
 
+---@param sound string
+---@param actually_stop? boolean
 function Assets.stopSound(sound, actually_stop)
     for _,src in ipairs(self.sound_instances[sound] or {}) do
         if actually_stop then
@@ -259,6 +338,10 @@ function Assets.stopSound(sound, actually_stop)
     end
 end
 
+---@param sound string
+---@param volume? number
+---@param pitch? number
+---@return love.Source
 function Assets.playSound(sound, volume, pitch)
     if self.sounds[sound] then
         self.sound_instances[sound] = self.sound_instances[sound] or {}
@@ -286,21 +369,35 @@ function Assets.playSound(sound, volume, pitch)
         end
         return src
     end
+    ---@diagnostic disable-next-line: return-type-mismatch
+    return nil
 end
 
+---@param sound string
+---@param volume? number
+---@param pitch? number
+---@param actually_stop? boolean
+---@return love.Source
 function Assets.stopAndPlaySound(sound, volume, pitch, actually_stop)
     self.stopSound(sound, actually_stop)
     return self.playSound(sound, volume, pitch)
 end
 
+---@param music string
+---@return string
 function Assets.getMusicPath(music)
     return self.data.music[music]
 end
 
+---@param video string
+---@return string
 function Assets.getVideoPath(video)
     return self.data.videos[video]
 end
 
+---@param video string
+---@param load_audio? boolean
+---@return love.Video
 function Assets.newVideo(video, load_audio)
     if not self.data.videos[video] then
         error("No video found: "..video)

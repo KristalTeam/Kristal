@@ -1,5 +1,7 @@
+---@class Kristal.Overlay
 local Overlay = {}
 
+---@param val boolean
 function Overlay.setLoading(val)
     Overlay.loading = val
 end

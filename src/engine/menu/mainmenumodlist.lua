@@ -197,9 +197,9 @@ function MainMenuModList:draw()
             local part_2_xpos = 320 - (total_width / 2) + menu_font:getWidth(string_part_1)
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
-                Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
+                Draw.draw(Input.getTexture("cancel"), part_2_xpos + 4 + 2, 480 - 32 + 4, 0, 2, 2)
                 Draw.setColor(1, 1, 1, 1)
-                Draw.draw(Input.getText("cancel", nil, true), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
+                Draw.draw(Input.getTexture("cancel"), part_2_xpos + 4, 480 - 32 + 2, 0, 2, 2)
             else
                 Draw.printShadow(string_part_2, part_2_xpos, 480 - 32)
             end
@@ -229,9 +229,9 @@ function MainMenuModList:draw()
             x_pos = x_pos + control_cancel_width
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
-                Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                Draw.draw(Input.getTexture("cancel"), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
                 Draw.setColor(1, 1, 1, 1)
-                Draw.draw(Input.getText("cancel", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                Draw.draw(Input.getTexture("cancel"), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
             else
                 Draw.printShadow(Input.getText("cancel"), 580 + (16 * 3) - x_pos, 454 - 8)
             end
@@ -241,9 +241,9 @@ function MainMenuModList:draw()
             x_pos = x_pos + control_menu_width
             if Input.usingGamepad() then
                 Draw.setColor(0, 0, 0, 1)
-                Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                Draw.draw(Input.getTexture("menu"), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
                 Draw.setColor(1, 1, 1, 1)
-                Draw.draw(Input.getText("menu", nil, true), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                Draw.draw(Input.getTexture("menu"), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
             else
                 Draw.printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8)
             end

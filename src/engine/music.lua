@@ -1,5 +1,21 @@
 ---@class Music : Class
----@overload fun(...) : Music
+---
+---@field volume number
+---@field pitch number
+---@field looping boolean
+---
+---@field started boolean
+---
+---@field target_volume number
+---@field fade_speed number
+---@field fade_callback fun(music:Music)|nil
+---
+---@field removed boolean
+---
+---@field current string|nil
+---@field source love.Source|nil
+---
+---@overload fun() : Music
 local Music = {}
 
 local _handlers = {}
@@ -22,20 +38,28 @@ function Music:init()
     self.source = nil
 end
 
+---@param to? number
+---@param speed? number
+---@param callback? fun(music:Music)
 function Music:fade(to, speed, callback)
     self.target_volume = to or 0
     self.fade_speed = speed or (10/30)
     self.fade_callback = callback
 end
 
+---@return number
 function Music:getVolume()
     return self.volume * MUSIC_VOLUME * (self.current and MUSIC_VOLUMES[self.current] or 1)
 end
 
+---@return number
 function Music:getPitch()
     return self.pitch * (self.current and MUSIC_PITCHES[self.current] or 1)
 end
 
+---@param music? string
+---@param volume? number
+---@param pitch? number
 function Music:play(music, volume, pitch)
     if music then
         local path = Assets.getMusicPath(music)
@@ -48,6 +72,10 @@ function Music:play(music, volume, pitch)
     end
 end
 
+---@param path? string
+---@param volume? number
+---@param pitch? number
+---@param name? string
 function Music:playFile(path, volume, pitch, name)
     if self.removed then
         return
@@ -95,6 +123,7 @@ function Music:playFile(path, volume, pitch, name)
     end
 end
 
+---@param volume number
 function Music:setVolume(volume)
     self.volume = volume
     if self.source then
@@ -102,6 +131,7 @@ function Music:setVolume(volume)
     end
 end
 
+---@param pitch number
 function Music:setPitch(pitch)
     self.pitch = pitch
     if self.source then
@@ -109,6 +139,7 @@ function Music:setPitch(pitch)
     end
 end
 
+---@param loop boolean
 function Music:setLooping(loop)
     self.looping = loop
     if self.source then
@@ -116,10 +147,12 @@ function Music:setLooping(loop)
     end
 end
 
+---@param time number
 function Music:seek(time)
     self.source:seek(time)
 end
 
+---@return number
 function Music:tell()
     return self.source:tell()
 end
@@ -146,10 +179,12 @@ function Music:resume()
     self.started = true
 end
 
+---@return boolean
 function Music:isPlaying()
     return self.source and self.source:isPlaying() or false
 end
 
+---@return boolean
 function Music:canResume()
     return self.source ~= nil and not self.source:isPlaying()
 end
