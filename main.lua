@@ -236,6 +236,15 @@ GameOver = require("src.engine.game.gameover")
 
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 
+UIComponent = require("src.engine.ui.component")
+UIWindow = require("src.engine.ui.window")
+UIMenu = require("src.engine.ui.menu")
+UIMenuItem = require("src.engine.ui.menuitem")
+
+Layout = require("src.engine.ui.layout")
+HorizontalLayout = require("src.engine.ui.layouts.horizontal")
+VerticalLayout = require("src.engine.ui.layouts.vertical")
+
 Hotswapper = require("src.hotswapper")
 
 -- Register required in the hotswapper
