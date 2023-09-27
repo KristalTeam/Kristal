@@ -26,11 +26,13 @@ function MainMenuOptions:init(menu)
     self.menu = menu
 
     self.state_manager = StateManager("MENU", self, true)
-    self.state_manager:addState("MENU", {enter = self.onEnterMenu, keypressed = self.onKeyPressedMenu})
-    self.state_manager:addState("VOLUME", {enter = self.onEnterSubOption, keypressed = self.onKeyPressedVolume, update = self.updateVolume})
-    self.state_manager:addState("BORDER", {enter = self.onEnterSubOption, keypressed = self.onKeyPressedBorder})
-    self.state_manager:addState("FPS", {enter = self.onEnterSubOption, keypressed = self.onKeyPressedFPS})
-    self.state_manager:addState("WINDOWSCALE", {enter = self.onEnterSubOption, keypressed = self.onKeyPressedWindowScale})
+    self.state_manager:addState("MENU", { enter = self.onEnterMenu, keypressed = self.onKeyPressedMenu })
+    self.state_manager:addState("VOLUME",
+        { enter = self.onEnterSubOption, keypressed = self.onKeyPressedVolume, update = self.updateVolume })
+    self.state_manager:addState("BORDER", { enter = self.onEnterSubOption, keypressed = self.onKeyPressedBorder })
+    self.state_manager:addState("FPS", { enter = self.onEnterSubOption, keypressed = self.onKeyPressedFPS })
+    self.state_manager:addState("WINDOWSCALE", { enter = self.onEnterSubOption, keypressed = self
+    .onKeyPressedWindowScale })
 
     self.options = {}
     self.pages = {}
@@ -142,14 +144,14 @@ function MainMenuOptions:draw()
         else
             Draw.setColor(COLORS.white)
         end
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8  + r_offset, 52, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (title_width / 2) + 8 + r_offset, 52, 0, 2, 2)
 
         if self.selected_page == 1 then
             Draw.setColor(COLORS.silver, 0.5)
         else
             Draw.setColor(COLORS.white)
         end
-        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"),  320 - (title_width / 2) - 26 + l_offset, 52, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (title_width / 2) - 26 + l_offset, 52, 0, 2, 2)
 
         Draw.setColor(COLORS.white)
     end
@@ -181,7 +183,7 @@ function MainMenuOptions:draw()
 
     -- Draw the scrollbar background if the menu scrolls
     if total_height > height then
-        Draw.setColor({0, 0, 0, 0.5})
+        Draw.setColor({ 0, 0, 0, 0.5 })
         love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.scroll_y)
 
         local scrollbar_height = (height / total_height) * height
@@ -226,7 +228,7 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
 
     local page_dir = "right"
     local old_page = self.selected_page
-    if Input.is("left" , key) then
+    if Input.is("left", key) then
         self.selected_page = self.selected_page - 1
         page_dir = "left"
     end
@@ -250,10 +252,10 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
     local max_option = #options + 1
 
     local old_option = self.selected_option
-    if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1  end
-    if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1  end
-    if self.selected_option > max_option then self.selected_option = is_repeat and max_option or 1          end
-    if self.selected_option < 1          then self.selected_option = is_repeat and 1          or max_option end
+    if Input.is("up", key) then self.selected_option = self.selected_option - 1 end
+    if Input.is("down", key) then self.selected_option = self.selected_option + 1 end
+    if self.selected_option > max_option then self.selected_option = is_repeat and max_option or 1 end
+    if self.selected_option < 1 then self.selected_option = is_repeat and 1 or max_option end
 
     if old_option ~= self.selected_option then
         move_noise = true
@@ -293,8 +295,10 @@ function MainMenuOptions:onKeyPressedBorder(key, is_repeat)
         self:setState("MENU")
     end
 
+    local types = Kristal.getBorderTypes()
+
     local border_index = -1
-    for current_index, border in ipairs(BORDER_TYPES) do
+    for current_index, border in ipairs(types) do
         if border[1] == Kristal.Config["borders"] then
             border_index = current_index
         end
@@ -308,17 +312,17 @@ function MainMenuOptions:onKeyPressedBorder(key, is_repeat)
         border_index = math.max(border_index - 1, 1)
     end
     if Input.is("right", key) then
-        border_index = math.min(border_index + 1, #BORDER_TYPES)
+        border_index = math.min(border_index + 1, #types)
     end
 
     if old_index ~= border_index then
         Assets.stopAndPlaySound("ui_move")
 
-        Kristal.Config["borders"] = BORDER_TYPES[border_index][1]
+        Kristal.Config["borders"] = types[border_index][1]
 
-        if BORDER_TYPES[border_index][1] == "off" then
+        if types[border_index][1] == "off" then
             Kristal.resetWindow()
-        elseif BORDER_TYPES[old_index][1] == "off" then
+        elseif types[old_index][1] == "off" then
             Kristal.resetWindow()
         end
     end
@@ -350,7 +354,6 @@ function MainMenuOptions:onKeyPressedFPS(key, is_repeat)
         end
 
         Kristal.Config["fps"] = FRAMERATE
-
     elseif Input.is("right", key) then
         Assets.stopAndPlaySound("ui_move")
 
@@ -485,7 +488,7 @@ end
 ---@param value?   fun(x:number, y:number):any # A function which is called to get the value displayed for the option.
 ---@param callback fun()                       # A function called when the user selects this option.
 function MainMenuOptions:registerOption(page, name, value, callback)
-    local pages = type(page) == "table" and page or {page}
+    local pages = type(page) == "table" and page or { page }
 
     for _, page_id in ipairs(pages) do
         table.insert(self.options[page_id].options, {
@@ -496,21 +499,21 @@ function MainMenuOptions:registerOption(page, name, value, callback)
     end
 end
 
---- *(Called internally)*  
+--- *(Called internally)*
 --- Convenience method to add a menu option based on a config option which is toggled on and off.
 ---@param page   string|string[]         # The page (or pages) the option should be added to. Must be registered with `registerOptionsPage` first.
 ---@param name   string                  # The name of the option, displayed in the options list.
 ---@param config string                  # The config option to toggle.
 ---@param callback? fun(toggled:boolean) # Additional callback for when the option is toggled.
 function MainMenuOptions:registerConfigOption(page, name, config, callback)
-    self:registerOption(page, name, function()
-        return Kristal.Config[config] and "ON" or "OFF"
-    end, function()
-        Kristal.Config[config] = not Kristal.Config[config]
-        if callback then
-            callback(Kristal.Config[config])
-        end
-    end)
+    self:registerOption(page, name, function ()
+                            return Kristal.Config[config] and "ON" or "OFF"
+                        end, function ()
+                            Kristal.Config[config] = not Kristal.Config[config]
+                            if callback then
+                                callback(Kristal.Config[config])
+                            end
+                        end)
 end
 
 function MainMenuOptions:initializeOptions()
@@ -522,17 +525,17 @@ function MainMenuOptions:initializeOptions()
     -- General Options
     ---------------------
 
-    self:registerOption("general", "Master Volume", function()
-        return Utils.round(Kristal.getVolume() * 100) .. "%"
-    end, function()
-        self:setState("VOLUME")
-    end)
+    self:registerOption("general", "Master Volume", function ()
+                            return Utils.round(Kristal.getVolume() * 100) .. "%"
+                        end, function ()
+                            self:setState("VOLUME")
+                        end)
 
     local function enterControls(type)
         self.menu:pushState("CONTROLS", type)
     end
-    self:registerOption("general", "Keyboard Controls", nil, function() enterControls("keyboard") end)
-    self:registerOption("general", "Gamepad Controls", nil, function() enterControls("gamepad") end)
+    self:registerOption("general", "Keyboard Controls", nil, function () enterControls("keyboard") end)
+    self:registerOption("general", "Gamepad Controls", nil, function () enterControls("gamepad") end)
 
     self:registerConfigOption("general", "Auto-Run", "autoRun")
 
@@ -540,38 +543,38 @@ function MainMenuOptions:initializeOptions()
     -- Graphics Options
     ---------------------
 
-    self:registerConfigOption({"general", "graphics"}, "Fullscreen", "fullscreen", function(toggled)
+    self:registerConfigOption({ "general", "graphics" }, "Fullscreen", "fullscreen", function (toggled)
         love.window.setFullscreen(toggled)
     end)
 
-    self:registerOption({"general", "graphics"}, "Window Scale", function()
-        return tostring(Kristal.Config["windowScale"]) .. "x"
-    end, function()
-        self:setState("WINDOWSCALE")
-    end)
+    self:registerOption({ "general", "graphics" }, "Window Scale", function ()
+                            return tostring(Kristal.Config["windowScale"]) .. "x"
+                        end, function ()
+                            self:setState("WINDOWSCALE")
+                        end)
 
-    self:registerOption({"general", "graphics"}, "Border", function()
-        return Kristal.getBorderName()
-    end, function ()
-        self:setState("BORDER")
-    end)
+    self:registerOption({ "general", "graphics" }, "Border", function ()
+                            return Kristal.getBorderName()
+                        end, function ()
+                            self:setState("BORDER")
+                        end)
 
-    self:registerConfigOption({"general", "graphics"}, "Simplify VFX", "simplifyVFX")
+    self:registerConfigOption({ "general", "graphics" }, "Simplify VFX", "simplifyVFX")
 
-    self:registerOption("graphics", "Target FPS", function(x, y)
-        if Kristal.Config["fps"] > 0 then
-            return Kristal.Config["fps"]
-        else
-            Draw.setColor(0, 0, 0)
-            Draw.draw(Assets.getTexture("kristal/menu_infinity"), x + 2, y + 11, 0, 2, 2)
-            Draw.setColor(1, 1, 1)
-            Draw.draw(Assets.getTexture("kristal/menu_infinity"), x, y + 9, 0, 2, 2)
-        end
-    end, function()
-        self:setState("FPS")
-    end)
+    self:registerOption("graphics", "Target FPS", function (x, y)
+                            if Kristal.Config["fps"] > 0 then
+                                return Kristal.Config["fps"]
+                            else
+                                Draw.setColor(0, 0, 0)
+                                Draw.draw(Assets.getTexture("kristal/menu_infinity"), x + 2, y + 11, 0, 2, 2)
+                                Draw.setColor(1, 1, 1)
+                                Draw.draw(Assets.getTexture("kristal/menu_infinity"), x, y + 9, 0, 2, 2)
+                            end
+                        end, function ()
+                            self:setState("FPS")
+                        end)
 
-    self:registerConfigOption("graphics", "VSync", "vSync", function(toggled)
+    self:registerConfigOption("graphics", "VSync", "vSync", function (toggled)
         love.window.setVSync(toggled and 1 or 0)
     end)
     self:registerConfigOption("graphics", "Frame Skip", "frameSkip")
@@ -583,16 +586,16 @@ function MainMenuOptions:initializeOptions()
     self:registerConfigOption("engine", "Skip Intro", "skipIntro")
     self:registerConfigOption("engine", "Display FPS", "showFPS")
 
-    self:registerOption("engine", "Default Name", function()
-        return Kristal.Config["defaultName"]
-    end, function()
-        self.menu:pushState("DEFAULTNAME")
-    end)
+    self:registerOption("engine", "Default Name", function ()
+                            return Kristal.Config["defaultName"]
+                        end, function ()
+                            self.menu:pushState("DEFAULTNAME")
+                        end)
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
 
     self:registerConfigOption("engine", "Debug Hotkeys", "debug")
-    self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function() Kristal.updateCursor() end)
-    self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function() Kristal.updateCursor() end)
+    self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function () Kristal.updateCursor() end)
+    self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function () Kristal.updateCursor() end)
 end
 
 return MainMenuOptions
