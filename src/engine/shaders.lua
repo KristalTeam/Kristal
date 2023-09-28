@@ -1,5 +1,21 @@
 local Shaders = {}
 
+Shaders["MenuBackground"] = love.graphics.newShader([[
+    extern number bg_sine;
+    extern number bg_mag;
+    extern number wave_height;
+    extern number sine_mul;
+    extern vec2 texsize;
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+    {
+        number i = texture_coords.y * texsize.y;
+        number bg_minus = ((bg_mag * (i / wave_height)) * 1.3);
+        number wave_mag = max(0.0, bg_mag - bg_minus);
+        vec2 coords = vec2(max(0.0, min(1.0, texture_coords.x + (sine_mul * sin((i / 8.0) + (bg_sine / 30.0)) * wave_mag) / texsize.x)), max(0.0, min(1.0, texture_coords.y + 0.0)));
+        return Texel(texture, coords) * color;
+    }
+]])
+
 Shaders["GradientH"] = love.graphics.newShader([[
     extern vec3 from;
     extern vec3 to;
@@ -55,18 +71,18 @@ Shaders["AngleGradient"] = love.graphics.newShader([[
     extern float amount;
     extern float angle;
     extern vec4 bounds;
-    
+
     vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
     {
         vec2 origin = vec2(0.5, 0.5);
-        
+
         vec2 uv = (texture_coords - bounds.xy) / bounds.zw - origin;
-        
+
         float gradAngle = -angle + atan(uv.y, uv.x);
-        
+
         float len = length(uv);
         uv = vec2(cos(gradAngle) * len, sin(gradAngle) * len) + origin;
-        
+
         vec4 tex_color = Texel(tex, texture_coords);
         vec4 grad_color = mix(from, to, smoothstep(0.0, 1.0, uv.x)) * tex_color.a;
         return mix(tex_color, grad_color, amount);
@@ -96,7 +112,7 @@ Shaders["AddColor"] = love.graphics.newShader([[
     }
 ]])
 
-Shaders["Mask"] = love.graphics.newShader[[
+Shaders["Mask"] = love.graphics.newShader [[
     vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
         if (Texel(tex, texture_coords).a == 0.0) {
             // a discarded pixel wont be applied as the stencil.
@@ -104,6 +120,6 @@ Shaders["Mask"] = love.graphics.newShader[[
         }
         return vec4(1.0);
     }
- ]]
+]]
 
 return Shaders

@@ -21,6 +21,10 @@ end
 function Silhouette:draw()
     super.draw(self)
 
+    if not Kristal.supportsShaders() then
+        return
+    end
+
     Draw.pushCanvas(self.canvas)
     love.graphics.clear()
 
@@ -28,10 +32,9 @@ function Silhouette:draw()
 
     for _, object in ipairs(Game.world.children) do
         if object:includes(Character) then
-
             love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-            Kristal.Shaders["AddColor"]:send("inputcolor", {0, 0, 0, 1})
+            Kristal.Shaders["AddColor"]:send("inputcolor", { 0, 0, 0, 1 })
             Kristal.Shaders["AddColor"]:send("amount", 1)
 
             self:drawCharacter(object)

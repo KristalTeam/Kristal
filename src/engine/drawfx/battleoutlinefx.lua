@@ -15,6 +15,11 @@ function BattleOutlineFX:setAlpha(alpha)
 end
 
 function BattleOutlineFX:draw(texture)
+    if not Kristal.supportsShaders() then
+        Draw.drawCanvas(texture)
+        return
+    end
+
     local last_shader = love.graphics.getShader()
 
     local object = self.parent
@@ -39,7 +44,7 @@ function BattleOutlineFX:draw(texture)
     love.graphics.setShader(shader)
 
     shader:send("amount", 1)
-    shader:send("inputcolor", {Game:getSoulColor()})
+    shader:send("inputcolor", { Game:getSoulColor() })
 
     -- Left
     love.graphics.translate(-1 * mult_x, 0)
@@ -63,7 +68,7 @@ function BattleOutlineFX:draw(texture)
     Draw.setColor(1, 1, 1)
 
     love.graphics.setShader(shader)
-    shader:send("inputcolor", {32/255, 32/255, 32/255})
+    shader:send("inputcolor", { 32 / 255, 32 / 255, 32 / 255 })
     shader:send("amount", self.amount)
 
     Draw.drawCanvas(texture)

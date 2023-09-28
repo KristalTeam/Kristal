@@ -1,6 +1,6 @@
 local Hotswapper = {}
 
-local enabled = true
+local enabled = not Kristal.isConsole()
 
 local dir = love.filesystem.getDirectoryItems
 local time = love.timer.getTime
@@ -50,7 +50,8 @@ function Hotswapper.updateFiles(file_type)
                     modified = Hotswapper.getLastModified(Registry.paths[key])
                 }
             end
-        end]]--
+        end]]
+        --
     end
 end
 
@@ -120,24 +121,24 @@ function Hotswapper.hotswap(module_name)
     end
     local ok, old_module = pcall(require, module_name)
     old_module = ok and old_module or nil
-    xpcall(function()
-        -- Unload library
-        package.loaded[module_name] = nil
-        -- Require new version
-        local new_module = require(module_name)
-        -- If the new version is a table, then run update()
-        if type(old_module) == "table" then update(old_module, new_module) end
-        -- Loop through the old global table...
-        for k, v in pairs(old_global_table) do
-            -- If this value isn't the same as the current one, and it's a table...
-            if v ~= _G[k] and type(v) == "table" then
-                -- Update the old global table with the current values
-                update(v, _G[k])
-                -- And save it to the current global table
-                _G[k] = v
-            end
-        end
-    end, onerror)
+    xpcall(function ()
+               -- Unload library
+               package.loaded[module_name] = nil
+               -- Require new version
+               local new_module = require(module_name)
+               -- If the new version is a table, then run update()
+               if type(old_module) == "table" then update(old_module, new_module) end
+               -- Loop through the old global table...
+               for k, v in pairs(old_global_table) do
+                   -- If this value isn't the same as the current one, and it's a table...
+                   if v ~= _G[k] and type(v) == "table" then
+                       -- Update the old global table with the current values
+                       update(v, _G[k])
+                       -- And save it to the current global table
+                       _G[k] = v
+                   end
+               end
+           end, onerror)
     package.loaded[module_name] = old_module
     if err then return nil, err end
     return old_module

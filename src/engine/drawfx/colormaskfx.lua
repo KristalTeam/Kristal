@@ -5,12 +5,12 @@ local ColorMaskFX, super = Class(FXBase)
 function ColorMaskFX:init(color, amount, priority)
     super.init(self, priority or 0)
 
-    self.color = color or {1, 1, 1}
+    self.color = color or { 1, 1, 1 }
     self.amount = amount or 1
 end
 
-function ColorMaskFX:setColor(r,g,b)
-    self.color = {r, g, b}
+function ColorMaskFX:setColor(r, g, b)
+    self.color = { r, g, b }
 end
 
 function ColorMaskFX:getColor()
@@ -22,10 +22,15 @@ function ColorMaskFX:isActive()
 end
 
 function ColorMaskFX:draw(texture)
+    if not Kristal.supportsShaders() then
+        Draw.drawCanvas(texture)
+        return
+    end
+
     local last_shader = love.graphics.getShader()
     local shader = Kristal.Shaders["AddColor"]
     love.graphics.setShader(shader)
-    shader:send("inputcolor", {self:getColor()})
+    shader:send("inputcolor", { self:getColor() })
     shader:send("amount", self.amount)
     Draw.drawCanvas(texture)
     shader:send("amount", 1)

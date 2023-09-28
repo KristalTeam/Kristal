@@ -4,13 +4,6 @@ if not HOTSWAPPING then
     Kristal.Config = {}
     Kristal.Mods = require("src.engine.mods")
     Kristal.Overlay = require("src.engine.overlay")
-    Kristal.Shaders = require("src.engine.shaders")
-    Kristal.States = {
-        ["Loading"] = require("src.engine.loadstate"),
-        ["MainMenu"] = require("src.engine.menu.mainmenu"),
-        ["Game"] = require("src.engine.game.game"),
-        ["Testing"] = require("src.teststate"),
-    }
 
     Kristal.Loader = {
         in_channel = nil,
@@ -29,6 +22,27 @@ function love.load(args)
             --wait: Pauses the load screen until a key is pressed
     ]]
 
+    Kristal.log("Inside of love.load")
+
+    Kristal.log("Requiring shaders")
+    Kristal.log("Shader support: " .. tostring(Kristal.supportsShaders()))
+    Kristal.Shaders = Kristal.supportsShaders() and require("src.engine.shaders") or {}
+
+    Kristal.log("Requiring states")
+
+    Kristal.States = {
+        ["Loading"] = require("src.engine.loadstate"),
+        ["MainMenu"] = require("src.engine.menu.mainmenu"),
+        ["Game"] = require("src.engine.game.game"),
+        ["Testing"] = require("src.teststate"),
+    }
+
+    -- Ease of access for game variables
+    Game = Kristal.States["Game"]
+    MainMenu = Kristal.States["MainMenu"]
+
+    Kristal.log("Reading arguments: " .. Utils.dump(args))
+
     -- read args
     Kristal.Args = {}
     local last_arg
@@ -41,21 +55,36 @@ function love.load(args)
         end
     end
 
+    Kristal.log("Arguments: " .. Utils.dump(Kristal.Args))
+
+    Kristal.log("Reading the VERSION file")
+
     -- load the version
     Kristal.Version = SemVer(love.filesystem.read("VERSION"))
+
+    Kristal.log("Loading the config")
 
     -- load the settings.json
     Kristal.Config = Kristal.loadConfig()
 
+    Kristal.log("Loading binds")
+
     -- load the keybinds
     Input.loadBinds()
 
-    Kristal.icon = love.window.getIcon()
-    Kristal.game_default_name = love.window.getTitle()
+    if not Kristal.isConsole() then
+        Kristal.log("Getting the window icon and title")
+        Kristal.icon = love.window.getIcon()
+        Kristal.game_default_name = love.window.getTitle()
+    end
+
+    Kristal.log("Enabling pixel scaling")
 
     -- pixel scaling (the good one)
     -- the second nearest isn't needed, but the love2d extension marks the second argument as required for some reason
     love.graphics.setDefaultFilter("nearest", "nearest")
+
+    Kristal.log("Setting the window size")
 
     -- set the window size
     local window_scale = Kristal.Config["windowScale"]
@@ -63,45 +92,77 @@ function love.load(args)
         Kristal.resetWindow()
     end
 
+
     -- toggle vsync
-    love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+    if not Kristal.isConsole() then
+        -- For some reason, crashes lovepotion.
+        Kristal.log("Setting VSync")
+        love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
+    end
 
-    -- register gamepad mapping DB
-    love.joystick.loadGamepadMappings("gamecontrollerdb.txt")
+    if not Kristal.isConsole() then
+        Kristal.log("Loading gamepad mappings")
 
+        -- register gamepad mapping DB
+        love.joystick.loadGamepadMappings("gamecontrollerdb.txt")
+    end
+
+    Kristal.log("Setting framerate")
     -- update framerate
     FRAMERATE = Kristal.Config["fps"]
+
+    Kristal.log("Setting volume")
 
     -- set master volume
     Kristal.setVolume(Kristal.Config["masterVolume"] or 0.6)
 
-    -- hide mouse
-    Kristal.hideCursor()
+    if not Kristal.isConsole() then
+        Kristal.log("Hiding the cursor")
+
+        -- hide mouse
+        Kristal.hideCursor()
+    end
+
+    Kristal.log("Creating the mouse sprite")
 
     -- make mouse sprite
     MOUSE_SPRITE = love.graphics.newImage((love.math.random(1000) <= 1) and "assets/sprites/kristal/starwalker.png" or
         "assets/sprites/kristal/mouse.png")
 
+    Kristal.log("Creating mods/ and saves/")
+
     -- setup structure
     love.filesystem.createDirectory("mods")
     love.filesystem.createDirectory("saves")
 
+    Kristal.log("Initializing the registry")
+
     -- default registry
     Registry.initialize()
+
+    Kristal.log("Loading chapter configs")
 
     -- Chapter defaults
     Kristal.ChapterConfigs = {}
     Kristal.ChapterConfigs[1] = JSON.decode(love.filesystem.read("configs/chapter1.json"))
     Kristal.ChapterConfigs[2] = JSON.decode(love.filesystem.read("configs/chapter2.json"))
 
+    Kristal.log("Registering gamestate calls")
+
     -- register gamestate calls
     Gamestate.registerEvents()
+
+    Kristal.log("Initializing the overlay")
 
     -- initialize overlay
     Kristal.Overlay:init()
 
+    Kristal.log("Creating the global stage")
+
     -- global stage
     Kristal.Stage = Stage()
+
+    Kristal.log("Creating the screen canvas")
 
     -- screen canvas
     SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -110,6 +171,8 @@ function love.load(args)
     PERFORMANCE_TEST = nil
     ---@type string|nil
     PERFORMANCE_TEST_STAGE = nil
+
+    Kristal.log("Hooking love.update()")
 
     -- setup hooks
     Utils.hook(love, "update", function (orig, ...)
@@ -128,6 +191,9 @@ function love.load(args)
             PERFORMANCE_TEST = nil
         end
     end)
+
+    Kristal.log("Hooking love.draw()")
+
     Utils.hook(love, "draw", function (orig, ...)
         if PERFORMANCE_TEST_STAGE == "DRAW" then
             PERFORMANCE_TEST = {}
@@ -202,6 +268,8 @@ function love.load(args)
         end
     end)
 
+    Kristal.log("Starting load thread")
+
     -- start load thread
     Kristal.Loader.in_channel = love.thread.getChannel("load_in")
     Kristal.Loader.out_channel = love.thread.getChannel("load_out")
@@ -214,6 +282,8 @@ function love.load(args)
     if not TARGET_MOD and Kristal.Args["mod"] then
         TARGET_MOD = Kristal.Args["mod"][1]
     end
+
+    Kristal.log("Switching to the loading state")
 
     -- load menu
     Gamestate.switch(Kristal.States["Loading"])
@@ -689,7 +759,7 @@ function Kristal.errorHandler(msg)
                 else
                     return "reload"
                 end
-            elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
+            elseif (not Kristal.isConsole()) and e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
                 copyToClipboard()
             elseif e == "touchpressed" then
                 local name = love.window.getTitle()
@@ -1116,7 +1186,12 @@ end
 ---@return boolean console Whether Kristal is in console mode.
 function Kristal.isConsole()
     ---@diagnostic disable-next-line: undefined-field
-    return USING_CONSOLE or (love._console ~= nil)
+    return USING_CONSOLE or (love._potion_version ~= nil)
+end
+
+---@return boolean support Whether the current device supports shaders or not.
+function Kristal.supportsShaders()
+    return not Kristal.isConsole()
 end
 
 ---@return table types The available border types, or `nil` if borders are disabled.
@@ -1578,6 +1653,12 @@ function libRequire(lib, path, ...)
         error("No script found: " .. path)
     end
     return result
+end
+
+function Kristal.log(...)
+    if Kristal.isConsole() then
+        print(...)
+    end
 end
 
 return Kristal

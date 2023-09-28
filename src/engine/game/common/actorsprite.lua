@@ -78,7 +78,7 @@ function ActorSprite:setActor(actor)
         return
     end
     -- Clean up children (likely added by the actor)
-    for _,child in ipairs(self.children) do
+    for _, child in ipairs(self.children) do
         self:removeChild(child)
     end
     self.actor = actor
@@ -94,7 +94,7 @@ end
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self.path = ""
     if ox and oy then
-        self.force_offset = {ox, oy}
+        self.force_offset = { ox, oy }
     else
         self.force_offset = nil
     end
@@ -175,16 +175,16 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
     end
     if anim then
         if type(anim) == "function" then
-            anim = {anim}
+            anim = { anim }
         else
             anim = Utils.copy(anim)
         end
         if anim.temp then
             if last_anim then
-                anim.callback = function(s) s:setAnimation(last_anim) end
+                anim.callback = function (s) s:setAnimation(last_anim) end
                 self.temp_anim = last_anim
             elseif last_sprite then
-                anim.callback = function(s) s:setSprite(last_sprite) end
+                anim.callback = function (s) s:setSprite(last_sprite) end
                 self.temp_sprite = last_sprite
             end
         else
@@ -194,7 +194,9 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
         if callback then
             if anim.callback then
                 local old_callback = anim.callback
-                anim.callback = function(s) old_callback(s); callback(s) end
+                anim.callback = function (s)
+                    old_callback(s); callback(s)
+                end
             else
                 anim.callback = callback
             end
@@ -220,7 +222,7 @@ function ActorSprite:setWalkSprite(texture)
 end
 
 function ActorSprite:canTalk()
-    for _,sprite in ipairs(self.sprite_options) do
+    for _, sprite in ipairs(self.sprite_options) do
         if self.actor:hasTalkSprite(sprite) then
             return true, self.actor:getTalkSpeed(sprite)
         end
@@ -245,7 +247,7 @@ function ActorSprite:isSprite(sprite)
 end
 
 function ActorSprite:getValueForSprite(tbl)
-    for _,sprite in ipairs(self.sprite_options) do
+    for _, sprite in ipairs(self.sprite_options) do
         if tbl[sprite] then
             return tbl[sprite]
         end
@@ -254,9 +256,9 @@ end
 
 function ActorSprite:isDirectional(texture)
     if not Assets.getTexture(texture) and not Assets.getFrames(texture) then
-        if Assets.getTexture(texture.."_left") or Assets.getFrames(texture.."_left") then
+        if Assets.getTexture(texture .. "_left") or Assets.getFrames(texture .. "_left") then
             return true, "_"
-        elseif Assets.getTexture(texture.."/left") or Assets.getFrames(texture.."/left") then
+        elseif Assets.getTexture(texture .. "/left") or Assets.getFrames(texture .. "/left") then
             return true, "/"
         end
     end
@@ -264,20 +266,20 @@ end
 
 function ActorSprite:getDirectionalPath(sprite)
     if sprite ~= "" then
-        return sprite..self.dir_sep..self.facing
+        return sprite .. self.dir_sep .. self.facing
     else
         return self.facing
     end
 end
 
 function ActorSprite:getOffset()
-    local offset = {0, 0}
+    local offset = { 0, 0 }
     if self.force_offset then
         offset = self.force_offset
     else
-        for _,sprite in ipairs(self.sprite_options) do
+        for _, sprite in ipairs(self.sprite_options) do
             if self.actor:hasOffset(sprite) then
-                offset = {self.actor:getOffset(sprite)}
+                offset = { self.actor:getOffset(sprite) }
                 break
             end
         end
@@ -296,7 +298,7 @@ function ActorSprite:update()
     end
 
     local flip_dir
-    for _,sprite in ipairs(self.sprite_options) do
+    for _, sprite in ipairs(self.sprite_options) do
         flip_dir = self.actor:getFlipDirection(sprite)
         if flip_dir then break end
     end
@@ -321,11 +323,12 @@ function ActorSprite:update()
     if not self.playing then
         local floored_frame = math.floor(self.walk_frame)
         if floored_frame ~= self.walk_frame or ((self.directional or self.walk_override) and self.walking) then
-            self.walk_frame = Utils.approach(self.walk_frame, floored_frame + 1, DT * (self.walk_speed > 0 and self.walk_speed or 1))
+            self.walk_frame = Utils.approach(self.walk_frame, floored_frame + 1,
+                DT * (self.walk_speed > 0 and self.walk_speed or 1))
             local last_frame = self.frame
             self:setFrame(floored_frame)
             if self.frame ~= last_frame and self.on_footstep and self.frame % 2 == 0 then
-                self.on_footstep(self, math.floor(self.frame/2))
+                self.on_footstep(self, math.floor(self.frame / 2))
             end
         elseif (self.directional or self.walk_override) and self.frames and not self.walking then
             self:setFrame(1)
@@ -359,10 +362,10 @@ function ActorSprite:draw()
     end
 
     if self.texture and self.run_away then
-        local r,g,b,a = self:getDrawColor()
+        local r, g, b, a = self:getDrawColor()
         for i = 0, 80 do
             local alph = a * 0.4
-            Draw.setColor(r,g,b, ((alph - (self.run_away_timer / 8)) + (i / 200)))
+            Draw.setColor(r, g, b, ((alph - (self.run_away_timer / 8)) + (i / 200)))
             Draw.draw(self.texture, i * 2, 0)
         end
         return
@@ -385,7 +388,8 @@ function ActorSprite:draw()
             local aurayscale = math.min(1, 80 / sprite_height)
 
             Draw.setColor(1, 0, 0, (1 - (auray / 45)) * 0.5)
-            Draw.draw(self.texture, -((aurax / 180) * sprite_width), -((auray / 82) * sprite_height * aurayscale), 0, 1 + ((aurax/36) * 0.5), 1 + (((auray / 36) * aurayscale) * 0.5))
+            Draw.draw(self.texture, -((aurax / 180) * sprite_width), -((auray / 82) * sprite_height * aurayscale), 0,
+                1 + ((aurax / 36) * 0.5), 1 + (((auray / 36) * aurayscale) * 0.5))
         end
 
         love.graphics.setBlendMode("alpha")
@@ -395,22 +399,28 @@ function ActorSprite:draw()
         local ysmult = math.min((80 / sprite_height) * 0.2, 0.2)
 
         Draw.setColor(1, 0, 0, 0.2)
-        Draw.draw(self.texture, (sprite_width / 2) + (math.sin(self.aura_siner / 5) * xmult) / 2, (sprite_height / 2) + (math.cos(self.aura_siner / 5) * ymult) / 2, 0, 1, 1 + (math.sin(self.aura_siner / 5) * ysmult) / 2, sprite_width / 2, sprite_height / 2)
-        Draw.draw(self.texture, (sprite_width / 2) - (math.sin(self.aura_siner / 5) * xmult) / 2, (sprite_height / 2) - (math.cos(self.aura_siner / 5) * ymult) / 2, 0, 1, 1 - (math.sin(self.aura_siner / 5) * ysmult) / 2, sprite_width / 2, sprite_height / 2)
+        Draw.draw(self.texture, (sprite_width / 2) + (math.sin(self.aura_siner / 5) * xmult) / 2,
+            (sprite_height / 2) + (math.cos(self.aura_siner / 5) * ymult) / 2, 0, 1,
+            1 + (math.sin(self.aura_siner / 5) * ysmult) / 2, sprite_width / 2, sprite_height / 2)
+        Draw.draw(self.texture, (sprite_width / 2) - (math.sin(self.aura_siner / 5) * xmult) / 2,
+            (sprite_height / 2) - (math.cos(self.aura_siner / 5) * ymult) / 2, 0, 1,
+            1 - (math.sin(self.aura_siner / 5) * ysmult) / 2, sprite_width / 2, sprite_height / 2)
 
-        local last_shader = love.graphics.getShader()
-        love.graphics.setShader(Kristal.Shaders["AddColor"])
+        if Kristal.supportsShaders() then
+            local last_shader = love.graphics.getShader()
+            love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-        Kristal.Shaders["AddColor"]:send("inputcolor", {1, 0, 0})
-        Kristal.Shaders["AddColor"]:send("amount", 1)
+            Kristal.Shaders["AddColor"]:send("inputcolor", { 1, 0, 0 })
+            Kristal.Shaders["AddColor"]:send("amount", 1)
 
-        Draw.setColor(1, 1, 1, 0.3)
-        Draw.draw(self.texture,  1,  0)
-        Draw.draw(self.texture, -1,  0)
-        Draw.draw(self.texture,  0,  1)
-        Draw.draw(self.texture,  0, -1)
+            Draw.setColor(1, 1, 1, 0.3)
+            Draw.draw(self.texture, 1, 0)
+            Draw.draw(self.texture, -1, 0)
+            Draw.draw(self.texture, 0, 1)
+            Draw.draw(self.texture, 0, -1)
 
-        love.graphics.setShader(last_shader)
+            love.graphics.setShader(last_shader)
+        end
 
         Draw.setColor(self:getDrawColor())
     end
@@ -426,10 +436,10 @@ function ActorSprite:draw()
         local last_shader = love.graphics.getShader()
         local shader = Kristal.Shaders["AddColor"]
         love.graphics.setShader(shader)
-        shader:send("inputcolor", {0.8, 0.8, 0.9})
+        shader:send("inputcolor", { 0.8, 0.8, 0.9 })
         shader:send("amount", 1)
 
-        local r,g,b,a = self:getDrawColor()
+        local r, g, b, a = self:getDrawColor()
 
         Draw.setColor(0, 0, 1, a * 0.8)
         Draw.draw(self.texture, -1, -1)

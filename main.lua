@@ -5,6 +5,8 @@ require("src.engine.vendcust")
 ---@diagnostic disable-next-line: lowercase-global
 utf8 = require("utf8")
 
+Kristal = require("src.kristal")
+
 _Class = require("src.lib.hump.class")
 Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
@@ -15,17 +17,12 @@ SemVer = require("src.lib.semver")
 require("src.lib.stable_sort")
 
 Class = require("src.utils.class")
-require ("src.utils.graphics")
+require("src.utils.graphics")
 
 GitFinder = require("src.utils.gitfinder")
 Utils = require("src.utils.utils")
 CollisionUtil = require("src.utils.collision")
 Draw = require("src.utils.draw")
-
-Kristal = require("src.kristal")
--- Ease of access for game variables
-Game = Kristal.States["Game"]
-MainMenu = Kristal.States["MainMenu"]
 
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
@@ -236,23 +233,32 @@ DarkTransition = require("src.engine.game.darktransition.darktransition")
 
 Hotswapper = require("src.hotswapper")
 
+Kristal.log("Updating hotswapper...")
+
 -- Register required in the hotswapper
 Hotswapper.updateFiles("required")
 
+Kristal.log("Done.")
+
 function love.run()
+    Kristal.log("love.run() executed")
+
     if not love.timer then
         error("love.timer is required")
     end
 
----@diagnostic disable-next-line: undefined-field, redundant-parameter
+    Kristal.log("Running love.load()")
+    ---@diagnostic disable-next-line: undefined-field, redundant-parameter
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
+    Kristal.log("Stepping timer")
     -- We don't want the first frame's DT to include time taken by love.load.
     if love.timer then love.timer.step() end
 
     local accumulator = 0
     local error_result
 
+    Kristal.log("Defining doUpdate")
     local function doUpdate(dt)
         -- Update pressed keys, handle key repeat
         Input.update()
@@ -260,16 +266,16 @@ function love.run()
         -- Process events.
         if love.event then
             love.event.pump()
-            for name, a,b,c,d,e,f in love.event.poll() do
+            for name, a, b, c, d, e, f in love.event.poll() do
                 if name == "quit" then
                     if not love.quit or not love.quit() then
                         return a or 0
                     end
                 elseif name == "threaderror" then
-                    error({msg = b})
+                    error({ msg = b })
                 end
----@diagnostic disable-next-line: undefined-field
-                love.handlers[name](a,b,c,d,e,f)
+                ---@diagnostic disable-next-line: undefined-field
+                love.handlers[name](a, b, c, d, e, f)
             end
         end
 
@@ -279,18 +285,21 @@ function love.run()
         end
     end
 
+    Kristal.log("Defining doDraw")
+
     local function doDraw()
         if love.graphics and love.graphics.isActive() then
             love.graphics.origin()
             love.graphics.clear(love.graphics.getBackgroundColor())
 
----@diagnostic disable-next-line: undefined-field
+            ---@diagnostic disable-next-line: undefined-field
             if love.draw then love.draw() end
 
             love.graphics.present()
         end
     end
 
+    Kristal.log("Defining mainLoop")
     local function mainLoop()
         local frame_skip = Kristal and Kristal.Config and Kristal.Config["frameSkip"]
 
@@ -317,7 +326,7 @@ function love.run()
                 FPS_COUNTER = FPS_COUNTER + 1
                 local update_dt = tick_rate
                 if frame_skip then
-                    update_dt = math.min(math.max(dt, tick_rate), 1/20) -- Limit dt to at least 20fps if frameSkip is enabled to avoid huge breakage
+                    update_dt = math.min(math.max(dt, tick_rate), 1 / 20) -- Limit dt to at least 20fps if frameSkip is enabled to avoid huge breakage
                 end
                 local ret = doUpdate(update_dt)
                 if ret then return ret end
@@ -326,7 +335,7 @@ function love.run()
         else
             -- Limit dt to 30fps (or 20fps if frameSkip is enabled)
             -- Don't want to go unlimited or else collision and other stuff might break
-            local dt = math.min(love.timer.step(), frame_skip and (1/20) or (1/30))
+            local dt = math.min(love.timer.step(), frame_skip and (1 / 20) or (1 / 30))
 
             FPS = love.timer.getFPS()
 
@@ -338,8 +347,10 @@ function love.run()
         love.timer.sleep(0.001)
     end
 
+    Kristal.log("Returning main loop")
+
     -- Main loop time.
-    return function()
+    return function ()
         if error_result then
             local result = error_result()
             if result then
@@ -361,7 +372,7 @@ function love.run()
             elseif type(result) == "function" then
                 error_result = result
             else
-                error_result = Kristal.errorHandler({critical = true})
+                error_result = Kristal.errorHandler({ critical = true })
             end
         end
     end

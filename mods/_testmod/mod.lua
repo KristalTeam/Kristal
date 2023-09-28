@@ -2,10 +2,10 @@ function Mod:init()
     print("Loaded test mod!")
 
     local spell = Registry.getSpell("ultimate_heal")
-    Utils.hook(spell, "onCast", function(orig, self, user, target)
+    Utils.hook(spell, "onCast", function (orig, self, user, target)
         orig(self, user, target)
 
-        for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
+        for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
             if enemy.id == "virovirokun" then
                 enemy.text_override = "Nice healing"
             end
@@ -21,18 +21,20 @@ function Mod:init()
     self.dog_activated = false
 end
 
-Mod.wave_shader = love.graphics.newShader([[
-    extern number wave_sine;
-    extern number wave_mag;
-    extern number wave_height;
-    extern vec2 texsize;
-    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-    {
-        number i = texture_coords.y * texsize.y;
-        vec2 coords = vec2(max(0.0, min(1.0, texture_coords.x + (sin((i / wave_height) + (wave_sine / 30.0)) * wave_mag) / texsize.x)), max(0.0, min(1.0, texture_coords.y + 0.0)));
-        return Texel(texture, coords) * color;
-    }
-]])
+if Kristal.supportsShaders() then
+    Mod.wave_shader = love.graphics.newShader([[
+        extern number wave_sine;
+        extern number wave_mag;
+        extern number wave_height;
+        extern vec2 texsize;
+        vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+        {
+            number i = texture_coords.y * texsize.y;
+            vec2 coords = vec2(max(0.0, min(1.0, texture_coords.x + (sin((i / wave_height) + (wave_sine / 30.0)) * wave_mag) / texsize.x)), max(0.0, min(1.0, texture_coords.y + 0.0)));
+            return Texel(texture, coords) * color;
+        }
+    ]])
+end
 
 function Mod:preInit()
     -- make characters woobly
@@ -102,40 +104,47 @@ function Mod:registerDebugContext(context, object)
     if not object then
         object = Game.stage
     end
-    context:addMenuItem("Funkify", "Toggle Funky Mode.....", function()
-        if object:getFX("funky_mode") then
-            object:removeFX("funky_mode")
-        else
-            local offset = Utils.random(0, 100)
-            object:addFX(ShaderFX(Mod.wave_shader, {
-                ["wave_sine"] = function() return (Kristal.getTime() + offset) * 100 end,
-                ["wave_mag"] = 4,
-                ["wave_height"] = 4,
-                ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
-            }, true), "funky_mode")
-        end
-    end)
+    if Kristal.supportsShaders() then
+        context:addMenuItem("Funkify", "Toggle Funky Mode.....", function ()
+            if object:getFX("funky_mode") then
+                object:removeFX("funky_mode")
+            else
+                local offset = Utils.random(0, 100)
+                object:addFX(ShaderFX(Mod.wave_shader, {
+                                          ["wave_sine"] = function () return (Kristal.getTime() + offset) * 100 end,
+                                          ["wave_mag"] = 4,
+                                          ["wave_height"] = 4,
+                                          ["texsize"] = { SCREEN_WIDTH, SCREEN_HEIGHT }
+                                      }, true), "funky_mode")
+            end
+        end)
+    end
 end
 
 function Mod:registerDebugOptions(debug)
-    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function() debug:enterMenu("funky_menu", 1) end)
+    debug:registerOption("main", "Funky", "Enter the  Funky  Menu.", function () debug:enterMenu("funky_menu", 1) end)
 
     debug:registerMenu("funky_menu", "Funky Menu")
-    debug:registerOption("funky_menu", "Hi", "nice to meet u", function() print("hi") end)
-    debug:registerOption("funky_menu", "Bye", "bye", function() print("bye") end)
-    debug:registerOption("funky_menu", "Quit", "quit", function() print("quit") end)
-    debug:registerOption("funky_menu", "Funker", function() return debug:appendBool("Toggle Funky Mode.....", Game.world.player:getFX("funky_mode")) end, function()
-        if Game.world.player:getFX("funky_mode") then
-            Game.world.player:removeFX("funky_mode")
-        else
-            Game.world.player:addFX(ShaderFX(Mod.wave_shader, {
-                ["wave_sine"] = function() return Kristal.getTime() * 100 end,
-                ["wave_mag"] = 4,
-                ["wave_height"] = 4,
-                ["texsize"] = {SCREEN_WIDTH, SCREEN_HEIGHT}
-            }), "funky_mode")
-        end
-    end)
+    debug:registerOption("funky_menu", "Hi", "nice to meet u", function () print("hi") end)
+    debug:registerOption("funky_menu", "Bye", "bye", function () print("bye") end)
+    debug:registerOption("funky_menu", "Quit", "quit", function () print("quit") end)
+    debug:registerOption("funky_menu", "Funker",
+                         function ()
+                             return debug:appendBool("Toggle Funky Mode.....",
+                                                     Game.world.player:getFX("funky_mode"))
+                         end,
+                         function ()
+                             if Game.world.player:getFX("funky_mode") then
+                                 Game.world.player:removeFX("funky_mode")
+                             else
+                                 Game.world.player:addFX(ShaderFX(Mod.wave_shader, {
+                                                             ["wave_sine"] = function () return Kristal.getTime() * 100 end,
+                                                             ["wave_mag"] = 4,
+                                                             ["wave_height"] = 4,
+                                                             ["texsize"] = { SCREEN_WIDTH, SCREEN_HEIGHT }
+                                                         }), "funky_mode")
+                             end
+                         end)
 end
 
 function Mod:onShadowCrystal(item, light)
@@ -144,10 +153,10 @@ function Mod:onShadowCrystal(item, light)
     if not item:getFlag("seen_horrors") then
         item:setFlag("seen_horrors", true)
 
-        Game.world:startCutscene(function(cutscene)
+        Game.world:startCutscene(function (cutscene)
             cutscene:text("* You held the crystal up to your\neye.")
             cutscene:text("* For some strange reason,[wait:5] for\njust a brief moment...")
-            cutscene:text("* You thought you saw-[wait:3]", {auto = true})
+            cutscene:text("* You thought you saw-[wait:3]", { auto = true })
             Game.world.music:pause()
             cutscene:text("* What the fuck")
             Game.world.player:setFacing("down")
@@ -169,7 +178,7 @@ end
 function Mod:onActionSelect(battler, button)
     if button.type == "dog" then
         Game.battle.menu_items = {}
-        for i,amount in ipairs{"One", "Two", "Three", "A hundred"} do
+        for i, amount in ipairs { "One", "Two", "Three", "A hundred" } do
             table.insert(Game.battle.menu_items, {
                 ["name"] = amount,
                 ["amount"] = (amount == "A hundred") and 100 or i,
@@ -188,12 +197,12 @@ function Mod:onBattleMenuSelect(state, item, can_select)
             Game.battle:pushAction("SKIP")
         else
             Game.battle:setState("NONE")
-            Game.battle.timer:script(function(wait)
+            Game.battle.timer:script(function (wait)
                 local delay = 0.5
-                for i=1,item.amount do
+                for i = 1, item.amount do
                     Assets.stopAndPlaySound("pombark", 1)
                     wait(delay)
-                    delay = Utils.approach(delay, 2/30, 1/30)
+                    delay = Utils.approach(delay, 2 / 30, 1 / 30)
                 end
                 Game.battle:pushAction("SKIP")
             end)
@@ -207,7 +216,7 @@ function Mod:onKeyPressed(key)
             if key == "5" then
                 -- Game.battle.music:play("mus_xpart_2")
                 self.dog_activated = true
-                for _,box in ipairs(Game.battle.battle_ui.action_boxes) do
+                for _, box in ipairs(Game.battle.battle_ui.action_boxes) do
                     box:createButtons()
                 end
             end
@@ -237,7 +246,7 @@ function Mod:onKeyPressed(key)
 
                     player.flip_x = facing == "left"
                     player:setSprite("battle/attack")
-                    player:play(1/15, false, function()
+                    player:play(1 / 15, false, function ()
                         player:setSprite(player.actor:getDefault())
                         player.flip_x = last_flipped
 
@@ -248,12 +257,12 @@ function Mod:onKeyPressed(key)
 
                     local attack_box = Hitbox(player, 13, -4, 25, 47)
 
-                    for _,object in ipairs(Game.world.children) do
+                    for _, object in ipairs(Game.world.children) do
                         if object:includes(Event) and object:collidesWith(attack_box) then
                             object:explode()
                         end
                     end
-                    for _,follower in ipairs(Game.world.followers) do
+                    for _, follower in ipairs(Game.world.followers) do
                         if follower:collidesWith(attack_box) then
                             follower:explode()
                         end

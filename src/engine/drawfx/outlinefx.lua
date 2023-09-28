@@ -7,7 +7,7 @@ function OutlineFX:init(color, settings, priority)
 
     settings = settings or {}
 
-    self.color = color or {1, 1, 1, 1}
+    self.color = color or { 1, 1, 1, 1 }
     self.thickness = settings["thickness"] or 1
     self.amount = settings["amount"] or 1
     self.cutout = settings["cutout"]
@@ -16,7 +16,7 @@ function OutlineFX:init(color, settings, priority)
 end
 
 function OutlineFX:setColor(r, g, b, a)
-    self.color = {r, g, b, a}
+    self.color = { r, g, b, a }
 end
 
 function OutlineFX:getColor()
@@ -28,6 +28,11 @@ function OutlineFX:isActive()
 end
 
 function OutlineFX:draw(texture)
+    if not Kristal.supportsShaders() then
+        Draw.drawCanvas(texture)
+        return
+    end
+
     local last_shader = love.graphics.getShader()
 
     local object = self.parent
@@ -39,11 +44,11 @@ function OutlineFX:draw(texture)
     local outline = Draw.pushCanvas(texture:getWidth(), texture:getHeight())
 
     if self.cutout then
-        love.graphics.stencil((function()
-            love.graphics.setShader(self.cutout_shader)
-            Draw.drawCanvas(texture)
-            love.graphics.setShader()
-        end), "replace", 1)
+        love.graphics.stencil((function ()
+                                  love.graphics.setShader(self.cutout_shader)
+                                  Draw.drawCanvas(texture)
+                                  love.graphics.setShader()
+                              end), "replace", 1)
 
         love.graphics.setStencilTest("less", 1)
     end
@@ -51,7 +56,7 @@ function OutlineFX:draw(texture)
     local shader = Kristal.Shaders["AddColor"]
     love.graphics.setShader(shader)
 
-    shader:send("inputcolor", {self:getColor()})
+    shader:send("inputcolor", { self:getColor() })
     shader:send("amount", self.amount)
 
     -- Left

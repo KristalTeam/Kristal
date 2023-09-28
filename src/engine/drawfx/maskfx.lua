@@ -16,6 +16,11 @@ function MaskFX:init(mask, draw_children, priority)
 end
 
 function MaskFX:draw(texture)
+    if not Kristal.supportsShaders() then
+        Draw.draw(texture)
+        return
+    end
+
     local mask_obj
     if not self.mask then
         mask_obj = self.parent
@@ -41,12 +46,12 @@ function MaskFX:draw(texture)
     end
     Draw.popCanvas()
     Draw.setColor(1, 1, 1)
-    love.graphics.stencil(function()
-        local last_shader = love.graphics.getShader()
-        love.graphics.setShader(Kristal.Shaders["Mask"])
-        Draw.draw(mask)
-        love.graphics.setShader(last_shader)
-    end, "replace", 1)
+    love.graphics.stencil(function ()
+                              local last_shader = love.graphics.getShader()
+                              love.graphics.setShader(Kristal.Shaders["Mask"])
+                              Draw.draw(mask)
+                              love.graphics.setShader(last_shader)
+                          end, "replace", 1)
     if not self.inverted then
         love.graphics.setStencilTest("greater", 0)
     else

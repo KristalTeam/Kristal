@@ -48,32 +48,34 @@ function Overlay:update()
         self.load_timer = 0
     end
 
-    if love.keyboard.isDown("escape") and not self.quit_release then
-        if self.quit_alpha < 1 then
-            self.quit_alpha = math.min(1, self.quit_alpha + DT / 0.75)
-        end
-        self.quit_timer = self.quit_timer + DT
-        if self.quit_timer > 1.2 then
-            if Mod ~= nil then
-                self.quit_release = true
-                if Kristal.getModOption("hardReset") then
-                    love.event.quit("restart")
+    if not Kristal.isConsole() then
+        if love.keyboard.isDown("escape") and not self.quit_release then
+            if self.quit_alpha < 1 then
+                self.quit_alpha = math.min(1, self.quit_alpha + DT / 0.75)
+            end
+            self.quit_timer = self.quit_timer + DT
+            if self.quit_timer > 1.2 then
+                if Mod ~= nil then
+                    self.quit_release = true
+                    if Kristal.getModOption("hardReset") then
+                        love.event.quit("restart")
+                    else
+                        Kristal.returnToMenu()
+                    end
                 else
-                    Kristal.returnToMenu()
+                    love.event.quit()
                 end
-            else
-                love.event.quit()
+            end
+        else
+            self.quit_timer = 0
+            if self.quit_alpha > 0 then
+                self.quit_alpha = math.max(0, self.quit_alpha - DT / 0.25)
             end
         end
-    else
-        self.quit_timer = 0
-        if self.quit_alpha > 0 then
-            self.quit_alpha = math.max(0, self.quit_alpha - DT / 0.25)
-        end
-    end
 
-    if self.quit_release and not love.keyboard.isDown("escape") then
-        self.quit_release = false
+        if self.quit_release and not love.keyboard.isDown("escape") then
+            self.quit_release = false
+        end
     end
 end
 
@@ -111,7 +113,7 @@ function Overlay:draw()
             end
         end
         Draw.setColor(1, 1, 1)
-        love.graphics.print(text, x, y) 
+        love.graphics.print(text, x, y)
     end
 
     -- Reset the color

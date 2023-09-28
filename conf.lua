@@ -15,4 +15,6 @@ function love.conf(t)
     t.window.icon = "icon.png"
     t.window.width = 640
     t.window.height = 480
+
+    t.console = { "192.168.2.27", 8000 }
 end
