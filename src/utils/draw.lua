@@ -11,8 +11,6 @@
 local Draw = {}
 local self = Draw
 
-local old_getScissor = love.graphics.getScissor
-
 Draw._canvases = {}
 Draw._used_canvas = setmetatable({}, { __mode = "k" })
 Draw._locked_canvas = setmetatable({}, { __mode = "k" })
@@ -22,6 +20,14 @@ Draw._canvas_stack = {}
 Draw._scissor_stack = {}
 
 Draw._shader_stack = {}
+
+Draw._current_scissor = {}
+
+if not love.graphics.getScissor then
+    love.graphics.getScissor = function ()
+        return unpack(Draw._current_scissor)
+    end
+end
 
 ---@class Draw.canvasOptions
 ---@field clear boolean|nil
@@ -108,10 +114,13 @@ end
 ---@param canvas? love.Canvas
 function Draw.setCanvas(canvas)
     if canvas then
+        Kristal.log("Draw.setCanvas: canvas, draw to it")
         love.graphics.setCanvas(canvas)
     else
+        Kristal.log("Draw.setCanvas: no canvas")
         love.graphics.setCanvas()
     end
+    Kristal.log("Draw.setCanvas: done")
 end
 
 ---@private
@@ -167,7 +176,7 @@ function Draw.getScissor()
 end
 
 function Draw.pushScissor()
-    local x, y, w, h = old_getScissor()
+    local x, y, w, h = love.graphics.getScissor()
 
     table.insert(self._scissor_stack, 1, { x, y, w, h })
 end
@@ -175,8 +184,13 @@ end
 function Draw.popScissor()
     local x, y, w, h = unpack(self._scissor_stack[1])
 
-    love.graphics.setScissor(x, y, w, h)
+    Draw.scissorUntransformed(x, y, w, h)
     table.remove(self._scissor_stack, 1)
+end
+
+function Draw.scissorUntransformed(x, y, w, h)
+    Draw._current_scissor = { x, y, w, h }
+    love.graphics.setScissor(x, y, w, h)
 end
 
 ---@param x number
@@ -205,7 +219,7 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     local max_sx, max_sy = math.max(sx, sx2), math.max(sy, sy2)
 
     if love.graphics.getScissor() == nil then
-        love.graphics.setScissor(min_sx, min_sy, max_sx - min_sx, max_sy - min_sy)
+        Draw.scissorUntransformed(min_sx, min_sy, max_sx - min_sx, max_sy - min_sy)
     else
         love.graphics.intersectScissor(min_sx, min_sy, max_sx - min_sx, max_sy - min_sy)
     end

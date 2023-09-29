@@ -8,7 +8,7 @@ utf8 = require("utf8")
 Kristal = require("src.kristal")
 
 _Class = require("src.lib.hump.class")
-Gamestate = require("src.lib.hump.gamestate")
+--Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
 LibTimer = require("src.lib.hump.timer")
 JSON = require("src.lib.json")
@@ -240,25 +240,137 @@ Hotswapper.updateFiles("required")
 
 Kristal.log("Done.")
 
-function love.run()
-    Kristal.log("love.run() executed")
+Gamestate = {
+    current_state = nil
+}
 
+Gamestate.switch = function (state)
+    Gamestate.current_state = state
+    Gamestate.current_state:init()
+    Gamestate.current_state:enter()
+end
+
+Gamestate.current = function ()
+    return Gamestate.current_state
+end
+
+Gamestate.update = function (...)
+    Gamestate.current_state:update(...)
+end
+
+Gamestate.draw = function (...)
+    Gamestate.current_state:draw(...)
+end
+
+love.graphics.setActiveScreen = love.graphics.setActiveScreen or function () end
+love.graphics.getScreens = love.graphics.getScreens or function () return { -1 } end
+
+function love.draw(...)
+    if PERFORMANCE_TEST_STAGE == "DRAW" then
+        PERFORMANCE_TEST = {}
+        Utils.pushPerformance("Total")
+    end
+
+    love.graphics.reset()
+
+    Kristal.log("DRAW HOOK - SETTING SCREEN_CANVAS")
+    Draw.setCanvas(SCREEN_CANVAS)
+    Kristal.log("DRAW HOOK - CLEARING SCREEN_CANVAS")
+    love.graphics.clear(0, 0, 0, 1)
+    Kristal.log("DRAW HOOK - orig(...)")
+
+    Gamestate.draw(...)
+    --orig(...)
+
+    Kristal.log("DRAW HOOK - Kristal.Stage:draw()")
+    Kristal.Stage:draw()
+    Kristal.log("DRAW HOOK - Kristal.Overlay:draw()")
+    Kristal.Overlay:draw()
+    Kristal.log("DRAW HOOK - RESETTING CANVAS")
+    Draw.setCanvas()
+
+    Draw.setColor(1, 1, 1, 1)
+
+    if Kristal.bordersEnabled() then
+        local border = Kristal.getBorder()
+
+        local dynamic = Kristal.Config["borders"] == "dynamic"
+
+        if dynamic and BORDER_FADING == "OUT" and BORDER_FADE_FROM then
+            border = BORDER_FADE_FROM
+        end
+
+        if border then
+            local border_texture = Assets.getTexture("borders/" .. border)
+
+            love.graphics.scale(Kristal.getGameScale())
+            Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
+            if border_texture then
+                Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
+            end
+            if dynamic then
+                Kristal.callEvent("onBorderDraw", border, border_texture)
+            end
+            Draw.setColor(1, 1, 1, 1)
+            love.graphics.reset()
+        end
+
+        LAST_BORDER = border
+    end
+
+    Kristal.log("DRAW HOOK - GAME CANVAS")
+
+    -- Draw the game canvas
+    love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+    love.graphics.scale(Kristal.getGameScale())
+    Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
+
+    Kristal.log("DRAW HOOK - RESET")
+
+    love.graphics.reset()
+
+    Kristal.log("DRAW HOOK - GET GAME SCALE")
+
+    love.graphics.scale(Kristal.getGameScale())
+
+    if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
+        if Input.usingGamepad() then
+            Draw.setColor(0, 0, 0, 0.5)
+            love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+            Draw.setColor(1, 1, 1, 1)
+            love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+        elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
+            Draw.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(),
+                      love.mouse.getY() / Kristal.getGameScale())
+        end
+    end
+
+    Draw._clearUnusedCanvases()
+
+    if PERFORMANCE_TEST then
+        Utils.popPerformance()
+        Utils.printPerformance()
+        PERFORMANCE_TEST_STAGE = nil
+        PERFORMANCE_TEST = nil
+    end
+
+    Kristal.log("DRAW HOOK - END")
+end
+
+function love.run()
     if not love.timer then
         error("love.timer is required")
     end
 
-    Kristal.log("Running love.load()")
     ---@diagnostic disable-next-line: undefined-field, redundant-parameter
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
-    Kristal.log("Stepping timer")
     -- We don't want the first frame's DT to include time taken by love.load.
     if love.timer then love.timer.step() end
 
     local accumulator = 0
     local error_result
 
-    Kristal.log("Defining doUpdate")
     local function doUpdate(dt)
         -- Update pressed keys, handle key repeat
         Input.update()
@@ -285,21 +397,25 @@ function love.run()
         end
     end
 
-    Kristal.log("Defining doDraw")
-
     local function doDraw()
         if love.graphics and love.graphics.isActive() then
-            love.graphics.origin()
-            love.graphics.clear(love.graphics.getBackgroundColor())
+            local screens = love.graphics.getScreens and love.graphics.getScreens() or { -1 }
 
-            ---@diagnostic disable-next-line: undefined-field
-            if love.draw then love.draw() end
+            for _, screen in ipairs(screens) do
+                love.graphics.origin()
+
+                if love.graphics.setActiveScreen then love.graphics.setActiveScreen(screen) end
+                love.graphics.clear(love.graphics.getBackgroundColor())
+
+                if love.draw then
+                    love.draw(screen)
+                end
+            end
 
             love.graphics.present()
         end
     end
 
-    Kristal.log("Defining mainLoop")
     local function mainLoop()
         local frame_skip = Kristal and Kristal.Config and Kristal.Config["frameSkip"]
 
@@ -346,8 +462,6 @@ function love.run()
         end
         love.timer.sleep(0.001)
     end
-
-    Kristal.log("Returning main loop")
 
     -- Main loop time.
     return function ()

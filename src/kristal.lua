@@ -150,7 +150,7 @@ function love.load(args)
     Kristal.log("Registering gamestate calls")
 
     -- register gamestate calls
-    Gamestate.registerEvents()
+    --Gamestate.registerEvents()
 
     Kristal.log("Initializing the overlay")
 
@@ -172,107 +172,11 @@ function love.load(args)
     ---@type string|nil
     PERFORMANCE_TEST_STAGE = nil
 
-    Kristal.log("Hooking love.update()")
-
-    -- setup hooks
-    Utils.hook(love, "update", function (orig, ...)
-        if PERFORMANCE_TEST_STAGE == "UPDATE" then
-            PERFORMANCE_TEST = {}
-            Utils.pushPerformance("Total")
-        end
-        orig(...)
-        Kristal.Stage:update()
-        Kristal.Overlay:update()
-        if PERFORMANCE_TEST then
-            Utils.popPerformance()
-            print("-------- PERFORMANCE --------")
-            Utils.printPerformance()
-            PERFORMANCE_TEST_STAGE = "DRAW"
-            PERFORMANCE_TEST = nil
-        end
-    end)
-
-    Kristal.log("Hooking love.draw()")
-
-    Utils.hook(love, "draw", function (orig, ...)
-        if PERFORMANCE_TEST_STAGE == "DRAW" then
-            PERFORMANCE_TEST = {}
-            Utils.pushPerformance("Total")
-        end
-
-        love.graphics.reset()
-
-        Draw.setCanvas(SCREEN_CANVAS)
-        love.graphics.clear(0, 0, 0, 1)
-        orig(...)
-        Kristal.Stage:draw()
-        Kristal.Overlay:draw()
-        Draw.setCanvas()
-
-        Draw.setColor(1, 1, 1, 1)
-
-        if Kristal.bordersEnabled() then
-            local border = Kristal.getBorder()
-
-            local dynamic = Kristal.Config["borders"] == "dynamic"
-
-            if dynamic and BORDER_FADING == "OUT" and BORDER_FADE_FROM then
-                border = BORDER_FADE_FROM
-            end
-
-            if border then
-                local border_texture = Assets.getTexture("borders/" .. border)
-
-                love.graphics.scale(Kristal.getGameScale())
-                Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
-                if border_texture then
-                    Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
-                end
-                if dynamic then
-                    Kristal.callEvent("onBorderDraw", border, border_texture)
-                end
-                Draw.setColor(1, 1, 1, 1)
-                love.graphics.reset()
-            end
-
-            LAST_BORDER = border
-        end
-
-        -- Draw the game canvas
-        love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
-        love.graphics.scale(Kristal.getGameScale())
-        Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
-
-        love.graphics.reset()
-        love.graphics.scale(Kristal.getGameScale())
-
-        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
-            if Input.usingGamepad() then
-                Draw.setColor(0, 0, 0, 0.5)
-                love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
-                Draw.setColor(1, 1, 1, 1)
-                love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
-            elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
-                Draw.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(),
-                          love.mouse.getY() / Kristal.getGameScale())
-            end
-        end
-
-        Draw._clearUnusedCanvases()
-
-        if PERFORMANCE_TEST then
-            Utils.popPerformance()
-            Utils.printPerformance()
-            PERFORMANCE_TEST_STAGE = nil
-            PERFORMANCE_TEST = nil
-        end
-    end)
-
     Kristal.log("Starting load thread")
 
     -- start load thread
-    Kristal.Loader.in_channel = love.thread.getChannel("load_in")
-    Kristal.Loader.out_channel = love.thread.getChannel("load_out")
+    Kristal.Loader.in_channel = love.thread.getChannel(1)
+    Kristal.Loader.out_channel = love.thread.getChannel(2)
 
     Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
     Kristal.Loader.thread:start()
@@ -297,6 +201,13 @@ function love.quit()
 end
 
 function love.update(dt)
+    if PERFORMANCE_TEST_STAGE == "UPDATE" then
+        PERFORMANCE_TEST = {}
+        Utils.pushPerformance("Total")
+    end
+
+    Gamestate.update(dt)
+
     BASE_DT = dt
     if FAST_FORWARD then
         CURRENT_SPEED_MULT = FAST_FORWARD_SPEED
@@ -352,6 +263,16 @@ function love.update(dt)
                 Kristal.Loader.end_funcs[msg.key] = nil
             end
         end
+    end
+
+    Kristal.Stage:update()
+    Kristal.Overlay:update()
+    if PERFORMANCE_TEST then
+        Utils.popPerformance()
+        print("-------- PERFORMANCE --------")
+        Utils.printPerformance()
+        PERFORMANCE_TEST_STAGE = "DRAW"
+        PERFORMANCE_TEST = nil
     end
 end
 
@@ -634,13 +555,16 @@ function Kristal.errorHandler(msg)
         local pos = 32
         local ypos = pos
         love.graphics.origin()
+
+        love.graphics.setActiveScreen("default")
+
         love.graphics.clear(0, 0, 0, 1)
         love.graphics.scale(window_scale)
 
         Draw.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
-        love.graphics.printf(version_string, -20, 10, window_width, "right")
-        love.graphics.printf(mod_string, 20, 10, window_width)
+        love.graphics.printf(version_string or "", -20, 10, window_width, "right")
+        love.graphics.printf(mod_string or "", 20, 10, window_width, "left")
 
         love.graphics.setFont(font)
 
@@ -651,7 +575,7 @@ function Kristal.errorHandler(msg)
             love.graphics.printf(
                 { "Error at ", { 0.6, 0.6, 0.6, 1 }, split[#split - 1], { 1, 1, 1, 1 }, " - " .. split[#split] }, pos,
                 ypos,
-                window_width - pos)
+                window_width - pos, "left")
             ypos = ypos + (32 * #lines)
             love.graphics.setFont(font)
 
@@ -659,28 +583,28 @@ function Kristal.errorHandler(msg)
                 if not l:match("boot.lua") then
                     if l:match("stack traceback:") then
                         love.graphics.setFont(font)
-                        love.graphics.printf("Traceback:", pos, ypos, warp)
+                        love.graphics.printf("Traceback:", pos, ypos, warp, "left")
                         ypos = ypos + 32
                     else
                         if ypos >= window_height - 40 - 32 then
-                            love.graphics.printf("...", pos, ypos, warp)
+                            love.graphics.printf("...", pos, ypos, warp, "left")
                             break
                         end
                         love.graphics.setFont(smaller_font)
                         local _, e_lines = smaller_font:getWrap(l, warp)
-                        love.graphics.printf(l, pos, ypos, warp)
+                        love.graphics.printf(l, pos, ypos, warp, "left")
                         ypos = ypos + 16 * #e_lines
                     end
                 end
             end
         else
-            love.graphics.printf("Critical Error", pos, ypos, warp)
+            love.graphics.printf("Critical Error", pos, ypos, warp, "left")
 
             love.graphics.setFont(font)
-            love.graphics.printf("Known causes:", pos, ypos + 64, warp)
+            love.graphics.printf("Known causes:", pos, ypos + 64, warp, "left")
 
             love.graphics.setFont(smaller_font)
-            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, warp)
+            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, warp, "left")
         end
 
         if starwalker_error then
@@ -795,11 +719,14 @@ function Kristal.errorHandler(msg)
             DT = love.timer.step()
         end
 
-        local x, y = love.mouse:getPosition()
-
         show_libraries = false
-        if 20 < x and x < 20 + #mod_string * 7 and 10 < y and y < 26 then
-            show_libraries = true
+
+        if love.mouse then
+            local x, y = love.mouse:getPosition()
+
+            if 20 < x and x < 20 + #mod_string * 7 and 10 < y and y < 26 then
+                show_libraries = true
+            end
         end
 
         draw()
@@ -1001,17 +928,23 @@ end
 ---@param paths? string|table The specific asset paths to load.
 ---@param after? function     The function to call when done.
 function Kristal.loadAssets(dir, loader, paths, after)
+    Kristal.log("LOADASSETS - SetLoading")
     Kristal.Overlay.setLoading(true)
+    Kristal.log("LOADASSETS - Waiting")
     Kristal.Loader.waiting = Kristal.Loader.waiting + 1
     if after then
+        Kristal.log("LOADASSETS - Set after")
         Kristal.Loader.end_funcs[Kristal.Loader.next_key] = after
     end
+    Kristal.log("LOADASSETS - Push to in_channel")
+    Kristal.log("LOADASSETS - ae")
     Kristal.Loader.in_channel:push({
         key = Kristal.Loader.next_key,
         dir = dir,
         loader = loader,
         paths = paths
     })
+    Kristal.log("LOADASSETS - Setting next key")
     Kristal.Loader.next_key = Kristal.Loader.next_key + 1
 end
 

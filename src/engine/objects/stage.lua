@@ -20,15 +20,15 @@ end
 
 function Stage:getObjects(class)
     if class then
-        return Utils.filter(self.objects_by_class[class] or {}, function(o) return o.stage == self end)
+        return Utils.filter(self.objects_by_class[class] or {}, function (o) return o.stage == self end)
     else
-        return Utils.filter(self.objects, function(o) return o.stage == self end)
+        return Utils.filter(self.objects, function (o) return o.stage == self end)
     end
 end
 
 function Stage:addToStage(object)
     table.insert(self.objects, object)
-    for class,_ in pairs(object.__includes_all) do
+    for class, _ in pairs(object.__includes_all) do
         if class.__tracked ~= false then
             self.objects_by_class[class] = self.objects_by_class[class] or {}
             table.insert(self.objects_by_class[class], object)
@@ -36,13 +36,13 @@ function Stage:addToStage(object)
     end
     object.stage = self
     object:onAddToStage(self)
-    for _,child in ipairs(object.children) do
+    for _, child in ipairs(object.children) do
         self:addToStage(child)
     end
 end
 
 function Stage:updateAllLayers()
-    for _,object in ipairs(self.objects) do
+    for _, object in ipairs(self.objects) do
         if object.update_child_list or object.__index == World then
             object:updateChildList()
             object.update_child_list = false
@@ -56,7 +56,7 @@ function Stage:removeFromStage(object)
         object.stage = nil
     end
     object:onRemoveFromStage(self)
-    for _,child in ipairs(object.children) do
+    for _, child in ipairs(object.children) do
         self:removeFromStage(child)
     end
 end
@@ -69,9 +69,9 @@ function Stage:update()
         self:fullUpdate()
         self.full_updating = false
     else
-        for _,object in ipairs(self.objects_to_remove) do
+        for _, object in ipairs(self.objects_to_remove) do
             Utils.removeFromTable(self.objects, object)
-            for class,_ in pairs(object.__includes_all) do
+            for class, _ in pairs(object.__includes_all) do
                 if class.__tracked ~= false and self.objects_by_class[class] then
                     Utils.removeFromTable(self.objects_by_class[class], object)
                 end
@@ -83,6 +83,7 @@ function Stage:update()
 end
 
 function Stage:draw()
+    Kristal.log("STAGE - DRAW STARTED")
     if not self.visible then return end
 
     if not self.full_drawing then
@@ -95,6 +96,7 @@ function Stage:draw()
     else
         super.draw(self)
     end
+    Kristal.log("STAGE - DRAW FINISHED")
     --[[love.graphics.push()
     love.graphics.applyTransform(self:getTransform())
     Draw.pushScissor()

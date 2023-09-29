@@ -9,11 +9,11 @@ local transformStack = {}
 local transform = love.math.newTransform()
 
 function graphics.reset()
-  transformStack = {}
-  love.graphics.origin()
+    transformStack = {}
+    love.graphics.origin()
 
-  Draw._scissor_stack = {}
-  love.graphics.setScissor()
+    Draw._scissor_stack = {}
+    Draw.scissorUntransformed()
 end
 
 ---
@@ -37,87 +37,88 @@ end
 ---@param kx? number # Shearing factor (x-axis).
 ---@param ky? number # Shearing factor (y-axis).
 function graphics.printfOutline(text, x, y, outline, limit, align, r, sx, sy, ox, oy, kx, ky)
-  local old_color = {love.graphics.getColor()}
+    local old_color = { love.graphics.getColor() }
 
-  Draw.setColor(0, 0, 0)
+    Draw.setColor(0, 0, 0)
 
-  local drawn = {}
-  for i = -(outline or 1),(outline or 1) do
-    for j = -(outline or 1),(outline or 1) do
-      if i ~= 0 or j ~= 0 then
-        love.graphics.printf(text, x+i, y+j, limit or math.huge, align, r, sx, sy, ox, oy, kx, ky)
-      end
+    local drawn = {}
+    for i = -(outline or 1), (outline or 1) do
+        for j = -(outline or 1), (outline or 1) do
+            if i ~= 0 or j ~= 0 then
+                love.graphics.printf(text, x + i, y + j, limit or math.huge, align, r, sx, sy, ox, oy, kx, ky)
+            end
+        end
     end
-  end
 
-  Draw.setColor(unpack(old_color))
+    Draw.setColor(unpack(old_color))
 
-  love.graphics.printf(text, x, y, limit or math.huge, align, r, sx, sy, ox, oy, kx, ky)
+    love.graphics.printf(text, x, y, limit or math.huge, align, r, sx, sy, ox, oy, kx, ky)
 end
 
---[[ Transforms ]]--
+--[[ Transforms ]]
+                   --
 
 -- Gets a copy of the Transform object for the current coordinate transformation.
 ---@return love.Transform transform A copy of the Transform object for the current coordinate transformation.
 function graphics.getTransform()
-  return transform:clone()
+    return transform:clone()
 end
 
 -- Gets a direct reference of the Transform object for the current coordinate transformation.
 ---@return love.Transform transform_ref A direct reference of the Transform object for the current coordinate transformation.
 function graphics.getTransformRef()
-  return transform
+    return transform
 end
 
 function graphics.applyTransform(t)
-  transform:apply(t)
-  old_replaceTransform(transform)
+    transform:apply(t)
+    old_replaceTransform(transform)
 end
 
 function graphics.inverseTransformPoint(screenX, screenY)
-  return transform:inverseTransformPoint(screenX, screenY)
+    return transform:inverseTransformPoint(screenX, screenY)
 end
 
 function graphics.origin()
-  transform:reset()
-  old_replaceTransform(transform)
+    transform:reset()
+    old_replaceTransform(transform)
 end
 
 function graphics.pop()
-  transform = table.remove(transformStack, 1)
-  old_replaceTransform(transform)
+    transform = table.remove(transformStack, 1)
+    old_replaceTransform(transform)
 end
 
 function graphics.push()
-  table.insert(transformStack, 1, transform)
-  transform = transform:clone()
+    table.insert(transformStack, 1, transform)
+    transform = transform:clone()
 end
 
 function graphics.replaceTransform(t)
-  transform = t
-  old_replaceTransform(transform)
+    transform = t
+    old_replaceTransform(transform)
 end
 
 function graphics.rotate(angle)
-  transform:rotate(angle)
-  old_replaceTransform(transform)
+    transform:rotate(angle)
+    old_replaceTransform(transform)
 end
 
 function graphics.scale(sx, sy)
-  transform:scale(sx, sy or sx)
-  old_replaceTransform(transform)
+    transform:scale(sx, sy or sx)
+    old_replaceTransform(transform)
 end
 
 function graphics.shear(kx, ky)
-  transform:shear(kx, ky)
-  old_replaceTransform(transform)
+    transform:shear(kx, ky)
+    old_replaceTransform(transform)
 end
 
 function graphics.transformPoint(globalX, globalY)
-  return transform:transformPoint(globalX, globalY)
+    return transform:transformPoint(globalX, globalY)
 end
 
 function graphics.translate(dx, dy)
-  transform:translate(dx, dy)
-  old_replaceTransform(transform)
+    transform:translate(dx, dy)
+    old_replaceTransform(transform)
 end
