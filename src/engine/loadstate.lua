@@ -8,6 +8,8 @@ function Loading:init()
     self.logo_canvas = Draw.newCanvas(320, 240)
     -- No filtering
     self.logo_canvas:setFilter("nearest", "nearest")
+
+    Kristal.Config["skipIntro"] = true
 end
 
 function Loading:enter(from, dir)
@@ -59,6 +61,7 @@ function Loading:beginLoad()
     Kristal.loadAssets("", "all", "")
     Kristal.log("Load assets - mods")
     Kristal.loadAssets("", "mods", "", function ()
+        error("we did it")
         self.loading = false
         self.load_complete = true
 
@@ -114,14 +117,12 @@ function Loading:drawSprite(image, x, y, alpha)
 end
 
 function Loading:draw()
-    Kristal.log("LOADING - " .. tostring(DT))
     if Kristal.Config["skipIntro"] then
         love.graphics.push()
         love.graphics.translate(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         love.graphics.scale(2, 2)
         self:drawSprite(self.logo, 0, 0, 1)
         love.graphics.pop()
-        Kristal.log("LOADING - popped")
         return
     end
 

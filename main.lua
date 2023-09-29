@@ -282,20 +282,13 @@ function love.draw(...)
 
     love.graphics.reset()
 
-    Kristal.log("DRAW HOOK - SETTING SCREEN_CANVAS")
     Draw.setCanvas(SCREEN_CANVAS)
-    Kristal.log("DRAW HOOK - CLEARING SCREEN_CANVAS")
     love.graphics.clear(0, 0, 0, 1)
-    Kristal.log("DRAW HOOK - orig(...)")
 
     Gamestate.draw(...)
-    --orig(...)
 
-    Kristal.log("DRAW HOOK - Kristal.Stage:draw()")
     Kristal.Stage:draw()
-    Kristal.log("DRAW HOOK - Kristal.Overlay:draw()")
     Kristal.Overlay:draw()
-    Kristal.log("DRAW HOOK - RESETTING CANVAS")
     Draw.setCanvas()
 
     Draw.setColor(1, 1, 1, 1)
@@ -327,18 +320,12 @@ function love.draw(...)
         LAST_BORDER = border
     end
 
-    Kristal.log("DRAW HOOK - GAME CANVAS")
-
     -- Draw the game canvas
     love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
     love.graphics.scale(Kristal.getGameScale())
     --Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
 
-    Kristal.log("DRAW HOOK - RESET")
-
     love.graphics.reset()
-
-    Kristal.log("DRAW HOOK - GET GAME SCALE")
 
     love.graphics.scale(Kristal.getGameScale())
 
@@ -362,8 +349,6 @@ function love.draw(...)
         PERFORMANCE_TEST_STAGE = nil
         PERFORMANCE_TEST = nil
     end
-
-    Kristal.log("DRAW HOOK - END")
 end
 
 function love.run()

@@ -248,18 +248,22 @@ function love.update(dt)
     if Kristal.Loader.waiting > 0 then
         local msg = Kristal.Loader.out_channel:pop()
         if msg then
-            Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+            if msg.print then
+                Kristal.log("LOADTHREAD: " .. msg.print)
+            else
+                Kristal.Loader.waiting = Kristal.Loader.waiting - 1
 
-            if Kristal.Loader.waiting == 0 then
-                Kristal.Overlay.setLoading(false)
-            end
+                if Kristal.Loader.waiting == 0 then
+                    Kristal.Overlay.setLoading(false)
+                end
 
-            Assets.loadData(msg.data.assets)
-            Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
+                Assets.loadData(msg.data.assets)
+                Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
 
-            if Kristal.Loader.end_funcs[msg.key] then
-                Kristal.Loader.end_funcs[msg.key]()
-                Kristal.Loader.end_funcs[msg.key] = nil
+                if Kristal.Loader.end_funcs[msg.key] then
+                    Kristal.Loader.end_funcs[msg.key]()
+                    Kristal.Loader.end_funcs[msg.key] = nil
+                end
             end
         end
     end
@@ -425,8 +429,8 @@ function Kristal.errorHandler(msg)
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
-    local font = love.graphics.newFont("assets/fonts/main.ttf", 32, "mono")
-    local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16, "mono")
+    local font = love.graphics.newFont("assets/fonts/main.ttf", 32)
+    local smaller_font = love.graphics.newFont("assets/fonts/main.ttf", 16)
 
     local starwalker, starwalkertext, banana_anim
 

@@ -83,7 +83,6 @@ function Stage:update()
 end
 
 function Stage:draw()
-    Kristal.log("STAGE - DRAW STARTED")
     if not self.visible then return end
 
     if not self.full_drawing then
@@ -96,7 +95,6 @@ function Stage:draw()
     else
         super.draw(self)
     end
-    Kristal.log("STAGE - DRAW FINISHED")
     --[[love.graphics.push()
     love.graphics.applyTransform(self:getTransform())
     Draw.pushScissor()

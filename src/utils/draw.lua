@@ -21,7 +21,7 @@ Draw._scissor_stack = {}
 
 Draw._shader_stack = {}
 
-Draw._current_scissor = {}
+Draw._current_scissor = { 0, 0, 320, 240 }
 
 if not love.graphics.getScissor then
     love.graphics.getScissor = function ()
@@ -123,13 +123,10 @@ end
 function Draw.setCanvas(canvas)
     if canvas then
         if canvas.fake then return end
-        Kristal.log("Draw.setCanvas: canvas, draw to it")
         love.graphics.setCanvas(canvas)
     else
-        Kristal.log("Draw.setCanvas: no canvas")
         love.graphics.setCanvas()
     end
-    Kristal.log("Draw.setCanvas: done")
 end
 
 ---@private
@@ -198,6 +195,11 @@ function Draw.popScissor()
 end
 
 function Draw.scissorUntransformed(x, y, w, h)
+    if x == nil then
+        love.graphics.setScissor()
+        Draw._current_scissor = { 0, 0, 320, 240 }
+        return
+    end
     Draw._current_scissor = { x, y, w, h }
     love.graphics.setScissor(x, y, w, h)
 end

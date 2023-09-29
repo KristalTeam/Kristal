@@ -249,6 +249,7 @@ local loaders = {
     -- Asset Loaders
 
     ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
+        out_channel:push({ print = "Sprites loader called" })
         local id = checkExtension(path, "png", "jpg")
         if id then
             local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
@@ -270,6 +271,7 @@ local loaders = {
         end
     end },
     ["fonts"] = { "assets/fonts", function (base_dir, path, full_path)
+        out_channel:push({ print = "Fonts loader called" })
         local id = checkExtension(path, "ttf")
         if id then
             pcall(function () data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
@@ -288,18 +290,21 @@ local loaders = {
         end
     end },
     ["sounds"] = { "assets/sounds", function (base_dir, path, full_path)
+        out_channel:push({ print = "Sounds loader called" })
         local id = checkExtension(path, "wav", "ogg")
         if id then
             pcall(function () data.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
         end
     end },
     ["music"] = { "assets/music", function (base_dir, path, full_path)
+        out_channel:push({ print = "Music loader called" })
         local id = checkExtension(path, "mp3", "wav", "ogg")
         if id then
             data.assets.music[id] = full_path
         end
     end },
     ["videos"] = { "assets/videos", function (base_dir, path, full_path)
+        out_channel:push({ print = "Videos loader called" })
         local id = checkExtension(path, "ogg", "ogv")
         if id then
             data.assets.videos[id] = full_path
@@ -309,6 +314,7 @@ local loaders = {
         end
     end },
     ["bubbles"] = { "assets/bubbles", function (base_dir, path, full_path)
+        out_channel:push({ print = "Bubbles loader called" })
         local id = checkExtension(path, "json")
         if id then
             local ok, loaded_data = pcall(json.decode, love.filesystem.read(full_path))
@@ -322,6 +328,8 @@ local loaders = {
 
 function loadPath(baseDir, loader, path, pre)
     if path_loaded[loader][path] then return end
+
+    out_channel:push({ print = "Loading " .. loader .. " " .. path })
 
     path_loaded[loader][path] = true
 
@@ -347,27 +355,22 @@ function loadPath(baseDir, loader, path, pre)
                 end
             end
         else
+            out_channel:push({ print = "Calling loader for " .. loader .. " " .. path })
             loaders[loader][2](baseDir, path, combinePath(baseDir, loaders[loader][1], path))
         end
     end
 end
 
-print("LOADTHREAD - getting channels")
-
 -- Channels for thread communications
 in_channel = love.thread.getChannel("load_in")
 out_channel = love.thread.getChannel("load_out")
-
-print("LOADTHREAD - resetdata")
 
 -- Reset data once first
 resetData()
 
 -- Thread loop
 while true do
-    print("LOADTHREAD - haiii")
     local msg = in_channel:demand()
-    print("LOADTHREAD - demanded...")
     if msg == "stop" then
         break
     else
@@ -375,18 +378,17 @@ while true do
         local baseDir = msg.dir or ""
         local loader = msg.loader
         local paths = msg.paths or { "" }
+
         if type(msg.paths) == "string" then
             paths = { msg.paths }
         end
 
+
         if loader == "all" then
-            print("LOADTHREAD - hehe time to load all!!")
             for k, _ in pairs(loaders) do
-                print("LOADTHREAD - loading " .. k)
                 -- dont load mods when we load with "all"
                 if k ~= "mods" then
                     for _, path in ipairs(paths) do
-                        print("LOADTHREAD - doin loadpath")
                         loadPath(baseDir, k, path)
                     end
                 end
@@ -397,9 +399,7 @@ while true do
             end
         end
 
-        print("LOADTHREAD - pushing data out!")
         out_channel:push({ key = key, data = data })
-        print("LOADTHREAD - calling resetdata...")
         resetData()
     end
 end

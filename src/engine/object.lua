@@ -280,7 +280,7 @@ function Object:init(x, y, width, height)
 end
 
 --[[ Common overrides ]]
-                         --
+--
 
 --- *(Override)* Called every frame by its parent if the object is active. \
 --- By default, updates its physics and graphics tables, and its children.
@@ -320,7 +320,7 @@ function Object:onAddToStage(stage) end
 function Object:onRemoveFromStage(stage) end
 
 --[[ Common functions ]]
-                         --
+--
 
 ---@class physics_table
 ---@field speed_x           number  The horizontal speed of the object, in pixels per frame at 30FPS.
@@ -514,8 +514,16 @@ function Object:slideTo(x, y, time, ease, after)
     time = time or 1
     self.physics.move_path = nil
     if self.x ~= x or self.y ~= y then
-        self.physics.move_target = { x = x, y = y, time = time, timer = 0, start_x = self.x, start_y = self.y,
-            ease = ease or "linear", after = after }
+        self.physics.move_target = {
+            x = x,
+            y = y,
+            time = time,
+            timer = 0,
+            start_x = self.x,
+            start_y = self.y,
+            ease = ease or "linear",
+            after = after
+        }
         return true
     else
         if after then
@@ -1290,7 +1298,7 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     end
     if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
         local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x,
-            self.parallax_origin_y)
+                                                      self.parallax_origin_y)
         if not floor_x then
             transform:translate(px, py)
         else
@@ -1514,7 +1522,7 @@ function Object:isFullyVisible()
 end
 
 --[[ Internal functions ]]
-                           --
+--
 
 function Object:sortChildren()
     table.stable_sort(self.children, Object.LAYER_SORT)
@@ -1573,7 +1581,6 @@ function Object:fullUpdate()
 end
 
 function Object:preDraw(dont_transform)
-    Kristal.log("OBJECT - PREDRAW STARTED")
     if not dont_transform then
         local transform = love.graphics.getTransformRef()
         self:applyTransformTo(transform, 1 / CURRENT_SCALE_X, 1 / CURRENT_SCALE_Y)
@@ -1593,22 +1600,18 @@ function Object:preDraw(dont_transform)
     Draw.setColor(self:getDrawColor())
     Draw.pushScissor()
     self:applyScissor()
-    Kristal.log("OBJECT - PREDRAW FINISHED")
 end
 
 function Object:postDraw()
-    Kristal.log("OBJECT - POSTDRAW STARTED")
     Draw.popScissor()
 
     CURRENT_SCALE_X = self._last_draw_scale_x or CURRENT_SCALE_X
     CURRENT_SCALE_Y = self._last_draw_scale_y or CURRENT_SCALE_Y
 
     self._last_draw_scale_x, self._last_draw_scale_y = nil, nil
-    Kristal.log("OBJECT - POSTDRAW FINISHED")
 end
 
 function Object:drawChildren(min_layer, max_layer)
-    Kristal.log("OBJECT - DRAWCHILDREN STARTED")
     if self.update_child_list then
         self:updateChildList()
         self.update_child_list = false
@@ -1627,11 +1630,9 @@ function Object:drawChildren(min_layer, max_layer)
         end
     end
     Draw.setColor(oldr, oldg, oldb, olda)
-    Kristal.log("OBJECT - DRAWCHILDREN FINISHED")
 end
 
 function Object:drawSelf(no_children, dont_transform)
-    Kristal.log("OBJECT - DRAWSELF STARTED")
     local last_draw_children = self._dont_draw_children
     if no_children then
         self._dont_draw_children = true
@@ -1648,11 +1649,9 @@ function Object:drawSelf(no_children, dont_transform)
     self:postDraw()
     love.graphics.pop()
     self._dont_draw_children = last_draw_children
-    Kristal.log("OBJECT - DRAWSELF FINISHED")
 end
 
 function Object:fullDraw(no_children, dont_transform)
-    Kristal.log("OBJECT - FULLDRAW STARTED")
     local used_timescale, last_dt, last_dt_mult, last_runtime = false, DT, DTMULT, RUNTIME
     if self.timescale ~= 1 then
         used_timescale = true
@@ -1666,7 +1665,7 @@ function Object:fullDraw(no_children, dont_transform)
     end
     local processing_fx, fx_transform, fx_screen = self:shouldProcessDrawFX()
     local fx_off_x, fx_off_y = math.floor(SCREEN_WIDTH / 2 - self.width / 2), math.floor(SCREEN_HEIGHT / 2 -
-    self.height / 2)
+        self.height / 2)
     local canvas = nil
     if processing_fx then
         Draw.pushCanvasLocks()
@@ -1715,7 +1714,6 @@ function Object:fullDraw(no_children, dont_transform)
         DTMULT = last_dt_mult
         RUNTIME = last_runtime
     end
-    Kristal.log("OBJECT - FULLDRAW FINISHED")
 end
 
 function Object:shouldProcessDrawFX()
@@ -1797,16 +1795,16 @@ function Object:updatePhysicsTransform()
         if physics.move_target.speed then
             local angle = Utils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
             next_x = Utils.approach(self.x, physics.move_target.x,
-                physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
+                                    physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
             next_y = Utils.approach(self.y, physics.move_target.y,
-                physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
+                                    physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
         elseif physics.move_target.time then
             physics.move_target.timer = Utils.approach(physics.move_target.timer, physics.move_target.time, DT)
 
             next_x = Utils.ease(physics.move_target.start_x, physics.move_target.x,
-                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+                                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
             next_y = Utils.ease(physics.move_target.start_y, physics.move_target.y,
-                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+                                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
         end
         if physics.move_target.move_func then
             physics.move_target.move_func(self, next_x - self.x, next_y - self.y)
@@ -1831,7 +1829,8 @@ function Object:updatePhysicsTransform()
             physics.move_path.progress = physics.move_path.progress % physics.move_path.length
         end
         local eased_progress = Utils.ease(0, physics.move_path.length,
-            (physics.move_path.progress / physics.move_path.length), physics.move_path.ease)
+                                          (physics.move_path.progress / physics.move_path.length), physics.move_path
+                                          .ease)
         local target_x, target_y = Utils.getPointOnPath(physics.move_path.path, eased_progress)
         if physics.move_path.move_func then
             physics.move_path.move_func(self, target_x - self.x, target_y - self.y)

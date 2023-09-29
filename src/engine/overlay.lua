@@ -76,6 +76,11 @@ function Overlay:update()
         if self.quit_release and not love.keyboard.isDown("escape") then
             self.quit_release = false
         end
+    else
+        self.quit_timer = 0
+        if self.quit_alpha > 0 then
+            self.quit_alpha = math.max(0, self.quit_alpha - DT / 0.25)
+        end
     end
 end
 
