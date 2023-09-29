@@ -32,6 +32,10 @@ end
 function Draw.newCanvas(w, h)
     return {
         setFilter = function () end,
+        getWidth = function () return w end,
+        getHeight = function () return h end,
+        width = w,
+        height = h,
         fake = true
     }
     --return love.graphics.newCanvas(w, h)
@@ -281,6 +285,7 @@ end
 ---@overload fun(texture: love.Texture, quad: love.Quad, transform: love.Transform)
 function Draw.draw(...)
     if ({ ... })[1] == nil then return end
+    if type(({ ... })[1]) == "table" and ({ ... })[1].fake then return end
     love.graphics.draw(...)
 end
 

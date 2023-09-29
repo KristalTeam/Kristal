@@ -28,7 +28,7 @@
 local TextInput = {}
 local self = TextInput
 
-self.input = {""} -- A *reference* to an input table.
+self.input = { "" } -- A *reference* to an input table.
 
 self.active = false
 
@@ -44,7 +44,9 @@ function TextInput.attachInput(tbl, options)
     Kristal.showCursor()
     self.active = true
     love.keyboard.setTextInput(true)
-    love.keyboard.setKeyRepeat(true)
+    if love.keyboard.setKeyRepeat then
+        love.keyboard.setKeyRepeat(true)
+    end
     self.updateInput(tbl)
 
     self.reset(options)
@@ -67,7 +69,9 @@ function TextInput.endInput()
     end
     self.active = false
     love.keyboard.setTextInput(false)
-    love.keyboard.setKeyRepeat(false)
+    if love.keyboard.setKeyRepeat then
+        love.keyboard.setKeyRepeat(false)
+    end
 end
 
 function TextInput.clear()
@@ -87,9 +91,9 @@ function TextInput.reset(options)
     if options ~= false then
         options = options or {} --[[@as TextInput.inputOptions]]
         -- Our defaults should allow text editor-like input
-        if options.multiline          == nil then options.multiline          = true  end
-        if options.enter_submits      == nil then options.enter_submits      = false end
-        if options.clear_after_submit == nil then options.clear_after_submit = true  end
+        if options.multiline == nil then options.multiline = true end
+        if options.enter_submits == nil then options.enter_submits = false end
+        if options.clear_after_submit == nil then options.clear_after_submit = true end
         self.multiline = options.multiline
         self.enter_submits = options.enter_submits
         self.clear_after_submit = options.clear_after_submit
@@ -121,7 +125,6 @@ function TextInput.submit()
         self.clear()
     end
 end
-
 
 function TextInput.onTextInput(t)
     if not self.active then return end
@@ -205,7 +208,6 @@ function TextInput.onKeyPressed(key)
                 string_1 = Utils.sub(self.input[self.cursor_y], 1, starting_position)
                 string_2 = Utils.sub(self.input[self.cursor_y], ending_position, -1)
             else
-
                 string_1 = Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)
                 string_2 = Utils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
             end
@@ -442,10 +444,10 @@ end
 ---@param char string
 ---@return boolean
 function TextInput.isPartOfWord(char)
-    if char == "_" then return true end -- underscores are commonly used so we'll allow them in words
-    if char == "-" then return true end -- same with dashes
+    if char == "_" then return true end       -- underscores are commonly used so we'll allow them in words
+    if char == "-" then return true end       -- same with dashes
     if char:match("%W") then return false end -- not alphanumeric, so not part of a word
-    return true -- alphanumeric, so part of a word
+    return true                               -- alphanumeric, so part of a word
 end
 
 function TextInput.sendCursorToEnd()
@@ -488,7 +490,7 @@ function TextInput.sendCursorToStartOfLine(special_indenting)
             self.cursor_x = last_space
             self.cursor_x_tallest = self.cursor_x
             return
-        -- We're at the end of an indent, let's just go to the start
+            -- We're at the end of an indent, let's just go to the start
         end
     end
     self.cursor_x = 0
@@ -502,7 +504,6 @@ function TextInput.selectAll()
     self.cursor_select_y = #self.input
     self.selecting = true
 end
-
 
 function TextInput.removeSelection()
     if not self.selecting then return end
@@ -593,10 +594,8 @@ function TextInput.getSelectedText()
     return text
 end
 
-
 ---@param str string
 function TextInput.insertString(str)
-
     if self.text_restriction then
         local newstr = ""
         for i = 1, utf8.len(str) do
@@ -621,7 +620,7 @@ function TextInput.insertString(str)
 
     self.flash_timer = 0
     local string_1 = Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-    local string_2 = Utils.sub(self.input[self.cursor_y],    self.cursor_x + 1, -1)
+    local string_2 = Utils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
 
     if self.cursor_x == 0 then
         string_1 = ""
@@ -630,10 +629,10 @@ function TextInput.insertString(str)
 
     local split = Utils.split(string_1 .. str .. string_2, "\n", false)
 
-    split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
+    split[1] = split[1]:gsub("\n?$", ""):gsub("\r", "");
     self.input[self.cursor_y] = split[1]
     for i = 2, #split do
-        split[i] = split[i]:gsub("\n?$",""):gsub("\r","");
+        split[i] = split[i]:gsub("\n?$", ""):gsub("\r", "");
         table.insert(self.input, self.cursor_y + i - 1, split[i])
     end
 
@@ -655,7 +654,7 @@ function TextInput.draw(options)
     local off_x = options["x"] or 0
     local off_y = options["y"] or 0
     local font = options["font"] or Assets.getFont("main_mono", 16)
-    local get_prefix = options["get_prefix"] or function(prefix) return "" end
+    local get_prefix = options["get_prefix"] or function (prefix) return "" end
     local print_func = options["print"] or love.graphics.print
 
     local base_off = (options["prefix_width"] or 0) + off_x
@@ -671,7 +670,8 @@ function TextInput.draw(options)
 
         local cursor_sel_x = base_off
         if self.cursor_select_x > 0 then
-            cursor_sel_x = font:getWidth(Utils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)) + cursor_sel_x
+            cursor_sel_x = font:getWidth(Utils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)) +
+                cursor_sel_x
         end
         local cursor_sel_y = off_y + ((self.cursor_select_y - 1) * font:getHeight())
 
@@ -690,18 +690,25 @@ function TextInput.draw(options)
             end
 
             if in_front then
-                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1), font:getHeight())
+                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y,
+                                        math.max(
+                                        font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1),
+                                        font:getHeight())
                 love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, font:getHeight())
 
                 for i = self.cursor_select_y + 1, self.cursor_y - 1 do
-                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(self.input[i]), 1), font:getHeight())
+                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)),
+                                            math.max(font:getWidth(self.input[i]), 1), font:getHeight())
                 end
             else
-                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1), font:getHeight())
+                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y,
+                                        math.max(font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1),
+                                        font:getHeight())
                 love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, font:getHeight())
 
                 for i = self.cursor_y + 1, self.cursor_select_y - 1 do
-                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(self.input[i]), 1), font:getHeight())
+                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)),
+                                            math.max(font:getWidth(self.input[i]), 1), font:getHeight())
                 end
             end
         end

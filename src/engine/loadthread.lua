@@ -249,7 +249,7 @@ local loaders = {
     -- Asset Loaders
 
     ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
-        out_channel:push({ print = "Sprites loader called" })
+        --out_channel:push({ print = "Sprites loader called" })
         local id = checkExtension(path, "png", "jpg")
         if id then
             local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
@@ -271,7 +271,7 @@ local loaders = {
         end
     end },
     ["fonts"] = { "assets/fonts", function (base_dir, path, full_path)
-        out_channel:push({ print = "Fonts loader called" })
+        --out_channel:push({ print = "Fonts loader called" })
         local id = checkExtension(path, "ttf")
         if id then
             pcall(function () data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
@@ -297,14 +297,14 @@ local loaders = {
         end
     end },
     ["music"] = { "assets/music", function (base_dir, path, full_path)
-        out_channel:push({ print = "Music loader called" })
+        --out_channel:push({ print = "Music loader called" })
         local id = checkExtension(path, "mp3", "wav", "ogg")
         if id then
             data.assets.music[id] = full_path
         end
     end },
     ["videos"] = { "assets/videos", function (base_dir, path, full_path)
-        out_channel:push({ print = "Videos loader called" })
+        --out_channel:push({ print = "Videos loader called" })
         local id = checkExtension(path, "ogg", "ogv")
         if id then
             data.assets.videos[id] = full_path
@@ -314,7 +314,7 @@ local loaders = {
         end
     end },
     ["bubbles"] = { "assets/bubbles", function (base_dir, path, full_path)
-        out_channel:push({ print = "Bubbles loader called" })
+        --out_channel:push({ print = "Bubbles loader called" })
         local id = checkExtension(path, "json")
         if id then
             local ok, loaded_data = pcall(json.decode, love.filesystem.read(full_path))
@@ -329,7 +329,7 @@ local loaders = {
 function loadPath(baseDir, loader, path, pre)
     if path_loaded[loader][path] then return end
 
-    out_channel:push({ print = "Loading " .. loader .. " " .. path })
+    --out_channel:push({ print = "Loading " .. loader .. " " .. path })
 
     path_loaded[loader][path] = true
 
@@ -355,7 +355,7 @@ function loadPath(baseDir, loader, path, pre)
                 end
             end
         else
-            out_channel:push({ print = "Calling loader for " .. loader .. " " .. path })
+            --out_channel:push({ print = "Calling loader for " .. loader .. " " .. path })
             loaders[loader][2](baseDir, path, combinePath(baseDir, loaders[loader][1], path))
         end
     end

@@ -246,8 +246,12 @@ Gamestate = {
 
 Gamestate.switch = function (state)
     Gamestate.current_state = state
-    Gamestate.current_state:init()
-    Gamestate.current_state:enter()
+    if Gamestate.current_state.init then
+        Gamestate.current_state:init()
+    end
+    if Gamestate.current_state.enter then
+        Gamestate.current_state:enter()
+    end
 end
 
 Gamestate.current = function ()
@@ -255,11 +259,15 @@ Gamestate.current = function ()
 end
 
 Gamestate.update = function (...)
-    Gamestate.current_state:update(...)
+    if Gamestate.current_state.update then
+        Gamestate.current_state:update(...)
+    end
 end
 
 Gamestate.draw = function (...)
-    Gamestate.current_state:draw(...)
+    if Gamestate.current_state.draw then
+        Gamestate.current_state:draw(...)
+    end
 end
 
 local old_setVolume = love.audio.setVolume
@@ -273,6 +281,10 @@ end
 
 love.graphics.setActiveScreen = love.graphics.setActiveScreen or function () end
 love.graphics.getScreens = love.graphics.getScreens or function () return { -1 } end
+
+love.graphics.setShader = love.graphics.setShader or function () end
+
+love.graphics.setClipboardText = love.graphics.setClipboardText or function () end
 
 function love.draw(...)
     if PERFORMANCE_TEST_STAGE == "DRAW" then

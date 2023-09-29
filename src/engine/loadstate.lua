@@ -61,7 +61,6 @@ function Loading:beginLoad()
     Kristal.loadAssets("", "all", "")
     Kristal.log("Load assets - mods")
     Kristal.loadAssets("", "mods", "", function ()
-        error("we did it")
         self.loading = false
         self.load_complete = true
 

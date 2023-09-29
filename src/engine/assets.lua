@@ -77,7 +77,7 @@ end
 function Assets.restoreData()
     if self.saved_data then
         Assets.clear()
-        for k,v in pairs(self.saved_data) do
+        for k, v in pairs(self.saved_data) do
             self[k] = Utils.copy(v, true)
         end
         self.loaded = true
@@ -90,27 +90,27 @@ end
 ---@param data Assets.data
 function Assets.parseData(data)
     -- thread can't create images, we do it here
-    for key,image_data in pairs(data.texture_data) do
+    for key, image_data in pairs(data.texture_data) do
         self.data.texture[key] = love.graphics.newImage(image_data)
         self.texture_ids[self.data.texture[key]] = key
     end
 
     -- create frame tables with images
-    for key,ids in pairs(data.frame_ids) do
+    for key, ids in pairs(data.frame_ids) do
         self.data.frames[key] = {}
-        for i,id in pairs(ids) do
+        for i, id in pairs(ids) do
             self.data.frames[key][i] = self.data.texture[id]
-            self.frames_for[id] = {key, i}
+            self.frames_for[id] = { key, i }
         end
     end
 
     -- create TTF fonts
-    for key,file_data in pairs(data.font_data) do
+    for key, file_data in pairs(data.font_data) do
         local default = data.font_settings[key] and data.font_settings[key]["defaultSize"] or 12
-        self.data.fonts[key] = {default = default}
+        self.data.fonts[key] = { default = default }
     end
     -- create image fonts
-    for key,image_data in pairs(data.font_image_data) do
+    --[[for key,image_data in pairs(data.font_image_data) do
         local glyphs = data.font_settings[key] and data.font_settings[key]["glyphs"] or ""
         data.font_settings[key] = data.font_settings[key] or {}
         if data.font_settings[key]["autoScale"] == nil then
@@ -123,7 +123,7 @@ function Assets.parseData(data)
         if data.font_settings[key]["fallbacks"] then
             local fallbacks = {}
             for _,fallback in ipairs(data.font_settings[key]["fallbacks"]) do
-                local font = self.data.fonts[fallback["font"]]
+                local font = self.data.fonts[fallback["font"] ]
                 if type(font) == "table" then
                     error("Attempt to use TTF fallback on image font: " .. key)
                 else
@@ -132,10 +132,10 @@ function Assets.parseData(data)
             end
             self.data.fonts[key]:setFallbacks(unpack(fallbacks))
         end
-    end
+    end]]
 
     -- create single-instance audio sources
-    for key,sound_data in pairs(data.sound_data) do
+    for key, sound_data in pairs(data.sound_data) do
         local src = love.audio.newSource(sound_data)
         self.sounds[key] = src
     end
@@ -145,14 +145,14 @@ end
 
 function Assets.update()
     local sounds_to_remove = {}
-    for key,sounds in pairs(self.sound_instances) do
-        for _,sound in ipairs(sounds) do
+    for key, sounds in pairs(self.sound_instances) do
+        for _, sound in ipairs(sounds) do
             if not sound:isPlaying() then
-                table.insert(sounds_to_remove, {key = key, value = sound})
+                table.insert(sounds_to_remove, { key = key, value = sound })
             end
         end
     end
-    for _,sound in ipairs(sounds_to_remove) do
+    for _, sound in ipairs(sounds_to_remove) do
         Utils.removeFromTable(self.sound_instances[sound.key], sound.value)
     end
 end
@@ -183,7 +183,7 @@ function Assets.getFont(path, size)
                 if settings["fallbacks"] then
                     local fallbacks = {}
 
-                    for _,fallback in ipairs(settings["fallbacks"]) do
+                    for _, fallback in ipairs(settings["fallbacks"]) do
                         local fb_font = self.data.fonts[fallback["font"]]
 
                         if type(fb_font) ~= "table" then
@@ -275,7 +275,7 @@ end
 function Assets.getFramesOrTexture(path)
     local texture = Assets.getTexture(path)
     if texture then
-        return {texture}
+        return { texture }
     else
         return Assets.getFrames(path)
     end
@@ -289,7 +289,7 @@ end
 ---@param sh number
 ---@return love.Quad
 function Assets.getQuad(x, y, w, h, sw, sh)
-    local key = x..","..y..","..w..","..h..","..sw..","..sh
+    local key = x .. "," .. y .. "," .. w .. "," .. h .. "," .. sw .. "," .. sh
     if not self.quads[key] then
         self.quads[key] = love.graphics.newQuad(x, y, w, h, sw, sh)
     end
@@ -323,7 +323,7 @@ end
 ---@param sound string
 ---@param actually_stop? boolean
 function Assets.stopSound(sound, actually_stop)
-    for _,src in ipairs(self.sound_instances[sound] or {}) do
+    for _, src in ipairs(self.sound_instances[sound] or {}) do
         if actually_stop then
             src:stop()
         else
@@ -358,7 +358,7 @@ function Assets.playSound(sound, volume, pitch)
             table.insert(self.sound_instances[sound], src)
         end
         if volume and volume > 1 then
-            for _=1,math.floor(volume) do
+            for _ = 1, math.floor(volume) do
                 play(1)
             end
             if volume % 1 > 0 then
@@ -400,9 +400,9 @@ end
 ---@return love.Video
 function Assets.newVideo(video, load_audio)
     if not self.data.videos[video] then
-        error("No video found: "..video)
+        error("No video found: " .. video)
     end
-    return love.graphics.newVideo(self.data.videos[video], {audio = load_audio})
+    return love.graphics.newVideo(self.data.videos[video], { audio = load_audio })
 end
 
 Assets.clear()

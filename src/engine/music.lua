@@ -43,7 +43,7 @@ end
 ---@param callback? fun(music:Music)
 function Music:fade(to, speed, callback)
     self.target_volume = to or 0
-    self.fade_speed = speed or (10/30)
+    self.fade_speed = speed or (10 / 30)
     self.fade_callback = callback
 end
 
@@ -96,7 +96,9 @@ function Music:playFile(path, volume, pitch, name)
             self.pitch = pitch or 1
             self.source = love.audio.newSource(path, "stream")
             self.source:setVolume(self:getVolume())
-            self.source:setPitch(self:getPitch())
+            if self.source.setPitch then
+                self.source:setPitch(self:getPitch())
+            end
             self.source:setLooping(self.looping)
             self.source:play()
             self.started = true
@@ -106,7 +108,9 @@ function Music:playFile(path, volume, pitch, name)
             end
             if pitch then
                 self.pitch = pitch
-                self.source:setPitch(self:getPitch())
+                if self.source.setPitch then
+                    self.source:setPitch(self:getPitch())
+                end
             end
         end
     elseif self.source then
@@ -116,7 +120,9 @@ function Music:playFile(path, volume, pitch, name)
         end
         if pitch then
             self.pitch = pitch
-            self.source:setPitch(self:getPitch())
+            if self.source.setPitch then
+                self.source:setPitch(self:getPitch())
+            end
         end
         self.source:play()
         self.started = true
@@ -134,7 +140,7 @@ end
 ---@param pitch number
 function Music:setPitch(pitch)
     self.pitch = pitch
-    if self.source then
+    if self.source and self.source.setPitch then
         self.source:setPitch(self:getPitch())
     end
 end
@@ -207,7 +213,7 @@ end
 
 local function getPlaying()
     local result = {}
-    for _,handler in ipairs(_handlers) do
+    for _, handler in ipairs(_handlers) do
         if handler.source and handler.source:isPlaying() then
             table.insert(result, handler)
         end
@@ -216,7 +222,7 @@ local function getPlaying()
 end
 
 local function stop()
-    for _,handler in ipairs(_handlers) do
+    for _, handler in ipairs(_handlers) do
         if handler.source and handler.source:isPlaying() then
             handler.source:stop()
         end
@@ -224,7 +230,7 @@ local function stop()
 end
 
 local function clear()
-    for _,handler in ipairs(_handlers) do
+    for _, handler in ipairs(_handlers) do
         if handler.source then
             handler.source:stop()
         end
@@ -233,7 +239,7 @@ local function clear()
 end
 
 local function update()
-    for _,handler in ipairs(_handlers) do
+    for _, handler in ipairs(_handlers) do
         if handler.fade_speed ~= 0 and handler.volume ~= handler.target_volume then
             handler.volume = Utils.approach(handler.volume, handler.target_volume, DT / handler.fade_speed)
 
@@ -252,7 +258,7 @@ local function update()
                 handler.source:setVolume(volume)
             end
             local pitch = handler:getPitch()
-            if handler.source:getPitch() ~= pitch then
+            if handler.source.getPitch and handler.source.setPitch and handler.source:getPitch() ~= pitch then
                 handler.source:setPitch(pitch)
             end
         end
@@ -260,7 +266,7 @@ local function update()
 end
 
 local function new(music, volume, pitch)
-    local handler = setmetatable({}, {__index = Music})
+    local handler = setmetatable({}, { __index = Music })
 
     table.insert(_handlers, handler)
     handler:init()
@@ -285,4 +291,4 @@ local module = {
     lib = Music,
 }
 
-return setmetatable(module, {__call = function(t, ...) return new(...) end})
+return setmetatable(module, { __call = function (t, ...) return new(...) end })

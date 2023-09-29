@@ -115,12 +115,8 @@ function love.load(args)
     -- set master volume
     Kristal.setVolume(Kristal.Config["masterVolume"] or 0.6)
 
-    if not Kristal.isConsole() then
-        Kristal.log("Hiding the cursor")
-
-        -- hide mouse
-        Kristal.hideCursor()
-    end
+    -- hide mouse
+    Kristal.hideCursor()
 
     Kristal.log("Creating the mouse sprite")
 
@@ -426,6 +422,8 @@ end
 ---@param  msg string|table     The error message.
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg)
+    if msg.msg then print(msg.msg) end
+
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
@@ -689,7 +687,7 @@ function Kristal.errorHandler(msg)
             elseif (not Kristal.isConsole()) and e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
                 copyToClipboard()
             elseif e == "touchpressed" then
-                local name = love.window.getTitle()
+                local name = Kristal.isConsole() and "Kristal" or love.window.getTitle()
                 if #name == 0 or name == "Untitled" then name = "Game" end
                 local buttons = { "Yes", "No", enterbutton = 1, escapebutton = 2 }
                 if love.system and not critical then
@@ -788,11 +786,13 @@ end
 
 --- Hides the mouse cursor.
 function Kristal.hideCursor()
-    if (not Kristal.Config["systemCursor"]) then
-        love.mouse.setVisible(false)
-    end
-    if (Kristal.Config["systemCursor"]) and not Kristal.Config["alwaysShowCursor"] then
-        love.mouse.setVisible(false)
+    if love.mouse then
+        if (not Kristal.Config["systemCursor"]) then
+            love.mouse.setVisible(false)
+        end
+        if (Kristal.Config["systemCursor"]) and not Kristal.Config["alwaysShowCursor"] then
+            love.mouse.setVisible(false)
+        end
     end
 
     MOUSE_VISIBLE = false
@@ -862,7 +862,7 @@ function Kristal.returnToMenu()
 
     Kristal.DebugSystem:refresh()
     -- End input if it's open
-    if not Kristal.Console.is_open then
+    if Kristal.Console.is_open then
         TextInput.endInput()
     end
 end
