@@ -7,7 +7,7 @@ function Outline:init(x, y, w, h)
 
     self.solid = false
 
-    self.canvas = love.graphics.newCanvas(self.width, self.height)
+    self.canvas = Draw.newCanvas(self.width, self.height)
 
     if Kristal.supportsShaders() then
         self.shader = love.graphics.newShader([[

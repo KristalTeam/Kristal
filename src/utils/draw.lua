@@ -29,6 +29,14 @@ if not love.graphics.getScissor then
     end
 end
 
+function Draw.newCanvas(w, h)
+    return {
+        setFilter = function () end,
+        fake = true
+    }
+    --return love.graphics.newCanvas(w, h)
+end
+
 ---@class Draw.canvasOptions
 ---@field clear boolean|nil
 ---@field stencil boolean|nil
@@ -57,7 +65,7 @@ function Draw.pushCanvas(...)
             end
         end
         if not canvas then
-            canvas = love.graphics.newCanvas(w, h)
+            canvas = Draw.newCanvas(w, h)
             table.insert(self._canvases[cid], canvas)
         end
         clear_canvas = true
@@ -114,6 +122,7 @@ end
 ---@param canvas? love.Canvas
 function Draw.setCanvas(canvas)
     if canvas then
+        if canvas.fake then return end
         Kristal.log("Draw.setCanvas: canvas, draw to it")
         love.graphics.setCanvas(canvas)
     else
@@ -269,6 +278,7 @@ end
 ---@overload fun(drawable: love.Drawable, transform: love.Transform)
 ---@overload fun(texture: love.Texture, quad: love.Quad, transform: love.Transform)
 function Draw.draw(...)
+    if ({ ... })[1] == nil then return end
     love.graphics.draw(...)
 end
 

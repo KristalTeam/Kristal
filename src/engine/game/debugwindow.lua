@@ -27,10 +27,10 @@ function DebugWindow:init(name, text, type, callback)
 
     self.buttons = {}
 
-    self.input_lines = {""}
+    self.input_lines = { "" }
 
     if self.type == "input" then
-        self.buttons = {"Cancel", "OK"}
+        self.buttons = { "Cancel", "OK" }
     end
 
     OVERLAY_OPEN = true
@@ -42,7 +42,7 @@ function DebugWindow:init(name, text, type, callback)
 
     self.anim_timer = 0
 
-    self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.canvas = Draw.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     self.canvas:setFilter("nearest", "nearest")
 
     self.closing = false
@@ -53,7 +53,7 @@ function DebugWindow:init(name, text, type, callback)
             multiline = false,
             enter_submits = true,
         })
-        TextInput.submit_callback = function(...) self:onSubmit() end
+        TextInput.submit_callback = function (...) self:onSubmit() end
     end
 end
 
@@ -197,8 +197,8 @@ function DebugWindow:onSubmit()
 end
 
 function DebugWindow:draw()
-    local bg_color = {0.156863, 0.172549, 0.211765, 0.8}
-    local highlighted_color = {1, 0.070588, 0.466667, 0.8}
+    local bg_color = { 0.156863, 0.172549, 0.211765, 0.8 }
+    local highlighted_color = { 1, 0.070588, 0.466667, 0.8 }
 
     self:keepInBounds()
 
@@ -216,11 +216,11 @@ function DebugWindow:draw()
     offset = offset + self.font:getHeight() + 4 -- name has 4 extra pixels
     Draw.setColor(bg_color)
     love.graphics.rectangle("fill", 0, 0, self.width, self.height)
-    
+
     -- Draw the window name
     Draw.setColor(1, 1, 1, 1)
     love.graphics.print(self.name, padding_x, padding_y)
-    
+
     -- Draw the window name line
     love.graphics.setLineWidth(2)
     love.graphics.line(0, offset, self.width, offset)
@@ -245,7 +245,7 @@ function DebugWindow:draw()
         offset = offset + 20 + 8
 
         Draw.setColor(1, 1, 1, 1)
-        love.graphics.line(padding_x, offset-8, self.width - padding_x, offset-8)
+        love.graphics.line(padding_x, offset - 8, self.width - padding_x, offset - 8)
     end
 
     if #self.buttons > 0 then
@@ -279,7 +279,7 @@ function DebugWindow:draw()
     -- Reset canvas to draw to
     Draw.popCanvas()
 
-    local anim = Utils.ease(0, 1, self.anim_timer/0.2, "outQuad")
+    local anim = Utils.ease(0, 1, self.anim_timer / 0.2, "outQuad")
     Draw.setColor(1, 1, 1, anim)
     Draw.draw(self.canvas, 0, 12 - (anim * 12))
 

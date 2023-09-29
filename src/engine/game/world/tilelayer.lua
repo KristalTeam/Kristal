@@ -8,7 +8,8 @@ function TileLayer:init(map, data)
     self.map_width = data.width or map.width
     self.map_height = data.height or map.height
 
-    super.init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width, self.map_height * map.tile_height)
+    super.init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width,
+        self.map_height * map.tile_height)
 
     self.map = map
     self.name = data.name
@@ -17,7 +18,7 @@ function TileLayer:init(map, data)
     self.parallax_y = data.parallaxy or 1
 
     if data.tintcolor then
-        self:setColor(data.tintcolor[1]/255, data.tintcolor[2]/255, data.tintcolor[3]/255)
+        self:setColor(data.tintcolor[1] / 255, data.tintcolor[2] / 255, data.tintcolor[3] / 255)
     end
 
     self.tile_data = data.data
@@ -32,7 +33,7 @@ function TileLayer:init(map, data)
 
     self.animated_tiles = {}
 
-    self.canvas = love.graphics.newCanvas(self.map_width * map.tile_width, self.map_height * map.tile_height)
+    self.canvas = Draw.newCanvas(self.map_width * map.tile_width, self.map_height * map.tile_height)
     self.drawn = false
 
     self.debug_select = false
@@ -45,10 +46,10 @@ function TileLayer:setTile(x, y, tileset, ...)
     elseif type(tileset) == "string" then
         local tiles, first_id = self.map:getTileset(tileset)
 
-        local args = {...}
+        local args = { ... }
         if #args == 2 then -- x, y
             self.tile_data[index] = first_id + (args[1] + (args[2] * tiles.columns))
-        else -- tile index
+        else               -- tile index
             self.tile_data[index] = first_id + args[1]
         end
     end
@@ -80,8 +81,7 @@ function TileLayer:draw()
         love.graphics.push()
         love.graphics.origin()
         self.animated_tiles = {}
-        for i,xid in ipairs(self.tile_data) do
-
+        for i, xid in ipairs(self.tile_data) do
             local tx = ((i - 1) % self.map_width) * grid_w
             local ty = math.floor((i - 1) / self.map_width) * grid_h
 
@@ -91,7 +91,9 @@ function TileLayer:draw()
                 if not tileset:getAnimation(id) then
                     tileset:drawGridTile(id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
                 else
-                    table.insert(self.animated_tiles, {tileset = tileset, id = id, x = tx, y = ty, flip_x = flip_x, flip_y = flip_y, flip_diag = flip_diag})
+                    table.insert(self.animated_tiles,
+                        { tileset = tileset, id = id, x = tx, y = ty, flip_x = flip_x, flip_y = flip_y,
+                            flip_diag = flip_diag })
                 end
             end
         end
@@ -112,7 +114,7 @@ function TileLayer:draw()
     love.graphics.setBlendMode("alpha")
 
     Draw.setColor(r, g, b, a * self.tile_opacity)
-    for _,tile in ipairs(self.animated_tiles) do
+    for _, tile in ipairs(self.animated_tiles) do
         tile.tileset:drawGridTile(tile.id, tile.x, tile.y, grid_w, grid_h, tile.flip_x, tile.flip_y, tile.flip_diag)
     end
 

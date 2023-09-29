@@ -7,7 +7,7 @@ function Silhouette:init(x, y, w, h)
 
     self.solid = false
 
-    self.canvas = love.graphics.newCanvas(self.width, self.height)
+    self.canvas = Draw.newCanvas(self.width, self.height)
 end
 
 function Silhouette:drawCharacter(object)

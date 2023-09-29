@@ -10,7 +10,7 @@ function AfterImage:init(sprite, fade, speed)
     self.alpha = fade
     self:fadeOutSpeedAndRemove(speed)
 
-    self.canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+    self.canvas = Draw.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     Draw.setCanvas(self.canvas)
     love.graphics.push()
     love.graphics.origin()
@@ -35,8 +35,8 @@ function AfterImage:onAdd(parent)
     local sibling
 
     local other_parents = self.sprite:getHierarchy()
-    for _,v in ipairs(self:getHierarchy()) do
-        for i,o in ipairs(other_parents) do
+    for _, v in ipairs(self:getHierarchy()) do
+        for i, o in ipairs(other_parents) do
             if o.parent and o.parent == v then
                 sibling = o
                 break

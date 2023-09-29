@@ -44,7 +44,7 @@ function Text:init(text, x, y, w, h, options)
     end
     self.wrap = options["wrap"] ~= false
     self.align = options["align"] or "left"
-    self.canvas = love.graphics.newCanvas(w, h)
+    self.canvas = Draw.newCanvas(w, h)
     self.line_offset = options["line_offset"] or 0
     self.last_shake = 0
 
@@ -165,7 +165,7 @@ function Text:setText(text)
     self.nodes, self.display_text = self:textToNodes(self.text)
 
     if self.width ~= self.canvas:getWidth() or self.height ~= self.canvas:getHeight() then
-        self.canvas = love.graphics.newCanvas(self.width, self.height)
+        self.canvas = Draw.newCanvas(self.width, self.height)
     end
 
     if self.alignment_offset[1] then
@@ -217,7 +217,8 @@ function Text:textToNodes(input_string)
             while j <= utf8.len(input_string) do
                 if Utils.sub(input_string, j, j) == "]" then -- We found a bracket!
                     local old_i = i
-                    i = j                                    -- Let's set i so the modifier isn't processed as normal text
+                    i =
+                        j -- Let's set i so the modifier isn't processed as normal text
 
                     -- Let's split some values in the modifier!
                     local split = Utils.splitFast(current_modifier, ":")

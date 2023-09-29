@@ -355,8 +355,8 @@ end
 print("LOADTHREAD - getting channels")
 
 -- Channels for thread communications
-in_channel = love.thread.getChannel(1)
-out_channel = love.thread.getChannel(2)
+in_channel = love.thread.getChannel("load_in")
+out_channel = love.thread.getChannel("load_out")
 
 print("LOADTHREAD - resetdata")
 

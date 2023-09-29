@@ -3,7 +3,7 @@ local MainMenu = {}
 
 function MainMenu:init()
     -- We'll draw the background on a canvas, then resize it 2x
-    self.bg_canvas = love.graphics.newCanvas(320, 240)
+    self.bg_canvas = Draw.newCanvas(320, 240)
     -- No filtering
     self.bg_canvas:setFilter("nearest", "nearest")
 end

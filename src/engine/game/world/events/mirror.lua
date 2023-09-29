@@ -6,7 +6,7 @@ function MirrorArea:init(x, y, w, h, properties)
 
     properties = properties or {}
 
-    self.canvas = love.graphics.newCanvas(self.width, self.height)
+    self.canvas = Draw.newCanvas(self.width, self.height)
 
     self.offset = properties["offset"] or 0
     self.opacity = properties["opacity"] or 1

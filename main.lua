@@ -262,6 +262,15 @@ Gamestate.draw = function (...)
     Gamestate.current_state:draw(...)
 end
 
+local old_setVolume = love.audio.setVolume
+love.audio.setVolume = function (volume)
+    if Kristal.isConsole() then
+        Kristal.log("love.audio.setVolume: setting to " .. volume)
+    else
+        old_setVolume(volume)
+    end
+end
+
 love.graphics.setActiveScreen = love.graphics.setActiveScreen or function () end
 love.graphics.getScreens = love.graphics.getScreens or function () return { -1 } end
 
@@ -323,7 +332,7 @@ function love.draw(...)
     -- Draw the game canvas
     love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
     love.graphics.scale(Kristal.getGameScale())
-    Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
+    --Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
 
     Kristal.log("DRAW HOOK - RESET")
 

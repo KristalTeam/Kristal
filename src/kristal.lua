@@ -92,7 +92,6 @@ function love.load(args)
         Kristal.resetWindow()
     end
 
-
     -- toggle vsync
     if not Kristal.isConsole() then
         -- For some reason, crashes lovepotion.
@@ -165,7 +164,7 @@ function love.load(args)
     Kristal.log("Creating the screen canvas")
 
     -- screen canvas
-    SCREEN_CANVAS = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+    SCREEN_CANVAS = Draw.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     SCREEN_CANVAS:setFilter("nearest", "nearest")
 
     PERFORMANCE_TEST = nil
@@ -175,8 +174,8 @@ function love.load(args)
     Kristal.log("Starting load thread")
 
     -- start load thread
-    Kristal.Loader.in_channel = love.thread.getChannel(1)
-    Kristal.Loader.out_channel = love.thread.getChannel(2)
+    Kristal.Loader.in_channel = love.thread.getChannel("load_in")
+    Kristal.Loader.out_channel = love.thread.getChannel("load_out")
 
     Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
     Kristal.Loader.thread:start()

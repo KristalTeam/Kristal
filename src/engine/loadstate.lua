@@ -5,7 +5,7 @@ function Loading:init()
     self.logo_heart = love.graphics.newImage("assets/sprites/kristal/title_logo_heart.png")
 
     -- We'll draw the logo on a canvas, then resize it 2x
-    self.logo_canvas = love.graphics.newCanvas(320, 240)
+    self.logo_canvas = Draw.newCanvas(320, 240)
     -- No filtering
     self.logo_canvas:setFilter("nearest", "nearest")
 end
@@ -209,7 +209,7 @@ function Loading:draw()
 
     -- Draw the canvas on the screen scaled by 2x
     Draw.setColor(1, 1, 1, 1)
-    Draw.draw(self.logo_canvas, 0, 0, 0, 2, 2)
+    --Draw.draw(self.logo_canvas, 0, 0, 0, 2, 2)
 
     if self.skipped then
         -- Draw the screen fade
