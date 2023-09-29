@@ -19,7 +19,9 @@ if not HOTSWAPPING then
 
         next_key = 0,
         waiting = 0,
-        end_funcs = {}
+        end_funcs = {},
+
+        message = ""
     }
 end
 
@@ -268,18 +270,24 @@ function love.update(dt)
     if Kristal.Loader.waiting > 0 then
         local msg = Kristal.Loader.out_channel:pop()
         if msg then
-            Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+            if msg.status == "finished" then
+                Kristal.Loader.waiting = Kristal.Loader.waiting - 1
 
-            if Kristal.Loader.waiting == 0 then
-                Kristal.Overlay.setLoading(false)
-            end
+                Kristal.Loader.message = ""
 
-            Assets.loadData(msg.data.assets)
-            Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
+                if Kristal.Loader.waiting == 0 then
+                    Kristal.Overlay.setLoading(false)
+                end
 
-            if Kristal.Loader.end_funcs[msg.key] then
-                Kristal.Loader.end_funcs[msg.key]()
-                Kristal.Loader.end_funcs[msg.key] = nil
+                Assets.loadData(msg.data.assets)
+                Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
+
+                if Kristal.Loader.end_funcs[msg.key] then
+                    Kristal.Loader.end_funcs[msg.key]()
+                    Kristal.Loader.end_funcs[msg.key] = nil
+                end
+            elseif msg.status == "loading" then
+                Kristal.Loader.message = msg.path
             end
         end
     end
@@ -931,11 +939,18 @@ end
 ---@param paths? string|table The specific asset paths to load.
 ---@param after? function     The function to call when done.
 function Kristal.loadAssets(dir, loader, paths, after)
+    Kristal.Loader.message = ""
     Kristal.Overlay.setLoading(true)
     Kristal.Loader.waiting = Kristal.Loader.waiting + 1
+
     if after then
         Kristal.Loader.end_funcs[Kristal.Loader.next_key] = after
     end
+
+    if Kristal.Config["verboseLoader"] then
+        Kristal.Loader.in_channel:push("verbose")
+    end
+
     Kristal.Loader.in_channel:push({
         key = Kristal.Loader.next_key,
         dir = dir,
@@ -1281,6 +1296,7 @@ function Kristal.loadConfig()
         rightStickDeadzone = 0.2,
         defaultName = "",
         skipNameEntry = false,
+        verboseLoader = false,
     }
     if love.filesystem.getInfo("settings.json") then
         Utils.merge(config, JSON.decode(love.filesystem.read("settings.json")))

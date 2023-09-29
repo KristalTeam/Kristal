@@ -28,11 +28,18 @@ function MainMenuOptions:init(menu)
     self.state_manager = StateManager("MENU", self, true)
     self.state_manager:addState("MENU", { enter = self.onEnterMenu, keypressed = self.onKeyPressedMenu })
     self.state_manager:addState("VOLUME",
-        { enter = self.onEnterSubOption, keypressed = self.onKeyPressedVolume, update = self.updateVolume })
+                                {
+                                    enter = self.onEnterSubOption,
+                                    keypressed = self.onKeyPressedVolume,
+                                    update = self.updateVolume
+                                })
     self.state_manager:addState("BORDER", { enter = self.onEnterSubOption, keypressed = self.onKeyPressedBorder })
     self.state_manager:addState("FPS", { enter = self.onEnterSubOption, keypressed = self.onKeyPressedFPS })
-    self.state_manager:addState("WINDOWSCALE", { enter = self.onEnterSubOption, keypressed = self
-    .onKeyPressedWindowScale })
+    self.state_manager:addState("WINDOWSCALE", {
+        enter = self.onEnterSubOption,
+        keypressed = self
+            .onKeyPressedWindowScale
+    })
 
     self.options = {}
     self.pages = {}
@@ -594,6 +601,7 @@ function MainMenuOptions:initializeOptions()
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
 
     self:registerConfigOption("engine", "Debug Hotkeys", "debug")
+    self:registerConfigOption("engine", "Verbose Loader", "verboseLoader")
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function () Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function () Kristal.updateCursor() end)
 end

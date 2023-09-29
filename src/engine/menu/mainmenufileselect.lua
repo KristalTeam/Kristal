@@ -48,8 +48,8 @@ function MainMenuFileSelect:onEnter(old_state)
 
     self.files = {}
     for i = 1, 3 do
-        local data = Kristal.loadData("file_"..i, self.mod.id)
-        local button = FileButton(self, i, data, 110, 110 + 90*(i-1), 422, 82)
+        local data = Kristal.loadData("file_" .. i, self.mod.id)
+        local button = FileButton(self, i, data, 110, 110 + 90 * (i - 1), 422, 82)
         if i == 1 then
             button.selected = true
         end
@@ -57,7 +57,7 @@ function MainMenuFileSelect:onEnter(old_state)
         self.container:addChild(button)
     end
 
-    self.bottom_row_heart = {80, 250, 440}
+    self.bottom_row_heart = { 80, 250, 440 }
 end
 
 function MainMenuFileSelect:onLeave(new_state)
@@ -128,13 +128,13 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 if button.selected_choice == 1 and self.erase_stage == 1 then
                     Assets.stopAndPlaySound("ui_select")
                     button:setColor(1, 0, 0)
-                    button:setChoices({"Yes!", "No!"}, "Really erase it?")
+                    button:setChoices({ "Yes!", "No!" }, "Really erase it?")
                     self.erase_stage = 2
                 else
                     local result
                     if button.selected_choice == 1 and self.erase_stage == 2 then
                         Assets.stopAndPlaySound("ui_spooky_action")
-                        Kristal.eraseData("file_"..button.id, self.mod.id)
+                        Kristal.eraseData("file_" .. button.id, self.mod.id)
                         button:setData(nil)
                         result = "Erase complete."
                     else
@@ -153,8 +153,8 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
             elseif self.state == "COPY" then
                 if button.selected_choice == 1 then
                     Assets.stopAndPlaySound("ui_spooky_action")
-                    local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.id)
-                    Kristal.saveData("file_"..button.id, data, self.mod.id)
+                    local data = Kristal.loadData("file_" .. self.copied_button.id, self.mod.id)
+                    Kristal.saveData("file_" .. button.id, data, self.mod.id)
                     button:setData(data)
                     button:setChoices()
                     self:setState("SELECT", "Copy complete.")
@@ -193,9 +193,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
             if self.selected_y <= 3 then
                 self.focused_button = self:getSelectedFile()
                 if self.focused_button.data then
-                    self.focused_button:setChoices({"Continue", "Back"})
+                    self.focused_button:setChoices({ "Continue", "Back" })
                 else
-                    self.focused_button:setChoices({"Start", "Back"})
+                    self.focused_button:setChoices({ "Start", "Back" })
                 end
             elseif self.selected_y == 4 then
                 if self.selected_x == 1 then
@@ -273,11 +273,11 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     elseif selected.data then
                         Assets.stopAndPlaySound("ui_select")
                         self.focused_button = selected
-                        self.focused_button:setChoices({"Yes", "No"}, "Copy over this file?")
+                        self.focused_button:setChoices({ "Yes", "No" }, "Copy over this file?")
                     else
                         Assets.stopAndPlaySound("ui_spooky_action")
-                        local data = Kristal.loadData("file_"..self.copied_button.id, self.mod.id)
-                        Kristal.saveData("file_"..selected.id, data, self.mod.id)
+                        local data = Kristal.loadData("file_" .. self.copied_button.id, self.mod.id)
+                        Kristal.saveData("file_" .. selected.id, data, self.mod.id)
                         selected:setData(data)
                         self:setState("SELECT", "Copy complete.")
                         self.copied_button:setColor(1, 1, 1)
@@ -323,7 +323,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 local button = self:getSelectedFile()
                 if button.data then
                     self.focused_button = button
-                    self.focused_button:setChoices({"Yes", "No"}, "Erase this file?")
+                    self.focused_button:setChoices({ "Yes", "No" }, "Erase this file?")
                     Assets.stopAndPlaySound("ui_select")
                 else
                     self:setResultText("There's nothing to erase.")
@@ -430,7 +430,7 @@ function MainMenuFileSelect:setResultText(text)
 end
 
 function MainMenuFileSelect:updateSelected()
-    for i,file in ipairs(self.files) do
+    for i, file in ipairs(self.files) do
         if i == self.selected_y or (self.state == "COPY" and self.copied_button == file) then
             file.selected = true
         else
@@ -450,7 +450,7 @@ function MainMenuFileSelect:getHeartPos()
         local x, y = button:getRelativePos(hx, hy)
         return x + 9, y + 9
     elseif self.selected_y == 4 then
-        return self.bottom_row_heart[self.selected_x]+9, 390+9
+        return self.bottom_row_heart[self.selected_x] + 9, 390 + 9
     end
 end
 
