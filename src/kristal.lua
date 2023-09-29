@@ -1,34 +1,10 @@
 local Kristal = {}
 
-if not HOTSWAPPING then
-    Kristal.Config = {}
-    Kristal.Mods = require("src.engine.mods")
-    Kristal.Overlay = require("src.engine.overlay")
-    Kristal.Shaders = require("src.engine.shaders")
-    Kristal.States = {
-        ["Loading"] = require("src.engine.loadstate"),
-        ["MainMenu"] = require("src.engine.menu.mainmenu"),
-        ["Game"] = require("src.engine.game.game"),
-        ["Testing"] = require("src.teststate"),
-    }
-
-    Kristal.Loader = {
-        in_channel = nil,
-        out_channel = nil,
-        thread = nil,
-
-        next_key = 0,
-        waiting = 0,
-        end_funcs = {}
-    }
-end
-
 function love.load(args)
     --[[
         Launch args:
             --wait: Pauses the load screen until a key is pressed
     ]]
-
     -- read args
     Kristal.Args = {}
     local last_arg
@@ -40,6 +16,18 @@ function love.load(args)
             table.insert(last_arg, arg)
         end
     end
+
+    Kristal.Config = {}
+
+    Kristal.Loader = {
+        in_channel = nil,
+        out_channel = nil,
+        thread = nil,
+
+        next_key = 0,
+        waiting = 0,
+        end_funcs = {}
+    }
 
     -- load the version
     Kristal.Version = SemVer(love.filesystem.read("VERSION"))
@@ -94,9 +82,6 @@ function love.load(args)
     Kristal.ChapterConfigs[1] = JSON.decode(love.filesystem.read("configs/chapter1.json"))
     Kristal.ChapterConfigs[2] = JSON.decode(love.filesystem.read("configs/chapter2.json"))
 
-    -- register gamestate calls
-    Gamestate.registerEvents()
-
     -- initialize overlay
     Kristal.Overlay:init()
 
@@ -110,97 +95,6 @@ function love.load(args)
     PERFORMANCE_TEST = nil
     ---@type string|nil
     PERFORMANCE_TEST_STAGE = nil
-
-    -- setup hooks
-    Utils.hook(love, "update", function (orig, ...)
-        if PERFORMANCE_TEST_STAGE == "UPDATE" then
-            PERFORMANCE_TEST = {}
-            Utils.pushPerformance("Total")
-        end
-        orig(...)
-        Kristal.Stage:update()
-        Kristal.Overlay:update()
-        if PERFORMANCE_TEST then
-            Utils.popPerformance()
-            print("-------- PERFORMANCE --------")
-            Utils.printPerformance()
-            PERFORMANCE_TEST_STAGE = "DRAW"
-            PERFORMANCE_TEST = nil
-        end
-    end)
-    Utils.hook(love, "draw", function (orig, ...)
-        if PERFORMANCE_TEST_STAGE == "DRAW" then
-            PERFORMANCE_TEST = {}
-            Utils.pushPerformance("Total")
-        end
-
-        love.graphics.reset()
-
-        Draw.setCanvas(SCREEN_CANVAS)
-        love.graphics.clear(0, 0, 0, 1)
-        orig(...)
-        Kristal.Stage:draw()
-        Kristal.Overlay:draw()
-        Draw.setCanvas()
-
-        Draw.setColor(1, 1, 1, 1)
-
-        if Kristal.bordersEnabled() then
-            local border = Kristal.getBorder()
-
-            local dynamic = Kristal.Config["borders"] == "dynamic"
-
-            if dynamic and BORDER_FADING == "OUT" and BORDER_FADE_FROM then
-                border = BORDER_FADE_FROM
-            end
-
-            if border then
-                local border_texture = Assets.getTexture("borders/" .. border)
-
-                love.graphics.scale(Kristal.getGameScale())
-                Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
-                if border_texture then
-                    Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
-                end
-                if dynamic then
-                    Kristal.callEvent("onBorderDraw", border, border_texture)
-                end
-                Draw.setColor(1, 1, 1, 1)
-                love.graphics.reset()
-            end
-
-            LAST_BORDER = border
-        end
-
-        -- Draw the game canvas
-        love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
-        love.graphics.scale(Kristal.getGameScale())
-        Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
-
-        love.graphics.reset()
-        love.graphics.scale(Kristal.getGameScale())
-
-        if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
-            if Input.usingGamepad() then
-                Draw.setColor(0, 0, 0, 0.5)
-                love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
-                Draw.setColor(1, 1, 1, 1)
-                love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
-            elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
-                Draw.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(),
-                          love.mouse.getY() / Kristal.getGameScale())
-            end
-        end
-
-        Draw._clearUnusedCanvases()
-
-        if PERFORMANCE_TEST then
-            Utils.popPerformance()
-            Utils.printPerformance()
-            PERFORMANCE_TEST_STAGE = nil
-            PERFORMANCE_TEST = nil
-        end
-    end)
 
     -- start load thread
     Kristal.Loader.in_channel = love.thread.getChannel("load_in")
@@ -227,6 +121,11 @@ function love.quit()
 end
 
 function love.update(dt)
+    if PERFORMANCE_TEST_STAGE == "UPDATE" then
+        PERFORMANCE_TEST = {}
+        Utils.pushPerformance("Total")
+    end
+
     BASE_DT = dt
     if FAST_FORWARD then
         CURRENT_SPEED_MULT = FAST_FORWARD_SPEED
@@ -282,6 +181,94 @@ function love.update(dt)
                 Kristal.Loader.end_funcs[msg.key] = nil
             end
         end
+    end
+
+    Gamestate.update(dt)
+
+    Kristal.Stage:update()
+    Kristal.Overlay:update()
+    if PERFORMANCE_TEST then
+        Utils.popPerformance()
+        print("-------- PERFORMANCE --------")
+        Utils.printPerformance()
+        PERFORMANCE_TEST_STAGE = "DRAW"
+        PERFORMANCE_TEST = nil
+    end
+end
+
+function love.draw()
+    if PERFORMANCE_TEST_STAGE == "DRAW" then
+        PERFORMANCE_TEST = {}
+        Utils.pushPerformance("Total")
+    end
+
+    love.graphics.reset()
+
+    Draw.setCanvas(SCREEN_CANVAS)
+    love.graphics.clear(0, 0, 0, 1)
+
+    Gamestate.draw()
+
+    Kristal.Stage:draw()
+    Kristal.Overlay:draw()
+    Draw.setCanvas()
+
+    Draw.setColor(1, 1, 1, 1)
+
+    if Kristal.bordersEnabled() then
+        local border = Kristal.getBorder()
+
+        local dynamic = Kristal.Config["borders"] == "dynamic"
+
+        if dynamic and BORDER_FADING == "OUT" and BORDER_FADE_FROM then
+            border = BORDER_FADE_FROM
+        end
+
+        if border then
+            local border_texture = Assets.getTexture("borders/" .. border)
+
+            love.graphics.scale(Kristal.getGameScale())
+            Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
+            if border_texture then
+                Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
+            end
+            if dynamic then
+                Kristal.callEvent("onBorderDraw", border, border_texture)
+            end
+            Draw.setColor(1, 1, 1, 1)
+            love.graphics.reset()
+        end
+
+        LAST_BORDER = border
+    end
+
+    -- Draw the game canvas
+    love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+    love.graphics.scale(Kristal.getGameScale())
+    Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
+
+    love.graphics.reset()
+    love.graphics.scale(Kristal.getGameScale())
+
+    if (not Kristal.Config["systemCursor"]) and (Kristal.Config["alwaysShowCursor"] or MOUSE_VISIBLE) and love.window then
+        if Input.usingGamepad() then
+            Draw.setColor(0, 0, 0, 0.5)
+            love.graphics.circle("fill", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+            Draw.setColor(1, 1, 1, 1)
+            love.graphics.circle("line", Input.gamepad_cursor_x, Input.gamepad_cursor_y, Input.gamepad_cursor_size)
+        elseif MOUSE_SPRITE and love.window.hasMouseFocus() then
+            Draw.draw(MOUSE_SPRITE, love.mouse.getX() / Kristal.getGameScale(),
+                      love.mouse.getY() / Kristal.getGameScale())
+        end
+    end
+
+    Draw._clearUnusedCanvases()
+
+    if PERFORMANCE_TEST then
+        Utils.popPerformance()
+        Utils.printPerformance()
+        PERFORMANCE_TEST_STAGE = nil
+        PERFORMANCE_TEST = nil
     end
 end
 
@@ -755,7 +742,7 @@ end
 
 ---@return table state The current Gamestate.
 function Kristal.getState()
-    return Gamestate.current()
+    return Gamestate.getCurrent()
 end
 
 ---@return number runtime The current runtime (`RUNTIME`), affected by timescale / fast-forward.

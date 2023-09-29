@@ -11,11 +11,9 @@
 local Draw = {}
 local self = Draw
 
-local old_getScissor = love.graphics.getScissor
-
 Draw._canvases = {}
-Draw._used_canvas = setmetatable({},{__mode="k"})
-Draw._locked_canvas = setmetatable({},{__mode="k"})
+Draw._used_canvas = setmetatable({}, { __mode = "k" })
+Draw._locked_canvas = setmetatable({}, { __mode = "k" })
 Draw._locked_canvas_stack = {}
 Draw._canvas_stack = {}
 
@@ -32,7 +30,7 @@ Draw._shader_stack = {}
 ---@overload fun(canvas: love.Canvas, options?: Draw.canvasOptions) : love.Canvas
 ---@overload fun(width: number, height: number, options?: Draw.canvasOptions) : love.Canvas
 function Draw.pushCanvas(...)
-    local args = {...}
+    local args = { ... }
     table.insert(self._canvas_stack, love.graphics.getCanvas())
     local canvas, clear_canvas
     if type(args[1]) == "userdata" then
@@ -42,9 +40,9 @@ function Draw.pushCanvas(...)
         if type(args[1]) == "number" then
             w, h = args[1], args[2]
         end
-        local cid = w..","..h
+        local cid = w .. "," .. h
         self._canvases[cid] = self._canvases[cid] or {}
-        for _,cached in ipairs(self._canvases[cid]) do
+        for _, cached in ipairs(self._canvases[cid]) do
             if not self._locked_canvas[cached] then
                 canvas = cached
                 break
@@ -61,7 +59,7 @@ function Draw.pushCanvas(...)
         self._locked_canvas[canvas] = true
         self._used_canvas[canvas] = true
     end
-    Draw.setCanvas(canvas, {stencil = options["stencil"]})
+    Draw.setCanvas(canvas, { stencil = options["stencil"] })
     love.graphics.push()
     if not options["keep_transform"] then
         love.graphics.origin()
@@ -93,8 +91,8 @@ function Draw.unlockCanvas(canvas)
 end
 
 function Draw.pushCanvasLocks()
-    local current_locks = setmetatable({},{__mode="k"})
-    for k,v in pairs(self._locked_canvas) do
+    local current_locks = setmetatable({}, { __mode = "k" })
+    for k, v in pairs(self._locked_canvas) do
         current_locks[k] = v
     end
     table.insert(self._locked_canvas_stack, current_locks)
@@ -113,7 +111,7 @@ function Draw.setCanvas(canvas, options)
         if options["stencil"] == false then
             love.graphics.setCanvas(canvas)
         else
-            love.graphics.setCanvas{canvas, stencil=true}
+            love.graphics.setCanvas { canvas, stencil = true }
         end
     else
         love.graphics.setCanvas()
@@ -122,25 +120,25 @@ end
 
 ---@private
 function Draw._clearUnusedCanvases()
-    for k,canvases in pairs(self._canvases) do
+    for k, canvases in pairs(self._canvases) do
         local remove = {}
-        for _,canvas in ipairs(canvases) do
+        for _, canvas in ipairs(canvases) do
             if not self._used_canvas[canvas] then
                 table.insert(remove, canvas)
             end
         end
-        for _,v in ipairs(remove) do
+        for _, v in ipairs(remove) do
             Utils.removeFromTable(canvases, v)
         end
     end
-    self._used_canvas = setmetatable({},{__mode="k"})
+    self._used_canvas = setmetatable({}, { __mode = "k" })
 end
 
 ---@private
 function Draw._clearStacks()
     self._canvases = {}
-    self._used_canvas = setmetatable({},{__mode="k"})
-    self._locked_canvas = setmetatable({},{__mode="k"})
+    self._used_canvas = setmetatable({}, { __mode = "k" })
+    self._locked_canvas = setmetatable({}, { __mode = "k" })
     self._canvas_stack = {}
 
     self._scissor_stack = {}
@@ -173,9 +171,9 @@ function Draw.getScissor()
 end
 
 function Draw.pushScissor()
-    local x, y, w, h = old_getScissor()
+    local x, y, w, h = love.graphics.getScissor()
 
-    table.insert(self._scissor_stack, 1, {x, y, w, h})
+    table.insert(self._scissor_stack, 1, { x, y, w, h })
 end
 
 function Draw.popScissor()
@@ -190,7 +188,7 @@ end
 ---@param w number
 ---@param h number
 function Draw.scissor(x, y, w, h)
-    self.scissorPoints(x, y, x+w, y+h)
+    self.scissorPoints(x, y, x + w, y + h)
 end
 
 ---@param x1? number
@@ -224,7 +222,7 @@ function Draw.pushShader(shader, vars)
         shader = Kristal.Shaders[shader]
     end
     table.insert(self._shader_stack, 1, love.graphics.getShader())
-    for k,v in pairs(vars) do
+    for k, v in pairs(vars) do
         if type(v) == "function" then
             shader:send(k, v())
         else
@@ -288,7 +286,7 @@ end
 ---@overload fun(canvas: love.Canvas, transform: love.Transform)
 ---@overload fun(canvas: love.Canvas, quad: love.Quad, transform: love.Transform)
 function Draw.drawCanvas(...)
-    local mode,alphamode = love.graphics.getBlendMode()
+    local mode, alphamode = love.graphics.getBlendMode()
     love.graphics.setBlendMode(mode, "premultiplied")
     Draw.draw(...)
     love.graphics.setBlendMode(mode, alphamode)
@@ -335,11 +333,11 @@ function Draw.drawWrapped(drawable, wrap_x, wrap_y, x, y, r, sx, sy, ox, oy, kx,
         kx, ky = kx or 0, ky or 0
 
         love.graphics.push()
-        if x ~= 0 or y ~= 0    then love.graphics.translate(x, y)     end
-        if r ~= 0              then love.graphics.rotate(r)           end
-        if sx ~= 1 or sy ~= 1  then love.graphics.scale(sx, sy)       end
-        if kx ~= 0 or ky ~= 0  then love.graphics.shear(kx, ky)       end
-        if ox ~= 0 or oy ~= 0  then love.graphics.translate(-ox, -oy) end
+        if x ~= 0 or y ~= 0 then love.graphics.translate(x, y) end
+        if r ~= 0 then love.graphics.rotate(r) end
+        if sx ~= 1 or sy ~= 1 then love.graphics.scale(sx, sy) end
+        if kx ~= 0 or ky ~= 0 then love.graphics.shear(kx, ky) end
+        if ox ~= 0 or oy ~= 0 then love.graphics.translate(-ox, -oy) end
     end
 
     local screen_l, screen_u = love.graphics.inverseTransformPoint(0, 0)
@@ -357,16 +355,16 @@ function Draw.drawWrapped(drawable, wrap_x, wrap_y, x, y, r, sx, sy, ox, oy, kx,
     if wrap_x and wrap_y then
         for i = 1, wrap_width do
             for j = 1, wrap_height do
-                Draw.draw(drawable, x_offset + (i-1) * dw, y_offset + (j-1) * dh)
+                Draw.draw(drawable, x_offset + (i - 1) * dw, y_offset + (j - 1) * dh)
             end
         end
     elseif wrap_x then
         for i = 1, wrap_width do
-            Draw.draw(drawable, x_offset + (i-1) * dw, 0)
+            Draw.draw(drawable, x_offset + (i - 1) * dw, 0)
         end
     elseif wrap_y then
         for j = 1, wrap_height do
-            Draw.draw(drawable, 0, y_offset + (j-1) * dh)
+            Draw.draw(drawable, 0, y_offset + (j - 1) * dh)
         end
     end
 
@@ -424,7 +422,7 @@ function Draw.captureObject(object, mode, ...)
         Draw.popCanvas(true)
         return canvas
     else
-        error("No draw mode: "..tostring(mode))
+        error("No draw mode: " .. tostring(mode))
     end
 end
 
