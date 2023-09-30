@@ -1485,7 +1485,6 @@ function Battle:commitAction(battler, action_type, target, data, extra)
                     ["act_parent"] = party_id,
                     ["cancellable"] = data.cancellable,
                 }, extra))
-                self:getPartyBattler(v).action.icon = action_type:lower()
             end
         end
     end
