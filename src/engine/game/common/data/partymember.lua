@@ -197,6 +197,11 @@ function PartyMember:getMaxStat(stat)
     return max_stats[stat]
 end
 
+function PartyMember:getStatBuffs() return self.stat_buffs end
+function PartyMember:getStatBuff(stat)
+    return self:getStatBuffs()[stat] or 0
+end
+
 function PartyMember:getColor() return Utils.unpackColor(self.color) end
 function PartyMember:getDamageColor()
     if self.dmg_color then
@@ -270,6 +275,29 @@ function PartyMember:increaseStat(stat, amount, max)
     if stat == "health" then
         self:setHealth(math.min(self:getHealth() + amount, base_stats[stat]))
     end
+end
+
+function PartyMember:addStatBuff(stat, amount, max)
+    local buffs = self:getStatBuffs()
+    buffs[stat] = (buffs[stat] or 0) + amount
+    if max and buffs[stat] > max then
+        buffs[stat] = max
+    end
+    self.stat_buffs = buffs
+end
+
+function PartyMember:setStatBuff(stat, amount)
+    self.stat_buffs[stat] = amount
+end
+
+function PartyMember:resetBuff(stat)
+    if self.stat_buffs[stat] then
+        self.stat_buffs[stat] = nil
+    end
+end
+
+function PartyMember:resetBuffs()
+    self.stat_buffs = {}
 end
 
 function PartyMember:getReaction(item, user)
@@ -410,7 +438,7 @@ end
 function PartyMember:getStats(light)
     local stats = Utils.copy(self:getBaseStats(light))
     for _,item in ipairs(self:getEquipment()) do
-        for stat,amount in pairs(item:getStatBonuses()) do
+        for stat, amount in pairs(item:getStatBonuses()) do
             if stats[stat] then
                 stats[stat] = stats[stat] + amount
             else
@@ -422,7 +450,11 @@ function PartyMember:getStats(light)
 end
 
 function PartyMember:getStat(name, default, light)
-    return (self:getBaseStats(light)[name] or (default or 0)) + self:getEquipmentBonus(name)
+    return (self:getBaseStats(light)[name] or (default or 0)) + self:getEquipmentBonus(name) + self:getStatBuff(name)
+end
+
+function PartyMember:getBaseStat(name, default, light)
+    return (self:getBaseStats(light)[name] or (default or 0))
 end
 
 function PartyMember:getFlag(name, default)
