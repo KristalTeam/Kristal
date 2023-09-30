@@ -268,28 +268,26 @@ function love.update(dt)
     TextInput.update()
 
     if Kristal.Loader.waiting > 0 then
-        while Kristal.Loader.out_channel:getCount() > 0 do
-            local msg = Kristal.Loader.out_channel:pop()
-            if msg then
-                if msg.status == "finished" then
-                    Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+        local msg = Kristal.Loader.out_channel:pop()
+        if msg then
+            if msg.status == "finished" then
+                Kristal.Loader.waiting = Kristal.Loader.waiting - 1
 
-                    Kristal.Loader.message = ""
+                Kristal.Loader.message = ""
 
-                    if Kristal.Loader.waiting == 0 then
-                        Kristal.Overlay.setLoading(false)
-                    end
-
-                    Assets.loadData(msg.data.assets)
-                    Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
-
-                    if Kristal.Loader.end_funcs[msg.key] then
-                        Kristal.Loader.end_funcs[msg.key]()
-                        Kristal.Loader.end_funcs[msg.key] = nil
-                    end
-                elseif msg.status == "loading" then
-                    Kristal.Loader.message = msg.path
+                if Kristal.Loader.waiting == 0 then
+                    Kristal.Overlay.setLoading(false)
                 end
+
+                Assets.loadData(msg.data.assets)
+                Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
+
+                if Kristal.Loader.end_funcs[msg.key] then
+                    Kristal.Loader.end_funcs[msg.key]()
+                    Kristal.Loader.end_funcs[msg.key] = nil
+                end
+            elseif msg.status == "loading" then
+                Kristal.Loader.message = msg.path
             end
         end
     end
