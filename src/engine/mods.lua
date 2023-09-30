@@ -1,5 +1,15 @@
+---@class Kristal.Mods
+---
+---@field loaded boolean
+---@field list table[]
+---@field data table<string, table>
+---@field named table<string, string>
+---@field failed_mods table[]
+---
 local Mods = {}
 local self = Mods
+
+-- TODO: Document mod data
 
 function Mods.clear()
     self.loaded = false
@@ -9,6 +19,8 @@ function Mods.clear()
     self.failed_mods = {}
 end
 
+---@param data table
+---@param failed_mods table[]
 function Mods.loadData(data, failed_mods)
     self.failed_mods = failed_mods or {}
     for mod_id,mod_data in pairs(data) do
@@ -54,14 +66,19 @@ function Mods.loadData(data, failed_mods)
     end
 end
 
+---@return table[]
 function Mods.getMods()
     return self.list
 end
 
+---@param id string
+---@return table
 function Mods.getMod(id)
     return self.data[id] or (self.named[id] and self.data[self.named[id]])
 end
 
+---@param id string
+---@return table
 function Mods.getAndLoadMod(id)
     local mod = self.getMod(id)
 
@@ -82,6 +99,8 @@ function Mods.getAndLoadMod(id)
     return mod
 end
 
+---@param id string
+---@return string
 function Mods.getName(id)
     return self.data[id].name or id
 end

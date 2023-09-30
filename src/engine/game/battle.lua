@@ -562,6 +562,11 @@ function Battle:onStateChange(old,new)
             end
         end
     elseif new == "DEFENDINGBEGIN" then
+        if self.state_reason == "CUTSCENE" then
+            self:setState("DEFENDING")
+            return
+        end
+
         self.current_selecting = 0
         self.battle_ui:clearEncounterText()
 
@@ -696,24 +701,11 @@ function Battle:onStateChange(old,new)
     self.encounter:onStateChange(old,new)
 end
 
-function Battle:getSoulLocation(always_player)
-    if self.soul and (not always_player) then
+function Battle:getSoulLocation(always_origin)
+    if self.soul and (not always_origin) then
         return self.soul:getPosition()
     else
-        local main_chara = Game:getSoulPartyMember()
-
-        if main_chara and main_chara:getSoulPriority() >= 0 then
-            local battler = self.party[self:getPartyIndex(main_chara.id)]
-
-            if battler then
-                if main_chara.soul_offset then
-                    return battler:localToScreenPos(main_chara.soul_offset[1], main_chara.soul_offset[2])
-                else
-                    return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
-                end
-            end
-        end
-        return -9, -9
+        return self.encounter:getSoulSpawnLocation()
     end
 end
 
@@ -925,12 +917,14 @@ function Battle:processAction(action)
 
     self.current_processing_action = action
 
+    local next_enemy = self:retargetEnemy()
+    if not next_enemy then
+        return true
+    end
+
     if enemy and enemy.done_state then
-        enemy = self:retargetEnemy()
-        action.target = enemy
-        if not enemy then
-            return true
-        end
+        enemy = next_enemy
+        action.target = next_enemy
     end
 
     -- Call mod callbacks for onBattleAction to either add new behaviour for an action or override existing behaviour
@@ -1028,7 +1022,7 @@ function Battle:processAction(action)
 
                 battler.chara:onAttackHit(enemy, damage)
             else
-                enemy:statusMessage("msg", "miss", {battler.chara:getDamageColor()})
+                enemy:hurt(0, battler)
             end
 
             self:finishAction(action)
@@ -1041,7 +1035,7 @@ function Battle:processAction(action)
             elseif #self.normal_attackers == 0 and #self.auto_attackers > 0 then
                 local next_attacker = self.auto_attackers[1]
 
-                local next_action = self:getActionBy(next_attacker)
+                local next_action = self:getActionBy(next_attacker, true)
                 if next_action then
                     self:beginAction(next_action)
                     self:processAction(next_action)
@@ -1143,10 +1137,25 @@ function Battle:getCurrentAction()
     return self.current_actions[self.current_action_index]
 end
 
-function Battle:getActionBy(battler)
+function Battle:getActionBy(battler, ignore_current)
     for i,party in ipairs(self.party) do
         if party == battler then
-            return self.character_actions[i]
+            local action = self.character_actions[i]
+            if action then
+                return action
+            end
+            break
+        end
+    end
+
+    if ignore_current then
+        return nil
+    end
+
+    for _,action in ipairs(self.current_actions) do
+        local ibattler = self.party[action.character_id]
+        if ibattler == battler then
+            return action
         end
     end
 end
@@ -1173,6 +1182,20 @@ function Battle:allActionsDone()
         end
     end
     return true
+end
+
+function Battle:clearActionIcon(battler)
+    local action
+
+    if not battler then
+        action = self:getCurrentAction()
+    else
+        action = self:getActionBy(battler)
+    end
+
+    if action then
+        action.icon = nil
+    end
 end
 
 function Battle:markAsFinished(action, keep_animation)
@@ -1544,9 +1567,6 @@ function Battle:commitSingleAction(action)
         if (action.action == "ITEM" and action.data and (not action.data.instant)) or (action.action ~= "ITEM") then
             battler:setAnimation("battle/"..anim.."_ready")
             action.icon = anim
-            if action.action == "AUTOATTACK" or action.action == "SKIP" then
-                action.icon = nil
-            end
         end
     end
 end
@@ -2411,7 +2431,7 @@ function Battle:updateAttacking()
             if self.auto_attack_timer >= 4 then
                 local next_attacker = self.auto_attackers[1]
 
-                local next_action = self:getActionBy(next_attacker)
+                local next_action = self:getActionBy(next_attacker, true)
                 if next_action then
                     self:beginAction(next_action)
                     self:processAction(next_action)
@@ -2426,7 +2446,7 @@ function Battle:updateAttacking()
                 if close <= -5 then
                     attack:miss()
 
-                    local action = self:getActionBy(attack.battler)
+                    local action = self:getActionBy(attack.battler, true)
                     action.points = 0
 
                     if self:processAction(action) then
@@ -3004,7 +3024,7 @@ function Battle:handleAttackingInput(key)
                 for _,attack in ipairs(closest_attacks) do
                     local points = attack:hit()
 
-                    local action = self:getActionBy(attack.battler)
+                    local action = self:getActionBy(attack.battler, true)
                     action.points = points
 
                     if self:processAction(action) then

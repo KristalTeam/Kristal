@@ -20,9 +20,9 @@ function BattleUI:init()
     self.choice_box.visible = false
     self:addChild(self.choice_box)
 
-    self.short_act_text_1 = DialogueText("", 30, 51, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
-    self.short_act_text_2 = DialogueText("", 30, 51 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
-    self.short_act_text_3 = DialogueText("", 30, 51 + 30 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false})
+    self.short_act_text_1 = DialogueText("", 30, 51, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false, line_offset = 0})
+    self.short_act_text_2 = DialogueText("", 30, 51 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false, line_offset = 0})
+    self.short_act_text_3 = DialogueText("", 30, 51 + 30 + 30, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, {wrap = false, line_offset = 0})
     self:addChild(self.short_act_text_1)
     self:addChild(self.short_act_text_2)
     self:addChild(self.short_act_text_3)
@@ -88,13 +88,20 @@ end
 function BattleUI:beginAttack()
     local attack_order = Utils.pickMultiple(Game.battle.normal_attackers, #Game.battle.normal_attackers)
 
+    for _,box in ipairs(self.attack_boxes) do
+        box:remove()
+    end
+    self.attack_boxes = {}
+
     local last_offset = -1
     local offset = 0
     for i = 1, #attack_order do
         offset = offset + last_offset
 
         local battler = attack_order[i]
-        local attack_box = AttackBox(battler, 30 + offset, 0, 40 + (38 * (Game.battle:getPartyIndex(battler.chara.id) - 1)))
+        local index = Game.battle:getPartyIndex(battler.chara.id)
+        local attack_box = AttackBox(battler, 30 + offset, index, 0, 40 + (38 * (index - 1)))
+        attack_box.layer = -10 + (index * 0.01)
         self:addChild(attack_box)
         table.insert(self.attack_boxes, attack_box)
 
@@ -111,10 +118,8 @@ end
 function BattleUI:endAttack()
     Game.battle.cancel_attack = false
     for _,box in ipairs(self.attack_boxes) do
-        box:remove()
+        box:endAttack()
     end
-    self.attack_boxes = {}
-    self.attacking = false
 end
 
 function BattleUI:transitionIn()
@@ -159,6 +164,25 @@ function BattleUI:update()
 
         for _, box in ipairs(self.action_boxes) do
             box.data_offset = offset
+        end
+    end
+
+    if self.attacking then
+        local all_done = true
+
+        for _,box in ipairs(self.attack_boxes) do
+            if not box.removing or box.fade_rect.alpha < 1 then
+                all_done = false
+                break
+            end
+        end
+
+        if all_done then
+            for _,box in ipairs(self.attack_boxes) do
+                box:remove()
+            end
+            self.attack_boxes = {}
+            self.attacking = false
         end
     end
 
@@ -513,8 +537,19 @@ function BattleUI:drawState()
     end
     if Game.battle.state == "ATTACKING" or self.attacking then
         Draw.setColor(PALETTE["battle_attack_lines"])
-        love.graphics.rectangle("fill", 79, 78, 224, 2)
-        love.graphics.rectangle("fill", 79, 116, 224, 2)
+        if not Game:getConfig("oldUIPositions") then
+            -- Chapter 2 attack lines
+            love.graphics.rectangle("fill", 79, 78, 224, 2)
+            love.graphics.rectangle("fill", 79, 116, 224, 2)
+        else
+            -- Chapter 1 attack lines
+            local has_index = {}
+            for _,box in ipairs(self.attack_boxes) do
+                has_index[box.index] = true
+            end
+            love.graphics.rectangle("fill", has_index[2] and 77 or 2, 78, has_index[2] and 226 or 301, 3)
+            love.graphics.rectangle("fill", has_index[3] and 77 or 2, 116, has_index[3] and 226 or 301, 3)
+        end
     end
 end
 

@@ -1,3 +1,13 @@
+---@class Draw
+---
+---@field private _canvases table<string, love.Canvas>
+---@field private _used_canvas table<love.Canvas, boolean>
+---@field private _locked_canvas table<love.Canvas, boolean>
+---@field private _locked_canvas_stack table<love.Canvas, boolean>[]
+---@field private _canvas_stack love.Canvas[]
+---@field private _scissor_stack number[][]
+---@field private _shader_stack love.Shader[]
+---
 local Draw = {}
 local self = Draw
 
@@ -13,28 +23,14 @@ Draw._scissor_stack = {}
 
 Draw._shader_stack = {}
 
---[[Draw.Transformer = {
-    apply = function(self, tf) love.graphics.applyTransform(tf) end,
-    clone = function(self) error("Transformer:clone() is not implemented") end,
-    getMatrix = function(self) error("Transformer:getMatrix() is not implemented") end,
-    setMatrix = function(self, m) error("Transformer:setMatrix() is not implemented") end,
-    inverse = function(self) error("Transformer:inverse() is not implemented") end,
-    inverseTransformPoint = function(self, x, y) return love.graphics.inverseTransformPoint(x, y) end,
-    transformPoint = function(self, x, y) return love.graphics.transformPoint(x, y) end,
-    reset = function(self) love.graphics.origin() end,
-    rotate = function(self, angle) love.graphics.rotate(angle) end,
-    scale = function(self, x, y) love.graphics.scale(x, y or x) end,
-    shear = function(self, kx, ky) love.graphics.shear(kx, ky) end,
-    translate = function(self, x, y) love.graphics.translate(x, y) end,
-    setTransformation = function(self, x, y, angle, sx, sy, ox, oy, kx, ky)
-        love.graphics.translate(x, y)
-        love.graphics.rotate(angle or 0)
-        love.graphics.scale(sx or 1, sy or sx or 1)
-        love.graphics.translate(-ox or 0, -oy or 0)
-        love.graphics.shear(kx or 0, ky or 0)
-    end,
-}]]
+---@class Draw.canvasOptions
+---@field clear boolean|nil
+---@field stencil boolean|nil
+---@field keep_transform boolean|nil
 
+---@overload fun(options?: Draw.canvasOptions) : love.Canvas
+---@overload fun(canvas: love.Canvas, options?: Draw.canvasOptions) : love.Canvas
+---@overload fun(width: number, height: number, options?: Draw.canvasOptions) : love.Canvas
 function Draw.pushCanvas(...)
     local args = {...}
     table.insert(self._canvas_stack, love.graphics.getCanvas())
@@ -76,6 +72,8 @@ function Draw.pushCanvas(...)
     return canvas
 end
 
+---@param keep? boolean
+---@return love.Canvas
 function Draw.popCanvas(keep)
     local canvas = love.graphics.getCanvas()
     if canvas and not keep then
@@ -87,6 +85,7 @@ function Draw.popCanvas(keep)
     return old_canvas
 end
 
+---@param canvas love.Canvas
 function Draw.unlockCanvas(canvas)
     if canvas then
         self._locked_canvas[canvas] = nil
@@ -105,6 +104,9 @@ function Draw.popCanvasLocks()
     self._locked_canvas = table.remove(self._locked_canvas_stack, #self._locked_canvas_stack)
 end
 
+---@deprecated
+---@param canvas? love.Canvas
+---@param options? {stencil: boolean}
 function Draw.setCanvas(canvas, options)
     options = options or {}
     if canvas then
@@ -118,6 +120,7 @@ function Draw.setCanvas(canvas, options)
     end
 end
 
+---@private
 function Draw._clearUnusedCanvases()
     for k,canvases in pairs(self._canvases) do
         local remove = {}
@@ -133,6 +136,7 @@ function Draw._clearUnusedCanvases()
     self._used_canvas = setmetatable({},{__mode="k"})
 end
 
+---@private
 function Draw._clearStacks()
     self._canvases = {}
     self._used_canvas = setmetatable({},{__mode="k"})
@@ -143,6 +147,7 @@ function Draw._clearStacks()
     self._shader_stack = {}
 end
 
+---@return number x, number y, number w, number h
 function Draw.getScissor()
     if love.graphics.getScissor() then
         local x, y, w, h = love.graphics.getScissor()
@@ -180,10 +185,18 @@ function Draw.popScissor()
     table.remove(self._scissor_stack, 1)
 end
 
+---@param x number
+---@param y number
+---@param w number
+---@param h number
 function Draw.scissor(x, y, w, h)
     self.scissorPoints(x, y, x+w, y+h)
 end
 
+---@param x1? number
+---@param y1? number
+---@param x2? number
+---@param y2? number
 function Draw.scissorPoints(x1, y1, x2, y2)
     local scrx, scry = love.graphics.inverseTransformPoint(0, 0)
     local scrx2, scry2 = love.graphics.inverseTransformPoint(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -204,6 +217,8 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     end
 end
 
+---@param shader love.Shader|string
+---@return love.Shader
 function Draw.pushShader(shader, vars)
     if type(shader) == "string" then
         shader = Kristal.Shaders[shader]
@@ -224,6 +239,11 @@ function Draw.popShader()
     love.graphics.setShader(table.remove(self._shader_stack, 1))
 end
 
+---@param r? number
+---@param g? number
+---@param b? number
+---@param a? number
+---@overload fun(color: number[], alpha?: number)
 function Draw.setColor(r, g, b, a)
     if type(r) == "table" then
         local alpha = r[4] or 1
@@ -236,27 +256,75 @@ function Draw.setColor(r, g, b, a)
     end
 end
 
+---@overload fun(drawable: love.Drawable, x?: number, y?: number, r?: number, sx?: number, sy?: number, ox?: number, oy?: number, kx?: number, ky?: number)
+---@overload fun(texture: love.Texture, quad: love.Quad, x?: number, y?: number, r?: number, sx?: number, sy?: number, ox?: number, oy?: number, kx?: number, ky?: number)
+---@overload fun(drawable: love.Drawable, transform: love.Transform)
+---@overload fun(texture: love.Texture, quad: love.Quad, transform: love.Transform)
 function Draw.draw(...)
     love.graphics.draw(...)
 end
 
-function Draw.drawPart(texture, x, y, cx, cy, cw, ch, ...)
+---@param texture love.Texture # The texture to cut out.
+---@param x       number       # The position to draw the cut-out texture (x-axis).
+---@param y       number       # The position to draw the cut-out texture (y-axis).
+---@param cx      number       # X position of the cut-out rectangle.
+---@param cy      number       # Y position of the cut-out rectangle.
+---@param cw      number       # Width of the cut-out rectangle.
+---@param ch      number       # Height of the cut-out rectangle.
+---@param r?      number       # Orientation (radians).
+---@param sx?     number       # Scale factor (x-axis).
+---@param sy?     number       # Scale factor (y-axis).
+---@param ox?     number       # Origin offset (x-axis).
+---@param oy?     number       # Origin offset (y-axis).
+---@param kx?     number       # Shearing factor (x-axis).
+---@param ky?     number       # Shearing factor (y-axis).
+function Draw.drawPart(texture, x, y, cx, cy, cw, ch, r, sx, sy, ox, oy, kx, ky)
     local quad = Assets.getQuad(cx, cy, cw, ch, texture:getWidth(), texture:getHeight())
-    Draw.draw(texture, quad, x, y, ...)
+    Draw.draw(texture, quad, x, y, r, sx, sy, ox, oy, kx, ky)
 end
 
-function Draw.drawCanvas(canvas, ...)
+---@overload fun(canvas: love.Canvas, x?: number, y?: number, r?: number, sx?: number, sy?: number, ox?: number, oy?: number, kx?: number, ky?: number)
+---@overload fun(canvas: love.Canvas, quad: love.Quad, x?: number, y?: number, r?: number, sx?: number, sy?: number, ox?: number, oy?: number, kx?: number, ky?: number)
+---@overload fun(canvas: love.Canvas, transform: love.Transform)
+---@overload fun(canvas: love.Canvas, quad: love.Quad, transform: love.Transform)
+function Draw.drawCanvas(...)
     local mode,alphamode = love.graphics.getBlendMode()
     love.graphics.setBlendMode(mode, "premultiplied")
-    Draw.draw(canvas, ...)
+    Draw.draw(...)
     love.graphics.setBlendMode(mode, alphamode)
 end
 
-function Draw.drawCanvasPart(canvas, x, y, cx, cy, cw, ch, ...)
+---@param canvas love.Canvas # The canvas to cut out.
+---@param x      number      # The position to draw the cut-out texture (x-axis).
+---@param y      number      # The position to draw the cut-out texture (y-axis).
+---@param cx     number      # X position of the cut-out rectangle.
+---@param cy     number      # Y position of the cut-out rectangle.
+---@param cw     number      # Width of the cut-out rectangle.
+---@param ch     number      # Height of the cut-out rectangle.
+---@param r?     number      # Orientation (radians).
+---@param sx?    number      # Scale factor (x-axis).
+---@param sy?    number      # Scale factor (y-axis).
+---@param ox?    number      # Origin offset (x-axis).
+---@param oy?    number      # Origin offset (y-axis).
+---@param kx?    number      # Shearing factor (x-axis).
+---@param ky?    number      # Shearing factor (y-axis).
+function Draw.drawCanvasPart(canvas, x, y, cx, cy, cw, ch, r, sx, sy, ox, oy, kx, ky)
     local quad = Assets.getQuad(cx, cy, cw, ch, canvas:getWidth(), canvas:getHeight())
-    Draw.drawCanvas(canvas, quad, x, y, ...)
+    Draw.drawCanvas(canvas, quad, x, y, r, sx, sy, ox, oy, kx, ky)
 end
 
+---@param drawable love.Texture|love.Canvas # The texture to draw wrapped.
+---@param wrap_x?  boolean                  # Whether the image will repeat along the x-axis.
+---@param wrap_y?  boolean                  # Whether the image will repeat along the y-axis.
+---@param x?       number                   # The position to draw the texture (x-axis).
+---@param y?       number                   # The position to draw the texture (y-axis).
+---@param r?       number                   # Orientation (radians).
+---@param sx?      number                   # Scale factor (x-axis).
+---@param sy?      number                   # Scale factor (y-axis).
+---@param ox?      number                   # Origin offset (x-axis).
+---@param oy?      number                   # Origin offset (y-axis).
+---@param kx?      number                   # Shearing factor (x-axis).
+---@param ky?      number                   # Shearing factor (y-axis).
 function Draw.drawWrapped(drawable, wrap_x, wrap_y, x, y, r, sx, sy, ox, oy, kx, ky)
     local dw, dh = drawable:getDimensions()
 
@@ -307,9 +375,37 @@ function Draw.drawWrapped(drawable, wrap_x, wrap_y, x, y, r, sx, sy, ox, oy, kx,
     end
 end
 
+---
+--- Draws text with a black drop shadow behind it.
+---
+---@param text string|table     # A text string, or table of color-formatted text.
+---@param x? number             # The position on the x-axis.
+---@param y? number             # The position on the y-axis.
+---@param offset? number        # The offset of the drop shadow. (Defaults to 2)
+---@param align? love.AlignMode # The alignment.
+---@param limit? number         # Wrap the line after this many horizontal pixels.
+---
+function Draw.printShadow(text, x, y, offset, align, limit)
+    x, y = x or 0, y or 0
+    offset = offset or 2
+
+    local r, g, b, a = love.graphics.getColor()
+
+    local width = love.graphics.getFont():getWidth(Utils.getCombinedText(text))
+
+    -- Draw the shadow, offset by a given amount of pixels to the bottom right
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.printf(text, x + offset, y + offset, limit or width, align or "left")
+
+    -- Draw the main text
+    love.graphics.setColor(r, g, b, a)
+    love.graphics.printf(text, x, y, limit or width, align or "left")
+end
+
 --- Modes: `none`
 --- - `none`: Creates a canvas based on object size and draws the object at 0,0 (not transformed)
----   - extra arguments: `no_children`, `pad_x`, `pad_y`
+---
+---@overload fun(object: Object, mode: "none", no_children?: boolean, pad_x?: number, pad_y?: number)
 function Draw.captureObject(object, mode, ...)
     -- TODO: Add more modes (centered canvas, absolute screen canvas, full width/height including children ?)
 

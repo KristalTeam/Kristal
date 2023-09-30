@@ -55,12 +55,12 @@ function DarkConfigMenu:getBindNumberFromIndex(current_index)
 end
 
 function DarkConfigMenu:onKeyPressed(key)
-
     if self.state == "CONTROLS" then
         if self.rebinding then
             local gamepad = Utils.startsWith(key, "gamepad:")
 
-            local worked = key ~= "escape" and Input.setBind(Input.orderedNumberToKey(self.currently_selected), 1, key, gamepad)
+            local worked = key ~= "escape" and
+                Input.setBind(Input.orderedNumberToKey(self.currently_selected), 1, key, gamepad)
 
             self.rebinding = false
 
@@ -75,7 +75,6 @@ function DarkConfigMenu:onKeyPressed(key)
             return
         end
         if Input.pressed("confirm") then
-
             if self.currently_selected < 8 then
                 self.ui_select:stop()
                 self.ui_select:play()
@@ -86,10 +85,10 @@ function DarkConfigMenu:onKeyPressed(key)
             if self.currently_selected == 8 then
                 Assets.playSound("levelup")
 
-                if USING_CONSOLE then
-                    Input.resetBinds(true) -- Console, no keyboard, only reset gamepad binds
+                if Kristal.isConsole() then
+                    Input.resetBinds(true)  -- Console, no keyboard, only reset gamepad binds
                 elseif Input.hasGamepad() then
-                    Input.resetBinds() -- PC, keyboard and gamepad, reset all binds
+                    Input.resetBinds()      -- PC, keyboard and gamepad, reset all binds
                 else
                     Input.resetBinds(false) -- PC, no gamepad, only reset keyboard binds
                 end
@@ -220,38 +219,37 @@ function DarkConfigMenu:draw()
         if self.state == "VOLUME" then
             Draw.setColor(PALETTE["world_text_selected"])
         end
-        love.graphics.print("Master Volume",   88, 38 + (0 * 32))
+        love.graphics.print("Master Volume", 88, 38 + (0 * 32))
         Draw.setColor(PALETTE["world_text"])
-        love.graphics.print("Controls",        88, 38 + (1 * 32))
-        love.graphics.print("Simplify VFX",    88, 38 + (2 * 32))
-        love.graphics.print("Fullscreen",      88, 38 + (3 * 32))
-        love.graphics.print("Auto-Run",        88, 38 + (4 * 32))
+        love.graphics.print("Controls", 88, 38 + (1 * 32))
+        love.graphics.print("Simplify VFX", 88, 38 + (2 * 32))
+        love.graphics.print("Fullscreen", 88, 38 + (3 * 32))
+        love.graphics.print("Auto-Run", 88, 38 + (4 * 32))
         love.graphics.print("Return to Title", 88, 38 + (5 * 32))
-        love.graphics.print("Back",            88, 38 + (6 * 32))
+        love.graphics.print("Back", 88, 38 + (6 * 32))
 
         if self.state == "VOLUME" then
             Draw.setColor(PALETTE["world_text_selected"])
         end
-        love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%",      348, 38 + (0 * 32))
+        love.graphics.print(Utils.round(Kristal.getVolume() * 100) .. "%", 348, 38 + (0 * 32))
         Draw.setColor(PALETTE["world_text"])
         love.graphics.print(Kristal.Config["simplifyVFX"] and "ON" or "OFF", 348, 38 + (2 * 32))
-        love.graphics.print(Kristal.Config["fullscreen"]  and "ON" or "OFF", 348, 38 + (3 * 32))
-        love.graphics.print(Kristal.Config["autoRun"]     and "ON" or "OFF", 348, 38 + (4 * 32))
+        love.graphics.print(Kristal.Config["fullscreen"] and "ON" or "OFF", 348, 38 + (3 * 32))
+        love.graphics.print(Kristal.Config["autoRun"] and "ON" or "OFF", 348, 38 + (4 * 32))
 
         Draw.setColor(Game:getSoulColor())
-        Draw.draw(self.heart_sprite,  63, 48 + ((self.currently_selected - 1) * 32))
+        Draw.draw(self.heart_sprite, 63, 48 + ((self.currently_selected - 1) * 32))
     else
-
         -- NOTE: This is forced to true if using a PlayStation in DELTARUNE... Kristal doesn't have a PlayStation port though.
         local dualshock = Input.getControllerType() == "ps4"
 
-        love.graphics.print("Function", 23,  -12)
+        love.graphics.print("Function", 23, -12)
         -- Console accuracy for the Heck of it
-        if not USING_CONSOLE then
+        if not Kristal.isConsole() then
             love.graphics.print("Key", 243, -12)
         end
         if Input.hasGamepad() then
-            love.graphics.print(USING_CONSOLE and "Button" or "Gamepad", 353, -12)
+            love.graphics.print(Kristal.isConsole() and "Button" or "Gamepad", 353, -12)
         end
 
         for index, name in ipairs(Input.order) do
@@ -268,14 +266,14 @@ function DarkConfigMenu:draw()
             end
 
             if dualshock then
-                love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (29 * index))
+                love.graphics.print(name:gsub("_", " "):upper(), 23, -4 + (29 * index))
             else
-                love.graphics.print(name:gsub("_", " "):upper(),  23, -4 + (28 * index) + 4)
+                love.graphics.print(name:gsub("_", " "):upper(), 23, -4 + (28 * index) + 4)
             end
 
             local shown_bind = self:getBindNumberFromIndex(index)
 
-            if not USING_CONSOLE then
+            if not Kristal.isConsole() then
                 local alias = Input.getBoundKeys(name, false)[1]
                 if type(alias) == "table" then
                     local title_cased = {}
@@ -295,9 +293,10 @@ function DarkConfigMenu:draw()
                 if alias then
                     local btn_tex = Input.getButtonTexture(alias)
                     if dualshock then
-                        Draw.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth()/2, 0)
+                        Draw.draw(btn_tex, 353 + 42, -2 + (29 * index), 0, 2, 2, btn_tex:getWidth() / 2, 0)
                     else
-                        Draw.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2, btn_tex:getWidth()/2, 0)
+                        Draw.draw(btn_tex, 353 + 42 + 16 - 6, -2 + (28 * index) + 11 - 6 + 1, 0, 2, 2,
+                                  btn_tex:getWidth() / 2, 0)
                     end
                 end
             end
@@ -309,7 +308,8 @@ function DarkConfigMenu:draw()
         end
 
         if (self.reset_flash_timer > 0) then
-            Draw.setColor(Utils.mergeColor(PALETTE["world_text_hover"], PALETTE["world_text_selected"], ((self.reset_flash_timer / 10) - 0.1)))
+            Draw.setColor(Utils.mergeColor(PALETTE["world_text_hover"], PALETTE["world_text_selected"],
+                                           ((self.reset_flash_timer / 10) - 0.1)))
         end
 
         if dualshock then
@@ -332,9 +332,9 @@ function DarkConfigMenu:draw()
         Draw.setColor(Game:getSoulColor())
 
         if dualshock then
-            Draw.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 29))
+            Draw.draw(self.heart_sprite, -2, 34 + ((self.currently_selected - 1) * 29))
         else
-            Draw.draw(self.heart_sprite,  -2, 34 + ((self.currently_selected - 1) * 28) + 2)
+            Draw.draw(self.heart_sprite, -2, 34 + ((self.currently_selected - 1) * 28) + 2)
         end
     end
 

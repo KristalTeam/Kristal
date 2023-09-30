@@ -160,6 +160,23 @@ function Encounter:getSoulColor()
     return Game:getSoulColor()
 end
 
+function Encounter:getSoulSpawnLocation()
+    local main_chara = Game:getSoulPartyMember()
+
+    if main_chara and main_chara:getSoulPriority() >= 0 then
+        local battler = Game.battle.party[Game.battle:getPartyIndex(main_chara.id)]
+
+        if battler then
+            if main_chara.soul_offset then
+                return battler:localToScreenPos(main_chara.soul_offset[1], main_chara.soul_offset[2])
+            else
+                return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+            end
+        end
+    end
+    return -9, -9
+end
+
 function Encounter:onDialogueEnd()
     Game.battle:setState("DEFENDINGBEGIN")
 end

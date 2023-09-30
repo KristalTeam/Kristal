@@ -33,11 +33,15 @@ end
 
 function spell:onCast(user, target)
     local object = SnowGraveSpell(user)
-    object.damage = math.ceil(((user.chara:getStat("magic") * 40) + 600))
+    object.damage = self:getDamage(user, target)
     object.layer = BATTLE_LAYERS["above_ui"]
     Game.battle:addChild(object)
 
     return false
+end
+
+function spell:getDamage(user, target)
+    return math.ceil((user.chara:getStat("magic") * 40) + 600)
 end
 
 return spell

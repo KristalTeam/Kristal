@@ -31,7 +31,7 @@ function Virovirokun:init()
         "* Virovirokun is beeping a\ncriminal tune."
     }
 
-    self.low_health_text = "* Virovirokun looks extra sick."
+    self.tired_text = "* Virovirokun looks extra sick."
 
     self:registerAct("TakeCare")
     self:registerAct("TakeCareX", "", "all")

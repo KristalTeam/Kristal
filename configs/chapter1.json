@@ -30,7 +30,10 @@
     "lightCurrencyShort": "$",       // Short currency name for the Light World
     "tpName": "TP",                  // Name of Tension Points in battles
 
+    "prioritySpareableText": true,   // Whether enemies' spareable text should be prioritized over their tired / low-health text
+
     "pushBlockInputLock": true,      // Whether to lock the player's input when pushing a block
     "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
-    "overworldSpells": true          // Whether spells should be usable in the overworld
+    "overworldSpells": true,         // Whether spells should be usable in the overworld
+    "damageUnderflowFix": true       // When disabled, negative enemy damage heals the enemy and displays a negative damage number
 }

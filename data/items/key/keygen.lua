@@ -1,4 +1,4 @@
-local item, super = Class(Item, "empty_disk")
+local item, super = Class(Item, "keygen")
 
 function item:init()
     super.init(self)

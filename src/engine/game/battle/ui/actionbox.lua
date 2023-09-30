@@ -88,13 +88,22 @@ end
 
 function ActionBox:setHeadIcon(icon)
     self.force_head_sprite = true
-    self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/"..icon)
+
+    local full_icon = self.battler.chara:getHeadIcons().."/"..icon
+    if self.head_sprite:hasSprite(full_icon) then
+        self.head_sprite:setSprite(full_icon)
+    else
+        self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
+    end
 end
 
 function ActionBox:resetHeadIcon()
     self.force_head_sprite = false
-    self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon())
-    if not self.head_sprite:getTexture() then
+
+    local full_icon = self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon()
+    if self.head_sprite:hasSprite(full_icon) then
+        self.head_sprite:setSprite(full_icon)
+    else
         self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
     end
 end
@@ -132,11 +141,14 @@ function ActionBox:update()
     end
     self.hp_sprite.y   = 22 - self.data_offset
 
-    local current_head = self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon()
-    if not self.force_head_sprite and self.head_sprite.sprite ~= current_head then
-        self.head_sprite:setSprite(current_head)
-        if not self.head_sprite:getTexture() then
-            self.head_sprite:setSprite(self.battler.chara:getHeadIcons().."/head")
+    if not self.force_head_sprite then
+        local current_head = self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon()
+        if not self.head_sprite:hasSprite(current_head) then
+            current_head = self.battler.chara:getHeadIcons().."/head"
+        end
+
+        if not self.head_sprite:isSprite(current_head) then
+            self.head_sprite:setSprite(current_head)
         end
     end
 

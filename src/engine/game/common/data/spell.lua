@@ -53,6 +53,7 @@ end
 function Spell:onStart(user, target)
     Game.battle:battleText(self:getCastMessage(user, target))
     user:setAnimation("battle/spell", function()
+        Game.battle:clearActionIcon(user)
         local result = self:onCast(user, target)
         if result or result == nil then
             Game.battle:finishActionBy(user)

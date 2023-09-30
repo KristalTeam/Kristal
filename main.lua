@@ -1,3 +1,5 @@
+require("src.engine.tweaks")
+
 require("src.engine.vars")
 require("src.engine.statevars")
 require("src.engine.vendcust")
@@ -15,7 +17,7 @@ SemVer = require("src.lib.semver")
 require("src.lib.stable_sort")
 
 Class = require("src.utils.class")
-require ("src.utils.graphics")
+require("src.utils.graphics")
 
 GitFinder = require("src.utils.gitfinder")
 Utils = require("src.utils.utils")
@@ -25,6 +27,7 @@ Draw = require("src.utils.draw")
 Kristal = require("src.kristal")
 -- Ease of access for game variables
 Game = Kristal.States["Game"]
+MainMenu = Kristal.States["MainMenu"]
 
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
@@ -47,18 +50,31 @@ Fader = require("src.engine.objects.fader")
 HPText = require("src.engine.objects.hptext")
 Timer = require("src.engine.objects.timer")
 StateManager = require("src.engine.objects.statemanager")
+StateClass = require("src.engine.objects.stateclass")
 Anchor = require("src.engine.objects.anchor")
 Callback = require("src.engine.objects.callback")
 Video = require("src.engine.objects.video")
 GonerChoice = require("src.engine.objects.gonerchoice")
 GonerKeyboard = require("src.engine.objects.gonerkeyboard")
 
-ModList = require("src.engine.menu.modlist")
-ModButton = require("src.engine.menu.modbutton")
-ModCreateButton = require("src.engine.menu.modcreatebutton")
-FileList = require("src.engine.menu.filelist")
-FileButton = require("src.engine.menu.filebutton")
-FileNamer = require("src.engine.menu.filenamer")
+MainMenuTitle = require("src.engine.menu.mainmenutitle")
+MainMenuOptions = require("src.engine.menu.mainmenuoptions")
+MainMenuCredits = require("src.engine.menu.mainmenucredits")
+MainMenuModList = require("src.engine.menu.mainmenumodlist")
+MainMenuModCreate = require("src.engine.menu.mainmenumodcreate")
+MainMenuModConfig = require("src.engine.menu.mainmenumodconfig")
+MainMenuModError = require("src.engine.menu.mainmenumoderror")
+MainMenuFileSelect = require("src.engine.menu.mainmenufileselect")
+MainMenuFileName = require("src.engine.menu.mainmenufilename")
+MainMenuDefaultName = require("src.engine.menu.mainmenudefaultname")
+MainMenuControls = require("src.engine.menu.mainmenucontrols")
+MainMenuDeadzone = require("src.engine.menu.mainmenudeadzone")
+
+ModList = require("src.engine.menu.objects.modlist")
+ModButton = require("src.engine.menu.objects.modbutton")
+ModCreateButton = require("src.engine.menu.objects.modcreatebutton")
+FileButton = require("src.engine.menu.objects.filebutton")
+FileNamer = require("src.engine.menu.objects.filenamer")
 
 DarkTransitionLine = require("src.engine.game.darktransition.darktransitionline")
 DarkTransitionParticle = require("src.engine.game.darktransition.darktransitionparticle")
@@ -230,7 +246,7 @@ function love.run()
         error("love.timer is required")
     end
 
----@diagnostic disable-next-line: undefined-field, redundant-parameter
+    ---@diagnostic disable-next-line: undefined-field, redundant-parameter
     if love.load then love.load(love.arg.parseGameArguments(arg), arg) end
 
     -- We don't want the first frame's DT to include time taken by love.load.
@@ -246,16 +262,16 @@ function love.run()
         -- Process events.
         if love.event then
             love.event.pump()
-            for name, a,b,c,d,e,f in love.event.poll() do
+            for name, a, b, c, d, e, f in love.event.poll() do
                 if name == "quit" then
                     if not love.quit or not love.quit() then
                         return a or 0
                     end
                 elseif name == "threaderror" then
-                    error({msg = b})
+                    error({ msg = b })
                 end
----@diagnostic disable-next-line: undefined-field
-                love.handlers[name](a,b,c,d,e,f)
+                ---@diagnostic disable-next-line: undefined-field
+                love.handlers[name](a, b, c, d, e, f)
             end
         end
 
@@ -270,7 +286,7 @@ function love.run()
             love.graphics.origin()
             love.graphics.clear(love.graphics.getBackgroundColor())
 
----@diagnostic disable-next-line: undefined-field
+            ---@diagnostic disable-next-line: undefined-field
             if love.draw then love.draw() end
 
             love.graphics.present()
@@ -303,7 +319,7 @@ function love.run()
                 FPS_COUNTER = FPS_COUNTER + 1
                 local update_dt = tick_rate
                 if frame_skip then
-                    update_dt = math.min(math.max(dt, tick_rate), 1/20) -- Limit dt to at least 20fps if frameSkip is enabled to avoid huge breakage
+                    update_dt = math.min(math.max(dt, tick_rate), 1 / 20) -- Limit dt to at least 20fps if frameSkip is enabled to avoid huge breakage
                 end
                 local ret = doUpdate(update_dt)
                 if ret then return ret end
@@ -312,7 +328,7 @@ function love.run()
         else
             -- Limit dt to 30fps (or 20fps if frameSkip is enabled)
             -- Don't want to go unlimited or else collision and other stuff might break
-            local dt = math.min(love.timer.step(), frame_skip and (1/20) or (1/30))
+            local dt = math.min(love.timer.step(), frame_skip and (1 / 20) or (1 / 30))
 
             FPS = love.timer.getFPS()
 
@@ -325,7 +341,7 @@ function love.run()
     end
 
     -- Main loop time.
-    return function()
+    return function ()
         if error_result then
             local result = error_result()
             if result then
@@ -347,7 +363,7 @@ function love.run()
             elseif type(result) == "function" then
                 error_result = result
             else
-                error_result = Kristal.errorHandler({critical = true})
+                error_result = Kristal.errorHandler({ critical = true })
             end
         end
     end

@@ -609,6 +609,11 @@ function Map:loadObjects(layer, depth, layer_type)
                     end
                     obj.layer = depth
                     obj.data = v
+
+                    if v.properties["usetile"] and v.gid and obj.applyTileObject then
+                        obj:applyTileObject(v, self)
+                    end
+
                     parent:addChild(obj)
 
                     table.insert(self.events, obj)
@@ -716,9 +721,7 @@ function Map:loadObject(name, data)
         return sprite
     end
     if data.gid then
-        local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
-        local tileset, tile_id = self:getTileset(gid)
-        return TileObject(tileset, tile_id, data.x, data.y, data.width, data.height, math.rad(data.rotation or 0), flip_x, flip_y)
+        return self:createTileObject(data)
     end
 end
 
@@ -808,6 +811,14 @@ function Map:getTileObjectRect(data)
     local origin = Tileset.ORIGINS[tileset.object_alignment] or Tileset.ORIGINS["unspecified"]
 
     return data.x - (origin[1] * data.width), data.y - (origin[2] * data.height), data.width, data.height
+end
+
+function Map:createTileObject(data, x, y, width, height)
+    if data.gid then
+        local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
+        local tileset, tile_id = self:getTileset(gid)
+        return TileObject(tileset, tile_id, x or data.x, y or data.y, width or data.width, height or data.height, math.rad(data.rotation or 0), flip_x, flip_y)
+    end
 end
 
 return Map

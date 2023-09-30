@@ -9,24 +9,6 @@ function isClass(o)
     return type(o) == "table" and getmetatable(o) and true or false
 end
 
--- FIXME: currently these annoations still seem a bit broken
--- It certainly gets rid of some warning though
-
----@class Class : _Class
----@overload fun(self: Class, ...) : Class
----@field id string|nil The ID of the class.
----@field super Class|nil The base class of the class.
-
---- Creates a new class, which can then be instantiated by calling it as a function.
----
----@generic T : Class
----
----@param include? T|string  # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
----@param id? string|boolean # The id of the class used for registry. If `true`, will use the `id` field of the included class.
----
----@return T class           # The new class, extended from `include` if provided.
----@return T super           # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
----
 return function(include, id)
     local o = {}
     if include then

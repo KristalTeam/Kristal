@@ -48,9 +48,11 @@ function EnemyBattler:init(actor, use_overlay)
     self.text = {}
 
     self.low_health_text = nil
+    self.tired_text = nil
     self.spareable_text = nil
 
     self.tired_percentage = 0.5
+    self.low_health_percentage = 0.5
 
     -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
     -- This is set to nil in `battler.lua` as well, but it's here for completion's sake.
@@ -336,12 +338,23 @@ function EnemyBattler:getNameColors()
 end
 
 function EnemyBattler:getEncounterText()
-    if self.low_health_text and self.health <= (self.max_health * self.tired_percentage) then
-        return self.low_health_text
-    end
-    if self.spareable_text and self:canSpare() then
+    local has_spareable_text = self.spareable_text and self:canSpare()
+
+    local priority_spareable_text = Game:getConfig("prioritySpareableText")
+    if priority_spareable_text and has_spareable_text then
         return self.spareable_text
     end
+
+    if self.low_health_text and self.health <= (self.max_health * self.low_health_percentage) then
+        return self.low_health_text
+
+    elseif self.tired_text and self.tired then
+        return self.tired_text
+
+    elseif has_spareable_text then
+        return self.spareable_text
+    end
+
     return Utils.pick(self.text)
 end
 
@@ -427,11 +440,20 @@ function EnemyBattler:isXActionShort(battler)
 end
 
 function EnemyBattler:hurt(amount, battler, on_defeat, color)
+    if amount == 0 or (amount < 0 and Game:getConfig("damageUnderflowFix")) then
+        self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+
+        self:onDodge(battler)
+        return
+    end
+
     self.health = self.health - amount
     self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
 
-    self.hurt_timer = 1
-    self:onHurt(amount, battler)
+    if amount > 0 then
+        self.hurt_timer = 1
+        self:onHurt(amount, battler)
+    end
 
     self:checkHealth(on_defeat, amount, battler)
 end
@@ -474,7 +496,7 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite():shake(9)
+    self:getActiveSprite():shake(9, 0, 0.5, 2/30)
 
     if self.health <= (self.max_health * self.tired_percentage) then
         self:setTired(true)
@@ -485,6 +507,8 @@ function EnemyBattler:onHurtEnd()
     self:getActiveSprite():stopShake()
     self:toggleOverlay(false)
 end
+
+function EnemyBattler:onDodge(battler) end
 
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then

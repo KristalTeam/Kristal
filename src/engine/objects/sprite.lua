@@ -117,6 +117,21 @@ function Sprite:getPath(name)
     end
 end
 
+---@param texture string  The texture to check the existence of, relative to this sprite's path.
+---@return boolean exists  Whether the given texture exists.
+function Sprite:hasSprite(texture)
+    texture = self:getPath(texture)
+
+    -- check this out
+    return not not (Assets.getTexture(texture) or Assets.getFrames(texture))
+end
+
+---@param texture string  The texture to check against this sprite's current texture, relative to this sprite's path.
+---@return boolean equal  Whether the textures are equal.
+function Sprite:isSprite(texture)
+    return self.texture_path == self:getPath(texture)
+end
+
 --- Sets the sprite to either a texture or an animation. \
 --- If the given texture is a string or image, it will be passed into `Sprite:setSprite()`. \
 --- If the given texture is a table, it will be passed into `Sprite:setAnimation()`.

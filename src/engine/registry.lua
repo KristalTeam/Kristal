@@ -1,3 +1,34 @@
+---@class Registry
+---
+---@field paths table<string, string>
+---
+---@field base_scripts table<string, function>
+---@field preload boolean?
+---
+---@field new_globals table
+---@field last_globals table
+---
+---@field objects table<string, Object>
+---@field draw_fx table<string, DrawFX>
+---@field actors table<string, Actor>
+---@field items table<string, Item>
+---@field spells table<string, Spell>
+---@field party_members table<string, PartyMember>
+---@field encounters table<string, Encounter>
+---@field enemies table<string, EnemyBattler>
+---@field waves table<string, Wave>
+---@field bullets table<string, Bullet>
+---@field world_bullets table<string, WorldBullet>
+---@field world_cutscenes table<string, function|table<string, function>>
+---@field battle_cutscenes table<string, function|table<string, function>>
+---@field event_scripts table<string, function|table<string, function>>
+---@field tilesets table<string, Tileset>
+---@field maps table<string, Map>
+---@field map_data table<string, table> -- TODO: Document map data
+---@field events table<string, Event|Object>
+---@field controllers table<string, Event|Object>
+---@field shops table<string, Shop>
+---
 local Registry = {}
 local self = Registry
 
@@ -28,6 +59,7 @@ Registry.paths = {
     ["shops"]            = "shops"
 }
 
+---@param preload boolean?
 function Registry.initialize(preload)
     if not self.preload then
         self.base_scripts = {}
@@ -79,10 +111,15 @@ end
 
 -- Getter Functions --
 
+---@param id string
+---@return Object|nil
 function Registry.getObject(id)
     return self.objects[id]
 end
 
+---@param id string
+---@param ... any
+---@return Object
 function Registry.createObject(id, ...)
     if self.objects[id] then
         return self.objects[id](...)
@@ -91,10 +128,15 @@ function Registry.createObject(id, ...)
     end
 end
 
+---@param id string
+---@return DrawFX|nil
 function Registry.getDrawFX(id)
     return self.draw_fx[id]
 end
 
+---@param id string
+---@param ... any
+---@return DrawFX
 function Registry.createDrawFX(id, ...)
     if self.draw_fx[id] then
         return self.draw_fx[id](...)
@@ -103,10 +145,15 @@ function Registry.createDrawFX(id, ...)
     end
 end
 
+---@param id string
+---@return Actor|nil
 function Registry.getActor(id)
     return self.actors[id]
 end
 
+---@param id string
+---@param ... any
+---@return Actor
 function Registry.createActor(id, ...)
     if self.actors[id] then
         return self.actors[id](...)
@@ -115,10 +162,15 @@ function Registry.createActor(id, ...)
     end
 end
 
+---@param id string
+---@return Item|nil
 function Registry.getItem(id)
     return self.items[id]
 end
 
+---@param id string
+---@param ... any
+---@return Item
 function Registry.createItem(id, ...)
     if self.items[id] then
         return self.items[id](...)
@@ -127,10 +179,15 @@ function Registry.createItem(id, ...)
     end
 end
 
+---@param id string
+---@return Spell|nil
 function Registry.getSpell(id)
     return self.spells[id]
 end
 
+---@param id string
+---@param ... any
+---@return Spell
 function Registry.createSpell(id, ...)
     if self.spells[id] then
         return self.spells[id](...)
@@ -139,10 +196,15 @@ function Registry.createSpell(id, ...)
     end
 end
 
+---@param id string
+---@return PartyMember|nil
 function Registry.getPartyMember(id)
     return self.party_members[id]
 end
 
+---@param id string
+---@param ... any
+---@return PartyMember
 function Registry.createPartyMember(id, ...)
     if self.party_members[id] then
         return self.party_members[id](...)
@@ -151,10 +213,15 @@ function Registry.createPartyMember(id, ...)
     end
 end
 
+---@param id string
+---@return Encounter|nil
 function Registry.getEncounter(id)
     return self.encounters[id]
 end
 
+---@param id string
+---@param ... any
+---@return Encounter
 function Registry.createEncounter(id, ...)
     if self.encounters[id] then
         return self.encounters[id](...)
@@ -163,10 +230,15 @@ function Registry.createEncounter(id, ...)
     end
 end
 
+---@param id string
+---@return EnemyBattler|nil
 function Registry.getEnemy(id)
     return self.enemies[id]
 end
 
+---@param id string
+---@param ... any
+---@return EnemyBattler
 function Registry.createEnemy(id, ...)
     if self.enemies[id] then
         return self.enemies[id](...)
@@ -175,10 +247,15 @@ function Registry.createEnemy(id, ...)
     end
 end
 
+---@param id string
+---@return Wave|nil
 function Registry.getWave(id)
     return self.waves[id]
 end
 
+---@param id string
+---@param ... any
+---@return Wave
 function Registry.createWave(id, ...)
     if self.waves[id] then
         return self.waves[id](...)
@@ -187,10 +264,15 @@ function Registry.createWave(id, ...)
     end
 end
 
+---@param id string
+---@return Bullet|nil
 function Registry.getBullet(id)
     return self.bullets[id]
 end
 
+---@param id string
+---@param ... any
+---@return Bullet
 function Registry.createBullet(id, ...)
     if self.bullets[id] then
         return self.bullets[id](...)
@@ -199,10 +281,15 @@ function Registry.createBullet(id, ...)
     end
 end
 
+---@param id string
+---@return WorldBullet|nil
 function Registry.getWorldBullet(id)
     return self.world_bullets[id]
 end
 
+---@param id string
+---@param ... any
+---@return WorldBullet
 function Registry.createWorldBullet(id, ...)
     if self.world_bullets[id] then
         return self.world_bullets[id](...)
@@ -211,6 +298,10 @@ function Registry.createWorldBullet(id, ...)
     end
 end
 
+---@param group string
+---@param id? string
+---@return function|nil cutscene
+---@return boolean|nil grouped
 function Registry.getWorldCutscene(group, id)
     local cutscene = self.world_cutscenes[group]
     if type(cutscene) == "table" then
@@ -220,6 +311,10 @@ function Registry.getWorldCutscene(group, id)
     end
 end
 
+---@param group string
+---@param id? string
+---@return function|nil cutscene
+---@return boolean|nil grouped
 function Registry.getBattleCutscene(group, id)
     local cutscene = self.battle_cutscenes[group]
     if type(cutscene) == "table" then
@@ -229,6 +324,10 @@ function Registry.getBattleCutscene(group, id)
     end
 end
 
+---@param group string
+---@param id? string
+---@return function|nil cutscene
+---@return boolean|nil grouped
 function Registry.getEventScript(group, id)
     if not id then
         local args = Utils.split(group, ".")
@@ -243,14 +342,22 @@ function Registry.getEventScript(group, id)
     end
 end
 
+---@param id string
+---@return Tileset|nil
 function Registry.getTileset(id)
     return self.tilesets[id]
 end
 
+---@param id string
+---@return Map|nil
 function Registry.getMap(id)
     return self.maps[id]
 end
 
+---@param id string
+---@param world World
+---@param ... any
+---@return Map
 function Registry.createMap(id, world, ...)
     if self.maps[id] then
         local map = self.maps[id](world, self.map_data[id], ...)
@@ -265,14 +372,21 @@ function Registry.createMap(id, world, ...)
     end
 end
 
+---@param id string
+---@return table|nil
 function Registry.getMapData(id)
     return self.map_data[id]
 end
 
+---@param id string
+---@return Event|Object|nil
 function Registry.getEvent(id)
     return self.events[id]
 end
 
+---@param id string
+---@param ... any
+---@return Event|Object
 function Registry.createEvent(id, ...)
     if self.events[id] then
         return self.events[id](...)
@@ -281,10 +395,15 @@ function Registry.createEvent(id, ...)
     end
 end
 
+---@param id string
+---@return Event|Object|nil
 function Registry.getController(id)
     return self.controllers[id]
 end
 
+---@param id string
+---@param ... any
+---@return Event|Object
 function Registry.createController(id, ...)
     if self.controllers[id] then
         return self.controllers[id](...)
@@ -293,10 +412,15 @@ function Registry.createController(id, ...)
     end
 end
 
+---@param id string
+---@return Shop|nil
 function Registry.getShop(id)
     return self.shops[id]
 end
 
+---@param id string
+---@param ... any
+---@return Shop
 function Registry.createShop(id, ...)
     if self.shops[id] then
         return self.shops[id](...)
@@ -307,6 +431,9 @@ end
 
 -- Register Functions --
 
+---@param id string
+---@param value any
+---@param no_warning boolean?
 function Registry.registerGlobal(id, value, no_warning)
     if _G[id] then
         if not no_warning then
@@ -322,76 +449,110 @@ function Registry.registerGlobal(id, value, no_warning)
     _G[id] = value
 end
 
-function Registry.registerActor(id, tbl)
-    self.actors[id] = tbl
-    tbl.animations = tbl.animations or {}
-    tbl.offsets = tbl.offsets or {}
+---@param id string
+---@param class Actor
+function Registry.registerActor(id, class)
+    self.actors[id] = class
 end
 
-function Registry.registerPartyMember(id, tbl)
-    self.party_members[id] = tbl
+---@param id string
+---@param class PartyMember
+function Registry.registerPartyMember(id, class)
+    self.party_members[id] = class
 end
 
-function Registry.registerItem(id, tbl)
-    self.items[id] = tbl
+---@param id string
+---@param class Item
+function Registry.registerItem(id, class)
+    self.items[id] = class
 end
 
-function Registry.registerSpell(id, tbl)
-    self.spells[id] = tbl
+---@param id string
+---@param class Spell
+function Registry.registerSpell(id, class)
+    self.spells[id] = class
 end
 
+---@param id string
+---@param class Encounter
 function Registry.registerEncounter(id, class)
     self.encounters[id] = class
 end
 
+---@param id string
+---@param class EnemyBattler
 function Registry.registerEnemy(id, class)
     self.enemies[id] = class
 end
 
+---@param id string
+---@param class Wave
 function Registry.registerWave(id, class)
     self.waves[id] = class
 end
 
+---@param id string
+---@param class Bullet
 function Registry.registerBullet(id, class)
     self.bullets[id] = class
 end
 
+---@param id string
+---@param class WorldBullet
 function Registry.registerWorldBullet(id, class)
     self.world_bullets[id] = class
 end
 
+---@param id string
+---@param cutscene function|table<string, function>
 function Registry.registerWorldCutscene(id, cutscene)
     self.world_cutscenes[id] = cutscene
 end
 
+---@param id string
+---@param cutscene function|table<string, function>
 function Registry.registerBattleCutscene(id, cutscene)
     self.battle_cutscenes[id] = cutscene
 end
 
+---@param id string
+---@param script function|table<string, function>
 function Registry.registerEventScript(id, script)
     self.event_scripts[id] = script
 end
 
+---@param id string
+---@param class Tileset
 function Registry.registerTileset(id, class)
     self.tilesets[id] = class
 end
 
+---@param id string
+---@param data table
 function Registry.registerMapData(id, data)
     self.map_data[id] = data
 end
 
+---@param id string
+---@param class Map
 function Registry.registerMap(id, class)
     self.maps[id] = class
 end
 
+---@param id string
+---@param class Event|Object
 function Registry.registerEvent(id, class)
     self.events[id] = class
 end
 
+---@param id string
+---@param class Event|Object
 function Registry.registerController(id, class)
     self.controllers[id] = class
 end
 
+---@param id string
+---@param class Shop
 function Registry.registerShop(id, class)
     self.shops[id] = class
 end
@@ -649,6 +810,9 @@ function Registry.initShops()
     Kristal.callEvent("onRegisterShops")
 end
 
+---@param base_path string
+---@param exclude_folder boolean?
+---@return fun() : string?, string?, ...
 function Registry.iterScripts(base_path, exclude_folder)
     local result = {}
 

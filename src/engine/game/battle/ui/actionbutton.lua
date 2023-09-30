@@ -175,8 +175,10 @@ function ActionButton:hasSpecial()
                 local has_pacify = false
                 for _,spell in ipairs(self.battler.chara:getSpells()) do
                     if spell and spell:hasTag("spare_tired") then
-                        has_pacify = true
-                        break
+                        if spell:isUsable(self.battler.chara) and spell:getTPCost(self.battler.chara) <= Game:getTension() then
+                            has_pacify = true
+                            break
+                        end
                     end
                 end
                 return has_pacify

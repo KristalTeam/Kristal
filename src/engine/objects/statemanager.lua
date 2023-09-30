@@ -16,6 +16,7 @@ function StateManager:init(default_state, master, update_master_state)
     end
 
     self.state_events = {}
+    self.state_handler = {}
     self.state_initialized = {}
 
     self.args = {}
@@ -26,13 +27,31 @@ function StateManager:init(default_state, master, update_master_state)
 
     self.routine = nil
     self.routine_wait = 0
+
+    self.state_stack = {}
+    self.args_stack = {}
+    self.routine_stack = {}
 end
 
 function StateManager:addState(state, events)
-    for event,func in pairs(events or {}) do
-        self.state_events[event] = self.state_events[event] or {}
-        self.state_events[event][state] = func
+    if isClass(events) and events:includes(StateClass) then
+        self.state_handler[state] = events
+
+        events.parent = self
+
+        if not events.registered_events then
+            events:registerEvents(self.master)
+        end
+
+        events = events.registered_events
     end
+
+    for event,func in pairs(events or {}) do
+        local event_name = event:lower()
+        self.state_events[event_name] = self.state_events[event_name] or {}
+        self.state_events[event_name][state] = func
+    end
+
     self.has_state[state] = true
 end
 
@@ -41,18 +60,23 @@ function StateManager:removeState(state)
         state_callbacks[state] = nil
     end
     self.has_state[state] = nil
+    self.state_handler[state] = nil
 end
 
 function StateManager:hasState(state)
     return self.has_state[state] or false
 end
 
+function StateManager:getHandler(state)
+    return self.state_handler[state]
+end
+
 function StateManager:addEvent(event, state_callbacks)
-    Utils.merge(self.state_events[event], state_callbacks or {})
+    Utils.merge(self.state_events[event:lower()], state_callbacks or {})
 end
 
 function StateManager:removeEvent(event)
-    self.state_events[event] = nil
+    self.state_events[event:lower()] = nil
 end
 
 function StateManager:hasEvent(event, state)
@@ -72,7 +96,7 @@ function StateManager:callOn(state, event, ...)
 end
 
 function StateManager:call(event, ...)
-    self:callOn(self.state, event, ...)
+    return self:callOn(self.state, event, ...)
 end
 
 function StateManager:doIf(...)
@@ -122,19 +146,27 @@ function StateManager:setState(state, ...)
     end
 
     local last_state = self.state
-    self:call("leave", state, ...)
+    local redirect, redirect_args = self:call("leave", state, ...)
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
+        return
+    end
     self.state = state
     if not self.state_initialized[self.state] then
         self:call("init")
         self.state_initialized[self.state] = true
     end
     self.args = {...}
-    self:call("enter", last_state, ...)
+    local redirect, redirect_args = self:call("enter", last_state, ...)
     if self.on_state_change then
         self.on_state_change(last_state, state, ...)
     end
     if self.master and self.master.onStateChange then
         self.master:onStateChange(last_state, state, ...)
+    end
+
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
     end
 
     self.routine_wait = 0
@@ -148,6 +180,99 @@ function StateManager:setState(state, ...)
     else
         self.routine = nil
     end
+end
+
+--- *(Experimental)*
+function StateManager:pushState(state, ...)
+    if state == self.state then return end
+
+    if self.update_master_state then
+        self.master.state = state
+    end
+
+    local last_state = self.state
+
+    self:call("pause", state, ...)
+
+    table.insert(self.state_stack, self.state)
+    table.insert(self.args_stack, self.args)
+    table.insert(self.routine_stack, self.routine or "no")
+
+    self.state = state
+    self.args = {...}
+    self.routine = nil
+
+    if not self.state_initialized[self.state] then
+        self:call("init")
+        self.state_initialized[self.state] = true
+    end
+
+    local redirect, redirect_args = self:call("enter", last_state, ...)
+
+    if self.on_state_change then
+        self.on_state_change(last_state, state, ...)
+    end
+    if self.master and self.master.onStateChange then
+        self.master:onStateChange(last_state, state, ...)
+    end
+
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
+    end
+
+    self.routine_wait = 0
+    if self:hasEvent("coroutine") then
+        local function wait(time)
+            self.routine_wait =  time
+            coroutine.yield()
+        end
+        local args = {...}
+        self.routine = coroutine.create(function() self:call("coroutine", wait, Utils.unpack(args)) end)
+    end
+end
+
+--- *(Experimental)*
+function StateManager:popState(...)
+    if #self.state_stack == 0 then
+        self:setState(self.default_state)
+        return
+    end
+
+    local state = table.remove(self.state_stack, #self.state_stack)
+    local args = table.remove(self.args_stack, #self.args_stack)
+    local routine = table.remove(self.routine_stack, #self.routine_stack)
+
+    if self.update_master_state then
+        self.master.state = state
+    end
+
+    local last_state = self.state
+
+    self:call("leave", state, ...)
+
+    self.state = state
+    self.args = args
+
+    if type(routine) == "string" then
+        self.routine = nil
+    else
+        self.routine = routine
+    end
+
+    local redirect, redirect_args = self:call("resume", last_state, ...)
+
+    if self.on_state_change then
+        self.on_state_change(last_state, state, ...)
+    end
+    if self.master and self.master.onStateChange then
+        self.master:onStateChange(last_state, state, ...)
+    end
+
+    if redirect then
+        self:setState(redirect, unpack(redirect_args or {}))
+    end
+
+    self.routine_wait = 0
 end
 
 function StateManager:update()
