@@ -335,7 +335,7 @@ function love.draw(...)
     -- Draw the game canvas
     love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
     love.graphics.scale(Kristal.getGameScale())
-    --Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
+    Draw.draw(SCREEN_CANVAS, -SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
 
     love.graphics.reset()
 

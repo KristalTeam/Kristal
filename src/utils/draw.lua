@@ -30,15 +30,7 @@ if not love.graphics.getScissor then
 end
 
 function Draw.newCanvas(w, h)
-    return {
-        setFilter = function () end,
-        getWidth = function () return w end,
-        getHeight = function () return h end,
-        width = w,
-        height = h,
-        fake = true
-    }
-    --return love.graphics.newCanvas(w, h)
+    return love.graphics.newCanvas(w, h)
 end
 
 ---@class Draw.canvasOptions
