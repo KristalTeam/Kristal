@@ -377,8 +377,6 @@ function World:spawnPlayer(...)
         end
     end
 
-    print(x, y)
-
     if type(chara) == "string" then
         chara = Registry.createActor(chara)
     end
