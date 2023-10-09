@@ -377,6 +377,8 @@ function World:spawnPlayer(...)
         end
     end
 
+    print(x, y)
+
     if type(chara) == "string" then
         chara = Registry.createActor(chara)
     end
@@ -396,7 +398,10 @@ function World:spawnPlayer(...)
     self.player:setFacing(facing)
     self:addChild(self.player)
 
-    self.soul = OverworldSoul(x + 10, y + 24) -- TODO: unhardcode
+    local px, py = self.player:localToScreenPos()
+    local sx, sy = self.player.actor:getSoulOffset()
+
+    self.soul = OverworldSoul(px + sx * 2, py + sy * 2)
     self.soul:setColor(Game:getSoulColor())
     self.soul.layer = WORLD_LAYERS["soul"]
     self:addChild(self.soul)

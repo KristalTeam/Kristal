@@ -86,23 +86,15 @@ function OverworldSoul:update()
     if soul_party then
         local soul_character = self.world:getPartyCharacter(soul_party)
         if soul_character then
-            sx, sy = soul_character:getRelativePos(soul_character.width/2, soul_character.height/2)
-
-            sx = sx + 1
-            sy = sy + 11
-            -- TODO: unhardcode offset (???)
+            sx, sy = soul_character:getRelativePos(soul_character.actor:getSoulOffset())
         end
     end
 
     local tx, ty = sx, sy
 
     if self.world.player and self.world.player.battle_alpha > 0 then
-        tx, ty = self.world.player:getRelativePos(self.world.player.width/2, self.world.player.height/2)
+        tx, ty = self.world.player:getRelativePos(self.world.player.actor:getSoulOffset())
         progress = self.world.player.battle_alpha * 2
-
-        tx = tx + 1
-        ty = ty + 11
-        -- TODO: unhardcode offset (???)
     end
 
     self.x = Utils.lerp(sx, tx, progress * 1.5)
