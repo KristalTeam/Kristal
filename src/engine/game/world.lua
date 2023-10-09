@@ -396,10 +396,7 @@ function World:spawnPlayer(...)
     self.player:setFacing(facing)
     self:addChild(self.player)
 
-    local px, py = self.player:localToScreenPos()
-    local sx, sy = self.player.actor:getSoulOffset()
-
-    self.soul = OverworldSoul(px + sx * 2, py + sy * 2)
+    self.soul = OverworldSoul(self.player:getRelativePos(self.player.actor:getSoulOffset()))
     self.soul:setColor(Game:getSoulColor())
     self.soul.layer = WORLD_LAYERS["soul"]
     self:addChild(self.soul)
