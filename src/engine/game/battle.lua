@@ -2701,6 +2701,7 @@ function Battle:addMenuItem(tbl)
         ["icons"] = tbl.icons or nil
     }
     table.insert(self.menu_items, tbl)
+    return tbl
 end
 
 function Battle:onKeyPressed(key)
