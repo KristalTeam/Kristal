@@ -114,10 +114,10 @@ function MainMenuDeadzone:draw()
         Draw.printShadow(deadzone .. "%", x + 16, y, 2, "center", 64)
     end
 
-    Draw.setColor(1, 1, 1)
-
     drawSlider(1, "left", 152, 296)
     drawSlider(2, "right", 392, 296)
+
+    Draw.setColor(1, 1, 1)
 
     Draw.printShadow("Back", 286, 364)
 

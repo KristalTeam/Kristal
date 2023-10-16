@@ -46,11 +46,11 @@ function MainMenuCredits:init(menu)
                 "sjl057",
             }
         },
-        --[[{
+        {
             "Kristal Engine",
             {
                 {"GitHub Contributors", COLORS.silver},
-                "",
+                "AlexGamingSW",
                 "",
                 "",
                 "",
@@ -74,7 +74,7 @@ function MainMenuCredits:init(menu)
                 "",
                 "",
             }
-        }]]
+        }
     }
     self.selected_page = 1
 
