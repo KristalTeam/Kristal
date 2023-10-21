@@ -47,7 +47,7 @@ function character:init()
 
     -- Max stats from level-ups
     self.max_stats = {
-        health = 166
+        health = 999
     }
 
     -- Weapon icon in equip menu
