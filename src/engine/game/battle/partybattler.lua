@@ -53,6 +53,10 @@ function PartyBattler:calculateDamage(amount)
         else
             amount = amount - 1
         end
+        if amount <= 0 or def == math.huge then
+            amount = 0
+            break
+        end
     end
 
     return math.max(amount, 1)
