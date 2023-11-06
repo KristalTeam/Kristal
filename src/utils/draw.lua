@@ -21,14 +21,6 @@ Draw._scissor_stack = {}
 
 Draw._shader_stack = {}
 
-Draw._current_scissor = { 0, 0, 320, 240 }
-
-if not love.graphics.getScissor then
-    love.graphics.getScissor = function ()
-        return unpack(Draw._current_scissor)
-    end
-end
-
 function Draw.newCanvas(w, h)
     return love.graphics.newCanvas(w, h)
 end
@@ -193,10 +185,8 @@ end
 function Draw.scissorUntransformed(x, y, w, h)
     if x == nil then
         love.graphics.setScissor()
-        Draw._current_scissor = { 0, 0, 320, 240 }
         return
     end
-    Draw._current_scissor = { x, y, w, h }
     love.graphics.setScissor(x, y, w, h)
 end
 
