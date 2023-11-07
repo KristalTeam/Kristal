@@ -12,7 +12,8 @@ if not HOTSWAPPING then
 
         next_key = 0,
         waiting = 0,
-        end_funcs = {}
+        end_funcs = {},
+        message = ""
     }
 end
 
@@ -242,23 +243,26 @@ function love.update(dt)
     TextInput.update()
 
     if Kristal.Loader.waiting > 0 then
-        local msg = Kristal.Loader.out_channel:pop()
-        if msg then
-            if msg.print then
-                Kristal.log("LOADTHREAD: " .. msg.print)
-            else
-                Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+        while Kristal.Loader.out_channel:getCount() > 0 do
+            local msg = Kristal.Loader.out_channel:pop()
+            if msg then
+                if msg.status == "finished" then
+                    Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+                    Kristal.Loader.message = ""
 
-                if Kristal.Loader.waiting == 0 then
-                    Kristal.Overlay.setLoading(false)
-                end
+                    if Kristal.Loader.waiting == 0 then
+                        Kristal.Overlay.setLoading(false)
+                    end
 
-                Assets.loadData(msg.data.assets)
-                Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
+                    Assets.loadData(msg.data.assets)
+                    Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
 
-                if Kristal.Loader.end_funcs[msg.key] then
-                    Kristal.Loader.end_funcs[msg.key]()
-                    Kristal.Loader.end_funcs[msg.key] = nil
+                    if Kristal.Loader.end_funcs[msg.key] then
+                        Kristal.Loader.end_funcs[msg.key]()
+                        Kristal.Loader.end_funcs[msg.key] = nil
+                    end
+                elseif msg.status == "loading" then
+                    Kristal.Loader.message = msg.path
                 end
             end
         end
@@ -931,6 +935,7 @@ end
 ---@param paths? string|table The specific asset paths to load.
 ---@param after? function     The function to call when done.
 function Kristal.loadAssets(dir, loader, paths, after)
+    Kristal.Loader.message = ""
     Kristal.log("LOADASSETS - SetLoading")
     Kristal.Overlay.setLoading(true)
     Kristal.log("LOADASSETS - Waiting")
@@ -939,8 +944,12 @@ function Kristal.loadAssets(dir, loader, paths, after)
         Kristal.log("LOADASSETS - Set after")
         Kristal.Loader.end_funcs[Kristal.Loader.next_key] = after
     end
+
+    if true then
+        Kristal.Loader.in_channel:push("verbose")
+    end
+
     Kristal.log("LOADASSETS - Push to in_channel")
-    Kristal.log("LOADASSETS - ae")
     Kristal.Loader.in_channel:push({
         key = Kristal.Loader.next_key,
         dir = dir,

@@ -95,6 +95,7 @@ function Stage:draw()
     else
         super.draw(self)
     end
+
     --[[love.graphics.push()
     love.graphics.applyTransform(self:getTransform())
     Draw.pushScissor()

@@ -301,6 +301,7 @@ function love.draw(...)
 
     Kristal.Stage:draw()
     Kristal.Overlay:draw()
+
     Draw.setCanvas()
 
     Draw.setColor(1, 1, 1, 1)

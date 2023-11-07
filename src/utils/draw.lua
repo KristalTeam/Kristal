@@ -110,7 +110,6 @@ end
 ---@param canvas? love.Canvas
 function Draw.setCanvas(canvas)
     if canvas then
-        if canvas.fake then return end
         love.graphics.setCanvas(canvas)
     else
         love.graphics.setCanvas()
@@ -267,7 +266,6 @@ end
 ---@overload fun(texture: love.Texture, quad: love.Quad, transform: love.Transform)
 function Draw.draw(...)
     if ({ ... })[1] == nil then return end
-    if type(({ ... })[1]) == "table" and ({ ... })[1].fake then return end
     love.graphics.draw(...)
 end
 

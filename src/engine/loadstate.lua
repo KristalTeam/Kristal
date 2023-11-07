@@ -81,7 +81,8 @@ function Loading:update()
         Kristal.Stage:addChild(Kristal.Console)
         -- create the debug system
         Kristal.DebugSystem = DebugSystem()
-        Kristal.Stage:addChild(Kristal.DebugSystem)
+        --Kristal.Stage:addChild(Kristal.DebugSystem)
+
         REGISTRY_LOADED = true
         if Kristal.Args["test"] then
             Gamestate.switch(Kristal.States["Testing"])

@@ -103,6 +103,24 @@ function Overlay:draw()
     Draw.draw(load_texture, 0, -load_texture:getHeight())
     love.graphics.pop()
 
+    -- Draw the loader messages
+    if Kristal.Loader.message ~= "" then
+        love.graphics.setFont(self.font)
+        local text = Kristal.Loader.message
+        local x = SCREEN_WIDTH - self.font:getWidth(text) - 2
+        local y = SCREEN_HEIGHT - self.font:getHeight() - 4
+        Draw.setColor(0, 0, 0)
+        for ox = -1, 1 do
+            for oy = -1, 1 do
+                if ox ~= 0 or oy ~= 0 then
+                    love.graphics.print(text, x + (ox * 2), y + (oy * 2))
+                end
+            end
+        end
+        Draw.setColor(1, 1, 1)
+        love.graphics.print(text, x, y)
+    end
+
     -- Draw the FPS counter text
     if Kristal.Config and Kristal.Config["showFPS"] then
         love.graphics.setFont(self.font)

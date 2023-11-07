@@ -29,9 +29,6 @@ function DebugSystem:init()
 
     self.current_selecting = 1
 
-    self.menu_canvas = Draw.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-    self.menu_canvas:setFilter("nearest", "nearest")
-
     self.menus = {}
 
     self:refresh()
@@ -138,19 +135,19 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                     if Game.world then
                         if Game.world.player then
                             self.context:addMenuItem("Teleport", "Teleport the player to\nthe current position.",
-                                function ()
-                                    Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
-                                    Game.world.player:interpolateFollowers()
-                                    self:selectObject(Game.world.player)
-                                end)
+                                                     function ()
+                                                         Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                                         Game.world.player:interpolateFollowers()
+                                                         self:selectObject(Game.world.player)
+                                                     end)
                         else
                             self.context:addMenuItem("Spawn player", "Spawn the player at the\ncurrent position.",
-                                function ()
-                                    Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
-                                    Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
-                                    Game.world.player:interpolateFollowers()
-                                    self:selectObject(Game.world.player)
-                                end)
+                                                     function ()
+                                                         Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
+                                                         Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                                         Game.world.player:interpolateFollowers()
+                                                         self:selectObject(Game.world.player)
+                                                     end)
                         end
                     end
                     if self.copied_object then
@@ -160,21 +157,21 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                     end
                     self.context:addMenuItem("Select object", "Select an object by name.", function ()
                         self.window = DebugWindow("Select Object", "Enter the name of the object to select.", "input",
-                            function (text)
-                                local stage = self:getStage()
-                                if stage then
-                                    local objects = stage:getObjects()
-                                    Object.startCache()
-                                    for _, instance in ipairs(objects) do
-                                        if Utils.getClassName(instance):lower() == text:lower() then
-                                            self:selectObject(instance)
-                                            self:openObjectContext(instance)
-                                            break
-                                        end
-                                    end
-                                    Object.endCache()
-                                end
-                            end)
+                                                  function (text)
+                                                      local stage = self:getStage()
+                                                      if stage then
+                                                          local objects = stage:getObjects()
+                                                          Object.startCache()
+                                                          for _, instance in ipairs(objects) do
+                                                              if Utils.getClassName(instance):lower() == text:lower() then
+                                                                  self:selectObject(instance)
+                                                                  self:openObjectContext(instance)
+                                                                  break
+                                                              end
+                                                          end
+                                                          Object.endCache()
+                                                      end
+                                                  end)
                         self.window:setPosition(Input.getCurrentCursorPosition())
                         self:addChild(self.window)
                     end)
@@ -466,37 +463,37 @@ function DebugSystem:registerSubMenus()
     end)
     self:registerConfigOption("engine_options", "Frame Skip", "Toggle frame skipping.", "frameSkip")
     self:registerOption("engine_options", "Print Performance", "Show performance in the console.",
-        function () PERFORMANCE_TEST_STAGE = "UPDATE" end)
+                        function () PERFORMANCE_TEST_STAGE = "UPDATE" end)
     self:registerOption("engine_options", "Force GC", "Force a garbage collection.",
-        function () collectgarbage("collect") end)
+                        function () collectgarbage("collect") end)
     self:registerOption("engine_options", "Force Crash", "Force a crash.", function () error("Debug crash!") end)
     self:registerOption("engine_options", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
 
     self:registerMenu("engine_option_fps", "Target FPS")
     self:registerOption("engine_option_fps", "Unlimited", "Set the target FPS to unlimited.",
-        function ()
-            Kristal.Config["fps"] = 0; FRAMERATE = 0
-        end)
+                        function ()
+                            Kristal.Config["fps"] = 0; FRAMERATE = 0
+                        end)
     self:registerOption("engine_option_fps", "30", "Set the target FPS to 30.",
-        function ()
-            Kristal.Config["fps"] = 30; FRAMERATE = 30
-        end)
+                        function ()
+                            Kristal.Config["fps"] = 30; FRAMERATE = 30
+                        end)
     self:registerOption("engine_option_fps", "60", "Set the target FPS to 60.",
-        function ()
-            Kristal.Config["fps"] = 60; FRAMERATE = 60
-        end)
+                        function ()
+                            Kristal.Config["fps"] = 60; FRAMERATE = 60
+                        end)
     self:registerOption("engine_option_fps", "120", "Set the target FPS to 120.",
-        function ()
-            Kristal.Config["fps"] = 120; FRAMERATE = 120
-        end)
+                        function ()
+                            Kristal.Config["fps"] = 120; FRAMERATE = 120
+                        end)
     self:registerOption("engine_option_fps", "144", "Set the target FPS to 144.",
-        function ()
-            Kristal.Config["fps"] = 144; FRAMERATE = 144
-        end)
+                        function ()
+                            Kristal.Config["fps"] = 144; FRAMERATE = 144
+                        end)
     self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.",
-        function ()
-            Kristal.Config["fps"] = 240; FRAMERATE = 240
-        end)
+                        function ()
+                            Kristal.Config["fps"] = 240; FRAMERATE = 240
+                        end)
     self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function ()
         self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function (text)
             local fps = tonumber(text)
@@ -605,22 +602,22 @@ function DebugSystem:registerDefaults()
 
     -- Global
     self:registerConfigOption("main", "Object Selection Pausing",
-        "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
+                              "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
     self:registerOption("main", "Engine Options", "Configure various noningame options.", function ()
         self:enterMenu("engine_options", 1)
     end)
 
     self:registerOption("main", "Fast Forward",
-        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
-        function () FAST_FORWARD = not FAST_FORWARD end)
+                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+                        function () FAST_FORWARD = not FAST_FORWARD end)
     self:registerOption("main", "Debug Rendering",
-        function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
-        function () DEBUG_RENDER = not DEBUG_RENDER end)
+                        function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
+                        function () DEBUG_RENDER = not DEBUG_RENDER end)
     self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.",
-        function ()
-            Hotswapper.scan(); self:refresh()
-        end)
+                        function ()
+                            Hotswapper.scan(); self:refresh()
+                        end)
     self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function ()
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
@@ -1029,7 +1026,7 @@ function DebugSystem:draw()
     local text_offset = menu_x + 19
     local y_off = 32
 
-    Draw.setCanvas(self.menu_canvas)
+    local menu_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     love.graphics.clear()
 
     local header_name = "UNKNOWN"
@@ -1077,7 +1074,7 @@ function DebugSystem:draw()
                 name = name()
             end
             self:printShadow(name, text_offset + 19,
-                y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
+                             y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
         end
         Draw.popScissor()
 
@@ -1140,7 +1137,7 @@ function DebugSystem:draw()
                 love.graphics.setLineWidth(2)
                 Draw.setColor(0, 1, 1, 1)
                 love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1,
-                    width + 2, height + 2)
+                                        width + 2, height + 2)
                 Draw.setColor(1, 1, 1, 1)
 
                 name = texture_id
@@ -1206,7 +1203,7 @@ function DebugSystem:draw()
         for index, key in pairs(Utils.getKeys(Game.flags)) do
             self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
             self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
-                { 1, 1, 1, 1 }, "right", 640)
+                             { 1, 1, 1, 1 }, "right", 640)
         end
         Draw.popScissor()
 
@@ -1288,7 +1285,7 @@ function DebugSystem:draw()
         end
 
         self:printShadow(string.format("Mouse: (%i, %i)", mx, my), 12, 480 - 32 + Utils.lerp(16, 0, menu_alpha),
-            { 1, 1, 1, 1 })
+                         { 1, 1, 1, 1 })
 
         if not object then
             self.hover_alpha = self.hover_alpha - DT / fadespeed
@@ -1327,18 +1324,18 @@ function DebugSystem:draw()
 
             local inc = 1
             self:printShadow("Selected: " .. Utils.getClassName(object), x_offset, (32 * inc) + 10,
-                { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
             inc = inc + 1
             self:printShadow(string.format("Position: (%i, %i)", object.x, object.y), x_offset, (32 * inc) + 10,
-                { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
             inc = inc + 1
             self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), x_offset, (32 * inc) + 10,
-                { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
             inc = inc + 1
 
             if object.object_id then
                 self:printShadow("World ID: " .. object.object_id, x_offset, (32 * inc) + 10,
-                    { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+                                 { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
                 inc = inc + 1
             end
 
@@ -1346,7 +1343,7 @@ function DebugSystem:draw()
 
             for i, line in ipairs(info) do
                 self:printShadow(line, x_offset, (32 * inc) + 10, { 1, 1, 1, self.selected_alpha },
-                    self.current_text_align, limit)
+                                 self.current_text_align, limit)
                 inc = inc + 1
             end
         end
@@ -1362,10 +1359,11 @@ function DebugSystem:draw()
     Draw.setColor(0, 1, 1, 1)
 
     -- Reset canvas to draw to
-    Draw.setCanvas(SCREEN_CANVAS)
+    Draw.popCanvas()
+    --Draw.setCanvas(SCREEN_CANVAS)
 
     Draw.setColor(1, 1, 1, menu_alpha)
-    Draw.draw(self.menu_canvas, 0, 0)
+    Draw.draw(menu_canvas, 0, 0)
 
     self.mouse_clicked = false
 

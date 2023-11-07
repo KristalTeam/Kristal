@@ -4,6 +4,8 @@ require("love.sound")
 
 json = require("src.lib.json")
 
+verbose = false
+
 --[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
     love.filesystem.mount("mod_template/assets", "mods/example/assets")
     love.filesystem.mount("mod_template/scripts", "mods/example/scripts")
@@ -329,7 +331,9 @@ local loaders = {
 function loadPath(baseDir, loader, path, pre)
     if path_loaded[loader][path] then return end
 
-    --out_channel:push({ print = "Loading " .. loader .. " " .. path })
+    if verbose then
+        out_channel:push({ status = "loading", loader = loader, path = path })
+    end
 
     path_loaded[loader][path] = true
 
@@ -371,7 +375,9 @@ resetData()
 -- Thread loop
 while true do
     local msg = in_channel:demand()
-    if msg == "stop" then
+    if msg == "verbose" then
+        verbose = true
+    elseif msg == "stop" then
         break
     else
         local key = msg.key or 0
@@ -399,7 +405,7 @@ while true do
             end
         end
 
-        out_channel:push({ key = key, data = data })
+        out_channel:push({ key = key, status = "finished", data = data })
         resetData()
     end
 end
