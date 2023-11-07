@@ -1225,7 +1225,6 @@ function DebugSystem:draw()
         end
 
         Object.startCache()
-        local mx, my = Input.getCurrentCursorPosition()
 
         local object = self.object
         if (not self.grabbing) and (not self.context) then

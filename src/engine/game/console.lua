@@ -213,6 +213,7 @@ function Console:draw()
             if place == "middle" then return "│ " end
             if place == "end"    then return "└ " end
             if place == "single" then return "> " end
+            return "  "
         end,
         x = 8,
         y = input_pos,
