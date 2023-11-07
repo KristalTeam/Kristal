@@ -138,12 +138,12 @@ function love.load(args)
 
         love.graphics.reset()
 
-        Draw.setCanvas(SCREEN_CANVAS)
+        Draw.pushCanvas(SCREEN_CANVAS)
         love.graphics.clear(0, 0, 0, 1)
         orig(...)
         Kristal.Stage:draw()
         Kristal.Overlay:draw()
-        Draw.setCanvas()
+        Draw.popCanvas()
 
         Draw.setColor(1, 1, 1, 1)
 

@@ -6,8 +6,6 @@ function MirrorArea:init(x, y, w, h, properties)
 
     properties = properties or {}
 
-    self.canvas = love.graphics.newCanvas(self.width, self.height)
-
     self.offset = properties["offset"] or 0
     self.opacity = properties["opacity"] or 1
 
@@ -52,14 +50,14 @@ end
 function MirrorArea:draw()
     super.draw(self)
 
-    Draw.pushCanvas(self.canvas)
+    local canvas = Draw.pushCanvas(self.width, self.height)
     love.graphics.clear()
     love.graphics.translate(-self.x, -self.y)
     self:drawMirror()
     Draw.popCanvas()
 
     Draw.setColor(1, 1, 1, self.opacity)
-    Draw.draw(self.canvas)
+    Draw.draw(canvas)
     Draw.setColor(1, 1, 1, 1)
 end
 

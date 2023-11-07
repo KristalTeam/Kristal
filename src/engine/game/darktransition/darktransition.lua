@@ -7,7 +7,8 @@ local DarkTransition, super = Class(Object)
     "party/kris/dark_transition",
     "party/susie/light/walk/up_*",
     "party/susie/dark_transition"
-}]]--
+}]]
+    --
 
 function DarkTransition:init(final_y, options)
     super.init(self)
@@ -61,26 +62,26 @@ function DarkTransition:init(final_y, options)
     if self.kris_only == nil then self.kris_only = false end
     if self.has_head_object == nil then self.has_head_object = false end
 
-    self.final_y = final_y or (SCREEN_HEIGHT / 2)
-    self.sparkles  = options["sparkles"] or 0
+    self.final_y               = final_y or (SCREEN_HEIGHT / 2)
+    self.sparkles              = options["sparkles"] or 0
 
-    self.sparestar = Assets.getFrames("effects/spare/star")
+    self.sparestar             = Assets.getFrames("effects/spare/star")
 
-    self.dtrans_square = Assets.newSound("dtrans_square")
+    self.dtrans_square         = Assets.newSound("dtrans_square")
 
-    self.spr_doorblack = Assets.getTexture("kristal/doorblack")
+    self.spr_doorblack         = Assets.getTexture("kristal/doorblack")
 
-    self.head_object_sprite = Assets.getTexture("misc/trash_ball")
+    self.head_object_sprite    = Assets.getTexture("misc/trash_ball")
 
     -- Sprite stuff
-    self.use_sprite_index = false
+    self.use_sprite_index      = false
 
-    self.kris_sprite_holder = Object(self.kris_x, self.kris_y)
-    self.kris_sprite = Sprite(nil, 0, 0)
-    self.kris_sprite_2 = Sprite(nil, 0, 0)
-    self.kris_sprite_3 = Sprite(nil, 0, 0)
+    self.kris_sprite_holder    = Object(self.kris_x, self.kris_y)
+    self.kris_sprite           = Sprite(nil, 0, 0)
+    self.kris_sprite_2         = Sprite(nil, 0, 0)
+    self.kris_sprite_3         = Sprite(nil, 0, 0)
 
-    self.kris_sprite.visible = false
+    self.kris_sprite.visible   = false
     self.kris_sprite_2.visible = false
     self.kris_sprite_3.visible = false
 
@@ -106,7 +107,8 @@ function DarkTransition:init(final_y, options)
     end
 
     if self.has_head_object then
-        self.kris_head_object = HeadObject(self.head_object_sprite, 14 - (self.head_object_sprite:getWidth()  / 2), -2 - (self.head_object_sprite:getHeight() / 2))
+        self.kris_head_object = HeadObject(self.head_object_sprite, 14 - (self.head_object_sprite:getWidth() / 2),
+            -2 - (self.head_object_sprite:getHeight() / 2))
         self.kris_head_object.visible = true
         self.kris_sprite_holder:addChild(self.kris_head_object)
     end
@@ -169,15 +171,15 @@ function DarkTransition:init(final_y, options)
 end
 
 function DarkTransition:onAddToStage(stage)
-    for _,music in ipairs(Music.getPlaying()) do
-        music:fade(0, 20/30)
+    for _, music in ipairs(Music.getPlaying()) do
+        music:fade(0, 20 / 30)
     end
 end
 
 function DarkTransition:drawDoor(x, y, xscale, yscale, rot, color)
     local sprite = self.spr_doorblack
     Draw.setColor(color)
-    Draw.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth()/2, sprite:getHeight()/2)
+    Draw.draw(sprite, x, y, rot, xscale, yscale, sprite:getWidth() / 2, sprite:getHeight() / 2)
 end
 
 function DarkTransition:update()
@@ -208,8 +210,8 @@ function DarkTransition:update()
             local xrand  = math.random() * (math.pi / 2)
             local xrand2 = math.random() * (math.pi / 2)
 
-            local x =  ( 70 - (math.sin(xrand)  * 70))
-            local x2 = (250 + (math.sin(xrand2) * 70))
+            local x      = (70 - (math.sin(xrand) * 70))
+            local x2     = (250 + (math.sin(xrand2) * 70))
 
             self:addChild(DarkTransitionLine(x))
             self:addChild(DarkTransitionLine(x2))
@@ -269,7 +271,7 @@ function DarkTransition:draw()
     -- In Deltarune, this is a 999x999 black marker.
     if self.megablack then
         Draw.setColor(0, 0, 0, self.black_fade)
-        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         Draw.setColor(1, 1, 1)
     end
 
@@ -293,9 +295,10 @@ function DarkTransition:draw()
                     r_darkest = 1
                 end
 
-                local r_color = {r_darkest, r_darkest, r_darkest, 1}
+                local r_color = { r_darkest, r_darkest, r_darkest, 1 }
 
-                self:drawDoor(self.rx, self.ry, (self.rw * self.rsize[i]), (self.rh * self.rsize[i]), -math.rad(self.rsize[i]), r_color)
+                self:drawDoor(self.rx, self.ry, (self.rw * self.rsize[i]), (self.rh * self.rsize[i]),
+                    -math.rad(self.rsize[i]), r_color)
             end
         end
     end
@@ -355,7 +358,6 @@ function DarkTransition:draw()
             self.sprite_index = self.sprite_index + 0.2 * DTMULT
         end
         if (math.floor(self.timer) >= 30) and not self.do_once then
-
             --snd_free_all()
             self.do_once = true
             Assets.playSound("locker")
@@ -651,7 +653,6 @@ function DarkTransition:draw()
                 self.susie_top = 0
             end
             if (self.susie_top >= 2 and not self.kris_only) then
-
                 local x = ((self.susie_x + 3) + math.random((self.susie_width - 6)))
                 local y = (self.susie_y + self.susie_top)
 
@@ -686,12 +687,12 @@ function DarkTransition:draw()
             end
             self.susie_y  = Utils.round(self.susie_y)
             self.susie_x  = Utils.round(self.susie_x)
-            self.kris_y = Utils.round(self.kris_y)
-            self.kris_x = Utils.round(self.kris_x)
-            self.timer = 0
+            self.kris_y   = Utils.round(self.kris_y)
+            self.kris_x   = Utils.round(self.kris_x)
+            self.timer    = 0
             self.velocity = -0.2
             self.friction = 0.01
-            self.con = 32
+            self.con      = 32
 
             self.kris_sprite:setFrames(self.spr_kris_fall_smear)
             self.kris_sprite:setFrame(1)
@@ -844,19 +845,19 @@ function DarkTransition:draw()
                     end
                 end
 
-                self.con = 34
-                self.timer = 0
-                self.velocity = 0
-                self.kris_y  = (self.final_y / 2) - self.kris_sprite.height
-                self.susie_y = (self.final_y / 2) - (self.kris_only and 0 or self.susie_sprite.height)
-                self.getup_index = 0
+                self.con              = 34
+                self.timer            = 0
+                self.velocity         = 0
+                self.kris_y           = (self.final_y / 2) - self.kris_sprite.height
+                self.susie_y          = (self.final_y / 2) - (self.kris_only and 0 or self.susie_sprite.height)
+                self.getup_index      = 0
                 self.fake_screenshake = 1
                 self.fake_shakeamount = 8
-                self.shaketimer = 0
-                self.remkrisx = self.kris_x
-                self.remkrisy = self.kris_y
-                self.remsusx  = self.susie_x
-                self.remsusy  = self.susie_y
+                self.shaketimer       = 0
+                self.remkrisx         = self.kris_x
+                self.remkrisy         = self.kris_y
+                self.remsusx          = self.susie_x
+                self.remsusy          = self.susie_y
 
                 if self.land_callback then
                     self.land_callback(self)
@@ -886,8 +887,8 @@ function DarkTransition:draw()
         end
         if ((math.floor(self.timer) >= 26) and not self.do_once8) then
             self.do_once8 = true
-            self.kris_x = self.remkrisx
-            self.kris_y = self.remkrisy
+            self.kris_x   = self.remkrisx
+            self.kris_y   = self.remkrisy
             self.susie_x  = self.remsusx
             self.susie_y  = self.remsusy
             --scr_become_dark()
@@ -973,13 +974,6 @@ function DarkTransition:draw()
     if not self.kris_only then
         self.susie_sprite_holder:setPosition(self.susie_x + self.fake_shakeamount, self.susie_y)
     end
-
-    -- Reset canvas to draw to
-    --Draw.setCanvas(SCREEN_CANVAS)
-
-    ---- Draw the canvas on the screen scaled by 2x
-    --Draw.setColor(1, 1, 1, 1)
-    --Draw.draw(self.canvas, 0, 0, 0, 2, 2)
 
     --self.stage:draw()
     super.draw(self)
