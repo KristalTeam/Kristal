@@ -1,13 +1,9 @@
 ---@class Layout : Class
 ---
 ---@field parent UIComponent|nil
----
----@overload fun(parent?:UIComponent) : Layout
 local Layout = Class()
 
----@param parent? UIComponent
-function Layout:init(parent)
-    self.parent = parent
+function Layout:init()
 end
 
 function Layout:refresh()
