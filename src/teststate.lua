@@ -6,13 +6,13 @@ function Testing:enter()
 
     self.state = "MAIN"
 
-    local window = UIWindow(0, 0, 640, 480)
+    local window = UIWindow(160, 120, FixedSizing(320, 240))
+    window:setLayout(VerticalLayout(0, { gap = 20, align = "center" }))
     window.padding = { 20, 20, 20, 20 }
     window.margins = { 20, 20, 20, 20 }
-    window:setLayout(VerticalLayout({ horizontal = "centered" }))
     window:addChild(Text("hey1"))
     window:addChild(Text("hey2"))
-    window:addChild(Text("hey3"))
+    window:addChild(Text("hellooo"))
     window:addChild(Text("hey4"))
     window:addChild(Text("hey5"))
     self.stage:addChild(window)

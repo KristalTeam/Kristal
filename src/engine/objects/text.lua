@@ -798,9 +798,12 @@ function Text:draw()
     end
 
     if DEBUG_RENDER then
-        Draw.setColor(1, 0, 0, 1)
+        Draw.setColor(0, 1, 0.5, 0.5)
         love.graphics.setLineWidth(2)
         love.graphics.rectangle("line", 0, 0, self.width, self.height)
+
+        Draw.setColor(0, 1, 0.5, 1)
+        love.graphics.rectangle("line", 0, 0, self:getTextWidth(), self:getTextHeight())
     end
 
     super.draw(self)

@@ -245,6 +245,10 @@ Layout = require("src.engine.ui.layout")
 HorizontalLayout = require("src.engine.ui.layouts.horizontal")
 VerticalLayout = require("src.engine.ui.layouts.vertical")
 
+Sizing = require("src.engine.ui.sizing")
+FixedSizing = require("src.engine.ui.sizing.fixed")
+FitSizing = require("src.engine.ui.sizing.fit")
+
 Hotswapper = require("src.hotswapper")
 
 -- Register required in the hotswapper
