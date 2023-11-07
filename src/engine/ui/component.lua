@@ -47,6 +47,9 @@ function UIComponent:draw()
         love.graphics.rectangle("fill", self.width - self.padding[3], 0, self.padding[3], self.height)
         -- bottom rectangle
         love.graphics.rectangle("fill", 0, self.height - self.padding[4], self.width, self.padding[4])
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.rectangle("line", 0, 0, self.width, self.height)
     end
 
     love.graphics.setColor(1, 1, 1, 1)
