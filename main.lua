@@ -238,8 +238,8 @@ DarkTransition = require("src.engine.game.darktransition.darktransition")
 
 UIComponent = require("src.engine.ui.component")
 UIWindow = require("src.engine.ui.window")
-UIMenu = require("src.engine.ui.menu")
-UIMenuItem = require("src.engine.ui.menuitem")
+UIMenu = require("src.engine.ui.components.menu")
+UIMenuItem = require("src.engine.ui.components.menuitem")
 
 Layout = require("src.engine.ui.layout")
 HorizontalLayout = require("src.engine.ui.layouts.horizontal")

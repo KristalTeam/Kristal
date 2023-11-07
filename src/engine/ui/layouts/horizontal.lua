@@ -11,9 +11,9 @@ function HorizontalLayout:refresh()
     super.refresh(self)
     local x_position = 0
     for _, child in ipairs(self.parent.children) do
-        x_position = x_position + child.x
-        child.x = x_position
-        x_position = x_position + child:getTotalSize()[1]
+        child.x = child.x + x_position
+        local width, _ = child:getSize()
+        x_position = x_position + (child.getTotalSize and child:getTotalSize()[1] or width)
     end
 end
 

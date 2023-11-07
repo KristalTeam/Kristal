@@ -11,6 +11,49 @@ function UIComponent:init(x, y, width, height)
     self.padding = { 0, 0, 0, 0 }
 end
 
+function UIComponent:getDebugInfo()
+    local info = super.getDebugInfo(self)
+    table.insert(info,
+        "Margins: (" ..
+        self.margins[1] .. ", " .. self.margins[2] .. ", " .. self.margins[3] .. ", " .. self.margins[4] .. ")")
+    table.insert(info,
+        "Padding: (" ..
+        self.padding[1] .. ", " .. self.padding[2] .. ", " .. self.padding[3] .. ", " .. self.padding[4] .. ")")
+    return info
+end
+
+function UIComponent:draw()
+    if DEBUG_RENDER then
+        -- draw margins
+        love.graphics.setColor(0, 1, 1, 0.25)
+        -- left rectangle
+        love.graphics.rectangle("fill", -self.margins[1], -self.margins[2], self.margins[1],
+            self.height + self.margins[2] + self.margins[4])
+        -- top rectangle
+        love.graphics.rectangle("fill", 0, -self.margins[2], self.width + self.margins[3],
+            self.margins[2])
+        -- right rectangle
+        love.graphics.rectangle("fill", self.width, 0, self.margins[3], self.height)
+        -- bottom rectangle
+        love.graphics.rectangle("fill", 0, self.height, self.width + self.margins[3], self.margins[4])
+
+        -- draw padding
+        love.graphics.setColor(1, 0, 1, 0.25)
+        -- left rectangle
+        love.graphics.rectangle("fill", 0, 0, self.padding[1], self.height)
+        -- top rectangle
+        love.graphics.rectangle("fill", 0, 0, self.width, self.padding[2])
+        -- right rectangle
+        love.graphics.rectangle("fill", self.width - self.padding[3], 0, self.padding[3], self.height)
+        -- bottom rectangle
+        love.graphics.rectangle("fill", 0, self.height - self.padding[4], self.width, self.padding[4])
+    end
+
+    love.graphics.setColor(1, 1, 1, 1)
+
+    super.draw(self)
+end
+
 function UIComponent:update()
     self.layout:refresh()
 end
