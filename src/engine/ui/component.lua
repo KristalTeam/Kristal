@@ -2,10 +2,11 @@
 ---@overload fun(...) : UIComponent
 local UIComponent, super = Class(Object)
 
-function UIComponent:init(x, y, width, height)
-    super.init(self, x, y, width, height)
+function UIComponent:init(x, y, sizing)
+    super.init(self, x, y, 0, 0)
 
     self:setLayout(Layout())
+    self:setSizing(sizing or Sizing())
 
     self.margins = { 0, 0, 0, 0 }
     self.padding = { 0, 0, 0, 0 }
@@ -58,12 +59,22 @@ function UIComponent:draw()
 end
 
 function UIComponent:update()
+    super.update(self)
     self.layout:refresh()
+    if self.sizing then
+        self.width = self.sizing:getWidth()
+        self.height = self.sizing:getHeight()
+    end
 end
 
 function UIComponent:setLayout(layout)
     self.layout = layout
     self.layout.parent = self
+end
+
+function UIComponent:setSizing(sizing)
+    self.sizing = sizing
+    self.sizing.parent = self
 end
 
 function UIComponent:getTotalSize()
