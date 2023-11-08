@@ -481,8 +481,12 @@ function Kristal.errorHandler(msg)
     local trace = nil
     if type(msg) == "table" then
         if msg.critical then
-            critical = true
-            msg = "critical error"
+            if(msg.critical == "error in error handling") then
+                critical = true
+                msg =  "critical error"
+            else
+                msg = msg.critical
+            end
         elseif msg.msg then
             local split = Utils.split(msg.msg, "\n")
             trace = table.concat(split, "\n", 2)
@@ -598,10 +602,10 @@ function Kristal.errorHandler(msg)
 
         local warp = window_width - pos * 2
         if not critical then
-            local header = "Error at " .. split[#split - 1] .. " - " .. split[#split]
+            local header = "Error at " .. ( (#split - 1 > 0) and split[#split - 1] or "???").. " - " .. split[#split] --check if msg is one line long
             local _, lines = font:getWrap(header, warp)
             love.graphics.printf(
-                { "Error at ", { 0.6, 0.6, 0.6, 1 }, split[#split - 1], { 1, 1, 1, 1 }, " - " .. split[#split] }, pos,
+                { "Error at ", { 0.6, 0.6, 0.6, 1 }, ( (#split - 1 > 0) and split[#split - 1] or "???"), { 1, 1, 1, 1 }, " - " .. split[#split] }, pos,
                 ypos,
                 window_width - pos)
             ypos = ypos + (32 * #lines)
@@ -626,13 +630,13 @@ function Kristal.errorHandler(msg)
                 end
             end
         else
-            love.graphics.printf("Critical Error", pos, ypos, warp)
+            love.graphics.printf("Critical Error!\nTry replicating the bug, we might catch it next time...", pos, ypos, warp)
 
             love.graphics.setFont(font)
-            love.graphics.printf("Known causes:", pos, ypos + 64, warp)
+            love.graphics.printf("Known causes:", pos, ypos + 96, warp)
 
             love.graphics.setFont(smaller_font)
-            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, warp)
+            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 96 + 32, warp)
         end
 
         if starwalker_error then
