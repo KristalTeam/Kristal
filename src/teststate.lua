@@ -6,22 +6,30 @@ function Testing:enter()
 
     self.state = "MAIN"
 
-    local window = UIWindow(0, 0, FixedSizing(640, 480))
-    window.padding = {20, 20, 20, 20}
-    window.margins = {20, 20, 20, 20}
-    window:setLayout(VerticalLayout({ gap = 0, align = "center" }))
+    local outer = Component(0, 0, FixedSizing(640, 480))
+    outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
+    outer:setOverflow("hidden")
 
-    local window2 = UIWindow(0, 0, FillSizing(), FitSizing())
-    window2:setLayout(HorizontalLayout({ gap = 20, align = "center" }))
+    local inner = Component(0, 0, FillSizing(), FitSizing())
+    inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
 
-    window2:addChild(Text("1"))
-    window2:addChild(Text("2"))
-    window2:addChild(Text("3"))
-    window2:addChild(Text("4"))
-    window2:addChild(Text("5"))
+    local box = BoxComponent(0, 0, FitSizing())
+    local menu = BasicMenuComponent(0, 0, FitSizing())
+    box:addChild(menu)
 
-    window:addChild(window2)
-    self.stage:addChild(window)
+    menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
+
+    menu:addChild(TextMenuItemComponent("Option 1", function() end))
+    menu:addChild(TextMenuItemComponent("Option 2", function() end))
+    menu:addChild(TextMenuItemComponent("Option 3", function() end))
+    menu:addChild(TextMenuItemComponent("Option 4", function() end))
+    menu:addChild(TextMenuItemComponent("Option 5", function() end))
+
+    inner:addChild(box)
+
+    outer:addChild(inner)
+
+    self.stage:addChild(outer)
 end
 
 function Testing:update()

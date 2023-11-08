@@ -1,6 +1,6 @@
 ---@class Layout : Class
 ---
----@field parent UIComponent|nil
+---@field parent Component|nil
 local Layout = Class()
 
 function Layout:init(options)

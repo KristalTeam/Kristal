@@ -1,6 +1,6 @@
 ---@class Sizing : Class
 ---
----@field parent UIComponent|nil
+---@field parent Component|nil
 local Sizing = Class()
 
 function Sizing:init()
