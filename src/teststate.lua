@@ -7,28 +7,21 @@ function Testing:enter()
     self.state = "MAIN"
 
     local outer = Component(0, 0, FixedSizing(640, 480))
-    outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
-    outer:setOverflow("hidden")
-
-    local inner = Component(0, 0, FillSizing(), FitSizing())
-    inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
-
-    local box = BoxComponent(0, 0, FitSizing())
-    local menu = BasicMenuComponent(0, 0, FitSizing())
-    box:addChild(menu)
-
-    menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
-
-    menu:addChild(TextMenuItemComponent("Option 1", function() end))
-    menu:addChild(TextMenuItemComponent("Option 2", function() end))
-    menu:addChild(TextMenuItemComponent("Option 3", function() end))
-    menu:addChild(TextMenuItemComponent("Option 4", function() end))
-    menu:addChild(TextMenuItemComponent("Option 5", function() end))
-
-    inner:addChild(box)
-
-    outer:addChild(inner)
-
+        outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
+        outer:setOverflow("hidden")
+        local inner = Component(0, 0, FillSizing(), FitSizing())
+            inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
+            local box = BoxComponent(0, 0, FitSizing())
+                local menu = BasicMenuComponent(0, 0, FitSizing())
+                    menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
+                    menu:addChild(TextMenuItemComponent("Option 1", function() end))
+                    menu:addChild(TextMenuItemComponent("Option 2", function() end))
+                    menu:addChild(TextMenuItemComponent("Option 3", function() end))
+                    menu:addChild(TextMenuItemComponent("Option 4", function() end))
+                    menu:addChild(TextMenuItemComponent("Option 5", function() end))
+                box:addChild(menu)
+            inner:addChild(box)
+        outer:addChild(inner)
     self.stage:addChild(outer)
 end
 

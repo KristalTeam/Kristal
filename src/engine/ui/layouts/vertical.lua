@@ -48,4 +48,24 @@ function VerticalLayout:calculateTotalSize()
     return y_position
 end
 
+function VerticalLayout:draw()
+    love.graphics.setColor(1,0,1,0.25)
+    if self.align == "start" then
+        local y_position = self:calculateTotalSize()
+        Draw.rectangle("stripes", 0, y_position, self.parent.width, self.parent.height - y_position)
+        Draw.rectangle("line", 0, y_position, self.parent.width, self.parent.height - y_position)
+    elseif self.align == "end" then
+        local y_position = self:calculateTotalSize()
+        Draw.rectangle("stripes", 0, 0, self.parent.width, self.parent.height - y_position)
+        Draw.rectangle("line", 0, 0, self.parent.width, self.parent.height - y_position)
+    elseif self.align == "center" then
+        -- top and bottom
+        local y_position = self:calculateTotalSize()
+        Draw.rectangle("stripes", 0, 0, self.parent.width, (self.parent.height - y_position) / 2)
+        Draw.rectangle("line", 0, 0, self.parent.width, (self.parent.height - y_position) / 2)
+        Draw.rectangle("stripes", 0, self.parent.height - (self.parent.height - y_position) / 2, self.parent.width, (self.parent.height - y_position) / 2)
+        Draw.rectangle("line", 0, self.parent.height - (self.parent.height - y_position) / 2, self.parent.width, (self.parent.height - y_position) / 2)
+    end
+end
+
 return VerticalLayout
