@@ -1,18 +1,43 @@
----@class UIComponent : Object
----@overload fun(...) : UIComponent
-local UIComponent, super = Class(Object)
+---@class Component : Object
+---@overload fun(...) : Component
+local Component, super = Class(Object)
 
-function UIComponent:init(x, y, x_sizing, y_sizing)
+function Component:init(x, y, x_sizing, y_sizing)
     super.init(self, x, y, 0, 0)
 
     self.margins = { 0, 0, 0, 0 }
     self.padding = { 0, 0, 0, 0 }
 
+    -- visible, hidden
+    self.overflow = "visible"
+
     self:setLayout(Layout())
     self:setSizing(x_sizing or Sizing(), y_sizing or x_sizing or Sizing())
 end
 
-function UIComponent:getDebugInfo()
+function Component:setMargins(left, top, right, bottom)
+    self.margins = {
+        left,
+        top or left,
+        right or left,
+        bottom or top or left
+    }
+end
+
+function Component:setPadding(left, top, right, bottom)
+    self.padding = {
+        left,
+        top or left,
+        right or left,
+        bottom or top or left
+    }
+end
+
+function Component:setOverflow(overflow)
+    self.overflow = overflow
+end
+
+function Component:getDebugInfo()
     local info = super.getDebugInfo(self)
     table.insert(info,
         "Margins: (" ..
@@ -20,10 +45,18 @@ function UIComponent:getDebugInfo()
     table.insert(info,
         "Padding: (" ..
         self.padding[1] .. ", " .. self.padding[2] .. ", " .. self.padding[3] .. ", " .. self.padding[4] .. ")")
+    -- logical size
+    table.insert(info, "Logical Size: (" .. self.width .. ", " .. self.height .. ")")
+    -- total size
+    local total_width, total_height = self:getTotalSize()
+    table.insert(info, "Total Size: (" .. total_width .. ", " .. total_height .. ")")
+    -- working size
+    local working_width, working_height = self:getWorkingSize()
+    table.insert(info, "Working Size: (" .. working_width .. ", " .. working_height .. ")")
     return info
 end
 
-function UIComponent:draw()
+function Component:draw()
     if DEBUG_RENDER then
         -- draw margins
         love.graphics.setColor(0, 1, 1, 0.25)
@@ -55,10 +88,19 @@ function UIComponent:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
+    if self.overflow == "hidden" then
+        Draw.pushScissor()
+        Draw.scissor(0, 0, self.width, self.height)
+    end
+
     super.draw(self)
+
+    if self.overflow == "hidden" then
+        Draw.popScissor()
+    end
 end
 
-function UIComponent:update()
+function Component:update()
     super.update(self)
     self.layout:refresh()
     if self.x_sizing then
@@ -69,19 +111,19 @@ function UIComponent:update()
     end
 end
 
-function UIComponent:setLayout(layout)
+function Component:setLayout(layout)
     self.layout = layout
     self.layout.parent = self
 end
 
-function UIComponent:setSizing(x_sizing, y_sizing)
+function Component:setSizing(x_sizing, y_sizing)
     self.x_sizing = x_sizing
     self.x_sizing.parent = self
     self.y_sizing = y_sizing
     self.y_sizing.parent = self
 end
 
-function UIComponent:onAddToStage(stage)
+function Component:onAddToStage(stage)
     super.onAddToStage(self, stage)
     self.layout:refresh()
     if self.x_sizing then
@@ -92,12 +134,12 @@ function UIComponent:onAddToStage(stage)
     end
 end
 
-function UIComponent:getTotalSize()
+function Component:getTotalSize()
     return self.width + self.margins[1] + self.margins[3], self.height + self.margins[2] + self.margins[4]
 end
 
-function UIComponent:getWorkingSize()
+function Component:getWorkingSize()
     return self.width - self.padding[1] - self.padding[3], self.height - self.padding[2] - self.padding[4]
 end
 
-return UIComponent
+return Component
