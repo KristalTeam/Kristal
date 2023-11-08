@@ -248,6 +248,7 @@ VerticalLayout = require("src.engine.ui.layouts.vertical")
 Sizing = require("src.engine.ui.sizing")
 FixedSizing = require("src.engine.ui.sizing.fixed")
 FitSizing = require("src.engine.ui.sizing.fit")
+FillSizing = require("src.engine.ui.sizing.fill")
 
 Hotswapper = require("src.hotswapper")
 
