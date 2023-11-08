@@ -3,14 +3,12 @@
 local TextMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
 function TextMenuItemComponent:init(text, callback)
-    super.init(self, 0, 0, FillSizing(), FitSizing())
+    super.init(self, 0, 0, FitSizing(), FitSizing(), callback)
 
     self.text = self:addChild(Text(text))
 
     self.color = COLORS.yellow
     self.selected_color = COLORS.white
-
-    self.callback = callback
 end
 
 function TextMenuItemComponent:onHovered(hovered, initial)
@@ -20,14 +18,6 @@ function TextMenuItemComponent:onHovered(hovered, initial)
         self.text:setColor(self.color)
     else
         self.text:setColor(self.selected_color)
-    end
-end
-
-function TextMenuItemComponent:onSelected()
-    super.onSelected(self)
-
-    if self.callback then
-        self:callback()
     end
 end
 
