@@ -10,10 +10,10 @@ function Layout:init(options)
 end
 
 function Layout:refresh()
-    -- offset the children by the parent's padding
+    -- offset the children by the parent's padding and the child's margins
     for i, child in ipairs(self.parent.children) do
-        child.x = self.parent.padding[1]
-        child.y = self.parent.padding[2]
+        child.x = self.parent.padding[1] + (child.margins and child.margins[1] or 0)
+        child.y = self.parent.padding[2] + (child.margins and child.margins[2] or 0)
     end
 end
 

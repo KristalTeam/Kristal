@@ -5,7 +5,7 @@ local BoxComponent, super = Class(Component)
 function BoxComponent:init(x, y, x_sizing, y_sizing, skin)
     super.init(self, x, y, x_sizing, y_sizing)
 
-    --self.margins = {40, 40, 40, 40}
+    self:setMargins(40)
 
     self.left_frame   = 0
     self.top_frame    = 0
