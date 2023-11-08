@@ -84,6 +84,8 @@ function Component:draw()
 
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.rectangle("line", 0, 0, self.width, self.height)
+
+        self.layout:draw()
     end
 
     love.graphics.setColor(1, 1, 1, 1)
