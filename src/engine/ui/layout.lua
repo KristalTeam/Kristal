@@ -24,4 +24,8 @@ function Layout:getInnerArea()
     return width, height
 end
 
+function Layout:draw()
+
+end
+
 return Layout

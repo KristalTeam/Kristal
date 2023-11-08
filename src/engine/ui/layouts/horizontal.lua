@@ -48,4 +48,24 @@ function HorizontalLayout:calculateTotalSize()
     return x_position
 end
 
+function HorizontalLayout:draw()
+    love.graphics.setColor(1,0,1,0.25)
+    if self.align == "start" then
+        local x_position = self:calculateTotalSize()
+        Draw.rectangle("stripes", x_position, 0, self.parent.width - x_position, self.parent.height)
+        Draw.rectangle("line", x_position, 0, self.parent.width - x_position, self.parent.height)
+    elseif self.align == "end" then
+        local x_position = self:calculateTotalSize()
+        Draw.rectangle("stripes", 0, 0, self.parent.width - x_position, self.parent.height)
+        Draw.rectangle("line", 0, 0, self.parent.width - x_position, self.parent.height)
+    elseif self.align == "center" then
+        -- top and bottom
+        local x_position = self:calculateTotalSize()
+        Draw.rectangle("stripes", 0, 0, (self.parent.width - x_position) / 2, self.parent.height)
+        Draw.rectangle("line", 0, 0, (self.parent.width - x_position) / 2, self.parent.height)
+        Draw.rectangle("stripes", self.parent.width - (self.parent.width - x_position) / 2, 0, (self.parent.width - x_position) / 2, self.parent.height)
+        Draw.rectangle("line", self.parent.width - (self.parent.width - x_position) / 2, 0, (self.parent.width - x_position) / 2, self.parent.height)
+    end
+end
+
 return HorizontalLayout
