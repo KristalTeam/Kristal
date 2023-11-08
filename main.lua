@@ -243,6 +243,7 @@ AbstractMenuItemComponent = require("src.engine.ui.components.abstractmenuitem")
 
 BasicMenuComponent = require("src.engine.ui.components.basicmenu")
 TextMenuItemComponent = require("src.engine.ui.components.textmenuitem")
+SoulMenuItemComponent = require("src.engine.ui.components.soulmenuitem")
 
 Layout = require("src.engine.ui.layout")
 HorizontalLayout = require("src.engine.ui.layouts.horizontal")
