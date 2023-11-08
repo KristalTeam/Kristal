@@ -3,7 +3,10 @@
 ---@field parent UIComponent|nil
 local Layout = Class()
 
-function Layout:init()
+function Layout:init(options)
+    options = options or {}
+    self.gap = options.gap or 0
+    self.align = options.align or "start"
 end
 
 function Layout:refresh()
@@ -12,6 +15,13 @@ function Layout:refresh()
         child.x = self.parent.padding[1]
         child.y = self.parent.padding[2]
     end
+end
+
+function Layout:getInnerArea()
+    local width, height = self.parent:getSize()
+    width = width - self.parent.padding[1] - self.parent.padding[3]
+    height = height - self.parent.padding[2] - self.parent.padding[4]
+    return width, height
 end
 
 return Layout

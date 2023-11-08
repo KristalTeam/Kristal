@@ -2,14 +2,14 @@
 ---@overload fun(...) : UIComponent
 local UIComponent, super = Class(Object)
 
-function UIComponent:init(x, y, sizing)
+function UIComponent:init(x, y, x_sizing, y_sizing)
     super.init(self, x, y, 0, 0)
-
-    self:setLayout(Layout())
-    self:setSizing(sizing or Sizing())
 
     self.margins = { 0, 0, 0, 0 }
     self.padding = { 0, 0, 0, 0 }
+
+    self:setLayout(Layout())
+    self:setSizing(x_sizing or Sizing(), y_sizing or x_sizing or Sizing())
 end
 
 function UIComponent:getDebugInfo()
@@ -61,9 +61,11 @@ end
 function UIComponent:update()
     super.update(self)
     self.layout:refresh()
-    if self.sizing then
-        self.width = self.sizing:getWidth()
-        self.height = self.sizing:getHeight()
+    if self.x_sizing then
+        self.width = self.x_sizing:getWidth()
+    end
+    if self.y_sizing then
+        self.height = self.y_sizing:getHeight()
     end
 end
 
@@ -72,9 +74,22 @@ function UIComponent:setLayout(layout)
     self.layout.parent = self
 end
 
-function UIComponent:setSizing(sizing)
-    self.sizing = sizing
-    self.sizing.parent = self
+function UIComponent:setSizing(x_sizing, y_sizing)
+    self.x_sizing = x_sizing
+    self.x_sizing.parent = self
+    self.y_sizing = y_sizing
+    self.y_sizing.parent = self
+end
+
+function UIComponent:onAddToStage(stage)
+    super.onAddToStage(self, stage)
+    self.layout:refresh()
+    if self.x_sizing then
+        self.width = self.x_sizing:getWidth()
+    end
+    if self.y_sizing then
+        self.height = self.y_sizing:getHeight()
+    end
 end
 
 function UIComponent:getTotalSize()
