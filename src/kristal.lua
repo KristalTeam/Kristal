@@ -433,6 +433,18 @@ function Kristal.onKeyReleased(key)
     end
 end
 
+function Kristal.onWheelMoved(x, y)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onWheelMoved(x, y)
+    end
+    if not TextInput.active and not OVERLAY_OPEN then
+        local state = Kristal.getState()
+        if state.onWheelMoved then
+            state:onWheelMoved(x, y)
+        end
+    end
+end
+
 local function error_printer(msg, layer)
     print((debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
 end

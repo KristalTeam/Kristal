@@ -464,6 +464,12 @@ function Input.onKeyReleased(key)
     Kristal.onKeyReleased(key)
 end
 
+---@param x number
+---@param y number
+function Input.onWheelMoved(x, y)
+    Kristal.onWheelMoved(x, y)
+end
+
 function Input.update()
     -- Clear input from last frame
     Input.clear()
@@ -515,9 +521,7 @@ function love.gamepadreleased(joystick, button)
 end
 
 function love.wheelmoved(x, y)
-    if Kristal.DebugSystem then
-        Kristal.DebugSystem:onWheelMoved(x, y)
-    end
+    Input.onWheelMoved(x, y)
 end
 
 ---@param key string
