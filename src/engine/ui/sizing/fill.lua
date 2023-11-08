@@ -1,17 +1,17 @@
----@class FillSizing : Sizing
+---@class FillSizing : FitSizing
 ---@overload fun(...) : FillSizing
-local FillSizing, super = Class(Sizing)
+local FillSizing, super = Class(FitSizing)
 
 function FillSizing:init()
     super.init(self)
 end
 
 function FillSizing:getWidth()
-    return self.parent.parent.width - self.parent.parent.padding[1] - self.parent.parent.padding[3]
+    return math.max(super.getWidth(self), self.parent.parent.width - self.parent.parent.padding[1] - self.parent.parent.padding[3])
 end
 
 function FillSizing:getHeight()
-    return self.parent.parent.height - self.parent.parent.padding[2] - self.parent.parent.padding[4]
+    return math.max(super.getHeight(self), self.parent.parent.height - self.parent.parent.padding[2] - self.parent.parent.padding[4])
 end
 
 function FillSizing:refresh()
