@@ -308,6 +308,7 @@ function Console:warn(str)
 end
 
 function Console:error(str)
+    print("[ERROR] " .. tostring(str))
     self:push("[color:red][ERROR] " .. tostring(str))
 end
 

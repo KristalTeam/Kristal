@@ -651,7 +651,7 @@ function Map:loadObject(name, data)
         return Registry.createEvent(name, data)
     end
     -- Library object loading
-    for id,lib in pairs(Mod.libs) do
+    for id,lib in Kristal.iterLibraries() do
         local obj = Kristal.libCall(id, "loadObject", self.world, name, data)
         if obj then
             return obj
@@ -741,7 +741,7 @@ function Map:loadController(name, data)
         return Registry.createController(name, data)
     end
     -- Library object loading
-    for id,lib in pairs(Mod.libs) do
+    for id,lib in Kristal.iterLibraries() do
         local obj = Kristal.libCall(id, "loadController", self.world, name, data)
         if obj then
             return obj

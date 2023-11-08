@@ -572,7 +572,7 @@ function Kristal.errorHandler(msg)
         mod_string = "Mod: " .. Mod.info.id .. " " .. (Mod.info.version or "v?.?.?")
         if Utils.tableLength(Mod.libs) > 0 then
             lib_string = "Libraries:"
-            for _, lib in pairs(Mod.libs) do
+            for _, lib in Kristal.iterLibraries() do
                 local line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
                 lib_string = lib_string .. "\n" .. line
                 w = math.max(w, #line * 7)
@@ -1009,7 +1009,9 @@ function Kristal.loadMod(id, save_id, save_name, after)
     -- Mod table, can contain a library's custom variables
     -- and functions with lib.info referncing the library data
     Mod.libs = Mod.libs or {}
-    for lib_id, lib_info in pairs(mod.libs) do
+    for _, lib_id in ipairs(mod.lib_order) do
+        local lib_info = mod.libs[lib_id]
+
         local lib = { info = lib_info }
 
         ACTIVE_LIB = lib
@@ -1056,12 +1058,7 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     if not mod then return end
 
     -- How many assets we need to load (1 for the mod, 1 for each library)
-    local load_count = 1
-
-    -- Count each library for loading
-    for _, _ in pairs(mod.libs) do
-        load_count = load_count + 1
-    end
+    local load_count = 1 + #mod.lib_order
 
     -- Begin mod loading
     MOD_LOADING = true
@@ -1080,8 +1077,8 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     end
 
     -- Finally load all assets (libraries first)
-    for _, lib in pairs(mod.libs) do
-        Kristal.loadAssets(lib.path, asset_type or "all", asset_paths or "", finishLoadStep)
+    for _, lib_id in ipairs(mod.lib_order) do
+        Kristal.loadAssets(mod.libs[lib_id].path, asset_type or "all", asset_paths or "", finishLoadStep)
     end
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end
@@ -1108,7 +1105,7 @@ function Kristal.preInitMod(id)
     local use_callback = true
 
     -- Call preInit on all libraries
-    for lib_id, _ in pairs(mod.libs) do
+    for _, lib_id in pairs(mod.lib_order) do
         local lib_result = Kristal.libCall(lib_id, "preInit")
         use_callback = use_callback and not lib_result
     end
@@ -1429,7 +1426,7 @@ function Kristal.libCall(id, f, ...)
 
     if not id then
         local result
-        for _, lib in pairs(Mod.libs) do
+        for _, lib in Kristal.iterLibraries() do
             if lib[f] and type(lib[f]) == "function" then
                 local lib_result = lib[f](lib, ...)
                 result = lib_result or result
@@ -1543,7 +1540,7 @@ function Kristal.executeLibScript(lib, path, ...)
     end
 
     if not lib then
-        for _, library in pairs(Mod.libs) do
+        for _, library in Kristal.iterLibraries() do
             if library.info.script_chunks[path] then
                 return true, library.info.script_chunks[path](...)
             end
@@ -1555,6 +1552,20 @@ function Kristal.executeLibScript(lib, path, ...)
             return false
         else
             return true, library.info.script_chunks[path](...)
+        end
+    end
+end
+
+function Kristal.iterLibraries()
+    local index = 0
+
+    return function()
+        index = index + 1
+
+        if index <= #Mod.info.lib_order then
+            local lib_id = Mod.info.lib_order[index]
+
+            return lib_id, Mod.libs[lib_id]
         end
     end
 end
