@@ -808,8 +808,8 @@ function Game:onKeyReleased(key)
     Kristal.callEvent("onKeyReleased", key)
 end
 
-function Game:onWheelMoved(key)
-    Kristal.callEvent("onWheelMoved", key)
+function Game:onWheelMoved(x, y)
+    Kristal.callEvent("onWheelMoved", x, y)
 end
 
 function Game:draw()
