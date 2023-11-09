@@ -9,13 +9,15 @@ end
 function BasicMenuComponent:update()
     super.update(self)
 
-    if Input.pressed("up") then
-        self:previous()
-    elseif Input.pressed("down") then
-        self:next()
-    elseif Input.pressed("confirm") then
-        if self:getMenuItems()[self.selected_item] and self:getMenuItems()[self.selected_item].onSelected then
-            self:getMenuItems()[self.selected_item]:onSelected()
+    if self:isFocused() then
+        if Input.pressed("up") then
+            self:previous()
+        elseif Input.pressed("down") then
+            self:next()
+        elseif Input.pressed("confirm") then
+            if self:getMenuItems()[self.selected_item] and self:getMenuItems()[self.selected_item].onSelected then
+                self:getMenuItems()[self.selected_item]:onSelected()
+            end
         end
     end
 end
