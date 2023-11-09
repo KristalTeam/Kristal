@@ -33,6 +33,37 @@ function HorizontalLayout:refresh()
             x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
             x_position = x_position + self.gap
         end
+    elseif self.align == "space-between" then
+        local x_position = 0
+        local total_width = self:calculateTotalSize()
+        local gap = (self.parent.width - total_width) / (#self:getComponents() - 1)
+        for _, child in ipairs(self:getComponents()) do
+            child.x = child.x + x_position
+            local width, _ = child:getScaledSize()
+            x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
+            x_position = x_position + gap
+        end
+    elseif self.align == "space-around" then
+        local x_position = 0
+        local total_width = self:calculateTotalSize()
+        local gap = (self.parent.width - total_width) / (#self:getComponents() * 2)
+        for _, child in ipairs(self:getComponents()) do
+            x_position = x_position + gap
+            child.x = child.x + x_position
+            local width, _ = child:getScaledSize()
+            x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
+            x_position = x_position + gap
+        end
+    elseif self.align == "space-evenly" then
+        local x_position = 0
+        local total_width = self:calculateTotalSize()
+        local gap = (self.parent.width - total_width) / (#self:getComponents() + 1)
+        for _, child in ipairs(self:getComponents()) do
+            x_position = x_position + gap
+            child.x = child.x + x_position
+            local width, _ = child:getScaledSize()
+            x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
+        end
     end
 end
 
