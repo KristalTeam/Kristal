@@ -11,21 +11,26 @@ end
 
 function Layout:refresh()
     -- offset the children by the parent's padding and the child's margins
-    for i, child in ipairs(self.parent.children) do
-        child.x = self.parent.padding[1] + (child.margins and child.margins[1] or 0)
-        child.y = self.parent.padding[2] + (child.margins and child.margins[2] or 0)
+    for i, child in ipairs(self:getComponents()) do
+        child.x = ({self.parent:getScaledPadding()})[1] + (child.margins and ({child:getScaledMargins()})[1] or 0)
+        child.y = ({self.parent:getScaledPadding()})[2] + (child.margins and ({child:getScaledMargins()})[2] or 0)
     end
 end
 
 function Layout:getInnerArea()
     local width, height = self.parent:getSize()
-    width = width - self.parent.padding[1] - self.parent.padding[3]
-    height = height - self.parent.padding[2] - self.parent.padding[4]
+    width = width - ({self.parent:getScaledPadding()})[1] - ({self.parent:getScaledPadding()})[3]
+    height = height - ({self.parent:getScaledPadding()})[2] - ({self.parent:getScaledPadding()})[4]
     return width, height
 end
 
 function Layout:draw()
 
 end
+
+function Layout:getComponents()
+    return self.parent:getComponents()
+end
+
 
 return Layout
