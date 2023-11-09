@@ -137,11 +137,35 @@ function Component:onAddToStage(stage)
 end
 
 function Component:getTotalSize()
-    return self.width + self.margins[1] + self.margins[3], self.height + self.margins[2] + self.margins[4]
+    return
+        (self.width + self.margins[1] + self.margins[3]) * self.scale_x,
+        (self.height + self.margins[2] + self.margins[4]) * self.scale_y
 end
 
 function Component:getWorkingSize()
-    return self.width - self.padding[1] - self.padding[3], self.height - self.padding[2] - self.padding[4]
+    return
+        (self.width - self.padding[1] - self.padding[3]) * self.scale_x,
+        (self.height - self.padding[2] - self.padding[4]) * self.scale_y
+end
+
+function Component:getScaledMargins()
+    return
+        self.margins[1] * self.scale_x,
+        self.margins[2] * self.scale_y,
+        self.margins[3] * self.scale_x,
+        self.margins[4] * self.scale_y
+end
+
+function Component:getScaledPadding()
+    return
+        self.padding[1] * self.scale_x,
+        self.padding[2] * self.scale_y,
+        self.padding[3] * self.scale_x,
+        self.padding[4] * self.scale_y
+end
+
+function Component:getComponents()
+    return self.children
 end
 
 return Component

@@ -21,4 +21,8 @@ function Sizing:getSize()
     return self:getWidth(), self:getHeight()
 end
 
+function Sizing:getComponents()
+    return self.parent:getComponents()
+end
+
 return Sizing

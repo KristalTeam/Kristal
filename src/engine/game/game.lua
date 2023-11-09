@@ -644,7 +644,7 @@ function Game:getSoulColor()
     if mr ~= nil then
         return mr, mg, mb, ma or 1
     end
-    
+
     local chara = Game:getSoulPartyMember()
 
     if chara and chara:getSoulPriority() >= 0 then

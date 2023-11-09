@@ -5,7 +5,10 @@ local TextMenuItemComponent, super = Class(AbstractMenuItemComponent)
 function TextMenuItemComponent:init(text, callback)
     super.init(self, 0, 0, FitSizing(), FitSizing(), callback)
 
-    self.text = self:addChild(Text(text))
+    if type(text) == "string" then
+        text = Text(text)
+    end
+    self.text = self:addChild(text)
 
     self.color = COLORS.yellow
     self.selected_color = COLORS.white

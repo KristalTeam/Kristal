@@ -80,6 +80,10 @@ function Text:getSize()
     return self:getTextWidth(), self:getTextHeight()
 end
 
+function Text:getScaledSize()
+    return self:getTextWidth() * self.scale_x, self:getTextHeight() * self.scale_y
+end
+
 function Text:onAddToStage(stage)
     if self.set_text_without_stage then
         self.set_text_without_stage = false
