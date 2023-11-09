@@ -32,32 +32,32 @@ end
 
 function AbstractMenuComponent:keepInBounds()
     if self.selected_item < 1 then
-        self.selected_item = #self.children
-    elseif self.selected_item > #self.children then
+        self.selected_item = #self:getComponents()
+    elseif self.selected_item > #self:getComponents() then
         self.selected_item = 1
     end
 end
 
 function AbstractMenuComponent:updateSelected(old_item)
     if old_item then
-        if self.children[old_item] and self.children[old_item].onHovered then
-            self.children[old_item]:onHovered(false, false)
+        if self:getComponents()[old_item] and self:getComponents()[old_item].onHovered then
+            self:getComponents()[old_item]:onHovered(false, false)
         end
     end
-    if self.children[self.selected_item] and self.children[self.selected_item].onHovered then
-        self.children[self.selected_item]:onHovered(true, false)
+    if self:getComponents()[self.selected_item] and self:getComponents()[self.selected_item].onHovered then
+        self:getComponents()[self.selected_item]:onHovered(true, false)
     end
 end
 
 function AbstractMenuComponent:onAddToStage(stage)
     super.onAddToStage(self, stage)
 
-    if #self.children <= 0 then
-        error("Menu components must have at least one child before becoming active")
+    if #self:getComponents() <= 0 then
+        error("Menu components must have at least one item before becoming active")
     end
 
-    if self.children[self.selected_item] and self.children[self.selected_item].onHovered then
-        self.children[self.selected_item]:onHovered(true, true)
+    if self:getComponents()[self.selected_item] and self:getComponents()[self.selected_item].onHovered then
+        self:getComponents()[self.selected_item]:onHovered(true, true)
     end
 end
 

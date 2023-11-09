@@ -11,25 +11,25 @@ function HorizontalLayout:refresh()
 
     if self.align == "start" then
         local x_position = 0
-        for _, child in ipairs(self.parent.children) do
+        for _, child in ipairs(self:getComponents()) do
             child.x = child.x + x_position
-            local width, _ = child:getSize()
+            local width, _ = child:getScaledSize()
             x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
             x_position = x_position + self.gap
         end
     elseif self.align == "end" then
         local x_position = ({self:getInnerArea()})[2] - self:calculateTotalSize()
-        for _, child in ipairs(self.parent.children) do
+        for _, child in ipairs(self:getComponents()) do
             child.x = child.x + x_position
-            local width, _ = child:getSize()
+            local width, _ = child:getScaledSize()
             x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
             x_position = x_position + self.gap
         end
     elseif self.align == "center" then
         local x_position = (({self:getInnerArea()})[1] - self:calculateTotalSize()) / 2
-        for _, child in ipairs(self.parent.children) do
+        for _, child in ipairs(self:getComponents()) do
             child.x = child.x + x_position
-            local width, _ = child:getSize()
+            local width, _ = child:getScaledSize()
             x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
             x_position = x_position + self.gap
         end
@@ -38,10 +38,10 @@ end
 
 function HorizontalLayout:calculateTotalSize()
     local x_position = 0
-    for index, child in ipairs(self.parent.children) do
-        local width, _ = child:getSize()
+    for index, child in ipairs(self:getComponents()) do
+        local width, _ = child:getScaledSize()
         x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
-        if index ~= #self.parent.children then
+        if index ~= #self:getComponents() then
             x_position = x_position + self.gap
         end
     end

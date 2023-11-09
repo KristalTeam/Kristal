@@ -236,12 +236,15 @@ GameOver = require("src.engine.game.gameover")
 
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 
+-- UI SYSTEM
 Component = require("src.engine.ui.component")
 BoxComponent = require("src.engine.ui.components.box")
-AbstractMenuComponent = require("src.engine.ui.components.abstractmenu")
-AbstractMenuItemComponent = require("src.engine.ui.components.abstractmenuitem")
 
+AbstractMenuComponent = require("src.engine.ui.components.abstractmenu")
 BasicMenuComponent = require("src.engine.ui.components.basicmenu")
+EasingSoulMenuComponent = require("src.engine.ui.components.easingsoulmenu")
+
+AbstractMenuItemComponent = require("src.engine.ui.components.abstractmenuitem")
 TextMenuItemComponent = require("src.engine.ui.components.textmenuitem")
 SoulMenuItemComponent = require("src.engine.ui.components.soulmenuitem")
 

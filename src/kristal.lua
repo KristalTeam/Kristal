@@ -1287,6 +1287,18 @@ function Kristal.getSideOffsets()
         (love.graphics.getHeight() - (SCREEN_HEIGHT * Kristal.getGameScale())) / 2
 end
 
+--- Returns the soul color which should be used.
+---@return number r The red value of the color.
+---@return number g The green value of the color.
+---@return number b The blue value of the color.
+---@return number a The alpha value of the color.
+function Kristal.getSoulColor()
+    if Kristal.getState() == Game then
+        return Game:getSoulColor()
+    end
+    return unpack(COLORS.red)
+end
+
 --- Called internally. Loads the saved user config, with default values.
 ---@return table config The user config.
 function Kristal.loadConfig()

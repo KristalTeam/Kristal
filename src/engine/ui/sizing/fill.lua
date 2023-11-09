@@ -7,11 +7,13 @@ function FillSizing:init()
 end
 
 function FillSizing:getWidth()
-    return math.max(super.getWidth(self), self.parent.parent.width - self.parent.parent.padding[1] - self.parent.parent.padding[3])
+    local width, _ = self.parent.parent:getWorkingSize()
+    return math.max(super.getWidth(self), width)
 end
 
 function FillSizing:getHeight()
-    return math.max(super.getHeight(self), self.parent.parent.height - self.parent.parent.padding[2] - self.parent.parent.padding[4])
+    local _, height = self.parent.parent:getWorkingSize()
+    return math.max(super.getHeight(self), height)
 end
 
 function FillSizing:refresh()
