@@ -239,6 +239,7 @@ DarkTransition = require("src.engine.game.darktransition.darktransition")
 -- UI SYSTEM
 Component = require("src.engine.ui.component")
 BoxComponent = require("src.engine.ui.components.box")
+SeparatorComponent = require("src.engine.ui.components.separator")
 
 AbstractMenuComponent = require("src.engine.ui.components.abstractmenu")
 BasicMenuComponent = require("src.engine.ui.components.basicmenu")
