@@ -8,15 +8,14 @@ function EasingSoulMenuComponent:init(x, y, x_sizing, y_sizing)
     self.soul_sprite = self:addChild(Sprite("player/heart_menu", 0, 10))
     self.soul_sprite:setScale(2, 2)
     self.soul_sprite:setColor(Kristal.getSoulColor())
+    self.soul_sprite.layer = 100
 
     self.soul_target_x = 0
     self.soul_target_y = 10
 end
 
 function EasingSoulMenuComponent:getComponents()
-    -- Don't include the soul sprite in the list of items, since it's not a menu item
-    -- and shouldn't be selectable
-    -- It also shouldn't affect the flow either
+    -- Take the soul sprite out of the flow
     local items = {}
     for _, child in ipairs(super.getComponents(self)) do
         if child ~= self.soul_sprite then
@@ -29,7 +28,7 @@ end
 function EasingSoulMenuComponent:updateSelected(old_item)
     super.updateSelected(self, old_item)
 
-    local item = self:getComponents()[self.selected_item]
+    local item = self:getMenuItems()[self.selected_item]
     if item then
         self.soul_target_x = item.x
         self.soul_target_y = item.y + 10
