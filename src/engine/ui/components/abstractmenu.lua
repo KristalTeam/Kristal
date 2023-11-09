@@ -8,6 +8,33 @@ function AbstractMenuComponent:init(x, y, x_sizing, y_sizing)
     self.selected_item = 1
 end
 
+function AbstractMenuComponent:update()
+    super.update(self)
+
+    self:keepSelectedOnScreen()
+end
+
+function AbstractMenuComponent:keepSelectedOnScreen()
+    local items = self:getMenuItems()
+    local selected = items[self.selected_item]
+
+    if selected.x + selected:getScaledWidth() > self.width then
+        self.scroll_x = self.scroll_x + selected.x + selected:getScaledWidth() - self.width
+    end
+
+    if selected.x < 0 then
+        self.scroll_x = self.scroll_x + selected.x
+    end
+
+    if selected.y + selected:getScaledHeight() > self.height then
+        self.scroll_y = self.scroll_y + selected.y + selected:getScaledHeight() - self.height
+    end
+
+    if selected.y < 0 then
+        self.scroll_y = self.scroll_y + selected.y
+    end
+end
+
 function AbstractMenuComponent:previous()
     local old_item = self.selected_item
     self.selected_item = self.selected_item - 1

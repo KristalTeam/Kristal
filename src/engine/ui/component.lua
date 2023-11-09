@@ -8,8 +8,10 @@ function Component:init(x, y, x_sizing, y_sizing)
     self.margins = { 0, 0, 0, 0 }
     self.padding = { 0, 0, 0, 0 }
 
-    -- visible, hidden
+    -- visible, hidden, scroll
     self.overflow = "visible"
+    self.scroll_x = 0
+    self.scroll_y = 0
 
     self.focused = false
 
@@ -128,14 +130,14 @@ function Component:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
 
-    if self.overflow == "hidden" then
+    if self.overflow == "hidden" or self.overflow == "scroll" then
         Draw.pushScissor()
         Draw.scissor(0, 0, self.width, self.height)
     end
 
     super.draw(self)
 
-    if self.overflow == "hidden" then
+    if self.overflow == "hidden" or self.overflow == "scroll" then
         Draw.popScissor()
     end
 end
