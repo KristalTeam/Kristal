@@ -11,8 +11,41 @@ function Component:init(x, y, x_sizing, y_sizing)
     -- visible, hidden
     self.overflow = "visible"
 
+    self.focused = false
+
     self:setLayout(Layout())
     self:setSizing(x_sizing or Sizing(), y_sizing or x_sizing or Sizing())
+end
+
+function Component:setFocused(focused)
+    self.focused = focused
+
+    -- make siblings unfocused
+    if self.focused then
+        if self.parent then
+            for _, child in ipairs(self.parent.children) do
+                if child ~= self then
+                    if child.isFocused and child:isFocused() and child.setFocused then
+                        child:setFocused(false)
+                    end
+                end
+            end
+            if self.parent.isFocused and (not self.parent:isFocused()) and self.parent.setFocused then
+                self.parent:setFocused(true)
+            end
+        end
+    else
+        -- make all children unfocused
+        for _, child in ipairs(self.children) do
+            if child.isFocused and child:isFocused() and child.setFocused then
+                child:setFocused(false)
+            end
+        end
+    end
+end
+
+function Component:isFocused()
+    return self.focused
 end
 
 function Component:setMargins(left, top, right, bottom)
@@ -86,6 +119,11 @@ function Component:draw()
         love.graphics.rectangle("line", 0, 0, self.width, self.height)
 
         self.layout:draw()
+
+        if self:isFocused() then
+            love.graphics.setColor(1, 0, 0, 1)
+            love.graphics.rectangle("line", 0, 0, self.width, self.height)
+        end
     end
 
     love.graphics.setColor(1, 1, 1, 1)
@@ -127,6 +165,14 @@ end
 
 function Component:onAddToStage(stage)
     super.onAddToStage(self, stage)
+
+    if self:isFocused() then
+        -- make sure parent is focused as well
+        if self.parent and self.parent.setFocused and (not self.parent:isFocused()) then
+            self.parent:setFocused(true)
+        end
+    end
+
     self.layout:refresh()
     if self.x_sizing then
         self.width = self.x_sizing:getWidth()
