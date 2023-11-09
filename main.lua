@@ -240,6 +240,7 @@ DarkTransition = require("src.engine.game.darktransition.darktransition")
 Component = require("src.engine.ui.component")
 BoxComponent = require("src.engine.ui.components.box")
 SeparatorComponent = require("src.engine.ui.components.separator")
+BarComponent = require("src.engine.ui.components.bar")
 
 AbstractMenuComponent = require("src.engine.ui.components.abstractmenu")
 BasicMenuComponent = require("src.engine.ui.components.basicmenu")
