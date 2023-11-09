@@ -5,7 +5,7 @@ local FixedSizing, super = Class(Sizing)
 function FixedSizing:init(width, height)
     super.init(self)
     self.width = width
-    self.height = height
+    self.height = height or width
 end
 
 function FixedSizing:getWidth()
