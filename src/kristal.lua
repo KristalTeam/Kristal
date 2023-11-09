@@ -1141,6 +1141,13 @@ function Kristal.resetWindow()
         fullscreen = Kristal.Config["fullscreen"],
         vsync = Kristal.Config["vSync"]
     })
+
+    -- Force tilelayers to redraw, since resetWindow destroys their canvases
+    if Game.world then
+        for _,tilelayer in ipairs(Game.world.stage:getObjects(TileLayer)) do
+            tilelayer.drawn = false
+        end
+    end
 end
 
 ---@return boolean console Whether Kristal is in console mode.
