@@ -7,6 +7,9 @@ function AbstractMenuItemComponent:init(x, y, width, height, callback)
 
     self.selected = false
     self.callback = nil
+
+    self.soul_offset_x = 0
+    self.soul_offset_y = 0
 end
 
 function AbstractMenuItemComponent:onHovered(hovered, initial)
