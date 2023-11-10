@@ -18,12 +18,17 @@ function TextInputComponent:onSelected()
         multiline = false,
         clear_after_submit = false
     })
-    TextInput.submit_callback = function()
+    TextInput.submit_callback = self.options.submit_callback or function()
         self:setFocused(false)
         TextInput.endInput()
         Input.clear("return")
         Assets.playSound("ui_select")
     end
+
+    self.up_limit_callback = self.options.up_limit_callback or nil
+    self.down_limit_callback = self.options.down_limit_callback or nil
+    self.pressed_callback = self.options.pressed_callback or nil
+    self.text_callback = self.options.text_callback or nil
 end
 
 function TextInputComponent:draw()
