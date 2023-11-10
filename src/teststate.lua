@@ -38,6 +38,7 @@ function Testing:enter()
                     menu:addChild(SoulMenuItemComponent(Text("Option 19"), function() end))
                     menu:addChild(SoulMenuItemComponent(Text("Option 20"), function() end))
 
+                    menu:setSelected(2)
                     menu:setFocused(true)
                 box:addChild(menu)
             inner:addChild(box)

@@ -14,6 +14,16 @@ function AbstractMenuComponent:update()
     self:keepSelectedOnScreen()
 end
 
+function AbstractMenuComponent:setSelected(item)
+    local old_item = self.selected_item
+    self.selected_item = item
+    self:keepInBounds()
+
+    if self:getStage() then
+        self:updateSelected(old_item)
+    end
+end
+
 function AbstractMenuComponent:keepSelectedOnScreen()
     local items = self:getMenuItems()
     local selected = items[self.selected_item]
@@ -36,25 +46,11 @@ function AbstractMenuComponent:keepSelectedOnScreen()
 end
 
 function AbstractMenuComponent:previous()
-    local old_item = self.selected_item
-    self.selected_item = self.selected_item - 1
-
-    self:keepInBounds()
-
-    if old_item ~= self.selected_item then
-        self:updateSelected(old_item)
-    end
+    self:setSelected(self.selected_item - 1)
 end
 
 function AbstractMenuComponent:next()
-    local old_item = self.selected_item
-    self.selected_item = self.selected_item + 1
-
-    self:keepInBounds()
-
-    if old_item ~= self.selected_item then
-        self:updateSelected(old_item)
-    end
+    self:setSelected(self.selected_item + 1)
 end
 
 function AbstractMenuComponent:keepInBounds()
