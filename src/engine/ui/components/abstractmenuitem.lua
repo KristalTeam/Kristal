@@ -24,7 +24,7 @@ function AbstractMenuItemComponent:onSelected()
     if self.callback then
         self:setFocused(self:callback())
     end
-    self:setFocused(true)
+    self:setFocused(false)
 end
 
 return AbstractMenuItemComponent

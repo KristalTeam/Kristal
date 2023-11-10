@@ -249,6 +249,7 @@ EasingSoulMenuComponent = require("src.engine.ui.components.easingsoulmenu")
 AbstractMenuItemComponent = require("src.engine.ui.components.abstractmenuitem")
 TextMenuItemComponent = require("src.engine.ui.components.textmenuitem")
 SoulMenuItemComponent = require("src.engine.ui.components.soulmenuitem")
+TextInputComponent = require("src.engine.ui.components.textinputcomponent")
 
 Layout = require("src.engine.ui.layout")
 HorizontalLayout = require("src.engine.ui.layouts.horizontal")
