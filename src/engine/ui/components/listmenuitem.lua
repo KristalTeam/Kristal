@@ -44,6 +44,7 @@ function ListMenuItemComponent:update()
             if self.on_changed then
                 self:on_changed(self.value)
             end
+            self:reflow()
             Assets.playSound("ui_move")
         end
         if Input.pressed("right") then
@@ -55,6 +56,7 @@ function ListMenuItemComponent:update()
             if self.on_changed then
                 self:on_changed(self.value)
             end
+            self:reflow()
             Assets.playSound("ui_move")
         end
         if Input.pressed("confirm") or Input.pressed("cancel") then
