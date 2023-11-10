@@ -50,6 +50,15 @@ function Component:isFocused()
     return self.focused
 end
 
+function Component:isSpecificallyFocused()
+    for _, child in ipairs(self.children) do
+        if child.isFocused and child:isFocused() then
+            return false
+        end
+    end
+    return self.focused
+end
+
 function Component:setMargins(left, top, right, bottom)
     self.margins = {
         left,
