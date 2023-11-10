@@ -15,6 +15,11 @@ function EasingSoulMenuComponent:init(x, y, x_sizing, y_sizing)
 
     self.scroll_target_x = 0
     self.scroll_target_y = 0
+
+    self.soul_offset_x = -28
+    self.soul_offset_y = 10
+
+    self:setPadding(-self.soul_offset_x, 0, 0, 0)
 end
 
 function EasingSoulMenuComponent:getComponents()
@@ -53,8 +58,8 @@ function EasingSoulMenuComponent:update()
             self.scroll_target_y = item.y + self.scroll_y
         end
 
-        self.soul_target_x = (item.x - (self.scroll_target_x - self.scroll_x)) + (item.soul_offset_x or 0)
-        self.soul_target_y = (item.y - (self.scroll_target_y - self.scroll_y)) + (item.soul_offset_y or 0)
+        self.soul_target_x = (item.x - (self.scroll_target_x - self.scroll_x)) + (item.soul_offset_x or 0) + self.soul_offset_x
+        self.soul_target_y = (item.y - (self.scroll_target_y - self.scroll_y)) + (item.soul_offset_y or 0) + self.soul_offset_y
     end
 
     if (math.abs((self.soul_target_x - self.soul_sprite.x)) <= 2) then

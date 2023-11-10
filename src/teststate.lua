@@ -18,6 +18,7 @@ function Testing:enter()
 
                     menu:addChild(SoulMenuItemComponent(Text("Option 1"), function() end))
                     menu:addChild(SoulMenuItemComponent(Text("Option 2"), function() end))
+                    menu:addChild(TextInputComponent())
                     menu:addChild(SoulMenuItemComponent(Text("Option 3"), function() end))
                     menu:addChild(SoulMenuItemComponent(Text("Option 4"), function() end))
                     menu:addChild(SoulMenuItemComponent(Text("Option 5"), function() end))
