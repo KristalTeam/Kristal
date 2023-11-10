@@ -8,6 +8,8 @@ function ArrowListMenuItemComponent:init(list, value, on_changed, options)
 
     self.offset = options.offset or 26
     self:setPadding(self.offset, 0, self.offset, 0)
+
+    self.hide_unfocused_arrows = options.hide_unfocused_arrows or false
 end
 
 function ArrowListMenuItemComponent:onSelected()
@@ -28,8 +30,10 @@ function ArrowListMenuItemComponent:draw()
         off = (math.sin(Kristal.getTime() / 0.2) * 2)
     end
 
-    Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), -off, 4, 0, 2, 2)
-    Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), self.width - 16 + off, 4, 0, 2, 2)
+    if not self.hide_unfocused_arrows or self:isFocused() then
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), -off, 4, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), self.width - 16 + off, 4, 0, 2, 2)
+    end
 end
 
 return ArrowListMenuItemComponent
