@@ -6,7 +6,7 @@ function AbstractMenuItemComponent:init(x, y, width, height, callback)
     super.init(self, x, y, width, height)
 
     self.selected = false
-    self.callback = nil
+    self.callback = callback
 
     self.soul_offset_x = 0
     self.soul_offset_y = 0
