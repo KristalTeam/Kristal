@@ -251,6 +251,7 @@ TextMenuItemComponent = require("src.engine.ui.components.textmenuitem")
 SoulMenuItemComponent = require("src.engine.ui.components.soulmenuitem")
 TextInputComponent = require("src.engine.ui.components.textinputcomponent")
 BooleanMenuItemComponent = require("src.engine.ui.components.booleanmenuitem")
+ListMenuItemComponent = require("src.engine.ui.components.listmenuitem")
 
 Layout = require("src.engine.ui.layout")
 HorizontalLayout = require("src.engine.ui.layouts.horizontal")
