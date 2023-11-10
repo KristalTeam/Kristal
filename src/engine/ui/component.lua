@@ -153,12 +153,30 @@ end
 
 function Component:update()
     super.update(self)
+    self:reflow()
+end
+
+function Component:reflow(ignore)
     self.layout:refresh()
+    self.old_width = self.width
+    self.old_height = self.height
     if self.x_sizing then
         self.width = self.x_sizing:getWidth()
     end
     if self.y_sizing then
         self.height = self.y_sizing:getHeight()
+    end
+
+    for _, child in ipairs(self:getComponents()) do
+        if child ~= self and child.reflow and child ~= ignore then
+            child:reflow(self)
+        end
+    end
+
+    if self.old_width ~= self.width or self.old_height ~= self.height then
+        if self.parent.reflow then
+            self.parent:reflow(self)
+        end
     end
 end
 
