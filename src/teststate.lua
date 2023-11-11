@@ -20,6 +20,7 @@ function Testing:enter()
                     menu:setScrollbar(ScrollbarComponent({gutter = "dotted", margins = {8, 0, 0, 0}, arrows = true}))
                     menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
                     menu:setOverflow("scroll")
+                    menu:setScrollType("paged")
 
                     menu:addChild(BooleanMenuItemComponent(self.scrollbar_arrows, function(value) self.scrollbar_arrows = value self:updateScrollbar(menu) end, {on_text="Arrows ON", off_text="Arrows OFF"}))
                     menu:addChild(ArrowListMenuItemComponent({ "Dotted", "Fill", "No Gutter" }, self.scrollbar_type, function(index) self.scrollbar_type = index self:updateScrollbar(menu) end))
