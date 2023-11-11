@@ -15,6 +15,8 @@ function Component:init(x, y, x_sizing, y_sizing)
 
     self.focused = false
 
+    self.scrollbar = nil
+
     self:setLayout(Layout())
     self:setSizing(x_sizing or Sizing(), y_sizing or x_sizing or Sizing())
 end
@@ -81,6 +83,22 @@ function Component:setOverflow(overflow)
     self.overflow = overflow
 end
 
+function Component:setScrollbar(scrollbar)
+    self.scrollbar = scrollbar
+    self:addChild(scrollbar)
+end
+
+function Component:getScrollbarGutter()
+    if self.scrollbar then
+        return ({self.scrollbar:getTotalSize()})[1]
+    end
+    return 0
+end
+
+function Component:getScrollbarPosition()
+    return self.width + (self.scrollbar and self.scrollbar.margins[1] or 0)
+end
+
 function Component:getDebugInfo()
     local info = super.getDebugInfo(self)
     table.insert(info,
@@ -97,6 +115,9 @@ function Component:getDebugInfo()
     -- working size
     local working_width, working_height = self:getWorkingSize()
     table.insert(info, "Working Size: (" .. working_width .. ", " .. working_height .. ")")
+    -- inner
+    local inner_width, inner_height = self:getInnerSize()
+    table.insert(info, "Inner Size: (" .. inner_width .. ", " .. inner_height .. ")")
     return info
 end
 
@@ -141,7 +162,7 @@ function Component:draw()
 
     if self.overflow == "hidden" or self.overflow == "scroll" then
         Draw.pushScissor()
-        Draw.scissor(0, 0, self.width, self.height)
+        Draw.scissor(0, 0, self.width + self:getScrollbarGutter(), self.height)
     end
 
     super.draw(self)
@@ -178,6 +199,10 @@ function Component:reflow(ignore)
             self.parent:reflow(self)
         end
     end
+
+    if self.scrollbar then
+        self.scrollbar:updatePosition()
+    end
 end
 
 function Component:setLayout(layout)
@@ -211,10 +236,16 @@ function Component:onAddToStage(stage)
     end
 end
 
+function Component:getTotalWidth()
+    return (self.width + self.margins[1] + self.margins[3] + self:getScrollbarGutter()) * self.scale_x
+end
+
+function Component:getTotalHeight()
+    return (self.height + self.margins[2] + self.margins[4]) * self.scale_y
+end
+
 function Component:getTotalSize()
-    return
-        (self.width + self.margins[1] + self.margins[3]) * self.scale_x,
-        (self.height + self.margins[2] + self.margins[4]) * self.scale_y
+    return self:getTotalWidth(), self:getTotalHeight()
 end
 
 function Component:getWorkingSize()
@@ -239,8 +270,57 @@ function Component:getScaledPadding()
         self.padding[4] * self.scale_y
 end
 
+function Component:getInnerWidth()
+    -- width of the inner content, ignoring the real size of the component
+    -- calculate using the children, can't rely on self.width
+
+    local width = 0
+    for _, child in ipairs(self:getComponents()) do
+        if child.x_sizing and child.x_sizing:includes(FillSizing) then goto continue end
+        local x = (child.x + self.scroll_x) - self.padding[1] - (child.margins and child.margins[1] or 0)
+        local child_width, _ = child:getScaledSize()
+        if (child.getTotalSize) then child_width, _ = child:getTotalSize() end
+        child_width = x + child_width
+        if child_width > width then
+            width = child_width
+        end
+        ::continue::
+    end
+    return width
+end
+
+function Component:getInnerHeight()
+    -- height of the inner content, ignoring the real size of the component
+    -- calculate using the children, can't rely on self.height
+
+    local height = 0
+    for _, child in ipairs(self:getComponents()) do
+        if child.y_sizing and child.y_sizing:includes(FillSizing) then goto continue end
+        local y = (child.y + self.scroll_y) - self.padding[2] - (child.margins and child.margins[2] or 0)
+        local _, child_height = child:getScaledSize()
+        if (child.getTotalSize) then _, child_height = child:getTotalSize() end
+        child_height = y + child_height
+        if child_height > height then
+            height = child_height
+        end
+        ::continue::
+    end
+    return height
+end
+
+function Component:getInnerSize()
+    return self:getInnerWidth(), self:getInnerHeight()
+end
+
 function Component:getComponents()
-    return self.children
+    -- filter out scrollbar
+    local components = {}
+    for _, child in ipairs(self.children) do
+        if child ~= self.scrollbar then
+            table.insert(components, child)
+        end
+    end
+    return components
 end
 
 return Component

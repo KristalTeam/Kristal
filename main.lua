@@ -255,6 +255,7 @@ ListMenuItemComponent = require("src.engine.ui.components.listmenuitem")
 ArrowListMenuItemComponent = require("src.engine.ui.components.arrowlistmenuitem")
 IntegerMenuItemComponent = require("src.engine.ui.components.integermenuitem")
 ArrowIntegerMenuItemComponent = require("src.engine.ui.components.arrowintegermenuitem")
+ScrollbarComponent = require("src.engine.ui.components.scrollbar")
 
 Layout = require("src.engine.ui.layout")
 HorizontalLayout = require("src.engine.ui.layouts.horizontal")
