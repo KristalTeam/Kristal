@@ -84,6 +84,10 @@ function Component:setOverflow(overflow)
 end
 
 function Component:setScrollbar(scrollbar)
+    if self.scrollbar ~= nil then
+        self:removeChild(self.scrollbar)
+    end
+
     self.scrollbar = scrollbar
     self:addChild(scrollbar)
 end
@@ -178,6 +182,8 @@ function Component:update()
 end
 
 function Component:reflow(ignore)
+    if self:isRemoved() then return end
+
     self.layout:refresh()
     self.old_width = self.width
     self.old_height = self.height

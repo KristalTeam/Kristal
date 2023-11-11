@@ -6,6 +6,10 @@ function Testing:enter()
 
     self.state = "MAIN"
 
+    self.scrollbar_arrows = false
+    self.scrollbar_type = 1
+    self.scrollbar_width = 9
+
     local outer = Component(0, 0, FixedSizing(640, 480))
         outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
         outer:setOverflow("hidden")
@@ -17,6 +21,10 @@ function Testing:enter()
                     menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
                     menu:setOverflow("scroll")
 
+                    menu:addChild(BooleanMenuItemComponent(self.scrollbar_arrows, function(value) self.scrollbar_arrows = value self:updateScrollbar(menu) end, {on_text="Arrows ON", off_text="Arrows OFF"}))
+                    menu:addChild(ArrowListMenuItemComponent({ "Dotted", "Fill", "No Gutter" }, self.scrollbar_type, function(index) self.scrollbar_type = index self:updateScrollbar(menu) end))
+                    menu:addChild(ArrowIntegerMenuItemComponent(1, 32, self.scrollbar_width, function(value) self.scrollbar_width = value self:updateScrollbar(menu) end, {wrap = false, hold = true, prefix = "Width "}))
+                    menu:addChild(SeparatorComponent())
                     menu:addChild(TextMenuItemComponent(Text("Option 1"), function() end))
                     menu:addChild(TextMenuItemComponent(Text("Option 2"), function() end))
                     menu:addChild(TextInputComponent())
@@ -36,6 +44,19 @@ function Testing:enter()
             inner:addChild(box)
         outer:addChild(inner)
     self.stage:addChild(outer)
+
+    self:updateScrollbar(menu)
+end
+
+function Testing:updateScrollbar(menu)
+    local gutter = "dotted"
+    if self.scrollbar_type == 2 then
+        gutter = "fill"
+    elseif self.scrollbar_type == 3 then
+        gutter = "none"
+    end
+    menu:setScrollbar(ScrollbarComponent({gutter = gutter, margins = {8, 0, 0, 0}, arrows = self.scrollbar_arrows, width = self.scrollbar_width}))
+
 end
 
 function Testing:update()
