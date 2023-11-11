@@ -2,8 +2,8 @@
 ---@overload fun(...) : EasingSoulMenuComponent
 local EasingSoulMenuComponent, super = Class(BasicMenuComponent)
 
-function EasingSoulMenuComponent:init(x, y, x_sizing, y_sizing)
-    super.init(self, x, y, x_sizing, y_sizing)
+function EasingSoulMenuComponent:init(x, y, x_sizing, y_sizing, options)
+    super.init(self, x, y, x_sizing, y_sizing, options)
 
     self.soul_sprite = self:addChild(Sprite("player/heart_menu", 0, 10))
     self.soul_sprite:setScale(2, 2)
@@ -35,13 +35,11 @@ end
 
 function EasingSoulMenuComponent:keepSelectedOnScreen()
 
-end
-
-function EasingSoulMenuComponent:update()
-    super.update(self)
-
     local item = self:getMenuItems()[self.selected_item]
-    if item then
+    if self.scroll_type == "paged" then
+        self.scroll_target_x = math.floor((self.scroll_x + item.x) / self.width) * self.width
+        self.scroll_target_y = math.floor((self.scroll_y + item.y) / self.height) * self.height
+    else
         if item.x + item:getScaledWidth() > self.width then
             self.scroll_target_x = item.x + self.scroll_x + item:getScaledWidth() - self.width
         end
@@ -57,10 +55,14 @@ function EasingSoulMenuComponent:update()
         if item.y < 0 then
             self.scroll_target_y = item.y + self.scroll_y
         end
-
-        self.soul_target_x = (item.x - (self.scroll_target_x - self.scroll_x)) + (item.soul_offset_x or 0) + self.soul_offset_x
-        self.soul_target_y = (item.y - (self.scroll_target_y - self.scroll_y)) + (item.soul_offset_y or 0) + self.soul_offset_y
     end
+
+    self.soul_target_x = (item.x - (self.scroll_target_x - self.scroll_x)) + (item.soul_offset_x or 0) + self.soul_offset_x
+    self.soul_target_y = (item.y - (self.scroll_target_y - self.scroll_y)) + (item.soul_offset_y or 0) + self.soul_offset_y
+end
+
+function EasingSoulMenuComponent:update()
+    super.update(self)
 
     if (math.abs((self.soul_target_x - self.soul_sprite.x)) <= 2) then
         self.soul_sprite.x = self.soul_target_x

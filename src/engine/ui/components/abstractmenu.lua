@@ -6,6 +6,12 @@ function AbstractMenuComponent:init(x, y, x_sizing, y_sizing)
     super.init(self, x, y, x_sizing, y_sizing)
 
     self.selected_item = 1
+
+    self.scroll_type = "scroll"
+end
+
+function AbstractMenuComponent:setScrollType(type)
+    self.scroll_type = type
 end
 
 function AbstractMenuComponent:update()
@@ -28,20 +34,25 @@ function AbstractMenuComponent:keepSelectedOnScreen()
     local items = self:getMenuItems()
     local selected = items[self.selected_item]
 
-    if selected.x + selected:getScaledWidth() > self.width then
-        self.scroll_x = self.scroll_x + selected.x + selected:getScaledWidth() - self.width
-    end
+    if self.scroll_type == "paged" then
+        self.scroll_x = math.floor((self.scroll_x + selected.x) / self.width) * self.width
+        self.scroll_y = math.floor((self.scroll_y + selected.y) / self.height) * self.height
+    else
+        if selected.x + selected:getScaledWidth() > self.width then
+            self.scroll_x = self.scroll_x + selected.x + selected:getScaledWidth() - self.width
+        end
 
-    if selected.x < 0 then
-        self.scroll_x = self.scroll_x + selected.x
-    end
+        if selected.x < 0 then
+            self.scroll_x = self.scroll_x + selected.x
+        end
 
-    if selected.y + selected:getScaledHeight() > self.height then
-        self.scroll_y = self.scroll_y + selected.y + selected:getScaledHeight() - self.height
-    end
+        if selected.y + selected:getScaledHeight() > self.height then
+            self.scroll_y = self.scroll_y + selected.y + selected:getScaledHeight() - self.height
+        end
 
-    if selected.y < 0 then
-        self.scroll_y = self.scroll_y + selected.y
+        if selected.y < 0 then
+            self.scroll_y = self.scroll_y + selected.y
+        end
     end
 end
 
