@@ -7,24 +7,25 @@ function ScrollbarComponent:init(options)
 
     -- fill, dotted, none
     self.gutter = options.gutter or "fill"
+    self.arrows = options.arrows
 
-    local width = 4
+    local min_width = 1
     if self.gutter == "dotted" then
-        width = 9
+        min_width = 9
     end
-    if options.arrows then
-        width = 14
+    if self.arrows then
+        min_width = 14
     end
 
-    super.init(self, 0, 0, FixedSizing(options.width or width), FillSizing())
+    local width = math.max(min_width, options.width or 6)
+
+    super.init(self, 0, 0, FixedSizing(width), FillSizing())
 
     self:setMargins(unpack(options.margins or {0, 0, 0, 0}))
 
     self.gutter_color = options.gutter_color or (self.gutter == "dotted" and COLORS.white or COLORS.dkgray)
-    self.gutter_width = options.gutter_width or width
+    self.scrollbar_width = options.scrollbar_width or options.width or 6
     self.color = options.color or COLORS.white
-
-    self.arrows = options.arrows or false
     self:setOverflow("visible")
 end
 
@@ -39,6 +40,8 @@ end
 
 function ScrollbarComponent:reflow(ignore)
     super.reflow(self, ignore)
+    if self:isRemoved() then return end
+
     self:updatePosition()
 end
 
@@ -57,12 +60,11 @@ function ScrollbarComponent:draw()
 
     local gutter_height = self.height
     local scrollbar_y = 0
-    local scrollbar_x = 0
+    local scrollbar_x = math.floor((self.width / 2) - (self.scrollbar_width / 2))
 
     if self.arrows then
         gutter_height = gutter_height - 60
         scrollbar_y = 24 + 6
-        scrollbar_x = 2
     end
 
     scrollbar_size = self.parent:getTotalHeight() / self.parent:getInnerHeight() * gutter_height
@@ -70,34 +72,36 @@ function ScrollbarComponent:draw()
 
     love.graphics.setColor(self.gutter_color)
     if self.gutter == "fill" then
-        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y, self.width, gutter_height)
+        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y, self.scrollbar_width, gutter_height)
         love.graphics.setColor(self.color)
-        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y + scrollbar_position, self.width, scrollbar_size)
+        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y + scrollbar_position, self.scrollbar_width, scrollbar_size)
     elseif self.gutter == "none" then
         love.graphics.setColor(self.color)
-        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y + scrollbar_position, self.width, scrollbar_size)
+        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y + scrollbar_position, self.scrollbar_width, scrollbar_size)
     elseif self.gutter == "dotted" then
         -- get the amount of items
         local items = #self.parent:getMenuItems()
 
         for i = 1, items do
             local percentage = (i - 1) / (items - 1)
+            local x = math.floor((self.width / 2) - (3 / 2))
             local y = percentage * (gutter_height - 9)
-
-            love.graphics.rectangle("fill", scrollbar_x + 3, scrollbar_y + 3 + y, 3, 3)
+            love.graphics.rectangle("fill", x, scrollbar_y + 3 + y, 3, 3)
         end
 
         love.graphics.setColor(self.color)
         local percentage = (self.parent.selected_item - 1) / (items - 1)
+        local x = math.floor((self.width / 2) - (9 / 2))
         local y = percentage * (gutter_height - 9)
 
-        love.graphics.rectangle("fill", scrollbar_x, scrollbar_y + y, 9, 9)
+        love.graphics.rectangle("fill", x, scrollbar_y + y, 9, 9)
     end
 
     if self.arrows then
+        local arrow_x = math.floor((self.width / 2) - (13 / 2))
         local sine_off = math.sin((Kristal.getTime()*30)/6) * 3
-        Draw.draw(Assets.getTexture("ui/page_arrow_down"), 0, 16 - sine_off + 4, 0, 1, -1)
-        Draw.draw(Assets.getTexture("ui/page_arrow_down"), 0, self.height + sine_off - 16 - 4)
+        Draw.draw(Assets.getTexture("ui/page_arrow_down"), arrow_x, 16 - sine_off + 4, 0, 1, -1)
+        Draw.draw(Assets.getTexture("ui/page_arrow_down"), arrow_x, self.height + sine_off - 16 - 4)
     end
 end
 
