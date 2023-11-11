@@ -5,18 +5,21 @@ local BoxComponent, super = Class(Component)
 function BoxComponent:init(x, y, x_sizing, y_sizing, skin)
     super.init(self, x, y, x_sizing, y_sizing)
 
-    self:setMargins(40)
-
     self.box = UIBox(0, 0, 0, 0, skin)
     self.box.layer = -1
     self:addChild(self.box)
+    self:setPadding(self.box:getBorder())
 end
 
 function BoxComponent:update()
     super.update(self)
 
-    self.box.width = self.width
-    self.box.height = self.height
+    local border_width, border_height = self.box:getBorder()
+
+    self.box.x = border_width
+    self.box.y = border_height
+    self.box.width = self.width - border_width * 2
+    self.box.height = self.height - border_height * 2
 end
 
 function BoxComponent:getComponents()
