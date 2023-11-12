@@ -12,7 +12,7 @@ end
 function BasicMenuComponent:update()
     super.update(self)
 
-    if self:isSpecificallyFocused() then
+    if self:isFocused() then
         if self.horizontal and Input.pressed("left", self.hold) or Input.pressed("up", self.hold) then
             self:previous()
         elseif self.horizontal and Input.pressed("right", self.hold) or Input.pressed("down", self.hold) then

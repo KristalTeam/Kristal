@@ -11,7 +11,7 @@ end
 
 function TextInputComponent:onSelected()
     Assets.playSound("ui_select")
-    self:setFocused(true)
+    self:setFocused()
 
     TextInput.attachInput(self.input, self.options.input_settings or {
         enter_submits = true,
@@ -19,7 +19,7 @@ function TextInputComponent:onSelected()
         clear_after_submit = false
     })
     TextInput.submit_callback = self.options.submit_callback or function()
-        self:setFocused(false)
+        self:setUnfocused()
         TextInput.endInput()
         Input.clear("return")
         Assets.playSound("ui_select")

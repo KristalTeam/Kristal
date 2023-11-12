@@ -17,9 +17,6 @@ end
 
 function LabelMenuItemComponent:update()
     super.update(self)
-    if not self.child:isFocused() then
-        self:setFocused(false)
-    end
 end
 
 function LabelMenuItemComponent:onHovered(hovered, initial)
@@ -30,13 +27,8 @@ function LabelMenuItemComponent:onSelected()
     self.child:onSelected()
 end
 
-function LabelMenuItemComponent:setFocused(focused)
-    super.setFocused(self, focused)
-    self.child:setFocused(focused)
-end
-
-function LabelMenuItemComponent:isSpecificallyFocused()
-    self:setFocused(false)
+function LabelMenuItemComponent:setFocused()
+    self.child:setFocused()
 end
 
 return LabelMenuItemComponent

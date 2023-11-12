@@ -22,9 +22,8 @@ end
 function AbstractMenuItemComponent:onSelected()
     Assets.playSound("ui_select")
     if self.callback then
-        self:setFocused(self:callback())
+        self:callback()
     end
-    self:setFocused(false)
 end
 
 return AbstractMenuItemComponent
