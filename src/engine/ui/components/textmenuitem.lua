@@ -12,6 +12,8 @@ function TextMenuItemComponent:init(text, callback, options)
     end
     self.text = self:addChild(text)
 
+    self.highlight = options.highlight ~= false
+
     self.color = options.color or COLORS.yellow
     self.selected_color = options.selected_color or COLORS.white
 end
@@ -19,7 +21,7 @@ end
 function TextMenuItemComponent:onHovered(hovered, initial)
     super.onHovered(self, hovered, initial)
 
-    if hovered then
+    if self.highlight and hovered then
         self.text:setColor(self.color)
     else
         self.text:setColor(self.selected_color)
