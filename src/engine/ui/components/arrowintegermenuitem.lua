@@ -14,7 +14,7 @@ end
 
 function ArrowIntegerMenuItemComponent:onSelected()
     Assets.playSound("ui_select")
-    self:setFocused(true)
+    self:setFocused()
     if self.selected_color then
         self.text:setColor(self.selected_color)
     end

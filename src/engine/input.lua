@@ -33,6 +33,8 @@
 ---@field key_groups table<string, string[]>
 ---@field group_for_key table<string, string>
 ---
+---@field component_stack Component[]
+---
 ---@field button_sprites table<string, string|{switch:string|nil, ps4:string|nil, xbox:string|nil}>
 ---
 local Input = {}
@@ -95,6 +97,8 @@ Input.group_for_key = {
     ["lgui"]   = "cmd",
     ["rgui"]   = "cmd"
 }
+
+Input.component_stack = {}
 
 ---@param stick "left"|"right"
 ---@param raw? boolean
