@@ -2,8 +2,8 @@
 ---@overload fun(...) : BasicMenuComponent
 local BasicMenuComponent, super = Class(AbstractMenuComponent)
 
-function BasicMenuComponent:init(x, y, x_sizing, y_sizing, options)
-    super.init(self, x, y, x_sizing, y_sizing)
+function BasicMenuComponent:init(x_sizing, y_sizing, options)
+    super.init(self, x_sizing, y_sizing, options)
     options = options or {}
     self.horizontal = options.horizontal or false
     self.hold = options.hold or false

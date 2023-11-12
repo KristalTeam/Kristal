@@ -2,8 +2,8 @@
 ---@overload fun(...) : SoulMenuItemComponent
 local SoulMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
-function SoulMenuItemComponent:init(child, callback)
-    super.init(self, 0, 0, FitSizing(), FitSizing(), callback)
+function SoulMenuItemComponent:init(child, callback, options)
+    super.init(self, FitSizing(), FitSizing(), callback, options)
     self:setPadding(28, 0, 0, 0)
     self.draw_soul = true
 

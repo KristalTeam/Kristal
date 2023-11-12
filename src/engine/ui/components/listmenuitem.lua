@@ -3,7 +3,7 @@
 local ListMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
 function ListMenuItemComponent:init(list, value, on_changed, options)
-    super.init(self, 0, 0, FitSizing(), FitSizing())
+    super.init(self, FitSizing(), FitSizing(), nil, options)
 
     options = options or {}
 

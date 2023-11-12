@@ -2,8 +2,8 @@
 ---@overload fun(...) : AbstractMenuComponent
 local AbstractMenuComponent, super = Class(Component)
 
-function AbstractMenuComponent:init(x, y, x_sizing, y_sizing)
-    super.init(self, x, y, x_sizing, y_sizing)
+function AbstractMenuComponent:init(x_sizing, y_sizing, options)
+    super.init(self, x_sizing, y_sizing, options)
 
     self.selected_item = 1
 
