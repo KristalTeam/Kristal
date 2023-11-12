@@ -2,8 +2,8 @@
 ---@overload fun(...) : MainMenuBoxComponent
 local MainMenuBoxComponent, super = Class(Component)
 
-function MainMenuBoxComponent:init(x, y, x_sizing, y_sizing, skin)
-    super.init(self, x, y, x_sizing, y_sizing)
+function MainMenuBoxComponent:init(x_sizing, y_sizing, options)
+    super.init(self, x_sizing, y_sizing, options)
     self:setPadding(4)
 end
 

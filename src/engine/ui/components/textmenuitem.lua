@@ -3,7 +3,7 @@
 local TextMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
 function TextMenuItemComponent:init(text, callback, options)
-    super.init(self, 0, 0, FitSizing(), FitSizing(), callback)
+    super.init(self, FitSizing(), FitSizing(), callback, options)
 
     options = options or {}
 

@@ -2,9 +2,10 @@
 ---@overload fun(...) : SeparatorComponent
 local SeparatorComponent, super = Class(Component)
 
-function SeparatorComponent:init(x, y, vertical)
-    super.init(self, x, y, vertical and FixedSizing(8) or FillSizing(), vertical and FillSizing() or FixedSizing(8))
-    self.vertical = vertical
+function SeparatorComponent:init(x, y, options)
+    options = options or {}
+    self.vertical = options.vertical or false
+    super.init(self, self.vertical and FixedSizing(8) or FillSizing(), self.vertical and FillSizing() or FixedSizing(8))
 end
 
 function SeparatorComponent:draw()

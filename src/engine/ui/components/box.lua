@@ -2,10 +2,10 @@
 ---@overload fun(...) : BoxComponent
 local BoxComponent, super = Class(Component)
 
-function BoxComponent:init(x, y, x_sizing, y_sizing, skin)
-    super.init(self, x, y, x_sizing, y_sizing)
+function BoxComponent:init(x_sizing, y_sizing, options)
+    super.init(self, x_sizing, y_sizing, options)
 
-    self.box = UIBox(0, 0, 0, 0, skin)
+    self.box = UIBox(0, 0, 0, 0, options.skin)
     self.box.layer = -1
     self:addChild(self.box)
     self:setPadding(self.box:getBorder())

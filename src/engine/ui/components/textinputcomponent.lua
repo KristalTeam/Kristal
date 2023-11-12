@@ -4,7 +4,7 @@ local TextInputComponent, super = Class(AbstractMenuItemComponent)
 
 function TextInputComponent:init(options)
     options = options or {}
-    super.init(self, 0, 0, FillSizing(), FixedSizing(options.height or 32))
+    super.init(self, FillSizing(), FixedSizing(options.height or 32), options)
     self.input = {options.starting or ""}
     self.options = options
 end

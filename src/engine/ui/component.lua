@@ -2,8 +2,8 @@
 ---@overload fun(...) : Component
 local Component, super = Class(Object)
 
-function Component:init(x, y, x_sizing, y_sizing)
-    super.init(self, x, y, 0, 0)
+function Component:init(x_sizing, y_sizing, options)
+    super.init(self, 0, 0, 0, 0)
 
     self.margins = { 0, 0, 0, 0 }
     self.padding = { 0, 0, 0, 0 }
@@ -19,6 +19,7 @@ function Component:init(x, y, x_sizing, y_sizing)
 
     self:setLayout(Layout())
     self:setSizing(x_sizing or Sizing(), y_sizing or x_sizing or Sizing())
+
 end
 
 function Component:setFocused(focused)
