@@ -34,6 +34,7 @@ end
 function TextInputComponent:draw()
     super.draw(self)
 
+    love.graphics.setLineStyle("rough")
     love.graphics.setLineWidth(2)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.line(0, self.height, self.width, self.height)
