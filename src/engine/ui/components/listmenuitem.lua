@@ -36,6 +36,8 @@ function ListMenuItemComponent:init(list, value, on_changed, options)
     self.sound_delay = options.sound_delay or 1
     self.sound = options.sound or "ui_move"
     self.sound_at_limit = options.sound_at_limit or false
+
+    self.hold = options.hold or false
 end
 
 function ListMenuItemComponent:onSelected()
@@ -99,8 +101,8 @@ function ListMenuItemComponent:update()
                 end
             end
         else
-            if Input.pressed("left") then self:previous() end
-            if Input.pressed("right") then self:next() end
+            if Input.pressed("left", self.hold) then self:previous() end
+            if Input.pressed("right", self.hold) then self:next() end
         end
 
         self.sound_timer = self.sound_timer - DTMULT
