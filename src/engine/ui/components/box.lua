@@ -4,7 +4,7 @@ local BoxComponent, super = Class(Component)
 
 function BoxComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
-
+    options = options or {}
     self.box = UIBox(0, 0, 0, 0, options.skin)
     self.box.layer = -1
     self:addChild(self.box)
