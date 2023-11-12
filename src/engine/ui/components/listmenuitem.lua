@@ -42,7 +42,7 @@ end
 
 function ListMenuItemComponent:onSelected()
     Assets.playSound("ui_select")
-    self:setFocused(true)
+    self:setFocused()
     if self.selected_color then
         self.text:setColor(self.selected_color)
     end
@@ -117,7 +117,7 @@ function ListMenuItemComponent:update()
         end
 
         if Input.pressed("confirm") or Input.pressed("cancel") then
-            self:setFocused(false)
+            self:setUnfocused()
             Assets.playSound("ui_select")
             Input.clear("confirm")
             if self.color then

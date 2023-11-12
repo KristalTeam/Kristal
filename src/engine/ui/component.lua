@@ -13,8 +13,6 @@ function Component:init(x_sizing, y_sizing, options)
     self.scroll_x = 0
     self.scroll_y = 0
 
-    self.focused = false
-
     self.scrollbar = nil
 
     self:setLayout(Layout())
@@ -22,44 +20,16 @@ function Component:init(x_sizing, y_sizing, options)
 
 end
 
-function Component:setFocused(focused)
-    self.focused = focused
+function Component:setFocused()
+    table.insert(Input.component_stack, self)
+end
 
-    -- make siblings unfocused
-    if self.focused then
-        if self.parent then
-            for _, child in ipairs(self.parent.children) do
-                if child ~= self then
-                    if child.isFocused and child:isFocused() and child.setFocused then
-                        child:setFocused(false)
-                    end
-                end
-            end
-            if self.parent.isFocused and (not self.parent:isFocused()) and self.parent.setFocused then
-                self.parent:setFocused(true)
-            end
-        end
-    else
-        -- make all children unfocused
-        for _, child in ipairs(self.children) do
-            if child.isFocused and child:isFocused() and child.setFocused then
-                child:setFocused(false)
-            end
-        end
-    end
+function Component:setUnfocused()
+    table.remove(Input.component_stack)
 end
 
 function Component:isFocused()
-    return self.focused
-end
-
-function Component:isSpecificallyFocused()
-    for _, child in ipairs(self.children) do
-        if child.isFocused and child:isFocused() then
-            return false
-        end
-    end
-    return self.focused
+    return Input.component_stack[#Input.component_stack] == self
 end
 
 function Component:setMargins(left, top, right, bottom)
@@ -226,13 +196,6 @@ end
 
 function Component:onAddToStage(stage)
     super.onAddToStage(self, stage)
-
-    if self:isFocused() then
-        -- make sure parent is focused as well
-        if self.parent and self.parent.setFocused and (not self.parent:isFocused()) then
-            self.parent:setFocused(true)
-        end
-    end
 
     self.layout:refresh()
     if self.x_sizing then
