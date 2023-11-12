@@ -2,8 +2,8 @@
 ---@overload fun(...) : LabelMenuItemComponent
 local LabelMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
-function LabelMenuItemComponent:init(text, child, x_sizing, y_sizing)
-    super.init(self, 0, 0, x_sizing or FillSizing(), y_sizing or FitSizing())
+function LabelMenuItemComponent:init(text, child, x_sizing, y_sizing, options)
+    super.init(self, x_sizing or FillSizing(), y_sizing or FitSizing(), nil, options)
 
     self:setLayout(HorizontalLayout({align="space-between"}))
 

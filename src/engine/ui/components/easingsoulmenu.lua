@@ -2,8 +2,8 @@
 ---@overload fun(...) : EasingSoulMenuComponent
 local EasingSoulMenuComponent, super = Class(BasicMenuComponent)
 
-function EasingSoulMenuComponent:init(x, y, x_sizing, y_sizing, options)
-    super.init(self, x, y, x_sizing, y_sizing, options)
+function EasingSoulMenuComponent:init(x_sizing, y_sizing, options)
+    super.init(self, x_sizing, y_sizing, options)
 
     self.soul_sprite = self:addChild(Sprite("player/heart_menu", 0, 10))
     self.soul_sprite:setScale(2, 2)

@@ -19,7 +19,7 @@ function ScrollbarComponent:init(options)
 
     local width = math.max(min_width, options.width or 6)
 
-    super.init(self, 0, 0, FixedSizing(width), FillSizing())
+    super.init(self, FixedSizing(width), FillSizing(), options)
 
     self:setMargins(unpack(options.margins or {0, 0, 0, 0}))
 

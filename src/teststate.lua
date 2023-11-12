@@ -10,13 +10,13 @@ function Testing:enter()
     self.scrollbar_type = 1
     self.scrollbar_width = 9
 
-    local outer = Component(0, 0, FixedSizing(640, 480))
+    local outer = Component(FixedSizing(640, 480))
         outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
         outer:setOverflow("hidden")
-        local inner = Component(0, 0, FillSizing(), FitSizing())
+        local inner = Component(FillSizing(), FitSizing())
             inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
-            local box = MainMenuBoxComponent(0, 0, FitSizing())
-                local menu = EasingSoulMenuComponent(0, 0, FitSizing(), FixedSizing(240), {hold=true})
+            local box = MainMenuBoxComponent(FitSizing())
+                local menu = EasingSoulMenuComponent(FitSizing(), FixedSizing(240), {hold=true})
                     menu:setScrollbar(ScrollbarComponent({gutter = "dotted", margins = {8, 0, 0, 0}, arrows = true}))
                     menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
                     menu:setOverflow("scroll")

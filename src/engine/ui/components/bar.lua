@@ -2,12 +2,12 @@
 ---@overload fun(...) : BarComponent
 local BarComponent, super = Class(Component)
 
-function BarComponent:init(x, y, progress, vertical, x_sizing, y_sizing, background, fill)
-    super.init(self, x, y, x_sizing, y_sizing)
+function BarComponent:init(progress, x_sizing, y_sizing, options)
+    super.init(self, x_sizing, y_sizing, options)
     self.progress = progress
-    self.vertical = vertical
-    self.background = background or COLORS.maroon
-    self.fill = fill or COLORS.red
+    self.vertical = options.vertical or false
+    self.background = options.background or COLORS.maroon
+    self.fill = options.fill or COLORS.red
 end
 
 function BarComponent:getProgress()
