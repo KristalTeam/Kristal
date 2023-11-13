@@ -77,7 +77,11 @@ function TextChoicebox:setText(text, callback)
 end
 
 function TextChoicebox:transformText(text)
-    return text .. "\n" .. table.concat(self.choices, "     ")
+    if self.face.texture then
+        return text .. "\n" .. table.concat(self.choices, "     ")
+    else
+        return text .. "\n       " .. table.concat(self.choices, "     ")
+    end
 end
 
 function TextChoicebox:isDone()
