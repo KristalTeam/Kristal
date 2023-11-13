@@ -236,6 +236,8 @@ GameOver = require("src.engine.game.gameover")
 
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 
+EasingSoul = require("src.engine.objects.easingsoul")
+
 -- UI SYSTEM
 Component = require("src.engine.ui.component")
 BoxComponent = require("src.engine.ui.components.box")

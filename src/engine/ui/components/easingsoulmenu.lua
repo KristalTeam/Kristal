@@ -11,7 +11,7 @@ function EasingSoulMenuComponent:init(x_sizing, y_sizing, options)
         self.soul_sprite:setColor(Kristal.getSoulColor())
         self.soul_sprite.layer = 100
     else
-        self.soul_sprite = options.soul
+        self.soul = options.soul
     end
 
     self.soul_target_x = 0
@@ -63,19 +63,26 @@ function EasingSoulMenuComponent:keepSelectedOnScreen()
 
     self.soul_target_x = (item.x - (self.scroll_target_x - self.scroll_x)) + (item.soul_offset_x or 0) + self.soul_offset_x
     self.soul_target_y = (item.y - (self.scroll_target_y - self.scroll_y)) + (item.soul_offset_y or 0) + self.soul_offset_y
+
+    if self.soul and self:isFocused() then
+        local x, y = self:getRelativePos(self.soul_target_x, self.soul_target_y, self.soul.parent)
+        self.soul:setTarget(x, y)
+    end
 end
 
 function EasingSoulMenuComponent:update()
     super.update(self)
 
-    if (math.abs((self.soul_target_x - self.soul_sprite.x)) <= 2) then
-        self.soul_sprite.x = self.soul_target_x
+    if self.soul_sprite then
+        if (math.abs((self.soul_target_x - self.soul_sprite.x)) <= 2) then
+            self.soul_sprite.x = self.soul_target_x
+        end
+        if (math.abs((self.soul_target_y - self.soul_sprite.y)) <= 2) then
+            self.soul_sprite.y = self.soul_target_y
+        end
+        self.soul_sprite.x = self.soul_sprite.x + ((self.soul_target_x - self.soul_sprite.x) / 2) * DTMULT
+        self.soul_sprite.y = self.soul_sprite.y + ((self.soul_target_y - self.soul_sprite.y) / 2) * DTMULT
     end
-    if (math.abs((self.soul_target_y - self.soul_sprite.y)) <= 2) then
-        self.soul_sprite.y = self.soul_target_y
-    end
-    self.soul_sprite.x = self.soul_sprite.x + ((self.soul_target_x - self.soul_sprite.x) / 2) * DTMULT
-    self.soul_sprite.y = self.soul_sprite.y + ((self.soul_target_y - self.soul_sprite.y) / 2) * DTMULT
 
     if (math.abs((self.scroll_target_x - self.scroll_x)) <= 2) then
         self.scroll_x = self.scroll_target_x
@@ -85,6 +92,10 @@ function EasingSoulMenuComponent:update()
     end
     self.scroll_x = self.scroll_x + ((self.scroll_target_x - self.scroll_x) / 2) * DTMULT
     self.scroll_y = self.scroll_y + ((self.scroll_target_y - self.scroll_y) / 2) * DTMULT
+
+    if self.soul and self:isFocused() then
+        self.soul:moveSoul()
+    end
 end
 
 return EasingSoulMenuComponent

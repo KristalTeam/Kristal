@@ -10,13 +10,16 @@ function Testing:enter()
     self.scrollbar_type = 1
     self.scrollbar_width = 9
 
+    self.soul = self.stage:addChild(EasingSoul(0, 0))
+    self.soul.use_parent = true
+
     local outer = Component(FixedSizing(640, 480))
         outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
         outer:setOverflow("hidden")
         local inner = Component(FillSizing(), FitSizing())
             inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
             local box = MainMenuBoxComponent(FitSizing())
-                local menu = EasingSoulMenuComponent(FitSizing(), FixedSizing(240), {hold=true})
+                local menu = EasingSoulMenuComponent(FitSizing(), FixedSizing(240), { hold = true, soul = self.soul })
                     menu.open_sound = "ui_move"
                     menu:setScrollbar(ScrollbarComponent({gutter = "dotted", margins = {8, 0, 0, 0}, arrows = true}))
                     menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
@@ -42,7 +45,7 @@ function Testing:enter()
                     menu:addChild(TextMenuItemComponent(Text("Option"),
                         function()
                             menu.visible = false
-                            local menu2 = EasingSoulMenuComponent(FitSizing(), FitSizing(), {hold=true})
+                            local menu2 = EasingSoulMenuComponent(FitSizing(), FitSizing(), { hold = true, soul = self.soul })
                             menu2:setLayout(VerticalLayout())
                             menu2:addChild(TextMenuItemComponent(Text("Option 1"), function() end))
                             menu2:addChild(TextMenuItemComponent(Text("Option 2"), function() end))
