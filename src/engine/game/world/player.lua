@@ -193,10 +193,10 @@ function Player:handleMovement()
     local walk_x = 0
     local walk_y = 0
 
-    if Input.down("right") then walk_x = walk_x + 1 end
-    if Input.down("left") then walk_x = walk_x - 1 end
-    if Input.down("down") then walk_y = walk_y + 1 end
-    if Input.down("up") then walk_y = walk_y - 1 end
+    if     Input.down("left")  then walk_x = walk_x - 1
+    elseif Input.down("right") then walk_x = walk_x + 1 end
+    if     Input.down("up")    then walk_y = walk_y - 1
+    elseif Input.down("down")  then walk_y = walk_y + 1 end
 
     self.moving_x = walk_x
     self.moving_y = walk_y
