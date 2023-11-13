@@ -808,6 +808,10 @@ function Game:onKeyReleased(key)
     Kristal.callEvent("onKeyReleased", key)
 end
 
+function Game:onWheelMoved(x, y)
+    Kristal.callEvent("onWheelMoved", x, y)
+end
+
 function Game:draw()
     love.graphics.clear(0, 0, 0, 1)
     love.graphics.push()

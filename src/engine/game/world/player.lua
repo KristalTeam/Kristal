@@ -11,8 +11,8 @@ function Player:init(chara, x, y)
     self.slide_sound:setLooping(true)
 
     self.state_manager = StateManager("WALK", self, true)
-    self.state_manager:addState("WALK", {update = self.updateWalk})
-    self.state_manager:addState("SLIDE", {update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide})
+    self.state_manager:addState("WALK", { update = self.updateWalk })
+    self.state_manager:addState("SLIDE", { update = self.updateSlide, enter = self.beginSlide, leave = self.endSlide })
 
     self.force_run = false
     self.force_walk = false
@@ -41,7 +41,6 @@ function Player:init(chara, x, y)
 
     self.interact_buffer = 0
 
-    self.battle_canvas = love.graphics.newCanvas(320, 240)
     self.battle_alpha = 0
 
     self.persistent = true
@@ -65,8 +64,10 @@ end
 
 function Player:getDebugOptions(context)
     context = super.getDebugOptions(self, context)
-    context:addMenuItem("Toggle force run", "Toggle if the player is forced to run or not", function() self.force_run = not self.force_run end)
-    context:addMenuItem("Toggle force walk", "Toggle if the player is forced to walk or not", function() self.force_walk = not self.force_walk end)
+    context:addMenuItem("Toggle force run", "Toggle if the player is forced to run or not",
+        function () self.force_run = not self.force_run end)
+    context:addMenuItem("Toggle force walk", "Toggle if the player is forced to walk or not",
+        function () self.force_walk = not self.force_walk end)
     return context
 end
 
@@ -98,10 +99,10 @@ function Player:setActor(actor)
     local hx, hy, hw, hh = self.collider.x, self.collider.y, self.collider.width, self.collider.height
 
     self.interact_collider = {
-        ["left"] = Hitbox(self, hx - 13, hy, hw/2 + 13, hh),
-        ["right"] = Hitbox(self, hx + hw/2, hy, hw/2 + 13, hh),
-        ["up"] = Hitbox(self, hx, hy - 19, hw, hh/2 + 19),
-        ["down"] = Hitbox(self, hx, hy + hh/2, hw, hh/2 + 14)
+        ["left"] = Hitbox(self, hx - 13, hy, hw / 2 + 13, hh),
+        ["right"] = Hitbox(self, hx + hw / 2, hy, hw / 2 + 13, hh),
+        ["up"] = Hitbox(self, hx, hy - 19, hw, hh / 2 + 19),
+        ["down"] = Hitbox(self, hx, hy + hh / 2, hw, hh / 2 + 14)
     }
 end
 
@@ -113,14 +114,14 @@ function Player:interact()
     local col = self.interact_collider[self.facing]
 
     local interactables = {}
-    for _,obj in ipairs(self.world.children) do
+    for _, obj in ipairs(self.world.children) do
         if obj.onInteract and obj:collidesWith(col) then
-            local rx, ry = obj:getRelativePos(obj.width/2, obj.height/2, self.parent)
-            table.insert(interactables, {obj = obj, dist = Utils.dist(self.x,self.y, rx,ry)})
+            local rx, ry = obj:getRelativePos(obj.width / 2, obj.height / 2, self.parent)
+            table.insert(interactables, { obj = obj, dist = Utils.dist(self.x, self.y, rx, ry) })
         end
     end
-    table.sort(interactables, function(a,b) return a.dist < b.dist end)
-    for _,v in ipairs(interactables) do
+    table.sort(interactables, function (a, b) return a.dist < b.dist end)
+    for _, v in ipairs(interactables) do
         if v.obj:onInteract(self, self.facing) then
             self.interact_buffer = v.obj.interact_buffer or 0
             return true
@@ -135,7 +136,7 @@ function Player:setState(state, ...)
 end
 
 function Player:resetFollowerHistory()
-    for _,follower in ipairs(Game.world.followers) do
+    for _, follower in ipairs(Game.world.followers) do
         if follower:getTarget() == self then
             follower:copyHistoryFrom(self)
         end
@@ -157,16 +158,18 @@ function Player:alignFollowers(facing, x, y, dist)
         offset_y = -1
     end
 
-    self.history = {{x = x, y = y, time = self.history_time}}
+    self.history = { { x = x, y = y, time = self.history_time } }
     for i = 1, Game.max_followers do
-        local idist = dist and (i * dist) or (((i * FOLLOW_DELAY) / (1/30)) * 4)
-        table.insert(self.history, {x = x + (offset_x * idist), y = y + (offset_y * idist), facing = facing, time = self.history_time - (i * FOLLOW_DELAY)})
+        local idist = dist and (i * dist) or (((i * FOLLOW_DELAY) / (1 / 30)) * 4)
+        table.insert(self.history,
+            { x = x + (offset_x * idist), y = y + (offset_y * idist), facing = facing,
+                time = self.history_time - (i * FOLLOW_DELAY) })
     end
     self:resetFollowerHistory()
 end
 
 function Player:interpolateFollowers()
-    for i,follower in ipairs(Game.world.followers) do
+    for i, follower in ipairs(Game.world.followers) do
         if follower:getTarget() == self then
             follower:interpolateHistory()
         end
@@ -190,10 +193,10 @@ function Player:handleMovement()
     local walk_x = 0
     local walk_y = 0
 
-    if Input.down("right") then walk_x = walk_x + 1 end
-    if Input.down("left") then walk_x = walk_x - 1 end
-    if Input.down("down") then walk_y = walk_y + 1 end
-    if Input.down("up") then walk_y = walk_y - 1 end
+    if     Input.down("left")  then walk_x = walk_x - 1
+    elseif Input.down("right") then walk_x = walk_x + 1 end
+    if     Input.down("up")    then walk_y = walk_y - 1
+    elseif Input.down("down")  then walk_y = walk_y + 1 end
 
     self.moving_x = walk_x
     self.moving_y = walk_y
@@ -254,6 +257,7 @@ function Player:beginSlide(last_state, in_place, lock_movement)
     self.slide_land_timer = 0
     self.sprite:setAnimation("slide")
 end
+
 function Player:updateSlideDust()
     self.slide_dust_timer = Utils.approach(self.slide_dust_timer, 0, DTMULT)
 
@@ -261,7 +265,7 @@ function Player:updateSlideDust()
         self.slide_dust_timer = 3
 
         local dust = Sprite("effects/slide_dust")
-        dust:play(1/15, false, function() dust:remove() end)
+        dust:play(1 / 15, false, function () dust:remove() end)
         dust:setOrigin(0.5, 0.5)
         dust:setScale(2, 2)
         dust:setPosition(self.x, self.y)
@@ -271,6 +275,7 @@ function Player:updateSlideDust()
         self.world:addChild(dust)
     end
 end
+
 function Player:updateSlide()
     local slide_x = 0
     local slide_y = 0
@@ -293,6 +298,7 @@ function Player:updateSlide()
 
     self:updateSlideDust()
 end
+
 function Player:endSlide(next_state)
     if self.slide_lock_movement then
         self.slide_land_timer = 4
@@ -305,7 +311,7 @@ end
 
 function Player:updateHistory()
     if #self.history == 0 then
-        table.insert(self.history, {x = self.x, y = self.y, time = 0})
+        table.insert(self.history, { x = self.x, y = self.y, time = 0 })
     end
 
     local moved = self.x ~= self.last_move_x or self.y ~= self.last_move_y
@@ -315,13 +321,15 @@ function Player:updateHistory()
     if moved then
         self.history_time = self.history_time + DT
 
-        table.insert(self.history, 1, {x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state_manager.state, state_args = self.state_manager.args, auto = auto})
+        table.insert(self.history, 1,
+            { x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state_manager.state,
+                state_args = self.state_manager.args, auto = auto })
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
     end
 
-    for _,follower in ipairs(self.world.followers) do
+    for _, follower in ipairs(self.world.followers) do
         follower:updateHistory(moved, auto)
     end
 
@@ -352,7 +360,7 @@ function Player:update()
     end
 
     self.world.in_battle_area = false
-    for _,area in ipairs(self.world.map.battle_areas) do
+    for _, area in ipairs(self.world.map.battle_areas) do
         if area:collidesWith(self.collider) then
             if not self.world.in_battle_area then
                 self.world.in_battle_area = true

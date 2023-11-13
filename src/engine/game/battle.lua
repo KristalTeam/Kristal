@@ -798,7 +798,7 @@ function Battle:processCharacterActions()
 
     local order = {"ACT", {"SPELL", "ITEM", "SPARE"}}
 
-    for lib_id,_ in pairs(Mod.libs) do
+    for lib_id,_ in Kristal.iterLibraries() do
         order = Kristal.libCall(lib_id, "getActionOrder", order, self.encounter) or order
     end
     order = Kristal.modCall("getActionOrder", order, self.encounter) or order
@@ -935,7 +935,7 @@ function Battle:processAction(action)
     if callback_result ~= nil then
         return callback_result
     end
-    for lib_id,_ in pairs(Mod.libs) do
+    for lib_id,_ in Kristal.iterLibraries() do
         callback_result = Kristal.libCall(lib_id, "onBattleAction", action, action.action, battler, enemy)
         if callback_result ~= nil then
             return callback_result

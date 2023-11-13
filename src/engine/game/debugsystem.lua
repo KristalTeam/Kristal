@@ -29,9 +29,6 @@ function DebugSystem:init()
 
     self.current_selecting = 1
 
-    self.menu_canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
-    self.menu_canvas:setFilter("nearest", "nearest")
-
     self.menus = {}
 
     self:refresh()
@@ -45,7 +42,7 @@ function DebugSystem:init()
 
     self.object = nil
     self.last_object = nil
-    self.flash_fx = self:addFX(ColorMaskFX())
+    self.flash_fx = ColorMaskFX()
     self.flash_fx:setColor(1, 1, 1)
     self.flash_fx.amount = 0
     self.grabbing = false
@@ -64,7 +61,7 @@ function DebugSystem:init()
     self.context = nil
     self.last_context = nil
 
-    self.search_text = {""}
+    self.search_text = { "" }
 
     self.menu_y = 0
     self.menu_target_y = 0
@@ -137,41 +134,44 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                     self.context = ContextMenu("Debug")
                     if Game.world then
                         if Game.world.player then
-                            self.context:addMenuItem("Teleport", "Teleport the player to\nthe current position.", function()
-                                Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
-                                Game.world.player:interpolateFollowers()
-                                self:selectObject(Game.world.player)
-                            end)
+                            self.context:addMenuItem("Teleport", "Teleport the player to\nthe current position.",
+                                                     function ()
+                                                         Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                                         Game.world.player:interpolateFollowers()
+                                                         self:selectObject(Game.world.player)
+                                                     end)
                         else
-                            self.context:addMenuItem("Spawn player", "Spawn the player at the\ncurrent position.", function()
-                                Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
-                                Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
-                                Game.world.player:interpolateFollowers()
-                                self:selectObject(Game.world.player)
-                            end)
+                            self.context:addMenuItem("Spawn player", "Spawn the player at the\ncurrent position.",
+                                                     function ()
+                                                         Game.world:spawnPlayer(0, 0, Game.party[1]:getActor())
+                                                         Game.world.player:setScreenPos(Input.getCurrentCursorPosition())
+                                                         Game.world.player:interpolateFollowers()
+                                                         self:selectObject(Game.world.player)
+                                                     end)
                         end
                     end
                     if self.copied_object then
-                        self.context:addMenuItem("Paste", "Paste the copied object.", function()
+                        self.context:addMenuItem("Paste", "Paste the copied object.", function ()
                             self:pasteObject()
                         end)
                     end
-                    self.context:addMenuItem("Select object", "Select an object by name.", function()
-                        self.window = DebugWindow("Select Object", "Enter the name of the object to select.", "input", function(text)
-                            local stage = self:getStage()
-                            if stage then
-                                local objects = stage:getObjects()
-                                Object.startCache()
-                                for _,instance in ipairs(objects) do
-                                    if Utils.getClassName(instance):lower() == text:lower() then
-                                        self:selectObject(instance)
-                                        self:openObjectContext(instance)
-                                        break
-                                    end
-                                end
-                                Object.endCache()
-                            end
-                        end)
+                    self.context:addMenuItem("Select object", "Select an object by name.", function ()
+                        self.window = DebugWindow("Select Object", "Enter the name of the object to select.", "input",
+                                                  function (text)
+                                                      local stage = self:getStage()
+                                                      if stage then
+                                                          local objects = stage:getObjects()
+                                                          Object.startCache()
+                                                          for _, instance in ipairs(objects) do
+                                                              if Utils.getClassName(instance):lower() == text:lower() then
+                                                                  self:selectObject(instance)
+                                                                  self:openObjectContext(instance)
+                                                                  break
+                                                              end
+                                                          end
+                                                          Object.endCache()
+                                                      end
+                                                  end)
                         self.window:setPosition(Input.getCurrentCursorPosition())
                         self:addChild(self.window)
                     end)
@@ -274,11 +274,11 @@ function DebugSystem:detectObject(x, y)
     if stage then
         local objects = stage:getObjects()
         Object.startCache()
-        for _,instance in ipairs(objects) do
+        for _, instance in ipairs(objects) do
             if instance:canDebugSelect() and instance:isFullyVisible() then
                 local mx, my = instance:getFullTransform():inverseTransformPoint(x, y)
-                local rect = instance:getDebugRectangle() or {0, 0, instance.width, instance.height}
-                if mx >= rect[1] and mx < rect[1]+rect[3] and my >= rect[2] and my < rect[2]+rect[4] then
+                local rect = instance:getDebugRectangle() or { 0, 0, instance.width, instance.height }
+                if mx >= rect[1] and mx < rect[1] + rect[3] and my >= rect[2] and my < rect[2] + rect[4] then
                     local new_hierarchy_size = #instance:getHierarchy()
                     local new_object_size = math.sqrt(rect[3] * rect[4])
                     if new_hierarchy_size > hierarchy_size or (new_hierarchy_size == hierarchy_size and new_object_size < object_size) then
@@ -296,14 +296,14 @@ function DebugSystem:detectObject(x, y)
 end
 
 function DebugSystem:registerConfigOption(menu, name, description, value, callback)
-    self:registerOption(menu, name, function()
-        return self:appendBool(description, Kristal.Config[value])
-    end, function()
-        Kristal.Config[value] = not Kristal.Config[value]
-        if callback then
-            callback()
-        end
-    end)
+    self:registerOption(menu, name, function ()
+                            return self:appendBool(description, Kristal.Config[value])
+                        end, function ()
+                            Kristal.Config[value] = not Kristal.Config[value]
+                            if callback then
+                                callback()
+                            end
+                        end)
 end
 
 function DebugSystem:appendBool(desc, bool)
@@ -367,7 +367,7 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
     self.current_selecting = soul or 1
 
     if self.menus[self.current_menu].type == "search" then
-        self.search = {""}
+        self.search = { "" }
         --self:sortMenuOptions(self.current_menu)
 
         self:startTextInput()
@@ -381,7 +381,7 @@ function DebugSystem:startTextInput()
         clear_after_submit = false
     })
 
-    TextInput.submit_callback = function(...)
+    TextInput.submit_callback = function (...)
         Assets.playSound("ui_select")
         self.current_selecting = self.current_selecting + 1
         self:updateBounds(self:getValidOptions())
@@ -396,7 +396,7 @@ function DebugSystem:startTextInput()
     Input.clear("gamepad:lsdown")
     Input.clear("gamepad:dpdown")
 
-    TextInput.pressed_callback = function(key)
+    TextInput.pressed_callback = function (key)
         if not Input.shouldProcess(key) then return end
 
         if key == "down" or key == "gamepad:lsdown" or key == "gamepad:dpdown" then
@@ -412,11 +412,10 @@ function DebugSystem:startTextInput()
 end
 
 function DebugSystem:sortMenuOptions(options, filter)
-    table.sort(options, function(a, b)
+    table.sort(options, function (a, b)
         return a.name < b.name
     end)
     if filter then
-
         local copied_options = Utils.copy(options)
 
         -- Make two tables, one for starting WITH the filter, and one for CONTAINING the filter.
@@ -440,11 +439,11 @@ function DebugSystem:sortMenuOptions(options, filter)
         end
 
         Utils.clear(options)
-        for _,item in ipairs(start_with) do
+        for _, item in ipairs(start_with) do
             table.insert(options, item)
         end
 
-        for _,item in ipairs(contains) do
+        for _, item in ipairs(contains) do
             table.insert(options, item)
         end
     end
@@ -453,30 +452,50 @@ end
 function DebugSystem:registerSubMenus()
     self:registerMenu("engine_options", "Engine Options")
     self:registerConfigOption("engine_options", "Show FPS", "Toggle the FPS display.", "showFPS")
-    self:registerOption("engine_options", "Target FPS", function()
-        local fps_text = Kristal.Config["fps"] > 0 and tostring(Kristal.Config["fps"]) or "Unlimited"
-        return "Set the target FPS. ("..fps_text..")"
-    end, function()
-        self:enterMenu("engine_option_fps", 1)
-    end)
-    self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function()
+    self:registerOption("engine_options", "Target FPS", function ()
+                            local fps_text = Kristal.Config["fps"] > 0 and tostring(Kristal.Config["fps"]) or "Unlimited"
+                            return "Set the target FPS. (" .. fps_text .. ")"
+                        end, function ()
+                            self:enterMenu("engine_option_fps", 1)
+                        end)
+    self:registerConfigOption("engine_options", "VSync", "Toggle Vsync.", "vSync", function ()
         love.window.setVSync(Kristal.Config["vSync"] and 1 or 0)
     end)
     self:registerConfigOption("engine_options", "Frame Skip", "Toggle frame skipping.", "frameSkip")
-    self:registerOption("engine_options", "Print Performance", "Show performance in the console.", function() PERFORMANCE_TEST_STAGE = "UPDATE" end)
-    self:registerOption("engine_options", "Force GC", "Force a garbage collection.", function() collectgarbage("collect") end)
-    self:registerOption("engine_options", "Force Crash", "Force a crash.", function() error("Debug crash!") end)
-    self:registerOption("engine_options", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
+    self:registerOption("engine_options", "Print Performance", "Show performance in the console.",
+                        function () PERFORMANCE_TEST_STAGE = "UPDATE" end)
+    self:registerOption("engine_options", "Force GC", "Force a garbage collection.",
+                        function () collectgarbage("collect") end)
+    self:registerOption("engine_options", "Force Crash", "Force a crash.", function () error("Debug crash!") end)
+    self:registerOption("engine_options", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
 
     self:registerMenu("engine_option_fps", "Target FPS")
-    self:registerOption("engine_option_fps", "Unlimited", "Set the target FPS to unlimited.", function() Kristal.Config["fps"] = 0; FRAMERATE = 0 end)
-    self:registerOption("engine_option_fps", "30", "Set the target FPS to 30.", function() Kristal.Config["fps"] = 30; FRAMERATE = 30 end)
-    self:registerOption("engine_option_fps", "60", "Set the target FPS to 60.", function() Kristal.Config["fps"] = 60; FRAMERATE = 60 end)
-    self:registerOption("engine_option_fps", "120", "Set the target FPS to 120.", function() Kristal.Config["fps"] = 120; FRAMERATE = 120 end)
-    self:registerOption("engine_option_fps", "144", "Set the target FPS to 144.", function() Kristal.Config["fps"] = 144; FRAMERATE = 144 end)
-    self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.", function() Kristal.Config["fps"] = 240; FRAMERATE = 240 end)
-    self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function()
-        self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function(text)
+    self:registerOption("engine_option_fps", "Unlimited", "Set the target FPS to unlimited.",
+                        function ()
+                            Kristal.Config["fps"] = 0; FRAMERATE = 0
+                        end)
+    self:registerOption("engine_option_fps", "30", "Set the target FPS to 30.",
+                        function ()
+                            Kristal.Config["fps"] = 30; FRAMERATE = 30
+                        end)
+    self:registerOption("engine_option_fps", "60", "Set the target FPS to 60.",
+                        function ()
+                            Kristal.Config["fps"] = 60; FRAMERATE = 60
+                        end)
+    self:registerOption("engine_option_fps", "120", "Set the target FPS to 120.",
+                        function ()
+                            Kristal.Config["fps"] = 120; FRAMERATE = 120
+                        end)
+    self:registerOption("engine_option_fps", "144", "Set the target FPS to 144.",
+                        function ()
+                            Kristal.Config["fps"] = 144; FRAMERATE = 144
+                        end)
+    self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.",
+                        function ()
+                            Kristal.Config["fps"] = 240; FRAMERATE = 240
+                        end)
+    self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function ()
+        self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function (text)
             local fps = tonumber(text)
             if fps then
                 Kristal.Config["fps"] = fps
@@ -486,21 +505,21 @@ function DebugSystem:registerSubMenus()
         self.window:setPosition(Input.getCurrentCursorPosition())
         self:addChild(self.window)
     end)
-    self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function() self:returnMenu() end)
+    self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
 
     self:registerMenu("give_item", "Give Item", "search")
 
     for id, item_data in pairs(Registry.items) do
         local item = item_data()
-        self:registerOption("give_item", item.name, item.description, function()
+        self:registerOption("give_item", item.name, item.description, function ()
             Game.inventory:tryGiveItem(item_data())
         end)
     end
 
     self:registerMenu("select_map", "Select Map", "search")
     -- Registry.map_data instead of Registry.maps
-    for id,_ in pairs(Registry.map_data) do
-        self:registerOption("select_map", id, "Teleport to this map.", function()
+    for id, _ in pairs(Registry.map_data) do
+        self:registerOption("select_map", id, "Teleport to this map.", function ()
             if Game.world.cutscene then
                 Game.world:stopCutscene()
             end
@@ -513,16 +532,16 @@ function DebugSystem:registerSubMenus()
 
     self:registerMenu("encounter_select", "Encounter Select", "search")
     -- loop through registry and add menu options for all encounters
-    for id,_ in pairs(Registry.encounters) do
-        self:registerOption("encounter_select", id, "Start this encounter.", function()
+    for id, _ in pairs(Registry.encounters) do
+        self:registerOption("encounter_select", id, "Start this encounter.", function ()
             Game:encounter(id)
             self:closeMenu()
         end)
     end
 
     self:registerMenu("select_shop", "Enter Shop", "search")
-    for id,_ in pairs(Registry.shops) do
-        self:registerOption("select_shop", id, "Enter this shop.", function()
+    for id, _ in pairs(Registry.shops) do
+        self:registerOption("select_shop", id, "Enter this shop.", function ()
             Game:enterShop(id)
             self:closeMenu()
         end)
@@ -530,16 +549,16 @@ function DebugSystem:registerSubMenus()
 
     self:registerMenu("cutscene_select", "Cutscene Select", "search")
     -- loop through registry and add menu options for all cutscenes
-    for group,cutscene in pairs(Registry.world_cutscenes) do
+    for group, cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then
-            for id,_ in pairs(cutscene) do
-                self:registerOption("cutscene_select", group.."."..id, "Start this cutscene.", function()
+            for id, _ in pairs(cutscene) do
+                self:registerOption("cutscene_select", group .. "." .. id, "Start this cutscene.", function ()
                     Game.world:startCutscene(group, id)
                     self:closeMenu()
                 end)
             end
         else
-            self:registerOption("cutscene_select", group, "Start this cutscene.", function()
+            self:registerOption("cutscene_select", group, "Start this cutscene.", function ()
                 Game.world:startCutscene(group)
                 self:closeMenu()
             end)
@@ -549,17 +568,17 @@ function DebugSystem:registerSubMenus()
     self:registerMenu("wave_select", "Wave Select", "search")
     -- loop through registry and add menu options for all waves
     local waves_list = {}
-    for id,_ in pairs(Registry.waves) do
+    for id, _ in pairs(Registry.waves) do
         table.insert(waves_list, id)
     end
 
-    table.sort(waves_list, function(a, b)
+    table.sort(waves_list, function (a, b)
         return a < b
     end)
 
-    for _,id in ipairs(waves_list) do
-        self:registerOption("wave_select", id, "Start this wave.", function()
-            Game.battle:setState("DEFENDINGBEGIN", {id})
+    for _, id in ipairs(waves_list) do
+        self:registerOption("wave_select", id, "Start this wave.", function ()
+            Game.battle:setState("DEFENDINGBEGIN", { id })
             self:closeMenu()
         end)
     end
@@ -567,32 +586,39 @@ function DebugSystem:registerSubMenus()
     self:registerMenu("sound_test", "Sound Test", "search")
 
     for id, _ in pairs(Assets.sounds) do
-        self:registerOption("sound_test", id, "Play this sound.", function()
+        self:registerOption("sound_test", id, "Play this sound.", function ()
             if self.playing_sound then
                 self.playing_sound:stop()
             end
             self.playing_sound = Assets.playSound(id)
         end)
     end
-
 end
 
 function DebugSystem:registerDefaults()
-    local in_game = function() return Kristal.getState() == Game end
-    local in_battle = function() return in_game() and Game.state == "BATTLE" end
-    local in_overworld = function() return in_game() and Game.state == "OVERWORLD" end
+    local in_game = function () return Kristal.getState() == Game end
+    local in_battle = function () return in_game() and Game.state == "BATTLE" end
+    local in_overworld = function () return in_game() and Game.state == "OVERWORLD" end
 
     -- Global
-    self:registerConfigOption("main", "Object Selection Pausing", "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
+    self:registerConfigOption("main", "Object Selection Pausing",
+                              "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
-    self:registerOption("main", "Engine Options", "Configure various noningame options.", function()
+    self:registerOption("main", "Engine Options", "Configure various noningame options.", function ()
         self:enterMenu("engine_options", 1)
     end)
 
-    self:registerOption("main", "Fast Forward", function() return self:appendBool("Speed up the engine.", FAST_FORWARD) end, function() FAST_FORWARD = not FAST_FORWARD end)
-    self:registerOption("main", "Debug Rendering", function() return self:appendBool("Draw debug information.", DEBUG_RENDER) end, function() DEBUG_RENDER = not DEBUG_RENDER end)
-    self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.", function() Hotswapper.scan(); self:refresh() end)
-    self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function()
+    self:registerOption("main", "Fast Forward",
+                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+                        function () FAST_FORWARD = not FAST_FORWARD end)
+    self:registerOption("main", "Debug Rendering",
+                        function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
+                        function () DEBUG_RENDER = not DEBUG_RENDER end)
+    self:registerOption("main", "Hotswap", "Swap out code from the files. Might be unstable.",
+                        function ()
+                            Hotswapper.scan(); self:refresh()
+                        end)
+    self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function ()
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
         else
@@ -605,55 +631,54 @@ function DebugSystem:registerDefaults()
     end)
 
     self:registerOption("main", "Noclip",
-        function() return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
-        function() NOCLIP = not NOCLIP end,
-        in_game
+                        function () return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
+                        function () NOCLIP = not NOCLIP end,
+                        in_game
     )
 
-    self:registerOption("main", "Give Item", "Give an item.", function()
-        self:enterMenu("give_item", 0)
-    end, in_game)
+    self:registerOption("main", "Give Item", "Give an item.", function ()
+                            self:enterMenu("give_item", 0)
+                        end, in_game)
 
-    self:registerOption("main", "Portrait Viewer", "Enter the portrait viewer menu.", function()
-        self:setState("FACES")
-    end, in_game)
+    self:registerOption("main", "Portrait Viewer", "Enter the portrait viewer menu.", function ()
+                            self:setState("FACES")
+                        end, in_game)
 
-    self:registerOption("main", "Flag Editor", "Enter the flag editor menu.", function()
-        self:setState("FLAGS")
-    end, in_game)
+    self:registerOption("main", "Flag Editor", "Enter the flag editor menu.", function ()
+                            self:setState("FLAGS")
+                        end, in_game)
 
-    self:registerOption("main", "Sound Test", "Enter the sound test menu.", function()
-        self:fadeMusicOut()
-        self:enterMenu("sound_test", 0)
-    end, in_game)
+    self:registerOption("main", "Sound Test", "Enter the sound test menu.", function ()
+                            self:fadeMusicOut()
+                            self:enterMenu("sound_test", 0)
+                        end, in_game)
 
 
     -- World specific
-    self:registerOption("main", "Select Map", "Switch to a new map.", function()
-        self:enterMenu("select_map", 0)
-    end, in_overworld)
+    self:registerOption("main", "Select Map", "Switch to a new map.", function ()
+                            self:enterMenu("select_map", 0)
+                        end, in_overworld)
 
-    self:registerOption("main", "Start Encounter", "Start an encounter.", function()
-        self:enterMenu("encounter_select", 0)
-    end, in_overworld)
+    self:registerOption("main", "Start Encounter", "Start an encounter.", function ()
+                            self:enterMenu("encounter_select", 0)
+                        end, in_overworld)
 
-    self:registerOption("main", "Enter Shop", "Enter a shop.", function()
-        self:enterMenu("select_shop", 0)
-    end, in_overworld)
+    self:registerOption("main", "Enter Shop", "Enter a shop.", function ()
+                            self:enterMenu("select_shop", 0)
+                        end, in_overworld)
 
-    self:registerOption("main", "Play Cutscene", "Play a cutscene.", function()
-        self:enterMenu("cutscene_select", 0)
-    end, in_overworld)
+    self:registerOption("main", "Play Cutscene", "Play a cutscene.", function ()
+                            self:enterMenu("cutscene_select", 0)
+                        end, in_overworld)
 
     -- Battle specific
-    self:registerOption("main", "Start Wave", "Start a wave.", function()
-        self:enterMenu("wave_select", 0)
-    end, in_battle)
+    self:registerOption("main", "Start Wave", "Start a wave.", function ()
+                            self:enterMenu("wave_select", 0)
+                        end, in_battle)
 
-    self:registerOption("main", "End Battle", "Instantly complete a battle.", function()
-        Game.battle:setState("VICTORY")
-    end, in_battle)
-
+    self:registerOption("main", "End Battle", "Instantly complete a battle.", function ()
+                            Game.battle:setState("VICTORY")
+                        end, in_battle)
 end
 
 function DebugSystem:getValidOptions()
@@ -751,7 +776,6 @@ function DebugSystem:onStateChange(old, new)
     if old == "IDLE" and new == "MENU" and self.current_menu == "sound_test" then
         self:fadeMusicOut()
     end
-
 end
 
 function DebugSystem:updateBounds(options)
@@ -816,7 +840,6 @@ function DebugSystem:onKeyPressed(key, is_repeat)
     if TextInput.active then return end
 
     if self.state == "MENU" then
-
         local options = self:getValidOptions()
         if Input.isCancel(key) and not is_repeat then
             Assets.playSound("ui_move")
@@ -910,7 +933,6 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self.current_selecting = self.current_selecting - 1
         end
         self:updateBounds(Utils.getKeys(Game.flags))
-
     end
 end
 
@@ -928,7 +950,7 @@ function DebugSystem:update()
     if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
         self.heart.x = self.heart_target_x
     end
-    if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
+    if (math.abs((self.heart_target_y - self.heart.y)) <= 2) then
         self.heart.y = self.heart_target_y
     end
     self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT
@@ -990,7 +1012,7 @@ function DebugSystem:draw()
     local menu_alpha = 0
     local circle_alpha = 1
 
-    local circle_progress = Utils.lerp(0, 2, self.circle_anim_timer/1.4, true)
+    local circle_progress = Utils.lerp(0, 2, self.circle_anim_timer / 1.4, true)
 
     if self.state ~= "IDLE" then
         menu_y = Utils.ease(-32, 0, self.menu_anim_timer, "outExpo")
@@ -998,13 +1020,13 @@ function DebugSystem:draw()
     else
         menu_y = Utils.ease(0, -32, self.menu_anim_timer, "outExpo")
         menu_alpha = Utils.ease(1, 0, self.menu_anim_timer, "outExpo")
-        circle_alpha = Utils.lerp(1, 0, self.menu_anim_timer/1.4, true)
+        circle_alpha = Utils.lerp(1, 0, self.menu_anim_timer / 1.4, true)
     end
 
     local text_offset = menu_x + 19
     local y_off = 32
 
-    Draw.setCanvas(self.menu_canvas)
+    local menu_canvas = Draw.pushCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
     love.graphics.clear()
 
     local header_name = "UNKNOWN"
@@ -1024,7 +1046,7 @@ function DebugSystem:draw()
             love.graphics.setLineWidth(2)
             local line_x  = x
             local line_x2 = line_x + line_width
-            local line_y = 32 - 4 - 1 + 2
+            local line_y  = 32 - 4 - 1 + 2
             Draw.setColor(0, 0, 0, 1)
             love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
             Draw.setColor(COLORS.silver)
@@ -1034,7 +1056,7 @@ function DebugSystem:draw()
                 x = x,
                 y = y,
                 font = self.font,
-                print = function(text, x, y) self:printShadow(text, x, y) end,
+                print = function (text, x, y) self:printShadow(text, x, y) end,
             })
         end
 
@@ -1051,7 +1073,8 @@ function DebugSystem:draw()
             if type(name) == "function" then
                 name = name()
             end
-            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
+            self:printShadow(name, text_offset + 19,
+                             y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
         end
         Draw.popScissor()
 
@@ -1081,7 +1104,7 @@ function DebugSystem:draw()
         end
 
         -- Sort textures alphabetically
-        table.sort(textures, function(a, b)
+        table.sort(textures, function (a, b)
             return a:lower() < b:lower()
         end)
 
@@ -1110,10 +1133,11 @@ function DebugSystem:draw()
             local mx, my = Input.getCurrentCursorPosition()
 
             if mx > x_offset + (x * gap) and mx < x_offset + (x * gap) + width and
-               my > y_offset + (self.faces_y + (y * gap)) and my < y_offset + (self.faces_y + (y * gap)) + height then
+            my > y_offset + (self.faces_y + (y * gap)) and my < y_offset + (self.faces_y + (y * gap)) + height then
                 love.graphics.setLineWidth(2)
                 Draw.setColor(0, 1, 1, 1)
-                love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1, width + 2, height + 2)
+                love.graphics.rectangle("line", x_offset + (x * gap) - 1, y_offset + (self.faces_y + (y * gap)) - 1,
+                                        width + 2, height + 2)
                 Draw.setColor(1, 1, 1, 1)
 
                 name = texture_id
@@ -1178,7 +1202,8 @@ function DebugSystem:draw()
         Draw.scissor(text_offset + 19, y_off + menu_y + 16, 640, 320 + 48)
         for index, key in pairs(Utils.getKeys(Game.flags)) do
             self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
-            self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y, {1, 1, 1, 1}, "right", 640)
+            self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
+                             { 1, 1, 1, 1 }, "right", 640)
         end
         Draw.popScissor()
 
@@ -1193,14 +1218,13 @@ function DebugSystem:draw()
             if prog >= 0 then
                 love.graphics.setLineWidth(2)
                 local r = prog * 40
-                local alpha = 2 - (prog*1.2)
+                local alpha = 2 - (prog * 1.2)
                 Draw.setColor(0, 1, 1, alpha * circle_alpha)
                 love.graphics.circle("line", mx, my, r, 100)
             end
         end
 
         Object.startCache()
-        local mx, my = Input.getCurrentCursorPosition()
 
         local object = self.object
         if (not self.grabbing) and (not self.context) then
@@ -1222,7 +1246,7 @@ function DebugSystem:draw()
             love.graphics.push()
             love.graphics.origin()
             love.graphics.applyTransform(transform)
-            local rect = useobject:getDebugRectangle() or {0, 0, useobject.width, useobject.height}
+            local rect = useobject:getDebugRectangle() or { 0, 0, useobject.width, useobject.height }
             love.graphics.rectangle("line", rect[1], rect[2], rect[3], rect[4])
             love.graphics.pop()
 
@@ -1245,21 +1269,22 @@ function DebugSystem:draw()
 
             local tooltip_alpha = self.hover_alpha
             if self.last_context then
-                tooltip_alpha = tooltip_alpha * (1 - (self.last_context.anim_timer/0.2))
+                tooltip_alpha = tooltip_alpha * (1 - (self.last_context.anim_timer / 0.2))
             end
             tooltip_x = tooltip_x + Utils.ease(0, 1, (1 - tooltip_alpha), "inCubic") * 10
 
             love.graphics.setFont(tooltip_font)
             Draw.setColor(0, 0, 0, tooltip_alpha)
-            love.graphics.print(tooltip_text, tooltip_x-1, tooltip_y)
-            love.graphics.print(tooltip_text, tooltip_x+1, tooltip_y)
-            love.graphics.print(tooltip_text, tooltip_x, tooltip_y-1)
-            love.graphics.print(tooltip_text, tooltip_x, tooltip_y+1)
+            love.graphics.print(tooltip_text, tooltip_x - 1, tooltip_y)
+            love.graphics.print(tooltip_text, tooltip_x + 1, tooltip_y)
+            love.graphics.print(tooltip_text, tooltip_x, tooltip_y - 1)
+            love.graphics.print(tooltip_text, tooltip_x, tooltip_y + 1)
             Draw.setColor(1, 1, 1, tooltip_alpha)
             love.graphics.print(tooltip_text, tooltip_x, tooltip_y)
         end
 
-        self:printShadow(string.format("Mouse: (%i, %i)", mx, my), 12, 480 - 32 + Utils.lerp(16, 0, menu_alpha), {1, 1, 1, 1})
+        self:printShadow(string.format("Mouse: (%i, %i)", mx, my), 12, 480 - 32 + Utils.lerp(16, 0, menu_alpha),
+                         { 1, 1, 1, 1 })
 
         if not object then
             self.hover_alpha = self.hover_alpha - DT / fadespeed
@@ -1273,7 +1298,7 @@ function DebugSystem:draw()
         if object then
             local screen_x, screen_y = object:getScreenPos()
 
-            local target_text_align = screen_x < SCREEN_WIDTH/2 and "right" or "left"
+            local target_text_align = screen_x < SCREEN_WIDTH / 2 and "right" or "left"
             if self.selected_alpha == 0 then
                 self.current_text_align = target_text_align
             end
@@ -1297,18 +1322,27 @@ function DebugSystem:draw()
             local limit = SCREEN_WIDTH - 24
 
             local inc = 1
-            self:printShadow("Selected: " .. Utils.getClassName(object),                x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
-            self:printShadow(string.format("Position: (%i, %i)",   object.x, object.y), x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
-            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
+            self:printShadow("Selected: " .. Utils.getClassName(object), x_offset, (32 * inc) + 10,
+                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+            inc = inc + 1
+            self:printShadow(string.format("Position: (%i, %i)", object.x, object.y), x_offset, (32 * inc) + 10,
+                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+            inc = inc + 1
+            self:printShadow(string.format("Screen Pos: (%i, %i)", screen_x, screen_y), x_offset, (32 * inc) + 10,
+                             { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+            inc = inc + 1
 
             if object.object_id then
-                self:printShadow("World ID: " .. object.object_id,                      x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit) inc = inc + 1
+                self:printShadow("World ID: " .. object.object_id, x_offset, (32 * inc) + 10,
+                                 { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
+                inc = inc + 1
             end
 
             local info = object:getDebugInfo()
 
             for i, line in ipairs(info) do
-                self:printShadow(line, x_offset, (32 * inc) + 10, {1, 1, 1, self.selected_alpha}, self.current_text_align, limit)
+                self:printShadow(line, x_offset, (32 * inc) + 10, { 1, 1, 1, self.selected_alpha },
+                                 self.current_text_align, limit)
                 inc = inc + 1
             end
         end
@@ -1323,11 +1357,10 @@ function DebugSystem:draw()
 
     Draw.setColor(0, 1, 1, 1)
 
-    -- Reset canvas to draw to
-    Draw.setCanvas(SCREEN_CANVAS)
+    Draw.popCanvas()
 
     Draw.setColor(1, 1, 1, menu_alpha)
-    Draw.draw(self.menu_canvas, 0, 0)
+    Draw.draw(menu_canvas, 0, 0)
 
     self.mouse_clicked = false
 
@@ -1335,16 +1368,15 @@ function DebugSystem:draw()
 end
 
 function DebugSystem:printShadow(text, x, y, color, align, limit)
-    local color = color or {1, 1, 1, 1}
+    color = color or { 1, 1, 1, 1 }
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.font)
-    Draw.setColor({0, 0, 0, color[4]})
+    Draw.setColor({ 0, 0, 0, color[4] })
     love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left")
 
     -- Draw the main text
     Draw.setColor(color)
     love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left")
 end
-
 
 return DebugSystem

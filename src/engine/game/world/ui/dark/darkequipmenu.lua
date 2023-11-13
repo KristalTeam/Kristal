@@ -18,17 +18,17 @@ function DarkEquipMenu:init()
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
     self.caption_sprites = {
-            ["char"] = Assets.getTexture("ui/menu/caption_char"),
+        ["char"] = Assets.getTexture("ui/menu/caption_char"),
         ["equipped"] = Assets.getTexture("ui/menu/caption_equipped"),
-           ["stats"] = Assets.getTexture("ui/menu/caption_stats"),
-         ["weapons"] = Assets.getTexture("ui/menu/caption_weapons"),
-          ["armors"] = Assets.getTexture("ui/menu/caption_armors"),
+        ["stats"] = Assets.getTexture("ui/menu/caption_stats"),
+        ["weapons"] = Assets.getTexture("ui/menu/caption_weapons"),
+        ["armors"] = Assets.getTexture("ui/menu/caption_armors"),
     }
 
     self.stat_icons = {
-         ["attack"] = Assets.getTexture("ui/menu/icon/sword"),
+        ["attack"] = Assets.getTexture("ui/menu/icon/sword"),
         ["defense"] = Assets.getTexture("ui/menu/icon/armor"),
-          ["magic"] = Assets.getTexture("ui/menu/icon/magic"),
+        ["magic"] = Assets.getTexture("ui/menu/icon/magic"),
     }
 
     self.armor_icons = {
@@ -102,10 +102,10 @@ function DarkEquipMenu:getEquipPreview()
         equipped[1] = party.equipped.weapon
     end
     for i = 1, 2 do
-        if self.selected_slot == i+1 then
-            equipped[i+1] = item
+        if self.selected_slot == i + 1 then
+            equipped[i + 1] = item
         else
-            equipped[i+1] = party.equipped.armor[i]
+            equipped[i + 1] = party.equipped.armor[i]
         end
     end
     return equipped
@@ -119,7 +119,7 @@ function DarkEquipMenu:getStatsPreview()
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
             if equipment[i] then
-                for stat,amount in pairs(equipment[i].bonuses) do
+                for stat, amount in pairs(equipment[i].bonuses) do
                     if preview_stats[stat] then
                         preview_stats[stat] = preview_stats[stat] + amount
                     end
@@ -137,12 +137,12 @@ function DarkEquipMenu:getAbilityPreview()
     local current_abilities = {}
     local weapon = party.equipped.weapon
     if weapon and weapon:getBonusName() then
-        current_abilities[1] = {name = weapon:getBonusName(), icon = weapon.bonus_icon, color = weapon.bonus_color}
+        current_abilities[1] = { name = weapon:getBonusName(), icon = weapon.bonus_icon, color = weapon.bonus_color }
     end
     for i = 1, 2 do
         local armor = party.equipped.armor[i]
         if armor and armor:getBonusName() then
-            current_abilities[i+1] = {name = armor:getBonusName(), icon = armor.bonus_icon, color = armor.bonus_color}
+            current_abilities[i + 1] = { name = armor:getBonusName(), icon = armor.bonus_icon, color = armor.bonus_color }
         end
     end
     if self.state == "ITEMS" and self:canEquipSelected() then
@@ -150,7 +150,11 @@ function DarkEquipMenu:getAbilityPreview()
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
             if equipment[i] and equipment[i]:getBonusName() then
-                preview_abilities[i] = {name = equipment[i]:getBonusName(), icon = equipment[i].bonus_icon, color = equipment[i].bonus_color}
+                preview_abilities[i] = {
+                    name = equipment[i]:getBonusName(),
+                    icon = equipment[i].bonus_icon,
+                    color = equipment[i].bonus_color
+                }
             end
         end
         return preview_abilities, current_abilities
@@ -279,14 +283,15 @@ function DarkEquipMenu:update()
                 self.ui_cant_select:stop()
                 self.ui_cant_select:play()
             else
-                local swap_with = (self.selected_slot == 1) and party:getWeapon() or party:getArmor(self.selected_slot - 1)
+                local swap_with = (self.selected_slot == 1) and party:getWeapon() or
+                    party:getArmor(self.selected_slot - 1)
 
                 local can_continue = true
 
-                if item      and (not item     :onEquip  (party,     swap_with)) then can_continue = false end
-                if swap_with and (not swap_with:onUnequip(party,     item     )) then can_continue = false end
-                if               (not party    :onEquip  (item,      swap_with)) then can_continue = false end
-                if               (not party    :onUnequip(swap_with, item     )) then can_continue = false end
+                if item and (not item:onEquip(party, swap_with)) then can_continue = false end
+                if swap_with and (not swap_with:onUnequip(party, item)) then can_continue = false end
+                if (not party:onEquip(item, swap_with)) then can_continue = false end
+                if (not party:onUnequip(swap_with, item)) then can_continue = false end
 
                 -- If one of the functions returned false, don't continue
 
@@ -301,7 +306,7 @@ function DarkEquipMenu:update()
                 if self.selected_slot == 1 then
                     party:setWeapon(item)
                 else
-                    party:setArmor(self.selected_slot-1, item)
+                    party:setArmor(self.selected_slot - 1, item)
                 end
 
                 Game.inventory:setItem(self:getCurrentStorage(), self.selected_item[type], swap_with)
@@ -318,16 +323,16 @@ function DarkEquipMenu:draw()
     love.graphics.setFont(self.font)
 
     Draw.setColor(PALETTE["world_border"])
-    love.graphics.rectangle("fill", 188, -24,  6,  139)
-    love.graphics.rectangle("fill", -24, 109, 58,  6)
+    love.graphics.rectangle("fill", 188, -24, 6, 139)
+    love.graphics.rectangle("fill", -24, 109, 58, 6)
     love.graphics.rectangle("fill", 130, 109, 160, 6)
-    love.graphics.rectangle("fill", 422, 109, 81,  6)
-    love.graphics.rectangle("fill", 241, 109, 6,   192)
+    love.graphics.rectangle("fill", 422, 109, 81, 6)
+    love.graphics.rectangle("fill", 241, 109, 6, 192)
 
     Draw.setColor(1, 1, 1, 1)
-    Draw.draw(self.caption_sprites[    "char"],  36, -26, 0, 2, 2)
+    Draw.draw(self.caption_sprites["char"], 36, -26, 0, 2, 2)
     Draw.draw(self.caption_sprites["equipped"], 294, -26, 0, 2, 2)
-    Draw.draw(self.caption_sprites[   "stats"],  34, 104, 0, 2, 2)
+    Draw.draw(self.caption_sprites["stats"], 34, 104, 0, 2, 2)
     if self.selected_slot == 1 then
         Draw.draw(self.caption_sprites["weapons"], 290, 104, 0, 2, 2)
     else
@@ -377,7 +382,7 @@ function DarkEquipMenu:drawEquippedItem(index, x, y)
     if index == 1 then
         item = party:getWeapon()
     else
-        item = party:getArmor(index-1)
+        item = party:getArmor(index - 1)
     end
     if item then
         Draw.setColor(1, 1, 1)
@@ -431,7 +436,7 @@ function DarkEquipMenu:drawItems()
 
         if items.max > 6 then
             Draw.setColor(1, 1, 1)
-            local sine_off = math.sin((Kristal.getTime()*30)/12) * 3
+            local sine_off = math.sin((Kristal.getTime() * 30) / 12) * 3
             if scroll + 6 <= items.max then
                 Draw.draw(self.arrow_sprite, x + 187, y + 149 + sine_off)
             end
@@ -442,7 +447,7 @@ function DarkEquipMenu:drawItems()
             love.graphics.rectangle("fill", x + 191, y + 24, 6, 119)
             local percent = (scroll - 1) / (items.max - 6)
             Draw.setColor(1, 1, 1)
-            love.graphics.rectangle("fill", x + 191, y + 24 + math.floor(percent * (119-6)), 6, 6)
+            love.graphics.rectangle("fill", x + 191, y + 24 + math.floor(percent * (119 - 6)), 6, 6)
         end
     end
 end
@@ -450,23 +455,23 @@ end
 function DarkEquipMenu:drawStats()
     local party = self.party:getSelected()
     Draw.setColor(1, 1, 1, 1)
-    Draw.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
+    Draw.draw(self.stat_icons["attack"], -8, 124, 0, 2, 2)
     Draw.draw(self.stat_icons["defense"], -8, 151, 0, 2, 2)
-    Draw.draw(self.stat_icons[  "magic"], -8, 178, 0, 2, 2)
-    love.graphics.print( "Attack:", 18, 118)
+    Draw.draw(self.stat_icons["magic"], -8, 178, 0, 2, 2)
+    love.graphics.print("Attack:", 18, 118)
     love.graphics.print("Defense:", 18, 145)
-    love.graphics.print(  "Magic:", 18, 172)
+    love.graphics.print("Magic:", 18, 172)
     local stats, compare = self:getStatsPreview()
-    self:drawStatPreview( "attack", 148, 118, stats, compare)
-    self:drawStatPreview("defense", 148, 145, stats, compare)
-    self:drawStatPreview(  "magic", 148, 172, stats, compare)
+    self:drawStatPreview("attack", 148, 118, stats, compare, true)
+    self:drawStatPreview("defense", 148, 145, stats, compare, false)
+    self:drawStatPreview("magic", 148, 172, stats, compare, false)
     local abilities, ability_comp = self:getAbilityPreview()
     for i = 1, 3 do
         self:drawAbilityPreview(i, -8, 178 + (27 * i), abilities, ability_comp)
     end
 end
 
-function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare)
+function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare, show_difference)
     local stat_num = stats[stat] or 0
     local comp_num = compare[stat] or 0
     if stat_num > comp_num then
@@ -476,7 +481,16 @@ function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare)
     else
         Draw.setColor(1, 1, 1)
     end
-    love.graphics.print(stat_num, x, y)
+    local display = tostring(stat_num)
+    if show_difference and stat_num ~= comp_num then
+        -- TODO: Config option...?
+        if (Game.chapter == 1) or (stat_num < comp_num) then
+            display = display .. "(" .. (stat_num - comp_num) .. ")"
+        else
+            display = display .. "(+" .. (stat_num - comp_num) .. ")"
+        end
+    end
+    love.graphics.print(display, x, y)
 end
 
 function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)

@@ -213,6 +213,7 @@ function Console:draw()
             if place == "middle" then return "│ " end
             if place == "end"    then return "└ " end
             if place == "single" then return "> " end
+            return "  "
         end,
         x = 8,
         y = input_pos,
@@ -307,6 +308,7 @@ function Console:warn(str)
 end
 
 function Console:error(str)
+    print("[ERROR] " .. tostring(str))
     self:push("[color:red][ERROR] " .. tostring(str))
 end
 

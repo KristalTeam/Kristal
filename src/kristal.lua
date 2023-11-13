@@ -138,12 +138,12 @@ function love.load(args)
 
         love.graphics.reset()
 
-        Draw.setCanvas(SCREEN_CANVAS)
+        Draw.pushCanvas(SCREEN_CANVAS)
         love.graphics.clear(0, 0, 0, 1)
         orig(...)
         Kristal.Stage:draw()
         Kristal.Overlay:draw()
-        Draw.setCanvas()
+        Draw.popCanvas()
 
         Draw.setColor(1, 1, 1, 1)
 
@@ -433,6 +433,18 @@ function Kristal.onKeyReleased(key)
     end
 end
 
+function Kristal.onWheelMoved(x, y)
+    if Kristal.DebugSystem then
+        Kristal.DebugSystem:onWheelMoved(x, y)
+    end
+    if not TextInput.active and not OVERLAY_OPEN then
+        local state = Kristal.getState()
+        if state.onWheelMoved then
+            state:onWheelMoved(x, y)
+        end
+    end
+end
+
 local function error_printer(msg, layer)
     print((debug.traceback("Error: " .. tostring(msg), 1 + (layer or 1)):gsub("\n[^\n]+$", "")))
 end
@@ -469,8 +481,12 @@ function Kristal.errorHandler(msg)
     local trace = nil
     if type(msg) == "table" then
         if msg.critical then
-            critical = true
-            msg = "critical error"
+            if(msg.critical == "error in error handling") then
+                critical = true
+                msg =  "critical error"
+            else
+                msg = msg.critical
+            end
         elseif msg.msg then
             local split = Utils.split(msg.msg, "\n")
             trace = table.concat(split, "\n", 2)
@@ -560,7 +576,7 @@ function Kristal.errorHandler(msg)
         mod_string = "Mod: " .. Mod.info.id .. " " .. (Mod.info.version or "v?.?.?")
         if Utils.tableLength(Mod.libs) > 0 then
             lib_string = "Libraries:"
-            for _, lib in pairs(Mod.libs) do
+            for _, lib in Kristal.iterLibraries() do
                 local line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
                 lib_string = lib_string .. "\n" .. line
                 w = math.max(w, #line * 7)
@@ -586,10 +602,10 @@ function Kristal.errorHandler(msg)
 
         local warp = window_width - pos * 2
         if not critical then
-            local header = "Error at " .. split[#split - 1] .. " - " .. split[#split]
+            local header = "Error at " .. ( (#split - 1 > 0) and split[#split - 1] or "???").. " - " .. split[#split] --check if msg is one line long
             local _, lines = font:getWrap(header, warp)
             love.graphics.printf(
-                { "Error at ", { 0.6, 0.6, 0.6, 1 }, split[#split - 1], { 1, 1, 1, 1 }, " - " .. split[#split] }, pos,
+                { "Error at ", { 0.6, 0.6, 0.6, 1 }, ( (#split - 1 > 0) and split[#split - 1] or "???"), { 1, 1, 1, 1 }, " - " .. split[#split] }, pos,
                 ypos,
                 window_width - pos)
             ypos = ypos + (32 * #lines)
@@ -614,13 +630,13 @@ function Kristal.errorHandler(msg)
                 end
             end
         else
-            love.graphics.printf("Critical Error", pos, ypos, warp)
+            love.graphics.printf("Critical Error!\nTry replicating the bug, we might catch it next time...", pos, ypos, warp)
 
             love.graphics.setFont(font)
-            love.graphics.printf("Known causes:", pos, ypos + 64, warp)
+            love.graphics.printf("Known causes:", pos, ypos + 96, warp)
 
             love.graphics.setFont(smaller_font)
-            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 64 + 32, warp)
+            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 96 + 32, warp)
         end
 
         if starwalker_error then
@@ -997,7 +1013,9 @@ function Kristal.loadMod(id, save_id, save_name, after)
     -- Mod table, can contain a library's custom variables
     -- and functions with lib.info referncing the library data
     Mod.libs = Mod.libs or {}
-    for lib_id, lib_info in pairs(mod.libs) do
+    for _, lib_id in ipairs(mod.lib_order) do
+        local lib_info = mod.libs[lib_id]
+
         local lib = { info = lib_info }
 
         ACTIVE_LIB = lib
@@ -1044,12 +1062,7 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     if not mod then return end
 
     -- How many assets we need to load (1 for the mod, 1 for each library)
-    local load_count = 1
-
-    -- Count each library for loading
-    for _, _ in pairs(mod.libs) do
-        load_count = load_count + 1
-    end
+    local load_count = 1 + #mod.lib_order
 
     -- Begin mod loading
     MOD_LOADING = true
@@ -1068,8 +1081,8 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     end
 
     -- Finally load all assets (libraries first)
-    for _, lib in pairs(mod.libs) do
-        Kristal.loadAssets(lib.path, asset_type or "all", asset_paths or "", finishLoadStep)
+    for _, lib_id in ipairs(mod.lib_order) do
+        Kristal.loadAssets(mod.libs[lib_id].path, asset_type or "all", asset_paths or "", finishLoadStep)
     end
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end
@@ -1096,7 +1109,7 @@ function Kristal.preInitMod(id)
     local use_callback = true
 
     -- Call preInit on all libraries
-    for lib_id, _ in pairs(mod.libs) do
+    for _, lib_id in pairs(mod.lib_order) do
         local lib_result = Kristal.libCall(lib_id, "preInit")
         use_callback = use_callback and not lib_result
     end
@@ -1128,6 +1141,13 @@ function Kristal.resetWindow()
         fullscreen = Kristal.Config["fullscreen"],
         vsync = Kristal.Config["vSync"]
     })
+
+    -- Force tilelayers to redraw, since resetWindow destroys their canvases
+    if Game.world then
+        for _,tilelayer in ipairs(Game.world.stage:getObjects(TileLayer)) do
+            tilelayer.drawn = false
+        end
+    end
 end
 
 ---@return boolean console Whether Kristal is in console mode.
@@ -1417,7 +1437,7 @@ function Kristal.libCall(id, f, ...)
 
     if not id then
         local result
-        for _, lib in pairs(Mod.libs) do
+        for _, lib in Kristal.iterLibraries() do
             if lib[f] and type(lib[f]) == "function" then
                 local lib_result = lib[f](lib, ...)
                 result = lib_result or result
@@ -1531,7 +1551,7 @@ function Kristal.executeLibScript(lib, path, ...)
     end
 
     if not lib then
-        for _, library in pairs(Mod.libs) do
+        for _, library in Kristal.iterLibraries() do
             if library.info.script_chunks[path] then
                 return true, library.info.script_chunks[path](...)
             end
@@ -1543,6 +1563,20 @@ function Kristal.executeLibScript(lib, path, ...)
             return false
         else
             return true, library.info.script_chunks[path](...)
+        end
+    end
+end
+
+function Kristal.iterLibraries()
+    local index = 0
+
+    return function()
+        index = index + 1
+
+        if index <= #Mod.info.lib_order then
+            local lib_id = Mod.info.lib_order[index]
+
+            return lib_id, Mod.libs[lib_id]
         end
     end
 end
