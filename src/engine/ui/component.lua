@@ -20,12 +20,30 @@ function Component:init(x_sizing, y_sizing, options)
 
 end
 
+function Component:onRemoveFromStage(stage)
+    super.onRemoveFromStage(self, stage)
+    self:setUnfocused()
+end
+
 function Component:setFocused()
     table.insert(Input.component_stack, self)
+    self:onFocused()
+end
+
+function Component:onFocused()
+end
+
+function Component:onUnfocused()
 end
 
 function Component:setUnfocused()
-    table.remove(Input.component_stack)
+    if self:isFocused() then
+        table.remove(Input.component_stack)
+        self:onUnfocused()
+        if #Input.component_stack > 0 then
+            Input.component_stack[#Input.component_stack]:onFocused()
+        end
+    end
 end
 
 function Component:isFocused()
