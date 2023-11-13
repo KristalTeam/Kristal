@@ -9,6 +9,7 @@ function AbstractMenuComponent:init(x_sizing, y_sizing, options)
 
     self.scroll_type = "scroll"
 
+    self.open_sound = nil
     self.close_sound = "ui_move"
 end
 
@@ -67,7 +68,9 @@ function AbstractMenuComponent:next()
 end
 
 function AbstractMenuComponent:close()
-    Assets.playSound(self.close_sound)
+    if self.close_sound then
+        Assets.playSound(self.close_sound)
+    end
     self:remove()
 end
 
@@ -95,6 +98,10 @@ function AbstractMenuComponent:onAddToStage(stage)
 
     if #self:getMenuItems() <= 0 then
         error("Menu components must have at least one item before becoming active")
+    end
+
+    if self.open_sound then
+        Assets.playSound(self.open_sound)
     end
 end
 
