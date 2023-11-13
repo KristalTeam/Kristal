@@ -5,10 +5,14 @@ local EasingSoulMenuComponent, super = Class(BasicMenuComponent)
 function EasingSoulMenuComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
 
-    self.soul_sprite = self:addChild(Sprite("player/heart_menu", 0, 10))
-    self.soul_sprite:setScale(2, 2)
-    self.soul_sprite:setColor(Kristal.getSoulColor())
-    self.soul_sprite.layer = 100
+    if not options.soul then
+        self.soul_sprite = self:addChild(Sprite("player/heart_menu", 0, 10))
+        self.soul_sprite:setScale(2, 2)
+        self.soul_sprite:setColor(Kristal.getSoulColor())
+        self.soul_sprite.layer = 100
+    else
+        self.soul_sprite = options.soul
+    end
 
     self.soul_target_x = 0
     self.soul_target_y = 10

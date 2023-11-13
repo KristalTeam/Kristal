@@ -14,7 +14,7 @@ end
 
 function AbstractMenuItemComponent:onHovered(hovered, initial)
     self.selected = hovered
-    if hovered then
+    if hovered and not initial then
         Assets.playSound("ui_move")
     end
 end
