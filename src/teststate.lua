@@ -38,7 +38,21 @@ function Testing:enter()
                     menu:addChild(ArrowIntegerMenuItemComponent(1, 10, 1, function(value) end, {wrap = false, hold = true}))
                     -- recreate the deltarune volume controller
                     menu:addChild(ArrowIntegerMenuItemComponent(0, 100, 60, function(value) Kristal.setVolume(value / 100) end, {step = 2, suffix = "%", sound = "noise", wrap = false, hold = true, sound_delay = 3, sound_at_limit = true}))
-                    menu:addChild(TextMenuItemComponent(Text("Option"), function() end, {highlight=false}))
+                    menu:addChild(TextMenuItemComponent(Text("Option"),
+                        function()
+                            menu.visible = false
+                            local menu2 = EasingSoulMenuComponent(FitSizing(), FitSizing(), {hold=true})
+                            menu2:setLayout(VerticalLayout())
+                            menu2:addChild(TextMenuItemComponent(Text("Option 1"), function() end))
+                            menu2:addChild(TextMenuItemComponent(Text("Option 2"), function() end))
+                            menu2:setCancelCallback(function()
+                                menu2:close()
+                                menu.visible = true
+                            end)
+                            menu2:setFocused()
+                            box:addChild(menu2)
+                        end, {highlight=false}
+                    ))
                     menu:setSelected(2)
                     menu:setFocused()
                 box:addChild(menu)

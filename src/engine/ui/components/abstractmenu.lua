@@ -8,6 +8,8 @@ function AbstractMenuComponent:init(x_sizing, y_sizing, options)
     self.selected_item = 1
 
     self.scroll_type = "scroll"
+
+    self.close_sound = "ui_move"
 end
 
 function AbstractMenuComponent:setScrollType(type)
@@ -64,6 +66,11 @@ function AbstractMenuComponent:next()
     self:setSelected(self.selected_item + 1)
 end
 
+function AbstractMenuComponent:close()
+    Assets.playSound(self.close_sound)
+    self:remove()
+end
+
 function AbstractMenuComponent:keepInBounds()
     if self.selected_item < 1 then
         self.selected_item = #self:getMenuItems()
@@ -89,9 +96,12 @@ function AbstractMenuComponent:onAddToStage(stage)
     if #self:getMenuItems() <= 0 then
         error("Menu components must have at least one item before becoming active")
     end
+end
 
-    if self:getMenuItems()[self.selected_item] and self:getMenuItems()[self.selected_item].onHovered then
-        self:getMenuItems()[self.selected_item]:onHovered(true, true)
+function AbstractMenuComponent:onFocused()
+    local item = self:getMenuItems()[self.selected_item]
+    if item and item.onHovered then
+        item:onHovered(true, true)
     end
 end
 
