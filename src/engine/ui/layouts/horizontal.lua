@@ -11,11 +11,22 @@ function HorizontalLayout:refresh()
 
     if self.align == "start" then
         local x_position = 0
+        local y_position = 0
         for _, child in ipairs(self:getComponents()) do
+            local old_child_x = child.x
             child.x = child.x + x_position
             local width, _ = child:getScaledSize()
-            x_position = x_position + (child.getTotalSize and ({child:getTotalSize()})[1] or width)
-            x_position = x_position + self.gap
+            local total_width = child.getTotalSize and ({child:getTotalSize()})[1] or width
+            if (child.x + total_width) > ({self.parent:getWorkingWidth()})[1] then
+                child.x = old_child_x
+                x_position = 0
+                y_position = y_position + child:getScaledHeight()
+                y_position = y_position + self.gap
+                child.y = child.y + y_position
+            else
+                x_position = x_position + total_width
+                x_position = x_position + self.gap
+            end
         end
     elseif self.align == "end" then
         local x_position = ({self:getInnerArea()})[2] - self:calculateTotalSize()

@@ -45,10 +45,11 @@ function Testing:enter()
                     menu:addChild(TextMenuItemComponent(Text("Option"),
                         function()
                             menu.visible = false
-                            local menu2 = EasingSoulMenuComponent(FitSizing(), FitSizing(), { hold = true, soul = self.soul })
-                            menu2:setLayout(VerticalLayout())
+                            local menu2 = EasingSoulMenuComponent(FixedSizing(320), FitSizing(), { hold = true, soul = self.soul })
+                            menu2:setLayout(HorizontalLayout({gap=10}))
                             menu2:addChild(TextMenuItemComponent(Text("Option 1"), function() end))
                             menu2:addChild(TextMenuItemComponent(Text("Option 2"), function() end))
+                            menu2:addChild(TextMenuItemComponent(Text("Option 3"), function() end))
                             menu2:setCancelCallback(function()
                                 menu2:close()
                                 menu.visible = true

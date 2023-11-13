@@ -25,6 +25,12 @@ function Component:onRemoveFromStage(stage)
     self:setUnfocused()
 end
 
+function Component:onRemove(parent)
+    if parent.reflow then
+        parent:reflow(self)
+    end
+end
+
 function Component:setFocused()
     table.insert(Input.component_stack, self)
     self:onFocused()
@@ -237,9 +243,15 @@ function Component:getTotalSize()
 end
 
 function Component:getWorkingSize()
-    return
-        (self.width - self.padding[1] - self.padding[3]) * self.scale_x,
-        (self.height - self.padding[2] - self.padding[4]) * self.scale_y
+    return self:getWorkingWidth(), self:getWorkingHeight()
+end
+
+function Component:getWorkingWidth()
+    return (self.width - self.padding[1] - self.padding[3]) * self.scale_x
+end
+
+function Component:getWorkingHeight()
+    return (self.height - self.padding[2] - self.padding[4]) * self.scale_y
 end
 
 function Component:getScaledMargins()
