@@ -357,13 +357,26 @@ function love.run()
                 end
             end
         else
-            local success, result = xpcall(mainLoop, Kristal.errorHandler)
+            local success, result = xpcall(mainLoop, 
+                function(err_msg) 
+                    --has a chance of failing due to a stack overflow. try and catch that, but this *also* might cause a stack overflow
+                    local ok, msg = pcall(Kristal.errorHandler, err_msg)
+                    if(ok) then
+                        return msg
+                    else -- err_msg *might* contain a stack overflow error, pass it on if the kristal error handler fails
+                        return debug.traceback() --somehow, this affects the above if statement? im so confused but it works...doesnt send err_msg through
+                    end
+                end
+            )
             if success then
                 return result
             elseif type(result) == "function" then
                 error_result = result
             else
-                error_result = Kristal.errorHandler({ critical = true })
+                --this should only happen when there's an internal error with the errorhandler or the callstack overflows
+                --the LUA_ERRERR state is set internally by the lua engine for both of these cases 
+                --see https://www.lua.org/source/5.4/ldo.c.html
+                error_result = Kristal.errorHandler({ critical = result })
             end
         end
     end

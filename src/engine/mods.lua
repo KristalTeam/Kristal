@@ -56,6 +56,10 @@ function Mods.loadData(data, failed_mods)
             lib_data.script_chunks = {}
         end
 
+        if not mod_data.lib_order then
+            mod_data.lib_order = self.sortLibraries(mod_data)
+        end
+
         mod_data.loaded_scripts = false
 
         self.data[mod_id] = mod_data
@@ -64,6 +68,61 @@ function Mods.loadData(data, failed_mods)
         end
         table.insert(self.list, self.data[mod_id])
     end
+end
+
+function Mods.sortLibraries(mod)
+    local sorted = {}
+
+    local unsorted = {}
+    local sorted_lookup = {}
+
+    for lib_id,_ in pairs(mod.libs) do
+        table.insert(unsorted, lib_id)
+    end
+
+    while #unsorted > 0 do
+        local new_unsorted = {}
+
+        for _,lib_id in ipairs(unsorted) do
+            local lib_data = mod.libs[lib_id]
+
+            local failed = false
+
+            for _,dependency in ipairs(lib_data["dependencies"] or {}) do
+                if not sorted_lookup[dependency] then
+                    failed = true
+                    break
+                end
+            end
+
+            for _,dependency in ipairs(lib_data["optionalDependencies"] or {}) do
+                if mod.libs[lib_id] and not sorted_lookup[dependency] then
+                    failed = true
+                    break
+                end
+            end
+
+            if failed then
+                table.insert(new_unsorted, lib_id)
+            else
+                table.insert(sorted, lib_id)
+                sorted_lookup[lib_id] = true
+            end
+        end
+
+        if #new_unsorted == #unsorted then
+            for _,lib_id in ipairs(new_unsorted) do
+                Kristal.Console:warn("Issue loading mod '" .. mod.id .. "' - Dependencies for library '" .. lib_id .. "' failed to load, likely circular dependency")
+
+                table.insert(sorted, lib_id)
+            end
+            break
+        end
+
+        unsorted = new_unsorted
+    end
+
+    return sorted
 end
 
 ---@return table[]

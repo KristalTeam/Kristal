@@ -244,6 +244,22 @@ local loaders = {
                 end
             end
 
+            -- Fail mod loading if library dependencies are unfulfilled
+            for _, lib in pairs(mod.libs) do
+                for _, dependency in ipairs(lib["dependencies"] or {}) do
+                    if not mod.libs[dependency] then
+                        local error = "Library '" .. lib.id .. "' depends on library '" .. dependency .. "' but it could not be found."
+                        table.insert(data.failed_mods, {
+                            path = path,
+                            error = error,
+                            file = "lib.json"
+                        })
+                        print("[WARNING] Issue loading mod \"" .. path .. "\" - " .. error)
+                        return
+                    end
+                end
+            end
+
             data.mods[mod.id] = mod
         end
     end },

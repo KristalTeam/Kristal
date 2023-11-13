@@ -21,6 +21,10 @@ end
 function MainMenuModError:onEnter(old_state)
     self.menu.heart_target_x = 320 - 32 - 16 + 1 - 11
     self.menu.heart_target_y = 480 - 16 + 1
+
+    for _, failure in ipairs(Kristal.Mods.failed_mods) do
+        Kristal.Console:error(failure.error)
+    end
 end
 
 function MainMenuModError:draw()
@@ -66,6 +70,10 @@ function MainMenuModError:draw()
                 y = y + 32
             end
         end
+
+        y = y + 32
+
+        Draw.printShadow("See console for errors.", -1, y, 2, "center", 640)
     end
 
     Draw.printShadow("Got it", -1, 454 - 8, 2, "center", 640)
