@@ -17,6 +17,7 @@ function Testing:enter()
             inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
             local box = MainMenuBoxComponent(FitSizing())
                 local menu = EasingSoulMenuComponent(FitSizing(), FixedSizing(240), {hold=true})
+                    menu.open_sound = "ui_move"
                     menu:setScrollbar(ScrollbarComponent({gutter = "dotted", margins = {8, 0, 0, 0}, arrows = true}))
                     menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
                     menu:setOverflow("scroll")

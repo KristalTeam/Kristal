@@ -12,9 +12,9 @@ function AbstractMenuItemComponent:init(x_sizing, y_sizing, callback, options)
     self.soul_offset_y = 0
 end
 
-function AbstractMenuItemComponent:onHovered(hovered, initial)
+function AbstractMenuItemComponent:onHovered(hovered, from_focused)
     self.selected = hovered
-    if hovered and not initial then
+    if hovered and not from_focused then
         Assets.playSound("ui_move")
     end
 end
