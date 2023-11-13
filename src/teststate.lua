@@ -2,7 +2,7 @@ local Testing = {}
 
 function Testing:enter()
     self.stage = Stage()
-    self.font = Assets.getFont("main", 32)
+    self.font = Assets.getFont("main")
 end
 
 function Testing:update()

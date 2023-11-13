@@ -125,6 +125,7 @@ end
 
 function MainMenuModConfig:draw()
     local menu_font = Assets.getFont("main")
+    love.graphics.setFont(menu_font)
 
     Draw.printShadow("Edit Feature Config", 0, 48, 2, "center", 640)
 

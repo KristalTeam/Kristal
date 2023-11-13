@@ -277,6 +277,7 @@ function MainMenuControls:update()
 end
 
 function MainMenuControls:draw()
+    love.graphics.setFont(Assets.getFont("main"))
     Draw.setColor(COLORS.silver)
     Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
 

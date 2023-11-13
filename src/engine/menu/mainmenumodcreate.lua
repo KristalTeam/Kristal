@@ -180,6 +180,7 @@ function MainMenuModCreate:onKeyPressed(key, is_repeat)
 end
 
 function MainMenuModCreate:draw()
+    love.graphics.setFont(Assets.getFont("main"))
     Draw.printShadow("Create New Mod", 0, 48, 2, "center", 640)
 
     local menu_x = 64
