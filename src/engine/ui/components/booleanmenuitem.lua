@@ -1,7 +1,15 @@
 ---@class BooleanMenuItemComponent : AbstractMenuItemComponent
+---@field value boolean
+---@field on_changed function
+---@field on_text string
+---@field off_text string
+---@field text Text
 ---@overload fun(...) : BooleanMenuItemComponent
 local BooleanMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
+---@param value boolean|function
+---@param on_changed function
+---@param options? table
 function BooleanMenuItemComponent:init(value, on_changed, options)
     super.init(self, FitSizing(), FitSizing(), nil, options)
 
@@ -17,8 +25,7 @@ function BooleanMenuItemComponent:init(value, on_changed, options)
     self.on_text = options.on_text or "ON"
     self.off_text = options.off_text or "OFF"
 
-    self.text = Text(value and self.on_text or self.off_text)
-    self:addChild(self.text)
+    self.text = self:addChild(Text(value and self.on_text or self.off_text))
 end
 
 function BooleanMenuItemComponent:onSelected()

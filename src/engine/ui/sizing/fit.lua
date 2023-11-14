@@ -1,4 +1,5 @@
 ---@class FitSizing : Sizing
+---@field parent Component
 ---@overload fun(...) : FitSizing
 local FitSizing, super = Class(Sizing)
 
@@ -6,6 +7,7 @@ function FitSizing:init()
     super.init(self)
 end
 
+---@return number width
 function FitSizing:getWidth()
     local width = 0
     for _, child in ipairs(self:getComponents()) do
@@ -22,6 +24,7 @@ function FitSizing:getWidth()
     return width + ({self.parent:getScaledPadding()})[1] + ({self.parent:getScaledPadding()})[3]
 end
 
+---@return number height
 function FitSizing:getHeight()
     local height = 0
     for _, child in ipairs(self:getComponents()) do

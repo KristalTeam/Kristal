@@ -2,6 +2,11 @@
 ---@overload fun(...) : IntegerMenuItemComponent
 local IntegerMenuItemComponent, super = Class(ListMenuItemComponent)
 
+---@param from integer
+---@param to integer
+---@param value integer
+---@param on_changed? function
+---@param options? table
 function IntegerMenuItemComponent:init(from, to, value, on_changed, options)
     local index = 1
     local list = {}

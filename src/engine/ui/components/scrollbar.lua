@@ -1,7 +1,17 @@
 ---@class ScrollbarComponent : Component
+---@field parent AbstractMenuComponent
+---@field gutter
+---| '"fill"' The gutter will be filled in.
+---| '"dotted"' The scrollbar will be dotted.
+---| '"none"' The gutter will not be drawn.
+---@field arrows boolean
+---@field gutter_color table
+---@field scrollbar_width number
+---@field color table
 ---@overload fun(...) : ScrollbarComponent
 local ScrollbarComponent, super = Class(Component)
 
+---@param options? table
 function ScrollbarComponent:init(options)
     options = options or {}
 
@@ -29,6 +39,7 @@ function ScrollbarComponent:init(options)
     self:setOverflow("visible")
 end
 
+---@param parent Object
 function ScrollbarComponent:onAdd(parent)
     self:updatePosition()
 end
@@ -38,6 +49,7 @@ function ScrollbarComponent:update()
     self:updatePosition()
 end
 
+---@param ignore Component The component to ignore while reflowing. 
 function ScrollbarComponent:reflow(ignore)
     super.reflow(self, ignore)
     if self:isRemoved() then return end

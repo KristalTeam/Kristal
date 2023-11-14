@@ -8,10 +8,12 @@ function FixedSizing:init(width, height)
     self.height = height or width
 end
 
+---@return number width
 function FixedSizing:getWidth()
     return self.width
 end
 
+---@return number height
 function FixedSizing:getHeight()
     return self.height
 end

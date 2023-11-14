@@ -1,9 +1,18 @@
 ---@class BarComponent : Component
+---@field progress number
+---@field vertical boolean
+---@field background table
+---@field fill table
 ---@overload fun(...) : BarComponent
 local BarComponent, super = Class(Component)
 
+---@param progress number
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function BarComponent:init(progress, x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
+    options = options or {}
     self.progress = progress
     self.vertical = options.vertical or false
     self.background = options.background or COLORS.maroon

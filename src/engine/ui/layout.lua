@@ -1,5 +1,12 @@
 ---@class Layout : Class
----
+---@field gap number
+---@field align string
+---| '"start"'
+---| '"center"'
+---| '"end"'
+---| '"space-between"'
+---| '"space-around"'
+---| '"space-evenly"'
 ---@field parent Component|nil
 local Layout = Class()
 
@@ -21,6 +28,7 @@ function Layout:refresh()
     end
 end
 
+---@return number width, number height
 function Layout:getInnerArea()
     local width, height = self.parent:getSize()
     width = width - ({self.parent:getScaledPadding()})[1] - ({self.parent:getScaledPadding()})[3]
@@ -32,6 +40,7 @@ function Layout:draw()
 
 end
 
+---@return Object[] components
 function Layout:getComponents()
     return self.parent:getComponents()
 end

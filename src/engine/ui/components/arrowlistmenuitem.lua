@@ -1,7 +1,13 @@
 ---@class ArrowListMenuItemComponent : ListMenuItemComponent
+---@field offset number
+---@field hide_unfocused_arrows boolean
 ---@overload fun(...) : ArrowListMenuItemComponent
 local ArrowListMenuItemComponent, super = Class(ListMenuItemComponent)
 
+---@param list table
+---@param value integer|function
+---@param on_changed? function
+---@param options? table
 function ArrowListMenuItemComponent:init(list, value, on_changed, options)
     super.init(self, list, value, on_changed, options)
     options = options or {}

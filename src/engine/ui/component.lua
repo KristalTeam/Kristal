@@ -1,7 +1,20 @@
 ---@class Component : Object
+---@field margins number[]
+---@field padding number[]
+---@field overflow string
+---| '"visible"'
+---| '"hidden"'
+---| '"scroll"'
+---@field scrollbar ScrollbarComponent
+---@field layout Layout
+---@field x_sizing Sizing
+---@field y_sizing Sizing
 ---@overload fun(...) : Component
 local Component, super = Class(Object)
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function Component:init(x_sizing, y_sizing, options)
     super.init(self, 0, 0, 0, 0)
 
@@ -17,7 +30,6 @@ function Component:init(x_sizing, y_sizing, options)
 
     self:setLayout(Layout())
     self:setSizing(x_sizing or Sizing(), y_sizing or x_sizing or Sizing())
-
 end
 
 function Component:onRemoveFromStage(stage)
@@ -46,10 +58,14 @@ function Component:setUnfocused()
     end
 end
 
+---@return boolean
 function Component:isFocused()
     return Input.component_stack[#Input.component_stack] == self
 end
 
+---@overload fun(self: Component, all: number)
+---@overload fun(self: Component, horizontal: number, vertical: number)
+---@overload fun(self: Component, left: number, top: number, right: number, bottom: number)
 function Component:setMargins(left, top, right, bottom)
     self.margins = {
         left,
@@ -59,6 +75,9 @@ function Component:setMargins(left, top, right, bottom)
     }
 end
 
+---@overload fun(self: Component, all: number)
+---@overload fun(self: Component, horizontal: number, vertical: number)
+---@overload fun(self: Component, left: number, top: number, right: number, bottom: number)
 function Component:setPadding(left, top, right, bottom)
     self.padding = {
         left,
@@ -68,10 +87,12 @@ function Component:setPadding(left, top, right, bottom)
     }
 end
 
+---@param overflow string
 function Component:setOverflow(overflow)
     self.overflow = overflow
 end
 
+---@param scrollbar ScrollbarComponent
 function Component:setScrollbar(scrollbar)
     if self.scrollbar ~= nil then
         self:removeChild(self.scrollbar)
@@ -81,6 +102,7 @@ function Component:setScrollbar(scrollbar)
     self:addChild(scrollbar)
 end
 
+---@return number width
 function Component:getScrollbarGutter()
     if self.scrollbar then
         return ({self.scrollbar:getTotalSize()})[1]
@@ -170,6 +192,7 @@ function Component:update()
     self:reflow()
 end
 
+---@param ignore? Component
 function Component:reflow(ignore)
     if self:isRemoved() then return end
 
@@ -185,6 +208,7 @@ function Component:reflow(ignore)
 
     for _, child in ipairs(self:getComponents()) do
         if child ~= self and child.reflow and child ~= ignore then
+            ---@cast child Component
             child:reflow(self)
         end
     end
@@ -200,11 +224,14 @@ function Component:reflow(ignore)
     end
 end
 
+---@param layout Layout
 function Component:setLayout(layout)
     self.layout = layout
     self.layout.parent = self
 end
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
 function Component:setSizing(x_sizing, y_sizing)
     self.x_sizing = x_sizing
     self.x_sizing.parent = self
@@ -212,6 +239,7 @@ function Component:setSizing(x_sizing, y_sizing)
     self.y_sizing.parent = self
 end
 
+---@param stage Stage
 function Component:onAddToStage(stage)
     super.onAddToStage(self, stage)
 
@@ -224,24 +252,29 @@ function Component:onAddToStage(stage)
     end
 end
 
+---@return number width
 function Component:getTotalWidth()
     return (self.width + self.margins[1] + self.margins[3] + self:getScrollbarGutter()) * self.scale_x
 end
 
+---@return number height
 function Component:getTotalHeight()
     return (self.height + self.margins[2] + self.margins[4]) * self.scale_y
 end
 
+---@return number width, number height
 function Component:getTotalSize()
     return self:getTotalWidth(), self:getTotalHeight()
 end
 
+---@return number width, number height
 function Component:getWorkingSize()
     return
         (self.width - self.padding[1] - self.padding[3]) * self.scale_x,
         (self.height - self.padding[2] - self.padding[4]) * self.scale_y
 end
 
+---@return number left, number top, number right, number bottom
 function Component:getScaledMargins()
     return
         self.margins[1] * self.scale_x,
@@ -250,6 +283,7 @@ function Component:getScaledMargins()
         self.margins[4] * self.scale_y
 end
 
+---@return number left, number top, number right, number bottom
 function Component:getScaledPadding()
     return
         self.padding[1] * self.scale_x,
@@ -258,6 +292,7 @@ function Component:getScaledPadding()
         self.padding[4] * self.scale_y
 end
 
+---@return number width
 function Component:getInnerWidth()
     -- width of the inner content, ignoring the real size of the component
     -- calculate using the children, can't rely on self.width
@@ -277,6 +312,7 @@ function Component:getInnerWidth()
     return width
 end
 
+---@return number height
 function Component:getInnerHeight()
     -- height of the inner content, ignoring the real size of the component
     -- calculate using the children, can't rely on self.height
@@ -296,10 +332,12 @@ function Component:getInnerHeight()
     return height
 end
 
+---@return number width, number height
 function Component:getInnerSize()
     return self:getInnerWidth(), self:getInnerHeight()
 end
 
+---@return Object[] components
 function Component:getComponents()
     -- filter out scrollbar
     local components = {}

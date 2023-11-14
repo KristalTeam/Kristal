@@ -1,7 +1,27 @@
 ---@class ListMenuItemComponent : AbstractMenuItemComponent
+---@field list table
+---@field value integer
+---@field on_changed function
+---@field color table
+---@field selected_color table
+---@field prefix string
+---@field suffix string
+---@field wrap boolean
+---@field hold boolean
+---@field text Text
+---@field step number
+---@field delay number
+---@field sound_timer number
+---@field sound_delay number
+---@field sound string
+---@field sound_at_limit boolean
 ---@overload fun(...) : ListMenuItemComponent
 local ListMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
+---@param list table
+---@param value function|integer
+---@param on_changed? function
+---@param options? table
 function ListMenuItemComponent:init(list, value, on_changed, options)
     super.init(self, FitSizing(), FitSizing(), nil, options)
 
@@ -26,8 +46,7 @@ function ListMenuItemComponent:init(list, value, on_changed, options)
 
     self.hold = options.hold or false
 
-    self.text = Text(self.prefix .. list[value] .. self.suffix)
-    self:addChild(self.text)
+    self.text = self:addChild(Text(self.prefix .. list[value] .. self.suffix))
 
     self.step = options.step or 1
     self.delay = 0
@@ -36,8 +55,6 @@ function ListMenuItemComponent:init(list, value, on_changed, options)
     self.sound_delay = options.sound_delay or 1
     self.sound = options.sound or "ui_move"
     self.sound_at_limit = options.sound_at_limit or false
-
-    self.hold = options.hold or false
 end
 
 function ListMenuItemComponent:onSelected()

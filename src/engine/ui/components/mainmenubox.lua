@@ -2,6 +2,9 @@
 ---@overload fun(...) : MainMenuBoxComponent
 local MainMenuBoxComponent, super = Class(Component)
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function MainMenuBoxComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
     self:setPadding(4)

@@ -1,7 +1,14 @@
 ---@class TextMenuItemComponent : AbstractMenuItemComponent
+---@field text Text
+---@field highlight boolean
+---@field color table
+---@field selected_color table
 ---@overload fun(...) : TextMenuItemComponent
 local TextMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
+---@param text Text|string
+---@param callback? function
+---@param options? table
 function TextMenuItemComponent:init(text, callback, options)
     super.init(self, FitSizing(), FitSizing(), callback, options)
 
@@ -18,6 +25,8 @@ function TextMenuItemComponent:init(text, callback, options)
     self.selected_color = options.selected_color or COLORS.white
 end
 
+---@param hovered boolean
+---@param initial boolean
 function TextMenuItemComponent:onHovered(hovered, initial)
     super.onHovered(self, hovered, initial)
 

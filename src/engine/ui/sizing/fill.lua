@@ -1,4 +1,5 @@
 ---@class FillSizing : FitSizing
+---@field parent Component
 ---@overload fun(...) : FillSizing
 local FillSizing, super = Class(FitSizing)
 
@@ -6,6 +7,7 @@ function FillSizing:init()
     super.init(self)
 end
 
+---@return number width
 function FillSizing:getWidth()
     if self.parent.parent == nil then
         return super.getWidth(self)
@@ -15,6 +17,7 @@ function FillSizing:getWidth()
     return math.max(super.getWidth(self), width)
 end
 
+---@return number height
 function FillSizing:getHeight()
     if self.parent.parent == nil then
         return super.getHeight(self)

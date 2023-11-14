@@ -1,10 +1,13 @@
 ---@class TextInputComponent : AbstractMenuItemComponent
+---@field input table
+---@field options table
 ---@overload fun(...) : TextInputComponent
 local TextInputComponent, super = Class(AbstractMenuItemComponent)
 
+---@param options? table
 function TextInputComponent:init(options)
     options = options or {}
-    super.init(self, FillSizing(), FixedSizing(options.height or 32), options)
+    super.init(self, FillSizing(), FixedSizing(options.height or 32), nil, options)
     self.input = {options.starting or ""}
     self.options = options
 end

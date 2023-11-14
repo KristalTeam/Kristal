@@ -1451,8 +1451,9 @@ end
 
 --- Adds the specified object as a child to this object, and adds it to a stage if it was not added to one previously. \
 --- Calls `child:onAdd(self)`.
----@param child Object The object to be added.
----@return Object child The object that was added.
+---@generic T : Object
+---@param child T The object to be added.
+---@return T child The object that was added.
 function Object:addChild(child)
     child.parent = self
     if self.stage and child.stage ~= self.stage then
@@ -1466,8 +1467,9 @@ end
 
 --- Removes the specified object from this object's children, and removes it from its stage. \
 --- Calls `child:onRemove(self)`.
----@param child Object The object to be removed.
----@return Object child The object that was removed.
+---@generic T : Object
+---@param child T The object to be removed.
+---@return T child The object that was removed.
 function Object:removeChild(child)
     if child.parent == self then
         child.parent = nil

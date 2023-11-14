@@ -1,7 +1,13 @@
 ---@class BasicMenuComponent : AbstractMenuComponent
+---@field horizontal boolean
+---@field hold boolean
+---@field cancel_callback function
 ---@overload fun(...) : BasicMenuComponent
 local BasicMenuComponent, super = Class(AbstractMenuComponent)
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function BasicMenuComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
     options = options or {}

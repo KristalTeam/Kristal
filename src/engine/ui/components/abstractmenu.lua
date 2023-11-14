@@ -1,7 +1,16 @@
 ---@class AbstractMenuComponent : Component
+---@field selected_item integer
+---@field scroll_type string
+---| "'scroll'"
+---| "'paged'"
+---@field open_sound string
+---@field close_sound string
 ---@overload fun(...) : AbstractMenuComponent
 local AbstractMenuComponent, super = Class(Component)
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function AbstractMenuComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
 

@@ -1,9 +1,21 @@
 ---@class EasingSoulMenuComponent : BasicMenuComponent
+---@field soul_sprite Sprite
+---@field soul EasingSoul
+---@field soul_target_x number
+---@field soul_target_y number
+---@field scroll_target_x number
+---@field scroll_target_y number
+---@field soul_offset_x number
+---@field soul_offset_y number
 ---@overload fun(...) : EasingSoulMenuComponent
 local EasingSoulMenuComponent, super = Class(BasicMenuComponent)
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function EasingSoulMenuComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
+    options = options or {}
 
     if not options.soul then
         self.soul_sprite = self:addChild(Sprite("player/heart_menu", 0, 10))

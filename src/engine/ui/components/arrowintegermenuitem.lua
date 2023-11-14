@@ -1,7 +1,14 @@
 ---@class ArrowIntegerMenuItemComponent : IntegerMenuItemComponent
+---@field offset number
+---@field hide_unfocused_arrows boolean
 ---@overload fun(...) : ArrowIntegerMenuItemComponent
 local ArrowIntegerMenuItemComponent, super = Class(IntegerMenuItemComponent)
 
+---@param from integer
+---@param to integer
+---@param value integer
+---@param on_changed? function
+---@param options? table
 function ArrowIntegerMenuItemComponent:init(from, to, value, on_changed, options)
     super.init(self, from, to, value, on_changed, options)
     options = options or {}

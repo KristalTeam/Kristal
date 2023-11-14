@@ -1,7 +1,11 @@
 ---@class BoxComponent : Component
+---@field box UIBox
 ---@overload fun(...) : BoxComponent
 local BoxComponent, super = Class(Component)
 
+---@param x_sizing? Sizing
+---@param y_sizing? Sizing
+---@param options? table
 function BoxComponent:init(x_sizing, y_sizing, options)
     super.init(self, x_sizing, y_sizing, options)
     options = options or {}

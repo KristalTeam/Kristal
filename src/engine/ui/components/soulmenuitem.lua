@@ -1,7 +1,11 @@
 ---@class SoulMenuItemComponent : AbstractMenuItemComponent
+---@field draw_soul boolean
 ---@overload fun(...) : SoulMenuItemComponent
 local SoulMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
+---@param child Object
+---@param callback? function
+---@param options? table
 function SoulMenuItemComponent:init(child, callback, options)
     super.init(self, FitSizing(), FitSizing(), callback, options)
     self:setPadding(28, 0, 0, 0)
@@ -12,6 +16,7 @@ function SoulMenuItemComponent:init(child, callback, options)
     end
 end
 
+---@param parent Object
 function SoulMenuItemComponent:onAdd(parent)
     super.onAdd(self, parent)
     -- check if the parent is a EasingSoulMenuComponent

@@ -1,11 +1,13 @@
 ---@class SeparatorComponent : Component
+---@field vertical boolean
 ---@overload fun(...) : SeparatorComponent
 local SeparatorComponent, super = Class(Component)
 
-function SeparatorComponent:init(x, y, options)
+---@param options? table
+function SeparatorComponent:init(options)
     options = options or {}
     self.vertical = options.vertical or false
-    super.init(self, self.vertical and FixedSizing(8) or FillSizing(), self.vertical and FillSizing() or FixedSizing(8))
+    super.init(self, self.vertical and FixedSizing(8) or FillSizing(), self.vertical and FillSizing() or FixedSizing(8), options)
 end
 
 function SeparatorComponent:draw()
