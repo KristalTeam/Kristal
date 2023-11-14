@@ -28,18 +28,33 @@ function actor:init()
 
     self.talk_sprites = {
         ["talk"] = 0.125,
+        ["explaining_talk"] = 0.125,
+        ["left_talk"] = 0.125
+    }
+
+    self.offsets = {
+        ["explaining"] = {-26, 0},
+        ["explaining_talk"] = {-26, 0}
     }
 end
 
 function actor:onTalkStart(text, sprite)
     if sprite.sprite == "idle" then
         sprite:setSprite("talk")
+    elseif sprite.sprite == "left" then
+        sprite:setAnimation("left_talk")
+    elseif sprite.sprite == "explaining" then
+        sprite:setAnimation("explaining_talk")
     end
 end
 
 function actor:onTalkEnd(text, sprite)
     if sprite.sprite == "talk" then
         sprite:setAnimation("idle")
+    elseif sprite.sprite == "left_talk" then
+        sprite:setSprite("left")
+    elseif sprite.sprite == "explaining_talk" then
+        sprite:setAnimation("explaining")
     end
 end
 
