@@ -54,17 +54,17 @@ end
 
 function MouseHole:startTalk(talk)
     if talk == "About Yourself" then
-        self:startDialogue({"[emote:talk]* I don't know where to start...\n[wait:5]* I'm just a shopkeeper here in the ridge.", "[emote:explaining_talk]* I mean, [wait:5]I really like seeing everything that passes through my shop.\n[wait:5]* There's always such interesting things from outsiders!", "[emote:happy_talk]* Plus, sometimes they bring a little bit of cheese as a gift!"})
+        self:startDialogue({"[emote:idle]* I don't know where to start...\n[wait:5]* I'm just a shopkeeper here in the ridge.", "[emote:explaining]* I mean, [wait:5]I really like seeing everything that passes through my shop.\n[wait:5]* There's always such interesting things from outsiders!", "[emote:happy]* Plus, sometimes they bring a little bit of cheese as a gift!"})
     elseif talk == "Cheese?" then
-        self:startDialogue({"[emote:left_talk]* I, [wait:5]um, [wait:5]really like cheese.\n[wait:5]* It's just the perfect food.", "[emote:explaining_talk]* Wh-[wait:5]no, [wait:5]I'm not addicted, [wait:5]I can stop any time I want, [wait:5]alright?"})
+        self:startDialogue({"[emote:left]* I, [wait:5]um, [wait:5]really like cheese.\n[wait:5]* It's just the perfect food.", "[emote:explaining]* Wh-[wait:5]no, [wait:5]I'm not addicted, [wait:5]I can stop any time I want, [wait:5]alright?"})
     elseif talk == "About Wall Guardian" then
         self:setFlag("talk_2", 1)
-        self:startDialogue({"[emote:left_talk]* Wallie? [wait:5]He's a good friend of mine.\n[wait:5]* He's been here for as long as I can remember, [wait:5]even showed me around when I first got here."})
+        self:startDialogue({"[emote:left]* Wallie? [wait:5]He's a good friend of mine.\n[wait:5]* He's been here for as long as I can remember, [wait:5]even showed me around when I first got here."})
     elseif talk == "Picture Frame" then
         self:setFlag("talk_2", 2)
-        self:startDialogue({"[emote:left_talk]* Oh, [wait:5]ehehe...\n[wait:5]* I keep forgetting I put that there.", "[emote:talk]* Pay no attention to it,[wait:5] it's just..."})
+        self:startDialogue({"[emote:left]* Oh, [wait:5]ehehe...\n[wait:5]* I keep forgetting I put that there.", "[emote:idle]* Pay no attention to it,[wait:5] it's just..."})
     elseif talk == "Together" then
-        self:startDialogue({"[emote:left_talk]* U-us? [wait:5]No, [wait:5]we're not... [wait:5]I-I mean, [wait:5]there's not much goin' for me.", "[emote:happy_talk]* That's all!!"})
+        self:startDialogue({"[emote:left]* U-us? [wait:5]No, [wait:5]we're not... [wait:5]I-I mean, [wait:5]there's not much goin' for me.", "[emote:happy]* That's all!!"})
     end
 end
 

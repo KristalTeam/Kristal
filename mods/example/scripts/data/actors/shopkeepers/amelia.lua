@@ -41,7 +41,7 @@ end
 
 function actor:onTalkStart(text, sprite)
     if sprite.sprite == "idle" then
-        sprite:setAnimation("talk")
+        sprite:setSprite("talk")
     elseif sprite.sprite == "left" then
         sprite:setSprite("left_talk")
     elseif sprite.sprite == "explaining" then
@@ -53,13 +53,13 @@ end
 
 function actor:onTalkEnd(text, sprite)
     if sprite.sprite == "talk" then
-        sprite:setSprite("idle")
+        sprite:setAnimation("idle")
     elseif sprite.sprite == "left_talk" then
-        sprite:setSprite("left")
+        sprite:setAnimation("left")
     elseif sprite.sprite == "explaining_talk" then
-        sprite:setSprite("explaining")
+        sprite:setAnimation("explaining")
     elseif sprite.sprite == "happy_talk" then
-        sprite:setSprite("happy")
+        sprite:setAnimation("happy")
     end
 end
 
