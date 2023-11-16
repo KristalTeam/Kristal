@@ -804,7 +804,7 @@ end
 ---@param presence table The presence information to set.
 function Kristal.setPresence(presence)
     DISCORD_RPC_PRESENCE = presence or {}
-    if Kristal.Config["discordRPC"] then
+    if DISCORD_RPC_AVAILABLE and Kristal.Config["discordRPC"] then
         DiscordRPC.updatePresence(presence)
     end
 end
