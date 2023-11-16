@@ -546,6 +546,15 @@ function MainMenuOptions:initializeOptions()
 
     self:registerConfigOption("general", "Auto-Run", "autoRun")
 
+    self:registerConfigOption("general", "Discord RPC", "discordRPC", function(toggled)
+        if toggled then
+            DiscordRPC.initialize(DISCORD_RPC_ID, true)
+            DiscordRPC.updatePresence(Kristal.getPresence())
+        else
+            DiscordRPC.shutdown()
+        end
+    end)
+
     ---------------------
     -- Graphics Options
     ---------------------

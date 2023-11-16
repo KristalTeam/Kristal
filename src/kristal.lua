@@ -219,9 +219,20 @@ function love.load(args)
 
     -- load menu
     Gamestate.switch(Kristal.States["Loading"])
+
+    -- Initialize Discord RPC
+    if Kristal.Config["discordRPC"] then
+        DiscordRPC.initialize(DISCORD_RPC_ID, true)
+        DiscordRPC.updatePresence(Kristal.getPresence())
+    end
 end
 
 function love.quit()
+
+    if Kristal.Config["discordRPC"] then
+        DiscordRPC.shutdown()
+    end
+
     Kristal.saveConfig()
     if Kristal.Loader.thread and Kristal.Loader.thread:isRunning() then
         Kristal.Loader.in_channel:push("stop")
@@ -787,6 +798,20 @@ end
 ---@return number runtime The current runtime (`RUNTIME`), affected by timescale / fast-forward.
 function Kristal.getTime()
     return RUNTIME
+end
+
+--- Helper function to set the current RPC information, and update the presence if enabled.
+---@param presence table The presence information to set.
+function Kristal.setPresence(presence)
+    DISCORD_RPC_PRESENCE = presence or {}
+    if Kristal.Config["discordRPC"] then
+        DiscordRPC.updatePresence(presence)
+    end
+end
+
+---@return table presence Get the current presence information.
+function Kristal.getPresence()
+    return DISCORD_RPC_PRESENCE
 end
 
 --- Sets the master volume to the given value and saves it to the config.

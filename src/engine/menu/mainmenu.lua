@@ -111,6 +111,15 @@ function MainMenu:enter()
     else
         self:setState("TITLE")
     end
+
+    Kristal.setPresence({
+        state = "In the menu",
+        details = "Main menu",
+        largeImageKey = "logo",
+        largeImageText = "Kristal v" .. tostring(Kristal.Version),
+        startTimestamp = os.time(),
+        instance = 1
+    })
 end
 
 function MainMenu:leave()

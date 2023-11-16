@@ -7,4 +7,6 @@ mods/*
 !mods/previewtest/
 !mods/z/
 
+build/
+
 *.tiled-session

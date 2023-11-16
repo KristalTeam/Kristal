@@ -4,6 +4,8 @@ require("src.engine.vars")
 require("src.engine.statevars")
 require("src.engine.vendcust")
 
+DiscordRPC = require("src.lib.discordrpc")
+
 ---@diagnostic disable-next-line: lowercase-global
 utf8 = require("utf8")
 
