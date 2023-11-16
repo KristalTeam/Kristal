@@ -2,7 +2,7 @@
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
 
-Text.COMMANDS = {"color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing"}
+Text.COMMANDS = { "color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing" }
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -13,8 +13,8 @@ Text.COLORS = {
     ["black"] = COLORS.black,
     ["purple"] = COLORS.purple,
     ["maroon"] = COLORS.maroon,
-    ["pink"] = {1, 0.5, 1},
-    ["lime"] = {0.5, 1, 0.5}
+    ["pink"] = { 1, 0.5, 1 },
+    ["lime"] = { 0.5, 1, 0.5 }
 }
 
 function Text:init(text, x, y, w, h, options)
@@ -37,7 +37,7 @@ function Text:init(text, x, y, w, h, options)
 
     self.font = options["font"] or "main"
     self.font_size = options["font_size"] or nil
-    self.text_color = options["color"] or {1, 1, 1, 1}
+    self.text_color = options["color"] or { 1, 1, 1, 1 }
     self.style = options["style"] or "none"
     if self:isStyleAnimated(self.style) then
         self.draw_every_frame = true
@@ -71,9 +71,17 @@ end
 
 function Text:getDebugRectangle()
     if not self.debug_rect then
-        return {0, 0, self:getTextWidth(), self:getTextHeight()}
+        return { 0, 0, self:getTextWidth(), self:getTextHeight() }
     end
     return super.getDebugRectangle(self)
+end
+
+function Text:getSize()
+    return self:getTextWidth(), self:getTextHeight()
+end
+
+function Text:getScaledSize()
+    return self:getTextWidth() * self.scale_x, self:getTextHeight() * self.scale_y
 end
 
 function Text:onAddToStage(stage)
@@ -128,7 +136,7 @@ function Text:resetState()
         max_width = 0,
         max_height = 0,
         current_line = 1,
-        line_lengths = {0},
+        line_lengths = { 0 },
     }
 end
 
@@ -209,15 +217,15 @@ function Text:textToNodes(input_string)
     local last_char = ""
     local i = 1
     while i <= utf8.len(input_string) do
-        local current_char = Utils.sub(input_string,i,i)
+        local current_char = Utils.sub(input_string, i, i)
         local leaving_modifier = false
-        if current_char == "[" and last_char ~= "\\" then  -- We got a [, time to see if it's a modifier
+        if current_char == "[" and last_char ~= "\\" then -- We got a [, time to see if it's a modifier
             local j = i + 1
             local current_modifier = ""
             while j <= utf8.len(input_string) do
-                if Utils.sub(input_string,j, j) == "]" then -- We found a bracket!
+                if Utils.sub(input_string, j, j) == "]" then -- We found a bracket!
                     local old_i = i
-                    i = j -- Let's set i so the modifier isn't processed as normal text
+                    i = j                                    -- Let's set i so the modifier isn't processed as normal text
 
                     -- Let's split some values in the modifier!
                     local split = Utils.splitFast(current_modifier, ":")
@@ -233,7 +241,7 @@ function Text:textToNodes(input_string)
                             local char = Utils.sub(split[2], k, k)
                             if escaping then
                                 escaping = false
-                                arg = arg..char
+                                arg = arg .. char
                             else
                                 if char == "\\" then
                                     escaping = true
@@ -242,9 +250,9 @@ function Text:textToNodes(input_string)
                                     arg = ""
                                     k_start = k + 1
                                 elseif k == utf8.len(split[2]) then
-                                    table.insert(arguments, arg..char)
+                                    table.insert(arguments, arg .. char)
                                 else
-                                    arg = arg..char
+                                    arg = arg .. char
                                 end
                             end
                             k = k + 1
@@ -261,7 +269,7 @@ function Text:textToNodes(input_string)
                         if bind_key and Input.usingGamepad() then
                             -- We're already processing a modifier, so just change it to the button modifier
                             command = "button"
-                            arguments = {bind_key}
+                            arguments = { bind_key }
                         else
                             -- Writing key text, pretend we're not in a modifier
                             leaving_modifier = false
@@ -269,7 +277,8 @@ function Text:textToNodes(input_string)
 
                             -- Cut out the bind modifier from the text and insert the key name
                             local input_text = Input.getText(arguments[1])
-                            input_string = Utils.sub(input_string, 1, i - 1) .. input_text .. Utils.sub(input_string, j + 1)
+                            input_string = Utils.sub(input_string, 1, i - 1) ..
+                                input_text .. Utils.sub(input_string, j + 1)
                             current_char = Utils.sub(input_string, i, i)
 
                             -- Go back and parse the rest like normal text
@@ -327,10 +336,10 @@ function Text:textToNodes(input_string)
                         i = old_i
                     end
 
-                    current_char = Utils.sub(input_string,i, i) -- Set current_char to the new value
+                    current_char = Utils.sub(input_string, i, i) -- Set current_char to the new value
                     break
                 else
-                    current_modifier = current_modifier .. Utils.sub(input_string,j, j)
+                    current_modifier = current_modifier .. Utils.sub(input_string, j, j)
                 end
                 j = j + 1
             end
@@ -414,7 +423,7 @@ function Text:textToNodes(input_string)
         self.alignment_offset = {}
         for i = 1, #self.state.line_lengths do
             if self.align == "center" then
-                self.alignment_offset[i] = (self.width/2) - (self.state.line_lengths[i]/2)
+                self.alignment_offset[i] = (self.width / 2) - (self.state.line_lengths[i] / 2)
             elseif self.align == "right" then
                 self.alignment_offset[i] = self.width - self.state.line_lengths[i]
             else
@@ -428,7 +437,7 @@ function Text:textToNodes(input_string)
 end
 
 function Text:drawToCanvas(func, clear)
-    Draw.pushCanvas(self.canvas, {stencil = false})
+    Draw.pushCanvas(self.canvas, { stencil = false })
     Draw.pushScissor()
     love.graphics.push()
     love.graphics.origin()
@@ -457,7 +466,8 @@ function Text:processNode(node, dry)
                 self.state.current_x = self.state.indent_length + self.state.spacing
             end
             local spacing = Assets.getFontData(self.state.font) or {}
-            self.state.current_y = self.state.current_y + ((spacing.lineSpacing or font:getHeight()) * font_scale) + self.line_offset
+            self.state.current_y = self.state.current_y + ((spacing.lineSpacing or font:getHeight()) * font_scale) +
+                self.line_offset
             -- We don't want to wait on a newline, so...
             self.state.newline = true
             self.state.progress = self.state.progress + 1
@@ -471,7 +481,7 @@ function Text:processNode(node, dry)
             self.state.newline = false
             self.state.typed_characters = self.state.typed_characters - 1
         elseif not self.state.escaping then
-            if node.character == Utils.sub(self.state.indent_string,1,1) then
+            if node.character == Utils.sub(self.state.indent_string, 1, 1) then
                 if self.state.indent_mode and self.state.newline then
                     self.state.current_x = 0
                     self.state.newline = false
@@ -480,7 +490,7 @@ function Text:processNode(node, dry)
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             if not dry then
                 self:drawChar(node, self.state)
-                table.insert(self.nodes_to_draw, {node, Utils.copy(self.state, true)})
+                table.insert(self.nodes_to_draw, { node, Utils.copy(self.state, true) })
             end
             local w, h = self:getNodeSize(node, self.state)
             self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -488,10 +498,10 @@ function Text:processNode(node, dry)
         else
             self.state.newline = false
             self.state.escaping = false
-            if node.character == "\\" or node.character == Utils.sub(self.state.indent_string,1,1) or node.character == "[" or node.character == "]" then
+            if node.character == "\\" or node.character == Utils.sub(self.state.indent_string, 1, 1) or node.character == "[" or node.character == "]" then
                 if not dry then
                     self:drawChar(node, self.state)
-                    table.insert(self.nodes_to_draw, {node, Utils.copy(self.state, true)})
+                    table.insert(self.nodes_to_draw, { node, Utils.copy(self.state, true) })
                 end
                 local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -570,9 +580,9 @@ function Text:processModifier(node, dry)
         local y_offset = tonumber(node.arguments[3]) or 0
         local x_scale  = tonumber(node.arguments[4]) or 1
         local y_scale  = tonumber(node.arguments[5]) or 1
-        local speed    = tonumber(node.arguments[6]) or (1/15)
+        local speed    = tonumber(node.arguments[6]) or (1 / 15)
 
-        local texture = Assets.getFramesOrTexture(node.arguments[1])
+        local texture  = Assets.getFramesOrTexture(node.arguments[1])
         if texture then
             if not dry then
                 local y = self.state.current_y + (self:getFont():getHeight() / 2)
@@ -588,7 +598,7 @@ function Text:processModifier(node, dry)
         end
     elseif node.command == "button" then
         if not dry then
-            local texture = "kristal/buttons/"..Input.getButtonSprite(node.arguments[1])
+            local texture = "kristal/buttons/" .. Input.getButtonSprite(node.arguments[1])
 
             local y = self.state.current_y + (self:getFont():getHeight() / 2)
             local sprite = Sprite(texture, self.state.current_x, y)
@@ -624,21 +634,21 @@ function Text:getNodeSize(node, state, include_scale)
     local font = Assets.getFont(state.font, state.font_size)
     local scale = Assets.getFontScale(state.font, state.font_size)
     if include_scale ~= false then
-        return math.max(1, font:getWidth(node.character)*scale), font:getHeight()*scale
+        return math.max(1, font:getWidth(node.character) * scale), font:getHeight() * scale
     else
         return math.max(1, font:getWidth(node.character)), font:getHeight()
     end
 end
 
 function Text:setTextColor(r, g, b, a)
-    self.text_color = {r or 1, g or 1, b or 1, a or 1}
+    self.text_color = { r or 1, g or 1, b or 1, a or 1 }
     self.state.color = self.text_color
 end
 
 function Text:getTextColor(state, use_base_color)
     -- The base color, either the draw color or (1,1,1,1) depending on
     -- if the text is drawing to a canvas
-    local cr,cg,cb,ca
+    local cr, cg, cb, ca
     if use_base_color then
         cr, cg, cb, ca = self:getDrawColor()
     else
@@ -649,7 +659,7 @@ function Text:getTextColor(state, use_base_color)
     sa = sa or 1
 
     -- The current color multiplied by the base color
-    return sr*cr, sg*cg, sb*cb, sa*ca
+    return sr * cr, sg * cg, sb * cb, sa * ca
 end
 
 function Text:drawChar(node, state, use_color)
@@ -681,7 +691,7 @@ function Text:drawChar(node, state, use_color)
 
     -- The base color, either the draw color or (1,1,1,1) depending on
     -- if the text is drawing to a canvas
-    local cr,cg,cb,ca
+    local cr, cg, cb, ca
     if use_color then
         cr, cg, cb, ca = self:getDrawColor()
     else
@@ -690,23 +700,23 @@ function Text:drawChar(node, state, use_color)
     -- The current color multiplied by the base color
     local mr, mg, mb, ma = self:getTextColor(state, use_color)
 
-    Draw.setColor(mr,mg,mb,ma)
+    Draw.setColor(mr, mg, mb, ma)
 
     if Kristal.callEvent("onDrawText", self, node, state, x, y, scale, font, use_color) then
         -- Empty because I don't like logic
     elseif self:processStyle(state.style) then
         -- Empty because I don't like logic
     elseif state.style == nil or state.style == "none" then
-        Draw.setColor(mr,mg,mb,ma)
+        Draw.setColor(mr, mg, mb, ma)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "menu" then
         Draw.setColor(0, 0, 0)
-        love.graphics.print(node.character, x+2, y+2, 0, scale, scale)
-        Draw.setColor(mr,mg,mb,ma)
+        love.graphics.print(node.character, x + 2, y + 2, 0, scale, scale)
+        Draw.setColor(mr, mg, mb, ma)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "dark" then
         local w, h = self:getNodeSize(node, state)
-        local canvas = Draw.pushCanvas(w, h, {stencil = false})
+        local canvas = Draw.pushCanvas(w, h, { stencil = false })
         Draw.setColor(1, 1, 1)
         love.graphics.print(node.character, 0, 0, 0, scale, scale)
         Draw.popCanvas()
@@ -723,12 +733,12 @@ function Text:drawChar(node, state, use_color)
             shader:sendColor("to", white and COLORS.navy or state.color)
             --Draw.setColor(cr, cg, cb, ca * (white and 1 or 0.3))
             local mult = white and 1 or 0.3
-            Draw.setColor(cr*mult, cg*mult, cb*mult, ca)
+            Draw.setColor(cr * mult, cg * mult, cb * mult, ca)
         else
             --Draw.setColor(mr, mg, mb, ma * 0.3)
-            Draw.setColor(mr*0.3, mg*0.3, mb*0.3, ma)
+            Draw.setColor(mr * 0.3, mg * 0.3, mb * 0.3, ma)
         end
-        Draw.draw(canvas, x+1, y+1)
+        Draw.draw(canvas, x + 1, y + 1)
 
         if not white then
             love.graphics.setShader(shader)
@@ -737,7 +747,7 @@ function Text:drawChar(node, state, use_color)
         else
             love.graphics.setShader(last_shader)
         end
-        Draw.setColor(cr,cg,cb,ca)
+        Draw.setColor(cr, cg, cb, ca)
         Draw.draw(canvas, x, y)
 
         if not white then
@@ -745,26 +755,25 @@ function Text:drawChar(node, state, use_color)
         end
     elseif state.style == "dark_menu" then
         Draw.setColor(0.25, 0.125, 0.25)
-        love.graphics.print(node.character, x+2, y+2, 0, scale, scale)
-        Draw.setColor(mr,mg,mb,ma)
+        love.graphics.print(node.character, x + 2, y + 2, 0, scale, scale)
+        Draw.setColor(mr, mg, mb, ma)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "GONER" then
-
         local specfade = 1 -- This is unused for now!
         -- It's used in chapter 1, though... so let's keep it around.
-        Draw.setColor(mr,mg,mb, ma*specfade)
+        Draw.setColor(mr, mg, mb, ma * specfade)
         love.graphics.print(node.character, x, y, 0, scale, scale)
-        Draw.setColor(mr,mg,mb, ma*((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
+        Draw.setColor(mr, mg, mb, ma * ((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
         love.graphics.print(node.character, x + 2, y, 0, scale, scale)
         love.graphics.print(node.character, x - 2, y, 0, scale, scale)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
-        Draw.setColor(mr,mg,mb, ma*((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
+        Draw.setColor(mr, mg, mb, ma * ((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
         love.graphics.print(node.character, x + 2, y, 0, scale, scale)
         love.graphics.print(node.character, x - 2, y, 0, scale, scale)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
-        Draw.setColor(mr,mg,mb,ma)
+        Draw.setColor(mr, mg, mb, ma)
     end
 end
 
@@ -793,9 +802,12 @@ function Text:draw()
     end
 
     if DEBUG_RENDER then
-        Draw.setColor(1, 0, 0, 1)
+        Draw.setColor(0, 1, 0.5, 0.5)
         love.graphics.setLineWidth(2)
         love.graphics.rectangle("line", 0, 0, self.width, self.height)
+
+        Draw.setColor(0, 1, 0.5, 1)
+        love.graphics.rectangle("line", 0, 0, self:getTextWidth(), self:getTextHeight())
     end
 
     super.draw(self)

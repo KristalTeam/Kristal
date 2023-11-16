@@ -1,0 +1,12 @@
+{
+    "automappingRulesFile": "",
+    "commands": [
+    ],
+    "extensionsPath": "extensions",
+    "folders": [
+        "scripts/world"
+    ],
+    "objectTypesFile": "",
+    "propertyTypes": [
+    ]
+}

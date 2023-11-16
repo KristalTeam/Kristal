@@ -236,6 +236,40 @@ GameOver = require("src.engine.game.gameover")
 
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 
+EasingSoul = require("src.engine.objects.easingsoul")
+
+-- UI SYSTEM
+Component = require("src.engine.ui.component")
+BoxComponent = require("src.engine.ui.components.box")
+MainMenuBoxComponent = require("src.engine.ui.components.mainmenubox")
+SeparatorComponent = require("src.engine.ui.components.separator")
+BarComponent = require("src.engine.ui.components.bar")
+ScrollbarComponent = require("src.engine.ui.components.scrollbar")
+
+AbstractMenuComponent = require("src.engine.ui.components.abstractmenu")
+BasicMenuComponent = require("src.engine.ui.components.basicmenu")
+EasingSoulMenuComponent = require("src.engine.ui.components.easingsoulmenu")
+
+AbstractMenuItemComponent = require("src.engine.ui.components.abstractmenuitem")
+TextMenuItemComponent = require("src.engine.ui.components.textmenuitem")
+SoulMenuItemComponent = require("src.engine.ui.components.soulmenuitem")
+TextInputComponent = require("src.engine.ui.components.textinputcomponent")
+BooleanMenuItemComponent = require("src.engine.ui.components.booleanmenuitem")
+ListMenuItemComponent = require("src.engine.ui.components.listmenuitem")
+ArrowListMenuItemComponent = require("src.engine.ui.components.arrowlistmenuitem")
+IntegerMenuItemComponent = require("src.engine.ui.components.integermenuitem")
+ArrowIntegerMenuItemComponent = require("src.engine.ui.components.arrowintegermenuitem")
+LabelMenuItemComponent = require("src.engine.ui.components.labelmenuitem")
+
+Layout = require("src.engine.ui.layout")
+HorizontalLayout = require("src.engine.ui.layouts.horizontal")
+VerticalLayout = require("src.engine.ui.layouts.vertical")
+
+Sizing = require("src.engine.ui.sizing")
+FixedSizing = require("src.engine.ui.sizing.fixed")
+FitSizing = require("src.engine.ui.sizing.fit")
+FillSizing = require("src.engine.ui.sizing.fill")
+
 Hotswapper = require("src.hotswapper")
 
 -- Register required in the hotswapper

@@ -428,4 +428,20 @@ function Draw.captureObject(object, mode, ...)
     end
 end
 
+function Draw.rectangle(type, x, y, width, height)
+    if type == "line" or type == "fill" then
+        love.graphics.rectangle(type, x, y, width, height)
+    elseif type == "stripes" then
+        -- TODO: optimize lol
+        Draw.pushScissor()
+        Draw.scissor(x, y, width, height)
+
+        for line = 0, math.max(SCREEN_WIDTH, SCREEN_HEIGHT) * 2, 8 do
+            love.graphics.line(0, line, line, 0)
+        end
+
+        Draw.popScissor()
+    end
+end
+
 return Draw
