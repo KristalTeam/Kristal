@@ -8,5 +8,6 @@ mods/*
 !mods/z/
 
 build/
+output/
 
 *.tiled-session
