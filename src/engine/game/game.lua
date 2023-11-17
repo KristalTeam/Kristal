@@ -57,7 +57,20 @@ function Game:enter(previous_state, save_id, save_name)
         self:enterShop(Kristal.getModOption("shop"), {menu = true})
     end
 
+    DISCORD_RPC_PRESENCE = {}
+
     Kristal.callEvent("postInit", self.is_new_file)
+
+    if next(DISCORD_RPC_PRESENCE) == nil then
+        Kristal.setPresence({
+            state = Kristal.callEvent("getPresenceState") or ("Playing " .. (Kristal.getModOption("name") or "a mod")),
+            details = Kristal.callEvent("getPresenceDetails"),
+            largeImageKey = Kristal.callEvent("getPresenceImage") or "logo",
+            largeImageText = "Kristal v" .. tostring(Kristal.Version),
+            startTimestamp = math.floor(os.time() - self.playtime),
+            instance = 0
+        })
+    end
 end
 
 

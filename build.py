@@ -135,7 +135,9 @@ ignorefiles = [
     ".git",
     ".vscode",
     "mods",
-    "docs"
+    "docs",
+    "lib",
+    "build"
 ]
 
 try:
@@ -250,6 +252,11 @@ copyfiles = [
 
 for file in copyfiles:
     shutil.copy(os.path.join(love2d_path, file), os.path.join(build_path, "executable"))
+
+print("Copying libraries...")
+
+for file in os.listdir(os.path.join(kristal_path, "lib")):
+    shutil.copy(os.path.join(kristal_path, "lib", file), os.path.join(build_path, "executable"))
 
 print("Zipping built file...")
 shutil.make_archive(os.path.join(output_path, "kristal-"+ver_str+"-win"), 'zip', os.path.join(build_path, "executable"))

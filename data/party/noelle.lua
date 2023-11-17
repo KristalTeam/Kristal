@@ -7,7 +7,11 @@ function character:init()
     self.name = "Noelle"
 
     -- Actor (handles sprites)
-    self:setActor("noelle")
+    if Game:getFlag("weird") then
+        self:setActor("noelle_weird")
+    else
+        self:setActor("noelle")
+    end
     self:setLightActor("noelle_lw")
 
     -- Display level (saved to the save file)
