@@ -54,7 +54,7 @@ function actor:init()
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
 
         ["battle/transition"]   = {"battle/intro", 1/15, false},
-        ["battle/victory"]      = {"battle/pray", 1/10, true},
+        ["battle/victory"]      = {"battle/pray", 1/10, true}, -- TODO: Add the snowglobe visual effect.
     }
 
     -- Tables of sprites to change into in mirrors

@@ -7,7 +7,7 @@ function character:init()
     self.name = "Noelle"
 
     -- Actor (handles sprites)
-    if Game:getFlag("weird") then
+    if Game:getFlag("weird_noelle") then
         self:setActor("noelle_weird")
     else
         self:setActor("noelle")
