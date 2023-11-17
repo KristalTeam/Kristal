@@ -76,7 +76,7 @@ function actor:init()
         -- Battle offsets
         ["battle/idle"] = {-3, 0},
 
-        ["battle/attackready"] = {0, 0},
+        ["battle/attackready"] = {-3, 0},
         ["battle/act"] = {0, 0},
         ["battle/actend"] = {0, 0},
         ["battle/actready"] = {0, 0},
@@ -84,11 +84,11 @@ function actor:init()
         ["battle/spell_special"] = {-5, -1},
         ["battle/spellready"] = {0, 0},
         ["battle/item"] = {-2, 0},
-        ["battle/itemready"] = {-2, 0},
+        ["battle/itemready"] = {0, 0},
         ["battle/defend"] = {-3, -6},
 
         ["battle/defeat"] = {0, 0},
-        ["battle/hurt"] = {-9, 0},
+        ["battle/hurt"] = {-3, 0},
 
         ["battle/intro"] = {-11, -7},
         ["battle/pray"] = {-3, 0},
