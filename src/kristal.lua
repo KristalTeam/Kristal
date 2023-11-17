@@ -221,7 +221,7 @@ function love.load(args)
     Gamestate.switch(Kristal.States["Loading"])
 
     -- Initialize Discord RPC
-    if Kristal.Config["discordRPC"] then
+    if DISCORD_RPC_AVAILABLE and Kristal.Config["discordRPC"] then
         DiscordRPC.initialize(DISCORD_RPC_ID, true)
         DiscordRPC.updatePresence(Kristal.getPresence())
     end
@@ -229,7 +229,7 @@ end
 
 function love.quit()
 
-    if Kristal.Config["discordRPC"] then
+    if DISCORD_RPC_AVAILABLE and Kristal.Config["discordRPC"] then
         DiscordRPC.shutdown()
     end
 
