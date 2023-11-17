@@ -96,16 +96,18 @@ function GameOver:update()
         end
     end
     if (self.timer >= 150) and (self.current_stage == 4) then
-        self.music:play(Game:isLight() and "determination" or "AUDIO_DEFEAT")
-        if Game:isLight() then
-            self.text = Sprite("ui/gameover_ut", 111, 32)
-        else
-            self.text = Sprite("ui/gameover", 0, 40)
-            self.text:setScale(2)
+        self.music:play(Game:isLight() and "determination" or Game:getConfig("oldGameOver") and "AUDIO_DRONE" or "AUDIO_DEFEAT")
+        if not Game:getConfig("oldGameOver") or Game:isLight() then
+            if Game:isLight() then
+                self.text = Sprite("ui/gameover_ut", 111, 32)
+            else
+                self.text = Sprite("ui/gameover", 0, 40)
+                self.text:setScale(2)
+            end
+            self.alpha = 0
+            self:addChild(self.text)
+            self.text:setColor(1, 1, 1, self.alpha)
         end
-        self.alpha = 0
-        self:addChild(self.text)
-        self.text:setColor(1, 1, 1, self.alpha)
         self.current_stage = 5
     end
     if ((self.timer >= (Game:isLight() and 230 or 180))) and (self.current_stage == 5) then
@@ -126,7 +128,7 @@ function GameOver:update()
             else
                 self.current_stage = 7
             end
-        else
+        elseif not Game:getConfig("oldGameOver") or Game:isLight() then
             local member = Utils.pick(options)
             local voice = member:getActor().voice or "default"
             self.lines = {}
@@ -155,28 +157,54 @@ function GameOver:update()
             self:addChild(self.dialogue)
             table.remove(self.lines, 1)
             self.current_stage = 6
-        end
-    end
-    if (self.current_stage == 6) and Input.pressed("confirm") and (not self.dialogue:isTyping()) then
-        if #self.lines > 0 then
-            self.dialogue:setText(self.lines[1])
-            self.dialogue.line_offset = 14
-            table.remove(self.lines, 1)
         else
-            self.dialogue:remove()
-            self.current_stage = 7
-            if Game:isLight() then
-                self.music:fade(0, 2)
-                self.current_stage = 10
-                self.timer = 0
+            if Game.died_once then 
+                self.current_stage = 6
+            else
+                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 160, 160, {style = "GONER", line_offset = 14})
+                self.dialogue.skip_speed = true
+                self:addChild(self.dialogue)
+                self.current_stage = 6
             end
         end
     end
+    if (self.current_stage == 6) and Input.pressed("confirm") and (not self.dialogue:isTyping()) then
+        if not Game:getConfig("oldGameOver") or Game:isLight() then
+            if #self.lines > 0 then
+                self.dialogue:setText(self.lines[1])
+                self.dialogue.line_offset = 14
+                table.remove(self.lines, 1)
+            else
+                self.dialogue:remove()
+                self.current_stage = 7
+                if Game:isLight() then
+                    self.music:fade(0, 2)
+                    self.current_stage = 10
+                    self.timer = 0
+                end
+            end
+        else
+            self.dialogue:setText("[speed:0.5][spacing:8][voice:none]WILL YOU TRY AGAIN?")
+            self.dialogue.x = 100
+            self.current_stage = 7
+        end
+    end
+    if Game:getConfig("oldGameOver") and self.current_stage == 6 and Game.died_once then
+        self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]WILL YOU PERSIST?", 120, 160, {style = "GONER", line_offset = 14})
+        self:addChild(self.dialogue)
+        self.current_stage = 7
+    end
 
     if (self.current_stage == 7) then
-        self.choicer = GonerChoice(160, 360, {
-            {{"CONTINUE",0,0},{"GIVE UP",220,0}}
-        })
+        if not Game:getConfig("oldGameOver") then
+            self.choicer = GonerChoice(160, 360, {
+                {{"CONTINUE",0,0},{"GIVE UP",220,0}}
+            })
+        else
+            self.choicer = GonerChoice(210, 360, {
+                {{"YES",0,0},{"NO",190,0}} -- BUG: Soul choicer needs to be in the middle when the choice is being brought up for the first time.
+            })
+        end
         self:addChild(self.choicer)
         self.current_stage = 8
     end
@@ -189,29 +217,42 @@ function GameOver:update()
                 self.current_stage = 9
                 self.timer = 0
             elseif self.choicer.choice_x == 2 then
-                self.text:remove()
                 self.current_stage = 20
+                if not Game:getConfig("oldGameOver") then
+                    self.text:remove()
 
-                self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 14})
-                self:addChild(self.dialogue)
+                    self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 14})
+                    self:addChild(self.dialogue)
+                else
+                    self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.")
+                    self.dialogue.x = 120
+                end
             end
         end
     end
 
     if (self.current_stage == 9) then
+        if Game:getConfig("oldGameOver") and Game.died_once then 
+            self.dialogue:setText("")
+        else 
+            self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN, THE FUTURE\n IS IN YOUR HANDS.")
+        end
         if (self.timer >= 30) then
             self.timer = 0
             self.current_stage = 10
-            local sound = Assets.newSound("dtrans_lw")
-            sound:play()
+            if not Game:getConfig("oldGameOver") then
+                local sound = Assets.newSound("dtrans_lw")
+                sound:play()
+            end
             self.fade_white = true
         end
     end
 
     if (self.current_stage == 10) then
         self.fade_white = not Game:isLight()
-        self.fader_alpha = self.fader_alpha + ((Game:isLight() and 0.02 or 0.01) * DTMULT)
-        if self.timer >= (Game:isLight() and 80 or 120) then
+        self.fader_alpha = self.fader_alpha + ((Game:isLight() and 0.02 or Game:getConfig("oldGameOver") and Game.died_once and 0.03 or 0.01) * DTMULT)
+        if self.timer >= (Game:isLight() and 80 or Game:getConfig("oldGameOver") and Game.died_once and 40 or 120) then
+            if Game:getConfig("oldGameOver") and not Game:isLight() then Game.died_once = true end
             self.current_stage = 11
             Game:loadQuick()
         end

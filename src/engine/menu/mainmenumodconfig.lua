@@ -211,6 +211,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                                                  "selection", {nil, 1, 2})
     self:registerOption("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",                                "selection", {nil, true, false})
     self:registerOption("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.",                          "selection", {nil, true, false})
+    self:registerOption("oldGameOver",            "Old Game Over",             "Whether to use Chapter 1 game over or not.",                                         "selection", {nil, true, false})
     self:registerOption("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",                             "selection", {nil, true, false})
     self:registerOption("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                                         "selection", {nil, "round", "cyber"}) -- unhardcode
     self:registerOption("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                                                        "selection", {nil, true, false})

@@ -12,6 +12,7 @@
 
     "oldTensionBar": false,          // Syle of TP bar
     "oldUIPositions": false,         // Old positions of various UI elements
+    "oldGameOver": false,            // The game over screen used in chapter 1
 
     "speechBubble": "cyber",         // Default enemy speech bubble style
 
