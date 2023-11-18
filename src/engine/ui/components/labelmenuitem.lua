@@ -19,6 +19,10 @@ function LabelMenuItemComponent:init(text, child, x_sizing, y_sizing, options)
     end
     self.text = self:addChild(text)
 
+    if not child.parent then
+        self:addChild(child)
+    end
+
     self.child = child
 end
 
