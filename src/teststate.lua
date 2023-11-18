@@ -6,10 +6,6 @@ function Testing:enter()
 
     self.state = "MAIN"
 
-    self.scrollbar_arrows = false
-    self.scrollbar_type = 1
-    self.scrollbar_width = 9
-
     self.soul = self.stage:addChild(EasingSoul(0, 0))
     self.soul.use_parent = true
 
@@ -24,37 +20,10 @@ function Testing:enter()
                     menu:setScrollbar(ScrollbarComponent({gutter = "dotted", margins = {8, 0, 0, 0}, arrows = true}))
                     menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
                     menu:setOverflow("scroll")
-                    menu:setScrollType("paged")
 
-                    menu:addChild(BooleanMenuItemComponent(self.scrollbar_arrows, function(value) self.scrollbar_arrows = value self:updateScrollbar(menu) end, {on_text="Arrows ON", off_text="Arrows OFF"}))
-                    menu:addChild(ArrowListMenuItemComponent({ "Dotted", "Fill", "No Gutter" }, self.scrollbar_type, function(index) self.scrollbar_type = index self:updateScrollbar(menu) end))
-                    menu:addChild(ArrowIntegerMenuItemComponent(1, 32, self.scrollbar_width, function(value) self.scrollbar_width = value self:updateScrollbar(menu) end, {wrap = false, hold = true, prefix = "Width "}))
-                    menu:addChild(SeparatorComponent())
-                    menu:addChild(LabelMenuItemComponent("Label: ", IntegerMenuItemComponent(1, 10, 1), FillSizing(), FitSizing()))
-                    menu:addChild(SeparatorComponent())
-                    menu:addChild(TextInputMenuItemComponent())
-                    menu:addChild(BooleanMenuItemComponent(false, function(value) end))
-                    menu:addChild(ListMenuItemComponent({ "List Option 1", "List Option 2", "List Option 300" }, 1, function(index) end))
-                    menu:addChild(ArrowListMenuItemComponent({ "List Option 1", "List Option 2", "List Option 300" }, 1, function(index) end))
-                    menu:addChild(IntegerMenuItemComponent(1, 10, 1, function(value) end))
-                    menu:addChild(IntegerMenuItemComponent(1, 10, 1, function(value) end, {wrap = false, hold = true}))
-                    menu:addChild(ArrowIntegerMenuItemComponent(1, 10, 1, function(value) end))
-                    menu:addChild(ArrowIntegerMenuItemComponent(1, 10, 1, function(value) end, {wrap = false, hold = true}))
-                    -- recreate the deltarune volume controller
-                    menu:addChild(ArrowIntegerMenuItemComponent(0, 100, 60, function(value) Kristal.setVolume(value / 100) end, {step = 2, suffix = "%", sound = "noise", wrap = false, hold = true, sound_delay = 3, sound_at_limit = true}))
-                    menu:addChild(TextMenuItemComponent(Text("Option"),
+                    menu:addChild(TextMenuItemComponent(Text("Snowglobe"),
                         function()
-                            menu.visible = false
-                            local menu2 = EasingSoulMenuComponent(FitSizing(), FitSizing(), { hold = true, soul = self.soul })
-                            menu2:setLayout(VerticalLayout())
-                            menu2:addChild(TextMenuItemComponent(Text("Option 1"), function() end))
-                            menu2:addChild(TextMenuItemComponent(Text("Option 2"), function() end))
-                            menu2:setCancelCallback(function()
-                                menu2:close()
-                                menu.visible = true
-                            end)
-                            menu2:setFocused()
-                            box:addChild(menu2)
+                            self.stage:addChild(SnowglobeEffect(320, 240))
                         end, {highlight=false}
                     ))
                     menu:setSelected(2)
@@ -63,18 +32,6 @@ function Testing:enter()
             inner:addChild(box)
         outer:addChild(inner)
     self.stage:addChild(outer)
-
-    self:updateScrollbar(menu)
-end
-
-function Testing:updateScrollbar(menu)
-    local gutter = "dotted"
-    if self.scrollbar_type == 2 then
-        gutter = "fill"
-    elseif self.scrollbar_type == 3 then
-        gutter = "none"
-    end
-    menu:setScrollbar(ScrollbarComponent({gutter = gutter, margins = {8, 0, 0, 0}, arrows = self.scrollbar_arrows, width = self.scrollbar_width}))
 
 end
 
