@@ -1,18 +1,18 @@
----@class TextInputComponent : AbstractMenuItemComponent
+---@class TextInputMenuItemComponent : AbstractMenuItemComponent
 ---@field input table
 ---@field options table
----@overload fun(...) : TextInputComponent
-local TextInputComponent, super = Class(AbstractMenuItemComponent)
+---@overload fun(...) : TextInputMenuItemComponent
+local TextInputMenuItemComponent, super = Class(AbstractMenuItemComponent)
 
 ---@param options? table
-function TextInputComponent:init(options)
+function TextInputMenuItemComponent:init(options)
     options = options or {}
     super.init(self, FillSizing(), FixedSizing(options.height or 32), nil, options)
     self.input = {options.starting or ""}
     self.options = options
 end
 
-function TextInputComponent:onSelected()
+function TextInputMenuItemComponent:onSelected()
     Assets.playSound("ui_select")
     self:setFocused()
 
@@ -34,7 +34,7 @@ function TextInputComponent:onSelected()
     self.text_callback = self.options.text_callback or nil
 end
 
-function TextInputComponent:draw()
+function TextInputMenuItemComponent:draw()
     super.draw(self)
 
     love.graphics.setLineStyle("rough")
@@ -57,4 +57,4 @@ function TextInputComponent:draw()
     end
 end
 
-return TextInputComponent
+return TextInputMenuItemComponent
