@@ -136,7 +136,8 @@ function ListMenuItemComponent:update()
         if Input.pressed("confirm") or Input.pressed("cancel") then
             self:setUnfocused()
             Assets.playSound("ui_select")
-            Input.clear("confirm")
+            if Input.pressed("confirm") then Input.clear("confirm") end
+            if Input.pressed("cancel") then Input.clear("cancel") end
             if self.color then
                 self.text:setColor(self.color)
             end
