@@ -243,7 +243,7 @@ function Game:load(data, index, fade)
 
     self.chapter = data.chapter or Kristal.getModOption("chapter") or 2
 
-    self.save_name = data.name or "PLAYER"
+    self.save_name = data.name or self.save_name or "PLAYER"
     self.save_level = data.level or self.chapter
     self.save_id = index or self.save_id or 1
 

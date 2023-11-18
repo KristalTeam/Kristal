@@ -202,7 +202,7 @@ function GameOver:update()
             })
         else
             self.choicer = GonerChoice(210, 360, {
-                {{"YES",0,0},{"NO",190,0}} -- TODO: Soul choicer needs to be in the middle when the choice is being brought up for the first time.
+                {{"YES",0,0},{"NO",190,0}}
             })
         end
         self:addChild(self.choicer)
