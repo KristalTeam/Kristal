@@ -45,12 +45,12 @@ function SnowglobeEffect:draw()
     Draw.setColor(1, 1, 1, 0.6 * self.a_factor)
     Draw.draw(Assets.getTexture("effects/snowglobe/background"), n_x_off - x_off, n_y_off - y_off, 0, 2, 2)
 
-    local snowangle = (-20 + (self.siner / 2))
+    local snowangle = (-20 + (self.siner / 2)) * -1 -- gamemaker is opposite to love2d, so negate
     local snowoff = (self.siner / 2)
 
     Draw.setColor(1, 1, 1, 0.5 * self.a_factor)
-    Draw.draw(Assets.getTexture("effects/snowglobe/snow"), (n_x_off - x_off) + snowoff, (n_y_off - y_off) + (self.siner / 2), math.rad(snowangle), 2)
-    Draw.draw(Assets.getTexture("effects/snowglobe/snow"), (n_x_off - x_off) - snowoff, (n_y_off - y_off) - (self.siner / 2), math.rad(-snowangle), 2)
+    Draw.draw(Assets.getTexture("effects/snowglobe/snow"), (n_x_off - x_off) + snowoff, (n_y_off - y_off) + (self.siner / 2), math.rad(snowangle), 2, 2, 0, 0)
+    Draw.draw(Assets.getTexture("effects/snowglobe/snow"), (n_x_off - x_off) - snowoff, (n_y_off - y_off) - (self.siner / 2), math.rad(-snowangle), 2, 2, 0, 0)
 
     super.draw(self)
     --Draw.setColor(1, 1, 1, 1)
