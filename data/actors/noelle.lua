@@ -60,6 +60,22 @@ function actor:init()
         ["laugh"]               = {"laugh", 4/30, true},
     }
 
+    -- Alternate animations to use for Noelle weird mode (false to disable the animation)
+    self.animations_alt = {
+        -- Battle animations
+        ["battle/idle"]         = {"battle_alt/idle", 0.2, true},
+
+        ["battle/attack"]       = {"battle/spell", 1/15, false, next="battle/idle"},
+
+        ["battle/attack_ready"] = false,
+        ["battle/defend_ready"] = {"battle_alt/defend", 1/15, false},
+
+        ["battle/hurt"]         = {"battle_alt/hurt", 1/15, false, temp=true, duration=0.5},
+
+        ["battle/transition"]   = {"battle_alt/intro", 1/15, false},
+        ["battle/victory"]      = {"battle_alt/pray", 1/10, true}, -- TODO: Add the snowglobe visual effect.
+    }
+
     -- Tables of sprites to change into in mirrors
     self.mirror_sprites = {
         ["walk/down"] = "walk/up",
@@ -71,7 +87,7 @@ function actor:init()
         ["walk_happy/up"] = "walk_happy/down",
         ["walk_happy/left"] = "walk_happy/left",
         ["walk_happy/right"] = "walk_happy/right",
-        
+
         ["walk_blush/down"] = "walk_blush/up",
         ["walk_blush/up"] = "walk_blush/down",
         ["walk_blush/left"] = "walk_blush/left",
@@ -155,6 +171,14 @@ function actor:init()
         ["battle/intro"] = {-11, -7},
         ["battle/victory"] = {0, 0},
 
+        ["battle_alt/idle"] = {-3, 0},
+        ["battle_alt/defend"] = {-3, -6},
+        ["battle_alt/hurt"] = {-3, 0},
+        ["battle_alt/intro"] = {-11, -7},
+        ["battle_alt/float"] = {-11, -7},
+        ["battle_alt/pray"] = {-3, 0},
+        ["battle_alt/spell_special"] = {-5, -1},
+
         -- Cutscene offsets
         ["blush"] = {0, 0},
         ["blush_side"] = {0, 0},
@@ -189,6 +213,15 @@ function actor:init()
         ["head_lowered_look_left"] = {0, 0},
         ["head_lowered_look_right"] = {0, 0},
     }
+end
+
+function actor:getAnimation(anim)
+    -- If the weird route flag is set and an alt animation is defined, use it instead
+    if Game:getFlag("noelle_weird") and self.animations_alt[anim] ~= nil then
+        return self.animations_alt[anim] or nil
+    else
+        return super.getAnimation(self, anim)
+    end
 end
 
 return actor
