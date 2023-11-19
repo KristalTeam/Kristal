@@ -118,7 +118,16 @@ function GameOver:update()
                 table.insert(options, member)
             end
         end
-        if #options == 0 then
+        if Game:getConfig("oldGameOver") and not Game:isLight() then
+            if Game.died_once then 
+                self.current_stage = 6
+            else
+                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 160, 160, {style = "GONER", line_offset = 14})
+                self.dialogue.skip_speed = true
+                self:addChild(self.dialogue)
+                self.current_stage = 6
+            end
+        elseif #options == 0 then
             if Game:isLight() then
                 if Input.pressed("confirm") or Input.pressed("menu") then
                     self.music:fade(0, 2)
@@ -128,7 +137,7 @@ function GameOver:update()
             else
                 self.current_stage = 7
             end
-        elseif not Game:getConfig("oldGameOver") or Game:isLight() then
+        else
             local member = Utils.pick(options)
             local voice = member:getActor().voice or "default"
             self.lines = {}
@@ -157,15 +166,6 @@ function GameOver:update()
             self:addChild(self.dialogue)
             table.remove(self.lines, 1)
             self.current_stage = 6
-        else
-            if Game.died_once then 
-                self.current_stage = 6
-            else
-                self.dialogue = DialogueText("[speed:0.5][spacing:8][voice:none]IT APPEARS YOU\nHAVE REACHED[wait:30]\n\n   AN END.", 160, 160, {style = "GONER", line_offset = 14})
-                self.dialogue.skip_speed = true
-                self:addChild(self.dialogue)
-                self.current_stage = 6
-            end
         end
     end
     if (self.current_stage == 6) and Input.pressed("confirm") and (not self.dialogue:isTyping()) then
@@ -232,10 +232,12 @@ function GameOver:update()
     end
 
     if (self.current_stage == 9) then
-        if Game:getConfig("oldGameOver") and Game.died_once then 
-            self.dialogue:setText("")
-        else 
-            self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN, THE FUTURE\n IS IN YOUR HANDS.")
+        if Game:getConfig("oldGameOver") then
+            if Game.died_once then 
+                self.dialogue:setText("")
+            else 
+                self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN, THE FUTURE\n IS IN YOUR HANDS.")
+            end
         end
         if (self.timer >= 30) then
             self.timer = 0
