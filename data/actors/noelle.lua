@@ -73,7 +73,7 @@ function actor:init()
         ["battle/hurt"]         = {"battle_alt/hurt", 1/15, false, temp=true, duration=0.5},
 
         ["battle/transition"]   = {"battle_alt/intro", 1/15, false},
-        ["battle/victory"]      = {"battle_alt/pray", 1/10, true}, -- TODO: Add the snowglobe visual effect.
+        ["battle/victory"]      = {"battle_alt/pray", 5/30, true},
     }
 
     -- Tables of sprites to change into in mirrors
@@ -221,6 +221,19 @@ function actor:getAnimation(anim)
         return self.animations_alt[anim] or nil
     else
         return super.getAnimation(self, anim)
+    end
+end
+
+function actor:onSetAnimation(sprite, anim, keep_anim)
+    if anim[1] == "battle_alt/pray" then
+        local background = SnowglobeEffect(0, 0, false)
+        local foreground = SnowglobeEffect(0, 0, true)
+        sprite.parent:addChild(background)
+        sprite.parent:addChild(foreground)
+        background.layer = sprite.layer - 1
+        foreground.layer = sprite.layer + 1
+        background:setScale(0.5)
+        foreground:setScale(0.5)
     end
 end
 
