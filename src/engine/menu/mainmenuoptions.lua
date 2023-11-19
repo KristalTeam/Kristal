@@ -561,23 +561,23 @@ function MainMenuOptions:initializeOptions()
     -- Graphics Options
     ---------------------
 
-    self:registerConfigOption({ "general", "graphics" }, "Fullscreen", "fullscreen", function (toggled)
+    self:registerConfigOption({ "graphics" }, "Fullscreen", "fullscreen", function (toggled)
         love.window.setFullscreen(toggled)
     end)
 
-    self:registerOption({ "general", "graphics" }, "Window Scale", function ()
+    self:registerOption({ "graphics" }, "Window Scale", function ()
                             return tostring(Kristal.Config["windowScale"]) .. "x"
                         end, function ()
                             self:setState("WINDOWSCALE")
                         end)
 
-    self:registerOption({ "general", "graphics" }, "Border", function ()
+    self:registerOption({ "graphics" }, "Border", function ()
                             return Kristal.getBorderName()
                         end, function ()
                             self:setState("BORDER")
                         end)
 
-    self:registerConfigOption({ "general", "graphics" }, "Simplify VFX", "simplifyVFX")
+    self:registerConfigOption({ "graphics" }, "Simplify VFX", "simplifyVFX")
 
     self:registerOption("graphics", "Target FPS", function (x, y)
                             if Kristal.Config["fps"] > 0 then
