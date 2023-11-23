@@ -304,6 +304,14 @@ function WorldCutscene:shakeCamera(x, y, friction)
     return waitForCameraShake
 end
 
+function WorldCutscene:alert(chara, ...)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+    local function waitForAlertRemoval() return chara.alert_icon == nil or chara.alert_timer == 0 end
+    return chara:alert(...), waitForAlertRemoval
+end
+
 function WorldCutscene:detachCamera()
     Game.world:setCameraAttached(false)
 end
