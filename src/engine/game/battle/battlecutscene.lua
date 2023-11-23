@@ -176,6 +176,14 @@ function BattleCutscene:shakeCamera(x, y, friction)
     return cameraShakeCheck
 end
 
+function BattleCutscene:alert(chara, ...)
+    if type(chara) == "string" then
+        chara = self:getCharacter(chara)
+    end
+    local function waitForAlertRemoval() return chara.alert_icon == nil or chara.alert_timer == 0 end
+    return chara:alert(...), waitForAlertRemoval
+end
+
 function BattleCutscene:fadeOut(speed, options)
     options = options or {}
 
