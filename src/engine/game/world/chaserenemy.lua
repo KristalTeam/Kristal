@@ -225,11 +225,11 @@ function ChaserEnemy:update()
                     local sight = LineCollider(self.world, self.x, self.y, self.world.player.x, self.world.player.y)
                     if not self.world:checkCollision(sight, true) and not self.world:checkCollision(self.collider, true) then
                         self.path = nil
-                        self:alert(function()
+                        self:alert(nil, {callback=function()
                             self.chasing = true
                             self.noclip = false
                             self:setAnimation("chasing")
-                        end)
+                        end})
                         self:setAnimation("alerted")
                     end
                 end
