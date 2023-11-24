@@ -229,6 +229,30 @@ function Mod:onKeyPressed(key)
                 Game:encounter("virovirokun", false)
             elseif key == "p" then
                 Game.world.player:shake(4, 0)
+            elseif key == "o" then
+                local wrapper = Component(FixedSizing(640,480))
+                wrapper:setLayout(VerticalLayout({ gap = 0, align = "center" }))
+
+                    local menu = BasicMenuComponent(FitSizing())
+                    menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
+
+                    menu:addChild(TextMenuItemComponent("Option 1", function() print("Option 1 was selected!") end))
+                    menu:addChild(TextMenuItemComponent("Option 2", function() print("Option 2 was selected!") end))
+                    menu:addChild(TextMenuItemComponent("Option 3", function() print("Option 3 was selected!") end))
+                    menu:addChild(TextMenuItemComponent("Option 4", function() print("Option 4 was selected!") end))
+                    menu:addChild(TextMenuItemComponent("Option 5", function() print("Option 5 was selected!") end))
+
+                    wrapper.parallax_x = 0
+                    wrapper.parallax_y = 0
+
+                    menu:setCancelCallback(function()
+                        menu:close()
+                    end)
+
+                    menu:setFocused()
+                wrapper:addChild(menu)
+
+                Game.world:openMenu(wrapper)
             end
         end
         if Game.world.player and not Game.lock_movement then

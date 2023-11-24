@@ -20,6 +20,8 @@ function AbstractMenuComponent:init(x_sizing, y_sizing, options)
 
     self.open_sound = nil
     self.close_sound = "ui_move"
+
+    self.close_callback = nil
 end
 
 function AbstractMenuComponent:setScrollType(type)
@@ -77,6 +79,9 @@ function AbstractMenuComponent:next()
 end
 
 function AbstractMenuComponent:close()
+    if self.close_callback then
+        self.close_callback()
+    end
     if self.close_sound then
         Assets.playSound(self.close_sound)
     end

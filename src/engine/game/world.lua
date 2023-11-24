@@ -167,9 +167,27 @@ function World:openMenu(menu, layer)
     if not menu then
         menu = self:createMenu()
     end
+
     self.menu = menu
     if self.menu then
         self.menu.layer = layer and self:parseLayer(layer) or WORLD_LAYERS["ui"]
+
+        if self.menu:includes(AbstractMenuComponent) then
+            self.menu.close_callback = function()
+                self:afterMenuClosed()
+            end
+        elseif self.menu:includes(Component) then
+            -- Sigh... traverse the children to find the menu component
+            for _,child in ipairs(self.menu:getComponents()) do
+                if child:includes(AbstractMenuComponent) then
+                    child.close_callback = function()
+                        self:afterMenuClosed()
+                    end
+                    break
+                end
+            end
+        end
+
         self:addChild(self.menu)
         self:setState("MENU")
     end
@@ -195,6 +213,10 @@ function World:closeMenu()
             self.menu:close()
         end
     end
+    self:afterMenuClosed()
+end
+
+function World:afterMenuClosed()
     self:hideHealthBars()
     self.menu = nil
     self:setState("GAMEPLAY")
