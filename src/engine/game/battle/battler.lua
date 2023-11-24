@@ -69,21 +69,19 @@ function Battler:flash(sprite, offset_x, offset_y, layer)
     return sprite_to_use:flash(offset_x, offset_y, layer)
 end
 
-function Battler:alert(callback, duration, offset_x, offset_y, play_sound, sprite, layer)
-    if play_sound == nil then play_sound = true end
-    if play_sound then
+function Battler:alert(duration, options)
+    options = options or {}
+    if options["play_sound"] == nil or options["play_sound"] then
         Assets.stopAndPlaySound("alert")
     end
-    local sprite_to_use = sprite or "effects/alert"
-    if offset_x == nil then offset_x = 0 end
-    if offset_y == nil then offset_y = 0 end
-    self.alert_timer = duration or 20
+    local sprite_to_use = options["sprite"] or "effects/alert"
+    self.alert_timer = duration and duration*30 or 20
     if self.alert_icon then self.alert_icon:remove() end
-    self.alert_icon = Sprite(sprite_to_use, (self.width/2)+offset_x, offset_y)
+    self.alert_icon = Sprite(sprite_to_use, (self.width/2)+(options["offset_x"] or 0), options["offset_y"] or 0)
     self.alert_icon:setOrigin(0.5, 1)
-    self.alert_icon.layer = layer or 100
+    self.alert_icon.layer = options["layer"] or 100
     self:addChild(self.alert_icon)
-    self.alert_callback = callback
+    self.alert_callback = options["callback"]
     return self.alert_icon
 end
 
