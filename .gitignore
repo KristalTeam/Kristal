@@ -10,4 +10,6 @@ mods/*
 build/
 output/
 
+docs.json
+
 *.tiled-session
