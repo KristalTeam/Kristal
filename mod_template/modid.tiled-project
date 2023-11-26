@@ -2,11 +2,13 @@
     "automappingRulesFile": "",
     "commands": [
     ],
+    "compatibilityVersion": 1100,
     "extensionsPath": "extensions",
     "folders": [
-        "scripts/world"
+        "."
     ],
-    "objectTypesFile": "",
+    "properties": [
+    ],
     "propertyTypes": [
     ]
 }
