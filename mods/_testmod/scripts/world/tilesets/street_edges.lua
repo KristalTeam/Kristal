@@ -1,17 +1,20 @@
 return {
-  version = "1.5",
+  version = "1.10",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.10.2",
   name = "street_edges",
+  class = "",
   tilewidth = 40,
   tileheight = 40,
-  spacing = 4,
-  margin = 2,
-  columns = 14,
+  spacing = 0,
+  margin = 0,
+  columns = 13,
   image = "../../../assets/sprites/tilesets/street_edges.png",
-  imagewidth = 616,
-  imageheight = 660,
+  imagewidth = 520,
+  imageheight = 640,
   objectalignment = "unspecified",
+  tilerendersize = "tile",
+  fillmode = "stretch",
   tileoffset = {
     x = 0,
     y = 0
@@ -23,6 +26,6 @@ return {
   },
   properties = {},
   wangsets = {},
-  tilecount = 210,
+  tilecount = 208,
   tiles = {}
 }

@@ -1,7 +1,8 @@
 return {
-  version = "1.5",
+  version = "1.10",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.10.2",
+  class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 20,
@@ -9,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 6,
-  nextobjectid = 37,
+  nextobjectid = 30,
   properties = {
     ["name"] = "Test Map - Room 1"
   },
@@ -17,7 +18,8 @@ return {
     {
       name = "castle",
       firstgid = 1,
-      filename = "../tilesets/castle.tsx"
+      filename = "../tilesets/castle.tsx",
+      exportfilename = "../tilesets/castle.lua"
     }
   },
   layers = {
@@ -29,6 +31,7 @@ return {
       height = 24,
       id = 1,
       name = "tiles",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -53,7 +56,7 @@ return {
         0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 18, 19, 20, 0,
         0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 22, 23, 24, 0,
-        0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 22, 9, 24, 0,
+        0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 22, 1, 24, 0,
         0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0,
         0, 0, 0, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 10, 11, 12, 0,
         0, 6, 7, 7, 7, 7, 11, 11, 11, 7, 7, 7, 7, 7, 7, 7, 11, 11, 12, 0,
@@ -72,6 +75,7 @@ return {
       height = 24,
       id = 2,
       name = "decal",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -112,6 +116,7 @@ return {
       draworder = "topdown",
       id = 3,
       name = "collision",
+      class = "",
       visible = true,
       opacity = 0.5,
       offsetx = 0,
@@ -277,7 +282,7 @@ return {
           properties = {}
         },
         {
-          id = 14,
+          id = 13,
           name = "",
           type = "",
           shape = "rectangle",
@@ -290,7 +295,7 @@ return {
           properties = {}
         },
         {
-          id = 15,
+          id = 14,
           name = "",
           type = "",
           shape = "rectangle",
@@ -303,7 +308,7 @@ return {
           properties = {}
         },
         {
-          id = 16,
+          id = 15,
           name = "",
           type = "",
           shape = "rectangle",
@@ -316,7 +321,7 @@ return {
           properties = {}
         },
         {
-          id = 17,
+          id = 16,
           name = "",
           type = "",
           shape = "rectangle",
@@ -329,7 +334,7 @@ return {
           properties = {}
         },
         {
-          id = 18,
+          id = 17,
           name = "",
           type = "",
           shape = "rectangle",
@@ -342,7 +347,7 @@ return {
           properties = {}
         },
         {
-          id = 23,
+          id = 18,
           name = "",
           type = "",
           shape = "rectangle",
@@ -355,7 +360,7 @@ return {
           properties = {}
         },
         {
-          id = 24,
+          id = 19,
           name = "",
           type = "",
           shape = "rectangle",
@@ -368,7 +373,7 @@ return {
           properties = {}
         },
         {
-          id = 25,
+          id = 20,
           name = "",
           type = "",
           shape = "rectangle",
@@ -381,7 +386,7 @@ return {
           properties = {}
         },
         {
-          id = 26,
+          id = 21,
           name = "",
           type = "",
           shape = "rectangle",
@@ -400,6 +405,7 @@ return {
       draworder = "topdown",
       id = 4,
       name = "objects",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -409,7 +415,7 @@ return {
       properties = {},
       objects = {
         {
-          id = 19,
+          id = 22,
           name = "npc",
           type = "",
           shape = "rectangle",
@@ -426,7 +432,7 @@ return {
           }
         },
         {
-          id = 27,
+          id = 23,
           name = "savepoint",
           type = "",
           shape = "rectangle",
@@ -442,7 +448,7 @@ return {
           }
         },
         {
-          id = 28,
+          id = 24,
           name = "squeak",
           type = "",
           shape = "rectangle",
@@ -455,7 +461,7 @@ return {
           properties = {}
         },
         {
-          id = 29,
+          id = 25,
           name = "transition",
           type = "",
           shape = "rectangle",
@@ -471,7 +477,7 @@ return {
           }
         },
         {
-          id = 33,
+          id = 26,
           name = "interactable",
           type = "",
           shape = "rectangle",
@@ -485,9 +491,25 @@ return {
             ["cutscene"] = "room1.wall",
             ["once"] = true
           }
-        },
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
+      id = 5,
+      name = "markers",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
         {
-          id = 35,
+          id = 27,
           name = "npc",
           type = "",
           shape = "point",
@@ -502,24 +524,9 @@ return {
             ["flagcheck"] = "wall_hit",
             ["text1"] = "* I Am the Wall Guardian.[wait:5]\n* This Wall is Off Limits for you\nno-good wall slammers."
           }
-        }
-      }
-    },
-    {
-      type = "objectgroup",
-      draworder = "topdown",
-      id = 5,
-      name = "markers",
-      visible = true,
-      opacity = 1,
-      offsetx = 0,
-      offsety = 0,
-      parallaxx = 1,
-      parallaxy = 1,
-      properties = {},
-      objects = {
+        },
         {
-          id = 20,
+          id = 28,
           name = "spawn",
           type = "",
           shape = "point",
@@ -532,7 +539,7 @@ return {
           properties = {}
         },
         {
-          id = 30,
+          id = 29,
           name = "entry",
           type = "",
           shape = "point",

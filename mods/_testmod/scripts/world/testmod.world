@@ -1,25 +1,60 @@
 {
     "maps": [
         {
-            "fileName": "maps/alley3.tmx",
-            "height": 560,
-            "width": 1080,
-            "x": 2360,
-            "y": 1600
+            "fileName": "maps/alley2/alley2.tmx",
+            "height": 1600,
+            "width": 1200,
+            "x": 0,
+            "y": 0
         },
         {
             "fileName": "maps/alley.tmx",
             "height": 480,
             "width": 840,
-            "x": 1080,
-            "y": 0
+            "x": -80,
+            "y": -560
         },
         {
-            "fileName": "maps/alley2/alley2.tmx",
-            "height": 1600,
-            "width": 1200,
-            "x": 1160,
-            "y": 480
+            "fileName": "maps/alley3.tmx",
+            "height": 560,
+            "width": 1080,
+            "x": 1280,
+            "y": 1120
+        },
+        {
+            "fileName": "maps/alley4.tmx",
+            "height": 680,
+            "width": 1240,
+            "x": -1320,
+            "y": 1000
+        },
+        {
+            "fileName": "maps/16x16test.tmx",
+            "height": 480,
+            "width": 640,
+            "x": -80,
+            "y": -1064
+        },
+        {
+            "fileName": "maps/fountain.tmx",
+            "height": 480,
+            "width": 640,
+            "x": 2400,
+            "y": 1200
+        },
+        {
+            "fileName": "maps/light.tmx",
+            "height": 680,
+            "width": 1240,
+            "x": -1320,
+            "y": 1720
+        },
+        {
+            "fileName": "maps/test1.tmx",
+            "height": 960,
+            "width": 1280,
+            "x": 0,
+            "y": 1720
         }
     ],
     "onlyShowAdjacentMaps": false,
