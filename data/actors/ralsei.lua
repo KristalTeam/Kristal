@@ -130,7 +130,8 @@ function actor:initChapter1()
         ["reveal"] = {-2, -2},
         ["sing"] = {-10, -2},
         ["sit"] = {0, 0},
-        ["shock"] = {-17, -4}
+        ["shock"] = {-17, -4},
+        ["fallen"] = {-8, 20}
     }
 end
 
