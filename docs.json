@@ -1,0 +1,3203 @@
+{
+    "api": {
+        "classes": {
+            "love": {
+                "name": "love",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {}
+            },
+            "Draw": {
+                "name": "Draw",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "clear": {
+                        "name": "clear",
+                        "type": "boolean|nil",
+                        "description": ""
+                    },
+                    "stencil": {
+                        "name": "stencil",
+                        "type": "boolean|nil",
+                        "description": ""
+                    },
+                    "keep_transform": {
+                        "name": "keep_transform",
+                        "type": "boolean|nil",
+                        "description": ""
+                    }
+                }
+            },
+            "Assets": {
+                "name": "Assets",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "texture": {
+                        "name": "texture",
+                        "type": "table",
+                        "description": "<string, love.Image>"
+                    },
+                    "texture_data": {
+                        "name": "texture_data",
+                        "type": "table",
+                        "description": "<string, love.ImageData>"
+                    },
+                    "frames": {
+                        "name": "frames",
+                        "type": "table",
+                        "description": "<string, love.Image[]>"
+                    },
+                    "frame_ids": {
+                        "name": "frame_ids",
+                        "type": "table",
+                        "description": "<string, string[]>"
+                    },
+                    "fonts": {
+                        "name": "fonts",
+                        "type": "table",
+                        "description": "<string, love.Font|{default: number, [number]: love.Font}>"
+                    },
+                    "font_data": {
+                        "name": "font_data",
+                        "type": "table",
+                        "description": "<string, love.Data>"
+                    },
+                    "font_image_data": {
+                        "name": "font_image_data",
+                        "type": "table",
+                        "description": "<string, love.ImageData>"
+                    },
+                    "font_settings": {
+                        "name": "font_settings",
+                        "type": "table",
+                        "description": "<string, table>"
+                    },
+                    "sound_data": {
+                        "name": "sound_data",
+                        "type": "table",
+                        "description": "<string, love.SoundData>"
+                    },
+                    "music": {
+                        "name": "music",
+                        "type": "table",
+                        "description": "<string, string>"
+                    },
+                    "videos": {
+                        "name": "videos",
+                        "type": "table",
+                        "description": "<string, string>"
+                    },
+                    "bubble_settings": {
+                        "name": "bubble_settings",
+                        "type": "table",
+                        "description": "<string, table>"
+                    }
+                }
+            },
+            "Music": {
+                "name": "Music",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {
+                    "volume": {
+                        "name": "volume",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "pitch": {
+                        "name": "pitch",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "looping": {
+                        "name": "looping",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "started": {
+                        "name": "started",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "target_volume": {
+                        "name": "target_volume",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "fade_speed": {
+                        "name": "fade_speed",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "fade_callback": {
+                        "name": "fade_callback",
+                        "type": "fun",
+                        "description": "(music:Music)|nil"
+                    },
+                    "removed": {
+                        "name": "removed",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "current": {
+                        "name": "current",
+                        "type": "string|nil",
+                        "description": ""
+                    },
+                    "source": {
+                        "name": "source",
+                        "type": "love",
+                        "description": ".Source|nil"
+                    }
+                }
+            },
+            "Input": {
+                "name": "Input",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "active_gamepad": {
+                        "name": "active_gamepad",
+                        "type": "love",
+                        "description": ".Joystick"
+                    },
+                    "connected_gamepad": {
+                        "name": "connected_gamepad",
+                        "type": "love",
+                        "description": ".Joystick"
+                    },
+                    "gamepad_left_x": {
+                        "name": "gamepad_left_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_left_y": {
+                        "name": "gamepad_left_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_right_x": {
+                        "name": "gamepad_right_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_right_y": {
+                        "name": "gamepad_right_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_left_trigger": {
+                        "name": "gamepad_left_trigger",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_right_trigger": {
+                        "name": "gamepad_right_trigger",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "key_down": {
+                        "name": "key_down",
+                        "type": "table",
+                        "description": "<string, boolean>"
+                    },
+                    "key_pressed": {
+                        "name": "key_pressed",
+                        "type": "table",
+                        "description": "<string, boolean>"
+                    },
+                    "key_repeated": {
+                        "name": "key_repeated",
+                        "type": "table",
+                        "description": "<string, boolean>"
+                    },
+                    "key_released": {
+                        "name": "key_released",
+                        "type": "table",
+                        "description": "<string, boolean>"
+                    },
+                    "key_down_timer": {
+                        "name": "key_down_timer",
+                        "type": "table",
+                        "description": "<string, number>"
+                    },
+                    "key_bindings": {
+                        "name": "key_bindings",
+                        "type": "table",
+                        "description": "<string, (string|string[])[]>"
+                    },
+                    "gamepad_bindings": {
+                        "name": "gamepad_bindings",
+                        "type": "table",
+                        "description": "<string, (string|string[])[]>"
+                    },
+                    "gamepad_locked": {
+                        "name": "gamepad_locked",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "gamepad_cursor_size": {
+                        "name": "gamepad_cursor_size",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_cursor_x": {
+                        "name": "gamepad_cursor_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "gamepad_cursor_y": {
+                        "name": "gamepad_cursor_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "order": {
+                        "name": "order",
+                        "type": "string",
+                        "description": "[]"
+                    },
+                    "required_binds": {
+                        "name": "required_binds",
+                        "type": "table",
+                        "description": "<string, boolean>"
+                    },
+                    "key_groups": {
+                        "name": "key_groups",
+                        "type": "table",
+                        "description": "<string, string[]>"
+                    },
+                    "group_for_key": {
+                        "name": "group_for_key",
+                        "type": "table",
+                        "description": "<string, string>"
+                    },
+                    "component_stack": {
+                        "name": "component_stack",
+                        "type": "Component",
+                        "description": "[]"
+                    },
+                    "button_sprites": {
+                        "name": "button_sprites",
+                        "type": "table",
+                        "description": "<string, string|{switch:string|nil, ps4:string|nil, xbox:string|nil}>"
+                    }
+                }
+            },
+            "TextInput": {
+                "name": "TextInput",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "x": {
+                        "name": "x",
+                        "type": "number",
+                        "description": "?"
+                    },
+                    "y": {
+                        "name": "y",
+                        "type": "number",
+                        "description": "?"
+                    },
+                    "font": {
+                        "name": "font",
+                        "type": "love",
+                        "description": ".Font?"
+                    },
+                    "print": {
+                        "name": "print",
+                        "type": "fun",
+                        "description": "(text:string, x:number, y:number)?"
+                    }
+                }
+            },
+            "Registry": {
+                "name": "Registry",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "paths": {
+                        "name": "paths",
+                        "type": "table",
+                        "description": "<string, string>"
+                    },
+                    "base_scripts": {
+                        "name": "base_scripts",
+                        "type": "table",
+                        "description": "<string, function>"
+                    },
+                    "preload": {
+                        "name": "preload",
+                        "type": "boolean",
+                        "description": "?"
+                    },
+                    "new_globals": {
+                        "name": "new_globals",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "last_globals": {
+                        "name": "last_globals",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "objects": {
+                        "name": "objects",
+                        "type": "table",
+                        "description": "<string, Object>"
+                    },
+                    "draw_fx": {
+                        "name": "draw_fx",
+                        "type": "table",
+                        "description": "<string, DrawFX>"
+                    },
+                    "actors": {
+                        "name": "actors",
+                        "type": "table",
+                        "description": "<string, Actor>"
+                    },
+                    "items": {
+                        "name": "items",
+                        "type": "table",
+                        "description": "<string, Item>"
+                    },
+                    "spells": {
+                        "name": "spells",
+                        "type": "table",
+                        "description": "<string, Spell>"
+                    },
+                    "party_members": {
+                        "name": "party_members",
+                        "type": "table",
+                        "description": "<string, PartyMember>"
+                    },
+                    "encounters": {
+                        "name": "encounters",
+                        "type": "table",
+                        "description": "<string, Encounter>"
+                    },
+                    "enemies": {
+                        "name": "enemies",
+                        "type": "table",
+                        "description": "<string, EnemyBattler>"
+                    },
+                    "waves": {
+                        "name": "waves",
+                        "type": "table",
+                        "description": "<string, Wave>"
+                    },
+                    "bullets": {
+                        "name": "bullets",
+                        "type": "table",
+                        "description": "<string, Bullet>"
+                    },
+                    "world_bullets": {
+                        "name": "world_bullets",
+                        "type": "table",
+                        "description": "<string, WorldBullet>"
+                    },
+                    "world_cutscenes": {
+                        "name": "world_cutscenes",
+                        "type": "table",
+                        "description": "<string, function|table<string, function>>"
+                    },
+                    "battle_cutscenes": {
+                        "name": "battle_cutscenes",
+                        "type": "table",
+                        "description": "<string, function|table<string, function>>"
+                    },
+                    "event_scripts": {
+                        "name": "event_scripts",
+                        "type": "table",
+                        "description": "<string, function|table<string, function>>"
+                    },
+                    "tilesets": {
+                        "name": "tilesets",
+                        "type": "table",
+                        "description": "<string, Tileset>"
+                    },
+                    "maps": {
+                        "name": "maps",
+                        "type": "table",
+                        "description": "<string, Map>"
+                    },
+                    "map_data": {
+                        "name": "map_data",
+                        "type": "table",
+                        "description": "<string, table> -- TODO: Document map data"
+                    },
+                    "events": {
+                        "name": "events",
+                        "type": "table",
+                        "description": "<string, Event|Object>"
+                    },
+                    "controllers": {
+                        "name": "controllers",
+                        "type": "table",
+                        "description": "<string, Event|Object>"
+                    },
+                    "shops": {
+                        "name": "shops",
+                        "type": "table",
+                        "description": "<string, Shop>"
+                    }
+                }
+            },
+            "Camera": {
+                "name": "Camera",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "value": {
+                        "name": "value",
+                        "type": "any",
+                        "description": ""
+                    },
+                    "state": {
+                        "name": "state",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "x": {
+                        "name": "x",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "y": {
+                        "name": "y",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "Object": {
+                "name": "Object",
+                "description": "The base class of all objects in Kristal. \\\nWhen added to the stage, an object will be updated and rendered.",
+                "extends": "Class",
+                "methods": {},
+                "fields": {
+                    "x": {
+                        "name": "x",
+                        "type": "number",
+                        "description": "The horizontal position of the object, relative to its parent."
+                    },
+                    "y": {
+                        "name": "y",
+                        "type": "number",
+                        "description": "The vertical position of the object, relative to its parent."
+                    },
+                    "width": {
+                        "name": "width",
+                        "type": "number",
+                        "description": "The width of the object."
+                    },
+                    "height": {
+                        "name": "height",
+                        "type": "number",
+                        "description": "The height of the object."
+                    },
+                    "init_x": {
+                        "name": "init_x",
+                        "type": "number",
+                        "description": "The horizontal position of the object when it was created."
+                    },
+                    "init_y": {
+                        "name": "init_y",
+                        "type": "number",
+                        "description": "The vertical position of the object when it was created."
+                    },
+                    "last_x": {
+                        "name": "last_x",
+                        "type": "number",
+                        "description": "The horizontal position of the object in the previous frame."
+                    },
+                    "last_y": {
+                        "name": "last_y",
+                        "type": "number",
+                        "description": "The vertical position of the object in the previous frame."
+                    },
+                    "color": {
+                        "name": "color",
+                        "type": "table",
+                        "description": "The color of the object in the form {R, G, B}. \\\nThe values of R, G, and B are between 0 and 1."
+                    },
+                    "alpha": {
+                        "name": "alpha",
+                        "type": "number",
+                        "description": "The alpha transparency of the object, between 0 (invisible) and 1 (fully visible)."
+                    },
+                    "scale_x": {
+                        "name": "scale_x",
+                        "type": "number",
+                        "description": "The horizontal scale of the object."
+                    },
+                    "scale_y": {
+                        "name": "scale_y",
+                        "type": "number",
+                        "description": "The vertical scale of the object."
+                    },
+                    "rotation": {
+                        "name": "rotation",
+                        "type": "number",
+                        "description": "The rotation of the object, in radians. (`0` is right, positive is clockwise)"
+                    },
+                    "flip_x": {
+                        "name": "flip_x",
+                        "type": "boolean",
+                        "description": "Whether the object is flipped horizontally."
+                    },
+                    "flip_y": {
+                        "name": "flip_y",
+                        "type": "boolean",
+                        "description": "Whether the object is flipped vertically."
+                    },
+                    "inherit_color": {
+                        "name": "inherit_color",
+                        "type": "boolean",
+                        "description": "Whether the object's color will be multiplied by its parent's color."
+                    },
+                    "physics": {
+                        "name": "physics",
+                        "type": "physics_table",
+                        "description": "A table of data, defining ways the object should automatically move when updating."
+                    },
+                    "graphics": {
+                        "name": "graphics",
+                        "type": "graphics_table",
+                        "description": "A table of data, defining ways the object's properties should automatically update."
+                    },
+                    "origin_x": {
+                        "name": "origin_x",
+                        "type": "number",
+                        "description": "The horizontal origin of the object. \\\nOrigin is used to define the point that the object is scaled, rotated, and positioned from. \\\nThis determines where the position (0, 0) is within the object. \\\n\\\nIf `origin_exact` is false, the origin will be a ratio relative to the object's `width` and `height`, meaning an origin of 0.5, 0.5 will cause the object to be centered. \\\nIf it is true, then the origin will be measured in exact pixels."
+                    },
+                    "origin_y": {
+                        "name": "origin_y",
+                        "type": "number",
+                        "description": "The vertical origin of the object. \\\nOrigin is used to define the point that the object is scaled, rotated, and positioned from. \\\nThis determines where the position (0, 0) is within the object. \\\n\\\nIf `origin_exact` is false, the origin will be a ratio relative to the object's `width` and `height`, meaning an origin of 0.5, 0.5 will cause the object to be centered. \\\nIf it is true, then the origin will be measured in exact pixels."
+                    },
+                    "origin_exact": {
+                        "name": "origin_exact",
+                        "type": "boolean",
+                        "description": "Whether the object's origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)"
+                    },
+                    "scale_origin_x": {
+                        "name": "scale_origin_x",
+                        "type": "number|nil",
+                        "description": "The horizontal scale origin of the object. \\\nScale origin overrides the object's origin, and defines where the object will scale from."
+                    },
+                    "scale_origin_y": {
+                        "name": "scale_origin_y",
+                        "type": "number|nil",
+                        "description": "The vertical scale origin of the object. \\\nScale origin overrides the object's origin, and defines where the object will scale from."
+                    },
+                    "scale_origin_exact": {
+                        "name": "scale_origin_exact",
+                        "type": "boolean",
+                        "description": "Whether the object's scale origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)"
+                    },
+                    "rotation_origin_x": {
+                        "name": "rotation_origin_x",
+                        "type": "number|nil",
+                        "description": "The horizontal rotation origin of the object. \\\nRotation origin overrides the object's origin, and defines where the object will rotate from."
+                    },
+                    "rotation_origin_y": {
+                        "name": "rotation_origin_y",
+                        "type": "number|nil",
+                        "description": "The vertical rotation origin of the object. \\\nRotation origin overrides the object's origin, and defines where the object will rotate from."
+                    },
+                    "rotation_origin_exact": {
+                        "name": "rotation_origin_exact",
+                        "type": "boolean",
+                        "description": "Whether the object's rotation origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)"
+                    },
+                    "camera_origin_x": {
+                        "name": "camera_origin_x",
+                        "type": "number",
+                        "description": "The horizontal camera origin of the object. (Defaults to 0.5) \\\nCamera origin defines what position on the object a camera attached to it should follow."
+                    },
+                    "camera_origin_y": {
+                        "name": "camera_origin_y",
+                        "type": "number",
+                        "description": "The vertical camera origin of the object. (Defaults to 0.5) \\\nCamera origin defines what position on the object a camera attached to it should follow."
+                    },
+                    "camera_origin_exact": {
+                        "name": "camera_origin_exact",
+                        "type": "boolean",
+                        "description": "Whether the object's camera origin is measured as a ratio of its `width` and `height`, or in exact pixels. (Defaults to false)"
+                    },
+                    "parallax_x": {
+                        "name": "parallax_x",
+                        "type": "number|nil",
+                        "description": "How much an object's position will be affected by the camera horizontally. \\\nA value of 1 means it fully moves with the camera (aka default behavior), and a value of 0 means it will not move at all when the camera moves. \\\nParallax will only affect an object if its parent has a camera."
+                    },
+                    "parallax_y": {
+                        "name": "parallax_y",
+                        "type": "number|nil",
+                        "description": "How much an object's position will be affected by the camera vertically. \\\nA value of 1 means it fully moves with the camera (aka default behavior), and a value of 0 means it will not move at all when the camera moves. \\\nParallax will only affect an object if its parent has a camera."
+                    },
+                    "parallax_origin_x": {
+                        "name": "parallax_origin_x",
+                        "type": "number",
+                        "description": "The horizontal position on the object's parent that the object's parallax will orient around."
+                    },
+                    "parallax_origin_y": {
+                        "name": "parallax_origin_y",
+                        "type": "number",
+                        "description": "The vertical position on the object's parent that the object's parallax will orient around."
+                    },
+                    "camera": {
+                        "name": "camera",
+                        "type": "Camera|nil",
+                        "description": "A camera instance that will automatically move and scale the object and its children. Should be `nil` for most objects."
+                    },
+                    "cutout_left": {
+                        "name": "cutout_left",
+                        "type": "number|nil",
+                        "description": "The amount of pixels to cut from the left of the object when drawing."
+                    },
+                    "cutout_top": {
+                        "name": "cutout_top",
+                        "type": "number|nil",
+                        "description": "The amount of pixels to cut from the top of the object when drawing."
+                    },
+                    "cutout_right": {
+                        "name": "cutout_right",
+                        "type": "number|nil",
+                        "description": "The amount of pixels to cut from the right of the object when drawing."
+                    },
+                    "cutout_bottom": {
+                        "name": "cutout_bottom",
+                        "type": "number|nil",
+                        "description": "The amount of pixels to cut from the bottom of the object when drawing."
+                    },
+                    "draw_fx": {
+                        "name": "draw_fx",
+                        "type": "table",
+                        "description": "A list of all DrawFX that are being applied to the object."
+                    },
+                    "debug_select": {
+                        "name": "debug_select",
+                        "type": "boolean",
+                        "description": "Whether the object can be selected by the Object Selection debug feature. (Defaults to true)"
+                    },
+                    "debug_rect": {
+                        "name": "debug_rect",
+                        "type": "table|nil",
+                        "description": "Defines the rectangle used for selecting the object with the Object Selection debug feature."
+                    },
+                    "timescale": {
+                        "name": "timescale",
+                        "type": "number",
+                        "description": "A multiplier that determines the speed at which the object updates."
+                    },
+                    "layer": {
+                        "name": "layer",
+                        "type": "number",
+                        "description": "The layer of the object within its parent. \\\nObjects update and draw their children in order sorted by layer. Objects with a higher layer will update and draw later than objects with lower layers. \\\n\\\nAll children of an object will draw at the same visual layer as the parent. In other words, a child cannot render above an object that is higher than its parent, even if its own layer is higher."
+                    },
+                    "collider": {
+                        "name": "collider",
+                        "type": "Collider|nil",
+                        "description": "A Collider class used to check collision with other objects."
+                    },
+                    "collidable": {
+                        "name": "collidable",
+                        "type": "boolean",
+                        "description": "Whether the object should be able to collide with other objects."
+                    },
+                    "active": {
+                        "name": "active",
+                        "type": "boolean",
+                        "description": "Whether the object should update itself and its children."
+                    },
+                    "visible": {
+                        "name": "visible",
+                        "type": "boolean",
+                        "description": "Whether the object should draw itself and its children."
+                    },
+                    "draw_children_below": {
+                        "name": "draw_children_below",
+                        "type": "number|nil",
+                        "description": "If defined, children with a layer less than this value will be drawn underneath the object."
+                    },
+                    "draw_children_above": {
+                        "name": "draw_children_above",
+                        "type": "number|nil",
+                        "description": "If defined, children with a layer greater than this value will be drawn above the object."
+                    },
+                    "_dont_draw_children": {
+                        "name": "_dont_draw_children",
+                        "type": "boolean",
+                        "description": "*(Used internally)* Whether the object should draw its children or not."
+                    },
+                    "update_child_list": {
+                        "name": "update_child_list",
+                        "type": "boolean",
+                        "description": "*(Used internally)* If true, the object will re-sort its children list."
+                    },
+                    "children_to_remove": {
+                        "name": "children_to_remove",
+                        "type": "table",
+                        "description": "*(Used internally)* A list of children for the object to remove next time it updates."
+                    },
+                    "parent": {
+                        "name": "parent",
+                        "type": "Object|nil",
+                        "description": "The object's parent."
+                    },
+                    "children": {
+                        "name": "children",
+                        "type": "table",
+                        "description": "A list of all of this object's children."
+                    }
+                }
+            },
+            "physics_table": {
+                "name": "physics_table",
+                "description": "Begin caching the transforms of all objects. \\\nThis should be called before any collision checks, and ended with Object.endCache(). \\\nIf an object is moved mid-cache, call Object.uncache() on it.\nEnd caching the transforms of all objects (started with Object.startCache()).\n*(Called internally)* Clears all cached transforms, and force-stops caching.\nUncache an object's transform, if Object.startCache() is active. \\\nThis recalculates the object's transform and all of its children, incase it was moved.\n*(Called internally)* Uncaches an object's full transform, including all of its children.\n*(Override)* Called every frame by its parent if the object is active. \\\nBy default, updates its physics and graphics tables, and its children.\n*(Override)* Called every frame by its parent during drawing if the object is visible. \\\nBy default, draws its children.\n*(Override)* Called when the object is added to a parent object via `parent:addChild(self)` or `self:setParent(parent)`.\n*(Override)* Called when the object is removed from its parent object via `self:remove()`, `parent:removeChild(self)`, or `self:setParent(new_parent)`.\n*(Override)* Called when the object is first added to the Game stage, via `parent:addChild(self)` or `self:setParent(parent)`. \\\nWill not be called when changing to a new parent via `self:setParent(new_parent)` if the object had a parent prior.\n*(Override)* Called when the object is removed from the Game stage via `self:remove()` or `parent:removeChild(self)`. \\\nWill not be called when changing to a new parent via `self:setParent(new_parent)`.",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "speed_x": {
+                        "name": "speed_x",
+                        "type": "number",
+                        "description": "The horizontal speed of the object, in pixels per frame at 30FPS."
+                    },
+                    "speed_y": {
+                        "name": "speed_y",
+                        "type": "number",
+                        "description": "The vertical speed of the object, in pixels per frame at 30FPS."
+                    },
+                    "speed": {
+                        "name": "speed",
+                        "type": "number",
+                        "description": "The speed the object will move in the angle of its direction, in pixels per frame at 30FPS."
+                    },
+                    "direction": {
+                        "name": "direction",
+                        "type": "number",
+                        "description": "The angle at which the object will move, in radians."
+                    },
+                    "friction": {
+                        "name": "friction",
+                        "type": "number",
+                        "description": "The amount the object's speed will slow down, per frame at 30FPS."
+                    },
+                    "gravity": {
+                        "name": "gravity",
+                        "type": "number",
+                        "description": "The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS."
+                    },
+                    "gravity_direction": {
+                        "name": "gravity_direction",
+                        "type": "number",
+                        "description": "The angle at which the object's gravity will accelerate towards, in radians."
+                    },
+                    "spin": {
+                        "name": "spin",
+                        "type": "number",
+                        "description": "The amount this object's direction will change, in radians per frame at 30FPS."
+                    },
+                    "match_rotation": {
+                        "name": "match_rotation",
+                        "type": "boolean",
+                        "description": "Whether the object's rotation should also define its direction. (Defaults to false)"
+                    }
+                }
+            },
+            "graphics_table": {
+                "name": "graphics_table",
+                "description": "Resets all of the object's `physics` table values to their default values, \\\nmaking it so it will stop moving if it was before.\nResets the object's `physics` and sets new values for it.",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "fade": {
+                        "name": "fade",
+                        "type": "number",
+                        "description": "The amount the object's alpha should approach its target value, per frame at 30FPS."
+                    },
+                    "fade_to": {
+                        "name": "fade_to",
+                        "type": "number",
+                        "description": "The target alpha to approach."
+                    },
+                    "fade_callback": {
+                        "name": "fade_callback",
+                        "type": "function|nil",
+                        "description": "A function that will be called when the object's alpha reaches its target value."
+                    },
+                    "grow_x": {
+                        "name": "grow_x",
+                        "type": "number",
+                        "description": "The amount the object's `scale_x` will increase, per frame at 30FPS."
+                    },
+                    "grow_y": {
+                        "name": "grow_y",
+                        "type": "number",
+                        "description": "The amount the object's `scale_y` will increase, per frame at 30FPS."
+                    },
+                    "grow": {
+                        "name": "grow",
+                        "type": "number",
+                        "description": "The amount the object's `scale_x` and `scale_y` will increase, per frame at 30FPS."
+                    },
+                    "remove_shrunk": {
+                        "name": "remove_shrunk",
+                        "type": "boolean",
+                        "description": "If true, the object will remove itself if its scale goes below 0. (Defaults to false)"
+                    },
+                    "spin": {
+                        "name": "spin",
+                        "type": "number",
+                        "description": "The amount the object's `rotation` will change, per frame at 30FPS."
+                    },
+                    "shake_x": {
+                        "name": "shake_x",
+                        "type": "number",
+                        "description": "The amount the object will shake in the `x` axis, per frame at 30FPS."
+                    },
+                    "shake_y": {
+                        "name": "shake_y",
+                        "type": "number",
+                        "description": "The amount the object will shake in the `y` axis, per frame at 30FPS."
+                    },
+                    "shake_friction": {
+                        "name": "shake_friction",
+                        "type": "number",
+                        "description": "The amount the object's shake will slow down, per frame at 30FPS."
+                    },
+                    "shake_delay": {
+                        "name": "shake_delay",
+                        "type": "number",
+                        "description": "The time it takes for the object to invert its shake direction, in seconds."
+                    },
+                    "shake_timer": {
+                        "name": "shake_timer",
+                        "type": "number",
+                        "description": "*(Used internally)* A timer used to invert the object's shake direction."
+                    }
+                }
+            },
+            "Stage": {
+                "name": "Stage",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Sprite": {
+                "name": "Sprite",
+                "description": "A simple object that renders a texture. \\\nThis texture must be placed inside `assets/sprites/`.",
+                "extends": "Object",
+                "methods": {},
+                "fields": {
+                    "texture": {
+                        "name": "texture",
+                        "type": "love",
+                        "description": ".Image|nil   *(Read-only)* The current texture of the sprite, if it exists."
+                    },
+                    "texture_path": {
+                        "name": "texture_path",
+                        "type": "string|nil",
+                        "description": "*(Read-only)* The string ID of the current texture, if it exists."
+                    },
+                    "frames": {
+                        "name": "frames",
+                        "type": "love",
+                        "description": ".Image[]|nil *(Read-only)* The animation frames of the sprite, or `nil` if the texture has no frames."
+                    },
+                    "frame": {
+                        "name": "frame",
+                        "type": "number",
+                        "description": "*(Read-only)* The current frame of the sprite. Set with `Sprite:setFrame()`."
+                    },
+                    "path": {
+                        "name": "path",
+                        "type": "string",
+                        "description": "The base path of the sprite. \\\nAny calls to `Sprite:setSprite()` will have this path prepended to them,\\\nonly checking for textures inside this folder. \\\n**Note**: *This path is still relative to `assets/sprites/`!*"
+                    },
+                    "use_texture_size": {
+                        "name": "use_texture_size",
+                        "type": "boolean",
+                        "description": "Whether this sprite's `width` and `height` will be updated to the size of the texture. \\\nDefaults to `true` if a width and height is not specified in the constructor."
+                    },
+                    "wrap_texture_x": {
+                        "name": "wrap_texture_x",
+                        "type": "boolean",
+                        "description": "If enabled, the texture will repeat horizontally across the screen."
+                    },
+                    "wrap_texture_y": {
+                        "name": "wrap_texture_y",
+                        "type": "boolean",
+                        "description": "If enabled, the texture will repeat vertically across the screen."
+                    },
+                    "loop": {
+                        "name": "loop",
+                        "type": "boolean",
+                        "description": "Whether the sprite will continuously loop its animation. (Defaults to `false`)"
+                    },
+                    "playing": {
+                        "name": "playing",
+                        "type": "boolean",
+                        "description": "*(Read-only)* Whether an animation is currently playing."
+                    },
+                    "anim_speed": {
+                        "name": "anim_speed",
+                        "type": "number",
+                        "description": "A multiplier for how fast the sprite animates. (Defaults to `1`)"
+                    },
+                    "anim_sprite": {
+                        "name": "anim_sprite",
+                        "type": "string",
+                        "description": "*(Read-only)* The name of the sprite used in the current animation."
+                    },
+                    "anim_delay": {
+                        "name": "anim_delay",
+                        "type": "number",
+                        "description": "*(Read-only)* The delay between frames in the current animation."
+                    },
+                    "anim_frames": {
+                        "name": "anim_frames",
+                        "type": "number",
+                        "description": "[]|nil *(Read-only)* A list of frame indexes the current animation loops through. If `nil`, the animation loops through all frames."
+                    },
+                    "anim_duration": {
+                        "name": "anim_duration",
+                        "type": "number",
+                        "description": "*(Read-only)* The duration of the current animation. If greater than 0, the animation will stop after this many seconds."
+                    },
+                    "anim_waiting": {
+                        "name": "anim_waiting",
+                        "type": "number",
+                        "description": "*(Read-only)* Set by the `wait` function of an animation routine. The amount of time left until the animation continues."
+                    },
+                    "anim_callback": {
+                        "name": "anim_callback",
+                        "type": "Sprite",
+                        "description": ".anim_callback|nil  A function that is called when the current animation finishes."
+                    },
+                    "anim_routine": {
+                        "name": "anim_routine",
+                        "type": "thread|nil",
+                        "description": "*(Read-only)* The coroutine of the current sprite animation."
+                    },
+                    "anim_routine_func": {
+                        "name": "anim_routine_func",
+                        "type": "Sprite",
+                        "description": ".anim_func|nil      *(Read-only)* The function of the current sprite animation."
+                    },
+                    "anim_wait_func": {
+                        "name": "anim_wait_func",
+                        "type": "Sprite",
+                        "description": ".wait_func          *(Read-only)* The function used to wait for the next frame of the animation."
+                    }
+                }
+            },
+            "Text": {
+                "name": "Text",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DialogueText": {
+                "name": "DialogueText",
+                "description": "",
+                "extends": "Text",
+                "methods": {},
+                "fields": {}
+            },
+            "Explosion": {
+                "name": "Explosion",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "AfterImage": {
+                "name": "AfterImage",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "FakeClone": {
+                "name": "FakeClone",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Rectangle": {
+                "name": "Rectangle",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Ellipse": {
+                "name": "Ellipse",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Fader": {
+                "name": "Fader",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "HPText": {
+                "name": "HPText",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Timer": {
+                "name": "Timer",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "StateManager": {
+                "name": "StateManager",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "StateClass": {
+                "name": "StateClass",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {
+                    "parent": {
+                        "name": "parent",
+                        "type": "StateManager",
+                        "description": ""
+                    },
+                    "registered_events": {
+                        "name": "registered_events",
+                        "type": "table",
+                        "description": "<string, function>|nil"
+                    }
+                }
+            },
+            "Anchor": {
+                "name": "Anchor",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Callback": {
+                "name": "Callback",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Video": {
+                "name": "Video",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "GonerChoice": {
+                "name": "GonerChoice",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "GonerKeyboard": {
+                "name": "GonerKeyboard",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "MainMenuTitle": {
+                "name": "MainMenuTitle",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "logo": {
+                        "name": "logo",
+                        "type": "love",
+                        "description": ".Image"
+                    },
+                    "has_target_saves": {
+                        "name": "has_target_saves",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "options": {
+                        "name": "options",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "selected_option": {
+                        "name": "selected_option",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "null": {
+                "name": null,
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "state": {
+                        "name": "state",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "state_manager": {
+                        "name": "state_manager",
+                        "type": "StateManager",
+                        "description": ""
+                    },
+                    "options": {
+                        "name": "options",
+                        "type": "table",
+                        "description": "<string, {id: string, name: string, options: {name: string, value: (fun(x:number, y:number):any)|nil, callback: fun()}[]}>"
+                    },
+                    "pages": {
+                        "name": "pages",
+                        "type": "string",
+                        "description": "[]"
+                    },
+                    "selected_option": {
+                        "name": "selected_option",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "selected_page": {
+                        "name": "selected_page",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "heart_x": {
+                        "name": "heart_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_target_y": {
+                        "name": "scroll_target_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_y": {
+                        "name": "scroll_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "page_scroll_direction": {
+                        "name": "page_scroll_direction",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "page_scroll_timer": {
+                        "name": "page_scroll_timer",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "noise_timer": {
+                        "name": "noise_timer",
+                        "type": "number",
+                        "description": ""
+                    }
+                },
+                "description": ""
+            },
+            "MainMenuCredits": {
+                "name": "MainMenuCredits",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "selected_page": {
+                        "name": "selected_page",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_direction": {
+                        "name": "scroll_direction",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "scroll_timer": {
+                        "name": "scroll_timer",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuModList": {
+                "name": "MainMenuModList",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "list": {
+                        "name": "list",
+                        "type": "ModList",
+                        "description": ""
+                    },
+                    "mods": {
+                        "name": "mods",
+                        "type": "table",
+                        "description": "[]"
+                    },
+                    "fades": {
+                        "name": "fades",
+                        "type": "table",
+                        "description": "<string, number>"
+                    },
+                    "music": {
+                        "name": "music",
+                        "type": "table",
+                        "description": "<string, Music>"
+                    },
+                    "music_options": {
+                        "name": "music_options",
+                        "type": "table",
+                        "description": "<string, table>"
+                    },
+                    "scripts": {
+                        "name": "scripts",
+                        "type": "table",
+                        "description": "<string, table>"
+                    },
+                    "engine_versions": {
+                        "name": "engine_versions",
+                        "type": "table",
+                        "description": "<string, any[]>"
+                    },
+                    "loading_mods": {
+                        "name": "loading_mods",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "last_loaded": {
+                        "name": "last_loaded",
+                        "type": "string",
+                        "description": "[]"
+                    },
+                    "active": {
+                        "name": "active",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuModCreate": {
+                "name": "MainMenuModCreate",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "state": {
+                        "name": "state",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "state_manager": {
+                        "name": "state_manager",
+                        "type": "StateManager",
+                        "description": ""
+                    },
+                    "options": {
+                        "name": "options",
+                        "type": "modcreateoptions",
+                        "description": ""
+                    },
+                    "selected_option": {
+                        "name": "selected_option",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "chapter_options": {
+                        "name": "chapter_options",
+                        "type": "number",
+                        "description": "[]"
+                    },
+                    "id_adjusted": {
+                        "name": "id_adjusted",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "input_pos_x": {
+                        "name": "input_pos_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "input_pos_y": {
+                        "name": "input_pos_y",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "modcreateoptions": {
+                "name": "modcreateoptions",
+                "description": "",
+                "extends": null,
+                "methods": {},
+                "fields": {
+                    "chapter": {
+                        "name": "chapter",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuModConfig": {
+                "name": "MainMenuModConfig",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "options": {
+                        "name": "options",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "selected_option": {
+                        "name": "selected_option",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "editing": {
+                        "name": "editing",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "scroll_target_y": {
+                        "name": "scroll_target_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_y": {
+                        "name": "scroll_y",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuModError": {
+                "name": "MainMenuModError",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuFileSelect": {
+                "name": "MainMenuFileSelect",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuFileName": {
+                "name": "MainMenuFileName",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "file_namer": {
+                        "name": "file_namer",
+                        "type": "FileNamer",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuDefaultName": {
+                "name": "MainMenuDefaultName",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "file_namer": {
+                        "name": "file_namer",
+                        "type": "FileNamer",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuControls": {
+                "name": "MainMenuControls",
+                "description": "",
+                "extends": "StateClass",
+                "methods": {},
+                "fields": {
+                    "menu": {
+                        "name": "menu",
+                        "type": "MainMenu",
+                        "description": ""
+                    },
+                    "selected_option": {
+                        "name": "selected_option",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "selected_bind": {
+                        "name": "selected_bind",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "selecting_key": {
+                        "name": "selecting_key",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "rebinding": {
+                        "name": "rebinding",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "rebinding_shift": {
+                        "name": "rebinding_shift",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "rebinding_ctrl": {
+                        "name": "rebinding_ctrl",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "rebinding_alt": {
+                        "name": "rebinding_alt",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "rebinding_cmd": {
+                        "name": "rebinding_cmd",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "scroll_target_y": {
+                        "name": "scroll_target_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_y": {
+                        "name": "scroll_y",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "ModList": {
+                "name": "ModList",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ModButton": {
+                "name": "ModButton",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ModCreateButton": {
+                "name": "ModCreateButton",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "FileButton": {
+                "name": "FileButton",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "FileNamer": {
+                "name": "FileNamer",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkTransitionLine": {
+                "name": "DarkTransitionLine",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkTransitionParticle": {
+                "name": "DarkTransitionParticle",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkTransitionSparkle": {
+                "name": "DarkTransitionSparkle",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "HeadObject": {
+                "name": "HeadObject",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "FXBase": {
+                "name": "FXBase",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "ShaderFX": {
+                "name": "ShaderFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "ColorMaskFX": {
+                "name": "ColorMaskFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "AlphaFX": {
+                "name": "AlphaFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "RecolorFX": {
+                "name": "RecolorFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "MaskFX": {
+                "name": "MaskFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "OutlineFX": {
+                "name": "OutlineFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "BattleOutlineFX": {
+                "name": "BattleOutlineFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "ShadowFX": {
+                "name": "ShadowFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "FountainShadowFX": {
+                "name": "FountainShadowFX",
+                "description": "",
+                "extends": "ShadowFX",
+                "methods": {},
+                "fields": {}
+            },
+            "Gradient": {
+                "name": "Gradient",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "ScissorFX": {
+                "name": "ScissorFX",
+                "description": "",
+                "extends": "FXBase",
+                "methods": {},
+                "fields": {}
+            },
+            "Collider": {
+                "name": "Collider",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "ColliderGroup": {
+                "name": "ColliderGroup",
+                "description": "",
+                "extends": "Collider",
+                "methods": {},
+                "fields": {}
+            },
+            "Hitbox": {
+                "name": "Hitbox",
+                "description": "",
+                "extends": "Collider",
+                "methods": {},
+                "fields": {}
+            },
+            "LineCollider": {
+                "name": "LineCollider",
+                "description": "",
+                "extends": "Collider",
+                "methods": {},
+                "fields": {}
+            },
+            "CircleCollider": {
+                "name": "CircleCollider",
+                "description": "",
+                "extends": "Collider",
+                "methods": {},
+                "fields": {}
+            },
+            "PointCollider": {
+                "name": "PointCollider",
+                "description": "",
+                "extends": "Collider",
+                "methods": {},
+                "fields": {}
+            },
+            "PolygonCollider": {
+                "name": "PolygonCollider",
+                "description": "",
+                "extends": "Collider",
+                "methods": {},
+                "fields": {}
+            },
+            "PartyMember": {
+                "name": "PartyMember",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "Actor": {
+                "name": "Actor",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "Spell": {
+                "name": "Spell",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "Item": {
+                "name": "Item",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "HealItem": {
+                "name": "HealItem",
+                "description": "",
+                "extends": "Item",
+                "methods": {},
+                "fields": {}
+            },
+            "TensionItem": {
+                "name": "TensionItem",
+                "description": "",
+                "extends": "Item",
+                "methods": {},
+                "fields": {}
+            },
+            "LightEquipItem": {
+                "name": "LightEquipItem",
+                "description": "",
+                "extends": "Item",
+                "methods": {},
+                "fields": {}
+            },
+            "ActorSprite": {
+                "name": "ActorSprite",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "Inventory": {
+                "name": "Inventory",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkInventory": {
+                "name": "DarkInventory",
+                "description": "",
+                "extends": "Inventory",
+                "methods": {},
+                "fields": {}
+            },
+            "LightInventory": {
+                "name": "LightInventory",
+                "description": "",
+                "extends": "Inventory",
+                "methods": {},
+                "fields": {}
+            },
+            "Cutscene": {
+                "name": "Cutscene",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "WorldCutscene": {
+                "name": "WorldCutscene",
+                "description": "",
+                "extends": "Cutscene",
+                "methods": {},
+                "fields": {}
+            },
+            "BattleCutscene": {
+                "name": "BattleCutscene",
+                "description": "",
+                "extends": "Cutscene",
+                "methods": {},
+                "fields": {}
+            },
+            "Console": {
+                "name": "Console",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DebugSystem": {
+                "name": "DebugSystem",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ContextMenu": {
+                "name": "ContextMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DebugWindow": {
+                "name": "DebugWindow",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "UIBox": {
+                "name": "UIBox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Textbox": {
+                "name": "Textbox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Choicebox": {
+                "name": "Choicebox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "TextChoicebox": {
+                "name": "TextChoicebox",
+                "description": "",
+                "extends": "Textbox",
+                "methods": {},
+                "fields": {}
+            },
+            "SmallFaceText": {
+                "name": "SmallFaceText",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "World": {
+                "name": "World",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Map": {
+                "name": "Map",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "Tileset": {
+                "name": "Tileset",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "TileLayer": {
+                "name": "TileLayer",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Character": {
+                "name": "Character",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Follower": {
+                "name": "Follower",
+                "description": "",
+                "extends": "Character",
+                "methods": {},
+                "fields": {}
+            },
+            "Player": {
+                "name": "Player",
+                "description": "",
+                "extends": "Character",
+                "methods": {},
+                "fields": {}
+            },
+            "OverworldSoul": {
+                "name": "OverworldSoul",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "WorldBullet": {
+                "name": "WorldBullet",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ChaserEnemy": {
+                "name": "ChaserEnemy",
+                "description": "",
+                "extends": "Character",
+                "methods": {},
+                "fields": {}
+            },
+            "SaveMenu": {
+                "name": "SaveMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "SimpleSaveMenu": {
+                "name": "SimpleSaveMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "LightSaveMenu": {
+                "name": "LightSaveMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "HealthBar": {
+                "name": "HealthBar",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "OverworldActionBox": {
+                "name": "OverworldActionBox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Shopbox": {
+                "name": "Shopbox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkMenu": {
+                "name": "DarkMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkItemMenu": {
+                "name": "DarkItemMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkEquipMenu": {
+                "name": "DarkEquipMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkPowerMenu": {
+                "name": "DarkPowerMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkConfigMenu": {
+                "name": "DarkConfigMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkMenuPartySelect": {
+                "name": "DarkMenuPartySelect",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkStorageMenu": {
+                "name": "DarkStorageMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "LightMenu": {
+                "name": "LightMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "LightItemMenu": {
+                "name": "LightItemMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "LightStatMenu": {
+                "name": "LightStatMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "LightCellMenu": {
+                "name": "LightCellMenu",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Event": {
+                "name": "Event",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Script": {
+                "name": "Script",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "Interactable": {
+                "name": "Interactable",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "Savepoint": {
+                "name": "Savepoint",
+                "description": "",
+                "extends": "Interactable",
+                "methods": {},
+                "fields": {}
+            },
+            "TreasureChest": {
+                "name": "TreasureChest",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "Transition": {
+                "name": "Transition",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "NPC": {
+                "name": "NPC",
+                "description": "",
+                "extends": "Character",
+                "methods": {},
+                "fields": {}
+            },
+            "Outline": {
+                "name": "Outline",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "SlideArea": {
+                "name": "SlideArea",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "Silhouette": {
+                "name": "Silhouette",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "CameraTarget": {
+                "name": "CameraTarget",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "HideParty": {
+                "name": "HideParty",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "SetFlagEvent": {
+                "name": "SetFlagEvent",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "CyberTrashCan": {
+                "name": "CyberTrashCan",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "Forcefield": {
+                "name": "Forcefield",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "PushBlock": {
+                "name": "PushBlock",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "TileButton": {
+                "name": "TileButton",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "MagicGlass": {
+                "name": "MagicGlass",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "TileObject": {
+                "name": "TileObject",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "FrozenEnemy": {
+                "name": "FrozenEnemy",
+                "description": "",
+                "extends": "Interactable",
+                "methods": {},
+                "fields": {}
+            },
+            "WarpDoor": {
+                "name": "WarpDoor",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkFountain": {
+                "name": "DarkFountain",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "FountainFloor": {
+                "name": "FountainFloor",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "MirrorArea": {
+                "name": "MirrorArea",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "ToggleController": {
+                "name": "ToggleController",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "FountainShadowController": {
+                "name": "FountainShadowController",
+                "description": "",
+                "extends": "Event",
+                "methods": {},
+                "fields": {}
+            },
+            "Battle": {
+                "name": "Battle",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Encounter": {
+                "name": "Encounter",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {}
+            },
+            "Wave": {
+                "name": "Wave",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Battler": {
+                "name": "Battler",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "PartyBattler": {
+                "name": "PartyBattler",
+                "description": "",
+                "extends": "Battler",
+                "methods": {},
+                "fields": {}
+            },
+            "EnemyBattler": {
+                "name": "EnemyBattler",
+                "description": "",
+                "extends": "Battler",
+                "methods": {},
+                "fields": {}
+            },
+            "Arena": {
+                "name": "Arena",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Soul": {
+                "name": "Soul",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Bullet": {
+                "name": "Bullet",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {
+                    "attacker": {
+                        "name": "attacker",
+                        "type": "EnemyBattler",
+                        "description": ""
+                    },
+                    "wave": {
+                        "name": "wave",
+                        "type": "Wave",
+                        "description": ""
+                    }
+                }
+            },
+            "Solid": {
+                "name": "Solid",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "GrazeSprite": {
+                "name": "GrazeSprite",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ArenaSprite": {
+                "name": "ArenaSprite",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ArenaMask": {
+                "name": "ArenaMask",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "SnowGraveSpell": {
+                "name": "SnowGraveSpell",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "BattleUI": {
+                "name": "BattleUI",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ActionBox": {
+                "name": "ActionBox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ActionBoxDisplay": {
+                "name": "ActionBoxDisplay",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "ActionButton": {
+                "name": "ActionButton",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "AttackBox": {
+                "name": "AttackBox",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "AttackBar": {
+                "name": "AttackBar",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "TensionBar": {
+                "name": "TensionBar",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "SpeechBubble": {
+                "name": "SpeechBubble",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "FlashFade": {
+                "name": "FlashFade",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "DamageNumber": {
+                "name": "DamageNumber",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "RecruitMessage": {
+                "name": "RecruitMessage",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "HeartBurst": {
+                "name": "HeartBurst",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "HealSparkle": {
+                "name": "HealSparkle",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "SpareSparkle": {
+                "name": "SpareSparkle",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "SpareZ": {
+                "name": "SpareZ",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "SleepMistEffect": {
+                "name": "SleepMistEffect",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "SnowglobeEffect": {
+                "name": "SnowglobeEffect",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "IceSpellEffect": {
+                "name": "IceSpellEffect",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "IceSpellBurst": {
+                "name": "IceSpellBurst",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "SnowGraveSnowflake": {
+                "name": "SnowGraveSnowflake",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "FatalEffect": {
+                "name": "FatalEffect",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "RudeBusterBeam": {
+                "name": "RudeBusterBeam",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "RudeBusterBurst": {
+                "name": "RudeBusterBurst",
+                "description": "",
+                "extends": "Sprite",
+                "methods": {},
+                "fields": {}
+            },
+            "Shop": {
+                "name": "Shop",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Shopkeeper": {
+                "name": "Shopkeeper",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "GameOver": {
+                "name": "GameOver",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "DarkTransition": {
+                "name": "DarkTransition",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "EasingSoul": {
+                "name": "EasingSoul",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {}
+            },
+            "Component": {
+                "name": "Component",
+                "description": "",
+                "extends": "Object",
+                "methods": {},
+                "fields": {
+                    "margins": {
+                        "name": "margins",
+                        "type": "number",
+                        "description": "[]"
+                    },
+                    "padding": {
+                        "name": "padding",
+                        "type": "number",
+                        "description": "[]"
+                    },
+                    "overflow": {
+                        "name": "overflow",
+                        "type": "string",
+                        "description": "",
+                        "options": [
+                            "'\"visible\"'",
+                            "'\"hidden\"'",
+                            "'\"scroll\"'"
+                        ]
+                    },
+                    "scrollbar": {
+                        "name": "scrollbar",
+                        "type": "ScrollbarComponent",
+                        "description": ""
+                    },
+                    "layout": {
+                        "name": "layout",
+                        "type": "Layout",
+                        "description": ""
+                    },
+                    "x_sizing": {
+                        "name": "x_sizing",
+                        "type": "Sizing",
+                        "description": ""
+                    },
+                    "y_sizing": {
+                        "name": "y_sizing",
+                        "type": "Sizing",
+                        "description": ""
+                    }
+                }
+            },
+            "BoxComponent": {
+                "name": "BoxComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {
+                    "box": {
+                        "name": "box",
+                        "type": "UIBox",
+                        "description": ""
+                    }
+                }
+            },
+            "MainMenuBoxComponent": {
+                "name": "MainMenuBoxComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {}
+            },
+            "SeparatorComponent": {
+                "name": "SeparatorComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {
+                    "vertical": {
+                        "name": "vertical",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "BarComponent": {
+                "name": "BarComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {
+                    "progress": {
+                        "name": "progress",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "vertical": {
+                        "name": "vertical",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "background": {
+                        "name": "background",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "fill": {
+                        "name": "fill",
+                        "type": "table",
+                        "description": ""
+                    }
+                }
+            },
+            "ScrollbarComponent": {
+                "name": "ScrollbarComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {
+                    "parent": {
+                        "name": "parent",
+                        "type": "AbstractMenuComponent",
+                        "description": ""
+                    },
+                    "arrows": {
+                        "name": "arrows",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "gutter_color": {
+                        "name": "gutter_color",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "scrollbar_width": {
+                        "name": "scrollbar_width",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "color": {
+                        "name": "color",
+                        "type": "table",
+                        "description": ""
+                    }
+                }
+            },
+            "AbstractMenuComponent": {
+                "name": "AbstractMenuComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {
+                    "selected_item": {
+                        "name": "selected_item",
+                        "type": "integer",
+                        "description": ""
+                    },
+                    "scroll_type": {
+                        "name": "scroll_type",
+                        "type": "string",
+                        "description": "",
+                        "options": [
+                            "\"'scroll'\"",
+                            "\"'paged'\""
+                        ]
+                    },
+                    "open_sound": {
+                        "name": "open_sound",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "close_sound": {
+                        "name": "close_sound",
+                        "type": "string",
+                        "description": ""
+                    }
+                }
+            },
+            "BasicMenuComponent": {
+                "name": "BasicMenuComponent",
+                "description": "",
+                "extends": "AbstractMenuComponent",
+                "methods": {},
+                "fields": {
+                    "horizontal": {
+                        "name": "horizontal",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "hold": {
+                        "name": "hold",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "cancel_callback": {
+                        "name": "cancel_callback",
+                        "type": "function",
+                        "description": ""
+                    }
+                }
+            },
+            "EasingSoulMenuComponent": {
+                "name": "EasingSoulMenuComponent",
+                "description": "",
+                "extends": "BasicMenuComponent",
+                "methods": {},
+                "fields": {
+                    "soul_sprite": {
+                        "name": "soul_sprite",
+                        "type": "Sprite",
+                        "description": ""
+                    },
+                    "soul": {
+                        "name": "soul",
+                        "type": "EasingSoul",
+                        "description": ""
+                    },
+                    "soul_target_x": {
+                        "name": "soul_target_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "soul_target_y": {
+                        "name": "soul_target_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_target_x": {
+                        "name": "scroll_target_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "scroll_target_y": {
+                        "name": "scroll_target_y",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "soul_offset_x": {
+                        "name": "soul_offset_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "soul_offset_y": {
+                        "name": "soul_offset_y",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "AbstractMenuItemComponent": {
+                "name": "AbstractMenuItemComponent",
+                "description": "",
+                "extends": "Component",
+                "methods": {},
+                "fields": {
+                    "selected": {
+                        "name": "selected",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "callback": {
+                        "name": "callback",
+                        "type": "function",
+                        "description": ""
+                    },
+                    "soul_offset_x": {
+                        "name": "soul_offset_x",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "soul_offset_y": {
+                        "name": "soul_offset_y",
+                        "type": "number",
+                        "description": ""
+                    }
+                }
+            },
+            "TextMenuItemComponent": {
+                "name": "TextMenuItemComponent",
+                "description": "",
+                "extends": "AbstractMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "text": {
+                        "name": "text",
+                        "type": "Text",
+                        "description": ""
+                    },
+                    "highlight": {
+                        "name": "highlight",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "color": {
+                        "name": "color",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "selected_color": {
+                        "name": "selected_color",
+                        "type": "table",
+                        "description": ""
+                    }
+                }
+            },
+            "SoulMenuItemComponent": {
+                "name": "SoulMenuItemComponent",
+                "description": "",
+                "extends": "AbstractMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "draw_soul": {
+                        "name": "draw_soul",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "TextInputMenuItemComponent": {
+                "name": "TextInputMenuItemComponent",
+                "description": "",
+                "extends": "AbstractMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "input": {
+                        "name": "input",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "options": {
+                        "name": "options",
+                        "type": "table",
+                        "description": ""
+                    }
+                }
+            },
+            "BooleanMenuItemComponent": {
+                "name": "BooleanMenuItemComponent",
+                "description": "",
+                "extends": "AbstractMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "value": {
+                        "name": "value",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "on_changed": {
+                        "name": "on_changed",
+                        "type": "function",
+                        "description": ""
+                    },
+                    "on_text": {
+                        "name": "on_text",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "off_text": {
+                        "name": "off_text",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "text": {
+                        "name": "text",
+                        "type": "Text",
+                        "description": ""
+                    }
+                }
+            },
+            "ListMenuItemComponent": {
+                "name": "ListMenuItemComponent",
+                "description": "",
+                "extends": "AbstractMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "list": {
+                        "name": "list",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "value": {
+                        "name": "value",
+                        "type": "integer",
+                        "description": ""
+                    },
+                    "on_changed": {
+                        "name": "on_changed",
+                        "type": "function",
+                        "description": ""
+                    },
+                    "color": {
+                        "name": "color",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "selected_color": {
+                        "name": "selected_color",
+                        "type": "table",
+                        "description": ""
+                    },
+                    "prefix": {
+                        "name": "prefix",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "suffix": {
+                        "name": "suffix",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "wrap": {
+                        "name": "wrap",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "hold": {
+                        "name": "hold",
+                        "type": "boolean",
+                        "description": ""
+                    },
+                    "text": {
+                        "name": "text",
+                        "type": "Text",
+                        "description": ""
+                    },
+                    "step": {
+                        "name": "step",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "delay": {
+                        "name": "delay",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "sound_timer": {
+                        "name": "sound_timer",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "sound_delay": {
+                        "name": "sound_delay",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "sound": {
+                        "name": "sound",
+                        "type": "string",
+                        "description": ""
+                    },
+                    "sound_at_limit": {
+                        "name": "sound_at_limit",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "ArrowListMenuItemComponent": {
+                "name": "ArrowListMenuItemComponent",
+                "description": "",
+                "extends": "ListMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "offset": {
+                        "name": "offset",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "hide_unfocused_arrows": {
+                        "name": "hide_unfocused_arrows",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "IntegerMenuItemComponent": {
+                "name": "IntegerMenuItemComponent",
+                "description": "",
+                "extends": "ListMenuItemComponent",
+                "methods": {},
+                "fields": {}
+            },
+            "ArrowIntegerMenuItemComponent": {
+                "name": "ArrowIntegerMenuItemComponent",
+                "description": "",
+                "extends": "IntegerMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "offset": {
+                        "name": "offset",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "hide_unfocused_arrows": {
+                        "name": "hide_unfocused_arrows",
+                        "type": "boolean",
+                        "description": ""
+                    }
+                }
+            },
+            "LabelMenuItemComponent": {
+                "name": "LabelMenuItemComponent",
+                "description": "",
+                "extends": "AbstractMenuItemComponent",
+                "methods": {},
+                "fields": {
+                    "text": {
+                        "name": "text",
+                        "type": "Text",
+                        "description": ""
+                    },
+                    "child": {
+                        "name": "child",
+                        "type": "AbstractMenuItemComponent",
+                        "description": ""
+                    }
+                }
+            },
+            "Layout": {
+                "name": "Layout",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {
+                    "gap": {
+                        "name": "gap",
+                        "type": "number",
+                        "description": ""
+                    },
+                    "align": {
+                        "name": "align",
+                        "type": "string",
+                        "description": "",
+                        "options": [
+                            "'\"start\"'",
+                            "'\"center\"'",
+                            "'\"end\"'",
+                            "'\"space-between\"'",
+                            "'\"space-around\"'",
+                            "'\"space-evenly\"'"
+                        ]
+                    },
+                    "parent": {
+                        "name": "parent",
+                        "type": "Component|nil",
+                        "description": ""
+                    }
+                }
+            },
+            "HorizontalLayout": {
+                "name": "HorizontalLayout",
+                "description": "",
+                "extends": "Layout",
+                "methods": {},
+                "fields": {}
+            },
+            "VerticalLayout": {
+                "name": "VerticalLayout",
+                "description": "",
+                "extends": "Layout",
+                "methods": {},
+                "fields": {}
+            },
+            "Sizing": {
+                "name": "Sizing",
+                "description": "",
+                "extends": "Class",
+                "methods": {},
+                "fields": {
+                    "parent": {
+                        "name": "parent",
+                        "type": "Component|nil",
+                        "description": ""
+                    }
+                }
+            },
+            "FixedSizing": {
+                "name": "FixedSizing",
+                "description": "",
+                "extends": "Sizing",
+                "methods": {},
+                "fields": {}
+            },
+            "FitSizing": {
+                "name": "FitSizing",
+                "description": "",
+                "extends": "Sizing",
+                "methods": {},
+                "fields": {
+                    "parent": {
+                        "name": "parent",
+                        "type": "Component",
+                        "description": ""
+                    }
+                }
+            },
+            "FillSizing": {
+                "name": "FillSizing",
+                "description": "",
+                "extends": "FitSizing",
+                "methods": {},
+                "fields": {
+                    "parent": {
+                        "name": "parent",
+                        "type": "Component",
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "version": "0.9.0-dev"
+}

@@ -55,11 +55,11 @@ function actor:onTalkEnd(text, sprite)
     if sprite.sprite == "talk" then
         sprite:setAnimation("idle")
     elseif sprite.sprite == "left_talk" then
-        sprite:setAnimation("left")
+        sprite:setSprite("left")
     elseif sprite.sprite == "explaining_talk" then
-        sprite:setAnimation("explaining")
+        sprite:setSprite("explaining")
     elseif sprite.sprite == "happy_talk" then
-        sprite:setAnimation("happy")
+        sprite:setSprite("happy")
     end
 end
 
