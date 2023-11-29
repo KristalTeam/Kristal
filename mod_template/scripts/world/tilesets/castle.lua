@@ -1,20 +1,17 @@
 return {
-  version = "1.10",
+  version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.10.2",
+  tiledversion = "1.7.2",
   name = "castle",
-  class = "",
   tilewidth = 40,
   tileheight = 40,
-  spacing = 0,
-  margin = 0,
-  columns = 4,
+  spacing = 4,
+  margin = 2,
+  columns = 6,
   image = "../../../assets/sprites/tilesets/castle.png",
-  imagewidth = 160,
-  imageheight = 400,
+  imagewidth = 264,
+  imageheight = 308,
   objectalignment = "unspecified",
-  tilerendersize = "tile",
-  fillmode = "stretch",
   tileoffset = {
     x = 0,
     y = 0
@@ -26,6 +23,6 @@ return {
   },
   properties = {},
   wangsets = {},
-  tilecount = 40,
+  tilecount = 42,
   tiles = {}
 }

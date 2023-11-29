@@ -1,20 +1,17 @@
 return {
-  version = "1.10",
+  version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.10.2",
+  tiledversion = "1.8.4",
   name = "alley_animated",
-  class = "",
   tilewidth = 40,
   tileheight = 40,
-  spacing = 0,
-  margin = 0,
-  columns = 3,
+  spacing = 4,
+  margin = 2,
+  columns = 6,
   image = "../../../assets/sprites/tilesets/alley_animated.png",
-  imagewidth = 120,
-  imageheight = 440,
+  imagewidth = 264,
+  imageheight = 264,
   objectalignment = "unspecified",
-  tilerendersize = "tile",
-  fillmode = "stretch",
   tileoffset = {
     x = 0,
     y = 0
@@ -26,7 +23,7 @@ return {
   },
   properties = {},
   wangsets = {},
-  tilecount = 33,
+  tilecount = 36,
   tiles = {
     {
       id = 3,

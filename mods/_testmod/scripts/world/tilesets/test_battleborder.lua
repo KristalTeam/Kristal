@@ -1,9 +1,8 @@
 return {
-  version = "1.10",
+  version = "1.5",
   luaversion = "5.1",
-  tiledversion = "1.10.2",
+  tiledversion = "1.8.4",
   name = "test_battleborder",
-  class = "",
   tilewidth = 40,
   tileheight = 40,
   spacing = 0,
@@ -13,8 +12,6 @@ return {
   imagewidth = 200,
   imageheight = 120,
   objectalignment = "unspecified",
-  tilerendersize = "tile",
-  fillmode = "stretch",
   tileoffset = {
     x = 0,
     y = 0

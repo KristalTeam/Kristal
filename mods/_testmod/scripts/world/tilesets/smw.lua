@@ -1,7 +1,7 @@
 return {
-  version = "1.10",
+  version = "1.9",
   luaversion = "5.1",
-  tiledversion = "1.10.2",
+  tiledversion = "1.9.1",
   name = "smw",
   class = "",
   tilewidth = 8,
