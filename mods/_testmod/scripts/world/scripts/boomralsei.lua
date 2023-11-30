@@ -1,3 +1,5 @@
 return function()
-    Game.world:getCharacter("ralsei"):explode()
+    if Game.world:getCharacter("ralsei") then
+        Game.world:getCharacter("ralsei"):explode()
+    end
 end
