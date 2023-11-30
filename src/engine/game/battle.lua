@@ -2729,11 +2729,11 @@ function Battle:onKeyPressed(key)
         end
         if self.soul and key == "j" then
             self.soul:shatter(6)
-            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(99999)
+            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(math.huge)
         end
         if key == "b" then
             for _,battler in ipairs(self.party) do
-                battler:hurt(99999)
+                battler:hurt(math.huge)
             end
         end
         if key == "k" then
@@ -2783,6 +2783,9 @@ function Battle:onKeyPressed(key)
                 self.current_menu_y = 1 -- No wrapping in this menu.
             end
         elseif Input.is("down", key) then
+            if self:getItemIndex() == 6 and #self.menu_items % 6 == 1 then
+                self.current_menu_x = self.current_menu_x - 1
+            end
             self.current_menu_y = self.current_menu_y + 1
             if (self.current_menu_y > menu_height) or (not self:isValidMenuLocation()) then
                 self.current_menu_y = menu_height -- No wrapping in this menu.
