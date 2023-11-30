@@ -13,7 +13,5 @@
     "inventory": {
         "items": ["darkburger", "darkburger", "ultimate_candy"],
         "key_items": ["cell_phone"]
-    },
-    
-    "hidden": true
+    }
 }
