@@ -638,7 +638,7 @@ function EnemyBattler:defeat(reason, violent)
             local counter = self:recruitMessage("recruit")
             counter.first_number = self:getFlag("recruit", 0)
             counter.second_number = self.recruit
-            Assets.playSound("mercyadd", 4.8, 0.8) -- Is this the sounds that plays when an enemy gets recruited? I have no idea.
+            Assets.playSound("sparkle_gem")
         end
         if self:getFlag("recruit", 0) >= self.recruit then
             self:setFlag("recruit", true)
