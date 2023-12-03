@@ -2737,8 +2737,7 @@ function Battle:onKeyPressed(key)
             end
         end
         if key == "k" then
-            -- Set it directly so it's not capped by the max
-            Game.tension = (Game:getMaxTension() * 2)
+            Game:setTension(Game:getMaxTension() * 2, true)
         end
         if key == "n" then
             NOCLIP = not NOCLIP
