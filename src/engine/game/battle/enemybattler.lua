@@ -622,7 +622,7 @@ function EnemyBattler:defeat(reason, violent)
     if violent then
         Game.battle.used_violence = true
         if self.recruit > 0 and self:getFlag("recruit", 0) ~= false then
-            if self.done_state ~= "FROZEN" then
+            if Game:getConfig("enableRecruits") and self.done_state ~= "FROZEN" then
                 self:recruitMessage("lost")
             end
             self:setFlag("recruit", false)
@@ -634,10 +634,12 @@ function EnemyBattler:defeat(reason, violent)
     
     if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
         self:addFlag("recruit", 1)
-        local counter = self:recruitMessage("recruit")
-        counter.first_number = self:getFlag("recruit", 0)
-        counter.second_number = self.recruit
-        Assets.playSound("mercyadd", 4.8, 0.8) -- Is this the sounds that plays when an enemy gets recruited? I have no idea.
+        if Game:getConfig("enableRecruits") then
+            local counter = self:recruitMessage("recruit")
+            counter.first_number = self:getFlag("recruit", 0)
+            counter.second_number = self.recruit
+            Assets.playSound("mercyadd", 4.8, 0.8) -- Is this the sounds that plays when an enemy gets recruited? I have no idea.
+        end
         if self:getFlag("recruit", 0) >= self.recruit then
             self:setFlag("recruit", true)
         end
