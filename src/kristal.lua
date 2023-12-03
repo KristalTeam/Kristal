@@ -409,7 +409,7 @@ function Kristal.onKeyPressed(key, is_repeat)
             print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
             Hotswapper.scan()
         elseif key == "r" and Input.ctrl() and not console_open then
-            if Kristal.getModOption("hardReset") then
+            if Kristal.getModOption("hardReset") or Input.alt() and Input.shift() then
                 love.event.quit("restart")
             else
                 if Mod then
