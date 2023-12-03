@@ -627,9 +627,9 @@ function EnemyBattler:defeat(reason, violent)
             end
             self:setFlag("recruit", false)
         end
-        if self.done_state == "KILLED" or self.done_state == "FROZEN" then
-            Game.battle.xp = Game.battle.xp + self.experience
-        end
+        -- if self.done_state == "KILLED" or self.done_state == "FROZEN" then
+            -- Game.battle.xp = Game.battle.xp + self.experience
+        -- end
     end
     
     if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
@@ -646,6 +646,7 @@ function EnemyBattler:defeat(reason, violent)
     end
     
     Game.battle.money = Game.battle.money + self.money
+    Game.battle.xp = Game.battle.xp + self.experience
 
     Game.battle:removeEnemy(self, true)
 end
