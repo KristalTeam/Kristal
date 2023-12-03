@@ -7,7 +7,7 @@ local RecruitMessage, super = Class(Object)
 --    "mercy"/"damage": amount
 --    "msg": message sprite name ("down", "frozen", "lost", "max", "mercy", "miss", "recruit", and "up")
 
-function RecruitMessage:init(type, x, y)
+function RecruitMessage:init(type, x, y) -- No matter how hard I tried, adding extra arguments just get skipped during battle, and I could only insert 1 more
     super.init(self, x, y)
 
     self:setOrigin(1, 0)

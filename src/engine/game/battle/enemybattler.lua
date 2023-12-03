@@ -70,6 +70,8 @@ function EnemyBattler:init(actor, use_overlay)
             ["party"] = {}
         }
     }
+    
+    self.recruit = 0
 
     self.hurt_timer = 0
     self.comment = ""
@@ -618,10 +620,27 @@ function EnemyBattler:defeat(reason, violent)
 
     if violent then
         Game.battle.used_violence = true
+        if self.recruit > 0 and self:getFlag("recruit", 0) ~= false then
+            if self.done_state ~= "FROZEN" then
+                self:recruitMessage("lost")
+            end
+            self:setFlag("recruit", false)
+        end
+        if self.done_state == "KILLED" or self.done_state == "FROZEN" then
+            Game.battle.xp = Game.battle.xp + self.experience
+        end
     end
-
+    
+    if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and self:getFlag("recruit", 0) < self.recruit and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
+        self:addFlag("recruit", 1)
+        self:recruitMessage("recruit"--[[, self:getFlag("recruit", 0), self.recruit]]) -- No matter how hard I tried, adding extra arguments just get skipped during battle, and I could only insert 1 more
+        Assets.playSound("mercyadd", 4.8, 0.8) -- Is this the sounds that plays when an enemy gets recruited? I have no idea.
+        if self:getFlag("recruit", 0) >= self.recruit then
+            self:setFlag("recruit", true)
+        end
+    end
+    
     Game.battle.money = Game.battle.money + self.money
-    Game.battle.xp = Game.battle.xp + self.experience
 
     Game.battle:removeEnemy(self, true)
 end
