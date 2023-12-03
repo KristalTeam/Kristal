@@ -1,5 +1,6 @@
 {    
     "enableStorage": false,          // Extra 48-slot item storage
+    "enableRecruits": false,         // Enable 'Recruit' and 'Lost' messages and the recruit menu
     "smallSaveMenu": true,           // Single-file save menu with no storage/recruits options
 
     "partyActions": false,           // Whether X-Actions appear in spell menu by default
