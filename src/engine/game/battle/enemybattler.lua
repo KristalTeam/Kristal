@@ -71,6 +71,7 @@ function EnemyBattler:init(actor, use_overlay)
         }
     }
     
+    -- How many times an enemy needs to be spared to recruit. Set 0 for unrecruitable enemies.
     self.recruit = 0
 
     self.hurt_timer = 0
@@ -631,7 +632,7 @@ function EnemyBattler:defeat(reason, violent)
         end
     end
     
-    if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and self:getFlag("recruit", 0) < self.recruit and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
+    if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
         self:addFlag("recruit", 1)
         self:recruitMessage("recruit"--[[, self:getFlag("recruit", 0), self.recruit]]) -- No matter how hard I tried, adding extra arguments just get skipped during battle, and I could only insert 1 more
         Assets.playSound("mercyadd", 4.8, 0.8) -- Is this the sounds that plays when an enemy gets recruited? I have no idea.
