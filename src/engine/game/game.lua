@@ -706,7 +706,7 @@ end
 
 function Game:getRecruits(include_incomplete)
     local recruits = {}
-    for flag,value in pairs(Game.flags) do
+    for flag,value in pairs(self.flags) do
         if type(flag) == "string" and string.sub(flag, 1, 6) == "enemy#" and string.sub(flag, -8) == ":recruit" and (value == true or include_incomplete and type(value) == "number" and value > 0) then
             table.insert(recruits, string.sub(flag, 7, -9))
         end
