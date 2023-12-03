@@ -272,7 +272,8 @@ function World:onKeyPressed(key)
                     self.music:resume()
                 end
             end
-        elseif key == "s" then
+        end
+        if key == "s" then
             local save_pos = nil
             if Input.shift() then
                 save_pos = {self.player.x, self.player.y}
@@ -282,6 +283,9 @@ function World:onKeyPressed(key)
             else
                 self:openMenu(SaveMenu(save_pos))
             end
+        end
+        if key == "n" then
+            NOCLIP = not NOCLIP
         end
     end
 

@@ -2740,6 +2740,9 @@ function Battle:onKeyPressed(key)
             -- Set it directly so it's not capped by the max
             Game.tension = (Game:getMaxTension() * 2)
         end
+        if key == "n" then
+            NOCLIP = not NOCLIP
+        end
     end
 
     if self.state == "MENUSELECT" then
