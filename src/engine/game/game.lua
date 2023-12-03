@@ -704,6 +704,15 @@ function Game:removeFollower(chara)
     end
 end
 
+function Game:getRecruits(include_inprogress)
+    local recruits = {}
+    for flag,value in pairs(Game.flags) do
+        if type(flag) == "string" and string.sub(flag, 1, 6) == "enemy#" and string.sub(flag, -8) == ":recruit" and (value == true or include_inprogress and type(value) == "number" and value > 0) then
+            table.insert(recruits, string.sub(flag, 7, -9))
+        end
+    end
+    return recruits
+end
 
 function Game:giveTension(amount)
     local start = self:getTension()
