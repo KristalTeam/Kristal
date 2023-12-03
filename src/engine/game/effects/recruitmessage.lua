@@ -7,7 +7,7 @@ local RecruitMessage, super = Class(Object)
 --    "mercy"/"damage": amount
 --    "msg": message sprite name ("down", "frozen", "lost", "max", "mercy", "miss", "recruit", and "up")
 
-function RecruitMessage:init(type, x, y) -- No matter how hard I tried, adding extra arguments just get skipped during battle, and I could only insert 1 more
+function RecruitMessage:init(type, x, y)
     super.init(self, x, y)
 
     self:setOrigin(1, 0)
@@ -34,8 +34,8 @@ function RecruitMessage:init(type, x, y) -- No matter how hard I tried, adding e
     self.alpha = 1
 
     -- TODO: Set these while recruiting! Gotta wait for recruiting first, though...
-    self.first_number = 1
-    self.second_number = 1
+    self.first_number = self.first_number or 0
+    self.second_number = self.second_number or 0
 end
 
 function RecruitMessage:update()
