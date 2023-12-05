@@ -29,7 +29,7 @@ end
 function SoulMenuItemComponent:draw()
     super.draw(self)
 
-    if self.draw_soul and self.selected then
+    if self.draw_soul and self.selected and self.parent:isFocused() then
         love.graphics.setColor(Kristal.getSoulColor())
         love.graphics.draw(Assets.getTexture("player/heart_menu"), 0, 10, 0, 2, 2)
     end
