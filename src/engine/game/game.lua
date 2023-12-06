@@ -1,3 +1,4 @@
+---@class Game
 local Game = {}
 
 function Game:clear()
