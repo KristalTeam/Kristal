@@ -309,7 +309,7 @@ function BattleUI:drawState()
         end
 
         -- Print information about currently selected item
-        local tp_offset = 0
+        local tp_offset, _ = 0, nil --initialize placeholdder variable so it doenst go in global scope
         local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
         if current_item.description then
             Draw.setColor(COLORS.gray)
