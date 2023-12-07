@@ -1496,10 +1496,11 @@ end
 function Kristal.callEvent(f, ...)
     if not Mod then return end
 
-    local lib_result = Kristal.libCall(nil, f, ...)
-    local mod_result = Kristal.modCall(f, ...)
-
-    return mod_result or lib_result
+    if Mod[f] and type(Mod[f]) == "function" then
+        return Kristal.modCall(f, ...)
+    else
+        return Kristal.libCall(nil, f, ...)
+    end
 end
 
 --- Gets a value from the current `Mod`.
