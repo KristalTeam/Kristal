@@ -2277,7 +2277,7 @@ function Battle:update()
         self.offset = self.offset - 100
     end
 
-    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
+    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDINGBEGIN") or (self.state == "DEFENDING") then
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
         if not self.darkify then
             self.darkify = true
