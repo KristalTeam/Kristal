@@ -46,7 +46,7 @@ function Savepoint:onTextEnd()
     if not self.world then return end
 
     if self.heals then
-        for _,party in ipairs(Game.party) do
+        for _,party in ipairs(Game.all_party) do
             party:heal(math.huge, false)
         end
     end

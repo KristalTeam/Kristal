@@ -137,6 +137,9 @@ function PartyMember:init()
         [19] = 50000,
         [20] = 99999
     }
+    
+    -- Sets all defined party members into a table
+    table.insert(Game.all_party, self)
 end
 
 -- Callbacks

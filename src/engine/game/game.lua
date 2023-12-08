@@ -237,6 +237,8 @@ function Game:load(data, index, fade)
     self.shop = nil
 
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
+    
+    self.all_party = {}
 
     self.light = false
 
