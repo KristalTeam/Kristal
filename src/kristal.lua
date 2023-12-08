@@ -1473,14 +1473,16 @@ function Kristal.libCall(id, f, ...)
     if not Mod then return end
 
     if not id then
-        local result
+        local result = {}
         for _, lib in Kristal.iterLibraries() do
             if lib[f] and type(lib[f]) == "function" then
-                local lib_result = lib[f](lib, ...)
-                result = lib_result or result
+                local lib_results = {lib[f](lib, ...)}
+                if(#lib_results > 0) then
+                    result = lib_results
+                end
             end
         end
-        return result
+        return Utils.unpack(result)
     else
         local lib = Mod.libs[id]
         if lib and lib[f] and type(lib[f]) == "function" then
@@ -1495,11 +1497,14 @@ end
 ---@return any result The result of the function calls `or`'d together.
 function Kristal.callEvent(f, ...)
     if not Mod then return end
-
-    local lib_result = Kristal.libCall(nil, f, ...)
-    local mod_result = Kristal.modCall(f, ...)
-
-    return mod_result or lib_result
+    local lib_result = {Kristal.libCall(nil, f, ...)}
+    local mod_result = {Kristal.modCall(f, ...)}
+    --print("EVENT: "..tostring(f), #mod_result, #lib_result)
+    if(#mod_result > 0) then
+        return Utils.unpack(mod_result)
+    else
+        return Utils.unpack(lib_result)
+    end
 end
 
 --- Gets a value from the current `Mod`.
