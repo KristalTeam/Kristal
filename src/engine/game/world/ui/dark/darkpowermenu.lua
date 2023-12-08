@@ -192,7 +192,11 @@ function DarkPowerMenu:draw()
 
     Draw.setColor(PALETTE["world_border"])
     love.graphics.rectangle("fill", -24, 104, 525, 6)
-    love.graphics.rectangle("fill", 212, 104, 6, 200)
+    if Game:getConfig("oldUIPositions") == true then
+        love.graphics.rectangle("fill", 212, 104, 6, 196)
+    else
+        love.graphics.rectangle("fill", 212, 104, 6, 200)
+    end
 
     Draw.setColor(1, 1, 1, 1)
     Draw.draw(self.caption_sprites[  "char"],  42, -28, 0, 2, 2)
