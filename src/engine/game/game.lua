@@ -285,7 +285,7 @@ function Game:load(data, index, fade)
     self.tension = data.tension or 0
     self.max_tension = data.max_tension or 100
 
-    self.lw_money = data.lw_money or 2
+    self.lw_money = data.lw_money or 0
 
     self.border = data.border
     if not self.border then
