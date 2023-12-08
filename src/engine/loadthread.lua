@@ -66,6 +66,7 @@ function resetData()
             frames = {},
             fonts = {},
             font_data = {},
+            font_bmfont_data = {},
             font_image_data = {},
             font_settings = {},
             sounds = {},
@@ -291,6 +292,10 @@ local loaders = {
         local id = checkExtension(path, "ttf")
         if id then
             pcall(function () data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
+        end
+        id = checkExtension(path, "fnt")
+        if id then
+            pcall(function () data.assets.font_bmfont_data[id] = full_path end)
         end
         id = checkExtension(path, "png")
         if id then
