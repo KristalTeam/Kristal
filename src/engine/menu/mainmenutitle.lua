@@ -37,7 +37,6 @@ function MainMenuTitle:onEnter(old_state)
             {"play",    self.has_target_saves and "Load game" or "Start game"},
             {"options", "Options"},
             {"credits", "Credits"},
-            {"wiki",    "Open wiki"},
             {"quit",    "Quit"},
         }
     else
