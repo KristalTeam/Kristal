@@ -19,7 +19,7 @@ function actor:init()
     -- Path to this actor's sprites (defaults to "")
     self.path = "party/susie/light"
     -- This actor's default sprite or animation, relative to the path (defaults to "")
-    if Game.chapter == 1 then
+    if Game:getConfig("susieStyle") == 1 then
         self.default = "walk_bangs"
     else
         self.default = "walk"
