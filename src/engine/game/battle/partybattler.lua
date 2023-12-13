@@ -16,9 +16,9 @@ function PartyBattler:init(chara, x, y)
     self:setAnimation("battle/idle")
 
     self.action = nil
-
+    
     self.defending = false
-    self.hurt_timer = 0
+    self.hurt_timer = 16
     self.hurting = false
 
     self.is_down = false
@@ -127,8 +127,7 @@ function PartyBattler:hurt(amount, exact, color, options)
         self:statusMessage("damage", amount, color, true)
     end
 
-    self.sprite.x = -10
-    self.hurt_timer = 4
+    self.hurt_timer = 0
     Game.battle:shakeCamera(4)
 
     if (not self.defending) and (not self.is_down) then
@@ -337,10 +336,11 @@ function PartyBattler:update()
             self.chara:getArmor(i):onBattleUpdate(self)
         end
     end
-
-    if self.hurt_timer > 0 then
-        self.sprite.x = -self.hurt_timer * 2
-        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
+    
+    if self.hurt_timer <= 15 then
+        local hurt_index = math.min(self.hurt_timer / 2, 2)
+        self.sprite.x = (-10 + (math.floor(hurt_index) * 5))
+        self.hurt_timer = self.hurt_timer + DTMULT
     else
         self.sprite.x = 0
     end
@@ -351,7 +351,7 @@ function PartyBattler:update()
             self.target_sprite.visible = true
         end
     elseif self.should_darken then
-        if (self.darken_timer < 15) then
+        if self.darken_timer < 15 then
             self.darken_timer = self.darken_timer + DTMULT
         end
     else
