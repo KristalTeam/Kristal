@@ -413,6 +413,20 @@ function MainMenuModCreate:createMod()
             end
         end
     end
+    
+    -- Create empty useful folders (GitHub won't track empty folders)
+    love.filesystem.createDirectory(dir .. "libraries")
+    love.filesystem.createDirectory(dir .. "preview")
+    love.filesystem.createDirectory(dir .. "scripts/objects")
+    love.filesystem.createDirectory(dir .. "scripts/shops")
+    love.filesystem.createDirectory(dir .. "scripts/world/bullets")
+    love.filesystem.createDirectory(dir .. "scripts/world/scripts")
+    love.filesystem.createDirectory(dir .. "scripts/data/party")
+    love.filesystem.createDirectory(dir .. "scripts/data/spells")
+    love.filesystem.createDirectory(dir .. "assets/music")
+    love.filesystem.createDirectory(dir .. "assets/sprites/party")
+    love.filesystem.createDirectory(dir .. "assets/sprites/shopkeepers")
+    love.filesystem.createDirectory(dir .. "assets/sprites/ui")
 
     -- Reload mods
     self.menu.mod_list:reloadMods()
