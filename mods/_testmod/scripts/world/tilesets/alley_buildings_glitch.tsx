@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.4" name="alley_buildings_glitch" tilewidth="40" tileheight="40" spacing="4" margin="2" tilecount="72" columns="8">
- <image source="../../../assets/sprites/tilesets/alley_buildings_glitch.png" width="352" height="396"/>
+<tileset version="1.10" tiledversion="1.10.2" name="alley_buildings_glitch" tilewidth="40" tileheight="40" tilecount="72" columns="8">
+ <editorsettings>
+  <export target="alley_buildings_glitch.lua" format="lua"/>
+ </editorsettings>
+ <image source="../../../assets/sprites/tilesets/alley_buildings_glitch.png" width="320" height="360"/>
  <tile id="8">
   <animation>
    <frame tileid="8" duration="1000"/>
