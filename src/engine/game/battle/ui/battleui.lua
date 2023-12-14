@@ -27,7 +27,6 @@ function BattleUI:init()
     self:addChild(self.short_act_text_2)
     self:addChild(self.short_act_text_3)
 
-
     self.action_boxes = {}
     self.attack_boxes = {}
 
@@ -64,6 +63,8 @@ function BattleUI:init()
     self.animation_done = true
     self.animation_timer = 0
     self.animate_out = false
+
+    self.transition_y = 0
 
     self.shown = false
 
@@ -152,19 +153,41 @@ function BattleUI:update()
             self.animation_timer = max_time + 1
         end
 
-        local offset
-        local lower, upper = self:getTransitionBounds()
-        if not self.animate_out then
-            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), lower, upper - lower, max_time)
-            offset = self.y - Ease.outCubic(self.animation_timer - 1, lower, upper - lower, max_time)
-        else
-            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), upper, lower - upper, max_time)
-            offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), upper, lower - upper, max_time)
-        end
+        local transition_target = 152
 
         for _, box in ipairs(self.action_boxes) do
-            box.data_offset = offset
+            if not self.animate_out then
+                box.data_offset = self.transition_y - transition_target
+            else
+                -- not exactly accurate, but it's close enough
+                -- this is due to Kristal updating code faster than 30 steps like in GameMaker
+                box.data_offset = Utils.ease(30, 0, self.animation_timer / 5, "linear")
+            end
         end
+
+        if not self.animate_out then
+            if self.transition_y < transition_target then
+                if transition_target - self.transition_y < 40 then
+                    self.transition_y = self.transition_y + math.ceil((transition_target - self.transition_y) / 2.5) * DTMULT
+                else
+                    self.transition_y = self.transition_y + 30 * DTMULT
+                end
+            else
+                self.transition_y = transition_target
+            end
+        else
+            if self.transition_y > -3 then
+                if math.floor((transition_target - self.transition_y) / 5) > 15 then
+                    self.transition_y = self.transition_y - math.floor((transition_target - self.transition_y) / 2.5) * DTMULT
+                else
+                    self.transition_y = self.transition_y - 30 * DTMULT
+                end
+            else
+                self.transition_y = -3
+            end
+        end
+
+        self.y = (480 - self.transition_y) - 3
     end
 
     if self.attacking then
