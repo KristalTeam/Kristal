@@ -4,8 +4,7 @@ local ActionBox, super = Class(Object)
 
 function ActionBox:init(x, y, index, battler)
     super.init(self, x, y)
-
-    self.animation_timer = 0
+    
     self.selection_siner = 0
 
     self.index = index
@@ -34,7 +33,7 @@ function ActionBox:init(x, y, index, battler)
         self.box:addChild(self.name_sprite)
     end
 
-    self.hp_sprite   = Sprite("ui/hp", 109, 22)
+    self.hp_sprite = Sprite("ui/hp", 109, 22)
 
     self.box:addChild(self.head_sprite)
     self.box:addChild(self.hp_sprite)
@@ -109,37 +108,26 @@ function ActionBox:resetHeadIcon()
 end
 
 function ActionBox:update()
-    if (Game.battle.current_selecting == self.index) then
-        self.animation_timer = self.animation_timer + 1 * DTMULT
-    else
-        self.animation_timer = self.animation_timer - 1 * DTMULT
-    end
-
-    if self.animation_timer > 7 then
-        self.animation_timer = 7
-    end
-
-    if (Game.battle.current_selecting ~= self.index) and (self.animation_timer > 3) then
-        self.animation_timer = 3
-    end
-
-    if self.animation_timer < 0 then
-        self.animation_timer = 0
-    end
-
     self.selection_siner = self.selection_siner + 2 * DTMULT
 
     if Game.battle.current_selecting == self.index then
-        self.box.y = -Ease.outCubic(self.animation_timer, 0, 32, 7)
+        if self.box.y > -32 then self.box.y = self.box.y - 2 * DTMULT end
+        if self.box.y > -24 then self.box.y = self.box.y - 4 * DTMULT end
+        if self.box.y > -16 then self.box.y = self.box.y - 6 * DTMULT end
+        if self.box.y > -8  then self.box.y = self.box.y - 8 * DTMULT end
+        -- originally '= -64' but that was an oversight by toby
+        if self.box.y < -32 then self.box.y = -32 end
+    elseif self.box.y < -14 then
+        self.box.y = self.box.y + 15 * DTMULT
     else
-        self.box.y = -Ease.outCubic(3 - self.animation_timer, 32, -32, 3)
+        self.box.y = 0
     end
 
     self.head_sprite.y = 11 - self.data_offset + self.head_offset_y
     if self.name_sprite then
         self.name_sprite.y = 14 - self.data_offset
     end
-    self.hp_sprite.y   = 22 - self.data_offset
+    self.hp_sprite.y = 22 - self.data_offset
 
     if not self.force_head_sprite then
         local current_head = self.battler.chara:getHeadIcons().."/"..self.battler:getHeadIcon()

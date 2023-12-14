@@ -267,11 +267,26 @@ function DarkMenu:update()
         end
     end
 
-    local offset
     if not self.animate_out then
-        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), -80, 80, max_time)
+        if self.y < 0 then
+            if self.y > -40 then
+                self.y = self.y + math.ceil(-self.y / 2.5) * DTMULT
+            else
+                self.y = self.y + 30 * DTMULT
+            end
+        else
+            self.y = 0
+        end
     else
-        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 0, -80, max_time)
+        if self.y > -80 then
+            if self.y > 0 then
+                self.y = self.y - math.floor(self.y / 2.5) * DTMULT
+            else
+                self.y = self.y - 30 * DTMULT
+            end
+        else
+            self.y = -80
+        end
     end
 
     super.update(self)
