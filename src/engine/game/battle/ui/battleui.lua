@@ -183,7 +183,7 @@ function BattleUI:update()
             end
         end
         
-        self.y = 480 - self.animation_y
+        self.y = lower - self.animation_y
 
         for _, box in ipairs(self.action_boxes) do
             if not self.animate_out then
