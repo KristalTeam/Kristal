@@ -27,7 +27,6 @@ function BattleUI:init()
     self:addChild(self.short_act_text_2)
     self:addChild(self.short_act_text_3)
 
-
     self.action_boxes = {}
     self.attack_boxes = {}
 
@@ -35,6 +34,7 @@ function BattleUI:init()
 
     local size_offset = 0
     local box_gap = 0
+    
     if #Game.battle.party == 3 then
         size_offset = 0
         box_gap = 0
@@ -49,7 +49,6 @@ function BattleUI:init()
         size_offset = 213
         box_gap = 0
     end
-
 
     for index,battler in ipairs(Game.battle.party) do
         local action_box = ActionBox(size_offset+ (index - 1) * (213 + box_gap), 0, index, battler)
