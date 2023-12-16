@@ -27,6 +27,7 @@ function BattleUI:init()
     self:addChild(self.short_act_text_2)
     self:addChild(self.short_act_text_3)
 
+
     self.action_boxes = {}
     self.attack_boxes = {}
 
@@ -65,6 +66,7 @@ function BattleUI:init()
     self.animate_out = false
 
     self.animation_y = 0
+    self.animation_y_lag = 0
 
     self.shown = false
 
@@ -138,6 +140,7 @@ function BattleUI:transitionOut()
         self.animate_out = true
         self.animation_timer = 0
         self.animation_done = false
+        self.animation_y_lag = self.y
         self.shown = false
     end
 end
@@ -153,32 +156,25 @@ function BattleUI:update()
             self.animation_timer = max_time + 1
         end
 
-        local transition_target = 152
-
-        for _, box in ipairs(self.action_boxes) do
-            if not self.animate_out then
-                box.data_offset = self.animation_y - transition_target
-            else
-                -- not exactly accurate, but it's close enough
-                -- this is due to Kristal updating code independently from framerate
-                box.data_offset = Utils.ease(30, 0, self.animation_timer / 5, "linear")
-            end
-        end
+        local lower, upper = self:getTransitionBounds()
+        local target = lower - upper
 
         if not self.animate_out then
-            if self.animation_y < transition_target then
-                if transition_target - self.animation_y < 40 then
-                    self.animation_y = self.animation_y + math.ceil((transition_target - self.animation_y) / 2.5) * DTMULT
+            if self.animation_y < target then
+                if target - self.animation_y < 40 then
+                    self.animation_y = self.animation_y + math.ceil((target - self.animation_y) / 2.5) * DTMULT
                 else
                     self.animation_y = self.animation_y + 30 * DTMULT
                 end
             else
-                self.animation_y = transition_target
+                self.animation_y = target
             end
         else
+            self.animation_y_lag = Utils.approach(self.animation_y_lag, self.y, 30 * DTMULT)
+
             if self.animation_y > -3 then
-                if math.floor((transition_target - self.animation_y) / 5) > 15 then
-                    self.animation_y = self.animation_y - math.floor((transition_target - self.animation_y) / 2.5) * DTMULT
+                if math.floor((target - self.animation_y) / 5) > 15 then
+                    self.animation_y = self.animation_y - math.floor((target - self.animation_y) / 2.5) * DTMULT
                 else
                     self.animation_y = self.animation_y - 30 * DTMULT
                 end
@@ -186,8 +182,16 @@ function BattleUI:update()
                 self.animation_y = -3
             end
         end
+        
+        self.y = 480 - self.animation_y
 
-        self.y = (480 - self.animation_y) - 3
+        for _, box in ipairs(self.action_boxes) do
+            if not self.animate_out then
+                box.data_offset = self.animation_y - target
+            else
+                box.data_offset = self.y - self.animation_y_lag
+            end
+        end
     end
 
     if self.attacking then
