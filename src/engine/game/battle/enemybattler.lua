@@ -453,7 +453,7 @@ function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status)
     end
 
     self.health = self.health - amount
-    if show_status then
+    if show_status ~= false then
         self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
     end
 
