@@ -1162,10 +1162,14 @@ function Kristal.resetWindow()
         window_height                     = window_height + border_height
     end
 
-    love.window.setMode(window_width, window_height, {
-        fullscreen = Kristal.Config["fullscreen"],
-        vsync = Kristal.Config["vSync"]
-    })
+    love.window.setMode(
+        love.window.fromPixels(window_width),
+        love.window.fromPixels(window_height),
+        {
+            fullscreen = Kristal.Config["fullscreen"],
+            vsync = Kristal.Config["vSync"]
+        }
+    )
 
     -- Force tilelayers to redraw, since resetWindow destroys their canvases
     if Game.world then
