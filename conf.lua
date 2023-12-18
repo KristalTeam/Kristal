@@ -15,4 +15,9 @@ function love.conf(t)
     t.window.icon = "icon.png"
     t.window.width = 640
     t.window.height = 480
+
+    t.window.highdpi = true
+    t.highdpi = true
+    t.window.usedpiscale = true
+    t.usedpiscale = true
 end
