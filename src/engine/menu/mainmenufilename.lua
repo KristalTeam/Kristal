@@ -25,8 +25,8 @@ function MainMenuFileName:onEnter(old_state)
     local mod = self.menu.selected_mod
 
     self.file_namer = FileNamer({
-        name = mod.nameInput ~= "force" and Kristal.Config["defaultName"],
-        limit = 12,
+        name = mod.nameInput ~= "force" and string.sub(Kristal.Config["defaultName"], 1, mod["nameLimit"] or 12),
+        limit = mod["nameLimit"] or 12,
 
         mod = mod,
         white_fade = mod.whiteFade ~= false and not mod.transition,
