@@ -2785,7 +2785,7 @@ function Battle:onKeyPressed(key)
                 self.current_menu_y = 1 -- No wrapping in this menu.
             end
         elseif Input.is("down", key) then
-            if self:getItemIndex() % 6 == 0 and #self.menu_items % 6 == 1 then
+            if self:getItemIndex() % 6 == 0 and #self.menu_items % 6 == 1 and self.current_menu_y == menu_height - 1 then
                 self.current_menu_x = self.current_menu_x - 1
             end
             self.current_menu_y = self.current_menu_y + 1
