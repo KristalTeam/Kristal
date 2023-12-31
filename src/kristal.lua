@@ -958,12 +958,10 @@ function Kristal.quickReload(mode)
                         -- If we had an encounter, restart the encounter
                         if encounter then
                             Game:encounter(encounter, false)
-                        end
-                        
-                        -- If we were in a shop, re-enter it
-                        if shop then
+                        elseif shop then -- If we were in a shop, re-enter it
                             Game:enterShop(shop)
                         end
+                        
                     end
                 end
             end)
