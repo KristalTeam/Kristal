@@ -187,6 +187,15 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
     table.insert(self.acts, act)
 end
 
+function EnemyBattler:removeAct(name)
+    for i,act in ipairs(self.acts) do
+        if act.name == name then
+            table.remove(self.acts, i)
+            break
+        end
+    end
+end
+
 function EnemyBattler:spare(pacify)
     if self.exit_on_defeat then
         Game.battle.spare_sound:stop()
