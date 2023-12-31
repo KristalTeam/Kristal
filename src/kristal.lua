@@ -925,11 +925,12 @@ end
 ---| "none" # Fully reloads the mod from the start of the game.
 function Kristal.quickReload(mode)
     -- Temporarily save game variables
-    local save, save_id, encounter
+    local save, save_id, encounter, shop
     if mode == "temp" then
         save = Game:save()
         save_id = Game.save_id
         encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
+        shop = Game.shop and Game.shop.id
     elseif mode == "save" then
         save_id = Game.save_id
     end
@@ -957,6 +958,11 @@ function Kristal.quickReload(mode)
                         -- If we had an encounter, restart the encounter
                         if encounter then
                             Game:encounter(encounter, false)
+                        end
+                        
+                        -- If we were in a shop, re-enter it
+                        if shop then
+                            Game:enterShop(shop)
                         end
                     end
                 end
