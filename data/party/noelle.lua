@@ -10,11 +10,6 @@ function character:init()
     self:setActor("noelle")
     self:setLightActor("noelle_lw")
 
-    -- Display level (saved to the save file)
-    self.level = Game.chapter
-    -- Default title / class (saved to the save file)
-    self.title = "Snowcaster\nMight be able to\nuse some cool moves."
-
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 1
     -- The color of this character's soul (optional, defaults to red)
@@ -104,16 +99,21 @@ function character:init()
         ["iceshocks_used"] = 0,
         ["boldness"] = -12
     }
-end
-
-function character:getTitle()
-    if self:checkWeapon("thornring") then
-        return "LV"..self.level.." Ice Trancer\nReceives pain to\nbecome stronger."
-    elseif self:getFlag("iceshocks_used", 0) > 0 then
-        return "LV"..self.level.." Frostmancer\nFreezes the enemy."
-    else
-        return "LV1 "..self.title
-    end
+    
+    -- Display level (saved to the save file)
+    -- Default title / class (saved to the save file)
+    Game.stage.timer:everyInstant(1/30, function()
+        if self:checkWeapon("thornring") then
+            self.title = "Ice Trancer\nReceives pain to\nbecome stronger."
+            self.level = Game.chapter
+        elseif self:getFlag("iceshocks_used", 0) > 0 then
+            self.title = "Frostmancer\nFreezes the enemy."
+            self.level = Game.chapter
+        else
+            self.title = "Snowcaster\nMight be able to\nuse some cool moves."
+            self.level = 1
+        end
+    end)
 end
 
 function character:onLevelUp(level)
