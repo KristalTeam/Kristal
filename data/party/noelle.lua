@@ -105,7 +105,7 @@ function character:init()
     -- Default title / class (saved to the save file)
     Game.stage.timer:everyInstant(1/30, function()
         if self.title and self.level and not self:getFlag("auto_title", true) then
-            return false
+            return true
         end
         if self:checkWeapon("thornring") then
             self.title = "Ice Trancer\nReceives pain to\nbecome stronger."
