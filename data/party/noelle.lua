@@ -97,12 +97,16 @@ function character:init()
     -- Character flags (saved to the save file)
     self.flags = {
         ["iceshocks_used"] = 0,
+        ["auto_title"] = true,
         ["boldness"] = -12
     }
     
     -- Display level (saved to the save file)
     -- Default title / class (saved to the save file)
     Game.stage.timer:everyInstant(1/30, function()
+        if self.title and self.level and not self:getFlag("auto_title", true) then
+            return false
+        end
         if self:checkWeapon("thornring") then
             self.title = "Ice Trancer\nReceives pain to\nbecome stronger."
             self.level = Game.chapter
