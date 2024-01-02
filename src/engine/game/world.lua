@@ -682,7 +682,7 @@ function World:setupMap(map, ...)
 
     local map_border = self.map:getBorder(dark_transitioned)
     if map_border then
-        Game:setBorder(map_border)
+        Game:setBorder(Kristal.callEvent("onMapBorder", self.map, map_border) or map_border)
     end
 
     if not self.map.keep_music then
@@ -827,7 +827,7 @@ function World:mapTransition(...)
         local dark_transition = map.light ~= Game:isLight()
         local map_border = map:getBorder(dark_transition)
         if map_border then
-            Game:setBorder(map_border, 1)
+            Game:setBorder(Kristal.callEvent("onMapBorder", self.map, map_border) or map_border, 1)
         end
     end
     self:fadeInto(function()
