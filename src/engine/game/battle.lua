@@ -1910,11 +1910,10 @@ function Battle:nextParty()
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
-        else
-            local party = self.party[self.current_selecting]
-            party.chara:onActionSelect(party, false)
-            self.encounter:onCharacterTurn(party, false)
         end
+        local party = self.party[self.current_selecting]
+        party.chara:onActionSelect(party, false)
+        self.encounter:onCharacterTurn(party, false)
     end
 end
 
@@ -2033,6 +2032,12 @@ function Battle:nextTurn()
         for _,party in ipairs(self.party) do
             party.chara:onTurnStart(party)
         end
+    end
+
+    -- bad solution
+    if self.turn_count > 1 then
+        self.party[1].chara:onActionSelect(self.party[1], false)
+        self.encounter:onCharacterTurn(self.party[1], false)
     end
 
     if self.current_selecting ~= 0 then
