@@ -11,6 +11,9 @@ function item:init()
     -- Whether this item is for the light world
     self.light = true
 
+    -- Item description text (unused by light items outside of debug menu)
+    self.description = "Not too important, not too unimportant."
+
     -- Light world check text
     self.check = "Not too important,[wait:5] not\ntoo unimportant."
 
