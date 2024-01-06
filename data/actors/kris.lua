@@ -107,6 +107,8 @@ function actor:init()
 
         ["battle/defeat"] = {-8, -5},
         ["battle/hurt"] = {-5, -6},
+        
+        ["battle/sword_jump_down"] = {-19, -5},
 
         ["battle/intro"] = {-8, -9},
         ["battle/victory"] = {-3, 0},
@@ -120,7 +122,6 @@ function actor:init()
 
         ["fell"] = {-14, 1},
 
-        ["sword_jump_down"] = {-19, -5},
         ["sword_jump_settle"] = {-27, 4},
         ["sword_jump_up"] = {-17, 2},
 
