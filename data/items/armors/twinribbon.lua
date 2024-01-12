@@ -34,7 +34,7 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        defense = 1,
+        defense = 3,
 
         graze_size = 0.2,
     }

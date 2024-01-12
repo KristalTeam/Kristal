@@ -34,7 +34,7 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        attack = 2,
+        attack = 4,
     }
     -- Bonus name and icon (displayed in equip menu)
     self.bonus_name = "BadIdea"
