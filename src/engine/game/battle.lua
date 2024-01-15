@@ -2525,7 +2525,7 @@ function Battle:draw()
     self.encounter:drawBackground(self.transition_timer / 10)
 
     Draw.setColor(0, 0, 0, self.background_fade_alpha)
-    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    love.graphics.rectangle("fill", -20, -20, SCREEN_WIDTH + 40, SCREEN_HEIGHT + 40)
 
     super.draw(self)
 
