@@ -115,6 +115,7 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
     table.insert(self.acts, act)
     return act
 end
+
 function EnemyBattler:registerShortAct(name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
@@ -163,6 +164,7 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
     }
     table.insert(self.acts, act)
 end
+
 function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
@@ -185,6 +187,15 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
         ["icons"] = icons
     }
     table.insert(self.acts, act)
+end
+
+function EnemyBattler:removeAct(name)
+    for i,act in ipairs(self.acts) do
+        if act.name == name then
+            table.remove(self.acts, i)
+            break
+        end
+    end
 end
 
 function EnemyBattler:spare(pacify)

@@ -11,6 +11,9 @@ function item:init()
     -- Whether this item is for the light world
     self.light = true
 
+    -- Item description text (unused by light items outside of debug menu)
+    self.description = "A bouquet of beautiful flowers in many colors."
+
     -- Light world check text
     self.check = "A bouquet of beautiful flowers in many colors."
 

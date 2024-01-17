@@ -11,6 +11,9 @@ function item:init()
     -- Whether this item is for the light world
     self.light = true
 
+    -- Item description text (unused by light items outside of debug menu)
+    self.description = "Pink, it bounces when thrown on the ground."
+
     -- Light world check text
     self.check = "Weapon 1 AT\n* Pink,[wait:5] it bounces when thrown on the ground."
 

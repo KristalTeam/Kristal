@@ -217,7 +217,7 @@ end
 
 function actor:getAnimation(anim)
     -- If the weird route flag is set and an alt animation is defined, use it instead
-    if Game:getFlag("noelle_weird") and self.animations_alt[anim] ~= nil then
+    if Game:getPartyMember("noelle"):getFlag("weird", false) and self.animations_alt[anim] ~= nil then
         return self.animations_alt[anim] or nil
     else
         return super.getAnimation(self, anim)

@@ -97,8 +97,9 @@ function character:init()
     -- Character flags (saved to the save file)
     self.flags = {
         ["iceshocks_used"] = 0,
+        ["boldness"] = -12,
         ["auto_title"] = true,
-        ["boldness"] = -12
+        ["weird"] = false
     }
     
     -- Display level (saved to the save file)
