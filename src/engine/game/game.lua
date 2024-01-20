@@ -40,7 +40,12 @@ function Game:enter(previous_state, save_id, save_name)
 
     self.lock_movement = false
 
-    if save_id then
+    if type(save_id) == "table" then
+        local save = save_id
+        save_id = save_name
+        save_name = nil
+        self:load(save, save_id, true)
+    elseif save_id then
         Kristal.loadGame(save_id, true)
     else
         self:load(nil, nil, true)
