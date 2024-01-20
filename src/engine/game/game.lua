@@ -29,7 +29,7 @@ function Game:clear()
     self.border = "simple"
 end
 
-function Game:enter(previous_state, save_id, save_name)
+function Game:enter(previous_state, save_id, save_name, fade)
     self.previous_state = previous_state
 
     self.music = Music()
@@ -40,15 +40,16 @@ function Game:enter(previous_state, save_id, save_name)
 
     self.lock_movement = false
 
+    fade = fade ~= false
     if type(save_id) == "table" then
         local save = save_id
         save_id = save_name
         save_name = nil
-        self:load(save, save_id, true)
+        self:load(save, save_id, fade)
     elseif save_id then
-        Kristal.loadGame(save_id, true)
+        Kristal.loadGame(save_id, fade)
     else
-        self:load(nil, nil, true)
+        self:load(nil, nil, fade)
     end
 
     if save_name then
