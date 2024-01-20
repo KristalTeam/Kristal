@@ -952,17 +952,14 @@ function Kristal.quickReload(mode)
                 if Kristal.preInitMod(mod_id) then
                     love.window.setTitle(Kristal.getDesiredWindowTitle())
                     -- Switch to Game and load the temp save
-                    Gamestate.switch(Game)
+                    Gamestate.switch(Game, save, save_id)
                     if save then
-                        Game:load(save, save_id)
-
                         -- If we had an encounter, restart the encounter
                         if encounter then
                             Game:encounter(encounter, false)
                         elseif shop then -- If we were in a shop, re-enter it
                             Game:enterShop(shop)
                         end
-                        
                     end
                 end
             end)
