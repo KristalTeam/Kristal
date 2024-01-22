@@ -276,7 +276,10 @@ local loaders = {
             end
             for i = 3, 1, -1 do
                 local num = tonumber(id:sub(-i))
-                if num then
+                local bad_index = (num ~= num) or --NaN check
+                                  (num == 1/0) or
+                                  (num == -1/0)
+                if num and (not bad_index) then
                     local frame_name = id:sub(1, -i - 1)
                     if frame_name:sub(-1, -1) == "_" then
                         frame_name = frame_name:sub(1, -2)
