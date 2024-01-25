@@ -2386,4 +2386,11 @@ function Utils.iterClass(class)
     return next_noclassvars, class
 end
 
+--- Checks if the value is NaN (Not a Number)
+---@param value any
+---@return boolean
+function Utils.isNaN(value)
+    return value ~= value
+end
+
 return Utils
