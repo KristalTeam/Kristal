@@ -126,7 +126,11 @@ function SpeechBubble:setText(text, callback, line_callback)
                 text = Utils.copy(text)
             end
             for i,line in ipairs(text or {}) do
-                text[i] = "[font:"..self.actor:getFont().."]"..line
+                if self.actor:getSpeechBubbleFontSize() then
+                    text[i] = "[font:"..self.actor:getFont()..","..self.actor:getSpeechBubbleFontSize().."]"..line
+                else
+                    text[i] = "[font:"..self.actor:getFont().."]"..line
+                end
             end
         end
     end

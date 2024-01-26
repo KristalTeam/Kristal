@@ -32,6 +32,9 @@ function Actor:init()
     self.voice = nil
     -- Font to use when this actor speaks (optional)
     self.font = nil
+    -- Font size to use for the chosen font for speech bubbles in battles (optional)
+    -- Recommended to use half of the default size
+    self.speech_bubble_font_size = nil
     -- Indent style for the actor (optional)
     self.indent_string = nil
     -- Path to this actor's portrait for dialogue (optional)
@@ -131,6 +134,7 @@ function Actor:getDefault() return self:getDefaultAnim() or self:getDefaultSprit
 
 function Actor:getVoice() return self.voice end
 function Actor:getFont() return self.font end
+function Actor:getSpeechBubbleFontSize() return self.speech_bubble_font_size end
 function Actor:getIndentString() return self.indent_string end
 
 function Actor:getPortraitPath() return self.portrait_path end
