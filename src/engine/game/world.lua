@@ -439,16 +439,11 @@ function World:getPartyCharacter(party)
     if type(party) == "string" then
         party = Game:getPartyMember(party)
     end
-    local char = self.player
-    if party ~= self.player:getPartyMember() then
-        for _,follower in ipairs(self.followers) do
-            if party == follower:getPartyMember() then
-                char = follower
-                break
-            end
+    for _,char in ipairs(Game.stage:getObjects(Character)) do
+        if char.actor and char.actor.id == party:getActor().id then
+            return char
         end
     end
-    return char
 end
 
 function World:getPartyCharacterInParty(party)
