@@ -2393,4 +2393,17 @@ function Utils.isNaN(v)
     return v ~= v
 end
 
+--- XOR (eXclusive OR) logic operation
+---@param ... any [conditions]
+---@return boolean
+function Utils.XOR(...)
+    local counter = 0
+    for _,value in ipairs({...}) do
+        if value then
+            counter = counter + 1
+        end
+    end
+    return counter % 2 == 1
+end
+
 return Utils
