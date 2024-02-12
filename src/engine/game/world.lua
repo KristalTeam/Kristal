@@ -440,7 +440,7 @@ function World:getPartyCharacter(party)
         party = Game:getPartyMember(party)
     end
     local char = self.player
-    if party ~= char:getPartyMember() then
+    if party ~= self.player:getPartyMember() then
         for _,follower in ipairs(self.followers) do
             if party == follower:getPartyMember() then
                 char = follower
