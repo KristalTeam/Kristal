@@ -2387,10 +2387,10 @@ function Utils.iterClass(class)
 end
 
 --- Checks if the value is NaN (Not a Number)
----@param value any
+---@param v any
 ---@return boolean
-function Utils.isNaN(value)
-    return value ~= value
+function Utils.isNaN(v)
+    return v ~= v
 end
 
 return Utils
