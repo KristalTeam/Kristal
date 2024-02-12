@@ -445,7 +445,6 @@ function World:getPartyCharacter(party)
         for _,follower in ipairs(self.followers) do
             if Game:hasPartyMember(follower:getPartyMember()) and party == follower:getPartyMember() then
                 return follower
-                break
             end
         end
     end
