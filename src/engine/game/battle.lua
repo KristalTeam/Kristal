@@ -313,6 +313,7 @@ function Battle:onStateChange(old,new)
     if result or self.state ~= new then
         return
     end
+
     if new == "INTRO" then
         self.seen_encounter_text = false
         self.intro_timer = 0
@@ -351,16 +352,9 @@ function Battle:onStateChange(old,new)
 
         self:showUI()
 
-        -- Workaround for autobattlers until BattleUI is created earlier
-        -- TODO: BattleUI is now created earlier, do something with this
-        if not had_started then
-            for _,party in ipairs(self.party) do
-                party.chara:onTurnStart(party)
-            end
-            local party = self.party[self.current_selecting]
-            party.chara:onActionSelect(party, false)
-            self.encounter:onCharacterTurn(party, false)
-        end
+        local party = self.party[self.current_selecting]
+        party.chara:onActionSelect(party, false)
+        self.encounter:onCharacterTurn(party, false)
     elseif new == "ACTIONS" then
         self.battle_ui:clearEncounterText()
         if self.state_reason ~= "DONTPROCESS" then
@@ -2024,6 +2018,7 @@ function Battle:nextTurn()
     end
 
     self.encounter:onTurnStart()
+
     for _,enemy in ipairs(self:getActiveEnemies()) do
         enemy:onTurnStart()
     end
@@ -2032,15 +2027,9 @@ function Battle:nextTurn()
         for _,party in ipairs(self.party) do
             party.chara:onTurnStart(party)
         end
-    end
+    end  
 
-    -- bad solution
-    if self.turn_count > 1 then
-        self.party[1].chara:onActionSelect(self.party[1], false)
-        self.encounter:onCharacterTurn(self.party[1], false)
-    end
-
-    if self.current_selecting ~= 0 then
+    if self.current_selecting ~= 0 and self.state ~= "ACTIONSELECT" then
         self:setState("ACTIONSELECT")
     end
 end
