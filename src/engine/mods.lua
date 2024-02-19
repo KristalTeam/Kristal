@@ -96,7 +96,7 @@ function Mods.sortLibraries(mod)
             end
 
             for _,dependency in ipairs(lib_data["optionalDependencies"] or {}) do
-                if mod.libs[lib_id] and not sorted_lookup[dependency] then
+                if mod.libs[dependency] and not sorted_lookup[dependency] then
                     failed = true
                     break
                 end
