@@ -45,7 +45,15 @@ function Encounter:beforeStateChange(old, new) end
 function Encounter:onStateChange(old, new) end
 
 function Encounter:onActionSelect(battler, button) end
-function Encounter:onMenuSelect(state, item, can_select) end
+
+function Encounter:onMenuSelect(state_reason, item, can_select) end
+function Encounter:onMenuCancel(state_reason, item) end
+
+function Encounter:onEnemySelect(state_reason, enemy_index) end
+function Encounter:onEnemyCancel(state_reason, enemy_index) end
+
+function Encounter:onPartySelect(state_reason, party_index) end
+function Encounter:onPartyCancel(state_reason, party_index) end
 
 function Encounter:onGameOver() end
 function Encounter:onReturnToWorld(events) end
