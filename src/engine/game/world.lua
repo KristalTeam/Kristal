@@ -446,6 +446,21 @@ function World:getPartyCharacter(party)
     end
 end
 
+function World:getPartyCharacterInParty(party)
+    if type(party) == "string" then
+        party = Game:getPartyMember(party)
+    end
+    if Game:hasPartyMember(self.player:getPartyMember().id) and party == self.player:getPartyMember() then
+        return self.player
+    else
+        for _,follower in ipairs(self.followers) do
+            if Game:hasPartyMember(follower:getPartyMember().id) and party == follower:getPartyMember() then
+                return follower
+            end
+        end
+    end
+end
+
 function World:removeFollower(chara)
     local follower_arg = isClass(chara) and chara:includes(Follower)
     for i,follower in ipairs(self.followers) do
