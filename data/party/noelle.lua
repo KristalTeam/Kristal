@@ -10,6 +10,12 @@ function character:init()
     self:setActor("noelle")
     self:setLightActor("noelle_lw")
 
+
+    -- Display level (saved to the save file)
+    self.level = Game.chapter
+    -- Default title / class (saved to the save file)
+    self.title = "Snowcaster\nMight be able to\nuse some cool moves."
+    
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 1
     -- The color of this character's soul (optional, defaults to red)
@@ -98,27 +104,27 @@ function character:init()
     self.flags = {
         ["iceshocks_used"] = 0,
         ["boldness"] = -12,
-        ["auto_title"] = true,
         ["weird"] = false
     }
-    
-    -- Display level (saved to the save file)
-    -- Default title / class (saved to the save file)
-    Game.stage.timer:everyInstant(1/30, function()
-        if self.title and self.level and not self:getFlag("auto_title", true) then
-            return true
-        end
-        if self:checkWeapon("thornring") then
-            self.title = "Ice Trancer\nReceives pain to\nbecome stronger."
-            self.level = Game.chapter
-        elseif self:getFlag("iceshocks_used", 0) > 0 then
-            self.title = "Frostmancer\nFreezes the enemy."
-            self.level = Game.chapter
-        else
-            self.title = "Snowcaster\nMight be able to\nuse some cool moves."
-            self.level = 1
-        end
-    end)
+end
+
+function character:getTitle()
+    local prefix = "LV"..self:getLevel().." "
+    if self:checkWeapon("thornring") then
+        return prefix.."Ice Trancer\nReceives pain to\nbecome stronger."
+    elseif self:getFlag("iceshocks_used", 0) > 0 then
+        return prefix.."Frostmancer\nFreezes the enemy."
+    else
+        return super.getTitle(self)
+    end
+end
+
+function character:getLevel()
+    if self:checkWeapon("thornring") or self:getFlag("iceshocks_used", 0) > 0 then
+        return super.getLevel(self)
+    else
+        return 1
+    end
 end
 
 function character:onLevelUp(level)
