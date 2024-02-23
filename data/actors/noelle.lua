@@ -15,7 +15,7 @@ function actor:init()
 
     -- A table that defines where the Soul should be placed on this actor if they are a player.
     -- First value is x, second value is y.
-    self.soul_offset = {12, 28}
+    self.soul_offset = {11.5, 28}
 
     -- Color for this actor used in outline areas (optional, defaults to red)
     self.color = {1, 1, 0}
