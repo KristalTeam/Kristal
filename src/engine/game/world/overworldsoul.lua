@@ -84,7 +84,7 @@ function OverworldSoul:update()
 
     local soul_party = Game:getSoulPartyMember()
     if soul_party then
-        local soul_character = self.world:getPartyCharacter(soul_party)
+        local soul_character = self.world:getPartyCharacterInParty(soul_party)
         if soul_character then
             sx, sy = soul_character:getRelativePos(soul_character.actor:getSoulOffset())
         end
