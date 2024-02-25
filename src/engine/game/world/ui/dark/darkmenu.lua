@@ -5,7 +5,7 @@ local DarkMenu, super = Class(Object)
 function DarkMenu:init()
     super.init(self, 0, -80)
 
-    self.layer = 1 -- TODO
+    self.layer = WORLD_LAYERS["ui"]
 
     self.parallax_x = 0
     self.parallax_y = 0
@@ -29,9 +29,6 @@ function DarkMenu:init()
 
     self.selected_item = 1
 
-    -- States: MAIN, ITEMMENU, ITEMSELECT, KEYSELECT, PARTYSELECT,
-    -- EQUIPMENU, WEAPONSELECT, REPLACEMENTSELECT, POWERMENU, SPELLSELECT,
-    -- CONFIGMENU, VOLUMESELECT, CONTROLSMENU, CONTROLSELECT
     self.state = "MAIN"
     self.state_reason = nil
     self.heart_sprite = Assets.getTexture("player/heart_menu_small")
@@ -43,22 +40,6 @@ function DarkMenu:init()
 
     self.font = Assets.getFont("main")
 
-    self.desc_sprites = {
-        Assets.getTexture("ui/menu/desc/item"),
-        Assets.getTexture("ui/menu/desc/equip"),
-        Assets.getTexture("ui/menu/desc/power"),
-        Assets.getTexture("ui/menu/desc/config")
-    }
-
-    self.buttons = {
-        {Assets.getTexture("ui/menu/btn/item"  ), Assets.getTexture("ui/menu/btn/item_h"  )},
-        {Assets.getTexture("ui/menu/btn/equip" ), Assets.getTexture("ui/menu/btn/equip_h" )},
-        {Assets.getTexture("ui/menu/btn/power" ), Assets.getTexture("ui/menu/btn/power_h" )},
-        {Assets.getTexture("ui/menu/btn/config"), Assets.getTexture("ui/menu/btn/config_h")}
-    }
-
-    self.button_offset = 100
-
     self.description_box = Rectangle(0, 0, SCREEN_WIDTH, 80)
     self.description_box:setColor(0, 0, 0)
     self.description_box.visible = false
@@ -68,12 +49,105 @@ function DarkMenu:init()
     self.description = Text("", 20, 10, SCREEN_WIDTH - 20, 80 - 16)
     self.description_box:addChild(self.description)
 
+    self.buttons = {}
+    self:addButtons()
+    self.buttons = Kristal.callEvent("getDarkMenuButtons", self.buttons, self) or self.buttons
+
     self.box = nil
+    self.box_offset_x = 0
+    self.box_offset_y = 0
+end
+
+function DarkMenu:getButtonSpacing()
+    if #self.buttons <= 4 then
+        return 100
+    else
+        return 100 - (#self.buttons * #self.buttons)
+    end
+end
+
+function DarkMenu:addButton(button, index)
+    table.insert(self.buttons, index or #self.buttons + 1, button)
+end
+
+function DarkMenu:addButtons()
+    -- ITEM
+    self:addButton({
+        ["state"]          = "ITEMMENU",
+        ["sprite"]         = Assets.getTexture("ui/menu/btn/item"),
+        ["hovered_sprite"] = Assets.getTexture("ui/menu/btn/item_h"),
+        ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/item"),
+        ["callback"]       = function()
+            self.box = DarkItemMenu()
+            self.box.layer = 1
+            self:addChild(self.box)
+    
+            self.ui_select:stop()
+            self.ui_select:play()
+        end
+    })
+
+    -- EQUIP
+    self:addButton({
+        ["state"]          = "EQUIPMENU",
+        ["sprite"]         = Assets.getTexture("ui/menu/btn/equip"),
+        ["hovered_sprite"] = Assets.getTexture("ui/menu/btn/equip_h"),
+        ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/equip"),
+        ["callback"]       = function()
+            self.box = DarkEquipMenu()
+            self.box.layer = 1
+            self:addChild(self.box)
+    
+            self.ui_select:stop()
+            self.ui_select:play()
+        end
+    })
+
+    -- POWER
+    self:addButton({
+        ["state"]          = "POWERMENU",
+        ["sprite"]         = Assets.getTexture("ui/menu/btn/power"),
+        ["hovered_sprite"] = Assets.getTexture("ui/menu/btn/power_h"),
+        ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/power"),
+        ["callback"]       = function()
+            self.box = DarkPowerMenu()
+            self.box.layer = 1
+            self:addChild(self.box)
+    
+            self.ui_select:stop()
+            self.ui_select:play()
+        end
+    })
+
+    -- CONFIG
+    self:addButton({
+        ["state"]          = "CONFIGMENU",
+        ["sprite"]         = Assets.getTexture("ui/menu/btn/config"),
+        ["hovered_sprite"] = Assets.getTexture("ui/menu/btn/config_h"),
+        ["desc_sprite"]    = Assets.getTexture("ui/menu/desc/config"),
+        ["callback"]       = function()
+            self.box = DarkConfigMenu()
+            self.box.layer = -1
+            self:addChild(self.box)
+    
+            self.ui_select:stop()
+            self.ui_select:play()
+        end
+    })
+end
+
+function DarkMenu:getButton(id)
+    for _,button in ipairs(self.buttons) do
+        if button.id == id then
+            return button
+        end
+    end
 end
 
 function DarkMenu:onAdd(parent)
     super.onAdd(self, parent)
     Game.world:showHealthBars()
+    Kristal.callEvent("onDarkMenuOpen", self)
 end
 
 function DarkMenu:transitionOut()
@@ -190,49 +264,14 @@ function DarkMenu:onKeyPressed(key)
     end
 end
 
-function DarkMenu:onButtonSelect(button)
-    if button == 1 then
-        self.state = "ITEMMENU"
-
+function DarkMenu:onButtonSelect(button_index)
+    if self.buttons[button_index].callback then
+        self.state = self.buttons[button_index].state
         Input.clear("confirm")
-        self.box = DarkItemMenu()
-        self.box.layer = 1
-        self:addChild(self.box)
+        self.buttons[button_index].callback()
 
-        self.ui_select:stop()
-        self.ui_select:play()
-    elseif button == 2 then
-        self.state = "EQUIPMENU"
-
-        Input.clear("confirm")
-        self.box = DarkEquipMenu()
-        self.box.layer = 1
-        self:addChild(self.box)
-
-        self.ui_select:stop()
-        self.ui_select:play()
-    elseif button == 3 then
-        self.state = "POWERMENU"
-
-        -- The power menu does not reset the selected character, for some reason.
-        -- But we're not doing that (for now at least)
-        Input.clear("confirm")
-        self.box = DarkPowerMenu()
-        self.box.layer = 1
-        self:addChild(self.box)
-
-        self.ui_select:stop()
-        self.ui_select:play()
-    elseif button == 4 then
-        self.state = "CONFIGMENU"
-
-        Input.clear("confirm")
-        self.box = DarkConfigMenu()
-        self.box.layer = -1
-        self:addChild(self.box)
-
-        self.ui_select:stop()
-        self.ui_select:play()
+        self.box.x = self.box.x + self.box_offset_x
+        self.box.y = self.box.y + self.box_offset_y
     end
 end
 
@@ -261,7 +300,6 @@ function DarkMenu:update()
         self.animation_done = true
         self.animation_timer = max_time + 1
         if self.animate_out then
-            -- Game.world.menu = nil
             self:remove()
             return
         end
@@ -293,18 +331,18 @@ function DarkMenu:update()
 end
 
 function DarkMenu:draw()
-    -- Draw the black background
     Draw.setColor(PALETTE["world_fill"])
     love.graphics.rectangle("fill", 0, 0, 640, 80)
 
     Draw.setColor(1, 1, 1, 1)
-    if self.desc_sprites[self.selected_submenu] then
-        Draw.draw(self.desc_sprites[self.selected_submenu], 20, 24, 0, 2, 2)
+    if self.buttons[self.selected_submenu].desc_sprite then
+        Draw.draw(self.buttons[self.selected_submenu].desc_sprite, 20, 24, 0, 2, 2)
     end
 
     for i = 1, #self.buttons do
-        self:drawButton(i, 120 + ((i - 1) * self.button_offset), 20)
+        self:drawButton(i, 120 + ((i - 1) * self:getButtonSpacing()), 20)
     end
+    Draw.setColor(1, 1, 1)
 
     love.graphics.setFont(self.font)
     love.graphics.print(Game:getConfig("darkCurrencyShort") .. " " .. Game.money, 520, 20)
@@ -313,15 +351,16 @@ function DarkMenu:draw()
 end
 
 function DarkMenu:drawButton(index, x, y)
-    local sprite = 1
+    local button = self.buttons[index]
+    local sprite = button.sprite
     if index == self.selected_submenu then
-        sprite = 2
+        sprite = button.hovered_sprite
     end
-    Draw.draw(self.buttons[index][sprite], x, y, 0, 2, 2)
+    Draw.setColor(1, 1, 1)
+    Draw.draw(sprite, x, y, 0, 2, 2)
     if index == self.selected_submenu and self.state == "MAIN" then
         Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, x + 15, y + 25, 0, 2, 2, self.heart_sprite:getWidth() / 2, self.heart_sprite:getHeight() / 2)
-        Draw.setColor(1, 1, 1)
     end
 end
 
