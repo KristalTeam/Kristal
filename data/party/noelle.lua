@@ -108,12 +108,21 @@ function character:init()
 end
 
 function character:getTitle()
+    local prefix = "LV"..self:getLevel().." "
     if self:checkWeapon("thornring") then
-        return "LV"..self.level.." Ice Trancer\nReceives pain to\nbecome stronger."
+        return prefix.."Ice Trancer\nReceives pain to\nbecome stronger."
     elseif self:getFlag("iceshocks_used", 0) > 0 then
-        return "LV"..self.level.." Frostmancer\nFreezes the enemy."
+        return prefix.."Frostmancer\nFreezes the enemy."
     else
-        return "LV1 "..self.title
+        return super.getTitle(self)
+    end
+end
+
+function character:getLevel()
+    if self:checkWeapon("thornring") or self:getFlag("iceshocks_used", 0) > 0 then
+        return super.getLevel(self)
+    else
+        return 1
     end
 end
 

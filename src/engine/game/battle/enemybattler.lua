@@ -453,16 +453,20 @@ function EnemyBattler:isXActionShort(battler)
     return false
 end
 
-function EnemyBattler:hurt(amount, battler, on_defeat, color)
+function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status)
     if amount == 0 or (amount < 0 and Game:getConfig("damageUnderflowFix")) then
-        self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+        if show_status ~= false then
+            self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+        end
 
         self:onDodge(battler)
         return
     end
 
     self.health = self.health - amount
-    self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+    if show_status ~= false then
+        self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+    end
 
     if amount > 0 then
         self.hurt_timer = 1

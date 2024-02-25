@@ -272,6 +272,16 @@ function Textbox:setText(text, callback)
                 text[i] = "[voice:"..self.actor:getVoice().."]"..line
             end
         end
+        if self.actor:getFont() then
+            if type(text) ~= "table" then
+                text = {text}
+            else
+                text = Utils.copy(text)
+            end
+            for i,line in ipairs(text) do
+                text[i] = "[font:"..self.actor:getFont().."]"..line
+            end
+        end
         if self.actor:getIndentString() then
             self.text.indent_string = self.actor:getIndentString()
         end

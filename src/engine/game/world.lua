@@ -446,6 +446,21 @@ function World:getPartyCharacter(party)
     end
 end
 
+function World:getPartyCharacterInParty(party)
+    if type(party) == "string" then
+        party = Game:getPartyMember(party)
+    end
+    if Game:hasPartyMember(self.player:getPartyMember().id) and party == self.player:getPartyMember() then
+        return self.player
+    else
+        for _,follower in ipairs(self.followers) do
+            if Game:hasPartyMember(follower:getPartyMember().id) and party == follower:getPartyMember() then
+                return follower
+            end
+        end
+    end
+end
+
 function World:removeFollower(chara)
     local follower_arg = isClass(chara) and chara:includes(Follower)
     for i,follower in ipairs(self.followers) do
@@ -682,7 +697,7 @@ function World:setupMap(map, ...)
 
     local map_border = self.map:getBorder(dark_transitioned)
     if map_border then
-        Game:setBorder(map_border)
+        Game:setBorder(Kristal.callEvent("onMapBorder", self.map, map_border) or map_border)
     end
 
     if not self.map.keep_music then
@@ -736,20 +751,32 @@ function World:loadMap(...)
 end
 
 function World:transitionMusic(next, fade_out)
-    if next and next ~= "" then
-        if self.music.current ~= next then
+    -- Compatibility with older versions of transitionMusic which have "next" as the music
+    local music = ""
+    local volume = 1
+    local pitch = 1
+    if type(next) == "table" then
+        music = next[1]
+        volume = next[2]
+        pitch = next[3]
+    else
+        music = next
+    end
+    --
+    if music and music ~= "" then
+        if self.music.current ~= music then
             if self.music:isPlaying() and fade_out then
                 self.music:fade(0, 10/30, function() self.music:stop() end)
             elseif not fade_out then
-                self.music:play(next, 1)
+                self.music:play(music, volume, pitch)
             end
         else
             if not self.music:isPlaying() then
                 if not fade_out then
-                    self.music:play(next, 1)
+                    self.music:play(music, volume, pitch)
                 end
             else
-                self.music:fade(1)
+                self.music:fade(volume)
             end
         end
     else
@@ -815,7 +842,7 @@ function World:mapTransition(...)
         local dark_transition = map.light ~= Game:isLight()
         local map_border = map:getBorder(dark_transition)
         if map_border then
-            Game:setBorder(map_border, 1)
+            Game:setBorder(Kristal.callEvent("onMapBorder", self.map, map_border) or map_border, 1)
         end
     end
     self:fadeInto(function()
