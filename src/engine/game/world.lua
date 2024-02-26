@@ -450,7 +450,7 @@ function World:getPartyCharacterInParty(party)
     if type(party) == "string" then
         party = Game:getPartyMember(party)
     end
-    if Game:hasPartyMember(self.player:getPartyMember().id) and party == self.player:getPartyMember() then
+    if self.player and Game:hasPartyMember(self.player:getPartyMember().id) and party == self.player:getPartyMember() then
         return self.player
     else
         for _,follower in ipairs(self.followers) do
