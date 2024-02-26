@@ -15,10 +15,6 @@ function Transition:init(x, y, w, h, properties)
         marker = properties.marker,
         facing = properties.facing,
     }
-    self.stairs = properties.stairs
-    self.lancer = properties.lancer
-    self.lancer_exit = properties.lancer_exit
-    self.door = properties.door
     self.sound = properties.sound or nil
     self.pitch = properties.pitch or 1
 end
@@ -39,23 +35,6 @@ function Transition:onEnter(chara)
         local x, y = self.target.x, self.target.y
         local facing = self.target.facing
         local marker = self.target.marker
-
-        if self.stairs then
-            Assets.playSound("escaped")
-        end
-        if self.lancer then
-            Assets.playSound("splat")
-        end
-        if self.lancer_exit then
-            Assets.playSound("reverse_splat")
-        end
-        if self.door then
-            self.world.timer:script(function(wait)
-                Assets.playSound("dooropen")
-                wait(0.4)
-                Assets.playSound("doorclose")
-            end)
-        end
 
         if self.sound then
             Assets.playSound(self.sound, 1, self.pitch)
