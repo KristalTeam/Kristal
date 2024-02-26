@@ -361,7 +361,7 @@ function World:startCutscene(group, id, ...)
     if Kristal.Console.is_open then
         Kristal.Console:close()
     end
-    self.cutscene = WorldCutscene(group, id, ...)
+    self.cutscene = WorldCutscene(self, group, id, ...)
     return self.cutscene
 end
 

@@ -4,7 +4,7 @@ local WorldCutscene, super = Class(Cutscene)
 
 local function _true() return true end
 
-function WorldCutscene:init(group, id, ...)
+function WorldCutscene:init(world, group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getWorldCutscene, group, id, ...)
 
     self.textbox = nil
@@ -21,16 +21,18 @@ function WorldCutscene:init(group, id, ...)
 
     self.moving_objects = {}
 
+    self.world = world
+
     Game.lock_movement = true
     Game.cutscene_active = true
 
     if Game:isLight() then
-        if Game.world.menu and Game.world.menu.state == "ITEMMENU" then
-            Game.world.menu:closeBox()
-            Game.world.menu.state = "TEXT"
+        if self.world.menu and self.world.menu.state == "ITEMMENU" then
+            self.world.menu:closeBox()
+            self.world.menu.state = "TEXT"
         end
     else
-        Game.world:closeMenu()
+        self.world:closeMenu()
     end
 
     super.init(self, scene, unpack(args))
@@ -40,7 +42,7 @@ function WorldCutscene:canEnd()
     if #self.moving_objects > 0 then
         return false
     end
-    return Game.world.camera.pan_target == nil
+    return self.world.camera.pan_target == nil
 end
 
 function WorldCutscene:update()
@@ -59,15 +61,15 @@ function WorldCutscene:onEnd()
     Game.lock_movement = false
     Game.cutscene_active = false
 
-    if Game.world.cutscene == self then
-        Game.world.cutscene = nil
+    if self.world.cutscene == self then
+        self.world.cutscene = nil
     end
 
     self:closeText()
 
     if Game:isLight() then
-        if Game.world.menu and Game.world.menu.state == "TEXT" then
-            Game.world:closeMenu()
+        if self.world.menu and self.world.menu.state == "TEXT" then
+            self.world:closeMenu()
         end
     end
 
@@ -75,19 +77,19 @@ function WorldCutscene:onEnd()
 end
 
 function WorldCutscene:getCharacter(id, index)
-    return Game.world:getCharacter(id, index)
+    return self.world:getCharacter(id, index)
 end
 
 function WorldCutscene:getEvent(id)
-    return Game.world.map:getEvent(id)
+    return self.world.map:getEvent(id)
 end
 
 function WorldCutscene:getEvents(name)
-    return Game.world.map:getEvents(name)
+    return self.world.map:getEvents(name)
 end
 
 function WorldCutscene:getMarker(name)
-    return Game.world.map:getMarker(name)
+    return self.world.map:getMarker(name)
 end
 
 function WorldCutscene:enableMovement()
@@ -99,11 +101,11 @@ function WorldCutscene:disableMovement()
 end
 
 function WorldCutscene:detachFollowers()
-    Game.world:detachFollowers()
+    self.world:detachFollowers()
 end
 
 local function waitForFollowers(self)
-    for _,follower in ipairs(Game.world.followers) do
+    for _,follower in ipairs(self.world.followers) do
         if follower.returning then
             return false
         end
@@ -111,37 +113,37 @@ local function waitForFollowers(self)
     return true
 end
 function WorldCutscene:attachFollowers(return_speed)
-    Game.world:attachFollowers(return_speed)
+    self.world:attachFollowers(return_speed)
     return waitForFollowers
 end
 function WorldCutscene:attachFollowersImmediate()
-    Game.world:attachFollowersImmediate()
+    self.world:attachFollowersImmediate()
     return _true
 end
 
 function WorldCutscene:alignFollowers(facing, x, y, dist)
-    Game.world.player:alignFollowers(facing, x, y, dist)
+    self.world.player:alignFollowers(facing, x, y, dist)
 end
 
 function WorldCutscene:interpolateFollowers()
-    Game.world.player:interpolateFollowers()
+    self.world.player:interpolateFollowers()
 end
 
 function WorldCutscene:resetSprites()
-    Game.world.player:resetSprite()
-    for _,follower in ipairs(Game.world.followers) do
+    self.world.player:resetSprite()
+    for _,follower in ipairs(self.world.followers) do
         follower:resetSprite()
     end
 end
 
 function WorldCutscene:spawnNPC(actor, x, y, properties)
-    return Game.world:spawnNPC(actor, x, y, properties)
+    return self.world:spawnNPC(actor, x, y, properties)
 end
 
 function WorldCutscene:look(chara, dir)
     if not dir then
         dir = chara or "down"
-        chara = Game.world.player
+        chara = self.world.player
     elseif type(chara) == "string" then
         chara = self:getCharacter(chara)
     end
@@ -232,7 +234,7 @@ function WorldCutscene:slideTo(obj, x, y, time, ease)
     if type(x) == "string" then
         ease = time
         time = y
-        x, y = Game.world.map:getMarker(x)
+        x, y = self.world.map:getMarker(x)
     end
     local slided = false
     if obj:slideTo(x, y, time, ease, function() slided = true end) then
@@ -249,7 +251,7 @@ function WorldCutscene:slideToSpeed(obj, x, y, speed)
     end
     if type(x) == "string" then
         speed = y
-        x, y = Game.world.map:getMarker(x)
+        x, y = self.world.map:getMarker(x)
     end
     local slided = false
     if obj:slideToSpeed(x, y, speed, function() slided = true end) then
@@ -298,9 +300,9 @@ function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     return function() return chara.sprite.graphics.shake_x == 0 and chara.sprite.graphics.shake_y == 0 end
 end
 
-local function waitForCameraShake() return Game.world.camera.shake_x == 0 and Game.world.camera.shake_y == 0 end
+local function waitForCameraShake() return self.world.camera.shake_x == 0 and self.world.camera.shake_y == 0 end
 function WorldCutscene:shakeCamera(x, y, friction)
-    Game.world.camera:shake(x, y, friction)
+    self.world.camera:shake(x, y, friction)
     return waitForCameraShake
 end
 
@@ -313,17 +315,17 @@ function WorldCutscene:alert(chara, ...)
 end
 
 function WorldCutscene:detachCamera()
-    Game.world:setCameraAttached(false)
+    self.world:setCameraAttached(false)
 end
 
 function WorldCutscene:attachCamera(time)
-    local tx, ty = Game.world.camera:getTargetPosition()
-    return self:panTo(tx, ty, time or 0.8, "linear", function() Game.world:setCameraAttached(true) end)
+    local tx, ty = self.world.camera:getTargetPosition()
+    return self:panTo(tx, ty, time or 0.8, "linear", function() self.world:setCameraAttached(true) end)
 end
 function WorldCutscene:attachCameraImmediate()
-    local tx, ty = Game.world.camera:getTargetPosition()
-    Game.world:setCameraAttached(true)
-    Game.world.camera:setPosition(tx, ty)
+    local tx, ty = self.world.camera:getTargetPosition()
+    self.world:setCameraAttached(true)
+    self.world.camera:setPosition(tx, ty)
 end
 
 function WorldCutscene:setSpeaker(actor, talk)
@@ -352,7 +354,7 @@ function WorldCutscene:setTextboxTop(top)
 end
 
 ---@param self WorldCutscene
-local function waitForCameraPan(self) return Game.world.camera.pan_target == nil end
+local function waitForCameraPan(self) return self.world.camera.pan_target == nil end
 ---@overload fun(self: WorldCutscene, x: number, y: number, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, marker: string, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, chara: Character, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
@@ -369,7 +371,7 @@ function WorldCutscene:panTo(...)
         ease = args[4] or ease
         after = args[5]
     elseif type(args[1]) == "string" then
-        local marker = Game.world.map.markers[args[1]]
+        local marker = self.world.map.markers[args[1]]
         x, y = marker.center_x, marker.center_y
         time = args[2] or time
         ease = args[3] or ease
@@ -381,9 +383,9 @@ function WorldCutscene:panTo(...)
         ease = args[3] or ease
         after = args[4]
     else
-        x, y = Game.world:getCameraTarget():getPosition()
+        x, y = self.world:getCameraTarget():getPosition()
     end
-    local result = Game.world.camera:panTo(x, y, time, ease, after)
+    local result = self.world.camera:panTo(x, y, time, ease, after)
     if not result and after then
         after()
     end
@@ -404,7 +406,7 @@ function WorldCutscene:panToSpeed(...)
         speed = args[3] or speed
         after = args[4]
     elseif type(args[1]) == "string" then
-        local marker = Game.world.map.markers[args[1]]
+        local marker = self.world.map.markers[args[1]]
         x, y = marker.center_x, marker.center_y
         speed = args[2] or speed
         after = args[3]
@@ -414,29 +416,29 @@ function WorldCutscene:panToSpeed(...)
         speed = args[2] or speed
         after = args[3]
     else
-        x, y = Game.world:getCameraTarget():getPosition()
+        x, y = self.world:getCameraTarget():getPosition()
     end
-    local result = Game.world.camera:panToSpeed(x, y, speed, after)
+    local result = self.world.camera:panToSpeed(x, y, speed, after)
     if not result and after then
         after()
     end
     return waitForCameraPan
 end
 
-local function waitForMapTransition() return Game.world.state ~= "FADING" end
+local function waitForMapTransition() return self.world.state ~= "FADING" end
 function WorldCutscene:mapTransition(...)
-    Game.world:mapTransition(...)
+    self.world:mapTransition(...)
     return waitForMapTransition
 end
 
 function WorldCutscene:loadMap(...)
-    Game.world:loadMap(...)
+    self.world:loadMap(...)
 end
 
 function WorldCutscene:fadeOut(speed, options)
     options = options or {}
 
-    local fader = options["global"] and Game.fader or Game.world.fader
+    local fader = options["global"] and Game.fader or self.world.fader
 
     if speed then
         options["speed"] = speed
@@ -452,7 +454,7 @@ end
 function WorldCutscene:fadeIn(speed, options)
     options = options or {}
 
-    local fader = options["global"] and Game.fader or Game.world.fader
+    local fader = options["global"] and Game.fader or self.world.fader
 
     if speed then
         options["speed"] = speed
@@ -487,7 +489,7 @@ function WorldCutscene:text(text, portrait, actor, options)
 
     self.textbox = Textbox(56, 344, width, height)
     self.textbox.layer = WORLD_LAYERS["textbox"]
-    Game.world:addChild(self.textbox)
+    self.world:addChild(self.textbox)
     self.textbox:setParallax(0, 0)
 
     local speaker = self.textbox_speaker
@@ -508,7 +510,7 @@ function WorldCutscene:text(text, portrait, actor, options)
     end
 
     if options["top"] == nil and self.textbox_top == nil then
-        local _, player_y = Game.world.player:localToScreenPos()
+        local _, player_y = self.world.player:localToScreenPos()
         options["top"] = player_y > 260
     end
     if options["top"] or (options["top"] == nil and self.textbox_top) then
@@ -594,7 +596,7 @@ function WorldCutscene:choicer(choices, options)
 
     self.choicebox = Choicebox(56, 344, width, height, false, options)
     self.choicebox.layer = WORLD_LAYERS["textbox"]
-    Game.world:addChild(self.choicebox)
+    self.world:addChild(self.choicebox)
     self.choicebox:setParallax(0, 0)
 
     for _,choice in ipairs(choices) do
@@ -603,7 +605,7 @@ function WorldCutscene:choicer(choices, options)
 
     options = options or {}
     if options["top"] == nil and self.textbox_top == nil then
-        local _, player_y = Game.world.player:localToScreenPos()
+        local _, player_y = self.world.player:localToScreenPos()
         options["top"] = player_y > 260
     end
     if options["top"] or (options["top"] == nil and self.textbox_top) then
@@ -643,7 +645,7 @@ function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
 
     self.textchoicebox = TextChoicebox(56, 344, width, height)
     self.textchoicebox.layer = WORLD_LAYERS["textbox"]
-    Game.world:addChild(self.textchoicebox)
+    self.world:addChild(self.textchoicebox)
     self.textchoicebox:setParallax(0, 0)
 
     for _,choice in ipairs(choices) do
@@ -668,7 +670,7 @@ function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
     end
 
     if options["top"] == nil and self.textbox_top == nil then
-        local _, player_y = Game.world.player:localToScreenPos()
+        local _, player_y = self.world.player:localToScreenPos()
         options["top"] = player_y > 260
     end
     if options["top"] or (options["top"] == nil and self.textbox_top) then
@@ -751,7 +753,7 @@ function WorldCutscene:showShop()
 
     self.shopbox = Shopbox()
     self.shopbox.layer = WORLD_LAYERS["textbox"]
-    Game.world:addChild(self.shopbox)
+    self.world:addChild(self.shopbox)
     self.shopbox:setParallax(0, 0)
 end
 
