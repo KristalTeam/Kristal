@@ -593,6 +593,23 @@ function DebugSystem:registerSubMenus()
             self.playing_sound = Assets.playSound(id)
         end)
     end
+
+    self:registerMenu("change_party", "Change Party", "search")
+
+    for id, _ in pairs(Registry.party_members) do
+        self:registerOption("change_party", id, "Add this party member to the party.", function ()
+            if (Game:hasPartyMember(id)) then
+                Game:removePartyMember(id)
+                local char = Game.world:getPartyCharacter(id)
+                if char then
+                    char:remove()
+                end
+            else
+                Game:addPartyMember(id)
+                Game.world:spawnFollower(id)
+            end
+        end)
+    end
 end
 
 function DebugSystem:registerDefaults()
@@ -653,6 +670,9 @@ function DebugSystem:registerDefaults()
                             self:enterMenu("sound_test", 0)
                         end, in_game)
 
+    self:registerOption("main", "Change Party", "Enter the party change menu.", function ()
+                            self:enterMenu("change_party", 0)
+                        end, in_game)
 
     -- World specific
     self:registerOption("main", "Select Map", "Switch to a new map.", function ()

@@ -486,9 +486,17 @@ function World:spawnFollower(chara, options)
     if isClass(chara) and chara:includes(Follower) then
         follower = chara
     else
-        follower = Follower(chara, self.player.x, self.player.y)
+        local x = 0
+        local y = 0
+        if self.player then
+            x = self.player.x
+            y = self.player.y
+        end
+        follower = Follower(chara, x, y)
         follower.layer = self.map.object_layer
-        follower:setFacing(self.player.facing)
+        if self.player then
+            follower:setFacing(self.player.facing)
+        end
     end
     if options["x"] or options["y"] then
         follower:setPosition(options["x"] or follower.x, options["y"] or follower.y)
