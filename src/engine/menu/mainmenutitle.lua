@@ -84,7 +84,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             self.menu:setState("CREDITS")
 
         elseif option == "wiki" then
-            love.system.openURL("https://beta.kristal.cc/wiki")
+            love.system.openURL("https://kristal.cc/wiki")
 
         elseif option == "quit" then
             love.event.quit()
