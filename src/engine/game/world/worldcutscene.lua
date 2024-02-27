@@ -24,7 +24,6 @@ function WorldCutscene:init(world, group, id, ...)
     self.world = world
 
     Game.lock_movement = true
-    Game.cutscene_active = true
 
     if Game:isLight() then
         if self.world.menu and self.world.menu.state == "ITEMMENU" then
@@ -59,7 +58,6 @@ end
 
 function WorldCutscene:onEnd()
     Game.lock_movement = false
-    Game.cutscene_active = false
 
     if self.world.cutscene == self then
         self.world.cutscene = nil
