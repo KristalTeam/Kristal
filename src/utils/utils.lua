@@ -2396,7 +2396,7 @@ end
 --- XOR (eXclusive OR) logic operation
 ---@param ... any [conditions]
 ---@return boolean
-function Utils.XOR(...)
+function Utils.xor(...)
     local counter = 0
     for _,value in ipairs({...}) do
         if value then
