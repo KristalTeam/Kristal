@@ -1018,7 +1018,7 @@ function Battle:processAction(action)
 
                 battler.chara:onAttackHit(enemy, damage)
             else
-                enemy:hurt(0, battler)
+                enemy:hurt(0, battler, nil, nil, nil, action.points ~= 0)
             end
 
             self:finishAction(action)
