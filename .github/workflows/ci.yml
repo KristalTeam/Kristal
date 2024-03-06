@@ -20,13 +20,13 @@ jobs:
 
       - name: Download LÖVE
         run: |
-          curl -L https://github.com/love2d/love/releases/download/11.4/love-11.4-win64.zip -o love.zip
+          curl -L https://github.com/love2d/love/releases/download/11.5/love-11.5-win64.zip -o love.zip
           7z x love.zip
           rm love.zip
 
       - name: Build
         run: |
-          python3 ./kristal/build.py --kristal ./kristal --love ./love-11.4-win64
+          python3 ./kristal/build.py --kristal ./kristal --love ./love-11.5-win64
 
       - name: Upload Build
         uses: actions/upload-artifact@v2

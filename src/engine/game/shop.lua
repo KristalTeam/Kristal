@@ -65,12 +65,20 @@ function Shop:init()
     self.talk_replacements = {}
 
     -- SELLMENU
-    self.sell_options = {
-        {"Sell Items",        "items"},
-        {"Sell Weapons",      "weapons"},
-        {"Sell Armor",        "armors"},
-        {"Sell Pocket Items", "storage"}
-    }
+    if Game.inventory.storage_enabled then
+        self.sell_options = {
+            {"Sell Items",        "items"},
+            {"Sell Weapons",      "weapons"},
+            {"Sell Armor",        "armors"},
+            {"Sell Pocket Items", "storage"}
+        }
+    else
+        self.sell_options = {
+            {"Sell Items",        "items"},
+            {"Sell Weapons",      "weapons"},
+            {"Sell Armor",        "armors"}
+        }
+    end
 
     self.background = "ui/shop/bg_seam"
 

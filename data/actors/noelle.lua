@@ -13,6 +13,10 @@ function actor:init()
     -- Hitbox for this actor in the overworld (optional, uses width and height by default)
     self.hitbox = {2, 33, 19, 14}
 
+    -- A table that defines where the Soul should be placed on this actor if they are a player.
+    -- First value is x, second value is y.
+    self.soul_offset = {11.5, 28}
+
     -- Color for this actor used in outline areas (optional, defaults to red)
     self.color = {1, 1, 0}
 
@@ -217,7 +221,7 @@ end
 
 function actor:getAnimation(anim)
     -- If the weird route flag is set and an alt animation is defined, use it instead
-    if Game:getFlag("noelle_weird") and self.animations_alt[anim] ~= nil then
+    if Game:getPartyMember("noelle"):getFlag("weird", false) and self.animations_alt[anim] ~= nil then
         return self.animations_alt[anim] or nil
     else
         return super.getAnimation(self, anim)

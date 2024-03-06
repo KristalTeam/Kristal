@@ -33,7 +33,6 @@ function RecruitMessage:init(type, x, y)
 
     self.alpha = 1
 
-    -- TODO: Set these while recruiting! Gotta wait for recruiting first, though...
     self.first_number = 1
     self.second_number = 1
 end
@@ -95,7 +94,7 @@ function RecruitMessage:draw()
 
     if (self.second_number > 1) then
         love.graphics.setFont(Assets.getFont("goldnumbers"))
-        love.graphics.print(tostring(self.first_number), self.texture:getWidth() - 70, 35)
+        love.graphics.print(tostring(self.first_number), self.texture:getWidth() - 70 - ((#tostring(self.first_number) - 1) * 20), 35)
         love.graphics.print(tostring(self.second_number), self.texture:getWidth() - 30, 35)
         love.graphics.print("/", self.texture:getWidth() - 50, 35)
     end

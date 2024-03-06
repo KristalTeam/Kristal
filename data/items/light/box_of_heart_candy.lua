@@ -11,6 +11,9 @@ function item:init(inventory)
     -- Whether this item is for the light world
     self.light = true
 
+    -- Item description text (unused by light items outside of debug menu)
+    self.description = "A box of heart shaped candies. It's not yours."
+
     -- Light world check text
     self.check = "It's not\nyours.[wait:5] Will that stop you?."
 

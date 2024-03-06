@@ -11,6 +11,9 @@ function item:init(inventory)
     -- Whether this item is for the light world
     self.light = true
 
+    -- Item description text (unused by light items outside of debug menu)
+    self.description = "The Jack of Spades, and the Rules Card."
+
     -- Light world check text
     self.check = "The Jack of Spades,[wait:5]\nand the Rules Card."
 

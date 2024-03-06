@@ -13,6 +13,7 @@ function HealthBar:init()
     self.animation_done = false
     self.animation_timer = 0
     self.animate_out = false
+    self.animation_y = -63
 
     self.action_boxes = {}
 
@@ -79,10 +80,28 @@ function HealthBar:update()
     end
 
     if not self.animate_out then
-        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 417 + 63, -63, max_time)
+        if self.animation_y < 0 then
+            if self.animation_y > -40 then
+                self.animation_y = self.animation_y + math.ceil(-self.animation_y / 2.5) * DTMULT
+            else
+                self.animation_y = self.animation_y + 30 * DTMULT
+            end
+        else
+            self.animation_y = 0
+        end
     else
-        self.y = Ease.outCubic(math.min(max_time, self.animation_timer), 417, 63, max_time)
+        if self.animation_y > -63 then
+            if self.animation_y > 0 then
+                self.animation_y = self.animation_y - math.floor(self.animation_y / 2.5) * DTMULT
+            else
+                self.animation_y = self.animation_y - 30 * DTMULT
+            end
+        else
+            self.animation_y = -63
+        end
     end
+
+    self.y = 480 - (self.animation_y + 63)
 
     super.update(self)
 end

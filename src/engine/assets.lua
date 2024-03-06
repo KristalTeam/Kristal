@@ -22,6 +22,7 @@ local self = Assets
 ---@field frame_ids table<string, string[]>
 ---@field fonts table<string, love.Font|{default: number, [number]: love.Font}>
 ---@field font_data table<string, love.Data>
+---@field font_bmfont_data table<string, string>
 ---@field font_image_data table<string, love.ImageData>
 ---@field font_settings table<string, table>
 ---@field sound_data table<string, love.SoundData>
@@ -40,6 +41,7 @@ function Assets.clear()
         frames = {},
         fonts = {},
         font_data = {},
+        font_bmfont_data = {},
         font_image_data = {},
         font_settings = {},
         sound_data = {},
@@ -109,6 +111,29 @@ function Assets.parseData(data)
         local default = data.font_settings[key] and data.font_settings[key]["defaultSize"] or 12
         self.data.fonts[key] = {default = default}
     end
+    -- create bmfont fonts
+    for key,file_path in pairs(data.font_bmfont_data) do
+        data.font_settings[key] = data.font_settings[key] or {}
+        if data.font_settings[key]["autoScale"] == nil then
+            data.font_settings[key]["autoScale"] = true
+        end
+        self.data.fonts[key] = love.graphics.newFont(file_path)
+    end
+    -- set up bmfont font fallbacks
+    for key,_ in pairs(data.font_bmfont_data) do
+        if data.font_settings[key]["fallbacks"] then
+            local fallbacks = {}
+            for _,fallback in ipairs(data.font_settings[key]["fallbacks"]) do
+                local font = self.data.fonts[fallback["font"]]
+                if type(font) == "table" or (data.font_settings[fallback["font"]] and data.font_settings[fallback["font"]]["glyphs"]) then
+                    error("Attempt to use TTF or image fallback on BMFont font: " .. key)
+                else
+                    table.insert(fallbacks, font)
+                end
+            end
+            self.data.fonts[key]:setFallbacks(unpack(fallbacks))
+        end
+    end
     -- create image fonts
     for key,image_data in pairs(data.font_image_data) do
         local glyphs = data.font_settings[key] and data.font_settings[key]["glyphs"] or ""
@@ -124,8 +149,8 @@ function Assets.parseData(data)
             local fallbacks = {}
             for _,fallback in ipairs(data.font_settings[key]["fallbacks"]) do
                 local font = self.data.fonts[fallback["font"]]
-                if type(font) == "table" then
-                    error("Attempt to use TTF fallback on image font: " .. key)
+                if type(font) == "table" or not (data.font_settings[fallback["font"]] and data.font_settings[fallback["font"]]["glyphs"]) then
+                    error("Attempt to use TTF or BMFont fallback on image font: " .. key)
                 else
                     table.insert(fallbacks, font)
                 end
@@ -187,7 +212,7 @@ function Assets.getFont(path, size)
                         local fb_font = self.data.fonts[fallback["font"]]
 
                         if type(fb_font) ~= "table" then
-                            error("Attempt to use image fallback on TTF font: " .. path)
+                            error("Attempt to use image or BMFont fallback on TTF font: " .. path)
                         else
                             local ratio = (fallback["size"] or fb_font.default) / font.default
                             table.insert(fallbacks, self.getFont(fallback["font"], size * ratio))

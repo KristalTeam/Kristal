@@ -101,7 +101,9 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
-                if mod["useSaves"] or (mod["useSaves"] == nil and not mod["encounter"]) then
+                if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems( "saves/"..mod.id ) > 0))
+                or (mod["useSaves"] ~= "has_saves" and mod["useSaves"])
+                or (mod["useSaves"] == nil and not mod["encounter"]) then
                     self.menu:setState("FILESELECT")
                 else
                     Kristal.loadMod(mod.id)

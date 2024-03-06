@@ -25,6 +25,10 @@ function Battler:init(x, y, width, height)
 
     -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
     self.dialogue_bubble = nil
+
+    self.alert_timer = 0
+    self.alert_icon = nil
+    self.alert_callback = nil
 end
 
 function Battler:setActor(actor, use_overlay)
@@ -63,6 +67,22 @@ end
 function Battler:flash(sprite, offset_x, offset_y, layer)
     local sprite_to_use = sprite or self.sprite
     return sprite_to_use:flash(offset_x, offset_y, layer)
+end
+
+function Battler:alert(duration, options)
+    options = options or {}
+    if options["play_sound"] == nil or options["play_sound"] then
+        Assets.stopAndPlaySound("alert")
+    end
+    local sprite_to_use = options["sprite"] or "effects/alert"
+    self.alert_timer = duration and duration*30 or 20
+    if self.alert_icon then self.alert_icon:remove() end
+    self.alert_icon = Sprite(sprite_to_use, (self.width/2)+(options["offset_x"] or 0), options["offset_y"] or 0)
+    self.alert_icon:setOrigin(0.5, 1)
+    self.alert_icon.layer = options["layer"] or 100
+    self:addChild(self.alert_icon)
+    self.alert_callback = options["callback"]
+    return self.alert_icon
 end
 
 function Battler:sparkle(r, g, b)
@@ -171,6 +191,18 @@ function Battler:update()
         self.highlight.amount = 0
         self.flash_timer = 0
         self.last_highlighted = false
+    end
+
+    if self.alert_timer > 0 then
+        self.alert_timer = Utils.approach(self.alert_timer, 0, DTMULT)
+        if self.alert_timer == 0 then
+            self.alert_icon:remove()
+            self.alert_icon = nil
+            if self.alert_callback then
+                self.alert_callback()
+                self.alert_callback = nil
+            end
+        end
     end
 
     super.update(self)

@@ -7,6 +7,8 @@ function love.conf(t)
     -- startup. (Even when mod.json>setWindowTitle is true, we can only
     -- do that when loading finishes.)
 
+    local major, minor, revision, codename = love.getVersion()
+
     t.identity = "kristal"
     -- TODO: hmm
     t.version = "11.0"
@@ -15,4 +17,12 @@ function love.conf(t)
     t.window.icon = "icon.png"
     t.window.width = 640
     t.window.height = 480
+
+    if major >= 12 then
+        t.highdpi = true
+        t.usedpiscale = false
+    else
+        t.window.highdpi = true
+        t.window.usedpiscale = false
+    end
 end

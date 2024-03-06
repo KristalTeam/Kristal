@@ -108,19 +108,34 @@ function SpeechBubble:advance()
 end
 
 function SpeechBubble:setText(text, callback, line_callback)
-    if self.actor and self.actor:getVoice() then
-        if type(text) ~= "table" then
-            text = {text}
-        else
-            text = Utils.copy(text)
+    if self.actor then
+        if self.actor:getVoice() then
+            if type(text) ~= "table" then
+                text = {text}
+            else
+                text = Utils.copy(text)
+            end
+            for i,line in ipairs(text or {}) do
+                text[i] = "[voice:"..self.actor:getVoice().."]"..line
+            end
         end
-        for i,line in ipairs(text or {}) do
-            text[i] = "[voice:"..self.actor:getVoice().."]"..line
+        if self.actor:getFont() then
+            if type(text) ~= "table" then
+                text = {text}
+            else
+                text = Utils.copy(text)
+            end
+            for i,line in ipairs(text or {}) do
+                if self.actor:getSpeechBubbleFontSize() then
+                    text[i] = "[font:"..self.actor:getFont()..","..self.actor:getSpeechBubbleFontSize().."]"..line
+                else
+                    text[i] = "[font:"..self.actor:getFont().."]"..line
+                end
+            end
         end
-        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
-    else
-        self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
     end
+    
+    self.text:setText(text, callback or self.advance_callback, line_callback or self.line_callback)
 
     self:updateSize()
 end

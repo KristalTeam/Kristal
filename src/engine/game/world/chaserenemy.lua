@@ -32,9 +32,6 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.chase_dist = properties["chasedist"] or 200
     self.chasing = properties["chasing"] or false
 
-    self.alert_timer = 0
-    self.alert_icon = nil
-
     self.noclip = true
     self.enemy_collision = true
 
@@ -220,29 +217,19 @@ function ChaserEnemy:update()
             self:snapToPath()
         end
 
-        if self.alert_timer > 0 then
-            self.alert_timer = Utils.approach(self.alert_timer, 0, DTMULT)
-            if self.alert_timer == 0 then
-                self.alert_icon:remove()
-                self.alert_icon = nil
-                self.chasing = true
-                self.noclip = false
-                self:setAnimation("chasing")
-            end
-        elseif self.can_chase and not self.chasing then
+        if self.alert_timer == 0 and self.can_chase and not self.chasing then
             if self.world.player then
                 Object.startCache()
                 local in_radius = self.world.player:collidesWith(CircleCollider(self.world, self.x, self.y, self.chase_dist))
                 if in_radius then
                     local sight = LineCollider(self.world, self.x, self.y, self.world.player.x, self.world.player.y)
                     if not self.world:checkCollision(sight, true) and not self.world:checkCollision(self.collider, true) then
-                        Assets.stopAndPlaySound("alert")
                         self.path = nil
-                        self.alert_timer = 20
-                        self.alert_icon = Sprite("effects/alert", self.width/2)
-                        self.alert_icon:setOrigin(0.5, 1)
-                        self.alert_icon.layer = 100
-                        self:addChild(self.alert_icon)
+                        self:alert(nil, {callback=function()
+                            self.chasing = true
+                            self.noclip = false
+                            self:setAnimation("chasing")
+                        end})
                         self:setAnimation("alerted")
                     end
                 end

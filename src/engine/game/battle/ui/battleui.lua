@@ -27,7 +27,6 @@ function BattleUI:init()
     self:addChild(self.short_act_text_2)
     self:addChild(self.short_act_text_3)
 
-
     self.action_boxes = {}
     self.attack_boxes = {}
 
@@ -35,6 +34,7 @@ function BattleUI:init()
 
     local size_offset = 0
     local box_gap = 0
+    
     if #Game.battle.party == 3 then
         size_offset = 0
         box_gap = 0
@@ -50,7 +50,6 @@ function BattleUI:init()
         box_gap = 0
     end
 
-
     for index,battler in ipairs(Game.battle.party) do
         local action_box = ActionBox(size_offset+ (index - 1) * (213 + box_gap), 0, index, battler)
         self:addChild(action_box)
@@ -64,6 +63,9 @@ function BattleUI:init()
     self.animation_done = true
     self.animation_timer = 0
     self.animate_out = false
+
+    self.animation_y = 0
+    self.animation_y_lag = 0
 
     self.shown = false
 
@@ -137,6 +139,7 @@ function BattleUI:transitionOut()
         self.animate_out = true
         self.animation_timer = 0
         self.animation_done = false
+        self.animation_y_lag = self.y
         self.shown = false
     end
 end
@@ -152,18 +155,41 @@ function BattleUI:update()
             self.animation_timer = max_time + 1
         end
 
-        local offset
         local lower, upper = self:getTransitionBounds()
+        local target = lower - upper
+
         if not self.animate_out then
-            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), lower, upper - lower, max_time)
-            offset = self.y - Ease.outCubic(self.animation_timer - 1, lower, upper - lower, max_time)
+            if self.animation_y < target then
+                if target - self.animation_y < 40 then
+                    self.animation_y = self.animation_y + math.ceil((target - self.animation_y) / 2.5) * DTMULT
+                else
+                    self.animation_y = self.animation_y + 30 * DTMULT
+                end
+            else
+                self.animation_y = target
+            end
         else
-            self.y = Ease.outCubic(math.min(max_time, self.animation_timer), upper, lower - upper, max_time)
-            offset = self.y - Ease.outCubic(math.max(0, self.animation_timer - 1), upper, lower - upper, max_time)
+            self.animation_y_lag = Utils.approach(self.animation_y_lag, self.y, 30 * DTMULT)
+
+            if self.animation_y > 0 then
+                if math.floor((target - self.animation_y) / 5) > 15 then
+                    self.animation_y = self.animation_y - math.floor((target - self.animation_y) / 2.5) * DTMULT
+                else
+                    self.animation_y = self.animation_y - 30 * DTMULT
+                end
+            else
+                self.animation_y = 0
+            end
         end
+        
+        self.y = lower - self.animation_y
 
         for _, box in ipairs(self.action_boxes) do
-            box.data_offset = offset
+            if not self.animate_out then
+                box.data_offset = self.animation_y - target
+            else
+                box.data_offset = self.y - self.animation_y_lag
+            end
         end
     end
 
@@ -309,7 +335,7 @@ function BattleUI:drawState()
         end
 
         -- Print information about currently selected item
-        local tp_offset = 0
+        local tp_offset, _ = 0, nil --initialize placeholdder variable so it doenst go in global scope
         local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
         if current_item.description then
             Draw.setColor(COLORS.gray)

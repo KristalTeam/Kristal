@@ -30,6 +30,10 @@ function Character:init(actor, x, y)
 
     self.spin_timer = 0
     self.spin_speed = 0
+
+    self.alert_timer = 0
+    self.alert_icon = nil
+    self.alert_callback = nil
 end
 
 function Character:getDebugInfo()
@@ -342,6 +346,22 @@ function Character:flash(sprite, offset_x, offset_y, layer)
     return sprite_to_use:flash(offset_x, offset_y, layer)
 end
 
+function Character:alert(duration, options)
+    options = options or {}
+    if options["play_sound"] == nil or options["play_sound"] then
+        Assets.stopAndPlaySound("alert")
+    end
+    local sprite_to_use = options["sprite"] or "effects/alert"
+    self.alert_timer = duration and duration*30 or 20
+    if self.alert_icon then self.alert_icon:remove() end
+    self.alert_icon = Sprite(sprite_to_use, (self.width/2)+(options["offset_x"] or 0), options["offset_y"] or 0)
+    self.alert_icon:setOrigin(0.5, 1)
+    self.alert_icon.layer = options["layer"] or 100
+    self:addChild(self.alert_icon)
+    self.alert_callback = options["callback"]
+    return self.alert_icon
+end
+
 function Character:setSprite(sprite)
     self.sprite:setSprite(sprite)
 end
@@ -607,6 +627,18 @@ function Character:update()
         end
     else
         self.spin_timer = 0
+    end
+
+    if self.alert_timer > 0 then
+        self.alert_timer = Utils.approach(self.alert_timer, 0, DTMULT)
+        if self.alert_timer == 0 then
+            self.alert_icon:remove()
+            self.alert_icon = nil
+            if self.alert_callback then
+                self.alert_callback()
+                self.alert_callback = nil
+            end
+        end
     end
 
     super.update(self)

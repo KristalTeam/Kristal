@@ -51,9 +51,10 @@
     // Whether the mod is hidden from the mod selection.
     "hidden": false,
 
-    // Whether the game window's title should be set to the mod's name, when the engine is run
-    // with this mod as the target mod.
-    "setWindowTitle": true,
+    // Whether the game window's title should be set to the mod's name. When your mod is
+    // configured as the engine's target mod, this is true by default; vice versa otherwise.
+    // Here, specifying "null" essentially makes the engine decide for you.
+    "setWindowTitle": null,
 
     // Config values for the engine and any libraries you may have.
     // These config values can control chapter-specific features as well.

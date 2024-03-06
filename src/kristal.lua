@@ -399,7 +399,7 @@ function Kristal.onKeyPressed(key, is_repeat)
         if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
             FAST_FORWARD = not FAST_FORWARD
         elseif key == "f3" then
-            love.system.openURL("https://github.com/KristalTeam/Kristal/wiki")
+            love.system.openURL("https://kristal.cc/wiki")
         elseif key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
             love.window.setFullscreen(Kristal.Config["fullscreen"])
@@ -409,7 +409,7 @@ function Kristal.onKeyPressed(key, is_repeat)
             print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
             Hotswapper.scan()
         elseif key == "r" and Input.ctrl() and not console_open then
-            if Kristal.getModOption("hardReset") then
+            if Kristal.getModOption("hardReset") or Input.alt() and Input.shift() then
                 love.event.quit("restart")
             else
                 if Mod then
@@ -895,7 +895,7 @@ function Kristal.clearModState()
     Assets.restoreData()
     Registry.initialize()
     love.window.setIcon(Kristal.icon)
-    love.window.setTitle(Kristal.game_default_name)
+    love.window.setTitle(Kristal.getDesiredWindowTitle())
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -925,11 +925,12 @@ end
 ---| "none" # Fully reloads the mod from the start of the game.
 function Kristal.quickReload(mode)
     -- Temporarily save game variables
-    local save, save_id, encounter
+    local save, save_id, encounter, shop
     if mode == "temp" then
         save = Game:save()
         save_id = Game.save_id
         encounter = Game.battle and Game.battle.encounter and Game.battle.encounter.id
+        shop = Game.shop and Game.shop.id
     elseif mode == "save" then
         save_id = Game.save_id
     end
@@ -949,15 +950,19 @@ function Kristal.quickReload(mode)
             Kristal.loadMod(mod_id, nil, nil, function ()
                 -- Pre-initialize the current mod
                 if Kristal.preInitMod(mod_id) then
-                    -- Switch to Game and load the temp save
-                    Gamestate.switch(Game)
+                    love.window.setTitle(Kristal.getDesiredWindowTitle())
                     if save then
-                        Game:load(save, save_id)
-
+                        -- Switch to Game and load the temp save
+                        Gamestate.switch(Game, save, save_id, false)
                         -- If we had an encounter, restart the encounter
                         if encounter then
                             Game:encounter(encounter, false)
+                        elseif shop then -- If we were in a shop, re-enter it
+                            Game:enterShop(shop)
                         end
+                    else
+                        -- Switch to Game
+                        Gamestate.switch(Game)
                     end
                 end
             end)
@@ -1069,6 +1074,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
     Kristal.loadModAssets(mod.id, "all", "", after or function ()
         if Kristal.preInitMod(mod.id) then
+            love.window.setTitle(Kristal.getDesiredWindowTitle())
             Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end
     end)
@@ -1114,10 +1120,16 @@ end
 
 --- Called internally. Gets the intended title of the game window.
 function Kristal.getDesiredWindowTitle()
-    local target_mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD)
-    local use_target_mod_name = target_mod
-        and (target_mod.setWindowTitle == nil or target_mod.setWindowTitle)
-    return use_target_mod_name and target_mod.name or Kristal.game_default_name
+    local mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD) or (Mod and Mod.info)
+    local use_mod_name = false
+    if mod then
+        if TARGET_MOD then
+            use_mod_name = mod.setWindowTitle ~= false
+        else
+            use_mod_name = mod.setWindowTitle
+        end
+    end
+    return use_mod_name and mod.name or Kristal.game_default_name
 end
 
 --- Called internally. Calls the `preInit` event on the mod and initializes the registry.
@@ -1162,10 +1174,14 @@ function Kristal.resetWindow()
         window_height                     = window_height + border_height
     end
 
-    love.window.setMode(window_width, window_height, {
-        fullscreen = Kristal.Config["fullscreen"],
-        vsync = Kristal.Config["vSync"]
-    })
+    love.window.setMode(
+        love.window.fromPixels(window_width),
+        love.window.fromPixels(window_height),
+        {
+            fullscreen = Kristal.Config["fullscreen"],
+            vsync = Kristal.Config["vSync"]
+        }
+    )
 
     -- Force tilelayers to redraw, since resetWindow destroys their canvases
     if Game.world then
@@ -1473,14 +1489,16 @@ function Kristal.libCall(id, f, ...)
     if not Mod then return end
 
     if not id then
-        local result
+        local result = {}
         for _, lib in Kristal.iterLibraries() do
             if lib[f] and type(lib[f]) == "function" then
-                local lib_result = lib[f](lib, ...)
-                result = lib_result or result
+                local lib_results = {lib[f](lib, ...)}
+                if(#lib_results > 0) then
+                    result = lib_results
+                end
             end
         end
-        return result
+        return Utils.unpack(result)
     else
         local lib = Mod.libs[id]
         if lib and lib[f] and type(lib[f]) == "function" then
@@ -1495,11 +1513,14 @@ end
 ---@return any result The result of the function calls `or`'d together.
 function Kristal.callEvent(f, ...)
     if not Mod then return end
-
-    local lib_result = Kristal.libCall(nil, f, ...)
-    local mod_result = Kristal.modCall(f, ...)
-
-    return mod_result or lib_result
+    local lib_result = {Kristal.libCall(nil, f, ...)}
+    local mod_result = {Kristal.modCall(f, ...)}
+    --print("EVENT: "..tostring(f), #mod_result, #lib_result)
+    if(#mod_result > 0) then
+        return Utils.unpack(mod_result)
+    else
+        return Utils.unpack(lib_result)
+    end
 end
 
 --- Gets a value from the current `Mod`.

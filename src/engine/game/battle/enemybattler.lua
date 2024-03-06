@@ -70,6 +70,9 @@ function EnemyBattler:init(actor, use_overlay)
             ["party"] = {}
         }
     }
+    
+    -- How many times an enemy needs to be spared to recruit. Set 0 for unrecruitable enemies.
+    self.recruit = 0
 
     self.hurt_timer = 0
     self.comment = ""
@@ -112,6 +115,7 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
     table.insert(self.acts, act)
     return act
 end
+
 function EnemyBattler:registerShortAct(name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
@@ -160,6 +164,7 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
     }
     table.insert(self.acts, act)
 end
+
 function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
@@ -182,6 +187,15 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
         ["icons"] = icons
     }
     table.insert(self.acts, act)
+end
+
+function EnemyBattler:removeAct(name)
+    for i,act in ipairs(self.acts) do
+        if act.name == name then
+            table.remove(self.acts, i)
+            break
+        end
+    end
 end
 
 function EnemyBattler:spare(pacify)
@@ -263,8 +277,9 @@ function EnemyBattler:onSpareable()
 end
 
 function EnemyBattler:addMercy(amount)
-    if self.mercy >= 100 then
-        -- We're already at full mercy; do nothing.
+    if (amount>=0 and self.mercy >= 100) or (amount<0 and self.mercy <=0) then
+        -- We're already at full mercy and trying to add more; do nothing.
+        -- Also do nothing if trying to remove from an empty mercy bar.
         return
     end
 
@@ -285,18 +300,20 @@ function EnemyBattler:addMercy(amount)
     end
 
     if Game:getConfig("mercyMessages") then
-        if amount > 0 then
-            local pitch = 0.8
-            if amount < 99 then pitch = 1 end
-            if amount <= 50 then pitch = 1.2 end
-            if amount <= 25 then pitch = 1.4 end
+        if amount == 0 then
+            self:statusMessage("msg", "miss")
+        else
+            if amount > 0 then
+                local pitch = 0.8
+                if amount < 99 then pitch = 1 end
+                if amount <= 50 then pitch = 1.2 end
+                if amount <= 25 then pitch = 1.4 end
 
-            local src = Assets.playSound("mercyadd", 0.8)
-            src:setPitch(pitch)
+                local src = Assets.playSound("mercyadd", 0.8)
+                src:setPitch(pitch)
+            end
 
             self:statusMessage("mercy", amount)
-        else
-            self:statusMessage("msg", "miss")
         end
     end
 end
@@ -439,16 +456,20 @@ function EnemyBattler:isXActionShort(battler)
     return false
 end
 
-function EnemyBattler:hurt(amount, battler, on_defeat, color)
+function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status)
     if amount == 0 or (amount < 0 and Game:getConfig("damageUnderflowFix")) then
-        self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+        if show_status ~= false then
+            self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+        end
 
         self:onDodge(battler)
         return
     end
 
     self.health = self.health - amount
-    self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+    if show_status ~= false then
+        self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+    end
 
     if amount > 0 then
         self.hurt_timer = 1
@@ -618,8 +639,30 @@ function EnemyBattler:defeat(reason, violent)
 
     if violent then
         Game.battle.used_violence = true
+        if self.recruit > 0 and self:getFlag("recruit", 0) ~= false then
+            if Game:getConfig("enableRecruits") and self.done_state ~= "FROZEN" then
+                self:recruitMessage("lost")
+            end
+            self:setFlag("recruit", false)
+        end
+        -- if self.done_state == "KILLED" or self.done_state == "FROZEN" then
+            -- Game.battle.xp = Game.battle.xp + self.experience
+        -- end
     end
-
+    
+    if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
+        self:addFlag("recruit", 1)
+        if Game:getConfig("enableRecruits") then
+            local counter = self:recruitMessage("recruit")
+            counter.first_number = self:getFlag("recruit", 0)
+            counter.second_number = self.recruit
+            Assets.playSound("sparkle_gem")
+        end
+        if self:getFlag("recruit", 0) >= self.recruit then
+            self:setFlag("recruit", true)
+        end
+    end
+    
     Game.battle.money = Game.battle.money + self.money
     Game.battle.xp = Game.battle.xp + self.experience
 

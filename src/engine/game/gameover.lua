@@ -257,6 +257,9 @@ function GameOver:update()
             if Game:getConfig("oldGameOver") and not Game:isLight() then Game.died_once = true end
             self.current_stage = 11
             Game:loadQuick()
+            if Game:isLight() then
+                Game.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+            end
         end
     end
 

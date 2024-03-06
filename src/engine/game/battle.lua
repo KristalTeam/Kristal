@@ -313,6 +313,7 @@ function Battle:onStateChange(old,new)
     if result or self.state ~= new then
         return
     end
+
     if new == "INTRO" then
         self.seen_encounter_text = false
         self.intro_timer = 0
@@ -351,16 +352,9 @@ function Battle:onStateChange(old,new)
 
         self:showUI()
 
-        -- Workaround for autobattlers until BattleUI is created earlier
-        -- TODO: BattleUI is now created earlier, do something with this
-        if not had_started then
-            for _,party in ipairs(self.party) do
-                party.chara:onTurnStart(party)
-            end
-            local party = self.party[self.current_selecting]
-            party.chara:onActionSelect(party, false)
-            self.encounter:onCharacterTurn(party, false)
-        end
+        local party = self.party[self.current_selecting]
+        party.chara:onActionSelect(party, false)
+        self.encounter:onCharacterTurn(party, false)
     elseif new == "ACTIONS" then
         self.battle_ui:clearEncounterText()
         if self.state_reason ~= "DONTPROCESS" then
@@ -1910,11 +1904,10 @@ function Battle:nextParty()
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
             self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
-        else
-            local party = self.party[self.current_selecting]
-            party.chara:onActionSelect(party, false)
-            self.encounter:onCharacterTurn(party, false)
         end
+        local party = self.party[self.current_selecting]
+        party.chara:onActionSelect(party, false)
+        self.encounter:onCharacterTurn(party, false)
     end
 end
 
@@ -2025,6 +2018,7 @@ function Battle:nextTurn()
     end
 
     self.encounter:onTurnStart()
+
     for _,enemy in ipairs(self:getActiveEnemies()) do
         enemy:onTurnStart()
     end
@@ -2033,9 +2027,9 @@ function Battle:nextTurn()
         for _,party in ipairs(self.party) do
             party.chara:onTurnStart(party)
         end
-    end
+    end  
 
-    if self.current_selecting ~= 0 then
+    if self.current_selecting ~= 0 and self.state ~= "ACTIONSELECT" then
         self:setState("ACTIONSELECT")
     end
 end
@@ -2277,7 +2271,7 @@ function Battle:update()
         self.offset = self.offset - 100
     end
 
-    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDING") then
+    if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDINGBEGIN") or (self.state == "DEFENDING") then
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
         if not self.darkify then
             self.darkify = true
@@ -2525,7 +2519,7 @@ function Battle:draw()
     self.encounter:drawBackground(self.transition_timer / 10)
 
     Draw.setColor(0, 0, 0, self.background_fade_alpha)
-    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    love.graphics.rectangle("fill", -20, -20, SCREEN_WIDTH + 40, SCREEN_HEIGHT + 40)
 
     super.draw(self)
 
@@ -2729,16 +2723,18 @@ function Battle:onKeyPressed(key)
         end
         if self.soul and key == "j" then
             self.soul:shatter(6)
-            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(99999)
+            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(math.huge)
         end
         if key == "b" then
             for _,battler in ipairs(self.party) do
-                battler:hurt(99999)
+                battler:hurt(math.huge)
             end
         end
         if key == "k" then
-            -- Set it directly so it's not capped by the max
-            Game.tension = (Game:getMaxTension() * 2)
+            Game:setTension(Game:getMaxTension() * 2, true)
+        end
+        if key == "n" then
+            NOCLIP = not NOCLIP
         end
     end
 
@@ -2749,7 +2745,7 @@ function Battle:onKeyPressed(key)
         if Input.isConfirm(key) then
             local menu_item = self.menu_items[self:getItemIndex()]
             local can_select = self:canSelectMenuItem(menu_item)
-            if Game.battle.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
+            if self.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
             if Kristal.callEvent("onBattleMenuSelect", self.state_reason, menu_item, can_select) then return end
             if can_select then
                 self.ui_select:stop()
@@ -2758,6 +2754,8 @@ function Battle:onKeyPressed(key)
                 return
             end
         elseif Input.isCancel(key) then
+            if self.encounter:onMenuCancel(self.state_reason, menu_item) then return end
+            if Kristal.callEvent("onBattleMenuCancel", self.state_reason, menu_item, can_select) then return end
             self.ui_move:stop()
             self.ui_move:play()
             Game:setTensionPreview(0)
@@ -2783,6 +2781,9 @@ function Battle:onKeyPressed(key)
                 self.current_menu_y = 1 -- No wrapping in this menu.
             end
         elseif Input.is("down", key) then
+            if self:getItemIndex() % 6 == 0 and #self.menu_items % 6 == 1 and self.current_menu_y == menu_height - 1 then
+                self.current_menu_x = self.current_menu_x - 1
+            end
             self.current_menu_y = self.current_menu_y + 1
             if (self.current_menu_y > menu_height) or (not self:isValidMenuLocation()) then
                 self.current_menu_y = menu_height -- No wrapping in this menu.
@@ -2793,6 +2794,8 @@ function Battle:onKeyPressed(key)
         end
     elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
         if Input.isConfirm(key) then
+            if self.encounter:onEnemySelect(self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent("onBattleEnemySelect", self.state_reason, self.current_menu_y) then return end
             self.ui_select:stop()
             self.ui_select:play()
             if #self.enemies == 0 then return end
@@ -2849,6 +2852,8 @@ function Battle:onKeyPressed(key)
             return
         end
         if Input.isCancel(key) then
+            if self.encounter:onEnemyCancel(self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent("onBattleEnemyCancel", self.state_reason, self.current_menu_y) then return end
             self.ui_move:stop()
             self.ui_move:play()
             if self.state_reason == "SPELL" then
@@ -2899,6 +2904,8 @@ function Battle:onKeyPressed(key)
         end
     elseif self.state == "PARTYSELECT" then
         if Input.isConfirm(key) then
+            if self.encounter:onPartySelect(self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent("onBattlePartySelect", self.state_reason, self.current_menu_y) then return end
             self.ui_select:stop()
             self.ui_select:play()
             if self.state_reason == "SPELL" then
@@ -2911,6 +2918,8 @@ function Battle:onKeyPressed(key)
             return
         end
         if Input.isCancel(key) then
+            if self.encounter:onPartyCancel(self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent("onBattlePartyCancel", self.state_reason, self.current_menu_y) then return end
             self.ui_move:stop()
             self.ui_move:play()
             if self.state_reason == "SPELL" then

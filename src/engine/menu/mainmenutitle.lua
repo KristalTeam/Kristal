@@ -45,6 +45,7 @@ function MainMenuTitle:onEnter(old_state)
             {"modfolder", "Open mods folder"},
             {"options",   "Options"},
             {"credits",   "Credits"},
+            {"wiki",      "Open wiki"},
             {"quit",      "Quit"},
         }
     end
@@ -81,6 +82,9 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
 
         elseif option == "credits" then
             self.menu:setState("CREDITS")
+
+        elseif option == "wiki" then
+            love.system.openURL("https://kristal.cc/wiki")
 
         elseif option == "quit" then
             love.event.quit()

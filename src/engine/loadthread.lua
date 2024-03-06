@@ -66,6 +66,7 @@ function resetData()
             frames = {},
             fonts = {},
             font_data = {},
+            font_bmfont_data = {},
             font_image_data = {},
             font_settings = {},
             sounds = {},
@@ -275,7 +276,10 @@ local loaders = {
             end
             for i = 3, 1, -1 do
                 local num = tonumber(id:sub(-i))
-                if num then
+                local bad_index = (num ~= num) or --NaN check
+                                  (num == 1/0) or
+                                  (num == -1/0)
+                if num and (not bad_index) then
                     local frame_name = id:sub(1, -i - 1)
                     if frame_name:sub(-1, -1) == "_" then
                         frame_name = frame_name:sub(1, -2)
@@ -291,6 +295,10 @@ local loaders = {
         local id = checkExtension(path, "ttf")
         if id then
             pcall(function () data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
+        end
+        id = checkExtension(path, "fnt")
+        if id then
+            pcall(function () data.assets.font_bmfont_data[id] = full_path end)
         end
         id = checkExtension(path, "png")
         if id then
