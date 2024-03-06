@@ -714,6 +714,10 @@ function Game:getRecruits(include_incomplete)
     return recruits
 end
 
+function Game:hasRecruit(enemy, include_incomplete)
+    return Utils.containsValue(Game:getRecruits(include_incomplete), enemy)
+end
+
 function Game:giveTension(amount)
     local start = self:getTension()
     self:setTension(self:getTension() + amount)
