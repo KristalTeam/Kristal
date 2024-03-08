@@ -597,16 +597,33 @@ function DebugSystem:registerSubMenus()
     self:registerMenu("change_party", "Change Party", "search")
 
     for id, _ in pairs(Registry.party_members) do
-        self:registerOption("change_party", id, "Add this party member to the party.", function ()
+        self:registerOption("change_party", id, "Add or remove this party member from the party.", function ()
             if (Game:hasPartyMember(id)) then
-                Game:removePartyMember(id)
-                local char = Game.world:getPartyCharacter(id)
+                local char = Game.world:getPartyCharacterInParty(id)
+                local first_follower_char
                 if char then
+                    if char == Game.world.player then
+                        for _,party in ipairs(Game.party) do
+                            if id ~= party.id then
+                                first_follower_char = Game.world:getPartyCharacterInParty(party)
+                                if first_follower_char then
+                                    first_follower_char:convertToPlayer()
+                                    break
+                                end
+                            end
+                        end
+                    end
                     char:remove()
                 end
+                Game:removePartyMember(id)
             else
                 Game:addPartyMember(id)
-                Game.world:spawnFollower(id)
+                if Game.world.player then
+                    Game.world:spawnFollower(Game.party_data[id]:getActor())
+                else
+                    local x, y = Game.world.camera:getPosition()
+                    Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor())
+                end
             end
         end)
     end
