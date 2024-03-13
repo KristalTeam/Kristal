@@ -360,6 +360,18 @@ function PartyMember:hasSpell(spell)
     return false
 end
 
+function PartyMember:replaceSpell(spell, replacement)
+    local tempspells = {}
+    for _,v in ipairs(self.spells) do
+        if v == spell or (type(spell) == "string" and v.id == spell) then
+            table.insert(tempspells, Registry.createSpell("red_buster"))
+        else
+            table.insert(tempspells, v)
+        end
+    end
+    self.spells = tempspells
+end
+
 function PartyMember:getEquipment()
     local result = {}
     if self.equipped.weapon then
