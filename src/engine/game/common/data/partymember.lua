@@ -364,7 +364,7 @@ function PartyMember:replaceSpell(spell, replacement)
     local tempspells = {}
     for _,v in ipairs(self.spells) do
         if v == spell or (type(spell) == "string" and v.id == spell) then
-            table.insert(tempspells, Registry.createSpell("red_buster"))
+            table.insert(tempspells, Registry.createSpell(replacement))
         else
             table.insert(tempspells, v)
         end
