@@ -2027,7 +2027,7 @@ function Battle:nextTurn()
         for _,party in ipairs(self.party) do
             party.chara:onTurnStart(party)
         end
-    end  
+    end
 
     if self.current_selecting ~= 0 and self.state ~= "ACTIONSELECT" then
         self:setState("ACTIONSELECT")

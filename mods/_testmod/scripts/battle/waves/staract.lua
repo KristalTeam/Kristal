@@ -14,9 +14,32 @@ function StarAct:onStart()
     self.timer:after(2, function()
         self.starwalker.sprite:set("acting")
         Assets.playSound("sparkle_glock")
+        local afterimage = AfterImage(self.starwalker, 0.5)
+        afterimage.graphics.grow_x = 0.05
+        afterimage.graphics.grow_y = 0.05
+        afterimage.layer = self.starwalker.layer - 1
+        Game.battle:addChild(afterimage)
+
         self.timer:after(0.5, function()
             Assets.playSound("awkward")
-            Game.battle.soul:setScale(2)
+            Game.battle:swapSoul(BlueSoul())
+
+            local soulafterimage = AfterImage(Game.battle.soul.sprite, 1)
+            soulafterimage.graphics.grow_x = 0.2
+            soulafterimage.graphics.grow_y = 0.2
+            Game.battle.soul:addChild(soulafterimage)
+            soulafterimage.y = soulafterimage.y - 8
+        end)
+
+        self.timer:after(2, function()
+            self.timer:everyInstant(0.25, function()
+                Assets.playSound("stardrop")
+                local star = self:spawnBullet("bullets/star", self.starwalker.x - 20, self.starwalker.y - 40)
+                star.inv_timer = 1/30
+                star.destroy_on_hit = false
+                star.physics.direction = math.atan2(Game.battle.soul.y - star.y, Game.battle.soul.x - star.x)
+                star.physics.speed = 12
+            end)
         end)
     end)
 end

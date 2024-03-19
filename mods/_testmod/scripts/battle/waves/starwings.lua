@@ -4,15 +4,17 @@ function Starwings:init()
     super.init(self)
     self.time = 8
     self.starwalker = self:getAttackers()[1]
+
+    self.speed = 1
 end
 
 function Starwings:onStart()
     self.starwalker:setMode("shoot")
-    self.timer:everyInstant(2, function ()
+    self.timer:everyInstant(2 * self.speed, function ()
         self.starwalker.sprite:set("starwalker_shoot_1")
         Assets.playSound("wing")
 
-        self.timer:after(0.5, function ()
+        self.timer:after(0.5 * self.speed, function ()
             self.starwalker.sprite:set("starwalker_shoot_2")
             Assets.playSound("stardrop")
             for i = -1, 1 do
@@ -24,7 +26,7 @@ function Starwings:onStart()
                 star.physics.speed = 6
             end
         end)
-        self.timer:after(1, function ()
+        self.timer:after(1 * self.speed, function ()
             self.starwalker.sprite:set("wings")
         end)
     end)

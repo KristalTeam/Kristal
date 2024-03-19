@@ -20,12 +20,6 @@ function Starwalker:init()
 
     self.exit_on_defeat = true
 
-    self.waves = {
-        "starwings"
-        --"staract"
-        --"solidtest"
-    }
-
     self.check = {
         "AT 1 DF 1\n[wait:5]The   [color:yellow]original[color:reset]  enemy\n[wait:5]Can only deal [sound:vine_boom][offset:0,-16][font:main_mono,64]1[offset:0,16][font:reset][wait:10] damage",
         "Can't keep [wait:5]Alive forever  [wait:5] Keep   attacking"
@@ -55,6 +49,35 @@ function Starwalker:init()
     self.ease_timer = 0
 
     self.timer = 0
+
+    self.progress = 0
+
+    self.waves = {
+        "starwingsfaster"
+    }
+end
+
+function Starwalker:onTurnEnd()
+    self.progress = self.progress + 1
+end
+
+function Starwalker:getEncounterText()
+    if (self.progress == 2) then
+        return "* Star walker is preparing\n[color:blue]something [offset:0,-8][color:red][font:main_mono,48]!!"
+    end
+    return super.getEncounterText(self)
+end
+
+function Starwalker:getNextWaves()
+    if (self.progress == 0) then
+        return {"starwings"}
+    elseif (self.progress == 1) then
+        return {"starwingsfaster"}
+    elseif (self.progress == 2) then
+        return {"staract"}
+    end
+
+    return super.getNextWaves(self)
 end
 
 function Starwalker:setMode(mode)
