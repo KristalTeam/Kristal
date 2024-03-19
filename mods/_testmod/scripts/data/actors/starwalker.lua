@@ -26,7 +26,6 @@ function actor:init()
 
     -- Sound to play when this actor speaks (optional)
     self.voice = nil
-    self.indent_string = "*** "
     -- Path to this actor's portrait for dialogue (optional)
     self.portrait_path = nil
     -- Offset position for this actor's portrait (optional)
@@ -43,6 +42,9 @@ function actor:init()
         ["wings"] = {"starwalker_wings", 0.25, true},
         ["hurt"] = {"starwalker_shoot_1", 0.5, true},
         ["shoot"] = {"starwalker_wings", 0.25, true, next="wings", frames={5,4,3,2}},
+        ["reaching"] = {"starwalker_reaching", 0.25, true},
+        ["acting"] = {"starwalker_acting", 2/30, false},
+        ["pointing"] = {"starwalker_pointing", 0.25, false}
     }
 
     -- Table of sprite offsets (indexed by sprite name)
@@ -51,6 +53,9 @@ function actor:init()
         ["starwalker_wings"] = {-6, -4},
         ["starwalker_shoot_1"] = {0, 0},
         ["starwalker_shoot_2"] = {-5, 0},
+        ["starwalker_reaching"] = {-8, -1},
+        ["starwalker_acting"] = {-24, -1},
+        ["starwalker_pointing"] = {-8, -1}
     }
 end
 
