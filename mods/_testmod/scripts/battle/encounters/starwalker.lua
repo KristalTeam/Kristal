@@ -30,4 +30,11 @@ function Starwalker:update()
     end
 end
 
+function Starwalker:createSoul(x, y, color)
+    if self.starwalker.blue then
+        return BlueSoul(x, y)
+    end
+    return Soul(x, y, color)
+end
+
 return Starwalker

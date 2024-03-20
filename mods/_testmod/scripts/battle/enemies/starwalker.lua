@@ -55,6 +55,8 @@ function Starwalker:init()
     self.waves = {
         "starwingsfaster"
     }
+
+    self.blue = false
 end
 
 function Starwalker:onTurnEnd()
@@ -69,12 +71,28 @@ function Starwalker:getEncounterText()
 end
 
 function Starwalker:getNextWaves()
+
+    --[[if true then
+        self.blue = true
+        return {"starup"}
+    end]]
+
+
     if (self.progress == 0) then
         return {"starwings"}
     elseif (self.progress == 1) then
         return {"starwingsfaster"}
     elseif (self.progress == 2) then
         return {"staract"}
+    elseif (self.progress == 3) then
+        self.blue = true
+        return {"starwings"}
+    elseif (self.progress == 4) then
+        self.blue = true
+        return {"starwingsfaster"}
+    elseif (self.progress == 5) then
+        self.blue = true
+        return {"starup"}
     end
 
     return super.getNextWaves(self)

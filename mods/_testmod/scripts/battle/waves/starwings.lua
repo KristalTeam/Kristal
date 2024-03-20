@@ -6,6 +6,7 @@ function Starwings:init()
     self.starwalker = self:getAttackers()[1]
 
     self.speed = 1
+    self.size = 1
 end
 
 function Starwings:onStart()
@@ -24,6 +25,7 @@ function Starwings:onStart()
                 star.destroy_on_hit = false
                 star.physics.direction = math.atan2(Game.battle.soul.y - star.y, Game.battle.soul.x - star.x) + math.rad(offset)
                 star.physics.speed = 6
+                star:setScale(2 * self.size)
             end
         end)
         self.timer:after(1 * self.speed, function ()

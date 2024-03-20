@@ -44,7 +44,9 @@ function actor:init()
         ["shoot"] = {"starwalker_wings", 0.25, true, next="wings", frames={5,4,3,2}},
         ["reaching"] = {"starwalker_reaching", 0.25, true},
         ["acting"] = {"starwalker_acting", 2/30, false},
-        ["pointing"] = {"starwalker_pointing", 0.25, false}
+        ["pointing"] = {"starwalker_pointing", 0.25, false},
+        ["pointing_up"] = {"starwalker_pointing_up", 1/30, false},
+        ["pointing_down"] = {"starwalker_pointing_up", 1/30, false, next="wings", frames={5,4,3,2,1}}
     }
 
     -- Table of sprite offsets (indexed by sprite name)
@@ -55,7 +57,8 @@ function actor:init()
         ["starwalker_shoot_2"] = {-5, 0},
         ["starwalker_reaching"] = {-8, -1},
         ["starwalker_acting"] = {-24, -1},
-        ["starwalker_pointing"] = {-8, -1}
+        ["starwalker_pointing"] = {-8, -1},
+        ["starwalker_pointing_up"] = {-6, -11}
     }
 end
 

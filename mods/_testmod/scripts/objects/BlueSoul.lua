@@ -11,13 +11,15 @@ function BlueSoul:init(x, y)
 
     self.speed_x = 0
     self.speed_y = 0
+
+    self.rotation = math.rad(0)
 end
 
 function BlueSoul:doMovement()
     local speed = self.speed
 
     if (Input.down("cancel")) then
-        self.speed = self.speed / 2
+        speed = self.speed / 2
     end
 
     local move_x, move_y = 0, 0
@@ -25,15 +27,13 @@ function BlueSoul:doMovement()
     if (Input.down("left")) then self:move(-speed, 0, DTMULT) move_x = -1 end
     if (Input.down("right")) then self:move(speed, 0, DTMULT) move_x =  1 end
 
-    self.speed_x = 0
-
-    if (Input.down("up") and self.speed_y == 0 and self.jumpstage == 1) then
+    if (Input.down(Utils.facingFromAngle(self.rotation - math.rad(90))) and self.speed_y == 0 and self.jumpstage == 1) then
         self.jumpstage = 2;
         self.speed_y = -6;
     end
 
     if (self.jumpstage == 2) then
-        if ((not Input.down("up")) and self.speed_y <= -1) then
+        if ((not Input.down(Utils.facingFromAngle(self.rotation - math.rad(90)))) and self.speed_y <= -1) then
             self.speed_y = -1
         end
 
@@ -51,7 +51,13 @@ function BlueSoul:doMovement()
         end
     end
 
-    local moved, collided = self:move(self.speed_x, self.speed_y, DTMULT)
+    local new_speed_x = math.cos(math.rad(math.deg(self.rotation) + 90))
+    local new_speed_y = math.sin(math.rad(math.deg(self.rotation) + 90))
+
+    if (math.abs(new_speed_x) < 0.001) then new_speed_x = 0 end
+    if (math.abs(new_speed_y) < 0.001) then new_speed_y = 0 end
+
+    local moved, collided = self:move(new_speed_x, new_speed_y, self.speed_y * DTMULT)
     if (collided) then
         if (self.speed_y > 10) then
 		    Assets.stopAndPlaySound("hurt")
