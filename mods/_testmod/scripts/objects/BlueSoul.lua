@@ -24,8 +24,14 @@ function BlueSoul:doMovement()
 
     local move_x, move_y = 0, 0
 
-    if (Input.down("left")) then self:move(-speed, 0, DTMULT) move_x = -1 end
-    if (Input.down("right")) then self:move(speed, 0, DTMULT) move_x =  1 end
+    if (self.rotation >= math.rad(45) and self.rotation < math.rad(135)) or
+         (self.rotation >= math.rad(225) and self.rotation < math.rad(315)) then
+        if (Input.down("up")) then self:move(0, -speed, DTMULT) move_y = -1 end
+        if (Input.down("down")) then self:move(0, speed, DTMULT) move_y =  1 end
+    else
+        if (Input.down("left")) then self:move(-speed, 0, DTMULT) move_x = -1 end
+        if (Input.down("right")) then self:move(speed, 0, DTMULT) move_x =  1 end
+    end
 
     if (Input.down(Utils.facingFromAngle(self.rotation - math.rad(90))) and self.speed_y == 0 and self.jumpstage == 1) then
         self.jumpstage = 2;
@@ -38,16 +44,16 @@ function BlueSoul:doMovement()
         end
 
         if ((self.speed_y > 0.5) and (self.speed_y < 8)) then
-            self.speed_y = self.speed_y + 0.6
+            self.speed_y = self.speed_y + 0.6 * DTMULT
         end
         if ((self.speed_y > -1) and (self.speed_y <= 0.5)) then
-            self.speed_y = self.speed_y + 0.2
+            self.speed_y = self.speed_y + 0.2 * DTMULT
         end
         if ((self.speed_y > -4) and (self.speed_y <= -1)) then
-            self.speed_y = self.speed_y + 0.5
+            self.speed_y = self.speed_y + 0.5 * DTMULT
         end
         if ((self.speed_y <= -4)) then
-            self.speed_y = self.speed_y + 0.2
+            self.speed_y = self.speed_y + 0.2 * DTMULT
         end
     end
 
