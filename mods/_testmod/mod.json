@@ -26,8 +26,6 @@
         }
     },
 
-    "transition": false,
-
     "quickReload": true,
     "hidden": false,
 
