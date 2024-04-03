@@ -149,7 +149,7 @@ end
 function Game:getSavePreview()
     return {
         name = self.save_name,
-        level = self.save_level,
+        level = self.light and self.save_lw_level or self.save_level,
         playtime = self.playtime,
         room_name = self.world and self.world.map and self.world.map.name or "???",
     }
@@ -161,6 +161,7 @@ function Game:save(x, y)
 
         name = self.save_name,
         level = self.save_level,
+        lw_level = Game.party and Game.party[1] and Game.party[1]:getLightLV() or 1,
         playtime = self.playtime,
 
         light = self.light,
@@ -252,6 +253,7 @@ function Game:load(data, index, fade)
 
     self.save_name = data.name or self.save_name or "PLAYER"
     self.save_level = data.level or self.chapter
+    self.save_lw_level = data.lw_level or Game.party and Game.party[1] and Game.party[1]:getLightLV() or 1
     self.save_id = index or self.save_id or 1
 
     self.playtime = data.playtime or 0
