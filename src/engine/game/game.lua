@@ -149,7 +149,7 @@ end
 function Game:getSavePreview()
     return {
         name = self.save_name,
-        level = self.light and self.save_lw_level or self.save_level,
+        level = self:isLight() and self.save_lw_level or self.save_level,
         playtime = self.playtime,
         room_name = self.world and self.world.map and self.world.map.name or "???",
     }
