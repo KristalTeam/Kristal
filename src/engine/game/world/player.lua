@@ -187,6 +187,7 @@ function Player:isMovementEnabled()
         and Game.state == "OVERWORLD"
         and self.world.state == "GAMEPLAY"
         and self.hurt_timer == 0
+        and Game.world.door_delay == 0
 end
 
 function Player:handleMovement()

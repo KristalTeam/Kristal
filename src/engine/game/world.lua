@@ -63,6 +63,8 @@ function World:init(map)
 
     self.calls = {}
 
+    self.door_delay = 0
+
     if map then
         self:loadMap(map)
     end
@@ -715,9 +717,9 @@ end
 
 function World:loadMap(...)
     local args = {...}
-    -- x, y, facing
+    -- x, y, facing, callback
     local map = table.remove(args, 1)
-    local marker, x, y, facing
+    local marker, x, y, facing, callback
     if type(args[1]) == "string" then
         marker = table.remove(args, 1)
     elseif type(args[1]) == "number" then
@@ -728,6 +730,9 @@ function World:loadMap(...)
     end
     if args[1] then
         facing = table.remove(args, 1)
+    end
+    if args[1] then
+        callback = table.remove(args, 1)
     end
 
     if self.map then
@@ -756,6 +761,10 @@ function World:loadMap(...)
     end
 
     self.map:onEnter()
+
+    if callback then
+        callback(self.map)
+    end
 end
 
 function World:transitionMusic(next, fade_out)
@@ -981,6 +990,10 @@ function World:update()
     end
     if self.battle_fader then
         self.battle_fader:setColor(0, 0, 0, half_alpha)
+    end
+
+    if (self.door_delay > 0) then
+        self.door_delay = math.max(self.door_delay - DT, 0)
     end
 
     self.map:update()
