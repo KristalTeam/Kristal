@@ -298,10 +298,9 @@ function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     return function() return chara.sprite.graphics.shake_x == 0 and chara.sprite.graphics.shake_y == 0 end
 end
 
-local function waitForCameraShake() return self.world.camera.shake_x == 0 and self.world.camera.shake_y == 0 end
 function WorldCutscene:shakeCamera(x, y, friction)
     self.world.camera:shake(x, y, friction)
-    return waitForCameraShake
+    return function() return self.world.camera.shake_x == 0 and self.world.camera.shake_y == 0 end
 end
 
 function WorldCutscene:alert(chara, ...)
@@ -423,10 +422,9 @@ function WorldCutscene:panToSpeed(...)
     return waitForCameraPan
 end
 
-local function waitForMapTransition() return self.world.state ~= "FADING" end
 function WorldCutscene:mapTransition(...)
     self.world:mapTransition(...)
-    return waitForMapTransition
+    return function() return self.world.state ~= "FADING" end
 end
 
 function WorldCutscene:loadMap(...)
