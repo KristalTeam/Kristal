@@ -604,12 +604,14 @@ function Game:hasPartyMember(chara)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
     end
-    for _,party_member in ipairs(self.party) do
-        if party_member.id == chara.id then
-            return true
+    if chara then
+        for _,party_member in ipairs(self.party) do
+            if party_member.id == chara.id then
+                return true
+            end
         end
+        return false
     end
-    return false
 end
 
 function Game:movePartyMember(chara, index)
