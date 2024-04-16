@@ -362,7 +362,7 @@ function BattleUI:drawState()
         end
 
     elseif Game.battle.state == "ENEMYSELECT" or Game.battle.state == "XACTENEMYSELECT" then
-        local enemies = Game.battle.all_enemies
+        local enemies = Game.battle.enemies_index
 
         local page = math.ceil(Game.battle.current_menu_y / 3) - 1
         local max_page = math.ceil(#enemies / 3) - 1
