@@ -202,6 +202,7 @@ function Battle:postInit(state, encounter)
                 enemy.x = SCREEN_WIDTH + 200
             end
             table.insert(self.enemies, enemy)
+            table.insert(self.enemies_index, enemy)
             self:addChild(enemy)
         end
     end
@@ -2815,7 +2816,7 @@ function Battle:onKeyPressed(key)
             if Kristal.callEvent("onBattleEnemySelect", self.state_reason, self.current_menu_y) then return end
             self.ui_select:stop()
             self.ui_select:play()
-            if #self.enemies == 0 then return end
+            if #self.enemies_index == 0 then return end
             self.selected_enemy = self.current_menu_y
             if self.state == "XACTENEMYSELECT" then
                 local xaction = Utils.copy(self.selected_xaction)
