@@ -2081,10 +2081,10 @@ function Battle:returnToWorld()
             self.party_world_characters[battler.chara.id].visible = true
         end
     end
-    local enemies_index = {}
-    Utils.merge(enemies_index, self.defeated_enemies)
-    Utils.merge(enemies_index, self.enemies)
-    for _,enemy in ipairs(enemies_index) do
+    local all_enemies = {}
+    Utils.merge(all_enemies, self.defeated_enemies)
+    Utils.merge(all_enemies, self.enemies)
+    for _,enemy in ipairs(all_enemies) do
         local world_chara = self.enemy_world_characters[enemy]
         if world_chara then
             world_chara.visible = true
@@ -2387,9 +2387,9 @@ function Battle:updateTransitionOut()
         return
     end
 
-    local enemies_index = {}
-    Utils.merge(enemies_index, self.enemies)
-    Utils.merge(enemies_index, self.defeated_enemies)
+    local all_enemies = {}
+    Utils.merge(all_enemies, self.enemies)
+    Utils.merge(all_enemies, self.defeated_enemies)
 
     self.transition_timer = self.transition_timer - DTMULT
 
@@ -2410,7 +2410,7 @@ function Battle:updateTransitionOut()
         battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
     end
 
-    for _, enemy in ipairs(enemies_index) do
+    for _, enemy in ipairs(all_enemies) do
         local world_chara = self.enemy_world_characters[enemy]
         if enemy.target_x and enemy.target_y and not enemy.exit_on_defeat and world_chara and world_chara.parent then
             enemy.x = Utils.lerp(self.enemy_beginning_positions[enemy][1], enemy.target_x, self.transition_timer / 10)
