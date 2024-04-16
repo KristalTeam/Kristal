@@ -83,7 +83,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
-        enemies_index = enemies
+        enemies_index = Game.battle.enemies_index
         transition = Game.battle.state == "TRANSITION"
     end
     if transition then
