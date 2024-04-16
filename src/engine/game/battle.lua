@@ -2902,8 +2902,8 @@ function Battle:onKeyPressed(key)
                 self.ui_move:play()
             end
         elseif Input.is("down", key) then
-            local old_location = self.current_menu_y
             if #self.enemies_index == 0 then return end
+            local old_location = self.current_menu_y
             local give_up = 0
             repeat
                 give_up = give_up + 1
