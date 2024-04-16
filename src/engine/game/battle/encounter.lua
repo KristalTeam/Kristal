@@ -79,9 +79,11 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj = enemy
     end
     local enemies = self.queued_enemy_spawns
+    local enemies_index = enemies
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
+        enemies_index = enemies
         transition = Game.battle.state == "TRANSITION"
     end
     if transition then
@@ -111,7 +113,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     enemy_obj.encounter = self
     table.insert(enemies, enemy_obj)
-    table.insert(Game.battle.enemies_index, enemy_obj)
+    table.insert(enemies_index, enemy_obj)
     if Game.battle and Game.state == "BATTLE" then
         Game.battle:addChild(enemy_obj)
     end
