@@ -366,6 +366,19 @@ function Battle:onStateChange(old,new)
         self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
         self.selected_enemy = 1
+        
+        if not (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable) and #self.enemies_index > 0 then
+            local give_up = 0
+            repeat
+                give_up = give_up + 1
+                if give_up > 100 then return end
+                -- Keep decrementing until there's a selectable enemy.
+                self.current_menu_y = self.current_menu_y + 1
+                if self.current_menu_y > #self.enemies_index then
+                    self.current_menu_y = 1
+                end
+            until (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable)
+        end
     elseif new == "PARTYSELECT" then
         self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
@@ -2263,19 +2276,6 @@ function Battle:update()
             if all_done then
                 self:setState("DIALOGUEEND")
             end
-        end
-    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
-        if not (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable) and #self.enemies_index > 0 then
-            local give_up = 0
-            repeat
-                give_up = give_up + 1
-                if give_up > 100 then return end
-                -- Keep decrementing until there's a selectable enemy.
-                self.current_menu_y = self.current_menu_y + 1
-                if self.current_menu_y > #self.enemies_index then
-                    self.current_menu_y = 1
-                end
-            until (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable)
         end
     end
 
