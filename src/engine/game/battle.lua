@@ -95,6 +95,7 @@ function Battle:init()
     self.current_menu_y = 1
 
     self.enemies = {}
+    self.all_enemies = {}
     self.enemy_dialogue = {}
     self.enemies_to_remove = {}
     self.defeated_enemies = {}
@@ -2193,6 +2194,7 @@ end
 function Battle:update()
     for _,enemy in ipairs(self.enemies_to_remove) do
         Utils.removeFromTable(self.enemies, enemy)
+        self.all_enemies[Utils.getKey(self.all_enemies, enemy)] = false
     end
     self.enemies_to_remove = {}
 
@@ -2258,6 +2260,19 @@ function Battle:update()
             if all_done then
                 self:setState("DIALOGUEEND")
             end
+        end
+    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
+        if not (self.all_enemies[self.current_menu_y] and self.all_enemies[self.current_menu_y].selectable) and #self.all_enemies > 0 then
+            local give_up = 0
+            repeat
+                give_up = give_up + 1
+                if give_up > 100 then return end
+                -- Keep decrementing until there's a selectable enemy.
+                self.current_menu_y = self.current_menu_y + 1
+                if self.current_menu_y > #self.all_enemies then
+                    self.current_menu_y = 1
+                end
+            until (self.all_enemies[self.current_menu_y] and self.all_enemies[self.current_menu_y].selectable)
         end
     end
 
@@ -2580,7 +2595,7 @@ function Battle:isHighlighted(battler)
     if self.state == "PARTYSELECT" then
         return self.party[self.current_menu_y] == battler
     elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
-        return self.enemies[self.current_menu_y] == battler
+        return self.all_enemies[self.current_menu_y] == battler
     elseif self.state == "MENUSELECT" then
         local current_menu = self.menu_items[self:getItemIndex()]
         if current_menu and current_menu.highlight then
@@ -2803,14 +2818,14 @@ function Battle:onKeyPressed(key)
             if self.state == "XACTENEMYSELECT" then
                 local xaction = Utils.copy(self.selected_xaction)
                 if xaction.default then
-                    xaction.name = self.enemies[self.selected_enemy]:getXAction(self.party[self.current_selecting])
+                    xaction.name = self.all_enemies[self.selected_enemy]:getXAction(self.party[self.current_selecting])
                 end
-                self:pushAction("XACT", self.enemies[self.selected_enemy], xaction)
+                self:pushAction("XACT", self.all_enemies[self.selected_enemy], xaction)
             elseif self.state_reason == "SPARE" then
-                self:pushAction("SPARE", self.enemies[self.selected_enemy])
+                self:pushAction("SPARE", self.all_enemies[self.selected_enemy])
             elseif self.state_reason == "ACT" then
                 self:clearMenuItems()
-                local enemy = self.enemies[self.selected_enemy]
+                local enemy = self.all_enemies[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
                     local insert = not v.hidden
                     if v.character and self.party[self.current_selecting].chara.id ~= v.character then
@@ -2841,11 +2856,11 @@ function Battle:onKeyPressed(key)
                 end
                 self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
-                self:pushAction("ATTACK", self.enemies[self.selected_enemy])
+                self:pushAction("ATTACK", self.all_enemies[self.selected_enemy])
             elseif self.state_reason == "SPELL" then
-                self:pushAction("SPELL", self.enemies[self.selected_enemy], self.selected_spell)
+                self:pushAction("SPELL", self.all_enemies[self.selected_enemy], self.selected_spell)
             elseif self.state_reason == "ITEM" then
-                self:pushAction("ITEM", self.enemies[self.selected_enemy], self.selected_item)
+                self:pushAction("ITEM", self.all_enemies[self.selected_enemy], self.selected_item)
             else
                 self:nextParty()
             end
@@ -2866,7 +2881,7 @@ function Battle:onKeyPressed(key)
             return
         end
         if Input.is("up", key) then
-            if #self.enemies == 0 then return end
+            if #self.all_enemies == 0 then return end
             local old_location = self.current_menu_y
             local give_up = 0
             repeat
@@ -2875,9 +2890,9 @@ function Battle:onKeyPressed(key)
                 -- Keep decrementing until there's a selectable enemy.
                 self.current_menu_y = self.current_menu_y - 1
                 if self.current_menu_y < 1 then
-                    self.current_menu_y = #self.enemies
+                    self.current_menu_y = #self.all_enemies
                 end
-            until (self.enemies[self.current_menu_y].selectable)
+            until (self.all_enemies[self.current_menu_y] and self.all_enemies[self.current_menu_y].selectable)
 
             if self.current_menu_y ~= old_location then
                 self.ui_move:stop()
@@ -2885,17 +2900,17 @@ function Battle:onKeyPressed(key)
             end
         elseif Input.is("down", key) then
             local old_location = self.current_menu_y
-            if #self.enemies == 0 then return end
+            if #self.all_enemies == 0 then return end
             local give_up = 0
             repeat
                 give_up = give_up + 1
                 if give_up > 100 then return end
                 -- Keep decrementing until there's a selectable enemy.
                 self.current_menu_y = self.current_menu_y + 1
-                if self.current_menu_y > #self.enemies then
+                if self.current_menu_y > #self.all_enemies then
                     self.current_menu_y = 1
                 end
-            until (self.enemies[self.current_menu_y].selectable)
+            until (self.all_enemies[self.current_menu_y] and self.all_enemies[self.current_menu_y].selectable)
 
             if self.current_menu_y ~= old_location then
                 self.ui_move:stop()
