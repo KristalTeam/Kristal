@@ -22,7 +22,6 @@ function DarkTransition:init(final_y, options)
     self.timer = 0
     self.index = 0
     self.velocity = 0
-    self.old_velocity = 0
     self.friction = 0
 
 
@@ -107,41 +106,6 @@ function DarkTransition:init(final_y, options)
         self.kris_head_object.visible = true
         self.character_data[1].sprite_holder:addChild(self.kris_head_object)
     end
-
-    self.spr_susieu = Assets.getFrames("party/susie/light/walk/up")
-    self.spr_krisu = Assets.getFrames("party/kris/light/walk/up")
-
-    self.spr_susie_lw_fall_u = Assets.getFrames("party/susie/dark_transition/forward")
-    self.spr_krisu_fall_lw = Assets.getFrames("party/kris/dark_transition/forward")
-
-    self.spr_susieu_run = Assets.getFrames("party/susie/dark_transition/run")
-    self.spr_krisu_run = Assets.getFrames("party/kris/dark_transition/run")
-
-    self.spr_susie_lw_fall_turn = Assets.getFrames("party/susie/dark_transition/turn")
-    self.spr_kris_fall_turnaround = Assets.getFrames("party/kris/dark_transition/turn")
-
-    self.spr_susie_lw_fall_d = Assets.getFrames("party/susie/dark_transition/light")
-    self.spr_kris_fall_d_lw = Assets.getFrames("party/kris/dark_transition/light")
-
-    self.spr_susie_dw_fall_d = Assets.getFrames("party/susie/dark_transition/dark")
-    self.spr_kris_fall_d_dw = Assets.getFrames("party/kris/dark_transition/dark")
-
-    self.spr_susie_white_fall_d = Assets.getFrames("party/susie/dark_transition/white")
-    self.spr_kris_fall_d_white = Assets.getFrames("party/kris/dark_transition/white")
-
-    self.spr_susie_dw_fall_smear = Assets.getFrames("party/susie/dark_transition/smear")
-    self.spr_kris_fall_smear = Assets.getFrames("party/kris/dark_transition/smear")
-
-    self.spr_susie_dw_fall_ball = Assets.getFrames("party/susie/dark_transition/ball")
-    self.spr_kris_fall_ball = Assets.getFrames("party/kris/dark_transition/ball")
-
-    self.spr_susie_dw_landed = Assets.getFrames("party/susie/dark_transition/landed")
-    self.spr_kris_dw_landed = Assets.getFrames("party/kris/dark_transition/landed")
-
-    self.susie_width = self.spr_susie_dw_fall_d[1]:getWidth()
-    self.susie_height = self.spr_susie_dw_fall_d[1]:getHeight()
-    self.kris_width = self.spr_kris_fall_d_dw[1]:getWidth()
-    self.kris_height = self.spr_kris_fall_d_dw[1]:getHeight()
 
     -- Some nice hacks for deltatime support, since toby is very weird with cutscenes.
     self.do_once = false
@@ -568,7 +532,6 @@ function DarkTransition:draw()
             self.timer = self.timer + 1 * DTMULT
         end
         if (self.timer >= 15) then
-            self.velocity = self.old_velocity
             self.con = 31
             self.timer = 0
 
