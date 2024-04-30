@@ -10,6 +10,8 @@ function PartyMember:init()
     self.actor = nil
     -- Light World Actor (handles overworld/battle sprites in light world maps) (optional)
     self.lw_actor = nil
+    -- Dark Transition Actor (handles sprites during the dark world transition) (optional)
+    self.dark_transition_actor = nil
 
     -- Default title / class (saved to the save file)
     self.title = "Player"
@@ -317,6 +319,10 @@ function PartyMember:getActor(light)
     end
 end
 
+function PartyMember:getDarkTransitionActor()
+    return self.dark_transition_actor
+end
+
 function PartyMember:setActor(actor)
     if type(actor) == "string" then
         actor = Registry.createActor(actor)
@@ -329,6 +335,13 @@ function PartyMember:setLightActor(actor)
         actor = Registry.createActor(actor)
     end
     self.lw_actor = actor
+end
+
+function PartyMember:setDarkTransitionActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
+    end
+    self.dark_transition_actor = actor
 end
 
 function PartyMember:getSpells()
