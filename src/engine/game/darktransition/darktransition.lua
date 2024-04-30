@@ -246,19 +246,17 @@ function DarkTransition:update()
     if (self.fake_screenshake == 1) then
         self.shaketimer = self.shaketimer + DTMULT
         if (self.fake_shakeamount ~= 0) then
-            if (self.fake_shakeamount > 0) then
-                self.fake_shakeamount = self.fake_shakeamount - DTMULT
-            end
-            if (self.fake_shakeamount < 0) then
-                self.fake_shakeamount = self.fake_shakeamount + DTMULT
-            end
             while (self.shaketimer > 1) do
+
+                if (self.fake_shakeamount > 0) then
+                    self.fake_shakeamount = self.fake_shakeamount - 1
+                end
+                if (self.fake_shakeamount < 0) then
+                    self.fake_shakeamount = self.fake_shakeamount + 1
+                end
+
                 self.shaketimer = self.shaketimer - 1
                 self.fake_shakeamount = self.fake_shakeamount * -1
-            end
-            -- because of deltatime multiplying messing up some calcs, we have to do this:
-            if (self.fake_shakeamount > -0.1) and (self.fake_shakeamount < 0.1) then
-                self.fake_shakeamount = 0
             end
         else
             self.fake_screenshake = 0
@@ -303,6 +301,7 @@ function DarkTransition:draw()
         end
     end
     if (self.con == 8) then
+        Game.world.music:fade(0, 1)
         --mus_volume(global.currentsong[1], 0, 30)
         --with (obj_mainchara)
         --    cutscene = true
