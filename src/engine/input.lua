@@ -185,6 +185,7 @@ end
 ---@param gamepad? boolean
 function Input.resetBinds(gamepad)
     if gamepad ~= true then
+        Input.stray_key_bindings = {}
         Input.key_bindings = {
             ["up"] = {"up"},
             ["down"] = {"down"},
@@ -221,6 +222,7 @@ function Input.resetBinds(gamepad)
     end
 
     if gamepad ~= false then
+        Input.stray_gamepad_bindings = {}
         Input.gamepad_bindings = {
             ["up"] = {"gamepad:dpup", "gamepad:lsup"},
             ["down"] = {"gamepad:dpdown", "gamepad:lsdown"},
