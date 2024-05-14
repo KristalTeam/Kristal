@@ -206,6 +206,17 @@ function Input.resetBinds(gamepad)
                     end
                 end
             end
+            if mod.libs then
+                for _,lib in pairs(mod.libs) do
+                    if lib.keybinds then
+                        for _,v in pairs(lib.keybinds) do
+                            if v.keys then
+                                Input.key_bindings[v.id] = Utils.copy(v.keys)
+                            end
+                        end
+                    end
+                end
+            end
         end
     end
 
@@ -228,6 +239,17 @@ function Input.resetBinds(gamepad)
                 for _,v in pairs(mod.keybinds) do
                     if v.gamepad then
                         Input.gamepad_bindings[v.id] = Utils.copy(v.gamepad)
+                    end
+                end
+            end
+            if mod.libs then
+                for _,lib in pairs(mod.libs) do
+                    if lib.keybinds then
+                        for _,v in pairs(lib.keybinds) do
+                            if v.gamepad then
+                                Input.gamepad_bindings[v.id] = Utils.copy(v.gamepad)
+                            end
+                        end
                     end
                 end
             end
@@ -829,6 +851,17 @@ function Input.getBindName(bind)
             for _,modBind in pairs(v.keybinds) do
                 if modBind.id == bind then
                     return modBind.name
+                end
+            end
+        end
+        if v.libs then
+            for _,lib in pairs(v.libs) do
+                if lib.keybinds then
+                    for _,modBind in pairs(lib.keybinds) do
+                        if modBind.id == bind then
+                            return modBind.name
+                        end
+                    end
                 end
             end
         end

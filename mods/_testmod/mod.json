@@ -43,18 +43,5 @@
             "enable_cook": true,
             "enable_quarantine": true
         }
-    },
-
-    "keybinds": [
-        {
-            "name": "Gangnam Style",
-            "id": "gangnam_style",
-            "keys": ["A"]
-        },
-        {
-            "name": "Open Badge Menu",
-            "id": "badge_menu",
-            "keys": ["B"]
-        }
-    ]
+    }
 }
