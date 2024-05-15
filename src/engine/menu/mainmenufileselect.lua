@@ -181,6 +181,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("cancel", key) then
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
+				if MainMenu.mod_list:getSelectedMod().soulColor then
+					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+				end
             else
                 self.menu:setState("TITLE")
                 self.menu.title_screen:selectOption("play")
@@ -212,6 +215,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 elseif self.selected_x == 3 then
                     if not TARGET_MOD then
                         self.menu:setState("MODSELECT")
+						if MainMenu.mod_list:getSelectedMod().soulColor then
+							MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+						end
                     else
                         self.menu:setState("TITLE")
                         self.menu.title_screen:selectOption("play")
