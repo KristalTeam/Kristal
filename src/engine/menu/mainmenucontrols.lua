@@ -225,7 +225,7 @@ function MainMenuControls:onKeyReleased(key)
             end
 
             -- rebind!!
-            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key)
+            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key, self.control_menu == "gamepad")
 
             self.rebinding = false
             self.rebinding_shift = false
