@@ -586,20 +586,20 @@ function PartyMember:loadEquipment(data)
     if type(data.weapon) == "table" then
         if Registry.getItem(data.weapon.id) then
             local weapon = Registry.createItem(data.weapon.id)
-            if not weapon then
+            if weapon then
+                weapon:load(data.weapon)
+                self:setWeapon(weapon)
+            else
                 Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
-                return
             end
-            weapon:load(data.weapon)
-            self:setWeapon(weapon)
         else
-            Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
+            Kristal.Console:error("Could not load weapon \"".. data.weapon.id .."\"")
         end
     else
         if Registry.getItem(data.weapon) then
             self:setWeapon(data.weapon)
         else
-            Kristal.Console:error("Could not load weapon \""..data.weapon.."\"")
+            Kristal.Console:error("Could not load weapon \"".. (data.weapon or "nil") .."\"")
         end
     end
     for i = 1, 2 do
@@ -610,12 +610,12 @@ function PartyMember:loadEquipment(data)
             if type(v) == "table" then
                 if Registry.getItem(v.id) then
                     local armor = Registry.createItem(v.id)
-                    if not armor then
+                    if armor then
+                        armor:load(v)
+                        self:setArmor(tonumber(k), armor)
+                    else
                         Kristal.Console:error("Could not load armor \""..v.id.."\"")
-                        return
                     end
-                    armor:load(v)
-                    self:setArmor(tonumber(k), armor)
                 else
                     Kristal.Console:error("Could not load armor \""..v.id.."\"")
                 end
@@ -623,7 +623,7 @@ function PartyMember:loadEquipment(data)
                 if Registry.getItem(v) then
                     self:setArmor(tonumber(k), v)
                 else
-                    Kristal.Console:error("Could not load armor \""..v.."\"")
+                    Kristal.Console:error("Could not load armor \"".. (v or "nil") .."\"")
                 end
             end
         end
