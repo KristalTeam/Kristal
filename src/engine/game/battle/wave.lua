@@ -15,6 +15,8 @@ function Wave:init()
     self.arena_height = nil
     -- Wave arena shape (overrides all rectangle options)
     self.arena_shape = nil
+    -- Wave arena rotation
+    self.arena_rotation = 0
     -- Whether the wave should spawn an arena
     self.has_arena = true
 
@@ -164,6 +166,14 @@ function Wave:setArenaShape(...)
 
     if Game.battle.arena then
         Game.battle.arena:setShape({...})
+    end
+end
+
+function Wave:setArenaRotation(rotation)
+    self.arena_rotation = rotation
+
+    if Game.battle.arena then
+        Game.battle.arena.rotation = rotation
     end
 end
 
