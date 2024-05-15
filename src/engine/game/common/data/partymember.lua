@@ -584,11 +584,19 @@ end
 
 function PartyMember:loadEquipment(data)
     if type(data.weapon) == "table" then
-        local weapon = Registry.createItem(data.weapon.id)
-        weapon:load(data.weapon)
-        self:setWeapon(weapon)
+        if Registry.getItem(data.weapon.id) then
+            local weapon = Registry.createItem(data.weapon.id)
+            weapon:load(data.weapon)
+            self:setWeapon(weapon)
+        else
+            Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
+        end
     else
-        self:setWeapon(data.weapon)
+        if Registry.getItem(data.weapon) then
+            self:setWeapon(data.weapon)
+        else
+            Kristal.Console:error("Could not load weapon \""..data.weapon.."\"")
+        end
     end
     for i = 1, 2 do
         self:setArmor(i, nil)
@@ -596,11 +604,19 @@ function PartyMember:loadEquipment(data)
     if data.armor then
         for k,v in pairs(data.armor) do
             if type(v) == "table" then
-                local armor = Registry.createItem(v.id)
-                armor:load(v)
-                self:setArmor(tonumber(k), armor)
+                if Registry.getItem(v.id) then
+                    local armor = Registry.createItem(v.id)
+                    armor:load(v)
+                    self:setArmor(tonumber(k), armor)
+                else
+                    Kristal.Console:error("Could not load armor \""..v.id.."\"")
+                end
             else
-                self:setArmor(tonumber(k), v)
+                if Registry.getItem(v) then
+                    self:setArmor(tonumber(k), v)
+                else
+                    Kristal.Console:error("Could not load armor \""..v.."\"")
+                end
             end
         end
     end
