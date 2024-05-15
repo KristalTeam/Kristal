@@ -558,7 +558,11 @@ end
 function Game:initPartyMembers()
     self.party_data = {}
     for id,_ in pairs(Registry.party_members) do
-        self.party_data[id] = Registry.createPartyMember(id)
+        if Registry.getPartyMember(id) then
+            self.party_data[id] = Registry.createPartyMember(id)
+        else
+            error("Attempted to add non-existent member \"" .. id .. "\" to the party")
+        end
     end
 end
 
