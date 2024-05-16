@@ -21,6 +21,7 @@
 ---@field world_bullets table<string, WorldBullet>
 ---@field world_cutscenes table<string, function|table<string, function>>
 ---@field battle_cutscenes table<string, function|table<string, function>>
+---@field legend_cutscenes table<string, function|table<string, function>>
 ---@field event_scripts table<string, function|table<string, function>>
 ---@field tilesets table<string, Tileset>
 ---@field maps table<string, Map>
@@ -51,6 +52,7 @@ Registry.paths = {
     ["world_bullets"]    = "world/bullets",
     ["world_cutscenes"]  = "world/cutscenes",
     ["battle_cutscenes"] = "battle/cutscenes",
+    ["legend_cutscenes"] = "legends/",
     ["event_scripts"]    = "world/scripts",
     ["tilesets"]         = "world/tilesets",
     ["maps"]             = "world/maps",
@@ -328,6 +330,19 @@ end
 ---@param id? string
 ---@return function|nil cutscene
 ---@return boolean|nil grouped
+function Registry.getLegendCutscene(group, id)
+    local cutscene = self.legend_cutscenes[group]
+    if type(cutscene) == "table" then
+        return cutscene[id], true
+    elseif type(cutscene) == "function" then
+        return cutscene, false
+    end
+end
+
+---@param group string
+---@param id? string
+---@return function|nil cutscene
+---@return boolean|nil grouped
 function Registry.getEventScript(group, id)
     if not id then
         local args = Utils.split(group, ".")
@@ -513,6 +528,12 @@ end
 ---@param cutscene function|table<string, function>
 function Registry.registerBattleCutscene(id, cutscene)
     self.battle_cutscenes[id] = cutscene
+end
+
+---@param id string
+---@param cutscene function|table<string, function>
+function Registry.registerLegendCutscene(id, cutscene)
+    self.legend_cutscenes[id] = cutscene
 end
 
 ---@param id string
@@ -711,6 +732,7 @@ end
 function Registry.initCutscenes()
     self.world_cutscenes = {}
     self.battle_cutscenes = {}
+    self.legend_cutscenes = {}
 
     for _,path,cutscene in self.iterScripts(Registry.paths["world_cutscenes"]) do
         assert(cutscene ~= nil, '"world/cutscenes/'..path..'.lua" does not return value')
@@ -719,6 +741,10 @@ function Registry.initCutscenes()
     for _,path,cutscene in self.iterScripts(Registry.paths["battle_cutscenes"]) do
         assert(cutscene ~= nil, '"battle/cutscenes/'..path..'.lua" does not return value')
         self.registerBattleCutscene(path, cutscene)
+    end
+    for _,path,cutscene in self.iterScripts(Registry.paths["legend_cutscenes"]) do
+        assert(cutscene ~= nil, '"legends/'..path..'.lua" does not return value')
+        self.registerLegendCutscene(path, cutscene)
     end
 
     Kristal.callEvent("onRegisterCutscenes")

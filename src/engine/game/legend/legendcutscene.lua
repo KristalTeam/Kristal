@@ -1,12 +1,9 @@
 local LegendCutscene, super = Class(Cutscene, "LegendCutscene")
 
-function LegendCutscene:init(scene, can_skip, handler, ...)
-
-    self.handler = handler
+function LegendCutscene:init(group, id, ...)
+    local scene, args = self:parseFromGetter(Registry.getLegendCutscene, group, id, ...)
 
     self.text_objects = {}
-
-    self.can_skip = can_skip
 
     self.text_positions = {
         ["far_left"       ] = {80 , 320},

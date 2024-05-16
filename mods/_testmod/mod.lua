@@ -213,26 +213,7 @@ end
 function Mod:onKeyPressed(key)
 
     if key == "u" then
-        Game:fadeIntoLegend(function(c)
-            local a = c:slide("party/ralsei/dark/blunt")
-            a:setScale(6, 6)
-            a.x = 80
-            c:setSpeed(1/3)
-            c:text("ralsei smoking is BAD\n         :(", "left")
-            c:wait(120/30)
-            c:removeText()
-            c:setSpeed(3/3)
-            c:removeSlides()
-            c:text("llung canceur......................", "far_left")
-            c:wait(120/30)
-            c:text("[image:party/susie/dark/t_pose]", "left")
-            c:wait(30/30)
-            c:removeText()
-            c:setSpeed(1/3)
-            c:text("kris hit the gangnam style    NOW", "far_left")
-            --c:musicWait(14)
-            c:wait(1)
-        end, { music = "determination" })
+        Game:fadeIntoLegend("legend", { music = "determination" })
     end
 
     if Kristal.Config["debug"] then
