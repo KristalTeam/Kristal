@@ -90,12 +90,9 @@ function DarkTransition:init(final_y, options)
 
     self.final_y               = final_y or (SCREEN_HEIGHT / 2)
     self.sparkles              = options["sparkles"] or 0
-
     self.sparestar             = Assets.getFrames("effects/spare/star")
-
     self.dtrans_square         = Assets.newSound("dtrans_square")
-
-    self.head_object_sprite    = Assets.getTexture("misc/trash_ball")
+    self.head_object_sprite    = Assets.getTexture(options["head_object_sprite"] or "misc/trash_ball")
 
     -- Sprite stuff
     self.use_sprite_index      = false
