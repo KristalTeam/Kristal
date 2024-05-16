@@ -21,6 +21,7 @@ function Game:clear()
     self.battle = nil
     self.shop = nil
     self.gameover = nil
+    self.legend = nil
     self.inventory = nil
     self.quick_save = nil
     self.lock_movement = false
@@ -141,6 +142,8 @@ function Game:getActiveMusic()
         return self.shop.music
     elseif self.state == "GAMEOVER" then
         return self.gameover.music
+    elseif self.state == "LEGEND" then
+        return self.legend.music
     else
         return self.music
     end
@@ -222,7 +225,7 @@ function Game:load(data, index, fade)
     BORDER_ALPHA = 0
     Kristal.showBorder(1)
 
-    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
+    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER, LEGEND
     self.state = "OVERWORLD"
 
     self.stage = Stage()
@@ -449,9 +452,32 @@ function Game:gameOver(x, y)
     if self.world    then self.world   :remove() end
     if self.shop     then self.shop    :remove() end
     if self.gameover then self.gameover:remove() end
+    if self.legend   then self.legend  :remove() end
 
     self.gameover = GameOver(x or 0, y or 0)
     self.stage:addChild(self.gameover)
+end
+
+function Game:fadeIntoLegend(cutscene, legend_options, fade_options)
+    legend_options = legend_options or {}
+    fade_options = fade_options or {}
+
+    fade_options["speed"] = fade_options["speed"] or 2
+    fade_options["music"] = fade_options["music"] or true
+
+    Game.lock_movement = true
+    Game.world.fader:fadeOut(function() Game:startLegend(cutscene, legend_options) end, fade_options)
+end
+
+function Game:startLegend(cutscene, options)
+
+    if self.legend then
+        self.legend:remove()
+    end
+
+    self.state = "LEGEND"
+    self.legend = Legend(cutscene, options)
+    self.stage:addChild(self.legend)
 end
 
 function Game:saveQuick(...)
