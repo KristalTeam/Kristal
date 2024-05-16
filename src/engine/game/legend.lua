@@ -42,7 +42,7 @@ function Legend:init(cutscene, options)
     self.slides = {}
 end
 
-function Legend:onFinish()
+function Legend:onFinish(skip)
     self:remove()
     Game.state = "OVERWORLD"
     Game.world.fader:fadeIn(function()
@@ -76,6 +76,10 @@ function Legend:update()
         else
             self.cutscene = nil
         end
+    end
+
+    if self.can_skip and Input.pressed("confirm") then
+        self.fader:fadeOut(function() self:onFinish(true) end, { speed = 1, music = true })
     end
 
     for i, slide in ipairs(self.slides) do
