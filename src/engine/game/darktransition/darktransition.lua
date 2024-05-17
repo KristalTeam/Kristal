@@ -98,8 +98,11 @@ function DarkTransition:init(final_y, options)
     self.use_sprite_index      = false
 
     if self.has_head_object then
-        self.kris_head_object = HeadObject(self.head_object_sprite, 14 - (self.head_object_sprite:getWidth() / 2),
-            -2 - (self.head_object_sprite:getHeight() / 2))
+        self.kris_head_object = HeadObject(
+            self.head_object_sprite,
+            options["head_object_off_x"] + 14 - (self.head_object_sprite:getWidth() / 2),
+            options["head_object_off_y"] + -2 - (self.head_object_sprite:getHeight() / 2)
+        )
         self.kris_head_object.visible = true
         self.character_data[1].sprite_holder:addChild(self.kris_head_object)
     end
