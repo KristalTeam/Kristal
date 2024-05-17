@@ -103,6 +103,7 @@ function DarkTransition:init(final_y, options)
             options["head_object_off_x"] + 14 - (self.head_object_sprite:getWidth() / 2),
             options["head_object_off_y"] + -2 - (self.head_object_sprite:getHeight() / 2)
         )
+        self.kris_head_object.sparkles = options["head_object_sparkles"] or 30
         self.kris_head_object.visible = true
         self.character_data[1].sprite_holder:addChild(self.kris_head_object)
     end

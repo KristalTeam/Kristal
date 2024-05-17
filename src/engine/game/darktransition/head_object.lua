@@ -8,6 +8,7 @@ function HeadObject:init(texture, x, y)
     self.breakcon = 0
     self.breaktimer = 0
     self.sparestar = Assets.getFrames("effects/spare/star")
+    self.sparkles = 30
 end
 
 function HeadObject:update()
@@ -23,7 +24,7 @@ function HeadObject:update()
         if (self.breaktimer >= 4) then
             Assets.playSound("sparkle_glock")
 
-            for i = 1, 30 do
+            for i = 1, self.sparkles do
                 local x, y = self:getRelativePos(0, 0, self.parent.parent)
                 local width = self.texture:getWidth() + 3
                 local height = self.texture:getHeight() + 2
