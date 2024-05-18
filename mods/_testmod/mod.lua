@@ -211,6 +211,11 @@ function Mod:onBattleMenuSelect(state, item, can_select)
 end
 
 function Mod:onKeyPressed(key)
+
+    if key == "u" then
+        Game:fadeIntoLegend("legend", { music = "determination" })
+    end
+
     if Kristal.Config["debug"] then
         if Game.battle and Game.battle.state == "ACTIONSELECT" then
             if key == "5" then

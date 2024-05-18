@@ -45,7 +45,15 @@ function Encounter:beforeStateChange(old, new) end
 function Encounter:onStateChange(old, new) end
 
 function Encounter:onActionSelect(battler, button) end
-function Encounter:onMenuSelect(state, item, can_select) end
+
+function Encounter:onMenuSelect(state_reason, item, can_select) end
+function Encounter:onMenuCancel(state_reason, item) end
+
+function Encounter:onEnemySelect(state_reason, enemy_index) end
+function Encounter:onEnemyCancel(state_reason, enemy_index) end
+
+function Encounter:onPartySelect(state_reason, party_index) end
+function Encounter:onPartyCancel(state_reason, party_index) end
 
 function Encounter:onGameOver() end
 function Encounter:onReturnToWorld(events) end
@@ -71,9 +79,11 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj = enemy
     end
     local enemies = self.queued_enemy_spawns
+    local enemies_index = enemies
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
+        enemies_index = Game.battle.enemies_index
         transition = Game.battle.state == "TRANSITION"
     end
     if transition then
@@ -103,6 +113,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     enemy_obj.encounter = self
     table.insert(enemies, enemy_obj)
+    table.insert(enemies_index, enemy_obj)
     if Game.battle and Game.state == "BATTLE" then
         Game.battle:addChild(enemy_obj)
     end

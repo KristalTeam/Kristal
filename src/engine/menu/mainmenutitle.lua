@@ -68,6 +68,9 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
         if option == "play" then
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
+				if MainMenu.mod_list:getSelectedMod().soulColor then
+					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+				end
             elseif self.has_target_saves then
                 self.menu:setState("FILESELECT")
             else
@@ -84,7 +87,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             self.menu:setState("CREDITS")
 
         elseif option == "wiki" then
-            love.system.openURL("https://beta.kristal.cc/wiki")
+            love.system.openURL("https://kristal.cc/wiki")
 
         elseif option == "quit" then
             love.event.quit()

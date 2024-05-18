@@ -12,25 +12,22 @@ function Starwalker:init()
 
     self.max_health = 2400
     self.health = 2400
-    self.attack = 8
+    self.attack = 1
     self.defense = 0
     self.money = 123456
 
     self.spare_points = 0
 
     self.exit_on_defeat = true
-    self.auto_spare = true
 
-    self.waves = {
-        "starwings"
-        --"solidtest"
+    self.check = {
+        "AT 1 DF 1\n[wait:5]The   [color:yellow]original[color:reset]  enemy\n[wait:5]Can only deal [sound:vine_boom][offset:0,-16][font:main_mono,64]1[offset:0,16][font:reset][wait:10] damage",
+        "Can't keep [wait:5]Alive forever  [wait:5] Keep   attacking"
     }
-
-    self.check = "The   original\n            ."
 
     self.text = {
         "* Star walker",
-        "* Smells like   [color:yellow]pissed off[color:reset]",
+        "* Smells like   [wait:5][color:yellow]pissed off[color:reset]",
         "*               this encounter\n is against star  walker",
         "* this [color:yellow]battle[color:reset] is     [color:yellow]pissing[color:reset] me\noff..."
     }
@@ -42,6 +39,110 @@ function Starwalker:init()
     self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
 
     self.text_override = nil
+
+    self.old_x = self.x
+    self.old_y = self.y
+
+    self.mode = "normal"
+    self.ease = false
+
+    self.ease_timer = 0
+
+    self.timer = 0
+
+    self.progress = 0
+
+    self.waves = {
+        "starwingsfaster"
+    }
+
+    self.blue = false
+end
+
+function Starwalker:onTurnEnd()
+    self.progress = self.progress + 1
+end
+
+function Starwalker:getEncounterText()
+    if (self.progress == 2) then
+        return "* Star walker is preparing\n[color:blue]something [offset:0,-8][color:red][font:main_mono,48]!!"
+    end
+    return super.getEncounterText(self)
+end
+
+function Starwalker:getNextWaves()
+
+    --[[if true then
+        self.blue = true
+        return {"starup"}
+    end]]
+
+
+    if (self.progress == 0) then
+        return {"starwings"}
+    elseif (self.progress == 1) then
+        return {"starwingsfaster"}
+    elseif (self.progress == 2) then
+        return {"staract"}
+    elseif (self.progress == 3) then
+        self.blue = true
+        return {"starwings"}
+    elseif (self.progress == 4) then
+        self.blue = true
+        return {"starwingsfaster"}
+    elseif (self.progress == 5) then
+        self.blue = true
+        return {"starup"}
+    end
+
+    return super.getNextWaves(self)
+end
+
+function Starwalker:setMode(mode)
+    self.mode = mode
+    self.old_x = self.x
+    self.old_y = self.y
+    self.ease = true
+    self.ease_timer = 0
+end
+
+
+function Starwalker:update()
+    super.update(self)
+
+    if not self.done_state and (Game.battle:getState() ~= "TRANSITION") then
+        self.timer = self.timer + (1 * DTMULT)
+
+        local wanted_x = self.old_x
+        local wanted_y = self.old_y
+
+        if self.mode == "normal" then
+            wanted_x = 530 + (math.sin(self.timer * 0.08) * 20)
+            wanted_y = 238 + (math.sin(self.timer * 0.04) * 10)
+        elseif self.mode == "shoot" then
+            wanted_x = 530 - 40 + (math.sin(self.timer * 0.08) * 10)
+            wanted_y = 238 - 50 + (math.sin(self.timer * 0.04) * 40)
+        elseif self.mode == "still" then
+            wanted_x = 530 - 40
+            wanted_y = 238 - 50
+        end
+
+        if not self.ease then
+            self.x = wanted_x
+            self.y = wanted_y
+        else
+            self.ease_timer = self.ease_timer + (0.05 * DTMULT)
+            self.x = Ease.outQuad(self.ease_timer, self.old_x, wanted_x - self.old_x, 1)
+            self.y = Ease.outQuad(self.ease_timer, self.old_y, wanted_y - self.old_y, 1)
+            if self.ease_timer >= 1 then
+                self.ease = false
+            end
+        end
+    end
+
+    for _,enemy in pairs(Game.battle.enemy_world_characters) do
+        enemy:remove()
+    end
 end
 
 function Starwalker:onSpared()
@@ -65,10 +166,10 @@ function Starwalker:onAct(battler, name)
     elseif name == "Red Buster" then
         Game.battle:powerAct("red_buster", battler, "susie", self)
     elseif name == "Star walker" then
-        self:addMercy(8)
+        self:addMercy(0.01)
         return "* The Original Starwalker  absorbs the\nACT"
     elseif name == "Standard" then
-        self:addMercy(4)
+        self:addMercy(0.01)
         if battler.chara.id == "ralsei" then
             return "* Ralsei passes away\n(it got [color:yellow]absorbed)"
         elseif battler.chara.id == "susie" then
@@ -80,7 +181,7 @@ end
 
 function Starwalker:onShortAct(battler, name)
     if name == "Standard" then
-        self:addMercy(4)
+        self:addMercy(0.1)
         if battler.chara.id == "ralsei" then
             return "* Ralsei passes away"
         elseif battler.chara.id == "susie" then
@@ -101,12 +202,18 @@ function Starwalker:getEnemyDialogue()
     local dialogue
     if self.mercy >= 100 then
         dialogue = {
-            "Just what the\ndoctor ordered!",
-            "Kindness is\ncontagious!"
+            "Aough",
+            "You wi"
         }
     else
         dialogue = {
-            "star"
+            "star",
+            "walkin",
+            "stark",
+            "warper",
+            "starwalker",
+            "[style:dark_menu][color:yellow]Pissing",
+            "me off",
         }
     end
     return dialogue[math.random(#dialogue)]

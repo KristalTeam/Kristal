@@ -225,7 +225,7 @@ function MainMenuControls:onKeyReleased(key)
             end
 
             -- rebind!!
-            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key)
+            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key, self.control_menu == "gamepad")
 
             self.rebinding = false
             self.rebinding_shift = false
@@ -299,7 +299,7 @@ function MainMenuControls:draw()
     local y_offset = 0
 
     for index, name in ipairs(Input.order) do
-        Draw.printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
+        Draw.printShadow((Input.getBindName(name) or name:gsub("_", " ")):upper(),  menu_x, menu_y + (32 * y_offset))
 
         self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
         y_offset = y_offset + 1
@@ -308,7 +308,7 @@ function MainMenuControls:draw()
     local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
     for name, value in pairs(bind_list) do
         if not Utils.containsValue(Input.order, name) then
-            Draw.printShadow(name:gsub("_", " "):upper(),  menu_x, menu_y + (32 * y_offset))
+            Draw.printShadow((Input.getBindName(name) or name:gsub("_", " ")):upper(),  menu_x, menu_y + (32 * y_offset))
 
             self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
             --Draw.printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * y_offset))

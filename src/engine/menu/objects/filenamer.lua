@@ -32,6 +32,8 @@ function FileNamer:init(options)
     self.crash_names   = options.crash_names   or mod["namesCrash"]    or {"GASTER"}
     self.deny_names    = options.deny_names    or mod["namesDeny"]     or {}
     self.name_messages = options.name_messages or mod["namesMessages"] or {}
+    
+    self.keyboard_mode = options.keyboard_mode or mod["keyboardMode"] or "default"
 
     self.callback = options.on_confirm
     self.cancel_callback = options.on_cancel
@@ -97,7 +99,7 @@ function FileNamer:setState(state)
     if state == "KEYBOARD" then
         self.text:setText(self.name_text)
         self.text.x = self.text.init_x
-        self.keyboard = GonerKeyboard(self.name_limit, "default", function(text)
+        self.keyboard = GonerKeyboard(self.name_limit, self.keyboard_mode, function(text)
             self.name = text
             self:setState("CONFIRM")
         end, function(key, x, y, namer)

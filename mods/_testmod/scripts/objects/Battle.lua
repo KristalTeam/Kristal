@@ -75,7 +75,7 @@ function Battle:onStateChange(old,new)
         if #self.enemies < 10 then
             for _, enemy in ipairs(self.enemies) do
                 local afterimage = AfterImage(enemy, 0.5)
-                afterimage.graphics.grow = 0.05 
+                afterimage.graphics.grow = 0.05
                 afterimage:setLayer(enemy.layer + 1)
                 self:addChild(afterimage)
                 enemy:flash()

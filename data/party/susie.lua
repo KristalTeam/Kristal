@@ -9,6 +9,7 @@ function character:init()
     -- Actor (handles sprites)
     self:setActor("susie")
     self:setLightActor("susie_lw")
+    self:setDarkTransitionActor("susie_dark_transition")
 
     -- Display level (saved to the save file)
     self.level = Game.chapter

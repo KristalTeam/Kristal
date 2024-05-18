@@ -125,7 +125,6 @@ function Arena:onAdd(parent)
     end, function()
         self.sprite:setScale(1)
         self.sprite.alpha = 1
-        self.sprite.rotation = 0
     end)
 end
 

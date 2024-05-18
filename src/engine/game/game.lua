@@ -21,6 +21,7 @@ function Game:clear()
     self.battle = nil
     self.shop = nil
     self.gameover = nil
+    self.legend = nil
     self.inventory = nil
     self.quick_save = nil
     self.lock_movement = false
@@ -29,7 +30,7 @@ function Game:clear()
     self.border = "simple"
 end
 
-function Game:enter(previous_state, save_id, save_name)
+function Game:enter(previous_state, save_id, save_name, fade)
     self.previous_state = previous_state
 
     self.music = Music()
@@ -40,10 +41,16 @@ function Game:enter(previous_state, save_id, save_name)
 
     self.lock_movement = false
 
-    if save_id then
-        Kristal.loadGame(save_id, true)
+    fade = fade ~= false
+    if type(save_id) == "table" then
+        local save = save_id
+        save_id = save_name
+        save_name = nil
+        self:load(save, save_id, fade)
+    elseif save_id then
+        Kristal.loadGame(save_id, fade)
     else
-        self:load(nil, nil, true)
+        self:load(nil, nil, fade)
     end
 
     if save_name then
@@ -135,6 +142,8 @@ function Game:getActiveMusic()
         return self.shop.music
     elseif self.state == "GAMEOVER" then
         return self.gameover.music
+    elseif self.state == "LEGEND" then
+        return self.legend.music
     else
         return self.music
     end
@@ -216,7 +225,7 @@ function Game:load(data, index, fade)
     BORDER_ALPHA = 0
     Kristal.showBorder(1)
 
-    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER
+    -- states: OVERWORLD, BATTLE, SHOP, GAMEOVER, LEGEND
     self.state = "OVERWORLD"
 
     self.stage = Stage()
@@ -443,9 +452,32 @@ function Game:gameOver(x, y)
     if self.world    then self.world   :remove() end
     if self.shop     then self.shop    :remove() end
     if self.gameover then self.gameover:remove() end
+    if self.legend   then self.legend  :remove() end
 
     self.gameover = GameOver(x or 0, y or 0)
     self.stage:addChild(self.gameover)
+end
+
+function Game:fadeIntoLegend(cutscene, legend_options, fade_options)
+    legend_options = legend_options or {}
+    fade_options = fade_options or {}
+
+    fade_options["speed"] = fade_options["speed"] or 2
+    fade_options["music"] = fade_options["music"] or true
+
+    Game.lock_movement = true
+    Game.world.fader:fadeOut(function() Game:startLegend(cutscene, legend_options) end, fade_options)
+end
+
+function Game:startLegend(cutscene, options)
+
+    if self.legend then
+        self.legend:remove()
+    end
+
+    self.state = "LEGEND"
+    self.legend = Legend(cutscene, options)
+    self.stage:addChild(self.legend)
 end
 
 function Game:saveQuick(...)
@@ -552,7 +584,11 @@ end
 function Game:initPartyMembers()
     self.party_data = {}
     for id,_ in pairs(Registry.party_members) do
-        self.party_data[id] = Registry.createPartyMember(id)
+        if Registry.getPartyMember(id) then
+            self.party_data[id] = Registry.createPartyMember(id)
+        else
+            error("Attempted to add non-existent member \"" .. id .. "\" to the party")
+        end
     end
 end
 
@@ -598,12 +634,14 @@ function Game:hasPartyMember(chara)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
     end
-    for _,party_member in ipairs(self.party) do
-        if party_member.id == chara.id then
-            return true
+    if chara then
+        for _,party_member in ipairs(self.party) do
+            if party_member.id == chara.id then
+                return true
+            end
         end
+        return false
     end
-    return false
 end
 
 function Game:movePartyMember(chara, index)

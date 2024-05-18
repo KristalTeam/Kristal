@@ -399,7 +399,7 @@ function Kristal.onKeyPressed(key, is_repeat)
         if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
             FAST_FORWARD = not FAST_FORWARD
         elseif key == "f3" then
-            love.system.openURL("https://beta.kristal.cc/wiki")
+            love.system.openURL("https://kristal.cc/wiki")
         elseif key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
             love.window.setFullscreen(Kristal.Config["fullscreen"])
@@ -895,7 +895,7 @@ function Kristal.clearModState()
     Assets.restoreData()
     Registry.initialize()
     love.window.setIcon(Kristal.icon)
-    love.window.setTitle(Kristal.game_default_name)
+    love.window.setTitle(Kristal.getDesiredWindowTitle())
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -950,18 +950,19 @@ function Kristal.quickReload(mode)
             Kristal.loadMod(mod_id, nil, nil, function ()
                 -- Pre-initialize the current mod
                 if Kristal.preInitMod(mod_id) then
-                    -- Switch to Game and load the temp save
-                    Gamestate.switch(Game)
+                    love.window.setTitle(Kristal.getDesiredWindowTitle())
                     if save then
-                        Game:load(save, save_id)
-
+                        -- Switch to Game and load the temp save
+                        Gamestate.switch(Game, save, save_id, false)
                         -- If we had an encounter, restart the encounter
                         if encounter then
                             Game:encounter(encounter, false)
                         elseif shop then -- If we were in a shop, re-enter it
                             Game:enterShop(shop)
                         end
-                        
+                    else
+                        -- Switch to Game
+                        Gamestate.switch(Game)
                     end
                 end
             end)
@@ -1073,6 +1074,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
     Kristal.loadModAssets(mod.id, "all", "", after or function ()
         if Kristal.preInitMod(mod.id) then
+            love.window.setTitle(Kristal.getDesiredWindowTitle())
             Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end
     end)
@@ -1118,10 +1120,16 @@ end
 
 --- Called internally. Gets the intended title of the game window.
 function Kristal.getDesiredWindowTitle()
-    local target_mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD)
-    local use_target_mod_name = target_mod
-        and (target_mod.setWindowTitle == nil or target_mod.setWindowTitle)
-    return use_target_mod_name and target_mod.name or Kristal.game_default_name
+    local mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD) or (Mod and Mod.info)
+    local use_mod_name = false
+    if mod then
+        if TARGET_MOD then
+            use_mod_name = mod.setWindowTitle ~= false
+        else
+            use_mod_name = mod.setWindowTitle
+        end
+    end
+    return use_mod_name and mod.name or Kristal.game_default_name
 end
 
 --- Called internally. Calls the `preInit` event on the mod and initializes the registry.

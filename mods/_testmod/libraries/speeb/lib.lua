@@ -6,6 +6,12 @@ function lib:init()
     print("Loaded speeb library"..msg_suffix)
 
     Utils.hook(Player, "update", function(orig, self)
+
+        if Input.down("superfast") then
+            self.walk_speed = 16
+            self.run_timer = 999
+        end
+
         if self.run_timer > 60 then
             self.walk_speed = self.walk_speed + DT
         elseif self.walk_speed > 4 then

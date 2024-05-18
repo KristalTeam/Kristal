@@ -10,6 +10,8 @@ function PartyMember:init()
     self.actor = nil
     -- Light World Actor (handles overworld/battle sprites in light world maps) (optional)
     self.lw_actor = nil
+    -- Dark Transition Actor (handles sprites during the dark world transition) (optional)
+    self.dark_transition_actor = nil
 
     -- Default title / class (saved to the save file)
     self.title = "Player"
@@ -317,6 +319,10 @@ function PartyMember:getActor(light)
     end
 end
 
+function PartyMember:getDarkTransitionActor()
+    return self.dark_transition_actor
+end
+
 function PartyMember:setActor(actor)
     if type(actor) == "string" then
         actor = Registry.createActor(actor)
@@ -329,6 +335,13 @@ function PartyMember:setLightActor(actor)
         actor = Registry.createActor(actor)
     end
     self.lw_actor = actor
+end
+
+function PartyMember:setDarkTransitionActor(actor)
+    if type(actor) == "string" then
+        actor = Registry.createActor(actor)
+    end
+    self.dark_transition_actor = actor
 end
 
 function PartyMember:getSpells()
@@ -571,11 +584,23 @@ end
 
 function PartyMember:loadEquipment(data)
     if type(data.weapon) == "table" then
-        local weapon = Registry.createItem(data.weapon.id)
-        weapon:load(data.weapon)
-        self:setWeapon(weapon)
+        if Registry.getItem(data.weapon.id) then
+            local weapon = Registry.createItem(data.weapon.id)
+            if weapon then
+                weapon:load(data.weapon)
+                self:setWeapon(weapon)
+            else
+                Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
+            end
+        else
+            Kristal.Console:error("Could not load weapon \"".. data.weapon.id .."\"")
+        end
     else
-        self:setWeapon(data.weapon)
+        if Registry.getItem(data.weapon) then
+            self:setWeapon(data.weapon)
+        else
+            Kristal.Console:error("Could not load weapon \"".. (data.weapon or "nil") .."\"")
+        end
     end
     for i = 1, 2 do
         self:setArmor(i, nil)
@@ -583,11 +608,23 @@ function PartyMember:loadEquipment(data)
     if data.armor then
         for k,v in pairs(data.armor) do
             if type(v) == "table" then
-                local armor = Registry.createItem(v.id)
-                armor:load(v)
-                self:setArmor(tonumber(k), armor)
+                if Registry.getItem(v.id) then
+                    local armor = Registry.createItem(v.id)
+                    if armor then
+                        armor:load(v)
+                        self:setArmor(tonumber(k), armor)
+                    else
+                        Kristal.Console:error("Could not load armor \""..v.id.."\"")
+                    end
+                else
+                    Kristal.Console:error("Could not load armor \""..v.id.."\"")
+                end
             else
-                self:setArmor(tonumber(k), v)
+                if Registry.getItem(v) then
+                    self:setArmor(tonumber(k), v)
+                else
+                    Kristal.Console:error("Could not load armor \"".. (v or "nil") .."\"")
+                end
             end
         end
     end

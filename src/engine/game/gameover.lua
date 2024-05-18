@@ -233,9 +233,9 @@ function GameOver:update()
 
     if (self.current_stage == 9) then
         if Game:getConfig("oldGameOver") then
-            if Game.died_once then 
+            if Game.died_once then
                 self.dialogue:setText("")
-            else 
+            else
                 self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN, THE FUTURE\n IS IN YOUR HANDS.")
             end
         end

@@ -277,8 +277,9 @@ function EnemyBattler:onSpareable()
 end
 
 function EnemyBattler:addMercy(amount)
-    if self.mercy >= 100 then
-        -- We're already at full mercy; do nothing.
+    if (amount >= 0 and self.mercy >= 100) or (amount < 0 and self.mercy <= 0) then
+        -- We're already at full mercy and trying to add more; do nothing.
+        -- Also do nothing if trying to remove from an empty mercy bar.
         return
     end
 
@@ -299,18 +300,20 @@ function EnemyBattler:addMercy(amount)
     end
 
     if Game:getConfig("mercyMessages") then
-        if amount > 0 then
-            local pitch = 0.8
-            if amount < 99 then pitch = 1 end
-            if amount <= 50 then pitch = 1.2 end
-            if amount <= 25 then pitch = 1.4 end
+        if amount == 0 then
+            self:statusMessage("msg", "miss")
+        else
+            if amount > 0 then
+                local pitch = 0.8
+                if amount < 99 then pitch = 1 end
+                if amount <= 50 then pitch = 1.2 end
+                if amount <= 25 then pitch = 1.4 end
 
-            local src = Assets.playSound("mercyadd", 0.8)
-            src:setPitch(pitch)
+                local src = Assets.playSound("mercyadd", 0.8)
+                src:setPitch(pitch)
+            end
 
             self:statusMessage("mercy", amount)
-        else
-            self:statusMessage("msg", "miss")
         end
     end
 end
@@ -453,16 +456,20 @@ function EnemyBattler:isXActionShort(battler)
     return false
 end
 
-function EnemyBattler:hurt(amount, battler, on_defeat, color)
+function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status, attacked)
     if amount == 0 or (amount < 0 and Game:getConfig("damageUnderflowFix")) then
-        self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+        if show_status ~= false then
+            self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+        end
 
-        self:onDodge(battler)
+        self:onDodge(battler, attacked)
         return
     end
 
     self.health = self.health - amount
-    self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+    if show_status ~= false then
+        self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+    end
 
     if amount > 0 then
         self.hurt_timer = 1
@@ -522,7 +529,7 @@ function EnemyBattler:onHurtEnd()
     self:toggleOverlay(false)
 end
 
-function EnemyBattler:onDodge(battler) end
+function EnemyBattler:onDodge(battler, attacked) end
 
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then

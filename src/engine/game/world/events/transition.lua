@@ -15,7 +15,12 @@ function Transition:init(x, y, w, h, properties)
         marker = properties.marker,
         facing = properties.facing,
     }
-    self.stairs = properties.stairs
+    self.sound = properties.sound or nil
+    self.pitch = properties.pitch or 1
+
+    self.exit_delay = properties.exit_delay or 0
+    self.exit_sound = properties.exit_sound or nil
+    self.exit_pitch = properties.exit_pitch or 1
 end
 
 function Transition:getDebugInfo()
@@ -35,16 +40,24 @@ function Transition:onEnter(chara)
         local facing = self.target.facing
         local marker = self.target.marker
 
-        if self.stairs then
-            Assets.playSound("escaped")
+        if self.sound then
+            Assets.playSound(self.sound, 1, self.pitch)
         end
+
         if self.target.shop then
             self.world:shopTransition(self.target.shop, {x=x, y=y, marker=marker, facing=facing, map=self.target.map})
         elseif self.target.map then
+            local callback = function(map)
+                if self.exit_sound then
+                    Assets.playSound(self.exit_sound, 1, self.exit_pitch)
+                end
+                Game.world.door_delay = self.exit_delay
+            end
+
             if marker then
-                self.world:mapTransition(self.target.map, marker, facing)
+                self.world:mapTransition(self.target.map, marker, facing or chara.facing, callback)
             else
-                self.world:mapTransition(self.target.map, x, y, facing)
+                self.world:mapTransition(self.target.map, x, y, facing or chara.facing, callback)
             end
         end
     end

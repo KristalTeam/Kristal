@@ -120,6 +120,7 @@ LightInventory = require("src.engine.game.common.lightinventory")
 Cutscene = require("src.engine.game.common.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")
 BattleCutscene = require("src.engine.game.battle.battlecutscene")
+LegendCutscene = require("src.engine.game.legend.legendcutscene")
 
 Console = require("src.engine.game.console")
 DebugSystem = require("src.engine.game.debugsystem")
@@ -236,6 +237,8 @@ Shop = require("src.engine.game.shop")
 Shopkeeper = require("src.engine.game.shop.shopkeeper")
 
 GameOver = require("src.engine.game.gameover")
+
+Legend = require("src.engine.game.legend")
 
 DarkTransition = require("src.engine.game.darktransition.darktransition")
 

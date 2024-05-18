@@ -77,7 +77,7 @@ function WarpDoor:onInteract(chara, facing)
                         speed = 0,
                     })
                     cutscene:wait(1)
-                    cutscene:loadMap(map, self.markers[name] or "spawn", "down")
+                    cutscene:loadMap(map, self.markers[name] or "spawn", "down", function() Assets.playSound("dooropen") end)
                     Game.world.fader:fadeIn(nil, {
                         speed = 0.25,
                     })

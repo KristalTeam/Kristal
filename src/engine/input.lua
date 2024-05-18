@@ -20,6 +20,9 @@
 ---@field key_bindings table<string, (string|string[])[]>
 ---@field gamepad_bindings table<string, (string|string[])[]>
 ---
+---@field stray_key_bindings table<string, (string|string[])[]>
+---@field stray_gamepad_bindings table<string, (string|string[])[]>
+---
 ---@field gamepad_locked boolean
 ---
 ---@field gamepad_cursor_size number
@@ -59,6 +62,9 @@ Input.key_down_timer = {}
 
 Input.key_bindings = {}
 Input.gamepad_bindings = {}
+
+Input.stray_key_bindings = {}
+Input.stray_gamepad_bindings = {}
 
 Input.gamepad_locked = false
 
@@ -179,6 +185,7 @@ end
 ---@param gamepad? boolean
 function Input.resetBinds(gamepad)
     if gamepad ~= true then
+        Input.stray_key_bindings = {}
         Input.key_bindings = {
             ["up"] = {"up"},
             ["down"] = {"down"},
@@ -192,9 +199,30 @@ function Input.resetBinds(gamepad)
             ["object_selector"] = {{"ctrl", "o"}},
             ["fast_forward"] = {{"ctrl", "g"}}
         }
+        for _,mod in ipairs(Kristal.Mods.getMods()) do
+            if mod.keybinds then
+                for _,v in pairs(mod.keybinds) do
+                    if v.keys then
+                        Input.key_bindings[v.id] = Utils.copy(v.keys)
+                    end
+                end
+            end
+            if mod.libs then
+                for _,lib in pairs(mod.libs) do
+                    if lib.keybinds then
+                        for _,v in pairs(lib.keybinds) do
+                            if v.keys then
+                                Input.key_bindings[v.id] = Utils.copy(v.keys)
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 
     if gamepad ~= false then
+        Input.stray_gamepad_bindings = {}
         Input.gamepad_bindings = {
             ["up"] = {"gamepad:dpup", "gamepad:lsup"},
             ["down"] = {"gamepad:dpdown", "gamepad:lsdown"},
@@ -206,8 +234,28 @@ function Input.resetBinds(gamepad)
             ["console"] = {},
             ["debug_menu"] = {},
             ["object_selector"] = {},
-            ["fast_forward"] = {}
+            ["fast_forward"] = {},
         }
+        for _,mod in ipairs(Kristal.Mods.getMods()) do
+            if mod.keybinds then
+                for _,v in pairs(mod.keybinds) do
+                    if v.gamepad then
+                        Input.gamepad_bindings[v.id] = Utils.copy(v.gamepad)
+                    end
+                end
+            end
+            if mod.libs then
+                for _,lib in pairs(mod.libs) do
+                    if lib.keybinds then
+                        for _,v in pairs(lib.keybinds) do
+                            if v.gamepad then
+                                Input.gamepad_bindings[v.id] = Utils.copy(v.gamepad)
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -229,8 +277,18 @@ function Input.loadBinds()
                     table.insert(key_bind, key)
                 end
             end
-            Input.key_bindings[k] = key_bind
-            Input.gamepad_bindings[k] = gamepad_bind
+
+            if Input.key_bindings[k] then
+                Input.key_bindings[k] = key_bind
+            else
+                Input.stray_key_bindings[k] = key_bind
+            end
+
+            if Input.gamepad_bindings[k] then
+                Input.gamepad_bindings[k] = gamepad_bind
+            else
+                Input.stray_gamepad_bindings[k] = gamepad_bind
+            end
         end
     end
 end
@@ -260,7 +318,13 @@ function Input.saveBinds()
     for k,v in pairs(Input.key_bindings) do
         all_binds[k] = Utils.copy(v)
     end
+    for k,v in pairs(Input.stray_key_bindings) do
+        all_binds[k] = Utils.merge(all_binds[k] or {}, v)
+    end
     for k,v in pairs(Input.gamepad_bindings) do
+        all_binds[k] = Utils.merge(all_binds[k] or {}, v)
+    end
+    for k,v in pairs(Input.stray_gamepad_bindings) do
         all_binds[k] = Utils.merge(all_binds[k] or {}, v)
     end
 
@@ -323,7 +387,9 @@ function Input.setBind(alias, index, key, gamepad)
             end
         end
     end
+
     bindings[alias][index] = key
+
     return true
 end
 
@@ -777,6 +843,32 @@ function Input.getControllerType()
         return "ps4"
     end
     return "xbox"
+end
+
+---@param bind string
+---@return string? name
+function Input.getBindName(bind)
+    for k,v in pairs(Kristal.Mods.getMods()) do
+        if v.keybinds then
+            for _,modBind in pairs(v.keybinds) do
+                if modBind.id == bind then
+                    return modBind.name
+                end
+            end
+        end
+        if v.libs then
+            for _,lib in pairs(v.libs) do
+                if lib.keybinds then
+                    for _,modBind in pairs(lib.keybinds) do
+                        if modBind.id == bind then
+                            return modBind.name
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nil
 end
 
 ---@param button string

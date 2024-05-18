@@ -593,6 +593,40 @@ function DebugSystem:registerSubMenus()
             self.playing_sound = Assets.playSound(id)
         end)
     end
+
+    self:registerMenu("change_party", "Change Party", "search")
+
+    for id, _ in pairs(Registry.party_members) do
+        self:registerOption("change_party", id, "Add or remove this party member from the party.", function ()
+            if (Game:hasPartyMember(id)) then
+                local char = Game.world:getPartyCharacterInParty(id)
+                local first_follower_char
+                if char then
+                    if char == Game.world.player then
+                        for _,party in ipairs(Game.party) do
+                            if id ~= party.id then
+                                first_follower_char = Game.world:getPartyCharacterInParty(party)
+                                if first_follower_char then
+                                    first_follower_char:convertToPlayer()
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    char:remove()
+                end
+                Game:removePartyMember(id)
+            else
+                Game:addPartyMember(id)
+                if Game.world.player then
+                    Game.world:spawnFollower(Game.party_data[id]:getActor())
+                else
+                    local x, y = Game.world.camera:getPosition()
+                    Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor())
+                end
+            end
+        end)
+    end
 end
 
 function DebugSystem:registerDefaults()
@@ -653,6 +687,9 @@ function DebugSystem:registerDefaults()
                             self:enterMenu("sound_test", 0)
                         end, in_game)
 
+    self:registerOption("main", "Change Party", "Enter the party change menu.", function ()
+                            self:enterMenu("change_party", 0)
+                        end, in_game)
 
     -- World specific
     self:registerOption("main", "Select Map", "Switch to a new map.", function ()

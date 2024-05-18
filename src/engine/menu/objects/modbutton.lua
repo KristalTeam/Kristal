@@ -54,6 +54,10 @@ function ModButton:onSelect()
     if self.preview_script and self.preview_script.onSelect then
         self.preview_script:onSelect(self)
     end
+	MainMenu.heart.color = {Kristal.getSoulColor()}
+	if MainMenu.mod_list:getSelectedMod().soulColor then
+		MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+	end
 end
 
 function ModButton:onDeselect()

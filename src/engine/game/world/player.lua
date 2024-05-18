@@ -31,7 +31,7 @@ function Player:init(chara, x, y)
 
     self.moving_x = 0
     self.moving_y = 0
-    self.walk_speed = 4
+    self.walk_speed = Game:isLight() and 6 or 4
 
     self.last_move_x = self.x
     self.last_move_y = self.y
@@ -187,6 +187,7 @@ function Player:isMovementEnabled()
         and Game.state == "OVERWORLD"
         and self.world.state == "GAMEPLAY"
         and self.hurt_timer == 0
+        and Game.world.door_delay == 0
 end
 
 function Player:handleMovement()
