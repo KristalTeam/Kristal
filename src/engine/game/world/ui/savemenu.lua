@@ -100,6 +100,13 @@ function SaveMenu:update()
                     Game.world:closeMenu()
                     Game.world:openMenu(DarkStorageMenu())
                 end
+            elseif self.selected_x == 2 and self.selected_y == 2 then
+                if Game:getConfig("enableRecruits") then
+                    Input.clear("confirm")
+                    self:remove()
+                    Game.world:closeMenu()
+                    -- Game.world:openMenu(RecruitMenu())
+                end
             end
         end
     elseif self.state == "SAVE" then
@@ -211,11 +218,18 @@ function SaveMenu:draw()
         -- Buttons
         love.graphics.print("Save", 170, 220)
         love.graphics.print("Return", 350, 220)
-        if not Game.inventory.storage_enabled then
+        if Game.inventory.storage_enabled then
+            Draw.setColor(PALETTE["world_text"])
+        else
             Draw.setColor(PALETTE["world_gray"])
         end
         love.graphics.print("Storage", 170, 260)
-        Draw.setColor(PALETTE["world_gray"])
+        
+        if Game:getConfig("enableRecruits") and #Game:getRecruits(true) > 0 then
+            Draw.setColor(PALETTE["world_text"])
+        else
+            Draw.setColor(PALETTE["world_gray"])
+        end
         love.graphics.print("Recruits", 350, 260)
 
         -- Heart
