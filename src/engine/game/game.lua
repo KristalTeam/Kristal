@@ -209,11 +209,6 @@ function Game:save(x, y)
     for k,v in pairs(self.party_data) do
         data.party_data[k] = v:save()
     end
-    
-    data.enemies_data = {}
-    for k,v in pairs(self.enemies_data) do
-        data.enemies_data[k] = v:save()
-    end
 
     Kristal.callEvent("save", data)
 
@@ -274,21 +269,12 @@ function Game:load(data, index, fade)
             end
         end
     end
-    
+
     self.party = {}
     for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
         local ally = self:getPartyMember(id)
         assert(ally, string.format("Attempted to add non-existent member \"%s\" to the party", id))
         table.insert(self.party, ally)
-    end
-    
-    self:initEnemies()
-    if data.enemies_data then
-        for k,v in pairs(data.enemies_data) do
-            if self.enemies_data[k] then
-                self.enemies_data[k]:load(v)
-            end
-        end
     end
 
     if data.temp_followers then
@@ -606,41 +592,10 @@ function Game:initPartyMembers()
     end
 end
 
-function Game:initEnemies()
-    self.enemies_data = {}
-    for id,_ in pairs(Registry.enemies) do
-        if Registry.getEnemy(id) then
-            self.enemies_data[id] = Registry.createEnemy(id)
-        else
-            error("Attempted to create non-existent enemy \"" .. id .. "\"")
-        end
-    end
-end
-
 function Game:getPartyMember(id)
     if self.party_data[id] then
         return self.party_data[id]
     end
-end
-
-function Game:getEnemy(id)
-    if self.enemies_data[id] then
-        return self.enemies_data[id]
-    end
-end
-
-function Game:getRecruits(include_incomplete)
-    local recruits = {}
-    for id,enemy in pairs(Game.enemies_data) do
-        if enemy:isRecruitable() and (enemy:getRecruitStatus() == true or include_incomplete and type(enemy:getRecruitStatus()) == "number" and enemy:getRecruitStatus() > 0) then
-            table.insert(recruits, enemy)
-        end
-    end
-    return recruits
-end
-
-function Game:hasRecruit(enemy)
-    return Game:getEnemy(enemy):getRecruitStatus() == true
 end
 
 function Game:addPartyMember(chara, index)
