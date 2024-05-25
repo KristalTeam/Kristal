@@ -79,7 +79,7 @@ function EnemyBattler:init(actor, use_overlay)
     -- Setup recruit data
     self.recruit_data = {
         ["name"] = "No Name",
-        ["description"] = "No Description.",
+        ["description"] = "No description",
         ["gradient_color"] = {1,1,1,1},
         ["chapter"] = 1,
         ["level"] = 1,
