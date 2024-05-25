@@ -52,6 +52,22 @@ function Virovirokun:init()
     if Kristal.getLibConfig("virovirokun", "enable_quarantine") then
         self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
     end
+    
+    -- Recruit Stuff
+    self.recruit_amount = 4
+    
+    self.recruit_data = {
+        ["name"] = "Virovirokun",
+        ["description"] = "A virus with a slightly\ncriminal streak... and a heart\nof gold.",
+        ["gradient_color"] = {0,1,1,1},
+        ["chapter"] = 2,
+        ["level"] = 7,
+        ["attack"] = 8,
+        ["defense"] = 6,
+        ["element"] = "VIRUS",
+        ["like"] = "Retro Games",
+        ["dislike"] = "Federal Justice System"
+    }
 
     self.text_override = nil
 end

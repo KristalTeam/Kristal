@@ -150,6 +150,7 @@ LightSaveMenu = require("src.engine.game.world.ui.lightsavemenu")
 HealthBar = require("src.engine.game.world.ui.healthbar")
 OverworldActionBox = require("src.engine.game.world.ui.overworldactionbox")
 Shopbox = require("src.engine.game.world.ui.shopbox")
+RecruitMenu = require("src.engine.game.world.ui.recruitmenu")
 
 DarkMenu = require("src.engine.game.world.ui.dark.darkmenu")
 DarkItemMenu = require("src.engine.game.world.ui.dark.darkitemmenu")
