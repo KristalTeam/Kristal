@@ -160,7 +160,7 @@ function DarkStorageMenu:update()
     if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
         self.heart.x = self.heart_target_x
     end
-    if (math.abs((self.heart_target_y - self.heart.y)) <= 2) then
+    if (math.abs((self.heart_target_y - self.heart.y)) <= 2)then
         self.heart.y = self.heart_target_y
     end
     self.heart.x = self.heart.x + ((self.heart_target_x - self.heart.x) / 2) * DTMULT

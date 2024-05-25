@@ -55,8 +55,6 @@ function Starwalker:init()
     self.waves = {
         "starwingsfaster"
     }
-    
-    self.recruit_amount = 0
 
     self.blue = false
 end
