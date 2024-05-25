@@ -19,7 +19,7 @@ function RecruitMenu:init()
     self.arrow_left = Assets.getTexture("ui/flat_arrow_left")
     self.arrow_right = Assets.getTexture("ui/flat_arrow_right")
     
-    self.enemy_box = Sprite("ui/menu/recruit_gradient", 370, 75)
+    self.enemy_box = Sprite("ui/menu/recruit_gradient", 370, 75) -- Sprite is inaccurate
     self:addChild(self.enemy_box)
     
     self.state = "SELECT"
