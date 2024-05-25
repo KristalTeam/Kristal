@@ -101,7 +101,7 @@ function SaveMenu:update()
                     Game.world:openMenu(DarkStorageMenu())
                 end
             elseif self.selected_x == 2 and self.selected_y == 2 then
-                if Game:getConfig("enableRecruits") then
+                if Game:getConfig("enableRecruits") and #Game:getRecruits(true) > 0 then
                     Input.clear("confirm")
                     self:remove()
                     Game.world:closeMenu()
@@ -225,7 +225,7 @@ function SaveMenu:draw()
         end
         love.graphics.print("Storage", 170, 260)
         
-        if Game:getConfig("enableRecruits") then
+        if Game:getConfig("enableRecruits") and #Game:getRecruits(true) > 0 then
             Draw.setColor(PALETTE["world_text"])
         else
             Draw.setColor(PALETTE["world_gray"])

@@ -629,6 +629,20 @@ function Game:getEnemy(id)
     end
 end
 
+function Game:getRecruits(include_incomplete)
+    local recruits = {}
+    for id,enemy in pairs(Game.enemies_data) do
+        if enemy:isRecruitable() and (enemy:getRecruitStatus() == true or include_incomplete and type(enemy:getRecruitStatus()) == "number" and enemy:getRecruitStatus() > 0) then
+            table.insert(recruits, enemy)
+        end
+    end
+    return recruits
+end
+
+function Game:hasRecruit(enemy)
+    return Game:getEnemy(enemy):getRecruitStatus() == true
+end
+
 function Game:addPartyMember(chara, index)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
