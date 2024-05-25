@@ -105,7 +105,7 @@ function SaveMenu:update()
                     Input.clear("confirm")
                     self:remove()
                     Game.world:closeMenu()
-                    -- Game.world:openMenu(RecruitMenu())
+                    Game.world:openMenu(RecruitMenu())
                 end
             end
         end

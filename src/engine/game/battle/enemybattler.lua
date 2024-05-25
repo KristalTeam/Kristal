@@ -647,6 +647,10 @@ function EnemyBattler:getRecruitStatus()
     return Game:getEnemy(self.id).recruit
 end
 
+function EnemyBattler:getRecruitAmount()
+    return Game:getEnemy(self.id).recruit_amount
+end
+
 function EnemyBattler:defeat(reason, violent)
     self.done_state = reason or "DEFEATED"
 
