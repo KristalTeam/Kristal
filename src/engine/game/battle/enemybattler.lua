@@ -75,6 +75,20 @@ function EnemyBattler:init(actor, use_overlay)
     -- Set nil for unrecruitable enemies.
     -- Set 0 for pre-recruited enemies.
     self.recruit_amount = nil
+    
+    -- Setup recruit data
+    self.recruit_data = {
+        ["name"] = "No Name",
+        ["description"] = "No Description.",
+        ["gradient_color"] = {0,0,0,1},
+        ["chapter"] = 1,
+        ["level"] = 1,
+        ["attack"] = 0,
+        ["defense"] = 0,
+        ["element"] = "UNSET",
+        ["like"] = "Undefined",
+        ["dislike"] = "Undefined"
+    }
 
     self.hurt_timer = 0
     self.comment = ""
@@ -647,8 +661,8 @@ function EnemyBattler:getRecruitStatus()
     return Game:getEnemy(self.id).recruit
 end
 
-function EnemyBattler:getRecruitAmount()
-    return Game:getEnemy(self.id).recruit_amount
+function EnemyBattler:isRecruitable()
+    return Game:getEnemy(self.id).recruit_amount ~= nil
 end
 
 function EnemyBattler:defeat(reason, violent)
@@ -656,7 +670,7 @@ function EnemyBattler:defeat(reason, violent)
 
     if violent then
         Game.battle.used_violence = true
-        if self.recruit_amount and self:getRecruitStatus() ~= false then
+        if self:isRecruitable() and self:getRecruitStatus() ~= false then
             if Game:getConfig("enableRecruits") and self.done_state ~= "FROZEN" then
                 self:recruitMessage("lost")
             end
@@ -667,7 +681,7 @@ function EnemyBattler:defeat(reason, violent)
         -- end
     end
     
-    if self.recruit_amount and type(self:getRecruitStatus()) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
+    if self:isRecruitable() and type(self:getRecruitStatus()) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
         self:setRecruitStatus(self:getRecruitStatus() + 1)
         if Game:getConfig("enableRecruits") then
             local counter = self:recruitMessage("recruit")
