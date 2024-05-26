@@ -610,9 +610,9 @@ function Game:initEnemies()
     self.enemies_data = {}
     for id,_ in pairs(Registry.enemies) do
         if Registry.getEnemy(id) then
-            self.enemies_data[id] = Registry.createEnemy(id)
+            self.enemies_data[id] = Registry.getEnemy(id)
         else
-            error("Attempted to create non-existent enemy \"" .. id .. "\"")
+            error("Attempted to get non-existent enemy \"" .. id .. "\"")
         end
     end
 end

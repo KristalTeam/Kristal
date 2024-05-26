@@ -106,21 +106,21 @@ function RecruitMenu:draw()
         for i,enemy in pairs(Game:getRecruits(true)) do -- There's need to be multiple pages, I didn't have enough enemies to test that
             Draw.setColor(COLORS["white"])
             if i == self.selected then
-                self.enemy_box:setColor(enemy.recruit_data["gradient_color"])
-                love.graphics.printf(enemy.recruit_data["name"], 273, 240, 400, "center")
-                love.graphics.print("CHAPTER " .. enemy.recruit_data["chapter"], 368, 280)
-                love.graphics.printf("LV " .. enemy.recruit_data["level"], 173, 280, 400, "right")
+                self.enemy_box:setColor(enemy:getRecruitData()["gradient_color"])
+                love.graphics.printf(enemy:getRecruitData()["name"], 273, 240, 400, "center")
+                love.graphics.print("CHAPTER " .. enemy:getRecruitData()["chapter"], 368, 280)
+                love.graphics.printf("LV " .. enemy:getRecruitData()["level"], 173, 280, 400, "right")
                 love.graphics.print(Input.getText("confirm") .. ": More Info", 380, 320) -- Missing controller button display
                 love.graphics.print(Input.getText("cancel") .. ": Quit", 380, 352) -- Missing controller button display
                 Draw.setColor(COLORS["yellow"])
             end
-            love.graphics.print(enemy.recruit_data["name"], 80, 100 + offset)
+            love.graphics.print(enemy:getRecruitData()["name"], 80, 100 + offset)
             if Game:hasRecruit(enemy.id) then
                 Draw.setColor({0,1,0})
                 love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
             else
                 Draw.setColor(PALETTE["world_light_gray"])
-                love.graphics.print(enemy:getRecruitStatus() .. " / " .. enemy.recruit_amount, 280, 100 + offset)
+                love.graphics.print(enemy:getRecruitStatus() .. " / " .. enemy:getRecruitData()["recruit_amount"], 280, 100 + offset)
             end
             offset = offset + 35
         end
@@ -135,16 +135,16 @@ function RecruitMenu:draw()
         for i,enemy in pairs(Game:getRecruits(true)) do
             love.graphics.print(self.selected .. "/" .. #Game:getRecruits(true), 569, 30, 0, 0.5, 1) -- needs to be written from right to left, no idea how to do it while maintaining the 1/2 scale
             if i == self.selected then
-                self.enemy_box:setColor(enemy.recruit_data["gradient_color"])
-                love.graphics.print("CHAPTER " .. enemy.recruit_data["chapter"], 300, 30, 0, 0.5, 1)
-                love.graphics.print(enemy.recruit_data["name"], 300, 70)
+                self.enemy_box:setColor(enemy:getRecruitData()["gradient_color"])
+                love.graphics.print("CHAPTER " .. enemy:getRecruitData()["chapter"], 300, 30, 0, 0.5, 1)
+                love.graphics.print(enemy:getRecruitData()["name"], 300, 70)
                 love.graphics.setFont(self.description_font)
-                love.graphics.print(Game:hasRecruit(enemy.id) and enemy.recruit_data["description"] or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
+                love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["description"] or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
                 love.graphics.setFont(self.font)
                 love.graphics.print("LIKE", 80, 240)
-                love.graphics.print(Game:hasRecruit(enemy.id) and enemy.recruit_data["like"] or "?", 180, 240)
+                love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["like"] or "?", 180, 240)
                 love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
-                love.graphics.print(Game:hasRecruit(enemy.id) and enemy.recruit_data["dislike"] or "?", 180, 280)
+                love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["dislike"] or "?", 180, 280)
                 love.graphics.print("?????", 80, 320, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 320)
                 love.graphics.print("?????", 80, 360, 0, 1.15, 1)
@@ -153,10 +153,10 @@ function RecruitMenu:draw()
                 
                 -- This part is unfinished, same issue as above
                 love.graphics.print(
-                "LEVEL " .. enemy.recruit_data["level"] .. "\n" .. 
-                "ATTACK " .. enemy.recruit_data["attack"] .. "\n" .. 
-                "DEFENSE " .. enemy.recruit_data["defense"] .. "\n" .. 
-                "ELEMENT " .. enemy.recruit_data["element"], 500, 240, 0, 0.5, 1)
+                "LEVEL " .. enemy:getRecruitData()["level"] .. "\n" .. 
+                "ATTACK " .. enemy:getRecruitData()["attack"] .. "\n" .. 
+                "DEFENSE " .. enemy:getRecruitData()["defense"] .. "\n" .. 
+                "ELEMENT " .. enemy:getRecruitData()["element"], 500, 240, 0, 0.5, 1)
             end
             
             Draw.setColor(1, 1, 1, 1)

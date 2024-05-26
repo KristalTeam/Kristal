@@ -55,14 +55,32 @@ function Starwalker:init()
     self.waves = {
         "starwingsfaster"
     }
-    
-    self.recruit_amount = 0
 
     self.blue = false
 end
 
 function Starwalker:onTurnEnd()
     self.progress = self.progress + 1
+end
+
+function Starwalker:getRecruitData()
+    return {
+        -- How many times an enemy needs to be spared to recruit.
+        -- Set nil for unrecruitable enemies.
+        -- Set 0 for pre-recruited enemies.
+        ["recruit_amount"] = 0,
+        -- Setup recruit data
+        ["name"] = "Starwalker",
+        ["description"] = "The Original",
+        ["gradient_color"] = {1,1,0,1},
+        ["chapter"] = 1,
+        ["level"] = 1,
+        ["attack"] = 1,
+        ["defense"] = 1,
+        ["element"] = "STAR",
+        ["like"] = "Original",
+        ["dislike"] = "Unoriginal"
+    }
 end
 
 function Starwalker:getEncounterText()

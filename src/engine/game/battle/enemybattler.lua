@@ -70,25 +70,6 @@ function EnemyBattler:init(actor, use_overlay)
             ["party"] = {}
         }
     }
-    
-    -- How many times an enemy needs to be spared to recruit.
-    -- Set nil for unrecruitable enemies.
-    -- Set 0 for pre-recruited enemies.
-    self.recruit_amount = nil
-    
-    -- Setup recruit data
-    self.recruit_data = {
-        ["name"] = "No Name",
-        ["description"] = "No description",
-        ["gradient_color"] = {1,1,1,1},
-        ["chapter"] = 1,
-        ["level"] = 1,
-        ["attack"] = 0,
-        ["defense"] = 0,
-        ["element"] = "UNSET",
-        ["like"] = "Undefined",
-        ["dislike"] = "Undefined"
-    }
 
     self.hurt_timer = 0
     self.comment = ""
@@ -656,13 +637,33 @@ end
 
 function EnemyBattler:getRecruitStatus()
     if Game:getEnemy(self.id).recruit == nil then
-        self:setRecruitStatus(self.recruit_amount and self.recruit_amount <= 0 and true or 0)
+        self:setRecruitStatus(Game:getEnemy(self.id):getRecruitData()["recruit_amount"] and Game:getEnemy(self.id):getRecruitData()["recruit_amount"] <= 0 and true or 0)
     end
     return Game:getEnemy(self.id).recruit
 end
 
 function EnemyBattler:isRecruitable()
-    return Game:getEnemy(self.id).recruit_amount ~= nil
+    return Game:getEnemy(self.id):getRecruitData()["recruit_amount"] ~= nil
+end
+
+function EnemyBattler:getRecruitData()
+    return {
+        -- How many times an enemy needs to be spared to recruit.
+        -- Set nil for unrecruitable enemies.
+        -- Set 0 for pre-recruited enemies.
+        ["recruit_amount"] = nil,
+        -- Setup recruit data
+        ["name"] = "No Name",
+        ["description"] = "No description",
+        ["gradient_color"] = {1,1,1,1},
+        ["chapter"] = 1,
+        ["level"] = 1,
+        ["attack"] = 0,
+        ["defense"] = 0,
+        ["element"] = "UNSET",
+        ["like"] = "Undefined",
+        ["dislike"] = "Undefined"
+    }
 end
 
 function EnemyBattler:defeat(reason, violent)
@@ -686,10 +687,10 @@ function EnemyBattler:defeat(reason, violent)
         if Game:getConfig("enableRecruits") then
             local counter = self:recruitMessage("recruit")
             counter.first_number = self:getRecruitStatus()
-            counter.second_number = self.recruit_amount
+            counter.second_number = Game:getEnemy(self.id):getRecruitData()["recruit_amount"]
             Assets.playSound("sparkle_gem")
         end
-        if self:getRecruitStatus() >= self.recruit_amount then
+        if self:getRecruitStatus() >= Game:getEnemy(self.id):getRecruitData()["recruit_amount"] then
             self:setRecruitStatus(true)
         end
     end

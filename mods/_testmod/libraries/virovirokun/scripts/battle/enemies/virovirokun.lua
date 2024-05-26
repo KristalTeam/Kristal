@@ -52,11 +52,17 @@ function Virovirokun:init()
     if Kristal.getLibConfig("virovirokun", "enable_quarantine") then
         self:registerShortAct("Quarantine", "Make\nenemy\nTIRED")
     end
-    
-    -- Recruit Stuff
-    self.recruit_amount = 4
-    
-    self.recruit_data = {
+
+    self.text_override = nil
+end
+
+function Virovirokun:getRecruitData()
+    return {
+        -- How many times an enemy needs to be spared to recruit.
+        -- Set nil for unrecruitable enemies.
+        -- Set 0 for pre-recruited enemies.
+        ["recruit_amount"] = 4,
+        -- Setup recruit data
         ["name"] = "Virovirokun",
         ["description"] = "A virus with a slightly\ncriminal streak... and a heart\nof gold.",
         ["gradient_color"] = {0,1,1,1},
@@ -68,8 +74,6 @@ function Virovirokun:init()
         ["like"] = "Retro Games",
         ["dislike"] = "Federal Justice System"
     }
-
-    self.text_override = nil
 end
 
 function Virovirokun:isXActionShort(battler)
