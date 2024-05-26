@@ -147,6 +147,9 @@ function Actor:getTalkSpeed(sprite) return self.talk_sprites[sprite] or 0.25 end
 
 function Actor:getAnimation(anim) return self.animations[anim] end
 
+function Actor:getMirrorSprites() return self.mirror_sprites end
+function Actor:getMirrorSprite(sprite) return self:getMirrorSprites()[sprite] end
+
 function Actor:hasOffset(sprite) return self.offsets[sprite] ~= nil end
 function Actor:getOffset(sprite) return unpack(self.offsets[sprite] or {0, 0}) end
 
