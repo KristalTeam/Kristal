@@ -35,7 +35,7 @@ function MirrorArea:drawCharacter(chara)
     local pathless = t[1]
     local frame = t[2]
     local newsprite = oldsprite
-    local mirror = chara.actor.mirror_sprites
+    local mirror = chara.actor:getMirrorSprites()
     if mirror and mirror[pathless] then
         newsprite = mirror[pathless] .. "_" .. frame
     end
