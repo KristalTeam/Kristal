@@ -210,9 +210,9 @@ function Game:save(x, y)
         data.party_data[k] = v:save()
     end
     
-    data.enemies_data = {}
-    for k,v in pairs(self.enemies_data) do
-        data.enemies_data[k] = v:save()
+    data.recruits_data = {}
+    for k,v in pairs(self.recruits_data) do
+        data.recruits_data[k] = v:save()
     end
 
     Kristal.callEvent("save", data)
@@ -282,11 +282,11 @@ function Game:load(data, index, fade)
         table.insert(self.party, ally)
     end
     
-    self:initEnemies()
-    if data.enemies_data then
-        for k,v in pairs(data.enemies_data) do
-            if self.enemies_data[k] then
-                self.enemies_data[k]:load(v)
+    self:initRecruits()
+    if data.recruits_data then
+        for k,v in pairs(data.recruits_data) do
+            if self.recruits_data[k] then
+                self.recruits_data[k]:load(v)
             end
         end
     end
@@ -606,13 +606,13 @@ function Game:initPartyMembers()
     end
 end
 
-function Game:initEnemies()
-    self.enemies_data = {}
-    for id,_ in pairs(Registry.enemies) do
-        if Registry.getEnemy(id) then
-            self.enemies_data[id] = Registry.getEnemy(id)
+function Game:initRecruits()
+    self.recruits_data = {}
+    for id,_ in pairs(Registry.recruits) do
+        if Registry.getRecruit(id) then
+            self.recruits_data[id] = Registry.createRecruit(id)
         else
-            error("Attempted to get non-existent enemy \"" .. id .. "\"")
+            error("Attempted to create non-existent recruit \"" .. id .. "\"")
         end
     end
 end
@@ -623,24 +623,24 @@ function Game:getPartyMember(id)
     end
 end
 
-function Game:getEnemy(id)
-    if self.enemies_data[id] then
-        return self.enemies_data[id]
+function Game:getRecruit(id)
+    if self.recruits_data[id] then
+        return self.recruits_data[id]
     end
 end
 
 function Game:getRecruits(include_incomplete)
     local recruits = {}
-    for id,enemy in pairs(Game.enemies_data) do
-        if enemy:isRecruitable() and (enemy:getRecruitStatus() == true or include_incomplete and type(enemy:getRecruitStatus()) == "number" and enemy:getRecruitStatus() > 0) then
-            table.insert(recruits, enemy)
+    for id,recruit in pairs(Game.recruits_data) do
+        if recruit:getRecruited() == true or include_incomplete and type(recruit:getRecruited()) == "number" and recruit:getRecruited() > 0 then
+            table.insert(recruits, recruit)
         end
     end
     return recruits
 end
 
-function Game:hasRecruit(enemy)
-    return Game:getEnemy(enemy):getRecruitStatus() == true
+function Game:hasRecruit(recruit)
+    return self:getRecruit(recruit):getRecruited() == true
 end
 
 function Game:addPartyMember(chara, index)

@@ -632,46 +632,15 @@ function EnemyBattler:recruitMessage(...)
 end
 
 function EnemyBattler:setRecruitStatus(v)
-    Game:getEnemy(self.id).recruit = v
+    Game:getRecruit(self.id):setRecruited(v)
 end
 
 function EnemyBattler:getRecruitStatus()
-    if Game:getEnemy(self.id).recruit == nil then
-        self:setRecruitStatus(Game:getEnemy(self.id):getRecruitData()["recruit_amount"] and Game:getEnemy(self.id):getRecruitData()["recruit_amount"] <= 0 and true or 0)
-    end
-    return Game:getEnemy(self.id).recruit
+    return Game:getRecruit(self.id):getRecruited()
 end
 
 function EnemyBattler:isRecruitable()
-    return Game:getEnemy(self.id):getRecruitData()["recruit_amount"] ~= nil
-end
-
-function EnemyBattler:getRecruitData()
-    return {
-        -- How many times an enemy needs to be spared to recruit.
-        -- Set nil for unrecruitable enemies.
-        -- Set 0 for pre-recruited enemies.
-        ["recruit_amount"] = nil,
-        
-        ["name"] = "No Name",
-        ["description"] = "No description",
-        
-        -- Available options: dark, bright
-        ["box_gradient_type"] = "bright",
-        
-        ["box_gradient_color"] = {1,1,1,1},
-        
-        -- Syntax: Sprite/Animation path, offset_x, offset_y
-        ["box_sprite"] = {nil, 0, 0},
-        
-        ["chapter"] = 1,
-        ["level"] = 1,
-        ["attack"] = 0,
-        ["defense"] = 0,
-        ["element"] = "UNSET",
-        ["like"] = "Undefined",
-        ["dislike"] = "Undefined"
-    }
+    return Game:getRecruit(self.id)
 end
 
 function EnemyBattler:defeat(reason, violent)
@@ -695,10 +664,10 @@ function EnemyBattler:defeat(reason, violent)
         if Game:getConfig("enableRecruits") then
             local counter = self:recruitMessage("recruit")
             counter.first_number = self:getRecruitStatus()
-            counter.second_number = Game:getEnemy(self.id):getRecruitData()["recruit_amount"]
+            counter.second_number = Game:getRecruit(self.id):getRecruitAmount()
             Assets.playSound("sparkle_gem")
         end
-        if self:getRecruitStatus() >= Game:getEnemy(self.id):getRecruitData()["recruit_amount"] then
+        if self:getRecruitStatus() >= Game:getRecruit(self.id):getRecruitAmount() then
             self:setRecruitStatus(true)
         end
     end
@@ -707,24 +676,6 @@ function EnemyBattler:defeat(reason, violent)
     Game.battle.xp = Game.battle.xp + self.experience
 
     Game.battle:removeEnemy(self, true)
-end
-
-function EnemyBattler:onSave(data) end
-function EnemyBattler:onLoad(data) end
-
-function EnemyBattler:save()
-    local data = {
-        id = self.id,
-        recruit = self.recruit
-    }
-    self:onSave(data)
-    return data
-end
-
-function EnemyBattler:load(data)
-    self.recruit = data.recruit or self.recruit
-
-    self:onLoad(data)
 end
 
 function EnemyBattler:setActor(actor, use_overlay)

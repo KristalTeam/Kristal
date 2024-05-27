@@ -56,31 +56,6 @@ function Virovirokun:init()
     self.text_override = nil
 end
 
-function Virovirokun:getRecruitData()
-    return {
-        -- How many times an enemy needs to be spared to recruit.
-        -- Set nil for unrecruitable enemies.
-        -- Set 0 for pre-recruited enemies.
-        ["recruit_amount"] = 4,
-        -- Setup recruit data
-        ["name"] = "Virovirokun",
-        ["description"] = "A virus with a slightly\ncriminal streak... and a heart\nof gold.",
-        ["box_gradient_type"] = "bright",
-        ["box_gradient_color"] = {0,1,1,1},
-        
-        -- Syntax: Sprite/Animation path, offset_x, offset_y
-        ["box_sprite"] = {"enemies/virovirokun/idle", 0, 12},
-        
-        ["chapter"] = 2,
-        ["level"] = 7,
-        ["attack"] = 8,
-        ["defense"] = 6,
-        ["element"] = "VIRUS",
-        ["like"] = "Retro Games",
-        ["dislike"] = "Federal Justice System"
-    }
-end
-
 function Virovirokun:isXActionShort(battler)
     return true
 end

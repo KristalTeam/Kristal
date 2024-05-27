@@ -1,3 +1,5 @@
+---@class RecruitMenu : Object
+---@overload fun(...) : RecruitMenu
 local RecruitMenu, super = Class(Object)
 
 function RecruitMenu:init()
@@ -38,9 +40,9 @@ function RecruitMenu:setRecruitInBox(selected)
         self.recruit_sprite:remove()
     end
     local recruit = self.recruits[selected]
-    self.recruit_box:setSprite("ui/menu/recruit/gradient_" .. recruit:getRecruitData()["box_gradient_type"])
-    self.recruit_box:setColor(recruit:getRecruitData()["box_gradient_color"])
-    self.recruit_sprite = Sprite(recruit:getRecruitData()["box_sprite"][1], self.recruit_box.width / 2 + recruit:getRecruitData()["box_sprite"][2], self.recruit_box.height / 2 + recruit:getRecruitData()["box_sprite"][3])
+    self.recruit_box:setSprite("ui/menu/recruit/gradient_" .. recruit:getBoxGradientType())
+    self.recruit_box:setColor(recruit:getBoxGradientColor())
+    self.recruit_sprite = Sprite(recruit:getBoxSprite()[1], self.recruit_box.width / 2 + recruit:getBoxSprite()[2], self.recruit_box.height / 2 + recruit:getBoxSprite()[3])
     self.recruit_sprite:setScale(2)
     self.recruit_sprite:setOrigin(0.5, 0.5)
     self.recruit_sprite:play(4/30)
@@ -174,10 +176,10 @@ function RecruitMenu:draw()
             if i <= self:getLastSelectedInPage() and i >= self:getFirstSelectedInPage() then
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
-                    local name = recruit:getRecruitData()["name"]
+                    local name = recruit:getName()
                     love.graphics.print(name, 473 - self.font:getWidth(name) / 2, 240)
-                    love.graphics.print("CHAPTER " .. recruit:getRecruitData()["chapter"], 368, 280)
-                    local level = "LV " .. recruit:getRecruitData()["level"]
+                    love.graphics.print("CHAPTER " .. recruit:getChapter(), 368, 280)
+                    local level = "LV " .. recruit:getLevel()
                     love.graphics.print(level, 576 - self.font:getWidth(level), 280)
                     if Input.usingGamepad() then
                         love.graphics.print("More Info", 414, 320)
@@ -190,13 +192,13 @@ function RecruitMenu:draw()
                     end
                     Draw.setColor(COLORS["yellow"])
                 end
-                love.graphics.print(recruit:getRecruitData()["name"], 80, 100 + offset)
+                love.graphics.print(recruit:getName(), 80, 100 + offset)
                 if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
-                    love.graphics.print(recruit:getRecruitStatus() .. " / " .. recruit:getRecruitData()["recruit_amount"], 280, 100 + offset)
+                    love.graphics.print(recruit:getRecruited() .. " / " .. recruit:getRecruitAmount(), 280, 100 + offset)
                 end
                 offset = offset + 35
             end
@@ -220,15 +222,15 @@ function RecruitMenu:draw()
             local selection = self.selected .. "/" .. #self.recruits
             love.graphics.print(selection, 590 - self.font:getWidth(selection) / 2, 30, 0, 0.5, 1)
             if i == self.selected then
-                love.graphics.print("CHAPTER " .. recruit:getRecruitData()["chapter"], 300, 30, 0, 0.5, 1)
-                love.graphics.print(recruit:getRecruitData()["name"], 300, 70)
+                love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
+                love.graphics.print(recruit:getName(), 300, 70)
                 love.graphics.setFont(self.description_font)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getRecruitData()["description"] or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
                 love.graphics.setFont(self.font)
                 love.graphics.print("LIKE", 80, 240)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getRecruitData()["like"] or "?", 180, 240)
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getLike() or "?", 180, 240)
                 love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getRecruitData()["dislike"] or "?", 180, 280)
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", 180, 280)
                 love.graphics.print("?????", 80, 320, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 320)
                 love.graphics.print("?????", 80, 360, 0, 1.15, 1)
@@ -241,18 +243,18 @@ function RecruitMenu:draw()
                 end
                 
                 love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
-                local level = recruit:getRecruitData()["level"]
+                local level = recruit:getLevel()
                 love.graphics.print(level, 590 - self.font:getWidth(level) / 2, 240, 0, 0.5, 1)
                 
                 love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
-                local attack = recruit:getRecruitData()["attack"]
+                local attack = recruit:getAttack()
                 love.graphics.print(attack, 590 - self.font:getWidth(attack) / 2, 280, 0, 0.5, 1)
                 
                 love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
-                local defense = recruit:getRecruitData()["defense"]
+                local defense = recruit:getDefense()
                 love.graphics.print(defense, 590 - self.font:getWidth(defense) / 2, 320, 0, 0.5, 1)
                 
-                local element = "ELEMENT " .. recruit:getRecruitData()["element"]
+                local element = "ELEMENT " .. recruit:getElement()
                 love.graphics.print(element, 590 - self.font:getWidth(element) / 2, 360, 0, 0.5, 1)
             end
             
