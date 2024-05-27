@@ -65,8 +65,12 @@ function Virovirokun:getRecruitData()
         -- Setup recruit data
         ["name"] = "Virovirokun",
         ["description"] = "A virus with a slightly\ncriminal streak... and a heart\nof gold.",
-        ["gradient_type"] = "bright",
-        ["gradient_color"] = {0,1,1,1},
+        ["box_gradient_type"] = "bright",
+        ["box_gradient_color"] = {0,1,1,1},
+        
+        -- Syntax: Sprite/Animation path, offset_x, offset_y
+        ["box_sprite"] = {"enemies/virovirokun/idle", 0, 12},
+        
         ["chapter"] = 2,
         ["level"] = 7,
         ["attack"] = 8,

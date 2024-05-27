@@ -72,8 +72,9 @@ function Starwalker:getRecruitData()
         -- Setup recruit data
         ["name"] = "Starwalker",
         ["description"] = "The Original",
-        ["gradient_type"] = "dark",
-        ["gradient_color"] = {1,1,0,1},
+        ["box_gradient_type"] = "dark",
+        ["box_gradient_color"] = {1,1,0,1},
+        ["box_sprite"] = {"npcs/starwalker/starwalker", 4, 12},
         ["chapter"] = 99,
         ["level"] = 99,
         ["attack"] = 99,

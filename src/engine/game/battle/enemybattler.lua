@@ -652,12 +652,18 @@ function EnemyBattler:getRecruitData()
         -- Set nil for unrecruitable enemies.
         -- Set 0 for pre-recruited enemies.
         ["recruit_amount"] = nil,
-        -- Setup recruit data
+        
         ["name"] = "No Name",
         ["description"] = "No description",
+        
         -- Available options: dark, bright
-        ["gradient_type"] = "bright",
-        ["gradient_color"] = {1,1,1,1},
+        ["box_gradient_type"] = "bright",
+        
+        ["box_gradient_color"] = {1,1,1,1},
+        
+        -- Syntax: Sprite/Animation path, offset_x, offset_y
+        ["box_sprite"] = {nil, 0, 0},
+        
         ["chapter"] = 1,
         ["level"] = 1,
         ["attack"] = 0,

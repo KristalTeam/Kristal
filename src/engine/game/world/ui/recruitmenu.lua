@@ -19,28 +19,36 @@ function RecruitMenu:init()
     self.arrow_left = Assets.getTexture("ui/flat_arrow_left")
     self.arrow_right = Assets.getTexture("ui/flat_arrow_right")
     
-    self.enemy_box = Sprite("ui/menu/recruit/gradient_bright", 370, 75)
-    self:addChild(self.enemy_box)
+    self.recruits = Game:getRecruits(true)
     
     self.state = "SELECT"
     
     self.selected = 1
     self.selected_page = 1
+    self.old_selection = self.selected
     
-    -- I had no idea how to make the animation play, or get the idle animation of the enemy normally, this isn't suppose to be scripted like that, I was testing to see if I can do it.
+    self.recruit_box = Sprite("ui/menu/recruit/gradient_bright", 370, 75)
+    Game.stage:addChild(self.recruit_box)
     
-    --[[
-        if Game.enemies_data["virovirokun"] then
-            self.enemy = Sprite(Game.enemies_data["virovirokun"].actor.path .. "/idle", 100, 80)
-            self.enemy:setScale(2)
-            self.enemy:setOrigin(0.5, 0.5)
-            self.enemy_box:addChild(self.enemy)
-        end
-    ]]
+    self:setRecruitInBox(self.selected)
+end
+
+function RecruitMenu:setRecruitInBox(selected)
+    if self.recruit_sprite then
+        self.recruit_sprite:remove()
+    end
+    local recruit = self.recruits[selected]
+    self.recruit_box:setSprite("ui/menu/recruit/gradient_" .. recruit:getRecruitData()["box_gradient_type"])
+    self.recruit_box:setColor(recruit:getRecruitData()["box_gradient_color"])
+    self.recruit_sprite = Sprite(recruit:getRecruitData()["box_sprite"][1], self.recruit_box.width / 2 + recruit:getRecruitData()["box_sprite"][2], self.recruit_box.height / 2 + recruit:getRecruitData()["box_sprite"][3])
+    self.recruit_sprite:setScale(2)
+    self.recruit_sprite:setOrigin(0.5, 0.5)
+    self.recruit_sprite:play(4/30)
+    self.recruit_box:addChild(self.recruit_sprite)
 end
 
 function RecruitMenu:getMaxPages()
-    return math.ceil(#Game:getRecruits(true) / 9)
+    return math.ceil(#self.recruits / 9)
 end
 
 function RecruitMenu:getFirstSelectedInPage()
@@ -48,19 +56,20 @@ function RecruitMenu:getFirstSelectedInPage()
 end
 
 function RecruitMenu:getLastSelectedInPage()
-    return math.min(#Game:getRecruits(true), 9 * self.selected_page)
+    return math.min(#self.recruits, 9 * self.selected_page)
 end
 
 function RecruitMenu:update()
+    self.old_selection = self.selected
     if Input.pressed("left") and self.state == "INFO" then
         self.selected = self.selected - 1
         if self.selected < 1 then
-            self.selected = #Game:getRecruits(true)
+            self.selected = #self.recruits
         end
     end
     if Input.pressed("right") and self.state == "INFO" then
         self.selected = self.selected + 1
-        if self.selected > #Game:getRecruits(true) then
+        if self.selected > #self.recruits then
             self.selected = 1
         end
     end
@@ -103,20 +112,25 @@ function RecruitMenu:update()
         end
     end
     
+    if self.old_selection ~= self.selected then
+        self:setRecruitInBox(self.selected)
+    end
+    
     if Input.pressed("confirm") then
         if self.state == "SELECT" then
             self.state = "INFO"
-            self.enemy_box:setPosition(80, 70)
+            self.recruit_box:setPosition(80, 70)
         end
     end
     if Input.pressed("cancel") then
         if self.state == "SELECT" then
+            self.recruit_box:remove()
             self:remove()
             Game.world:closeMenu()
         else
             self.state = "SELECT"
             self.selected_page = math.ceil(self.selected / 9)
-            self.enemy_box:setPosition(370, 75)
+            self.recruit_box:setPosition(370, 75)
         end
     end
     
@@ -156,16 +170,14 @@ function RecruitMenu:draw()
         love.graphics.print("PROGRESS", 270, 30, 0, 0.5, 1)
         
         local offset = 0
-        for i,enemy in pairs(Game:getRecruits(true)) do
+        for i,recruit in pairs(self.recruits) do
             if i <= self:getLastSelectedInPage() and i >= self:getFirstSelectedInPage() then
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
-                    self.enemy_box:setSprite("ui/menu/recruit/gradient_" .. enemy:getRecruitData()["gradient_type"])
-                    self.enemy_box:setColor(enemy:getRecruitData()["gradient_color"])
-                    local name = enemy:getRecruitData()["name"]
+                    local name = recruit:getRecruitData()["name"]
                     love.graphics.print(name, 473 - self.font:getWidth(name) / 2, 240)
-                    love.graphics.print("CHAPTER " .. enemy:getRecruitData()["chapter"], 368, 280)
-                    local level = "LV " .. enemy:getRecruitData()["level"]
+                    love.graphics.print("CHAPTER " .. recruit:getRecruitData()["chapter"], 368, 280)
+                    local level = "LV " .. recruit:getRecruitData()["level"]
                     love.graphics.print(level, 576 - self.font:getWidth(level), 280)
                     if Input.usingGamepad() then
                         love.graphics.print("More Info", 414, 320)
@@ -178,13 +190,13 @@ function RecruitMenu:draw()
                     end
                     Draw.setColor(COLORS["yellow"])
                 end
-                love.graphics.print(enemy:getRecruitData()["name"], 80, 100 + offset)
-                if Game:hasRecruit(enemy.id) then
+                love.graphics.print(recruit:getRecruitData()["name"], 80, 100 + offset)
+                if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
-                    love.graphics.print(enemy:getRecruitStatus() .. " / " .. enemy:getRecruitData()["recruit_amount"], 280, 100 + offset)
+                    love.graphics.print(recruit:getRecruitStatus() .. " / " .. recruit:getRecruitData()["recruit_amount"], 280, 100 + offset)
                 end
                 offset = offset + 35
             end
@@ -204,21 +216,19 @@ function RecruitMenu:draw()
         love.graphics.rectangle("fill", 34, 14, 573, 433)
         
         Draw.setColor(COLORS["white"])
-        for i,enemy in pairs(Game:getRecruits(true)) do
-            local selection = self.selected .. "/" .. #Game:getRecruits(true)
+        for i,recruit in pairs(self.recruits) do
+            local selection = self.selected .. "/" .. #self.recruits
             love.graphics.print(selection, 590 - self.font:getWidth(selection) / 2, 30, 0, 0.5, 1)
             if i == self.selected then
-                self.enemy_box:setSprite("ui/menu/recruit/gradient_" .. tostring(enemy:getRecruitData()["gradient_type"]))
-                self.enemy_box:setColor(enemy:getRecruitData()["gradient_color"])
-                love.graphics.print("CHAPTER " .. enemy:getRecruitData()["chapter"], 300, 30, 0, 0.5, 1)
-                love.graphics.print(enemy:getRecruitData()["name"], 300, 70)
+                love.graphics.print("CHAPTER " .. recruit:getRecruitData()["chapter"], 300, 30, 0, 0.5, 1)
+                love.graphics.print(recruit:getRecruitData()["name"], 300, 70)
                 love.graphics.setFont(self.description_font)
-                love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["description"] or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getRecruitData()["description"] or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
                 love.graphics.setFont(self.font)
                 love.graphics.print("LIKE", 80, 240)
-                love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["like"] or "?", 180, 240)
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getRecruitData()["like"] or "?", 180, 240)
                 love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
-                love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["dislike"] or "?", 180, 280)
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getRecruitData()["dislike"] or "?", 180, 280)
                 love.graphics.print("?????", 80, 320, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 320)
                 love.graphics.print("?????", 80, 360, 0, 1.15, 1)
@@ -231,18 +241,18 @@ function RecruitMenu:draw()
                 end
                 
                 love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
-                local level = enemy:getRecruitData()["level"]
+                local level = recruit:getRecruitData()["level"]
                 love.graphics.print(level, 590 - self.font:getWidth(level) / 2, 240, 0, 0.5, 1)
                 
                 love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
-                local attack = enemy:getRecruitData()["attack"]
+                local attack = recruit:getRecruitData()["attack"]
                 love.graphics.print(attack, 590 - self.font:getWidth(attack) / 2, 280, 0, 0.5, 1)
                 
                 love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
-                local defense = enemy:getRecruitData()["defense"]
+                local defense = recruit:getRecruitData()["defense"]
                 love.graphics.print(defense, 590 - self.font:getWidth(defense) / 2, 320, 0, 0.5, 1)
                 
-                local element = "ELEMENT " .. enemy:getRecruitData()["element"]
+                local element = "ELEMENT " .. recruit:getRecruitData()["element"]
                 love.graphics.print(element, 590 - self.font:getWidth(element) / 2, 360, 0, 0.5, 1)
             end
             
@@ -257,7 +267,7 @@ function RecruitMenu:draw()
     
     love.graphics.setLineWidth(1)
     Draw.setColor(PALETTE["world_border"])
-    love.graphics.rectangle("line", self.enemy_box.x, self.enemy_box.y, self.enemy_box.width + 1, self.enemy_box.height + 1)
+    love.graphics.rectangle("line", self.recruit_box.x, self.recruit_box.y, self.recruit_box.width + 1, self.recruit_box.height + 1)
 
     super.draw(self)
 end
