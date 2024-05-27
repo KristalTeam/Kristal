@@ -19,7 +19,7 @@ function RecruitMenu:init()
     self.arrow_left = Assets.getTexture("ui/flat_arrow_left")
     self.arrow_right = Assets.getTexture("ui/flat_arrow_right")
     
-    self.enemy_box = Sprite("ui/menu/recruit_gradient", 370, 75) -- Sprite is inaccurate
+    self.enemy_box = Sprite("ui/menu/recruit/gradient_bright", 370, 75)
     self:addChild(self.enemy_box)
     
     self.state = "SELECT"
@@ -160,12 +160,22 @@ function RecruitMenu:draw()
             if i <= self:getLastSelectedInPage() and i >= self:getFirstSelectedInPage() then
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
+                    self.enemy_box:setSprite("ui/menu/recruit/gradient_" .. enemy:getRecruitData()["gradient_type"])
                     self.enemy_box:setColor(enemy:getRecruitData()["gradient_color"])
-                    love.graphics.printf(enemy:getRecruitData()["name"], 273, 240, 400, "center")
+                    local name = enemy:getRecruitData()["name"]
+                    love.graphics.print(name, 473 - self.font:getWidth(name) / 2, 240)
                     love.graphics.print("CHAPTER " .. enemy:getRecruitData()["chapter"], 368, 280)
-                    love.graphics.printf("LV " .. enemy:getRecruitData()["level"], 173, 280, 400, "right")
-                    love.graphics.print(Input.getText("confirm") .. ": More Info", 380, 320) -- Missing controller button display
-                    love.graphics.print(Input.getText("cancel") .. ": Quit", 380, 352) -- Missing controller button display
+                    local level = "LV " .. enemy:getRecruitData()["level"]
+                    love.graphics.print(level, 576 - self.font:getWidth(level), 280)
+                    if Input.usingGamepad() then
+                        love.graphics.print("More Info", 414, 320)
+                        Draw.draw(Input.getTexture("confirm"), 380, 323, 0, 2, 2)
+                        love.graphics.print("Quit", 414, 352)
+                        Draw.draw(Input.getTexture("cancel"), 380, 353, 0, 2, 2)
+                    else
+                        love.graphics.print(Input.getText("confirm") .. ": More Info", 380, 320)
+                        love.graphics.print(Input.getText("cancel") .. ": Quit", 380, 352)
+                    end
                     Draw.setColor(COLORS["yellow"])
                 end
                 love.graphics.print(enemy:getRecruitData()["name"], 80, 100 + offset)
@@ -195,8 +205,10 @@ function RecruitMenu:draw()
         
         Draw.setColor(COLORS["white"])
         for i,enemy in pairs(Game:getRecruits(true)) do
-            love.graphics.print(self.selected .. "/" .. #Game:getRecruits(true), 569, 30, 0, 0.5, 1) -- needs to be written from right to left, no idea how to do it while maintaining the 1/2 scale
+            local selection = self.selected .. "/" .. #Game:getRecruits(true)
+            love.graphics.print(selection, 590 - self.font:getWidth(selection) / 2, 30, 0, 0.5, 1)
             if i == self.selected then
+                self.enemy_box:setSprite("ui/menu/recruit/gradient_" .. tostring(enemy:getRecruitData()["gradient_type"]))
                 self.enemy_box:setColor(enemy:getRecruitData()["gradient_color"])
                 love.graphics.print("CHAPTER " .. enemy:getRecruitData()["chapter"], 300, 30, 0, 0.5, 1)
                 love.graphics.print(enemy:getRecruitData()["name"], 300, 70)
@@ -205,20 +217,33 @@ function RecruitMenu:draw()
                 love.graphics.setFont(self.font)
                 love.graphics.print("LIKE", 80, 240)
                 love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["like"] or "?", 180, 240)
-                love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
+                love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
                 love.graphics.print(Game:hasRecruit(enemy.id) and enemy:getRecruitData()["dislike"] or "?", 180, 280)
                 love.graphics.print("?????", 80, 320, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 320)
                 love.graphics.print("?????", 80, 360, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 360)
-                love.graphics.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400) -- Missing controller button display
+                if Input.usingGamepad() then
+                    love.graphics.print("Press         to Return", 80, 400)
+                    Draw.draw(Input.getTexture("cancel"), 165, 402, 0, 2, 2)
+                else
+                    love.graphics.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400)
+                end
                 
-                -- This part is unfinished, same issue as above
-                love.graphics.print(
-                "LEVEL " .. enemy:getRecruitData()["level"] .. "\n" .. 
-                "ATTACK " .. enemy:getRecruitData()["attack"] .. "\n" .. 
-                "DEFENSE " .. enemy:getRecruitData()["defense"] .. "\n" .. 
-                "ELEMENT " .. enemy:getRecruitData()["element"], 500, 240, 0, 0.5, 1)
+                love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
+                local level = enemy:getRecruitData()["level"]
+                love.graphics.print(level, 590 - self.font:getWidth(level) / 2, 240, 0, 0.5, 1)
+                
+                love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
+                local attack = enemy:getRecruitData()["attack"]
+                love.graphics.print(attack, 590 - self.font:getWidth(attack) / 2, 280, 0, 0.5, 1)
+                
+                love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
+                local defense = enemy:getRecruitData()["defense"]
+                love.graphics.print(defense, 590 - self.font:getWidth(defense) / 2, 320, 0, 0.5, 1)
+                
+                local element = "ELEMENT " .. enemy:getRecruitData()["element"]
+                love.graphics.print(element, 590 - self.font:getWidth(element) / 2, 360, 0, 0.5, 1)
             end
             
             Draw.setColor(1, 1, 1, 1)

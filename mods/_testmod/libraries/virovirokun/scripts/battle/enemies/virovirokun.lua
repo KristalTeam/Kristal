@@ -65,6 +65,7 @@ function Virovirokun:getRecruitData()
         -- Setup recruit data
         ["name"] = "Virovirokun",
         ["description"] = "A virus with a slightly\ncriminal streak... and a heart\nof gold.",
+        ["gradient_type"] = "bright",
         ["gradient_color"] = {0,1,1,1},
         ["chapter"] = 2,
         ["level"] = 7,

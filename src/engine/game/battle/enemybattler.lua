@@ -655,6 +655,8 @@ function EnemyBattler:getRecruitData()
         -- Setup recruit data
         ["name"] = "No Name",
         ["description"] = "No description",
+        -- Available options: dark, bright
+        ["gradient_type"] = "bright",
         ["gradient_color"] = {1,1,1,1},
         ["chapter"] = 1,
         ["level"] = 1,
