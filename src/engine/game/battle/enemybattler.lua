@@ -70,9 +70,6 @@ function EnemyBattler:init(actor, use_overlay)
             ["party"] = {}
         }
     }
-    
-    -- How many times an enemy needs to be spared to recruit. Set 0 for unrecruitable enemies.
-    self.recruit = 0
 
     self.hurt_timer = 0
     self.comment = ""
@@ -634,32 +631,44 @@ function EnemyBattler:recruitMessage(...)
     return super.recruitMessage(self, self.width/2, self.height/2, ...)
 end
 
+function EnemyBattler:setRecruitStatus(v)
+    Game:getRecruit(self.id):setRecruited(v)
+end
+
+function EnemyBattler:getRecruitStatus()
+    return Game:getRecruit(self.id):getRecruited()
+end
+
+function EnemyBattler:isRecruitable()
+    return Game:getRecruit(self.id)
+end
+
 function EnemyBattler:defeat(reason, violent)
     self.done_state = reason or "DEFEATED"
 
     if violent then
         Game.battle.used_violence = true
-        if self.recruit > 0 and self:getFlag("recruit", 0) ~= false then
+        if self:isRecruitable() and self:getRecruitStatus() ~= false then
             if Game:getConfig("enableRecruits") and self.done_state ~= "FROZEN" then
                 self:recruitMessage("lost")
             end
-            self:setFlag("recruit", false)
+            self:setRecruitStatus(false)
         end
         -- if self.done_state == "KILLED" or self.done_state == "FROZEN" then
             -- Game.battle.xp = Game.battle.xp + self.experience
         -- end
     end
     
-    if self.recruit > 0 and type(self:getFlag("recruit", 0)) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
-        self:addFlag("recruit", 1)
+    if self:isRecruitable() and type(self:getRecruitStatus()) == "number" and (self.done_state == "PACIFIED" or self.done_state == "SPARED") then
+        self:setRecruitStatus(self:getRecruitStatus() + 1)
         if Game:getConfig("enableRecruits") then
             local counter = self:recruitMessage("recruit")
-            counter.first_number = self:getFlag("recruit", 0)
-            counter.second_number = self.recruit
+            counter.first_number = self:getRecruitStatus()
+            counter.second_number = Game:getRecruit(self.id):getRecruitAmount()
             Assets.playSound("sparkle_gem")
         end
-        if self:getFlag("recruit", 0) >= self.recruit then
-            self:setFlag("recruit", true)
+        if self:getRecruitStatus() >= Game:getRecruit(self.id):getRecruitAmount() then
+            self:setRecruitStatus(true)
         end
     end
     

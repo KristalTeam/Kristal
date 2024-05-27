@@ -209,6 +209,11 @@ function Game:save(x, y)
     for k,v in pairs(self.party_data) do
         data.party_data[k] = v:save()
     end
+    
+    data.recruits_data = {}
+    for k,v in pairs(self.recruits_data) do
+        data.recruits_data[k] = v:save()
+    end
 
     Kristal.callEvent("save", data)
 
@@ -269,12 +274,21 @@ function Game:load(data, index, fade)
             end
         end
     end
-
+    
     self.party = {}
     for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
         local ally = self:getPartyMember(id)
         assert(ally, string.format("Attempted to add non-existent member \"%s\" to the party", id))
         table.insert(self.party, ally)
+    end
+    
+    self:initRecruits()
+    if data.recruits_data then
+        for k,v in pairs(data.recruits_data) do
+            if self.recruits_data[k] then
+                self.recruits_data[k]:load(v)
+            end
+        end
     end
 
     if data.temp_followers then
@@ -592,10 +606,41 @@ function Game:initPartyMembers()
     end
 end
 
+function Game:initRecruits()
+    self.recruits_data = {}
+    for id,_ in pairs(Registry.recruits) do
+        if Registry.getRecruit(id) then
+            self.recruits_data[id] = Registry.createRecruit(id)
+        else
+            error("Attempted to create non-existent recruit \"" .. id .. "\"")
+        end
+    end
+end
+
 function Game:getPartyMember(id)
     if self.party_data[id] then
         return self.party_data[id]
     end
+end
+
+function Game:getRecruit(id)
+    if self.recruits_data[id] then
+        return self.recruits_data[id]
+    end
+end
+
+function Game:getRecruits(include_incomplete)
+    local recruits = {}
+    for id,recruit in pairs(Game.recruits_data) do
+        if recruit:getRecruited() == true or include_incomplete and type(recruit:getRecruited()) == "number" and recruit:getRecruited() > 0 then
+            table.insert(recruits, recruit)
+        end
+    end
+    return recruits
+end
+
+function Game:hasRecruit(recruit)
+    return self:getRecruit(recruit):getRecruited() == true
 end
 
 function Game:addPartyMember(chara, index)

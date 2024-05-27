@@ -13,7 +13,7 @@ return {
         cutscene:text("* What,[wait:5] you want me to cook\nsomething?", "smile", "susie")
         cutscene:text("* Susie put a hot dog in the\nmicrowave!")
         enemy:explode(0, 0, true)
-        enemy:hurt(enemy.health * 0.75, battler)
+        enemy:hurt(enemy.health * 0.75, Game.battle:getPartyBattler("susie"))
         cutscene:text("* She forgot to poke holes in it![wait:5]\nThe hot dog exploded!")
     end
 }

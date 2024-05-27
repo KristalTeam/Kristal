@@ -63,6 +63,28 @@ function Starwalker:onTurnEnd()
     self.progress = self.progress + 1
 end
 
+function Starwalker:getRecruitData()
+    return {
+        -- How many times an enemy needs to be spared to recruit.
+        -- Set nil for unrecruitable enemies.
+        -- Set 0 for pre-recruited enemies.
+        ["recruit_amount"] = 0,
+        -- Setup recruit data
+        ["name"] = "Starwalker",
+        ["description"] = "The Original",
+        ["box_gradient_type"] = "dark",
+        ["box_gradient_color"] = {1,1,0,1},
+        ["box_sprite"] = {"npcs/starwalker/starwalker", 4, 12},
+        ["chapter"] = 99,
+        ["level"] = 99,
+        ["attack"] = 99,
+        ["defense"] = 99,
+        ["element"] = "STAR",
+        ["like"] = "Original",
+        ["dislike"] = "Unoriginal"
+    }
+end
+
 function Starwalker:getEncounterText()
     if (self.progress == 2) then
         return "* Star walker is preparing\n[color:blue]something [offset:0,-8][color:red][font:main_mono,48]!!"

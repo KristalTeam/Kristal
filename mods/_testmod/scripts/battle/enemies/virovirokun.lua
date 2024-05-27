@@ -77,7 +77,7 @@ function Virovirokun:onAct(battler, name)
         self:setColor(1, 0, 0)
         return "* You and Susie turned Virovirokun red."
     elseif name == "" then
-        battler:hurt(9999999)
+        battler:hurt(math.huge)
         return "* Dumbass"
     else
         return super.onAct(self, battler, name)

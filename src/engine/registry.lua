@@ -14,6 +14,7 @@
 ---@field items table<string, Item>
 ---@field spells table<string, Spell>
 ---@field party_members table<string, PartyMember>
+---@field recruits table<string, Recruit>
 ---@field encounters table<string, Encounter>
 ---@field enemies table<string, EnemyBattler>
 ---@field waves table<string, Wave>
@@ -45,6 +46,7 @@ Registry.paths = {
     ["items"]            = "data/items",
     ["spells"]           = "data/spells",
     ["party_members"]    = "data/party",
+    ["recruits"]         = "data/recruits",
     ["encounters"]       = "battle/encounters",
     ["enemies"]          = "battle/enemies",
     ["waves"]            = "battle/waves",
@@ -83,6 +85,7 @@ function Registry.initialize(preload)
         Registry.initItems()
         Registry.initSpells()
         Registry.initPartyMembers()
+        Registry.initRecruits()
         Registry.initEncounters()
         Registry.initEnemies()
         Registry.initWaves()
@@ -212,6 +215,23 @@ function Registry.createPartyMember(id, ...)
         return self.party_members[id](...)
     else
         error("Attempt to create non existent party member \"" .. tostring(id) .. "\"")
+    end
+end
+
+---@param id string
+---@return Recruit|nil
+function Registry.getRecruit(id)
+    return self.recruits[id]
+end
+
+---@param id string
+---@param ... any
+---@return Recruit
+function Registry.createRecruit(id, ...)
+    if self.recruits[id] then
+        return self.recruits[id](...)
+    else
+        error("Attempt to create non existent recruit \"" .. tostring(id) .. "\"")
     end
 end
 
@@ -477,6 +497,12 @@ function Registry.registerPartyMember(id, class)
 end
 
 ---@param id string
+---@param class Recruit
+function Registry.registerRecruit(id, class)
+    self.recruits[id] = class
+end
+
+---@param id string
 ---@param class Item
 function Registry.registerItem(id, class)
     self.items[id] = class
@@ -648,6 +674,18 @@ function Registry.initPartyMembers()
     end
 
     Kristal.callEvent("onRegisterPartyMembers")
+end
+
+function Registry.initRecruits()
+    self.recruits = {}
+
+    for _,path,recruit in self.iterScripts(Registry.paths["recruits"]) do
+        assert(recruit ~= nil, '"recruits/'..path..'.lua" does not return value')
+        recruit.id = recruit.id or path
+        self.registerRecruit(recruit.id, recruit)
+    end
+
+    Kristal.callEvent("onRegisterRecruits")
 end
 
 function Registry.initItems()
