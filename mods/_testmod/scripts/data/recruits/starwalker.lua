@@ -1,3 +1,4 @@
+-- This is just a test, use the virovirokun.lua as a base instead
 local Starwalker, super = Class(Recruit)
 
 function Starwalker:init()
@@ -6,8 +7,13 @@ function Starwalker:init()
     -- Display Name
     self.name = "Starwalker"
     
-    -- How many times an enemy needs to be spared to be recruited.
+    -- self.name = "Werewerewire"
+    
+    -- How many times an enemy needs to be spared to be recruited
     self.recruit_amount = 1
+    
+    -- Organize the order that recruits show up in the recruit menu
+    self.index = 2
     
     -- Selection Display
     self.description = "The original        Starwalker"
@@ -18,6 +24,9 @@ function Starwalker:init()
     self.element = "STAR"
     self.like = "Original"
     self.dislike = "Unoriginal"
+    
+    -- self.like = "Supercharged Fighting"
+    -- self.dislike = "Interpersonal Relationships"
     
     -- Controls the type of the box gradient
     -- Available options: dark, bright
@@ -34,6 +43,9 @@ function Starwalker:init()
     -- Number: Recruit Progress
     -- Boolean: True = Recruited | False = Lost Forever
     self.recruited = true
+    
+    -- Whether the recruit will be hidden from the recruit menu (saved to the save file)
+    self.hidden = false
 end
 
 return Starwalker

@@ -6,8 +6,11 @@ function Virovirokun:init()
     -- Display Name
     self.name = "Virovirokun"
     
-    -- How many times an enemy needs to be spared to be recruited.
+    -- How many times an enemy needs to be spared to be recruited
     self.recruit_amount = 4
+    
+    -- Organize the order that recruits show up in the recruit menu
+    self.index = 1
     
     -- Selection Display
     self.description = "A virus with a slightly\ncriminal streak... and a heart\nof gold."
@@ -34,6 +37,9 @@ function Virovirokun:init()
     -- Number: Recruit Progress
     -- Boolean: True = Recruited | False = Lost Forever
     self.recruited = 0
+    
+    -- Whether the recruit will be hidden from the recruit menu (saved to the save file)
+    self.hidden = false
 end
 
 return Virovirokun
