@@ -6,8 +6,11 @@ function Recruit:init()
     -- Display Name
     self.name = "Test Recruit"
     
-    -- How many times an enemy needs to be spared to be recruited.
+    -- How many times an enemy needs to be spared to be recruited
     self.recruit_amount = 1
+    
+    -- Organize the order that recruits show up in the recruit menu
+    self.index = 1
     
     -- Selection Display
     self.description = "No description"
@@ -27,19 +30,23 @@ function Recruit:init()
     self.box_gradient_color = {1,1,1,1}
     
     -- Sets the animated sprite in the box
-    -- Syntax: Sprite/Animation path, offset_x, offset_y
-    self.box_sprite = {nil, 0, 0}
+    -- Syntax: Sprite/Animation path, offset_x, offset_y, animation_speed
+    self.box_sprite = {nil, 0, 0, 4/30}
     
     -- Recruit Status (saved to the save file)
     -- Number: Recruit Progress
     -- Boolean: True = Recruited | False = Lost Forever
     self.recruited = 0
+    
+    -- Whether the recruit will be hidden from the recruit menu (saved to the save file)
+    self.hidden = false
 end
 
 function Recruit:save()
     local data = {
         id = self.id,
-        recruited = self.recruited
+        recruited = self.recruited,
+        hidden = self.hidden,
     }
     self:onSave(data)
     return data
@@ -47,6 +54,7 @@ end
 
 function Recruit:load(data)
     self.recruited = data.recruited or self.recruited
+    self.hidden = data.hidden or self.hidden
 
     self:onLoad(data)
 end
@@ -68,6 +76,9 @@ function Recruit:getBoxSprite() return self.box_sprite end
 function Recruit:getRecruitAmount() return self.recruit_amount end
 function Recruit:getRecruited() return self.recruited end
 function Recruit:setRecruited(v) self.recruited = v end
+
+function Recruit:getHidden() return self.hidden end
+function Recruit:setHidden(v) self.hidden = v end
 
 function Recruit:onSave(data) end
 function Recruit:onLoad(data) end
