@@ -30,8 +30,8 @@ function Virovirokun:init()
     self.box_gradient_color = {0,1,1,1}
     
     -- Sets the animated sprite in the box
-    -- Syntax: Sprite/Animation path, offset_x, offset_y
-    self.box_sprite = {"enemies/virovirokun/idle", 0, 12}
+    -- Syntax: Sprite/Animation path, offset_x, offset_y, animation_speed
+    self.box_sprite = {"enemies/virovirokun/idle", 0, 12, 4/30}
     
     -- Recruit Status (saved to the save file)
     -- Number: Recruit Progress

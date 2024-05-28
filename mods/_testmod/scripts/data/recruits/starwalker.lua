@@ -13,7 +13,7 @@ function Starwalker:init()
     self.recruit_amount = 1
     
     -- Organize the order that recruits show up in the recruit menu
-    self.index = 2
+    self.index = 1
     
     -- Selection Display
     self.description = "The original        Starwalker"
@@ -36,8 +36,8 @@ function Starwalker:init()
     self.box_gradient_color = {1,0,1,1}
     
     -- Sets the animated sprite in the box
-    -- Syntax: Sprite/Animation path, offset_x, offset_y
-    self.box_sprite = {"npcs/starwalker/starwalker", 4, 12}
+    -- Syntax: Sprite/Animation path, offset_x, offset_y, animation_speed
+    self.box_sprite = {"npcs/starwalker/starwalker", 4, 12, 4/30}
     
     -- Recruit Status (saved to the save file)
     -- Number: Recruit Progress

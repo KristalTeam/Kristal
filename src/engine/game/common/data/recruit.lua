@@ -30,8 +30,8 @@ function Recruit:init()
     self.box_gradient_color = {1,1,1,1}
     
     -- Sets the animated sprite in the box
-    -- Syntax: Sprite/Animation path, offset_x, offset_y
-    self.box_sprite = {nil, 0, 0}
+    -- Syntax: Sprite/Animation path, offset_x, offset_y, animation_speed
+    self.box_sprite = {nil, 0, 0, 4/30}
     
     -- Recruit Status (saved to the save file)
     -- Number: Recruit Progress
@@ -77,7 +77,6 @@ function Recruit:getRecruitAmount() return self.recruit_amount end
 function Recruit:getRecruited() return self.recruited end
 function Recruit:setRecruited(v) self.recruited = v end
 
-function Recruit:getIndex() return self.index end
 function Recruit:getHidden() return self.hidden end
 function Recruit:setHidden(v) self.hidden = v end
 

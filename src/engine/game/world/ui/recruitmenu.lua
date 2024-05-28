@@ -45,7 +45,7 @@ function RecruitMenu:setRecruitInBox(selected)
     self.recruit_sprite = Sprite(recruit:getBoxSprite()[1], self.recruit_box.width / 2 + recruit:getBoxSprite()[2], self.recruit_box.height / 2 + recruit:getBoxSprite()[3])
     self.recruit_sprite:setScale(2)
     self.recruit_sprite:setOrigin(0.5, 0.5)
-    self.recruit_sprite:play(4/30)
+    self.recruit_sprite:play(recruit:getBoxSprite()[4])
     self.recruit_box:addChild(self.recruit_sprite)
 end
 
