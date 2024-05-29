@@ -61,7 +61,7 @@ function item:onMenuUpdate(menu)
         if menu.box.state == "SELECT" and menu.box.lancer == nil then
             menu.box.lancer = menu.box:addChild(LancerGotchi(x, y))
             if self:getCustomLancerAnimation() then
-                menu.box.lancer.movecon = 11
+                menu.box.lancer.movecon = -1
                 menu.box.lancer.custom_animation = self:getCustomLancerAnimation()
             end
         end

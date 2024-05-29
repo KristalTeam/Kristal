@@ -30,7 +30,7 @@ function LancerGotchi:init(x, y)
     self:addChild(self.timer)
 	
     self.timer:every(3, function()
-        if self.movecon == 11 then
+        if self.movecon < 0 then
             return false
         end
         self.remmovecon = self.movecon
@@ -51,6 +51,15 @@ function LancerGotchi:update()
     super.update(self)
 
     self.sleeptimer = self.sleeptimer + DTMULT
+
+    if self.movecon == -1 then
+        self.lancer:setAnimation(self.custom_animation)
+        self.movecon = -2
+        self:setPhysics({
+            speed_x = 0,
+            gravity = 0,
+        })
+    end
 
     if self.movecon == 0 or self.movecon == 1 then
         if self.con == 0 then
@@ -173,13 +182,6 @@ function LancerGotchi:update()
     if self.movecon == 10 then
         self:setPhysics({
             speed = 0,
-            speed_x = 0,
-            gravity = 0,
-        })
-    end
-    if self.movecon == 11 then
-        self.lancer:setAnimation(self.custom_animation)
-        self:setPhysics({
             speed_x = 0,
             gravity = 0,
         })
