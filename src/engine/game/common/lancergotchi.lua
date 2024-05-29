@@ -30,7 +30,7 @@ function LancerGotchi:init(x, y)
     self:addChild(self.timer)
 	
     self.timer:every(3, function()
-        if self.movecon > 10 then
+        if self.movecon == 11 then
             return false
         end
         self.remmovecon = self.movecon
