@@ -207,7 +207,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",                             "selection", {nil, true, false})
     self:registerOption("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",                                  "selection", {nil, true, false})
     self:registerOption("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",                              "selection", {nil, true, false})
-    self:registerOption("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",                           "selection", {nil, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
+    self:registerOption("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",                           "selection", {nil, false, "kris", "ralsei", "susie", "noelle"}) -- unhardcode
     self:registerOption("susieStyle",             "Susie Style",               "What sprite set Susie should use",                                                   "selection", {nil, 1, 2})
     self:registerOption("ralseiStyle",            "Ralsei Style",              "What sprite set Ralsei should use",                                                  "selection", {nil, 1, 2})
     self:registerOption("oldTensionBar",          "Old Tension Bar",           "Whether the Tension Bar uses blocky corners or not.",                                "selection", {nil, true, false})
