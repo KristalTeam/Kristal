@@ -193,14 +193,14 @@ function RecruitMenu:draw()
                     Draw.setColor(COLORS["yellow"])
                 end
                 local name = recruit:getName()
-                love.graphics.print(name, 80, 100 + offset, 0, #name <= 12 and 1 or 12 / #name, 1)
+                love.graphics.print(name, 80, 100 + offset, 0, math.min(1, 12 / #name), 1)
                 if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
                     local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, #recruit_progress <= 5 and 1 or 5 / #recruit_progress, 1)
+                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, math.min(1, 5 / #recruit_progress), 1)
                 end
                 offset = offset + 35
             end
@@ -232,11 +232,11 @@ function RecruitMenu:draw()
                 
                 love.graphics.print("LIKE", 80, 240)
                 local like = recruit:getLike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, #like <= 21 and 1 or 21 / #like, 1)
+                love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
                 
                 love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
                 local dislike = recruit:getDislike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, #dislike <= 21 and 1 or 21 / #dislike, 1)
+                love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
 
                 love.graphics.print("?????", 80, 320, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 320)

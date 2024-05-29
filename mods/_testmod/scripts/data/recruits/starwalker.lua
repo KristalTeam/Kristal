@@ -7,13 +7,11 @@ function Starwalker:init()
     -- Display Name
     self.name = "Starwalker"
     
-    -- self.name = "Werewerewire"
-    
     -- How many times an enemy needs to be spared to be recruited
     self.recruit_amount = 1
     
     -- Organize the order that recruits show up in the recruit menu
-    self.index = 1
+    self.index = 2
     
     -- Selection Display
     self.description = "The original        Starwalker"
@@ -24,9 +22,6 @@ function Starwalker:init()
     self.element = "STAR"
     self.like = "Original"
     self.dislike = "Unoriginal"
-    
-    -- self.like = "Supercharged Fighting"
-    -- self.dislike = "Interpersonal Relationships"
     
     -- Controls the type of the box gradient
     -- Available options: dark, bright
