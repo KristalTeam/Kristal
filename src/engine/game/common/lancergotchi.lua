@@ -13,6 +13,8 @@ function LancerGotchi:init(x, y)
 
     self.movecon = 4
     self.con = 0
+    
+    self.custom_animation = "stone"
 
     self.minx = 100 + x 
     self.maxx = 400 + x 
@@ -176,14 +178,7 @@ function LancerGotchi:update()
         })
     end
     if self.movecon == 11 then
-        self.lancer:setAnimation("stone")
-        self:setPhysics({
-            speed_x = 0,
-            gravity = 0,
-        })
-    end
-    if self.movecon == 12 then
-        self.lancer:setAnimation("sleep")
+        self.lancer:setAnimation(self.custom_animation)
         self:setPhysics({
             speed_x = 0,
             gravity = 0,

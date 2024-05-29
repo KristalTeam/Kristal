@@ -51,11 +51,19 @@ function item:onWorldUse()
     Assets.stopAndPlaySound("splat")
 end
 
+function item:getCustomLancerAnimation()
+    return nil
+end
+
 function item:onMenuUpdate(menu)
     if menu then
         local x, y = menu.box:screenToLocalPos(0, 0)
         if menu.box.state == "SELECT" and menu.box.lancer == nil then
             menu.box.lancer = menu.box:addChild(LancerGotchi(x, y))
+            if self:getCustomLancerAnimation() then
+                menu.box.lancer.movecon = 11
+                menu.box.lancer.custom_animation = self:getCustomLancerAnimation()
+            end
         end
         if menu.box.state ~= "SELECT" and menu.box.lancer ~= nil then
             menu.box.lancer:remove()
