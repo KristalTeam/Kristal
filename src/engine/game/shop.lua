@@ -482,7 +482,7 @@ function Shop:registerTalk(talk, color)
     table.insert(self.talks, {talk, {color=color or COLORS.white}})
 end
 
-function Shop:deleteTalk(index)
+function Shop:removeTalk(index)
     if self.talks[index] then
         table.remove(self.talks, index)
     else
