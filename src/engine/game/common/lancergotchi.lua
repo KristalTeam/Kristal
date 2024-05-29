@@ -28,6 +28,9 @@ function LancerGotchi:init(x, y)
     self:addChild(self.timer)
 	
     self.timer:every(3, function()
+        if self.movecon > 10 then
+            return false
+        end
         self.remmovecon = self.movecon
         self.movecon = math.floor(Utils.random(5))
         if self.movecon == self.remmovecon then
@@ -174,6 +177,13 @@ function LancerGotchi:update()
     end
     if self.movecon == 11 then
         self.lancer:setAnimation("stone")
+        self:setPhysics({
+            speed_x = 0,
+            gravity = 0,
+        })
+    end
+    if self.movecon == 12 then
+        self.lancer:setAnimation("sleep")
         self:setPhysics({
             speed_x = 0,
             gravity = 0,
