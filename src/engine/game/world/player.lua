@@ -214,11 +214,11 @@ function Player:handleMovement()
     local speed = self.walk_speed
     if running then
         if self.run_timer > 60 then
-            speed = speed * 2.25
+            speed = speed + (Game:isLight() and 6 or 5)
         elseif self.run_timer > 10 then
-            speed = speed * 2
+            speed = speed + 4
         else
-            speed = speed * 1.5
+            speed = speed + 2
         end
     end
 
