@@ -51,13 +51,13 @@ function item:onMenuOpen(menu)
     menu.box:setLayer(20)
 end
 
-function item:getVisiblity()
+function item:isVisible()
     return true
 end
 
 function item:onMenuDraw(menu)
     local x, y = menu.box:screenToLocalPos(0, 0)
-    if menu.box.state == "SELECT" and self:getVisiblity() then
+    if menu.box.state == "SELECT" and self:isVisible() then
         love.graphics.draw(Assets.getTexture("kristal/starwalker", x, y), x, y, 0, 1, 1)
     end
 end

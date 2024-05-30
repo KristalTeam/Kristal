@@ -51,13 +51,13 @@ function item:onMenuOpen(menu)
     menu.box:setLayer(20)
 end
 
-function item:getVisiblity()
+function item:isVisible()
     return true
 end
 
 function item:onMenuDraw(menu)
     local x, y = menu.box:screenToLocalPos(0, 0)
-    if menu.box.state == "SELECT" and self:getVisiblity() then
+    if menu.box.state == "SELECT" and self:isVisible() then
         love.graphics.draw(Assets.getTexture("kristal/rouxls_kaard", x, y), x + 470, y + 230, 0, 2, 2)
     end
 end

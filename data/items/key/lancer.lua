@@ -55,14 +55,14 @@ function item:getCustomLancerAnimation()
     return nil
 end
 
-function item:getVisiblity()
+function item:isVisible()
     return true
 end
 
 function item:onMenuUpdate(menu)
     if menu then
         local x, y = menu.box:screenToLocalPos(0, 0)
-        if menu.box.state == "SELECT" and menu.box.lancer == nil and self:getVisiblity() then
+        if menu.box.state == "SELECT" and menu.box.lancer == nil and self:isVisible() then
             menu.box.lancer = menu.box:addChild(LancerGotchi(x, y))
             if self:getCustomLancerAnimation() then
                 menu.box.lancer.movecon = -1
