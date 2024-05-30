@@ -97,10 +97,10 @@ function actor:init()
         ["walk_blush/left"] = "walk_blush/left",
         ["walk_blush/right"] = "walk_blush/right",
 
-        ["walk_lookup/down"] = "walk_lookup/up",
-        ["walk_lookup/up"] = "walk_lookup/down",
-        ["walk_lookup/left"] = "walk_lookup/left",
-        ["walk_lookup/right"] = "walk_lookup/right",
+        ["walk_look_up/down"] = "walk_look_up/up",
+        ["walk_look_up/up"] = "walk_look_up/down",
+        ["walk_look_up/left"] = "walk_look_up/left",
+        ["walk_look_up/right"] = "walk_look_up/right",
 
         ["walk_sad/down"] = "walk_sad/up",
         ["walk_sad/up"] = "walk_sad/down",
