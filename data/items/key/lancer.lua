@@ -55,10 +55,14 @@ function item:getCustomLancerAnimation()
     return nil
 end
 
+function item:getVisiblity()
+    return true
+end
+
 function item:onMenuUpdate(menu)
     if menu then
         local x, y = menu.box:screenToLocalPos(0, 0)
-        if menu.box.state == "SELECT" and menu.box.lancer == nil then
+        if menu.box.state == "SELECT" and menu.box.lancer == nil and self:getVisiblity() then
             menu.box.lancer = menu.box:addChild(LancerGotchi(x, y))
             if self:getCustomLancerAnimation() then
                 menu.box.lancer.movecon = -1
@@ -71,6 +75,10 @@ function item:onMenuUpdate(menu)
         end
         menu.box:setLayer(20)
     end
+end
+
+function item:convertToLight(inventory)
+    return "light/cards"
 end
 
 return item

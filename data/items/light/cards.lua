@@ -34,4 +34,9 @@ function item:onToss()
     return false
 end
 
+-- Not sure how would you make it work with both "lancer" and "rouxls_kaard"
+function item:convertToDark(inventory)
+    return "lancer"
+end
+
 return item

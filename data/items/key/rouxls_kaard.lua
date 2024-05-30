@@ -51,11 +51,20 @@ function item:onMenuOpen(menu)
     menu.box:setLayer(20)
 end
 
+function item:getVisiblity()
+    return true
+end
+
 function item:onMenuDraw(menu)
     local x, y = menu.box:screenToLocalPos(0, 0)
-    if menu.box.state == "SELECT" then
+    if menu.box.state == "SELECT" and self:getVisiblity() then
         love.graphics.draw(Assets.getTexture("kristal/rouxls_kaard", x, y), x + 470, y + 230, 0, 2, 2)
     end
 end
+
+-- Not sure how would you make it work with both "lancer" and "rouxls_kaard"
+-- function item:convertToLight(inventory)
+    -- return "light/cards"
+-- end
 
 return item
