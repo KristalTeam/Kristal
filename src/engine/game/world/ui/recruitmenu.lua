@@ -45,7 +45,7 @@ function RecruitMenu:setRecruitInBox(selected)
     self.recruit_sprite = Sprite(recruit:getBoxSprite()[1], self.recruit_box.width / 2 + recruit:getBoxSprite()[2], self.recruit_box.height / 2 + recruit:getBoxSprite()[3])
     self.recruit_sprite:setScale(2)
     self.recruit_sprite:setOrigin(0.5, 0.5)
-    self.recruit_sprite:play(4/30)
+    self.recruit_sprite:play(recruit:getBoxSprite()[4])
     self.recruit_box:addChild(self.recruit_sprite)
 end
 
@@ -192,13 +192,15 @@ function RecruitMenu:draw()
                     end
                     Draw.setColor(COLORS["yellow"])
                 end
-                love.graphics.print(recruit:getName(), 80, 100 + offset)
+                local name = recruit:getName()
+                love.graphics.print(name, 80, 100 + offset, 0, math.min(1, 12 / #name), 1)
                 if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
-                    love.graphics.print(recruit:getRecruited() .. " / " .. recruit:getRecruitAmount(), 280, 100 + offset)
+                    local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
+                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, math.min(1, 5 / #recruit_progress), 1)
                 end
                 offset = offset + 35
             end
@@ -225,12 +227,17 @@ function RecruitMenu:draw()
                 love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
                 love.graphics.print(recruit:getName(), 300, 70)
                 love.graphics.setFont(self.description_font)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120) -- New line spacing is inaccurate
+                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120)
                 love.graphics.setFont(self.font)
+                
                 love.graphics.print("LIKE", 80, 240)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getLike() or "?", 180, 240)
+                local like = recruit:getLike()
+                love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
+                
                 love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", 180, 280)
+                local dislike = recruit:getDislike()
+                love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
+
                 love.graphics.print("?????", 80, 320, 0, 1.15, 1)
                 love.graphics.print("?????????", 180, 320)
                 love.graphics.print("?????", 80, 360, 0, 1.15, 1)

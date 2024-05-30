@@ -629,13 +629,14 @@ function Game:getRecruit(id)
     end
 end
 
-function Game:getRecruits(include_incomplete)
+function Game:getRecruits(include_incomplete, include_hidden)
     local recruits = {}
     for id,recruit in pairs(Game.recruits_data) do
-        if recruit:getRecruited() == true or include_incomplete and type(recruit:getRecruited()) == "number" and recruit:getRecruited() > 0 then
+        if (not recruit:getHidden() or include_hidden) and (recruit:getRecruited() == true or include_incomplete and type(recruit:getRecruited()) == "number" and recruit:getRecruited() > 0) then
             table.insert(recruits, recruit)
         end
     end
+    table.sort(recruits, function(a,b) return a.index < b.index end)
     return recruits
 end
 

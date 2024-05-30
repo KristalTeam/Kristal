@@ -482,6 +482,14 @@ function Shop:registerTalk(talk, color)
     table.insert(self.talks, {talk, {color=color or COLORS.white}})
 end
 
+function Shop:removeTalk(index)
+    if self.talks[index] then
+        table.remove(self.talks, index)
+    else
+        print("Talk not found at index: " .. tostring(index))
+    end
+end
+
 function Shop:replaceTalk(talk, index, color)
     self.talks[index] = {talk, {color=color or COLORS.yellow}}
 end
