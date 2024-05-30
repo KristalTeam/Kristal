@@ -863,6 +863,9 @@ function World:mapTransition(...)
         end
     end
     self:fadeInto(function()
+        if self:hasCutscene() then
+            self:stopCutscene()
+        end
         self:loadMap(Utils.unpack(args))
     end)
 end
