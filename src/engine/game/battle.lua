@@ -525,12 +525,24 @@ function Battle:onStateChange(old,new)
         if self.used_violence and Game:getConfig("growStronger") then
             local stronger = "You"
 
+            local party_to_lvl_up = {}
             for _,battler in ipairs(self.party) do
-                Game.level_up_count = Game.level_up_count + 1
-                battler.chara:onLevelUp(Game.level_up_count)
-
-                if battler.chara.id == Game:getConfig("growStrongerChara") then
+                table.insert(party_to_lvl_up, battler.chara)
+                if Game:getConfig("growStrongerChara") and battler.chara.id == Game:getConfig("growStrongerChara") then
                     stronger = battler.chara:getName()
+                end
+                for _,id in pairs(battler.chara:getStrongerAbsent()) do
+                    table.insert(party_to_lvl_up, Game:getPartyMember(id))
+                end
+            end
+            
+            local dupe_check = {}
+            for _,party in ipairs(party_to_lvl_up) do
+                if not dupe_check[party] then
+                    Game.level_up_count = Game.level_up_count + 1
+                    party:onLevelUp(Game.level_up_count)
+                    
+                    dupe_check[party] = true
                 end
             end
 
