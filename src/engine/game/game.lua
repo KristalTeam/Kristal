@@ -253,6 +253,9 @@ function Game:load(data, index, fade)
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
 
     self.light = false
+    
+    -- Used to carry the soul invulnerability frames between waves
+    self.old_soul_inv_timer = 0
 
     -- BEGIN SAVE FILE VARIABLES --
 

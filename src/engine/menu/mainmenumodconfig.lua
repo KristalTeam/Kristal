@@ -214,6 +214,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("oldUIPositions",         "Old UI Positions",          "Whether to use Chapter 1 positions of UI elements or not.",                          "selection", {nil, true, false})
     self:registerOption("oldGameOver",            "Old Game Over",             "Whether to use Chapter 1 game over or not.",                                         "selection", {nil, true, false})
     self:registerOption("targetSystem",           "Targeting System",          "Whether battles should use the targeting system or not",                             "selection", {nil, true, false})
+    self:registerOption("soulInvBetweenWaves",    "Keep Soul Invulnerability", "Whether the soul invulnerability will carry between waves in battles",               "selection", {nil, true, false})
     self:registerOption("speechBubble",           "Speech Bubble Style",       "The default style for enemy speech bubbles",                                         "selection", {nil, "round", "cyber"}) -- unhardcode
     self:registerOption("enemyAuras",             "Enemy Aura",                "The red aura around enemies",                                                        "selection", {nil, true, false})
     self:registerOption("mercyMessages",          "Mercy Messages",            "Seeing +X% when an enemy's mercy goes up",                                           "selection", {nil, true, false})

@@ -731,6 +731,8 @@ function Battle:spawnSoul(x, y)
         self.soul:transitionTo(x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2)
         self.soul.target_alpha = self.soul.alpha
         self.soul.alpha = 0
+        self.soul.inv_timer = Game.old_soul_inv_timer
+        Game.old_soul_inv_timer = 0
         self:addChild(self.soul)
     end
 end
@@ -739,6 +741,9 @@ function Battle:returnSoul(dont_destroy)
     if dont_destroy == nil then dont_destroy = false end
     local bx, by = self:getSoulLocation(true)
     if self.soul then
+        if Game:getConfig("soulInvBetweenWaves") then
+            Game.old_soul_inv_timer = self.soul.inv_timer
+        end
         self.soul:transitionTo(bx, by, not dont_destroy)
     end
 end
