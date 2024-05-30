@@ -9,6 +9,8 @@
     "chapter": 2,
 
     "map": "alley",
+    //"encounter": "virovirokun", // for testing encounter reloading
+    
     "party": ["kris", "susie", "ralsei"],
     //"party": ["kris", "noelle"], // for testing snowgrave
     "inventory": {

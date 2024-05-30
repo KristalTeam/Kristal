@@ -59,12 +59,6 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     self.started = true
 
-    if Kristal.getModOption("encounter") then
-        self:encounter(Kristal.getModOption("encounter"), false)
-    elseif Kristal.getModOption("shop") then
-        self:enterShop(Kristal.getModOption("shop"), {menu = true})
-    end
-
     DISCORD_RPC_PRESENCE = {}
 
     Kristal.callEvent("postInit", self.is_new_file)
@@ -400,6 +394,17 @@ function Game:load(data, index, fade)
     Kristal.DebugSystem:refresh()
 
     self.started = true
+    
+    self.nothing_warn = true
+    if self.is_new_file then
+        if Kristal.getModOption("encounter") then
+            self:encounter(Kristal.getModOption("encounter"), false)
+            self.nothing_warn = false
+        elseif Kristal.getModOption("shop") then
+            self:enterShop(Kristal.getModOption("shop"), {menu = true})
+            self.nothing_warn = false
+        end
+    end
 end
 
 function Game:setLight(light)
@@ -847,9 +852,6 @@ function Game:update()
         for _,follower in ipairs(self.world.followers) do
             follower.visible = true
         end
-        if Kristal.getModOption("encounter") then
-            self:encounter(Kristal.getModOption("encounter"), self.world.player ~= nil)
-        end
     end
 
     if Kristal.callEvent("preUpdate", DT) then
@@ -868,6 +870,15 @@ function Game:update()
     self.playtime = self.playtime + DT
 
     self.stage:update()
+    
+    if not self.shop and not self.battle and not (self.world and self.world.map and self.world.map.id) then
+        if self.nothing_warn then Kristal.Console:warn("No map, shop nor encounter were loaded") end
+        if Kristal.getModOption("hardReset") then
+            love.event.quit("restart")
+        else
+            Kristal.returnToMenu()
+        end
+    end
 
     Kristal.callEvent("postUpdate", DT)
 end
