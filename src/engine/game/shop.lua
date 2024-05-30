@@ -67,7 +67,7 @@ function Shop:init()
     self.talk_replacements = {}
 
     -- SELLMENU
-    if Game.inventory.storage_enabled then
+    if Game:getConfig("enableStorage") then
         self.sell_options = {
             {"Sell Items",        "items"},
             {"Sell Weapons",      "weapons"},
