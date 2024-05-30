@@ -206,6 +206,11 @@ function DarkPowerMenu:draw()
     self:drawChar()
     self:drawStats()
     self:drawSpells()
+    
+    if Game:getConfig("oldUIPositions") then
+        Draw.setColor(1, 0, 0, 1)
+        love.graphics.rectangle("fill", 258, 113, 1, 1)
+    end
 
     super.draw(self)
 end

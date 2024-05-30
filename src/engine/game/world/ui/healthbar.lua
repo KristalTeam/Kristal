@@ -21,10 +21,18 @@ function HealthBar:init()
         local x_pos = (index - 1) * 213
 
         if #Game.party == 2 then
-            if index == 1 then
-                x_pos = 108
+            if Game:getConfig("oldUIPositions") then
+                if index == 1 then
+                    x_pos = 105
+                else
+                    x_pos = 325
+                end
             else
-                x_pos = 322
+                if index == 1 then
+                    x_pos = 108
+                else
+                    x_pos = 322
+                end
             end
         elseif #Game.party == 1 then
             x_pos = 213
