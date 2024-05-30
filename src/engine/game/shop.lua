@@ -1088,10 +1088,6 @@ function Shop:buyItem(current_item)
     if (current_item.options["price"] or 0) > self:getMoney() then
         self:setRightText(self.buy_too_expensive_text)
     else
-        -- PURCHASE THE ITEM
-        -- Remove the gold
-        self:removeMoney(current_item.options["price"] or 0)
-
         -- Decrement the stock
         if current_item.options["stock"] then
             current_item.options["stock"] = current_item.options["stock"] - 1
@@ -1105,6 +1101,10 @@ function Shop:buyItem(current_item)
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("locker")
             self:setRightText(self.buy_text)
+            
+            -- PURCHASE THE ITEM
+            -- Remove the money
+            self:removeMoney(current_item.options["price"] or 0)
         else
             -- Not enough space, oops
             self:setRightText(self.buy_no_space_text)
