@@ -88,6 +88,11 @@ function actor:initChapter1()
         ["walk_blush/up"] = "walk_blush/down",
         ["walk_blush/left"] = "walk_blush/left",
         ["walk_blush/right"] = "walk_blush/right",
+        
+        ["walk_unhappy/down"] = "walk_unhappy/up",
+        ["walk_unhappy/up"] = "walk_unhappy/down",
+        ["walk_unhappy/left"] = "walk_unhappy/left",
+        ["walk_unhappy/right"] = "walk_unhappy/right",
     }
 
     -- Table of sprite offsets (indexed by sprite name)
