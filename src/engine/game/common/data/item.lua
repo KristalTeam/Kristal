@@ -392,28 +392,6 @@ end
 function Item:load(data)
     self.flags = data.flags or self.flags
 
-    if data.dark_item then
-        if type(data.dark_item) == "table" then
-            self.dark_item = Registry.createItem(data.dark_item.id)
-            self.dark_item:load(data.dark_item)
-        else
-            self.dark_item = data.dark_item
-        end
-
-        self.dark_location = data.dark_location
-    end
-
-    if data.light_item then
-        if type(data.light_item) == "table" then
-            self.light_item = Registry.createItem(data.light_item.id)
-            self.light_item:load(data.light_item)
-        else
-            self.light_item = data.light_item
-        end
-
-        self.light_location = data.light_location
-    end
-
     self:onLoad(data)
 end
 
