@@ -15,7 +15,7 @@ function DarkInventory:init()
     self.storage_enabled = Game:getConfig("enableStorage")
 
     -- Order the storages are converted to the light world
-    self.convert_order = {"key_items", "light", "weapons", "armors", "items", "storage"}
+    self.convert_order = {"key_items", "weapons", "armors", "items", "storage"}
 end
 
 function DarkInventory:clear()
@@ -27,8 +27,6 @@ function DarkInventory:clear()
         ["weapons"]   = {id = "weapons",   max = Game.default_equip_slots, sorted = false, name = "WEAPONs",     fallback = nil      },
         ["armors"]    = {id = "armors",    max = Game.default_equip_slots, sorted = false, name = "ARMORs",      fallback = nil      },
         ["storage"]   = {id = "storage",   max = 24,                       sorted = false, name = "STORAGE",     fallback = nil      },
-
-        ["light"]     = {id = "light",     max = 28,                       sorted = true,  name = "LIGHT ITEMs", fallback = nil      },
     }
 
     Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
@@ -39,6 +37,20 @@ function DarkInventory:convertToLight()
 
     local was_storage_enabled = new_inventory.storage_enabled
     new_inventory.storage_enabled = true
+    
+    for k,storage in pairs(self:getLightInventory().storages) do
+        for i = 1, storage.max do
+            if storage[i] then
+                if not new_inventory:addItemTo(storage.id, i, storage[i]) then
+                    new_inventory:addItem(storage[i])
+                end
+            end
+        end
+    end
+
+    if not self:getLightInventory():hasItem("light/ball_of_junk") then
+        new_inventory:addItem("light/ball_of_junk")
+    end
 
     Kristal.callEvent(KRISTAL_EVENT.onConvertToLight, new_inventory)
 
@@ -47,7 +59,7 @@ function DarkInventory:convertToLight()
         for i = 1, storage.max do
             local item = storage[i]
             if item then
-                local result = item:convertToLight(new_inventory) or (storage.id == "light" and item)
+                local result = item:convertToLight(new_inventory)
 
                 if result then
                     self:removeItem(item)
@@ -56,8 +68,6 @@ function DarkInventory:convertToLight()
                         result = Registry.createItem(result)
                     end
                     if isClass(result) then
-                        result.dark_item = item
-                        result.dark_location = {storage = storage.id, index = i}
                         new_inventory:addItem(result)
                     end
                 end
@@ -65,21 +75,51 @@ function DarkInventory:convertToLight()
         end
     end
 
-    local ball = Registry.createItem("light/ball_of_junk", self)
-    new_inventory:addItemTo("items", 1, ball)
-
     new_inventory.storage_enabled = was_storage_enabled
+    
+    Game.dark_inventory = self
 
     return new_inventory
 end
 
+function DarkInventory:getLightInventory()
+    return Game.light_inventory
+end
+
+function DarkInventory:getDarkInventory()
+    return self
+end
+
 -- Item give overrides for Light World items
 
-function DarkInventory:getDefaultStorage(item_type, ignore_convert)
-    if not ignore_convert and isClass(item_type) and item_type.light then
-        return self:getStorage("light")
+---@return Item|nil
+function DarkInventory:addItem(item, ignore_light)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
     end
-    return super.getDefaultStorage(self, item_type, ignore_convert)
+    if ignore_light or not item.light then
+        return super.addItem(self, item)
+    else
+        local light_inv = self:getLightInventory()
+        return light_inv:addItem(item)
+    end
+end
+
+function DarkInventory:tryGiveItem(item, ignore_light)
+    if type(item) == "string" then
+        item = Registry.createItem(item)
+    end
+    if ignore_light or not item.light then
+        return super.tryGiveItem(self, item, ignore_light)
+    else
+        local light_inv = self:getLightInventory()
+        local result = light_inv:addItem(item)
+        if result then
+            return true, "* ([color:yellow]"..item:getName().."[color:reset] was added to your [color:yellow]LIGHT ITEMs[color:reset].)"
+        else
+            return false, "* (You have too many [color:yellow]LIGHT ITEMs[color:reset] to take [color:yellow]"..item:getName().."[color:reset].)"
+        end
+    end
 end
 
 return DarkInventory
