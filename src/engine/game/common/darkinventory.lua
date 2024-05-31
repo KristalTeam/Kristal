@@ -40,6 +40,10 @@ function DarkInventory:convertToLight()
     local was_storage_enabled = new_inventory.storage_enabled
     new_inventory.storage_enabled = true
 
+    if not self:hasItem("light/ball_of_junk") then
+        new_inventory:addItem("light/ball_of_junk")
+    end
+
     Kristal.callEvent("onConvertToLight", new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
@@ -65,10 +69,9 @@ function DarkInventory:convertToLight()
         end
     end
 
-    local ball = Registry.createItem("light/ball_of_junk", self)
-    new_inventory:addItemTo("items", 1, ball)
-
     new_inventory.storage_enabled = was_storage_enabled
+    
+    Game.dark_inventory_bak = self
 
     return new_inventory
 end

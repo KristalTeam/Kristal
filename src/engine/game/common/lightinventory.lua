@@ -39,6 +39,16 @@ function LightInventory:convertToDark()
     local was_storage_enabled = new_inventory.storage_enabled
     new_inventory.storage_enabled = true
 
+    for k,storage in pairs(self:getDarkInventory().storages) do
+        for i = 1, storage.max do
+            if storage[i] then
+                if not new_inventory:addItemTo(storage.id, i, storage[i]) then
+                    new_inventory:addItem(storage[i])
+                end
+            end
+        end
+    end
+
     Kristal.callEvent("onConvertToDark", new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
@@ -84,12 +94,16 @@ end
 
 function LightInventory:getDarkInventory()
     local junk_ball = self:getItemByID("light/ball_of_junk")
+    
+    if not Game.dark_inventory_bak then
+        Game.dark_inventory_bak = junk_ball and junk_ball.inventory or DarkInventory()
+    end
 
     if not junk_ball then
         junk_ball = self:addItem("light/ball_of_junk")
     end
-
-    return junk_ball.inventory
+    
+    return Game.dark_inventory_bak
 end
 
 function LightInventory:getDefaultStorage(item_type)

@@ -203,6 +203,7 @@ function Game:save(x, y)
         table.insert(data.party, party.id)
     end
 
+    data.dark_inventory_bak = self.dark_inventory_bak:save()
     data.inventory = self.inventory:save()
 
     data.party_data = {}
@@ -332,6 +333,10 @@ function Game:load(data, index, fade)
         self.inventory = DarkInventory()
     end
 
+    if data.dark_inventory_bak then
+        self.dark_inventory_bak = DarkInventory()
+        self.dark_inventory_bak:load(data.dark_inventory_bak)
+    end
     if data.inventory then
         self.inventory:load(data.inventory)
     else
