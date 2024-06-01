@@ -40,11 +40,16 @@ function AttackBox:init(battler, offset, index, x, y)
 end
 
 function AttackBox:getClose()
-    return Utils.round((self.bolt.x - self.bolt_target) / AttackBox.BOLTSPEED)
+    return Utils.round(self:getCloseTrue())
+end
+
+function AttackBox:getCloseTrue()
+    return (self.bolt.x - self.bolt_target - 2) / AttackBox.BOLTSPEED
 end
 
 function AttackBox:hit()
     local p = math.abs(self:getClose())
+    local t = math.abs(self:getCloseTrue())
 
     self.attacked = true
 
@@ -53,11 +58,11 @@ function AttackBox:hit()
     self.bolt:setPosition(self.bolt:getRelativePos(0, 0, self.parent))
     self.bolt:setParent(self.parent)
 
-    if p == 0 then
+    if t <= 0.25 then
         self.bolt:setColor(1, 1, 0)
         self.bolt.burst_speed = 0.2
         return 150
-    elseif p == 1 then
+    elseif p <= 1 then
         return 120
     elseif p == 2 then
         return 110
@@ -77,6 +82,10 @@ function AttackBox:endAttack()
 end
 
 function AttackBox:update()
+    if self:getClose() <= -3 then
+        self:miss()
+    end
+    
     if self.removing or Game.battle.cancel_attack then
         self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
     end
@@ -87,7 +96,7 @@ function AttackBox:update()
         self.afterimage_timer = self.afterimage_timer + DTMULT/2
         while math.floor(self.afterimage_timer) > self.afterimage_count do
             self.afterimage_count = self.afterimage_count + 1
-            local afterimg = AttackBar(self.bolt_start_x - (self.afterimage_count * AttackBox.BOLTSPEED * 2), 0, 6, 38)
+            local afterimg = AttackBar(self.bolt.x, 0, 6, 38)
             afterimg.layer = 3
             afterimg.alpha = 0.4
             afterimg:fadeOutSpeedAndRemove()
