@@ -1237,10 +1237,12 @@ function DebugSystem:draw()
 
         Draw.pushScissor()
         Draw.scissor(text_offset + 19, y_off + menu_y + 16, 640, 320 + 48)
-        for index, key in pairs(Utils.getKeys(Game.flags)) do
-            self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
-            self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
-                             { 1, 1, 1, 1 }, "right", 640)
+        if Game.flags then
+            for index, key in pairs(Utils.getKeys(Game.flags)) do
+                self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
+                self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
+                                 { 1, 1, 1, 1 }, "right", 640)
+            end
         end
         Draw.popScissor()
 

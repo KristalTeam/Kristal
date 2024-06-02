@@ -24,7 +24,8 @@
     "enemyBarPercentages": false,    // HP / Mercy bar percentages
 
     "targetSystem": true,            // Whether the target system should be used or not
-
+    "soulInvBetweenWaves": true,     // Whether the soul invulnerability will carry between waves in battles
+    
     "darkCurrency": "Dark Dollars",  // Full currency name for the Dark World
     "darkCurrencyShort": "D$",       // Short currency name for the Dark World
 
