@@ -58,7 +58,7 @@ function AttackBox:hit()
     self.bolt:setPosition(self.bolt:getRelativePos(0, 0, self.parent))
     self.bolt:setParent(self.parent)
 
-    if t <= 0.25 then
+    if t <= 0.3 then
         self.bolt:setColor(1, 1, 0)
         self.bolt.burst_speed = 0.2
         return 150
