@@ -1193,8 +1193,9 @@ end
 
 ---@return boolean console Whether Kristal is in console mode.
 function Kristal.isConsole()
+    local os = love.system.getOS()
     ---@diagnostic disable-next-line: undefined-field
-    return USING_CONSOLE or (love._console ~= nil)
+    return USING_CONSOLE or (love._console ~= nil) or (os == "NX")
 end
 
 ---@return table types The available border types, or `nil` if borders are disabled.
