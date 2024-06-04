@@ -39,17 +39,18 @@ function AttackBox:init(battler, offset, index, x, y)
     self.removing = false
 end
 
-function AttackBox:getClose()
-    return Utils.round(self:getCloseTrue())
-end
-
-function AttackBox:getCloseTrue()
-    return (self.bolt.x - self.bolt_target - 2) / AttackBox.BOLTSPEED
+function AttackBox:getClose(real)
+    local get_close = (self.bolt.x - self.bolt_target - 2) / AttackBox.BOLTSPEED
+    if real then
+        return get_close
+    else
+        return Utils.round(get_close)
+    end
 end
 
 function AttackBox:hit()
     local p = math.abs(self:getClose())
-    local t = math.abs(self:getCloseTrue())
+    local t = math.abs(self:getClose(true))
 
     self.attacked = true
 
