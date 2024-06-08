@@ -116,9 +116,9 @@ function PartyBattler:hurt(amount, exact, color, options)
             if self.defending then
                 amount = math.ceil((3 * amount) / 4) -- Slightly different than the above
             end
-
-            self:removeHealthBroken(amount) -- Use a separate function for cleanliness
         end
+        
+        self:removeHealthBroken(amount) -- Use a separate function for cleanliness
     end
 
     if (self.chara:getHealth() <= 0) then
