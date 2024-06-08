@@ -1990,13 +1990,14 @@ function Battle:hurt(amount, exact, target)
 
     if target == "ALL" then
         Assets.playSound("hurt")
+        local alive_battlers = Utils.filter(self.party, function(battler) return not battler.is_down end)
         for _,battler in ipairs(self.party) do
             if not battler.is_down then
                 battler:hurt(amount, exact, nil, {all = true})
             end
         end
         -- Return the battlers who aren't down, aka the ones we hit.
-        return Utils.filter(self.party, function(battler) return not battler.is_down end)
+        return alive_battlers
     end
 end
 
