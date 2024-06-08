@@ -1928,7 +1928,7 @@ end
 function Battle:hurt(amount, exact, target)
     -- If target is a numberic value, it will hurt the party battler with that index
     -- "ANY" will choose the target randomly
-    -- "ALL" will hurt the entire party at the same time
+    -- "ALL" will hurt the entire party all at once
     target = target or "ANY"
 
     -- Alright, first let's try to adjust targets.
