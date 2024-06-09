@@ -266,7 +266,7 @@ function DialogueText:playTextSound(current_node)
 
     if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
         self.played_first_sound = true
-        if Kristal.callEvent("onTextSound", self.state.typing_sound, current_node) then
+        if Kristal.callEvent(KRISTAL_EVENT.onTextSound, self.state.typing_sound, current_node) then
             return
         end
         Assets.playSound("voice/" .. self.state.typing_sound)

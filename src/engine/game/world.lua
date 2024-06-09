@@ -197,7 +197,7 @@ function World:openMenu(menu, layer)
 end
 
 function World:createMenu()
-    local menu = Kristal.callEvent("createMenu")
+    local menu = Kristal.callEvent(KRISTAL_EVENT.createMenu)
     if menu then return menu end
     if Game:isLight() then
         menu = LightMenu()
@@ -707,11 +707,11 @@ function World:setupMap(map, ...)
 
     local map_border = self.map:getBorder(dark_transitioned)
     if map_border then
-        Game:setBorder(Kristal.callEvent("onMapBorder", self.map, map_border) or map_border)
+        Game:setBorder(Kristal.callEvent(KRISTAL_EVENT.onMapBorder, self.map, map_border) or map_border)
     end
 
     if not self.map.keep_music then
-        self:transitionMusic(Kristal.callEvent("onMapMusic", self.map, self.map.music) or self.map.music)
+        self:transitionMusic(Kristal.callEvent(KRISTAL_EVENT.onMapMusic, self.map, self.map.music) or self.map.music)
     end
 end
 
@@ -854,12 +854,12 @@ function World:mapTransition(...)
     if type(map) == "string" then
         local map = Registry.createMap(map)
         if not map.keep_music then
-            self:transitionMusic(Kristal.callEvent("onMapMusic", self.map, self.map.music) or map.music, true)
+            self:transitionMusic(Kristal.callEvent(KRISTAL_EVENT.onMapMusic, self.map, self.map.music) or map.music, true)
         end
         local dark_transition = map.light ~= Game:isLight()
         local map_border = map:getBorder(dark_transition)
         if map_border then
-            Game:setBorder(Kristal.callEvent("onMapBorder", self.map, map_border) or map_border, 1)
+            Game:setBorder(Kristal.callEvent(KRISTAL_EVENT.onMapBorder, self.map, map_border) or map_border, 1)
         end
     end
     self:fadeInto(function()

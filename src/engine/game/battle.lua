@@ -908,7 +908,7 @@ function Battle:beginAction(action)
     end
 
     -- Call mod callbacks for adding new beginAction behaviour
-    if Kristal.callEvent("onBattleActionBegin", action, action.action, battler, enemy) then
+    if Kristal.callEvent(KRISTAL_EVENT.onBattleActionBegin, action, action.action, battler, enemy) then
         return
     end
 
@@ -1293,7 +1293,7 @@ function Battle:finishAction(action, keep_animation)
                 ibattler.defending = false
             end
 
-            Kristal.callEvent("onBattleActionEnd", iaction, iaction.action, ibattler, iaction.target, dont_end)
+            Kristal.callEvent(KRISTAL_EVENT.onBattleActionEnd, iaction, iaction.action, ibattler, iaction.target, dont_end)
         end
     else
         -- Process actions if we can
@@ -1316,7 +1316,7 @@ function Battle:endActionAnimation(battler, action, callback)
             _callback()
         end
     end
-    if Kristal.callEvent("onBattleActionEndAnimation", action, action.action, battler, action.target, callback, _callback) then
+    if Kristal.callEvent(KRISTAL_EVENT.onBattleActionEndAnimation, action, action.action, battler, action.target, callback, _callback) then
         return
     end
     if action.action ~= "ATTACK" and action.action ~= "AUTOATTACK" then
@@ -1531,7 +1531,7 @@ function Battle:commitSingleAction(action)
     battler.action = action
     self.character_actions[action.character_id] = action
 
-    if Kristal.callEvent("onBattleActionCommit", action, action.action, battler, action.target) then
+    if Kristal.callEvent(KRISTAL_EVENT.onBattleActionCommit, action, action.action, battler, action.target) then
         return
     end
 
@@ -1591,7 +1591,7 @@ end
 function Battle:removeSingleAction(action)
     local battler = self.party[action.character_id]
 
-    if Kristal.callEvent("onBattleActionUndo", action, action.action, battler, action.target) then
+    if Kristal.callEvent(KRISTAL_EVENT.onBattleActionUndo, action, action.action, battler, action.target) then
         battler.action = nil
         self.character_actions[action.character_id] = nil
         return
@@ -2769,7 +2769,7 @@ function Battle:onKeyPressed(key)
             local menu_item = self.menu_items[self:getItemIndex()]
             local can_select = self:canSelectMenuItem(menu_item)
             if self.encounter:onMenuSelect(self.state_reason, menu_item, can_select) then return end
-            if Kristal.callEvent("onBattleMenuSelect", self.state_reason, menu_item, can_select) then return end
+            if Kristal.callEvent(KRISTAL_EVENT.onBattleMenuSelect, self.state_reason, menu_item, can_select) then return end
             if can_select then
                 self.ui_select:stop()
                 self.ui_select:play()
@@ -2778,7 +2778,7 @@ function Battle:onKeyPressed(key)
             end
         elseif Input.isCancel(key) then
             if self.encounter:onMenuCancel(self.state_reason, menu_item) then return end
-            if Kristal.callEvent("onBattleMenuCancel", self.state_reason, menu_item, can_select) then return end
+            if Kristal.callEvent(KRISTAL_EVENT.onBattleMenuCancel, self.state_reason, menu_item, can_select) then return end
             self.ui_move:stop()
             self.ui_move:play()
             Game:setTensionPreview(0)
@@ -2818,7 +2818,7 @@ function Battle:onKeyPressed(key)
     elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
         if Input.isConfirm(key) then
             if self.encounter:onEnemySelect(self.state_reason, self.current_menu_y) then return end
-            if Kristal.callEvent("onBattleEnemySelect", self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent(KRISTAL_EVENT.onBattleEnemySelect, self.state_reason, self.current_menu_y) then return end
             self.ui_select:stop()
             self.ui_select:play()
             if #self.enemies_index == 0 then return end
@@ -2876,7 +2876,7 @@ function Battle:onKeyPressed(key)
         end
         if Input.isCancel(key) then
             if self.encounter:onEnemyCancel(self.state_reason, self.current_menu_y) then return end
-            if Kristal.callEvent("onBattleEnemyCancel", self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent(KRISTAL_EVENT.onBattleEnemyCancel, self.state_reason, self.current_menu_y) then return end
             self.ui_move:stop()
             self.ui_move:play()
             if self.state_reason == "SPELL" then
@@ -2928,7 +2928,7 @@ function Battle:onKeyPressed(key)
     elseif self.state == "PARTYSELECT" then
         if Input.isConfirm(key) then
             if self.encounter:onPartySelect(self.state_reason, self.current_menu_y) then return end
-            if Kristal.callEvent("onBattlePartySelect", self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent(KRISTAL_EVENT.onBattlePartySelect, self.state_reason, self.current_menu_y) then return end
             self.ui_select:stop()
             self.ui_select:play()
             if self.state_reason == "SPELL" then
@@ -2942,7 +2942,7 @@ function Battle:onKeyPressed(key)
         end
         if Input.isCancel(key) then
             if self.encounter:onPartyCancel(self.state_reason, self.current_menu_y) then return end
-            if Kristal.callEvent("onBattlePartyCancel", self.state_reason, self.current_menu_y) then return end
+            if Kristal.callEvent(KRISTAL_EVENT.onBattlePartyCancel, self.state_reason, self.current_menu_y) then return end
             self.ui_move:stop()
             self.ui_move:play()
             if self.state_reason == "SPELL" then

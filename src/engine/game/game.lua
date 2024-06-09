@@ -37,7 +37,7 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     self.quick_save = nil
 
-    Kristal.callEvent("init")
+    Kristal.callEvent(KRISTAL_EVENT.init)
 
     self.lock_movement = false
 
@@ -61,13 +61,13 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     DISCORD_RPC_PRESENCE = {}
 
-    Kristal.callEvent("postInit", self.is_new_file)
+    Kristal.callEvent(KRISTAL_EVENT.postInit, self.is_new_file)
 
     if next(DISCORD_RPC_PRESENCE) == nil then
         Kristal.setPresence({
-            state = Kristal.callEvent("getPresenceState") or ("Playing " .. (Kristal.getModOption("name") or "a mod")),
-            details = Kristal.callEvent("getPresenceDetails"),
-            largeImageKey = Kristal.callEvent("getPresenceImage") or "logo",
+            state = Kristal.callEvent(KRISTAL_EVENT.getPresenceState) or ("Playing " .. (Kristal.getModOption("name") or "a mod")),
+            details = Kristal.callEvent(KRISTAL_EVENT.getPresenceDetails),
+            largeImageKey = Kristal.callEvent(KRISTAL_EVENT.getPresenceImage) or "logo",
             largeImageText = "Kristal v" .. tostring(Kristal.Version),
             startTimestamp = math.floor(os.time() - self.playtime),
             instance = 0
@@ -108,7 +108,7 @@ function Game:getConfig(key, merge, deep_merge)
 
     if not Mod then return default_config[key] end
 
-    local mod_result = Kristal.callEvent("getConfig", key)
+    local mod_result = Kristal.callEvent(KRISTAL_EVENT.getConfig, key)
     if mod_result ~= nil then return mod_result end
 
     local mod_config = Mod.info and Mod.info.config and Utils.getAnyCase(Mod.info.config, "kristal") or {}
@@ -209,7 +209,7 @@ function Game:save(x, y)
         data.recruits_data[k] = v:save()
     end
 
-    Kristal.callEvent("save", data)
+    Kristal.callEvent(KRISTAL_EVENT.save, data)
 
     return data
 end
@@ -383,7 +383,7 @@ function Game:load(data, index, fade)
 
     -- END SAVE FILE VARIABLES --
 
-    Kristal.callEvent("load", data, self.is_new_file, index)
+    Kristal.callEvent(KRISTAL_EVENT.load, data, self.is_new_file, index)
 
     -- Load the map if we have one
     if map then
@@ -746,7 +746,7 @@ function Game:getSoulPartyMember()
 end
 
 function Game:getSoulColor()
-    local mr, mg, mb, ma = Kristal.callEvent("getSoulColor")
+    local mr, mg, mb, ma = Kristal.callEvent(KRISTAL_EVENT.getSoulColor)
     if mr ~= nil then
         return mr, mg, mb, ma or 1
     end
@@ -857,7 +857,7 @@ function Game:update()
         end
     end
 
-    if Kristal.callEvent("preUpdate", DT) then
+    if Kristal.callEvent(KRISTAL_EVENT.preUpdate, DT) then
         return
     end
 
@@ -883,11 +883,11 @@ function Game:update()
         end
     end
 
-    Kristal.callEvent("postUpdate", DT)
+    Kristal.callEvent(KRISTAL_EVENT.postUpdate, DT)
 end
 
 function Game:onKeyPressed(key, is_repeat)
-    if Kristal.callEvent("onKeyPressed", key, is_repeat) then
+    if Kristal.callEvent(KRISTAL_EVENT.onKeyPressed, key, is_repeat) then
         -- Mod:onKeyPressed returned true, cancel default behaviour
         return
     end
@@ -917,17 +917,17 @@ function Game:onKeyPressed(key, is_repeat)
 end
 
 function Game:onKeyReleased(key)
-    Kristal.callEvent("onKeyReleased", key)
+    Kristal.callEvent(KRISTAL_EVENT.onKeyReleased, key)
 end
 
 function Game:onWheelMoved(x, y)
-    Kristal.callEvent("onWheelMoved", x, y)
+    Kristal.callEvent(KRISTAL_EVENT.onWheelMoved, x, y)
 end
 
 function Game:draw()
     love.graphics.clear(0, 0, 0, 1)
     love.graphics.push()
-    if Kristal.callEvent("preDraw") then
+    if Kristal.callEvent(KRISTAL_EVENT.preDraw) then
         love.graphics.pop()
         return
     end
@@ -936,7 +936,7 @@ function Game:draw()
     self.stage:draw()
 
     love.graphics.push()
-    Kristal.callEvent("postDraw")
+    Kristal.callEvent(KRISTAL_EVENT.postDraw)
     love.graphics.pop()
 end
 

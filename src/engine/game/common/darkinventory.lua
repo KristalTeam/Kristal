@@ -31,7 +31,7 @@ function DarkInventory:clear()
         ["light"]     = {id = "light",     max = 28, sorted = true,  name = "LIGHT ITEMs", fallback = nil      },
     }
 
-    Kristal.callEvent("createDarkInventory", self)
+    Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
 end
 
 function DarkInventory:convertToLight()
@@ -40,7 +40,7 @@ function DarkInventory:convertToLight()
     local was_storage_enabled = new_inventory.storage_enabled
     new_inventory.storage_enabled = true
 
-    Kristal.callEvent("onConvertToLight", new_inventory)
+    Kristal.callEvent(KRISTAL_EVENT.onConvertToLight, new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
         local storage = Utils.copy(self:getStorage(storage_id))

@@ -98,7 +98,7 @@ function Registry.initialize(preload)
         Registry.initControllers()
         Registry.initShops()
 
-        Kristal.callEvent("onRegistered")
+        Kristal.callEvent(KRISTAL_EVENT.onRegistered)
     end
 
     self.preload = preload
@@ -613,7 +613,7 @@ function Registry.initGlobals()
         self.registerGlobal(id, global)
     end
 
-    Kristal.callEvent("onRegisterGlobals")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterGlobals)
 end
 
 function Registry.initObjects()
@@ -635,7 +635,7 @@ function Registry.initObjects()
         self.registerGlobal(id, object)
     end
 
-    Kristal.callEvent("onRegisterObjects")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterObjects)
 end
 
 function Registry.initDrawFX()
@@ -649,7 +649,7 @@ function Registry.initDrawFX()
         self.registerGlobal(id, draw_fx)
     end
 
-    Kristal.callEvent("onRegisterDrawFX")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterDrawFX)
 end
 
 function Registry.initActors()
@@ -661,7 +661,7 @@ function Registry.initActors()
         self.registerActor(actor.id, actor)
     end
 
-    Kristal.callEvent("onRegisterActors")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterActors)
 end
 
 function Registry.initPartyMembers()
@@ -673,7 +673,7 @@ function Registry.initPartyMembers()
         self.registerPartyMember(char.id, char)
     end
 
-    Kristal.callEvent("onRegisterPartyMembers")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterPartyMembers)
 end
 
 function Registry.initRecruits()
@@ -685,7 +685,7 @@ function Registry.initRecruits()
         self.registerRecruit(recruit.id, recruit)
     end
 
-    Kristal.callEvent("onRegisterRecruits")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterRecruits)
 end
 
 function Registry.initItems()
@@ -697,7 +697,7 @@ function Registry.initItems()
         self.registerItem(item.id, item)
     end
 
-    Kristal.callEvent("onRegisterItems")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterItems)
 end
 
 function Registry.initSpells()
@@ -709,7 +709,7 @@ function Registry.initSpells()
         self.registerSpell(spell.id, spell)
     end
 
-    Kristal.callEvent("onRegisterSpells")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterSpells)
 end
 
 function Registry.initEncounters()
@@ -721,7 +721,7 @@ function Registry.initEncounters()
         self.registerEncounter(encounter.id, encounter)
     end
 
-    Kristal.callEvent("onRegisterEncounters")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEncounters)
 end
 
 function Registry.initEnemies()
@@ -733,7 +733,7 @@ function Registry.initEnemies()
         self.registerEnemy(enemy.id, enemy)
     end
 
-    Kristal.callEvent("onRegisterEnemies")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEnemies)
 end
 
 function Registry.initWaves()
@@ -745,7 +745,7 @@ function Registry.initWaves()
         self.registerWave(wave.id, wave)
     end
 
-    Kristal.callEvent("onRegisterWaves")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterWaves)
 end
 
 function Registry.initBullets()
@@ -764,7 +764,7 @@ function Registry.initBullets()
         self.registerWorldBullet(bullet.id, bullet)
     end
 
-    Kristal.callEvent("onRegisterBullets")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterBullets)
 end
 
 function Registry.initCutscenes()
@@ -785,7 +785,7 @@ function Registry.initCutscenes()
         self.registerLegendCutscene(path, cutscene)
     end
 
-    Kristal.callEvent("onRegisterCutscenes")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterCutscenes)
 end
 
 function Registry.initEventScripts()
@@ -796,7 +796,7 @@ function Registry.initEventScripts()
         self.registerEventScript(path, script)
     end
 
-    Kristal.callEvent("onRegisterEventScripts")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEventScripts)
 end
 
 function Registry.initTilesets()
@@ -808,7 +808,7 @@ function Registry.initTilesets()
         self.registerTileset(path, Tileset(data, full_path, Utils.getDirname(full_path)))
     end
 
-    Kristal.callEvent("onRegisterTilesets")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterTilesets)
 end
 
 function Registry.initMaps()
@@ -835,7 +835,7 @@ function Registry.initMaps()
         end
     end
 
-    Kristal.callEvent("onRegisterMaps")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterMaps)
 end
 
 function Registry.initEvents()
@@ -847,7 +847,7 @@ function Registry.initEvents()
         self.registerEvent(event.id, event)
     end
 
-    Kristal.callEvent("onRegisterEvents")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterEvents)
 end
 
 function Registry.initControllers()
@@ -859,7 +859,7 @@ function Registry.initControllers()
         self.registerController(controller.id, controller)
     end
 
-    Kristal.callEvent("onRegisterControllers")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterControllers)
 end
 
 function Registry.initShops()
@@ -871,7 +871,7 @@ function Registry.initShops()
         self.registerShop(shop.id, shop)
     end
 
-    Kristal.callEvent("onRegisterShops")
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterShops)
 end
 
 ---@param base_path string

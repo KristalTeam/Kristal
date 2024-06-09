@@ -124,7 +124,7 @@ local palette_data = {
 }
 PALETTE = {}
 setmetatable(PALETTE, {
-    __index = function (t, i) return Kristal.callEvent("getPaletteColor", i) or palette_data[i] end,
+    __index = function (t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,
     __newindex = function (t, k, v) palette_data[k] = v end,
 })
 
@@ -156,3 +156,112 @@ end
 ALPHABET = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
     "v", "w", "x", "y", "z" }
 FACINGS = { "right", "down", "left", "up" }
+
+-- exposed events called by Kristal
+--
+--  keywords  --
+-- "intercept": events' return value are used as the primary argument to an `or` expression, or equivalent effect: `Kristal.callEvent(KRISTAL_EVENT.event or value)`
+-- "optional": events' return value are used as the secondary argument to an `or` expression, or equivalent effect: `value or Kristal.callEvent(KRISTAL_EVENT.event)`
+-- "overrides": if events' return value is "truthy", the calling function returns early, or equivalent effect
+--
+-- when adding a new event, put it in alphabetical order, unless other specified, under the appropriate event group (create one if it doesnt exist), and follow this format:
+-- <newEvent> = "<newEvent>", -- <short description> / at: <callingFunction()>, <...> / passes: <Type>:<arg>, <...> / returns: NONE|<Type>:<arg>, <...>
+KRISTAL_EVENT = {
+
+    --inventory events--
+    createDarkInventory = "createDarkInventory", -- dark world inventory is created / at: DarkInventory:clear() / passes: DarkInventory:self / returns: NONE
+    createLightInventory = "createLightInventory", -- light world inventory is created / at: LightInventory:clear() / passes: LightInventory:self / returns: NONE
+    onConvertToDark = "onConvertToDark", -- dark world inventory converted to light world inventory / at: DarkInventory:convertToLight() / passes: LightInventory:new_inventory / returns: NONE
+    onConvertToLight = "onConvertToLight", -- light world inventory converted to dark world inventory / at: LightInventory:convertToDark() / passes: DarkInventory:new_inventory / returns: NONE
+
+    --menu events--
+    createMenu = "createMenu", -- returns optional custom overworld menu / at: World:createMenu() / passes: NONE / returns: nil|Object
+    getDarkMenuButtons = "getDarkMenuButtons", -- optional creation of buttons for custom dark world menu / at: DarkMenu:init() / passes: table:buttons, DarkMenu:self / returns: nil|table
+    getUISkin = "getUISkin", --optional default UI skin key / at: UIBox:init(x, y, width, height, skin) / passes: NONE / returns: nil|string
+    onDarkMenuOpen = "onDarkMenuOpen",  -- dark world menu is opened / at: DarkMenu:onAdd(parent) / passes: DarkMenu:self / returns: NONE
+
+    --discordrpc events--
+    getPresenceDetails = "getPresenceDetails", -- optional discordRPC detail message at mod start / at: Game:enter(previous_state, save_id, save_name, fade) / passes: NONE / returns: nil|string
+    getPresenceImage = "getPresenceImage", -- optional discordRPC largeImageKey / at: Game:enter(previous_state, save_id, save_name, fade) / passes: NONE / returns: nil|string
+    getPresenceState = "getPresenceState", -- optional discordRPC state message / at: Game:enter(previous_state, save_id, save_name, fade) /  passes: NONE / returns: nil|string
+
+    --game state events-- (sorted by execution order, save&unload last)
+    init = "init", -- mod begins initialization, after assets loaded / at: Game:enter(previous_state, save_id, save_name, fade) / passes: NONE / returns: NONE
+    load = "load", -- mod loads save data / at: Game:load(data, index, fade) / passes: table:save_data, bool:is_new_file, int:save_index / returns: NONE
+    postInit = "postInit", -- mod & libraries have finished initialization and registration / at: Game:enter(previous_state, save_id, save_name, fade) / passes: bool:is_new_file / returns: NONE
+    preUpdate = "preUpdate", -- overrides game update / at: Game:update() / passes: number:DT / returns: bool
+	postUpdate = "postUpdate", -- update finished processing / at: Game:update() / passes: number:DT / returns: NONE
+	preDraw = "preDraw", -- overrides game draw, always pops final graphics state after / at: Game:draw() / passes: NONE / returns: bool
+	postDraw = "postDraw", -- finished drawing / at: Game:draw() / passes: NONE / returns: NONE
+    save = "save", -- game is about to be saved / at: Game:save(x, y) / passes: table:save_data / returns: NONE
+    unload = "unload", -- current game execution is stopped and data unloaded / at: Kristal.clearModState() / passes: NONE / returns: NONE
+
+    --gameplay events--
+    onBorderDraw = "onBorderDraw", -- game border draw time / at: [HOOK]love.draw(...)J\love.load(args) / passes: string:border, love.Image:border_texture / returns: NONE
+    onFootstep = "onFootstep", -- character walk cycle advances / at: Character:onFootstep(num) / passes: Character:self, int:num / returns: NONE
+    
+    --game variable events--
+    getConfig = "getConfig", -- intercept mod's config value / at: Game:getConfig(key, merge, deep_merge) / passes: string:key / returns: nil|any
+    getPaletteColor = "getPaletteColor", -- intercept rgba color pallete value / at: (metatable@PALETTE).__index(t,i) / passes: string:i / returns: nil|table
+    getSoulColor = "getSoulColor", -- intercept rgba soul color value / at: Game:getSoulColor() / passes: NONE / returns nil|table
+
+    --battle events--
+    onActionSelect = "onActionSelect", -- overrides action button selection / at: ActionButton:select() / passes: Battler:battler, ActionButton:self / returns: bool
+    onBattleActionBegin = "onBattleActionBegin", -- overrides begin action / at: Battle:beginAction(action) / passes: table:action, string:action_type,  PartyBattler:battler, Battler:enemy / returns: bool
+    onBattleActionCommit = "onBattleActionCommit", -- overrides commit action / at: Battle:commitSingleAction(action) / passes: table:action, string:action_type,  PartyBattler:battler, Battler:enemy / returns: bool
+    onBattleActionEnd = "onBattleActionEnd", -- battlers finishes any action / at: Battle:commitSingleAction(action) / passes: table:action, string:action_type,  PartyBattler:battler, Battler:enemy / returns: NONE
+    onBattleActionEndAnimation = "onBattleActionEndAnimation", -- overrides end of action's animation; action's callback is provided / at: Battle:endActionAnimation(battler, action, callback) / passes: table:action, string:action_type, PartyBattler:battler, Battler:target, function:callback, function:raw_callback / returns: bool
+    onBattleActionUndo = "onBattleActionUndo", -- overrides action cancellation battler behavior. still clears the battler's action/ at: Battle:removeSingleAction(action) / passes: table:action, string:action_type, PartyBattler:battler, Battler:target / returns: bool
+    onBattleEnemyCancel = "onBattleEnemyCancel", -- overrides default enemy selection cancel / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
+    onBattleEnemySelect = "onBattleEnemySelect", -- overrides default enemy select / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
+    onBattleMenuCancel = "onBattleMenuCancel", -- overrides default menu selection cancel / at: Battle:onKeyPressed(key) / passes: string:state_reason, table:menu_item, bool:can_select / returns: bool
+    onBattleMenuSelect = "onBattleMenuSelect", -- overrides default menu select / at: Battle:onKeyPressed(key) / passes: string:state_reason, table:menu_item, bool:can_select / returns: bool
+    onBattlePartyCancel = "onBattlePartyCancel", -- overrides default party member selection cancellation / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
+    onBattlePartySelect = "onBattlePartySelect", -- overrides default party member select / at: Battle:onKeyPressed(key) / passes: string:state_reason, int:current_menu_y / returns: bool
+
+    --text events--
+    isTextStyleAnimated = "isTextStyleAnimated", -- determines if `style` is animated text/ at: Text:isStyleAnimated(style) / passes: string:style, Text:self / returns: bool
+    onDrawText = "onDrawText", -- overrides character is drawn / at: Text:drawChar(node, state, use_color) / passes: Text:self, table:node, table:state, number:x, number:y, number:scale, love.Font:font, bool:use_base_color / returns: bool
+    onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node / returns: bool
+    registerTextCommands = "registerTextCommands", -- new text is ready to recieve custom command table / passes: Text:self / returns: NONE
+
+    --input events--
+    onKeyPressed = "onKeyPressed", -- overrides key is pressed / at: Game:onKeyPressed(key, is_repeat) / passes: string:key, bool:is_repeat / returns: bool
+    onKeyReleased = "onKeyReleased", -- key is released / at: Game:onKeyReleased(key) / passes: string:key / returns: NONE
+    onMouseMoved = "onMouseMoved", -- mouse is moved / at: love.mousemoved(x, y, dx, dy, istouch) / passes: number:x, number:y, number:dx, number:dy, bool:istouch returns: NONE
+    onMousePressed = "onMousePressed", -- mouse button pressed / at: love.mousepressed(win_x, win_y, button, istouch, presses) / passes: number:x, number:y, int:button, bool:istouch, int:presses / returns:NONE
+    onMouseReleased = "onMouseReleased", -- mouse button release / at: love.mousereleased(x, y, button, istouch, presses) / passes: number:x, number:y, int:button, bool:istouch, int:presses / returns:NONE
+    onTextInput = "onTextInput", -- character is read for text / love.textinput(key) / passes: string:key / returns: NONE
+    onWheelMoved = "onWheelMoved", -- mouse wheel is moved / at: Game:onWheelMoved(x, y) / passes: int:x, int:y / returns: NONE
+
+    --map events--
+    loadLayer = "loadLayer", -- overrides the map loading the tile layer data on layer depth, when true / at: Map:loadMapData(data) / passes: Map:self, table:layer, number:depth / returns: bool
+    onMapBorder = "onMapBorder", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music/ returns: string
+    onMapMusic = "onMapMusic", -- intercept game border for this map / at: World:setupMap(map, ...), World:mapTransition(...) / passes: Map:map, string:map_music / returns: string
+
+    --debug events--
+    registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE
+	registerDebugOptions = "registerDebugOptions", -- DebugSystem is ready to recieve custom debug options / passes: DebugSystem:self / returns: NONE
+
+    --asset registration events-- (sorted by execution order)
+    onRegisterActors = "onRegisterActors", -- actor scripts finished registering / in: Registry.initActors() / passes: NONE / returns: NONE
+    onRegisterGlobals = "onRegisterGlobals", -- global scripts finished registering / in: Registry.initGlobals() / passes: NONE / returns: NONE
+    onRegisterObjects = "onRegisterObjects", -- object scripts finished registering / in: Registry.initObjects() / passes: NONE / returns: NONE
+    onRegisterDrawFX = "onRegisterDrawFX", -- DrawFX scripts finished registering / in: Registry.initDrawFX() / passes: NONE / returns: NONE
+    onRegisterItems = "onRegisterItems", -- item scripts finished registering / in: Registry.initItems() / passes: NONE / returns: NONE
+    onRegisterSpells = "onRegisterSpells", -- spell scripts finished registering / in: Registry.initSpells() / passes: NONE / returns: NONE
+    onRegisterPartyMembers = "onRegisterPartyMembers", -- party member scripts finished registering / in: Registry.initPartyMembers() / passes: NONE / returns: NONE
+    onRegisterRecruits = "onRegisterRecruits", -- recruit scripts finished registering / in: Registry.initRecruits() / passes: NONE / returns: NONE
+    onRegisterEncounters = "onRegisterEncounters", -- encounter scripts finished registering / in: Registry.initEncounters() / passes: NONE / returns: NONE
+    onRegisterEnemies = "onRegisterEnemies", -- enemy scripts finished registering / in: Registry.initEnemies() / passes: NONE / returns: NONE
+    onRegisterWaves = "onRegisterWaves", -- wave scripts finished registering / in: Registry.initWaves() / passes: NONE / returns: NONE
+    onRegisterBullets = "onRegisterBullets", -- bullet scripts finished registering / in: Registry.initBullets() / passes: NONE / returns: NONE
+    onRegisterCutscenes = "onRegisterCutscenes", -- cutscene scripts finished registering / in: Registry.initCutscenes() / passes: NONE / returns: NONE
+    onRegisterEvents = "onRegisterEvents", -- event scripts finished registering / in: Registry.initEventScripts() / passes: NONE / returns: NONE
+    onRegisterTilesets = "onRegisterTilesets", -- tileset scripts finished registering / in: Registry.initTilesets() / passes: NONE / returns: NONE
+    onRegisterMaps = "onRegisterMaps", -- map scripts finished registering / in: Registry.initMaps() / passes: NONE / returns: NONE
+    onRegisterEventScripts = "onRegisterEventScripts", -- event scripts finished registering / in: Registry.initEvents() / passes: NONE / returns: NONE
+    onRegisterControllers = "onRegisterControllers", -- controller scripts finished registering / in: Registry.initControllers() / passes: NONE / returns: NONE
+    onRegisterShops = "onRegisterShops", -- shop scripts finished registering / in: Registry.initShops() / passes: NONE / returns: NONE
+    onRegistered = "onRegistered", -- all scripts finished registering / in: Registry.initialize(preload) / passes: NONE / returns: NONE
+}
