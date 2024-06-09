@@ -304,7 +304,7 @@ function MainMenuModList:reloadMods()
 
         self.loading_mods = false
 
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
+        Kristal.setDesiredWindowTitleAndIcon()
         self:buildModList()
     end)
 end
