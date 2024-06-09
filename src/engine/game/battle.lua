@@ -602,7 +602,8 @@ function Battle:onStateChange(old,new)
         end
 
         local soul_x, soul_y, soul_offset_x, soul_offset_y
-        local arena_x, arena_y, arena_w, arena_h, arena_shape, arena_rotation
+        local arena_x, arena_y, arena_w, arena_h, arena_shape
+        local arena_rotation = 0
         local has_arena = true
         for _,wave in ipairs(self.waves) do
             soul_x = wave.soul_start_x or soul_x
@@ -613,7 +614,7 @@ function Battle:onStateChange(old,new)
             arena_y = wave.arena_y or arena_y
             arena_w = wave.arena_width and math.max(wave.arena_width, arena_w or 0) or arena_w
             arena_h = wave.arena_height and math.max(wave.arena_height, arena_h or 0) or arena_h
-            arena_rotation = wave.arena_rotation or arena_rotation or 0
+            arena_rotation = wave.arena_rotation or arena_rotation
             if wave.arena_shape then
                 arena_shape = wave.arena_shape
             end
