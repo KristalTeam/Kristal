@@ -1120,31 +1120,34 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end
 
-local function shouldUseModWindowTitleAndIcon()
+local function shouldWindowUseModBranding()
     local mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD) or (Mod and Mod.info)
-    local use_mod_name = false
+    local use_mod_branding = false
     if mod then
+        -- NOTE: setWindowTitle is the previous name of setWindowTitleAndIcon
         if TARGET_MOD then
-            use_mod_name = mod.setWindowTitle ~= false
+            -- Unless the mod explicitly says it doesn't want to use mod branding, use it
+            use_mod_branding = (mod.setWindowTitleAndIcon or mod.setWindowTitle) ~= false
         else
-            use_mod_name = mod.setWindowTitle
+            -- If the mod explicitly says it wants to use mod branding, use it
+            use_mod_branding = mod.setWindowTitleAndIcon or mod.setWindowTitle
         end
     end
-    return use_mod_name and mod
+    return use_mod_branding and mod
 end
 
 --- Called internally. Returns the current running/target mod's name
 --- if it wants us to, or the default. \
 --- Also see Kristal.setDesiredWindowTitleAndIcon().
 function Kristal.getDesiredWindowTitle()
-    local mod = shouldUseModWindowTitleAndIcon()
+    local mod = shouldWindowUseModBranding()
     return mod and mod.name or Kristal.game_default_name
 end
 
 --- Called internally. Sets the title and icon of the game window
 --- to either what mod requests to be or the defaults.
 function Kristal.setDesiredWindowTitleAndIcon()
-    local mod = shouldUseModWindowTitleAndIcon()
+    local mod = shouldWindowUseModBranding()
     love.window.setIcon(mod and mod.window_icon_data or Kristal.icon)
     love.window.setTitle(mod and mod.name or Kristal.game_default_name)
 end
