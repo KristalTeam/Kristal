@@ -165,7 +165,7 @@ function love.load(args)
                     Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
                 end
                 if dynamic then
-                    Kristal.callEvent("onBorderDraw", border, border_texture)
+                    Kristal.callEvent(KRISTAL_EVENT.onBorderDraw, border, border_texture)
                 end
                 Draw.setColor(1, 1, 1, 1)
                 love.graphics.reset()
@@ -308,7 +308,7 @@ end
 
 function love.textinput(key)
     TextInput.onTextInput(key)
-    Kristal.callEvent("onTextInput", key)
+    Kristal.callEvent(KRISTAL_EVENT.onTextInput, key)
 end
 
 function love.mousepressed(win_x, win_y, button, istouch, presses)
@@ -317,21 +317,21 @@ function love.mousepressed(win_x, win_y, button, istouch, presses)
     if Kristal.DebugSystem then
         Kristal.DebugSystem:onMousePressed(x, y, button, istouch, presses)
     end
-    Kristal.callEvent("onMousePressed", x, y, button, istouch, presses)
+    Kristal.callEvent(KRISTAL_EVENT.onMousePressed, x, y, button, istouch, presses)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
     -- Adjust to be inside of the screen
     x, y = Input.getMousePosition(x, y)
     dx, dy = Input.getMousePosition(dx, dy, true)
-    Kristal.callEvent("onMouseMoved", x, y, dx, dy, istouch)
+    Kristal.callEvent(KRISTAL_EVENT.onMouseMoved, x, y, dx, dy, istouch)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
     if Kristal.DebugSystem then
         Kristal.DebugSystem:onMouseReleased(x, y, button, istouch, presses)
     end
-    Kristal.callEvent("onMouseReleased", x, y, button, istouch, presses)
+    Kristal.callEvent(KRISTAL_EVENT.onMouseReleased, x, y, button, istouch, presses)
 end
 
 function love.keypressed(key, scancode, is_repeat)
@@ -870,7 +870,7 @@ function Kristal.clearModState()
     Object._clearCache()
     Draw._clearStacks()
     -- End the current mod
-    Kristal.callEvent("unload")
+    Kristal.callEvent(KRISTAL_EVENT.unload)
     Mod = nil
 
     Kristal.Mods.clear()
