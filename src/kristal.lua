@@ -52,6 +52,8 @@ function love.load(args)
     -- load the keybinds
     Input.loadBinds()
 
+    -- Save the defaults so if we do setWindowTitle for a mod we're able to revert it
+    -- Unfortunate variable names
     Kristal.icon = love.window.getIcon()
     Kristal.game_default_name = love.window.getTitle()
 
@@ -891,11 +893,11 @@ function Kristal.clearModState()
     Kristal.States["Game"] = require("src.engine.game.game")
     Game = Kristal.States["Game"]
 
+    Kristal.setDesiredWindowTitleAndIcon()
+
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
-    love.window.setIcon(Kristal.icon)
-    love.window.setTitle(Kristal.getDesiredWindowTitle())
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -907,7 +909,7 @@ function Kristal.returnToMenu()
 
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function ()
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
+        Kristal.setDesiredWindowTitleAndIcon()
         Gamestate.switch(MainMenu)
     end)
 
@@ -944,13 +946,13 @@ function Kristal.quickReload(mode)
     Kristal.clearModState()
     -- Reload mods
     Kristal.loadAssets("", "mods", "", function ()
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
+        Kristal.setDesiredWindowTitleAndIcon()
         -- Reload the current mod directly
         if mode ~= "save" then
             Kristal.loadMod(mod_id, nil, nil, function ()
                 -- Pre-initialize the current mod
                 if Kristal.preInitMod(mod_id) then
-                    love.window.setTitle(Kristal.getDesiredWindowTitle())
+                    Kristal.setDesiredWindowTitleAndIcon()
                     if save then
                         -- Switch to Game and load the temp save
                         Gamestate.switch(Game, save, save_id, false)
@@ -1074,7 +1076,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
     Kristal.loadModAssets(mod.id, "all", "", after or function ()
         if Kristal.preInitMod(mod.id) then
-            love.window.setTitle(Kristal.getDesiredWindowTitle())
+            Kristal.setDesiredWindowTitleAndIcon()
             Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end
     end)
@@ -1118,8 +1120,7 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end
 
---- Called internally. Gets the intended title of the game window.
-function Kristal.getDesiredWindowTitle()
+local function shouldUseModWindowTitleAndIcon()
     local mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD) or (Mod and Mod.info)
     local use_mod_name = false
     if mod then
@@ -1129,7 +1130,23 @@ function Kristal.getDesiredWindowTitle()
             use_mod_name = mod.setWindowTitle
         end
     end
-    return use_mod_name and mod.name or Kristal.game_default_name
+    return use_mod_name and mod
+end
+
+--- Called internally. Returns the current running/target mod's name
+--- if it wants us to, or the default. \
+--- Also see Kristal.setDesiredWindowTitleAndIcon().
+function Kristal.getDesiredWindowTitle()
+    local mod = shouldUseModWindowTitleAndIcon()
+    return mod and mod.name or Kristal.game_default_name
+end
+
+--- Called internally. Sets the title and icon of the game window
+--- to either what mod requests to be or the defaults.
+function Kristal.setDesiredWindowTitleAndIcon()
+    local mod = shouldUseModWindowTitleAndIcon()
+    love.window.setIcon(mod and mod.window_icon_data or Kristal.icon)
+    love.window.setTitle(mod and mod.name or Kristal.game_default_name)
 end
 
 --- Called internally. Calls the `preInit` event on the mod and initializes the registry.
