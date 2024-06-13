@@ -176,11 +176,9 @@ function RecruitMenu:draw()
             if i <= self:getLastSelectedInPage() and i >= self:getFirstSelectedInPage() then
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
-                    local name = recruit:getName()
-                    love.graphics.print(name, 473 - self.font:getWidth(name) / 2, 240)
+                    love.graphics.printAlign(recruit:getName(), 473, 240, "center")
                     love.graphics.print("CHAPTER " .. recruit:getChapter(), 368, 280)
-                    local level = "LV " .. recruit:getLevel()
-                    love.graphics.print(level, 576 - self.font:getWidth(level), 280)
+                    love.graphics.printAlign("LV " .. recruit:getLevel(), 576, 280, "right")
                     if Input.usingGamepad() then
                         love.graphics.print("More Info", 414, 320)
                         Draw.draw(Input.getTexture("confirm"), 380, 323, 0, 2, 2)
@@ -221,8 +219,7 @@ function RecruitMenu:draw()
         
         Draw.setColor(COLORS["white"])
         for i,recruit in pairs(self.recruits) do
-            local selection = self.selected .. "/" .. #self.recruits
-            love.graphics.print(selection, 590 - self.font:getWidth(selection) / 2, 30, 0, 0.5, 1)
+            love.graphics.printAlign(self.selected .. "/" .. #self.recruits, 590, 30, "right", 0, 0.5, 1)
             if i == self.selected then
                 love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
                 love.graphics.print(recruit:getName(), 300, 70)
@@ -248,21 +245,13 @@ function RecruitMenu:draw()
                 else
                     love.graphics.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400)
                 end
-                
                 love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
-                local level = recruit:getLevel()
-                love.graphics.print(level, 590 - self.font:getWidth(level) / 2, 240, 0, 0.5, 1)
-                
+                love.graphics.printAlign(recruit:getLevel(), 590, 240, "right", 0, 0.5, 1)
                 love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
-                local attack = recruit:getAttack()
-                love.graphics.print(attack, 590 - self.font:getWidth(attack) / 2, 280, 0, 0.5, 1)
-                
+                love.graphics.printAlign(recruit:getAttack(), 590, 280, "right", 0, 0.5, 1)
                 love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
-                local defense = recruit:getDefense()
-                love.graphics.print(defense, 590 - self.font:getWidth(defense) / 2, 320, 0, 0.5, 1)
-                
-                local element = "ELEMENT " .. recruit:getElement()
-                love.graphics.print(element, 590 - self.font:getWidth(element) / 2, 360, 0, 0.5, 1)
+                love.graphics.printAlign(recruit:getDefense(), 590, 320, "right", 0, 0.5, 1)
+                love.graphics.printAlign("ELEMENT " .. recruit:getElement(), 590, 360, "right", 0, 0.5, 1)
             end
             
             Draw.setColor(1, 1, 1, 1)

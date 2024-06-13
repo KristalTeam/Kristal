@@ -121,3 +121,7 @@ function graphics.translate(dx, dy)
     transform:translate(dx, dy)
     old_replaceTransform(transform)
 end
+
+function graphics.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
+    love.graphics.print(text, x - ((align == "center" or align == "right") and love.graphics.getFont():getWidth(text) or 0) / (align == "center" and 2 or 1) * ((align == "center" or align == "right") and sx or 1), y, r, sx, sy, ox, oy, kx, ky)
+end
