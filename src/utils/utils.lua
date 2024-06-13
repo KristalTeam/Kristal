@@ -1023,6 +1023,9 @@ function Utils.ease(a, b, t, mode)
     if t >= 1 then
         return b
     else
+        if not Ease[mode] then
+            error("\""..tostring(mode).."\" is not a valid easing method")
+        end
         return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
     end
 end
