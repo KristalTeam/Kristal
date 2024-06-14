@@ -402,10 +402,8 @@ function Game:load(data, index, fade)
     if self.is_new_file then
         if Kristal.getModOption("encounter") then
             self:encounter(Kristal.getModOption("encounter"), false)
-            self.nothing_warn = false
         elseif Kristal.getModOption("shop") then
             self:enterShop(Kristal.getModOption("shop"), {menu = true})
-            self.nothing_warn = false
         end
     end
 
@@ -891,6 +889,8 @@ function Game:update()
         else
             Kristal.returnToMenu()
         end
+    else
+        self.nothing_warn = false
     end
 
     Kristal.callEvent(KRISTAL_EVENT.postUpdate, DT)
