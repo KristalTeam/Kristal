@@ -50,7 +50,7 @@ function ActionButton:select()
                 ["data"] = spell,
                 ["callback"] = function(menu_item)
                     Game.battle.selected_xaction = spell
-                    Game.battle:setState("XACTENEMYSELECT", "SPELL")
+                    Game.battle:setState("ENEMYSELECT", "XACT")
                 end
             })
         end
@@ -74,7 +74,7 @@ function ActionButton:select()
                     ["data"] = spell,
                     ["callback"] = function(menu_item)
                         Game.battle.selected_xaction = spell
-                        Game.battle:setState("XACTENEMYSELECT", "SPELL")
+                        Game.battle:setState("ENEMYSELECT", "XACT")
                     end
                 })
             end
@@ -116,6 +116,24 @@ function ActionButton:select()
                         Game.battle:pushAction("SPELL", Game.battle.party, menu_item)
                     elseif spell.target == "enemies" then
                         Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
+                    elseif spell.target == "any" then
+                        Game.battle:saveMenuItems()
+                        Game.battle:setSubState("ANYSELECT")
+                        Game.battle:clearMenuItems()
+                        Game.battle:addMenuItem({
+                            ["name"] = "Party",
+                            ["description"] = "",
+                            ["color"] = {1,1,1,1},
+                            ["callback"] = function() Game.battle:setState("PARTYSELECT", "SPELL") end
+                        })
+                        Game.battle:addMenuItem({
+                            ["name"] = "Enemies",
+                            ["description"] = "",
+                            ["color"] = {1,1,1,1},
+                            ["callback"] = function() Game.battle:setState("ENEMYSELECT", "SPELL") end
+                        })
+                    elseif spell.target == "all" then
+                        Game.battle:pushAction("SPELL", Game.battle:getEveryone(), menu_item)
                     end
                 end
             })
@@ -143,6 +161,23 @@ function ActionButton:select()
                         Game.battle:pushAction("ITEM", Game.battle.party, menu_item)
                     elseif item.target == "enemies" then
                         Game.battle:pushAction("ITEM", Game.battle:getActiveEnemies(), menu_item)
+                    elseif item.target == "any" then
+                        Game.battle:saveMenuItems()
+                        Game.battle:clearMenuItems()
+                        Game.battle:addMenuItem({
+                            ["name"] = "Party",
+                            ["description"] = "",
+                            ["color"] = {1,1,1,1},
+                            ["callback"] = function() Game.battle:setState("PARTYSELECT", "ITEM") end
+                        })
+                        Game.battle:addMenuItem({
+                            ["name"] = "Enemies",
+                            ["description"] = "",
+                            ["color"] = {1,1,1,1},
+                            ["callback"] = function() Game.battle:setState("ENEMYSELECT", "ITEM") end
+                        })
+                    elseif item.target == "all" then
+                        Game.battle:pushAction("ITEM", Game.battle:getEveryone(), menu_item)
                     end
                 end
             })

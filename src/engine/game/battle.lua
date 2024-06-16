@@ -37,7 +37,7 @@ function Battle:init()
     self.use_textbox_timer = true
 
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY, TRANSITIONOUT
-    -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT, DEFENDINGEND, DEFENDINGBEGIN
+    -- ENEMYSELECT, MENUSELECT, PARTYSELECT, DEFENDINGEND, DEFENDINGBEGIN
 
     self.state = "NONE"
     self.substate = "NONE"
@@ -109,6 +109,7 @@ function Battle:init()
     self.substate_reason = nil
 
     self.menu_items = {}
+    self.temp_menu_items = {}
 
     self.selected_enemy = 1
     self.selected_spell = nil
@@ -362,7 +363,7 @@ function Battle:onStateChange(old,new)
         if self.state_reason ~= "DONTPROCESS" then
             self:tryProcessNextAction()
         end
-    elseif new == "ENEMYSELECT" or new == "XACTENEMYSELECT" then
+    elseif new == "ENEMYSELECT" then
         self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
         self.selected_enemy = 1
@@ -657,7 +658,7 @@ function Battle:onStateChange(old,new)
     -- List of states that should remove the arena.
     -- A whitelist is better than a blacklist in case the modder adds more states.
     -- And in case the modder adds more states and wants the arena to be removed, they can remove the arena themselves.
-    local remove_arena = {"DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "XACTENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"}
+    local remove_arena = {"DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"}
 
     local should_end = true
     if Utils.containsValue(remove_arena, new) then
@@ -1366,6 +1367,10 @@ function Battle:powerAct(spell, battler, user, target)
             target = self:getActiveEnemies()[1]
         elseif spell.target == "enemies" then
             target = self:getActiveEnemies()
+        elseif spell.target == "any" then
+            target = user_battler or self:getActiveEnemies()[1]
+        elseif spell.target == "all" then
+            target = self:getEveryone()
         end
     end
 
@@ -2603,7 +2608,7 @@ end
 function Battle:isHighlighted(battler)
     if self.state == "PARTYSELECT" then
         return self.party[self.current_menu_y] == battler
-    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
+    elseif self.state == "ENEMYSELECT" then
         return self.enemies_index[self.current_menu_y] == battler
     elseif self.state == "MENUSELECT" then
         local current_menu = self.menu_items[self:getItemIndex()]
@@ -2632,6 +2637,10 @@ end
 
 function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
+end
+
+function Battle:getEveryone()
+    return {self.party, self:getActiveEnemies()}
 end
 
 function Battle:parseEnemyIdentifier(id)
@@ -2698,11 +2707,26 @@ function Battle:getTargetForItem(item, default_ally, default_enemy)
         return self.party
     elseif item.target == "enemies" then
         return self:getActiveEnemies()
+    elseif item.target == "any" then
+        return default_ally or default_enemy or self.party[1] or self:getActiveEnemies()[1]
+    elseif item.target == "all" then
+        return self:getEveryone()
     end
 end
 
 function Battle:clearMenuItems()
     self.menu_items = {}
+    self.current_menu_x = 1
+    self.current_menu_y = 1
+end
+
+function Battle:saveMenuItems()
+    self.temp_menu_items = self.menu_items
+end
+
+function Battle:loadMenuItems()
+    self:clearMenuItems()
+    self.menu_items = self.temp_menu_items
 end
 
 function Battle:addMenuItem(tbl)
@@ -2783,7 +2807,12 @@ function Battle:onKeyPressed(key)
             self.ui_move:stop()
             self.ui_move:play()
             Game:setTensionPreview(0)
-            self:setState("ACTIONSELECT", "CANCEL")
+            if self.substate == "ANYSELECT" then
+                self:loadMenuItems()
+                self:setSubState("NONE")
+            else
+                self:setState("ACTIONSELECT", "CANCEL")
+            end
             return
         elseif Input.is("left", key) then -- TODO: pagination
             self.current_menu_x = self.current_menu_x - 1
@@ -2816,7 +2845,7 @@ function Battle:onKeyPressed(key)
                 end
             end
         end
-    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
+    elseif self.state == "ENEMYSELECT" then
         if Input.isConfirm(key) then
             if self.encounter:onEnemySelect(self.state_reason, self.current_menu_y) then return end
             if Kristal.callEvent(KRISTAL_EVENT.onBattleEnemySelect, self.state_reason, self.current_menu_y) then return end
@@ -2824,7 +2853,7 @@ function Battle:onKeyPressed(key)
             self.ui_select:play()
             if #self.enemies_index == 0 then return end
             self.selected_enemy = self.current_menu_y
-            if self.state == "XACTENEMYSELECT" then
+            if self.state_reason == "XACT" then
                 local xaction = Utils.copy(self.selected_xaction)
                 if xaction.default then
                     xaction.name = self.enemies_index[self.selected_enemy]:getXAction(self.party[self.current_selecting])
@@ -2882,8 +2911,18 @@ function Battle:onKeyPressed(key)
             self.ui_move:play()
             if self.state_reason == "SPELL" then
                 self:setState("MENUSELECT", "SPELL")
+                if self.substate == "ANYSELECT" then
+                    self:loadMenuItems()
+                    self:setSubState("NONE")
+                end
             elseif self.state_reason == "ITEM" then
                 self:setState("MENUSELECT", "ITEM")
+                if self.substate == "ANYSELECT" then
+                    self:loadMenuItems()
+                    self:setSubState("NONE")
+                end
+            elseif self.state_reason == "XACT" then
+                self:setState("MENUSELECT", "SPELL")
             else
                 self:setState("ACTIONSELECT", "CANCEL")
             end
@@ -2948,8 +2987,16 @@ function Battle:onKeyPressed(key)
             self.ui_move:play()
             if self.state_reason == "SPELL" then
                 self:setState("MENUSELECT", "SPELL")
+                if self.substate == "ANYSELECT" then
+                    self:loadMenuItems()
+                    self:setSubState("NONE")
+                end
             elseif self.state_reason == "ITEM" then
                 self:setState("MENUSELECT", "ITEM")
+                if self.substate == "ANYSELECT" then
+                    self:loadMenuItems()
+                    self:setSubState("NONE")
+                end
             else
                 self:setState("ACTIONSELECT", "CANCEL")
             end
