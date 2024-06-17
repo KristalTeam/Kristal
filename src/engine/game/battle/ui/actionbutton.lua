@@ -118,7 +118,7 @@ function ActionButton:select()
                         Game.battle:pushAction("SPELL", Game.battle:getActiveEnemies(), menu_item)
                     elseif spell.target == "any" then
                         Game.battle:saveMenuItems()
-                        Game.battle:setSubState("ANYSELECT")
+                        Game.battle:setSubState("ANYSELECT", "SPELL")
                         Game.battle:clearMenuItems()
                         Game.battle:addMenuItem({
                             ["name"] = "Party",
@@ -163,6 +163,7 @@ function ActionButton:select()
                         Game.battle:pushAction("ITEM", Game.battle:getActiveEnemies(), menu_item)
                     elseif item.target == "any" then
                         Game.battle:saveMenuItems()
+                        Game.battle:setSubState("ANYSELECT", "ITEM")
                         Game.battle:clearMenuItems()
                         Game.battle:addMenuItem({
                             ["name"] = "Party",

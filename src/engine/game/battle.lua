@@ -311,6 +311,10 @@ function Battle:getState()
     return self.state
 end
 
+function Battle:getSubState()
+    return self.substate
+end
+
 function Battle:onStateChange(old,new)
     local result = self.encounter:beforeStateChange(old,new)
     if result or self.state ~= new then
@@ -1914,6 +1918,11 @@ function Battle:nextParty()
     local all_done = true
     local last_selected = self.current_selecting
     self.current_selecting = (self.current_selecting % #self.party) + 1
+    
+    if self:getSubState() == "ANYSELECT" then
+        self:setSubState("NONE", "ANYSELECT")
+    end
+    
     while self.current_selecting ~= last_selected do
         if not self:hasAction(self.current_selecting) and self.party[self.current_selecting]:isActive() then
             all_done = false
@@ -2807,9 +2816,9 @@ function Battle:onKeyPressed(key)
             self.ui_move:stop()
             self.ui_move:play()
             Game:setTensionPreview(0)
-            if self.substate == "ANYSELECT" then
+            if self:getSubState() == "ANYSELECT" then
                 self:loadMenuItems()
-                self:setSubState("NONE")
+                self:setSubState("NONE", "ANYSELECT")
             else
                 self:setState("ACTIONSELECT", "CANCEL")
             end
@@ -2911,15 +2920,15 @@ function Battle:onKeyPressed(key)
             self.ui_move:play()
             if self.state_reason == "SPELL" then
                 self:setState("MENUSELECT", "SPELL")
-                if self.substate == "ANYSELECT" then
+                if self:getSubState() == "ANYSELECT" then
                     self:loadMenuItems()
-                    self:setSubState("NONE")
+                    self:setSubState("NONE", "ANYSELECT")
                 end
             elseif self.state_reason == "ITEM" then
                 self:setState("MENUSELECT", "ITEM")
-                if self.substate == "ANYSELECT" then
+                if self:getSubState() == "ANYSELECT" then
                     self:loadMenuItems()
-                    self:setSubState("NONE")
+                    self:setSubState("NONE", "ANYSELECT")
                 end
             elseif self.state_reason == "XACT" then
                 self:setState("MENUSELECT", "SPELL")
@@ -2987,15 +2996,15 @@ function Battle:onKeyPressed(key)
             self.ui_move:play()
             if self.state_reason == "SPELL" then
                 self:setState("MENUSELECT", "SPELL")
-                if self.substate == "ANYSELECT" then
+                if self:getSubState() == "ANYSELECT" then
                     self:loadMenuItems()
-                    self:setSubState("NONE")
+                    self:setSubState("NONE", "ANYSELECT")
                 end
             elseif self.state_reason == "ITEM" then
                 self:setState("MENUSELECT", "ITEM")
-                if self.substate == "ANYSELECT" then
+                if self:getSubState() == "ANYSELECT" then
                     self:loadMenuItems()
-                    self:setSubState("NONE")
+                    self:setSubState("NONE", "ANYSELECT")
                 end
             else
                 self:setState("ACTIONSELECT", "CANCEL")
