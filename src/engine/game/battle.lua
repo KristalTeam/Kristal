@@ -469,7 +469,6 @@ function Battle:onStateChange(old,new)
 
             wave.active = true
         end
-        self.soul:onWaveStart()
     elseif new == "VICTORY" then
         self.current_selecting = 0
 
@@ -605,6 +604,7 @@ function Battle:onStateChange(old,new)
         local arena_x, arena_y, arena_w, arena_h, arena_shape
         local arena_rotation = 0
         local has_arena = true
+        local spawn_soul = true
         for _,wave in ipairs(self.waves) do
             soul_x = wave.soul_start_x or soul_x
             soul_y = wave.soul_start_y or soul_y
@@ -620,6 +620,9 @@ function Battle:onStateChange(old,new)
             end
             if not wave.has_arena then
                 has_arena = false
+            end
+            if not wave.spawn_soul then
+                spawn_soul = false
             end
         end
 
@@ -641,9 +644,11 @@ function Battle:onStateChange(old,new)
             center_x, center_y = SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10
         end
 
-        soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
-        soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
-        self:spawnSoul(soul_x or center_x, soul_y or center_y)
+        if spawn_soul then
+            soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
+            soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
+            self:spawnSoul(soul_x or center_x, soul_y or center_y)
+        end
 
         for _,wave in ipairs(Game.battle.waves) do
             if wave:onArenaEnter() then
@@ -737,6 +742,10 @@ function Battle:spawnSoul(x, y)
         end
         Game.old_soul_inv_timer = 0
         self:addChild(self.soul)
+    end
+
+    if self.state == "DEFENDINGBEGIN" or self.state == "DEFENDING" then
+        self.soul:onWaveStart()
     end
 end
 

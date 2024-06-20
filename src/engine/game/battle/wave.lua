@@ -20,6 +20,10 @@ function Wave:init()
     -- Whether the wave should spawn an arena
     self.has_arena = true
 
+    -- Whether the wave should spawn the soul
+    -- If this is false, the soul can be manually spawned with Wave:spawnSoul()
+    self.spawn_soul = true
+
     -- Position the soul will transition to at the start of the wave
     self.soul_start_x = nil
     self.soul_start_y = nil
@@ -175,6 +179,35 @@ function Wave:setArenaRotation(rotation)
     if Game.battle.arena then
         Game.battle.arena.rotation = rotation
     end
+end
+
+function Wave:spawnSoul(x, y)
+    -- Prevents weird shit from going down if this is called in the init function
+    -- hopefully
+    self.spawn_soul = false
+
+    if self.soul_start_x then
+        if not x then x = self.soul_start_x end
+        if self.soul_offset_x then
+            x = x + self.soul_offset_x
+        end
+    end
+    if self.soul_start_y then
+        if not y then y = self.soul_start_y end
+        if self.soul_offset_y then
+            y = y + self.soul_offset_y
+        end
+    end
+
+    if not x and not y then
+        if Game.battle.arena then
+            x, y = Game.battle.arena:getCenter()
+        else
+            x, y = SCREEN_WIDTH / 2, (SCREEN_HEIGHT - 155) / 2 + 10
+        end
+    end
+
+    Game.battle:spawnSoul(x, y)
 end
 
 function Wave:setSoulPosition(x, y)
