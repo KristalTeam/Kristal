@@ -17,7 +17,7 @@ function DarkPowerMenu:init()
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
-    self.tp_sprite = Assets.getTexture("ui/menu/caption_tp")
+    self.tp_sprite = Game:getConfig("oldUIPositions") and Assets.getTexture("ui/menu/caption_tp_old") or Assets.getTexture("ui/menu/caption_tp")
 
     self.caption_sprites = {
           ["char"] = Assets.getTexture("ui/menu/caption_char"),
@@ -206,11 +206,6 @@ function DarkPowerMenu:draw()
     self:drawChar()
     self:drawStats()
     self:drawSpells()
-    
-    if Game:getConfig("oldUIPositions") then
-        Draw.setColor(1, 0, 0, 1)
-        love.graphics.rectangle("fill", 258, 113, 1, 1)
-    end
 
     super.draw(self)
 end
