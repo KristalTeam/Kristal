@@ -171,7 +171,7 @@ function Battle:createPartyBattlers()
             end
             if not found then
                 local chara_battler = PartyBattler(party_member, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-                chara_battler:setAnimation("transition")
+                chara_battler:setAnimation("battle/transition")
                 self:addChild(chara_battler)
                 table.insert(self.party, chara_battler)
                 table.insert(self.party_beginning_positions, {chara_battler.x, chara_battler.y})
