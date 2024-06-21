@@ -219,7 +219,7 @@ function Shop:postInit()
         self:onEmote(node.arguments[1])
     end
 
-    self.dialogue_text = DialogueText(nil, 30, 270, 372, 194)
+    self.dialogue_text = DialogueText(nil, 30, 270, 372, 226)
 
     self.dialogue_text:registerCommand("emote", emoteCommand)
 
