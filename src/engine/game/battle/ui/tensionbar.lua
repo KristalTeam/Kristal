@@ -212,13 +212,13 @@ end
 
 function TensionBar:drawFill()
     if (self.apparent < self.current) then
-        Draw.setColor(self.colors["decrease"])
+        Draw.setColor(PALETTE["tension_decrease"])
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1, 25, 196)
         Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
-        Draw.setColor(self.colors["fill"])
+        Draw.setColor(PALETTE["tension_fill"])
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.apparent) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
         Draw.draw(self.tp_bar_fill, 0, 0)
@@ -230,7 +230,7 @@ function TensionBar:drawFill()
         Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
 
-        Draw.setColor(self.colors["fill"])
+        Draw.setColor(PALETTE["tension_fill"])
         if (self.maxed) then
             Draw.setColor(self.colors["max"])
         end
@@ -239,9 +239,9 @@ function TensionBar:drawFill()
         Draw.draw(self.tp_bar_fill, 0, 0)
         Draw.popScissor()
     elseif (self.apparent == self.current) then
-        Draw.setColor(self.colors["fill"])
+        Draw.setColor(PALETTE["tension_fill"])
         if (self.maxed) then
-            Draw.setColor(self.colors["max"])
+            Draw.setColor(PALETTE["tension_max"])
         end
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
@@ -251,7 +251,7 @@ function TensionBar:drawFill()
 
     if (self.tension_preview > 0) then
         local alpha = (math.abs((math.sin((self.tsiner / 8)) * 0.5)) + 0.2)
-        local color_to_set = {0, 0, 0, alpha}
+        local color_to_set = {1, 1, 1, alpha}
 
         local total_height = 196 - (self:getPercentageFor250(self.current) * 196)
         local preview_height = total_height + (self:getPercentageFor(self.tension_preview) * 196)
@@ -277,7 +277,7 @@ function TensionBar:drawFill()
     end
 
     if ((self.apparent > 20) and (self.apparent < 250)) then
-        Draw.setColor(self.colors["gauge_end"])
+        Draw.setColor(1, 1, 1, 1)
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1, 25, math.ceil(196 - (self:getPercentageFor250(self.current) * 196) + 3))
         Draw.draw(self.tp_bar_fill, 0, 0)
