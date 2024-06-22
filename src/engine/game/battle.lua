@@ -2462,7 +2462,7 @@ function Battle:updateAttacking()
         for _,attack in ipairs(self.battle_ui.attack_boxes) do
             if not attack.attacked and attack.fade_rect.alpha < 1 then
                 local close = attack:getClose()
-                if close <= -5 then
+                if close <= -2 then
                     attack:miss()
 
                     local action = self:getActionBy(attack.battler, true)
@@ -3055,7 +3055,7 @@ function Battle:handleAttackingInput(key)
                 end
             end
 
-            if closest and closest < 15 and closest > -5 then
+            if closest and closest < 14.2 and closest > -2 then
                 for _,attack in ipairs(closest_attacks) do
                     local points = attack:hit()
 
