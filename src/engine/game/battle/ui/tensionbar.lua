@@ -131,34 +131,34 @@ function TensionBar:processTension()
             if ((self.apparent - self.current) > 0) then
                 self.current = self.current + (2 * DTMULT)
             end
-            if ((self.apparent - self.current) > 10) then
+            if ((self.apparent - self.current) > self:getPercentageFor250(10)) then
                 self.current = self.current + (2 * DTMULT)
             end
-            if ((self.apparent - self.current) > 25) then
+            if ((self.apparent - self.current) > self:getPercentageFor250(25)) then
                 self.current = self.current + (3 * DTMULT)
             end
-            if ((self.apparent - self.current) > 50) then
+            if ((self.apparent - self.current) > self:getPercentageFor250(50)) then
                 self.current = self.current + (4 * DTMULT)
             end
-            if ((self.apparent - self.current) > 100) then
+            if ((self.apparent - self.current) > self:getPercentageFor250(100)) then
                 self.current = self.current + (5 * DTMULT)
             end
             if ((self.apparent - self.current) < 0) then
                 self.current = self.current - (2 * DTMULT)
             end
-            if ((self.apparent - self.current) < -10) then
+            if ((self.apparent - self.current) < self:getPercentageFor250(-10)) then
                 self.current = self.current - (2 * DTMULT)
             end
-            if ((self.apparent - self.current) < -25) then
+            if ((self.apparent - self.current) < self:getPercentageFor250(-25)) then
                 self.current = self.current - (3 * DTMULT)
             end
-            if ((self.apparent - self.current) < -50) then
+            if ((self.apparent - self.current) < self:getPercentageFor250(-50)) then
                 self.current = self.current - (4 * DTMULT)
             end
-            if ((self.apparent - self.current) < -100) then
+            if ((self.apparent - self.current) < self:getPercentageFor250(-100)) then
                 self.current = self.current - (5 * DTMULT)
             end
-            if (math.abs((self.apparent - self.current)) < 3) then
+            if (math.abs((self.apparent - self.current)) < self:getPercentageFor250(3)) then
                 self.current = self.apparent
             end
         end
