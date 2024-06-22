@@ -232,7 +232,7 @@ function TensionBar:drawFill()
 
         Draw.setColor(PALETTE["tension_fill"])
         if (self.maxed) then
-            Draw.setColor(self.colors["max"])
+            Draw.setColor(PALETTE["tension_max"])
         end
         Draw.pushScissor()
         Draw.scissorPoints(0, 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 25, 196)
