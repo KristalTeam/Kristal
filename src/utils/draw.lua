@@ -444,4 +444,10 @@ function Draw.rectangle(type, x, y, width, height)
     end
 end
 
+-- Same as love.graphics.print(), but has the align parameter after the y param
+-- Available align options: "left", "center" and "right"
+function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
+    love.graphics.print(text, x - ((align == "center" or align == "right") and love.graphics.getFont():getWidth(text) or 0) / (align == "center" and 2 or 1) * ((align == "center" or align == "right") and sx or 1), y, r, sx, sy, ox, oy, kx, ky)
+end
+
 return Draw
