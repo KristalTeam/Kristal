@@ -129,9 +129,9 @@ function DarkPowerMenu:update()
             local spell = self:getSpells()[self.selected_spell]
             if self:canCast(spell) then
                 self.state = "USE"
-                if spell.target == "ally" or spell.target == "party" then
+                if spell.target == "ally" or spell.target == "party" or spell.target == "any" or spell.target == "all" then
 
-                    local target_type = spell.target == "ally" and "SINGLE" or "ALL"
+                    local target_type = (spell.target == "ally" or spell.target == "any") and "SINGLE" or "ALL"
 
                     self:selectParty(target_type, spell)
                 else

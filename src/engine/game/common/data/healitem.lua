@@ -35,12 +35,12 @@ function HealItem:getBattleHealAmount(id)
 end
 
 function HealItem:onWorldUse(target)
-    if self.target == "ally" then
+    if self.target == "ally" or self.target == "any" then
         -- Heal single party member
         local amount = self:getWorldHealAmount(target.id)
         Game.world:heal(target, amount)
         return true
-    elseif self.target == "party" then
+    elseif self.target == "party" or self.target == "all" then
         -- Heal all party members
         for _,party_member in ipairs(target) do
             local amount = self:getWorldHealAmount(party_member.id)
@@ -71,6 +71,25 @@ function HealItem:onBattleUse(user, target)
     elseif self.target == "enemies" then
         -- Heal all enemies (why????)
         for _,enemy in ipairs(target) do
+            local amount = self:getBattleHealAmount(enemy.id)
+            enemy:heal(amount)
+        end
+    elseif self.target == "any" then
+        -- Heal a single party member or enemy
+        local amount
+        if target:includes(PartyBattler) then
+            amount = self:getBattleHealAmount(target.chara.id)
+        elseif target:includes(EnemyBattler) then
+            amount = self:getBattleHealAmount(target.id)
+        end
+        target:heal(amount)
+    elseif self.target == "all" then
+        -- Heal everyone
+        for _,battler in ipairs(target[1]) do
+            local amount = self:getBattleHealAmount(battler.chara.id)
+            battler:heal(amount)
+        end
+        for _,enemy in ipairs(target[2]) do
             local amount = self:getBattleHealAmount(enemy.id)
             enemy:heal(amount)
         end
