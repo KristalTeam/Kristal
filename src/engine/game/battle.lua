@@ -2292,6 +2292,15 @@ function Battle:update()
     if self.state ~= "TRANSITIONOUT" then
         self.encounter:update()
     end
+    
+    -- prevents the bolts afterimage from continuing till the edge of the screen when all the enemies are defeated but there're still unfinished attacks
+    if self.state ~= "ATTACKING" then
+        for _,attack in ipairs(self.battle_ui.attack_boxes) do
+            if not attack.attacked and attack:getClose() <= -2 then
+                attack:miss()
+            end
+        end
+    end
 
     self.offset = self.offset + 1 * DTMULT
 
