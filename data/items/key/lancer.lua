@@ -63,7 +63,7 @@ function item:onMenuUpdate(menu)
     if menu then
         local x, y = menu.box:screenToLocalPos(0, 0)
         if menu.box.state == "SELECT" and menu.box.lancer == nil and self:isVisible() then
-            menu.box.lancer = menu.box:addChild(LancerGotchi(x, y))
+            menu.box.lancer = menu.box:addChild(LancerKeyItem(x, y))
             if self:getCustomLancerAnimation() then
                 menu.box.lancer.movecon = -1
                 menu.box.lancer.custom_animation = self:getCustomLancerAnimation()

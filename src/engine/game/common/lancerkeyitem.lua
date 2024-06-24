@@ -1,8 +1,8 @@
----@class LancerGotchi : Object
----@overload fun(...) : LancerGotchi
-local LancerGotchi, super = Class(Object)
+---@class LancerKeyItem : Object
+---@overload fun(...) : LancerKeyItem
+local LancerKeyItem, super = Class(Object)
 
-function LancerGotchi:init(x, y)
+function LancerKeyItem:init(x, y)
     super.init(self, x, y)
     self.parallax_x = 0
     self.parallax_y = 0
@@ -47,7 +47,7 @@ function LancerGotchi:init(x, y)
     end)
 end
 
-function LancerGotchi:update()
+function LancerKeyItem:update()
     super.update(self)
 
     self.sleeptimer = self.sleeptimer + DTMULT
@@ -188,4 +188,4 @@ function LancerGotchi:update()
     end
 end
 
-return LancerGotchi
+return LancerKeyItem
