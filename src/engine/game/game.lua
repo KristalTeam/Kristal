@@ -275,8 +275,11 @@ function Game:load(data, index, fade)
     self.party = {}
     for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
         local ally = self:getPartyMember(id)
-        assert(ally, string.format("Attempted to add non-existent member \"%s\" to the party", id))
-        table.insert(self.party, ally)
+        if ally then
+            table.insert(self.party, ally)
+        else
+            Kristal.Console:error("Could not load party member \"" ..id.."\"")
+        end
     end
     
     self:initRecruits()
