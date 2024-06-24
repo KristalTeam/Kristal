@@ -282,7 +282,7 @@ function Game:load(data, index, fade)
         if ally then
             table.insert(self.party, ally)
         else
-            Kristal.Console:error(string.format("Could not load party member \"%s\"", id))
+            Kristal.Console:error("Could not load party member \"" ..id.."\"")
         end
     end
     
