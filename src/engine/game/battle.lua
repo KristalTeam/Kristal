@@ -1608,8 +1608,8 @@ function Battle:removeSingleAction(action)
         end
     end
 
-    if action.action == "ITEM" and action.data and action.item_index then
-        if action.consumed then
+    if action.action == "ITEM" and action.data then
+        if action.item_index and action.consumed then
             if action.result_item then
                 Game.inventory:setItem(action.item_storage, action.item_index, action.data)
             else
