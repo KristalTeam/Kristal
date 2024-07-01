@@ -246,9 +246,19 @@ end
 -- Saving / Loading
 
 function Item:save()
+    local saved_dark_item = self.dark_item
+    local saved_light_item = self.light_item
+    if isClass(self.dark_item) then saved_dark_item = self.dark_item:save() end
+    if isClass(self.light_item) then saved_light_item = self.light_item:save() end
     local data = {
         id = self.id,
         flags = self.flags,
+
+        dark_item = saved_dark_item,
+        dark_location = self.dark_location,
+
+        light_item = saved_light_item,
+        light_location = self.light_location,
     }
     self:onSave(data)
     return data
