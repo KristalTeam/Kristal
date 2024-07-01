@@ -56,7 +56,7 @@ function MainMenuCredits:init(menu)
                 "sjl057",
                 "skarph",
                 "WIL-TZY",
-                "",
+                "J.A.R.U.",
                 "",
                 "",
                 ""

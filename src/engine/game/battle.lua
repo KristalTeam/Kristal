@@ -1788,11 +1788,9 @@ function Battle:getPartyFromTarget(target)
 end
 
 function Battle:hurt(amount, exact, target)
-    -- Note: 0, 1 and 2 are to target a specific party member.
-    -- In Kristal, we'll allow them to be objects as well.
-    -- Also in Kristal, they're 1, 2 and 3.
-    -- 3 is "ALL" in Kristal,
-    -- while 4 is "ANY".
+    -- If target is a numberic value, it will hurt the party battler with that index
+    -- "ANY" will choose the target randomly
+    -- "ALL" will hurt the entire party all at once
     target = target or "ANY"
 
     -- Alright, first let's try to adjust targets.
@@ -1854,13 +1852,14 @@ function Battle:hurt(amount, exact, target)
 
     if target == "ALL" then
         Assets.playSound("hurt")
+        local alive_battlers = Utils.filter(self.party, function(battler) return not battler.is_down end)
         for _,battler in ipairs(self.party) do
             if not battler.is_down then
                 battler:hurt(amount, exact, nil, {all = true})
             end
         end
         -- Return the battlers who aren't down, aka the ones we hit.
-        return Utils.filter(self.party, function(item) return not item.is_down end)
+        return alive_battlers
     end
 end
 
