@@ -80,14 +80,8 @@ function LightInventory:convertToDark()
 end
 
 function LightInventory:getDarkInventory()
-    local junk_ball = self:getItemByID("light/ball_of_junk")
-    
-    if not Game.dark_inventory_bak then
-        Game.dark_inventory_bak = junk_ball and junk_ball.inventory or DarkInventory()
-    end
-
-    if not junk_ball then
-        junk_ball = self:addItem("light/ball_of_junk")
+    if not self:hasItem("light/ball_of_junk") then
+        self:addItem("light/ball_of_junk")
     end
     
     return Game.dark_inventory
