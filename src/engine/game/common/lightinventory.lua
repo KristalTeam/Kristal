@@ -49,7 +49,7 @@ function LightInventory:convertToDark()
         end
     end
 
-    Kristal.callEvent("KRISTAL_EVENT.onConvertToDark", new_inventory)
+    Kristal.callEvent(KRISTAL_EVENT.onConvertToDark, new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
         local storage = Utils.copy(self:getStorage(storage_id))

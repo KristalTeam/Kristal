@@ -44,7 +44,7 @@ function DarkInventory:convertToLight()
         new_inventory:addItem("light/ball_of_junk")
     end
 
-    Kristal.callEvent("KRISTAL_EVENT.onConvertToLight", new_inventory)
+    Kristal.callEvent(KRISTAL_EVENT.onConvertToLight, new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
         local storage = Utils.copy(self:getStorage(storage_id))
