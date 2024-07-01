@@ -31,7 +31,7 @@ function DarkInventory:clear()
         ["light"]     = {id = "light",     max = 28, sorted = true,  name = "LIGHT ITEMs", fallback = nil      },
     }
 
-    Kristal.callEvent("createDarkInventory", self)
+    Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
 end
 
 function DarkInventory:convertToLight()

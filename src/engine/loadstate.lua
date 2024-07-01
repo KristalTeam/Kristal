@@ -55,7 +55,7 @@ function Loading:beginLoad()
 
         Assets.saveData()
 
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
+        Kristal.setDesiredWindowTitleAndIcon()
     end)
 end
 

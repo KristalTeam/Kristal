@@ -52,6 +52,8 @@ function love.load(args)
     -- load the keybinds
     Input.loadBinds()
 
+    -- Save the defaults so if we do setWindowTitle for a mod we're able to revert it
+    -- Unfortunate variable names
     Kristal.icon = love.window.getIcon()
     Kristal.game_default_name = love.window.getTitle()
 
@@ -165,7 +167,7 @@ function love.load(args)
                     Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
                 end
                 if dynamic then
-                    Kristal.callEvent("onBorderDraw", border, border_texture)
+                    Kristal.callEvent(KRISTAL_EVENT.onBorderDraw, border, border_texture)
                 end
                 Draw.setColor(1, 1, 1, 1)
                 love.graphics.reset()
@@ -308,7 +310,7 @@ end
 
 function love.textinput(key)
     TextInput.onTextInput(key)
-    Kristal.callEvent("onTextInput", key)
+    Kristal.callEvent(KRISTAL_EVENT.onTextInput, key)
 end
 
 function love.mousepressed(win_x, win_y, button, istouch, presses)
@@ -317,21 +319,21 @@ function love.mousepressed(win_x, win_y, button, istouch, presses)
     if Kristal.DebugSystem then
         Kristal.DebugSystem:onMousePressed(x, y, button, istouch, presses)
     end
-    Kristal.callEvent("onMousePressed", x, y, button, istouch, presses)
+    Kristal.callEvent(KRISTAL_EVENT.onMousePressed, x, y, button, istouch, presses)
 end
 
 function love.mousemoved(x, y, dx, dy, istouch)
     -- Adjust to be inside of the screen
     x, y = Input.getMousePosition(x, y)
     dx, dy = Input.getMousePosition(dx, dy, true)
-    Kristal.callEvent("onMouseMoved", x, y, dx, dy, istouch)
+    Kristal.callEvent(KRISTAL_EVENT.onMouseMoved, x, y, dx, dy, istouch)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
     if Kristal.DebugSystem then
         Kristal.DebugSystem:onMouseReleased(x, y, button, istouch, presses)
     end
-    Kristal.callEvent("onMouseReleased", x, y, button, istouch, presses)
+    Kristal.callEvent(KRISTAL_EVENT.onMouseReleased, x, y, button, istouch, presses)
 end
 
 function love.keypressed(key, scancode, is_repeat)
@@ -870,7 +872,7 @@ function Kristal.clearModState()
     Object._clearCache()
     Draw._clearStacks()
     -- End the current mod
-    Kristal.callEvent("unload")
+    Kristal.callEvent(KRISTAL_EVENT.unload)
     Mod = nil
 
     Kristal.Mods.clear()
@@ -891,11 +893,11 @@ function Kristal.clearModState()
     Kristal.States["Game"] = require("src.engine.game.game")
     Game = Kristal.States["Game"]
 
+    Kristal.setDesiredWindowTitleAndIcon()
+
     -- Restore assets and registry
     Assets.restoreData()
     Registry.initialize()
-    love.window.setIcon(Kristal.icon)
-    love.window.setTitle(Kristal.getDesiredWindowTitle())
 end
 
 --- Exits the current mod and returns to the Kristal menu.
@@ -907,7 +909,7 @@ function Kristal.returnToMenu()
 
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function ()
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
+        Kristal.setDesiredWindowTitleAndIcon()
         Gamestate.switch(MainMenu)
     end)
 
@@ -944,13 +946,13 @@ function Kristal.quickReload(mode)
     Kristal.clearModState()
     -- Reload mods
     Kristal.loadAssets("", "mods", "", function ()
-        love.window.setTitle(Kristal.getDesiredWindowTitle())
+        Kristal.setDesiredWindowTitleAndIcon()
         -- Reload the current mod directly
         if mode ~= "save" then
             Kristal.loadMod(mod_id, nil, nil, function ()
                 -- Pre-initialize the current mod
                 if Kristal.preInitMod(mod_id) then
-                    love.window.setTitle(Kristal.getDesiredWindowTitle())
+                    Kristal.setDesiredWindowTitleAndIcon()
                     if save then
                         -- Switch to Game and load the temp save
                         Gamestate.switch(Game, save, save_id, false)
@@ -1074,7 +1076,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
     Kristal.loadModAssets(mod.id, "all", "", after or function ()
         if Kristal.preInitMod(mod.id) then
-            love.window.setTitle(Kristal.getDesiredWindowTitle())
+            Kristal.setDesiredWindowTitleAndIcon()
             Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end
     end)
@@ -1118,18 +1120,36 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end
 
---- Called internally. Gets the intended title of the game window.
-function Kristal.getDesiredWindowTitle()
+local function shouldWindowUseModBranding()
     local mod = TARGET_MOD and Kristal.Mods.getMod(TARGET_MOD) or (Mod and Mod.info)
-    local use_mod_name = false
+    local use_mod_branding = false
     if mod then
+        -- NOTE: setWindowTitle is the previous name of setWindowTitleAndIcon
         if TARGET_MOD then
-            use_mod_name = mod.setWindowTitle ~= false
+            -- Unless the mod explicitly says it doesn't want to use mod branding, use it
+            use_mod_branding = (mod.setWindowTitleAndIcon or mod.setWindowTitle) ~= false
         else
-            use_mod_name = mod.setWindowTitle
+            -- If the mod explicitly says it wants to use mod branding, use it
+            use_mod_branding = mod.setWindowTitleAndIcon or mod.setWindowTitle
         end
     end
-    return use_mod_name and mod.name or Kristal.game_default_name
+    return use_mod_branding and mod
+end
+
+--- Called internally. Returns the current running/target mod's name
+--- if it wants us to, or the default. \
+--- Also see Kristal.setDesiredWindowTitleAndIcon().
+function Kristal.getDesiredWindowTitle()
+    local mod = shouldWindowUseModBranding()
+    return mod and mod.name or Kristal.game_default_name
+end
+
+--- Called internally. Sets the title and icon of the game window
+--- to either what mod requests to be or the defaults.
+function Kristal.setDesiredWindowTitleAndIcon()
+    local mod = shouldWindowUseModBranding()
+    love.window.setIcon(mod and mod.window_icon_data or Kristal.icon)
+    love.window.setTitle(mod and mod.name or Kristal.game_default_name)
 end
 
 --- Called internally. Calls the `preInit` event on the mod and initializes the registry.
@@ -1193,8 +1213,9 @@ end
 
 ---@return boolean console Whether Kristal is in console mode.
 function Kristal.isConsole()
+    local os = love.system.getOS()
     ---@diagnostic disable-next-line: undefined-field
-    return USING_CONSOLE or (love._console ~= nil)
+    return USING_CONSOLE or (love._console ~= nil) or (os == "NX")
 end
 
 ---@return table types The available border types, or `nil` if borders are disabled.

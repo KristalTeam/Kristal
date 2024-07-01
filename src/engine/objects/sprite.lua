@@ -385,7 +385,7 @@ function Sprite:resetCrossFade()
 end
 
 function Sprite:crossFadeTo(texture, time, fade_out, after)
-    self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), fade_out)
+    self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), fade_out, after)
 end
 
 function Sprite:crossFadeToSpeed(texture, speed, fade_out, after)

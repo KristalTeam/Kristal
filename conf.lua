@@ -1,11 +1,14 @@
 function love.conf(t)
-    -- If you intend to create a standalone game from this engine, make sure
-    -- to change "identity", "window.title" and "window.icon" to fit it.
+    -- If you intend to create a standalone game from this engine, make sure to also:
+    -- * Change "identity", "window.title" here
+    -- * Replace icon.png, bigicon.png with your own
+    -- * (If you wish to create a Windows executable) replace icon.ico
+    --   and recompile icon.rc with rc or windres
+    --
     -- This is to:
-    -- 1 - make sure user settings for the actual engine is not loaded;
-    -- 2 - make sure the name of the game is correctly presented during
-    -- startup. (Even when mod.json>setWindowTitle is true, we can only
-    -- do that when loading finishes.)
+    -- * Make sure user settings for the actual engine is not loaded;
+    -- * Make sure the name and icon of the game is correctly presented during startup.
+    --   (We can only automatically adjust window branding when loading finishes.)
 
     local major, minor, revision, codename = love.getVersion()
 

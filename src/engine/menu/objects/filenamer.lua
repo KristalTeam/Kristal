@@ -163,7 +163,7 @@ function FileNamer:setState(state)
         if self.name == self.default_name and self.default_name ~= "" then
             self.choicer:setSelectedOption(4, 1)
             self.choicer:resetSoulPosition()
-        else
+        elseif allow then
             self.choicer:setSelectedOption(2, 1)
             self.choicer:setSoulPosition(80, 0)
         end

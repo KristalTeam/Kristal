@@ -234,7 +234,7 @@ function Character:onFootstep(num)
     if self.world and self.world.map then
         self.world.map:onFootstep(self, num)
     end
-    Kristal.callEvent("onFootstep", self, num)
+    Kristal.callEvent(KRISTAL_EVENT.onFootstep, self, num)
 end
 
 function Character:walkTo(x, y, time, facing, keep_facing, ease, after)

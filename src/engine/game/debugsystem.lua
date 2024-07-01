@@ -175,7 +175,7 @@ function DebugSystem:onMousePressed(x, y, button, istouch, presses)
                         self.window:setPosition(Input.getCurrentCursorPosition())
                         self:addChild(self.window)
                     end)
-                    Kristal.callEvent("registerDebugContext", self.context, nil)
+                    Kristal.callEvent(KRISTAL_EVENT.registerDebugContext, self.context, nil)
                     self.context:setPosition(Input.getCurrentCursorPosition())
                     self:addChild(self.context)
                 end
@@ -190,7 +190,7 @@ function DebugSystem:openObjectContext(object)
     self.context = object:getDebugOptions(ContextMenu(Utils.getClassName(object)))
     self.last_context = self.context
 
-    Kristal.callEvent("registerDebugContext", self.context, self.object)
+    Kristal.callEvent(KRISTAL_EVENT.registerDebugContext, self.context, self.object)
     self.context:setPosition(Input.getCurrentCursorPosition())
     self:addChild(self.context)
 end
@@ -316,7 +316,7 @@ function DebugSystem:refresh()
     self.current_menu = "main"
     self:registerDefaults()
     self:registerSubMenus()
-    Kristal.callEvent("registerDebugOptions", self)
+    Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
 end
 
 function DebugSystem:fadeMusicOut()
@@ -1237,10 +1237,12 @@ function DebugSystem:draw()
 
         Draw.pushScissor()
         Draw.scissor(text_offset + 19, y_off + menu_y + 16, 640, 320 + 48)
-        for index, key in pairs(Utils.getKeys(Game.flags)) do
-            self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
-            self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
-                             { 1, 1, 1, 1 }, "right", 640)
+        if Game.flags then
+            for index, key in pairs(Utils.getKeys(Game.flags)) do
+                self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
+                self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
+                                 { 1, 1, 1, 1 }, "right", 640)
+            end
         end
         Draw.popScissor()
 
