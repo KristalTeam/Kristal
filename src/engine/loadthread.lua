@@ -138,6 +138,10 @@ local loaders = {
                 pcall(function () mod.icon_data = { love.image.newImageData(full_path .. "/icon.png") } end)
             end
 
+            if love.filesystem.getInfo(full_path .. "/window_icon.png") then
+                pcall(function () mod.window_icon_data = love.image.newImageData(full_path .. "/window_icon.png") end)
+            end
+
             if love.filesystem.getInfo(full_path .. "/logo.png") then
                 pcall(function () mod.logo_data = love.image.newImageData(full_path .. "/logo.png") end)
             end

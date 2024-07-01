@@ -51,7 +51,7 @@ function DarkMenu:init()
 
     self.buttons = {}
     self:addButtons()
-    self.buttons = Kristal.callEvent("getDarkMenuButtons", self.buttons, self) or self.buttons
+    self.buttons = Kristal.callEvent(KRISTAL_EVENT.getDarkMenuButtons, self.buttons, self) or self.buttons
 
     self.box = nil
     self.box_offset_x = 0
@@ -147,7 +147,7 @@ end
 function DarkMenu:onAdd(parent)
     super.onAdd(self, parent)
     Game.world:showHealthBars()
-    Kristal.callEvent("onDarkMenuOpen", self)
+    Kristal.callEvent(KRISTAL_EVENT.onDarkMenuOpen, self)
 end
 
 function DarkMenu:transitionOut()

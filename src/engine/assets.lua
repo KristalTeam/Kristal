@@ -125,7 +125,7 @@ function Assets.parseData(data)
             local fallbacks = {}
             for _,fallback in ipairs(data.font_settings[key]["fallbacks"]) do
                 local font = self.data.fonts[fallback["font"]]
-                if type(font) == "table" or (data.font_settings[fallback["font"]] and data.font_settings[fallback["font"]]["glyphs"]) then
+                if type(font) == "table" or (self.data.font_settings[fallback["font"]] and self.data.font_settings[fallback["font"]]["glyphs"]) then
                     error("Attempt to use TTF or image fallback on BMFont font: " .. key)
                 else
                     table.insert(fallbacks, font)
@@ -149,7 +149,7 @@ function Assets.parseData(data)
             local fallbacks = {}
             for _,fallback in ipairs(data.font_settings[key]["fallbacks"]) do
                 local font = self.data.fonts[fallback["font"]]
-                if type(font) == "table" or not (data.font_settings[fallback["font"]] and data.font_settings[fallback["font"]]["glyphs"]) then
+                if type(font) == "table" or not (self.data.font_settings[fallback["font"]] and self.data.font_settings[fallback["font"]]["glyphs"]) then
                     error("Attempt to use TTF or BMFont fallback on image font: " .. key)
                 else
                     table.insert(fallbacks, font)

@@ -61,7 +61,7 @@ function Text:init(text, x, y, w, h, options)
 
     self.timer = 0
 
-    Kristal.callEvent("registerTextCommands", self)
+    Kristal.callEvent(KRISTAL_EVENT.registerTextCommands, self)
 
     self:resetState()
 
@@ -702,7 +702,7 @@ function Text:drawChar(node, state, use_color)
 
     Draw.setColor(mr, mg, mb, ma)
 
-    if Kristal.callEvent("onDrawText", self, node, state, x, y, scale, font, use_color) then
+    if Kristal.callEvent(KRISTAL_EVENT.onDrawText, self, node, state, x, y, scale, font, use_color) then
         -- Empty because I don't like logic
     elseif self:processStyle(state.style) then
         -- Empty because I don't like logic
@@ -778,7 +778,7 @@ function Text:drawChar(node, state, use_color)
 end
 
 function Text:isStyleAnimated(style)
-    return style == "GONER" or Kristal.callEvent("isTextStyleAnimated", style, self)
+    return style == "GONER" or Kristal.callEvent(KRISTAL_EVENT.isTextStyleAnimated, style, self)
 end
 
 function Text:processStyle(style)

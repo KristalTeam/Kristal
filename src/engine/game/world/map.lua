@@ -312,7 +312,7 @@ function Map:loadMapData(data)
         if layer.type == "tilelayer" and not Utils.startsWith(name, "battleborder") then
             table.insert(tile_depths, depth)
         end
-        if not Kristal.callEvent("loadLayer", self, layer, depth) then
+        if not Kristal.callEvent(KRISTAL_EVENT.loadLayer, self, layer, depth) then
             self:loadLayer(layer, depth)
         end
     end

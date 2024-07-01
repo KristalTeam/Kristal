@@ -198,12 +198,16 @@ function GameOver:update()
     if (self.current_stage == 7) then
         if not Game:getConfig("oldGameOver") then
             self.choicer = GonerChoice(160, 360, {
-                {{"CONTINUE",0,0},{"GIVE UP",220,0}}
+                {{"CONTINUE",0,0},{"<<"},{">>"},{"GIVE UP",220,0}}
             })
+            self.choicer:setSelectedOption(2, 1)
+            self.choicer:setSoulPosition(140, 0)
         else
-            self.choicer = GonerChoice(210, 360, {
-                {{"YES",0,0},{"NO",190,0}}
+            self.choicer = GonerChoice(220, 360, {
+                {{"YES",0,0},{"<<"},{">>"},{"NO",160,0}}
             })
+            self.choicer:setSelectedOption(2, 1)
+            self.choicer:setSoulPosition(80, 0)
         end
         self:addChild(self.choicer)
         self.current_stage = 8
@@ -216,7 +220,7 @@ function GameOver:update()
             if self.choicer.choice_x == 1 then
                 self.current_stage = 9
                 self.timer = 0
-            elseif self.choicer.choice_x == 2 then
+            else
                 self.current_stage = 20
                 if not Game:getConfig("oldGameOver") then
                     self.text:remove()

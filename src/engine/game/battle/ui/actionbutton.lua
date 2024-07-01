@@ -23,7 +23,7 @@ end
 
 function ActionButton:select()
     if Game.battle.encounter:onActionSelect(self.battler, self) then return end
-    if Kristal.callEvent("onActionSelect", self.battler, self) then return end
+    if Kristal.callEvent(KRISTAL_EVENT.onActionSelect, self.battler, self) then return end
     if self.type == "fight" then
         Game.battle:setState("ENEMYSELECT", "ATTACK")
     elseif self.type == "act" then

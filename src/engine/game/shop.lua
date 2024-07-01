@@ -32,7 +32,7 @@ function Shop:init()
     -- Shown when you're in the SELL menu
     self.sell_menu_text = "Sell\nmenu\ntext"
     -- Shown when you try to sell an empty spot
-    self.sell_nothing_text = "Sell\nnothing\attempt"
+    self.sell_nothing_text = "Sell\nnothing\nattempt"
     -- Shown when you're about to sell something.
     self.sell_confirmation_text = "Sell it for\n%s ?"
     -- Shown when you refuse to sell something
@@ -41,6 +41,8 @@ function Shop:init()
     self.sell_text = "Sell\ntext"
     -- Shown when you have nothing in a storage
     self.sell_no_storage_text = "Empty\ninventory\ntext"
+    -- Shown when you have sold all your items in a storage
+    self.sell_everything_text = "Sold\neverything\ntext"
     -- Shown when you enter the talk menu.
     self.talk_text = "Talk\ntext"
 
@@ -217,7 +219,7 @@ function Shop:postInit()
         self:onEmote(node.arguments[1])
     end
 
-    self.dialogue_text = DialogueText(nil, 30, 270, 372, 194)
+    self.dialogue_text = DialogueText(nil, 30, 270, 372, 226)
 
     self.dialogue_text:registerCommand("emote", emoteCommand)
 
@@ -480,14 +482,6 @@ end
 
 function Shop:registerTalk(talk, color)
     table.insert(self.talks, {talk, {color=color or COLORS.white}})
-end
-
-function Shop:removeTalk(index)
-    if self.talks[index] then
-        table.remove(self.talks, index)
-    else
-        print("Talk not found at index: " .. tostring(index))
-    end
 end
 
 function Shop:replaceTalk(talk, index, color)
@@ -995,9 +989,10 @@ function Shop:onKeyPressed(key, is_repeat)
                             if self.item_current_selecting > #inventory then
                                 self.item_current_selecting = self.item_current_selecting - 1
                             end
-                            if self.item_current_selecting == 0 then
-                                self:setState("SELLMENU", true)
-                            end
+                        end
+                        if self.item_current_selecting == 0 or Game.inventory:getItemCount(self.state_reason[2], false) == 0 then
+                            self:setRightText(self.sell_everything_text)
+                            self:setState("SELLMENU", true)
                         end
                     elseif self.current_selecting_choice == 2 then
                         self:setRightText(self.sell_refuse_text)
@@ -1093,10 +1088,6 @@ function Shop:buyItem(current_item)
     if (current_item.options["price"] or 0) > self:getMoney() then
         self:setRightText(self.buy_too_expensive_text)
     else
-        -- PURCHASE THE ITEM
-        -- Remove the gold
-        self:removeMoney(current_item.options["price"] or 0)
-
         -- Decrement the stock
         if current_item.options["stock"] then
             current_item.options["stock"] = current_item.options["stock"] - 1
@@ -1110,6 +1101,10 @@ function Shop:buyItem(current_item)
             -- Visual/auditorial feedback (did I spell that right?)
             Assets.playSound("locker")
             self:setRightText(self.buy_text)
+            
+            -- PURCHASE THE ITEM
+            -- Remove the money
+            self:removeMoney(current_item.options["price"] or 0)
         else
             -- Not enough space, oops
             self:setRightText(self.buy_no_space_text)
