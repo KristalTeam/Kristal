@@ -482,9 +482,8 @@ function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare, show_differen
         Draw.setColor(1, 1, 1)
     end
     local display = tostring(stat_num)
-    if show_difference and stat_num ~= comp_num then
-        -- TODO: Config option...?
-        if (Game.chapter == 1) or (stat_num < comp_num) then
+    if self:getCurrentItemType() == "weapons" and show_difference and stat_num ~= comp_num then
+        if Game:getConfig("oldUIPositions") or stat_num < comp_num then
             display = display .. "(" .. (stat_num - comp_num) .. ")"
         else
             display = display .. "(+" .. (stat_num - comp_num) .. ")"
