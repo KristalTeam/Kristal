@@ -640,10 +640,14 @@ end
 function Text:getNodeSize(node, state, include_scale)
     local font = Assets.getFont(state.font, state.font_size)
     local scale = Assets.getFontScale(state.font, state.font_size)
+    local w, h = math.max(1, font:getWidth(node.character)), font:getHeight()
+    if state.bold then
+        w = w + 1
+    end
     if include_scale ~= false then
-        return math.max(1, font:getWidth(node.character) * scale), font:getHeight() * scale
+        return w * scale, h * scale
     else
-        return math.max(1, font:getWidth(node.character)), font:getHeight()
+        return w, h
     end
 end
 
@@ -732,15 +736,12 @@ function Text:drawChar(node, state, use_color)
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "dark" then
         local w, h = self:getNodeSize(node, state)
-        if state.bold then
-            w = w + 1
-        end
         local canvas = Draw.pushCanvas(w, h, { stencil = false })
         Draw.setColor(1, 1, 1)
         if state.bold then
             love.graphics.print(node.character, 0 + 1, 0, 0, scale, scale)
         end
-        love.graphics.print(node.character, 10, 0, 0, scale, scale)
+        love.graphics.print(node.character, 0, 0, 0, scale, scale)
         Draw.popCanvas()
 
         local shader = Kristal.Shaders["GradientV"]
