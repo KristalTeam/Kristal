@@ -140,9 +140,9 @@ function Text:resetState()
         wave_direction = 0,
         bold = false,
         strikethrough_height = 0,
-        strikethrough_pos = 0,
+        strikethrough_offset = 0,
         underline_height = 0,
-        underline_pos = 0,
+        underline_offset = 0,
         offset_x = 0,
         offset_y = 0,
         newline = false,
@@ -588,25 +588,25 @@ function Text:processModifier(node, dry)
     elseif node.command == "strike" or node.command == "s" then
         if node.arguments[1] == "reset" then
             self.state.strikethrough_height = 0
-            self.state.strikethrough_pos = 0
+            self.state.strikethrough_offset = 0
         else
             self.state.strikethrough_height = tonumber(node.arguments[1]) or 1
-            self.state.strikethrough_pos = tonumber(node.arguments[2]) or 0
+            self.state.strikethrough_offset = tonumber(node.arguments[2]) or 0
             if self.state.strikethrough_height < 0 then
                 self.state.strikethrough_height = 0
-                self.state.strikethrough_pos = 0
+                self.state.strikethrough_offset = 0
             end
         end
     elseif node.command == "underline" or node.command == "u" then
         if node.arguments[1] == "reset" then
             self.state.underline_height = 0
-            self.state.underline_pos = 0
+            self.state.underline_offset = 0
         else
             self.state.underline_height = tonumber(node.arguments[1]) or 1
-            self.state.underline_pos = tonumber(node.arguments[2]) or 0
+            self.state.underline_offset = tonumber(node.arguments[2]) or 0
             if self.state.underline_height < 0 then
                 self.state.underline_height = 0
-                self.state.underline_pos = 0
+                self.state.underline_offset = 0
             end
         end
     elseif node.command == "style" then
@@ -858,12 +858,12 @@ function Text:drawChar(node, state, use_color)
 
     if state.strikethrough_height > 0 then
         Draw.setColor(mr, mg, mb, ma)
-        love.graphics.rectangle("fill", x, y + Utils.round(h / 2) + state.strikethrough_pos * scale, w, state.strikethrough_height * scale)
+        love.graphics.rectangle("fill", x, y + Utils.round(h / 2) + state.strikethrough_offset * scale, w, state.strikethrough_height * scale)
     end
 
     if state.underline_height > 0 then
         Draw.setColor(mr, mg, mb, ma)
-        love.graphics.rectangle("fill", x, y + h + state.underline_pos * scale, w, state.underline_height * scale)
+        love.graphics.rectangle("fill", x, y + h + state.underline_offset * scale, w, state.underline_height * scale)
     end
 end
 
