@@ -2,7 +2,14 @@
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
 
-Text.COMMANDS = { "color", "font", "style", "shake", "wave", "bold", "image", "bind", "button", "offset", "indent", "spacing" }
+Text.COMMANDS = {
+    "color", "font", "style",
+    "shake", "wave",
+    "bold", "b",
+    "strike", "s",
+    "image", "bind", "button",
+    "offset", "indent", "spacing"
+}
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -131,6 +138,8 @@ function Text:resetState()
         wave_offset = 0,
         wave_direction = 0,
         bold = false,
+        strikethrough = false,
+        strikethrough_line_pos = 0,
         offset_x = 0,
         offset_y = 0,
         newline = false,
@@ -573,6 +582,14 @@ function Text:processModifier(node, dry)
         else
             self.state.bold = true
         end
+    elseif node.command == "strike" or node.command == "s" then
+        if node.arguments[1] == "reset" then
+            self.state.strikethrough = false
+            self.state.strikethrough_line_pos = 0
+        else
+            self.state.strikethrough = true
+            self.state.strikethrough_line_pos = tonumber(node.arguments[1]) or 0
+        end
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
             self.state.style = "none"
@@ -697,6 +714,7 @@ function Text:drawChar(node, state, use_color)
     end
 
     local x, y = state.current_x + state.offset_x, state.current_y + state.offset_y
+    local w, h = self:getNodeSize(node, state)
     love.graphics.setFont(font)
 
 
@@ -735,7 +753,6 @@ function Text:drawChar(node, state, use_color)
         end
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "dark" then
-        local w, h = self:getNodeSize(node, state)
         local canvas = Draw.pushCanvas(w, h, { stencil = false })
         Draw.setColor(1, 1, 1)
         if state.bold then
@@ -818,6 +835,11 @@ function Text:drawChar(node, state, use_color)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
         Draw.setColor(mr, mg, mb, ma)
+    end
+
+    if state.strikethrough then
+        Draw.setColor(mr, mg, mb, ma)
+        love.graphics.rectangle("fill", x, y + Utils.round(h / 2) + state.strikethrough_line_pos * scale, w, scale)
     end
 end
 
