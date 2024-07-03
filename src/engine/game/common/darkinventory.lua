@@ -77,13 +77,13 @@ function DarkInventory:convertToLight()
 
     new_inventory.storage_enabled = was_storage_enabled
     
-    Game.dark_inventory_bak = self
+    Game.dark_inventory = self
 
     return new_inventory
 end
 
 function DarkInventory:getLightInventory()
-    return Game.light_inventory_bak
+    return Game.light_inventory
 end
 
 -- Item give overrides for Light World items

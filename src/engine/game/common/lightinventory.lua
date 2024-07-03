@@ -74,7 +74,7 @@ function LightInventory:convertToDark()
 
     new_inventory.storage_enabled = was_storage_enabled
     
-    Game.light_inventory_bak = self
+    Game.light_inventory = self
 
     return new_inventory
 end
@@ -84,7 +84,7 @@ function LightInventory:getDarkInventory()
         self:addItem("light/ball_of_junk")
     end
     
-    return Game.dark_inventory_bak
+    return Game.dark_inventory
 end
 
 function LightInventory:getDefaultStorage(item_type)
