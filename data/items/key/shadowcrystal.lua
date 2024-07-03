@@ -60,7 +60,7 @@ function item:getDescription()
 end
 
 function item:onWorldUse()
-    if Kristal.callEvent("onShadowCrystal", self, false) then
+    if Kristal.callEvent(KRISTAL_EVENT.onShadowCrystal, self, false) then
         return
     elseif not self:getFlag("used_none") then
         self:setFlag("used_none", true)
