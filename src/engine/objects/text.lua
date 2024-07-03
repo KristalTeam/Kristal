@@ -580,7 +580,7 @@ function Text:processModifier(node, dry)
         self.state.wave_offset = tonumber(node.arguments[2]) or 30
         self.draw_every_frame = true
     elseif node.command == "bold" or node.command == "b" then
-        if node.arguments[1] == "reset" or node.arguments[1] == "false" then
+        if node.arguments[1] == "reset" then
             self.state.bold = false
         else
             self.state.bold = true
