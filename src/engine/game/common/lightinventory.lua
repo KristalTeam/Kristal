@@ -72,22 +72,9 @@ function LightInventory:convertToDark()
         end
     end
 
-    for _,base_storage in pairs(self.storages) do
-        local storage = Utils.copy(base_storage)
-        for i = 1, storage.max do
-            local item = storage[i]
-            if item then
-                item.light_item = item
-                item.light_location = {storage = storage.id, index = i}
-
-                new_inventory:addItemTo("light", item)
-
-                self:removeItem(item)
-            end
-        end
-    end
-
     new_inventory.storage_enabled = was_storage_enabled
+    
+    Game.light_inventory_bak = self
 
     return new_inventory
 end

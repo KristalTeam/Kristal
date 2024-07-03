@@ -198,6 +198,7 @@ function Game:save(x, y)
     end
 
     data.inventory = self.inventory:save()
+    data.light_inventory_bak = self.light_inventory_bak:save()
     data.dark_inventory_bak = self.dark_inventory_bak:save()
 
     data.party_data = {}
@@ -327,6 +328,10 @@ function Game:load(data, index, fade)
         self.inventory = DarkInventory()
     end
 
+    self.light_inventory_bak = LightInventory()
+    if data.light_inventory_bak then
+        self.light_inventory_bak:load(data.light_inventory_bak)
+    end
     self.dark_inventory_bak = DarkInventory()
     if data.dark_inventory_bak then
         self.dark_inventory_bak:load(data.dark_inventory_bak)
