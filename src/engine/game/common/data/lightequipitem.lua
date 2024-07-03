@@ -108,6 +108,7 @@ function LightEquipItem:convertToDarkEquip(chara)
 end
 
 function LightEquipItem:convertToDark(inventory)
+    if not self.dark_item then return false end
     if self.type == "armor" then
         local armors = self:createArmorItems()
         if armors[1] then
