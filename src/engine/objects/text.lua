@@ -771,7 +771,7 @@ function Text:drawChar(node, state, use_color)
         local canvas = Draw.pushCanvas(w, h, { stencil = false })
         Draw.setColor(1, 1, 1)
         if state.bold then
-            love.graphics.print(node.character, 1, 0, 0, scale, scale)
+            love.graphics.print(node.character, 0 + 1, 0, 0, scale, scale)
         end
         love.graphics.print(node.character, 0, 0, 0, scale, scale)
         Draw.popCanvas()
@@ -827,28 +827,28 @@ function Text:drawChar(node, state, use_color)
             love.graphics.print(node.character, x + 1, y, 0, scale, scale)
         end
         love.graphics.print(node.character, x, y, 0, scale, scale)
-
-        local canvas = Draw.pushCanvas(w + 2*2*scale, h + 2*2*scale, { stencil = false })
-        Draw.setColor(1, 1, 1)
-        love.graphics.push()
-        love.graphics.translate(2*scale, 2*scale)
+        Draw.setColor(mr, mg, mb, ma * ((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
         if state.bold then
-            love.graphics.print(node.character, 2 + 1, 0, 0, scale, scale)
-            love.graphics.print(node.character, -2 + 1, 0, 0, scale, scale)
-            love.graphics.print(node.character, 1, 2, 0, scale, scale)
-            love.graphics.print(node.character, 1, -2, 0, scale, scale)
+            love.graphics.print(node.character, x + 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x - 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y + 2, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y - 2, 0, scale, scale)
         end
-        love.graphics.print(node.character, 2, 0, 0, scale, scale)
-        love.graphics.print(node.character, -2, 0, 0, scale, scale)
-        love.graphics.print(node.character, 0, 2, 0, scale, scale)
-        love.graphics.print(node.character, 0, -2, 0, scale, scale)
-        love.graphics.pop()
-        Draw.popCanvas()
-        Draw.setColor(mr, mg, mb, ma * (0.3 + math.sin(self.timer / 14) * 0.1) * specfade)
-        Draw.draw(canvas, x - 2*scale, y - 2*scale)
-        Draw.setColor(mr, mg, mb, ma * (0.08 + math.sin(self.timer / 14) * 0.04) * specfade)
-        Draw.draw(canvas, x - 2*scale, y - 2*scale)
-
+        love.graphics.print(node.character, x + 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x - 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x, y + 2, 0, scale, scale)
+        love.graphics.print(node.character, x, y - 2, 0, scale, scale)
+        Draw.setColor(mr, mg, mb, ma * ((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
+        if state.bold then
+            love.graphics.print(node.character, x + 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x - 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y + 2, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y - 2, 0, scale, scale)
+        end
+        love.graphics.print(node.character, x + 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x - 2, y, 0, scale, scale)
+        love.graphics.print(node.character, x, y + 2, 0, scale, scale)
+        love.graphics.print(node.character, x, y - 2, 0, scale, scale)
         Draw.setColor(mr, mg, mb, ma)
     end
 
