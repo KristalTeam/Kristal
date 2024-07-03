@@ -174,6 +174,9 @@ KRISTAL_EVENT = {
     onConvertToDark = "onConvertToDark", -- dark world inventory converted to light world inventory / at: DarkInventory:convertToLight() / passes: LightInventory:new_inventory / returns: NONE
     onConvertToLight = "onConvertToLight", -- light world inventory converted to dark world inventory / at: LightInventory:convertToDark() / passes: DarkInventory:new_inventory / returns: NONE
 
+    --item events--
+    onJunkCheck = "onJunkCheck", -- intercept ball of junk additional check text / at: item:onCheck() (light/ball_of_junk.lua) / passes: Item:item, nil|string:comment / returns: nil|string
+
     --menu events--
     createMenu = "createMenu", -- returns optional custom overworld menu / at: World:createMenu() / passes: NONE / returns: nil|Object
     getDarkMenuButtons = "getDarkMenuButtons", -- optional creation of buttons for custom dark world menu / at: DarkMenu:init() / passes: table:buttons, DarkMenu:self / returns: nil|table

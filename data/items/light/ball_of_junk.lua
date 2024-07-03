@@ -63,6 +63,33 @@ function item:onToss()
     return false
 end
 
+function Item:onCheck()
+    Game.world:startCutscene(function(cutscene)
+        cutscene:text("* \""..self:getName().."\" - "..self:getCheck())
+
+        local comment
+
+        if self.inventory:hasItem("dark_candy") then
+            comment = "* It smells like scratch'n'sniff marshmallow stickers."
+        end
+
+        comment = Kristal.callEvent(KRISTAL_EVENT.onJunkCheck, self, comment) or comment
+
+        if comment then
+            cutscene:text(comment)
+        end
+    end)
+end
+
+function item:getCheck()
+    local check = self.check
+    if Game.chapter == 1 then
+        check = "A small ball\nof accumulated things."
+    end
+
+    return check
+end
+
 function item:convertToDark(inventory)
     for k,storage in pairs(self.inventory.storages) do
         for i = 1, storage.max do
