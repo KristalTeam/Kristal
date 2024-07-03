@@ -2,7 +2,7 @@
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
 
-Text.COMMANDS = { "color", "font", "style", "shake", "wave", "image", "bind", "button", "offset", "indent", "spacing" }
+Text.COMMANDS = { "color", "font", "style", "shake", "wave", "bold", "image", "bind", "button", "offset", "indent", "spacing" }
 
 Text.COLORS = {
     ["red"] = COLORS.red,
@@ -130,6 +130,7 @@ function Text:resetState()
         wave_distance = 0,
         wave_offset = 0,
         wave_direction = 0,
+        bold = false,
         offset_x = 0,
         offset_y = 0,
         newline = false,
@@ -566,6 +567,12 @@ function Text:processModifier(node, dry)
         self.state.wave_distance = tonumber(node.arguments[1]) or 2
         self.state.wave_offset = tonumber(node.arguments[2]) or 30
         self.draw_every_frame = true
+    elseif node.command == "bold" or node.command == "b" then
+        if node.arguments[1] == "reset" or node.arguments[1] == "false" then
+            self.state.bold = false
+        else
+            self.state.bold = true
+        end
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
             self.state.style = "none"
@@ -708,17 +715,32 @@ function Text:drawChar(node, state, use_color)
         -- Empty because I don't like logic
     elseif state.style == nil or state.style == "none" then
         Draw.setColor(mr, mg, mb, ma)
+        if state.bold then
+            love.graphics.print(node.character, x + 1, y, 0, scale, scale)
+        end
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "menu" then
         Draw.setColor(0, 0, 0)
+        if state.bold then
+            love.graphics.print(node.character, x + 2 + 1, y + 2, 0, scale, scale)
+        end
         love.graphics.print(node.character, x + 2, y + 2, 0, scale, scale)
         Draw.setColor(mr, mg, mb, ma)
+        if state.bold then
+            love.graphics.print(node.character, x + 1, y, 0, scale, scale)
+        end
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "dark" then
         local w, h = self:getNodeSize(node, state)
+        if state.bold then
+            w = w + 1
+        end
         local canvas = Draw.pushCanvas(w, h, { stencil = false })
         Draw.setColor(1, 1, 1)
-        love.graphics.print(node.character, 0, 0, 0, scale, scale)
+        if state.bold then
+            love.graphics.print(node.character, 0 + 1, 0, 0, scale, scale)
+        end
+        love.graphics.print(node.character, 10, 0, 0, scale, scale)
         Draw.popCanvas()
 
         local shader = Kristal.Shaders["GradientV"]
@@ -755,20 +777,41 @@ function Text:drawChar(node, state, use_color)
         end
     elseif state.style == "dark_menu" then
         Draw.setColor(0.25, 0.125, 0.25)
+        if state.bold then
+            love.graphics.print(node.character, x + 2 + 1, y + 2, 0, scale, scale)
+        end
         love.graphics.print(node.character, x + 2, y + 2, 0, scale, scale)
         Draw.setColor(mr, mg, mb, ma)
+        if state.bold then
+            love.graphics.print(node.character, x + 1, y, 0, scale, scale)
+        end
         love.graphics.print(node.character, x, y, 0, scale, scale)
     elseif state.style == "GONER" then
         local specfade = 1 -- This is unused for now!
         -- It's used in chapter 1, though... so let's keep it around.
         Draw.setColor(mr, mg, mb, ma * specfade)
+        if state.bold then
+            love.graphics.print(node.character, x + 1, y, 0, scale, scale)
+        end
         love.graphics.print(node.character, x, y, 0, scale, scale)
         Draw.setColor(mr, mg, mb, ma * ((0.3 + (math.sin((self.timer / 14)) * 0.1)) * specfade))
+        if state.bold then
+            love.graphics.print(node.character, x + 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x - 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y + 2, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y - 2, 0, scale, scale)
+        end
         love.graphics.print(node.character, x + 2, y, 0, scale, scale)
         love.graphics.print(node.character, x - 2, y, 0, scale, scale)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
         love.graphics.print(node.character, x, y - 2, 0, scale, scale)
         Draw.setColor(mr, mg, mb, ma * ((0.08 + (math.sin((self.timer / 14)) * 0.04)) * specfade))
+        if state.bold then
+            love.graphics.print(node.character, x + 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x - 2 + 1, y, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y + 2, 0, scale, scale)
+            love.graphics.print(node.character, x + 1, y - 2, 0, scale, scale)
+        end
         love.graphics.print(node.character, x + 2, y, 0, scale, scale)
         love.graphics.print(node.character, x - 2, y, 0, scale, scale)
         love.graphics.print(node.character, x, y + 2, 0, scale, scale)
