@@ -176,6 +176,7 @@ KRISTAL_EVENT = {
 
     --item events--
     onJunkCheck = "onJunkCheck", -- intercept ball of junk additional check text / at: item:onCheck() (light/ball_of_junk.lua) / passes: Item:item, nil|string:comment / returns: nil|string
+    onShadowCrystal = "onShadowCrystal", -- overrides text when shadow crystal or glass is used / at: item:onWorldUse() (light/glass.lua and key/shadowcrystal.lua) / passes: Item:item, bool:light / returns: nil|bool
 
     --menu events--
     createMenu = "createMenu", -- returns optional custom overworld menu / at: World:createMenu() / passes: NONE / returns: nil|Object
