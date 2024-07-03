@@ -243,7 +243,6 @@ return {
             local text = DialogueText(str, 0, 16, 640, 480,
                                       { align = "center" })
             text.layer = WORLD_LAYERS["top"] + 100
-            text.skip_speed = true
             text.parallax_x = 0
             text.parallax_y = 0
             Game.world:addChild(text)
@@ -260,7 +259,7 @@ return {
         cutscene:fadeOut(0, { music = true })
 
         centerText(
-            "Hello.[wait:10]\n\n" ..
+            "[speed:3]Hello.[wait:10]\n\n" ..
             "This mod is the Kristal team's testing mod,[wait:5] and is not meant to be an example,[wait:5] or something to learn from.[wait:10]\n" ..
             "This is just a place for us to test things out.[wait:10]\n" ..
             "We cannot promise support for this mod,[wait:5] and we cannot promise that it will be updated.[wait:10]\n\nYou have been warned.")
