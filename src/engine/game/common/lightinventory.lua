@@ -55,7 +55,7 @@ function LightInventory:convertToDark()
         local storage = Utils.copy(self:getStorage(storage_id))
         for i = 1, storage.max do
             local item = storage[i]
-            if item then
+            if item and item.id ~= "light/bandage" then
                 local result = item:convertToDark(new_inventory)
 
                 if result then
