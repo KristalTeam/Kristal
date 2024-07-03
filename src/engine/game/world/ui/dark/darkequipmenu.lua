@@ -462,7 +462,7 @@ function DarkEquipMenu:drawStats()
     love.graphics.print("Defense:", 18, 145)
     love.graphics.print("Magic:", 18, 172)
     local stats, compare = self:getStatsPreview()
-    self:drawStatPreview("attack", 148, 118, stats, compare, true)
+    self:drawStatPreview("attack", 148, 118, stats, compare, self:getCurrentItemType() == "weapons")
     self:drawStatPreview("defense", 148, 145, stats, compare, false)
     self:drawStatPreview("magic", 148, 172, stats, compare, false)
     local abilities, ability_comp = self:getAbilityPreview()
@@ -482,7 +482,7 @@ function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare, show_differen
         Draw.setColor(1, 1, 1)
     end
     local display = tostring(stat_num)
-    if self:getCurrentItemType() == "weapons" and show_difference and stat_num ~= comp_num then
+    if show_difference and stat_num ~= comp_num then
         if Game:getConfig("oldUIPositions") or stat_num < comp_num then
             display = display .. "(" .. (stat_num - comp_num) .. ")"
         else
