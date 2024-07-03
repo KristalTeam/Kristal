@@ -580,13 +580,9 @@ function Text:processModifier(node, dry)
         self.state.wave_offset = tonumber(node.arguments[2]) or 30
         self.draw_every_frame = true
     elseif node.command == "bold" or node.command == "b" then
-        if node.arguments[1] == "reset" then
-            self.state.bold = false
-        else
-            self.state.bold = true
-        end
+        self.state.bold = (node.arguments[1] == nil or self:isTrue(node.arguments[1]))
     elseif node.command == "strike" or node.command == "s" then
-        if node.arguments[1] == "reset" then
+        if node.arguments[1] and tonumber(node.arguments[1]) == nil and not self:isTrue(node.arguments[1]) then
             self.state.strikethrough_height = 0
             self.state.strikethrough_offset = 0
         else
@@ -598,7 +594,7 @@ function Text:processModifier(node, dry)
             end
         end
     elseif node.command == "underline" or node.command == "u" then
-        if node.arguments[1] == "reset" then
+        if node.arguments[1] and tonumber(node.arguments[1]) == nil and not self:isTrue(node.arguments[1]) then
             self.state.underline_height = 0
             self.state.underline_offset = 0
         else
