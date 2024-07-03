@@ -73,7 +73,7 @@ function ActionBox:createButtons()
             button.actbox = self
             table.insert(self.buttons, button)
             self:addChild(button)
-        elseif not type(btn) == "boolean" then -- nothing, used to create an empty space
+        elseif type(btn) ~= "boolean" then -- nothing, used to create an empty space
             btn:setPosition(math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
             btn.battler = self.battler
             btn.actbox = self
