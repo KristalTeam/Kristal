@@ -234,7 +234,7 @@ function RecruitMenu:draw()
                 local like = recruit:getLike()
                 love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
                 
-                love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
+                love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
                 local dislike = recruit:getDislike()
                 love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
 
