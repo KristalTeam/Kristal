@@ -188,6 +188,7 @@ KRISTAL_EVENT = {
     --game state events-- (sorted by execution order, save&unload last)
     init = "init", -- mod begins initialization, after assets loaded / at: Game:enter(previous_state, save_id, save_name, fade) / passes: NONE / returns: NONE
     load = "load", -- mod loads save data / at: Game:load(data, index, fade) / passes: table:save_data, bool:is_new_file, int:save_index / returns: NONE
+    postLoad = "postLoad", -- after mod loads save data and current map or encounter / at: Game:load(data, index, fade) / passes: NONE / returns: NONE
     postInit = "postInit", -- mod & libraries have finished initialization and registration / at: Game:enter(previous_state, save_id, save_name, fade) / passes: bool:is_new_file / returns: NONE
     preUpdate = "preUpdate", -- overrides game update / at: Game:update() / passes: number:DT / returns: bool
 	postUpdate = "postUpdate", -- update finished processing / at: Game:update() / passes: number:DT / returns: NONE

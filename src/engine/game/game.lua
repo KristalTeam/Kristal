@@ -408,6 +408,8 @@ function Game:load(data, index, fade)
             self.nothing_warn = false
         end
     end
+
+    Kristal.callEvent(KRISTAL_EVENT.postLoad)
 end
 
 function Game:setLight(light)
