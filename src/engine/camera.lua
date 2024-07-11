@@ -238,9 +238,9 @@ function Camera:approachDirect(x, y, amount)
     self:keepInBounds()
 end
 
----@param x number
----@param y number
----@param friction number
+---@param x? number
+---@param y? number
+---@param friction? number
 function Camera:shake(x, y, friction)
     self.shake_x = x or 4
     self.shake_y = y or x or 4
