@@ -1,3 +1,6 @@
+--- The underlying class for cutscene types in Kristal. \
+--- See WorldCutscene or BattleCutscene for most available functions when creating cutscenes.
+---
 ---@class Cutscene : Class
 ---@overload fun(...) : Cutscene
 local Cutscene, super = Class()
@@ -139,6 +142,9 @@ function Cutscene:onEnd()
     end
 end
 
+--- Temporarily suspends execution of the cutscene script.
+---@param seconds? function|number When a `number`, waits this number of seconds before continuing. When a `function`, waits until this function returns `true`. (Defaults to 0)
+---@return any
 function Cutscene:wait(seconds)
     if type(seconds) == "function" then
         self.wait_func = seconds
@@ -171,6 +177,7 @@ function Cutscene:resume(...)
     end
 end
 
+--- Ends the cutscene.
 function Cutscene:endCutscene()
     self.ended = true
     self:onEnd()
