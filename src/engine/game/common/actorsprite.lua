@@ -50,6 +50,8 @@ function ActorSprite:init(actor)
     self.last_flippable = actor:getFlipDirection(self)
 end
 
+--- Resets this sprite to the default animation or sprite.
+---@param ignore_actor_callback? boolean When set to `true`, will not call the actor's `preResetSprite()` function.
 function ActorSprite:resetSprite(ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preResetSprite(self) then
         return

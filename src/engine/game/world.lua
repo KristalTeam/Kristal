@@ -573,6 +573,12 @@ function World:spawnBullet(bullet, ...)
     return new_bullet
 end
 
+--- Spawns a new NPC object in the world.
+---@param actor         string|Actor    The actor to use for the new NPC, either an id string or an actor object.
+---@param x             number          The x-coordinate to place the NPC at.
+---@param y             number          The y-coordinate to place the NPC at.
+---@param properties    table           A table of additional properties for the new NPC. Supports all the same values as an `npc` map event.
+---@return NPC npc The newly created npc.
 function World:spawnNPC(actor, x, y, properties)
     return self:spawnObject(NPC(actor, x, y, properties))
 end
@@ -583,6 +589,10 @@ function World:spawnObject(obj, layer)
     return obj
 end
 
+--- Gets a specific character currently present in the world.
+---@param id        string  The actor id of the character to search for.
+---@param index?    number  The character's index, if they have multiple instances in the world. (Defaults to 1)
+---@return Character|nil chara The character instance, or `nil` if it was not found.
 function World:getCharacter(id, index)
     local party_member = Game:getPartyMember(id)
     local i = 0
@@ -624,18 +634,22 @@ function World:getEvents(name)
     return self.map:getEvents(name)
 end
 
+--- Disables following for all of the player's current followers.
 function World:detachFollowers()
     for _,follower in ipairs(self.followers) do
         follower.following = false
     end
 end
 
+--- Enables following for all of the player's current followers and causes them to walk to their positions.
+---@param return_speed number The walking speed of the followers while they return to the player.
 function World:attachFollowers(return_speed)
     for _,follower in ipairs(self.followers) do
         follower:updateIndex()
         follower:returnToFollowing(return_speed)
     end
 end
+--- Enables following for all of the player's current followers, and immediately teleports them to their positions.
 function World:attachFollowersImmediate()
     for _,follower in ipairs(self.followers) do
         follower.following = true

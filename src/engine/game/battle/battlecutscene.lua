@@ -121,7 +121,7 @@ end
 --- The change lasts until the end of the cutscene or until the sprite is changed again.
 ---@param chara     string|Battler  The character to change the sprite of. Accepts either a Battler instance or an id to search for.
 ---@param sprite    string          The name of the sprite to be set.
----@param speed?    number          The number of seconds between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
+---@param speed?    number          The time, in seconds, between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
 function BattleCutscene:setSprite(chara, sprite, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)

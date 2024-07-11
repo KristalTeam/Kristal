@@ -130,6 +130,7 @@ function Follower:moveToTarget(speed)
     end
 end
 
+--- Adds this follower's current position to their movement history.
 function Follower:interpolateHistory()
     local target = self:getTarget()
 

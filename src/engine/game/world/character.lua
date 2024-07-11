@@ -99,6 +99,8 @@ function Character:setActor(actor)
     self:addChild(self.sprite)
 end
 
+--- Makes the character face in the direction specified by `dir`.
+---@param dir string The direction the character should face. Must be "up", "down", "left", or "right".
 function Character:setFacing(dir)
     self.facing = dir
     self.sprite:setFacing(dir)
@@ -374,6 +376,7 @@ function Character:setWalkSprite(sprite)
     self.sprite:setWalkSprite(sprite)
 end
 
+--- Resetss the character's to their default animation or sprite.
 function Character:resetSprite()
     self.sprite:resetSprite()
 end
@@ -644,6 +647,8 @@ function Character:update()
     super.update(self)
 end
 
+--- Makes the character start spinning.
+---@param speed number  The spin speed to set on the character. Negative numbers = anticlockwise, positive numbers = clockwise. Higher value = slower spin.
 function Character:spin(speed)
     self.spin_speed = speed
 end

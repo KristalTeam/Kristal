@@ -143,6 +143,11 @@ function Player:resetFollowerHistory()
     end
 end
 
+--- Aligns the player's followers' directions and positions.
+---@param facing?   string  The direction every character should face (Defaults to player's direction)
+---@param x?        number  The x-coordinate of the 'front' of the line. (Defaults to player's x-position)
+---@param y?        number  The y-coordinate of the 'front' of the line. (Defaults to player's y-position)
+---@param dist?     number  The distance between each follower.
 function Player:alignFollowers(facing, x, y, dist)
     facing = facing or self.facing
     x, y = x or self.x, y or self.y
@@ -168,6 +173,7 @@ function Player:alignFollowers(facing, x, y, dist)
     self:resetFollowerHistory()
 end
 
+--- Adds all followers' current positions to their movement history.
 function Player:interpolateFollowers()
     for i, follower in ipairs(Game.world.followers) do
         if follower:getTarget() == self then

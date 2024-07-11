@@ -64,7 +64,7 @@ end
 --- Adds a new callback to this cutscene.
 ---@param func      function    The callback function to set or append to this cutscene.
 ---@param replace   boolean     Whether or not to overwrite all previously defined callbacks on this function.
----@return Cutscene self
+---@return Cutscene? self
 function Cutscene:after(func, replace)
     if self.ended then
         if func and (replace or not self.replaced_callback) then
@@ -162,6 +162,8 @@ function Cutscene:wait(seconds)
     return coroutine.yield()
 end
 
+--- Indefinitely pausees the cutscene.
+---@return any
 function Cutscene:pause()
     self.paused = true
     return coroutine.yield()
@@ -176,6 +178,8 @@ function Cutscene:tryResume()
     return false
 end
 
+--- Resumes the cutscene if it had been previously paused.
+---@param ... unknown
 function Cutscene:resume(...)
     self.paused = false
     self.wait_func = nil

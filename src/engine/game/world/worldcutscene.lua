@@ -1,4 +1,18 @@
 ---@class WorldCutscene : Cutscene
+---
+---@field textbox           Textbox     The current Textbox object, if it is active.
+---@field textbox_actor     Actor       The current speaker in the cutscene. 
+---@field textbox_speaker   ActorSprite The ActorSprite of the current speaker.  
+---@field textbox_top       boolean     Whether the textbox should display at the top of the screen instead of the bottom.
+---
+---@field choicebox Choicebox   The current choicer object, if it is active.
+---@field choice    number      The index of the player's last selected choice.
+---
+---@field textchoicebox TextChoicebox   The current text choicer (choicer with additional text prompt) object, if it is active.
+---@field shopbox       Shopbox         The current mini shop UI object, if it is active.
+---
+---@field world World   Reference to Game.world
+---
 ---@overload fun(...) : WorldCutscene
 local WorldCutscene, super = Class(Cutscene)
 
@@ -74,30 +88,49 @@ function WorldCutscene:onEnd()
     super.onEnd(self)
 end
 
+--- Gets a specific character currently present in the world.
+---@param id        string  The actor id of the character to search for.
+---@param index?    number  The character's index, if they have multiple instances in the world. (Defaults to 1)
+---@return Character|nil chara The character instance, or `nil` if it was not found.
 function WorldCutscene:getCharacter(id, index)
     return self.world:getCharacter(id, index)
 end
 
+--- Gets a specific event present in the current map.
+---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
+---@return Event event The event instnace, or `nil` if it was not found. 
 function WorldCutscene:getEvent(id)
     return self.world.map:getEvent(id)
 end
 
+--- Gets a list of all instances of one type of event in the current map.
+---@param name string The text id of the event to search for.
+---@return table events A table containing every instance of the event in the current map.
 function WorldCutscene:getEvents(name)
     return self.world.map:getEvents(name)
 end
 
+--- Gets a specific marker from the current map.
+---@param name string The name of the marker to search for.
+---@return number x The x-coordinate of the marker's center.
+---@return number y The y-coordinate of the marker's center.
 function WorldCutscene:getMarker(name)
     return self.world.map:getMarker(name)
 end
 
+--- Unlocks the player's movement. \
+--- Happens automatically at the end of cutscenes.
 function WorldCutscene:enableMovement()
     Game.lock_movement = false
 end
 
+--- Locks the player's movement. \
+--- Happens automatically at the start of cutscenes.
 function WorldCutscene:disableMovement()
     Game.lock_movement = true
 end
 
+--- Disables following for all of the player's current followers.
 function WorldCutscene:detachFollowers()
     self.world:detachFollowers()
 end
@@ -110,23 +143,36 @@ local function waitForFollowers(self)
     end
     return true
 end
+--- Enables following for all of the player's current followers and causes them to walk to their following positions.
+---@param return_speed number The walking speed of the followers while they return to the player.
+---@return function finished A function that returns `true` once all followers have finished returning.
 function WorldCutscene:attachFollowers(return_speed)
     self.world:attachFollowers(return_speed)
     return waitForFollowers
 end
+--- Enables following for all of the player's current followers, and immediately teleports them to their positions.
+---@return function finished A function that returns `true` once all followers have finished returning.
 function WorldCutscene:attachFollowersImmediate()
     self.world:attachFollowersImmediate()
     return _true
 end
 
+--- Aligns the player's followers' directions and positions.
+---@param facing?   string  The direction every character should face (Defaults to player's direction)
+---@param x?        number  The x-coordinate of the 'front' of the line. (Defaults to player's x-position)
+---@param y?        number  The y-coordinate of the 'front' of the line. (Defaults to player's y-position)
+---@param dist?     number  The distance between each follower.
 function WorldCutscene:alignFollowers(facing, x, y, dist)
     self.world.player:alignFollowers(facing, x, y, dist)
 end
 
+--- Adds all followers' current positions to their movement history. \
+--- If followers are added or moved by the cutscene, call this at the end to prevent them from warping. 
 function WorldCutscene:interpolateFollowers()
     self.world.player:interpolateFollowers()
 end
 
+--- Resets the sprites of the player and all their followers to their defaults.
 function WorldCutscene:resetSprites()
     self.world.player:resetSprite()
     for _,follower in ipairs(self.world.followers) do
@@ -134,10 +180,19 @@ function WorldCutscene:resetSprites()
     end
 end
 
+--- Spawns a new NPC object in the world.
+---@param actor         string|Actor    The actor to use for the new NPC, either an id string or an actor object.
+---@param x             number          The x-coordinate to place the NPC at.
+---@param y             number          The y-coordinate to place the NPC at.
+---@param properties    table           A table of additional properties for the new NPC. Supports all the same values as an `npc` map event.
+---@return NPC npc The newly created npc.
 function WorldCutscene:spawnNPC(actor, x, y, properties)
     return self.world:spawnNPC(actor, x, y, properties)
 end
 
+--- Makes a character look in a specific direction.
+---@param chara?    Character|string    The Character or id of the character that should face down. (Defaults to the player)
+---@param dir?      string              The direction the character should face. Must be either "up", "dowm", "left", or "right". (Defaults to "down")
 function WorldCutscene:look(chara, dir)
     if not dir then
         dir = chara or "down"
@@ -192,6 +247,10 @@ function WorldCutscene:walkPath(chara, path, options)
     return function() return walked end
 end
 
+--- Sets the sprite of a particular character.
+---@param chara     string|Character    The Character or character id to change the sprite of.
+---@param sprite    string              The name of the sprite to be set.
+---@param speed?    number              The time, in seconds, between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
 function WorldCutscene:setSprite(chara, sprite, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -202,6 +261,10 @@ function WorldCutscene:setSprite(chara, sprite, speed)
     end
 end
 
+--- Sets the animation of a particular character. 
+---@param chara string|Character        The Character or character id to change the animation of.
+---@param anim  string                  The name of the animation to be set.
+---@return function finished A function that returns `true` once the animation has finished.
 function WorldCutscene:setAnimation(chara, anim)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -211,6 +274,8 @@ function WorldCutscene:setAnimation(chara, anim)
     return function() return done end
 end
 
+--- Resets the sprite of a specific character to its default.
+---@param chara string|Character The Character or character id to reset the sprite of.
 function WorldCutscene:resetSprite(chara)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -218,6 +283,9 @@ function WorldCutscene:resetSprite(chara)
     chara:resetSprite()
 end
 
+--- Causes a specific character to start spinning.
+---@param chara string|Character    The Character of character id to spin.
+---@param speed number              The spin speed to set on the character. Negative numbers = anticlockwise, positive numbers = clockwise. Higher value = slower spin.
 function WorldCutscene:spin(chara, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -290,6 +358,13 @@ function WorldCutscene:jumpTo(chara, ...)
     return function() return not chara.jumping end
 end
 
+--- Shakes a character by the specified `x`, `y`.
+---@param chara     string|Character    The character being shaken. Accepts either a Character instance or the id of a character.
+---@param x?        number              The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number              The amount of shake in the `y` direction. (Defaults to `0`)
+---@param friction? number              The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
+---@param delay?    number              The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
+---@return function finished A function that returns `true` once the shake value has returned to 0.
 function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -298,11 +373,21 @@ function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     return function() return chara.sprite.graphics.shake_x == 0 and chara.sprite.graphics.shake_y == 0 end
 end
 
+--- Shakes the camera by the specified `x`, `y`.
+---@param x?        number      The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number      The amount of shake in the `y` direction. (Defaults to `4`)
+---@param friction? number      The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
+---@return function finished    A function that returns `true` once the shake value has returned to `0`.
 function WorldCutscene:shakeCamera(x, y, friction)
     self.world.camera:shake(x, y, friction)
     return function() return self.world.camera.shake_x == 0 and self.world.camera.shake_y == 0 end
 end
 
+--- Creates an alert bubble above a character.
+---@param chara     string|Character    The character or character id to trigger an alert bubble for.
+---@param ...       unknown             Arguments to be passed to Character:alert().
+---@return Sprite   alert_icon          The result alert icon created above the character's head.
+---@return function finished            A function that returns `true` once the alert icon has disappeared.
 function WorldCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -564,6 +649,7 @@ function WorldCutscene:text(text, portrait, actor, options)
     end
 end
 
+--- Closes the current textbox or choicer.
 function WorldCutscene:closeText()
     if self.textbox then
         self.textbox:remove()
@@ -744,6 +830,7 @@ function WorldCutscene:startEncounter(encounter, transition, enemy, options)
     end
 end
 
+--- Shows the mini shop UI.
 function WorldCutscene:showShop()
     if self.shopbox then self.shopbox:remove() end
 
@@ -753,6 +840,7 @@ function WorldCutscene:showShop()
     self.shopbox:setParallax(0, 0)
 end
 
+--- Hides the mini shop UI.
 function WorldCutscene:hideShop()
     if self.shopbox then
         self.shopbox:remove()

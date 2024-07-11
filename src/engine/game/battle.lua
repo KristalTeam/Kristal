@@ -1687,6 +1687,10 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
+--- Shakes the camera by the specified `x`, `y`.
+---@param x?        number      The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number      The amount of shake in the `y` direction. (Defaults to `4`)
+---@param friction? number      The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
 function Battle:shakeCamera(x, y, friction)
     self.camera:shake(x, y, friction)
 end
