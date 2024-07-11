@@ -1,5 +1,5 @@
 --- The underlying class for cutscene types in Kristal. \
---- See WorldCutscene or BattleCutscene for most available functions when creating cutscenes.
+--- See WorldCutscene, BattleCutscene, or LegendCutscene for the available functions when creating the respective cutscene types.
 ---
 ---@class Cutscene : Class
 ---@overload fun(...) : Cutscene
@@ -61,6 +61,10 @@ function Cutscene:parseFromGetter(getter, cutscene, id, ...)
     end
 end
 
+--- Adds a new callback to this cutscene.
+---@param func      function    The callback function to set or append to this cutscene.
+---@param replace   boolean     Whether or not to overwrite all previously defined callbacks on this function.
+---@return Cutscene self
 function Cutscene:after(func, replace)
     if self.ended then
         if func and (replace or not self.replaced_callback) then
@@ -104,6 +108,8 @@ function Cutscene:canResume()
     return true
 end
 
+--- *(Called internally)* *(Override)* Checks whether the cutscene is currently in a state to be ended.
+---@return boolean can_end Whether the cutscene is able to be ended.
 function Cutscene:canEnd()
     return true
 end
@@ -136,6 +142,8 @@ function Cutscene:update()
     end
 end
 
+--- *(Called internally)* Internal callback for when cutscenes end. \
+--- Also responsible for calling user defined callbacks from Cutscene:after()
 function Cutscene:onEnd()
     if self.finished_callback then
         self:finished_callback()
@@ -183,6 +191,10 @@ function Cutscene:endCutscene()
     self:onEnd()
 end
 
+--- Starts executing a new cutscene script specified by `func`.
+---@param func function     The new cutscene script.
+---@param ... unknown       Additional arguments to pass to the new cutscene.
+---@return unknown
 function Cutscene:gotoCutscene(func, ...)
     if self.getter then
         local new_func, args = self:parseFromGetter(self.getter, func, ...)

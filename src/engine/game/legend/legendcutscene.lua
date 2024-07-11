@@ -1,3 +1,18 @@
+--- A special cutscene class for Legend-style cutscenes. \
+--- Write an annotation here about how these cutscenes start!
+---
+---@class LegendCutscene : Cutscene
+---
+--- A table of preset positions for use with `LegendCutscene:text()`. \
+--- Available positions: `"far_left"`, `"far_right"`, `"left"`, `"top_left"`, \
+--- `"middle_bottom"`, `"left_bottom"`, `"far_left_bottom"`, `"text_human"`, \
+--- `"text_monster"`, `"text_prince"`.
+---@field text_positions table
+---
+--- The speed that newly created text will type at in the cutscene, in characters per frame.
+---@field speed number
+---
+---@overload fun(...) : LegendCutscene
 local LegendCutscene, super = Class(Cutscene, "LegendCutscene")
 
 function LegendCutscene:init(group, id, ...)
@@ -33,16 +48,24 @@ function LegendCutscene:onEnd()
     Game.legend.fader:fadeOut(function() Game.legend:onFinish() end, { speed = 2, music = true })
 end
 
+--- Removes all currently active text objects from the cutscene.
 function LegendCutscene:removeText()
     for i, v in ipairs(self.text_objects) do
         v:remove()
     end
 end
 
+--- Sets the typing speed of the legend text. \
+--- Default typing speed is `1`.
+---@param speed number  The speed, in characters typed per frame.
 function LegendCutscene:setSpeed(speed)
     self.speed = speed
 end
 
+--- Writes some text at the given coordinates on the screen.
+---@param text  string  The text to display.
+---@param pos   table   A table of the x and y coordinates to start writing the text at. See `LegendCutscene.text_positions` for a set of default text positions.
+---@return DialogueText dialogue
 function LegendCutscene:text(text, pos)
     local x, y = unpack(self.text_positions[pos])
     local dialogue = Game.legend:addChild(DialogueText(text, x, y, nil, nil, {style = "none"}))
@@ -56,14 +79,22 @@ function LegendCutscene:text(text, pos)
     return dialogue
 end
 
+--- Suspends the cutscene until the music reaches a certain runtime.
+---@param time number   The song runtime to wait until before resuming the cutscene, in seconds.
+---@return any
 function LegendCutscene:musicWait(time)
     return self:wait(function() return Game.legend.music:tell() >= time end)
 end
 
+--- Adds a new picture slide to the legend.
+---@param texture   string  The path to the texture for the new slide.
+---@return Sprite slide The sprite created for the new panel.
 function LegendCutscene:slide(texture)
     return Game.legend:addSlide(texture)
 end
 
+--- Starts fading out the currently visible slides.
+---@return nil
 function LegendCutscene:removeSlides()
     return Game.legend:removeSlides()
 end
