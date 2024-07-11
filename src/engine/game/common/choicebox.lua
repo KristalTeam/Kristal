@@ -119,10 +119,15 @@ function Choicebox:clearChoices()
     self.current_choice = 0
 end
 
+--- Adds a new choice to the choicebox.
+---@param name string The name of the new choice that will be shown for the selection.
 function Choicebox:addChoice(name)
     table.insert(self.choices, name)
 end
 
+--- Sets the main and hover colors for every choice in the choicebox.
+---@param main? table   The main color to set for all choices, or a table of main colors for each individual choice. (Defaults to `COLORS.white`)
+---@param hover? table  The hover color to set for all choices, or a table of hover colors for each individual choice. (Defaults to `COLORS.yellow`)
 function Choicebox:setColors(main, hover)
     main = main or {1,1,1}
     if type(main[1]) == "number" then

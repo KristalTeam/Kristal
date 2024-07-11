@@ -1,3 +1,6 @@
+--- The cutscene class for cutscenes running in battles. \
+--- Cutscenes inside of `scripts/battle/cutscenes/` will receive BattleCutscene as their first argument.
+---
 ---@class BattleCutscene : Cutscene
 ---@overload fun(...) : BattleCutscene
 local BattleCutscene, super = Class(Cutscene)
@@ -64,6 +67,9 @@ function BattleCutscene:onEnd()
     end
 end
 
+--- Gets the first instance of a specific party or enemy character in the current battle.
+---@param id string The character id to search for.
+---@return PartyBattler|EnemyBattler|nil battler The PartyBattler/EnemyBattler instance of the character if they exist, otherwise `nil`.
 function BattleCutscene:getCharacter(id)
     for _,battler in ipairs(Game.battle.party) do
         if battler.chara.id == id then
@@ -77,6 +83,9 @@ function BattleCutscene:getCharacter(id)
     end
 end
 
+--- Gets all enemies with the specified id in the current battle.
+---@param id string The enemy id to search for.
+---@return table enemies A table containing all matched EnemyBattler instances.
 function BattleCutscene:getEnemies(id)
     local result = {}
     for _,battler in ipairs(Game.battle.enemies) do
@@ -87,14 +96,20 @@ function BattleCutscene:getEnemies(id)
     return result
 end
 
+--- Gets the character that is performing the current action.
+---@return PartyBattler battler The PartyBattler performing the current action.
 function BattleCutscene:getUser()
     return Game.battle.party[Game.battle:getCurrentAction().character_id]
 end
 
+--- Gets the character being targetted of the current action.
+---@return Battler target The target Battler of the current action.
 function BattleCutscene:getTarget()
     return Game.battle:getCurrentAction().target
 end
 
+--- Resets the sprites of characters who have had their sprites changed in this cutscene. \
+--- Called in BattleCutscene:onEnd() automatically.
 function BattleCutscene:resetSprites()
     for battler,_ in pairs(self.changed_sprite) do
         battler:toggleOverlay(false)
@@ -102,6 +117,11 @@ function BattleCutscene:resetSprites()
     self.changed_sprite = {}
 end
 
+--- Sets the sprite of a particular character. \
+--- The change lasts until the end of the cutscene or until the sprite is changed again.
+---@param chara     string|Battler  The character to change the sprite of. Accepts either a Battler instance or an id to search for.
+---@param sprite    string          The name of the sprite to be set.
+---@param speed?    number          The number of seconds between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
 function BattleCutscene:setSprite(chara, sprite, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -114,6 +134,11 @@ function BattleCutscene:setSprite(chara, sprite, speed)
     self.changed_sprite[chara] = true
 end
 
+--- Sets the animation of a particular character. \
+--- The change lasts until the end of the cutscene or until the animation is changed again.
+---@param chara string|Battler  The character to change the sprite of. Accepts either a Battler instance or an id to search for.
+---@param anim  string          The name of the animation to be set.
+---@return function finished A function that returns `true` once the animation has finished.
 function BattleCutscene:setAnimation(chara, anim)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -125,6 +150,13 @@ function BattleCutscene:setAnimation(chara, anim)
     return function() return done end
 end
 
+--- *(Deprecated)* Linearly moves a character to a new position (`x`, `y`) over time at a rate of `speed` pixels per frame.
+---@param chara     string|Battler  The character being moved. Accepts either a Battler instance or an id to search for.
+---@param x         number          The new x-coordinate to approach.
+---@param y         number          The new y-coordinate to approach.
+---@param speed?    number          The amount the character's `x` and `y` should approach their new position by every frame, in pixels per frame at 30FPS. (Defaults to `4`)
+---@return function finished A function that returns `true` once the movement has finished.
+---@deprecated use :slideToSpeed() instead.
 function BattleCutscene:moveTo(chara, x, y, speed)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -137,6 +169,14 @@ function BattleCutscene:moveTo(chara, x, y, speed)
     return _true
 end
 
+--- Moves a character to a new position (`x`, `y`) over `time` seconds. \ 
+--- Supports easing.
+---@param obj   string|Battler  The character being moved. Accepts either a Battler instance or an id to search for.
+---@param x     number          The new x-coordinate to approach.
+---@param y     number          The new y-coordinate to approach.
+---@param time? number          The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param ease? string          The ease type to use when moving position. (Defaults to "linear")
+---@return function finished A function that returns `true` once the movement is finished.
 function BattleCutscene:slideTo(obj, x, y, time, ease)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -149,6 +189,12 @@ function BattleCutscene:slideTo(obj, x, y, time, ease)
     end
 end
 
+--- Linearly moves a character to a new position (`x`, `y`) over time at a rate of `speed` pixels per frame.
+---@param obj       string|Battler The character being moved. Accepts either a Battler instance or an id to search for.
+---@param x         number The new x-coordinate to approach.
+---@param y         number The new y-coordinate to approach.
+---@param speed?    number The amount the character's `x` and `y` should approach their new position by every frame, in pixels per frame at 30FPS. (Defaults to `4`)
+---@return function finished A function that returns `true` once the movement has finished.
 function BattleCutscene:slideToSpeed(obj, x, y, speed)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -161,6 +207,13 @@ function BattleCutscene:slideToSpeed(obj, x, y, speed)
     end
 end
 
+--- Shakes a character by the specified `x`, `y`.
+---@param chara     string|Battler  The character being shaken. Accepts either a Battler instance or an id to search for.
+---@param x?        number          The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number          The amount of shake in the `y` direction. (Defaults to `0`)
+---@param friction? number          The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
+---@param delay?    number          The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
+---@return function finished A function that returns `true` once the shake value has returned to 0.
 function BattleCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -171,11 +224,21 @@ function BattleCutscene:shakeCharacter(chara, x, y, friction, delay)
 end
 
 local function cameraShakeCheck() return Game.battle.camera.shake_x == 0 and Game.battle.camera.shake_y == 0 end
+--- Shakes the camera by the specified `x`, `y`.
+---@param x?        number      The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number      The amount of shake in the `y` direction. (Defaults to `4`)
+---@param friction? number      The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
+---@return function finished    A function that returns `true` once the shake value has returned to `0`.
 function BattleCutscene:shakeCamera(x, y, friction)
     Game.battle:shakeCamera(x, y, friction)
     return cameraShakeCheck
 end
 
+--- Creates an alert bubble above a character.
+---@param chara     string|Battler  The character being shaken. Accepts either a Battler instance or an id to search for.
+---@param ...       unknown         Arguments to be passed to Battler:alert().
+---@return Sprite   alert_icon      The result alert icon created above the character's head.
+---@return function finished        A function that returns `true` once the alert icon has disappeared.
 function BattleCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -184,6 +247,14 @@ function BattleCutscene:alert(chara, ...)
     return chara:alert(...), waitForAlertRemoval
 end
 
+--- Fades the screen and music out.
+---@param speed?    number       The speed to fade out at, in seconds. (Defaults to `0.25`)
+---@param options?  table        A table defining additional properties to control the fade.
+---| "color"    # The color that should be faded to (Defaults to `COLORS.black`)
+---| "alpha"    # The alpha to start at (Defaults to `0`)
+---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
+---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
+---@return function finished    A function that returns true once the fade has finished.
 function BattleCutscene:fadeOut(speed, options)
     options = options or {}
 
@@ -200,6 +271,14 @@ function BattleCutscene:fadeOut(speed, options)
     return function() return fade_done end
 end
 
+--- Fades the screen and music back in after a fade out.
+---@param speed?    number  The speed to fade in at, in seconds (Defaults to last fadeOut's speed.)
+---@param options?  table   A table defining additional properties to control the fade.
+---| "color"    # The color that should be faded to (Defaults to last fadeOut's color)
+---| "alpha"    # The alpha to start at (Defaults to `1`)
+---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
+---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
+---@return function finished    A function that returns true once the fade has finished.
 function BattleCutscene:fadeIn(speed, options)
     options = options or {}
 
@@ -216,6 +295,8 @@ function BattleCutscene:fadeIn(speed, options)
     return function() return fade_done end
 end
 
+--- Sets the active speaker for the encountertext box.
+---@param actor PartyBattler|EnemyBattler|Actor|nil The character or actor to set as the speaker. `nil` resets the speaker to nothing.
 function BattleCutscene:setSpeaker(actor)
     if isClass(actor) and (actor:includes(PartyBattler) or actor:includes(EnemyBattler)) then
         actor = actor.actor
@@ -224,6 +305,23 @@ function BattleCutscene:setSpeaker(actor)
 end
 
 local function waitForEncounterText() return Game.battle.battle_ui.encounter_text.text.text == "" end
+--- Types text on the encounter text box, and suspends the cutscene until the player progresses the dialogue. \
+--- When passing arguments to this function, the options table can be passed as the second or third argument to forgo specifying `portrait` or `actor`.
+---@param text      string  The text to be typed.
+---@param portrait? string  The character portrait to be used.
+---@param actor?    Actor   The actor to use for voice bytes and dialogue portraits, overriding the active speaker.
+---@param options?  table   A table defining additional properties to control the text.
+---|"x"         # The x-offset of the dialgoue portrait.
+---|"y"         # The y-offset of the dialogue portrait.
+---|"reactions" # A table of tables that define "reaction" dialogues. Each table defines the dialogue, x and y position of the face, actor and face sprite, in that order. x and y can be strings as well, referring to existing positions; x can be left, leftmid, mid, middle, rightmid, or right, and y can be top, mid, middle, bottommid, and bottom. Must be used in combination with a react text command.
+---|"functions" # A table defining additional functions that can be used in the text with the `func` text command. Each key, value pair will form the id to use with `func` and the function to be called, respectively.
+---|"font"      # The font to be used for this text. Can optionally be defined as a table {font, size} to also set the text size.
+---|"align"     # Sets the alignment of the text.
+---|"skip"      # If false, the player will be unable to skip the textbox with the cancel key.
+---|"advance"   # When `false`, the player cannot advance the textbox, and the cutscene will no longer suspend itself on the dialogue by default.
+---|"auto"      # When `true`, the text will auto-advance after the last character has been typed.
+---|"wait"      # Whether the cutscene should automatically suspend itself until the textbox advances. (Defaults to `true`, unless `advance` is false.)
+---@return function finished If wait is not set to `true`, a function that returns `true` when the textbox has been advanced.
 function BattleCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
@@ -289,6 +387,19 @@ function BattleCutscene:text(text, portrait, actor, options)
     end
 end
 
+--- Creates a text bubble for one or more battlers.
+---@param battlers  string|Battler  A battler id, or a Battler instance. If multiple battlers share the same id, specifying one will create a bubble for each of them.
+---@param text      string          The text that will appear in the speech bubble.
+---@param options?  table           A table defining additional properties to control the text.
+---|"wait"          # Whether the cutscene should automatically suspend itself until the bubbles have finished. (Defaults to `true`)
+---|"x"             # The x-offset of the speech bubble. (Defaults to `0`)
+---|"y"             # The y-offset of the speech bubble. (Defaults to `0`)
+---|"advance"       # Whether the bubble can be manually advanced by the player. (Defaults to `true`)
+---|"auto"          # Whether the bubble will auto-advance after it has typed the last character. (Defaults to `false`)
+---|"after"         # A callback to add to the bubble, that will be run when it finishes.
+---|"line_callback" # Sets the line_callback of the text.
+---@return any      finished        If the cutscene is not automatically waiting, a boolean that reflects whether all the dialogue bubbles have finished.
+---@return table?   bubbles         A table of all bubbles created by this function call.
 function BattleCutscene:battlerText(battlers, text, options)
     options = options or {}
     if type(battlers) == "string" then
@@ -348,6 +459,14 @@ function BattleCutscene:battlerText(battlers, text, options)
 end
 
 local function waitForChoicer() return Game.battle.battle_ui.choice_box.done, Game.battle.battle_ui.choice_box.selected_choice end
+--- Creates a choicer with the given set of choices for the player to select from.
+---@param choices  table A table of strings specifying the choices the player can select. Maximum of four.
+---@param options? table A table defining additional properties to control the choicer.
+---|"color"     # The main color to set all the choices to, or a table of main colors to set for different choices. (Defaults to `COLORS.white`)
+---|"highlight" # The color to highlight the selected choice in, or a table of colors to highlight different choices in when selected. (Defaults to `COLORS.yellow`)
+---|"wait"      # Whether the cutscene should automatically suspend itself until the player makes their choice. (Defaults to `true`)
+---@return number|function selected The index of the selected item if the cutscene has been set to wait for the choicer, otherwise a boolean that states whether the player has made their choice.
+---@return Choicebox? choicer The choicebox object for this choicer. Only returned if wait is `false`. 
 function BattleCutscene:choicer(choices, options)
     options = options or {}
 
@@ -371,6 +490,7 @@ function BattleCutscene:choicer(choices, options)
     end
 end
 
+--- Clears the active choicebox and current encounter text, and removes all battler bubbles.
 function BattleCutscene:closeText()
     local choice_box = Game.battle.battle_ui.choice_box
     local text = Game.battle.battle_ui.encounter_text

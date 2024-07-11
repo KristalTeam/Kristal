@@ -26,6 +26,9 @@ function Fader:init()
     self.blocky = false
 end
 
+--- *(Called internally)* Processes the `options` table for fades, setting values for the appropriate fields.
+---@param options table         The table of options for the current fade.
+---@param reset_values boolean  Whether to reset values from previous fades. (Usually `true` when fading out, and `false` when fading in)
 function Fader:parseOptions(options, reset_values)
     options = options or {}
 
@@ -37,6 +40,9 @@ function Fader:parseOptions(options, reset_values)
     return options
 end
 
+--- *(Called internally)* Processes music fading with the `options` table for fades.
+---@param to        number  The volume to fade the music to.
+---@param options   table   The table of options for the current fade.
 function Fader:parseMusicFade(to, options)
     options = options or {}
     if options["music"] then
@@ -73,6 +79,15 @@ function Fader:transition(middle_callback, end_callback, options)
     end, options)
 end
 
+--- Starts a fade out with the given options. \
+--- A default fadeout will fade to black over `0.25` seconds, fading out the music as well.
+---@param callback  function    A function that will be called when the fade has finished.
+---@param options   table       A table defining additional properties to control the fade.
+---| "speed"    # The speed to fade out at, in seconds. (Defaults to `0.25`)
+---| "color"    # The color that should be faded to (Defaults to `COLORS.black`)
+---| "alpha"    # The alpha to start at (Defaults to `0`)
+---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
+---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
 function Fader:fadeOut(callback, options)
     if type(callback) == "table" then
         options = callback
@@ -84,6 +99,15 @@ function Fader:fadeOut(callback, options)
     self.state = "FADEOUT"
 end
 
+--- Fades the screen back in with the given options and based on the previous fade out. \
+--- A default fadein will fade the screen and music in over `0.25` seconds.
+---@param callback  function    A function that will be called when the fade has finished.
+---@param options   table       A table defining additional properties to control the fade.
+---| "speed"    # The speed to fade in at, in seconds (Defaults to last fadeOut's speed.)
+---| "color"    # The color that should be faded to (Defaults to last fadeOut's color)
+---| "alpha"    # The alpha to start at (Defaults to `1`)
+---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
+---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
 function Fader:fadeIn(callback, options)
     if type(callback) == "table" then
         options = callback
