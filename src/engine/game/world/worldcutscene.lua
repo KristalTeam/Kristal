@@ -728,6 +728,10 @@ function WorldCutscene:text(text, portrait, actor, options)
     self.world:addChild(self.textbox)
     self.textbox:setParallax(0, 0)
 
+    if type(actor) == "string" then
+        actor = self:getCharacter(actor) or actor
+    end
+
     local speaker = self.textbox_speaker
     if not speaker and isClass(actor) and actor:includes(Character) then
         speaker = actor.sprite
@@ -914,6 +918,10 @@ function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
 
     for _,choice in ipairs(choices) do
         self.textchoicebox:addChoice(choice)
+    end
+
+    if type(actor) == "string" then
+        actor = self:getCharacter(actor) or actor
     end
 
     local speaker = self.textbox_speaker
