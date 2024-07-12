@@ -213,8 +213,9 @@ function Sprite:setFrames(frames, keep_anim)
     end
     if not keep_anim then
         self:stop()
+    else
+        self:setFrame(self.frame) -- this also clamps self.frame
     end
-    self:updateTexture()
 end
 
 ---@alias Sprite.wait_func     fun(seconds:number)
