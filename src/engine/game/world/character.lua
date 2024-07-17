@@ -348,6 +348,16 @@ function Character:flash(sprite, offset_x, offset_y, layer)
     return sprite_to_use:flash(offset_x, offset_y, layer)
 end
 
+--- Creates an alert bubble (tiny !) above this character.
+---@param duration?     number  The number of frames to show the bubble for. (Defaults to `20`)
+---@param options?      table   A table defining additional properties to control the bubble.
+---|"play_sound"    # Whether the alert sound will be played. (Defaults to `true`)
+---|"sprite"        # The sprite to use for the alert bubble. (Defaults to `"effects/alert"`)
+---|"offset_x"      # The x-offset of the icon.
+---|"offset_y"      # The y-offset of the icon.
+---|"layer"         # The layer to put the icon on. (Defaults to `100`)
+---|"callback"      # A callback that is run when the alert finishes.
+---@return Sprite
 function Character:alert(duration, options)
     options = options or {}
     if options["play_sound"] == nil or options["play_sound"] then
