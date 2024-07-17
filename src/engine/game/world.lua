@@ -729,6 +729,16 @@ function World:setupMap(map, ...)
     end
 end
 
+--- Loads into a new map file.
+---@overload fun(self: World, map: string, x: number, y: number, facing?: string, callback?: string, ...: any)
+---@overload fun(self: World, map: string, marker?: string, facing?: string, callback?: string, ...: any)
+---@param map       string      The name of the map file to load.
+---@param x         number      The x-coordinate the player will spawn at in the new map.
+---@param y         number      The y-coordinate the player will spawn at in the new map.
+---@param marker?   string      The name of the marker the player will spawn at in the new map. Defaults to `"spawn"`
+---@param facing?   string      The direction the party should be facing when they spawn in the new map.
+---@param callback? fun()       A callback to run once the map has finished loading (Post Map:onEnter())
+---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter().
 function World:loadMap(...)
     local args = {...}
     -- x, y, facing, callback
@@ -862,6 +872,10 @@ function World:shopTransition(shop, options)
     end)
 end
 
+--- Loads a new map and starts the transition effects for world music, borders, and the screen as a whole.
+---@overload fun(self: World, map: string, ...: any)
+---@param ... any   Additional arguments that will be passed into World:loadMap()
+---@see World - World:loadMap() 
 function World:mapTransition(...)
     local args = {...}
     local map = args[1]

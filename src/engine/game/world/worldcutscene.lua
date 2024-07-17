@@ -145,13 +145,13 @@ local function waitForFollowers(self)
 end
 --- Enables following for all of the player's current followers and causes them to walk to their following positions.
 ---@param return_speed number The walking speed of the followers while they return to the player.
----@return function finished A function that returns `true` once all followers have finished returning.
+---@return fun(self: WorldCutscene) : boolean finished A function that returns `true` once all followers have finished returning.
 function WorldCutscene:attachFollowers(return_speed)
     self.world:attachFollowers(return_speed)
     return waitForFollowers
 end
 --- Enables following for all of the player's current followers, and immediately teleports them to their positions.
----@return function finished A function that returns `true` once all followers have finished returning.
+---@return fun() : boolean finished A function that returns `true` once all followers have finished returning.
 function WorldCutscene:attachFollowersImmediate()
     self.world:attachFollowersImmediate()
     return _true
@@ -264,7 +264,7 @@ end
 --- Sets the animation of a particular character. 
 ---@param chara string|Character        The Character or character id to change the animation of.
 ---@param anim  string                  The name of the animation to be set.
----@return function finished A function that returns `true` once the animation has finished.
+---@return fun() : boolean finished A function that returns `true` once the animation has finished.
 function WorldCutscene:setAnimation(chara, anim)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -364,7 +364,7 @@ end
 ---@param y?        number              The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number              The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
 ---@param delay?    number              The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
----@return function finished A function that returns `true` once the shake value has returned to 0.
+---@return fun() : boolean finished A function that returns `true` once the shake value has returned to 0.
 function WorldCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -377,7 +377,7 @@ end
 ---@param x?        number      The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y?        number      The amount of shake in the `y` direction. (Defaults to `4`)
 ---@param friction? number      The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
----@return function finished    A function that returns `true` once the shake value has returned to `0`.
+---@return fun() : boolean finished    A function that returns `true` once the shake value has returned to `0`.
 function WorldCutscene:shakeCamera(x, y, friction)
     self.world.camera:shake(x, y, friction)
     return function() return self.world.camera.shake_x == 0 and self.world.camera.shake_y == 0 end
@@ -387,7 +387,8 @@ end
 ---@param chara     string|Character    The character or character id to trigger an alert bubble for.
 ---@param ...       unknown             Arguments to be passed to Character:alert().
 ---@return Sprite   alert_icon          The result alert icon created above the character's head.
----@return function finished            A function that returns `true` once the alert icon has disappeared.
+---@return fun()    finished            A function that returns `true` once the alert icon has disappeared. \
+---@see Character - Character:alert() for details on the arguments to pass to this function.
 function WorldCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -396,20 +397,28 @@ function WorldCutscene:alert(chara, ...)
     return chara:alert(...), waitForAlertRemoval
 end
 
+--- Detaches the camera from the player character.
 function WorldCutscene:detachCamera()
     self.world:setCameraAttached(false)
 end
 
+--- Smoothly pans the camera to the player and then attaches it.
+---@param time number The time, in seconds, that the camera will spend panning to the player's position. (Defaults to `0.8`)
+---@return fun(self: WorldCutscene) finished A function that returns true once the camera panning is complete.
 function WorldCutscene:attachCamera(time)
     local tx, ty = self.world.camera:getTargetPosition()
     return self:panTo(tx, ty, time or 0.8, "linear", function() self.world:setCameraAttached(true) end)
 end
+--- Attaches the camera to the player instantly.
 function WorldCutscene:attachCameraImmediate()
     local tx, ty = self.world.camera:getTargetPosition()
     self.world:setCameraAttached(true)
     self.world.camera:setPosition(tx, ty)
 end
 
+--- Sets the current speaker for dialogue boxes in this cutscene.
+---@param actor Character|string    The Character instance or character id to set as the speaker.
+---@param talk? boolean             If `false`, the actor of the textbox will be set, but not the speaking character in the world for talking animations.
 function WorldCutscene:setSpeaker(actor, talk)
     if isClass(actor) and actor:includes(Character) then
         if talk ~= false then
@@ -431,6 +440,8 @@ function WorldCutscene:setSpeaker(actor, talk)
     end
 end
 
+--- Sets whether the textbox should appear at the top of the screen or the bottom.
+---@param top boolean Whether the textbox should appear at the top of the screen.
 function WorldCutscene:setTextboxTop(top)
     self.textbox_top = top
 end
@@ -441,6 +452,7 @@ local function waitForCameraPan(self) return self.world.camera.pan_target == nil
 ---@overload fun(self: WorldCutscene, marker: string, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, chara: Character, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun() : fun(self: WorldCutscene)
+---@return fun(self: WorldCutscene) finished A function that returns true once the camera panning is complete.
 function WorldCutscene:panTo(...)
     local args = {...}
     local x, y = 0, 0
@@ -507,15 +519,39 @@ function WorldCutscene:panToSpeed(...)
     return waitForCameraPan
 end
 
+--- Loads a new map and starts the transition effects for world music, borders, and the screen as a whole.
+---@overload fun(self: WorldCutscene, map: string, ...: any)
+---@param ... any   Additional arguments that will be passed into World:loadMap()
+---@see World - World:loadMap() for the arguments to pass into World:loadMap().
+---@return fun() : boolean finished A function that returns true once the map transition has finished. \
 function WorldCutscene:mapTransition(...)
     self.world:mapTransition(...)
     return function() return self.world.state ~= "FADING" end
 end
 
+--- Loads into a new map file.
+---@overload fun(self: WorldCutscene, map: string, x: number, y: number, facing?: string, callback?: string, ...: any)
+---@overload fun(self: WorldCutscene, map: string, marker?: string, facing?: string, callback?: string, ...: any)
+---@param map       string      The name of the map file to load.
+---@param x         number      The x-coordinate the player will spawn at in the new map.
+---@param y         number      The y-coordinate the player will spawn at in the new map.
+---@param marker?   string      The name of the marker the player will spawn at in the new map. Defaults to `"spawn"`
+---@param facing?   string      The direction the party should be facing when they spawn in the new map.
+---@param callback? fun()       A callback to run once the map has finished loading (Post Map:onEnter())
+---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter().
 function WorldCutscene:loadMap(...)
     self.world:loadMap(...)
 end
 
+--- Fades the screen and music out.
+---@param speed?    number       The speed to fade out at, in seconds. (Defaults to `0.25`)
+---@param options?  table        A table defining additional properties to control the fade.
+---| "global"   # Whether to use the global Game fader, instead of a fader specifically assigned to the current world. (Defaults to `false`)
+---| "color"    # The color that should be faded to (Defaults to `COLORS.black`)
+---| "alpha"    # The alpha to start at (Defaults to `0`)
+---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
+---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
+---@return function finished    A function that returns true once the fade has finished.
 function WorldCutscene:fadeOut(speed, options)
     options = options or {}
 
@@ -532,6 +568,15 @@ function WorldCutscene:fadeOut(speed, options)
     return function() return fade_done end
 end
 
+--- Fades the screen and music back in after a fade out.
+---@param speed?    number  The speed to fade in at, in seconds (Defaults to last fadeOut's speed.)
+---@param options?  table   A table defining additional properties to control the fade.
+---| "global"   # Whether to use the global Game fader, instead of a fader specifically assigned to the current world. (Defaults to `false`)
+---| "color"    # The color that should be faded to (Defaults to last fadeOut's color)
+---| "alpha"    # The alpha to start at (Defaults to `1`)
+---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
+---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
+---@return function finished    A function that returns true once the fade has finished.
 function WorldCutscene:fadeIn(speed, options)
     options = options or {}
 
@@ -649,7 +694,7 @@ function WorldCutscene:text(text, portrait, actor, options)
     end
 end
 
---- Closes the current textbox or choicer.
+--- Closes the currently active textboxes, choicers and textchoicers, if they are open.
 function WorldCutscene:closeText()
     if self.textbox then
         self.textbox:remove()
@@ -803,6 +848,14 @@ function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
     end
 end
 
+--- Starts an encounter within the current cutscene. \
+--- The cutscene will resume at the end of the encounter, once the transition out from battle is complete.
+---@param encounter     string
+---@param transition    boolean|string
+---@param enemy         Character|string
+---@param options       table
+---@return fun()        finished
+---@return Encounter?   encounter
 function WorldCutscene:startEncounter(encounter, transition, enemy, options)
     options = options or {}
     transition = transition ~= false

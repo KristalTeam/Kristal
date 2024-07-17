@@ -138,7 +138,7 @@ end
 --- The change lasts until the end of the cutscene or until the animation is changed again.
 ---@param chara string|Battler  The character to change the sprite of. Accepts either a Battler instance or an id to search for.
 ---@param anim  string          The name of the animation to be set.
----@return function finished A function that returns `true` once the animation has finished.
+---@return fun() : boolean finished A function that returns `true` once the animation has finished.
 function BattleCutscene:setAnimation(chara, anim)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -155,7 +155,7 @@ end
 ---@param x         number          The new x-coordinate to approach.
 ---@param y         number          The new y-coordinate to approach.
 ---@param speed?    number          The amount the character's `x` and `y` should approach their new position by every frame, in pixels per frame at 30FPS. (Defaults to `4`)
----@return function finished A function that returns `true` once the movement has finished.
+---@return fun() : boolean finished A function that returns `true` once the movement has finished.
 ---@deprecated use :slideToSpeed() instead.
 function BattleCutscene:moveTo(chara, x, y, speed)
     if type(chara) == "string" then
@@ -176,7 +176,7 @@ end
 ---@param y     number          The new y-coordinate to approach.
 ---@param time? number          The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
 ---@param ease? string          The ease type to use when moving position. (Defaults to "linear")
----@return function finished A function that returns `true` once the movement is finished.
+---@return fun() : boolean finished A function that returns `true` once the movement is finished.
 function BattleCutscene:slideTo(obj, x, y, time, ease)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -194,7 +194,7 @@ end
 ---@param x         number The new x-coordinate to approach.
 ---@param y         number The new y-coordinate to approach.
 ---@param speed?    number The amount the character's `x` and `y` should approach their new position by every frame, in pixels per frame at 30FPS. (Defaults to `4`)
----@return function finished A function that returns `true` once the movement has finished.
+---@return fun() : boolean finished A function that returns `true` once the movement has finished.
 function BattleCutscene:slideToSpeed(obj, x, y, speed)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -213,7 +213,7 @@ end
 ---@param y?        number          The amount of shake in the `y` direction. (Defaults to `0`)
 ---@param friction? number          The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
 ---@param delay?    number          The time it takes for the object to invert its shake direction, in seconds. (Defaults to `1/30`)
----@return function finished A function that returns `true` once the shake value has returned to 0.
+---@return fun() : boolean finished A function that returns `true` once the shake value has returned to 0.
 function BattleCutscene:shakeCharacter(chara, x, y, friction, delay)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -228,7 +228,7 @@ local function cameraShakeCheck() return Game.battle.camera.shake_x == 0 and Gam
 ---@param x?        number      The amount of shake in the `x` direction. (Defaults to `4`)
 ---@param y?        number      The amount of shake in the `y` direction. (Defaults to `4`)
 ---@param friction? number      The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
----@return function finished    A function that returns `true` once the shake value has returned to `0`.
+---@return fun() : boolean finished    A function that returns `true` once the shake value has returned to `0`.
 function BattleCutscene:shakeCamera(x, y, friction)
     Game.battle:shakeCamera(x, y, friction)
     return cameraShakeCheck
@@ -238,7 +238,8 @@ end
 ---@param chara     string|Battler  The character being shaken. Accepts either a Battler instance or an id to search for.
 ---@param ...       unknown         Arguments to be passed to Battler:alert().
 ---@return Sprite   alert_icon      The result alert icon created above the character's head.
----@return function finished        A function that returns `true` once the alert icon has disappeared.
+---@return fun() : boolean finished        A function that returns `true` once the alert icon has disappeared. \
+---@see Battler - Battler:alert() for details on the arguments to pass to this function.
 function BattleCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -254,7 +255,7 @@ end
 ---| "alpha"    # The alpha to start at (Defaults to `0`)
 ---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
 ---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
----@return function finished    A function that returns true once the fade has finished.
+---@return fun() : boolean finished    A function that returns true once the fade has finished.
 function BattleCutscene:fadeOut(speed, options)
     options = options or {}
 
@@ -278,7 +279,7 @@ end
 ---| "alpha"    # The alpha to start at (Defaults to `1`)
 ---| "blocky"   # Whether to do a rough, 'blocky' fade. (Defaults to `false`)
 ---| "music"    # The speed to fade the music at, or whether to fade it at all (Defaults to fade speed)
----@return function finished    A function that returns true once the fade has finished.
+---@return fun() : boolean finished    A function that returns true once the fade has finished.
 function BattleCutscene:fadeIn(speed, options)
     options = options or {}
 
@@ -321,7 +322,7 @@ local function waitForEncounterText() return Game.battle.battle_ui.encounter_tex
 ---|"advance"   # When `false`, the player cannot advance the textbox, and the cutscene will no longer suspend itself on the dialogue by default.
 ---|"auto"      # When `true`, the text will auto-advance after the last character has been typed.
 ---|"wait"      # Whether the cutscene should automatically suspend itself until the textbox advances. (Defaults to `true`, unless `advance` is false.)
----@return function finished If wait is not set to `true`, a function that returns `true` when the textbox has been advanced.
+---@return fun() finished If wait is not set to `true`, a function that returns `true` when the textbox has been advanced.
 function BattleCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
