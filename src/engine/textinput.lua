@@ -16,6 +16,7 @@
 ---@field text_callback fun(text:string)?
 ---
 ---@field selecting boolean
+---@field overtyping boolean
 ---
 ---@field flash_timer number
 ---
@@ -97,6 +98,7 @@ function TextInput.reset(options)
     end
 
     self.selecting = false
+    self.overtyping = false
 
     -- Let's handle flashing cursors here, since they change based on text state
     -- If the user doesn't want it, then they don't have to draw it
@@ -307,6 +309,8 @@ function TextInput.onKeyPressed(key)
             self.cursor_y = self.cursor_y + 1
             self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
         end
+    elseif key == "insert" then
+        self.overtyping = not self.overtyping
     elseif key == "left" then
         if self.checkSelecting() == "stopped" then
             if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
@@ -628,7 +632,14 @@ function TextInput.insertString(str)
         string_2 = self.input[self.cursor_y]
     end
 
-    local split = Utils.split(string_1 .. str .. string_2, "\n", false)
+    local result
+    if not self.overtyping then
+        result = string_1 .. str .. string_2
+    else
+        result = string_1 .. str .. Utils.sub(string_2, utf8.len(str) + 1)
+    end
+
+    local split = Utils.split(result, "\n", false)
 
     split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
     self.input[self.cursor_y] = split[1]
@@ -637,7 +648,11 @@ function TextInput.insertString(str)
         table.insert(self.input, self.cursor_y + i - 1, split[i])
     end
 
-    self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
+    if not self.overtyping then
+        self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
+    else
+        self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2) + utf8.len(str)
+    end
     self.cursor_x_tallest = self.cursor_x
     self.cursor_y = self.cursor_y + #split - 1
     --self.cursor_x = self.cursor_y + utf8.len(str)
@@ -727,7 +742,7 @@ function TextInput.draw(options)
 
     Draw.setColor(1, 0, 1, 1)
     if (TextInput.flash_timer < 0.5) and self.active then
-        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+        if self.cursor_x == utf8.len(self.input[self.cursor_y]) or self.overtyping then
             print_func("_", cursor_pos_x, cursor_pos_y)
         else
             print_func("|", cursor_pos_x, cursor_pos_y)
