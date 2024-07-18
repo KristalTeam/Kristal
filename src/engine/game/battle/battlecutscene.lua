@@ -1,5 +1,5 @@
---- The cutscene class for cutscenes running in battles. \
---- Cutscenes inside of `scripts/battle/cutscenes/` will receive BattleCutscene as their first argument.
+--- The cutscene class for cutscenes running in battles, their scripts should be located in `scripts/battle/cutscenes/`. \
+--- These cutscene scripts will receive a BattleCutscene as their first argument.
 ---
 ---@class BattleCutscene : Cutscene
 ---@overload fun(...) : BattleCutscene
@@ -239,7 +239,7 @@ end
 ---@param ...       unknown         Arguments to be passed to Battler:alert().
 ---@return Sprite   alert_icon      The result alert icon created above the character's head.
 ---@return fun() : boolean finished        A function that returns `true` once the alert icon has disappeared. \
----@see Battler - Battler:alert() for details on the arguments to pass to this function.
+---@see Battler.alert for details on the arguments to pass to this function.
 function BattleCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -308,9 +308,11 @@ end
 local function waitForEncounterText() return Game.battle.battle_ui.encounter_text.text.text == "" end
 --- Types text on the encounter text box, and suspends the cutscene until the player progresses the dialogue. \
 --- When passing arguments to this function, the options table can be passed as the second or third argument to forgo specifying `portrait` or `actor`.
+---@overload fun(self: BattleCutscene, text: string, options?: table): finished: fun(): boolean
+---@overload fun(self: BattleCutscene, text: string, portrait: string, options?: table): finished: fun(): boolean
 ---@param text      string  The text to be typed.
----@param portrait? string  The character portrait to be used.
----@param actor?    Actor   The actor to use for voice bytes and dialogue portraits, overriding the active speaker.
+---@param portrait  string  The character portrait to be used.
+---@param actor     Actor   The actor to use for voice bytes and dialogue portraits, overriding the active cutscene speaker.
 ---@param options?  table   A table defining additional properties to control the text.
 ---|"x"         # The x-offset of the dialgoue portrait.
 ---|"y"         # The y-offset of the dialogue portrait.
@@ -322,7 +324,7 @@ local function waitForEncounterText() return Game.battle.battle_ui.encounter_tex
 ---|"advance"   # When `false`, the player cannot advance the textbox, and the cutscene will no longer suspend itself on the dialogue by default.
 ---|"auto"      # When `true`, the text will auto-advance after the last character has been typed.
 ---|"wait"      # Whether the cutscene should automatically suspend itself until the textbox advances. (Defaults to `true`, unless `advance` is false.)
----@return fun() finished If wait is not set to `true`, a function that returns `true` when the textbox has been advanced.
+---@return fun() finished A function that returns `true` when the textbox has been advanced. (Only use if `options["wait"]` is set to `false`.)
 function BattleCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
@@ -460,7 +462,7 @@ function BattleCutscene:battlerText(battlers, text, options)
 end
 
 local function waitForChoicer() return Game.battle.battle_ui.choice_box.done, Game.battle.battle_ui.choice_box.selected_choice end
---- Creates a choicer with the given set of choices for the player to select from.
+--- Creates a choicer with the choices specified in `choices` for the player to select from.
 ---@param choices  table A table of strings specifying the choices the player can select. Maximum of four.
 ---@param options? table A table defining additional properties to control the choicer.
 ---|"color"     # The main color to set all the choices to, or a table of main colors to set for different choices. (Defaults to `COLORS.white`)

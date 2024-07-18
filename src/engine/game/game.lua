@@ -518,6 +518,14 @@ function Game:loadQuick(fade)
     self.quick_save = save
 end
 
+-- DOC Note: whats IS a context; I left it blank because its not relevant
+-- to the cutscene files being documented as i write this
+
+--- Starts a battle using the specified encounter file.
+---@param encounter     Encounter|string    The encounter id or instance to use for this battle.
+---@param transition?   boolean|string      Whether to start in the transition state (Defaults to `true`). As a string, represents the state to start the battle in.
+---@param enemy?        Character|table     An enemy instance or list of enemies as `Character`s in the world that will transition into the battle.
+---@param context       any
 function Game:encounter(encounter, transition, enemy, context)
     if transition == nil then transition = true end
 

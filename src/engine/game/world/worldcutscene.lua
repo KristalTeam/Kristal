@@ -1,3 +1,6 @@
+--- The cutscene class for cutscenes playing in the world, their scripts should be located in `scripts/world/cutscenes`. \
+--- These cutscene scripts will receive a WorldCutscene as their first argument.
+---
 ---@class WorldCutscene : Cutscene
 ---
 ---@field textbox           Textbox     The current Textbox object, if it is active.
@@ -203,6 +206,17 @@ function WorldCutscene:look(chara, dir)
     chara:setFacing(dir)
 end
 
+--- Walks a character to a new `x` and `y` over `time` seconds.
+---@overload fun(self: WorldCutscene, chara: Character|string, marker: string, time?: number, facing?: string, keep_facing?: boolean, after?: fun())
+---@param chara         Character|string        The Character instance or id to make walk.
+---@param x             number                  The new `x` value to approach.
+---@param y             number                  The new `y` value to approach.
+---@param marker        string                  A map marker whose position the object should approach.
+---@param time?         number                  The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param facing?       string                  The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
+---@param keep_facing?  boolean                 If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---@param after?        fun(chara: Character)   A callback function that is run after the character has finished walking.
+---@return fun(): boolean finished A function that returns `true` once the character has finished walking.
 function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease, after)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -217,6 +231,17 @@ function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease, afte
     end
 end
 
+--- Walks a character to a new `x` and `y` at `speed` pixels per frame.
+---@overload fun(self: WorldCutscene, chara: Character|string, marker: string, speed?: number, facing?: string, keep_facing?: boolean, after?: fun())
+---@param chara         Character|string        The Character instance or id to make walk.
+---@param x             number                  The new `x` value to approach.
+---@param y             number                  The new `y` value to approach.
+---@param marker        string                  A map marker whose position the object should approach.
+---@param speed?        number                  The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to `4`)
+---@param facing?       string                  The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
+---@param keep_facing?  boolean                 If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---@param after?        fun(chara: Character)   A callback function that is run after the character has finished walking.
+---@return fun(): boolean finished A function that returns `true` once the character has finished walking.
 function WorldCutscene:walkToSpeed(chara, x, y, speed, facing, keep_facing, after)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -231,6 +256,22 @@ function WorldCutscene:walkToSpeed(chara, x, y, speed, facing, keep_facing, afte
     end
 end
 
+--- Walks a character along a path.
+---@param chara     Character|string    The Character instance or id to make walk.
+---@param path      string|table        The name of a path in the current map file, or a table defining several points (as additional tables) that constitute a path.
+---@param options   table               A table defining additional properties to control the walk.
+---|"facing" # The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
+---|"keep_facing" # If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---| "time" # The amount of time, in seconds, that the object should take to travel along the full path.
+---| "speed" # The speed at which the object should travel along the path, in pixels per frame at 30FPS.
+---| "ease" # The ease type to use when travelling along the path. Unused if `speed` is specified instead of `time`. (Defaults to "linear")
+---| "after" # A function that will be called when the end of the path is reached. Receives no arguments.
+---| "relative" # Whether the path should be relative to the object's current position, or simply set its position directly.
+---| "loop" # Whether the path should loop back to the first point when reaching the end, or if it should stop.
+---| "reverse" # If true, reverse all of the points on the path.
+---| "skip" # A number defining how many points of the path to skip.
+---| "snap" # Whether the object's position should immediately "snap" to the first point, or if its initial position should be counted as a point on the path.
+---@return fun() : boolean finished Returns `true` when the character has reached the end of the path.
 function WorldCutscene:walkPath(chara, path, options)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -293,6 +334,15 @@ function WorldCutscene:spin(chara, speed)
     chara:spin(speed)
 end
 
+--- Moves the object's `x` and `y` values to the new specified position over `time` seconds.
+---@overload fun(self:WorldCutscene, obj:Object|string, time?:number, ease?:string, after?:function) : finished: fun(): boolean
+---@param obj    Object|string  The object instance or id of a character to slide.
+---@param x      number         The new `x` value to approach.
+---@param y      number         The new `y` value to approach.
+---@param marker string         A map marker whose position the object should approach.
+---@param time?  number         The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param ease?  string         The ease type to use when moving to the new position. (Defaults to "linear")
+---@return fun() : boolean finished A function that returns `true` once the object has reached its destination.
 function WorldCutscene:slideTo(obj, x, y, time, ease)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -311,6 +361,14 @@ function WorldCutscene:slideTo(obj, x, y, time, ease)
     end
 end
 
+--- Moves the object's `x` and `y` values to the new specified position at a speed of `speed` pixels per frame.
+---@overload fun(self:WorldCutscene, obj:Object|string, marker:string, speed?:number, ease?:string) : finished: fun(): boolean
+---@param obj    Object|string      The object instance or id of a character to slide.
+---@param x      number             The new `x` value to approach.
+---@param y      number             The new `y` value to approach.
+---@param marker string             A map marker whose position the object should approach.
+---@param speed? number             The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to `4`)
+---@return fun() : boolean finished A function that returns `true` once the object has reached its destination.
 function WorldCutscene:slideToSpeed(obj, x, y, speed)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -328,6 +386,21 @@ function WorldCutscene:slideToSpeed(obj, x, y, speed)
     end
 end
 
+--- Slides an object along a path.
+---@param obj       Object|string   The object instance or id of a character to slide.
+---@param path      string|table    The name of a path in the current map file, or a table defining several points (as additional tables) that constitute a path.
+---@param options?  table           A table defining additional properties that the slide should use.
+---| "time" # The amount of time, in seconds, that the object should take to travel along the full path.
+---| "speed" # The speed at which the object should travel along the path, in pixels per frame at 30FPS.
+---| "ease" # The ease type to use when travelling along the path. Unused if `speed` is specified instead of `time`. (Defaults to "linear")
+---| "after" # A function that will be called when the end of the path is reached. Receives no arguments.
+---| "move_func" # A function called every frame while the object is travelling along the path. Receives `self` and the `x` and `y` offset from the previous frame as arguments.
+---| "relative" # Whether the path should be relative to the object's current position, or simply set its position directly.
+---| "loop" # Whether the path should loop back to the first point when reaching the end, or if it should stop.
+---| "reverse" # If true, reverse all of the points on the path.
+---| "skip" # A number defining how many points of the path to skip.
+---| "snap" # Whether the object's position should immediately "snap" to the first point, or if its initial position should be counted as a point on the path.
+---@return function finished Returns `true` when the object has reached the end of the path.
 function WorldCutscene:slidePath(obj, path, options)
     if type(obj) == "string" then
         obj = self:getCharacter(obj)
@@ -350,6 +423,10 @@ function WorldCutscene:slidePath(obj, path, options)
     return function() return slided end
 end
 
+---comment
+---@param chara any
+---@param ... unknown
+---@return function
 function WorldCutscene:jumpTo(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -388,7 +465,7 @@ end
 ---@param ...       unknown             Arguments to be passed to Character:alert().
 ---@return Sprite   alert_icon          The result alert icon created above the character's head.
 ---@return fun()    finished            A function that returns `true` once the alert icon has disappeared. \
----@see Character - Character:alert() for details on the arguments to pass to this function.
+---@see Character.alert for details on the arguments to pass to this function.
 function WorldCutscene:alert(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -520,9 +597,9 @@ function WorldCutscene:panToSpeed(...)
 end
 
 --- Loads a new map and starts the transition effects for world music, borders, and the screen as a whole.
----@overload fun(self: WorldCutscene, map: string, ...: any)
+---@overload fun(self: WorldCutscene, map: string, ...: any) : finished: fun(): boolean
 ---@param ... any   Additional arguments that will be passed into World:loadMap()
----@see World - World:loadMap() for the arguments to pass into World:loadMap().
+---@see World.loadMap for the arguments to pass into World:loadMap().
 ---@return fun() : boolean finished A function that returns true once the map transition has finished. \
 function WorldCutscene:mapTransition(...)
     self.world:mapTransition(...)
@@ -593,7 +670,38 @@ function WorldCutscene:fadeIn(speed, options)
     return function() return fade_done end
 end
 
+-- DOC Note: WorldCutscene:text() is a chunky function (for good reason) but
+-- there's two optional properties - "functions" and "reactions", that are
+-- woefully large (and honestly i just copied and tweaked the GitHub wiki 
+-- descriptions) and they don't just appear here (see BattleCutscene:text())
+-- we could do with somewhere dedicated to these two because it REALLY feels like
+-- they aren't done justice here. Seeing their relation with text - it'd be nice
+-- to move their explanations to a wiki page about text rather than being stuffed
+-- up in these functions.
+
 local function waitForTextbox(self) return not self.textbox or self.textbox:isDone() end
+--- Creates a new textbox and starts typing the given `text` into it. \
+--- Will pause the cutscene until the textbox is closed, unless otherwise specified via `options`.
+---@overload fun(self: WorldCutscene, text: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@overload fun(self: WorldCutscene, text: string, portrait: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@param text      string                      The text to be typed.
+---@param portrait  string|nil                  The name of the character portrait to use for this textbox.
+---@param actor     Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
+---@param options?  table                       A table definining additional properties to control the textbox.
+---|"talk"      # If a `Character` instance is attached to the textbox, whether they should use their talk sprite in world. 
+---|"top"       # Override for the default textbox position, defining whether the textbox should appear at the top of the screen.
+---|"x"         # The x-offset of the dialgoue portrait.
+---|"y"         # The y-offset of the dialogue portrait.
+---|"reactions" # A table of tables that define "reaction" dialogues. Each table defines the dialogue, x and y position of the face, actor and face sprite, in that order. x and y can be strings as well, referring to existing positions; x can be left, leftmid, mid, middle, rightmid, or right, and y can be top, mid, middle, bottommid, and bottom. Must be used in combination with a react text command.
+---|"functions" # A table defining additional functions that can be used in the text with the `func` text command. Each key, value pair will form the id to use with `func` and the function to be called, respectively.
+---|"font"      # The font to be used for this text. Can optionally be defined as a table {font, size} to also set the text size.
+---|"align"     # Sets the alignment of the text.
+---|"skip"      # If false, the player will be unable to skip the textbox with the cancel key.
+---|"advance"   # When `false`, the player cannot advance the textbox, and the cutscene will no longer suspend itself on the dialogue by default.
+---|"auto"      # When `true`, the text will auto-advance after the last character has been typed.
+---|"wait"      # Whether the cutscene should automatically suspend itself until the textbox advances. (Defaults to `true`, unless `advance` is false.)
+---@return fun() : boolean  finished    A function that returns `true` once the textbox has closed. (Only use if `options["wait"]` is set to `false`.)
+---@return Textbox?         textbox     The Textbox object that has been created. (Only use if `options["wait"]` is set to `false`.)
 function WorldCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" and not isClass(actor) then
         options = actor
@@ -713,6 +821,15 @@ function WorldCutscene:closeText()
 end
 
 local function waitForChoicer(self) return self.choicebox.done, self.choicebox.selected_choice end
+--- Creates a choicer with the choices specified in `choices` for the player to select from.
+---@param choices  table A table of strings specifying the choices the player can select. Maximum of four.
+---@param options? table A table defining additional properties to control the choicer.
+---|"top"       # Override for the default textbox position, defining whether the choicer should appear at the top of the screen.
+---|"color"     # The main color to set all the choices to, or a table of main colors to set for different choices. (Defaults to `COLORS.white`)
+---|"highlight" # The color to highlight the selected choice in, or a table of colors to highlight different choices in when selected. (Defaults to `COLORS.yellow`)
+---|"wait"      # Whether the cutscene should automatically suspend itself until the player makes their choice. (Defaults to `true`)
+---@return number|function selected The index of the selected item if the cutscene has been set to wait for the choicer, otherwise a boolean that states whether the player has made their choice.
+---@return Choicebox? choicer The choicebox object for this choicer. Only returned if wait is `false`. 
 function WorldCutscene:choicer(choices, options)
     self:closeText()
 
@@ -751,6 +868,24 @@ function WorldCutscene:choicer(choices, options)
 end
 
 local function waitForTextChoicer(self) return not self.textchoicebox or self.textchoicebox:isDone(), self.textchoicebox.selected_choice end
+--- Creates a Text Choicer - A textbox that includes both dialogue and a choicer.
+---@param text      string                      The text to be typed.
+---@param choices   table                       A table of strings specifying the choices the player can select.
+---@param portrait  string|nil                  The name of the character portrait to use for this textbox.
+---@param actor     Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
+---@param options?  table                       A table definining additional properties to control the textbox.
+---|"talk"      # If a `Character` instance is attached to the textbox, whether they should use their talk sprite in world. 
+---|"top"       # Override for the default textbox position, defining whether the textbox should appear at the top of the screen.
+---|"x"         # The x-offset of the dialgoue portrait.
+---|"y"         # The y-offset of the dialogue portrait.
+---|"reactions" # A table of tables that define "reaction" dialogues. Each table defines the dialogue, x and y position of the face, actor and face sprite, in that order. x and y can be strings as well, referring to existing positions; x can be left, leftmid, mid, middle, rightmid, or right, and y can be top, mid, middle, bottommid, and bottom. Must be used in combination with a react text command.
+---|"functions" # A table defining additional functions that can be used in the text with the `func` text command. Each key, value pair will form the id to use with `func` and the function to be called, respectively.
+---|"font"      # The font to be used for this text. Can optionally be defined as a table {font, size} to also set the text size.
+---|"align"     # Sets the alignment of the text.
+---|"skip"      # If false, the player will be unable to skip the textbox with the cancel key.
+---|"wait"      # Whether the cutscene should automatically suspend itself until the player selects a choice. (Defaults to `true`)
+---@return fun() : boolean  finished    A function that returns `true` once the textbox has closed. (Only use if `options["wait"]` is set to `false`.)
+---@return TextChoicebox    textbox     The TextboxChoicer object that has been created. (Only use if `options["wait"]` is set to `false`.)
 function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
     if type(actor) == "table" and not isClass(actor) then
         options = actor
@@ -850,12 +985,14 @@ end
 
 --- Starts an encounter within the current cutscene. \
 --- The cutscene will resume at the end of the encounter, once the transition out from battle is complete.
----@param encounter     string
----@param transition    boolean|string
----@param enemy         Character|string
----@param options       table
----@return fun()        finished
----@return Encounter?   encounter
+---@param encounter     Encounter|string    The encounter id or instance to use for this battle.
+---@param transition?   boolean|string      Whether to start in the transition state (Defaults to `true`). As a string, represents the state to start the battle in.
+---@param enemy?        Character|table     An enemy instance or list of enemies as `Character`s in the world that will transition into the battle.
+---@param options       table               A table defining additional properties to control the encounter.
+---|"on_start"  # A callback that is run when the battle starts (Exits the `"TRANSITION"` state). Runs immediately if the transition is skipped.
+---|"wait"      # Whether the cutscene should be suspended until the encounter is complete. (Deftualts to `true`)
+---@return fun()        finished    A function that returns `true` when the encounter has finished. (Only use if options.wait is set to `false`)
+---@return Encounter?   encounter   The Encounter instance for the battle started by this function call. (Only use if options.wait is set to `false`)
 function WorldCutscene:startEncounter(encounter, transition, enemy, options)
     options = options or {}
     transition = transition ~= false
