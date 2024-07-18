@@ -239,6 +239,16 @@ function Character:onFootstep(num)
     Kristal.callEvent(KRISTAL_EVENT.onFootstep, self, num)
 end
 
+--- Walks this character to a new `x` and `y` over `time` seconds.
+---@overload fun(self: Character, marker: string, time?: number, facing?: string, keep_facing?: boolean, after?: fun())
+---@param x             number                  The new `x` value to approach.
+---@param y             number                  The new `y` value to approach.
+---@param marker        string                  A map marker whose position the object should approach.
+---@param time?         number                  The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param facing?       string                  The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
+---@param keep_facing?  boolean                 If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---@param after?        fun(chara: Character)   A callback function that is run after the character has finished walking.
+---@return boolean success Whether the walking will occur. False if the character's current position is already at the specified position, and true otherwise.
 function Character:walkTo(x, y, time, facing, keep_facing, ease, after)
     if type(x) == "string" then
         after = ease
@@ -264,6 +274,16 @@ function Character:walkTo(x, y, time, facing, keep_facing, ease, after)
     return false
 end
 
+--- Walks this character to a new `x` and `y` at `speed` pixels per frame.
+---@overload fun(self: Character, marker: string, speed?: number, facing?: string, keep_facing?: boolean, after?: fun())
+---@param x             number                  The new `x` value to approach.
+---@param y             number                  The new `y` value to approach.
+---@param marker        string                  A map marker whose position the object should approach.
+---@param speed?        number                  The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to `4`)
+---@param facing?       string                  The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
+---@param keep_facing?  boolean                 If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---@param after?        fun(chara: Character)   A callback function that is run after the character has finished walking.
+---@return boolean success Whether the walking will occur. False if the character's current position is already at the specified position, and true otherwise.
 function Character:walkToSpeed(x, y, speed, facing, keep_facing, after)
     if type(x) == "string" then
         after = keep_facing
@@ -288,6 +308,21 @@ function Character:walkToSpeed(x, y, speed, facing, keep_facing, after)
     return false
 end
 
+--- Walks the character along a given path. 
+---@param path      string|table        The name of a path in the current map file, or a table defining several points (as additional tables) that constitute a path.
+---@param options   table               A table defining additional properties to control the walk.
+---|"facing" # The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
+---|"keep_facing" # If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---| "time" # The amount of time, in seconds, that the object should take to travel along the full path.
+---| "speed" # The speed at which the object should travel along the path, in pixels per frame at 30FPS.
+---| "ease" # The ease type to use when travelling along the path. Unused if `speed` is specified instead of `time`. (Defaults to "linear")
+---| "after" # A function that will be called when the end of the path is reached. Receives no arguments.
+---| "relative" # Whether the path should be relative to the object's current position, or simply set its position directly.
+---| "loop" # Whether the path should loop back to the first point when reaching the end, or if it should stop.
+---| "reverse" # If true, reverse all of the points on the path.
+---| "skip" # A number defining how many points of the path to skip.
+---| "snap" # Whether the object's position should immediately "snap" to the first point, or if its initial position should be counted as a point on the path.
+---@return nil
 function Character:walkPath(path, options)
     options = options or {}
 
