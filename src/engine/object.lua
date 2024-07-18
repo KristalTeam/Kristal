@@ -534,7 +534,7 @@ function Object:slideTo(x, y, time, ease, after)
 end
 
 --- Moves the object's `x` and `y` values to the new specified position at a speed of `speed` pixels per frame.
----@overload fun(self:Object, marker:string, time?:number, ease?:string, after?:function): success:boolean
+---@overload fun(self:Object, marker:string, speed?:number, after?:function): success:boolean
 ---@param x      number   The new `x` value to approach.
 ---@param y      number   The new `y` value to approach.
 ---@param marker string   A map marker whose position the object should approach.
