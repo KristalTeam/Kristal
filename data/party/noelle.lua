@@ -49,6 +49,9 @@ function character:init()
     self.max_stats = {
         health = 999
     }
+    
+    -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
+    self.stronger_absent = {}
 
     -- Weapon icon in equip menu
     self.weapon_icon = "ui/menu/equip/ring"
