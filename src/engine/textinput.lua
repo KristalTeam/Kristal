@@ -741,8 +741,8 @@ function TextInput.draw(options)
     end
 
     Draw.setColor(1, 0, 1, 1)
-    if (TextInput.flash_timer < 0.5) and self.active then
-        if self.cursor_x == utf8.len(self.input[self.cursor_y]) or self.overtyping then
+    if self.flash_timer < 0.5 and self.active then
+        if --[[self.cursor_x == utf8.len(self.input[self.cursor_y]) or]] self.overtyping then
             print_func("_", cursor_pos_x, cursor_pos_y)
         else
             print_func("|", cursor_pos_x, cursor_pos_y)
