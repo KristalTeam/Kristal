@@ -198,6 +198,8 @@ function Game:save(x, y)
     end
 
     data.inventory = self.inventory:save()
+    data.light_inventory = self.light_inventory:save()
+    data.dark_inventory = self.dark_inventory:save()
 
     data.party_data = {}
     for k,v in pairs(self.party_data) do
@@ -326,6 +328,15 @@ function Game:load(data, index, fade)
         self.inventory = DarkInventory()
     end
 
+    self.light_inventory = LightInventory()
+    if data.light_inventory then
+        self.light_inventory:load(data.light_inventory)
+    end
+    self.dark_inventory = DarkInventory()
+    if data.dark_inventory then
+        self.dark_inventory:load(data.dark_inventory)
+    end
+    
     if data.inventory then
         self.inventory:load(data.inventory)
     else

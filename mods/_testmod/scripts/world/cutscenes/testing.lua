@@ -243,7 +243,6 @@ return {
             local text = DialogueText(str, 0, 16, 640, 480,
                                       { align = "center" })
             text.layer = WORLD_LAYERS["top"] + 100
-            text.skip_speed = true
             text.parallax_x = 0
             text.parallax_y = 0
             Game.world:addChild(text)

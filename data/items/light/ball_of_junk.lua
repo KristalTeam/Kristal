@@ -1,6 +1,6 @@
 local item, super = Class(Item, "light/ball_of_junk")
 
-function item:init(inventory)
+function item:init()
     super.init(self)
 
     -- Display name
@@ -22,8 +22,6 @@ function item:init(inventory)
     -- Item this item will get turned into when consumed
     self.result_item = nil
 
-    -- Ball of Junk inventory
-    self.inventory = inventory or DarkInventory()
 end
 
 function item:onWorldUse()
@@ -50,6 +48,13 @@ function item:onToss()
         end
 
         if dropped then
+            for k,storage in pairs(Game.inventory:getDarkInventory().storages) do
+                if storage.id ~= "key_items" and storage.id ~= "storage" then
+                    for i = 1, storage.max do
+                        storage[i] = nil
+                    end
+                end
+            end
             Game.inventory:removeItem(self)
 
             Assets.playSound("bageldefeat")
@@ -61,28 +66,6 @@ function item:onToss()
         end
     end)
     return false
-end
-
-function item:convertToDark(inventory)
-    for k,storage in pairs(self.inventory.storages) do
-        for i = 1, storage.max do
-            if storage[i] then
-                if not inventory:addItemTo(storage.id, i, storage[i]) then
-                    inventory:addItem(storage[i])
-                end
-            end
-        end
-    end
-    return true
-end
-
-function item:onSave(data)
-    data.inventory = self.inventory:save()
-end
-
-function item:onLoad(data)
-    self.inventory = DarkInventory()
-    self.inventory:load(data.inventory)
 end
 
 return item
