@@ -80,11 +80,11 @@ function LightItemMenu:update()
 
         if Input.pressed("confirm") then
             local item = Game.inventory:getItem(self.storage, self.item_selecting)
-            if self.option_selecting == 1 then
+            if self.option_selecting == 1 and (item.usable_in == "world" or item.usable_in == "all") then
                 self:useItem(item)
             elseif self.option_selecting == 2 then
                 item:onCheck()
-            else
+            elseif self.option_selecting == 3 then
                 self:dropItem(item)
             end
         end
@@ -107,8 +107,14 @@ function LightItemMenu:draw()
         love.graphics.print(item:getName(), 20, -28 + (index * 32))
     end
 
-    Draw.setColor(PALETTE["world_text"])
+    local item = Game.inventory:getItem(self.storage, self.item_selecting)
+    if item.usable_in == "world" or item.usable_in == "all" then
+        Draw.setColor(PALETTE["world_text"])
+    else
+        Draw.setColor(PALETTE["world_gray"])
+    end
     love.graphics.print("USE" , 20 , 284)
+    Draw.setColor(PALETTE["world_text"])
     love.graphics.print("INFO", 116, 284)
     love.graphics.print("DROP", 230, 284)
 
