@@ -328,10 +328,12 @@ local function waitForEncounterText() return Game.battle.battle_ui.encounter_tex
 function BattleCutscene:text(text, portrait, actor, options)
     if type(actor) == "table" then
         options = actor
+        ---@diagnostic disable-next-line: cast-local-type
         actor = nil
     end
     if type(portrait) == "table" then
         options = portrait
+        ---@diagnostic disable-next-line: cast-local-type
         portrait = nil
     end
 

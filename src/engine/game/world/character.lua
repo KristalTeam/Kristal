@@ -253,7 +253,9 @@ function Character:walkTo(x, y, time, facing, keep_facing, ease, after)
     if type(x) == "string" then
         after = ease
         ease = keep_facing
+        ---@diagnostic disable-next-line: cast-local-type
         keep_facing = facing
+        ---@diagnostic disable-next-line: cast-local-type
         facing = time
         time = y
         x, y = self.world.map:getMarker(x)
@@ -286,8 +288,11 @@ end
 ---@return boolean success Whether the walking will occur. False if the character's current position is already at the specified position, and true otherwise.
 function Character:walkToSpeed(x, y, speed, facing, keep_facing, after)
     if type(x) == "string" then
+        ---@diagnostic disable-next-line: cast-local-type
         after = keep_facing
+        ---@diagnostic disable-next-line: cast-local-type
         keep_facing = facing
+        ---@diagnostic disable-next-line: cast-local-type
         facing = speed
         speed = y
         x, y = self.world.map:getMarker(x)

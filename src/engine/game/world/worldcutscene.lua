@@ -198,6 +198,7 @@ end
 ---@param dir?      string              The direction the character should face. Must be either "up", "dowm", "left", or "right". (Defaults to "down")
 function WorldCutscene:look(chara, dir)
     if not dir then
+        ---@diagnostic disable-next-line: cast-local-type
         dir = chara or "down"
         chara = self.world.player
     elseif type(chara) == "string" then
@@ -348,6 +349,7 @@ function WorldCutscene:slideTo(obj, x, y, time, ease)
         obj = self:getCharacter(obj)
     end
     if type(x) == "string" then
+        ---@diagnostic disable-next-line: cast-local-type
         ease = time
         time = y
         x, y = self.world.map:getMarker(x)
