@@ -7,6 +7,7 @@
 ---@field multiline boolean
 ---@field enter_submits boolean
 ---@field clear_after_submit boolean
+---@field allow_overtyping boolean
 ---@field text_restriction (fun(char:string):string|boolean)?
 ---
 ---@field submit_callback fun()?
@@ -81,6 +82,7 @@ end
 ---@field multiline boolean?
 ---@field enter_submits boolean?
 ---@field clear_after_submit boolean?
+---@field allow_overtyping boolean?
 ---@field text_restriction (fun(char:string):string|boolean)?
 
 ---@param options TextInput.inputOptions|boolean|nil
@@ -91,9 +93,11 @@ function TextInput.reset(options)
         if options.multiline          == nil then options.multiline          = true  end
         if options.enter_submits      == nil then options.enter_submits      = false end
         if options.clear_after_submit == nil then options.clear_after_submit = true  end
+        if options.allow_overtyping   == nil then options.allow_overtyping   = false end
         self.multiline = options.multiline
         self.enter_submits = options.enter_submits
         self.clear_after_submit = options.clear_after_submit
+        self.allow_overtyping = options.allow_overtyping
         self.text_restriction = options.text_restriction
     end
 
@@ -310,7 +314,9 @@ function TextInput.onKeyPressed(key)
             self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
         end
     elseif key == "insert" then
-        self.overtyping = not self.overtyping
+        if self.allow_overtyping then
+            self.overtyping = not self.overtyping
+        end
     elseif key == "left" then
         if self.checkSelecting() == "stopped" then
             if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
