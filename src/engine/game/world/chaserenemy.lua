@@ -1,4 +1,27 @@
+--- An enemy that can chase the player and start encounters. \
+--- ChaserEnemies are `Event`s and therefore can be added to a map by naming an object `enemy`. \
+--- Several properties on ChaserEnemies can be configured. See the `Fields` section for properties that can be configured.
+---
 ---@class ChaserEnemy : Character
+---
+---@field encounter     string  The encounter ID that will trigger when the player collides with the enemy.
+---@field enemy         string  The actor ID to use for this enemy.
+---@field group         string  An arbitrary ID that can be be used to group enemies together in a room. When one enemy in a group is defeated, all enemies in the group are defeated as well. 
+---
+---@field path          string  The name of a path shape in the current map that the enemy will follow.
+---@field speed         number  The speed that the enemy will move along the path specified in `path`, if defined.
+---
+---@field progress      number  The initial progress of the enemy along their path, if defined, as a decimal value between 0 and 1.
+---
+---@field can_chase     boolean (Named `chase` when setting this value in a map) Whether the enemy will chase after players it catches sight of. Defaults to `true`.
+---@field chase_speed   number  (Named `chasespeed` when setting this value in a map) The speed the enemy will chase the player at, in pixels per frame at 30FPS. Defaults to `9`.
+---@field chase_dist    number  (Named `chasedist` when setting this value in a map) The distance, in pixels, that the enemy can see the player from. Defaults to `200`.
+---@field chasing       boolean Whether the enemy is chasing the player when they enter the room. Defaults to `false`.
+---
+---@field once          boolean Whether this enemy can only be encountered once (Will not respawn when the room reloads). Defaults to `false`.
+---
+---@field aura          boolean Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the mod-wide config for enemy auras.
+---
 ---@overload fun(...) : ChaserEnemy
 local ChaserEnemy, super = Class(Character, "enemy")
 
