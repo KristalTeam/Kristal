@@ -14,9 +14,13 @@
 ---@field progress      number  The initial progress of the enemy along their path, if defined, as a decimal value between 0 and 1.
 ---
 ---@field can_chase     boolean (Named `chase` when setting this value in a map) Whether the enemy will chase after players it catches sight of. Defaults to `true`.
----@field chase_speed   number  (Named `chasespeed` when setting this value in a map) The speed the enemy will chase the player at, in pixels per frame at 30FPS. Defaults to `9`.
----@field chase_dist    number  (Named `chasedist` when setting this value in a map) The distance, in pixels, that the enemy can see the player from. Defaults to `200`.
 ---@field chasing       boolean Whether the enemy is chasing the player when they enter the room. Defaults to `false`.
+---@field chase_dist    number  (Named `chasedist` when setting this value in a map) The distance, in pixels, that the enemy can see the player from. Defaults to `200`.
+---
+---@field chase_type    string  (Naamed `chasetype` when setting this value in a map) The name of the chasetype to use. See CHASETYPE for available types.
+---@field chase_speed   number  (Named `chasespeed` when setting this value in a map) The speed the enemy will chase the player at, in pixels per frame at 30FPS. Defaults to `9`.
+---@field chase_max     number  (Named `chasemax` when setting this value in a map) The maximum speed the enemy will chase the player at, if `chase_accel` is set.
+---@field chase_accel   number  (Named `chaseaccel` when setting this value in a map) The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of previous speed when in `multiplier` mode.
 ---
 ---@field once          boolean Whether this enemy can only be encountered once (Will not respawn when the room reloads). Defaults to `false`.
 ---
@@ -51,9 +55,15 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.reverse_progress = false
 
     self.can_chase = properties["chase"]
-    self.chase_speed = properties["chasespeed"] or 9
-    self.chase_dist = properties["chasedist"] or 200
     self.chasing = properties["chasing"] or false
+    self.chase_dist = properties["chasedist"] or 200
+
+    self.chase_type = properties["chasetype"] or "linear"
+    self.chase_speed = properties["chasespeed"] or 9
+    self.chase_max = properties["chasemax"]
+    self.chase_accel = properties["chaseaccel"]
+
+    self.chase_timer = 0
 
     self.noclip = true
     self.enemy_collision = true
@@ -75,9 +85,12 @@ function ChaserEnemy:getDebugInfo()
     if self.progress    then table.insert(info, "Progress: " .. self.progress) end
     table.insert(info, "Can chase: "           .. (self.can_chase and "True" or "False"))
     if self.can_chase then
+        table.insert(info, "Chase type: "          .. self.chase_type)
         table.insert(info, "Chase speed: "         .. self.chase_speed)
         table.insert(info, "Chase distance: "      .. self.chase_dist)
         table.insert(info, "Chasing: "             .. (self.chasing             and "True" or "False"))
+        if self.chase_max then table.insert(info, "Maximum chase speed: " ..self.chase_max) end
+        if self.chase_accel then table.insert(info, "Chase acceleration: " .. self.chase_accel) end
     end
     table.insert(info, "Remove on encounter: " .. (self.remove_on_encounter and "True" or "False"))
     table.insert(info, "Encountered: "         .. (self.encountered         and "True" or "False"))
@@ -267,10 +280,36 @@ function ChaserEnemy:update()
 end
 
 function ChaserEnemy:chaseMovement()
-    if self.world.player then
-        local angle = Utils.angle(self.x, self.y, self.world.player.x, self.world.player.y)
-        self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
+    if not self.world.player then
+        return
     end
+
+    self.chase_timer = self.chase_timer + DTMULT
+
+    local angle = Utils.angle(self.x, self.y, self.world.player.x, self.world.player.y)
+
+    if self.chase_type == "linear" or self.chase_type == "flee" then
+        if self.chase_accel and (not self.chase_max or self.chase_speed < self.chase_max) then
+            self.chase_speed = self.chase_speed + (DTMULT * self.chase_accel)
+        end
+
+    elseif self.chase_type == "multiplier" then
+        self.chase_init = self.chase_init ~= nil and self.chase_init or self.chase_speed
+        if self.chase_accel and (not self.chase_max or self.chase_speed < self.chase_max) then
+            self.chase_speed = self.chase_init * math.pow(self.chase_accel, self.chase_timer)
+        end
+
+    elseif self.chase_type == "flee" then
+        local center_x = self.x + self.width
+        local center_y = self.y + self.height
+
+        if Utils.dist(center_x, center_y, self.world.soul.x + self.world.soul.width, self.world.soul.y + self.world.soul.height) > 50 then
+            angle = angle + math.rad(180)
+        end
+    end
+    
+    
+    self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
 end
 
 return ChaserEnemy

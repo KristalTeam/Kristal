@@ -157,6 +157,9 @@ ALPHABET = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n
     "v", "w", "x", "y", "z" }
 FACINGS = { "right", "down", "left", "up" }
 
+-- Different chase types that can be used by ChaserEnemys.
+CHASETYPE = { "linear", "multiplier", "flee" }
+
 -- exposed events called by Kristal
 --
 --  keywords  --
