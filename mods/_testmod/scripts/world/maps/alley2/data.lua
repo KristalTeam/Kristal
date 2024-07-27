@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 11,
-  nextobjectid = 117,
+  nextobjectid = 120,
   properties = {
     ["border"] = "city",
     ["light"] = false,
@@ -1055,7 +1055,7 @@ return {
             ["chase"] = true,
             ["chasespeed"] = 6,
             ["chasetype"] = "flee",
-            ["encounter"] = "virovirokun_lots"
+            ["encounter"] = "virovirokun"
           }
         },
         {
@@ -1074,7 +1074,64 @@ return {
             ["chase"] = true,
             ["chasespeed"] = 6,
             ["chasetype"] = "flee",
-            ["encounter"] = "virovirokun_lots"
+            ["encounter"] = "virovirokun"
+          }
+        },
+        {
+          id = 117,
+          name = "enemy",
+          class = "",
+          shape = "rectangle",
+          x = 220,
+          y = 1260,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["actor"] = "virovirokun",
+            ["chase"] = false,
+            ["encounter"] = "virovirokun",
+            ["pacetype"] = "horizontalswing",
+            ["swingdiv"] = 4
+          }
+        },
+        {
+          id = 118,
+          name = "enemy",
+          class = "",
+          shape = "rectangle",
+          x = 780,
+          y = 1100,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["actor"] = "virovirokun",
+            ["chase"] = false,
+            ["encounter"] = "virovirokun",
+            ["pacetype"] = "verticalswing"
+          }
+        },
+        {
+          id = 119,
+          name = "enemy",
+          class = "",
+          shape = "rectangle",
+          x = 220,
+          y = 1200,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["actor"] = "virovirokun",
+            ["chase"] = false,
+            ["encounter"] = "virovirokun",
+            ["pacetype"] = "horizontalswing",
+            ["swingdiv"] = 4,
+            ["swinglength"] = 200
           }
         }
       }

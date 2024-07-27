@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="117">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="30" height="40" tilewidth="40" tileheight="40" infinite="0" nextlayerid="11" nextobjectid="120">
  <editorsettings>
   <export target="data.lua" format="lua"/>
  </editorsettings>
@@ -247,7 +247,7 @@
     <property name="chase" type="bool" value="true"/>
     <property name="chasespeed" type="float" value="6"/>
     <property name="chasetype" value="flee"/>
-    <property name="encounter" value="virovirokun_lots"/>
+    <property name="encounter" value="virovirokun"/>
    </properties>
   </object>
   <object id="116" name="enemy" x="700" y="1410" width="40" height="40">
@@ -256,7 +256,34 @@
     <property name="chase" type="bool" value="true"/>
     <property name="chasespeed" type="float" value="6"/>
     <property name="chasetype" value="flee"/>
-    <property name="encounter" value="virovirokun_lots"/>
+    <property name="encounter" value="virovirokun"/>
+   </properties>
+  </object>
+  <object id="117" name="enemy" x="220" y="1260" width="40" height="40">
+   <properties>
+    <property name="actor" value="virovirokun"/>
+    <property name="chase" type="bool" value="false"/>
+    <property name="encounter" value="virovirokun"/>
+    <property name="pacetype" value="horizontalswing"/>
+    <property name="swingdiv" type="float" value="4"/>
+   </properties>
+  </object>
+  <object id="118" name="enemy" x="780" y="1100" width="40" height="40">
+   <properties>
+    <property name="actor" value="virovirokun"/>
+    <property name="chase" type="bool" value="false"/>
+    <property name="encounter" value="virovirokun"/>
+    <property name="pacetype" value="verticalswing"/>
+   </properties>
+  </object>
+  <object id="119" name="enemy" x="220" y="1200" width="40" height="40">
+   <properties>
+    <property name="actor" value="virovirokun"/>
+    <property name="chase" type="bool" value="false"/>
+    <property name="encounter" value="virovirokun"/>
+    <property name="pacetype" value="horizontalswing"/>
+    <property name="swingdiv" type="float" value="4"/>
+    <property name="swinglength" type="float" value="200"/>
    </properties>
   </object>
  </objectgroup>

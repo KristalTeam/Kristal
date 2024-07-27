@@ -13,14 +13,21 @@
 ---
 ---@field progress      number  The initial progress of the enemy along their path, if defined, as a decimal value between 0 and 1.
 ---
----@field can_chase     boolean (Named `chase` when setting this value in a map) Whether the enemy will chase after players it catches sight of. Defaults to `true`.
+---@field can_chase     boolean (Named `chase` in maps) Whether the enemy will chase after players it catches sight of. Defaults to `true`.
 ---@field chasing       boolean Whether the enemy is chasing the player when they enter the room. Defaults to `false`.
----@field chase_dist    number  (Named `chasedist` when setting this value in a map) The distance, in pixels, that the enemy can see the player from. Defaults to `200`.
+---@field chase_dist    number  (Named `chasedist` in maps) The distance, in pixels, that the enemy can see the player from. Defaults to `200`.
 ---
----@field chase_type    string  (Naamed `chasetype` when setting this value in a map) The name of the chasetype to use. See CHASETYPE for available types.
----@field chase_speed   number  (Named `chasespeed` when setting this value in a map) The speed the enemy will chase the player at, in pixels per frame at 30FPS. Defaults to `9`.
----@field chase_max     number  (Named `chasemax` when setting this value in a map) The maximum speed the enemy will chase the player at, if `chase_accel` is set.
----@field chase_accel   number  (Named `chaseaccel` when setting this value in a map) The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of previous speed when in `multiplier` mode.
+---@field chase_type    string  (Naamed `chasetype` in maps) The name of the chasetype to use. See CHASETYPE for available types.
+---@field chase_speed   number  (Named `chasespeed` in maps) The speed the enemy will chase the player at, in pixels per frame at 30FPS. Defaults to `9`.
+---@field chase_max     number  (Named `chasemax` in maps) The maximum speed the enemy will chase the player at, if `chase_accel` is set. Speed is uncapped if unset.
+---@field chase_accel   number  (Named `chaseaccel` in maps) The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of speed when in `multiplier` mode.
+---
+---@field pace_type     string  (Named `pacetype` in maps) The type of pacing that the enemy will do while idling. See PACETYPE for available types. Defaults to nothing.
+---@field pace_marker   table   (Named `marker` in maps) The name of a marker, or a list of markers (marker1, marker2, marker3, ...) that the enemy will pace between when `wander` pacing.
+---@field pace_interval number  (Named `paceinterval` in maps) The interval between actions when `wander` pacing. Defaults to `24`
+---@field pace_speed    number  (Named `pacespeed` in maps) The speed at which the enemy walks when `wander` pacing. Defaults to `2`.
+---@field swing_divisor number  (Named `swingdiv` in maps) A divisor for the speed of the swing of this enemy when swing pacing (Higher number = slower). Defaults to `24`.
+---@field swing_length  number  (Named `swinglength` in maps) The full length swing covered by this enemy when swing pacing. The enemy placement position is the center of the line. Defaults to `400`
 ---
 ---@field once          boolean Whether this enemy can only be encountered once (Will not respawn when the room reloads). Defaults to `false`.
 ---
@@ -63,7 +70,25 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.chase_max = properties["chasemax"]
     self.chase_accel = properties["chaseaccel"]
 
+    self.pace_type = properties["pacetype"]
+    self.pace_marker = Utils.parsePropertyList("marker", properties)
+    self.pace_interval = properties["paceinterval"] or 24
+    self.pace_speed = properties["pacespeed"] or 4
+    self.swing_divisor = properties["swingdiv"] or 24
+    self.swing_length = properties["swinglength"] or 400
+
     self.chase_timer = 0
+    self.pace_timer = 0
+
+    -- Used for multiplier acceleration to keep acceleration consistent across framerates.
+    self.chase_init_speed = self.chase_speed
+    -- Starting x-coordinate of the enemy for pacing types.
+    self.spawn_x = x
+    -- Starting y-coordinate of the enemy for pacing types.
+    self.spawn_y = y
+    self.pace_index = 1
+    self.wandering = false
+    self.return_to_spawn = false
 
     self.noclip = true
     self.enemy_collision = true
@@ -251,6 +276,8 @@ function ChaserEnemy:update()
             end
 
             self:snapToPath()
+        elseif self.pace_type then
+            self:paceMovement()
         end
 
         if self.alert_timer == 0 and self.can_chase and not self.chasing then
@@ -279,6 +306,8 @@ function ChaserEnemy:update()
     super.update(self)
 end
 
+--- Responsible for movement of the ChaserEnemy when it has been alterted of a player's presence. \
+--- This function can be hooked to add custom chase types.
 function ChaserEnemy:chaseMovement()
     if not self.world.player then
         return
@@ -287,29 +316,66 @@ function ChaserEnemy:chaseMovement()
     self.chase_timer = self.chase_timer + DTMULT
 
     local angle = Utils.angle(self.x, self.y, self.world.player.x, self.world.player.y)
-
+    
+    if self.chase_type == "flee" then
+        angle = angle + math.rad(180)
+    end
     if self.chase_type == "linear" or self.chase_type == "flee" then
         if self.chase_accel and (not self.chase_max or self.chase_speed < self.chase_max) then
             self.chase_speed = self.chase_speed + (DTMULT * self.chase_accel)
         end
-
-    elseif self.chase_type == "multiplier" then
-        self.chase_init = self.chase_init ~= nil and self.chase_init or self.chase_speed
-        if self.chase_accel and (not self.chase_max or self.chase_speed < self.chase_max) then
-            self.chase_speed = self.chase_init * math.pow(self.chase_accel, self.chase_timer)
-        end
-
-    elseif self.chase_type == "flee" then
-        local center_x = self.x + self.width
-        local center_y = self.y + self.height
-
-        if Utils.dist(center_x, center_y, self.world.soul.x + self.world.soul.width, self.world.soul.y + self.world.soul.height) > 50 then
-            angle = angle + math.rad(180)
-        end
+        self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
     end
-    
-    
-    self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
+    if self.chase_type == "multiplier" then
+        if self.chase_accel and (not self.chase_max or self.chase_speed < self.chase_max) then
+            self.chase_speed = self.chase_init_speed * math.pow(self.chase_accel, self.chase_timer)
+        end
+        self:move(math.cos(angle), math.sin(angle), self.chase_speed * DTMULT)
+    end
+
+end
+
+--- Responsible for movement of the ChaserEnemy when idle. Only called if `pace_type` is set. \
+--- This function can be hooked to add custom pace types.
+function ChaserEnemy:paceMovement()
+    self.pace_timer = self.pace_timer + DTMULT
+    if self.pace_type == "wander" then
+        if self.pace_timer < self.pace_interval or self.wandering then
+            return
+        end
+        
+        if not self.return_to_spawn then
+            self.wandering = true
+            self.return_to_spawn = true
+            self:walkToSpeed(self.pace_marker[self.pace_index], self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false end)
+            self.pace_index = Utils.clampWrap(self.pace_index + 1, 1, #self.pace_marker)
+            return
+        end
+
+        self.wandering = true
+        self:walkToSpeed(self.spawn_x, self.spawn_y, self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false; self.return_to_spawn = false end)
+    elseif self.pace_type == "randomwander" then
+        if self.pace_timer < self.pace_interval or self.wandering then
+            return
+        end
+
+        if not self.return_to_spawn then
+            self.wandering = true
+            self.return_to_spawn = true
+            self:walkToSpeed(Utils.pick(self.pace_marker), self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false end)
+            return
+        end
+
+        self.wandering = true
+        self:walkToSpeed(self.spawn_x, self.spawn_y, self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false; self.return_to_spawn = false end)
+
+    elseif self.pace_type == "verticalswing" then
+        local y = Utils.wave(self.pace_timer / self.swing_divisor, self.spawn_y - (self.swing_length / 2), self.spawn_y + (self.swing_length / 2))
+        self:moveTo(self.x, y)
+    elseif self.pace_type == "horizontalswing" then
+        local x = Utils.wave(self.pace_timer / self.swing_divisor, self.spawn_x - (self.swing_length / 2), self.spawn_x + (self.swing_length / 2))
+        self:moveTo(x, self.y)
+    end
 end
 
 return ChaserEnemy
