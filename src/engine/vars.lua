@@ -160,6 +160,13 @@ FACINGS = { "right", "down", "left", "up" }
 -- Different chase types that can be used by ChaserEnemys.
 CHASETYPE = { "linear", "multiplier", "flee" }
 
+--- Different pace types that can be used by ChaserEnemys. \
+--- `wander`          - Wanders between the enemy spawn point and several markers in a fixed order. \
+--- `randomwander`    - Wanders between the enemy spawn point and several markers at random. \
+--- `verticalswing`   - Moves along a sinusodial wave on the y-axis. \
+--- `horizontalswing` - Moves along a sinusodial wave on the x-axis.
+PACETYPE = { "wander", "randomwander", "verticalswing", "horizontalswing"}
+
 -- exposed events called by Kristal
 --
 --  keywords  --
