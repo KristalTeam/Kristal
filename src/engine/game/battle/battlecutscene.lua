@@ -120,7 +120,7 @@ end
 --- Sets the sprite of a particular character. \
 --- The change lasts until the end of the cutscene or until the sprite is changed again.
 ---@param chara     string|Battler  The character to change the sprite of. Accepts either a Battler instance or an id to search for.
----@param sprite    string          The name of the sprite to be set.
+---@param sprite?   string          The name of the sprite to be set.
 ---@param speed?    number          The time, in seconds, between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
 function BattleCutscene:setSprite(chara, sprite, speed)
     if type(chara) == "string" then
@@ -137,7 +137,7 @@ end
 --- Sets the animation of a particular character. \
 --- The change lasts until the end of the cutscene or until the animation is changed again.
 ---@param chara string|Battler  The character to change the sprite of. Accepts either a Battler instance or an id to search for.
----@param anim  string          The name of the animation to be set.
+---@param anim? string          The name of the animation to be set.
 ---@return fun() : boolean finished A function that returns `true` once the animation has finished.
 function BattleCutscene:setAnimation(chara, anim)
     if type(chara) == "string" then
@@ -175,7 +175,7 @@ end
 ---@param x     number          The new x-coordinate to approach.
 ---@param y     number          The new y-coordinate to approach.
 ---@param time? number          The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
----@param ease? string          The ease type to use when moving position. (Defaults to "linear")
+---@param ease? easetype        The ease type to use when moving position. (Defaults to "linear")
 ---@return fun() : boolean finished A function that returns `true` once the movement is finished.
 function BattleCutscene:slideTo(obj, x, y, time, ease)
     if type(obj) == "string" then
@@ -297,7 +297,7 @@ function BattleCutscene:fadeIn(speed, options)
 end
 
 --- Sets the active speaker for the encountertext box.
----@param actor PartyBattler|EnemyBattler|Actor|nil The character or actor to set as the speaker. `nil` resets the speaker to nothing.
+---@param actor? PartyBattler|EnemyBattler|Actor|nil The character or actor to set as the speaker. `nil` resets the speaker to nothing.
 function BattleCutscene:setSpeaker(actor)
     if isClass(actor) and (actor:includes(PartyBattler) or actor:includes(EnemyBattler)) then
         actor = actor.actor
@@ -311,8 +311,8 @@ local function waitForEncounterText() return Game.battle.battle_ui.encounter_tex
 ---@overload fun(self: BattleCutscene, text: string, options?: table): finished: fun(): boolean
 ---@overload fun(self: BattleCutscene, text: string, portrait: string, options?: table): finished: fun(): boolean
 ---@param text      string  The text to be typed.
----@param portrait  string  The character portrait to be used.
----@param actor     Actor   The actor to use for voice bytes and dialogue portraits, overriding the active cutscene speaker.
+---@param portrait? string  The character portrait to be used.
+---@param actor?    Actor   The actor to use for voice bytes and dialogue portraits, overriding the active cutscene speaker.
 ---@param options?  table   A table defining additional properties to control the text.
 ---|"x"         # The x-offset of the dialgoue portrait.
 ---|"y"         # The y-offset of the dialogue portrait.
