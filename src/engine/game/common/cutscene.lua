@@ -65,7 +65,7 @@ end
 
 --- Adds a new callback for the end of this cutscene.
 ---@param func      function    The callback function to set or append to this cutscene.
----@param replace   boolean     Whether or not to overwrite all previously defined callbacks on this function.
+---@param replace?  boolean     Whether or not to overwrite all previously defined callbacks on this function.
 ---@return Cutscene? self
 function Cutscene:after(func, replace)
     if self.ended then
@@ -95,7 +95,7 @@ end
 --- Adds a new during callback to this cutscene. \
 --- During callbacks run once every frame during cutscenes, and they can remove themselves from the cutscene by returning `false`.
 ---@param func      fun() : boolean?    The function to be run.
----@param replace   boolean             Whether the new callback should replace all currently active during callbacks.
+---@param replace?  boolean             Whether the new callback should replace all currently active during callbacks.
 function Cutscene:during(func, replace)
     if self.ended then return end
     if replace then
@@ -216,8 +216,8 @@ function Cutscene:endCutscene()
 end
 
 --- Starts executing a new cutscene script specified by `func`.
----@param func function     The new cutscene script.
----@param ... unknown       Additional arguments to pass to the new cutscene.
+---@param func function|string  The new cutscene script.
+---@param ... unknown           Additional arguments to pass to the new cutscene.
 ---@return unknown
 function Cutscene:gotoCutscene(func, ...)
     if self.getter then

@@ -147,7 +147,7 @@ local function waitForFollowers(self)
     return true
 end
 --- Enables following for all of the player's current followers and causes them to walk to their following positions.
----@param return_speed number The walking speed of the followers while they return to the player.
+---@param return_speed? number The walking speed of the followers while they return to the player.
 ---@return fun(self: WorldCutscene) : boolean finished A function that returns `true` once all followers have finished returning.
 function WorldCutscene:attachFollowers(return_speed)
     self.world:attachFollowers(return_speed)
@@ -187,7 +187,7 @@ end
 ---@param actor         string|Actor    The actor to use for the new NPC, either an id string or an actor object.
 ---@param x             number          The x-coordinate to place the NPC at.
 ---@param y             number          The y-coordinate to place the NPC at.
----@param properties    table           A table of additional properties for the new NPC. Supports all the same values as an `npc` map event.
+---@param properties?   table           A table of additional properties for the new NPC. Supports all the same values as an `npc` map event.
 ---@return NPC npc The newly created npc.
 function WorldCutscene:spawnNPC(actor, x, y, properties)
     return self.world:spawnNPC(actor, x, y, properties)
@@ -212,10 +212,11 @@ end
 ---@param chara         Character|string        The Character instance or id to make walk.
 ---@param x             number                  The new `x` value to approach.
 ---@param y             number                  The new `y` value to approach.
----@param marker        string                  A map marker whose position the object should approach.
----@param time?         number                  The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
+---@param marker        string                  A map marker whose position the character should approach.
+---@param time?         number                  The amount of time, in seconds, that the walk should take. (Defaults to 1 second)
 ---@param facing?       string                  The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
 ---@param keep_facing?  boolean                 If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
+---@param ease?         easetype                The easing to use for the character's walk motion.
 ---@param after?        fun(chara: Character)   A callback function that is run after the character has finished walking.
 ---@return fun(): boolean finished A function that returns `true` once the character has finished walking.
 function WorldCutscene:walkTo(chara, x, y, time, facing, keep_facing, ease, after)
@@ -237,8 +238,8 @@ end
 ---@param chara         Character|string        The Character instance or id to make walk.
 ---@param x             number                  The new `x` value to approach.
 ---@param y             number                  The new `y` value to approach.
----@param marker        string                  A map marker whose position the object should approach.
----@param speed?        number                  The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to `4`)
+---@param marker        string                  A map marker whose position the character should approach.
+---@param speed?        number                  The amount that the character's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to `4`)
 ---@param facing?       string                  The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
 ---@param keep_facing?  boolean                 If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
 ---@param after?        fun(chara: Character)   A callback function that is run after the character has finished walking.
@@ -260,7 +261,7 @@ end
 --- Walks a character along a path.
 ---@param chara     Character|string    The Character instance or id to make walk.
 ---@param path      string|table        The name of a path in the current map file, or a table defining several points (as additional tables) that constitute a path.
----@param options   table               A table defining additional properties to control the walk.
+---@param options?  table               A table defining additional properties to control the walk.
 ---|"facing" # The direction the character should face when they finish their walk. If `keep_facing` is `true`, they will instead face way immediately.
 ---|"keep_facing" # If `true`, the facing direction of the character will be preserved. Otherwise, they will face the direction they are walking. (Defaults to `false`)
 ---| "time" # The amount of time, in seconds, that the object should take to travel along the full path.
@@ -291,7 +292,7 @@ end
 
 --- Sets the sprite of a particular character.
 ---@param chara     string|Character    The Character or character id to change the sprite of.
----@param sprite    string              The name of the sprite to be set.
+---@param sprite?   string              The name of the sprite to be set.
 ---@param speed?    number              The time, in seconds, between frames for the sprite, if it has multiple frames. (Defaults to 1/30)
 function WorldCutscene:setSprite(chara, sprite, speed)
     if type(chara) == "string" then
@@ -305,7 +306,7 @@ end
 
 --- Sets the animation of a particular character. 
 ---@param chara string|Character        The Character or character id to change the animation of.
----@param anim  string                  The name of the animation to be set.
+---@param anim? string                  The name of the animation to be set.
 ---@return fun() : boolean finished A function that returns `true` once the animation has finished.
 function WorldCutscene:setAnimation(chara, anim)
     if type(chara) == "string" then
@@ -336,13 +337,13 @@ function WorldCutscene:spin(chara, speed)
 end
 
 --- Moves the object's `x` and `y` values to the new specified position over `time` seconds.
----@overload fun(self:WorldCutscene, obj:Object|string, time?:number, ease?:string, after?:function) : finished: fun(): boolean
+---@overload fun(self:WorldCutscene, obj:Object|string, marker:string, time?:number, ease?:string, after?:function) : finished: fun(): boolean
 ---@param obj    Object|string  The object instance or id of a character to slide.
 ---@param x      number         The new `x` value to approach.
 ---@param y      number         The new `y` value to approach.
 ---@param marker string         A map marker whose position the object should approach.
 ---@param time?  number         The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
----@param ease?  string         The ease type to use when moving to the new position. (Defaults to "linear")
+---@param ease?  easetype       The ease type to use when moving to the new position. (Defaults to "linear")
 ---@return fun() : boolean finished A function that returns `true` once the object has reached its destination.
 function WorldCutscene:slideTo(obj, x, y, time, ease)
     if type(obj) == "string" then
@@ -425,10 +426,11 @@ function WorldCutscene:slidePath(obj, path, options)
     return function() return slided end
 end
 
----comment
----@param chara any
----@param ... unknown
----@return function
+--- Moves a character to a new position with a jumping arc motion.
+---@param chara     Character|string    The Character instance or id to make jump.
+---@param ...       unknown             Additional arguments to pass to chara:jumpTo().
+---@see Character.jumpTo for the arguments to set up a jump.
+---@return function finished A function that returns `true once the character has completed their jump.
 function WorldCutscene:jumpTo(chara, ...)
     if type(chara) == "string" then
         chara = self:getCharacter(chara)
@@ -482,7 +484,7 @@ function WorldCutscene:detachCamera()
 end
 
 --- Smoothly pans the camera to the player and then attaches it.
----@param time number The time, in seconds, that the camera will spend panning to the player's position. (Defaults to `0.8`)
+---@param time? number The time, in seconds, that the camera will spend panning to the player's position. (Defaults to `0.8`)
 ---@return fun(self: WorldCutscene) finished A function that returns true once the camera panning is complete.
 function WorldCutscene:attachCamera(time)
     local tx, ty = self.world.camera:getTargetPosition()
@@ -496,8 +498,8 @@ function WorldCutscene:attachCameraImmediate()
 end
 
 --- Sets the current speaker for dialogue boxes in this cutscene.
----@param actor Character|string    The Character instance or character id to set as the speaker.
----@param talk? boolean             If `false`, the actor of the textbox will be set, but not the speaking character in the world for talking animations.
+---@param actor?    Character|string    The Character instance or character id to set as the speaker.
+---@param talk?     boolean             If `false`, the actor of the textbox will be set, but not the speaking character in the world for talking animations.
 function WorldCutscene:setSpeaker(actor, talk)
     if isClass(actor) and actor:includes(Character) then
         if talk ~= false then
@@ -527,10 +529,19 @@ end
 
 ---@param self WorldCutscene
 local function waitForCameraPan(self) return self.world.camera.pan_target == nil end
+
+--- Pans tha camera to a new position over a given `time`.
 ---@overload fun(self: WorldCutscene, x: number, y: number, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, marker: string, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, chara: Character, time?: number, ease?: easetype, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun() : fun(self: WorldCutscene)
+---@param x         number      The x-coordinate to pan the camera to.
+---@param y         number      The y-coordinate to pan the camera to.
+---@param marker    string      The name of a marker in the current map to pan the camera to.
+---@param chara     Character   A Character instance in the current map to pan the camera to. (Does not attach the camera)
+---@param time?     number      The time, in seconds, that the camera should spend panning to the target. Defaults to 1 second.
+---@param ease?     easetype    The easing to use for the panning.
+---@param after?    fun()       A function that is run once the camera reaches its panning target.
 ---@return fun(self: WorldCutscene) finished A function that returns true once the camera panning is complete.
 function WorldCutscene:panTo(...)
     local args = {...}
@@ -565,10 +576,17 @@ function WorldCutscene:panTo(...)
     return waitForCameraPan
 end
 
+--- Pans the camer to a new position at a given `speed`.
 ---@overload fun(self: WorldCutscene, x: number, y: number, speed?: number, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, marker: string, speed?: number, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun(self: WorldCutscene, chara: Character, speed?: number, after?: fun()) : fun(self: WorldCutscene)
 ---@overload fun() : fun(self: WorldCutscene)
+---@param x         number      The x-coordinate to pan the camera to.
+---@param y         number      The y-coordinate to pan the camera to.
+---@param marker    string      The name of a marker in the current map to pan the camera to.
+---@param chara     Character   A Character instance in the current map to pan the camera to. (Does not attach the camera)
+---@param speed?    number      The speed, in pixels per frame at 30FPS, that the camera should move towards its target. Defaults to `4`.
+---@param after?    fun()       A function that is run once the camera reaches its panning target.
 function WorldCutscene:panToSpeed(...)
     local args = {...}
     local x, y = 0, 0
@@ -685,10 +703,10 @@ local function waitForTextbox(self) return not self.textbox or self.textbox:isDo
 --- Creates a new textbox and starts typing the given `text` into it. \
 --- Will pause the cutscene until the textbox is closed, unless otherwise specified via `options`.
 ---@overload fun(self: WorldCutscene, text: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
----@overload fun(self: WorldCutscene, text: string, portrait: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@overload fun(self: WorldCutscene, text: string, portrait?: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
 ---@param text      string                      The text to be typed.
----@param portrait  string|nil                  The name of the character portrait to use for this textbox.
----@param actor     Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
+---@param portrait? string|nil                  The name of the character portrait to use for this textbox.
+---@param actor?    Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
 ---@param options?  table                       A table definining additional properties to control the textbox.
 ---|"talk"      # If a `Character` instance is attached to the textbox, whether they should use their talk sprite in world. 
 ---|"top"       # Override for the default textbox position, defining whether the textbox should appear at the top of the screen.
@@ -877,8 +895,8 @@ local function waitForTextChoicer(self) return not self.textchoicebox or self.te
 --- Creates a Text Choicer - A textbox that includes both dialogue and a choicer.
 ---@param text      string                      The text to be typed.
 ---@param choices   table                       A table of strings specifying the choices the player can select.
----@param portrait  string|nil                  The name of the character portrait to use for this textbox.
----@param actor     Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
+---@param portrait? string|nil                  The name of the character portrait to use for this textbox.
+---@param actor?    Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
 ---@param options?  table                       A table definining additional properties to control the textbox.
 ---|"talk"      # If a `Character` instance is attached to the textbox, whether they should use their talk sprite in world. 
 ---|"top"       # Override for the default textbox position, defining whether the textbox should appear at the top of the screen.
@@ -998,7 +1016,7 @@ end
 ---@param encounter     Encounter|string    The encounter id or instance to use for this battle.
 ---@param transition?   boolean|string      Whether to start in the transition state (Defaults to `true`). As a string, represents the state to start the battle in.
 ---@param enemy?        Character|table     An enemy instance or list of enemies as `Character`s in the world that will transition into the battle.
----@param options       table               A table defining additional properties to control the encounter.
+---@param options?      table               A table defining additional properties to control the encounter.
 ---|"on_start"  # A callback that is run when the battle starts (Exits the `"TRANSITION"` state). Runs immediately if the transition is skipped.
 ---|"wait"      # Whether the cutscene should be suspended until the encounter is complete. (Deftualts to `true`)
 ---@return fun()        finished    A function that returns `true` when the encounter has finished. (Only use if options.wait is set to `false`)

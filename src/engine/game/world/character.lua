@@ -439,6 +439,15 @@ function Character:play(speed, loop, reset, on_finished)
     self.sprite:play(speed, loop, reset, on_finished)
 end
 
+--- Moves the character to a new position with a jumping arc motion.
+---@overload fun(self: Character, marker:string, speed?: number, time?: number, jump_sprite?: string, land_sprite?: string)
+---@param x             number  The x-coordinate to move the character to.
+---@param y             number  The y-cooridinate to move the character to.
+---@param marker        string  The name of a marker in the map to move the character to.
+---@param speed?        number  The speed, as upwards velocity of the character when they start the jump. Defaults to `0`.
+---@param time?         number  The time, in seconds, that the jump will take. Defaults to 1 second.
+---@param jump_sprite?  string  The sprite that will be used whilst the character is in midair.
+---@param land_sprite?  string  The sprite that will be used just as the character leaves the ground and as they land.
 function Character:jumpTo(x, y, speed, time, jump_sprite, land_sprite)
     if type(x) == "string" then
         land_sprite = jump_sprite
