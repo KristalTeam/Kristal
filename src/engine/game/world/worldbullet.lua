@@ -1,12 +1,12 @@
 --- The class that all World bullets in Kristal originate from. \
 --- Generic bullets can be spawned into the world with `Game.world:spawnBullet(texture, x, y)` \
 --- Files in `scripts/world/bullets` will also be loaded as world bullets and should Extend this class.
---- Extension bullets can be spawned into the world with Game.world:spawnBullet(id, ...) - their `id` defaults to their filepath, starting from `scripts/world/bullets`. Additional arguments (...) are passed into the bullet type's init function.
+--- Extension bullets can be spawned into the world with `Game.world:spawnBullet(id, ...)` - their `id` defaults to their filepath, starting from `scripts/world/bullets`. Additional arguments `...` are passed into the bullet type's init function.
 ---
 ---@class WorldBullet : Object
 ---@overload fun(...) : WorldBullet
 ---
----@field world             World           The current World instance. Not defined until after WorldBullet:init(), and only if it is parented to a World instance.
+---@field world             World           The current World instance. Not defined until after `WorldBullet:init()`, and only if it is parented to a World instance.
 ---
 ---@field collider          Collider|nil
 ---
@@ -68,7 +68,7 @@ end
 
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
---- Not calling super:onDamage() here will stop the normal damage logic from occurring.
+--- Not calling `super:onDamage()` here will stop the normal damage logic from occurring.
 ---@param soul Soul
 function WorldBullet:onDamage(soul)
     if self:getDamage() > 0 then
