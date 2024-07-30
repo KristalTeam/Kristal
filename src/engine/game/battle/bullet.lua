@@ -1,8 +1,13 @@
+--- The class that all Battle bullets in Kristal originate from. \
+--- Generic bullets can be spawned into a wave using `Wave:spawnBullet(texture, x, y)` \
+--- Files in `scripts/battle/bullets` will also be loaded as bullets and should Extend this class. 
+--- Extension bullets can be spawned into a wave using `Wave:spawnBullet(id, ...)` - their `id` defaults to their filepath, starting from `scripts/battle/bullets`. Additional arguments are passed into the bullet type's init function.
+---
 ---@class Bullet : Object
 ---@overload fun(...) : Bullet
 ---
----@field attacker          EnemyBattler    The attacker that owns the wave which created this bullet.
----@field wave              Wave            The wave that this bullet was created by.
+---@field attacker          EnemyBattler    The attacker that owns the wave which created this bullet. Not defined until after Bullet:init().
+---@field wave              Wave            The wave that this bullet was created by. Not defined until after Bullet:init().
 ---
 ---@field tp                number
 ---@field time_bonus        number
@@ -39,17 +44,17 @@ function Bullet:init(x, y, texture)
     -- Turn time reduced when you graze this bullet (Also applied each frame after the first graze, 30x less at 30FPS)
     self.time_bonus = 1
 
-    -- Damage given to the player when hit by this bullet (defaults to 5x the attacker's attack stat)
+    -- Damage given to the player when hit by this bullet (Defaults to 5x the attacker's attack stat)
     self.damage = nil
-    -- Invulnerability timer to apply to the player when hit by this bullet
+    -- Invulnerability timer to apply to the player when hit by this bullet (Defaults to 4/3 seconds)
     self.inv_timer = (4/3)
-    -- Whether this bullet gets removed on collision with the player
+    -- Whether this bullet gets removed on collision with the player (Defaults to `true`)
     self.destroy_on_hit = true
 
     -- Whether this bullet has already been grazed (reduces graze rewards)
     self.grazed = false
 
-    -- Whether to remove this bullet when it goes offscreen
+    -- Whether to remove this bullet when it goes offscreen (Defaults to `true`)
     self.remove_offscreen = true
 end
 
@@ -93,10 +98,10 @@ end
 ---@param wave Wave
 function Bullet:onWaveSpawn(wave) end
 
----@param texture string|love.Image The path to the new texture to set on the sprite. 
----@param speed number              The time between frames of the sprite, in seconds. Defaults to 1/30th second.
----@param loop boolean
----@param on_finished fun()
+---@param texture?      string|love.Image   The new texture or path to the texture to set on the sprite (Removes the bullet's sprite if undefined) 
+---@param speed?        number              The time between frames of the sprite, in seconds (Defaults to 1/30th second)
+---@param loop?         boolean             Whether the sprite should continuously loop. (Defaults to `true`)
+---@param on_finished?  fun(Sprite)         A function that is called when the animation finishes.
 ---@return Sprite?
 function Bullet:setSprite(texture, speed, loop, on_finished)
     if self.sprite then
@@ -118,7 +123,7 @@ function Bullet:setSprite(texture, speed, loop, on_finished)
     end
 end
 
---- Checks whether this bullet is an instance of a specific bullet type, specified by `id`.
+--- Checks whether this bullet is an instance or extension of a specific bullet type, specified by `id`.
 ---@param id string
 ---@return boolean
 function Bullet:isBullet(id)
