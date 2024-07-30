@@ -1,7 +1,28 @@
+--- The class that all World bullets in Kristal originate from. \
+--- Generic bullets can be spawned into the world with `Game.world:spawnBullet(texture, x, y)` \
+--- Files in `scripts/world/bullets` will also be loaded as world bullets and should Extend this class.
+--- Extension bullets can be spawned into the world with Game.world:spawnBullet(id, ...) - their `id` defaults to their filepath, starting from `scripts/world/bullets`. Additional arguments (...) are passed into the bullet type's init function.
+---
 ---@class WorldBullet : Object
 ---@overload fun(...) : WorldBullet
+---
+---@field world             World           The current World instance. Not defined until after WorldBullet:init(), and only if it is parented to a World instance.
+---
+---@field collider          Collider|nil
+---
+---@field damage            number
+---@field inv_timer         number
+---@field destroy_on_hit    boolean
+---
+---@field battle_fade       boolean
+---
+---@field remove_offscreen  boolean
+---
 local WorldBullet, super = Class(Object)
 
+---@param x         number
+---@param y         number
+---@param texture?  string|love.Image
 function WorldBullet:init(x, y, texture)
     super.init(self, x, y)
 
@@ -17,17 +38,17 @@ function WorldBullet:init(x, y, texture)
     -- Default collider to half this object's size
     self.collider = Hitbox(self, self.width/4, self.height/4, self.width/2, self.height/2)
 
-    -- Damage given to the player when hit by this bullet
+    -- Damage given to the player when hit by this bullet (Defaults to `10`)
     self.damage = 10
-    -- Invulnerability timer to apply to the player when hit by this bullet
+    -- Invulnerability timer to apply to the player when hit by this bullet (Defaults to 4/3 seconds)
     self.inv_timer = (4/3)
-    -- Whether this bullet gets removed on collision with the player
+    -- Whether this bullet gets removed on collision with the player (Defaults to `false`)
     self.destroy_on_hit = false
 
-    -- Whether this bullet gets faded in/out by the battle state
+    -- Whether this bullet gets faded in/out by the battle state (Defaults to `true`)
     self.battle_fade = true
 
-    -- Whether to remove this bullet when it goes offscreen
+    -- Whether to remove this bullet when it goes offscreen (Defaults to `true`)
     self.remove_offscreen = true
 end
 
@@ -40,10 +61,15 @@ function WorldBullet:getDebugInfo()
     return info
 end
 
+---@return number
 function WorldBullet:getDamage()
     return self.damage
 end
 
+
+--- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
+--- Not calling super:onDamage() here will stop the normal damage logic from occurring.
+---@param soul Soul
 function WorldBullet:onDamage(soul)
     if self:getDamage() > 0 then
         self.world:hurtParty(self.damage)
@@ -52,6 +78,8 @@ function WorldBullet:onDamage(soul)
     end
 end
 
+--- *(Override)* Called when the bullet collides with the player's soul, before invulnerability checks.
+---@param soul Soul
 function WorldBullet:onCollide(soul)
     if not self.world:inBattle() then return end
 
@@ -64,6 +92,11 @@ function WorldBullet:onCollide(soul)
     end
 end
 
+---@param texture?      string|love.Image   The new texture or path to the texture to set on the sprite (Removes the bullet's sprite if undefined) 
+---@param speed?        number              The time between frames of the sprite, in seconds (Defaults to 1/30th second)
+---@param loop?         boolean             Whether the sprite should continuously loop. (Defaults to `true`)
+---@param on_finished?  fun(Sprite)         A function that is called when the animation finishes.
+---@return Sprite?
 function WorldBullet:setSprite(texture, speed, loop, on_finished)
     if self.sprite then
         self:removeChild(self.sprite)
@@ -84,6 +117,9 @@ function WorldBullet:setSprite(texture, speed, loop, on_finished)
     end
 end
 
+--- Checks whether this bullet is an instance or extension of a specific bullet type, specified by `id`.
+---@param id string
+---@return boolean
 function WorldBullet:isBullet(id)
     return self:includes(Registry.getBullet(id))
 end
