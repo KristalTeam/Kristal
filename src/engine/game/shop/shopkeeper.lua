@@ -1,26 +1,34 @@
+--- An object that controls the visual representation of a Shopkeeper in a shop.
+---
 ---@class Shopkeeper : Object
 ---@overload fun(...) : Shopkeeper
+---
+---@field slide         boolean     # Whether the shopkeeper slides out of the way in the buy menu. (Defaults to `false`)
+---
+---@field talk_sprite   boolean     # Whether the shopkeeper's sprite should have a talk animation when they are speaking. (Defaults to `true`)
+---
+---@field actor         Actor       # The current Actor this shopkeeper is using.
+---@field sprite        Sprite      # The current Sprite instance belonging to this shopkeeper.
 local Shopkeeper, super = Class(Object)
 
 function Shopkeeper:init()
     super.init(self)
 
-    -- Whether the shopkeeper slides
-    -- out of the way in the buy menu.
     self.slide = false
 
-    -- Whether the shopkeeper's sprite
-    -- should be animated by talking.
     self.talk_sprite = true
 
     self.actor = nil
     self.sprite = nil
 end
 
+---@return Actor
 function Shopkeeper:getActor()
     return self.actor or (self.sprite and self.sprite.actor)
 end
 
+---@param actor Actor|string 
+---@return Sprite
 function Shopkeeper:setActor(actor)
     if type(actor) == "string" then
         actor = Registry.createActor(actor)
@@ -35,6 +43,8 @@ function Shopkeeper:setActor(actor)
     return self.sprite
 end
 
+---@param sprite string|table|love.Image
+---@return ActorSprite|Sprite sprite
 function Shopkeeper:setSprite(sprite)
     if self.sprite then
         self.sprite:setSprite(sprite)
@@ -47,6 +57,7 @@ function Shopkeeper:setSprite(sprite)
     return self.sprite
 end
 
+---@param animation? string|function|table
 function Shopkeeper:setAnimation(animation)
     if self.sprite then
         self.sprite:setAnimation(animation)
@@ -55,6 +66,8 @@ function Shopkeeper:setAnimation(animation)
     end
 end
 
+--- Called whenever the `[emote:...]` text tag is used in Shop dialogue. Sets the sprite of this shopkeeper.
+---@param emote string The path to the image to set, or id of the animation to set.
 function Shopkeeper:onEmote(emote)
     if self.sprite then
         self.sprite:set(emote)
