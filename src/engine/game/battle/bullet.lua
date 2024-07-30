@@ -1,13 +1,13 @@
 --- The class that all Battle bullets in Kristal originate from. \
 --- Generic bullets can be spawned into a wave with `Wave:spawnBullet(texture, x, y)` \
 --- Files in `scripts/battle/bullets` will also be loaded as bullets and should Extend this class. 
---- Extension bullets can be spawned into a wave with `Wave:spawnBullet(id, ...)` - their `id` defaults to their filepath, starting from `scripts/battle/bullets`. Additional arguments (...) are passed into the bullet type's init function.
+--- Extension bullets can be spawned into a wave with `Wave:spawnBullet(id, ...)` - their `id` defaults to their filepath, starting from `scripts/battle/bullets`. Additional arguments `...` are passed into the bullet type's init function.
 ---
 ---@class Bullet : Object
 ---@overload fun(...) : Bullet
 ---
----@field attacker          EnemyBattler    The attacker that owns the wave which created this bullet. Not defined until after Bullet:init().
----@field wave              Wave            The wave that this bullet was created by. Not defined until after Bullet:init().
+---@field attacker          EnemyBattler    The attacker that owns the wave which created this bullet. Not defined until after `Bullet:init()`.
+---@field wave              Wave            The wave that this bullet was created by. Not defined until after `Bullet:init()`.
 ---
 ---@field collider          Collider|nil
 ---
@@ -74,7 +74,7 @@ function Bullet:getDamage()
 end
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
---- Not calling super:onDamage() here will stop the normal damage logic from occurring.
+--- Not calling `super:onDamage()` here will stop the normal damage logic from occurring.
 ---@param soul Soul
 ---@return table<PartyBattler> battlers_hit
 function Bullet:onDamage(soul)
