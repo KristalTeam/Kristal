@@ -1,4 +1,5 @@
---- An object that controls the visual representation of a Shopkeeper in a shop.
+--- An object that controls the visual representation of a Shopkeeper in a shop. \
+--- The values here should be edited from within a [Shop](lua://Shop) type as Shopkeepers do not have their own files.
 ---
 ---@class Shopkeeper : Object
 ---@overload fun(...) : Shopkeeper
