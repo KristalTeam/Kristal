@@ -1,10 +1,87 @@
+---
+---
 ---@class Shop : Object
 ---@overload fun(...) : Shop
+---
+---@field currency_text             string
+---
+---@field encounter_text            string
+---@field shop_text                 string
+---@field leaving_text              string
+---@field buy_menu_text             string
+---@field buy_confirmation_text     string
+---@field buy_refuse_text           string
+---@field buy_text                  string
+---@field buy_storage_text          string
+---@field buy_too_expensive_text    string
+---@field buy_no_space_text         string
+---@field sell_no_price_text        string
+---@field sell_menu_text            string
+---@field sell_nothing_text         string
+---@field sell_confirmation_text    string
+---@field sell_refuse_text          string
+---@field sell_text                 string
+---@field sell_no_storage_text      string
+---@field sell_everything_text      string
+---@field talk_text                 string
+---
+--- Defines the text shown when in each of the different SELL submenus. \
+--- The keys `items`, `weapons`, `armors`, and `storage` can be defined for this table.
+---@field sell_options_text         { items: string, weapons: string, armors: string, storage: string }
+---
+--- Whether the shop should hide the text showing your remaining storage text (Defaults to `false`)
+---@field hide_storage_text         boolean
+---
+--- Whether item prices should be hidden (Defaults to `false`)
+---@field hide_price                boolean
+---
+--- A table defining the options that will be displayed when on the main menu of the shop (State `MAINMENU`). \
+--- Each entry in this table should be a two string table, defining the name of the option first, \
+--- followed by the name of the [state](lua://shopstate) that the stop should enter when the option is selected.
+---@field menu_options              table<[string, shopstate]>
+---
+--- A table defining the options that will be displayed when in the SELL menu of the shop (State `SELLMENU`). \
+--- Each entry in this table should be a two string table, defining the name of the option first, \
+--- followed by the name of the item storage that should be opened to sell from after.
+---@field sell_options              table<[string, string]>
+---
+---@field items                     table       A table of items that the shop offers. Should be set through [Shop:registerItem()](lua://Shop.registerItem)
+---@field talks                     table       A table of topics available in the TALK menu. Should be set through [Shop:registerTalk()](lua://Shop.registerTalk)
+---@field talk_replacements         table       A table of topics that will replace other topics once they have been chosen. Should be set through [Shop:registerTalkAfter()](lua://Shop.registerTalkAfter)
+---
+---@field shopkeeper                Shopkeeper
+---
+---@field background                string      The filepath of the background texture for this shop, relative to `assets/sprites`
+---@field background_sprite         Sprite      The Sprite instance used to control the background. Not defined in `Shop:init()`.
+---
+---@field shop_music                string      The filepath of the song to play in this shop, relative to `assets/music`
+---@field music                     Music       The `Music` instance used to control the shop's music
+---
+--- A table defining the stat icons used when previewing items in this shop.
+---@field stat_icons                { attack: love.Image, magic: love.Image, defense1: love.Image, defense2: love.Image }
+---
+---@field timer                     Timer
+---
+---@field state                     shopstate|string    The current [state](lua://shopstate) of the shop, should only be set using [Shop:setState()](lua://Shop.setState).
+---@field state_reason              string?             The current reason for the state of the shop, should only be set using [Shop:setState()](lua://Shop.setState).
+---
 local Shop, super = Class(Object, "shop")
+
+---@alias shopstate
+---| "MAINMENU" # The state used when the player is in the Main menu.
+---| "BUYMENU"  # The state used when the player is in the Buy menu.
+---| "SELLMENU" # The state used when the player is selecting the storage they wish to sell items from.
+---| "SELLING"  # The state used after the player has selected a storage and is now choosing items to sell.
+---| "TALKMENU" # The state used when the player is selecting a topic to talk about in the Talk menu.
+---| "DIALOGUE" # The state used when dialogue is occurring.
+---| "LEAVE"    # The state used to initiate leaving the shop.
+---| "LEAVING"  # The state used whilst the shop is transitioning out.
 
 function Shop:init()
     super.init(self)
 
+    -- The label used for currency in this shop \
+    -- Must include a `%d` to indicate where currency amounts should substitute in
     self.currency_text = "$%d"
 
     -- Shown when you first enter a shop
@@ -54,7 +131,6 @@ function Shop:init()
 
     self.hide_storage_text = false
 
-    -- MAINMENU
     self.menu_options = {
         {"Buy",  "BUYMENU" },
         {"Sell", "SELLMENU"},
@@ -84,7 +160,6 @@ function Shop:init()
 
     self.background = "ui/shop/bg_seam"
 
-    -- STATES: MAINMENU, BUYMENU, SELLMENU, SELLING, TALKMENU, LEAVE, LEAVING, DIALOGUE
     self.state = "NONE"
     self.state_reason = nil
 
