@@ -1,4 +1,6 @@
----
+--- The class which all Shops in Kristal use. \
+--- Shop files should be located in `scripts/shops`, and will use their filepath relative to this location as an id by default. \
+--- Either [World:shopTransition()](lua://World.shopTransition) or a [Transition](lua://Transition) event with the property `shop` defined can be used to enter shops. 
 ---
 ---@class Shop : Object
 ---@overload fun(...) : Shop
