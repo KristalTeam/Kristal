@@ -1,5 +1,5 @@
 --- An object that controls the visual representation of a Shopkeeper in a shop. \
---- The values here should be edited from within a [Shop](lua://Shop) type as Shopkeepers do not have their own files.
+--- The values for this object should be edited from within a Shop type as Shopkeepers do not have their own files.
 ---
 ---@class Shopkeeper : Object
 ---@overload fun(...) : Shopkeeper
@@ -67,7 +67,7 @@ function Shopkeeper:setAnimation(animation)
     end
 end
 
---- Called whenever the `[emote:...]` text tag is used in Shop dialogue. Sets the sprite of this shopkeeper.
+--- *(Override)* Called whenever the `[emote:...]` text tag is used in Shop dialogue. Sets the sprite of this shopkeeper.
 ---@param emote string The path to the image to set, or id of the animation to set.
 function Shopkeeper:onEmote(emote)
     if self.sprite then
