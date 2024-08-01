@@ -81,9 +81,9 @@ end
 
 --- Starts a fade out with the given options. \
 --- A default fadeout will fade to black over `0.25` seconds, fading out the music as well.
----@overload fun(self: Fader, options: table)
----@param callback  function    A function that will be called when the fade has finished.
----@param options   table       A table defining additional properties to control the fade.
+---@overload fun(self: Fader, options?: table)
+---@param callback? function    A function that will be called when the fade has finished.
+---@param options?  table       A table defining additional properties to control the fade.
 ---| "speed"    # The speed to fade out at, in seconds. (Defaults to `0.25`)
 ---| "color"    # The color that should be faded to (Defaults to `COLORS.black`)
 ---| "alpha"    # The alpha to start at (Defaults to `0`)
@@ -103,9 +103,9 @@ end
 
 --- Fades the screen back in with the given options and based on the previous fade out. \
 --- A default fadein will fade the screen and music in over `0.25` seconds.
----@overload fun(self: Fader, options: table)
----@param callback  function    A function that will be called when the fade has finished.
----@param options   table       A table defining additional properties to control the fade.
+---@overload fun(self: Fader, options?: table)
+---@param callback? function    A function that will be called when the fade has finished.
+---@param options?  table       A table defining additional properties to control the fade.
 ---| "speed"    # The speed to fade in at, in seconds (Defaults to last fadeOut's speed.)
 ---| "color"    # The color that should be faded to (Defaults to last fadeOut's color)
 ---| "alpha"    # The alpha to start at (Defaults to `1`)
