@@ -103,6 +103,10 @@ function Game:returnToMenu()
     self.state = "EXIT"
 end
 
+---@param key           string
+---@param merge?        boolean
+---@param deep_merge?   boolean
+---@return any
 function Game:getConfig(key, merge, deep_merge)
     local default_config = Kristal.ChapterConfigs[Utils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
 
@@ -753,6 +757,10 @@ function Game:getSoulPartyMember()
     return current
 end
 
+---@return integer
+---@return integer
+---@return integer
+---@return integer
 function Game:getSoulColor()
     local mr, mg, mb, ma = Kristal.callEvent(KRISTAL_EVENT.getSoulColor)
     if mr ~= nil then
