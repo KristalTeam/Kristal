@@ -1,3 +1,6 @@
+--- The region that the player is confined to within waves in a battle.
+--- Usually accessed through [`Game.battle.arena`](lua://Battle.arena), which is only set during waves.
+---
 ---@class Arena : Object
 ---
 ---@field color         table           The color of the arena border (Defaults to `{0, 0.75, 0}`)   
@@ -12,6 +15,8 @@
 ---@field bottom        number          Bottommost vertical position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getBottom()`](lua://Arena.getBottom) where possible.
 ---
 ---@field line_width    integer         The thickness of the arena border in pixels, must call [`Arena:setShape()`](lua://Arena.setShape) or [`Arena:setSize()`](lua://Arena.setSize) after changing this to make the change take effect. (Defaults to `4`)
+---
+---@field sprite        ArenaSprite
 ---
 ---@field mask          ArenaMask       A mask for the arena - Any object parented to this will only render inside of the arena's bounds. 
 ---
