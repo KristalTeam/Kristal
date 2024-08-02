@@ -1,7 +1,17 @@
+--- A special object used to draw the arena to the screen.
+---
 ---@class ArenaSprite : Object
+---
+---@field arena         Arena   The arena this Object is drawing.
+---
+---@field background    boolean Whether to draw the arena's background.
+---
 ---@overload fun(...) : ArenaSprite
 local ArenaSprite, super = Class(Object)
 
+---@param arena Arena
+---@param x     number
+---@param y     number
 function ArenaSprite:init(arena, x, y)
     super.init(self, x, y)
 
@@ -48,6 +58,8 @@ function ArenaSprite:drawBackground()
     end
 end
 
+---@param key any
+---@return boolean
 function ArenaSprite:canDeepCopyKey(key)
     return super.canDeepCopyKey(self, key) and key ~= "arena"
 end
