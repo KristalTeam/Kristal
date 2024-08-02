@@ -1,6 +1,6 @@
 --- The class which all Shops in Kristal use. \
 --- Shop files should be located in `scripts/shops`, and will use their filepath relative to this location as an id by default. \
---- Either [World:shopTransition()](lua://World.shopTransition) or a [Transition](lua://Transition) event with the property `shop` defined can be used to enter shops. 
+--- Either [`World:shopTransition()`](lua://World.shopTransition) or a [`Transition`](lua://Transition) event with the property `shop` defined can be used to enter shops. 
 ---
 ---@class Shop : Object
 ---@overload fun(...) : Shop
@@ -47,9 +47,9 @@
 --- followed by the name of the item storage that should be opened to sell from after.
 ---@field sell_options              table<[string, string]>
 ---
----@field items                     table       A table of items that the shop offers. Should be set through [Shop:registerItem()](lua://Shop.registerItem)
----@field talks                     table       A table of topics available in the TALK menu. Should be set through [Shop:registerTalk()](lua://Shop.registerTalk)
----@field talk_replacements         table       A table of topics that will replace other topics once they have been chosen. Should be set through [Shop:registerTalkAfter()](lua://Shop.registerTalkAfter)
+---@field items                     table       A table of items that the shop offers. Should be set through [`Shop:registerItem()`](lua://Shop.registerItem)
+---@field talks                     table       A table of topics available in the TALK menu. Should be set through [`Shop:registerTalk()`](lua://Shop.registerTalk)
+---@field talk_replacements         table       A table of topics that will replace other topics once they have been chosen. Should be set through [`Shop:registerTalkAfter()`](lua://Shop.registerTalkAfter)
 ---
 ---@field shopkeeper                Shopkeeper
 ---
@@ -66,8 +66,8 @@
 ---
 ---@field timer                     Timer
 ---
----@field state                     shopstate|string    The current [state](lua://shopstate) of the shop, **should only be set using [Shop:setState()](lua://Shop.setState).**
----@field state_reason              any                 The current reason for the state of the shop, **should only be set using [Shop:setState()](lua://Shop.setState).**
+---@field state                     shopstate|string    The current [state](lua://shopstate) of the shop, **should only be set using [`Shop:setState()`](lua://Shop.setState).**
+---@field state_reason              any                 The current reason for the state of the shop, **should only be set using [`Shop:setState()`](lua://Shop.setState).**
 ---
 --- A table defining what will happen when the player leaves the shop.
 --- The keys `map` (target map name), `x` and `y` OR `marker` (target position in map), `facing`, (player facing direction in map), `menu` (return to main menu) can be defined for this table.
@@ -88,7 +88,7 @@ local Shop, super = Class(Object, "shop")
 --- Runs the moment the player enters the shop. \
 --- Most dialogue and behaviour of the shop should be defined here. \
 --- This includes (but is not limited to) defining most standard shop text (excluding TALK menu dialogue), 
---- registering items, talk topics, configuring the [Shopkeeper](lua://Shop.shopkeeper), and defining the assets to use (i.e. background and music).
+--- registering items, talk topics, configuring the [`Shopkeeper`](lua://Shop.shopkeeper), and defining the assets to use (i.e. background and music).
 function Shop:init()
     super.init(self)
 
@@ -238,7 +238,7 @@ function Shop:init()
     self.leave_options = {}
 end
 
---- A function that runs later than Shop:init(), primarily setting up UI elements of the shop. \
+--- A function that runs later than `Shop:init()`, primarily setting up UI elements of the shop. \
 --- Code that needs access to variables such as the shop's background Sprite object that would otherwise go in `Shop:init()` should go here.
 function Shop:postInit()
     -- Mutate talks
@@ -328,7 +328,7 @@ function Shop:postInit()
 end
 
 --- *(Override)* Runs every time the player selects a topic in the TALK menu. \ 
---- Call [Shop:startDialogue()](lua://Shop.startDialogue) from within this function with text appropriate to the selected topic.
+--- Call [`Shop:startDialogue()`](lua://Shop.startDialogue) from within this function with text appropriate to the selected topic.
 ---@param talk string   The name of the Topic that the player selected.
 function Shop:startTalk(talk) end
 
@@ -355,7 +355,7 @@ function Shop:getVoice()
     return self.voice
 end
 
---- Adds the [voice](lua://Shop.voice) of the Shop to a set of dialogue texts.
+--- Adds the [`voice`](lua://Shop.voice) of the Shop to a set of dialogue texts.
 --- @param text string[]|string
 --- @return string[]|string
 function Shop:getVoicedText(text)
@@ -389,7 +389,7 @@ end
 --- Changes the shop to a new state.
 ---@param state shopstate   The new state of the shop.
 ---@param reason? any Additional information that the new state needs, if required:
----- SELLING - The selected entry of the [sell_options](lua://Shop.sell_options) table in SELLMENU.
+---- SELLING - The selected entry of the [`sell_options`](lua://Shop.sell_options) table in SELLMENU.
 ---- TALKMENU - An optional `"DIALOGUE"` string literal to indicate that the user has returned from the `"DIALOGUE"` state.
 function Shop:setState(state, reason)
     local old = self.state
@@ -546,7 +546,7 @@ function Shop:onEmote(emote)
     self.shopkeeper:onEmote(emote)
 end
 
---- Starts a dialogue with the shopkeeper, setting the state to `DIALOGUE`. Use this function inside of [Shop:startTalk(topic)](lua://Shop.startTalk).
+--- Starts a dialogue with the shopkeeper, setting the state to `DIALOGUE`. Use this function inside of [`Shop:startTalk(topic)`](lua://Shop.startTalk).
 ---@param text string[]|string      One or more lines of dialogue, supporting Text Commands. Additionally supports the command `[emote:name]` which will cause the Shopkeeper's sprite to change to the sprite specified by `name` and `onEmote()` to run.
 ---@param callback? string|fun()    As a function, this argument is called when the dialogue finishes. If it returns `true`, the shop state will not reset when the dialogue finishes. As a string, the shop is set to this state when the dialogue finishes.
 function Shop:startDialogue(text,callback)
