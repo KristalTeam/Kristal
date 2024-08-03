@@ -324,7 +324,11 @@ local loaders = {
         end
     end },
     ["music"] = { "assets/music", function (base_dir, path, full_path)
-        local id = checkExtension(path, "mp3", "wav", "ogg")
+        local id = checkExtension(path, "mp3", "wav", "ogg",
+            -- TRACKER FORMATS
+            "mod", "s3m", "xm", "it", "669", "amf", "ams", "dbm", "dmf", "dsm", "far",
+            "mdl", "med", "mtm", "okt", "ptm", "stm", "ult", "umx", "mt2", "psm"
+        )
         if id then
             data.assets.music[id] = full_path
         end
