@@ -63,8 +63,8 @@ function ActionBox:createButtons()
 
     local start_x = (213 / 2) - ((#btn_types-1) * 35 / 2) - 1
 
-    if (#btn_types <= 6) and Game:getConfig("oldUIPositions") then
-        start_x = 30
+    if (#btn_types <= 5) and Game:getConfig("oldUIPositions") then
+        start_x = start_x - 5.5
     end
 
     for i,btn in ipairs(btn_types) do
@@ -73,7 +73,7 @@ function ActionBox:createButtons()
             button.actbox = self
             table.insert(self.buttons, button)
             self:addChild(button)
-        else
+        elseif type(btn) ~= "boolean" then -- nothing if a boolean value, used to create an empty space
             btn:setPosition(math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
             btn.battler = self.battler
             btn.actbox = self
