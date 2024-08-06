@@ -1,4 +1,11 @@
+--- `PartyBattler`s are a type of `Battler` that represent [`PartyMember`](lua://PartyMember.init)s when they are in battle. \
+--- The set of `PartyBattler`s in the current battle are stored in [`Game.battle.party`](lua://Battle.party). \
+--- Unlike `EnemyBattler`, party members do not need to define a `PartyBattler` in a file as their PartyMember file defines everything necessary and is utilised by `PartyBattler`.
+---
 ---@class PartyBattler : Battler
+---
+---
+---
 ---@overload fun(...) : PartyBattler
 local PartyBattler, super = Class(Battler)
 

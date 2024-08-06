@@ -48,7 +48,7 @@ end
 
 -- Callbacks
 
---- *(Override)* Called in `Battle:postInit()`. 
+--- *(Override)* Called in [`Battle:postInit()`](lua://Battle.postInit). \
 --- *If this function returns `true`, then the battle will not override any state changes made here.*
 ---@return boolean?
 function Encounter:onBattleInit() end
@@ -83,7 +83,7 @@ function Encounter:beforeStateChange(old, new) end
 ---@param new string
 function Encounter:onStateChange(old, new) end
 
---- *(Override)* Called when an [`ActionButton`](lua://ActionButton) is selected.
+--- *(Override)* Called when an [`ActionButton`](lua://ActionButton.init) is selected.
 ---@param battler   PartyBattler
 ---@param button    ActionButton
 function Encounter:onActionSelect(battler, button) end
@@ -129,13 +129,16 @@ function Encounter:onReturnToWorld(events) end
 ---@return table?
 function Encounter:getDialogueCutscene() end
 
----@param money integer
+---@param money integer     Current victory money based on normal money calculations
+---@return integer? money
 function Encounter:getVictoryMoney(money) end
----@param xp integer
+---@param xp integer        Current victory xp based on normal xp calculations
+---@return integer? xp
 function Encounter:getVictoryXP(xp) end
----@param text  string
----@param money integer
----@param xp    integer
+---@param text  string      Current victory text
+---@param money integer     Money earned on victory
+---@param xp    integer     XP earned on victory
+---@return string? text
 function Encounter:getVictoryText(text, money, xp) end
 
 function Encounter:update() end
@@ -150,7 +153,7 @@ function Encounter:drawBackground(fade) end
 -- Functions
 
 --- Adds an enemy to the encounter.
----@param enemy string|EnemyBattler
+---@param enemy string|EnemyBattler The id of an `EnemyBattler`, or an `EnemyBattler` instance.
 ---@param x? number
 ---@param y? number
 ---@param ... any   Additional arguments to pass to [`EnemyBattler:init()`](lua://EnemyBattler.init).
@@ -204,7 +207,8 @@ function Encounter:addEnemy(enemy, x, y, ...)
     return enemy_obj
 end
 
---- *(Override)* Gets an encounter text from a random enemy, falling back on the encounter's encounter text if none have encounter text.
+--- *(Override)* Called to receive the encounter text to be displayed each turn. (Not called on turn one, [`text`](lua://Encounter.text) is used instead.) \
+--- By default, gets an encounter text from a random enemy, falling back on the encounter's [encounter `text`](lua://Encounter.text) if none have encounter text.
 ---@return string
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
@@ -222,7 +226,8 @@ function Encounter:getEncounterText()
     end
 end
 
---- *(Override)* Retrieves the next wave for each enemy in battle.
+--- *(Override)* Retrieves the waves to be used for the next defending phase. \
+--- By default, iterates through all active enemies and selects one wave each using [`EnemyBattler:selectWave()`](lua://EnemyBattler.selectWave)
 ---@return Wave[]
 function Encounter:getNextWaves()
     local waves = {}
@@ -297,9 +302,11 @@ function Encounter:onWavesDone()
     Game.battle:setState("DEFENDINGEND", "WAVEENDED")
 end
 
----@param x         number
----@param y         number
----@param color?    table
+--- *(Override)* Creates the soul being used this battle (Called at the start of the first wave)
+--- By default, returns the regular (red) soul.
+---@param x         number  The x-coordinate the soul should spawn at.
+---@param y         number  The y-coordinate the soul should spawn at.
+---@param color?    table   A custom color for the soul, that should override its default.
 ---@return Soul
 function Encounter:createSoul(x, y, color)
     return Soul(x, y, color)
