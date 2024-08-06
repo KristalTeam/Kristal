@@ -1,4 +1,11 @@
+--- Recruits are data files that define the properties of recruitable enemies. \
+--- Recruits are stored in `scripts/data/recruits`, and extend this class. Their filepath starting from here becomes their id, unless an id is specified as an argument to `Class()`. \
+--- A recruit is linked to one enemy with the same id as it. 
+---
 ---@class Recruit : Class
+---
+---
+---
 ---@overload fun(...) : Recruit
 local Recruit = Class()
 

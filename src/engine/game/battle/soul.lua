@@ -1,3 +1,7 @@
+--- The Soul is the object the player controls in battle. \
+--- The `Soul` global stores the default (red) soul. Custom soul types can be created by extending this class in a new global (using a file in `scripts/objects/` or `scripts/globals/`).
+--- The soul being used in battle is determined by [`Encounter:createSoul`](lua://Encounter.createSoul), and can be altered after the first DEFENDING stage with [`Battle:swapSoul()`](lua://Battle.swapSoul).
+---
 ---@class Soul : Object
 ---@overload fun(...) : Soul
 local Soul, super = Class(Object)
