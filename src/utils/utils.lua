@@ -628,6 +628,55 @@ function Utils.mergeMultiple(...)
     return tbl
 end
 
+
+---
+--- Remove duplicate elements from a table.
+---
+---@param tbl table       # The table to remove duplicates from.
+---@param deep? boolean   # Whether tables inside the tbl will also have their duplicates removed.
+---@return table result   # The new table that has its duplicates removed.
+---
+function Utils.removeDuplicates(tbl, deep)
+    local dupe_check = {}
+    local result = {}
+    if Utils.isArray(tbl) then
+        -- If the source table is an array, just append the values
+        -- to the end of the destination table.
+        for _,v in ipairs(tbl) do
+            if deep and type(v) == "table" then
+                v = Utils.removeDuplicates(v, true)
+            end
+            if not dupe_check[v] then
+                table.insert(result, v)
+                dupe_check[v] = true
+            end
+        end
+    else
+        for k,v in pairs(tbl) do
+            if deep and type(v) == "table" then
+                v = Utils.removeDuplicates(v, true)
+            end
+            if not dupe_check[v] then
+                result[k] = v
+                dupe_check[v] = true
+            end
+        end
+    end
+    
+    -- Remove duplicate tables
+    for _,f in pairs(result) do
+        if type(f) == "table" then
+            for _,s in pairs(result) do
+                if Utils.equal(f, s, true) and f ~= s then
+                    Utils.removeFromTable(result, s)
+                end
+            end
+        end
+    end
+    
+    return result
+end
+
 ---
 --- Returns whether a table contains exclusively numerical indexes.
 ---
