@@ -4,7 +4,23 @@
 ---
 ---@class Battler : Object
 ---
+---@field hit_count         number              The number of times the battler has been hit recently, used for the stacking effect of damage numbers.
 ---
+---@field highlight         ColorMaskFX         An instance of a white ColorMaskFX, used for the white flash when the battler is selected in a menu.
+---@field flash_timer       number              Internal timer variable for the battler's selected flash.
+---
+---@field last_highlighted  boolean             Internal variable used to determine whether the battler was highlighted last frame.
+---
+---@field sprite            ActorSprite?        The main sprite being used by this battler.
+---@field overlay_sprite    ActorSprite?        An overlay sprite being used by this battler - special animations such as being hurt or downed take place on this sprite as to preserve the main sprite's animation cycle afterwards.
+---
+---@field dialogue_offset   [number, number]    The offset of the dialogue bubble from its default position.
+---
+---@field dialogue_bubble   string?             The bubble style used for the battler. Defaults to `"round"` or `"cyber"`, depending on chapter.
+---
+---@field alert_timer number                    Internal timer variable for the battler's overhead alert icon.
+---@field alert_icon Sprite?                    Internal variable used to store the battler's overhead alert icon.
+---@field alert_callback fun()?                 Internal variable used to store a callback for after an alert, if set.
 ---
 ---@overload fun(...) : Battler
 local Battler, super = Class(Object)
@@ -30,7 +46,6 @@ function Battler:init(x, y, width, height)
 
     self.dialogue_offset = {0, 0}
 
-    -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
     self.dialogue_bubble = nil
 
     self.alert_timer = 0
@@ -38,6 +53,9 @@ function Battler:init(x, y, width, height)
     self.alert_callback = nil
 end
 
+--- Sets the actor used for this battler.
+---@param actor         string|Actor    The id or instance of the `Actor` to set on this battler.
+---@param use_overlay   boolean?        Whether to use the overlay sprite system (Defaults to `true`)
 function Battler:setActor(actor, use_overlay)
     if type(actor) == "string" then
         self.actor = Registry.createActor(actor)
@@ -61,6 +79,8 @@ function Battler:setActor(actor, use_overlay)
     end
 end
 
+--- Toggles the visibility of the overlay sprite versus main sprite.
+---@param overlay boolean?  Whether the overlay should be visible. If unset, will invert whatever the current visibility state is.
 function Battler:toggleOverlay(overlay)
     if overlay == nil then
         overlay = self.sprite.visible
@@ -71,6 +91,12 @@ function Battler:toggleOverlay(overlay)
     end
 end
 
+--- Makes the battler flash once.
+---@param sprite    Sprite? An optional sprite to use for the flash instead of the battler's default sprite.
+---@param offset_x  number
+---@param offset_y  number
+---@param layer     number
+---@return unknown
 function Battler:flash(sprite, offset_x, offset_y, layer)
     local sprite_to_use = sprite or self.sprite
     return sprite_to_use:flash(offset_x, offset_y, layer)
@@ -102,6 +128,10 @@ function Battler:alert(duration, options)
     return self.alert_icon
 end
 
+--- Creates sparkles around the battler (these appear by default when the battler receives healing)
+---@param r number
+---@param g number
+---@param b number
 function Battler:sparkle(r, g, b)
     Game.battle.timer:every(1/30, function()
         for i = 1, 2 do
@@ -116,6 +146,21 @@ function Battler:sparkle(r, g, b)
     end, 4)
 end
 
+--- Creates a status text on the battler. \
+--- Used for information such as damage numbers, being downed, or missing a hit
+---@param x?        number  The x-coordinate the message should appear at, relative to the battler.
+---@param y?        number  The y-coordinate the message should appear at, relative to the battler.
+---@param type?     string  The type of message to display:
+---|"mercy"     # Indicates that the message will be a mercy number
+---|"damage"    # Indicates that the message will be a damage number
+---|"msg"       # Indicates that the message will use a unique sprite, such as MISS or DOWN text
+---@param arg?      any     An additional argument which depends on what `type` is set to:
+---|"mercy"     # The amount of mercy added
+---|"damage"    # The amount of damage dealt
+---|"msg"       # The path to the sprite, relative to `ui/battle/message`, to use
+---@param color?    table   The color used to draw the status message, defaulting to white
+---@param kill?     boolean Whether this status should cause all other statuses to disappear.
+---@return DamageNumber
 function Battler:statusMessage(x, y, type, arg, color, kill)
     x, y = self:getRelativePos(x, y)
 
@@ -137,6 +182,11 @@ function Battler:statusMessage(x, y, type, arg, color, kill)
     return percent
 end
 
+--- *(Called internally)* Creates a RECRUIT message for when an enemy is spared and recruit progression advances
+---@param x     number
+---@param y     number
+---@param type  string
+---@return RecruitMessage
 function Battler:recruitMessage(x, y, type)
     x, y = self:getRelativePos(x, y)
 
@@ -146,6 +196,16 @@ function Battler:recruitMessage(x, y, type)
     return recruit
 end
 
+--- Creates a speech bubble for this battler.
+---@param text      string|string[]     The text to display in the speech bubble. Can be a table defining multiple lines.
+---@param options   table               A table defining additional properties to control the speech bubble:
+---|"style"         # The dialogue bubble style to use (Defaults to [`Battler.dialogue_bubble`](lua://Battler.dialogue_bubble))
+---|"right"         # Whether the dialogue bubble should appear to the right of the battler (Defaults to `false`)
+---|"font"          # The font to use for the speech bubble
+---|"actor"         # The actor to use for the speech bubble
+---|"after"         # A callback that will be run after the dialogue is finished
+---|"line_callback" # A callback that will be run after each line of dialogue is advanced
+---@return SpeechBubble
 function Battler:spawnSpeechBubble(text, options)
     options = options or {}
     local bubble
@@ -175,14 +235,22 @@ function Battler:spawnSpeechBubble(text, options)
     return bubble
 end
 
+--- *(Override)* Called whenever a speech bubble is created for this battler.
+---@param bubble SpeechBubble
 function Battler:onBubbleSpawn(bubble) end
+--- *(Override)* Called whenever a speech bubble is removed for this battler.
+---@param bubble SpeechBubble
 function Battler:onBubbleRemove(bubble) end
 
--- Shorthand for convenience
+--- Shorthand for [`ActorSprite:setAnimation()`](lua://ActorSprite.setAnimation)
+---@param animation string|table
+---@param callback  fun(ActorSprite)
 function Battler:setAnimation(animation, callback)
     return self.sprite:setAnimation(animation, callback)
 end
 
+---Returns the active sprite, out of the battler's main and overlay sprite.
+---@return ActorSprite?
 function Battler:getActiveSprite()
     if not self.overlay_sprite then
         return self.sprite
@@ -191,6 +259,13 @@ function Battler:getActiveSprite()
     end
 end
 
+--- Shorthand for calling [`ActorSprite:setCustomSprite()`](lua://ActorSprite.setCustomSprite) and then [`ActorSprite:play()`](lua://ActorSprite.play)
+---@param sprite?   string
+---@param ox?       number
+---@param oy?       number
+---@param speed?    number
+---@param loop?     boolean
+---@param after?    fun(ActorSprite)
 function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then
