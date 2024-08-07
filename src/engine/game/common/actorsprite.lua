@@ -93,6 +93,11 @@ function ActorSprite:setActor(actor)
     self:resetSprite()
 end
 
+--- Sets the sprite relative to `assets/sprites`, with a custom offset.
+---@param texture?      string  The path to the sprite to use, relative to `assets/sprites`
+---@param ox?           number  The x-offset of the sprite
+---@param oy?           number  The y-offset of the sprite
+---@param keep_anim?    boolean
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self.path = ""
     if ox and oy then
