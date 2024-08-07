@@ -55,7 +55,7 @@ end
 
 --- Sets the actor used for this battler.
 ---@param actor         string|Actor    The id or instance of the `Actor` to set on this battler.
----@param use_overlay   boolean?        Whether to use the overlay sprite system (Defaults to `true`)
+---@param use_overlay?  boolean         Whether to use the overlay sprite system (Defaults to `true`)
 function Battler:setActor(actor, use_overlay)
     if type(actor) == "string" then
         self.actor = Registry.createActor(actor)
@@ -93,9 +93,9 @@ end
 
 --- Makes the battler flash once.
 ---@param sprite    Sprite? An optional sprite to use for the flash instead of the battler's default sprite.
----@param offset_x  number
----@param offset_y  number
----@param layer     number
+---@param offset_x? number
+---@param offset_y? number
+---@param layer?    number
 ---@return unknown
 function Battler:flash(sprite, offset_x, offset_y, layer)
     local sprite_to_use = sprite or self.sprite
@@ -129,9 +129,9 @@ function Battler:alert(duration, options)
 end
 
 --- Creates sparkles around the battler (these appear by default when the battler receives healing)
----@param r number
----@param g number
----@param b number
+---@param r? number
+---@param g? number
+---@param b? number
 function Battler:sparkle(r, g, b)
     Game.battle.timer:every(1/30, function()
         for i = 1, 2 do
@@ -198,7 +198,7 @@ end
 
 --- Creates a speech bubble for this battler.
 ---@param text      string|string[]     The text to display in the speech bubble. Can be a table defining multiple lines.
----@param options   table               A table defining additional properties to control the speech bubble:
+---@param options?  table               A table defining additional properties to control the speech bubble:
 ---|"style"         # The dialogue bubble style to use (Defaults to [`Battler.dialogue_bubble`](lua://Battler.dialogue_bubble))
 ---|"right"         # Whether the dialogue bubble should appear to the right of the battler (Defaults to `false`)
 ---|"font"          # The font to use for the speech bubble
@@ -244,7 +244,7 @@ function Battler:onBubbleRemove(bubble) end
 
 --- Shorthand for [`ActorSprite:setAnimation()`](lua://ActorSprite.setAnimation)
 ---@param animation string|table
----@param callback  fun(ActorSprite)
+---@param callback? fun(ActorSprite)
 function Battler:setAnimation(animation, callback)
     return self.sprite:setAnimation(animation, callback)
 end
