@@ -22,11 +22,11 @@
 ---
 ---@field shape         table<[number, number]>     The shape of the arena, represented as a table of `{x, y}` coordinates that form a polygon. 
 ---
----@overload fun(...) : Arena
+---@overload fun(x?:number, y?:number, shape?:table<[number, number]>) : Arena
 local Arena, super = Class(Object)
 
----@param x         number                  The x-coordinate of the center of the arena.
----@param y         number                  The y-coordinate of the center of the arena.
+---@param x?        number                  The x-coordinate of the center of the arena.
+---@param y?        number                  The y-coordinate of the center of the arena.
 ---@param shape?    table<[number, number]> The shape of the arena, represented as a table of `{x, y}` coordinates that form a polygon.
 function Arena:init(x, y, shape)
     super.init(self, x, y)

@@ -9,9 +9,11 @@
 ---
 ---
 ---
----@overload fun(...) : EnemyBattler
+---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
+---@param actor?        Actor|string
+---@param use_overlay?  boolean
 function EnemyBattler:init(actor, use_overlay)
     super.init(self)
     self.name = "Test Enemy"

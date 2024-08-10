@@ -22,9 +22,13 @@
 ---@field alert_icon Sprite?                    Internal variable used to store the battler's overhead alert icon.
 ---@field alert_callback fun()?                 Internal variable used to store a callback for after an alert, if set.
 ---
----@overload fun(...) : Battler
+---@overload fun(x?:number, y?:number, width?:number, height?:number) : Battler
 local Battler, super = Class(Object)
 
+---@param x?        number 
+---@param y?        number
+---@param width?    number
+---@param height?   number
 function Battler:init(x, y, width, height)
     super.init(self, x, y, width, height)
 

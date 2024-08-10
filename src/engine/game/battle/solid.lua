@@ -10,12 +10,12 @@
 ---@field collider      Collider    The collider used for this solid's collision
 ---@field draw_collider boolean     Whether the collider will be drawn filled in
 ---
----@overload fun(...) : Solid
+---@overload fun(filled?:boolean, x?:number, y?:number, width?:number, height?:number) : Solid
 local Solid, super = Class(Object)
 
----@param filled    boolean?    Whether the solid should be drawn filled in (Defaults to `false`)
----@param x         number      
----@param y         number
+---@param filled?   boolean    Whether the solid should be drawn filled in (Defaults to `false`)
+---@param x?        number      
+---@param y?        number
 ---@param width?    number
 ---@param height?   number
 function Solid:init(filled, x, y, width, height)

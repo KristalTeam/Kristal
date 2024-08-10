@@ -6,12 +6,12 @@
 ---
 ---@field background    boolean Whether to draw the arena's background.
 ---
----@overload fun(...) : ArenaSprite
+---@overload fun(arena:Arena, x?: number, y?:number) : ArenaSprite
 local ArenaSprite, super = Class(Object)
 
 ---@param arena Arena
----@param x     number
----@param y     number
+---@param x?    number
+---@param y?    number
 function ArenaSprite:init(arena, x, y)
     super.init(self, x, y)
 
