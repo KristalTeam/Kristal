@@ -1,7 +1,13 @@
+--- A special object used by [`Arena`](lua://Arena.init) to mask certain objects to only show inside the arena.
+---
 ---@class ArenaMask : Object
----@overload fun(...) : ArenaMask
+---@overload fun(layer?:number, x?:number, y?:number, arena?:Arena) : ArenaMask
 local ArenaMask, super = Class(Object)
 
+---@param layer?    number
+---@param x?        number
+---@param y?        number
+---@param arena?    Arena
 function ArenaMask:init(layer, x, y, arena)
     super.init(self, x, y)
 

@@ -3,9 +3,12 @@
 --- The soul being used in battle is determined by [`Encounter:createSoul`](lua://Encounter.createSoul), and can be altered after the first DEFENDING stage with [`Battle:swapSoul()`](lua://Battle.swapSoul).
 ---
 ---@class Soul : Object
----@overload fun(...) : Soul
+---@overload fun(x?:number, y?:number, color?: table) : Soul
 local Soul, super = Class(Object)
 
+---@param x?        number
+---@param y?        number
+---@param color?    table
 function Soul:init(x, y, color)
     super.init(self, x, y)
 

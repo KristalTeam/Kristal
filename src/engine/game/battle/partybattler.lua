@@ -6,9 +6,12 @@
 ---
 ---
 ---
----@overload fun(...) : PartyBattler
+---@overload fun(chara:PartyMember, x?:number, y?:number) : PartyBattler
 local PartyBattler, super = Class(Battler)
 
+---@param chara     PartyMember
+---@param x?        number
+---@param y?        number
 function PartyBattler:init(chara, x, y)
     self.chara = chara
     self.actor = chara:getActor()

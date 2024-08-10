@@ -1,7 +1,11 @@
+--- A special object used for the Snowgrave spell. \
+--- Despite its name, this object is not the `Spell` used to trigger snowgrave - the snowgrave spell is instead a default spell in all mods under the id `snowgrave`. \
+--- The spell file that calls is is found from Kristal's root at `data/spells/snowgrave.lua` - see here for how this object is used. 
 ---@class SnowGraveSpell : Object
----@overload fun(...) : SnowGraveSpell
+---@overload fun(user:PartyBattler) : SnowGraveSpell
 local SnowGraveSpell, super = Class(Object)
 
+---@param user PartyBattler
 function SnowGraveSpell:init(user)
     super.init(self, 0, 0)
 
