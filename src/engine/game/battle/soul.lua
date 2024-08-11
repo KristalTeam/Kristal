@@ -3,6 +3,53 @@
 --- The soul being used in battle is determined by [`Encounter:createSoul`](lua://Encounter.createSoul), and can be altered after the first DEFENDING stage with [`Battle:swapSoul()`](lua://Battle.swapSoul).
 ---
 ---@class Soul : Object
+---
+---@field graze_tp_factor   number          A multiplier for the TP earned from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_tp` stats, capped at `3`)
+---@field graze_time_factor number          A multiplier for the wave time depleted from grazing by the soul (Defaults to `1`, plus the sum of all party members effective `graze_time` stats, capped at `3`)
+---@field grze_size_factor  number          A multiplier for the size of the soul's graze hitbox (Defaults to `1`, plus the sum of all party members effective `graze_size` stats, capped at `3`)
+---
+---@field sprite            Sprite          The Soul's `Sprite` objcet instance
+---@field graze_sprite      GrazeSprite     The Soul's `GrazeSprite` object instance
+---
+---@field width             number          The width of the soul, in pixels
+---@field height            number          The height of the soul, in pixels
+---
+---@field collider          CircleCollider  The Soul's collider, defaulting to a circle with an 8 pixel radius
+---@field graze_collider    CircleCollider  The Soul's collider for grazing, defaulting to a circle with a 25 pixel radius (before being altered by `graze_size_factor`)
+---
+---@field original_x        number?         *(Used internally)* The x-coordinate of the soul at the start of a transition
+---@field original_y        number?         *(Used internally)* The y-coordinate of the soul at the start of a transition
+---@field target_x          number?         *(Used internally)* The x-coordinate the soul is transitioning towards
+---@field target_y          number?         *(Used internally)* The y-coordinate the soul is transitioning towards
+---
+---@field timer             number          *(Used internally)* A timer variable for the soul transition
+---@field transitioning     boolean         Whether the soul is currently in a transition
+---
+---@field speed             number          The speed of the soul, in pixels per frame at 30FPS (defaults to `4`)
+---
+---@field inv_timer         number          The remaining invulnerability time for the soul
+---@field inv_flash_timer   number          *(Used internally)* A timer for the flashing of the soul when invulnerable
+---
+---@field partial_x         number          *(Used internally)* Stores the fractional part of the soul's x-coordinate
+---@field partial_y         number          *(Used internally)* Stores the fractional part of the soul's y-coordinate
+---
+---@field last_collided_x   boolean|number  The direction `(+/-)` the soul moved and collided with an object last frame on the x-axis (`false` when the soul has not moved, `0` when there is no collision)
+---@field last_collided_y   boolean|number  The direction `(+/-)` the soul moved and collided with an object last frame on the y-axis (`false` when the soul has not moved, `0` when there is no collision)
+---
+---@field x                 integer         The soul's truncated (whole) x-coordinate. Its fractional part is in [`partial_x`](lua://Soul.x). 
+---@field y                 integer         The soul's truncated (whole) y-coordinate. Its fractional part is in [`partial_y`](lua://Soul.y).
+---
+---@field moving_x          number          The `x` value the soul is moving by
+---@field moving_y          number          The `y` value the soul is moving by
+---
+---@field noclip            boolean         Whether the solid has noclip (collision bypass)
+---@field slope_correction  boolean         Whether the soul should push up and down slopes when colliding with them
+---
+---@field transition_destroy    boolean     *(Used internally)* Whether the soul should be removed by an upcoming transition
+---
+---@field can_move          boolean         Whether the player is able to move the soul
+---@field allow_focus       boolean         Whether the player is able to focus with the soul (hold Cancel key for 1/2 speed)
+---
 ---@overload fun(x?:number, y?:number, color?: table) : Soul
 local Soul, super = Class(Object)
 
@@ -85,6 +132,7 @@ function Soul:init(x, y, color)
     self.allow_focus = true
 end
 
+---@param parent Object
 function Soul:onRemove(parent)
     super.onRemove(self, parent)
 
@@ -93,8 +141,12 @@ function Soul:onRemove(parent)
     end
 end
 
+--- *(Override)* Called when waves are started
 function Soul:onWaveStart() end
 
+--- Shatters the soul into several shards \
+--- The position of the shards are controlled by [`shard_x_table`](lua://Soul.shard_x_table) and [`shard_y_table`](lua://Soul.shard_y_table)
+---@param count integer The number of shards that the soul should shatter into.
 function Soul:shatter(count)
     Assets.playSound("break2")
 
@@ -119,6 +171,9 @@ function Soul:shatter(count)
     Game.battle.soul = nil
 end
 
+---@param x                 number  x-coordinate of the end point of the transition
+---@param y                 number  y-coordinate of the end point of the transition
+---@param should_destroy?   boolean Whether the soul should be removed during this transition
 function Soul:transitionTo(x, y, should_destroy)
     if self.graze_sprite then
         self.graze_sprite.timer = 0
@@ -137,14 +192,24 @@ function Soul:transitionTo(x, y, should_destroy)
     end
 end
 
+---@return boolean
 function Soul:isMoving()
     return self.moving_x ~= 0 or self.moving_y ~= 0
 end
 
+--- Gets the soul's exact position (including the fractional part) \
+--- *The soul's `x` and `y` values are truncated so this must be used for the soul's exact position*
+---@param x number
+---@param y number
+---@return number exact_x
+---@return number exact_y
 function Soul:getExactPosition(x, y)
     return self.x + self.partial_x, self.y + self.partial_y
 end
 
+--- Sets the soul's exact position (including a fractional part)
+---@param x number
+---@param y number
 function Soul:setExactPosition(x, y)
     self.x = math.floor(x)
     self.partial_x = x - self.x
@@ -152,6 +217,12 @@ function Soul:setExactPosition(x, y)
     self.partial_y = y - self.y
 end
 
+--- Moves the soul by `x` and `y`, accounting for collision in the soul's movement path
+---@param x?     number 
+---@param y?     number 
+---@param speed? number An optional multiplier to the amount of `x` and `y` that the soul moves by.
+---@return boolean  moved       Whether the soul moved from its previous position
+---@return boolean  collided    Whether the soul collided with something on its movement path
 function Soul:move(x, y, speed)
     local movex, movey = x * (speed or 1), y * (speed or 1)
 
@@ -164,6 +235,11 @@ function Soul:move(x, y, speed)
     return moved, collided
 end
 
+--- *(Used internally)* Performs collision abiding movement of the soul along the x-axis
+---@param amount number
+---@param move_y number
+---@return boolean
+---@return boolean?
 function Soul:moveX(amount, move_y)
     local last_collided = self.last_collided_x and (Utils.sign(amount) == self.last_collided_x)
 
@@ -184,6 +260,11 @@ function Soul:moveX(amount, move_y)
     end
 end
 
+--- *(Used internally)* Performs collision abiding movement of the soul along the y-axis
+---@param amount number
+---@param move_x number
+---@return boolean
+---@return boolean?
 function Soul:moveY(amount, move_x)
     local last_collided = self.last_collided_y and (Utils.sign(amount) == self.last_collided_y)
 
@@ -204,6 +285,11 @@ function Soul:moveY(amount, move_x)
     end
 end
 
+--- *(Used internally)* Performs collision abiding movement of the soul on the x-axis
+---@param amount number
+---@param move_y number
+---@return boolean
+---@return Arena|nil
 function Soul:moveXExact(amount, move_y)
     local sign = Utils.sign(amount)
     for i = sign, amount, sign do
@@ -254,6 +340,11 @@ function Soul:moveXExact(amount, move_y)
     return true
 end
 
+--- *(Used internally)* Performs collision abiding movment of the soul on the y-axis
+---@param amount number
+---@param move_x number
+---@return boolean
+---@return Arena|nil
 function Soul:moveYExact(amount, move_x)
     local sign = Utils.sign(amount)
     for i = sign, amount, sign do
@@ -304,20 +395,31 @@ function Soul:moveYExact(amount, move_x)
     return true
 end
 
+--- *(Override)* Called when the soul takes damage
+---@param bullet Bullet
+---@param amount integer
 function Soul:onDamage(bullet, amount)
     -- Can be overridden, called when the soul actually takes damage from a bullet
 end
 
+--- *(Override)* Called when the soul collides with a bullet and before taking damage \
+--- By default, this function is responsible for calling the bullet's collision check, [`Bullet:onCollide()`](lua://Bullet.onCollide)
+---@param bullet Bullet
 function Soul:onCollide(bullet)
     -- Handles damage
     bullet:onCollide(self)
 end
 
+--- *(Override)* Called when the soul is squished between two solids \
+--- By default, this function is responsible for calling the solid's [`Solid:onSquished`](lua:///Solid.onSquished)
+---@param solid Solid
 function Soul:onSquished(solid)
     -- Called when the soul is squished by a solid
     solid:onSquished(self)
 end
 
+--- Called every frame from within [`Soul:update()`](lua://Soul.update) if the soul is able to move. \
+--- Movement for the soul based on player input should be controlled within this method.
 function Soul:doMovement()
     local speed = self.speed
 

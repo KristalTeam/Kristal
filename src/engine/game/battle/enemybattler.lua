@@ -7,7 +7,47 @@
 ---
 ---@class EnemyBattler : Battler
 ---
+---@field max_health integer
+---@field health            integer
+---@field attack            integer
+---@field number            integer
 ---
+---@field money             integer
+---@field experience        number
+---@field tired             boolean
+---@field mercy             number
+---
+---@field spare_points      number
+---
+---@field exit_on_defeat    boolean
+---
+---@field auto_spare        boolean
+---
+---@field can_freeze        boolean
+---
+---@field selectable        boolean
+---
+---@field disable_mercy     boolean
+---
+---@field waves             string[]
+---
+---@field check             string
+---
+---@field text              string[]
+---
+---@field low_health_text   string?
+---@field tired_text        string?
+---@field spareable_text    string?
+---
+---@field dialogue_bubble   string?
+---@
+---@field dialogue_offset   [number, number]
+---
+---@field dialogue          table<string[]>
+---
+---@field acts              table
+---
+---@field comment           string
 ---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)

@@ -103,7 +103,8 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
     return soul_collided
 end
 
---- *(Override)* Called whenever this solid squishes the soul.
+--- *(Override)* Called whenever this solid squishes the soul. \
+--- By default, this function is responsible for dealing damage to the soul if the solid deals squish damage, and then destroying the soul
 ---@param soul Soul
 function Solid:onSquished(soul)
     --[[if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
