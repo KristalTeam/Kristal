@@ -4,8 +4,23 @@
 ---
 ---@class PartyBattler : Battler
 ---
+---@field chara         PartyMember
+---@field actor         Actor
 ---
+---@field action        table
 ---
+---@field defending     boolean
+---@field hurt_timer    number
+---@field hurting       boolean
+---
+---@field is_down       boolean
+---@field sleeping      boolean
+---
+---@field should_darken boolean
+---@field darken_timer  number
+---@field darken_fx     RecolorFX
+---
+---@field target_sprite Sprite
 ---@overload fun(chara:PartyMember, x?:number, y?:number) : PartyBattler
 local PartyBattler, super = Class(Battler)
 
