@@ -2229,7 +2229,10 @@ end
 function Battle:update()
     for _,enemy in ipairs(self.enemies_to_remove) do
         Utils.removeFromTable(self.enemies, enemy)
-        self.enemies_index[Utils.getKey(self.enemies_index, enemy)] = false
+        local enemy_y = Utils.getKey(self.enemies_index, enemy)
+        if enemy_y then
+            self.enemies_index[enemy_y] = false
+        end
     end
     self.enemies_to_remove = {}
 
