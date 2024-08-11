@@ -123,6 +123,9 @@ function ActorSprite:set(name, callback, ignore_actor_callback)
     self.actor:onSet(self, name, callback)
 end
 
+---@param texture?                  string
+---@param keep_anim?                boolean
+---@param ignore_actor_callback?    boolean
 function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preSetSprite(self, texture, keep_anim) then
         return
@@ -135,6 +138,8 @@ function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
     self.actor:onSetSprite(self, texture, keep_anim)
 end
 
+---@param texture?      string
+---@param keep_anim?    boolean
 function ActorSprite:_setSprite(texture, keep_anim)
     if not texture then
         self.texture = nil
