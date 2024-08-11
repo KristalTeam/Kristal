@@ -100,7 +100,7 @@ end
 ---@param offset_x? number
 ---@param offset_y? number
 ---@param layer?    number
----@return unknown
+---@return FlashFade
 function Battler:flash(sprite, offset_x, offset_y, layer)
     local sprite_to_use = sprite or self.sprite
     return sprite_to_use:flash(offset_x, offset_y, layer)
