@@ -254,7 +254,6 @@ end
 ---@param tp?           number          An amount of TP required to use this act
 ---@param highlight?    Battler[]       A list of battlers that will be highlighted when the act is used, overriding default highlighting logic             
 ---@param icons?        string[]        A list of texture paths to icons that will display next to the name of this act (party member heads are drawn automatically as required)
----@return table act    The data of the act, also added to the `acts` table
 function EnemyBattler:registerShortActFor(char, name, description, party, tp, highlight, icons)
     if type(party) == "string" then
         if party == "all" then
