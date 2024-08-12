@@ -270,8 +270,10 @@ function DarkMenu:onButtonSelect(button_index)
         Input.clear("confirm")
         self.buttons[button_index].callback()
 
-        self.box.x = self.box.x + self.box_offset_x
-        self.box.y = self.box.y + self.box_offset_y
+        if self.box then
+            self.box.x = self.box.x + self.box_offset_x
+            self.box.y = self.box.y + self.box_offset_y
+        end
     end
 end
 
