@@ -597,10 +597,17 @@ function Game:enterShop(shop, options)
     self.shop:onEnter()
 end
 
+--- Sets the value of the flag named `flag` to `value`
+---@param flag  string
+---@param value any
 function Game:setFlag(flag, value)
     self.flags[flag] = value
 end
 
+--- Gets the value of the flag named `flag`, returning `default` if the flag does not exist
+---@param flag      string
+---@param default?  any
+---@return any
 function Game:getFlag(flag, default)
     local result = self.flags[flag]
     if result == nil then
@@ -610,6 +617,10 @@ function Game:getFlag(flag, default)
     end
 end
 
+--- Adds `amount` to a numeric flag named `flag` (or defines it if it does not exist)
+---@param flag      string  The name of the flag to add to
+---@param amount?   number  (Defaults to `1`)
+---@return number new_value
 function Game:addFlag(flag, amount)
     self.flags[flag] = (self.flags[flag] or 0) + (amount or 1)
     return self.flags[flag]
@@ -643,6 +654,8 @@ function Game:getPartyMember(id)
     end
 end
 
+---@param id string
+---@return Recruit?
 function Game:getRecruit(id)
     if self.recruits_data[id] then
         return self.recruits_data[id]

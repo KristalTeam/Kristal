@@ -10,7 +10,7 @@
 ---@field action        table       The current action the battler has queued up
 ---
 ---@field defending     boolean     Whether the battler is currently defending
----@field hurt_timer    number      *(Used internally)* A timer for the battler's hurt sprite being displayed
+---@field hurt_timer    number      How long this battler's hurt sprite should be displayed for when hit
 ---@field hurting       boolean     Whether the battler is currently hurting (showing their hurt sprite)
 ---
 ---@field is_down       boolean     Whether the battler is downed
