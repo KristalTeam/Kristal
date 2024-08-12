@@ -7,47 +7,52 @@
 ---
 ---@class EnemyBattler : Battler
 ---
----@field max_health integer
----@field health            integer
----@field attack            integer
----@field number            integer
+---@field max_health        integer             The maximum health of this enemy
+---@field health            integer             The current health of this enemy
+---@field attack            integer             The attack stat of this enemy
+---@field defense           integer             The defense stat of this enemy
 ---
----@field money             integer
----@field experience        number
----@field tired             boolean
----@field mercy             number
+---@field money             integer             The money added to the battle prize money when this enemy is defeated
+---@field experience        number              The experience gained when this enemy is defeated
+---@field tired             boolean             Whether the enemy is tired
+---@field mercy             number              The amount of mercy points the enemy has
 ---
----@field spare_points      number
+---@field spare_points      number              The amount of mercy that is added to this enemy when a character spares them below max mercy
 ---
----@field exit_on_defeat    boolean
+---@field exit_on_defeat    boolean             Whether the enemy should flee the battle when defeated by reducing their hp to 0
 ---
----@field auto_spare        boolean
+---@field auto_spare        boolean             Whether the enemy will be automatically spared when they meet the conditions for sparing
 ---
----@field can_freeze        boolean
+---@field can_freeze        boolean             Whether the enemy can be frozen
 ---
----@field selectable        boolean
+---@field selectable        boolean             Whether the enemy is selectable in menus
 ---
----@field disable_mercy     boolean
+---@field disable_mercy     boolean             Whether the enemy has their mercy bar disabled
 ---
----@field waves             string[]
+---@field waves             string[]            A list of wave ids this enemy can use - one is selected each turn in [`EnemyBattler:selectWave()`](lua://EnemyBattler.selectWave)
 ---
----@field check             string
+---@field check             string              The flavour text displayed when the enemy is checked. Stat text is added automatically.
 ---
----@field text              string[]
+---@field text              string[]            A list of encounter flavour texts that can be selected from at random to display in the battle box at the start of each turn
 ---
----@field low_health_text   string?
----@field tired_text        string?
----@field spareable_text    string?
+---@field low_health_text   string?             A special text that displays when this enemy is at low HP. See [`low_health_percentage`](lua://EnemyBattler.low_health_percentage) for defining the low HP threshold.
+---@field tired_text        string?             A special text that displays when this enemy is TIRED.
+---@field spareable_text    string?             A special text that displays when this enemy is spareable.
+---
+---@field tired_percentage      number          A number from 0-1 that defines what percentage of maximum hp the enemy should become tired at
+---@field low_health_percentage number          A number from 0-1 that defines what percentage of maximum hp the [`low_health_text`](lua://EnemyBattler.low_health_text) of this enemy starts displaying
 ---
 ---@field dialogue_bubble   string?
 ---@
----@field dialogue_offset   [number, number]
+---@field dialogue_offset   [number, number]    The offset of the enemy's dialogue bubble
 ---
----@field dialogue          table<string[]>
+---@field dialogue      table<string[]|string>  A list of dialogue choices the enemy will select one from at the start of every attacking turn
 ---
----@field acts              table
+---@field acts              table               *(Used internally)* Stores the data of all ACTs available on this enemy
 ---
----@field comment           string
+---@field hurt_timer        number              *(Used internally)* A timer for the enemy's hurt sprite being displayed
+---@field comment           string              The text displayed next to the enemy's name in menu's (such as "(Tired)" in DELTARUNE) 
+---@field defeated          boolean             Whether the enemy has been defeated
 ---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
@@ -106,11 +111,11 @@ function EnemyBattler:init(actor, use_overlay)
     self.tired_percentage = 0.5
     self.low_health_percentage = 0.5
 
-    -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
     -- This is set to nil in `battler.lua` as well, but it's here for completion's sake.
+
+    -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
     self.dialogue_bubble = nil
 
-    -- The offset for the speech bubble, also set in `battler.lua`
     self.dialogue_offset = {0, 0}
 
     self.dialogue = {}
