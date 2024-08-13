@@ -69,7 +69,7 @@ function Recruit:init()
     self.hidden = false
 end
 
----@return {id: string?, recruited: integer|boolean, hidden: boolean?}
+---@return RecruitSaveData
 function Recruit:save()
     local data = {
         id = self.id,

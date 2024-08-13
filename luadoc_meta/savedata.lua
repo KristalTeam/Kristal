@@ -1,0 +1,6 @@
+---@meta
+---
+---@alias SaveData { chapter: integer, name: string, level: integer, playtime: number, light: boolean, room_name: string, room_id: string, money: integer, xp: integer, tension: number, max_tension: number, lw_money: integer, level_up_count: integer, border: string, temp_followers: table<[Follower, number]>, flags: table<[string, any]>, spawn_marker: string, spawn_position: {x: number, y: number}, party: string[], inventory: {storage_enabled: boolean, storages: table}, party_data: PartyMemberSaveData[], recruits_data: RecruitSaveData[]}
+---@alias ItemSaveData {id: string?, flags: table<[string, any]>, dark_item: ItemSaveData, light_item: ItemSaveData, dark_location: table, light_location: table}
+---@alias RecruitSaveData {id: string?, recruited: integer|boolean, hidden: boolean?}
+---@alias PartyMemberSaveData {id: string?, title: string, level: integer, health: integer, stats: {magic: integer, defense: integer, attack: integer, health: integer}, lw_lv: integer, lw_exp: integer, lw_health: integer, lw_stats: {attack: integer, defense: integer, health: integer}, spells: string[], equipped: {weapon: ItemSaveData, armor: [ItemSaveData, ItemSaveData]}, flags: table<string, any>}
