@@ -446,11 +446,16 @@ end
 
 -- Same as love.graphics.print(), but has the align parameter after the y param
 -- Available align options: "left", "center" and "right"
+-- If using align as a table, the first index is the alignment while the second is a numberic value for new line spacing.
 function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
     local new_line_space = 0
+    local new_line_space_height = love.graphics.getFont():getHeight()
+    if type(align) == "table" then
+        align, new_line_space_height = align[1], align[2]
+    end
     for line in string.gmatch(text, "([^\n]+)") do
         love.graphics.print(line, x - ((align == "center" or align == "right") and love.graphics.getFont():getWidth(line) or 0) / (align == "center" and 2 or 1) * ((align == "center" or align == "right") and sx or 1), y + new_line_space, r, sx, sy, ox, oy, kx, ky)
-        new_line_space = new_line_space + love.graphics.getFont():getHeight()
+        new_line_space = new_line_space + new_line_space_height * (sy or 1)
     end
 end
 

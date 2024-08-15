@@ -224,7 +224,7 @@ function RecruitMenu:draw()
                 love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
                 love.graphics.print(recruit:getName(), 300, 70)
                 love.graphics.setFont(self.description_font)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120)
+                Draw.printAlign(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120, {"left", 20})
                 love.graphics.setFont(self.font)
                 
                 love.graphics.print("LIKE", 80, 240)
