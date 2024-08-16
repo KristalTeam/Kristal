@@ -2,6 +2,7 @@
     "enableStorage": false,          // Extra 48-slot item storage
     "enableRecruits": false,         // Enable recruit messages and menu
     "smallSaveMenu": true,           // Single-file save menu with no storage/recruits options
+    "lessEquipments": true,          // Reduces the amount of available weapons and armor slots in the inventory
 
     "partyActions": false,           // Whether X-Actions appear in spell menu by default
 

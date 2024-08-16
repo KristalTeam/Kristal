@@ -443,6 +443,23 @@ function DarkEquipMenu:drawItems()
             if scroll > 1 then
                 Draw.draw(self.arrow_sprite, x + 187, y + 14 - sine_off, 0, 1, -1)
             end
+        end
+        if items.max <= 12 then
+            Draw.setColor(1, 1, 1)
+            for i = 1, items.max do
+                local item = items[i]
+                local percentage = (i - 1) / (items.max - 1)
+                if self.selected_item[type] == i and item then
+                    love.graphics.rectangle("fill", x + 188, y + 21 + percentage * 110, 10, 10)
+                elseif self.selected_item[type] == i then
+                    love.graphics.rectangle("fill", x + 189, y + 22 + percentage * 110, 8, 8)
+                elseif item then
+                    love.graphics.rectangle("fill", x + 191, y + 24 + percentage * 110, 4, 4)
+                else
+                    love.graphics.rectangle("fill", x + 192, y + 25 + percentage * 110, 2, 2)
+                end
+            end
+        else
             Draw.setColor(0.25, 0.25, 0.25)
             love.graphics.rectangle("fill", x + 191, y + 24, 6, 119)
             local percent = (scroll - 1) / (items.max - 6)
