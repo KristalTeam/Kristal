@@ -812,6 +812,7 @@ end
 function EnemyBattler:freeze()
     if not self.can_freeze then
         self:onDefeat()
+        return
     end
 
     Assets.playSound("petrify")
