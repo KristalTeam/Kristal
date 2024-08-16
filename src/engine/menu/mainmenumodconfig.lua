@@ -205,6 +205,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                                         "selection", {nil, true, false})
     self:registerOption("enableRecruits",         "Enable Recruits",           "Enable recruit messages and menu",                                                   "selection", {nil, true, false})
     self:registerOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",                             "selection", {nil, true, false})
+    self:registerOption("lessEquipments",         "Less Equipments",           "Reduces the amount of available weapons and armor slots in the inventory",           "selection", {nil, true, false})
     self:registerOption("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",                                  "selection", {nil, true, false})
     self:registerOption("growStronger",           "Grow Stronger",             "Stat increases after defeating an enemy with violence",                              "selection", {nil, true, false})
     self:registerOption("growStrongerChara",      "Grow Stronger Character",   "The character who grows stronger if they're in the party",                           "selection", {nil, false, "kris", "ralsei", "susie", "noelle"}) -- unhardcode

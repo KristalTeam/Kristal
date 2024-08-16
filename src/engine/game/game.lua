@@ -200,6 +200,8 @@ function Game:save(x, y)
     for _,party in ipairs(self.party) do
         table.insert(data.party, party.id)
     end
+    
+    data.default_equip_slots = self.default_equip_slots
 
     data.inventory = self.inventory:save()
 
@@ -325,6 +327,11 @@ function Game:load(data, index, fade)
         map = Registry.createMap(room_id, self.world)
 
         self.light = map.light or false
+    end
+    
+    self.default_equip_slots = data.default_equip_slots or 48
+    if self.is_new_file and Game:getConfig("lessEquipments") then
+        self.default_equip_slots = 12
     end
 
     if self.light then

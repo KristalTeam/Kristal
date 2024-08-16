@@ -22,13 +22,13 @@ function DarkInventory:clear()
     super.clear(self)
 
     self.storages = {
-        ["items"]     = {id = "items",     max = 12, sorted = true,  name = "ITEMs",       fallback = "storage"},
-        ["key_items"] = {id = "key_items", max = 12, sorted = true,  name = "KEY ITEMs",   fallback = nil      },
-        ["weapons"]   = {id = "weapons",   max = 48, sorted = false, name = "WEAPONs",     fallback = nil      },
-        ["armors"]    = {id = "armors",    max = 48, sorted = false, name = "ARMORs",      fallback = nil      },
-        ["storage"]   = {id = "storage",   max = 24, sorted = false, name = "STORAGE",     fallback = nil      },
+        ["items"]     = {id = "items",     max = 12,                       sorted = true,  name = "ITEMs",       fallback = "storage"},
+        ["key_items"] = {id = "key_items", max = 12,                       sorted = true,  name = "KEY ITEMs",   fallback = nil      },
+        ["weapons"]   = {id = "weapons",   max = Game.default_equip_slots, sorted = false, name = "WEAPONs",     fallback = nil      },
+        ["armors"]    = {id = "armors",    max = Game.default_equip_slots, sorted = false, name = "ARMORs",      fallback = nil      },
+        ["storage"]   = {id = "storage",   max = 24,      
 
-        ["light"]     = {id = "light",     max = 28, sorted = true,  name = "LIGHT ITEMs", fallback = nil      },
+        ["light"]     = {id = "light",     max = 28,                       sorted = true,  name = "LIGHT ITEMs", fallback = nil      },
     }
 
     Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
