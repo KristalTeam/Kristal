@@ -80,7 +80,7 @@ function DarkStorageMenu:updateDescription()
 end
 
 function DarkStorageMenu:update()
-    if Input.pressed("left") then
+    if Input.pressed("left", true) then
         self.selected_x[self.list] = self.selected_x[self.list] - 1
         if self.selected_x[self.list] < 1 then
             self.selected_x[self.list] = 2
@@ -91,7 +91,7 @@ function DarkStorageMenu:update()
             end
         end
     end
-    if Input.pressed("right") then
+    if Input.pressed("right", true) then
         self.selected_x[self.list] = self.selected_x[self.list] + 1
         if self.selected_x[self.list] > 2 then
             self.selected_x[self.list] = 1
@@ -102,20 +102,20 @@ function DarkStorageMenu:update()
             end
         end
     end
-    if Input.pressed("up") then
+    if Input.pressed("up", true) then
         self.selected_y[self.list] = self.selected_y[self.list] - 1
         if self.selected_y[self.list] < 1 then
             self.selected_y[self.list] = 6
         end
     end
-    if Input.pressed("down") then
+    if Input.pressed("down", true) then
         self.selected_y[self.list] = self.selected_y[self.list] + 1
         if self.selected_y[self.list] > 6 then
             self.selected_y[self.list] = 1
         end
     end
     if self.state == "SELECT" then
-        if Input.pressed("confirm") then
+        if Input.pressed("confirm", false) then
             if self:getStorage(self.list).max < self:getSelectedIndex(self.list) then
                 self.ui_cant_select:stop()
                 self.ui_cant_select:play()
@@ -123,12 +123,12 @@ function DarkStorageMenu:update()
                 self.state = "SWAP"
                 self.list = 2
             end
-        elseif Input.pressed("cancel") then
+        elseif Input.pressed("cancel", false) then
             self:remove()
             Game.world:closeMenu()
         end
     elseif self.state == "SWAP" then
-        if Input.pressed("confirm") then
+        if Input.pressed("confirm", false) then
             if self:getStorage(self.list).max < self:getSelectedIndex(self.list) then
                 self.ui_cant_select:stop()
                 self.ui_cant_select:play()
@@ -144,7 +144,7 @@ function DarkStorageMenu:update()
                 self.state = "SELECT"
                 self.list = 1
             end
-        elseif Input.pressed("cancel") then
+        elseif Input.pressed("cancel", false) then
             self.state = "SELECT"
             self.list = 1
         end
