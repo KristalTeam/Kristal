@@ -276,7 +276,7 @@ function ChaserEnemy:update()
             end
 
             self:snapToPath()
-        elseif self.pace_type then
+        elseif self.pace_type and not self.alert_icon and not self.chasing then
             self:paceMovement()
         end
 
