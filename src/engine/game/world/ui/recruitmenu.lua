@@ -63,26 +63,26 @@ end
 
 function RecruitMenu:update()
     self.old_selection = self.selected
-    if Input.pressed("left") and self.state == "INFO" then
+    if Input.pressed("left", true) and self.state == "INFO" then
         self.selected = self.selected - 1
         if self.selected < 1 then
             self.selected = #self.recruits
         end
     end
-    if Input.pressed("right") and self.state == "INFO" then
+    if Input.pressed("right", true) and self.state == "INFO" then
         self.selected = self.selected + 1
         if self.selected > #self.recruits then
             self.selected = 1
         end
     end
     
-    if Input.pressed("up") and self.state == "SELECT" then
+    if Input.pressed("up", true) and self.state == "SELECT" then
         self.selected = self.selected - 1
         if self.selected < self:getFirstSelectedInPage() then
             self.selected = self:getLastSelectedInPage()
         end
     end
-    if Input.pressed("down") and self.state == "SELECT" then
+    if Input.pressed("down", true) and self.state == "SELECT" then
         self.selected = self.selected + 1
         if self.selected > self:getLastSelectedInPage() then
             self.selected = self:getFirstSelectedInPage()
@@ -90,7 +90,7 @@ function RecruitMenu:update()
     end
     
     if self:getMaxPages() > 1 then
-        if Input.pressed("left") and self.state == "SELECT" then
+        if Input.pressed("left", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page - 1
             self.selected = self.selected - 9
             if self.selected_page < 1 then
@@ -101,7 +101,7 @@ function RecruitMenu:update()
                 self.selected = self:getLastSelectedInPage()
             end
         end
-        if Input.pressed("right") and self.state == "SELECT" then
+        if Input.pressed("right", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page + 1
             self.selected = self.selected + 9
             if self.selected_page > self:getMaxPages() then
@@ -118,13 +118,13 @@ function RecruitMenu:update()
         self:setRecruitInBox(self.selected)
     end
     
-    if Input.pressed("confirm") then
+    if Input.pressed("confirm", false) then
         if self.state == "SELECT" then
             self.state = "INFO"
             self.recruit_box:setPosition(80, 70)
         end
     end
-    if Input.pressed("cancel") then
+    if Input.pressed("cancel", false) then
         if self.state == "SELECT" then
             self.recruit_box:remove()
             self:remove()
