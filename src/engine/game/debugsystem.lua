@@ -1038,13 +1038,6 @@ function DebugSystem:update()
             stage.active = true
         end
     end
-    
-    if self:isMenuOpen() then
-        if (Utils.containsValue({"encounter_select", "select_shop", "select_map", "cutscene_select"}, self.current_menu) and (Game.battle or Game.shop)) or
-           (Utils.containsValue({"wave_select"}, self.current_menu) and (not Game.battle)) then
-            self:refresh()
-        end
-    end
     super.update(self)
 end
 
