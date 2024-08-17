@@ -124,7 +124,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
                 end
 
                 Kristal.saveConfig()
-                self:buildModList()
+                self:buildModListFavorited()
             end
 
             return true
@@ -307,6 +307,91 @@ function MainMenuModList:reloadMods()
         Kristal.setDesiredWindowTitleAndIcon()
         self:buildModList()
     end)
+end
+
+function MainMenuModList:buildModListFavorited()
+    -- Remember the last selected mod
+    local last_scroll = self.list and self.list.scroll_target
+    local last_selected = self.list and self.list:getSelectedId()
+    
+    -- Create the mod list object if it doesn't exist
+    if not self.list then
+        self.list = ModList(69, 70, 502, 370)
+        self.list.layer = 50
+        self.menu.stage:addChild(self.list)
+
+        if not self.active then
+            self.list.active = false
+            self.list.visible = false
+        end
+    else
+        self.list:clearMods()
+    end
+    
+    -- Sort them by favorites or filepath
+    table.sort(self.mods, function(a, b)
+        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
+        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
+        return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
+    end)
+    
+    -- Add mods to the list
+    for _,mod in ipairs(self.mods) do
+        -- Create the mod button
+        local button = ModButton(mod.name or mod.id, 424, 62, mod)
+        self.list:addMod(button)
+
+        -- Load the mod's preview script
+        if mod.preview_script_path then
+            local chunk = love.filesystem.load(mod.preview_script_path)
+            local success, result = pcall(chunk, mod.path)
+            if success then
+                button.preview_script = result
+
+                if result.init then
+                    result:init(mod, button)
+                end
+            else
+                Kristal.Console:warn("preview.lua error in "..mod.name..": "..result)
+            end
+        end
+
+        -- Get the engine versions this mod is compatible with
+        local engine_ver = mod and mod["engineVer"]
+        if type(engine_ver) == "table" then
+            local versions = {}
+            for _,ver in ipairs(engine_ver) do
+                table.insert(versions, SemVer(ver))
+            end
+            self.engine_versions[mod.id] = versions
+        elseif type(engine_ver) == "string" then
+            self.engine_versions[mod.id] = {SemVer(engine_ver)}
+        else
+            self.engine_versions[mod.id] = {Kristal.Version}
+        end
+    end
+    
+    -- Add the mod create button
+    local create_button = ModCreateButton(424 + 70, 42)
+    self.list:addMod(create_button)
+
+    -- Remember the loaded structure of the mods directory
+    self.last_loaded = love.filesystem.getDirectoryItems("mods")
+
+    -- Keep the list scrolled at the previously selected mod, if it exists, or start at the first mod
+    local keep_button, keep_index = self.list:getById(last_selected)
+    if last_selected and keep_button then
+        self.list:select(keep_index, true)
+        self.list:setScroll(last_scroll)
+    else
+        self.list:select(1, true)
+    end
+    
+    -- Hide list if there are no mods
+    if #self.list.mods == 0 then
+        self.list.active = false
+        self.list.visible = false
+    end
 end
 
 function MainMenuModList:buildModList()
