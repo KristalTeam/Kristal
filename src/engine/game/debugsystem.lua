@@ -961,11 +961,16 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             end
         end
 
-        if Input.is("down", key) and (not is_repeat or self.current_selecting < #Game.flags) then
+        local counter = 0
+        for _,flag in pairs(Game.flags) do
+            counter = counter + 1
+        end
+        
+        if Input.is("down", key) and (not is_repeat or self.current_selecting < counter) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting + 1
         end
-        if Input.is("up", key) and (not is_repeat or self.current_selecting > #Game.flags) then
+        if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
             Assets.playSound("ui_move")
             self.current_selecting = self.current_selecting - 1
         end
