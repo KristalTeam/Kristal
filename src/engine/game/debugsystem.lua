@@ -30,6 +30,7 @@ function DebugSystem:init()
     self.current_selecting = 1
 
     self.menus = {}
+    self.exclusive_menus = {}
 
     self:refresh()
 
@@ -312,11 +313,21 @@ end
 
 function DebugSystem:refresh()
     self.menus = {}
+    self.exclusive_menus = {}
+    self.exclusive_menus["OVERWORLD"] = {"encounter_select", "select_shop", "select_map", "cutscene_select"}
+    self.exclusive_menus["BATTLE"] = {"wave_select"}
     self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
     self:registerDefaults()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
+end
+
+function DebugSystem:addToExclusiveMenu(state, id)
+    if not self.exclusive_menus[state] then
+        self.exclusive_menus[state] = {}
+    end
+    table.insert(self.exclusive_menus[state], id)
 end
 
 function DebugSystem:fadeMusicOut()
@@ -1035,9 +1046,10 @@ function DebugSystem:update()
     end
     
     if self:isMenuOpen() then
-        if (Utils.containsValue({"encounter_select", "select_shop", "select_map", "cutscene_select"}, self.current_menu) and (Game.battle or Game.shop)) or
-           (Utils.containsValue({"wave_select"}, self.current_menu) and (not Game.battle)) then
-            self:refresh()
+        for state,menus in pairs(self.exclusive_menus) do
+            if Utils.containsValue(menus, self.current_menu) and Game.state ~= state then
+                self:refresh()
+            end
         end
     end
     super.update(self)
