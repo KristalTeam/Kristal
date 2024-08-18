@@ -297,7 +297,7 @@ function MainMenuModList:reloadMods()
     self.loading_mods = true
 
     Kristal.Mods.clear()
-    Kristal.loadAssets("", "mods", "", function()
+    Kristal.loadAssets("", "mods", TARGET_MOD or "", function()
         if #Kristal.Mods.failed_mods > 0 then
             self.menu:setState("MODERROR")
         end
