@@ -793,6 +793,7 @@ function DebugSystem:registerDefaults()
 
     self:registerOption("main", "End Battle", "Instantly complete a battle.", function ()
                             Game.battle:setState("VICTORY")
+                            self:closeMenu()
                         end, in_battle)
 end
 
