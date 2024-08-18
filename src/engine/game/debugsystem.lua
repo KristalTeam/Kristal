@@ -327,7 +327,11 @@ function DebugSystem:addToExclusiveMenu(state, id)
     if not self.exclusive_menus[state] then
         self.exclusive_menus[state] = {}
     end
-    table.insert(self.exclusive_menus[state], id)
+    if type(id) == "table" then
+        Utils.merge(self.exclusive_menus[state], id)
+    else
+        table.insert(self.exclusive_menus[state], id)
+    end
 end
 
 function DebugSystem:fadeMusicOut()
