@@ -517,6 +517,44 @@ function DebugSystem:registerSubMenus()
         self:addChild(self.window)
     end)
     self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
+    
+    self:registerMenu("fast_forward", "Fast Forward")
+    self:registerOption("fast_forward", "[Toggle]", 
+                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+                        function () FAST_FORWARD = not FAST_FORWARD end)
+    self:registerOption("fast_forward", "x0.05", "Set the fast forward speed to x0.05 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.05
+                        end)
+    self:registerOption("fast_forward", "x0.1", "Set the fast forward speed to x0.1 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.1
+                        end)
+    self:registerOption("fast_forward", "x0.2", "Set the fast forward speed to x0.2 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.2
+                        end)
+    self:registerOption("fast_forward", "x0.5", "Set the fast forward speed to x0.5 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.5
+                        end)
+    self:registerOption("fast_forward", "x1.5", "Set the fast forward speed to x1.5 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 1.5
+                        end)
+    self:registerOption("fast_forward", "x2", "Set the fast forward speed to x2 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 2
+                        end)
+    self:registerOption("fast_forward", "x5", "Set the fast forward speed to x5 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 5
+                        end)
+    self:registerOption("fast_forward", "x10", "Set the fast forward speed to x10 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 10
+                        end)
+    self:registerOption("fast_forward", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
 
     self:registerMenu("give_item", "Give Item", "search")
 
@@ -559,24 +597,46 @@ function DebugSystem:registerSubMenus()
     end
 
     self:registerMenu("cutscene_select", "Cutscene Select", "search")
+    
+    -- add a cutscene stopper
+    self:registerOption("cutscene_select", "[Stop Current Cutscene]", "Stop the current playing cutscene.", function ()
+        if Game.world:hasCutscene() then
+            Game.world:stopCutscene()
+        end
+        self:closeMenu()
+    end)
+    
     -- loop through registry and add menu options for all cutscenes
     for group, cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then
             for id, _ in pairs(cutscene) do
                 self:registerOption("cutscene_select", group .. "." .. id, "Start this cutscene.", function ()
-                    Game.world:startCutscene(group, id)
+                    if not Game.world:hasCutscene() then
+                        Game.world:startCutscene(group, id)
+                    end
                     self:closeMenu()
                 end)
             end
         else
             self:registerOption("cutscene_select", group, "Start this cutscene.", function ()
-                Game.world:startCutscene(group)
+                if not Game.world:hasCutscene() then
+                    Game.world:startCutscene(group)
+                end
                 self:closeMenu()
             end)
         end
     end
 
     self:registerMenu("wave_select", "Wave Select", "search")
+    
+    -- add a wave stopper
+    self:registerOption("wave_select", "[Stop Current Wave]", "Stop the current playing wave.", function ()
+        if Game.battle:getState() == "DEFENDING" then
+            Game.battle.encounter:onWavesDone()
+        end
+        self:closeMenu()
+    end)
+    
     -- loop through registry and add menu options for all waves
     local waves_list = {}
     for id, _ in pairs(Registry.waves) do
@@ -589,7 +649,9 @@ function DebugSystem:registerSubMenus()
 
     for _, id in ipairs(waves_list) do
         self:registerOption("wave_select", id, "Start this wave.", function ()
-            Game.battle:setState("DEFENDINGBEGIN", { id })
+            if Game.battle:getState() == "ACTIONSELECT" then
+                Game.battle:setState("DEFENDINGBEGIN", { id })
+            end
             self:closeMenu()
         end)
     end
@@ -653,9 +715,10 @@ function DebugSystem:registerDefaults()
         self:enterMenu("engine_options", 1)
     end)
 
-    self:registerOption("main", "Fast Forward",
-                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
-                        function () FAST_FORWARD = not FAST_FORWARD end)
+    self:registerOption("main", "Fast Forward", function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+                                                function () self:enterMenu("fast_forward", 1)
+    end)
+    
     self:registerOption("main", "Debug Rendering",
                         function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
                         function () DEBUG_RENDER = not DEBUG_RENDER end)
@@ -957,35 +1020,41 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             return
         end
     elseif self.state == "FLAGS" then
-        if Input.isCancel(key) and not is_repeat then
-            Assets.playSound("ui_select")
+        if Game.flags then
+            if Input.isCancel(key) and not is_repeat then
+                Assets.playSound("ui_select")
+                self:setState("MENU")
+                self.current_selecting = self.current_subselecting
+                return
+            elseif Input.isConfirm(key) then
+                local keys = Utils.getKeys(Game.flags)
+                if type(Game:getFlag(keys[self.current_selecting])) == "boolean" then
+                    Game:setFlag(keys[self.current_selecting], not Game:getFlag(keys[self.current_selecting]))
+                    Assets.playSound("ui_select")
+                else
+                    Assets.playSound("ui_cant_select")
+                end
+            end
+
+            local counter = 0
+            for _,flag in pairs(Game.flags) do
+                counter = counter + 1
+            end
+            
+            if Input.is("down", key) and (not is_repeat or self.current_selecting < counter) then
+                Assets.playSound("ui_move")
+                self.current_selecting = self.current_selecting + 1
+            end
+            if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
+                Assets.playSound("ui_move")
+                self.current_selecting = self.current_selecting - 1
+            end
+            self:updateBounds(Utils.getKeys(Game.flags))
+        else
             self:setState("MENU")
             self.current_selecting = self.current_subselecting
             return
-        elseif Input.isConfirm(key) then
-            local keys = Utils.getKeys(Game.flags)
-            if type(Game:getFlag(keys[self.current_selecting])) == "boolean" then
-                Game:setFlag(keys[self.current_selecting], not Game:getFlag(keys[self.current_selecting]))
-                Assets.playSound("ui_select")
-            else
-                Assets.playSound("ui_cant_select")
-            end
         end
-
-        local counter = 0
-        for _,flag in pairs(Game.flags) do
-            counter = counter + 1
-        end
-        
-        if Input.is("down", key) and (not is_repeat or self.current_selecting < counter) then
-            Assets.playSound("ui_move")
-            self.current_selecting = self.current_selecting + 1
-        end
-        if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
-            Assets.playSound("ui_move")
-            self.current_selecting = self.current_selecting - 1
-        end
-        self:updateBounds(Utils.getKeys(Game.flags))
     end
 end
 

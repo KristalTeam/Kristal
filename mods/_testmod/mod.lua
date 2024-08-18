@@ -216,7 +216,7 @@ end
 
 function Mod:onKeyPressed(key)
 
-    if key == "u" then
+    if key == "p" then
         Game:fadeIntoLegend("legend", { music = "determination" })
     end
 
@@ -231,14 +231,14 @@ function Mod:onKeyPressed(key)
             end
         end
         if not Game.lock_movement then
-            if key == "b" and Game.state == "OVERWORLD" then
+            if key == "e" and Game.state == "OVERWORLD" then
                 Input.clear(nil, true)
                 Game:encounter("virovirokun", true)
-            elseif key == "n" and Game.state == "OVERWORLD" then
+            elseif key == "r" and Game.state == "OVERWORLD" then
                 Game:encounter("virovirokun", false)
-            elseif key == "p" then
+            elseif key == "t" then
                 Game.world.player:shake(4, 0)
-            elseif key == "o" then
+            elseif key == "y" then
                 local wrapper = Component(FixedSizing(640,480))
                 wrapper:setLayout(VerticalLayout({ gap = 0, align = "center" }))
 
@@ -266,11 +266,11 @@ function Mod:onKeyPressed(key)
         end
         if Game.world.player and not Game.lock_movement then
             local player = Game.world.player
-            if key == "e" then
+            if key == "u" then
                 player:explode()
                 Game.world.player = nil
                 return true
-            elseif key == "r" then
+            elseif key == "i" then
                 local last_flipped = player.flip_x
                 local facing = player.facing
 

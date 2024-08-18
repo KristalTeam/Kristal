@@ -286,6 +286,14 @@ function World:onKeyPressed(key)
                 self:openMenu(SaveMenu(save_pos))
             end
         end
+        if key == "h" then
+            for _,party in ipairs(Game.party) do
+                party:heal(math.huge)
+            end
+        end
+        if key == "b" then
+            Game.world:hurtParty(math.huge)
+        end
         if key == "n" then
             NOCLIP = not NOCLIP
         end
