@@ -2949,9 +2949,17 @@ function Battle:onKeyPressed(key)
         if self.state == "DEFENDING" and key == "f" then
             self.encounter:onWavesDone()
         end
-        if self.soul and key == "j" then
+        if self.soul and self.soul.visible and key == "j" then
+            local x, y = self:getSoulLocation()
             self.soul:shatter(6)
-            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(math.huge)
+            
+            -- Prevents a crash related to not having a soul in some waves
+            self:spawnSoul(x, y)
+            for _,heartbrust in ipairs(Game.stage:getObjects(HeartBurst)) do
+                heartbrust:remove()
+            end
+            self.soul.visible = false
+            self.soul.collidable = false
         end
         if key == "b" then
             for _,battler in ipairs(self.party) do
