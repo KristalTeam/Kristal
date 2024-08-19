@@ -1057,7 +1057,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             self:updateBounds(Utils.getKeys(Game.flags))
         else
             self:setState("MENU")
-            self.current_selecting = self.current_subselecting
+            self:refresh()
             return
         end
     end
