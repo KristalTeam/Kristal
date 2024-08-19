@@ -13,23 +13,24 @@
 ---
 ---@field progress      number  The initial progress of the enemy along their path, if defined, as a decimal value between 0 and 1.
 ---
----@field can_chase     boolean (Named `chase` in maps) Whether the enemy will chase after players it catches sight of. Defaults to `true`.
----@field chasing       boolean Whether the enemy is chasing the player when they enter the room. Defaults to `false`.
----@field chase_dist    number  (Named `chasedist` in maps) The distance, in pixels, that the enemy can see the player from. Defaults to `200`.
+---@field can_chase     boolean (Named `chase` in maps) Whether the enemy will chase after players it catches sight of (Defaults to `true`)
+---@field chasing       boolean Whether the enemy is chasing the player when they enter the room. (Defaults to `false`)
+---@field chase_dist    number  (Named `chasedist` in maps) The distance, in pixels, that the enemy can see the player from (Defaults to `200`)
 ---
----@field chase_type    string  (Naamed `chasetype` in maps) The name of the chasetype to use. See CHASETYPE for available types.
----@field chase_speed   number  (Named `chasespeed` in maps) The speed the enemy will chase the player at, in pixels per frame at 30FPS. Defaults to `9`.
----@field chase_max     number  (Named `chasemax` in maps) The maximum speed the enemy will chase the player at, if `chase_accel` is set. Speed is uncapped if unset.
+---@field chase_type    string  (Naamed `chasetype` in maps) The name of the chasetype to use. See [CHASETYPE](lua://CHASETYPE) for available types.
+---@field chase_speed   number  (Named `chasespeed` in maps) The speed the enemy will chase the player at, in pixels per frame at 30FPS (Defaults to `9`)
+---@field chase_max     number  (Named `chasemax` in maps) The maximum speed the enemy will chase the player at, if `chase_accel` is set (Speed is uncapped if unset)
 ---@field chase_accel   number  (Named `chaseaccel` in maps) The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of speed when in `multiplier` mode.
 ---
----@field pace_type     string  (Named `pacetype` in maps) The type of pacing that the enemy will do while idling. See PACETYPE for available types. Defaults to nothing.
+---@field pace_type     string  (Named `pacetype` in maps) The type of pacing that the enemy will do while idling. See [PACETYPE](lua://PACETYPE) for available types.
 ---@field pace_marker   table   (Named `marker` in maps) The name of a marker, or a list of markers (marker1, marker2, marker3, ...) that the enemy will pace between when `wander` pacing.
----@field pace_interval number  (Named `paceinterval` in maps) The interval between actions when `wander` pacing. Defaults to `24`
----@field pace_speed    number  (Named `pacespeed` in maps) The speed at which the enemy walks when `wander` pacing. Defaults to `2`.
----@field swing_divisor number  (Named `swingdiv` in maps) A divisor for the speed of the swing of this enemy when swing pacing (Higher number = slower). Defaults to `24`.
----@field swing_length  number  (Named `swinglength` in maps) The full length swing covered by this enemy when swing pacing. The enemy placement position is the center of the line. Defaults to `400`
+---@field pace_interval number  (Named `paceinterval` in maps) The interval between actions when `wander` pacing (Defaults to `24`)
+---@field pace_return   boolean (Named `pacereturn` in maps) Whether the enemy should return to its spawn point between every point when its `pace_type` is set to `wander` or `randomwander`. (Defaults to `true`)
+---@field pace_speed    number  (Named `pacespeed` in maps) The speed at which the enemy walks when `wander` pacing (Defaults to `2`)
+---@field swing_divisor number  (Named `swingdiv` in maps) A divisor for the speed of the swing of this enemy when swing pacing (Higher number = slower) (Defaults to `24`)
+---@field swing_length  number  (Named `swinglength` in maps) The full length swing covered by this enemy when swing pacing. The enemy placement position is the center of the line (Defaults to `400`)
 ---
----@field once          boolean Whether this enemy can only be encountered once (Will not respawn when the room reloads). Defaults to `false`.
+---@field once          boolean Whether this enemy can only be encountered once (Will not respawn when the room reloads) (Defaults to `false`)
 ---
 ---@field aura          boolean Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the mod-wide config for enemy auras.
 ---
@@ -73,6 +74,7 @@ function ChaserEnemy:init(actor, x, y, properties)
     self.pace_type = properties["pacetype"]
     self.pace_marker = Utils.parsePropertyList("marker", properties)
     self.pace_interval = properties["paceinterval"] or 24
+    self.pace_return  = properties["pacereturn"] or true
     self.pace_speed = properties["pacespeed"] or 4
     self.swing_divisor = properties["swingdiv"] or 24
     self.swing_length = properties["swinglength"] or 400
@@ -294,6 +296,7 @@ function ChaserEnemy:update()
                             self:setAnimation("chasing")
                         end})
                         self:setAnimation("alerted")
+                        self:onAlerted()
                     end
                 end
                 Object.endCache()
@@ -306,7 +309,21 @@ function ChaserEnemy:update()
     super.update(self)
 end
 
---- Responsible for movement of the ChaserEnemy when it has been alterted of a player's presence. \
+--- *(Override)* Called whenever the enemy is alerted of the player's presence. \
+--- *By default, used to cancel any potentially active movement for standard pacetypes.*
+function ChaserEnemy:onAlerted()
+    if self.physics.move_target and self.physics.move_target.after then
+        self.physics.move_target:after()
+    end
+    self.physics.move_target = nil
+
+    if self.physics.move_path and self.physics.move_path.after then
+        self.physics.move_path:after()
+    end
+    self.physics.move_path = nil
+end
+
+--- *(Override)* Responsible for movement of the `ChaserEnemy` when it has been alerted of a player's presence. \
 --- This function can be hooked to add custom chase types.
 function ChaserEnemy:chaseMovement()
     if not self.world.player then
@@ -335,7 +352,7 @@ function ChaserEnemy:chaseMovement()
 
 end
 
---- Responsible for movement of the ChaserEnemy when idle. Only called if `pace_type` is set. \
+--- *(Override)* Responsible for movement of the `ChaserEnemy` when idle. Only called if `pace_type` is set. \
 --- This function can be hooked to add custom pace types.
 function ChaserEnemy:paceMovement()
     self.pace_timer = self.pace_timer + DTMULT
@@ -346,7 +363,9 @@ function ChaserEnemy:paceMovement()
         
         if not self.return_to_spawn then
             self.wandering = true
-            self.return_to_spawn = true
+            if self.pace_return or self.pace_index == #self.pace_marker then
+                self.return_to_spawn = true
+            end
             self:walkToSpeed(self.pace_marker[self.pace_index], self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false end)
             self.pace_index = Utils.clampWrap(self.pace_index + 1, 1, #self.pace_marker)
             return
@@ -361,7 +380,9 @@ function ChaserEnemy:paceMovement()
 
         if not self.return_to_spawn then
             self.wandering = true
-            self.return_to_spawn = true
+            if self.pace_return then
+                self.return_to_spawn = true
+            end
             self:walkToSpeed(Utils.pick(self.pace_marker), self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false end)
             return
         end
