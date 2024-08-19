@@ -28,4 +28,6 @@ function love.conf(t)
         t.window.highdpi = true
         t.window.usedpiscale = false
     end
+	
+	t.externalstorage = true
 end
