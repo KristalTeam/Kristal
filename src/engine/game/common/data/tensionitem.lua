@@ -24,7 +24,7 @@ end
 
 --- Modified to restore tension at the instant the item is selected and create a special effect
 ---@param user PartyBattler
----@param target Battler[]|PartyBattler[]|EnemyBattler[]
+---@param target Battler[]|PartyBattler|PartyBattler[]|EnemyBattler|EnemyBattler[]
 function TensionItem:onBattleSelect(user, target)
     self.tension_given = Game:giveTension(self:getTensionAmount())
 
@@ -40,13 +40,13 @@ end
 
 --- Modified to remove the tension gained if the player undoes this item's use
 ---@param user PartyBattler
----@param target Battler[]|PartyBattler[]|EnemyBattler[]
+---@param target Battler[]|PartyBattler|PartyBattler[]|EnemyBattler|EnemyBattler[]
 function TensionItem:onBattleDeselect(user, target)
     Game:removeTension(self.tension_given or 0)
 end
 
 --- Modified to display a special message indicating the item is only usable in battle
----@param target PartyMember[]
+---@param target PartyMember|PartyMember[]
 ---@return boolean
 function TensionItem:onWorldUse(target)
     Game.world:showText({

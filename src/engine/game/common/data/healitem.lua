@@ -58,7 +58,7 @@ function HealItem:getBattleHealAmount(id)
 end
 
 --- Modified to perform healing based on the set healing amounts
----@param target PartyMember[]
+---@param target PartyMember|PartyMember[]
 ---@return boolean
 function HealItem:onWorldUse(target)
     if self.target == "ally" then
@@ -81,7 +81,7 @@ end
 
 --- Modified to perform healing based on the set healing amounts
 ---@param user PartyBattler
----@param target Battler[]|PartyBattler[]|EnemyBattler[]
+---@param target Battler[]|PartyBattler|PartyBattler[]|EnemyBattler|EnemyBattler[]
 function HealItem:onBattleUse(user, target)
     if self.target == "ally" then
         -- Heal single party member

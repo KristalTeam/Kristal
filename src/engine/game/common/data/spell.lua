@@ -107,11 +107,11 @@ function Spell:onStart(user, target)
     end)
 end
 
---- *(Override)* Called whenever the spell is selected in the menu
+--- *(Override)* Called whenever the spell is selected for use in battle
 ---@param user PartyBattler
 ---@param target Battler[]|EnemyBattler|PartyBattler|EnemyBattler[]|PartyBattler[]
 function Spell:onSelect(user, target) end
---- *(Override)* Called whenever the spell stops being selected in the menu
+--- *(Override)* Called whenever the spell use is undone in battle
 ---@param user PartyBattler
 ---@param target Battler[]|EnemyBattler|PartyBattler|EnemyBattler[]|PartyBattler[]
 function Spell:onDeselect(user, target) end

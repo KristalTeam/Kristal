@@ -1,3 +1,5 @@
+--- A class to extend from instead of [`Item`](lua://Item.init) when making equipment for the Light World. \
+--- Shares all the same variables and functions as `Item`
 ---@class LightEquipItem : Item
 ---@overload fun(...) : LightEquipItem
 local LightEquipItem, super = Class(Item)
