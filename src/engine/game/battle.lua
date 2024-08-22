@@ -1,3 +1,6 @@
+--- The `Battle` Object manages everything related to battles in Kristal. \
+--- A globally available reference to the in-use `Battle` instance is stored in [`Game.battle`](lua://Game.battle).
+---
 ---@class Battle : Object
 ---
 ---@field party                     PartyBattler[]                  A table of all the `PartyBattler`s in the current battle
@@ -49,6 +52,10 @@
 ---@field enemies_to_remove         EnemyBattler[]
 ---@field defeated_enemies          EnemyBattler[]
 ---@field waves                     Wave[]
+---
+---@field encounter                 Encounter                       The encounter currently being used for this battle *(only set during `postInit()`)*
+---@field resume_world_music        boolean                         *(only set during `postInit()`)*
+---@field transitioned              boolean                         Whether the battle opened with a transition *(only set during `postInit()`)*
 ---
 ---@overload fun(...) : Battle
 local Battle, super = Class(Object)
