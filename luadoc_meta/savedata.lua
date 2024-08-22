@@ -1,6 +1,60 @@
 ---@meta
+
+--- All the data that gets saved by Kristal when the player saves their game
 ---
----@alias SaveData { chapter: integer, name: string, level: integer, playtime: number, light: boolean, room_name: string, room_id: string, money: integer, xp: integer, tension: number, max_tension: number, lw_money: integer, level_up_count: integer, border: string, temp_followers: table<[Follower, number]>, flags: table<[string, any]>, spawn_marker: string, spawn_position: {x: number, y: number}, party: string[], inventory: {storage_enabled: boolean, storages: table}, party_data: PartyMemberSaveData[], recruits_data: RecruitSaveData[]}
----@alias ItemSaveData {id: string?, flags: table<[string, any]>, dark_item: ItemSaveData, light_item: ItemSaveData, dark_location: table, light_location: table}
----@alias RecruitSaveData {id: string?, recruited: integer|boolean, hidden: boolean?}
----@alias PartyMemberSaveData {id: string?, title: string, level: integer, health: integer, stats: {magic: integer, defense: integer, attack: integer, health: integer}, lw_lv: integer, lw_exp: integer, lw_health: integer, lw_stats: {attack: integer, defense: integer, health: integer}, spells: string[], equipped: {weapon: ItemSaveData, armor: [ItemSaveData, ItemSaveData]}, flags: table<string, any>}
+---@class SaveData
+---@field chapter integer
+---@field name string
+---@field level integer
+---@field playtime number
+---@field light boolean
+---@field room_name string
+---@field room_id string
+---@field money integer
+---@field xp integer
+---@field tension number
+---@field max_tension number
+---@field lw_money integer
+---@field level_up_count integer
+---@field border string
+---@field temp_followers table<[string, number]|string>
+---@field flags table<string, any>
+---@field spawn_marker string
+---@field spawn_position {x: number, y: number}
+---@field party string[]
+---@field inventory {storage_enabled: boolean, storages: table}
+---@field party_data PartyMemberSaveData[]
+---@field recruits_data RecruitSaveData[]
+
+--- Item data in the format it is saved to file
+---
+---@class ItemSaveData
+---@field id string?
+---@field flags table<string, any>
+---@field dark_item ItemSaveData
+---@field light_item ItemSaveData
+---@field dark_location table
+---@field light_location table
+
+--- Recruit data in the format it is saved to file
+---
+---@class RecruitSaveData
+---@field id string?
+---@field recruited integer|boolean
+---@field hidden boolean?
+
+--- Party Member data in the format it is saved to file
+---
+---@class PartyMemberSaveData
+---@field id string?
+---@field title string
+---@field level integer
+---@field health integer
+---@field stats {magic: integer, defense: integer, attack: integer, health: integer}
+---@field lw_lv integer
+---@field lw_exp integer
+---@field lw_health integer
+---@field lw_stats {attack: integer, defense: integer, health: integer}
+---@field spells string[]
+---@field equipped {weapon: ItemSaveData, armor: [ItemSaveData, ItemSaveData]}
+---@field flags table<string, any>
