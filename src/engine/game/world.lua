@@ -1,7 +1,48 @@
 ---@class World : Object
----@overload fun(...) : World
+---
+---@field state             string                          The current state that this `World` is in - should never be set manually, see [`World:setState()`](lua://World.setState) instead
+---@field state_manager     StateManager                    An object that manages the state of this `World`
+---
+---@field music             Music                           The `Music` instance that controls audio playback for this `World`
+---
+---@field map               Map                             The currently loaded map instance
+---
+---@field camera            Camera                          The camera object used to display the world
+---
+---@field player            Player                          The player character
+---@field soul              OverworldSoul                   The soul of the player
+---
+---@field battle_borders    table                           *(unused? See [`Map.battle_borders`](lua://Map.battle_borders))*
+---
+---@field transition_fade   number                          *(unused?)*
+---
+---@field in_battle         boolean                         Whether the player is currently in a world battle set through [`World:setBattle()](lua://World.setBattle) (affects the visibility of world battle content)
+---@field in_battle_area    boolean                         Whether the player is currently standing inside a battlearea of the map (affects the visibility of world battle content)
+---@field battle_alpha      number                          The current alpha value of world battle content
+---
+---@field bullets           WorldBullet[]                   A table of currently active bullets
+---@field followers         Follower[]                      A table of all followers currently present in the world
+---
+---@field cutscene          WorldCutscene?                  The `WorldCutscene` object of the currently active cutscene, if present
+---
+---@field conroller_parent  Object                          The object that all controllers are parented to
+---
+---@field fader             Fader
+---
+---@field timer             Timer
+---
+---@field can_open_menu     boolean                         Whether the player can open their menu
+---
+---@field menu              LightMenu|DarkMenu?             The Menu object of the menu, if it is open
+---
+---@field calls             table<[string, string]>   A list of calls available on the cell phone in the Light World CELL menu
+---
+---@field door_delay        number                          *(Used internally)* Timer variable for door transition sounds
+---
+---@overload fun(map?: string) : World
 local World, super = Class(Object)
 
+---@param map? string    The optional name of a map to initially load with the world
 function World:init(map)
     super.init(self)
 
@@ -70,6 +111,10 @@ function World:init(map)
     end
 end
 
+--- Heals a member of the party
+---@param target    string|PartyMember  The party member to heal
+---@param amount    number              The amount of HP to restore
+---@param text?     string              An optional text to display when HP is resotred in the Light World, before the HP restoration message
 function World:heal(target, amount, text)
     if type(target) == "string" then
         target = Game:getPartyMember(target)
@@ -100,6 +145,11 @@ function World:heal(target, amount, text)
     end
 end
 
+--- Hurts the party member `battler` by `amount`, or hurts the whole party for `amount`
+---@overload fun(self: World, amount: number)
+---@param battler   Character|string    The Character to hurt
+---@param amount    number              The amount of damage to deal
+---@return boolean  killed  Whether all targetted characters were knocked out by this damage
 function World:hurtParty(battler, amount)
     Assets.playSound("hurt")
 
@@ -152,10 +202,16 @@ function World:hurtParty(battler, amount)
     return false
 end
 
+--- Changes the state of the world
+---@param state string
 function World:setState(state)
     self.state_manager:setState(state)
 end
 
+--- Opens the main overworld menu
+---@param menu?     LightMenu|DarkMenu  An optional menu instance to open
+---@param layer?    number  The layer to create the menu on (defaults to `WORLD_LAYERS["ui"]` or `600`)
+---@return (DarkMenu|LightMenu)?
 function World:openMenu(menu, layer)
     if self:hasCutscene() then return end
     if self:inBattle() then return end
@@ -196,6 +252,9 @@ function World:openMenu(menu, layer)
     return self.menu
 end
 
+--- Creates the main overworld menu if it does not exist \
+--- *The [event](lua://KRISTAL_EVENT) `createMenu` is called by this function, which can return a custom menu to use instead of the default Light/Dark menu*
+---@return LightMenu|DarkMenu
 function World:createMenu()
     local menu = Kristal.callEvent(KRISTAL_EVENT.createMenu)
     if menu then return menu end
@@ -207,6 +266,7 @@ function World:createMenu()
     return menu
 end
 
+--- Closes the menu
 function World:closeMenu()
     if self.menu then
         if not self.menu.animate_out and self.menu.transitionOut then
@@ -218,29 +278,44 @@ function World:closeMenu()
     self:afterMenuClosed()
 end
 
+--- Runs whenever the menu is closed
 function World:afterMenuClosed()
     self:hideHealthBars()
     self.menu = nil
     self:setState("GAMEPLAY")
 end
 
-
+--- Sets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
+---@param name  string  The name of the flag to set
+---@param value integer The value to set the flag to
 function World:setCellFlag(name, value)
     Game:setFlag("lightmenu#cell:" .. name, value)
 end
 
+--- Gets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
+---@param name      string
+---@param default?  integer
+---@return integer
 function World:getCellFlag(name, default)
     return Game:getFlag("lightmenu#cell:" .. name, default)
 end
 
+--- Registers a phone call in the Light World CELL menu
+---@param name  string          The name of the call as it will show in the CELL menu
+---@param scene string          The cutscene to play when the call is selected
 function World:registerCall(name, scene)
     table.insert(self.calls, {name, scene})
 end
 
+--- Replaces a phone call in the Light World CELL menu with another
+---@param name  string          The name of the call as it will show in the CELL menu
+---@param index integer         The index of the call to replace
+---@param scene string          The cutscene to play when the call is selected
 function World:replaceCall(name, index, scene)
     self.calls[index] = {name, scene}
 end
 
+--- Shows party member health bars
 function World:showHealthBars()
     if Game.light then return end
 
@@ -253,6 +328,7 @@ function World:showHealthBars()
     end
 end
 
+--- Hides party member health bars
 function World:hideHealthBars()
     if self.healthbar then
         if not self.healthbar.animate_out then
@@ -261,9 +337,13 @@ function World:hideHealthBars()
     end
 end
 
+--- Called whenever the state of the world changes
+---@param old string
+---@param new string
 function World:onStateChange(old, new)
 end
 
+---@param key string
 function World:onKeyPressed(key)
     if Kristal.Config["debug"] and Input.ctrl() then
         if key == "m" then
@@ -309,10 +389,15 @@ function World:onKeyPressed(key)
     end
 end
 
+--- Checks whether there is currently a textbox open
+---@return boolean
 function World:isTextboxOpen()
     return self:hasCutscene() and self.cutscene.textbox and self.cutscene.textbox.stage ~= nil
 end
 
+--- Gets the collision map for the world
+---@param enemy_check?  boolean     Whether to include the enemy collision map (defaults to `false`)
+---@return Collider[]
 function World:getCollision(enemy_check)
     local col = {}
     for _,collider in ipairs(self.map.collision) do
@@ -331,6 +416,11 @@ function World:getCollision(enemy_check)
     return col
 end
 
+--- Checks whether the input `collider` is colliding with anything in the world
+---@param collider      Collider    The collider to check collision for
+---@param enemy_check?  boolean     Whether to include the enemy collision map in the check
+---@return boolean  collided    Whether a collision was found
+---@return Object?  with        The object that was collided with
 function World:checkCollision(collider, enemy_check)
     Object.startCache()
     for _,other in ipairs(self:getCollision(enemy_check)) do
@@ -343,10 +433,18 @@ function World:checkCollision(collider, enemy_check)
     return false
 end
 
+--- Whether the world has a currently active cutscene
+---@return boolean?
 function World:hasCutscene()
     return self.cutscene and not self.cutscene.ended
 end
 
+--- Starts a cutscene in the world
+---@overload fun(self: World, id: string, ...)
+---@param group string  The name of the group the cutscene is a part of
+---@param id    string  The id of the cutscene 
+---@param ...   any     Additional arguments that will be passed to the cutscene function
+---@return WorldCutscene?   The cutscene object that was created
 function World:startCutscene(group, id, ...)
     if self.cutscene and not self.cutscene.ended then
         local cutscene_name = ""
@@ -367,6 +465,8 @@ function World:startCutscene(group, id, ...)
     return self.cutscene
 end
 
+--- Stops the current cutscene \
+--- An error will be thrown when trying to stop a cutscene if none are active
 function World:stopCutscene()
     if not self.cutscene then
         error("Attempt to stop a cutscene while none are active.")
@@ -376,6 +476,9 @@ function World:stopCutscene()
     self.cutscene = nil
 end
 
+--- Shows a textbox with the input `text`
+---@param text      string|string[]
+---@param after?    fun(cutscene: WorldCutscene)    A callback to run when the textbox is closed, receiving the cutscene instance used to display the text
 function World:showText(text, after)
     if type(text) ~= "table" then
         text = {text}
@@ -390,6 +493,10 @@ function World:showText(text, after)
     end)
 end
 
+--- Spawns the player into the world
+---@param ... unknown   Arguments detailing how the player spawns
+---|"x, y, chara"   # The co-ordinates of the player spawn and the Actor (instance or id) to use for the player
+---|"marker, chara" # The marker name to spawn the player at and the Actor (instance or id) to use for the player
 function World:spawnPlayer(...)
     local args = {...}
 
@@ -437,6 +544,9 @@ function World:spawnPlayer(...)
     end
 end
 
+--- Gets the `Character` in the world of a party member
+---@param party string|PartyMember  The party member to get the character for
+---@return Character?
 function World:getPartyCharacter(party)
     if type(party) == "string" then
         party = Game:getPartyMember(party)
@@ -448,6 +558,9 @@ function World:getPartyCharacter(party)
     end
 end
 
+--- Gets the `Follower` or `Player` of a character currently in the party
+---@param party string|PartyMember  The party member to get the character for
+---@return Player|Follower?
 function World:getPartyCharacterInParty(party)
     if type(party) == "string" then
         party = Game:getPartyMember(party)
@@ -463,6 +576,9 @@ function World:getPartyCharacterInParty(party)
     end
 end
 
+--- Removes a follower
+---@param chara string|Follower The `Follower` or the follower's actor id to remove
+---@return Follower follower The follower that was removed
 function World:removeFollower(chara)
     local follower_arg = isClass(chara) and chara:includes(Follower)
     for i,follower in ipairs(self.followers) do
@@ -479,6 +595,14 @@ function World:removeFollower(chara)
     end
 end
 
+--- Spawns a follower into the world
+---@param chara Follower|string|Actor   The character to spawn as a follower
+---@param options table                 A table defining additional properties to control the new follower
+---|"x"         # The position of the follower
+---|"y"         # The position of the follower
+---|"index"     # The index of the follower in the list of followers
+---|"temp"      # Whether the follower is temporary and disappears when the current map is exited (defaults to `true`)
+---@return Follower
 function World:spawnFollower(chara, options)
     if type(chara) == "string" then
         chara = Registry.createActor(chara)
@@ -520,6 +644,11 @@ function World:spawnFollower(chara, options)
     return follower
 end
 
+--- Spawns characters in the world for the current party
+---@param marker?   string|{x: number, y: number}                               The marker or co-ordinates to spawn the player at
+---@param party?    (PartyMember|string)[]                                      A table of party members to spawn (Defaults to [`Game.party`](lua://Game.party))    
+---@param extra?    (Follower|Actor|string|[Follower|Actor|string,integer])[]   Additional followers to add that are not in the party (defaults to [`Game.temp_followers`](lua://Game.temp_followers))
+---@param facing?   "up"|"down"|"left"|"right"                                  The direction the party should be facing when they spawn
 function World:spawnParty(marker, party, extra, facing)
     party = party or Game.party or {"kris"}
     if #party > 0 then
@@ -552,7 +681,13 @@ function World:spawnParty(marker, party, extra, facing)
     end
 end
 
+--- Spawns a new `WorldBullet` to the world
+---@overload fun(self: World, bullet: WorldBullet)
+---@param bullet?   string  The bullet to add to the world, if left unspecified, spawns the basic `WorldBullet`
+---@param ...       any     Additional arguments to pass to the bullet's init() function
+---@return WorldBullet bullet The newly created bullet
 function World:spawnBullet(bullet, ...)
+    ---@diagnostic disable param-type-mismatch
     local new_bullet
     if isClass(bullet) and bullet:includes(WorldBullet) then
         new_bullet = bullet
@@ -571,28 +706,33 @@ function World:spawnBullet(bullet, ...)
         self:addChild(new_bullet)
     end
     return new_bullet
+    ---@diagnostic enable param-type-mismatch
 end
 
---- Spawns a new NPC object in the world.
----@param actor         string|Actor    The actor to use for the new NPC, either an id string or an actor object.
----@param x             number          The x-coordinate to place the NPC at.
----@param y             number          The y-coordinate to place the NPC at.
----@param properties?   table           A table of additional properties for the new NPC. Supports all the same values as an `npc` map event.
+--- Spawns a new NPC object in the world
+---@param actor         string|Actor    The actor to use for the new NPC, either an id string or an actor object
+---@param x             number          The x-coordinate to place the NPC at
+---@param y             number          The y-coordinate to place the NPC at
+---@param properties?   table           A table of additional properties for the new NPC. Supports all the same values as an `npc` map event
 ---@return NPC npc The newly created npc.
 function World:spawnNPC(actor, x, y, properties)
     return self:spawnObject(NPC(actor, x, y, properties))
 end
 
+--- Spawns an object to the world
+---@param obj Object            The object to add to the world
+---@param layer? string|number  The layer to place the object on
+---@return Object
 function World:spawnObject(obj, layer)
     obj.layer = self:parseLayer(layer)
     self:addChild(obj)
     return obj
 end
 
---- Gets a specific character currently present in the world.
----@param id        string  The actor id of the character to search for.
----@param index?    number  The character's index, if they have multiple instances in the world. (Defaults to 1)
----@return Character|nil chara The character instance, or `nil` if it was not found.
+--- Gets a specific character currently present in the world
+---@param id        string  The actor id of the character to search for
+---@param index?    number  The character's index, if they have multiple instances in the world. (Defaults to `1`)
+---@return Character|nil chara The character instance, or `nil` if it was not found
 function World:getCharacter(id, index)
     local party_member = Game:getPartyMember(id)
     local i = 0
@@ -606,6 +746,9 @@ function World:getCharacter(id, index)
     end
 end
 
+--- Gets the action box instance for a member of the party
+---@param party_member string|PartyMember
+---@return OverworldActionBox?
 function World:getActionBox(party_member)
     if not self.healthbar then return nil end
     if type(party_member) == "string" then
@@ -619,6 +762,10 @@ function World:getActionBox(party_member)
     return nil
 end
 
+--- Creates a reaction text on a party member's healthbar (usually used for equipment and items)
+---@param party_member  string|PartyMember  The party member who will react
+---@param text          string              The text to display for the reaction
+---@param display_time? number              The display time, in seconds, of the reaction (defaults to 5/3 seconds)
 function World:partyReact(party_member, text, display_time)
     local action_box = self:getActionBox(party_member)
     if action_box then
@@ -626,30 +773,36 @@ function World:partyReact(party_member, text, display_time)
     end
 end
 
+--- Gets a specific event present in the current map
+---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of
+---@return Event event The event instnace, or `nil` if it was not found
 function World:getEvent(id)
     return self.map:getEvent(id)
 end
 
+--- Gets a list of all instances of one type of event in the current maps
+---@param name? string The text id of the event to search for, fetches every event if `nil`
+---@return Event[] events A table containing every instance of the event in the current map
 function World:getEvents(name)
     return self.map:getEvents(name)
 end
 
---- Disables following for all of the player's current followers.
+--- Disables following for all of the player's current followers
 function World:detachFollowers()
     for _,follower in ipairs(self.followers) do
         follower.following = false
     end
 end
 
---- Enables following for all of the player's current followers and causes them to walk to their positions.
----@param return_speed? number The walking speed of the followers while they return to the player.
+--- Enables following for all of the player's current followers and causes them to walk to their positions
+---@param return_speed? number The walking speed of the followers while they return to the player
 function World:attachFollowers(return_speed)
     for _,follower in ipairs(self.followers) do
         follower:updateIndex()
         follower:returnToFollowing(return_speed)
     end
 end
---- Enables following for all of the player's current followers, and immediately teleports them to their positions.
+--- Enables following for all of the player's current followers, and immediately teleports them to their positions
 function World:attachFollowersImmediate()
     for _,follower in ipairs(self.followers) do
         follower.following = true
@@ -659,6 +812,9 @@ function World:attachFollowersImmediate()
     end
 end
 
+--- Parses a variable-type layer specification into a recognised layer
+---@param layer?    number|string
+---@return number
 function World:parseLayer(layer)
     return (type(layer) == "number" and layer)
             or WORLD_LAYERS[layer]
@@ -666,6 +822,9 @@ function World:parseLayer(layer)
             or self.map.object_layer
 end
 
+--- Sets up several variables for a new map
+---@param map? Map|string|table The Map object, name, or data to load
+---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter()
 function World:setupMap(map, ...)
     for _,child in ipairs(self.children) do
         if not child.persistent then
@@ -732,13 +891,13 @@ end
 --- Loads into a new map file.
 ---@overload fun(self: World, map: string, x: number, y: number, facing?: string, callback?: string, ...: any)
 ---@overload fun(self: World, map: string, marker?: string, facing?: string, callback?: string, ...: any)
----@param map       string      The name of the map file to load.
----@param x         number      The x-coordinate the player will spawn at in the new map.
----@param y         number      The y-coordinate the player will spawn at in the new map.
----@param marker?   string      The name of the marker the player will spawn at in the new map. Defaults to `"spawn"`
----@param facing?   string      The direction the party should be facing when they spawn in the new map.
+---@param map       string      The name of the map file to load
+---@param x         number      The x-coordinate the player will spawn at in the new map
+---@param y         number      The y-coordinate the player will spawn at in the new map
+---@param marker?   string      The name of the marker the player will spawn at in the new map (Defaults to `"spawn"`)
+---@param facing?   string      The direction the party should be facing when they spawn in the new map
 ---@param callback? fun()       A callback to run once the map has finished loading (Post Map:onEnter())
----@param ... unknown           Additional arguments that will be passed forward into Map:onEnter().
+---@param ... unknown           Additional arguments that will be passed forward into Map:onEnter()
 function World:loadMap(...)
     local args = {...}
     -- x, y, facing, callback
@@ -791,6 +950,11 @@ function World:loadMap(...)
     end
 end
 
+--- Transitions the music from the current track to the `next`
+---@overload fun(self: World, music: string)
+---@param music     string                                              The name of the file to play next
+---@param next      {music?: string, volume?: number, pitch?: number}   The filename, volume, and pitch of the next track
+---@param fade_out? boolean                                             Whether to fade out the currently playing track before playing the next track
 function World:transitionMusic(next, fade_out)
     -- Compatibility with older versions of transitionMusic which have "next" as the music
     local music = ""
@@ -866,13 +1030,16 @@ local function parseTransitionTargetArgs(...)
     end
 end
 
+--- Transitions from the world into a shop
+---@param shop      string|Shop The shop to enter
+---@param options?  table       An optional table of [`leave_options`](lua://Shop.leave_options) for exiting the shop
 function World:shopTransition(shop, options)
     self:fadeInto(function()
         Game:enterShop(shop, options)
     end)
 end
 
---- Loads a new map and starts the transition effects for world music, borders, and the screen as a whole.
+--- Loads a new map and starts the transition effects for world music, borders, and the screen as a whole
 ---@overload fun(self: World, map: string, ...: any)
 ---@param ... any   Additional arguments that will be passed into World:loadMap()
 ---@see World - World:loadMap() 
@@ -895,11 +1062,15 @@ function World:mapTransition(...)
     end)
 end
 
+--- Fades the world out and into another piece of content
+---@param callback fun()    The callback that is run in the middle of the fade (fully faded out) to load the next piece of content
 function World:fadeInto(callback)
     self:setState("FADING")
     Game.fader:transition(callback)
 end
 
+--- Gets the object that the camera is currently targetting
+---@return Object|nil
 function World:getCameraTarget()
     if self.camera.target and self.camera.target.stage then
         return self.camera.target
@@ -908,17 +1079,29 @@ function World:getCameraTarget()
     end
 end
 
+--- Sets the object the camera should target
+---@param target Object?
 function World:setCameraTarget(target)
     self.camera.target = target
 end
 
+--- Sets whether the camera should be attached to its target for each axis
+---@param attached_x? boolean   Whether the camera's x-axis position should follow its target
+---@param attached_y? boolean   Whether the camera's y-axis position should follow its target
 function World:setCameraAttached(attached_x, attached_y)
     self.camera:setAttached(attached_x, attached_y)
 end
 
+--- Sets whether the camera should follow its target on the x-axis
+---@param attached? boolean
 function World:setCameraAttachedX(attached) self:setCameraAttached(attached, self.camera.attached_x) end
+--- Sets whether the camera should follow its target on the y-axis
+---@param attached? boolean
 function World:setCameraAttachedY(attached) self:setCameraAttached(self.camera.attached_y, attached) end
 
+---@param x? number
+---@param y? number
+---@param friction? number
 function World:shakeCamera(x, y, friction)
     self.camera:shake(x, y, friction)
 end
@@ -945,16 +1128,21 @@ function World:sortChildren()
     Utils.popPerformance()
 end
 
+---@param parent Object
 function World:onRemove(parent)
     super.onRemove(self, parent)
 
     self.music:remove()
 end
 
+--- Sets whether the player is currently in battle - cannot override being inside a battle area
+---@param value boolean
 function World:setBattle(value)
     self.in_battle = value
 end
 
+--- Whether the player is currently in a world battle
+---@return boolean
 function World:inBattle()
     return self.in_battle or self.in_battle_area
 end

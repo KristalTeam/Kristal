@@ -18,9 +18,9 @@
 ---@field enemy_world_characters    table<EnemyBattler, Character>  A list of mappings between `EnemyBattler`s and their representations as `Character`s in the world, if they exist
 ---@field battler_targets           table<[number, number]>         Target positions for `PartyBattler`s to transition to at the start of battle
 ---
----@field state                     string                          The current state of the battle, should never be set manually - see [`Battle:setState()`](lua://Battle.setState) instead
----@field substate                  string                          The current substate of the battle, should never be set manually - see [`Battle:setSubState()`](lua://Battle.setSubState) instead
----@field state_reason              string?                         The reason for the current state of the battle, should never be set manually - see [`Battle:setState()`](lua://Battle.setState) instead
+---@field state                     string                          The current state of the battle - should never be set manually, see [`Battle:setState()`](lua://Battle.setState) instead
+---@field substate                  string                          The current substate of the battle - should never be set manually, see [`Battle:setSubState()`](lua://Battle.setSubState) instead
+---@field state_reason              string?                         The reason for the current state of the battle - should never be set manually, see [`Battle:setState()`](lua://Battle.setState) instead
 ---
 ---@field camera                    Camera
 ---
