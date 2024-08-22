@@ -19,7 +19,7 @@
 ---@field lerper table                        # Current modifier approach settings.
 ---
 ---@field target Object|nil                   # Camera target.
----@field target_getter (fun():Object)|nil    # Optional function to get the camera target, if not set explicitly.
+---@field target_getter (fun():Object?)|nil   # Optional function to get the camera target, if not set explicitly.
 ---
 ---@field attached_x boolean                  # Whether the camera is attached to the target (x-axis).
 ---@field attached_y boolean                  # Whether the camera is attached to the target (y-axis).

@@ -106,9 +106,9 @@ function WorldCutscene:getEvent(id)
     return self.world.map:getEvent(id)
 end
 
---- Gets a list of all instances of one type of event in the current map.
----@param name string The text id of the event to search for.
----@return table events A table containing every instance of the event in the current map.
+--- Gets a list of all instances of one type of event in the current maps
+---@param name? string The text id of the event to search for, fetches every event if `nil`
+---@return Event[] events A table containing every instance of the event in the current map
 function WorldCutscene:getEvents(name)
     return self.world.map:getEvents(name)
 end
