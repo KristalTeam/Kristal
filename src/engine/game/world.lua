@@ -1,3 +1,6 @@
+--- The `World` Object manages everything relating to the overworld in Kristal. \
+--- A globally available instance of `World` is stored in [`Game.world`](lua://Game.world).
+---
 ---@class World : Object
 ---
 ---@field state             string                          The current state that this `World` is in - should never be set manually, see [`World:setState()`](lua://World.setState) instead
@@ -38,6 +41,8 @@
 ---@field calls             table<[string, string]>   A list of calls available on the cell phone in the Light World CELL menu
 ---
 ---@field door_delay        number                          *(Used internally)* Timer variable for door transition sounds
+---
+---@field healthbar         HealthBar
 ---
 ---@overload fun(map?: string) : World
 local World, super = Class(Object)
