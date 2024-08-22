@@ -27,7 +27,7 @@
 ---@field max_tension       number
 ---@field lw_money          integer
 ---@field level_up_count    integer
----@field temp_followers    table<[Follower, number]>
+---@field temp_followers    table<[string, number]|string>
 ---@field flags             table<[string, any]>
 ---@field party             PartyMember[]
 ---@field party_data        PartyMember[]
@@ -69,6 +69,7 @@ end
 
 ---@overload fun(self: Game, previous_state: string, save_data: SaveData, save_id: number)
 ---@param previous_state    string
+---@param save_data?        SaveData
 ---@param save_id?          number
 ---@param save_name?        string
 ---@param fade?             boolean
@@ -605,14 +606,11 @@ function Game:loadQuick(fade)
     self.quick_save = save
 end
 
--- DOC Note: whats IS a context; I left it blank because its not relevant
--- to the cutscene files being documented as i write this
-
 --- Starts a battle using the specified encounter file.
 ---@param encounter     Encounter|string    The encounter id or instance to use for this battle.
 ---@param transition?   boolean|string      Whether to start in the transition state (Defaults to `true`). As a string, represents the state to start the battle in.
 ---@param enemy?        Character|table     An enemy instance or list of enemies as `Character`s in the world that will transition into the battle.
----@param context       any
+---@param context?      ChaserEnemy
 function Game:encounter(encounter, transition, enemy, context)
     if transition == nil then transition = true end
 
@@ -661,8 +659,9 @@ function Game:setupShop(shop)
     self.shop:postInit()
 end
 
----@param shop      string|Shop
----@param options?  table
+--- Enters a shop
+---@param shop      string|Shop The shop to enter
+---@param options?  table       An optional table of [`leave_options`](lua://Shop.leave_options) for exiting the shop
 function Game:enterShop(shop, options)
     -- Add the shop to the stage and enter it.
     if self.shop then
