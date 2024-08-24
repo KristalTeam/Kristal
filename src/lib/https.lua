@@ -10,7 +10,6 @@ else
     package.cpath = package.cpath .. ";./lib/?.so"
     --package.cpath = package.cpath .. ";./?.so"
 end
-print(package.cpath)
 
 local ok, module = pcall(require, "https")
 
