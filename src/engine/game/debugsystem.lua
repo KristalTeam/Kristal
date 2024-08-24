@@ -1125,9 +1125,25 @@ function DebugSystem:update()
     end
     
     if self:isMenuOpen() then
-        for state,menus in pairs(self.exclusive_menus) do
+        -- Create a table to store states that should be excluded
+        local excluded_states = {}
+
+        -- Populate the excluded_states table
+        for state, menus in pairs(self.exclusive_menus) do
+            for _, menu in ipairs(menus) do
+                if not excluded_states[menu] then
+                    excluded_states[menu] = {}
+                end
+                table.insert(excluded_states[menu], state)
+            end
+        end
+
+        for state, menus in pairs(self.exclusive_menus) do
             if Utils.containsValue(menus, self.current_menu) and Game.state ~= state then
-                self:refresh()
+                local states = excluded_states[self.current_menu] or {}
+                if not Utils.containsValue(states, Game.state) then
+                    self:refresh()
+                end
             end
         end
     end

@@ -72,7 +72,8 @@ function MainMenuModList:onLeave(new_state)
     end
 
     self.active = false
-
+    
+    self.menu.heart:setColor(Kristal.getSoulColor())
     self.menu.heart_outline.visible = false
 end
 
