@@ -1139,9 +1139,11 @@ function DebugSystem:update()
         end
 
         for state, menus in pairs(self.exclusive_menus) do
-            local states = excluded_states[self.current_menu] or {}
-            if not Utils.containsValue(states, Game.state) then
-                self:refresh()
+            if Utils.containsValue(menus, self.current_menu) and Game.state ~= state then
+                local states = excluded_states[self.current_menu] or {}
+                if not Utils.containsValue(states, Game.state) then
+                    self:refresh()
+                end
             end
         end
     end
