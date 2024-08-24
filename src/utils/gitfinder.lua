@@ -66,7 +66,7 @@ function GitFinder:fetchLatestCommit(callback)
         return false
     end
 
-    Kristal.fetch(
+    return Kristal.fetch(
         "https://api.github.com/repos/KristalTeam/Kristal/commits/" .. tostring(ref),
         {
             headers = {
@@ -75,7 +75,6 @@ function GitFinder:fetchLatestCommit(callback)
             callback = callback
         }
     )
-    return true
 end
 
 return GitFinder

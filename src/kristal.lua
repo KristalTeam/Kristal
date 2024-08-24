@@ -38,6 +38,10 @@ end
 function Kristal.fetch(url, options)
     options = options or {}
 
+    if not HTTPS_AVAILABLE then
+        return false
+    end
+
     Kristal.HTTPS.waiting = Kristal.HTTPS.waiting + 1
 
     if options.callback then
@@ -55,6 +59,7 @@ function Kristal.fetch(url, options)
         data = options.data or nil
     })
     Kristal.HTTPS.next_key = Kristal.HTTPS.next_key + 1
+    return true
 end
 
 function love.load(args)
@@ -249,8 +254,10 @@ function love.load(args)
     Kristal.HTTPS.in_channel = love.thread.getChannel("https_in")
     Kristal.HTTPS.out_channel = love.thread.getChannel("https_out")
 
-    Kristal.HTTPS.thread = love.thread.newThread("src/engine/httpsthread.lua")
-    Kristal.HTTPS.thread:start()
+    if HTTPS_AVAILABLE then
+        Kristal.HTTPS.thread = love.thread.newThread("src/engine/httpsthread.lua")
+        Kristal.HTTPS.thread:start()
+    end
 
     -- TARGET_MOD being already set -> is defined by the mod developer
     -- and we wouldn't want the user to overwrite it
