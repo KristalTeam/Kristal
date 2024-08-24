@@ -908,7 +908,7 @@ function Kristal.returnToMenu()
     Kristal.clearModState()
 
     -- Reload mods and return to memu
-    Kristal.loadAssets("", "mods", TARGET_MOD or "", function ()
+    Kristal.loadAssets("", "mods", "", function ()
         Kristal.setDesiredWindowTitleAndIcon()
         Gamestate.switch(MainMenu)
     end)
@@ -945,7 +945,7 @@ function Kristal.quickReload(mode)
     -- Clear the mod
     Kristal.clearModState()
     -- Reload mods
-    Kristal.loadAssets("", "mods", TARGET_MOD or "", function ()
+    Kristal.loadAssets("", "mods", "", function ()
         Kristal.setDesiredWindowTitleAndIcon()
         -- Reload the current mod directly
         if mode ~= "save" then
