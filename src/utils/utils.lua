@@ -1740,6 +1740,16 @@ function Utils.titleCase(str)
 end
 
 ---
+--- Strips a string of padding whitespace.
+---
+---@param str string     # The initial string to edit.
+---@return string result # The new string, without padding whitespace.
+---
+function Utils.trim(str)
+    return str:match("^%s*(.-)%s*$")
+end
+
+---
 --- Returns how many indexes a table has, including non-numerical indexes.
 ---
 ---@param t table        # The table to check.

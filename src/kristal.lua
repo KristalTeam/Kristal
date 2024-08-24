@@ -44,11 +44,14 @@ function Kristal.fetch(url, options)
         Kristal.HTTPS.end_funcs[Kristal.HTTPS.next_key] = options.callback
     end
 
+    options.headers = options.headers or {}
+    options.headers["User-Agent"] = options.headers["User-Agent"] or ("Kristal/" .. tostring(Kristal.Version))
+
     Kristal.HTTPS.in_channel:push({
         url = url,
         key = Kristal.HTTPS.next_key,
         method = options.method or "get",
-        headers = options.headers or {},
+        headers = options.headers,
         data = options.data or nil
     })
     Kristal.HTTPS.next_key = Kristal.HTTPS.next_key + 1

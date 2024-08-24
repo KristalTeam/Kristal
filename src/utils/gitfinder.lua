@@ -29,10 +29,10 @@ function GitFinder:fetchCurrentCommit()
     if ref then -- HEAD is not detached
         -- Read the ref's correspending file, which contains the hash of the commit that it points to
         local commit, _ = love.filesystem.read(".git/" .. ref)
-        return commit
+        return Utils.trim(commit)
     else -- HEAD is detached
         -- The file just contains the hash of the commit it's at
-        return head
+        return Utils.trim(head)
     end
 end
 
@@ -47,6 +47,35 @@ function GitFinder:fetchTrimmedCommit()
         -- Return the first 7 characters of it
         return commit:sub(1, 7)
     end
+end
+
+-- Performs a GET request to the GitHub API to retrieve the engine's current commit.
+---@param callback function The function to be called when the request is completed
+---@return boolean success Whether the request was sent or not
+function GitFinder:fetchLatestCommit(callback)
+    if not GitFinder.is_git_repo then return false end
+
+    -- Get current HEAD
+    local head, _ = love.filesystem.read(".git/HEAD")
+    if not head then return false end
+
+    -- Try to get the reference it may point to
+    local ref = head:match("^ref: ([^\r\n]*)")
+    if not ref then -- HEAD is detached
+        -- Can't fetch the latest commit if HEAD is detached
+        return false
+    end
+
+    Kristal.fetch(
+        "https://api.github.com/repos/KristalTeam/Kristal/commits/" .. tostring(ref),
+        {
+            headers = {
+                ["Accept"] = "application/vnd.github.VERSION.sha"
+            },
+            callback = callback
+        }
+    )
+    return true
 end
 
 return GitFinder
