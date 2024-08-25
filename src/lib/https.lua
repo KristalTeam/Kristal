@@ -1,17 +1,17 @@
 local ffi = require "ffi"
 
+local name = "lib/https.so"
 if ffi.os == "Windows" then
-    package.cpath = package.cpath .. ";./lib/?-" .. ffi.arch .. ".dll"
-    package.cpath = package.cpath .. ";./?-" .. ffi.arch .. ".dll"
+    name = "lib/https-" .. ffi.arch .. ".dll"
 elseif ffi.os == "OSX" then
-    package.cpath = package.cpath .. ";./lib/?-mac.so"
-    package.cpath = package.cpath .. ";./?-mac.so"
-else
-    package.cpath = package.cpath .. ";./lib/?.so"
-    --package.cpath = package.cpath .. ";./?.so"
+    name = "lib/https-mac.so"
 end
 
-local ok, module = pcall(require, "https")
+local ok, module = pcall(package.loadlib, name, "luaopen_https")
+
+if not module then
+    ok = false
+end
 
 HTTPS_AVAILABLE = ok
 
@@ -19,4 +19,4 @@ if not ok then
     return
 end
 
-return module
+return module()
