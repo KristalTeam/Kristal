@@ -21,7 +21,7 @@ function MainMenuCredits:init(menu)
             "Kristal Engine",
             {
                 {"Lead Developers", COLORS.silver},
-                "Nyakorita",
+                "NyakoFox",
                 "SylviBlossom",
                 "vitellary",
                 "",
