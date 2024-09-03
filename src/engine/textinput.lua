@@ -18,6 +18,7 @@
 ---@field selecting boolean
 ---
 ---@field flash_timer number
+---@field return_grace_timer number
 ---
 ---@field cursor_x number
 ---@field cursor_x_tallest number
@@ -102,6 +103,12 @@ function TextInput.reset(options)
     -- If the user doesn't want it, then they don't have to draw it
     self.flash_timer = 0
 
+    -- Most inputs will be entered through the confirm keybind, of which return
+    -- is a default bind. As this key can also be used to close the input, we
+    -- need a tiny timer that "blocks" return presses from submitting the text
+    -- immediately (only used to block text submission)
+    self.return_grace_timer = 2
+
     self.cursor_x = 0
     self.cursor_x_tallest = 0
     self.cursor_y = 1
@@ -171,6 +178,7 @@ function TextInput.onKeyPressed(key)
             if self.multiline and Input.shift() then
                 self.insertString("\n")
             else
+                if self.return_grace_timer > 0 then Input.clear("return", true) return end
                 self.submit()
             end
         else
@@ -379,6 +387,8 @@ function TextInput.update()
     if self.flash_timer > 1 then
         self.flash_timer = self.flash_timer - 1
     end
+
+    self.return_grace_timer = Utils.approach(self.return_grace_timer, 0, DTMULT)
 end
 
 ---@return number start_position, number end_position
