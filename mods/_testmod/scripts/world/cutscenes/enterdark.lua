@@ -14,7 +14,7 @@ return function(cutscene)
     kris.visible = false
     susie.visible = false
 
-    local transition = DarkTransition(280)
+    local transition = DarkTransition(280, {["map"] = "alley"})
     transition.layer = 99999
 
     Game.world:addChild(transition)
@@ -27,9 +27,13 @@ return function(cutscene)
     end
 
     cutscene:wait(function() return not waiting end)
+    
+    if not Game:hasPartyMember("ralsei") then
+        Game:addPartyMember("ralsei")
+    end
 
     for _, character in ipairs(endData) do
-        local char = Game.world:getPartyCharacter(character.party)
+        local char = Game.world:getPartyCharacterInParty(character.party)
         local kx, ky = character.sprite_1:localToScreenPos(character.sprite_1.width / 2, 0)
         char:setScreenPos(kx, transition.final_y)
         char.visible = true
