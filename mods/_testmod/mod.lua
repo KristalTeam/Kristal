@@ -169,7 +169,7 @@ function Mod:onShadowCrystal(item, light)
 end
 
 function Mod:onJunkCheck(item, comment)
-    return item.inventory:hasItem("dumburger") and "* It has a faint fragrance of utter stupidity." or comment
+    return Game.inventory:getDarkInventory():hasItem("dumburger") and "* It has a faint fragrance of utter stupidity." or comment
 end
 
 function Mod:getActionButtons(battler, buttons)
