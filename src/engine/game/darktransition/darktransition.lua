@@ -83,6 +83,7 @@ function DarkTransition:init(final_y, options)
     self.quick_mode = options["quick_mode"]
     self.skiprunback = options["skiprunback"]
     self.has_head_object = options["has_head_object"]
+    self.map = options["map"]
 
     if self.quick_mode == nil then self.quick_mode = false end
     if self.skiprunback == nil then self.skiprunback = false end
@@ -128,6 +129,21 @@ function DarkTransition:init(final_y, options)
 
     self.black_fade = 1
     self.particle_timer = 1
+    
+    if self.map then
+        Game.world.timer:after(6, function()
+            if Game.world:hasCutscene() then
+                Game.world:loadMap(self.map)
+                if Game.world.music then
+                    Game.world.music:stop()
+                end
+                for _,party in ipairs(Game.party) do
+                    local char = Game.world:getCharacter(party.id)
+                    char.visible = false
+                end
+            end
+        end)
+    end
 end
 
 function DarkTransition:onAddToStage(stage)

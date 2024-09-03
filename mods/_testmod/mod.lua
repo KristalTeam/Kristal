@@ -78,6 +78,10 @@ function Mod:postInit(new_file)
     if new_file then
         Game.world:startCutscene("testing.this_is_a_test_mod")
     end
+    
+    if new_file then
+        Game.inventory:addItem("light/mech_pencil")
+    end
 
     -- Cool feature, uncomment for good luck
     -- im so tempted to commit this uncommented but i probably shouldnt oh well
