@@ -18,7 +18,7 @@ function Spell:init()
     -- Whether the spell can be used
     self.usable = true
 
-    -- Target mode (ally, party, enemy, enemies, "any", "all", or none)
+    -- Target mode (ally, party, enemy, enemies, any, all, or none)
     self.target = "none"
 
     -- Tags that apply to this spell
