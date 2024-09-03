@@ -14,7 +14,17 @@ return function(cutscene)
     kris.visible = false
     susie.visible = false
 
-    local transition = DarkTransition(280, {["map"] = "alley"})
+    local transition = DarkTransition(280)
+    transition.loading_callback = function() 
+        Game.world:loadMap("alley")
+        if Game.world.music then
+            Game.world.music:stop()
+        end
+        for _,party in ipairs(Game.party) do
+            local char = Game.world:getCharacter(party.id)
+            char.visible = false
+        end
+    end
     transition.layer = 99999
 
     Game.world:addChild(transition)
