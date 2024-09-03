@@ -220,7 +220,7 @@ function Mod:onKeyPressed(key)
         Game:fadeIntoLegend("legend", { music = "determination" })
     end
 
-    if Kristal.Config["debug"] then
+    if Kristal.Config["debug"] and not Input.ctrl() then
         if Game.battle and Game.battle.state == "ACTIONSELECT" then
             if key == "5" then
                 -- Game.battle.music:play("mus_xpart_2")
@@ -237,7 +237,9 @@ function Mod:onKeyPressed(key)
             elseif key == "r" and Game.state == "OVERWORLD" then
                 Game:encounter("virovirokun", false)
             elseif key == "t" then
-                Game.world.player:shake(4, 0)
+                if Game.world.player then
+                    Game.world.player:shake(4, 0)
+                end
             elseif key == "y" then
                 local wrapper = Component(FixedSizing(640,480))
                 wrapper:setLayout(VerticalLayout({ gap = 0, align = "center" }))
