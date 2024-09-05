@@ -2415,17 +2415,7 @@ function Battle:update()
             end
         end
         if self.actions_done_timer == 0 and not any_hurt then
-            for _,battler in ipairs(self.attackers) do
-                if not battler:setAnimation("battle/attack_end") then
-                    battler:resetSprite()
-                end
-            end
-            self.attackers = {}
-            self.normal_attackers = {}
-            self.auto_attackers = {}
-            if self.battle_ui.attacking then
-                self.battle_ui:endAttack()
-            end
+            self:resetAttackers()
             if not self.encounter:onActionsEnd() then
                 self:setState("ENEMYDIALOGUE")
             end
