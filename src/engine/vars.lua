@@ -257,6 +257,9 @@ KRISTAL_EVENT = {
     --debug events--
     registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE
 	registerDebugOptions = "registerDebugOptions", -- DebugSystem is ready to recieve custom debug options / passes: DebugSystem:self / returns: NONE
+    
+    --engine events--
+    onError = "onError", -- the engine has encountered an error and force-stopped everything / at: Kristal.errorHandler(msg) / passes: NONE / returns: NONE
 
     --asset registration events-- (sorted by execution order)
     onRegisterActors = "onRegisterActors", -- actor scripts finished registering / in: Registry.initActors() / passes: NONE / returns: NONE
