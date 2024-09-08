@@ -78,6 +78,10 @@ function Mod:postInit(new_file)
     if new_file then
         Game.world:startCutscene("testing.this_is_a_test_mod")
     end
+    
+    if new_file then
+        Game.inventory:addItem("light/mech_pencil")
+    end
 
     -- Cool feature, uncomment for good luck
     -- im so tempted to commit this uncommented but i probably shouldnt oh well
@@ -168,6 +172,10 @@ function Mod:onShadowCrystal(item, light)
     end
 end
 
+function Mod:onJunkCheck(item, comment)
+    return Game.inventory:getDarkInventory():hasItem("dumburger") and "* It has a faint fragrance of utter stupidity." or comment
+end
+
 function Mod:getActionButtons(battler, buttons)
     if self.dog_activated then
         table.insert(buttons, DogButton())
@@ -212,11 +220,11 @@ end
 
 function Mod:onKeyPressed(key)
 
-    if key == "u" then
+    if key == "p" then
         Game:fadeIntoLegend("legend", { music = "determination" })
     end
 
-    if Kristal.Config["debug"] then
+    if Kristal.Config["debug"] and not Input.ctrl() then
         if Game.battle and Game.battle.state == "ACTIONSELECT" then
             if key == "5" then
                 -- Game.battle.music:play("mus_xpart_2")
@@ -227,14 +235,16 @@ function Mod:onKeyPressed(key)
             end
         end
         if not Game.lock_movement then
-            if key == "b" and Game.state == "OVERWORLD" then
+            if key == "e" and Game.state == "OVERWORLD" then
                 Input.clear(nil, true)
                 Game:encounter("virovirokun", true)
-            elseif key == "n" and Game.state == "OVERWORLD" then
+            elseif key == "r" and Game.state == "OVERWORLD" then
                 Game:encounter("virovirokun", false)
-            elseif key == "p" then
-                Game.world.player:shake(4, 0)
-            elseif key == "o" then
+            elseif key == "t" then
+                if Game.world.player then
+                    Game.world.player:shake(4, 0)
+                end
+            elseif key == "y" then
                 local wrapper = Component(FixedSizing(640,480))
                 wrapper:setLayout(VerticalLayout({ gap = 0, align = "center" }))
 
@@ -262,11 +272,11 @@ function Mod:onKeyPressed(key)
         end
         if Game.world.player and not Game.lock_movement then
             local player = Game.world.player
-            if key == "e" then
+            if key == "u" then
                 player:explode()
                 Game.world.player = nil
                 return true
-            elseif key == "r" then
+            elseif key == "i" then
                 local last_flipped = player.flip_x
                 local facing = player.facing
 

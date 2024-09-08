@@ -50,6 +50,8 @@ function ActorSprite:init(actor)
     self.last_flippable = actor:getFlipDirection(self)
 end
 
+--- Resets this sprite to the default animation or sprite.
+---@param ignore_actor_callback? boolean When set to `true`, will not call the actor's `preResetSprite()` function.
 function ActorSprite:resetSprite(ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preResetSprite(self) then
         return
@@ -91,6 +93,11 @@ function ActorSprite:setActor(actor)
     self:resetSprite()
 end
 
+--- Sets the sprite relative to `assets/sprites`, with a custom offset.
+---@param texture?      string  The path to the sprite to use, relative to `assets/sprites`
+---@param ox?           number  The x-offset of the sprite
+---@param oy?           number  The y-offset of the sprite
+---@param keep_anim?    boolean
 function ActorSprite:setCustomSprite(texture, ox, oy, keep_anim)
     self.path = ""
     if ox and oy then
@@ -116,6 +123,9 @@ function ActorSprite:set(name, callback, ignore_actor_callback)
     self.actor:onSet(self, name, callback)
 end
 
+---@param texture?                  string
+---@param keep_anim?                boolean
+---@param ignore_actor_callback?    boolean
 function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preSetSprite(self, texture, keep_anim) then
         return
@@ -128,6 +138,8 @@ function ActorSprite:setSprite(texture, keep_anim, ignore_actor_callback)
     self.actor:onSetSprite(self, texture, keep_anim)
 end
 
+---@param texture?      string
+---@param keep_anim?    boolean
 function ActorSprite:_setSprite(texture, keep_anim)
     if not texture then
         self.texture = nil

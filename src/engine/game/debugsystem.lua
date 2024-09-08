@@ -30,6 +30,7 @@ function DebugSystem:init()
     self.current_selecting = 1
 
     self.menus = {}
+    self.exclusive_menus = {}
 
     self:refresh()
 
@@ -312,11 +313,26 @@ end
 
 function DebugSystem:refresh()
     self.menus = {}
+    self.exclusive_menus = {}
+    self.exclusive_menus["OVERWORLD"] = {"encounter_select", "select_shop", "select_map", "cutscene_select", "legend_select"}
+    self.exclusive_menus["LEGEND"] = {"legend_select"}
+    self.exclusive_menus["BATTLE"] = {"wave_select"}
     self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
     self:registerDefaults()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
+end
+
+function DebugSystem:addToExclusiveMenu(state, id)
+    if not self.exclusive_menus[state] then
+        self.exclusive_menus[state] = {}
+    end
+    if type(id) == "table" then
+        Utils.merge(self.exclusive_menus[state], id)
+    else
+        table.insert(self.exclusive_menus[state], id)
+    end
 end
 
 function DebugSystem:fadeMusicOut()
@@ -506,6 +522,44 @@ function DebugSystem:registerSubMenus()
         self:addChild(self.window)
     end)
     self:registerOption("engine_option_fps", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
+    
+    self:registerMenu("fast_forward", "Fast Forward")
+    self:registerOption("fast_forward", "[Toggle]", 
+                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+                        function () FAST_FORWARD = not FAST_FORWARD end)
+    self:registerOption("fast_forward", "x0.05", "Set the fast forward speed to x0.05 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.05
+                        end)
+    self:registerOption("fast_forward", "x0.1", "Set the fast forward speed to x0.1 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.1
+                        end)
+    self:registerOption("fast_forward", "x0.2", "Set the fast forward speed to x0.2 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.2
+                        end)
+    self:registerOption("fast_forward", "x0.5", "Set the fast forward speed to x0.5 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 0.5
+                        end)
+    self:registerOption("fast_forward", "x1.5", "Set the fast forward speed to x1.5 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 1.5
+                        end)
+    self:registerOption("fast_forward", "x2", "Set the fast forward speed to x2 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 2
+                        end)
+    self:registerOption("fast_forward", "x5", "Set the fast forward speed to x5 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 5
+                        end)
+    self:registerOption("fast_forward", "x10", "Set the fast forward speed to x10 multiplier.",
+                        function ()
+                            FAST_FORWARD_SPEED = 10
+                        end)
+    self:registerOption("fast_forward", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
 
     self:registerMenu("give_item", "Give Item", "search")
 
@@ -548,24 +602,66 @@ function DebugSystem:registerSubMenus()
     end
 
     self:registerMenu("cutscene_select", "Cutscene Select", "search")
+    
+    -- add a cutscene stopper
+    self:registerOption("cutscene_select", "[Stop Current Cutscene]", "Stop the current playing cutscene.", function ()
+        if Game.world:hasCutscene() then
+            Game.world:stopCutscene()
+        end
+        self:closeMenu()
+    end)
+    
     -- loop through registry and add menu options for all cutscenes
     for group, cutscene in pairs(Registry.world_cutscenes) do
         if type(cutscene) == "table" then
             for id, _ in pairs(cutscene) do
                 self:registerOption("cutscene_select", group .. "." .. id, "Start this cutscene.", function ()
-                    Game.world:startCutscene(group, id)
+                    if not Game.world:hasCutscene() then
+                        Game.world:startCutscene(group, id)
+                    end
                     self:closeMenu()
                 end)
             end
         else
             self:registerOption("cutscene_select", group, "Start this cutscene.", function ()
-                Game.world:startCutscene(group)
+                if not Game.world:hasCutscene() then
+                    Game.world:startCutscene(group)
+                end
                 self:closeMenu()
             end)
         end
     end
 
+    self:registerMenu("legend_select", "Legend Select", "search")
+
+    -- add a legend stopper
+    self:registerOption("legend_select", "[Stop Current Legend]", "Stop the current playing Legend.", function ()
+        if Game.state == "LEGEND" then
+            Game.legend.cutscene:onEnd()
+        end
+        self:closeMenu()
+    end)
+
+    -- loop through registry and add menu options for all legends
+    for cutscene, _ in pairs(Registry.legend_cutscenes) do
+        self:registerOption("legend_select", cutscene, "Start this legend.", function ()
+            if Game.state ~= "LEGEND" then
+                Game:fadeIntoLegend(cutscene)
+            end
+            self:closeMenu()
+        end)
+    end
+
     self:registerMenu("wave_select", "Wave Select", "search")
+    
+    -- add a wave stopper
+    self:registerOption("wave_select", "[Stop Current Wave]", "Stop the current playing wave.", function ()
+        if Game.battle:getState() == "DEFENDING" then
+            Game.battle.encounter:onWavesDone()
+        end
+        self:closeMenu()
+    end)
+    
     -- loop through registry and add menu options for all waves
     local waves_list = {}
     for id, _ in pairs(Registry.waves) do
@@ -578,7 +674,9 @@ function DebugSystem:registerSubMenus()
 
     for _, id in ipairs(waves_list) do
         self:registerOption("wave_select", id, "Start this wave.", function ()
-            Game.battle:setState("DEFENDINGBEGIN", { id })
+            if Game.battle:getState() == "ACTIONSELECT" then
+                Game.battle:setState("DEFENDINGBEGIN", { id })
+            end
             self:closeMenu()
         end)
     end
@@ -633,6 +731,7 @@ function DebugSystem:registerDefaults()
     local in_game = function () return Kristal.getState() == Game end
     local in_battle = function () return in_game() and Game.state == "BATTLE" end
     local in_overworld = function () return in_game() and Game.state == "OVERWORLD" end
+    local in_legend = function() return in_game() and Game.state == "LEGEND" end
 
     -- Global
     self:registerConfigOption("main", "Object Selection Pausing",
@@ -642,9 +741,10 @@ function DebugSystem:registerDefaults()
         self:enterMenu("engine_options", 1)
     end)
 
-    self:registerOption("main", "Fast Forward",
-                        function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
-                        function () FAST_FORWARD = not FAST_FORWARD end)
+    self:registerOption("main", "Fast Forward", function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
+                                                function () self:enterMenu("fast_forward", 1)
+    end)
+    
     self:registerOption("main", "Debug Rendering",
                         function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
                         function () DEBUG_RENDER = not DEBUG_RENDER end)
@@ -708,6 +808,10 @@ function DebugSystem:registerDefaults()
                             self:enterMenu("cutscene_select", 0)
                         end, in_overworld)
 
+    self:registerOption("main", "Play Legend", "Play a legend cutscene.", function ()
+                            self:enterMenu("legend_select", 0)
+                        end, function() return in_overworld() or in_legend() end)
+
     -- Battle specific
     self:registerOption("main", "Start Wave", "Start a wave.", function ()
                             self:enterMenu("wave_select", 0)
@@ -715,6 +819,7 @@ function DebugSystem:registerDefaults()
 
     self:registerOption("main", "End Battle", "Instantly complete a battle.", function ()
                             Game.battle:setState("VICTORY")
+                            self:closeMenu()
                         end, in_battle)
 end
 
@@ -946,30 +1051,41 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             return
         end
     elseif self.state == "FLAGS" then
-        if Input.isCancel(key) and not is_repeat then
-            Assets.playSound("ui_select")
-            self:setState("MENU")
-            self.current_selecting = self.current_subselecting
-            return
-        elseif Input.isConfirm(key) then
-            local keys = Utils.getKeys(Game.flags)
-            if type(Game:getFlag(keys[self.current_selecting])) == "boolean" then
-                Game:setFlag(keys[self.current_selecting], not Game:getFlag(keys[self.current_selecting]))
+        if Game.flags then
+            if Input.isCancel(key) and not is_repeat then
                 Assets.playSound("ui_select")
-            else
-                Assets.playSound("ui_cant_select")
+                self:setState("MENU")
+                self.current_selecting = self.current_subselecting
+                return
+            elseif Input.isConfirm(key) then
+                local keys = Utils.getKeys(Game.flags)
+                if type(Game:getFlag(keys[self.current_selecting])) == "boolean" then
+                    Game:setFlag(keys[self.current_selecting], not Game:getFlag(keys[self.current_selecting]))
+                    Assets.playSound("ui_select")
+                else
+                    Assets.playSound("ui_cant_select")
+                end
             end
-        end
 
-        if Input.is("down", key) and (not is_repeat or self.current_selecting < #Game.flags) then
-            Assets.playSound("ui_move")
-            self.current_selecting = self.current_selecting + 1
+            local counter = 0
+            for _,flag in pairs(Game.flags) do
+                counter = counter + 1
+            end
+            
+            if Input.is("down", key) and (not is_repeat or self.current_selecting < counter) then
+                Assets.playSound("ui_move")
+                self.current_selecting = self.current_selecting + 1
+            end
+            if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
+                Assets.playSound("ui_move")
+                self.current_selecting = self.current_selecting - 1
+            end
+            self:updateBounds(Utils.getKeys(Game.flags))
+        else
+            self:setState("MENU")
+            self:refresh()
+            return
         end
-        if Input.is("up", key) and (not is_repeat or self.current_selecting > #Game.flags) then
-            Assets.playSound("ui_move")
-            self.current_selecting = self.current_selecting - 1
-        end
-        self:updateBounds(Utils.getKeys(Game.flags))
     end
 end
 
@@ -1031,6 +1147,30 @@ function DebugSystem:update()
         else
             stage.timescale = math.min(stage.timescale + (DT / 0.6), 1)
             stage.active = true
+        end
+    end
+    
+    if self:isMenuOpen() then
+        -- Create a table to store states that should be excluded
+        local excluded_states = {}
+
+        -- Populate the excluded_states table
+        for state, menus in pairs(self.exclusive_menus) do
+            for _, menu in ipairs(menus) do
+                if not excluded_states[menu] then
+                    excluded_states[menu] = {}
+                end
+                table.insert(excluded_states[menu], state)
+            end
+        end
+
+        for state, menus in pairs(self.exclusive_menus) do
+            if Utils.containsValue(menus, self.current_menu) and Game.state ~= state then
+                local states = excluded_states[self.current_menu] or {}
+                if not Utils.containsValue(states, Game.state) then
+                    self:refresh()
+                end
+            end
         end
     end
     super.update(self)

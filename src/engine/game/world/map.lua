@@ -131,6 +131,10 @@ function Map:addFlag(flag, amount)
     return Game:addFlag(uid..":"..flag, amount)
 end
 
+--- Gets a specific marker from the current map.
+---@param name string The name of the marker to search for.
+---@return number x The x-coordinate of the marker's center.
+---@return number y The y-coordinate of the marker's center.
 function Map:getMarker(name)
     local marker = self.markers[name]
     return marker and marker.center_x or (self.width * self.tile_width/2), marker and marker.center_y or (self.height * self.tile_height/2)
@@ -180,6 +184,9 @@ function Map:setTile(x, y, tileset, ...)
     tile_layer:setTile(x, y, tileset, unpack(args))
 end
 
+--- Gets a specific event present in the current map.
+---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
+---@return Event event The event instnace, or `nil` if it was not found. 
 function Map:getEvent(id)
     if type(id) == "number" then
         return self.events_by_id[id]
@@ -190,6 +197,9 @@ function Map:getEvent(id)
     end
 end
 
+--- Gets a list of all instances of one type of event in the current maps
+---@param name? string The text id of the event to search for, fetches every event if `nil`
+---@return Event[] events A table containing every instance of the event in the current map
 function Map:getEvents(name)
     if name then
         return self.events_by_name[name] or {}

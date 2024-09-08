@@ -1,7 +1,33 @@
+--- The region that the player is confined to within waves in a battle.
+--- Usually accessed through [`Game.battle.arena`](lua://Battle.arena), which is only set during waves.
+---
 ---@class Arena : Object
----@overload fun(...) : Arena
+---
+---@field color         table           The color of the arena border (Defaults to `{0, 0.75, 0}`)   
+---@field bg_color      table           The color of the back of the arena (Defaults to `{0, 0, 0}`)
+---
+---@field x             number          The x-coordinate of the center of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getCenter()`](lua://Arena.getCenter) where possible.
+---@field y             number          The y-coordinate of the center of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getCenter()`](lua://Arena.getCenter) where possible.
+---
+---@field left          number          Leftmost horizontal position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getLeft()`](lua://Arena.getLeft) where possible.
+---@field right         number          Rightost horizontal position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getRight()`](lua://Arena.getRight) where possible.
+---@field top           number          Topmost vertical position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getLeft()`](lua://Arena.getTop) where possible.
+---@field bottom        number          Bottommost vertical position of the arena. May be inaccurate if the arena is transformed. Use [`Arena:getBottom()`](lua://Arena.getBottom) where possible.
+---
+---@field line_width    integer         The thickness of the arena border in pixels, must call [`Arena:setShape()`](lua://Arena.setShape) or [`Arena:setSize()`](lua://Arena.setSize) after changing this to make the change take effect. (Defaults to `4`)
+---
+---@field sprite        ArenaSprite
+---
+---@field mask          ArenaMask       A mask for the arena - Any object parented to this will only render inside of the arena's bounds. 
+---
+---@field shape         table<[number, number]>     The shape of the arena, represented as a table of `{x, y}` coordinates that form a polygon. 
+---
+---@overload fun(x?:number, y?:number, shape?:table<[number, number]>) : Arena
 local Arena, super = Class(Object)
 
+---@param x?        number                  The x-coordinate of the center of the arena.
+---@param y?        number                  The y-coordinate of the center of the arena.
+---@param shape?    table<[number, number]> The shape of the arena, represented as a table of `{x, y}` coordinates that form a polygon.
 function Arena:init(x, y, shape)
     super.init(self, x, y)
 
@@ -25,10 +51,17 @@ function Arena:init(x, y, shape)
     self:addChild(self.mask)
 end
 
+--- Sets the arena to a rectangle with dimensions `width` by `height`. \
+--- *If [`line_width`](lua://Arena.line_width) has been changed, this function makes the arena to reflect that change.*
+---@param width     number
+---@param height    number
 function Arena:setSize(width, height)
     self:setShape{{0, 0}, {width, 0}, {width, height}, {0, height}}
 end
 
+--- Sets the arena to the polygon `shape`. \
+--- *If [`line_width`](lua://Arena.line_width) has been changed, this function makes the arena to reflect that change.*
+---@param shape table<[number, number]>     A table of `{x, y}` coordinates that form a polygon.
 function Arena:setShape(shape)
     self.shape = Utils.copy(shape, true)
     self.processed_shape = Utils.copy(shape, true)
@@ -67,28 +100,48 @@ function Arena:setShape(shape)
     end
 end
 
+---@param r number
+---@param g number
+---@param b number
+---@param a number?
 function Arena:setBackgroundColor(r, g, b, a)
     self.bg_color = {r, g, b, a or 1}
 end
 
+---@return table
 function Arena:getBackgroundColor()
     return self.bg_color
 end
 
+---@return number x
+---@return number y
 function Arena:getCenter()
     return self:getRelativePos(self.width/2, self.height/2)
 end
 
+---@return number x
+---@return number y
 function Arena:getTopLeft() return self:getRelativePos(0, 0) end
+---@return number x
+---@return number y
 function Arena:getTopRight() return self:getRelativePos(self.width, 0) end
+---@return number x
+---@return number y
 function Arena:getBottomLeft() return self:getRelativePos(0, self.height) end
+---@return number x
+---@return number y
 function Arena:getBottomRight() return self:getRelativePos(self.width, self.height) end
 
+---@return number x
 function Arena:getLeft() local x, y = self:getTopLeft(); return x end
+---@return number x
 function Arena:getRight() local x, y = self:getBottomRight(); return x end
+---@return number y
 function Arena:getTop() local x, y = self:getTopLeft(); return y end
+---@return number y
 function Arena:getBottom() local x, y = self:getBottomRight(); return y end
 
+---@param parent Object
 function Arena:onAdd(parent)
     self.sprite:setScale(0, 0)
     self.sprite.alpha = 0.5
@@ -128,6 +181,7 @@ function Arena:onAdd(parent)
     end)
 end
 
+---@param parent Object
 function Arena:onRemove(parent)
     local orig_sprite = ArenaSprite(self, self:getCenter())
     orig_sprite:setOrigin(0.5, 0.5)

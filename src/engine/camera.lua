@@ -19,7 +19,7 @@
 ---@field lerper table                        # Current modifier approach settings.
 ---
 ---@field target Object|nil                   # Camera target.
----@field target_getter (fun():Object)|nil    # Optional function to get the camera target, if not set explicitly.
+---@field target_getter (fun():Object?)|nil   # Optional function to get the camera target, if not set explicitly.
 ---
 ---@field attached_x boolean                  # Whether the camera is attached to the target (x-axis).
 ---@field attached_y boolean                  # Whether the camera is attached to the target (y-axis).
@@ -238,9 +238,9 @@ function Camera:approachDirect(x, y, amount)
     self:keepInBounds()
 end
 
----@param x number
----@param y number
----@param friction number
+---@param x? number
+---@param y? number
+---@param friction? number
 function Camera:shake(x, y, friction)
     self.shake_x = x or 4
     self.shake_y = y or x or 4

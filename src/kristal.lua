@@ -23,6 +23,43 @@ if not HOTSWAPPING then
 
         message = ""
     }
+
+    Kristal.HTTPS = {
+        in_channel = nil,
+        out_channel = nil,
+        thread = nil,
+
+        next_key = 0,
+        waiting = 0,
+        end_funcs = {}
+    }
+end
+
+function Kristal.fetch(url, options)
+    options = options or {}
+
+    if not HTTPS_AVAILABLE then
+        return false
+    end
+
+    Kristal.HTTPS.waiting = Kristal.HTTPS.waiting + 1
+
+    if options.callback then
+        Kristal.HTTPS.end_funcs[Kristal.HTTPS.next_key] = options.callback
+    end
+
+    options.headers = options.headers or {}
+    options.headers["User-Agent"] = options.headers["User-Agent"] or ("Kristal/" .. tostring(Kristal.Version))
+
+    Kristal.HTTPS.in_channel:push({
+        url = url,
+        key = Kristal.HTTPS.next_key,
+        method = options.method or "get",
+        headers = options.headers,
+        data = options.data or nil
+    })
+    Kristal.HTTPS.next_key = Kristal.HTTPS.next_key + 1
+    return true
 end
 
 function love.load(args)
@@ -213,6 +250,15 @@ function love.load(args)
     Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
     Kristal.Loader.thread:start()
 
+    -- start https thread
+    Kristal.HTTPS.in_channel = love.thread.getChannel("https_in")
+    Kristal.HTTPS.out_channel = love.thread.getChannel("https_out")
+
+    if HTTPS_AVAILABLE then
+        Kristal.HTTPS.thread = love.thread.newThread("src/engine/httpsthread.lua")
+        Kristal.HTTPS.thread:start()
+    end
+
     -- TARGET_MOD being already set -> is defined by the mod developer
     -- and we wouldn't want the user to overwrite it
     if not TARGET_MOD and Kristal.Args["mod"] then
@@ -238,6 +284,9 @@ function love.quit()
     Kristal.saveConfig()
     if Kristal.Loader.thread and Kristal.Loader.thread:isRunning() then
         Kristal.Loader.in_channel:push("stop")
+    end
+    if Kristal.HTTPS.thread and Kristal.HTTPS.thread:isRunning() then
+        Kristal.HTTPS.in_channel:push("stop")
     end
 end
 
@@ -303,6 +352,18 @@ function love.update(dt)
                 elseif msg.status == "loading" then
                     Kristal.Loader.message = msg.path
                 end
+            end
+        end
+    end
+
+    if Kristal.HTTPS.waiting > 0 then
+        local msg = Kristal.HTTPS.out_channel:pop()
+        if msg then
+            Kristal.HTTPS.waiting = Kristal.HTTPS.waiting - 1
+
+            if Kristal.HTTPS.end_funcs[msg.key] then
+                Kristal.HTTPS.end_funcs[msg.key](msg.response, msg.body, msg.headers)
+                Kristal.HTTPS.end_funcs[msg.key] = nil
             end
         end
     end

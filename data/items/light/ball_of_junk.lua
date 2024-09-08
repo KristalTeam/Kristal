@@ -1,6 +1,6 @@
 local item, super = Class(Item, "light/ball_of_junk")
 
-function item:init(inventory)
+function item:init()
     super.init(self)
 
     -- Display name
@@ -15,15 +15,13 @@ function item:init(inventory)
     self.description = "A small ball of accumulated things in your pocket."
 
     -- Light world check text
-    self.check = "A small ball\nof accumulated things in your\npocket."
+    self.check = Game.chapter == 1 and "A small ball\nof accumulated things." or "A small ball\nof accumulated things in your\npocket."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
 
-    -- Ball of Junk inventory
-    self.inventory = inventory or DarkInventory()
 end
 
 function item:onWorldUse()
@@ -50,6 +48,13 @@ function item:onToss()
         end
 
         if dropped then
+            for k,storage in pairs(Game.inventory:getDarkInventory().storages) do
+                if storage.id ~= "key_items" and storage.id ~= "storage" then
+                    for i = 1, storage.max do
+                        storage[i] = nil
+                    end
+                end
+            end
             Game.inventory:removeItem(self)
 
             Assets.playSound("bageldefeat")
@@ -63,26 +68,22 @@ function item:onToss()
     return false
 end
 
-function item:convertToDark(inventory)
-    for k,storage in pairs(self.inventory.storages) do
-        for i = 1, storage.max do
-            if storage[i] then
-                if not inventory:addItemTo(storage.id, i, storage[i]) then
-                    inventory:addItem(storage[i])
-                end
-            end
+function Item:onCheck()
+    Game.world:startCutscene(function(cutscene)
+        cutscene:text("* \""..self:getName().."\" - "..self:getCheck())
+
+        local comment
+
+        if Game.inventory:getDarkInventory():hasItem("dark_candy") then
+            comment = "* It smells like scratch'n'sniff marshmallow stickers."
         end
-    end
-    return true
-end
 
-function item:onSave(data)
-    data.inventory = self.inventory:save()
-end
+        comment = Kristal.callEvent(KRISTAL_EVENT.onJunkCheck, self, comment) or comment
 
-function item:onLoad(data)
-    self.inventory = DarkInventory()
-    self.inventory:load(data.inventory)
+        if comment then
+            cutscene:text(comment)
+        end
+    end)
 end
 
 return item

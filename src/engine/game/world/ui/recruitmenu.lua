@@ -63,26 +63,26 @@ end
 
 function RecruitMenu:update()
     self.old_selection = self.selected
-    if Input.pressed("left") and self.state == "INFO" then
+    if Input.pressed("left", true) and self.state == "INFO" then
         self.selected = self.selected - 1
         if self.selected < 1 then
             self.selected = #self.recruits
         end
     end
-    if Input.pressed("right") and self.state == "INFO" then
+    if Input.pressed("right", true) and self.state == "INFO" then
         self.selected = self.selected + 1
         if self.selected > #self.recruits then
             self.selected = 1
         end
     end
     
-    if Input.pressed("up") and self.state == "SELECT" then
+    if Input.pressed("up", true) and self.state == "SELECT" then
         self.selected = self.selected - 1
         if self.selected < self:getFirstSelectedInPage() then
             self.selected = self:getLastSelectedInPage()
         end
     end
-    if Input.pressed("down") and self.state == "SELECT" then
+    if Input.pressed("down", true) and self.state == "SELECT" then
         self.selected = self.selected + 1
         if self.selected > self:getLastSelectedInPage() then
             self.selected = self:getFirstSelectedInPage()
@@ -90,7 +90,7 @@ function RecruitMenu:update()
     end
     
     if self:getMaxPages() > 1 then
-        if Input.pressed("left") and self.state == "SELECT" then
+        if Input.pressed("left", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page - 1
             self.selected = self.selected - 9
             if self.selected_page < 1 then
@@ -101,7 +101,7 @@ function RecruitMenu:update()
                 self.selected = self:getLastSelectedInPage()
             end
         end
-        if Input.pressed("right") and self.state == "SELECT" then
+        if Input.pressed("right", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page + 1
             self.selected = self.selected + 9
             if self.selected_page > self:getMaxPages() then
@@ -118,13 +118,13 @@ function RecruitMenu:update()
         self:setRecruitInBox(self.selected)
     end
     
-    if Input.pressed("confirm") then
+    if Input.pressed("confirm", false) then
         if self.state == "SELECT" then
             self.state = "INFO"
             self.recruit_box:setPosition(80, 70)
         end
     end
-    if Input.pressed("cancel") then
+    if Input.pressed("cancel", false) then
         if self.state == "SELECT" then
             self.recruit_box:remove()
             self:remove()
@@ -176,11 +176,9 @@ function RecruitMenu:draw()
             if i <= self:getLastSelectedInPage() and i >= self:getFirstSelectedInPage() then
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
-                    local name = recruit:getName()
-                    love.graphics.print(name, 473 - self.font:getWidth(name) / 2, 240)
+                    Draw.printAlign(recruit:getName(), 473, 240, "center")
                     love.graphics.print("CHAPTER " .. recruit:getChapter(), 368, 280)
-                    local level = "LV " .. recruit:getLevel()
-                    love.graphics.print(level, 576 - self.font:getWidth(level), 280)
+                    Draw.printAlign("LV " .. recruit:getLevel(), 576, 280, "right")
                     if Input.usingGamepad() then
                         love.graphics.print("More Info", 414, 320)
                         Draw.draw(Input.getTexture("confirm"), 380, 323, 0, 2, 2)
@@ -221,20 +219,19 @@ function RecruitMenu:draw()
         
         Draw.setColor(COLORS["white"])
         for i,recruit in pairs(self.recruits) do
-            local selection = self.selected .. "/" .. #self.recruits
-            love.graphics.print(selection, 590 - self.font:getWidth(selection) / 2, 30, 0, 0.5, 1)
+            Draw.printAlign(self.selected .. "/" .. #self.recruits, 590, 30, "right", 0, 0.5, 1)
             if i == self.selected then
                 love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
                 love.graphics.print(recruit:getName(), 300, 70)
                 love.graphics.setFont(self.description_font)
-                love.graphics.print(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120)
+                Draw.printAlign(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120, {["align"] = "left", ["line_offset"] = 20})
                 love.graphics.setFont(self.font)
                 
                 love.graphics.print("LIKE", 80, 240)
                 local like = recruit:getLike()
                 love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
                 
-                love.graphics.print("DISLIKE", 80, 280, 0, 0.8, 1)
+                love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
                 local dislike = recruit:getDislike()
                 love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
 
@@ -248,21 +245,13 @@ function RecruitMenu:draw()
                 else
                     love.graphics.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400)
                 end
-                
                 love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
-                local level = recruit:getLevel()
-                love.graphics.print(level, 590 - self.font:getWidth(level) / 2, 240, 0, 0.5, 1)
-                
+                Draw.printAlign(recruit:getLevel(), 590, 240, "right", 0, 0.5, 1)
                 love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
-                local attack = recruit:getAttack()
-                love.graphics.print(attack, 590 - self.font:getWidth(attack) / 2, 280, 0, 0.5, 1)
-                
+                Draw.printAlign(recruit:getAttack(), 590, 280, "right", 0, 0.5, 1)
                 love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
-                local defense = recruit:getDefense()
-                love.graphics.print(defense, 590 - self.font:getWidth(defense) / 2, 320, 0, 0.5, 1)
-                
-                local element = "ELEMENT " .. recruit:getElement()
-                love.graphics.print(element, 590 - self.font:getWidth(element) / 2, 360, 0, 0.5, 1)
+                Draw.printAlign(recruit:getDefense(), 590, 320, "right", 0, 0.5, 1)
+                Draw.printAlign("ELEMENT " .. recruit:getElement(), 590, 360, "right", 0, 0.5, 1)
             end
             
             Draw.setColor(1, 1, 1, 1)

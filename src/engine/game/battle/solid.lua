@@ -1,7 +1,23 @@
+--- An object that can be spawned in waves using [`Solid(filled, x, y, width, height)`](lua://Solid.init). \
+--- This object pushes the soul as it moves and has the capability to squish it, dealing damage.
+---
 ---@class Solid : Object
----@overload fun(...) : Solid
+---
+---@field squish_damage integer
+---
+---@field color         table?      The color this solid will be drawn as (Defaults to `{0, 0.75, 0}`, the color of the arena border)
+---
+---@field collider      Collider    The collider used for this solid's collision
+---@field draw_collider boolean     Whether the collider will be drawn filled in
+---
+---@overload fun(filled?:boolean, x?:number, y?:number, width?:number, height?:number) : Solid
 local Solid, super = Class(Object)
 
+---@param filled?   boolean    Whether the solid should be drawn filled in (Defaults to `false`)
+---@param x?        number      
+---@param y?        number
+---@param width?    number
+---@param height?   number
 function Solid:init(filled, x, y, width, height)
     super.init(self, x, y, width, height)
 
@@ -16,16 +32,19 @@ function Solid:init(filled, x, y, width, height)
 
 
     if filled then
-        -- Default to arena green
-        self.color = {0, 0.75, 0}
+        -- Default to arena green and draw filled collider
 
-        -- Draw the filled collider
+        self.color = {0, 0.75, 0}
         self.draw_collider = true
     else
         self.draw_collider = false
     end
 end
 
+---@param x         number  The x value to move the object by
+---@param y         number  The y value to move the obejct by
+---@param speed?    number  A multiplier to the `x` and `y` values (Defaults to `1`)
+---@return boolean  collision Whether the solid collided with the soul.
 function Solid:move(x, y, speed)
     local movex, movey = x * (speed or 1), y * (speed or 1)
 
@@ -37,10 +56,18 @@ function Solid:move(x, y, speed)
     return collided_x or collided_y
 end
 
+---@param x number
+---@param y number
+---@return boolean  collided    Whether the solid collided with the soul.
 function Solid:moveTo(x, y)
     return self:move(x - self.x, y - self.y)
 end
 
+--- *(Used internally)* Moves the solid and performs a collision check with the soul.
+---@param amount number
+---@param x_mult number
+---@param y_mult number
+---@return boolean
 function Solid:doMoveAmount(amount, x_mult, y_mult)
     local sign = Utils.sign(amount)
 
@@ -76,6 +103,9 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
     return soul_collided
 end
 
+--- *(Override)* Called whenever this solid squishes the soul. \
+--- By default, this function is responsible for dealing damage to the soul if the solid deals squish damage, and then destroying the soul
+---@param soul Soul
 function Solid:onSquished(soul)
     --[[if soul.inv_timer == 0 and self.squish_damage and self.squish_damage ~= 0 then
         local battler = Utils.pick(Game.battle:getActiveParty())

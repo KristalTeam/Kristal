@@ -1,7 +1,11 @@
+--- The sprite created around the soul whenever it grazes a bullet.
+---
 ---@class GrazeSprite : Object
----@overload fun(...) : GrazeSprite
+---@overload fun(x?: number, y?: number) : GrazeSprite
 local GrazeSprite, super = Class(Object)
 
+---@param x? number
+---@param y? number
 function GrazeSprite:init(x, y)
     self.texture = Assets.getTexture("player/graze")
 

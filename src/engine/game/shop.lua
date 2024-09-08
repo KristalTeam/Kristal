@@ -1,10 +1,99 @@
+--- The class which all Shops in Kristal use. \
+--- Shop files should be located in `scripts/shops`, and will use their filepath relative to this location as an id by default. \
+--- Either [`World:shopTransition()`](lua://World.shopTransition) or a [`Transition`](lua://Transition) event with the property `shop` defined can be used to enter shops. 
+---
 ---@class Shop : Object
 ---@overload fun(...) : Shop
+---
+---@field currency_text             string
+---
+---@field encounter_text            string
+---@field shop_text                 string
+---@field leaving_text              string
+---@field buy_menu_text             string
+---@field buy_confirmation_text     string
+---@field buy_refuse_text           string
+---@field buy_text                  string
+---@field buy_storage_text          string
+---@field buy_too_expensive_text    string
+---@field buy_no_space_text         string
+---@field sell_no_price_text        string
+---@field sell_menu_text            string
+---@field sell_nothing_text         string
+---@field sell_confirmation_text    string
+---@field sell_refuse_text          string
+---@field sell_text                 string
+---@field sell_no_storage_text      string
+---@field sell_everything_text      string
+---@field talk_text                 string
+---
+--- Defines the text shown when in each of the different SELL submenus. \
+--- The keys `items`, `weapons`, `armors`, and `storage` can be defined for this table.
+---@field sell_options_text         { items: string, weapons: string, armors: string, storage: string }
+---
+--- Whether the shop should hide the text showing your remaining storage text (Defaults to `false`)
+---@field hide_storage_text         boolean
+---
+--- Whether item prices should be hidden (Defaults to `false`)
+---@field hide_price                boolean
+---
+--- A table defining the options that will be displayed when on the main menu of the shop (State `MAINMENU`). \
+--- Each entry in this table should be a two string table, defining the name of the option first, \
+--- followed by the name of the [state](lua://shopstate) that the stop should enter when the option is selected.
+---@field menu_options              table<[string, shopstate]>
+---
+--- A table defining the options that will be displayed when in the SELL menu of the shop (State `SELLMENU`). \
+--- Each entry in this table should be a two string table, defining the name of the option first, \
+--- followed by the name of the item storage that should be opened to sell from after.
+---@field sell_options              table<[string, string]>
+---
+---@field items                     table       A table of items that the shop offers. Should be set through [`Shop:registerItem()`](lua://Shop.registerItem)
+---@field talks                     table       A table of topics available in the TALK menu. Should be set through [`Shop:registerTalk()`](lua://Shop.registerTalk)
+---@field talk_replacements         table       A table of topics that will replace other topics once they have been chosen. Should be set through [`Shop:registerTalkAfter()`](lua://Shop.registerTalkAfter)
+---
+---@field shopkeeper                Shopkeeper
+---
+---@field voice                     string      The filepath of the voice sound to use for the shop, relative to `assets/sounds/voice`.
+---
+---@field background                string      The filepath of the background texture for this shop, relative to `assets/sprites`
+---@field background_sprite         Sprite      The Sprite instance used to control the background. Not defined in `Shop:init()`.
+---
+---@field shop_music                string      The filepath of the song to play in this shop, relative to `assets/music`
+---@field music                     Music       The `Music` instance used to control the shop's music
+---
+--- A table defining the stat icons used when previewing items in this shop.
+---@field stat_icons                { attack: love.Image, magic: love.Image, defense1: love.Image, defense2: love.Image }
+---
+---@field timer                     Timer
+---
+---@field state                     shopstate|string    The current [state](lua://shopstate) of the shop, **should only be set using [`Shop:setState()`](lua://Shop.setState).**
+---@field state_reason              any                 The current reason for the state of the shop, **should only be set using [`Shop:setState()`](lua://Shop.setState).**
+---
+--- A table defining what will happen when the player leaves the shop.
+--- The keys `map` (target map name), `x` and `y` OR `marker` (target position in map), `facing`, (player facing direction in map), `menu` (return to main menu) can be defined for this table.
+---@field leave_options             { x: number, y: number, map: string, marker: string, facing: "up"|"right"|"down"|"left", menu: boolean }
+---
 local Shop, super = Class(Object, "shop")
 
+---@alias shopstate
+---| "MAINMENU" # The state used when the player is in the Main menu.
+---| "BUYMENU"  # The state used when the player is in the Buy menu.
+---| "SELLMENU" # The state used when the player is selecting the storage they wish to sell items from.
+---| "SELLING"  # The state used after the player has selected a storage and is now choosing items to sell.
+---| "TALKMENU" # The state used when the player is selecting a topic to talk about in the Talk menu.
+---| "DIALOGUE" # The state used when dialogue is occurring.
+---| "LEAVE"    # The state used to initiate leaving the shop.
+---| "LEAVING"  # The state used whilst the shop is transitioning out.
+
+--- Runs the moment the player enters the shop. \
+--- Most dialogue and behaviour of the shop should be defined here. \
+--- This includes (but is not limited to) defining most standard shop text (excluding TALK menu dialogue), 
+--- registering items, talk topics, configuring the [`Shopkeeper`](lua://Shop.shopkeeper), and defining the assets to use (i.e. background and music).
 function Shop:init()
     super.init(self)
 
+    -- The label used for currency in this shop \
+    -- Must include a `%d` to indicate where currency amounts should substitute in
     self.currency_text = "$%d"
 
     -- Shown when you first enter a shop
@@ -54,7 +143,6 @@ function Shop:init()
 
     self.hide_storage_text = false
 
-    -- MAINMENU
     self.menu_options = {
         {"Buy",  "BUYMENU" },
         {"Sell", "SELLMENU"},
@@ -84,7 +172,6 @@ function Shop:init()
 
     self.background = "ui/shop/bg_seam"
 
-    -- STATES: MAINMENU, BUYMENU, SELLMENU, SELLING, TALKMENU, LEAVE, LEAVING, DIALOGUE
     self.state = "NONE"
     self.state_reason = nil
 
@@ -151,6 +238,8 @@ function Shop:init()
     self.leave_options = {}
 end
 
+--- A function that runs later than `Shop:init()`, primarily setting up UI elements of the shop. \
+--- Code that needs access to variables such as the shop's background Sprite object that would otherwise go in `Shop:init()` should go here.
 function Shop:postInit()
     -- Mutate talks
 
@@ -219,7 +308,7 @@ function Shop:postInit()
         self:onEmote(node.arguments[1])
     end
 
-    self.dialogue_text = DialogueText(nil, 30, 270, 372, 194)
+    self.dialogue_text = DialogueText(nil, 30, 270, 372, 226)
 
     self.dialogue_text:registerCommand("emote", emoteCommand)
 
@@ -238,8 +327,12 @@ function Shop:postInit()
     self.talk_dialogue = {self.dialogue_text, self.right_text}
 end
 
+--- *(Override)* Runs every time the player selects a topic in the TALK menu. \ 
+--- Call [`Shop:startDialogue()`](lua://Shop.startDialogue) from within this function with text appropriate to the selected topic.
+---@param talk string   The name of the Topic that the player selected.
 function Shop:startTalk(talk) end
 
+--- *(Override)* Runs when the player enters the shop, after it has been fully initialised.
 function Shop:onEnter()
     self:setState("MAINMENU")
     self:setDialogueText(self.encounter_text)
@@ -249,16 +342,22 @@ function Shop:onEnter()
     end
 end
 
+---*(Override)*
+---@param parent Object
 function Shop:onRemove(parent)
     super.onRemove(self, parent)
 
     self.music:remove()
 end
 
+---@return string
 function Shop:getVoice()
     return self.voice
 end
 
+--- Adds the [`voice`](lua://Shop.voice) of the Shop to a set of dialogue texts.
+--- @param text string[]|string
+--- @return string[]|string
 function Shop:getVoicedText(text)
     local voice = self:getVoice()
 
@@ -275,14 +374,23 @@ function Shop:getVoicedText(text)
     end
 end
 
+---@param text string[]|string
+---@param no_voice? boolean
 function Shop:setDialogueText(text, no_voice)
     self.dialogue_text:setText(no_voice and text or self:getVoicedText(text))
 end
 
+---@param text string[]|string
+---@param no_voice? boolean
 function Shop:setRightText(text, no_voice)
     self.right_text:setText(no_voice and text or self:getVoicedText(text))
 end
 
+--- Changes the shop to a new state.
+---@param state shopstate   The new state of the shop.
+---@param reason? any Additional information that the new state needs, if required:
+---- SELLING - The selected entry of the [`sell_options`](lua://Shop.sell_options) table in SELLMENU.
+---- TALKMENU - An optional `"DIALOGUE"` string literal to indicate that the user has returned from the `"DIALOGUE"` state.
 function Shop:setState(state, reason)
     local old = self.state
     self.state = state
@@ -290,10 +398,14 @@ function Shop:setState(state, reason)
     self:onStateChange(old, self.state)
 end
 
+---@return string|shopstate
 function Shop:getState()
     return self.state
 end
 
+--- *(Override)*
+---@param old shopstate|string
+---@param new shopstate|string
 function Shop:onStateChange(old,new)
     Game.key_repeat = false
     self.buy_confirming = false
@@ -388,15 +500,18 @@ function Shop:onStateChange(old,new)
     end
 end
 
+--- *(Override)* Called when the player selects to leave the shop from the main menu, happens at the same time the leaving dialogue begins.
 function Shop:onLeave()
     self:startDialogue(self.leaving_text, "LEAVING")
 end
 
+--- Leaves the shop with a fade out transition.
 function Shop:leave()
     self.fading_out = true
     self.music:fade(0, 20/30)
 end
 
+--- Leaves the shop instantly, without a transition.
 function Shop:leaveImmediate()
     self:remove()
     Game.shop = nil
@@ -421,13 +536,19 @@ function Shop:leaveImmediate()
     end
 end
 
+--- *(Override)* Called whenever the player enters the TALK submenu.
 function Shop:onTalk() end
 
+--- *(Override)* Called whenever the `[emote:...]` text tag is used in Shop dialogue. Sets the sprite of the shopkeeper.
+---@param emote string The path to the image to set, or id of the animation to set.
 function Shop:onEmote(emote)
     -- Default behaviour: set sprite / animation
     self.shopkeeper:onEmote(emote)
 end
 
+--- Starts a dialogue with the shopkeeper, setting the state to `DIALOGUE`. Use this function inside of [`Shop:startTalk(topic)`](lua://Shop.startTalk).
+---@param text string[]|string      One or more lines of dialogue, supporting Text Commands. Additionally supports the command `[emote:name]` which will cause the Shopkeeper's sprite to change to the sprite specified by `name` and `onEmote()` to run.
+---@param callback? string|fun()    As a function, this argument is called when the dialogue finishes. If it returns `true`, the shop state will not reset when the dialogue finishes. As a string, the shop is set to this state when the dialogue finishes.
 function Shop:startDialogue(text,callback)
 
     local state = "MAINMENU"
@@ -451,10 +572,33 @@ function Shop:startDialogue(text,callback)
     end)
 end
 
+--- Adds an item to the shop at the next available index.
+---@param item      string|Item An `Item` instance or the id of an item to add to the shop.
+---@param options?  table       An optional list of properties that can be defined for this item in the shop, overriding the default values set on the item:
+---| "name"         # The name of the item shown in the shop.
+---| "description"  # The description of the item shown in the shop
+---| "price"        # The price of the item in this shop
+---| "bonuses"      # The preview stat bonuses provided by the item (does not affect actual item stat bonuses)
+---| "color"        # The color of the item name text
+---| "flag"         # The name of a flag used to store the remaining stock of this item. Defaults to `stock_<index>_<item.id>`
+---| "stock"        # The default number of stock of this item. Infinite if unspecified.
+---@return boolean success Whether the item was successfully added to the shop.
 function Shop:registerItem(item, options)
     return self:replaceItem(#self.items + 1, item, options)
 end
 
+--- Adds or replaces an item in the shop.
+---@param index     integer     The index in the shop which this item should appear at.
+---@param item      string|Item An `Item` instance or the id of an item to add to the shop.
+---@param options?  table       An optional list of properties that can be defined for this item in the shop, overriding the default values set on the item:
+---| "name"         # The name of the item shown in the shop.
+---| "description"  # The description of the item shown in the shop
+---| "price"        # The price of the item in this shop
+---| "bonuses"      # The preview stat bonuses provided by the item (does not affect actual item stat bonuses)
+---| "color"        # The color of the item name text
+---| "flag"         # The name of a flag used to store the remaining stock of this item. Defaults to `stock_<index>_<item.id>`
+---| "stock"        # The default number of stock of this item. Infinite if unspecified.
+---@return boolean  success Whether the item was successfully added to the shop.
 function Shop:replaceItem(index, item, options)
     if type(item) == "string" then
         item = Registry.createItem(item)
@@ -480,14 +624,28 @@ function Shop:replaceItem(index, item, options)
     end
 end
 
+--- Registers a talk topic that will appear in the TALK submenu.
+---@param talk      string                              The name of the topic.
+---@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to white.
 function Shop:registerTalk(talk, color)
     table.insert(self.talks, {talk, {color=color or COLORS.white}})
 end
 
+--- Replaces one talk topic with another.
+---@param talk      string                              The name of the topic.
+---@param index     integer                             The index that will be replaced with this topic.
+---@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to yellow.
 function Shop:replaceTalk(talk, index, color)
     self.talks[index] = {talk, {color=color or COLORS.yellow}}
 end
 
+--- Registers a talk topic that will appear in the TALK submenu when specific conditions are met. \
+--- By default, the new topic will appear after the current topic at `index` has been chosen once.
+---@param talk      string                              The name of the topic.
+---@param index     integer                             The index that will be replaced with this topic.
+---@param flag?     string                              The name of the flag that will be checked against to determine when the topic should be replaced.
+---@param value?    any                                 The value the flag should be at for the topic to be replaced.
+---@param color?    [number, number, number, number?]   The color that the topic name will appear as. Defaults to yellow.
 function Shop:registerTalkAfter(talk, index, flag, value, color)
     table.insert(self.talk_replacements, {index, {talk, {flag=flag or ("talk_" .. tostring(index)), value=value, color=color or COLORS.yellow}}})
 end
@@ -842,6 +1000,13 @@ function Shop:draw()
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
+--- Used to draw the comparative bonus number for an item stat against a party member's current equipment.
+---@param party_member  PartyMember
+---@param old_item      Item
+---@param bonuses       table
+---@param stat          string
+---@param x             number
+---@param y             number      
 function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
     local old_stat = 0
 
@@ -863,12 +1028,15 @@ function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
     Draw.setColor(COLORS.white)
 end
 
+--- *(Override)* Draws a background for the shop.
 function Shop:drawBackground()
     -- Draw a black backdrop
     Draw.setColor(0, 0, 0, 1)
     love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
+---@param key       string
+---@param is_repeat boolean
 function Shop:onKeyPressed(key, is_repeat)
     if self.state == "MAINMENU" then
         if Input.isConfirm(key) then
@@ -1072,6 +1240,7 @@ function Shop:onKeyPressed(key, is_repeat)
     end
 end
 
+---@param sell_data [string, string]    An entry in the [sell_options](lua://Shop.sell_options) table reflecting the storage to enter.
 function Shop:enterSellMenu(sell_data)
     if not sell_data then
         self:setRightText(self.sell_no_storage_text)
@@ -1084,6 +1253,8 @@ function Shop:enterSellMenu(sell_data)
     end
 end
 
+--- Checks that the player meets the conditions to purchase an item, and then purchases it.
+---@param current_item { item: Item, options: table }   The shop entry of the item being purchased.
 function Shop:buyItem(current_item)
     if (current_item.options["price"] or 0) > self:getMoney() then
         self:setRightText(self.buy_too_expensive_text)
@@ -1112,14 +1283,20 @@ function Shop:buyItem(current_item)
     end
 end
 
+---@param name  string
+---@param value any
 function Shop:setFlag(name, value)
     Game:setFlag("shop#" .. self.id .. ":" .. name, value)
 end
 
+---@param name      string
+---@param default?  any
+---@return any
 function Shop:getFlag(name, default)
     return Game:getFlag("shop#" .. self.id .. ":" .. name, default)
 end
 
+---@param current_item Item
 function Shop:sellItem(current_item)
     -- SELL THE ITEM
     -- Add the gold
@@ -1130,18 +1307,22 @@ function Shop:sellItem(current_item)
     self:setRightText(self.sell_text)
 end
 
+---@return number
 function Shop:getMoney()
     return Game.money
 end
 
+---@param amount number
 function Shop:setMoney(amount)
     Game.money = amount
 end
 
+---@param amount number
 function Shop:addMoney(amount)
     self:setMoney(self:getMoney() + amount)
 end
 
+---@param amount number
 function Shop:removeMoney(amount)
     self:setMoney(self:getMoney() - amount)
 end

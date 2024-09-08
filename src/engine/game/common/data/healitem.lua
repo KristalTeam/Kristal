@@ -1,4 +1,18 @@
+--- HealItem is an extension of Item that provides additional functionality for items that perform healing when used. \
+--- This class can be extended from in an item file instead of `Item` to include this functionality in the item.
+--- 
 ---@class HealItem : Item
+---
+---@field heal_amount           integer
+---
+---@field world_heal_amount     integer
+---@field battle_heal_amount    integer
+---
+---@field heal_amounts          table<string, integer>
+---
+---@field world_heal_amounts    table<string, integer>
+---@field battle_heal_amounts   table<string, integer>
+---
 ---@overload fun(...) : HealItem
 local HealItem, super = Class(Item)
 
@@ -22,18 +36,30 @@ function HealItem:init()
     self.battle_heal_amounts = {}
 end
 
+--- Gets the amount of HP this item should restore for a specific character
+---@param id string The id of the character to get the HP amount for
+---@return integer
 function HealItem:getHealAmount(id)
     return self.heal_amounts[id] or self.heal_amount
 end
 
+--- Gets the amount of HP this item should restore for a specific character when used in the world
+---@param id string The id of the character to get the HP amount for
+---@return integer
 function HealItem:getWorldHealAmount(id)
     return self.world_heal_amounts[id] or self.world_heal_amount or self:getHealAmount(id)
 end
 
+--- Gets the amount of HP this item should restore for a specific character when used in battle
+---@param id string The id of the character to get the HP amount for
+---@return integer
 function HealItem:getBattleHealAmount(id)
     return self.battle_heal_amounts[id] or self.battle_heal_amount or self:getHealAmount(id)
 end
 
+--- Modified to perform healing based on the set healing amounts
+---@param target PartyMember|PartyMember[]
+---@return boolean
 function HealItem:onWorldUse(target)
     if self.target == "ally" or self.target == "any" then
         -- Heal single party member
@@ -53,6 +79,9 @@ function HealItem:onWorldUse(target)
     end
 end
 
+--- Modified to perform healing based on the set healing amounts
+---@param user PartyBattler
+---@param target Battler[]|PartyBattler|PartyBattler[]|EnemyBattler|EnemyBattler[]
 function HealItem:onBattleUse(user, target)
     if self.target == "ally" then
         -- Heal single party member

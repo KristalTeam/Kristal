@@ -1,4 +1,64 @@
+--- The `Battle` Object manages everything related to battles in Kristal. \
+--- A globally available reference to the in-use `Battle` instance is stored in [`Game.battle`](lua://Game.battle).
+---
 ---@class Battle : Object
+---
+---@field party                     PartyBattler[]                  A table of all the `PartyBattler`s in the current battle
+---
+---@field money                     integer                         Current amount of victory money
+---@field xp                        number                          Current amount of victory xp
+---
+---@field used_violence             boolean
+---
+---@field ui_move                   love.Source                     A sound source for the `ui_move` sfx, should be used for every time this sound plays in battle
+---@field ui_select                 love.Source                     A sound source for the `ui_select` sfx, should be used for every time this sound plays in battle
+---@field spare_sound               love.Source                     A sound source for the `spare` sfx, should be used for every time this sound plays in battle
+---@
+---@field party_beginning_positions table<[number, number]>         The position of each `PartyBattler` at the start of the battle transition
+---@field enemy_beginning_positions table<[number, number]>         The position of each `EnemyBattler` at the start of the battle transition
+---@
+---@field party_world_characters    table<string, Character>        A list of mappings between `PartyBattler`s (by id) and their representations as `Character`s in the world, if they exist
+---@field enemy_world_characters    table<EnemyBattler, Character>  A list of mappings between `EnemyBattler`s and their representations as `Character`s in the world, if they exist
+---@field battler_targets           table<[number, number]>         Target positions for `PartyBattler`s to transition to at the start of battle
+---
+---@field encounter_context         ChaserEnemy?                    An optional `ChaserEnemy` instance that initiated the battle
+---
+---@field state                     string                          The current state of the battle - should never be set manually, see [`Battle:setState()`](lua://Battle.setState) instead
+---@field substate                  string                          The current substate of the battle - should never be set manually, see [`Battle:setSubState()`](lua://Battle.setSubState) instead
+---@field state_reason              string?                         The reason for the current state of the battle - should never be set manually, see [`Battle:setState()`](lua://Battle.setState) instead
+---
+---@field camera                    Camera
+---
+---@field cutscene                  BattleCutscene?                 The active battle cutscene, if it exists - see [`Battle:startCutscene()`](lua://Battle.startCutscene) or [`Battle:startActCutscene()`](lua://Battle.startActCutscene) for how to start cutscenes
+---
+---@field turn_count                integer                         The current turn number
+---
+---@field battle_ui                 BattleUI
+---@field tension_bar               TensionBar
+---
+---@field arena                     Arena?
+---@field soul                      Soul?
+---
+---@field music                     Music
+---
+---@field mask                      ArenaMask                       Objects parented to this will be masked to the arena
+---@field timer                     Timer
+---
+---@field attackers                 EnemyBattler[]
+---@field normal_attackers          PartyBattler[]
+---@field auto_attackers            PartyBattler[]
+---
+---@field enemies                   EnemyBattler[]
+---@field enemies_index             EnemyBattler[]
+---@field enemy_dialogue            SpeechBubble[]
+---@field enemies_to_remove         EnemyBattler[]
+---@field defeated_enemies          EnemyBattler[]
+---@field waves                     Wave[]
+---
+---@field encounter                 Encounter                       The encounter currently being used for this battle *(only set during `postInit()`)*
+---@field resume_world_music        boolean                         *(only set during `postInit()`)*
+---@field transitioned              boolean                         Whether the battle opened with a transition *(only set during `postInit()`)*
+---
 ---@overload fun(...) : Battle
 local Battle, super = Class(Object)
 
@@ -172,7 +232,7 @@ function Battle:createPartyBattlers()
             end
             if not found then
                 local chara_battler = PartyBattler(party_member, SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
-                chara_battler:setAnimation("transition")
+                chara_battler:setAnimation("battle/transition")
                 self:addChild(chara_battler)
                 table.insert(self.party, chara_battler)
                 table.insert(self.party_beginning_positions, {chara_battler.x, chara_battler.y})
@@ -181,6 +241,8 @@ function Battle:createPartyBattlers()
     end
 end
 
+---@param state string
+---@param encounter string|Encounter
 function Battle:postInit(state, encounter)
     self.state = state
 
@@ -287,12 +349,16 @@ function Battle:showUI()
     end
 end
 
+---@param parent Object
 function Battle:onRemove(parent)
     super.onRemove(self, parent)
 
     self.music:remove()
 end
 
+--- Changes the state of the battle and calls [onStateChange()](lua://Battle.onStateChange)
+---@param state     string
+---@param reason    string?
 function Battle:setState(state, reason)
     local old = self.state
     self.state = state
@@ -300,6 +366,9 @@ function Battle:setState(state, reason)
     self:onStateChange(old, self.state)
 end
 
+--- Changes the substate of the battle and calls [onSubStateChange()](lua://Battle.onSubStateChange)
+---@param state     string
+---@param reason    string?
 function Battle:setSubState(state, reason)
     local old = self.substate
     self.substate = state
@@ -315,6 +384,8 @@ function Battle:getSubState()
     return self.substate
 end
 
+---@param old string
+---@param new string
 function Battle:onStateChange(old,new)
     local result = self.encounter:beforeStateChange(old,new)
     if result or self.state ~= new then
@@ -474,7 +545,6 @@ function Battle:onStateChange(old,new)
 
             wave.active = true
         end
-        self.soul:onWaveStart()
     elseif new == "VICTORY" then
         self.current_selecting = 0
 
@@ -610,6 +680,7 @@ function Battle:onStateChange(old,new)
         local arena_x, arena_y, arena_w, arena_h, arena_shape
         local arena_rotation = 0
         local has_arena = true
+        local spawn_soul = true
         for _,wave in ipairs(self.waves) do
             soul_x = wave.soul_start_x or soul_x
             soul_y = wave.soul_start_y or soul_y
@@ -625,6 +696,9 @@ function Battle:onStateChange(old,new)
             end
             if not wave.has_arena then
                 has_arena = false
+            end
+            if not wave.spawn_soul then
+                spawn_soul = false
             end
         end
 
@@ -646,9 +720,11 @@ function Battle:onStateChange(old,new)
             center_x, center_y = SCREEN_WIDTH/2, (SCREEN_HEIGHT - 155)/2 + 10
         end
 
-        soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
-        soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
-        self:spawnSoul(soul_x or center_x, soul_y or center_y)
+        if spawn_soul then
+            soul_x = soul_x or (soul_offset_x and center_x + soul_offset_x)
+            soul_y = soul_y or (soul_offset_y and center_y + soul_offset_y)
+            self:spawnSoul(soul_x or center_x, soul_y or center_y)
+        end
 
         for _,wave in ipairs(Game.battle.waves) do
             if wave:onArenaEnter() then
@@ -720,6 +796,10 @@ function Battle:onStateChange(old,new)
     self.encounter:onStateChange(old,new)
 end
 
+--- Gets the location the soul should spawn at when waves start by default
+---@param always_origin? boolean
+---@return number
+---@return number
 function Battle:getSoulLocation(always_origin)
     if self.soul and (not always_origin) then
         return self.soul:getPosition()
@@ -728,6 +808,9 @@ function Battle:getSoulLocation(always_origin)
     end
 end
 
+--- Spawns the soul and sets up its transition from the source character to its starting position
+---@param x? number
+---@param y? number
 function Battle:spawnSoul(x, y)
     local bx, by = self:getSoulLocation()
     local color = {self.encounter:getSoulColor()}
@@ -743,8 +826,13 @@ function Battle:spawnSoul(x, y)
         Game.old_soul_inv_timer = 0
         self:addChild(self.soul)
     end
+
+    if self.state == "DEFENDINGBEGIN" or self.state == "DEFENDING" then
+        self.soul:onWaveStart()
+    end
 end
 
+---@param dont_destroy boolean
 function Battle:returnSoul(dont_destroy)
     if dont_destroy == nil then dont_destroy = false end
     local bx, by = self:getSoulLocation(true)
@@ -754,6 +842,8 @@ function Battle:returnSoul(dont_destroy)
     end
 end
 
+--- Replaces the current soul (if it exists) with a different soul instance
+---@param object Soul
 function Battle:swapSoul(object)
     if self.soul then
         self.soul:remove()
@@ -784,6 +874,8 @@ function Battle:resetAttackers()
     end
 end
 
+---@param old string
+---@param new string
 function Battle:onSubStateChange(old,new)
     if (old == "ACT") and (new ~= "ACT") then
         for _,battler in ipairs(self.party) do
@@ -794,6 +886,11 @@ function Battle:onSubStateChange(old,new)
     end
 end
 
+--- Registers an additional X-Action for a specific party member
+---@param party         string  The id of the party member who will receive this X-Action
+---@param name          string  The name of this X-Action
+---@param description?  string  The description of this X-Action
+---@param tp?           number  The tp cost of this X-Action
 function Battle:registerXAction(party, name, description, tp)
     local act = {
         ["name"] = name,
@@ -1343,6 +1440,12 @@ function Battle:endActionAnimation(battler, action, callback)
     end
 end
 
+--- Turns a party member's turn from an ACT into a SPELL cast \
+--- *Should be called from inside [`EnemyBattler:onAct()`](lua://EnemyBattler.onAct)*
+---@param spell     string|Spell        The name of the spell that should be casted by `user`
+---@param battler   string              The id of the battler that initiates the ACT
+---@param user      string              The id of the battler that should cast the spell
+---@param target?   Battler[]|Battler   An optional list of battlers that 
 function Battle:powerAct(spell, battler, user, target)
 
     local user_battler = self:getPartyBattler(user)
@@ -1617,8 +1720,8 @@ function Battle:removeSingleAction(action)
         end
     end
 
-    if action.action == "ITEM" and action.data and action.item_index then
-        if action.consumed then
+    if action.action == "ITEM" and action.data then
+        if action.item_index and action.consumed then
             if action.result_item then
                 Game.inventory:setItem(action.item_storage, action.item_index, action.data)
             else
@@ -1634,6 +1737,9 @@ function Battle:removeSingleAction(action)
     self.character_actions[action.character_id] = nil
 end
 
+--- Gets the index of a party member with the given id
+---@param string_id string
+---@return integer?
 function Battle:getPartyIndex(string_id)
     for index, battler in ipairs(self.party) do
         if battler.chara.id == string_id then
@@ -1643,6 +1749,9 @@ function Battle:getPartyIndex(string_id)
     return nil
 end
 
+--- Gets a PartyBattler in the current battle from their id
+---@param string_id string
+---@return PartyBattler?
 function Battle:getPartyBattler(string_id)
     for _, battler in ipairs(self.party) do
         if battler.chara.id == string_id then
@@ -1652,6 +1761,9 @@ function Battle:getPartyBattler(string_id)
     return nil
 end
 
+--- Gets an EnemyBattler in the current battle from their id
+---@param string_id string
+---@return EnemyBattler?
 function Battle:getEnemyBattler(string_id)
     for _, enemy in ipairs(self.enemies) do
         if enemy.id == string_id then
@@ -1660,6 +1772,9 @@ function Battle:getEnemyBattler(string_id)
     end
 end
 
+--- Gets an enemy in battle from their corresponding world `Character`
+---@param chara Character
+---@return EnemyBattler?
 function Battle:getEnemyFromCharacter(chara)
     for _, enemy in ipairs(self.enemies) do
         if self.enemy_world_characters[enemy] == chara then
@@ -1673,10 +1788,17 @@ function Battle:getEnemyFromCharacter(chara)
     end
 end
 
+--- Gets whether a specific character has an action lined up
+---@param character_id string
+---@return boolean
 function Battle:hasAction(character_id)
     return self.character_actions[character_id] ~= nil
 end
 
+--- Returns whether `collider` collides with the arena
+---@param collider Collider
+---@return boolean  collided
+---@return Arena?   colliding_arena
 function Battle:checkSolidCollision(collider)
     if NOCLIP then return false end
     Object.startCache()
@@ -1696,10 +1818,15 @@ function Battle:checkSolidCollision(collider)
     return false
 end
 
+--- Shakes the camera by the specified `x`, `y`.
+---@param x?        number      The amount of shake in the `x` direction. (Defaults to `4`)
+---@param y?        number      The amount of shake in the `y` direction. (Defaults to `4`)
+---@param friction? number      The amount that the shake should decrease by, per frame at 30FPS. (Defaults to `1`)
 function Battle:shakeCamera(x, y, friction)
     self.camera:shake(x, y, friction)
 end
 
+---@return "ALL"|PartyBattler
 function Battle:randomTargetOld()
     -- This is "scr_randomtarget_old".
     local none_targetable = true
@@ -1729,6 +1856,7 @@ function Battle:randomTargetOld()
     return target
 end
 
+---@return "ANY"|PartyBattler
 function Battle:randomTarget()
     -- This is "scr_randomtarget".
     local target = self:randomTargetOld()
@@ -1745,6 +1873,7 @@ function Battle:randomTarget()
     return target
 end
 
+---@return "ALL"
 function Battle:targetAll()
     for _,battler in ipairs(self.party) do
         if battler:canTarget() then
@@ -1754,6 +1883,7 @@ function Battle:targetAll()
     return "ALL"
 end
 
+---@return "ANY"
 function Battle:targetAny()
     for _,battler in ipairs(self.party) do
         if battler:canTarget() then
@@ -1763,6 +1893,8 @@ function Battle:targetAny()
     return "ANY"
 end
 
+---@param target PartyBattler|number
+---@return "ALL"|"ANY"|PartyBattler
 function Battle:target(target)
     if type(target) == "number" then
         target = self.party[target]
@@ -1796,6 +1928,11 @@ function Battle:getPartyFromTarget(target)
     end
 end
 
+--- Hurts the `target` party member(s)
+---@param amount    number
+---@param exact?    boolean
+---@param target?   number|"ALL"|"ANY"|PartyBattler The target battler's index, instance, or strings for specific selection logic (defaults to `"ANY"`)
+---@return table
 function Battle:hurt(amount, exact, target)
     -- Note: 0, 1 and 2 are to target a specific party member.
     -- In Kristal, we'll allow them to be objects as well.
@@ -1873,6 +2010,10 @@ function Battle:hurt(amount, exact, target)
     end
 end
 
+--- Sets the waves table to what is specified by `waves`
+---@param waves table<string|Wave>
+---@param allow_duplicates? boolean If true, duplicate waves will coexist with each other
+---@return Wave[]
 function Battle:setWaves(waves, allow_duplicates)
     for _,wave in ipairs(self.waves) do
         wave:onEnd(false)
@@ -1907,6 +2048,7 @@ function Battle:startProcessing()
     end
 end
 
+---@param index integer
 function Battle:setSelectedParty(index)
     self.current_selecting = index or 0
 end
@@ -1983,6 +2125,7 @@ function Battle:previousParty()
     self.encounter:onCharacterTurn(party, true)
 end
 
+--- Advances to the next turn of the battle
 function Battle:nextTurn()
     self.turn_count = self.turn_count + 1
     if self.turn_count > 1 then
@@ -2071,6 +2214,7 @@ function Battle:nextTurn()
     end
 end
 
+--- Checks to see whether the whole party is downed and starts a [`GameOver`](lua://GameOver.init) if they are
 function Battle:checkGameOver()
     for _,battler in ipairs(self.party) do
         if not battler.is_down then
@@ -2089,6 +2233,7 @@ function Battle:checkGameOver()
     Game:gameOver(self:getSoulLocation())
 end
 
+--- Ends the battle and removes itself from `Game.battle`
 function Battle:returnToWorld()
     if not Game:getConfig("keepTensionAfterBattle") then
         Game:setTension(0)
@@ -2132,6 +2277,8 @@ function Battle:returnToWorld()
     Game.state = "OVERWORLD"
 end
 
+---@param text          string[]
+---@param dont_finish?  boolean
 function Battle:setActText(text, dont_finish)
     self:battleText(text, function()
         if not dont_finish then
@@ -2148,6 +2295,7 @@ function Battle:setActText(text, dont_finish)
     end)
 end
 
+---@param text string[]
 function Battle:shortActText(text)
     self:setState("SHORTACTTEXT")
     self.battle_ui:clearEncounterText()
@@ -2157,6 +2305,9 @@ function Battle:shortActText(text)
     self.battle_ui.short_act_text_3:setText(text[3] or "")
 end
 
+--- Sets the current message in the battlebox and moves to the `BATTLETEXT` state until it is advanced, where it returns to the previous state by default
+---@param text string[]                     The text to set
+---@param post_func? fun():boolean|string   When the text is advanced, the name of the state to move to, or a function to run
 function Battle:battleText(text,post_func)
     local target_state = self:getState()
 
@@ -2174,14 +2325,24 @@ function Battle:battleText(text,post_func)
     self:setState("BATTLETEXT")
 end
 
+--- Sets the current message in the battlebox - this text can not be advanced, only overwritten if another text is set
+---@param text? string[]    The text to set
 function Battle:infoText(text)
     self.battle_ui.encounter_text:setText(text or "")
 end
 
+---@return boolean?
 function Battle:hasCutscene()
     return self.cutscene and not self.cutscene.ended
 end
 
+--- Starts a cutscene in battle \
+--- *When setting a cutscene during the `ACTIONS` state, see [`Battle:startActCutscene()](lua://Battle.startActCutscene) instead*
+---@overload fun(self: Battle, id: string, ...)
+---@param group string  The name of the group the cutscene is a part of
+---@param id    string  The id of the cutscene 
+---@param ...   any     Additional arguments that will be passed to the cutscene function
+---@return BattleCutscene?
 function Battle:startCutscene(group, id, ...)
     if self.cutscene then
         local cutscene_name = ""
@@ -2199,6 +2360,12 @@ function Battle:startCutscene(group, id, ...)
     return self.cutscene
 end
 
+--- Starts a cutscene in battle where the cutscene receives the the currently ACTing character and the ACT's target as additional arguments \
+---@overload fun(self: Battle, id: string, dont_finish?: boolean)
+---@param group         string  The name of the group the cutscene is a part of
+---@param id            string  The id of the cutscene 
+---@param dont_finish?  boolean Whether the action should end when the cutscene finishes (defaults to `false`)
+---@return Cutscene?
 function Battle:startActCutscene(group, id, dont_finish)
     local action = self:getCurrentAction()
     local cutscene
@@ -2230,7 +2397,10 @@ end
 function Battle:update()
     for _,enemy in ipairs(self.enemies_to_remove) do
         Utils.removeFromTable(self.enemies, enemy)
-        self.enemies_index[Utils.getKey(self.enemies_index, enemy)] = false
+        local enemy_y = Utils.getKey(self.enemies_index, enemy)
+        if enemy_y then
+            self.enemies_index[enemy_y] = false
+        end
     end
     self.enemies_to_remove = {}
 
@@ -2259,17 +2429,7 @@ function Battle:update()
             end
         end
         if self.actions_done_timer == 0 and not any_hurt then
-            for _,battler in ipairs(self.attackers) do
-                if not battler:setAnimation("battle/attack_end") then
-                    battler:resetSprite()
-                end
-            end
-            self.attackers = {}
-            self.normal_attackers = {}
-            self.auto_attackers = {}
-            if self.battle_ui.attacking then
-                self.battle_ui:endAttack()
-            end
+            self:resetAttackers()
             if not self.encounter:onActionsEnd() then
                 self:setState("ENEMYDIALOGUE")
             end
@@ -2301,6 +2461,15 @@ function Battle:update()
 
     if self.state ~= "TRANSITIONOUT" then
         self.encounter:update()
+    end
+    
+    -- prevents the bolts afterimage from continuing till the edge of the screen when all the enemies are defeated but there're still unfinished attacks
+    if self.state ~= "ATTACKING" then
+        for _,attack in ipairs(self.battle_ui.attack_boxes) do
+            if not attack.attacked and attack:getClose() <= -2 then
+                attack:miss()
+            end
+        end
     end
 
     self.offset = self.offset + 1 * DTMULT
@@ -2476,7 +2645,7 @@ function Battle:updateAttacking()
         for _,attack in ipairs(self.battle_ui.attack_boxes) do
             if not attack.attacked and attack.fade_rect.alpha < 1 then
                 local close = attack:getClose()
-                if close <= -5 then
+                if close <= -2 then
                     attack:miss()
 
                     local action = self:getActionBy(attack.battler, true)
@@ -2528,6 +2697,10 @@ function Battle:updateWaves()
     end
 end
 
+---@param string    string
+---@param x         number
+---@param y         number
+---@param color?    table
 function Battle:debugPrintOutline(string, x, y, color)
     color = color or {love.graphics.getColor()}
     Draw.setColor(0, 0, 0, 1)
@@ -2593,6 +2766,8 @@ function Battle:isWorldHidden()
            (self.encounter.background or self.encounter.hide_world)
 end
 
+---@param menu_item table
+---@return boolean
 function Battle:canSelectMenuItem(menu_item)
     if menu_item.unusable then
         return false
@@ -2614,6 +2789,8 @@ function Battle:canSelectMenuItem(menu_item)
     return true
 end
 
+---@param battler Battler
+---@return boolean
 function Battle:isHighlighted(battler)
     if self.state == "PARTYSELECT" then
         return self.party[self.current_menu_y] == battler
@@ -2633,6 +2810,9 @@ function Battle:isHighlighted(battler)
     return false
 end
 
+--- Removes an enemy from the battle
+---@param enemy     EnemyBattler    The `EnemyBattler` that should be removed
+---@param defeated? boolean         If `true`, the enemy is considered as 'defeated'
 function Battle:removeEnemy(enemy, defeated)
     table.insert(self.enemies_to_remove, enemy)
     if defeated then
@@ -2640,18 +2820,26 @@ function Battle:removeEnemy(enemy, defeated)
     end
 end
 
+--- Gets a list of all the active (not defeated/spared) enemies
+---@return EnemyBattler[]
 function Battle:getActiveEnemies()
     return Utils.filter(self.enemies, function(enemy) return not enemy.done_state end)
 end
 
+--- Gets a list of all the active (not downed) party members
+---@return PartyBattler[]
 function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
 end
 
+--- Gets a list which contains two lists of party battlers and active enemies
+---@return [PartyBattler[],EnemyBattler[]]
 function Battle:getAllBattlers()
     return {self.party, self:getActiveEnemies()}
 end
 
+---@param id string
+---@return EnemyBattler
 function Battle:parseEnemyIdentifier(id)
     local args = Utils.split(id, ":")
     local enemies = Utils.filter(self.enemies, function(enemy) return enemy.id == args[1] end)
@@ -2672,6 +2860,7 @@ function Battle:isValidMenuLocation()
     return true
 end
 
+--- Advances all enemy dialogue bubbles
 function Battle:advanceBoxes()
     local all_done = true
     local to_remove = {}
@@ -2705,6 +2894,10 @@ function Battle:advanceBoxes()
     end
 end
 
+---@param item              table
+---@param default_ally?     PartyBattler
+---@param default_enemy?    EnemyBattler
+---@return PartyBattler[]|EnemyBattler[]|nil
 function Battle:getTargetForItem(item, default_ally, default_enemy)
     if not item.target or item.target == "none" then
         return nil
@@ -2738,6 +2931,8 @@ function Battle:loadMenuItems()
     self.menu_items = self.temp_menu_items
 end
 
+---@param tbl table
+---@return table
 function Battle:addMenuItem(tbl)
     tbl = {
         ["name"] = tbl.name or "",
@@ -2755,6 +2950,7 @@ function Battle:addMenuItem(tbl)
     return tbl
 end
 
+---@param key string
 function Battle:onKeyPressed(key)
     if Kristal.Config["debug"] and Input.ctrl() then
         if key == "h" then
@@ -2778,9 +2974,17 @@ function Battle:onKeyPressed(key)
         if self.state == "DEFENDING" and key == "f" then
             self.encounter:onWavesDone()
         end
-        if self.soul and key == "j" then
+        if self.soul and self.soul.visible and key == "j" then
+            local x, y = self:getSoulLocation()
             self.soul:shatter(6)
-            self:getPartyBattler(Game:getSoulPartyMember().id):hurt(math.huge)
+            
+            -- Prevents a crash related to not having a soul in some waves
+            self:spawnSoul(x, y)
+            for _,heartbrust in ipairs(Game.stage:getObjects(HeartBurst)) do
+                heartbrust:remove()
+            end
+            self.soul.visible = false
+            self.soul.collidable = false
         end
         if key == "b" then
             for _,battler in ipairs(self.party) do
@@ -2811,6 +3015,8 @@ function Battle:onKeyPressed(key)
                 return
             end
         elseif Input.isCancel(key) then
+            local menu_item = self.menu_items[self:getItemIndex()]
+            local can_select = self:canSelectMenuItem(menu_item)
             if self.encounter:onMenuCancel(self.state_reason, menu_item) then return end
             if Kristal.callEvent(KRISTAL_EVENT.onBattleMenuCancel, self.state_reason, menu_item, can_select) then return end
             self.ui_move:stop()
@@ -3052,6 +3258,7 @@ function Battle:onKeyPressed(key)
     end
 end
 
+---@param key string
 function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]
 
@@ -3090,6 +3297,7 @@ function Battle:handleActionSelectInput(key)
     end
 end
 
+---@param key string
 function Battle:handleAttackingInput(key)
     if Input.isConfirm(key) then
         if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
@@ -3111,7 +3319,7 @@ function Battle:handleAttackingInput(key)
                 end
             end
 
-            if closest and closest < 15 and closest > -5 then
+            if closest and closest < 14.2 and closest > -2 then
                 for _,attack in ipairs(closest_attacks) do
                     local points = attack:hit()
 

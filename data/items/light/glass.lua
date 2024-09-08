@@ -21,7 +21,7 @@ function item:init()
 end
 
 function item:onWorldUse()
-    if Kristal.callEvent("onShadowCrystal", self, true) then
+    if Kristal.callEvent(KRISTAL_EVENT.onShadowCrystal, self, true) then
         return
     elseif not self:getFlag("used_lw_no_party") and #Game.party == 1 and #Game.temp_followers == 0 then
         self:setFlag("used_lw_no_party", true)

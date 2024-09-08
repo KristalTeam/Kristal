@@ -157,6 +157,16 @@ ALPHABET = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n
     "v", "w", "x", "y", "z" }
 FACINGS = { "right", "down", "left", "up" }
 
+-- Different chase types that can be used by ChaserEnemys.
+CHASETYPE = { "linear", "multiplier", "flee" }
+
+--- Different pace types that can be used by ChaserEnemys. \
+--- `wander`          - Wanders between the enemy spawn point and several markers in a fixed order. \
+--- `randomwander`    - Wanders between the enemy spawn point and several markers at random. \
+--- `verticalswing`   - Moves along a sinusodial wave on the y-axis. \
+--- `horizontalswing` - Moves along a sinusodial wave on the x-axis.
+PACETYPE = { "wander", "randomwander", "verticalswing", "horizontalswing"}
+
 -- exposed events called by Kristal
 --
 --  keywords  --
@@ -174,6 +184,10 @@ KRISTAL_EVENT = {
     onConvertToDark = "onConvertToDark", -- dark world inventory converted to light world inventory / at: DarkInventory:convertToLight() / passes: LightInventory:new_inventory / returns: NONE
     onConvertToLight = "onConvertToLight", -- light world inventory converted to dark world inventory / at: LightInventory:convertToDark() / passes: DarkInventory:new_inventory / returns: NONE
 
+    --item events--
+    onJunkCheck = "onJunkCheck", -- intercept ball of junk additional check text / at: item:onCheck() (light/ball_of_junk.lua) / passes: Item:item, nil|string:comment / returns: nil|string
+    onShadowCrystal = "onShadowCrystal", -- overrides text when shadow crystal or glass is used / at: item:onWorldUse() (light/glass.lua and key/shadowcrystal.lua) / passes: Item:item, bool:light / returns: nil|bool
+
     --menu events--
     createMenu = "createMenu", -- returns optional custom overworld menu / at: World:createMenu() / passes: NONE / returns: nil|Object
     getDarkMenuButtons = "getDarkMenuButtons", -- optional creation of buttons for custom dark world menu / at: DarkMenu:init() / passes: table:buttons, DarkMenu:self / returns: nil|table
@@ -188,6 +202,7 @@ KRISTAL_EVENT = {
     --game state events-- (sorted by execution order, save&unload last)
     init = "init", -- mod begins initialization, after assets loaded / at: Game:enter(previous_state, save_id, save_name, fade) / passes: NONE / returns: NONE
     load = "load", -- mod loads save data / at: Game:load(data, index, fade) / passes: table:save_data, bool:is_new_file, int:save_index / returns: NONE
+    postLoad = "postLoad", -- after mod loads save data and current map or encounter / at: Game:load(data, index, fade) / passes: NONE / returns: NONE
     postInit = "postInit", -- mod & libraries have finished initialization and registration / at: Game:enter(previous_state, save_id, save_name, fade) / passes: bool:is_new_file / returns: NONE
     preUpdate = "preUpdate", -- overrides game update / at: Game:update() / passes: number:DT / returns: bool
 	postUpdate = "postUpdate", -- update finished processing / at: Game:update() / passes: number:DT / returns: NONE
