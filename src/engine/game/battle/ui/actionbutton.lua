@@ -133,7 +133,7 @@ function ActionButton:select()
                             ["callback"] = function() Game.battle:setState("ENEMYSELECT", "SPELL") end
                         })
                     elseif spell.target == "all" then
-                        Game.battle:pushAction("SPELL", Game.battle:getEveryone(), menu_item)
+                        Game.battle:pushAction("SPELL", Game.battle:getAllBattlers(), menu_item)
                     end
                 end
             })
@@ -178,7 +178,7 @@ function ActionButton:select()
                             ["callback"] = function() Game.battle:setState("ENEMYSELECT", "ITEM") end
                         })
                     elseif item.target == "all" then
-                        Game.battle:pushAction("ITEM", Game.battle:getEveryone(), menu_item)
+                        Game.battle:pushAction("ITEM", Game.battle:getAllBattlers(), menu_item)
                     end
                 end
             })

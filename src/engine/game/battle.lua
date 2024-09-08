@@ -1374,7 +1374,7 @@ function Battle:powerAct(spell, battler, user, target)
         elseif spell.target == "any" then
             target = user_battler or self:getActiveEnemies()[1]
         elseif spell.target == "all" then
-            target = self:getEveryone()
+            target = self:getAllBattlers()
         end
     end
 
@@ -2648,7 +2648,7 @@ function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
 end
 
-function Battle:getEveryone()
+function Battle:getAllBattlers()
     return {self.party, self:getActiveEnemies()}
 end
 
@@ -2719,7 +2719,7 @@ function Battle:getTargetForItem(item, default_ally, default_enemy)
     elseif item.target == "any" then
         return default_ally or default_enemy or self.party[1] or self:getActiveEnemies()[1]
     elseif item.target == "all" then
-        return self:getEveryone()
+        return self:getAllBattlers()
     end
 end
 
