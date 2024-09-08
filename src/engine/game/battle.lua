@@ -3084,7 +3084,7 @@ function Battle:onKeyPressed(key)
             if Kristal.callEvent(KRISTAL_EVENT.onBattleEnemyCancel, self.state_reason, self.current_menu_y) then return end
             self.ui_move:stop()
             self.ui_move:play()
-            if self.state_reason == "SPELL" then
+            if self.state_reason == "SPELL" or self.state_reason == "XACT" then
                 self:setState("MENUSELECT", "SPELL")
             elseif self.state_reason == "ITEM" then
                 self:setState("MENUSELECT", "ITEM")
