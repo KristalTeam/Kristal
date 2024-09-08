@@ -210,6 +210,7 @@ KRISTAL_EVENT = {
 	postDraw = "postDraw", -- finished drawing / at: Game:draw() / passes: NONE / returns: NONE
     save = "save", -- game is about to be saved / at: Game:save(x, y) / passes: table:save_data / returns: NONE
     unload = "unload", -- current game execution is stopped and data unloaded / at: Kristal.clearModState() / passes: NONE / returns: NONE
+    onError = "onError", -- the engine has encountered an error and force-stopped everything / at: Kristal.errorHandler(msg) / passes: string:msg / returns: NONE
 
     --gameplay events--
     onBorderDraw = "onBorderDraw", -- game border draw time / at: [HOOK]love.draw(...)J\love.load(args) / passes: string:border, love.Image:border_texture / returns: NONE
@@ -257,9 +258,6 @@ KRISTAL_EVENT = {
     --debug events--
     registerDebugContext = "registerDebugContext", -- new debug ContextMenu created / at: DebugSystem:onMousePressed(x, y, button, istouch, presses), DebugSystem:openObjectContext(object) / passes: ContextMenu:context, Object:selected_object / return: NONE
 	registerDebugOptions = "registerDebugOptions", -- DebugSystem is ready to recieve custom debug options / passes: DebugSystem:self / returns: NONE
-    
-    --engine events--
-    onError = "onError", -- the engine has encountered an error and force-stopped everything / at: Kristal.errorHandler(msg) / passes: NONE / returns: NONE
 
     --asset registration events-- (sorted by execution order)
     onRegisterActors = "onRegisterActors", -- actor scripts finished registering / in: Registry.initActors() / passes: NONE / returns: NONE
