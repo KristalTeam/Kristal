@@ -452,7 +452,7 @@ function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
     local new_line_space_height = love.graphics.getFont():getHeight()
     if type(align) == "table" then
         if align["line_offset"] then
-            new_line_space_height = align["line_offset"]
+            new_line_space_height = new_line_space_height + align["line_offset"]
         end
         if align["align"] then
             align = align["align"]
