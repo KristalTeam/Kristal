@@ -1,5 +1,5 @@
---- This object is used to create transitions in the Overworld to shops or other maps.
---- `Transition` is an [`Event`](lua://Event.init) - Naming an object `transition` on an `objects` layer in a map creates this object.
+--- This object is used to create transitions in the Overworld to shops or other maps. \
+--- `Transition` is an [`Event`](lua://Event.init) - Naming an object `transition` on an `objects` layer in a map creates this object. \
 --- See this object's Fields for the configurable properties on this object.
 --- 
 ---@class Transition : Event
