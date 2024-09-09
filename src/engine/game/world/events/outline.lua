@@ -1,4 +1,12 @@
+--- A region in the Overworld that draws a colored stencil outline for all [`Character`](lua://Character.init)'s inside. \
+--- `Outline` is an [`Event`](lua://Event.init) - naming an object `outline` on an `objects` layer in a map creates this object. \
+--- The color of a Character's outline is affected by the [color of it's actor](lua://Actor.getColor)
+---
 ---@class Outline : Event
+---
+---@field solid     boolean
+---@field shader    love.Shader
+---
 ---@overload fun(...) : Outline
 local Outline, super = Class(Event)
 
@@ -18,6 +26,7 @@ function Outline:init(x, y, w, h)
     ]])
 end
 
+---@param object Object
 function Outline:drawCharacter(object)
     love.graphics.push()
     object:preDraw()
@@ -26,6 +35,7 @@ function Outline:drawCharacter(object)
     love.graphics.pop()
 end
 
+---@param object Object
 function Outline:drawMask(object)
     love.graphics.setShader(self.shader)
     self:drawCharacter(object)
