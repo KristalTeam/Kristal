@@ -1,4 +1,18 @@
+--- A Treasure Chest that can contain either an Item or some money. \
+--- `TreasureChest` is an [`Event`](lua://Event.init) - naming an object `chest` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
+---
 ---@class TreasureChest : Event
+---
+---@field sprite    Sprite
+---@field solid     boolean
+---
+---@field item      string      *[Property `item`]* The name of the item contianed in this treasure chest - cannot be used in conjunction with `money`
+---@field money     number      *[Property `money`]* The amount of money contained in this treasure chest - cannot be used in conjunction with `item`
+---
+---@field set_flag  string      *[Property `setflag`]* An optional flag to set when the treasure chest is opened
+---@field set_value any         *[Property `setvalue`]* The value to set on the flag specified by `setflag` (defaults to `true`)
+---
 ---@overload fun(...) : TreasureChest
 local TreasureChest, super = Class(Event, "chest")
 
@@ -41,6 +55,7 @@ function TreasureChest:getDebugInfo()
     return info
 end
 
+--- Handles making the chest remain appearing open when re-entering the room
 function TreasureChest:onAdd(parent)
     super.onAdd(self, parent)
 
@@ -49,6 +64,7 @@ function TreasureChest:onAdd(parent)
     end
 end
 
+--- Handles opening the chest and giving the player their items
 function TreasureChest:onInteract(player, dir)
     if self:getFlag("opened") then
         self.world:showText("* (The chest is empty.)")
