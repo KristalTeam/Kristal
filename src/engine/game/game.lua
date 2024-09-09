@@ -204,8 +204,12 @@ function Game:getSavePreview()
     }
 end
 
+---@overload fun(self: Game, marker: string) : SaveData
+---@overload fun(self: Game, position: {x: number, y: number}) : SaveData
 ---@param x number
 ---@param y number
+---@param marker string
+---@param position {x: number, y: number}
 ---@return SaveData
 function Game:save(x, y)
     local data = {
