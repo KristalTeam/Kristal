@@ -1,5 +1,5 @@
---- An overworld object that triggers a [Quicksave](lua://Game.saveQuick) when entered.
---- `QuicksaveEvent` is an [`Event`](lua://Event.init) - naming an object `quicksave` on an `objects` layer in a map creates this objects.
+--- An overworld object that triggers a [Quicksave](lua://Game.saveQuick) when entered. \
+--- `QuicksaveEvent` is an [`Event`](lua://Event.init) - naming an object `quicksave` on an `objects` layer in a map creates this objects. \
 --- See this object's Fields for the configurable properties on this object.
 --- 
 ---@class QuicksaveEvent : Event

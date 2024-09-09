@@ -1,6 +1,6 @@
 --- An enemy found in the Overworld that can chase the player and start encounters. \
 --- `ChaserEnemy` is an `Event`* - naming an object `enemy` on an `objects` layer in a map creates this object. *(Does not inherit the `Event` class, inherits [`Character`](lua://Character.lua)) \
---- Several properties on ChaserEnemies can be configured. See the `Fields` section for properties that can be configured.
+--- See this object's Fields for the configurable properties on this object.
 ---
 ---@class ChaserEnemy : Character
 ---
