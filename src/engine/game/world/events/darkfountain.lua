@@ -1,6 +1,7 @@
 --- Creates a Dark Fountain as it appears in the fountain sealing sequences. \
 --- `DarkFountain` is an [`Event`](lua://Event.init) - naming an object `darkfountain` on an `objects` layer in a map creates this object. \
---- The Dark Fountain is 6 tiles in width - to position it correctly in a map, use a Point object and place it where the bottom-center of the fountain should be.
+--- The Dark Fountain is 6 tiles in width - to position it correctly in a map, use a Point object and place it where the bottom-center of the fountain should be. \
+--- For the full fountain effect, the Dark Fountain should be accompanied by [`FountainShadowController`](lua://FountainShadowController.init) and [`FountainFloor`](lua://FountainFloor.init)
 ---
 ---@class DarkFountain : Event
 ---
