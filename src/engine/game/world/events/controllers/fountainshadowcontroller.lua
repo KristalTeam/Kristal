@@ -2,6 +2,9 @@
 --- `FountainShadowController` is a `controller` - naming an object `fountainshadow` on a `controllers` layer in a map creates this object.
 --- 
 ---@class FountainShadowController : Event
+---
+---@field stage Stage
+---
 ---@overload fun(...) : FountainShadowController
 local FountainShadowController, super = Class(Event, "fountainshadow")
 
