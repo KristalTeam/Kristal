@@ -1,4 +1,12 @@
+--- A region in the Overworld which hides followers of the player when the player steps into it. \
+--- `HideParty` is an [`Event`](lua://Event.init) - naming an object `hideparty` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
+--- 
 ---@class HideParty : Event
+---
+---@field alphas table<Follower, number>
+---@field target_alpha number *[Property `alpha`]* The target alpha of followers in this region (Defaults to `0`)
+---
 ---@overload fun(...) : HideParty
 local HideParty, super = Class(Event)
 
