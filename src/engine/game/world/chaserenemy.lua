@@ -1,5 +1,5 @@
---- An enemy that can chase the player and start encounters. \
---- ChaserEnemies are `Event`s and therefore can be added to a map by naming an object `enemy`. \
+--- An enemy found in the Overworld that can chase the player and start encounters. \
+--- `ChaserEnemy` is an `Event`* - naming an object `enemy` on an `events` layer in a map creates this object. *(Does not inherit the `Event` class) \
 --- Several properties on ChaserEnemies can be configured. See the `Fields` section for properties that can be configured.
 ---
 ---@class ChaserEnemy : Character

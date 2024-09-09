@@ -1,3 +1,6 @@
+--- Creates dark fountain shadows for all characters when present in a map (intended for use with [DarkFountain](lua://DarkFountain.init)). \
+--- `FountainShadowController` is a `controller` - naming an object `fountainshadow` on a `controllers` layer in a map creates this object.
+--- 
 ---@class FountainShadowController : Event
 ---@overload fun(...) : FountainShadowController
 local FountainShadowController, super = Class(Event, "fountainshadow")
