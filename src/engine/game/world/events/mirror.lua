@@ -1,4 +1,15 @@
+--- Creates a region in the Overworld that reflects characters inside it. \
+--- `MirrorArea` is an [`Event`](lua://Event.init) - naming an object `mirror` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object. \
+--- To customise how mirror sprites are displayed, refer to [`Actor`](lua://Actor.init)s and their [`mirror_sprites`](lua://Actor.mirror_sprites) table and functions: [`getMirrorSprites`](lua://Actor.getMirrorSprites), [`getMirrorSprite`](lua://Actor.getMirrorSprite)
 ---@class MirrorArea : Event
+---
+---@field offset    number  *[Property `offset`]* The y-offset for reflections drawn in this mirror (Defaults to `0`)
+---@field opacity   number  *[Property `opacity`]* The opacity of reflections drawn in the mirror (Defaults to `1`)
+---
+---@field bottom    number
+---
+---@overload fun(...) : MirrorArea
 local MirrorArea, super = Class(Event)
 
 function MirrorArea:init(x, y, w, h, properties)
@@ -12,6 +23,7 @@ function MirrorArea:init(x, y, w, h, properties)
     self.bottom = self.y + self.height
 end
 
+--- Finds and draws all character's reflections
 function MirrorArea:drawMirror()
     local to_draw = {}
     for _, obj in ipairs(Game.world.children) do
@@ -24,6 +36,8 @@ function MirrorArea:drawMirror()
     end
 end
 
+--- Draws a character's reflection
+---@param chara Character
 function MirrorArea:drawCharacter(chara)
     love.graphics.push()
 
