@@ -29,7 +29,7 @@ jobs:
           python3 ./kristal/build.py --kristal ./kristal --love ./love-11.5-win64
 
       - name: Upload Build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: output
           path: ./output
