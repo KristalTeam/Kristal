@@ -11,10 +11,10 @@
 ---@field open          boolean     *[Property `open`]* Whether the door is open (defaults to `true`)
 ---@field open_flag     string      *[Property `openflag`]* The name of a flag that will be used to control the state of the door
 ---
----@field maps          table       *[Property list `map`]* A list of available maps to travel to
----@field names         table       *[Property list `name`]* A list of display names for each map in the warp choice
----@field markers       table       *[Property list `marker`]* A list of markers used when warping to each map
----@field flags         table       *[Property list `flag`]* A list of flags checked to decide whether a map can be warped to
+---@field maps          string[]    *[Property list `map`]* A list of available maps to travel to
+---@field names         string[]    *[Property list `name`]* A list of display names for each map in the warp choice
+---@field markers       string[]    *[Property list `marker`]* A list of markers used when warping to each map
+---@field flags         string[]    *[Property list `flag`]* A list of flags checked to decide whether a map can be warped to
 ---
 ---@overload fun(...) : WarpDoor
 local WarpDoor, super = Class(Event, "warpdoor")
