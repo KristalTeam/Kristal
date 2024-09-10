@@ -10,7 +10,7 @@
 ---@field money     number      *[Property `money`]* The amount of money contained in this treasure chest - cannot be used in conjunction with `item`
 ---
 ---@field set_flag  string      *[Property `setflag`]* An optional flag to set when the treasure chest is opened
----@field set_value any         *[Property `setvalue`]* The value to set on the flag specified by `setflag` (defaults to `true`)
+---@field set_value any         *[Property `setvalue`]* The value to set on the flag specified by `setflag` (Defaults to `true`)
 ---
 ---@overload fun(...) : CyberTrashCan
 local CyberTrashCan, super = Class(Event, "cybertrash")

@@ -15,12 +15,12 @@
 --- *[Property `facing`]* The direction the player and party should face when they spawn in the new map 
 ---@field target {map: string, shop: string, x: number, y: number, marker: string, facing: string} 
 ---
----@field sound string? An optional sound to play when the player activates this transition
----@field pitch number  The pitch the entry sound should play at
+---@field sound string? *[Property `sound`]* An optional sound to play when the player activates this transition
+---@field pitch number  *[Property `pitch`]* The pitch the entry sound should play at
 ---
----@field exit_delay number     Additional delay after entering the new map before playing the exit sound, in seconds (defaults to `0`)
----@field exit_sound string?    An optional sound to play when entering the new map
----@field exit_pitch number     The pitch the exit sound should play at
+---@field exit_delay number     *[Property `exit_delay`]* Additional delay after entering the new map before playing the exit sound, in seconds (Defaults to `0`)
+---@field exit_sound string?    *[Property `exit_sound`]* An optional sound to play when entering the new map
+---@field exit_pitch number     *[Property `exit_pitch`]* The pitch the exit sound should play at
 ---
 ---@overload fun(...) : Transition
 local Transition, super = Class(Event)
