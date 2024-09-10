@@ -1,4 +1,16 @@
+--- Magical glass are Overworld objects that appear only when stepped on. \
+--- `MagicGlass` is an [`Event`](lua://Event.init) - naming an object `magicglass` on an `objects` layer in a map creates this object.
 ---@class MagicGlass : Event
+---
+---@field texture           love.Image
+---@field tiles_x           integer
+---@field tiles_y           integer
+---
+---@field glass_colliders   Collider[]
+---@field tile_alphas       number[]
+---
+---@field collider          ColliderGroup
+---
 ---@overload fun(...) : MagicGlass
 local MagicGlass, super = Class(Event)
 
