@@ -1,4 +1,36 @@
+--- NPCs are an extension of Character that provide the ability to use them in the Overworld similar to an `Event`. \
+--- Naming an object `npc` on an `objects` layer in a map creates an NPC. \
+--- The actor used for an NPC can be set by defining an `actor` property and setting it to the id of the desired actor. \
+--- See this object's Fields for other configurable properties on this object.
+--- 
 ---@class NPC : Character
+---
+---@field idle_sprite string *[Property `sprite`]* The name of the sprite this NPC should use when idle
+---@field idle_animation string *[Property `animation`]* The name of the animation this NPC should use when idle
+---
+---@field start_facing string *[Property `facing`]* The direction the npc should be facing by default (Defaults to `"down"`)
+---
+---@field turn boolean *[Property `turn`]* Whether the NPC should turn to face the player when interacted with (Defaults to `false`)
+---
+---@field talk boolean *[Property `talk`]* Whether the npc should do a talking animation when interacted with and currently typing dialogue (Defaults to `true`)
+---@field talk_sprite string *[Property `talksprite`]* The name of a talk sprite to use for the NPC when talking
+---
+---@field solid boolean *[Property `solid`]* Whether the npc is solid (Defaults to `true`)
+---
+---@field cutscene  string *[Property `cutscene`]* The name of a cutscene to start when interacting with this npc
+---@field script    string *[Property `script`]* The name of a script file to execute when interacting with this npc
+--- *[Property `text`]* A line of text to display when interacting with this npc \
+--- *[Property list `text`]* Several lines of text to display when interacting with this npc \
+--- *[Property multi-list `text`]* Several groups of lines of text to display on sequential interactions with this npc - all of `text1_i` forms the first interaction, all of `text2_i` forms the second interaction etc...
+---@field text string[] 
+---
+---@field set_flag string   *[Property `setflag`]* The name of a flag to set the value of when interacting with this object
+---@field set_value any     *[Property `setvalue`]* The value to set the flag specified by [`set_flag`](lua://Interactable.set_flag) to (Defaults to `true`)
+---
+---@field interact_count number The number of times this npc has been interacted with on this map load
+---
+---@field interact_buffer number
+---
 ---@overload fun(...) : NPC
 local NPC, super = Class(Character)
 
@@ -78,6 +110,7 @@ function NPC:onInteract(player, dir)
     end
 end
 
+--- Resets the NPCs sprite to it's idle if it was talking, and turns it to face its original position
 function NPC:onTextEnd()
     if self.talk_sprite then
         if self.idle_sprite then

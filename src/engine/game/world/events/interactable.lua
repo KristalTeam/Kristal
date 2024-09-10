@@ -5,7 +5,7 @@
 ---@class Interactable : Event
 ---
 ---@field solid     boolean *[Property `solid`]* Whether the interactable is solid
----@
+---
 ---@field cutscene  string *[Property `cutscene`]* The name of a cutscene to start when interacting with this object
 ---@field script    string *[Property `script`]* The name of a script file to execute when interacting with this object
 --- *[Property `text`]* A line of text to display when interacting with this object \
