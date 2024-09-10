@@ -1,4 +1,9 @@
+--- A region in the Overworld that draws silhouettes of character's inside it that draw on top of the world. The original characters are not hidden. \
+--- `Silhouette` is an [`Event`](lua://Event.init) - naming an object `silhouette` on an `objects` layer in a map creates this object. \
 ---@class Silhouette : Event
+---
+---@field solid boolean
+---
 ---@overload fun(...) : Silhouette
 local Silhouette, super = Class(Event)
 
