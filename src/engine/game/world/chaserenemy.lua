@@ -23,7 +23,7 @@
 ---@field chase_accel   number  *[Property `chaseaccel`]* The acceleration of the enemy when chasing the player, in change of pixels per frame at 30FPS, or a multiplier of speed when in `multiplier` mode.
 ---
 ---@field pace_type     string  *[Property `pacetype`]* The type of pacing that the enemy will do while idling. See [PACETYPE](lua://PACETYPE) for available types.
----@field pace_marker   table   *[Property `marker`]* The name of a marker, or a list of markers (marker1, marker2, marker3, ...) that the enemy will pace between when `wander` pacing.
+---@field pace_marker   table   *[Property list `marker`]* The name of a marker, or a list of markers that the enemy will pace between when `wander` pacing.
 ---@field pace_interval number  *[Property `paceinterval`]* The interval between actions when `wander` pacing (Defaults to `24`)
 ---@field pace_return   boolean *[Property `pacereturn`]* Whether the enemy should return to its spawn point between every point when its `pace_type` is set to `wander` or `randomwander`. (Defaults to `true`)
 ---@field pace_speed    number  *[Property `pacespeed`]* The speed at which the enemy walks when `wander` pacing (Defaults to `2`)
