@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 15,
-  nextobjectid = 121,
+  nextobjectid = 123,
   properties = {},
   tilesets = {
     {
@@ -400,6 +400,20 @@ return {
             ["pacespeed"] = 10,
             ["pacetype"] = "randomwander"
           }
+        },
+        {
+          id = 122,
+          name = "",
+          class = "",
+          shape = "rectangle",
+          x = 1060,
+          y = 580,
+          width = 40,
+          height = 40,
+          rotation = 0,
+          gid = 262,
+          visible = true,
+          properties = {}
         }
       }
     },
