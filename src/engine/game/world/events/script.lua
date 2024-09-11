@@ -1,4 +1,19 @@
+--- Scripts are Overworld events that trigger immediately when the player steps into them. \
+--- Naming an object `script` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
 ---@class Script : Event
+---
+---@field solid     boolean
+---
+---@field cutscene  string  *[Property `cutscene`]* The name of a cutscene to start when this script is triggered
+---@field script    string  *[Property `script`]* The name of a script file to run when this script is triggered
+---
+---@field set_flag  string  *[Property `setflag`]* The name of a flag to set the value of when this script is triggered 
+---@field set_value any     *[Property `setvalue`]* The value to set on the flag specified by [`set_flag`](lua://Script.set_flag) (Defaults to `true`)
+---@
+---@field once      boolean *[Property `once`]* Whether this script can only be triggered once per save file (Defaults to `true`)
+---@field temp      boolean *[Property `temp`]* Whether the script is temporarily persistent - appears even if `once` is true and it has been triggered (Defaults to `false`)
+---
 ---@overload fun(...) : Script
 local Script, super = Class(Event)
 
