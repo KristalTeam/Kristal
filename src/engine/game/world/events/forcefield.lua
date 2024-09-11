@@ -12,7 +12,7 @@
 ---
 ---@field solid             boolean *[Property `solid`]* Whether the forcefield is solid (Defaults to `true`)
 ---@field always_visible    boolean *[Property `visible`]* Whether the forcefield is visible even when the player is not nearby (Defaults to `false`)
----@
+---
 ---@field flag              string  *[Property `flag`]* The name of the flag to check for whether this forcefield is active - if `!` is at the start of the flag, the check will be [`inverted`](lua://Forcefield.inverted)
 ---@field inverted          boolean *[Property `inverted`]* Whether the flagcheck is inverted such that if `flag` is `flag_value`, the forcefield is inactive, and is active otherwise
 ---@field flag_value        boolean *[Property `value`]* The value that `flag` should be for the forcefield to be active
