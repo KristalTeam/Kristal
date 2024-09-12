@@ -51,11 +51,11 @@ function MainMenuCredits:init(menu)
             {
                 {"GitHub Contributors", COLORS.silver},
                 "prokube",
-                "Scarm",
                 "Simbel",
                 "sjl057",
                 "skarph",
                 "WIL-TZY",
+                "",
                 "",
                 "",
                 "",
