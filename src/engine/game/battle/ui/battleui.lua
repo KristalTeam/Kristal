@@ -458,43 +458,41 @@ function BattleUI:drawState()
                     end
                 end
 
-                if Game.battle.state == "ENEMYSELECT" then
-                    if Game.battle.state_reason == "XACT" then
-                        Draw.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
-                        if Game.battle.selected_xaction.id == 0 then
-                            love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
-                        else
-                            love.graphics.print(Game.battle.selected_xaction.name, 282, 50 + y_off)
-                        end
+                if Game.battle.state_reason == "XACT" then
+                    Draw.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
+                    if Game.battle.selected_xaction.id == 0 then
+                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
                     else
-                        local namewidth = font:getWidth(enemy.name)
+                        love.graphics.print(Game.battle.selected_xaction.name, 282, 50 + y_off)
+                    end
+                else
+                    local namewidth = font:getWidth(enemy.name)
 
-                        Draw.setColor(128/255, 128/255, 128/255, 1)
+                    Draw.setColor(128/255, 128/255, 128/255, 1)
 
-                        
-                        if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
-                            love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
-                        else
-                            love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, 0, 0.5, 1)
-                        end
+                    
+                    if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
+                        love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
+                    else
+                        love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, 0, 0.5, 1)
+                    end
 
 
-                        local hp_percent = enemy.health / enemy.max_health
+                    local hp_percent = enemy.health / enemy.max_health
 
-                        local hp_x = draw_mercy and 420 or 510
+                    local hp_x = draw_mercy and 420 or 510
 
-                        if enemy.selectable then
-                            -- Draw the enemy's HP
-                            Draw.setColor(PALETTE["action_health_bg"])
-                            love.graphics.rectangle("fill", hp_x, 55 + y_off, 81, 16)
+                    if enemy.selectable then
+                        -- Draw the enemy's HP
+                        Draw.setColor(PALETTE["action_health_bg"])
+                        love.graphics.rectangle("fill", hp_x, 55 + y_off, 81, 16)
 
-                            Draw.setColor(PALETTE["action_health"])
-                            love.graphics.rectangle("fill", hp_x, 55 + y_off, math.ceil(hp_percent * 81), 16)
+                        Draw.setColor(PALETTE["action_health"])
+                        love.graphics.rectangle("fill", hp_x, 55 + y_off, math.ceil(hp_percent * 81), 16)
 
-                            if draw_percents then
-                                Draw.setColor(PALETTE["action_health_text"])
-                                love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
-                            end
+                        if draw_percents then
+                            Draw.setColor(PALETTE["action_health_text"])
+                            love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end
