@@ -120,6 +120,7 @@ ActorSprite = require("src.engine.game.common.actorsprite")
 Inventory = require("src.engine.game.common.inventory")
 DarkInventory = require("src.engine.game.common.darkinventory")
 LightInventory = require("src.engine.game.common.lightinventory")
+LancerKeyItem = require("src.engine.game.common.lancerkeyitem")
 
 Cutscene = require("src.engine.game.common.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")

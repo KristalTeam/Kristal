@@ -327,9 +327,10 @@ function EnemyBattler:spare(pacify)
             parent:addChild(img2)
             self:remove()
         end)
+        
+        self:defeat(pacify and "PACIFIED" or "SPARED", false)
     end
 
-    self:defeat(pacify and "PACIFIED" or "SPARED", false)
     self:onSpared()
 end
 
