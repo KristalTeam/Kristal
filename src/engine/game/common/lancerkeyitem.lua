@@ -29,14 +29,14 @@ function LancerKeyItem:init(x, y)
     self.timer = Timer()
     self:addChild(self.timer)
 	
-    self.timer:every(3, function()
+    self.timer:every(1.5, function()
         if self.movecon < 0 then
             return false
         end
         self.remmovecon = self.movecon
-        self.movecon = math.floor(Utils.random(5))
+        self.movecon = Utils.random(0, 4, 1)
         if self.movecon == self.remmovecon then
-            self.movecon = math.floor(Utils.random(5))
+            self.movecon = Utils.random(0, 4, 1)
         end
         self.con = 0
         if self.sleeptimer >= 900 then

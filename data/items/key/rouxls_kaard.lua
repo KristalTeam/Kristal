@@ -48,7 +48,7 @@ function item:init()
 end
 
 function item:onMenuOpen(menu)
-    menu.box:setLayer(20)
+    menu.box:setLayer(WORLD_LAYERS["ui"])
 end
 
 function item:isVisible()
