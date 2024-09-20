@@ -27,6 +27,8 @@
 ---
 ---@field selectable        boolean             Whether this enemy is selectable in menus
 ---
+---@field dmg_sprite_offset [number, number]    The offset of this enemy's damage sprites
+---
 ---@field disable_mercy     boolean             Whether this enemy has mercy disabled (such as with snowgrave Spamton NEO). Only affects the mercy bar.
 ---
 ---@field waves             string[]            A list of wave ids this enemy can use - one is selected each turn in [`EnemyBattler:selectWave()`](lua://EnemyBattler.selectWave)
@@ -91,6 +93,8 @@ function EnemyBattler:init(actor, use_overlay)
     self.can_freeze = true
 
     self.selectable = true
+
+    self.dmg_sprite_offset = {0, 0}
 
     self.disable_mercy = false
 
