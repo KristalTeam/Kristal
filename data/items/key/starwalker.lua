@@ -58,7 +58,7 @@ end
 function item:onMenuDraw(menu)
     local x, y = menu.box:screenToLocalPos(0, 0)
     if menu.box.state == "SELECT" and self:isVisible() then
-        love.graphics.draw(Assets.getTexture("kristal/starwalker", x, y), x, y, 0, 1, 1)
+        love.graphics.draw(Assets.getTexture("kristal/starwalker", x, y), x, y)
     end
 end
 
