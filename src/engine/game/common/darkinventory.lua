@@ -64,11 +64,22 @@ function DarkInventory:convertToLight()
                 if result then
                     self:removeItem(item)
 
-                    if type(result) == "string" then
-                        result = Registry.createItem(result)
-                    end
-                    if isClass(result) then
-                        new_inventory:addItem(result)
+                    if not isClass(result) and type(result) == "table" then
+                        for _,item in ipairs(result) do
+                            if type(item) == "string" then
+                                item = Registry.createItem(item)
+                            end
+                            if isClass(item) then
+                                new_inventory:addItem(item)
+                            end
+                        end
+                    else
+                        if type(result) == "string" then
+                            result = Registry.createItem(result)
+                        end
+                        if isClass(result) then
+                            new_inventory:addItem(result)
+                        end
                     end
                 end
             end

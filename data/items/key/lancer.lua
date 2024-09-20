@@ -78,7 +78,15 @@ function item:onMenuUpdate(menu)
 end
 
 function item:convertToLight(inventory)
-    return "light/cards"
+    if inventory:hasItem("light/cards") then
+        local light_item = inventory:getItemByID("light/cards")
+        table.insert(light_item.cards, self.id)
+        return true
+    else
+        local light_item = Registry.createItem("light/cards")
+        table.insert(light_item.cards, self.id)
+        return light_item
+    end
 end
 
 return item
