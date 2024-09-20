@@ -49,7 +49,6 @@
 ---
 ---@field dialogue_offset   [number, number]    The offset of this enemy's dialogue bubble
 ---
----
 ---@field dialogue      table<string[]|string>  A list of dialogue choices this enemy will select one from at the start of every attacking turn
 ---@field dialogue_override string[]|string?    An instance of dialogue that will be used on the enemy this turn instead of a randomly selected dialogue. Reset every turn.
 ---
