@@ -22,7 +22,7 @@ function item:init(inventory)
     -- Item this item will get turned into when consumed
     self.result_item = nil
     
-    -- The 'items' that will be given to you on inventory conversion
+    -- The items that will be given to you on inventory conversion (defaults to {"lancer", "rouxls_kaard"} when empty)
     self.cards = {}
 end
 
