@@ -18,7 +18,7 @@ function item:init()
     -- Shop description
     self.shop = nil
     -- Menu description
-    self.description = "The original                     \n         (Starwalker)"
+    self.description = "The original\n         (Starwalker)"
 
     -- Default shop price (sell price is halved)
     self.price = nil
