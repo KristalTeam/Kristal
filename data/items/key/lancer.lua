@@ -73,7 +73,7 @@ function item:onMenuUpdate(menu)
             menu.box.lancer:remove()
             menu.box.lancer = nil
         end
-        menu.box:setLayer(20)
+        menu.box:setLayer(WORLD_LAYERS["ui"])
     end
 end
 
