@@ -1,3 +1,5 @@
+--- An extension of `Sprite` that can integrate with an actor.
+--- If an object defines an Actor, it will use this over `Sprite` for its sprite.
 ---@class ActorSprite : Sprite
 ---@overload fun(...) : ActorSprite
 local ActorSprite, super = Class(Sprite)

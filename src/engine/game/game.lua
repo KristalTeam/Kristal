@@ -1,3 +1,5 @@
+--- The heart of Kristal - this class stores serves as the global that almost everything during gameplay is stored under in some way or another. /
+--- Game itself is mainly responsible for changing between states, handling player control, and accessing overarching features across gameplay such as the inventory or party members.
 ---@class Game
 ---@field stage             Stage
 ---@field world             World

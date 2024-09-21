@@ -1,3 +1,5 @@
+--- Actors are a type of data class that represent the visuals of a character - anything that is some type of character, be it the player, an NPC, or an enemy in battle, it will require an actor. \
+--- As a data class, actors are stored in `scripts/data/actors/`, and extend this class. Their filepath starting from here becomes their id, unless an id is specified as an argument to `Class()`.
 ---@class Actor : Class
 ---@overload fun(...) : Actor
 local Actor = Class()

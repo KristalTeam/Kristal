@@ -1,4 +1,9 @@
+--- The soul of the player used when in the Overworld. \
+--- The Overworld soul defines the player's hitbox against bullets in the Overworld and controls taking damage from them - as such it is only visible if inside a battle area.
 ---@class OverworldSoul : Object
+---
+---@field collider CircleCollider The hitbox of the soul, defaulting to a circle with an 8 pixel radius
+---
 ---@overload fun(...) : OverworldSoul
 local OverworldSoul, super = Class(Object)
 
@@ -31,6 +36,9 @@ function OverworldSoul:canDebugSelect()
     return self.alpha > 0 and super.canDebugSelect(self)
 end
 
+--- *(Override)* Called whenever a bullet hits the soul \
+--- *By default, calls `bullet:onCollide()` which handles the soul taking damage*
+---@param bullet WorldBullet
 function OverworldSoul:onCollide(bullet)
     -- Handles damage
     bullet:onCollide(self)

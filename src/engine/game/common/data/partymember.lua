@@ -1,3 +1,5 @@
+--- The PartyMember class is a type of data class that stores information about a member of the party. \
+--- PartyMembers are stored in `scripts/data/party`, and extend this class. Their filepath starting from here becomes their id, unless an id is specified as an argument to `Class()`.
 ---@class PartyMember : Class
 ---@overload fun(...) : PartyMember
 local PartyMember = Class()

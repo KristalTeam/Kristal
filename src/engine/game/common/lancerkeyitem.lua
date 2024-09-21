@@ -1,3 +1,4 @@
+--- The object used to represent Lancer when he appears in the Dark World key items menu if present in the inventory (item id `lancer`).
 ---@class LancerKeyItem : Object
 ---@overload fun(...) : LancerKeyItem
 local LancerKeyItem, super = Class(Object)

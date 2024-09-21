@@ -1,3 +1,5 @@
+--- An object that is created whenever the player reaches a Game Over, responsible for managing the GameOver sequence. \
+--- The type of GameOver that plays (Chapter 1, Chapter 2, or Undertale) is dependent on the mod configuration and whether the death occurred in the Light World or not.
 ---@class GameOver : Object
 ---@overload fun(...) : GameOver
 local GameOver, super = Class(Object, "gameover")
