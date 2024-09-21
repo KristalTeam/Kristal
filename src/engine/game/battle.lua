@@ -1128,9 +1128,8 @@ function Battle:processAction(action)
                 local relative_pos_x, relative_pos_y = enemy:getRelativePos(enemy.width/2, enemy.height/2)
                 dmg_sprite:setPosition(relative_pos_x + enemy.dmg_sprite_offset[1], relative_pos_y + enemy.dmg_sprite_offset[2])
                 dmg_sprite.layer = enemy.layer + 0.01
-                dmg_sprite.onRemove = function() Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end -- Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
-                dmg_sprite:play(1/15, false, function(s) s:remove() end)
                 table.insert(enemy.dmg_sprites,dmg_sprite)
+                dmg_sprite:play(1/15, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
                 enemy.parent:addChild(dmg_sprite)
 
                 local sound = enemy:getDamageSound() or "damage"
