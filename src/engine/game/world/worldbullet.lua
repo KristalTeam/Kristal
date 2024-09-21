@@ -69,7 +69,7 @@ end
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
 --- Not calling `super:onDamage()` here will stop the normal damage logic from occurring.
----@param soul Soul
+---@param soul OverworldSoul
 function WorldBullet:onDamage(soul)
     if self:getDamage() > 0 then
         self.world:hurtParty(self.damage)
@@ -79,7 +79,7 @@ function WorldBullet:onDamage(soul)
 end
 
 --- *(Override)* Called when the bullet collides with the player's soul, before invulnerability checks.
----@param soul Soul
+---@param soul OverworldSoul
 function WorldBullet:onCollide(soul)
     if not self.world:inBattle() then return end
 
