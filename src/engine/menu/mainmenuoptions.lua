@@ -615,6 +615,7 @@ function MainMenuOptions:initializeOptions()
     self:registerConfigOption("engine", "Verbose Loader", "verboseLoader")
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function () Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function () Kristal.updateCursor() end)
+    self:registerConfigOption("engine", "Instant Quit", "instantQuit")
 end
 
 return MainMenuOptions
