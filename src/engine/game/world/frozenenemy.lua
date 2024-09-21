@@ -1,4 +1,15 @@
+--- A frozen statue of an enemy that can be interacted with. \
+--- Enemies that are frozen in battle will automatically turn into statues when returning to the Overworld.
 ---@class FrozenEnemy : Interactable
+---
+---@field text string Text displayed when interacting with the statue
+---
+---@field sprite ActorSprite
+---@field actor Actor
+---@field collider Hitbox
+---@field solid boolean
+---@field encounter string 
+---
 ---@overload fun(...) : FrozenEnemy
 local FrozenEnemy, super = Class(Interactable)
 

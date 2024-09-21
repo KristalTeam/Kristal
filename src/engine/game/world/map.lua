@@ -1,3 +1,5 @@
+--- Stores and manages the currently loaded map. \
+--- If a map in `scrips/world/maps` is defined as a folder, map data can be placed in `data.lua`, and a file named `map.lua` can be used to define a custom `Map` object for that map.
 ---@class Map : Class
 ---@overload fun(...) : Map
 local Map = Class()

@@ -1,3 +1,5 @@
+--- All types of character in the overworld inherit from the `Character` class. \
+--- This class is not to be confused with the psuedo-event [`NPC`](lua://NPC.init) that is used for characters placed in the overworld.
 ---@class Character : Object
 ---@overload fun(...) : Character
 local Character, super = Class(Object)

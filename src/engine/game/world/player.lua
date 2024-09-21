@@ -1,3 +1,4 @@
+--- The character controlled by the player when in the Overworld.
 ---@class Player : Character
 ---@overload fun(...) : Player
 local Player, super = Class(Character)
