@@ -725,6 +725,20 @@ function DebugSystem:registerSubMenus()
             end
         end)
     end
+    
+    self:registerMenu("border_menu", "Border Test", "search")
+    
+    local borders = Utils.getFilesRecursive("assets/sprites/borders", ".png")
+    if Mod then
+        Utils.merge(borders, Utils.getFilesRecursive(Mod.info.path.."/assets/sprites/borders", ".png"))
+        for _,mod_lib in pairs(Mod.libs) do
+            Utils.merge(borders, Utils.getFilesRecursive(mod_lib.info.path.."/assets/sprites/borders", ".png"))
+        end
+    end
+
+    for _,border in ipairs(borders) do
+        self:registerOption("border_menu", border, "Switch to the border \"" .. border .. "\".", function() Game:setBorder(border) end)
+    end
 end
 
 function DebugSystem:registerDefaults()
@@ -790,6 +804,10 @@ function DebugSystem:registerDefaults()
     self:registerOption("main", "Change Party", "Enter the party change menu.", function ()
                             self:enterMenu("change_party", 0)
                         end, in_game)
+                        
+    self:registerOption("main", "Border Test", "Enter the border test menu.", function() 
+                            self:enterMenu("border_menu", 0)
+                        end, function() return in_game() and Kristal.Config["borders"] == "dynamic" end)
 
     -- World specific
     self:registerOption("main", "Select Map", "Switch to a new map.", function ()
