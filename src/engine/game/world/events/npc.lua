@@ -27,6 +27,12 @@
 ---@field set_flag string   *[Property `setflag`]* The name of a flag to set the value of when interacting with this object
 ---@field set_value any     *[Property `setvalue`]* The value to set the flag specified by [`set_flag`](lua://Interactable.set_flag) to (Defaults to `true`)
 ---
+---@field path          string  *[Property `path`]* The name of a path shape in the current map that the npc will follow.
+---@field speed         number  *[Property `speed`]* The speed that the npc will move along the path specified in `path`, if defined.
+---
+---@field progress      number  *[Property `progress`]* The initial progress of the npc along their path, if defined, as a decimal value between 0 and 1.
+---@field reverse_progress boolean
+---
 ---@field interact_count number The number of times this npc has been interacted with on this map load
 ---
 ---@field interact_buffer number
@@ -66,6 +72,12 @@ function NPC:init(actor, x, y, properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
+    
+    self.path = properties["path"]
+    self.speed = properties["speed"] or 6
+
+    self.progress = (properties["progress"] or 0) % 1
+    self.reverse_progress = false
 
     self.interact_count = 0
 
@@ -128,6 +140,91 @@ function NPC:onTextEnd()
     if self.turn then
         self:setFacing(self.start_facing)
     end
+end
+
+function NPC:snapToPath()
+    if self.path and self.world.map.paths[self.path] then
+        local path = self.world.map.paths[self.path]
+
+        local progress = self.progress
+        if not path.closed then
+            progress = Ease.inOutSine(progress, 0, 1, 1)
+        end
+
+        if path.shape == "line" then
+            local dist = progress * path.length
+            local current_dist = 0
+
+            for i = 1, #path.points-1 do
+                local next_dist = Utils.dist(path.points[i].x, path.points[i].y, path.points[i+1].x, path.points[i+1].y)
+
+                if current_dist + next_dist > dist then
+                    local x = Utils.lerp(path.points[i].x, path.points[i+1].x, (dist - current_dist) / next_dist)
+                    local y = Utils.lerp(path.points[i].y, path.points[i+1].y, (dist - current_dist) / next_dist)
+
+                    if self.debug_x and self.debug_y and Kristal.DebugSystem.last_object == self then
+                        x = Utils.ease(self.debug_x, x, Kristal.DebugSystem.release_timer, "outCubic")
+                        y = Utils.ease(self.debug_y, y, Kristal.DebugSystem.release_timer, "outCubic")
+                        if Kristal.DebugSystem.release_timer >= 1 then
+                            self.debug_x = nil
+                            self.debug_y = nil
+                        end
+                    end
+
+                    self:moveTo(x, y)
+                    break
+                else
+                    current_dist = current_dist + next_dist
+                end
+            end
+        elseif path.shape == "ellipse" then
+            local angle = progress * (math.pi*2)
+            local x = path.x + math.cos(angle) * path.rx
+            local y = path.y + math.sin(angle) * path.ry
+
+            if self.debug_x and self.debug_y and Kristal.DebugSystem.last_object == self then
+                x = Utils.ease(self.debug_x, x, Kristal.DebugSystem.release_timer, "outCubic")
+                y = Utils.ease(self.debug_y, y, Kristal.DebugSystem.release_timer, "outCubic")
+                if Kristal.DebugSystem.release_timer >= 1 then
+                    self.debug_x = nil
+                    self.debug_y = nil
+                end
+            end
+
+            self:moveTo(x, y)
+        end
+    end
+end
+
+function NPC:isActive()
+    return not self.world.encountering_enemy and
+           not self.world:hasCutscene() and
+           self.world.state ~= "MENU" and
+           Game.state == "OVERWORLD"
+end
+
+function NPC:update()
+    if self:isActive() then
+        if self.path and self.world.map.paths[self.path] then
+            local path = self.world.map.paths[self.path]
+            
+            if self.reverse_progress then
+                self.progress = self.progress - (self.speed / path.length) * DTMULT
+            else
+                self.progress = self.progress + (self.speed / path.length) * DTMULT
+            end
+            if path.closed then
+                self.progress = self.progress % 1
+            elseif self.progress > 1 or self.progress < 0 then
+                self.progress = Utils.clamp(self.progress, 0, 1)
+                self.reverse_progress = not self.reverse_progress
+            end
+            
+            self:snapToPath()
+        end
+    end
+
+    super.update(self)
 end
 
 return NPC
