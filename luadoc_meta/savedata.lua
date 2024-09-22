@@ -23,6 +23,8 @@
 ---@field spawn_position {x: number, y: number}
 ---@field party string[]
 ---@field inventory {storage_enabled: boolean, storages: table}
+---@field dark_inventory {storage_enabled: boolean, storages: table}
+---@field light_inventory {storage_enabled: boolean, storages: table}
 ---@field party_data PartyMemberSaveData[]
 ---@field recruits_data RecruitSaveData[]
 
