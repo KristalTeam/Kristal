@@ -87,7 +87,7 @@ function Item:onCheck()
 end
 
 function item:getCheck()
-    local check = self.check
+    local check = super.getCheck(self)
     if Game.chapter == 1 then
         check = "A small ball\nof accumulated things."
     end
