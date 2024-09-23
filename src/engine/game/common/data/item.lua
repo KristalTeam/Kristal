@@ -181,7 +181,20 @@ function Item:onLoad(data) end
 --- *(Override)* Called when the item is checked \
 --- *By default, responisble for displaying the check message
 function Item:onCheck()
-    Game.world:showText("* \""..self:getName().."\" - "..self:getCheck())
+    if type(self:getCheck()) == "string" then
+        Game.world:showText("* \""..self:getName().."\" - "..self:getCheck())
+    elseif type(self:getCheck()) == "table" then
+        local text
+        for i, check in ipairs(self:getCheck()) do
+            if i > 1 then
+                if text == nil then
+                    text = {}
+                end
+                table.insert(text, check)
+            end
+        end
+        Game.world:showText({{"* \""..self:getName().."\" - "..self:getCheck()[1]}, text})
+    end
 end
 --- *(Override)* Called when the item is tossed \
 --- *By default, responsible for displaying a random toss message when in the Light World*
