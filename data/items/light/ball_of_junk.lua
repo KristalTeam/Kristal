@@ -15,11 +15,7 @@ function item:init()
     self.description = "A small ball of accumulated things in your pocket."
 
     -- Light world check text
-    if Game.chapter == 1 then
-        self.check = "A small ball\nof accumulated things."
-    else
-        self.check = "A small ball\nof accumulated things in your\npocket."
-    end
+    self.check = Game.chapter == 1 and "A small ball\nof accumulated things." or "A small ball\nof accumulated things in your\npocket."
 
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
