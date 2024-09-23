@@ -717,10 +717,10 @@ function DebugSystem:registerSubMenus()
             else
                 Game:addPartyMember(id)
                 if Game.world.player then
-                    Game.world:spawnFollower(Game.party_data[id]:getActor())
+                    Game.world:spawnFollower(Game.party_data[id]:getActor(), {party = id})
                 else
                     local x, y = Game.world.camera:getPosition()
-                    Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor())
+                    Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor(), id)
                 end
             end
         end)
