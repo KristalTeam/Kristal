@@ -77,7 +77,7 @@ end
 
 function Character:getPartyMember()
     if self.party then
-        return Game:getPartyMember(self.id)
+        return Game:getPartyMember(self.party)
     end
 
     for _,party in pairs(Game.party_data) do
