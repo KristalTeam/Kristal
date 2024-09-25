@@ -489,7 +489,7 @@ function Kristal.onKeyPressed(key, is_repeat)
             Hotswapper.scan()
         elseif key == "f9" then
             love.filesystem.createDirectory("screenshots")
-            love.graphics.captureScreenshot("screenshots/" .. os.time() .. ".png")
+            love.graphics.captureScreenshot("screenshots/" .. os.time() .. "-" .. RUNTIME .. ".png")
             love.system.vibrate(0.1)
             Assets.playSound("camera_flash")
             SCREENSHOT_DISPLAY = 0
