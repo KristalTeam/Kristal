@@ -2949,7 +2949,7 @@ function Battle:onKeyPressed(key)
         if self.soul and self.soul.visible and key == "j" then
             local x, y = self:getSoulLocation()
             self.soul:shatter(6)
-            
+
             -- Prevents a crash related to not having a soul in some waves
             self:spawnSoul(x, y)
             for _,heartbrust in ipairs(Game.stage:getObjects(HeartBurst)) do
