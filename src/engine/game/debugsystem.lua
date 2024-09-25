@@ -490,26 +490,12 @@ function DebugSystem:registerSubMenus()
                         function ()
                             Kristal.Config["fps"] = 0; FRAMERATE = 0
                         end)
-    self:registerOption("engine_option_fps", "30", "Set the target FPS to 30.",
-                        function ()
-                            Kristal.Config["fps"] = 30; FRAMERATE = 30
-                        end)
-    self:registerOption("engine_option_fps", "60", "Set the target FPS to 60.",
-                        function ()
-                            Kristal.Config["fps"] = 60; FRAMERATE = 60
-                        end)
-    self:registerOption("engine_option_fps", "120", "Set the target FPS to 120.",
-                        function ()
-                            Kristal.Config["fps"] = 120; FRAMERATE = 120
-                        end)
-    self:registerOption("engine_option_fps", "144", "Set the target FPS to 144.",
-                        function ()
-                            Kristal.Config["fps"] = 144; FRAMERATE = 144
-                        end)
-    self:registerOption("engine_option_fps", "240", "Set the target FPS to 240.",
-                        function ()
-                            Kristal.Config["fps"] = 240; FRAMERATE = 240
-                        end)
+    for _,fps in ipairs({30, 60, 120, 144, 165, 240}) do
+        self:registerOption("engine_option_fps", fps, "Set the target FPS to "..fps..".",
+                            function ()
+                                Kristal.Config["fps"] = fps; FRAMERATE = fps
+                            end)
+    end
     self:registerOption("engine_option_fps", "Custom", "Set the target FPS to a custom value.", function ()
         self.window = DebugWindow("Enter FPS", "Enter the target FPS youd like.", "input", function (text)
             local fps = tonumber(text)
@@ -527,38 +513,12 @@ function DebugSystem:registerSubMenus()
     self:registerOption("fast_forward", "[Toggle]", 
                         function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
                         function () FAST_FORWARD = not FAST_FORWARD end)
-    self:registerOption("fast_forward", "x0.05", "Set the fast forward speed to x0.05 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 0.05
-                        end)
-    self:registerOption("fast_forward", "x0.1", "Set the fast forward speed to x0.1 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 0.1
-                        end)
-    self:registerOption("fast_forward", "x0.2", "Set the fast forward speed to x0.2 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 0.2
-                        end)
-    self:registerOption("fast_forward", "x0.5", "Set the fast forward speed to x0.5 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 0.5
-                        end)
-    self:registerOption("fast_forward", "x1.5", "Set the fast forward speed to x1.5 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 1.5
-                        end)
-    self:registerOption("fast_forward", "x2", "Set the fast forward speed to x2 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 2
-                        end)
-    self:registerOption("fast_forward", "x5", "Set the fast forward speed to x5 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 5
-                        end)
-    self:registerOption("fast_forward", "x10", "Set the fast forward speed to x10 multiplier.",
-                        function ()
-                            FAST_FORWARD_SPEED = 10
-                        end)
+    for _,speed in ipairs({0.05, 0.1, 0.2, 0.5, 1.5, 2, 5, 10}) do
+        self:registerOption("fast_forward", "x"..speed, "Set the fast forward speed to x"..speed.." multiplier.",
+                            function ()
+                                FAST_FORWARD_SPEED = speed
+                            end)
+    end
     self:registerOption("fast_forward", "Back", "Go back to the previous menu.", function () self:returnMenu() end)
 
     self:registerMenu("give_item", "Give Item", "search")
@@ -736,7 +696,7 @@ function DebugSystem:registerSubMenus()
         end
     end
 
-    for _,border in ipairs(borders) do
+    for _,border in ipairs(Utils.removeDuplicates(borders)) do
         self:registerOption("border_menu", border, "Switch to the border \"" .. border .. "\".", function() Game:setBorder(border) end)
     end
 end
