@@ -123,6 +123,9 @@ function PartyMember:init()
     }
     -- Max stats from level-ups
     self.max_stats = {}
+    
+    -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
+    self.stronger_absent = {}
 
     -- Light world stats (saved to the save file)
     self.lw_stats = {
@@ -301,6 +304,8 @@ function PartyMember:getMaxStat(stat)
     local max_stats = self:getMaxStats()
     return max_stats[stat]
 end
+
+function PartyMember:getStrongerAbsent() return self.stronger_absent end
 
 function PartyMember:getStatBuffs() return self.stat_buffs end
 ---@param stat string
