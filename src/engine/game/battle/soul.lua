@@ -422,6 +422,10 @@ function Soul:onSquished(solid)
     solid:onSquished(self)
 end
 
+--- *(Override)* Called when the soul grazes something.
+---@param bullet Bullet
+function Soul:onGraze(bullet) end
+
 --- Called every frame from within [`Soul:update()`](lua://Soul.update) if the soul is able to move. \
 --- Movement for the soul based on player input should be controlled within this method.
 function Soul:doMovement()
@@ -513,6 +517,7 @@ function Soul:update()
                     self.graze_sprite.timer = 1/3
                     bullet.grazed = true
                 end
+                self:onGraze(bullet)
             end
         end
     end
