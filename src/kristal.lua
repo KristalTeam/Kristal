@@ -1141,7 +1141,7 @@ function Kristal.loadMod(id, save_id, save_name, after)
         Mod.libs[lib_id] = lib
 
         -- Check for main script
-        local script = lib.legacy and "lib" or "scripts/main"
+        local script = lib_info.legacy and "lib" or "scripts/main"
         if lib_info.script_chunks[script] then
             -- Execute lib.lua
             local result = lib_info.script_chunks[script]()

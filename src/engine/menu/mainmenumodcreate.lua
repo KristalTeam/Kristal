@@ -359,11 +359,11 @@ function MainMenuModCreate:createMod()
         end
 
         if chosen ~= nil then
-            config_formatted = config_formatted .. "// " .. option.description .. "\n            "
-            config_formatted = config_formatted .. "\"" .. option.id .. "\": " .. text .. "," .. "\n            "
+            config_formatted = config_formatted .. "-- " .. option.description .. "\n            "
+            config_formatted = config_formatted .. option.id .. " = " .. text .. "," .. "\n            "
         end
     end
-    config_formatted = config_formatted .. "// End of config"
+    config_formatted = config_formatted .. "-- End of config"
 
     local formatting_dict = {
         id = id,
@@ -390,8 +390,8 @@ function MainMenuModCreate:createMod()
         local info = love.filesystem.getInfo(src)
         if info then
             if info.type == "file" then
-                if file == "mod.json" then
-                    -- Special handling in case we're mod.json
+                if file == "mod.lua" then
+                    -- Special handling in case we're mod.lua
                     local data = love.filesystem.read("string", src) --[[@as string]]
                     data = Utils.format(data, formatting_dict)
 
