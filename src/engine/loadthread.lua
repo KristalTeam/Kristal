@@ -130,9 +130,9 @@ local loaders = {
                 table.insert(data.failed_mods, {
                     path = path,
                     error = mod,
-                    file = "mod.".. legacy and "json" or "lua"
+                    file = "mod." .. (legacy and "json" or "lua")
                 })
-                print("[WARNING] Mod \"" .. path .. "\" has an invalid mod.".. legacy and "json" or "lua" .."!")
+                print("[WARNING] Mod \"" .. path .. "\" has an invalid mod.".. (legacy and "json" or "lua") .."!")
                 return
             end
 
@@ -280,9 +280,9 @@ local loaders = {
                         table.insert(data.failed_mods, {
                             path = path,
                             error = lib,
-                            file = "lib." .. legacy and "json" or "lua"
+                            file = "lib." .. (legacy and "json" or "lua")
                         })
-                        print("[WARNING] Mod \"" .. path .. "\" has a library with an invalid lib." .. legacy and "json" or "lua" .. "!")
+                        print("[WARNING] Mod \"" .. path .. "\" has a library with an invalid lib." .. (legacy and "json" or "lua") .. "!")
                         return
                     end
 
