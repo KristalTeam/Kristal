@@ -126,6 +126,7 @@ function Text:resetState()
         noskip = false,
         spacing = 0,
         shake = 0,
+        shake_nibble = false,
         last_shake = self.timer,
         wave_distance = 0,
         wave_offset = 0,
@@ -561,6 +562,12 @@ function Text:processModifier(node, dry)
         end
     elseif node.command == "shake" then
         self.state.shake = tonumber(node.arguments[1]) or 1
+        print(node.arguments[2])
+        if node.arguments[2] and not Utils.containsValue({"nil", "false", "0"}, node.arguments[2]) then
+            self.state.shake_nibble = true
+        else
+            self.state.shake_nibble = false
+        end
         self.draw_every_frame = true
     elseif node.command == "wave" then
         -- [wave:0] to disable!
@@ -671,8 +678,13 @@ function Text:drawChar(node, state, use_color)
     if state.shake > 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
             state.last_shake = self.timer
-            state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
-            state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
+            if state.shake_nibble then
+                state.offset_x = Utils.random(state.shake) - state.shake / 2
+                state.offset_y = Utils.random(state.shake) - state.shake / 2
+            else
+                state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
+                state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
+            end
         end
     end
 
