@@ -270,8 +270,7 @@ except FileExistsError:
 
 shutil.copytree(os.path.join(kristal_path, "mod_template", "assets"), os.path.join(build_path, "example", "assets"))
 shutil.copytree(os.path.join(kristal_path, "mod_template", "scripts"), os.path.join(build_path, "example", "scripts"))
-shutil.copy(os.path.join(kristal_path, "mods", "example", "mod.json"), os.path.join(build_path, "example", "mod.json"))
-shutil.copy(os.path.join(kristal_path, "mod_template", "mod.lua"), os.path.join(build_path, "example", "mod.lua"))
+shutil.copy(os.path.join(kristal_path, "mods", "example", "mod.lua"), os.path.join(build_path, "example", "mod.lua"))
 
 shutil.make_archive(os.path.join(output_path, "example-mod"), 'zip', os.path.join(build_path, "example"))
 
