@@ -255,26 +255,24 @@ local loaders = {
                         legacy = true
                     -- lib.lua exists but not lib.json - potentially ambiguous
                     elseif love.filesystem.getInfo(lib_full_path .. "/lib.lua") then
-                        -- So what do we do if it is ambiguous? 
-                        -- We can make an assumption that the main script always defines init() and use
-                        -- this as our indicator. While imperfect, the margin of error is tiny, and the
-                        -- fix for affected libraries - which are only ever legacy format libraries - is
-                        -- to define an empty lib:init()
-                        -- There is also no need to check for scripts/main.lua as all it can tell us is
-                        -- we must load this file anyway as it is the config file
-                        local chunk
-                        ok, chunk = pcall(love.filesystem.load, lib_full_path .. "/lib.lua")
-                        if ok then
-                            ok, lib = pcall(chunk)
-                            if ok and lib.init then
-                                legacy = true
-                                lib = {}
+                        -- New legacy check: just see whether it starts with `return {` (new format)
+                        -- If it doesn't, then it's not a lib config, and this must be the legacy format
+                        local lib_lua_content = love.filesystem.read(lib_full_path .. "/lib.lua")
+                        if not (lib_lua_content:sub(1, #"return {") == "return {") then
+                            legacy = true
+                        end
+                        
+                        if not legacy then
+                            local chunk
+                            ok, chunk = pcall(love.filesystem.load, lib_full_path .. "/lib.lua")
+                            if ok then
+                                ok, lib = pcall(chunk)
+                                if type(mod) ~= "table" then
+                                    ok = false
+                                end
+                            else
+                                lib = chunk
                             end
-                            if type(lib) ~= "table" then
-                                ok = false
-                            end
-                        else
-                            lib = chunk
                         end
                     end
 
