@@ -25,7 +25,7 @@
 ---
 ---@field can_freeze        boolean             Whether this enemy can be frozen
 ---
----@field can_die           boolean             Whether this enemy will be killed instead of running away (SnowGrave always kills)
+---@field can_die           boolean             Whether this enemy will be killed instead of running away (SnowGrave always kill)
 ---
 ---@field selectable        boolean             Whether this enemy is selectable in menus
 ---
