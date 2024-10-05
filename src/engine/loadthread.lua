@@ -255,24 +255,36 @@ local loaders = {
                         legacy = true
                     -- lib.lua exists but not lib.json - potentially ambiguous
                     elseif love.filesystem.getInfo(lib_full_path .. "/lib.lua") then
-                        -- New legacy check: just see whether it starts with `return {` (new format)
-                        -- If it doesn't, then it's not a lib config, and this must be the legacy format
-                        local lib_lua_content = love.filesystem.read(lib_full_path .. "/lib.lua")
-                        if not (lib_lua_content:sub(1, #"return {") == "return {") then
-                            legacy = true
-                        end
-                        
-                        if not legacy then
-                            local chunk
-                            ok, chunk = pcall(love.filesystem.load, lib_full_path .. "/lib.lua")
-                            if ok then
-                                ok, lib = pcall(chunk)
-                                if type(mod) ~= "table" then
-                                    ok = false
-                                end
-                            else
-                                lib = chunk
+                        -- Try loading the chunk - if an error is thrown here we fail the library 100% of
+                        -- the time as the ability to load a chunk is not dependent on anything else, so
+                        -- the error must be invalid syntax
+                        local chunk
+                        ok, chunk = pcall(love.filesystem.load, lib_full_path .. "/lib.lua")
+                        if ok then
+                            -- Try executing the chunk
+                            local execute_ok
+                            execute_ok, lib = pcall(chunk)
+                            -- Error during execution: Library is probably legacy and the script failed
+                            -- because we ran it in the loadthread
+                            -- No return value or non-table return: definitely not a config file
+                            -- Return value is table and has `init()` function: definitely lib script
+                            -- No common config keys: likely a lib script
+                            if not execute_ok or not lib or type(lib) ~= "table" or lib.init
+                                or not (
+                                    lib.id
+                                    or lib.authors
+                                    or lib.version
+                                    or lib.engineVer
+                                    or lib.config
+                                    or lib.dependencies
+                                    or lib.optionalDependencies
+                                )
+                            then
+                                legacy = true
+                                lib = {}
                             end
+                        else
+                            lib = chunk
                         end
                     end
 
