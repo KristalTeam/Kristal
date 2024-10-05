@@ -76,24 +76,24 @@ function SimpleSaveMenu:draw()
     local playtime  = data.playtime  or 0
     local room_name = data.room_name or ""
 
-    love.graphics.print(name,         self.box.x,       self.box.y - 10)
-    love.graphics.print("LV "..level, self.box.x + 210, self.box.y - 10)
+    Draw.print(name,         self.box.x,       self.box.y - 10)
+    Draw.print("LV "..level, self.box.x + 210, self.box.y - 10)
 
     local minutes = math.floor(playtime / 60)
     local seconds = math.floor(playtime % 60)
     local time_text = string.format("%d:%02d", minutes, seconds)
-    love.graphics.print(time_text, self.box.x + 280, self.box.y - 10)
+    Draw.print(time_text, self.box.x + 280, self.box.y - 10)
 
-    love.graphics.print(room_name, self.box.x, self.box.y + 30)
+    Draw.print(room_name, self.box.x, self.box.y + 30)
 
     if self.state == "MAIN" then
-        love.graphics.print("Save",   self.box.x + 30,  self.box.y + 90)
-        love.graphics.print("Return", self.box.x + 210, self.box.y + 90)
+        Draw.print("Save",   self.box.x + 30,  self.box.y + 90)
+        Draw.print("Return", self.box.x + 210, self.box.y + 90)
 
         Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, self.box.x + 2 + (self.selected_x - 1) * 180, self.box.y + 96)
     elseif self.state == "SAVED" then
-        love.graphics.print("File saved.", self.box.x + 30, self.box.y + 90)
+        Draw.print("File saved.", self.box.x + 30, self.box.y + 90)
     end
 
     Draw.setColor(1, 1, 1)

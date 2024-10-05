@@ -141,20 +141,20 @@ function character:drawPowerStat(index, x, y, menu)
     if index == 1 then
         local icon = Assets.getTexture("ui/menu/icon/snow")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Coldness", x, y)
+        Draw.print("Coldness", x, y)
         local coldness = Utils.clamp(47 + (self:getFlag("iceshocks_used", 0) * 7), 47, 100)
-        love.graphics.print(coldness, x+130, y)
+        Draw.print(coldness, x+130, y)
         return true
     elseif index == 2 then
         local icon = Assets.getTexture("ui/menu/icon/exclamation")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Boldness", x, y, 0, 0.8, 1)
-        love.graphics.print(self:getFlag("boldness", -12), x+130, y)
+        Draw.print("Boldness", x, y, 0, 0.8, 1)
+        Draw.print(self:getFlag("boldness", -12), x+130, y)
         return true
     elseif index == 3 then
         local icon = Assets.getTexture("ui/menu/icon/fire")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Guts:", x, y)
+        Draw.print("Guts:", x, y)
         return true
     end
 end

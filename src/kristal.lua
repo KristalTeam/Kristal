@@ -339,6 +339,7 @@ function love.update(dt)
     end
 
     LibTimer.update()
+    Draw.update()
     Music.update()
     Assets.update()
     TextInput.update()
@@ -692,8 +693,8 @@ function Kristal.errorHandler(msg)
 
         Draw.setColor(1, 1, 1, 1)
         love.graphics.setFont(smaller_font)
-        love.graphics.printf(version_string, -20, 10, window_width, "right")
-        love.graphics.printf(mod_string, 20, 10, window_width)
+        Draw.printf(version_string, -20, 10, window_width, "right")
+        Draw.printf(mod_string, 20, 10, window_width)
 
         love.graphics.setFont(font)
 
@@ -701,7 +702,7 @@ function Kristal.errorHandler(msg)
         if not critical then
             local header = "Error at " .. ( (#split - 1 > 0) and split[#split - 1] or "???").. " - " .. split[#split] --check if msg is one line long
             local _, lines = font:getWrap(header, warp)
-            love.graphics.printf(
+            Draw.printf(
                 { "Error at ", { 0.6, 0.6, 0.6, 1 }, ( (#split - 1 > 0) and split[#split - 1] or "???"), { 1, 1, 1, 1 }, " - " .. split[#split] }, pos,
                 ypos,
                 window_width - pos)
@@ -712,28 +713,28 @@ function Kristal.errorHandler(msg)
                 if not l:match("boot.lua") then
                     if l:match("stack traceback:") then
                         love.graphics.setFont(font)
-                        love.graphics.printf("Traceback:", pos, ypos, warp)
+                        Draw.printf("Traceback:", pos, ypos, warp)
                         ypos = ypos + 32
                     else
                         if ypos >= window_height - 40 - 32 then
-                            love.graphics.printf("...", pos, ypos, warp)
+                            Draw.printf("...", pos, ypos, warp)
                             break
                         end
                         love.graphics.setFont(smaller_font)
                         local _, e_lines = smaller_font:getWrap(l, warp)
-                        love.graphics.printf(l, pos, ypos, warp)
+                        Draw.printf(l, pos, ypos, warp)
                         ypos = ypos + 16 * #e_lines
                     end
                 end
             end
         else
-            love.graphics.printf("Critical Error!\nTry replicating the bug, we might catch it next time...", pos, ypos, warp)
+            Draw.printf("Critical Error!\nTry replicating the bug, we might catch it next time...", pos, ypos, warp)
 
             love.graphics.setFont(font)
-            love.graphics.printf("Known causes:", pos, ypos + 96, warp)
+            Draw.printf("Known causes:", pos, ypos + 96, warp)
 
             love.graphics.setFont(smaller_font)
-            love.graphics.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 96 + 32, warp)
+            Draw.printf("- Stack overflow (recursive loop?)", pos + 24, ypos + 96 + 32, warp)
         end
 
         if starwalker_error then
@@ -768,21 +769,21 @@ function Kristal.errorHandler(msg)
         love.graphics.setFont(smaller_font)
         if Kristal.getModOption("hardReset") then
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.print("Press ESC to restart the game", 8, window_height - (critical and 20 or 40))
+            Draw.print("Press ESC to restart the game", 8, window_height - (critical and 20 or 40))
         else
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.print("Press ESC to return to mod menu", 8, window_height - (critical and 20 or 40))
+            Draw.print("Press ESC to return to mod menu", 8, window_height - (critical and 20 or 40))
         end
         if not critical then
             Draw.setColor(copy_color)
-            love.graphics.print("Press CTRL+C to copy traceback to clipboard", 8, window_height - 20)
+            Draw.print("Press CTRL+C to copy traceback to clipboard", 8, window_height - 20)
         end
 
         if show_libraries then
             Draw.setColor(0, 0, 0, 0.7)
             love.graphics.rectangle("fill", 20, 38, w + 4, h + 2)
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.printf(lib_string, 22, 40, window_width, "left")
+            Draw.printf(lib_string, 22, 40, window_width, "left")
         end
 
         love.graphics.present()

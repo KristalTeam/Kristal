@@ -306,7 +306,7 @@ function BattleUI:drawState()
             else
                 Draw.setColor(COLORS.gray)
             end
-            love.graphics.print(item.name, text_offset + 30 + (x * 230), 50 + (y * 30))
+            Draw.print(item.name, text_offset + 30 + (x * 230), 50 + (y * 30))
             text_offset = text_offset + font:getWidth(item.name)
 
             if item.icons then
@@ -339,7 +339,7 @@ function BattleUI:drawState()
         local current_item = Game.battle.menu_items[Game.battle:getItemIndex()]
         if current_item.description then
             Draw.setColor(COLORS.gray)
-            love.graphics.print(current_item.description, 260 + 240, 50)
+            Draw.print(current_item.description, 260 + 240, 50)
             Draw.setColor(1, 1, 1, 1)
             _, tp_offset = current_item.description:gsub('\n', '\n')
             tp_offset = tp_offset + 1
@@ -347,7 +347,7 @@ function BattleUI:drawState()
 
         if current_item.tp and current_item.tp ~= 0 then
             Draw.setColor(PALETTE["tension_desc"])
-            love.graphics.print(math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% "..Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32))
+            Draw.print(math.floor((current_item.tp / Game:getMaxTension()) * 100) .. "% "..Game:getConfig("tpName"), 260 + 240, 50 + (tp_offset * 32))
             Game:setTensionPreview(current_item.tp)
         else
             Game:setTensionPreview(0)
@@ -381,9 +381,9 @@ function BattleUI:drawState()
 
         if draw_mercy then
             if Game.battle.state == "ENEMYSELECT" then
-                love.graphics.print("HP", 424, 39, 0, 1, 0.5)
+                Draw.print("HP", 424, 39, 0, 1, 0.5)
             end
-            love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
+            Draw.print("MERCY", 524, 39, 0, 1, 0.5)
         end
 
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
@@ -398,12 +398,12 @@ function BattleUI:drawState()
 
                 if #name_colors <= 1 then
                     Draw.setColor(name_colors[1] or enemy.selectable and {1, 1, 1} or {0.5, 0.5, 0.5})
-                    love.graphics.print(enemy.name, 80, 50 + y_off)
+                    Draw.print(enemy.name, 80, 50 + y_off)
                 else
                     -- Draw the enemy name to a canvas first
                     local canvas = Draw.pushCanvas(font:getWidth(enemy.name), font:getHeight())
                     Draw.setColor(1, 1, 1)
-                    love.graphics.print(enemy.name)
+                    Draw.print(enemy.name)
                     Draw.popCanvas()
 
                     -- Define our gradient
@@ -461,9 +461,9 @@ function BattleUI:drawState()
                 if Game.battle.state == "XACTENEMYSELECT" then
                     Draw.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
                     if Game.battle.selected_xaction.id == 0 then
-                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
+                        Draw.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
                     else
-                        love.graphics.print(Game.battle.selected_xaction.name, 282, 50 + y_off)
+                        Draw.print(Game.battle.selected_xaction.name, 282, 50 + y_off)
                     end
                 end
 
@@ -473,9 +473,9 @@ function BattleUI:drawState()
                     Draw.setColor(128/255, 128/255, 128/255, 1)
 
                     if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
-                        love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
+                        Draw.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
                     else
-                        love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, 0, 0.5, 1)
+                        Draw.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, 0, 0.5, 1)
                     end
 
 
@@ -493,7 +493,7 @@ function BattleUI:drawState()
 
                         if draw_percents then
                             Draw.setColor(PALETTE["action_health_text"])
-                            love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
+                            Draw.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end
@@ -518,7 +518,7 @@ function BattleUI:drawState()
 
                         if draw_percents and enemy.selectable then
                             Draw.setColor(PALETTE["battle_mercy_text"])
-                            love.graphics.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                            Draw.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end
@@ -567,7 +567,7 @@ function BattleUI:drawState()
 
         for index = page_offset+1, math.min(page_offset+3, #Game.battle.party) do
             Draw.setColor(1, 1, 1, 1)
-            love.graphics.print(Game.battle.party[index].chara:getName(), 80, 50 + ((index - page_offset - 1) * 30))
+            Draw.print(Game.battle.party[index].chara:getName(), 80, 50 + ((index - page_offset - 1) * 30))
 
             Draw.setColor(PALETTE["action_health_bg"])
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), 101, 16)

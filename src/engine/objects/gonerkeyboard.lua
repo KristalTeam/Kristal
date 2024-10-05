@@ -169,7 +169,7 @@ function GonerKeyboard:draw()
 
     local w = self.font:getWidth(self.text)
 
-    love.graphics.print(self.text, (SCREEN_WIDTH / 2) - (w / 2), self.mode.name_y)
+    Draw.print(self.text, (SCREEN_WIDTH / 2) - (w / 2), self.mode.name_y)
 end
 
 return GonerKeyboard

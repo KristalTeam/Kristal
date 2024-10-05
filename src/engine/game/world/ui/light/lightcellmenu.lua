@@ -57,7 +57,7 @@ function LightCellMenu:draw()
     Draw.setColor(PALETTE["world_text"])
 
     for index, call in ipairs(Game.world.calls) do
-        love.graphics.print(call[1], 20, -28 + (index * 32))
+        Draw.print(call[1], 20, -28 + (index * 32))
     end
 
     Draw.setColor(Game:getSoulColor())

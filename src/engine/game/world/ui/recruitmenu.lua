@@ -167,9 +167,9 @@ function RecruitMenu:draw()
         love.graphics.rectangle("fill", 34, 14, 583, 423)
     
         Draw.setColor(COLORS["white"])
-        love.graphics.print("Recruits", 80, 30)
+        Draw.print("Recruits", 80, 30)
         Draw.setColor({0,1,0})
-        love.graphics.print("PROGRESS", 270, 30, 0, 0.5, 1)
+        Draw.print("PROGRESS", 270, 30, 0, 0.5, 1)
         
         local offset = 0
         for i,recruit in pairs(self.recruits) do
@@ -177,28 +177,28 @@ function RecruitMenu:draw()
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
                     Draw.printAlign(recruit:getName(), 473, 240, "center")
-                    love.graphics.print("CHAPTER " .. recruit:getChapter(), 368, 280)
+                    Draw.print("CHAPTER " .. recruit:getChapter(), 368, 280)
                     Draw.printAlign("LV " .. recruit:getLevel(), 576, 280, "right")
                     if Input.usingGamepad() then
-                        love.graphics.print("More Info", 414, 320)
+                        Draw.print("More Info", 414, 320)
                         Draw.draw(Input.getTexture("confirm"), 380, 323, 0, 2, 2)
-                        love.graphics.print("Quit", 414, 352)
+                        Draw.print("Quit", 414, 352)
                         Draw.draw(Input.getTexture("cancel"), 380, 353, 0, 2, 2)
                     else
-                        love.graphics.print(Input.getText("confirm") .. ": More Info", 380, 320)
-                        love.graphics.print(Input.getText("cancel") .. ": Quit", 380, 352)
+                        Draw.print(Input.getText("confirm") .. ": More Info", 380, 320)
+                        Draw.print(Input.getText("cancel") .. ": Quit", 380, 352)
                     end
                     Draw.setColor(COLORS["yellow"])
                 end
                 local name = recruit:getName()
-                love.graphics.print(name, 80, 100 + offset, 0, math.min(1, 12 / #name), 1)
+                Draw.print(name, 80, 100 + offset, 0, math.min(1, 12 / #name), 1)
                 if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
-                    love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
+                    Draw.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
                     local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, math.min(1, 5 / #recruit_progress), 1)
+                    Draw.print(recruit_progress, 280, 100 + offset, 0, math.min(1, 5 / #recruit_progress), 1)
                 end
                 offset = offset + 35
             end
@@ -221,35 +221,35 @@ function RecruitMenu:draw()
         for i,recruit in pairs(self.recruits) do
             Draw.printAlign(self.selected .. "/" .. #self.recruits, 590, 30, "right", 0, 0.5, 1)
             if i == self.selected then
-                love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
-                love.graphics.print(recruit:getName(), 300, 70)
+                Draw.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
+                Draw.print(recruit:getName(), 300, 70)
                 love.graphics.setFont(self.description_font)
                 Draw.printAlign(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120, {["align"] = "left", ["line_offset"] = 4})
                 love.graphics.setFont(self.font)
                 
-                love.graphics.print("LIKE", 80, 240)
+                Draw.print("LIKE", 80, 240)
                 local like = recruit:getLike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
+                Draw.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
                 
-                love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
+                Draw.print("DISLIKE", 80, 280, 0, 0.81, 1)
                 local dislike = recruit:getDislike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
+                Draw.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
 
-                love.graphics.print("?????", 80, 320, 0, 1.15, 1)
-                love.graphics.print("?????????", 180, 320)
-                love.graphics.print("?????", 80, 360, 0, 1.15, 1)
-                love.graphics.print("?????????", 180, 360)
+                Draw.print("?????", 80, 320, 0, 1.15, 1)
+                Draw.print("?????????", 180, 320)
+                Draw.print("?????", 80, 360, 0, 1.15, 1)
+                Draw.print("?????????", 180, 360)
                 if Input.usingGamepad() then
-                    love.graphics.print("Press         to Return", 80, 400)
+                    Draw.print("Press         to Return", 80, 400)
                     Draw.draw(Input.getTexture("cancel"), 165, 402, 0, 2, 2)
                 else
-                    love.graphics.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400)
+                    Draw.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400)
                 end
-                love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
+                Draw.print("LEVEL", 525, 240, 0, 0.5, 1)
                 Draw.printAlign(recruit:getLevel(), 590, 240, "right", 0, 0.5, 1)
-                love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
+                Draw.print("ATTACK", 518, 280, 0, 0.5, 1)
                 Draw.printAlign(recruit:getAttack(), 590, 280, "right", 0, 0.5, 1)
-                love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
+                Draw.print("DEFENSE", 511, 320, 0, 0.5, 1)
                 Draw.printAlign(recruit:getDefense(), 590, 320, "right", 0, 0.5, 1)
                 Draw.printAlign("ELEMENT " .. recruit:getElement(), 590, 360, "right", 0, 0.5, 1)
             end

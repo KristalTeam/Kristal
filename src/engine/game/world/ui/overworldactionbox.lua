@@ -88,12 +88,12 @@ function OverworldActionBox:draw()
 
     Draw.setColor(color)
     love.graphics.setFont(self.font)
-    love.graphics.print(self.chara:getHealth(), 152 - health_offset, 11)
+    Draw.print(self.chara:getHealth(), 152 - health_offset, 11)
     Draw.setColor(PALETTE["action_health_text"])
-    love.graphics.print("/", 161, 11)
+    Draw.print("/", 161, 11)
     local string_width = self.font:getWidth(tostring(self.chara:getStat("health")))
     Draw.setColor(color)
-    love.graphics.print(self.chara:getStat("health"), 205 - string_width, 11)
+    Draw.print(self.chara:getStat("health"), 205 - string_width, 11)
 
     -- Draw name text if there's no sprite
     if not self.name_sprite then
@@ -107,7 +107,7 @@ function OverworldActionBox:draw()
         local off = 0
         for i = 1, name:len() do
             local letter = name:sub(i, i)
-            love.graphics.print(letter, 51 + off, 16 - 1)
+            Draw.print(letter, 51 + off, 16 - 1)
             off = off + font:getWidth(letter) + spacing
         end
     end
@@ -120,7 +120,7 @@ function OverworldActionBox:draw()
 
     love.graphics.setFont(self.main_font)
     Draw.setColor(1, 1, 1, self.reaction_alpha / 6)
-    love.graphics.print(self.reaction_text, reaction_x, 43, 0, 0.5, 0.5)
+    Draw.print(self.reaction_text, reaction_x, 43, 0, 0.5, 0.5)
 
     super.draw(self)
 end

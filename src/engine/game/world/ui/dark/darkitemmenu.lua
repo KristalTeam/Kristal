@@ -257,7 +257,7 @@ function DarkItemMenu:draw()
             Draw.setColor(PALETTE["world_gray"])
         end
         local x = 88 + ((i - 1) * 120)
-        love.graphics.print(name, x, -2)
+        Draw.print(name, x, -2)
     end
 
     local heart_x = 20
@@ -283,7 +283,7 @@ function DarkItemMenu:draw()
         -- Draw the item shadow
         Draw.setColor(PALETTE["world_text_shadow"])
         local name = item:getWorldMenuName()
-        love.graphics.print(name, 54 + (item_x * 210) + 2, 40 + (item_y * 30) + 2)
+        Draw.print(name, 54 + (item_x * 210) + 2, 40 + (item_y * 30) + 2)
 
         if self.state == "MENU" then
             Draw.setColor(PALETTE["world_gray"])
@@ -294,7 +294,7 @@ function DarkItemMenu:draw()
                 Draw.setColor(PALETTE["world_text_unusable"])
             end
         end
-        love.graphics.print(name, 54 + (item_x * 210), 40 + (item_y * 30))
+        Draw.print(name, 54 + (item_x * 210), 40 + (item_y * 30))
         item_x = item_x + 1
         if item_x >= 2 then
             item_x = 0

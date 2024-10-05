@@ -213,8 +213,8 @@ end
 function DarkPowerMenu:drawChar()
     local party = self.party:getSelected()
     Draw.setColor(PALETTE["world_text"])
-    love.graphics.print(party:getName(), 48, -7)
-    love.graphics.print(party:getTitle(), 238, -7)
+    Draw.print(party:getName(), 48, -7)
+    Draw.print(party:getTitle(), 238, -7)
 end
 
 function DarkPowerMenu:drawStats()
@@ -223,13 +223,13 @@ function DarkPowerMenu:drawStats()
     Draw.draw(self.stat_icons[ "attack"], -8, 124, 0, 2, 2)
     Draw.draw(self.stat_icons["defense"], -8, 149, 0, 2, 2)
     Draw.draw(self.stat_icons[  "magic"], -8, 174, 0, 2, 2)
-    love.graphics.print( "Attack:", 18, 118)
-    love.graphics.print("Defense:", 18, 143)
-    love.graphics.print(  "Magic:", 18, 168)
+    Draw.print( "Attack:", 18, 118)
+    Draw.print("Defense:", 18, 143)
+    Draw.print(  "Magic:", 18, 168)
     local stats = party:getStats()
-    love.graphics.print(stats[ "attack"], 148, 118)
-    love.graphics.print(stats["defense"], 148, 143)
-    love.graphics.print(stats[  "magic"], 148, 168)
+    Draw.print(stats[ "attack"], 148, 118)
+    Draw.print(stats["defense"], 148, 143)
+    Draw.print(stats[  "magic"], 148, 168)
     for i = 1, 3 do
         local x, y = 18, 168 + (i * 25)
         love.graphics.setFont(self.font)
@@ -237,7 +237,7 @@ function DarkPowerMenu:drawStats()
         love.graphics.push()
         if not party:drawPowerStat(i, x, y, self) then
             Draw.setColor(PALETTE["world_dark_gray"])
-            love.graphics.print("???", x, y)
+            Draw.print("???", x, y)
         end
         love.graphics.pop()
     end
@@ -271,8 +271,8 @@ function DarkPowerMenu:drawSpells()
         else
             Draw.setColor(1, 1, 1)
         end
-        love.graphics.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
-        love.graphics.print(spell:getName(), name_x, name_y + (offset * 25))
+        Draw.print(tostring(spell:getTPCost(self.party:getSelected())).."%", tp_x, tp_y + (offset * 25))
+        Draw.print(spell:getName(), name_x, name_y + (offset * 25))
     end
 
     -- Draw scroll arrows if needed

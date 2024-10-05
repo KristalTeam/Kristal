@@ -198,12 +198,12 @@ function DarkStorageMenu:drawStorage(list)
     love.graphics.setFont(self.font)
 
     Draw.setColor(self.list == list and PALETTE["world_light_gray"] or PALETTE["world_dark_gray"])
-    love.graphics.print(storage.id == "items" and "POCKET" or storage.name, name_text_x, name_text_y)
+    Draw.print(storage.id == "items" and "POCKET" or storage.name, name_text_x, name_text_y)
 
     local max_pages = self:getMaxPages(list)
     if max_pages > 1 then
-        love.graphics.print("Page", page_text_x, page_text_y)
-        love.graphics.print(self.selected_page[list].."/"..max_pages, page_text_x, page_text_y + 20)
+        Draw.print("Page", page_text_x, page_text_y)
+        Draw.print(self.selected_page[list].."/"..max_pages, page_text_x, page_text_y + 20)
     end
 
     for i = 1, 2 do
@@ -224,9 +224,9 @@ function DarkStorageMenu:drawStorage(list)
                 Draw.setColor(PALETTE["world_text"])
             end
             if item then
-                love.graphics.print(item:getName(), x, y)
+                Draw.print(item:getName(), x, y)
             else
-                love.graphics.print("---", x, y)
+                Draw.print("---", x, y)
             end
         end
     end

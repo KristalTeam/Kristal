@@ -6,9 +6,7 @@ function Testing:enter()
 
     self.state = "MAIN"
 
-    self.text = Text("The quick brown fox jumps over the lazy dog.", 0, 240 + 32, {
-        ["align"] = "center"
-    })
+    self.text = Text("The quick brown fox jumps over the lazy dog.", 10, 240 + 32)
     self.stage:addChild(self.text)
 end
 
@@ -22,7 +20,8 @@ function Testing:draw()
     if self.state == "MAIN" then
         love.graphics.printf("~ テスティング ~", 0, 16, 640, "center")
 
-        love.graphics.printf("The quick brown fox jumps over the lazy dog.", 0, 240, 640, "center")
+        love.graphics.print("The quick brown fox jumps over the lazy dog.", 10, 240)
+        Draw.print("The quick brown fox jumps over the [color:red]lazy dog.", 10, 240+64)
     elseif self.state == "GAMEPAD" then
         love.graphics.setFont(self.font)
         love.graphics.printf("~ コントローラーテスト ~", 0, 16, 640, "center")

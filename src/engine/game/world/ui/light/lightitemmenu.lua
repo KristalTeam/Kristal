@@ -104,13 +104,13 @@ function LightItemMenu:draw()
         else
             Draw.setColor(PALETTE["world_text_unusable"])
         end
-        love.graphics.print(item:getName(), 20, -28 + (index * 32))
+        Draw.print(item:getName(), 20, -28 + (index * 32))
     end
 
     Draw.setColor(PALETTE["world_text"])
-    love.graphics.print("USE" , 20 , 284)
-    love.graphics.print("INFO", 116, 284)
-    love.graphics.print("DROP", 230, 284)
+    Draw.print("USE" , 20 , 284)
+    Draw.print("INFO", 116, 284)
+    Draw.print("DROP", 230, 284)
 
     Draw.setColor(Game:getSoulColor())
     if self.state == "ITEMSELECT" then

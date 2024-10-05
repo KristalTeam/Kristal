@@ -74,22 +74,22 @@ function Choicebox:draw()
     if self.choices[1] then
         Draw.setColor(self.main_colors[1])
         if self.current_choice == 1 then Draw.setColor(self.hover_colors[1]) end
-        love.graphics.print(self.choices[1], 36, 24)
+        Draw.print(self.choices[1], 36, 24)
     end
     if self.choices[2] then
         Draw.setColor(self.main_colors[2])
         if self.current_choice == 2 then Draw.setColor(self.hover_colors[2]) end
-        love.graphics.print(self.choices[2], 528 - self.font:getWidth(self.choices[2]), 24)
+        Draw.print(self.choices[2], 528 - self.font:getWidth(self.choices[2]), 24)
     end
     if self.choices[3] then
         Draw.setColor(self.main_colors[3])
         if self.current_choice == 3 then Draw.setColor(self.hover_colors[3]) end
-        love.graphics.print(self.choices[3], 17 + Utils.round(self.width / 2) - Utils.round(self.font:getWidth(self.choices[3]) / 2), -8)
+        Draw.print(self.choices[3], 17 + Utils.round(self.width / 2) - Utils.round(self.font:getWidth(self.choices[3]) / 2), -8)
     end
     if self.choices[4] then
         Draw.setColor(self.main_colors[4])
         if self.current_choice == 4 then Draw.setColor(self.hover_colors[4]) end
-        love.graphics.print(self.choices[4], 17 + Utils.round(self.width / 2) - Utils.round(self.font:getWidth(self.choices[4]) / 2), 78)
+        Draw.print(self.choices[4], 17 + Utils.round(self.width / 2) - Utils.round(self.font:getWidth(self.choices[4]) / 2), 78)
     end
 
     local soul_positions = {

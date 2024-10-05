@@ -350,7 +350,7 @@ end
 function DarkEquipMenu:drawChar()
     local party = self.party:getSelected()
     Draw.setColor(1, 1, 1, 1)
-    love.graphics.print(party:getName(), 53, -5)
+    Draw.print(party:getName(), 53, -5)
 end
 
 function DarkEquipMenu:drawEquipped()
@@ -389,10 +389,10 @@ function DarkEquipMenu:drawEquippedItem(index, x, y)
         if item.icon and Assets.getTexture(item.icon) then
             Draw.draw(Assets.getTexture(item.icon), x, y, 0, 2, 2)
         end
-        love.graphics.print(item:getName(), x + 22, y - 6)
+        Draw.print(item:getName(), x + 22, y - 6)
     else
         Draw.setColor(PALETTE["world_dark_gray"])
-        love.graphics.print("(Nothing)", x + 22, y - 6)
+        Draw.print("(Nothing)", x + 22, y - 6)
     end
 end
 
@@ -423,10 +423,10 @@ function DarkEquipMenu:drawItems()
             if item.icon and Assets.getTexture(item.icon) then
                 Draw.draw(Assets.getTexture(item.icon), x, y + (offset * 27), 0, 2, 2)
             end
-            love.graphics.print(item:getName(), x + 20, y + (offset * 27) - 6)
+            Draw.print(item:getName(), x + 20, y + (offset * 27) - 6)
         else
             Draw.setColor(0.25, 0.25, 0.25)
-            love.graphics.print("---------", x + 20, y + (offset * 27) - 6)
+            Draw.print("---------", x + 20, y + (offset * 27) - 6)
         end
     end
 
@@ -475,9 +475,9 @@ function DarkEquipMenu:drawStats()
     Draw.draw(self.stat_icons["attack"], -8, 124, 0, 2, 2)
     Draw.draw(self.stat_icons["defense"], -8, 151, 0, 2, 2)
     Draw.draw(self.stat_icons["magic"], -8, 178, 0, 2, 2)
-    love.graphics.print("Attack:", 18, 118)
-    love.graphics.print("Defense:", 18, 145)
-    love.graphics.print("Magic:", 18, 172)
+    Draw.print("Attack:", 18, 118)
+    Draw.print("Defense:", 18, 145)
+    Draw.print("Magic:", 18, 172)
     local stats, compare = self:getStatsPreview()
     self:drawStatPreview("attack", 148, 118, stats, compare, self:getCurrentItemType() == "weapons")
     self:drawStatPreview("defense", 148, 145, stats, compare, false)
@@ -506,7 +506,7 @@ function DarkEquipMenu:drawStatPreview(stat, x, y, stats, compare, show_differen
             display = display .. "(+" .. (stat_num - comp_num) .. ")"
         end
     end
-    love.graphics.print(display, x, y)
+    Draw.print(display, x, y)
 end
 
 function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
@@ -533,7 +533,7 @@ function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
             Draw.setColor(0.25, 0.25, 0.25)
         end
     end
-    love.graphics.print(name or "(No ability.)", x + 26, y - 6)
+    Draw.print(name or "(No ability.)", x + 26, y - 6)
 end
 
 return DarkEquipMenu

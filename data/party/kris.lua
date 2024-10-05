@@ -140,13 +140,13 @@ function character:drawPowerStat(index, x, y, menu)
     if index == 1 and menu.kris_dog then
         local frames = Assets.getFrames("misc/dog_sleep")
         local frame = math.floor(Kristal.getTime()) % #frames + 1
-        love.graphics.print("Dog:", x, y)
+        Draw.print("Dog:", x, y)
         Draw.draw(frames[frame], x+120, y+5, 0, 2, 2)
         return true
     elseif index == 3 then
         local icon = Assets.getTexture("ui/menu/icon/fire")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Guts:", x, y)
+        Draw.print("Guts:", x, y)
 
         Draw.draw(icon, x+90, y+6, 0, 2, 2)
         if Game.chapter >= 2 then

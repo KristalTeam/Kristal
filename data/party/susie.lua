@@ -187,28 +187,28 @@ function character:drawPowerStat(index, x, y, menu)
     if index == 1 then
         local icon = Assets.getTexture("ui/menu/icon/demon")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Rudeness", x, y)
+        Draw.print("Rudeness", x, y)
         if Game.chapter == 1 then
-            love.graphics.print("99", x+130, y)
+            Draw.print("99", x+130, y)
         else
-            love.graphics.print("89", x+130, y)
+            Draw.print("89", x+130, y)
         end
         return true
     elseif index == 2 then
         local icon = Assets.getTexture("ui/menu/icon/demon")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
         if Game.chapter == 1 then
-            love.graphics.print("Crudeness", x, y, 0, 0.8, 1)
-            love.graphics.print("100", x+130, y)
+            Draw.print("Crudeness", x, y, 0, 0.8, 1)
+            Draw.print("100", x+130, y)
         else
-            love.graphics.print("Purple", x, y, 0, 0.8, 1)
-            love.graphics.print("Yes", x+130, y)
+            Draw.print("Purple", x, y, 0, 0.8, 1)
+            Draw.print("Yes", x+130, y)
         end
         return true
     elseif index == 3 then
         local icon = Assets.getTexture("ui/menu/icon/fire")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        love.graphics.print("Guts:", x, y)
+        Draw.print("Guts:", x, y)
 
         Draw.draw(icon, x+90, y+6, 0, 2, 2)
         Draw.draw(icon, x+110, y+6, 0, 2, 2)

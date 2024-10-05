@@ -29,9 +29,9 @@ function Shopbox:draw()
 
     love.graphics.setFont(self.font)
     Draw.setColor(PALETTE["world_text"])
-    love.graphics.print("$" .. Game.money, 28 - 36, 308 - 220 - 100)
-    love.graphics.print("HELD SPACE: "    .. pocket , 28 - 36, 308 + 30 - 4 - 220 - 100)
-    love.graphics.print("STORAGE SPACE: " .. storage , 28 - 36, 308 + 60 - 8 - 220 - 100)
+    Draw.print("$" .. Game.money, 28 - 36, 308 - 220 - 100)
+    Draw.print("HELD SPACE: "    .. pocket , 28 - 36, 308 + 30 - 4 - 220 - 100)
+    Draw.print("STORAGE SPACE: " .. storage , 28 - 36, 308 + 60 - 8 - 220 - 100)
 end
 
 return Shopbox

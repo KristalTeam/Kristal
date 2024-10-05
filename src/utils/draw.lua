@@ -23,6 +23,42 @@ Draw._scissor_stack = {}
 
 Draw._shader_stack = {}
 
+Draw.text_cache = {}
+
+---@class Draw.print
+---@field text string
+---@field x number?
+---@field y number?
+---@field r number?
+---@field sx number?
+---@field sy number?
+---@field ox number?
+---@field oy number?
+---@field kx number?
+---@field ky number?
+function Draw.print(text, x, y, r, sx, sy, ox, oy, kx, ky)
+    local nodes = Draw.text_cache[text]
+    if not nodes then
+        nodes = Text(text, x or 0, y or 0)
+        nodes:processInitialNodes()
+        Draw.text_cache[text] = nodes
+    end
+
+    nodes:setColor(love.graphics.getColor())
+    love.graphics.push()
+    love.graphics.translate(x, y)
+    for i, node in ipairs(nodes.nodes_to_draw) do
+        nodes:drawChar(node[1], node[2], true)
+    end
+    love.graphics.pop()
+end
+
+function Draw.update()
+    for _,text in pairs(Draw.text_cache) do
+        text:update()
+    end
+end
+
 ---@class Draw.canvasOptions
 ---@field clear boolean|nil
 ---@field stencil boolean|nil
