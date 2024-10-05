@@ -36,9 +36,9 @@ function MainMenuModError:draw()
     local liberrors = 0
 
     for k,v in pairs(failed_mods) do
-        if v.file == "mod.json" or v.file == "mod.lua" then
+        if v.file == "mod.json" then
             moderrors = moderrors + 1
-        elseif v.file == "lib.json" or v.file == "lib.lua" then
+        elseif v.file == "lib.json" then
             liberrors = liberrors + 1
         end
     end
@@ -46,12 +46,12 @@ function MainMenuModError:draw()
     local y = 128
 
     if moderrors > 0 then
-        Draw.printShadow({"The following mods have invalid ", {196, 196, 196}, "mod config", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
+        Draw.printShadow({"The following mods have invalid ", {196, 196, 196}, "mod.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
 
         y = y + 64
 
         for k,v in pairs(failed_mods) do
-            if v.file == "mod.json" or v.file == "lib.lua" then
+            if v.file == "mod.json" then
                 Draw.printShadow({{255, 127, 127}, v.path}, -1, y, 2, "center", 640)
                 y = y + 32
             end
@@ -60,12 +60,12 @@ function MainMenuModError:draw()
     end
 
     if liberrors > 0 then
-        Draw.printShadow({"The following mods use invalid ", {196, 196, 196}, "lib config", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
+        Draw.printShadow({"The following mods use invalid ", {196, 196, 196}, "lib.json", {255, 255, 255}, " files:"}, -1, y, 2, "center", 640)
 
         y = y + 64
 
         for k,v in pairs(failed_mods) do
-            if v.file == "lib.json" or v.file == "lib.lua" then
+            if v.file == "lib.json" then
                 Draw.printShadow({{255, 127, 127}, v.path}, -1, y, 2, "center", 640)
                 y = y + 32
             end
