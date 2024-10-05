@@ -381,9 +381,9 @@ function BattleUI:drawState()
 
         if draw_mercy then
             if Game.battle.state == "ENEMYSELECT" then
-                Draw.print("HP", 424, 39, 0, 1, 0.5)
+                Draw.print("HP", 424, 39, {scale_x = 1, scale_y = 0.5})
             end
-            Draw.print("MERCY", 524, 39, 0, 1, 0.5)
+            Draw.print("MERCY", 524, 39, {scale_x = 1, scale_y = 0.5})
         end
 
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
@@ -475,7 +475,7 @@ function BattleUI:drawState()
                     if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
                         Draw.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
                     else
-                        Draw.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, 0, 0.5, 1)
+                        Draw.print(enemy.comment, 80 + namewidth + 60, 50 + y_off, {scale_x = 0.5, scale_y = 1})
                     end
 
 
@@ -493,7 +493,7 @@ function BattleUI:drawState()
 
                         if draw_percents then
                             Draw.setColor(PALETTE["action_health_text"])
-                            Draw.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
+                            Draw.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, {scale_x = 1, scale_y = 0.5})
                         end
                     end
                 end
@@ -518,7 +518,7 @@ function BattleUI:drawState()
 
                         if draw_percents and enemy.selectable then
                             Draw.setColor(PALETTE["battle_mercy_text"])
-                            Draw.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                            Draw.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, {scale_x = 1, scale_y = 0.5})
                         end
                     end
                 end

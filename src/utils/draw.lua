@@ -29,28 +29,45 @@ Draw.text_cache = {}
 ---@field text string
 ---@field x number?
 ---@field y number?
----@field r number?
----@field sx number?
----@field sy number?
----@field ox number?
----@field oy number?
----@field kx number?
----@field ky number?
-function Draw.print(text, x, y, r, sx, sy, ox, oy, kx, ky)
-    local nodes = Draw.text_cache[text]
+---@field options {scale_x: number, scale_y: number}?
+function Draw.print(text, x, y, options)
+    x = x or 0
+    y = y or 0
+    options = options or {}
+    local scale_x = options["scale_x"] or 1
+    local scale_y = options["scale_y"] or 1
+    local font = options["font"] or "main"
+    local font_size = options["font_size"] or nil
+    local align = options["align"] or "left"
+
+    local draw_color = {love.graphics.getColor()}
+
+    local signature = text .. tostring(font) .. tostring(font_size) .. tostring(align)
+
+    local nodes = Draw.text_cache[signature]
     if not nodes then
-        nodes = Text(text, x or 0, y or 0)
+        nodes = Text(text, 0, 0, {
+            font = font,
+            font_size = font_size,
+            align = align
+        })
+
+        nodes:setColor(draw_color)
         nodes:processInitialNodes()
-        Draw.text_cache[text] = nodes
+        Draw.text_cache[signature] = nodes
     end
 
-    nodes:setColor(love.graphics.getColor())
+    nodes:setColor(draw_color)
+
     love.graphics.push()
     love.graphics.translate(x, y)
+    love.graphics.scale(scale_x, scale_y)
     for i, node in ipairs(nodes.nodes_to_draw) do
         nodes:drawChar(node[1], node[2], true)
     end
     love.graphics.pop()
+
+    love.graphics.setColor(draw_color)
 end
 
 function Draw.update()

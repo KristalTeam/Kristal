@@ -185,7 +185,7 @@ function character:drawPowerStat(index, x, y, menu)
     elseif index == 2 then
         local icon = Assets.getTexture("ui/menu/icon/fluff")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        Draw.print("Fluffiness", x, y, 0, 0.8, 1)
+        Draw.print("Fluffiness", {scale_x = 0.8, scale_y = 1})
 
         Draw.draw(icon, x+130, y+6, 0, 2, 2)
         if Game.chapter >= 2 then

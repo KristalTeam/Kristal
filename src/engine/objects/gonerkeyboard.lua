@@ -67,8 +67,6 @@ function GonerKeyboard:init(limit, mode, callback, key_callback)
 
     self.choicer:resetSoulPosition()
 
-    self.font = Assets.getFont("main")
-
     self.text = ""
     self.fade_out = false
     self.done = false
@@ -159,17 +157,13 @@ end
 function GonerKeyboard:draw()
     super.draw(self)
 
-    love.graphics.setFont(self.font)
-
     if self.limit >= 0 and #self.text >= self.limit then
         Draw.setColor(1, 1, 0, self.alpha)
     else
         Draw.setColor(1, 1, 1, self.alpha)
     end
 
-    local w = self.font:getWidth(self.text)
-
-    Draw.print(self.text, (SCREEN_WIDTH / 2) - (w / 2), self.mode.name_y)
+    Draw.print(self.text, 0, self.mode.name_y, {align = "center"})
 end
 
 return GonerKeyboard

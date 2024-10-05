@@ -120,7 +120,7 @@ function OverworldActionBox:draw()
 
     love.graphics.setFont(self.main_font)
     Draw.setColor(1, 1, 1, self.reaction_alpha / 6)
-    Draw.print(self.reaction_text, reaction_x, 43, 0, 0.5, 0.5)
+    Draw.print(self.reaction_text, reaction_x, 43, {scale_x = 0.5, scale_y = 0.5})
 
     super.draw(self)
 end

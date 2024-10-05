@@ -82,7 +82,7 @@ function LightSaveMenu:draw()
     local minutes = math.floor(playtime / 60)
     local seconds = math.floor(playtime % 60)
     local time_text = string.format("%d:%02d", minutes, seconds)
-    Draw.printf(time_text, self.box.x - 280 + 148, self.box.y - 10 + 8, 500, "right")
+    love.graphics.printf(time_text, self.box.x - 280 + 148, self.box.y - 10 + 8, 500, "right")
 
     Draw.print(room_name, self.box.x + 8, self.box.y + 38)
 

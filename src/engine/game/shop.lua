@@ -213,8 +213,6 @@ function Shop:init()
 
     self.item_offset = 0
 
-    self.font = Assets.getFont("main")
-    self.plain_font = Assets.getFont("plain")
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
@@ -720,7 +718,6 @@ function Shop:draw()
 
     super.draw(self)
 
-    love.graphics.setFont(self.font)
     if self.state == "MAINMENU" then
         Draw.setColor(COLORS.white)
         for i = 1, #self.menu_options do
@@ -818,7 +815,6 @@ function Shop:draw()
                     local can_equip = party_member:canEquip(current_item.item)
                     local head_path = ""
 
-                    love.graphics.setFont(self.plain_font)
                     Draw.setColor(COLORS.white)
 
                     if can_equip then
@@ -850,15 +846,13 @@ function Shop:draw()
             Draw.setColor(COLORS.white)
 
             if not self.hide_storage_text then
-                love.graphics.setFont(self.plain_font)
-
                 local current_storage = Game.inventory:getDefaultStorage(current_item.item)
                 local space = Game.inventory:getFreeSpace(current_storage)
 
                 if space <= 0 then
-                    Draw.print("NO SPACE", 521, 430)
+                    Draw.print("NO SPACE", 521, 430, {font = "plain"})
                 else
-                    Draw.print("Space:" .. space, 521, 430)
+                    Draw.print("Space:" .. space, 521, 430, {font = "plain"})
                 end
             end
         end
@@ -866,7 +860,6 @@ function Shop:draw()
         Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 50, 230 + (self.sell_current_selecting * 40))
         Draw.setColor(COLORS.white)
-        love.graphics.setFont(self.font)
         for i, v in ipairs(self.sell_options) do
             Draw.print(v[1], 80, 220 + (i * 40))
         end
@@ -912,7 +905,6 @@ function Shop:draw()
         if inventory then
             for i = 1 + self.item_offset, self.item_offset + math.min(5, inventory.max) do
                 local item = inventory[i]
-                love.graphics.setFont(self.font)
 
                 if item then
                     Draw.setColor(COLORS.white)
@@ -971,7 +963,6 @@ function Shop:draw()
         Draw.setColor(Game:getSoulColor())
         Draw.draw(self.heart_sprite, 50, 230 + (self.current_selecting * 40))
         Draw.setColor(COLORS.white)
-        love.graphics.setFont(self.font)
         for i = 1, math.max(4, #self.talks) do
             local v = self.talks[i]
             if v then
@@ -992,7 +983,6 @@ function Shop:draw()
        self.state == "SELLING"  or
        self.state == "TALKMENU" then
         Draw.setColor(COLORS.white)
-        love.graphics.setFont(self.font)
         Draw.print(string.format(self.currency_text, self:getMoney()), 440, 420)
     end
 
@@ -1024,7 +1014,7 @@ function Shop:drawBonuses(party_member, old_item, bonuses, stat, x, y)
         Draw.setColor(COLORS.yellow)
         amount_string = "+" .. amount_string
     end
-    Draw.print(amount_string, x, y)
+    Draw.print(amount_string, x, y, {font = "plain"})
     Draw.setColor(COLORS.white)
 end
 

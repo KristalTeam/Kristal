@@ -148,7 +148,7 @@ function character:drawPowerStat(index, x, y, menu)
     elseif index == 2 then
         local icon = Assets.getTexture("ui/menu/icon/exclamation")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
-        Draw.print("Boldness", x, y, 0, 0.8, 1)
+        Draw.print("Boldness", x, y, {scale_x = 0.8, scale_y = 1})
         Draw.print(self:getFlag("boldness", -12), x+130, y)
         return true
     elseif index == 3 then

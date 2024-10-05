@@ -198,10 +198,10 @@ function character:drawPowerStat(index, x, y, menu)
         local icon = Assets.getTexture("ui/menu/icon/demon")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
         if Game.chapter == 1 then
-            Draw.print("Crudeness", x, y, 0, 0.8, 1)
+            Draw.print("Crudeness", x, y, {scale_x = 0.8, scale_y = 1})
             Draw.print("100", x+130, y)
         else
-            Draw.print("Purple", x, y, 0, 0.8, 1)
+            Draw.print("Purple", x, y, {scale_x = 0.8, scale_y = 1})
             Draw.print("Yes", x+130, y)
         end
         return true

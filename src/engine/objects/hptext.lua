@@ -11,7 +11,6 @@ function HPText:init(text, x, y)
     self.alpha = 1
     self.parallax_x = 0
     self.parallax_y = 0
-    self.font = Assets.getFont("main")
     self.timer = Timer()
     self:addChild(self.timer)
 
@@ -21,7 +20,6 @@ function HPText:init(text, x, y)
 end
 
 function HPText:draw()
-    love.graphics.setFont(self.font)
     Draw.print(self.text, 0, 0)
 
     Draw.setColor(1, 1, 1, 1)
