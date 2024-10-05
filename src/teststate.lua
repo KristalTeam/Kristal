@@ -20,12 +20,12 @@ function Testing:draw()
     Draw.setColor(1, 1, 1, 1)
 
     if self.state == "MAIN" then
-        Draw.printf("~ テスティング ~", 0, 16, 640, "center")
+        love.graphics.printf("~ テスティング ~", 0, 16, 640, "center")
 
-        Draw.printf("The quick brown fox jumps over the lazy dog.", 0, 240, 640, "center")
+        love.graphics.printf("The quick brown fox jumps over the lazy dog.", 0, 240, 640, "center")
     elseif self.state == "GAMEPAD" then
         love.graphics.setFont(self.font)
-        Draw.printf("~ コントローラーテスト ~", 0, 16, 640, "center")
+        love.graphics.printf("~ コントローラーテスト ~", 0, 16, 640, "center")
         self:drawGamepad()
     end
 
@@ -54,23 +54,23 @@ function Testing:drawGamepad()
     Draw.setColor(COLORS.white)
 
     Draw.setColor(Input.down("gamepad:left") and COLORS.white or COLORS.gray)
-    Draw.print("[<]", 64, 400)
+    love.graphics.print("[<]", 64, 400)
     Draw.setColor(Input.down("gamepad:down") and COLORS.white or COLORS.gray)
-    Draw.print("[V]", 104, 426)
+    love.graphics.print("[V]", 104, 426)
     Draw.setColor(Input.down("gamepad:right") and COLORS.white or COLORS.gray)
-    Draw.print("[>]", 144, 400)
+    love.graphics.print("[>]", 144, 400)
     Draw.setColor(Input.down("gamepad:up") and COLORS.white or COLORS.gray)
-    Draw.print("[^]", 104, 374)
+    love.graphics.print("[^]", 104, 374)
 
 
     Draw.setColor(Input.down("left") and COLORS.white or COLORS.gray)
-    Draw.print("[<]", 466, 400)
+    love.graphics.print("[<]", 466, 400)
     Draw.setColor(Input.down("down") and COLORS.white or COLORS.gray)
-    Draw.print("[V]", 506, 400)
+    love.graphics.print("[V]", 506, 400)
     Draw.setColor(Input.down("right") and COLORS.white or COLORS.gray)
-    Draw.print("[>]", 546, 400)
+    love.graphics.print("[>]", 546, 400)
     Draw.setColor(Input.down("up") and COLORS.white or COLORS.gray)
-    Draw.print("[^]", 506, 374)
+    love.graphics.print("[^]", 506, 374)
 end
 
 return Testing
