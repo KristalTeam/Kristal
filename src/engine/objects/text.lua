@@ -130,7 +130,6 @@ function Text:resetState()
         last_shake = self.timer,
         wave_distance = 0,
         wave_offset = 0,
-        wave_speed = 0,
         wave_direction = 0,
         offset_x = 0,
         offset_y = 0,
@@ -144,7 +143,7 @@ end
 
 function Text:update()
     self.timer = self.timer + DTMULT
-    self.state.wave_direction = self.state.wave_direction + (self.state.wave_speed * DTMULT)
+    self.state.wave_direction = self.state.wave_direction + (20 * DTMULT)
     super.update(self)
 end
 
@@ -572,7 +571,6 @@ function Text:processModifier(node, dry)
         -- [wave:0] to disable!
         self.state.wave_distance = tonumber(node.arguments[1]) or 2
         self.state.wave_offset = tonumber(node.arguments[2]) or 30
-        self.state.wave_speed = tonumber(node.arguments[3]) or 20
         self.draw_every_frame = true
     elseif node.command == "style" then
         if node.arguments[1] == "reset" then
