@@ -11,7 +11,6 @@ end
 
 function MainMenuModError:registerEvents()
     self:registerEvent("enter", self.onEnter)
-    self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("draw", self.draw)
 end
 
@@ -25,19 +24,6 @@ function MainMenuModError:onEnter(old_state)
 
     for _, failure in ipairs(Kristal.Mods.failed_mods) do
         Kristal.Console:error(failure.error)
-    end
-end
-
-function MainMenuModError:onKeyPressed(key, is_repeat)
-    if Input.isConfirm(key) then
-        Assets.stopAndPlaySound("ui_move")
-
-        self.menu:setState("TITLE")
-        self.menu.title_screen:selectOption("play")
-        return true
-    elseif Input.isCancel(key) then
-        Assets.stopAndPlaySound("ui_cant_select")
-        return true
     end
 end
 
@@ -65,7 +51,7 @@ function MainMenuModError:draw()
         y = y + 64
 
         for k,v in pairs(failed_mods) do
-            if v.file == "mod.json" or v.file == "mod.lua" then
+            if v.file == "mod.json" or v.file == "lib.lua" then
                 Draw.printShadow({{255, 127, 127}, v.path}, -1, y, 2, "center", 640)
                 y = y + 32
             end

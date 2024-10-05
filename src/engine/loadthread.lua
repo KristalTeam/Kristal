@@ -111,15 +111,14 @@ local loaders = {
             if legacy then
                 ok, mod = pcall(json.decode, love.filesystem.read(full_path .. "/mod.json"))
             else
-                local chunk
-                ok, chunk = pcall(love.filesystem.load, full_path .. "/mod.lua")
-                if ok then
+                local chunk, error = love.filesystem.load(full_path .. "/mod.lua")
+                if error then
+                    ok = false
+                else
                     ok, mod = pcall(chunk)
                     if type(mod) ~= "table" then
                         ok = false
                     end
-                else
-                    mod = chunk
                 end
             end
 
@@ -262,9 +261,10 @@ local loaders = {
                         -- to define an empty lib:init()
                         -- There is also no need to check for scripts/main.lua as all it can tell us is
                         -- we must load this file anyway as it is the config file
-                        local chunk
-                        ok, chunk = pcall(love.filesystem.load, lib_full_path .. "/lib.lua")
-                        if ok then
+                        local chunk, error = love.filesystem.load(lib_full_path .. "/lib.lua")
+                        if error then
+                            ok = false
+                        else
                             ok, lib = pcall(chunk)
                             if ok and lib.init then
                                 legacy = true
@@ -273,8 +273,6 @@ local loaders = {
                             if type(lib) ~= "table" then
                                 ok = false
                             end
-                        else
-                            lib = chunk
                         end
                     end
 
