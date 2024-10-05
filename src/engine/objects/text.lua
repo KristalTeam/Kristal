@@ -562,6 +562,7 @@ function Text:processModifier(node, dry)
         end
     elseif node.command == "shake" then
         self.state.shake = tonumber(node.arguments[1]) or 1
+        print(node.arguments[2])
         if node.arguments[2] == "true" or type(tonumber(node.arguments[2])) == "number" and tonumber(node.arguments[2]) > 0 then
             self.state.shake_nibble = true
         else
