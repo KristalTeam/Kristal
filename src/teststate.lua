@@ -6,33 +6,10 @@ function Testing:enter()
 
     self.state = "MAIN"
 
-    self.soul = self.stage:addChild(EasingSoul(0, 0))
-    self.soul.use_parent = true
-
-    local outer = Component(FixedSizing(640, 480))
-        outer:setLayout(VerticalLayout({ gap = 0, align = "center" }))
-        outer:setOverflow("hidden")
-        local inner = Component(FillSizing(), FitSizing())
-            inner:setLayout(HorizontalLayout({ gap = 0, align = "center" }))
-            local box = MainMenuBoxComponent(FitSizing())
-                local menu = EasingSoulMenuComponent(FitSizing(), FixedSizing(240), { hold = true, soul = self.soul })
-                    menu.open_sound = "ui_move"
-                    menu:setScrollbar(ScrollbarComponent({gutter = "dotted", margins = {8, 0, 0, 0}, arrows = true}))
-                    menu:setLayout(VerticalLayout({ gap = 0, align = "start" }))
-                    menu:setOverflow("scroll")
-
-                    menu:addChild(TextMenuItemComponent(Text("Snowglobe"),
-                        function()
-                            self.stage:addChild(SnowglobeEffect(320, 240))
-                        end, {highlight=false}
-                    ))
-                    menu:setSelected(2)
-                    menu:setFocused()
-                box:addChild(menu)
-            inner:addChild(box)
-        outer:addChild(inner)
-    self.stage:addChild(outer)
-
+    self.text = Text("The quick brown fox jumps over the lazy dog.", 0, 240 + 32, {
+        ["align"] = "center"
+    })
+    self.stage:addChild(self.text)
 end
 
 function Testing:update()
@@ -42,11 +19,19 @@ end
 function Testing:draw()
     Draw.setColor(1, 1, 1, 1)
 
-    if self.state == "GAMEPAD" then
+    if self.state == "MAIN" then
+        Draw.printf("~ テスティング ~", 0, 16, 640, "center")
+
+        Draw.printf("The quick brown fox jumps over the lazy dog.", 0, 240, 640, "center")
+    elseif self.state == "GAMEPAD" then
         love.graphics.setFont(self.font)
-        love.graphics.printf("~ コントローラーテスト ~", 0, 16, 640, "center")
+        Draw.printf("~ コントローラーテスト ~", 0, 16, 640, "center")
         self:drawGamepad()
     end
+
+    Draw.setColor(COLORS.white)
+    local tex = Assets.getTexture("kristal/lancer/wave_9")
+    Draw.draw(tex, 320, 480, 0, 2, 2, tex:getWidth() / 2, tex:getHeight())
 
     self.stage:draw()
 end
@@ -69,23 +54,23 @@ function Testing:drawGamepad()
     Draw.setColor(COLORS.white)
 
     Draw.setColor(Input.down("gamepad:left") and COLORS.white or COLORS.gray)
-    love.graphics.print("[<]", 64, 400)
+    Draw.print("[<]", 64, 400)
     Draw.setColor(Input.down("gamepad:down") and COLORS.white or COLORS.gray)
-    love.graphics.print("[V]", 104, 426)
+    Draw.print("[V]", 104, 426)
     Draw.setColor(Input.down("gamepad:right") and COLORS.white or COLORS.gray)
-    love.graphics.print("[>]", 144, 400)
+    Draw.print("[>]", 144, 400)
     Draw.setColor(Input.down("gamepad:up") and COLORS.white or COLORS.gray)
-    love.graphics.print("[^]", 104, 374)
+    Draw.print("[^]", 104, 374)
 
 
     Draw.setColor(Input.down("left") and COLORS.white or COLORS.gray)
-    love.graphics.print("[<]", 466, 400)
+    Draw.print("[<]", 466, 400)
     Draw.setColor(Input.down("down") and COLORS.white or COLORS.gray)
-    love.graphics.print("[V]", 506, 400)
+    Draw.print("[V]", 506, 400)
     Draw.setColor(Input.down("right") and COLORS.white or COLORS.gray)
-    love.graphics.print("[>]", 546, 400)
+    Draw.print("[>]", 546, 400)
     Draw.setColor(Input.down("up") and COLORS.white or COLORS.gray)
-    love.graphics.print("[^]", 506, 374)
+    Draw.print("[^]", 506, 374)
 end
 
 return Testing
