@@ -309,7 +309,8 @@ function Shop:postInit()
     end
 
     self.dialogue_text = DialogueText(nil, 30, 270, 372, 226, {
-        font = self:getFont()
+        font = self:getFont(),
+        indent_string = self:getIndentString()
     })
 
     self.dialogue_text:registerCommand("emote", emoteCommand)
@@ -319,7 +320,8 @@ function Shop:postInit()
     self:setDialogueText(self.encounter_text)
 
     self.right_text = DialogueText("", 30 + 420, 260, 176, 206, {
-        font = self:getFont()
+        font = self:getFont(),
+        indent_string = self:getIndentString()
     })
 
     self.right_text:registerCommand("emote", emoteCommand)
@@ -389,6 +391,15 @@ function Shop:getFont()
     return nil
 end
 
+---@return string?
+function Shop:getIndentString()
+    local actor = self.shopkeeper:getActor()
+    if actor then
+        return actor:getIndentString()
+    end
+
+    return nil
+end
 
 ---@param text string[]|string
 ---@param no_voice? boolean
