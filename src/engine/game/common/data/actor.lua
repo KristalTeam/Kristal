@@ -43,6 +43,10 @@ function Actor:init()
     self.portrait_path = nil
     -- Offset position for this actor's portrait (optional)
     self.portrait_offset = nil
+    -- Path to this actor's miniface for dialogue (optional)
+    self.miniface = nil
+    -- Offset position for this actor's miniface (optional)
+    self.miniface_offset = nil
 
     -- Whether this actor as a follower will blush when close to the player
     self.can_blush = false
@@ -141,6 +145,8 @@ function Actor:getIndentString() return self.indent_string end
 
 function Actor:getPortraitPath() return self.portrait_path end
 function Actor:getPortraitOffset() return unpack(self.portrait_offset or {0, 0}) end
+function Actor:getMiniface() return self.miniface end
+function Actor:getMinifaceOffset() return unpack(self.miniface_offset or {0, 0}) end
 
 function Actor:getFlipDirection(sprite) return self.flip or self.flip_sprites[sprite] end
 
