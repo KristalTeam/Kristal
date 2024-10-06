@@ -31,5 +31,11 @@ return {
         cutscene:closeText()
         cutscene:fadeIn(0.2, {global = true})
         cutscene:startEncounter("starwalker", false)
+    end,
+
+    miniface = function(cutscene)
+        cutscene:setSpeaker("noelle")
+        cutscene:text("[miniface:talk]Testing my miniface", nil)
+        cutscene:text("[miniface:talk]You could've at least done a custom sprite", nil)
     end
 }
