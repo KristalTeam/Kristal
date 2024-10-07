@@ -92,12 +92,26 @@ end
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MainMenuControls:onEnter(old_state, control_menu)
+function MainMenuControls:onEnter(old_state, control_menu, target_mod)
     self.control_menu = control_menu or self.control_menu
 
     self.selected_option = 1
     self.selected_bind = 1
     self.selected_page = 1
+
+    self.target_mod = nil
+    if target_mod then
+        for i, page in ipairs(self.pages) do
+            if page.mod == target_mod then
+                self.target_mod = target_mod
+                self.selected_page = i
+            end
+        end
+        if not self.target_mod then
+            Assets.playSound("ui_cant_select")
+            self.menu:popState()
+        end
+    end
 
     self.selecting_key = false
     self.rebinding = false
@@ -133,29 +147,32 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
         if self.selected_option < 1            then self.selected_option = is_repeat and 1 or option_count end
         if self.selected_option > option_count then self.selected_option = is_repeat and option_count or 1 end
 
-        local old_page = self.selected_page
-        local page_dir = "right"
-        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_page = self.selected_page - 1; page_dir = "left" end
-        if Input.is("right", key) and not Input.usingGamepad() then self.selected_page = self.selected_page + 1; page_dir = "right" end
-        if self.selected_page < 1          then self.selected_page = is_repeat and 1 or page_count end
-        if self.selected_page > page_count then self.selected_page = is_repeat and page_count or 1 end
-
         if old_selected ~= self.selected_option then
             Assets.stopAndPlaySound("ui_move")
         end
 
-        if old_page ~= self.selected_page then
-            Assets.stopAndPlaySound("ui_move")
-            selected_page = self:getSelectedPage()
-            option_count = Utils.tableLength(selected_page.entries) + 2
-            if self.control_menu == "gamepad" then
-                option_count = option_count + 1
+        if not self.target_mod then
+            local old_page = self.selected_page
+            local page_dir = "right"
+            if Input.is("left" , key) and not Input.usingGamepad() then self.selected_page = self.selected_page - 1; page_dir = "left" end
+            if Input.is("right", key) and not Input.usingGamepad() then self.selected_page = self.selected_page + 1; page_dir = "right" end
+            if self.selected_page < 1          then self.selected_page = is_repeat and 1 or page_count end
+            if self.selected_page > page_count then self.selected_page = is_repeat and page_count or 1 end
+    
+    
+            if old_page ~= self.selected_page then
+                Assets.stopAndPlaySound("ui_move")
+                selected_page = self:getSelectedPage()
+                option_count = Utils.tableLength(selected_page.entries) + 2
+                if self.control_menu == "gamepad" then
+                    option_count = option_count + 1
+                end
+    
+                self.selected_option = 1
+    
+                self.scroll_direction = page_dir
+                self.scroll_timer = 0.1
             end
-
-            self.selected_option = 1
-
-            self.scroll_direction = page_dir
-            self.scroll_timer = 0.1
         end
 
         if Input.isCancel(key) then
@@ -405,7 +422,7 @@ function MainMenuControls:draw()
     end
 
     -- Draw menu arrows
-    if #self.pages > 1 then
+    if #self.pages > 1 and not self.target_mod then
         local l_offset, r_offset = 0, 0
         local mod_width = font:getWidth("("..selected_page.title..")")
 

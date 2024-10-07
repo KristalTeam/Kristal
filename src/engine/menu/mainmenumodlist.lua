@@ -129,6 +129,13 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
             end
 
             return true
+        elseif Input.is("mod_rebind", key) then
+            if mod then
+                if Input.mod_keybinds[mod.id] then
+                    self.menu:pushState("CONTROLS", "keyboard", mod.id) -- TODO: gamepad detection
+                    self.list.visible = false -- Hide modlist for now
+                end
+            end
         end
 
         if Input.is("up", key) then self.list:selectUp(is_repeat) end
@@ -173,7 +180,7 @@ end
 function MainMenuModList:draw()
     if self.loading_mods then
         Draw.printShadow("Loading mods...", 0, 115 - 8, 2, "center", 640)
-    else
+    elseif self.menu.state ~= "CONTROLS" then
         local menu_font = Assets.getFont("main")
 
         if #self.list.mods == 0 then
@@ -216,12 +223,15 @@ function MainMenuModList:draw()
 
             local control_menu_width = 0
             local control_cancel_width = 0
+            local control_rebind_width = 0
             if Input.usingGamepad() then
                 control_menu_width = 32
                 control_cancel_width = 32
+                control_rebind_width = 32
             else
                 control_menu_width = menu_font:getWidth(Input.getText("menu"))
                 control_cancel_width = menu_font:getWidth(Input.getText("cancel"))
+                control_rebind_width = menu_font:getWidth(Input.getText("mod_rebind"))
             end
 
             local button = self:getSelectedButton()
@@ -249,6 +259,20 @@ function MainMenuModList:draw()
                 Draw.draw(Input.getTexture("menu"), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
             else
                 Draw.printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8)
+            end
+            local mod = self:getSelectedMod()
+            if mod and Input.mod_keybinds[mod.id] then
+                x_pos = x_pos + menu_font:getWidth(" Controls  ")
+                Draw.printShadow(" Controls  ", 580 + (16 * 3) - x_pos, 454 - 8)
+                x_pos = x_pos + control_rebind_width
+                if Input.usingGamepad() then
+                    Draw.setColor(0, 0, 0, 1)
+                    Draw.draw(Input.getTexture("mod_rebind"), 580 + (16 * 3) - x_pos + 2, 454 - 8 + 4, 0, 2, 2)
+                    Draw.setColor(1, 1, 1, 1)
+                    Draw.draw(Input.getTexture("mod_rebind"), 580 + (16 * 3) - x_pos, 454 - 8 + 2, 0, 2, 2)
+                else
+                    Draw.printShadow(Input.getText("mod_rebind"), 580 + (16 * 3) - x_pos, 454 - 8)
+                end
             end
             --local control_text = Input.getText("menu").." "..(self.heart_outline.visible and "Unfavorite" or "Favorite  ").."  "..Input.getText("cancel").." Back"
             --Draw.printShadow(control_text, 580 + (16 * 3) - self.menu_font:getWidth(control_text), 454 - 8, {1, 1, 1, 1})

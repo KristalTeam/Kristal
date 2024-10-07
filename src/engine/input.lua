@@ -87,7 +87,7 @@ Input.mouse_pressed = {}
 Input.mouse_released = {}
 
 Input.order = {
-    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
+    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward", "mod_rebind"
 }
 
 Input.required_binds = {
@@ -212,7 +212,8 @@ function Input.resetBinds(gamepad, mod_id)
             ["console"] = {"`"},
             ["debug_menu"] = {{"shift", "`"}},
             ["object_selector"] = {{"ctrl", "o"}},
-            ["fast_forward"] = {{"ctrl", "g"}}
+            ["fast_forward"] = {{"ctrl", "g"}},
+            ["mod_rebind"] = {"/"},
         }
         local gamepad_bindings = {
             ["up"] = {"gamepad:dpup", "gamepad:lsup"},
@@ -226,6 +227,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
+            ["mod_rebind"] = {},
         }
         if gamepad ~= true then Utils.merge(Input.key_bindings, key_bindings) end
         if gamepad ~= false then Utils.merge(Input.gamepad_bindings, gamepad_bindings) end
@@ -275,7 +277,8 @@ function Input.resetBinds(gamepad, mod_id)
             ["console"] = {"`"},
             ["debug_menu"] = {{"shift", "`"}},
             ["object_selector"] = {{"ctrl", "o"}},
-            ["fast_forward"] = {{"ctrl", "g"}}
+            ["fast_forward"] = {{"ctrl", "g"}},
+            ["mod_rebind"] = {"/"},
         }
         for _,mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
@@ -321,6 +324,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
+            ["mod_rebind"] = {},
         }
         for _,mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
