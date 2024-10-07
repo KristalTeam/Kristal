@@ -131,9 +131,9 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
             return true
         elseif Input.is("mod_rebind", key) then
             if mod then
-                if Input.mod_keybinds[mod.id] then
-                    self.menu:pushState("CONTROLS", "keyboard", mod.id) -- TODO: gamepad detection
-                    self.list.visible = false -- Hide modlist for now
+                if Input.mod_keybinds[mod.id] and not mod["hideKeybinds"] then
+                    self.menu:pushState("CONTROLS", Input.usingGamepad() and "gamepad" or "keyboard", mod.id) -- TODO: gamepad detection
+                    self.list.visible = false
                 end
             end
         end
@@ -261,7 +261,7 @@ function MainMenuModList:draw()
                 Draw.printShadow(Input.getText("menu"), 580 + (16 * 3) - x_pos, 454 - 8)
             end
             local mod = self:getSelectedMod()
-            if mod and Input.mod_keybinds[mod.id] then
+            if mod and Input.mod_keybinds[mod.id] and not mod["hideKeybinds"] then
                 x_pos = x_pos + menu_font:getWidth(" Controls  ")
                 Draw.printShadow(" Controls  ", 580 + (16 * 3) - x_pos, 454 - 8)
                 x_pos = x_pos + control_rebind_width

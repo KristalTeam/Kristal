@@ -27,8 +27,7 @@ function MainMenuControls:init(menu)
     self.control_menu = "keyboard"
 
     self.pages = {}
-    self:registerMainPage()
-    self:registerModPages()
+    self.hidden_pages = {}
     self.selected_page = 1
 
     self.selected_option = 1
@@ -75,6 +74,9 @@ function MainMenuControls:registerModPages()
     for mod_id, keys in pairs(Input.mod_keybinds) do
         local page = {}
         local mod = Kristal.Mods.getMod(mod_id)
+        if mod["hideKeybinds"] then
+            goto continue
+        end
 
         page.title = tostring(mod.name):upper()
         page.mod = mod_id
@@ -85,6 +87,7 @@ function MainMenuControls:registerModPages()
         end
 
         table.insert(self.pages, page)
+        ::continue::
     end
 end
 
@@ -94,6 +97,12 @@ end
 
 function MainMenuControls:onEnter(old_state, control_menu, target_mod)
     self.control_menu = control_menu or self.control_menu
+
+    self.pages = {}
+    self.hidden_pages = {}
+    -- Reload the pages every time we enter incase there is a new keybind
+    self:registerMainPage()
+    self:registerModPages()
 
     self.selected_option = 1
     self.selected_bind = 1
@@ -154,8 +163,8 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
         if not self.target_mod then
             local old_page = self.selected_page
             local page_dir = "right"
-            if Input.is("left" , key) and not Input.usingGamepad() then self.selected_page = self.selected_page - 1; page_dir = "left" end
-            if Input.is("right", key) and not Input.usingGamepad() then self.selected_page = self.selected_page + 1; page_dir = "right" end
+            if Input.is("left" , key) then self.selected_page = self.selected_page - 1; page_dir = "left" end
+            if Input.is("right", key) then self.selected_page = self.selected_page + 1; page_dir = "right" end
             if self.selected_page < 1          then self.selected_page = is_repeat and 1 or page_count end
             if self.selected_page > page_count then self.selected_page = is_repeat and page_count or 1 end
     
@@ -327,9 +336,22 @@ function MainMenuControls:onKeyReleased(key)
 end
 
 function MainMenuControls:update()
-    -- Update heart position
     local selected_page = self.pages[self.selected_page]
+    if self.target_mod then
+        local old = self.control_menu
+        self.control_menu = Input.usingGamepad() and "gamepad" or "keyboard"
+        -- Slightly imperfect at consistency with input switching but it affects about two of the bottom options only
+        -- Most importantly though nothing breaks and you cannot go out of the menu bounds
+        if old ~= self.control_menu and self.selected_option > Utils.tableLength(selected_page.entries) + 1 then
+            if self.control_menu == "keyboard" then 
+                self.selected_option = self.selected_option - 1
+            else
+                self.selected_option = self.selected_option + 1
+            end
+        end
+    end
 
+    -- Update heart position
     local y_off = (self.selected_option - 1) * 32
     if self.selected_option > (Utils.tableLength(selected_page.entries)) then
         y_off = y_off + 32
@@ -359,6 +381,8 @@ function MainMenuControls:update()
     if self.scroll_timer > 0 then
         self.scroll_timer = Utils.approach(self.scroll_timer, 0, DT)
     end
+
+    
 end
 
 function MainMenuControls:draw()
