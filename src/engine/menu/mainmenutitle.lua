@@ -78,7 +78,11 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             end
 
         elseif option == "modfolder" then
-            love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
+            if (love.system.getOS() == "Windows") then
+                os.execute("start /B "..love.filesystem.getSaveDirectory().."/mods")
+            else
+                love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
+            end
 
         elseif option == "options" then
             self.menu:setState("OPTIONS")
