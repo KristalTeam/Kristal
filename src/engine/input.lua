@@ -187,7 +187,70 @@ function Input.getBoundKeys(key, gamepad)
 end
 
 ---@param gamepad? boolean
-function Input.resetBinds(gamepad)
+---@param mod_id? string
+function Input.resetBinds(gamepad, mod_id)
+    -- Special id to reset only default Kristal keybinds
+    if mod_id == "KRISTAL" then
+        local key_bindings = {
+            ["up"] = {"up"},
+            ["down"] = {"down"},
+            ["left"] = {"left"},
+            ["right"] = {"right"},
+            ["confirm"] = {"z", "return"},
+            ["cancel"] = {"x", "shift"},
+            ["menu"] = {"c", "ctrl"},
+            ["console"] = {"`"},
+            ["debug_menu"] = {{"shift", "`"}},
+            ["object_selector"] = {{"ctrl", "o"}},
+            ["fast_forward"] = {{"ctrl", "g"}}
+        }
+        local gamepad_bindings = {
+            ["up"] = {"gamepad:dpup", "gamepad:lsup"},
+            ["down"] = {"gamepad:dpdown", "gamepad:lsdown"},
+            ["left"] = {"gamepad:dpleft", "gamepad:lsleft"},
+            ["right"] = {"gamepad:dpright", "gamepad:lsright"},
+            ["confirm"] = {"gamepad:a"},
+            ["cancel"] = {"gamepad:b"},
+            ["menu"] = {"gamepad:y"},
+            ["console"] = {},
+            ["debug_menu"] = {},
+            ["object_selector"] = {},
+            ["fast_forward"] = {},
+        }
+        if gamepad ~= true then Utils.merge(Input.key_bindings, key_bindings) end
+        if gamepad ~= false then Utils.merge(Input.gamepad_bindings, gamepad_bindings) end
+        return
+    -- If we receive a mod id, we are only resetting binds specific to that mod
+    elseif mod_id then
+        local mod = Kristal.Mods.getMod(mod_id)
+        if not mod then return end
+        local keys = mod.keybinds or {}
+        local libs = mod.libs or {}
+        for _, lib in pairs(libs) do
+            if lib.keybinds then Utils.merge(keys, lib.keybinds) end
+        end
+        if keys == {} then return end
+        if gamepad ~= true then
+            for _, v in pairs(keys) do
+                if v.keys then
+                    Input.key_bindings[v.id] = Utils.copy(v.keys)
+                else
+                    Input.key_bindings[v.id] = {}
+                end
+            end
+        end
+        if gamepad ~= false then
+            for _, v in pairs(keys) do
+                if v.gamepad then
+                    Input.gamepad_bindings[v.id] = Utils.copy(v.gamepad)
+                else
+                    Input.gamepad_bindings[v.id] = {}
+                end
+            end
+        end
+        return
+    end
+
     if gamepad ~= true then
         Input.mod_keybinds = {}
         Input.stray_key_bindings = {}
