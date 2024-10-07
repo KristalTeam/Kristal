@@ -23,6 +23,8 @@
 ---@field stray_key_bindings table<string, (string|string[])[]>
 ---@field stray_gamepad_bindings table<string, (string|string[])[]>
 ---
+---@field mod_keybinds table<string, string[]>
+---
 ---@field gamepad_locked boolean
 ---
 ---@field gamepad_cursor_size number
@@ -70,6 +72,8 @@ Input.gamepad_bindings = {}
 
 Input.stray_key_bindings = {}
 Input.stray_gamepad_bindings = {}
+
+Input.mod_keybinds = {}
 
 Input.gamepad_locked = false
 
@@ -195,6 +199,7 @@ end
 ---@param gamepad? boolean
 function Input.resetBinds(gamepad)
     if gamepad ~= true then
+        Input.mod_keybinds = {}
         Input.stray_key_bindings = {}
         Input.key_bindings = {
             ["up"] = {"up"},
@@ -211,9 +216,11 @@ function Input.resetBinds(gamepad)
         }
         for _,mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
+                Input.mod_keybinds[mod.id] = {}
                 for _,v in pairs(mod.keybinds) do
                     if v.keys then
                         Input.key_bindings[v.id] = Utils.copy(v.keys)
+                        table.insert(Input.mod_keybinds[mod.id], v.id)
                     else
                         Input.key_bindings[v.id] = {}
                     end
@@ -222,9 +229,11 @@ function Input.resetBinds(gamepad)
             if mod.libs then
                 for _,lib in pairs(mod.libs) do
                     if lib.keybinds then
+                        Input.mod_keybinds[mod.id] = Input.mod_keybinds[mod.id] or {}
                         for _,v in pairs(lib.keybinds) do
                             if v.keys then
                                 Input.key_bindings[v.id] = Utils.copy(v.keys)
+                                table.insert(Input.mod_keybinds[mod.id], v.id)
                             else
                                 Input.key_bindings[v.id] = {}
                             end
