@@ -85,6 +85,7 @@ end
 function MainMenuCredits:registerEvents(master)
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("keypressed", self.onKeyPressed)
+    self:registerEvent("keyreleased", self.onKeyReleased)
 
     self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
@@ -120,11 +121,11 @@ function MainMenuCredits:onKeyPressed(key, is_repeat)
     local page_dir = "right"
     local page_now = self.selected_page
 
-    if Input.is("left", key) then
+    if Input.is("left", key) and not Input.down("right") then
         page_now = page_now - 1
         page_dir = "left"
     end
-    if Input.is("right", key) then
+    if Input.is("right", key) and not Input.down("left") then
         page_now = page_now + 1
         page_dir = "right"
     end
@@ -138,6 +139,29 @@ function MainMenuCredits:onKeyPressed(key, is_repeat)
 
         self.scroll_direction = page_dir
         self.scroll_timer = 0.1
+    end
+end
+
+function MainMenuCredits:onKeyReleased(key)
+    local page_now = self.selected_page
+    local page_dir -- Leave it as nil so we can check if either one of these if statements passed
+
+    if Input.is("right", key) and Input.down("left") then -- Check if the key that was released was right, then check if left is being pressed.
+        page_now = page_now - 1
+        page_dir = "left"
+    elseif Input.is("left", key) and Input.down("right") then -- Same but reversed
+        page_now = page_now + 1
+        page_dir = "right"
+    end
+
+    page_now = Utils.clamp(page_now, 1, #self.pages)
+
+    if page_dir and page_now ~= self.selected_page then
+        self.selected_page = page_now
+
+        Assets.stopAndPlaySound("ui_move")
+
+        self.scroll_direction = page_dir
     end
 end
 
