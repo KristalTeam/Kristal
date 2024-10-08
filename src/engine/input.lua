@@ -29,6 +29,11 @@
 ---@field gamepad_cursor_x number
 ---@field gamepad_cursor_y number
 ---
+---@field mouse_button_max number
+---@field mouse_down table<number, number[]>
+---@field mouse_pressed table<number, number[]>
+---@field mouse_released table<number, number[]>
+---
 ---@field order string[]
 ---
 ---@field required_binds table<string, boolean>
@@ -71,6 +76,23 @@ Input.gamepad_locked = false
 Input.gamepad_cursor_size = 10
 Input.gamepad_cursor_x = (love.graphics.getWidth()  / 2) - (Input.gamepad_cursor_size / 2)
 Input.gamepad_cursor_y = (love.graphics.getHeight() / 2) - (Input.gamepad_cursor_size / 2)
+
+Input.mouse_button_max = 3
+Input.mouse_down = {
+    [1] = {0, 0, 0}, -- x, y, presses
+    [2] = {0, 0, 0},
+    [3] = {0, 0, 0},
+}
+Input.mouse_pressed = {
+    [1] = {0, 0, 0}, -- x, y, presses
+    [2] = {0, 0, 0},
+    [3] = {0, 0, 0},
+}
+Input.mouse_released = {
+    [1] = {0, 0, 0}, -- x, y, presses
+    [2] = {0, 0, 0},
+    [3] = {0, 0, 0},
+}
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
@@ -458,6 +480,10 @@ function Input.clear(key, clear_down)
         if clear_down then
             self.key_down = {}
             self.key_down_timer = {}
+        end
+        for i=1, self.mouse_button_max do
+            self.mouse_pressed[i] = {0, 0, 0}
+            self.mouse_released[i] = {0, 0, 0}
         end
     end
 end
@@ -1243,6 +1269,17 @@ function Input.isGamepad(key)
     return Utils.startsWith(key, "gamepad:")
 end
 
+function Input.onMousePressed(x, y, button, istouch, presses)
+    self.mouse_button_max = math.max(self.mouse_button_max, button) -- some mouses have more than 3 buttons, always support this by extending the default count
+    self.mouse_pressed[button] = {x, y, presses}
+    self.mouse_down[button] = {x, y, presses}
+end
+
+function Input.onMouseReleased(x, y, button, istouch, presses)
+    self.mouse_released[button] = {x, y, presses}
+    self.mouse_down[button] = {0, 0, 0}
+end
+
 ---@param x? number
 ---@param y? number
 ---@param relative? boolean
@@ -1258,6 +1295,63 @@ function Input.getMousePosition(x, y, relative)
     end
     return floor((x - off_x) / Kristal.getGameScale()),
            floor((y - off_y) / Kristal.getGameScale())
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mousePressed(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mousePressed(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    if not self.mouse_pressed[button] or self.mouse_pressed[button][3] == 0 then
+        return false, 0, 0, 0
+    else
+        return true, unpack(self.mouse_pressed[button])
+    end
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mouseDown(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mouseDown(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    if not self.mouse_down[button] or self.mouse_down[button][3] == 0 then
+        return false, 0, 0, 0
+    else
+        return true, unpack(self.mouse_down[button])
+    end
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mouseReleased(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mouseReleased(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    if not self.mouse_released[button] or self.mouse_released[button][3] == 0 then
+        return false, 0, 0, 0
+    else
+        return true, unpack(self.mouse_released[button])
+    end
 end
 
 ---@param x? number
