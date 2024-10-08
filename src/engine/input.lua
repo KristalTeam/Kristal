@@ -78,21 +78,9 @@ Input.gamepad_cursor_x = (love.graphics.getWidth()  / 2) - (Input.gamepad_cursor
 Input.gamepad_cursor_y = (love.graphics.getHeight() / 2) - (Input.gamepad_cursor_size / 2)
 
 Input.mouse_button_max = 3
-Input.mouse_down = {
-    [1] = {x = 0, y = 0, presses = 0},
-    [2] = {x = 0, y = 0, presses = 0},
-    [3] = {x = 0, y = 0, presses = 0},
-}
-Input.mouse_pressed = {
-    [1] = {x = 0, y = 0, presses = 0},
-    [2] = {x = 0, y = 0, presses = 0},
-    [3] = {x = 0, y = 0, presses = 0},
-}
-Input.mouse_released = {
-    [1] = {x = 0, y = 0, presses = 0},
-    [2] = {x = 0, y = 0, presses = 0},
-    [3] = {x = 0, y = 0, presses = 0},
-}
+Input.mouse_down = {}
+Input.mouse_pressed = {}
+Input.mouse_released = {}
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
@@ -484,6 +472,12 @@ function Input.clear(key, clear_down)
         for i=1, self.mouse_button_max do
             self.mouse_pressed[i] = {x = 0, y = 0, presses = 0}
             self.mouse_released[i] = {x = 0, y = 0, presses = 0}
+            if not self.mouse_down[i] then
+                self.mouse_down[i] = {x = 0, y = 0, presses = 0, dx = 0, dy = 0}
+            else
+                self.mouse_down[i].dx = 0
+                self.mouse_down[i].dy = 0
+            end
         end
     end
 end
@@ -1272,12 +1266,23 @@ end
 function Input.onMousePressed(x, y, button, istouch, presses)
     self.mouse_button_max = math.max(self.mouse_button_max, button) -- some mouses have more than 3 buttons, always support this by extending the default count
     self.mouse_pressed[button] = {x = x, y = y, presses = presses}
-    self.mouse_down[button] = {x = x, y = y, presses = presses}
+    self.mouse_down[button] = {x = x, y = y, presses = presses, dx = 0, dy = 0}
 end
 
 function Input.onMouseReleased(x, y, button, istouch, presses)
     self.mouse_released[button] = {x = x, y = y, presses = presses}
-    self.mouse_down[button] = {x = 0, y = 0, presses = 0}
+    self.mouse_down[button] = {x = 0, y = 0, presses = 0, dx = 0, dx = 0}
+end
+
+function Input.onMouseMoved(x, y, dx, dy, istouch)
+    for i=1, self.mouse_button_max do
+        if self.mouse_down[i].presses > 0 then
+            self.mouse_down[i].x = x
+            self.mouse_down[i].y = y
+            self.mouse_down[i].dx = dx
+            self.mouse_down[i].dy = dy
+        end
+    end
 end
 
 ---@param x? number
@@ -1318,7 +1323,7 @@ function Input.mousePressed(button)
 end
 
 ---@param button? number
----@return boolean success, number x, number y, number presses
+---@return boolean success, number x, number y, number dx, number dy, number presses
 function Input.mouseDown(button)
     if not button then
         for i=1, self.mouse_button_max do
@@ -1333,7 +1338,7 @@ function Input.mouseDown(button)
     if not check or check.presses == 0 then
         return false, 0, 0, 0
     else
-        return true, check.x, check.y, check.presses
+        return true, check.x, check.y, check.dx, check.dy, check.presses
     end
 end
 
