@@ -146,25 +146,28 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         end
         local x_scale = tonumber(node.arguments[4]) or 2
         local y_scale = tonumber(node.arguments[5]) or 2
+        local speed = tonumber(node.arguments[6]) or {4/30}
         local y = self.text.state.current_y
-        local miniface = Sprite(nil, 0 + ox, y + oy)
-        miniface:setScale(x_scale, y_scale)
-        miniface:setSprite(self.miniface_path.. "/" ..node.arguments[1])
-        miniface:play(4/30)
-        if #self.minifaces > 0 then
-            local last_face = self.minifaces[#self.minifaces]
-            last_face:stop()
+        if (not dry) then
+            local miniface = Sprite(nil, 0 + ox, y + oy)
+            miniface:setScale(x_scale, y_scale)
+            miniface:setSprite(self.miniface_path.. "/" ..node.arguments[1])
+            miniface:play(speed)
+            if #self.minifaces > 0 then
+                local last_face = self.minifaces[#self.minifaces]
+                last_face:stop()
+            end
+            self:addChild(miniface)
+            table.insert(self.minifaces, miniface)
+            if self.actor and self.actor:getMiniface() then
+                self.miniface_path = self.actor:getMiniface()
+            else
+                self.miniface_path = "face/mini"
+            end
+            self.text.state.indent_mode = true
+            self.text.state.indent_length = miniface.width * miniface.scale_x + 15
+            self.text.state.current_x = self.text.state.indent_length + self.text.state.spacing
         end
-        self:addChild(miniface)
-        table.insert(self.minifaces, miniface)
-        if self.actor and self.actor:getMiniface() then
-            self.miniface_path = self.actor:getMiniface()
-        else
-            self.miniface_path = "face/mini"
-        end
-        self.text.state.indent_mode = true
-        self.text.state.indent_length = miniface.width * miniface.scale_x + 15
-        self.text.state.current_x = self.text.state.indent_length + self.text.state.spacing
     end)
 
     self.advance_callback = nil
