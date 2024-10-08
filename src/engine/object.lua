@@ -1421,6 +1421,40 @@ function Object:getFullScale()
     return sx, sy
 end
 
+--- Returns whether the object has been clicked this frame.
+---@param number? button The mouse button to check. If not provided, it will check all buttons available.
+---@return boolean success Whether the object was clicked.
+---@return number button The mouse button that clicked the object. Useful if the 'button' argument was not provided.
+function Object:clicked(button)
+    if not button then
+        local used_button = 0
+        for i=1, Input.mouse_button_max do
+            local success, success_button = self:clicked(i)
+            used_button = math.max(used_button, success_button)
+            if success then
+                return true, success_button
+            end
+        end
+        return false, used_button
+    end
+    local clicked, x, y, presses = Input.mousePressed(button)
+    if not clicked then
+        return false, 0
+    end
+    if self.collider then
+        local point = PointCollider(nil, x, y)
+        return self.collider:collidesWith(point), button
+    else
+        -- roughly same code as DebugSystem:detectObject(x, y)
+        local mx, my = self:getFullTransform():inverseTransformPoint(x, y)
+        local rect = self:getDebugRectangle() or { 0, 0, self.width, self.height }
+        if mx >= rect[1] and mx < rect[1] + rect[3] and my >= rect[2] and my < rect[2] + rect[4] then
+            return true, button
+        end
+    end
+    return false, button
+end
+
 --- Removes the object from its parent.
 function Object:remove()
     if self.parent then

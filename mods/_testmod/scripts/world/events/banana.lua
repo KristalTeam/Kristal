@@ -5,6 +5,8 @@ function Banana:init(data)
 
     self:setOrigin(0.5, 0.5)
     self:setSprite("banana", 0.25)
+
+    self.mouse_collider = CircleCollider(self, data.width, data.height, 20)
 end
 
 function Banana:onCollide(chara)
@@ -25,6 +27,13 @@ function Banana:onCollide(chara)
     end
 
     self:remove()
+end
+
+function Banana:draw()
+    super.draw(self)
+    if DEBUG_RENDER then
+        self.mouse_collider:draw(0, 0, 1, 1)
+    end
 end
 
 return Banana

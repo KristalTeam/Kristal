@@ -29,6 +29,11 @@
 ---@field gamepad_cursor_x number
 ---@field gamepad_cursor_y number
 ---
+---@field mouse_button_max number
+---@field mouse_down table<number, number[]>
+---@field mouse_pressed table<number, number[]>
+---@field mouse_released table<number, number[]>
+---
 ---@field order string[]
 ---
 ---@field required_binds table<string, boolean>
@@ -71,6 +76,11 @@ Input.gamepad_locked = false
 Input.gamepad_cursor_size = 10
 Input.gamepad_cursor_x = (love.graphics.getWidth()  / 2) - (Input.gamepad_cursor_size / 2)
 Input.gamepad_cursor_y = (love.graphics.getHeight() / 2) - (Input.gamepad_cursor_size / 2)
+
+Input.mouse_button_max = 3
+Input.mouse_down = {}
+Input.mouse_pressed = {}
+Input.mouse_released = {}
 
 Input.order = {
     "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
@@ -458,6 +468,16 @@ function Input.clear(key, clear_down)
         if clear_down then
             self.key_down = {}
             self.key_down_timer = {}
+        end
+        for i=1, self.mouse_button_max do
+            self.mouse_pressed[i] = {x = 0, y = 0, presses = 0}
+            self.mouse_released[i] = {x = 0, y = 0, presses = 0}
+            if not self.mouse_down[i] then
+                self.mouse_down[i] = {x = 0, y = 0, presses = 0, dx = 0, dy = 0}
+            else
+                self.mouse_down[i].dx = 0
+                self.mouse_down[i].dy = 0
+            end
         end
     end
 end
@@ -1243,6 +1263,28 @@ function Input.isGamepad(key)
     return Utils.startsWith(key, "gamepad:")
 end
 
+function Input.onMousePressed(x, y, button, istouch, presses)
+    self.mouse_button_max = math.max(self.mouse_button_max, button) -- some mouses have more than 3 buttons, always support this by extending the default count
+    self.mouse_pressed[button] = {x = x, y = y, presses = presses}
+    self.mouse_down[button] = {x = x, y = y, presses = presses, dx = 0, dy = 0}
+end
+
+function Input.onMouseReleased(x, y, button, istouch, presses)
+    self.mouse_released[button] = {x = x, y = y, presses = presses}
+    self.mouse_down[button] = {x = 0, y = 0, presses = 0, dx = 0, dx = 0}
+end
+
+function Input.onMouseMoved(x, y, dx, dy, istouch)
+    for i=1, self.mouse_button_max do
+        if self.mouse_down[i].presses > 0 then
+            self.mouse_down[i].x = x
+            self.mouse_down[i].y = y
+            self.mouse_down[i].dx = dx
+            self.mouse_down[i].dy = dy
+        end
+    end
+end
+
 ---@param x? number
 ---@param y? number
 ---@param relative? boolean
@@ -1258,6 +1300,66 @@ function Input.getMousePosition(x, y, relative)
     end
     return floor((x - off_x) / Kristal.getGameScale()),
            floor((y - off_y) / Kristal.getGameScale())
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mousePressed(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mousePressed(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    local check = self.mouse_pressed[button]
+    if not check or check.presses == 0 then
+        return false, 0, 0, 0
+    else
+        return true, check.x, check.y, check.presses
+    end
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number dx, number dy, number presses
+function Input.mouseDown(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mouseDown(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    local check = self.mouse_down[button]
+    if not check or check.presses == 0 then
+        return false, 0, 0, 0
+    else
+        return true, check.x, check.y, check.dx, check.dy, check.presses
+    end
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mouseReleased(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mouseReleased(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    local check = self.mouse_released[button]
+    if not check or check.presses == 0 then
+        return false, 0, 0, 0
+    else
+        return true, check.x, check.y, check.presses
+    end
 end
 
 ---@param x? number
