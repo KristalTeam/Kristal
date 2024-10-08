@@ -78,6 +78,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             end
 
         elseif option == "modfolder" then
+            -- FIXME: the game might freeze when using love.system.openURL to open a file directory
             if (love.system.getOS() == "Windows") then
                 os.execute("start /B "..love.filesystem.getSaveDirectory().."/mods")
             else
