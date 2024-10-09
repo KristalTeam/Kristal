@@ -57,7 +57,7 @@ function MainMenuCredits:init(menu)
                 "WIL-TZY",
                 "TFLTV",
                 "J.A.R.U.",
-                "",
+                "MCdeDaxia",
                 "",
                 ""
             },
