@@ -30,7 +30,7 @@ function RecruitMenu:init()
     self.old_selection = self.selected
     
     self.recruit_box = Sprite("ui/menu/recruit/gradient_bright", 370, 75)
-    Game.stage:addChild(self.recruit_box)
+    self:addChild(self.recruit_box)
     
     self:setRecruitInBox(self.selected)
 end
@@ -62,6 +62,8 @@ function RecruitMenu:getLastSelectedInPage()
 end
 
 function RecruitMenu:update()
+    super.update(self)
+    
     self.old_selection = self.selected
     if Input.pressed("left", true) and self.state == "INFO" then
         self.selected = self.selected - 1
@@ -126,7 +128,6 @@ function RecruitMenu:update()
     end
     if Input.pressed("cancel", false) then
         if self.state == "SELECT" then
-            self.recruit_box:remove()
             self:remove()
             Game.world:closeMenu()
         else
