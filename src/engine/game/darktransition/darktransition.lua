@@ -84,6 +84,8 @@ function DarkTransition:init(final_y, options)
     self.skiprunback = options["skiprunback"]
     self.has_head_object = options["has_head_object"]
 
+    self.draw_doorblack = options["draw_doorblack"]
+
     if self.quick_mode == nil then self.quick_mode = false end
     if self.skiprunback == nil then self.skiprunback = false end
     if self.has_head_object == nil then self.has_head_object = false end
@@ -384,7 +386,11 @@ function DarkTransition:draw()
             local y2 = self.ry2
             local w = x2 - x1
             local h = y2 - y1
-            love.graphics.rectangle("fill", x1, y1, w, h)
+            if (self.draw_doorblack) then
+                self.draw_doorblack(x1, y1, w, h)
+            else
+                love.graphics.rectangle("fill", x1, y1, w, h)
+            end
             --self:draw_rectangle((self.rx1 + self:camerax()), (self.ry1 + self:cameray()), (self.rx2 + self:camerax()), (self.ry2 + self:cameray()), false)
         end
     end
