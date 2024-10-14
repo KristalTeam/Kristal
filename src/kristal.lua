@@ -893,7 +893,7 @@ function Kristal.errorHandler(msg)
         local x, y = love.mouse:getPosition()
 
         show_libraries = false
-        if 20 < x and x < 20 + #mod_string * 7 and 10 < y and y < 26 then
+        if 20 < x and x < 20 + smaller_font:getWidth(mod_string) and 10 < y and y < 26 then
             show_libraries = true
         end
 
