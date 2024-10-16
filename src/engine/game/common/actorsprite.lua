@@ -177,6 +177,16 @@ function ActorSprite:_setSprite(texture, keep_anim)
     end
 end
 
+--- Sets the animation of the current sprite. \
+--- The animation specified in `anim` can be one of the following:
+--- - `string` - The name of an animation defined on the sprite's current actor.
+--- - `table` - a table of animation data. Refer to [`Sprite:setAnimation(anim)`](lua://Sprite.setAnimation) for how to use this, as well as the additional keys supported on `ActorSprite` listed below:
+--- - - `temp: boolean` - Whether the previous aniamtion/sprite should be set once the new animation is stops (Defaults to `false`)
+--- - `function` - An animation routine
+---@param anim? table|string|function?
+---@param callback? fun(sprite: ActorSprite)    A callback to run when the animation finishes
+---@param ignore_actor_callback? boolean        Whether to skip calling [`Actor:preSetAnimation()`](lua://Actor.preSetAnimation)
+---@return boolean
 function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
     if not ignore_actor_callback and self.actor:preSetAnimation(self, anim, callback) then
         return

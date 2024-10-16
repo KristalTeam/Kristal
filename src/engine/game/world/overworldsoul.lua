@@ -4,7 +4,7 @@
 ---
 ---@field collider CircleCollider The hitbox of the soul, defaulting to a circle with an 8 pixel radius
 ---
----@overload fun(...) : OverworldSoul
+---@overload fun(x?: number, y?: number) : OverworldSoul
 local OverworldSoul, super = Class(Object)
 
 function OverworldSoul:init(x, y)

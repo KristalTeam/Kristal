@@ -53,7 +53,7 @@
 ---@field visible           boolean
 ---@field reverse_progress  boolean
 ---
----@overload fun(...) : ChaserEnemy
+---@overload fun(actor: string|Actor, x?: number, y?: number, properties?: table) : ChaserEnemy
 local ChaserEnemy, super = Class(Character, "enemy")
 
 function ChaserEnemy:init(actor, x, y, properties)

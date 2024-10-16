@@ -12,7 +12,7 @@
 ---@field full_updating boolean
 ---@field full_drawing boolean
 ---@
----@overload fun(x: number, y: number, w: number, h: number) : Stage
+---@overload fun(x?: number, y?: number, w?: number, h?: number) : Stage
 local Stage, super = Class(Object)
 
 function Stage:init(x, y, w, h)
