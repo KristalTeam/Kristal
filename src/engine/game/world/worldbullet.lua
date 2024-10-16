@@ -4,7 +4,6 @@
 --- Extension bullets can be spawned into the world with `Game.world:spawnBullet(id, ...)` - their `id` defaults to their filepath, starting from `scripts/world/bullets`. Additional arguments `...` are passed into the bullet type's init function.
 ---
 ---@class WorldBullet : Object
----@overload fun(...) : WorldBullet
 ---
 ---@field world             World           The current World instance. Not defined until after `WorldBullet:init()`, and only if it is parented to a World instance.
 ---
@@ -18,6 +17,7 @@
 ---
 ---@field remove_offscreen  boolean
 ---
+---@overload fun(x?: number, y?: number, texture?: string|love.Image) : WorldBullet
 local WorldBullet, super = Class(Object)
 
 ---@param x         number

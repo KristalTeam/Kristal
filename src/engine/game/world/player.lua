@@ -1,6 +1,6 @@
 --- The character controlled by the player when in the Overworld.
 ---@class Player : Character
----@overload fun(...) : Player
+---@overload fun(chara: string|Actor, x?: number, y?: number) : Player
 local Player, super = Class(Character)
 
 function Player:init(chara, x, y)

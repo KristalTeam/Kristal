@@ -16,11 +16,15 @@
 ---
 ---@field world World   Reference to Game.world
 ---
----@overload fun(...) : WorldCutscene
+---@overload fun(world: World, group: string, id?: string, ...) : WorldCutscene
 local WorldCutscene, super = Class(Cutscene)
 
 local function _true() return true end
 
+---@param world World
+---@param group string
+---@param id? string
+---@param ... unknown
 function WorldCutscene:init(world, group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getWorldCutscene, group, id, ...)
 
