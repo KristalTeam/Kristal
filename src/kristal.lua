@@ -1,3 +1,4 @@
+---@class Kristal
 local Kristal = {}
 
 if not HOTSWAPPING then

@@ -1,5 +1,18 @@
+--- The Stage object in Kristal is designed to be the highest parent object at all times. \
+--- All throughout gameplay, the active stage is [`Game.stage`](lua://Game.stage), while when in the Kristal menu, [`Kristal.Stage`](lua://Kristal.Stage) is the stage instead.
+---
 ---@class Stage : Object
----@overload fun(...) : Stage
+---@
+---@field objects           Object[]                A list of all the objects attached to this stage
+---@field objects_by_class  table<Class, Object[]>  A list of all the objects attached to this stage, sorted by the classes that they include
+---@field objects_to_remove Object[]                A list of objects pending removal from this stage (removed on the next update tick)
+---@
+---@field stage Stage
+---@
+---@field full_updating boolean
+---@field full_drawing boolean
+---@
+---@overload fun(x: number, y: number, w: number, h: number) : Stage
 local Stage, super = Class(Object)
 
 function Stage:init(x, y, w, h)
@@ -18,6 +31,9 @@ function Stage:init(x, y, w, h)
     self:addChild(self.timer)
 end
 
+--- Gets every object attached to this stage that inherits from `class`
+---@param class Class       The included Class to select from
+---@return Object[] matches All the objects parented to this stage that inherit from `class`
 function Stage:getObjects(class)
     if class then
         return Utils.filter(self.objects_by_class[class] or {}, function(o) return o.stage == self end)
@@ -26,6 +42,8 @@ function Stage:getObjects(class)
     end
 end
 
+--- Adds an object and all of its children to this stage
+---@param object Object
 function Stage:addToStage(object)
     table.insert(self.objects, object)
     for class,_ in pairs(object.__includes_all) do
@@ -50,6 +68,8 @@ function Stage:updateAllLayers()
     end
 end
 
+--- Removes an object and all of its children from this stage
+---@param object Object
 function Stage:removeFromStage(object)
     table.insert(self.objects_to_remove, object)
     if object.stage == self then
