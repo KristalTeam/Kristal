@@ -133,8 +133,8 @@ function Sprite:isSprite(texture)
 end
 
 --- Sets the sprite to either a texture or an animation. \
---- If the given texture is a string or image, it will be passed into `Sprite:setSprite()`. \
---- If the given texture is a table, it will be passed into `Sprite:setAnimation()`.
+--- If the given texture is a string or image, it will be passed into [`Sprite:setSprite()`](lua://Sprite.setSprite). \
+--- If the given texture is a table, it will be passed into [`Sprite:setAnimation()`](lua://Sprite.setAnimation).
 ---@param texture string|table|love.Image  The texture or animation to set the sprite to.
 function Sprite:set(texture)
     if type(texture) == "table" then
