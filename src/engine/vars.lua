@@ -237,7 +237,7 @@ KRISTAL_EVENT = {
     --text events--
     isTextStyleAnimated = "isTextStyleAnimated", -- determines if `style` is animated text/ at: Text:isStyleAnimated(style) / passes: string:style, Text:self / returns: bool
     onDrawText = "onDrawText", -- overrides character is drawn / at: Text:drawChar(node, state, use_color) / passes: Text:self, table:node, table:state, number:x, number:y, number:scale, love.Font:font, bool:use_base_color / returns: bool
-    onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node / returns: bool
+    onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node, table:current_state / returns: bool
     registerTextCommands = "registerTextCommands", -- new text is ready to recieve custom command table / passes: Text:self / returns: NONE
     getDialogueTextStyle = "getDialogueTextStyle", -- overrides text style / at: DialogueText:init(text, x, y, w, h, options) / passes: string|table:text, table:options / returns: bool
 
