@@ -1037,9 +1037,35 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 return
             elseif Input.isConfirm(key) then
                 local keys = Utils.getKeys(Game.flags)
-                if type(Game:getFlag(keys[self.current_selecting])) == "boolean" then
-                    Game:setFlag(keys[self.current_selecting], not Game:getFlag(keys[self.current_selecting]))
+                local flag_name = keys[self.current_selecting]
+                if type(Game:getFlag(flag_name)) == "boolean" then
+                    Game:setFlag(flag_name, not Game:getFlag(flag_name))
                     Assets.playSound("ui_select")
+                elseif type(Game:getFlag(flag_name)) == "number" then
+                    Assets.playSound("ui_select")
+                    self.window = DebugWindow("Edit Flag (number) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
+                        local num = tonumber(text)
+                        if num then
+                            Game:setFlag(flag_name, num)
+                            Assets.playSound("ui_select")
+                        else
+                            Assets.playSound("ui_cant_select")
+                        end
+                    end)
+                    self.window:setPosition(Input.getCurrentCursorPosition())
+                    self.window.input_lines[1] = Game:getFlag(flag_name)
+                    TextInput.cursor_x = string.len(Game:getFlag(flag_name))
+                    self:addChild(self.window)
+                elseif type(Game:getFlag(flag_name)) == "string" then
+                    Assets.playSound("ui_select")
+                    self.window = DebugWindow("Edit Flag (string) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
+                        Game:setFlag(flag_name, text)
+                        Assets.playSound("ui_select")
+                    end)
+                    self.window:setPosition(Input.getCurrentCursorPosition())
+                    self.window.input_lines[1] = Game:getFlag(flag_name)
+                    TextInput.cursor_x = string.len(Game:getFlag(flag_name))
+                    self:addChild(self.window)
                 else
                     Assets.playSound("ui_cant_select")
                 end
