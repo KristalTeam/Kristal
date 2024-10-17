@@ -2467,7 +2467,6 @@ function Battle:update()
         end
     end
 
-
     if self.state ~= "TRANSITIONOUT" then
         self.encounter:update()
     end
