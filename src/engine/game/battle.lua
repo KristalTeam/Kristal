@@ -161,6 +161,8 @@ function Battle:init()
     self.defeated_enemies = {}
 
     self.seen_encounter_text = false
+    self.table_encounter_text = {}
+    self.table_encounter_text_index = 1
 
     self.waves = {}
     self.finished_waves = false
@@ -2183,6 +2185,11 @@ function Battle:nextTurn()
         else
             self.battle_ui.current_encounter_text = self:getEncounterText()
         end
+        self.table_encounter_text_index = 1
+        if type(self.battle_ui.current_encounter_text) == "table" then
+            self.table_encounter_text = self.battle_ui.current_encounter_text
+            self.battle_ui.current_encounter_text = self.table_encounter_text[1]
+        end
         self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
     end
 
@@ -2450,7 +2457,16 @@ function Battle:update()
                 self:setState("DIALOGUEEND")
             end
         end
+    elseif self.state == "ACTIONSELECT" then
+        if self.table_encounter_text_index < #self.table_encounter_text then
+            if not self.battle_ui.encounter_text.text.state.typing then
+                self.table_encounter_text_index = self.table_encounter_text_index + 1
+                self.battle_ui.current_encounter_text = self.table_encounter_text[self.table_encounter_text_index]
+                self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
+            end
+        end
     end
+
 
     if self.state ~= "TRANSITIONOUT" then
         self.encounter:update()
