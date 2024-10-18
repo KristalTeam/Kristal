@@ -33,6 +33,10 @@
     "quickReload": true,
     "hidden": false,
 
+    "defaultFlagFilterType": "any",
+    "defaultFlagFilterQuery": "#",
+    "defaultFlagFilterMode": "invert_startsWith",
+
     "config": {
         "kristal": {
             //"growStrongerChara": "susie",
