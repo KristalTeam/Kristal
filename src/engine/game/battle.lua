@@ -2186,6 +2186,7 @@ function Battle:nextTurn()
             self.battle_ui.current_encounter_text = self:getEncounterText()
         end
         self.table_encounter_text_index = 1
+        self.table_encounter_text = {}
         if type(self.battle_ui.current_encounter_text) == "table" then
             self.table_encounter_text = self.battle_ui.current_encounter_text
             self.battle_ui.current_encounter_text = self.table_encounter_text[1]
@@ -2458,7 +2459,7 @@ function Battle:update()
             end
         end
     elseif self.state == "ACTIONSELECT" then
-        if self.table_encounter_text_index < #self.table_encounter_text then
+        if self.table_encounter_text_index < #self.table_encounter_text and self.table_encounter_text ~= {} then
             if not self.battle_ui.encounter_text.text.state.typing then
                 self.table_encounter_text_index = self.table_encounter_text_index + 1
                 self.battle_ui.current_encounter_text = self.table_encounter_text[self.table_encounter_text_index]
