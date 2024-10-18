@@ -554,6 +554,15 @@ end
 ---@param  msg string|table     The error message.
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg)
+    if Mod then
+        local status, err = pcall(function()
+            Kristal.callEvent(KRISTAL_EVENT.onError, msg)
+        end)
+        if not status then
+            msg = err
+        end
+    end
+    
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
