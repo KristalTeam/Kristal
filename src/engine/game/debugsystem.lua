@@ -74,6 +74,16 @@ function DebugSystem:init()
     self.playing_sound = nil
     self.old_music_volume = 1
     self.music_needs_reset = false
+
+    self.flag_type = "any"
+    self.flag_query = { "" }
+    self.flag_query_type = "pattern" -- Types include: "pattern", "invert_pattern", "startsWith", "invert_startsWith"
+
+    self.temp_flag_type = nil
+    self.temp_flag_query = { "" }
+    self.temp_flag_query_type = nil
+
+    self.filtered_flags_list = {}
 end
 
 function DebugSystem:getStage()
@@ -390,8 +400,9 @@ function DebugSystem:enterMenu(menu, soul, skip_history)
     end
 end
 
-function DebugSystem:startTextInput()
-    TextInput.attachInput(self.search, {
+function DebugSystem:startTextInput(tbl)
+    tbl = tbl or self.search
+    TextInput.attachInput(tbl, {
         multiline = false,
         enter_submits = true,
         clear_after_submit = false
@@ -884,11 +895,42 @@ function DebugSystem:onStateChange(old, new)
     elseif new == "FLAGS" then
         self.heart_target_x = 19
         self.heart_target_y = 35 + 32
-        self.current_subselecting = self.current_selecting
+        if old ~= "FLAGSFILTER" then
+            self.current_subselecting = self.current_selecting
+        end
         self.current_selecting = 1
 
         self.circle_anim_timer = 0
+        if Game.flags then
+            local flags = Utils.getKeys(Game.flags)
+            if self.flag_type ~= "any" then
+                flags = Utils.filter(flags, function (v)
+                    return type(Game:getFlag(v)) == self.flag_type
+                end)
+            end
+            if self.flag_query and self.flag_query[1] ~= "" then
+                local invert, query = Utils.startsWith(self.flag_query_type, "invert_")
+                if query == "pattern" then
+                    flags = Utils.filter(flags, function (v)
+                        local cond = string.match(v, self.flag_query[1])
+                        return invert and not cond or cond and not invert
+                    end)
+                elseif query == "startsWith" then
+                    flags = Utils.filter(flags, function (v)
+                        local cond = Utils.startsWith(v, self.flag_query[1])
+                        return invert and not cond or cond and not invert
+                    end)
+                end
+            end
+            self.filtered_flags_list = Utils.copy(flags)
+        end
         OVERLAY_OPEN = true
+    elseif new == "FLAGSFILTER" then
+        self.temp_flag_type = self.flag_type
+        self.temp_flag_query_type = self.flag_query_type
+        self.temp_flag_query = Utils.copy(self.flag_query)
+        self:startTextInput(self.temp_flag_query)
+        TextInput.endInput()
     end
 
     self:fadeMusicIn()
@@ -907,7 +949,7 @@ function DebugSystem:updateBounds(options)
     local limit = is_search and 0 or 1
     if self.current_selecting < limit then self.current_selecting = #options end
     if self.current_selecting > #options then self.current_selecting = limit end
-    if self.state == "MENU" or self.state == "FLAGS" then
+    if self.state == "MENU" or self.state == "FLAGS" or self.state == "FLAGSFILTER" then
         self.heart_target_x = 19
 
         local y_off = (self.current_selecting - 1) * 32
@@ -930,6 +972,9 @@ function DebugSystem:updateBounds(options)
             self.heart_target_y = self.heart_target_y - 32 + 16 - self.menu_target_y
             self.menu_target_y = 0
         end
+    end
+    if self.state == "FLAGSFILTER" and self.current_selecting >= 4 then
+        self.heart_target_y = self.heart_target_y + 32
     end
 end
 
@@ -1031,50 +1076,56 @@ function DebugSystem:onKeyPressed(key, is_repeat)
     elseif self.state == "FLAGS" then
         if Game.flags then
             if Input.isCancel(key) and not is_repeat then
-                Assets.playSound("ui_select")
+                Assets.playSound("ui_move")
                 self:setState("MENU")
                 self.current_selecting = self.current_subselecting
                 return
             elseif Input.isConfirm(key) then
-                local keys = Utils.getKeys(Game.flags)
-                local flag_name = keys[self.current_selecting]
-                if type(Game:getFlag(flag_name)) == "boolean" then
-                    Game:setFlag(flag_name, not Game:getFlag(flag_name))
+                if self.current_selecting == 1 then
                     Assets.playSound("ui_select")
-                elseif type(Game:getFlag(flag_name)) == "number" then
-                    Assets.playSound("ui_select")
-                    self.window = DebugWindow("Edit Flag (number) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
-                        local num = tonumber(text)
-                        if num then
-                            Game:setFlag(flag_name, num)
-                            Assets.playSound("ui_select")
-                        else
-                            Assets.playSound("ui_cant_select")
-                        end
-                    end)
-                    self.window:setPosition(Input.getCurrentCursorPosition())
-                    self.window.input_lines[1] = Game:getFlag(flag_name)
-                    TextInput.cursor_x = string.len(Game:getFlag(flag_name))
-                    self:addChild(self.window)
-                elseif type(Game:getFlag(flag_name)) == "string" then
-                    Assets.playSound("ui_select")
-                    self.window = DebugWindow("Edit Flag (string) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
-                        Game:setFlag(flag_name, text)
-                        Assets.playSound("ui_select")
-                    end)
-                    self.window:setPosition(Input.getCurrentCursorPosition())
-                    self.window.input_lines[1] = Game:getFlag(flag_name)
-                    TextInput.cursor_x = string.len(Game:getFlag(flag_name))
-                    self:addChild(self.window)
+                    self:setState("FLAGSFILTER")
                 else
-                    Assets.playSound("ui_cant_select")
+                    local keys = self.filtered_flags_list
+                    local flag_name = keys[self.current_selecting - 1]
+                    if type(Game:getFlag(flag_name)) == "boolean" then
+                        Game:setFlag(flag_name, not Game:getFlag(flag_name))
+                        Assets.playSound("ui_select")
+                    elseif type(Game:getFlag(flag_name)) == "number" then
+                        Assets.playSound("ui_select")
+                        self.window = DebugWindow("Edit Flag (number) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
+                            local num = tonumber(text)
+                            if num then
+                                Game:setFlag(flag_name, num)
+                                Assets.playSound("ui_select")
+                            else
+                                Assets.playSound("ui_cant_select")
+                            end
+                        end)
+                        self.window:setPosition(Input.getCurrentCursorPosition())
+                        self.window.input_lines[1] = Game:getFlag(flag_name)
+                        TextInput.cursor_x = string.len(Game:getFlag(flag_name))
+                        self:addChild(self.window)
+                    elseif type(Game:getFlag(flag_name)) == "string" then
+                        Assets.playSound("ui_select")
+                        self.window = DebugWindow("Edit Flag (string) - \"".. flag_name .."\"", "Enter a new value for this flag.", "input", function (text)
+                            Game:setFlag(flag_name, text)
+                            Assets.playSound("ui_select")
+                        end)
+                        self.window:setPosition(Input.getCurrentCursorPosition())
+                        self.window.input_lines[1] = Game:getFlag(flag_name)
+                        TextInput.cursor_x = string.len(Game:getFlag(flag_name))
+                        self:addChild(self.window)
+                    else
+                        Assets.playSound("ui_cant_select")
+                    end
                 end
             end
 
             local counter = 0
-            for _,flag in pairs(Game.flags) do
+            for _,flag in ipairs(self.filtered_flags_list) do
                 counter = counter + 1
             end
+            counter = counter + 1
             
             if Input.is("down", key) and (not is_repeat or self.current_selecting < counter) then
                 Assets.playSound("ui_move")
@@ -1084,12 +1135,73 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 Assets.playSound("ui_move")
                 self.current_selecting = self.current_selecting - 1
             end
-            self:updateBounds(Utils.getKeys(Game.flags))
+            local keys = Utils.copy(self.filtered_flags_list)
+            table.insert(keys, "") -- This is terrible
+            self:updateBounds(keys)
         else
             self:setState("MENU")
             self:refresh()
             return
         end
+    elseif self.state == "FLAGSFILTER" then
+        if Input.isCancel(key) and not is_repeat then
+            Assets.playSound("ui_cancel")
+            self:setState("FLAGS")
+        elseif Input.isConfirm(key) then
+            -- Flag type
+            if self.current_selecting == 1 then
+                Assets.playSound("ui_select")
+
+                local types = {"any", "boolean", "string", "number"}
+                local current_index = Utils.getIndex(types, self.temp_flag_type)
+                local new_index = Utils.clampWrap(current_index + 1, #types)
+                local new = types[new_index]
+                self.temp_flag_type = new
+            -- Filter query
+            elseif self.current_selecting == 2 then
+                Assets.playSound("ui_select")
+
+                self:startTextInput(self.temp_flag_query)
+                TextInput.pressed_callback = nil
+            -- Filter type
+            elseif self.current_selecting == 3 then
+                Assets.playSound("ui_select")
+
+                local types = {"pattern", "invert_pattern", "startsWith", "invert_startsWith"}
+                local current_index = Utils.getIndex(types, self.temp_flag_query_type)
+                local new_index = Utils.clampWrap(current_index + 1, #types)
+                local new = types[new_index]
+                self.temp_flag_query_type = new
+            elseif self.current_selecting == 4 then
+                Assets.playSound("impact")
+
+                self.temp_flag_type = "any"
+                self.temp_flag_query = { "" }
+                self.temp_flag_query_type = "pattern"
+                self.current_selecting = 1
+                self:startTextInput(self.temp_flag_query)
+                TextInput.endInput()
+                Input.clear("down")
+                Input.clear("up")
+            elseif self.current_selecting == 5 then
+                Assets.playSound("ui_select")
+
+                self.flag_type = self.temp_flag_type
+                self.flag_query_type = self.temp_flag_query_type
+                self.flag_query = Utils.copy(self.temp_flag_query)
+                self:setState("FLAGS")
+            end
+        end
+
+        if Input.is("down", key) and (not is_repeat or self.current_selecting < 5) then
+            Assets.playSound("ui_move")
+            self.current_selecting = self.current_selecting + 1
+        end
+        if Input.is("up", key) and (not is_repeat or self.current_selecting > 1) then
+            Assets.playSound("ui_move")
+            self.current_selecting = self.current_selecting - 1
+        end
+        self:updateBounds({"", "", "", "", ""}) -- evil
     end
 end
 
@@ -1378,19 +1490,93 @@ function DebugSystem:draw()
         Draw.setColor(1, 1, 1, 1)
 
         local name = "Press CANCEL to go back."
+        if self.current_selecting == 1 then
+            name = "Set a filter to customise what flags are shown."
+        end
 
         Draw.pushScissor()
         Draw.scissor(text_offset + 19, y_off + menu_y + 16, 640, 320 + 48)
+        self:printShadow("Filter Settings", text_offset + 19, y_off + menu_y + 16 + self.menu_y)
         if Game.flags then
-            for index, key in pairs(Utils.getKeys(Game.flags)) do
-                self:printShadow(key, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y)
-                self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index - 1) * 32 + 16 + self.menu_y,
+            for index, key in pairs(self.filtered_flags_list) do
+                self:printShadow(key, text_offset + 19, y_off + menu_y + (index) * 32 + 16 + self.menu_y)
+                self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index) * 32 + 16 + self.menu_y,
                                  { 1, 1, 1, 1 }, "right", 640)
             end
         end
         Draw.popScissor()
 
         self:printShadow(name, 0, 480 - 32, COLORS.gray, "center", 640)
+    elseif self.state == "FLAGSFILTER" then
+        header_name = "~ FLAG EDITOR - FILTER SETTINGS ~"
+        Draw.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+        Draw.setColor(1, 1, 1, 1)
+
+        
+        self:printShadow("Flag type:"     , text_offset + 19, y_off + menu_y + 16 + 32*0 + self.menu_y)
+        self:printShadow("Filter query:"  , text_offset + 19, y_off + menu_y + 16 + 32*1 + self.menu_y)
+        self:printShadow("Query type:"    , text_offset + 19, y_off + menu_y + 16 + 32*2 + self.menu_y)
+        self:printShadow("Reset Filter"   , text_offset + 19, y_off + menu_y + 16 + 32*4 + self.menu_y)
+        self:printShadow("Save and Return", text_offset + 19, y_off + menu_y + 16 + 32*5 + self.menu_y)
+
+        local name = "Press CANCEL to go back without saving."
+        local name_offset = 0
+        if self.current_selecting == 1 then
+            if self.temp_flag_type == "any" then
+                name = "Shows all flag types."
+            elseif self.temp_flag_type == "string" then
+                name = "Shows only string type flags."
+            elseif self.temp_flag_type == "number" then
+                name = "Shows only number type flags."
+            elseif self.temp_flag_type == "boolean" then
+                name = "Shows only boolean flags."
+            end
+        elseif self.current_selecting == 2 then 
+            name = "A query to filter flags by.\nSet QUERY TYPE to change how this value is used."
+            name_offset = -32
+        elseif self.current_selecting == 3 then
+            if self.temp_flag_query_type == "pattern" then
+                name = "Filters to show only flags whose name match the\n pattern contained in FILTER QUERY"
+            elseif self.temp_flag_query_type == "invert_pattern" then
+                name = "Filters to hide flags whose name match the\n pattern contained in FILTER QUERY"
+            elseif self.temp_flag_query_type == "startsWith" then
+                name = "Filters to show only flags whose names start with\n the value of FILTER QUERY"
+            elseif self.temp_flag_query_type == "invert_startsWith" then
+                name = "Filters to hide flags whose names start with\n the value of FILTER QUERY"
+            end
+            name_offset = -32
+        elseif self.current_selecting == 4 then
+            name = "Resets the filter to it's default settings."
+        end
+
+        self:printShadow(self.temp_flag_type, -16, y_off + menu_y + 16 + 32*0 + self.menu_y,
+                             {1, 1, 1, 1}, "right", 640)
+        self:printShadow(self.temp_flag_query_type, -16, y_off + menu_y + 16 + 32*2 + self.menu_y,
+                             {1, 1, 1, 1}, "right", 640)
+        -- Textinput drawing goes here! maybe...
+        local line_width = 320
+        local x = 320 - 16
+        local y = y_off + menu_y + 16 + 32 + self.menu_y
+        
+        love.graphics.setLineWidth(2)
+        local line_x  = x
+        local line_x2 = line_x + line_width
+        local line_y  = 32 - 4 - 1 + 2
+        Draw.setColor(0, 0, 0, 1)
+        love.graphics.line(line_x + 2, y + line_y + 2, line_x2 + 2, y + line_y + 2)
+        Draw.setColor(COLORS.silver)
+        love.graphics.line(line_x, y + line_y, line_x2, y + line_y)
+            
+        TextInput.draw({
+            x = x,
+            y = y,
+            font = self.font,
+            print = function (text, x, y) self:printShadow(text, x, y) end,
+        })
+
+        self:printShadow(name, 0, 480 - 32 + name_offset, COLORS.gray, "center", 640)
     elseif self.state == "SELECTION" or (self.old_state == "SELECTION" and self.state == "IDLE" and (menu_alpha > 0)) then
         header_name = "~ OBJECT SELECTION ~"
 
