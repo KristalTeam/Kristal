@@ -77,11 +77,11 @@ function DebugSystem:init()
 
     self.flag_type = "any"
     self.flag_query = { "" }
-    self.flag_query_type = "pattern" -- Types include: "pattern", "invert_pattern", "startsWith", "invert_startsWith"
+    self.flag_filter_mode = "pattern" -- Types include: "pattern", "invert_pattern", "startsWith", "invert_startsWith"
 
     self.temp_flag_type = nil
     self.temp_flag_query = { "" }
-    self.temp_flag_query_type = nil
+    self.temp_flag_filter_mode = nil
 
     self.filtered_flags_list = {}
 end
@@ -332,6 +332,7 @@ function DebugSystem:refresh()
     self:registerDefaults()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
+    self:setFlagFilterDefaults()
 end
 
 function DebugSystem:addToExclusiveMenu(state, id)
@@ -854,6 +855,20 @@ function DebugSystem:closeMenu()
     self:setState("IDLE")
 end
 
+function DebugSystem:setFlagFilterDefaults()
+    local type, query, mode
+    if Mod then
+        type = Kristal.getModOption("defaultFlagFilterType") or "any"
+        query = { Kristal.getModOption("defaultFlagFilterQuery") or "" }
+        mode = Kristal.getModOption("defaultFlagFilterMode") or "pattern"
+    else
+        type = "any"
+        query = { "" }
+        mode = "pattern"
+    end
+    self.flag_type, self.flag_query, self.flag_filter_mode = type, query, mode
+end
+
 function DebugSystem:setState(state, reason)
     self.old_state = self.state
     self.state = state
@@ -909,7 +924,7 @@ function DebugSystem:onStateChange(old, new)
                 end)
             end
             if self.flag_query and self.flag_query[1] ~= "" then
-                local invert, query = Utils.startsWith(self.flag_query_type, "invert_")
+                local invert, query = Utils.startsWith(self.flag_filter_mode, "invert_")
                 if query == "pattern" then
                     flags = Utils.filter(flags, function (v)
                         local cond = string.match(v, self.flag_query[1])
@@ -927,7 +942,7 @@ function DebugSystem:onStateChange(old, new)
         OVERLAY_OPEN = true
     elseif new == "FLAGSFILTER" then
         self.temp_flag_type = self.flag_type
-        self.temp_flag_query_type = self.flag_query_type
+        self.temp_flag_filter_mode = self.flag_filter_mode
         self.temp_flag_query = Utils.copy(self.flag_query)
         self:startTextInput(self.temp_flag_query)
         TextInput.endInput()
@@ -1168,16 +1183,16 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 Assets.playSound("ui_select")
 
                 local types = {"pattern", "invert_pattern", "startsWith", "invert_startsWith"}
-                local current_index = Utils.getIndex(types, self.temp_flag_query_type)
+                local current_index = Utils.getIndex(types, self.temp_flag_filter_mode)
                 local new_index = Utils.clampWrap(current_index + 1, #types)
                 local new = types[new_index]
-                self.temp_flag_query_type = new
+                self.temp_flag_filter_mode = new
             elseif self.current_selecting == 4 then
                 Assets.playSound("impact")
 
                 self.temp_flag_type = "any"
                 self.temp_flag_query = { "" }
-                self.temp_flag_query_type = "pattern"
+                self.temp_flag_filter_mode = "pattern"
                 self.current_selecting = 1
                 self:startTextInput(self.temp_flag_query)
                 TextInput.endInput()
@@ -1187,7 +1202,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 Assets.playSound("ui_select")
 
                 self.flag_type = self.temp_flag_type
-                self.flag_query_type = self.temp_flag_query_type
+                self.flag_filter_mode = self.temp_flag_filter_mode
                 self.flag_query = Utils.copy(self.temp_flag_query)
                 self:setState("FLAGS")
             end
@@ -1517,7 +1532,7 @@ function DebugSystem:draw()
         
         self:printShadow("Flag type:"     , text_offset + 19, y_off + menu_y + 16 + 32*0 + self.menu_y)
         self:printShadow("Filter query:"  , text_offset + 19, y_off + menu_y + 16 + 32*1 + self.menu_y)
-        self:printShadow("Query type:"    , text_offset + 19, y_off + menu_y + 16 + 32*2 + self.menu_y)
+        self:printShadow("Filter Mode:"   , text_offset + 19, y_off + menu_y + 16 + 32*2 + self.menu_y)
         self:printShadow("Reset Filter"   , text_offset + 19, y_off + menu_y + 16 + 32*4 + self.menu_y)
         self:printShadow("Save and Return", text_offset + 19, y_off + menu_y + 16 + 32*5 + self.menu_y)
 
@@ -1534,17 +1549,17 @@ function DebugSystem:draw()
                 name = "Shows only boolean flags."
             end
         elseif self.current_selecting == 2 then 
-            name = "A query to filter flags by.\nSet QUERY TYPE to change how this value is used."
+            name = "A query to filter flags by.\nSet FILTER MODE to change how this value is used."
             name_offset = -32
         elseif self.current_selecting == 3 then
-            if self.temp_flag_query_type == "pattern" then
-                name = "Filters to show only flags whose name match the\n pattern contained in FILTER QUERY"
-            elseif self.temp_flag_query_type == "invert_pattern" then
-                name = "Filters to hide flags whose name match the\n pattern contained in FILTER QUERY"
-            elseif self.temp_flag_query_type == "startsWith" then
-                name = "Filters to show only flags whose names start with\n the value of FILTER QUERY"
-            elseif self.temp_flag_query_type == "invert_startsWith" then
-                name = "Filters to hide flags whose names start with\n the value of FILTER QUERY"
+            if self.temp_flag_filter_mode == "pattern" then
+                name = "Filters to show only flags whose name match the\n pattern contained in FILTER MODE"
+            elseif self.temp_flag_filter_mode == "invert_pattern" then
+                name = "Filters to hide flags whose name match the\n pattern contained in FILTER MODE"
+            elseif self.temp_flag_filter_mode == "startsWith" then
+                name = "Filters to show only flags whose names start with\n the value of FILTER MODE"
+            elseif self.temp_flag_filter_mode == "invert_startsWith" then
+                name = "Filters to hide flags whose names start with\n the value of FILTER MODE"
             end
             name_offset = -32
         elseif self.current_selecting == 4 then
@@ -1553,7 +1568,7 @@ function DebugSystem:draw()
 
         self:printShadow(self.temp_flag_type, -16, y_off + menu_y + 16 + 32*0 + self.menu_y,
                              {1, 1, 1, 1}, "right", 640)
-        self:printShadow(self.temp_flag_query_type, -16, y_off + menu_y + 16 + 32*2 + self.menu_y,
+        self:printShadow(self.temp_flag_filter_mode, -16, y_off + menu_y + 16 + 32*2 + self.menu_y,
                              {1, 1, 1, 1}, "right", 640)
         -- Textinput drawing goes here! maybe...
         local line_width = 320
