@@ -1514,9 +1514,48 @@ function DebugSystem:draw()
         self:printShadow("Filter Settings", text_offset + 19, y_off + menu_y + 16 + self.menu_y)
         if Game.flags then
             for index, key in pairs(self.filtered_flags_list) do
-                self:printShadow(key, text_offset + 19, y_off + menu_y + (index) * 32 + 16 + self.menu_y)
-                self:printShadow(tostring(Game.flags[key]), -16, y_off + menu_y + (index) * 32 + 16 + self.menu_y,
-                                 { 1, 1, 1, 1 }, "right", 640)
+                local width = self.font:getWidth(key)
+                local trunc_key
+                local sx = 1
+                if width > (480 - 32) then
+                    sx = (480 - 32) / width
+                    if sx < 0.6 then
+                        sx = 0.6
+                        local dotwidth = self.font:getWidth("...") * 0.6
+                        for i=1, string.len(key) do
+                            trunc_key = string.sub(key, 1, i)
+                            width = self.font:getWidth(trunc_key) * 0.6
+                            if width > (480 - 32 - dotwidth) then
+                                trunc_key = string.sub(key, 1, i-1)
+                                break
+                            end
+                        end
+                        trunc_key = trunc_key .. "..."
+                    end
+                end
+                self:printShadow(trunc_key or key, text_offset + 19, y_off + menu_y + (index) * 32 + 16 + self.menu_y, nil, nil, nil, sx)
+                local value = tostring(Game.flags[key])
+                width = self.font:getWidth(value)
+                sx = 1
+                if width > (160 - 32) then
+                    sx = (160 - 32) / width
+                    if sx < 0.6 then
+                        sx = 0.6
+                        local dotwidth = self.font:getWidth("...") * 0.6
+                        local trunc_val
+                        for i=1, string.len(value) do
+                            trunc_val = string.sub(value, 1, i)
+                            width = self.font:getWidth(trunc_val) * 0.6
+                            if width > (160 - 32 - dotwidth) then
+                                trunc_val = string.sub(value, 1, i-1)
+                                break
+                            end
+                        end
+                        value = trunc_val .. "..."
+                    end
+                end
+                self:printShadow(tostring(value), 480 + 16, y_off + menu_y + (index) * 32 + 16 + self.menu_y,
+                                 { 1, 1, 1, 1 }, "right", nil, sx)
             end
         end
         Draw.popScissor()
@@ -1588,7 +1627,14 @@ function DebugSystem:draw()
             x = x,
             y = y,
             font = self.font,
-            print = function (text, x, y) self:printShadow(text, x, y) end,
+            print = function (text, x, y) 
+                local width = self.font:getWidth(text)
+                local sx = 1
+                if width > 320 then
+                    sx = 320 / width
+                end
+                self:printShadow(text, x, y, nil, nil, nil, sx)
+            end,
         })
 
         self:printShadow(name, 0, 480 - 32 + name_offset, COLORS.gray, "center", 640)
@@ -1751,16 +1797,16 @@ function DebugSystem:draw()
     super.draw(self)
 end
 
-function DebugSystem:printShadow(text, x, y, color, align, limit)
+function DebugSystem:printShadow(text, x, y, color, align, limit, sx, sy)
     color = color or { 1, 1, 1, 1 }
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.font)
     Draw.setColor({ 0, 0, 0, color[4] })
-    love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left")
+    love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or 1)
 
     -- Draw the main text
     Draw.setColor(color)
-    love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left")
+    love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or 1)
 end
 
 return DebugSystem
