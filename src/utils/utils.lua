@@ -2331,6 +2331,52 @@ function Utils.padString(str, len, beginning, with)
 end
 
 ---
+--- Finds and returns the scale required to print `str` with the font `font`, such that it's width does not exceed `max_width`. \
+--- If a `min_scale` is specified, strings that would have to be squished smaller than it will instead have their remaining part truncated. \
+--- Returns the input string (truncated if necessary), and the scale to print it at.
+---
+---@param str string                # The string to squish and truncate.
+---@param font love.Font            # The font being used to print the string.
+---@param max_width number          # The maximum width the string should be able to take up.
+---@param def_scale? number         # The default scale used to print the string. Defaults to `1`.
+---@param min_scale? number         # The minimum scale that the string can be squished to before being truncated.
+---@param trunc_affix? string|false # The affix added to the string during truncation. If `false`, does not add an affix. Defaults to `...`.
+---@return string result            # The truncated result. Returns the original string if it was not truncated.
+---@return number scale             # The scale the `result` string should be printed at to fit within the specified width.
+function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_affix)
+    local scale = def_scale or 1
+    local text_width = font:getWidth(str) * scale
+
+    if text_width > max_width then
+        scale = max_width / text_width * scale
+        if min_scale and scale < min_scale then
+            scale = min_scale
+
+            local affix_width = 0
+            if trunc_affix ~= false then
+                trunc_affix = trunc_affix or "..."
+                affix_width = font:getWidth(trunc_affix) * scale
+            end
+
+            local trunc_str
+            for i=1, string.len(str) do
+                trunc_str = string.sub(str, 1, i)
+                local width = font:getWidth(trunc_str) * scale
+                if width > (max_width - affix_width) then
+                    trunc_str = string.sub(str, 1, i-1)
+                    break
+                end
+            end
+            if trunc_affix then
+                trunc_str = trunc_str .. trunc_affix
+            end
+            return trunc_str, scale
+        end
+    end
+    return str, scale
+end
+
+---
 --- Limits the specified value to be between 2 bounds, wrapping around if it exceeds it.
 ---
 ---@param val number     # The value to wrap.

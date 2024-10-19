@@ -1514,47 +1514,10 @@ function DebugSystem:draw()
         self:printShadow("Filter Settings", text_offset + 19, y_off + menu_y + 16 + self.menu_y)
         if Game.flags then
             for index, key in pairs(self.filtered_flags_list) do
-                local width = self.font:getWidth(key)
-                local trunc_key
-                local sx = 1
-                if width > (480 - 32) then
-                    sx = (480 - 32) / width
-                    if sx < 0.6 then
-                        sx = 0.6
-                        local dotwidth = self.font:getWidth("...") * 0.6
-                        for i=1, string.len(key) do
-                            trunc_key = string.sub(key, 1, i)
-                            width = self.font:getWidth(trunc_key) * 0.6
-                            if width > (480 - 32 - dotwidth) then
-                                trunc_key = string.sub(key, 1, i-1)
-                                break
-                            end
-                        end
-                        trunc_key = trunc_key .. "..."
-                    end
-                end
-                self:printShadow(trunc_key or key, text_offset + 19, y_off + menu_y + (index) * 32 + 16 + self.menu_y, nil, nil, nil, sx)
-                local value = tostring(Game.flags[key])
-                width = self.font:getWidth(value)
-                sx = 1
-                if width > (160 - 32) then
-                    sx = (160 - 32) / width
-                    if sx < 0.6 then
-                        sx = 0.6
-                        local dotwidth = self.font:getWidth("...") * 0.6
-                        local trunc_val
-                        for i=1, string.len(value) do
-                            trunc_val = string.sub(value, 1, i)
-                            width = self.font:getWidth(trunc_val) * 0.6
-                            if width > (160 - 32 - dotwidth) then
-                                trunc_val = string.sub(value, 1, i-1)
-                                break
-                            end
-                        end
-                        value = trunc_val .. "..."
-                    end
-                end
-                self:printShadow(tostring(value), 480 + 16, y_off + menu_y + (index) * 32 + 16 + self.menu_y,
+                local print_key, sx = Utils.squishAndTrunc(key, self.font, 480 - 32, 1, 0.6, "...")
+                self:printShadow(print_key, text_offset + 19, y_off + menu_y + (index) * 32 + 16 + self.menu_y, nil, nil, nil, sx)
+                local print_value, sx = Utils.squishAndTrunc(tostring(Game.flags[key]), self.font, 160 - 32, 1, 0.6, "...")
+                self:printShadow(print_value, 480 + 16, y_off + menu_y + (index) * 32 + 16 + self.menu_y,
                                  { 1, 1, 1, 1 }, "right", nil, sx)
             end
         end
@@ -1627,13 +1590,9 @@ function DebugSystem:draw()
             x = x,
             y = y,
             font = self.font,
-            print = function (text, x, y) 
-                local width = self.font:getWidth(text)
-                local sx = 1
-                if width > 320 then
-                    sx = 320 / width
-                end
-                self:printShadow(text, x, y, nil, nil, nil, sx)
+            print = function (text, x, y)
+                local text, scale = Utils.squishAndTrunc(text, self.font, 320, 1, 0.4, "...")
+                self:printShadow(text, x, y, nil, nil, nil, scale)
             end,
         })
 
