@@ -210,6 +210,13 @@ function ModButton:draw()
         Draw.setColor(r, g*0.75, b*0.75, a)
     end
     love.graphics.print(ver_name, ver_x, ver_y)
+    -- Draw legacy mod.json indicator
+    if self.mod.legacy then
+        local leg_x = ver_x - 4 - self.subfont:getWidth("{}")
+        local leg_y = ver_y
+        Draw.setColor(COLORS.orange)
+        love.graphics.print("{}", leg_x, leg_y)
+    end
 
     Draw.popScissor()
 

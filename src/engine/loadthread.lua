@@ -103,8 +103,25 @@ local loaders = {
             path = zip_id
             love.filesystem.mount(mounted_path, full_path)
         end
-        if love.filesystem.getInfo(full_path .. "/mod.json") then
-            local ok, mod = pcall(json.decode, love.filesystem.read(full_path .. "/mod.json"))
+        local legacy, found_config
+        legacy = love.filesystem.getInfo(full_path .. "/mod.json") and true
+        found_config = legacy or love.filesystem.getInfo(full_path .. "/mod.lua")
+        if found_config then
+            local ok, mod
+            if legacy then
+                ok, mod = pcall(json.decode, love.filesystem.read(full_path .. "/mod.json"))
+            else
+                local chunk
+                ok, chunk = pcall(love.filesystem.load, full_path .. "/mod.lua")
+                if ok then
+                    ok, mod = pcall(chunk)
+                    if type(mod) ~= "table" then
+                        ok = false
+                    end
+                else
+                    mod = chunk
+                end
+            end
 
             if love.filesystem.getInfo(full_path .. "/_GENERATED_FROM_MOD_TEMPLATE") then
                 full_path = "mod_template"
@@ -114,15 +131,16 @@ local loaders = {
                 table.insert(data.failed_mods, {
                     path = path,
                     error = mod,
-                    file = "mod.json"
+                    file = "mod." .. (legacy and "json" or "lua")
                 })
-                print("[WARNING] Mod \"" .. path .. "\" has an invalid mod.json!")
+                print("[WARNING] Mod \"" .. path .. "\" has an invalid mod.".. (legacy and "json" or "lua") .."!")
                 return
             end
 
             mod.id = mod.id or path
             mod.folder = path
             mod.path = full_path
+            mod.legacy = legacy
 
             if love.filesystem.getInfo(full_path .. "/preview.lua") then
                 mod.preview_script_path = full_path .. "/preview.lua"
@@ -227,23 +245,63 @@ local loaders = {
 
                     ok = true
 
+                    -- Libraries are not *required* to define a config file nor requried to have a
+                    -- main script, so whether we are in legacy mode or not may be ambiguous
+                    -- We'll assume it is not legacy by default, and then check for legacy traits
+                    legacy = false
+                    -- lib.json exists - definitely legacy
                     if love.filesystem.getInfo(lib_full_path .. "/lib.json") then
                         ok, lib = pcall(json.decode, love.filesystem.read(lib_full_path .. "/lib.json"))
+                        legacy = true
+                    -- lib.lua exists but not lib.json - potentially ambiguous
+                    elseif love.filesystem.getInfo(lib_full_path .. "/lib.lua") then
+                        -- Try loading the chunk - if an error is thrown here we fail the library 100% of
+                        -- the time as the ability to load a chunk is not dependent on anything else, so
+                        -- the error must be invalid syntax
+                        local chunk
+                        ok, chunk = pcall(love.filesystem.load, lib_full_path .. "/lib.lua")
+                        if ok then
+                            -- Try executing the chunk
+                            local execute_ok
+                            execute_ok, lib = pcall(chunk)
+                            -- Error during execution: Library is probably legacy and the script failed
+                            -- because we ran it in the loadthread
+                            -- No return value or non-table return: definitely not a config file
+                            -- Return value is table and has `init()` function: definitely lib script
+                            -- No common config keys: likely a lib script
+                            if not execute_ok or not lib or type(lib) ~= "table" or lib.init
+                                or not (
+                                    lib.id
+                                    or lib.authors
+                                    or lib.version
+                                    or lib.engineVer
+                                    or lib.config
+                                    or lib.dependencies
+                                    or lib.optionalDependencies
+                                )
+                            then
+                                legacy = true
+                                lib = {}
+                            end
+                        else
+                            lib = chunk
+                        end
                     end
 
                     if not ok then
                         table.insert(data.failed_mods, {
                             path = path,
                             error = lib,
-                            file = "lib.json"
+                            file = "lib." .. (legacy and "json" or "lua")
                         })
-                        print("[WARNING] Mod \"" .. path .. "\" has a library with an invalid lib.json!")
+                        print("[WARNING] Mod \"" .. path .. "\" has a library with an invalid lib." .. (legacy and "json" or "lua") .. "!")
                         return
                     end
 
                     lib.id = lib.id or lib_path
                     lib.folder = lib_path
                     lib.path = lib_full_path
+                    lib.legacy = legacy
 
                     mod.libs[lib.id] = lib
                 end
@@ -257,7 +315,7 @@ local loaders = {
                         table.insert(data.failed_mods, {
                             path = path,
                             error = error,
-                            file = "lib.json"
+                            file = "lib." .. lib.legacy and "json" or "lua"
                         })
                         print("[WARNING] Issue loading mod \"" .. path .. "\" - " .. error)
                         return

@@ -1112,14 +1112,15 @@ function Kristal.loadMod(id, save_id, save_name, after)
 
     -- Create the Mod table, which is a global table that
     -- can contain a mod's custom variables and functions
-    -- with Mod.info referencing the mod data (from the .json)
+    -- with Mod.info referencing the mod data (from the .lua or .json)
     Mod = Mod or { info = mod, libs = {} }
 
-    -- Check for mod.lua
-    if mod.script_chunks["mod"] then
+    -- Check for main script
+    local script = mod.legacy and "mod" or "scripts/main"
+    if mod.script_chunks[script] then
         -- Execute mod.lua
-        local result = mod.script_chunks["mod"]()
-        -- If mod.lua returns a table, use that as the global Mod table (optional)
+        local result = mod.script_chunks[script]()
+        -- If the main script returns a table, use that as the global Mod table (optional)
         if type(result) == "table" then
             Mod = result
             if not Mod.info then
@@ -1142,11 +1143,12 @@ function Kristal.loadMod(id, save_id, save_name, after)
         -- Add the current library to the libs table first, before lib.lua execution
         Mod.libs[lib_id] = lib
 
-        -- Check for lib.lua
-        if lib_info.script_chunks["lib"] then
+        -- Check for main script
+        local script = lib_info.legacy and "lib" or "scripts/main"
+        if lib_info.script_chunks[script] then
             -- Execute lib.lua
-            local result = lib_info.script_chunks["lib"]()
-            -- If lib.lua returns a table, use that as the lib table (optional)
+            local result = lib_info.script_chunks[script]()
+            -- If the main script returns a table, use that as the lib table (optional)
             if type(result) == "table" then
                 lib = result
                 if not lib.info then
