@@ -156,7 +156,12 @@ function GameOver:update()
                 end
                 table.insert(self.lines, full_line)
             end
-            self.dialogue = DialogueText(self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 320 or 300, {style = "none"})
+            self.dialogue = DialogueText(
+                self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 320 or 300,
+                {
+                    style = "none",
+                    actor = member:getActor(Game:isLight())
+                })
             if Game:isLight() then
                 self.dialogue.skippable = false
                 self.dialogue.line_offset = 8
