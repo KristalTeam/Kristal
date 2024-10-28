@@ -10,7 +10,7 @@ return function(cutscene, event, player, facing)
         cutscene:showShop()
         local shopbox = cutscene.shopbox
         Game.world.music:pause()
-        cutscene:text("*** Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1.2s]", {functions = {
+        cutscene:text("*** Lmao you're broke as\n          [func:remove][color:yellow]fuck[noskip][wait:1.2s]", nil, event, {functions = {
             remove = function()
                 Game.money = Game.money - 1
                 Assets.playSound("locker")

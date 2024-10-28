@@ -276,7 +276,9 @@ function DialogueText:playTextSound(current_node)
         if Kristal.callEvent(KRISTAL_EVENT.onTextSound, self.state.typing_sound, current_node, self.state) then
             return
         end
-        if self:getActor() and self:getActor():onTextSound(current_node) then
+        if self:getActor()
+            and (self:getActor().voice or "default") == self.state.typing_sound
+            and self:getActor():onTextSound(current_node) then
             return
         end
         Assets.playSound("voice/" .. self.state.typing_sound)
