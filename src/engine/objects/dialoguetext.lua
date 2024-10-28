@@ -278,7 +278,7 @@ function DialogueText:playTextSound(current_node)
         end
         if self:getActor()
             and (self:getActor().voice or "default") == self.state.typing_sound
-            and self:getActor():onTextSound(current_node) then
+            and self:getActor():onTextSound(current_node, self.state) then
             return
         end
         Assets.playSound("voice/" .. self.state.typing_sound)

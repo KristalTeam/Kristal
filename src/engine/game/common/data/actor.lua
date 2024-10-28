@@ -154,7 +154,7 @@ function Actor:getMirrorSprite(sprite) return self:getMirrorSprites()[sprite] en
 
 function Actor:hasOffset(sprite) return self.offsets[sprite] ~= nil end
 function Actor:getOffset(sprite) return unpack(self.offsets[sprite] or {0, 0}) end
-function Actor:onTextSound(node) end
+function Actor:onTextSound(node, state) end
 
 -- Misc Functions
 function Actor:createSprite()
