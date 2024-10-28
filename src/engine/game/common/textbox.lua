@@ -164,6 +164,7 @@ function Textbox:setActor(actor)
         actor = Registry.createActor(actor)
     end
     self.actor = actor
+    self.text.actor = actor
 
     if self.actor and self.actor:getPortraitPath() then
         self.face.path = self.actor:getPortraitPath()
