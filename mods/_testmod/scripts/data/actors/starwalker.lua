@@ -62,4 +62,13 @@ function actor:init()
     }
 end
 
+function actor:onTextSound(node)
+    local pitch = Utils.clampMap(string.byte(node.character), 32, 256, 1, 1.08)
+    if Game.battle then
+        pitch = Utils.clampMap(string.byte(node.character), 32, 256, 0.5, 2.08)
+    end
+    Assets.playSound("voice/default", 1, pitch)
+    return true
+end
+
 return actor
