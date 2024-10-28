@@ -29,6 +29,7 @@ function SpeechBubble:init(text, x, y, options, speaker)
         self.actor = self.speaker.actor
         self.speaker.bubble = self
     end
+    self.text.actor = self.actor
 
     self:setCallback(options["after"])
     self:setLineCallback(options["line_callback"])
