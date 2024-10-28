@@ -45,8 +45,6 @@ end
 ---@return Actor?
 function DialogueText:getActor()
     if self.actor then return self.actor end
-    -- TODO: don't rely on this because it sucks
-    if self.parent.actor then return self.parent.actor end
 end
 
 function DialogueText:getDebugInfo()
