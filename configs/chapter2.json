@@ -8,7 +8,6 @@
 
     "growStronger": true,            // Stat increases after defeating an enemy with violence
     "growStrongerChara": "noelle",   // Character to prioritize for the "X became stronger" message
-    "growStrongerLostOnly": true,    // Can only grow stronger from each enemy once, and only recruitable ones.
 
     "susieStyle": 2,                 // Susie chapter style
     "ralseiStyle": 2,                // Ralsei chapter style

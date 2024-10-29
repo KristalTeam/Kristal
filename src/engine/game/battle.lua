@@ -593,7 +593,7 @@ function Battle:onStateChange(old,new)
         -- if (in_dojo) then
         --     win_text == "* You won the battle!"
         -- end
-        if self.used_violence and Game:getConfig("growStronger") and (self.lost_recruit or not Game:getConfig("growStrongerLostOnly")) then
+        if self.used_violence and Game:getConfig("growStronger") and (self.lost_recruit or Game:getConfig("growStronger") == "ANY") then
             local stronger = "You"
 
             local party_to_lvl_up = {}
