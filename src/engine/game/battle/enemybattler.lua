@@ -877,7 +877,7 @@ function EnemyBattler:defeat(reason, violent)
             Game.battle.become_stronger = true
         end
         if self:isRecruitable() then
-            if Game:getConfig("growStronger") == true then
+            if Game:getConfig("growStronger") then
                 Game.battle.become_stronger = true
             end
             if self:getRecruitStatus() ~= false then
