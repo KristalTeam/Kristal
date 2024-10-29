@@ -71,6 +71,7 @@ function Battle:init()
     self.xp = 0
 
     self.used_violence = false
+    self.become_stronger = false
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
