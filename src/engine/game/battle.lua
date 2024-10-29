@@ -194,6 +194,7 @@ function Battle:init()
     self.defending_begin_timer = 0
 
     self.darkify = false
+    self.lost_recruit = false
 end
 
 function Battle:createPartyBattlers()
@@ -592,7 +593,7 @@ function Battle:onStateChange(old,new)
         -- if (in_dojo) then
         --     win_text == "* You won the battle!"
         -- end
-        if self.used_violence and Game:getConfig("growStronger") then
+        if self.used_violence and Game:getConfig("growStronger") and (self.lost_recruit or not Game:getConfig("growStrongerLostOnly")) then
             local stronger = "You"
 
             local party_to_lvl_up = {}
