@@ -77,7 +77,7 @@ end
 
 function Hotswapper.getLastModified(path)
     if not path then return end
-    path = path:gsub("^.\\", ""):gsub("\\", "/")
+    path = path:gsub("^.[\\/]", ""):gsub("\\", "/")
     local info = love.filesystem.getInfo(path, "file")
     if not info then
         print("Info is nil, disabling hotswapper...")
