@@ -27,6 +27,7 @@ local self = Assets
 ---@field font_settings table<string, table>
 ---@field sound_data table<string, love.SoundData>
 ---@field music table<string, string>
+---@field shaders table<string, string>
 ---@field videos table<string, string>
 ---@field bubble_settings table<string, table>
 
@@ -428,6 +429,10 @@ function Assets.newVideo(video, load_audio)
         error("No video found: "..video)
     end
     return love.graphics.newVideo(self.data.videos[video], {audio = load_audio})
+end
+
+function Assets.newShader(id)
+    return love.graphics.newShader(self.data.shaders[id])
 end
 
 Assets.clear()
