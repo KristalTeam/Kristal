@@ -1,9 +1,13 @@
 ---@class ShaderFX : FXBase
----@overload fun(...) : ShaderFX
+---@overload fun(shader:string|love.Shader,vars?:table,transformed?:boolean,priority?:number) : ShaderFX
 local ShaderFX, super = Class(FXBase)
 
 function ShaderFX:init(shader, vars, transformed, priority)
     super.init(self, priority or 0)
+
+    if type(shader) == "string" then
+        shader = Assets.newShader(shader)
+    end
 
     self.shader = shader
 
