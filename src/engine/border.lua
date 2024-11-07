@@ -1,4 +1,5 @@
 ---@class Border: Class
+---@overload fun(): Border
 local Border = Class()
 
 function Border:init()
