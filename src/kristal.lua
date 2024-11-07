@@ -200,7 +200,8 @@ function love.load(args)
             end
 
             if border then
-                local border_texture = Assets.getTexture("borders/" .. border)
+                -- ugly hack for a ternary with falsy value in the middle
+                local border_texture = (isClass(border) and {} or {Assets.getTexture("borders/" ..border)})[1]
 
                 love.graphics.scale(Kristal.getGameScale())
                 Draw.setColor(1, 1, 1, dynamic and BORDER_ALPHA or 1)
@@ -213,7 +214,10 @@ function love.load(args)
                     Draw.draw(border_texture, 0, 0, 0, BORDER_SCALE)
                 end
                 if dynamic then
-                    Kristal.callEvent(KRISTAL_EVENT.onBorderDraw, border, border_texture)
+                    if isClass(border) then
+                        border:draw()
+                    end
+                    Kristal.callEvent(KRISTAL_EVENT.onBorderDraw, border.id, border_texture)
                 end
                 love.graphics.pop()
                 Draw.setColor(1, 1, 1, 1)
@@ -1353,7 +1357,7 @@ function Kristal.getRelativeBorderSize()
     return 0, 0
 end
 
----@return string|nil border The currently displayed border, or `nil` if borders are disabled.
+---@return Border|nil border The currently displayed border, or `nil` if borders are disabled.
 function Kristal.getBorder()
     if not REGISTRY_LOADED then
         return nil
@@ -1372,12 +1376,12 @@ function Kristal.getBorder()
     return nil
 end
 
----@return string|nil border The currently displayed border if dynamic borders are enabled.
+---@return Border|nil border The currently displayed border if dynamic borders are enabled.
 function Kristal.processDynamicBorder()
     if Kristal.getState() == Game then
         return Game:getBorder()
     elseif Kristal.getState() == MainMenu then
-        return "castle"
+        return ImageBorder("castle")
     end
 end
 
