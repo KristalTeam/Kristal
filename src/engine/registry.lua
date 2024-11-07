@@ -477,7 +477,9 @@ function Registry.createBorder(id, ...)
         if texture then
             return ImageBorder(texture,id)
         end
-        return Border()
+        local border = Border()
+        border.id = id
+        return border
     end
 end
 
