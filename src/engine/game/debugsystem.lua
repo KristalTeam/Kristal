@@ -725,6 +725,10 @@ function DebugSystem:registerSubMenus()
         end
     end
 
+    for key, value in pairs(Registry.borders) do
+        table.insert(borders, key)
+    end
+
     for _,border in ipairs(Utils.removeDuplicates(borders)) do
         self:registerOption("border_menu", border, "Switch to the border \"" .. border .. "\".", function() Game:setBorder(border) end)
     end
