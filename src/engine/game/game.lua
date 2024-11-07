@@ -245,7 +245,7 @@ function Game:save(x, y)
 
         level_up_count = self.level_up_count,
 
-        border = self.border,
+        border = self.border.id,
 
         temp_followers = self.temp_followers,
 
