@@ -60,7 +60,8 @@ Registry.paths = {
     ["maps"]             = "world/maps",
     ["events"]           = "world/events",
     ["controllers"]      = "world/controllers",
-    ["shops"]            = "shops"
+    ["shops"]            = "shops",
+    ["borders"]          = "borders",
 }
 
 ---@param preload boolean?
@@ -97,6 +98,7 @@ function Registry.initialize(preload)
         Registry.initEvents()
         Registry.initControllers()
         Registry.initShops()
+        Registry.initBorders()
 
         Kristal.callEvent(KRISTAL_EVENT.onRegistered)
     end
@@ -464,6 +466,21 @@ function Registry.createShop(id, ...)
     end
 end
 
+---@param id string
+---@param ... any
+---@return Border
+function Registry.createBorder(id, ...)
+    if self.borders[id] then
+        return self.borders[id](...)
+    else
+        local texture = Assets.getTexture("borders/"..id)
+        if texture then
+            return ImageBorder(texture,id)
+        end
+        return Border()
+    end
+end
+
 -- Register Functions --
 
 ---@param id string
@@ -602,6 +619,12 @@ end
 ---@param class Shop
 function Registry.registerShop(id, class)
     self.shops[id] = class
+end
+
+---@param id string
+---@param border Border
+function Registry.registerBorder(id, border)
+    self.borders[id] = border
 end
 
 -- Internal Functions --
@@ -872,6 +895,18 @@ function Registry.initShops()
     end
 
     Kristal.callEvent(KRISTAL_EVENT.onRegisterShops)
+end
+
+function Registry.initBorders()
+    self.borders = {}
+
+    for _,path,border in self.iterScripts(Registry.paths["borders"]) do
+        assert(border ~= nil, '"borders/'..path..'.lua" does not return value')
+        border.id = border.id or path
+        self.registerBorder(border.id, border)
+    end
+
+    Kristal.callEvent(KRISTAL_EVENT.onRegisterBorders)
 end
 
 ---@param base_path string

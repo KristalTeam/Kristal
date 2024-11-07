@@ -242,6 +242,9 @@ RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 Shop = require("src.engine.game.shop")
 Shopkeeper = require("src.engine.game.shop.shopkeeper")
 
+Border = require("src.engine.border")
+ImageBorder = require("src.engine.imageborder")
+
 GameOver = require("src.engine.game.gameover")
 
 Legend = require("src.engine.game.legend")
