@@ -1,5 +1,7 @@
 ---@class ImageBorder: Border
----@overload fun(texture:love.Image|string, id?: string): ImageBorder
+---@field texture love.Image # The texture to be drawn behind the game. Usually 1920x1080.
+---@overload fun(texture:love.Image, id?: string): ImageBorder
+---@overload fun(id: string): ImageBorder
 local ImageBorder, super = Class(Border)
 
 function ImageBorder:init(texture, path)
