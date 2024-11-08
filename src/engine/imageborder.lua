@@ -1,5 +1,5 @@
 ---@class ImageBorder: Border
----@overload fun(texture:love.Image|string, id?: string)
+---@overload fun(texture:love.Image|string, id?: string): ImageBorder
 local ImageBorder, super = Class(Border)
 
 function ImageBorder:init(texture, path)
