@@ -30,6 +30,7 @@
 ---@field events table<string, Event|Object>
 ---@field controllers table<string, Event|Object>
 ---@field shops table<string, Shop>
+---@field borders table<string, Border>
 ---
 local Registry = {}
 local self = Registry
@@ -466,9 +467,10 @@ function Registry.createShop(id, ...)
     end
 end
 
----@param id string
+---@generic T
+---@param id Border.`T`
 ---@param ... any
----@return Border
+---@return T|Border
 function Registry.createBorder(id, ...)
     if self.borders[id] then
         return self.borders[id](...)
