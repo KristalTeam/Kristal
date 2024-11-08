@@ -5,8 +5,8 @@ local ImageBorder, super = Class(Border)
 function ImageBorder:init(texture, path)
     super.init(self)
     if type(texture) == "string" then
-        texture = Assets.getTexture("borders/"..texture)
         path = texture
+        texture = Assets.getTexture("borders/"..texture)
     end
     self.texture = texture
     self.id = path
