@@ -141,9 +141,13 @@ function Game:setBorder(border, time)
     if type(border) ~= "string" then
         new_border_id = border.id
     end
+    local current_border_id
+    if Kristal.getBorder() then
+        current_border_id = Kristal.getBorder().id
+    end
     if time == 0 then
         Kristal.showBorder(0)
-    elseif time > 0 and Kristal.getBorder().id ~= new_border_id then
+    elseif time > 0 and current_border_id ~= new_border_id then
         Kristal.transitionBorder(time)
     end
 
