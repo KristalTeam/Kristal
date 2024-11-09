@@ -287,6 +287,7 @@ FillSizing = require("src.engine.ui.sizing.fill")
 
 InputOverlay = require("src.engine.objects.overlay.inputoverlay")
 InputButton = require("src.engine.objects.overlay.inputbutton")
+Dpad = require("src.engine.objects.overlay.dpad")
 
 Hotswapper = require("src.hotswapper")
 

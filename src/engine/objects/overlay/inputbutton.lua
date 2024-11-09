@@ -1,13 +1,16 @@
 ---@class InputButton: Object
+---@overload fun(button:string, x:number, y:number, scale:number): InputButton
 local InputButton, super = Class(Object)
 
 function InputButton:init(button,x,y,scale)
     scale = (scale or 1) * 2
-    super.init(self,x,y,12*scale,12*scale)
+    super.init(self,x,y,12,12)
+    self.collider = CircleCollider(self,6,6, 6)
     self.sprite = self:addChild(Sprite("kristal/buttons/switch/"..button))
-    self.sprite:setScale(scale)
-    self.sprite.y = -scale
+    self:setScale(scale)
+    self.sprite.y = -1
     self.button = button
+    self.input_command_prefix = "gamepad:"
 end
 
 function InputButton:pressed(button)
@@ -44,16 +47,22 @@ function InputButton:update()
     super.update(self)
     if self:pressed() then
         if not self.is_pressed then
-            Input.onKeyPressed("gamepad:"..self.button, false)
+            Input.onKeyPressed(self.input_command_prefix..self.button, false)
         end
         self.is_pressed = true
     elseif self.is_pressed then
-        Input.onKeyReleased("gamepad:"..self.button)
+        Input.onKeyReleased(self.input_command_prefix..self.button)
         self.is_pressed = false
     end
 end
+
+function InputButton:setDpadMode()
+    self.input_command_prefix = "gamepad:ls"
+    return self
+end
+
 function InputButton:draw()
-    self.sprite.alpha = 0.2
+    self.sprite.alpha = 0.5
     if self:pressed() then
         self.sprite.alpha = 1
     end

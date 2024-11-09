@@ -6,6 +6,8 @@ function InputOverlay:init(w,h)
     self:addChild(InputButton("a",540,276, 3))
     self:addChild(InputButton("b",510,336, 3))
     self:addChild(InputButton("y",474,276, 3))
+
+    self:addChild(Dpad(10,300))
 end
 
 return InputOverlay
