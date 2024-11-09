@@ -43,7 +43,13 @@ end
 function InputButton:update()
     super.update(self)
     if self:pressed() then
-        print("clicked on button " .. self.button)
+        if not self.is_pressed then
+            Input.onKeyPressed("gamepad:"..self.button, false)
+        end
+        self.is_pressed = true
+    elseif self.is_pressed then
+        Input.onKeyReleased("gamepad:"..self.button)
+        self.is_pressed = false
     end
 end
 function InputButton:draw()
