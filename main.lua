@@ -285,6 +285,9 @@ FixedSizing = require("src.engine.ui.sizing.fixed")
 FitSizing = require("src.engine.ui.sizing.fit")
 FillSizing = require("src.engine.ui.sizing.fill")
 
+InputOverlay = require("src.engine.objects.overlay.inputoverlay")
+InputButton = require("src.engine.objects.overlay.inputbutton")
+
 Hotswapper = require("src.hotswapper")
 
 -- Register required in the hotswapper

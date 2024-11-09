@@ -1854,4 +1854,10 @@ function libRequire(lib, path, ...)
     return result
 end
 
+function Kristal.isMobile()
+    return love.system.getOS() == 'iOS'
+        or love.system.getOS() == 'Android'
+        or os.getenv("KRISTAL_FORCE_MOBILE_MODE") ~= nil
+end
+
 return Kristal
