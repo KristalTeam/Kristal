@@ -8,11 +8,17 @@ function InputOverlay:init(w,h)
         key_down = {},
         key_released = {},
     }
-    self:addChild(InputButton("confirm",self.buttons, 540,276, 2))
-    self:addChild(InputButton("cancel",self.buttons, 510,336, 2))
-    self:addChild(InputButton("menu",self.buttons, 474,276, 2))
+    self:reset()
+end
+function InputOverlay:reset()
+    for i,v in pairs(self.children) do
+        v:remove()
+    end
+    self.confirm = self:addChild(InputButton("confirm",self.buttons, 540,276, 2))
+    self.cancel = self:addChild(InputButton("cancel",self.buttons, 510,336, 2))
+    self.menu = self:addChild(InputButton("menu",self.buttons, 474,276, 2))
 
-    self:addChild(Dpad(self.buttons, 10,300))
+    self.dpad = self:addChild(Dpad(self.buttons, 10,300))
 end
 
 return InputOverlay
