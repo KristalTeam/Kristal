@@ -903,7 +903,7 @@ end
 ---@param key string
 ---@return boolean
 function Input.is(alias, key)
-    if (alias == "mobile:"..key) then return true end
+    if (key == "mobile:"..alias) then return true end
     if self.group_for_key[key] then
         key = self.group_for_key[key]
     end
