@@ -65,8 +65,6 @@ function InputButton:draw()
         self.sprite.alpha = 1
         -- self.sprite:setFrame(2)
     end
-    self.x = math.floor((self.x/(self.sprite.scale_x*1))+.5)*(self.sprite.scale_x*1)
-    self.y = math.floor((self.y/(self.sprite.scale_y*1))+.5)*(self.sprite.scale_y*1)
     super.draw(self)
 end
 
