@@ -1,12 +1,12 @@
 ---@class InputButton: Object
----@overload fun(button:string, x:number, y:number, scale:number): InputButton
+---@overload fun(button:string, buttons_table: nil, x:number, y:number, scale:number): InputButton
 local InputButton, super = Class(Object)
 
-function InputButton:init(button,x,y,scale)
+function InputButton:init(button,buttons_table,x,y,scale)
     scale = (scale or 1) * 2
     super.init(self,x,y,12,12)
-    self.collider = CircleCollider(self,6,6, 6)
-    self.sprite = self:addChild(Sprite("kristal/buttons/switch/"..button))
+    self.collider = CircleCollider(self,8,8,8)
+    self.sprite = self:addChild(Sprite("kristal/buttons/mobile/"..button))
     self:setScale(scale)
     self.sprite.y = -1
     self.button = button
@@ -17,9 +17,9 @@ end
 ---@param collider Collider? The collider to use. Defaults to `self.collider`.
 ---@return boolean pressed True if the button is being pressed
 ---@return number pressure How much pressure is being applied, if the device supports it. Otherwise, 0 or 1.
-function InputButton:pressed(collider)
+function InputButton:buttonDown(collider)
     collider = collider or self.collider
-    assert(collider, "Need a collider to check self:pressed()!")
+    assert(collider, "Need a collider to check self:buttonDown()!")
     for _,touch_index in ipairs(love.touch.getTouches()) do
         local x,y = love.touch.getPosition(touch_index)
         local pressure = love.touch.getPressure(touch_index)
@@ -42,14 +42,14 @@ end
 
 function InputButton:update()
     super.update(self)
-    if self:pressed() then
+    if self:buttonDown() then
         if not self.is_pressed then
-            Input.onKeyPressed(self.input_command_prefix..self.button, false)
+            Input.onKeyPressed("mobile:"..self.button, false)
         end
         self.is_pressed = true
     elseif self.is_pressed then
-        Input.onKeyReleased(self.input_command_prefix..self.button)
         self.is_pressed = false
+        Input.onKeyReleased("mobile:"..self.button)
     end
 end
 
@@ -60,8 +60,10 @@ end
 
 function InputButton:draw()
     self.sprite.alpha = 0.5
-    if self:pressed() then
+    -- self.sprite:setFrame(1)
+    if self:buttonDown() then
         self.sprite.alpha = 1
+        -- self.sprite:setFrame(2)
     end
     self.x = math.floor((self.x/(self.sprite.scale_x*1))+.5)*(self.sprite.scale_x*1)
     self.y = math.floor((self.y/(self.sprite.scale_y*1))+.5)*(self.sprite.scale_y*1)

@@ -505,6 +505,9 @@ function Input.clear(key, clear_down)
     if key then
         local bindings = Input.getBoundKeys(key)
         if bindings then
+            self.key_pressed["mobile:"..key] = false
+            self.key_repeated["mobile:"..key] = false
+            self.key_released["mobile:"..key] = false
             for _,k in ipairs(bindings) do
                 local keys = type(k) == "table" and k or {k}
                 for _,l in ipairs(keys) do
@@ -719,6 +722,7 @@ end
 ---@return boolean
 function Input.down(key)
     local bindings = Input.getBoundKeys(key)
+    if Input.keyDown("mobile:"..key) then return true end
     if bindings then
         for _,k in ipairs(bindings) do
             if type(k) == "string" and Input.keyDown(k) then
@@ -759,6 +763,7 @@ end
 ---@param repeatable? boolean
 ---@return boolean
 function Input.pressed(key, repeatable)
+    if Input.keyPressed("mobile:"..key, repeatable) then return true end
     local bindings = Input.getBoundKeys(key)
     if bindings then
         for _,k in ipairs(bindings) do
@@ -812,6 +817,7 @@ end
 ---@param key string
 ---@return boolean
 function Input.released(key)
+    if Input.keyReleased("mobile:"..key) then return true end
     local bindings = Input.getBoundKeys(key)
     if bindings then
         for _,k in ipairs(bindings) do
@@ -897,6 +903,7 @@ end
 ---@param key string
 ---@return boolean
 function Input.is(alias, key)
+    if (alias == "mobile:"..key) then return true end
     if self.group_for_key[key] then
         key = self.group_for_key[key]
     end
