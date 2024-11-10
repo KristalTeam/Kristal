@@ -13,34 +13,31 @@ function InputButton:init(button,x,y,scale)
     self.input_command_prefix = "gamepad:"
 end
 
-function InputButton:pressed(button)
-    if not button then
-        local used_button = 0
-        for i=1, Input.mouse_button_max do
-            local success, success_button = self:pressed(i)
-            used_button = math.max(used_button, success_button)
-            if success then
-                return true, success_button
-            end
+---Checks if the object is currently being clicked, held, or tapped.
+---@param collider Collider? The collider to use. Defaults to `self.collider`.
+---@return boolean pressed True if the button is being pressed
+---@return number pressure How much pressure is being applied, if the device supports it. Otherwise, 0 or 1.
+function InputButton:pressed(collider)
+    collider = collider or self.collider
+    assert(collider, "Need a collider to check self:pressed()!")
+    for _,touch_index in ipairs(love.touch.getTouches()) do
+        local x,y = love.touch.getPosition(touch_index)
+        local pressure = love.touch.getPressure(touch_index)
+        local radius = pressure * 10
+        local point = CircleCollider(nil, x+(radius/2), y+(radius/2), radius)
+        if collider:collidesWith(point) then
+            return true, pressure
         end
-        return false, used_button
     end
-    local clicked, x, y, presses = Input.mouseDown(button)
-    if not clicked then
-        return false, 0
-    end
-    if self.collider then
+    local clicked, x, y, presses = Input.mouseDown()
+    if clicked then
+        x,y = Input.getMousePosition()
         local point = PointCollider(nil, x, y)
-        return self.collider:collidesWith(point), button
-    else
-        -- roughly same code as DebugSystem:detectObject(x, y)
-        local mx, my = self:getFullTransform():inverseTransformPoint(x, y)
-        local rect = self:getDebugRectangle() or { 0, 0, self.width, self.height }
-        if mx >= rect[1] and mx < rect[1] + rect[3] and my >= rect[2] and my < rect[2] + rect[4] then
-            return true, button
+        if collider:collidesWith(point) then
+            return true, 1
         end
     end
-    return false, button
+    return false, 0
 end
 
 function InputButton:update()
