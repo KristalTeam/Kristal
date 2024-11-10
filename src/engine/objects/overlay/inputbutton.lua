@@ -6,7 +6,7 @@ function InputButton:init(button,buttons_table,x,y,scale)
     scale = (scale or 1) * 2
     super.init(self,x,y,14,14)
     self:setOrigin(.5)
-    self.collider = CircleCollider(self,8,8,8)
+    self.collider = CircleCollider(self,8,7,7)
     self.sprite = self:addChild(Sprite("kristal/buttons/mobile/"..button))
     self:setScale(scale)
     self.sprite.y = -1
@@ -63,6 +63,15 @@ function InputButton:setDpadMode()
         left = 180,
         right = 0,
     })[self.button])
+    local w = 12
+    self.collider = ColliderGroup(self, {
+        CircleCollider(self,7,7,7), Hitbox(self, -5,0,10,14),
+        PolygonCollider(self, {
+            {20,7},
+            {0, -w},
+            {0, 14 + w},
+        })
+    })
     return self
 end
 
@@ -72,6 +81,9 @@ function InputButton:draw()
     if self:buttonDown() then
         self.sprite.alpha = 1
         -- self.sprite:setFrame(2)
+    end
+    if DEBUG_RENDER then
+        self.collider:draw(unpack(COLORS.green))
     end
     super.draw(self)
 end
