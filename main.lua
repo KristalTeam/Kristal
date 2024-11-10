@@ -311,6 +311,7 @@ function love.run()
     local function doUpdate(dt)
         -- Update pressed keys, handle key repeat
         Input.update()
+        Kristal.Stage:update()
 
         -- Process events.
         if love.event then
