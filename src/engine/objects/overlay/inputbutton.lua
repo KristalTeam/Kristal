@@ -24,7 +24,7 @@ function InputButton:buttonDown(collider)
     for _,touch_index in ipairs(love.touch.getTouches()) do
         local x,y = Input.getTouchPosition(touch_index)
         local pressure = love.touch.getPressure(touch_index)
-        local radius = pressure * 10
+        local radius = pressure * 30
         local point = CircleCollider(nil, x+(radius/2), y+(radius/2), radius)
         if collider:collidesWith(point) then
             return true, pressure
@@ -63,13 +63,12 @@ function InputButton:setDpadMode()
         left = 180,
         right = 0,
     })[self.button])
-    local w = 12
+    local w = 30
     self.collider = ColliderGroup(self, {
-        CircleCollider(self,7,7,7), Hitbox(self, -5,0,10,14),
         PolygonCollider(self, {
-            {20,7},
-            {0, -w},
-            {0, 14 + w},
+            {16,w},
+            {-7,7},
+            {16,14-w}
         })
     })
     return self
