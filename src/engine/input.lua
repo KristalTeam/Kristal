@@ -934,6 +934,9 @@ function Input.getText(alias, gamepad)
     if type(name) == "table" then
         name = table.concat(name, "+")
     else
+        if Input.getControllerType() == "mobile" then
+            return "[button:"..alias.."]"
+        end
         local is_gamepad, gamepad_button = Utils.startsWith(name, "gamepad:")
         if is_gamepad then
             return "[button:" .. gamepad_button .. "]"
@@ -957,9 +960,14 @@ function Input.getTexture(alias, gamepad)
     return Assets.getTexture("kristal/buttons/unknown")
 end
 
----@return "switch"|"ps4"|"xbox"|nil
+---@return "switch"|"ps4"|"xbox"|"mobile"|nil
 function Input.getControllerType()
-    if not Input.connected_gamepad then return nil end
+    if not Input.connected_gamepad then
+        if Kristal.isMobile() then
+            return "mobile"
+        end
+        return nil
+    end
 
     local name = Input.connected_gamepad:getName():lower()
 
@@ -1036,6 +1044,15 @@ Input.button_sprites = {
     ["righttrigger"]  = {switch = "switch/zr",          ps4 = "ps4/r2", xbox = "xbox/right_trigger"},
     ["leftstick"]     = {switch = "switch/lStickClick", ps4 = "ps4/l3", xbox = "xbox/left_stick"},
     ["rightstick"]    = {switch = "switch/rStickClick", ps4 = "ps4/r3", xbox = "xbox/right_stick"},
+
+    -- MOBILE CONTROLS
+    ["confirm"]       = {mobile = "mobile/confirm"},
+    ["cancel"]        = {mobile = "mobile/cancel"},
+    ["menu"]          = {mobile = "mobile/menu"},
+    ["up"]            = {mobile = "mobile/up"},
+    ["down"]          = {mobile = "mobile/down"},
+    ["left"]          = {mobile = "mobile/left"},
+    ["right"]         = {mobile = "mobile/right"},
 }
 
 ---@param button string
