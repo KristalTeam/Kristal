@@ -7,7 +7,7 @@ function InputButton:init(button,buttons_table,x,y,scale)
     super.init(self,x,y,14,14)
     self:setOrigin(.5)
     self.collider = CircleCollider(self,8,7,7)
-    self.sprite = self:addChild(Sprite("kristal/buttons/mobile/"..button))
+    self.sprite = self:addChild(Sprite("kristal/buttons/mobile/ui/"..button))
     self:setScale(scale)
     self.sprite.y = -1
     self.button = button
@@ -56,7 +56,7 @@ end
 
 function InputButton:setDpadMode()
     self.input_command_prefix = "gamepad:ls"
-    self.sprite:set("kristal/buttons/mobile/right")
+    self.sprite:set("kristal/buttons/mobile/ui/right")
     self.rotation = math.rad(({
         up = -90,
         down = 90,
