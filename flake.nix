@@ -19,7 +19,7 @@
         lib = pkgs.lib;
         kristalPackage = stdenv.mkDerivation {
           pname = "kristal";
-          version = "0.9.0-dev";
+          version = builtins.readFile ./VERSION;
           src = ./.;
           buildInputs = with pkgs; [
             love
