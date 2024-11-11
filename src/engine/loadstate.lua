@@ -66,6 +66,9 @@ function Loading:update()
         return
     end
 
+    -- Allow skipping by touching the screen
+    if #love.touch.getTouches() > 0 then self:onKeyPressed("mobile:confirm") end
+
     if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
         -- We're done loading! This should only happen once.
         self.done_loading = true
