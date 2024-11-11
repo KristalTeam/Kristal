@@ -22,7 +22,7 @@ function InputButton:buttonDown(collider)
     collider = collider or self.collider
     assert(collider, "Need a collider to check self:buttonDown()!")
     for _,touch_index in ipairs(love.touch.getTouches()) do
-        local x,y = love.touch.getPosition(touch_index)
+        local x,y = Input.getTouchPosition(touch_index)
         local pressure = love.touch.getPressure(touch_index)
         local radius = pressure * 10
         local point = CircleCollider(nil, x+(radius/2), y+(radius/2), radius)

@@ -1402,6 +1402,22 @@ function Input.getMousePosition(x, y, relative)
            floor((y - off_y) / Kristal.getGameScale())
 end
 
+---@param index lightuserdata
+---@param relative? boolean
+---@return number x, number y
+function Input.getTouchPosition(index, relative)
+    local x,y = love.touch.getPosition(index)
+    local off_x, off_y = Kristal.getSideOffsets()
+    local floor = math.floor
+    if relative then
+        floor = Utils.round
+        off_x, off_y = 0, 0
+    end
+    return floor((x - off_x) / Kristal.getGameScale()),
+           floor((y - off_y) / Kristal.getGameScale())
+end
+
+
 ---@param button? number
 ---@return boolean success, number x, number y, number presses
 function Input.mousePressed(button)
