@@ -1,4 +1,4 @@
-local item, super = Class(Item, "brokencake")
+local item, super = Class(HealItem, "brokencake")
 
 function item:init()
     super.init(self)
@@ -19,16 +19,19 @@ function item:init()
     self.shop = ""
     -- Menu description
     self.description = "Though broken, it seethes with power.\nA master smith could fix it."
+    
+    -- Amount healed (HealItem variable)
+    self.heal_amount = 20
 
     -- Default shop price (sell price is halved)
-    self.price = 0
+    self.price = 6
     -- Whether the item can be sold
-    self.can_sell = false
+    self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
+    self.target = "ally"
     -- Where this item can be used (world, battle, all, or none)
-    self.usable_in = "none"
+    self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
@@ -45,6 +48,13 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {}
+end
+
+function item:onMenuOpen(menu)
+    if menu and Game.inventory:getItemIndex(self) == "key_items" then
+        self.target = "none"
+        self.usable_in = "none"
+    end
 end
 
 return item
