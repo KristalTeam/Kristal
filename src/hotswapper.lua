@@ -10,6 +10,8 @@ Hotswapper.files = {
     registry = {}
 }
 
+package.path = package.path..";"..love.filesystem.getSource().."/?.lua"
+
 function Hotswapper.updateFiles(file_type)
     if not enabled then return end
     if file_type == "required" then
@@ -77,6 +79,10 @@ end
 
 function Hotswapper.getLastModified(path)
     if not path then return end
+    local _, love_path_end = path:find(love.filesystem.getSource(), nil, true)
+    if love_path_end then
+        path = path:sub(love_path_end+2, -1)
+    end
     path = path:gsub("^.[\\/]", ""):gsub("\\", "/")
     local info = love.filesystem.getInfo(path, "file")
     if not info then
