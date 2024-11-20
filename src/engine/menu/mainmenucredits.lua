@@ -42,14 +42,15 @@ function MainMenuCredits:init(menu)
                 "Dobby233Liu",
                 "FireRainV",
                 "HUECYCLES",
-                "Luna",
-                "MrOinky"
+                "Lionmeow",
+                "Luna"
             }
         },
         {
             "Kristal Engine",
             {
                 {"GitHub Contributors", COLORS.silver},
+                "MrOinky",
                 "prokube",
                 "Simbel",
                 "sjl057",
@@ -58,7 +59,6 @@ function MainMenuCredits:init(menu)
                 "TFLTV",
                 "J.A.R.U.",
                 "MCdeDaxia",
-                "",
                 ""
             },
             {
