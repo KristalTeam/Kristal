@@ -873,11 +873,19 @@ function EnemyBattler:defeat(reason, violent)
 
     if violent then
         Game.battle.used_violence = true
-        if self:isRecruitable() and self:getRecruitStatus() ~= false then
-            if Game:getConfig("enableRecruits") and self.done_state ~= "FROZEN" then
-                self:recruitMessage("lost")
+        if Game:getConfig("growStronger") == "Any" then
+            Game.battle.become_stronger = true
+        end
+        if self:isRecruitable() then
+            if Game:getConfig("growStronger") then
+                Game.battle.become_stronger = true
             end
-            self:setRecruitStatus(false)
+            if self:getRecruitStatus() ~= false then
+                if Game:getConfig("enableRecruits") and self.done_state ~= "FROZEN" then
+                    self:recruitMessage("lost")
+                end
+                self:setRecruitStatus(false)
+            end
         end
     end
     
