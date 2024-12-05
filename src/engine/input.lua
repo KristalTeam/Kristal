@@ -660,6 +660,23 @@ function Input.update()
     end
 end
 
+---Vibrates the connected gamepad if it exists.
+---@param strength_left number
+---@param strength_right number
+---@param duration number
+---@overload fun(duration:number)
+---@overload fun(strength:number, duration:number)
+function Input.vibrate(strength_left, strength_right, duration)
+    if strength_right == nil then
+        strength_left, strength_right, duration = 1, 1, strength_left
+    elseif duration == nil then
+        strength_left, strength_right, duration = strength_left, strength_left, strength_right
+    end
+    if Input.connected_gamepad then
+        Input.connected_gamepad:setVibration(strength_left, strength_right, duration)
+    end
+end
+
 ---@return boolean
 function Input.usingGamepad()
     return Input.active_gamepad ~= nil
