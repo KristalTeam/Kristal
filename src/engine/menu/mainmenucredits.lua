@@ -106,7 +106,7 @@ end
 
 function MainMenuCredits:onKeyPressed(key, is_repeat)
     if Input.isCancel(key) or Input.isConfirm(key) then
-        self.menu:setState("TITLE")
+        self.menu:popState()
 
         if Input.isCancel(key) then
             Assets.stopAndPlaySound("ui_move")

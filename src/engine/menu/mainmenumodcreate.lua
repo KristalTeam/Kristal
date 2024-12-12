@@ -85,7 +85,7 @@ end
 function MainMenuModCreate:onKeyPressed(key, is_repeat)
     if self.state == "MENU" then
         if Input.isCancel(key) then
-            self.menu:setState("MODSELECT")
+            self.menu:popState()
             Assets.stopAndPlaySound("ui_move")
             return
         end
@@ -125,7 +125,7 @@ function MainMenuModCreate:onKeyPressed(key, is_repeat)
 
             elseif self.selected_option == 4 then
                 Assets.stopAndPlaySound("ui_select")
-                self.menu:setState("MODCONFIG")
+                self.menu:pushState("MODCONFIG")
 
             elseif self.selected_option == 5 then
                 local valid = true
@@ -140,7 +140,7 @@ function MainMenuModCreate:onKeyPressed(key, is_repeat)
 
                 Assets.stopAndPlaySound("ui_select")
                 self:createMod()
-                self.menu:setState("MODSELECT")
+                self.menu:popState()
             end
         end
 

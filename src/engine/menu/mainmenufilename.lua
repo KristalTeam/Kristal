@@ -46,7 +46,7 @@ function MainMenuFileName:onEnter(old_state)
         end,
 
         on_cancel = function()
-            self.menu:setState("FILESELECT")
+            self.menu:popState("FILESELECT")
         end
     })
     self.file_namer.layer = 50

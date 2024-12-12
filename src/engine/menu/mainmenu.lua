@@ -483,8 +483,8 @@ function MainMenu:pushState(state, ...)
     self.state_manager:pushState(state, ...)
 end
 
-function MainMenu:popState()
-    self.state_manager:popState()
+function MainMenu:popState(...)
+    self.state_manager:popState(...)
 end
 
 return MainMenu

@@ -12,6 +12,8 @@ end
 function MainMenuFileSelect:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
+    self:registerEvent("pause", self.onPause)
+    self:registerEvent("resume", self.onResume)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
@@ -22,12 +24,6 @@ end
 -------------------------------------------------------------------------------
 
 function MainMenuFileSelect:onEnter(old_state)
-    if old_state == "FILENAME" then
-        self.container.visible = true
-        self.container.active = true
-        return
-    end
-
     self.mod = self.menu.selected_mod
 
     self.container = self.menu.stage:addChild(Object())
@@ -60,14 +56,19 @@ function MainMenuFileSelect:onEnter(old_state)
     self.bottom_row_heart = { 80, 250, 440 }
 end
 
+function MainMenuFileSelect:onResume(old_state)
+    self.container.visible = true
+    self.container.active = true
+end
+
 function MainMenuFileSelect:onLeave(new_state)
-    if new_state == "FILENAME" then
-        self.container.visible = false
-        self.container.active = false
-    else
-        self.container:remove()
-        self.container = nil
-    end
+    self.container:remove()
+    self.container = nil
+end
+
+function MainMenuFileSelect:onPause()
+    self.container.visible = false
+    self.container.active = false
 end
 
 function MainMenuFileSelect:onKeyPressed(key, is_repeat)
@@ -115,7 +116,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         end
                         Kristal.loadMod(self.mod.id, self.selected_y, save_name)
                     else
-                        self.menu:setState("FILENAME")
+                        self.menu:pushState("FILENAME")
 
                         button:setChoices()
                         self.focused_button = nil
@@ -180,13 +181,12 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
     elseif self.state == "SELECT" then
         if Input.is("cancel", key) then
             if not TARGET_MOD then
-                self.menu:setState("MODSELECT")
 				if MainMenu.mod_list:getSelectedMod().soulColor then
 					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 				end
-            else
-                self.menu:setState("TITLE")
-                self.menu.title_screen:selectOption("play")
+            end
+            if #self.menu.state_manager.state_stack > 0 then
+                self.menu:popState()
             end
             Assets.stopAndPlaySound("ui_cancel")
             return true
@@ -214,13 +214,12 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     self:updateSelected()
                 elseif self.selected_x == 3 then
                     if not TARGET_MOD then
-                        self.menu:setState("MODSELECT")
-						if MainMenu.mod_list:getSelectedMod().soulColor then
-							MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
-						end
-                    else
-                        self.menu:setState("TITLE")
-                        self.menu.title_screen:selectOption("play")
+                        if MainMenu.mod_list:getSelectedMod().soulColor then
+                            MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+                        end
+                    end
+                    if #self.menu.state_manager.state_stack > 0 then
+                        self.menu:popState()
                     end
                 end
             end
