@@ -456,7 +456,7 @@ function MainMenuFileSelect:processExtraButton(id)
         self.selected_x = 1
         self.selected_y = 1
         self:updateSelected()
-    elseif id == "back" then
+    elseif id == "exit" then
         if not TARGET_MOD and MainMenu.mod_list:getSelectedMod().soulColor then
             MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
         end
