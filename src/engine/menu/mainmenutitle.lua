@@ -62,6 +62,9 @@ function MainMenuTitle:onResume(old_state)
         self.menu.selected_mod = nil
         self.menu.selected_mod_button = nil
     end
+
+    self.menu.heart_target_x = 196
+    self.menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
 end
 
 function MainMenuTitle:onKeyPressed(key, is_repeat)
