@@ -487,4 +487,8 @@ function MainMenu:popState(...)
     self.state_manager:popState(...)
 end
 
+function MainMenu:loadGame(slot,name)
+    Kristal.loadMod(self.selected_mod.id, slot, name)
+end
+
 return MainMenu

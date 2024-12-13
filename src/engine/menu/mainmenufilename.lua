@@ -32,7 +32,7 @@ function MainMenuFileName:onEnter(old_state)
         white_fade = mod.whiteFade ~= false and not mod.transition,
 
         on_confirm = function(name)
-            Kristal.loadMod(mod.id, self.menu.file_select.selected_y, name)
+            self.menu:loadGame(self.menu.file_select.selected_y, name)
 
             if mod.transition then
                 self.file_namer.name_preview.visible = false

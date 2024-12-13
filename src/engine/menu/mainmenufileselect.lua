@@ -118,7 +118,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         if not button.data and Kristal.Config["skipNameEntry"] and Kristal.Config["defaultName"] ~= "" then
                             save_name = string.sub(Kristal.Config["defaultName"], 1, self.mod["nameLimit"] or 12)
                         end
-                        Kristal.loadMod(self.mod.id, self.selected_y, save_name)
+                        self.menu:loadGame(self.selected_y, save_name)
                     else
                         self.menu:pushState("FILENAME")
 
