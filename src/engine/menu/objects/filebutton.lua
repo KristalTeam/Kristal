@@ -1,4 +1,7 @@
 ---@class FileButton : Object
+---
+---@field state? "ERASE"|"COPY"
+---
 ---@overload fun(...) : FileButton
 local FileButton, super = Class(Object)
 
@@ -12,6 +15,7 @@ function FileButton:init(list, id, data, x, y, width, height)
     self:setData(data)
 
     self.selected = false
+    self.state = nil
 
     self.font = Assets.getFont("main")
     self.subfont = Assets.getFont("main", 16)
@@ -46,11 +50,18 @@ end
 
 function FileButton:getDrawColor()
     local r, g, b, a = super.getDrawColor(self)
-    if not self.selected then
-        return r * 0.6, g * 0.6, b * 0.7, a
+    local pr, pg, pb, pa = Utils.unpackColor(COLORS.white())
+    if self.state == "COPY" then
+        pr, pg, pb, pa = Utils.unpackColor(PALETTE["fileselect_copy"])
+    elseif self.state == "ERASE" then
+        pr, pg, pb, pa = Utils.unpackColor(PALETTE["fileselect_erase"])
+        -- (1, 1, 0.5)
+    elseif self.selected then
+        pr, pg, pb, pa = Utils.unpackColor(PALETTE["fileselect_selected"])
     else
-        return r, g, b, a
+        pr, pg, pb, pa = Utils.unpackColor(PALETTE["fileselect_deselected"])
     end
+    return r * pr, g * pg, b * pb, a * pa
 end
 
 function FileButton:getHeartPos()
@@ -129,9 +140,9 @@ function FileButton:draw()
         love.graphics.print(self.choices[1], 70+2, 44+2)
         -- Draw choice 1
         if self.selected_choice == 1 then
-            Draw.setColor(1, 1, 1)
+            Draw.setColor(PALETTE["fileselect_selected"])
         else
-            Draw.setColor(0.6, 0.6, 0.7)
+            Draw.setColor(PALETTE["fileselect_deselected"])
         end
         love.graphics.print(self.choices[1], 70, 44)
 
@@ -140,9 +151,9 @@ function FileButton:draw()
         love.graphics.print(self.choices[2], 250+2, 44+2)
         -- Draw choice 2
         if self.selected_choice == 2 then
-            Draw.setColor(1, 1, 1)
+            Draw.setColor(PALETTE["fileselect_selected"])
         else
-            Draw.setColor(0.6, 0.6, 0.7)
+            Draw.setColor(PALETTE["fileselect_deselected"])
         end
         love.graphics.print(self.choices[2], 250, 44)
     end

@@ -82,11 +82,11 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
     if self.focused_button then
         local button = self.focused_button
         if Input.is("cancel", key) then
-            button:setColor(1, 1, 1)
+            button.state = nil
             button:setChoices()
             if self.state == "COPY" then
                 self.selected_y = self.copied_button.id
-                self.copied_button:setColor(1, 1, 1)
+                self.copied_button.state = nil
                 self.copied_button = nil
                 self:updateSelected()
             elseif self.state == "ERASE" then
@@ -132,7 +132,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
             elseif self.state == "ERASE" then
                 if button.selected_choice == 1 and self.erase_stage == 1 then
                     Assets.stopAndPlaySound("ui_select")
-                    button:setColor(1, 0, 0)
+                    button.state = "ERASE"
                     button:setChoices({ "Yes!", "No!" }, "Really erase it?")
                     self.erase_stage = 2
                 else
@@ -146,7 +146,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         Assets.stopAndPlaySound("ui_select")
                     end
                     button:setChoices()
-                    button:setColor(1, 1, 1)
+                    button.state = nil
                     self.focused_button = nil
                     self.erase_stage = 1
 
@@ -163,7 +163,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     button:setData(data)
                     button:setChoices()
                     self:setState("SELECT", "Copy complete.")
-                    self.copied_button:setColor(1, 1, 1)
+                    self.copied_button.state = nil
                     self.copied_button = nil
                     self.focused_button = nil
                     self.selected_x = 1
@@ -173,7 +173,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     Assets.stopAndPlaySound("ui_select")
                     button:setChoices()
                     self:setState("SELECT")
-                    self.copied_button:setColor(1, 1, 1)
+                    self.copied_button.state = nil
                     self.copied_button = nil
                     self.focused_button = nil
                     self.selected_x = 1
@@ -236,7 +236,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
             Assets.stopAndPlaySound("ui_cancel")
             if self.copied_button then
                 self.selected_y = self.copied_button.id
-                self.copied_button:setColor(1, 1, 1)
+                self.copied_button.state = nil
                 self.copied_button = nil
                 self:updateSelected()
             else
@@ -254,7 +254,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     if button.data then
                         Assets.stopAndPlaySound("ui_select")
                         self.copied_button = self:getSelectedFile()
-                        self.copied_button:setColor(1, 1, 0.5)
+                        self.copied_button.state = "COPY"
                         self.selected_y = 1
                         self:updateSelected()
                     else
@@ -276,7 +276,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         Kristal.saveData("file_" .. selected.id, data, self.mod.id)
                         selected:setData(data)
                         self:setState("SELECT", "Copy complete.")
-                        self.copied_button:setColor(1, 1, 1)
+                        self.copied_button.state = nil
                         self.copied_button = nil
                         self.selected_x = 1
                         self.selected_y = 4
@@ -287,7 +287,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 Assets.stopAndPlaySound("ui_select")
                 self:setState("SELECT")
                 if self.copied_button then
-                    self.copied_button:setColor(1, 1, 1)
+                    self.copied_button.state = nil
                     self.copied_button = nil
                 end
                 self.selected_x = 1
@@ -369,9 +369,9 @@ function MainMenuFileSelect:draw()
 
     local function setColor(x, y)
         if self.selected_x == x and self.selected_y == y then
-            Draw.setColor(1, 1, 1)
+            Draw.setColor(PALETTE["fileselect_selected"])
         else
-            Draw.setColor(0.6, 0.6, 0.7)
+            Draw.setColor(PALETTE["fileselect_deselected"])
         end
     end
 
