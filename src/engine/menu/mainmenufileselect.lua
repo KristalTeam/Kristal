@@ -133,7 +133,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 if button.selected_choice == 1 and self.erase_stage == 1 then
                     Assets.stopAndPlaySound("ui_select")
                     button.state = "ERASE"
-                    button:setChoices({ "Yes!", "No!" }, "Really erase it?")
+                    button:setChoices({ self:getText"EraseFinalYes", self:getText"EraseFinalNo" }, self:getText("EraseFinalConfirm"))
                     self.erase_stage = 2
                 else
                     local result
@@ -200,9 +200,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
             if self.selected_y <= 3 then
                 self.focused_button = self:getSelectedFile()
                 if self.focused_button.data then
-                    self.focused_button:setChoices({ "Continue", "Back" })
+                    self.focused_button:setChoices({ self:getText "Continue", self:getText "Back" })
                 else
-                    self.focused_button:setChoices({ "Start", "Back" })
+                    self.focused_button:setChoices({ self:getText "Start", self:getText "Back" })
                 end
             elseif self.selected_y >= 4 then
                 self:processExtraButton(self.bottom_options[self.selected_y - 3][self.selected_x][1])
@@ -265,11 +265,11 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     local selected = self:getSelectedFile()
                     if selected == self.copied_button then
                         Assets.stopAndPlaySound("ui_cancel")
-                        self:setResultText("You can't copy there.")
+                        self:setResultText("CopySelf")
                     elseif selected.data then
                         Assets.stopAndPlaySound("ui_select")
                         self.focused_button = selected
-                        self.focused_button:setChoices({ "Yes", "No" }, "Copy over this file?")
+                        self.focused_button:setChoices({ self:getText "Yes", self:getText "No" }, self:getText"CopyOver")
                     else
                         Assets.stopAndPlaySound("ui_spooky_action")
                         local data = Kristal.loadData("file_" .. self.copied_button.id, self.mod.id)
@@ -319,10 +319,10 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 local button = self:getSelectedFile()
                 if button.data then
                     self.focused_button = button
-                    self.focused_button:setChoices({ "Yes", "No" }, "Erase this file?")
+                    self.focused_button:setChoices({ self:getText "Yes", self:getText "No" }, self:getText "EraseConfirm")
                     Assets.stopAndPlaySound("ui_select")
                 else
-                    self:setResultText("There's nothing to erase.")
+                    self:setResultText("Erase Empty")
                     Assets.stopAndPlaySound("ui_cancel")
                 end
             elseif self.selected_y == 4 then
@@ -347,6 +347,29 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
 
     return true
 end
+
+function MainMenuFileSelect:getText(string)
+    local gtable = {
+        SelectionTitle = "Please select a file.",
+        Copy = "Choose a file to copy.",
+        CopyTo = "Choose a file to copy to.",
+        Erase = "Choose a file to erase.",
+        EraseConfirm = "Erase this file?",
+        EraseFinalConfirm = "Really erase it?",
+        CopySelf = "You can't copy there.",
+        Cancel = "        CANCEL",
+        Back = "Back",
+        Continue = "Continue",
+        EraseFinalYes = "Yes!",
+        EraseFinalNo = "No!",
+        CopyOver = "Copy over this file?",
+        CopyOverTitle = "The file will be overwritten.",
+        Yes = "Yes",
+        No = "No",
+    }
+    return gtable[string] or ("["..string.."]")
+end
+
 
 function MainMenuFileSelect:update()
     if self.result_timer > 0 then
@@ -402,20 +425,20 @@ end
 
 function MainMenuFileSelect:getTitle()
     if self.result_text then
-        return self.result_text
+        return self:getText(self.result_text)
     end
     if self.state == "SELECT" or self.state == "TRANSITIONING" then
-        return "Please select a file."
+        return self:getText("SelectionTitle")
     else
         if self.state == "ERASE" then
-            return "Choose a file to erase."
+            return self:getText("Erase")
         elseif self.state == "COPY" then
             if not self.copied_button then
-                return "Choose a file to copy."
+                return self:getText("Copy")
             elseif not self.focused_button then
-                return "Choose a file to copy to."
+                return self:getText("CopyTo")
             else
-                return "The file will be overwritten."
+                return self:getText("CopyOverTitle")
             end
         end
     end
