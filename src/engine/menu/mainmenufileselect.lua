@@ -24,7 +24,7 @@ end
 -------------------------------------------------------------------------------
 
 function MainMenuFileSelect:onEnter(old_state)
-    self.mod = self.menu.selected_mod
+    self.mod = self.menu.selected_mod or self.mod
 
     self.container = self.menu.stage:addChild(Object())
     self.container:setLayer(50)
@@ -67,6 +67,7 @@ end
 function MainMenuFileSelect:onLeave(new_state)
     self.container:remove()
     self.container = nil
+    self.mod = nil
 end
 
 function MainMenuFileSelect:onPause()
