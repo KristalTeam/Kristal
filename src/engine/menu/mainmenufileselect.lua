@@ -348,28 +348,6 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
     return true
 end
 
-function MainMenuFileSelect:getText(string)
-    local gtable = {
-        SelectionTitle = "Please select a file.",
-        Copy = "Choose a file to copy.",
-        CopyTo = "Choose a file to copy to.",
-        Erase = "Choose a file to erase.",
-        EraseConfirm = "Erase this file?",
-        EraseFinalConfirm = "Really erase it?",
-        CopySelf = "You can't copy there.",
-        Cancel = "        CANCEL",
-        Back = "Back",
-        Continue = "Continue",
-        EraseFinalYes = "Yes!",
-        EraseFinalNo = "No!",
-        CopyOver = "Copy over this file?",
-        CopyOverTitle = "The file will be overwritten.",
-        Yes = "Yes",
-        No = "No",
-    }
-    return gtable[string] or ("["..string.."]")
-end
-
 
 function MainMenuFileSelect:update()
     if self.result_timer > 0 then
@@ -385,10 +363,7 @@ function MainMenuFileSelect:update()
 end
 
 function MainMenuFileSelect:draw()
-    local mod_name = string.upper(self.mod.name or self.mod.id)
-    Draw.printShadow(mod_name, 16, 8)
-
-    Draw.printShadow(self:getTitle(), 80, 60)
+    self:drawHeader()
 
     local function setColor(x, y)
         if self.selected_x == x and self.selected_y == y then
@@ -422,6 +397,13 @@ end
 -------------------------------------------------------------------------------
 -- Class Methods
 -------------------------------------------------------------------------------
+
+function MainMenuFileSelect:drawHeader()
+    local mod_name = string.upper(self.mod.name or self.mod.id)
+    Draw.printShadow(mod_name, 16, 8)
+
+    Draw.printShadow(self:getTitle(), 80, 60)
+end
 
 function MainMenuFileSelect:getTitle()
     if self.result_text then
@@ -501,6 +483,28 @@ function MainMenuFileSelect:getHeartPos()
         if #self.bottom_options > 2 then height = 20 end
         return self.bottom_row_heart[self.selected_x] + 9, 390 + 9 + (self.selected_y - 4) * height
     end
+end
+
+function MainMenuFileSelect:getText(string)
+    local txts = {
+        SelectionTitle = "Please select a file.",
+        Copy = "Choose a file to copy.",
+        CopyTo = "Choose a file to copy to.",
+        Erase = "Choose a file to erase.",
+        EraseConfirm = "Erase this file?",
+        EraseFinalConfirm = "Really erase it?",
+        CopySelf = "You can't copy there.",
+        Cancel = "Cancel",
+        Back = "Back",
+        Continue = "Continue",
+        EraseFinalYes = "Yes!",
+        EraseFinalNo = "No!",
+        CopyOver = "Copy over this file?",
+        CopyOverTitle = "The file will be overwritten.",
+        Yes = "Yes",
+        No = "No",
+    }
+    return txts[string] or ("["..string.."]")
 end
 
 return MainMenuFileSelect
