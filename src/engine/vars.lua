@@ -121,6 +121,11 @@ local palette_data = {
     ["tension_max"] = { 255 / 255, 208 / 255, 32 / 255, 1 },
     ["tension_maxtext"] = { 1, 1, 0, 1 },
     ["tension_desc"] = { 255 / 255, 160 / 255, 64 / 255, 1 },
+
+    ["fileselect_selected"] = {1, 1, 1},
+    ["fileselect_deselected"] = {0.6, 0.6, 0.7},
+    ["fileselect_copy"] = {1, 1, 0.5},
+    ["fileselect_erase"] = {1,0,0},
 }
 PALETTE = {}
 setmetatable(PALETTE, {

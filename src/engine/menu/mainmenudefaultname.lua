@@ -42,7 +42,7 @@ function MainMenuDefaultName:onEnter(old_state)
     })
     self.file_namer.layer = 50
 
-    self.menu.stage:addChild(self.file_namer)
+    self.menu.container:addChild(self.file_namer)
 
     self.menu.heart.visible = false
 end

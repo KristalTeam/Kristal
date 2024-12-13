@@ -41,6 +41,7 @@ end
 function MainMenuModList:registerEvents()
     self:registerEvent("enter", self.onEnter)
     self:registerEvent("leave", self.onLeave)
+    self:registerEvent("pause", self.onPause)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("update", self.update)
     self:registerEvent("draw", self.draw)
@@ -77,6 +78,10 @@ function MainMenuModList:onLeave(new_state)
     self.menu.heart_outline.visible = false
 end
 
+function MainMenuModList:onPause(new_state)
+    self:onLeave(new_state)
+end
+
 function MainMenuModList:onKeyPressed(key, is_repeat)
     if key == "f5" then
         Assets.stopAndPlaySound("ui_select")
@@ -88,7 +93,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
     if Input.isCancel(key) then
         Assets.stopAndPlaySound("ui_move")
 
-        self.menu:setState("TITLE")
+        self.menu:popState()
         self.menu.title_screen:selectOption("play")
         return true
 
@@ -98,14 +103,14 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
         if Input.isConfirm(key) then
             if self.list:isOnCreate() then
                 Assets.stopAndPlaySound("ui_select")
-                self.menu:setState("MODCREATE")
+                self.menu:pushState("MODCREATE")
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
                 if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems( "saves/"..mod.id ) > 0))
                 or (mod["useSaves"] ~= "has_saves" and mod["useSaves"])
                 or (mod["useSaves"] == nil and not mod["encounter"]) then
-                    self.menu:setState("FILESELECT")
+                    self.menu:pushState("FILESELECT")
                 else
                     Kristal.loadMod(mod.id)
                 end
