@@ -26,6 +26,8 @@ end
 function MainMenuFileSelect:onEnter(old_state)
     self.mod = self.menu.selected_mod or self.mod
 
+    self.threat = 0
+
     self.container = self.menu.container:addChild(Object())
     self.container:setLayer(50)
 
@@ -144,6 +146,16 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         result = "EraseComplete"
                     else
                         Assets.stopAndPlaySound("ui_select")
+                        if self:getText("EraseSpared") then
+                            result = "EraseSpared"
+                        end
+                        if self.erase_stage == 2 and self:getText("EraseThreatReached") then
+                            self.threat = self.threat + 1
+                            if self.threat > 9 then
+                                self.threat = 0
+                                result = "EraseThreatReached"
+                            end
+                        end
                     end
                     button:setChoices()
                     button.state = nil
@@ -389,7 +401,7 @@ function MainMenuFileSelect:draw()
         end
     else
         setColor(1, 4)
-        Draw.printShadow("Cancel", 110, 380)
+        Draw.printShadow(self:getText "Cancel", 110, 380)
     end
     Draw.setColor(1, 1, 1)
 end
@@ -509,7 +521,10 @@ function MainMenuFileSelect:getText(string)
         EraseComplete = "Erase complete.",
         EraseEmpty = "There's nothing to erase.",
         CopyEmpty = "It can't be copied.",
+        EraseSpared = false,
+        EraseThreatReached = false,
     }
+    if txts[string] == false then return end
     return txts[string] or ("["..string.."]")
 end
 
