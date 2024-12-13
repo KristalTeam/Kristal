@@ -54,6 +54,9 @@ function MainMenuFileSelect:onEnter(old_state)
     end
 
     self.bottom_row_heart = { 80, 250, 440 }
+    self.bottom_options = {
+        {{"copy", "Copy", 108}, {"erase", "Erase", 280}, {"exit", "Back", 468}}
+    }
 end
 
 function MainMenuFileSelect:onResume(old_state)
@@ -200,28 +203,8 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                 else
                     self.focused_button:setChoices({ "Start", "Back" })
                 end
-            elseif self.selected_y == 4 then
-                if self.selected_x == 1 then
-                    self:setState("COPY")
-                    self.selected_x = 1
-                    self.selected_y = 1
-                    self:updateSelected()
-                elseif self.selected_x == 2 then
-                    self:setState("ERASE")
-                    self.erase_stage = 1
-                    self.selected_x = 1
-                    self.selected_y = 1
-                    self:updateSelected()
-                elseif self.selected_x == 3 then
-                    if not TARGET_MOD then
-                        if MainMenu.mod_list:getSelectedMod().soulColor then
-                            MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
-                        end
-                    end
-                    if #self.menu.state_manager.state_stack > 0 then
-                        self.menu:popState()
-                    end
-                end
+            elseif self.selected_y >= 4 then
+                self:processExtraButton(self.bottom_options[self.selected_y - 3][self.selected_x][1])
             end
             return true
         end
@@ -230,11 +213,18 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         if Input.is("left", key) then self.selected_x = self.selected_x - 1 end
         if Input.is("right", key) then self.selected_x = self.selected_x + 1 end
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = Utils.clamp(self.selected_y, 1, #self.bottom_options + 3)
         if self.selected_y <= 3 then
             self.selected_x = 1
         else
             self.selected_x = Utils.clamp(self.selected_x, 1, 3)
+            local function cond(n)
+                return self.selected_x == n and not self.bottom_options[self.selected_y - 3][self.selected_x]
+            end
+            if cond(1) then self.selected_x = 2 end
+            if cond(2) and not Input.is("left",key) then self.selected_x = 3 end
+            if cond(3) then self.selected_x = 2 end
+            if cond(2) then self.selected_x = 1 end
         end
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
@@ -384,18 +374,24 @@ function MainMenuFileSelect:draw()
         end
     end
 
+    local height = 40
+    if #self.bottom_options > 2 then height = 20 end
     if self.state == "SELECT" or self.state == "TRANSITIONING" then
-        setColor(1, 4)
-        Draw.printShadow("Copy", 108, 380)
-        setColor(2, 4)
-        Draw.printShadow("Erase", 280, 380)
-        setColor(3, 4)
-        Draw.printShadow("Back", 468, 380)
+        for row_id, row in ipairs(self.bottom_options) do
+            for col_id, col in ipairs(row) do
+                if col and col[1] then
+                    setColor(col_id, row_id+3)
+                    local x = col[3] or (self.bottom_row_heart[col_id] + 28)
+                    local y = 380 + ((row_id - 1) * height)
+                    -- x = col_id * 60
+                    Draw.printShadow(col[2], x, y)
+                end
+            end
+        end
     else
         setColor(1, 4)
         Draw.printShadow("Cancel", 110, 380)
     end
-
     Draw.setColor(1, 1, 1)
 end
 
@@ -420,6 +416,28 @@ function MainMenuFileSelect:getTitle()
             else
                 return "The file will be overwritten."
             end
+        end
+    end
+end
+
+function MainMenuFileSelect:processExtraButton(id)
+    if id == "copy" then
+        self:setState("COPY")
+        self.selected_x = 1
+        self.selected_y = 1
+        self:updateSelected()
+    elseif id == "erase" then
+        self:setState("ERASE")
+        self.erase_stage = 1
+        self.selected_x = 1
+        self.selected_y = 1
+        self:updateSelected()
+    elseif id == "back" then
+        if not TARGET_MOD and MainMenu.mod_list:getSelectedMod().soulColor then
+            MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+        end
+        if #self.menu.state_manager.state_stack > 0 then
+            self.menu:popState()
         end
     end
 end
@@ -454,8 +472,10 @@ function MainMenuFileSelect:getHeartPos()
         local hx, hy = button:getHeartPos()
         local x, y = button:getRelativePos(hx, hy)
         return x + 9, y + 9
-    elseif self.selected_y == 4 then
-        return self.bottom_row_heart[self.selected_x] + 9, 390 + 9
+    elseif self.selected_y >= 4 then
+        local height = 40
+        if #self.bottom_options > 2 then height = 20 end
+        return self.bottom_row_heart[self.selected_x] + 9, 390 + 9 + (self.selected_y - 4) * height
     end
 end
 
