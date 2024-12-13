@@ -26,7 +26,7 @@ end
 function MainMenuFileSelect:onEnter(old_state)
     self.mod = self.menu.selected_mod or self.mod
 
-    self.container = self.menu.stage:addChild(Object())
+    self.container = self.menu.container:addChild(Object())
     self.container:setLayer(50)
 
     -- SELECT, COPY, ERASE, TRANSITIONING

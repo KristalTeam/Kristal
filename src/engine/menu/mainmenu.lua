@@ -37,6 +37,7 @@ function MainMenu:enter()
 
     -- Initialize variables for the menu
     self.stage = Stage()
+    self.container = self.stage
 
     -- Initialize all states
     self.title_screen = MainMenuTitle(self)
