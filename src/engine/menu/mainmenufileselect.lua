@@ -141,7 +141,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         Assets.stopAndPlaySound("ui_spooky_action")
                         Kristal.eraseData("file_" .. button.id, self.mod.id)
                         button:setData(nil)
-                        result = "Erase complete."
+                        result = "EraseComplete"
                     else
                         Assets.stopAndPlaySound("ui_select")
                     end
@@ -162,7 +162,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     Kristal.saveData("file_" .. button.id, data, self.mod.id)
                     button:setData(data)
                     button:setChoices()
-                    self:setState("SELECT", "Copy complete.")
+                    self:setState("SELECT", "CopyCompleteOverw")
                     self.copied_button.state = nil
                     self.copied_button = nil
                     self.focused_button = nil
@@ -259,7 +259,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         self:updateSelected()
                     else
                         Assets.stopAndPlaySound("ui_cancel")
-                        self:setResultText("It can't be copied.")
+                        self:setResultText("CopyEmpty")
                     end
                 else
                     local selected = self:getSelectedFile()
@@ -275,7 +275,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                         local data = Kristal.loadData("file_" .. self.copied_button.id, self.mod.id)
                         Kristal.saveData("file_" .. selected.id, data, self.mod.id)
                         selected:setData(data)
-                        self:setState("SELECT", "Copy complete.")
+                        self:setState("SELECT", "CopyComplete")
                         self.copied_button.state = nil
                         self.copied_button = nil
                         self.selected_x = 1
@@ -322,7 +322,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
                     self.focused_button:setChoices({ self:getText "Yes", self:getText "No" }, self:getText "EraseConfirm")
                     Assets.stopAndPlaySound("ui_select")
                 else
-                    self:setResultText("Erase Empty")
+                    self:setResultText("EraseEmpty")
                     Assets.stopAndPlaySound("ui_cancel")
                 end
             elseif self.selected_y == 4 then
@@ -495,6 +495,7 @@ function MainMenuFileSelect:getText(string)
         EraseFinalConfirm = "Really erase it?",
         CopySelf = "You can't copy there.",
         Cancel = "Cancel",
+        Start = "Start",
         Back = "Back",
         Continue = "Continue",
         EraseFinalYes = "Yes!",
@@ -503,6 +504,11 @@ function MainMenuFileSelect:getText(string)
         CopyOverTitle = "The file will be overwritten.",
         Yes = "Yes",
         No = "No",
+        CopyComplete = "Copy complete.",
+        CopyCompleteOverw = "Copy complete.",
+        EraseComplete = "Erase complete.",
+        EraseEmpty = "There's nothing to erase.",
+        CopyEmpty = "It can't be copied.",
     }
     return txts[string] or ("["..string.."]")
 end
