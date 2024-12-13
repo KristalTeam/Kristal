@@ -24,8 +24,7 @@ end
 -------------------------------------------------------------------------------
 
 function MainMenuFileSelect:onEnter(old_state)
-    self.mod = self.menu.selected_mod or self.mod
-
+    self.mod = self.menu.selected_mod
     self.threat = 0
 
     self.container = self.menu.container:addChild(Object())
@@ -69,7 +68,6 @@ end
 function MainMenuFileSelect:onLeave(new_state)
     self.container:remove()
     self.container = nil
-    self.mod = nil
 end
 
 function MainMenuFileSelect:onPause()
