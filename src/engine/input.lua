@@ -227,7 +227,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
-            ["mod_rebind"] = {},
+            ["mod_rebind"] = {"gamepad:x"},
         }
         if gamepad ~= true then Utils.merge(Input.key_bindings, key_bindings) end
         if gamepad ~= false then Utils.merge(Input.gamepad_bindings, gamepad_bindings) end
@@ -324,7 +324,7 @@ function Input.resetBinds(gamepad, mod_id)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
-            ["mod_rebind"] = {},
+            ["mod_rebind"] = {"gamepad:x"},
         }
         for _,mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
