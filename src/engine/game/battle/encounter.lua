@@ -22,6 +22,11 @@
 local Encounter = Class()
 
 function Encounter:init()
+    -- Sets the encounter ID incase it was started without an encounter file
+    if not self.id then
+        self.id = "_local"
+    end
+    
     -- Text that will be displayed when the battle starts
     self.text = "* A skirmish breaks out!"
 
@@ -166,7 +171,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj = enemy
     end
     local enemies = self.queued_enemy_spawns
-    local enemies_index = enemies
+    local enemies_index = Utils.copy(self.queued_enemy_spawns, true)
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
