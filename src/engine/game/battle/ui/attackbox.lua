@@ -41,7 +41,7 @@ end
 
 function AttackBox:getClose()
     local close = self.bolt.x - self.bolt_target - 2
-    if self.bolt.x <= self.bolt_target + 10 then
+    if AttackBox.BOLTSPEED < 8 and self.bolt.x <= self.bolt_target + 10 then
         return close / 8
     else
         return close / AttackBox.BOLTSPEED
