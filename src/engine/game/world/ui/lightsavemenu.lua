@@ -79,6 +79,7 @@ function LightSaveMenu:draw()
     love.graphics.print(name,         self.box.x + 8,        self.box.y - 10 + 8)
     love.graphics.print("LV "..level, self.box.x + 210 - 34, self.box.y - 10 + 8)
 
+    -- I don't think UNDERTALE displays hours, so let's only do minutes and seconds
     local minutes = math.floor(playtime / 60)
     local seconds = math.floor(playtime % 60)
     local time_text = string.format("%d:%02d", minutes, seconds)
