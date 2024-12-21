@@ -794,23 +794,26 @@ end
 
 ---@param data table
 function PartyMember:loadEquipment(data)
-    if type(data.weapon) == "table" then
-        if Registry.getItem(data.weapon.id) then
-            local weapon = Registry.createItem(data.weapon.id)
-            if weapon then
-                weapon:load(data.weapon)
-                self:setWeapon(weapon)
+    self:setWeapon(nil)
+    if data.weapon then
+        if type(data.weapon) == "table" then
+            if Registry.getItem(data.weapon.id) then
+                local weapon = Registry.createItem(data.weapon.id)
+                if weapon then
+                    weapon:load(data.weapon)
+                    self:setWeapon(weapon)
+                else
+                    Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
+                end
             else
-                Kristal.Console:error("Could not load weapon \""..data.weapon.id.."\"")
+                Kristal.Console:error("Could not load weapon \"".. data.weapon.id .."\"")
             end
         else
-            Kristal.Console:error("Could not load weapon \"".. data.weapon.id .."\"")
-        end
-    else
-        if Registry.getItem(data.weapon) then
-            self:setWeapon(data.weapon)
-        else
-            Kristal.Console:error("Could not load weapon \"".. (data.weapon or "nil") .."\"")
+            if Registry.getItem(data.weapon) then
+                self:setWeapon(data.weapon)
+            else
+                Kristal.Console:error("Could not load weapon \"".. (data.weapon or "nil") .."\"")
+            end
         end
     end
     for i = 1, 2 do
