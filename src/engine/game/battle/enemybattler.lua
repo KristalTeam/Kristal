@@ -25,6 +25,8 @@
 ---
 ---@field can_freeze        boolean             Whether this enemy can be frozen
 ---
+---@field can_die           boolean             Whether this enemy will be killed instead of running away (SnowGrave always kill)
+---
 ---@field selectable        boolean             Whether this enemy is selectable in menus
 ---
 ---@field dmg_sprites       Sprite[]            A list of this enemy's damage sprites
@@ -92,6 +94,8 @@ function EnemyBattler:init(actor, use_overlay)
     self.auto_spare = false
 
     self.can_freeze = true
+    
+    self.can_die = false
 
     self.selectable = true
 
@@ -727,12 +731,17 @@ end
 function EnemyBattler:onDodge(battler, attacked) end
 
 --- *(Override)* Called when an enemy is defeated through violence \
---- *By default, makes the enemy run via [`EnemyBattler:onDefeatRun()`](lua://EnemyBattler.onDefeatRun) if [`exit_on_defeat`](lua://EnemyBattler.exit_on_defeat) is `true`
+--- *By default, makes the enemy run via [`EnemyBattler:onDefeatRun()`](lua://EnemyBattler.onDefeatRun) or [`EnemyBattler:onDefeatFatal()`](lua://EnemyBattler.onDefeatFatal) (depending on the value of self.can_die)
+--- if [`exit_on_defeat`](lua://EnemyBattler.exit_on_defeat) is `true`
 ---@param damage?    number
 ---@param battler?   PartyBattler
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then
-        self:onDefeatRun(damage, battler)
+        if self.can_die then
+            self:onDefeatFatal(damage, battler)
+        else
+            self:onDefeatRun(damage, battler)
+        end
     else
         self.sprite:setAnimation("defeat")
     end
@@ -809,7 +818,8 @@ end
 --- If this enemy can not be frozen, it makes them run away instead
 function EnemyBattler:freeze()
     if not self.can_freeze then
-        self:onDefeatRun()
+        self:onDefeat()
+        return
     end
 
     Assets.playSound("petrify")
