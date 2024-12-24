@@ -47,12 +47,13 @@ function Console:createEnv()
         local arg = {...}
         local print_string = ""
 
-        for i, str in ipairs(arg) do
+        for i = 1, math.max(1,table.maxn(arg)) do
+            local str = arg[i]
             if type(str) == "table" then
                 str = Utils.dump(str)
             end
             print_string = print_string .. tostring(str)
-            if i ~= #arg then
+            if i ~= table.maxn(arg) then
                 print_string = print_string  .. "    "
             end
         end
