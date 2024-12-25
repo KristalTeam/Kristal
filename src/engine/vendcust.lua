@@ -9,3 +9,8 @@
 -- (The value set here overrides that)
 ---@type string
 TARGET_MOD = nil
+
+-- Disables Kristal's built-in Main menu and \
+-- immediately loads the target mod.
+---@type boolean
+AUTO_MOD_START = false

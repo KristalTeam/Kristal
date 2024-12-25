@@ -284,6 +284,13 @@ function love.load(args)
         Kristal.HTTPS.thread:start()
     end
 
+    -- TARGET_MOD being already set -> mod developer has
+    -- a preference for auto mod start. We particularly wouldn't
+    -- want the user to overwrite this since it can break some mods
+    if not TARGET_MOD and Kristal.Args["auto-mod-start"] then
+        AUTO_MOD_START = true
+    end
+
     -- TARGET_MOD being already set -> is defined by the mod developer
     -- and we wouldn't want the user to overwrite it
     if not TARGET_MOD and Kristal.Args["mod"] then
@@ -1003,6 +1010,12 @@ function Kristal.returnToMenu()
     Gamestate.switch({})
     -- Clear the mod
     Kristal.clearModState()
+
+    -- Quit the game if the menu is disabled
+    if AUTO_MOD_START and TARGET_MOD then
+        love.event.quit(0)
+        return
+    end
 
     -- Reload mods and return to memu
     Kristal.loadAssets("", "mods", "", function ()
