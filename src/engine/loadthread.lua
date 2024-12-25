@@ -90,6 +90,7 @@ function resetData()
     tileset_image_data = {}
 end
 
+local has_mario, mario = pcall(love.image.newImageData, "mario.png")
 local loaders = {
 
     -- Mod Loader
@@ -253,7 +254,13 @@ local loaders = {
     ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
         local id = checkExtension(path, "png", "jpg")
         if id then
-            local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData("mario.png") end)
+            local ok
+            if has_mario then
+                ok = true
+                data.assets.texture_data[id] = mario
+            else
+                ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
+            end
             if not ok then
                 error("Image \"" .. path .. "\" is invalid or corrupted!")
             end
