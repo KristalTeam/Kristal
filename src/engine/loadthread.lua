@@ -3,7 +3,9 @@ require("love.image")
 require("love.sound")
 
 json = require("src.lib.json")
-
+function pick(tbl)
+    return tbl[math.random(#tbl)]
+end
 verbose = false
 
 --[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
@@ -90,7 +92,16 @@ function resetData()
     tileset_image_data = {}
 end
 
+local marios = {}
 local has_mario, mario = pcall(love.image.newImageData, "mario.png")
+if has_mario then
+    table.insert(marios, mario)
+end
+
+for _, value in ipairs(love.filesystem.getDirectoryItems("marios")) do
+    table.insert(marios, love.image.newImageData("marios/"..value))
+end
+
 local loaders = {
 
     -- Mod Loader
@@ -255,9 +266,9 @@ local loaders = {
         local id = checkExtension(path, "png", "jpg")
         if id then
             local ok
-            if has_mario then
+            if #marios > 0 then
                 ok = true
-                data.assets.texture_data[id] = mario
+                data.assets.texture_data[id] = pick(marios)
             else
                 ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
             end
