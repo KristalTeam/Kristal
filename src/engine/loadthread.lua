@@ -213,43 +213,67 @@ local loaders = {
             end
 
             mod.libs = mod.libs or {}
+            mod.sharedlibs = mod.sharedlibs or {}
+
+            local function loadLib(lib_dir_path, lib_path, callback)
+                local lib_full_path = lib_dir_path .. lib_path
+                local lib_zip_id = checkExtension(lib_path, "zip")
+                if lib_zip_id then
+                    local mounted_path = lib_full_path
+                    lib_full_path = lib_dir_path .. lib_zip_id
+                    lib_path = lib_zip_id
+                    love.filesystem.mount(mounted_path, lib_full_path)
+                end
+
+                local lib = {}
+
+                ok = true
+
+                if love.filesystem.getInfo(lib_full_path .. "/lib.json") then
+                    ok, lib = pcall(json.decode, love.filesystem.read(lib_full_path .. "/lib.json"))
+                end
+
+                if not ok then
+                    table.insert(data.failed_mods, {
+                        path = lib_dir_path,
+                        error = lib,
+                        file = "lib.json"
+                    })
+                    print("[WARNING] Mod \"" .. lib_dir_path .. "\" has a library with an invalid lib.json!")
+                    return
+                end
+
+                lib.id = lib.id or lib_path
+                lib.folder = lib_path
+                lib.path = lib_full_path
+                callback(lib)
+            end
+
+            if love.filesystem.getInfo("/sharedlibs/") then
+                for _, lib_path in ipairs(love.filesystem.getDirectoryItems("/sharedlibs")) do
+                    loadLib("sharedlibs/", lib_path, function (lib)
+                        local enabled = false
+                        for _, value in ipairs(mod.sharedlibs) do
+                            if value == lib.id then
+                                enabled = true
+                                break
+                            end
+                        end
+                        if enabled then
+                            mod.libs[lib.id] = lib
+                        end
+                    end)
+                end
+            end
 
             if love.filesystem.getInfo(full_path .. "/libraries") then
                 for _, lib_path in ipairs(love.filesystem.getDirectoryItems(full_path .. "/libraries")) do
-                    local lib_full_path = full_path .. "/libraries/" .. lib_path
-                    local lib_zip_id = checkExtension(lib_path, "zip")
-                    if lib_zip_id then
-                        local mounted_path = lib_full_path
-                        lib_full_path = full_path .. "/libraries/" .. lib_zip_id
-                        lib_path = lib_zip_id
-                        love.filesystem.mount(mounted_path, lib_full_path)
-                    end
-
-                    local lib = {}
-
-                    ok = true
-
-                    if love.filesystem.getInfo(lib_full_path .. "/lib.json") then
-                        ok, lib = pcall(json.decode, love.filesystem.read(lib_full_path .. "/lib.json"))
-                    end
-
-                    if not ok then
-                        table.insert(data.failed_mods, {
-                            path = path,
-                            error = lib,
-                            file = "lib.json"
-                        })
-                        print("[WARNING] Mod \"" .. path .. "\" has a library with an invalid lib.json!")
-                        return
-                    end
-
-                    lib.id = lib.id or lib_path
-                    lib.folder = lib_path
-                    lib.path = lib_full_path
-
-                    mod.libs[lib.id] = lib
+                    loadLib(full_path .. "/libraries/", lib_path, function(lib)
+                        mod.libs[lib.id] = lib
+                    end)
                 end
             end
+
 
             -- Fail mod loading if library dependencies are unfulfilled
             for _, lib in pairs(mod.libs) do
