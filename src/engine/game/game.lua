@@ -277,7 +277,7 @@ function Game:save(x, y)
     data.light_inventory = self.light_inventory:save()
     data.dark_inventory = self.dark_inventory:save()
     
-    data.calls = Game.world.calls
+    data.calls = self.calls
 
     data.party_data = {}
     for k,v in pairs(self.party_data) do
@@ -440,8 +440,9 @@ function Game:load(data, index, fade)
         end
     end
     
+    self.calls = {}
     if data.calls then
-        Game.world.calls = data.calls
+        self.calls = data.calls
     end
 
     local loaded_light = data.light or false
@@ -965,6 +966,57 @@ function Game:removeFollower(chara)
             return
         end
     end
+end
+
+--- Sets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
+---@param name  string  The name of the flag to set
+---@param value integer The value to set the flag to
+function Game:setCellFlag(name, value)
+    self:setFlag("lightmenu#cell:" .. name, value)
+end
+
+--- Gets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
+---@param name      string
+---@param default?  integer
+---@return integer
+function Game:getCellFlag(name, default)
+    return self:getFlag("lightmenu#cell:" .. name, default)
+end
+
+--- Adds a phone call in the Light World CELL menu
+---@param name  string          The name of the call as it will show in the CELL menu
+---@param scene string          The cutscene to play when the call is selected
+function Game:addCall(name, scene)
+    table.insert(self.calls, {name, scene})
+end
+
+--- Replaces a phone call in the Light World CELL menu with another
+---@param replace_name string          The name of the call to replace
+---@param name         string          The name of the call as it will show in the CELL menu
+---@param scene        string          The cutscene to play when the call is selected
+function Game:replaceCall(replace_name, name, scene)
+    for i,call in ipairs(self.calls) do
+        if call[1] == replace_name then
+            self.calls[i] = {name, scene}
+            break
+        end
+    end
+end
+
+--- Removes a phone call in the Light World CELL menu
+---@param name string          The name of the call to remove
+function Game:removeCall(name)
+    for i,call in ipairs(self.calls) do
+        if call[1] == name then
+            table.remove(self.calls, i)
+            break
+        end
+    end
+end
+
+--- Removes all the phone calls in the Light World CELL menu
+function Game:clearCalls()
+    self.calls = {}
 end
 
 ---@param amount number

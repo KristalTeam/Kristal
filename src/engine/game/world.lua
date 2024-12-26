@@ -107,8 +107,6 @@ function World:init(map)
 
     self.debug_select = false
 
-    self.calls = {}
-
     self.door_delay = 0
 
     if map then
@@ -288,57 +286,6 @@ function World:afterMenuClosed()
     self:hideHealthBars()
     self.menu = nil
     self:setState("GAMEPLAY")
-end
-
---- Sets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
----@param name  string  The name of the flag to set
----@param value integer The value to set the flag to
-function World:setCellFlag(name, value)
-    Game:setFlag("lightmenu#cell:" .. name, value)
-end
-
---- Gets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
----@param name      string
----@param default?  integer
----@return integer
-function World:getCellFlag(name, default)
-    return Game:getFlag("lightmenu#cell:" .. name, default)
-end
-
---- Registers a phone call in the Light World CELL menu
----@param name  string          The name of the call as it will show in the CELL menu
----@param scene string          The cutscene to play when the call is selected
-function World:registerCall(name, scene)
-    table.insert(self.calls, {name, scene})
-end
-
---- Replaces a phone call in the Light World CELL menu with another
----@param replace_name string          The name of the call to replace
----@param name         string          The name of the call as it will show in the CELL menu
----@param scene        string          The cutscene to play when the call is selected
-function World:replaceCall(replace_name, name, scene)
-    for i,call in ipairs(self.calls) do
-        if call[1] == old_name then
-            self.calls[i] = {name, scene}
-            break
-        end
-    end
-end
-
---- Removes a phone call in the Light World CELL menu
----@param name string          The name of the call to remove
-function World:removeCall(name)
-    for i,call in ipairs(self.calls) do
-        if call[1] == name then
-            table.remove(self.calls, i)
-            break
-        end
-    end
-end
-
---- Removes all the phone calls in the Light World CELL menu
-function World:clearCalls()
-    self.calls = {}
 end
 
 --- Shows party member health bars

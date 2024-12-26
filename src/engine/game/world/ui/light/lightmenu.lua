@@ -110,7 +110,7 @@ function LightMenu:onButtonSelect(button)
         self.ui_select:stop()
         self.ui_select:play()
     elseif button == 3 then
-        if #Game.world.calls > 0 then
+        if #Game.calls > 0 then
             Input.clear("confirm")
             self.state = "CELLMENU"
             self.box = LightCellMenu()
@@ -168,7 +168,7 @@ function LightMenu:draw()
     Draw.setColor(PALETTE["world_text"])
     love.graphics.print("STAT", 84, 188 + (36 * 1))
     if Game:getFlag("has_cell_phone", false) then
-        if #Game.world.calls > 0 then
+        if #Game.calls > 0 then
             Draw.setColor(PALETTE["world_text"])
         else
             Draw.setColor(PALETTE["world_gray"])

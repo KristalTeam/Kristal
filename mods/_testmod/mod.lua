@@ -58,7 +58,8 @@ function Mod:postInit(new_file)
     if new_file then
         -- Sets the collected shadow crystal counter to 1
         Game:setFlag("shadow_crystals", 1)
-        Game.world:registerCall("Call Home", "cell.home")
+        
+        Game:addCall("Call Home", "cell.home")
     end
 
     Game:setBorder("city")

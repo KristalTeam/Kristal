@@ -1,7 +1,7 @@
 return {
     home = function(cutscene)
         cutscene:text("* (Ring...)")
-        if Game.world:getCellFlag("cell.home", 0) > 0 then
+        if Game:getCellFlag("cell.home", 0) > 0 then
             cutscene:text("* (No one picked up.)")
         else
             cutscene:setSpeaker("susie")
