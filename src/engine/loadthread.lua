@@ -249,8 +249,16 @@ local loaders = {
                 callback(lib)
             end
 
+            local sharedlibs = {}
             if love.filesystem.getInfo("/sharedlibs/") then
-                for _, lib_path in ipairs(love.filesystem.getDirectoryItems("/sharedlibs")) do
+                local dirs = love.filesystem.getDirectoryItems("/sharedlibs")
+                local sharedlib_paths = {}
+                for _, lib_path in ipairs(dirs) do
+                    loadLib("sharedlibs/", lib_path, function (lib)
+                        sharedlib_paths[lib.id] = lib.path:sub(#"sharedlibs/")
+                    end)
+                end
+                for _, lib_path in ipairs(dirs) do
                     loadLib("sharedlibs/", lib_path, function (lib)
                         local enabled = false
                         if mod.config and mod.config[lib.id] then
@@ -263,10 +271,22 @@ local loaders = {
                             end
                         end
                         if enabled then
-                            mod.libs[lib.id] = lib
+                            sharedlibs[lib.id] = lib
+                            for index, value in pairs(sharedlib_paths) do
+                                print(index,value)
+                            end
+                            for _, value in ipairs(lib.dependencies or {}) do
+                                loadLib("sharedlibs/", sharedlib_paths[value], function (deplib)
+                                    sharedlibs[deplib.id] = deplib
+                                end)
+                            end
                         end
                     end)
                 end
+            end
+
+            for id, lib in pairs(sharedlibs) do
+                mod.libs[lib.id] = lib
             end
 
             if love.filesystem.getInfo(full_path .. "/libraries") then
