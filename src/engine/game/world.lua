@@ -313,11 +313,27 @@ function World:registerCall(name, scene)
 end
 
 --- Replaces a phone call in the Light World CELL menu with another
----@param name  string          The name of the call as it will show in the CELL menu
----@param index integer         The index of the call to replace
----@param scene string          The cutscene to play when the call is selected
-function World:replaceCall(name, index, scene)
-    self.calls[index] = {name, scene}
+---@param name     string          The name of the call as it will show in the CELL menu
+---@param old_name string          The name of the call to replace
+---@param scene    string          The cutscene to play when the call is selected
+function World:replaceCall(name, old_name, scene)
+    for i,call in ipairs(self.calls) do
+        if call[1] == old_name then
+            self.calls[i] = {name, scene}
+            break
+        end
+    end
+end
+
+--- Removes a phone call in the Light World CELL menu
+---@param name string          The name of the call to remove
+function World:removeCall(name)
+    for i,call in ipairs(self.calls) do
+        if call[1] == name then
+            table.remove(self.calls, i)
+            break
+        end
+    end
 end
 
 --- Shows party member health bars

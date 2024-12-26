@@ -276,6 +276,8 @@ function Game:save(x, y)
     data.inventory = self.inventory:save()
     data.light_inventory = self.light_inventory:save()
     data.dark_inventory = self.dark_inventory:save()
+    
+    data.calls = Game.world.calls
 
     data.party_data = {}
     for k,v in pairs(self.party_data) do
@@ -436,6 +438,10 @@ function Game:load(data, index, fade)
                 self.inventory:setItem(storage, i, item)
             end
         end
+    end
+    
+    if data.calls then
+        Game.world.calls = data.calls
     end
 
     local loaded_light = data.light or false
