@@ -337,7 +337,7 @@ function World:removeCall(name)
 end
 
 --- Removes all the phone calls in the Light World CELL menu
-function World:removeAllCalls()
+function World:clearCalls()
     self.calls = {}
 end
 
