@@ -253,6 +253,9 @@ local loaders = {
                 for _, lib_path in ipairs(love.filesystem.getDirectoryItems("/sharedlibs")) do
                     loadLib("sharedlibs/", lib_path, function (lib)
                         local enabled = false
+                        if mod.config and mod.config[lib.id] then
+                            enabled = true
+                        end
                         for _, value in ipairs(mod.sharedlibs) do
                             if value == lib.id then
                                 enabled = true
