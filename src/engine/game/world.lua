@@ -313,10 +313,10 @@ function World:registerCall(name, scene)
 end
 
 --- Replaces a phone call in the Light World CELL menu with another
----@param old_name string          The name of the call to replace
----@param name     string          The name of the call as it will show in the CELL menu
----@param scene    string          The cutscene to play when the call is selected
-function World:replaceCall(old_name, name, scene)
+---@param replace_name string          The name of the call to replace
+---@param name         string          The name of the call as it will show in the CELL menu
+---@param scene        string          The cutscene to play when the call is selected
+function World:replaceCall(replace_name, name, scene)
     for i,call in ipairs(self.calls) do
         if call[1] == old_name then
             self.calls[i] = {name, scene}
