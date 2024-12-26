@@ -249,43 +249,43 @@ local loaders = {
                 callback(lib)
             end
 
-            local sharedlibs = {}
+            local active_sharedlibs = {}
+
             if love.filesystem.getInfo("/sharedlibs/") then
+                local all_sharedlibs = {}
+                local loaddeps
+                function loaddeps(lib)
+                    if active_sharedlibs[lib.id] then return end
+                    active_sharedlibs[lib.id] = lib
+                    for _, deplib in ipairs(lib.dependencies or {}) do
+                        loaddeps(all_sharedlibs[deplib])
+                    end
+                end
                 local dirs = love.filesystem.getDirectoryItems("/sharedlibs")
-                local sharedlib_paths = {}
                 for _, lib_path in ipairs(dirs) do
                     loadLib("sharedlibs/", lib_path, function (lib)
-                        sharedlib_paths[lib.id] = lib.path:sub(#"sharedlibs/")
+                        all_sharedlibs[lib.id] = lib
                     end)
                 end
-                for _, lib_path in ipairs(dirs) do
-                    loadLib("sharedlibs/", lib_path, function (lib)
-                        local enabled = false
-                        if mod.config and mod.config[lib.id] then
+                for lib_id, lib in pairs(all_sharedlibs) do
+                    local lib_path = lib.path:sub(#"sharedlibs/")
+                    local enabled = false
+                    if mod.config and mod.config[lib.id] then
+                        enabled = true
+                    end
+                    for _, value in ipairs(mod.sharedlibs) do
+                        if value == lib.id then
                             enabled = true
+                            break
                         end
-                        for _, value in ipairs(mod.sharedlibs) do
-                            if value == lib.id then
-                                enabled = true
-                                break
-                            end
-                        end
-                        if enabled then
-                            sharedlibs[lib.id] = lib
-                            for index, value in pairs(sharedlib_paths) do
-                                print(index,value)
-                            end
-                            for _, value in ipairs(lib.dependencies or {}) do
-                                loadLib("sharedlibs/", sharedlib_paths[value], function (deplib)
-                                    sharedlibs[deplib.id] = deplib
-                                end)
-                            end
-                        end
-                    end)
+                    end
+                    if enabled then
+                        loaddeps(lib)
+                    end
                 end
             end
 
-            for id, lib in pairs(sharedlibs) do
+            for id, lib in pairs(active_sharedlibs) do
                 mod.libs[lib.id] = lib
             end
 
