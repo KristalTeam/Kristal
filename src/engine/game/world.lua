@@ -336,6 +336,11 @@ function World:removeCall(name)
     end
 end
 
+--- Removes all the phone calls in the Light World CELL menu
+function World:removeAllCalls()
+    self.calls = {}
+end
+
 --- Shows party member health bars
 function World:showHealthBars()
     if Game.light then return end
