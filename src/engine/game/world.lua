@@ -38,8 +38,6 @@
 ---
 ---@field menu              LightMenu|DarkMenu?             The Menu object of the menu, if it is open
 ---
----@field calls             table<[string, string]>   A list of calls available on the cell phone in the Light World CELL menu
----
 ---@field door_delay        number                          *(Used internally)* Timer variable for door transition sounds
 ---
 ---@field healthbar         HealthBar

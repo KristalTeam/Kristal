@@ -32,6 +32,7 @@
 ---@field lw_money          integer
 ---@field level_up_count    integer
 ---@field temp_followers    table<[string, number]|string>
+---@field calls             table<[string, string, boolean]>
 ---@field flags             table<[string, any]>
 ---@field party             PartyMember[]
 ---@field party_data        PartyMember[]
