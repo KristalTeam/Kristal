@@ -50,7 +50,7 @@ end
 
 function FrozenEnemy:getDebugInfo()
     local info = super.getDebugInfo(self)
-    table.insert(info, "Actor: " .. self.actor)
+    table.insert(info, "Actor: " .. self.actor.name)
     return info
 end
 
