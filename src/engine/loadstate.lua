@@ -60,10 +60,15 @@ function Loading:beginLoad()
 end
 
 function Loading:update()
+    if #love.touch.getTouches() > 0 then self:onKeyPressed("mobile:confirm") end
     if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
         -- create a console
         Kristal.Console = Console()
         Kristal.Stage:addChild(Kristal.Console)
+        if Kristal.isMobile() then
+            Kristal.InputOverlay = InputOverlay()
+            Kristal.Stage:addChild(Kristal.InputOverlay)
+        end
         -- create the debug system
         Kristal.DebugSystem = DebugSystem()
         Kristal.Stage:addChild(Kristal.DebugSystem)
