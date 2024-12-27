@@ -983,21 +983,23 @@ function Game:getCellFlag(name, default)
     return self:getFlag("lightmenu#cell:" .. name, default)
 end
 
---- Adds a phone call in the Light World CELL menu
----@param name  string          The name of the call as it will show in the CELL menu
----@param scene string          The cutscene to play when the call is selected
-function Game:addCall(name, scene)
-    table.insert(self.calls, {name, scene})
+--- Registers a phone call in the Light World CELL menu
+---@param name      string          The name of the call as it will show in the CELL menu
+---@param scene     string          The cutscene to play when the call is selected
+---@param playsound boolean         Whether it will play the phone call sound effect
+function Game:registerCall(name, scene, playsound)
+    table.insert(self.calls, {name, scene, playsound})
 end
 
 --- Replaces a phone call in the Light World CELL menu with another
 ---@param replace_name string          The name of the call to replace
 ---@param name         string          The name of the call as it will show in the CELL menu
 ---@param scene        string          The cutscene to play when the call is selected
-function Game:replaceCall(replace_name, name, scene)
+---@param playsound    boolean         Whether it will play the phone call sound effect
+function Game:replaceCall(replace_name, name, scene, playsound)
     for i,call in ipairs(self.calls) do
         if call[1] == replace_name then
-            self.calls[i] = {name, scene}
+            self.calls[i] = {name, scene, playsound}
             break
         end
     end

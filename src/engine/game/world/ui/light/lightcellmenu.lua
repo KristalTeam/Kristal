@@ -66,8 +66,8 @@ function LightCellMenu:draw()
     super.draw(self)
 end
 
-function LightCellMenu:runCall(call, playsound)
-    if playsound == nil or playsound then
+function LightCellMenu:runCall(call)
+    if call[3] ~= false then
         Assets.playSound("phone", 0.7)
     end
     Game.world.menu:closeBox()
