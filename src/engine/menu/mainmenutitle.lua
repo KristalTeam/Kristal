@@ -21,6 +21,7 @@ end
 
 function MainMenuTitle:registerEvents()
     self:registerEvent("enter", self.onEnter)
+    self:registerEvent("resume", self.onResume)
     self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("draw", self.draw)
 end
@@ -50,7 +51,14 @@ function MainMenuTitle:onEnter(old_state)
         }
     end
 
-    if not TARGET_MOD then
+    self:onResume(old_state)
+
+    self.menu.heart_target_x = 196
+    self.menu.heart_target_y = 238 + 32 * (self.selected_option - 1)
+end
+
+function MainMenuTitle:onResume(old_state)
+    if not(TARGET_MOD) then
         self.menu.selected_mod = nil
         self.menu.selected_mod_button = nil
     end
@@ -67,12 +75,12 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
 
         if option == "play" then
             if not TARGET_MOD then
-                self.menu:setState("MODSELECT")
+                self.menu:pushState("MODSELECT")
 				if MainMenu.mod_list:getSelectedMod() and MainMenu.mod_list:getSelectedMod().soulColor then
 					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 				end
             elseif self.has_target_saves then
-                self.menu:setState("FILESELECT")
+                self.menu:pushState("FILESELECT")
             else
                 Kristal.loadMod(TARGET_MOD, 1)
             end
@@ -86,10 +94,10 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             end
 
         elseif option == "options" then
-            self.menu:setState("OPTIONS")
+            self.menu:pushState("OPTIONS")
 
         elseif option == "credits" then
-            self.menu:setState("CREDITS")
+            self.menu:pushState("CREDITS")
 
         elseif option == "wiki" then
             love.system.openURL("https://kristal.cc/wiki")
