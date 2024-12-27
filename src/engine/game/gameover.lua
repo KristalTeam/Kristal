@@ -229,13 +229,14 @@ function GameOver:update()
                 self.timer = 0
             else
                 self.current_stage = 20
+                local world_ended_text = "[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS."
                 if not Game:getConfig("oldGameOver") then
                     self.text:remove()
 
-                    self.dialogue = DialogueText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.", 120, 160, {style = "GONER", line_offset = 14})
+                    self.dialogue = DialogueText(world_ended_text, 120, 160, {style = "GONER", line_offset = 14})
                     self:addChild(self.dialogue)
                 else
-                    self.dialogue:setText("[noskip][speed:0.5][spacing:8][voice:none] THEN THE WORLD[wait:30] \n WAS COVERED[wait:30] \n IN DARKNESS.")
+                    self.dialogue:setText(world_ended_text)
                     self.dialogue.x = 120
                 end
             end
