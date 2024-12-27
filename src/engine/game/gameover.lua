@@ -116,7 +116,7 @@ function GameOver:update()
         local options = {}
         local main_chara = Game:getSoulPartyMember()
         for _, member in ipairs(Game.party) do
-            if member ~= main_chara and member:getGameOverMessage(main_chara) then
+            if (member ~= main_chara or member:getForceGameOverMessage()) and member:getGameOverMessage(main_chara) then
                 table.insert(options, member)
             end
         end
@@ -141,7 +141,7 @@ function GameOver:update()
             end
         else
             local member = Utils.pick(options)
-            local voice = member:getActor().voice or "default"
+            local voice = member:getActor():getVoice() or "default"
             self.lines = {}
             for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
                 local spacing = Game:isLight() and 6 or 8
