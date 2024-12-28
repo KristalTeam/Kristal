@@ -283,7 +283,7 @@ function Encounter:getSoulSpawnLocation()
 
         if battler then
             local offset_x, offset_y = main_chara:getSoulOffset()
-            return battler:localToScreenPos((battler.sprite.width/2) - 4.5 + offset_x, battler.sprite.height/2 + offset_y))
+            return battler:localToScreenPos(battler.sprite.width/2 - 4.5 + offset_x, battler.sprite.height/2 + offset_y)
         end
     end
     return -9, -9
