@@ -58,7 +58,7 @@
 ---@field battle_offset     [number, number]?
 ---@field head_icon_offset  [number, number]?
 ---@field menu_icon_offset  [number, number]?
----@field soul_offset  [number, number]?
+---@field soul_offset       [number, number]?
 ---
 ---@field gameover_message string[]?
 ---
