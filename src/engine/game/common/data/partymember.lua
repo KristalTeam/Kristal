@@ -58,6 +58,7 @@
 ---@field battle_offset     [number, number]?
 ---@field head_icon_offset  [number, number]?
 ---@field menu_icon_offset  [number, number]?
+---@field soul_offset       [number, number]?
 ---
 ---@field gameover_message string[]?
 ---
@@ -179,6 +180,8 @@ function PartyMember:init()
     self.head_icon_offset = nil
     -- Menu icon position offset (optional)
     self.menu_icon_offset = nil
+    -- Battle soul position offset (optional)
+    self.soul_offset = nil
 
     -- Message shown on gameover (optional)
     self.gameover_message = nil
@@ -361,6 +364,10 @@ function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or 
 ---@return number x
 ---@return number y
 function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
+
+---@return number x
+---@return number y
+function PartyMember:getSoulOffset() return unpack(self.soul_offset or {0, 0}) end
 
 function PartyMember:getGameOverMessage() return self.gameover_message end
 
