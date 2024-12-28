@@ -282,7 +282,8 @@ function Encounter:getSoulSpawnLocation()
         local battler = Game.battle.party[Game.battle:getPartyIndex(main_chara.id)]
 
         if battler then
-            return battler:localToScreenPos((battler.sprite.width/2) - 4.5 + select(1, main_chara:getSoulOffset()), battler.sprite.height/2 + select(2, main_chara:getSoulOffset()))
+            local offset_x, offset_y = main_chara:getSoulOffset()
+            return battler:localToScreenPos((battler.sprite.width/2) - 4.5 + offset_x, battler.sprite.height/2 + offset_y))
         end
     end
     return -9, -9
