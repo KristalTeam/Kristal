@@ -172,6 +172,7 @@ function Shop:init()
     end
 
     self.background = nil
+    self.background_speed = 5/30
 
     self.state = "NONE"
     self.state_reason = nil
@@ -251,7 +252,7 @@ function Shop:postInit()
         self.background_sprite = Sprite(self.background, 0, 0)
         self.background_sprite:setScale(2, 2)
         self.background_sprite.layer = SHOP_LAYERS["background"]
-        self.background_sprite:play(self.background_speed or 5/30, true)
+        self.background_sprite:play(self.background_speed, true)
         self:addChild(self.background_sprite)
     end
 
