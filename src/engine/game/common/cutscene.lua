@@ -213,6 +213,7 @@ function Cutscene:resume(...)
     self.wait_func = nil
     local ok, msg = coroutine.resume(self.coroutine, ...)
     if not ok then
+        COROUTINE_TRACEBACK = debug.traceback(self.coroutine)
         error(msg)
     end
 end
