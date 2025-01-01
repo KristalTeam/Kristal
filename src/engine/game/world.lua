@@ -379,6 +379,9 @@ function World:onKeyPressed(key)
         if key == "b" then
             Game.world:hurtParty(math.huge)
         end
+        if key == "k" then
+            Game:setTension(Game:getMaxTension() * 2, true)
+        end
         if key == "n" then
             NOCLIP = not NOCLIP
         end
