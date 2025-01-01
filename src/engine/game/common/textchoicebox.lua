@@ -13,6 +13,12 @@ function TextChoicebox:init(x, y, width, height, default_font, default_font_size
     self.done = false
 
     self.heart = Assets.getTexture("player/heart_menu")
+    
+    self.typing_choice_text = 0
+    self.choices_text = {DialogueText("", 148, 68), DialogueText("", 340, 68)}
+    for _,text in ipairs(self.choices_text) do
+        self:addChild(text)
+    end
 
     self:setAdvance(false)
 end
@@ -20,6 +26,32 @@ end
 function TextChoicebox:update()
     super.update(self)
     if not self.text:isTyping() then
+        for i,text in ipairs(self.choices_text) do
+            if self.choices[i] and self.typing_choice_text < i and (i == 1 or not self.choices_text[i-1]:isTyping()) then
+                self.typing_choice_text = i
+                
+                local wait = "[wait:10]"
+                if self.face.texture then
+                    text.x = text.x + 2
+                    if i == 1 then
+                        wait = ""
+                    else
+                        wait = "[wait:5]"
+                    end
+                end
+                
+                local voice = ""
+                if self.actor and self.actor:getVoice() then
+                    voice = "[voice:"..self.actor:getVoice().."]"
+                end
+
+                text:setText(voice..wait..self.choices[i])
+            end
+        end
+    end
+    if not self:isTyping() then
+        local old_choice = self.current_choice
+        
         if Input.pressed("left")  then self.current_choice = self.current_choice - 1 end
         if Input.pressed("right") then self.current_choice = self.current_choice + 1 end
 
@@ -29,6 +61,10 @@ function TextChoicebox:update()
 
         if self.current_choice > #self.choices then
             self.current_choice = 1
+        end
+        
+        if (self.ui_sound == nil and not self.actor or self.ui_sound) and self.current_choice ~= old_choice then
+            Assets.stopAndPlaySound("ui_move")
         end
 
         if Input.pressed("confirm") then
@@ -73,15 +109,18 @@ function TextChoicebox:setText(text, callback)
         error("Text choicers cannot have multiple lines of text!")
     end
 
-    super.setText(self, self:transformText(text), callback)
+    super.setText(self, text, callback)
 end
 
-function TextChoicebox:transformText(text)
-    if self.face.texture then
-        return text .. "\n" .. table.concat(self.choices, "     ")
-    else
-        return text .. "\n       " .. table.concat(self.choices, "     ")
+function TextChoicebox:isTyping()
+    local typing = self.text:isTyping()
+    for _,text in ipairs(self.choices_text) do
+        if text:isTyping() then
+            typing = true
+            break
+        end
     end
+    return typing
 end
 
 function TextChoicebox:isDone()
@@ -90,7 +129,7 @@ end
 
 function TextChoicebox:draw()
     super.draw(self)
-    if not self.text:isTyping() then
+    if not self:isTyping() then
         local x = 122 + (self.current_choice - 1) * 192
         local y = 76
         Draw.setColor(Game:getSoulColor())
