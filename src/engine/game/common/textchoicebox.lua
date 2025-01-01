@@ -120,7 +120,7 @@ function TextChoicebox:update()
                             local interleaved = interleave_lines(str1 or "", str2 or "")
                             return interleaved[line_number] or ""
                         end
-                        if #get_interleaved_line(self.choices[1], self.choices[2], i) > 0 then
+                        if get_interleaved_line(self.choices[1], self.choices[2], i) ~= "" then
                             text:setText(voice..wait..get_interleaved_line(self.choices[1], self.choices[2], i))
                         end
                     else
