@@ -124,7 +124,7 @@ function TextChoicebox:update()
                             text:setText(voice..wait..get_interleaved_line(self.choices[1], self.choices[2], i))
                         end
                     else
-                        if self.choices[i] then
+                        if self.choices[i] and self.choices[i] ~= "" then
                             text:setText(voice..wait..self.choices[i])
                         end
                     end
