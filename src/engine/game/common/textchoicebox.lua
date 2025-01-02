@@ -48,7 +48,7 @@ function TextChoicebox:update()
     if self.added_text_boxes then
         if not self.text:isTyping() then
             for i,text in ipairs(self.choices_text) do
-                if (self.choices[i] or self.multi_line_mode) and self.typing_choice_text == i-1 and (i == 1 or not self.choices_text[i-1]:isTyping()) then
+                if self.typing_choice_text == i-1 and (i == 1 or not self.choices_text[i-1]:isTyping()) then
                     self.typing_choice_text = i
                     
                     local wait = "[wait:10]"
@@ -124,7 +124,9 @@ function TextChoicebox:update()
                             text:setText(voice..wait..get_interleaved_line(self.choices[1], self.choices[2], i))
                         end
                     else
-                        text:setText(voice..wait..self.choices[i])
+                        if self.choices[i] then
+                            text:setText(voice..wait..self.choices[i])
+                        end
                     end
                 end
             end
