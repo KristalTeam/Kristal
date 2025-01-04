@@ -374,8 +374,10 @@ function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.stopAndPlaySound("power")
     end
-    self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
-    return self:getStat("health") == self:getHealth()
+    if self:getHealth() < self:getStat("health") then
+        self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
+    end
+    return self:getHealth() >= self:getStat("health")
 end
 
 --- Sets this party member's health value

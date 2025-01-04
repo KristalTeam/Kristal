@@ -276,7 +276,9 @@ function PartyBattler:heal(amount, sparkle_color, auto_heal)
 
     amount = math.floor(amount)
 
-    self.chara:setHealth(self.chara:getHealth() + amount)
+    if self.chara:getHealth() < self.chara:getStat("health") then
+        self.chara:setHealth(math.min(self.chara:getStat("health"), self.chara:getHealth() + amount))
+    end
 
     local was_down = self.is_down
     self:checkHealth()
@@ -286,7 +288,6 @@ function PartyBattler:heal(amount, sparkle_color, auto_heal)
     end
 
     if self.chara:getHealth() >= self.chara:getStat("health") then
-        self.chara:setHealth(self.chara:getStat("health"))
         self:statusMessage("msg", "max")
     else
         if auto_heal and was_down ~= self.is_down then
