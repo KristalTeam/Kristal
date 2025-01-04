@@ -271,8 +271,11 @@ end
 ---@param amount            number  The amount of health to restore
 ---@param sparkle_color?    table   The color of the heal sparkles (defaults to the standard green)
 ---@param auto_heal?        boolean Whether the heal was done automatically
-function PartyBattler:heal(amount, sparkle_color, auto_heal)
-    Assets.stopAndPlaySound("power")
+---@param playsound?        boolean Whether a sound will play on heal
+function PartyBattler:heal(amount, sparkle_color, auto_heal, playsound)
+    if playsound ~= false then
+        Assets.stopAndPlaySound("power")
+    end
 
     amount = math.floor(amount)
 
