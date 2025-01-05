@@ -277,8 +277,6 @@ function PartyBattler:heal(amount, sparkle_color, auto_heal, playsound)
         Assets.stopAndPlaySound("power")
     end
 
-    amount = math.floor(amount)
-
     if self.chara:getHealth() < self.chara:getStat("health") then
         self.chara:setHealth(math.min(self.chara:getStat("health"), self.chara:getHealth() + amount))
     end

@@ -2146,7 +2146,7 @@ function Battle:nextTurn()
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
         if (battler.chara:getHealth() <= 0) and battler.chara:canAutoHeal() then
-            battler:heal(battler.chara:autoHealAmount(), nil, true)
+            battler:heal(math.floor(battler.chara:autoHealAmount()), nil, true)
         end
         battler.action = nil
     end
