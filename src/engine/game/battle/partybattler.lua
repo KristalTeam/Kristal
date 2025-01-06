@@ -273,6 +273,8 @@ end
 ---@param auto_heal?        boolean Whether the heal was done automatically
 ---@param playsound?        boolean Whether a sound will play on heal
 function PartyBattler:heal(amount, sparkle_color, auto_heal, playsound)
+    amount = math.floor(amount)
+
     if playsound ~= false then
         Assets.stopAndPlaySound("power")
     end
