@@ -175,6 +175,10 @@ function MainMenuModList:update()
     else
         self.menu.heart_outline.visible = false
     end
+    
+    if self.list:isOnCreate() then
+        self.menu.heart:setColor(Kristal.getSoulColor())
+    end
 end
 
 function MainMenuModList:draw()
