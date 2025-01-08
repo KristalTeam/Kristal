@@ -544,6 +544,24 @@ function Soul:update()
     super.update(self)
 end
 
+function Soul:setSpriteRotation(rotation)
+    if rotation == nil then
+        if self.sprite then
+            self.sprite:setSprite("player/heart_dodge")
+        end
+        if self.graze_sprite then
+            self.graze_sprite.texture = Assets.getTexture("player/graze")
+        end
+    else
+        if self.sprite then
+            self.sprite:setSprite("player/"..rotation.."/heart_dodge")
+        end
+        if self.graze_sprite then
+            self.graze_sprite.texture = Assets.getTexture("player/"..rotation.."/graze")
+        end
+    end
+end
+
 function Soul:draw()
     super.draw(self)
 

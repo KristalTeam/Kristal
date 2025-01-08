@@ -33,6 +33,14 @@ local self = Assets
 
 Assets.saved_data = nil
 
+local function check_overwrite(path)
+    local player_folder_path = string.sub(path, 1, 7)
+    if player_folder_path == "player/" and select(2, string.gsub(path, "/", "/")) == 1 then
+        path = player_folder_path..Kristal.getSoulRotation().."/"..string.sub(path, 8)
+    end
+    return path
+end
+
 function Assets.clear()
     self.loaded = false
     self.data = {
@@ -253,13 +261,13 @@ end
 ---@param path string
 ---@return love.Image
 function Assets.getTexture(path)
-    return self.data.texture[path]
+    return self.data.texture[check_overwrite(path)] or self.data.texture[path]
 end
 
 ---@param path string
 ---@return love.ImageData
 function Assets.getTextureData(path)
-    return self.data.texture_data[path]
+    return self.data.texture_data[check_overwrite(path)] or self.data.texture_data[path]
 end
 
 ---@param texture love.Image|string
@@ -275,13 +283,13 @@ end
 ---@param path string
 ---@return love.Image[]
 function Assets.getFrames(path)
-    return self.data.frames[path]
+    return self.data.frames[check_overwrite(path)] or self.data.frames[path]
 end
 
 ---@param path string
 ---@return string[]
 function Assets.getFrameIds(path)
-    return self.data.frame_ids[path]
+    return self.data.frame_ids[check_overwrite(path)] or self.data.frame_ids[path]
 end
 
 ---@param texture string

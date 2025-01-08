@@ -921,10 +921,31 @@ function Game:getSoulColor()
     return 1, 0, 0, 1
 end
 
+---@return string
+function Game:getSoulRotation()
+    if Game.state == "BATTLE" and Game.battle and Game.battle.encounter and Game.battle.encounter.getSoulRotation and Game.battle.encounter:getSoulRotation() then
+        return Game.battle.encounter:getSoulRotation()
+    end
+
+    local mrot = Kristal.callEvent(KRISTAL_EVENT.getSoulRotation)
+    if mrot ~= nil then
+        return mrot
+    end
+    
+    local chara = Game:getSoulPartyMember()
+    
+    if chara and chara:getSoulPriority() >= 0 then
+        local rot = chara:getSoulRotation()
+        return rot or "up"
+    end
+    
+    return "up"
+end
+
 ---@return PartyMember
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end
