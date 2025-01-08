@@ -22,11 +22,6 @@
 local Encounter = Class()
 
 function Encounter:init()
-    -- Sets the encounter ID incase it was started without an encounter file
-    if not self.id then
-        self.id = "_local"
-    end
-    
     -- Text that will be displayed when the battle starts
     self.text = "* A skirmish breaks out!"
 
@@ -330,6 +325,7 @@ end
 ---@param flag  string
 ---@param value any
 function Encounter:setFlag(flag, value)
+    if self.id == nil then return end
     Game:setFlag("encounter#"..self.id..":"..flag, value)
 end
 
@@ -337,6 +333,7 @@ end
 ---@param default?  any
 ---@return any
 function Encounter:getFlag(flag, default)
+    if self.id == nil then return end
     return Game:getFlag("encounter#"..self.id..":"..flag, default)
 end
 
@@ -345,6 +342,7 @@ end
 ---@param amount?   number  (Defaults to `1`)
 ---@return number
 function Encounter:addFlag(flag, amount)
+    if self.id == nil then return end
     return Game:addFlag("encounter#"..self.id..":"..flag, amount)
 end
 
