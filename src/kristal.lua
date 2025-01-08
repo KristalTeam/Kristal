@@ -225,7 +225,7 @@ function love.load(args)
                 love.graphics.setFont(main_font)
                 love.graphics.printf([==[
 Please insert mario.png into the base Kristal folder and restart
-Alternatively, create a "marios" directory containing images.
+Alternatively, create a "marios" directory containing mario images.
 ]==], 0, 0, SCREEN_WIDTH)
             end
         })
