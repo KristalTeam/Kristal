@@ -591,7 +591,8 @@ function Map:loadObjects(layer, depth, layer_type)
                 local env = setmetatable({}, {__index = function(t, k)
                     return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
                 end})
-                skip_loading = not setfenv(loadstring("return "..v.properties["cond"]), env)()
+                local chunk, _ = assert(loadstring("return "..v.properties["cond"]))
+                skip_loading = not setfenv(chunk, env)()
             elseif v.properties["flagcheck"] then
                 local inverted, flag = Utils.startsWith(v.properties["flagcheck"], "!")
 

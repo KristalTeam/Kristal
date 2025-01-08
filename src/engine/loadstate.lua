@@ -70,6 +70,8 @@ function Loading:update()
         REGISTRY_LOADED = true
         if Kristal.Args["test"] then
             Gamestate.switch(Kristal.States["Testing"])
+        elseif AUTO_MOD_START and TARGET_MOD then
+            Kristal.loadMod(TARGET_MOD)
         else
             Gamestate.switch(Kristal.States["MainMenu"])
         end
