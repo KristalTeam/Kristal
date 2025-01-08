@@ -934,9 +934,8 @@ function Game:getSoulRotation()
     
     local chara = Game:getSoulPartyMember()
     
-    if chara and chara:getSoulPriority() >= 0 then
-        local rot = chara:getSoulRotation()
-        return rot or "up"
+    if chara and chara:getSoulPriority() >= 0 and chara:getSoulRotation() then
+        return chara:getSoulRotation()
     end
     
     return "up"
