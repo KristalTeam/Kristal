@@ -544,17 +544,17 @@ function Soul:update()
     super.update(self)
 end
 
-function Soul:setSpriteRotation(rotation)
+function Soul:setFacing(face)
     if self.sprite then
-        if rotation and not Assets.data.texture["player/heart_dodge"] and Assets.getTexture("player/"..rotation.."/heart_dodge") then
-            self.sprite:setSprite("player/"..rotation.."/heart_dodge")
+        if face and not Assets.data.texture["player/heart_dodge"] and Assets.getTexture("player/"..face.."/heart_dodge") then
+            self.sprite:setSprite("player/"..face.."/heart_dodge")
         else
             self.sprite:setSprite("player/heart_dodge")
         end
     end
     if self.graze_sprite then
-        if rotation and not Assets.data.texture["player/graze"] and Assets.getTexture("player/"..rotation.."/graze") then
-            self.graze_sprite.texture = Assets.getTexture("player/"..rotation.."/graze")
+        if face and not Assets.data.texture["player/graze"] and Assets.getTexture("player/"..face.."/graze") then
+            self.graze_sprite.texture = Assets.getTexture("player/"..face.."/graze")
         else
             self.graze_sprite.texture = Assets.getTexture("player/graze")
         end

@@ -49,8 +49,8 @@ function MainMenuFileSelect:onEnter(old_state)
     if MainMenu.mod_list:getSelectedMod().soulColor then
         MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
     end
-    if MainMenu.mod_list:getSelectedMod().soulRotation then
-        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulRotation.."/heart_menu")
+    if MainMenu.mod_list:getSelectedMod().soulFacing then
+        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
     end
 
     self.files = {}
@@ -191,8 +191,8 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
 				if MainMenu.mod_list:getSelectedMod().soulColor then
 					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 				end
-                if MainMenu.mod_list:getSelectedMod().soulRotation then
-                    MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulRotation.."/heart_menu")
+                if MainMenu.mod_list:getSelectedMod().soulFacing then
+                    MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
                 end
             else
                 self.menu:setState("TITLE")
@@ -228,8 +228,8 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
 						if MainMenu.mod_list:getSelectedMod().soulColor then
 							MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 						end
-                        if MainMenu.mod_list:getSelectedMod().soulRotation then
-                            MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulRotation.."/heart_menu")
+                        if MainMenu.mod_list:getSelectedMod().soulFacing then
+                            MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
                         end
                     else
                         self.menu:setState("TITLE")

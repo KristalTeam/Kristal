@@ -1467,9 +1467,9 @@ end
 
 --- Returns the soul rotation which should be used.
 ---@return string rot The rotation value.
-function Kristal.getSoulRotation()
+function Kristal.getSoulFacing()
     if Kristal.getState() == Game then
-        return Game:getSoulRotation()
+        return Game:getSoulFacing()
     end
     return "up"
 end

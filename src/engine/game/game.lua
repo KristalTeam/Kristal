@@ -922,20 +922,20 @@ function Game:getSoulColor()
 end
 
 ---@return string
-function Game:getSoulRotation()
-    if Game.state == "BATTLE" and Game.battle and Game.battle.encounter and Game.battle.encounter.getSoulRotation and Game.battle.encounter:getSoulRotation() then
-        return Game.battle.encounter:getSoulRotation()
+function Game:getSoulFacing()
+    if Game.state == "BATTLE" and Game.battle and Game.battle.encounter and Game.battle.encounter.getSoulFacing and Game.battle.encounter:getSoulFacing() then
+        return Game.battle.encounter:getSoulFacing()
     end
 
-    local mrot = Kristal.callEvent(KRISTAL_EVENT.getSoulRotation)
+    local mrot = Kristal.callEvent(KRISTAL_EVENT.getSoulFacing)
     if mrot ~= nil then
         return mrot
     end
     
     local chara = Game:getSoulPartyMember()
     
-    if chara and chara:getSoulPriority() >= 0 and chara:getSoulRotation() then
-        return chara:getSoulRotation()
+    if chara and chara:getSoulPriority() >= 0 and chara:getSoulFacing() then
+        return chara:getSoulFacing()
     end
     
     return "up"

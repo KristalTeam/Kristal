@@ -59,8 +59,8 @@ function ModButton:onSelect()
 		MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 	end
     MainMenu.heart:setSprite("player/heart_menu")
-    if MainMenu.mod_list:getSelectedMod().soulRotation then
-        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulRotation.."/heart_menu")
+    if MainMenu.mod_list:getSelectedMod().soulFacing then
+        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
     end
 end
 

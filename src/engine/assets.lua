@@ -36,7 +36,7 @@ Assets.saved_data = nil
 local function check_overwrite(path)
     local player_folder_path = string.sub(path, 1, 7)
     if player_folder_path == "player/" and select(2, string.gsub(path, "/", "/")) == 1 then
-        path = player_folder_path..Kristal.getSoulRotation().."/"..string.sub(path, 8)
+        path = player_folder_path..Kristal.getSoulFacing().."/"..string.sub(path, 8)
     end
     return path
 end

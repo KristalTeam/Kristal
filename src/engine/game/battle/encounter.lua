@@ -273,7 +273,7 @@ function Encounter:getSoulColor()
 end
 
 ---@return string
-function Encounter:getSoulRotation() end
+function Encounter:getSoulFacing() end
 
 --- *(Override)* Gets the position that the soul will appear at when starting waves.
 ---@return integer x
