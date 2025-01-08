@@ -927,9 +927,9 @@ function Game:getSoulFacing()
         return Game.battle.encounter:getSoulFacing()
     end
 
-    local mrot = Kristal.callEvent(KRISTAL_EVENT.getSoulFacing)
-    if mrot ~= nil then
-        return mrot
+    local face = Kristal.callEvent(KRISTAL_EVENT.getSoulFacing)
+    if face ~= nil then
+        return face
     end
     
     local chara = Game:getSoulPartyMember()

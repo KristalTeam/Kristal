@@ -1465,8 +1465,8 @@ function Kristal.getSoulColor()
     return unpack(COLORS.red)
 end
 
---- Returns the soul rotation which should be used.
----@return string rot The rotation value.
+--- Returns the soul facing direction which should be used.
+---@return string The facing value.
 function Kristal.getSoulFacing()
     if Kristal.getState() == Game then
         return Game:getSoulFacing()
