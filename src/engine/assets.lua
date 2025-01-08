@@ -261,13 +261,13 @@ end
 ---@param path string
 ---@return love.Image
 function Assets.getTexture(path)
-    return self.data.texture[check_overwrite(path)] or self.data.texture[path]
+    return self.data.texture[path] or self.data.texture[check_overwrite(path)]
 end
 
 ---@param path string
 ---@return love.ImageData
 function Assets.getTextureData(path)
-    return self.data.texture_data[check_overwrite(path)] or self.data.texture_data[path]
+    return self.data.texture_data[path] or self.data.texture_data[check_overwrite(path)]
 end
 
 ---@param texture love.Image|string
@@ -283,13 +283,13 @@ end
 ---@param path string
 ---@return love.Image[]
 function Assets.getFrames(path)
-    return self.data.frames[check_overwrite(path)] or self.data.frames[path]
+    return self.data.frames[path] or self.data.frames[check_overwrite(path)]
 end
 
 ---@param path string
 ---@return string[]
 function Assets.getFrameIds(path)
-    return self.data.frame_ids[check_overwrite(path)] or self.data.frame_ids[path]
+    return self.data.frame_ids[path] or self.data.frame_ids[check_overwrite(path)]
 end
 
 ---@param texture string
