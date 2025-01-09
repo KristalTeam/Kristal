@@ -34,7 +34,7 @@ function GonerChoice:init(x, y, choices, on_complete, on_select)
         if MainMenu.mod_list:getSelectedMod().soulColor  then
             self.soul:setColor(unpack(MainMenu.mod_list:getSelectedMod().soulColor))
         end
-        if MainMenu.mod_list:getSelectedMod().soulFacing then
+        if MainMenu.mod_list:getSelectedMod().soulFacing and not Assets.data.texture["player/heart_blur"] then
             self.soul:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_blur")
         end
     end
