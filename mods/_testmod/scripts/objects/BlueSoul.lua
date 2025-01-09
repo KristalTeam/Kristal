@@ -12,6 +12,7 @@ function BlueSoul:init(x, y)
     self.speed_x = 0
     self.speed_y = 0
 
+    self:setFacing("up")
     self.rotation = math.rad(0)
 end
 

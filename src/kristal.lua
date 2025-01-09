@@ -1478,6 +1478,15 @@ function Kristal.getSoulColor()
     return unpack(COLORS.red)
 end
 
+--- Returns the soul facing direction which should be used.
+---@return string The facing value.
+function Kristal.getSoulFacing()
+    if Kristal.getState() == Game then
+        return Game:getSoulFacing()
+    end
+    return "up"
+end
+
 --- Called internally. Loads the saved user config, with default values.
 ---@return table config The user config.
 function Kristal.loadConfig()

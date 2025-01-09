@@ -72,6 +72,9 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
                     if MainMenu.mod_list:getSelectedMod().soulColor then
                         MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
                     end
+                    if MainMenu.mod_list:getSelectedMod().soulFacing and not Assets.data.texture["player/heart_menu"] and Assets.getTexture("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu") then
+                        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
+                    end
 				end 
             elseif self.menu.selected_mod["useSaves"] or self.menu.selected_mod["useSaves"] == nil and (not self.menu.selected_mod["encounter"] or self.has_target_saves) then
                 self.menu:setState("FILESELECT")
