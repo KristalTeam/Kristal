@@ -72,7 +72,7 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
                     if MainMenu.mod_list:getSelectedMod().soulColor then
                         MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
                     end
-                    if MainMenu.mod_list:getSelectedMod().soulFacing and not Assets.data.texture["player/heart_menu"] then
+                    if MainMenu.mod_list:getSelectedMod().soulFacing and not Assets.data.texture["player/heart_menu"] and Assets.getTexture("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu") then
                         MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
                     end
 				end 
