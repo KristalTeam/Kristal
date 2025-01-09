@@ -31,7 +31,7 @@ function GonerChoice:init(x, y, choices, on_complete, on_select)
     self.soul:setScale(2, 2)
     self.soul:setColor(Kristal.getSoulColor())
     if Kristal.getState() ~= Game then
-        if MainMenu.mod_list:getSelectedMod().soulColor  then
+        if MainMenu.mod_list:getSelectedMod().soulColor then
             self.soul:setColor(unpack(MainMenu.mod_list:getSelectedMod().soulColor))
         end
         if MainMenu.mod_list:getSelectedMod().soulFacing and not Assets.data.texture["player/heart_blur"] and Assets.getTexture("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_blur") then
