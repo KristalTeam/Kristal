@@ -1569,7 +1569,14 @@ end
 ---@return boolean exists Whether the save folder has any save files.
 function Kristal.hasAnySaves(path)
     local full_path = "saves/" .. (path or Mod.info.id)
-    return love.filesystem.getInfo(full_path) and (#love.filesystem.getDirectoryItems(full_path) > 0)
+    if love.filesystem.getInfo(full_path) then
+        for _,file in ipairs(love.filesystem.getDirectoryItems(full_path)) do
+            if string.sub(file, 1, 5) == "file_" and string.sub(file, -5) == ".json" then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 --- Saves the given data to a file in the save folder.

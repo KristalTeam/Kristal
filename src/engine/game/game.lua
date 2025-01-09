@@ -924,7 +924,7 @@ end
 ---@return PartyMember
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end
