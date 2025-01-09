@@ -33,8 +33,8 @@ function RecruitMessage:init(type, x, y)
 
     self.alpha = 1
 
-    self.first_number = 1
-    self.second_number = 1
+    self.first_number = 0
+    self.second_number = 0
 end
 
 function RecruitMessage:update()
