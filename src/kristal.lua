@@ -258,8 +258,8 @@ function love.load(args)
 
         local screenshot_size = Utils.lerp(20, 0, SCREENSHOT_DISPLAY)
         if screenshot_size > 0 and not TAKING_SCREENSHOT then
-            local w = love.graphics.getWidth()
-            local h = love.graphics.getHeight()
+            local w = love.graphics.getWidth() / Kristal.getGameScale()
+            local h = love.graphics.getHeight() / Kristal.getGameScale()
             love.graphics.rectangle("fill", 0, 0, screenshot_size, h)
             love.graphics.rectangle("fill", w - screenshot_size, 0, screenshot_size, h)
             love.graphics.rectangle("fill", 0, 0, w, screenshot_size)
