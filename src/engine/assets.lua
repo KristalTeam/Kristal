@@ -34,8 +34,30 @@ local self = Assets
 Assets.saved_data = nil
 
 local function check_overwrite(path)
-    if string.sub(path, 1, 7) == "player/" and select(2, string.gsub(path, "/", "/")) == 1 then
-        path = string.sub(path, 1, 7)..Kristal.getSoulFacing().."/"..string.sub(path, 8)
+    -- Function to split a string by a delimiter
+    local function split(str, delimiter)
+        local result = {}
+        for match in (str..delimiter):gmatch("(.-)"..delimiter) do
+            table.insert(result, match)
+        end
+        return result
+    end
+    
+    local split_path = split(path, "/")
+    if split_path[1] == "player" and #split_path > 1 then
+        if #split_path == 2 then
+            -- It's calling the normal sprite, check if it already exists. If it exists, use it. Otherwise, use a facing sprite.
+            if not self.data.texture[path] then
+                table.insert(split_path, 2, Kristal.getSoulFacing())
+                return table.concat(split_path, "/")
+            end
+        else
+            -- It's calling a facing sprite, check if the normal sprite exists. If it exists, use it. Otherwise, use the requested facing sprite.
+            local normal_path = split_path[1].."/"..split_path[#split_path]
+            if self.data.texture[normal_path] then
+                return normal_path
+            end
+        end
     end
     return path
 end
@@ -260,13 +282,13 @@ end
 ---@param path string
 ---@return love.Image
 function Assets.getTexture(path)
-    return self.data.texture[path] or self.data.texture[check_overwrite(path)]
+    return self.data.texture[check_overwrite(path)]
 end
 
 ---@param path string
 ---@return love.ImageData
 function Assets.getTextureData(path)
-    return self.data.texture_data[path] or self.data.texture_data[check_overwrite(path)]
+    return self.data.texture_data[check_overwrite(path)]
 end
 
 ---@param texture love.Image|string
@@ -282,13 +304,13 @@ end
 ---@param path string
 ---@return love.Image[]
 function Assets.getFrames(path)
-    return self.data.frames[path] or self.data.frames[check_overwrite(path)]
+    return self.data.frames[check_overwrite(path)]
 end
 
 ---@param path string
 ---@return string[]
 function Assets.getFrameIds(path)
-    return self.data.frame_ids[path] or self.data.frame_ids[check_overwrite(path)]
+    return self.data.frame_ids[check_overwrite(path)]
 end
 
 ---@param texture string
