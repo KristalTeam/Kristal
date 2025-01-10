@@ -33,7 +33,7 @@ local self = Assets
 
 Assets.saved_data = nil
 
-local function check_overwrite(path)
+local function check_overwrite(path, assets_data)
     -- Function to split a string by a delimiter
     local function split(str, delimiter)
         local result = {}
@@ -47,14 +47,14 @@ local function check_overwrite(path)
     if split_path[1] == "player" and #split_path > 1 then
         if #split_path == 2 then
             -- It's calling the normal sprite, check if it already exists. If it exists, use it. Otherwise, use a facing sprite.
-            if not self.data.texture[path] then
+            if not assets_data[path] then
                 table.insert(split_path, 2, Kristal.getSoulFacing())
                 return table.concat(split_path, "/")
             end
         else
             -- It's calling a facing sprite, check if the normal sprite exists. If it exists, use it. Otherwise, use the requested facing sprite.
             local normal_path = split_path[1].."/"..split_path[#split_path]
-            if self.data.texture[normal_path] then
+            if assets_data[normal_path] then
                 return normal_path
             end
         end
@@ -286,7 +286,7 @@ function Assets.getTexture(path, dont_overwrite)
     if dont_overwrite then
         return self.data.texture[path]
     else
-        return self.data.texture[check_overwrite(path)]
+        return self.data.texture[check_overwrite(path, self.data.texture)]
     end
 end
 
@@ -297,7 +297,7 @@ function Assets.getTextureData(path, dont_overwrite)
     if dont_overwrite then
         return self.data.texture_data[path]
     else
-        return self.data.texture_data[check_overwrite(path)]
+        return self.data.texture_data[check_overwrite(path, self.data.texture_data)]
     end
 end
 
@@ -318,7 +318,7 @@ function Assets.getFrames(path, dont_overwrite)
     if dont_overwrite then
         return self.data.frames[path]
     else
-        return self.data.frames[check_overwrite(path)]
+        return self.data.frames[check_overwrite(path, self.data.frames)]
     end
 end
 
@@ -329,7 +329,7 @@ function Assets.getFrameIds(path, dont_overwrite)
     if dont_overwrite then
         return self.data.frame_ids[path]
     else
-        return self.data.frame_ids[check_overwrite(path)]
+        return self.data.frame_ids[check_overwrite(path, self.data.frame_ids)]
     end
 end
 
