@@ -280,15 +280,25 @@ function Assets.getFontScale(path, size)
 end
 
 ---@param path string
+---@param dont_overwrite boolean
 ---@return love.Image
-function Assets.getTexture(path)
-    return self.data.texture[check_overwrite(path)]
+function Assets.getTexture(path, dont_overwrite)
+    if dont_overwrite then
+        return self.data.texture[path]
+    else
+        return self.data.texture[check_overwrite(path)]
+    end
 end
 
 ---@param path string
+---@param dont_overwrite boolean
 ---@return love.ImageData
-function Assets.getTextureData(path)
-    return self.data.texture_data[check_overwrite(path)]
+function Assets.getTextureData(path, dont_overwrite)
+    if dont_overwrite then
+        return self.data.texture_data[path]
+    else
+        return self.data.texture_data[check_overwrite(path)]
+    end
 end
 
 ---@param texture love.Image|string
@@ -302,15 +312,25 @@ function Assets.getTextureID(texture)
 end
 
 ---@param path string
+---@param dont_overwrite boolean
 ---@return love.Image[]
-function Assets.getFrames(path)
-    return self.data.frames[check_overwrite(path)]
+function Assets.getFrames(path, dont_overwrite)
+    if dont_overwrite then
+        return self.data.frames[path]
+    else
+        return self.data.frames[check_overwrite(path)]
+    end
 end
 
 ---@param path string
+---@param dont_overwrite boolean
 ---@return string[]
-function Assets.getFrameIds(path)
-    return self.data.frame_ids[check_overwrite(path)]
+function Assets.getFrameIds(path, dont_overwrite)
+    if dont_overwrite then
+        return self.data.frame_ids[path]
+    else
+        return self.data.frame_ids[check_overwrite(path)]
+    end
 end
 
 ---@param texture string
@@ -326,13 +346,14 @@ function Assets.getFramesFor(texture)
 end
 
 ---@param path string
+---@param dont_overwrite boolean
 ---@return love.Image[]
-function Assets.getFramesOrTexture(path)
-    local texture = Assets.getTexture(path)
+function Assets.getFramesOrTexture(path, dont_overwrite)
+    local texture = Assets.getTexture(path, dont_overwrite)
     if texture then
         return {texture}
     else
-        return Assets.getFrames(path)
+        return Assets.getFrames(path, dont_overwrite)
     end
 end
 
