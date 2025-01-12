@@ -36,7 +36,7 @@ function LightEquipItem:onWorldUse(target)
     chara:onEquip(self, replacing)
 
     self:showEquipText()
-    return false
+    return replacing == nil
 end
 
 function LightEquipItem:setArmor(i, item)
