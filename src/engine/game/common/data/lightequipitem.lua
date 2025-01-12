@@ -16,7 +16,6 @@ function LightEquipItem:onWorldUse(target)
         if chara:getWeapon() then
             replacing = chara:getWeapon()
             replacing:onUnequip(chara, self)
-            chara:onUnequip(replacing, self)
             Game.inventory:replaceItem(self, replacing)
         end
         chara:setWeapon(self)
@@ -24,15 +23,16 @@ function LightEquipItem:onWorldUse(target)
         if chara:getArmor(1) then
             replacing = chara:getArmor(1)
             replacing:onUnequip(chara, self)
-            chara:onUnequip(replacing, self)
             Game.inventory:replaceItem(self, replacing)
         end
         chara:setArmor(1, self)
     else
         error("LightEquipItem "..self.id.." invalid type: "..self.type)
     end
-
+    
     self:onEquip(chara, replacing)
+    
+    chara:onUnequip(replacing, self)
     chara:onEquip(self, replacing)
 
     self:showEquipText()
