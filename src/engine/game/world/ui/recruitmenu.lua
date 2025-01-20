@@ -228,18 +228,21 @@ function RecruitMenu:draw()
                 Draw.printAlign(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120, {["align"] = "left", ["line_offset"] = 4})
                 love.graphics.setFont(self.font)
                 
-                love.graphics.print("LIKE", 80, 240)
-                local like = recruit:getLike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
+                for i,value in ipairs({"LIKE", "DISLIKE", "?????", "?????"}) do
+                    local x_scale = 1
+                    if love.graphics.getFont():getWidth(value) >= 60 then
+                        x_scale = 80 / love.graphics.getFont():getWidth(value)
+                    end
+                    love.graphics.print(value, 80, 200 + i * 40, 0, x_scale, 1)
+                end
+                for i,value in ipairs({Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", "?????????", "?????????"}) do
+                    local x_scale = 1
+                    if love.graphics.getFont():getWidth(value) >= 290 then
+                        x_scale = 290 / love.graphics.getFont():getWidth(value)
+                    end
+                    love.graphics.print(value, 180, 200 + i * 40, 0, x_scale, 1)
+                end
                 
-                love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
-                local dislike = recruit:getDislike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
-
-                love.graphics.print("?????", 80, 320, 0, 1.15, 1)
-                love.graphics.print("?????????", 180, 320)
-                love.graphics.print("?????", 80, 360, 0, 1.15, 1)
-                love.graphics.print("?????????", 180, 360)
                 if Input.usingGamepad() then
                     love.graphics.print("Press         to Return", 80, 400)
                     Draw.draw(Input.getTexture("cancel"), 165, 402, 0, 2, 2)
