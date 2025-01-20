@@ -11,8 +11,7 @@
 
     "susieStyle": 1,                 // Susie chapter style
     "ralseiStyle": 1,                // Ralsei chapter style
-    
-    "simplePacify": true,            // Whether the Pacify spell will use a simple animation
+    "spellsStyle": 1,                // Spells chapter style
 
     "oldTensionBar": true,           // Syle of TP bar
     "oldUIPositions": true,          // Old positions of various UI elements
