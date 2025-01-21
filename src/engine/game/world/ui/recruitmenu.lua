@@ -49,16 +49,20 @@ function RecruitMenu:setRecruitInBox(selected)
     self.recruit_box:addChild(self.recruit_sprite)
 end
 
+function RecruitMenu:getLimit()
+    return 9
+end
+
 function RecruitMenu:getMaxPages()
-    return math.ceil(#self.recruits / 9)
+    return math.ceil(#self.recruits / self:getLimit())
 end
 
 function RecruitMenu:getFirstSelectedInPage()
-    return 1 + (self.selected_page - 1) * 9
+    return 1 + (self.selected_page - 1) * self:getLimit()
 end
 
 function RecruitMenu:getLastSelectedInPage()
-    return math.min(#self.recruits, 9 * self.selected_page)
+    return math.min(#self.recruits, self:getLimit() * self.selected_page)
 end
 
 function RecruitMenu:update()
@@ -94,10 +98,10 @@ function RecruitMenu:update()
     if self:getMaxPages() > 1 then
         if Input.pressed("left", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page - 1
-            self.selected = self.selected - 9
+            self.selected = self.selected - self:getLimit()
             if self.selected_page < 1 then
                 self.selected_page = self:getMaxPages()
-                self.selected = self.selected + self:getMaxPages() * 9
+                self.selected = self.selected + self:getMaxPages() * self:getLimit()
             end
             if self.selected > self:getLastSelectedInPage() then
                 self.selected = self:getLastSelectedInPage()
@@ -105,10 +109,10 @@ function RecruitMenu:update()
         end
         if Input.pressed("right", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page + 1
-            self.selected = self.selected + 9
+            self.selected = self.selected + self:getLimit()
             if self.selected_page > self:getMaxPages() then
                 self.selected_page = 1
-                self.selected = self.selected - self:getMaxPages() * 9
+                self.selected = self.selected - self:getMaxPages() * self:getLimit()
             end
             if self.selected > self:getLastSelectedInPage() then
                 self.selected = self:getLastSelectedInPage()
@@ -132,7 +136,7 @@ function RecruitMenu:update()
             Game.world:closeMenu()
         else
             self.state = "SELECT"
-            self.selected_page = math.ceil(self.selected / 9)
+            self.selected_page = math.ceil(self.selected / self:getLimit())
             self.recruit_box:setPosition(370, 75)
         end
     end
@@ -140,7 +144,7 @@ function RecruitMenu:update()
     -- Update the heart target position
     if self.state == "SELECT" then
         self.heart_target_x = 58
-        self.heart_target_y = 114 + (self.selected - (self.selected_page - 1) * 9 - 1) * 35
+        self.heart_target_y = 114 + (self.selected - (self.selected_page - 1) * self:getLimit() - 1) * 35
     else
         self.heart_target_x = 58
         self.heart_target_y = 416
