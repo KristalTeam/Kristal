@@ -192,14 +192,22 @@ function RecruitMenu:draw()
                     Draw.setColor(COLORS["yellow"])
                 end
                 local name = recruit:getName()
-                love.graphics.print(name, 80, 100 + offset, 0, math.min(1, 12 / #name), 1)
+                local x_scale = 1
+                if love.graphics.getFont():getWidth(name) >= 180 then
+                    x_scale = 180 / love.graphics.getFont():getWidth(name)
+                end
+                love.graphics.print(name, 80, 100 + offset, 0, x_scale, 1)
                 if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
                     local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, math.min(1, 5 / #recruit_progress), 1)
+                    local x_scale = 1
+                    if love.graphics.getFont():getWidth(recruit_progress) >= 54 then
+                        x_scale = 54 / love.graphics.getFont():getWidth(recruit_progress)
+                    end
+                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, x_scale, 1)
                 end
                 offset = offset + 35
             end
