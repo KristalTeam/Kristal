@@ -17,6 +17,10 @@ function LightMenu:init()
     self.selected_submenu = 1
 
     self.current_selecting = Game.world.current_selecting or 1
+    local max_selecting = Game:getFlag("has_cell_phone", false) and 3 or 2
+    if self.current_selecting > max_selecting then
+        self.current_selecting = 1
+    end
 
     self.item_selected = 1
 
