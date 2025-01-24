@@ -568,7 +568,12 @@ end
 
 ---@param x? number
 ---@param y? number
-function Game:gameOver(x, y)
+---@param redraw? boolean
+function Game:gameOver(x, y, redraw)
+    if redraw or (redraw == nil and Game:isLight()) then
+        love.draw() -- Redraw the frame so the screenshot will use an updated draw data
+    end
+
     Kristal.hideBorder(0)
 
     self.state = "GAMEOVER"
