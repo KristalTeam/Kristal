@@ -83,12 +83,16 @@ function PartyBattler:calculateDamage(amount)
         else
             amount = amount + (def >= 0 and -1 or 1)
         end
-        if def >= 0 and (amount <= 0 or def == math.huge) then
-            amount = 0
-            break
-        elseif def < 0 and (amount == math.huge or def == -math.huge) then
-            amount = math.huge
-            break
+        if def >= 0 then
+            if amount <= 0 or def == math.huge then
+                amount = 0
+                break
+            end
+        else
+            if amount == math.huge or def == -math.huge then
+                amount = math.huge
+                break
+            end
         end
     end
 
