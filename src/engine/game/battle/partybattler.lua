@@ -75,16 +75,19 @@ function PartyBattler:calculateDamage(amount)
 
     local threshold_a = (max_hp / 5)
     local threshold_b = (max_hp / 8)
-    for i = 1, def do
+    for i = 1, math.abs(def) do
         if amount > threshold_a then
-            amount = amount - 3
+            amount = amount + (def >= 0 and -3 or 3)
         elseif amount > threshold_b then
-            amount = amount - 2
+            amount = amount + (def >= 0 and -2 or 2)
         else
-            amount = amount - 1
+            amount = amount + (def >= 0 and -1 or 1)
         end
-        if amount <= 0 or def == math.huge then
+        if def >= 0 and (amount <= 0 or def == math.huge) then
             amount = 0
+            break
+        elseif def < 0 and (amount == math.huge or def == -math.huge) then
+            amount = math.huge
             break
         end
     end
