@@ -133,6 +133,8 @@ end
 ---|"all"   # Whether the damage being taken comes from a strike targeting the whole party
 function PartyBattler:hurt(amount, exact, color, options)
     options = options or {}
+    
+    Game.battle:shakeCamera(4)
 
     if not options["all"] then
         Assets.playSound("hurt")
@@ -170,7 +172,6 @@ function PartyBattler:hurt(amount, exact, color, options)
     end
 
     self.hurt_timer = 0
-    Game.battle:shakeCamera(4)
 
     if (not self.defending) and (not self.is_down) then
         self.sleeping = false
