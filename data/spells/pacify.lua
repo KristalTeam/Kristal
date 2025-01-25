@@ -47,7 +47,7 @@ function spell:onCast(user, target)
             Game.battle.timer:every(1/15, function()
                 z_count = z_count + 1
                 local z = SpareZ(z_count * -40, pacify_x, pacify_y)
-                z.layer = target.layer + 0.002
+                z.layer = BATTLE_LAYERS["above_battlers"]
                 z_parent:addChild(z)
             end, 8)
         end

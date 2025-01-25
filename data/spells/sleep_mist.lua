@@ -43,7 +43,7 @@ function spell:onCast(user, target)
                 local x, y = enemy:getRelativePos(enemy.width/2, enemy.height/2)
 
                 local effect = SleepMistEffect(x, y, success)
-                effect.layer = enemy.layer + 0.1
+                effect.layer = BATTLE_LAYERS["above_battlers"]
                 parent:addChild(effect)
 
                 if success then
@@ -52,7 +52,7 @@ function spell:onCast(user, target)
                         local snowflake = IceSpellEffect(x - (w/2) + Utils.random(w), y - (h/2) + Utils.random(h))
                         snowflake:setScale(0.5)
                         snowflake.rotation_speed = Utils.random(5)
-                        snowflake.layer = enemy.layer + 0.02
+                        snowflake.layer = BATTLE_LAYERS["above_battlers"] - 1
                         parent:addChild(snowflake)
                     end, 8)
 
