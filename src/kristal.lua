@@ -530,6 +530,7 @@ end
 function Kristal.errorHandler(msg)
     if Mod then
         local status, err = pcall(function()
+            Kristal.callEvent(KRISTAL_EVENT.unload)
             Kristal.callEvent(KRISTAL_EVENT.onError, msg)
         end)
         if not status then
