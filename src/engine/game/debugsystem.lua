@@ -390,6 +390,7 @@ function DebugSystem:returnMenu()
     else
         self:enterMenu(self.menu_history[#self.menu_history].name, self.menu_history[#self.menu_history].soul, true)
         table.remove(self.menu_history, #self.menu_history)
+        self.menu_target_y = 0
     end
 end
 
