@@ -207,11 +207,7 @@ function RecruitMenu:draw()
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
                     local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    local x_scale = 1
-                    if love.graphics.getFont():getWidth(recruit_progress) >= 54 then
-                        x_scale = 54 / love.graphics.getFont():getWidth(recruit_progress)
-                    end
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, x_scale, 1)
+                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, 54 / love.graphics.getFont():getWidth(recruit_progress), 1)
                 end
                 offset = offset + 35
             end
