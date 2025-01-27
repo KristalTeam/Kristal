@@ -197,8 +197,8 @@ function RecruitMenu:draw()
                 end
                 local name = recruit:getName()
                 local x_scale = 1
-                if love.graphics.getFont():getWidth(name) >= 180 then
-                    x_scale = 180 / love.graphics.getFont():getWidth(name)
+                if self.font:getWidth(name) >= 180 then
+                    x_scale = 180 / self.font:getWidth(name)
                 end
                 love.graphics.print(name, 80, 100 + offset, 0, x_scale, 1)
                 if Game:hasRecruit(recruit.id) then
@@ -207,7 +207,7 @@ function RecruitMenu:draw()
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
                     local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, 54 / love.graphics.getFont():getWidth(recruit_progress), 1)
+                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, 54 / self.font:getWidth(recruit_progress), 1)
                 end
                 offset = offset + 35
             end
@@ -238,15 +238,15 @@ function RecruitMenu:draw()
 
                 for i,value in ipairs({"LIKE", "DISLIKE", "?????", "?????"}) do
                     local x_scale = 1
-                    if love.graphics.getFont():getWidth(value) >= 60 then
-                        x_scale = 80 / love.graphics.getFont():getWidth(value)
+                    if self.font:getWidth(value) >= 60 then
+                        x_scale = 80 / self.font:getWidth(value)
                     end
                     love.graphics.print(value, 80, 200 + i * 40, 0, x_scale, 1)
                 end
                 for i,value in ipairs({Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", "?????????", "?????????"}) do
                     local x_scale = 1
-                    if love.graphics.getFont():getWidth(value) >= 290 then
-                        x_scale = 290 / love.graphics.getFont():getWidth(value)
+                    if self.font:getWidth(value) >= 290 then
+                        x_scale = 290 / self.font:getWidth(value)
                     end
                     love.graphics.print(value, 180, 200 + i * 40, 0, x_scale, 1)
                 end
