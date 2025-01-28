@@ -1952,7 +1952,7 @@ function Battle:hurt(amount, exact, target)
     end
 
     if isClass(target) and target:includes(PartyBattler) then
-        if (not target) or (not target:canTarget()) then
+        if (not target) or (target.chara:getHealth() <= 0) then -- Why doesn't this look at :canTarget()? Weird.
             target = self:randomTargetOld()
         end
     end
