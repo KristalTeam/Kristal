@@ -6,10 +6,11 @@
 local SnowGraveSpell, super = Class(Object)
 
 ---@param user PartyBattler
-function SnowGraveSpell:init(user)
+function SnowGraveSpell:init(user, spell)
     super.init(self, 0, 0)
 
     self.caster = user
+    self.spell = spell
 
     self.bgalpha = 0
     self.timer = 0
@@ -46,7 +47,7 @@ function SnowGraveSpell:update()
         for i, enemy in ipairs(Game.battle.enemies) do
             if enemy then
                 enemy.hit_count = 0
-                enemy:hurt(self.damage + select(2, Registry.spells["snowgrave"]:getDamage(self.caster, enemy)), self.caster, enemy.onDefeatFatal)
+                enemy:hurt(self.damage + select(2, Registry.spells[self.spell]:getDamage(self.caster, enemy)), self.caster, enemy.onDefeatFatal)
                 if enemy.health > 0 then
                     enemy:flash()
                 end

@@ -1,6 +1,7 @@
 local spell, super = Class("snowgrave", true)
 
 function spell:onSelect(user, target)
+    local x, y = Game.battle.current_menu_x, Game.battle.current_menu_y
     Game:addFlag("snowgrave_attempts", 1)
     local attempts = Game:getFlag("snowgrave_attempts", 0)
     if attempts == 1 then
@@ -9,7 +10,8 @@ function spell:onSelect(user, target)
             cutscene:text("* S...[wait:2] Snowgrave?", "sad_side")
             cutscene:text("* I...[wait:2] I don't know that spell.", "down")
             cutscene:after(function()
-                Game.battle:setState("ACTIONSELECT")
+                Game.battle:setState("MENUSELECT")
+                Game.battle.current_menu_x, Game.battle.current_menu_y = x, y
             end, true)
         end)
         return false
@@ -33,7 +35,8 @@ function spell:onSelect(user, target)
             cutscene:closeText()
             cutscene:text("Kris would you shut up", "smile")
             cutscene:after(function()
-                Game.battle:setState("ACTIONSELECT")
+                Game.battle:setState("MENUSELECT")
+                Game.battle.current_menu_x, Game.battle.current_menu_y = x, y
             end, true)
         end)
         return false
