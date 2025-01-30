@@ -41,7 +41,7 @@ function spell:onCast(user, target)
 end
 
 function spell:getDamage(user, target)
-    return math.ceil((user.chara:getStat("magic") * 40) + 600)
+    return math.ceil((user.chara:getStat("magic") * 40) + 600), Utils.round(math.random(100))
 end
 
 return spell
