@@ -3,7 +3,7 @@ local ModListLine, super = Class(Object)
 
 ---@param list ModList
 function ModListLine:init(list,x,y,w,h)
-    super.init(self,x,y,w,h)
+    super.init(self,x,y,w,(h or 0)+ 10)
     self.mod_list_width = 0
     self.list = list
     self.mods = {}

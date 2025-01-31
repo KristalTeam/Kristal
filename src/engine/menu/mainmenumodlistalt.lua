@@ -378,7 +378,7 @@ function MainMenuModListAlt:buildModListFavorited()
     -- Add mods to the list
     for _,mod in ipairs(self.mods) do
         -- Create the mod button
-        local button = SmallModButton(mod.name or mod.id, 75.5, 75.5, mod)
+        local button = SmallModButton(mod.name or mod.id, 92, 92, mod)
         self.list:addMod(button)
 
         -- Load the mod's preview script
@@ -489,7 +489,7 @@ function MainMenuModListAlt:buildModList()
     -- Add mods to the list
     for _,mod in ipairs(self.mods) do
         -- Create the mod button
-        local button = SmallModButton(mod.name or mod.id, 75.5, 75.5, mod)
+        local button = SmallModButton(mod.name or mod.id, 92, 92, mod)
         self.list:addMod(button)
 
         -- Initialize the mod's fader (for background and music fading)

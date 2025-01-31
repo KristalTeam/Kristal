@@ -93,7 +93,7 @@ function SmallModButton:getDrawColor()
 end
 
 function SmallModButton:getHeartPos()
-    return self.width/ 2, self.height - 4
+    return self.width/ 2, self.height - 10
 end
 
 function SmallModButton:getIconPos()
