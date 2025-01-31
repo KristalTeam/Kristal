@@ -419,14 +419,24 @@ function MainMenuModListAlt:buildModListFavorited()
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
 
     -- Keep the list scrolled at the previously selected mod, if it exists, or start at the first mod
-    local keep_button, keep_index = self.list:getById(last_selected)
-    if last_selected and keep_button then
-        self.list:select(keep_index, true)
-        self.list:setScroll(last_scroll)
-    else
-        self.list:select(1, true)
+    for row_num, mod_row in ipairs(self.list.mods) do
+        if mod_row:includes(ModListLine) then
+            ---@cast mod_row ModListLine
+            for col_num, mod in ipairs(mod_row.mods) do
+                if mod.id == last_selected then
+                    self.list:select(row_num, true)
+                    self.list:selectX(col_num, true)
+                    goto fullbreak
+                end
+            end
+        elseif mod_row.id == last_selected then
+            self.list:select(row_num)
+            goto fullbreak
+        end
     end
-    
+    ::fullbreak::
+    self.list:setScroll(last_scroll)
+
     -- Hide list if there are no mods
     if #self.list.mods == 0 then
         self.list.active = false
