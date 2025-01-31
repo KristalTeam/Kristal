@@ -26,7 +26,7 @@ function ModList:getSelectedMod()
     local selected = self.mods[self.selected]
     if not selected then return nil end
     if selected:includes(ModListLine) then
-        return selected.selected_mod or {}
+        return selected.selected_mod.mod or {}
     end
     return selected and selected.mod
 end
@@ -37,6 +37,10 @@ end
 
 function ModList:getSelectedId()
     local selected = self.mods[self.selected]
+    if not selected then return nil end
+    if selected:includes(ModListLine) then
+        return selected.selected_mod.id or {}
+    end
     return selected and selected.id
 end
 
