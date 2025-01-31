@@ -68,7 +68,7 @@ function ModList:addMod(mod)
         if self.mod_list_line and self.mod_list_line:canAddMod(mod) then
             self.mod_list_line:addMod(mod)
         else
-            self.mod_list_line = ModListLine(self, 0, self.mod_list_height + 4, 502, 62)
+            self.mod_list_line = ModListLine(self, 0, self.mod_list_height + 4, 494, 75.5)
             self.mod_list_line:addMod(mod)
             self:addMod(self.mod_list_line)
         end
