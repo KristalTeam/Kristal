@@ -160,8 +160,8 @@ function SmallModButton:draw()
     self:drawCoolRectangle(ix, iy, self.width, self.height)
 
     -- Draw favorites star at the heart position
-    if self:isFavorited() and not self.selected then
-        local star_x, star_y = self:getHeartPos()
+    if self:isFavorited() then
+        local star_x, star_y = 8,8
         local star_tex = Assets.getTexture("kristal/menu_star")
         Draw.setColor(self:getDrawColor())
         Draw.draw(star_tex, star_x - star_tex:getWidth()/2, star_y - star_tex:getHeight()/2)
