@@ -621,7 +621,9 @@ function MainMenuOptions:initializeOptions()
             return Kristal.Config["modSelectGrid"] and "ON" or "OFF"
         end, function ()
             Kristal.Config["modSelectGrid"] = not Kristal.Config["modSelectGrid"]
-            self.menu.mod_list:buildModList()
+            if self.menu.mod_list then
+                self.menu.mod_list:buildModList()
+            end
         end)
     end
 end
