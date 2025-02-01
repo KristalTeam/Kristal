@@ -48,8 +48,8 @@ function ModListLine:select(i, mute)
             self.mods[last_selected]:onDeselect()
         end
         if self.mods[self.list.selected_x] then
-            self.mods[self.list.selected_x]:onSelect()
             self.selected_mod = self.mods[self.list.selected_x]
+            self.mods[self.list.selected_x]:onSelect()
         end
         return true
     end
