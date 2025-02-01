@@ -20,7 +20,7 @@ function ModListLine:addMod(mod)
     table.insert(self.mods, mod)
     self:addChild(mod)
     mod:setPosition(self.mod_list_width, 0)
-    self.mod_list_width = self.mod_list_width + (mod.width) + 8
+    self.mod_list_width = self.mod_list_width + (mod.width) + 8.5
     if (self.selected_mod == nil) and (#self.list.mods < 1) then
         self.selected_mod = mod
         self.mod = self.selected_mod and self.selected_mod.mod
