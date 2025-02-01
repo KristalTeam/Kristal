@@ -111,7 +111,7 @@ function ModList:selectX(i, mute)
         return false
     end
     ---@cast sel_line ModListLine
-    return sel_line:select(i)
+    return sel_line:select(i, mute)
 end
 
 function ModList:selectUp(no_wrap)
