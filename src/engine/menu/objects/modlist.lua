@@ -73,6 +73,8 @@ function ModList:addMod(mod)
             self:addMod(self.mod_list_line)
         end
         return
+    elseif mod:includes(ModButton) then
+        self.mod_list_line = nil
     end
     table.insert(self.mods, mod)
     self.mod_container:addChild(mod)
