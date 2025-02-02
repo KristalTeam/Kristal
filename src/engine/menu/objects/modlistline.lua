@@ -1,4 +1,5 @@
 ---@class ModListLine : Object
+---@overload fun(list: ModList, x:number,y:number,w:number): ModListLine
 local ModListLine, super = Class(Object)
 
 ---@param list ModList
