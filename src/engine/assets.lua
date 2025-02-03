@@ -33,7 +33,7 @@ local self = Assets
 
 Assets.saved_data = nil
 
-local function check_overwrite(path, assets_data)
+local function checkOverwrite(path, assets_data)
     -- Function to split a string by a delimiter
     local function split(str, delimiter)
         local result = {}
@@ -286,7 +286,7 @@ function Assets.getTexture(path, dont_overwrite)
     if dont_overwrite then
         return self.data.texture[path]
     else
-        return self.data.texture[check_overwrite(path, self.data.texture)]
+        return self.data.texture[checkOverwrite(path, self.data.texture)]
     end
 end
 
@@ -297,7 +297,7 @@ function Assets.getTextureData(path, dont_overwrite)
     if dont_overwrite then
         return self.data.texture_data[path]
     else
-        return self.data.texture_data[check_overwrite(path, self.data.texture_data)]
+        return self.data.texture_data[checkOverwrite(path, self.data.texture_data)]
     end
 end
 
@@ -318,7 +318,7 @@ function Assets.getFrames(path, dont_overwrite)
     if dont_overwrite then
         return self.data.frames[path]
     else
-        return self.data.frames[check_overwrite(path, self.data.frames)]
+        return self.data.frames[checkOverwrite(path, self.data.frames)]
     end
 end
 
@@ -329,7 +329,7 @@ function Assets.getFrameIds(path, dont_overwrite)
     if dont_overwrite then
         return self.data.frame_ids[path]
     else
-        return self.data.frame_ids[check_overwrite(path, self.data.frame_ids)]
+        return self.data.frame_ids[checkOverwrite(path, self.data.frame_ids)]
     end
 end
 
