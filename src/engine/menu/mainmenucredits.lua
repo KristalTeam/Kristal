@@ -50,15 +50,15 @@ function MainMenuCredits:init(menu)
             "Kristal Engine",
             {
                 {"GitHub Contributors", COLORS.silver},
+                "J.A.R.U.",
+                "MCdeDaxia",
                 "MrOinky",
                 "prokube",
                 "Simbel",
                 "sjl057",
                 "skarph",
-                "WIL-TZY",
                 "TFLTV",
-                "J.A.R.U.",
-                "MCdeDaxia",
+                "WIL-TZY",
                 ""
             },
             {

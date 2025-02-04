@@ -385,6 +385,13 @@ function BattleUI:drawState()
             end
             love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
         end
+        
+        local xact_x_offset = 142
+        for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
+            if xact_x_offset < font:getWidth(enemy.name) + 142 then
+                xact_x_offset = font:getWidth(enemy.name) + 142
+            end
+        end
 
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
             local enemy = enemies[index]
@@ -461,9 +468,9 @@ function BattleUI:drawState()
                 if Game.battle.state == "XACTENEMYSELECT" then
                     Draw.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
                     if Game.battle.selected_xaction.id == 0 then
-                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
+                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), xact_x_offset, 50 + y_off)
                     else
-                        love.graphics.print(Game.battle.selected_xaction.name, 282, 50 + y_off)
+                        love.graphics.print(Game.battle.selected_xaction.name, xact_x_offset, 50 + y_off)
                     end
                 end
 

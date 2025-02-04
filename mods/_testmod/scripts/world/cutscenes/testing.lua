@@ -238,6 +238,15 @@ return {
             cutscene:text("* Wait,[wait:5] what're we talking about again?", "smile_closed", "noelle")
         end
     end,
+    crash = function (cutscene)
+        cutscene:text("What kind of cutscene crash do you want?")
+        local choice = cutscene:choicer({"Deep", "Shallow"})
+        if choice == 1 then
+            cutscene:text(4)
+        else
+            assert(false)
+        end
+    end,
     this_is_a_test_mod = function (cutscene)
         local function centerText(str)
             local text = DialogueText(str, 0, 16, 640, 480,

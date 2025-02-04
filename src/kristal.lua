@@ -667,12 +667,19 @@ function Kristal.errorHandler(msg)
 
     Draw.setColor(1, 1, 1, 1)
 
+    local coroutine_crash
     if not trace then
         trace = ""
         if not critical then
             trace = debug.traceback("", 2)
         end
+        if COROUTINE_TRACEBACK then
+            trace = COROUTINE_TRACEBACK .. "\n" .. trace
+            coroutine_crash = true
+        end
     end
+
+    COROUTINE_TRACEBACK = nil
 
     love.graphics.origin()
 
@@ -728,11 +735,19 @@ function Kristal.errorHandler(msg)
             ypos = ypos + (32 * #lines)
             love.graphics.setFont(font)
 
+            local shown_coroutine = false
             for l in trace:gmatch("(.-)\n") do
                 if not l:match("boot.lua") then
                     if l:match("stack traceback:") then
                         love.graphics.setFont(font)
-                        love.graphics.printf("Traceback:", pos, ypos, warp)
+                        if coroutine_crash and not shown_coroutine then
+                            love.graphics.printf("Coroutine Traceback:", pos, ypos, warp)
+                            shown_coroutine = true
+                        elseif coroutine_crash then
+                            love.graphics.printf("Main Traceback:", pos, ypos, warp)
+                        else
+                            love.graphics.printf("Traceback:", pos, ypos, warp)
+                        end
                         ypos = ypos + 32
                     else
                         if ypos >= window_height - 40 - 32 then
