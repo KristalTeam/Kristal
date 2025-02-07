@@ -3225,6 +3225,7 @@ end
 ---@param key string
 function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]
+    local old_selected_button = actbox.selected_button
 
     if Input.isConfirm(key) then
         actbox:select()
@@ -3244,12 +3245,8 @@ function Battle:handleActionSelectInput(key)
         return
     elseif Input.is("left", key) then
         actbox.selected_button = actbox.selected_button - 1
-        self.ui_move:stop()
-        self.ui_move:play()
     elseif Input.is("right", key) then
         actbox.selected_button = actbox.selected_button + 1
-        self.ui_move:stop()
-        self.ui_move:play()
     end
 
     if actbox.selected_button < 1 then
@@ -3258,6 +3255,11 @@ function Battle:handleActionSelectInput(key)
 
     if actbox.selected_button > #actbox.buttons then
         actbox.selected_button = 1
+    end
+    
+    if old_selected_button ~= actbox.selected_button then
+        self.ui_move:stop()
+        self.ui_move:play()
     end
 end
 
