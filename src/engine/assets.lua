@@ -33,7 +33,7 @@ local self = Assets
 
 Assets.saved_data = nil
 
-local function checkOverwrite(path, assets_data)
+local function checkOverwrite(path)
     -- Function to split a string by a delimiter
     local function split(str, delimiter)
         local result = {}
@@ -44,19 +44,10 @@ local function checkOverwrite(path, assets_data)
     end
     
     local split_path = split(path, "/")
-    if split_path[1] == "player" and #split_path > 1 then
-        if #split_path == 2 then
-            -- It's calling the normal sprite, check if it already exists. If it exists, use it. Otherwise, use a facing sprite.
-            if not assets_data[path] then
-                table.insert(split_path, 2, Kristal.getSoulFacing())
-                return table.concat(split_path, "/")
-            end
-        else
-            -- It's calling a facing sprite, check if the normal sprite exists. If it exists, use it. Otherwise, use the requested facing sprite.
-            local normal_path = split_path[1].."/"..split_path[#split_path]
-            if assets_data[normal_path] then
-                return normal_path
-            end
+    if #split_path > 1 then
+        if split_path[1] == "player" then
+            table.insert(split_path, 2, Kristal.getSoulFacing())
+            return table.concat(split_path, "/")
         end
     end
     return path
@@ -283,22 +274,14 @@ end
 ---@param dont_overwrite boolean
 ---@return love.Image
 function Assets.getTexture(path, dont_overwrite)
-    if dont_overwrite then
-        return self.data.texture[path]
-    else
-        return self.data.texture[checkOverwrite(path, self.data.texture)]
-    end
+    return not dont_overwrite and self.data.texture[checkOverwrite(path)] or self.data.texture[path]
 end
 
 ---@param path string
 ---@param dont_overwrite boolean
 ---@return love.ImageData
 function Assets.getTextureData(path, dont_overwrite)
-    if dont_overwrite then
-        return self.data.texture_data[path]
-    else
-        return self.data.texture_data[checkOverwrite(path, self.data.texture_data)]
-    end
+    return not dont_overwrite and self.data.texture_data[checkOverwrite(path)] or self.data.texture_data[path]
 end
 
 ---@param texture love.Image|string
@@ -315,22 +298,14 @@ end
 ---@param dont_overwrite boolean
 ---@return love.Image[]
 function Assets.getFrames(path, dont_overwrite)
-    if dont_overwrite then
-        return self.data.frames[path]
-    else
-        return self.data.frames[checkOverwrite(path, self.data.frames)]
-    end
+    return not dont_overwrite and self.data.frames[checkOverwrite(path)] or self.data.frames[path]
 end
 
 ---@param path string
 ---@param dont_overwrite boolean
 ---@return string[]
 function Assets.getFrameIds(path, dont_overwrite)
-    if dont_overwrite then
-        return self.data.frame_ids[path]
-    else
-        return self.data.frame_ids[checkOverwrite(path, self.data.frame_ids)]
-    end
+    return not dont_overwrite and self.data.frame_ids[checkOverwrite(path)] or self.data.frame_ids[path]
 end
 
 ---@param texture string
