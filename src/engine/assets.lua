@@ -61,16 +61,7 @@ end
 ---@param path string
 ---@return new_path string
 function Assets.checkOverwrite(path)
-    -- Function to split a string by a delimiter
-    local function split(str, delimiter)
-        local result = {}
-        for match in (str..delimiter):gmatch("(.-)"..delimiter) do
-            table.insert(result, match)
-        end
-        return result
-    end
-    
-    local split_path = split(path, "/")
+    local split_path = Utils.splitFast(path, "/")
     if #split_path > 1 then
         if split_path[1] == "player" then
             table.insert(split_path, 2, Kristal.getSoulFacing())
