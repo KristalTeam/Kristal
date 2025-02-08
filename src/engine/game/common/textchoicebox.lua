@@ -33,13 +33,9 @@ function TextChoicebox:update()
             end
         end
         
-        if self.multi_line_mode then
-            self.choices_text = {
-            DialogueText("", 148, 68 - 36 * 2), DialogueText("", 340, 68 - 36 * 2),
-            DialogueText("", 148, 68 - 36), DialogueText("", 340, 68 - 36),
-            DialogueText("", 148, 68), DialogueText("", 340, 68)}
-        else
-            self.choices_text = {DialogueText("", 148, 68), DialogueText("", 340, 68)}
+        for i = (self.multi_line_mode and 2 or 0), 0, -1 do
+            table.insert(self.choices_text, DialogueText("", 148, 68 - 36 * i))
+            table.insert(self.choices_text, DialogueText("", 340, 68 - 36 * i))
         end
         for _,text in ipairs(self.choices_text) do
             self:addChild(text)
@@ -90,7 +86,7 @@ function TextChoicebox:update()
                             pad_with_empty(lines2, 2)
 
                             -- The maximum number of lines
-                            local max_lines = 3
+                            local max_lines = math.ceil(#self.choices_text / 2)
 
                             -- Pad the shorter table with empty strings at the beginning
                             pad_with_empty(lines1, max_lines)
