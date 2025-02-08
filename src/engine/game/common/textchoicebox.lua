@@ -72,15 +72,6 @@ function TextChoicebox:update()
                         voice = "[voice:"..self.actor:getVoice().."]"
                     end
                     if self.multi_line_mode then
-                        -- Function to split a string by a delimiter
-                        local function split(str, delimiter)
-                            local result = {}
-                            for match in (str..delimiter):gmatch("(.-)"..delimiter) do
-                                table.insert(result, match)
-                            end
-                            return result
-                        end
-
                         -- Function to pad a table with empty strings to a specified length
                         local function pad_with_empty(lines, length)
                             while #lines < length do
@@ -91,8 +82,8 @@ function TextChoicebox:update()
                         -- Function to interleave lines from two strings and return the combined list
                         local function interleave_lines(str1, str2)
                             -- Split the strings by newline character
-                            local lines1 = split(str1, "\n")
-                            local lines2 = split(str2, "\n")
+                            local lines1 = Utils.split(str1, "\n")
+                            local lines2 = Utils.split(str2, "\n")
 
                             -- Ensure both strings have at least 2 lines by padding with empty strings
                             pad_with_empty(lines1, 2)
