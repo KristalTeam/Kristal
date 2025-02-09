@@ -429,7 +429,7 @@ function EnemyBattler:addMercy(amount)
 end
 
 --- *(Override)* Called when a battler uses mercy on (spares) the enemy \
---- By default, responsible for sparing the enemy or increasing their mercy points by [`spare_points`](lua://EnemyBattler.spare_points)
+--- *By default, responsible for sparing the enemy or increasing their mercy points by [`spare_points`](lua://EnemyBattler.spare_points)*
 ---@param battler PartyBattler
 ---@return boolean success  Whether the mercy resulted in a spare
 function EnemyBattler:onMercy(battler)
@@ -443,7 +443,7 @@ function EnemyBattler:onMercy(battler)
 end
 
 --- Creates the particular flash effect used when a party member uses mercy on the enemy, but the spare fails
----@param color table The color the enemy should flash (defaults to yellow)
+---@param color? table The color the enemy should flash (defaults to yellow)
 function EnemyBattler:mercyFlash(color)
     color = color or {1, 1, 0}
 
@@ -525,8 +525,9 @@ function EnemyBattler:getNextWaves()
     return self.waves
 end
 
---- Selects the enemy's next wave out of the available selection (provided by [`EnemyBattler:getNextWaves()`](lua://EnemyBattler.getNextWaves))
----@return string wave_id
+--- *(Override)* Selects the wave that this enemy will use each turn.
+--- *By default, picks from the available selection provided by [`EnemyBattler:getNextWaves()`](lua://EnemyBattler.getNextWaves)*
+---@return string? wave_id
 function EnemyBattler:selectWave()
     local waves = self:getNextWaves()
     if waves and #waves > 0 then
