@@ -498,7 +498,7 @@ function MainMenuModList:buildModList()
     for _,mod in ipairs(self.mods) do
         -- Create the mod button
         local button
-        if Kristal.Config["modSelectGrid"] then
+        if Kristal.Config["modSelectGrid"] and not TARGET_MOD then
             button = SmallModButton(mod.name or mod.id, 92, 92, mod)
         else
             button = ModButton(mod.name or mod.id, 424, 62, mod)
