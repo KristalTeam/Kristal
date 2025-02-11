@@ -857,7 +857,11 @@ end
 function PartyMember:loadSpells(data)
     self.spells = {}
     for _,v in ipairs(data) do
-        self:addSpell(v)
+        if Registry.getSpell(v) then
+            self:addSpell(v)
+        else
+            Kristal.Console:error("Could not load spell \"".. (v or "nil") .."\"")
+        end
     end
 end
 
