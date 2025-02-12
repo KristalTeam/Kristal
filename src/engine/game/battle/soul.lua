@@ -402,8 +402,7 @@ end
 --- *(Override)* Called when the soul takes damage
 ---@param bullet Bullet
 ---@param amount integer
----@param battlers table|PartyBattler
-function Soul:onDamage(bullet, amount, battlers)
+function Soul:onDamage(bullet, amount)
     -- Can be overridden, called when the soul actually takes damage from a bullet
 end
 
