@@ -32,7 +32,7 @@
 ---@field lw_money          integer
 ---@field level_up_count    integer
 ---@field temp_followers    table<[string, number]|string>
----@field calls             table<[string, string, boolean]>
+---@field calls             table<[string, string, boolean?]>
 ---@field flags             table<[string, any]>
 ---@field party             PartyMember[]
 ---@field party_data        PartyMember[]
@@ -985,9 +985,9 @@ function Game:getCellFlag(name, default)
 end
 
 --- Registers a phone call in the Light World CELL menu
----@param name      string          The name of the call as it will show in the CELL menu
----@param scene     string          The cutscene to play when the call is selected
----@param playsound boolean         Whether it will play the phone call sound effect
+---@param name       string          The name of the call as it will show in the CELL menu
+---@param scene      string          The cutscene to play when the call is selected
+---@param playsound? boolean         Whether it will play the phone call sound effect
 function Game:registerCall(name, scene, playsound)
     table.insert(self.calls, {name, scene, playsound})
 end
@@ -996,7 +996,7 @@ end
 ---@param replace_name string          The name of the call to replace
 ---@param name         string          The name of the call as it will show in the CELL menu
 ---@param scene        string          The cutscene to play when the call is selected
----@param playsound    boolean         Whether it will play the phone call sound effect
+---@param playsound?   boolean         Whether it will play the phone call sound effect
 function Game:replaceCall(replace_name, name, scene, playsound)
     for i,call in ipairs(self.calls) do
         if call[1] == replace_name then
