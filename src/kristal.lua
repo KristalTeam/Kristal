@@ -530,8 +530,7 @@ end
 function Kristal.errorHandler(msg)
     if Mod then
         local status, err = pcall(function()
-            Kristal.callEvent(KRISTAL_EVENT.unload)
-            Kristal.callEvent(KRISTAL_EVENT.onError, msg)
+            Kristal.callEvent(KRISTAL_EVENT.unload, true)
         end)
         if not status then
             msg = err
@@ -943,7 +942,7 @@ function Kristal.clearModState()
     Object._clearCache()
     Draw._clearStacks()
     -- End the current mod
-    Kristal.callEvent(KRISTAL_EVENT.unload)
+    Kristal.callEvent(KRISTAL_EVENT.unload, false)
     Mod = nil
 
     Kristal.Mods.clear()
