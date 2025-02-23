@@ -16,6 +16,7 @@
 ---
 ---@field soul_priority integer
 ---@field soul_color    table
+---@field soul_facing   string
 ---
 ---@field has_act       boolean
 ---@field has_spells    boolean
@@ -95,6 +96,8 @@ function PartyMember:init()
     self.soul_priority = 2
     -- The color of this character's soul (optional, defaults to red)
     self.soul_color = {1, 0, 0}
+    -- In which direction will this character's soul face (optional, defaults to facing up)
+    self.soul_facing = "up"
 
     -- Whether the party member can act (defaults to true)
     self.has_act = true
@@ -279,6 +282,7 @@ function PartyMember:getLightEXPNeeded(lv) return self.lw_exp_needed[lv] or 0 en
 
 function PartyMember:getSoulPriority() return self.soul_priority end
 function PartyMember:getSoulColor() return Utils.unpackColor(self.soul_color or {1, 0, 0}) end
+function PartyMember:getSoulFacing() return self.soul_facing end
 
 function PartyMember:hasAct() return self.has_act end
 function PartyMember:hasSpells() return self.has_spells end
