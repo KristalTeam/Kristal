@@ -847,6 +847,8 @@ function Kristal.errorHandler(msg)
                 else
                     return "reload"
                 end
+            elseif e == "keypressed" and a == "r" and love.keyboard.isDown("lctrl", "rctrl") then
+                return "restart"
             elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
                 copyToClipboard()
             elseif e == "touchpressed" then
