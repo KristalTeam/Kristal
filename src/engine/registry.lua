@@ -920,7 +920,7 @@ function Registry.iterScripts(base_path, exclude_folder)
     local result = {}
 
     CLASS_NAME_GETTER = function(k)
-        for _,v in ipairs(result) do
+        for _,v in ipairs(Utils.reverse(result)) do
             if v.id == k then
                 return v.out[1]
             end
