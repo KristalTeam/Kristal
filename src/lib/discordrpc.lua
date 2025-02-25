@@ -4,9 +4,11 @@ local name = "discord-rpc"
 
 if ffi.os == "Windows" then
     name = name .. "-" .. ffi.arch
+elseif ffi.os == "Linux" then
+    name = "lib".. name .. ".so"
 end
 
-local search_paths = {"", "lib/"}
+local search_paths = {"", love.filesystem.getRealDirectory("lib/") .. "/lib/"}
 
 local ok, discordRPClib
 for _, search_path in ipairs(search_paths) do
