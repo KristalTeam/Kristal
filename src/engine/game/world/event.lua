@@ -19,25 +19,26 @@
 ---@overload fun(data: table) : Event
 local Event, super = Class(Object)
 
+
 ---@param x number
 ---@param y number
----@param w number
----@param h number
----@param size table
+---@param shape table
 ---@param data table
----@overload fun(self: Event, x: number, y: number, size: table)
 ---@overload fun(self: Event, data: table)
-function Event:init(x, y, w, h)
+function Event:init(x, y, shape)
+    shape = shape or {0, 0}
     if type(x) == "table" then
         local data = x
         x, y = data.x, data.y
-        w, h = data.width, data.height
-    elseif type(w) == "table" then
-        local data = w
-        w, h = data.width, data.height
+        shape[1], shape[2] = data.width, data.height
+        shape[3] = data.polygon
     end
 
-    super.init(self, x, y, w, h)
+    super.init(self, x, y, shape[1], shape[2])
+
+    if shape[3] then
+        self.collider = Utils.colliderFromShape(self, {shape = "polygon", polygon = shape[3]})
+    end
 
     -- Default collider (Object width and height)
     self._default_collider = Hitbox(self, 0, 0, self.width, self.height)
