@@ -18,6 +18,8 @@
 ---
 ---@field dialogue_bubble   string?             The bubble style used for the battler. Defaults to `"round"` or `"cyber"`, depending on chapter.
 ---
+---@field action            table?
+---
 ---@field alert_timer number                    Internal timer variable for the battler's overhead alert icon.
 ---@field alert_icon Sprite?                    Internal variable used to store the battler's overhead alert icon.
 ---@field alert_callback fun()?                 Internal variable used to store a callback for after an alert, if set.
