@@ -12,8 +12,8 @@
 ---@overload fun(...) : MirrorArea
 local MirrorArea, super = Class(Event)
 
-function MirrorArea:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function MirrorArea:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     properties = properties or {}
 
