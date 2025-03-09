@@ -9,8 +9,8 @@
 ---@overload fun(...) : QuicksaveEvent
 local QuicksaveEvent, super = Class(Event)
 
-function QuicksaveEvent:init(x, y, w, h, marker)
-    super.init(self, x, y, w, h)
+function QuicksaveEvent:init(x, y, shape, marker)
+    super.init(self, x, y, shape)
     self.marker = marker
 end
 

@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 11,
-  nextobjectid = 120,
+  nextobjectid = 122,
   properties = {
     ["border"] = "city",
     ["light"] = false,
@@ -944,13 +944,19 @@ return {
           id = 69,
           name = "slidearea",
           class = "",
-          shape = "rectangle",
+          shape = "polygon",
           x = 520,
           y = 920,
           width = 160,
           height = 280,
           rotation = 0,
           visible = true,
+          polygon = {
+            { x = 0, y = 0 },
+            { x = 160, y = 0 },
+            { x = 160, y = 280 },
+            { x = 0, y = 280 }
+          },
           properties = {
             ["lock"] = false
           }
