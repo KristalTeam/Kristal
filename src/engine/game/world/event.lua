@@ -14,15 +14,13 @@
 ---@field unique_id         string
 ---@field world             World       The world that this event is contained in
 ---
----@overload fun(x: number, y: number, w: number, h: number) : Event
----@overload fun(x: number, y: number, size: table) : Event
+---@overload fun(x: number, y: number, shape: table) : Event
 ---@overload fun(data: table) : Event
 local Event, super = Class(Object)
 
-
 ---@param x number
 ---@param y number
----@param shape table
+---@param shape {[1]: number, [2]: number, [3]: table?} Shape data for this event. First two indexes are the width and height of the object. The third (optional) index is polygon data.
 ---@param data table
 ---@overload fun(self: Event, data: table)
 function Event:init(x, y, shape)
