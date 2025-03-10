@@ -2360,10 +2360,10 @@ function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_
 
             local trunc_str
             for i=1, string.len(str) do
-                trunc_str = string.sub(str, 1, i)
+                trunc_str = Utils.sub(str, 1, i)
                 local width = font:getWidth(trunc_str) * scale
                 if width > (max_width - affix_width) then
-                    trunc_str = string.sub(str, 1, i-1)
+                    trunc_str = Utils.sub(str, 1, i-1)
                     break
                 end
             end
