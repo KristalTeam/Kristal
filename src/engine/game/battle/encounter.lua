@@ -166,7 +166,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj = enemy
     end
     local enemies = self.queued_enemy_spawns
-    local enemies_index = enemies
+    local enemies_index = Utils.copy(self.queued_enemy_spawns, true)
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
@@ -325,6 +325,7 @@ end
 ---@param flag  string
 ---@param value any
 function Encounter:setFlag(flag, value)
+    if self.id == nil then return end
     Game:setFlag("encounter#"..self.id..":"..flag, value)
 end
 
@@ -332,6 +333,7 @@ end
 ---@param default?  any
 ---@return any
 function Encounter:getFlag(flag, default)
+    if self.id == nil then return end
     return Game:getFlag("encounter#"..self.id..":"..flag, default)
 end
 
@@ -340,6 +342,7 @@ end
 ---@param amount?   number  (Defaults to `1`)
 ---@return number
 function Encounter:addFlag(flag, amount)
+    if self.id == nil then return end
     return Game:addFlag("encounter#"..self.id..":"..flag, amount)
 end
 
