@@ -31,6 +31,7 @@ function MouseHole:init()
     self.sell_options_text["storage"] = "Let's see what ya got."
 
     self.background = "shops/mousehole_background"
+    self.background_speed = 5/30
 
     self.shopkeeper:setActor("shopkeepers/amelia")
     self.shopkeeper.sprite:setPosition(0, 8)
@@ -48,7 +49,6 @@ end
 
 function MouseHole:postInit()
     super.postInit(self)
-    self.background_sprite:play(5/30, true)
     self.shopkeeper:setLayer(SHOP_LAYERS["above_boxes"])
 end
 
