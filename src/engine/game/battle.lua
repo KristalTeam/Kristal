@@ -2825,6 +2825,15 @@ function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
 end
 
+--- Resets the enemies index table, closing all gaps in the enemy select menu
+---@param reset_xact? boolean         Whether to also reset the XACT position
+function Battle:resetEnemiesIndex(reset_xact)
+    self.enemies_index = Utils.copy(self.enemies, true)
+    if reset_xact ~= false then
+        self.battle_ui:resetXACTPosition()
+    end
+end
+
 ---@param id string
 ---@return EnemyBattler
 function Battle:parseEnemyIdentifier(id)
