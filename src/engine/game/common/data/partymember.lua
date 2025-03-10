@@ -60,6 +60,7 @@
 ---@field menu_icon_offset  [number, number]?
 ---
 ---@field gameover_message string[]?
+---@field force_gameover_message boolean[]?
 ---
 ---@field flags table<string, any>
 ---
@@ -182,6 +183,8 @@ function PartyMember:init()
 
     -- Message shown on gameover (optional)
     self.gameover_message = nil
+    -- Message will show even if the member is the soul character
+    self.force_gameover_message = false
 
     -- Character flags (saved to the save file)
     self.flags = {}
@@ -363,6 +366,7 @@ function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or 
 function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
 
 function PartyMember:getGameOverMessage() return self.gameover_message end
+function PartyMember:getForceGameOverMessage() return self.force_gameover_message end
 
 -- Functions / Getters & Setters
 
