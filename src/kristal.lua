@@ -258,8 +258,8 @@ function love.load(args)
 
         local screenshot_size = Utils.lerp(20, 0, SCREENSHOT_DISPLAY)
         if screenshot_size > 0 and not TAKING_SCREENSHOT then
-            local w = love.graphics.getWidth()
-            local h = love.graphics.getHeight()
+            local w = love.graphics.getWidth() / Kristal.getGameScale()
+            local h = love.graphics.getHeight() / Kristal.getGameScale()
             love.graphics.rectangle("fill", 0, 0, screenshot_size, h)
             love.graphics.rectangle("fill", w - screenshot_size, 0, screenshot_size, h)
             love.graphics.rectangle("fill", 0, 0, w, screenshot_size)
@@ -571,6 +571,8 @@ end
 ---@param  msg string|table     The error message.
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg)
+    love.graphics.setShader()
+    
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
@@ -1584,7 +1586,14 @@ end
 ---@return boolean exists Whether the save folder has any save files.
 function Kristal.hasAnySaves(path)
     local full_path = "saves/" .. (path or Mod.info.id)
-    return love.filesystem.getInfo(full_path) and (#love.filesystem.getDirectoryItems(full_path) > 0)
+    if love.filesystem.getInfo(full_path) then
+        for _,file in ipairs(love.filesystem.getDirectoryItems(full_path)) do
+            if string.sub(file, 1, 5) == "file_" and string.sub(file, -5) == ".json" then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 --- Saves the given data to a file in the save folder.

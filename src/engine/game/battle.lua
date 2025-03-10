@@ -2450,6 +2450,8 @@ function Battle:update()
                 self:setState("DIALOGUEEND")
             end
         end
+    elseif self.state == "SHORTACTTEXT" then
+        self:updateShortActText()
     end
 
     if self.state ~= "TRANSITIONOUT" then
@@ -2687,6 +2689,23 @@ function Battle:updateWaves()
     if all_done and not self.finished_waves then
         self.finished_waves = true
         self.encounter:onWavesDone()
+    end
+end
+
+function Battle:updateShortActText()
+    if Input.pressed("confirm") or Input.down("menu") then
+        if (not self.battle_ui.short_act_text_1:isTyping()) and
+           (not self.battle_ui.short_act_text_2:isTyping()) and
+           (not self.battle_ui.short_act_text_3:isTyping()) then
+            self.battle_ui.short_act_text_1:setText("")
+            self.battle_ui.short_act_text_2:setText("")
+            self.battle_ui.short_act_text_3:setText("")
+            for _,iaction in ipairs(self.short_actions) do
+                self:finishAction(iaction)
+            end
+            self.short_actions = {}
+            self:setState("ACTIONS", "SHORTACTTEXT")
+        end
     end
 end
 
@@ -3184,20 +3203,7 @@ function Battle:onKeyPressed(key)
     elseif self.state == "BATTLETEXT" then
         -- Nothing here
     elseif self.state == "SHORTACTTEXT" then
-        if Input.isConfirm(key) then
-            if (not self.battle_ui.short_act_text_1:isTyping()) and
-               (not self.battle_ui.short_act_text_2:isTyping()) and
-               (not self.battle_ui.short_act_text_3:isTyping()) then
-                self.battle_ui.short_act_text_1:setText("")
-                self.battle_ui.short_act_text_2:setText("")
-                self.battle_ui.short_act_text_3:setText("")
-                for _,iaction in ipairs(self.short_actions) do
-                    self:finishAction(iaction)
-                end
-                self.short_actions = {}
-                self:setState("ACTIONS", "SHORTACTTEXT")
-            end
-        end
+        -- Nothing here
     elseif self.state == "ENEMYDIALOGUE" then
         -- Nothing here
     elseif self.state == "ACTIONSELECT" then
@@ -3210,6 +3216,7 @@ end
 ---@param key string
 function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]
+    local old_selected_button = actbox.selected_button
 
     if Input.isConfirm(key) then
         actbox:select()
@@ -3229,12 +3236,8 @@ function Battle:handleActionSelectInput(key)
         return
     elseif Input.is("left", key) then
         actbox.selected_button = actbox.selected_button - 1
-        self.ui_move:stop()
-        self.ui_move:play()
     elseif Input.is("right", key) then
         actbox.selected_button = actbox.selected_button + 1
-        self.ui_move:stop()
-        self.ui_move:play()
     end
 
     if actbox.selected_button < 1 then
@@ -3243,6 +3246,11 @@ function Battle:handleActionSelectInput(key)
 
     if actbox.selected_button > #actbox.buttons then
         actbox.selected_button = 1
+    end
+    
+    if old_selected_button ~= actbox.selected_button then
+        self.ui_move:stop()
+        self.ui_move:play()
     end
 end
 

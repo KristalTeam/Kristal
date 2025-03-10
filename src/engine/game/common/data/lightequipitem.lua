@@ -29,11 +29,14 @@ function LightEquipItem:onWorldUse(target)
     else
         error("LightEquipItem "..self.id.." invalid type: "..self.type)
     end
-
+    
     self:onEquip(chara, replacing)
+    
+    chara:onUnequip(replacing, self)
+    chara:onEquip(self, replacing)
 
     self:showEquipText()
-    return false
+    return replacing == nil
 end
 
 function LightEquipItem:setArmor(i, item)
