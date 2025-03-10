@@ -701,9 +701,16 @@ function Kristal.errorHandler(msg)
         if Utils.tableLength(Mod.libs) > 0 then
             lib_string = "Libraries:"
             for _, lib in Kristal.iterLibraries() do
-                local line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
+                -- Very rare edge case where `lib` ends up being `nil`, we'll add an
+                -- "Unknown Library" string here if this ever happens
+                local line
+                if not (lib and lib.info) then
+                    line = "Unknown Library"
+                else
+                    line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
+                end
                 lib_string = lib_string .. "\n" .. line
-                w = math.max(w, #line * 7)
+                w = math.max(w, smaller_font:getWidth(line))
                 h = h + 16
             end
         end
@@ -886,7 +893,7 @@ function Kristal.errorHandler(msg)
         local x, y = love.mouse:getPosition()
 
         show_libraries = false
-        if 20 < x and x < 20 + #mod_string * 7 and 10 < y and y < 26 then
+        if 20 < x and x < 20 + smaller_font:getWidth(mod_string) and 10 < y and y < 26 then
             show_libraries = true
         end
 
