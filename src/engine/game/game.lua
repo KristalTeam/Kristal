@@ -921,10 +921,30 @@ function Game:getSoulColor()
     return 1, 0, 0, 1
 end
 
+---@return string
+function Game:getSoulFacing()
+    if Game.state == "BATTLE" and Game.battle and Game.battle.encounter and Game.battle.encounter.getSoulFacing and Game.battle.encounter:getSoulFacing() then
+        return Game.battle.encounter:getSoulFacing()
+    end
+
+    local face = Kristal.callEvent(KRISTAL_EVENT.getSoulFacing)
+    if face ~= nil then
+        return face
+    end
+    
+    local chara = Game:getSoulPartyMember()
+    
+    if chara and chara:getSoulPriority() >= 0 and chara:getSoulFacing() then
+        return chara:getSoulFacing()
+    end
+    
+    return "up"
+end
+
 ---@return PartyMember
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end

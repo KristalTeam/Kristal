@@ -1493,6 +1493,15 @@ function Kristal.getSoulColor()
     return unpack(COLORS.red)
 end
 
+--- Returns the soul facing direction which should be used.
+---@return string The facing value.
+function Kristal.getSoulFacing()
+    if Kristal.getState() == Game then
+        return Game:getSoulFacing()
+    end
+    return "up"
+end
+
 --- Called internally. Loads the saved user config, with default values.
 ---@return table config The user config.
 function Kristal.loadConfig()
@@ -1584,7 +1593,14 @@ end
 ---@return boolean exists Whether the save folder has any save files.
 function Kristal.hasAnySaves(path)
     local full_path = "saves/" .. (path or Mod.info.id)
-    return love.filesystem.getInfo(full_path) and (#love.filesystem.getDirectoryItems(full_path) > 0)
+    if love.filesystem.getInfo(full_path) then
+        for _,file in ipairs(love.filesystem.getDirectoryItems(full_path)) do
+            if string.sub(file, 1, 5) == "file_" and string.sub(file, -5) == ".json" then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 --- Saves the given data to a file in the save folder.
