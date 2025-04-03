@@ -181,10 +181,8 @@ function World:hurtParty(battler, amount)
 
             local dealt_amount = current_health - party:getHealth()
 
-            for _,char in ipairs(self.stage:getObjects(Character)) do
-                if char.actor and (char.actor.id == party:getActor().id) and dealt_amount > 0 then
-                    char:statusMessage("damage", dealt_amount)
-                end
+            if dealt_amount > 0 then
+                self:getPartyCharacterInParty(party):statusMessage("damage", dealt_amount)
             end
         elseif party:getHealth() > amount then
             any_alive = true
@@ -196,6 +194,7 @@ function World:hurtParty(battler, amount)
     end
 
     if any_killed and not any_alive then
+        self:stopCameraShake()
         if not self.map:onGameOver() then
             Game:gameOver(self.soul:getScreenPos())
         end
@@ -322,7 +321,7 @@ end
 
 --- Shows party member health bars
 function World:showHealthBars()
-    if Game.light then return end
+    if Game:isLight() then return end
 
     if self.healthbar then
         self.healthbar:transitionIn()
@@ -1133,11 +1132,17 @@ function World:setCameraAttachedX(attached) self:setCameraAttached(attached, sel
 ---@param attached? boolean
 function World:setCameraAttachedY(attached) self:setCameraAttached(self.camera.attached_y, attached) end
 
+--- Shakes the camera by the specified `x`, `y`.
 ---@param x? number
 ---@param y? number
 ---@param friction? number
 function World:shakeCamera(x, y, friction)
     self.camera:shake(x, y, friction)
+end
+
+--- Stops the camera shake.
+function World:stopCameraShake()
+    self.camera:stopShake()
 end
 
 function World:sortChildren()
