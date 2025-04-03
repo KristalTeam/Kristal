@@ -20,8 +20,8 @@
 ---@overload fun(...) : Forcefield
 local Forcefield, super = Class(Event)
 
-function Forcefield:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function Forcefield:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     self.end_sprite = Assets.getFramesOrTexture("world/events/forcefield/end")
     self.middle_sprite = Assets.getFramesOrTexture("world/events/forcefield/middle")

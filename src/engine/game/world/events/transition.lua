@@ -25,8 +25,8 @@
 ---@overload fun(...) : Transition
 local Transition, super = Class(Event)
 
-function Transition:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function Transition:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     properties = properties or {}
 

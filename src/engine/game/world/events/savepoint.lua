@@ -17,7 +17,7 @@
 local Savepoint, super = Class(Interactable)
 
 function Savepoint:init(x, y, properties)
-    super.init(self, x, y, nil, nil, properties)
+    super.init(self, x, y, nil, properties)
 
     properties = properties or {}
 

@@ -17,8 +17,8 @@
 ---@overload fun(...) : Script
 local Script, super = Class(Event)
 
-function Script:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function Script:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     properties = properties or {}
 
