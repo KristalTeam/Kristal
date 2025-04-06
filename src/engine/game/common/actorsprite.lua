@@ -26,6 +26,7 @@
 ---
 ---@field aura              boolean                             Whether the sprite currently has a glowing aura (used for `ChaserEnemy` objects)
 ---@field aura_siner        number                              A timer used for the aura effect
+---@field aura_color        table                               The color used for the aura effect
 ---
 ---@field run_away          boolean                             Special draw mode for enemies running away from battle on defeat
 ---@field run_away_timer    number                              A timer used for the run away animation
@@ -70,6 +71,7 @@ function ActorSprite:init(actor)
 
     self.aura = false
     self.aura_siner = 0
+    self.aura_color = {1,0,0}
 
     self.run_away = false
     self.run_away_timer = 0
@@ -481,7 +483,7 @@ function ActorSprite:draw()
             local auray = 45 * Ease.inSine(aura / 45, 0, 1, 1)
             local aurayscale = math.min(1, 80 / sprite_height)
 
-            Draw.setColor(1, 0, 0, (1 - (auray / 45)) * 0.5)
+            Draw.setColor(self.aura_color[1], self.aura_color[2], self.aura_color[3], (1 - (auray / 45)) * 0.5)
             Draw.draw(self.texture, -((aurax / 180) * sprite_width), -((auray / 82) * sprite_height * aurayscale), 0, 1 + ((aurax/36) * 0.5), 1 + (((auray / 36) * aurayscale) * 0.5))
         end
 
@@ -491,14 +493,14 @@ function ActorSprite:draw()
         local ymult = math.min((80 / sprite_height) * 5, 5)
         local ysmult = math.min((80 / sprite_height) * 0.2, 0.2)
 
-        Draw.setColor(1, 0, 0, 0.2)
+        Draw.setColor(self.aura_color[1], self.aura_color[2], self.aura_color[3], 0.2)
         Draw.draw(self.texture, (sprite_width / 2) + (math.sin(self.aura_siner / 5) * xmult) / 2, (sprite_height / 2) + (math.cos(self.aura_siner / 5) * ymult) / 2, 0, 1, 1 + (math.sin(self.aura_siner / 5) * ysmult) / 2, sprite_width / 2, sprite_height / 2)
         Draw.draw(self.texture, (sprite_width / 2) - (math.sin(self.aura_siner / 5) * xmult) / 2, (sprite_height / 2) - (math.cos(self.aura_siner / 5) * ymult) / 2, 0, 1, 1 - (math.sin(self.aura_siner / 5) * ysmult) / 2, sprite_width / 2, sprite_height / 2)
 
         local last_shader = love.graphics.getShader()
         love.graphics.setShader(Kristal.Shaders["AddColor"])
 
-        Kristal.Shaders["AddColor"]:send("inputcolor", {1, 0, 0})
+        Kristal.Shaders["AddColor"]:send("inputcolor", self.aura_color)
         Kristal.Shaders["AddColor"]:send("amount", 1)
 
         Draw.setColor(1, 1, 1, 0.3)
