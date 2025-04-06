@@ -26,10 +26,7 @@ end
 
 function item:onWorldUse()
     Game.world:startCutscene(function(cutscene)
-        if Game.party[1].lw_health <= 1 then
-            Game:gameOver(Game.world.player.x, Game.world.player.y)
-            return true
-        else
+        if Game.party[1].lw_health > 1 then
             Game.party[1].lw_health = Game.party[1].lw_health - 1
         end
         cutscene:text("* (You unhesitatingly devoured\nthe box of heart shaped\ncandies.)")
