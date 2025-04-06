@@ -37,5 +37,13 @@ return {
         cutscene:setSpeaker("noelle")
         cutscene:text("[miniface:talk]Testing my miniface", nil)
         cutscene:text("[miniface:talk]You could've at least done a custom sprite", nil)
+    end,
+    button = function (cutscene)
+        local str = ""
+        for _, value in ipairs({"confirm", "cancel", "up", "down", "left", "right", "menu"}) do
+            str = str .. Input.getText(value)
+        end
+        cutscene:text("* Here are some buttons! "..((" "..str) * 16).."!", {top = true})
+        cutscene:text("* good job[button:confirm]")
     end
 }
