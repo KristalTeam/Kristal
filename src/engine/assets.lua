@@ -58,6 +58,19 @@ function Assets.clear()
     self.quads = {}
 end
 
+---@param path string
+---@return new_path string
+function Assets.checkSpritesOverride(path)
+    local split_path = Utils.splitFast(path, "/")
+    if #split_path > 1 then
+        if split_path[1] == "player" then
+            table.insert(split_path, 2, Kristal.getSoulFacing())
+            return table.concat(split_path, "/")
+        end
+    end
+    return path
+end
+
 ---@param data Assets.data
 function Assets.loadData(data)
     Utils.merge(self.data, data, true)
@@ -258,13 +271,13 @@ end
 ---@param path string
 ---@return love.Image
 function Assets.getTexture(path)
-    return self.data.texture[path]
+    return self.data.texture[Assets.checkSpritesOverride(path)] or self.data.texture[path]
 end
 
 ---@param path string
 ---@return love.ImageData
 function Assets.getTextureData(path)
-    return self.data.texture_data[path]
+    return self.data.texture_data[Assets.checkSpritesOverride(path)] or self.data.texture_data[path]
 end
 
 ---@param texture love.Image|string
@@ -280,13 +293,13 @@ end
 ---@param path string
 ---@return love.Image[]
 function Assets.getFrames(path)
-    return self.data.frames[path]
+    return self.data.frames[Assets.checkSpritesOverride(path)] or self.data.frames[path]
 end
 
 ---@param path string
 ---@return string[]
 function Assets.getFrameIds(path)
-    return self.data.frame_ids[path]
+    return self.data.frame_ids[Assets.checkSpritesOverride(path)] or self.data.frame_ids[path]
 end
 
 ---@param texture string

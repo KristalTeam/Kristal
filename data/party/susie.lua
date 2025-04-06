@@ -19,7 +19,9 @@ function character:init()
     -- Determines which character the soul comes from (higher number = higher priority)
     self.soul_priority = 1
     -- The color of this character's soul (optional, defaults to red)
-    self.soul_color = {1, 0, 0}
+    self.soul_color = {1, 1, 1}
+    -- In which direction will this character's soul face (optional, defaults to facing up)
+    self.soul_facing = "down"
 
     -- Whether the party member can act / use spells
     self.has_act = false

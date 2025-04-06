@@ -45,6 +45,13 @@ function MainMenuFileSelect:onEnter(old_state)
 
     self.selected_x = 1
     self.selected_y = 1
+    
+    if MainMenu.mod_list:getSelectedMod().soulColor then
+        MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+    end
+    if MainMenu.mod_list:getSelectedMod().soulFacing then
+        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
+    end
 
     self.files = {}
     for i = 1, 3 do
@@ -184,6 +191,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
 				if MainMenu.mod_list:getSelectedMod().soulColor then
 					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 				end
+                if MainMenu.mod_list:getSelectedMod().soulFacing then
+                    MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
+                end
             else
                 self.menu:setState("TITLE")
                 self.menu.title_screen:selectOption("play")
@@ -218,6 +228,9 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
 						if MainMenu.mod_list:getSelectedMod().soulColor then
 							MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 						end
+                        if MainMenu.mod_list:getSelectedMod().soulFacing then
+                            MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
+                        end
                     else
                         self.menu:setState("TITLE")
                         self.menu.title_screen:selectOption("play")

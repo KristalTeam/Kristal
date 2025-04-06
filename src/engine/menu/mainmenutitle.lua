@@ -68,10 +68,15 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
         if option == "play" then
             if not TARGET_MOD then
                 self.menu:setState("MODSELECT")
-				if MainMenu.mod_list:getSelectedMod() and MainMenu.mod_list:getSelectedMod().soulColor then
-					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
-				end
-            elseif self.has_target_saves then
+				if MainMenu.mod_list:getSelectedMod() then
+                    if MainMenu.mod_list:getSelectedMod().soulColor then
+                        MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
+                    end
+                    if MainMenu.mod_list:getSelectedMod().soulFacing then
+                        MainMenu.heart:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_menu")
+                    end
+				end 
+            elseif self.menu.selected_mod["useSaves"] or self.menu.selected_mod["useSaves"] == nil and (not self.menu.selected_mod["encounter"] or self.has_target_saves) then
                 self.menu:setState("FILESELECT")
             else
                 Kristal.loadMod(TARGET_MOD, 1)

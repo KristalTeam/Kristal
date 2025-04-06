@@ -30,9 +30,14 @@ function GonerChoice:init(x, y, choices, on_complete, on_select)
     self.soul = Sprite("player/heart_blur")
     self.soul:setScale(2, 2)
     self.soul:setColor(Kristal.getSoulColor())
-	if Kristal.getState() ~= Game and MainMenu.mod_list:getSelectedMod().soulColor then
-		self.soul:setColor(unpack(MainMenu.mod_list:getSelectedMod().soulColor))
-	end
+    if Kristal.getState() ~= Game then
+        if MainMenu.mod_list:getSelectedMod().soulColor then
+            self.soul:setColor(unpack(MainMenu.mod_list:getSelectedMod().soulColor))
+        end
+        if MainMenu.mod_list:getSelectedMod().soulFacing then
+            self.soul:setSprite("player/"..MainMenu.mod_list:getSelectedMod().soulFacing.."/heart_blur")
+        end
+    end
     self.soul.alpha = 0.6
     self.soul.inherit_color = true
     self:addChild(self.soul)
