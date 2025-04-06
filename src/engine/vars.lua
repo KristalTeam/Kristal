@@ -209,7 +209,7 @@ KRISTAL_EVENT = {
 	preDraw = "preDraw", -- overrides game draw, always pops final graphics state after / at: Game:draw() / passes: NONE / returns: bool
 	postDraw = "postDraw", -- finished drawing / at: Game:draw() / passes: NONE / returns: NONE
     save = "save", -- game is about to be saved / at: Game:save(x, y) / passes: table:save_data / returns: NONE
-    unload = "unload", -- current game execution is stopped and data unloaded / at: Kristal.clearModState() / passes: NONE / returns: NONE
+    unload = "unload", -- current game execution is stopped and data unloaded / at: Kristal.clearModState()\Kristal.errorHandler(msg) / passes: error:boolean / returns: NONE
 
     --gameplay events--
     onBorderDraw = "onBorderDraw", -- game border draw time / at: [HOOK]love.draw(...)J\love.load(args) / passes: string:border, love.Image:border_texture / returns: NONE
