@@ -340,6 +340,7 @@ function DebugSystem:refresh()
     self.exclusive_menus["BATTLE"] = {"wave_select"}
     self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
+    self.menu_history = {}
     self:registerDefaults()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
@@ -387,6 +388,7 @@ function DebugSystem:returnMenu()
     if #self.menu_history == 0 then
         self:closeMenu()
     else
+        self.menu_target_y = 0
         self:enterMenu(self.menu_history[#self.menu_history].name, self.menu_history[#self.menu_history].soul, true)
         table.remove(self.menu_history, #self.menu_history)
     end
