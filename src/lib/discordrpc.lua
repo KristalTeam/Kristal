@@ -8,7 +8,7 @@ elseif ffi.os == "Linux" then
     name = "lib".. name .. ".so"
 end
 
-local search_paths = {"", love.filesystem.getRealDirectory("lib/") .. "/lib/"}
+local search_paths = {"", (love.filesystem.getRealDirectory("lib/") or "") .. "/lib/"}
 
 local ok, discordRPClib
 for _, search_path in ipairs(search_paths) do
