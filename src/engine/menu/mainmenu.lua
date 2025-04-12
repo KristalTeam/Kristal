@@ -121,16 +121,18 @@ function MainMenu:enter()
         instance = 1
     })
 
-    GitFinder:fetchLatestCommit(function(status, body, headers)
-        local current_commit = GitFinder:fetchCurrentCommit()
-        if current_commit ~= body then
-            self.ver_string = "v" .. tostring(Kristal.Version)
-            if trimmed_commit then
-                self.ver_string = self.ver_string .. " (" .. trimmed_commit .. ")"
+    if not RELEASE_MODE then
+        GitFinder:fetchLatestCommit(function(status, body, headers)
+            local current_commit = GitFinder:fetchCurrentCommit()
+            if current_commit ~= body then
+                self.ver_string = "v" .. tostring(Kristal.Version)
+                if trimmed_commit then
+                    self.ver_string = self.ver_string .. " (" .. trimmed_commit .. ")"
+                end
+                self.ver_string = self.ver_string .. " (outdated!)"
             end
-            self.ver_string = self.ver_string .. " (outdated!)"
-        end
-    end)
+        end)
+    end
 
     if TARGET_MOD then
         self.selected_mod = self.mod_list:getSelectedMod()
