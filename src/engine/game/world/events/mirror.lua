@@ -46,12 +46,18 @@ function MirrorArea:drawCharacter(chara)
     love.graphics.translate(0, -oyd + self.offset)
     local oldsprite = string.sub(chara.sprite.texture_path, #chara.sprite.path + 2)
     local t = Utils.split(oldsprite, "_")
-    local pathless = t[1]
-    local frame = t[2]
+	local pathless = ""
+	for i=1, #t-1 do
+		pathless = pathless .. "_" .. t[i]
+	end
+	pathless = string.sub(pathless, 2)
+	local frame = t[#t]
     local newsprite = oldsprite
     local mirror = chara.actor:getMirrorSprites()
     if mirror and mirror[pathless] then
-        newsprite = mirror[pathless] .. "_" .. frame
+		if frame then
+			newsprite = mirror[pathless] .. "_" .. frame
+		end
     end
     chara.sprite:setTextureExact(chara.actor.path .. "/" .. newsprite)
     chara:draw()
