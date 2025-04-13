@@ -17,6 +17,9 @@ function LightMenu:init()
     self.selected_submenu = 1
 
     self.current_selecting = Game.world.current_selecting or 1
+    if self.current_selecting > self:getLimit() then
+        self.current_selecting = 1
+    end
 
     self.item_selected = 1
 
@@ -45,6 +48,10 @@ function LightMenu:init()
     self:addChild(self.choice_box)
 
     self.storage = "items"
+end
+
+function LightMenu:getLimit()
+    return Game:getFlag("has_cell_phone", false) and 3 or 2
 end
 
 function LightMenu:onAddToStage(stage)
@@ -76,8 +83,7 @@ function LightMenu:onKeyPressed(key)
         local old_selected = self.current_selecting
         if Input.is("up", key)    then self.current_selecting = self.current_selecting - 1 end
         if Input.is("down", key) then self.current_selecting = self.current_selecting + 1 end
-        local max_selecting = Game:getFlag("has_cell_phone", false) and 3 or 2
-        self.current_selecting = Utils.clamp(self.current_selecting, 1, max_selecting)
+        self.current_selecting = Utils.clamp(self.current_selecting, 1, self:getLimit())
         if old_selected ~= self.current_selecting then
             self.ui_move:stop()
             self.ui_move:play()

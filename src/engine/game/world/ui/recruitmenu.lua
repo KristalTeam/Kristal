@@ -49,16 +49,20 @@ function RecruitMenu:setRecruitInBox(selected)
     self.recruit_box:addChild(self.recruit_sprite)
 end
 
+function RecruitMenu:getLimit()
+    return 9
+end
+
 function RecruitMenu:getMaxPages()
-    return math.ceil(#self.recruits / 9)
+    return math.ceil(#self.recruits / self:getLimit())
 end
 
 function RecruitMenu:getFirstSelectedInPage()
-    return 1 + (self.selected_page - 1) * 9
+    return 1 + (self.selected_page - 1) * self:getLimit()
 end
 
 function RecruitMenu:getLastSelectedInPage()
-    return math.min(#self.recruits, 9 * self.selected_page)
+    return math.min(#self.recruits, self:getLimit() * self.selected_page)
 end
 
 function RecruitMenu:update()
@@ -94,10 +98,10 @@ function RecruitMenu:update()
     if self:getMaxPages() > 1 then
         if Input.pressed("left", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page - 1
-            self.selected = self.selected - 9
+            self.selected = self.selected - self:getLimit()
             if self.selected_page < 1 then
                 self.selected_page = self:getMaxPages()
-                self.selected = self.selected + self:getMaxPages() * 9
+                self.selected = self.selected + self:getMaxPages() * self:getLimit()
             end
             if self.selected > self:getLastSelectedInPage() then
                 self.selected = self:getLastSelectedInPage()
@@ -105,10 +109,10 @@ function RecruitMenu:update()
         end
         if Input.pressed("right", true) and self.state == "SELECT" then
             self.selected_page = self.selected_page + 1
-            self.selected = self.selected + 9
+            self.selected = self.selected + self:getLimit()
             if self.selected_page > self:getMaxPages() then
                 self.selected_page = 1
-                self.selected = self.selected - self:getMaxPages() * 9
+                self.selected = self.selected - self:getMaxPages() * self:getLimit()
             end
             if self.selected > self:getLastSelectedInPage() then
                 self.selected = self:getLastSelectedInPage()
@@ -132,7 +136,7 @@ function RecruitMenu:update()
             Game.world:closeMenu()
         else
             self.state = "SELECT"
-            self.selected_page = math.ceil(self.selected / 9)
+            self.selected_page = math.ceil(self.selected / self:getLimit())
             self.recruit_box:setPosition(370, 75)
         end
     end
@@ -140,7 +144,7 @@ function RecruitMenu:update()
     -- Update the heart target position
     if self.state == "SELECT" then
         self.heart_target_x = 58
-        self.heart_target_y = 114 + (self.selected - (self.selected_page - 1) * 9 - 1) * 35
+        self.heart_target_y = 114 + (self.selected - (self.selected_page - 1) * self:getLimit() - 1) * 35
     else
         self.heart_target_x = 58
         self.heart_target_y = 416
@@ -192,14 +196,18 @@ function RecruitMenu:draw()
                     Draw.setColor(COLORS["yellow"])
                 end
                 local name = recruit:getName()
-                love.graphics.print(name, 80, 100 + offset, 0, math.min(1, 12 / #name), 1)
+                local x_scale = 1
+                if self.font:getWidth(name) >= 180 then
+                    x_scale = 180 / self.font:getWidth(name)
+                end
+                love.graphics.print(name, 80, 100 + offset, 0, x_scale, 1)
                 if Game:hasRecruit(recruit.id) then
                     Draw.setColor({0,1,0})
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
                     local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, math.min(1, 5 / #recruit_progress), 1)
+                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, 54 / self.font:getWidth(recruit_progress), 1)
                 end
                 offset = offset + 35
             end
@@ -228,18 +236,21 @@ function RecruitMenu:draw()
                 Draw.printAlign(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120, {["align"] = "left", ["line_offset"] = 4})
                 love.graphics.setFont(self.font)
                 
-                love.graphics.print("LIKE", 80, 240)
-                local like = recruit:getLike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and like or "?", 180, 240, 0, math.min(1, 21 / #like), 1)
+                for i,value in ipairs({"LIKE", "DISLIKE", "?????", "?????"}) do
+                    local x_scale = 1
+                    if self.font:getWidth(value) >= 60 then
+                        x_scale = 80 / self.font:getWidth(value)
+                    end
+                    love.graphics.print(value, 80, 200 + i * 40, 0, x_scale, 1)
+                end
+                for i,value in ipairs({Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", "?????????", "?????????"}) do
+                    local x_scale = 1
+                    if self.font:getWidth(value) >= 290 then
+                        x_scale = 290 / self.font:getWidth(value)
+                    end
+                    love.graphics.print(value, 180, 200 + i * 40, 0, x_scale, 1)
+                end
                 
-                love.graphics.print("DISLIKE", 80, 280, 0, 0.81, 1)
-                local dislike = recruit:getDislike()
-                love.graphics.print(Game:hasRecruit(recruit.id) and dislike or "?", 180, 280, 0, math.min(1, 21 / #dislike), 1)
-
-                love.graphics.print("?????", 80, 320, 0, 1.15, 1)
-                love.graphics.print("?????????", 180, 320)
-                love.graphics.print("?????", 80, 360, 0, 1.15, 1)
-                love.graphics.print("?????????", 180, 360)
                 if Input.usingGamepad() then
                     love.graphics.print("Press         to Return", 80, 400)
                     Draw.draw(Input.getTexture("cancel"), 165, 402, 0, 2, 2)
