@@ -219,6 +219,7 @@ KRISTAL_EVENT = {
     getConfig = "getConfig", -- intercept mod's config value / at: Game:getConfig(key, merge, deep_merge) / passes: string:key / returns: nil|any
     getPaletteColor = "getPaletteColor", -- intercept rgba color pallete value / at: (metatable@PALETTE).__index(t,i) / passes: string:i / returns: nil|table
     getSoulColor = "getSoulColor", -- intercept rgba soul color value / at: Game:getSoulColor() / passes: NONE / returns nil|table
+    getSoulFacing = "getSoulFacing", -- intercept soul facing value / at: Game:getSoulFacing() / passes: NONE / returns nil|string
 
     --battle events--
     onActionSelect = "onActionSelect", -- overrides action button selection / at: ActionButton:select() / passes: Battler:battler, ActionButton:self / returns: bool

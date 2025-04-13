@@ -34,7 +34,9 @@ function MainMenuModList:init(menu)
 
     self.loading_mods = false
     self.last_loaded = {}
-
+    
+    self.reset_soul = false
+    
     self.active = false
 end
 
@@ -74,6 +76,7 @@ function MainMenuModList:onLeave(new_state)
     self.active = false
     
     self.menu.heart:setColor(Kristal.getSoulColor())
+    self.menu.heart:setSprite("player/heart_menu")
     self.menu.heart_outline.visible = false
 end
 
@@ -102,9 +105,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
-                if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems( "saves/"..mod.id ) > 0))
-                or (mod["useSaves"] ~= "has_saves" and mod["useSaves"])
-                or (mod["useSaves"] == nil and not mod["encounter"]) then
+                if mod["useSaves"] or mod["useSaves"] == nil and (not mod["encounter"] or Kristal.hasAnySaves(mod.id)) then
                     self.menu:setState("FILESELECT")
                 else
                     Kristal.loadMod(mod.id)
@@ -174,6 +175,16 @@ function MainMenuModList:update()
         self.menu.heart_outline:setColor(button:getFavoritedColor())
     else
         self.menu.heart_outline.visible = false
+    end
+    
+    if self.list:isOnCreate() then
+        if not self.reset_soul then
+            self.menu.heart:setColor(Kristal.getSoulColor())
+            self.menu.heart:setSprite("player/heart_menu")
+        end
+        self.reset_soul = true
+    else
+        self.reset_soul = false
     end
 end
 
