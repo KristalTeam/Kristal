@@ -80,6 +80,7 @@
     <property name="map" value="alley2"/>
     <property name="marker" value="entry_right"/>
    </properties>
+   <polygon points="-10,-40 40,0 40,80 -10,40"/>
   </object>
   <object id="14" name="forcefield" x="200" y="200" width="40" height="160">
    <properties>
