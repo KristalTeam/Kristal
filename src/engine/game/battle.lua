@@ -97,7 +97,7 @@ function Battle:init()
     self.use_textbox_timer = true
 
     -- states: BATTLETEXT, TRANSITION, INTRO, ACTIONSELECT, ACTING, SPARING, USINGITEMS, ATTACKING, ACTIONSDONE, ENEMYDIALOGUE, DIALOGUEEND, DEFENDING, VICTORY, TRANSITIONOUT
-    -- ENEMYSELECT, MENUSELECT, XACTENEMYSELECT, PARTYSELECT, DEFENDINGEND, DEFENDINGBEGIN
+    -- ENEMYSELECT, MENUSELECT, PARTYSELECT, DEFENDINGEND, DEFENDINGBEGIN
 
     self.state = "NONE"
     self.substate = "NONE"
@@ -433,7 +433,7 @@ function Battle:onStateChange(old,new)
         if self.state_reason ~= "DONTPROCESS" then
             self:tryProcessNextAction()
         end
-    elseif new == "ENEMYSELECT" or new == "XACTENEMYSELECT" then
+    elseif new == "ENEMYSELECT" then
         self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
         self.selected_enemy = 1
@@ -740,7 +740,7 @@ function Battle:onStateChange(old,new)
     -- List of states that should remove the arena.
     -- A whitelist is better than a blacklist in case the modder adds more states.
     -- And in case the modder adds more states and wants the arena to be removed, they can remove the arena themselves.
-    local remove_arena = {"DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "XACTENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"}
+    local remove_arena = {"DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"}
 
     local should_end = true
     if Utils.containsValue(remove_arena, new) then
@@ -2787,7 +2787,7 @@ end
 function Battle:isHighlighted(battler)
     if self.state == "PARTYSELECT" then
         return self.party[self.current_menu_y] == battler
-    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
+    elseif self.state == "ENEMYSELECT" then
         return self.enemies_index[self.current_menu_y] == battler
     elseif self.state == "MENUSELECT" then
         local current_menu = self.menu_items[self:getItemIndex()]
@@ -3027,7 +3027,7 @@ function Battle:onKeyPressed(key)
                 end
             end
         end
-    elseif self.state == "ENEMYSELECT" or self.state == "XACTENEMYSELECT" then
+    elseif self.state == "ENEMYSELECT" then
         if Input.isConfirm(key) then
             if self.encounter:onEnemySelect(self.state_reason, self.current_menu_y) then return end
             if Kristal.callEvent(KRISTAL_EVENT.onBattleEnemySelect, self.state_reason, self.current_menu_y) then return end
@@ -3035,7 +3035,7 @@ function Battle:onKeyPressed(key)
             self.ui_select:play()
             if #self.enemies_index == 0 then return end
             self.selected_enemy = self.current_menu_y
-            if self.state == "XACTENEMYSELECT" then
+            if self.state_reason == "XACT" then
                 local xaction = Utils.copy(self.selected_xaction)
                 if xaction.default then
                     xaction.name = self.enemies_index[self.selected_enemy]:getXAction(self.party[self.current_selecting])
@@ -3091,7 +3091,7 @@ function Battle:onKeyPressed(key)
             if Kristal.callEvent(KRISTAL_EVENT.onBattleEnemyCancel, self.state_reason, self.current_menu_y) then return end
             self.ui_move:stop()
             self.ui_move:play()
-            if self.state_reason == "SPELL" then
+            if self.state_reason == "SPELL" or self.state_reason == "XACT" then
                 self:setState("MENUSELECT", "SPELL")
             elseif self.state_reason == "ITEM" then
                 self:setState("MENUSELECT", "ITEM")
