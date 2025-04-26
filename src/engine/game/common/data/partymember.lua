@@ -110,7 +110,7 @@ function PartyMember:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "?-Action"
 
-    -- Spells
+    -- Spells (saved to the save file)
     self.spells = {}
 
     -- Current health (saved to the save file)
@@ -131,7 +131,7 @@ function PartyMember:init()
     -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
     self.stronger_absent = {}
     
-    -- The number of times that this party member got stronger
+    -- The number of times that this party member got stronger (saved to the save file)
     self.level_up_count = 0
 
     -- Light world stats (saved to the save file)
