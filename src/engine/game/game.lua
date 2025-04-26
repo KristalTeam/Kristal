@@ -30,7 +30,6 @@
 ---@field tension           number
 ---@field max_tension       number
 ---@field lw_money          integer
----@field level_up_count    integer
 ---@field temp_followers    table<[string, number]|string>
 ---@field flags             table<[string, any]>
 ---@field party             PartyMember[]
@@ -248,8 +247,6 @@ function Game:save(x, y)
 
         lw_money = self.lw_money,
 
-        level_up_count = self.level_up_count,
-
         border = self.border.id,
 
         temp_followers = self.temp_followers,
@@ -381,8 +378,6 @@ function Game:load(data, index, fade)
             table.insert(self.temp_followers, id)
         end
     end
-
-    self.level_up_count = data.level_up_count or 0
 
     self.money = data.money or Kristal.getModOption("money") or 0
     self.xp = data.xp or 0
