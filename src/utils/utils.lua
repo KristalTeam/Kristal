@@ -366,8 +366,6 @@ Utils.HOOKSCRIPT_MT = {
 ---
 ---@return T class                # The new class, extended from `include` if provided.
 ---@return T|superclass<T> super  # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
----
----TODO: add this to Kristal in a PR
 function Utils.hookScript(include)
     if type(include) == "string" then
         local r = CLASS_NAME_GETTER(include)
