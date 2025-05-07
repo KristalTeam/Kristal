@@ -38,7 +38,7 @@ function LightCellMenu:update()
         self.current_selecting = self.current_selecting + 1
     end
 
-    self.current_selecting = Utils.clamp(self.current_selecting, 1, #Game.world.calls)
+    self.current_selecting = Utils.clamp(self.current_selecting, 1, #Game.calls)
 
     if self.current_selecting ~= old_selecting then
         self.ui_move:stop()
@@ -46,7 +46,7 @@ function LightCellMenu:update()
     end
 
     if Input.pressed("confirm") then
-        self:runCall(Game.world.calls[self.current_selecting])
+        self:runCall(Game.calls[self.current_selecting])
     end
 
     super.update(self)
@@ -56,7 +56,7 @@ function LightCellMenu:draw()
     love.graphics.setFont(self.font)
     Draw.setColor(PALETTE["world_text"])
 
-    for index, call in ipairs(Game.world.calls) do
+    for index, call in ipairs(Game.calls) do
         love.graphics.print(call[1], 20, -28 + (index * 32))
     end
 
@@ -67,10 +67,12 @@ function LightCellMenu:draw()
 end
 
 function LightCellMenu:runCall(call)
-    Assets.playSound("phone", 0.7)
+    if call[3] ~= false then
+        Assets.playSound("phone", 0.7)
+    end
     Game.world.menu:closeBox()
     Game.world.menu.state = "TEXT"
-    Game.world:setCellFlag(call[2], Game.world:getCellFlag(call[2], -1) + 1)
+    Game:setCellFlag(call[2], Game:getCellFlag(call[2], -1) + 1)
     Game.world:startCutscene(call[2])
 end
 
