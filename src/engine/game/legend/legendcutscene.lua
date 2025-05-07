@@ -35,7 +35,7 @@ function LegendCutscene:init(group, id, ...)
 
     self.speed = 1
 
-    super:init(self, scene, ...)
+    super.init(self, scene, ...)
 end
 
 function LegendCutscene:update()
