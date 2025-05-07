@@ -32,6 +32,8 @@ function LightEquipItem:onWorldUse(target)
 
     self:onEquip(chara, replacing)
 
+    chara:onUnequip(replacing, self)
+
     self:showEquipText()
     return false
 end
