@@ -140,7 +140,11 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
 
         if Input.is("up", key) then self.list:selectUp(is_repeat) end
         if Input.is("down", key) then self.list:selectDown(is_repeat) end
-        if not Input.isGamepad(key) then
+        local selected = self.list:getSelected()
+        if selected:includes(ModListLine) then
+            if Input.is("left", key) then self.list:selectLeft(is_repeat) end
+            if Input.is("right", key) then self.list:selectRight(is_repeat) end
+        elseif not Input.isGamepad(key) and not Kristal.Config["modSelectGrid"] then
             if Input.is("left", key) and not is_repeat then self.list:pageUp(is_repeat) end
             if Input.is("right", key) and not is_repeat then self.list:pageDown(is_repeat) end
         end
@@ -219,7 +223,22 @@ function MainMenuModList:draw()
             Draw.setColor(1, 1, 1)
         else
             -- Draw some menu text
-            Draw.printShadow("Choose your world.", 80, 34 - 8)
+            local btn = self.menu.selected_mod_button
+            if btn:includes(ModListLine) then
+                btn = btn.selected_mod
+            end
+            if btn and btn:includes(SmallModButton) then
+                local offset = 8
+                if btn:hasSubtitle() then
+                    offset = 16
+                end
+                Draw.printShadow(btn.name, 80, 34 - offset)
+                love.graphics.setFont(Assets.getFont("main", 16))
+                Draw.printShadow(btn.subtitle or "", 80, 34 + 16)
+                love.graphics.setFont(Assets.getFont("main", 32))
+            else
+                Draw.printShadow("Choose your world.", 80, 34 - 8)
+            end
 
             local control_menu_width = 0
             local control_cancel_width = 0
@@ -352,7 +371,6 @@ function MainMenuModList:buildModListFavorited()
     else
         self.list:clearMods()
     end
-    
     -- Sort them by favorites or filepath
     table.sort(self.mods, function(a, b)
         local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
@@ -363,7 +381,12 @@ function MainMenuModList:buildModListFavorited()
     -- Add mods to the list
     for _,mod in ipairs(self.mods) do
         -- Create the mod button
-        local button = ModButton(mod.name or mod.id, 424, 62, mod)
+        local button
+        if Kristal.Config["modSelectGrid"] then
+            button = SmallModButton(mod.name or mod.id, 92, 92, mod)
+        else
+            button = ModButton(mod.name or mod.id, 424, 62, mod)
+        end
         self.list:addMod(button)
 
         -- Load the mod's preview script
@@ -404,14 +427,24 @@ function MainMenuModList:buildModListFavorited()
     self.last_loaded = love.filesystem.getDirectoryItems("mods")
 
     -- Keep the list scrolled at the previously selected mod, if it exists, or start at the first mod
-    local keep_button, keep_index = self.list:getById(last_selected)
-    if last_selected and keep_button then
-        self.list:select(keep_index, true)
-        self.list:setScroll(last_scroll)
-    else
-        self.list:select(1, true)
+    for row_num, mod_row in ipairs(self.list.mods) do
+        if mod_row:includes(ModListLine) then
+            ---@cast mod_row ModListLine
+            for col_num, mod in ipairs(mod_row.mods) do
+                if mod.id == last_selected then
+                    self.list:select(row_num, true)
+                    self.list:selectX(col_num, true)
+                    goto fullbreak
+                end
+            end
+        elseif mod_row.id == last_selected then
+            self.list:select(row_num)
+            goto fullbreak
+        end
     end
-    
+    ::fullbreak::
+    self.list:setScroll(last_scroll)
+
     -- Hide list if there are no mods
     if #self.list.mods == 0 then
         self.list.active = false
@@ -464,7 +497,12 @@ function MainMenuModList:buildModList()
     -- Add mods to the list
     for _,mod in ipairs(self.mods) do
         -- Create the mod button
-        local button = ModButton(mod.name or mod.id, 424, 62, mod)
+        local button
+        if Kristal.Config["modSelectGrid"] and not TARGET_MOD then
+            button = SmallModButton(mod.name or mod.id, 92, 92, mod)
+        else
+            button = ModButton(mod.name or mod.id, 424, 62, mod)
+        end
         self.list:addMod(button)
 
         -- Initialize the mod's fader (for background and music fading)
