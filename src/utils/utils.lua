@@ -1754,18 +1754,16 @@ function Utils.absoluteToLocalPath(prefix, image, path)
     -- Split paths by seperator
     local base_path = Utils.split(path, "/")
     local dest_path = Utils.split(image, "/")
-    do
-        local up_count = 0
-        while dest_path[1] == ".." do
-            up_count = up_count + 1
-            -- Move up one directory
-            table.remove(base_path, #base_path)
+    local up_count = 0
+    while dest_path[1] == ".." do
+        up_count = up_count + 1
+        -- Move up one directory
+        table.remove(base_path, #base_path)
+        table.remove(dest_path, 1)
+    end
+    if dest_path[1] == "libraries" then
+        for i = 2, up_count do
             table.remove(dest_path, 1)
-        end
-        if dest_path[1] == "libraries" then
-            for i = 2, up_count do
-                table.remove(dest_path, 1)
-            end
         end
     end
 
