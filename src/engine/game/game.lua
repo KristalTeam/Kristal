@@ -922,13 +922,15 @@ function Game:getSoulColor()
     return 1, 0, 0, 1
 end
 
----@return PartyMember
+---@return PartyMember?
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end
+
+    return nil
 end
 
 ---@param chara  string|Follower
