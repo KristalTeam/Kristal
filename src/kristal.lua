@@ -1152,12 +1152,13 @@ end
 ---@param save_id?   number   The id of the save to load the mod from. (1-3)
 ---@param save_name? string   The name to use for the save file.
 ---@param after?     function The function to call after assets have been loaded.
+---@return boolean   success  Whether the mod was loaded successfully.
 function Kristal.loadMod(id, save_id, save_name, after)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
 
     -- No mod found; nothing to load
-    if not mod then return end
+    if not mod then return false end
 
     -- Create the Mod table, which is a global table that
     -- can contain a mod's custom variables and functions
@@ -1216,6 +1217,8 @@ function Kristal.loadMod(id, save_id, save_name, after)
             Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end
     end)
+
+    return true
 end
 
 --- Loads assets from a mod and its libraries. Called internally by `Kristal.loadMod`.
