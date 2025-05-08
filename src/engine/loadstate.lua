@@ -40,6 +40,8 @@ function Loading:enter(from, dir)
     self.key_check = not Kristal.Args["wait"]
 
     self.fader_alpha = 0
+
+    self.done_loading = false
 end
 
 function Loading:beginLoad()
@@ -60,7 +62,14 @@ function Loading:beginLoad()
 end
 
 function Loading:update()
+    if self.done_loading then
+        return
+    end
+
     if self.load_complete and self.key_check and (self.animation_done or Kristal.Config["skipIntro"]) then
+        -- We're done loading! This should only happen once.
+        self.done_loading = true
+
         -- create a console
         Kristal.Console = Console()
         Kristal.Stage:addChild(Kristal.Console)
