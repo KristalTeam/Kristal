@@ -20,11 +20,19 @@ local Event, super = Class(Object)
 
 ---@param x number
 ---@param y number
+---@param width number
+---@param height number
 ---@param shape {[1]: number, [2]: number, [3]: table?} Shape data for this event. First two indexes are the width and height of the object. The third (optional) index is polygon data.
 ---@param data table
 ---@overload fun(self: Event, data: table)
-function Event:init(x, y, shape)
-    shape = shape or {0, 0}
+---@overload fun(self: Event, x: number, y: number, shape: {[1]: number, [2]: number, [3]: table?})
+function Event:init(x, y, width, height)
+    local shape = {0,0}
+    if type(width) == "table" then
+        shape = width
+    elseif type(width) == "number" then
+        shape = {width,height}
+    end
     if type(x) == "table" then
         local data = x
         x, y = data.x, data.y
