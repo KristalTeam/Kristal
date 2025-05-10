@@ -352,6 +352,33 @@ function Utils.hook(target, name, hook, exact_func)
     end
 end
 
+---@type metatable
+Utils.HOOKSCRIPT_MT = {
+    __newindex = function (self, k, v)
+        self.__hookscript_super[k] = self.__hookscript_super[k] or self.__hookscript_class[k]
+        assert(Mod)
+        Utils.hook(self.__hookscript_class, k, v, true)
+    end
+}
+---@generic T : Class|function
+---
+---@param include? T|`T`|string     # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
+---
+---@return T class                # The new class, extended from `include` if provided.
+---@return T|superclass<T> super  # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
+function Utils.hookScript(include)
+    if type(include) == "string" then
+        local r = CLASS_NAME_GETTER(include)
+        if not r then
+            error{included=include, msg="Failed to include "..include}
+        end
+        include = r
+    end
+    local super = {}
+    local class = setmetatable({__hookscript_super = super, __hookscript_class = include}, Utils.HOOKSCRIPT_MT)
+    return class, super
+end
+
 ---
 --- Returns a function that calls a new function, giving it an older function as an argument. \
 --- Essentially, it's a version of `Utils.hook()` that works with local functions.

@@ -492,6 +492,9 @@ end
 ---@param no_warning boolean?
 function Registry.registerGlobal(id, value, no_warning)
     if _G[id] then
+        if type(value) == "table"
+            and value.__hookscript_class
+        then return end
         if not no_warning then
             Kristal.Console:warn("Global '"..tostring(id).."' already exists, replacing")
         end
