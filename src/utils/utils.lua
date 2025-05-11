@@ -558,7 +558,7 @@ end
 --- *Source*: https://github.com/s-walrus/hex2color
 ---
 function Utils.hexToRgb(hex, value)
-    return {tonumber(string.sub(hex, 2, 3), 16)/256, tonumber(string.sub(hex, 4, 5), 16)/256, tonumber(string.sub(hex, 6, 7), 16)/256, value or 1}
+    return {tonumber(string.sub(hex, 2, 3), 16)/255, tonumber(string.sub(hex, 4, 5), 16)/255, tonumber(string.sub(hex, 6, 7), 16)/255, value or 1}
 end
 
 ---
@@ -581,7 +581,7 @@ function Utils.parseColorProperty(property)
     if not property then return nil end
     -- Tiled color properties are formatted as #AARRGGBB, where AA is the alpha value.
     local str = "#"..string.sub(property, 4) -- Get the hex string without the alpha value
-    local a = tonumber(string.sub(property, 2, 3), 16)/256 -- Get the alpha value separately
+    local a = tonumber(string.sub(property, 2, 3), 16)/255 -- Get the alpha value separately
     return Utils.hexToRgb(str, a)
 end
 
@@ -1754,10 +1754,17 @@ function Utils.absoluteToLocalPath(prefix, image, path)
     -- Split paths by seperator
     local base_path = Utils.split(path, "/")
     local dest_path = Utils.split(image, "/")
+    local up_count = 0
     while dest_path[1] == ".." do
+        up_count = up_count + 1
         -- Move up one directory
         table.remove(base_path, #base_path)
         table.remove(dest_path, 1)
+    end
+    if dest_path[1] == "libraries" then
+        for i = 2, up_count do
+            table.remove(dest_path, 1)
+        end
     end
 
     local final_path = table.concat(Utils.merge(base_path, dest_path), "/")
@@ -2360,10 +2367,10 @@ function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_
 
             local trunc_str
             for i=1, string.len(str) do
-                trunc_str = string.sub(str, 1, i)
+                trunc_str = Utils.sub(str, 1, i)
                 local width = font:getWidth(trunc_str) * scale
                 if width > (max_width - affix_width) then
-                    trunc_str = string.sub(str, 1, i-1)
+                    trunc_str = Utils.sub(str, 1, i-1)
                     break
                 end
             end

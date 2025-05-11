@@ -834,7 +834,7 @@ function Battle:spawnSoul(x, y)
     end
 end
 
----@param dont_destroy boolean
+---@param dont_destroy? boolean
 function Battle:returnSoul(dont_destroy)
     if dont_destroy == nil then dont_destroy = false end
     local bx, by = self:getSoulLocation(true)
@@ -1790,7 +1790,7 @@ function Battle:getEnemyFromCharacter(chara)
 end
 
 --- Gets whether a specific character has an action lined up
----@param character_id string
+---@param character_id integer
 ---@return boolean
 function Battle:hasAction(character_id)
     return self.character_actions[character_id] ~= nil
@@ -1933,7 +1933,7 @@ end
 ---@param amount    number
 ---@param exact?    boolean
 ---@param target?   number|"ALL"|"ANY"|PartyBattler The target battler's index, instance, or strings for specific selection logic (defaults to `"ANY"`)
----@return table
+---@return table?
 function Battle:hurt(amount, exact, target)
     -- If target is a numberic value, it will hurt the party battler with that index
     -- "ANY" will choose the target randomly
@@ -2270,7 +2270,7 @@ function Battle:returnToWorld()
     Game.state = "OVERWORLD"
 end
 
----@param text          string[]
+---@param text          string|string[]
 ---@param dont_finish?  boolean
 function Battle:setActText(text, dont_finish)
     self:battleText(text, function()
@@ -2299,7 +2299,7 @@ function Battle:shortActText(text)
 end
 
 --- Sets the current message in the battlebox and moves to the `BATTLETEXT` state until it is advanced, where it returns to the previous state by default
----@param text string[]                     The text to set
+---@param text string[]|string              The text to set
 ---@param post_func? fun():boolean|string   When the text is advanced, the name of the state to move to, or a function to run
 function Battle:battleText(text,post_func)
     local target_state = self:getState()
@@ -2450,6 +2450,8 @@ function Battle:update()
                 self:setState("DIALOGUEEND")
             end
         end
+    elseif self.state == "SHORTACTTEXT" then
+        self:updateShortActText()
     end
 
     if self.state ~= "TRANSITIONOUT" then
@@ -2690,6 +2692,23 @@ function Battle:updateWaves()
     end
 end
 
+function Battle:updateShortActText()
+    if Input.pressed("confirm") or Input.down("menu") then
+        if (not self.battle_ui.short_act_text_1:isTyping()) and
+           (not self.battle_ui.short_act_text_2:isTyping()) and
+           (not self.battle_ui.short_act_text_3:isTyping()) then
+            self.battle_ui.short_act_text_1:setText("")
+            self.battle_ui.short_act_text_2:setText("")
+            self.battle_ui.short_act_text_3:setText("")
+            for _,iaction in ipairs(self.short_actions) do
+                self:finishAction(iaction)
+            end
+            self.short_actions = {}
+            self:setState("ACTIONS", "SHORTACTTEXT")
+        end
+    end
+end
+
 ---@param string    string
 ---@param x         number
 ---@param y         number
@@ -2823,6 +2842,15 @@ end
 ---@return PartyBattler[]
 function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
+end
+
+--- Resets the enemies index table, closing all gaps in the enemy select menu
+---@param reset_xact? boolean         Whether to also reset the XACT position
+function Battle:resetEnemiesIndex(reset_xact)
+    self.enemies_index = Utils.copy(self.enemies, true)
+    if reset_xact ~= false then
+        self.battle_ui:resetXACTPosition()
+    end
 end
 
 ---@param id string
@@ -3184,20 +3212,7 @@ function Battle:onKeyPressed(key)
     elseif self.state == "BATTLETEXT" then
         -- Nothing here
     elseif self.state == "SHORTACTTEXT" then
-        if Input.isConfirm(key) then
-            if (not self.battle_ui.short_act_text_1:isTyping()) and
-               (not self.battle_ui.short_act_text_2:isTyping()) and
-               (not self.battle_ui.short_act_text_3:isTyping()) then
-                self.battle_ui.short_act_text_1:setText("")
-                self.battle_ui.short_act_text_2:setText("")
-                self.battle_ui.short_act_text_3:setText("")
-                for _,iaction in ipairs(self.short_actions) do
-                    self:finishAction(iaction)
-                end
-                self.short_actions = {}
-                self:setState("ACTIONS", "SHORTACTTEXT")
-            end
-        end
+        -- Nothing here
     elseif self.state == "ENEMYDIALOGUE" then
         -- Nothing here
     elseif self.state == "ACTIONSELECT" then
@@ -3210,6 +3225,7 @@ end
 ---@param key string
 function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]
+    local old_selected_button = actbox.selected_button
 
     if Input.isConfirm(key) then
         actbox:select()
@@ -3229,12 +3245,8 @@ function Battle:handleActionSelectInput(key)
         return
     elseif Input.is("left", key) then
         actbox.selected_button = actbox.selected_button - 1
-        self.ui_move:stop()
-        self.ui_move:play()
     elseif Input.is("right", key) then
         actbox.selected_button = actbox.selected_button + 1
-        self.ui_move:stop()
-        self.ui_move:play()
     end
 
     if actbox.selected_button < 1 then
@@ -3243,6 +3255,11 @@ function Battle:handleActionSelectInput(key)
 
     if actbox.selected_button > #actbox.buttons then
         actbox.selected_button = 1
+    end
+    
+    if old_selected_button ~= actbox.selected_button then
+        self.ui_move:stop()
+        self.ui_move:play()
     end
 end
 

@@ -269,7 +269,7 @@ function GameOver:update()
             self.current_stage = 11
             Game:loadQuick()
             if Game:isLight() then
-                Game.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+                Game.fader:fadeIn(nil, {alpha = 1, speed = 12/30, color = self.fade_white and {1, 1, 1} or {0, 0, 0}})
             end
         end
     end

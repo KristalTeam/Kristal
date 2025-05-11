@@ -74,6 +74,12 @@ function BattleUI:init()
 
     self.sparestar = Assets.getTexture("ui/battle/sparestar")
     self.tiredmark = Assets.getTexture("ui/battle/tiredmark")
+    
+    self:resetXACTPosition()
+end
+
+function BattleUI:resetXACTPosition()
+    self.xact_x_pos = 142
 end
 
 function BattleUI:clearEncounterText()
@@ -386,10 +392,9 @@ function BattleUI:drawState()
             love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
         end
         
-        local xact_x_offset = 142
         for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
-            if xact_x_offset < font:getWidth(enemy.name) + 142 then
-                xact_x_offset = font:getWidth(enemy.name) + 142
+            if self.xact_x_pos < font:getWidth(enemy.name) + 142 then
+                self.xact_x_pos = font:getWidth(enemy.name) + 142
             end
         end
 
@@ -468,9 +473,9 @@ function BattleUI:drawState()
                 if Game.battle.state == "XACTENEMYSELECT" then
                     Draw.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
                     if Game.battle.selected_xaction.id == 0 then
-                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), xact_x_offset, 50 + y_off)
+                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), self.xact_x_pos, 50 + y_off)
                     else
-                        love.graphics.print(Game.battle.selected_xaction.name, xact_x_offset, 50 + y_off)
+                        love.graphics.print(Game.battle.selected_xaction.name, self.xact_x_pos, 50 + y_off)
                     end
                 end
 

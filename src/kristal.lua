@@ -258,8 +258,8 @@ function love.load(args)
 
         local screenshot_size = Utils.lerp(20, 0, SCREENSHOT_DISPLAY)
         if screenshot_size > 0 and not TAKING_SCREENSHOT then
-            local w = love.graphics.getWidth()
-            local h = love.graphics.getHeight()
+            local w = love.graphics.getWidth() / Kristal.getGameScale()
+            local h = love.graphics.getHeight() / Kristal.getGameScale()
             love.graphics.rectangle("fill", 0, 0, screenshot_size, h)
             love.graphics.rectangle("fill", w - screenshot_size, 0, screenshot_size, h)
             love.graphics.rectangle("fill", 0, 0, w, screenshot_size)
@@ -571,6 +571,8 @@ end
 ---@param  msg string|table     The error message.
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
 function Kristal.errorHandler(msg)
+    love.graphics.setShader()
+
     local copy_color = { 1, 1, 1, 1 }
     local anim_index = 1
     local starwalker_error = (love.math.random(100) <= 5) -- 5% chance for starwalker
@@ -701,9 +703,16 @@ function Kristal.errorHandler(msg)
         if Utils.tableLength(Mod.libs) > 0 then
             lib_string = "Libraries:"
             for _, lib in Kristal.iterLibraries() do
-                local line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
+                -- Very rare edge case where `lib` ends up being `nil`, we'll add an
+                -- "Unknown Library" string here if this ever happens
+                local line
+                if not (lib and lib.info) then
+                    line = "Unknown Library"
+                else
+                    line = (lib.info.id or "") .. " " .. (lib.info.version or "v?.?.?")
+                end
                 lib_string = lib_string .. "\n" .. line
-                w = math.max(w, #line * 7)
+                w = math.max(w, smaller_font:getWidth(line))
                 h = h + 16
             end
         end
@@ -847,6 +856,8 @@ function Kristal.errorHandler(msg)
                 else
                     return "reload"
                 end
+            elseif e == "keypressed" and a == "r" and love.keyboard.isDown("lctrl", "rctrl") and love.keyboard.isDown("lalt", "ralt") and love.keyboard.isDown("lshift", "rshift") then
+                return "restart"
             elseif e == "keypressed" and a == "c" and love.keyboard.isDown("lctrl", "rctrl") and not critical then
                 copyToClipboard()
             elseif e == "touchpressed" then
@@ -886,7 +897,7 @@ function Kristal.errorHandler(msg)
         local x, y = love.mouse:getPosition()
 
         show_libraries = false
-        if 20 < x and x < 20 + #mod_string * 7 and 10 < y and y < 26 then
+        if 20 < x and x < 20 + smaller_font:getWidth(mod_string) and 10 < y and y < 26 then
             show_libraries = true
         end
 
@@ -1141,12 +1152,13 @@ end
 ---@param save_id?   number   The id of the save to load the mod from. (1-3)
 ---@param save_name? string   The name to use for the save file.
 ---@param after?     function The function to call after assets have been loaded.
+---@return boolean   success  Whether the mod was loaded successfully.
 function Kristal.loadMod(id, save_id, save_name, after)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
 
     -- No mod found; nothing to load
-    if not mod then return end
+    if not mod then return false end
 
     -- Create the Mod table, which is a global table that
     -- can contain a mod's custom variables and functions
@@ -1205,6 +1217,8 @@ function Kristal.loadMod(id, save_id, save_name, after)
             Gamestate.switch(Kristal.States["Game"], save_id, save_name)
         end
     end)
+
+    return true
 end
 
 --- Loads assets from a mod and its libraries. Called internally by `Kristal.loadMod`.

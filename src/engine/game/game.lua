@@ -219,6 +219,7 @@ function Game:getSavePreview()
     }
 end
 
+---@overload fun(self: Game) : SaveData
 ---@overload fun(self: Game, marker: string) : SaveData
 ---@overload fun(self: Game, position: {x: number, y: number}) : SaveData
 ---@param x number
@@ -921,13 +922,15 @@ function Game:getSoulColor()
     return 1, 0, 0, 1
 end
 
----@return PartyMember
+---@return PartyMember?
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end
+
+    return nil
 end
 
 ---@param chara  string|Follower
