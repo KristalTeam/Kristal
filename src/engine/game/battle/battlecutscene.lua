@@ -330,7 +330,7 @@ local function waitForEncounterText() return Game.battle.battle_ui.encounter_tex
 ---|"wait"      # Whether the cutscene should automatically suspend itself until the textbox advances. (Defaults to `true`, unless `advance` is false.)
 ---@return fun() finished A function that returns `true` when the textbox has been advanced. (Only use if `options["wait"]` is set to `false`.)
 function BattleCutscene:text(text, portrait, actor, options)
-    if type(actor) == "table" then
+    if type(actor) == "table" and not isClass(actor) then
         options = actor
         ---@diagnostic disable-next-line: cast-local-type
         actor = nil
@@ -344,6 +344,9 @@ function BattleCutscene:text(text, portrait, actor, options)
     options = options or {}
 
     actor = actor or self.textbox_actor
+    if isClass(actor) and actor:includes(Battler) then
+        actor = actor.actor
+    end
 
     Game.battle.battle_ui.encounter_text:setActor(actor)
     Game.battle.battle_ui.encounter_text:setFace(portrait, options["x"], options["y"])
