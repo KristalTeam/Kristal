@@ -30,7 +30,7 @@ function character:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "S-Action"
 
-    -- Spells
+    -- Spells (saved to the save file)
     self:addSpell("rude_buster")
     if Game.chapter >= 2 then
         self:addSpell("ultimate_heal")
