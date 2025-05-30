@@ -286,8 +286,12 @@ function Map:loadMapData(data)
         if layer.type ~= "group" then
             table.insert(layers, layer)
         else
-            for _,sublayer in ipairs(layer.layers) do
+            for i,sublayer in ipairs(layer.layers) do
                 local sublayer_copy = Utils.copy(sublayer)
+                sublayer_copy.properties = Utils.mergeMultiple(layer.properties, sublayer_copy.properties)
+                if i == #layer.layers then
+                    sublayer_copy.properties.thin = sublayer.properties.thin
+                end
                 sublayer_copy.offsetx = (sublayer.offsetx or 0) + (layer.offsetx or 0)
                 sublayer_copy.offsety = (sublayer.offsety or 0) + (layer.offsety or 0)
                 sublayer_copy.parallaxx = (sublayer.parallaxx or 1) * (layer.parallaxx or 1)
@@ -304,7 +308,9 @@ function Map:loadMapData(data)
     for i,layer in ipairs(layers) do
         self.layers[layer.name] = self.next_layer
         indexed_layers[i] = self.next_layer
-        self.next_layer = self.next_layer + self.depth_per_layer
+        if not (layer.properties and layer.properties.thin) then
+            self.next_layer = self.next_layer + self.depth_per_layer
+        end
     end
 
     self.object_layer = nil
