@@ -22,7 +22,7 @@ function FrozenEnemy:init(actor, x, y, properties)
         actor = Registry.createActor(actor)
     end
     local w, h = actor:getSize()
-    super.init(self, x, y, w, h, properties)
+    super.init(self, x, y, {w, h}, properties)
 
     properties = properties or {}
 
