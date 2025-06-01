@@ -77,7 +77,6 @@ end
 function AssetSwapper:enter(_, asset_type, asset_paths, after)
     print(_, asset_type, asset_paths)
     self.image = love.graphics.newImage(SCREEN_CANVAS:newImageData())
-    assert(Mod, "no mod")
     assert(asset_type, "Unset asset type!")
     local load_count = 2
     self.after = after or function()end
@@ -85,9 +84,6 @@ function AssetSwapper:enter(_, asset_type, asset_paths, after)
         load_count = load_count - 1
         print("load_count",load_count)
         if load_count == 0 then
-            if TARGET_MOD and RELEASE_MODE then
-                Assets.saveData()
-            end
             Gamestate.pop()
 
             Kristal.Stage.visible = true
