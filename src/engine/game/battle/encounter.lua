@@ -166,7 +166,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj = enemy
     end
     local enemies = self.queued_enemy_spawns
-    local enemies_index = enemies
+    local enemies_index
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
@@ -200,7 +200,9 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     enemy_obj.encounter = self
     table.insert(enemies, enemy_obj)
-    table.insert(enemies_index, enemy_obj)
+    if enemies_index then
+        table.insert(enemies_index, enemy_obj)
+    end
     if Game.battle and Game.state == "BATTLE" then
         Game.battle:addChild(enemy_obj)
     end
