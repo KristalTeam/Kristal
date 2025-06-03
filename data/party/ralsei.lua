@@ -34,7 +34,7 @@ function character:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "R-Action"
 
-    -- Spells
+    -- Spells (saved to the save file)
     self:addSpell("pacify")
     self:addSpell("heal_prayer")
 
