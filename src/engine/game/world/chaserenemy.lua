@@ -33,7 +33,6 @@
 ---@field once          boolean *[Property `once`]* Whether this enemy can only be encountered once (Will not respawn when the room reloads) (Defaults to `false`)
 ---
 ---@field aura          boolean *[Property `aura`]* Whether this enemy will have an aura around it as seen with enemies in Deltarune Chapter 2. Overrides the mod-wide config for enemy auras.
----@field aura_color    table   *[Property `aura_color]`* The color used by this enemy's aura effect, if enabled
 ---
 ---*[Property `actor`]* Actor to use for this enemy \
 ---*[Property `sprite` or `animation`]* Default sprite/animation to set on this enemy
@@ -124,7 +123,6 @@ function ChaserEnemy:init(actor, x, y, properties)
     else
         self.sprite.aura = properties["aura"]
     end
-    if self.sprite and properties["aura_color"] then self.sprite.aura_color = Utils.parseColorProperty(properties["aura_color"]) end
 end
 
 function ChaserEnemy:getDebugInfo()
