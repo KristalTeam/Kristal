@@ -142,11 +142,19 @@ end
 
 ---@param bool boolean
 function EnemyBattler:setTired(bool)
+    local old_tired = self.tired
     self.tired = bool
     if self.tired then
         self.comment = "(Tired)"
+        if not old_tired and Game:getConfig("tiredMessages") then
+            self:statusMessage("msg", "tired")
+            Assets.playSound("spellcast", 0.5, 0.9)
+        end
     else
         self.comment = ""
+        if old_tired and Game:getConfig("tiredMessages") then
+            self:statusMessage("msg", "awake")
+        end
     end
 end
 
@@ -468,7 +476,21 @@ function EnemyBattler:getNameColors()
         table.insert(result, {1, 1, 0})
     end
     if self.tired then
-        table.insert(result, {0, 0.7, 1})
+        local tiredcol = {0, 0.7, 1}
+        if Game:getConfig("pacifyGlow") then
+            local battler = Game.battle.party[Game.battle.current_selecting]
+            local can_pacify
+            for _, spell in ipairs(battler.chara:getSpells()) do
+                if spell:hasTag("spare_tired") then
+                    can_pacify = true
+                    break
+                end
+            end
+            if can_pacify then
+                tiredcol = Utils.mergeColor(tiredcol, COLORS.white, 0.5 + math.sin(Game.battle.pacify_glow_timer / 4) * 0.5)
+            end
+        end
+        table.insert(result, tiredcol)
     end
     return result
 end
