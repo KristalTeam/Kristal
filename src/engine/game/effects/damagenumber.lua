@@ -5,7 +5,7 @@ local DamageNumber, super = Class(Object)
 -- Types: "mercy", "damage", "msg"
 -- Arg:
 --    "mercy"/"damage": amount
---    "msg": message sprite name ("down", "frozen", "lost", "max", "mercy", "miss", "recruit", and "up")
+--    "msg": message sprite name ("down", "frozen", "lost", "max", "mercy", "miss", "recruit", "up", "tired", and "awake")
 
 function DamageNumber:init(type, arg, x, y, color)
     super.init(self, x, y)
