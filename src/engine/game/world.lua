@@ -365,8 +365,10 @@ function World:onKeyPressed(key)
             if Input.shift() then
                 save_pos = {self.player.x, self.player.y}
             end
-            if Game:isLight() or Game:getConfig("smallSaveMenu") then
+            if Game:getConfig("smallSaveMenu") then
                 self:openMenu(SimpleSaveMenu(Game.save_id, save_pos))
+            elseif Game:isLight() then
+                self:openMenu(LightSaveMenu(save_pos))
             else
                 self:openMenu(SaveMenu(save_pos))
             end
