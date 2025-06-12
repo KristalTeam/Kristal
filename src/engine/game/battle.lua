@@ -175,6 +175,8 @@ function Battle:init()
     self.selected_xaction = nil
     self.selected_item = nil
 
+    self.pacify_glow_timer = 0
+
     self.spell_delay = 0
     self.spell_finished = false
 
@@ -2473,6 +2475,8 @@ function Battle:update()
         self.offset = self.offset - 100
     end
 
+    self.pacify_glow_timer = self.pacify_glow_timer + DTMULT
+
     if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDINGBEGIN") or (self.state == "DEFENDING") then
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
         if not self.darkify then
@@ -2934,13 +2938,22 @@ end
 ---@param tbl table
 ---@return table
 function Battle:addMenuItem(tbl)
+    -- Item colors in Ch3+ can be dynamic (e.g. pacify) so we should use functions for item color.
+    -- Table colors can still be used, but we'll wrap them into functions.
+    local color = tbl.color or {1, 1, 1, 1}
+    local fcolor
+    if type(color) == "table" then
+        fcolor = function () return color end
+    else
+        fcolor = color
+    end
     tbl = {
         ["name"] = tbl.name or "",
         ["tp"] = tbl.tp or 0,
         ["unusable"] = tbl.unusable or false,
         ["description"] = tbl.description or "",
         ["party"] = tbl.party or {},
-        ["color"] = tbl.color or {1, 1, 1, 1},
+        ["color"] = fcolor,
         ["data"] = tbl.data or nil,
         ["callback"] = tbl.callback or function() end,
         ["highlight"] = tbl.highlight or nil,
