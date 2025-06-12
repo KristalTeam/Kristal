@@ -74,4 +74,31 @@ function Savepoint:onTextEnd()
     end
 end
 
+function Savepoint:update()
+    super.update(self)
+
+    if Game:isLight() then
+        self.sprite.alpha = 0.5
+
+        if Game.world.player then
+            local dist = Utils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y)
+
+
+            if dist <= 80 then
+                self.sprite.alpha = math.min(1, ((1 - (dist/80)) + 0.5))
+            end
+        end
+    end
+    
+end
+
+function Savepoint:getDebugInfo()
+    local info = super.getDebugInfo(self)
+    if Game:isLight() and Game.world.player then
+        table.insert(info, "Player Distance: " .. Utils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y))
+        table.insert(info, "Alpha: " .. self.sprite.alpha)
+    end
+    return info
+end
+
 return Savepoint
