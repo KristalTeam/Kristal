@@ -152,7 +152,7 @@ function EnemyBattler:setTired(bool)
         end
     else
         self.comment = ""
-        if old_tired and Game:getConfig("tiredMessages") then
+        if old_tired and Game:getConfig("awakeMessages") then
             self:statusMessage("msg", "awake")
         end
     end
