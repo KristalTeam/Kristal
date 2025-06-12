@@ -308,7 +308,8 @@ function BattleUI:drawState()
             end
 
             if able then
-                Draw.setColor(item.color or {1, 1, 1, 1})
+                -- Using color like a function feels wrong... should this be called getColor?
+                Draw.setColor(item:color() or {1, 1, 1, 1})
             else
                 Draw.setColor(COLORS.gray)
             end
