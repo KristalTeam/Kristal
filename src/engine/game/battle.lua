@@ -71,6 +71,7 @@ function Battle:init()
     self.xp = 0
 
     self.used_violence = false
+    self.become_stronger = false
 
     self.ui_move = Assets.newSound("ui_move")
     self.ui_select = Assets.newSound("ui_select")
@@ -592,7 +593,7 @@ function Battle:onStateChange(old,new)
         -- if (in_dojo) then
         --     win_text == "* You won the battle!"
         -- end
-        if self.used_violence and Game:getConfig("growStronger") then
+        if self.become_stronger then
             local stronger = "You"
 
             local party_to_lvl_up = {}
