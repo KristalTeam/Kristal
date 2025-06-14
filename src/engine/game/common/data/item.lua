@@ -100,13 +100,6 @@ function Item:init()
     -- The color of the bonus icon, always orange in DELTARUNE
     self.bonus_color = PALETTE["world_ability_icon"]
 
-    -- Effect shown above enemy after attacking with this item
-    self.attack_sprite = nil
-    -- Sound played when attacking
-    self.attack_sound = nil
-    -- Pitch of the attack sound
-    self.attack_pitch = nil
-
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}
 
@@ -287,9 +280,9 @@ function Item:getStatBonuses() return self.bonuses end
 function Item:getBonusName() return self.bonus_name end
 function Item:getBonusIcon() return self.bonus_icon end
 
-function Item:getAttackSprite() return self.attack_sprite end
-function Item:getAttackSound() return self.attack_sound end
-function Item:getAttackPitch() return self.attack_pitch end
+function Item:getAttackSprite(battler, enemy, points) return battler.chara:getAttackSprite() end
+function Item:getAttackSound(battler, enemy, points) return battler.chara:getAttackSound() end
+function Item:getAttackPitch(battler, enemy, points) return battler.chara:getAttackPitch() end
 
 function Item:getReactions() return self.reactions end
 

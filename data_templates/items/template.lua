@@ -41,12 +41,6 @@ function item:init()
     self.bonus_name = nil
     self.bonus_icon = nil
 
-    -- Effect shown above enemy after attacking it with this item
-    self.attack_sprite = nil
-    -- Sound played when attacking
-    self.attack_sound = nil
-    -- Pitch of the attack sound
-    self.attack_pitch = nil
 
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}
