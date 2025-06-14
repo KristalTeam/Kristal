@@ -19,4 +19,17 @@ function item:getDescription()
     return super.super.getDescription(self)
 end
 
+function item:getAttackSprite(battler, enemy, points)
+    if points == 150 then -- crit
+        Assets.playSound("badexplosion")
+        return "misc/realistic_explosion"
+    end
+end
+
+function item:getAttackSound(battler, enemy, points)
+    if points == 0 then -- miss
+        return "awkward"
+    end
+end
+
 return item

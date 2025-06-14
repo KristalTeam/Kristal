@@ -280,6 +280,10 @@ function Item:getStatBonuses() return self.bonuses end
 function Item:getBonusName() return self.bonus_name end
 function Item:getBonusIcon() return self.bonus_icon end
 
+function Item:getAttackSprite(battler, enemy, points) return battler.chara:getAttackSprite() end
+function Item:getAttackSound(battler, enemy, points) return battler.chara:getAttackSound() end
+function Item:getAttackPitch(battler, enemy, points) return battler.chara:getAttackPitch() end
+
 function Item:getReactions() return self.reactions end
 
 function Item:hasResultItem() return self.result_item ~= nil end
