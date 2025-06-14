@@ -226,6 +226,7 @@ function MainMenuModConfig:registerOptions()
     self:registerOption("keepTensionAfterBattle", "Keep Tension After Battle", "Whether TP should be kept after battle instead of reset",                            "selection", {nil, true, false})
     self:registerOption("overworldSpells",        "Overworld Spells",          "Whether spells should be usable in the overworld",                                   "selection", {nil, true, false})
     self:registerOption("damageUnderflowFix",     "Damage Underflow Fix",      "If disabled, negative enemy damage heals the enemy",                                 "selection", {nil, true, false})
+    self:registerOption("shopspaceui",            "Shop Space UI",             "Whether or not the Shop Space UI is text or sprites",                                "selection", {nil, true, false})
 end
 
 function MainMenuModConfig:registerOption(id, name, description, type, options)
