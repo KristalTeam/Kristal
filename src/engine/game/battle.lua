@@ -1084,8 +1084,10 @@ function Battle:processAction(action)
         return false
 
     elseif action.action == "ATTACK" or action.action == "AUTOATTACK" then
-        local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "laz_c")
-        src:setPitch(battler.chara:getAttackPitch() or 1)
+        local attacksound = battler.chara:getWeapon():getAttackSound() or battler.chara:getAttackSound()
+        local attackpitch  = battler.chara:getWeapon():getAttackPitch() or battler.chara:getAttackPitch()
+        local src = Assets.stopAndPlaySound(attacksound or "laz_c")
+        src:setPitch(attackpitch or 1)
 
         self.actions_done_timer = 1.2
 
@@ -1127,7 +1129,8 @@ function Battle:processAction(action)
             if damage > 0 then
                 Game:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
 
-                local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
+                local attacksprite = battler.chara:getWeapon():getAttackSprite() or battler.chara:getAttackSprite()
+                local dmg_sprite = Sprite(attacksprite or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
                 if crit then
                     dmg_sprite:setScale(2.5, 2.5)
