@@ -15,8 +15,12 @@ function spell:init()
     -- Menu description
     if Game.chapter == 1 then
         self.description = "Do all sorts of things.\nIt isn't magic."
-    else
+    elseif Game.chapter == 2 then
         self.description = "You can do many things.\nDon't confuse it with magic."
+    elseif Game.chapter == 3 then
+        self.description = "Many different skills.\nIt has nothing to do with magic."
+    else
+        self.description = "Execute various behaviors.\nIt can't be considered magic."
     end
 
     -- TP cost

@@ -9,7 +9,11 @@ function spell:init()
     self.cast_name = nil
 
     -- Battle description
-    self.effect = "Heal\nAlly"
+    if Game.chapter <= 3 then
+        self.effect = "Heal\nAlly"
+    else
+        self.effect = "Heal\nally"
+    end
     -- Menu description
     self.description = "Heavenly light restores a little HP to\none party member. Depends on Magic."
 

@@ -9,7 +9,11 @@ function spell:init()
     self.cast_name = nil
 
     -- Battle description
-    self.effect = "Red\nDamage"
+    if Game.chapter <= 3 then
+        self.effect = "Red\nDamage"
+    else
+        self.effect = "Red\ndamage"
+    end
     -- Menu description
     self.description = "Deals large Red-elemental damage to\none foe. Depends on Attack & Magic."
 
