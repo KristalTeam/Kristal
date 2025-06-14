@@ -210,6 +210,8 @@ function character:drawPowerStat(index, x, y, menu)
             Draw.draw(icon, x-26, y+6, 0, 2, 2)
             love.graphics.print("Sweetness", x, y)
             love.graphics.print("97", x+130, y)
+        else
+            return
         end
         return true
     elseif index == 2 then

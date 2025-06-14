@@ -225,6 +225,9 @@ function character:drawPowerStat(index, x, y, menu)
         end
         return true
     elseif index == 2 then
+        if Game.chapter >= 3 then
+            return
+        end
         local icon = Assets.getTexture("ui/menu/icon/demon")
         Draw.draw(icon, x-26, y+6, 0, 2, 2)
         if Game.chapter == 1 then
