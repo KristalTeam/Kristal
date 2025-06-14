@@ -1,0 +1,43 @@
+{
+    "enableStorage": true,           // Extra 48-slot item storage
+    "enableRecruits": true,          // Enable recruit messages and menu
+    "smallSaveMenu": false,          // Single-file save menu with no storage/recruits options
+    "lessEquipments": false,         // Reduces the amount of available weapons and armor slots in the inventory
+
+    "partyActions": true,            // Whether X-Actions appear in spell menu by default
+
+    "growStronger": true,            // Stat increases after defeating an enemy with violence
+    "growStrongerChara": "noelle",   // Character to prioritize for the "X became stronger" message
+
+    "susieStyle": 2,                 // Susie chapter style
+    "ralseiStyle": 2,                // Ralsei chapter style
+
+    "oldTensionBar": false,          // Syle of TP bar
+    "oldUIPositions": false,         // Old positions of various UI elements
+    "oldGameOver": false,            // The game over screen used in chapter 1
+
+    "speechBubble": "cyber",         // Default enemy speech bubble style
+
+    "enemyAuras": true,              // Red glow around overworld enemies
+
+    "mercyMessages": true,           // "+X%" mercy messages
+    "mercyBar": true,                // Mercy bar next to hp bar in enemy select
+    "enemyBarPercentages": true,     // HP / Mercy bar percentages
+
+    "targetSystem": false,           // Whether the target system should be used or not
+    "soulInvBetweenWaves": false,    // Whether the soul invulnerability will carry between waves in battles
+
+    "darkCurrency": "Dark Dollars",  // Full currency name for the Dark World
+    "darkCurrencyShort": "D$",       // Short currency name for the Dark World
+
+    "lightCurrency": "Money",        // Full currency name for the Light World
+    "lightCurrencyShort": "$",       // Short currency name for the Light World
+    "tpName": "TP",                  // Name of Tension Points in battles
+
+    "prioritySpareableText": false,  // Whether enemies' spareable text should be prioritized over their tired / low-health text
+
+    "pushBlockInputLock": true,      // Whether to lock the player's input when pushing a block
+    "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
+    "overworldSpells": false,        // Whether spells should be usable in the overworld
+    "damageUnderflowFix": true       // When disabled, negative enemy damage heals the enemy and displays a negative damage number
+}
