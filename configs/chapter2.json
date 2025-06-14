@@ -40,5 +40,5 @@
     "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
     "overworldSpells": false,        // Whether spells should be usable in the overworld
     "damageUnderflowFix": true,      // When disabled, negative enemy damage heals the enemy and displays a negative damage number
-	"shopspaceui": true              // When disabled, the storage indictator is made of text instead of sprites shop ui isn't shown
+    "shopspaceui": false              // When disabled, the storage indictator is made of text instead of sprites shop ui isn't shown
 }
