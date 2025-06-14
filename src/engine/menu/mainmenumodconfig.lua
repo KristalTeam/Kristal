@@ -49,7 +49,7 @@ end
 function MainMenuModConfig:onKeyPressed(key, is_repeat)
     if not self.editing then
         if Input.isCancel(key) then
-            self.menu:setState("MODCREATE")
+            self.menu:popState()
             Assets.stopAndPlaySound("ui_move")
             return
         end
@@ -83,7 +83,7 @@ function MainMenuModConfig:onKeyPressed(key, is_repeat)
 
         if Input.isConfirm(key) then
             if self.selected_option == (#self.options + 1) then
-                self.menu:setState("MODCREATE")
+                self.menu:popState()
                 Assets.stopAndPlaySound("ui_select")
                 return
             else
