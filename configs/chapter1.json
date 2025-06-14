@@ -23,6 +23,9 @@
     "mercyMessages": false,          // "+X%" mercy messages
     "mercyBar": false,               // Mercy bar next to hp bar in enemy select
     "enemyBarPercentages": false,    // HP / Mercy bar percentages
+    "pacifyGlow": false,             // Pacify (and other spells) glow when enemies are TIRED
+    "tiredMessages": false,          // Tired mercy messages
+    "awakeMessages": false,          // Awake un-mercy messages
 
     "targetSystem": true,            // Whether the target system should be used or not
     "soulInvBetweenWaves": true,     // Whether the soul invulnerability will carry between waves in battles

@@ -9,7 +9,11 @@ function spell:init()
     self.cast_name = nil
 
     -- Battle description
-    self.effect = "Rude\nDamage"
+    if Game.chapter <= 3 then
+        self.effect = "Rude\nDamage"
+    else
+        self.effect = "Rude\ndamage"
+    end
     -- Menu description
     self.description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic."
 
