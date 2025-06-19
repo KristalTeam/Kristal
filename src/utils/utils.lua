@@ -374,7 +374,7 @@ function Utils.hookScript(include)
         end
         include = r
     end
-    local super = {}
+    local super = {super = include.__super.super}
     local class = setmetatable({__hookscript_super = super, __hookscript_class = include}, Utils.HOOKSCRIPT_MT)
     return class, super
 end
