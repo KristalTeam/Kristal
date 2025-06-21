@@ -65,7 +65,10 @@ function Hotswapper.scan()
             value.modified = Hotswapper.getLastModified(value.path)
             print("Attempting to hotswap " .. key)
             --print(value.path)
+
+            HOTSWAPPING = true
             local updated_module, error_text = Hotswapper.hotswap(key)
+            HOTSWAPPING = false
             if not updated_module then
                 print(error_text)
             end

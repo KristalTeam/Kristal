@@ -1,7 +1,9 @@
 ---@class Kristal
 local Kristal = {}
 
-if not HOTSWAPPING then
+if HOTSWAPPING then
+    Utils.copyInto(Kristal, _G.Kristal)
+else
     Kristal.Config = {}
     Kristal.Mods = require("src.engine.mods")
     Kristal.Overlay = require("src.engine.overlay")
