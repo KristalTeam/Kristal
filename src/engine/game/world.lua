@@ -38,8 +38,6 @@
 ---
 ---@field menu              LightMenu|DarkMenu?             The Menu object of the menu, if it is open
 ---
----@field calls             table<[string, string]>   A list of calls available on the cell phone in the Light World CELL menu
----
 ---@field door_delay        number                          *(Used internally)* Timer variable for door transition sounds
 ---
 ---@field healthbar         HealthBar
@@ -106,8 +104,6 @@ function World:init(map)
     self.menu = nil
 
     self.debug_select = false
-
-    self.calls = {}
 
     self.door_delay = 0
 
@@ -288,36 +284,6 @@ function World:afterMenuClosed()
     self:hideHealthBars()
     self.menu = nil
     self:setState("GAMEPLAY")
-end
-
---- Sets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
----@param name  string  The name of the flag to set
----@param value integer The value to set the flag to
-function World:setCellFlag(name, value)
-    Game:setFlag("lightmenu#cell:" .. name, value)
-end
-
---- Gets the value of a cell flag (a special flag which normally starts at -1 and increments by 1 at the start of every call, named after the call cutscene)
----@param name      string
----@param default?  integer
----@return integer
-function World:getCellFlag(name, default)
-    return Game:getFlag("lightmenu#cell:" .. name, default)
-end
-
---- Registers a phone call in the Light World CELL menu
----@param name  string          The name of the call as it will show in the CELL menu
----@param scene string          The cutscene to play when the call is selected
-function World:registerCall(name, scene)
-    table.insert(self.calls, {name, scene})
-end
-
---- Replaces a phone call in the Light World CELL menu with another
----@param name  string          The name of the call as it will show in the CELL menu
----@param index integer         The index of the call to replace
----@param scene string          The cutscene to play when the call is selected
-function World:replaceCall(name, index, scene)
-    self.calls[index] = {name, scene}
 end
 
 --- Shows party member health bars
