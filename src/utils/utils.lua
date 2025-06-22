@@ -31,6 +31,19 @@ function Utils.sub(s,i,j)
     else return "" end
 end
 
+-- Returns the length of a UTF-8 string, erroring if it's invalid.
+---@param s    string
+---@return integer
+function Utils.len(s)
+    local len, err = utf8.len(s)
+    if err then
+        local ok_str = s:sub(1, err - 1)
+        local ok_len = utf8.len(ok_str)
+        error("Invalid character after \"" .. ok_str .."\" (character #" .. (ok_len + 1) .. ", byte #"..err..")")
+    end
+    return len
+end
+
 ---
 --- Returns whether every value in a table is true, iterating numerically.
 ---
