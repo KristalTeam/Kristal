@@ -217,13 +217,13 @@ function Text:textToNodes(input_string)
     local display_text = ""
     local last_char = ""
     local i = 1
-    while i <= utf8.len(input_string) do
+    while i <= Utils.len(input_string) do
         local current_char = Utils.sub(input_string, i, i)
         local leaving_modifier = false
         if current_char == "[" and last_char ~= "\\" then -- We got a [, time to see if it's a modifier
             local j = i + 1
             local current_modifier = ""
-            while j <= utf8.len(input_string) do
+            while j <= Utils.len(input_string) do
                 if Utils.sub(input_string, j, j) == "]" then -- We found a bracket!
                     local old_i = i
                     i = j                                    -- Let's set i so the modifier isn't processed as normal text
@@ -238,7 +238,7 @@ function Text:textToNodes(input_string)
                         local k_start = 1
                         local escaping = false
                         local arg = ""
-                        while k <= utf8.len(split[2]) do
+                        while k <= Utils.len(split[2]) do
                             local char = Utils.sub(split[2], k, k)
                             if escaping then
                                 escaping = false
@@ -250,7 +250,7 @@ function Text:textToNodes(input_string)
                                     table.insert(arguments, arg)
                                     arg = ""
                                     k_start = k + 1
-                                elseif k == utf8.len(split[2]) then
+                                elseif k == Utils.len(split[2]) then
                                     table.insert(arguments, arg .. char)
                                 else
                                     arg = arg .. char
@@ -351,7 +351,7 @@ function Text:textToNodes(input_string)
         else
             if self.wrap and (current_char == " " or current_char == "\n") then
                 last_space = #nodes
-                last_space_char = utf8.len(display_text)
+                last_space_char = Utils.len(display_text)
                 last_space_state = Utils.copy(self.state, true)
             end
             local new_node = {
