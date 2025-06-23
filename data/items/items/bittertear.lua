@@ -1,25 +1,22 @@
--- Create an item and specify its ID (id is optional, defaults to file path)
-local item, super = Class(Item, "test_item")
+local item, super = Class(HealItem, "bittertear")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "Test Item"
+    self.name = "BitterTear"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
-    -- Item icon (for equipment)
-    self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Heals\nAll HP"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Example item."
+    self.description = "Bitter water that fell in droplets from the sky.\nRecovers all HP."
 
     -- Default shop price (sell price is halved)
     self.price = 0
@@ -27,27 +24,29 @@ function item:init()
     self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
-    -- Where this item can be used (world, battle, all, or none)
+    self.target = "ally"
+    -- Where this item can be used (world, battle, all, or none/nil)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
-    -- Equip bonuses (for weapons and armor)
-    self.bonuses = {}
-    -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = nil
-    self.bonus_icon = nil
-
-    -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {}
-
     -- Character reactions (key = party member id)
-    self.reactions = {}
+    self.reactions = {
+		susie = "... Isn't that rain?",
+		noelle = "It's like when we ate snow."
+	}
 end
 
--- Function overrides go here
+function item:getHealAmount(id)
+	local party_member = Game:getPartyMember(id)
+
+	if not party_member then
+		return self.heal_amount -- Fallback
+	end
+
+	return party_member:getStat("health") + math.abs(party_member:getHealth())
+end
 
 return item

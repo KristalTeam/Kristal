@@ -23,6 +23,7 @@
 ---@field chapter           integer
 ---@field save_name         string
 ---@field save_level        integer
+---@field save_id           integer
 ---@field playtime          number
 ---@field light             boolean
 ---@field money             integer

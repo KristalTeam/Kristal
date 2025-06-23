@@ -1,53 +1,46 @@
--- Create an item and specify its ID (id is optional, defaults to file path)
-local item, super = Class(Item, "test_item")
+local item, super = Class(HealItem, "tvslop")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "Test Item"
+    self.name = "TVSlop"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
-    -- Item icon (for equipment)
-    self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Heals\n80HP"
     -- Shop description
-    self.shop = ""
+    self.shop = "Full of\nnutrient\nHP+80"
     -- Menu description
-    self.description = "Example item."
+    self.description = "Some sort of bland cafeteria food.\nThe ice cream cone is soggy and saggy."
+
+    -- Amount healed (HealItem variable)
+    self.heal_amount = 80
 
     -- Default shop price (sell price is halved)
-    self.price = 0
+    self.price = 200
     -- Whether the item can be sold
     self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
-    -- Where this item can be used (world, battle, all, or none)
+    self.target = "ally"
+    -- Where this item can be used (world, battle, all, or none/nil)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
-    -- Equip bonuses (for weapons and armor)
-    self.bonuses = {}
-    -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = nil
-    self.bonus_icon = nil
-
-    -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {}
-
     -- Character reactions (key = party member id)
-    self.reactions = {}
+    self.reactions = {
+		susie = "Like my old school.",
+		ralsei = "Is this legal?",
+		noelle = "Here, I refreezed it!"
+	}
 end
-
--- Function overrides go here
 
 return item
