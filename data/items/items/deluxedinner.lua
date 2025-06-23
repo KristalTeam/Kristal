@@ -1,53 +1,46 @@
--- Create an item and specify its ID (id is optional, defaults to file path)
-local item, super = Class(Item, "test_item")
+local item, super = Class(HealItem, "deluxedinner")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "Test Item"
+    self.name = "DeluxeDinner"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
-    -- Item icon (for equipment)
-    self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Heals\n140HP"
     -- Shop description
-    self.shop = ""
+    self.shop = "Classy\nmeal for\nbig shots\nHP+140"
     -- Menu description
-    self.description = "Example item."
+    self.description = "A TV Dinner for high-ranking contestants.\nComes with detachable antennas. +140 HP."
+
+    -- Amount healed (HealItem variable)
+    self.heal_amount = 140
 
     -- Default shop price (sell price is halved)
-    self.price = 0
+    self.price = 600
     -- Whether the item can be sold
     self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
-    -- Where this item can be used (world, battle, all, or none)
+    self.target = "ally"
+    -- Where this item can be used (world, battle, all, or none/nil)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
-    -- Equip bonuses (for weapons and armor)
-    self.bonuses = {}
-    -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = nil
-    self.bonus_icon = nil
-
-    -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {}
-
     -- Character reactions (key = party member id)
-    self.reactions = {}
+    self.reactions = {
+		susie = "Look, I'm a roach.",
+		ralsei = "I'm a comfy caterpillar!",
+		noelle = "I'm, um, an alien?"
+	}
 end
-
--- Function overrides go here
 
 return item

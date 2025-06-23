@@ -1,11 +1,10 @@
--- Create an item and specify its ID (id is optional, defaults to file path)
-local item, super = Class(Item, "test_item")
+local item, super = Class(Item, "pipis")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "Test Item"
+    self.name = "Pipis"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
@@ -15,11 +14,11 @@ function item:init()
     self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Does\nnothing"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Example item."
+    self.description = "A certain person's special \"???\"\nCannot be used in battle."
 
     -- Default shop price (sell price is halved)
     self.price = 0
@@ -27,7 +26,7 @@ function item:init()
     self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
+    self.target = "ally"
     -- Where this item can be used (world, battle, all, or none)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
@@ -45,9 +44,26 @@ function item:init()
     self.can_equip = {}
 
     -- Character reactions (key = party member id)
-    self.reactions = {}
+    self.reactions = {
+		kris = {
+			susie = "Huh?",
+			ralsei = "Where'd it go?",
+			noelle = "Kris! (I wanted that...)"
+		},
+		susie = "Hell no.",
+		ralsei = "Is... that, um, nutritious?",
+		noelle = "C... Can we keep it?"
+	}
 end
 
--- Function overrides go here
+function item:onWorldUse(target)
+	if target.id == "kris" then
+		-- ????
+		Game.world:heal(target, 100)
+		return true
+	else
+		return false
+	end
+end
 
 return item

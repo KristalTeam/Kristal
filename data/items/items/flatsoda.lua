@@ -1,53 +1,46 @@
--- Create an item and specify its ID (id is optional, defaults to file path)
-local item, super = Class(Item, "test_item")
+local item, super = Class(HealItem, "flatsoda")
 
 function item:init()
     super.init(self)
 
     -- Display name
-    self.name = "Test Item"
+    self.name = "FlatSoda"
     -- Name displayed when used in battle (optional)
     self.use_name = nil
 
     -- Item type (item, key, weapon, armor)
     self.type = "item"
-    -- Item icon (for equipment)
-    self.icon = nil
 
     -- Battle description
-    self.effect = ""
+    self.effect = "Heals\n20HP"
     -- Shop description
     self.shop = ""
     -- Menu description
-    self.description = "Example item."
+    self.description = "Flat soda someone already took\na big sip from. Recovers 20HP"
+
+    -- Amount healed (HealItem variable)
+    self.heal_amount = 20
 
     -- Default shop price (sell price is halved)
-    self.price = 0
+    self.price = 2
     -- Whether the item can be sold
     self.can_sell = true
 
     -- Consumable target mode (ally, party, enemy, enemies, or none)
-    self.target = "none"
-    -- Where this item can be used (world, battle, all, or none)
+    self.target = "ally"
+    -- Where this item can be used (world, battle, all, or none/nil)
     self.usable_in = "all"
     -- Item this item will get turned into when consumed
     self.result_item = nil
     -- Will this item be instantly consumed in battles?
     self.instant = false
 
-    -- Equip bonuses (for weapons and armor)
-    self.bonuses = {}
-    -- Bonus name and icon (displayed in equip menu)
-    self.bonus_name = nil
-    self.bonus_icon = nil
-
-    -- Equippable characters (default true for armors, false for weapons)
-    self.can_equip = {}
-
     -- Character reactions (key = party member id)
-    self.reactions = {}
+    self.reactions = {
+        susie = "Fine, I'll finish it.",
+        ralsei = "Aw, you saved me half?",
+        noelle = "(Whatever, it's just Kris's...)"
+    }
 end
-
--- Function overrides go here
 
 return item
