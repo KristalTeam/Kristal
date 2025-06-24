@@ -14,10 +14,14 @@
 ---@overload fun(...) : MagicGlass
 local MagicGlass, super = Class(Event)
 
-function MagicGlass:init(x, y, shape)
+function MagicGlass:init(x, y, shape, properties)
     super.init(self, x, y, shape)
 
     self.texture = Assets.getTexture("world/events/magical_glass")
+	
+	if properties["new_sprite"] or (properties["new_sprite"] == nil and Game:getConfig("newMagicGlass")) then
+		self.texture = Assets.getTexture("world/events/magical_glass_new")
+	end
 
     self.tiles_x = math.floor(self.width/40)
     self.tiles_y = math.floor(self.height/40)

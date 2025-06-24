@@ -750,7 +750,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "tilebutton" then
         return TileButton(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "magicglass" then
-        return MagicGlass(data.x, data.y, rect_data)
+        return MagicGlass(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "warpdoor" then
         return WarpDoor(data.x, data.y, data.properties)
     elseif name:lower() == "darkfountain" then

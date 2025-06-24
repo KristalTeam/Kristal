@@ -42,5 +42,7 @@
     "pushBlockInputLock": true,      // Whether to lock the player's input when pushing a block
     "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
     "overworldSpells": true,         // Whether spells should be usable in the overworld
-    "damageUnderflowFix": true       // When disabled, negative enemy damage heals the enemy and displays a negative damage number
+    "damageUnderflowFix": true,      // When disabled, negative enemy damage heals the enemy and displays a negative damage number
+	
+	"newMagicGlass": false           // Whether MagicGlass uses the new sprite or not
 }
