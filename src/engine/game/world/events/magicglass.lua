@@ -17,10 +17,10 @@ local MagicGlass, super = Class(Event)
 function MagicGlass:init(x, y, shape, properties)
     super.init(self, x, y, shape)
 
-    self.texture = Assets.getTexture("world/events/magical_glass")
+    self.texture = Assets.getTexture("world/events/magical_glass_new")
 	
-	if properties["new_sprite"] or (properties["new_sprite"] == nil and Game:getConfig("newMagicGlass")) then
-		self.texture = Assets.getTexture("world/events/magical_glass_new")
+	if properties["old_sprite"] or (properties["old_sprite"] == nil and Game:getConfig("oldMagicGlass")) then
+		self.texture = Assets.getTexture("world/events/magical_glass")
 	end
 
     self.tiles_x = math.floor(self.width/40)
