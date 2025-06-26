@@ -21,8 +21,8 @@ function item:init()
 
     -- Amount healed (HealItem variable)
     self.heal_amount = 400
-	-- Amount healed for anyone other than Kris
-	self.heal_amount_other = 40
+    -- Amount healed for anyone other than Kris
+    self.heal_amount_other = 40
 
     -- Default shop price (sell price is halved)
     self.price = 1000
@@ -40,18 +40,18 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		susie = "Ugh! How old is this?!",
-		ralsei = "Aww Kris, y-your favorite...",
-		noelle = "I'd... I'd rather eat meat..."
-	}
+        susie = "Ugh! How old is this?!",
+        ralsei = "Aww Kris, y-your favorite...",
+        noelle = "I'd... I'd rather eat meat..."
+    }
 end
 
 function item:getHealAmount(id)
-	if id == "kris" then
-		return self.heal_amount
-	else
-		return self.heal_amount_other
-	end
+    if id == "kris" then
+        return self.heal_amount
+    else
+        return self.heal_amount_other
+    end
 end
 
 return item

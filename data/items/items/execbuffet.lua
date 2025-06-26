@@ -37,10 +37,10 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		susie = "Rich people eat THIS?",
-		ralsei = "P... pinky up!",
-		noelle = "Caviar AGAIN?"
-	}
+        susie = "Rich people eat THIS?",
+        ralsei = "P... pinky up!",
+        noelle = "Caviar AGAIN?"
+    }
 end
 
 return item

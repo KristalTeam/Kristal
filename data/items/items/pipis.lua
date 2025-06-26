@@ -45,25 +45,25 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		kris = {
-			susie = "Huh?",
-			ralsei = "Where'd it go?",
-			noelle = "Kris! (I wanted that...)"
-		},
-		susie = "Hell no.",
-		ralsei = "Is... that, um, nutritious?",
-		noelle = "C... Can we keep it?"
-	}
+        kris = {
+            susie = "Huh?",
+            ralsei = "Where'd it go?",
+            noelle = "Kris! (I wanted that...)"
+        },
+        susie = "Hell no.",
+        ralsei = "Is... that, um, nutritious?",
+        noelle = "C... Can we keep it?"
+    }
 end
 
 function item:onWorldUse(target)
-	if target.id == "kris" then
-		-- ????
-		Game.world:heal(target, 100)
-		return true
-	else
-		return false
-	end
+    if target.id == "kris" then
+        -- ????
+        Game.world:heal(target, 100)
+        return true
+    else
+        return false
+    end
 end
 
 return item
