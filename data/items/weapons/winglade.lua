@@ -57,4 +57,8 @@ function item:convertToLightEquip(chara)
     return "light/quillpen"
 end
 
+function item:applyMoneyBonus(gold)
+    return gold * 1.05
+end
+
 return item
