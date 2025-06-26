@@ -1142,7 +1142,12 @@ function Battle:processAction(action)
                 dmg_sprite.layer = enemy.layer + 0.01
                 dmg_sprite.battler_id = action.character_id or nil
                 table.insert(enemy.dmg_sprites, dmg_sprite)
-                dmg_sprite:play(1/15, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
+                local dmg_anim_speed = 1/15
+                if attacksprite == "effects/attack/shard" then
+                    -- Ugly hardcoding BlackShard animation speed accuracy for now
+                    dmg_anim_speed = 1/10
+                end
+                dmg_sprite:play(dmg_anim_speed, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
                 enemy.parent:addChild(dmg_sprite)
 
                 local sound = enemy:getDamageSound() or "damage"
@@ -1151,9 +1156,14 @@ function Battle:processAction(action)
                 end
                 enemy:hurt(damage, battler)
 
+                -- TODO: Call this even if damage is 0, will be a breaking change
                 battler.chara:onAttackHit(enemy, damage)
             else
                 enemy:hurt(0, battler, nil, nil, nil, action.points ~= 0)
+            end
+
+            for _,item in ipairs(battler.chara:getEquipment()) do
+                item:onAttackHit(battler, enemy, damage)
             end
 
             self:finishAction(action)
