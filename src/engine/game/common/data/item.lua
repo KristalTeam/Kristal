@@ -169,6 +169,12 @@ function Item:onWorldUpdate(chara) end
 ---@param battler PartyBattler The equipping character
 function Item:onBattleUpdate(battler) end
 
+--- *(Override)* Called after an attack from a party member with this item equipped hits an enemy
+---@param battler PartyBattler The attacking character
+---@param enemy EnemyBattler The enemy hit by the attack
+---@param damage number The attack's final damage (can be 0)
+function Item:onAttackHit(battler, enemy, damage) end
+
 --- *(Override)* Called when the item is saved
 ---@param data table
 function Item:onSave(data) end
@@ -201,6 +207,11 @@ end
 ---@return boolean success  Whether the item was successfully tossed - return `false` to cancel tossing
 function Item:onToss()
     if Game:isLight() then
+        if self.type == "weapon" and not Game:getConfig("canTossLightWeapons") then
+            Game.world:showText("* (Recently, seems like weapons can't be thrown away so easily.)")
+            return false
+        end
+
         local choice = love.math.random(30)
         if choice == 1 then
             Game.world:showText("* You bid a quiet farewell to the " .. self:getName() .. ".")
