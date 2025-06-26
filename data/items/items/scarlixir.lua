@@ -20,8 +20,8 @@ function item:init()
 
     -- Amount healed (HealItem variable)
     self.heal_amount = 160
-	-- Amount taken and healed to Kris instead when used on Noelle
-	self.heal_amount_last_drop = 5
+    -- Amount taken and healed to Kris instead when used on Noelle
+    self.heal_amount_last_drop = 5
 
     -- Default shop price (sell price is halved)
     self.price = 450
@@ -39,42 +39,42 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		susie = "Hell yeah! Cheers!",
-		ralsei = "Y-yuck! Er, mmm, medicine?",
-		noelle = "... fine, you can have the LAST DROP."
-	}
+        susie = "Hell yeah! Cheers!",
+        ralsei = "Y-yuck! Er, mmm, medicine?",
+        noelle = "... fine, you can have the LAST DROP."
+    }
 end
 
 function item:getHealAmount(id)
-	if id == "noelle" and Game:hasPartyMember("kris") then
-		return self.heal_amount - self.heal_amount_last_drop
-	else
-		return self.heal_amount
-	end
+    if id == "noelle" and Game:hasPartyMember("kris") then
+        return self.heal_amount - self.heal_amount_last_drop
+    else
+        return self.heal_amount
+    end
 end
 
 function item:onWorldUse(target)
-	local consumed = super.onWorldUse(self, target)
+    local consumed = super.onWorldUse(self, target)
 
-	-- Heal Kris too when used on Noelle
-	if target.id == "noelle" and Game:hasPartyMember("kris") then
-		Game.world:heal("kris", self.heal_amount_last_drop)
-	end
+    -- Heal Kris too when used on Noelle
+    if target.id == "noelle" and Game:hasPartyMember("kris") then
+        Game.world:heal("kris", self.heal_amount_last_drop)
+    end
 
-	return consumed
+    return consumed
 end
 
 function item:onBattleUse(user, target)
-	super.onBattleUse(self, user, target)
+    super.onBattleUse(self, user, target)
 
-	-- Heal Kris too when used on Noelle
-	if target.chara.id == "noelle" and Game:hasPartyMember("kris") then
-		local kris_battler = Game.battle:getPartyBattler("kris")
+    -- Heal Kris too when used on Noelle
+    if target.chara.id == "noelle" and Game:hasPartyMember("kris") then
+        local kris_battler = Game.battle:getPartyBattler("kris")
 
-		if kris_battler then
-			kris_battler:heal(self.heal_amount_last_drop)
-		end
-	end
+        if kris_battler then
+            kris_battler:heal(self.heal_amount_last_drop)
+        end
+    end
 end
 
 return item

@@ -34,19 +34,19 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		susie = "... Isn't that rain?",
-		noelle = "It's like when we ate snow."
-	}
+        susie = "... Isn't that rain?",
+        noelle = "It's like when we ate snow."
+    }
 end
 
 function item:getHealAmount(id)
-	local party_member = Game:getPartyMember(id)
+    local party_member = Game:getPartyMember(id)
 
-	if not party_member then
-		return self.heal_amount -- Fallback
-	end
+    if not party_member then
+        return self.heal_amount -- Fallback
+    end
 
-	return party_member:getStat("health") + math.abs(party_member:getHealth())
+    return party_member:getStat("health") + math.abs(party_member:getHealth())
 end
 
 return item

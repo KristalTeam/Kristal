@@ -37,10 +37,10 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		susie = "Like my old school.",
-		ralsei = "Is this legal?",
-		noelle = "Here, I refreezed it!"
-	}
+        susie = "Like my old school.",
+        ralsei = "Is this legal?",
+        noelle = "Here, I refreezed it!"
+    }
 end
 
 return item

@@ -37,10 +37,10 @@ function item:init()
 
     -- Character reactions (key = party member id)
     self.reactions = {
-		susie = "Sounds kinda like Noelle.",
-		ralsei = "... the hymn of the prophecy.",
-		noelle = "(... Kris would never join choir...)"
-	}
+        susie = "Sounds kinda like Noelle.",
+        ralsei = "... the hymn of the prophecy.",
+        noelle = "(... Kris would never join choir...)"
+    }
 end
 
 return item
