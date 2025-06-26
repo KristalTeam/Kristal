@@ -321,6 +321,15 @@ function Item:applyMoneyBonus(gold)
     return gold
 end
 
+--- *(Override)* Applies bonus healing to healing actions performed by a party member in battle
+---@param current_heal number   The current heal amount with other bonuses applied
+---@param base_heal number      The original heal amount
+---@param healer PartyMember    The character performing the heal
+---@return number new_heal      The new heal amount affected by this item
+function Item:applyHealBonus(current_heal, base_heal, healer)
+    return current_heal
+end
+
 --- Gets the stat bonus an item has for a specific stat
 ---@param stat string
 ---@return number bonus
@@ -372,6 +381,18 @@ function Item:getTypeName()
         return "ARMOR"
     end
     return "UNKNOWN"
+end
+
+--- Gets whether this item instance is equipped by the specified party member
+---@param character PartyMember The character to check the equipment of
+---@return boolean equipped
+function Item:isEquippedBy(character)
+    for _, item in ipairs(character:getEquipment()) do
+        if item == self then
+            return true
+        end
+    end
+    return false
 end
 
 --- Gets the value of an item-specific flag
