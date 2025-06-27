@@ -46,10 +46,22 @@ function item:init()
 end
 
 function item:getHealAmount(id)
+    -- Heal amount on Noelle is deducted when shared with Kris
     if id == "noelle" and Game:hasPartyMember("kris") then
         return self.heal_amount - self.heal_amount_last_drop
     else
         return self.heal_amount
+    end
+end
+
+function item:getBattleHealAmountModified(id, healer)
+    local amount = self:getBattleHealAmount(id)
+
+    -- For accuracy, only apply heal bonuses when used on Noelle
+    if id == "noelle" then
+        return Game.battle:applyHealBonuses(amount, healer)
+    else
+        return amount
     end
 end
 

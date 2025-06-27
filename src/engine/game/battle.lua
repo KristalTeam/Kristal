@@ -3327,6 +3327,19 @@ function Battle:handleAttackingInput(key)
     end
 end
 
+--- Returns the equipment-modified heal amount from a healing action performed by the specified party member
+---@param base_heal number      The heal amount to modify
+---@param healer PartyMember    The character performing the heal action
+function Battle:applyHealBonuses(base_heal, healer)
+    local current_heal = base_heal
+    for _,battler in ipairs(self.party) do
+        for _,item in ipairs(battler.chara:getEquipment()) do
+            current_heal = item:applyHealBonus(current_heal, base_heal, healer)
+        end
+    end
+    return current_heal
+end
+
 function Battle:canDeepCopy()
     return false
 end
