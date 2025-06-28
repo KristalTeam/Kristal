@@ -57,6 +57,9 @@ function Starwalker:init()
     }
 
     self.blue = false
+
+    self:setTired(true)
+    self:setTired(false)
 end
 
 function Starwalker:onTurnEnd()
