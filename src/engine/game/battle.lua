@@ -1685,7 +1685,7 @@ function Battle:commitSingleAction(action)
 
     local anim = action.action:lower()
     if action.action == "SPELL" and action.data then
-        anim = action.data:getSelectAnim()
+        anim = action.data:getSelectAnimation()
         local result = action.data:onSelect(battler, action.target)
         if result ~= false then
             if action.tp then
