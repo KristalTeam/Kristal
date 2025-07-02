@@ -1685,6 +1685,7 @@ function Battle:commitSingleAction(action)
 
     local anim = action.action:lower()
     if action.action == "SPELL" and action.data then
+        anim = action.data:getSelectAnim()
         local result = action.data:onSelect(battler, action.target)
         if result ~= false then
             if action.tp then
@@ -1694,7 +1695,7 @@ function Battle:commitSingleAction(action)
                     Game:removeTension(-action.tp)
                 end
             end
-            battler:setAnimation("battle/"..anim.."_ready")
+            battler:setAnimation(anim)
             action.icon = anim
         end
     else
