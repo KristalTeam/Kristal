@@ -93,6 +93,7 @@ function Spell:getCastAnimation()
 end
 
 --- *(Override)* Gets the animation that is set when this spell is selected in battle
+--- @return string
 function Spell:getSelectAnimation()
     return self.select_anim or "battle/spell_ready"
 end
