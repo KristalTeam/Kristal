@@ -2,6 +2,7 @@
 ---@overload fun(...) : Textbox
 local Textbox, super = Class(Object)
 
+---@enum (key) Textbox.REACTION_X
 Textbox.REACTION_X = {
         ["left"] = 70  -38,
      ["leftmid"] = 160 -38,
@@ -10,6 +11,8 @@ Textbox.REACTION_X = {
     ["rightmid"] = 360 -38,
        ["right"] = 400 -38,
 }
+
+---@enum (key) Textbox.REACTION_Y
 Textbox.REACTION_Y = {
           ["top"] = -10 -4,
           ["mid"] =  30 -4,
@@ -273,6 +276,8 @@ function Textbox:resetReactions()
     self.reaction_instances = {}
 end
 
+---@param x Textbox.REACTION_X
+---@param y Textbox.REACTION_Y
 function Textbox:addReaction(id, text, x, y, face, actor)
     x, y = x or 0, y or 0
     if type(x) == "string" then
