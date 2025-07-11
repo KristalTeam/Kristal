@@ -13,6 +13,7 @@ else
         ["MainMenu"] = require("src.engine.menu.mainmenu"),
         ["Game"] = require("src.engine.game.game"),
         ["Testing"] = require("src.teststate"),
+        ["AssetSwapper"] = require("src.engine.swapstate"),
     }
 
     Kristal.Loader = {
@@ -1112,6 +1113,13 @@ function Kristal.quickReload(mode)
             Kristal.loadMod(mod_id, save_id)
         end
     end)
+end
+
+function Kristal.reloadAssets(asset_type, asset_paths, after)
+    Kristal.Stage.visible = false
+    Kristal.Stage.active = false
+    love.draw()
+    Gamestate.push(Kristal.States["AssetSwapper"], asset_type, asset_paths, after)
 end
 
 --- Clears all currently loaded assets. Called internally in the Loading state.
