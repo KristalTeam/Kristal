@@ -275,7 +275,15 @@ local loaders = {
     -- Asset Loaders
 
     ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
-        local id = checkExtension(path, "png", "jpg")
+        -- All image formats supported by LOVE. See https://www.love2d.org/wiki/Image_Formats.
+        local id = checkExtension(path,
+            "jpg", "jpeg", -- Joint Photographic Experts Group / JPEG 
+            "png", -- Portable Network Graphics / PNG 
+            "bmp", -- Bitmap image file / BMP 
+            "tga", -- Truevision TGA / TARGA 
+            "hdr", "pic", -- Radiance HDR / RGBE 
+            "exr" -- OpenEXR
+        )
         if id then
             local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
             if not ok then
