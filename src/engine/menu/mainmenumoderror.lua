@@ -34,6 +34,7 @@ function MainMenuModError:onKeyPressed(key, is_repeat)
         self.menu:setState("TITLE")
     end
 end
+
 function MainMenuModError:draw()
     local failed_mods = Kristal.Mods.failed_mods or {}
     local plural = #failed_mods == 1 and "mod" or "mods"
