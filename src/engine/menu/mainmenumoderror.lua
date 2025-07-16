@@ -11,6 +11,7 @@ end
 
 function MainMenuModError:registerEvents()
     self:registerEvent("enter", self.onEnter)
+    self:registerEvent("keypressed", self.onKeyPressed)
     self:registerEvent("draw", self.draw)
 end
 
@@ -27,6 +28,12 @@ function MainMenuModError:onEnter(old_state)
     end
 end
 
+function MainMenuModError:onKeyPressed(key, is_repeat)
+    if Input.isConfirm(key) then
+        Assets.stopAndPlaySound("ui_select")
+        self.menu:setState("TITLE")
+    end
+end
 function MainMenuModError:draw()
     local failed_mods = Kristal.Mods.failed_mods or {}
     local plural = #failed_mods == 1 and "mod" or "mods"
@@ -35,7 +42,7 @@ function MainMenuModError:draw()
     local moderrors = 0
     local liberrors = 0
 
-    for k,v in pairs(failed_mods) do
+    for k, v in pairs(failed_mods) do
         if v.file == "mod.json" then
             moderrors = moderrors + 1
         elseif v.file == "lib.json" then
