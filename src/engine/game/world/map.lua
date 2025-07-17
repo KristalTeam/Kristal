@@ -435,7 +435,7 @@ function Map:loadTiles(layer, depth)
 end
 
 function Map:loadImage(layer, depth)
-    local texture = TiledUtils.relativePathToAssetId("assets/sprites/", layer.image, self.full_map_path)
+    local texture, _ = TiledUtils.relativePathToAssetId("assets/sprites", layer.image, self.full_map_path)
     if not texture then
         error("Invalid image location for layer " .. layer.name)
     end
@@ -820,10 +820,16 @@ function Map:populateTilesets(data)
         local tileset
         local filename = tileset_data.exportfilename or tileset_data.filename
         if filename then
-            local tileset_path = TiledUtils.relativePathToAssetId("scripts/world/tilesets/", filename, self.full_map_path)
+            local tileset_dir = "scripts/world/tilesets"
+            local tileset_path, err = TiledUtils.relativePathToAssetId(tileset_dir, filename, self.full_map_path)
             tileset = Registry.getTileset(tileset_path)
             if not tileset then
-                error("Failed to load map \""..self.data.id.."\", tileset not found: \""..filename.."\"")
+                local reported_name = type(tileset_path) == "string" and (tileset_path .. ".lua") or tostring(tileset_path)
+                local bad_reason = "not found"
+                if err == "not under prefix" then
+                    bad_reason = "not under "..tileset_dir
+                end
+                error("Failed to load map \""..self.data.id.."\", tileset "..bad_reason..": "..reported_name.." ["..filename.."]")
             end
         else
             tileset = Tileset(tileset_data, self.full_map_path.."/"..self.data.id, self.full_map_path)

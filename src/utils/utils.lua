@@ -1415,7 +1415,8 @@ end
 ---
 ---@deprecated Use `TiledUtils.relativePathToAssetId` instead.
 function Utils.absoluteToLocalPath(target_dir, asset_path, source_dir)
-    return TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
+    local asset_id, err = TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
+    return not err and asset_id or nil
 end
 
 ---

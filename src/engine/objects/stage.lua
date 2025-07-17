@@ -46,6 +46,9 @@ end
 --- Adds an object and all of its children to this stage
 ---@param object Object
 function Stage:addToStage(object)
+    if not isClass(object) or not object:includes(Object) then
+        error("Cannot add non-Object to stage")
+    end
     table.insert(self.objects, object)
     for class,_ in pairs(object.__includes_all) do
         if class.__tracked ~= false then

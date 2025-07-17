@@ -195,40 +195,44 @@ end
 --- directory the Tiled data was exported to. Exporting to a different directory and copying/moving the exported data will
 --- likely cause this relative search to fail.
 ---
----@param target_dir string    # The Kristal folder to get the path relative to.
----@param asset_path string    # The asset path from a Tiled export to resolve.
----@param source_dir string    # Parent directory of the Tiled export, which the `asset_path` should be relative to.
----@return string|nil asset_id # The asset path relative the `target_dir` without its extension, or `nil` if the resolution failed.
+---@param target_dir string # The Kristal folder to get the path relative to.
+---@param asset_path string # The asset path from a Tiled export to resolve.
+---@param source_dir string # Parent directory of the Tiled export, which the `asset_path` should be relative to.
+---@return string asset_id # The asset path relative the `target_dir` without its extension, or if the resolution failed, the partially resolved path.
+---@return nil|"not under prefix" # The fail reason.
 ---
 function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
-    target_dir = Mod.info.path .. "/" .. target_dir
+    target_dir = Mod.info.path .. "/" .. target_dir .. "/"
 
     -- Split paths by seperator
-    local base_path = StringUtils.split(source_dir, "/")
-    local dest_path = StringUtils.split(asset_path, "/")
+    local base_parts = Utils.split(source_dir, "/")
+    -- Separator is assumed to be a forward slash as Tiled uses it
+    local dest_parts = Utils.split(asset_path, "/")
     local up_count = 0
-    while dest_path[1] == ".." do
+    while dest_parts[1] == ".." do
         up_count = up_count + 1
         -- Move up one directory
-        table.remove(base_path, #base_path)
-        table.remove(dest_path, 1)
+        table.remove(base_parts, #base_parts)
+        table.remove(dest_parts, 1)
     end
-    if dest_path[1] == "libraries" then
-        for i = 2, up_count do
-            table.remove(dest_path, 1)
+
+    -- Strip library directory prefix
+    if dest_parts[1] == "libraries" then
+        for _ = 2, up_count do
+            table.remove(dest_parts, 1)
         end
     end
 
-    local final_path = table.concat(TableUtils.merge(base_path, dest_path), "/")
+    local final_path = table.concat(Utils.merge(base_parts, dest_parts), "/")
 
     -- Strip prefix
     local has_prefix
-    has_prefix, final_path = StringUtils.startsWith(final_path, target_dir)
+    has_prefix, final_path = Utils.startsWith(final_path, target_dir)
     --print(prefix, final_path, has_prefix)
-    if not has_prefix then return nil end
+    if not has_prefix then return final_path, "not under prefix" end
 
     -- Strip extension
-    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0))
+    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0)), nil
 end
 
 return TiledUtils

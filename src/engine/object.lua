@@ -1494,6 +1494,9 @@ end
 ---@param child T The object to be added.
 ---@return T child The object that was added.
 function Object:addChild(child)
+    if not isClass(child) or not child:includes(Object) then
+        error("Cannot add non-Object as child to Object")
+    end
     child.parent = self
     if self.stage and child.stage ~= self.stage then
         self.stage:addToStage(child)
