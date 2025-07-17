@@ -429,7 +429,7 @@ function Map:loadTiles(layer, depth)
 end
 
 function Map:loadImage(layer, depth)
-    local texture = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
+    local texture, _ = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
     if not texture then
         error("Invalid image location for layer " .. layer.name)
     end
