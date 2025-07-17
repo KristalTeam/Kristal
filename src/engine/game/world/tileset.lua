@@ -33,6 +33,8 @@ function Tileset:init(data, path, base_dir)
 
     self.id_count = self.tile_count
 
+    local sprite_dir = "assets/sprites"
+
     self.tile_info = {}
     for _,tile in ipairs(data.tiles or {}) do
         local info = {}
@@ -44,7 +46,10 @@ function Tileset:init(data, path, base_dir)
             end
         end
         if tile.image then
-            local image_path = Utils.absoluteToLocalPath("assets/sprites/", tile.image, self.base_dir)
+            local image_path, err = Utils.absoluteToLocalPath(sprite_dir.."/", tile.image, self.base_dir)
+            if err == "not under prefix" then
+                error("Tileset tile texture is not under " .. sprite_dir .. ": " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
+            end
             info.path = image_path
             info.texture = Assets.getTexture(image_path)
             if not info.texture then
@@ -64,7 +69,6 @@ function Tileset:init(data, path, base_dir)
     end
 
     if data.image then
-        local sprite_dir = "assets/sprites"
         local image_path, err = Utils.absoluteToLocalPath(sprite_dir.."/", data.image, self.base_dir)
         if err == "not under prefix" then
             error("Tileset texture is not under " .. sprite_dir .. ": " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
