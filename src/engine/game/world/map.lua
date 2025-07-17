@@ -814,11 +814,16 @@ function Map:populateTilesets(data)
         local tileset
         local filename = tileset_data.exportfilename or tileset_data.filename
         if filename then
-            local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", filename, self.full_map_path)
+            local tileset_dir = "scripts/world/tilesets"
+            local tileset_path, tileset_err = Utils.absoluteToLocalPath(tileset_dir.."/", filename, self.full_map_path)
             tileset = Registry.getTileset(tileset_path)
             if not tileset then
                 local tileset_reported_name = type(tileset_path) == "string" and (tileset_path .. ".lua") or tostring(tileset_path)
-                error("Failed to load map \""..self.data.id.."\", tileset not found: "..tileset_reported_name.." ["..filename.."]")
+                local tileset_bad_reason = "not found"
+                if tileset_err == "not under prefix" then
+                    tileset_bad_reason = "not under "..tileset_dir
+                end
+                error("Failed to load map \""..self.data.id.."\", tileset "..tileset_bad_reason..": "..tileset_reported_name.." ["..filename.."]")
             end
         else
             tileset = Tileset(tileset_data, self.full_map_path.."/"..self.data.id, self.full_map_path)
