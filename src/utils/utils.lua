@@ -1803,32 +1803,35 @@ function Utils.endsWith(value, suffix)
     return false, value
 end
 
--- TODO: this function is a mess please comment it later
----@param prefix string base directory of images in the mod
----@param image string raw image path specified by tileset/map
----@param path string path of tileset/map, `image` is relative to this
----@return string? path may be nil on error (also see `err`). if `err` is `not under prefix`, the resolved path with the prefix unstripped
+-- Resolves a relative path to an asset ID.
+---@param prefix string base directory of the asset type of `path`
+---@param path string raw, relative path to the asset (emitted by something like Tiled)
+---@param base string directory that `path` is based on
+---@return string? id if `err` is `not under prefix`, a partially resolved path with prefix and extension unstripped
 ---@return nil|"not under prefix" err fail reason
-function Utils.absoluteToLocalPath(prefix, image, path)
-    prefix = Mod.info.path .. "/" .. prefix
+function Utils.relativePathToAssetId(prefix, path, base)
+    prefix = Mod.info.path .. "/" .. prefix .. "/"
 
     -- Split paths by seperator
-    local base_path = Utils.split(path, "/")
-    local dest_path = Utils.split(image, "/")
+    local base_parts = Utils.split(base, "/")
+    -- Separator is assumed to be a forward slash as Tiled uses it
+    local dest_parts = Utils.split(path, "/")
     local up_count = 0
-    while dest_path[1] == ".." do
+    while dest_parts[1] == ".." do
         up_count = up_count + 1
         -- Move up one directory
-        table.remove(base_path, #base_path)
-        table.remove(dest_path, 1)
+        table.remove(base_parts, #base_parts)
+        table.remove(dest_parts, 1)
     end
-    if dest_path[1] == "libraries" then
-        for i = 2, up_count do
-            table.remove(dest_path, 1)
+
+    -- Strip library directory prefix
+    if dest_parts[1] == "libraries" then
+        for _ = 2, up_count do
+            table.remove(dest_parts, 1)
         end
     end
 
-    local final_path = table.concat(Utils.merge(base_path, dest_path), "/")
+    local final_path = table.concat(Utils.merge(base_parts, dest_parts), "/")
 
     -- Strip prefix
     local has_prefix
