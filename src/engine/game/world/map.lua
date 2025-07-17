@@ -817,7 +817,8 @@ function Map:populateTilesets(data)
             local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", filename, self.full_map_path)
             tileset = Registry.getTileset(tileset_path)
             if not tileset then
-                error("Failed to load map \""..self.data.id.."\", tileset not found: \""..filename.."\"")
+                local tileset_reported_name = type(tileset_path) == "string" and (tileset_path .. ".lua") or tostring(tileset_path)
+                error("Failed to load map \""..self.data.id.."\", tileset not found: "..tileset_reported_name.." ["..filename.."]")
             end
         else
             tileset = Tileset(tileset_data, self.full_map_path.."/"..self.data.id, self.full_map_path)
