@@ -1807,7 +1807,8 @@ end
 ---@param prefix string base directory of images in the mod
 ---@param image string raw image path specified by tileset/map
 ---@param path string path of tileset/map, `image` is relative to this
----@return string|nil final_path nil in case of error
+---@return string? path may be nil on error (also see `err`). if `err` is `not under prefix`, the resolved path with the prefix unstripped
+---@return nil|"not under prefix" err fail reason
 function Utils.absoluteToLocalPath(prefix, image, path)
     prefix = Mod.info.path .. "/" .. prefix
 
@@ -1833,10 +1834,10 @@ function Utils.absoluteToLocalPath(prefix, image, path)
     local has_prefix
     has_prefix, final_path = Utils.startsWith(final_path, prefix)
     --print(prefix, final_path, has_prefix)
-    if not has_prefix then return nil end
+    if not has_prefix then return final_path, "not under prefix" end
 
     -- Strip extension
-    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0))
+    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0)), nil
 end
 
 ---

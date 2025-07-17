@@ -65,9 +65,9 @@ function Tileset:init(data, path, base_dir)
 
     if data.image then
         local sprite_dir = "assets/sprites"
-        local image_path = Utils.absoluteToLocalPath(sprite_dir.."/", data.image, self.base_dir)
-        if not image_path then
-            error("Tileset texture is not under " .. sprite_dir .. ": " .. tostring(path))
+        local image_path, err = Utils.absoluteToLocalPath(sprite_dir.."/", data.image, self.base_dir)
+        if err == "not under prefix" then
+            error("Tileset texture is not under " .. sprite_dir .. ": " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
         end
         self.texture = Assets.getTexture(image_path)
         if not self.texture then
