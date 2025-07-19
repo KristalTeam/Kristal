@@ -374,8 +374,11 @@ function PartyMember:heal(amount, playsound)
     if playsound == nil or playsound then
         Assets.stopAndPlaySound("power")
     end
-    self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
-    return self:getStat("health") == self:getHealth()
+    
+    if self:getHealth() < self:getStat("health") then
+        self:setHealth(math.min(self:getStat("health"), self:getHealth() + amount))
+    end
+    return self:getHealth() >= self:getStat("health")
 end
 
 --- Sets this party member's health value
@@ -627,8 +630,7 @@ end
 --- *(Override)* Gets the amount of health this party member should heal each turn whilst DOWN in battle
 ---@return number
 function PartyMember:autoHealAmount()
-    -- TODO: Is this round or ceil? Both were used before this function was added.
-    return Utils.round(self:getStat("health") / 8)
+    return math.ceil(self:getStat("health") / 8)
 end
 
 --- Gets this party member's stat bonuses from equipment for a particular stat
