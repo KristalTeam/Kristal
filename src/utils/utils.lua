@@ -4,43 +4,63 @@ local Utils = {}
 ---
 --- Returns a substring of the specified string, properly accounting for UTF-8.
 ---
----@param s  string         # The initial string to get a substring of.
----@param i  number         # The index that the substring should start at.
----@param j? number         # The index that the substring should end at. (Defaults to -1, referring to the last character of the string)
+---@param input  string     # The initial string to get a substring of.
+---@param from?  integer    # The index that the substring should start at. (Defaults to 1, referring to the first character of the string)
+---@param to?    integer    # The index that the substring should end at. (Defaults to -1, referring to the last character of the string)
 ---@return string substring # The new substring.
 ---
-function Utils.sub(s,i,j)
-    i = i or 1
-    j = j or -1
-    if i<1 or j<1 then
-        local n = utf8.len(s)
-        if not n then error("Invalid UTF-8 string.") end
-        if i<0 then i = n+1+i end
-        if j<0 then j = n+1+j end
-        if i<0 then i = 1 end
-        if j<0 then j = 1 end
-        if j<i then return "" end
-        if i>n then i = n end
-        if j>n then j = n end
+function Utils.sub(input, from, to)
+    if (from == nil) then
+        from = 1
     end
-    if j<i then return "" end
-    i = utf8.offset(s,i)
-    j = utf8.offset(s,j+1)
-    if i and j then return string.sub(s,i,j-1)
-    elseif i then return string.sub(s,i)
-    else return "" end
+
+    if (to == nil) then
+        to = -1
+    end
+
+    if from < 1 or to < 1 then
+        local length = Utils.len(input)
+        if not length then error("Invalid UTF-8 string.") end
+        if from < 0 then from = length + 1 + from end
+        if to < 0 then to = length + 1 + to end
+        if from < 0 then from = 1 end
+        if to < 0 then to = 1 end
+        if to < from then return "" end
+        if from > length then from = length end
+        if to > length then to = length end
+    end
+
+    if to < from then
+        return ""
+    end
+
+    local offset_from = utf8.offset(input, from) --[[@as integer?]]
+    local offset_to = utf8.offset(input, to + 1) --[[@as integer?]]
+
+    if offset_from and offset_to then
+        return string.sub(input, offset_from, offset_to - 1)
+    elseif offset_from then
+        return string.sub(input, offset_from)
+    else
+        return ""
+    end
 end
 
 -- Returns the length of a UTF-8 string, erroring if it's invalid.
----@param s    string
----@return integer
-function Utils.len(s)
-    local len, err = utf8.len(s)
-    if err then
-        local ok_str = s:sub(1, err - 1)
+---@param input string
+---@return integer length
+function Utils.len(input)
+    local len, err = utf8.len(input)
+    if err ~= nil then
+        local ok_str = input:sub(1, err - 1)
         local ok_len = utf8.len(ok_str)
-        error("Invalid character after \"" .. ok_str .."\" (character #" .. (ok_len + 1) .. ", byte #"..err..")")
+        if not ok_len then
+            error("Invalid UTF-8 string passed to Utils.len")
+        end
+        ---@cast ok_len integer
+        error(string.format("Invalid character after \"%s\" (character #%d, byte #%d)", ok_str, ok_len + 1, err))
     end
+    ---@cast len integer
     return len
 end
 
@@ -2406,7 +2426,7 @@ function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_
             end
 
             local trunc_str
-            for i=1, string.len(str) do
+            for i=1, Utils.len(str) do
                 trunc_str = Utils.sub(str, 1, i)
                 local width = font:getWidth(trunc_str) * scale
                 if width > (max_width - affix_width) then
