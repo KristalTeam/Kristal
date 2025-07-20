@@ -934,7 +934,12 @@ function Registry.iterScripts(base_path, exclude_folder)
     local addChunk, parse
 
     addChunk = function(path, chunk, file, full_path)
-        local success,a,b,c,d,e,f = pcall(chunk)
+        local success,a,b,c,d,e,f = xpcall(chunk, function (msg)
+            if type(msg) == "table" then
+                return msg
+            end
+            return ({msg = debug.traceback(msg)})
+        end)
         if not success then
             if type(a) == "table" and a.included then
                 table.insert(queued_parse, {path, chunk, file, full_path})
