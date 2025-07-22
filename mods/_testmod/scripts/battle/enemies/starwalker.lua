@@ -35,7 +35,13 @@ function Starwalker:init()
     self.low_health_text = "* Star walker has      hurt"
 
     self:registerAct("Star walker", "")
-    self:registerAct("Red Buster", "Red\nDamage", "susie", 60)
+
+    local description = "Red\ndamage"
+    if Game.chapter <= 3 then
+        description = "Red\nDamage"
+    end
+
+    self:registerAct("Red Buster", description, "susie", 60)
     self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
 
     self.text_override = nil
@@ -57,6 +63,9 @@ function Starwalker:init()
     }
 
     self.blue = false
+
+    self:setTired(true)
+    self:setTired(false)
 end
 
 function Starwalker:onTurnEnd()

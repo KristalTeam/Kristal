@@ -169,6 +169,12 @@ function Item:onWorldUpdate(chara) end
 ---@param battler PartyBattler The equipping character
 function Item:onBattleUpdate(battler) end
 
+--- *(Override)* Called after an attack from a party member with this item equipped hits an enemy
+---@param battler PartyBattler The attacking character
+---@param enemy EnemyBattler The enemy hit by the attack
+---@param damage number The attack's final damage (can be 0)
+function Item:onAttackHit(battler, enemy, damage) end
+
 --- *(Override)* Called when the item is saved
 ---@param data table
 function Item:onSave(data) end
@@ -201,6 +207,11 @@ end
 ---@return boolean success  Whether the item was successfully tossed - return `false` to cancel tossing
 function Item:onToss()
     if Game:isLight() then
+        if self.type == "weapon" and not Game:getConfig("canTossLightWeapons") then
+            Game.world:showText("* (Recently, seems like weapons can't be thrown away so easily.)")
+            return false
+        end
+
         local choice = love.math.random(30)
         if choice == 1 then
             Game.world:showText("* You bid a quiet farewell to the " .. self:getName() .. ".")
@@ -310,6 +321,15 @@ function Item:applyMoneyBonus(gold)
     return gold
 end
 
+--- *(Override)* Applies bonus healing to healing actions performed by a party member in battle
+---@param current_heal number   The current heal amount with other bonuses applied
+---@param base_heal number      The original heal amount
+---@param healer PartyMember    The character performing the heal
+---@return number new_heal      The new heal amount affected by this item
+function Item:applyHealBonus(current_heal, base_heal, healer)
+    return current_heal
+end
+
 --- Gets the stat bonus an item has for a specific stat
 ---@param stat string
 ---@return number bonus
@@ -361,6 +381,18 @@ function Item:getTypeName()
         return "ARMOR"
     end
     return "UNKNOWN"
+end
+
+--- Gets whether this item instance is equipped by the specified party member
+---@param character PartyMember The character to check the equipment of
+---@return boolean equipped
+function Item:isEquippedBy(character)
+    for _, item in ipairs(character:getEquipment()) do
+        if item == self then
+            return true
+        end
+    end
+    return false
 end
 
 --- Gets the value of an item-specific flag

@@ -43,6 +43,7 @@
     "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
     "overworldSpells": false,        // Whether spells should be usable in the overworld
     "damageUnderflowFix": true,      // When disabled, negative enemy damage heals the enemy and displays a negative damage number
-	
-	"oldMagicGlass": true            // Whether MagicGlass uses the new sprite or not
+    "oldMagicGlass": true            // Whether MagicGlass uses the new sprite or not
+    "darkCandyForm": "dark",         // Whether to use Dark Candy or Darker Candy
+    "canTossLightWeapons": true      // Whether light world weapons can be thrown away
 }

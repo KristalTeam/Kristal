@@ -6,7 +6,7 @@
     "version": "v?.?.?",
     "engineVer": "v0.10.0-dev",
 
-    "chapter": 2,
+    "chapter": 4,
 
     "map": "alley",
     //"encounter": "virovirokun", // for testing encounter reloading

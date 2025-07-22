@@ -147,13 +147,16 @@ function EnemyBattler:setTired(bool)
     if self.tired then
         self.comment = "(Tired)"
         if not old_tired and Game:getConfig("tiredMessages") then
-            self:statusMessage("msg", "tired")
-            Assets.playSound("spellcast", 0.5, 0.9)
+            -- Check for self.parent so setting Tired state in init doesn't crash
+            if self.parent then
+                self:statusMessage("msg", "tired")
+                Assets.playSound("spellcast", 0.5, 0.9)
+            end 
         end
     else
         self.comment = ""
         if old_tired and Game:getConfig("awakeMessages") then
-            self:statusMessage("msg", "awake")
+            if self.parent then self:statusMessage("msg", "awake") end
         end
     end
 end

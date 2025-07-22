@@ -41,7 +41,6 @@ function item:init()
     self.bonus_name = nil
     self.bonus_icon = nil
 
-
     -- Equippable characters (default true for armors, false for weapons)
     self.can_equip = {}
 

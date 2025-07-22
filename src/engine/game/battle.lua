@@ -1068,6 +1068,11 @@ function Battle:processAction(action)
     if action.action == "SPARE" then
         local worked = enemy:canSpare()
 
+        local text = enemy:getSpareText(battler, worked)
+        if text then
+            self:battleText(text)
+        end
+
         battler:setAnimation("battle/spare", function()
             enemy:onMercy(battler)
             if not worked then
@@ -1075,11 +1080,6 @@ function Battle:processAction(action)
             end
             self:finishAction(action)
         end)
-
-        local text = enemy:getSpareText(battler, worked)
-        if text then
-            self:battleText(text)
-        end
 
         return false
 
@@ -1142,7 +1142,12 @@ function Battle:processAction(action)
                 dmg_sprite.layer = enemy.layer + 0.01
                 dmg_sprite.battler_id = action.character_id or nil
                 table.insert(enemy.dmg_sprites, dmg_sprite)
-                dmg_sprite:play(1/15, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
+                local dmg_anim_speed = 1/15
+                if attacksprite == "effects/attack/shard" then
+                    -- Ugly hardcoding BlackShard animation speed accuracy for now
+                    dmg_anim_speed = 1/10
+                end
+                dmg_sprite:play(dmg_anim_speed, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
                 enemy.parent:addChild(dmg_sprite)
 
                 local sound = enemy:getDamageSound() or "damage"
@@ -1151,9 +1156,14 @@ function Battle:processAction(action)
                 end
                 enemy:hurt(damage, battler)
 
+                -- TODO: Call this even if damage is 0, will be a breaking change
                 battler.chara:onAttackHit(enemy, damage)
             else
                 enemy:hurt(0, battler, nil, nil, nil, action.points ~= 0)
+            end
+
+            for _,item in ipairs(battler.chara:getEquipment()) do
+                item:onAttackHit(battler, enemy, damage)
             end
 
             self:finishAction(action)
@@ -1675,6 +1685,7 @@ function Battle:commitSingleAction(action)
 
     local anim = action.action:lower()
     if action.action == "SPELL" and action.data then
+        anim = action.data:getSelectAnimation()
         local result = action.data:onSelect(battler, action.target)
         if result ~= false then
             if action.tp then
@@ -1684,7 +1695,7 @@ function Battle:commitSingleAction(action)
                     Game:removeTension(-action.tp)
                 end
             end
-            battler:setAnimation("battle/"..anim.."_ready")
+            battler:setAnimation(anim)
             action.icon = anim
         end
     else
@@ -3003,9 +3014,7 @@ function Battle:onKeyPressed(key)
             self.soul.collidable = false
         end
         if key == "b" then
-            for _,battler in ipairs(self.party) do
-                battler:hurt(math.huge)
-            end
+            self:hurt(math.huge, true, "ALL")
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension() * 2, true)
@@ -3315,6 +3324,19 @@ function Battle:handleAttackingInput(key)
             end
         end
     end
+end
+
+--- Returns the equipment-modified heal amount from a healing action performed by the specified party member
+---@param base_heal number      The heal amount to modify
+---@param healer PartyMember    The character performing the heal action
+function Battle:applyHealBonuses(base_heal, healer)
+    local current_heal = base_heal
+    for _,battler in ipairs(self.party) do
+        for _,item in ipairs(battler.chara:getEquipment()) do
+            current_heal = item:applyHealBonus(current_heal, base_heal, healer)
+        end
+    end
+    return current_heal
 end
 
 function Battle:canDeepCopy()
