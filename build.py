@@ -11,6 +11,7 @@ from pe_tools.version_info import parse_version_info, VersionInfo
 ver_str = "0.1.0"
 windows_ver = "0, 1, 0, 0"
 file_description = "Leading Brand DELTARUNE-type Software"
+is_standalone = False # Set this to true if you are building Kristal as a standalone fangame
 
 # Contains code from https://github.com/avast/pe_tools/blob/master/pe_tools/peresed.py
 
@@ -138,12 +139,15 @@ ignorefiles = [
     ".github",
     ".git",
     ".vscode",
-    "mods",
     "docs",
     "lib",
     "build",
     "output"
 ]
+
+# Ignore mods folder if not building as a standalone fangame
+if is_standalone == False:
+    ignorefiles.append("mods")
 
 try:
     for file in os.listdir(kristal_path):
