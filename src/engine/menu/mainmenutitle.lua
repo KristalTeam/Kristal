@@ -71,12 +71,8 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
 				if MainMenu.mod_list:getSelectedMod() and MainMenu.mod_list:getSelectedMod().soulColor then
 					MainMenu.heart.color = MainMenu.mod_list:getSelectedMod().soulColor
 				end
-            elseif self.has_target_saves then
-                self.menu:setState("FILESELECT")
             else
-                if not Kristal.loadMod(TARGET_MOD, 1) then
-                    error("Failed to load mod: " .. TARGET_MOD)
-                end
+                self.menu:setState("FILESELECT")
             end
 
         elseif option == "modfolder" then
