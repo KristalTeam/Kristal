@@ -135,6 +135,10 @@ function Bullet:isBullet(id)
     return self:includes(Registry.getBullet(id))
 end
 
+--- *(Override)* Called when the soul grazes a bullet.
+---@param first     boolean     Whether the bullet has been grazed before or not.
+function Bullet:onGraze(first) end
+
 function Bullet:update()
     super.update(self)
 
