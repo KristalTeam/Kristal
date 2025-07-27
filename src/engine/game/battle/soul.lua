@@ -510,6 +510,7 @@ function Soul:update()
                     if self.graze_sprite.timer < 0.1 then
                         self.graze_sprite.timer = 0.1
                     end
+                    bullet:onGraze(false)
                 else
                     Assets.playSound("graze")
                     Game:giveTension(bullet.tp * self.graze_tp_factor)
@@ -518,6 +519,7 @@ function Soul:update()
                     end
                     self.graze_sprite.timer = 1/3
                     bullet.grazed = true
+                    bullet:onGraze(true)
                 end
                 self:onGraze(bullet, old_graze)
             end
