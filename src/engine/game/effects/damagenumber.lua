@@ -21,6 +21,7 @@ function DamageNumber:init(type, arg, x, y, color)
 
     self.timer = 0
     self.delay = 2
+    self.kill_delay = 0
 
     self.bounces = 0
 
@@ -151,7 +152,7 @@ function DamageNumber:update()
             end
 
             self.kill_timer = self.kill_timer + DTMULT
-            if self.kill_timer > 35 then
+            if self.kill_timer > 35 + self.kill_delay then
                 self.killing = true
             end
             if self.killing then

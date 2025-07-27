@@ -419,13 +419,6 @@ function EnemyBattler:addMercy(amount)
         self.mercy = 100
     end
 
-    if self:canSpare() then
-        self:onSpareable()
-        if self.auto_spare then
-            self:spare(false)
-        end
-    end
-
     if Game:getConfig("mercyMessages") then
         if amount == 0 then
             self:statusMessage("msg", "miss")
@@ -452,11 +445,7 @@ end
 ---@param kill_condition? function  A function that should return true when the temporary mercy should start to fade out.
 function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_condition)
     kill_condition = kill_condition or function ()
-        -- In Deltarune, the mercy percent takes a bit more time to start to fade out after the enemy's turn ends
-        if Game.battle.state ~= "DEFENDING" and Game.battle.state ~= "DEFENDINGEND" then
-            self.temporary_mercy_percent.fade_delay = (self.temporary_mercy_percent.fade_delay or 0) + DTMULT
-        end
-        return Game.battle.state ~= "DEFENDING" and Game.battle.state ~= "DEFENDINGEND" and self.temporary_mercy_percent.fade_delay >= 30
+        return Game.battle.state ~= "DEFENDING" and Game.battle.state ~= "DEFENDINGEND"
     end
 
     clamp = clamp or {0, 100}
@@ -479,6 +468,8 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
                 self.temporary_mercy_percent = self:statusMessage("msg", "miss")
                 self.temporary_mercy_percent.kill_condition = kill_condition
                 self.temporary_mercy_percent.kill_others = true
+                -- In Deltarune, the mercy percent takes a bit more time to start to fade out after the enemy's turn ends
+                self.temporary_mercy_percent.kill_delay = 30
             else
                 self.temporary_mercy_percent:setDisplay("msg", "miss")
             end
@@ -487,6 +478,7 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
                 self.temporary_mercy_percent = self:statusMessage("mercy", self.temporary_mercy)
                 self.temporary_mercy_percent.kill_condition = kill_condition
                 self.temporary_mercy_percent.kill_others = true
+                self.temporary_mercy_percent.kill_delay = 30
 
                 -- Only play the mercyadd sound when the DamageNumber is first shown
                 if play_sound ~= false then
