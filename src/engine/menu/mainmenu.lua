@@ -37,6 +37,7 @@ function MainMenu:enter()
 
     -- Initialize variables for the menu
     self.stage = Stage()
+    self.container = self.stage
 
     -- Initialize all states
     self.title_screen = MainMenuTitle(self)
@@ -483,8 +484,12 @@ function MainMenu:pushState(state, ...)
     self.state_manager:pushState(state, ...)
 end
 
-function MainMenu:popState()
-    self.state_manager:popState()
+function MainMenu:popState(...)
+    self.state_manager:popState(...)
+end
+
+function MainMenu:loadGame(slot,name)
+    Kristal.loadMod(self.selected_mod.id, slot, name)
 end
 
 return MainMenu

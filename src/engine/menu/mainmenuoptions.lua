@@ -226,7 +226,7 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
 
         Kristal.saveConfig()
 
-        self.menu:setState("TITLE")
+        self.menu:popState()
         self.menu.title_screen:selectOption("options")
         return
     end
@@ -279,7 +279,7 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
             -- "Back" button
             Kristal.saveConfig()
 
-            self.menu:setState("TITLE")
+            self.menu:popState()
             self.menu.title_screen:selectOption("options")
         else
             options[self.selected_option].callback()
