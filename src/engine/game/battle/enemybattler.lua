@@ -59,6 +59,9 @@
 ---@field comment           string              The text displayed next to this enemy's name in menu's (such as "(Tired)" in DELTARUNE) 
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
+---@field temporary_mercy           number              The current amount of temporary mercy
+---@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
+---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
@@ -138,6 +141,9 @@ function EnemyBattler:init(actor, use_overlay)
     self.defeated = false
 
     self.current_target = "ANY"
+
+    self.temporary_mercy = 0
+    self.temporary_mercy_percent = nil
 end
 
 ---@param bool boolean
@@ -413,13 +419,6 @@ function EnemyBattler:addMercy(amount)
         self.mercy = 100
     end
 
-    if self:canSpare() then
-        self:onSpareable()
-        if self.auto_spare then
-            self:spare(false)
-        end
-    end
-
     if Game:getConfig("mercyMessages") then
         if amount == 0 then
             self:statusMessage("msg", "miss")
@@ -435,6 +434,67 @@ function EnemyBattler:addMercy(amount)
             end
 
             self:statusMessage("mercy", amount)
+        end
+    end
+end
+
+--- Adds (or removes) temporary mercy from this enemy. *Temporary mercy persists until kill_condition is true at any point.*
+---@param amount number
+---@param play_sound? boolean       Whether to play a sound the first time temporary mercy is added
+---@param clamp? [number, number]   A table containing 2 number values that controls the range of the temporary mercy. Defaults to {0, 100}
+---@param kill_condition? function  A function that should return true when the temporary mercy should start to fade out.
+function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_condition)
+    kill_condition = kill_condition or function ()
+        return Game.battle.state ~= "DEFENDING" and Game.battle.state ~= "DEFENDINGEND"
+    end
+
+    clamp = clamp or {0, 100}
+
+    self.temporary_mercy = self.temporary_mercy + amount
+
+    local min, max = clamp[1], clamp[2]
+    self.temporary_mercy = Utils.clamp(self.temporary_mercy, min, max)
+
+    if self:canSpare() then
+        self:onSpareable()
+        if self.auto_spare then
+            self:spare(false)
+        end
+    end
+
+    if Game:getConfig("mercyMessages") then
+        if self.temporary_mercy == 0 then
+            if not self.temporary_mercy_percent then
+                self.temporary_mercy_percent = self:statusMessage("msg", "miss")
+                self.temporary_mercy_percent.kill_condition = kill_condition
+                self.temporary_mercy_percent.kill_others = true
+                -- In Deltarune, the mercy percent takes a bit more time to start to fade out after the enemy's turn ends
+                self.temporary_mercy_percent.kill_delay = 30
+            else
+                self.temporary_mercy_percent:setDisplay("msg", "miss")
+            end
+        else
+            if not self.temporary_mercy_percent then
+                self.temporary_mercy_percent = self:statusMessage("mercy", self.temporary_mercy)
+                self.temporary_mercy_percent.kill_condition = kill_condition
+                self.temporary_mercy_percent.kill_others = true
+                self.temporary_mercy_percent.kill_delay = 30
+
+                -- Only play the mercyadd sound when the DamageNumber is first shown
+                if play_sound ~= false then
+                    if amount > 0 then
+                        local pitch = 0.8
+                        if amount < 99 then pitch = 1 end
+                        if amount <= 50 then pitch = 1.2 end
+                        if amount <= 25 then pitch = 1.4 end
+
+                        local src = Assets.playSound("mercyadd", 0.8)
+                        src:setPitch(pitch)
+                    end
+                end
+            else
+                self.temporary_mercy_percent:setDisplay("mercy", self.temporary_mercy)
+            end
         end
     end
 end
@@ -966,6 +1026,12 @@ function EnemyBattler:update()
         if self.hurt_timer == 0 then
             self:onHurtEnd()
         end
+    end
+
+    if self.temporary_mercy_percent and self.temporary_mercy_percent.kill_condition_succeed then
+        self.mercy = Utils.clamp(self.mercy + self.temporary_mercy, 0, 100)
+        self.temporary_mercy = 0
+        self.temporary_mercy_percent = nil
     end
 
     super.update(self)
