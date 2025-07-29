@@ -419,6 +419,13 @@ function EnemyBattler:addMercy(amount)
         self.mercy = 100
     end
 
+    if self:canSpare() then
+        self:onSpareable()
+        if self.auto_spare then
+            self:spare(false)
+        end
+    end
+
     if Game:getConfig("mercyMessages") then
         if amount == 0 then
             self:statusMessage("msg", "miss")
@@ -454,13 +461,6 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
 
     local min, max = clamp[1], clamp[2]
     self.temporary_mercy = Utils.clamp(self.temporary_mercy, min, max)
-
-    if self:canSpare() then
-        self:onSpareable()
-        if self.auto_spare then
-            self:spare(false)
-        end
-    end
 
     if Game:getConfig("mercyMessages") then
         if self.temporary_mercy == 0 then
