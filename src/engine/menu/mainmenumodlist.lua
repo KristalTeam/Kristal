@@ -371,6 +371,7 @@ function MainMenuModList:buildModListFavorited()
             local chunk = love.filesystem.load(mod.preview_script_path)
             local success, result = pcall(chunk, mod.path)
             if success then
+                self.scripts[mod.id] = result
                 button.preview_script = result
 
                 if result.init then
