@@ -53,7 +53,7 @@ function item:init()
     }
 
     -- This item's element
-    self.element = 5
+    self.element = "dark/star"
     -- The multiplier for damage reduction based on this element
     self.element_reduce_amount = 0.66
 end

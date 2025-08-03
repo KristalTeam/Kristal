@@ -104,16 +104,11 @@ end
 ---@param element number
 ---@return integer multiplier
 function PartyBattler:getElementReduction(element)
-    -- Don't reduce damage if element is 0
-    if (element == 0) then return 1 end
-
     local reduction = 1
     for i = 1, 2 do
         local item = self.chara:getArmor(i)
-        if (item.element ~= 0) then
-            if (item.element == element)                              then reduction = reduction - item.element_reduce_amount end
-            if (item.element == 9 and (element == 2 or element == 8)) then reduction = reduction - item.element_reduce_amount end
-            if (item.element == 10)                                   then reduction = reduction - item.element_reduce_amount end
+        if (item.element ~= "") then
+            if (item.element == element) then reduction = reduction - item.element_reduce_amount end
         end
     end
     return math.max(0.25, reduction)

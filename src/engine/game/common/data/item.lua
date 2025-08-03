@@ -47,7 +47,7 @@
 ---@field light_item Item
 ---@field light_location {storage: string, index: integer}
 ---
----@field element integer
+---@field element string
 ---@field element_reduce_amount number
 ---
 ---@overload fun(...) : Item
@@ -122,7 +122,7 @@ function Item:init()
     self.light_location = nil
 
     -- This item's element
-    self.element = 0
+    self.element = ""
     -- The multiplier for damage reduction based on this element
     self.element_reduce_amount = 0
 end

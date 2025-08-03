@@ -22,7 +22,7 @@
 ---
 ---@field remove_offscreen  boolean
 ---
----@field element           integer
+---@field element           string
 ---
 local Bullet, super = Class(Object)
 
@@ -65,7 +65,7 @@ function Bullet:init(x, y, texture)
     self.remove_offscreen = true
 
     -- This bullet's element
-    self.element = 0
+    self.element = ""
 end
 
 ---@return string
