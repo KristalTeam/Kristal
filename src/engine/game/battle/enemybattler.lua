@@ -144,6 +144,15 @@ function EnemyBattler:init(actor, use_overlay)
 
     self.temporary_mercy = 0
     self.temporary_mercy_percent = nil
+
+    self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
+end
+
+--- Get the default graze tension for this enemy.
+--- Any bullets which don't specify graze tension will use this value.
+---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
+function EnemyBattler:getGrazeTension()
+    return self.graze_tension
 end
 
 ---@param bool boolean
@@ -759,11 +768,17 @@ function EnemyBattler:forceDefeat(amount, battler)
 end
 
 --- *(Override)* Gets the tension earned by hitting this enemy \
---- *By default, returns `points / 25`*
+--- *By default, returns `points / 25`, or if you have reduced tension, `points / 65`*
 ---@param points number The points of the hit, based on closeness to the target box when attacking, maximum value is `150`
 ---@return number tension
 function EnemyBattler:getAttackTension(points)
-    -- In Deltarune, this is always 10*2.5, except for JEVIL where it's 15*2.5
+    -- Kristal transforms tension from 0-250 (DR) to 0-100.
+    -- In Deltarune, this is (10 * 2.5), except for JEVIL where it's (15 * 2.5)
+    -- And in reduced battles, it's (26 * 2.5)
+
+    if Game.battle:hasReducedTension() then
+        return points / 65
+    end
     return points / 25
 end
 

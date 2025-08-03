@@ -62,6 +62,7 @@ function StarAct:onStart()
                 Assets.playSound("stardrop")
                 Assets.playSound("bullet", 0.5)
                 local star = self:spawnBullet("bullets/star", self.starwalker.x - 20 - 10, self.starwalker.y - 40 - 20)
+                star.grazed = true
                 star.inv_timer = 1/30
                 star.destroy_on_hit = false
                 star.physics.direction = math.atan2(Game.battle.soul.y - star.y, Game.battle.soul.x - star.x)

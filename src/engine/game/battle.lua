@@ -3247,6 +3247,21 @@ function Battle:onKeyPressed(key)
     end
 end
 
+--- Checks if the current encounter has reduced tension.
+--- By default, this redirects to Encounter
+--- @return boolean reduced Whether the encounter has reduced tension.
+function Battle:hasReducedTension()
+    return self.encounter:hasReducedTension()
+end
+
+--- Returns the tension gained from defending.
+--- By default, this redirects to Encounter.
+---@param battler PartyBattler The current battler about to defend.
+---@return number tension The tension gained from defending.
+function Battle:getDefendTension(battler)
+    return self.encounter:getDefendTension(battler)
+end
+
 ---@param key string
 function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]

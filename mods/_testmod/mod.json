@@ -42,8 +42,8 @@
             //"growStrongerChara": "susie",
 
             //"ralseiStyle": 2
-            "keepTensionAfterBattle": true,
-            "overworldSpells": true
+            //"keepTensionAfterBattle": true,
+            //"overworldSpells": true
         },
         "virovirokun": {
             "enable_cook": true,

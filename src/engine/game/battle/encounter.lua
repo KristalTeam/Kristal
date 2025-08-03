@@ -18,6 +18,8 @@
 ---
 ---@field defeated_enemies      table
 ---
+---@field reduced_tension       boolean
+---
 ---@overload fun(...) : Encounter
 local Encounter = Class()
 
@@ -44,6 +46,9 @@ function Encounter:init()
 
     -- A copy of Battle.defeated_enemies, used to determine how an enemy has been defeated.
     self.defeated_enemies = nil
+
+    -- Whether tension is reduced for this encounter.
+    self.reduced_tension = false
 end
 
 -- Callbacks
@@ -261,8 +266,8 @@ function Encounter:getPartyPosition(index)
 
     local battler = Game.battle.party[index]
     local ox, oy = battler.chara:getBattleOffset()
-    x = x + (battler.actor:getWidth()/2 + ox) * 2
-    y = y + (battler.actor:getHeight()  + oy) * 2
+    x = x + (battler.actor:getWidth() / 2 + ox) * 2
+    y = y + (battler.actor:getHeight() + oy) * 2
     return x, y
 end
 
@@ -343,6 +348,23 @@ end
 ---@return number
 function Encounter:addFlag(flag, amount)
     return Game:addFlag("encounter#"..self.id..":"..flag, amount)
+end
+
+--- Checks if the encounter has reduced tension.
+--- @return boolean reduced Whether the encounter has reduced tension.
+function Encounter:hasReducedTension()
+    return self.reduced_tension
+end
+
+--- Returns the tension gained from defending.
+--- Returns 2% if reduced tension, otherwise 16%.
+---@param battler PartyBattler The current battler about to defend.
+---@return number tension The tension gained from defending.
+function Encounter:getDefendTension(battler)
+    if self:hasReducedTension() then
+        return 2
+    end
+    return 16
 end
 
 return Encounter
