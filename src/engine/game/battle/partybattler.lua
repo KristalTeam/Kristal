@@ -104,19 +104,12 @@ end
 ---@param element number
 ---@return integer multiplier
 function PartyBattler:getElementReduction(element)
-    -- TODO: this
-
+    -- Don't reduce damage if element is 0
     if (element == 0) then return 1 end
-
-    -- dummy values since we don't have elements
-    local armor_elements = {
-        {element = 0, element_reduce_amount = 0},
-        {element = 0, element_reduce_amount = 0}
-    }
 
     local reduction = 1
     for i = 1, 2 do
-        local item = armor_elements[i]
+        local item = self.chara:getArmor(i)
         if (item.element ~= 0) then
             if (item.element == element)                              then reduction = reduction - item.element_reduce_amount end
             if (item.element == 9 and (element == 2 or element == 8)) then reduction = reduction - item.element_reduce_amount end
@@ -127,11 +120,12 @@ function PartyBattler:getElementReduction(element)
 end
 
 ---@param amount    number  The damage of the incoming hit
+---@param element?  integer The element used for element reduction
 ---@param exact?    boolean Whether the damage should be treated as exact damage instead of applying defense and element modifiers
 ---@param color?    table   The color of the damage number
 ---@param options?  table   A table defining additional properties to control the way damage is taken
 ---|"all"   # Whether the damage being taken comes from a strike targeting the whole party
-function PartyBattler:hurt(amount, exact, color, options)
+function PartyBattler:hurt(amount, element, exact, color, options)
     options = options or {}
 
     if not options["all"] then
@@ -141,8 +135,7 @@ function PartyBattler:hurt(amount, exact, color, options)
             if self.defending then
                 amount = math.ceil((2 * amount) / 3)
             end
-            -- we don't have elements right now
-            local element = 0
+            element = element or 0 -- Default to 0
             amount = math.ceil((amount * self:getElementReduction(element)))
         end
 
@@ -151,8 +144,7 @@ function PartyBattler:hurt(amount, exact, color, options)
         -- We're targeting everyone.
         if not exact then
             amount = self:calculateDamage(amount)
-            -- we don't have elements right now
-            local element = 0
+            element = element or 0 -- Default to 0
             amount = math.ceil((amount * self:getElementReduction(element)))
 
             if self.defending then

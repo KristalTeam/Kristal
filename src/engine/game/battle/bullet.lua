@@ -22,6 +22,8 @@
 ---
 ---@field remove_offscreen  boolean
 ---
+---@field element           integer
+---
 local Bullet, super = Class(Object)
 
 ---@param x         number
@@ -61,6 +63,9 @@ function Bullet:init(x, y, texture)
 
     -- Whether to remove this bullet when it goes offscreen (Defaults to `true`)
     self.remove_offscreen = true
+
+    -- This bullet's element
+    self.element = 0
 end
 
 ---@return string
@@ -80,7 +85,7 @@ end
 function Bullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
-        local battlers = Game.battle:hurt(damage, false, self:getTarget())
+        local battlers = Game.battle:hurt(damage, self.element, false, self:getTarget())
         soul.inv_timer = self.inv_timer
         soul:onDamage(self, damage)
         return battlers

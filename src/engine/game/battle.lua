@@ -1947,10 +1947,11 @@ end
 
 --- Hurts the `target` party member(s)
 ---@param amount    number
+---@param element?  integer
 ---@param exact?    boolean
 ---@param target?   number|"ALL"|"ANY"|PartyBattler The target battler's index, instance, or strings for specific selection logic (defaults to `"ANY"`)
 ---@return table?
-function Battle:hurt(amount, exact, target)
+function Battle:hurt(amount, element, exact, target)
     -- If target is a numberic value, it will hurt the party battler with that index
     -- "ANY" will choose the target randomly
     -- "ALL" will hurt the entire party all at once
@@ -2009,7 +2010,7 @@ function Battle:hurt(amount, exact, target)
 
     -- Now it's time to actually damage them!
     if isClass(target) and target:includes(PartyBattler) then
-        target:hurt(amount, exact)
+        target:hurt(amount, element, exact)
         return {target}
     end
 
@@ -2017,7 +2018,7 @@ function Battle:hurt(amount, exact, target)
         Assets.playSound("hurt")
         local alive_battlers = Utils.filter(self.party, function(battler) return not battler.is_down end)
         for _,battler in ipairs(alive_battlers) do
-            battler:hurt(amount, exact, nil, {all = true})
+            battler:hurt(amount, element, exact, nil, {all = true})
         end
         -- Return the battlers who aren't down, aka the ones we hit.
         return alive_battlers
