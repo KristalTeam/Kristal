@@ -86,7 +86,7 @@ function TensionBar:getDebugInfo()
     table.insert(info, "Tension: " .. Utils.round(self:getPercentageFor(Game:getTension()) * 100) .. "%")
     table.insert(info, "Apparent: " .. Utils.round(self.apparent / 2.5))
     table.insert(info, "Current: " .. Utils.round(self.current / 2.5))
-    table.insert(info, "Reduced: " .. self:hasReducedTension() and "True" or "False")
+    table.insert(info, "Reduced: " .. (self:hasReducedTension() and "True" or "False"))
     return info
 end
 
