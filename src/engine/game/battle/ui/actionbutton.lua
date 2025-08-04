@@ -159,7 +159,7 @@ function ActionButton:select()
     elseif self.type == "spare" then
         Game.battle:setState("ENEMYSELECT", "SPARE")
     elseif self.type == "defend" then
-        Game.battle:pushAction("DEFEND", nil, {tp = -16})
+        Game.battle:pushAction("DEFEND", nil, {tp = -Game.battle:getDefendTension(self.battler)})
     end
 end
 

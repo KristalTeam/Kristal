@@ -3,7 +3,7 @@ local Starwalker, super = Class(Encounter)
 function Starwalker:init()
     super.init(self)
 
-    self.text = "* Star walker has      changed forms"
+    self.text = "* Star walker has      changed forms...\n* [color:yellow]TP[color:reset] Gain reduced outside of [color:green]???[color:reset]"
 
     self.starwalker = self:addEnemy("starwalker", 530, 238)
 
@@ -16,6 +16,7 @@ function Starwalker:init()
     -- music by nyako! give credit if used!
     self.music = "starwalker"
 
+    self.reduced_tension = true
     --self.default_xactions = false
 
     --Game.battle:registerXAction("susie", "Snap")
