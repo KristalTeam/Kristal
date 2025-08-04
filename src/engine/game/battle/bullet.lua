@@ -78,6 +78,11 @@ function Bullet:getDamage()
     return self.damage or (self.attacker and self.attacker.attack * 5) or 0
 end
 
+---@return string
+function Bullet:getElement()
+    return self.element
+end
+
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
 --- Not calling `super.onDamage()` here will stop the normal damage logic from occurring.
 ---@param soul Soul

@@ -53,6 +53,11 @@ function item:init()
         ralsei = "It's still wearable!",
         noelle = "(Reminds me of Asgore...)",
     }
+
+    -- This item's element
+    self.element = "puppet/cat"
+    -- The multiplier for damage reduction based on this element
+    self.element_reduce_amount = 0.15
 end
 
 function item:getShopDescription()

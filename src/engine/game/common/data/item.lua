@@ -305,6 +305,9 @@ function Item:getAttackPitch(battler, enemy, points) return battler.chara:getAtt
 
 function Item:getReactions() return self.reactions end
 
+function Item:getElement() return self.element end
+function Item:getElementReduce() return self.element_reduce_amount end
+
 function Item:hasResultItem() return self.result_item ~= nil end
 --- *(Override)* Creates an instance of this Item's specified [`result_item`](lua://Item.result_item)
 ---@return Item result_item

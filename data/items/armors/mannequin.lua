@@ -49,6 +49,11 @@ function item:init()
         ralsei = "Um, the d-dress is cute...",
         noelle = "(Why did they spend $300 on this!?)",
     }
+
+    -- This item's element
+    self.element = "puppet/cat"
+    -- The multiplier for damage reduction based on this element
+    self.element_reduce_amount = 0.35
 end
 
 function item:canEquip(character, slot_type, slot_index)
