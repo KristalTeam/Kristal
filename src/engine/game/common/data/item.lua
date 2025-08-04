@@ -47,7 +47,7 @@
 ---@field light_item Item
 ---@field light_location {storage: string, index: integer}
 ---
----@field element string
+---@field element string?
 ---@field element_reduce_amount number
 ---
 ---@overload fun(...) : Item
@@ -122,7 +122,7 @@ function Item:init()
     self.light_location = nil
 
     -- This item's element
-    self.element = ""
+    self.element = nil
     -- The multiplier for damage reduction based on this element
     self.element_reduce_amount = 0
 end
@@ -305,7 +305,7 @@ function Item:getAttackPitch(battler, enemy, points) return battler.chara:getAtt
 
 function Item:getReactions() return self.reactions end
 
-function Item:getElement() return self.element end
+function Item:getElement() return self.element or "" end
 function Item:getElementReduce() return self.element_reduce_amount end
 
 function Item:hasResultItem() return self.result_item ~= nil end

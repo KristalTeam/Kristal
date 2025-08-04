@@ -101,7 +101,7 @@ function PartyBattler:calculateDamageSimple(amount)
 end
 
 --- Gets the damage reduction multiplier for damage of a particular element
----@param element number
+---@param element string
 ---@return integer multiplier
 function PartyBattler:getElementReduction(element)
     local reduction = 1
@@ -115,7 +115,7 @@ function PartyBattler:getElementReduction(element)
 end
 
 ---@param amount    number  The damage of the incoming hit
----@param element?  integer The element used for element reduction
+---@param element?  string  The element used for element reduction
 ---@param exact?    boolean Whether the damage should be treated as exact damage instead of applying defense and element modifiers
 ---@param color?    table   The color of the damage number
 ---@param options?  table   A table defining additional properties to control the way damage is taken
@@ -130,7 +130,7 @@ function PartyBattler:hurt(amount, element, exact, color, options)
             if self.defending then
                 amount = math.ceil((2 * amount) / 3)
             end
-            element = element or 0 -- Default to 0
+            element = element or "" -- Default to empty string
             amount = math.ceil((amount * self:getElementReduction(element)))
         end
 
@@ -139,7 +139,7 @@ function PartyBattler:hurt(amount, element, exact, color, options)
         -- We're targeting everyone.
         if not exact then
             amount = self:calculateDamage(amount)
-            element = element or 0 -- Default to 0
+            element = element or "" -- Default to empty string
             amount = math.ceil((amount * self:getElementReduction(element)))
 
             if self.defending then

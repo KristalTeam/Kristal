@@ -22,7 +22,7 @@
 ---
 ---@field remove_offscreen  boolean
 ---
----@field element           string
+---@field element           string?
 ---
 local Bullet, super = Class(Object)
 
@@ -65,7 +65,7 @@ function Bullet:init(x, y, texture)
     self.remove_offscreen = true
 
     -- This bullet's element
-    self.element = ""
+    self.element = nil
 end
 
 ---@return string
@@ -80,7 +80,7 @@ end
 
 ---@return string
 function Bullet:getElement()
-    return self.element
+    return self.element or (self.attacker and self.attacker.element) or ""
 end
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
@@ -90,7 +90,7 @@ end
 function Bullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
-        local battlers = Game.battle:hurt(damage, self.element, false, self:getTarget())
+        local battlers = Game.battle:hurt(damage, self:getElement(), false, self:getTarget())
         soul.inv_timer = self.inv_timer
         soul:onDamage(self, damage)
         return battlers

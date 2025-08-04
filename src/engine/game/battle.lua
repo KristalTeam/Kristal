@@ -1947,7 +1947,7 @@ end
 
 --- Hurts the `target` party member(s)
 ---@param amount    number
----@param element?  integer
+---@param element?  string
 ---@param exact?    boolean
 ---@param target?   number|"ALL"|"ANY"|PartyBattler The target battler's index, instance, or strings for specific selection logic (defaults to `"ANY"`)
 ---@return table?
