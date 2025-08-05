@@ -1696,7 +1696,7 @@ function Battle:commitSingleAction(action)
                 end
             end
             battler:setAnimation(anim)
-            action.icon = anim
+            action.icon = action.action:lower()
         end
     else
         if action.tp then
