@@ -478,7 +478,7 @@ function Utils.getFilesRecursive(dir, ext)
     local result = {}
 
     -- Get all files and folders within the specified directory
-    local paths = love.filesystem.getDirectoryItems(dir.."/"..".")
+    local paths = love.filesystem.getDirectoryItems(dir.."/.")
     for _,path in ipairs(paths) do
         local info = love.filesystem.getInfo(dir.."/"..path)
 
