@@ -40,7 +40,12 @@ function AttackBox:init(battler, offset, index, x, y)
 end
 
 function AttackBox:getClose()
-    return (self.bolt.x - self.bolt_target - 2) / AttackBox.BOLTSPEED
+    local close = self.bolt.x - self.bolt_target - 2
+    if AttackBox.BOLTSPEED < 8 and self.bolt.x <= self.bolt_target + 10 then
+        return close / 8
+    else
+        return close / AttackBox.BOLTSPEED
+    end
 end
 
 function AttackBox:hit()
