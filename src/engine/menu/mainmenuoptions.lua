@@ -616,6 +616,16 @@ function MainMenuOptions:initializeOptions()
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function () Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function () Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Instant Quit", "instantQuit")
+    if not TARGET_MOD then
+        self:registerOption("engine", "Mod select grid", function ()
+            return Kristal.Config["modSelectGrid"] and "ON" or "OFF"
+        end, function ()
+            Kristal.Config["modSelectGrid"] = not Kristal.Config["modSelectGrid"]
+            if self.menu.mod_list then
+                self.menu.mod_list:buildModList()
+            end
+        end)
+    end
 end
 
 return MainMenuOptions
