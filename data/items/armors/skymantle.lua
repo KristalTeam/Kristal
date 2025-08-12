@@ -45,6 +45,11 @@ function item:init()
 
     -- Character reactions
     self.reactions = {}
+
+    -- This item's element
+    self.element = "elec/holy"
+    -- The multiplier for damage reduction based on this element
+    self.element_reduce_amount = 0.5
 end
 
 return item

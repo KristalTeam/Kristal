@@ -47,6 +47,9 @@
 ---@field light_item Item
 ---@field light_location {storage: string, index: integer}
 ---
+---@field element string?
+---@field element_reduce_amount number
+---
 ---@overload fun(...) : Item
 local Item = Class()
 
@@ -117,6 +120,11 @@ function Item:init()
 
     self.light_item = nil
     self.light_location = nil
+
+    -- This item's element
+    self.element = nil
+    -- The multiplier for damage reduction based on this element
+    self.element_reduce_amount = 0
 end
 
 --[[ Callbacks ]]--
@@ -296,6 +304,9 @@ function Item:getAttackSound(battler, enemy, points) return battler.chara:getAtt
 function Item:getAttackPitch(battler, enemy, points) return battler.chara:getAttackPitch() end
 
 function Item:getReactions() return self.reactions end
+
+function Item:getElement() return self.element or "" end
+function Item:getElementReduce() return self.element_reduce_amount end
 
 function Item:hasResultItem() return self.result_item ~= nil end
 --- *(Override)* Creates an instance of this Item's specified [`result_item`](lua://Item.result_item)
