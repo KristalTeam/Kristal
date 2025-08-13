@@ -40,30 +40,30 @@ function MainMenuCredits:init(menu)
                 "Archie-osu",
                 "Bor",
                 "Dobby233Liu",
+                "Elioze",
                 "FireRainV",
                 "HUECYCLES",
-                "Lionmeow",
-                "Luna"
+                "J.A.R.U."
             }
         },
         {
             "Kristal Engine",
             {
                 {"GitHub Contributors", COLORS.silver},
-                "J.A.R.U.",
+                "Lionmeow",
+                "Luna",
                 "MCdeDaxia",
                 "MrOinky",
+                "Nextop",
                 "prokube",
                 "Simbel",
                 "sjl057",
                 "skarph",
-                "TFLTV",
-                "WIL-TZY",
-                ""
+                "TFLTV"
             },
             {
                 {"GitHub Contributors", COLORS.silver},
-                "",
+                "WIL-TZY",
                 "",
                 "",
                 "",

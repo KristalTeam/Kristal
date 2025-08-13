@@ -147,7 +147,7 @@ end
 
 local function checkStrArg(arg, maxLen, argName, func, maybeNil)
     if maxLen then
-        assert(type(arg) == "string" and arg:len() <= maxLen or (maybeNil and arg == nil),
+        assert(type(arg) == "string" and Utils.len(arg) <= maxLen or (maybeNil and arg == nil),
             string.format("Argument \"%s\" of function \"%s\" has to be of type string with maximum length %d",
                 argName, func, maxLen))
     else

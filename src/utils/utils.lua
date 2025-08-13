@@ -2094,7 +2094,7 @@ end
 ---@return string result # The newly created string.
 ---
 function Utils.stringInsert(str1, str2, pos)
-    return str1:sub(1, pos) .. str2 .. str1:sub(pos + 1)
+    return Utils.sub(str1, 1, pos) .. str2 .. Utils.sub(str1, pos + 1)
 end
 
 ---
