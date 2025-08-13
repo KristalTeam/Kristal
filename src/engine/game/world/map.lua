@@ -563,6 +563,38 @@ function Map:loadPaths(layer)
     end
 end
 
+function Map:shouldLoadObject(data, layer)
+    local skip_loading = false
+    local uid = self:getUniqueID().."#"..tostring(data.properties["uid"] or data.id)
+    if data.properties["cond"] then
+        local env = setmetatable({}, {__index = function(t, k)
+            return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
+        end})
+        local chunk, _ = assert(loadstring("return "..data.properties["cond"]))
+        skip_loading = not setfenv(chunk, env)()
+    elseif data.properties["flagcheck"] then
+        local inverted, flag = Utils.startsWith(data.properties["flagcheck"], "!")
+
+        local result = Game.flags[uid..":"..flag] or Game.flags[flag]
+        local value = data.properties["flagvalue"]
+        local is_true
+        if value ~= nil then
+            is_true = result == value
+        elseif type(result) == "number" then
+            is_true = result > 0
+        else
+            is_true = result
+        end
+
+        if is_true then
+            skip_loading = inverted
+        else
+            skip_loading = not inverted
+        end
+    end
+    return not skip_loading
+end
+
 function Map:loadObjects(layer, depth, layer_type)
     local parent = layer_type == "controllers" and self.world.controller_parent or self.world
 
@@ -602,35 +634,7 @@ function Map:loadObjects(layer, depth, layer_type)
 
         local uid = self:getUniqueID().."#"..tostring(v.properties["uid"] or v.id)
         if not Game:getFlag(uid..":dont_load") then
-            local skip_loading = false
-            if v.properties["cond"] then
-                local env = setmetatable({}, {__index = function(t, k)
-                    return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
-                end})
-                local chunk, _ = assert(loadstring("return "..v.properties["cond"]))
-                skip_loading = not setfenv(chunk, env)()
-            elseif v.properties["flagcheck"] then
-                local inverted, flag = Utils.startsWith(v.properties["flagcheck"], "!")
-
-                local result = Game.flags[uid..":"..flag] or Game.flags[flag]
-                local value = v.properties["flagvalue"]
-                local is_true
-                if value ~= nil then
-                    is_true = result == value
-                elseif type(result) == "number" then
-                    is_true = result > 0
-                else
-                    is_true = result
-                end
-
-                if is_true then
-                    skip_loading = inverted
-                else
-                    skip_loading = not inverted
-                end
-            end
-
-            if not skip_loading then
+            if self:shouldLoadObject(v, layer) then
                 local obj
                 if layer_type == "controllers" then
                     obj = self:loadController(obj_type, v)
