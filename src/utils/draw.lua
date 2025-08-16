@@ -221,7 +221,13 @@ end
 ---@return love.Shader
 function Draw.pushShader(shader, vars)
     if type(shader) == "string" then
-        shader = Kristal.Shaders[shader]
+        if Assets.getShader(shader) ~= nil then
+            shader = Assets.getShader(shader)
+        elseif Kristal.Shaders[shader] then
+            shader = Kristal.Shaders[shader]
+        else
+            error("Couldn't find shader \""..shader.."\"")
+        end
     end
     table.insert(self._shader_stack, 1, love.graphics.getShader())
     for k, v in pairs(vars) do
