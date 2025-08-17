@@ -146,7 +146,7 @@ ignorefiles = [
 ]
 
 # Ignore mods folder if not building as a standalone fangame
-if is_standalone == False:
+if not is_standalone:
     ignorefiles.append("mods")
 
 try:
