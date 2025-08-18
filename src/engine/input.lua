@@ -505,6 +505,9 @@ function Input.clear(key, clear_down)
     if key then
         local bindings = Input.getBoundKeys(key)
         if bindings then
+            self.key_pressed["mobile:"..key] = false
+            self.key_repeated["mobile:"..key] = false
+            self.key_released["mobile:"..key] = false
             for _,k in ipairs(bindings) do
                 local keys = type(k) == "table" and k or {k}
                 for _,l in ipairs(keys) do
@@ -719,6 +722,7 @@ end
 ---@return boolean
 function Input.down(key)
     local bindings = Input.getBoundKeys(key)
+    if Input.keyDown("mobile:"..key) then return true end
     if bindings then
         for _,k in ipairs(bindings) do
             if type(k) == "string" and Input.keyDown(k) then
@@ -759,6 +763,7 @@ end
 ---@param repeatable? boolean
 ---@return boolean
 function Input.pressed(key, repeatable)
+    if Input.keyPressed("mobile:"..key, repeatable) then return true end
     local bindings = Input.getBoundKeys(key)
     if bindings then
         for _,k in ipairs(bindings) do
@@ -812,6 +817,7 @@ end
 ---@param key string
 ---@return boolean
 function Input.released(key)
+    if Input.keyReleased("mobile:"..key) then return true end
     local bindings = Input.getBoundKeys(key)
     if bindings then
         for _,k in ipairs(bindings) do
@@ -897,6 +903,7 @@ end
 ---@param key string
 ---@return boolean
 function Input.is(alias, key)
+    if (key == "mobile:"..alias) then return true end
     if self.group_for_key[key] then
         key = self.group_for_key[key]
     end
@@ -927,6 +934,9 @@ function Input.getText(alias, gamepad)
     if type(name) == "table" then
         name = table.concat(name, "+")
     else
+        if Input.getControllerType() == "mobile" then
+            return "[button:"..alias.."]"
+        end
         local is_gamepad, gamepad_button = Utils.startsWith(name, "gamepad:")
         if is_gamepad then
             return "[button:" .. gamepad_button .. "]"
@@ -950,9 +960,14 @@ function Input.getTexture(alias, gamepad)
     return Assets.getTexture("kristal/buttons/unknown")
 end
 
----@return "switch"|"ps4"|"xbox"|nil
+---@return "switch"|"ps4"|"xbox"|"mobile"|nil
 function Input.getControllerType()
-    if not Input.connected_gamepad then return nil end
+    if not Input.connected_gamepad then
+        if Kristal.isMobile() then
+            return "mobile"
+        end
+        return nil
+    end
 
     local name = Input.connected_gamepad:getName():lower()
 
@@ -1029,6 +1044,15 @@ Input.button_sprites = {
     ["righttrigger"]  = {switch = "switch/zr",          ps4 = "ps4/r2", xbox = "xbox/right_trigger"},
     ["leftstick"]     = {switch = "switch/lStickClick", ps4 = "ps4/l3", xbox = "xbox/left_stick"},
     ["rightstick"]    = {switch = "switch/rStickClick", ps4 = "ps4/r3", xbox = "xbox/right_stick"},
+
+    -- MOBILE CONTROLS
+    ["confirm"]       = {mobile = "mobile/confirm"},
+    ["cancel"]        = {mobile = "mobile/cancel"},
+    ["menu"]          = {mobile = "mobile/menu"},
+    ["up"]            = {mobile = "mobile/up"},
+    ["down"]          = {mobile = "mobile/down"},
+    ["left"]          = {mobile = "mobile/left"},
+    ["right"]         = {mobile = "mobile/right"},
 }
 
 ---@param button string
@@ -1394,6 +1418,22 @@ function Input.getMousePosition(x, y, relative)
     return floor((x - off_x) / Kristal.getGameScale()),
            floor((y - off_y) / Kristal.getGameScale())
 end
+
+---@param index lightuserdata
+---@param relative? boolean
+---@return number x, number y
+function Input.getTouchPosition(index, relative)
+    local x,y = love.touch.getPosition(index)
+    local off_x, off_y = Kristal.getSideOffsets()
+    local floor = math.floor
+    if relative then
+        floor = Utils.round
+        off_x, off_y = 0, 0
+    end
+    return floor((x - off_x) / Kristal.getGameScale()),
+           floor((y - off_y) / Kristal.getGameScale())
+end
+
 
 ---@param button? number
 ---@return boolean success, number x, number y, number presses

@@ -285,6 +285,10 @@ FixedSizing = require("src.engine.ui.sizing.fixed")
 FitSizing = require("src.engine.ui.sizing.fit")
 FillSizing = require("src.engine.ui.sizing.fill")
 
+InputOverlay = require("src.engine.objects.overlay.inputoverlay")
+InputButton = require("src.engine.objects.overlay.inputbutton")
+Dpad = require("src.engine.objects.overlay.dpad")
+
 Hotswapper = require("src.hotswapper")
 
 -- Register required in the hotswapper
@@ -307,6 +311,7 @@ function love.run()
     local function doUpdate(dt)
         -- Update pressed keys, handle key repeat
         Input.update()
+        Kristal.Stage:update()
 
         -- Process events.
         if love.event then

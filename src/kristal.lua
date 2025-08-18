@@ -167,7 +167,6 @@ function love.load(args)
             Utils.pushPerformance("Total")
         end
         orig(...)
-        Kristal.Stage:update()
         Kristal.Overlay:update()
         if PERFORMANCE_TEST then
             Utils.popPerformance()
@@ -1852,6 +1851,12 @@ function libRequire(lib, path, ...)
         error("No script found: " .. path)
     end
     return result
+end
+
+function Kristal.isMobile()
+    return love.system.getOS() == 'iOS'
+        or love.system.getOS() == 'Android'
+        or os.getenv("KRISTAL_FORCE_MOBILE_MODE") ~= nil
 end
 
 return Kristal
