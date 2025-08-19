@@ -1,4 +1,4 @@
----@class (exact) MainMenuOptions : StateClass, StatefulClass
+---@class (exact) MainMenuOptions : StateClass, StateManagedClass
 ---
 ---@field menu MainMenu
 ---

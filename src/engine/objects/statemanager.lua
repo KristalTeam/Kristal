@@ -1,5 +1,5 @@
 ---@class StateManager : Object
----@field master StatefulClass
+---@field master StateManagedClass
 ---@overload fun(...) : StateManager
 local StateManager, super = Class(Object)
 

@@ -1,5 +1,5 @@
 --- Followers are a type of Overworld character that follow the player's movements.
----@class Follower : Character, StatefulClass
+---@class Follower : Character, StateManagedClass
 ---@overload fun(chara: string|Actor, x?: number, y?: number, target: Player?) : Follower
 local Follower, super = Class(Character)
 

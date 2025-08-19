@@ -1,5 +1,5 @@
 --- The character controlled by the player when in the Overworld.
----@class Player : Character, StatefulClass
+---@class Player : Character, StateManagedClass
 ---@overload fun(chara: string|Actor, x?: number, y?: number) : Player
 local Player, super = Class(Character)
 
