@@ -32,7 +32,7 @@ function Stage:init(x, y, w, h)
 end
 
 --- Gets every object attached to this stage that inherits from `class`
----@generic T:Class
+---@generic T : Class
 ---@param class T       The included Class to select from
 ---@return T[] matches  All the objects parented to this stage that inherit from `class`
 function Stage:getObjects(class)
