@@ -502,7 +502,7 @@ function WorldCutscene:attachCameraImmediate()
 end
 
 --- Sets the current speaker for dialogue boxes in this cutscene.
----@param actor?    Character|string    The Character instance or character id to set as the speaker.
+---@param actor?    Actor|Character|string    The Character instance or character id to set as the speaker.
 ---@param talk?     boolean             If `false`, the actor of the textbox will be set, but not the speaking character in the world for talking animations.
 function WorldCutscene:setSpeaker(actor, talk)
     if isClass(actor) and actor:includes(Character) then
