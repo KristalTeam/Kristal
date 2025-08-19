@@ -41,8 +41,6 @@
     },
     "diagnostics.disable": [
         "duplicate-set-field",
-        "need-check-nil",
-        "invisible",
-        "undefined-doc-param"
+        "need-check-nil"
     ]
 }
