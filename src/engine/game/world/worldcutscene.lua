@@ -706,9 +706,9 @@ end
 local function waitForTextbox(self) return not self.textbox or self.textbox:isDone() end
 --- Creates a new textbox and starts typing the given `text` into it. \
 --- Will pause the cutscene until the textbox is closed, unless otherwise specified via `options`.
----@overload fun(self: WorldCutscene, text: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
----@overload fun(self: WorldCutscene, text: string, portrait?: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
----@param text      string                      The text to be typed.
+---@overload fun(self: WorldCutscene, text: string|string[], options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@overload fun(self: WorldCutscene, text: string|string[], portrait?: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@param text      string|string[]             The text to be typed.
 ---@param portrait? string|nil                  The name of the character portrait to use for this textbox.
 ---@param actor?    Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
 ---@param options?  table                       A table definining additional properties to control the textbox.

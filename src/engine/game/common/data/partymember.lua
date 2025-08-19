@@ -362,7 +362,8 @@ function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or 
 ---@return number y
 function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
 
-function PartyMember:getGameOverMessage() return self.gameover_message end
+---@param main_chara PartyMember
+function PartyMember:getGameOverMessage(main) return self.gameover_message end
 
 -- Functions / Getters & Setters
 
@@ -567,7 +568,7 @@ function PartyMember:getArmor(i)
     return self.equipped.armor[i]
 end
 
----@param item string|Item
+---@param item string|Item?
 function PartyMember:setWeapon(item)
     if type(item) == "string" then
         item = Registry.createItem(item)
@@ -576,7 +577,7 @@ function PartyMember:setWeapon(item)
 end
 
 ---@param i     integer
----@param item  string|Item
+---@param item  string|Item?
 function PartyMember:setArmor(i, item)
     if type(item) == "string" then
         item = Registry.createItem(item)
@@ -609,8 +610,8 @@ end
 --- *(Override)* Checks whether this party member is able to equip a specific item \
 --- *By default, calls [`item:canEquip()`](lua://Item.canEquip) to check equippability, and rejects trying to unequip the item if the slot type is `"weapon"`*
 ---@param item          Item|nil
----@param slot_type     string
----@param slot_index    integer
+---@param slot_type     string?
+---@param slot_index    integer?
 ---@return boolean
 function PartyMember:canEquip(item, slot_type, slot_index)
     if item then

@@ -155,7 +155,7 @@ function Map:addTileset(id)
     if tileset then
         table.insert(self.tilesets, tileset)
         self.tileset_gids[tileset] = self.max_gid + 1
-        self.max_gid = self.max_gid + tileset.tilecount
+        self.max_gid = self.max_gid + tileset.tile_count
         return tileset
     else
         error("No tileset with id '"..id.."'")
@@ -188,7 +188,7 @@ end
 
 --- Gets a specific event present in the current map.
 ---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
----@return Event event The event instnace, or `nil` if it was not found. 
+---@return Event? event The event instnace, or `nil` if it was not found. 
 function Map:getEvent(id)
     if type(id) == "number" then
         return self.events_by_id[id]

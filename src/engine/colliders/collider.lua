@@ -2,6 +2,14 @@
 ---@overload fun(...) : Collider
 local Collider = Class()
 
+---@class Collider.Mode
+---@field invert boolean?
+---@field inside boolean?
+
+---@param parent Object
+---@param x number?
+---@param y number?
+---@param mode Collider.Mode
 function Collider:init(parent, x, y, mode)
     self.parent = parent
 

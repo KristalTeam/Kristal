@@ -33,7 +33,7 @@ function Timer:after(delay, func)
 end
 
 --- Runs a function as a coroutine.
----@param func fun(wait: fun(seconds: number))  The function to execute. The `wait` parameter of this function can be called to pause the coroutine of this script.
+---@param func fun(wait: fun(seconds: number?))  The function to execute. The `wait` parameter of this function can be called to pause the coroutine of this script.
 ---@return table handle
 function Timer:script(func)
     return self.timer:script(func)

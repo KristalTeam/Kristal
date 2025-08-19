@@ -226,15 +226,14 @@ end
 
 --- Starts executing a new cutscene script specified by `func`.
 ---@param func function|string  The new cutscene script.
----@param ... unknown           Additional arguments to pass to the new cutscene.
----@return unknown
+---@param ... any           Additional arguments to pass to the new cutscene.
+---@return any
 function Cutscene:gotoCutscene(func, ...)
     if self.getter then
         local new_func, args = self:parseFromGetter(self.getter, func, ...)
         return new_func(self, unpack(args))
-    else
-        return func(self, ...)
     end
+    return func(self, ...)
 end
 
 --- Plays a sound.

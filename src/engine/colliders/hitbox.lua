@@ -2,6 +2,8 @@
 ---@overload fun(...) : Hitbox
 local Hitbox, super = Class(Collider)
 
+---@param width number?
+---@param height number?
 function Hitbox:init(parent, x, y, width, height, mode)
     super.init(self, parent, x, y, mode)
 

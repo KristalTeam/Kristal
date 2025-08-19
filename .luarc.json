@@ -20,10 +20,29 @@
             "/mods/",
             "/output/",
 
-            "/conf.lua",
-            "/main.lua"
+            "/conf.lua"
         ]
     },
 
-    "docScriptPath": "/luadoc_meta/.buildDocs.lua"
+    "docScriptPath": "/luadoc_meta/.buildDocs.lua",
+    "workspace.library": [
+        "${addons}/love2d/module/library"
+    ],
+    "type": {
+        "weakUnionCheck": true,
+        "weakNilCheck": true
+    },
+    "runtime.builtin": {
+        "utf8": "enable"
+    },
+    "runtime.special": {
+        "love.filesystem.load": "loadfile",
+        "modRequire": "require"
+    },
+    "diagnostics.disable": [
+        "duplicate-set-field",
+        "need-check-nil",
+        "invisible",
+        "undefined-doc-param"
+    ]
 }

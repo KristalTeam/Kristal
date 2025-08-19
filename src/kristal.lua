@@ -1,4 +1,6 @@
 ---@class Kristal
+---@field Console Console
+---@field DebugSystem DebugSystem
 local Kristal = {}
 
 if HOTSWAPPING then
