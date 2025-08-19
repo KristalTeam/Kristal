@@ -1,4 +1,4 @@
----@class MainMenu
+---@class MainMenu : StatefulClass
 local MainMenu = {}
 
 MainMenu.BACKGROUND_SHADER = love.graphics.newShader([[

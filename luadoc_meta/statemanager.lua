@@ -1,0 +1,4 @@
+---@class StatefulClass : Class
+---@field state string
+---@field beforeStateChange fun(self: self, old: string, new: string)?
+---@field onStateChange fun(self: self, old: string, new: string, args: ...)?
