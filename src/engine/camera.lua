@@ -1,4 +1,4 @@
----@class Camera : Class, StatefulClass
+---@class Camera : Class, StateManagedClass
 ---
 ---@field parent Object|nil
 ---

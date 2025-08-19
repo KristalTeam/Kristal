@@ -1,7 +1,7 @@
 --- The `World` Object manages everything relating to the overworld in Kristal. \
 --- A globally available instance of `World` is stored in [`Game.world`](lua://Game.world).
 ---
----@class World : Object, StatefulClass
+---@class World : Object, StateManagedClass
 ---
 ---@field state             string                          The current state that this `World` is in - should never be set manually, see [`World:setState()`](lua://World.setState) instead
 ---@field state_manager     StateManager                    An object that manages the state of this `World`
