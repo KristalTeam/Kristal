@@ -839,7 +839,7 @@ function EnemyBattler:onDodge(battler, attacked) end
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then
         self:onDefeatRun(damage, battler)
-    else
+    elseif self.sprite then
         self.sprite:setAnimation("defeat")
     end
 end

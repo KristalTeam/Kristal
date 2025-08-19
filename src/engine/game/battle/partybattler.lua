@@ -352,11 +352,7 @@ end
 --- Toggles the visibility of the overlay sprite versus main sprite.
 ---@param overlay boolean?  Whether the overlay should be visible. If unset, will invert whatever the current visibility state is.
 function PartyBattler:toggleOverlay(overlay)
-    if overlay == nil then
-        overlay = self.sprite.visible
-    end
-    self.overlay_sprite.visible = overlay
-    self.sprite.visible = not overlay
+    super.toggleOverlay(self, overlay)
 end
 
 --- Sets the Battler's sprite back to their default (`battle/idle`)
@@ -416,12 +412,12 @@ function PartyBattler:update()
             self.chara:getArmor(i):onBattleUpdate(self)
         end
     end
-    
+
     if self.hurt_timer <= 15 then
         local hurt_index = math.min(self.hurt_timer / 2, 2)
-        self.sprite.x = (-10 + (math.floor(hurt_index) * 5))
         self.hurt_timer = self.hurt_timer + DTMULT
-    else
+        if self.sprite then self.sprite.x = (-10 + (math.floor(hurt_index) * 5)) end
+    elseif self.sprite then
         self.sprite.x = 0
     end
 
