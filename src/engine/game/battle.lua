@@ -2421,7 +2421,7 @@ end
 --- Starts a cutscene in battle \
 --- *When setting a cutscene during the `ACTIONS` state, see [`Battle:startActCutscene()](lua://Battle.startActCutscene) instead*
 ---@overload fun(self: Battle, id: string, ...)
----@overload fun(self: World, func: fun(cutscene: BattleCutscene, ...), ...)
+---@overload fun(self: World, func: BattleCutsceneFunc, ...)
 ---@param group string  The name of the group the cutscene is a part of
 ---@param id    string  The id of the cutscene 
 ---@param ...   any     Additional arguments that will be passed to the cutscene function

@@ -4,10 +4,10 @@
 ---@see LegendCutscene  # For functions specific to legend cutscene scripts.
 ---
 ---@class Cutscene : Class
----@overload fun(func: fun(cutscene: Cutscene, ...), ...) : Cutscene
+---@overload fun(func: CutsceneFunc, ...) : Cutscene
 local Cutscene, super = Class()
 
----@param func fun(cutscene: Cutscene, ...)
+---@param func CutsceneFunc
 ---@param ... unknown
 function Cutscene:init(func, ...)
     self.wait_timer = 0
