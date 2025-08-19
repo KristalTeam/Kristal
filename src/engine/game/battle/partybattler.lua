@@ -41,7 +41,7 @@ function PartyBattler:init(chara, x, y)
     self:setAnimation("battle/idle")
 
     self.action = nil
-    
+
     self.defending = false
     self.hurt_timer = 16
     self.hurting = false
@@ -394,16 +394,13 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
     self:addChild(afterimage2)
 end
 
---- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`Sprite:play()`](lua://Sprite.play)
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param speed?    number
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function PartyBattler:setSprite(sprite, speed, loop, after)
-    self.sprite:setSprite(sprite)
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
+    super.setSprite(self, sprite, speed, loop, after)
 end
 
 function PartyBattler:update()

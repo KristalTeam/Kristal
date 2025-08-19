@@ -74,12 +74,15 @@ function Battler:setActor(actor, use_overlay)
 
     if self.sprite         then self:removeChild(self.sprite)         end
     if self.overlay_sprite then self:removeChild(self.overlay_sprite) end
+    self:createSprite(use_overlay)
+end
 
-    self.sprite = self.actor:createSprite()
+function Battler:createSprite(use_overlay)
+    self.sprite = self.actor and self.actor:createSprite() or Sprite()
     self:addChild(self.sprite)
 
     if use_overlay ~= false then
-        self.overlay_sprite = self.actor:createSprite()
+        self.overlay_sprite = self.actor and self.actor:createSprite() or Sprite()
         self.overlay_sprite.visible = false
         self:addChild(self.overlay_sprite)
     end
@@ -228,15 +231,15 @@ function Battler:spawnSpeechBubble(text, options)
     if not options["style"] and self.dialogue_bubble then
         options["style"] = self.dialogue_bubble
     end
+    local x, y
     if not options["right"] then
-        local x, y = self.sprite:getRelativePos(0, self.sprite.height/2, Game.battle)
+        x, y = (self.sprite or self):getRelativePos(0, self.sprite.height/2, Game.battle)
         x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
-        bubble = SpeechBubble(text, x, y, options, self)
     else
-        local x, y = self.sprite:getRelativePos(self.sprite.width, self.sprite.height/2, Game.battle)
+        x, y = (self.sprite or self):getRelativePos(self.sprite.width, self.sprite.height/2, Game.battle)
         x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
-        bubble = SpeechBubble(text, x, y, options, self)
     end
+    bubble = SpeechBubble(text, x, y, options, self)
     self.bubble = bubble
     self:onBubbleSpawn(bubble)
     bubble:setCallback(function()
@@ -262,6 +265,9 @@ function Battler:onBubbleRemove(bubble) end
 ---@param animation string|table
 ---@param callback? fun(ActorSprite)
 function Battler:setAnimation(animation, callback)
+    if not self.sprite then
+        self:createSprite(true)
+    end
     return self.sprite:setAnimation(animation, callback)
 end
 
@@ -275,6 +281,21 @@ function Battler:getActiveSprite()
     end
 end
 
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
+---@param sprite?   string
+---@param speed?    number
+---@param loop?     boolean
+---@param after?    fun(ActorSprite)
+function EnemyBattler:setSprite(sprite, speed, loop, after)
+    if not self.sprite then
+        self:createSprite(true)
+    end
+    self.sprite:setSprite(sprite)
+    if not self.sprite.directional and speed then
+        self.sprite:play(speed, loop, after)
+    end
+end
+
 --- Shorthand for calling [`ActorSprite:setCustomSprite()`](lua://ActorSprite.setCustomSprite) and then [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param ox?       number
@@ -283,6 +304,9 @@ end
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
+    if not self.sprite then
+        self:createSprite(true)
+    end
     self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then
         self.sprite:play(speed, loop, after)

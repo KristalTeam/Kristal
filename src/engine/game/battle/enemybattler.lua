@@ -1021,22 +1021,13 @@ function EnemyBattler:setActor(actor, use_overlay)
     end
 end
 
---- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`Sprite:play()`](lua://Sprite.play)
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param speed?    number
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function EnemyBattler:setSprite(sprite, speed, loop, after)
-    if not self.sprite then
-        self.sprite = self.actor and ActorSprite(self.actor) or Sprite(sprite)
-        self.sprite:setSprite(sprite)
-        self:addChild(self.sprite)
-    else
-        self.sprite:setSprite(sprite)
-    end
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
+    super.setSprite(self, sprite, speed, loop, after)
 end
 
 function EnemyBattler:update()
