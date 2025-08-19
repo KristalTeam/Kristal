@@ -37,7 +37,8 @@
 ---
 ---@field can_open_menu     boolean                         Whether the player can open their menu
 ---
----@field menu              Object?             The Menu object of the menu, if it is open
+---@field menu              LightMenu|DarkMenu|Component?   The Menu object of the menu, if it is open
+---@field current_selecting number
 ---
 ---@field calls             table<[string, string]>   A list of calls available on the cell phone in the Light World CELL menu
 ---
@@ -243,7 +244,7 @@ function World:openMenu(menu, layer)
         elseif self.menu:includes(Component) then
             -- Sigh... traverse the children to find the menu component
             for _,child in ipairs(self.menu:getComponents()) do
-                if child:includes(AbstractMenuComponent) then
+                if child:includes(AbstractMenuComponent) then ---@cast child AbstractMenuComponent
                     child.close_callback = function()
                         self:afterMenuClosed()
                     end

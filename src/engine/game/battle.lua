@@ -44,7 +44,7 @@
 ---@field mask                      ArenaMask                       Objects parented to this will be masked to the arena
 ---@field timer                     Timer
 ---
----@field attackers                 EnemyBattler[]
+---@field attackers                 PartyBattler[]
 ---@field normal_attackers          PartyBattler[]
 ---@field auto_attackers            PartyBattler[]
 ---
