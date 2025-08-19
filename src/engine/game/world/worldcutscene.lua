@@ -47,9 +47,10 @@ function WorldCutscene:init(world, group, id, ...)
     Game.lock_movement = true
 
     if Game:isLight() then
-        if self.world.menu and self.world.menu.state == "ITEMMENU" then
-            self.world.menu:closeBox()
-            self.world.menu.state = "TEXT"
+        local menu = self.world.menu ---@type LightMenu
+        if menu and menu:includes(LightMenu) and menu.state == "ITEMMENU" then
+            menu:closeBox()
+            menu.state = "TEXT"
         end
     else
         self.world:closeMenu()

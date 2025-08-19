@@ -95,7 +95,7 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     fade = fade ~= false
     if type(save_id) == "table" then
-        local save = save_id
+        local save = save_id ---@type SaveData
         save_id = save_name
         save_name = nil
         self:load(save, save_id, fade)

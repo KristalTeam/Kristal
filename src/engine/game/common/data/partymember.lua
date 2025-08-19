@@ -362,7 +362,7 @@ function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or 
 ---@return number y
 function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
 
----@param main_chara PartyMember
+---@param main PartyMember
 function PartyMember:getGameOverMessage(main) return self.gameover_message end
 
 -- Functions / Getters & Setters
@@ -684,14 +684,14 @@ function PartyMember:getFlag(name, default)
 end
 
 --- Sets the value of the flag for this party member named `flag` to `value`
----@param flag  string
+---@param name  string
 ---@param value any
 function PartyMember:setFlag(name, value)
     self.flags[name] = value
 end
 
 --- Adds `amount` to a numeric flag for this party member named `flag` (or defines it if it does not exist)
----@param flag      string  The name of the flag to add to
+---@param name      string  The name of the flag to add to
 ---@param amount?   number  (Defaults to `1`)
 ---@return number new_value
 function PartyMember:addFlag(name, amount)

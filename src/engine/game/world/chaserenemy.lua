@@ -146,7 +146,7 @@ end
 function ChaserEnemy:onCollide(player)
     if self:isActive() and player:includes(Player) then
         self.encountered = true
-        local encounter = self.encounter
+        local encounter = self.encounter ---@type string|Encounter
         if not encounter and Registry.getEnemy(self.enemy or self.actor.id) then
             encounter = Encounter()
             encounter:addEnemy(self.actor.id)
@@ -164,7 +164,7 @@ function ChaserEnemy:onCollide(player)
                 wait(12/30)
                 self.world.encountering_enemy = false
                 Game.lock_movement = false
-                local enemy_target = self
+                local enemy_target = self ---@type ChaserEnemy|table[]
                 if self.enemy then
                     enemy_target = {{self.enemy, self}}
                 end
