@@ -385,7 +385,7 @@ end
 ---@returns EnemyBattler?
 function Battle:_getEnemyByIndex(index)
     local enemy = self.enemies_index[index] ---@type EnemyBattler|boolean
-    if not enemy then return false end
+    if not enemy then return nil end
     ---@cast enemy EnemyBattler
     return enemy
 end
