@@ -454,8 +454,8 @@ function Battle:onStateChange(old,new)
         self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
         self.selected_enemy = 1
-        
-        if not self:_isEnemyByIndexSelectable(self.current_menu_y) and #self.enemies_index > 0 then
+
+        if #self.enemies_index > 0 and not self:_isEnemyByIndexSelectable(self.current_menu_y) then
             local give_up = 0
             repeat
                 give_up = give_up + 1
@@ -3161,18 +3161,17 @@ function Battle:onKeyPressed(key)
             self.ui_select:play()
             if #self.enemies_index == 0 then return end
             self.selected_enemy = self.current_menu_y
+            local enemy = self:_getEnemyByIndex(self.selected_enemy)
             if self.state == "XACTENEMYSELECT" then
                 local xaction = Utils.copy(self.selected_xaction)
-                local enemy = self:_getEnemyByIndex(self.selected_enemy)
                 if xaction.default then
                     xaction.name = enemy:getXAction(self.party[self.current_selecting])
                 end
                 self:pushAction("XACT", enemy, xaction)
             elseif self.state_reason == "SPARE" then
-                self:pushAction("SPARE", self.enemies_index[self.selected_enemy])
+                self:pushAction("SPARE", enemy)
             elseif self.state_reason == "ACT" then
                 self:clearMenuItems()
-                local enemy = self:_getEnemyByIndex(self.selected_enemy)
                 for _,v in ipairs(enemy.acts) do
                     local insert = not v.hidden
                     if v.character and self.party[self.current_selecting].chara.id ~= v.character then
@@ -3203,11 +3202,11 @@ function Battle:onKeyPressed(key)
                 end
                 self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
-                self:pushAction("ATTACK", self.enemies_index[self.selected_enemy])
+                self:pushAction("ATTACK", enemy)
             elseif self.state_reason == "SPELL" then
-                self:pushAction("SPELL", self.enemies_index[self.selected_enemy], self.selected_spell)
+                self:pushAction("SPELL", enemy, self.selected_spell)
             elseif self.state_reason == "ITEM" then
-                self:pushAction("ITEM", self.enemies_index[self.selected_enemy], self.selected_item)
+                self:pushAction("ITEM", enemy, self.selected_item)
             else
                 self:nextParty()
             end
