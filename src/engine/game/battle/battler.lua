@@ -266,7 +266,7 @@ function Battler:onBubbleRemove(bubble) end
 ---@param callback? fun(ActorSprite)
 function Battler:setAnimation(animation, callback)
     if not self.sprite then
-        self:createSprite(true)
+        self:createSprite()
     end
     return self.sprite:setAnimation(animation, callback)
 end
@@ -288,7 +288,7 @@ end
 ---@param after?    fun(ActorSprite)
 function EnemyBattler:setSprite(sprite, speed, loop, after)
     if not self.sprite then
-        self:createSprite(true)
+        self:createSprite()
     end
     self.sprite:setSprite(sprite)
     if not self.sprite.directional and speed then
@@ -305,7 +305,7 @@ end
 ---@param after?    fun(ActorSprite)
 function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     if not self.sprite then
-        self:createSprite(true)
+        self:createSprite()
     end
     self.sprite:setCustomSprite(sprite, ox, oy)
     if not self.sprite.directional and speed then
