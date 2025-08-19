@@ -460,7 +460,7 @@ end
 
 --- Starts a cutscene in the world
 ---@overload fun(self: World, id: string, ...)
----@overload fun(self: World, func: fun(cutscene: WorldCutscene, ...), ...)
+---@overload fun(self: World, func: WorldCutsceneFunc, ...)
 ---@param group string  The name of the group the cutscene is a part of
 ---@param id    string  The id of the cutscene 
 ---@param ...   any     Additional arguments that will be passed to the cutscene function
@@ -498,7 +498,7 @@ end
 
 --- Shows a textbox with the input `text`
 ---@param text      string|string[]|string[][]
----@param after?    fun(cutscene: WorldCutscene)    A callback to run when the textbox is closed, receiving the cutscene instance used to display the text
+---@param after?    WorldCutsceneFunc        A callback to run when the textbox is closed, receiving the cutscene instance used to display the text
 function World:showText(text, after)
     if type(text) ~= "table" then
         text = {text}

@@ -7,9 +7,10 @@ local BattleCutscene, super = Class(Cutscene)
 
 local function _true() return true end
 
----@param group fun(cutscene: Cutscene, ...)
+---@overload fun(func: BattleCutsceneFunc, ...)
+---@param group string
 ---@param id? string
----@param ... unknown
+---@param ... any
 function BattleCutscene:init(group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getBattleCutscene, group, id, ...)
 
