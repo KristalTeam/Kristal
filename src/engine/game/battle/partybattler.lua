@@ -385,9 +385,12 @@ function PartyBattler:toggleOverlay(overlay)
     super.toggleOverlay(self, overlay)
 end
 
---- Sets the Battler's sprite back to their default (`battle/idle`)
+--- Sets the PartyBattler's sprite back to their default (`battle/idle`)
 function PartyBattler:resetSprite()
-    self:setAnimation("battle/idle")
+    super.resetSprite(self)
+    if self.sprite then
+        self:setAnimation("battle/idle")
+    end
 end
 
 --- Sets the battler's sprite for performing ACTs, including the additional flash effect

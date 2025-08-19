@@ -313,6 +313,13 @@ function Battler:setCustomSprite(sprite, ox, oy, speed, loop, after)
     end
 end
 
+--- Sets the Battler's sprite back to their default
+function Battler:resetSprite()
+    if self.sprite then
+        self.sprite:resetSprite()
+    end
+end
+
 function Battler:update()
     if Game.battle:isHighlighted(self) then
         self.highlight:setColor(1, 1, 1)
