@@ -92,7 +92,7 @@ end
 ---@param overlay boolean?  Whether the overlay should be visible. If unset, will invert whatever the current visibility state is.
 function Battler:toggleOverlay(overlay)
     if overlay == nil then
-        overlay = self.sprite.visible
+        overlay = self.sprite and self.sprite.visible or false
     end
     if self.overlay_sprite then
         self.overlay_sprite.visible = overlay
@@ -232,11 +232,12 @@ function Battler:spawnSpeechBubble(text, options)
         options["style"] = self.dialogue_bubble
     end
     local x, y
+    local spr = self.sprite or self
     if not options["right"] then
-        x, y = (self.sprite or self):getRelativePos(0, self.sprite.height/2, Game.battle)
+        x, y = spr:getRelativePos(0, spr.height/2, Game.battle)
         x, y = x + self.dialogue_offset[1], y + self.dialogue_offset[2]
     else
-        x, y = (self.sprite or self):getRelativePos(self.sprite.width, self.sprite.height/2, Game.battle)
+        x, y = spr:getRelativePos(spr.width, spr.height/2, Game.battle)
         x, y = x - self.dialogue_offset[1], y + self.dialogue_offset[2]
     end
     bubble = SpeechBubble(text, x, y, options, self)
