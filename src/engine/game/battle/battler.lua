@@ -96,7 +96,7 @@ function Battler:toggleOverlay(overlay)
     end
     if self.overlay_sprite then
         self.overlay_sprite.visible = overlay
-        self.sprite.visible = not overlay
+        if self.sprite then self.sprite.visible = not overlay end
     end
 end
 
