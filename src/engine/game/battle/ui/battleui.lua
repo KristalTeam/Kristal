@@ -406,6 +406,7 @@ function BattleUI:drawState()
             local y_off = (index - page_offset - 1) * 30
 
             if enemy then
+                ---@cast enemy EnemyBattler
                 local name_colors = enemy:getNameColors()
                 if type(name_colors) ~= "table" then
                     name_colors = {name_colors}

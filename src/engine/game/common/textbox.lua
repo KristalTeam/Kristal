@@ -276,8 +276,8 @@ function Textbox:resetReactions()
     self.reaction_instances = {}
 end
 
----@param x Textbox.REACTION_X
----@param y Textbox.REACTION_Y
+---@param x number
+---@param y number
 function Textbox:addReaction(id, text, x, y, face, actor)
     x, y = x or 0, y or 0
     if type(x) == "string" then
@@ -306,6 +306,7 @@ function Textbox:addFunction(id, func)
     self.text:addFunction(id, func)
 end
 
+---@param text string|string[]
 function Textbox:setText(text, callback)
     -- Clear reactions
     for _, reaction in ipairs(self.reaction_instances) do

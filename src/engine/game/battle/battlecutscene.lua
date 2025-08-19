@@ -410,25 +410,26 @@ end
 ---@return table?   bubbles         A table of all bubbles created by this function call.
 function BattleCutscene:battlerText(battlers, text, options)
     options = options or {}
-    if type(battlers) == "string" then
-        local id = battlers
-        battlers = {}
+    local _battlers = {} ---@type Battler[]
+    if type(_battlers) == "string" then
+        local id = battlers ---@type string
+        _battlers = {}
         for _,battler in ipairs(Game.battle.enemies) do
             if battler.id == id then
-                table.insert(battlers, battler)
+                table.insert(_battlers, battler)
             end
         end
         for _,battler in ipairs(Game.battle.party) do
             if battler.chara.id == id then
-                table.insert(battlers, battler)
+                table.insert(_battlers, battler)
             end
         end
-    elseif isClass(battlers) then
-        battlers = {battlers}
+    elseif isClass(_battlers) then
+        _battlers = {battlers}
     end
     local wait = options["wait"] or options["wait"] == nil
     local bubbles = {}
-    for _,battler in ipairs(battlers) do
+    for _,battler in ipairs(_battlers) do
         local bubble
         if not options["x"] and not options["y"] then
             bubble = battler:spawnSpeechBubble(text, options)

@@ -131,7 +131,7 @@ function Encounter:onReturnToWorld(events) end
 
 --- *(Override)* Called whenever dialogue is about to start, if this returns a value, it will be unpacked and passed
 --- into [`Battle:startCutscene(...)`](lua://Battle.startCutscene), as an alternative to standard dialogue.
----@return table?
+---@return string|fun(cutscene: BattleCutscene, ...)?
 function Encounter:getDialogueCutscene() end
 
 ---@param money integer     Current victory money based on normal money calculations
@@ -303,8 +303,8 @@ function Encounter:getSoulSpawnLocation()
         local battler = Game.battle.party[Game.battle:getPartyIndex(main_chara.id)]
 
         if battler then
-            if main_chara.soul_offset then
-                return battler:localToScreenPos(main_chara.soul_offset[1], main_chara.soul_offset[2])
+            if main_chara.actor:getSoulOffset() then
+                return battler:localToScreenPos(main_chara.actor:getSoulOffset()[1], main_chara.actor:getSoulOffset()[2])
             else
                 return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
             end

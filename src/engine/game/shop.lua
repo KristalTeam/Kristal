@@ -845,7 +845,7 @@ function Shop:draw()
 
                     local party_member = Game.party[i]
                     local can_equip = party_member:canEquip(current_item.item)
-                    local head_path = ""
+                    local head_path
 
                     love.graphics.setFont(self.plain_font)
                     Draw.setColor(COLORS.white)
