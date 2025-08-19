@@ -386,7 +386,6 @@ end
 function Battle:_getEnemyByIndex(index)
     local enemy = self.enemies_index[index] ---@type EnemyBattler|boolean
     if not enemy then return false end
-    assert(isClass(enemy) and enemy:includes(EnemyBattler))
     ---@cast enemy EnemyBattler
     return enemy
 end
