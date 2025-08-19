@@ -1,4 +1,4 @@
----@class MainMenuModCreate : StateClass
+---@class MainMenuModCreate : StateClass, StatefulClass
 ---
 ---@field menu MainMenu
 ---
