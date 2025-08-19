@@ -62,6 +62,10 @@
 ---@field temporary_mercy           number              The current amount of temporary mercy
 ---@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
 ---
+---@field target_x                  number?
+---@field target_y                  number?
+---@field encounter                 Encounter?
+---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
@@ -370,6 +374,7 @@ function EnemyBattler:getSpareText(battler, success)
     if success then
         return "* " .. battler.chara:getName() .. " spared " .. self.name .. "!"
     else
+        ---@type string|string[]
         local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
         if self.tired then
             local found_spell = nil
@@ -654,7 +659,7 @@ end
 --- *Acts will **softlock** Kristal if a string value or table is not returned by this function when they are used*
 ---@param battler   PartyBattler
 ---@param name      string
----@return string[]|string text
+---@return string[]|string? text
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
@@ -677,7 +682,7 @@ end
 --- *(Override)* Called when a short ACT is used, functions identically to [`EnemyBattler:onAct()`](lua://EnemyBattler.onAct) but for short acts
 ---@param battler   PartyBattler
 ---@param name      string
----@return string[]|string text
+---@return string[]|string? text
 function EnemyBattler:onShortAct(battler, name) end
 
 --- *(Override)* Called at the start of every new turn in battle
@@ -687,7 +692,7 @@ function EnemyBattler:onTurnEnd() end
 
 --- Retrieves the data of an act on this enemy by its `name`
 ---@param name string
----@return table
+---@return table?
 function EnemyBattler:getAct(name)
     for _,act in ipairs(self.acts) do
         if act.name == name then
@@ -1023,7 +1028,8 @@ end
 ---@param after?    fun(ActorSprite)
 function EnemyBattler:setSprite(sprite, speed, loop, after)
     if not self.sprite then
-        self.sprite = Sprite(sprite)
+        self.sprite = self.actor and ActorSprite(self.actor) or Sprite(sprite)
+        self.sprite:setSprite(sprite)
         self:addChild(self.sprite)
     else
         self.sprite:setSprite(sprite)

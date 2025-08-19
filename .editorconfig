@@ -34,7 +34,7 @@ call_arg_parentheses = keep
 detect_end_of_line = false
 
 # this will check text end with new line
-insert_final_newline = true
+insert_final_newline = false
 
 # [space]
 space_around_table_field_list = true

@@ -32,8 +32,9 @@ function Stage:init(x, y, w, h)
 end
 
 --- Gets every object attached to this stage that inherits from `class`
----@param class Class       The included Class to select from
----@return Object[] matches All the objects parented to this stage that inherit from `class`
+---@generic T:Class
+---@param class T       The included Class to select from
+---@return T[] matches  All the objects parented to this stage that inherit from `class`
 function Stage:getObjects(class)
     if class then
         return Utils.filter(self.objects_by_class[class] or {}, function(o) return o.stage == self end)
