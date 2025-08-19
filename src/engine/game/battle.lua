@@ -393,6 +393,7 @@ end
 ---@private
 function Battle:_isEnemyByIndexSelectable(index)
     local enemy = self:_getEnemyByIndex(index)
+    if not enemy then return false end
     return enemy.selectable
 end
 
