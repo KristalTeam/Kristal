@@ -137,7 +137,7 @@ end
 
 function GonerKeyboard:undoCharacter()
     if Utils.len(self.text) > 0 then
-        self.text = Utils.sub(1, Utils.len(self.text) - 1)
+        self.text = Utils.sub(self.text, 1, Utils.len(self.text) - 1)
     end
 end
 
