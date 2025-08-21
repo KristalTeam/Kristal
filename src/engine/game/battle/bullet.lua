@@ -22,6 +22,8 @@
 ---
 ---@field remove_offscreen  boolean
 ---
+---@field element           string?
+---
 local Bullet, super = Class(Object)
 
 ---@param x         number
@@ -62,6 +64,9 @@ function Bullet:init(x, y, texture)
 
     -- Whether to remove this bullet when it goes offscreen (Defaults to `true`)
     self.remove_offscreen = true
+
+    -- This bullet's element
+    self.element = nil
 end
 
 --- Get the graze tension for this bullet.
@@ -86,6 +91,11 @@ function Bullet:getDamage()
     return self.damage or (self.attacker and self.attacker.attack * 5) or 0
 end
 
+---@return string
+function Bullet:getElement()
+    return self.element or (self.attacker and self.attacker.element) or ""
+end
+
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
 --- Not calling `super.onDamage()` here will stop the normal damage logic from occurring.
 ---@param soul Soul
@@ -93,7 +103,7 @@ end
 function Bullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
-        local battlers = Game.battle:hurt(damage, false, self:getTarget())
+        local battlers = Game.battle:hurt(damage, self:getElement(), false, self:getTarget())
         soul.inv_timer = self.inv_timer
         soul:onDamage(self, damage)
         return battlers

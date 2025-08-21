@@ -50,6 +50,11 @@ function item:init()
         ralsei = "Two pairs of glasses?",
         noelle = "(Seems... familiar?)",
     }
+
+    -- This item's element
+    self.element = "puppet/cat"
+    -- The multiplier for damage reduction based on this element
+    self.element_reduce_amount = 0.40
 end
 
 function item:applyMoneyBonus(gold)
