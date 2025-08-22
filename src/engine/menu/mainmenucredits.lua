@@ -63,8 +63,8 @@ function MainMenuCredits:init(menu)
             },
             {
                 {"GitHub Contributors", COLORS.silver},
-                "WIL-TZY",
                 "Verozity",
+                "WIL-TZY",
                 "",
                 "",
                 "",
