@@ -20,12 +20,12 @@ function MainMenuCredits:init(menu)
         {
             "Kristal Engine",
             {
-                {"Lead Developers", COLORS.silver},
+                { "Lead Developers", COLORS.silver },
                 "NyakoFox",
                 "SylviBlossom",
                 "vitellary",
                 "",
-                {"Assets", COLORS.silver},
+                { "Assets", COLORS.silver },
                 "Toby Fox",
                 "Temmie Chang",
                 "DELTARUNE team",
@@ -33,7 +33,7 @@ function MainMenuCredits:init(menu)
                 "",
             },
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
                 "AcousticJamm",
                 "Agent 7",
                 "AlexGamingSW",
@@ -64,7 +64,7 @@ function MainMenuCredits:init(menu)
             {
                 {"GitHub Contributors", COLORS.silver},
                 "WIL-TZY",
-                "",
+                "Verozity",
                 "",
                 "",
                 "",
