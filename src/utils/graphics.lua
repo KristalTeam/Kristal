@@ -3,6 +3,8 @@ local graphics = love.graphics
 
 local old_replaceTransform = love.graphics.replaceTransform
 
+---@alias GraphicsStackItem love.Transform|table
+---@type GraphicsStackItem[]
 local transformStack = {}
 
 local transform = love.math.newTransform()
@@ -84,12 +86,38 @@ function graphics.origin()
 end
 
 function graphics.pop()
-    transform = table.remove(transformStack, 1)
+    local item = table.remove(transformStack, 1)
+    if type(item) == "userdata" then
+        transform = item
+    else
+        transform = item.transform
+        love.graphics.setBackgroundColor(item.backgroundColor)
+        love.graphics.setBlendMode(unpack(item.blendMode))
+        love.graphics.setCanvas(item.canvas)
+        love.graphics.setFont(item.font)
+        love.graphics.setColorMask(unpack(item.colorMask))
+        love.graphics.setShader(item.shader)
+        Draw.popScissor()
+    end
     old_replaceTransform(transform)
 end
 
-function graphics.push()
-    table.insert(transformStack, 1, transform)
+function graphics.push(stack)
+    ---@type GraphicsStackItem
+    local item = transform
+    if stack == "all" then
+        item = {
+            transform = transform,
+            backgroundColor = {love.graphics.getBackgroundColor()},
+            blendMode = {love.graphics.getBlendMode()},
+            canvas = love.graphics.getCanvas(),
+            font = love.graphics.getFont(),
+            colorMask = {love.graphics.getColorMask()},
+            shader = love.graphics.getShader()
+        }
+        Draw.pushScissor()
+    end
+    table.insert(transformStack, 1, item)
     transform = transform:clone()
 end
 
