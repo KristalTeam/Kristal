@@ -287,7 +287,7 @@ end
 ---@param speed?    number
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
-function EnemyBattler:setSprite(sprite, speed, loop, after)
+function Battler:setSprite(sprite, speed, loop, after)
     if not self.sprite then
         self:createSprite()
     end
