@@ -20,6 +20,7 @@ function Class(include, id) end
 ---@field private __includes Class[]
 ---@field private __includes_all { [Class]: boolean }
 ---@field private __dont_include { [string]: boolean }
+---@field private __tracked boolean?
 ---
 ---@field private init fun(self: Class, ...)
 ---

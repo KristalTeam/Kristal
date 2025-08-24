@@ -50,7 +50,7 @@ function DebugWindow:init(name, text, type, callback)
             multiline = false,
             enter_submits = true,
         })
-        TextInput.submit_callback = function (...) self:onSubmit() end
+        TextInput.submit_callback = function() self:onSubmit() end
     end
 end
 
