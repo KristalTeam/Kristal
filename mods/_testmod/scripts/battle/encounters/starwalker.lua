@@ -3,7 +3,7 @@ local Starwalker, super = Class(Encounter)
 function Starwalker:init()
     super.init(self)
 
-    self.text = "* Star walker has      changed forms...\n* [color:yellow]TP[color:reset] Gain reduced outside of [color:green]???[color:reset]"
+    self.text = "* Star walker has changed forms...\n* [color:yellow]TP[color:reset] Gain reduced outside of [color:yellow]Fallen Stars![color:reset]"
 
     self.starwalker = self:addEnemy("starwalker", 530, 238)
 
@@ -26,7 +26,7 @@ end
 function Starwalker:update()
     super.update(self)
 
-    for _,enemy in pairs(Game.battle.enemy_world_characters) do
+    for _, enemy in pairs(Game.battle.enemy_world_characters) do
         enemy:remove()
     end
 end

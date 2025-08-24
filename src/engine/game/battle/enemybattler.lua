@@ -166,7 +166,7 @@ function EnemyBattler:setTired(bool)
             if self.parent then
                 self:statusMessage("msg", "tired")
                 Assets.playSound("spellcast", 0.5, 0.9)
-            end 
+            end
         end
     else
         self.comment = ""
