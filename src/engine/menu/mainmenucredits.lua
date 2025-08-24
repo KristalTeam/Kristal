@@ -49,7 +49,7 @@ function MainMenuCredits:init(menu)
         {
             "Kristal Engine",
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
                 "Lionmeow",
                 "Luna",
                 "MCdeDaxia",
@@ -62,7 +62,7 @@ function MainMenuCredits:init(menu)
                 "TFLTV"
             },
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
                 "Verozity",
                 "WIL-TZY",
                 "",

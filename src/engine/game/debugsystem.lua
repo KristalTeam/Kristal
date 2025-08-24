@@ -102,8 +102,8 @@ function DebugSystem:init()
 end
 
 function DebugSystem:getStage()
-    if Gamestate.current() then
-        return Gamestate.current().stage
+    if Kristal.getState() then
+        return Kristal.getState().stage
     end
 end
 

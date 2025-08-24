@@ -9,7 +9,12 @@ local transformStack = {}
 
 local transform = love.math.newTransform()
 
+local old_reset = love.graphics.reset
+
 function graphics.reset()
+    old_reset()
+    love.graphics.setDefaultFilter("nearest", "nearest")
+
     transformStack = {}
     love.graphics.origin()
 

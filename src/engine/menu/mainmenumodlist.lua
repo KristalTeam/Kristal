@@ -374,6 +374,9 @@ function MainMenuModList:buildModListFavorited()
                 self.scripts[mod.id] = result
                 button.preview_script = result
 
+                result.fade = 0
+                result.selected = false
+
                 if result.init then
                     result:init(mod, button)
                 end
@@ -478,6 +481,9 @@ function MainMenuModList:buildModList()
             if success then
                 self.scripts[mod.id] = result
                 button.preview_script = result
+
+                result.fade = 0
+                result.selected = false
 
                 if result.init then
                     result:init(mod, button)

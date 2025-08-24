@@ -13,7 +13,6 @@ https = require("src.lib.https")
 utf8 = require("utf8")
 
 _Class = require("src.lib.hump.class")
-Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
 LibTimer = require("src.lib.hump.timer")
 JSON = require("src.lib.json")

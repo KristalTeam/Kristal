@@ -245,6 +245,10 @@ function Draw.popShader()
     love.graphics.setShader(table.remove(self._shader_stack, 1))
 end
 
+function Draw.reset()
+    love.graphics.reset()
+end
+
 ---@param r? number
 ---@param g? number
 ---@param b? number
