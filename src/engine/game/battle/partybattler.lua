@@ -270,33 +270,37 @@ end
 --- Heals the Battler by `amount` health and does healing effects
 ---@param amount            number  The amount of health to restore
 ---@param sparkle_color?    table   The color of the heal sparkles (defaults to the standard green)
----@param show_up?          boolean Whether the "UP" status message should show if the battler is revived by the heal
-function PartyBattler:heal(amount, sparkle_color, show_up)
-    Assets.stopAndPlaySound("power")
+---@param auto_heal?        boolean Whether the heal was done automatically
+---@param playsound?        boolean Whether a sound will play on heal
+function PartyBattler:heal(amount, sparkle_color, auto_heal, playsound)
+    if playsound ~= false then
+        Assets.stopAndPlaySound("power")
+    end
 
-    amount = math.floor(amount)
-
-    self.chara:setHealth(self.chara:getHealth() + amount)
+    if self.chara:getHealth() < self.chara:getStat("health") then
+        self.chara:setHealth(math.min(self.chara:getStat("health"), self.chara:getHealth() + amount))
+    end
 
     local was_down = self.is_down
     self:checkHealth()
 
-    self:flash()
+    if not auto_heal then
+        self:flash()
+    end
 
     if self.chara:getHealth() >= self.chara:getStat("health") then
-        self.chara:setHealth(self.chara:getStat("health"))
         self:statusMessage("msg", "max")
     else
-        if show_up then
-            if was_down ~= self.is_down then
-                self:statusMessage("msg", "up")
-            end
+        if auto_heal and was_down ~= self.is_down then
+            self:statusMessage("msg", "up")
         else
             self:statusMessage("heal", amount, {0, 1, 0})
         end
     end
 
-    self:sparkle(unpack(sparkle_color or {}))
+    if not auto_heal then
+        self:sparkle(unpack(sparkle_color or {}))
+    end
 end
 
 --- Checks whether the battler's down state needs to be changed based on its current health
