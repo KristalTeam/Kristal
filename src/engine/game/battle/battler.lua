@@ -152,6 +152,15 @@ function Battler:sparkle(r, g, b)
     end, 4)
 end
 
+--- Creates a standard "healing effect" (flash, sparkles).
+---@param r? number
+---@param g? number
+---@param b? number
+function Battler:healEffect(r, g, b)
+    self:flash()
+    self:sparkle(r, g, b)
+end
+
 --- Creates a status text on the battler. \
 --- Used for information such as damage numbers, being downed, or missing a hit
 ---@param x?        number  The x-coordinate the message should appear at, relative to the battler.
@@ -166,8 +175,9 @@ end
 ---|"msg"       # The path to the sprite, relative to `ui/battle/message`, to use
 ---@param color?    table   The color used to draw the status message, defaulting to white
 ---@param kill?     boolean Whether this status should cause all other statuses to disappear.
+---@param delay?    number  The number of frames before this message first appears
 ---@return DamageNumber
-function Battler:statusMessage(x, y, type, arg, color, kill)
+function Battler:statusMessage(x, y, type, arg, color, kill, delay)
     x, y = self:getRelativePos(x, y)
 
     local offset = 0
@@ -175,7 +185,7 @@ function Battler:statusMessage(x, y, type, arg, color, kill)
         offset = (self.hit_count * 20)
     end
 
-    local percent = DamageNumber(type, arg, x + 4, y + 20 - offset, color)
+    local percent = DamageNumber(type, arg, x + 4, y + 20 - offset, color, delay)
     if kill then
         percent.kill_others = true
     end

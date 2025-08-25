@@ -889,21 +889,20 @@ function EnemyBattler:onDefeatFatal(damage, battler)
 end
 
 --- Heals the enemy by `amount` health
----@param amount number
-function EnemyBattler:heal(amount)
+---@param amount            number  The amount of health to restore
+---@param sparkle_color?    table   The color of the heal sparkles (defaults to the standard green) or false to not show sparkles
+function EnemyBattler:heal(amount, sparkle_color)
     Assets.stopAndPlaySound("power")
     self.health = self.health + amount
 
-    self:flash()
-
     if self.health >= self.max_health then
         self.health = self.max_health
-        self:statusMessage("msg", "max")
+        self:statusMessage("msg", "max", nil, nil, 8)
     else
-        self:statusMessage("heal", amount, {0, 1, 0})
+        self:statusMessage("heal", amount, {0, 1, 0}, nil, 8)
     end
 
-    self:sparkle()
+    self:healEffect(unpack(sparkle_color or {}))
 end
 
 --- Freezes this enemy and defeats them with the reason `"FROZEN"` \
