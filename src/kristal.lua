@@ -18,6 +18,7 @@ else
 
     Kristal.EnteredStates = {}
     Kristal.CurrentState = nil
+    Kristal.StateStack = {}
 
     Kristal.Loader = {
         in_channel = nil,
@@ -963,6 +964,58 @@ function Kristal.setState(state, ...)
 
     if Kristal.CurrentState.enter then
         Kristal.CurrentState:enter(previous, ...)
+    end
+end
+
+--- Pushes a new Gamestate onto the stack.
+---@param state table|string The gamestate to switch to.
+---| "Loading" # The loading state, before entering the main menu.
+---| "Menu"    # The main menu state.
+---| "Game"    # The game state, entered when loading a mod.
+---| "Testing" # The testing state, used in development.
+---| "Empty"   # An empty state, which does nothing.
+---@param ... any Arguments passed to the gamestate.
+function Kristal.pushState(state, ...)
+    local previous = Kristal.getState()
+
+    if previous ~= nil and previous.pause then
+        previous:pause()
+    end
+
+    table.insert(Kristal.StateStack, previous)
+
+    if type(state) == "string" then
+        Kristal.CurrentState = Kristal.States[state]
+    else
+        Kristal.CurrentState = state
+    end
+
+    if not Kristal.EnteredStates[Kristal.CurrentState] and Kristal.CurrentState.init then
+        Kristal.EnteredStates[Kristal.CurrentState] = true
+        Kristal.CurrentState:init()
+    end
+
+    if Kristal.CurrentState.enter then
+        Kristal.CurrentState:enter(previous, ...)
+    end
+end
+
+--- Pops the current Gamestate off the stack, returning to the previous one.
+function Kristal.popState()
+    local previous = Kristal.getState()
+
+    if previous ~= nil and previous.leave then
+        previous:leave()
+    end
+
+    Kristal.CurrentState = table.remove(Kristal.StateStack, #Kristal.StateStack)
+
+    if Kristal.CurrentState == nil then
+        error("Attempt to pop state with empty stack!")
+    end
+
+    if Kristal.CurrentState.resume then
+        Kristal.CurrentState:resume()
     end
 end
 
