@@ -7,7 +7,7 @@ local DamageNumber, super = Class(Object)
 --    "mercy"/"damage": amount
 --    "msg": message sprite name ("down", "frozen", "lost", "max", "mercy", "miss", "recruit", "up", "tired", and "awake")
 
-function DamageNumber:init(type, arg, x, y, color)
+function DamageNumber:init(type, arg, x, y, color, delay)
     super.init(self, x, y)
 
     self:setOrigin(1, 0)
@@ -20,7 +20,7 @@ function DamageNumber:init(type, arg, x, y, color)
     self:setDisplay(type, arg, true)
 
     self.timer = 0
-    self.delay = 2
+    self.delay = delay or 2
     self.kill_delay = 0
 
     self.bounces = 0
