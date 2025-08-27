@@ -23,8 +23,17 @@ require("src.lib.stable_sort")
 Class = require("src.utils.class")
 require("src.utils.graphics")
 
-GitFinder = require("src.utils.gitfinder")
+ColorUtils = require("src.utils.colorutils")
+MathUtils = require("src.utils.mathutils")
+StringUtils = require("src.utils.stringutils")
+TableUtils = require("src.utils.tableutils")
+ClassUtils = require("src.utils.classutils")
+TiledUtils = require("src.utils.tiledutils")
+FileSystemUtils = require("src.utils.filesystemutils")
+HookSystem = require("src.utils.hooksystem")
 Utils = require("src.utils.utils")
+
+GitFinder = require("src.utils.gitfinder")
 CollisionUtil = require("src.utils.collision")
 Draw = require("src.utils.draw")
 

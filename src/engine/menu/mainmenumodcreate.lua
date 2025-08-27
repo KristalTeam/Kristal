@@ -381,7 +381,7 @@ function MainMenuModCreate:createMod()
     end
 
     -- Copy the files from mod_template
-    local files = Utils.findFiles("mod_template")
+    local files = FileSystemUtils.findFiles("mod_template")
     for i, file in ipairs(files) do
         local src = "mod_template/" .. file
         local dst = dir .. file
