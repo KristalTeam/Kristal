@@ -15,6 +15,7 @@ function ModList:init(x, y, width, height)
 
     self.mods = {}
     self.selected = 0
+    self.selected_x = 1
 end
 
 function ModList:getSelected()
@@ -23,6 +24,10 @@ end
 
 function ModList:getSelectedMod()
     local selected = self.mods[self.selected]
+    if not selected then return nil end
+    if selected:includes(ModListLine) then
+        return selected.selected_mod.mod or {}
+    end
     return selected and selected.mod
 end
 
@@ -32,6 +37,10 @@ end
 
 function ModList:getSelectedId()
     local selected = self.mods[self.selected]
+    if not selected then return nil end
+    if selected:includes(ModListLine) then
+        return selected.selected_mod.id or {}
+    end
     return selected and selected.id
 end
 
@@ -47,6 +56,7 @@ function ModList:clearMods()
     for _,v in ipairs(self.mods) do
         self.mod_container:removeChild(v)
     end
+    self.mod_list_line = nil
     self.mods = {}
     self.selected = 0
     self.mod_list_height = 0
@@ -54,10 +64,22 @@ function ModList:clearMods()
 end
 
 function ModList:addMod(mod)
+    if mod:includes(SmallModButton) then
+        if self.mod_list_line and self.mod_list_line:canAddMod(mod) then
+            self.mod_list_line:addMod(mod)
+        else
+            self.mod_list_line = ModListLine(self, 0, self.mod_list_height + 4, 498, 92-10)
+            self.mod_list_line:addMod(mod)
+            self:addMod(self.mod_list_line)
+        end
+        return
+    elseif mod:includes(ModButton) then
+        self.mod_list_line = nil
+    end
     table.insert(self.mods, mod)
     self.mod_container:addChild(mod)
     mod:setPosition(4, self.mod_list_height + 4)
-    self.mod_list_height = self.mod_list_height + mod.height + 8
+    self.mod_list_height = self.mod_list_height + (mod.height/1) + 8
     if (self.selected == 0) and (#self.mods == 1) then
         self.selected = 1
         mod:onSelect()
@@ -85,6 +107,15 @@ function ModList:select(i, mute)
     return success
 end
 
+function ModList:selectX(i, mute)
+    local sel_line = self:getSelected()
+    if not sel_line:includes(ModListLine) then
+        return false
+    end
+    ---@cast sel_line ModListLine
+    return sel_line:select(i, mute)
+end
+
 function ModList:selectUp(no_wrap)
     if self.selected == 0 or #self.mods == 0 then
         self:select(1)
@@ -93,6 +124,30 @@ function ModList:selectUp(no_wrap)
             self:select(math.max(self.selected - 1, 1))
         else
             self:select((self.selected - 2) % #self.mods + 1)
+        end
+    end
+end
+
+function ModList:selectLeft(no_wrap)
+    if self.selected == 0 or #self.mods == 0 then
+        self:selectX(1)
+    else
+        if no_wrap then
+            self:selectX(Utils.clamp(self.selected_x - 1, 1, #self:getSelected().mods))
+        else
+            self:selectX(Utils.clampWrap(self.selected_x - 1, 1, #self:getSelected().mods))
+        end
+    end
+end
+
+function ModList:selectRight(no_wrap)
+    if self.selected_x == 0 or #self.mods == 0 then
+        self:selectX(1)
+    else
+        if no_wrap then
+            self:selectX(Utils.clamp(self.selected_x + 1, 1, #self:getSelected().mods))
+        else
+            self:selectX(Utils.clampWrap(self.selected_x + 1, 1, #self:getSelected().mods))
         end
     end
 end
