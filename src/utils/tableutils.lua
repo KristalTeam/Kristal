@@ -613,26 +613,6 @@ function TableUtils.getKeys(t)
 end
 
 ---
---- Returns a read-only table.
----
----@generic T
----@param tbl T # The table's initial values.
----@return T result # A new read-only table.
----
-function TableUtils.readOnly(tbl)
-    return setmetatable({}, {
-        __index = tbl,
-        __newindex = function(_, key, value)
-            if (tbl[key]) then
-                error("Attempt to set read-only variable \"" .. key .. "\"", 3)
-            else
-                error("Attempt to inject variable \"" .. key .. "\" into read-only environment", 3)
-            end
-        end
-    })
-end
-
----
 --- Returns whether a table starts with the specified values. \
 --- The function will also return a second value, created by copying the initial value and removing the prefix.
 ---
