@@ -247,6 +247,7 @@ end
 ---@overload fun(self: Sprite, anim: {[1]: string|table, [2]: function, callback: fun(self: Sprite), duration: number, frames: (number|string)[], next: string|table})
 ---@overload fun(self: Sprite, anim: {[1]: function, callback: fun(self: Sprite), duration: number, frames: (number|string)[], next: string|table})
 ---@overload fun(self: Sprite, anim: fun(wait: fun(time: number)))
+---@overload fun(self: Sprite, anim: string)
 function Sprite:setAnimation(anim)
     self:stop(true)
     self.anim_duration = -1

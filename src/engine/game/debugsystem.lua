@@ -452,7 +452,7 @@ function DebugSystem:startTextInput(tbl)
         clear_after_submit = false
     })
 
-    TextInput.submit_callback = function (...)
+    TextInput.submit_callback = function()
         Assets.playSound("ui_select")
         self.current_selecting = self.current_selecting + 1
         self:updateBounds(self:getValidOptions())
