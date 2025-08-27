@@ -226,7 +226,7 @@ function Draw.pushShader(shader, vars)
         elseif Kristal.Shaders[shader] then
             shader = Kristal.Shaders[shader]
         else
-            error("Couldn't find shader \""..shader.."\"")
+            error("Couldn't find shader \"" .. shader .. "\"")
         end
     end
     table.insert(self._shader_stack, 1, love.graphics.getShader())

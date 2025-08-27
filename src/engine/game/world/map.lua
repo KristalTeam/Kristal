@@ -11,7 +11,7 @@ function Map:init(world, data)
 
     if data and data.full_path then
         local map_path = data.full_path
-        map_path = Utils.split(map_path, "/")
+        map_path = StringUtils.split(map_path, "/")
         map_path = table.concat(map_path, "/", 1, #map_path - 1)
         self.full_map_path = map_path
     else
@@ -287,8 +287,8 @@ function Map:loadMapData(data)
             table.insert(layers, layer)
         else
             for i,sublayer in ipairs(layer.layers) do
-                local sublayer_copy = Utils.copy(sublayer)
-                sublayer_copy.properties = Utils.mergeMultiple(layer.properties, sublayer_copy.properties)
+                local sublayer_copy = TableUtils.copy(sublayer)
+                sublayer_copy.properties = TableUtils.mergeMany(layer.properties, sublayer_copy.properties)
                 if i == #layer.layers then
                     sublayer_copy.properties.thin = sublayer.properties.thin
                 end
@@ -302,7 +302,7 @@ function Map:loadMapData(data)
     end
 
     for _,layer in ipairs(data.layers or {}) do
-        loadLayer(Utils.copy(layer))
+        loadLayer(TableUtils.copy(layer))
     end
 
     for i,layer in ipairs(layers) do
@@ -317,17 +317,17 @@ function Map:loadMapData(data)
     for i,layer in ipairs(layers) do
         local name = layer.name:lower()
         local depth = indexed_layers[i]
-        if not has_battle_border and Utils.startsWith(name, "battleborder") then
+        if not has_battle_border and StringUtils.startsWith(name, "battleborder") then
             self.battle_fader_layer = depth - (self.depth_per_layer/2)
             has_battle_border = true
         end
-        if layer.type == "objectgroup" and Utils.startsWith(name, "objects") then
+        if layer.type == "objectgroup" and StringUtils.startsWith(name, "objects") then
             table.insert(object_depths, depth)
             if layer.properties["spawn"] then
                 self.object_layer = depth
             end
         end
-        if layer.type == "tilelayer" and not Utils.startsWith(name, "battleborder") then
+        if layer.type == "tilelayer" and not StringUtils.startsWith(name, "battleborder") then
             table.insert(tile_depths, depth)
         end
         if not Kristal.callEvent(KRISTAL_EVENT.loadLayer, self, layer, depth) then
@@ -344,7 +344,7 @@ function Map:loadMapData(data)
             local name = layer.name:lower()
             local depth = indexed_layers[i]
             if layer.type == "objectgroup" then
-                if Utils.startsWith(name, "markers") then
+                if StringUtils.startsWith(name, "markers") then
                     has_markers_layer = true
                     priority_object_layer = nil
                     if #object_depths == 0 then
@@ -402,21 +402,21 @@ function Map:loadLayer(layer, depth)
     elseif layer.type == "imagelayer" then
         self:loadImage(layer, depth)
     elseif layer.type == "objectgroup" then
-        if Utils.startsWith(layer.name:lower(), "objects") then
+        if StringUtils.startsWith(layer.name:lower(), "objects") then
             self:loadObjects(layer, depth, "events")
-        elseif Utils.startsWith(layer.name:lower(), "controllers") then
+        elseif StringUtils.startsWith(layer.name:lower(), "controllers") then
             self:loadObjects(layer, depth, "controllers")
-        elseif Utils.startsWith(layer.name:lower(), "markers") then
+        elseif StringUtils.startsWith(layer.name:lower(), "markers") then
             self:loadMarkers(layer)
-        elseif Utils.startsWith(layer.name:lower(), "collision") then
+        elseif StringUtils.startsWith(layer.name:lower(), "collision") then
             self:loadCollision(layer)
-        elseif Utils.startsWith(layer.name:lower(), "enemycollision") then
+        elseif StringUtils.startsWith(layer.name:lower(), "enemycollision") then
             self:loadEnemyCollision(layer)
-        elseif Utils.startsWith(layer.name:lower(), "blockcollision") then
+        elseif StringUtils.startsWith(layer.name:lower(), "blockcollision") then
             self:loadBlockCollision(layer)
-        elseif Utils.startsWith(layer.name:lower(), "paths") then
+        elseif StringUtils.startsWith(layer.name:lower(), "paths") then
             self:loadPaths(layer)
-        elseif Utils.startsWith(layer.name:lower(), "battleareas") then
+        elseif StringUtils.startsWith(layer.name:lower(), "battleareas") then
             self:loadBattleAreas(layer)
         end
         self:loadShapes(layer)
@@ -429,13 +429,13 @@ function Map:loadTiles(layer, depth)
     tilelayer.layer = depth
     self.world:addChild(tilelayer)
     table.insert(self.tile_layers, tilelayer)
-    if Utils.startsWith(layer.name:lower(), "battleborder") then
+    if StringUtils.startsWith(layer.name:lower(), "battleborder") then
         table.insert(self.battle_borders, tilelayer)
     end
 end
 
 function Map:loadImage(layer, depth)
-    local texture = Utils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
+    local texture = FileSystemUtils.absoluteToLocalPath("assets/sprites/", layer.image, self.full_map_path)
     if not texture then
         error("Invalid image location for layer " .. layer.name)
     end
@@ -460,26 +460,26 @@ function Map:loadImage(layer, depth)
     sprite:setScale(layer.properties["scalex"] or 1, layer.properties["scaley"] or 1)
     self.world:addChild(sprite)
     self.image_layers[layer.name] = sprite
-    if Utils.startsWith(layer.name:lower(), "battleborder") then
+    if StringUtils.startsWith(layer.name:lower(), "battleborder") then
         sprite.alpha = 0
         table.insert(self.battle_borders, sprite)
     end
 end
 
 function Map:loadCollision(layer)
-    Utils.merge(self.collision, self:loadHitboxes(layer))
+    TableUtils.merge(self.collision, self:loadHitboxes(layer))
 end
 
 function Map:loadEnemyCollision(layer)
-    Utils.merge(self.enemy_collision, self:loadHitboxes(layer))
+    TableUtils.merge(self.enemy_collision, self:loadHitboxes(layer))
 end
 
 function Map:loadBlockCollision(layer)
-    Utils.merge(self.block_collision, self:loadHitboxes(layer))
+    TableUtils.merge(self.block_collision, self:loadHitboxes(layer))
 end
 
 function Map:loadBattleAreas(layer)
-    Utils.merge(self.battle_areas, self:loadHitboxes(layer))
+    TableUtils.merge(self.battle_areas, self:loadHitboxes(layer))
 end
 
 function Map:loadHitboxes(layer)
@@ -517,7 +517,7 @@ function Map:loadMarkers(layer)
         v.center_x = v.x + v.width/2
         v.center_y = v.y + v.height/2
 
-        local marker = Utils.copy(v, true)
+        local marker = TableUtils.copy(v, true)
 
         v.x = v.x + (layer.offsetx or 0)
         v.y = v.y + (layer.offsety or 0)
@@ -534,21 +534,21 @@ function Map:loadPaths(layer)
         local path = {}
         if v.shape == "ellipse" then
             path.shape = "ellipse"
-            path.x = v.x + v.width/2 + ox
-            path.y = v.y + v.height/2 + oy
-            path.rx = v.width/2 + ox
-            path.ry = v.height/2 + oy
+            path.x = v.x + v.width / 2 + ox
+            path.y = v.y + v.height / 2 + oy
+            path.rx = v.width / 2 + ox
+            path.ry = v.height / 2 + oy
 
             -- Roughly calculte ellipse perimeter bc the actual calculation is hard
-            path.length = 2*math.pi*((path.rx + path.ry)/2)
+            path.length = 2 * math.pi * ((path.rx + path.ry) / 2)
             path.closed = true
         else
             path.shape = "line"
             path.x = v.x
             path.y = v.y
-            local points = Utils.copy(v.polygon or v.polyline or {})
+            local points = TableUtils.copy(v.polygon or v.polyline or {})
             if v.shape == "rectangle" then
-                points = {{x = 0, y = 0}, {x = v.width, y = 0}, {x = v.width, y = v.height}, {x = 0, y = v.height}, {x = 0, y = 0}}
+                points = { { x = 0, y = 0 }, { x = v.width, y = 0 }, { x = v.width, y = v.height }, { x = 0, y = v.height }, { x = 0, y = 0 } }
                 path.closed = true
             else
                 if v.shape ~= "polyline" then
@@ -556,13 +556,13 @@ function Map:loadPaths(layer)
                     path.closed = true
                 end
             end
-            for i,point in ipairs(points) do
-                points[i] = {x = v.x + point.x + ox, y = v.y + point.y + oy}
+            for i, point in ipairs(points) do
+                points[i] = { x = v.x + point.x + ox, y = v.y + point.y + oy }
             end
             path.points = points
             path.length = 0
-            for i = 1, #points-1 do
-                path.length = path.length + Utils.dist(points[i].x, points[i].y, points[i+1].x, points[i+1].y)
+            for i = 1, #points - 1 do
+                path.length = path.length + MathUtils.dist(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y)
             end
         end
         self.paths[v.name] = path
@@ -571,17 +571,17 @@ end
 
 function Map:shouldLoadObject(data, layer)
     local skip_loading = false
-    local uid = self:getUniqueID().."#"..tostring(data.properties["uid"] or data.id)
+    local uid = self:getUniqueID() .. "#" .. tostring(data.properties["uid"] or data.id)
     if data.properties["cond"] then
-        local env = setmetatable({}, {__index = function(t, k)
-            return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
+        local env = setmetatable({}, {__index = function (t, k)
+            return Game.flags[uid .. ":" .. k] or Game.flags[k] or _G[k]
         end})
-        local chunk, _ = assert(loadstring("return "..data.properties["cond"]))
+        local chunk, _ = assert(loadstring("return " .. data.properties["cond"]))
         skip_loading = not setfenv(chunk, env)()
     elseif data.properties["flagcheck"] then
-        local inverted, flag = Utils.startsWith(data.properties["flagcheck"], "!")
+        local inverted, flag = StringUtils.startsWith(data.properties["flagcheck"], "!")
 
-        local result = Game.flags[uid..":"..flag] or Game.flags[flag]
+        local result = Game.flags[uid .. ":" .. flag] or Game.flags[flag]
         local value = data.properties["flagvalue"]
         local is_true
         if value ~= nil then
@@ -608,8 +608,8 @@ function Map:loadObjects(layer, depth, layer_type)
     for _,v in ipairs(layer.objects) do
         v.width = v.width or 0
         v.height = v.height or 0
-        v.center_x = v.x + v.width/2
-        v.center_y = v.y + v.height/2
+        v.center_x = v.x + v.width / 2
+        v.center_y = v.y + v.height / 2
 
         -- Get width/height of the full polygon (usable when a polygon is not supported on an object)
         if v.polygon then
@@ -623,14 +623,14 @@ function Map:loadObjects(layer, depth, layer_type)
 
             v.width = max_x - min_x
             v.height = max_y - min_y
-            v.center_x = v.x - min_x + v.width/2
-            v.center_y = v.y - min_y + v.height/2
+            v.center_x = v.x - min_x + v.width / 2
+            v.center_y = v.y - min_y + v.height / 2
         end
 
         if v.gid then
-            local tx,ty,tw,th = self:getTileObjectRect(v)
-            v.center_x = tx + tw/2
-            v.center_y = ty + th/2
+            local tx, ty, tw, th = self:getTileObjectRect(v)
+            v.center_x = tx + tw / 2
+            v.center_y = ty + th / 2
         end
 
         local obj_type = v.type or v.class
@@ -638,8 +638,8 @@ function Map:loadObjects(layer, depth, layer_type)
             obj_type = v.name
         end
 
-        local uid = self:getUniqueID().."#"..tostring(v.properties["uid"] or v.id)
-        if not Game:getFlag(uid..":dont_load") then
+        local uid = self:getUniqueID() .. "#" .. tostring(v.properties["uid"] or v.id)
+        if not Game:getFlag(uid .. ":dont_load") then
             if self:shouldLoadObject(v, layer) then
                 local obj
                 if layer_type == "controllers" then
@@ -712,8 +712,8 @@ function Map:loadObject(name, data)
     end
     local chara_x, chara_y = data.center_x, data.center_y
     if data.gid then
-        local tx,ty,tw,th = self:getTileObjectRect(data)
-        chara_x = tx + tw/2
+        local tx, ty, tw, th = self:getTileObjectRect(data)
+        chara_x = tx + tw / 2
         chara_y = ty + th
     end
 
@@ -820,7 +820,7 @@ function Map:populateTilesets(data)
         local tileset
         local filename = tileset_data.exportfilename or tileset_data.filename
         if filename then
-            local tileset_path = Utils.absoluteToLocalPath("scripts/world/tilesets/", filename, self.full_map_path)
+            local tileset_path = FileSystemUtils.absoluteToLocalPath("scripts/world/tilesets/", filename, self.full_map_path)
             tileset = Registry.getTileset(tileset_path)
             if not tileset then
                 error("Failed to load map \""..self.data.id.."\", tileset not found: \""..filename.."\"")
@@ -837,7 +837,7 @@ end
 
 function Map:getTileset(id)
     if type(id) == "number" then
-        id = Utils.parseTileGid(id)
+        id = TiledUtils.parseTileGid(id)
         for i = 1, #self.tilesets do
             local tileset = self.tilesets[i]
             local first_id = self.tileset_gids[tileset]
@@ -860,7 +860,7 @@ function Map:getTileset(id)
 end
 
 function Map:getTileObjectRect(data)
-    local gid = Utils.parseTileGid(data.gid)
+    local gid = TiledUtils.parseTileGid(data.gid)
     local tileset = self:getTileset(gid)
 
     local origin = Tileset.ORIGINS[tileset.object_alignment] or Tileset.ORIGINS["unspecified"]
@@ -870,7 +870,7 @@ end
 
 function Map:createTileObject(data, x, y, width, height)
     if data.gid then
-        local gid, flip_x, flip_y = Utils.parseTileGid(data.gid)
+        local gid, flip_x, flip_y = TiledUtils.parseTileGid(data.gid)
         local tileset, tile_id = self:getTileset(gid)
         return TileObject(tileset, tile_id, x or data.x, y or data.y, width or data.width, height or data.height, math.rad(data.rotation or 0), flip_x, flip_y)
     end

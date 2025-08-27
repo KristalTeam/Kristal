@@ -160,7 +160,7 @@ function character:onLevelUp(level)
 end
 
 function character:onPowerSelect(menu)
-    if Utils.random() < ((Game.chapter == 1) and 0.02 or 0.04) then
+    if MathUtils.random() < ((Game.chapter == 1) and 0.02 or 0.04) then
         menu.kris_dog = true
     else
         menu.kris_dog = false
