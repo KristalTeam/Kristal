@@ -1,5 +1,5 @@
 ---@class Object : Object
-local Object, super = Utils.hookScript(Object)
+local Object, super = HookSystem.hookScript(Object)
 
 -- sorry hyperboid its awesome but we gotta kill it
 --[[

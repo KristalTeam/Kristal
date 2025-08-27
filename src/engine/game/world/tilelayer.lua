@@ -84,7 +84,7 @@ function TileLayer:draw()
             local tx = ((i - 1) % self.map_width) * grid_w
             local ty = math.floor((i - 1) / self.map_width) * grid_h
 
-            local gid, flip_x, flip_y, flip_diag = Utils.parseTileGid(xid)
+            local gid, flip_x, flip_y, flip_diag = TiledUtils.parseTileGid(xid)
             local tileset, id = self.map:getTileset(gid)
             if tileset then
                 if not tileset:getAnimation(id) then
