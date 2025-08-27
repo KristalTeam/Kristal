@@ -50,7 +50,7 @@ function ActionButton:select()
                 ["data"] = spell,
                 ["callback"] = function(menu_item)
                     Game.battle.selected_xaction = spell
-                    Game.battle:setState("XACTENEMYSELECT", "SPELL")
+                    Game.battle:setState("ENEMYSELECT", "XACT")
                 end
             })
         end
@@ -74,7 +74,7 @@ function ActionButton:select()
                     ["data"] = spell,
                     ["callback"] = function(menu_item)
                         Game.battle.selected_xaction = spell
-                        Game.battle:setState("XACTENEMYSELECT", "SPELL")
+                        Game.battle:setState("ENEMYSELECT", "XACT")
                     end
                 })
             end
