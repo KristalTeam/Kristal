@@ -1939,7 +1939,7 @@ function Object:updateGraphicsTransform()
 end
 
 function Object:onClone(src)
-    if self.parent and self.parent.children and not TableUtils.containsValue(self.parent.children, self) then
+    if self.parent and self.parent.children and not TableUtils.contains(self.parent.children, self) then
         self.parent = nil
     end
     self.stage = nil
