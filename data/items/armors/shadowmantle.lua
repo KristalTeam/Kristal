@@ -52,8 +52,10 @@ function item:init()
         noelle = "No... it's for someone... taller.",
     }
 
-    -- TODO: Elemental resistance
-    -- Resists element 5 by 0.66
+    -- This item's element
+    self.element = "dark/star"
+    -- The multiplier for damage reduction based on this element
+    self.element_reduce_amount = 0.66
 end
 
 return item
