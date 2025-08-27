@@ -131,7 +131,7 @@ function Encounter:onReturnToWorld(events) end
 
 --- *(Override)* Called whenever dialogue is about to start, if this returns a value, it will be unpacked and passed
 --- into [`Battle:startCutscene(...)`](lua://Battle.startCutscene), as an alternative to standard dialogue.
----@return string|BattleCutsceneFunc?
+---@return string|BattleCutsceneFunc?, any
 function Encounter:getDialogueCutscene() end
 
 ---@param money integer     Current victory money based on normal money calculations
