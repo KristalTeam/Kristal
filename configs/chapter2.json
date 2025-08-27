@@ -11,6 +11,7 @@
 
     "susieStyle": 2,                 // Susie chapter style
     "ralseiStyle": 2,                // Ralsei chapter style
+    "spellsStyle": 2,                // Spells chapter style
 
     "oldTensionBar": false,          // Syle of TP bar
     "oldUIPositions": false,         // Old positions of various UI elements
