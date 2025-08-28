@@ -908,10 +908,17 @@ function Battle:registerXAction(party, name, description, tp)
     table.insert(self.xactions, act)
 end
 
+--- A simple redirect to the Encounter's [`getInitialEncounterText`](lua://Encounter.getInitialEncounterText). \
+--- Here for encapsulation and hooking, if you need more complex behavior.
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Battle:getInitialEncounterText()
     return self.encounter:getInitialEncounterText()
 end
 
+--- A simple redirect to the Encounter's [`getEncounterText`](lua://Encounter.getEncounterText). \
+--- Here for encapsulation and hooking, if you need more complex behavior.
 ---@return string|string[] text # If a table, you should use [next] to advance the text
 ---@return string? portrait # The portrait to show
 ---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
