@@ -474,4 +474,25 @@ function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
     end
 end
 
+--- This draws the menu rectangle. \
+--- In DELTARUNE's demo, the menu box drawing was broken, with some sizes being off by one pixel. \
+--- We intentionally recreated that, but they fixed it in DELTARUNE (2025), so we... added a config option.
+---@param x number # The x position of the rectangle.
+---@param y number # The y position of the rectangle.
+---@param width number # The width of the rectangle.
+---@param height number # The height of the rectangle.
+function Draw.drawMenuRectangle(x, y, width, height)
+    -- Make sure the line is a single pixel wide
+    love.graphics.setLineWidth(1)
+    love.graphics.setLineStyle("rough")
+
+    local extra = Kristal.Config["brokenMenuBoxes"] and 0 or 1
+
+    -- Draw the rectangles
+    love.graphics.rectangle("line", x, y, width + 1, height + 1)
+    love.graphics.rectangle("line", x - 1, y - 1, width + 2 + extra, height + 2 + extra)
+    love.graphics.rectangle("line", x - 2, y - 2, width + 5, height + 5)
+    love.graphics.rectangle("line", x - 3, y - 3, width + 6 + extra, height + 6 + extra)
+end
+
 return Draw

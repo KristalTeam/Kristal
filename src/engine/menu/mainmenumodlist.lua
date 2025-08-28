@@ -102,7 +102,7 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
 
             elseif mod then
                 Assets.stopAndPlaySound("ui_select")
-                if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems( "saves/"..mod.id ) > 0))
+                if (mod["useSaves"] == "has_saves" and (#love.filesystem.getDirectoryItems("saves/" .. mod.id) > 0))
                 or (mod["useSaves"] ~= "has_saves" and mod["useSaves"])
                 or (mod["useSaves"] == nil and not mod["encounter"]) then
                     self.menu:setState("FILESELECT")
@@ -361,7 +361,7 @@ function MainMenuModList:buildModListFavorited()
     end)
     
     -- Add mods to the list
-    for _,mod in ipairs(self.mods) do
+    for _, mod in ipairs(self.mods) do
         -- Create the mod button
         local button = ModButton(mod.name or mod.id, 424, 62, mod)
         self.list:addMod(button)
