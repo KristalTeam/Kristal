@@ -481,6 +481,9 @@ function MainMenu:drawVersion()
 end
 
 function MainMenu:setState(state, ...)
+    self.selected_mod = self.mod_list:getSelectedMod()
+    self.selected_mod_button = self.mod_list:getSelectedButton()
+
     self.state_manager:setState(state, ...)
 end
 
