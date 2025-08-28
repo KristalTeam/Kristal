@@ -62,6 +62,9 @@ function MainMenuModList:onEnter(old_state)
     elseif #self.list.mods > 0 then
         self.list.active = true
         self.list.visible = true
+
+        self.menu.selected_mod = self:getSelectedMod()
+        self.menu.selected_mod_button = self:getSelectedButton()
     end
 end
 
@@ -72,7 +75,7 @@ function MainMenuModList:onLeave(new_state)
     end
 
     self.active = false
-    
+
     self.menu.heart:setColor(Kristal.getSoulColor())
     self.menu.heart_outline.visible = false
 end
