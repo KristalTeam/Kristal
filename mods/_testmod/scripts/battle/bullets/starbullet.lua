@@ -12,6 +12,10 @@ function StarBullet:init(x, y)
     self.timer = 0
 end
 
+function StarBullet:shouldSwoon(damage, target, soul)
+    return true
+end
+
 function StarBullet:update()
     super.update(self)
 

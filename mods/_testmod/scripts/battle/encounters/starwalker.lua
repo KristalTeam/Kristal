@@ -23,6 +23,17 @@ function Starwalker:init()
     --Game.battle:registerXAction("susie", "Supercharge", "Charge\nfaster", 80)
 end
 
+function Starwalker:isAutoHealingEnabled(target)
+    return false
+end
+
+function Starwalker:canSwoon(target)
+    if (target.chara.id == "kris") then
+        return false
+    end
+    return true
+end
+
 function Starwalker:update()
     super.update(self)
 

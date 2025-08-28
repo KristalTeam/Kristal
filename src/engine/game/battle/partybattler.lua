@@ -131,8 +131,11 @@ end
 ---@param color?    table   The color of the damage number
 ---@param options?  table   A table defining additional properties to control the way damage is taken
 ---|"all"   # Whether the damage being taken comes from a strike targeting the whole party
+---|"swoon" # Whether the damage should swoon the battler instead of downing them
 function PartyBattler:hurt(amount, exact, color, options)
     options = options or {}
+
+    local swoon = options["swoon"]
 
     if not options["all"] then
         Assets.playSound("hurt")
@@ -146,7 +149,7 @@ function PartyBattler:hurt(amount, exact, color, options)
             amount = math.ceil((amount * self:getElementReduction(element)))
         end
 
-        self:removeHealth(amount)
+        self:removeHealth(amount, swoon)
     else
         -- We're targeting everyone.
         if not exact then
@@ -159,12 +162,12 @@ function PartyBattler:hurt(amount, exact, color, options)
                 amount = math.ceil((3 * amount) / 4) -- Slightly different than the above
             end
         end
-        
-        self:removeHealthBroken(amount) -- Use a separate function for cleanliness
+
+        self:removeHealthBroken(amount, swoon) -- Use a separate function for cleanliness
     end
 
     if (self.chara:getHealth() <= 0) then
-        self:statusMessage("msg", "down", color, true)
+        self:statusMessage("msg", swoon and "swoon" or "down", color, true)
     else
         self:statusMessage("damage", amount, color, true)
     end
@@ -195,29 +198,51 @@ end
 
 --- Removes health from the character and sets their downed HP value if necessary
 ---@param amount number
-function PartyBattler:removeHealth(amount)
+---@param swoon boolean? Whether to swoon rather than down
+function PartyBattler:removeHealth(amount, swoon)
     if (self.chara:getHealth() <= 0) then
         amount = Utils.round(amount / 4)
         self.chara:setHealth(self.chara:getHealth() - amount)
     else
         self.chara:setHealth(self.chara:getHealth() - amount)
         if (self.chara:getHealth() <= 0) then
-            amount = math.abs((self.chara:getHealth() - (self.chara:getStat("health") / 2)))
-            self.chara:setHealth(Utils.round(((-self.chara:getStat("health")) / 2)))
+            if swoon then
+                self.chara:setHealth(-999)
+            else
+                amount = math.abs((self.chara:getHealth() - (self.chara:getStat("health") / 2)))
+                self.chara:setHealth(Utils.round(((-self.chara:getStat("health")) / 2)))
+            end
         end
     end
-    self:checkHealth()
+    self:checkHealth(swoon)
 end
 
 --- A variant of [`PartyBattler:removeHealth()`](lua://PartyBattler.removeHealth) that uses Kris' (or the first party member)'s HP for downed hp values (used for deltarune accuracy)
 ---@param amount number
-function PartyBattler:removeHealthBroken(amount)
+---@param swoon boolean? Whether to swoon rather than down
+function PartyBattler:removeHealthBroken(amount, swoon)
     self.chara:setHealth(self.chara:getHealth() - amount)
     if (self.chara:getHealth() <= 0) then
-        -- BUG: Use Kris' max health...
-        self.chara:setHealth(Utils.round(((-Game.party[1]:getStat("health")) / 2)))
+        if swoon then
+            self.chara:setHealth(-999)
+        else
+            -- BUG: Use Kris' max health...
+            self.chara:setHealth(Utils.round(((-Game.party[1]:getStat("health")) / 2)))
+        end
     end
-    self:checkHealth()
+    self:checkHealth(swoon)
+end
+
+function PartyBattler:swoon()
+    self.is_down = true
+    self.sleeping = false
+    self.hurting = false
+    self:toggleOverlay(true)
+    self.overlay_sprite:setAnimation("battle/swooned")
+    if self.action then
+        Game.battle:removeAction(Game.battle:getPartyIndex(self.chara.id))
+    end
+    Game.battle:checkGameOver()
 end
 
 function PartyBattler:down()
@@ -279,7 +304,7 @@ function PartyBattler:heal(amount, sparkle_color, show_up)
     self.chara:setHealth(self.chara:getHealth() + amount)
 
     local was_down = self.is_down
-    self:checkHealth()
+    self:checkHealth(false)
 
     if self.chara:getHealth() >= self.chara:getStat("health") then
         self.chara:setHealth(self.chara:getStat("health"))
@@ -291,16 +316,21 @@ function PartyBattler:heal(amount, sparkle_color, show_up)
             self:statusMessage("heal", amount, {0, 1, 0}, nil, show_up and 1 or 8)
         end
     end
-    
+
     if not show_up then
         self:healEffect(unpack(sparkle_color or {}))
     end
 end
 
 --- Checks whether the battler's down state needs to be changed based on its current health
-function PartyBattler:checkHealth()
+---@param swoon boolean? Whether the battler should be swooned instead of downed if their health is 0 or below
+function PartyBattler:checkHealth(swoon)
     if (not self.is_down) and self.chara:getHealth() <= 0 then
-        self:down()
+        if swoon then
+            self:swoon()
+        else
+            self:down()
+        end
     elseif (self.is_down) and self.chara:getHealth() > 0 then
         self:revive()
     end

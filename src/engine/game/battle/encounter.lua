@@ -381,4 +381,20 @@ function Encounter:getDefendTension(battler)
     return 16
 end
 
+--- *(Override)* Whether automatic healing while downed is enabled in this encounter. \
+--- *By default, returns `true`.*
+---@param battler PartyBattler The current battler about to auto-heal.
+---@return boolean
+function Encounter:isAutoHealingEnabled(battler)
+    return true
+end
+
+--- *(Override)* Whether a party member can get swooned in this encounter or not.
+--- *By default, returns `true` for everyone.*
+---@param target PartyBattler The current target.
+---@return boolean
+function Encounter:canSwoon(target)
+    return true
+end
+
 return Encounter

@@ -1960,11 +1960,12 @@ function Battle:getPartyFromTarget(target)
 end
 
 --- Hurts the `target` party member(s)
----@param amount    number
----@param exact?    boolean
----@param target?   number|"ALL"|"ANY"|PartyBattler The target battler's index, instance, or strings for specific selection logic (defaults to `"ANY"`)
+---@param amount    number # The amount of damage which should be dealt.
+---@param exact?    boolean # Whether or not the damage should be applied exactly (defaults to `false`)
+---@param target?   number|"ALL"|"ANY"|PartyBattler # The target of the attack. Can be a battler's index, a battler, "ANY" or "ALL" (defaults to `"ANY"`)
+---@param swoon?    boolean # Whether or not the damage will swoon the battler if they're downed
 ---@return table?
-function Battle:hurt(amount, exact, target)
+function Battle:hurt(amount, exact, target, swoon)
     -- If target is a numberic value, it will hurt the party battler with that index
     -- "ANY" will choose the target randomly
     -- "ALL" will hurt the entire party all at once
@@ -2023,15 +2024,15 @@ function Battle:hurt(amount, exact, target)
 
     -- Now it's time to actually damage them!
     if isClass(target) and target:includes(PartyBattler) then
-        target:hurt(amount, exact)
-        return {target}
+        target:hurt(amount, exact, nil, { swoon = self.encounter:canSwoon(target) and swoon })
+        return { target }
     end
 
     if target == "ALL" then
         Assets.playSound("hurt")
         local alive_battlers = Utils.filter(self.party, function(battler) return not battler.is_down end)
         for _,battler in ipairs(alive_battlers) do
-            battler:hurt(amount, exact, nil, {all = true})
+            battler:hurt(amount, exact, nil, { all = true, swoon = self.encounter:canSwoon(battler) and swoon })
         end
         -- Return the battlers who aren't down, aka the ones we hit.
         return alive_battlers
@@ -2175,7 +2176,7 @@ function Battle:nextTurn()
 
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
-        if (battler.chara:getHealth() <= 0) and battler.chara:canAutoHeal() then
+        if (battler.chara:getHealth() <= 0) and battler.chara:canAutoHeal() and self.encounter:isAutoHealingEnabled(battler) then
             battler:heal(battler.chara:autoHealAmount(), nil, true)
         end
         battler.action = nil

@@ -86,6 +86,16 @@ function Bullet:getDamage()
     return self.damage or (self.attacker and self.attacker.attack * 5) or 0
 end
 
+--- *(Override)* Whether this bullet should swoon the battler if they are downed by it. \
+--- Defaults to `false`.
+---@param damage number # The amount of damage the bullet will deal
+---@param target PartyBattler|"ANY"|"ALL"|number # The target of the bullet
+---@param soul Soul # The soul
+---@return boolean
+function Bullet:shouldSwoon(damage, target, soul)
+    return false
+end
+
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
 --- Not calling `super.onDamage()` here will stop the normal damage logic from occurring.
 ---@param soul Soul
@@ -93,7 +103,8 @@ end
 function Bullet:onDamage(soul)
     local damage = self:getDamage()
     if damage > 0 then
-        local battlers = Game.battle:hurt(damage, false, self:getTarget())
+        local target = self:getTarget()
+        local battlers = Game.battle:hurt(damage, false, target, self:shouldSwoon(damage, target, soul))
         soul.inv_timer = self.inv_timer
         soul:onDamage(self, damage)
         return battlers

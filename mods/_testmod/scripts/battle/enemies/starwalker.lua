@@ -66,6 +66,10 @@ function Starwalker:init()
     self.was_hit = false
 end
 
+function Starwalker:getTarget()
+    return "ALL"
+end
+
 function Starwalker:makeBullet(x, y)
     if (Utils.random() < 0.25) then
         return Registry.createBullet("FallenStarBullet", x, y)
