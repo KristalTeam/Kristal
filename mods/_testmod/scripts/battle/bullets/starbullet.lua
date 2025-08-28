@@ -8,13 +8,19 @@ function StarBullet:init(x, y)
 
     self.inv_timer = 1 / 30
     self.destroy_on_hit = false
+
+    self.timer = 0
 end
 
 function StarBullet:update()
     super.update(self)
 
+    self.timer = self.timer + DTMULT
     if self.parent then
-        self.parent:addChild(AfterImage(self, 0.5, 0.1))
+        while self.timer >= 1 do
+            self.parent:addChild(AfterImage(self, 0.5, 0.1))
+            self.timer = self.timer - 1
+        end
     end
 end
 

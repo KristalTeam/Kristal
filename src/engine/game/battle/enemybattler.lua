@@ -568,7 +568,9 @@ function EnemyBattler:getNameColors()
 end
 
 --- Gets the encounter text that should be shown in the battle box if this enemy is chosen for encounter text. Called at the start of each turn.
----@return string? text
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function EnemyBattler:getEncounterText()
     local has_spareable_text = self.spareable_text and self:canSpare()
 

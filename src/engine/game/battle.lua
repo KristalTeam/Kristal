@@ -409,7 +409,7 @@ function Battle:onStateChange(old,new)
         end
 
         if self.state_reason == "CANCEL" then
-            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
+            self:setEncounterText(self.battle_ui.current_encounter_text, true)
         end
 
         local had_started = self.started
@@ -908,6 +908,13 @@ function Battle:registerXAction(party, name, description, tp)
     table.insert(self.xactions, act)
 end
 
+function Battle:getInitialEncounterText()
+    return self.encounter:getInitialEncounterText()
+end
+
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Battle:getEncounterText()
     return self.encounter:getEncounterText()
 end
@@ -2091,7 +2098,7 @@ function Battle:nextParty()
     else
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
-            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
+            self:setEncounterText(self.battle_ui.current_encounter_text, true)
         end
         local party = self.party[self.current_selecting]
         party.chara:onActionSelect(party, false)
@@ -2193,13 +2200,21 @@ function Battle:nextTurn()
             --box:setHeadIcon("head")
             box:resetHeadIcon()
         end
+        local text, portrait, actor = nil, nil, nil
         if self.state == "INTRO" or self.state_reason == "INTRO" or not self.seen_encounter_text then
             self.seen_encounter_text = true
-            self.battle_ui.current_encounter_text = self.encounter.text
+            text, portrait, actor = self:getInitialEncounterText()
         else
-            self.battle_ui.current_encounter_text = self:getEncounterText()
+            text, portrait, actor = self:getEncounterText()
         end
-        self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
+
+        self.battle_ui.current_encounter_text = {
+            text = text,
+            portrait = portrait,
+            actor = actor
+        }
+
+        self:setEncounterText(self.battle_ui.current_encounter_text, false)
     end
 
     if self.soul then
@@ -2338,6 +2353,39 @@ end
 ---@param text? string[]    The text to set
 function Battle:infoText(text)
     self.battle_ui.encounter_text:setText(text or "")
+end
+
+---@class EncounterTextOptions
+---@field text     string|string[] # If a table, you should use [next] to advance the text
+---@field portrait string? # The portrait to show
+---@field actor    PartyBattler|PartyMember|Actor|string? # The actor to use for the text settings (ex. voice, portrait settings)
+
+---@param options EncounterTextOptions
+function Battle:setEncounterText(options, instant)
+    self.battle_ui:clearEncounterText()
+
+    actor = options.actor
+    if isClass(actor) and actor:includes(PartyBattler) then
+        actor = actor.chara.actor
+    end
+
+    if isClass(actor) and actor:includes(PartyMember) then
+        actor = actor.actor
+    end
+
+    self.battle_ui.encounter_text:setActor(actor)
+    self.battle_ui.encounter_text:setFace(options.portrait)
+
+    local text = options.text or ""
+    if instant then
+        if type(text) == "table" then
+            text = "[instant]" .. text[#text]
+        else
+            text = "[instant]" .. text
+        end
+    end
+
+    self.battle_ui.encounter_text:setText(text)
 end
 
 ---@return boolean?

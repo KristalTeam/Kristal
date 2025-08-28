@@ -214,9 +214,23 @@ function Encounter:addEnemy(enemy, x, y, ...)
     return enemy_obj
 end
 
---- *(Override)* Called to receive the encounter text to be displayed each turn. (Not called on turn one, [`text`](lua://Encounter.text) is used instead.) \
---- *By default, gets an encounter text from a random enemy, falling back on the encounter's [encounter `text`](lua://Encounter.text) if none have encounter text.*
----@return string
+--- *(Override)* Called to receive the initial encounter text to be displayed on the first turn.
+--- (Not called on any other turns unless [`getEncounterText`](lua://Encounter.getEncounterText) can't find any usable text.) \
+--- *By default, returns the [encounter `text`](lua://Encounter.text).*
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function Encounter:getInitialEncounterText()
+    return self.text
+end
+
+--- *(Override)* Called to receive the encounter text to be displayed each turn.
+--- (Not called on turn one, [`getInitialEncounterText`](lua://Encounter.getInitialEncounterText) is used instead.) \
+--- *By default, gets an encounter text from a random enemy, falling back on the encounter's
+--- [encounter text](lua://Encounter.getInitialEncounterText) if none have encounter text.*
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
     local enemy = Utils.pick(enemies, function(v)
@@ -229,7 +243,7 @@ function Encounter:getEncounterText()
     if enemy then
         return enemy:getEncounterText()
     else
-        return self.text
+        return self:getInitialEncounterText()
     end
 end
 
