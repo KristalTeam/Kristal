@@ -77,7 +77,7 @@ function Loading:update()
         Kristal.DebugSystem = DebugSystem()
         Kristal.Stage:addChild(Kristal.DebugSystem)
         REGISTRY_LOADED = true
-        if Kristal.Args["test"] then
+        if Kristal.Args["test"] and not RELEASE_MODE then
             Kristal.setState("Testing")
         elseif AUTO_MOD_START and TARGET_MOD then
             if not Kristal.loadMod(TARGET_MOD) then

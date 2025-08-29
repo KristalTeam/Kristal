@@ -1,4 +1,4 @@
----@class (exact) MainMenuOptions : StateClass
+---@class MainMenuOptions : StateClass
 ---
 ---@field menu MainMenu
 ---
@@ -614,8 +614,10 @@ function MainMenuOptions:initializeOptions()
                         end)
     self:registerConfigOption("engine", "Skip Name Entry", "skipNameEntry")
 
-    self:registerConfigOption("engine", "Debug Hotkeys", "debug")
-    self:registerConfigOption("engine", "Verbose Loader", "verboseLoader")
+    if not RELEASE_MODE then
+        self:registerConfigOption("engine", "Debug Hotkeys", "debug")
+        self:registerConfigOption("engine", "Verbose Loader", "verboseLoader")
+    end
     self:registerConfigOption("engine", "Use System Mouse", "systemCursor", function () Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Always Show Mouse", "alwaysShowCursor", function () Kristal.updateCursor() end)
     self:registerConfigOption("engine", "Instant Quit", "instantQuit")
