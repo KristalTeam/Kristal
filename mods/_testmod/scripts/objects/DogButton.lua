@@ -5,7 +5,7 @@ function DogButton:init()
 end
 
 function DogButton:update()
-    self:setColor(Utils.hslToRgb((Kristal.getTime()/2) % 1, 1, 0.5))
+    self:setColor(ColorUtils.HSLToRGB((Kristal.getTime() / 2) % 1, 1, 0.5))
 
     super.update(self)
 end
