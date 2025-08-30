@@ -14,7 +14,7 @@ function TiledUtils.parseColorProperty(property)
 
     local str = "#" .. string.sub(property, 4) -- Get the hex string without the alpha value
     local alpha = tonumber(string.sub(property, 2, 3), 16) / 255 -- Get the alpha value separately
-    local r, g, b, a = ColorUtils.hexToRGB(str)
+    local r, g, b, a = Utils.unpackColor(ColorUtils.hexToRGB(str))
     return { r, g, b, a * (alpha or 1) }
 end
 
