@@ -307,10 +307,18 @@ function Textbox:addFunction(id, func)
 end
 
 function Textbox:setText(text, callback)
-    for _,reaction in ipairs(self.reaction_instances) do
+    -- Clear reactions
+    for _, reaction in ipairs(self.reaction_instances) do
         reaction:remove()
     end
     self.reaction_instances = {}
+
+    -- Clear minifaces
+    for _, miniface in ipairs(self.minifaces) do
+        miniface:remove()
+    end
+    self.minifaces = {}
+
     self.text.font = self.font
     self.text.font_size = self.font_size
     if self.actor then
