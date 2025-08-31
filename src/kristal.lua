@@ -493,7 +493,10 @@ function Kristal.onKeyPressed(key, is_repeat)
         end
     end
 
-    if Input.shouldProcess(key) and not TextInput.active then
+    -- If release mode is not enabled, these keys will be always avaliable as before
+    local debug_keys_enabled = not RELEASE_MODE or Kristal.Config["debug"]
+
+    if debug_keys_enabled and Input.shouldProcess(key) and not TextInput.active then
         if Input.is("debug_menu", key) then
             if Kristal.DebugSystem then
                 Input.clear("debug_menu")
@@ -524,18 +527,11 @@ function Kristal.onKeyPressed(key, is_repeat)
     local console_open = Kristal.Console and Kristal.Console.is_open
 
     if not is_repeat and Input.shouldProcess(key) then
-        if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
-            FAST_FORWARD = not FAST_FORWARD
-        elseif key == "f3" then
+        if key == "f3" then
             love.system.openURL("https://kristal.cc/wiki")
         elseif key == "f4" or (key == "return" and Input.alt()) then
             Kristal.Config["fullscreen"] = not Kristal.Config["fullscreen"]
             love.window.setFullscreen(Kristal.Config["fullscreen"])
-        elseif key == "f6" then
-            DEBUG_RENDER = not DEBUG_RENDER
-        elseif key == "f8" then
-            print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
-            Hotswapper.scan()
         elseif key == "f9" then
             love.filesystem.createDirectory("screenshots")
             love.graphics.captureScreenshot("screenshots/" .. os.time() .. "-" .. RUNTIME .. ".png")
@@ -543,20 +539,29 @@ function Kristal.onKeyPressed(key, is_repeat)
             Assets.playSound("camera_flash")
             SCREENSHOT_DISPLAY = 0
             TAKING_SCREENSHOT = true
-        elseif key == "r" and Input.ctrl() and not console_open then
-            if Kristal.getModOption("hardReset") or Input.alt() and Input.shift() then
-                love.event.quit("restart")
-            else
-                if Mod then
-                    if Input.alt() then
-                        Kristal.quickReload("none")
-                    elseif Input.shift() then
-                        Kristal.quickReload("save")
-                    else
-                        Kristal.quickReload("temp")
-                    end
+        elseif debug_keys_enabled then
+            if key == "f2" or (Input.is("fast_forward", key) and not console_open) then
+                FAST_FORWARD = not FAST_FORWARD
+            elseif key == "f6" then
+                DEBUG_RENDER = not DEBUG_RENDER
+            elseif key == "f8" and Hotswapper.ENABLED then
+                print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
+                Hotswapper.scan()
+            elseif key == "r" and Input.ctrl() and not console_open then
+                if Kristal.getModOption("hardReset") or Input.alt() and Input.shift() then
+                    love.event.quit("restart")
                 else
-                    Kristal.returnToMenu()
+                    if Mod then
+                        if Input.alt() then
+                            Kristal.quickReload("none")
+                        elseif Input.shift() then
+                            Kristal.quickReload("save")
+                        else
+                            Kristal.quickReload("temp")
+                        end
+                    else
+                        Kristal.returnToMenu()
+                    end
                 end
             end
         end
