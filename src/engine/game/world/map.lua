@@ -758,7 +758,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "warpdoor" then
         return WarpDoor(data.x, data.y, data.properties)
     elseif name:lower() == "darkfountain" then
-        return DarkFountain(data.x, data.y)
+        return DarkFountain(data.x, data.y, data.properties)
     elseif name:lower() == "fountainfloor" then
         return FountainFloor(data.x, data.y, rect_data)
     elseif name:lower() == "quicksave" then
