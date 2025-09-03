@@ -3,6 +3,8 @@ local actor, super = Class(Actor, "kris")
 function actor:init()
     super.init(self)
 
+    local altanims = Game.chapter > 2
+
     -- Display name (optional)
     self.name = "Kris"
 
@@ -93,6 +95,7 @@ function actor:init()
         ["walk_blush/down"] = {0, 0},
 
         ["slide"] = {0, 0},
+        ["altslide"] = {-5, -2},
 
         -- Battle offsets
         ["battle/idle"] = {-5, -1},
@@ -135,8 +138,14 @@ function actor:init()
 
         ["sit"] = {-3, 0},
 
+        ["splat"] = {0, 14},
+
         ["t_pose"] = {-4, 0},
     }
+
+    if altanims then
+        self.animations["slide"] = {"altslide", Game.chapter == 4 and math.huge or 4/30, true}
+    end
 end
 
 return actor
