@@ -75,7 +75,7 @@ function DebugSystem:init()
     self.context = nil
     self.last_context = nil
 
-    self.search_text = { "" }
+    self.search = { "" }
 
     self.menu_y = 0
     self.menu_target_y = 0
