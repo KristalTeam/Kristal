@@ -1,4 +1,9 @@
-local ffi = require "ffi"
+-- local ffi = require "ffi"
+local success, ffi = pcall(require, "ffi")
+if not success then 
+    HTTPS_AVAILABLE = false
+    return
+end
 
 local name = "https.so"
 

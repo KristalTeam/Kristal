@@ -13,6 +13,7 @@ Hotswapper.files = {
 package.path = package.path..";"..love.filesystem.getSource().."/?.lua"
 
 function Hotswapper.updateFiles(file_type)
+    if package.searchpath == nil then return end
     if not enabled then return end
     if file_type == "required" then
         print("Updating file information for required packages...")

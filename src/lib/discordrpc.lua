@@ -1,4 +1,10 @@
-local ffi = require "ffi"
+-- local ffi = require "ffi"
+local success, ffi = pcall(require, "ffi")
+
+DISCORD_RPC_AVAILABLE = false
+if not success then
+    return
+end
 
 local name = "discord-rpc"
 

@@ -75,8 +75,8 @@ function MainMenuControls:registerModPages()
         local page = {}
         local mod = Kristal.Mods.getMod(mod_id)
         if mod["hideKeybinds"] then
-            goto continue
-        end
+            -- goto continue
+        else
 
         page.title = tostring(mod.name):upper()
         page.mod = mod_id
@@ -87,7 +87,7 @@ function MainMenuControls:registerModPages()
         end
 
         table.insert(self.pages, page)
-        ::continue::
+        end
     end
 end
 

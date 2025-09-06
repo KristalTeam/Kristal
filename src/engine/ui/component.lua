@@ -299,7 +299,9 @@ function Component:getInnerWidth()
 
     local width = 0
     for _, child in ipairs(self:getComponents()) do
-        if child.x_sizing and child.x_sizing:includes(FillSizing) then goto continue end
+        if child.x_sizing and child.x_sizing:includes(FillSizing) then 
+            -- goto continue 
+        else
         local x = (child.x + self.scroll_x) - self.padding[1] - (child.margins and child.margins[1] or 0)
         local child_width, _ = child:getScaledSize()
         if (child.getTotalSize) then child_width, _ = child:getTotalSize() end
@@ -307,7 +309,7 @@ function Component:getInnerWidth()
         if child_width > width then
             width = child_width
         end
-        ::continue::
+        end
     end
     return width
 end
@@ -319,7 +321,9 @@ function Component:getInnerHeight()
 
     local height = 0
     for _, child in ipairs(self:getComponents()) do
-        if child.y_sizing and child.y_sizing:includes(FillSizing) then goto continue end
+        if child.y_sizing and child.y_sizing:includes(FillSizing) then 
+            -- goto continue  
+        else
         local y = (child.y + self.scroll_y) - self.padding[2] - (child.margins and child.margins[2] or 0)
         local _, child_height = child:getScaledSize()
         if (child.getTotalSize) then _, child_height = child:getTotalSize() end
@@ -327,7 +331,7 @@ function Component:getInnerHeight()
         if child_height > height then
             height = child_height
         end
-        ::continue::
+        end
     end
     return height
 end

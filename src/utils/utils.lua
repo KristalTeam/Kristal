@@ -483,11 +483,13 @@ function Utils.getFilesRecursive(dir, ext)
         local info = love.filesystem.getInfo(dir.."/"..path)
 
         if info.type == "directory" then
-            -- If the path is a folder, recursively get all files within that folder
-            local inners = Utils.getFilesRecursive(dir.."/"..path, ext)
-            for _,inner in ipairs(inners) do
-                -- Append the current folder path to files from the subfolder
-                table.insert(result, path.."/"..inner)
+            if path ~= "" then
+                -- If the path is a folder, recursively get all files within that folder
+                local inners = Utils.getFilesRecursive(dir.."/"..path, ext)
+                for _,inner in ipairs(inners) do
+                    -- Append the current folder path to files from the subfolder
+                    table.insert(result, path.."/"..inner)
+                end
             end
         elseif not ext or path:sub(-#ext) == ext then
             -- If the path is a file, add it to the result table.
@@ -2297,6 +2299,31 @@ function Utils.findFiles(folder, base, path)
     return files
 end
 
+
+--- A drop-in replacement to the actual bit.band
+--- which doesn't break because apparently
+--- you can't do this in Lua 5.1, the version
+--- LOVE supports
+---@param a integer
+---@param b integer
+---@return integer
+local function ripoff_bit_band(a, b)
+    local result = 0
+    local bitval = 1
+    for i = 0, 31 do
+        local abit = a % 2
+        local bbit = b % 2
+        if abit == 1 and bbit == 1 then
+            result = result + bitval
+        end
+        a = math.floor(a / 2)
+        b = math.floor(b / 2)
+        bitval = bitval * 2
+    end
+    return result
+end
+
+
 ---
 --- Returns the actual GID and flip flags of a tile.
 ---
@@ -2307,10 +2334,10 @@ end
 ---@return boolean flip_diag # Whether the tile should be flipped diagonally.
 ---
 function Utils.parseTileGid(id)
-    return bit.band(id, 0x0FFFFFFF),
-           bit.band(id, 0x80000000) ~= 0,
-           bit.band(id, 0x40000000) ~= 0,
-           bit.band(id, 0x20000000) ~= 0
+    return ripoff_bit_band(id, 0x0FFFFFFF),
+           ripoff_bit_band(id, 0x80000000) ~= 0,
+           ripoff_bit_band(id, 0x40000000) ~= 0,
+           ripoff_bit_band(id, 0x20000000) ~= 0
 end
 
 ---

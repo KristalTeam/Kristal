@@ -15,8 +15,8 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
     if (obj.type == 'variable') then
         for i,pair in pairs(source:getSets(ws.rootUri)) do
             if(pair.type ~= 'setglobal') then
-                goto CONTINUE
-            end
+            -- continue
+            else
             --print(obj.name, i)
             obj.defines[i].value = '???'
             if(SIMPLE_TYPES[pair.value.type]) then
@@ -40,8 +40,8 @@ export.makeDocObject['variable'] = function(source, obj, has_seen)
             elseif(pair.value.type == 'function') then
                 obj.defines[i].value = 'idk lol is function'
             end
-           --print()
-            ::CONTINUE::
+        --print()
+        end
         end
     end
     
