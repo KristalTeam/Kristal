@@ -411,38 +411,140 @@ out_channel = love.thread.getChannel("load_out")
 -- Reset data once first
 resetData()
 
--- Thread loop
-while true do
-    local msg = in_channel:demand()
-    if msg == "verbose" then
-        verbose = true
-    elseif msg == "stop" then
-        break
-    else
-        local key = msg.key or 0
-        local baseDir = msg.dir or ""
-        local loader = msg.loader
-        local paths = msg.paths or { "" }
-        if type(msg.paths) == "string" then
-            paths = { msg.paths }
-        end
 
-        if loader == "all" then
-            for k, _ in pairs(loaders) do
-                -- dont load mods when we load with "all"
-                if k ~= "mods" then
-                    for _, path in ipairs(paths) do
-                        loadPath(baseDir, k, path)
-                    end
+
+
+
+
+--- Sets "verbosity" to the state
+--- @param state boolean verbose is set to this value
+local function loader_set_verbose(state)
+    verbose = state
+end
+
+---@class LoadableReturnType
+---@field key integer
+---@field status string
+---@field data table
+
+---@class LoadablePayload
+---@field key integer
+---@field dir string
+---@field loader string
+---@field paths? string|table
+
+--- Given a payload, load some assets.
+--- then send it back as a signal.
+---@param payload LoadablePayload
+local function loader_request_files(payload)
+    local msg = payload
+    local key = msg.key or 0
+    local baseDir = msg.dir or ""
+    local loader = msg.loader
+    local paths = msg.paths or { "" }
+    if type(msg.paths) == "string" then
+        paths = { msg.paths }
+    end
+    if loader == "all" then
+        for k, _ in pairs(loaders) do
+            -- dont load mods when we load with "all"
+            if k ~= "mods" then
+                for _, path in ipairs(paths) do
+                    loadPath(baseDir, k, path)
                 end
             end
-        else
-            for _, path in ipairs(paths) do
-                loadPath(baseDir, loader, path)
-            end
         end
+    else
+        for _, path in ipairs(paths) do
+            loadPath(baseDir, loader, path)
+        end
+    end
+    local res = {key = key, status = "finished", data = data}
+    
+end
 
-        out_channel:push({ key = key, status = "finished", data = data })
-        resetData()
+-- busy waits before a message,
+-- then consumes all leftover messages.
+-- if no messages left, kill the thread.
+local inner_msg = nil
+while true do
+    inner_msg = in_channel:pop()
+    if inner_msg == nil then
+
+    elseif inner_msg == "verbose" then
+        loader_set_verbose(true)
+    elseif inner_msg == "stop" then
+        return  -- get me out of here
+    else
+        break
     end
 end
+
+-- consume the first message
+loader_request_files(inner_msg)
+-- and then consume leftover messages
+while true do
+    local other_message = in_channel:pop()
+    if other_message == nil then
+        break
+    elseif other_message == "verbose" then
+        verbose = true
+    elseif other_message == "stop" then
+        break
+    else
+        loader_request_files(other_message)
+    end
+end
+
+-- Thread loop
+-- while true do
+--     local msg = in_channel:pop()
+--     if msg == nil then
+--         -- do absolutely nothing
+--     elseif msg == "verbose" then
+--         verbose = true
+--     elseif msg == "stop" then
+--         break
+--     else
+--         local key = msg.key or 0
+--         local baseDir = msg.dir or ""
+--         local loader = msg.loader
+--         local paths = msg.paths or { "" }
+--         if type(msg.paths) == "string" then
+--             paths = { msg.paths }
+--         end
+
+--         if loader == "all" then
+--             for k, _ in pairs(loaders) do
+--                 -- dont load mods when we load with "all"
+--                 if k ~= "mods" then
+--                     for _, path in ipairs(paths) do
+--                         loadPath(baseDir, k, path)
+--                     end
+--                 end
+--             end
+--         else
+--             for _, path in ipairs(paths) do
+--                 loadPath(baseDir, loader, path)
+--             end
+--         end
+
+--         out_channel:push({ key = key, status = "finished", data = data })
+--         resetData()
+--     end
+-- end
+
+-- abstracted thread loop
+-- the bottom three functions replace
+-- signals being sent from kristal.lua.
+-- this is meant to simplify things.
+
+-- here's how this is supposed to work:
+-- whenever I need to load some data:
+-- spin up this thread.
+-- load the assets.
+-- kill it when finished.
+
+-- to deal with conflicts:
+-- 
+
