@@ -41,7 +41,7 @@ function PartyBattler:init(chara, x, y)
     self:setAnimation("battle/idle")
 
     self.action = nil
-    
+
     self.defending = false
     self.hurt_timer = 16
     self.hurting = false
@@ -382,16 +382,15 @@ end
 --- Toggles the visibility of the overlay sprite versus main sprite.
 ---@param overlay boolean?  Whether the overlay should be visible. If unset, will invert whatever the current visibility state is.
 function PartyBattler:toggleOverlay(overlay)
-    if overlay == nil then
-        overlay = self.sprite.visible
-    end
-    self.overlay_sprite.visible = overlay
-    self.sprite.visible = not overlay
+    super.toggleOverlay(self, overlay)
 end
 
---- Sets the Battler's sprite back to their default (`battle/idle`)
+--- Sets the PartyBattler's sprite back to their default (`battle/idle`)
 function PartyBattler:resetSprite()
-    self:setAnimation("battle/idle")
+    super.resetSprite(self)
+    if self.sprite then
+        self:setAnimation("battle/idle")
+    end
 end
 
 --- Sets the battler's sprite for performing ACTs, including the additional flash effect
@@ -424,16 +423,13 @@ function PartyBattler:setActSprite(sprite, ox, oy, speed, loop, after)
     self:addChild(afterimage2)
 end
 
---- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`Sprite:play()`](lua://Sprite.play)
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param speed?    number
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function PartyBattler:setSprite(sprite, speed, loop, after)
-    self.sprite:setSprite(sprite)
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
+    super.setSprite(self, sprite, speed, loop, after)
 end
 
 function PartyBattler:update()
@@ -449,12 +445,12 @@ function PartyBattler:update()
             self.chara:getArmor(i):onBattleUpdate(self)
         end
     end
-    
+
     if self.hurt_timer <= 15 then
         local hurt_index = math.min(self.hurt_timer / 2, 2)
-        self.sprite.x = (-10 + (math.floor(hurt_index) * 5))
         self.hurt_timer = self.hurt_timer + DTMULT
-    else
+        if self.sprite then self.sprite.x = (-10 + (math.floor(hurt_index) * 5)) end
+    elseif self.sprite then
         self.sprite.x = 0
     end
 

@@ -393,7 +393,7 @@ function Registry.getMap(id)
 end
 
 ---@param id string
----@param world World
+---@param world World?
 ---@param ... any
 ---@return Map
 function Registry.createMap(id, world, ...)

@@ -1,4 +1,4 @@
----@class (exact) MainMenuDeadzone : StateClass
+---@class (exact) MainMenuDeadzone : StateClass, StateManagedClass
 ---
 ---@field menu MainMenu
 ---
