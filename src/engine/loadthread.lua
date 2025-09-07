@@ -4,7 +4,6 @@ require("love.sound")
 
 local json = require("src.lib.json")
 
-
 --[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
     love.filesystem.mount("mod_template/assets", "mods/example/assets")
     love.filesystem.mount("mod_template/scripts", "mods/example/scripts")
@@ -52,7 +51,7 @@ local function split_string(str, sep, remove_empty)
     return t
 end
 
-function checkExtension(path, ...)
+local function checkExtension(path, ...)
     for _, v in ipairs({ ... }) do
         if path:sub(- #v - 1):lower() == "." .. v then
             return path:sub(1, - #v - 2), v
@@ -60,7 +59,7 @@ function checkExtension(path, ...)
     end
 end
 
-function combinePath(baseDir, subDir, path)
+local function combinePath(baseDir, subDir, path)
     local s = subDir
     if baseDir ~= "" then
         s = baseDir .. "/" .. s
@@ -74,7 +73,7 @@ function combinePath(baseDir, subDir, path)
     return s
 end
 
-function resetData()
+local function resetData()
     data_thing = {
         mods = {},
         failed_mods = {},
@@ -110,7 +109,7 @@ function resetData()
     }
     tileset_image_data = {}
 end
-
+local textures_loaded = 0
 local loaders = {
 
     -- Mod Loader
@@ -294,9 +293,13 @@ local loaders = {
     ["sprites"] = { "assets/sprites", function (base_dir, path, full_path)
         local id = checkExtension(path, "png", "jpg")
         if id then
-            local ok = pcall(function () data.assets.texture_data[id] = love.image.newImageData(full_path) end)
+            -- print("Sprite checking and loading", base_dir, path)
+            local ok, err_obj = pcall(function () 
+                data_thing.assets.texture_data[id] = love.image.newImageData(full_path) 
+                textures_loaded = textures_loaded + 1
+                end)
             if not ok then
-                error("Image \"" .. path .. "\" is invalid or corrupted!")
+                error("Image \"" .. path .. "\" is invalid or corrupted!" + err_obj)
             end
             for i = 3, 1, -1 do
                 local num = tonumber(id:sub(-i))
@@ -386,19 +389,22 @@ local loaders = {
 }
 
 local calls_to_yielder = 1
-local yielder_limit = 35
-function loadPath(baseDir, loader, path, pre)
-
-
+local yielder_limit = 50
+local function loadPath(baseDir, loader, path, pre)
     if path_loaded[loader][path] then return end
-
-    if verbose then
-        -- out_channel:push({ status = "loading", loader = loader, path = path })
-        calls_to_yielder = calls_to_yielder + 1
-        if calls_to_yielder % yielder_limit == 0 then
+    
+    calls_to_yielder = calls_to_yielder + 1
+    -- print("Calls to loadpath so far was", calls_to_yielder)
+    -- print("Loading", baseDir, path)
+    if calls_to_yielder % yielder_limit == 0 then
+        if verbose then
             yielder({ status = "loading", loader = loader, path = path })
+        else
+            -- print("This assets, when loading", baseDir, "has", t_count)
+            yielder(nil)
         end
     end
+
 
     path_loaded[loader][path] = true
 
@@ -424,15 +430,13 @@ function loadPath(baseDir, loader, path, pre)
                 end
             end
         else
+            -- print("Loading", baseDir, path, "with", loader)
             loaders[loader][2](baseDir, path, combinePath(baseDir, loaders[loader][1], path))
         end
     end
 end
 
--- As an additional note, I don't
--- actually need to do this.
--- Reset data once first
-resetData()
+
 
 
 
@@ -467,13 +471,16 @@ local function loader_request_files(payload)
     end
     -- print("This many texture data is being sent back", #data.assets.texture_data)
     -- data_thing.assets.texture_data
+    local assets_count = 0
     for keyb, veu in pairs(data_thing.assets.texture_data) do
-        print(">> finally ", keyb, veu)
+        assets_count = assets_count + 1
+        -- print(">> finally ", keyb, veu)
     end
+    -- print("A total of", assets_count, "textures are loaded / expected", textures_loaded)
     local res = {key = key, status = "finished", data = data_thing}
     return res
 end
-
+resetData()
 local files_that_are_loaded = loader_request_files(payload)
 
 local count = 0

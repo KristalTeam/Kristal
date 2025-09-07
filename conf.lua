@@ -15,7 +15,7 @@ function love.conf(t)
     t.identity = "kristal"
     -- TODO: hmm
     t.version = "11.0"
-    t.console = true
+    -- t.console = true
     t.window.title = "Kristal"
     t.window.icon = "icon.png"
     t.window.width = 640

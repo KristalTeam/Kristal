@@ -818,11 +818,20 @@ function DebugSystem:registerDefaults()
                             Hotswapper.scan(); self:refresh()
                         end)
     self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function ()
+        local cur_state = Kristal.getState()
+        -- print("The game state is", cur_state)
+
+        
         if Kristal.getModOption("hardReset") then
             love.event.quit("restart")
         else
             if Mod then
-                Kristal.quickReload(Input.shift() and "save" or "temp")
+                if cur_state.loading == true or next(cur_state) == nil then
+                    -- print("Spamming the reload button?")
+                else
+                    Kristal.quickReload(Input.shift() and "save" or "temp")
+                end
+                
             else
                 Kristal.returnToMenu()
             end
