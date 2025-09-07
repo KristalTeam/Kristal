@@ -60,6 +60,11 @@ end
 
 ---@param data Assets.data
 function Assets.loadData(data)
+    
+    -- print("The data has been loaded and is being inserted")
+    -- for iv, k in pairs(data.texture) do
+    --     print("An entry of it is:", iv, k)
+    -- end
     Utils.merge(self.data, data, true)
 
     self.parseData(data)

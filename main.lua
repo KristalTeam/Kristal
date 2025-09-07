@@ -33,6 +33,7 @@ Kristal = require("src.kristal")
 Game = Kristal.States["Game"]
 MainMenu = Kristal.States["MainMenu"]
 
+LoaderProcedure = require("src.engine.loadthread")
 Assets = require("src.engine.assets")
 Music = require("src.engine.music")
 Input = require("src.engine.input")

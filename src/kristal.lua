@@ -31,6 +31,7 @@ else
 
         message = ""
     }
+    Kristal.loader_message = ""
 
     Kristal.HTTPS = {
         in_channel = nil,
@@ -163,11 +164,11 @@ function love.load(args)
     TAKING_SCREENSHOT = false
 
     -- start load thread
-    Kristal.Loader.in_channel = love.thread.getChannel("load_in")
-    Kristal.Loader.out_channel = love.thread.getChannel("load_out")
+    -- Kristal.Loader.in_channel = love.thread.getChannel("load_in")
+    -- Kristal.Loader.out_channel = love.thread.getChannel("load_out")
 
-    Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
-    Kristal.Loader.thread:start()
+    -- Kristal.Loader.thread = love.thread.newThread("src/engine/loadthread.lua")
+    -- Kristal.Loader.thread:start()
 
     -- start https thread
     Kristal.HTTPS.in_channel = love.thread.getChannel("https_in")
@@ -208,7 +209,7 @@ function love.quit()
     end
 
     Kristal.saveConfig()
-    if Kristal.Loader.thread and Kristal.Loader.thread:isRunning() then
+    if Kristal.Loader ~= nil and Kristal.Loader.thread and Kristal.Loader.thread:isRunning() then
         Kristal.Loader.in_channel:push("stop")
     end
     if Kristal.HTTPS.thread and Kristal.HTTPS.thread:isRunning() then
@@ -327,6 +328,14 @@ function Kristal.drawBorders()
     end
 end
 
+--- @class LoadingCoroutine
+--- @field co thread
+--- @field after function|nil
+
+--- @type LoadingCoroutine[]
+local loading_coroutines = {}
+
+
 function love.update(dt)
     if PERFORMANCE_TEST_STAGE == "UPDATE" then
         PERFORMANCE_TEST = {}
@@ -380,32 +389,83 @@ function love.update(dt)
 
     SCREENSHOT_DISPLAY = Utils.approach(SCREENSHOT_DISPLAY, 1, 4 * dt)
 
-    if Kristal.Loader.waiting > 0 then
-        while Kristal.Loader.out_channel:getCount() > 0 do
-            local msg = Kristal.Loader.out_channel:pop()
-            if msg then
-                if msg.status == "finished" then
-                    Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+    local function handle_message(msg, run_afterwards)
+        if msg then
+            if msg.status == "finished" then
+                -- Kristal.Loader.waiting = Kristal.Loader.waiting - 1
+                -- Kristal.Loader.message = ""
+                Kristal.loader_message = ""
 
-                    Kristal.Loader.message = ""
+                -- TODO: only call this once
+                -- all the loading is done
+                -- if Kristal.Loader.waiting == 0 then
+                --     Kristal.Overlay.setLoading(false)
+                -- end
+                
+                -- print("With this many textures:", #msg.data.assets.texture)
+                -- for iv, k in pairs(msg.data.assets.texture) do
+                --     print("This key is", iv, k)
+                -- end
+                -- print("==== and that's it")
 
-                    if Kristal.Loader.waiting == 0 then
-                        Kristal.Overlay.setLoading(false)
-                    end
+                Assets.loadData(msg.data.assets)
+                Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
+                print("Finished and assets have been loaded so I'll run - but before let me check my assets",
+                        run_afterwards)
+                -- print("With this many textures", #Assets.data.texture)
+                -- print(key_getter(Assets.data.texture))
 
-                    Assets.loadData(msg.data.assets)
-                    Kristal.Mods.loadData(msg.data.mods, msg.data.failed_mods)
 
-                    if Kristal.Loader.end_funcs[msg.key] then
-                        Kristal.Loader.end_funcs[msg.key]()
-                        Kristal.Loader.end_funcs[msg.key] = nil
-                    end
-                elseif msg.status == "loading" then
-                    Kristal.Loader.message = msg.path
+
+                if run_afterwards ~= nil then
+                    run_afterwards()
                 end
+
+                -- if Kristal.Loader.end_funcs[msg.key] then
+                --     Kristal.Loader.end_funcs[msg.key]()
+                --     Kristal.Loader.end_funcs[msg.key] = nil
+                -- end
+            elseif msg.status == "loading" then
+                Kristal.loader_message = msg.path
             end
         end
+
     end
+
+    -- look for coroutines that have yielded, clear those that
+    -- have exited, you know the drill
+    -- local overlay_is_loading = Kristal.Overlay.loading
+    for i = #loading_coroutines, 1, -1 do
+        local loading_co = loading_coroutines[i]
+        local co = loading_co.co
+        if coroutine.status(co) == "dead" then
+            table.remove(loading_coroutines, i)
+        else
+            local ok, msg = coroutine.resume(co)
+            local run_afterwards_procedure = nil
+            if loading_co.after ~= nil then
+                run_afterwards_procedure = loading_co.after
+            end
+            if not ok then
+                print("Coroutine error:", msg)
+                table.remove(loading_coroutines, i)
+            else
+                handle_message(msg, run_afterwards_procedure)
+            end
+        end
+        if #loading_coroutines == 0 then
+            print("I don't wanna load anymore")
+            Kristal.Overlay.setLoading(false)
+        end
+    end
+
+    -- TODO: get rid of this (this will never run)
+    -- if Kristal.Loader and Kristal.Loader.waiting > 0 then
+    --     while Kristal.Loader.out_channel:getCount() > 0 do
+    --         local msg = Kristal.Loader.out_channel:pop()
+    --         handle_message(msg)
+    --     end
+    -- end
 
     if Kristal.HTTPS.waiting > 0 then
         local msg = Kristal.HTTPS.out_channel:pop()
@@ -1212,6 +1272,7 @@ end
 --- Clears all currently loaded assets. Called internally in the Loading state.
 ---@param include_mods boolean Whether to clear loaded mods.
 function Kristal.clearAssets(include_mods)
+    print("Assets are cleared, cleared")
     Assets.clear()
     if include_mods then
         Kristal.Mods.clear()
@@ -1224,25 +1285,55 @@ end
 ---@param paths? string|table The specific asset paths to load.
 ---@param after? function     The function to call when done.
 function Kristal.loadAssets(dir, loader, paths, after)
-    Kristal.Loader.message = ""
+    -- Kristal.Loader.message = ""
+    Kristal.loader_message = ""
     Kristal.Overlay.setLoading(true)
-    Kristal.Loader.waiting = Kristal.Loader.waiting + 1
-
+    -- Kristal.Loader.waiting = Kristal.Loader.waiting + 1
+    local after_procedure = nil
+    -- TODO: after should be part of the coroutine 
     if after then
-        Kristal.Loader.end_funcs[Kristal.Loader.next_key] = after
+        -- Kristal.Loader.end_funcs[Kristal.Loader.next_key] = after
+        after_procedure = after
     end
-
+    local verbose_loading = false
     if Kristal.Config["verboseLoader"] then
-        Kristal.Loader.in_channel:push("verbose")
+        verbose_loading = true
+        -- Kristal.Loader.in_channel:push("verbose")
     end
 
-    Kristal.Loader.in_channel:push({
-        key = Kristal.Loader.next_key,
+    local always_unimportant_key = 42069
+    local loading_inner_payload = {
+        key = always_unimportant_key,
         dir = dir,
         loader = loader,
         paths = paths
-    })
-    Kristal.Loader.next_key = Kristal.Loader.next_key + 1
+    }
+    -- print(debug.traceback())
+    print("Loading assets from", dir, loader, paths)
+    
+    local tco = coroutine.create(function() 
+        local yielder_fn = function(data) 
+            coroutine.yield(data)
+        end
+        lp_load_all_assets(
+            loading_inner_payload,
+            verbose_loading,
+            yielder_fn
+        )
+    end)
+    -- loading_coroutines.push whatever
+
+    --- @type LoadingCoroutine
+    local table_entry = { co = tco, after = after_procedure}
+    -- tco.procedure_afterwards = after_procedure
+    table.insert(loading_coroutines, table_entry)
+    -- Kristal.Loader.in_channel:push({
+    --     key = Kristal.Loader.next_key,
+    --     dir = dir,
+    --     loader = loader,
+    --     paths = paths
+    -- })
+    -- Kristal.Loader.next_key = Kristal.Loader.next_key + 1
 end
 
 --- Initializes the specified mod and loads its assets. \
@@ -1309,7 +1400,6 @@ function Kristal.loadMod(id, save_id, save_name, after)
         -- Add the current library to the libs table (again, with the real final value)
         Mod.libs[lib_id] = lib
     end
-
     Kristal.loadModAssets(mod.id, "all", "", after or function ()
         if Kristal.preInitMod(mod.id) then
             Kristal.setDesiredWindowTitleAndIcon()
@@ -1345,15 +1435,19 @@ function Kristal.loadModAssets(id, asset_type, asset_paths, after)
         if load_count == 0 then
             -- Finish mod loading
             MOD_LOADING = false
-
+            print("The after function is to be called")
             -- Call the after function
             after()
         end
     end
 
     -- Finally load all assets (libraries first)
+    --
     for _, lib_id in ipairs(mod.lib_order) do
-        Kristal.loadAssets(mod.libs[lib_id].path, asset_type or "all", asset_paths or "", finishLoadStep)
+        Kristal.loadAssets(mod.libs[lib_id].path,
+        asset_type or "all",
+        asset_paths or "", 
+        finishLoadStep)
     end
     Kristal.loadAssets(mod.path, asset_type or "all", asset_paths or "", finishLoadStep)
 end

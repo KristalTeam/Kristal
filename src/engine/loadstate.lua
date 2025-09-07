@@ -44,21 +44,46 @@ function Loading:enter(from, dir)
     self.done_loading = false
 end
 
+
+
 function Loading:beginLoad()
     Kristal.clearAssets(true)
 
     self.loading = true
     self.load_complete = false
 
-    Kristal.loadAssets("", "all", "")
-    Kristal.loadAssets("", "mods", "", function ()
-        self.loading = false
-        self.load_complete = true
+    local function asset_loader()
 
-        Assets.saveData()
+        local all_complete = false
+        local mods_complete = false
 
-        Kristal.setDesiredWindowTitleAndIcon()
-    end)
+        local function break_me_out() 
+            if all_complete and mods_complete then
+                self.loading = false
+                self.load_complete = true
+                Assets.saveData()
+                Kristal.setDesiredWindowTitleAndIcon()
+            end
+        end
+
+        Kristal.loadAssets("", "all", "", function () 
+            all_complete = true
+            break_me_out()
+        end)
+        Kristal.loadAssets("", "mods", "", function ()
+            mods_complete = true
+            break_me_out()
+            -- self.loading = false
+            -- print("The loading of the mods are complete")
+            -- self.load_complete = true
+            -- Assets.saveData()
+            -- Kristal.setDesiredWindowTitleAndIcon()
+        end)
+    end
+
+    asset_loader()
+
+
 end
 
 function Loading:update()

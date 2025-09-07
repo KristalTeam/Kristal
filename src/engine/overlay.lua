@@ -110,9 +110,9 @@ function Overlay:draw()
     love.graphics.pop()
 
     -- Draw the loader messages
-    if Kristal.Loader.message ~= "" then
+    if Kristal.loader_message ~= "" then
         love.graphics.setFont(self.font)
-        local text = Kristal.Loader.message
+        local text = Kristal.loader_message
         local x = SCREEN_WIDTH - self.font:getWidth(text) - 2
         local y = SCREEN_HEIGHT - self.font:getHeight() - 4
         Draw.setColor(0, 0, 0)

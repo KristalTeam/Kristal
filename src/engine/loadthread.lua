@@ -2,16 +2,35 @@
 require("love.image")
 require("love.sound")
 
-json = require("src.lib.json")
+local json = require("src.lib.json")
 
-verbose = false
 
 --[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
     love.filesystem.mount("mod_template/assets", "mods/example/assets")
     love.filesystem.mount("mod_template/scripts", "mods/example/scripts")
 end]]
 
-function string.split(str, sep, remove_empty)
+---@class LoadableReturnType
+---@field key integer
+---@field status string
+---@field data table
+
+---@class LoadablePayload
+---@field key integer
+---@field dir string
+---@field loader string
+---@field paths? string|table
+
+---@param payload LoadablePayload
+---@param verbose boolean
+---@param yielder fun(data: any): nil
+function lp_load_all_assets(payload, verbose, yielder)
+
+local data_thing = {}
+local path_loaded = {}
+local tileset_image_data = {}
+
+local function split_string(str, sep, remove_empty)
     local t = {}
     local i = 1
     local s = ""
@@ -56,7 +75,7 @@ function combinePath(baseDir, subDir, path)
 end
 
 function resetData()
-    data = {
+    data_thing = {
         mods = {},
         failed_mods = {},
         assets = {
@@ -78,7 +97,6 @@ function resetData()
             bubble_settings = {},
         }
     }
-
     path_loaded = {
         ["mods"] = {},
 
@@ -90,7 +108,6 @@ function resetData()
         ["videos"] = {},
         ["bubbles"] = {},
     }
-
     tileset_image_data = {}
 end
 
@@ -114,7 +131,7 @@ local loaders = {
             end
 
             if not ok then
-                table.insert(data.failed_mods, {
+                table.insert(data_thing.failed_mods, {
                     path = path,
                     error = mod,
                     file = "mod.json"
@@ -235,7 +252,7 @@ local loaders = {
                     end
 
                     if not ok then
-                        table.insert(data.failed_mods, {
+                        table.insert(data_thing.failed_mods, {
                             path = path,
                             error = lib,
                             file = "lib.json"
@@ -257,7 +274,7 @@ local loaders = {
                 for _, dependency in ipairs(lib["dependencies"] or {}) do
                     if not mod.libs[dependency] then
                         local error = "Library '" .. lib.id .. "' depends on library '" .. dependency .. "' but it could not be found."
-                        table.insert(data.failed_mods, {
+                        table.insert(data_thing.failed_mods, {
                             path = path,
                             error = error,
                             file = "lib.json"
@@ -268,7 +285,7 @@ local loaders = {
                 end
             end
 
-            data.mods[mod.id] = mod
+            data_thing.mods[mod.id] = mod
         end
     end },
 
@@ -291,8 +308,8 @@ local loaders = {
                     if frame_name:sub(-1, -1) == "_" then
                         frame_name = frame_name:sub(1, -2)
                     end
-                    data.assets.frame_ids[frame_name] = data.assets.frame_ids[frame_name] or {}
-                    data.assets.frame_ids[frame_name][num] = id
+                    data_thing.assets.frame_ids[frame_name] = data_thing.assets.frame_ids[frame_name] or {}
+                    data_thing.assets.frame_ids[frame_name][num] = id
                     break
                 end
             end
@@ -301,15 +318,15 @@ local loaders = {
     ["fonts"] = { "assets/fonts", function (base_dir, path, full_path)
         local id = checkExtension(path, "ttf")
         if id then
-            pcall(function () data.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
+            pcall(function () data_thing.assets.font_data[id] = love.filesystem.newFileData(full_path) end)
         end
         id = checkExtension(path, "fnt")
         if id then
-            pcall(function () data.assets.font_bmfont_data[id] = full_path end)
+            pcall(function () data_thing.assets.font_bmfont_data[id] = full_path end)
         end
         id = checkExtension(path, "png")
         if id then
-            pcall(function () data.assets.font_image_data[id] = love.image.newImageData(full_path) end)
+            pcall(function () data_thing.assets.font_image_data[id] = love.image.newImageData(full_path) end)
         end
         id = checkExtension(path, "json")
         if id then
@@ -317,13 +334,13 @@ local loaders = {
             if not ok then
                 error("Font \"" .. path .. "\" has an invalid json file!")
             end
-            data.assets.font_settings[id] = loaded_data
+            data_thing.assets.font_settings[id] = loaded_data
         end
     end },
     ["sounds"] = { "assets/sounds", function (base_dir, path, full_path)
         local id = checkExtension(path, "wav", "ogg")
         if id then
-            pcall(function () data.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
+            pcall(function () data_thing.assets.sound_data[id] = love.sound.newSoundData(full_path) end)
         end
     end },
     ["music"] = { "assets/music", function (base_dir, path, full_path)
@@ -337,20 +354,20 @@ local loaders = {
             "mdgz", "s3gz", "xmgz", "itgz", "gz"
         )
         if id then
-            data.assets.music[id] = full_path
+            data_thing.assets.music[id] = full_path
         end
     end },
     ["shaders"] = { "assets/shaders", function (base_dir, path, full_path)
         local id = checkExtension(path, "glsl")
         if id then
             -- TODO: load the shader source code, maybe?
-            data.assets.shader_paths[id] = full_path
+            data_thing.assets.shader_paths[id] = full_path
         end
     end },
     ["videos"] = { "assets/videos", function (base_dir, path, full_path)
         local id = checkExtension(path, "ogg", "ogv")
         if id then
-            data.assets.videos[id] = full_path
+            data_thing.assets.videos[id] = full_path
         end
         if checkExtension(path, "mp4", "mov", "wmv", "flv", "avi", "webm", "mkv") then
             error("\"" .. path .. "\" unsupported - must use Ogg Theora videos.")
@@ -363,22 +380,30 @@ local loaders = {
             if not ok then
                 error("Bubble \"" .. path .. "\" has an invalid json file!")
             end
-            data.assets.bubble_settings[id] = loaded_data
+            data_thing.assets.bubble_settings[id] = loaded_data
         end
     end },
 }
 
+local calls_to_yielder = 1
+local yielder_limit = 35
 function loadPath(baseDir, loader, path, pre)
+
+
     if path_loaded[loader][path] then return end
 
     if verbose then
-        out_channel:push({ status = "loading", loader = loader, path = path })
+        -- out_channel:push({ status = "loading", loader = loader, path = path })
+        calls_to_yielder = calls_to_yielder + 1
+        if calls_to_yielder % yielder_limit == 0 then
+            yielder({ status = "loading", loader = loader, path = path })
+        end
     end
 
     path_loaded[loader][path] = true
 
     if path:sub(-1, -1) == "*" then
-        local dirs = path:split("/")
+        local dirs = split_string(path, "/")
         local parent_path = ""
         for i = 1, #dirs - 1 do
             parent_path = parent_path .. (i > 1 and "/" or "") .. dirs[i]
@@ -404,37 +429,17 @@ function loadPath(baseDir, loader, path, pre)
     end
 end
 
--- Channels for thread communications
-in_channel = love.thread.getChannel("load_in")
-out_channel = love.thread.getChannel("load_out")
-
+-- As an additional note, I don't
+-- actually need to do this.
 -- Reset data once first
 resetData()
 
 
 
-
-
-
---- Sets "verbosity" to the state
---- @param state boolean verbose is set to this value
-local function loader_set_verbose(state)
-    verbose = state
-end
-
----@class LoadableReturnType
----@field key integer
----@field status string
----@field data table
-
----@class LoadablePayload
----@field key integer
----@field dir string
----@field loader string
----@field paths? string|table
-
 --- Given a payload, load some assets.
---- then send it back as a signal.
+--- TODO: add yield calls.
+--- 
+--- Then returns it.
 ---@param payload LoadablePayload
 local function loader_request_files(payload)
     local msg = payload
@@ -450,6 +455,7 @@ local function loader_request_files(payload)
             -- dont load mods when we load with "all"
             if k ~= "mods" then
                 for _, path in ipairs(paths) do
+                    -- todo: PROBABLY move this.
                     loadPath(baseDir, k, path)
                 end
             end
@@ -459,42 +465,28 @@ local function loader_request_files(payload)
             loadPath(baseDir, loader, path)
         end
     end
-    local res = {key = key, status = "finished", data = data}
-    
-end
-
--- busy waits before a message,
--- then consumes all leftover messages.
--- if no messages left, kill the thread.
-local inner_msg = nil
-while true do
-    inner_msg = in_channel:pop()
-    if inner_msg == nil then
-
-    elseif inner_msg == "verbose" then
-        loader_set_verbose(true)
-    elseif inner_msg == "stop" then
-        return  -- get me out of here
-    else
-        break
+    -- print("This many texture data is being sent back", #data.assets.texture_data)
+    -- data_thing.assets.texture_data
+    for keyb, veu in pairs(data_thing.assets.texture_data) do
+        print(">> finally ", keyb, veu)
     end
+    local res = {key = key, status = "finished", data = data_thing}
+    return res
 end
 
--- consume the first message
-loader_request_files(inner_msg)
--- and then consume leftover messages
-while true do
-    local other_message = in_channel:pop()
-    if other_message == nil then
-        break
-    elseif other_message == "verbose" then
-        verbose = true
-    elseif other_message == "stop" then
-        break
-    else
-        loader_request_files(other_message)
-    end
-end
+local files_that_are_loaded = loader_request_files(payload)
+
+local count = 0
+-- for tb_clavier, _ in pairs(data.assets.texture_data) do
+--     print(">> ", tb_clavier)
+--     count = count + 1
+--     -- if count >= 20 then
+--     --     break
+--     -- end
+-- end
+
+yielder(files_that_are_loaded)
+return
 
 -- Thread loop
 -- while true do
@@ -548,3 +540,4 @@ end
 -- to deal with conflicts:
 -- 
 
+end
