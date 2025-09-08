@@ -1886,10 +1886,11 @@ end
 ---@return boolean success Whether the script was executed successfully.
 ---@return any     ...     The returned values from the script.
 function Kristal.executeModScript(path, ...)
-    if not Mod or not Mod.info.script_chunks[path] then
+    local chunk = Mod.info.script_chunks[path] or Mod.info.script_chunks[path .. "/init"]
+    if not Mod or not chunk then
         return false
     else
-        return true, Mod.info.script_chunks[path](...)
+        return true, chunk(...)
     end
 end
 
@@ -1907,17 +1908,19 @@ function Kristal.executeLibScript(lib, path, ...)
 
     if not lib then
         for _, library in Kristal.iterLibraries() do
-            if library.info.script_chunks[path] then
+            local chunk = library.info.script_chunks[path] or library.info.script_chunks[path .. "/init"]
+            if chunk then
                 return true, library.info.script_chunks[path](...)
             end
         end
         return false
     else
         local library = Mod.libs[lib]
-        if not library or not library.info.script_chunks[path] then
+        local chunk = library.info.script_chunks[path] or library.info.script_chunks[path .. "/init"]
+        if not library or not chunk then
             return false
         else
-            return true, library.info.script_chunks[path](...)
+            return true, chunk(...)
         end
     end
 end
