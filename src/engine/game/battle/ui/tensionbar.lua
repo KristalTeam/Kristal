@@ -1,5 +1,15 @@
+--- The bar you see on the left of the battle UI.
+--- 
+--- This is simply a display for tension, but not where tension itself is stored.
+---
+--- Does not depend on battle.
+---
+---@see Game.giveTension
 ---@class TensionBar : Object
 ---@overload fun(...) : TensionBar
+---
+---@field current_flash TensionBarGlow? # The current glow effect, if any.
+---
 local TensionBar, super = Class(Object)
 
 --[[
@@ -56,10 +66,12 @@ function TensionBar:init(x, y, dont_animate)
 
     self.animation_timer = 0
 
-    self.tsiner = 0
+    self.tension_preview_timer = 0
 
     self.tension_preview = 0
     self.shown = false
+
+    self.timer = self:addChild(Timer())
 end
 
 function TensionBar:show()
@@ -78,6 +90,37 @@ function TensionBar:hide()
         self.shown = false
         self.physics.speed_x = -10
         self.physics.friction = -0.4
+    end
+end
+
+function TensionBar:flash()
+    -- Spawn the flash if needed
+    if self.current_flash == nil or self.current_flash:isRemoved() then
+        self.current_flash = self:addChild(TensionBarGlow()) --[[@as TensionBarGlow]]
+    else
+        -- Still exists, reuse it
+        self.current_flash.current_alpha = 1
+    end
+
+    -- Spawn 3-5 sparkles
+    for _ = 1, (3 + love.math.random(0, 2)) do
+        local x = self.x + love.math.random(0, 25)
+        local y = self.y + 40 + love.math.random(0, 160)
+        local sparkle = self.parent:addChild(Sprite("effects/spare/star", x, y))
+        sparkle.layer = 999
+        sparkle.alpha = 1
+
+        local duration = 10 + love.math.random(0, 5)
+
+        sparkle:play(1 / (30 * (5 / duration)), true)
+        sparkle.physics.speed = 3 + love.math.random() * 3
+        sparkle.physics.direction = -math.rad(90)
+        sparkle:fadeTo(0.25, duration / 30)
+        self.timer:tween(duration / 30, sparkle.physics, { speed = 0 }, "linear")
+
+        self.timer:after(duration / 30, function ()
+            sparkle:remove()
+        end)
     end
 end
 
@@ -125,11 +168,16 @@ end
 function TensionBar:processTension()
     if (math.abs((self.apparent - self:getTension250())) < 20) then
         self.apparent = self:getTension250()
-    elseif (self.apparent < self:getTension250()) then
+    end
+
+    if (self.apparent < self:getTension250()) then
         self.apparent = self.apparent + (20 * DTMULT)
-    elseif (self.apparent > self:getTension250()) then
+    end
+
+    if (self.apparent > self:getTension250()) then
         self.apparent = self.apparent - (20 * DTMULT)
     end
+
     if (self.apparent ~= self.current) then
         self.changetimer = self.changetimer + (1 * DTMULT)
         if (self.changetimer > 15) then
@@ -170,7 +218,7 @@ function TensionBar:processTension()
     end
 
     if (self.tension_preview > 0) then
-        self.tsiner = self.tsiner + DTMULT
+        self.tension_preview_timer = self.tension_preview_timer + DTMULT
     end
 end
 
@@ -274,7 +322,7 @@ function TensionBar:drawFill()
     end
 
     if (self.tension_preview > 0) then
-        local alpha = (math.abs((math.sin((self.tsiner / 8)) * 0.5)) + 0.2)
+        local alpha = (math.abs((math.sin((self.tension_preview_timer / 8)) * 0.5)) + 0.2)
         local color_to_set = { 1, 1, 1, alpha }
 
         local theight = 196 - (self:getPercentageFor250(self.current) * 196)

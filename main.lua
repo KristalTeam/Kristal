@@ -220,6 +220,7 @@ ActionButton = require("src.engine.game.battle.ui.actionbutton")
 AttackBox = require("src.engine.game.battle.ui.attackbox")
 AttackBar = require("src.engine.game.battle.ui.attackbar")
 TensionBar = require("src.engine.game.battle.ui.tensionbar")
+TensionBarGlow = require("src.engine.game.battle.ui.tensionbarglow")
 SpeechBubble = require("src.engine.game.battle.ui.speechbubble")
 
 FlashFade = require("src.engine.game.effects.flashfade")

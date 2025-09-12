@@ -971,7 +971,7 @@ function Game:giveTension(amount)
     local start = self:getTension()
     self:setTension(self:getTension() + amount)
     if self:getTension() > self:getMaxTension() then
-        Game:setTension(self:getMaxTension())
+        self:setTension(self:getMaxTension())
     end
     self:setTensionPreview(0)
     return self:getTension() - start
