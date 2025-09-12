@@ -103,7 +103,7 @@ function TensionBar:flash()
     end
 
     -- Spawn 3-5 sparkles
-    for _ = 1, (3 + love.math.random(0, 2)) do
+    for _ = 1, love.math.random(3, 5) do
         local x = self.x + love.math.random(0, 25)
         local y = self.y + 40 + love.math.random(0, 160)
         local sparkle = self.parent:addChild(Sprite("effects/spare/star", x, y))
