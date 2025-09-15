@@ -229,7 +229,6 @@ end
 ---
 ---@param upper integer # The upper bound.
 ---@param lower? integer # The lower bound.
----@overload fun() : integer
 ---@overload fun(upper: integer) : integer
 ---@overload fun(lower: integer, upper: integer) : integer
 ---@return integer value  # The new random value.
