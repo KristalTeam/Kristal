@@ -105,11 +105,11 @@ function AttackBox:update()
 end
 
 function AttackBox:draw()
-    local target_color = {self.battler.chara:getAttackBarColor()}
-    local box_color = {self.battler.chara:getAttackBoxColor()}
+    local target_color = { self.battler.chara:getAttackBarColor() }
+    local box_color = { self.battler.chara:getAttackBoxColor() }
 
     if self.flash > 0 then
-        box_color = Utils.lerp(box_color, {1, 1, 1}, self.flash)
+        box_color = ColorUtils.mergeColor(box_color, { 1, 1, 1 }, self.flash)
     end
 
     love.graphics.setLineWidth(2)

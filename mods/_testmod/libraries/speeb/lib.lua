@@ -3,9 +3,9 @@ local lib = {}
 local msg_suffix = libRequire("speeb", "reqtest")
 
 function lib:init()
-    print("Loaded speeb library"..msg_suffix)
+    print("Loaded speeb library" .. msg_suffix)
 
-    Utils.hook(Player, "update", function(orig, self)
+    HookSystem.hook(Player, "update", function(orig, self)
 
         if Input.down("superfast") then
             self.walk_speed = 16
