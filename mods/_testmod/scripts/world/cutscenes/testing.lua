@@ -69,6 +69,7 @@ return {
     goner = function (cutscene)
         local text
 
+        -- Please don't copy the goner text functions below, they're not accurate whatsoever
         local function gonerTextFade(wait)
             local this_text = text
             Game.world.timer:tween(1, this_text, { alpha = 0 }, "linear", function ()
@@ -79,6 +80,7 @@ return {
             end
         end
 
+        -- (This one, too.)
         local function gonerText(str, advance)
             text = DialogueText("[speed:0.5][spacing:6][style:GONER][voice:none]" .. str, 160, 100, 640, 480,
                                 { auto_size = true })
@@ -101,12 +103,17 @@ return {
 
         gonerText("FIRST.[wait:20]")
 
-        local soul = SoulAppearance(320, 240)
+        local soul = SoulAppearance(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        soul:setParallax(0, 0)
         soul.layer = WORLD_LAYERS["top"] + 100
         Game.world:addChild(soul)
         cutscene:wait(4)
 
         gonerText("YOU MUST CREATE[wait:40]\nA VESSEL.[wait:20]")
+
+        soul:hide()
+        cutscene:wait(4)
+
         local ralsei_sprite = Sprite("party/ralsei/dark/blunt")
         ralsei_sprite.x = 320
         ralsei_sprite.y = 240
@@ -121,9 +128,12 @@ return {
         Game.world:addChild(ralsei_sprite)
 
         local ralsei_y = { 240 }
+        local ralsei_mult = { 6 }
 
         cutscene:during(function ()
-            ralsei_sprite.y = ralsei_y[1] + math.sin(Kristal.getTime() * 2) * 6
+            if ralsei_sprite ~= nil then
+                ralsei_sprite.y = ralsei_y[1] + math.sin(Kristal.getTime() * 2) * ralsei_mult[1]
+            end
         end)
 
         gonerText("THIS SHOULD BE[wait:40]\nGOOD ENOUGH.[wait:20]", false)
@@ -186,6 +196,21 @@ return {
             gonerText("BING BONG.[wait:40]\nCORRECT-O.[wait:20]")
         end
         gonerText("ITS NAME[wait:40]\nIS RALSEI.[wait:20]")
+
+        Game.world.timer:tween(1, ralsei_y, { 240 })
+        Game.world.timer:tween(1, ralsei_mult, { 0 })
+        cutscene:wait(1)
+        ralsei_sprite:remove()
+        ralsei_sprite = nil
+
+        local ralsoul = SoulAppearance(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        ralsoul:setParallax(0, 0)
+        ralsoul.layer = WORLD_LAYERS["top"] + 100
+        ralsoul:setSprite("party/ralsei/dark/blunt")
+        ralsoul.t = ralsoul.tmax
+        ralsoul:setColor(1, 1, 1, 1)
+        ralsoul:hide()
+        Game.world:addChild(ralsoul)
     end,
     goner_choice = function (cutscene)
         cutscene:fadeOut(0.5, { music = true })
