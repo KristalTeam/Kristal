@@ -11,7 +11,14 @@ function SoulAppearance:init(x, y)
     -- This is responsible for setting some variables!
     self:setSprite("player/heart_blur")
 
+    self.t = -10
+    self.tmax = 10
+    self.m = 10
+    self.x_scale = 0
     self.momentum = 0.5
+
+    self.soul_width = 20
+    self.soul_height = 20
 
     Assets.playSound("AUDIO_APPEARANCE")
     self:setColor(1, 0, 0, 1)
@@ -25,11 +32,6 @@ function SoulAppearance:setSprite(sprite)
     self.sprite = sprite
     self.width = self.sprite:getWidth()
     self.height = self.sprite:getHeight()
-
-    self.t = -10
-    self.tmax = (self.height / 2)
-    self.m = (self.height / 2)
-    self.x_scale = 0
 end
 
 function SoulAppearance:hide()
@@ -64,17 +66,70 @@ function SoulAppearance:update()
     end
 end
 
+function SoulAppearance:transformX(x)
+    -- transform these to fit with our sprite (self.width, self.height) rather than (self.soul_width, self.soul_height)
+    return x / self.soul_width * self.width
+end
+
+function SoulAppearance:transformY(y)
+    -- same here
+    return y / self.soul_height * self.height
+end
+
 function SoulAppearance:draw()
     super.draw(self)
 
     if (self.t <= 0) then
-        Draw.drawPart(self.sprite, ((0 - ((self.width / 2) * self.x_scale)) + (self.width / 2)), self.m - 400, 0, self.m, self.width, 1, 0, self.x_scale, 800)
+        Draw.drawPart(
+            self.sprite,
+            self:transformX((0 - ((self.soul_width / 2) * self.x_scale)) + (self.soul_width / 2)),
+            self:transformY(self.m) - 400,
+            0,
+            self:transformY(self.m),
+            self:transformX(self.soul_width),
+            1,
+            0,
+            self.x_scale,
+            800
+        )
     end
 
     if ((self.t > 0) and (self.t < self.m)) then
-        Draw.drawPart(self.sprite, 0, ((0 - self.t) + self.m), 0, (self.m - self.t), self.width, (1 + (self.t * 2)))
-        Draw.drawPart(self.sprite, 0, (((0 - 400) - self.t) + self.m), 0, ((self.m - self.t) - 1), self.width, 1, 0, 1, 400)
-        Draw.drawPart(self.sprite, 0, ((0 + self.t) + self.m), 0, (self.m + self.t), self.width, 1, 0, 1, 400)
+        Draw.drawPart(
+            self.sprite,
+            0,
+            self:transformY(0 - self.t + self.m),
+            0,
+            self:transformY((self.m - self.t)),
+            self:transformX(self.soul_width),
+            self:transformY(1 + (self.t * 2))
+        )
+
+        Draw.drawPart(
+            self.sprite,
+            0,
+            -400 + self:transformY(-self.t + self.m),
+            0,
+            self:transformY((self.m - self.t) - 1),
+            self:transformX(self.soul_width),
+            1,
+            0,
+            1,
+            400
+        )
+
+        Draw.drawPart(
+            self.sprite,
+            0,
+            self:transformY(self.t + self.m),
+            0,
+            self:transformY(self.m + self.t),
+            self:transformX(self.soul_width),
+            1,
+            0,
+            1,
+            400
+        )
     end
 
     if (self.t >= self.m) then

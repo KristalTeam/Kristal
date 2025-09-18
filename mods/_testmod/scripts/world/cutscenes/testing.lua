@@ -97,6 +97,7 @@ return {
         end
 
         cutscene:fadeOut(0.5, { music = true })
+
         local background = GonerBackground()
         background.layer = WORLD_LAYERS["top"]
         Game.world:addChild(background)
@@ -107,11 +108,26 @@ return {
         soul:setParallax(0, 0)
         soul.layer = WORLD_LAYERS["top"] + 100
         Game.world:addChild(soul)
+
+        local soul_timer = 0
+        local soul_should_move = false
+
+        cutscene:during(function ()
+            if soul_should_move then
+                soul_timer = soul_timer + DTMULT
+                soul.y = soul.init_y + math.sin(soul_timer / 16) * 2 * 2
+            end
+        end)
+
+        cutscene:wait(20/30)
+        soul_should_move = true
+
         cutscene:wait(4)
 
         gonerText("YOU MUST CREATE[wait:40]\nA VESSEL.[wait:20]")
 
         soul:hide()
+        soul_should_move = false
         cutscene:wait(4)
 
         local ralsei_sprite = Sprite("party/ralsei/dark/blunt")
