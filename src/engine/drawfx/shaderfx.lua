@@ -6,7 +6,7 @@ function ShaderFX:init(shader, vars, transformed, priority)
     super.init(self, priority or 0)
 
     if type(shader) == "string" then
-        shader = Assets.newShader(shader)
+        shader = Assets.getShader(shader)
     end
 
     self.shader = shader

@@ -18,6 +18,8 @@
 ---
 ---@field defeated_enemies      table
 ---
+---@field reduced_tension       boolean
+---
 ---@overload fun(...) : Encounter
 local Encounter = Class()
 
@@ -44,6 +46,9 @@ function Encounter:init()
 
     -- A copy of Battle.defeated_enemies, used to determine how an enemy has been defeated.
     self.defeated_enemies = nil
+
+    -- Whether tension is reduced for this encounter.
+    self.reduced_tension = false
 end
 
 -- Callbacks
@@ -166,7 +171,7 @@ function Encounter:addEnemy(enemy, x, y, ...)
         enemy_obj = enemy
     end
     local enemies = self.queued_enemy_spawns
-    local enemies_index = enemies
+    local enemies_index
     local transition = false
     if Game.battle and Game.state == "BATTLE" then
         enemies = Game.battle.enemies
@@ -200,16 +205,32 @@ function Encounter:addEnemy(enemy, x, y, ...)
     end
     enemy_obj.encounter = self
     table.insert(enemies, enemy_obj)
-    table.insert(enemies_index, enemy_obj)
+    if enemies_index then
+        table.insert(enemies_index, enemy_obj)
+    end
     if Game.battle and Game.state == "BATTLE" then
         Game.battle:addChild(enemy_obj)
     end
     return enemy_obj
 end
 
---- *(Override)* Called to receive the encounter text to be displayed each turn. (Not called on turn one, [`text`](lua://Encounter.text) is used instead.) \
---- By default, gets an encounter text from a random enemy, falling back on the encounter's [encounter `text`](lua://Encounter.text) if none have encounter text.
----@return string
+--- *(Override)* Called to receive the initial encounter text to be displayed on the first turn.
+--- (Not called on any other turns unless [`getEncounterText`](lua://Encounter.getEncounterText) can't find any usable text.) \
+--- *By default, returns the [encounter `text`](lua://Encounter.text).*
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function Encounter:getInitialEncounterText()
+    return self.text
+end
+
+--- *(Override)* Called to receive the encounter text to be displayed each turn.
+--- (Not called on turn one, [`getInitialEncounterText`](lua://Encounter.getInitialEncounterText) is used instead.) \
+--- *By default, gets an encounter text from a random enemy, falling back on the encounter's
+--- [encounter text](lua://Encounter.getInitialEncounterText) if none have encounter text.*
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Encounter:getEncounterText()
     local enemies = Game.battle:getActiveEnemies()
     local enemy = Utils.pick(enemies, function(v)
@@ -222,12 +243,12 @@ function Encounter:getEncounterText()
     if enemy then
         return enemy:getEncounterText()
     else
-        return self.text
+        return self:getInitialEncounterText()
     end
 end
 
 --- *(Override)* Retrieves the waves to be used for the next defending phase. \
---- By default, iterates through all active enemies and selects one wave each using [`EnemyBattler:selectWave()`](lua://EnemyBattler.selectWave)
+--- *By default, iterates through all active enemies and selects one wave each using [`EnemyBattler:selectWave()`](lua://EnemyBattler.selectWave)*
 ---@return Wave[]
 function Encounter:getNextWaves()
     local waves = {}
@@ -259,8 +280,8 @@ function Encounter:getPartyPosition(index)
 
     local battler = Game.battle.party[index]
     local ox, oy = battler.chara:getBattleOffset()
-    x = x + (battler.actor:getWidth()/2 + ox) * 2
-    y = y + (battler.actor:getHeight()  + oy) * 2
+    x = x + (battler.actor:getWidth() / 2 + ox) * 2
+    y = y + (battler.actor:getHeight() + oy) * 2
     return x, y
 end
 
@@ -300,7 +321,7 @@ function Encounter:onWavesDone()
 end
 
 --- *(Override)* Creates the soul being used this battle (Called at the start of the first wave)
---- By default, returns the regular (red) soul.
+--- *By default, returns the regular (red) soul.*
 ---@param x         number  The x-coordinate the soul should spawn at.
 ---@param y         number  The y-coordinate the soul should spawn at.
 ---@param color?    table   A custom color for the soul, that should override its default.
@@ -338,6 +359,39 @@ end
 ---@return number
 function Encounter:addFlag(flag, amount)
     return Game:addFlag("encounter#"..self.id..":"..flag, amount)
+end
+
+--- Checks if the encounter has reduced tension.
+--- @return boolean reduced Whether the encounter has reduced tension.
+function Encounter:hasReducedTension()
+    return self.reduced_tension
+end
+
+--- Returns the tension gained from defending.
+--- Returns 2% if reduced tension, otherwise 16%.
+---@param battler PartyBattler The current battler about to defend.
+---@return number tension The tension gained from defending.
+function Encounter:getDefendTension(battler)
+    if self:hasReducedTension() then
+        return 2
+    end
+    return 16
+end
+
+--- *(Override)* Whether automatic healing while downed is enabled in this encounter. \
+--- *By default, returns `true`.*
+---@param battler PartyBattler The current battler about to auto-heal.
+---@return boolean
+function Encounter:isAutoHealingEnabled(battler)
+    return true
+end
+
+--- *(Override)* Whether a party member can get swooned in this encounter or not.
+--- *By default, returns `true` for everyone.*
+---@param target PartyBattler The current target.
+---@return boolean
+function Encounter:canSwoon(target)
+    return true
 end
 
 return Encounter

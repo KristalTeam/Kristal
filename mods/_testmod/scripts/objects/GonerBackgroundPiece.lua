@@ -1,7 +1,10 @@
+--- A "piece" of the DEPTHS background effect. You should never really need to create this yourself.
+---@class GonerBackgroundPiece : Object
+---@overload fun(...) : GonerBackgroundPiece
 local GonerBackgroundPiece, super = Class(Object)
 
 function GonerBackgroundPiece:init(sprite, x, y)
-    super.init(self, 320/2, 240/2, 320, 240)
+    super.init(self, x, y, 320, 240)
 
     self:setOrigin(0.5, 0.5)
 
@@ -15,6 +18,10 @@ function GonerBackgroundPiece:init(sprite, x, y)
     self.stretch_speed = 0.02
     self.b_insurance = 0
     self.b_insurance = -0.2
+end
+
+function GonerBackgroundPiece:canDebugSelect()
+    return false
 end
 
 function GonerBackgroundPiece:update()
@@ -38,12 +45,14 @@ function GonerBackgroundPiece:update()
 end
 
 function GonerBackgroundPiece:draw()
+    super.draw(self)
     if (self.timer > 2) then
         Draw.setColor(1, 1, 1, ((0.2 + self.alpha) - self.o_insurance) + self.b_insurance)
-        Draw.draw(self.sprite, 0, 0, 0, ( 1 + self.xstretch), ( 1 + self.ystretch))
-        Draw.draw(self.sprite, 0, 0, 0, (-1 - self.xstretch), ( 1 + self.ystretch))
-        Draw.draw(self.sprite, 0, 0, 0, (-1 - self.xstretch), (-1 - self.ystretch))
-        Draw.draw(self.sprite, 0, 0, 0, ( 1 + self.xstretch), (-1 - self.ystretch))
+
+        Draw.draw(self.sprite, self.width / 2, self.height / 2, 0, ( 1 + self.xstretch), ( 1 + self.ystretch))
+        Draw.draw(self.sprite, self.width / 2, self.height / 2, 0, (-1 - self.xstretch), ( 1 + self.ystretch))
+        Draw.draw(self.sprite, self.width / 2, self.height / 2, 0, (-1 - self.xstretch), (-1 - self.ystretch))
+        Draw.draw(self.sprite, self.width / 2, self.height / 2, 0, ( 1 + self.xstretch), (-1 - self.ystretch))
     end
 end
 
