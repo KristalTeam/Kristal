@@ -1,3 +1,4 @@
+---@class Starwalker : EnemyBattler
 local Starwalker, super = Class(EnemyBattler)
 
 function Starwalker:init()
@@ -20,22 +21,23 @@ function Starwalker:init()
 
     self.exit_on_defeat = true
 
-    self.check = {
-        "AT 1 DF 1\n[wait:5]The   [color:yellow]original[color:reset]  enemy\n[wait:5]Can only deal [sound:vine_boom][offset:0,-16][font:main_mono,64]1[offset:0,16][font:reset][wait:10] damage",
-        "Can't keep [wait:5]Alive forever  [wait:5] Keep   attacking"
-    }
-
     self.text = {
         "* Star walker",
-        "* Smells like   [wait:5][color:yellow]pissed off[color:reset]",
-        "*               this encounter\n is against star  walker",
+        "* Smells like the original    [wait:5][color:yellow]Starwalker[color:reset]",
+        "* The air crackles with [color:yellow]star walker[color:reset].",
         "* this [color:yellow]battle[color:reset] is     [color:yellow]pissing[color:reset] me\noff..."
     }
 
-    self.low_health_text = "* Star walker has      hurt"
+    self.low_health_text = "* Star walker is [color:yellow]Pissed[color:reset] off..."
 
     self:registerAct("Star walker", "")
-    self:registerAct("Red Buster", "Red\nDamage", "susie", 60)
+
+    local description = "Red\ndamage"
+    if Game.chapter <= 3 then
+        description = "Red\nDamage"
+    end
+
+    self:registerAct("Red Buster", description, "susie", 60)
     self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
 
     self.text_override = nil
@@ -53,10 +55,72 @@ function Starwalker:init()
     self.progress = 0
 
     self.waves = {
-        "starwingsfaster"
+        "starwalker/starwingsfaster"
     }
 
     self.blue = false
+
+    self:setTired(true)
+    self:setTired(false)
+
+    self.was_hit = false
+end
+
+function Starwalker:getTarget()
+    return "ALL"
+end
+
+function Starwalker:makeBullet(x, y)
+    if (Utils.random() < 0.25) then
+        return Registry.createBullet("FallenStarBullet", x, y)
+    end
+
+    return Registry.createBullet("StarBullet", x, y)
+end
+
+function Starwalker:onAct(battler, name)
+    if name == "Check" then
+        self:onCheck(battler)
+
+        local check_text = {
+            "* Starwalker - AT 1 DF 1\n[wait:5]* The   [color:yellow]original[color:reset]  enemy\n[wait:5]* Can only deal [sound:vine_boom][offset:0,-16][font:main_mono,64]1[offset:0,16][font:reset][wait:10] damage"
+        }
+
+        if (self.was_hit) then
+            table.insert(check_text, "* Can't keep dodging forever.[wait:5]\n* Keep attacking.")
+        end
+
+        return check_text
+    elseif name == "DualHeal" then
+        Game.battle:powerAct("dual_heal", battler, "ralsei")
+    elseif name == "Red Buster" then
+        Game.battle:powerAct("red_buster", battler, "susie", self)
+    elseif name == "Star walker" then
+        self:addMercy(0.01)
+        return "* The Original Starwalker  absorbs the\nACT"
+    elseif name == "Standard" then
+        self:addMercy(0.01)
+        if battler.chara.id == "ralsei" then
+            return "* Ralsei passes away\n(it got [color:yellow]absorbed)"
+        elseif battler.chara.id == "susie" then
+            return "* Susie more like sussy\n(it got [color:yellow]absorbed)"
+        end
+    end
+
+    return super.onAct(self, battler, name)
+end
+
+function Starwalker:onHurt(damage, battler)
+    super.onHurt(self, damage, battler)
+
+    -- This doesn't get called if damage is 0 but we'll check anyway
+    if damage > 0 then
+        self.was_hit = true
+    end
+end
+
+function Starwalker:getGrazeTension()
+    return 0
 end
 
 function Starwalker:onTurnEnd()
@@ -64,6 +128,10 @@ function Starwalker:onTurnEnd()
 end
 
 function Starwalker:getEncounterText()
+    if (self.progress == 1) and (Game:getTension() < 8) then
+        return "* Kris...!\n[wait:5]* Try to get the [color:yellow]Fallen Stars[color:reset]!", "pleased", "ralsei"
+    end
+
     if (self.progress == 2) then
         return "* Star walker is preparing\n[color:blue]something [offset:0,-8][color:red][font:main_mono,48]!!"
     end
@@ -71,28 +139,28 @@ function Starwalker:getEncounterText()
 end
 
 function Starwalker:getNextWaves()
+    self.blue = false
 
     --[[if true then
         self.blue = true
-        return {"starup"}
+        return {"starwalker/starup"}
     end]]
 
-
     if (self.progress == 0) then
-        return {"starwings"}
+        return { "starwalker/starwings" }
     elseif (self.progress == 1) then
-        return {"starwingsfaster"}
+        return { "starwalker/starwingsfaster" }
     elseif (self.progress == 2) then
-        return {"staract"}
+        return { "starwalker/staract" }
     elseif (self.progress == 3) then
         self.blue = true
-        return {"starwings"}
+        return { "starwalker/starwings" }
     elseif (self.progress == 4) then
         self.blue = true
-        return {"starwingsfaster"}
+        return { "starwalker/starwingsfaster" }
     elseif (self.progress == 5) then
         self.blue = true
-        return {"starup"}
+        return { "starwalker/starup" }
     end
 
     return super.getNextWaves(self)
@@ -158,25 +226,6 @@ end
 
 function Starwalker:onActStart(battler, name)
     super.onActStart(self, battler, name)
-end
-
-function Starwalker:onAct(battler, name)
-    if name == "DualHeal" then
-        Game.battle:powerAct("dual_heal", battler, "ralsei")
-    elseif name == "Red Buster" then
-        Game.battle:powerAct("red_buster", battler, "susie", self)
-    elseif name == "Star walker" then
-        self:addMercy(0.01)
-        return "* The Original Starwalker  absorbs the\nACT"
-    elseif name == "Standard" then
-        self:addMercy(0.01)
-        if battler.chara.id == "ralsei" then
-            return "* Ralsei passes away\n(it got [color:yellow]absorbed)"
-        elseif battler.chara.id == "susie" then
-            return "* Susie more like sussy\n(it got [color:yellow]absorbed)"
-        end
-    end
-    return super.onAct(self, battler, name)
 end
 
 function Starwalker:onShortAct(battler, name)

@@ -15,7 +15,7 @@ package.path = package.path..";"..love.filesystem.getSource().."/?.lua"
 function Hotswapper.updateFiles(file_type)
     if not enabled then return end
     if file_type == "required" then
-        print("Updating file information for requried packages...")
+        print("Updating file information for required packages...")
         -- Loop through loaded packages
         for key, value in pairs(package.loaded) do
             local path = package.searchpath(key, package.path)
@@ -65,7 +65,10 @@ function Hotswapper.scan()
             value.modified = Hotswapper.getLastModified(value.path)
             print("Attempting to hotswap " .. key)
             --print(value.path)
+
+            HOTSWAPPING = true
             local updated_module, error_text = Hotswapper.hotswap(key)
+            HOTSWAPPING = false
             if not updated_module then
                 print(error_text)
             end

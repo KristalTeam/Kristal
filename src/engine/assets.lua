@@ -165,6 +165,11 @@ function Assets.parseData(data)
         local src = love.audio.newSource(sound_data)
         self.sounds[key] = src
     end
+
+    -- create single-instance shaders
+    for key,shader_path in pairs(data.shader_paths) do
+        self.data.shaders[key] = love.graphics.newShader(shader_path)
+    end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
     --self.data.sound_data = {}
 end
@@ -431,8 +436,12 @@ function Assets.newVideo(video, load_audio)
     return love.graphics.newVideo(self.data.videos[video], {audio = load_audio})
 end
 
+function Assets.getShader(id)
+    return self.data.shaders[id]
+end
+
 function Assets.newShader(id)
-    return love.graphics.newShader(self.data.shaders[id])
+    return love.graphics.newShader(self.data.shader_paths[id])
 end
 
 Assets.clear()
