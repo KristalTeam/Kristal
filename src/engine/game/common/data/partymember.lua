@@ -627,8 +627,7 @@ end
 --- *(Override)* Gets the amount of health this party member should heal each turn whilst DOWN in battle
 ---@return number
 function PartyMember:autoHealAmount()
-    -- TODO: Is this round or ceil? Both were used before this function was added.
-    return Utils.round(self:getStat("health") / 8)
+    return math.ceil(self:getStat("health") / 8)
 end
 
 --- Gets this party member's stat bonuses from equipment for a particular stat
