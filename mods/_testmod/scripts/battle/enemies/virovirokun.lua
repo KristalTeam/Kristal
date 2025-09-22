@@ -15,7 +15,13 @@ function Virovirokun:init()
     self:registerAct("Tell Story", "", {"ralsei"})
     self:registerAct("Red", "", {"susie"})
     self:registerAct("", "", nil, nil, nil, {"ui/battle/msg/dumbass"})
-    self:registerAct("Red Buster", "Red\nDamage", "susie", 60)
+
+    local description = "Red\ndamage"
+    if Game.chapter <= 3 then
+        description = "Red\nDamage"
+    end
+
+    self:registerAct("Red Buster", description, "susie", 60)
     self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
 end
 

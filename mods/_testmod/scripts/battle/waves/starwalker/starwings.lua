@@ -20,9 +20,7 @@ function Starwings:onStart()
             Assets.playSound("stardrop")
             for i = -1, 1 do
                 local offset = i * 15
-                local star = self:spawnBullet("bullets/star", self.starwalker.x - 20, self.starwalker.y - 40)
-                star.inv_timer = 1/30
-                star.destroy_on_hit = false
+                local star = self:spawnBullet(self.starwalker:makeBullet(self.starwalker.x - 20, self.starwalker.y - 40))
                 star.physics.direction = math.atan2(Game.battle.soul.y - star.y, Game.battle.soul.x - star.x) + math.rad(offset)
                 star.physics.speed = 6
                 star:setScale(2 * self.size)

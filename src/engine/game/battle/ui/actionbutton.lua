@@ -82,6 +82,7 @@ function ActionButton:select()
 
         -- Now, register SPELLs as menu items.
         for _,spell in ipairs(self.battler.chara:getSpells()) do
+            ---@type table|function
             local color = spell.color or {1, 1, 1, 1}
             if spell:hasTag("spare_tired") then
                 local has_tired = false
@@ -93,6 +94,11 @@ function ActionButton:select()
                 end
                 if has_tired then
                     color = {0, 178/255, 1, 1}
+                    if Game:getConfig("pacifyGlow") then
+                        color = function ()
+                            return Utils.mergeColor({0, 0.7, 1, 1}, COLORS.white, 0.5 + math.sin(Game.battle.pacify_glow_timer / 4) * 0.5)
+                        end
+                    end
                 end
             end
             Game.battle:addMenuItem({
@@ -153,7 +159,7 @@ function ActionButton:select()
     elseif self.type == "spare" then
         Game.battle:setState("ENEMYSELECT", "SPARE")
     elseif self.type == "defend" then
-        Game.battle:pushAction("DEFEND", nil, {tp = -16})
+        Game.battle:pushAction("DEFEND", nil, {tp = -Game.battle:getDefendTension(self.battler)})
     end
 end
 

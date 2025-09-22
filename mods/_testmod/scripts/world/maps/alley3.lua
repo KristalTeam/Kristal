@@ -378,13 +378,19 @@ return {
           id = 4,
           name = "transition",
           class = "",
-          shape = "rectangle",
+          shape = "polygon",
           x = -40,
           y = 240,
           width = 40,
           height = 80,
           rotation = 0,
           visible = true,
+          polygon = {
+            { x = -10, y = -40 },
+            { x = 40, y = 0 },
+            { x = 40, y = 80 },
+            { x = -10, y = 40 }
+          },
           properties = {
             ["map"] = "alley2",
             ["marker"] = "entry_right"
