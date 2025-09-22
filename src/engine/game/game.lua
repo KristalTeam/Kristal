@@ -23,6 +23,7 @@
 ---@field chapter           integer
 ---@field save_name         string
 ---@field save_level        integer
+---@field save_id           integer
 ---@field playtime          number
 ---@field light             boolean
 ---@field money             integer
@@ -326,7 +327,7 @@ function Game:load(data, index, fade)
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
 
     self.light = false
-    
+
     -- Used to carry the soul invulnerability frames between waves
     self.old_soul_inv_timer = 0
 
@@ -491,13 +492,12 @@ function Game:load(data, index, fade)
     Kristal.DebugSystem:refresh()
 
     self.started = true
-    
-    self.nothing_warn = true
+
     if self.is_new_file then
         if Kristal.getModOption("encounter") then
             self:encounter(Kristal.getModOption("encounter"), false)
         elseif Kristal.getModOption("shop") then
-            self:enterShop(Kristal.getModOption("shop"), {menu = true})
+            self:enterShop(Kristal.getModOption("shop"), { menu = true })
         end
     end
 
@@ -917,13 +917,15 @@ function Game:getSoulColor()
     return 1, 0, 0, 1
 end
 
----@return PartyMember
+---@return PartyMember?
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end
+
+    return nil
 end
 
 ---@param chara  string|Follower
@@ -963,7 +965,7 @@ function Game:giveTension(amount)
     local start = self:getTension()
     self:setTension(self:getTension() + amount)
     if self:getTension() > self:getMaxTension() then
-        Game:setTension(self:getMaxTension())
+        self:setTension(self:getMaxTension())
     end
     self:setTensionPreview(0)
     return self:getTension() - start
@@ -1042,17 +1044,6 @@ function Game:update()
     self.playtime = self.playtime + DT
 
     self.stage:update()
-    
-    if not self.shop and not self.battle and not (self.world and self.world.map and self.world.map.id) then
-        if self.nothing_warn then Kristal.Console:warn("No map, shop nor encounter were loaded") end
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
-        else
-            Kristal.returnToMenu()
-        end
-    else
-        self.nothing_warn = false
-    end
 
     Kristal.callEvent(KRISTAL_EVENT.postUpdate, DT)
 end

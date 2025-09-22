@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 15,
-  nextobjectid = 123,
+  nextobjectid = 126,
   properties = {},
   tilesets = {
     {
@@ -296,19 +296,6 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
-        },
-        {
-          id = 120,
-          name = "THIS EVIL GOD DAMN POINT",
-          class = "",
-          shape = "point",
-          x = 640,
-          y = 340,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {}
         }
       }
     },
@@ -414,6 +401,33 @@ return {
           gid = 262,
           visible = true,
           properties = {}
+        },
+        {
+          id = 123,
+          name = "interactable",
+          class = "",
+          shape = "polygon",
+          x = 480,
+          y = 360,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polygon = {
+            { x = 0, y = 0 },
+            { x = -40, y = 0 },
+            { x = 80, y = -40 },
+            { x = 200, y = 0 },
+            { x = 160, y = 0 },
+            { x = 160, y = 80 },
+            { x = 0, y = 80 }
+          },
+          properties = {
+            ["solid"] = true,
+            ["text1_1"] = "* Check it out,[wait:5] i'm[wait:3] house",
+            ["text1_2"] = "* House[wait:5] like[wait:5] car[wait:3]pet",
+            ["text2_1"] = "* Chicken"
+          }
         }
       }
     },

@@ -59,6 +59,9 @@
 ---@field comment           string              The text displayed next to this enemy's name in menu's (such as "(Tired)" in DELTARUNE) 
 ---@field defeated          boolean             Whether this enemy has been defeated
 ---
+---@field temporary_mercy           number              The current amount of temporary mercy
+---@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
+---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
@@ -138,15 +141,38 @@ function EnemyBattler:init(actor, use_overlay)
     self.defeated = false
 
     self.current_target = "ANY"
+
+    self.temporary_mercy = 0
+    self.temporary_mercy_percent = nil
+
+    self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
+end
+
+--- Get the default graze tension for this enemy.
+--- Any bullets which don't specify graze tension will use this value.
+---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
+function EnemyBattler:getGrazeTension()
+    return self.graze_tension
 end
 
 ---@param bool boolean
 function EnemyBattler:setTired(bool)
+    local old_tired = self.tired
     self.tired = bool
     if self.tired then
         self.comment = "(Tired)"
+        if not old_tired and Game:getConfig("tiredMessages") then
+            -- Check for self.parent so setting Tired state in init doesn't crash
+            if self.parent then
+                self:statusMessage("msg", "tired")
+                Assets.playSound("spellcast", 0.5, 0.9)
+            end
+        end
     else
         self.comment = ""
+        if old_tired and Game:getConfig("awakeMessages") then
+            if self.parent then self:statusMessage("msg", "awake") end
+        end
     end
 end
 
@@ -428,6 +454,60 @@ function EnemyBattler:addMercy(amount)
     end
 end
 
+--- Adds (or removes) temporary mercy from this enemy. *Temporary mercy persists until kill_condition is true at any point.*
+---@param amount number
+---@param play_sound? boolean       Whether to play a sound the first time temporary mercy is added
+---@param clamp? [number, number]   A table containing 2 number values that controls the range of the temporary mercy. Defaults to {0, 100}
+---@param kill_condition? function  A function that should return true when the temporary mercy should start to fade out.
+function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_condition)
+    kill_condition = kill_condition or function ()
+        return Game.battle.state ~= "DEFENDING" and Game.battle.state ~= "DEFENDINGEND"
+    end
+
+    clamp = clamp or {0, 100}
+
+    self.temporary_mercy = self.temporary_mercy + amount
+
+    local min, max = clamp[1], clamp[2]
+    self.temporary_mercy = Utils.clamp(self.temporary_mercy, min, max)
+
+    if Game:getConfig("mercyMessages") then
+        if self.temporary_mercy == 0 then
+            if not self.temporary_mercy_percent then
+                self.temporary_mercy_percent = self:statusMessage("msg", "miss")
+                self.temporary_mercy_percent.kill_condition = kill_condition
+                self.temporary_mercy_percent.kill_others = true
+                -- In Deltarune, the mercy percent takes a bit more time to start to fade out after the enemy's turn ends
+                self.temporary_mercy_percent.kill_delay = 30
+            else
+                self.temporary_mercy_percent:setDisplay("msg", "miss")
+            end
+        else
+            if not self.temporary_mercy_percent then
+                self.temporary_mercy_percent = self:statusMessage("mercy", self.temporary_mercy)
+                self.temporary_mercy_percent.kill_condition = kill_condition
+                self.temporary_mercy_percent.kill_others = true
+                self.temporary_mercy_percent.kill_delay = 30
+
+                -- Only play the mercyadd sound when the DamageNumber is first shown
+                if play_sound ~= false then
+                    if amount > 0 then
+                        local pitch = 0.8
+                        if amount < 99 then pitch = 1 end
+                        if amount <= 50 then pitch = 1.2 end
+                        if amount <= 25 then pitch = 1.4 end
+
+                        local src = Assets.playSound("mercyadd", 0.8)
+                        src:setPitch(pitch)
+                    end
+                end
+            else
+                self.temporary_mercy_percent:setDisplay("mercy", self.temporary_mercy)
+            end
+        end
+    end
+end
+
 --- *(Override)* Called when a battler uses mercy on (spares) the enemy \
 --- *By default, responsible for sparing the enemy or increasing their mercy points by [`spare_points`](lua://EnemyBattler.spare_points)*
 ---@param battler PartyBattler
@@ -468,13 +548,29 @@ function EnemyBattler:getNameColors()
         table.insert(result, {1, 1, 0})
     end
     if self.tired then
-        table.insert(result, {0, 0.7, 1})
+        local tiredcol = {0, 0.7, 1}
+        if Game:getConfig("pacifyGlow") then
+            local battler = Game.battle.party[Game.battle.current_selecting]
+            local can_pacify
+            for _, spell in ipairs(battler.chara:getSpells()) do
+                if spell:hasTag("spare_tired") then
+                    can_pacify = true
+                    break
+                end
+            end
+            if can_pacify then
+                tiredcol = Utils.mergeColor(tiredcol, COLORS.white, 0.5 + math.sin(Game.battle.pacify_glow_timer / 4) * 0.5)
+            end
+        end
+        table.insert(result, tiredcol)
     end
     return result
 end
 
 --- Gets the encounter text that should be shown in the battle box if this enemy is chosen for encounter text. Called at the start of each turn.
----@return string? text
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function EnemyBattler:getEncounterText()
     local has_spareable_text = self.spareable_text and self:canSpare()
 
@@ -674,11 +770,17 @@ function EnemyBattler:forceDefeat(amount, battler)
 end
 
 --- *(Override)* Gets the tension earned by hitting this enemy \
---- *By default, returns `points / 25`*
+--- *By default, returns `points / 25`, or if you have reduced tension, `points / 65`*
 ---@param points number The points of the hit, based on closeness to the target box when attacking, maximum value is `150`
 ---@return number tension
 function EnemyBattler:getAttackTension(points)
-    -- In Deltarune, this is always 10*2.5, except for JEVIL where it's 15*2.5
+    -- Kristal transforms tension from 0-250 (DR) to 0-100.
+    -- In Deltarune, this is (10 * 2.5), except for JEVIL where it's (15 * 2.5)
+    -- And in reduced battles, it's (26 * 2.5)
+
+    if Game.battle:hasReducedTension() then
+        return points / 65
+    end
     return points / 25
 end
 
@@ -789,21 +891,20 @@ function EnemyBattler:onDefeatFatal(damage, battler)
 end
 
 --- Heals the enemy by `amount` health
----@param amount number
-function EnemyBattler:heal(amount)
+---@param amount            number  The amount of health to restore
+---@param sparkle_color?    table   The color of the heal sparkles (defaults to the standard green) or false to not show sparkles
+function EnemyBattler:heal(amount, sparkle_color)
     Assets.stopAndPlaySound("power")
     self.health = self.health + amount
 
-    self:flash()
-
     if self.health >= self.max_health then
         self.health = self.max_health
-        self:statusMessage("msg", "max")
+        self:statusMessage("msg", "max", nil, nil, 8)
     else
-        self:statusMessage("heal", amount, {0, 1, 0})
+        self:statusMessage("heal", amount, {0, 1, 0}, nil, 8)
     end
 
-    self:sparkle()
+    self:healEffect(unpack(sparkle_color or {}))
 end
 
 --- Freezes this enemy and defeats them with the reason `"FROZEN"` \
@@ -941,6 +1042,12 @@ function EnemyBattler:update()
         if self.hurt_timer == 0 then
             self:onHurtEnd()
         end
+    end
+
+    if self.temporary_mercy_percent and self.temporary_mercy_percent.kill_condition_succeed then
+        self.mercy = Utils.clamp(self.mercy + self.temporary_mercy, 0, 100)
+        self.temporary_mercy = 0
+        self.temporary_mercy_percent = nil
     end
 
     super.update(self)

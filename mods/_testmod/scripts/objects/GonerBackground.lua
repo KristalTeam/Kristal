@@ -3,14 +3,12 @@
 local GonerBackground, super = Class(Object)
 
 function GonerBackground:init(x, y)
-    super.init(self, x or SCREEN_WIDTH/2, y or SCREEN_HEIGHT/2, 320, 240)
+    super.init(self, x or SCREEN_WIDTH / 2, y or SCREEN_HEIGHT / 2, 320, 240)
+    self:setOrigin(0.5)
+    self:setParallax(0, 0)
     self:setScale(2)
-    self:setOrigin(0, 0)
 
     self.sprite = Assets.getTexture("IMAGE_DEPTH")
-
-    self.parallax_x = 0
-    self.parallax_y = 0
 
     self.OBM = 0.5
 
@@ -19,11 +17,16 @@ function GonerBackground:init(x, y)
     self.timer = Timer()
     self.timer:every(40/30, function()
         self.ob_depth = self.ob_depth - 0.001
-        local piece = self:addChild(GonerBackgroundPiece(self.sprite, self.x, self.y))
+        local piece = self:addChild(GonerBackgroundPiece(self.sprite, self.width / 2, self.height / 2))
         piece.stretch_speed = 0.01 * self.OBM
         piece.layer = self.ob_depth
     end)
     self:addChild(self.timer)
+
+    self.cover = self:addChild(Rectangle(self.width / 2, self.height / 2, self.width, self.height))
+    self.cover:setOrigin(0.5)
+    self.cover:setLayer(9999999)
+    self.cover:setColor({ 0, 0, 0, 0.4 })
 
     self.music = Music()
     self.music:play("AUDIO_ANOTHERHIM")
@@ -32,9 +35,7 @@ function GonerBackground:init(x, y)
 end
 
 function GonerBackground:update()
-    if (self.music_pitch < 0.96) then
-        self.music_pitch = self.music_pitch + 0.02 * DTMULT
-    end
+    self.music_pitch = Utils.approach(self.music_pitch, 0.96, 0.02 * DTMULT)
     self.music:setPitch(self.music_pitch)
 
     super.update(self)

@@ -4,31 +4,64 @@ local Utils = {}
 ---
 --- Returns a substring of the specified string, properly accounting for UTF-8.
 ---
----@param s  string         # The initial string to get a substring of.
----@param i  number         # The index that the substring should start at.
----@param j? number         # The index that the substring should end at. (Defaults to -1, referring to the last character of the string)
+---@param input  string     # The initial string to get a substring of.
+---@param from?  integer    # The index that the substring should start at. (Defaults to 1, referring to the first character of the string)
+---@param to?    integer    # The index that the substring should end at. (Defaults to -1, referring to the last character of the string)
 ---@return string substring # The new substring.
 ---
-function Utils.sub(s,i,j)
-    i = i or 1
-    j = j or -1
-    if i<1 or j<1 then
-        local n = utf8.len(s)
-        if not n then error("Invalid UTF-8 string.") end
-        if i<0 then i = n+1+i end
-        if j<0 then j = n+1+j end
-        if i<0 then i = 1 end
-        if j<0 then j = 1 end
-        if j<i then return "" end
-        if i>n then i = n end
-        if j>n then j = n end
+function Utils.sub(input, from, to)
+    if (from == nil) then
+        from = 1
     end
-    if j<i then return "" end
-    i = utf8.offset(s,i)
-    j = utf8.offset(s,j+1)
-    if i and j then return string.sub(s,i,j-1)
-    elseif i then return string.sub(s,i)
-    else return "" end
+
+    if (to == nil) then
+        to = -1
+    end
+
+    if from < 1 or to < 1 then
+        local length = Utils.len(input)
+        if not length then error("Invalid UTF-8 string.") end
+        if from < 0 then from = length + 1 + from end
+        if to < 0 then to = length + 1 + to end
+        if from < 0 then from = 1 end
+        if to < 0 then to = 1 end
+        if to < from then return "" end
+        if from > length then from = length end
+        if to > length then to = length end
+    end
+
+    if to < from then
+        return ""
+    end
+
+    local offset_from = utf8.offset(input, from) --[[@as integer?]]
+    local offset_to = utf8.offset(input, to + 1) --[[@as integer?]]
+
+    if offset_from and offset_to then
+        return string.sub(input, offset_from, offset_to - 1)
+    elseif offset_from then
+        return string.sub(input, offset_from)
+    else
+        return ""
+    end
+end
+
+-- Returns the length of a UTF-8 string, erroring if it's invalid.
+---@param input string
+---@return integer length
+function Utils.len(input)
+    local len, err = utf8.len(input)
+    if err ~= nil then
+        local ok_str = input:sub(1, err - 1)
+        local ok_len = utf8.len(ok_str)
+        if not ok_len then
+            error("Invalid UTF-8 string passed to Utils.len")
+        end
+        ---@cast ok_len integer
+        error(string.format("Invalid character after \"%s\" (character #%d, byte #%d)", ok_str, ok_len + 1, err))
+    end
+    ---@cast len integer
+    return len
 end
 
 ---
@@ -350,6 +383,33 @@ function Utils.hook(target, name, hook, exact_func)
             end
         end
     end
+end
+
+---@type metatable
+Utils.HOOKSCRIPT_MT = {
+    __newindex = function (self, k, v)
+        self.__hookscript_super[k] = self.__hookscript_super[k] or self.__hookscript_class[k]
+        assert(Mod)
+        Utils.hook(self.__hookscript_class, k, v, true)
+    end
+}
+---@generic T : Class|function
+---
+---@param include? T|`T`|string     # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
+---
+---@return T class                # The new class, extended from `include` if provided.
+---@return T|superclass<T> super  # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
+function Utils.hookScript(include)
+    if type(include) == "string" then
+        local r = CLASS_NAME_GETTER(include)
+        if not r then
+            error{included=include, msg="Failed to include "..include}
+        end
+        include = r
+    end
+    local super = {super = include.__super}
+    local class = setmetatable({__hookscript_super = super, __hookscript_class = include}, Utils.HOOKSCRIPT_MT)
+    return class, super
 end
 
 ---
@@ -1754,10 +1814,17 @@ function Utils.absoluteToLocalPath(prefix, image, path)
     -- Split paths by seperator
     local base_path = Utils.split(path, "/")
     local dest_path = Utils.split(image, "/")
+    local up_count = 0
     while dest_path[1] == ".." do
+        up_count = up_count + 1
         -- Move up one directory
         table.remove(base_path, #base_path)
         table.remove(dest_path, 1)
+    end
+    if dest_path[1] == "libraries" then
+        for i = 2, up_count do
+            table.remove(dest_path, 1)
+        end
     end
 
     local final_path = table.concat(Utils.merge(base_path, dest_path), "/")
@@ -2027,7 +2094,7 @@ end
 ---@return string result # The newly created string.
 ---
 function Utils.stringInsert(str1, str2, pos)
-    return str1:sub(1, pos) .. str2 .. str1:sub(pos + 1)
+    return Utils.sub(str1, 1, pos) .. str2 .. Utils.sub(str1, pos + 1)
 end
 
 ---
@@ -2359,7 +2426,7 @@ function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_
             end
 
             local trunc_str
-            for i=1, string.len(str) do
+            for i=1, Utils.len(str) do
                 trunc_str = Utils.sub(str, 1, i)
                 local width = font:getWidth(trunc_str) * scale
                 if width > (max_width - affix_width) then

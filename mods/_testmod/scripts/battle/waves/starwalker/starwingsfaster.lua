@@ -1,4 +1,4 @@
-local StarwingsFaster, super = Class("starwings")
+local StarwingsFaster, super = Class("starwalker/starwings")
 
 function StarwingsFaster:init()
     super.init(self)
