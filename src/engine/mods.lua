@@ -139,9 +139,13 @@ function Mods.getMod(id)
 end
 
 ---@param id string
----@return table
+---@return table?
 function Mods.getAndLoadMod(id)
     local mod = self.getMod(id)
+
+    if not mod then
+        return nil
+    end
 
     if not mod.loaded_scripts then
         for _,path in ipairs(Utils.getFilesRecursive(mod.path, ".lua")) do

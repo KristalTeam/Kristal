@@ -1,4 +1,5 @@
 .vscode/
+.DS_Store
 
 mods/*
 !mods/_light/

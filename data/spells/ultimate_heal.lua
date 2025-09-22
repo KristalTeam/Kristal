@@ -24,7 +24,10 @@ function spell:init()
 end
 
 function spell:onCast(user, target)
-    target:heal(user.chara:getStat("magic") + 1)
+    local base_heal = user.chara:getStat("magic") + 1
+    local heal_amount = Game.battle:applyHealBonuses(base_heal, user.chara)
+
+    target:heal(heal_amount)
 end
 
 return spell

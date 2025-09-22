@@ -23,6 +23,9 @@
     "mercyMessages": true,           // "+X%" mercy messages
     "mercyBar": true,                // Mercy bar next to hp bar in enemy select
     "enemyBarPercentages": true,     // HP / Mercy bar percentages
+    "pacifyGlow": false,             // Pacify (and other spells) glow when enemies are TIRED
+    "tiredMessages": false,          // Tired mercy messages
+    "awakeMessages": false,          // Awake un-mercy messages
 
     "targetSystem": false,           // Whether the target system should be used or not
     "soulInvBetweenWaves": false,    // Whether the soul invulnerability will carry between waves in battles
@@ -39,5 +42,7 @@
     "pushBlockInputLock": true,      // Whether to lock the player's input when pushing a block
     "keepTensionAfterBattle": false, // Whether TP should be kept after battle instead of reset
     "overworldSpells": false,        // Whether spells should be usable in the overworld
-    "damageUnderflowFix": true       // When disabled, negative enemy damage heals the enemy and displays a negative damage number
+    "damageUnderflowFix": true,      // When disabled, negative enemy damage heals the enemy and displays a negative damage number
+    "darkCandyForm": "dark",         // Whether to use Dark Candy or Darker Candy
+    "canTossLightWeapons": true      // Whether light world weapons can be thrown away
 }

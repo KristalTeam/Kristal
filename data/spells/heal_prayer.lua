@@ -9,7 +9,11 @@ function spell:init()
     self.cast_name = nil
 
     -- Battle description
-    self.effect = "Heal\nAlly"
+    if Game.chapter <= 3 then
+        self.effect = "Heal\nAlly"
+    else
+        self.effect = "Heal\nally"
+    end
     -- Menu description
     self.description = "Heavenly light restores a little HP to\none party member. Depends on Magic."
 
@@ -24,7 +28,10 @@ function spell:init()
 end
 
 function spell:onCast(user, target)
-    target:heal(user.chara:getStat("magic") * 5)
+    local base_heal = user.chara:getStat("magic") * 5
+    local heal_amount = Game.battle:applyHealBonuses(base_heal, user.chara)
+
+    target:heal(heal_amount)
 end
 
 function spell:hasWorldUsage(chara)

@@ -162,9 +162,9 @@ function Inventory:removeItemFrom(storage, index)
 end
 
 --- Sets the item stored at `index` of a particular storage
----@param storage   string|table
----@param index     integer
----@param item      string|Item
+---@param storage?  string|table
+---@param index?    integer
+---@param item?     string|Item
 ---@return Item|nil
 function Inventory:setItem(storage, index, item)
     if type(storage) == "string" then
