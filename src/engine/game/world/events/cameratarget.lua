@@ -24,8 +24,8 @@
 ---@overload fun(...) : CameraTarget
 local CameraTarget, super = Class(Event)
 
-function CameraTarget:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function CameraTarget:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     self.solid = false
 

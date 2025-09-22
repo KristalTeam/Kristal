@@ -68,7 +68,7 @@ function item:onToss()
     return false
 end
 
-function Item:onCheck()
+function item:onCheck()
     Game.world:startCutscene(function(cutscene)
         cutscene:text("* \""..self:getName().."\" - "..self:getCheck())
 

@@ -1,0 +1,29 @@
+{
+    "runtime": {
+        "version": "LuaJIT"
+    },
+
+    "workspace": {
+        "ignoreDir": [
+            "/.github/",
+            "/.vscode/",
+
+            "/assets/",
+            "/build/",
+            "/configs/",
+            "/data/",
+            "/data_templates/",
+            "/docs/",
+            "/lib/",
+            "/luadoc_meta/.buildDocs.lua",
+            "/mod_template/",
+            "/mods/",
+            "/output/",
+
+            "/conf.lua",
+            "/main.lua"
+        ]
+    },
+
+    "docScriptPath": "/luadoc_meta/.buildDocs.lua"
+}

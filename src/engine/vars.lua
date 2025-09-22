@@ -86,6 +86,7 @@ MUSIC_VOLUMES = {
 MUSIC_PITCHES = {}
 
 -- Colors used by the engine for various things, here for customizability
+---@enum (key) PaletteIndex
 local palette_data = {
     ["battle_mercy_bg"] = { 255 / 255, 80 / 255, 32 / 255, 1 },
     ["battle_mercy_text"] = { 128 / 255, 0, 0, 1 },
@@ -121,7 +122,13 @@ local palette_data = {
     ["tension_max"] = { 255 / 255, 208 / 255, 32 / 255, 1 },
     ["tension_maxtext"] = { 1, 1, 0, 1 },
     ["tension_desc"] = { 255 / 255, 160 / 255, 64 / 255, 1 },
+
+    ["tension_back_reduced"] = { 0, 0, 128 / 255, 1 },
+    ["tension_decrease_reduced"] = { 0, 0, 1, 1 },
+    ["tension_fill_reduced"] = { 0, 63 / 255, 191 / 255, 1 },
+    ["tension_max_reduced"] = { 0, 95 / 255, 159 / 255, 1 }
 }
+---@type table<PaletteIndex, number[]>
 PALETTE = {}
 setmetatable(PALETTE, {
     __index = function (t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,
