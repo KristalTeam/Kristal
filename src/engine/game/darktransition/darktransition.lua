@@ -92,6 +92,7 @@ function DarkTransition:init(final_y, options)
 
     self.final_y               = final_y or (SCREEN_HEIGHT / 2)
     self.sparkles              = options["sparkles"] or 0
+    self.sparkles_character    = options["sparkles_character"] or 1
     self.sparestar             = Assets.getFrames("effects/spare/star")
     self.dtrans_square         = Assets.newSound("dtrans_square")
     self.head_object_sprite    = Assets.getTexture(options["head_object_sprite"] or "misc/trash_ball")
@@ -585,7 +586,7 @@ function DarkTransition:draw()
             end
 
             for i = 1, self.sparkles do
-                local sparkle = DarkTransitionSparkle(self.sparestar, self.kris_x + 15, self.kris_y + 15)
+                local sparkle = DarkTransitionSparkle(self.sparestar, self.character_data[self.sparkles_character].x + 15, self.character_data[self.sparkles_character].y + 15)
                 sparkle:play(1 / 15)
                 -- We need to get the stage...
                 self:addChild(sparkle)

@@ -44,7 +44,7 @@ function ModList:getById(id)
 end
 
 function ModList:clearMods()
-    for _,v in ipairs(self.mods) do
+    for _, v in ipairs(self.mods) do
         self.mod_container:removeChild(v)
     end
     self.mods = {}
@@ -56,8 +56,11 @@ end
 function ModList:addMod(mod)
     table.insert(self.mods, mod)
     self.mod_container:addChild(mod)
-    mod:setPosition(4, self.mod_list_height + 4)
-    self.mod_list_height = self.mod_list_height + mod.height + 8
+
+    local padding = Kristal.Config["brokenMenuBoxes"] and 4 or 6
+
+    mod:setPosition(4, self.mod_list_height + padding)
+    self.mod_list_height = self.mod_list_height + mod.height + (padding * 2)
     if (self.selected == 0) and (#self.mods == 1) then
         self.selected = 1
         mod:onSelect()

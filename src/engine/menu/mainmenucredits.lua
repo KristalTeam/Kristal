@@ -20,12 +20,12 @@ function MainMenuCredits:init(menu)
         {
             "Kristal Engine",
             {
-                {"Lead Developers", COLORS.silver},
+                { "Lead Developers", COLORS.silver },
                 "NyakoFox",
                 "SylviBlossom",
                 "vitellary",
                 "",
-                {"Assets", COLORS.silver},
+                { "Assets", COLORS.silver },
                 "Toby Fox",
                 "Temmie Chang",
                 "DELTARUNE team",
@@ -33,39 +33,39 @@ function MainMenuCredits:init(menu)
                 "",
             },
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
                 "AcousticJamm",
                 "Agent 7",
                 "AlexGamingSW",
                 "Archie-osu",
                 "Bor",
                 "Dobby233Liu",
+                "Elioze",
                 "FireRainV",
                 "HUECYCLES",
-                "Lionmeow",
-                "Luna"
+                "J.A.R.U."
             }
         },
         {
             "Kristal Engine",
             {
-                {"GitHub Contributors", COLORS.silver},
+                { "GitHub Contributors", COLORS.silver },
+                "Lionmeow",
+                "Luna",
+                "MCdeDaxia",
                 "MrOinky",
+                "Nextop",
                 "prokube",
                 "Simbel",
                 "sjl057",
                 "skarph",
-                "WIL-TZY",
-                "TFLTV",
-                "J.A.R.U.",
-                "MCdeDaxia",
-                ""
+                "TFLTV"
             },
             {
-                {"GitHub Contributors", COLORS.silver},
-                "",
-                "",
-                "",
+                { "GitHub Contributors", COLORS.silver },
+                "Verozity",
+                "WIL-TZY",
+                "YeetusSnoopy",
                 "",
                 "",
                 "",

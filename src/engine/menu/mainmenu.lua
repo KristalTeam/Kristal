@@ -131,6 +131,11 @@ function MainMenu:enter()
             self.ver_string = self.ver_string .. " (outdated!)"
         end
     end)
+
+    if TARGET_MOD then
+        self.selected_mod = self.mod_list:getSelectedMod()
+        self.selected_mod_button = self.mod_list:getSelectedButton()
+    end
 end
 
 function MainMenu:leave()

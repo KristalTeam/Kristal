@@ -563,6 +563,38 @@ function Map:loadPaths(layer)
     end
 end
 
+function Map:shouldLoadObject(data, layer)
+    local skip_loading = false
+    local uid = self:getUniqueID().."#"..tostring(data.properties["uid"] or data.id)
+    if data.properties["cond"] then
+        local env = setmetatable({}, {__index = function(t, k)
+            return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
+        end})
+        local chunk, _ = assert(loadstring("return "..data.properties["cond"]))
+        skip_loading = not setfenv(chunk, env)()
+    elseif data.properties["flagcheck"] then
+        local inverted, flag = Utils.startsWith(data.properties["flagcheck"], "!")
+
+        local result = Game.flags[uid..":"..flag] or Game.flags[flag]
+        local value = data.properties["flagvalue"]
+        local is_true
+        if value ~= nil then
+            is_true = result == value
+        elseif type(result) == "number" then
+            is_true = result > 0
+        else
+            is_true = result
+        end
+
+        if is_true then
+            skip_loading = inverted
+        else
+            skip_loading = not inverted
+        end
+    end
+    return not skip_loading
+end
+
 function Map:loadObjects(layer, depth, layer_type)
     local parent = layer_type == "controllers" and self.world.controller_parent or self.world
 
@@ -572,6 +604,22 @@ function Map:loadObjects(layer, depth, layer_type)
         v.height = v.height or 0
         v.center_x = v.x + v.width/2
         v.center_y = v.y + v.height/2
+
+        -- Get width/height of the full polygon (usable when a polygon is not supported on an object)
+        if v.polygon then
+            local min_x, max_x, min_y, max_y = 0, 0, 0, 0
+            for _, point in ipairs(v.polygon) do
+                min_x = math.min(point.x, min_x)
+                max_x = math.max(point.x, max_x)
+                min_y = math.min(point.y, min_y)
+                max_y = math.max(point.y, max_y)
+            end
+
+            v.width = max_x - min_x
+            v.height = max_y - min_y
+            v.center_x = v.x - min_x + v.width/2
+            v.center_y = v.y - min_y + v.height/2
+        end
 
         if v.gid then
             local tx,ty,tw,th = self:getTileObjectRect(v)
@@ -586,34 +634,7 @@ function Map:loadObjects(layer, depth, layer_type)
 
         local uid = self:getUniqueID().."#"..tostring(v.properties["uid"] or v.id)
         if not Game:getFlag(uid..":dont_load") then
-            local skip_loading = false
-            if v.properties["cond"] then
-                local env = setmetatable({}, {__index = function(t, k)
-                    return Game.flags[uid..":"..k] or Game.flags[k] or _G[k]
-                end})
-                skip_loading = not setfenv(loadstring("return "..v.properties["cond"]), env)()
-            elseif v.properties["flagcheck"] then
-                local inverted, flag = Utils.startsWith(v.properties["flagcheck"], "!")
-
-                local result = Game.flags[uid..":"..flag] or Game.flags[flag]
-                local value = v.properties["flagvalue"]
-                local is_true
-                if value ~= nil then
-                    is_true = result == value
-                elseif type(result) == "number" then
-                    is_true = result > 0
-                else
-                    is_true = result
-                end
-
-                if is_true then
-                    skip_loading = inverted
-                else
-                    skip_loading = not inverted
-                end
-            end
-
-            if not skip_loading then
+            if self:shouldLoadObject(v, layer) then
                 local obj
                 if layer_type == "controllers" then
                     obj = self:loadController(obj_type, v)
@@ -689,53 +710,59 @@ function Map:loadObject(name, data)
         chara_x = tx + tw/2
         chara_y = ty + th
     end
+
+    local shape_data = {data.width, data.height, data.polygon}
+
+    local rect_data = Utils.copy(shape_data)
+    rect_data[3] = nil
+
     -- Kristal object loading
     if name:lower() == "savepoint" then
         return Savepoint(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "interactable" then
-        return Interactable(data.x, data.y, data.width, data.height, data.properties)
+        return Interactable(data.x, data.y, shape_data, data.properties)
     elseif name:lower() == "script" then
-        return Script(data.x, data.y, data.width, data.height, data.properties)
+        return Script(data.x, data.y, shape_data, data.properties)
     elseif name:lower() == "transition" then
-        return Transition(data.x, data.y, data.width, data.height, data.properties)
+        return Transition(data.x, data.y, shape_data, data.properties)
     elseif name:lower() == "npc" then
         return NPC(data.properties["actor"], chara_x, chara_y, data.properties)
     elseif name:lower() == "enemy" then
         return ChaserEnemy(data.properties["actor"], chara_x, chara_y, data.properties)
     elseif name:lower() == "outline" then
-        return Outline(data.x, data.y, data.width, data.height)
+        return Outline(data.x, data.y, rect_data)
     elseif name:lower() == "silhouette" then
-        return Silhouette(data.x, data.y, data.width, data.height)
+        return Silhouette(data.x, data.y, rect_data)
     elseif name:lower() == "slidearea" then
-        return SlideArea(data.x, data.y, data.width, data.height, data.properties)
+        return SlideArea(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "mirror" then
-        return MirrorArea(data.x, data.y, data.width, data.height, data.properties)
+        return MirrorArea(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "chest" then
         return TreasureChest(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "cameratarget" then
-        return CameraTarget(data.x, data.y, data.width, data.height, data.properties)
+        return CameraTarget(data.x, data.y, shape_data, data.properties)
     elseif name:lower() == "hideparty" then
-        return HideParty(data.x, data.y, data.width, data.height, data.properties.alpha)
+        return HideParty(data.x, data.y, shape_data, data.properties.alpha)
     elseif name:lower() == "setflag" then
-        return SetFlagEvent(data.x, data.y, data.width, data.height, data.properties)
+        return SetFlagEvent(data.x, data.y, shape_data, data.properties)
     elseif name:lower() == "cybertrash" then
         return CyberTrashCan(data.center_x, data.center_y, data.properties)
     elseif name:lower() == "forcefield" then
-        return Forcefield(data.x, data.y, data.width, data.height, data.properties)
+        return Forcefield(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "pushblock" then
-        return PushBlock(data.x, data.y, data.width, data.height, data.properties)
+        return PushBlock(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "tilebutton" then
-        return TileButton(data.x, data.y, data.width, data.height, data.properties)
+        return TileButton(data.x, data.y, rect_data, data.properties)
     elseif name:lower() == "magicglass" then
-        return MagicGlass(data.x, data.y, data.width, data.height)
+        return MagicGlass(data.x, data.y, rect_data)
     elseif name:lower() == "warpdoor" then
         return WarpDoor(data.x, data.y, data.properties)
     elseif name:lower() == "darkfountain" then
         return DarkFountain(data.x, data.y)
     elseif name:lower() == "fountainfloor" then
-        return FountainFloor(data.x, data.y, data.width, data.height)
+        return FountainFloor(data.x, data.y, rect_data)
     elseif name:lower() == "quicksave" then
-        return QuicksaveEvent(data.x, data.y, data.width, data.height, data.properties["marker"])
+        return QuicksaveEvent(data.x, data.y, shape_data, data.properties["marker"])
     elseif name:lower() == "sprite" then
         local sprite = Sprite(data.properties["texture"], data.x, data.y)
         sprite:play(data.properties["speed"], true)
