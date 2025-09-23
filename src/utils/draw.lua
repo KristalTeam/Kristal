@@ -221,7 +221,13 @@ end
 ---@return love.Shader
 function Draw.pushShader(shader, vars)
     if type(shader) == "string" then
-        shader = Kristal.Shaders[shader]
+        if Assets.getShader(shader) ~= nil then
+            shader = Assets.getShader(shader)
+        elseif Kristal.Shaders[shader] then
+            shader = Kristal.Shaders[shader]
+        else
+            error("Couldn't find shader \""..shader.."\"")
+        end
     end
     table.insert(self._shader_stack, 1, love.graphics.getShader())
     for k, v in pairs(vars) do
@@ -237,6 +243,10 @@ end
 
 function Draw.popShader()
     love.graphics.setShader(table.remove(self._shader_stack, 1))
+end
+
+function Draw.reset()
+    love.graphics.reset()
 end
 
 ---@param r? number
@@ -452,7 +462,7 @@ function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
     local new_line_space_height = love.graphics.getFont():getHeight()
     if type(align) == "table" then
         if align["line_offset"] then
-            new_line_space_height = align["line_offset"]
+            new_line_space_height = new_line_space_height + align["line_offset"]
         end
         if align["align"] then
             align = align["align"]
@@ -462,6 +472,27 @@ function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
         love.graphics.print(line, x - ((align == "center" or align == "right") and love.graphics.getFont():getWidth(line) or 0) / (align == "center" and 2 or 1) * ((align == "center" or align == "right") and sx or 1), y + new_line_space, r, sx, sy, ox, oy, kx, ky)
         new_line_space = new_line_space + new_line_space_height * (sy or 1)
     end
+end
+
+--- This draws the menu rectangle. \
+--- In DELTARUNE's demo, the menu box drawing was broken, with some sizes being off by one pixel. \
+--- We intentionally recreated that, but they fixed it in DELTARUNE (2025), so we... added a config option.
+---@param x number # The x position of the rectangle.
+---@param y number # The y position of the rectangle.
+---@param width number # The width of the rectangle.
+---@param height number # The height of the rectangle.
+function Draw.drawMenuRectangle(x, y, width, height)
+    -- Make sure the line is a single pixel wide
+    love.graphics.setLineWidth(1)
+    love.graphics.setLineStyle("rough")
+
+    local extra = Kristal.Config["brokenMenuBoxes"] and 0 or 1
+
+    -- Draw the rectangles
+    love.graphics.rectangle("line", x, y, width + 1, height + 1)
+    love.graphics.rectangle("line", x - 1, y - 1, width + 2 + extra, height + 2 + extra)
+    love.graphics.rectangle("line", x - 2, y - 2, width + 5, height + 5)
+    love.graphics.rectangle("line", x - 3, y - 3, width + 6 + extra, height + 6 + extra)
 end
 
 return Draw

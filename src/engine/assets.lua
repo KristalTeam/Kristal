@@ -27,6 +27,7 @@ local self = Assets
 ---@field font_settings table<string, table>
 ---@field sound_data table<string, love.SoundData>
 ---@field music table<string, string>
+---@field shaders table<string, string>
 ---@field videos table<string, string>
 ---@field bubble_settings table<string, table>
 
@@ -163,6 +164,11 @@ function Assets.parseData(data)
     for key,sound_data in pairs(data.sound_data) do
         local src = love.audio.newSource(sound_data)
         self.sounds[key] = src
+    end
+
+    -- create single-instance shaders
+    for key,shader_path in pairs(data.shader_paths) do
+        self.data.shaders[key] = love.graphics.newShader(shader_path)
     end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
     --self.data.sound_data = {}
@@ -428,6 +434,14 @@ function Assets.newVideo(video, load_audio)
         error("No video found: "..video)
     end
     return love.graphics.newVideo(self.data.videos[video], {audio = load_audio})
+end
+
+function Assets.getShader(id)
+    return self.data.shaders[id]
+end
+
+function Assets.newShader(id)
+    return love.graphics.newShader(self.data.shader_paths[id])
 end
 
 Assets.clear()

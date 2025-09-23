@@ -175,6 +175,8 @@ function Battle:init()
     self.selected_xaction = nil
     self.selected_item = nil
 
+    self.pacify_glow_timer = 0
+
     self.spell_delay = 0
     self.spell_finished = false
 
@@ -407,7 +409,7 @@ function Battle:onStateChange(old,new)
         end
 
         if self.state_reason == "CANCEL" then
-            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
+            self:setEncounterText(self.battle_ui.current_encounter_text, true)
         end
 
         local had_started = self.started
@@ -595,13 +597,20 @@ function Battle:onStateChange(old,new)
         if self.used_violence and Game:getConfig("growStronger") then
             local stronger = "You"
 
+            local party_to_lvl_up = {}
             for _,battler in ipairs(self.party) do
-                Game.level_up_count = Game.level_up_count + 1
-                battler.chara:onLevelUp(Game.level_up_count)
-
-                if battler.chara.id == Game:getConfig("growStrongerChara") then
+                table.insert(party_to_lvl_up, battler.chara)
+                if Game:getConfig("growStrongerChara") and battler.chara.id == Game:getConfig("growStrongerChara") then
                     stronger = battler.chara:getName()
                 end
+                for _,id in pairs(battler.chara:getStrongerAbsent()) do
+                    table.insert(party_to_lvl_up, Game:getPartyMember(id))
+                end
+            end
+            
+            for _,party in ipairs(Utils.removeDuplicates(party_to_lvl_up)) do
+                Game.level_up_count = Game.level_up_count + 1
+                party:onLevelUp(Game.level_up_count)
             end
 
             win_text = "* You won!\n* Got " .. self.money .. " "..Game:getConfig("darkCurrencyShort")..".\n* "..stronger.." became stronger."
@@ -827,7 +836,7 @@ function Battle:spawnSoul(x, y)
     end
 end
 
----@param dont_destroy boolean
+---@param dont_destroy? boolean
 function Battle:returnSoul(dont_destroy)
     if dont_destroy == nil then dont_destroy = false end
     local bx, by = self:getSoulLocation(true)
@@ -899,6 +908,20 @@ function Battle:registerXAction(party, name, description, tp)
     table.insert(self.xactions, act)
 end
 
+--- A simple redirect to the Encounter's [`getInitialEncounterText`](lua://Encounter.getInitialEncounterText). \
+--- Here for encapsulation and hooking, if you need more complex behavior.
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
+function Battle:getInitialEncounterText()
+    return self.encounter:getInitialEncounterText()
+end
+
+--- A simple redirect to the Encounter's [`getEncounterText`](lua://Encounter.getEncounterText). \
+--- Here for encapsulation and hooking, if you need more complex behavior.
+---@return string|string[] text # If a table, you should use [next] to advance the text
+---@return string? portrait # The portrait to show
+---@return PartyBattler|PartyMember|Actor|string? actor # The actor to use for the text settings (ex. voice, portrait settings)
 function Battle:getEncounterText()
     return self.encounter:getEncounterText()
 end
@@ -1059,6 +1082,11 @@ function Battle:processAction(action)
     if action.action == "SPARE" then
         local worked = enemy:canSpare()
 
+        local text = enemy:getSpareText(battler, worked)
+        if text then
+            self:battleText(text)
+        end
+
         battler:setAnimation("battle/spare", function()
             enemy:onMercy(battler)
             if not worked then
@@ -1067,16 +1095,13 @@ function Battle:processAction(action)
             self:finishAction(action)
         end)
 
-        local text = enemy:getSpareText(battler, worked)
-        if text then
-            self:battleText(text)
-        end
-
         return false
 
     elseif action.action == "ATTACK" or action.action == "AUTOATTACK" then
-        local src = Assets.stopAndPlaySound(battler.chara:getAttackSound() or "laz_c")
-        src:setPitch(battler.chara:getAttackPitch() or 1)
+        local attacksound = battler.chara:getWeapon():getAttackSound(battler, enemy, action.points) or battler.chara:getAttackSound()
+        local attackpitch  = battler.chara:getWeapon():getAttackPitch(battler, enemy, action.points) or battler.chara:getAttackPitch()
+        local src = Assets.stopAndPlaySound(attacksound or "laz_c")
+        src:setPitch(attackpitch or 1)
 
         self.actions_done_timer = 1.2
 
@@ -1118,16 +1143,25 @@ function Battle:processAction(action)
             if damage > 0 then
                 Game:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
 
-                local dmg_sprite = Sprite(battler.chara:getAttackSprite() or "effects/attack/cut")
+                local attacksprite = battler.chara:getWeapon():getAttackSprite(battler, enemy, action.points) or battler.chara:getAttackSprite()
+                local dmg_sprite = Sprite(attacksprite or "effects/attack/cut")
                 dmg_sprite:setOrigin(0.5, 0.5)
                 if crit then
                     dmg_sprite:setScale(2.5, 2.5)
                 else
                     dmg_sprite:setScale(2, 2)
                 end
-                dmg_sprite:setPosition(enemy:getRelativePos(enemy.width/2, enemy.height/2))
+                local relative_pos_x, relative_pos_y = enemy:getRelativePos(enemy.width/2, enemy.height/2)
+                dmg_sprite:setPosition(relative_pos_x + enemy.dmg_sprite_offset[1], relative_pos_y + enemy.dmg_sprite_offset[2])
                 dmg_sprite.layer = enemy.layer + 0.01
-                dmg_sprite:play(1/15, false, function(s) s:remove() end)
+                dmg_sprite.battler_id = action.character_id or nil
+                table.insert(enemy.dmg_sprites, dmg_sprite)
+                local dmg_anim_speed = 1/15
+                if attacksprite == "effects/attack/shard" then
+                    -- Ugly hardcoding BlackShard animation speed accuracy for now
+                    dmg_anim_speed = 1/10
+                end
+                dmg_sprite:play(dmg_anim_speed, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
                 enemy.parent:addChild(dmg_sprite)
 
                 local sound = enemy:getDamageSound() or "damage"
@@ -1136,9 +1170,14 @@ function Battle:processAction(action)
                 end
                 enemy:hurt(damage, battler)
 
+                -- TODO: Call this even if damage is 0, will be a breaking change
                 battler.chara:onAttackHit(enemy, damage)
             else
                 enemy:hurt(0, battler, nil, nil, nil, action.points ~= 0)
+            end
+
+            for _,item in ipairs(battler.chara:getEquipment()) do
+                item:onAttackHit(battler, enemy, damage)
             end
 
             self:finishAction(action)
@@ -1660,6 +1699,7 @@ function Battle:commitSingleAction(action)
 
     local anim = action.action:lower()
     if action.action == "SPELL" and action.data then
+        anim = action.data:getSelectAnimation()
         local result = action.data:onSelect(battler, action.target)
         if result ~= false then
             if action.tp then
@@ -1669,8 +1709,8 @@ function Battle:commitSingleAction(action)
                     Game:removeTension(-action.tp)
                 end
             end
-            battler:setAnimation("battle/"..anim.."_ready")
-            action.icon = anim
+            battler:setAnimation(anim)
+            action.icon = action.action:lower()
         end
     else
         if action.tp then
@@ -1780,7 +1820,7 @@ function Battle:getEnemyFromCharacter(chara)
 end
 
 --- Gets whether a specific character has an action lined up
----@param character_id string
+---@param character_id integer
 ---@return boolean
 function Battle:hasAction(character_id)
     return self.character_actions[character_id] ~= nil
@@ -1920,16 +1960,15 @@ function Battle:getPartyFromTarget(target)
 end
 
 --- Hurts the `target` party member(s)
----@param amount    number
----@param exact?    boolean
----@param target?   number|"ALL"|"ANY"|PartyBattler The target battler's index, instance, or strings for specific selection logic (defaults to `"ANY"`)
----@return table
-function Battle:hurt(amount, exact, target)
-    -- Note: 0, 1 and 2 are to target a specific party member.
-    -- In Kristal, we'll allow them to be objects as well.
-    -- Also in Kristal, they're 1, 2 and 3.
-    -- 3 is "ALL" in Kristal,
-    -- while 4 is "ANY".
+---@param amount    number # The amount of damage which should be dealt.
+---@param exact?    boolean # Whether or not the damage should be applied exactly (defaults to `false`)
+---@param target?   number|"ALL"|"ANY"|PartyBattler # The target of the attack. Can be a battler's index, a battler, "ANY" or "ALL" (defaults to `"ANY"`)
+---@param swoon?    boolean # Whether or not the damage will swoon the battler if they're downed
+---@return table?
+function Battle:hurt(amount, exact, target, swoon)
+    -- If target is a numberic value, it will hurt the party battler with that index
+    -- "ANY" will choose the target randomly
+    -- "ALL" will hurt the entire party all at once
     target = target or "ANY"
 
     -- Alright, first let's try to adjust targets.
@@ -1985,19 +2024,18 @@ function Battle:hurt(amount, exact, target)
 
     -- Now it's time to actually damage them!
     if isClass(target) and target:includes(PartyBattler) then
-        target:hurt(amount, exact)
-        return {target}
+        target:hurt(amount, exact, nil, { swoon = self.encounter:canSwoon(target) and swoon })
+        return { target }
     end
 
     if target == "ALL" then
         Assets.playSound("hurt")
-        for _,battler in ipairs(self.party) do
-            if not battler.is_down then
-                battler:hurt(amount, exact, nil, {all = true})
-            end
+        local alive_battlers = Utils.filter(self.party, function(battler) return not battler.is_down end)
+        for _,battler in ipairs(alive_battlers) do
+            battler:hurt(amount, exact, nil, { all = true, swoon = self.encounter:canSwoon(battler) and swoon })
         end
         -- Return the battlers who aren't down, aka the ones we hit.
-        return Utils.filter(self.party, function(item) return not item.is_down end)
+        return alive_battlers
     end
 end
 
@@ -2068,7 +2106,7 @@ function Battle:nextParty()
     else
         if self:getState() ~= "ACTIONSELECT" then
             self:setState("ACTIONSELECT")
-            self.battle_ui.encounter_text:setText("[instant]" .. self.battle_ui.current_encounter_text)
+            self:setEncounterText(self.battle_ui.current_encounter_text, true)
         end
         local party = self.party[self.current_selecting]
         party.chara:onActionSelect(party, false)
@@ -2138,7 +2176,7 @@ function Battle:nextTurn()
 
     for _,battler in ipairs(self.party) do
         battler.hit_count = 0
-        if (battler.chara:getHealth() <= 0) and battler.chara:canAutoHeal() then
+        if (battler.chara:getHealth() <= 0) and battler.chara:canAutoHeal() and self.encounter:isAutoHealingEnabled(battler) then
             battler:heal(battler.chara:autoHealAmount(), nil, true)
         end
         battler.action = nil
@@ -2170,13 +2208,21 @@ function Battle:nextTurn()
             --box:setHeadIcon("head")
             box:resetHeadIcon()
         end
+        local text, portrait, actor = nil, nil, nil
         if self.state == "INTRO" or self.state_reason == "INTRO" or not self.seen_encounter_text then
             self.seen_encounter_text = true
-            self.battle_ui.current_encounter_text = self.encounter.text
+            text, portrait, actor = self:getInitialEncounterText()
         else
-            self.battle_ui.current_encounter_text = self:getEncounterText()
+            text, portrait, actor = self:getEncounterText()
         end
-        self.battle_ui.encounter_text:setText(self.battle_ui.current_encounter_text)
+
+        self.battle_ui.current_encounter_text = {
+            text = text,
+            portrait = portrait,
+            actor = actor
+        }
+
+        self:setEncounterText(self.battle_ui.current_encounter_text, false)
     end
 
     if self.soul then
@@ -2263,7 +2309,7 @@ function Battle:returnToWorld()
     Game.state = "OVERWORLD"
 end
 
----@param text          string[]
+---@param text          string|string[]
 ---@param dont_finish?  boolean
 function Battle:setActText(text, dont_finish)
     self:battleText(text, function()
@@ -2292,7 +2338,7 @@ function Battle:shortActText(text)
 end
 
 --- Sets the current message in the battlebox and moves to the `BATTLETEXT` state until it is advanced, where it returns to the previous state by default
----@param text string[]                     The text to set
+---@param text string[]|string              The text to set
 ---@param post_func? fun():boolean|string   When the text is advanced, the name of the state to move to, or a function to run
 function Battle:battleText(text,post_func)
     local target_state = self:getState()
@@ -2315,6 +2361,39 @@ end
 ---@param text? string[]    The text to set
 function Battle:infoText(text)
     self.battle_ui.encounter_text:setText(text or "")
+end
+
+---@class EncounterTextOptions
+---@field text     string|string[] # If a table, you should use [next] to advance the text
+---@field portrait string? # The portrait to show
+---@field actor    PartyBattler|PartyMember|Actor|string? # The actor to use for the text settings (ex. voice, portrait settings)
+
+---@param options EncounterTextOptions
+function Battle:setEncounterText(options, instant)
+    self.battle_ui:clearEncounterText()
+
+    actor = options.actor
+    if isClass(actor) and actor:includes(PartyBattler) then
+        actor = actor.chara.actor
+    end
+
+    if isClass(actor) and actor:includes(PartyMember) then
+        actor = actor.actor
+    end
+
+    self.battle_ui.encounter_text:setActor(actor)
+    self.battle_ui.encounter_text:setFace(options.portrait)
+
+    local text = options.text or ""
+    if instant then
+        if type(text) == "table" then
+            text = "[instant]" .. text[#text]
+        else
+            text = "[instant]" .. text
+        end
+    end
+
+    self.battle_ui.encounter_text:setText(text)
 end
 
 ---@return boolean?
@@ -2443,6 +2522,8 @@ function Battle:update()
                 self:setState("DIALOGUEEND")
             end
         end
+    elseif self.state == "SHORTACTTEXT" then
+        self:updateShortActText()
     end
 
     if self.state ~= "TRANSITIONOUT" then
@@ -2463,6 +2544,8 @@ function Battle:update()
     if self.offset > 100 then
         self.offset = self.offset - 100
     end
+
+    self.pacify_glow_timer = self.pacify_glow_timer + DTMULT
 
     if (self.state == "ENEMYDIALOGUE") or (self.state == "DEFENDINGBEGIN") or (self.state == "DEFENDING") then
         self.background_fade_alpha = math.min(self.background_fade_alpha + (0.05 * DTMULT), 0.75)
@@ -2683,6 +2766,23 @@ function Battle:updateWaves()
     end
 end
 
+function Battle:updateShortActText()
+    if Input.pressed("confirm") or Input.down("menu") then
+        if (not self.battle_ui.short_act_text_1:isTyping()) and
+           (not self.battle_ui.short_act_text_2:isTyping()) and
+           (not self.battle_ui.short_act_text_3:isTyping()) then
+            self.battle_ui.short_act_text_1:setText("")
+            self.battle_ui.short_act_text_2:setText("")
+            self.battle_ui.short_act_text_3:setText("")
+            for _,iaction in ipairs(self.short_actions) do
+                self:finishAction(iaction)
+            end
+            self.short_actions = {}
+            self:setState("ACTIONS", "SHORTACTTEXT")
+        end
+    end
+end
+
 ---@param string    string
 ---@param x         number
 ---@param y         number
@@ -2818,6 +2918,15 @@ function Battle:getActiveParty()
     return Utils.filter(self.party, function(party) return not party.is_down end)
 end
 
+--- Resets the enemies index table, closing all gaps in the enemy select menu
+---@param reset_xact? boolean         Whether to also reset the XACT position
+function Battle:resetEnemiesIndex(reset_xact)
+    self.enemies_index = Utils.copy(self.enemies, true)
+    if reset_xact ~= false then
+        self.battle_ui:resetXACTPosition()
+    end
+end
+
 ---@param id string
 ---@return EnemyBattler
 function Battle:parseEnemyIdentifier(id)
@@ -2899,13 +3008,22 @@ end
 ---@param tbl table
 ---@return table
 function Battle:addMenuItem(tbl)
+    -- Item colors in Ch3+ can be dynamic (e.g. pacify) so we should use functions for item color.
+    -- Table colors can still be used, but we'll wrap them into functions.
+    local color = tbl.color or {1, 1, 1, 1}
+    local fcolor
+    if type(color) == "table" then
+        fcolor = function () return color end
+    else
+        fcolor = color
+    end
     tbl = {
         ["name"] = tbl.name or "",
         ["tp"] = tbl.tp or 0,
         ["unusable"] = tbl.unusable or false,
         ["description"] = tbl.description or "",
         ["party"] = tbl.party or {},
-        ["color"] = tbl.color or {1, 1, 1, 1},
+        ["color"] = fcolor,
         ["data"] = tbl.data or nil,
         ["callback"] = tbl.callback or function() end,
         ["highlight"] = tbl.highlight or nil,
@@ -2942,7 +3060,7 @@ function Battle:onKeyPressed(key)
         if self.soul and self.soul.visible and key == "j" then
             local x, y = self:getSoulLocation()
             self.soul:shatter(6)
-            
+
             -- Prevents a crash related to not having a soul in some waves
             self:spawnSoul(x, y)
             for _,heartbrust in ipairs(Game.stage:getObjects(HeartBurst)) do
@@ -2952,9 +3070,7 @@ function Battle:onKeyPressed(key)
             self.soul.collidable = false
         end
         if key == "b" then
-            for _,battler in ipairs(self.party) do
-                battler:hurt(math.huge)
-            end
+            self:hurt(math.huge, true, "ALL")
         end
         if key == "k" then
             Game:setTension(Game:getMaxTension() * 2, true)
@@ -3177,20 +3293,7 @@ function Battle:onKeyPressed(key)
     elseif self.state == "BATTLETEXT" then
         -- Nothing here
     elseif self.state == "SHORTACTTEXT" then
-        if Input.isConfirm(key) then
-            if (not self.battle_ui.short_act_text_1:isTyping()) and
-               (not self.battle_ui.short_act_text_2:isTyping()) and
-               (not self.battle_ui.short_act_text_3:isTyping()) then
-                self.battle_ui.short_act_text_1:setText("")
-                self.battle_ui.short_act_text_2:setText("")
-                self.battle_ui.short_act_text_3:setText("")
-                for _,iaction in ipairs(self.short_actions) do
-                    self:finishAction(iaction)
-                end
-                self.short_actions = {}
-                self:setState("ACTIONS", "SHORTACTTEXT")
-            end
-        end
+        -- Nothing here
     elseif self.state == "ENEMYDIALOGUE" then
         -- Nothing here
     elseif self.state == "ACTIONSELECT" then
@@ -3200,9 +3303,25 @@ function Battle:onKeyPressed(key)
     end
 end
 
+--- Checks if the current encounter has reduced tension.
+--- By default, this redirects to Encounter
+--- @return boolean reduced Whether the encounter has reduced tension.
+function Battle:hasReducedTension()
+    return self.encounter:hasReducedTension()
+end
+
+--- Returns the tension gained from defending.
+--- By default, this redirects to Encounter.
+---@param battler PartyBattler The current battler about to defend.
+---@return number tension The tension gained from defending.
+function Battle:getDefendTension(battler)
+    return self.encounter:getDefendTension(battler)
+end
+
 ---@param key string
 function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]
+    local old_selected_button = actbox.selected_button
 
     if Input.isConfirm(key) then
         actbox:select()
@@ -3222,12 +3341,8 @@ function Battle:handleActionSelectInput(key)
         return
     elseif Input.is("left", key) then
         actbox.selected_button = actbox.selected_button - 1
-        self.ui_move:stop()
-        self.ui_move:play()
     elseif Input.is("right", key) then
         actbox.selected_button = actbox.selected_button + 1
-        self.ui_move:stop()
-        self.ui_move:play()
     end
 
     if actbox.selected_button < 1 then
@@ -3236,6 +3351,11 @@ function Battle:handleActionSelectInput(key)
 
     if actbox.selected_button > #actbox.buttons then
         actbox.selected_button = 1
+    end
+    
+    if old_selected_button ~= actbox.selected_button then
+        self.ui_move:stop()
+        self.ui_move:play()
     end
 end
 
@@ -3275,6 +3395,19 @@ function Battle:handleAttackingInput(key)
             end
         end
     end
+end
+
+--- Returns the equipment-modified heal amount from a healing action performed by the specified party member
+---@param base_heal number      The heal amount to modify
+---@param healer PartyMember    The character performing the heal action
+function Battle:applyHealBonuses(base_heal, healer)
+    local current_heal = base_heal
+    for _,battler in ipairs(self.party) do
+        for _,item in ipairs(battler.chara:getEquipment()) do
+            current_heal = item:applyHealBonus(current_heal, base_heal, healer)
+        end
+    end
+    return current_heal
 end
 
 function Battle:canDeepCopy()

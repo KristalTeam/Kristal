@@ -1,3 +1,5 @@
+--- An object that is created whenever the player reaches a Game Over, responsible for managing the GameOver sequence. \
+--- The type of GameOver that plays (Chapter 1, Chapter 2, or Undertale) is dependent on the mod configuration and whether the death occurred in the Light World or not.
 ---@class GameOver : Object
 ---@overload fun(...) : GameOver
 local GameOver, super = Class(Object, "gameover")
@@ -154,7 +156,12 @@ function GameOver:update()
                 end
                 table.insert(self.lines, full_line)
             end
-            self.dialogue = DialogueText(self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 320 or 300, {style = "none"})
+            self.dialogue = DialogueText(
+                self.lines[1], Game:isLight() and 114 or 100, Game:isLight() and 320 or 300,
+                {
+                    style = "none",
+                    actor = member:getActor(Game:isLight())
+                })
             if Game:isLight() then
                 self.dialogue.skippable = false
                 self.dialogue.line_offset = 8
@@ -262,7 +269,7 @@ function GameOver:update()
             self.current_stage = 11
             Game:loadQuick()
             if Game:isLight() then
-                Game.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+                Game.fader:fadeIn(nil, {alpha = 1, speed = 12/30, color = self.fade_white and {1, 1, 1} or {0, 0, 0}})
             end
         end
     end

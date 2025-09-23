@@ -1,3 +1,4 @@
+--- A type of inventory used to store items in the Dark World.
 ---@class DarkInventory : Inventory
 ---@overload fun(...) : DarkInventory
 local DarkInventory, super = Class(Inventory)
@@ -32,6 +33,8 @@ function DarkInventory:clear()
     Kristal.callEvent(KRISTAL_EVENT.createDarkInventory, self)
 end
 
+
+---@return LightInventory
 function DarkInventory:convertToLight()
     local new_inventory = LightInventory()
 
@@ -64,11 +67,22 @@ function DarkInventory:convertToLight()
                 if result then
                     self:removeItem(item)
 
-                    if type(result) == "string" then
-                        result = Registry.createItem(result)
-                    end
-                    if isClass(result) then
-                        new_inventory:addItem(result)
+                    if not isClass(result) and type(result) == "table" then
+                        for _,item in ipairs(result) do
+                            if type(item) == "string" then
+                                item = Registry.createItem(item)
+                            end
+                            if isClass(item) then
+                                new_inventory:addItem(item)
+                            end
+                        end
+                    else
+                        if type(result) == "string" then
+                            result = Registry.createItem(result)
+                        end
+                        if isClass(result) then
+                            new_inventory:addItem(result)
+                        end
                     end
                 end
             end
@@ -82,16 +96,22 @@ function DarkInventory:convertToLight()
     return new_inventory
 end
 
+--- Gets the Light World inventory
+---@return LightInventory
 function DarkInventory:getLightInventory()
     return Game.light_inventory
 end
 
+--- Gets the Dark World inventory
+---@return DarkInventory
 function DarkInventory:getDarkInventory()
     return self
 end
 
 -- Item give overrides for Light World items
 
+---@param item              Item|string
+---@param ignore_light?     boolean     Whether to add the item to this inventory even if it is a Light item
 ---@return Item|nil
 function DarkInventory:addItem(item, ignore_light)
     if type(item) == "string" then
@@ -105,6 +125,10 @@ function DarkInventory:addItem(item, ignore_light)
     end
 end
 
+---@param item              string|Item
+---@param ignore_light?     boolean     Whether to add the item to this inventory even if it is a Light item
+---@return boolean success      Whether the item was successfully picked up
+---@return string result_text   The text that should be displayed
 function DarkInventory:tryGiveItem(item, ignore_light)
     if type(item) == "string" then
         item = Registry.createItem(item)

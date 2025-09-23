@@ -26,6 +26,10 @@ function MainMenuControls:init(menu)
 
     self.control_menu = "keyboard"
 
+    self.pages = {}
+    self.hidden_pages = {}
+    self.selected_page = 1
+
     self.selected_option = 1
     self.selected_bind = 1
 
@@ -39,6 +43,9 @@ function MainMenuControls:init(menu)
 
     self.scroll_target_y = 0
     self.scroll_y = 0
+
+    self.scroll_direction = "right"
+    self.scroll_timer = 0
 end
 
 function MainMenuControls:registerEvents()
@@ -49,15 +56,71 @@ function MainMenuControls:registerEvents()
     self:registerEvent("draw", self.draw)
 end
 
+function MainMenuControls:registerMainPage()
+    local page = {}
+
+    page.title = "KRISTAL"
+    page.mod = "KRISTAL"
+    page.entries = {}
+
+    for _, keybind in ipairs(Input.order) do
+        table.insert(page.entries, {keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper()})
+    end
+
+    table.insert(self.pages, page)
+end
+
+function MainMenuControls:registerModPages()
+    for mod_id, keys in pairs(Input.mod_keybinds) do
+        local page = {}
+        local mod = Kristal.Mods.getMod(mod_id)
+        if mod["hideKeybinds"] then
+            goto continue
+        end
+
+        page.title = tostring(mod.name):upper()
+        page.mod = mod_id
+        page.entries = {}
+
+        for _, keybind in ipairs(keys) do
+            table.insert(page.entries, {keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper()})
+        end
+
+        table.insert(self.pages, page)
+        ::continue::
+    end
+end
+
 -------------------------------------------------------------------------------
 -- Callbacks
 -------------------------------------------------------------------------------
 
-function MainMenuControls:onEnter(old_state, control_menu)
+function MainMenuControls:onEnter(old_state, control_menu, target_mod)
     self.control_menu = control_menu or self.control_menu
+
+    self.pages = {}
+    self.hidden_pages = {}
+    -- Reload the pages every time we enter incase there is a new keybind
+    self:registerMainPage()
+    self:registerModPages()
 
     self.selected_option = 1
     self.selected_bind = 1
+    self.selected_page = 1
+
+    self.target_mod = nil
+    if target_mod then
+        for i, page in ipairs(self.pages) do
+            if page.mod == target_mod then
+                self.target_mod = target_mod
+                self.selected_page = i
+            end
+        end
+        if not self.target_mod then
+            Assets.playSound("ui_cant_select")
+            self.menu:popState()
+        end
+    end
 
     self.selecting_key = false
     self.rebinding = false
@@ -70,28 +133,55 @@ function MainMenuControls:onEnter(old_state, control_menu)
     self.scroll_target_y = 0
     self.scroll_y = 0
 
+    self.scroll_direction = "right"
+    self.scroll_timer = 0
+
     self.menu.heart_target_x = 152
     self.menu.heart_target_y = 129 + 0 * 32
 end
 
 function MainMenuControls:onKeyPressed(key, is_repeat)
     if (not self.rebinding) and (not self.selecting_key) then
+        local selected_page = self:getSelectedPage()
         local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
-        local option_count = Utils.tableLength(bind_list) + 2
+        local option_count = Utils.tableLength(selected_page.entries) + 2
+        local page_count = #self.pages
         if self.control_menu == "gamepad" then
             option_count = option_count + 1
         end
 
-        local old = self.selected_option
+        local old_selected = self.selected_option
         if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1 end
         if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1 end
-        if Input.is("left" , key) and not Input.usingGamepad() then self.selected_option = self.selected_option - 1 end
-        if Input.is("right", key) and not Input.usingGamepad() then self.selected_option = self.selected_option + 1 end
         if self.selected_option < 1            then self.selected_option = is_repeat and 1 or option_count end
         if self.selected_option > option_count then self.selected_option = is_repeat and option_count or 1 end
 
-        if old ~= self.selected_option then
+        if old_selected ~= self.selected_option then
             Assets.stopAndPlaySound("ui_move")
+        end
+
+        if not self.target_mod then
+            local old_page = self.selected_page
+            local page_dir = "right"
+            if Input.is("left" , key) then self.selected_page = self.selected_page - 1; page_dir = "left" end
+            if Input.is("right", key) then self.selected_page = self.selected_page + 1; page_dir = "right" end
+            if self.selected_page < 1          then self.selected_page = is_repeat and 1 or page_count end
+            if self.selected_page > page_count then self.selected_page = is_repeat and page_count or 1 end
+    
+    
+            if old_page ~= self.selected_page then
+                Assets.stopAndPlaySound("ui_move")
+                selected_page = self:getSelectedPage()
+                option_count = Utils.tableLength(selected_page.entries) + 2
+                if self.control_menu == "gamepad" then
+                    option_count = option_count + 1
+                end
+    
+                self.selected_option = 1
+    
+                self.scroll_direction = page_dir
+                self.scroll_timer = 0.1
+            end
         end
 
         if Input.isCancel(key) then
@@ -103,7 +193,7 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
             self.selecting_key = false
              -- Reset to Defaults
             if (self.selected_option == option_count - 1) then
-                Input.resetBinds(self.control_menu == "gamepad")
+                Input.resetBinds(self.control_menu == "gamepad", selected_page.mod)
                 Assets.stopAndPlaySound("ui_select")
                 self.selected_option = option_count - 1
                 self.menu.heart_target_y = (129 + (self.selected_option) * 32) + self.scroll_target_y
@@ -124,7 +214,7 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
             end
         end
     elseif self.selecting_key then
-        local table_key = Input.orderedNumberToKey(self.selected_option)
+        local table_key = self:getSelectedKey()
 
         local old = self.selected_bind
         if Input.is("left" , key) then self.selected_bind = self.selected_bind - 1 end
@@ -183,7 +273,7 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
 
             if valid_key then
                 -- rebind!!
-                local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key, self.control_menu == "gamepad")
+                local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key, self.control_menu == "gamepad")
 
                 self.rebinding = false
                 self.rebinding_shift = false
@@ -225,7 +315,7 @@ function MainMenuControls:onKeyReleased(key)
             end
 
             -- rebind!!
-            local worked = Input.setBind(Input.orderedNumberToKey(self.selected_option), self.selected_bind, bound_key, self.control_menu == "gamepad")
+            local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key, self.control_menu == "gamepad")
 
             self.rebinding = false
             self.rebinding_shift = false
@@ -246,11 +336,24 @@ function MainMenuControls:onKeyReleased(key)
 end
 
 function MainMenuControls:update()
-    -- Update heart position
-    local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
+    local selected_page = self.pages[self.selected_page]
+    if self.target_mod then
+        local old = self.control_menu
+        self.control_menu = Input.usingGamepad() and "gamepad" or "keyboard"
+        -- Slightly imperfect at consistency with input switching but it affects about two of the bottom options only
+        -- Most importantly though nothing breaks and you cannot go out of the menu bounds
+        if old ~= self.control_menu and self.selected_option > Utils.tableLength(selected_page.entries) + 1 then
+            if self.control_menu == "keyboard" then 
+                self.selected_option = self.selected_option - 1
+            else
+                self.selected_option = self.selected_option + 1
+            end
+        end
+    end
 
+    -- Update heart position
     local y_off = (self.selected_option - 1) * 32
-    if self.selected_option > (Utils.tableLength(bind_list)) then
+    if self.selected_option > (Utils.tableLength(selected_page.entries)) then
         y_off = y_off + 32
     end
 
@@ -274,22 +377,34 @@ function MainMenuControls:update()
         self.scroll_y = self.scroll_target_y
     end
     self.scroll_y = self.scroll_y + ((self.scroll_target_y - self.scroll_y) / 2) * DTMULT
+    
+    if self.scroll_timer > 0 then
+        self.scroll_timer = Utils.approach(self.scroll_timer, 0, DT)
+    end
+
+    
 end
 
 function MainMenuControls:draw()
-    love.graphics.setFont(Assets.getFont("main"))
+    local selected_page = self:getSelectedPage()
+    local font = Assets.getFont("main")
+
+    love.graphics.setFont(font)
     Draw.setColor(COLORS.silver)
     Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
 
     Draw.setColor(1, 1, 1)
     Draw.printShadow(""..self.control_menu:upper().." CONTROLS", 0, 48, 2, "center", 640)
+    Draw.setColor(COLORS.silver)
+    Draw.printShadow("("..selected_page.title..")", 0, 74, 2, "center", 640)
+    Draw.setColor(1, 1, 1)
 
     local menu_x = 185 - 14
     local menu_y = 110
 
     local width = 460
     local height = 32 * 10
-    local total_height = 32 * (#Input.order + 4) -- should be the amount of options there are
+    local total_height = 32 * ( #(selected_page.entries) + ( self.control_menu == "gamepad" and 4 or 3 ) )
 
     Draw.pushScissor()
     Draw.scissor(menu_x, menu_y, width + 10, height + 10)
@@ -298,22 +413,11 @@ function MainMenuControls:draw()
 
     local y_offset = 0
 
-    for index, name in ipairs(Input.order) do
-        Draw.printShadow((Input.getBindName(name) or name:gsub("_", " ")):upper(),  menu_x, menu_y + (32 * y_offset))
+    for _, key in ipairs(selected_page.entries) do
+        Draw.printShadow(key.name, menu_x, menu_y + (32 * y_offset))
 
-        self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
+        self:drawKeyBindMenu(key.keybind, menu_x, menu_y, y_offset)
         y_offset = y_offset + 1
-    end
-
-    local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
-    for name, value in pairs(bind_list) do
-        if not Utils.containsValue(Input.order, name) then
-            Draw.printShadow((Input.getBindName(name) or name:gsub("_", " ")):upper(),  menu_x, menu_y + (32 * y_offset))
-
-            self:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
-            --Draw.printShadow(Utils.titleCase(value[1]),    menu_x + (8 * 32), menu_y + (32 * y_offset))
-            y_offset = y_offset + 1
-        end
     end
 
     y_offset = y_offset + 1
@@ -326,16 +430,38 @@ function MainMenuControls:draw()
     Draw.printShadow("Reset to defaults", menu_x, menu_y + (32 * y_offset))
     Draw.printShadow("Back", menu_x, menu_y + (32 * (y_offset + 1)))
 
-    -- Draw the scrollbar background (lighter than the others since it's against black)
-    Draw.setColor({1, 1, 1, 0.5})
-    love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.scroll_y)
+    if height < total_height then
+        -- Draw the scrollbar background (lighter than the others since it's against black)
+        Draw.setColor({1, 1, 1, 0.5})
+        love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.scroll_y)
 
-    local scrollbar_height = (height / total_height) * height
-    local scrollbar_y = (-self.scroll_y / (total_height - height)) * (height - scrollbar_height)
+        local scrollbar_height = (height / total_height) * height
+        local scrollbar_y = (-self.scroll_y / (total_height - height)) * (height - scrollbar_height)
 
-    Draw.popScissor()
-    Draw.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.scroll_y, 4, scrollbar_height)
+        Draw.popScissor()
+        Draw.setColor(1, 1, 1, 1)
+        love.graphics.rectangle("fill", menu_x + width, menu_y + scrollbar_y - self.scroll_y, 4, scrollbar_height)
+    else
+        Draw.popScissor()
+    end
+
+    -- Draw menu arrows
+    if #self.pages > 1 and not self.target_mod then
+        local l_offset, r_offset = 0, 0
+        local mod_width = font:getWidth("("..selected_page.title..")")
+
+        if self.scroll_timer > 0 then
+            if self.scroll_direction == "left" then
+                l_offset = -4
+            elseif self.scroll_direction == "right" then
+                r_offset = 4
+            end
+        end
+
+        Draw.setColor(COLORS.silver)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_right"), 320 + (mod_width / 2) + 8 + r_offset, 78, 0, 2, 2)
+        Draw.draw(Assets.getTexture("kristal/menu_arrow_left"), 320 - (mod_width / 2) - 26 + l_offset, 78, 0, 2, 2)
+    end
 
     Draw.setColor(COLORS.silver)
     Draw.printShadow("CTRL+ALT+SHIFT+T to reset binds.", 0, 480 - 32, 2, "center", 640)
@@ -419,11 +545,26 @@ function MainMenuControls:getBoundKeys(key)
             table.insert(keys, k)
         end
     end
-    if (self.rebinding or self.selecting_key) and (key == Input.orderedNumberToKey(self.selected_option)) then
+    if (self.rebinding or self.selecting_key) and (key == self:getSelectedKey()) then
         table.insert(keys, "---")
         return keys
     end
     return keys
+end
+
+---@return {title: string, mod:string, entries: {keybind: string, name:string}[]}
+function MainMenuControls:getSelectedPage()
+    return self.pages[self.selected_page]
+end
+
+---@return string? keybind
+function MainMenuControls:getSelectedKey()
+    local page = self:getSelectedPage()
+    local option = self.selected_option
+    if option > #page.entries then
+        return nil
+    end
+    return page.entries[option].keybind
 end
 
 return MainMenuControls

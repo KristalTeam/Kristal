@@ -1,9 +1,23 @@
+--- Savepoints allow the player to SAVE their game. \
+--- `Savepoint` is an [`Event`](lua://Event.init) - naming an object `savepoint` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object. The location displayed on the savefile is determined by the map's `name` property.
+--- 
 ---@class Savepoint : Interactable
+---
+---@field marker        string  *[Property `marker`]* The name of the marker that the party should spawn at when a save from here is loaded
+---@field simple_menu   boolean *[Property `simple`]* Whether this Savepoint uses the Simple (one slot, no storage/recruits) save menu
+---@field text_once     boolean *[Prpoerty `text_once`]* Whether this Savepoint doesn't display its text on repeat interactions (Defaults to `false`)
+---@field heals         boolean *[Property `heals`]* Whether this Savepoint heals the party when interacted with (Defaults to `true`)
+---
+---@field solid         boolean
+---
+---@field used          boolean
+---
 ---@overload fun(...) : Savepoint
 local Savepoint, super = Class(Interactable)
 
 function Savepoint:init(x, y, properties)
-    super.init(self, x, y, nil, nil, properties)
+    super.init(self, x, y, nil, properties)
 
     properties = properties or {}
 
@@ -58,6 +72,33 @@ function Savepoint:onTextEnd()
     else
         self.world:openMenu(SaveMenu(self.marker))
     end
+end
+
+function Savepoint:update()
+    super.update(self)
+
+    if Game:isLight() then
+        self.sprite.alpha = 0.5
+
+        if Game.world.player then
+            local dist = Utils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y)
+
+
+            if dist <= 80 then
+                self.sprite.alpha = math.min(1, ((1 - (dist/80)) + 0.5))
+            end
+        end
+    end
+    
+end
+
+function Savepoint:getDebugInfo()
+    local info = super.getDebugInfo(self)
+    if Game:isLight() and Game.world.player then
+        table.insert(info, "Player Distance: " .. Utils.dist(self.x, self.y, Game.world.player.x, Game.world.player.y))
+        table.insert(info, "Alpha: " .. self.sprite.alpha)
+    end
+    return info
 end
 
 return Savepoint

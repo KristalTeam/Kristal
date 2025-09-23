@@ -4,9 +4,9 @@
     "subtitle": "For Kristal development, NOT an example mod!",
 
     "version": "v?.?.?",
-    "engineVer": "v0.9.0-dev",
+    "engineVer": "v0.10.0-dev",
 
-    "chapter": 2,
+    "chapter": 4,
 
     "map": "alley",
     //"encounter": "virovirokun", // for testing encounter reloading
@@ -33,13 +33,17 @@
     "quickReload": true,
     "hidden": false,
 
+    "defaultFlagFilterType": "any",
+    "defaultFlagFilterQuery": "#",
+    "defaultFlagFilterMode": "invert_startsWith",
+
     "config": {
         "kristal": {
             //"growStrongerChara": "susie",
 
             //"ralseiStyle": 2
-            "keepTensionAfterBattle": true,
-            "overworldSpells": true
+            //"keepTensionAfterBattle": true,
+            //"overworldSpells": true
         },
         "virovirokun": {
             "enable_cook": true,

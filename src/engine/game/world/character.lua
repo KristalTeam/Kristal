@@ -1,5 +1,7 @@
+--- All types of character in the overworld inherit from the `Character` class. \
+--- This class is not to be confused with the psuedo-event [`NPC`](lua://NPC.init) that is used for characters placed in the overworld.
 ---@class Character : Object
----@overload fun(...) : Character
+---@overload fun(actor: string|Actor, x?: number, y?: number) : Character
 local Character, super = Class(Object)
 
 function Character:init(actor, x, y)
@@ -11,6 +13,9 @@ function Character:init(actor, x, y)
 
     self.is_player = false
     self.is_follower = false
+
+    -- The party member id represented by this character
+    self.party = nil
 
     self.facing = "down"
 
@@ -39,6 +44,9 @@ end
 function Character:getDebugInfo()
     local info = super.getDebugInfo(self)
     table.insert(info, "Actor: " .. self.actor.name)
+    if self.party then
+        table.insert(info, "Party Member: " .. self.party)
+    end
     table.insert(info, "Noclip: " .. (self.noclip and "True" or "False"))
     return info
 end
@@ -68,6 +76,10 @@ function Character:getFlag(flag, default)
 end
 
 function Character:getPartyMember()
+    if self.party then
+        return Game:getPartyMember(self.party)
+    end
+
     for _,party in pairs(Game.party_data) do
         local actor = party:getActor()
         if actor and actor.id == self.actor.id then
@@ -596,7 +608,7 @@ function Character:convertToFollower(index, save)
     local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer
     follower:setFacing(self.facing)
-    self.world:spawnFollower(follower, {index = index})
+    self.world:spawnFollower(follower, {index = index, party = self.party})
     if save then
         Game:addFollower(follower, index)
     end
@@ -605,7 +617,7 @@ function Character:convertToFollower(index, save)
 end
 
 function Character:convertToPlayer()
-    self.world:spawnPlayer(self.x, self.y, self.actor)
+    self.world:spawnPlayer(self.x, self.y, self.actor, self.party)
     local player = self.world.player
     player:setLayer(self.layer)
     player:setFacing(self.facing)
@@ -616,6 +628,7 @@ end
 function Character:convertToNPC(properties)
     local npc = NPC(self.actor, self.x, self.y, properties)
     npc.layer = self.layer
+    npc.party = self.party
     npc:setFacing(self.facing)
     self.world:addChild(npc)
     self:remove()
@@ -625,6 +638,7 @@ end
 function Character:convertToCharacter()
     local character = Character(self.actor, self.x, self.y)
     character.layer = self.layer
+    character.party = self.party
     character:setFacing(self.facing)
     self.world:addChild(character)
     self:remove()
@@ -634,6 +648,7 @@ end
 function Character:convertToEnemy(properties)
     local enemy = ChaserEnemy(self.actor, self.x, self.y, properties)
     enemy.layer = self.layer
+    enemy.party = self.party
     enemy:setFacing(self.facing)
     self.world:addChild(enemy)
     self:remove()

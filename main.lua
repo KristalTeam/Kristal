@@ -13,7 +13,6 @@ https = require("src.lib.https")
 utf8 = require("utf8")
 
 _Class = require("src.lib.hump.class")
-Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
 LibTimer = require("src.lib.hump.timer")
 JSON = require("src.lib.json")
@@ -120,6 +119,7 @@ ActorSprite = require("src.engine.game.common.actorsprite")
 Inventory = require("src.engine.game.common.inventory")
 DarkInventory = require("src.engine.game.common.darkinventory")
 LightInventory = require("src.engine.game.common.lightinventory")
+LancerKeyItem = require("src.engine.game.common.lancerkeyitem")
 
 Cutscene = require("src.engine.game.common.cutscene")
 WorldCutscene = require("src.engine.game.world.worldcutscene")
@@ -220,6 +220,7 @@ ActionButton = require("src.engine.game.battle.ui.actionbutton")
 AttackBox = require("src.engine.game.battle.ui.attackbox")
 AttackBar = require("src.engine.game.battle.ui.attackbar")
 TensionBar = require("src.engine.game.battle.ui.tensionbar")
+TensionBarGlow = require("src.engine.game.battle.ui.tensionbarglow")
 SpeechBubble = require("src.engine.game.battle.ui.speechbubble")
 
 FlashFade = require("src.engine.game.effects.flashfade")
@@ -240,6 +241,9 @@ RudeBusterBurst = require("src.engine.game.effects.rudebusterburst")
 
 Shop = require("src.engine.game.shop")
 Shopkeeper = require("src.engine.game.shop.shopkeeper")
+
+Border = require("src.engine.border")
+ImageBorder = require("src.engine.imageborder")
 
 GameOver = require("src.engine.game.gameover")
 

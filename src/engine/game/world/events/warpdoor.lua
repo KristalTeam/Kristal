@@ -1,4 +1,21 @@
+--- Warp Doors allow for fast travel between Overworld locations. \
+--- `WarpDoor` is an [`Event`](lua://Event.init) - naming an object `warpdoor` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
+--- 
 ---@class WarpDoor : Event
+---
+---@field solid         boolean
+---@field collider      Collider
+---@field light         Sprite      Sprite instance for the light that appears under an active door
+---
+---@field open          boolean     *[Property `open`]* Whether the door is open (Defaults to `true`)
+---@field open_flag     string      *[Property `openflag`]* The name of a flag that will be used to control the state of the door
+---
+---@field maps          string[]    *[Property list `map`]* A list of available maps to travel to
+---@field names         string[]    *[Property list `name`]* A list of display names for each map in the warp choice
+---@field markers       string[]    *[Property list `marker`]* A list of markers used when warping to each map
+---@field flags         string[]    *[Property list `flag`]* A list of flags checked to decide whether a map can be warped to
+---
 ---@overload fun(...) : WarpDoor
 local WarpDoor, super = Class(Event, "warpdoor")
 
@@ -91,6 +108,7 @@ function WarpDoor:onInteract(chara, facing)
     return true
 end
 
+--- Updates the state of the door based on its `open_flag`, and accordingly adjusts it's own sprite and its [`light`](lua://WarpDoor.light)
 function WarpDoor:updateOpen()
     self.open = Game:getFlag(self.open_flag)
     if self.open then

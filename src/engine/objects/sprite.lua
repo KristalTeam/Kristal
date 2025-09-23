@@ -133,8 +133,8 @@ function Sprite:isSprite(texture)
 end
 
 --- Sets the sprite to either a texture or an animation. \
---- If the given texture is a string or image, it will be passed into `Sprite:setSprite()`. \
---- If the given texture is a table, it will be passed into `Sprite:setAnimation()`.
+--- If the given texture is a string or image, it will be passed into [`Sprite:setSprite()`](lua://Sprite.setSprite). \
+--- If the given texture is a table, it will be passed into [`Sprite:setAnimation()`](lua://Sprite.setAnimation).
 ---@param texture string|table|love.Image  The texture or animation to set the sprite to.
 function Sprite:set(texture)
     if type(texture) == "table" then
@@ -222,8 +222,31 @@ end
 ---@alias Sprite.anim_func     fun(wait:Sprite.wait_func)
 ---@alias Sprite.anim_callback fun(sprite:Sprite)
 
--- TODO: Document the rest of Sprite
+-- Fix this awful parameter doc (can anims maybe use a custom type? options style docs could also work)
 
+--- Sets the animation of the current sprite. \
+--- The animation specified in `anim` can take on multiple forms:
+--- - `fun(wait: fun(time: number))`    - The animation routine. Receives the animation coroutine's wait function. 
+---                                         See [`Sprite:_basicAnimation(wait)`](lua://Sprite._basicAnimation) for an example of an animation routine
+--- - `table`                           - A table of animation data, in one of these three formats:
+--- - - `string|table`                  - The name of the sprite, or a table of frames of the animation, \
+---     `number`                        - The time, in seconds, between each frame, \
+---     `boolean`                       - Whether the animation should loop
+--- - - `string|table`                  - The name of the sprite, or a table of frames of the animation, \
+---     `fun(wait: fun(time: number))`  - An animation routine
+--- - - `fun(wait: fun(time: number))`  - An animation routine
+--- 
+--- Additionally, these keys can be defined in the `anim` table for further customisation:
+--- - `duration: number`                - The time, in seconds, that the animation will run for
+--- - `callback: fun(self: Sprite)`     - A callback that will run when the sprite stops animating. Receives the sprite as an argument
+--- - `frames: (number|string)[]`       - A custom sequence of frame numbers to use for the aniamtion: \
+---                                         Can use special notation: `num` (frame numbers), `"num1-num2"` (sequential frames from `num1` to `num2`), and `"num1*num2"` (repeat frame `num1` `num2` times). \
+---                                         Only takes effect when not using a custom animation routine
+--- - `next: string|table`              - Another animation to play when the current one finishes. If this is a table, a random entry will be selected as the next animation
+---@overload fun(self: Sprite, anim: {[1]: string|table, [2]: number, [3]: boolean, callback: fun(self: Sprite), duration: number, frames: (number|string)[], next: string|table})
+---@overload fun(self: Sprite, anim: {[1]: string|table, [2]: function, callback: fun(self: Sprite), duration: number, frames: (number|string)[], next: string|table})
+---@overload fun(self: Sprite, anim: {[1]: function, callback: fun(self: Sprite), duration: number, frames: (number|string)[], next: string|table})
+---@overload fun(self: Sprite, anim: fun(wait: fun(time: number)))
 function Sprite:setAnimation(anim)
     self:stop(true)
     self.anim_duration = -1
@@ -278,6 +301,9 @@ function Sprite:setAnimation(anim)
     coroutine.resume(self.anim_routine, self, self.anim_wait_func)
 end
 
+--- *(Called internally)* Parses animation frame data into a table of frame numbers
+---@param frames? (number|string)[] Input animation: Can use `num` (frame numbers), (`"num1-num2"` sequential frames from `num1` to `num2`), and `"num1*num2"` (repeat frame `num1` `num2` times)
+---@return number[]? anim Output animation: Uses only frame numbers
 function Sprite:parseFrames(frames)
     if not frames then return end
     local t = {}
@@ -309,6 +335,8 @@ function Sprite:parseFrames(frames)
     return t
 end
 
+--- *(Called internally)* Default animation routine
+---@param wait fun(time: number) The animation coroutine's `wait` function
 function Sprite:_basicAnimation(wait)
     while true do
         if type(self.anim_frames) == "table" then
@@ -329,6 +357,10 @@ function Sprite:_basicAnimation(wait)
     end
 end
 
+--- Starts animating the sprite's current texture
+---@param speed?         number                 The speed of the animation as the number of seconds between frames (Defaults to `1/30`)
+---@param loop?          boolean                Whether the animation should loop (Defautls to `false`)
+---@param on_finished?   fun(sprite: Sprite)    A function to run when the animation finishes
 function Sprite:play(speed, loop, on_finished)
     if loop == nil then
         loop = true
@@ -340,6 +372,8 @@ function Sprite:resume()
     self.playing = true
 end
 
+--- Stops the animation of the current sprite
+---@param keep_frame boolean? Whether to keep the current frame of the sprite. If false, the sprite sets back to the first frame
 function Sprite:stop(keep_frame)
     self.playing = false
     self.loop = false
@@ -359,6 +393,10 @@ function Sprite:pause()
     self.playing = false
 end
 
+---@param offset_x? number  The x-offset of the flash sprite
+---@param offset_y? number  The y-offset of the flash sprite
+---@param layer?    number  (Defaults to `100`)
+---@return FlashFade
 function Sprite:flash(offset_x, offset_y, layer)
     local flash = FlashFade(self.texture, offset_x or 0, offset_y or 0)
     flash.layer = layer or 100 -- TODO: Unhardcode?
@@ -366,6 +404,8 @@ function Sprite:flash(offset_x, offset_y, layer)
     return flash
 end
 
+--- *(Called internally)* Sets the target texture for the current cross-fade
+---@param texture string|love.Image
 function Sprite:setCrossFadeTexture(texture)
     if type(texture) == "string" then
         texture = self:getPath(texture)
@@ -376,6 +416,7 @@ function Sprite:setCrossFadeTexture(texture)
     self.crossfade_texture_path = Assets.getTextureID(texture)
 end
 
+--- Stops the cross-fade on the current sprite
 function Sprite:resetCrossFade()
     self.crossfade_alpha = 0
     self.crossfade_texture = nil
@@ -385,10 +426,20 @@ function Sprite:resetCrossFade()
     self.crossfade_after = nil
 end
 
+--- Starts a cross-fade from the current sprite to a new `texture`
+---@param texture   string|love.Image   The texture to fade into
+---@param time?     number              The time, in seconds, that the cross-fade should take (Defaults to `1`)
+---@param fade_out? boolean             Whether the current sprite texture should fade out during the cross-fade (if `false`, it disappears at the end)
+---@param after?    fun(sprite: Sprite) The function to run when the cross-fade is complete
 function Sprite:crossFadeTo(texture, time, fade_out, after)
     self:crossFadeToSpeed(texture, (1 / (time or 1)) / 30 * (1 - self.crossfade_alpha), fade_out, after)
 end
 
+--- Starts a cross-fade from the current sprite to a new `texture`
+---@param texture   string|love.Image   The texture to fade into
+---@param speed?    number              The speed at which the alpha of both sprites change, meaasured as the alpha value change per frame at 30FPS (Defaults to `0.04`)
+---@param fade_out? boolean             Whether the current sprite texture should fade out during the cross-fade (if `false`, it disappears at the end)
+---@param after?    fun(sprite: Sprite) The function to run when the cross-fade is complete
 function Sprite:crossFadeToSpeed(texture, speed, fade_out, after)
     self:setCrossFadeTexture(texture)
     self.crossfade_speed = speed or 0.04

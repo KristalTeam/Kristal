@@ -365,8 +365,10 @@ function World:onKeyPressed(key)
             if Input.shift() then
                 save_pos = {self.player.x, self.player.y}
             end
-            if Game:isLight() or Game:getConfig("smallSaveMenu") then
+            if Game:getConfig("smallSaveMenu") then
                 self:openMenu(SimpleSaveMenu(Game.save_id, save_pos))
+            elseif Game:isLight() then
+                self:openMenu(LightSaveMenu(save_pos))
             else
                 self:openMenu(SaveMenu(save_pos))
             end
@@ -378,6 +380,9 @@ function World:onKeyPressed(key)
         end
         if key == "b" then
             Game.world:hurtParty(math.huge)
+        end
+        if key == "k" then
+            Game:setTension(Game:getMaxTension() * 2, true)
         end
         if key == "n" then
             NOCLIP = not NOCLIP
@@ -507,21 +512,27 @@ function World:showText(text, after)
 end
 
 --- Spawns the player into the world
+---@overload fun(self: World, x: number, y: number, chara: string|Actor, party?: string)
+---@overload fun(self: World, marker: string, chara: string|Actor, party?: string)
 ---@param ... unknown   Arguments detailing how the player spawns
 ---|"x, y, chara"   # The co-ordinates of the player spawn and the Actor (instance or id) to use for the player
 ---|"marker, chara" # The marker name to spawn the player at and the Actor (instance or id) to use for the player
+---@param party? string The party member ID associated with the player
 function World:spawnPlayer(...)
     local args = {...}
 
     local x, y = 0, 0
     local chara = self.player and self.player.actor
+    local party
     if #args > 0 then
         if type(args[1]) == "number" then
             x, y = args[1], args[2]
             chara = args[3] or chara
+            party = args[4]
         elseif type(args[1]) == "string" then
             x, y = self.map:getMarker(args[1])
             chara = args[2] or chara
+            party = args[3]
         end
     end
 
@@ -544,6 +555,10 @@ function World:spawnPlayer(...)
     self.player:setFacing(facing)
     self:addChild(self.player)
 
+    if party then
+        self.player.party = party
+    end
+
     self.soul = OverworldSoul(self.player:getRelativePos(self.player.actor:getSoulOffset()))
     self.soul:setColor(Game:getSoulColor())
     self.soul.layer = WORLD_LAYERS["soul"]
@@ -564,11 +579,18 @@ function World:getPartyCharacter(party)
     if type(party) == "string" then
         party = Game:getPartyMember(party)
     end
+    local char_to_return
     for _,char in ipairs(Game.stage:getObjects(Character)) do
-        if char.actor and char.actor.id == party:getActor().id then
+        -- Immediately break the loop and return if we find an explicit party match
+        if char.party and char.party.id == party.id then
             return char
         end
+        -- Store the first actor match, do not break loop as the match is not explicit
+        if char.actor and char.actor.id == party:getActor().id then
+            char_to_return = char_to_return or char
+        end
     end
+    return char_to_return
 end
 
 --- Gets the `Follower` or `Player` of a character currently in the party
@@ -609,12 +631,13 @@ function World:removeFollower(chara)
 end
 
 --- Spawns a follower into the world
----@param chara Follower|string|Actor   The character to spawn as a follower
----@param options table                 A table defining additional properties to control the new follower
+---@param chara     Follower|string|Actor   The character to spawn as a follower
+---@param options?  table                 A table defining additional properties to control the new follower
 ---|"x"         # The position of the follower
 ---|"y"         # The position of the follower
 ---|"index"     # The index of the follower in the list of followers
 ---|"temp"      # Whether the follower is temporary and disappears when the current map is exited (defaults to `true`)
+---|"party"     # The id of the party member associated with this follower
 ---@return Follower
 function World:spawnFollower(chara, options)
     if type(chara) == "string" then
@@ -652,6 +675,9 @@ function World:spawnFollower(chara, options)
             table.insert(Game.temp_followers, follower.actor.id)
         end
     end
+    if options["party"] then
+        follower.party = options["party"]
+    end
     self:addChild(follower)
     follower:updateIndex()
     return follower
@@ -671,15 +697,15 @@ function World:spawnParty(marker, party, extra, facing)
             end
         end
         if type(marker) == "table" then
-            self:spawnPlayer(marker[1], marker[2], party[1]:getActor())
+            self:spawnPlayer(marker[1], marker[2], party[1]:getActor(), party[1].id)
         else
-            self:spawnPlayer(marker or "spawn", party[1]:getActor())
+            self:spawnPlayer(marker or "spawn", party[1]:getActor(), party[1].id)
         end
         if facing then
             self.player:setFacing(facing)
         end
         for i = 2, #party do
-            local follower = self:spawnFollower(party[i]:getActor())
+            local follower = self:spawnFollower(party[i]:getActor(), {party = party[i].id})
             follower:setFacing(facing or self.player.facing)
         end
         for _,actor in ipairs(extra or Game.temp_followers or {}) do
@@ -750,7 +776,7 @@ function World:getCharacter(id, index)
     local party_member = Game:getPartyMember(id)
     local i = 0
     for _,chara in ipairs(Game.stage:getObjects(Character)) do
-        if chara.actor.id == id or (party_member and chara.actor.id == party_member:getActor().id) then
+        if chara.actor.id == id or (party_member and chara.party and chara.party == party_member.id) then
             i = i + 1
             if not index or index == i then
                 return chara

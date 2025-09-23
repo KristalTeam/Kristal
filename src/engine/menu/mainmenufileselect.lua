@@ -49,7 +49,7 @@ function MainMenuFileSelect:onEnter(old_state)
     self.files = {}
     for i = 1, 3 do
         local data = Kristal.loadData("file_" .. i, self.mod.id)
-        local button = FileButton(self, i, data, 110, 110 + 90 * (i - 1), 422, 82)
+        local button = FileButton(self, i, data, 110, 110 + 90 * (i - 1), 422, Kristal.Config["brokenMenuBoxes"] and 82 or 78)
         if i == 1 then
             button.selected = true
         end
@@ -454,7 +454,7 @@ function MainMenuFileSelect:getHeartPos()
         local button = self:getSelectedFile()
         local hx, hy = button:getHeartPos()
         local x, y = button:getRelativePos(hx, hy)
-        return x + 9, y + 9
+        return x + 9, y + (Kristal.Config["brokenMenuBoxes"] and 11 or 13)
     elseif self.selected_y == 4 then
         return self.bottom_row_heart[self.selected_x] + 9, 390 + 9
     end

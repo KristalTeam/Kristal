@@ -10,10 +10,12 @@ Hotswapper.files = {
     registry = {}
 }
 
+package.path = package.path..";"..love.filesystem.getSource().."/?.lua"
+
 function Hotswapper.updateFiles(file_type)
     if not enabled then return end
     if file_type == "required" then
-        print("Updating file information for requried packages...")
+        print("Updating file information for required packages...")
         -- Loop through loaded packages
         for key, value in pairs(package.loaded) do
             local path = package.searchpath(key, package.path)
@@ -63,7 +65,10 @@ function Hotswapper.scan()
             value.modified = Hotswapper.getLastModified(value.path)
             print("Attempting to hotswap " .. key)
             --print(value.path)
+
+            HOTSWAPPING = true
             local updated_module, error_text = Hotswapper.hotswap(key)
+            HOTSWAPPING = false
             if not updated_module then
                 print(error_text)
             end
@@ -77,7 +82,11 @@ end
 
 function Hotswapper.getLastModified(path)
     if not path then return end
-    path = path:gsub("^.\\", ""):gsub("\\", "/")
+    local _, love_path_end = path:find(love.filesystem.getSource(), nil, true)
+    if love_path_end then
+        path = path:sub(love_path_end+2, -1)
+    end
+    path = path:gsub("^.[\\/]", ""):gsub("\\", "/")
     local info = love.filesystem.getInfo(path, "file")
     if not info then
         print("Info is nil, disabling hotswapper...")

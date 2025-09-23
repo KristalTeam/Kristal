@@ -1,4 +1,5 @@
 ---@class DialogueText : Text
+---@field actor? Actor 
 ---@overload fun(...) : DialogueText
 local DialogueText, super = Class(Text)
 
@@ -12,7 +13,7 @@ function DialogueText:init(text, x, y, w, h, options)
     options = options or {}
 
     options["font"] = options["font"] or "main_mono"
-    options["style"] = options["style"] or (Game:isLight() and "none" or "dark")
+    options["style"] = options["style"] or Kristal.callEvent(KRISTAL_EVENT.getDialogueTextStyle, text, options) or (Game:isLight() and "none" or "dark")
     options["line_offset"] = options["line_offset"] or 8
 
     self.custom_command_wait = {}
@@ -34,10 +35,16 @@ function DialogueText:init(text, x, y, w, h, options)
     self.advance_callback = nil
     self.line_callback = nil
     self.line_index = 1
+    self.actor = options["actor"]
 
     self.done = false
 
     self.should_advance = false
+end
+
+---@return Actor?
+function DialogueText:getActor()
+    if self.actor then return self.actor end
 end
 
 function DialogueText:getDebugInfo()
@@ -266,7 +273,12 @@ function DialogueText:playTextSound(current_node)
 
     if (self.state.typing_sound ~= nil) and (self.state.typing_sound ~= "") then
         self.played_first_sound = true
-        if Kristal.callEvent(KRISTAL_EVENT.onTextSound, self.state.typing_sound, current_node) then
+        if Kristal.callEvent(KRISTAL_EVENT.onTextSound, self.state.typing_sound, current_node, self.state) then
+            return
+        end
+        if self:getActor()
+            and (self:getActor():getVoice() or "default") == self.state.typing_sound
+            and self:getActor():onTextSound(current_node, self.state) then
             return
         end
         Assets.playSound("voice/" .. self.state.typing_sound)

@@ -84,12 +84,15 @@ function DarkTransition:init(final_y, options)
     self.skiprunback = options["skiprunback"]
     self.has_head_object = options["has_head_object"]
 
+    self.draw_doorblack = options["draw_doorblack"]
+
     if self.quick_mode == nil then self.quick_mode = false end
     if self.skiprunback == nil then self.skiprunback = false end
     if self.has_head_object == nil then self.has_head_object = false end
 
     self.final_y               = final_y or (SCREEN_HEIGHT / 2)
     self.sparkles              = options["sparkles"] or 0
+    self.sparkles_character    = options["sparkles_character"] or 1
     self.sparestar             = Assets.getFrames("effects/spare/star")
     self.dtrans_square         = Assets.newSound("dtrans_square")
     self.head_object_sprite    = Assets.getTexture(options["head_object_sprite"] or "misc/trash_ball")
@@ -384,7 +387,11 @@ function DarkTransition:draw()
             local y2 = self.ry2
             local w = x2 - x1
             local h = y2 - y1
-            love.graphics.rectangle("fill", x1, y1, w, h)
+            if (self.draw_doorblack) then
+                self.draw_doorblack(x1, y1, w, h)
+            else
+                love.graphics.rectangle("fill", x1, y1, w, h)
+            end
             --self:draw_rectangle((self.rx1 + self:camerax()), (self.ry1 + self:cameray()), (self.rx2 + self:camerax()), (self.ry2 + self:cameray()), false)
         end
     end
@@ -579,7 +586,7 @@ function DarkTransition:draw()
             end
 
             for i = 1, self.sparkles do
-                local sparkle = DarkTransitionSparkle(self.sparestar, self.kris_x + 15, self.kris_y + 15)
+                local sparkle = DarkTransitionSparkle(self.sparestar, self.character_data[self.sparkles_character].x + 15, self.character_data[self.sparkles_character].y + 15)
                 sparkle:play(1 / 15)
                 -- We need to get the stage...
                 self:addChild(sparkle)

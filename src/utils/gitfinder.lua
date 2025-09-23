@@ -29,6 +29,7 @@ function GitFinder:fetchCurrentCommit()
     if ref then -- HEAD is not detached
         -- Read the ref's correspending file, which contains the hash of the commit that it points to
         local commit, _ = love.filesystem.read(".git/" .. ref)
+        if not commit then return end
         return Utils.trim(commit)
     else -- HEAD is detached
         -- The file just contains the hash of the commit it's at

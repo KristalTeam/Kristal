@@ -73,6 +73,8 @@ function resetData()
             sound_data = {},
             music = {},
             videos = {},
+            shaders = {},
+            shader_paths = {},
             bubble_settings = {},
         }
     }
@@ -83,6 +85,7 @@ function resetData()
         ["sprites"] = {},
         ["fonts"] = {},
         ["sounds"] = {},
+        ["shaders"] = {},
         ["music"] = {},
         ["videos"] = {},
         ["bubbles"] = {},
@@ -335,6 +338,13 @@ local loaders = {
         )
         if id then
             data.assets.music[id] = full_path
+        end
+    end },
+    ["shaders"] = { "assets/shaders", function (base_dir, path, full_path)
+        local id = checkExtension(path, "glsl")
+        if id then
+            -- TODO: load the shader source code, maybe?
+            data.assets.shader_paths[id] = full_path
         end
     end },
     ["videos"] = { "assets/videos", function (base_dir, path, full_path)

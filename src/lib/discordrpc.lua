@@ -4,9 +4,24 @@ local name = "discord-rpc"
 
 if ffi.os == "Windows" then
     name = name .. "-" .. ffi.arch
+elseif ffi.os == "Linux" then
+    name = "lib".. name .. ".so"
 end
 
-local ok, discordRPClib = pcall(ffi.load, name)
+local search_paths = {"", (love.filesystem.getRealDirectory("lib/") or "") .. "/lib/"}
+
+local ok, discordRPClib
+for _, search_path in ipairs(search_paths) do
+    ok, discordRPClib = pcall(ffi.load, search_path .. name)
+
+    if not discordRPClib then
+        ok = false
+    end
+
+    if ok then
+        break
+    end
+end
 
 DISCORD_RPC_AVAILABLE = ok
 
@@ -132,7 +147,7 @@ end
 
 local function checkStrArg(arg, maxLen, argName, func, maybeNil)
     if maxLen then
-        assert(type(arg) == "string" and arg:len() <= maxLen or (maybeNil and arg == nil),
+        assert(type(arg) == "string" and Utils.len(arg) <= maxLen or (maybeNil and arg == nil),
             string.format("Argument \"%s\" of function \"%s\" has to be of type string with maximum length %d",
                 argName, func, maxLen))
     else

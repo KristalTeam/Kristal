@@ -1,9 +1,37 @@
+--- A Pushable Block! Collision for Pushblocks can be created by adding a `blockcollision` layer to a map. \
+--- `PushBlock` is an [`Event`](lua://Event.init) - naming an object `pushblock` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
+--- 
 ---@class PushBlock : Event
+---
+---@field default_sprite    string      *[Property `sprite`]* An optional custom sprite the block should use
+---@field solved_sprite     string      *[Property `solvedsprite`]* An optional custom solve sprite the block uses
+---
+---@field solid             boolean     
+---
+---@field push_dist         number      *[Property `pushdist`]* The number of pixels the block moves per push (Defaults to `40`, one tile)
+---@field push_timer        number      *[Property `pushtime`]* The time the block takes to complete a push, in seconds (Defaults to `0.2`)
+---
+---@field push_sound        string      *[Property `pushsound`]* The name of the sound file to play when the block is pushed (Defaults to `pushsound`)
+---
+---@field press_buttons     boolean     *[Property `pressbuttons`]* Unused (Defaults to `true`)
+---
+---@field lock_in_place     boolean     *[Property `lock`]* Whether the block gets locked in place when in a solved state (Defaults to `false`)
+---
+---@field input_lock        boolean     *[Property `inputlock`]* Whether the player's input's are locked while the block is being pushed
+---
+---@field start_x           number      Initial position of the block
+---@field start_y           number      Initial position of the block
+---
+---@field state             string      The current state of the Pushblock - value can be IDLE, PUSH, or RESET
+---
+---@field solved            boolean     Whether the pushblock is in a solved state
+---
 ---@overload fun(...) : PushBlock
 local PushBlock, super = Class(Event)
 
-function PushBlock:init(x, y, w, h, properties, sprite, solved_sprite)
-    super.init(self, x, y, w, h)
+function PushBlock:init(x, y, shape, properties, sprite, solved_sprite)
+    super.init(self, x, y, shape)
 
     properties = properties or {}
 
@@ -113,17 +141,22 @@ function PushBlock:onPush(facing)
     end)
 end
 
+--- *(Override)* Called when the block enters a solved state
 function PushBlock:onSolved()
     self:setSprite(self.solved_sprite)
 end
 
+--- *(Override)* Called when the block stops being in a solved state
 function PushBlock:onUnsolved()
     self:setSprite(self.default_sprite)
 end
 
+--- *(Override)* Called when a block finishes being pushed
 function PushBlock:onPushEnd(facing) end
+--- *(Override)* Called when a block cannot be pushed because of collision
 function PushBlock:onPushFail(facing) end
 
+--- Fades the block out and returns it to its original position
 function PushBlock:reset()
     if self.solved then
         self.solved = false
@@ -143,6 +176,7 @@ function PushBlock:reset()
     end)
 end
 
+--- *(Override)* Called when the block is reset
 function PushBlock:onReset() end
 
 return PushBlock

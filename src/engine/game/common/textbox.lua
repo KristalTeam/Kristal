@@ -2,6 +2,7 @@
 ---@overload fun(...) : Textbox
 local Textbox, super = Class(Object)
 
+---@enum (key) Textbox.REACTION_X
 Textbox.REACTION_X = {
         ["left"] = 70  -38,
      ["leftmid"] = 160 -38,
@@ -10,6 +11,8 @@ Textbox.REACTION_X = {
     ["rightmid"] = 360 -38,
        ["right"] = 400 -38,
 }
+
+---@enum (key) Textbox.REACTION_Y
 Textbox.REACTION_Y = {
           ["top"] = -10 -4,
           ["mid"] =  30 -4,
@@ -133,12 +136,52 @@ function Textbox:init(x, y, width, height, default_font, default_font_size, batt
         table.insert(self.reaction_instances, reaction)
     end, {instant = false})
 
+    self.minifaces = {}
+    self.miniface_path = "face/mini"
+
+    self.text:registerCommand("miniface", function(text, node, dry)
+        local ox = tonumber(node.arguments[2]) or 0
+        local oy = tonumber(node.arguments[3]) or 0
+        if self.actor then
+            local actor_ox, actor_oy = self.actor:getMinifaceOffset()
+            ox = actor_ox
+            oy = actor_oy
+        end
+        local x_scale = tonumber(node.arguments[4]) or 2
+        local y_scale = tonumber(node.arguments[5]) or 2
+        local speed = tonumber(node.arguments[6]) or (4/30)
+        local y = self.text.state.current_y
+        if (not dry) then
+            local miniface = Sprite(nil, 0 + ox, y + oy)
+            miniface:setScale(x_scale, y_scale)
+            miniface:setSprite(self.miniface_path.. "/" ..node.arguments[1])
+            miniface:play(speed)
+            if #self.minifaces > 0 then
+                local last_face = self.minifaces[#self.minifaces]
+                last_face:stop()
+            end
+            self:addChild(miniface)
+            table.insert(self.minifaces, miniface)
+            if self.actor and self.actor:getMiniface() then
+                self.miniface_path = self.actor:getMiniface()
+            else
+                self.miniface_path = "face/mini"
+            end
+            self.text.state.indent_mode = true
+            self.text.state.indent_length = miniface.width * miniface.scale_x + 15
+            self.text.state.current_x = self.text.state.indent_length + self.text.state.spacing
+        end
+    end)
+
     self.advance_callback = nil
 end
 
 function Textbox:update()
     if not self:isTyping() then
         self.face:stop()
+        for _,miniface in ipairs(self.minifaces) do
+            miniface:stop()
+        end
     end
     super.update(self)
 end
@@ -164,11 +207,18 @@ function Textbox:setActor(actor)
         actor = Registry.createActor(actor)
     end
     self.actor = actor
+    self.text.actor = actor
 
     if self.actor and self.actor:getPortraitPath() then
         self.face.path = self.actor:getPortraitPath()
     else
         self.face.path = "face"
+    end
+
+    if self.actor and self.actor:getMiniface() then
+        self.miniface_path = self.actor:getMiniface()
+    else
+        self.miniface_path = "face/mini"
     end
 end
 
@@ -226,6 +276,8 @@ function Textbox:resetReactions()
     self.reaction_instances = {}
 end
 
+---@param x Textbox.REACTION_X
+---@param y Textbox.REACTION_Y
 function Textbox:addReaction(id, text, x, y, face, actor)
     x, y = x or 0, y or 0
     if type(x) == "string" then
@@ -255,10 +307,18 @@ function Textbox:addFunction(id, func)
 end
 
 function Textbox:setText(text, callback)
-    for _,reaction in ipairs(self.reaction_instances) do
+    -- Clear reactions
+    for _, reaction in ipairs(self.reaction_instances) do
         reaction:remove()
     end
     self.reaction_instances = {}
+
+    -- Clear minifaces
+    for _, miniface in ipairs(self.minifaces) do
+        miniface:remove()
+    end
+    self.minifaces = {}
+
     self.text.font = self.font
     self.text.font_size = self.font_size
     if self.actor then
