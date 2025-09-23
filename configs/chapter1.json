@@ -15,6 +15,7 @@
     "oldTensionBar": true,           // Syle of TP bar
     "oldUIPositions": true,          // Old positions of various UI elements
     "oldGameOver": true,             // The game over screen used in chapter 1
+    "oldRudeBuster": true,           // Old Rude Buster damage calculation and effect
 
     "speechBubble": "round",         // Default enemy speech bubble style
 

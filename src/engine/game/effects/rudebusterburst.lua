@@ -2,7 +2,7 @@
 ---@overload fun(...) : RudeBusterBurst
 local RudeBusterBurst, super = Class(Sprite)
 
-function RudeBusterBurst:init(red, x, y, angle, slow)
+function RudeBusterBurst:init(red, x, y, angle, slow, speed)
     super.init(self, red and "effects/rudebuster/beam_red" or "effects/rudebuster/beam", x, y)
 
     self:setOrigin(0.5, 0.5)
@@ -12,7 +12,7 @@ function RudeBusterBurst:init(red, x, y, angle, slow)
     self:play(1/15, true)
 
     self.rotation = angle
-    self.physics.speed = 25
+    self.physics.speed = speed
     self.physics.match_rotation = true
 
     self.slow = slow
