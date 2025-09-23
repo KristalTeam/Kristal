@@ -62,6 +62,8 @@
 ---@field temporary_mercy           number              The current amount of temporary mercy
 ---@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
 ---
+---@field show_hp           boolean             Whether to show remaining health percentage or "???"
+---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
@@ -144,6 +146,8 @@ function EnemyBattler:init(actor, use_overlay)
 
     self.temporary_mercy = 0
     self.temporary_mercy_percent = nil
+    
+    self.show_hp = true -- Whether to show remaining health percentage or "???"
 
     self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
 end
@@ -175,6 +179,9 @@ function EnemyBattler:setTired(bool)
         end
     end
 end
+
+--- Whether to show remaining health percentage or "???"
+function EnemyBattler:getHPVisibility() return self.show_hp end
 
 --- Registers a new ACT for this enemy. This function is best called in [`EnemyBattler:init()`](lua://EnemyBattler.init) for most acts, unless they only appear under specific conditions. \
 --- What happens when this act is used is controlled by [`EnemyBattler:onAct()`](lua://EnemyBattler.onAct) - acts that do not return text there will **softlock** Kristal.
