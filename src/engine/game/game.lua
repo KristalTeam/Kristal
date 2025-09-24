@@ -461,6 +461,9 @@ function Game:load(data, index, fade)
         end
 
         for id,equipped in pairs(Kristal.getModOption("equipment") or {}) do
+            if not self.party_data[id] then
+                error("Attempted to set up equipment for non-existent member "..id)
+            end
             if equipped["weapon"] then
                 self.party_data[id]:setWeapon(equipped["weapon"] ~= "" and equipped["weapon"] or nil)
             end
