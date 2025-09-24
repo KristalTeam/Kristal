@@ -1379,6 +1379,10 @@ function DebugSystem:onWheelMoved(x, y)
 end
 
 function DebugSystem:draw()
+    if self.state == "IDLE" and self.menu_anim_timer >= 1 then
+        return
+    end
+
     love.graphics.setFont(self.font)
     Draw.setColor(1, 1, 1, 1)
 

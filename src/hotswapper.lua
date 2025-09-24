@@ -1,6 +1,6 @@
 local Hotswapper = {}
 
-local enabled = true
+Hotswapper.ENABLED = not RELEASE_MODE
 
 local dir = love.filesystem.getDirectoryItems
 local time = love.timer.getTime
@@ -13,7 +13,7 @@ Hotswapper.files = {
 package.path = package.path..";"..love.filesystem.getSource().."/?.lua"
 
 function Hotswapper.updateFiles(file_type)
-    if not enabled then return end
+    if not Hotswapper.ENABLED then return end
     if file_type == "required" then
         print("Updating file information for required packages...")
         -- Loop through loaded packages
@@ -57,7 +57,7 @@ function Hotswapper.updateFiles(file_type)
 end
 
 function Hotswapper.scan()
-    if not enabled then return end
+    if not Hotswapper.ENABLED then return end
     --Hotswapper.updateFiles()
     for key, value in pairs(Hotswapper.files.required) do
         if Hotswapper.getLastModified(value.path) == false then return end
