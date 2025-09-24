@@ -59,7 +59,7 @@ function item:onBattleUpdate(battler)
     if battler.thorn_ring_timer >= 6 then
         battler.thorn_ring_timer = battler.thorn_ring_timer - 6
 
-        if battler.chara:getHealth() > Utils.round(battler.chara:getStat("health") / 3) then
+        if battler.chara:getHealth() > MathUtils.round(battler.chara:getStat("health") / 3) then
             battler.chara:setHealth(battler.chara:getHealth() - 1)
         end
     end

@@ -1904,10 +1904,10 @@ end
 --- Clears all mod-defined hooks from `Utils.hook`, and restores the original functions. \
 --- Called internally when a mod is unloaded.
 function Kristal.clearModHooks()
-    for _, hook in ipairs(Utils.__MOD_HOOKS) do
+    for _, hook in ipairs(HookSystem.__MOD_HOOKS) do
         hook.target[hook.name] = hook.orig
     end
-    Utils.__MOD_HOOKS = {}
+    HookSystem.__MOD_HOOKS = {}
 end
 
 --- Removes all mod-defined classes from base classes' `__includers` table.
@@ -1916,7 +1916,7 @@ function Kristal.clearModSubclasses()
     for class, subs in pairs(MOD_SUBCLASSES) do
         for _, sub in ipairs(subs) do
             if class.__includers then
-                Utils.removeFromTable(class.__includers, sub)
+                TableUtils.removeValue(class.__includers, sub)
             end
         end
     end

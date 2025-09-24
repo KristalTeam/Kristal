@@ -1297,15 +1297,14 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if not floor_x then
         transform:translate(self.x, self.y)
     else
-        transform:translate(Utils.floor(self.x, floor_x), Utils.floor(self.y, floor_y))
+        transform:translate(MathUtils.floorToMultiple(self.x, floor_x), MathUtils.floorToMultiple(self.y, floor_y))
     end
     if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
-        local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x,
-            self.parallax_origin_y)
+        local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y)
         if not floor_x then
             transform:translate(px, py)
         else
-            transform:translate(Utils.floor(px, floor_x), Utils.floor(py, floor_y))
+            transform:translate(MathUtils.floorToMultiple(px, floor_x), MathUtils.floorToMultiple(py, floor_y))
         end
     end
     if self.flip_x or self.flip_y then
@@ -1321,12 +1320,12 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if not floor_x then
         transform:translate(-ox, -oy)
     else
-        transform:translate(-Utils.floor(ox, floor_x), -Utils.floor(oy, floor_y))
+        transform:translate(-MathUtils.floorToMultiple(ox, floor_x), -MathUtils.floorToMultiple(oy, floor_y))
     end
     if self.rotation ~= 0 then
         local ox, oy = self:getRotationOriginExact()
         if floor_x then
-            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+            ox, oy = MathUtils.floorToMultiple(ox, floor_x), MathUtils.floorToMultiple(oy, floor_y)
         end
         transform:translate(ox, oy)
         transform:rotate(self.rotation)
@@ -1335,7 +1334,7 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
     if self.scale_x ~= 1 or self.scale_y ~= 1 then
         local ox, oy = self:getScaleOriginExact()
         if floor_x then
-            ox, oy = Utils.floor(ox, floor_x), Utils.floor(oy, floor_y)
+            ox, oy = MathUtils.floorToMultiple(ox, floor_x), MathUtils.floorToMultiple(oy, floor_y)
         end
         transform:translate(ox, oy)
         transform:scale(self.scale_x, self.scale_y)
@@ -1349,7 +1348,7 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
         if not floor_x then
             transform:translate(shake_x, shake_y)
         else
-            transform:translate(Utils.floor(shake_x, floor_x), Utils.floor(shake_y, floor_y))
+            transform:translate(MathUtils.floorToMultiple(shake_x, floor_x), MathUtils.floorToMultiple(shake_y, floor_y))
         end
     end
     Utils.popPerformance()
@@ -1568,7 +1567,7 @@ function Object:sortChildren()
 end
 
 function Object:updateChildList()
-    local to_remove = Utils.copy(self.children_to_remove)
+    local to_remove = TableUtils.copy(self.children_to_remove)
     self.children_to_remove = {}
     for child, _ in pairs(to_remove) do
         for i, v in ipairs(self.children) do
@@ -1819,26 +1818,26 @@ function Object:updatePhysicsTransform()
     end
 
     if physics.speed and physics.speed ~= 0 then
-        physics.speed = Utils.approach(physics.speed, 0, (physics.friction or 0) * DTMULT)
+        physics.speed = MathUtils.approach(physics.speed, 0, (physics.friction or 0) * DTMULT)
         self:move(math.cos(direction), math.sin(direction), physics.speed * DTMULT)
     end
 
     if (physics.speed_x and physics.speed_x ~= 0) or (physics.speed_y and physics.speed_y ~= 0) then
-        physics.speed_x = Utils.approach(physics.speed_x or 0, 0, (physics.friction or 0) * DTMULT)
-        physics.speed_y = Utils.approach(physics.speed_y or 0, 0, (physics.friction or 0) * DTMULT)
+        physics.speed_x = MathUtils.approach(physics.speed_x or 0, 0, (physics.friction or 0) * DTMULT)
+        physics.speed_y = MathUtils.approach(physics.speed_y or 0, 0, (physics.friction or 0) * DTMULT)
         self:move(physics.speed_x, physics.speed_y, DTMULT)
     end
 
     if physics.move_target then
         local next_x, next_y = self.x, self.y
         if physics.move_target.speed then
-            local angle = Utils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
-            next_x = Utils.approach(self.x, physics.move_target.x,
+            local angle = MathUtils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
+            next_x = MathUtils.approach(self.x, physics.move_target.x,
                 physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
-            next_y = Utils.approach(self.y, physics.move_target.y,
+            next_y = MathUtils.approach(self.y, physics.move_target.y,
                 physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
         elseif physics.move_target.time then
-            physics.move_target.timer = Utils.approach(physics.move_target.timer, physics.move_target.time, DT)
+            physics.move_target.timer = MathUtils.approach(physics.move_target.timer, physics.move_target.time, DT)
 
             next_x = Utils.ease(physics.move_target.start_x, physics.move_target.x,
                 (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
@@ -1863,7 +1862,7 @@ function Object:updatePhysicsTransform()
             physics.move_path.progress = (physics.move_path.timer / physics.move_path.time) * physics.move_path.length
         end
         if not physics.move_path.loop then
-            physics.move_path.progress = Utils.clamp(physics.move_path.progress, 0, physics.move_path.length)
+            physics.move_path.progress = MathUtils.clamp(physics.move_path.progress, 0, physics.move_path.length)
         else
             physics.move_path.progress = physics.move_path.progress % physics.move_path.length
         end
@@ -1890,7 +1889,7 @@ function Object:updateGraphicsTransform()
     if not graphics then return end
 
     if graphics.fade and graphics.fade ~= 0 and self.alpha ~= graphics.fade_to then
-        self.alpha = Utils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
+        self.alpha = MathUtils.approach(self.alpha, graphics.fade_to, graphics.fade * DTMULT)
         if self.alpha == graphics.fade_to then
             graphics.fade = 0
             graphics.fade_to = 0
@@ -1924,14 +1923,14 @@ function Object:updateGraphicsTransform()
             graphics.shake_timer = graphics.shake_timer - (graphics.shake_delay or (2 / 30))
         end
         if graphics.shake_friction and graphics.shake_friction ~= 0 then
-            graphics.shake_x = Utils.approach(graphics.shake_x or 0, 0, graphics.shake_friction * DTMULT)
-            graphics.shake_y = Utils.approach(graphics.shake_y or 0, 0, graphics.shake_friction * DTMULT)
+            graphics.shake_x = MathUtils.approach(graphics.shake_x or 0, 0, graphics.shake_friction * DTMULT)
+            graphics.shake_y = MathUtils.approach(graphics.shake_y or 0, 0, graphics.shake_friction * DTMULT)
         end
     end
 end
 
 function Object:onClone(src)
-    if self.parent and self.parent.children and not Utils.containsValue(self.parent.children, self) then
+    if self.parent and self.parent.children and not TableUtils.contains(self.parent.children, self) then
         self.parent = nil
     end
     self.stage = nil

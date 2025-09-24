@@ -26,7 +26,7 @@ end
 function spell:getTPCost(chara)
     local cost = super.getTPCost(self, chara)
     if chara and chara:checkWeapon("thornring") then
-        cost = Utils.round(cost / 2)
+        cost = MathUtils.round(cost / 2)
     end
     return cost
 end
@@ -83,9 +83,9 @@ function spell:onCast(user, target)
 end
 
 function spell:getDamage(user, target)
-    local min_magic = Utils.clamp(user.chara:getStat("magic") - 10, 1, 999)
+    local min_magic = MathUtils.clamp(user.chara:getStat("magic") - 10, 1, 999)
 
-    return math.ceil((min_magic * 30) + 90 + Utils.random(10))
+    return math.ceil((min_magic * 30) + 90 + MathUtils.random(10))
 end
 
 return spell
