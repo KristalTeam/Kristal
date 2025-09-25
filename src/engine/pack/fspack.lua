@@ -145,7 +145,9 @@ conf = conf:gsub('t.identity = "kristal"', 't.identity = "'..MODID..'"')
 conf = conf:gsub('t.window.title = "Kristal"', 't.window.title = "'..INFO_OBJ.name..'"')
 love.filesystem.write(confPath, conf)
 
-createExe()
+if OPTS.target == "Windows" then
+    createExe()
+end
 
 -- status("Cleaning up...")
 -- love.filesystem.remove(workingDirectory.."/love.zip")

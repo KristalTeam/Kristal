@@ -4,9 +4,11 @@ local path = fs.path
 local Pack = {}
 
 Pack.tasks = {}
-
-local SYSTEM = love.system.getOS()
-local MAJOR, MINOR = love.getVersion()
+Pack.compileMatrix = {
+    -- This determines which systems support which targets
+    Windows = {"Windows"},
+    Linux = {"Windows"}
+}
 
 function Pack:error(modID, err)
     self.tasks[modID].status = "terminated"
@@ -48,15 +50,31 @@ function Pack:package(modID, opts)
         status = "prepare",
         info = nil,
         opts = opts or {
-            autoStart = true
+            autoStart = true,
+            target = "Windows"
         },
         outChan = nil
     }
 
-    if SYSTEM ~= "Windows" then
-        self:error(modID, "Unsupported system. Sorry!")
+    local target = self.tasks[modID].opts.target
+    local system = love.system.getOS()
+
+    if self.compileMatrix[system] ~= nil then
+        local availableTarget = false
+        for _, t in ipairs(self.compileMatrix[system]) do
+            if t == target then
+                availableTarget = true
+            end
+        end
+        if availableTarget == false then
+            self:error(modID, system.." -> "..target.." is not supported yet. Sorry!")
+            return
+        end
+    else
+        self:error(modID, "Your system is not in the list of supported ones. Sorry!")
         return
     end
+
     local modInfo = Kristal.Mods.getMod(modID)
     if modInfo == nil then
         self:error(modID, "This mod does not exist.")
@@ -86,16 +104,20 @@ function Pack:package(modID, opts)
         return
     end
 
-    local loveVersion = tostring(MAJOR) .. "." .. tostring(MINOR)
+    ok = love.filesystem.createDirectory(path(wd, "out"))
+    if not ok then
+        self:error(modID, "Could not create output directory")
+        return
+    end
+
+
+    local major, minor = love.getVersion()
+    local loveVersion = tostring(major) .. "." .. tostring(minor)
     local loveLink
-    if SYSTEM == "Windows" then
+    if target == "Windows" then
         loveLink = "https://github.com/love2d/love/releases/download/" ..
         loveVersion .. "/love-" .. loveVersion .. "-win64.zip"
     else
-        self:error(modID, "Unsupported system, sorry!")
-        return
-    end
-    if loveLink == nil then
         self:error(modID, "Unsupported system, sorry!")
         return
     end

@@ -1,11 +1,16 @@
 local ffi = require "ffi"
+local fs = require("src.engine.pack.fsutils")
+local path = fs.path
 
 local name = "zip"
 
 if ffi.os == "Windows" then
     name = name .. "-" .. ffi.arch
 elseif ffi.os == "Linux" then
-    name = "lib" .. name .. ".so"
+    -- To prevent name collisions, libzip.so is named differently
+    -- Otherwise, luajit (for some reason) decides to include my /usr/lib/libzip.so instead
+    -- I've spent two hours debugging this. send help
+    name = "libkuba" .. name .. ".so"
 end
 
 local search_paths = { "", (love.filesystem.getRealDirectory("lib/") or "") .. "/lib/" }
@@ -42,12 +47,12 @@ local Zip = {}
 local function addEntries(directory, to, zip)
 	local files = love.filesystem.getDirectoryItems(directory)
 	for _,v in ipairs(files) do
-		local file = directory.."/"..v
+		local file = path(directory, v)
         local saveFile
         if to == "" then
             saveFile = v
         else
-            saveFile = to.."/"..v
+            saveFile = path(to, v)
         end
         local info = love.filesystem.getInfo(file)
         if info then
@@ -67,9 +72,9 @@ local function addEntries(directory, to, zip)
 end
 
 function Zip:compressToArchive(directory, to, zipName)
-    local realToPath = love.filesystem.getRealDirectory(to).."/"..to
-    local saveTo = realToPath.."/"..zipName
-
+    local realToPath = path(love.filesystem.getRealDirectory(to), to)
+    local saveTo = path(realToPath, zipName)
+    
     local z = zlib.zip_open(saveTo, 6, string.byte('w'))
     addEntries(directory, "", z)
     zlib.zip_close(z)
