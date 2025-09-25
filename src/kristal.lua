@@ -1096,7 +1096,7 @@ end
 
 --- Clears all state expected to be changed by mods. \
 --- Called internally when exiting or reloading a mod.
-function Kristal.clearModState()
+function Kristal.clearModState(unload_assets)
     -- Clear disruptive active globals
     Object._clearCache()
     Draw._clearStacks()
@@ -1125,7 +1125,9 @@ function Kristal.clearModState()
     Kristal.setDesiredWindowTitleAndIcon()
 
     -- Restore assets and registry
-    Assets.restoreData()
+    if unload_assets ~= false then
+        Assets.restoreData()
+    end
     Registry.initialize()
 end
 
@@ -1161,7 +1163,7 @@ end
 ---| "temp" # Creates a temp-save and reloads the mod from there.
 ---| "save" # Reloads the mod from the last save.
 ---| "none" # Fully reloads the mod from the start of the game.
-function Kristal.quickReload(mode)
+function Kristal.quickReload(mode, reload_assets)
     -- Temporarily save game variables
     local save, save_id, encounter, shop
     if mode == "temp" then
@@ -1180,7 +1182,7 @@ function Kristal.quickReload(mode)
     Kristal.setState("Empty")
 
     -- Clear the mod
-    Kristal.clearModState()
+    Kristal.clearModState(reload_assets)
     -- Reload mods
     Kristal.loadAssets("", "mods", "", function ()
         Kristal.setDesiredWindowTitleAndIcon()
@@ -1204,7 +1206,7 @@ function Kristal.quickReload(mode)
                         Kristal.setState(Game)
                     end
                 end
-            end)
+            end, {load_assets = reload_assets})
         else
             Kristal.loadMod(mod_id, save_id)
         end
@@ -1254,12 +1256,14 @@ end
 ---@param save_name? string   The name to use for the save file.
 ---@param after?     function The function to call after assets have been loaded.
 ---@return boolean   success  Whether the mod was loaded successfully.
-function Kristal.loadMod(id, save_id, save_name, after)
+function Kristal.loadMod(id, save_id, save_name, after, options)
     -- Get the mod data (loaded from mod.json)
     local mod = Kristal.Mods.getAndLoadMod(id)
 
     -- No mod found; nothing to load
     if not mod then return false end
+
+    options = options or {}
 
     -- Create the Mod table, which is a global table that
     -- can contain a mod's custom variables and functions
@@ -1312,12 +1316,18 @@ function Kristal.loadMod(id, save_id, save_name, after)
         Mod.libs[lib_id] = lib
     end
 
-    Kristal.loadModAssets(mod.id, "all", "", after or function ()
+    after = after or function ()
         if Kristal.preInitMod(mod.id) then
             Kristal.setDesiredWindowTitleAndIcon()
             Kristal.setState("Game", save_id, save_name)
         end
-    end)
+    end
+
+    if options["load_assets"] ~= false then
+        Kristal.loadModAssets(mod.id, "all", "", after)
+    else
+        after()
+    end
 
     return true
 end
