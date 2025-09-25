@@ -1,6 +1,14 @@
 ---@diagnostic disable: lowercase-global
 local SYSTEM, INFO_OBJ, OPTS, OUT_CHAN = ...
 local zip = require("src.lib.zip")
+local fs = require("src.engine.pack.fsutils")
+local path = fs.path
+
+local MODID = INFO_OBJ.id
+local WD = path("pack", MODID)
+local ENGINEDIR = path(WD, "kristal")
+local LOVEDIR = path(WD, "love")
+local OUTDIR = path(WD, "out")
 
 local function status(msg)
     OUT_CHAN:push({t = "log", msg = msg})
@@ -20,9 +28,9 @@ local function recursiveCopy(folder, to, excludePattern)
 
 	local filesTable = love.filesystem.getDirectoryItems(folder)
 	for _,v in ipairs(filesTable) do
-		local file = folder.."/"..v
-        local saveFile = to.."/"..v
-        local realDir = love.filesystem.getRealDirectory(file).."/"..file
+		local file = path(folder, v)
+        local saveFile = path(to, v)
+        local realDir = path(love.filesystem.getRealDirectory(file), file)
         local exclude = false
         for _, pat in ipairs(excludePattern) do
             if realDir:find(pat) ~= nil then
@@ -51,7 +59,7 @@ end
 -- local function recursiveDel(folder)
 -- 	local filesTable = love.filesystem.getDirectoryItems(folder)
 -- 	for _,v in ipairs(filesTable) do
--- 		local file = folder.."/"..v
+-- 		local file = path(folder, v)
 --         local info = love.filesystem.getInfo(file)
 --         if info then
 --             if info.type == "file" then
@@ -73,10 +81,10 @@ local function extractZIP(file, saveIn)
     end
     local outerFolder = love.filesystem.getDirectoryItems("lovezip")
     outerFolder = outerFolder[1]
-    local filesFolder = love.filesystem.getDirectoryItems("lovezip/"..outerFolder)
+    local filesFolder = love.filesystem.getDirectoryItems(path("lovezip", outerFolder))
     for _, f in ipairs(filesFolder) do
-        local fullPath = "lovezip/"..outerFolder.."/"..f
-        love.filesystem.write(saveIn.."/"..f, tostring(love.filesystem.read(fullPath)))
+        local fullPath = path("lovezip", outerFolder, f)
+        love.filesystem.write(path(saveIn, f), tostring(love.filesystem.read(fullPath)))
     end
 	love.filesystem.unmount(file)
 end
@@ -87,51 +95,57 @@ local function fuseFiles(file1, file2, out)
     return love.filesystem.write(out, f1..f2)
 end
 
-local modID = INFO_OBJ.id
-local workingDirectory = "pack/"..modID
+local function createExe()
+    status("Creating exe...")
+    local realWD = love.filesystem.getRealDirectory(WD)
+    zip:compressToArchive(ENGINEDIR, WD, "archive.zip")
+
+    local realModPath = path(realWD, WD, "archive.zip")
+    os.rename(realModPath, realModPath:gsub("archive.zip", "archive.love"))
+
+    fuseFiles(
+        path(LOVEDIR, "love.exe"),
+        path(WD, "archive.love"),
+        path(OUTDIR, MODID..".exe")
+    )
+    recursiveCopy(LOVEDIR, OUTDIR, {".ico$", "readme.txt", "changes.txt", ".exe$"})
+
+    status("Packing up...")
+    zip:compressToArchive(OUTDIR, WD, MODID..".zip")
+end
+
 
 status("Extracting LOVE zip...")
-err = extractZIP(workingDirectory.."/love.zip", workingDirectory.."/love")
+err = extractZIP(path(WD, "love.zip"), LOVEDIR)
 if err ~= nil then
     error(err)
     return
 end
 
-local engineDir = workingDirectory.."/kristal"
 
 status("Copying engine files...")
-recursiveCopy("", engineDir, {"^"..love.filesystem.getSaveDirectory()})
+recursiveCopy("", ENGINEDIR, {"^"..love.filesystem.getSaveDirectory()})
 
 status("Copying mod...")
-love.filesystem.createDirectory(engineDir.."/mods/"..modID)
-recursiveCopy(INFO_OBJ.path, engineDir.."/mods/"..modID)
+love.filesystem.createDirectory(path(ENGINEDIR, "mods", MODID))
+recursiveCopy(INFO_OBJ.path, path(ENGINEDIR, "mods", MODID))
 
 status("Setting up engine...")
-local vend = love.filesystem.read(engineDir.."/src/engine/vendcust.lua")
-vend = vend:gsub("TARGET_MOD = nil", 'TARGET_MOD = "'..modID..'"')
+local vendPath = path(ENGINEDIR, "src", "engine", "vendcust.lua")
+local vend = love.filesystem.read(vendPath)
+vend = vend:gsub("TARGET_MOD = nil", 'TARGET_MOD = "'..MODID..'"')
 if OPTS.autoStart then
     vend = vend:gsub("AUTO_MOD_START = false", "AUTO_MOD_START = true")
 end
-love.filesystem.write(engineDir.."/src/engine/vendcust.lua", vend)
+love.filesystem.write(vendPath, vend)
 
-local conf = love.filesystem.read(engineDir.."/conf.lua")
-conf = conf:gsub('t.identity = "kristal"', 't.identity = "'..modID..'"')
+local confPath = path(ENGINEDIR, "conf.lua")
+local conf = love.filesystem.read(confPath)
+conf = conf:gsub('t.identity = "kristal"', 't.identity = "'..MODID..'"')
 conf = conf:gsub('t.window.title = "Kristal"', 't.window.title = "'..INFO_OBJ.name..'"')
-love.filesystem.write(engineDir.."/conf.lua", conf)
+love.filesystem.write(confPath, conf)
 
-status("Creating exe...")
-local realModPath = love.filesystem.getRealDirectory(workingDirectory).."/"..workingDirectory.."/archive.zip"
-zip:compressToArchive(engineDir, workingDirectory, "archive.zip")
-os.rename(realModPath, realModPath:gsub("archive.zip", "archive.love"))
-
-local outputDir = workingDirectory.."/out"
-love.filesystem.createDirectory(outputDir)
-
-fuseFiles(workingDirectory.."/love/love.exe", workingDirectory.."/archive.love", outputDir.."/"..modID..".exe")
-recursiveCopy(workingDirectory.."/love", outputDir, {".ico$", "readme.txt", "changes.txt", ".exe$"})
-
-status("Packing up...")
-zip:compressToArchive(workingDirectory.."/out", workingDirectory, modID..".zip")
+createExe()
 
 -- status("Cleaning up...")
 -- love.filesystem.remove(workingDirectory.."/love.zip")
@@ -143,5 +157,5 @@ zip:compressToArchive(workingDirectory.."/out", workingDirectory, modID..".zip")
 -- love.filesystem.remove(workingDirectory.."/kristal")
 -- love.filesystem.remove(workingDirectory.."/love")
 
-local realWorkingDir = love.filesystem.getRealDirectory(workingDirectory).."/"..workingDirectory
+local realWorkingDir = path(love.filesystem.getRealDirectory(WD), WD)
 OUT_CHAN:push({t = "success", open = realWorkingDir})

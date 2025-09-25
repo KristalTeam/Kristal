@@ -1,3 +1,6 @@
+local fs = require("src.engine.pack.fsutils")
+local path = fs.path
+
 local Pack = {}
 
 Pack.tasks = {}
@@ -54,23 +57,22 @@ function Pack:package(modID, opts)
     self.tasks[modID].info = modInfo
     self:log(modID, "Packaging " .. modID)
 
-    local workingDirectory = "pack/" .. modID
-    love.filesystem.createDirectory(workingDirectory)
+    local wd = path("pack", modID)
 
     self:log(modID, "Creating skeleton...")
-    local ok = love.filesystem.createDirectory(workingDirectory)
+    local ok = love.filesystem.createDirectory(wd)
     if not ok then
         self:error(modID, "Could not create mod directory")
         return
     end
 
-    ok = love.filesystem.createDirectory(workingDirectory .. "/love")
+    ok = love.filesystem.createDirectory(path(wd, "love"))
     if not ok then
         self:error(modID, "Could not create LOVE engine directory")
         return
     end
 
-    ok = love.filesystem.createDirectory(workingDirectory .. "/kristal")
+    ok = love.filesystem.createDirectory(path(wd, "kristal"))
     if not ok then
         self:error(modID, "Could not create Kristal engine directory")
         return
@@ -104,7 +106,7 @@ function Pack:package(modID, opts)
                 self:error(modID, "No body came")
                 return
             end
-            local ok, err = love.filesystem.write(workingDirectory .. "/love.zip", body)
+            local ok, err = love.filesystem.write(path(wd, "love.zip"), body)
             if not ok then
                 self:error(modID, "Could not open file, err: " .. err)
                 return
