@@ -10,13 +10,22 @@ local MAJOR, MINOR = love.getVersion()
 
 function Pack:error(modID, err)
     self.tasks[modID].status = "terminated"
-    self.tasks[modID].err = err
+    table.insert(self.tasks[modID].log, {
+        t = "error",
+        msg = err
+    })
 end
 
 function Pack:log(modID, msg)
-    table.insert(self.tasks[modID].log, msg)
+    table.insert(self.tasks[modID].log, {
+        t = "info",
+        msg = msg
+    })
 end
 
+--- Fetch the latest log from the stack
+--- @param modID string
+--- @return table|nil
 function Pack:readLog(modID)
     if #self.tasks[modID].log == 0 then
         return nil
@@ -36,7 +45,6 @@ function Pack:package(modID, opts)
     end
     self.tasks[modID] = {
         log = {},
-        err = nil,
         status = "prepare",
         info = nil,
         opts = opts or {
@@ -123,7 +131,7 @@ function Pack:update()
             local t = love.thread.newThread("src/engine/pack/fspack.lua")
             local outChan = love.thread.newChannel()
             t:start(love.system.getOS(), info.info, info.opts, outChan)
-            self.tasks[modID].status = "waitingEngine"
+            self:status(modID, "waitingEngine")
             self.tasks[modID].outChan = outChan
         elseif info.status == "waitingEngine" then
             local obj = info.outChan:pop()
@@ -139,7 +147,7 @@ function Pack:update()
                     else
                         love.system.openURL("file://"..obj.open)
                     end
-                    self.tasks[modID].status = "terminated"
+                    self:status(modID, "terminated")
                 end
             end
         end
@@ -149,7 +157,12 @@ end
 function Pack:flushAllLogsToConsole()
     for modID, info in pairs(self.tasks) do
         for _ = #info.log, 1, -1 do
-            Kristal.Console:log(self:readLog(modID))
+            local log = self:readLog(modID)
+            if log.t == "info" then
+                Kristal.Console:log(log.msg)
+            elseif log.t == "error" then
+                Kristal.Console:error(log.msg)
+            end
         end
     end
 end
