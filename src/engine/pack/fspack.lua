@@ -6,8 +6,6 @@ local path = fs.path
 
 local MODID = INFO_OBJ.id
 local paths = fs.modPaths(MODID)
-local LOVEDIR = path(paths.build, "love")
-love.filesystem.createDirectory(LOVEDIR)
 local ENGINEDIR = path(paths.build, "kristal")
 
 local function status(msg)
@@ -18,111 +16,36 @@ local function error(err)
     OUT_CHAN:push({ t = "err", err = err })
 end
 
-local function copy(from, to)
-    local contents = love.filesystem.read(from)
-    return love.filesystem.write(to, contents)
-end
-
-local function recursiveCopy(folder, to, excludePattern)
-    excludePattern = excludePattern or {}
-
-    local filesTable = love.filesystem.getDirectoryItems(folder)
-    for _, v in ipairs(filesTable) do
-        local file = path(folder, v)
-        local saveFile = path(to, v)
-        local realDir = path(love.filesystem.getRealDirectory(file), file)
-        local exclude = false
-        for _, pat in ipairs(excludePattern) do
-            if realDir:find(pat) ~= nil then
-                exclude = true
-            end
-        end
-        if exclude == false then
-            local info = love.filesystem.getInfo(file)
-            if info then
-                if info.type == "file" then
-                    print("Copying file " .. file .. " to " .. saveFile)
-                    local ok, err = copy(file, saveFile)
-                    if not ok then
-                        print("Error: " .. err)
-                    end
-                elseif info.type == "directory" then
-                    print("Traversing " .. file)
-                    love.filesystem.createDirectory(saveFile)
-                    recursiveCopy(file, saveFile, excludePattern)
-                end
-            end
-        end
-    end
-end
-
--- local function recursiveDel(folder)
--- 	local filesTable = love.filesystem.getDirectoryItems(folder)
--- 	for _,v in ipairs(filesTable) do
--- 		local file = path(folder, v)
---         local info = love.filesystem.getInfo(file)
---         if info then
---             if info.type == "file" then
---                 print("Removing "..file)
---                 love.filesystem.remove(file)
---             elseif info.type == "directory" then
---                 print("Traversing "..file)
---                 recursiveDel(file)
---                 love.filesystem.remove(file)
---             end
---         end
--- 	end
--- end
-
-local function extractZIP(file, saveIn)
-    local ok = love.filesystem.mount(file, "lovezip")
-    if not ok then
-        return "Could not mount the file"
-    end
-    local outerFolder = love.filesystem.getDirectoryItems("lovezip")
-    outerFolder = outerFolder[1]
-    local filesFolder = love.filesystem.getDirectoryItems(path("lovezip", outerFolder))
-    for _, f in ipairs(filesFolder) do
-        local fullPath = path("lovezip", outerFolder, f)
-        love.filesystem.write(path(saveIn, f), tostring(love.filesystem.read(fullPath)))
-    end
-    love.filesystem.unmount(file)
-end
-
-local function fuseFiles(file1, file2, out)
-    local f1 = love.filesystem.read(file1)
-    local f2 = love.filesystem.read(file2)
-    return love.filesystem.write(out, f1 .. f2)
-end
-
 local function createExe()
+    status("Extracting LOVE zip...")
+    err = fs.extractZIP(path(paths.build, "love.zip"), paths.build)
+    if err ~= nil then
+        error(err)
+        return
+    end
+
+    local loveDir = path(paths.build, "love-11.5-win64") -- hardcoded for now, will change when caching is implemented
+
     local outDir = path(paths.build, "win")
     love.filesystem.createDirectory(outDir)
 
-    fuseFiles(
-        path(LOVEDIR, "love.exe"),
+    fs.fuseFiles(
+        path(loveDir, "love.exe"),
         path(paths.build, "game.love"),
         path(outDir, MODID .. ".exe")
     )
-    recursiveCopy(LOVEDIR, outDir, { ".ico$", "readme.txt", "changes.txt", ".exe$" })
+    fs.recursiveCopy(loveDir, outDir, { ".ico$", "readme.txt", "changes.txt", ".exe$" })
 
     status("Packing up...")
     zip:compressToArchive(outDir, paths.dist, MODID .. "-win.zip")
 end
 
-status("Extracting LOVE zip...")
-err = extractZIP(path(paths.build, "love.zip"), LOVEDIR)
-if err ~= nil then
-    error(err)
-    return
-end
-
 status("Copying engine files...")
-recursiveCopy("", ENGINEDIR, { "^" .. love.filesystem.getSaveDirectory() })
+fs.recursiveCopy("", ENGINEDIR, { "^" .. love.filesystem.getSaveDirectory() })
 
 status("Copying mod...")
 love.filesystem.createDirectory(path(ENGINEDIR, "mods", MODID))
-recursiveCopy(INFO_OBJ.path, path(ENGINEDIR, "mods", MODID))
+fs.recursiveCopy(INFO_OBJ.path, path(ENGINEDIR, "mods", MODID))
 
 status("Setting up engine...")
 local vendPath = path(ENGINEDIR, "src", "engine", "vendcust.lua")
