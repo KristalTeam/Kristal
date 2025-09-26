@@ -412,9 +412,8 @@ end
 function BattleCutscene:battlerText(battlers, text, options)
     options = options or {}
     local _battlers = {} ---@type Battler[]
-    if type(_battlers) == "string" then
+    if type(battlers) == "string" then
         local id = battlers ---@type string
-        _battlers = {}
         for _,battler in ipairs(Game.battle.enemies) do
             if battler.id == id then
                 table.insert(_battlers, battler)
@@ -425,7 +424,7 @@ function BattleCutscene:battlerText(battlers, text, options)
                 table.insert(_battlers, battler)
             end
         end
-    elseif isClass(_battlers) then
+    elseif isClass(battlers) then
         _battlers = {battlers}
     end
     local wait = options["wait"] or options["wait"] == nil
