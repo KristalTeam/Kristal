@@ -84,33 +84,12 @@ function Pack:package(modID, opts)
     self.tasks[modID].info = modInfo
     self:log(modID, "Packaging " .. modID)
 
-    local wd = path("pack", modID)
+    local paths = fs.modPaths(modID)
 
     self:log(modID, "Creating skeleton...")
-    local ok = love.filesystem.createDirectory(wd)
-    if not ok then
-        self:error(modID, "Could not create mod directory")
-        return
-    end
-
-    ok = love.filesystem.createDirectory(path(wd, "love"))
-    if not ok then
-        self:error(modID, "Could not create LOVE engine directory")
-        return
-    end
-
-    ok = love.filesystem.createDirectory(path(wd, "kristal"))
-    if not ok then
-        self:error(modID, "Could not create Kristal engine directory")
-        return
-    end
-
-    ok = love.filesystem.createDirectory(path(wd, "out"))
-    if not ok then
-        self:error(modID, "Could not create output directory")
-        return
-    end
-
+    love.filesystem.createDirectory(paths.build)
+    love.filesystem.createDirectory(paths.cache)
+    love.filesystem.createDirectory(paths.dist)
 
     local major, minor = love.getVersion()
     local loveVersion = tostring(major) .. "." .. tostring(minor)
@@ -137,7 +116,7 @@ function Pack:package(modID, opts)
                 self:error(modID, "No body came")
                 return
             end
-            local ok, err = love.filesystem.write(path(wd, "love.zip"), body)
+            local ok, err = love.filesystem.write(path(paths.build, "love.zip"), body)
             if not ok then
                 self:error(modID, "Could not open file, err: " .. err)
                 return
