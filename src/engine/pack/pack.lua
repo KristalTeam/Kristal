@@ -4,6 +4,8 @@ local path = fs.path
 local Pack = {}
 
 Pack.tasks = {}
+Pack.logs = {}
+
 Pack.compileMatrix = {
     -- This determines which systems support which targets
     Windows = {"Windows"},
@@ -11,15 +13,17 @@ Pack.compileMatrix = {
 }
 
 function Pack:error(modID, err)
-    self.tasks[modID].status = "terminated"
-    table.insert(self.tasks[modID].log, {
+    table.insert(self.logs, {
+        issuer = modID,
         t = "error",
         msg = err
     })
+    self.tasks[modID] = nil
 end
 
 function Pack:log(modID, msg)
-    table.insert(self.tasks[modID].log, {
+    table.insert(self.logs, {
+        issuer = modID,
         t = "info",
         msg = msg
     })
@@ -41,12 +45,9 @@ end
 
 function Pack:package(modID, opts)
     if self.tasks[modID] ~= nil then
-        if self.tasks[modID].status ~= "terminated" then
-            return false
-        end
+        return false
     end
     self.tasks[modID] = {
-        log = {},
         status = "prepare",
         info = nil,
         opts = opts or {
@@ -169,7 +170,7 @@ function Pack:update()
                     else
                         love.system.openURL("file://"..obj.open)
                     end
-                    self:status(modID, "terminated")
+                    self.tasks[modID] = nil
                 end
             end
         end
@@ -177,14 +178,12 @@ function Pack:update()
 end
 
 function Pack:flushAllLogsToConsole()
-    for modID, info in pairs(self.tasks) do
-        for _ = #info.log, 1, -1 do
-            local log = self:readLog(modID)
-            if log.t == "info" then
-                Kristal.Console:log(log.msg)
-            elseif log.t == "error" then
-                Kristal.Console:error(log.msg)
-            end
+    while #self.logs > 0 do
+        local log = table.remove(self.logs, 1)
+        if log.t == "info" then
+            Kristal.Console:log("["..log.issuer.."] "..log.msg)
+        elseif log.t == "error" then
+            Kristal.Console:error("["..log.issuer.."] "..log.msg)
         end
     end
 end
