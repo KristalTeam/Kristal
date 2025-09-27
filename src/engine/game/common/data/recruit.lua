@@ -82,8 +82,8 @@ end
 
 ---@param data {id: string?, recruited: integer|boolean?, hidden: boolean?}
 function Recruit:load(data)
-    self.recruited = data.recruited or self.recruited
-    self.hidden = data.hidden or self.hidden
+    self.recruited = data.recruited
+    self.hidden = data.hidden
 
     self:onLoad(data)
 end
