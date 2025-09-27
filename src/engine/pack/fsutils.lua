@@ -46,7 +46,13 @@ function FSUtils.recursiveCopy(folder, to, excludePattern)
     local filesTable = love.filesystem.getDirectoryItems(folder)
     for _, v in ipairs(filesTable) do
         local file = FSUtils.path(folder, v)
+        if folder == "" then
+            file = v
+        end
         local saveFile = FSUtils.path(to, v)
+        if to == "" then
+            saveFile = v
+        end
         local realDir = FSUtils.path(love.filesystem.getRealDirectory(file), file)
         local exclude = false
         for _, pat in ipairs(excludePattern) do
@@ -83,6 +89,9 @@ function FSUtils.recursiveDel(folder)
     local filesTable = love.filesystem.getDirectoryItems(folder)
     for _, v in ipairs(filesTable) do
         local file = FSUtils.path(folder, v)
+        if folder == "" then
+            file = v
+        end
         local info = love.filesystem.getInfo(file)
         if info then
             if info.type == "file" then

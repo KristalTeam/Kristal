@@ -36,7 +36,14 @@ local function createExe()
 end
 
 status("Copying engine files...")
-fs.recursiveCopy("", ENGINEDIR, { "^" .. love.filesystem.getSaveDirectory() })
+local packIgnoreFile = love.filesystem.read(".packignore")
+local packIgnore = {}
+for s in string.gmatch(packIgnoreFile, "([^\n]+)") do
+    local source = love.filesystem.getSource()
+    table.insert(packIgnore, "^"..path(source, s))
+end
+table.insert(packIgnore, "^" .. love.filesystem.getSaveDirectory())
+fs.recursiveCopy("", ENGINEDIR, packIgnore)
 
 status("Copying mod...")
 love.filesystem.createDirectory(path(ENGINEDIR, "mods", MODID))
