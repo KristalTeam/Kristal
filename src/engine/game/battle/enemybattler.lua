@@ -62,6 +62,10 @@
 ---@field temporary_mercy           number              The current amount of temporary mercy
 ---@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
 ---
+---@field target_x                  number?
+---@field target_y                  number?
+---@field encounter                 Encounter?
+---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
@@ -148,7 +152,16 @@ function EnemyBattler:init(actor, use_overlay)
     self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
 end
 
---- Get the default graze tension for this enemy.
+--- *(Override)* Get what this enemy's HP should display in the enemy select menu.
+--- This should be a string.
+---
+--- By default, returns a percentage.
+---@return string
+function EnemyBattler:getHealthDisplay()
+    return math.ceil((self.health / self.max_health) * 100) .. "%"
+end
+
+--- *(Override)* Get the default graze tension for this enemy.
 --- Any bullets which don't specify graze tension will use this value.
 ---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
 function EnemyBattler:getGrazeTension()
@@ -370,6 +383,7 @@ function EnemyBattler:getSpareText(battler, success)
     if success then
         return "* " .. battler.chara:getName() .. " spared " .. self.name .. "!"
     else
+        ---@type string|string[]
         local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
         if self.tired then
             local found_spell = nil
@@ -656,7 +670,7 @@ end
 --- *Acts will **softlock** Kristal if a string value or table is not returned by this function when they are used*
 ---@param battler   PartyBattler
 ---@param name      string
----@return string[]|string text
+---@return string[]|string? text
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
@@ -679,7 +693,7 @@ end
 --- *(Override)* Called when a short ACT is used, functions identically to [`EnemyBattler:onAct()`](lua://EnemyBattler.onAct) but for short acts
 ---@param battler   PartyBattler
 ---@param name      string
----@return string[]|string text
+---@return string[]|string? text
 function EnemyBattler:onShortAct(battler, name) end
 
 --- *(Override)* Called at the start of every new turn in battle
@@ -689,7 +703,7 @@ function EnemyBattler:onTurnEnd() end
 
 --- Retrieves the data of an act on this enemy by its `name`
 ---@param name string
----@return table
+---@return table?
 function EnemyBattler:getAct(name)
     for _,act in ipairs(self.acts) do
         if act.name == name then
@@ -836,7 +850,7 @@ function EnemyBattler:onDodge(battler, attacked) end
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then
         self:onDefeatRun(damage, battler)
-    else
+    elseif self.sprite then
         self.sprite:setAnimation("defeat")
     end
 end
@@ -1018,21 +1032,13 @@ function EnemyBattler:setActor(actor, use_overlay)
     end
 end
 
---- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`Sprite:play()`](lua://Sprite.play)
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param speed?    number
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function EnemyBattler:setSprite(sprite, speed, loop, after)
-    if not self.sprite then
-        self.sprite = Sprite(sprite)
-        self:addChild(self.sprite)
-    else
-        self.sprite:setSprite(sprite)
-    end
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
+    super.setSprite(self, sprite, speed, loop, after)
 end
 
 function EnemyBattler:update()

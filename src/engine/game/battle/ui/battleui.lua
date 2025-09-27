@@ -406,6 +406,7 @@ function BattleUI:drawState()
             local y_off = (index - page_offset - 1) * 30
 
             if enemy then
+                ---@cast enemy EnemyBattler
                 local name_colors = enemy:getNameColors()
                 if type(name_colors) ~= "table" then
                     name_colors = {name_colors}
@@ -507,7 +508,7 @@ function BattleUI:drawState()
 
                         if draw_percents then
                             Draw.setColor(PALETTE["action_health_text"])
-                            love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
+                            love.graphics.print(enemy:getHealthDisplay(), hp_x + 4, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end

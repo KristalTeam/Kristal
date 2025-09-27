@@ -21,12 +21,14 @@
 ---@field flags table<string, any>
 ---@field spawn_marker string
 ---@field spawn_position {x: number, y: number}
+---@field spawn_facing string
 ---@field party string[]
 ---@field inventory {storage_enabled: boolean, storages: table}
 ---@field dark_inventory {storage_enabled: boolean, storages: table}
 ---@field light_inventory {storage_enabled: boolean, storages: table}
 ---@field party_data PartyMemberSaveData[]
 ---@field recruits_data RecruitSaveData[]
+---@field default_equip_slots number?
 
 --- Item data in the format it is saved to file
 ---

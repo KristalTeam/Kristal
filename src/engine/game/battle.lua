@@ -44,12 +44,12 @@
 ---@field mask                      ArenaMask                       Objects parented to this will be masked to the arena
 ---@field timer                     Timer
 ---
----@field attackers                 EnemyBattler[]
+---@field attackers                 PartyBattler[]
 ---@field normal_attackers          PartyBattler[]
 ---@field auto_attackers            PartyBattler[]
 ---
 ---@field enemies                   EnemyBattler[]
----@field enemies_index             EnemyBattler[]
+---@field enemies_index             EnemyBattler|`false`[]
 ---@field enemy_dialogue            SpeechBubble[]
 ---@field enemies_to_remove         EnemyBattler[]
 ---@field defeated_enemies          EnemyBattler[]
@@ -381,6 +381,22 @@ function Battle:getState()
     return self.state
 end
 
+---@private
+---@returns EnemyBattler?
+function Battle:_getEnemyByIndex(index)
+    local enemy = self.enemies_index[index]
+    if not enemy then return nil end
+    ---@cast enemy EnemyBattler
+    return enemy
+end
+
+---@private
+function Battle:_isEnemyByIndexSelectable(index)
+    local enemy = self:_getEnemyByIndex(index)
+    if not enemy then return false end
+    return enemy.selectable
+end
+
 ---@param old string
 ---@param new string
 function Battle:onStateChange(old,new)
@@ -439,8 +455,8 @@ function Battle:onStateChange(old,new)
         self.battle_ui:clearEncounterText()
         self.current_menu_y = 1
         self.selected_enemy = 1
-        
-        if not (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable) and #self.enemies_index > 0 then
+
+        if #self.enemies_index > 0 and not self:_isEnemyByIndexSelectable(self.current_menu_y) then
             local give_up = 0
             repeat
                 give_up = give_up + 1
@@ -450,7 +466,7 @@ function Battle:onStateChange(old,new)
                 if self.current_menu_y > #self.enemies_index then
                     self.current_menu_y = 1
                 end
-            until (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable)
+            until self:_isEnemyByIndexSelectable(self.current_menu_y)
         end
     elseif new == "PARTYSELECT" then
         self.battle_ui:clearEncounterText()
@@ -1477,7 +1493,7 @@ end
 --- Turns a party member's turn from an ACT into a SPELL cast \
 --- *Should be called from inside [`EnemyBattler:onAct()`](lua://EnemyBattler.onAct)*
 ---@param spell     string|Spell        The name of the spell that should be casted by `user`
----@param battler   string              The id of the battler that initiates the ACT
+---@param battler   Battler             The battler that initiates the ACT
 ---@param user      string              The id of the battler that should cast the spell
 ---@param target?   Battler[]|Battler   An optional list of battlers that 
 function Battle:powerAct(spell, battler, user, target)
@@ -1826,10 +1842,10 @@ function Battle:hasAction(character_id)
     return self.character_actions[character_id] ~= nil
 end
 
---- Returns whether `collider` collides with the arena
+--- Returns whether `collider` collides with a Solid or the arena
 ---@param collider Collider
----@return boolean  collided
----@return Arena?   colliding_arena
+---@return boolean          collided
+---@return Arena|Solid?     colliding_with
 function Battle:checkSolidCollision(collider)
     if NOCLIP then return false end
     Object.startCache()
@@ -2040,7 +2056,7 @@ function Battle:hurt(amount, exact, target, swoon)
 end
 
 --- Sets the waves table to what is specified by `waves`
----@param waves table<string|Wave>
+---@param waves table<string|Wave>|string|Wave
 ---@param allow_duplicates? boolean If true, duplicate waves will coexist with each other
 ---@return Wave[]
 function Battle:setWaves(waves, allow_duplicates)
@@ -2280,6 +2296,7 @@ function Battle:returnToWorld()
             self.party_world_characters[battler.chara.id].visible = true
         end
     end
+    ---@type EnemyBattler[]
     local all_enemies = {}
     Utils.merge(all_enemies, self.defeated_enemies)
     Utils.merge(all_enemies, self.enemies)
@@ -2404,6 +2421,7 @@ end
 --- Starts a cutscene in battle \
 --- *When setting a cutscene during the `ACTIONS` state, see [`Battle:startActCutscene()](lua://Battle.startActCutscene) instead*
 ---@overload fun(self: Battle, id: string, ...)
+---@overload fun(self: World, func: BattleCutsceneFunc, ...)
 ---@param group string  The name of the group the cutscene is a part of
 ---@param id    string  The id of the cutscene 
 ---@param ...   any     Additional arguments that will be passed to the cutscene function
@@ -3144,17 +3162,17 @@ function Battle:onKeyPressed(key)
             self.ui_select:play()
             if #self.enemies_index == 0 then return end
             self.selected_enemy = self.current_menu_y
+            local enemy = self:_getEnemyByIndex(self.selected_enemy)
             if self.state_reason == "XACT" then
                 local xaction = Utils.copy(self.selected_xaction)
                 if xaction.default then
-                    xaction.name = self.enemies_index[self.selected_enemy]:getXAction(self.party[self.current_selecting])
+                    xaction.name = enemy:getXAction(self.party[self.current_selecting])
                 end
-                self:pushAction("XACT", self.enemies_index[self.selected_enemy], xaction)
+                self:pushAction("XACT", enemy, xaction)
             elseif self.state_reason == "SPARE" then
-                self:pushAction("SPARE", self.enemies_index[self.selected_enemy])
+                self:pushAction("SPARE", enemy)
             elseif self.state_reason == "ACT" then
                 self:clearMenuItems()
-                local enemy = self.enemies_index[self.selected_enemy]
                 for _,v in ipairs(enemy.acts) do
                     local insert = not v.hidden
                     if v.character and self.party[self.current_selecting].chara.id ~= v.character then
@@ -3185,11 +3203,11 @@ function Battle:onKeyPressed(key)
                 end
                 self:setState("MENUSELECT", "ACT")
             elseif self.state_reason == "ATTACK" then
-                self:pushAction("ATTACK", self.enemies_index[self.selected_enemy])
+                self:pushAction("ATTACK", enemy)
             elseif self.state_reason == "SPELL" then
-                self:pushAction("SPELL", self.enemies_index[self.selected_enemy], self.selected_spell)
+                self:pushAction("SPELL", enemy, self.selected_spell)
             elseif self.state_reason == "ITEM" then
-                self:pushAction("ITEM", self.enemies_index[self.selected_enemy], self.selected_item)
+                self:pushAction("ITEM", enemy, self.selected_item)
             else
                 self:nextParty()
             end
@@ -3221,7 +3239,7 @@ function Battle:onKeyPressed(key)
                 if self.current_menu_y < 1 then
                     self.current_menu_y = #self.enemies_index
                 end
-            until (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable)
+            until self:_isEnemyByIndexSelectable(self.current_menu_y)
 
             if self.current_menu_y ~= old_location then
                 self.ui_move:stop()
@@ -3239,7 +3257,7 @@ function Battle:onKeyPressed(key)
                 if self.current_menu_y > #self.enemies_index then
                     self.current_menu_y = 1
                 end
-            until (self.enemies_index[self.current_menu_y] and self.enemies_index[self.current_menu_y].selectable)
+            until self:_isEnemyByIndexSelectable(self.current_menu_y)
 
             if self.current_menu_y ~= old_location then
                 self.ui_move:stop()

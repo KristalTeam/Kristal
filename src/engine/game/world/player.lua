@@ -1,5 +1,5 @@
 --- The character controlled by the player when in the Overworld.
----@class Player : Character
+---@class Player : Character, StateManagedClass
 ---@overload fun(chara: string|Actor, x?: number, y?: number) : Player
 local Player, super = Class(Character)
 
@@ -72,6 +72,7 @@ function Player:getDebugOptions(context)
     return context
 end
 
+---@param parent World
 function Player:onAdd(parent)
     super.onAdd(self, parent)
 
@@ -80,6 +81,7 @@ function Player:onAdd(parent)
     end
 end
 
+---@param parent World
 function Player:onRemove(parent)
     super.onRemove(self, parent)
 
