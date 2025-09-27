@@ -58,10 +58,16 @@ function FSUtils.recursiveCopy(folder, to, excludePattern)
             local info = love.filesystem.getInfo(file)
             if info then
                 if info.type == "file" then
-                    print("Copying file " .. file .. " to " .. saveFile)
-                    local ok, err = FSUtils.copy(file, saveFile)
-                    if not ok then
-                        print("Error: " .. err)
+                    local saveFileContents = love.filesystem.read(saveFile)
+                    local currentContents = love.filesystem.read(file)
+                    if saveFileContents ~= currentContents then
+                        print("Copying file " .. file .. " to " .. saveFile)
+                        local ok, err = FSUtils.copy(file, saveFile)
+                        if not ok then
+                            print("Error: " .. err)
+                        end
+                    else
+                        print("Skipping file " .. file .. " , as it's the same")
                     end
                 elseif info.type == "directory" then
                     print("Traversing " .. file)
