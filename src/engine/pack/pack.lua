@@ -1,5 +1,7 @@
 local fs = require("src.engine.pack.fsutils")
 local path = fs.path
+local major, minor = love.getVersion()
+local LOVE_VERSION = tostring(major) .. "." .. tostring(minor)
 
 local Pack = {}
 
@@ -8,8 +10,8 @@ Pack.logs = {}
 
 Pack.compileMatrix = {
     -- This determines which systems support which targets
-    Windows = {"Windows"},
-    Linux = {"Windows"}
+    Windows = { "Windows" },
+    Linux = { "Windows" }
 }
 
 function Pack:error(modID, err)
@@ -68,7 +70,7 @@ function Pack:package(modID, opts)
             end
         end
         if availableTarget == false then
-            self:error(modID, system.." -> "..target.." is not supported yet. Sorry!")
+            self:error(modID, system .. " -> " .. target .. " is not supported yet. Sorry!")
             return
         end
     else
@@ -91,39 +93,47 @@ function Pack:package(modID, opts)
     love.filesystem.createDirectory(paths.cache)
     love.filesystem.createDirectory(paths.dist)
 
-    local major, minor = love.getVersion()
-    local loveVersion = tostring(major) .. "." .. tostring(minor)
-    local loveLink
-    if target == "Windows" then
-        loveLink = "https://github.com/love2d/love/releases/download/" ..
-        loveVersion .. "/love-" .. loveVersion .. "-win64.zip"
-    else
-        self:error(modID, "Unsupported system, sorry!")
-        return
-    end
-    self:log(modID, "Fetching LOVE engine...")
-    Kristal.fetch(loveLink, {
-        headers = {
-            ["Accept"] = "application/zip"
-        },
-        callback = function (s, body, headers)
-            if s < 200 or s > 299 then
-                self:error(modID, "Could not download LOVE, status: " .. tostring(s))
-                return
-            end
-
-            if body == nil then
-                self:error(modID, "No body came")
-                return
-            end
-            local ok, err = love.filesystem.write(path(paths.build, "love.zip"), body)
-            if not ok then
-                self:error(modID, "Could not open file, err: " .. err)
-                return
-            end
-            self:status(modID, "fetchDone")
+    local archiveNames = fs.archiveNames(LOVE_VERSION)
+    local loveLocation = path(paths.cache, LOVE_VERSION)
+    love.filesystem.createDirectory(loveLocation)
+    if love.filesystem.getInfo(path(loveLocation, archiveNames[target].name)) == nil then
+        local loveLink
+        if target == "Windows" then
+            loveLink = "https://github.com/love2d/love/releases/download/" ..
+            LOVE_VERSION .. "/" .. archiveNames[target].name .. archiveNames[target].ext
+        else
+            self:error(modID, "Unsupported system, sorry!")
+            return
         end
-    })
+        self:log(modID, "Fetching LOVE engine...")
+        Kristal.fetch(loveLink, {
+            callback = function (s, body, headers)
+                if s < 200 or s > 299 then
+                    self:error(modID, "Could not download LOVE, status: " .. tostring(s))
+                    return
+                end
+
+                if body == nil then
+                    self:error(modID, "No body came")
+                    return
+                end
+                local zipLocation = path(loveLocation, "love.zip")
+                local ok, err = love.filesystem.write(zipLocation, body)
+                if not ok then
+                    self:error(modID, "Could not open file, err: " .. err)
+                    return
+                end
+                fs.extractZIP(zipLocation, loveLocation) -- This blocks the main thread, but it's fast, so it's fine
+                love.filesystem.remove(zipLocation)
+
+                self:status(modID, "fetchDone")
+            end
+        })
+    else
+        self:log(modID, "Love engine cached.")
+        self:status(modID, "fetchDone")
+    end
+
     return true
 end
 
@@ -132,7 +142,7 @@ function Pack:update()
         if info.status == "fetchDone" then
             local t = love.thread.newThread("src/engine/pack/fspack.lua")
             local outChan = love.thread.newChannel()
-            t:start(love.system.getOS(), info.info, info.opts, outChan)
+            t:start(LOVE_VERSION, info.info, info.opts, outChan)
             self:status(modID, "waitingEngine")
             self.tasks[modID].outChan = outChan
         elseif info.status == "waitingEngine" then
@@ -145,9 +155,9 @@ function Pack:update()
                 elseif obj.t == "success" then
                     self:log(modID, "Success!")
                     if (love.system.getOS() == "Windows") then
-                        os.execute('start /B \"\" \"'..obj.open.."\"")
+                        os.execute('start /B \"\" \"' .. obj.open .. "\"")
                     else
-                        love.system.openURL("file://"..obj.open)
+                        love.system.openURL("file://" .. obj.open)
                     end
                     self.tasks[modID] = nil
                 end
@@ -160,9 +170,9 @@ function Pack:flushAllLogsToConsole()
     while #self.logs > 0 do
         local log = table.remove(self.logs, 1)
         if log.t == "info" then
-            Kristal.Console:log("["..log.issuer.."] "..log.msg)
+            Kristal.Console:log("[" .. log.issuer .. "] " .. log.msg)
         elseif log.t == "error" then
-            Kristal.Console:error("["..log.issuer.."] "..log.msg)
+            Kristal.Console:error("[" .. log.issuer .. "] " .. log.msg)
         end
     end
 end

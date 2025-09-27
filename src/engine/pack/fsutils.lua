@@ -26,6 +26,15 @@ function FSUtils.modPaths(modID)
     }
 end
 
+function FSUtils.archiveNames(loveVersion)
+    return {
+        Windows = {
+            name = "love-" .. loveVersion .. "-win64",
+            ext = ".zip"
+        }
+    }
+end
+
 function FSUtils.copy(from, to)
     local contents = love.filesystem.read(from)
     return love.filesystem.write(to, contents)
@@ -84,7 +93,7 @@ end
 
 local function recursivelyExtract(folder, saveDir)
     local filesTable = love.filesystem.getDirectoryItems(folder)
-    if saveDir ~= "" and not love.filesystem.isDirectory(saveDir) then
+    if saveDir ~= "" and love.filesystem.getInfo(saveDir) == nil then
         love.filesystem.createDirectory(saveDir)
     end
 
@@ -95,7 +104,7 @@ local function recursivelyExtract(folder, saveDir)
             saveFile = f
         end
 
-        if love.filesystem.isDirectory(file) then
+        if love.filesystem.getInfo(file).type == "directory" then
             print("Traversing " .. file)
             love.filesystem.createDirectory(saveFile)
             recursivelyExtract(file, saveFile)
@@ -108,7 +117,7 @@ end
 
 function FSUtils.extractZIP(file, dir)
     dir = dir or ""
-    local temp = tostring(math.random(1, 2000))
+    local temp = "tmp-" .. tostring(math.random(1, 2000))
     local success = love.filesystem.mount(file, temp)
     if success then
         recursivelyExtract(temp, dir)
