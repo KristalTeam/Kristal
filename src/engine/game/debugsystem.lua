@@ -1818,11 +1818,13 @@ function DebugSystem:draw()
             end
             local info = object:getDebugInfo()
 
-            local small = #info >= 7
+            local small = #info > 7
 
             for i, line in ipairs(info) do
-                self:printShadow(line, x_offset, (32 * inc) + ((i - 1) * (small and 16 or 32)) + 10, { 1, 1, 1, self.selected_alpha },
-                                 self.current_text_align, limit, small and 0.5 or 1)
+                self:printShadow(
+                    line, x_offset, (32 * inc) + ((i - 1) * (small and 16 or 32)) + 10, { 1, 1, 1, self.selected_alpha },
+                    self.current_text_align, limit * (small and 2 or 1), small and 0.5 or 1
+                )
             end
         end
 
