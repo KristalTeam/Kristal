@@ -65,10 +65,14 @@ end
 
 function Player:getDebugOptions(context)
     context = super.getDebugOptions(self, context)
-    context:addMenuItem("Toggle force run", "Toggle if the player is forced to run or not",
-        function () self.force_run = not self.force_run end)
-    context:addMenuItem("Toggle force walk", "Toggle if the player is forced to walk or not",
-        function () self.force_walk = not self.force_walk end)
+    context:addMenuItem(
+        "Toggle force run", "Toggle if the player is forced to run or not",
+        function () self.force_run = not self.force_run end
+    )
+    context:addMenuItem(
+        "Toggle force walk", "Toggle if the player is forced to walk or not",
+        function () self.force_walk = not self.force_walk end
+    )
     return context
 end
 

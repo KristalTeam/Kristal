@@ -1092,24 +1092,27 @@ end
 function Object:getDebugOptions(context)
     context:addMenuItem("Delete", "Delete this object", function()
         self:remove()
-        if Kristal.DebugSystem then
+        if Kristal.DebugSystem ~= nil then
             Kristal.DebugSystem:unselectObject()
         end
     end)
-    context:addMenuItem("Clone", "Clone this object", function()
-        local clone = self:clone() ---@type Object
-        clone:removeFX("debug_flash")
-        self.parent:addChild(clone)
-        clone:setScreenPos(Input.getMousePosition())
-        Kristal.DebugSystem:selectObject(clone)
-    end)
+
+    if self.parent ~= nil then
+        context:addMenuItem("Clone", "Clone this object", function()
+            local clone = self:clone() ---@type Object
+            clone:removeFX("debug_flash")
+            self.parent:addChild(clone)
+            clone:setScreenPos(Input.getMousePosition())
+            Kristal.DebugSystem:selectObject(clone)
+        end)
+    end
     context:addMenuItem("Copy", "Copy this object to paste it later", function()
         Kristal.DebugSystem:copyObject(self)
     end)
     context:addMenuItem("Cut", "Cut this object to paste it later", function()
         Kristal.DebugSystem:cutObject(self)
     end)
-    if Kristal.DebugSystem and Kristal.DebugSystem.copied_object then
+    if Kristal.DebugSystem ~= nil and Kristal.DebugSystem.copied_object ~= nil then
         context:addMenuItem("Paste Into", "Paste the copied object into this one", function()
             Kristal.DebugSystem:pasteObject(self)
         end)
