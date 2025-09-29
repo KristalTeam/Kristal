@@ -415,25 +415,42 @@ function ActorSprite:update()
     end
 
     if not self.playing then
-        local should_do_walk_animation = false
-        if ((self.directional or self.walk_override) and self.walking) then
-            should_do_walk_animation = true
-        elseif (self.directional or self.walk_override) and self.frames and not self.walking then
-            should_do_walk_animation = self.frame % 2 == 0
-        end
+        if self.directional or self.walk_override then
+            local should_do_walk_animation = false
 
-        if should_do_walk_animation then
-            local old_frame = math.floor(self.walk_frame)
-            self.walk_frame = self.walk_frame + (DT * (self.walk_speed > 0 and self.walk_speed or 1))
-            local floored_frame = math.floor(self.walk_frame)
-
-            self:setFrame(floored_frame)
-
-            if (old_frame ~= floored_frame) and (self.on_footstep ~= nil) and (self.frame % 2 == 0) then
-                self.on_footstep(self, math.floor(floored_frame / 2))
+            if self.walking then
+                -- If we're holding a movement key, or this actor is walking 
+                -- for any reason, we want to do the walk animation.
+                should_do_walk_animation = true
+            elseif self.frames then
+                -- If we're NOT walking, BUT we're "stepping", continue the
+                -- animation until we're done stepping.
+                should_do_walk_animation = self.frame % 2 == 0
             end
-        else
-            self:setFrame(1)
+
+            if should_do_walk_animation then
+                -- If we should process the walking animation, do so.
+
+                -- Old frame for reference
+                local old_frame = math.floor(self.walk_frame)
+
+                -- Increase our walking frame
+                self.walk_frame = self.walk_frame + (DT * (self.walk_speed > 0 and self.walk_speed or 1))
+
+                -- Our current frame we should actually render using
+                local floored_frame = math.floor(self.walk_frame)
+
+                -- Set the frame to that
+                self:setFrame(floored_frame)
+
+                -- If we've changed frames into a "step" frame, call the footstep callback
+                if (old_frame ~= floored_frame) and (self.on_footstep ~= nil) and (self.frame % 2 == 0) then
+                    self.on_footstep(self, math.floor(floored_frame / 2))
+                end
+            elseif self.frames then
+                -- We should NOT do the walking animation right now, despite having a walking sprite, so reset.
+                self:setFrame(1)
+            end
         end
 
         self:updateDirection()

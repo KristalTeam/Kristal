@@ -455,7 +455,7 @@ end
 function Sprite:onClone(src)
     super.onClone(self, src)
 
-    self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
+    self.anim_wait_func = function(s) self.anim_waiting = self.anim_waiting + (s or 0); coroutine.yield() end
     if self.anim_routine and coroutine.status(self.anim_routine) ~= "dead" then
         self.anim_routine = coroutine.create(self.anim_routine_func)
         coroutine.resume(self.anim_routine, self, self.anim_wait_func)
@@ -467,7 +467,7 @@ function Sprite:update()
         self:stop(true)
     end
     if self.crossfade_speed ~= 0 and self.crossfade_alpha ~= 1 then
-        self.crossfade_alpha = Utils.approach(self.crossfade_alpha, 1, self.crossfade_speed*DTMULT)
+        self.crossfade_alpha = Utils.approach(self.crossfade_alpha, 1, self.crossfade_speed * DTMULT)
         if self.crossfade_alpha == 1 and self.crossfade_after then
             self.crossfade_after(self)
         end
