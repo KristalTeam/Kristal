@@ -203,10 +203,10 @@ function ActionButton:hasSpecial()
 end
 
 function ActionButton:draw()
-    if self.selectable and self.hovered then
-        Draw.draw(self.hovered_texture or self.texture)
-    elseif not self.usable then
+    if not self.usable then
         Draw.draw(self.unusable_texture or self.texture)
+    elseif self.selectable and self.hovered then
+        Draw.draw(self.hovered_texture or self.texture)
     else
         Draw.draw(self.texture)
         if self.selectable and self.special_texture and self:hasSpecial() then
