@@ -61,7 +61,7 @@ function Sprite:init(texture, x, y, width, height, path)
     self.anim_duration = -1
     self.anim_callback = nil
     self.anim_waiting = 0
-    self.anim_wait_func = function(s) self.anim_waiting = s or 0; coroutine.yield() end
+    self.anim_wait_func = function(s) self.anim_waiting = self.anim_waiting + (s or 0); coroutine.yield() end
 
     self:resetCrossFade()
 end
@@ -474,9 +474,9 @@ function Sprite:update()
     end
     if self.playing then
         if self.anim_waiting > 0 then
-            self.anim_waiting = Utils.approach(self.anim_waiting, 0, DT * self.anim_speed)
+            self.anim_waiting = self.anim_waiting - (DT * self.anim_speed)
         end
-        if self.anim_waiting == 0 and coroutine.status(self.anim_routine) == "suspended" then
+        if self.anim_waiting <= 0 and coroutine.status(self.anim_routine) == "suspended" then
             coroutine.resume(self.anim_routine, self, self.anim_wait_func)
         end
         if coroutine.status(self.anim_routine) == "dead" then
