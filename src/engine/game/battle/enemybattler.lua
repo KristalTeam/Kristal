@@ -161,6 +161,15 @@ function EnemyBattler:getHealthDisplay()
     return math.ceil((self.health / self.max_health) * 100) .. "%"
 end
 
+--- *(Override)* Get what this enemy's MERCY should display in the enemy select menu.
+--- This should be a string.
+---
+--- By default, returns a percentage.
+---@return string
+function EnemyBattler:getMercyDisplay()
+    return math.ceil(enemy.mercy) .. "%"
+end
+
 --- *(Override)* Get the default graze tension for this enemy.
 --- Any bullets which don't specify graze tension will use this value.
 ---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
