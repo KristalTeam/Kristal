@@ -167,7 +167,7 @@ end
 --- By default, returns a percentage.
 ---@return string
 function EnemyBattler:getMercyDisplay()
-    return math.ceil(enemy.mercy) .. "%"
+    return math.ceil(self.mercy) .. "%"
 end
 
 --- *(Override)* Get the default graze tension for this enemy.
