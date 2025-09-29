@@ -57,6 +57,7 @@
 ---
 ---@field background                string      The filepath of the background texture for this shop, relative to `assets/sprites`
 ---@field background_sprite         Sprite      The Sprite instance used to control the background. Not defined in `Shop:init()`.
+---@field background_speed          number      The animation speed of the background texture.
 ---
 ---@field shop_music                string      The filepath of the song to play in this shop, relative to `assets/music`
 ---@field music                     Music       The `Music` instance used to control the shop's music
@@ -170,7 +171,8 @@ function Shop:init()
         }
     end
 
-    self.background = "ui/shop/bg_seam"
+    self.background = nil
+    self.background_speed = 5/30
 
     self.state = "NONE"
     self.state_reason = nil
@@ -250,6 +252,7 @@ function Shop:postInit()
         self.background_sprite = Sprite(self.background, 0, 0)
         self.background_sprite:setScale(2, 2)
         self.background_sprite.layer = SHOP_LAYERS["background"]
+        self.background_sprite:play(self.background_speed, true)
         self:addChild(self.background_sprite)
     end
 
