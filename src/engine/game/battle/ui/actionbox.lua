@@ -71,7 +71,7 @@ function ActionBox:createButtons()
         if type(btn) == "string" then
             local button = ActionButton(btn, self.battler, math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
             button.actbox = self
-            if button.selectable then
+            if button.usable then
                 table.insert(self.buttons, button)
             end
             self:addChild(button)
@@ -79,7 +79,7 @@ function ActionBox:createButtons()
             btn:setPosition(math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
             btn.battler = self.battler
             btn.actbox = self
-            if btn.selectable then
+            if btn.usable then
                 table.insert(self.buttons, btn)
             end
             self:addChild(btn)
