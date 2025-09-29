@@ -817,17 +817,34 @@ function DebugSystem:registerDefaults()
                         function ()
                             Hotswapper.scan(); self:refresh()
                         end)
-    self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function ()
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
+
+    if Mod then
+        local hard_reset = Kristal.getModOption("hardReset")
+        if hard_reset then
+            self:registerOption("main", "Reload", "Reload the mod.", function ()
+                love.event.quit("restart")
+            end)
         else
-            if Mod then
-                Kristal.quickReload(Input.shift() and "save" or "temp")
-            else
-                Kristal.returnToMenu()
+            self:registerOption("main", "Reload (tempsave)", "Reload the mod, creating a temporary save.", function ()
+                if Kristal.getModOption("hardReset") then
+                    love.event.quit("restart")
+                elseif Mod then
+                    Kristal.quickReload("temp")
+                end
+            end)
+
+            if not hard_reset then
+                self:registerOption("main", "Reload (from save)", "Reload the mod from your current save.", function ()
+                    Kristal.quickReload("save")
+                end)
             end
         end
-    end)
+    else
+        -- we're not in a mod, so just return to main menu (which should reload assets)
+        self:registerOption("main", "Reload", "Reload the engine.", function ()
+            Kristal.returnToMenu()
+        end)
+    end
 
     self:registerOption("main", "Noclip",
                         function () return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
