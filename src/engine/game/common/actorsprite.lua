@@ -367,7 +367,7 @@ end
 
 ---@return [number, number]
 function ActorSprite:getOffset()
-    local offset = {0, 0}
+    local offset = { 0, 0 }
     if self.force_offset then
         offset = self.force_offset
     else
