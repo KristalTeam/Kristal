@@ -533,7 +533,7 @@ function BattleUI:drawState()
 
                         if draw_percents and enemy.selectable then
                             Draw.setColor(PALETTE["battle_mercy_text"])
-                            love.graphics.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                            love.graphics.print(enemy:getMercyDisplay(), 524, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end
