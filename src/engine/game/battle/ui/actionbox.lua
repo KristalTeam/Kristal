@@ -71,17 +71,13 @@ function ActionBox:createButtons()
         if type(btn) == "string" then
             local button = ActionButton(btn, self.battler, math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
             button.actbox = self
-            if button.usable then
-                table.insert(self.buttons, button)
-            end
+            table.insert(self.buttons, button)
             self:addChild(button)
         elseif type(btn) ~= "boolean" then -- nothing if a boolean value, used to create an empty space
             btn:setPosition(math.floor(start_x + ((i - 1) * 35)) + 0.5, 21)
             btn.battler = self.battler
             btn.actbox = self
-            if btn.usable then
-                table.insert(self.buttons, btn)
-            end
+            table.insert(self.buttons, btn)
             self:addChild(btn)
         end
     end

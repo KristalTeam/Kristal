@@ -11,7 +11,6 @@ function ActionButton:init(type, battler, x, y)
     self.texture = Assets.getTexture("ui/battle/btn/"..type)
     self.hovered_texture = Assets.getTexture("ui/battle/btn/"..type.."_h")
     self.special_texture = Assets.getTexture("ui/battle/btn/"..type.."_a")
-    self.unusable_texture = Assets.getTexture("ui/battle/btn/"..type.."_u")
 
     self.width = self.texture:getWidth()
     self.height = self.texture:getHeight()
@@ -20,7 +19,6 @@ function ActionButton:init(type, battler, x, y)
 
     self.hovered = false
     self.selectable = true
-    self.usable = true
 end
 
 function ActionButton:select()
@@ -203,9 +201,7 @@ function ActionButton:hasSpecial()
 end
 
 function ActionButton:draw()
-    if not self.usable then
-        Draw.draw(self.unusable_texture or self.texture)
-    elseif self.selectable and self.hovered then
+    if self.selectable and self.hovered then
         Draw.draw(self.hovered_texture or self.texture)
     else
         Draw.draw(self.texture)
