@@ -3341,6 +3341,8 @@ function Battle:handleActionSelectInput(key)
     local actbox = self.battle_ui.action_boxes[self.current_selecting]
     local old_selected_button = actbox.selected_button
 
+    local buttons = actbox:getSelectableButtons()
+
     if Input.isConfirm(key) then
         actbox:select()
         self.ui_select:stop()
@@ -3364,13 +3366,13 @@ function Battle:handleActionSelectInput(key)
     end
 
     if actbox.selected_button < 1 then
-        actbox.selected_button = #actbox.buttons
+        actbox.selected_button = #buttons
     end
 
-    if actbox.selected_button > #actbox.buttons then
+    if actbox.selected_button > #buttons then
         actbox.selected_button = 1
     end
-    
+
     if old_selected_button ~= actbox.selected_button then
         self.ui_move:stop()
         self.ui_move:play()
