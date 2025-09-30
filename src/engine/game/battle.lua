@@ -2612,7 +2612,7 @@ end
 
 function Battle:updateIntro()
     self.intro_timer = self.intro_timer + 1 * DTMULT
-    if self.intro_timer >= 15 then -- TODO: find out why this is 15 instead of 13
+    if self.intro_timer >= 13 then
         for _,v in ipairs(self.party) do
             v:setAnimation("battle/idle")
         end
