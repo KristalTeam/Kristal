@@ -409,7 +409,7 @@ function love.run()
             local success, result = xpcall(mainLoop, 
                 function(err_msg) 
                     --has a chance of failing due to a stack overflow. try and catch that, but this *also* might cause a stack overflow
-                    local ok, msg = pcall(Kristal.errorHandler, err_msg)
+                    local ok, msg = pcall(Kristal.errorHandler, err_msg, 4)
                     if(ok) then
                         return msg
                     else -- err_msg *might* contain a stack overflow error, pass it on if the kristal error handler fails

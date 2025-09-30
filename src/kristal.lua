@@ -600,8 +600,9 @@ end
 --- Kristal alternative to the default love.errorhandler. \
 --- Called when an error occurs.
 ---@param  msg string|table     The error message.
+---@param trace_level integer?
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
-function Kristal.errorHandler(msg)
+function Kristal.errorHandler(msg, trace_level)
     Draw.reset()
 
     local copy_color = { 1, 1, 1, 1 }
@@ -646,8 +647,10 @@ function Kristal.errorHandler(msg)
 
     msg = tostring(msg or "nil")
 
+    if trace_level == nil then trace_level = 2 end
+
     if not critical and not trace then
-        error_printer(msg, 2)
+        error_printer(msg, trace_level)
     elseif trace then
         print("Error: " .. msg .. "\n" .. trace)
     end
@@ -704,7 +707,7 @@ function Kristal.errorHandler(msg)
     if not trace then
         trace = ""
         if not critical then
-            trace = debug.traceback("", 2)
+            trace = debug.traceback("", trace_level)
         end
         if COROUTINE_TRACEBACK then
             trace = COROUTINE_TRACEBACK .. "\n" .. trace
