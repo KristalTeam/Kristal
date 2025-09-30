@@ -808,6 +808,10 @@ end
 ---
 ---@deprecated Use `MathUtils.rangeMap`, `Utils.ease` and `MathUtils.clamp` instead
 function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
+    if min_a > max_a then
+        min_a, max_a = max_a, min_a
+        min_b, max_b = max_b, min_b
+    end
     if mode and mode ~= "linear" then
         local range = MathUtils.clamp(MathUtils.rangeMap(val, min_a, max_a, 0, 1), 0, 1)
         return Utils.ease(min_b, max_b, range, mode)
