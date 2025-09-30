@@ -816,7 +816,7 @@ function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
         local range = MathUtils.clamp(MathUtils.rangeMap(val, min_a, max_a, 0, 1), 0, 1)
         return Utils.ease(min_b, max_b, range, mode)
     end
-    return MathUtils.clamp(MathUtils.rangeMap(val, min_a, max_a, min_b, max_b), min_b, max_b)
+    return MathUtils.rangeMap(MathUtils.clamp(val, min_a, max_a), min_a, max_a, min_b, max_b)
 end
 
 ---
