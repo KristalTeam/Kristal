@@ -632,11 +632,16 @@ function Kristal.errorHandler(msg, trace_level)
     local trace = nil
     if type(msg) == "table" then
         if msg.critical then
-            if(msg.critical == "error in error handling") then
+            if msg.critical == "error in error handling" then
                 critical = true
-                msg =  "critical error"
+                msg = "critical error"
             else
-                msg = msg.critical
+                if msg.msg then
+                    trace = msg.critical
+                    msg = tostring(msg.msg)
+                else
+                    msg = msg.critical
+                end
             end
         elseif msg.msg then
             local split = Utils.split(msg.msg, "\n")
