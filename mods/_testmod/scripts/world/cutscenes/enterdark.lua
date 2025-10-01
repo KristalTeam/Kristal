@@ -27,7 +27,7 @@ return function(cutscene)
     end
     transition.layer = 99999
 
-    Game.world:addChild(transition)
+    Game.stage:addChild(transition)
 
     local waiting = true
     local endData = nil
