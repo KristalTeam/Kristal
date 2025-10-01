@@ -300,8 +300,7 @@ function MainMenuModCreate:adjustCreateID()
 
     local newstr = ""
     for i = 1, utf8.len(str) do
-        local offset = utf8.offset(str, i)
-        local char = string.sub(str, offset, offset)
+        local char = Utils.sub(str, i, i)
         local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
         if Utils.containsValue(disallowed, char) then
             char = ""
