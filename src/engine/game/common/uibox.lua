@@ -43,21 +43,24 @@ function UIBox:draw()
     local top_width   = self.top[1]:getWidth()
     local top_height  = self.top[1]:getHeight()
 
+    local width = math.floor(self.width)
+    local height = math.floor(self.height)
+
     local  r, g, b,a = self:getDrawColor()
     local fr,fg,fb   = unpack(self.fill_color)
     Draw.setColor(fr,fg,fb,a)
-    love.graphics.rectangle("fill", 0, 0, self.width, self.height)
+    love.graphics.rectangle("fill", 0, 0, width, height)
 
     Draw.setColor(r, g, b, a)
 
-    Draw.draw(self.left[math.floor(self.left_frame)], 0, 0, 0, 2, self.height / left_height, left_width, 0)
-    Draw.draw(self.left[math.floor(self.left_frame)], self.width, 0, math.pi, 2, self.height / left_height, left_width, left_height)
+    Draw.draw(self.left[math.floor(self.left_frame)], 0, 0, 0, 2, math.floor(height / left_height), left_width, 0)
+    Draw.draw(self.left[math.floor(self.left_frame)], width, 0, math.pi, 2, math.floor(height / left_height), left_width, left_height)
 
-    Draw.draw(self.top[math.floor(self.top_frame)], 0, 0, 0, self.width / top_width, 2, 0, top_height)
-    Draw.draw(self.top[math.floor(self.top_frame)], 0, self.height, math.pi, self.width / top_width, 2, top_width, top_height)
+    Draw.draw(self.top[math.floor(self.top_frame)], 0, 0, 0, math.floor(width / top_width), 2, 0, top_height)
+    Draw.draw(self.top[math.floor(self.top_frame)], 0, height, math.pi, math.floor(width / top_width), 2, top_width, top_height)
 
     for i = 1, 4 do
-        local cx, cy = self.corners[i][1] * self.width, self.corners[i][2] * self.height
+        local cx, cy = self.corners[i][1] * width, self.corners[i][2] * height
         local sprite = self.corner[math.floor(self.corner_frame)]
         local width  = 2 * ((self.corners[i][1] * 2) - 1) * -1
         local height = 2 * ((self.corners[i][2] * 2) - 1) * -1

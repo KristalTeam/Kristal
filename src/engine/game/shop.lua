@@ -74,6 +74,8 @@
 --- The keys `map` (target map name), `x` and `y` OR `marker` (target position in map), `facing`, (player facing direction in map), `menu` (return to main menu) can be defined for this table.
 ---@field leave_options             { x: number, y: number, map: string, marker: string, facing: "up"|"right"|"down"|"left", menu: boolean }
 ---
+---@field expand_box                boolean     Whether the right side `info_box` should be expanded.
+---
 local Shop, super = Class(Object, "shop")
 
 ---@alias shopstate
@@ -229,11 +231,7 @@ function Shop:init()
 
     self.fade_alpha = 0
     self.fading_out = false
-    self.box_ease_timer = 0
-    self.box_ease_beginning = -8
-    self.box_ease_top = 220 - 48
-    self.box_ease_method = "outExpo"
-    self.box_ease_multiplier = 1
+    self.expand_box = false
 
     self.hide_price = false
 
@@ -458,15 +456,11 @@ function Shop:onStateChange(old,new)
         self.right_box.visible = true
         self.info_box.visible = true
         self.info_box.height = -8
-        self.box_ease_timer = 0
-        self.box_ease_beginning = -8
         if #self.items > 0 then
-            self.box_ease_top = 220 - 48
+            self.expand_box = true
         else
-            self.box_ease_top = -8
+            self.expand_box = false
         end
-        self.box_ease_method = "outExpo"
-        self.box_ease_multiplier = 1
         self.current_selecting = 1
     elseif new == "SELLMENU" then
         self:setDialogueText("")
@@ -709,10 +703,33 @@ function Shop:update()
 
     super.update(self)
 
-    self.box_ease_timer = math.min(1, self.box_ease_timer + (DT * self.box_ease_multiplier))
-
     if self.state == "BUYMENU" then
-        self.info_box.height = Utils.ease(self.box_ease_beginning, self.box_ease_top, self.box_ease_timer, self.box_ease_method)
+        -- Deltarune constricts the shopbox height (minimenuy) from 200 (bottom/smallest) to 20 (top/tallest)
+        -- Kristal UIBoxes work differently, so our new constraints are height from -8 (smallest) to 172 (tallest)
+        if self.expand_box then
+            if self.info_box.height >= 180 - 8 then
+                self.info_box.height = 180 - 8
+            end
+            if self.info_box.height < 180 - 8 then
+                self.info_box.height = self.info_box.height + 5 * DTMULT
+            end
+            if self.info_box.height < 150 - 8 then
+                self.info_box.height = self.info_box.height + 5 * DTMULT
+            end
+            if self.info_box.height < 100 - 8 then
+                self.info_box.height = self.info_box.height + 8 * DTMULT
+            end
+            if self.info_box.height < 50 - 8 then
+                self.info_box.height = self.info_box.height + 10 * DTMULT
+            end
+        else
+            if self.info_box.height > -8 then
+                self.info_box.height = self.info_box.height - 40 * DTMULT
+            end
+            if self.info_box.height <= -8 then
+                self.info_box.height = -8
+            end
+        end
 
         if self.shopkeeper.slide then
             local target_x = SCREEN_WIDTH/2 - 80
@@ -825,10 +842,10 @@ function Shop:draw()
             local current_item = self.items[self.current_selecting]
             local box_left, box_top = self.info_box:getBorder()
 
-            local left = self.info_box.x - self.info_box.width - (box_left / 2) * 1.5
-            local top = self.info_box.y - self.info_box.height - (box_top / 2) * 1.5
-            local width = self.info_box.width + box_left * 1.5
-            local height = self.info_box.height + box_top * 1.5
+            local left = self.info_box.x - math.floor(self.info_box.width) - (box_left / 2) * 1.5
+            local top = self.info_box.y - math.floor(self.info_box.height) - (box_top / 2) * 1.5
+            local width = math.floor(self.info_box.width) + box_left * 1.5
+            local height = math.floor(self.info_box.height) + box_top * 1.5
 
             Draw.pushScissor()
             Draw.scissor(left, top, width, height)
@@ -1141,17 +1158,9 @@ function Shop:onKeyPressed(key, is_repeat)
             end
             if Input.is("up", key) or Input.is("down", key) then
                 if self.current_selecting >= #self.items + 1 then
-                    self.box_ease_timer = 0
-                    self.box_ease_beginning = self.info_box.height
-                    self.box_ease_top = -8
-                    self.box_ease_method = "linear"
-                    self.box_ease_multiplier = 8
+                    self.expand_box = false
                 elseif (old_selecting >= #self.items + 1) and (self.current_selecting <= #self.items) then
-                    self.box_ease_timer = 0
-                    self.box_ease_beginning = self.info_box.height
-                    self.box_ease_top = 220 - 48
-                    self.box_ease_method = "outExpo"
-                    self.box_ease_multiplier = 1
+                    self.expand_box = true
                 end
             end
         end
