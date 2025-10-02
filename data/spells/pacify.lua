@@ -38,7 +38,7 @@ function spell:onCast(user, target)
     if target.tired then
         target:spare(true)
         
-        if Game:getConfig("spellsStyle") > 1 then
+        if not Game:getConfig("oldSpells") then
             Assets.playSound("spell_pacify")
 
             local pacify_x, pacify_y = target:getRelativePos(target.width/2, target.height/2)

@@ -11,11 +11,11 @@
 
     "susieStyle": 1,                 // Susie chapter style
     "ralseiStyle": 1,                // Ralsei chapter style
-    "spellsStyle": 1,                // Spells chapter style
 
     "oldTensionBar": true,           // Syle of TP bar
     "oldUIPositions": true,          // Old positions of various UI elements
     "oldGameOver": true,             // The game over screen used in chapter 1
+    "oldSpells": true,               // Style of Spells
     "oldRudeBuster": true,           // Old Rude Buster damage calculation and effect
 
     "speechBubble": "round",         // Default enemy speech bubble style
