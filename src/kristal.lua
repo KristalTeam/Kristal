@@ -1,4 +1,6 @@
 ---@class Kristal
+---@field Console Console
+---@field DebugSystem DebugSystem
 local Kristal = {}
 
 if HOTSWAPPING then
@@ -598,8 +600,9 @@ end
 --- Kristal alternative to the default love.errorhandler. \
 --- Called when an error occurs.
 ---@param  msg string|table     The error message.
+---@param trace_level integer?
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
-function Kristal.errorHandler(msg)
+function Kristal.errorHandler(msg, trace_level)
     Draw.reset()
 
     local copy_color = { 1, 1, 1, 1 }
@@ -629,11 +632,16 @@ function Kristal.errorHandler(msg)
     local trace = nil
     if type(msg) == "table" then
         if msg.critical then
-            if(msg.critical == "error in error handling") then
+            if msg.critical == "error in error handling" then
                 critical = true
-                msg =  "critical error"
+                msg = "critical error"
             else
-                msg = msg.critical
+                if msg.msg then
+                    trace = msg.critical
+                    msg = tostring(msg.msg)
+                else
+                    msg = msg.critical
+                end
             end
         elseif msg.msg then
             local split = Utils.split(msg.msg, "\n")
@@ -644,8 +652,10 @@ function Kristal.errorHandler(msg)
 
     msg = tostring(msg or "nil")
 
+    if trace_level == nil then trace_level = 2 end
+
     if not critical and not trace then
-        error_printer(msg, 2)
+        error_printer(msg, trace_level)
     elseif trace then
         print("Error: " .. msg .. "\n" .. trace)
     end
@@ -702,7 +712,7 @@ function Kristal.errorHandler(msg)
     if not trace then
         trace = ""
         if not critical then
-            trace = debug.traceback("", 2)
+            trace = debug.traceback("", trace_level)
         end
         if COROUTINE_TRACEBACK then
             trace = COROUTINE_TRACEBACK .. "\n" .. trace

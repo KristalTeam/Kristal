@@ -1,3 +1,11 @@
+---@class Input.MouseData
+---@field x number
+---@field y number
+---@field presses number
+---@class Input.MouseDownData : Input.MouseData
+---@field dx number
+---@field dy number
+
 ---@class Input
 ---
 ---@field active_gamepad love.Joystick
@@ -32,9 +40,9 @@
 ---@field gamepad_cursor_y number
 ---
 ---@field mouse_button_max number
----@field mouse_down table<number, number[]>
----@field mouse_pressed table<number, number[]>
----@field mouse_released table<number, number[]>
+---@field mouse_down table<number, Input.MouseDownData>
+---@field mouse_pressed table<number, Input.MouseData>
+---@field mouse_released table<number, Input.MouseData>
 ---
 ---@field order string[]
 ---
@@ -1364,7 +1372,7 @@ end
 
 function Input.onMouseReleased(x, y, button, istouch, presses)
     self.mouse_released[button] = {x = x, y = y, presses = presses}
-    self.mouse_down[button] = {x = 0, y = 0, presses = 0, dx = 0, dx = 0}
+    self.mouse_down[button] = {x = 0, y = 0, presses = 0, dx = 0, dy = 0}
 end
 
 function Input.onMouseMoved(x, y, dx, dy, istouch)
@@ -1416,7 +1424,7 @@ function Input.mousePressed(button)
 end
 
 ---@param button? number
----@return boolean success, number x, number y, number dx, number dy, number presses
+---@return boolean success, number x, number y, number presses, number? dx, number? dy
 function Input.mouseDown(button)
     if not button then
         for i=1, self.mouse_button_max do
@@ -1431,7 +1439,7 @@ function Input.mouseDown(button)
     if not check or check.presses == 0 then
         return false, 0, 0, 0
     else
-        return true, check.x, check.y, check.dx, check.dy, check.presses
+        return true, check.x, check.y, check.presses, check.dx, check.dy
     end
 end
 

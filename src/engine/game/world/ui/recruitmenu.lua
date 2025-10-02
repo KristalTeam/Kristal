@@ -263,7 +263,7 @@ function RecruitMenu:draw()
                 Draw.printAlign(recruit:getAttack(), 590, 280, "right", 0, 0.5, 1)
                 love.graphics.print("DEFENSE", 511, 320, 0, 0.5, 1)
                 Draw.printAlign(recruit:getDefense(), 590, 320, "right", 0, 0.5, 1)
-                Draw.printAlign("ELEMENT " .. recruit:getElement(), 590, 360, "right", 0, 0.5, 1)
+                Draw.printAlign("ELEMENT  " .. recruit:getElement(), 590, 360, "right", 0, 0.5, 1)
             end
 
             Draw.setColor(1, 1, 1, 1)

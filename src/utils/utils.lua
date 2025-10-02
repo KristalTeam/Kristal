@@ -1716,15 +1716,14 @@ function Utils.dist(x1,y1, x2,y2)
 end
 
 ---
---- Returns whether a string contains a given substring. \
---- **Note**: This function uses `find`, so special characters must be escaped with a `%`.
+--- Returns whether a string contains a given substring.
 ---
 ---@param str string      # The string to check.
 ---@param filter string   # The substring that the string may contain.
 ---@return boolean result # Whether the string contained the specified substring.
 ---
 function Utils.contains(str, filter)
-    return string.find(str, filter) ~= nil
+    return string.find(str, filter, 1, true) ~= nil
 end
 
 ---

@@ -11,8 +11,8 @@ function Starwalker:init()
     self.default = ""
     self.sprite:set("wings")
 
-    self.max_health = 2400
-    self.health = 2400
+    self.max_health = 4800
+    self.health = 4800
     self.attack = 1
     self.defense = 0
     self.money = 123456
@@ -64,6 +64,10 @@ function Starwalker:init()
     self:setTired(false)
 
     self.was_hit = false
+end
+
+function Starwalker:getHealthDisplay()
+    return math.ceil(100 + (100 - (self.health / self.max_health) * 100)) .. "%"
 end
 
 function Starwalker:getTarget()

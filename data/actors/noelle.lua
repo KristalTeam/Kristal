@@ -38,7 +38,7 @@ function actor:init()
     -- Table of sprite animations
     self.animations = {
         -- Battle animations
-        ["battle/idle"]         = {"battle/idle", 0.2, true},
+        ["battle/idle"]         = {"battle/idle", 1/6, true},
 
         ["battle/attack"]       = {"battle/attack", 1/15, false},
         ["battle/act"]          = {"battle/act", 1/15, false},
@@ -68,7 +68,7 @@ function actor:init()
     -- Alternate animations to use for Noelle weird mode (false to disable the animation)
     self.animations_alt = {
         -- Battle animations
-        ["battle/idle"]         = {"battle_alt/idle", 0.2, true},
+        ["battle/idle"]         = {"battle_alt/idle", 1/6, true},
 
         ["battle/attack"]       = {"battle/spell", 1/15, false, next="battle/idle"},
 
