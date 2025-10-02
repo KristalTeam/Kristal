@@ -362,7 +362,8 @@ function PartyMember:getHeadIconOffset() return unpack(self.head_icon_offset or 
 ---@return number y
 function PartyMember:getMenuIconOffset() return unpack(self.menu_icon_offset or {0, 0}) end
 
-function PartyMember:getGameOverMessage() return self.gameover_message end
+---@param main PartyMember
+function PartyMember:getGameOverMessage(main) return self.gameover_message end
 
 -- Functions / Getters & Setters
 
@@ -567,7 +568,7 @@ function PartyMember:getArmor(i)
     return self.equipped.armor[i]
 end
 
----@param item string|Item
+---@param item string|Item?
 function PartyMember:setWeapon(item)
     if type(item) == "string" then
         item = Registry.createItem(item)
@@ -576,7 +577,7 @@ function PartyMember:setWeapon(item)
 end
 
 ---@param i     integer
----@param item  string|Item
+---@param item  string|Item?
 function PartyMember:setArmor(i, item)
     if type(item) == "string" then
         item = Registry.createItem(item)
@@ -609,8 +610,8 @@ end
 --- *(Override)* Checks whether this party member is able to equip a specific item \
 --- *By default, calls [`item:canEquip()`](lua://Item.canEquip) to check equippability, and rejects trying to unequip the item if the slot type is `"weapon"`*
 ---@param item          Item|nil
----@param slot_type     string
----@param slot_index    integer
+---@param slot_type     string?
+---@param slot_index    integer?
 ---@return boolean
 function PartyMember:canEquip(item, slot_type, slot_index)
     if item then
@@ -627,8 +628,7 @@ end
 --- *(Override)* Gets the amount of health this party member should heal each turn whilst DOWN in battle
 ---@return number
 function PartyMember:autoHealAmount()
-    -- TODO: Is this round or ceil? Both were used before this function was added.
-    return Utils.round(self:getStat("health") / 8)
+    return math.ceil(self:getStat("health") / 8)
 end
 
 --- Gets this party member's stat bonuses from equipment for a particular stat
@@ -683,14 +683,14 @@ function PartyMember:getFlag(name, default)
 end
 
 --- Sets the value of the flag for this party member named `flag` to `value`
----@param flag  string
+---@param name  string
 ---@param value any
 function PartyMember:setFlag(name, value)
     self.flags[name] = value
 end
 
 --- Adds `amount` to a numeric flag for this party member named `flag` (or defines it if it does not exist)
----@param flag      string  The name of the flag to add to
+---@param name      string  The name of the flag to add to
 ---@param amount?   number  (Defaults to `1`)
 ---@return number new_value
 function PartyMember:addFlag(name, amount)
@@ -857,7 +857,11 @@ end
 function PartyMember:loadSpells(data)
     self.spells = {}
     for _,v in ipairs(data) do
-        self:addSpell(v)
+        if Registry.getSpell(v) then
+            self:addSpell(v)
+        else
+            Kristal.Console:error("Could not load spell \"".. (v or "nil") .."\"")
+        end
     end
 end
 

@@ -13,31 +13,39 @@
 ---@field sprite            Sprite?
 ---@field unique_id         string
 ---@field world             World       The world that this event is contained in
+---@field data              table
 ---
----@overload fun(x: number, y: number, w: number, h: number) : Event
----@overload fun(x: number, y: number, size: table) : Event
+---@overload fun(x: number, y: number, shape: table) : Event
 ---@overload fun(data: table) : Event
 local Event, super = Class(Object)
 
----@param x number
----@param y number
----@param w number
----@param h number
----@param size table
----@param data table
----@overload fun(self: Event, x: number, y: number, size: table)
----@overload fun(self: Event, data: table)
-function Event:init(x, y, w, h)
+---@param x?        number
+---@param y?        number
+---@param width?    number
+---@param height?   number
+---@param shape?    {[1]: number, [2]: number, [3]: table?} Shape data for this event. First two indexes are the width and height of the object. The third (optional) index is polygon data.
+---@param data?     table
+---@overload fun(self: Event, data?: table)
+---@overload fun(self: Event, x?: number, y?: number, shape?: {[1]: number, [2]: number, [3]: table?})
+function Event:init(x, y, width, height)
+    local shape = {0,0}
+    if type(width) == "table" then
+        shape = width
+    elseif type(width) == "number" then
+        shape = {width,height}
+    end
     if type(x) == "table" then
         local data = x
         x, y = data.x, data.y
-        w, h = data.width, data.height
-    elseif type(w) == "table" then
-        local data = w
-        w, h = data.width, data.height
+        shape[1], shape[2] = data.width, data.height
+        shape[3] = data.polygon
     end
 
-    super.init(self, x, y, w, h)
+    super.init(self, x, y, shape[1], shape[2])
+
+    if shape[3] then
+        self.collider = Utils.colliderFromShape(self, {shape = "polygon", polygon = shape[3]})
+    end
 
     -- Default collider (Object width and height)
     self._default_collider = Hitbox(self, 0, 0, self.width, self.height)
@@ -105,7 +113,7 @@ function Event:onLoad() end
 function Event:postLoad() end
 
 --- Called when the event is added as the child of another object
----@param parent Object
+---@param parent World|Event
 function Event:onAdd(parent)
     if parent:includes(World) then
         self.world = parent
@@ -115,7 +123,7 @@ function Event:onAdd(parent)
 end
 
 --- Called when the event is removed
----@param parent Object
+---@param parent World|Event
 function Event:onRemove(parent)
     if self.data then
         if self.world.map.events_by_name[self.data.name] then
@@ -169,7 +177,7 @@ end
 --- This variant of `Game:addFlag()` interacts with flags specific to this event's unique id
 ---@param flag      string  The name of the flag to add to
 ---@param amt?      number  (Defaults to `1`)
----@return number new_value
+---@return number? new_value
 function Event:addFlag(flag, amt)
     local uid = self:getUniqueID()
     if uid then

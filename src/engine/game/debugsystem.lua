@@ -42,6 +42,8 @@ function DebugSystem:init()
 
     self.menus = {}
     self.exclusive_menus = {}
+    self.menu_entry_callbacks = {}
+    self.menu_leave_callbacks = {}
 
     self:refresh()
 
@@ -73,7 +75,7 @@ function DebugSystem:init()
     self.context = nil
     self.last_context = nil
 
-    self.search_text = { "" }
+    self.search = { "" }
 
     self.menu_y = 0
     self.menu_target_y = 0
@@ -85,6 +87,8 @@ function DebugSystem:init()
     self.playing_sound = nil
     self.old_music_volume = 1
     self.music_needs_reset = false
+
+    self.music = Music()
 
     self.flag_type = "any"
     self.flag_query = { "" }
@@ -98,8 +102,8 @@ function DebugSystem:init()
 end
 
 function DebugSystem:getStage()
-    if Gamestate.current() then
-        return Gamestate.current().stage
+    if Kristal.getState() then
+        return Kristal.getState().stage
     end
 end
 
@@ -244,7 +248,7 @@ function DebugSystem:pasteObject(object)
         object:addChild(new_object)
     else
         -- We're not pasting into an object
-        if self.copied_object_parent then
+        if self.copied_object_parent ~= nil then
             self.copied_object_parent:addChild(new_object)
         else
             self:getStage():addChild(new_object)
@@ -253,7 +257,7 @@ function DebugSystem:pasteObject(object)
 
     new_object:setScreenPos(Input.getCurrentCursorPosition())
     self:selectObject(new_object)
-    if self.copied_object_temp then
+    if self.copied_object_temp ~= nil then
         self.copied_object = nil
         self.copied_object_parent = nil
         self.copied_object_temp = false
@@ -261,7 +265,7 @@ function DebugSystem:pasteObject(object)
 end
 
 function DebugSystem:unselectObject()
-    if self.object then
+    if self.object ~= nil then
         self.object:removeFX(self.flash_fx)
     end
     self.object = nil
@@ -269,17 +273,17 @@ function DebugSystem:unselectObject()
 end
 
 function DebugSystem:onMouseReleased(x, y, button, istouch, presses)
-    if self.window then
+    if self.window ~= nil then
         self.grabbing = false
         self.window:onMouseReleased(x, y, button, istouch, presses)
         return
     end
 
-    if self.context then
+    if self.context ~= nil then
         self.context:onMouseReleased(x, y, button, istouch, presses)
     end
     if button == 1 or button == 2 then
-        if self.grabbing then
+        if self.grabbing ~= nil then
             self.grabbing = false
         end
     end
@@ -289,7 +293,6 @@ function DebugSystem:detectObject(x, y)
     -- TODO: Z-Order should take priority!!
     local object_size = math.huge
     local hierarchy_size = -1
-    local found = false
     local object = nil
 
     local stage = self:getStage()
@@ -307,7 +310,6 @@ function DebugSystem:detectObject(x, y)
                         hierarchy_size = new_hierarchy_size
                         object_size = new_object_size
                         object = instance
-                        found = true
                     end
                 end
             end
@@ -340,6 +342,7 @@ function DebugSystem:refresh()
     self.exclusive_menus["BATTLE"] = {"wave_select"}
     self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
+    self.menu_history = {}
     self:registerDefaults()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
@@ -363,12 +366,12 @@ function DebugSystem:addToExclusiveMenu(state, id)
     end
 end
 
-function DebugSystem:fadeMusicOut()
+function DebugSystem:fadeMusicOut(fade_to)
     local music = Game:getActiveMusic()
     if music then
         self.old_music_volume = music.volume
         self.music_needs_reset = true
-        music:fade(0.15, 0.5)
+        music:fade(fade_to or 0.15, 0.5)
     end
 end
 
@@ -387,6 +390,8 @@ function DebugSystem:returnMenu()
     if #self.menu_history == 0 then
         self:closeMenu()
     else
+        self:leaveMenu()
+        self.menu_target_y = self.menu_history[#self.menu_history].target_y
         self:enterMenu(self.menu_history[#self.menu_history].name, self.menu_history[#self.menu_history].soul, true)
         table.remove(self.menu_history, #self.menu_history)
     end
@@ -400,21 +405,41 @@ function DebugSystem:registerMenu(id, name, type)
     }
 end
 
+function DebugSystem:registerMenuEntry(id, func)
+    self.menu_entry_callbacks[id] = func
+end
+
+function DebugSystem:registerMenuLeave(id, func)
+    self.menu_leave_callbacks[id] = func
+end
+
 function DebugSystem:enterMenu(menu, soul, skip_history)
     if not skip_history then
         table.insert(self.menu_history, {
             name = self.current_menu,
-            soul = self.current_selecting
+            soul = self.current_selecting,
+            target_y = self.menu_target_y
         })
     end
     self.current_menu = menu
-    self.current_selecting = soul or 1
+    self.current_selecting = soul or self.current_selecting or 1
+    self:updateBounds(self:getValidOptions())
+
+    if (self.menu_entry_callbacks[self.current_menu]) then
+        self.menu_entry_callbacks[self.current_menu]()
+    end
 
     if self.menus[self.current_menu].type == "search" then
         self.search = { "" }
         --self:sortMenuOptions(self.current_menu)
 
         self:startTextInput()
+    end
+end
+
+function DebugSystem:leaveMenu()
+    if (self.menu_leave_callbacks[self.current_menu]) then
+        self.menu_leave_callbacks[self.current_menu]()
     end
 end
 
@@ -426,7 +451,7 @@ function DebugSystem:startTextInput(tbl)
         clear_after_submit = false
     })
 
-    TextInput.submit_callback = function (...)
+    TextInput.submit_callback = function()
         Assets.playSound("ui_select")
         self.current_selecting = self.current_selecting + 1
         self:updateBounds(self:getValidOptions())
@@ -671,6 +696,12 @@ function DebugSystem:registerSubMenus()
     end
 
     self:registerMenu("sound_test", "Sound Test", "search")
+    self:registerMenuEntry("sound_test", function()
+        self:fadeMusicOut()
+    end)
+    self:registerMenuLeave("sound_test", function()
+        self:fadeMusicIn()
+    end)
 
     for id, _ in pairs(Assets.sounds) do
         self:registerOption("sound_test", id, "Play this sound.", function ()
@@ -678,6 +709,24 @@ function DebugSystem:registerSubMenus()
                 self.playing_sound:stop()
             end
             self.playing_sound = Assets.playSound(id)
+        end)
+    end
+
+    self:registerMenu("music_test", "Music Test", "search")
+    self:registerMenuEntry("music_test", function()
+        self:fadeMusicOut(0)
+    end)
+    self:registerMenuLeave("music_test", function()
+        self:fadeMusicIn()
+        self.music:fade(0, 0.5, function()
+            self.music:stop()
+        end)
+    end)
+
+    for id, _ in pairs(Assets.data.music) do
+        self:registerOption("music_test", id, "Play this music track.", function()
+            self.music:setVolume(1)
+            self.music:play(id)
         end)
     end
 
@@ -714,9 +763,9 @@ function DebugSystem:registerSubMenus()
             end
         end)
     end
-    
+
     self:registerMenu("border_menu", "Border Test", "search")
-    
+
     local borders = Utils.getFilesRecursive("assets/sprites/borders", ".png")
     if Mod then
         Utils.merge(borders, Utils.getFilesRecursive(Mod.info.path.."/assets/sprites/borders", ".png"))
@@ -741,17 +790,25 @@ function DebugSystem:registerDefaults()
     local in_legend = function() return in_game() and Game.state == "LEGEND" end
 
     -- Global
-    self:registerConfigOption("main", "Object Selection Pausing",
-                              "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
 
     self:registerOption("main", "Engine Options", "Configure various noningame options.", function ()
         self:enterMenu("engine_options", 1)
     end)
 
-    self:registerOption("main", "Fast Forward", function () return self:appendBool("Speed up the engine.", FAST_FORWARD) end,
-                                                function () self:enterMenu("fast_forward", 1)
-    end)
-    
+    self:registerConfigOption("main", "Selection Timestop",
+                              "Pauses the game when the object selection menu is opened.", "objectSelectionSlowdown")
+
+    self:registerOption(
+        "main",
+        "Fast Forward",
+        function ()
+            return self:appendBool("Speed up the engine.", FAST_FORWARD)
+        end,
+        function ()
+            self:enterMenu("fast_forward", 1)
+        end
+    )
+
     self:registerOption("main", "Debug Rendering",
                         function () return self:appendBool("Draw debug information.", DEBUG_RENDER) end,
                         function () DEBUG_RENDER = not DEBUG_RENDER end)
@@ -759,17 +816,34 @@ function DebugSystem:registerDefaults()
                         function ()
                             Hotswapper.scan(); self:refresh()
                         end)
-    self:registerOption("main", "Reload", "Reload the mod. Hold shift to\nnot temporarily save.", function ()
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
+
+    if Mod then
+        local hard_reset = Kristal.getModOption("hardReset")
+        if hard_reset then
+            self:registerOption("main", "Reload", "Reload the mod.", function ()
+                love.event.quit("restart")
+            end)
         else
-            if Mod then
-                Kristal.quickReload(Input.shift() and "save" or "temp")
-            else
-                Kristal.returnToMenu()
+            self:registerOption("main", "Reload (tempsave)", "Reload the mod, creating a temporary save.", function ()
+                if Kristal.getModOption("hardReset") then
+                    love.event.quit("restart")
+                elseif Mod then
+                    Kristal.quickReload("temp")
+                end
+            end)
+
+            if not hard_reset then
+                self:registerOption("main", "Reload (from save)", "Reload the mod from your current save.", function ()
+                    Kristal.quickReload("save")
+                end)
             end
         end
-    end)
+    else
+        -- we're not in a mod, so just return to main menu (which should reload assets)
+        self:registerOption("main", "Reload", "Reload the engine.", function ()
+            Kristal.returnToMenu()
+        end)
+    end
 
     self:registerOption("main", "Noclip",
                         function () return self:appendBool("Toggle interaction with solids.", NOCLIP) end,
@@ -790,14 +864,17 @@ function DebugSystem:registerDefaults()
                         end, in_game)
 
     self:registerOption("main", "Sound Test", "Enter the sound test menu.", function ()
-                            self:fadeMusicOut()
                             self:enterMenu("sound_test", 0)
+                        end, in_game)
+
+    self:registerOption("main", "Music Test", "Enter the music test menu.", function ()
+                            self:enterMenu("music_test", 0)
                         end, in_game)
 
     self:registerOption("main", "Change Party", "Enter the party change menu.", function ()
                             self:enterMenu("change_party", 0)
                         end, in_game)
-                        
+
     self:registerOption("main", "Border Test", "Enter the border test menu.", function() 
                             self:enterMenu("border_menu", 0)
                         end, function() return in_game() and Kristal.Config["borders"] == "dynamic" end)
@@ -848,6 +925,12 @@ function DebugSystem:getValidOptions()
     return options
 end
 
+---@param menu string
+---@param name string
+---@param description string|fun():string
+---@param func function
+---@param visible_func? fun():boolean
+---@return nil
 function DebugSystem:registerOption(menu, name, description, func, visible_func)
     table.insert(self.menus[menu].options, {
         name = name,
@@ -870,10 +953,18 @@ end
 function DebugSystem:openMenu()
     Assets.playSound("ui_select")
     self:setState("MENU")
+
+    if (self.current_menu ~= nil) then
+        self:enterMenu(self.current_menu, nil, true)
+    end
 end
 
 function DebugSystem:closeMenu()
     self:setState("IDLE")
+
+    if (self.current_menu ~= nil) then
+        self:leaveMenu()
+    end
 end
 
 function DebugSystem:setState(state, reason)
@@ -956,12 +1047,6 @@ function DebugSystem:onStateChange(old, new)
         -- Force update TextInput to start showing current query
         self:startTextInput(self.temp_flag_query)
         TextInput.endInput()
-    end
-
-    self:fadeMusicIn()
-
-    if old == "IDLE" and new == "MENU" and self.current_menu == "sound_test" then
-        self:fadeMusicOut()
     end
 end
 
@@ -1175,30 +1260,26 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             Assets.playSound("ui_cancel")
             self:setState("FLAGS")
         elseif Input.isConfirm(key) then
-            -- Flag type
-            if self.current_selecting == 1 then
+            if self.current_selecting == 1 then -- Flag type
                 local types = {"any", "boolean", "string", "number"}
                 local current_index = Utils.getIndex(types, self.temp_flag_type) or 0
                 local new_index = Utils.clampWrap(current_index + 1, #types)
                 local new = types[new_index]
                 self.temp_flag_type = new
                 Assets.playSound("ui_select")
-            -- Filter query
-            elseif self.current_selecting == 2 then
+            elseif self.current_selecting == 2 then -- Filter query
                 -- Start TextInput but remove the down to cancel input
                 self:startTextInput(self.temp_flag_query)
                 TextInput.pressed_callback = nil
                 Assets.playSound("ui_select")
-            -- Filter type
-            elseif self.current_selecting == 3 then
+            elseif self.current_selecting == 3 then -- Filter type
                 local types = {"pattern", "invert_pattern", "startsWith", "invert_startsWith"}
                 local current_index = Utils.getIndex(types, self.temp_flag_filter_mode) or 0
                 local new_index = Utils.clampWrap(current_index + 1, #types)
                 local new = types[new_index]
                 self.temp_flag_filter_mode = new
                 Assets.playSound("ui_select")
-            -- Reset Filter
-            elseif self.current_selecting == 4 then
+            elseif self.current_selecting == 4 then -- Reset Filter
                 self.temp_flag_type = "any"
                 self.temp_flag_query = { "" }
                 self.temp_flag_filter_mode = "pattern"
@@ -1207,8 +1288,7 @@ function DebugSystem:onKeyPressed(key, is_repeat)
                 -- Force update TextInput
                 self:startTextInput(self.temp_flag_query)
                 TextInput.endInput()
-            -- Save and Return
-            elseif self.current_selecting == 5 then
+            elseif self.current_selecting == 5 then -- Save and Return
                 self.flag_type = self.temp_flag_type
                 self.flag_filter_mode = self.temp_flag_filter_mode
                 self.flag_query = Utils.copy(self.temp_flag_query)
@@ -1317,7 +1397,9 @@ function DebugSystem:update()
 end
 
 function DebugSystem:onWheelMoved(x, y)
-    self.faces_y = self.faces_y + (y * 32)
+    if self.state == "FACES" then
+        self.faces_y = self.faces_y + (y * 32)
+    end
 end
 
 function DebugSystem:draw()
@@ -1734,13 +1816,15 @@ function DebugSystem:draw()
                                  { 1, 1, 1, self.selected_alpha }, self.current_text_align, limit)
                 inc = inc + 1
             end
-
             local info = object:getDebugInfo()
 
+            local small = #info > 7
+
             for i, line in ipairs(info) do
-                self:printShadow(line, x_offset, (32 * inc) + 10, { 1, 1, 1, self.selected_alpha },
-                                 self.current_text_align, limit)
-                inc = inc + 1
+                self:printShadow(
+                    line, x_offset, (32 * inc) + ((i - 1) * (small and 16 or 32)) + 10, { 1, 1, 1, self.selected_alpha },
+                    self.current_text_align, limit * (small and 2 or 1), small and 0.5 or 1
+                )
             end
         end
 
@@ -1769,11 +1853,11 @@ function DebugSystem:printShadow(text, x, y, color, align, limit, sx, sy)
     -- Draw the shadow, offset by two pixels to the bottom right
     love.graphics.setFont(self.font)
     Draw.setColor({ 0, 0, 0, color[4] })
-    love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or 1)
+    love.graphics.printf(text, x + 2, y + 2, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or sx or 1)
 
     -- Draw the main text
     Draw.setColor(color)
-    love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or 1)
+    love.graphics.printf(text, x, y, limit or self.font:getWidth(text), align or "left", 0, sx or 1, sy or sx or 1)
 end
 
 return DebugSystem

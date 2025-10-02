@@ -1,4 +1,4 @@
----@class (exact) MainMenuOptions : StateClass
+---@class (exact) MainMenuOptions : StateClass, StateManagedClass
 ---
 ---@field menu MainMenu
 ---
@@ -596,6 +596,9 @@ function MainMenuOptions:initializeOptions()
         love.window.setVSync(toggled and 1 or 0)
     end)
     self:registerConfigOption("graphics", "Frame Skip", "frameSkip")
+    self:registerConfigOption("graphics", "Broken Menu Boxes", "brokenMenuBoxes", function (toggled)
+        self.menu.mod_list:buildModList()
+    end)
 
     ---------------------
     -- Engine Options

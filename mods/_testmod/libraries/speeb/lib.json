@@ -1,10 +1,11 @@
 {
     "id": "speeb",
     "authors": [
-        "Sylvi"
+        "Sylvi",
+        "Nyako"
     ],
     "version": "v1.1.0",
-    "engineVer": "v0.4.0",
+    "engineVer": "v0.10.0",
     "keybinds": [
         {
             "name": "Go superrr fast",

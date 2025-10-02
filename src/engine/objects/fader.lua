@@ -174,6 +174,10 @@ function Fader:update()
             end
         end
     end
+    if self.state == "NONE" then
+        self:setColor(0, 0, 0)
+        self.fade_color = self.color
+    end
 end
 
 function Fader:draw()

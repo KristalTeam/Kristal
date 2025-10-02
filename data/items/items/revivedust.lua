@@ -60,11 +60,11 @@ end
 
 function item:onBattleUse(user, target)
     for _,battler in ipairs(Game.battle.party) do
+        local heal_amount = 10
         if battler.chara:getHealth() <= 0 then
-            battler:heal(math.abs(battler.chara:getHealth()) + math.ceil(battler.chara:getStat("health") / 4))
-        else
-            battler:heal(10)
+            heal_amount = math.abs(battler.chara:getHealth()) + math.ceil(battler.chara:getStat("health") / 4)
         end
+        battler:heal(Game.battle:applyHealBonuses(heal_amount, user.chara))
     end
 end
 

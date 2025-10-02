@@ -13,7 +13,6 @@ https = require("src.lib.https")
 utf8 = require("utf8")
 
 _Class = require("src.lib.hump.class")
-Gamestate = require("src.lib.hump.gamestate")
 Vector = require("src.lib.hump.vector-light")
 LibTimer = require("src.lib.hump.timer")
 JSON = require("src.lib.json")
@@ -221,6 +220,7 @@ ActionButton = require("src.engine.game.battle.ui.actionbutton")
 AttackBox = require("src.engine.game.battle.ui.attackbox")
 AttackBar = require("src.engine.game.battle.ui.attackbar")
 TensionBar = require("src.engine.game.battle.ui.tensionbar")
+TensionBarGlow = require("src.engine.game.battle.ui.tensionbarglow")
 SpeechBubble = require("src.engine.game.battle.ui.speechbubble")
 
 FlashFade = require("src.engine.game.effects.flashfade")
@@ -406,13 +406,15 @@ function love.run()
                 end
             end
         else
+            local err_msg_expose
             local success, result = xpcall(mainLoop, 
                 function(err_msg) 
                     --has a chance of failing due to a stack overflow. try and catch that, but this *also* might cause a stack overflow
-                    local ok, msg = pcall(Kristal.errorHandler, err_msg)
+                    local ok, msg = pcall(Kristal.errorHandler, err_msg, 4)
                     if(ok) then
                         return msg
                     else -- err_msg *might* contain a stack overflow error, pass it on if the kristal error handler fails
+                        err_msg_expose = err_msg
                         return debug.traceback() --somehow, this affects the above if statement? im so confused but it works...doesnt send err_msg through
                     end
                 end
@@ -425,7 +427,7 @@ function love.run()
                 --this should only happen when there's an internal error with the errorhandler or the callstack overflows
                 --the LUA_ERRERR state is set internally by the lua engine for both of these cases 
                 --see https://www.lua.org/source/5.4/ldo.c.html
-                error_result = Kristal.errorHandler({ critical = result })
+                error_result = Kristal.errorHandler({ critical = result, msg = err_msg_expose })
             end
         end
     end

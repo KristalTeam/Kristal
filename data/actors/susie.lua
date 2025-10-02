@@ -51,7 +51,7 @@ function actor:init(style)
         ["slide"]               = {"slide", 4/30, true},
 
         -- Battle animations
-        ["battle/idle"]         = {"battle/idle", 0.2, true},
+        ["battle/idle"]         = {"battle/idle", 1/6, true},
 
         ["battle/attack"]       = {"battle/attack", 1/15, false},
         ["battle/act"]          = {"battle/act", 1/15, false},
@@ -69,6 +69,7 @@ function actor:init(style)
 
         ["battle/hurt"]         = {"battle/hurt", 1/15, false, temp=true, duration=0.5},
         ["battle/defeat"]       = {"battle/defeat", 1/15, false},
+        ["battle/swooned"]      = {"battle/swooned", 1/15, false},
 
         ["battle/transition"]   = {self.default.."/right_1", 1/15, false},
         ["battle/intro"]        = {"battle/attack", 1/15, true},
@@ -152,6 +153,7 @@ function actor:init(style)
         ["battle/item"] = {-22, -1},
         ["battle/itemready"] = {-22, -1},
         ["battle/defend"] = {-20, -23},
+        ["battle/swooned"] = {0, 0},
 
         ["battle/defeat"] = {-22, -1},
         ["battle/hurt"] = {-22, -1},

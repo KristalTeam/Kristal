@@ -9,7 +9,11 @@ function spell:init()
     self.cast_name = nil
 
     -- Battle description
-    self.effect = "Rude\nDamage"
+    if Game.chapter <= 3 then
+        self.effect = "Rude\nDamage"
+    else
+        self.effect = "Rude\ndamage"
+    end
     -- Menu description
     self.description = "Deals moderate Rude-elemental damage to\none foe. Depends on Attack & Magic."
 
@@ -52,9 +56,9 @@ function spell:onCast(user, target)
         Assets.playSound("rudebuster_swing")
         local x, y = user:getRelativePos(user.width, user.height/2 - 10, Game.battle)
         local tx, ty = target:getRelativePos(target.width/2, target.height/2, Game.battle)
-        local blast = RudeBusterBeam(false, x, y, tx, ty, function(pressed)
-            local damage = self:getDamage(user, target, pressed)
-            if pressed then
+        local blast = RudeBusterBeam(false, x, y, tx, ty, function(damage_bonus, play_sound)
+            local damage = self:getDamage(user, target, damage_bonus)
+            if play_sound then
                 Assets.playSound("scytheburst")
             end
             target:flash()
@@ -70,11 +74,8 @@ function spell:onCast(user, target)
     return false
 end
 
-function spell:getDamage(user, target, pressed)
-    local damage = math.ceil((user.chara:getStat("magic") * 5) + (user.chara:getStat("attack") * 11) - (target.defense * 3))
-    if pressed then
-        damage = damage + 30
-    end
+function spell:getDamage(user, target, damage_bonus)
+    local damage = math.ceil((user.chara:getStat("magic") * 5) + (user.chara:getStat("attack") * 11) - (target.defense * 3)) + damage_bonus
     return damage
 end
 
