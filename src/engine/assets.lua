@@ -27,7 +27,8 @@ local self = Assets
 ---@field font_settings table<string, table>
 ---@field sound_data table<string, love.SoundData>
 ---@field music table<string, string>
----@field shaders table<string, string>
+---@field shaders table<string, love.Shader>
+---@field shader_paths table<string, string>
 ---@field videos table<string, string>
 ---@field bubble_settings table<string, table>
 
@@ -50,6 +51,8 @@ function Assets.clear()
         videos = {},
         bubbles = {},
         bubble_settings = {},
+        shaders = {},
+        shader_paths = {}
     }
     self.frames_for = {}
     self.texture_ids = {}
@@ -294,7 +297,7 @@ end
 function Assets.getFramesFor(texture)
     if self.frames_for[texture] then
         -- annoying type annotations
-        ---@diagnostic disable-next-line: return-type-mismatch
+        ---@diagnostic disable-next-line: redundant-return-value
         return unpack(self.frames_for[texture])
     end
     ---@diagnostic disable-next-line: return-type-mismatch

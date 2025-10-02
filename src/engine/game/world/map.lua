@@ -155,7 +155,7 @@ function Map:addTileset(id)
     if tileset then
         table.insert(self.tilesets, tileset)
         self.tileset_gids[tileset] = self.max_gid + 1
-        self.max_gid = self.max_gid + tileset.tilecount
+        self.max_gid = self.max_gid + tileset.tile_count
         return tileset
     else
         error("No tileset with id '"..id.."'")
@@ -188,7 +188,7 @@ end
 
 --- Gets a specific event present in the current map.
 ---@param id string|number  The unique numerical id of an event OR the text id of an event type to get the first instance of.
----@return Event event The event instnace, or `nil` if it was not found. 
+---@return Event? event The event instnace, or `nil` if it was not found. 
 function Map:getEvent(id)
     if type(id) == "number" then
         return self.events_by_id[id]
@@ -286,8 +286,12 @@ function Map:loadMapData(data)
         if layer.type ~= "group" then
             table.insert(layers, layer)
         else
-            for _,sublayer in ipairs(layer.layers) do
+            for i,sublayer in ipairs(layer.layers) do
                 local sublayer_copy = Utils.copy(sublayer)
+                sublayer_copy.properties = Utils.mergeMultiple(layer.properties, sublayer_copy.properties)
+                if i == #layer.layers then
+                    sublayer_copy.properties.thin = sublayer.properties.thin
+                end
                 sublayer_copy.offsetx = (sublayer.offsetx or 0) + (layer.offsetx or 0)
                 sublayer_copy.offsety = (sublayer.offsety or 0) + (layer.offsety or 0)
                 sublayer_copy.parallaxx = (sublayer.parallaxx or 1) * (layer.parallaxx or 1)
@@ -304,7 +308,9 @@ function Map:loadMapData(data)
     for i,layer in ipairs(layers) do
         self.layers[layer.name] = self.next_layer
         indexed_layers[i] = self.next_layer
-        self.next_layer = self.next_layer + self.depth_per_layer
+        if not (layer.properties and layer.properties.thin) then
+            self.next_layer = self.next_layer + self.depth_per_layer
+        end
     end
 
     self.object_layer = nil
@@ -758,7 +764,7 @@ function Map:loadObject(name, data)
     elseif name:lower() == "warpdoor" then
         return WarpDoor(data.x, data.y, data.properties)
     elseif name:lower() == "darkfountain" then
-        return DarkFountain(data.x, data.y)
+        return DarkFountain(data.x, data.y, data.properties)
     elseif name:lower() == "fountainfloor" then
         return FountainFloor(data.x, data.y, rect_data)
     elseif name:lower() == "quicksave" then

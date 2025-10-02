@@ -16,7 +16,7 @@
 ---@field effect string
 ---@field shop string
 ---@field description string
----@field check string
+---@field check string|string[]
 ---
 ---@field price integer
 ---@field can_sell boolean
@@ -409,7 +409,7 @@ end
 
 --- Sets the value of an item-specific flag
 ---@param name  string  The name of the flag to set
----@param value integer The value to set the flag to
+---@param value any     The value to set the flag to
 function Item:setFlag(name, value)
     self.flags[name] = value
 end
