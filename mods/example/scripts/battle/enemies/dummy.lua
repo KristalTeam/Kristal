@@ -52,6 +52,26 @@ function Dummy:init()
     self:registerAct("Tell Story", "", {"ralsei"})
 end
 
+function Dummy:getCheckText(battler)
+    -- Get the original text used for the Check act
+    local text = super.getCheckText(self, battler)
+    -- getCheckText can return either a string or a table
+    -- To make it easier to add new text here, we check if what the super function returned is a table.
+    -- If not, we put the string in one.
+    if type(text) ~= "table" then
+        text = {text}
+    end
+
+    -- If half of the Dummy's health is gone
+    if self.health < self.max_health/2 then
+        -- We had a new line to the check dialogue that will appear after the first one.
+        table.insert(text, "* Its kind smile has fallen a bit.")
+    end
+
+    -- Then we return the text either modified or not
+    return text
+end
+
 function Dummy:onAct(battler, name)
     if name == "Smile" then
         -- Give the enemy 100% mercy
