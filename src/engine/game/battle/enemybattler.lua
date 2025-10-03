@@ -673,7 +673,12 @@ function EnemyBattler:onCheck(battler) end
 --- *(Override)* Gets the text used by the Check act.
 --- *By default, returns the name of the enemy in all caps and then the value defined in EnemyBattler.check*
 ---@param battler PartyBattler
-function EnemyBattler:getCheckText(battler)
+---@param separate? bool If true, returns both "* NAME -" and EnemyBattler.check separated. By default, returns the full text.
+function EnemyBattler:getCheckText(battler, separate)
+    if separate then
+        return "* " .. string.upper(self.name) .. " - ", self.check
+    end
+
     if type(self.check) == "table" then
         local tbl = {}
         for i,check in ipairs(self.check) do

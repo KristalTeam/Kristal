@@ -53,6 +53,15 @@ function Dummy:init()
 end
 
 function Dummy:getCheckText(battler)
+    -- If the Dummy's mercy bar is full
+    if self.mercy == 100 then
+        -- When set to true, the second argument of getCheckText will make it return "* DUMMY - " and self.check separately rather than combined.
+        local name, texts = super.getCheckText(self, battler, true)
+
+        -- We'll only use the name and concatenate a new text to it
+        return name.."It doesn't want to fight anymore!"
+    end
+
     -- Get the original text used for the Check act
     local text = super.getCheckText(self, battler)
     -- getCheckText can return either a string or a table
