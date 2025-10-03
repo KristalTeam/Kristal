@@ -287,6 +287,8 @@ FillSizing = require("src.engine.ui.sizing.fill")
 
 Hotswapper = require("src.hotswapper")
 
+Pack = require("src.engine.pack.pack")
+
 -- Register required in the hotswapper
 Hotswapper.updateFiles("required")
 
