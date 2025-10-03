@@ -21,6 +21,13 @@ function Mod:init()
     self.dog_activated = false
 end
 
+---@param text Text
+function Mod:registerTextCommands(text)
+    text:registerCommand("bullshitcommand", function (the_thingy_collection, this_particular_thingy, pl_badwater) ---@param the_thingy_collection Text
+        the_thingy_collection.state.some_jevil_bullshit = the_thingy_collection:isTrue(this_particular_thingy.arguments[1])
+    end, {dry = true})
+end
+
 function Mod:preInit()
     -- make characters woobly
     --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
