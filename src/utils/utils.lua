@@ -1,4 +1,10 @@
 ---@class Utils
+---
+--- A collection of various utility functions. \
+--- This has been deprecated in favor of more specific utility modules. \
+--- Not everything has been moved, so you may still use this module for now. \
+--- Before using this module, check if there is a method in a more specific utility module that does what you need.
+---
 local Utils = {}
 
 ---
@@ -9,59 +15,20 @@ local Utils = {}
 ---@param to?    integer    # The index that the substring should end at. (Defaults to -1, referring to the last character of the string)
 ---@return string substring # The new substring.
 ---
+---@deprecated Use StringUtils.sub instead
 function Utils.sub(input, from, to)
-    if (from == nil) then
-        from = 1
-    end
-
-    if (to == nil) then
-        to = -1
-    end
-
-    if from < 1 or to < 1 then
-        local length = Utils.len(input)
-        if not length then error("Invalid UTF-8 string.") end
-        if from < 0 then from = length + 1 + from end
-        if to < 0 then to = length + 1 + to end
-        if from < 0 then from = 1 end
-        if to < 0 then to = 1 end
-        if to < from then return "" end
-        if from > length then from = length end
-        if to > length then to = length end
-    end
-
-    if to < from then
-        return ""
-    end
-
-    local offset_from = utf8.offset(input, from) --[[@as integer?]]
-    local offset_to = utf8.offset(input, to + 1) --[[@as integer?]]
-
-    if offset_from and offset_to then
-        return string.sub(input, offset_from, offset_to - 1)
-    elseif offset_from then
-        return string.sub(input, offset_from)
-    else
-        return ""
-    end
+    return StringUtils.sub(input, from, to)
 end
 
--- Returns the length of a UTF-8 string, erroring if it's invalid.
----@param input string
----@return integer length
+---
+--- Returns the length of a string, while being UTF-8 aware.
+---
+---@param input string # The string to get the length of.
+---@return integer length # The length of the string.
+---
+---@deprecated Use StringUtils.len instead
 function Utils.len(input)
-    local len, err = utf8.len(input)
-    if err ~= nil then
-        local ok_str = input:sub(1, err - 1)
-        local ok_len = utf8.len(ok_str)
-        if not ok_len then
-            error("Invalid UTF-8 string passed to Utils.len")
-        end
-        ---@cast ok_len integer
-        error(string.format("Invalid character after \"%s\" (character #%d, byte #%d)", ok_str, ok_len + 1, err))
-    end
-    ---@cast len integer
-    return len
+    return StringUtils.len(input)
 end
 
 ---
@@ -72,21 +39,13 @@ end
 ---@param func? fun(v:T):boolean # If provided, each value of the table will instead be passed into the function, whose returned value will be considered instead of the table value itself.
 ---@return boolean result        # Whether every value was true or not.
 ---
+---@deprecated Use TableUtils.all OR TableUtils.every instead
 function Utils.all(tbl, func)
-    if not func then
-        for i = 1, #tbl do
-            if not tbl[i] then
-                return false
-            end
-        end
+    if func == nil then
+        return TableUtils.all(tbl)
     else
-        for i = 1, #tbl do
-            if not func(tbl[i]) then
-                return false
-            end
-        end
+        return TableUtils.every(tbl, func)
     end
-    return true
 end
 
 ---
@@ -97,21 +56,13 @@ end
 ---@param func? fun(v:T):boolean # If provided, each value of the table will instead be passed into the function, whose returned value will be considered instead of the table value itself.
 ---@return boolean result        # Whether any value was true or not.
 ---
+---@deprecated Use `TableUtils.any` OR `TableUtils.some` instead
 function Utils.any(tbl, func)
-    if not func then
-        for i = 1, #tbl do
-            if tbl[i] then
-                return true
-            end
-        end
+    if func == nil then
+        return TableUtils.any(tbl)
     else
-        for i = 1, #tbl do
-            if func(tbl[i]) then
-                return true
-            end
-        end
+        return TableUtils.some(tbl, func)
     end
-    return false
 end
 
 ---
@@ -123,11 +74,9 @@ end
 ---@param seen? table    # *(Used internally)* A table of values used to keep track of which objects have been cloned.
 ---@return T new         # The new table.
 ---
+---@deprecated Use `TableUtils.copy` instead
 function Utils.copy(tbl, deep, seen)
-    if tbl == nil then return nil end
-    local new_tbl = {}
-    Utils.copyInto(new_tbl, tbl, deep, seen)
-    return new_tbl
+    return TableUtils.copy(tbl, deep, seen)
 end
 
 ---
@@ -138,42 +87,9 @@ end
 ---@param deep? boolean # Whether tables inside the specified table should be copied as well.
 ---@param seen? table   # *(Used internally)* A table of values used to keep track of which objects have been cloned.
 ---
+---@deprecated Use `TableUtils.copyInto` instead
 function Utils.copyInto(new_tbl, tbl, deep, seen)
-    if tbl == nil then return nil end
-
-    -- Remember the current table we're copying, so we can avoid
-    -- infinite loops when deep copying tables that reference themselves.
-    seen = seen or {}
-    seen[tbl] = new_tbl
-
-    for k,v in pairs(tbl) do
-        -- If we're deep copying, and the value is a table, then we need to copy that table as well.
-        if type(v) == "table" and deep then
-            if seen[v] then
-                -- If we've already seen this table, use the same copy.
-                new_tbl[k] = seen[v]
-            elseif (not isClass(v) or (v.canDeepCopy and v:canDeepCopy())) and (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) then
-                -- Unless the current value is a class that doesn't want to be deep copied,
-                -- or the member of a class that doesn't want it to be deep copied, we can copy it.
-                new_tbl[k] = {}
-                Utils.copyInto(new_tbl[k], v, true, seen)
-            else
-                -- Otherwise, just copy the reference.
-                new_tbl[k] = v
-            end
-        else
-            -- The value isn't a table or we're not deep copying, so just use the value.
-            new_tbl[k] = v
-        end
-    end
-
-    -- Copy the metatable too.
-    setmetatable(new_tbl, getmetatable(tbl))
-
-    -- Call the onClone callback on the newly copied table, if it exists.
-    if new_tbl.onClone then
-        new_tbl:onClone(tbl)
-    end
+    return TableUtils.copyInto(new_tbl, tbl, deep, seen)
 end
 
 ---
@@ -181,10 +97,9 @@ end
 ---
 ---@param tbl table # The table to clear.
 ---
+---@deprecated Use `TableUtils.clear` instead
 function Utils.clear(tbl)
-    for key in pairs(tbl) do
-        tbl[key] = nil
-    end
+    return TableUtils.clear(tbl)
 end
 
 ---
@@ -195,35 +110,9 @@ end
 ---@param parent_check? boolean # Whether the function should only return the extended class, and not attach the class's ID, if the class does not have a global name.
 ---@return string? name         # The name of the class, or `nil` if it cannot find one.
 ---
+---@deprecated Use `ClassUtils.getClassName` instead
 function Utils.getClassName(class, parent_check)
-    -- If the class is a global variable, return its name.
-    for k,v in pairs(_G) do
-        if class.__index == v then
-            return k
-        end
-    end
-    -- If the class doesn't have a global variable, find the name of the highest class it extends.
-    for i,v in ipairs(class.__includes) do
-        local name = Utils.getClassName(v, true)
-        if name then
-            if not parent_check and class.id then
-                -- If the class has an ID, append it to the name of its parent class.
-                return name .. "(" .. class.id .. ")"
-            else
-                return name
-            end
-        end
-    end
-end
-
-local function dumpKey(key)
-    if type(key) == 'table' then
-        return '('..tostring(key)..')'
-    elseif type(key) == 'string' and (not key:find("[^%w_]") and not tonumber(key:sub(1,1)) and key ~= "") then
-        return key
-    else
-        return '['..Utils.dump(key)..']'
-    end
+    return ClassUtils.getClassName(class, parent_check)
 end
 
 ---
@@ -232,34 +121,9 @@ end
 ---@param o any          # The value to convert to a string.
 ---@return string result # The newly generated string.
 ---
+---@deprecated Use `TableUtils.dump` instead
 function Utils.dump(o)
-    if type(o) == 'table' then
-        if isClass(o) then
-            -- If the table is a class, return the
-            -- name of the class instead of its contents.
-            return Utils.getClassName(o) or "<unknown class>"
-        end
-        local s = '{'
-        local cn = 1
-        if Utils.isArray(o) then
-            for _,v in ipairs(o) do
-                if cn > 1 then s = s .. ', ' end
-                s = s .. Utils.dump(v)
-                cn = cn + 1
-            end
-        else
-            for k,v in pairs(o) do
-                if cn > 1 then s = s .. ', ' end
-                s = s .. dumpKey(k) .. ' = ' .. Utils.dump(v)
-                cn = cn + 1
-            end
-        end
-        return s .. '}'
-    elseif type(o) == 'string' then
-        return '"' .. o .. '"'
-    else
-        return tostring(o)
-    end
+    return TableUtils.dump(o)
 end
 
 ---
@@ -270,8 +134,9 @@ end
 ---@param t T[]  # The table to unpack.
 ---@return T ... # The values of the table.
 ---
+---@deprecated Use `TableUtils.unpack` instead
 function Utils.unpack(t)
-    return unpack(t, 1, table.maxn(t))
+    return TableUtils.unpack(t)
 end
 
 ---
@@ -279,58 +144,29 @@ end
 --- More optimized than `Utils.split()`, at the cost of lacking features. \
 --- **Note**: This function uses `gmatch`, so special characters must be escaped with a `%`.
 ---
----@param str string       # The string to separate.
----@param sep string       # The character used to split the main string.
+---@param input string     # The string to separate.
+---@param separator string # The character used to split the main string.
 ---@return string[] result # The table containing the new split strings.
 ---
-function Utils.splitFast(str, sep)
-    local t={} ; local i=1
-    for s in string.gmatch(str, "([^"..sep.."]+)") do
-        t[i] = s
-        i = i + 1
-    end
-    return t
+---@deprecated Use `StringUtils.splitFast` instead
+function Utils.splitFast(input, separator)
+    return StringUtils.splitFast(input, separator)
 end
 
 ---
 --- Splits a string into a new table of strings using a substring as a separator. \
 --- Less optimized than `Utils.splitFast()`, but allows separating with multiple characters, and is more likely to work for *any* string.
 ---
----@param str string            # The string to separate.
----@param sep string            # The substring used to split the main string.
+---@param input string          # The string to separate.
+---@param separator string      # The substring used to split the main string.
 ---@param remove_empty? boolean # Whether strings containing no characters shouldn't be included in the result table.
 ---@return string[] result      # The table containing the new split strings.
 ---
-function Utils.split(str, sep, remove_empty)
-    local t = {}
-    local i = 1
-    local s = ""
-    -- Loop through each character in the string.
-    while i <= utf8.len(str) do
-        -- If the current character matches the separator, add the
-        -- current string to the table, and reset the current string.
-        if Utils.sub(str, i, i + (utf8.len(sep) - 1)) == sep then
-            -- If the string is empty, and empty strings shouldn't be included, skip it.
-            if not remove_empty or s ~= "" then
-                table.insert(t, s)
-            end
-            s = ""
-            -- Skip the separator.
-            i = i + (#sep - 1)
-        else
-            -- Add the character to the current string.
-            s = s .. Utils.sub(str, i, i)
-        end
-        i = i + 1
-    end
-    -- Add the last string to the table.
-    if not remove_empty or s ~= "" then
-        table.insert(t, s)
-    end
-    return t
+---@deprecated Use `StringUtils.split` instead
+function Utils.split(input, separator, remove_empty)
+    return StringUtils.split(input, separator, remove_empty)
 end
 
-Utils.__MOD_HOOKS = {}
 ---
 --- Replaces a function within a class with a new function. \
 --- Also allows calling the original function, allowing you to add code to the beginning or end of existing functions. \
@@ -353,63 +189,21 @@ Utils.__MOD_HOOKS = {}
 ---@param hook fun(orig:fun(...), ...) # The function containing the new code to replace the old code with. Receives the original function as an argument, followed by the arguments the original function receives.
 ---@param exact_func? boolean          # *(Used internally)* Whether the function should be replaced exactly, or whether it should be replaced with a function that calls the hook function. Should not be specified by users.
 ---
+---@deprecated Use `HookSystem.hook` instead
 function Utils.hook(target, name, hook, exact_func)
-    -- Get the original function.
-    local orig = target[name]
-
-    -- If a mod is currently loaded, store information about the hook so it can be disabled later.
-    if Mod then
-        table.insert(Utils.__MOD_HOOKS, 1, {target = target, name = name, hook = hook, orig = orig})
-    end
-
-    local orig_func = orig or function() end
-    if not exact_func then
-        -- If the function should not be copied directly (such as when we're applying hooks to sub-classes),
-        -- create a new function that calls the hook function, giving it the original function as an argument.
-        target[name] = function(...)
-            return hook(orig_func, ...)
-        end
-    else
-        -- Otherwise, just replace the function with the hook function.
-        target[name] = hook
-    end
-
-    -- If the target is a class, we need to apply the hook to all sub-classes
-    -- that reference the original function.
-    if isClass(target) then
-        for _,includer in ipairs(target.__includers or {}) do
-            if includer[name] == orig then
-                Utils.hook(includer, name, target[name], true)
-            end
-        end
-    end
+    return HookSystem.hook(target, name, hook, exact_func)
 end
 
----@type metatable
-Utils.HOOKSCRIPT_MT = {
-    __newindex = function (self, k, v)
-        self.__hookscript_super[k] = self.__hookscript_super[k] or self.__hookscript_class[k]
-        assert(Mod)
-        Utils.hook(self.__hookscript_class, k, v, true)
-    end
-}
 ---@generic T : Class|function
 ---
 ---@param include? T|`T`|string     # The class to extend from. If passed as a string, will be looked up from the current registry (e.g. `scripts/data/actors` if creating an actor) or the global namespace.
 ---
 ---@return T class                # The new class, extended from `include` if provided.
 ---@return T|superclass<T> super  # Allows calling methods from the base class. `self` must be passed as the first argument to each method.
+---
+---@deprecated Use `HookSystem.hookScript` instead
 function Utils.hookScript(include)
-    if type(include) == "string" then
-        local r = CLASS_NAME_GETTER(include)
-        if not r then
-            error{included=include, msg="Failed to include "..include}
-        end
-        include = r
-    end
-    local super = {super = include.__super}
-    local class = setmetatable({__hookscript_super = super, __hookscript_class = include}, Utils.HOOKSCRIPT_MT)
-    return class, super
+    return HookSystem.hookScript(include)
 end
 
 ---
@@ -421,11 +215,9 @@ end
 ---@param new_func fun(orig:T, ...) # The new function that will be called by the result function.
 ---@return T result_func            # A function that will call the new function, providing the original function as an argument, followed by any other arguments that this function receives.
 ---
+---@deprecated Use `HookSystem.override` instead
 function Utils.override(old_func, new_func)
-    old_func = old_func or function() end
-    return function(...)
-        return new_func(old_func, ...)
-    end
+    return HookSystem.override(old_func, new_func)
 end
 
 ---
@@ -435,26 +227,25 @@ end
 ---@param b any            # The second table to compare.
 ---@param deep? boolean    # Whether table values within these tables should also be compared using `Utils.equal()`.
 ---@return boolean success # Whether the sets of values for the two tables were equivalent.
----
 function Utils.equal(a, b, deep)
     if type(a) ~= type(b) then
         -- Values are only equal if their types are the same
         return false
     elseif type(a) == "table" then
         -- Tables are equal if they have the same keys and values
-        for k,v in pairs(a) do
+        for k, v in pairs(a) do
             if b[k] == nil then
                 return false
-            -- If deep comparison is enabled, check `Utils.equal()` for the values
             elseif deep and not Utils.equal(v, b[k], true) then
+                -- If deep comparison is enabled, check `Utils.equal()` for the values
                 return false
-            -- Otherwise, just check if the values are equal
             elseif not deep and v ~= b[k] then
+                -- Otherwise, just check if the values are equal
                 return false
             end
         end
         -- Check if the tables have the same number of keys
-        for k,v in pairs(b) do
+        for k, v in pairs(b) do
             if a[k] == nil then
                 return false
             end
@@ -474,30 +265,9 @@ end
 ---@param ext? string      # If specified, only files with the specified extension will be returned, and the extension will be stripped. (eg. `"png"` will only return .png files)
 ---@return string[] result # The table of file names.
 ---
+---@deprecated Use `FileSystemUtils.getFilesRecursive` instead
 function Utils.getFilesRecursive(dir, ext)
-    local result = {}
-
-    -- Get all files and folders within the specified directory
-    local paths = love.filesystem.getDirectoryItems(dir)
-    for _,path in ipairs(paths) do
-        local info = love.filesystem.getInfo(dir.."/"..path)
-
-        if info.type == "directory" then
-            -- If the path is a folder, recursively get all files within that folder
-            local inners = Utils.getFilesRecursive(dir.."/"..path, ext)
-            for _,inner in ipairs(inners) do
-                -- Append the current folder path to files from the subfolder
-                table.insert(result, path.."/"..inner)
-            end
-        elseif not ext or path:sub(-#ext) == ext then
-            -- If the path is a file, add it to the result table.
-            -- If an extension is specified, only add files with that extension,
-            -- and remove the extension from the file name.
-            table.insert(result, ext and path:sub(1, -#ext-1) or path)
-        end
-    end
-
-    return result
+    return FileSystemUtils.getFilesRecursive(dir, ext)
 end
 
 ---
@@ -509,7 +279,7 @@ end
 function Utils.getCombinedText(text)
     if type(text) == "table" then
         local s = ""
-        for _,v in ipairs(text) do
+        for _, v in ipairs(text) do
             if type(v) == "string" then
                 s = s .. v
             end
@@ -530,21 +300,9 @@ end
 ---@return number g # The green value of the converted color.
 ---@return number b # The blue value of the converted color.
 ---
---- *Source*: https://github.com/Wavalab/rgb-hsl-rgb
----
+---@deprecated Use `ColorUtils.HSLToRGB` instead
 function Utils.hslToRgb(h, s, l)
-    if s == 0 then return l, l, l end
-    local function to(p, q, t)
-        if t < 0 then t = t + 1 end
-        if t > 1 then t = t - 1 end
-        if t < .16667 then return p + (q - p) * 6 * t end
-        if t < .5 then return q end
-        if t < .66667 then return p + (q - p) * (.66667 - t) * 6 end
-        return p
-    end
-    local q = l < .5 and l * (1 + s) or l + s - l * s
-    local p = 2 * l - q
-    return to(p, q, h + .33334), to(p, q, h), to(p, q, h - .33334)
+    return ColorUtils.HSLToRGB(h, s, l)
 end
 
 ---
@@ -557,21 +315,9 @@ end
 ---@return number s # The saturation value of the converted color.
 ---@return number l # The lightness value of the converted color.
 ---
---- *Source*: https://github.com/Wavalab/rgb-hsl-rgb
----
+---@deprecated Use `ColorUtils.RGBToHSL` instead
 function Utils.rgbToHsl(r, g, b)
-    local max, min = math.max(r, g, b), math.min(r, g, b)
-    local b = max + min
-    local h = b / 2
-    if max == min then return 0, 0, h end
-    local s, l = h, h
-    local d = max - min
-    s = l > .5 and d / (2 - b) or d / b
-    if max == r then h = (g - b) / d + (g < b and 6 or 0)
-    elseif max == g then h = (b - r) / d + 2
-    elseif max == b then h = (r - g) / d + 4
-    end
-    return h * .16667, s, l
+    return ColorUtils.RGBToHSL(r, g, b)
 end
 
 ---
@@ -584,28 +330,9 @@ end
 ---@return number g # The green value of the converted color.
 ---@return number b # The blue value of the converted color.
 ---
---- *Source*: https://love2d.org/wiki/HSV_color
----
+---@deprecated Use `ColorUtils.HSVToRGB` instead
 function Utils.hsvToRgb(h, s, v)
-    if s <= 0 then return v,v,v end
-    h = h*6
-    local c = v*s
-    local x = (1-math.abs((h%2)-1))*c
-    local m,r,g,b = (v-c), 0, 0, 0
-    if h < 1 then
-        r, g, b = c, x, 0
-    elseif h < 2 then
-        r, g, b = x, c, 0
-    elseif h < 3 then
-        r, g, b = 0, c, x
-    elseif h < 4 then
-        r, g, b = 0, x, c
-    elseif h < 5 then
-        r, g, b = x, 0, c
-    else
-        r, g, b = c, 0, x
-    end
-    return r+m, g+m, b+m
+    return ColorUtils.HSVToRGB(h, s, v)
 end
 
 ---
@@ -615,10 +342,15 @@ end
 ---@param value? number  # An optional number specifying the alpha the returned table should have.
 ---@return number[] rgba # The converted RGBA table.
 ---
---- *Source*: https://github.com/s-walrus/hex2color
----
+---@deprecated Use `ColorUtils.hexToRGB` instead
 function Utils.hexToRgb(hex, value)
-    return {tonumber(string.sub(hex, 2, 3), 16)/255, tonumber(string.sub(hex, 4, 5), 16)/255, tonumber(string.sub(hex, 6, 7), 16)/255, value or 1}
+    local color = ColorUtils.hexToRGB(hex)
+    return {
+        color[1],
+        color[2],
+        color[3],
+        color[4] * (value or 1),
+    }
 end
 
 ---
@@ -627,8 +359,9 @@ end
 ---@param rgb number[] # The RGB table to convert. Values should be between 0 and 1.
 ---@return string hex  # The converted hex string. Formatted with a # at the start, eg. "#ff00ff".
 ---
+---@deprecated Use `ColorUtils.RGBToHex` instead
 function Utils.rgbToHex(rgb)
-    return string.format("#%02X%02X%02X", rgb[1]*255, rgb[2]*255, rgb[3]*255)
+    return ColorUtils.RGBToHex(rgb[1], rgb[2], rgb[3])
 end
 
 ---
@@ -637,12 +370,9 @@ end
 ---@param property string # The property string to convert.
 ---@return number[]? rgba # The converted RGBA table.
 ---
+---@deprecated Use `TiledUtils.parseColorProperty` instead
 function Utils.parseColorProperty(property)
-    if not property then return nil end
-    -- Tiled color properties are formatted as #AARRGGBB, where AA is the alpha value.
-    local str = "#"..string.sub(property, 4) -- Get the hex string without the alpha value
-    local a = tonumber(string.sub(property, 2, 3), 16)/255 -- Get the alpha value separately
-    return Utils.hexToRgb(str, a)
+    return TiledUtils.parseColorProperty(property)
 end
 
 ---
@@ -653,26 +383,9 @@ end
 ---@param deep? boolean # Whether shared table values between the two tables should also be merged.
 ---@return table tbl    # The initial table, now containing new values.
 ---
+---@deprecated Use `TableUtils.merge` instead
 function Utils.merge(tbl, other, deep)
-    if Utils.isArray(other) then
-        -- If the source table is an array, just append the values
-        -- to the end of the destination table.
-        for _,v in ipairs(other) do
-            table.insert(tbl, v)
-        end
-    else
-        for k,v in pairs(other) do
-            if deep and type(tbl[k]) == "table" and type(v) == "table" then
-                -- If we're deep merging and both values are tables,
-                -- merge the tables together.
-                Utils.merge(tbl[k], v, true)
-            else
-                -- Otherwise, just copy the value over.
-                tbl[k] = v
-            end
-        end
-    end
-    return tbl
+    return TableUtils.merge(tbl, other, deep)
 end
 
 ---
@@ -681,12 +394,9 @@ end
 ---@param ... table     # The list of tables to merge values from.
 ---@return table result # A new table containing the values of the series of tables provided.
 ---
+---@deprecated Use `TableUtils.mergeMany` instead
 function Utils.mergeMultiple(...)
-    local tbl = {}
-    for _,other in ipairs{...} do
-        Utils.merge(tbl, other)
-    end
-    return tbl
+    return TableUtils.mergeMany(...)
 end
 
 
@@ -697,45 +407,9 @@ end
 ---@param deep? boolean   # Whether tables inside the tbl will also have their duplicates removed.
 ---@return table result   # The new table that has its duplicates removed.
 ---
+---@deprecated Use `TableUtils.removeDuplicates` instead
 function Utils.removeDuplicates(tbl, deep)
-    local dupe_check = {}
-    local result = {}
-    if Utils.isArray(tbl) then
-        -- If the source table is an array, just append the values
-        -- to the end of the destination table.
-        for _,v in ipairs(tbl) do
-            if deep and type(v) == "table" then
-                v = Utils.removeDuplicates(v, true)
-            end
-            if not dupe_check[v] then
-                table.insert(result, v)
-                dupe_check[v] = true
-            end
-        end
-    else
-        for k,v in pairs(tbl) do
-            if deep and type(v) == "table" then
-                v = Utils.removeDuplicates(v, true)
-            end
-            if not dupe_check[v] then
-                result[k] = v
-                dupe_check[v] = true
-            end
-        end
-    end
-    
-    -- Remove duplicate tables
-    for _,f in pairs(result) do
-        if type(f) == "table" then
-            for _,s in pairs(result) do
-                if Utils.equal(f, s, true) and f ~= s then
-                    Utils.removeFromTable(result, s)
-                end
-            end
-        end
-    end
-    
-    return result
+    return TableUtils.removeDuplicates(tbl, deep)
 end
 
 ---
@@ -744,13 +418,9 @@ end
 ---@param tbl table       # The table to check.
 ---@return boolean result # Whether the table contains only numerical indexes or not.
 ---
+---@deprecated Use `TableUtils.isArray` instead
 function Utils.isArray(tbl)
-    for k,_ in pairs(tbl) do
-        if type(k) ~= "number" then
-            return false
-        end
-    end
-    return true
+    return TableUtils.isArray(tbl)
 end
 
 ---
@@ -761,13 +431,9 @@ end
 ---@param val T     # The value to be removed from the table.
 ---@return T? val   # The now removed value.
 ---
+---@deprecated Use `TableUtils.removeValue` instead
 function Utils.removeFromTable(tbl, val)
-    for i,v in ipairs(tbl) do
-        if v == val then
-            table.remove(tbl, i)
-            return v
-        end
-    end
+    return TableUtils.removeValue(tbl, val)
 end
 
 ---
@@ -777,13 +443,9 @@ end
 ---@param val any         # The value to check.
 ---@return boolean result # Whether the table contains the specified value.
 ---
+---@deprecated Use `TableUtils.contains` instead
 function Utils.containsValue(tbl, val)
-    for k,v in pairs(tbl) do
-        if v == val then
-            return true
-        end
-    end
-    return false
+    return TableUtils.contains(tbl, val)
 end
 
 ---
@@ -810,20 +472,20 @@ end
 function Utils.rotateTable(tbl, ccw)
     local result = {}
     local max = 0
-    for _,v in ipairs(tbl) do
+    for _, v in ipairs(tbl) do
         if type(v) ~= "table" then
-            error("table contains non-table value: "..v)
+            error("table contains non-table value: " .. v)
         else
             max = math.max(max, #v)
         end
     end
-    for i=1,max do
+    for i = 1, max do
         result[i] = {}
-        for j=1,#tbl do
+        for j = 1, #tbl do
             if ccw then
-                result[i][j] = tbl[j][(max+1)-i]
+                result[i][j] = tbl[j][(max + 1) - i]
             else
-                result[i][j] = tbl[(#tbl+1)-j][i]
+                result[i][j] = tbl[(#tbl + 1) - j][i]
             end
         end
     end
@@ -853,16 +515,16 @@ end
 function Utils.flipTable(tbl)
     local result = {}
     local max = 0
-    for _,v in ipairs(tbl) do
+    for _, v in ipairs(tbl) do
         if type(v) ~= "table" then
-            error("table contains non-table value: "..v)
+            error("table contains non-table value: " .. v)
         else
             max = math.max(max, #v)
         end
     end
-    for i=1,max do
+    for i = 1, max do
         result[i] = {}
-        for j=1,#tbl do
+        for j = 1, #tbl do
             result[i][j] = tbl[j][i]
         end
     end
@@ -876,13 +538,12 @@ end
 ---@param to? number     # If specified, the value will instead be rounded down to the nearest multiple of this number.
 ---@return number result # The rounded value.
 ---
+---@deprecated Use `math.floor` or `MathUtils.floorToMultiple` instead.
 function Utils.floor(value, to)
     if not to then
         return math.floor(value)
-    elseif to == 0 then
-        return 0
     else
-        return math.floor(value/to)*to
+        return MathUtils.floorToMultiple(value, to)
     end
 end
 
@@ -893,13 +554,12 @@ end
 ---@param to? number     # If specified, the value will instead be rounded up to the nearest multiple of this number.
 ---@return number result # The rounded value.
 ---
+---@deprecated Use `math.ceil` or `MathUtils.ceilToMultiple` instead.
 function Utils.ceil(value, to)
     if not to then
         return math.ceil(value)
-    elseif to == 0 then
-        return 0
     else
-        return math.ceil(value/to)*to
+        return MathUtils.ceilToMultiple(value, to)
     end
 end
 
@@ -910,11 +570,12 @@ end
 ---@param to? number     # If specified, the value will instead be rounded to the nearest multiple of this number.
 ---@return number result # The rounded value.
 ---
+---@deprecated Use `MathUtils.round` or `MathUtils.roundToMultiple` instead.
 function Utils.round(value, to)
     if not to then
-        return math.floor(value + 0.5)
+        return MathUtils.round(value)
     else
-        return math.floor((value + (to/2)) / to) * to
+        return MathUtils.roundToMultiple(value, to)
     end
 end
 
@@ -924,11 +585,9 @@ end
 ---@param value number   # The value to round.
 ---@return number result # The rounded value.
 ---
+---@deprecated Use `MathUtils.roundToZero` instead.
 function Utils.roundToZero(value)
-    if value == 0 then return 0 end
-    if value > 0 then return math.floor(value) end
-    if value < 0 then return math.ceil(value) end
-    return 0/0 -- return NaN lol
+    return MathUtils.roundToZero(value)
 end
 
 ---
@@ -937,11 +596,9 @@ end
 ---@param value number   # The value to round.
 ---@return number result # The rounded value.
 ---
+---@deprecated Use `MathUtils.roundFromZero` instead.
 function Utils.roundFromZero(value)
-    if value == 0 then return 0 end
-    if value > 0 then return math.ceil(value) end
-    if value < 0 then return math.floor(value) end
-    return 0/0 -- return NaN lol
+    return MathUtils.roundFromZero(value)
 end
 
 ---
@@ -963,8 +620,9 @@ end
 ---@param max number     # The maximum bound. If the value is greater than this number, it is set to it.
 ---@return number result # The new limited number.
 ---
+---@deprecated Use `MathUtils.clamp` instead
 function Utils.clamp(val, min, max)
-    return math.max(min, math.min(max, val))
+    return MathUtils.clamp(val, min, max)
 end
 
 ---
@@ -973,8 +631,9 @@ end
 ---@param num number   # The value to check.
 ---@return number sign # The sign of the value.
 ---
+---@deprecated Use `MathUtils.sign` instead
 function Utils.sign(num)
-    return num > 0 and 1 or (num < 0 and -1 or 0)
+    return MathUtils.sign(num)
 end
 
 ---
@@ -986,13 +645,9 @@ end
 ---@param amount number  # The amount the initial value should approach the target by.
 ---@return number result # The new value. If the value would have passed the target value, it will instead be set to the target.
 ---
+---@deprecated Use `MathUtils.approach` instead
 function Utils.approach(val, target, amount)
-    if target < val then
-        return math.max(target, val - amount)
-    elseif target > val then
-        return math.min(target, val + amount)
-    end
-    return target
+    return MathUtils.approach(val, target, amount)
 end
 
 ---
@@ -1004,9 +659,9 @@ end
 ---@param amount number  # The amount the initial angle should approach the target by.
 ---@return number result # The new angle. If the angle would have passed the target angle, it will instead be set to the target.
 ---
+---@deprecated Use `MathUtils.approachAngle` instead
 function Utils.approachAngle(val, target, amount)
-    local to = val + Utils.angleDiff(target, val)
-    return Utils.approach(val, to, amount)
+    return MathUtils.approachAngle(val, target, amount)
 end
 
 ---
@@ -1020,15 +675,14 @@ end
 ---@param oob? boolean # If true, then the percentage can be values beyond the range of 0 to 1.
 ---@return T result    # The new value from the range.
 ---
+---@deprecated Use `MathUtils.lerp` or `TableUtils.lerp` instead. As they do not clamp by default, clamp the percentage yourself if needed.
 function Utils.lerp(a, b, t, oob)
+    local percentage = oob and t or MathUtils.clamp(t, 0, 1)
+
     if type(a) == "table" and type(b) == "table" then
-        local o = {}
-        for k,v in ipairs(a) do
-            table.insert(o, Utils.lerp(v, b[k] or v, t, oob))
-        end
-        return o
+        return TableUtils.lerp(a, b, percentage)
     else
-        return a + (b - a) * (oob and t or Utils.clamp(t, 0, 1))
+        return MathUtils.lerp(a, b, percentage)
     end
 end
 
@@ -1045,7 +699,8 @@ end
 ---@return number new_y # The vertical position of the new point.
 ---
 function Utils.lerpPoint(x1, y1, x2, y2, t, oob)
-    return Utils.lerp(x1, x2, t, oob), Utils.lerp(y1, y2, t, oob)
+    local percentage = oob and t or MathUtils.clamp(t, 0, 1)
+    return MathUtils.lerpPoint(x1, y1, x2, y2, percentage)
 end
 
 ---@alias easetype
@@ -1134,9 +789,9 @@ function Utils.ease(a, b, t, mode)
         return b
     else
         if not Ease[mode] then
-            error("\""..tostring(mode).."\" is not a valid easing method")
+            error("\"" .. tostring(mode) .. "\" is not a valid easing method")
         end
-        return Ease[mode](Utils.clamp(t, 0, 1), a, (b - a), 1)
+        return Ease[mode](MathUtils.clamp(t, 0, 1), a, (b - a), 1)
     end
 end
 
@@ -1151,19 +806,17 @@ end
 ---@param mode? easetype # If specified, the value's new position will be eased into the new range based on the percentage of its position in its initial range.
 ---@return number result # The value within the new range.
 ---
+---@deprecated Use `MathUtils.rangeMap`, `Utils.ease` and `MathUtils.clamp` instead
 function Utils.clampMap(val, min_a, max_a, min_b, max_b, mode)
     if min_a > max_a then
-        -- Swap min and max
         min_a, max_a = max_a, min_a
         min_b, max_b = max_b, min_b
     end
-    val = Utils.clamp(val, min_a, max_a)
-    local t = (val - min_a) / (max_a - min_a)
     if mode and mode ~= "linear" then
-        return Utils.ease(min_b, max_b, t, mode)
-    else
-        return Utils.lerp(min_b, max_b, t)
+        local range = MathUtils.clamp(MathUtils.rangeMap(val, min_a, max_a, 0, 1), 0, 1)
+        return Utils.ease(min_b, max_b, range, mode)
     end
+    return MathUtils.rangeMap(MathUtils.clamp(val, min_a, max_a), min_a, max_a, min_b, max_b)
 end
 
 ---
@@ -1175,7 +828,9 @@ end
 ---@return number result # The sine-based value within the range.
 ---
 function Utils.wave(val, min, max)
-    return Utils.clampMap(math.sin(val), -1,1, min or -1,max or 1)
+    min = min or -1
+    max = max or 1
+    return MathUtils.clamp(MathUtils.rangeMap(math.sin(val), -1, 1, min, max), min, max)
 end
 
 ---
@@ -1206,7 +861,7 @@ end
 local performance_stack = {}
 
 function Utils.pushPerformance(name)
-    table.insert(performance_stack, 1, {love.timer.getTime(), name})
+    table.insert(performance_stack, 1, { love.timer.getTime(), name })
 end
 
 function Utils.popPerformance()
@@ -1220,17 +875,17 @@ function Utils.popPerformance()
 end
 
 function Utils.printPerformance()
-    for k,times in pairs(PERFORMANCE_TEST) do
+    for k, times in pairs(PERFORMANCE_TEST) do
         if k ~= "Total" and #times > 0 then
             local n = 0
-            for _,v in ipairs(times) do
+            for _, v in ipairs(times) do
                 n = n + v
             end
-            Kristal.Console:log("["..PERFORMANCE_TEST_STAGE.."] "..k.. " | "..#times.." calls | "..(n / #times).." | Total: "..n)
+            Kristal.Console:log("[" .. PERFORMANCE_TEST_STAGE .. "] " .. k .. " | " .. #times .. " calls | " .. (n / #times) .. " | Total: " .. n)
         end
     end
     if PERFORMANCE_TEST["Total"] then
-        Kristal.Console:log("["..PERFORMANCE_TEST_STAGE.."] Total: "..PERFORMANCE_TEST["Total"][1])
+        Kristal.Console:log("[" .. PERFORMANCE_TEST_STAGE .. "] Total: " .. PERFORMANCE_TEST["Total"][1])
     end
 end
 
@@ -1243,13 +898,7 @@ end
 ---@return number[] result_color # A new table of RGBA values.
 ---
 function Utils.mergeColor(start_color, end_color, amount)
-    local color = {
-        Utils.lerp(start_color[1],      end_color[1],      amount),
-        Utils.lerp(start_color[2],      end_color[2],      amount),
-        Utils.lerp(start_color[3],      end_color[3],      amount),
-        Utils.lerp(start_color[4] or 1, end_color[4] or 1, amount)
-    }
-    return color
+    return ColorUtils.mergeColor(start_color, end_color, amount)
 end
 
 ---@alias point number[]
@@ -1265,7 +914,7 @@ function Utils.getPolygonEdges(points)
     local edges = {}
     for i = 1, #points do
         local p1, p2 = points[i], points[(i % #points) + 1]
-        table.insert(edges, {p1, p2, angle=math.atan2(p2[2] - p1[2], p2[1] - p1[1])})
+        table.insert(edges, { p1, p2, angle = math.atan2(p2[2] - p1[2], p2[1] - p1[1]) })
     end
     return edges
 end
@@ -1307,7 +956,7 @@ end
 ---@return number|boolean x     # If the lines intersected, this will be the horizontal position of the intersection; otherwise, this value will be `false`.
 ---@return number|linefailure y # If the lines intersected, this will be the vertical position of the intersection; otherwise, this will be a string describing why the lines did not intersect.
 ---
-function Utils.getLineIntersect(l1p1x,l1p1y, l1p2x,l1p2y, l2p1x,l2p1y, l2p2x,l2p2y, seg1, seg2)
+function Utils.getLineIntersect(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y, seg1, seg2)
     local a1,b1,a2,b2 = l1p2y-l1p1y, l1p1x-l1p2x, l2p2y-l2p1y, l2p1x-l2p2x
     local c1,c2 = a1*l1p1x+b1*l1p1y, a2*l2p1x+b2*l2p1y
     local det = a1*b2 - a2*b1
@@ -1424,6 +1073,7 @@ end
 ---@param c? number   # The third argument.
 ---@return number rng # The new random value.
 ---
+---@deprecated Use the random functions in `MathUtils` instead
 function Utils.random(a, b, c)
     if not a then
         return love.math.random()
@@ -1432,7 +1082,7 @@ function Utils.random(a, b, c)
     else
         local n = love.math.random() * (b - a) + a
         if c then
-            n = Utils.round(n, c)
+            n = MathUtils.roundToMultiple(n, c)
         end
         return n
     end
@@ -1444,7 +1094,7 @@ end
 ---@return number sign # The new random sign.
 ---
 function Utils.randomSign()
-    return love.math.random() < 0.5 and 1 or -1
+    return MathUtils.random() < 0.5 and 1 or -1
 end
 
 ---
@@ -1453,7 +1103,7 @@ end
 ---@return number[] vector # The vector table.
 ---
 function Utils.randomAxis()
-    local t = {Utils.randomSign()}
+    local t = { Utils.randomSign() }
     table.insert(t, love.math.random(2), 0)
     return t
 end
@@ -1469,13 +1119,13 @@ end
 ---@return number y # The vertical position of a random point on the rectangle border.
 ---
 function Utils.randomPointOnBorder(x, y, w, h)
-    if love.math.random() < 0.5 then
-        local sx = (love.math.random() < 0.5) and x or x+w
-        local sy = love.math.random(y, y+h)
+    if MathUtils.random() < 0.5 then
+        local sx = (MathUtils.random() < 0.5) and x or x + w
+        local sy = MathUtils.random(y, y + h)
         return sx, sy
     else
-        local sx = love.math.random(x, x+w)
-        local sy = (love.math.random() < 0.5) and y or y+h
+        local sx = MathUtils.random(x, x + w)
+        local sy = (MathUtils.random() < 0.5) and y or y + h
         return sx, sy
     end
 end
@@ -1488,14 +1138,9 @@ end
 ---@param filter fun(v:T):boolean # A function that should return `true` for all values in the table to keep, and `false` for values to discard.
 ---@return T[] result             # A new array containing only approved values.
 ---
+---@deprecated Use `TableUtils.filter` instead
 function Utils.filter(tbl, filter)
-    local t = {}
-    for _,v in ipairs(tbl) do
-        if filter(v) then
-            table.insert(t, v)
-        end
-    end
-    return t
+    return TableUtils.filter(tbl, filter)
 end
 
 ---
@@ -1505,15 +1150,9 @@ end
 ---@param tbl T[]                 # An array of values.
 ---@param filter fun(v:T):boolean # A function that should return `true` for all values in the table to keep, and `false` for values to discard.
 ---
+---@deprecated Use `TableUtils.filterInPlace` instead
 function Utils.filterInPlace(tbl, filter)
-    local i = 1
-    while i <= #tbl do
-        if not filter(tbl[i]) then
-            table.remove(tbl, i)
-        else
-            i = i + 1
-        end
-    end
+    TableUtils.filterInPlace(tbl, filter)
 end
 
 ---
@@ -1525,10 +1164,11 @@ end
 ---@param remove? boolean        # If true, the selected value will be removed from the given table.
 ---@return T result              # The randomly selected value.
 ---
+---@deprecated Use `TableUtils.pick`, `TableUtils.filter` and `TableUtils.removeValue` instead.
 function Utils.pick(tbl, sort, remove)
     if sort then
         local indexes = {}
-        for i,v in ipairs(tbl) do
+        for i, v in ipairs(tbl) do
             if sort(v) then
                 table.insert(indexes, i)
             end
@@ -1583,8 +1223,9 @@ end
 ---@param tbl T[]     # An array of values.
 ---@return T[] result # The new randomly shuffled array.
 ---
+---@deprecated Use `TableUtils.shuffle` instead
 function Utils.shuffle(tbl)
-    return Utils.pickMultiple(tbl, #tbl)
+    return TableUtils.shuffle(tbl)
 end
 
 ---
@@ -1620,18 +1261,9 @@ end
 ---@param deep? boolean # If true, tables contained inside listed tables will also be merged.
 ---@return T[] result   # The new table containing all values.
 ---
+---@deprecated Use `TableUtils.flatten` instead
 function Utils.flatten(tbl, deep)
-    local t = {}
-    for _,o in ipairs(tbl) do
-        if type(o) == "table" and not isClass(o) then -- Do not flatten classes
-            for _,v in ipairs(deep and Utils.flatten(o, true) or o) do
-                table.insert(t, v)
-            end
-        else
-            table.insert(t, o)
-        end
-    end
-    return t
+    return TableUtils.flatten(tbl, deep)
 end
 
 ---
@@ -1647,11 +1279,13 @@ function Utils.group(tbl, count)
     local i = 0
     while i <= #tbl do
         local o = {}
-        for _=1,count do
+        for _ = 1, count do
             i = i + 1
             if tbl[i] then
                 table.insert(o, tbl[i])
-            else break end
+            else
+                break
+            end
         end
         if #o > 0 then
             table.insert(t, o)
@@ -1663,15 +1297,14 @@ end
 ---
 --- Returns the angle from one point to another, or from one object's position to another's.
 ---
----@param x1 number|Object  # The horizontal position of the first point.
----@param y1 number|Object  # The vertical position of the first point.
----@param x2 number|Object  # The horizontal position of the second point.
----@param y2 number|Object  # The vertical position of the second point.
+---@param x1 number  # The horizontal position of the first point.
+---@param y1 number  # The vertical position of the first point.
+---@param x2 number  # The horizontal position of the second point.
+---@param y2 number  # The vertical position of the second point.
 ---@return number angle     # The angle from the first point to the second point.
 ---
----@overload fun(obj1:Object, obj2:Object): angle:number
----
-function Utils.angle(x1,y1, x2,y2)
+---@overload fun(x1:Object, y1:Object): angle:number
+function Utils.angle(x1, y1, x2, y2)
     if isClass(x1) and isClass(y1) and x1:includes(Object) and y1:includes(Object) then
         -- If two objects are passed, use their positions instead
         local obj1, obj2 = x1, y1
@@ -1685,7 +1318,7 @@ function Utils.angle(x1,y1, x2,y2)
             return math.atan2(oy2 - oy1, ox2 - ox1)
         end
     else
-        return math.atan2(y2 - y1, x2 - x1)
+        return MathUtils.angle(x1, y1, x2, y2)
     end
 end
 
@@ -1696,9 +1329,9 @@ end
 ---@param b number     # The second angle to compare.
 ---@return number diff # The difference between the two angles.
 ---
+---@deprecated Use `MathUtils.angleDiff` instead.
 function Utils.angleDiff(a, b)
-    local r = a - b
-    return (r + math.pi) % (math.pi*2) - math.pi
+    return MathUtils.angleDiff(a, b)
 end
 
 ---
@@ -1710,9 +1343,9 @@ end
 ---@param y2 number    # The vertical position of the second point.
 ---@return number dist # The linear distance from the first point to the second point.
 ---
-function Utils.dist(x1,y1, x2,y2)
-    local dx, dy = x1-x2, y1-y2
-    return math.sqrt(dx*dx + dy*dy)
+---@deprecated Use `MathUtils.dist` instead.
+function Utils.dist(x1, y1, x2, y2)
+    return MathUtils.dist(x1, y1, x2, y2)
 end
 
 ---
@@ -1722,13 +1355,14 @@ end
 ---@param filter string   # The substring that the string may contain.
 ---@return boolean result # Whether the string contained the specified substring.
 ---
+---@deprecated Use `StringUtils.contains` instead.
 function Utils.contains(str, filter)
-    return string.find(str, filter, 1, true) ~= nil
+    return StringUtils.contains(str, filter)
 end
 
 ---
 --- Returns whether a string starts with the specified substring, or a table starts with the specified series of values. \
---- The function will also return a second value, created by copying the inital value and removing the prefix.
+--- The function will also return a second value, created by copying the initial value and removing the prefix.
 ---
 ---@generic T : string|table
 ---@param value T          # The value to check the beginning of.
@@ -1736,37 +1370,19 @@ end
 ---@return boolean success # Whether the value started with the specified prefix.
 ---@return T rest          # A new value created by removing the prefix substring or values from the initial value. If the result was unsuccessful, this value will simply be the initial unedited value.
 ---
+---@deprecated Use `StringUtils.startsWith` or `TableUtils.startsWith` instead.
 function Utils.startsWith(value, prefix)
     if type(value) == "string" then
-        -- If the value is a string, check if it starts with the prefix
-        if value:sub(1, #prefix) == prefix then
-            return true, value:sub(#prefix + 1)
-        else
-            return false, value
-        end
+        return StringUtils.startsWith(value, prefix)
     elseif type(value) == "table" then
-        -- If the value is a table, check if the first few values match the prefix
-        if #value < #prefix then
-            -- Prefix cannot be longer than the value
-            return false, value
-        end
-        -- Create a copy of the value to remove the prefix from
-        local copy = Utils.copy(value)
-        for i,v in ipairs(prefix) do
-            if value[i] ~= v then
-                -- Return false if any value in the prefix does not match
-                return false, value
-            end
-            table.remove(copy, 1)
-        end
-        return true, copy
+        return TableUtils.startsWith(value, prefix)
     end
     return false, value
 end
 
 ---
 --- Returns whether a string ends with the specified substring, or a table ends with the specified series of values. \
---- The function will also return a second value, created by copying the inital value and removing the suffix.
+--- The function will also return a second value, created by copying the initial value and removing the suffix.
 ---
 ---@generic T : string|table
 ---@param value T          # The value to check the end of.
@@ -1774,30 +1390,12 @@ end
 ---@return boolean success # Whether the value ended with the specified suffix.
 ---@return T rest          # A new value created by removing the suffix substring or values from the initial value. If the result was unsuccessful, this value will simply be the initial unedited value.
 ---
+---@deprecated Use `StringUtils.endsWith` or `TableUtils.endsWith` instead.
 function Utils.endsWith(value, suffix)
     if type(value) == "string" then
-        -- If the value is a string, check if it ends with the prefix
-        if value:sub(-#suffix) == suffix then
-            return true, value:sub(1, -#suffix - 1)
-        else
-            return false, value
-        end
+        return StringUtils.endsWith(value, suffix)
     elseif type(value) == "table" then
-        -- If the value is a table, check if the last few values match the suffix
-        if #value < #suffix then
-            -- Suffix cannot be longer than the value
-            return false, value
-        end
-        -- Create a copy of the value to remove the suffix from
-        local copy = Utils.copy(value)
-        for i = #value, 1, -1 do
-            if suffix[#suffix + (i - #value)] ~= copy[i] then
-                -- Return false if any value in the suffix does not match
-                return false, value
-            end
-            table.remove(copy, i)
-        end
-        return true, copy
+        return TableUtils.endsWith(value, suffix)
     end
     return false, value
 end
@@ -1807,35 +1405,9 @@ end
 ---@param image string raw image path specified by tileset/map
 ---@param path string path of tileset/map, `image` is relative to this
 ---@return string|nil final_path nil in case of error
+---@deprecated Use `FileSystemUtils.absoluteToLocalPath` instead.
 function Utils.absoluteToLocalPath(prefix, image, path)
-    prefix = Mod.info.path .. "/" .. prefix
-
-    -- Split paths by seperator
-    local base_path = Utils.split(path, "/")
-    local dest_path = Utils.split(image, "/")
-    local up_count = 0
-    while dest_path[1] == ".." do
-        up_count = up_count + 1
-        -- Move up one directory
-        table.remove(base_path, #base_path)
-        table.remove(dest_path, 1)
-    end
-    if dest_path[1] == "libraries" then
-        for i = 2, up_count do
-            table.remove(dest_path, 1)
-        end
-    end
-
-    local final_path = table.concat(Utils.merge(base_path, dest_path), "/")
-
-    -- Strip prefix
-    local has_prefix
-    has_prefix, final_path = Utils.startsWith(final_path, prefix)
-    --print(prefix, final_path, has_prefix)
-    if not has_prefix then return nil end
-
-    -- Strip extension
-    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0))
+    return FileSystemUtils.absoluteToLocalPath(prefix, image, path)
 end
 
 ---
@@ -1844,15 +1416,9 @@ end
 ---@param str string     # The initial string to edit.
 ---@return string result # The new string, in Title Case.
 ---
+---@deprecated Use `StringUtils.titleCase` instead.
 function Utils.titleCase(str)
-    local buf = {}
-    -- FIXME:
-    ---@diagnostic disable-next-line: undefined-field
-    for word in string.gfind(str, "%S+") do
-        local first, rest = string.sub(word, 1, 1), string.sub(word, 2)
-        table.insert(buf, string.upper(first) .. string.lower(rest))
-    end
-    return table.concat(buf, " ")
+    return StringUtils.titleCase(str)
 end
 
 ---
@@ -1861,8 +1427,9 @@ end
 ---@param str string     # The initial string to edit.
 ---@return string result # The new string, without padding whitespace.
 ---
+---@deprecated Use `StringUtils.trim` instead.
 function Utils.trim(str)
-    return str:match("^%s*(.-)%s*$")
+    return StringUtils.trim(str)
 end
 
 ---
@@ -1871,46 +1438,9 @@ end
 ---@param t table        # The table to check.
 ---@return number result # The amount of indexes found.
 ---
+---@deprecated Use `TableUtils.getKeyCount` instead.
 function Utils.tableLength(t)
-    local count = 0
-    for _ in pairs(t) do count = count + 1 end
-    return count
-end
-
----
---- Returns a non-numerical index based on its position in a `pairs()` iterator.
----
----@param t table        # The table to get the index from.
----@param number number  # The numerical position the index will be at.
----@return number? index # The index found at the specified position.
----
-function Utils.keyFromNumber(t, number)
-    local count = 1
-    for key, value in pairs(t) do
-        if count == number then
-            return key
-        end
-        count = count + 1
-    end
-    return nil
-end
-
----
---- Returns a number based on the position of a specified key in a `pairs()` iterator.
----
----@param t table           # The table to get the position from.
----@param name any          # The key to find the position of.
----@return number? position # The numerical position of the specified index.
----
-function Utils.numberFromKey(t, name)
-    local count = 1
-    for key, value in pairs(t) do
-        if key == name then
-            return count
-        end
-        count = count + 1
-    end
-    return nil
+    return TableUtils.getKeyCount(t)
 end
 
 ---
@@ -1921,13 +1451,9 @@ end
 ---@param value T           # The value to find the position of.
 ---@return number? position # The position found for the specified value.
 ---
+---@deprecated Use `TableUtils.getIndex` instead.
 function Utils.getIndex(t, value)
-    for i,v in ipairs(t) do
-        if v == value then
-            return i
-        end
-    end
-    return nil
+    return TableUtils.getIndex(t, value)
 end
 
 ---
@@ -1938,13 +1464,9 @@ end
 ---@param value V      # The value to find the key of.
 ---@return K? key      # The key found for the specified value.
 ---
+---@deprecated Use `TableUtils.getKey` instead.
 function Utils.getKey(t, value)
-    for key, v in pairs(t) do
-        if v == value then
-            return key
-        end
-    end
-    return nil
+    return TableUtils.getKey(t, value)
 end
 
 ---
@@ -1954,12 +1476,9 @@ end
 ---@param t table<T, any> # The table to get the keys from.
 ---@return T[] result     # An array of each key in the table.
 ---
+---@deprecated Use `TableUtils.getKeys` instead.
 function Utils.getKeys(t)
-    local result = {}
-    for key,_ in pairs(t) do
-        table.insert(result, key)
-    end
-    return result
+    return TableUtils.getKeys(t)
 end
 
 ---
@@ -1971,7 +1490,7 @@ end
 ---@return V? value      # The value found at the specified index, or `nil` if no similar index was found.
 ---
 function Utils.getAnyCase(t, key)
-    for k,v in pairs(t) do
+    for k, v in pairs(t) do
         if type(k) == "string" and k:lower() == key:lower() then
             return v
         end
@@ -1987,9 +1506,9 @@ end
 ---@param max number     # The maximum bound. If the absolute value of the specified value is greater than this number, it is set to it.
 ---@return number result # The new limited number.
 ---
+---@deprecated Use `MathUtils.absClamp` instead.
 function Utils.absClamp(value, min, max)
-    local sign = value < 0 and -1 or 1
-    return math.max(min, math.min(max, math.abs(value))) * sign
+    return MathUtils.absClamp(value, min, max)
 end
 
 ---
@@ -1999,8 +1518,9 @@ end
 ---@param b number       # The second number to compare.
 ---@return number result # The specified number that was closer to zero than the other.
 ---
+---@deprecated Use `MathUtils.absMin` instead.
 function Utils.absMin(a, b)
-    return math.abs(b) < math.abs(a) and b or a
+    return MathUtils.absMin(a, b)
 end
 
 ---
@@ -2010,8 +1530,9 @@ end
 ---@param b number       # The second number to compare.
 ---@return number result # The specified number that was further from zero than the other.
 ---
+---@deprecated Use `MathUtils.absMax` instead.
 function Utils.absMax(a, b)
-    return math.abs(b) > math.abs(a) and b or a
+    return MathUtils.absMax(a, b)
 end
 
 ---@alias facing
@@ -2092,8 +1613,9 @@ end
 ---@param pos number     # The position at which to insert the string.
 ---@return string result # The newly created string.
 ---
+---@deprecated Use `StringUtils.insert` instead.
 function Utils.stringInsert(str1, str2, pos)
-    return Utils.sub(str1, 1, pos) .. str2 .. Utils.sub(str1, pos + 1)
+    return StringUtils.insert(str1, str2, pos)
 end
 
 ---
@@ -2104,21 +1626,9 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
+---@deprecated Use `TiledUtils.parsePropertyList` instead.
 function Utils.parsePropertyList(id, properties)
-    properties = properties or {}
-    if properties[id] then
-        -- Numberless property found, return it as the only value in the list
-        return {properties[id]}
-    else
-        local result = {}
-        -- Loop through properties with an increasing number suffix
-        local i = 1
-        while properties[id..i] do
-            table.insert(result, properties[id..i])
-            i = i + 1
-        end
-        return result
-    end
+    return TiledUtils.parsePropertyList(id, properties)
 end
 
 ---
@@ -2132,27 +1642,9 @@ end
 ---@param properties table # The properties table of a Tiled event's data.
 ---@return table result    # The list of property values found.
 ---
+---@deprecated Use `TiledUtils.parsePropertyMultiList` instead.
 function Utils.parsePropertyMultiList(id, properties)
-    local single_list = Utils.parsePropertyList(id, properties)
-    if #single_list > 0 then
-        -- If a shallower list was found (e.g. "id1", "id2" instead of "id1_1", "id1_2"),
-        -- return it as the only value in the list.
-        return {single_list}
-    else
-        local result = {}
-        local i = 1
-        while properties[id..i.."_1"] do
-            local list = {}
-            local j = 1
-            while properties[id..i.."_"..j] do
-                table.insert(list, properties[id..i.."_"..j])
-                j = j + 1
-            end
-            table.insert(result, list)
-            i = i + 1
-        end
-        return result
-    end
+    return TiledUtils.parsePropertyMultiList(id, properties)
 end
 
 ---
@@ -2167,26 +1659,9 @@ end
 ---@return boolean inverted   # Whether the result of the check should be inverted.
 ---@return any value          # The value that the flag should be compared to.
 ---
+---@deprecated Use `TiledUtils.parseFlagProperties` instead.
 function Utils.parseFlagProperties(flag, inverted, value, default_value, properties)
-    properties = properties or {}
-
-    local result_inverted = false
-    local result_flag = nil
-    local result_value = default_value
-
-    if properties[flag] then
-        -- If the flag property starts with an exclamation mark, the result should
-        -- be inverted and the flag name should be the rest of the string.
-        result_inverted, result_flag = Utils.startsWith(properties[flag], "!")
-    end
-    if properties[inverted] then
-        result_inverted = not result_inverted
-    end
-    if properties[value] then
-        result_value = properties[value]
-    end
-
-    return result_flag, result_inverted, result_value
+    return TiledUtils.parseFlagProperties(flag, inverted, value, default_value, properties)
 end
 
 ---@alias pointxy { x: number, y: number }
@@ -2243,57 +1718,15 @@ end
 ---@param tbl table      # The table containing the values to substitute.
 ---@return string result # The formatted string.
 ---
+---@deprecated Use `StringUtils.format` instead.
 function Utils.format(str, tbl)
-    local processed = {}
-    for i,v in ipairs(tbl) do
-        -- Substitute numerical indexes first
-        table.insert(processed, i)
-        if str:gsub("{"..i.."}", v) ~= str then
-            -- Try substituting placeholders using the current numerical index
-            str = str:gsub("{"..i.."}", v)
-        elseif str:gsub("{}", v, 1) ~= str then
-            -- Otherwise, if empty placeholders exist,
-            -- substitute the first one with the current value
-            str = str:gsub("{}", tostring(v), 1)
-        end
-    end
-    for k,v in pairs(tbl) do
-        -- Substitute all non-numerical table keys
-        if not Utils.containsValue(processed, k) then -- ipairs already did this
-            table.insert(processed, k) -- unneeded but just in case we need to expand this function later
-            if str:gsub("{"..k.."}", v) ~= str then
-                str = str:gsub("{"..k.."}", tostring(v))
-            end
-        end
-    end
-    -- TODO: If there's still {} left, let's try to run its contents as code
-    return str
+    return StringUtils.format(str, tbl)
 end
 
-
 -- TODO: Merge with getFilesRecursive?
-
+---@deprecated Use `FileSystemUtils.getFilesRecursive` instead.
 function Utils.findFiles(folder, base, path)
-    -- getDirectoryItems but recursive.
-    -- The base argument is solely to remove stuff.
-    -- The path is what we should append to the start of the file name.
-
-    local base_folder = base or (folder .. "/")
-    local path = path or ""
-    local files = {}
-    for _, f in ipairs(love.filesystem.getDirectoryItems(folder)) do
-        local info = love.filesystem.getInfo(folder .. "/" .. f)
-        if info.type == "directory" then
-            table.insert(files, path .. (f:gsub(base_folder,"",1)))
-            local new_path = path .. f .. "/"
-            for _, ff in ipairs(Utils.findFiles(folder.."/"..f, base_folder, new_path)) do
-                table.insert(files, (ff:gsub(base_folder,"",1)))
-            end
-        else
-            table.insert(files, ((folder.."/"..f):gsub(base_folder,"",1)))
-        end
-    end
-    return files
+    return FileSystemUtils.findFiles(folder, base, path)
 end
 
 ---
@@ -2305,11 +1738,9 @@ end
 ---@return boolean flip_y    # Whether the tile should be flipped vertically.
 ---@return boolean flip_diag # Whether the tile should be flipped diagonally.
 ---
+---@deprecated Use `TiledUtils.parseTileGid` instead.
 function Utils.parseTileGid(id)
-    return bit.band(id, 0x0FFFFFFF),
-           bit.band(id, 0x80000000) ~= 0,
-           bit.band(id, 0x40000000) ~= 0,
-           bit.band(id, 0x20000000) ~= 0
+    return TiledUtils.parseTileGid(id)
 end
 
 ---
@@ -2322,6 +1753,7 @@ end
 ---@param properties? table  # A table defining additional properties for the collider.
 ---@return Collider collider # The new Collider instance.
 ---
+---@deprecated Use `TiledUtils.colliderFromShape` instead.
 function Utils.colliderFromShape(parent, data, x, y, properties)
     x, y = x or 0, y or 0
     properties = properties or {}
@@ -2382,18 +1814,9 @@ end
 ---@param with? string       # If specified, the string will be filled with this specified string, instead of with spaces.
 ---@return string result     # The new padded result.
 ---
+---@deprecated Use `StringUtils.pad` instead.
 function Utils.padString(str, len, beginning, with)
-    with = with or " "
-    local i = #str
-    while i < len do
-        if beginning then
-            str = with .. str
-        else
-            str = str .. with
-        end
-        i = i + #with
-    end
-    return str
+    return StringUtils.pad(str, len, beginning, with)
 end
 
 ---
@@ -2409,37 +1832,9 @@ end
 ---@param trunc_affix? string|false # The affix added to the string during truncation. If `false`, does not add an affix. Defaults to `...`.
 ---@return string result            # The truncated result. Returns the original string if it was not truncated.
 ---@return number scale             # The scale the `result` string should be printed at to fit within the specified width.
+---@deprecated Use `StringUtils.squishAndTrunc` instead.
 function Utils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_affix)
-    local scale = def_scale or 1
-    local text_width = font:getWidth(str) * scale
-
-    if text_width > max_width then
-        scale = max_width / text_width * scale
-        if min_scale and scale < min_scale then
-            scale = min_scale
-
-            local affix_width = 0
-            if trunc_affix ~= false then
-                trunc_affix = trunc_affix or "..."
-                affix_width = font:getWidth(trunc_affix) * scale
-            end
-
-            local trunc_str
-            for i=1, Utils.len(str) do
-                trunc_str = Utils.sub(str, 1, i)
-                local width = font:getWidth(trunc_str) * scale
-                if width > (max_width - affix_width) then
-                    trunc_str = Utils.sub(str, 1, i-1)
-                    break
-                end
-            end
-            if trunc_affix then
-                trunc_str = trunc_str .. trunc_affix
-            end
-            return trunc_str, scale
-        end
-    end
-    return str, scale
+    return StringUtils.squishAndTrunc(str, font, max_width, def_scale, min_scale, trunc_affix)
 end
 
 ---
@@ -2452,12 +1847,13 @@ end
 ---
 ---@overload fun(val:number, max:number):number
 ---
+---@deprecated Use `MathUtils.wrap` or `MathUtils.wrapIndex` instead.
 function Utils.clampWrap(val, min, max)
     if not max then
         max = min
         min = 1
     end
-    return (val - min) % (max - min + 1) + min
+    return MathUtils.wrap(val, min, max + 1)
 end
 
 ---@see http://lua-users.org/wiki/SortedIteration
@@ -2520,36 +1916,9 @@ end
 ---@param path string
 ---@return string dirname
 ---@see https://stackoverflow.com/a/12191225
+---@deprecated Use `FileSystemUtils.getDirname` instead.
 function Utils.getDirname(path)
-    ---@type string
-    local dirname, _, _ = string.match(path, "(.-)([^/]-%.?([^%./]*))$")
-    local trailing_slashes = dirname:find("/+$", 2)
-    if trailing_slashes then dirname = dirname:sub(1, trailing_slashes - 1) end
-    return dirname
-end
-
-local special_class_variables = {
-    __dont_include = true,
-    __includes = true,
-    __includes_all = true,
-    __index = true,
-    __super = true,
-    __includers = true,
-
-    init = true,
-    include = true,
-    includes = true,
-    clone = true,
-    canDeepCopy = true,
-    canDeepCopyKey = true
-}
-
-local function next_noclassvars(t, k)
-    local v
-    repeat
-        k, v = next(t, k)
-    until not special_class_variables[k]
-    return k, v
+    return FileSystemUtils.getDirname(path)
 end
 
 --- Iterates through the fields of a class (e.g. `pairs`) excluding special class variables and functions
@@ -2557,28 +1926,25 @@ end
 ---@generic K, V
 ---@param class T
 ---@return (fun(table: table<K, V>, index?: K):K, V), T
+---@deprecated Use `ClassUtils.iterClass` instead
 function Utils.iterClass(class)
-    return next_noclassvars, class
+    return ClassUtils.iterClass(class)
 end
 
 --- Checks if the value is NaN (Not a Number)
 ---@param v any
 ---@return boolean
+---@deprecated Use `MathUtils.isNaN` instead
 function Utils.isNaN(v)
-    return v ~= v
+    return MathUtils.isNaN(v)
 end
 
 --- XOR (eXclusive OR) logic operation
 ---@param ... any [conditions]
 ---@return boolean
+---@deprecated Use `MathUtils.xor` instead
 function Utils.xor(...)
-    local counter = 0
-    for _,value in ipairs({...}) do
-        if value then
-            counter = counter + 1
-        end
-    end
-    return counter % 2 == 1
+    return MathUtils.xor(...)
 end
 
 return Utils

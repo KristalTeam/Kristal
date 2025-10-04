@@ -35,9 +35,9 @@ function item:getName()
 end
 
 function item:getCheck()
-    if Utils.containsValue(self.cards, "lancer") and not Utils.containsValue(self.cards, "rouxls_kaard") then
+    if TableUtils.contains(self.cards, "lancer") and not TableUtils.contains(self.cards, "rouxls_kaard") then
         return "The Jack of Spades."
-    elseif not Utils.containsValue(self.cards, "lancer") and Utils.containsValue(self.cards, "rouxls_kaard") then
+    elseif not TableUtils.contains(self.cards, "lancer") and TableUtils.contains(self.cards, "rouxls_kaard") then
         return "The Rules Card."
     else
         return super.getCheck(self)

@@ -74,7 +74,7 @@ function TextInput.endInput()
 end
 
 function TextInput.clear()
-    Utils.clear(self.input)
+    TableUtils.clear(self.input)
     self.input[1] = ""
     self.reset(false)
 end
@@ -216,15 +216,15 @@ function TextInput.onKeyPressed(key)
                 local starting_position, ending_position = self.ctrlLeft()
                 starting_position = starting_position + 1
                 ending_position = ending_position + 1
-                string_1 = Utils.sub(self.input[self.cursor_y], 1, starting_position)
-                string_2 = Utils.sub(self.input[self.cursor_y], ending_position, -1)
+                string_1 = StringUtils.sub(self.input[self.cursor_y], 1, starting_position)
+                string_2 = StringUtils.sub(self.input[self.cursor_y], ending_position, -1)
             else
 
-                string_1 = Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-                string_2 = Utils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
+                string_1 = StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
+                string_2 = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
             end
 
-            string_1 = Utils.sub(string_1, 1, -2)
+            string_1 = StringUtils.sub(string_1, 1, -2)
             self.cursor_x = utf8.len(string_1)
             self.cursor_x_tallest = self.cursor_x
 
@@ -248,16 +248,16 @@ function TextInput.onKeyPressed(key)
                 -- Loop from our current position to the end of the line.
                 local starting_position, ending_position = self.ctrlRight()
                 if starting_position ~= 0 then
-                    string_1 = Utils.sub(self.input[self.cursor_y], 1, starting_position)
-                    string_2 = Utils.sub(self.input[self.cursor_y], ending_position, -1)
+                    string_1 = StringUtils.sub(self.input[self.cursor_y], 1, starting_position)
+                    string_2 = StringUtils.sub(self.input[self.cursor_y], ending_position, -1)
                 else
                     string_1 = ""
-                    string_2 = Utils.sub(self.input[self.cursor_y], ending_position, -1)
+                    string_2 = StringUtils.sub(self.input[self.cursor_y], ending_position, -1)
                 end
             else
                 if self.cursor_x ~= 0 then
-                    string_1 = Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-                    string_2 = Utils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
+                    string_1 = StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
+                    string_2 = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
                 else
                     string_1 = ""
                     string_2 = self.input[self.cursor_y]
@@ -265,7 +265,7 @@ function TextInput.onKeyPressed(key)
             end
 
             -- remove the first UTF-8 character.
-            string_2 = Utils.sub(string_2, 2, -1)
+            string_2 = StringUtils.sub(string_2, 2, -1)
 
             self.input[self.cursor_y] = string_1 .. string_2
         end
@@ -398,7 +398,7 @@ function TextInput.update()
         self.flash_timer = self.flash_timer - 1
     end
 
-    self.return_grace_timer = Utils.approach(self.return_grace_timer, 0, DTMULT)
+    self.return_grace_timer = MathUtils.approach(self.return_grace_timer, 0, DTMULT)
 end
 
 ---@return number start_position, number end_position
@@ -406,7 +406,7 @@ function TextInput.ctrlLeft()
     local starting_position = self.cursor_x
     local ending_position = self.cursor_x
 
-    local first_char = Utils.sub(self.input[self.cursor_y], starting_position, starting_position)
+    local first_char = StringUtils.sub(self.input[self.cursor_y], starting_position, starting_position)
     local was_part = self.isPartOfWord(first_char)
 
     -- Loop from our current position to the start of the line.
@@ -416,7 +416,7 @@ function TextInput.ctrlLeft()
             starting_position = 0
             break
         end
-        local char = Utils.sub(self.input[self.cursor_y], i, i)
+        local char = StringUtils.sub(self.input[self.cursor_y], i, i)
 
         if (self.isPartOfWord(char) ~= was_part) then hit = true end
 
@@ -435,7 +435,7 @@ end
 function TextInput.ctrlRight()
     local starting_position, ending_position = self.cursor_x, self.cursor_x
 
-    local first_char = Utils.sub(self.input[self.cursor_y], starting_position + 1, starting_position + 1)
+    local first_char = StringUtils.sub(self.input[self.cursor_y], starting_position + 1, starting_position + 1)
     local was_part = self.isPartOfWord(first_char)
 
     local hit = false
@@ -444,7 +444,7 @@ function TextInput.ctrlRight()
             ending_position = i
             break
         end
-        local char = Utils.sub(self.input[self.cursor_y], i + 1, i + 1)
+        local char = StringUtils.sub(self.input[self.cursor_y], i + 1, i + 1)
 
         if (self.isPartOfWord(char) ~= was_part) then hit = true end
 
@@ -496,7 +496,7 @@ function TextInput.sendCursorToStartOfLine(special_indenting)
         -- Loop through the utf8 string and find the end of an indent
         local last_space = 0
         for i = 1, utf8.len(self.input[self.cursor_y]) do
-            local char = Utils.sub(self.input[self.cursor_y], i, i)
+            local char = StringUtils.sub(self.input[self.cursor_y], i, i)
             if char == " " then
                 last_space = i
             else
@@ -551,10 +551,10 @@ function TextInput.removeSelection()
     end
 
     if start_y == end_y then
-        self.input[start_y] = Utils.sub(self.input[start_y], 1, start_x) .. Utils.sub(self.input[start_y], end_x + 1)
+        self.input[start_y] = StringUtils.sub(self.input[start_y], 1, start_x) .. StringUtils.sub(self.input[start_y], end_x + 1)
     else
-        local old_input = Utils.copy(self.input)
-        Utils.clear(self.input)
+        local old_input = TableUtils.copy(self.input)
+        TableUtils.clear(self.input)
         for i = 1, start_y - 1 do
             table.insert(self.input, old_input[i])
         end
@@ -562,10 +562,10 @@ function TextInput.removeSelection()
         for i = start_y, end_y do
             local text = old_input[i]
             if i == start_y then
-                text = Utils.sub(text, 1, start_x)
+                text = StringUtils.sub(text, 1, start_x)
                 table.insert(self.input, text)
             elseif i == end_y then
-                text = Utils.sub(text, end_x + 1)
+                text = StringUtils.sub(text, end_x + 1)
                 self.input[start_y] = self.input[start_y] .. text
             end
         end
@@ -590,23 +590,23 @@ function TextInput.getSelectedText()
     local text = ""
     if self.cursor_y == self.cursor_select_y then
         if self.cursor_x > self.cursor_select_x then
-            text = Utils.sub(self.input[self.cursor_y], self.cursor_select_x + 1, self.cursor_x)
+            text = StringUtils.sub(self.input[self.cursor_y], self.cursor_select_x + 1, self.cursor_x)
         else
-            text = Utils.sub(self.input[self.cursor_y], self.cursor_x + 1, self.cursor_select_x)
+            text = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1, self.cursor_select_x)
         end
     else
         if self.cursor_y < self.cursor_select_y then
-            text = Utils.sub(self.input[self.cursor_y], self.cursor_x + 1)
+            text = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1)
             for i = self.cursor_y + 1, self.cursor_select_y - 1 do
                 text = text .. "\n" .. self.input[i]
             end
-            text = text .. "\n" .. Utils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)
+            text = text .. "\n" .. StringUtils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)
         else
-            text = Utils.sub(self.input[self.cursor_select_y], self.cursor_select_x + 1)
+            text = StringUtils.sub(self.input[self.cursor_select_y], self.cursor_select_x + 1)
             for i = self.cursor_select_y + 1, self.cursor_y - 1 do
                 text = text .. "\n" .. self.input[i]
             end
-            text = text .. "\n" .. Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)
+            text = text .. "\n" .. StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
         end
     end
 
@@ -620,7 +620,7 @@ function TextInput.insertString(str)
     if self.text_restriction then
         local newstr = ""
         for i = 1, utf8.len(str) do
-            local char = Utils.sub(str, i, i)
+            local char = StringUtils.sub(str, i, i)
             local rest = self.text_restriction(char)
             if rest then
                 if type(rest) == "string" then
@@ -640,8 +640,8 @@ function TextInput.insertString(str)
     end
 
     self.flash_timer = 0
-    local string_1 = Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-    local string_2 = Utils.sub(self.input[self.cursor_y],    self.cursor_x + 1, -1)
+    local string_1 = StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
+    local string_2 = StringUtils.sub(self.input[self.cursor_y],    self.cursor_x + 1, -1)
 
     if self.cursor_x == 0 then
         string_1 = ""
@@ -655,7 +655,7 @@ function TextInput.insertString(str)
         result = string_1 .. str .. Utils.sub(string_2, utf8.len(str) + 1)
     end
 
-    local split = Utils.split(result, "\n", false)
+    local split = StringUtils.split(result, "\n", false)
 
     split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
     self.input[self.cursor_y] = split[1]
@@ -693,7 +693,7 @@ function TextInput.draw(options)
 
     local cursor_pos_x = base_off
     if self.cursor_x > 0 then
-        cursor_pos_x = font:getWidth(Utils.sub(self.input[self.cursor_y], 1, self.cursor_x)) + cursor_pos_x
+        cursor_pos_x = font:getWidth(StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)) + cursor_pos_x
     end
     local cursor_pos_y = off_y + ((self.cursor_y - 1) * font:getHeight())
 
@@ -702,7 +702,7 @@ function TextInput.draw(options)
 
         local cursor_sel_x = base_off
         if self.cursor_select_x > 0 then
-            cursor_sel_x = font:getWidth(Utils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)) + cursor_sel_x
+            cursor_sel_x = font:getWidth(StringUtils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)) + cursor_sel_x
         end
         local cursor_sel_y = off_y + ((self.cursor_select_y - 1) * font:getHeight())
 
