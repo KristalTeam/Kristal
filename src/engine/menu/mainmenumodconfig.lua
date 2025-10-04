@@ -202,7 +202,7 @@ end
 function MainMenuModConfig:registerOptions()
     self.options = {}
 
-    self:registerOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                                         "selection", {nil, true, false})
+    self:registerOption("storagePages",           "Storage Pages",             "The amount of storage pages in the dark world",                                      "selection", {nil, 0, 1, 2, 3}) -- unhardcode
     self:registerOption("enableRecruits",         "Enable Recruits",           "Enable recruit messages and menu",                                                   "selection", {nil, true, false})
     self:registerOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",                             "selection", {nil, true, false})
     self:registerOption("lessEquipments",         "Less Equipments",           "Reduces the amount of available weapons and armor slots in the inventory",           "selection", {nil, true, false})

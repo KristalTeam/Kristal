@@ -1,5 +1,5 @@
 {    
-    "enableStorage": false,          // Extra 48-slot item storage
+    "storagePages": 0,               // The amount of extra storage pages
     "enableRecruits": false,         // Enable recruit messages and menu
     "smallSaveMenu": true,           // Single-file save menu with no storage/recruits options
     "lessEquipments": true,          // Reduces the amount of available weapons and armor slots in the inventory
