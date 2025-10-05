@@ -454,7 +454,7 @@ end
 function Character:play(speed, loop, reset, on_finished)
     self.sprite:play(speed, loop, function(sprite) ---@param sprite ActorSprite
         if reset then sprite:resetSprite() end
-        on_finished(sprite)
+        if on_finished then on_finished(sprite) end
     end)
 end
 
