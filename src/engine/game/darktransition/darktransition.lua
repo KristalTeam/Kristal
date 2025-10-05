@@ -612,7 +612,7 @@ function DarkTransition:draw()
                 end
 
                 if data.top >= 5 then
-                    local x = ((data.x + 6) + math.random((data.sprite_1.width)))
+                    local x = ((data.x + 6) + math.random(data.sprite_1.width))
                     local y = (data.y + data.top)
 
                     for _ = 1, particle_amount do
