@@ -1,3 +1,5 @@
+--- The handler object for Legend-style cutscenes. \
+--- For the object that is received by legend cutscene scripts, see [`LegendCutscene`](lua://LegendCutscene.init).
 ---@class Legend : Object
 ---@overload fun(...) : Legend
 local Legend, super = Class(Object, "legend")

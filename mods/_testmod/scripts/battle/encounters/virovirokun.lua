@@ -26,9 +26,9 @@ end
         local enemies = Game.battle:getActiveEnemies()
         if #enemies == 2 then
             return function(cutscene)
-                cutscene:enemyText(enemies[1], "My fellow Americans,")
+                cutscene:battlerText(enemies[1], "My fellow Americans,")
                 cutscene:text("Obama???", "surprise_smile", "susie")
-                cutscene:enemyText(enemies[1], "let me be clear")
+                cutscene:battlerText(enemies[1], "let me be clear")
 
                 Assets.playSound("deathnoise", 1, 0.75)
                 local alphafx = enemies[1]:addFX(AlphaFX(1))
@@ -37,7 +37,7 @@ end
                 cutscene:wait(2.5)
                 Game.battle:removeEnemy(enemies[1], false)
 
-                cutscene:enemyText(enemies[2], "OBAMA NOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO", {wait = false})
+                cutscene:battlerText(enemies[2], "OBAMA NOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO\nOOOOOOOOOOOOOOOOOO", {wait = false})
 
                 cutscene:after(function()
                     Game.battle:setState("VICTORY")

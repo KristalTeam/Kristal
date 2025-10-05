@@ -74,11 +74,18 @@ function MainMenuTitle:onKeyPressed(key, is_repeat)
             elseif self.has_target_saves then
                 self.menu:setState("FILESELECT")
             else
-                Kristal.loadMod(TARGET_MOD, 1)
+                if not Kristal.loadMod(TARGET_MOD, 1) then
+                    error("Failed to load mod: " .. TARGET_MOD)
+                end
             end
 
         elseif option == "modfolder" then
-            love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
+            -- FIXME: the game might freeze when using love.system.openURL to open a file directory
+            if (love.system.getOS() == "Windows") then
+                os.execute('start /B \"\" \"'..love.filesystem.getSaveDirectory()..'/mods\"')
+            else
+                love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/mods")
+            end
 
         elseif option == "options" then
             self.menu:setState("OPTIONS")

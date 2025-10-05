@@ -1,3 +1,5 @@
+--- The heart of Kristal - this class stores serves as the global that almost everything during gameplay is stored under in some way or another. \
+--- Game itself is mainly responsible for changing between states, handling player control, and accessing overarching features across gameplay such as the inventory or party members.
 ---@class Game
 ---@field stage             Stage
 ---@field world             World
@@ -6,19 +8,24 @@
 ---@field gameover          GameOver
 ---@field legend            Legend
 ---@field inventory         DarkInventory|LightInventory
+---@field dark_inventory    DarkInventory
+---@field light_inventory   LightInventory
 ---@field quick_save        SaveData
 ---@field lock_movement     boolean
 ---@field key_repeat        boolean
 ---@field started           boolean
----@field border            string
+---@field border            string|Border
 ---
 ---@field previous_state    string
 ---@field state             string
 ---@field music             Music
 ---
+---@field encounter_enemies Character[]|string[]
+---
 ---@field chapter           integer
 ---@field save_name         string
 ---@field save_level        integer
+---@field save_id           integer
 ---@field playtime          number
 ---@field light             boolean
 ---@field money             integer
@@ -28,7 +35,7 @@
 ---@field lw_money          integer
 ---@field level_up_count    integer
 ---@field temp_followers    table<[string, number]|string>
----@field flags             table<[string, any]>
+---@field flags             table<string, any>
 ---@field party             PartyMember[]
 ---@field party_data        PartyMember[]
 ---@field recruits_data     Recruit[]
@@ -36,6 +43,8 @@
 ---@field fader             Fader
 ---@field max_followers     integer
 ---@field is_new_file       boolean
+---
+---@field died_once         boolean?
 local Game = {}
 
 function Game:clear()
@@ -86,7 +95,7 @@ function Game:enter(previous_state, save_id, save_name, fade)
 
     fade = fade ~= false
     if type(save_id) == "table" then
-        local save = save_id
+        local save = save_id ---@type SaveData
         save_id = save_name
         save_name = nil
         self:load(save, save_id, fade)
@@ -124,22 +133,33 @@ function Game:leave()
     self.quick_save = nil
 end
 
----@return string
+---@return Border
 function Game:getBorder()
     return self.border
 end
 
----@param border?   string
+---@param border?   string|Border
 ---@param time?     number
 function Game:setBorder(border, time)
     time = time or 1
-
+    local new_border_id = border
+    if type(border) ~= "string" then
+        new_border_id = border.id
+    end
+    local current_border_id
+    if Kristal.getBorder() then
+        current_border_id = Kristal.getBorder().id
+    end
     if time == 0 then
         Kristal.showBorder(0)
-    elseif time > 0 and Kristal.getBorder() ~= border then
+    elseif time > 0 and current_border_id ~= new_border_id then
         Kristal.transitionBorder(time)
     end
 
+    if type(border) == "string" then
+        local border_class = Registry.createBorder(border)
+        if border_class then border = border_class end
+    end
     self.border = border
 end
 
@@ -204,8 +224,13 @@ function Game:getSavePreview()
     }
 end
 
+---@overload fun(self: Game) : SaveData
+---@overload fun(self: Game, marker: string) : SaveData
+---@overload fun(self: Game, position: {x: number, y: number}) : SaveData
 ---@param x number
 ---@param y number
+---@param marker string
+---@param position {x: number, y: number}
 ---@return SaveData
 function Game:save(x, y)
     local data = {
@@ -230,7 +255,7 @@ function Game:save(x, y)
 
         level_up_count = self.level_up_count,
 
-        border = self.border,
+        border = self.border.id,
 
         temp_followers = self.temp_followers,
 
@@ -309,7 +334,7 @@ function Game:load(data, index, fade)
     self.max_followers = Kristal.getModOption("maxFollowers") or 10
 
     self.light = false
-    
+
     -- Used to carry the soul invulnerability frames between waves
     self.old_soul_inv_timer = 0
 
@@ -451,7 +476,7 @@ function Game:load(data, index, fade)
                         if not main_armor:includes(LightEquipItem) then
                             error("Cannot set 2nd armor, 1st armor must be a LightEquipItem")
                         end
-                        main_armor:setArmor(2, armors[i])
+                        self.party_data[id]:setArmor(2, armors[i])
                     else
                         self.party_data[id]:setArmor(i, armors[i] ~= "" and armors[i] or nil)
                     end
@@ -476,13 +501,12 @@ function Game:load(data, index, fade)
     Kristal.DebugSystem:refresh()
 
     self.started = true
-    
-    self.nothing_warn = true
+
     if self.is_new_file then
         if Kristal.getModOption("encounter") then
             self:encounter(Kristal.getModOption("encounter"), false)
         elseif Kristal.getModOption("shop") then
-            self:enterShop(Kristal.getModOption("shop"), {menu = true})
+            self:enterShop(Kristal.getModOption("shop"), { menu = true })
         end
     end
 
@@ -838,7 +862,7 @@ function Game:movePartyMember(chara, index)
 end
 
 ---@param chara string|PartyMember
----@return integer
+---@return integer?
 function Game:getPartyIndex(chara)
     if type(chara) == "string" then
         chara = self:getPartyMember(chara)
@@ -902,13 +926,15 @@ function Game:getSoulColor()
     return 1, 0, 0, 1
 end
 
----@return PartyMember
+---@return PartyMember?
 function Game:getActLeader()
     for _,party in ipairs(self.party) do
-        if party.has_act then
+        if party:hasAct() then
             return party
         end
     end
+
+    return nil
 end
 
 ---@param chara  string|Follower
@@ -948,7 +974,7 @@ function Game:giveTension(amount)
     local start = self:getTension()
     self:setTension(self:getTension() + amount)
     if self:getTension() > self:getMaxTension() then
-        Game:setTension(self:getMaxTension())
+        self:setTension(self:getMaxTension())
     end
     self:setTensionPreview(0)
     return self:getTension() - start
@@ -1027,17 +1053,6 @@ function Game:update()
     self.playtime = self.playtime + DT
 
     self.stage:update()
-    
-    if not self.shop and not self.battle and not (self.world and self.world.map and self.world.map.id) then
-        if self.nothing_warn then Kristal.Console:warn("No map, shop nor encounter were loaded") end
-        if Kristal.getModOption("hardReset") then
-            love.event.quit("restart")
-        else
-            Kristal.returnToMenu()
-        end
-    else
-        self.nothing_warn = false
-    end
 
     Kristal.callEvent(KRISTAL_EVENT.postUpdate, DT)
 end

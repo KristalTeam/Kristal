@@ -1,11 +1,30 @@
+--- A combination of a tile from a tileset and an Event. \
+--- TileObject is not a standard event - it defines no properties and is placed in a map using the `Insert Tile` feature through Tiled, rather than as an object.
+--- 
 ---@class TileObject : Event
----@overload fun(...) : TileObject
+---
+---@field tileset Tileset       The name of the tileset the tile is from
+---@field tile number           The gid of the tile in its tileset
+---@field rotation number?      The rotation of the tile
+---@field tile_flip_x boolean?  Whether the tile is flipped on its x-axis
+---@field tile_flip_y boolean?  Whether the tile is flipped on its y-axis
+---
+---@overload fun(tileset: Tileset, tile: number, x: number, y: number, w?: number, h?: number, rotation?: number, flip_x?: boolean, flip_y?: boolean) : TileObject
 local TileObject, super = Class(Event)
 
+---@param tileset Tileset
+---@param tile number
+---@param x number
+---@param y number
+---@param w? number
+---@param h? number
+---@param rotation? number
+---@param flip_x? boolean
+---@param flip_y? boolean
 function TileObject:init(tileset, tile, x, y, w, h, rotation, flip_x, flip_y)
     local tile_width, tile_height = tileset:getTileSize(tile)
 
-    super.init(self, x, y, w or self.tile_width, h or self.tile_height)
+    super.init(self, x, y, {w or self.tile_width, h or self.tile_height})
 
     self.tileset = tileset
     self.tile = tile

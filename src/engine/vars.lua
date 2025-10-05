@@ -86,6 +86,7 @@ MUSIC_VOLUMES = {
 MUSIC_PITCHES = {}
 
 -- Colors used by the engine for various things, here for customizability
+---@enum (key) PaletteIndex
 local palette_data = {
     ["battle_mercy_bg"] = { 255 / 255, 80 / 255, 32 / 255, 1 },
     ["battle_mercy_text"] = { 128 / 255, 0, 0, 1 },
@@ -121,7 +122,13 @@ local palette_data = {
     ["tension_max"] = { 255 / 255, 208 / 255, 32 / 255, 1 },
     ["tension_maxtext"] = { 1, 1, 0, 1 },
     ["tension_desc"] = { 255 / 255, 160 / 255, 64 / 255, 1 },
+
+    ["tension_back_reduced"] = { 0, 0, 128 / 255, 1 },
+    ["tension_decrease_reduced"] = { 0, 0, 1, 1 },
+    ["tension_fill_reduced"] = { 0, 63 / 255, 191 / 255, 1 },
+    ["tension_max_reduced"] = { 0, 95 / 255, 159 / 255, 1 }
 }
+---@type table<PaletteIndex, number[]>
 PALETTE = {}
 setmetatable(PALETTE, {
     __index = function (t, i) return Kristal.callEvent(KRISTAL_EVENT.getPaletteColor, i) or palette_data[i] end,
@@ -237,8 +244,9 @@ KRISTAL_EVENT = {
     --text events--
     isTextStyleAnimated = "isTextStyleAnimated", -- determines if `style` is animated text/ at: Text:isStyleAnimated(style) / passes: string:style, Text:self / returns: bool
     onDrawText = "onDrawText", -- overrides character is drawn / at: Text:drawChar(node, state, use_color) / passes: Text:self, table:node, table:state, number:x, number:y, number:scale, love.Font:font, bool:use_base_color / returns: bool
-    onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node / returns: bool
+    onTextSound = "onTextSound", -- overrides text scrawl noise / at: DialogueText:playTextSound(current_node) / passes: string:typing_sound, table:current_node, table:current_state / returns: bool
     registerTextCommands = "registerTextCommands", -- new text is ready to recieve custom command table / passes: Text:self / returns: NONE
+    getDialogueTextStyle = "getDialogueTextStyle", -- overrides text style / at: DialogueText:init(text, x, y, w, h, options) / passes: string|table:text, table:options / returns: bool
 
     --input events--
     onKeyPressed = "onKeyPressed", -- overrides key is pressed / at: Game:onKeyPressed(key, is_repeat) / passes: string:key, bool:is_repeat / returns: bool

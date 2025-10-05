@@ -1,3 +1,11 @@
+---@class Input.MouseData
+---@field x number
+---@field y number
+---@field presses number
+---@class Input.MouseDownData : Input.MouseData
+---@field dx number
+---@field dy number
+
 ---@class Input
 ---
 ---@field active_gamepad love.Joystick
@@ -23,11 +31,18 @@
 ---@field stray_key_bindings table<string, (string|string[])[]>
 ---@field stray_gamepad_bindings table<string, (string|string[])[]>
 ---
+---@field mod_keybinds table<string, string[]>
+---
 ---@field gamepad_locked boolean
 ---
 ---@field gamepad_cursor_size number
 ---@field gamepad_cursor_x number
 ---@field gamepad_cursor_y number
+---
+---@field mouse_button_max number
+---@field mouse_down table<number, Input.MouseDownData>
+---@field mouse_pressed table<number, Input.MouseData>
+---@field mouse_released table<number, Input.MouseData>
 ---
 ---@field order string[]
 ---
@@ -66,14 +81,21 @@ Input.gamepad_bindings = {}
 Input.stray_key_bindings = {}
 Input.stray_gamepad_bindings = {}
 
+Input.mod_keybinds = {}
+
 Input.gamepad_locked = false
 
 Input.gamepad_cursor_size = 10
 Input.gamepad_cursor_x = (love.graphics.getWidth()  / 2) - (Input.gamepad_cursor_size / 2)
 Input.gamepad_cursor_y = (love.graphics.getHeight() / 2) - (Input.gamepad_cursor_size / 2)
 
+Input.mouse_button_max = 3
+Input.mouse_down = {}
+Input.mouse_pressed = {}
+Input.mouse_released = {}
+
 Input.order = {
-    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward"
+    "down", "right", "up", "left", "confirm", "cancel", "menu", "console", "debug_menu", "object_selector", "fast_forward", "mod_rebind"
 }
 
 Input.required_binds = {
@@ -183,8 +205,74 @@ function Input.getBoundKeys(key, gamepad)
 end
 
 ---@param gamepad? boolean
-function Input.resetBinds(gamepad)
+---@param mod_id? string
+function Input.resetBinds(gamepad, mod_id)
+    -- Special id to reset only default Kristal keybinds
+    if mod_id == "KRISTAL" then
+        local key_bindings = {
+            ["up"] = {"up"},
+            ["down"] = {"down"},
+            ["left"] = {"left"},
+            ["right"] = {"right"},
+            ["confirm"] = {"z", "return"},
+            ["cancel"] = {"x", "shift"},
+            ["menu"] = {"c", "ctrl"},
+            ["console"] = {"`"},
+            ["debug_menu"] = {{"shift", "`"}},
+            ["object_selector"] = {{"ctrl", "o"}},
+            ["fast_forward"] = {{"ctrl", "g"}},
+            ["mod_rebind"] = {"/"},
+        }
+        local gamepad_bindings = {
+            ["up"] = {"gamepad:dpup", "gamepad:lsup"},
+            ["down"] = {"gamepad:dpdown", "gamepad:lsdown"},
+            ["left"] = {"gamepad:dpleft", "gamepad:lsleft"},
+            ["right"] = {"gamepad:dpright", "gamepad:lsright"},
+            ["confirm"] = {"gamepad:a"},
+            ["cancel"] = {"gamepad:b"},
+            ["menu"] = {"gamepad:y"},
+            ["console"] = {},
+            ["debug_menu"] = {},
+            ["object_selector"] = {},
+            ["fast_forward"] = {},
+            ["mod_rebind"] = {"gamepad:x"},
+        }
+        if gamepad ~= true then Utils.merge(Input.key_bindings, key_bindings) end
+        if gamepad ~= false then Utils.merge(Input.gamepad_bindings, gamepad_bindings) end
+        return
+    -- If we receive a mod id, we are only resetting binds specific to that mod
+    elseif mod_id then
+        local mod = Kristal.Mods.getMod(mod_id)
+        if not mod then return end
+        local keys = mod.keybinds or {}
+        local libs = mod.libs or {}
+        for _, lib in pairs(libs) do
+            if lib.keybinds then Utils.merge(keys, lib.keybinds) end
+        end
+        if keys == {} then return end
+        if gamepad ~= true then
+            for _, v in pairs(keys) do
+                if v.keys then
+                    Input.key_bindings[v.id] = Utils.copy(v.keys)
+                else
+                    Input.key_bindings[v.id] = {}
+                end
+            end
+        end
+        if gamepad ~= false then
+            for _, v in pairs(keys) do
+                if v.gamepad then
+                    Input.gamepad_bindings[v.id] = Utils.copy(v.gamepad)
+                else
+                    Input.gamepad_bindings[v.id] = {}
+                end
+            end
+        end
+        return
+    end
+
     if gamepad ~= true then
+        Input.mod_keybinds = {}
         Input.stray_key_bindings = {}
         Input.key_bindings = {
             ["up"] = {"up"},
@@ -197,13 +285,16 @@ function Input.resetBinds(gamepad)
             ["console"] = {"`"},
             ["debug_menu"] = {{"shift", "`"}},
             ["object_selector"] = {{"ctrl", "o"}},
-            ["fast_forward"] = {{"ctrl", "g"}}
+            ["fast_forward"] = {{"ctrl", "g"}},
+            ["mod_rebind"] = {"/"},
         }
         for _,mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
+                Input.mod_keybinds[mod.id] = {}
                 for _,v in pairs(mod.keybinds) do
                     if v.keys then
                         Input.key_bindings[v.id] = Utils.copy(v.keys)
+                        table.insert(Input.mod_keybinds[mod.id], v.id)
                     else
                         Input.key_bindings[v.id] = {}
                     end
@@ -212,9 +303,11 @@ function Input.resetBinds(gamepad)
             if mod.libs then
                 for _,lib in pairs(mod.libs) do
                     if lib.keybinds then
+                        Input.mod_keybinds[mod.id] = Input.mod_keybinds[mod.id] or {}
                         for _,v in pairs(lib.keybinds) do
                             if v.keys then
                                 Input.key_bindings[v.id] = Utils.copy(v.keys)
+                                table.insert(Input.mod_keybinds[mod.id], v.id)
                             else
                                 Input.key_bindings[v.id] = {}
                             end
@@ -239,6 +332,7 @@ function Input.resetBinds(gamepad)
             ["debug_menu"] = {},
             ["object_selector"] = {},
             ["fast_forward"] = {},
+            ["mod_rebind"] = {"gamepad:x"},
         }
         for _,mod in ipairs(Kristal.Mods.getMods()) do
             if mod.keybinds then
@@ -459,6 +553,16 @@ function Input.clear(key, clear_down)
             self.key_down = {}
             self.key_down_timer = {}
         end
+        for i=1, self.mouse_button_max do
+            self.mouse_pressed[i] = {x = 0, y = 0, presses = 0}
+            self.mouse_released[i] = {x = 0, y = 0, presses = 0}
+            if not self.mouse_down[i] then
+                self.mouse_down[i] = {x = 0, y = 0, presses = 0, dx = 0, dy = 0}
+            else
+                self.mouse_down[i].dx = 0
+                self.mouse_down[i].dy = 0
+            end
+        end
     end
 end
 
@@ -561,6 +665,23 @@ function Input.update()
                 Input.onKeyPressed(key, true)
             end
         end
+    end
+end
+
+---Vibrates the connected gamepad if it exists.
+---@param strength_left number
+---@param strength_right number
+---@param duration number
+---@overload fun(duration:number)
+---@overload fun(strength:number, duration:number)
+function Input.vibrate(strength_left, strength_right, duration)
+    if strength_right == nil then
+        strength_left, strength_right, duration = 1, 1, strength_left
+    elseif duration == nil then
+        strength_left, strength_right, duration = strength_left, strength_left, strength_right
+    end
+    if Input.connected_gamepad then
+        Input.connected_gamepad:setVibration(strength_left, strength_right, duration)
     end
 end
 
@@ -1243,6 +1364,28 @@ function Input.isGamepad(key)
     return Utils.startsWith(key, "gamepad:")
 end
 
+function Input.onMousePressed(x, y, button, istouch, presses)
+    self.mouse_button_max = math.max(self.mouse_button_max, button) -- some mouses have more than 3 buttons, always support this by extending the default count
+    self.mouse_pressed[button] = {x = x, y = y, presses = presses}
+    self.mouse_down[button] = {x = x, y = y, presses = presses, dx = 0, dy = 0}
+end
+
+function Input.onMouseReleased(x, y, button, istouch, presses)
+    self.mouse_released[button] = {x = x, y = y, presses = presses}
+    self.mouse_down[button] = {x = 0, y = 0, presses = 0, dx = 0, dy = 0}
+end
+
+function Input.onMouseMoved(x, y, dx, dy, istouch)
+    for i=1, self.mouse_button_max do
+        if self.mouse_down[i].presses > 0 then
+            self.mouse_down[i].x = x
+            self.mouse_down[i].y = y
+            self.mouse_down[i].dx = dx
+            self.mouse_down[i].dy = dy
+        end
+    end
+end
+
 ---@param x? number
 ---@param y? number
 ---@param relative? boolean
@@ -1258,6 +1401,66 @@ function Input.getMousePosition(x, y, relative)
     end
     return floor((x - off_x) / Kristal.getGameScale()),
            floor((y - off_y) / Kristal.getGameScale())
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mousePressed(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mousePressed(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    local check = self.mouse_pressed[button]
+    if not check or check.presses == 0 then
+        return false, 0, 0, 0
+    else
+        return true, check.x, check.y, check.presses
+    end
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses, number? dx, number? dy
+function Input.mouseDown(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mouseDown(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    local check = self.mouse_down[button]
+    if not check or check.presses == 0 then
+        return false, 0, 0, 0
+    else
+        return true, check.x, check.y, check.presses, check.dx, check.dy
+    end
+end
+
+---@param button? number
+---@return boolean success, number x, number y, number presses
+function Input.mouseReleased(button)
+    if not button then
+        for i=1, self.mouse_button_max do
+            local success, x, y, presses = self.mouseReleased(i)
+            if success then
+                return success, x, y, presses
+            end
+        end
+        return false, 0, 0, 0
+    end
+    local check = self.mouse_released[button]
+    if not check or check.presses == 0 then
+        return false, 0, 0, 0
+    else
+        return true, check.x, check.y, check.presses
+    end
 end
 
 ---@param x? number

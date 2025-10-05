@@ -21,18 +21,12 @@ function Mod:init()
     self.dog_activated = false
 end
 
-Mod.wave_shader = love.graphics.newShader([[
-    extern number wave_sine;
-    extern number wave_mag;
-    extern number wave_height;
-    extern vec2 texsize;
-    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-    {
-        number i = texture_coords.y * texsize.y;
-        vec2 coords = vec2(max(0.0, min(1.0, texture_coords.x + (sin((i / wave_height) + (wave_sine / 30.0)) * wave_mag) / texsize.x)), max(0.0, min(1.0, texture_coords.y + 0.0)));
-        return Texel(texture, coords) * color;
-    }
-]])
+---@param text Text
+function Mod:registerTextCommands(text)
+    text:registerCommand("bullshitcommand", function (the_thingy_collection, this_particular_thingy, pl_badwater) ---@param the_thingy_collection Text
+        the_thingy_collection.state.some_jevil_bullshit = the_thingy_collection:isTrue(this_particular_thingy.arguments[1])
+    end, {dry = true})
+end
 
 function Mod:preInit()
     -- make characters woobly
@@ -115,7 +109,7 @@ function Mod:registerDebugContext(context, object)
             object:removeFX("funky_mode")
         else
             local offset = Utils.random(0, 100)
-            object:addFX(ShaderFX(Mod.wave_shader, {
+            object:addFX(ShaderFX("wave", {
                                       ["wave_sine"] = function () return (Kristal.getTime() + offset) * 100 end,
                                       ["wave_mag"] = 4,
                                       ["wave_height"] = 4,
@@ -141,7 +135,7 @@ function Mod:registerDebugOptions(debug)
                              if Game.world.player:getFX("funky_mode") then
                                  Game.world.player:removeFX("funky_mode")
                              else
-                                 Game.world.player:addFX(ShaderFX(Mod.wave_shader, {
+                                 Game.world.player:addFX(ShaderFX("wave", {
                                                              ["wave_sine"] = function () return Kristal.getTime() * 100 end,
                                                              ["wave_mag"] = 4,
                                                              ["wave_height"] = 4,

@@ -4,7 +4,6 @@
 --- Extension bullets can be spawned into the world with `Game.world:spawnBullet(id, ...)` - their `id` defaults to their filepath, starting from `scripts/world/bullets`. Additional arguments `...` are passed into the bullet type's init function.
 ---
 ---@class WorldBullet : Object
----@overload fun(...) : WorldBullet
 ---
 ---@field world             World           The current World instance. Not defined until after `WorldBullet:init()`, and only if it is parented to a World instance.
 ---
@@ -18,6 +17,7 @@
 ---
 ---@field remove_offscreen  boolean
 ---
+---@overload fun(x?: number, y?: number, texture?: string|love.Image) : WorldBullet
 local WorldBullet, super = Class(Object)
 
 ---@param x         number
@@ -68,8 +68,8 @@ end
 
 
 --- *(Override)* Called when the bullet hits the player's soul without invulnerability frames. \
---- Not calling `super:onDamage()` here will stop the normal damage logic from occurring.
----@param soul Soul
+--- Not calling `super.onDamage()` here will stop the normal damage logic from occurring.
+---@param soul OverworldSoul
 function WorldBullet:onDamage(soul)
     if self:getDamage() > 0 then
         self.world:hurtParty(self.damage)
@@ -79,7 +79,7 @@ function WorldBullet:onDamage(soul)
 end
 
 --- *(Override)* Called when the bullet collides with the player's soul, before invulnerability checks.
----@param soul Soul
+---@param soul OverworldSoul
 function WorldBullet:onCollide(soul)
     if not self.world:inBattle() then return end
 

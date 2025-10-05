@@ -7,6 +7,7 @@
 ---@field multiline boolean
 ---@field enter_submits boolean
 ---@field clear_after_submit boolean
+---@field allow_overtyping boolean
 ---@field text_restriction (fun(char:string):string|boolean)?
 ---
 ---@field submit_callback fun()?
@@ -16,6 +17,7 @@
 ---@field text_callback fun(text:string)?
 ---
 ---@field selecting boolean
+---@field overtyping boolean
 ---
 ---@field flash_timer number
 ---@field return_grace_timer number
@@ -81,6 +83,7 @@ end
 ---@field multiline boolean?
 ---@field enter_submits boolean?
 ---@field clear_after_submit boolean?
+---@field allow_overtyping boolean?
 ---@field text_restriction (fun(char:string):string|boolean)?
 
 ---@param options TextInput.inputOptions|boolean|nil
@@ -91,13 +94,16 @@ function TextInput.reset(options)
         if options.multiline          == nil then options.multiline          = true  end
         if options.enter_submits      == nil then options.enter_submits      = false end
         if options.clear_after_submit == nil then options.clear_after_submit = true  end
+        if options.allow_overtyping   == nil then options.allow_overtyping   = false end
         self.multiline = options.multiline
         self.enter_submits = options.enter_submits
         self.clear_after_submit = options.clear_after_submit
+        self.allow_overtyping = options.allow_overtyping
         self.text_restriction = options.text_restriction
     end
 
     self.selecting = false
+    self.overtyping = false
 
     -- Let's handle flashing cursors here, since they change based on text state
     -- If the user doesn't want it, then they don't have to draw it
@@ -314,6 +320,10 @@ function TextInput.onKeyPressed(key)
         else
             self.cursor_y = self.cursor_y + 1
             self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
+        end
+    elseif key == "insert" then
+        if self.allow_overtyping then
+            self.overtyping = not self.overtyping
         end
     elseif key == "left" then
         if self.checkSelecting() == "stopped" then
@@ -638,7 +648,14 @@ function TextInput.insertString(str)
         string_2 = self.input[self.cursor_y]
     end
 
-    local split = Utils.split(string_1 .. str .. string_2, "\n", false)
+    local result
+    if not self.overtyping then
+        result = string_1 .. str .. string_2
+    else
+        result = string_1 .. str .. Utils.sub(string_2, utf8.len(str) + 1)
+    end
+
+    local split = Utils.split(result, "\n", false)
 
     split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
     self.input[self.cursor_y] = split[1]
@@ -647,7 +664,11 @@ function TextInput.insertString(str)
         table.insert(self.input, self.cursor_y + i - 1, split[i])
     end
 
-    self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
+    if not self.overtyping then
+        self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
+    else
+        self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2) + utf8.len(str)
+    end
     self.cursor_x_tallest = self.cursor_x
     self.cursor_y = self.cursor_y + #split - 1
     --self.cursor_x = self.cursor_y + utf8.len(str)
@@ -736,8 +757,8 @@ function TextInput.draw(options)
     end
 
     Draw.setColor(1, 0, 1, 1)
-    if (TextInput.flash_timer < 0.5) and self.active then
-        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
+    if self.flash_timer < 0.5 and self.active then
+        if --[[self.cursor_x == utf8.len(self.input[self.cursor_y]) or]] self.overtyping then
             print_func("_", cursor_pos_x, cursor_pos_y)
         else
             print_func("|", cursor_pos_x, cursor_pos_y)

@@ -1,9 +1,17 @@
+--- SlideAreas cause the party to slide down them when entered. \
+--- `SlideArea` is an [`Event`](lua://Event.init) - naming an object `slidearea` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
 ---@class SlideArea : Event
+---
+---@field lock_movement boolean *[Property `lock`]* Whether the player's movement is locked while sliding (Defaults to `false`)
+---
+---@field solid boolean
+---
 ---@overload fun(...) : SlideArea
 local SlideArea, super = Class(Event)
 
-function SlideArea:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function SlideArea:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     self.lock_movement = properties["lock"] or false
 end

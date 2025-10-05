@@ -1,8 +1,19 @@
+--- Creates a region in the Overworld that reflects characters inside it. \
+--- `MirrorArea` is an [`Event`](lua://Event.init) - naming an object `mirror` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object. \
+--- To customise how mirror sprites are displayed, refer to [`Actor`](lua://Actor.init)s and their [`mirror_sprites`](lua://Actor.mirror_sprites) table and functions: [`getMirrorSprites`](lua://Actor.getMirrorSprites), [`getMirrorSprite`](lua://Actor.getMirrorSprite)
 ---@class MirrorArea : Event
+---
+---@field offset    number  *[Property `offset`]* The y-offset for reflections drawn in this mirror (Defaults to `0`)
+---@field opacity   number  *[Property `opacity`]* The opacity of reflections drawn in the mirror (Defaults to `1`)
+---
+---@field bottom    number
+---
+---@overload fun(...) : MirrorArea
 local MirrorArea, super = Class(Event)
 
-function MirrorArea:init(x, y, w, h, properties)
-    super.init(self, x, y, w, h)
+function MirrorArea:init(x, y, shape, properties)
+    super.init(self, x, y, shape)
 
     properties = properties or {}
 
@@ -12,6 +23,7 @@ function MirrorArea:init(x, y, w, h, properties)
     self.bottom = self.y + self.height
 end
 
+--- Finds and draws all character's reflections
 function MirrorArea:drawMirror()
     local to_draw = {}
     for _, obj in ipairs(Game.world.children) do
@@ -24,6 +36,8 @@ function MirrorArea:drawMirror()
     end
 end
 
+--- Draws a character's reflection
+---@param chara Character
 function MirrorArea:drawCharacter(chara)
     love.graphics.push()
 
@@ -32,12 +46,18 @@ function MirrorArea:drawCharacter(chara)
     love.graphics.translate(0, -oyd + self.offset)
     local oldsprite = string.sub(chara.sprite.texture_path, #chara.sprite.path + 2)
     local t = Utils.split(oldsprite, "_")
-    local pathless = t[1]
-    local frame = t[2]
+    local pathless = ""
+	for i=1, #t-1 do
+		pathless = pathless .. "_" .. t[i]
+	end
+	pathless = string.sub(pathless, 2)
+	local frame = t[#t]
     local newsprite = oldsprite
     local mirror = chara.actor:getMirrorSprites()
     if mirror and mirror[pathless] then
-        newsprite = mirror[pathless] .. "_" .. frame
+        if frame then
+			newsprite = mirror[pathless] .. "_" .. frame
+		end
     end
     chara.sprite:setTextureExact(chara.actor.path .. "/" .. newsprite)
     chara:draw()

@@ -1,30 +1,32 @@
 return {
-  version = "1.5",
+  version = "1.9",
   luaversion = "5.1",
-  tiledversion = "1.8.4",
+  tiledversion = "1.9.0",
+  class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 27,
   height = 14,
   tilewidth = 40,
   tileheight = 40,
-  nextlayerid = 12,
-  nextobjectid = 100,
+  nextlayerid = 13,
+  nextobjectid = 101,
   properties = {},
   tilesets = {
     {
       name = "alley_animated",
       firstgid = 1,
-      filename = "../tilesets/alley_animated.tsx"
+      filename = "../tilesets/alley_animated.tsx",
+      exportfilename = "../tilesets/alley_animated.lua"
     },
     {
       name = "alley",
-      firstgid = 37,
+      firstgid = 34,
       filename = "../tilesets/alley.tsx"
     },
     {
       name = "city_alley",
-      firstgid = 398,
+      firstgid = 349,
       filename = "../tilesets/city_alley.tsx"
     }
   },
@@ -37,6 +39,7 @@ return {
       height = 14,
       id = 1,
       name = "Tile Layer 1",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -46,20 +49,20 @@ return {
       properties = {},
       encoding = "lua",
       data = {
-        296, 296, 296, 296, 296, 296, 296, 297, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 326, 295, 296,
-        326, 326, 326, 326, 326, 326, 326, 327, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 341, 295, 296,
-        326, 326, 326, 326, 326, 326, 326, 327, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 446, 447, 295, 296,
-        341, 341, 341, 341, 341, 341, 341, 342, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 458, 295, 296,
-        450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 458, 295, 296,
-        450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 495, 468, 468, 493, 450, 450, 450, 450, 458, 295, 296,
-        281, 281, 281, 281, 281, 281, 281, 282, 468, 481, 450, 450, 450, 450, 450, 450, 458, 122, 122, 456, 450, 450, 450, 450, 458, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 122, 456, 450, 450, 450, 450, 485, 468, 469, 122, 122, 456, 450, 450, 450, 450, 458, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 122, 456, 450, 450, 450, 450, 463, 446, 446, 446, 446, 449, 450, 450, 450, 450, 458, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 122, 456, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 450, 458, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 281, 295, 296,
-        296, 296, 296, 296, 296, 296, 296, 297, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 296, 295, 296
+        293, 293, 293, 293, 293, 293, 293, 294, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 323, 292, 293,
+        323, 323, 323, 323, 323, 323, 323, 324, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 338, 292, 293,
+        323, 323, 323, 323, 323, 323, 323, 324, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 397, 398, 292, 293,
+        338, 338, 338, 338, 338, 338, 338, 339, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 409, 292, 293,
+        401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 409, 292, 293,
+        401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 446, 419, 419, 444, 401, 401, 401, 401, 409, 292, 293,
+        278, 278, 278, 278, 278, 278, 278, 279, 419, 432, 401, 401, 401, 401, 401, 401, 409, 119, 119, 407, 401, 401, 401, 401, 409, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 119, 407, 401, 401, 401, 401, 436, 419, 420, 119, 119, 407, 401, 401, 401, 401, 409, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 119, 407, 401, 401, 401, 401, 414, 397, 397, 397, 397, 400, 401, 401, 401, 401, 409, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 119, 407, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 401, 409, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 278, 292, 293,
+        293, 293, 293, 293, 293, 293, 293, 294, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 292, 293
       }
     },
     {
@@ -67,6 +70,7 @@ return {
       draworder = "topdown",
       id = 4,
       name = "collision",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -78,7 +82,7 @@ return {
         {
           id = 6,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 0,
           y = 200,
@@ -91,7 +95,7 @@ return {
         {
           id = 7,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 280,
           y = 160,
@@ -104,7 +108,7 @@ return {
         {
           id = 9,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 320,
           y = 120,
@@ -117,7 +121,7 @@ return {
         {
           id = 10,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 1000,
           y = 160,
@@ -130,7 +134,7 @@ return {
         {
           id = 11,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 320,
           y = 480,
@@ -143,7 +147,7 @@ return {
         {
           id = 12,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 0,
           y = 320,
@@ -156,7 +160,7 @@ return {
         {
           id = 13,
           name = "",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 280,
           y = 360,
@@ -173,6 +177,7 @@ return {
       draworder = "topdown",
       id = 6,
       name = "blockcollision",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -184,7 +189,7 @@ return {
         {
           id = 91,
           name = "",
-          type = "",
+          class = "",
           shape = "polyline",
           x = 640,
           y = 280,
@@ -210,6 +215,7 @@ return {
       draworder = "topdown",
       id = 10,
       name = "objects_buttons",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -221,7 +227,7 @@ return {
         {
           id = 95,
           name = "tilebutton",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 680,
           y = 280,
@@ -239,7 +245,7 @@ return {
         {
           id = 96,
           name = "tilebutton",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 560,
           y = 400,
@@ -259,8 +265,50 @@ return {
     {
       type = "objectgroup",
       draworder = "topdown",
+      id = 12,
+      name = "paths",
+      class = "",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      parallaxx = 1,
+      parallaxy = 1,
+      properties = {},
+      objects = {
+        {
+          id = 100,
+          name = "star",
+          class = "",
+          shape = "polygon",
+          x = 400,
+          y = 240,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          polygon = {
+            { x = 0, y = 0 },
+            { x = 80, y = 80 },
+            { x = 60, y = -40 },
+            { x = 160, y = -80 },
+            { x = 40, y = -130 },
+            { x = 0, y = -230 },
+            { x = -40, y = -130 },
+            { x = -160, y = -80 },
+            { x = -60, y = -40 },
+            { x = -80, y = 80 }
+          },
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      draworder = "topdown",
       id = 3,
       name = "markers",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -272,7 +320,7 @@ return {
         {
           id = 2,
           name = "entry_left",
-          type = "",
+          class = "",
           shape = "point",
           x = 40,
           y = 280,
@@ -285,7 +333,7 @@ return {
         {
           id = 5,
           name = "spawn",
-          type = "",
+          class = "",
           shape = "point",
           x = 360,
           y = 280,
@@ -302,6 +350,7 @@ return {
       draworder = "topdown",
       id = 2,
       name = "objects",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -313,7 +362,7 @@ return {
         {
           id = 1,
           name = "interactable",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 360,
           y = 120,
@@ -328,14 +377,20 @@ return {
         {
           id = 4,
           name = "transition",
-          type = "",
-          shape = "rectangle",
+          class = "",
+          shape = "polygon",
           x = -40,
           y = 240,
           width = 40,
           height = 80,
           rotation = 0,
           visible = true,
+          polygon = {
+            { x = -10, y = -40 },
+            { x = 40, y = 0 },
+            { x = 40, y = 80 },
+            { x = -10, y = 40 }
+          },
           properties = {
             ["map"] = "alley2",
             ["marker"] = "entry_right"
@@ -344,7 +399,7 @@ return {
         {
           id = 14,
           name = "forcefield",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 200,
           y = 200,
@@ -359,7 +414,7 @@ return {
         {
           id = 26,
           name = "setflag",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 360,
           y = 160,
@@ -375,7 +430,7 @@ return {
         {
           id = 27,
           name = "npc",
-          type = "",
+          class = "",
           shape = "point",
           x = 400,
           y = 240,
@@ -385,13 +440,15 @@ return {
           visible = true,
           properties = {
             ["actor"] = "starwalker",
-            ["cutscene"] = "alley3.starwalker_disable"
+            ["cutscene"] = "alley3.starwalker_disable",
+            ["path"] = "star",
+            ["speed"] = 20
           }
         },
         {
           id = 29,
           name = "setflag",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 240,
           y = 240,
@@ -407,7 +464,7 @@ return {
         {
           id = 30,
           name = "setflag",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 840,
           y = 160,
@@ -423,7 +480,7 @@ return {
         {
           id = 72,
           name = "pushblock",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 600,
           y = 360,
@@ -436,7 +493,7 @@ return {
         {
           id = 90,
           name = "pushblock",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 720,
           y = 320,
@@ -449,7 +506,7 @@ return {
         {
           id = 99,
           name = "interactable",
-          type = "",
+          class = "",
           shape = "rectangle",
           x = 360,
           y = 480,
@@ -468,6 +525,7 @@ return {
       draworder = "topdown",
       id = 5,
       name = "controllers",
+      class = "",
       visible = true,
       opacity = 1,
       offsetx = 0,
@@ -479,7 +537,7 @@ return {
         {
           id = 28,
           name = "toggle",
-          type = "",
+          class = "",
           shape = "point",
           x = 320,
           y = 240,
@@ -495,7 +553,7 @@ return {
         {
           id = 32,
           name = "toggle",
-          type = "",
+          class = "",
           shape = "point",
           x = 800,
           y = 240,
@@ -511,7 +569,7 @@ return {
         {
           id = 33,
           name = "toggle",
-          type = "",
+          class = "",
           shape = "point",
           x = 460,
           y = 180,
@@ -527,7 +585,7 @@ return {
         {
           id = 98,
           name = "toggle",
-          type = "",
+          class = "",
           shape = "point",
           x = 240,
           y = 400,

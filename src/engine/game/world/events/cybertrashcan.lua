@@ -1,4 +1,17 @@
+--- A Cyber Trash Can that can contain either an Item or some money. \
+--- `CyberTrashCan` is an [`Event`](lua://Event.init) - naming an object `cybertrash` on an `objects` layer in a map creates this object. \
+--- See this object's Fields for the configurable properties on this object.
 ---@class CyberTrashCan : Event
+---
+---@field sprite    Sprite
+---@field solid     boolean
+---
+---@field item      string      *[Property `item`]* The name of the item contianed in this treasure chest - cannot be used in conjunction with `money`
+---@field money     number      *[Property `money`]* The amount of money contained in this treasure chest - cannot be used in conjunction with `item`
+---
+---@field set_flag  string      *[Property `setflag`]* An optional flag to set when the treasure chest is opened
+---@field set_value any         *[Property `setvalue`]* The value to set on the flag specified by `setflag` (Defaults to `true`)
+---
 ---@overload fun(...) : CyberTrashCan
 local CyberTrashCan, super = Class(Event, "cybertrash")
 
@@ -41,6 +54,7 @@ function CyberTrashCan:getDebugInfo()
     return info
 end
 
+--- Handles making the trashcan remain appearing open when re-entering the room
 function CyberTrashCan:onAdd(parent)
     super.onAdd(self, parent)
 
@@ -49,6 +63,7 @@ function CyberTrashCan:onAdd(parent)
     end
 end
 
+--- Handles opening the trashcan and giving the player their items
 function CyberTrashCan:onInteract(player, dir)
     if self:getFlag("opened") then
         self.world:showText({

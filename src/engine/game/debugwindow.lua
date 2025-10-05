@@ -1,5 +1,5 @@
 ---@class DebugWindow : Object
----@overload fun(...) : DebugWindow
+---@overload fun(name: string, text: string, type: string, callback: fun(text: string)) : DebugWindow
 local DebugWindow, super = Class(Object)
 
 function DebugWindow:init(name, text, type, callback)
@@ -50,7 +50,7 @@ function DebugWindow:init(name, text, type, callback)
             multiline = false,
             enter_submits = true,
         })
-        TextInput.submit_callback = function (...) self:onSubmit() end
+        TextInput.submit_callback = function() self:onSubmit() end
     end
 end
 

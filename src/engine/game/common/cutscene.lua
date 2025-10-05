@@ -4,9 +4,11 @@
 ---@see LegendCutscene  # For functions specific to legend cutscene scripts.
 ---
 ---@class Cutscene : Class
----@overload fun(...) : Cutscene
+---@overload fun(func: CutsceneFunc, ...) : Cutscene
 local Cutscene, super = Class()
 
+---@param func CutsceneFunc
+---@param ... unknown
 function Cutscene:init(func, ...)
     self.wait_timer = 0
     self.wait_func = nil
@@ -24,6 +26,12 @@ function Cutscene:init(func, ...)
     self:resume(self, ...)
 end
 
+---@param getter fun(...) : fun(...)|nil
+---@param cutscene fun(...)|string
+---@param id? string
+---@param ... unknown
+---@return fun(...) cutscene
+---@return table args
 function Cutscene:parseFromGetter(getter, cutscene, id, ...)
     self.getter = getter
     if type(cutscene) == "function" then
@@ -205,6 +213,7 @@ function Cutscene:resume(...)
     self.wait_func = nil
     local ok, msg = coroutine.resume(self.coroutine, ...)
     if not ok then
+        COROUTINE_TRACEBACK = debug.traceback(self.coroutine)
         error(msg)
     end
 end
@@ -217,15 +226,14 @@ end
 
 --- Starts executing a new cutscene script specified by `func`.
 ---@param func function|string  The new cutscene script.
----@param ... unknown           Additional arguments to pass to the new cutscene.
----@return unknown
+---@param ... any           Additional arguments to pass to the new cutscene.
+---@return any
 function Cutscene:gotoCutscene(func, ...)
     if self.getter then
         local new_func, args = self:parseFromGetter(self.getter, func, ...)
         return new_func(self, unpack(args))
-    else
-        return func(self, ...)
     end
+    return func(self, ...)
 end
 
 --- Plays a sound.

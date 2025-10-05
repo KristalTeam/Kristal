@@ -27,6 +27,8 @@ local self = Assets
 ---@field font_settings table<string, table>
 ---@field sound_data table<string, love.SoundData>
 ---@field music table<string, string>
+---@field shaders table<string, love.Shader>
+---@field shader_paths table<string, string>
 ---@field videos table<string, string>
 ---@field bubble_settings table<string, table>
 
@@ -49,6 +51,8 @@ function Assets.clear()
         videos = {},
         bubbles = {},
         bubble_settings = {},
+        shaders = {},
+        shader_paths = {}
     }
     self.frames_for = {}
     self.texture_ids = {}
@@ -163,6 +167,11 @@ function Assets.parseData(data)
     for key,sound_data in pairs(data.sound_data) do
         local src = love.audio.newSource(sound_data)
         self.sounds[key] = src
+    end
+
+    -- create single-instance shaders
+    for key,shader_path in pairs(data.shader_paths) do
+        self.data.shaders[key] = love.graphics.newShader(shader_path)
     end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
     --self.data.sound_data = {}
@@ -288,7 +297,7 @@ end
 function Assets.getFramesFor(texture)
     if self.frames_for[texture] then
         -- annoying type annotations
-        ---@diagnostic disable-next-line: return-type-mismatch
+        ---@diagnostic disable-next-line: redundant-return-value
         return unpack(self.frames_for[texture])
     end
     ---@diagnostic disable-next-line: return-type-mismatch
@@ -428,6 +437,14 @@ function Assets.newVideo(video, load_audio)
         error("No video found: "..video)
     end
     return love.graphics.newVideo(self.data.videos[video], {audio = load_audio})
+end
+
+function Assets.getShader(id)
+    return self.data.shaders[id]
+end
+
+function Assets.newShader(id)
+    return love.graphics.newShader(self.data.shader_paths[id])
 end
 
 Assets.clear()

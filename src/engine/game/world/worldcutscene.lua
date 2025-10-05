@@ -16,11 +16,15 @@
 ---
 ---@field world World   Reference to Game.world
 ---
----@overload fun(...) : WorldCutscene
+---@overload fun(world: World, group: string, id?: string, ...) : WorldCutscene
 local WorldCutscene, super = Class(Cutscene)
 
 local function _true() return true end
 
+---@param world World
+---@param group string
+---@param id? string
+---@param ... unknown
 function WorldCutscene:init(world, group, id, ...)
     local scene, args = self:parseFromGetter(Registry.getWorldCutscene, group, id, ...)
 
@@ -43,9 +47,10 @@ function WorldCutscene:init(world, group, id, ...)
     Game.lock_movement = true
 
     if Game:isLight() then
-        if self.world.menu and self.world.menu.state == "ITEMMENU" then
-            self.world.menu:closeBox()
-            self.world.menu.state = "TEXT"
+        local menu = self.world.menu ---@type LightMenu
+        if menu and menu:includes(LightMenu) and menu.state == "ITEMMENU" then
+            menu:closeBox()
+            menu.state = "TEXT"
         end
     else
         self.world:closeMenu()
@@ -498,7 +503,7 @@ function WorldCutscene:attachCameraImmediate()
 end
 
 --- Sets the current speaker for dialogue boxes in this cutscene.
----@param actor?    Character|string    The Character instance or character id to set as the speaker.
+---@param actor?    Actor|Character|string    The Character instance or character id to set as the speaker.
 ---@param talk?     boolean             If `false`, the actor of the textbox will be set, but not the speaking character in the world for talking animations.
 function WorldCutscene:setSpeaker(actor, talk)
     if isClass(actor) and actor:includes(Character) then
@@ -702,9 +707,9 @@ end
 local function waitForTextbox(self) return not self.textbox or self.textbox:isDone() end
 --- Creates a new textbox and starts typing the given `text` into it. \
 --- Will pause the cutscene until the textbox is closed, unless otherwise specified via `options`.
----@overload fun(self: WorldCutscene, text: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
----@overload fun(self: WorldCutscene, text: string, portrait?: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
----@param text      string                      The text to be typed.
+---@overload fun(self: WorldCutscene, text: string|string[], options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@overload fun(self: WorldCutscene, text: string|string[], portrait?: string, options?: table) : (finished:(fun():boolean), textbox: Textbox?)
+---@param text      string|string[]             The text to be typed.
 ---@param portrait? string|nil                  The name of the character portrait to use for this textbox.
 ---@param actor?    Character|Actor|string|nil  The Character/Actor to be used for voice bytes and portraits, overriding the active cutscene speaker.
 ---@param options?  table                       A table definining additional properties to control the textbox.

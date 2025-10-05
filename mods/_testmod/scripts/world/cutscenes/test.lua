@@ -1,4 +1,4 @@
-return function(cutscene)
+return function(cutscene, event)
 
     local kris = cutscene:getCharacter("kris")
     local susie = cutscene:getCharacter("susie")
@@ -96,8 +96,11 @@ return function(cutscene)
 
         cutscene:attachFollowers()
         cutscene:attachCamera()
-    else
+    elseif event and event.interact_count < 3 then
         cutscene:text("", "shock", "susie")
+    else
+        cutscene:text("* [wave:5]Yo yo yo[wave:0] this is test [bullshitcommand:on]fucking fucking 2[bullshitcommand:off] dialogue", "smile", "susie")
+        cutscene:text("* Look man I just wanted to make sure [bullshitcommand:on][shake:5]the new[shake:0][bullshitcommand:offtherpg] didn't break anything", "annoyed_down", "susie")
+        cutscene:text("* Same but with wave\n[bullshitcommand:on][wave:2]* Some king of wave:2[wave:0][bullshitcommand:off]\n* Hope you enjoyed", "smile", "susie")
     end
-
 end

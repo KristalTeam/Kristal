@@ -7,7 +7,9 @@ function BattleUI:init()
 
     self.layer = BATTLE_LAYERS["ui"]
 
-    self.current_encounter_text = Game.battle.encounter.text
+    self.current_encounter_text = {
+        text = Game.battle.encounter.text
+    }
 
     self.encounter_text = Textbox(30, 53, SCREEN_WIDTH - 30, SCREEN_HEIGHT - 53, "main_mono", nil, true)
     self.encounter_text.text.line_offset = 0
@@ -74,6 +76,12 @@ function BattleUI:init()
 
     self.sparestar = Assets.getTexture("ui/battle/sparestar")
     self.tiredmark = Assets.getTexture("ui/battle/tiredmark")
+
+    self:resetXACTPosition()
+end
+
+function BattleUI:resetXACTPosition()
+    self.xact_x_pos = 142
 end
 
 function BattleUI:clearEncounterText()
@@ -82,7 +90,7 @@ function BattleUI:clearEncounterText()
     self.encounter_text:setFont()
     self.encounter_text:setAlign("left")
     self.encounter_text:setSkippable(true)
-    self.encounter_text:setAdvance(true)
+    self.encounter_text:setAdvance(false)
     self.encounter_text:setAuto(false)
     self.encounter_text:setText("")
 end
@@ -302,7 +310,8 @@ function BattleUI:drawState()
             end
 
             if able then
-                Draw.setColor(item.color or {1, 1, 1, 1})
+                -- Using color like a function feels wrong... should this be called getColor?
+                Draw.setColor(item:color() or {1, 1, 1, 1})
             else
                 Draw.setColor(COLORS.gray)
             end
@@ -361,7 +370,7 @@ function BattleUI:drawState()
             Draw.draw(self.arrow_sprite, 470, 70 - (math.sin(Kristal.getTime()*6) * 2), 0, 1, -1)
         end
 
-    elseif Game.battle.state == "ENEMYSELECT" or Game.battle.state == "XACTENEMYSELECT" then
+    elseif Game.battle.state == "ENEMYSELECT" then
         local enemies = Game.battle.enemies_index
 
         local page = math.ceil(Game.battle.current_menu_y / 3) - 1
@@ -380,10 +389,16 @@ function BattleUI:drawState()
         Draw.setColor(1, 1, 1, 1)
 
         if draw_mercy then
-            if Game.battle.state == "ENEMYSELECT" then
+            if Game.battle.state_reason ~= "XACT" then
                 love.graphics.print("HP", 424, 39, 0, 1, 0.5)
             end
             love.graphics.print("MERCY", 524, 39, 0, 1, 0.5)
+        end
+
+        for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
+            if self.xact_x_pos < font:getWidth(enemy.name) + 142 then
+                self.xact_x_pos = font:getWidth(enemy.name) + 142
+            end
         end
 
         for index = page_offset+1, math.min(page_offset+3, #enemies) do
@@ -391,6 +406,7 @@ function BattleUI:drawState()
             local y_off = (index - page_offset - 1) * 30
 
             if enemy then
+                ---@cast enemy EnemyBattler
                 local name_colors = enemy:getNameColors()
                 if type(name_colors) ~= "table" then
                     name_colors = {name_colors}
@@ -458,20 +474,19 @@ function BattleUI:drawState()
                     end
                 end
 
-                if Game.battle.state == "XACTENEMYSELECT" then
+                if Game.battle.state_reason == "XACT" then
                     Draw.setColor(Game.battle.party[Game.battle.current_selecting].chara:getXActColor())
                     if Game.battle.selected_xaction.id == 0 then
-                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), 282, 50 + y_off)
+                        love.graphics.print(enemy:getXAction(Game.battle.party[Game.battle.current_selecting]), self.xact_x_pos, 50 + y_off)
                     else
-                        love.graphics.print(Game.battle.selected_xaction.name, 282, 50 + y_off)
+                        love.graphics.print(Game.battle.selected_xaction.name, self.xact_x_pos, 50 + y_off)
                     end
-                end
-
-                if Game.battle.state == "ENEMYSELECT" then
+                else
                     local namewidth = font:getWidth(enemy.name)
 
                     Draw.setColor(128/255, 128/255, 128/255, 1)
 
+                    
                     if ((80 + namewidth + 60 + (font:getWidth(enemy.comment) / 2)) < 415) then
                         love.graphics.print(enemy.comment, 80 + namewidth + 60, 50 + y_off)
                     else
@@ -493,7 +508,7 @@ function BattleUI:drawState()
 
                         if draw_percents then
                             Draw.setColor(PALETTE["action_health_text"])
-                            love.graphics.print(math.ceil(hp_percent * 100) .. "%", hp_x + 4, 55 + y_off, 0, 1, 0.5)
+                            love.graphics.print(enemy:getHealthDisplay(), hp_x + 4, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end
@@ -518,7 +533,7 @@ function BattleUI:drawState()
 
                         if draw_percents and enemy.selectable then
                             Draw.setColor(PALETTE["battle_mercy_text"])
-                            love.graphics.print(math.ceil(enemy.mercy) .. "%", 524, 55 + y_off, 0, 1, 0.5)
+                            love.graphics.print(enemy:getMercyDisplay(), 524, 55 + y_off, 0, 1, 0.5)
                         end
                     end
                 end
@@ -573,6 +588,9 @@ function BattleUI:drawState()
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), 101, 16)
 
             local percentage = Game.battle.party[index].chara:getHealth() / Game.battle.party[index].chara:getStat("health")
+            -- Chapter 3 introduces this lower limit, but all chapters in Kristal might as well have it
+            -- Swooning is the only time you can ever see it this low
+            percentage = math.max(-1, percentage)
             Draw.setColor(PALETTE["action_health"])
             love.graphics.rectangle("fill", 400, 55 + ((index - page_offset - 1) * 30), math.ceil(percentage * 101), 16)
         end

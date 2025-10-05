@@ -1,7 +1,7 @@
 return {
-  version = "1.9",
+  version = "1.10",
   luaversion = "5.1",
-  tiledversion = "1.9.1",
+  tiledversion = "1.11.0",
   class = "",
   orientation = "orthogonal",
   renderorder = "right-down",
@@ -10,7 +10,7 @@ return {
   tilewidth = 40,
   tileheight = 40,
   nextlayerid = 6,
-  nextobjectid = 5,
+  nextobjectid = 7,
   properties = {},
   tilesets = {},
   layers = {
@@ -63,7 +63,7 @@ return {
         {
           id = 1,
           name = "fountainfloor",
-          class = "",
+          type = "",
           shape = "rectangle",
           x = 200,
           y = 280,
@@ -76,15 +76,32 @@ return {
         {
           id = 2,
           name = "darkfountain",
-          class = "",
+          type = "",
           shape = "point",
-          x = 320,
+          x = 200,
           y = 280,
           width = 0,
           height = 0,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["narrow"] = false
+          }
+        },
+        {
+          id = 6,
+          name = "darkfountain",
+          type = "",
+          shape = "point",
+          x = 440,
+          y = 280,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["narrow"] = true
+          }
         }
       }
     },
@@ -105,7 +122,7 @@ return {
         {
           id = 4,
           name = "fountainshadow",
-          class = "",
+          type = "",
           shape = "point",
           x = 80,
           y = 80,
@@ -149,7 +166,7 @@ return {
         {
           id = 3,
           name = "spawn",
-          class = "",
+          type = "",
           shape = "point",
           x = 320,
           y = 400,

@@ -1,4 +1,4 @@
----@class MainMenuModCreate : StateClass
+---@class MainMenuModCreate : StateClass, StateManagedClass
 ---
 ---@field menu MainMenu
 ---
@@ -34,7 +34,7 @@ function MainMenuModCreate:init(menu)
     }
     self.selected_option = 1
 
-    self.chapter_options = {1, 2}
+    self.chapter_options = {1, 2, 3, 4}
     self.id_adjusted = false
 
     self.input_pos_x = 0
@@ -300,8 +300,7 @@ function MainMenuModCreate:adjustCreateID()
 
     local newstr = ""
     for i = 1, utf8.len(str) do
-        local offset = utf8.offset(str, i)
-        local char = string.sub(str, offset, offset)
+        local char = Utils.sub(str, i, i)
         local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
         if Utils.containsValue(disallowed, char) then
             char = ""

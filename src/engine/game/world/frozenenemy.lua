@@ -1,13 +1,28 @@
+--- A frozen statue of an enemy that can be interacted with. \
+--- Enemies that are frozen in battle will automatically turn into statues when returning to the Overworld.
 ---@class FrozenEnemy : Interactable
----@overload fun(...) : FrozenEnemy
+---
+---@field text string[] Text displayed when interacting with the statue
+---
+---@field sprite ActorSprite
+---@field actor Actor
+---@field collider Hitbox
+---@field solid boolean
+---@field encounter string 
+---
+---@overload fun(actor: string|Actor, x: number, y: number, properties: table) : FrozenEnemy
 local FrozenEnemy, super = Class(Interactable)
 
+---@param actor         string|Actor
+---@param x?            number
+---@param y?            number
+---@param properties?   table
 function FrozenEnemy:init(actor, x, y, properties)
     if type(actor) == "string" then
         actor = Registry.createActor(actor)
     end
     local w, h = actor:getSize()
-    super.init(self, x, y, w, h, properties)
+    super.init(self, x, y, {w, h}, properties)
 
     properties = properties or {}
 
@@ -35,7 +50,7 @@ end
 
 function FrozenEnemy:getDebugInfo()
     local info = super.getDebugInfo(self)
-    table.insert(info, "Actor: " .. self.actor)
+    table.insert(info, "Actor: " .. self.actor:getName())
     return info
 end
 

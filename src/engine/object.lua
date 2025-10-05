@@ -113,6 +113,9 @@
 ---@field parent Object|nil The object's parent.
 ---@field children table A list of all of this object's children.
 ---
+---@field world           World?
+---@field persistent      boolean
+---
 ---@overload fun(x?:number, y?:number, width?:number, height?:number) : Object
 local Object = Class()
 
@@ -323,17 +326,17 @@ function Object:onRemoveFromStage(stage) end
 --
 
 ---@class physics_table
----@field speed_x           number  The horizontal speed of the object, in pixels per frame at 30FPS.
----@field speed_y           number  The vertical speed of the object, in pixels per frame at 30FPS.
----@field speed             number  The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
----@field direction         number  The angle at which the object will move, in radians.
----@field friction          number  The amount the object's speed will slow down, per frame at 30FPS.
----@field gravity           number  The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
----@field gravity_direction number  The angle at which the object's gravity will accelerate towards, in radians.
----@field spin              number  The amount this object's direction will change, in radians per frame at 30FPS.
----@field match_rotation    boolean Whether the object's rotation should also define its direction. (Defaults to false)
----@field move_target?      table   A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
----@field move_path?        table   A table containing data defined by `Object:slidePath()`.
+---@field speed_x           number?  The horizontal speed of the object, in pixels per frame at 30FPS.
+---@field speed_y           number?  The vertical speed of the object, in pixels per frame at 30FPS.
+---@field speed             number?  The speed the object will move in the angle of its direction, in pixels per frame at 30FPS.
+---@field direction         number?  The angle at which the object will move, in radians.
+---@field friction          number?  The amount the object's speed will slow down, per frame at 30FPS.
+---@field gravity           number?  The amount the object's speed will accelerate towards its gravity direction, per frame at 30FPS.
+---@field gravity_direction number?  The angle at which the object's gravity will accelerate towards, in radians.
+---@field spin              number?  The amount this object's direction will change, in radians per frame at 30FPS.
+---@field match_rotation    boolean? Whether the object's rotation should also define its direction. (Defaults to false)
+---@field move_target?      table?   A table containing data defined by `Object:slideTo()` or `Object:slideToSpeed()`.
+---@field move_path?        table?   A table containing data defined by `Object:slidePath()`.
 
 --- Resets all of the object's `physics` table values to their default values, \
 --- making it so it will stop moving if it was before.
@@ -1089,24 +1092,27 @@ end
 function Object:getDebugOptions(context)
     context:addMenuItem("Delete", "Delete this object", function()
         self:remove()
-        if Kristal.DebugSystem then
+        if Kristal.DebugSystem ~= nil then
             Kristal.DebugSystem:unselectObject()
         end
     end)
-    context:addMenuItem("Clone", "Clone this object", function()
-        local clone = self:clone()
-        clone:removeFX("debug_flash")
-        self.parent:addChild(clone)
-        clone:setScreenPos(Input.getMousePosition())
-        Kristal.DebugSystem:selectObject(clone)
-    end)
+
+    if self.parent ~= nil then
+        context:addMenuItem("Clone", "Clone this object", function()
+            local clone = self:clone() ---@type Object
+            clone:removeFX("debug_flash")
+            self.parent:addChild(clone)
+            clone:setScreenPos(Input.getMousePosition())
+            Kristal.DebugSystem:selectObject(clone)
+        end)
+    end
     context:addMenuItem("Copy", "Copy this object to paste it later", function()
         Kristal.DebugSystem:copyObject(self)
     end)
     context:addMenuItem("Cut", "Cut this object to paste it later", function()
         Kristal.DebugSystem:cutObject(self)
     end)
-    if Kristal.DebugSystem and Kristal.DebugSystem.copied_object then
+    if Kristal.DebugSystem ~= nil and Kristal.DebugSystem.copied_object ~= nil then
         context:addMenuItem("Paste Into", "Paste the copied object into this one", function()
             Kristal.DebugSystem:pasteObject(self)
         end)
@@ -1419,6 +1425,40 @@ function Object:getFullScale()
         sy = sy * psy
     end
     return sx, sy
+end
+
+--- Returns whether the object has been clicked this frame.
+---@param button? number The mouse button to check. If not provided, it will check all buttons available.
+---@return boolean success Whether the object was clicked.
+---@return number button The mouse button that clicked the object. Useful if the 'button' argument was not provided.
+function Object:clicked(button)
+    if not button then
+        local used_button = 0
+        for i=1, Input.mouse_button_max do
+            local success, success_button = self:clicked(i)
+            used_button = math.max(used_button, success_button)
+            if success then
+                return true, success_button
+            end
+        end
+        return false, used_button
+    end
+    local clicked, x, y, presses = Input.mousePressed(button)
+    if not clicked then
+        return false, 0
+    end
+    if self.collider then
+        local point = PointCollider(nil, x, y)
+        return self.collider:collidesWith(point), button
+    else
+        -- roughly same code as DebugSystem:detectObject(x, y)
+        local mx, my = self:getFullTransform():inverseTransformPoint(x, y)
+        local rect = self:getDebugRectangle() or { 0, 0, self.width, self.height }
+        if mx >= rect[1] and mx < rect[1] + rect[3] and my >= rect[2] and my < rect[2] + rect[4] then
+            return true, button
+        end
+    end
+    return false, button
 end
 
 --- Removes the object from its parent.
@@ -1879,17 +1919,23 @@ function Object:updateGraphicsTransform()
         self.rotation = self.rotation + graphics.spin * DTMULT
     end
 
-    if (graphics.shake_x and graphics.shake_x ~= 0) or (graphics.shake_y and graphics.shake_y ~= 0) then
-        graphics.shake_timer = (graphics.shake_timer or 0) + DT
-        while graphics.shake_timer >= (graphics.shake_delay or (2 / 30)) do
-            graphics.shake_x = (graphics.shake_x or 0) * -1
-            graphics.shake_y = (graphics.shake_y or 0) * -1
-            graphics.shake_timer = graphics.shake_timer - (graphics.shake_delay or (2 / 30))
+    local friction = graphics.shake_friction or 0
+    local shake_x = graphics.shake_x or 0
+    local shake_y = graphics.shake_y or 0
+    local timer = graphics.shake_timer or 0
+    local delay = graphics.shake_delay or (2 / 30)
+
+    if (shake_x ~= 0) or (shake_y ~= 0) then
+        graphics.shake_timer = timer + DT
+
+        while graphics.shake_timer >= delay do
+            shake_x = (Utils.approach(shake_x, 0, friction)) * -1
+            shake_y = (Utils.approach(shake_y, 0, friction)) * -1
+            graphics.shake_timer = graphics.shake_timer - delay
         end
-        if graphics.shake_friction and graphics.shake_friction ~= 0 then
-            graphics.shake_x = Utils.approach(graphics.shake_x or 0, 0, graphics.shake_friction * DTMULT)
-            graphics.shake_y = Utils.approach(graphics.shake_y or 0, 0, graphics.shake_friction * DTMULT)
-        end
+
+        graphics.shake_x = shake_x
+        graphics.shake_y = shake_y
     end
 end
 
