@@ -1929,10 +1929,13 @@ function Object:updateGraphicsTransform()
         graphics.shake_timer = timer + DT
 
         while graphics.shake_timer >= delay do
-            graphics.shake_x = (Utils.approach(graphics.shake_x or 0, 0, friction)) * -1
-            graphics.shake_y = (Utils.approach(graphics.shake_y or 0, 0, friction)) * -1
+            shake_x = (Utils.approach(shake_x, 0, friction)) * -1
+            shake_y = (Utils.approach(shake_y, 0, friction)) * -1
             graphics.shake_timer = graphics.shake_timer - delay
         end
+
+        graphics.shake_x = shake_x
+        graphics.shake_y = shake_y
     end
 end
 
