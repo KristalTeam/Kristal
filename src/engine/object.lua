@@ -1919,16 +1919,19 @@ function Object:updateGraphicsTransform()
         self.rotation = self.rotation + graphics.spin * DTMULT
     end
 
-    if (graphics.shake_x and graphics.shake_x ~= 0) or (graphics.shake_y and graphics.shake_y ~= 0) then
-        graphics.shake_timer = (graphics.shake_timer or 0) + DT
-        while graphics.shake_timer >= (graphics.shake_delay or (2 / 30)) do
-            graphics.shake_x = (graphics.shake_x or 0) * -1
-            graphics.shake_y = (graphics.shake_y or 0) * -1
-            graphics.shake_timer = graphics.shake_timer - (graphics.shake_delay or (2 / 30))
-        end
-        if graphics.shake_friction and graphics.shake_friction ~= 0 then
-            graphics.shake_x = Utils.approach(graphics.shake_x or 0, 0, graphics.shake_friction * DTMULT)
-            graphics.shake_y = Utils.approach(graphics.shake_y or 0, 0, graphics.shake_friction * DTMULT)
+    local friction = graphics.shake_friction or 0
+    local shake_x = graphics.shake_x or 0
+    local shake_y = graphics.shake_y or 0
+    local timer = graphics.shake_timer or 0
+    local delay = graphics.shake_delay or (2 / 30)
+
+    if (shake_x ~= 0) or (shake_y ~= 0) then
+        graphics.shake_timer = timer + DT
+
+        while graphics.shake_timer >= delay do
+            graphics.shake_x = (Utils.approach(graphics.shake_x or 0, 0, friction)) * -1
+            graphics.shake_y = (Utils.approach(graphics.shake_y or 0, 0, friction)) * -1
+            graphics.shake_timer = graphics.shake_timer - delay
         end
     end
 end
