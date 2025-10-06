@@ -194,6 +194,11 @@ function World:hurtParty(battler, amount)
     end
 
     if any_killed and not any_alive then
+        for _,party in ipairs(Game.party) do
+            if party:getHealth() > 0 then
+                party:setHealth(0)
+            end
+        end
         self:stopCameraShake()
         if not self.map:onGameOver() then
             Game:gameOver(self.soul:getScreenPos())
