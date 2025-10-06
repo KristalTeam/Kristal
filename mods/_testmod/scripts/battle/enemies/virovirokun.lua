@@ -12,6 +12,8 @@ function Virovirokun:init()
     self.asleep = false
     self.become_red = false
 
+    self.nb_checks = 0
+
     self:registerAct("Tell Story", "", {"ralsei"})
     self:registerAct("Red", "", {"susie"})
     self:registerAct("", "", nil, nil, nil, {"ui/battle/msg/dumbass"})
@@ -34,6 +36,39 @@ function Virovirokun:getSpareText(battler, success)
         result[1] = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:green]GREEN[color:reset]..."
     end
     return result
+end
+
+function Virovirokun:onCheck()
+    self.nb_checks = self.nb_checks + 1
+end
+
+function Virovirokun:getCheckText(battler)
+    local text = super.getCheckText(self, battler)
+    if type(text) ~= "table" then
+        text = {text}
+    end
+
+    if #Game.battle:getActiveEnemies() > 100 then
+        return "* A LOT OF ENEMIES. YOU'RE GONNA DIE."
+    end
+
+    if self.nb_checks > 1 then
+        table.insert(text, "* "..battler.chara:getName().." can't get more info on the enemy!")
+    end
+
+    if self.nb_checks == 3 and #Game.battle.party >= 2 then
+        table.insert(text, "* "..Game.battle.party[2].chara:getName().." tells you to stop checking.")
+    elseif self.nb_checks == 4 and #Game.battle.party >= 3 then
+        table.insert(text, "* "..Game.battle.party[3].chara:getName().." begs you to stop checking!")
+    elseif self.nb_checks > 4 and self.nb_checks < 9 then
+        table.insert(text, "* What are you even doing?")
+    elseif self.nb_checks == 9 then
+        table.insert(text, "* [color:red]You feel like checking further is a bad idea[color:reset]...")
+    elseif self.nb_checks == 10 then
+        battler:hurt(999, nil, nil, {swoon=true})
+        return "* Ok you're getting annoying."
+    end
+    return text
 end
 
 function Virovirokun:mercyFlash(color)

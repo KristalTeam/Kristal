@@ -547,7 +547,6 @@ function DarkTransition:draw()
                 data.sprite_2:set("white")
                 data.sprite_3:set("dark")
                 data.top = data.sprite_3.texture:getHeight()
-                print(data.top)
 
                 data.sprite_1.cutout_bottom = 0
                 data.sprite_2.cutout_top = data.top
@@ -611,7 +610,7 @@ function DarkTransition:draw()
                 end
 
                 if data.top >= 2 then
-                    local x = ((data.x + 3) + math.random((data.sprite_1.width - 6)))
+                    local x = ((data.x + 3) + math.random(data.sprite_3.texture:getWidth() - 6))
                     local y = (data.y + data.top)
 
                     for _ = 1, particle_amount do
