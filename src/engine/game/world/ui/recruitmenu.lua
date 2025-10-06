@@ -206,8 +206,8 @@ function RecruitMenu:draw()
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
-                    local recruit_progress = recruit:getRecruited() .. " / " .. recruit:getRecruitAmount()
-                    love.graphics.print(recruit_progress, 280, 100 + offset, 0, 54 / self.font:getWidth(recruit_progress), 1)
+                    local recruit_progress = recruit:getRecruited() .. (Game:getConfig("recruitsProgressSpaces") and " / " or "/") .. recruit:getRecruitAmount()
+                    love.graphics.print(recruit_progress, 280, 100 + offset)
                 end
                 offset = offset + 35
             end
