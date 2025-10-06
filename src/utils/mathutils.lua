@@ -149,8 +149,8 @@ end
 ---
 --- Returns a value between two numbers, determined by a percentage from 0 to 1.
 ---
----@param to     number  # The start value of the range.
----@param from   number  # The end value of the range.
+---@param from   number  # The start value of the range.
+---@param to     number  # The end value of the range.
 ---@param factor number  # The percentage (from 0 to 1) that determines the point on the specified range.
 ---@return number result # The new value from the range.
 ---
