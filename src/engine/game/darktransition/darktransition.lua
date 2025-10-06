@@ -493,10 +493,8 @@ function DarkTransition:draw()
             self.timer = self.timer + 1 * DTMULT
         end
         self.sprite_index = ((self.timer / 36) * 5)
-        if #self.character_data > 1 then
-            for _, data in ipairs(self.character_data) do
-                data.x = data.x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius) * data.movement
-            end
+        for _, data in ipairs(self.character_data) do
+            data.x = data.x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius) * data.movement
         end
 
         if (self.timer >= 35) then
@@ -549,6 +547,7 @@ function DarkTransition:draw()
                 data.sprite_2:set("white")
                 data.sprite_3:set("dark")
                 data.top = data.sprite_3.texture:getHeight()
+                print(data.top)
 
                 data.sprite_1.cutout_bottom = 0
                 data.sprite_2.cutout_top = data.top
@@ -611,8 +610,8 @@ function DarkTransition:draw()
                     data.top = 0
                 end
 
-                if data.top >= 5 then
-                    local x = ((data.x + 6) + math.random((data.sprite_1.width)))
+                if data.top >= 2 then
+                    local x = ((data.x + 3) + math.random((data.sprite_1.width - 6)))
                     local y = (data.y + data.top)
 
                     for _ = 1, particle_amount do
