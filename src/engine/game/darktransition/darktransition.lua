@@ -493,8 +493,10 @@ function DarkTransition:draw()
             self.timer = self.timer + 1 * DTMULT
         end
         self.sprite_index = ((self.timer / 36) * 5)
-        for _, data in ipairs(self.character_data) do
-            data.x = data.x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius) * data.movement
+        if #self.character_data > 1 then
+            for _, data in ipairs(self.character_data) do
+                data.x = data.x_current + (math.sin(math.rad((self.timer * 2.5))) * self.radius) * data.movement
+            end
         end
 
         if (self.timer >= 35) then
