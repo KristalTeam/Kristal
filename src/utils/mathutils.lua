@@ -329,7 +329,7 @@ end
 ---@param val integer     # The value to wrap.
 ---@param length integer  # The length of the table to wrap the index around.
 ---@return integer result # The new wrapped index.
----@see MathUtils#wrap
+---@see MathUtils.wrap
 function MathUtils.wrapIndex(val, length)
     return MathUtils.wrap(val, 1, length + 1)
 end
