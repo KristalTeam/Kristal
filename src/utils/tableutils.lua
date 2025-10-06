@@ -108,7 +108,7 @@ function TableUtils.copyInto(new_tbl, tbl, deep, seen)
             if seen[v] then
                 -- If we've already seen this table, use the same copy.
                 new_tbl[k] = seen[v]
-            elseif (not isClass(v) or (v.canDeepCopy and v:canDeepCopy())) and (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) then
+            elseif (not isClass(tbl) or (tbl:canDeepCopyKey(k) and not tbl.__dont_include[k])) and (not isClass(v) or (v.canDeepCopy and v:canDeepCopy())) then
                 -- Unless the current value is a class that doesn't want to be deep copied,
                 -- or the member of a class that doesn't want it to be deep copied, we can copy it.
                 new_tbl[k] = {}
