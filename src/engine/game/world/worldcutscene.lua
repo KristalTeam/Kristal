@@ -888,6 +888,8 @@ function WorldCutscene:choicer(choices, options)
 
     self.choicebox.active = true
     self.choicebox.visible = true
+    
+    self.choicebox.ui_sound = options["ui_sound"]
 
     if options["wait"] or options["wait"] == nil then
         return self:wait(waitForChoicer)
@@ -1001,6 +1003,8 @@ function WorldCutscene:textChoicer(text, choices, portrait, actor, options)
     if options["align"] then
         self.textchoicebox:setAlign(options["align"])
     end
+    
+    self.textchoicebox.ui_sound = options["ui_sound"]
 
     self.textchoicebox:setSkippable(options["skip"] or options["skip"] == nil)
 
