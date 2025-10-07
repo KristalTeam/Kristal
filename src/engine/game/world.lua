@@ -199,7 +199,7 @@ function World:hurtParty(battler, amount)
                 party:setHealth(0)
             end
         end
-        self:stopCameraShake()
+        self:shakeCamera(0)
         if not self.map:onGameOver() then
             Game:gameOver(self.soul:getScreenPos())
         end
@@ -1148,11 +1148,6 @@ function World:setCameraAttachedY(attached) self:setCameraAttached(self.camera.a
 ---@param friction? number
 function World:shakeCamera(x, y, friction)
     self.camera:shake(x, y, friction)
-end
-
---- Stops the camera shake.
-function World:stopCameraShake()
-    self.camera:stopShake()
 end
 
 function World:sortChildren()
