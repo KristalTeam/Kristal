@@ -282,15 +282,15 @@ function TensionBar:drawFill()
 
     if (self.apparent < self.current) then
         Draw.setColor(tension_decrease)
-        local y = 196 - (self:getPercentageFor250(self.current) * 196) + 1
+        local y = MathUtils.clamp(196 - (self:getPercentageFor250(self.current) * 196) + 1, 0, 196)
         Draw.drawPart(self.tp_bar_fill, 0, y, 0, y, 25, 196)
 
         Draw.setColor(tension_fill)
-        local y2 = 196 - (self:getPercentageFor250(self.apparent) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196)
+        local y2 = MathUtils.clamp(196 - (self:getPercentageFor250(self.apparent) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 0, 196)
         Draw.drawPart(self.tp_bar_fill, 0, y2, 0, y2, 25, 196)
     elseif (self.apparent > self.current) then
         Draw.setColor(1, 1, 1, 1)
-        local y = 196 - (self:getPercentageFor250(self.apparent) * 196) + 1
+        local y = MathUtils.clamp(196 - (self:getPercentageFor250(self.apparent) * 196) + 1, 0, 196)
         Draw.drawPart(self.tp_bar_fill, 0, y, 0, y, 25, 196)
 
         Draw.setColor(tension_fill)
@@ -298,7 +298,7 @@ function TensionBar:drawFill()
             Draw.setColor(tension_max)
         end
 
-        local y2 = 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196)
+        local y2 = MathUtils.clamp(196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 0, 196)
         Draw.drawPart(self.tp_bar_fill, 0, y2, 0, y2, 25, 196)
     elseif (self.apparent == self.current) then
         Draw.setColor(tension_fill)
@@ -306,7 +306,7 @@ function TensionBar:drawFill()
             Draw.setColor(tension_max)
         end
 
-        local y = 196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196)
+        local y = MathUtils.clamp(196 - (self:getPercentageFor250(self.current) * 196) + 1 + (self:getPercentageFor(self.tension_preview) * 196), 0, 196)
         Draw.drawPart(self.tp_bar_fill, 0, y, 0, y, 25, 196)
     end
 
@@ -339,7 +339,7 @@ function TensionBar:drawFill()
 
     if ((self.apparent > 20) and (self.apparent < 250)) then
         Draw.setColor(1, 1, 1, 1)
-        local y = 196 - (self:getPercentageFor250(self.current) * 196) + 1
+        local y = MathUtils.clamp(196 - (self:getPercentageFor250(self.current) * 196) + 1, 0, 196)
         Draw.drawPart(self.tp_bar_fill, 0, y, 0, y, 25, 3)
     end
 end
