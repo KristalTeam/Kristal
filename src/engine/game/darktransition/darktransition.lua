@@ -34,11 +34,18 @@ function DarkTransition:init(final_y, options)
     self.characters = options["characters"] or default_characters
     self.character_data = {}
 
+    local movement_pos = {}
+    for i, character in ipairs(self.characters) do
+        table.insert(movement_pos, math.floor((i + 1) / 2) * 1 * ((i % 2 == 0) and -1 or 1))
+    end
+    if #self.characters % 2 == 1 then
+        movement_pos[#movement_pos] = 0
+    end
     for i, character in ipairs(self.characters) do
         local x, y = character:localToScreenPos(0, 0)
         x = x / 2
         y = y / 2
-        local movement = (options["movement_table"] or {1, -1})[i] or 0
+        local movement = (options["movement_table"] or movement_pos)[i] or 0
         local sprite_holder = self:addChild(Object(x, y))
         local data = {
             x = x,
@@ -448,13 +455,16 @@ function DarkTransition:draw()
         self.draw_rect = 0
         self.linecon = true
 
-        for _, data in ipairs(self.character_data) do
+        self.radius = 60
+        for i, data in ipairs(self.character_data) do
             data.x_current = data.x
+            if i % 2 == 0 then
+                self.radius = 120 / i
+            end
         end
 
         self.con = 18
         self.soundcon = 1
-        self.radius = 60
 
         for _, data in ipairs(self.character_data) do
             data.sprite_1.visible = true
