@@ -432,8 +432,13 @@ function Battle:onStateChange(old,new)
         if not self.started then
             self.started = true
 
-            for _,battler in ipairs(self.party) do
+            for _, battler in ipairs(self.party) do
                 battler:resetSprite()
+            end
+
+            for _, enemy in ipairs(self.enemies) do
+                enemy.init_x = enemy.target_x
+                enemy.init_y = enemy.target_y
             end
 
             if self.encounter.music then
