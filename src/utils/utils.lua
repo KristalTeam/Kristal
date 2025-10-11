@@ -960,7 +960,6 @@ end
 function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
     local x = ((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
     local y = ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
-    print(x1==x3, y1==y3, x2==x4, y2==y4)
     if x1==x3 and y1==y3 and x2==x4 and y2==y4 then
         return false, "The lines are the same."
     end
