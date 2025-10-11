@@ -943,33 +943,30 @@ end
 ---
 --- Returns the point at which two lines intersect.
 ---
----@param l1p1x number          # The horizontal position of the first point for the first line.
----@param l1p1y number          # The vertical position of the first point for the first line.
----@param l1p2x number          # The horizontal position of the second point for the first line.
----@param l1p2y number          # The vertical position of the second point for the first line.
----@param l2p1x number          # The horizontal position of the first point for the second line.
----@param l2p1y number          # The vertical position of the first point for the second line.
----@param l2p2x number          # The horizontal position of the second point for the second line.
----@param l2p2y number          # The vertical position of the second point for the second line.
+---@param x1 number          # The horizontal position of the first point for the first line.
+---@param y1 number          # The vertical position of the first point for the first line.
+---@param x2 number          # The horizontal position of the second point for the first line.
+---@param y2 number          # The vertical position of the second point for the first line.
+---@param x3 number          # The horizontal position of the first point for the second line.
+---@param y3 number          # The vertical position of the first point for the second line.
+---@param x4 number          # The horizontal position of the second point for the second line.
+---@param y4 number          # The vertical position of the second point for the second line.
 ---@param seg1? boolean         # If true, the first line will be treated as a line segment instead of an infinite line.
 ---@param seg2? boolean         # If true, the second line will be treated as a line segment instead of an infinite line.
 ---@return number|boolean x     # If the lines intersected, this will be the horizontal position of the intersection; otherwise, this value will be `false`.
 ---@return number|linefailure y # If the lines intersected, this will be the vertical position of the intersection; otherwise, this will be a string describing why the lines did not intersect.
 ---
-function Utils.getLineIntersect(l1p1x, l1p1y, l1p2x, l1p2y, l2p1x, l2p1y, l2p2x, l2p2y, seg1, seg2)
-    local a1,b1,a2,b2 = l1p2y-l1p1y, l1p1x-l1p2x, l2p2y-l2p1y, l2p1x-l2p2x
-    local c1,c2 = a1*l1p1x+b1*l1p1y, a2*l2p1x+b2*l2p1y
-    local det = a1*b2 - a2*b1
-    if det==0 then return false, "The lines are parallel." end
-    local x,y = (b2*c1-b1*c2)/det, (a1*c2-a2*c1)/det
+function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
+    local x = ((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
+    local y = ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
     if seg1 or seg2 then
         local min,max = math.min, math.max
-        if seg1 and not (min(l1p1x,l1p2x) <= x and x <= max(l1p1x,l1p2x) and min(l1p1y,l1p2y) <= y and y <= max(l1p1y,l1p2y)) or
-           seg2 and not (min(l2p1x,l2p2x) <= x and x <= max(l2p1x,l2p2x) and min(l2p1y,l2p2y) <= y and y <= max(l2p1y,l2p2y)) then
+        if seg1 and not (min(x1,x2) <= x and x <= max(x1,x2) and min(y1,y2) <= y and y <= max(y1,y2)) or
+           seg2 and not (min(x3,x4) <= x and x <= max(x3,x4) and min(y3,y4) <= y and y <= max(y3,y4)) then
             return false, "The lines don't intersect."
         end
     end
-    return x,y
+    return x, y
 end
 
 ---
