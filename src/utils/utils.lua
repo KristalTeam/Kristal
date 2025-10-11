@@ -937,6 +937,7 @@ end
 --- @alias linefailure
 ---| "The lines are parallel."
 ---| "The lines don't intersect."
+---| "The lines are the same."
 
 -- TODO: Language server will complain about the second return value here
 
@@ -959,6 +960,15 @@ end
 function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
     local x = ((x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
     local y = ((x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4))/((x1-x2)*(y3-y4)-(y1-y2)*(x3-x4))
+    print(x1==x3, y1==y3, x2==x4, y2==y4)
+    if x1==x3 and y1==y3 and x2==x4 and y2==y4 then
+        return false, "The lines are the same."
+    end
+    local a1 = Utils.angle(x1, y1, x2, y2)
+    local a2 = Utils.angle(x3, y3, x4, y4)
+    if a1 == a2 or a1 == (a2+math.rad(180))%math.rad(360) and not (seg1 and seg2) then
+        return false, "The lines are parallel."
+    end
     if seg1 or seg2 then
         local min,max = math.min, math.max
         if seg1 and not (min(x1,x2) <= x and x <= max(x1,x2) and min(y1,y2) <= y and y <= max(y1,y2)) or
