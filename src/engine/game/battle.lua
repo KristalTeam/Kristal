@@ -2006,43 +2006,41 @@ function Battle:hurt(amount, exact, target, swoon)
 
     if target == "ANY" then
         target = self:randomTargetOld()
-        
-        if isClass(target) and target:includes(PartyBattler) then
-            -- Calculate the average HP of the party.
-            -- This is "scr_party_hpaverage", which gets called multiple times in the original script.
-            -- We'll only do it once here, just for the slight optimization. This won't affect accuracy.
 
-            -- Speaking of accuracy, this function doesn't work at all!
-            -- It contains a bug which causes it to always return 0, unless all party members are at full health.
-            -- This is because of a random floor() call.
-            -- I won't bother making the code accurate; all that matters is the output.
+        -- Calculate the average HP of the party.
+        -- This is "scr_party_hpaverage", which gets called multiple times in the original script.
+        -- We'll only do it once here, just for the slight optimization. This won't affect accuracy.
 
-            local party_average_hp = 1
+        -- Speaking of accuracy, this function doesn't work at all!
+        -- It contains a bug which causes it to always return 0, unless all party members are at full health.
+        -- This is because of a random floor() call.
+        -- I won't bother making the code accurate; all that matters is the output.
 
-            for _,battler in ipairs(self.party) do
-                if battler.chara:getHealth() ~= battler.chara:getStat("health") then
-                    party_average_hp = 0
-                    break
-                end
+        local party_average_hp = 1
+
+        for _,battler in ipairs(self.party) do
+            if battler.chara:getHealth() ~= battler.chara:getStat("health") then
+                party_average_hp = 0
+                break
             end
-
-            -- Retarget... twice.
-            if target.chara:getHealth() / target.chara:getStat("health") < (party_average_hp / 2) then
-                target = self:randomTargetOld()
-            end
-            if target.chara:getHealth() / target.chara:getStat("health") < (party_average_hp / 2) then
-                target = self:randomTargetOld()
-            end
-
-            -- If we landed on Kris (or, well, the first party member), and their health is low, retarget (plot armor lol)
-            if (target == self.party[1]) and ((target.chara:getHealth() / target.chara:getStat("health")) < 0.35) then
-                target = self:randomTargetOld()
-            end
-
-            -- They got hit, so un-darken them
-            target.should_darken = false
-            target.targeted = true
         end
+
+        -- Retarget... twice.
+        if target.chara:getHealth() / target.chara:getStat("health") < (party_average_hp / 2) then
+            target = self:randomTargetOld()
+        end
+        if target.chara:getHealth() / target.chara:getStat("health") < (party_average_hp / 2) then
+            target = self:randomTargetOld()
+        end
+
+        -- If we landed on Kris (or, well, the first party member), and their health is low, retarget (plot armor lol)
+        if (target == self.party[1]) and ((target.chara:getHealth() / target.chara:getStat("health")) < 0.35) then
+            target = self:randomTargetOld()
+        end
+
+        -- They got hit, so un-darken them
+        target.should_darken = false
+        target.targeted = true
     end
 
     -- Now it's time to actually damage them!
