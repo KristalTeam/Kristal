@@ -457,15 +457,12 @@ function DarkTransition:draw()
         self.draw_rect = 0
         self.linecon = true
 
-        self.radius = 60
+        self.radius = self.transition_radius or 60
         for i, data in ipairs(self.character_data) do
             data.x_current = data.x
-            if i % 2 == 0 then
+            if not self.transition_radius and i % 2 == 0 then
                 self.radius = 120 / i
             end
-        end
-        if self.transition_radius then
-            self.radius = self.transition_radius
         end
 
         self.con = 18
