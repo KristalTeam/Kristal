@@ -134,8 +134,6 @@ end
 ---|"swoon" # Whether the damage should swoon the battler instead of downing them
 function PartyBattler:hurt(amount, exact, color, options)
     options = options or {}
-    
-    Game.battle:shakeCamera(4)
 
     local swoon = options["swoon"]
 
@@ -175,6 +173,7 @@ function PartyBattler:hurt(amount, exact, color, options)
     end
 
     self.hurt_timer = 0
+    Game.battle:shakeCamera(4)
 
     if (not self.defending) and (not self.is_down) then
         self.sleeping = false

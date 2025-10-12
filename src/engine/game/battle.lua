@@ -2261,7 +2261,6 @@ function Battle:checkGameOver()
             wave:onEnd(true)
         end
     end
-    self:shakeCamera(0)
     if self.encounter:onGameOver() then
         return
     end
