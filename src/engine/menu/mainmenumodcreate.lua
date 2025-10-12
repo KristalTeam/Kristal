@@ -1,4 +1,4 @@
----@class MainMenuModCreate : StateClass
+---@class MainMenuModCreate : StateClass, StateManagedClass
 ---
 ---@field menu MainMenu
 ---
@@ -300,8 +300,7 @@ function MainMenuModCreate:adjustCreateID()
 
     local newstr = ""
     for i = 1, utf8.len(str) do
-        local offset = utf8.offset(str, i)
-        local char = string.sub(str, offset, offset)
+        local char = Utils.sub(str, i, i)
         local disallowed = {"/", "\\", "*", ".", "?", ":", "\"", "<", ">", "|"}
         if Utils.containsValue(disallowed, char) then
             char = ""
@@ -382,7 +381,7 @@ function MainMenuModCreate:createMod()
     end
 
     -- Copy the files from mod_template
-    local files = Utils.findFiles("mod_template")
+    local files = FileSystemUtils.findFiles("mod_template")
     for i, file in ipairs(files) do
         local src = "mod_template/" .. file
         local dst = dir .. file

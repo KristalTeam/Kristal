@@ -2,6 +2,8 @@
 --- This class is not to be confused with the psuedo-event [`NPC`](lua://NPC.init) that is used for characters placed in the overworld.
 ---@class Character : Object
 ---@overload fun(actor: string|Actor, x?: number, y?: number) : Character
+---@field unique_id string?
+---@field object_id string?
 local Character, super = Class(Object)
 
 function Character:init(actor, x, y)
@@ -53,7 +55,9 @@ end
 
 function Character:onAdd(parent)
     if parent:includes(World) then
-        self.world = parent
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        local world = parent ---@type World
+        self.world = world
     end
 end
 
@@ -438,7 +442,7 @@ function Character:setWalkSprite(sprite)
     self.sprite:setWalkSprite(sprite)
 end
 
---- Resetss the character's to their default animation or sprite.
+--- Resets the character's to their default animation or sprite.
 function Character:resetSprite()
     self.sprite:resetSprite()
 end
@@ -448,7 +452,10 @@ function Character:setAnimation(animation, after)
 end
 
 function Character:play(speed, loop, reset, on_finished)
-    self.sprite:play(speed, loop, reset, on_finished)
+    self.sprite:play(speed, loop, function(sprite) ---@param sprite ActorSprite
+        if reset then sprite:resetSprite() end
+        if on_finished then on_finished(sprite) end
+    end)
 end
 
 --- Moves the character to a new position with a jumping arc motion.
@@ -736,5 +743,9 @@ function Character:draw()
         self.collider:draw(0, 1, 0)
     end
 end
+
+---@param encounter Encounter
+---@param battler Battler
+function Character:onReturnFromBattle(encounter, battler) end
 
 return Character

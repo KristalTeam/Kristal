@@ -62,6 +62,10 @@
 ---@field temporary_mercy           number              The current amount of temporary mercy
 ---@field temporary_mercy_percent   DamageNumber|nil    The DamageNumber object, used to update the mercy display
 ---
+---@field target_x                  number?
+---@field target_y                  number?
+---@field encounter                 Encounter?
+---
 ---@overload fun(actor?:Actor|string, use_overlay?:boolean) : EnemyBattler
 local EnemyBattler, super = Class(Battler)
 
@@ -148,11 +152,39 @@ function EnemyBattler:init(actor, use_overlay)
     self.graze_tension = 1.6 -- (1/10 of a defend, or cheap spell)
 end
 
---- Get the default graze tension for this enemy.
+--- *(Override)* Get what this enemy's HP should display in the enemy select menu.
+--- This should be a string.
+---
+--- By default, returns a percentage.
+---@return string
+function EnemyBattler:getHealthDisplay()
+    return math.ceil((self.health / self.max_health) * 100) .. "%"
+end
+
+--- *(Override)* Get what this enemy's MERCY should display in the enemy select menu.
+--- This should be a string.
+---
+--- By default, returns a percentage.
+---@return string
+function EnemyBattler:getMercyDisplay()
+    return math.ceil(self.mercy) .. "%"
+end
+
+--- *(Override)* Get the default graze tension for this enemy.
 --- Any bullets which don't specify graze tension will use this value.
 ---@return number tension The tension to gain when bullets spawned by this enemy are grazed.
 function EnemyBattler:getGrazeTension()
     return self.graze_tension
+end
+
+---@return bool boolean
+function EnemyBattler:shouldDisplayTiredMessage()
+    return self.tired_percentage > 0
+end
+
+---@return bool boolean
+function EnemyBattler:shouldDisplayAwakeMessage()
+    return true
 end
 
 ---@param bool boolean
@@ -161,7 +193,7 @@ function EnemyBattler:setTired(bool)
     self.tired = bool
     if self.tired then
         self.comment = "(Tired)"
-        if not old_tired and Game:getConfig("tiredMessages") then
+        if not old_tired and Game:getConfig("tiredMessages") and self:shouldDisplayTiredMessage() then
             -- Check for self.parent so setting Tired state in init doesn't crash
             if self.parent then
                 self:statusMessage("msg", "tired")
@@ -170,7 +202,7 @@ function EnemyBattler:setTired(bool)
         end
     else
         self.comment = ""
-        if old_tired and Game:getConfig("awakeMessages") then
+        if old_tired and Game:getConfig("awakeMessages") and self:shouldDisplayAwakeMessage() then
             if self.parent then self:statusMessage("msg", "awake") end
         end
     end
@@ -370,6 +402,7 @@ function EnemyBattler:getSpareText(battler, success)
     if success then
         return "* " .. battler.chara:getName() .. " spared " .. self.name .. "!"
     else
+        ---@type string|string[]
         local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
         if self.tired then
             local found_spell = nil
@@ -529,10 +562,10 @@ function EnemyBattler:mercyFlash(color)
 
     local recolor = self:addFX(RecolorFX())
     Game.battle.timer:during(8/30, function()
-        recolor.color = Utils.lerp(recolor.color, color, 0.12 * DTMULT)
+        recolor.color = ColorUtils.mergeColor(recolor.color, color, 0.12 * DTMULT)
     end, function()
         Game.battle.timer:during(8/30, function()
-            recolor.color = Utils.lerp(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
+            recolor.color = ColorUtils.mergeColor(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
         end, function()
             self:removeFX(recolor)
         end)
@@ -637,6 +670,25 @@ end
 ---@param battler PartyBattler
 function EnemyBattler:onCheck(battler) end
 
+--- *(Override)* Gets the text used by the Check act.
+--- *By default, returns the name of the enemy in all caps and then the value defined in EnemyBattler.check*
+---@param battler PartyBattler
+function EnemyBattler:getCheckText(battler)
+    if type(self.check) == "table" then
+        local tbl = {}
+        for i,check in ipairs(self.check) do
+            if i == 1 then
+                table.insert(tbl, "* " .. string.upper(self.name) .. " - " .. check)
+            else
+                table.insert(tbl, "* " .. check)
+            end
+        end
+        return tbl
+    else
+        return "* " .. string.upper(self.name) .. " - " .. self.check
+    end
+end
+
 --- *(Override)* Called when an ACT on this enemy starts \
 --- *By default, sets the sprties of all battlers involved in the act to `"battle/act"`
 ---@param battler PartyBattler  The battler using this act - if it is a multi-act, this only specifies the one who used the command
@@ -656,30 +708,18 @@ end
 --- *Acts will **softlock** Kristal if a string value or table is not returned by this function when they are used*
 ---@param battler   PartyBattler
 ---@param name      string
----@return string[]|string text
+---@return string[]|string? text
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
-        if type(self.check) == "table" then
-            local tbl = {}
-            for i,check in ipairs(self.check) do
-                if i == 1 then
-                    table.insert(tbl, "* " .. string.upper(self.name) .. " - " .. check)
-                else
-                    table.insert(tbl, "* " .. check)
-                end
-            end
-            return tbl
-        else
-            return "* " .. string.upper(self.name) .. " - " .. self.check
-        end
+        return self:getCheckText(battler)
     end
 end
 
 --- *(Override)* Called when a short ACT is used, functions identically to [`EnemyBattler:onAct()`](lua://EnemyBattler.onAct) but for short acts
 ---@param battler   PartyBattler
 ---@param name      string
----@return string[]|string text
+---@return string[]|string? text
 function EnemyBattler:onShortAct(battler, name) end
 
 --- *(Override)* Called at the start of every new turn in battle
@@ -689,7 +729,7 @@ function EnemyBattler:onTurnEnd() end
 
 --- Retrieves the data of an act on this enemy by its `name`
 ---@param name string
----@return table
+---@return table?
 function EnemyBattler:getAct(name)
     for _,act in ipairs(self.acts) do
         if act.name == name then
@@ -836,7 +876,7 @@ function EnemyBattler:onDodge(battler, attacked) end
 function EnemyBattler:onDefeat(damage, battler)
     if self.exit_on_defeat then
         self:onDefeatRun(damage, battler)
-    else
+    elseif self.sprite then
         self.sprite:setAnimation("defeat")
     end
 end
@@ -1018,21 +1058,13 @@ function EnemyBattler:setActor(actor, use_overlay)
     end
 end
 
---- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`Sprite:play()`](lua://Sprite.play)
+--- Shorthand for [`ActorSprite:setSprite()`](lua://ActorSprite.setSprite) and [`ActorSprite:play()`](lua://ActorSprite.play)
 ---@param sprite?   string
 ---@param speed?    number
 ---@param loop?     boolean
 ---@param after?    fun(ActorSprite)
 function EnemyBattler:setSprite(sprite, speed, loop, after)
-    if not self.sprite then
-        self.sprite = Sprite(sprite)
-        self:addChild(self.sprite)
-    else
-        self.sprite:setSprite(sprite)
-    end
-    if not self.sprite.directional and speed then
-        self.sprite:play(speed, loop, after)
-    end
+    super.setSprite(self, sprite, speed, loop, after)
 end
 
 function EnemyBattler:update()

@@ -513,11 +513,10 @@ function DarkEquipMenu:drawAbilityPreview(index, x, y, abilities, compare)
     local name = abilities[index] and abilities[index].name or nil
     local comp_name = compare[index] and compare[index].name or nil
     if abilities[index] and abilities[index].icon then
-        local yoff = self.state == "ITEMS" and -6 or 2
         local texture = Assets.getTexture(abilities[index].icon)
         if texture then
             Draw.setColor(abilities[index].color)
-            Draw.draw(texture, x, y + yoff, 0, 2, 2)
+            Draw.draw(texture, x, y + 2, 0, 2, 2)
         end
     end
     if name ~= comp_name then

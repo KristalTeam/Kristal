@@ -2,7 +2,7 @@ function Mod:init()
     print("Loaded test mod!")
 
     local spell = Registry.getSpell("ultimate_heal")
-    Utils.hook(spell, "onCast", function (orig, self, user, target)
+    HookSystem.hook(spell, "onCast", function (orig, self, user, target)
         orig(self, user, target)
 
         for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
@@ -21,9 +21,16 @@ function Mod:init()
     self.dog_activated = false
 end
 
+---@param text Text
+function Mod:registerTextCommands(text)
+    text:registerCommand("bullshitcommand", function (the_thingy_collection, this_particular_thingy, pl_badwater) ---@param the_thingy_collection Text
+        the_thingy_collection.state.some_jevil_bullshit = the_thingy_collection:isTrue(this_particular_thingy.arguments[1])
+    end, {dry = true})
+end
+
 function Mod:preInit()
     -- make characters woobly
-    --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
+    --[[HookSystem.hook(ActorSprite, "init", function(orig, self, ...)
         orig(self, ...)
 
         local fx = self:addFX(ShaderFX(Mod.wave_shader, {
@@ -35,7 +42,7 @@ function Mod:preInit()
         -- only activate when its funky time,,,,
         fx.active = false
     end)]]
-    --[[Utils.hook(World, "init", function(orig, self, ...)
+    --[[HookSystem.hook(World, "init", function(orig, self, ...)
         orig(self, ...)
         self:addFX(ShaderFX(Mod.wave_shader, {
             ["bg_sine"] = function() return Kristal.getTime() * 100 end,
@@ -45,7 +52,7 @@ function Mod:preInit()
         }))
     end)]]
     -- hiden ralsei
-    --[[Utils.hook(ActorSprite, "init", function(orig, self, ...)
+    --[[HookSystem.hook(ActorSprite, "init", function(orig, self, ...)
         orig(self, ...)
 
         if self.actor.id == "ralsei" then

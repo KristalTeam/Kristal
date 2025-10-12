@@ -1,4 +1,6 @@
 ---@class Kristal
+---@field Console Console
+---@field DebugSystem DebugSystem
 local Kristal = {}
 
 if HOTSWAPPING then
@@ -536,6 +538,14 @@ function Kristal.onKeyPressed(key, is_repeat)
         elseif key == "f8" then
             print("Hotswapping files...\nNOTE: Might be unstable. If anything goes wrong, it's not our fault :P")
             Hotswapper.scan()
+        elseif key == "f9" and Input.shift() then
+            love.filesystem.createDirectory("screenshots")
+            -- FIXME: the game might freeze when using love.system.openURL to open a file directory
+            if (love.system.getOS() == "Windows") then
+                os.execute('start /B \"\" \"'..love.filesystem.getSaveDirectory()..'/screenshots\"')
+            else
+                love.system.openURL("file://"..love.filesystem.getSaveDirectory().."/screenshots")
+            end
         elseif key == "f9" then
             love.filesystem.createDirectory("screenshots")
             love.graphics.captureScreenshot("screenshots/" .. os.time() .. "-" .. RUNTIME .. ".png")
@@ -598,8 +608,9 @@ end
 --- Kristal alternative to the default love.errorhandler. \
 --- Called when an error occurs.
 ---@param  msg string|table     The error message.
+---@param trace_level integer?
 ---@return function|nil handler The error handler, called every frame instead of the main loop.
-function Kristal.errorHandler(msg)
+function Kristal.errorHandler(msg, trace_level)
     Draw.reset()
 
     local copy_color = { 1, 1, 1, 1 }
@@ -629,11 +640,16 @@ function Kristal.errorHandler(msg)
     local trace = nil
     if type(msg) == "table" then
         if msg.critical then
-            if(msg.critical == "error in error handling") then
+            if msg.critical == "error in error handling" then
                 critical = true
-                msg =  "critical error"
+                msg = "critical error"
             else
-                msg = msg.critical
+                if msg.msg then
+                    trace = msg.critical
+                    msg = tostring(msg.msg)
+                else
+                    msg = msg.critical
+                end
             end
         elseif msg.msg then
             local split = Utils.split(msg.msg, "\n")
@@ -644,8 +660,10 @@ function Kristal.errorHandler(msg)
 
     msg = tostring(msg or "nil")
 
+    if trace_level == nil then trace_level = 2 end
+
     if not critical and not trace then
-        error_printer(msg, 2)
+        error_printer(msg, trace_level)
     elseif trace then
         print("Error: " .. msg .. "\n" .. trace)
     end
@@ -702,7 +720,7 @@ function Kristal.errorHandler(msg)
     if not trace then
         trace = ""
         if not critical then
-            trace = debug.traceback("", 2)
+            trace = debug.traceback("", trace_level)
         end
         if COROUTINE_TRACEBACK then
             trace = COROUTINE_TRACEBACK .. "\n" .. trace
@@ -1902,10 +1920,10 @@ end
 --- Clears all mod-defined hooks from `Utils.hook`, and restores the original functions. \
 --- Called internally when a mod is unloaded.
 function Kristal.clearModHooks()
-    for _, hook in ipairs(Utils.__MOD_HOOKS) do
+    for _, hook in ipairs(HookSystem.__MOD_HOOKS) do
         hook.target[hook.name] = hook.orig
     end
-    Utils.__MOD_HOOKS = {}
+    HookSystem.__MOD_HOOKS = {}
 end
 
 --- Removes all mod-defined classes from base classes' `__includers` table.
@@ -1914,7 +1932,7 @@ function Kristal.clearModSubclasses()
     for class, subs in pairs(MOD_SUBCLASSES) do
         for _, sub in ipairs(subs) do
             if class.__includers then
-                Utils.removeFromTable(class.__includers, sub)
+                TableUtils.removeValue(class.__includers, sub)
             end
         end
     end
