@@ -1183,6 +1183,9 @@ end
 ---| "save" # Reloads the mod from the last save.
 ---| "none" # Fully reloads the mod from the start of the game.
 function Kristal.quickReload(mode)
+    -- Prevent reloading while the game is already loading
+    if Kristal.Loader.waiting > 0 then return end
+
     -- Temporarily save game variables
     local save, save_id, encounter, shop
     if mode == "temp" then
