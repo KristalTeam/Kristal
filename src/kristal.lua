@@ -1120,7 +1120,7 @@ function Kristal.clearModState()
     Kristal.callEvent(KRISTAL_EVENT.unload)
     Mod = nil
 
-    Kristal.Mods.clear()
+    Kristal.clearAssets(true)
     Kristal.clearModHooks()
     Kristal.clearModSubclasses()
 
@@ -1133,16 +1133,11 @@ function Kristal.clearModState()
 
     package.loaded["src.engine.vars"] = nil
     require("src.engine.vars")
-    -- Reset Game state
-    package.loaded["src.engine.game.game"] = nil
-    Kristal.States["Game"] = require("src.engine.game.game")
-    Game = Kristal.States["Game"]
 
     Kristal.setDesiredWindowTitleAndIcon()
 
-    -- Restore assets and registry
+    -- Restore assets
     Assets.restoreData()
-    Registry.initialize()
 end
 
 --- Exits the current mod and returns to the Kristal menu.
