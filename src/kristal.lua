@@ -1135,12 +1135,11 @@ function Kristal.clearModState()
     require("src.engine.vars")
 
     -- Clear Game variables
-    for k, v in pairs(Kristal.States["Game"]) do
+    for k, v in pairs(Game) do
         if type(v) ~= "function" then
-            Kristal.States["Game"][k] = nil
+            Game[k] = nil
         end
     end
-    Game = Kristal.States["Game"]
 
     local chapter = Kristal.getModOption("chapter") or 2
     Game.chapter = chapter
