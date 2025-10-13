@@ -179,7 +179,7 @@ end
 
 ---@return bool boolean
 function EnemyBattler:shouldDisplayTiredMessage()
-    return self.tired_percentage > 0
+    return true
 end
 
 ---@return bool boolean
