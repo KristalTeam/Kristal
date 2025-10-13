@@ -1134,6 +1134,17 @@ function Kristal.clearModState()
     package.loaded["src.engine.vars"] = nil
     require("src.engine.vars")
 
+    -- Clear Game variables
+    for k, v in pairs(Kristal.States["Game"]) do
+        if type(v) ~= "function" then
+            Kristal.States["Game"][k] = nil
+        end
+    end
+    Game = Kristal.States["Game"]
+
+    local chapter = Kristal.getModOption("chapter") or 2
+    Game.chapter = chapter
+
     Kristal.setDesiredWindowTitleAndIcon()
 
     -- Restore assets
