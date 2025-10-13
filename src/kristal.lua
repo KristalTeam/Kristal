@@ -1148,6 +1148,9 @@ function Kristal.clearModState()
 
     -- Restore assets
     Assets.restoreData()
+    
+    -- force garbage collection
+    collectgarbage("collect")
 end
 
 --- Exits the current mod and returns to the Kristal menu.
