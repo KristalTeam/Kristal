@@ -510,7 +510,7 @@ function Game:load(data, index, fade)
         end
     end
 
-    -- Warn about missing priority library
+    -- Warn about missing priority libraries
     if Mod then
         for _,lib_id in ipairs(Mod.info["libPriority"]) do
             if not Mod.libs[lib_id] then
