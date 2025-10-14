@@ -510,6 +510,15 @@ function Game:load(data, index, fade)
         end
     end
 
+    -- Warn about missing priority library
+    if Mod then
+        for _,lib_id in ipairs(Mod.info["libPriority"]) do
+            if not Mod.libs[lib_id] then
+                Kristal.Console:warn("Could not find the priority library '" .. lib_id .. "'")
+            end
+        end
+    end
+
     Kristal.callEvent(KRISTAL_EVENT.postLoad)
 end
 

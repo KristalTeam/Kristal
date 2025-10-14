@@ -56,12 +56,21 @@
     // When your mod is configured as the engine's target mod, it's automatically done unless if
     // this option is explicitly set to false; else, it's done if this is set to true.
     "setWindowTitleAndIcon": null,
+    
+    // A list containing the order of which libraries will load before others.
+    // The order is from left-to-right.
+    // Libraries which weren't included in this list will load afterwards.
+    "libPriority": [],
+
+    // Whether libraries with dependencies which were set in the libraries priority list will load
+    // their dependencies first before loading themselves.
+    "libDependenciesPriority": true,
 
     // Config values for the engine and any libraries you may have.
     // These config values can control chapter-specific features as well.
     "config": {
         "kristal": {
-{config}
+            {config}
         }
     }
 }
