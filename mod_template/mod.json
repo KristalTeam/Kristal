@@ -70,7 +70,7 @@
     // These config values can control chapter-specific features as well.
     "config": {
         "kristal": {
-            {config}
+{config}
         }
     }
 }
