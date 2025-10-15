@@ -139,10 +139,7 @@ function love.load(args)
 
     -- default registry
     Registry.initialize()
-    Kristal.DefaultRegistry = {}
-    for registry,path in pairs(Registry.paths) do
-        Kristal.DefaultRegistry[registry] = Registry[registry]
-    end
+    Registry.saveData()
 
     -- Chapter defaults
     Kristal.ChapterConfigs = {}

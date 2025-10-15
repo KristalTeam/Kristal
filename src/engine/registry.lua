@@ -35,6 +35,7 @@
 local Registry = {}
 local self = Registry
 
+Registry.saved_data = nil
 Registry.new_globals = {}
 Registry.last_globals = {}
 
@@ -109,16 +110,30 @@ function Registry.initialize(preload)
     Hotswapper.updateFiles("registry")
 end
 
-function Registry.restoreData()
-    local chapter = Kristal.getModOption("chapter") or 2
-    Game.chapter = chapter
-    
+function Registry.saveData()
+    self.saved_data = {}
     for registry,path in pairs(self.paths) do
-        self[registry] = Kristal.DefaultRegistry[registry]
+        self.saved_data[registry] = self[registry]
     end
-    
-    -- force garbage collection
-    collectgarbage("collect")
+end
+
+---@return boolean
+function Registry.restoreData()
+    if self.saved_data then
+        local chapter = Kristal.getModOption("chapter") or 2
+        Game.chapter = chapter
+        
+        for registry,path in pairs(self.paths) do
+            self[registry] = self.saved_data[registry]
+        end
+        
+        -- force garbage collection
+        collectgarbage("collect")
+        
+        return true
+    else
+        return false
+    end
 end
 
 function Registry.restoreOverridenGlobals()
