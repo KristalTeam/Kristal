@@ -23,8 +23,16 @@ function Virovirokun:init()
         description = "Red\nDamage"
     end
 
+    if Game:getFlag("insomniac_virovirokun") then
+        self:setTired(true)
+    end
+
     self:registerAct("Red Buster", description, "susie", 60)
     self:registerAct("DualHeal", "Heals\neveryone", "ralsei", 50)
+
+    self:registerAct("LoudTired", "TIRED\nmessage...", nil, 0)
+    self:registerAct("QuietTired", "No TIRED\nmessage...", nil, -100)
+    self:registerAct("Nether", "Oops! No\nsleep")
 end
 
 function Virovirokun:getSpareText(battler, success)
@@ -120,6 +128,36 @@ function Virovirokun:onAct(battler, name)
     elseif name == "" then
         battler:hurt(math.huge)
         return "* Dumbass"
+    elseif name == "LoudTired" then
+        local text = {"* You made Virovirokun TIRED by blasting nightcore remixes out at full volume!"}
+        Game.battle.music:setPitch(1.25)
+        Game.battle.music:setVolume(1)
+
+        if Game.chapter < 3 then
+            table.insert(text, "[sound:awkward]* But you were still in Chapter 2...")
+            self.text_override = "Happy New Year 2025!"
+        end
+
+        self:setTired(true)
+        return text
+    elseif name == "QuietTired" then
+        local text = {"* You made Virovirokun TIRED with the sound of deafening silence."}
+        Game.battle.music:pause()
+
+        if Game.chapter < 3 then
+            table.insert(text, "[sound:awkward]* But you were still in Chapter 2...")
+        end
+
+        self:setTired(true, true)
+        return text
+    elseif name == "Nether" then
+        -- I would never: steal code from Acts three branches above this one
+        self.become_red = true
+        self:setColor(1, 0, 0)
+        self.tired_percentage = 0
+        self:setTired(false)
+
+        return "* You sent Virovirokun to the Nether.[wait:5]\n* Its sleep quality diminished immensely!"
     else
         return super.onAct(self, battler, name)
     end
@@ -138,6 +176,13 @@ function Virovirokun:getNextWaves()
         return nil
     end
     return super.getNextWaves(self)
+end
+
+function Virovirokun:onTurnEnd()
+    if Game:getFlag("insomniac_virovirokun") then
+        self:setTired(false)
+        self:setTired(true)
+    end
 end
 
 return Virovirokun

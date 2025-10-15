@@ -177,24 +177,16 @@ function EnemyBattler:getGrazeTension()
     return self.graze_tension
 end
 
----@return bool boolean
-function EnemyBattler:shouldDisplayTiredMessage()
-    return self.tired_percentage > 0
-end
-
----@return bool boolean
-function EnemyBattler:shouldDisplayAwakeMessage()
-    return true
-end
-
----@param bool boolean
-function EnemyBattler:setTired(bool)
+---@param bool          boolean New tired state
+---@param hide_message? boolean Hides the "TIRED" or "AWAKE" message (if it would otherwise have been shown) if set to `true`. 
+function EnemyBattler:setTired(bool, hide_message)
     local old_tired = self.tired
     self.tired = bool
     if self.tired then
         self.comment = "(Tired)"
-        if not old_tired and Game:getConfig("tiredMessages") and self:shouldDisplayTiredMessage() then
-            -- Check for self.parent so setting Tired state in init doesn't crash
+        if Game:getConfig("tiredMessages") and not old_tired and not hide_message then
+            -- Enemies can't spawn TIRED messages safely until fully initialised and parented.
+            -- To keep this function safe to use in `init()`, we must therefore check `self.parent` exists before trying to spawn the message. 
             if self.parent then
                 self:statusMessage("msg", "tired")
                 Assets.playSound("spellcast", 0.5, 0.9)
@@ -202,7 +194,7 @@ function EnemyBattler:setTired(bool)
         end
     else
         self.comment = ""
-        if old_tired and Game:getConfig("awakeMessages") and self:shouldDisplayAwakeMessage() then
+        if Game:getConfig("awakeMessages") and old_tired and not hide_message then
             if self.parent then self:statusMessage("msg", "awake") end
         end
     end
@@ -853,7 +845,8 @@ function EnemyBattler:onHurt(damage, battler)
     self:getActiveSprite():shake(9, 0, 0.5, 2/30)
 
     if self.health <= (self.max_health * self.tired_percentage) then
-        self:setTired(true)
+        -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
+        self:setTired(true, self.tired_percentage <= 0)
     end
 end
 
