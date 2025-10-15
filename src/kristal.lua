@@ -139,6 +139,10 @@ function love.load(args)
 
     -- default registry
     Registry.initialize()
+    Kristal.DefaultRegistry = {}
+    for registry,path in pairs(Registry.paths) do
+        Kristal.DefaultRegistry[registry] = Registry[registry]
+    end
 
     -- Chapter defaults
     Kristal.ChapterConfigs = {}
@@ -1137,24 +1141,16 @@ function Kristal.clearModState()
 
     package.loaded["src.engine.vars"] = nil
     require("src.engine.vars")
-
-    -- Clear Game variables
-    for k, v in pairs(Game) do
-        if type(v) ~= "function" then
-            Game[k] = nil
-        end
-    end
-
-    local chapter = Kristal.getModOption("chapter") or 2
-    Game.chapter = chapter
+    -- Reset Game state
+    package.loaded["src.engine.game.game"] = nil
+    Kristal.States["Game"] = require("src.engine.game.game")
+    Game = Kristal.States["Game"]
 
     Kristal.setDesiredWindowTitleAndIcon()
 
-    -- Restore assets
+    -- Restore assets and registry
     Assets.restoreData()
-    
-    -- force garbage collection
-    collectgarbage("collect")
+    Registry.restoreData()
 end
 
 --- Exits the current mod and returns to the Kristal menu.

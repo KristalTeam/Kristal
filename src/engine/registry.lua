@@ -109,6 +109,18 @@ function Registry.initialize(preload)
     Hotswapper.updateFiles("registry")
 end
 
+function Registry.restoreData()
+    local chapter = Kristal.getModOption("chapter") or 2
+    Game.chapter = chapter
+    
+    for registry,path in pairs(self.paths) do
+        self[registry] = Kristal.DefaultRegistry[registry]
+    end
+    
+    -- force garbage collection
+    collectgarbage("collect")
+end
+
 function Registry.restoreOverridenGlobals()
     for id,_ in pairs(self.new_globals) do
         _G[id] = self.last_globals[id]
