@@ -179,12 +179,12 @@ end
 
 ---@return bool boolean
 function EnemyBattler:shouldDisplayTiredMessage()
-    return true
+    return Game:getConfig("tiredMessages")
 end
 
 ---@return bool boolean
 function EnemyBattler:shouldDisplayAwakeMessage()
-    return true
+    return Game:getConfig("awakeMessages")
 end
 
 ---@param bool boolean
@@ -193,7 +193,7 @@ function EnemyBattler:setTired(bool)
     self.tired = bool
     if self.tired then
         self.comment = "(Tired)"
-        if not old_tired and Game:getConfig("tiredMessages") and self:shouldDisplayTiredMessage() then
+        if not old_tired and self:shouldDisplayTiredMessage() then
             -- Check for self.parent so setting Tired state in init doesn't crash
             if self.parent then
                 self:statusMessage("msg", "tired")
@@ -202,7 +202,7 @@ function EnemyBattler:setTired(bool)
         end
     else
         self.comment = ""
-        if old_tired and Game:getConfig("awakeMessages") and self:shouldDisplayAwakeMessage() then
+        if old_tired and self:shouldDisplayAwakeMessage() then
             if self.parent then self:statusMessage("msg", "awake") end
         end
     end
