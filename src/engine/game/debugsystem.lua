@@ -817,12 +817,14 @@ function DebugSystem:registerDefaults()
                             Hotswapper.scan(); self:refresh()
                         end)
 
+    local not_loading = function() return not Kristal.isLoading() and Kristal.getState() ~= LoadingState end
+
     if Mod then
         local hard_reset = Kristal.getModOption("hardReset")
         if hard_reset then
             self:registerOption("main", "Reload", "Reload the mod.", function ()
                 love.event.quit("restart")
-            end)
+            end, not_loading)
         else
             self:registerOption("main", "Reload (tempsave)", "Reload the mod, creating a temporary save.", function ()
                 if Kristal.getModOption("hardReset") then
@@ -830,19 +832,19 @@ function DebugSystem:registerDefaults()
                 elseif Mod then
                     Kristal.quickReload("temp")
                 end
-            end)
+            end, not_loading)
 
             if not hard_reset then
                 self:registerOption("main", "Reload (from save)", "Reload the mod from your current save.", function ()
                     Kristal.quickReload("save")
-                end)
+                end, not_loading)
             end
         end
     else
         -- we're not in a mod, so just return to main menu (which should reload assets)
-        self:registerOption("main", "Reload", "Reload the engine.", function ()
+        self:registerOption("main", "Reload", "Reload the engine.", function()
             Kristal.returnToMenu()
-        end)
+        end, not_loading)
     end
 
     self:registerOption("main", "Noclip",
