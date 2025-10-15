@@ -1327,6 +1327,13 @@ function Kristal.loadMod(id, save_id, save_name, after)
         -- Add the current library to the libs table (again, with the real final value)
         Mod.libs[lib_id] = lib
     end
+    
+    -- Warn about missing priority libraries
+    for _,lib_id in ipairs(Mod.info["libPriority"] or {}) do
+        if not Mod.libs[lib_id] then
+            Kristal.Console:warn("Could not find the priority library '" .. lib_id .. "'")
+        end
+    end
 
     Kristal.loadModAssets(mod.id, "all", "", after or function ()
         if Kristal.preInitMod(mod.id) then
