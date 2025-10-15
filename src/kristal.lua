@@ -566,6 +566,10 @@ function Kristal.onKeyPressed(key, is_repeat)
                         Kristal.quickReload("temp")
                     end
                 elseif Kristal.Loader.waiting == 0 and Kristal.getState()["state"] then
+                    -- Kristal.Loader.waiting == 0 prevents a visual bug if you attempt to reload a mod very fast, where it would temporarly show the main menu before loading the mod
+                    -- It checks whether the engine finished loading before allowing it to return to menu, where in a mod reloading case, it would already put you in the mod
+                    -- Kristal.getState()["state"] prevents a crash when a reload is attempted during the Kristal intro animation
+                    -- It checks whether there's a game state applied to allow reloading
                     Kristal.returnToMenu()
                 end
             end
