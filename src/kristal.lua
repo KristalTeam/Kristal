@@ -1120,7 +1120,7 @@ function Kristal.clearModState()
     Kristal.callEvent(KRISTAL_EVENT.unload)
     Mod = nil
 
-    Kristal.clearAssets(true)
+    Kristal.Mods.clear()
     Kristal.clearModHooks()
     Kristal.clearModSubclasses()
 
