@@ -15,7 +15,6 @@
 ---@field tension number
 ---@field max_tension number
 ---@field lw_money integer
----@field level_up_count integer
 ---@field border string
 ---@field temp_followers table<[string, number]|string>
 ---@field flags table<string, any>
@@ -59,6 +58,7 @@
 ---@field lw_exp integer
 ---@field lw_health integer
 ---@field lw_stats {attack: integer, defense: integer, health: integer}
+---@field level_up_count integer
 ---@field spells string[]
 ---@field equipped {weapon: ItemSaveData, armor: [ItemSaveData, ItemSaveData]}
 ---@field flags table<string, any>
