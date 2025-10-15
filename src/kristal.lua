@@ -565,7 +565,7 @@ function Kristal.onKeyPressed(key, is_repeat)
                     else
                         Kristal.quickReload("temp")
                     end
-                elseif Kristal.Loader.waiting == 0 then
+                elseif Kristal.Loader.waiting == 0 and Kristal.getState()["state"] then
                     Kristal.returnToMenu()
                 end
             end
