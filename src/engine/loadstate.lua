@@ -196,29 +196,6 @@ function Loading:draw()
             local x_offset = math.sin(angle) * offset
             local y_offset = math.cos(angle) * offset
 
-            --[[
-
-            self:drawSprite(self.logo,
-                ((self.x + (self.w / 2)) - (math.sin(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                ((self.y + (self.h / 2)) - (math.cos(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                (self.mina * self.logo_alpha)
-            )
-            self:drawSprite(self.logo,
-                ((self.x + (self.w / 2)) + (math.sin(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                ((self.y + (self.h / 2)) - (math.cos(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                (self.mina * self.logo_alpha)
-            )
-            self:drawSprite(self.logo,
-                ((self.x + (self.w / 2)) - (math.sin(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                ((self.y + (self.h / 2)) + (math.cos(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                (self.mina * self.logo_alpha)
-            )
-            self:drawSprite(self.logo,
-                ((self.x + (self.w / 2)) + (math.sin(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                ((self.y + (self.h / 2)) + (math.cos(((self.siner / 8) + (i / 2))) * (i * self.factor2))),
-                (self.mina * self.logo_alpha)
-            )]]
-
             self:drawSprite(self.logo, center_x - x_offset, center_y - y_offset, alpha)
             self:drawSprite(self.logo, center_x + x_offset, center_y - y_offset, alpha)
             self:drawSprite(self.logo, center_x - x_offset, center_y + y_offset, alpha)
