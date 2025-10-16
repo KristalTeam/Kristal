@@ -1147,12 +1147,16 @@ function Kristal.clearModState()
     package.loaded["src.engine.game.game"] = nil
     Kristal.States["Game"] = require("src.engine.game.game")
     Game = Kristal.States["Game"]
+    Game.chapter = 2
 
     Kristal.setDesiredWindowTitleAndIcon()
 
     -- Restore assets and registry
     Assets.restoreData()
     Registry.restoreData()
+
+    -- force garbage collection
+    collectgarbage("collect")
 end
 
 --- Exits the current mod and returns to the Kristal menu.
