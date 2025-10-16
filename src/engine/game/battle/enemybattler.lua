@@ -612,7 +612,7 @@ function EnemyBattler:getEncounterText()
         return self.spareable_text
     end
 
-    if type(self.low_health_percentage) == "number" and self.low_health_text and self.health <= (self.max_health * self.low_health_percentage) then
+    if type(self.low_health_percentage or false) == "number" and self.low_health_text and self.health <= (self.max_health * self.low_health_percentage) then
         return self.low_health_text
 
     elseif self.tired_text and self.tired then
@@ -852,7 +852,7 @@ function EnemyBattler:onHurt(damage, battler)
     end
     self:getActiveSprite():shake(9, 0, 0.5, 2/30)
 
-    if type(self.tired_percentage) == "number" and self.health <= (self.max_health * self.tired_percentage) then
+    if type(self.tired_percentage or false) == "number" and self.health <= (self.max_health * self.tired_percentage) then
         self:setTired(true)
     end
 end
