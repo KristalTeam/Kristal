@@ -123,6 +123,21 @@ function Mods.sortLibraries(mod)
 
         unsorted = new_unsorted
     end
+    
+    for _,lib_id in ipairs(Utils.reverse(mod["libPriority"] or {})) do
+        local lib_data = mod.libs[lib_id]
+        if lib_data then
+            table.insert(sorted, 1, Utils.removeFromTable(sorted, lib_id))
+            if mod["libDependenciesPriority"] ~= false then
+                local dependencies = Utils.merge(lib_data["dependencies"] or {}, lib_data["optionalDependencies"] or {})
+                for _,dependency in ipairs(Utils.reverse(dependencies)) do
+                    if mod.libs[dependency] then
+                        table.insert(sorted, 1, Utils.removeFromTable(sorted, dependency))
+                    end
+                end
+            end
+        end
+    end
 
     return sorted
 end
