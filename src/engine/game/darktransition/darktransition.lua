@@ -34,11 +34,18 @@ function DarkTransition:init(final_y, options)
     self.characters = options["characters"] or default_characters
     self.character_data = {}
 
+    local movement_table = {}
+    for i, character in ipairs(self.characters) do
+        table.insert(movement_table, math.floor((i + 1) / 2) * 1 * ((i % 2 == 0) and -1 or 1))
+    end
+    if #self.characters % 2 == 1 then
+        movement_table[#movement_table] = 0
+    end
     for i, character in ipairs(self.characters) do
         local x, y = character:localToScreenPos(0, 0)
         x = x / 2
         y = y / 2
-        local movement = (options["movement_table"] or {1, -1})[i] or 0
+        local movement = (options["movement_table"] or movement_table)[i] or 0
         local sprite_holder = self:addChild(Object(x, y))
         local data = {
             x = x,
@@ -85,6 +92,8 @@ function DarkTransition:init(final_y, options)
     self.has_head_object = options["has_head_object"]
 
     self.draw_doorblack = options["draw_doorblack"]
+    
+    self.transition_radius = options["transition_radius"]
 
     if self.quick_mode == nil then self.quick_mode = false end
     if self.skiprunback == nil then self.skiprunback = false end
@@ -448,13 +457,16 @@ function DarkTransition:draw()
         self.draw_rect = 0
         self.linecon = true
 
-        for _, data in ipairs(self.character_data) do
+        self.radius = self.transition_radius or 60
+        for i, data in ipairs(self.character_data) do
             data.x_current = data.x
+            if not self.transition_radius and i % 2 == 0 then
+                self.radius = 120 / i
+            end
         end
 
         self.con = 18
         self.soundcon = 1
-        self.radius = 60
 
         for _, data in ipairs(self.character_data) do
             data.sprite_1.visible = true
