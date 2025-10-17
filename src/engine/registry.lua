@@ -35,6 +35,7 @@
 local Registry = {}
 local self = Registry
 
+Registry.saved_data = nil
 Registry.new_globals = {}
 Registry.last_globals = {}
 
@@ -107,6 +108,25 @@ function Registry.initialize(preload)
     self.preload = preload
 
     Hotswapper.updateFiles("registry")
+end
+
+function Registry.saveData()
+    self.saved_data = {}
+    for registry,path in pairs(self.paths) do
+        self.saved_data[registry] = self[registry]
+    end
+end
+
+---@return boolean
+function Registry.restoreData()
+    if self.saved_data then
+        for registry,path in pairs(self.paths) do
+            self[registry] = self.saved_data[registry]
+        end
+        return true
+    else
+        return false
+    end
 end
 
 function Registry.restoreOverridenGlobals()
