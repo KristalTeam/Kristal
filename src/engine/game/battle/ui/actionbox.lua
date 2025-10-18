@@ -92,7 +92,7 @@ function ActionBox:createButtons()
         end
     end
 
-    self.selected_button = Utils.clamp(self.selected_button, 1, #self:getSelectableButtons())
+    self.selected_button = MathUtils.clamp(self.selected_button, 1, #self:getSelectableButtons())
 end
 
 function ActionBox:setHeadIcon(icon)
@@ -120,18 +120,7 @@ end
 function ActionBox:update()
     self.selection_siner = self.selection_siner + 2 * DTMULT
 
-    if Game.battle.current_selecting == self.index then
-        if self.box.y > -32 then self.box.y = self.box.y - 2 * DTMULT end
-        if self.box.y > -24 then self.box.y = self.box.y - 4 * DTMULT end
-        if self.box.y > -16 then self.box.y = self.box.y - 6 * DTMULT end
-        if self.box.y > -8  then self.box.y = self.box.y - 8 * DTMULT end
-        -- originally '= -64' but that was an oversight by toby
-        if self.box.y < -32 then self.box.y = -32 end
-    elseif self.box.y < -14 then
-        self.box.y = self.box.y + 15 * DTMULT
-    else
-        self.box.y = 0
-    end
+    self:animateBox()
 
     self.head_sprite.y = 11 - self.data_offset + self.head_offset_y
     if self.name_sprite then
@@ -163,6 +152,21 @@ function ActionBox:update()
     super.update(self)
 end
 
+function ActionBox:animateBox()
+    if Game.battle.current_selecting == self.index then
+        if self.box.y > -32 then self.box.y = self.box.y - 2 * DTMULT end
+        if self.box.y > -24 then self.box.y = self.box.y - 4 * DTMULT end
+        if self.box.y > -16 then self.box.y = self.box.y - 6 * DTMULT end
+        if self.box.y > -8  then self.box.y = self.box.y - 8 * DTMULT end
+        -- originally '= -64' but that was an oversight by toby
+        if self.box.y < -32 then self.box.y = -32 end
+    elseif self.box.y < -14 then
+        self.box.y = self.box.y + 15 * DTMULT
+    else
+        self.box.y = 0
+    end
+end
+
 function ActionBox:select()
     local buttons = self:getSelectableButtons()
     buttons[self.selected_button]:select()
@@ -185,11 +189,11 @@ function ActionBox:draw()
         Draw.setColor(1, 1, 1, 1)
 
         local name = self.battler.chara:getName():upper()
-        local spacing = 5 - Utils.len(name)
+        local spacing = 5 - StringUtils.len(name)
 
         local off = 0
-        for i = 1, Utils.len(name) do
-            local letter = Utils.sub(name, i, i)
+        for i = 1, StringUtils.len(name) do
+            local letter = StringUtils.sub(name, i, i)
             love.graphics.print(letter, self.box.x + 51 + off, self.box.y + 14 - self.data_offset - 1)
             off = off + font:getWidth(letter) + spacing
         end
