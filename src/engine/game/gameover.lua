@@ -10,9 +10,7 @@ function GameOver:init(x, y)
     self.font = Assets.getFont("main")
     self.soul_blur = Assets.getTexture("player/heart_blur")
 
-    if not Game:isLight() then
-        self.screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
-    end
+    self.screenshot = love.graphics.newImage(SCREEN_CANVAS:newImageData())
 
     self.music = Music()
 
