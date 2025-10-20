@@ -1400,14 +1400,22 @@ function Utils.endsWith(value, suffix)
     return false, value
 end
 
--- TODO: this function is a mess please comment it later
----@param prefix string base directory of images in the mod
----@param image string raw image path specified by tileset/map
----@param path string path of tileset/map, `image` is relative to this
----@return string|nil final_path nil in case of error
----@deprecated Use `FileSystemUtils.absoluteToLocalPath` instead.
-function Utils.absoluteToLocalPath(prefix, image, path)
-    return FileSystemUtils.absoluteToLocalPath(prefix, image, path)
+---
+--- Attempts to resolve a relative path from a Tiled export to a valid asset id, given it points to a path inside the
+--- `target_dir` of the current mod.
+---
+--- Relative directories (`..`) of the asset path are resolved by starting from the `source_dir`, which should match the
+--- directory the Tiled data was exported to. Exporting to a different directory and copying/moving the exported data will
+--- likely cause this relative search to fail.
+---
+---@param target_dir string    # The Kristal folder to get the path relative to.
+---@param asset_path string    # The asset path from a Tiled export to resolve.
+---@param source_dir string    # Parent directory of the Tiled export, which the `asset_path` should be relative to.
+---@return string|nil asset_id # The asset path relative the `target_dir` without its extension, or `nil` if the resolution failed.
+---
+---@deprecated Use `TiledUtils.relativePathToAssetId` instead.
+function Utils.absoluteToLocalPath(target_dir, asset_path, source_dir)
+    return TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
 end
 
 ---

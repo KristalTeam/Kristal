@@ -34,43 +34,6 @@ function FileSystemUtils.getFilesRecursive(dir, ext)
     return result
 end
 
-
--- TODO: this function is a mess please comment it later
----@param prefix string base directory of images in the mod
----@param image string raw image path specified by tileset/map
----@param path string path of tileset/map, `image` is relative to this
----@return string|nil final_path nil in case of error
-function FileSystemUtils.absoluteToLocalPath(prefix, image, path)
-    prefix = Mod.info.path .. "/" .. prefix
-
-    -- Split paths by seperator
-    local base_path = StringUtils.split(path, "/")
-    local dest_path = StringUtils.split(image, "/")
-    local up_count = 0
-    while dest_path[1] == ".." do
-        up_count = up_count + 1
-        -- Move up one directory
-        table.remove(base_path, #base_path)
-        table.remove(dest_path, 1)
-    end
-    if dest_path[1] == "libraries" then
-        for i = 2, up_count do
-            table.remove(dest_path, 1)
-        end
-    end
-
-    local final_path = table.concat(TableUtils.merge(base_path, dest_path), "/")
-
-    -- Strip prefix
-    local has_prefix
-    has_prefix, final_path = StringUtils.startsWith(final_path, prefix)
-    --print(prefix, final_path, has_prefix)
-    if not has_prefix then return nil end
-
-    -- Strip extension
-    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0))
-end
-
 -- TODO: Merge with getFilesRecursive?
 function FileSystemUtils.findFiles(folder, base, path)
     -- getDirectoryItems but recursive.

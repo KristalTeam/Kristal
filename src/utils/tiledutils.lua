@@ -187,4 +187,48 @@ function TiledUtils.colliderFromShape(parent, data, x, y, properties)
     return current_hitbox
 end
 
+---
+--- Attempts to resolve a relative path from a Tiled export to a valid asset id, given it points to a path inside the
+--- `target_dir` of the current mod.
+---
+--- Relative directories (`..`) of the asset path are resolved by starting from the `source_dir`, which should match the
+--- directory the Tiled data was exported to. Exporting to a different directory and copying/moving the exported data will
+--- likely cause this relative search to fail.
+---
+---@param target_dir string    # The Kristal folder to get the path relative to.
+---@param asset_path string    # The asset path from a Tiled export to resolve.
+---@param source_dir string    # Parent directory of the Tiled export, which the `asset_path` should be relative to.
+---@return string|nil asset_id # The asset path relative the `target_dir` without its extension, or `nil` if the resolution failed.
+---
+function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
+    target_dir = Mod.info.path .. "/" .. target_dir
+
+    -- Split paths by seperator
+    local base_path = StringUtils.split(source_dir, "/")
+    local dest_path = StringUtils.split(asset_path, "/")
+    local up_count = 0
+    while dest_path[1] == ".." do
+        up_count = up_count + 1
+        -- Move up one directory
+        table.remove(base_path, #base_path)
+        table.remove(dest_path, 1)
+    end
+    if dest_path[1] == "libraries" then
+        for i = 2, up_count do
+            table.remove(dest_path, 1)
+        end
+    end
+
+    local final_path = table.concat(TableUtils.merge(base_path, dest_path), "/")
+
+    -- Strip prefix
+    local has_prefix
+    has_prefix, final_path = StringUtils.startsWith(final_path, target_dir)
+    --print(prefix, final_path, has_prefix)
+    if not has_prefix then return nil end
+
+    -- Strip extension
+    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0))
+end
+
 return TiledUtils
