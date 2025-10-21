@@ -32,6 +32,10 @@
 ---
 ---@field max_stats {health: number, attack: number, defense: number, magic: number}
 ---
+---@field stronger_absent table?
+---
+---@field level_up_count integer
+---
 ---@field lw_stats {health: number, attack: number, defense: number}
 ---
 ---@field weapon_icon string
@@ -106,7 +110,7 @@ function PartyMember:init()
     -- X-Action name (displayed in this character's spell menu)
     self.xact_name = "?-Action"
 
-    -- Spells
+    -- Spells (saved to the save file)
     self.spells = {}
 
     -- Current health (saved to the save file)
@@ -126,6 +130,9 @@ function PartyMember:init()
     
     -- Party members which will also get stronger when this character gets stronger, even if they're not in the party
     self.stronger_absent = {}
+    
+    -- The number of times that this party member got stronger (saved to the save file)
+    self.level_up_count = 0
 
     -- Light world stats (saved to the save file)
     self.lw_stats = {
@@ -877,6 +884,7 @@ function PartyMember:save()
         lw_exp = self.lw_exp,
         lw_health = self.lw_health,
         lw_stats = self.lw_stats,
+        level_up_count = self.level_up_count,
         spells = self:saveSpells(),
         equipped = self:saveEquipment(),
         flags = self.flags
@@ -893,6 +901,7 @@ function PartyMember:load(data)
     self.lw_lv = data.lw_lv or self.lw_lv
     self.lw_exp = data.lw_exp or self.lw_exp
     self.lw_stats = data.lw_stats or self.lw_stats
+    self.level_up_count = data.level_up_count or self.level_up_count
     if data.spells then
         self:loadSpells(data.spells)
     end

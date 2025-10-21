@@ -630,8 +630,8 @@ function Battle:onStateChange(old,new)
             end
             
             for _,party in ipairs(Utils.removeDuplicates(party_to_lvl_up)) do
-                Game.level_up_count = Game.level_up_count + 1
-                party:onLevelUp(Game.level_up_count)
+                party.level_up_count = party.level_up_count + 1
+                party:onLevelUp(party.level_up_count)
             end
 
             win_text = "* You won!\n* Got " .. self.money .. " "..Game:getConfig("darkCurrencyShort")..".\n* "..stronger.." became stronger."
