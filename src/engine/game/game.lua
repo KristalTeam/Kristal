@@ -164,7 +164,7 @@ function Game:setBorder(border, time)
 end
 
 function Game:returnToMenu()
-    self.fader:fadeOut(Kristal.returnToMenu, {speed = 0.5, music = 10/30})
+    self.fader:fadeOut(Kristal.returnToMenu, { speed = 0.5, music = 10 / 30 })
     Kristal.hideBorder(0.5)
     self.state = "EXIT"
 end

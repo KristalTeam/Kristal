@@ -204,6 +204,7 @@ function MainMenuModConfig:registerOptions()
 
     self:registerOption("enableStorage",          "Enable Storage",            "Extra 48-slot item storage",                                                         "selection", {nil, true, false})
     self:registerOption("enableRecruits",         "Enable Recruits",           "Enable recruit messages and menu",                                                   "selection", {nil, true, false})
+    self:registerOption("recruitsProgressSpaces", "Recruits Progress Spaces",  "Whether the recruits progress in the menu will have spaces between the amounts",     "selection", {nil, true, false})
     self:registerOption("smallSaveMenu",          "Small Save Menu",           "Single-file save menu with no storage/recruits options",                             "selection", {nil, true, false})
     self:registerOption("lessEquipments",         "Less Equipments",           "Reduces the amount of available weapons and armor slots in the inventory",           "selection", {nil, true, false})
     self:registerOption("partyActions",           "X-Actions",                 "Whether X-Actions appear in spell menu by default",                                  "selection", {nil, true, false})

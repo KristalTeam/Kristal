@@ -1,6 +1,7 @@
 {
     "enableStorage": true,           // Extra 48-slot item storage
     "enableRecruits": true,          // Enable recruit messages and menu
+    "recruitsProgressSpaces": true,  // Whether the recruits progress in the menu will have spaces between the amounts
     "smallSaveMenu": false,          // Single-file save menu with no storage/recruits options
     "lessEquipments": false,         // Reduces the amount of available weapons and armor slots in the inventory
 

@@ -867,6 +867,7 @@ function WorldCutscene:choicer(choices, options)
         width, height = 530, 104
     end
 
+    options = options or {}
     self.choicebox = Choicebox(56, 344, width, height, false, options)
     self.choicebox.layer = WORLD_LAYERS["textbox"]
     self.world:addChild(self.choicebox)
@@ -876,7 +877,6 @@ function WorldCutscene:choicer(choices, options)
         self.choicebox:addChoice(choice)
     end
 
-    options = options or {}
     if options["top"] == nil and self.textbox_top == nil then
         local _, player_y = self.world.player:localToScreenPos()
         options["top"] = player_y > 260

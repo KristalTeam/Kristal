@@ -177,24 +177,16 @@ function EnemyBattler:getGrazeTension()
     return self.graze_tension
 end
 
----@return bool boolean
-function EnemyBattler:isTiredMessageEnabled()
-    return self.health > 0
-end
-
----@return bool boolean
-function EnemyBattler:isAwakeMessageEnabled()
-    return self.health > 0
-end
-
----@param bool boolean
-function EnemyBattler:setTired(bool)
+---@param bool          boolean New tired state
+---@param hide_message? boolean Hides the "TIRED" or "AWAKE" message (if it would otherwise have been shown) if set to `true`. 
+function EnemyBattler:setTired(bool, hide_message)
     local old_tired = self.tired
     self.tired = bool
     if self.tired then
         self.comment = "(Tired)"
-        if not old_tired and Game:getConfig("tiredMessages") and self:isTiredMessageEnabled() then
-            -- Check for self.parent so setting Tired state in init doesn't crash
+        if Game:getConfig("tiredMessages") and not old_tired and not hide_message then
+            -- Enemies can't spawn TIRED messages safely until fully initialised and parented.
+            -- To keep this function safe to use in `init()`, we must therefore check `self.parent` exists before trying to spawn the message. 
             if self.parent then
                 self:statusMessage("msg", "tired")
                 Assets.playSound("spellcast", 0.5, 0.9)
@@ -202,7 +194,7 @@ function EnemyBattler:setTired(bool)
         end
     else
         self.comment = ""
-        if old_tired and Game:getConfig("awakeMessages") and self:isAwakeMessageEnabled() then
+        if Game:getConfig("awakeMessages") and old_tired and not hide_message then
             if self.parent then self:statusMessage("msg", "awake") end
         end
     end
@@ -562,10 +554,10 @@ function EnemyBattler:mercyFlash(color)
 
     local recolor = self:addFX(RecolorFX())
     Game.battle.timer:during(8/30, function()
-        recolor.color = Utils.lerp(recolor.color, color, 0.12 * DTMULT)
+        recolor.color = ColorUtils.mergeColor(recolor.color, color, 0.12 * DTMULT)
     end, function()
         Game.battle.timer:during(8/30, function()
-            recolor.color = Utils.lerp(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
+            recolor.color = ColorUtils.mergeColor(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
         end, function()
             self:removeFX(recolor)
         end)
@@ -670,6 +662,25 @@ end
 ---@param battler PartyBattler
 function EnemyBattler:onCheck(battler) end
 
+--- *(Override)* Gets the text used by the Check act.
+--- *By default, returns the name of the enemy in all caps and then the value defined in EnemyBattler.check*
+---@param battler PartyBattler
+function EnemyBattler:getCheckText(battler)
+    if type(self.check) == "table" then
+        local tbl = {}
+        for i,check in ipairs(self.check) do
+            if i == 1 then
+                table.insert(tbl, "* " .. string.upper(self.name) .. " - " .. check)
+            else
+                table.insert(tbl, "* " .. check)
+            end
+        end
+        return tbl
+    else
+        return "* " .. string.upper(self.name) .. " - " .. self.check
+    end
+end
+
 --- *(Override)* Called when an ACT on this enemy starts \
 --- *By default, sets the sprties of all battlers involved in the act to `"battle/act"`
 ---@param battler PartyBattler  The battler using this act - if it is a multi-act, this only specifies the one who used the command
@@ -693,19 +704,7 @@ end
 function EnemyBattler:onAct(battler, name)
     if name == "Check" then
         self:onCheck(battler)
-        if type(self.check) == "table" then
-            local tbl = {}
-            for i,check in ipairs(self.check) do
-                if i == 1 then
-                    table.insert(tbl, "* " .. string.upper(self.name) .. " - " .. check)
-                else
-                    table.insert(tbl, "* " .. check)
-                end
-            end
-            return tbl
-        else
-            return "* " .. string.upper(self.name) .. " - " .. self.check
-        end
+        return self:getCheckText(battler)
     end
 end
 
@@ -846,7 +845,8 @@ function EnemyBattler:onHurt(damage, battler)
     self:getActiveSprite():shake(9, 0, 0.5, 2/30)
 
     if self.health <= (self.max_health * self.tired_percentage) then
-        self:setTired(true)
+        -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
+        self:setTired(true, self.tired_percentage <= 0)
     end
 end
 

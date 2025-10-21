@@ -664,10 +664,8 @@ function Text:getTextColor(state, use_base_color)
     return sr * cr, sg * cg, sb * cb, sa * ca
 end
 
-function Text:drawChar(node, state, use_color)
-    local font = Assets.getFont(state.font, state.font_size)
-    local scale = Assets.getFontScale(state.font, state.font_size)
 
+function Text:getCharPosition(node, state)
     if state.shake > 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
             state.last_shake = self.timer
@@ -687,7 +685,14 @@ function Text:drawChar(node, state, use_color)
         state.offset_y = yspeed * 0.7
     end
 
-    local x, y = state.current_x + state.offset_x, state.current_y + state.offset_y
+    return state.current_x + state.offset_x, state.current_y + state.offset_y
+end
+
+function Text:drawChar(node, state, use_color)
+    local font = Assets.getFont(state.font, state.font_size)
+    local scale = Assets.getFontScale(state.font, state.font_size)
+
+    local x, y = self:getCharPosition(node, state)
     love.graphics.setFont(font)
 
 
