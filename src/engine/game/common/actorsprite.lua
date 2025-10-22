@@ -64,6 +64,7 @@ function ActorSprite:init(actor)
     self.offsets = actor.offsets or {}
 
     self.walking = false
+    self.was_walking = false
     self.walk_speed = 4
     self.walk_frame = 2
     self.walk_override = false
@@ -444,8 +445,8 @@ function ActorSprite:update()
                 self:setFrame(floored_frame)
 
                 -- If we've changed frames into a "step" frame, call the footstep callback
-                if (old_frame ~= floored_frame) and (self.on_footstep ~= nil) and (self.frame % 2 == 0) then
-                    self.on_footstep(self, math.floor(floored_frame / 2))
+                if ((old_frame ~= floored_frame) or (self.walking and not self.was_walking)) and (self.on_footstep ~= nil) and (self.frame % 2 == 0) then
+                    self.on_footstep(self, ((math.floor(floored_frame / 2) - 1) % 2) + 1)
                 end
             elseif self.frames then
                 -- We should NOT do the walking animation right now, despite having a walking sprite, so reset.
@@ -455,6 +456,8 @@ function ActorSprite:update()
 
         self:updateDirection()
     end
+
+    self.was_walking = self.walking
 
     if self.aura then
         self.aura_siner = self.aura_siner + 0.25 * DTMULT
