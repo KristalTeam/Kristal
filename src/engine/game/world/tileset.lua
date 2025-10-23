@@ -46,15 +46,12 @@ function Tileset:init(data, path, base_dir)
             end
         end
         if tile.image then
-            local image_path, err = TiledUtils.relativePathToAssetId(sprite_dir, tile.image, self.base_dir)
-            if err == "not under prefix" then
-                error("Tileset tile texture is not under " .. sprite_dir .. ": " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
+            local success, image_path_result = self:loadTextureFromImagePath(tile.image)
+            if not success then
+                error("Tileset \"" .. self.id .. "\" failed to load texture for tile " .. tostring(tile.id) .. "\"\n" .. image_path_result)
             end
-            info.path = image_path
-            info.texture = Assets.getTexture(image_path)
-            if not info.texture then
-                error("Could not load tileset tile texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
-            end
+            info.path = image_path_result
+            info.texture = Assets.getTexture(image_path_result)
             info.x = tile.x or 0
             info.y = tile.y or 0
             info.width = tile.width or info.texture:getWidth()
@@ -69,14 +66,11 @@ function Tileset:init(data, path, base_dir)
     end
 
     if data.image then
-        local image_path, err = TiledUtils.relativePathToAssetId(sprite_dir, data.image, self.base_dir)
-        if err == "not under prefix" then
-            error("Tileset texture is not under " .. sprite_dir .. ": " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
+        local success, image_path_result = self:loadTextureFromImagePath(data.image)
+        if not success then
+            error("Tileset \"" .. self.id .. "\" failed to load texture\n" .. image_path_result)
         end
-        self.texture = Assets.getTexture(image_path)
-        if not self.texture then
-            error("Could not load tileset texture: " .. tostring(image_path) .. " [" .. tostring(path) .. "]")
-        end
+        self.texture = Assets.getTexture(image_path_result)
     end
 
     self.quads = {}
@@ -88,6 +82,29 @@ function Tileset:init(data, path, base_dir)
             self.quads[i] = love.graphics.newQuad(tx, ty, self.tile_width, self.tile_height, tw, th)
         end
     end
+end
+
+function Tileset:loadTextureFromImagePath(filename)
+    local image_dir = "assets/sprites"
+    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, filename, self.base_dir)
+
+    if not success then
+        if result == "not under prefix" then
+            return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
+        elseif result == "path outside root" then
+            return false, "Image path located outside Kristal (Got path \"<kristal>/".. final_path .. "\")"
+        else
+            return false, "Unknown reason"
+        end
+    end
+
+    local texture = Assets.getTexture(result)
+
+    if not texture then
+        return false, "No texture found with id \"" .. result .. "\""
+    end
+
+    return true, result
 end
 
 function Tileset:getAnimation(id)

@@ -187,6 +187,10 @@ function TiledUtils.colliderFromShape(parent, data, x, y, properties)
     return current_hitbox
 end
 
+---@alias TiledUtils.PathFailReason
+---| "not under prefix"
+---| "path outside root"
+
 ---
 --- Attempts to resolve a relative path from a Tiled export to a valid asset id, given it points to a path inside the
 --- `target_dir` of the current mod.
@@ -198,20 +202,25 @@ end
 ---@param target_dir string # The Kristal folder to get the path relative to.
 ---@param asset_path string # The asset path from a Tiled export to resolve.
 ---@param source_dir string # Parent directory of the Tiled export, which the `asset_path` should be relative to.
----@return string asset_id # The asset path relative the `target_dir` without its extension, or if the resolution failed, the partially resolved path.
----@return nil|"not under prefix" # The fail reason.
+---@return boolean success # Whether the path resolution was successful.
+---@return string|TiledUtils.PathFailReason result # If resolution was successful, this is the asset path relative the `target_dir` without its extension. Otherwise, this is a reason the resolution failed.
+---@return string final_path # The final path with its extension, possibly unresolved if resolution failed. Used for debugging.
 ---
 function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
-    target_dir = Mod.info.path .. "/" .. target_dir .. "/"
+    local prefix = Mod.info.path .. "/" .. target_dir .. "/"
 
     -- Split paths by seperator
     local base_parts = Utils.split(source_dir, "/")
     -- Separator is assumed to be a forward slash as Tiled uses it
-    local dest_parts = Utils.split(asset_path, "/")
+    local dest_parts = StringUtils.split(asset_path, "/")
+
     local up_count = 0
     while dest_parts[1] == ".." do
         up_count = up_count + 1
         -- Move up one directory
+        if #base_parts == 0 then
+            return false, "path outside root", table.concat(dest_parts, "/")
+        end
         table.remove(base_parts, #base_parts)
         table.remove(dest_parts, 1)
     end
@@ -227,12 +236,14 @@ function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
 
     -- Strip prefix
     local has_prefix
-    has_prefix, final_path = Utils.startsWith(final_path, target_dir)
-    --print(prefix, final_path, has_prefix)
-    if not has_prefix then return final_path, "not under prefix" end
+    has_prefix, final_path = StringUtils.startsWith(final_path, prefix)
+
+    if not has_prefix then
+        return false, "not under prefix", final_path
+    end
 
     -- Strip extension
-    return final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0)), nil
+    return true, final_path:sub(1, -1 - (final_path:reverse():find("%.") or 0)), final_path
 end
 
 return TiledUtils

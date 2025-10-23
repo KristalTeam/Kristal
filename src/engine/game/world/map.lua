@@ -435,11 +435,11 @@ function Map:loadTiles(layer, depth)
 end
 
 function Map:loadImage(layer, depth)
-    local texture, _ = TiledUtils.relativePathToAssetId("assets/sprites", layer.image, self.full_map_path)
-    if not texture then
-        error("Invalid image location for layer " .. layer.name)
+    local success, texture_result = self:loadTextureFromImagePath(layer.image)
+    if not success then
+        error("Map \"" .. self.data.id .. "\" failed to load image layer \"" .. layer.name .. "\"\n" .. texture_result)
     end
-    local sprite = Sprite(texture, layer.offsetx, layer.offsety)
+    local sprite = Sprite(texture_result, layer.offsetx, layer.offsety)
     sprite:setParallax(layer.parallaxx, layer.parallaxy)
     sprite.alpha = layer.opacity
     sprite.layer = depth
@@ -464,6 +464,23 @@ function Map:loadImage(layer, depth)
         sprite.alpha = 0
         table.insert(self.battle_borders, sprite)
     end
+end
+
+function Map:loadTextureFromImagePath(filename)
+    local image_dir = "assets/sprites"
+    local success, result, final_path = TiledUtils.relativePathToAssetId(image_dir, filename, self.full_map_path)
+
+    if not success then
+        if result == "not under prefix" then
+            return false, "Image not found in \"" .. image_dir .. "\" (Got path \"" .. final_path .. "\")"
+        elseif result == "path outside root" then
+            return false, "Image path located outside Kristal (Got path \"<kristal>/".. final_path .. "\")"
+        else
+            return false, "Unknown reason"
+        end
+    end
+
+    return true, result
 end
 
 function Map:loadCollision(layer)
@@ -820,17 +837,11 @@ function Map:populateTilesets(data)
         local tileset
         local filename = tileset_data.exportfilename or tileset_data.filename
         if filename then
-            local tileset_dir = "scripts/world/tilesets"
-            local tileset_path, err = TiledUtils.relativePathToAssetId(tileset_dir, filename, self.full_map_path)
-            tileset = Registry.getTileset(tileset_path)
-            if not tileset then
-                local reported_name = type(tileset_path) == "string" and (tileset_path .. ".lua") or tostring(tileset_path)
-                local bad_reason = "not found"
-                if err == "not under prefix" then
-                    bad_reason = "not under "..tileset_dir
-                end
-                error("Failed to load map \""..self.data.id.."\", tileset "..bad_reason..": "..reported_name.." ["..filename.."]")
+            local success, result = self:loadTilesetFromTilesetPath(filename)
+            if not success then
+                error("Map \"" .. self.data.id .. "\" failed to load tileset \"" .. tostring(tileset_data.name) .. "\"\n" .. result)
             end
+            tileset = result
         else
             tileset = Tileset(tileset_data, self.full_map_path.."/"..self.data.id, self.full_map_path)
         end
@@ -839,6 +850,29 @@ function Map:populateTilesets(data)
         self.tileset_gids[tileset] = gid
         self.max_gid = math.max(self.max_gid, gid + tileset.id_count - 1)
     end
+end
+
+function Map:loadTilesetFromTilesetPath(filename)
+    local tileset_dir = "scripts/world/tilesets"
+    local success, result, final_path = TiledUtils.relativePathToAssetId(tileset_dir, filename, self.full_map_path)
+
+    if not success then
+        if result == "not under prefix" then
+            return false, "Tileset not found in \"" .. tileset_dir .. "\" (Got path \"" .. final_path .. "\")"
+        elseif result == "path outside root" then
+            return false, "Tileset path located outside Kristal (Got path \"<kristal>/".. final_path .. "\")"
+        else
+            return false, "Unknown reason"
+        end
+    end
+
+    local tileset = Registry.getTileset(result)
+
+    if not tileset then
+        return false, "No tileset found with id \"" .. result .. "\""
+    end
+
+    return true, tileset
 end
 
 function Map:getTileset(id)

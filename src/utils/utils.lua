@@ -1408,15 +1408,15 @@ end
 --- directory the Tiled data was exported to. Exporting to a different directory and copying/moving the exported data will
 --- likely cause this relative search to fail.
 ---
----@param target_dir string    # The Kristal folder to get the path relative to.
----@param asset_path string    # The asset path from a Tiled export to resolve.
----@param source_dir string    # Parent directory of the Tiled export, which the `asset_path` should be relative to.
----@return string|nil asset_id # The asset path relative the `target_dir` without its extension, or `nil` if the resolution failed.
+---@param target_dir string # The Kristal folder to get the path relative to.
+---@param asset_path string # The asset path from a Tiled export to resolve.
+---@param source_dir string # Parent directory of the Tiled export, which the `asset_path` should be relative to.
+---@return string? asset_id # The asset path relative the `target_dir` without its extension, or `nil` if the resolution failed.
 ---
 ---@deprecated Use `TiledUtils.relativePathToAssetId` instead.
 function Utils.absoluteToLocalPath(target_dir, asset_path, source_dir)
-    local asset_id, err = TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
-    return not err and asset_id or nil
+    local success, result = TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
+    return success and result or nil
 end
 
 ---
