@@ -170,8 +170,22 @@ function Assets.parseData(data)
     end
 
     -- create single-instance shaders
+    ---@type {id:string,error:string}[]
+    local errors = {}
     for key,shader_path in pairs(data.shader_paths) do
-        self.data.shaders[key] = love.graphics.newShader(shader_path)
+        local ok, res = pcall(love.graphics.newShader, shader_path)
+        if ok then
+            self.data.shaders[key] = res
+        else
+            errors[#errors+1] = {id = key, error = res}
+        end
+    end
+    if #errors >= 1 then
+        local error_str = {}
+        for i,err in ipairs(errors) do
+            error_str[i] = string.format("%s:\n%s", data.shader_paths[err.id], err.error)
+        end
+        error({ msg = "Shader compilation errors:\n" .. table.concat((error_str), "\n\n") .. "\n"  })
     end
     -- may be a memory hog, we clone the existing source so we dont need the sound data anymore
     --self.data.sound_data = {}
