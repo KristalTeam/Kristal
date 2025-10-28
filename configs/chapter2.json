@@ -17,6 +17,7 @@
     "oldUIPositions": false,         // Old positions of various UI elements
     "oldGameOver": false,            // The game over screen used in chapter 1
     "oldRudeBuster": true,           // Old Rude Buster damage calculation and effect
+    "oldPacify": false,              // Removes the animation from the Pacify spell
 
     "speechBubble": "cyber",         // Default enemy speech bubble style
 
