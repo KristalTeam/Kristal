@@ -3389,7 +3389,7 @@ end
 ---@param key string
 function Battle:handleAttackingInput(key)
     if Input.isConfirm(key) then
-        Game.battle.timer:after(1/10, function()
+        Game.battle.timer:after(1/20, function()
         if not self.attack_done and not self.cancel_attack and #self.battle_ui.attack_boxes > 0 then
             local closest
             local closest_attacks = {}
