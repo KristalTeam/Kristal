@@ -131,10 +131,6 @@ function TextChoicebox:update()
             if self.current_choice > #self.choices then
                 self.current_choice = 1
             end
-            
-            if (self.ui_sound == nil and not self.face.texture or self.ui_sound) and self.current_choice ~= old_choice then
-                Assets.stopAndPlaySound("ui_move")
-            end
 
             if Input.pressed("confirm") then
                 if self.current_choice ~= 0 then

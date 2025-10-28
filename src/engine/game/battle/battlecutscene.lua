@@ -495,8 +495,6 @@ function BattleCutscene:choicer(choices, options)
     end
     Game.battle.battle_ui.choice_box:setColors(options["color"], options["highlight"])
 
-    Game.battle.battle_ui.choice_box.ui_sound = options["ui_sound"]
-
     if options["wait"] or options["wait"] == nil then
         return self:wait(waitForChoicer)
     else
