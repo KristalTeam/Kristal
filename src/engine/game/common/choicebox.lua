@@ -39,6 +39,10 @@ function Choicebox:update()
     if self.current_choice > #self.choices then
         self.current_choice = old_choice
     end
+    
+    if self.ui_sound and self.current_choice ~= old_choice then
+        Assets.stopAndPlaySound("ui_move")
+    end
 
     if Input.pressed("confirm") then
         if self.current_choice ~= 0 then
