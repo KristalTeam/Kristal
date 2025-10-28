@@ -278,6 +278,7 @@ function Game:save(x, y)
     end
     
     data.default_equip_slots = self.default_equip_slots
+    data.default_storage_slots = self.default_storage_slots
 
     data.inventory = self.inventory:save()
     data.light_inventory = self.light_inventory:save()
@@ -410,9 +411,22 @@ function Game:load(data, index, fade)
         self.light = map.light or false
     end
     
-    self.default_equip_slots = data.default_equip_slots or 48
-    if self.is_new_file and Game:getConfig("lessEquipments") then
+    self.default_equip_slots = data.default_equip_slots or 0
+    if Game:getConfig("lessEquipments") and self.default_equip_slots <= 12 then
         self.default_equip_slots = 12
+    else
+        self.default_equip_slots = 48
+    end
+    
+    -- Check if a mod is still using the deprecated "enableStorage" config
+    if Game:getConfig("enableStorage") ~= nil then
+        Kristal.Console:warn("Using deprecated mod option 'enableStorage', switch to 'storageSlots' option instead")
+        self.default_storage_slots = Game:getConfig("enableStorage") and 24 or 0
+    else
+        self.default_storage_slots = data.default_storage_slots or 0
+        if Game:getConfig("storageSlots") >= self.default_storage_slots then
+            self.default_storage_slots = Game:getConfig("storageSlots")
+        end
     end
 
     if self.light then

@@ -1,5 +1,5 @@
 {    
-    "enableStorage": false,          // Extra 48-slot item storage
+    "storageSlots": 0,               // The amount of storage slots in the dark world inventory
     "enableRecruits": false,         // Enable recruit messages and menu
     "recruitsProgressSpaces": true,  // Whether the recruits progress in the menu will have spaces between the amounts
     "smallSaveMenu": true,           // Single-file save menu with no storage/recruits options
