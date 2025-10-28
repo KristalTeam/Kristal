@@ -433,6 +433,8 @@ function love.update(dt)
         PERFORMANCE_TEST = nil
     end
 
+    Pack:update()
+    Pack:flushAllLogsToConsole()
 end
 
 function love.textinput(key)
