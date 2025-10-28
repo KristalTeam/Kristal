@@ -428,7 +428,7 @@ function Game:load(data, index, fade)
             self.default_storage_slots = 0
         end
     else
-        if Game:getConfig("storageSlots") >= self.default_storage_slots then
+        if Game:getConfig("storageSlots") > self.default_storage_slots then
             self.default_storage_slots = Game:getConfig("storageSlots")
         end
     end
