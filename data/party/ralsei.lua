@@ -109,10 +109,20 @@ function character:init()
     self.weapon_icon = "ui/menu/equip/scarf"
 
     -- Equipment (saved to the save file)
-    self:setWeapon("red_scarf")
-    if Game.chapter >= 2 then
+    if Game.chapter <= 2 then
+        self:setWeapon("red_scarf")
+        if Game.chapter == 2 then
+            self:setArmor(1, "amber_card")
+            self:setArmor(2, "white_ribbon")
+        end
+    elseif Game.chapter == 3 then
+        self:setWeapon("fiberscarf")
         self:setArmor(1, "amber_card")
-        self:setArmor(2, "white_ribbon")
+        self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 4 then
+        self:setWeapon("flexscarf")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "glowwrist")
     end
 
     -- Default light world equipment item IDs (saves current equipment)
