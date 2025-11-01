@@ -107,10 +107,20 @@ function character:init()
     self.weapon_icon = "ui/menu/equip/axe"
 
     -- Equipment (saved to the save file)
-    self:setWeapon("mane_ax")
-    if Game.chapter >= 2 then
+    if Game.chapter <= 2 then
+        self:setWeapon("mane_ax")
+        if Game.chapter == 2 then
+            self:setArmor(1, "amber_card")
+            self:setArmor(2, "amber_card")
+        end
+    elseif Game.chapter == 3 then
+        self:setWeapon("autoaxe")
         self:setArmor(1, "amber_card")
-        self:setArmor(2, "amber_card")
+        self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 4 then
+        self:setWeapon("toxicaxe")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "glowwrist")
     end
 
     -- Default light world equipment item IDs (saves current equipment)
