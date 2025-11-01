@@ -71,7 +71,7 @@ function GitFinder:fetchLatestCommit(callback)
         "https://api.github.com/repos/KristalTeam/Kristal/commits/" .. tostring(ref),
         {
             headers = {
-                ["Accept"] = "application/vnd.github.VERSION.sha"
+                ["Accept"] = "application/vnd.github.sha"
             },
             callback = callback
         }
