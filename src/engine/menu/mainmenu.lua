@@ -122,6 +122,7 @@ function MainMenu:enter()
     })
 
     GitFinder:fetchLatestCommit(function(status, body, headers)
+        if status < 200 or status >= 300 then return end
         local current_commit = GitFinder:fetchCurrentCommit()
         if current_commit ~= body then
             self.ver_string = "v" .. tostring(Kristal.Version)
