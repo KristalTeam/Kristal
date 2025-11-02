@@ -629,8 +629,8 @@ function Battle:onStateChange(old,new)
                 end
             end
             
-            for _,party in ipairs(Utils.removeDuplicates(party_to_lvl_up)) do
-                Game.level_up_count = Game.level_up_count + 1
+            Game.level_up_count = Game.level_up_count + 1
+            for _,party in ipairs(TableUtils.removeDuplicates(party_to_lvl_up)) do
                 party:onLevelUp(Game.level_up_count)
             end
 
