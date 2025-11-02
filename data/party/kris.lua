@@ -106,14 +106,30 @@ function character:init()
     self.weapon_icon = "ui/menu/equip/sword"
 
     -- Equipment (saved to the save file)
-    self:setWeapon("wood_blade")
-    if Game.chapter >= 2 then
+    if Game.chapter <= 2 then
+        self:setWeapon("wood_blade")
+        if Game.chapter == 2 then
+            self:setArmor(1, "amber_card")
+            self:setArmor(2, "amber_card")
+        end
+    elseif Game.chapter == 3 then
+        self:setWeapon("mechasaber")
         self:setArmor(1, "amber_card")
-        self:setArmor(2, "amber_card")
+        self:setArmor(2, "glowwrist")
+    elseif Game.chapter >= 4 then
+        self:setWeapon("saber10")
+        self:setArmor(1, "gingerguard")
+        self:setArmor(2, "glowwrist")
     end
 
     -- Default light world equipment item IDs (saves current equipment)
-    self.lw_weapon_default = "light/pencil"
+    if Game.chapter <= 2 then
+        self.lw_weapon_default = "light/pencil"
+    elseif Game.chapter == 3 then
+        self.lw_weapon_default = "light/mech_pencil"
+    elseif Game.chapter >= 4 then
+        self.lw_weapon_default = "light/cactusneedle"
+    end
     self.lw_armor_default = "light/bandage"
 
     -- Character color (for action box outline and hp bar)
