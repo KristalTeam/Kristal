@@ -13,10 +13,10 @@
 ---@field ui_move                   love.Source                     A sound source for the `ui_move` sfx, should be used for every time this sound plays in battle
 ---@field ui_select                 love.Source                     A sound source for the `ui_select` sfx, should be used for every time this sound plays in battle
 ---@field spare_sound               love.Source                     A sound source for the `spare` sfx, should be used for every time this sound plays in battle
----@
+---
 ---@field party_beginning_positions table<[number, number]>         The position of each [`PartyBattler`](lua://PartyBattler) at the start of the battle transition
 ---@field enemy_beginning_positions table<[number, number]>         The position of each [`EnemyBattler`](lua://EnemyBattler) at the start of the battle transition
----@
+---
 ---@field party_world_characters    table<string, Character>        A list of mappings between [`PartyBattler`](lua://PartyBattler)s (by id) and their representations as [`Character`](lua://Character)s in the world, if they exist
 ---@field enemy_world_characters    table<EnemyBattler, Character>  A list of mappings between [`EnemyBattler`](lua://EnemyBattler)s and their representations as [`Character`](lua://Character)s in the world, if they exist
 ---@field battler_targets           table<[number, number]>         Target positions for [`PartyBattler`](lua://PartyBattler)s to transition to at the start of battle
@@ -73,6 +73,7 @@ local Battle, super = Class(Object)
 ---| "ACTIONS" # The state used when processing actions. Most of the time, other states will be used instead.
 ---| "ACTING" # The state used when party members act.
 ---| "BATTLETEXT" # A generic "writing text" state.
+---| "SHORTACTTEXT" # The state used when multiple lines of text are being written out at once, for "short acts".
 ---| "ATTACKING"  # The state used while party members are attacking.
 ---| "SPARING" # The state used when party members spare.
 ---| "USINGITEMS" # The state used when party members use items.
@@ -524,7 +525,6 @@ function Battle:onActionSelectState()
         self:setEncounterText(self.battle_ui.current_encounter_text, true)
     end
 
-    local had_started = self.started
     if not self.started then
         self.started = true
 
@@ -1084,9 +1084,9 @@ function Battle:processCharacterActions()
 
     self.current_action_index = 1
 
-    local order = {"ACT", {"SPELL", "ITEM", "SPARE"}}
+    local order = { "ACT", { "SPELL", "ITEM", "SPARE" } }
 
-    for lib_id,_ in Kristal.iterLibraries() do
+    for lib_id, _ in Kristal.iterLibraries() do
         order = Kristal.libCall(lib_id, "getActionOrder", order, self.encounter) or order
     end
     order = Kristal.modCall("getActionOrder", order, self.encounter) or order
@@ -1128,7 +1128,7 @@ function Battle:processActionGroup(group)
             -- If the table contains the action
             -- Ex. if {"SPELL", "ITEM", "SPARE"} contains "SPARE"
             local action = self.character_actions[i]
-            if action and Utils.containsValue(group, action.action) then
+            if action and TableUtils.contains(group, action.action) then
                 self.character_actions[i] = nil
                 self:beginAction(action)
                 return true
@@ -1223,7 +1223,7 @@ function Battle:processAction(action)
     if callback_result ~= nil then
         return callback_result
     end
-    for lib_id,_ in Kristal.iterLibraries() do
+    for lib_id, _ in Kristal.iterLibraries() do
         callback_result = Kristal.libCall(lib_id, "onBattleAction", action, action.action, battler, enemy)
         if callback_result ~= nil then
             return callback_result
@@ -1262,11 +1262,11 @@ function Battle:processAction(action)
 
             for i = 1, 3 do
                 local sx, sy = battler:getRelativePos(battler.width, 0)
-                local sparkle = Sprite("effects/criticalswing/sparkle", sx + Utils.random(50), sy + 30 + Utils.random(30))
+                local sparkle = Sprite("effects/criticalswing/sparkle", sx + MathUtils.random(50), sy + 30 + MathUtils.random(30))
                 sparkle:play(4/30, true)
                 sparkle:setScale(2)
                 sparkle.layer = BATTLE_LAYERS["above_battlers"]
-                sparkle.physics.speed_x = Utils.random(2, 6)
+                sparkle.physics.speed_x = MathUtils.random(2, 6)
                 sparkle.physics.friction = -0.25
                 sparkle:fadeOutSpeedAndRemove()
                 self:addChild(sparkle)
@@ -1286,13 +1286,13 @@ function Battle:processAction(action)
                 end
             end
 
-            local damage = Utils.round(enemy:getAttackDamage(action.damage or 0, battler, action.points or 0))
+            local damage = MathUtils.round(enemy:getAttackDamage(action.damage or 0, battler, action.points or 0))
             if damage < 0 then
                 damage = 0
             end
 
             if damage > 0 then
-                Game:giveTension(Utils.round(enemy:getAttackTension(action.points or 100)))
+                Game:giveTension(MathUtils.round(enemy:getAttackTension(action.points or 100)))
 
                 local attacksprite = battler.chara:getWeapon() and battler.chara:getWeapon():getAttackSprite(battler, enemy, action.points) or battler.chara:getAttackSprite()
                 local dmg_sprite = Sprite(attacksprite or "effects/attack/cut")
@@ -1302,17 +1302,17 @@ function Battle:processAction(action)
                 else
                     dmg_sprite:setScale(2, 2)
                 end
-                local relative_pos_x, relative_pos_y = enemy:getRelativePos(enemy.width/2, enemy.height/2)
+                local relative_pos_x, relative_pos_y = enemy:getRelativePos(enemy.width / 2, enemy.height / 2)
                 dmg_sprite:setPosition(relative_pos_x + enemy.dmg_sprite_offset[1], relative_pos_y + enemy.dmg_sprite_offset[2])
                 dmg_sprite.layer = enemy.layer + 0.01
                 dmg_sprite.battler_id = action.character_id or nil
                 table.insert(enemy.dmg_sprites, dmg_sprite)
-                local dmg_anim_speed = 1/15
+                local dmg_anim_speed = 1 / 15
                 if attacksprite == "effects/attack/shard" then
                     -- Ugly hardcoding BlackShard animation speed accuracy for now
-                    dmg_anim_speed = 1/10
+                    dmg_anim_speed = 1 / 10
                 end
-                dmg_sprite:play(dmg_anim_speed, false, function(s) s:remove(); Utils.removeFromTable(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
+                dmg_sprite:play(dmg_anim_speed, false, function(s) s:remove(); TableUtils.removeValue(enemy.dmg_sprites, dmg_sprite) end) -- Remove itself and Remove the dmg_sprite from the enemy's dmg_sprite table when its removed
                 enemy.parent:addChild(dmg_sprite)
 
                 local sound = enemy:getDamageSound() or "damage"
@@ -1333,8 +1333,8 @@ function Battle:processAction(action)
 
             self:finishAction(action)
 
-            Utils.removeFromTable(self.normal_attackers, battler)
-            Utils.removeFromTable(self.auto_attackers, battler)
+            TableUtils.removeValue(self.normal_attackers, battler)
+            TableUtils.removeValue(self.auto_attackers, battler)
 
             if not self:retargetEnemy() then
                 self.cancel_attack = true
@@ -1566,7 +1566,7 @@ function Battle:finishAction(action, keep_animation)
 
             local dont_end = false
             if (keep_animation) then
-                if TableUtils.containsValue(keep_animation, ibattler.chara.id) then
+                if TableUtils.contains(keep_animation, ibattler.chara.id) then
                     dont_end = true
                 end
             end
@@ -2314,7 +2314,7 @@ function Battle:previousParty()
         end
     end
 
-    self.selected_action_stack[#self.selected_action_stack-1] = new_actions
+    self.selected_action_stack[#self.selected_action_stack - 1] = new_actions
 
     table.remove(self.selected_character_stack, #self.selected_character_stack)
     table.remove(self.selected_action_stack, #self.selected_action_stack)
@@ -2457,8 +2457,8 @@ function Battle:returnToWorld()
     end
     ---@type EnemyBattler[]
     local all_enemies = {}
-    Utils.merge(all_enemies, self.defeated_enemies)
-    Utils.merge(all_enemies, self.enemies)
+    TableUtils.merge(all_enemies, self.defeated_enemies)
+    TableUtils.merge(all_enemies, self.enemies)
     for _, enemy in ipairs(all_enemies) do
         local world_chara = self.enemy_world_characters[enemy]
         if world_chara then
@@ -2516,7 +2516,7 @@ end
 --- Sets the current message in the battlebox and moves to the `BATTLETEXT` state until it is advanced, where it returns to the previous state by default
 ---@param text string[]|string              The text to set
 ---@param post_func? fun():boolean|string   When the text is advanced, the name of the state to move to, or a function to run
-function Battle:battleText(text,post_func)
+function Battle:battleText(text, post_func)
     local target_state = self:getState()
 
     self.battle_ui.encounter_text:setText(text, function()
@@ -2625,10 +2625,6 @@ function Battle:startActCutscene(group, id, dont_finish)
     end)
 end
 
---[[function Battle:startCutscene(cutscene, post_func)
-    BattleScene.start(cutscene, post_func)
-end]]
-
 function Battle:sortChildren()
     -- Sort battlers by Y position
     table.stable_sort(self.children, function(a, b)
@@ -2636,10 +2632,35 @@ function Battle:sortChildren()
     end)
 end
 
+function Battle:updateEnemyDialogue()
+    self.textbox_timer = self.textbox_timer - DTMULT
+    if (self.textbox_timer <= 0) and self.use_textbox_timer then
+        self:advanceBoxes()
+    else
+        local all_done = true
+        for _, textbox in ipairs(self.enemy_dialogue) do
+            if not textbox:isDone() then
+                all_done = false
+                break
+            end
+        end
+        if all_done then
+            self:setState("DIALOGUEEND")
+        end
+    end
+end
+
+function Battle:updateDefendingBegin()
+    self.defending_begin_timer = self.defending_begin_timer + DTMULT
+    if self.defending_begin_timer >= 15 then
+        self:setState("DEFENDING")
+    end
+end
+
 function Battle:update()
     for _, enemy in ipairs(self.enemies_to_remove) do
-        Utils.removeFromTable(self.enemies, enemy)
-        local enemy_y = Utils.getKey(self.enemies_index, enemy)
+        TableUtils.removeValue(self.enemies, enemy)
+        local enemy_y = TableUtils.getKey(self.enemies_index, enemy)
         if enemy_y then
             self.enemies_index[enemy_y] = false
         end
@@ -2662,43 +2683,13 @@ function Battle:update()
     elseif self.state == "ATTACKING" then
         self:updateAttacking()
     elseif self.state == "ACTIONSDONE" then
-        self.actions_done_timer = Utils.approach(self.actions_done_timer, 0, DT)
-        local any_hurt = false
-        for _, enemy in ipairs(self.enemies) do
-            if enemy.hurt_timer > 0 then
-                any_hurt = true
-                break
-            end
-        end
-        if self.actions_done_timer == 0 and not any_hurt then
-            self:resetAttackers()
-            if not self.encounter:onActionsEnd() then
-                self:setState("ENEMYDIALOGUE")
-            end
-        end
+        self:updateActionsDone()
     elseif self.state == "DEFENDINGBEGIN" then
-        self.defending_begin_timer = self.defending_begin_timer + DTMULT
-        if self.defending_begin_timer >= 15 then
-            self:setState("DEFENDING")
-        end
+        self:updateDefendingBegin()
     elseif self.state == "DEFENDING" then
         self:updateWaves()
     elseif self.state == "ENEMYDIALOGUE" then
-        self.textbox_timer = self.textbox_timer - DTMULT
-        if (self.textbox_timer <= 0) and self.use_textbox_timer then
-            self:advanceBoxes()
-        else
-            local all_done = true
-            for _, textbox in ipairs(self.enemy_dialogue) do
-                if not textbox:isDone() then
-                    all_done = false
-                    break
-                end
-            end
-            if all_done then
-                self:setState("DIALOGUEEND")
-            end
-        end
+        self:updateEnemyDialogue()
     elseif self.state == "SHORTACTTEXT" then
         self:updateShortActText()
     end
@@ -2706,8 +2697,8 @@ function Battle:update()
     if self.state ~= "TRANSITIONOUT" then
         self.encounter:update()
     end
-    
-    -- prevents the bolts afterimage from continuing till the edge of the screen when all the enemies are defeated but there're still unfinished attacks
+
+    -- If bolts still exist outside of the attacking state, make them auto-miss
     if self.state ~= "ATTACKING" then
         for _, attack in ipairs(self.battle_ui.attack_boxes) do
             if not attack.attacked and attack:getClose() <= -2 then
@@ -2734,7 +2725,7 @@ function Battle:update()
         end
     end
 
-    if TableUtils.contains({"DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT"}, self.state) then
+    if TableUtils.contains({ "DEFENDINGEND", "ACTIONSELECT", "ACTIONS", "VICTORY", "TRANSITIONOUT", "BATTLETEXT" }, self.state) then
         self.background_fade_alpha = math.max(self.background_fade_alpha - (0.05 * DTMULT), 0)
         if self.darkify then
             self.darkify = false
@@ -2788,8 +2779,8 @@ function Battle:updateTransition()
             local battler_x = battler.x
             local battler_y = battler.y
 
-            battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, (self.afterimage_count + 1) / 10)
-            battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, (self.afterimage_count + 1) / 10)
+            battler.x = MathUtils.lerp(self.party_beginning_positions[index][1], target_x, (self.afterimage_count + 1) / 10)
+            battler.y = MathUtils.lerp(self.party_beginning_positions[index][2], target_y, (self.afterimage_count + 1) / 10)
 
             local afterimage = AfterImage(battler, 0.5)
             self:addChild(afterimage)
@@ -2832,7 +2823,7 @@ function Battle:updateTransitionOut()
 
     if self.transition_timer <= 0 then--or not self.transitioned then
         local enemies = {}
-        for k,v in pairs(self.enemy_world_characters) do
+        for k, v in pairs(self.enemy_world_characters) do
             table.insert(enemies, v)
         end
         self.encounter:onReturnToWorld(enemies)
@@ -2843,15 +2834,15 @@ function Battle:updateTransitionOut()
     for index, battler in ipairs(self.party) do
         local target_x, target_y = unpack(self.battler_targets[index])
 
-        battler.x = Utils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
-        battler.y = Utils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
+        battler.x = MathUtils.lerp(self.party_beginning_positions[index][1], target_x, self.transition_timer / 10)
+        battler.y = MathUtils.lerp(self.party_beginning_positions[index][2], target_y, self.transition_timer / 10)
     end
 
     for _, enemy in ipairs(all_enemies) do
         local world_chara = self.enemy_world_characters[enemy]
         if enemy.target_x and enemy.target_y and not enemy.exit_on_defeat and world_chara and world_chara.parent then
-            enemy.x = Utils.lerp(self.enemy_beginning_positions[enemy][1], enemy.target_x, self.transition_timer / 10)
-            enemy.y = Utils.lerp(self.enemy_beginning_positions[enemy][2], enemy.target_y, self.transition_timer / 10)
+            enemy.x = MathUtils.lerp(self.enemy_beginning_positions[enemy][1], enemy.target_x, self.transition_timer / 10)
+            enemy.y = MathUtils.lerp(self.enemy_beginning_positions[enemy][2], enemy.target_y, self.transition_timer / 10)
         else
             local fade = enemy:getFX("battle_end")
             if not fade then
@@ -2920,6 +2911,23 @@ function Battle:updateAttacking()
     end
 end
 
+function Battle:updateActionsDone()
+    self.actions_done_timer = MathUtils.approach(self.actions_done_timer, 0, DT)
+    local any_hurt = false
+    for _, enemy in ipairs(self.enemies) do
+        if enemy.hurt_timer > 0 then
+            any_hurt = true
+            break
+        end
+    end
+    if self.actions_done_timer == 0 and not any_hurt then
+        self:resetAttackers()
+        if not self.encounter:onActionsEnd() then
+            self:setState("ENEMYDIALOGUE")
+        end
+    end
+end
+
 function Battle:updateWaves()
     self.wave_timer = self.wave_timer + DT
 
@@ -2946,8 +2954,8 @@ end
 function Battle:updateShortActText()
     if Input.pressed("confirm") or Input.down("menu") then
         if (not self.battle_ui.short_act_text_1:isTyping()) and
-           (not self.battle_ui.short_act_text_2:isTyping()) and
-           (not self.battle_ui.short_act_text_3:isTyping()) then
+        (not self.battle_ui.short_act_text_2:isTyping()) and
+        (not self.battle_ui.short_act_text_3:isTyping()) then
             self.battle_ui.short_act_text_1:setText("")
             self.battle_ui.short_act_text_2:setText("")
             self.battle_ui.short_act_text_3:setText("")
@@ -2965,7 +2973,7 @@ end
 ---@param y         number
 ---@param color?    table
 function Battle:debugPrintOutline(string, x, y, color)
-    color = color or {love.graphics.getColor()}
+    color = color or { love.graphics.getColor() }
     Draw.setColor(0, 0, 0, 1)
     love.graphics.print(string, x - 1, y)
     love.graphics.print(string, x + 1, y)
@@ -2981,8 +2989,17 @@ function Battle:drawDebug()
     love.graphics.setFont(font)
 
     Draw.setColor(1, 1, 1, 1)
-    self:debugPrintOutline("State: "    .. self.state   , 4, 0)
-    self:debugPrintOutline("Substate: " .. self.substate, 4, 0 + 16)
+    self:debugPrintOutline("State: " .. self.state, 4, 0)
+    self:debugPrintOutline("Substate: " .. self.substate, 4, 16)
+
+    self:debugPrintOutline("- KEYS -", 4, 64)
+    self:debugPrintOutline("CTRL+H - heal party", 4, 80)
+    self:debugPrintOutline("CTRL+Y - win battle", 4, 96)
+    self:debugPrintOutline("CTRL+M - pause/resume music", 4, 112)
+    self:debugPrintOutline("CTRL+F - end current wave", 4, 128)
+    self:debugPrintOutline("CTRL+B - kill party", 4, 144)
+    self:debugPrintOutline("CTRL+K - fill tension", 4, 160)
+    self:debugPrintOutline("CTRL+N - toggle noclip", 4, 176)
 end
 
 function Battle:draw()
@@ -3006,7 +3023,7 @@ end
 
 function Battle:drawBackground()
     Draw.setColor(0, 0, 0, self.transition_timer / 10)
-    love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH+16, SCREEN_HEIGHT+16)
+    love.graphics.rectangle("fill", -8, -8, SCREEN_WIDTH + 16, SCREEN_HEIGHT + 16)
 
     love.graphics.setLineStyle("rough")
     love.graphics.setLineWidth(1)
@@ -3025,8 +3042,9 @@ function Battle:drawBackground()
 end
 
 function Battle:isWorldHidden()
-    return self.state ~= "TRANSITION" and self.state ~= "TRANSITIONOUT" and
-           (self.encounter.background or self.encounter.hide_world)
+    return self.state ~= "TRANSITION" and
+        self.state ~= "TRANSITIONOUT" and
+        (self.encounter.background or self.encounter.hide_world)
 end
 
 ---@param menu_item table
@@ -3066,7 +3084,7 @@ function Battle:isHighlighted(battler)
             if isClass(highlighted) then
                 return highlighted == battler
             elseif type(highlighted) == "table" then
-                return Utils.containsValue(highlighted, battler)
+                return TableUtils.contains(highlighted, battler)
             end
         end
     end
@@ -3086,19 +3104,19 @@ end
 --- Gets a list of all the active (not defeated/spared) enemies
 ---@return EnemyBattler[]
 function Battle:getActiveEnemies()
-    return Utils.filter(self.enemies, function(enemy) return not enemy.done_state end)
+    return TableUtils.filter(self.enemies, function(enemy) return not enemy.done_state end)
 end
 
 --- Gets a list of all the active (not downed) party members
 ---@return PartyBattler[]
 function Battle:getActiveParty()
-    return Utils.filter(self.party, function(party) return not party.is_down end)
+    return TableUtils.filter(self.party, function(party) return not party.is_down end)
 end
 
 --- Resets the enemies index table, closing all gaps in the enemy select menu
 ---@param reset_xact? boolean         Whether to also reset the XACT position
 function Battle:resetEnemiesIndex(reset_xact)
-    self.enemies_index = Utils.copy(self.enemies, true)
+    self.enemies_index = TableUtils.copy(self.enemies, true)
     if reset_xact ~= false then
         self.battle_ui:resetXACTPosition()
     end
@@ -3107,8 +3125,8 @@ end
 ---@param id string
 ---@return EnemyBattler
 function Battle:parseEnemyIdentifier(id)
-    local args = Utils.split(id, ":")
-    local enemies = Utils.filter(self.enemies, function(enemy) return enemy.id == args[1] end)
+    local args = StringUtils.split(id, ":")
+    local enemies = TableUtils.filter(self.enemies, function(enemy) return enemy.id == args[1] end)
     return enemies[args[2] and tonumber(args[2]) or 1]
 end
 
@@ -3152,7 +3170,7 @@ function Battle:advanceBoxes()
     end
     -- Remove leftover dialogue
     for _, dialogue in ipairs(to_remove) do
-        Utils.removeFromTable(self.enemy_dialogue, dialogue)
+        TableUtils.removeValue(self.enemy_dialogue, dialogue)
     end
     -- If all dialogue is done, go to DIALOGUEEND state
     if all_done then
@@ -3187,7 +3205,7 @@ end
 function Battle:addMenuItem(tbl)
     -- Item colors in Ch3+ can be dynamic (e.g. pacify) so we should use functions for item color.
     -- Table colors can still be used, but we'll wrap them into functions.
-    local color = tbl.color or {1, 1, 1, 1}
+    local color = tbl.color or { 1, 1, 1, 1 }
     local fcolor
     if type(color) == "table" then
         fcolor = function () return color end
@@ -3233,18 +3251,6 @@ function Battle:onKeyPressed(key)
         end
         if self.state == "DEFENDING" and key == "f" then
             self.encounter:onWavesDone()
-        end
-        if self.soul and self.soul.visible and key == "j" then
-            local x, y = self:getSoulLocation()
-            self.soul:shatter(6)
-
-            -- Prevents a crash related to not having a soul in some waves
-            self:spawnSoul(x, y)
-            for _, heartbrust in ipairs(Game.stage:getObjects(HeartBurst)) do
-                heartbrust:remove()
-            end
-            self.soul.visible = false
-            self.soul.collidable = false
         end
         if key == "b" then
             self:hurt(math.huge, true, "ALL")
@@ -3555,7 +3561,7 @@ function Battle:handleAttackingInput(key)
                         table.insert(closest_attacks, attack)
                     elseif close < closest then
                         closest = close
-                        closest_attacks = {attack}
+                        closest_attacks = { attack }
                     end
                 end
             end
