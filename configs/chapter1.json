@@ -18,6 +18,7 @@
     "oldGameOver": true,             // The game over screen used in chapter 1
     "oldRudeBuster": true,           // Old Rude Buster damage calculation and effect
     "oldPacify": true,               // Removes the animation from the Pacify spell
+    "oldDualHealFormula": true,      // Old Dual Heal amount calculation
 
     "speechBubble": "round",         // Default enemy speech bubble style
 
