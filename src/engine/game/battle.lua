@@ -1670,18 +1670,21 @@ function Battle:commitAction(battler, action_type, target, data, extra)
     end
 end
 
-function Battle:removeAction(character_id)
+--- Remove a party member's action from the list of actions.
+---@param character_id integer The index of the party member whose action should be removed
+---@param from_defeat boolean? Whether this removal is due to the character being defeated
+function Battle:removeAction(character_id, from_defeat)
     local action = self.character_actions[character_id]
 
     if action then
-        self:removeSingleAction(action)
+        self:removeSingleAction(action, from_defeat)
 
         if action.party then
-            for _,v in ipairs(action.party) do
+            for _, v in ipairs(action.party) do
                 if v ~= character_id then
                     local iaction = self.character_actions[self:getPartyIndex(v)]
                     if iaction then
-                        self:removeSingleAction(iaction)
+                        self:removeSingleAction(iaction, from_defeat)
                     end
                 end
             end
@@ -1753,7 +1756,8 @@ function Battle:commitSingleAction(action)
     end
 end
 
-function Battle:removeSingleAction(action)
+--- Removes a single action from the list of actions.
+function Battle:removeSingleAction(action, from_defeat)
     local battler = self.party[action.character_id]
 
     if Kristal.callEvent(KRISTAL_EVENT.onBattleActionUndo, action, action.action, battler, action.target) then
@@ -1764,25 +1768,33 @@ function Battle:removeSingleAction(action)
 
     battler:resetSprite()
 
-    if action.tp then
-        if action.tp < 0 then
-            Game:giveTension(-action.tp)
-        elseif action.tp > 0 then
-            Game:removeTension(action.tp)
-        end
-    end
+    if not from_defeat then
+        -- If we haven't been defeated, try undoing the action.
 
-    if action.action == "ITEM" and action.data then
-        if action.item_index and action.consumed then
-            if action.result_item then
-                Game.inventory:setItem(action.item_storage, action.item_index, action.data)
-            else
-                Game.inventory:addItemTo(action.item_storage, action.item_index, action.data)
+        -- Reverse any TP changes
+        if action.tp then
+            if action.tp < 0 then
+                Game:giveTension(-action.tp)
+            elseif action.tp > 0 then
+                Game:removeTension(action.tp)
             end
         end
-        action.data:onBattleDeselect(battler, action.target)
-    elseif action.action == "SPELL" and action.data then
-        action.data:onDeselect(battler, action.target)
+
+        if action.action == "ITEM" and action.data then
+            -- Re-add any consumed items
+            if action.item_index and action.consumed then
+                if action.result_item then
+                    Game.inventory:setItem(action.item_storage, action.item_index, action.data)
+                else
+                    Game.inventory:addItemTo(action.item_storage, action.item_index, action.data)
+                end
+            end
+            -- Deselect the item
+            action.data:onBattleDeselect(battler, action.target)
+        elseif action.action == "SPELL" and action.data then
+            -- Deselect the spell
+            action.data:onDeselect(battler, action.target)
+        end
     end
 
     battler.action = nil
