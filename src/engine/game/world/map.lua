@@ -241,7 +241,7 @@ end
 function Map:getShapes(layer_prefix)
     local result = {}
     for k,v in pairs(self.shape_layers) do
-        if not layer_prefix or Utils.startsWith(k:lower(), layer_prefix) then
+        if not layer_prefix or StringUtils.startsWith(k:lower(), layer_prefix) then
             Utils.merge(result, v.objects)
         end
     end
@@ -736,7 +736,7 @@ function Map:loadObject(name, data)
 
     local shape_data = {data.width, data.height, data.polygon}
 
-    local rect_data = Utils.copy(shape_data)
+    local rect_data = TableUtils.copy(shape_data)
     rect_data[3] = nil
 
     -- Kristal object loading

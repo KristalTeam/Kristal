@@ -115,7 +115,7 @@ function ModButton:checkCompatibility()
 end
 
 function ModButton:isFavorited()
-    return Utils.containsValue(Kristal.Config["favorites"], self.id)
+    return TableUtils.contains(Kristal.Config["favorites"], self.id)
 end
 
 function ModButton:update()

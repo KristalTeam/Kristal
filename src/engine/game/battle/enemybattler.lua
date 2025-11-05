@@ -494,7 +494,7 @@ function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_conditio
     self.temporary_mercy = self.temporary_mercy + amount
 
     local min, max = clamp[1], clamp[2]
-    self.temporary_mercy = Utils.clamp(self.temporary_mercy, min, max)
+    self.temporary_mercy = MathUtils.clamp(self.temporary_mercy, min, max)
 
     if Game:getConfig("mercyMessages") then
         if self.temporary_mercy == 0 then
@@ -1062,7 +1062,7 @@ end
 
 function EnemyBattler:update()
     if self.hurt_timer > 0 then
-        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DT)
+        self.hurt_timer = MathUtils.approach(self.hurt_timer, 0, DT)
 
         if self.hurt_timer == 0 then
             self:onHurtEnd()
@@ -1070,7 +1070,7 @@ function EnemyBattler:update()
     end
 
     if self.temporary_mercy_percent and self.temporary_mercy_percent.kill_condition_succeed then
-        self.mercy = Utils.clamp(self.mercy + self.temporary_mercy, 0, 100)
+        self.mercy = MathUtils.clamp(self.mercy + self.temporary_mercy, 0, 100)
         self.temporary_mercy = 0
         self.temporary_mercy_percent = nil
     end

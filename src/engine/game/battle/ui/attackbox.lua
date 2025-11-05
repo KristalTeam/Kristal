@@ -78,7 +78,7 @@ end
 
 function AttackBox:update()
     if self.removing or Game.battle.cancel_attack then
-        self.fade_rect.alpha = Utils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
+        self.fade_rect.alpha = MathUtils.approach(self.fade_rect.alpha, 1, 0.08 * DTMULT)
     end
 
     if not self.attacked then
@@ -98,7 +98,7 @@ function AttackBox:update()
     if not Game.battle.cancel_attack and Input.pressed("confirm") then
         self.flash = 1
     else
-        self.flash = Utils.approach(self.flash, 0, DTMULT/5)
+        self.flash = MathUtils.approach(self.flash, 0, DTMULT/5)
     end
 
     super.update(self)

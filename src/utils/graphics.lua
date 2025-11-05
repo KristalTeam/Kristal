@@ -19,7 +19,7 @@ function graphics.reset()
     transformStack = {}
     love.graphics.origin()
 
-    Draw._scissor_stack = {}
+    Draw._clearScissorStack()
     love.graphics.setScissor()
 end
 
@@ -114,11 +114,11 @@ function graphics.push(stack)
     if stack == "all" then
         item = {
             transform = transform,
-            backgroundColor = {love.graphics.getBackgroundColor()},
-            blendMode = {love.graphics.getBlendMode()},
+            backgroundColor = { love.graphics.getBackgroundColor() },
+            blendMode = { love.graphics.getBlendMode() },
             canvas = love.graphics.getCanvas(),
             font = love.graphics.getFont(),
-            colorMask = {love.graphics.getColorMask()},
+            colorMask = { love.graphics.getColorMask() },
             shader = love.graphics.getShader()
         }
         Draw.pushScissor()

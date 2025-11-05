@@ -644,7 +644,7 @@ end
 
 ---@param light? boolean
 function PartyMember:getStats(light)
-    local stats = Utils.copy(self:getBaseStats(light))
+    local stats = TableUtils.copy(self:getBaseStats(light))
     for _,item in ipairs(self:getEquipment()) do
         for stat, amount in pairs(item:getStatBonuses()) do
             if stats[stat] then

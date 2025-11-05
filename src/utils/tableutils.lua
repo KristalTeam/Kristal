@@ -164,7 +164,7 @@ function TableUtils.dump(o)
         if isClass(o) then
             -- If the table is a class, return the
             -- name of the class instead of its contents.
-            return Utils.getClassName(o) or "<unknown class>"
+            return ClassUtils.getClassName(o) or "<unknown class>"
         end
         local s = '{'
         local cn = 1

@@ -84,7 +84,7 @@ end
 function Collider:getLocalPoints(tf1,tf2, ...)
     local points = {...}
     if type(points[1]) == "table" then
-        points = Utils.copy(points[1])
+        points = TableUtils.copy(points[1])
     end
     if type(points[1]) == "table" then
         if tf2 then

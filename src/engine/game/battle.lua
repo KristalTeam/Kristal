@@ -2000,7 +2000,7 @@ function Battle:hasAction(character_id)
 end
 
 --- Returns whether `collider` collides with a Solid or the arena
----@param collider Collider
+---@param collider Collider|Object
 ---@return boolean          collided
 ---@return Arena|Solid?     colliding_with
 function Battle:checkSolidCollision(collider)

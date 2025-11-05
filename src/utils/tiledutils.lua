@@ -210,7 +210,7 @@ function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
     local prefix = Mod.info.path .. "/" .. target_dir .. "/"
 
     -- Split paths by seperator
-    local base_parts = Utils.split(source_dir, "/")
+    local base_parts = StringUtils.split(source_dir, "/")
     -- Separator is assumed to be a forward slash as Tiled uses it
     local dest_parts = StringUtils.split(asset_path, "/")
 
@@ -232,7 +232,7 @@ function TiledUtils.relativePathToAssetId(target_dir, asset_path, source_dir)
         end
     end
 
-    local final_path = table.concat(Utils.merge(base_parts, dest_parts), "/")
+    local final_path = table.concat(TableUtils.merge(base_parts, dest_parts), "/")
 
     -- Strip prefix
     local has_prefix

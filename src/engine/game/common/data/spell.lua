@@ -75,7 +75,7 @@ function Spell:onWorldCast(chara) end
 ---@param tag string
 ---@return boolean
 function Spell:hasTag(tag)
-    return Utils.containsValue(self.tags, tag)
+    return TableUtils.contains(self.tags, tag)
 end
 
 --- *(Override)* Gets the message that appears when this spell is cast in battle

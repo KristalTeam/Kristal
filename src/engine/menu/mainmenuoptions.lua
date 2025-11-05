@@ -110,7 +110,7 @@ function MainMenuOptions:update()
     self.scroll_y = self.scroll_y + ((self.scroll_target_y - self.scroll_y) / 2) * DTMULT
 
     if self.page_scroll_timer > 0 then
-        self.page_scroll_timer = Utils.approach(self.page_scroll_timer, 0, DT)
+        self.page_scroll_timer = MathUtils.approach(self.page_scroll_timer, 0, DT)
     end
 
     self.menu.heart_target_x, self.menu.heart_target_y = self:getHeartPos()
@@ -243,7 +243,7 @@ function MainMenuOptions:onKeyPressedMenu(key, is_repeat)
         self.selected_page = self.selected_page + 1
         page_dir = "right"
     end
-    self.selected_page = Utils.clamp(self.selected_page, 1, #self.pages)
+    self.selected_page = MathUtils.clamp(self.selected_page, 1, #self.pages)
 
     if self.selected_page ~= old_page then
         move_noise = true
@@ -476,7 +476,7 @@ end
 ---@param id   string # The id of the page, referred to when adding options.
 ---@param name string # The name of the page, displayed in the options menu.
 function MainMenuOptions:registerOptionsPage(id, name)
-    if Utils.containsValue(self.pages, id) then
+    if TableUtils.contains(self.pages, id) then
         return
     end
 

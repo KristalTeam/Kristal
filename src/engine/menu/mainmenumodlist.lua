@@ -120,9 +120,9 @@ function MainMenuModList:onKeyPressed(key, is_repeat)
             if mod then
                 Assets.stopAndPlaySound("ui_select")
 
-                local is_favorited = Utils.containsValue(Kristal.Config["favorites"], mod.id)
+                local is_favorited = TableUtils.contains(Kristal.Config["favorites"], mod.id)
                 if is_favorited then
-                    Utils.removeFromTable(Kristal.Config["favorites"], mod.id)
+                    TableUtils.removeValue(Kristal.Config["favorites"], mod.id)
                 else
                     table.insert(Kristal.Config["favorites"], mod.id)
                 end
@@ -358,8 +358,8 @@ function MainMenuModList:buildModListFavorited()
     
     -- Sort them by favorites or filepath
     table.sort(self.mods, function(a, b)
-        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
-        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
+        local a_fav = TableUtils.contains(Kristal.Config["favorites"], a.id)
+        local b_fav = TableUtils.contains(Kristal.Config["favorites"], b.id)
         return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
     end)
     
@@ -463,8 +463,8 @@ function MainMenuModList:buildModList()
 
     -- Sort them by favorites or filepath
     table.sort(self.mods, function(a, b)
-        local a_fav = Utils.containsValue(Kristal.Config["favorites"], a.id)
-        local b_fav = Utils.containsValue(Kristal.Config["favorites"], b.id)
+        local a_fav = TableUtils.contains(Kristal.Config["favorites"], a.id)
+        local b_fav = TableUtils.contains(Kristal.Config["favorites"], b.id)
         return (a_fav and not b_fav) or (a_fav == b_fav and a.path:lower() < b.path:lower())
     end)
 

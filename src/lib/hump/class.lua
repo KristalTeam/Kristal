@@ -54,7 +54,7 @@ function _self.include(class, other)
 end
 
 function _self.clone(other)
-    return Utils.copy(other, true)
+    return TableUtils.copy(other, true)
     --return setmetatable(include({}, other), getmetatable(other))
 end
 

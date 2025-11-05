@@ -177,7 +177,7 @@ function BattleUI:update()
                 self.animation_y = target
             end
         else
-            self.animation_y_lag = Utils.approach(self.animation_y_lag, self.y, 30 * DTMULT)
+            self.animation_y_lag = MathUtils.approach(self.animation_y_lag, self.y, 30 * DTMULT)
 
             if self.animation_y > 0 then
                 if math.floor((target - self.animation_y) / 5) > 15 then

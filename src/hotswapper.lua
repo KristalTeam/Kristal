@@ -97,7 +97,7 @@ end
 
 function Hotswapper.hotswap(module_name)
     -- Grab the old _G
-    local old_global_table = Utils.copy(_G)
+    local old_global_table = TableUtils.copy(_G)
     local updated = {}
     local function update(old, new)
         -- Prevent infinite recursion...

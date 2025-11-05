@@ -12,7 +12,7 @@ function DamageNumber:init(type, arg, x, y, color, delay)
 
     self:setOrigin(1, 0)
 
-    self.color = color or {1, 1, 1}
+    self.color = color or { 1, 1, 1 }
 
     -- Halfway between UI and the layer above it
     self.layer = BATTLE_LAYERS["damage_numbers"]
@@ -42,7 +42,7 @@ function DamageNumber:init(type, arg, x, y, color, delay)
     self.do_once = false
 
     self.kill_others = false
-    self.kill_condition = function ()
+    self.kill_condition = function()
         return true
     end
     self.kill_condition_succeed = false
@@ -65,12 +65,12 @@ function DamageNumber:setDisplay(type, arg, set_color)
                 self.type = "msg"
                 self.message = "mercy"
             elseif self.amount < 0 then
-                self.text = self.amount.."%"
+                self.text = self.amount .. "%"
                 if set_color then
-                    self.color = {self.color[1] * 0.75, self.color[2] * 0.75, self.color[3] * 0.75}
+                    self.color = { self.color[1] * 0.75, self.color[2] * 0.75, self.color[3] * 0.75 }
                 end
             else
-                self.text = "+"..self.amount.."%"
+                self.text = "+" .. self.amount .. "%"
             end
         else
             self.text = tostring(self.amount)
@@ -79,7 +79,7 @@ function DamageNumber:setDisplay(type, arg, set_color)
     end
 
     if self.message then
-        self.texture = Assets.getTexture("ui/battle/msg/"..self.message)
+        self.texture = Assets.getTexture("ui/battle/msg/" .. self.message)
         self.width = self.texture:getWidth()
         self.height = self.texture:getHeight()
     elseif self.text then
@@ -89,7 +89,7 @@ function DamageNumber:setDisplay(type, arg, set_color)
 end
 
 function DamageNumber:onAdd(parent)
-    for _,v in ipairs(parent.children) do
+    for _, v in ipairs(parent.children) do
         if isClass(v) and v:includes(DamageNumber) then
             if self.kill_others then
                 if (v.timer >= 1) then
@@ -121,7 +121,7 @@ function DamageNumber:update()
     end
 
     if self.timer >= self.delay then
-        self.physics.speed_x = Utils.approach(self.physics.speed_x, 0, DTMULT)
+        self.physics.speed_x = MathUtils.approach(self.physics.speed_x, 0, DTMULT)
 
         if self.bounces < 2 then
             self.physics.speed_y = self.physics.speed_y + DTMULT

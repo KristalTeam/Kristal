@@ -123,7 +123,7 @@ function Forcefield:update()
             dist_y = math.min(math.abs(player.y - self.y), math.abs(player.y - (self.y + self.height)))
         end
 
-        local fade_dist = Utils.clamp(math.max(dist_x, dist_y), 20, 80)
+        local fade_dist = MathUtils.clamp(math.max(dist_x, dist_y), 20, 80)
 
         self.alpha = 1 - (fade_dist - 20) / 60
     end

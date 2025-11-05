@@ -121,7 +121,7 @@ function LightSaveMenu:update()
         if Input.pressed("down") then
             self.selected_y = self.selected_y + 1
         end
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if Input.pressed("confirm") then
             self.ui_select:stop()
             self.ui_select:play()

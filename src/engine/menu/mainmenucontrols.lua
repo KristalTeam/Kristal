@@ -64,7 +64,10 @@ function MainMenuControls:registerMainPage()
     page.entries = {}
 
     for _, keybind in ipairs(Input.order) do
-        table.insert(page.entries, {keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper()})
+        table.insert(
+            page.entries,
+            { keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper() }
+        )
     end
 
     table.insert(self.pages, page)
@@ -83,7 +86,8 @@ function MainMenuControls:registerModPages()
         page.entries = {}
 
         for _, keybind in ipairs(keys) do
-            table.insert(page.entries, {keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper()})
+            table.insert(page.entries,
+                         { keybind = keybind, name = (Input.getBindName(keybind) or keybind:gsub("_", " ")):upper() })
         end
 
         table.insert(self.pages, page)
@@ -144,16 +148,16 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
     if (not self.rebinding) and (not self.selecting_key) then
         local selected_page = self:getSelectedPage()
         local bind_list = self.control_menu == "gamepad" and Input.gamepad_bindings or Input.key_bindings
-        local option_count = Utils.tableLength(selected_page.entries) + 2
+        local option_count = TableUtils.getKeyCount(selected_page.entries) + 2
         local page_count = #self.pages
         if self.control_menu == "gamepad" then
             option_count = option_count + 1
         end
 
         local old_selected = self.selected_option
-        if Input.is("up"   , key)                              then self.selected_option = self.selected_option - 1 end
-        if Input.is("down" , key)                              then self.selected_option = self.selected_option + 1 end
-        if self.selected_option < 1            then self.selected_option = is_repeat and 1 or option_count end
+        if Input.is("up", key) then self.selected_option = self.selected_option - 1 end
+        if Input.is("down", key) then self.selected_option = self.selected_option + 1 end
+        if self.selected_option < 1 then self.selected_option = is_repeat and 1 or option_count end
         if self.selected_option > option_count then self.selected_option = is_repeat and option_count or 1 end
 
         if old_selected ~= self.selected_option then
@@ -163,22 +167,26 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
         if not self.target_mod then
             local old_page = self.selected_page
             local page_dir = "right"
-            if Input.is("left" , key) then self.selected_page = self.selected_page - 1; page_dir = "left" end
-            if Input.is("right", key) then self.selected_page = self.selected_page + 1; page_dir = "right" end
-            if self.selected_page < 1          then self.selected_page = is_repeat and 1 or page_count end
+            if Input.is("left", key) then
+                self.selected_page = self.selected_page - 1; page_dir = "left"
+            end
+            if Input.is("right", key) then
+                self.selected_page = self.selected_page + 1; page_dir = "right"
+            end
+            if self.selected_page < 1 then self.selected_page = is_repeat and 1 or page_count end
             if self.selected_page > page_count then self.selected_page = is_repeat and page_count or 1 end
-    
-    
+
+
             if old_page ~= self.selected_page then
                 Assets.stopAndPlaySound("ui_move")
                 selected_page = self:getSelectedPage()
-                option_count = Utils.tableLength(selected_page.entries) + 2
+                option_count = TableUtils.getKeyCount(selected_page.entries) + 2
                 if self.control_menu == "gamepad" then
                     option_count = option_count + 1
                 end
-    
+
                 self.selected_option = 1
-    
+
                 self.scroll_direction = page_dir
                 self.scroll_timer = 0.1
             end
@@ -191,18 +199,18 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
         elseif Input.isConfirm(key) then
             self.rebinding = false
             self.selecting_key = false
-             -- Reset to Defaults
+            -- Reset to Defaults
             if (self.selected_option == option_count - 1) then
                 Input.resetBinds(self.control_menu == "gamepad", selected_page.mod)
                 Assets.stopAndPlaySound("ui_select")
                 self.selected_option = option_count - 1
                 self.menu.heart_target_y = (129 + (self.selected_option) * 32) + self.scroll_target_y
-            -- Back
+                -- Back
             elseif (self.selected_option == option_count) then
                 Assets.stopAndPlaySound("ui_select")
                 Input.saveBinds()
                 self.menu:popState()
-            -- (Gamepad) Configure Deadzone
+                -- (Gamepad) Configure Deadzone
             elseif self.control_menu == "gamepad" and self.selected_option == option_count - 2 then
                 Assets.stopAndPlaySound("ui_select")
                 self.menu:pushState("DEADZONE")
@@ -217,7 +225,7 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
         local table_key = self:getSelectedKey()
 
         local old = self.selected_bind
-        if Input.is("left" , key) then self.selected_bind = self.selected_bind - 1 end
+        if Input.is("left", key) then self.selected_bind = self.selected_bind - 1 end
         if Input.is("right", key) then self.selected_bind = self.selected_bind + 1 end
         self.selected_bind = math.max(1, math.min(#self:getBoundKeys(table_key), self.selected_bind))
 
@@ -252,16 +260,16 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
             local valid_key = true
             local bound_key
             if key ~= "escape" then
-                if gamepad ~= Utils.startsWith(key, "gamepad:") then
+                if gamepad ~= StringUtils.startsWith(key, "gamepad:") then
                     valid_key = false
                 else
-                    bound_key = {key}
+                    bound_key = { key }
 
                     -- https://ux.stackexchange.com/questions/58185/normative-ordering-for-modifier-key-combinations
-                    if self.rebinding_cmd   then table.insert(bound_key, 1, "cmd"  ) end
+                    if self.rebinding_cmd then table.insert(bound_key, 1, "cmd") end
                     if self.rebinding_shift then table.insert(bound_key, 1, "shift") end
-                    if self.rebinding_alt   then table.insert(bound_key, 1, "alt"  ) end
-                    if self.rebinding_ctrl  then table.insert(bound_key, 1, "ctrl" ) end
+                    if self.rebinding_alt then table.insert(bound_key, 1, "alt") end
+                    if self.rebinding_ctrl then table.insert(bound_key, 1, "ctrl") end
 
                     if #bound_key == 1 then
                         bound_key = bound_key[1]
@@ -273,7 +281,8 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
 
             if valid_key then
                 -- rebind!!
-                local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key, self.control_menu == "gamepad")
+                local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key,
+                                             self.control_menu == "gamepad")
 
                 self.rebinding = false
                 self.rebinding_shift = false
@@ -296,26 +305,31 @@ end
 function MainMenuControls:onKeyReleased(key)
     if self.rebinding then
         local released_modifier =
-            (self.rebinding_ctrl  and (key == "lctrl"  or key == "rctrl" )) or
+            (self.rebinding_ctrl and (key == "lctrl" or key == "rctrl")) or
             (self.rebinding_shift and (key == "lshift" or key == "rshift")) or
-            (self.rebinding_alt   and (key == "lalt"   or key == "ralt"  )) or
-            (self.rebinding_cmd   and (key == "lcmd"   or key == "rcmd"  ))
+            (self.rebinding_alt and (key == "lalt" or key == "ralt")) or
+            (self.rebinding_cmd and (key == "lcmd" or key == "rcmd"))
 
         if released_modifier then
             local bound_key = {}
 
             -- https://ux.stackexchange.com/questions/58185/normative-ordering-for-modifier-key-combinations
-            if self.rebinding_cmd   then table.insert(bound_key, 1, "cmd"  ) end
+            if self.rebinding_cmd then table.insert(bound_key, 1, "cmd") end
             if self.rebinding_shift then table.insert(bound_key, 1, "shift") end
-            if self.rebinding_alt   then table.insert(bound_key, 1, "alt"  ) end
-            if self.rebinding_ctrl  then table.insert(bound_key, 1, "ctrl" ) end
+            if self.rebinding_alt then table.insert(bound_key, 1, "alt") end
+            if self.rebinding_ctrl then table.insert(bound_key, 1, "ctrl") end
 
             if #bound_key == 1 then
                 bound_key = bound_key[1]
             end
 
             -- rebind!!
-            local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key, self.control_menu == "gamepad")
+            local worked = Input.setBind(
+                self:getSelectedKey(),
+                self.selected_bind,
+                bound_key,
+                self.control_menu == "gamepad"
+            )
 
             self.rebinding = false
             self.rebinding_shift = false
@@ -342,8 +356,8 @@ function MainMenuControls:update()
         self.control_menu = Input.usingGamepad() and "gamepad" or "keyboard"
         -- Slightly imperfect at consistency with input switching but it affects about two of the bottom options only
         -- Most importantly though nothing breaks and you cannot go out of the menu bounds
-        if old ~= self.control_menu and self.selected_option > Utils.tableLength(selected_page.entries) + 1 then
-            if self.control_menu == "keyboard" then 
+        if old ~= self.control_menu and self.selected_option > TableUtils.getKeyCount(selected_page.entries) + 1 then
+            if self.control_menu == "keyboard" then
                 self.selected_option = self.selected_option - 1
             else
                 self.selected_option = self.selected_option + 1
@@ -353,7 +367,7 @@ function MainMenuControls:update()
 
     -- Update heart position
     local y_off = (self.selected_option - 1) * 32
-    if self.selected_option > (Utils.tableLength(selected_page.entries)) then
+    if self.selected_option > (TableUtils.getKeyCount(selected_page.entries)) then
         y_off = y_off + 32
     end
 
@@ -377,12 +391,10 @@ function MainMenuControls:update()
         self.scroll_y = self.scroll_target_y
     end
     self.scroll_y = self.scroll_y + ((self.scroll_target_y - self.scroll_y) / 2) * DTMULT
-    
-    if self.scroll_timer > 0 then
-        self.scroll_timer = Utils.approach(self.scroll_timer, 0, DT)
-    end
 
-    
+    if self.scroll_timer > 0 then
+        self.scroll_timer = MathUtils.approach(self.scroll_timer, 0, DT)
+    end
 end
 
 function MainMenuControls:draw()
@@ -394,9 +406,9 @@ function MainMenuControls:draw()
     Draw.printShadow("( OPTIONS )", 0, 0, 2, "center", 640)
 
     Draw.setColor(1, 1, 1)
-    Draw.printShadow(""..self.control_menu:upper().." CONTROLS", 0, 48, 2, "center", 640)
+    Draw.printShadow("" .. self.control_menu:upper() .. " CONTROLS", 0, 48, 2, "center", 640)
     Draw.setColor(COLORS.silver)
-    Draw.printShadow("("..selected_page.title..")", 0, 74, 2, "center", 640)
+    Draw.printShadow("(" .. selected_page.title .. ")", 0, 74, 2, "center", 640)
     Draw.setColor(1, 1, 1)
 
     local menu_x = 185 - 14
@@ -404,7 +416,7 @@ function MainMenuControls:draw()
 
     local width = 460
     local height = 32 * 10
-    local total_height = 32 * ( #(selected_page.entries) + ( self.control_menu == "gamepad" and 4 or 3 ) )
+    local total_height = 32 * (#(selected_page.entries) + (self.control_menu == "gamepad" and 4 or 3))
 
     Draw.pushScissor()
     Draw.scissor(menu_x, menu_y, width + 10, height + 10)
@@ -423,7 +435,7 @@ function MainMenuControls:draw()
     y_offset = y_offset + 1
 
     if self.control_menu == "gamepad" then
-        Draw.printShadow("Configure Deadzone",  menu_x, menu_y + (32 * y_offset))
+        Draw.printShadow("Configure Deadzone", menu_x, menu_y + (32 * y_offset))
         y_offset = y_offset + 1
     end
 
@@ -432,7 +444,7 @@ function MainMenuControls:draw()
 
     if height < total_height then
         -- Draw the scrollbar background (lighter than the others since it's against black)
-        Draw.setColor({1, 1, 1, 0.5})
+        Draw.setColor({ 1, 1, 1, 0.5 })
         love.graphics.rectangle("fill", menu_x + width, 0, 4, menu_y + height - self.scroll_y)
 
         local scrollbar_height = (height / total_height) * height
@@ -448,7 +460,7 @@ function MainMenuControls:draw()
     -- Draw menu arrows
     if #self.pages > 1 and not self.target_mod then
         local l_offset, r_offset = 0, 0
-        local mod_width = font:getWidth("("..selected_page.title..")")
+        local mod_width = font:getWidth("(" .. selected_page.title .. ")")
 
         if self.scroll_timer > 0 then
             if self.scroll_direction == "left" then
@@ -478,7 +490,7 @@ function MainMenuControls:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     if self.selected_option == (y_offset + 1) then
         for i, v in ipairs(self:getBoundKeys(name)) do
             local drawstr = v:upper()
-            if Utils.startsWith(v, "gamepad:") then
+            if StringUtils.startsWith(v, "gamepad:") then
                 drawstr = "     "
             end
             if i < #self:getBoundKeys(name) then
@@ -494,28 +506,28 @@ function MainMenuControls:drawKeyBindMenu(name, menu_x, menu_y, y_offset)
     for i, v in ipairs(self:getBoundKeys(name)) do
         local drawstr = v:upper()
         local btn = nil
-        if Utils.startsWith(v, "gamepad:") then
+        if StringUtils.startsWith(v, "gamepad:") then
             drawstr = "     "
             btn = Input.getButtonTexture(v)
         end
-        local color = {1, 1, 1, 1}
+        local color = { 1, 1, 1, 1 }
         if self.selecting_key or self.rebinding then
             if self.selected_option == (y_offset + 1) then
-                color = {0.5, 0.5, 0.5, 1}
+                color = { 0.5, 0.5, 0.5, 1 }
             end
         end
         if (self.selected_option == (y_offset + 1)) and (i == self.selected_bind) then
-            color = {1, 1, 1, 1}
+            color = { 1, 1, 1, 1 }
             if self.rebinding then
-                color = {0, 1, 1, 1}
+                color = { 0, 1, 1, 1 }
 
                 if self.rebinding_shift or self.rebinding_ctrl or self.rebinding_alt or self.rebinding_cmd then
                     drawstr = ""
 
-                    if self.rebinding_cmd   then drawstr = "CMD+"  ..drawstr end
-                    if self.rebinding_shift then drawstr = "SHIFT+"..drawstr end
-                    if self.rebinding_alt   then drawstr = "ALT+"  ..drawstr end
-                    if self.rebinding_ctrl  then drawstr = "CTRL+" ..drawstr end
+                    if self.rebinding_cmd then drawstr = "CMD+" .. drawstr end
+                    if self.rebinding_shift then drawstr = "SHIFT+" .. drawstr end
+                    if self.rebinding_alt then drawstr = "ALT+" .. drawstr end
+                    if self.rebinding_ctrl then drawstr = "CTRL+" .. drawstr end
                 end
             end
         end
@@ -538,7 +550,7 @@ end
 
 function MainMenuControls:getBoundKeys(key)
     local keys = {}
-    for _,k in ipairs(Input.getBoundKeys(key, self.control_menu == "gamepad") or {}) do
+    for _, k in ipairs(Input.getBoundKeys(key, self.control_menu == "gamepad") or {}) do
         if type(k) == "table" then
             table.insert(keys, table.concat(k, "+"))
         else

@@ -181,7 +181,7 @@ function Fader:update()
 end
 
 function Fader:draw()
-    local color = Utils.copy(self.fade_color)
+    local color = TableUtils.copy(self.fade_color)
     local alpha = self.alpha * (color[4] or 1)
 
     if self.blocky then

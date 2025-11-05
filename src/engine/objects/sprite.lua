@@ -467,7 +467,7 @@ function Sprite:update()
         self:stop(true)
     end
     if self.crossfade_speed ~= 0 and self.crossfade_alpha ~= 1 then
-        self.crossfade_alpha = Utils.approach(self.crossfade_alpha, 1, self.crossfade_speed * DTMULT)
+        self.crossfade_alpha = MathUtils.approach(self.crossfade_alpha, 1, self.crossfade_speed * DTMULT)
         if self.crossfade_alpha == 1 and self.crossfade_after then
             self.crossfade_after(self)
         end
@@ -489,7 +489,7 @@ function Sprite:update()
     end
     if self.anim_callback then
         if self.anim_duration > 0 then
-            self.anim_duration = Utils.approach(self.anim_duration, 0, DT)
+            self.anim_duration = MathUtils.approach(self.anim_duration, 0, DT)
         elseif self.anim_duration == 0 then
             self:stop(true)
 

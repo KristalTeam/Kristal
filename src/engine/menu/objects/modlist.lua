@@ -159,7 +159,7 @@ function ModList:setScroll(scroll)
     local min_selected_scroll = math.max(selected and (selected.y + selected.height + 4 - self.height) or 0, 0)
     local max_selected_scroll = math.min(selected and (selected.y - 4) or max_scroll, max_scroll)
 
-    self.scroll_target = Utils.clamp(scroll, min_selected_scroll, max_selected_scroll)
+    self.scroll_target = MathUtils.clamp(scroll, min_selected_scroll, max_selected_scroll)
 end
 
 function ModList:update()

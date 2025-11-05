@@ -142,7 +142,7 @@ end
 function Cutscene:update()
     if self.ended then return end
 
-    self.wait_timer = Utils.approach(self.wait_timer, 0, DT)
+    self.wait_timer = MathUtils.approach(self.wait_timer, 0, DT)
 
     if #self.during_stack > 0 and not self.paused then
         local to_remove = {}
@@ -153,7 +153,7 @@ function Cutscene:update()
             end
         end
         for _,v in ipairs(to_remove) do
-            Utils.removeFromTable(self.during_stack, v)
+            TableUtils.removeValue(self.during_stack, v)
         end
     end
 
@@ -244,7 +244,7 @@ end
 function Cutscene:playSound(sound, volume, pitch)
     local src = Assets.playSound(sound, volume, pitch)
     return function()
-        if not Utils.containsValue(Assets.sound_instances[sound], src) then
+        if not TableUtils.contains(Assets.sound_instances[sound], src) then
             return true
         end
     end

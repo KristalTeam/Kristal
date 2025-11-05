@@ -74,13 +74,13 @@ function DarkFountain:update()
         self.bg_color = Utils.mergeColor(self.bg_color, COLORS.black, 0.06 * DTMULT)
     -- Fountain and floor glow white, stops moving - funky if used without `adjust` going to 1 first
     elseif self.adjust == 2 then
-        self.slowdown = Utils.approach(self.slowdown, 1, 0.02 * DTMULT)
+        self.slowdown = MathUtils.approach(self.slowdown, 1, 0.02 * DTMULT)
         self.siner = self.siner - self.slowdown * DTMULT
         self.bg_siner = self.bg_siner - (self.slowdown / 16) * DTMULT
         self.bg_color = Utils.mergeColor(self.bg_color, COLORS.white, 0.03 * DTMULT)
     -- Slower version of standard effect? doesn't sync up 
     elseif self.adjust == 3 then
-        self.slowdown = Utils.approach(self.slowdown, 1, 0.01 * DTMULT)
+        self.slowdown = MathUtils.approach(self.slowdown, 1, 0.01 * DTMULT)
         self.siner = self.siner - (self.slowdown * 0.5) * DTMULT
         self.bg_siner = self.bg_siner - (self.slowdown / 24) * DTMULT
         self.hscroll = self.hscroll - (self.slowdown * 0.8) * DTMULT

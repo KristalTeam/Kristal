@@ -120,7 +120,7 @@ function Draw.setCanvas(canvas, options)
     end
 end
 
----@private
+---@internal
 function Draw._clearUnusedCanvases()
     for k, canvases in pairs(self._canvases) do
         local remove = {}
@@ -130,13 +130,13 @@ function Draw._clearUnusedCanvases()
             end
         end
         for _, v in ipairs(remove) do
-            Utils.removeFromTable(canvases, v)
+            TableUtils.removeValue(canvases, v)
         end
     end
     self._used_canvas = setmetatable({}, { __mode = "k" })
 end
 
----@private
+---@internal
 function Draw._clearStacks()
     self._canvases = {}
     self._used_canvas = setmetatable({}, { __mode = "k" })
@@ -145,6 +145,11 @@ function Draw._clearStacks()
 
     self._scissor_stack = {}
     self._shader_stack = {}
+end
+
+---@internal
+function Draw._clearScissorStack()
+    self._scissor_stack = {}
 end
 
 ---@return number x, number y, number w, number h
@@ -204,8 +209,8 @@ function Draw.scissorPoints(x1, y1, x2, y2)
     local tx1, ty1 = love.graphics.transformPoint(x1 or scrx, y1 or scry)
     local tx2, ty2 = love.graphics.transformPoint(x2 or scrx2, y2 or scry2)
 
-    local sx, sy = Utils.clamp(tx1, 0, SCREEN_WIDTH), Utils.clamp(ty1, 0, SCREEN_HEIGHT)
-    local sx2, sy2 = Utils.clamp(tx2, 0, SCREEN_WIDTH), Utils.clamp(ty2, 0, SCREEN_HEIGHT)
+    local sx, sy = MathUtils.clamp(tx1, 0, SCREEN_WIDTH), MathUtils.clamp(ty1, 0, SCREEN_HEIGHT)
+    local sx2, sy2 = MathUtils.clamp(tx2, 0, SCREEN_WIDTH), MathUtils.clamp(ty2, 0, SCREEN_HEIGHT)
 
     local min_sx, min_sy = math.min(sx, sx2), math.min(sy, sy2)
     local max_sx, max_sy = math.max(sx, sx2), math.max(sy, sy2)
@@ -468,8 +473,26 @@ function Draw.printAlign(text, x, y, align, r, sx, sy, ox, oy, kx, ky)
             align = align["align"]
         end
     end
+
     for line in string.gmatch(text, "([^\n]+)") do
-        love.graphics.print(line, x - ((align == "center" or align == "right") and love.graphics.getFont():getWidth(line) or 0) / (align == "center" and 2 or 1) * ((align == "center" or align == "right") and sx or 1), y + new_line_space, r, sx, sy, ox, oy, kx, ky)
+        local font = love.graphics.getFont()
+        local line_width = font:getWidth(line)
+
+        local offset_x = 0
+        if align == "center" then
+            offset_x = (line_width / 2) * (sx or 1)
+        elseif align == "right" then
+            offset_x = line_width * (sx or 1)
+        end
+
+        love.graphics.print(
+            line,
+            x - offset_x,
+            y + new_line_space,
+            r,
+            sx, sy, ox, oy, kx, ky
+        )
+
         new_line_space = new_line_space + new_line_space_height * (sy or 1)
     end
 end

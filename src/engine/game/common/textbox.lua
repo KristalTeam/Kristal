@@ -327,7 +327,7 @@ function Textbox:setText(text, callback)
             if type(text) ~= "table" then
                 text = {text}
             else
-                text = Utils.copy(text)
+                text = TableUtils.copy(text)
             end
             for i,line in ipairs(text) do
                 text[i] = "[voice:"..self.actor:getVoice().."]"..line
@@ -337,7 +337,7 @@ function Textbox:setText(text, callback)
             if type(text) ~= "table" then
                 text = {text}
             else
-                text = Utils.copy(text)
+                text = TableUtils.copy(text)
             end
             for i,line in ipairs(text) do
                 text[i] = "[font:"..self.actor:getFont().."]"..line

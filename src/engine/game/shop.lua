@@ -734,25 +734,25 @@ function Shop:update()
         if self.shopkeeper.slide then
             local target_x = SCREEN_WIDTH/2 - 80
             if self.shopkeeper.x > target_x + 60 then
-                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+                self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
             end
             if self.shopkeeper.x > target_x + 40 then
-                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+                self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
             end
             if self.shopkeeper.x > target_x then
-                self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+                self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
             end
         end
     elseif self.shopkeeper.slide then
         local target_x = SCREEN_WIDTH/2
         if self.shopkeeper.x < target_x - 50 then
-            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
         end
         if self.shopkeeper.x < target_x - 30 then
-            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
         end
         if self.shopkeeper.x < target_x then
-            self.shopkeeper.x = Utils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
+            self.shopkeeper.x = MathUtils.approach(self.shopkeeper.x, target_x, 4 * DTMULT)
         end
     end
 

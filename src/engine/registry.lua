@@ -74,9 +74,9 @@ function Registry.initialize(preload)
         local chapter = Kristal.getModOption("chapter") or 2
         Game.chapter = chapter
 
-        for _,path in ipairs(Utils.getFilesRecursive("data", ".lua")) do
-            local chunk = love.filesystem.load("data/"..path..".lua")
-            self.base_scripts["data/"..path] = chunk
+        for _, path in ipairs(FileSystemUtils.getFilesRecursive("data", ".lua")) do
+            local chunk = love.filesystem.load("data/" .. path .. ".lua")
+            self.base_scripts["data/" .. path] = chunk
         end
 
         Registry.initActors()
@@ -112,7 +112,7 @@ end
 
 function Registry.saveData()
     self.saved_data = {}
-    for registry,path in pairs(self.paths) do
+    for registry, path in pairs(self.paths) do
         self.saved_data[registry] = self[registry]
     end
 end
@@ -120,7 +120,7 @@ end
 ---@return boolean
 function Registry.restoreData()
     if self.saved_data then
-        for registry,path in pairs(self.paths) do
+        for registry, path in pairs(self.paths) do
             self[registry] = self.saved_data[registry]
         end
         return true
@@ -130,7 +130,7 @@ function Registry.restoreData()
 end
 
 function Registry.restoreOverridenGlobals()
-    for id,_ in pairs(self.new_globals) do
+    for id, _ in pairs(self.new_globals) do
         _G[id] = self.last_globals[id]
     end
     self.new_globals = {}
@@ -388,7 +388,7 @@ end
 ---@return boolean|nil grouped
 function Registry.getEventScript(group, id)
     if not id then
-        local args = Utils.split(group, ".")
+        local args = StringUtils.split(group, ".")
         group = args[1]
         id = args[2]
     end
@@ -495,9 +495,9 @@ function Registry.createBorder(id, ...)
     if self.borders[id] then
         return self.borders[id](...)
     else
-        local texture = Assets.getTexture("borders/"..id)
+        local texture = Assets.getTexture("borders/" .. id)
         if texture then
-            return ImageBorder(texture,id)
+            return ImageBorder(texture, id)
         end
         local border = Border()
         border.id = id
@@ -513,7 +513,7 @@ end
 function Registry.registerGlobal(id, value, no_warning)
     if _G[id] then
         if not no_warning then
-            Kristal.Console:warn("Global '"..tostring(id).."' already exists, replacing")
+            Kristal.Console:warn("Global '" .. tostring(id) .. "' already exists, replacing")
         end
         if not self.last_globals[id] and not self.new_globals[id] then
             self.last_globals[id] = _G[id]
@@ -654,7 +654,7 @@ end
 -- Internal Functions --
 
 function Registry.initGlobals()
-    for _,path,global in self.iterScripts(Registry.paths["globals"], true) do
+    for _, path, global in self.iterScripts(Registry.paths["globals"], true) do
         local id = type(global) == "table" and global.id or path
 
         self.registerGlobal(id, global)
@@ -666,16 +666,16 @@ end
 function Registry.initObjects()
     self.objects = {}
 
-    for _,path,object in self.iterScripts(Registry.paths["hooks"], true) do
-        assert(object ~= nil, '"hooks/'..path..'.lua" does not return value')
+    for _, path, object in self.iterScripts(Registry.paths["hooks"], true) do
+        assert(object ~= nil, '"hooks/' .. path .. '.lua" does not return value')
         local id = object.id or path
 
         self.objects[id] = object
         self.registerGlobal(id, object, true)
     end
 
-    for _,path,object in self.iterScripts(Registry.paths["objects"], true) do
-        assert(object ~= nil, '"objects/'..path..'.lua" does not return value')
+    for _, path, object in self.iterScripts(Registry.paths["objects"], true) do
+        assert(object ~= nil, '"objects/' .. path .. '.lua" does not return value')
         local id = object.id or path
 
         self.objects[id] = object
@@ -688,8 +688,8 @@ end
 function Registry.initDrawFX()
     self.draw_fx = {}
 
-    for _,path,draw_fx in self.iterScripts(Registry.paths["drawfx"], true) do
-        assert(draw_fx ~= nil, '"drawfx/'..path..'.lua" does not return value')
+    for _, path, draw_fx in self.iterScripts(Registry.paths["drawfx"], true) do
+        assert(draw_fx ~= nil, '"drawfx/' .. path .. '.lua" does not return value')
         local id = draw_fx.id or path
 
         self.draw_fx[id] = draw_fx
@@ -702,8 +702,8 @@ end
 function Registry.initActors()
     self.actors = {}
 
-    for _,path,actor in self.iterScripts(Registry.paths["actors"]) do
-        assert(actor ~= nil, '"actors/'..path..'.lua" does not return value')
+    for _, path, actor in self.iterScripts(Registry.paths["actors"]) do
+        assert(actor ~= nil, '"actors/' .. path .. '.lua" does not return value')
         actor.id = actor.id or path
         self.registerActor(actor.id, actor)
     end
@@ -714,8 +714,8 @@ end
 function Registry.initPartyMembers()
     self.party_members = {}
 
-    for _,path,char in self.iterScripts(Registry.paths["party_members"]) do
-        assert(char ~= nil, '"party/'..path..'.lua" does not return value')
+    for _, path, char in self.iterScripts(Registry.paths["party_members"]) do
+        assert(char ~= nil, '"party/' .. path .. '.lua" does not return value')
         char.id = char.id or path
         self.registerPartyMember(char.id, char)
     end
@@ -726,8 +726,8 @@ end
 function Registry.initRecruits()
     self.recruits = {}
 
-    for _,path,recruit in self.iterScripts(Registry.paths["recruits"]) do
-        assert(recruit ~= nil, '"recruits/'..path..'.lua" does not return value')
+    for _, path, recruit in self.iterScripts(Registry.paths["recruits"]) do
+        assert(recruit ~= nil, '"recruits/' .. path .. '.lua" does not return value')
         recruit.id = recruit.id or path
         self.registerRecruit(recruit.id, recruit)
     end
@@ -738,8 +738,8 @@ end
 function Registry.initItems()
     self.items = {}
 
-    for _,path,item in self.iterScripts(Registry.paths["items"]) do
-        assert(item ~= nil, '"items/'..path..'.lua" does not return value')
+    for _, path, item in self.iterScripts(Registry.paths["items"]) do
+        assert(item ~= nil, '"items/' .. path .. '.lua" does not return value')
         item.id = item.id or path
         self.registerItem(item.id, item)
     end
@@ -750,8 +750,8 @@ end
 function Registry.initSpells()
     self.spells = {}
 
-    for _,path,spell in self.iterScripts(Registry.paths["spells"]) do
-        assert(spell ~= nil, '"spells/'..path..'.lua" does not return value')
+    for _, path, spell in self.iterScripts(Registry.paths["spells"]) do
+        assert(spell ~= nil, '"spells/' .. path .. '.lua" does not return value')
         spell.id = spell.id or path
         self.registerSpell(spell.id, spell)
     end
@@ -762,8 +762,8 @@ end
 function Registry.initEncounters()
     self.encounters = {}
 
-    for _,path,encounter in self.iterScripts(Registry.paths["encounters"]) do
-        assert(encounter ~= nil, '"encounters/'..path..'.lua" does not return value')
+    for _, path, encounter in self.iterScripts(Registry.paths["encounters"]) do
+        assert(encounter ~= nil, '"encounters/' .. path .. '.lua" does not return value')
         encounter.id = encounter.id or path
         self.registerEncounter(encounter.id, encounter)
     end
@@ -774,8 +774,8 @@ end
 function Registry.initEnemies()
     self.enemies = {}
 
-    for _,path,enemy in self.iterScripts(Registry.paths["enemies"]) do
-        assert(enemy ~= nil, '"enemies/'..path..'.lua" does not return value')
+    for _, path, enemy in self.iterScripts(Registry.paths["enemies"]) do
+        assert(enemy ~= nil, '"enemies/' .. path .. '.lua" does not return value')
         enemy.id = enemy.id or path
         self.registerEnemy(enemy.id, enemy)
     end
@@ -786,8 +786,8 @@ end
 function Registry.initWaves()
     self.waves = {}
 
-    for _,path,wave in self.iterScripts(Registry.paths["waves"]) do
-        assert(wave ~= nil, '"waves/'..path..'.lua" does not return value')
+    for _, path, wave in self.iterScripts(Registry.paths["waves"]) do
+        assert(wave ~= nil, '"waves/' .. path .. '.lua" does not return value')
         wave.id = wave.id or path
         self.registerWave(wave.id, wave)
     end
@@ -799,14 +799,14 @@ function Registry.initBullets()
     self.bullets = {}
     self.world_bullets = {}
 
-    for _,path,bullet in self.iterScripts(Registry.paths["bullets"]) do
-        assert(bullet ~= nil, '"battle/bullets/'..path..'.lua" does not return value')
+    for _, path, bullet in self.iterScripts(Registry.paths["bullets"]) do
+        assert(bullet ~= nil, '"battle/bullets/' .. path .. '.lua" does not return value')
         bullet.id = bullet.id or path
         self.registerBullet(bullet.id, bullet)
     end
 
-    for _,path,bullet in self.iterScripts(Registry.paths["world_bullets"]) do
-        assert(bullet ~= nil, '"world/bullets/'..path..'.lua" does not return value')
+    for _, path, bullet in self.iterScripts(Registry.paths["world_bullets"]) do
+        assert(bullet ~= nil, '"world/bullets/' .. path .. '.lua" does not return value')
         bullet.id = bullet.id or path
         self.registerWorldBullet(bullet.id, bullet)
     end
@@ -819,16 +819,16 @@ function Registry.initCutscenes()
     self.battle_cutscenes = {}
     self.legend_cutscenes = {}
 
-    for _,path,cutscene in self.iterScripts(Registry.paths["world_cutscenes"]) do
-        assert(cutscene ~= nil, '"world/cutscenes/'..path..'.lua" does not return value')
+    for _, path, cutscene in self.iterScripts(Registry.paths["world_cutscenes"]) do
+        assert(cutscene ~= nil, '"world/cutscenes/' .. path .. '.lua" does not return value')
         self.registerWorldCutscene(path, cutscene)
     end
-    for _,path,cutscene in self.iterScripts(Registry.paths["battle_cutscenes"]) do
-        assert(cutscene ~= nil, '"battle/cutscenes/'..path..'.lua" does not return value')
+    for _, path, cutscene in self.iterScripts(Registry.paths["battle_cutscenes"]) do
+        assert(cutscene ~= nil, '"battle/cutscenes/' .. path .. '.lua" does not return value')
         self.registerBattleCutscene(path, cutscene)
     end
-    for _,path,cutscene in self.iterScripts(Registry.paths["legend_cutscenes"]) do
-        assert(cutscene ~= nil, '"legends/'..path..'.lua" does not return value')
+    for _, path, cutscene in self.iterScripts(Registry.paths["legend_cutscenes"]) do
+        assert(cutscene ~= nil, '"legends/' .. path .. '.lua" does not return value')
         self.registerLegendCutscene(path, cutscene)
     end
 
@@ -838,8 +838,8 @@ end
 function Registry.initEventScripts()
     self.event_scripts = {}
 
-    for _,path,script in self.iterScripts(Registry.paths["event_scripts"]) do
-        assert(script ~= nil, '"scripts/'..path..'.lua" does not return value')
+    for _, path, script in self.iterScripts(Registry.paths["event_scripts"]) do
+        assert(script ~= nil, '"scripts/' .. path .. '.lua" does not return value')
         self.registerEventScript(path, script)
     end
 
@@ -849,10 +849,10 @@ end
 function Registry.initTilesets()
     self.tilesets = {}
 
-    for full_path,path,data in self.iterScripts(Registry.paths["tilesets"]) do
+    for full_path, path, data in self.iterScripts(Registry.paths["tilesets"]) do
         data.full_path = full_path
         data.id = path
-        self.registerTileset(path, Tileset(data, full_path, Utils.getDirname(full_path)))
+        self.registerTileset(path, Tileset(data, full_path, FileSystemUtils.getDirname(full_path)))
     end
 
     Kristal.callEvent(KRISTAL_EVENT.onRegisterTilesets)
@@ -862,18 +862,18 @@ function Registry.initMaps()
     self.maps = {}
     self.map_data = {}
 
-    for full_path,path,data in self.iterScripts(Registry.paths["maps"]) do
-        local split_path = Utils.split(path, "/", true)
+    for full_path, path, data in self.iterScripts(Registry.paths["maps"]) do
+        local split_path = StringUtils.split(path, "/", true)
         if isClass(data) then
             if split_path[#split_path] == "map" then
-                self.registerMap(table.concat(split_path, "/", 1, #split_path-1), data)
+                self.registerMap(table.concat(split_path, "/", 1, #split_path - 1), data)
             else
                 self.registerMap(path, data)
             end
         else
             data.full_path = full_path
             if split_path[#split_path] == "data" then
-                data.id = table.concat(split_path, "/", 1, #split_path-1)
+                data.id = table.concat(split_path, "/", 1, #split_path - 1)
                 self.registerMapData(data.id, data)
             else
                 data.id = path
@@ -888,8 +888,8 @@ end
 function Registry.initEvents()
     self.events = {}
 
-    for _,path,event in self.iterScripts(Registry.paths["events"]) do
-        assert(event ~= nil, '"events/'..path..'.lua" does not return value')
+    for _, path, event in self.iterScripts(Registry.paths["events"]) do
+        assert(event ~= nil, '"events/' .. path .. '.lua" does not return value')
         event.id = event.id or path
         self.registerEvent(event.id, event)
     end
@@ -900,8 +900,8 @@ end
 function Registry.initControllers()
     self.controllers = {}
 
-    for _,path,controller in self.iterScripts(Registry.paths["controllers"]) do
-        assert(controller ~= nil, '"controllers/'..path..'.lua" does not return value')
+    for _, path, controller in self.iterScripts(Registry.paths["controllers"]) do
+        assert(controller ~= nil, '"controllers/' .. path .. '.lua" does not return value')
         controller.id = controller.id or path
         self.registerController(controller.id, controller)
     end
@@ -912,8 +912,8 @@ end
 function Registry.initShops()
     self.shops = {}
 
-    for _,path,shop in self.iterScripts(Registry.paths["shops"]) do
-        assert(shop ~= nil, '"shops/'..path..'.lua" does not return value')
+    for _, path, shop in self.iterScripts(Registry.paths["shops"]) do
+        assert(shop ~= nil, '"shops/' .. path .. '.lua" does not return value')
         shop.id = shop.id or path
         self.registerShop(shop.id, shop)
     end
@@ -924,8 +924,8 @@ end
 function Registry.initBorders()
     self.borders = {}
 
-    for _,path,border in self.iterScripts(Registry.paths["borders"]) do
-        assert(border ~= nil, '"borders/'..path..'.lua" does not return value')
+    for _, path, border in self.iterScripts(Registry.paths["borders"]) do
+        assert(border ~= nil, '"borders/' .. path .. '.lua" does not return value')
         border.id = border.id or path
         self.registerBorder(border.id, border)
     end
@@ -940,7 +940,7 @@ function Registry.iterScripts(base_path, exclude_folder)
     local result = {}
 
     CLASS_NAME_GETTER = function(k)
-        for _,v in ipairs(Utils.reverse(result)) do
+        for _, v in ipairs(Utils.reverse(result)) do
             if v.id == k then
                 return v.out[1]
             end
@@ -954,15 +954,15 @@ function Registry.iterScripts(base_path, exclude_folder)
     local addChunk, parse
 
     addChunk = function(path, chunk, file, full_path)
-        local success,a,b,c,d,e,f = xpcall(chunk, function (msg)
+        local success, a, b, c, d, e, f = xpcall(chunk, function(msg)
             if type(msg) == "table" then
                 return msg
             end
-            return ({msg = debug.traceback(msg)})
+            return ({ msg = debug.traceback(msg) })
         end)
         if not success then
             if type(a) == "table" and a.included then
-                table.insert(queued_parse, {path, chunk, file, full_path})
+                table.insert(queued_parse, { path, chunk, file, full_path })
                 return false
             else
                 error(a)
@@ -970,14 +970,14 @@ function Registry.iterScripts(base_path, exclude_folder)
         else
             local result_path = file
             if exclude_folder then
-                local split_path = Utils.split(file, "/", true)
+                local split_path = StringUtils.split(file, "/", true)
                 result_path = split_path[#split_path]
             end
             local id = type(a) == "table" and a.id or result_path
             if type(a) == "table" and a.__hookscript_class then
                 return true
             end
-            table.insert(result, {out = {a,b,c,d,e,f}, path = result_path, id = id, full_path = full_path})
+            table.insert(result, { out = { a, b, c, d, e, f }, path = result_path, id = id, full_path = full_path })
             return true
         end
     end
@@ -990,7 +990,7 @@ function Registry.iterScripts(base_path, exclude_folder)
         -- so we're going to sort them to have stuff load in a sane order
         -- For some reason this also seems to uhh increase loading speed?
         -- (for Dark Place at least)
-        for full_path,chunk in Utils.orderedPairs(chunks) do
+        for full_path, chunk in Utils.orderedPairs(chunks) do
             if not parsed[full_path] and full_path:sub(1, #path) == path then
                 local file = full_path:sub(#path + 1)
                 if file:sub(1, 1) == "/" then
@@ -1003,12 +1003,12 @@ function Registry.iterScripts(base_path, exclude_folder)
         while #queued_parse > 0 do
             local last_queued = queued_parse
             queued_parse = {}
-            for _,v in ipairs(last_queued) do
+            for _, v in ipairs(last_queued) do
                 addChunk(v[1], v[2], v[3], v[4])
             end
             if #queued_parse == #last_queued then
                 local failed = {}
-                for _,v in ipairs(last_queued) do
+                for _, v in ipairs(last_queued) do
                     table.insert(failed, v[3])
                 end
                 error("Couldn't find dependency in " .. path .. " for " .. table.concat(failed, ", "))
@@ -1018,23 +1018,23 @@ function Registry.iterScripts(base_path, exclude_folder)
 
     parse(base_path, self.base_scripts)
     if Mod then
-        for _,library in Kristal.iterLibraries() do
-            parse("scripts/"..base_path, library.info.script_chunks)
+        for _, library in Kristal.iterLibraries() do
+            parse("scripts/" .. base_path, library.info.script_chunks)
         end
-        parse("scripts/"..base_path, Mod.info.script_chunks)
+        parse("scripts/" .. base_path, Mod.info.script_chunks)
     end
 
     CLASS_NAME_GETTER = DEFAULT_CLASS_NAME_GETTER
 
     local i = 0
----@diagnostic disable-next-line: undefined-field, deprecated
+    ---@diagnostic disable-next-line: undefined-field, deprecated
     local n = table.getn(result)
     return function()
         i = i + 1
         if i <= n then
             local full_path = result[i].full_path
             if Mod then
-                full_path = Mod.info.path.."/"..full_path
+                full_path = Mod.info.path .. "/" .. full_path
             end
             return full_path, result[i].path, unpack(result[i].out)
         end

@@ -21,13 +21,13 @@ end
 
 function SmallFaceText:update()
     if self.alpha < 1 then
-        self.alpha = Utils.approach(self.alpha, 1, 0.2*DTMULT)
+        self.alpha = MathUtils.approach(self.alpha, 1, 0.2*DTMULT)
     end
     if self.sprite and self.sprite.x > 0 then
-        self.sprite.x = Utils.approach(self.sprite.x, 0, 10*DTMULT)
+        self.sprite.x = MathUtils.approach(self.sprite.x, 0, 10*DTMULT)
     end
     if self.text.x > 70 then
-        self.text.x = Utils.approach(self.text.x, 70, 10*DTMULT)
+        self.text.x = MathUtils.approach(self.text.x, 70, 10*DTMULT)
     end
     super.update(self)
 end

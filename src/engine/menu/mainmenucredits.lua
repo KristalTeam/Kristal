@@ -141,7 +141,7 @@ function MainMenuCredits:onKeyPressed(key, is_repeat)
         page_dir = "right"
     end
 
-    page_now = Utils.clamp(page_now, 1, #self.pages)
+    page_now = MathUtils.clamp(page_now, 1, #self.pages)
 
     if page_now ~= self.selected_page then
         self.selected_page = page_now
@@ -155,7 +155,7 @@ end
 
 function MainMenuCredits:update()
     if self.scroll_timer > 0 then
-        self.scroll_timer = Utils.approach(self.scroll_timer, 0, DT)
+        self.scroll_timer = MathUtils.approach(self.scroll_timer, 0, DT)
     end
 end
 

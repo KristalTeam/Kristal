@@ -92,13 +92,16 @@ function Text:onAddToStage(stage)
 end
 
 function Text:processInitialNodes()
-    self:drawToCanvas(function()
-        for i = 1, #self.nodes do
-            local current_node = self.nodes[i]
-            self:processNode(current_node, false)
-            self.state.current_node = self.state.current_node + 1
-        end
-    end, true)
+    self:drawToCanvas(
+        function()
+            for i = 1, #self.nodes do
+                local current_node = self.nodes[i]
+                self:processNode(current_node, false)
+                self.state.current_node = self.state.current_node + 1
+            end
+        end,
+        true
+    )
 end
 
 function Text:resetState()
@@ -217,29 +220,29 @@ function Text:textToNodes(input_string)
     local display_text = ""
     local last_char = ""
     local i = 1
-    while i <= Utils.len(input_string) do
-        local current_char = Utils.sub(input_string, i, i)
+    while i <= StringUtils.len(input_string) do
+        local current_char = StringUtils.sub(input_string, i, i)
         local leaving_modifier = false
         if current_char == "[" and last_char ~= "\\" then -- We got a [, time to see if it's a modifier
             local j = i + 1
             local current_modifier = ""
-            while j <= Utils.len(input_string) do
-                if Utils.sub(input_string, j, j) == "]" then -- We found a bracket!
+            while j <= StringUtils.len(input_string) do
+                if StringUtils.sub(input_string, j, j) == "]" then -- We found a bracket!
                     local old_i = i
                     i = j                                    -- Let's set i so the modifier isn't processed as normal text
 
                     -- Let's split some values in the modifier!
-                    local split = Utils.splitFast(current_modifier, ":")
+                    local split = StringUtils.splitFast(current_modifier, ":")
                     local command = split[1]
                     local arguments = {}
                     if #split > 1 then
-                        -- arguments = Utils.splitFast(split[2], ",")
+                        -- arguments = StringUtils.splitFast(split[2], ",")
                         local k = 1
                         local k_start = 1
                         local escaping = false
                         local arg = ""
-                        while k <= Utils.len(split[2]) do
-                            local char = Utils.sub(split[2], k, k)
+                        while k <= StringUtils.len(split[2]) do
+                            local char = StringUtils.sub(split[2], k, k)
                             if escaping then
                                 escaping = false
                                 arg = arg .. char
@@ -250,7 +253,7 @@ function Text:textToNodes(input_string)
                                     table.insert(arguments, arg)
                                     arg = ""
                                     k_start = k + 1
-                                elseif k == Utils.len(split[2]) then
+                                elseif k == StringUtils.len(split[2]) then
                                     table.insert(arguments, arg .. char)
                                 else
                                     arg = arg .. char
@@ -278,9 +281,9 @@ function Text:textToNodes(input_string)
 
                             -- Cut out the bind modifier from the text and insert the key name
                             local input_text = Input.getText(arguments[1])
-                            input_string = Utils.sub(input_string, 1, i - 1) ..
-                                input_text .. Utils.sub(input_string, j + 1)
-                            current_char = Utils.sub(input_string, i, i)
+                            input_string = StringUtils.sub(input_string, 1, i - 1) ..
+                                input_text .. StringUtils.sub(input_string, j + 1)
+                            current_char = StringUtils.sub(input_string, i, i)
 
                             -- Go back and parse the rest like normal text
                             break
@@ -296,7 +299,7 @@ function Text:textToNodes(input_string)
                         if self.preprocess then
                             local prior_state
                             if self.wrap then
-                                prior_state = Utils.copy(self.state, true)
+                                prior_state = TableUtils.copy(self.state, true)
                             end
                             self:processNode(new_node, true)
                             if self.wrap and self.state.current_x > self.width then
@@ -337,10 +340,10 @@ function Text:textToNodes(input_string)
                         i = old_i
                     end
 
-                    current_char = Utils.sub(input_string, i, i) -- Set current_char to the new value
+                    current_char = StringUtils.sub(input_string, i, i) -- Set current_char to the new value
                     break
                 else
-                    current_modifier = current_modifier .. Utils.sub(input_string, j, j)
+                    current_modifier = current_modifier .. StringUtils.sub(input_string, j, j)
                 end
                 j = j + 1
             end
@@ -351,8 +354,8 @@ function Text:textToNodes(input_string)
         else
             if self.wrap and (current_char == " " or current_char == "\n") then
                 last_space = #nodes
-                last_space_char = Utils.len(display_text)
-                last_space_state = Utils.copy(self.state, true)
+                last_space_char = StringUtils.len(display_text)
+                last_space_state = TableUtils.copy(self.state, true)
             end
             local new_node = {
                 ["type"] = "character",
@@ -363,7 +366,7 @@ function Text:textToNodes(input_string)
             if self.preprocess then
                 local prior_state
                 if self.wrap then
-                    prior_state = Utils.copy(self.state, true)
+                    prior_state = TableUtils.copy(self.state, true)
                 end
                 self:processNode(new_node, true)
                 if self.wrap and self.state.current_x > self.width then
@@ -482,7 +485,7 @@ function Text:processNode(node, dry)
             self.state.newline = false
             self.state.typed_characters = self.state.typed_characters - 1
         elseif not self.state.escaping then
-            if node.character == Utils.sub(self.state.indent_string, 1, 1) then
+            if node.character == StringUtils.sub(self.state.indent_string, 1, 1) then
                 if self.state.indent_mode and self.state.newline then
                     self.state.current_x = 0
                     self.state.newline = false
@@ -491,7 +494,7 @@ function Text:processNode(node, dry)
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             if not dry then
                 self:drawChar(node, self.state)
-                table.insert(self.nodes_to_draw, { node, Utils.copy(self.state, true) })
+                table.insert(self.nodes_to_draw, { node, TableUtils.copy(self.state, true) })
             end
             local w, h = self:getNodeSize(node, self.state)
             self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -499,10 +502,10 @@ function Text:processNode(node, dry)
         else
             self.state.newline = false
             self.state.escaping = false
-            if node.character == "\\" or node.character == Utils.sub(self.state.indent_string, 1, 1) or node.character == "[" or node.character == "]" then
+            if node.character == "\\" or node.character == StringUtils.sub(self.state.indent_string, 1, 1) or node.character == "[" or node.character == "]" then
                 if not dry then
                     self:drawChar(node, self.state)
-                    table.insert(self.nodes_to_draw, { node, Utils.copy(self.state, true) })
+                    table.insert(self.nodes_to_draw, { node, TableUtils.copy(self.state, true) })
                 end
                 local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -531,7 +534,7 @@ function Text:processNode(node, dry)
 end
 
 function Text:isModifier(command)
-    return Utils.containsValue(Text.COMMANDS, command) or self.custom_commands[command]
+    return TableUtils.contains(Text.COMMANDS, command) or self.custom_commands[command]
 end
 
 function Text:processModifier(node, dry)
@@ -546,10 +549,10 @@ function Text:processModifier(node, dry)
             self.state.color = self.text_color
         elseif #node.arguments[1] == 6 then
             -- It's 6 letters long, assume hashless hex
-            self.state.color = Utils.hexToRgb("#" .. node.arguments[1])
+            self.state.color = ColorUtils.hexToRGB("#" .. node.arguments[1])
         elseif #node.arguments[1] == 7 then
             -- It's 7 letters long, assume hex
-            self.state.color = Utils.hexToRgb(node.arguments[1])
+            self.state.color = ColorUtils.hexToRGB(node.arguments[1])
         end
     elseif node.command == "font" then
         if node.arguments[1] == "reset" then

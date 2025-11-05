@@ -292,7 +292,7 @@ function ChaserEnemy:update()
             if path.closed then
                 self.progress = self.progress % 1
             elseif self.progress > 1 or self.progress < 0 then
-                self.progress = Utils.clamp(self.progress, 0, 1)
+                self.progress = MathUtils.clamp(self.progress, 0, 1)
                 self.reverse_progress = not self.reverse_progress
             end
 
@@ -386,7 +386,7 @@ function ChaserEnemy:paceMovement()
                 self.return_to_spawn = true
             end
             self:walkToSpeed(self.pace_marker[self.pace_index], self.pace_speed, nil, false, function() self.pace_timer = 0; self.wandering = false end)
-            self.pace_index = Utils.clampWrap(self.pace_index + 1, 1, #self.pace_marker)
+            self.pace_index = MathUtils.clampWrap(self.pace_index + 1, 1, #self.pace_marker)
             return
         end
 

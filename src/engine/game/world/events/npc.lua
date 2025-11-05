@@ -68,7 +68,7 @@ function NPC:init(actor, x, y, properties)
 
     self.cutscene = properties["cutscene"]
     self.script = properties["script"]
-    self.text = Utils.parsePropertyMultiList("text", properties)
+    self.text = TiledUtils.parsePropertyMultiList("text", properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
@@ -81,7 +81,7 @@ function NPC:init(actor, x, y, properties)
 
     self.interact_count = 0
 
-    self.interact_buffer = (5/30)
+    self.interact_buffer = (5 / 30)
 end
 
 function NPC:onInteract(player, dir)
@@ -107,12 +107,13 @@ function NPC:onInteract(player, dir)
     elseif #self.text > 0 then
         self.world:startCutscene(function(cutscene)
             cutscene:setSpeaker(self, self.talk)
+            ---@type string|string[]
             local text = self.text
-            local text_index = Utils.clamp(self.interact_count, 1, #text)
+            local text_index = MathUtils.clamp(self.interact_count, 1, #text)
             if type(text[text_index]) == "table" then
                 text = text[text_index]
             end
-            for _,line in ipairs(text) do
+            for _, line in ipairs(text) do
                 cutscene:text(line)
             end
         end):after(function()
@@ -155,12 +156,12 @@ function NPC:snapToPath()
             local dist = progress * path.length
             local current_dist = 0
 
-            for i = 1, #path.points-1 do
-                local next_dist = Utils.dist(path.points[i].x, path.points[i].y, path.points[i+1].x, path.points[i+1].y)
+            for i = 1, #path.points - 1 do
+                local next_dist = MathUtils.dist(path.points[i].x, path.points[i].y, path.points[i + 1].x, path.points[i + 1].y)
 
                 if current_dist + next_dist > dist then
-                    local x = Utils.lerp(path.points[i].x, path.points[i+1].x, (dist - current_dist) / next_dist)
-                    local y = Utils.lerp(path.points[i].y, path.points[i+1].y, (dist - current_dist) / next_dist)
+                    local x = MathUtils.lerp(path.points[i].x, path.points[i + 1].x, MathUtils.clamp((dist - current_dist) / next_dist, 0, 1))
+                    local y = MathUtils.lerp(path.points[i].y, path.points[i + 1].y, MathUtils.clamp((dist - current_dist) / next_dist, 0, 1))
 
                     if self.debug_x and self.debug_y and Kristal.DebugSystem.last_object == self then
                         x = Utils.ease(self.debug_x, x, Kristal.DebugSystem.release_timer, "outCubic")
@@ -178,7 +179,7 @@ function NPC:snapToPath()
                 end
             end
         elseif path.shape == "ellipse" then
-            local angle = progress * (math.pi*2)
+            local angle = progress * (math.pi * 2)
             local x = path.x + math.cos(angle) * path.rx
             local y = path.y + math.sin(angle) * path.ry
 
@@ -198,16 +199,16 @@ end
 
 function NPC:isActive()
     return not self.world.encountering_enemy and
-           not self.world:hasCutscene() and
-           self.world.state ~= "MENU" and
-           Game.state == "OVERWORLD"
+        not self.world:hasCutscene() and
+        self.world.state ~= "MENU" and
+        Game.state == "OVERWORLD"
 end
 
 function NPC:update()
     if self:isActive() then
         if self.path and self.world.map.paths[self.path] then
             local path = self.world.map.paths[self.path]
-            
+
             if self.reverse_progress then
                 self.progress = self.progress - (self.speed / path.length) * DTMULT
             else
@@ -216,10 +217,10 @@ function NPC:update()
             if path.closed then
                 self.progress = self.progress % 1
             elseif self.progress > 1 or self.progress < 0 then
-                self.progress = Utils.clamp(self.progress, 0, 1)
+                self.progress = MathUtils.clamp(self.progress, 0, 1)
                 self.reverse_progress = not self.reverse_progress
             end
-            
+
             self:snapToPath()
         end
     end

@@ -115,7 +115,7 @@ function DarkEquipMenu:getStatsPreview()
     local party = self.party:getSelected()
     local current_stats = party:getStats()
     if self.state == "ITEMS" and self:canEquipSelected() then
-        local preview_stats = Utils.copy(party.stats)
+        local preview_stats = TableUtils.copy(party.stats)
         local equipment = self:getEquipPreview()
         for i = 1, 3 do
             if equipment[i] then
@@ -265,11 +265,11 @@ function DarkEquipMenu:update()
         if Input.pressed("down", true) then
             self.selected_item[type] = self.selected_item[type] + 1
         end
-        self.selected_item[type] = Utils.clamp(self.selected_item[type], 1, max_items)
+        self.selected_item[type] = MathUtils.clamp(self.selected_item[type], 1, max_items)
         if self.selected_item[type] ~= old_selected then
             local min_scroll = math.max(1, self.selected_item[type] - 5)
             local max_scroll = math.min(math.max(1, max_items - 5), self.selected_item[type])
-            self.item_scroll[type] = Utils.clamp(self.item_scroll[type], min_scroll, max_scroll)
+            self.item_scroll[type] = MathUtils.clamp(self.item_scroll[type], min_scroll, max_scroll)
 
             self.ui_move:stop()
             self.ui_move:play()

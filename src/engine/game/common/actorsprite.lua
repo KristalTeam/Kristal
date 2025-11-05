@@ -251,7 +251,7 @@ function ActorSprite:setAnimation(anim, callback, ignore_actor_callback)
         if type(anim) == "function" then
             anim = {anim}
         else
-            anim = Utils.copy(anim)
+            anim = TableUtils.copy(anim)
         end
         if anim.temp then
             if last_anim then
@@ -326,7 +326,7 @@ end
 ---@param sprite string
 ---@return boolean
 function ActorSprite:isSprite(sprite)
-    return Utils.containsValue(self.sprite_options, sprite)
+    return TableUtils.contains(self.sprite_options, sprite)
 end
 
 --- Selects from the given table `tbl` the relevant value for the current sprite, if it exists

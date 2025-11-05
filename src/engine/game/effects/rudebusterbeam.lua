@@ -36,7 +36,7 @@ function RudeBusterBeam:init(red, x, y, tx, ty, after)
 end
 
 function RudeBusterBeam:update()
-    self.alpha = Utils.approach(self.alpha, 1, 0.25 * DTMULT)
+    self.alpha = MathUtils.approach(self.alpha, 1, 0.25 * DTMULT)
 
     local dir = Utils.angle(self.x, self.y, self.target_x, self.target_y)
     self.rotation = self.rotation + (Utils.angleDiff(dir, self.rotation) / 4) * DTMULT

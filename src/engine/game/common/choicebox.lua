@@ -138,7 +138,7 @@ function Choicebox:setColors(main, hover)
             {main[1], main[2], main[3], main[4] or 1},
         }
     else
-        self.main_colors = Utils.copy(main)
+        self.main_colors = TableUtils.copy(main)
     end
 
     hover = hover or {1,1,0}
@@ -150,7 +150,7 @@ function Choicebox:setColors(main, hover)
             {hover[1], hover[2], hover[3], hover[4] or 1},
         }
     else
-        self.hover_colors = Utils.copy(hover)
+        self.hover_colors = TableUtils.copy(hover)
     end
 end
 

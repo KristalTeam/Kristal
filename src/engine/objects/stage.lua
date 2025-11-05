@@ -94,10 +94,10 @@ function Stage:update()
         self.full_updating = false
     else
         for _,object in ipairs(self.objects_to_remove) do
-            Utils.removeFromTable(self.objects, object)
+            TableUtils.removeValue(self.objects, object)
             for class,_ in pairs(object.__includes_all) do
                 if class.__tracked ~= false and self.objects_by_class[class] then
-                    Utils.removeFromTable(self.objects_by_class[class], object)
+                    TableUtils.removeValue(self.objects_by_class[class], object)
                 end
             end
         end

@@ -714,7 +714,7 @@ function Character:update()
     end
 
     if self.alert_timer > 0 then
-        self.alert_timer = Utils.approach(self.alert_timer, 0, DTMULT)
+        self.alert_timer = MathUtils.approach(self.alert_timer, 0, DTMULT)
         if self.alert_timer == 0 then
             self.alert_icon:remove()
             self.alert_icon = nil

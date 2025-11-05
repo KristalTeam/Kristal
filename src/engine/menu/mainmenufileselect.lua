@@ -231,11 +231,11 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         if Input.is("left", key) then self.selected_x = self.selected_x - 1 end
         if Input.is("right", key) then self.selected_x = self.selected_x + 1 end
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if self.selected_y <= 3 then
             self.selected_x = 1
         else
-            self.selected_x = Utils.clamp(self.selected_x, 1, 3)
+            self.selected_x = MathUtils.clamp(self.selected_x, 1, 3)
         end
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
@@ -310,7 +310,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("up", key) then self.selected_y = self.selected_y - 1 end
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         self.selected_x = 1
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
@@ -348,7 +348,7 @@ function MainMenuFileSelect:onKeyPressed(key, is_repeat)
         if Input.is("up", key) then self.selected_y = self.selected_y - 1 end
         if Input.is("down", key) then self.selected_y = self.selected_y + 1 end
         self.selected_x = 1
-        self.selected_y = Utils.clamp(self.selected_y, 1, 4)
+        self.selected_y = MathUtils.clamp(self.selected_y, 1, 4)
         if last_x ~= self.selected_x or last_y ~= self.selected_y then
             Assets.stopAndPlaySound("ui_move")
             self:updateSelected()
@@ -360,7 +360,7 @@ end
 
 function MainMenuFileSelect:update()
     if self.result_timer > 0 then
-        self.result_timer = Utils.approach(self.result_timer, 0, DT)
+        self.result_timer = MathUtils.approach(self.result_timer, 0, DT)
         if self.result_timer == 0 then
             self.result_text = nil
         end

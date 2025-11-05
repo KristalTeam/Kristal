@@ -195,7 +195,7 @@ function FileNamer:update()
 
     if self.name_preview then
         if self.state == "CONFIRM" and self.name_zoom < 100 then
-            self.name_zoom = Utils.approach(self.name_zoom, 100, 2 * DTMULT)
+            self.name_zoom = MathUtils.approach(self.name_zoom, 100, 2 * DTMULT)
         end
 
         self.name_preview:setScale(1 + self.name_zoom/100, 1 + self.name_zoom/100)

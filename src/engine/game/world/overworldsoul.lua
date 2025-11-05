@@ -61,7 +61,7 @@ end
 function OverworldSoul:update()
     -- Bullet collision !!! Yay
     if self.inv_timer > 0 then
-        self.inv_timer = Utils.approach(self.inv_timer, 0, DT)
+        self.inv_timer = MathUtils.approach(self.inv_timer, 0, DT)
     end
 
     self.sprite.alpha = 1 -- ??????

@@ -111,8 +111,8 @@ function Follower:moveToTarget(speed)
         local dx, dy = tx - self.x, ty - self.y
 
         if speed then
-            dx = Utils.approach(self.x, tx, speed * DTMULT) - self.x
-            dy = Utils.approach(self.y, ty, speed * DTMULT) - self.y
+            dx = MathUtils.approach(self.x, tx, speed * DTMULT) - self.x
+            dy = MathUtils.approach(self.y, ty, speed * DTMULT) - self.y
         end
 
         self:move(dx, dy)
@@ -167,7 +167,7 @@ end
 
 function Follower:copyHistoryFrom(target)
     self.history_time = target.history_time
-    self.history = Utils.copy(target.history)
+    self.history = TableUtils.copy(target.history)
 end
 function Follower:updateHistory(moved, auto)
     if moved then

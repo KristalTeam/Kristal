@@ -72,10 +72,10 @@ end
 
 function Assets.saveData()
     self.saved_data = {
-        data = Utils.copy(self.data, true),
-        frames_for = Utils.copy(self.frames_for, true),
-        texture_ids = Utils.copy(self.texture_ids, true),
-        sounds = Utils.copy(self.sounds, true),
+        data = TableUtils.copy(self.data, true),
+        frames_for = TableUtils.copy(self.frames_for, true),
+        texture_ids = TableUtils.copy(self.texture_ids, true),
+        sounds = TableUtils.copy(self.sounds, true),
     }
 end
 
@@ -84,7 +84,7 @@ function Assets.restoreData()
     if self.saved_data then
         Assets.clear()
         for k,v in pairs(self.saved_data) do
-            self[k] = Utils.copy(v, true)
+            self[k] = TableUtils.copy(v, true)
         end
         self.loaded = true
         return true
@@ -201,7 +201,7 @@ function Assets.update()
         end
     end
     for _,sound in ipairs(sounds_to_remove) do
-        Utils.removeFromTable(self.sound_instances[sound.key], sound.value)
+        TableUtils.removeValue(self.sound_instances[sound.key], sound.value)
     end
 end
 

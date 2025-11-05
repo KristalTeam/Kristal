@@ -928,7 +928,7 @@ end
 function Utils.isPolygonClockwise(points)
     local edges = Utils.getPolygonEdges(points)
     local sum = 0
-    for _,edge in ipairs(edges) do
+    for _, edge in ipairs(edges) do
         sum = sum + ((edge[2][1] - edge[1][1]) * (edge[2][2] + edge[1][2]))
     end
     return sum > 0
@@ -1200,12 +1200,12 @@ end
 function Utils.pickMultiple(tbl, amount, sort, remove)
     local t = {}
     local indexes = {}
-    for i,v in ipairs(tbl) do
+    for i, v in ipairs(tbl) do
         if not sort or sort(v) then
             table.insert(indexes, i)
         end
     end
-    for _=1,amount do
+    for _ = 1, amount do
         local i = table.remove(indexes, love.math.random(#indexes))
         if remove then
             table.insert(t, table.remove(tbl, i))
@@ -1784,7 +1784,7 @@ function Utils.colliderFromShape(parent, data, x, y, properties)
         local line_colliders = {}
 
         -- Loop through each pair of points in the polyline
-        for i = 1, #data.polyline-1 do
+        for i = 1, #data.polyline - 1 do
             local j = i + 1
             -- Create a LineCollider using the current and next point of the polyline
             local x1, y1 = x + data.polyline[i].x, y + data.polyline[i].y
@@ -1800,7 +1800,7 @@ function Utils.colliderFromShape(parent, data, x, y, properties)
 
         for i = 1, #data.polygon do
             -- Convert points from the format {[x] = x, [y] = y} to {x, y}
-            table.insert(points, {x + data.polygon[i].x, y + data.polygon[i].y})
+            table.insert(points, { x + data.polygon[i].x, y + data.polygon[i].y })
         end
 
         current_hitbox = PolygonCollider(parent, points, mode)

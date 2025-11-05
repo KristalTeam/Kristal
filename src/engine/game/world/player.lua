@@ -283,7 +283,7 @@ function Player:beginSlide(last_state, in_place, lock_movement)
 end
 
 function Player:updateSlideDust()
-    self.slide_dust_timer = Utils.approach(self.slide_dust_timer, 0, DTMULT)
+    self.slide_dust_timer = MathUtils.approach(self.slide_dust_timer, 0, DTMULT)
 
     if self.slide_dust_timer == 0 then
         self.slide_dust_timer = 3
@@ -363,11 +363,11 @@ end
 
 function Player:update()
     if self.hurt_timer > 0 then
-        self.hurt_timer = Utils.approach(self.hurt_timer, 0, DTMULT)
+        self.hurt_timer = MathUtils.approach(self.hurt_timer, 0, DTMULT)
     end
 
     if self.slide_land_timer > 0 and self.state_manager.state ~= "SLIDE" then
-        self.slide_land_timer = Utils.approach(self.slide_land_timer, 0, DTMULT)
+        self.slide_land_timer = MathUtils.approach(self.slide_land_timer, 0, DTMULT)
         if self.slide_land_timer == 0 then
             self.slide_sound:stop()
             self.sprite:resetSprite()
@@ -380,7 +380,7 @@ function Player:update()
     self:updateHistory()
 
     if not Game.world.cutscene and not Game.world.menu then
-        self.interact_buffer = Utils.approach(self.interact_buffer, 0, DT)
+        self.interact_buffer = MathUtils.approach(self.interact_buffer, 0, DT)
     end
 
     self.world.in_battle_area = false

@@ -652,7 +652,7 @@ function TextInput.insertString(str)
     if not self.overtyping then
         result = string_1 .. str .. string_2
     else
-        result = string_1 .. str .. Utils.sub(string_2, utf8.len(str) + 1)
+        result = string_1 .. str .. StringUtils.sub(string_2, utf8.len(str) + 1)
     end
 
     local split = StringUtils.split(result, "\n", false)

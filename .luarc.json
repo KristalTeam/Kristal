@@ -26,7 +26,8 @@
 
     "docScriptPath": "/luadoc_meta/.buildDocs.lua",
     "workspace.library": [
-        "${addons}/love2d/module/library"
+        "${addons}/love2d/module/library",
+        "${3rd}/love2d/library"
     ],
     "type": {
         "weakUnionCheck": true,

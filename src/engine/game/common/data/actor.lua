@@ -170,7 +170,7 @@ end
 -- horrific
 function Actor:parseSpriteOptions(full_sprite, ignore_frames)
     local prefix = self:getSpritePath().."/"
-    local is_relative, relative_sprite = Utils.startsWith(full_sprite, prefix)
+    local is_relative, relative_sprite = StringUtils.startsWith(full_sprite, prefix)
     if not is_relative and self:getSpritePath() ~= "" then
         return {""}
     end
@@ -180,7 +180,7 @@ function Actor:parseSpriteOptions(full_sprite, ignore_frames)
     if not ignore_frames then
         local frames_for = Assets.getFramesFor(full_sprite)
         if frames_for then
-            local success, frames_sprite = Utils.startsWith(frames_for, prefix)
+            local success, frames_sprite = StringUtils.startsWith(frames_for, prefix)
             if success then
                 table.insert(result, frames_sprite)
             end
@@ -191,12 +191,12 @@ function Actor:parseSpriteOptions(full_sprite, ignore_frames)
     local dirs = {"left", "right", "up", "down"}
 
     for _, dir in ipairs(dirs) do
-        local success, dir_sprite = Utils.endsWith(full_sprite, "_"..dir)
+        local success, dir_sprite = StringUtils.endsWith(full_sprite, "_"..dir)
         if not success then
-            success, dir_sprite = Utils.endsWith(full_sprite, "/"..dir)
+            success, dir_sprite = StringUtils.endsWith(full_sprite, "/"..dir)
         end
         if success then
-            local relative, sprite = Utils.startsWith(dir_sprite, prefix)
+            local relative, sprite = StringUtils.startsWith(dir_sprite, prefix)
             if relative then
                 table.insert(result, sprite)
             end

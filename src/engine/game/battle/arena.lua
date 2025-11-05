@@ -63,8 +63,8 @@ end
 --- *If [`line_width`](lua://Arena.line_width) has been changed, this function makes the arena to reflect that change.*
 ---@param shape table<[number, number]>     A table of `{x, y}` coordinates that form a polygon.
 function Arena:setShape(shape)
-    self.shape = Utils.copy(shape, true)
-    self.processed_shape = Utils.copy(shape, true)
+    self.shape = TableUtils.copy(shape, true)
+    self.processed_shape = TableUtils.copy(shape, true)
 
     local min_x, min_y, max_x, max_y
     for _, point in ipairs(self.shape) do
@@ -92,7 +92,7 @@ function Arena:setShape(shape)
 
     self.clockwise = Utils.isPolygonClockwise(self.shape)
 
-    self.area_collider = PolygonCollider(self, Utils.copy(shape, true))
+    self.area_collider = PolygonCollider(self, TableUtils.copy(shape, true))
 
     self.collider.colliders = {}
     for _,v in ipairs(Utils.getPolygonEdges(self.shape)) do
@@ -154,7 +154,7 @@ function Arena:onAdd(parent)
     Game.battle.timer:during(
         15 / 30,
         function()
-            afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
+            afterimage_timer = MathUtils.approach(afterimage_timer, 15, DTMULT)
 
             local real_progress = afterimage_timer / 15
 
@@ -199,7 +199,7 @@ function Arena:onRemove(parent)
     Game.battle.timer:during(
         15 / 30,
         function()
-            afterimage_timer = Utils.approach(afterimage_timer, 15, DTMULT)
+            afterimage_timer = MathUtils.approach(afterimage_timer, 15, DTMULT)
 
             local real_progress = 1 - (afterimage_timer / 15)
 

@@ -34,7 +34,7 @@ function TensionBarGlow:update()
     end
 
     -- Slowly fade out
-    self.current_alpha = Utils.approach(self.current_alpha, 0, 0.15 * DTMULT)
+    self.current_alpha = MathUtils.approach(self.current_alpha, 0, 0.15 * DTMULT)
 
     -- If we're fully faded out, remove
     if self.current_alpha <= 0 then

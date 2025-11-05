@@ -40,12 +40,12 @@ function DarkConfigMenu:getBindNumberFromIndex(current_index)
     local keys = Input.getBoundKeys(alias, Input.usingGamepad())
     for index, current_key in ipairs(keys) do
         if Input.usingGamepad() then
-            if Utils.startsWith(current_key, "gamepad:") then
+            if StringUtils.startsWith(current_key, "gamepad:") then
                 shown_bind = index
                 break
             end
         else
-            if not Utils.startsWith(current_key, "gamepad:") then
+            if not StringUtils.startsWith(current_key, "gamepad:") then
                 shown_bind = index
                 break
             end
@@ -57,7 +57,7 @@ end
 function DarkConfigMenu:onKeyPressed(key)
     if self.state == "CONTROLS" then
         if self.rebinding then
-            local gamepad = Utils.startsWith(key, "gamepad:")
+            local gamepad = StringUtils.startsWith(key, "gamepad:")
 
             local worked = key ~= "escape" and
                 Input.setBind(Input.orderedNumberToKey(self.currently_selected), 1, key, gamepad)
@@ -115,7 +115,7 @@ function DarkConfigMenu:onKeyPressed(key)
             self.currently_selected = self.currently_selected + 1
         end
 
-        self.currently_selected = Utils.clamp(self.currently_selected, 1, 9)
+        self.currently_selected = MathUtils.clamp(self.currently_selected, 1, 9)
 
         if old_selected ~= self.currently_selected then
             self.ui_move:stop()
@@ -170,7 +170,7 @@ function DarkConfigMenu:update()
             self.ui_move:play()
         end
 
-        self.currently_selected = Utils.clamp(self.currently_selected, 1, 7)
+        self.currently_selected = MathUtils.clamp(self.currently_selected, 1, 7)
     elseif self.state == "VOLUME" then
         if Input.pressed("cancel") or Input.pressed("confirm") then
             Kristal.setVolume(Utils.round(Kristal.getVolume() * 100) / 100)

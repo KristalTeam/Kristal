@@ -54,7 +54,7 @@ function LightInventory:convertToDark()
     Kristal.callEvent(KRISTAL_EVENT.onConvertToDark, new_inventory)
 
     for _,storage_id in ipairs(self.convert_order) do
-        local storage = Utils.copy(self:getStorage(storage_id))
+        local storage = TableUtils.copy(self:getStorage(storage_id))
         for i = 1, storage.max do
             local item = storage[i]
             if item then

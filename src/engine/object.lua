@@ -499,6 +499,7 @@ end
 ---@overload fun(self:Object, marker:string, time?:number, ease?:string, after?:function): success:boolean
 ---@param x      number   The new `x` value to approach.
 ---@param y      number   The new `y` value to approach.
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param marker string   A map marker whose position the object should approach.
 ---@param time?  number   The amount of time, in seconds, that the slide should take. (Defaults to 1 second)
 ---@param ease?  string   The ease type to use when moving to the new position. (Defaults to "linear")
@@ -540,6 +541,7 @@ end
 ---@overload fun(self:Object, marker:string, speed?:number, after?:function): success:boolean
 ---@param x      number   The new `x` value to approach.
 ---@param y      number   The new `y` value to approach.
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param marker string   A map marker whose position the object should approach.
 ---@param speed? number   The amount that the object's `x` and `y` should approach the specified position, in pixels per frame at 30FPS. (Defaults to 4)
 ---@param after? function A function that will be called when the target position is reached. Receives no arguments.
@@ -634,7 +636,7 @@ function Object:slidePath(path, options)
 
     local length = 0
     for i = 1, #path - 1 do
-        length = length + Utils.dist(path[i][1], path[i][2], path[i + 1][1], path[i + 1][2])
+        length = length + MathUtils.dist(path[i][1], path[i][2], path[i + 1][1], path[i + 1][2])
     end
 
     self.physics.move_target = nil
@@ -722,6 +724,7 @@ function Object:getScale() return self.scale_x, self.scale_y end
 ---@param g  number The green value to set for the object's `color`.
 ---@param b  number The blue value to set for the object's `color`.
 ---@param a? number The value to set `alpha` to. (Doesn't change alpha if unspecified)
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param color table The value to set `color` to. Can optionally define a 4th value to set alpha.
 function Object:setColor(r, g, b, a)
     if type(r) == "table" then
@@ -971,6 +974,7 @@ end
 ---@overload fun(self:Object, speed:number)
 ---@param x number The value to set `physics.speed_x` to.
 ---@param y number The value to set `physics.speed_y` to.
+---@diagnostic disable-next-line: undefined-doc-param
 ---@param speed number The value to set `physics.speed` to.
 function Object:setSpeed(x, y)
     if x and y then
@@ -994,7 +998,7 @@ function Object:getSpeedDir()
         else
             local speed_x, speed_y = self.physics.speed_x or 0, self.physics.speed_y or 0
             if speed_x ~= 0 or speed_y ~= 0 then
-                return Utils.dist(0, 0, speed_x, speed_y), Utils.angle(0, 0, speed_x, speed_y)
+                return MathUtils.dist(0, 0, speed_x, speed_y), Utils.angle(0, 0, speed_x, speed_y)
             end
         end
     end
@@ -1038,8 +1042,10 @@ end
 ---@return number|nil width The `width` of the collider, in pixels.
 ---@return number|nil height The `height` of the collider, in pixels.
 function Object:getHitbox()
-    if self.collider and self.collider:includes(Hitbox) then
-        return self.collider.x, self.collider.y, self.collider.width, self.collider.height
+    local collider = self.collider
+    if collider and collider:includes(Hitbox) then
+        ---@cast collider Hitbox
+        return collider.x, collider.y, collider.width, collider.height
     end
 end
 
@@ -1290,7 +1296,7 @@ function Object:removeFX(id)
         if fx.parent == self then
             fx.parent = nil
         end
-        Utils.removeFromTable(self.draw_fx, fx)
+        TableUtils.removeValue(self.draw_fx, fx)
         return fx
     end
 end
@@ -1303,7 +1309,12 @@ function Object:applyTransformTo(transform, floor_x, floor_y)
         transform:translate(MathUtils.floorToMultiple(self.x, floor_x), MathUtils.floorToMultiple(self.y, floor_y))
     end
     if self.parent and self.parent.camera and (self.parallax_x or self.parallax_y or self.parallax_origin_x or self.parallax_origin_y) then
-        local px, py = self.parent.camera:getParallax(self.parallax_x or 1, self.parallax_y or 1, self.parallax_origin_x, self.parallax_origin_y)
+        local px, py = self.parent.camera:getParallax(
+            self.parallax_x or 1,
+            self.parallax_y or 1,
+            self.parallax_origin_x,
+            self.parallax_origin_y
+        )
         if not floor_x then
             transform:translate(px, py)
         else
@@ -1433,7 +1444,7 @@ end
 function Object:clicked(button)
     if not button then
         local used_button = 0
-        for i=1, Input.mouse_button_max do
+        for i = 1, Input.mouse_button_max do
             local success, success_button = self:clicked(i)
             used_button = math.max(used_button, success_button)
             if success then
@@ -1839,16 +1850,16 @@ function Object:updatePhysicsTransform()
         if physics.move_target.speed then
             local angle = MathUtils.angle(self.x, self.y, physics.move_target.x, physics.move_target.y)
             next_x = MathUtils.approach(self.x, physics.move_target.x,
-                physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
+                                        physics.move_target.speed * math.abs(math.cos(angle)) * DTMULT)
             next_y = MathUtils.approach(self.y, physics.move_target.y,
-                physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
+                                        physics.move_target.speed * math.abs(math.sin(angle)) * DTMULT)
         elseif physics.move_target.time then
             physics.move_target.timer = MathUtils.approach(physics.move_target.timer, physics.move_target.time, DT)
 
             next_x = Utils.ease(physics.move_target.start_x, physics.move_target.x,
-                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+                                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
             next_y = Utils.ease(physics.move_target.start_y, physics.move_target.y,
-                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
+                                (physics.move_target.timer / physics.move_target.time), physics.move_target.ease)
         end
         if physics.move_target.move_func then
             physics.move_target.move_func(self, next_x - self.x, next_y - self.y)
@@ -1873,8 +1884,8 @@ function Object:updatePhysicsTransform()
             physics.move_path.progress = physics.move_path.progress % physics.move_path.length
         end
         local eased_progress = Utils.ease(0, physics.move_path.length,
-            (physics.move_path.progress / physics.move_path.length), physics.move_path
-            .ease)
+                                          (physics.move_path.progress / physics.move_path.length), physics.move_path
+                                          .ease)
         local target_x, target_y = Utils.getPointOnPath(physics.move_path.path, eased_progress)
         if physics.move_path.move_func then
             physics.move_path.move_func(self, target_x - self.x, target_y - self.y)
@@ -1906,8 +1917,8 @@ function Object:updateGraphicsTransform()
     end
 
     if (graphics.grow and graphics.grow ~= 0)
-        or (graphics.grow_x and graphics.grow_x ~= 0)
-        or (graphics.grow_y and graphics.grow_y ~= 0) then
+    or (graphics.grow_x and graphics.grow_x ~= 0)
+    or (graphics.grow_y and graphics.grow_y ~= 0) then
         self.scale_x = self.scale_x + ((graphics.grow_x or 0) + (graphics.grow or 0)) * DTMULT
         self.scale_y = self.scale_y + ((graphics.grow_y or 0) + (graphics.grow or 0)) * DTMULT
     end

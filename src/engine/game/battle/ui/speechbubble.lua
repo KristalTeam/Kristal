@@ -114,7 +114,7 @@ function SpeechBubble:setText(text, callback, line_callback)
             if type(text) ~= "table" then
                 text = {text}
             else
-                text = Utils.copy(text)
+                text = TableUtils.copy(text)
             end
             for i,line in ipairs(text or {}) do
                 text[i] = "[voice:"..self.actor:getVoice().."]"..line
@@ -124,7 +124,7 @@ function SpeechBubble:setText(text, callback, line_callback)
             if type(text) ~= "table" then
                 text = {text}
             else
-                text = Utils.copy(text)
+                text = TableUtils.copy(text)
             end
             for i,line in ipairs(text or {}) do
                 if self.actor:getSpeechBubbleFontSize() then

@@ -112,7 +112,7 @@ function Console:onUpLimit()
     if #self.command_history == 0 then return end
     if self.history_index > 1 then
         self.history_index = self.history_index - 1
-        self.input = Utils.copy(self.command_history[self.history_index] or {""})
+        self.input = TableUtils.copy(self.command_history[self.history_index] or {""})
         TextInput.updateInput(self.input)
         TextInput.selecting = false
         TextInput.sendCursorToEnd()
@@ -125,7 +125,7 @@ function Console:onDownLimit()
         -- Empty
     else
         self.history_index = self.history_index + 1
-        self.input = Utils.copy(self.command_history[self.history_index] or {""})
+        self.input = TableUtils.copy(self.command_history[self.history_index] or {""})
         TextInput.updateInput(self.input)
         TextInput.selecting = false
         TextInput.sendCursorToEnd()
@@ -265,8 +265,8 @@ function Console:push(str)
                 if modifier[1] == "color" then
                     local color = {1, 1, 1, 1}
                     if modifier[2] then
-                        if Utils.startsWith(modifier[2], "#") then
-                            color = Utils.hexToRgb(modifier[2])
+                        if StringUtils.startsWith(modifier[2], "#") then
+                            color = ColorUtils.hexToRGB(modifier[2])
                         elseif modifier[2] == "cyan" then
                             color = {0.5, 1, 1, 1}
                         elseif modifier[2] == "white" then
@@ -319,7 +319,7 @@ end
 
 function Console:run(str)
     if not Utils.equal(str, self.command_history[#self.command_history]) then
-        table.insert(self.command_history, Utils.copy(str))
+        table.insert(self.command_history, TableUtils.copy(str))
     end
     self.history_index = #self.command_history + 1
     local run_string = ""
@@ -346,8 +346,8 @@ function Console:run(str)
         end
     end
     self:push(history_string)
-    if Utils.startsWith(run_string, "=") then
-        run_string = "print(" .. Utils.sub(run_string, 2) .. ")"
+    if StringUtils.startsWith(run_string, "=") then
+        run_string = "print(" .. StringUtils.sub(run_string, 2) .. ")"
     end
     local status, err = pcall(function() self:unsafeRun(run_string) end)
     if (not status) and err then
