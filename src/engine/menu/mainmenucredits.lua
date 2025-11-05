@@ -34,6 +34,7 @@ function MainMenuCredits:init(menu)
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Abbe",
                 "AcousticJamm",
                 "Agent 7",
                 "AlexGamingSW",
@@ -41,14 +42,14 @@ function MainMenuCredits:init(menu)
                 "Azrael",
                 "Bor",
                 "CosmicPikachu001",
-                "Dobby233Liu",
-                "Elioze"
+                "Dobby233Liu"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Elioze",
                 "FireRainV",
                 "HUECYCLES",
                 "isakube",
@@ -56,11 +57,11 @@ function MainMenuCredits:init(menu)
                 "Lionmeow",
                 "Luna",
                 "MCdeDaxia",
-                "MrOinky",
-                "NelleMonelle"
+                "MrOinky"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "NelleMonelle",
                 "Nextop",
                 "nightpool",
                 "prokube",
@@ -68,17 +69,16 @@ function MainMenuCredits:init(menu)
                 "sjl057",
                 "skarph",
                 "SuperOfSrb2",
-                "TFLTV",
-                "Verozity"
+                "TFLTV"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "Verozity",
                 "WIL-TZY",
                 "YeetusSnoopy",
-                "",
                 "",
                 "",
                 "",
