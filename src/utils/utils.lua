@@ -1243,12 +1243,12 @@ function Utils.reverse(tbl, group)
         tbl = Utils.group(tbl, group)
     end
     -- Loop through the table backwards, and insert each value into the new table.
-    for i=#tbl,1,-1 do
+    for i = #tbl, 1, -1 do
         table.insert(t, tbl[i])
     end
     -- If the table was grouped, flatten it back into a single array.
     if group then
-        t = Utils.flatten(t)
+        t = TableUtils.flatten(t)
     end
     return t
 end
@@ -1698,14 +1698,14 @@ function Utils.getPointOnPath(path, t)
         local nx, ny = next_point.x or next_point[1], next_point.y or next_point[2]
 
         -- Get the length of the current line
-        local current_length = Utils.dist(cx, cy, nx, ny)
+        local current_length = MathUtils.dist(cx, cy, nx, ny)
 
         -- Using the distance we've traversed so far, and the length of the current line,
         -- check if the point we're looking for is on this line
         if traversed + current_length > t then
             -- Calculate the position of the point on the line
-            local progress = (t - traversed) / current_length
-            return Utils.lerp(cx, nx, progress), Utils.lerp(cy, ny, progress)
+            local progress = MathUtils.clamp((t - traversed) / current_length, 0, 1)
+            return MathUtils.lerp(cx, nx, progress), MathUtils.lerp(cy, ny, progress)
         end
 
         -- Remember the furthest point on the path so far
