@@ -52,15 +52,16 @@ function MainMenuCredits:init(menu)
                 "Elioze",
                 "FireRainV",
                 "HUECYCLES",
+                "Hyperboid",
                 "isakube",
                 "J.A.R.U.",
                 "Lionmeow",
                 "Luna",
-                "MCdeDaxia",
-                "MrOinky"
+                "MCdeDaxia"
             },
             {
                 { "GitHub Contributors", COLORS.silver },
+                "MrOinky",
                 "NelleMonelle",
                 "Nextop",
                 "nightpool",
@@ -68,14 +69,14 @@ function MainMenuCredits:init(menu)
                 "Simbel",
                 "sjl057",
                 "skarph",
-                "SuperOfSrb2",
-                "TFLTV"
+                "SuperOfSrb2"
             }
         },
         {
             "Kristal Engine",
             {
                 { "GitHub Contributors", COLORS.silver },
+                "TFLTV",
                 "Verozity",
                 "WIL-TZY",
                 "YeetusSnoopy",
