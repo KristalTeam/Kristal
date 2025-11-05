@@ -123,7 +123,7 @@ function DarkItemMenu:update()
         end
         if header_move ~= 0 then
             local prev_type = self:getCurrentItemType()
-            self.item_header_selected = MathUtils.clampWrap(self.item_header_selected + header_move, 1, 3)
+            self.item_header_selected = MathUtils.wrapIndex(self.item_header_selected + header_move, 3)
             self.ui_move:stop()
             self.ui_move:play()
             if prev_type ~= self:getCurrentItemType() then
