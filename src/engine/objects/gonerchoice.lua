@@ -308,12 +308,12 @@ function GonerChoice:moveSelection(x, y, dx, dy)
     local choice
     repeat
         if self.wrap_y then
-            y = MathUtils.clampWrap(y, 1, #self.choices)
+            y = MathUtils.wrapIndex(y, #self.choices)
         else
             y = MathUtils.clamp(y, 1, #self.choices)
         end
         if self.wrap_x then
-            x = MathUtils.clampWrap(x, 1, #self.choices[y])
+            x = MathUtils.wrapIndex(x, #self.choices[y])
         else
             x = MathUtils.clamp(x, 1, #self.choices[y])
         end
