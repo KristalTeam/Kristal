@@ -1022,6 +1022,23 @@ function DebugSystem:registerDefaults()
         in_game
     )
 
+    self:registerOption("main", "Give Money", "Give an amount of money.", function()
+        self.window = DebugWindow("Enter Money", "Enter the money amount you'd like.", "input",
+            function(text)
+                local money = tonumber(text)
+                if money then
+                    if Game:isLight() then
+                        Game.lw_money = Game.lw_money + money
+                    else
+                        Game.money = Game.money + money
+                    end
+                    Assets.stopAndPlaySound("bell_bounce_short")
+                end
+            end)
+        self.window:setPosition(Input.getCurrentCursorPosition())
+        self:addChild(self.window)
+    end, in_game)
+
     self:registerOption(
         "main",
         "Portrait Viewer",
