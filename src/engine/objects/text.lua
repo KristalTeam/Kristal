@@ -1,3 +1,6 @@
+--- The Text object, made for displaying formatted text.
+---
+--- If you're looking for text which writes itself out over time, see [`DialogueText`](lua://DialogueText).
 ---@class Text : Object
 ---@overload fun(...) : Text
 local Text, super = Class(Object)
@@ -144,6 +147,19 @@ function Text:resetState()
     }
 end
 
+--- A helper function to avoid deep-cloning the entire state table.
+---@param state table The state to clone.
+---@return table state The cloned state.
+function Text:cloneState(state)
+    local clone = TableUtils.copy(state)
+
+    -- Clone tables we DO want copied
+    clone.color = TableUtils.copy(state.color)
+    clone.line_lengths = TableUtils.copy(state.line_lengths)
+
+    return clone
+end
+
 function Text:update()
     self.timer = self.timer + DTMULT
     self.state.wave_direction = self.state.wave_direction + (self.state.wave_speed * DTMULT)
@@ -236,9 +252,7 @@ function Text:textToNodes(input_string)
                     local command = split[1]
                     local arguments = {}
                     if #split > 1 then
-                        -- arguments = StringUtils.splitFast(split[2], ",")
                         local k = 1
-                        local k_start = 1
                         local escaping = false
                         local arg = ""
                         while k <= StringUtils.len(split[2]) do
@@ -252,7 +266,6 @@ function Text:textToNodes(input_string)
                                 elseif char == "," then
                                     table.insert(arguments, arg)
                                     arg = ""
-                                    k_start = k + 1
                                 elseif k == StringUtils.len(split[2]) then
                                     table.insert(arguments, arg .. char)
                                 else
@@ -299,7 +312,7 @@ function Text:textToNodes(input_string)
                         if self.preprocess then
                             local prior_state
                             if self.wrap then
-                                prior_state = TableUtils.copy(self.state, true)
+                                prior_state = self:cloneState(self.state)
                             end
                             self:processNode(new_node, true)
                             if self.wrap and self.state.current_x > self.width then
@@ -321,7 +334,7 @@ function Text:textToNodes(input_string)
                                     }
                                     nodes[last_space + 1] = newline_node
                                     self:processNode(newline_node, true)
-                                    display_text = Utils.stringInsert(display_text, "\n", last_space_char + 1)
+                                    display_text = StringUtils.insert(display_text, "\n", last_space_char + 1)
                                     for i = last_space + 1, #nodes + 1 do
                                         if nodes[i] then
                                             self:processNode(nodes[i], true)
@@ -355,7 +368,7 @@ function Text:textToNodes(input_string)
             if self.wrap and (current_char == " " or current_char == "\n") then
                 last_space = #nodes
                 last_space_char = StringUtils.len(display_text)
-                last_space_state = TableUtils.copy(self.state, true)
+                last_space_state = self:cloneState(self.state)
             end
             local new_node = {
                 ["type"] = "character",
@@ -366,7 +379,7 @@ function Text:textToNodes(input_string)
             if self.preprocess then
                 local prior_state
                 if self.wrap then
-                    prior_state = TableUtils.copy(self.state, true)
+                    prior_state = self:cloneState(self.state)
                 end
                 self:processNode(new_node, true)
                 if self.wrap and self.state.current_x > self.width then
@@ -388,7 +401,7 @@ function Text:textToNodes(input_string)
                         }
                         nodes[last_space + 1] = newline_node
                         --self:processNode(newline_node, true)
-                        display_text = Utils.stringInsert(display_text, "\n", last_space_char + 1)
+                        display_text = StringUtils.insert(display_text, "\n", last_space_char + 1)
                         for i = last_space + 1, #nodes + 1 do
                             if nodes[i] then
                                 self:processNode(nodes[i], true)
@@ -493,8 +506,9 @@ function Text:processNode(node, dry)
             end
             --print("INSERTING " .. node.character .. " AT " .. self.state.current_x .. ", " .. self.state.current_y)
             if not dry then
-                self:drawChar(node, self.state)
-                table.insert(self.nodes_to_draw, { node, TableUtils.copy(self.state, true) })
+                local cloned = self:cloneState(self.state)
+                self:drawChar(node, cloned)
+                table.insert(self.nodes_to_draw, { node, cloned })
             end
             local w, h = self:getNodeSize(node, self.state)
             self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -504,8 +518,9 @@ function Text:processNode(node, dry)
             self.state.escaping = false
             if node.character == "\\" or node.character == StringUtils.sub(self.state.indent_string, 1, 1) or node.character == "[" or node.character == "]" then
                 if not dry then
-                    self:drawChar(node, self.state)
-                    table.insert(self.nodes_to_draw, { node, TableUtils.copy(self.state, true) })
+                    local cloned = self:cloneState(self.state)
+                    self:drawChar(node, cloned)
+                    table.insert(self.nodes_to_draw, { node, cloned })
                 end
                 local w, h = self:getNodeSize(node, self.state)
                 self.state.current_x = self.state.current_x + w + self.state.spacing
@@ -672,8 +687,8 @@ function Text:getCharPosition(node, state)
     if state.shake > 0 then
         if self.timer - state.last_shake >= (1 * DTMULT) then
             state.last_shake = self.timer
-            state.offset_x = Utils.round(Utils.random(-state.shake, state.shake))
-            state.offset_y = Utils.round(Utils.random(-state.shake, state.shake))
+            state.offset_x = MathUtils.round(MathUtils.random(-state.shake, state.shake))
+            state.offset_y = MathUtils.round(MathUtils.random(-state.shake, state.shake))
         end
     end
 
