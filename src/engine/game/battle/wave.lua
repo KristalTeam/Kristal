@@ -118,9 +118,16 @@ function Wave:beforeEnd() end
 ---@return boolean
 function Wave:canEnd() return true end
 
+--- End this wave immediately.
+---
+--- If you'd like to end all waves, use [`Game.battle:endWaves()`](lua://Game.battle.endWaves) instead.
+function Wave:setFinished()
+    self.finished = true
+end
+
 --- Removes all objects spawned by this wave
 function Wave:clear()
-    for _,object in ipairs(self.objects) do
+    for _, object in ipairs(self.objects) do
         object:remove()
     end
 

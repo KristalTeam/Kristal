@@ -756,7 +756,7 @@ function DebugSystem:registerSubMenus()
         "Stop the current playing wave.",
         function()
             if Game.battle:getState() == "DEFENDING" then
-                Game.battle.encounter:onWavesDone()
+                Game.battle:endWaves()
             end
             self:closeMenu()
         end

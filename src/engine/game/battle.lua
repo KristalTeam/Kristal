@@ -433,13 +433,13 @@ end
 ---@param old BattleState # The old state.
 ---@param new BattleState # The new state.
 ---@param reason string? # The reason for the state change.
-function Battle:checkEndWave(old, new, reason)
+function Battle:checkEndWaves(old, new, reason)
     -- List of states that should remove the arena.
     -- A whitelist is better than a blacklist in case the modder adds more states.
     -- And in case the modder adds more states and wants the arena to be removed, they can remove the arena themselves.
 
     local remove_arena = {
-        "DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING"
+        "DEFENDINGEND", "TRANSITIONOUT", "ACTIONSELECT", "VICTORY", "INTRO", "ACTIONS", "ENEMYSELECT", "PARTYSELECT", "MENUSELECT", "ATTACKING", "VICTORY"
     }
 
     local should_end = true
@@ -461,38 +461,8 @@ function Battle:checkEndWave(old, new, reason)
         end
     end
 
-    local ending_wave = self.state_reason == "WAVEENDED"
-
     if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" and should_end then
-        for _, wave in ipairs(self.waves) do
-            if not wave:onEnd(false) then
-                wave:clear()
-                wave:remove()
-            end
-        end
-
-        local function exitWaves()
-            for _, wave in ipairs(self.waves) do
-                wave:onArenaExit()
-            end
-            self.waves = {}
-        end
-
-        if self:hasCutscene() then
-            self.cutscene:after(function()
-                exitWaves()
-                if ending_wave then
-                    self:nextTurn()
-                end
-            end)
-        else
-            self.timer:after(15 / 30, function()
-                exitWaves()
-                if ending_wave then
-                    self:nextTurn()
-                end
-            end)
-        end
+        self:endWaves(true)
     end
 end
 
@@ -702,6 +672,8 @@ function Battle:onVictory()
     if self.tension_bar then
         self.tension_bar:hide()
     end
+
+    self:endWaves()
 
     for _, battler in ipairs(self.party) do
         battler:setSleeping(false)
@@ -946,9 +918,47 @@ function Battle:onStateChange(old, new, reason)
     end
 
     -- Check if we should end the wave
-    self:checkEndWave(old, new, reason)
+    self:checkEndWaves(old, new, reason)
 
     self.encounter:onStateChange(old, new, reason)
+end
+
+--- Forcibly end the wave.
+--- This should not be called in place of normal wave ending via time or enemy defeat.
+function Battle:endWaves()
+    for _, wave in ipairs(self.waves) do
+        if not wave:onEnd(false) then
+            wave:clear()
+            wave:remove()
+        end
+    end
+
+    local function exitWaves()
+        for _, wave in ipairs(self.waves) do
+            wave:onArenaExit()
+        end
+        self.waves = {}
+    end
+
+    local ending_wave = self.state_reason == "WAVEENDED"
+
+    if self:hasCutscene() then
+        self.cutscene:after(function()
+            exitWaves()
+            if ending_wave then
+                self:nextTurn()
+            end
+        end)
+    else
+        self.timer:after(15 / 30, function()
+            exitWaves()
+            if ending_wave then
+                self:nextTurn()
+            end
+        end)
+    end
+
+    self.encounter:onWavesDone()
 end
 
 --- Gets the location the soul should spawn at when waves start by default
@@ -2947,7 +2957,7 @@ function Battle:updateWaves()
 
     if all_done and not self.finished_waves then
         self.finished_waves = true
-        self.encounter:onWavesDone()
+        self:endWaves()
     end
 end
 
@@ -3250,7 +3260,7 @@ function Battle:onKeyPressed(key)
             end
         end
         if self.state == "DEFENDING" and key == "f" then
-            self.encounter:onWavesDone()
+            self:endWaves()
         end
         if key == "b" then
             self:hurt(math.huge, true, "ALL")
