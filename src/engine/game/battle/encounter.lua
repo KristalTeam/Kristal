@@ -313,7 +313,7 @@ function Encounter:getSoulSpawnLocation()
             end
         end
     end
-    return -9, -9
+    return 0, 0
 end
 
 --- *(Override)* Called when enemy dialogue is finished and closed, before the transition into a wave.

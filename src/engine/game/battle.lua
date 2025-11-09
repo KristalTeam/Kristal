@@ -462,7 +462,7 @@ function Battle:checkEndWaves(old, new, reason)
     end
 
     if old == "DEFENDING" and new ~= "DEFENDINGBEGIN" and should_end then
-        self:endWaves(true)
+        self:endWaves()
     end
 end
 
@@ -979,7 +979,7 @@ end
 function Battle:spawnSoul(x, y)
     local bx, by = self:getSoulLocation()
     local color = { self.encounter:getSoulColor() }
-    self:addChild(HeartBurst(bx, by, color))
+    self:addChild(HeartBurst(bx - 2, by + 1, color))
     if not self.soul then
         self.soul = self.encounter:createSoul(bx, by, color)
         self.soul:transitionTo(x or SCREEN_WIDTH / 2, y or SCREEN_HEIGHT / 2)
@@ -1003,7 +1003,7 @@ function Battle:returnSoul(dont_destroy)
     local bx, by = self:getSoulLocation(true)
     if self.soul then
         Game.old_soul_inv_timer = self.soul.inv_timer
-        self.soul:transitionTo(bx, by, not dont_destroy)
+        self.soul:transitionTo(bx - 2, by + 1, not dont_destroy)
     end
 end
 
@@ -1273,7 +1273,7 @@ function Battle:processAction(action)
             for i = 1, 3 do
                 local sx, sy = battler:getRelativePos(battler.width, 0)
                 local sparkle = Sprite("effects/criticalswing/sparkle", sx + MathUtils.random(50), sy + 30 + MathUtils.random(30))
-                sparkle:play(4/30, true)
+                sparkle:play(4 / 30, true)
                 sparkle:setScale(2)
                 sparkle.layer = BATTLE_LAYERS["above_battlers"]
                 sparkle.physics.speed_x = MathUtils.random(2, 6)
@@ -1684,15 +1684,11 @@ function Battle:powerAct(spell, battler, user, target)
         battler:flash()
         user_battler:flash()
         local bx, by = self:getSoulLocation()
-        local soul = Sprite("effects/soulshine", bx, by)
+        local soul = Sprite("effects/soulshine", bx + 5.5, by)
         soul:play(1 / 30, false, function() soul:remove() end)
-        soul:setOrigin(0.25, 0.25)
+        soul:setOrigin(0.5)
         soul:setScale(2, 2)
         self:addChild(soul)
-
-        --[[local box = self.battle_ui.action_boxes[user_index]
-        box:setHeadIcon("spell")]]
-
     end)
 
     self.timer:after(24 / 30, function()
@@ -2052,7 +2048,7 @@ function Battle:randomTargetOld()
     end
 
     if none_targetable then
-        return "ALL"
+        return self:targetAll()
     end
 
     -- Pick random party member
@@ -2076,12 +2072,7 @@ function Battle:randomTarget()
     local target = self:randomTargetOld()
 
     if (not Game:getConfig("targetSystem")) and (target ~= "ALL") then
-        for _, battler in ipairs(self.party) do
-            if battler:canTarget() then
-                battler.targeted = true
-            end
-        end
-        return "ANY"
+        return self:targetAny()
     end
 
     return target
@@ -2168,7 +2159,7 @@ function Battle:hurt(amount, exact, target, swoon)
 
     if target == "ANY" then
         target = self:randomTargetOld()
-        
+
         if isClass(target) and target:includes(PartyBattler) then
             -- Calculate the average HP of the party.
             -- This is "scr_party_hpaverage", which gets called multiple times in the original script.
@@ -2215,7 +2206,7 @@ function Battle:hurt(amount, exact, target, swoon)
 
     if target == "ALL" then
         Assets.playSound("hurt")
-        local alive_battlers = Utils.filter(self.party, function(battler) return not battler.is_down end)
+        local alive_battlers = TableUtils.filter(self.party, function(battler) return not battler.is_down end)
         for _, battler in ipairs(alive_battlers) do
             battler:hurt(amount, exact, nil, { all = true, swoon = self.encounter:canSwoon(battler) and swoon })
         end
@@ -3218,7 +3209,7 @@ function Battle:addMenuItem(tbl)
     local color = tbl.color or { 1, 1, 1, 1 }
     local fcolor
     if type(color) == "table" then
-        fcolor = function () return color end
+        fcolor = function() return color end
     else
         fcolor = color
     end

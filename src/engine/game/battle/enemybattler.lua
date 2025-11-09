@@ -103,7 +103,7 @@ function EnemyBattler:init(actor, use_overlay)
     self.selectable = true
 
     self.dmg_sprites = {}
-    self.dmg_sprite_offset = {0, 0}
+    self.dmg_sprite_offset = { 0, 0 }
 
     self.disable_mercy = false
 
@@ -127,7 +127,7 @@ function EnemyBattler:init(actor, use_overlay)
     -- Speech bubble style - defaults to "round" or "cyber", depending on chapter
     self.dialogue_bubble = nil
 
-    self.dialogue_offset = {0, 0}
+    self.dialogue_offset = { 0, 0 }
 
     self.dialogue = {}
 
@@ -213,11 +213,11 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _,chara in ipairs(Game.party) do
+            for _, chara in ipairs(Game.party) do
                 table.insert(party, chara.id)
             end
         else
-            party = {party}
+            party = { party }
         end
     end
     local act = {
@@ -247,11 +247,11 @@ function EnemyBattler:registerShortAct(name, description, party, tp, highlight, 
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _,battler in ipairs(Game.battle.party) do
+            for _, battler in ipairs(Game.battle.party) do
                 table.insert(party, battler.id)
             end
         else
-            party = {party}
+            party = { party }
         end
     end
     local act = {
@@ -281,11 +281,11 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _,chara in ipairs(Game.party) do
+            for _, chara in ipairs(Game.party) do
                 table.insert(party, chara.id)
             end
         else
-            party = {party}
+            party = { party }
         end
     end
     local act = {
@@ -314,11 +314,11 @@ function EnemyBattler:registerShortActFor(char, name, description, party, tp, hi
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _,battler in ipairs(Game.battle.party) do
+            for _, battler in ipairs(Game.battle.party) do
                 table.insert(party, battler.id)
             end
         else
-            party = {party}
+            party = { party }
         end
     end
     local act = {
@@ -336,7 +336,7 @@ end
 
 ---@param name string
 function EnemyBattler:removeAct(name)
-    for i,act in ipairs(self.acts) do
+    for i, act in ipairs(self.acts) do
         if act.name == name then
             table.remove(self.acts, i)
             break
@@ -357,29 +357,32 @@ function EnemyBattler:spare(pacify)
         local sparkle_timer = 0
         local parent = self.parent
 
-        Game.battle.timer:during(5/30, function()
-            spare_flash.amount = spare_flash.amount + 0.2 * DTMULT
-            sparkle_timer = sparkle_timer + DTMULT
-            if sparkle_timer >= 0.5 then
-                local x, y = Utils.random(0, self.width), Utils.random(0, self.height)
-                local sparkle = SpareSparkle(self:getRelativePos(x, y))
-                sparkle.layer = self.layer + 0.001
-                parent:addChild(sparkle)
-                sparkle_timer = sparkle_timer - 0.5
+        Game.battle.timer:during(
+            5 / 30,
+            function()
+                spare_flash.amount = spare_flash.amount + 0.2 * DTMULT
+                sparkle_timer = sparkle_timer + DTMULT
+                if sparkle_timer >= 0.5 then
+                    local x, y = MathUtils.random(0, self.width), MathUtils.random(0, self.height)
+                    local sparkle = SpareSparkle(self:getRelativePos(x, y))
+                    sparkle.layer = self.layer + 0.001
+                    parent:addChild(sparkle)
+                    sparkle_timer = sparkle_timer - 0.5
+                end
+            end, function()
+                spare_flash.amount = 1
+                local img1 = AfterImage(self, 0.7, (1 / 25) * 0.7)
+                local img2 = AfterImage(self, 0.4, (1 / 30) * 0.4)
+                img1:addFX(ColorMaskFX())
+                img2:addFX(ColorMaskFX())
+                img1.physics.speed_x = 4
+                img2.physics.speed_x = 8
+                parent:addChild(img1)
+                parent:addChild(img2)
+                self:remove()
             end
-        end, function()
-            spare_flash.amount = 1
-            local img1 = AfterImage(self, 0.7, (1/25) * 0.7)
-            local img2 = AfterImage(self, 0.4, (1/30) * 0.4)
-            img1:addFX(ColorMaskFX())
-            img2:addFX(ColorMaskFX())
-            img1.physics.speed_x = 4
-            img2.physics.speed_x = 8
-            parent:addChild(img1)
-            parent:addChild(img2)
-            self:remove()
-        end)
-        
+        )
+
         self:defeat(pacify and "PACIFIED" or "SPARED", false)
     end
 
@@ -398,20 +401,20 @@ function EnemyBattler:getSpareText(battler, success)
         local text = "* " .. battler.chara:getName() .. " spared " .. self.name .. "!\n* But its name wasn't [color:yellow]YELLOW[color:reset]..."
         if self.tired then
             local found_spell = nil
-            for _,party in ipairs(Game.battle.party) do
-                for _,spell in ipairs(party.chara:getSpells()) do
+            for _, party in ipairs(Game.battle.party) do
+                for _, spell in ipairs(party.chara:getSpells()) do
                     if spell:hasTag("spare_tired") then
                         found_spell = spell
                         break
                     end
                 end
                 if found_spell then
-                    text = {text, "* (Try using "..party.chara:getName().."'s [color:blue]"..found_spell:getCastName().."[color:reset]!)"}
+                    text = { text, "* (Try using " .. party.chara:getName() .. "'s [color:blue]" .. found_spell:getCastName() .. "[color:reset]!)" }
                     break
                 end
             end
             if not found_spell then
-                text = {text, "* (Try using [color:blue]ACTs[color:reset]!)"}
+                text = { text, "* (Try using [color:blue]ACTs[color:reset]!)" }
             end
         end
         return text
@@ -485,11 +488,11 @@ end
 ---@param clamp? [number, number]   A table containing 2 number values that controls the range of the temporary mercy. Defaults to {0, 100}
 ---@param kill_condition? function  A function that should return true when the temporary mercy should start to fade out.
 function EnemyBattler:addTemporaryMercy(amount, play_sound, clamp, kill_condition)
-    kill_condition = kill_condition or function ()
+    kill_condition = kill_condition or function()
         return Game.battle.state ~= "DEFENDING" and Game.battle.state ~= "DEFENDINGEND"
     end
 
-    clamp = clamp or {0, 100}
+    clamp = clamp or { 0, 100 }
 
     self.temporary_mercy = self.temporary_mercy + amount
 
@@ -550,18 +553,26 @@ end
 --- Creates the particular flash effect used when a party member uses mercy on the enemy, but the spare fails
 ---@param color? table The color the enemy should flash (defaults to yellow)
 function EnemyBattler:mercyFlash(color)
-    color = color or {1, 1, 0}
+    color = color or { 1, 1, 0 }
 
     local recolor = self:addFX(RecolorFX())
-    Game.battle.timer:during(8/30, function()
-        recolor.color = ColorUtils.mergeColor(recolor.color, color, 0.12 * DTMULT)
-    end, function()
-        Game.battle.timer:during(8/30, function()
-            recolor.color = ColorUtils.mergeColor(recolor.color, {1, 1, 1}, 0.16 * DTMULT)
-        end, function()
-            self:removeFX(recolor)
-        end)
-    end)
+    Game.battle.timer:during(
+        8 / 30,
+        function()
+            recolor.color = ColorUtils.mergeColor(recolor.color, color, 0.12 * DTMULT)
+        end,
+        function()
+            Game.battle.timer:during(
+                8 / 30,
+                function()
+                    recolor.color = ColorUtils.mergeColor(recolor.color, { 1, 1, 1 }, 0.16 * DTMULT)
+                end,
+                function()
+                    self:removeFX(recolor)
+                end
+            )
+        end
+    )
 end
 
 --- *(Override)* Returns a nested table of colors `{r, g, b}` that the enemy's name will display in, with multiple colors forming a gradient, and one forming a solid color.
@@ -570,10 +581,10 @@ end
 function EnemyBattler:getNameColors()
     local result = {}
     if self:canSpare() then
-        table.insert(result, {1, 1, 0})
+        table.insert(result, { 1, 1, 0 })
     end
     if self.tired then
-        local tiredcol = {0, 0.7, 1}
+        local tiredcol = { 0, 0.7, 1 }
         if Game:getConfig("pacifyGlow") then
             local battler = Game.battle.party[Game.battle.current_selecting]
             local can_pacify
@@ -614,7 +625,7 @@ function EnemyBattler:getEncounterText()
         return self.spareable_text
     end
 
-    return Utils.pick(self.text)
+    return TableUtils.pick(self.text)
 end
 
 ---@return string
@@ -631,7 +642,7 @@ function EnemyBattler:getEnemyDialogue()
         self.dialogue_override = nil
         return dialogue
     end
-    return Utils.pick(self.dialogue)
+    return TableUtils.pick(self.dialogue)
 end
 
 --- *(Override)* Gets the list of waves this enemy can use each turn.
@@ -641,7 +652,7 @@ function EnemyBattler:getNextWaves()
     if self.wave_override then
         local wave = self.wave_override
         self.wave_override = nil
-        return {wave}
+        return { wave }
     end
     return self.waves
 end
@@ -652,7 +663,7 @@ end
 function EnemyBattler:selectWave()
     local waves = self:getNextWaves()
     if waves and #waves > 0 then
-        local wave = Utils.pick(waves)
+        local wave = TableUtils.pick(waves)
         self.selected_wave = wave
         return wave
     end
@@ -668,7 +679,7 @@ function EnemyBattler:onCheck(battler) end
 function EnemyBattler:getCheckText(battler)
     if type(self.check) == "table" then
         local tbl = {}
-        for i,check in ipairs(self.check) do
+        for i, check in ipairs(self.check) do
             if i == 1 then
                 table.insert(tbl, "* " .. string.upper(self.name) .. " - " .. check)
             else
@@ -689,7 +700,7 @@ function EnemyBattler:onActStart(battler, name)
     battler:setAnimation("battle/act")
     local action = Game.battle:getCurrentAction()
     if action.party then
-        for _,party_id in ipairs(action.party) do
+        for _, party_id in ipairs(action.party) do
             Game.battle:getPartyBattler(party_id):setAnimation("battle/act")
         end
     end
@@ -723,7 +734,7 @@ function EnemyBattler:onTurnEnd() end
 ---@param name string
 ---@return table?
 function EnemyBattler:getAct(name)
-    for _,act in ipairs(self.acts) do
+    for _, act in ipairs(self.acts) do
         if act.name == name then
             return act
         end
@@ -754,7 +765,7 @@ end
 function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status, attacked)
     if amount == 0 or (amount < 0 and Game:getConfig("damageUnderflowFix")) then
         if show_status ~= false then
-            self:statusMessage("msg", "miss", color or (battler and {battler.chara:getDamageColor()}))
+            self:statusMessage("msg", "miss", color or (battler and { battler.chara:getDamageColor() }))
         end
 
         self:onDodge(battler, attacked)
@@ -763,7 +774,7 @@ function EnemyBattler:hurt(amount, battler, on_defeat, color, show_status, attac
 
     self.health = self.health - amount
     if show_status ~= false then
-        self:statusMessage("damage", amount, color or (battler and {battler.chara:getDamageColor()}))
+        self:statusMessage("damage", amount, color or (battler and { battler.chara:getDamageColor() }))
     end
 
     if amount > 0 then
@@ -842,7 +853,7 @@ function EnemyBattler:onHurt(damage, battler)
     if not self:getActiveSprite():setAnimation("hurt") then
         self:toggleOverlay(false)
     end
-    self:getActiveSprite():shake(9, 0, 0.5, 2/30)
+    self:getActiveSprite():shake(9, 0, 0.5, 2 / 30)
 
     if self.health <= (self.max_health * self.tired_percentage) then
         -- If `tired_percentage` is set to 0 (or less?), treat that as an indication to hide the message.
@@ -885,15 +896,15 @@ function EnemyBattler:onDefeatRun(damage, battler)
 
     local sweat = Sprite("effects/defeat/sweat")
     sweat:setOrigin(0.5, 0.5)
-    sweat:play(5/30, true)
+    sweat:play(5 / 30, true)
     sweat.layer = 100
     self:addChild(sweat)
 
-    Game.battle.timer:after(15/30, function()
+    Game.battle.timer:after(15 / 30, function()
         sweat:remove()
         self:getActiveSprite().run_away = true
 
-        Game.battle.timer:after(15/30, function()
+        Game.battle.timer:after(15 / 30, function()
             self:remove()
         end)
     end)
@@ -934,7 +945,7 @@ function EnemyBattler:heal(amount, sparkle_color)
         self.health = self.max_health
         self:statusMessage("msg", "max", nil, nil, 8)
     else
-        self:statusMessage("heal", amount, {0, 1, 0}, nil, 8)
+        self:statusMessage("heal", amount, { 0, 1, 0 }, nil, 8)
     end
 
     self:healEffect(unpack(sparkle_color or {}))
@@ -964,7 +975,7 @@ function EnemyBattler:freeze()
     sprite.frozen = true
     sprite.freeze_progress = 0
 
-    Game.battle.timer:tween(20/30, sprite, {freeze_progress = 1})
+    Game.battle.timer:tween(20 / 30, sprite, { freeze_progress = 1 })
 
     Game.battle.money = Game.battle.money + 24
     self:defeat("FROZEN", true)
@@ -974,14 +985,14 @@ end
 ---@param ... unknown
 ---@return DamageNumber
 function EnemyBattler:statusMessage(...)
-    return super.statusMessage(self, self.width/2, self.height/2, ...)
+    return super.statusMessage(self, self.width / 2, self.height / 2, ...)
 end
 
 --- An override of [`Battler:recruitMessage()`](lua://Battler.recruitMessage)
 ---@param ... unknown
 ---@return RecruitMessage
 function EnemyBattler:recruitMessage(...)
-    return super.recruitMessage(self, self.width/2, self.height/2, ...)
+    return super.recruitMessage(self, self.width / 2, self.height / 2, ...)
 end
 
 ---@param v boolean|integer
@@ -1087,7 +1098,7 @@ end
 ---@param flag  string
 ---@param value any
 function EnemyBattler:setFlag(flag, value)
-    Game:setFlag("enemy#"..self.id..":"..flag, value)
+    Game:setFlag("enemy#" .. self.id .. ":" .. flag, value)
 end
 
 --- Gets the value of the flag named `flag`, returning `default` if the flag does not exist \
@@ -1096,7 +1107,7 @@ end
 ---@param default?  any
 ---@return any
 function EnemyBattler:getFlag(flag, default)
-    return Game:getFlag("enemy#"..self.id..":"..flag, default)
+    return Game:getFlag("enemy#" .. self.id .. ":" .. flag, default)
 end
 
 --- Adds `amount` to a numeric flag named `flag` (or defines it if it does not exist) \
@@ -1105,7 +1116,7 @@ end
 ---@param amount?   number  (Defaults to `1`)
 ---@return number new_value
 function EnemyBattler:addFlag(flag, amount)
-    return Game:addFlag("enemy#"..self.id..":"..flag, amount)
+    return Game:addFlag("enemy#" .. self.id .. ":" .. flag, amount)
 end
 
 return EnemyBattler
