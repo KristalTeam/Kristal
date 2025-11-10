@@ -30,6 +30,7 @@
     "pacifyGlow": false,             // Pacify (and other spells) glow when enemies are TIRED
     "tiredMessages": false,          // Tired mercy messages
     "awakeMessages": false,          // Awake un-mercy messages
+    "checkActDescription": false,    // Whether the "Check" act in battle says "Useless analysis" or not
 
     "targetSystem": false,           // Whether the target system should be used or not
     "soulInvBetweenWaves": false,    // Whether the soul invulnerability will carry between waves in battles
