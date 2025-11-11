@@ -213,8 +213,8 @@ function EnemyBattler:registerAct(name, description, party, tp, highlight, icons
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, chara in ipairs(Game.party) do
-                table.insert(party, chara.id)
+            for _, battler in ipairs(Game.battle.party) do
+                table.insert(party, battler.chara.id)
             end
         else
             party = { party }
@@ -248,7 +248,7 @@ function EnemyBattler:registerShortAct(name, description, party, tp, highlight, 
         if party == "all" then
             party = {}
             for _, battler in ipairs(Game.battle.party) do
-                table.insert(party, battler.id)
+                table.insert(party, battler.chara.id)
             end
         else
             party = { party }
@@ -281,8 +281,8 @@ function EnemyBattler:registerActFor(char, name, description, party, tp, highlig
     if type(party) == "string" then
         if party == "all" then
             party = {}
-            for _, chara in ipairs(Game.party) do
-                table.insert(party, chara.id)
+            for _, battler in ipairs(Game.battle.party) do
+                table.insert(party, battler.chara.id)
             end
         else
             party = { party }
