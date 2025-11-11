@@ -667,6 +667,7 @@ function Map:loadObjects(layer, depth, layer_type)
                 if obj then
                     obj.x = obj.x + (layer.offsetx or 0)
                     obj.y = obj.y + (layer.offsety or 0)
+                    obj:setParallax(layer.parallaxx, layer.parallaxy)
                     if not obj.object_id then
                         obj.object_id = v.id
                     end
