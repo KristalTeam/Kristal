@@ -34,7 +34,7 @@ function Solid:init(filled, x, y, width, height)
     if filled then
         -- Default to arena green and draw filled collider
 
-        self.color = {0, 0.75, 0}
+        self.color = { 0, 0.75, 0 }
         self.draw_collider = true
     else
         self.draw_collider = false
@@ -69,7 +69,7 @@ end
 ---@param y_mult number
 ---@return boolean
 function Solid:doMoveAmount(amount, x_mult, y_mult)
-    local sign = Utils.sign(amount)
+    local sign = MathUtils.sign(amount)
 
     local soul_collided = false
 
@@ -84,12 +84,12 @@ function Solid:doMoveAmount(amount, x_mult, y_mult)
         self.y = self.y + (moved * y_mult)
         Object.uncache(self)
 
-        for _,soul in ipairs(self.stage:getObjects(Soul)) do
+        for _, soul in ipairs(self.stage:getObjects(Soul)) do
             if self:collidesWith(soul) then
                 soul_collided = true
 
                 self.collidable = false
-                local _,collided = soul:move(sign * x_mult, sign * y_mult)
+                local _, collided = soul:move(sign * x_mult, sign * y_mult)
                 Object.uncache(soul)
                 if collided then
                     soul:onSquished(self)
@@ -117,7 +117,7 @@ function Solid:onSquished(soul)
     end]]
 
     if self.squish_damage and self.squish_damage ~= 0 then
-        local battler = Utils.pick(Game.battle:getActiveParty())
+        local battler = TableUtils.pick(Game.battle:getActiveParty())
         if battler then
             battler:hurt(self.squish_damage)
         end
@@ -125,7 +125,7 @@ function Solid:onSquished(soul)
 
     soul:explode()
 
-    Game.battle.encounter:onWavesDone()
+    Game.battle:endWaves()
 end
 
 function Solid:draw()

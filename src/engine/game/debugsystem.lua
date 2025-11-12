@@ -748,7 +748,7 @@ function DebugSystem:registerSubMenus()
     end
 
     self:registerMenu("wave_select", "Wave Select", "search")
-    
+
     -- add a wave stopper
     self:registerOption(
         "wave_select",
@@ -756,12 +756,12 @@ function DebugSystem:registerSubMenus()
         "Stop the current playing wave.",
         function()
             if Game.battle:getState() == "DEFENDING" then
-                Game.battle.encounter:onWavesDone()
+                Game.battle:endWaves()
             end
             self:closeMenu()
         end
     )
-    
+
     -- loop through registry and add menu options for all waves
     local waves_list = {}
     for id, _ in pairs(Registry.waves) do
@@ -884,6 +884,31 @@ function DebugSystem:registerSubMenus()
                 end
             end
         )
+    end
+
+    -- TODO: toggle rather than only give
+
+    self:registerMenu("give_spell", "Give Spell", "search")
+
+    for id, _ in pairs(Registry.party_members) do
+        self:registerMenu("give_spell_" .. id, "Give Spell to " .. id, "search")
+        for spell_id, _ in pairs(Registry.spells) do
+            self:registerOption(
+                "give_spell_" .. id,
+                spell_id,
+                "Give this spell to " .. id .. ".",
+                function()
+                    local member = Game.party_data[id]
+                    if member then
+                        member:addSpell(spell_id)
+                    end
+                end
+            )
+        end
+
+        self:registerOption("give_spell", id, "Give a spell to this party member.", function()
+            self:enterMenu("give_spell_" .. id, 1)
+        end)
     end
 
     self:registerMenu("border_menu", "Border Test", "search")
@@ -1022,6 +1047,23 @@ function DebugSystem:registerDefaults()
         in_game
     )
 
+    self:registerOption("main", "Give Money", "Give an amount of money.", function()
+        self.window = DebugWindow("Enter Money", "Enter the money amount you'd like.", "input",
+            function(text)
+                local money = tonumber(text)
+                if money then
+                    if Game:isLight() then
+                        Game.lw_money = Game.lw_money + money
+                    else
+                        Game.money = Game.money + money
+                    end
+                    Assets.stopAndPlaySound("bell_bounce_short")
+                end
+            end)
+        self.window:setPosition(Input.getCurrentCursorPosition())
+        self:addChild(self.window)
+    end, in_game)
+
     self:registerOption(
         "main",
         "Portrait Viewer",
@@ -1082,6 +1124,16 @@ function DebugSystem:registerDefaults()
         function()
             return in_game() and Kristal.Config["borders"] == "dynamic"
         end
+    )
+
+    self:registerOption(
+        "main",
+        "Give Spell",
+        "Give a spell to a party member.",
+        function()
+            self:enterMenu("give_spell", 0)
+        end,
+        in_game
     )
 
     -- World specific

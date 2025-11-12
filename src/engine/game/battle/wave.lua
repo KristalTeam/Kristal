@@ -118,9 +118,16 @@ function Wave:beforeEnd() end
 ---@return boolean
 function Wave:canEnd() return true end
 
+--- End this wave immediately.
+---
+--- If you'd like to end all waves, use [`Game.battle:endWaves()`](lua://Game.battle.endWaves) instead.
+function Wave:setFinished()
+    self.finished = true
+end
+
 --- Removes all objects spawned by this wave
 function Wave:clear()
-    for _,object in ipairs(self.objects) do
+    for _, object in ipairs(self.objects) do
         object:remove()
     end
 
@@ -157,7 +164,7 @@ function Wave:spawnBulletTo(parent, bullet, ...)
     new_bullet.wave = self
     local attackers = self:getAttackers()
     if #attackers > 0 then
-        new_bullet.attacker = Utils.pick(attackers)
+        new_bullet.attacker = TableUtils.pick(attackers)
     end
     table.insert(self.bullets, new_bullet)
     table.insert(self.objects, new_bullet)
@@ -245,8 +252,8 @@ end
 ---@param x number
 ---@param y number
 function Wave:setArenaOffset(x, y)
-    self.arena_x = SCREEN_WIDTH/2 + x
-    self.arena_y = (SCREEN_HEIGHT - 155)/2 + 10 + y
+    self.arena_x = SCREEN_WIDTH / 2 + x
+    self.arena_y = (SCREEN_HEIGHT - 155) / 2 + 10 + y
 
     if Game.battle.arena then
         Game.battle.arena:move(x, y)
@@ -268,10 +275,10 @@ end
 --- Sets the initial shape of the arena
 ---@param ... table<[number, number]>   A list of {`x`, `y`} vertices that form the shape of the arena.
 function Wave:setArenaShape(...)
-    self.arena_shape = {...}
+    self.arena_shape = { ... }
 
     if Game.battle.arena then
-        Game.battle.arena:setShape({...})
+        Game.battle.arena:setShape({ ... })
     end
 end
 
@@ -345,7 +352,7 @@ end
 ---@return EnemyBattler[]
 function Wave:getAttackers()
     local result = {}
-    for _,enemy in ipairs(Game.battle:getActiveEnemies()) do
+    for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
         local wave = enemy.selected_wave
         if type(wave) == "table" and wave.id == self.id or wave == self.id then
             table.insert(result, enemy)

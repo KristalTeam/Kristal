@@ -309,11 +309,11 @@ function Encounter:getSoulSpawnLocation()
             if main_chara.actor:getSoulOffset() then
                 return battler:localToScreenPos(main_chara.actor:getSoulOffset())
             else
-                return battler:localToScreenPos((battler.sprite.width/2) - 4.5, battler.sprite.height/2)
+                return battler:localToScreenPos((battler.sprite.width / 2) - 4.5, battler.sprite.height / 2)
             end
         end
     end
-    return -9, -9
+    return 0, 0
 end
 
 --- *(Override)* Called when enemy dialogue is finished and closed, before the transition into a wave.
