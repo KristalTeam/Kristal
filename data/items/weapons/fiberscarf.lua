@@ -34,7 +34,7 @@ function item:init()
 
     -- Equip bonuses (for weapons and armor)
     self.bonuses = {
-        attack = 2,
+        attack = Game.chapter == 3 and 3 or 2,
         magic  = 2,
     }
     -- Bonus name and icon (displayed in equip menu)
