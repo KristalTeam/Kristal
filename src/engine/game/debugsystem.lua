@@ -84,6 +84,8 @@ function DebugSystem:init()
 
     self.mouse_clicked = false
 
+    self.selected_waves = {}
+
     self.playing_sound = nil
     self.old_music_volume = 1
     self.music_needs_reset = false
@@ -351,7 +353,7 @@ function DebugSystem:refresh()
     self.exclusive_menus = {}
     self.exclusive_menus["OVERWORLD"] = { "encounter_select", "select_shop", "select_map", "cutscene_select", "legend_select" }
     self.exclusive_menus["LEGEND"] = { "legend_select" }
-    self.exclusive_menus["BATTLE"] = { "wave_select" }
+    self.exclusive_menus["BATTLE"] = { "wave_select", "wave_select_multiple" }
     self:registerMenu("main", "~ KRISTAL DEBUG ~")
     self.current_menu = "main"
     self.menu_history = {}
@@ -359,6 +361,7 @@ function DebugSystem:refresh()
     self:registerSubMenus()
     Kristal.callEvent(KRISTAL_EVENT.registerDebugOptions, self)
     self:setFlagFilterDefaults()
+    self.selected_waves = {}
 end
 
 function DebugSystem:setFlagFilterDefaults()
@@ -786,6 +789,124 @@ function DebugSystem:registerSubMenus()
         )
     end
 
+    self:registerMenu("wave_select_multiple", "Multiple Wave Select", "search")
+
+    self:registerOption(
+        "wave_select_multiple",
+        "[Start Waves]",
+        "Start the selected waves.",
+        function ()
+            -- WARNING: Prepare eye bleach before reading function
+            if Game.battle:getState() == "ACTIONSELECT" then
+                -- Step 1: Creates a table of enemies that can (normally) use each wave
+                local enemy_matches = {}
+                for _, wave in ipairs(self.selected_waves) do
+                    enemy_matches[wave] = {}
+                    for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
+                        if TableUtils.contains(enemy.waves, wave) then
+                            table.insert(enemy_matches[wave], enemy)
+                        end
+                    end
+                end
+                -- Step 2: Assign waves to enemies
+                -- Table for waves that don't get a match at this stage
+                local assign_randomly = {}
+                for i=0,#self.selected_waves do
+                    for wave, enemies in pairs(enemy_matches) do
+                        -- Process the least matches first
+                        if #enemies == i then
+                            -- Skip over everything that didn't get a match
+                            if i == 0 then
+                                table.insert(assign_randomly, wave)
+                                goto continue
+                            end
+                            local success
+                            -- Find the first enemy that can use this wave and set it on them
+                            for _, enemy in ipairs(enemies) do
+                                if not enemy.selected_wave then
+                                    enemy.selected_wave = wave
+                                    success = true
+                                    break
+                                end
+                            end
+
+                            -- Oops! Accidentally assigned all of the enemies this fit on already
+                            if not success then
+                                table.insert(assign_randomly, wave)
+                            end
+                        end
+                        ::continue::
+                    end
+                end
+                -- Step 3: All the waves we couldn't assign before get chucked on enemies randomly
+                for _, wave in ipairs(assign_randomly) do
+                    for _, enemy in ipairs(Game.battle:getActiveEnemies()) do
+                        if not enemy.selected_wave then
+                            enemy.selected_wave = wave
+                            break
+                        end
+                    end
+                end
+                Game.battle:setState("DEFENDINGBEGIN", self.selected_waves)
+            end
+        end
+    )
+
+    self:registerOption(
+        "wave_select_multiple",
+        "[Clear Selection]",
+        "Clear the currently selected waves.",
+        function ()
+            self.selected_waves = {}
+        end
+    )
+
+    -- self:registerOption(
+    --     "wave_select_multiple",
+    --     "[Stop Current Wave]",
+    --     "Stop the current playing wave.",
+    --     function()
+    --         if Game.battle:getState() == "DEFENDING" then
+    --             Game.battle:endWaves()
+    --         end
+    --         self:closeMenu()
+    --     end
+    -- )
+
+    table.sort(waves_list, function(a, b)
+        return a < b
+    end)
+
+    local function getWaveSpaceString()
+        return "(" .. #self.selected_waves .. "/".. #Game.battle:getActiveEnemies() ..")"
+    end
+
+    for _, id in ipairs(waves_list) do
+        self:registerOption(
+            "wave_select_multiple",
+            id,
+            function()
+               if TableUtils.contains(self.selected_waves, id) then
+                    return "Remove this wave from the selected group. " .. getWaveSpaceString()
+               end
+               return "Add this wave to the selected group. " .. getWaveSpaceString()
+            end,
+            function()
+                if TableUtils.contains(self.selected_waves, id) then
+                    TableUtils.removeValue(self.selected_waves, id)
+                elseif #self.selected_waves < #Game.battle:getActiveEnemies() then
+                    table.insert(self.selected_waves, id)
+                else
+                    return false
+                end
+            end,
+            nil,
+            function ()
+                return TableUtils.contains(self.selected_waves, id) and COLORS.aqua or #self.selected_waves == #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
+            end
+        )
+    end
+
     self:registerMenu("sound_test", "Sound Test", "search")
     self:registerMenuEntry(
         "sound_test",
@@ -1202,6 +1323,16 @@ function DebugSystem:registerDefaults()
 
     self:registerOption(
         "main",
+        "Start Multiple Waves",
+        "Start multiple waves at once.",
+        function()
+            self:enterMenu("wave_select_multiple", 0)
+        end,
+        in_battle
+    )
+
+    self:registerOption(
+        "main",
         "End Battle",
         "Instantly complete a battle.",
         function()
@@ -1231,13 +1362,15 @@ end
 ---@param description string|fun():string
 ---@param func function
 ---@param visible_func? fun():boolean
+---@param color? fun():table
 ---@return nil
-function DebugSystem:registerOption(menu, name, description, func, visible_func)
+function DebugSystem:registerOption(menu, name, description, func, visible_func, color)
     table.insert(self.menus[menu].options, {
         name = name,
         description = description,
         func = func,
-        visible_func = visible_func
+        visible_func = visible_func,
+        color = color,
     })
 end
 
@@ -1439,10 +1572,12 @@ function DebugSystem:onKeyPressed(key, is_repeat)
             else
                 local option = options[self.current_selecting]
                 if option then
-                    if self.current_menu ~= "sound_test" then
+                    local failsound = option.func() == false
+                    if failsound then
+                        Assets.playSound("ui_cant_select")
+                    elseif self.current_menu ~= "sound_test" then
                         Assets.playSound("ui_select")
                     end
-                    option.func()
                 end
             end
         end
@@ -1790,10 +1925,14 @@ function DebugSystem:draw()
         local options = self:getValidOptions()
         for index, option in ipairs(options) do
             local name = option.name
+            local color = option.color
             if type(name) == "function" then
                 name = name()
             end
-            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y)
+            if type(color) == "function" then
+                color = color()
+            end
+            self:printShadow(name, text_offset + 19, y_off + menu_y + (index - 1) * 32 + 16 + (is_search and 64 or 0) + self.menu_y, color)
         end
         Draw.popScissor()
 
