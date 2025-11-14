@@ -798,6 +798,9 @@ function DebugSystem:registerSubMenus()
         "[Start Waves]",
         "Start the selected waves.",
         function ()
+            if #self.selected_waves > #Game.battle:getActiveEnemies() then
+                return false
+            end
             -- WARNING: Prepare eye bleach before reading function
             if Game.battle:getState() == "ACTIONSELECT" then
                 -- Step 1: Creates a table of enemies that can (normally) use each wave
@@ -851,6 +854,10 @@ function DebugSystem:registerSubMenus()
                 end
                 Game.battle:setState("DEFENDINGBEGIN", self.selected_waves)
             end
+        end,
+        nil,
+        function ()
+            return #self.selected_waves > #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
         end
     )
 
@@ -904,7 +911,7 @@ function DebugSystem:registerSubMenus()
             end,
             nil,
             function ()
-                return TableUtils.contains(self.selected_waves, id) and COLORS.aqua or #self.selected_waves == #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
+                return TableUtils.contains(self.selected_waves, id) and COLORS.aqua or #self.selected_waves >= #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
             end
         )
     end
