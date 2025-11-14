@@ -10,6 +10,8 @@
 ---
 ---@field filtered_flags_list   string[]        A list of filtered flag keys that should show in the flags menu
 ---
+---@field music                 Music
+---
 ---@overload fun(...) : DebugSystem
 local DebugSystem, super = Class(Object)
 
@@ -964,6 +966,10 @@ function DebugSystem:registerSubMenus()
             function()
                 self.music:setVolume(1)
                 self.music:play(id)
+            end,
+            nil,
+            function ()
+                return self.music:isPlaying() and self.music.current == id and COLORS.aqua or COLORS.white
             end
         )
     end
@@ -1003,6 +1009,10 @@ function DebugSystem:registerSubMenus()
                         Game.world:spawnPlayer(x, y, Game.party_data[id]:getActor(), id)
                     end
                 end
+            end,
+            nil,
+            function ()
+                return Game:hasPartyMember(id) and COLORS.aqua or COLORS.white
             end
         )
     end
@@ -1023,6 +1033,10 @@ function DebugSystem:registerSubMenus()
                     if member then
                         member:addSpell(spell_id)
                     end
+                end,
+                nil,
+                function ()
+                    return Game.party_data[id]:hasSpell(spell_id) and COLORS.aqua or COLORS.white
                 end
             )
         end
