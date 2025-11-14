@@ -1034,11 +1034,18 @@ function DebugSystem:registerSubMenus()
             self:registerOption(
                 "give_spell_" .. id,
                 spell_id,
-                "Give this spell to " .. id .. ".",
+                function ()
+                    local member = Game.party_data[id]
+                    return member and (not member:hasSpell(spell_id) and "Give this spell to " .. id .. "." or "Take this spell from " .. id .. ".") or "???" -- Failsafe (when would this happen?)
+                end,
                 function()
                     local member = Game.party_data[id]
                     if member then
-                        member:addSpell(spell_id)
+                        if not member:hasSpell(spell_id) then
+                            member:addSpell(spell_id)
+                        else
+                            member:removeSpell(spell_id)
+                        end
                     end
                 end,
                 nil,
