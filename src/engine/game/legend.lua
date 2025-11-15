@@ -80,7 +80,7 @@ function Legend:update()
         end
     end
 
-    if self.can_skip and Input.pressed("confirm") then
+    if self.can_skip and Input.pressed("confirm") and not OVERLAY_OPEN then
         self.fader:fadeOut(function() self:onFinish(true) end, { speed = 1, music = true })
     end
 
