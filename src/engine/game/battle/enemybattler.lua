@@ -134,7 +134,7 @@ function EnemyBattler:init(actor, use_overlay)
     self.acts = {
         {
             ["name"] = "Check",
-            ["description"] = "",
+            ["description"] = Game:getConfig("checkActDescription") and "Useless\nanalysis" or "",
             ["party"] = {}
         }
     }
