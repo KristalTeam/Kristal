@@ -6,33 +6,6 @@ json = require("src.lib.json")
 
 verbose = false
 
---[[if love.filesystem.getInfo("mods/example/_GENERATED_FROM_MOD_TEMPLATE") then
-    love.filesystem.mount("mod_template/assets", "mods/example/assets")
-    love.filesystem.mount("mod_template/scripts", "mods/example/scripts")
-end]]
-
-function string.split(str, sep, remove_empty)
-    local t = {}
-    local i = 1
-    local s = ""
-    while i <= #str do
-        if str:sub(i, i + (#sep - 1)) == sep then
-            if not remove_empty or s ~= "" then
-                table.insert(t, s)
-            end
-            s = ""
-            i = i + (#sep - 1)
-        else
-            s = s .. str:sub(i, i)
-        end
-        i = i + 1
-    end
-    if not remove_empty or s ~= "" then
-        table.insert(t, s)
-    end
-    return t
-end
-
 function checkExtension(path, ...)
     for _, v in ipairs({ ... }) do
         if path:sub(- #v - 1):lower() == "." .. v then
