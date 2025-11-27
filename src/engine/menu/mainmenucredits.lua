@@ -80,7 +80,7 @@ function MainMenuCredits:init(menu)
                 "Verozity",
                 "WIL-TZY",
                 "YeetusSnoopy",
-                "",
+                "rfrx",
                 "",
                 "",
                 "",
