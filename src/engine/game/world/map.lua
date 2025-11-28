@@ -591,14 +591,14 @@ function Map:shouldLoadObject(data, layer)
     local uid = self:getUniqueID() .. "#" .. tostring(data.properties["uid"] or data.id)
     if data.properties["cond"] then
         local env = setmetatable({}, {__index = function (t, k)
-            return Game.flags[uid .. ":" .. k] or Game.flags[k] or _G[k]
+            return Game:getFlag(uid .. ":" .. k) or Game:getFlag(k) or _G[k]
         end})
         local chunk, _ = assert(loadstring("return " .. data.properties["cond"]))
         skip_loading = not setfenv(chunk, env)()
     elseif data.properties["flagcheck"] then
         local inverted, flag = StringUtils.startsWith(data.properties["flagcheck"], "!")
 
-        local result = Game.flags[uid .. ":" .. flag] or Game.flags[flag]
+        local result = Game:getFlag(uid .. ":" .. flag) or Game:getFlag(flag)
         local value = data.properties["flagvalue"]
         local is_true
         if value ~= nil then
