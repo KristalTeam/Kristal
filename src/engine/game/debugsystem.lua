@@ -2105,7 +2105,7 @@ function DebugSystem:draw()
         if Game.flags then
             for index, key in pairs(self.filtered_flags_list) do
                 local print_key, key_sx   = StringUtils.squishAndTrunc(key, self.font, 480 - 32, 1, 0.6, "...")
-                local print_value, value_sx = StringUtils.squishAndTrunc(tostring(Game.flags[key]), self.font, 160 - 32, 1, 0.6, "...")
+                local print_value, value_sx = StringUtils.squishAndTrunc(tostring(Game:getFlag(key)), self.font, 160 - 32, 1, 0.6, "...")
                 self:printShadow(print_key, text_offset + 19, y_off + menu_y + index * 32 + 16 + self.menu_y, nil, nil, nil, key_sx)
                 self:printShadow(print_value, 480 + 16, y_off + menu_y + index * 32 + 16 + self.menu_y, { 1, 1, 1, 1 }, "right", nil, value_sx)
             end
