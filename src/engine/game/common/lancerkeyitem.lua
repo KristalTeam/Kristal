@@ -139,13 +139,13 @@ function LancerKeyItem:update()
             self.spintimer = self.spintimer + DTMULT
             if self.spintimer >= 3 then
                 self.lancer:setSprite("walk")
-                if self.lancer.facing == "down" then
+                if self.lancer:getFacing() == "down" then
                     self.lancer:setFacing("left")
-                elseif self.lancer.facing == "left" then
+                elseif self.lancer:getFacing() == "left" then
                     self.lancer:setFacing("up")
-                elseif self.lancer.facing == "up" then
+                elseif self.lancer:getFacing() == "up" then
                     self.lancer:setFacing("right")
-                elseif self.lancer.facing == "right" then
+                elseif self.lancer:getFacing() == "right" then
                     self.lancer:setFacing("down")
                 end
                 self.spincount = self.spincount + DTMULT

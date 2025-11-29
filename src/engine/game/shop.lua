@@ -72,7 +72,7 @@
 ---
 --- A table defining what will happen when the player leaves the shop.
 --- The keys `map` (target map name), `x` and `y` OR `marker` (target position in map), `facing`, (player facing direction in map), `menu` (return to main menu) can be defined for this table.
----@field leave_options             { x: number, y: number, map: string, marker: string, facing: "up"|"right"|"down"|"left", menu: boolean }
+---@field leave_options             { x: number, y: number, map: string, marker: string, facing: FacingDirection, menu: boolean }
 ---
 ---@field expand_box                boolean     Whether the right side `info_box` should be expanded.
 ---

@@ -137,18 +137,18 @@ function Player:interact()
         return true
     end
 
-    local col = self.interact_collider[self.facing]
+    local col = self.interact_collider[self:getFacing()]
 
     local interactables = {}
     for _, obj in ipairs(self.world.children) do
         if obj.onInteract and obj:collidesWith(col) then
             local rx, ry = obj:getRelativePos(obj.width / 2, obj.height / 2, self.parent)
-            table.insert(interactables, { obj = obj, dist = Utils.dist(self.x, self.y, rx, ry) })
+            table.insert(interactables, { obj = obj, dist = MathUtils.dist(self.x, self.y, rx, ry) })
         end
     end
-    table.sort(interactables, function (a, b) return a.dist < b.dist end)
+    table.sort(interactables, function(a, b) return a.dist < b.dist end)
     for _, v in ipairs(interactables) do
-        if v.obj:onInteract(self, self.facing) then
+        if v.obj:onInteract(self, self:getFacing()) then
             self.interact_buffer = v.obj.interact_buffer or 0
             return true
         end
@@ -192,9 +192,15 @@ function Player:alignFollowers(facing, x, y, dist)
     self.history = { { x = x, y = y, time = self.history_time } }
     for i = 1, Game.max_followers do
         local idist = dist and (i * dist) or (((i * FOLLOW_DELAY) / (1 / 30)) * 4)
-        table.insert(self.history,
-            { x = x + (offset_x * idist), y = y + (offset_y * idist), facing = facing,
-                time = self.history_time - (i * FOLLOW_DELAY) })
+        table.insert(
+            self.history,
+            {
+                x = x + (offset_x * idist),
+                y = y + (offset_y * idist),
+                facing = facing,
+                time = self.history_time - (i * FOLLOW_DELAY)
+            }
+        )
     end
     self:resetFollowerHistory()
 end
@@ -226,10 +232,17 @@ function Player:handleMovement()
     local walk_x = 0
     local walk_y = 0
 
-    if     Input.down("left")  then walk_x = walk_x - 1
-    elseif Input.down("right") then walk_x = walk_x + 1 end
-    if     Input.down("up")    then walk_y = walk_y - 1
-    elseif Input.down("down")  then walk_y = walk_y + 1 end
+    if Input.down("left") then
+        walk_x = walk_x - 1
+    elseif Input.down("right") then
+        walk_x = walk_x + 1
+    end
+
+    if Input.down("up") then
+        walk_y = walk_y - 1
+    elseif Input.down("down") then
+        walk_y = walk_y + 1
+    end
 
     self.moving_x = walk_x
     self.moving_y = walk_y
@@ -345,9 +358,20 @@ function Player:updateHistory()
     if moved then
         self.history_time = self.history_time + DT
 
-        table.insert(self.history, 1,
-            { x = self.x, y = self.y, facing = self.facing, time = self.history_time, state = self.state_manager.state,
-                state_args = self.state_manager.args, auto = auto })
+        table.insert(
+            self.history,
+            1,
+            {
+                x = self.x,
+                y = self.y,
+                facing = self:getFacing(),
+                time = self.history_time,
+                state = self.state_manager.state,
+                state_args = self.state_manager.args,
+                auto = auto
+            }
+        )
+
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end

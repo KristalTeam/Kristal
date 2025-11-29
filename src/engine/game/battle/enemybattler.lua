@@ -1053,11 +1053,11 @@ function EnemyBattler:setActor(actor, use_overlay)
     super.setActor(self, actor, use_overlay)
 
     if self.sprite then
-        self.sprite.facing = "left"
+        self.sprite:setFacing("left")
         self.sprite.inherit_color = true
     end
     if self.overlay_sprite then
-        self.overlay_sprite.facing = "left"
+        self.overlay_sprite:setFacing("left")
         self.overlay_sprite.inherit_color = true
     end
 end

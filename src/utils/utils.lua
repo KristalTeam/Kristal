@@ -1544,7 +1544,7 @@ function Utils.absMax(a, b)
     return MathUtils.absMax(a, b)
 end
 
----@alias facing
+---@alias FacingDirection
 ---| "right"
 ---| "down"
 ---| "left"
@@ -1553,8 +1553,8 @@ end
 ---
 --- Returns a facing direction nearest to the specified angle.
 ---
----@param angle number      # The angle to convert.
----@return facing direction # The facing direction the specified angle is closest to.
+---@param angle number               # The angle to convert.
+---@return FacingDirection direction # The facing direction the specified angle is closest to.
 ---
 function Utils.facingFromAngle(angle)
     local deg = math.deg(angle) % 360
@@ -1575,9 +1575,9 @@ end
 ---
 --- Returns whether the specified angle is considered to be in the specified direction.
 ---
----@param facing facing   # The facing direction to compare.
----@param angle number    # The angle to compare.
----@return boolean result # Whether the angle is closest to the specified facing direction.
+---@param facing FacingDirection # The facing direction to compare.
+---@param angle number           # The angle to compare.
+---@return boolean result        # Whether the angle is closest to the specified facing direction.
 ---
 function Utils.isFacingAngle(facing, angle)
     local deg = math.deg(angle) % 360
@@ -1597,9 +1597,9 @@ end
 ---
 --- Returns two numbers defining a vector based on the specified direction.
 ---
----@param facing facing # The facing direction to get the vector of.
----@return number x     # The horizontal factor of the specified direction.
----@return number y     # The vertical factor of the specified direction.
+---@param facing FacingDirection # The facing direction to get the vector of.
+---@return number x              # The horizontal factor of the specified direction.
+---@return number y              # The vertical factor of the specified direction.
 ---
 function Utils.getFacingVector(facing)
     if facing == "right" then

@@ -85,10 +85,10 @@ end
 
 function Follower:getTargetPosition()
     local follow_delay = self:getFollowDelay()
-    local tx, ty, facing, state, args = self.x, self.y, self.facing, nil, {}
-    for i,v in ipairs(self.history) do
-        tx, ty, facing, state, args = v.x, v.y, v.facing, v.state, v.state_args
-        local upper = self.history_time - v.time
+    local tx, ty, facing, state, args = self.x, self.y, self:getFacing(), nil, {}
+    for i, entry in ipairs(self.history) do
+        tx, ty, facing, state, args = entry.x, entry.y, entry.facing, entry.state, entry.state_args
+        local upper = self.history_time - entry.time
         if upper > follow_delay then
             if i > 1 then
                 local prev = self.history[i - 1]
@@ -96,8 +96,8 @@ function Follower:getTargetPosition()
 
                 local t = (follow_delay - lower) / (upper - lower)
 
-                tx = Utils.lerp(prev.x, v.x, t)
-                ty = Utils.lerp(prev.y, v.y, t)
+                tx = MathUtils.lerp(prev.x, entry.x, t)
+                ty = MathUtils.lerp(prev.y, entry.y, t)
             end
             break
         end
@@ -140,8 +140,8 @@ function Follower:interpolateHistory()
 
     local new_facing = Utils.facingFromAngle(Utils.angle(self.x, self.y, target.x, target.y))
     self.history = {
-        {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state, state_args = target.state_manager.args},
-        {x = self.x, y = self.y, facing = new_facing, time = self.history_time - self:getFollowDelay(), state = self.state, state_args = target.state_manager.args}
+        { x = target.x, y = target.y, facing = target:getFacing(), time = self.history_time, state = target.state, state_args = target.state_manager.args },
+        { x = self.x, y = self.y, facing = new_facing, time = self.history_time - self:getFollowDelay(), state = self.state, state_args = target.state_manager.args }
     }
 end
 
@@ -154,7 +154,7 @@ end
 
 function Follower:isAutoMoving()
     local target_time = self:getFollowDelay()
-    for i,v in ipairs(self.history) do
+    for _, v in ipairs(self.history) do
         if v.auto then
             return true
         end
@@ -180,7 +180,7 @@ function Follower:updateHistory(moved, auto)
     if moved or auto_move then
         self.history_time = self.history_time + DT
 
-        table.insert(self.history, 1, {x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state, state_args = target.state_manager.args, auto = auto})
+        table.insert(self.history, 1, { x = target.x, y = target.y, facing = target.facing, time = self.history_time, state = target.state, state_args = target.state_manager.args, auto = auto })
         while (self.history_time - self.history[#self.history].time) > (Game.max_followers * FOLLOW_DELAY) do
             table.remove(self.history, #self.history)
         end
@@ -195,7 +195,7 @@ function Follower:update()
     self:updateIndex()
 
     if #self.history == 0 then
-        table.insert(self.history, {x = self.x, y = self.y, time = 0})
+        table.insert(self.history, { x = self.x, y = self.y, time = 0 })
     end
 
     if self.returning and not self.physics.move_target then
@@ -216,14 +216,14 @@ function Follower:update()
         self.blush_timer = self.blush_timer + DT
 
         local player = Game.world.player
-        local player_x, player_y = player:getRelativePos(player.width/2, player.height/2, Game.world)
-        local follower_x, follower_y = self:getRelativePos(self.width/2, self.height/2, Game.world)
+        local player_x, player_y = player:getRelativePos(player.width / 2, player.height / 2, Game.world)
+        local follower_x, follower_y = self:getRelativePos(self.width / 2, self.height / 2, Game.world)
         local distance_x = (player_x - follower_x)
         local distance_y = (player_y - follower_y)
         if ((math.abs(distance_x) <= 20) and (math.abs(distance_y) <= 14)) then
-            if (distance_x <= 0 and (player.facing == "right")) then
+            if (distance_x <= 0 and (player:getFacing() == "right")) then
                 self.blush_timer = self.blush_timer + DT
-            elseif (distance_x >= 0 and (player.facing == "left")) then
+            elseif (distance_x >= 0 and (player:getFacing() == "left")) then
                 self.blush_timer = self.blush_timer + DT
             end
         else

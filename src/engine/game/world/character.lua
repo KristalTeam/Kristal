@@ -109,14 +109,20 @@ function Character:setActor(actor)
     end
 
     self.sprite = self.actor:createSprite()
-    self.sprite.facing = self.facing
+    self.sprite:setFacing(self:getFacing())
     self.sprite.inherit_color = true
     self.sprite.on_footstep = function(s, n) self:onFootstep(n) end
     self:addChild(self.sprite)
 end
 
+--- Gets the character's current facing direction.
+---@return FacingDirection
+function Character:getFacing()
+    return self.facing
+end
+
 --- Makes the character face in the direction specified by `dir`.
----@param dir string The direction the character should face. Must be "up", "down", "left", or "right".
+---@param dir FacingDirection The direction the character should face. Must be "up", "down", "left", or "right".
 function Character:setFacing(dir)
     self.facing = dir
     self.sprite:setFacing(dir)
@@ -155,10 +161,10 @@ function Character:move(x, y, speed, keep_facing)
     end
 
     if not keep_facing and (movex ~= 0 or movey ~= 0) then
-        local dir = self.facing
+        local dir = self:getFacing()
         if self.sprite.directional then
             local angle = math.atan2(movey, movex)
-            if not Utils.isFacingAngle(self.facing, angle) then
+            if not Utils.isFacingAngle(dir, angle) then
                 dir = Utils.facingFromAngle(math.atan2(movey, movex))
             end
         else
@@ -173,8 +179,7 @@ function Character:move(x, y, speed, keep_facing)
             end
         end
 
-        self.facing = dir
-        self.sprite.facing = self.facing
+        self:setFacing(dir)
     end
 
     return moved
@@ -286,7 +291,7 @@ function Character:walkTo(x, y, time, facing, keep_facing, ease, after)
         end
         self.physics.move_target.move_func = function(_, dx, dy) self:doWalkToStep(dx, dy, keep_facing) end
         return true
-    elseif facing and self.facing ~= facing then
+    elseif facing and self:getFacing() ~= facing then
         self:setFacing(facing)
     end
     return false
@@ -323,7 +328,7 @@ function Character:walkToSpeed(x, y, speed, facing, keep_facing, after)
         end
         self.physics.move_target.move_func = function(_, dx, dy) self:doWalkToStep(dx, dy, keep_facing) end
         return true
-    elseif facing and self.facing ~= facing then
+    elseif facing and self:getFacing() ~= facing then
         self:setFacing(facing)
     end
     return false
@@ -614,7 +619,7 @@ end
 function Character:convertToFollower(index, save)
     local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer
-    follower:setFacing(self.facing)
+    follower:setFacing(self:getFacing())
     self.world:spawnFollower(follower, {index = index, party = self.party})
     if save then
         Game:addFollower(follower, index)
@@ -627,7 +632,7 @@ function Character:convertToPlayer()
     self.world:spawnPlayer(self.x, self.y, self.actor, self.party)
     local player = self.world.player
     player:setLayer(self.layer)
-    player:setFacing(self.facing)
+    player:setFacing(self:getFacing())
     self:remove()
     return player
 end
@@ -636,7 +641,7 @@ function Character:convertToNPC(properties)
     local npc = NPC(self.actor, self.x, self.y, properties)
     npc.layer = self.layer
     npc.party = self.party
-    npc:setFacing(self.facing)
+    npc:setFacing(self:getFacing())
     self.world:addChild(npc)
     self:remove()
     return npc
@@ -646,7 +651,7 @@ function Character:convertToCharacter()
     local character = Character(self.actor, self.x, self.y)
     character.layer = self.layer
     character.party = self.party
-    character:setFacing(self.facing)
+    character:setFacing(self:getFacing())
     self.world:addChild(character)
     self:remove()
     return character
@@ -656,7 +661,7 @@ function Character:convertToEnemy(properties)
     local enemy = ChaserEnemy(self.actor, self.x, self.y, properties)
     enemy.layer = self.layer
     enemy.party = self.party
-    enemy:setFacing(self.facing)
+    enemy:setFacing(self:getFacing())
     self.world:addChild(enemy)
     self:remove()
     return enemy
@@ -691,20 +696,30 @@ function Character:update()
 
     if (self.spin_speed ~= 0) then
         self.spin_timer = self.spin_timer + (1 / self.spin_speed) * DTMULT
+        local facing = self:getFacing()
+
         if (self.spin_timer >= 1) then
-            if     (self.facing == "down")  then self:setFacing("left")
-            elseif (self.facing == "left")  then self:setFacing("up")
-            elseif (self.facing == "up")    then self:setFacing("right")
-            elseif (self.facing == "right") then self:setFacing("down")
+            if (facing == "down") then
+                self:setFacing("left")
+            elseif (facing == "left") then
+                self:setFacing("up")
+            elseif (facing == "up") then
+                self:setFacing("right")
+            elseif (facing == "right") then
+                self:setFacing("down")
             end
 
             self.spin_timer = 0
         end
         if (self.spin_timer <= -1) then
-            if     (self.facing == "down")  then self:setFacing("right")
-            elseif (self.facing == "left")  then self:setFacing("down")
-            elseif (self.facing == "up")    then self:setFacing("left")
-            elseif (self.facing == "right") then self:setFacing("up")
+            if (facing == "down") then
+                self:setFacing("right")
+            elseif (facing == "left") then
+                self:setFacing("down")
+            elseif (facing == "up") then
+                self:setFacing("left")
+            elseif (facing == "right") then
+                self:setFacing("up")
             end
 
             self.spin_timer = 0

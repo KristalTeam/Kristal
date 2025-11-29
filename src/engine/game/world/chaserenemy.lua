@@ -200,7 +200,7 @@ end
 function ChaserEnemy:onEncounterTransitionOut(primary, encounter)
     local enemy = Game.battle:getEnemyFromCharacter(self)
     if enemy and enemy.done_state == "FROZEN" then
-        local statue = FrozenEnemy(self.actor, self.x, self.y, { facing = self.sprite.facing })
+        local statue = FrozenEnemy(self.actor, self.x, self.y, { facing = self.sprite:getFacing() })
         statue.layer = self.layer
         Game.world:addChild(statue)
     end
