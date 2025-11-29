@@ -71,12 +71,12 @@ end
 
 function Character:setFlag(flag, value)
     local uid = self:getUniqueID()
-    Game:setFlag(uid..":"..flag, value)
+    Game:setFlag(uid .. ":" .. flag, value)
 end
 
 function Character:getFlag(flag, default)
     local uid = self:getUniqueID()
-    return Game:getFlag(uid..":"..flag, default)
+    return Game:getFlag(uid .. ":" .. flag, default)
 end
 
 function Character:getPartyMember()
@@ -84,7 +84,7 @@ function Character:getPartyMember()
         return Game:getPartyMember(self.party)
     end
 
-    for _,party in pairs(Game.party_data) do
+    for _, party in pairs(Game.party_data) do
         local actor = party:getActor()
         if actor and actor.id == self.actor.id then
             return party
@@ -196,13 +196,13 @@ function Character:doMoveAmount(type, amount, other_amount)
     other_amount = other_amount or 0
 
     if amount == 0 then
-        self["last_collided_"..type] = false
+        self["last_collided_" .. type] = false
         return false, false
     end
 
     local other = type == "x" and "y" or "x"
 
-    local sign = Utils.sign(amount)
+    local sign = MathUtils.sign(amount)
     for i = 1, math.ceil(math.abs(amount)) do
         local moved = sign
         if (i > math.abs(amount)) then
@@ -244,12 +244,12 @@ function Character:doMoveAmount(type, amount, other_amount)
                     target:onCollide(self)
                 end
 
-                self["last_collided_"..type] = true
+                self["last_collided_" .. type] = true
                 return i > 1, target
             end
         end
     end
-    self["last_collided_"..type] = false
+    self["last_collided_" .. type] = false
     return true, false
 end
 
@@ -425,9 +425,9 @@ function Character:alert(duration, options)
         Assets.stopAndPlaySound("alert")
     end
     local sprite_to_use = options["sprite"] or "effects/alert"
-    self.alert_timer = duration and duration*30 or 20
+    self.alert_timer = duration and duration * 30 or 20
     if self.alert_icon then self.alert_icon:remove() end
-    self.alert_icon = Sprite(sprite_to_use, (self.width/2)+(options["offset_x"] or 0), options["offset_y"] or 0)
+    self.alert_icon = Sprite(sprite_to_use, (self.width / 2) + (options["offset_x"] or 0), options["offset_y"] or 0)
     self.alert_icon:setOrigin(0.5, 1)
     self.alert_icon.layer = options["layer"] or 100
     self:addChild(self.alert_icon)
@@ -509,7 +509,7 @@ end
 
 function Character:processJump()
     if (not self.init) then
-        self.fake_gravity = (self.jump_speed / ((self.jump_time*30) * 0.5))
+        self.fake_gravity = (self.jump_speed / ((self.jump_time * 30) * 0.5))
         self.init = true
 
         self.false_end_x = self.jump_x
@@ -556,7 +556,7 @@ function Character:processJump()
     end
     if (self.jump_progress == 1) then
         self.jump_sprite_timer = self.jump_sprite_timer + DT
-        if (self.jump_sprite_timer >= 5/30) then
+        if (self.jump_sprite_timer >= 5 / 30) then
             self.sprite:set(self.jump_sprite)
             self.jump_progress = 2
         end
@@ -565,8 +565,8 @@ function Character:processJump()
         self.jump_timer = self.jump_timer + DT
         self.jump_speed = self.jump_speed - (self.fake_gravity * DTMULT)
         self.jump_arc_y = self.jump_arc_y - (self.jump_speed * DTMULT)
-        self.x = Utils.lerp(self.jump_start_x, self.false_end_x, (self.jump_timer / self.jump_time))
-        self.real_y = Utils.lerp(self.jump_start_y, self.false_end_y, (self.jump_timer / self.jump_time))
+        self.x = MathUtils.lerp(self.jump_start_x, self.false_end_x, (self.jump_timer / self.jump_time))
+        self.real_y = MathUtils.lerp(self.jump_start_y, self.false_end_y, (self.jump_timer / self.jump_time))
 
         self.x = self.x
         self.y = self.real_y + self.jump_arc_y
@@ -584,9 +584,9 @@ function Character:processJump()
             self.sprite:set(self.land_sprite)
             self.jump_sprite_timer = self.jump_sprite_timer + DT
         else
-            self.jump_sprite_timer = 10/30
+            self.jump_sprite_timer = 10 / 30
         end
-        if (self.jump_sprite_timer >= 5/30) then
+        if (self.jump_sprite_timer >= 5 / 30) then
             self.sprite:resetSprite()
             self.jumping = false
         end
@@ -620,7 +620,7 @@ function Character:convertToFollower(index, save)
     local follower = Follower(self.actor, self.x, self.y)
     follower.layer = self.layer
     follower:setFacing(self:getFacing())
-    self.world:spawnFollower(follower, {index = index, party = self.party})
+    self.world:spawnFollower(follower, { index = index, party = self.party })
     if save then
         Game:addFollower(follower, index)
     end

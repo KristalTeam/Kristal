@@ -173,11 +173,11 @@ function RecruitMenu:draw()
 
         Draw.setColor(COLORS["white"])
         love.graphics.print("Recruits", 80, 30)
-        Draw.setColor({0,1,0})
+        Draw.setColor({ 0, 1, 0 })
         love.graphics.print("PROGRESS", 270, 30, 0, 0.5, 1)
 
         local offset = 0
-        for i,recruit in pairs(self.recruits) do
+        for i, recruit in pairs(self.recruits) do
             if i <= self:getLastSelectedInPage() and i >= self:getFirstSelectedInPage() then
                 Draw.setColor(COLORS["white"])
                 if i == self.selected then
@@ -202,7 +202,7 @@ function RecruitMenu:draw()
                 end
                 love.graphics.print(name, 80, 100 + offset, 0, x_scale, 1)
                 if Game:hasRecruit(recruit.id) then
-                    Draw.setColor({0,1,0})
+                    Draw.setColor({ 0, 1, 0 })
                     love.graphics.print("Recruited!", 275, 100 + offset, 0, 0.5, 1)
                 else
                     Draw.setColor(PALETTE["world_light_gray"])
@@ -215,7 +215,7 @@ function RecruitMenu:draw()
 
         if self:getMaxPages() > 1 then
             Draw.setColor(1, 1, 1, 1)
-            local offset = Utils.round(math.sin(Kristal.getTime() * 5)) * 2
+            local offset = MathUtils.round(math.sin(Kristal.getTime() * 5)) * 2
             Draw.draw(self.arrow_left, 22 - offset, 213, 0, 2, 2)
             Draw.draw(self.arrow_right, 612 + offset, 213, 0, 2, 2)
         end
@@ -227,28 +227,38 @@ function RecruitMenu:draw()
         love.graphics.rectangle("fill", 34, 14, 573, 433)
 
         Draw.setColor(COLORS["white"])
-        for i,recruit in pairs(self.recruits) do
+        for i, recruit in pairs(self.recruits) do
             Draw.printAlign(self.selected .. "/" .. #self.recruits, 590, 30, "right", 0, 0.5, 1)
             if i == self.selected then
                 love.graphics.print("CHAPTER " .. recruit:getChapter(), 300, 30, 0, 0.5, 1)
                 love.graphics.print(recruit:getName(), 300, 70)
                 love.graphics.setFont(self.description_font)
-                Draw.printAlign(Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited", 301, 120, {["align"] = "left", ["line_offset"] = 4})
+
+                Draw.printAlign(
+                    Game:hasRecruit(recruit.id) and recruit:getDescription() or "Not yet fully recruited",
+                    301,
+                    120,
+                    {
+                        align = "left",
+                        line_offset = 4
+                    }
+                )
+
                 love.graphics.setFont(self.font)
 
-                for i,value in ipairs({"LIKE", "DISLIKE", "?????", "?????"}) do
+                for j, value in ipairs({ "LIKE", "DISLIKE", "?????", "?????" }) do
                     local x_scale = 1
                     if self.font:getWidth(value) >= 60 then
                         x_scale = 80 / self.font:getWidth(value)
                     end
-                    love.graphics.print(value, 80, 200 + i * 40, 0, x_scale, 1)
+                    love.graphics.print(value, 80, 200 + j * 40, 0, x_scale, 1)
                 end
-                for i,value in ipairs({Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", "?????????", "?????????"}) do
+                for j, value in ipairs({ Game:hasRecruit(recruit.id) and recruit:getLike() or "?", Game:hasRecruit(recruit.id) and recruit:getDislike() or "?", "?????????", "?????????" }) do
                     local x_scale = 1
                     if self.font:getWidth(value) >= 290 then
                         x_scale = 290 / self.font:getWidth(value)
                     end
-                    love.graphics.print(value, 180, 200 + i * 40, 0, x_scale, 1)
+                    love.graphics.print(value, 180, 200 + j * 40, 0, x_scale, 1)
                 end
 
                 if Input.usingGamepad() then
@@ -257,6 +267,7 @@ function RecruitMenu:draw()
                 else
                     love.graphics.print("Press " .. Input.getText("cancel") .. " to Return", 80, 400)
                 end
+
                 love.graphics.print("LEVEL", 525, 240, 0, 0.5, 1)
                 Draw.printAlign(recruit:getLevel(), 590, 240, "right", 0, 0.5, 1)
                 love.graphics.print("ATTACK", 518, 280, 0, 0.5, 1)
@@ -267,7 +278,7 @@ function RecruitMenu:draw()
             end
 
             Draw.setColor(1, 1, 1, 1)
-            local offset = Utils.round(math.sin(Kristal.getTime() * 5)) * 2
+            local offset = MathUtils.round(math.sin(Kristal.getTime() * 5)) * 2
             Draw.draw(self.arrow_left, 22 - offset, 218, 0, 2, 2)
             Draw.draw(self.arrow_right, 602 + offset, 218, 0, 2, 2)
         end

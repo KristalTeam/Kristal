@@ -22,7 +22,7 @@ function OverworldSoul:init(x, y)
     self.sprite.inherit_color = true
     self:addChild(self.sprite)
 
-    self.debug_rect = {-8, -8, 16, 16}
+    self.debug_rect = { -8, -8, 16, 16 }
 
     self.collider = CircleCollider(self, 0, 0, 8)
 
@@ -44,20 +44,6 @@ function OverworldSoul:onCollide(bullet)
     bullet:onCollide(self)
 end
 
-function OverworldSoul:onAdd(parent)
-    super.onAdd(self, parent)
-    if parent:includes(World) then
-        self.world = parent
-    end
-end
-
-function OverworldSoul:onRemove(parent)
-    super.onRemove(self, parent)
-    if self.world == parent then
-        self.world = nil
-    end
-end
-
 function OverworldSoul:update()
     -- Bullet collision !!! Yay
     if self.inv_timer > 0 then
@@ -67,7 +53,7 @@ function OverworldSoul:update()
     self.sprite.alpha = 1 -- ??????
 
     Object.startCache()
-    for _,bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
+    for _, bullet in ipairs(Game.stage:getObjects(WorldBullet)) do
         if bullet:collidesWith(self.collider) then
             self:onCollide(bullet)
         end
@@ -76,7 +62,7 @@ function OverworldSoul:update()
 
     if self.inv_timer > 0 then
         self.inv_flash_timer = self.inv_flash_timer + DT
-        local amt = math.floor(self.inv_flash_timer / (4/30))
+        local amt = math.floor(self.inv_flash_timer / (4 / 30))
         if (amt % 2) == 1 then
             self.sprite:setColor(0.5, 0.5, 0.5)
         else
@@ -92,7 +78,7 @@ function OverworldSoul:update()
 
     local soul_party = Game:getSoulPartyMember()
     if soul_party then
-        local soul_character = self.world:getPartyCharacterInParty(soul_party)
+        local soul_character = Game.world:getPartyCharacterInParty(soul_party)
         if soul_character then
             sx, sy = soul_character:getRelativePos(soul_character.actor:getSoulOffset())
         end
@@ -100,13 +86,13 @@ function OverworldSoul:update()
 
     local tx, ty = sx, sy
 
-    if self.world.player and self.world.player.battle_alpha > 0 then
-        tx, ty = self.world.player:getRelativePos(self.world.player.actor:getSoulOffset())
-        progress = self.world.player.battle_alpha * 2
+    if Game.world.player and Game.world.player.battle_alpha > 0 then
+        tx, ty = Game.world.player:getRelativePos(Game.world.player.actor:getSoulOffset())
+        progress = Game.world.player.battle_alpha * 2
     end
 
-    self.x = Utils.lerp(sx, tx, progress * 1.5)
-    self.y = Utils.lerp(sy, ty, progress * 1.5)
+    self.x = MathUtils.lerp(sx, tx, progress * 1.5)
+    self.y = MathUtils.lerp(sy, ty, progress * 1.5)
     self.alpha = progress
 
     super.update(self)

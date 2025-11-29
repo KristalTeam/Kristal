@@ -35,16 +35,16 @@ function DarkStorageMenu:init(top_storage, bottom_storage)
 
     self.list = 1
 
-    self.storages = {top_storage or "items", bottom_storage or "storage"}
+    self.storages = { top_storage or "items", bottom_storage or "storage" }
 
-    self.selected_x = {1, 1}
-    self.selected_y = {1, 1}
-    self.selected_page = {1, 1}
+    self.selected_x = { 1, 1 }
+    self.selected_y = { 1, 1 }
+    self.selected_page = { 1, 1 }
 
-    self.text_x = {155, 155}
-    self.text_y = {144, 294}
+    self.text_x = { 155, 155 }
+    self.text_y = { 144, 294 }
 
-    self.arrow_y = {188, 340}
+    self.arrow_y = { 188, 340 }
 
     self.heart_target_x = self.text_x[1] - 10.5
     self.heart_target_y = self.text_y[1] + 8.5
@@ -154,7 +154,7 @@ function DarkStorageMenu:update()
 
     -- Update the heart target position
     self.heart_target_x = self.text_x[self.list] + (self.selected_x[self.list] - 1) * 220 - 10.5
-    self.heart_target_y = self.text_y[self.list] + (self.selected_y[self.list] - 1) * 20  + 8.5
+    self.heart_target_y = self.text_y[self.list] + (self.selected_y[self.list] - 1) * 20 + 8.5
 
     -- Move the heart closer to the target
     if (math.abs((self.heart_target_x - self.heart.x)) <= 2) then
@@ -203,7 +203,7 @@ function DarkStorageMenu:drawStorage(list)
     local max_pages = self:getMaxPages(list)
     if max_pages > 1 then
         love.graphics.print("Page", page_text_x, page_text_y)
-        love.graphics.print(self.selected_page[list].."/"..max_pages, page_text_x, page_text_y + 20)
+        love.graphics.print(self.selected_page[list] .. "/" .. max_pages, page_text_x, page_text_y + 20)
     end
 
     for i = 1, 2 do
@@ -235,7 +235,7 @@ function DarkStorageMenu:drawStorage(list)
     if self.list == list and max_pages > 1 then
         local left_arrow_x, left_arrow_y = 32, self.arrow_y[list]
         local right_arrow_x, right_arrow_y = 592, self.arrow_y[list]
-        local offset = Utils.round(math.sin(Kristal.getTime() * 5)) * 2
+        local offset = MathUtils.round(math.sin(Kristal.getTime() * 5)) * 2
         Draw.draw(self.arrow_left, left_arrow_x - offset, left_arrow_y, 0, 2, 2)
         Draw.draw(self.arrow_right, right_arrow_x + offset, right_arrow_y, 0, 2, 2)
     end

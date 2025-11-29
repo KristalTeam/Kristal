@@ -13,7 +13,7 @@ function Follower:init(chara, x, y, target)
 
     self.state_manager = StateManager("WALK", self, true)
     self.state_manager:addState("WALK")
-    self.state_manager:addState("SLIDE", {enter = self.beginSlide, leave = self.endSlide})
+    self.state_manager:addState("SLIDE", { enter = self.beginSlide, leave = self.endSlide })
 
     self.history_time = 0
     self.history = {}
@@ -48,7 +48,7 @@ function Follower:onAdd(parent)
 end
 
 function Follower:updateIndex()
-    for i,v in ipairs(self.world.followers) do
+    for i, v in ipairs(self.world.followers) do
         if v == self then
             self.index = i
         end
@@ -60,7 +60,7 @@ end
 function Follower:getFollowDelay()
     local total_delay = 0
 
-    for i,v in ipairs(self.world.followers) do
+    for _, v in ipairs(self.world.followers) do
         total_delay = total_delay + v.follow_delay
 
         if v == self then break end
