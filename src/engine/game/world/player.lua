@@ -175,7 +175,7 @@ end
 ---@param y?        number  The y-coordinate of the 'front' of the line. (Defaults to player's y-position)
 ---@param dist?     number  The distance between each follower.
 function Player:alignFollowers(facing, x, y, dist)
-    facing = facing or self.facing
+    facing = facing or self:getFacing()
     x, y = x or self.x, y or self.y
 
     local offset_x, offset_y = 0, 0
@@ -433,7 +433,7 @@ function Player:draw()
     -- Draw the player
     super.draw(self)
 
-    local col = self.interact_collider[self.facing]
+    local col = self.interact_collider[self:getFacing()]
     if DEBUG_RENDER then
         col:draw(1, 0, 0, 0.5)
     end
