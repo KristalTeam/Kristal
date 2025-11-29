@@ -6,5 +6,6 @@ mods/*
 
 build/
 output/
+result
 
 *.tiled-session
