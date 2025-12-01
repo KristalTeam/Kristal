@@ -535,7 +535,7 @@ end
 
 --- Leaves the shop with a fade out transition.
 function Shop:leave()
-    if self.leave_options["fade"] ~= false then
+    if self:shouldFade() then
         self.fading_out = true
         self.music:fade(0, 20/30)
     else
@@ -548,7 +548,7 @@ function Shop:leaveImmediate()
     self:remove()
     Game.shop = nil
     Game.state = "OVERWORLD"
-    if self.leave_options["fade"] ~= false then
+    if self:shouldFade() then
         Game.fader.alpha = 1
         Game.fader:fadeIn()
     end
@@ -568,6 +568,10 @@ function Shop:leaveImmediate()
         end
         Game.world.music:resume()
     end
+end
+
+function Shop:shouldFade()
+    return self.leave_options["fade"] or self:isWorldHidden() == true
 end
 
 --- *(Override)* Called whenever the player enters the TALK submenu.
