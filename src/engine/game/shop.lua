@@ -571,7 +571,7 @@ function Shop:leaveImmediate()
 end
 
 function Shop:shouldFade()
-    return self.leave_options["fade"] or self:isWorldHidden() == true
+    return self.leave_options["fade"] or self:isWorldHidden()
 end
 
 --- *(Override)* Called whenever the player enters the TALK submenu.
