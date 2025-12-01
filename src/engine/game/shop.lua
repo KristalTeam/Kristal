@@ -535,8 +535,12 @@ end
 
 --- Leaves the shop with a fade out transition.
 function Shop:leave()
-    self.fading_out = true
-    self.music:fade(0, 20/30)
+    if self.leave_options["fade"] ~= false then
+        self.fading_out = true
+        self.music:fade(0, 20/30)
+    else
+        self:leaveImmediate()
+    end
 end
 
 --- Leaves the shop instantly, without a transition.
