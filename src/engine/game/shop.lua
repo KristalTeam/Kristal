@@ -236,6 +236,8 @@ function Shop:init()
     self.hide_price = false
 
     self.leave_options = {}
+    
+    self.hide_world = true
 end
 
 --- A function that runs later than `Shop:init()`, primarily setting up UI elements of the shop. \
@@ -533,8 +535,12 @@ end
 
 --- Leaves the shop with a fade out transition.
 function Shop:leave()
-    self.fading_out = true
-    self.music:fade(0, 20/30)
+    if self:shouldFade() then
+        self.fading_out = true
+        self.music:fade(0, 20/30)
+    else
+        self:leaveImmediate()
+    end
 end
 
 --- Leaves the shop instantly, without a transition.
@@ -542,8 +548,10 @@ function Shop:leaveImmediate()
     self:remove()
     Game.shop = nil
     Game.state = "OVERWORLD"
-    Game.fader.alpha = 1
-    Game.fader:fadeIn()
+    if self:shouldFade() then
+        Game.fader.alpha = 1
+        Game.fader:fadeIn()
+    end
     Game.world:setState("GAMEPLAY")
 
     --self.transition_target.shop = nil
@@ -560,6 +568,10 @@ function Shop:leaveImmediate()
         end
         Game.world.music:resume()
     end
+end
+
+function Shop:shouldFade()
+    return self.leave_options["fade"] or self:isWorldHidden()
 end
 
 --- *(Override)* Called whenever the player enters the TALK submenu.
@@ -1079,9 +1091,15 @@ end
 
 --- *(Override)* Draws a background for the shop.
 function Shop:drawBackground()
-    -- Draw a black backdrop
-    Draw.setColor(0, 0, 0, 1)
-    love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    if self:isWorldHidden() then
+        -- Draw a black backdrop
+        Draw.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    end
+end
+
+function Shop:isWorldHidden()
+    return self.hide_world
 end
 
 ---@param key       string
