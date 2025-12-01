@@ -57,7 +57,7 @@ function MainMenuCredits:init(menu)
                 "isakube",
                 "J.A.R.U.",
                 "Lionmeow",
-                "Luna"
+                "Luna",
             },
             {
                 { "GitHub Contributors", COLORS.silver },
