@@ -42,7 +42,7 @@ function MainMenuCredits:init(menu)
                 "Azrael",
                 "Bor",
                 "CosmicPikachu001",
-                "Diamond Deltahedron"
+                "DiamondDeltahedron"
             }
         },
         {
