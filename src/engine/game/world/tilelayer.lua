@@ -8,8 +8,12 @@ function TileLayer:init(map, data)
     self.map_width = data.width or map.width
     self.map_height = data.height or map.height
 
-    super.init(self, data.offsetx or 0, data.offsety or 0, self.map_width * map.tile_width,
-        self.map_height * map.tile_height)
+    super.init(
+        self,
+        data.offsetx or 0, data.offsety or 0,
+        self.map_width * map.tile_width,
+        self.map_height * map.tile_height
+    )
 
     self.map = map
     self.name = data.name
@@ -49,7 +53,7 @@ function TileLayer:setTile(x, y, tileset, ...)
         local args = { ... }
         if #args == 2 then -- x, y
             self.tile_data[index] = first_id + (args[1] + (args[2] * tiles.columns))
-        else               -- tile index
+        else -- tile index
             self.tile_data[index] = first_id + args[1]
         end
     end
@@ -90,9 +94,15 @@ function TileLayer:draw()
                 if not tileset:getAnimation(id) then
                     tileset:drawGridTile(id, tx, ty, grid_w, grid_h, flip_x, flip_y, flip_diag)
                 else
-                    table.insert(self.animated_tiles,
-                        { tileset = tileset, id = id, x = tx, y = ty, flip_x = flip_x, flip_y = flip_y,
-                            flip_diag = flip_diag })
+                    table.insert(
+                        self.animated_tiles,
+                        {
+                            tileset = tileset, id = id,
+                            x = tx, y = ty,
+                            flip_x = flip_x, flip_y = flip_y,
+                            flip_diag = flip_diag
+                        }
+                    )
                 end
             end
         end

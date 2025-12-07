@@ -1098,6 +1098,8 @@ function Shop:drawBackground()
     end
 end
 
+--- *(Override)* Returns whether the world should be hidden while in the shop.
+---@return boolean Whether the world is hidden.
 function Shop:isWorldHidden()
     return self.hide_world
 end

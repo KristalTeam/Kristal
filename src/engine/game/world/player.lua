@@ -79,6 +79,8 @@ function Player:getDebugInfo()
     table.insert(info, "Run timer: " .. self.run_timer)
     table.insert(info, "Hurt timer: " .. self.hurt_timer)
     table.insert(info, "Slide in place: " .. (self.slide_in_place and "True" or "False"))
+    table.insert(info, "Force run: " .. (self.force_run and "True" or "False"))
+    table.insert(info, "Force walk: " .. (self.force_walk and "True" or "False"))
     return info
 end
 
@@ -86,11 +88,11 @@ function Player:getDebugOptions(context)
     context = super.getDebugOptions(self, context)
     context:addMenuItem(
         "Toggle force run", "Toggle if the player is forced to run or not",
-        function () self.force_run = not self.force_run end
+        function() self.force_run = not self.force_run end
     )
     context:addMenuItem(
         "Toggle force walk", "Toggle if the player is forced to walk or not",
-        function () self.force_walk = not self.force_walk end
+        function() self.force_walk = not self.force_walk end
     )
     return context
 end
@@ -302,13 +304,13 @@ function Player:updateSlideDust()
         self.slide_dust_timer = 3
 
         local dust = Sprite("effects/slide_dust")
-        dust:play(1 / 15, false, function () dust:remove() end)
+        dust:play(1 / 15, false, function() dust:remove() end)
         dust:setOrigin(0.5, 0.5)
         dust:setScale(2, 2)
         dust:setPosition(self.x, self.y)
         dust.layer = self.layer - 0.01
         dust.physics.speed_y = -6
-        dust.physics.speed_x = Utils.random(-1, 1)
+        dust.physics.speed_x = MathUtils.random(-1, 1)
         self.world:addChild(dust)
     end
 end

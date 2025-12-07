@@ -7,18 +7,18 @@ function LancerKeyItem:init(x, y)
     super.init(self, x, y)
     self.parallax_x = 0
     self.parallax_y = 0
-	
+
     self.lancer = ActorSprite("lancer_keyitem")
     self.lancer:setScale(2)
     self:addChild(self.lancer)
 
     self.movecon = 4
     self.con = 0
-    
+
     self.custom_animation = "stone"
 
-    self.minx = 100 + x 
-    self.maxx = 400 + x 
+    self.minx = 100 + x
+    self.maxx = 400 + x
     self.maxy = 280 + y
 
     self.x = (self.minx + 150)
@@ -26,18 +26,18 @@ function LancerKeyItem:init(x, y)
 
     self.sleeptimer = 0
     self.remmovecon = 0
-	
+
     self.timer = Timer()
     self:addChild(self.timer)
-	
+
     self.timer:every(1.5, function()
         if self.movecon < 0 then
             return false
         end
         self.remmovecon = self.movecon
-        self.movecon = Utils.random(0, 4, 1)
+        self.movecon = MathUtils.randomInt(0, 4)
         if self.movecon == self.remmovecon then
-            self.movecon = Utils.random(0, 4, 1)
+            self.movecon = MathUtils.randomInt(0, 4)
         end
         self.con = 0
         if self.sleeptimer >= 900 then
@@ -69,21 +69,21 @@ function LancerKeyItem:update()
                     speed_x = -4,
                 })
                 self.lancer:setSprite("walk/left")
-			end
+            end
             if self.movecon == 1 then
                 self:setPhysics({
                     speed_x = 4,
                 })
                 self.lancer:setSprite("walk/right")
-			end
+            end
             self.con = 1
             self.contimer = 0
             self.contimermax = 30
-            self.flipchance = Utils.pick{0, 1, 2}
+            self.flipchance = TableUtils.pick({ 0, 1, 2 })
             if self.flipchance == 2 then
-                self.lancer:setAnimation(Utils.pick{"walk/down", "up_flip"})
-			end
-		end
+                self.lancer:setAnimation(TableUtils.pick({ "walk/down", "up_flip" }))
+            end
+        end
         if self.con == 1 then
             self.stop = 0
             self.contimer = self.contimer + DTMULT
@@ -101,11 +101,11 @@ function LancerKeyItem:update()
                 self:setPhysics({
                     speed_x = 0,
                 })
-                self.lancer:setAnimation(Utils.pick{"walk/down", "up_flip"})
+                self.lancer:setAnimation(TableUtils.pick({ "walk/down", "up_flip" }))
                 self.con = 2
-			end
-		end
-	end
+            end
+        end
+    end
     if self.movecon == 2 or self.movecon == 3 then
         if self.con == 0 then
             if self.movecon == 3 then

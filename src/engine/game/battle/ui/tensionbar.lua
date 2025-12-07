@@ -118,7 +118,7 @@ function TensionBar:flash()
         sparkle:fadeTo(0.25, duration / 30)
         self.timer:tween(duration / 30, sparkle.physics, { speed = 0 }, "linear")
 
-        self.timer:after(duration / 30, function ()
+        self.timer:after(duration / 30, function()
             sparkle:remove()
         end)
     end
@@ -126,9 +126,9 @@ end
 
 function TensionBar:getDebugInfo()
     local info = super.getDebugInfo(self)
-    table.insert(info, "Tension: " .. Utils.round(self:getPercentageFor(Game:getTension()) * 100) .. "%")
-    table.insert(info, "Apparent: " .. Utils.round(self.apparent / 2.5))
-    table.insert(info, "Current: " .. Utils.round(self.current / 2.5))
+    table.insert(info, "Tension: " .. MathUtils.round(self:getPercentageFor(Game:getTension()) * 100) .. "%")
+    table.insert(info, "Apparent: " .. MathUtils.round(self.apparent / 2.5))
+    table.insert(info, "Current: " .. MathUtils.round(self.current / 2.5))
     table.insert(info, "Reduced: " .. (self:hasReducedTension() and "True" or "False"))
     return info
 end

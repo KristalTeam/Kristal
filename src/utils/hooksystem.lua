@@ -34,11 +34,11 @@ function HookSystem.hook(target, name, hook, exact_func)
         table.insert(HookSystem.__MOD_HOOKS, 1, { target = target, name = name, hook = hook, orig = orig })
     end
 
-    local orig_func = orig or function () end
+    local orig_func = orig or function() end
     if not exact_func then
         -- If the function should not be copied directly (such as when we're applying hooks to sub-classes),
         -- create a new function that calls the hook function, giving it the original function as an argument.
-        target[name] = function (...)
+        target[name] = function(...)
             return hook(orig_func, ...)
         end
     else
@@ -59,7 +59,7 @@ end
 
 ---@type metatable
 HookSystem.HOOKSCRIPT_MT = {
-    __newindex = function (self, k, v)
+    __newindex = function(self, k, v)
         self.__hookscript_super[k] = self.__hookscript_super[k] or self.__hookscript_class[k]
         assert(Mod)
         HookSystem.hook(self.__hookscript_class, k, v, true)
@@ -97,8 +97,8 @@ end
 ---@return T result_func            # A function that will call the new function, providing the original function as an argument, followed by any other arguments that this function receives.
 ---
 function HookSystem.override(old_func, new_func)
-    old_func = old_func or function () end
-    return function (...)
+    old_func = old_func or function() end
+    return function(...)
         return new_func(old_func, ...)
     end
 end

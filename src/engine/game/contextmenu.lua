@@ -48,7 +48,7 @@ function ContextMenu:onMousePressed(x, y, button, istouch, presses)
         return true
     end
 
-    local offset = self.font:getHeight(self.name) + 4 + self:getVerticalPadding() -- name has 4 extra pixels
+    local offset = self.font:getHeight() + 4 + self:getVerticalPadding() -- name has 4 extra pixels
 
     if self:isMouseOver(0, 0, self.width, offset) then
         self.grabbing = true
@@ -69,7 +69,7 @@ function ContextMenu:onMouseReleased(x, y, button, istouch, presses)
     local offset = self:getVerticalPadding()
 
     if self.name then
-        offset = offset + self.font:getHeight(self.name) + 4 -- name has 4 extra pixels
+        offset = offset + self.font:getHeight() + 4 -- name has 4 extra pixels
     end
 
     for i, item in ipairs(self.items) do
@@ -115,8 +115,8 @@ function ContextMenu:addMenuItem(name, description, callback, options)
         description = description,
         callback = callback
     }
-    item.width        = options["width"] or self.font:getWidth(name)
-    item.height       = options["height"] or self.font:getHeight(name)
+    item.width = options["width"] or self.font:getWidth(name)
+    item.height = options["height"] or self.font:getHeight()
     item.should_close = options["should_close"] ~= false
     table.insert(self.items, item)
 end
@@ -285,7 +285,7 @@ function ContextMenu:draw()
 
         tooltip_width                              = tooltip_width + self.font:getWidth(tooltip_to_draw.description)
         tooltip_height                             = tooltip_height +
-            self.font:getHeight() * #Utils.split(tooltip_to_draw.description, "\n", false)
+            self.font:getHeight() * #StringUtils.split(tooltip_to_draw.description, "\n", false)
 
         if tooltip_x + tooltip_width > self:screenToLocalPos(SCREEN_WIDTH, SCREEN_HEIGHT) then
             tooltip_x = mouse_x - tooltip_width - 4

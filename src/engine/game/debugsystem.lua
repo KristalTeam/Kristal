@@ -797,7 +797,7 @@ function DebugSystem:registerSubMenus()
         "wave_select_multiple",
         "[Start Waves]",
         "Start the selected waves.",
-        function ()
+        function()
             if #self.selected_waves > #Game.battle:getActiveEnemies() then
                 return false
             end
@@ -816,7 +816,7 @@ function DebugSystem:registerSubMenus()
                 -- Step 2: Assign waves to enemies
                 -- Table for waves that don't get a match at this stage
                 local assign_randomly = {}
-                for i=0,#self.selected_waves do
+                for i = 0, #self.selected_waves do
                     for wave, enemies in pairs(enemy_matches) do
                         -- Process the least matches first
                         if #enemies == i then
@@ -856,7 +856,7 @@ function DebugSystem:registerSubMenus()
             end
         end,
         nil,
-        function ()
+        function()
             return #self.selected_waves > #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
         end
     )
@@ -865,7 +865,7 @@ function DebugSystem:registerSubMenus()
         "wave_select_multiple",
         "[Clear Selection]",
         "Clear the currently selected waves.",
-        function ()
+        function()
             self.selected_waves = {}
         end
     )
@@ -887,7 +887,7 @@ function DebugSystem:registerSubMenus()
     end)
 
     local function getWaveSpaceString()
-        return "(" .. #self.selected_waves .. "/".. #Game.battle:getActiveEnemies() ..")"
+        return "(" .. #self.selected_waves .. "/" .. #Game.battle:getActiveEnemies() .. ")"
     end
 
     for _, id in ipairs(waves_list) do
@@ -895,10 +895,10 @@ function DebugSystem:registerSubMenus()
             "wave_select_multiple",
             id,
             function()
-               if TableUtils.contains(self.selected_waves, id) then
+                if TableUtils.contains(self.selected_waves, id) then
                     return "Remove this wave from the selected group. " .. getWaveSpaceString()
-               end
-               return "Add this wave to the selected group. " .. getWaveSpaceString()
+                end
+                return "Add this wave to the selected group. " .. getWaveSpaceString()
             end,
             function()
                 if TableUtils.contains(self.selected_waves, id) then
@@ -910,7 +910,7 @@ function DebugSystem:registerSubMenus()
                 end
             end,
             nil,
-            function ()
+            function()
                 return TableUtils.contains(self.selected_waves, id) and COLORS.aqua or #self.selected_waves >= #Game.battle:getActiveEnemies() and COLORS.silver or COLORS.white
             end
         )
@@ -975,7 +975,7 @@ function DebugSystem:registerSubMenus()
                 self.music:play(id)
             end,
             nil,
-            function ()
+            function()
                 return self.music:isPlaying() and self.music.current == id and COLORS.aqua or COLORS.white
             end
         )
@@ -1018,7 +1018,7 @@ function DebugSystem:registerSubMenus()
                 end
             end,
             nil,
-            function ()
+            function()
                 return Game:hasPartyMember(id) and COLORS.aqua or COLORS.white
             end
         )
@@ -1034,7 +1034,7 @@ function DebugSystem:registerSubMenus()
             self:registerOption(
                 "give_spell_" .. id,
                 spell_id,
-                function ()
+                function()
                     local member = Game.party_data[id]
                     return member and (not member:hasSpell(spell_id) and "Give this spell to " .. id .. "." or "Take this spell from " .. id .. ".") or "???" -- Failsafe (when would this happen?)
                 end,
@@ -1049,7 +1049,7 @@ function DebugSystem:registerSubMenus()
                     end
                 end,
                 nil,
-                function ()
+                function()
                     return Game.party_data[id]:hasSpell(spell_id) and COLORS.aqua or COLORS.white
                 end
             )
@@ -1196,22 +1196,29 @@ function DebugSystem:registerDefaults()
         in_game
     )
 
-    self:registerOption("main", "Give Money", "Give an amount of money.", function()
-        self.window = DebugWindow("Enter Money", "Enter the money amount you'd like.", "input",
-            function(text)
-                local money = tonumber(text)
-                if money then
-                    if Game:isLight() then
-                        Game.lw_money = Game.lw_money + money
-                    else
-                        Game.money = Game.money + money
+    self:registerOption(
+        "main", "Give Money", "Give an amount of money.",
+        function()
+            self.window = DebugWindow(
+                "Enter Money", "Enter the money amount you'd like.", "input",
+                function(text)
+                    local money = tonumber(text)
+                    if money then
+                        if Game:isLight() then
+                            Game.lw_money = Game.lw_money + money
+                        else
+                            Game.money = Game.money + money
+                        end
+                        Assets.stopAndPlaySound("bell_bounce_short")
                     end
-                    Assets.stopAndPlaySound("bell_bounce_short")
                 end
-            end)
-        self.window:setPosition(Input.getCurrentCursorPosition())
-        self:addChild(self.window)
-    end, in_game)
+            )
+
+            self.window:setPosition(Input.getCurrentCursorPosition())
+            self:addChild(self.window)
+        end,
+        in_game
+    )
 
     self:registerOption(
         "main",

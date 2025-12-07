@@ -55,7 +55,7 @@ function Game:clear()
         self.battle.music:stop()
     end
     if self.stage then
-        for _,child in ipairs(self.stage.children) do
+        for _, child in ipairs(self.stage.children) do
             self.stage:removeFromStage(child)
         end
     end
@@ -174,7 +174,7 @@ end
 ---@param deep_merge?   boolean
 ---@return any
 function Game:getConfig(key, merge, deep_merge)
-    local default_config = Kristal.ChapterConfigs[Utils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
+    local default_config = Kristal.ChapterConfigs[MathUtils.clamp(self.chapter, 1, #Kristal.ChapterConfigs)]
 
     if not Mod then return default_config[key] end
 
@@ -191,7 +191,7 @@ function Game:getConfig(key, merge, deep_merge)
     elseif default_value ~= nil and mod_value == nil then
         return default_value
     elseif type(default_value) == "table" and merge then
-        return Utils.merge(Utils.copy(default_value, true), mod_value, deep_merge)
+        return TableUtils.merge(TableUtils.copy(default_value, true), mod_value, deep_merge)
     else
         return mod_value
     end
@@ -268,15 +268,15 @@ function Game:save(x, y)
         elseif type(x) == "table" then
             data.spawn_position = x
         elseif x and y then
-            data.spawn_position = {x, y}
+            data.spawn_position = { x, y }
         end
     end
 
     data.party = {}
-    for _,party in ipairs(self.party) do
+    for _, party in ipairs(self.party) do
         table.insert(data.party, party.id)
     end
-    
+
     data.default_equip_slots = self.default_equip_slots
     data.default_storage_slots = self.default_storage_slots
 
@@ -285,12 +285,12 @@ function Game:save(x, y)
     data.dark_inventory = self.dark_inventory:save()
 
     data.party_data = {}
-    for k,v in pairs(self.party_data) do
+    for k, v in pairs(self.party_data) do
         data.party_data[k] = v:save()
     end
-    
+
     data.recruits_data = {}
-    for k,v in pairs(self.recruits_data) do
+    for k, v in pairs(self.recruits_data) do
         data.recruits_data[k] = v:save()
     end
 
@@ -325,7 +325,7 @@ function Game:load(data, index, fade)
     self.stage:addChild(self.fader)
 
     if fade then
-        self.fader:fadeIn(nil, {alpha = 1, speed = 0.5})
+        self.fader:fadeIn(nil, { alpha = 1, speed = 0.5 })
     end
 
     self.battle = nil
@@ -353,26 +353,26 @@ function Game:load(data, index, fade)
 
     self:initPartyMembers()
     if data.party_data then
-        for k,v in pairs(data.party_data) do
+        for k, v in pairs(data.party_data) do
             if self.party_data[k] then
                 self.party_data[k]:load(v)
             end
         end
     end
-    
+
     self.party = {}
-    for _,id in ipairs(data.party or Kristal.getModOption("party") or {"kris"}) do
+    for _, id in ipairs(data.party or Kristal.getModOption("party") or { "kris" }) do
         local ally = self:getPartyMember(id)
         if ally then
             table.insert(self.party, ally)
         else
-            Kristal.Console:error("Could not load party member \"" ..id.."\"")
+            Kristal.Console:error("Could not load party member \""  .. id .. "\"")
         end
     end
-    
+
     self:initRecruits()
     if data.recruits_data then
-        for k,v in pairs(data.recruits_data) do
+        for k, v in pairs(data.recruits_data) do
             if self.recruits_data[k] then
                 self.recruits_data[k]:load(v)
             end
@@ -383,7 +383,7 @@ function Game:load(data, index, fade)
         self.temp_followers = data.temp_followers
     else
         self.temp_followers = {}
-        for _,id in ipairs(Kristal.getModOption("followers") or {}) do
+        for _, id in ipairs(Kristal.getModOption("followers") or {}) do
             table.insert(self.temp_followers, id)
         end
     end
@@ -410,14 +410,14 @@ function Game:load(data, index, fade)
 
         self.light = map.light or false
     end
-    
+
     self.default_equip_slots = data.default_equip_slots or 0
     if Game:getConfig("lessEquipments") and self.default_equip_slots <= 12 then
         self.default_equip_slots = 12
     else
         self.default_equip_slots = 48
     end
-    
+
     self.default_storage_slots = data.default_storage_slots or 0
     -- Check if a mod is still using the deprecated "enableStorage" config
     if Game:getConfig("enableStorage") ~= nil then
@@ -447,16 +447,16 @@ function Game:load(data, index, fade)
     if data.dark_inventory then
         self.dark_inventory:load(data.dark_inventory)
     end
-    
+
     if data.inventory then
         self.inventory:load(data.inventory)
     else
         local default_inv = Kristal.getModOption("inventory") or {}
         if not self.light and not default_inv["key_items"] then
-            default_inv["key_items"] = {"cell_phone"}
+            default_inv["key_items"] = { "cell_phone" }
         end
-        for storage,items in pairs(default_inv) do
-            for i,item in ipairs(items) do
+        for storage, items in pairs(default_inv) do
+            for i, item in ipairs(items) do
                 self.inventory:setItem(storage, i, item)
             end
         end
@@ -467,11 +467,11 @@ function Game:load(data, index, fade)
     -- Party members have to be converted to light initially, due to dark world defaults
     if loaded_light ~= self.light then
         if self.light then
-            for _,chara in pairs(self.party_data) do
+            for _, chara in pairs(self.party_data) do
                 chara:convertToLight()
             end
         else
-            for _,chara in pairs(self.party_data) do
+            for _, chara in pairs(self.party_data) do
                 chara:convertToDark()
             end
         end
@@ -482,9 +482,9 @@ function Game:load(data, index, fade)
             Game:setFlag("has_cell_phone", Kristal.getModOption("cell") ~= false)
         end
 
-        for id,equipped in pairs(Kristal.getModOption("equipment") or {}) do
+        for id, equipped in pairs(Kristal.getModOption("equipment") or {}) do
             if not self.party_data[id] then
-                error("Attempted to set up equipment for non-existent member "..id)
+                error("Attempted to set up equipment for non-existent member " .. id)
             end
             if equipped["weapon"] then
                 self.party_data[id]:setWeapon(equipped["weapon"] ~= "" and equipped["weapon"] or nil)
@@ -572,7 +572,7 @@ function Game:convertToLight()
 
     self.inventory = inventory:convertToLight()
 
-    for _,chara in pairs(self.party_data) do
+    for _, chara in pairs(self.party_data) do
         chara:convertToLight()
     end
 end
@@ -583,7 +583,7 @@ function Game:convertToDark()
 
     self.inventory = inventory:convertToDark()
 
-    for _,chara in pairs(self.party_data) do
+    for _, chara in pairs(self.party_data) do
         chara:convertToDark()
     end
 
@@ -598,11 +598,10 @@ function Game:gameOver(x, y)
     Kristal.hideBorder(0)
 
     self.state = "GAMEOVER"
-    if self.battle   then self.battle  :remove() end
-    if self.world    then self.world   :remove() end
-    if self.shop     then self.shop    :remove() end
-    if self.gameover then self.gameover:remove() end
-    if self.legend   then self.legend  :remove() end
+
+    for _, child in ipairs(self.stage.children) do
+        child:remove()
+    end
 
     self.gameover = GameOver(x or 0, y or 0)
     self.stage:addChild(self.gameover)
@@ -1041,6 +1040,22 @@ function Game:getMaxTension()
     return Game.max_tension or 100
 end
 
+function Game:isWorldHidden()
+    if not self.world then
+        return true
+    end
+
+    if self.state == "BATTLE" and self.battle and self.battle:isWorldHidden() then
+        return true
+    end
+
+    if self.state == "SHOP" and self.shop and self.shop:isWorldHidden() then
+        return true
+    end
+
+    return false
+end
+
 function Game:update()
     if self.state == "EXIT" then
         self.fader:update()
@@ -1053,7 +1068,7 @@ function Game:update()
         if self.world.player then
             self.world.player.visible = true
         end
-        for _,follower in ipairs(self.world.followers) do
+        for _, follower in ipairs(self.world.followers) do
             follower.visible = true
         end
     end
@@ -1062,13 +1077,14 @@ function Game:update()
         return
     end
 
-    if (self.state == "BATTLE" and self.battle and self.battle:isWorldHidden()) or
-       (self.state == "SHOP" and self.shop and self.shop:isWorldHidden()) then
-        self.world.active = false
-        self.world.visible = false
-    else
-        self.world.active = true
-        self.world.visible = true
+    if self.world then
+        if self:isWorldHidden() then
+            self.world.active = false
+            self.world.visible = false
+        else
+            self.world.active = true
+            self.world.visible = true
+        end
     end
 
     self.playtime = self.playtime + DT

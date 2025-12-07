@@ -64,7 +64,7 @@ function DebugWindow:close()
 end
 
 function DebugWindow:onMousePressed(x, y, button, istouch, presses)
-    local offset = self.font:getHeight(self.name) + 4 + self:getVerticalPadding() -- name has 4 extra pixels
+    local offset = self.font:getHeight() + 4 + self:getVerticalPadding() -- name has 4 extra pixels
 
     if self:isMouseOver(0, 0, self.width, offset) then
         self.grabbing = true
@@ -88,7 +88,7 @@ function DebugWindow:onMouseReleased(x, y, button, istouch, presses)
     offset = offset + self.font:getHeight() + 4 -- name has 4 extra pixels
     -- Draw our text if we have any
     if self.text then
-        offset = offset + (self.font:getHeight() * #Utils.split(self.text, "\n", false)) + 8
+        offset = offset + (self.font:getHeight() * #StringUtils.split(self.text, "\n", false)) + 8
     end
 
     if self.type == "input" then
@@ -225,7 +225,7 @@ function DebugWindow:draw()
     -- Draw our text if we have any
     if self.text then
         love.graphics.print(self.text, padding_x, offset + 2)
-        offset = offset + (self.font:getHeight() * #Utils.split(self.text, "\n", false)) + 8
+        offset = offset + (self.font:getHeight() * #StringUtils.split(self.text, "\n", false)) + 8
     end
 
     love.graphics.setLineWidth(1)
