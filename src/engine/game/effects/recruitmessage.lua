@@ -102,7 +102,7 @@ end
 
 function RecruitMessage:onRemoveFromStage(stage)
     super.onRemoveFromStage(self, stage)
-    if self.parent and self.parent:includes(Battle) then
+    if self.parent and self.parent:includes(Battle) and Game.world then
         local prev_x, prev_y = self.x, self.y
         local x, y = self:getScreenPos()
         self:setParent(Game.world)
