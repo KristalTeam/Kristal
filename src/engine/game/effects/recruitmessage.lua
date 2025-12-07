@@ -100,4 +100,16 @@ function RecruitMessage:draw()
     end
 end
 
+function RecruitMessage:onRemoveFromStage(stage)
+    super.onRemoveFromStage(self, stage)
+    if self.parent and self.parent:includes(Battle) then
+        local prev_x, prev_y = self.x, self.y
+        local x, y = self:getScreenPos()
+        self:setParent(Game.world)
+        self:setScreenPos(x, y)
+        self.start_x = (self.start_x - prev_x) + self.x
+        self.start_y = (self.start_y - prev_y) + self.y
+    end
+end
+
 return RecruitMessage
