@@ -108,7 +108,6 @@ function RecruitMessage:onRemoveFromStage(stage)
         self:setParent(Game.world)
         self:setScreenPos(x, y)
         self.start_x = (self.start_x - prev_x) + self.x
-        self.start_y = (self.start_y - prev_y) + self.y
     end
 end
 
