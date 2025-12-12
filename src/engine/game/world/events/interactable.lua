@@ -28,7 +28,7 @@ local Interactable, super = Class(Event)
 ---@param shape?        { [1]: number, [2]: number, [3]: table? }
 ---@param properties?   table
 function Interactable:init(x, y, shape, properties)
-    shape = shape or {TILE_WIDTH, TILE_HEIGHT}
+    shape = shape or { TILE_WIDTH, TILE_HEIGHT }
     super.init(self, x, y, shape)
 
     properties = properties or {}
@@ -37,7 +37,7 @@ function Interactable:init(x, y, shape, properties)
 
     self.cutscene = properties["cutscene"]
     self.script = properties["script"]
-    self.text = Utils.parsePropertyMultiList("text", properties)
+    self.text = TiledUtils.parsePropertyMultiList("text", properties)
 
     self.set_flag = properties["setflag"]
     self.set_value = properties["setvalue"]
@@ -49,9 +49,9 @@ end
 
 function Interactable:getDebugInfo()
     local info = super.getDebugInfo(self)
-    if self.cutscene  then table.insert(info, "Cutscene: "  .. self.cutscene)  end
-    if self.script    then table.insert(info, "Script: "    .. self.script)    end
-    if self.set_flag  then table.insert(info, "Set Flag: "  .. self.set_flag)  end
+    if self.cutscene then table.insert(info, "Cutscene: " .. self.cutscene) end
+    if self.script then table.insert(info, "Script: " .. self.script) end
+    if self.set_flag then table.insert(info, "Set Flag: " .. self.set_flag) end
     if self.set_value then table.insert(info, "Set Value: " .. self.set_value) end
     table.insert(info, "Once: " .. (self.once and "True" or "False"))
     table.insert(info, "Text length: " .. #self.text)
@@ -71,22 +71,26 @@ function Interactable:onInteract(player, dir)
     if self.script then
         Registry.getEventScript(self.script)(self, player, dir)
     end
-    local cutscene
+    local current_cutscene
     if self.cutscene then
-        cutscene = self.world:startCutscene(self.cutscene, self, player, dir)
+        current_cutscene = self.world:startCutscene(self.cutscene, self, player, dir)
     else
-        cutscene = self.world:startCutscene(function(c)
+        current_cutscene = self.world:startCutscene(function(cutscene)
+            ---@type string|string[]
             local text = self.text
             local text_index = MathUtils.clamp(self.interact_count, 1, #text)
+
             if type(text[text_index]) == "table" then
                 text = text[text_index]
             end
-            for _,line in ipairs(text) do
-                c:text(line)
+
+            for _, line in ipairs(text) do
+                cutscene:text(line)
             end
         end)
     end
-    cutscene:after(function()
+
+    current_cutscene:after(function()
         self:onTextEnd()
     end)
 
@@ -106,14 +110,14 @@ end
 function Interactable:onTextEnd() end
 
 function Interactable:applyTileObject(data, map)
-   local tile = map:createTileObject(data, 0, 0, self.width, self.height)
+    local tile = map:createTileObject(data, 0, 0, self.width, self.height)
 
-   local ox, oy = tile:getOrigin()
-   self:setOrigin(ox, oy)
+    local ox, oy = tile:getOrigin()
+    self:setOrigin(ox, oy)
 
-   tile:setPosition(ox * self.width, oy * self.height)
+    tile:setPosition(ox * self.width, oy * self.height)
 
-   self:addChild(tile)
+    self:addChild(tile)
 end
 
 return Interactable

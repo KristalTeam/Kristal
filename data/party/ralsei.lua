@@ -21,7 +21,7 @@ function character:init()
     elseif Game.chapter == 3 then
         self.title = "Dark Prince\nDark-World being.\nHas friends."
     else
-        self.title = "Dark Hero\nRecords and faces\nThe fate."
+        self.title = "Dark Hero\nRecords and faces\nthe fate."
     end
 
     -- Determines which character the soul comes from (higher number = higher priority)
