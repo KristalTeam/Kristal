@@ -19,7 +19,7 @@ function item:init()
     self.description = "A saber made of 10 cactus needles.\nFortunately, can deal more than 10 damage."
 
     -- Default shop price (sell price is halved)
-    self.price = 710
+    self.price = Game.chapter <= 3 and 610 or 710
     -- Whether the item can be sold
     self.can_sell = true
 
