@@ -1,161 +1,189 @@
+--- This module handles text input.
+---
+--- Unlike a lot of other games and projects, this module is designed to make text input seamless, like a tranditional text editor.
+--- This involves moving the cursor around, selecting and inserting text, and using the clipboard.
+---
+--- Many keybinds are implemented. Cut, copy and paste are supported, as well as selecting all text.
+--- Ctrl+arrows are also implemented for word navigation.
+---
+--- Multi-line input fields are supported, as well as single-line fields which submit on enter.
+--- The system is also UTF-8 aware.
 ---@class TextInput
 ---
----@field input string[]
+---@field input string[] # A *reference* to an input table.
 ---
----@field active boolean
+---@field active boolean # Whether text input is active or not.
+---@field submit_callback fun()? # A callback that is called when the input is submitted.
+---@field up_limit_callback fun()? # A callback that is called when the cursor reaches the top of the input.
+---@field down_limit_callback fun()? # A callback that is called when the cursor reaches the bottom of the input.
+---@field pressed_callback (fun(key:string):boolean|nil)? # A callback that is called when a key is pressed.
+---@field text_callback fun(text:string)? # A callback that is called when text is inputted.
 ---
----@field multiline boolean
----@field enter_submits boolean
----@field clear_after_submit boolean
----@field allow_overtyping boolean
----@field text_restriction (fun(char:string):string|boolean)?
+---@field multiline boolean # Whether this input is multiline.
+---@field enter_submits boolean # Whether pressing enter submits the input.
+---@field clear_after_submit boolean # Whether the input should be cleared after submitting.
+---@field text_restriction (fun(char:string):string|boolean)? # A function which restricts (and transforms) the text input.
+---@field allow_overtyping boolean # Whether overtyping is allowed.
 ---
----@field submit_callback fun()?
----@field up_limit_callback fun()?
----@field down_limit_callback fun()?
----@field pressed_callback (fun(key:string):boolean|nil)?
----@field text_callback fun(text:string)?
+---@field selecting boolean # Whether selection is active or not.
+---@field overtyping boolean # Whether overtyping is active or not.
 ---
----@field selecting boolean
----@field overtyping boolean
+---@field flash_timer number # A timer for flashing the cursor.
+---@field return_grace_timer number # The timer that blocks immediate return submission.
 ---
----@field flash_timer number
----@field return_grace_timer number
----
----@field cursor_x number
----@field cursor_x_tallest number
----@field cursor_y number
----@field cursor_select_x number
----@field cursor_select_y number
+---@field cursor_x integer # The current cursor X position.
+---@field cursor_x_tallest integer # The "tallest" (furthest to the right) cursor X position (used for multiline).
+---@field cursor_y integer # The current cursor Y position.
+---@field cursor_select_x integer # The X position of where a selection started.
+---@field cursor_select_y integer # The Y position of where a selection started.
 ---
 local TextInput = {}
-local self = TextInput
 
-self.input = {""} -- A *reference* to an input table.
+--- Initialize the text input system.
+---@internal
+function TextInput.init()
+    TextInput.input = { "" }
 
-self.active = false
+    TextInput.active = false
 
-self.submit_callback = nil
-self.up_limit_callback = nil
-self.down_limit_callback = nil
-self.pressed_callback = nil
-self.text_callback = nil
+    TextInput.submit_callback = nil
+    TextInput.up_limit_callback = nil
+    TextInput.down_limit_callback = nil
+    TextInput.pressed_callback = nil
+    TextInput.text_callback = nil
+
+    TextInput.setOptions(nil)
+    TextInput.reset()
+end
+
+---@class TextInput.inputOptions
+---@field multiline boolean? # Whether the input is multiline. Defaults to true.
+---@field enter_submits boolean? # Whether pressing enter submits the input. Defaults to false.
+---@field clear_after_submit boolean? # Whether the input should be cleared after submitting. Defaults to true.
+---@field allow_overtyping boolean? # Whether overtyping is allowed. Defaults to false.
+---@field text_restriction (fun(char:string):string|boolean)? # A function which restricts (and transforms) the text input.
+
+--- Set the system's options.
+---
+--- This does not reset the system, and should be used alongside {@link TextInput.reset}, or anything which calls it.
+---@param options TextInput.inputOptions? # The new options to use. If nil, the default options are used.
+function TextInput.setOptions(options)
+    options = options or {} --[[@as TextInput.inputOptions]]
+    -- Our defaults should allow text editor-like input
+    if options.multiline == nil then options.multiline = true end
+    if options.enter_submits == nil then options.enter_submits = false end
+    if options.clear_after_submit == nil then options.clear_after_submit = true end
+    if options.allow_overtyping == nil then options.allow_overtyping = false end
+
+    TextInput.multiline = options.multiline
+    TextInput.enter_submits = options.enter_submits
+    TextInput.clear_after_submit = options.clear_after_submit
+    TextInput.text_restriction = options.text_restriction
+    TextInput.allow_overtyping = options.allow_overtyping
+end
 
 ---@param tbl string[]
 ---@param options TextInput.inputOptions?
 function TextInput.attachInput(tbl, options)
     Kristal.showCursor()
-    self.active = true
+    TextInput.active = true
     love.keyboard.setTextInput(true)
     love.keyboard.setKeyRepeat(true)
-    self.updateInput(tbl)
+    TextInput.updateInput(tbl)
 
-    self.reset(options)
+    TextInput.setOptions(options)
+    TextInput.reset()
 
-    self.submit_callback = nil
-    self.up_limit_callback = nil
-    self.down_limit_callback = nil
-    self.pressed_callback = nil
-    self.text_callback = nil
+    TextInput.submit_callback = nil
+    TextInput.up_limit_callback = nil
+    TextInput.down_limit_callback = nil
+    TextInput.pressed_callback = nil
+    TextInput.text_callback = nil
 end
 
 ---@param tbl string[]
 function TextInput.updateInput(tbl)
-    self.input = tbl
+    TextInput.input = tbl
 end
 
 function TextInput.endInput()
     if not Kristal.DebugSystem or not Kristal.DebugSystem:selectionOpen() then
         Kristal.hideCursor()
     end
-    self.active = false
+    TextInput.active = false
     love.keyboard.setTextInput(false)
     love.keyboard.setKeyRepeat(false)
 end
 
 function TextInput.clear()
-    TableUtils.clear(self.input)
-    self.input[1] = ""
-    self.reset(false)
+    TableUtils.clear(TextInput.input)
+    TextInput.input[1] = ""
+    TextInput.reset()
 end
 
----@class TextInput.inputOptions
----@field multiline boolean?
----@field enter_submits boolean?
----@field clear_after_submit boolean?
----@field allow_overtyping boolean?
----@field text_restriction (fun(char:string):string|boolean)?
-
----@param options TextInput.inputOptions|boolean|nil
-function TextInput.reset(options)
-    if options ~= false then
-        options = options or {} --[[@as TextInput.inputOptions]]
-        -- Our defaults should allow text editor-like input
-        if options.multiline          == nil then options.multiline          = true  end
-        if options.enter_submits      == nil then options.enter_submits      = false end
-        if options.clear_after_submit == nil then options.clear_after_submit = true  end
-        if options.allow_overtyping   == nil then options.allow_overtyping   = false end
-        self.multiline = options.multiline
-        self.enter_submits = options.enter_submits
-        self.clear_after_submit = options.clear_after_submit
-        self.allow_overtyping = options.allow_overtyping
-        self.text_restriction = options.text_restriction
-    end
-
-    self.selecting = false
-    self.overtyping = false
+--- Reset the text input system.
+---
+--- This does NOT change the system's options.
+function TextInput.reset()
+    TextInput.selecting = false
+    TextInput.overtyping = false
 
     -- Let's handle flashing cursors here, since they change based on text state
     -- If the user doesn't want it, then they don't have to draw it
-    self.flash_timer = 0
+    TextInput.flash_timer = 0
 
     -- Most inputs will be entered through the confirm keybind, of which return
     -- is a default bind. As this key can also be used to close the input, we
     -- need a tiny timer that "blocks" return presses from submitting the text
     -- immediately (only used to block text submission)
-    self.return_grace_timer = 2
+    TextInput.return_grace_timer = 2
 
-    self.cursor_x = 0
-    self.cursor_x_tallest = 0
-    self.cursor_y = 1
-    self.cursor_select_x = 0
-    self.cursor_select_y = 0
+    TextInput.cursor_x = 0
+    TextInput.cursor_x_tallest = 0
+    TextInput.cursor_y = 1
+    TextInput.cursor_select_x = 0
+    TextInput.cursor_select_y = 0
 
-    self.sendCursorToEnd()
+    TextInput.sendCursorToEnd()
 end
 
+--- This is internally called when you submit your input.
+---
+--- If you want to run custom code on submit, use the submit callback.
+---@internal
 function TextInput.submit()
-    if self.submit_callback then
-        self.submit_callback()
+    if TextInput.submit_callback then
+        TextInput.submit_callback()
     else
         Kristal.Console:warn("No submit callback set!")
     end
-    if self.clear_after_submit then
-        self.clear()
+    if TextInput.clear_after_submit then
+        TextInput.clear()
     end
 end
 
-
+--- The listener for when the program receives text input.
+---@internal
 function TextInput.onTextInput(t)
-    if not self.active then return end
-    self.insertString(t)
-    if self.text_callback then self.text_callback(t) end
+    if not TextInput.active then return end
+    TextInput.insertString(t)
+    if TextInput.text_callback then TextInput.text_callback(t) end
 end
 
 ---@return "selecting"|"stopped"|"not_selecting"
 function TextInput.checkSelecting()
     if Input.shift() then
-        if not self.selecting then
-            self.cursor_select_x = self.cursor_x
-            self.cursor_select_y = self.cursor_y
-            self.selecting = true
+        if not TextInput.selecting then
+            TextInput.cursor_select_x = TextInput.cursor_x
+            TextInput.cursor_select_y = TextInput.cursor_y
+            TextInput.selecting = true
         end
         return "selecting"
     end
 
     -- Return false if we *just* stopped selecting
-    if self.selecting then
-        self.selecting = false
+    if TextInput.selecting then
+        TextInput.selecting = false
         return "stopped"
     end
     return "not_selecting"
@@ -163,304 +191,321 @@ end
 
 ---@param key string
 function TextInput.onKeyPressed(key)
-    if not self.active then return end
-    self.flash_timer = 0
-    if self.pressed_callback then
-        if self.pressed_callback(key) then
+    if not TextInput.active then return end
+    TextInput.flash_timer = 0
+    if TextInput.pressed_callback then
+        if TextInput.pressed_callback(key) then
             return
         end
     end
     if (key == "c") and Input.ctrl() then
-        love.system.setClipboardText(self.getSelectedText())
+        love.system.setClipboardText(TextInput.getSelectedText())
     elseif (key == "x") and Input.ctrl() then
-        love.system.setClipboardText(self.getSelectedText())
-        self.removeSelection()
+        love.system.setClipboardText(TextInput.getSelectedText())
+        TextInput.removeSelection()
     elseif (key == "v") and Input.ctrl() then
-        self.insertString(love.system.getClipboardText())
+        TextInput.insertString(love.system.getClipboardText())
     elseif (key == "a") and Input.ctrl() then
-        self.selectAll()
+        TextInput.selectAll()
     elseif key == "return" then
-        if self.enter_submits then
-            if self.multiline and Input.shift() then
-                self.insertString("\n")
+        if TextInput.enter_submits then
+            if TextInput.multiline and Input.shift() then
+                TextInput.insertString("\n")
             else
-                if self.return_grace_timer > 0 then Input.clear("return", true) return end
-                self.submit()
+                if TextInput.return_grace_timer > 0 then Input.clear("return", true) return end
+                TextInput.submit()
             end
         else
-            if self.multiline then
-                self.insertString("\n")
+            if TextInput.multiline then
+                TextInput.insertString("\n")
             end
         end
     elseif key == "tab" then
-        self.insertString("    ")
+        TextInput.insertString("    ")
     elseif key == "backspace" then
-        if self.selecting then
-            self.removeSelection()
+        if TextInput.selecting then
+            TextInput.removeSelection()
             return
         end
 
-        if self.cursor_x == 0 and self.cursor_y == 1 then return end
+        if TextInput.cursor_x == 0 and TextInput.cursor_y == 1 then return end
 
-        if self.cursor_x == 0 then
-            self.cursor_y = self.cursor_y - 1
-            self.cursor_x = utf8.len(self.input[self.cursor_y])
-            self.cursor_x_tallest = self.cursor_x
-            self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
-            table.remove(self.input, self.cursor_y + 1)
+        if TextInput.cursor_x == 0 then
+            TextInput.cursor_y = TextInput.cursor_y - 1
+            TextInput.cursor_x = StringUtils.len(TextInput.getCurrentLine())
+            TextInput.cursor_x_tallest = TextInput.cursor_x
+            TextInput.input[TextInput.cursor_y] = TextInput.getCurrentLine() .. TextInput.input[TextInput.cursor_y + 1]
+            table.remove(TextInput.input, TextInput.cursor_y + 1)
         else
             local string_1
             local string_2
 
-            if Input.ctrl() then
-                local starting_position, ending_position = self.ctrlLeft()
-                starting_position = starting_position + 1
-                ending_position = ending_position + 1
-                string_1 = StringUtils.sub(self.input[self.cursor_y], 1, starting_position)
-                string_2 = StringUtils.sub(self.input[self.cursor_y], ending_position, -1)
-            else
+            local line = TextInput.getCurrentLine()
 
-                string_1 = StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-                string_2 = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
+            if Input.ctrl() then
+                local delete_end = TextInput.cursor_x
+                local delete_start = TextInput.getPreviousWordStart() + 1
+
+
+                -- Get characters before and after the deletion range
+                string_1 = StringUtils.sub(line, 1, delete_start - 1)
+                string_2 = StringUtils.sub(line, delete_end + 1)
+            else
+                string_1 = StringUtils.sub(line, 1, TextInput.cursor_x)
+                string_2 = StringUtils.sub(line, TextInput.cursor_x + 1)
             end
 
             string_1 = StringUtils.sub(string_1, 1, -2)
-            self.cursor_x = utf8.len(string_1)
-            self.cursor_x_tallest = self.cursor_x
+            TextInput.cursor_x = StringUtils.len(string_1)
+            TextInput.cursor_x_tallest = TextInput.cursor_x
 
-            self.input[self.cursor_y] = string_1 .. string_2
+            TextInput.input[TextInput.cursor_y] = string_1 .. string_2
         end
     elseif key == "delete" then
-        if self.selecting then
-            self.removeSelection()
+        if TextInput.selecting then
+            TextInput.removeSelection()
             return
         end
 
-        if self.cursor_x == utf8.len(self.input[self.cursor_y]) and self.cursor_y == #self.input then return end
+        if TextInput.cursor_x == StringUtils.len(TextInput.getCurrentLine()) and TextInput.cursor_y == #TextInput.input then return end
 
-        if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
-            self.input[self.cursor_y] = self.input[self.cursor_y] .. self.input[self.cursor_y + 1]
-            table.remove(self.input, self.cursor_y + 1)
+        if TextInput.cursor_x == StringUtils.len(TextInput.getCurrentLine()) then
+            TextInput.input[TextInput.cursor_y] = TextInput.getCurrentLine() .. TextInput.input[TextInput.cursor_y + 1]
+            table.remove(TextInput.input, TextInput.cursor_y + 1)
         else
+            local line = TextInput.getCurrentLine()
+
             local string_1
             local string_2
+
             if Input.ctrl() then
-                -- Loop from our current position to the end of the line.
-                local starting_position, ending_position = self.ctrlRight()
-                if starting_position ~= 0 then
-                    string_1 = StringUtils.sub(self.input[self.cursor_y], 1, starting_position)
-                    string_2 = StringUtils.sub(self.input[self.cursor_y], ending_position, -1)
+                local start_pos = TextInput.cursor_x
+                local end_pos = TextInput.getNextWordEnd()
+
+                if start_pos > 0 then
+                    -- Lua strings are 1-based, so adjust indexes accordingly
+                    string_1 = StringUtils.sub(line, 1, start_pos)
+                    string_2 = StringUtils.sub(line, end_pos + 1)
                 else
                     string_1 = ""
-                    string_2 = StringUtils.sub(self.input[self.cursor_y], ending_position, -1)
+                    string_2 = StringUtils.sub(line, end_pos + 1)
                 end
             else
-                if self.cursor_x ~= 0 then
-                    string_1 = StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-                    string_2 = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1, -1)
+                if TextInput.cursor_x ~= 0 then
+                    string_1 = StringUtils.sub(line, 1, TextInput.cursor_x)
+                    string_2 = StringUtils.sub(line, TextInput.cursor_x + 2)
                 else
                     string_1 = ""
-                    string_2 = self.input[self.cursor_y]
+                    string_2 = StringUtils.sub(line, 2)
                 end
             end
 
-            -- remove the first UTF-8 character.
-            string_2 = StringUtils.sub(string_2, 2, -1)
-
-            self.input[self.cursor_y] = string_1 .. string_2
+            TextInput.input[TextInput.cursor_y] = string_1 .. string_2
         end
     elseif key == "up" then
-        if self.checkSelecting() == "stopped" then
-            if self.cursor_y > self.cursor_select_y then
-                self.cursor_y = self.cursor_select_y
-                self.cursor_x = self.cursor_select_x
-                self.cursor_x_tallest = self.cursor_x
+        if TextInput.checkSelecting() == "stopped" then
+            if TextInput.cursor_y > TextInput.cursor_select_y then
+                TextInput.cursor_y = TextInput.cursor_select_y
+                TextInput.cursor_x = TextInput.cursor_select_x
+                TextInput.cursor_x_tallest = TextInput.cursor_x
             end
         end
 
-        if self.cursor_y <= 1 then
-            self.cursor_y = 1
-            if self.up_limit_callback then
-                self.up_limit_callback()
+        if TextInput.cursor_y <= 1 then
+            TextInput.cursor_y = 1
+            if TextInput.up_limit_callback then
+                TextInput.up_limit_callback()
             end
         else
-            self.cursor_y = self.cursor_y - 1
-            self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
+            TextInput.cursor_y = TextInput.cursor_y - 1
+            TextInput.cursor_x = math.min(TextInput.cursor_x_tallest, StringUtils.len(TextInput.getCurrentLine()))
         end
     elseif key == "end" then
-        self.checkSelecting()
+        TextInput.checkSelecting()
 
         if Input.ctrl() then
-            self.sendCursorToEnd()
+            TextInput.sendCursorToEnd()
         else
-            self.sendCursorToEndOfLine()
+            TextInput.sendCursorToEndOfLine()
         end
     elseif key == "home" then
-        self.checkSelecting()
+        TextInput.checkSelecting()
 
         if Input.ctrl() then
-            self.sendCursorToStart()
+            TextInput.sendCursorToStart()
         else
-            self.sendCursorToStartOfLine(true)
+            TextInput.sendCursorToStartOfLine(true)
         end
     elseif key == "down" then
-        if self.checkSelecting() == "stopped" then
-            if self.cursor_y < self.cursor_select_y then
-                self.cursor_y = self.cursor_select_y
-                self.cursor_x = self.cursor_select_x
-                self.cursor_x_tallest = self.cursor_x
+        if TextInput.checkSelecting() == "stopped" then
+            if TextInput.cursor_y < TextInput.cursor_select_y then
+                TextInput.cursor_y = TextInput.cursor_select_y
+                TextInput.cursor_x = TextInput.cursor_select_x
+                TextInput.cursor_x_tallest = TextInput.cursor_x
             end
         end
-        if self.cursor_y == #self.input then
-            self.cursor_x = utf8.len(self.input[self.cursor_y])
-            self.cursor_x_tallest = self.cursor_x
-            if self.down_limit_callback then
-                self.down_limit_callback()
+        if TextInput.cursor_y == #TextInput.input then
+            TextInput.cursor_x = StringUtils.len(TextInput.getCurrentLine())
+            TextInput.cursor_x_tallest = TextInput.cursor_x
+            if TextInput.down_limit_callback then
+                TextInput.down_limit_callback()
             end
         else
-            self.cursor_y = self.cursor_y + 1
-            self.cursor_x = math.min(self.cursor_x_tallest, utf8.len(self.input[self.cursor_y]))
+            TextInput.cursor_y = TextInput.cursor_y + 1
+            TextInput.cursor_x = math.min(TextInput.cursor_x_tallest, StringUtils.len(TextInput.getCurrentLine()))
         end
     elseif key == "insert" then
-        if self.allow_overtyping then
-            self.overtyping = not self.overtyping
+        if TextInput.allow_overtyping then
+            TextInput.overtyping = not TextInput.overtyping
         end
     elseif key == "left" then
-        if self.checkSelecting() == "stopped" then
-            if (self.cursor_y > self.cursor_select_y) or (self.cursor_x > self.cursor_select_x) then
-                self.cursor_x = self.cursor_select_x
-                self.cursor_y = self.cursor_select_y
-                self.cursor_x_tallest = self.cursor_x
+        if TextInput.checkSelecting() == "stopped" then
+            if (TextInput.cursor_y > TextInput.cursor_select_y) or (TextInput.cursor_x > TextInput.cursor_select_x) then
+                TextInput.cursor_x = TextInput.cursor_select_x
+                TextInput.cursor_y = TextInput.cursor_select_y
+                TextInput.cursor_x_tallest = TextInput.cursor_x
             end
             return
         end
         if Input.ctrl() then
             -- If we're at the start of a line, move to the end of the previous line.
-            if self.cursor_x == 0 then
-                if self.cursor_y == 1 then return end
-                self.cursor_y = self.cursor_y - 1
-                self.cursor_x = utf8.len(self.input[self.cursor_y])
-            end
-            -- Loop from our current position to the start of the line.
-
-            local starting_position, ending_position = self.ctrlLeft()
-            self.cursor_x = starting_position
-            self.cursor_x_tallest = starting_position
-        else
-            -- Not holding CTRL, just move to the left linke normal
-            if self.cursor_x > 0 then
-                self.cursor_x = self.cursor_x - 1
+            if TextInput.cursor_x == 0 then
+                if TextInput.cursor_y == 1 then return end
+                TextInput.cursor_y = TextInput.cursor_y - 1
+                TextInput.cursor_x = StringUtils.len(TextInput.getCurrentLine())
             else
-                if self.cursor_y ~= 1 then
-                    self.cursor_y = self.cursor_y - 1
-                    self.cursor_x = utf8.len(self.input[self.cursor_y])
+                TextInput.cursor_x = TextInput.getPreviousWordStart()
+            end
+
+            -- Maintain column position for vertical movement
+            TextInput.cursor_x_tallest = TextInput.cursor_x
+        else
+            -- Not holding CTRL, just move to the left like normal
+            if TextInput.cursor_x > 0 then
+                TextInput.cursor_x = TextInput.cursor_x - 1
+            else
+                if TextInput.cursor_y ~= 1 then
+                    TextInput.cursor_y = TextInput.cursor_y - 1
+                    TextInput.cursor_x = StringUtils.len(TextInput.getCurrentLine())
                 end
             end
         end
-        self.cursor_x_tallest = self.cursor_x
     elseif key == "right" then
-        if self.checkSelecting() == "stopped" then
-            if (self.cursor_y < self.cursor_select_y) or (self.cursor_x < self.cursor_select_x) then
-                self.cursor_x = self.cursor_select_x
-                self.cursor_y = self.cursor_select_y
-                self.cursor_x_tallest = self.cursor_x
+        if TextInput.checkSelecting() == "stopped" then
+            if (TextInput.cursor_y < TextInput.cursor_select_y) or (TextInput.cursor_x < TextInput.cursor_select_x) then
+                TextInput.cursor_x = TextInput.cursor_select_x
+                TextInput.cursor_y = TextInput.cursor_select_y
+                TextInput.cursor_x_tallest = TextInput.cursor_x
             end
             return
         end
         if Input.ctrl() then
             -- If we're at the start of a line, move to the end of the previous line.
-            if self.cursor_x == utf8.len(self.input[self.cursor_y]) then
-                if self.cursor_y == #self.input then return end
-                self.cursor_y = self.cursor_y + 1
-                self.cursor_x = 0
+            if TextInput.cursor_x == StringUtils.len(TextInput.getCurrentLine()) then
+                if TextInput.cursor_y == #TextInput.input then return end
+                TextInput.cursor_y = TextInput.cursor_y + 1
+                TextInput.cursor_x = 0
             end
 
-            local starting_position, ending_position = self.ctrlRight()
-            self.cursor_x = ending_position
-            self.cursor_x_tallest = ending_position
+            local position = TextInput.getNextWordEnd()
+            TextInput.cursor_x = position
+            TextInput.cursor_x_tallest = position
         else
-            if self.cursor_x < utf8.len(self.input[self.cursor_y]) then
-                self.cursor_x = self.cursor_x + 1
+            if TextInput.cursor_x < StringUtils.len(TextInput.getCurrentLine()) then
+                TextInput.cursor_x = TextInput.cursor_x + 1
             else
-                if self.cursor_y ~= #self.input then
-                    self.cursor_y = self.cursor_y + 1
-                    self.cursor_x = 0
+                if TextInput.cursor_y ~= #TextInput.input then
+                    TextInput.cursor_y = TextInput.cursor_y + 1
+                    TextInput.cursor_x = 0
                 end
             end
         end
-        self.cursor_x_tallest = self.cursor_x
+        TextInput.cursor_x_tallest = TextInput.cursor_x
     end
 end
 
+--- The update function, to update the cursor timer.
+---@internal
 function TextInput.update()
-    self.flash_timer = self.flash_timer + DT
-    if self.flash_timer > 1 then
-        self.flash_timer = self.flash_timer - 1
+    TextInput.flash_timer = TextInput.flash_timer + DT
+    if TextInput.flash_timer > 1 then
+        TextInput.flash_timer = TextInput.flash_timer - 1
     end
 
-    self.return_grace_timer = MathUtils.approach(self.return_grace_timer, 0, DTMULT)
+    TextInput.return_grace_timer = MathUtils.approach(TextInput.return_grace_timer, 0, DTMULT)
 end
 
----@return number start_position, number end_position
-function TextInput.ctrlLeft()
-    local starting_position = self.cursor_x
-    local ending_position = self.cursor_x
+--- Get the start of the previous word.
+---@return integer position # The start position of the previous word.
+function TextInput.getPreviousWordStart()
+    local position = TextInput.cursor_x
+    local line = TextInput.getCurrentLine()
 
-    local first_char = StringUtils.sub(self.input[self.cursor_y], starting_position, starting_position)
-    local was_part = self.isPartOfWord(first_char)
-
-    -- Loop from our current position to the start of the line.
-    local hit = false
-    for i = ending_position, 0, -1 do
-        if i == 0 then
-            starting_position = 0
-            break
-        end
-        local char = StringUtils.sub(self.input[self.cursor_y], i, i)
-
-        if (self.isPartOfWord(char) ~= was_part) then hit = true end
-
-        if hit then
-            hit = false
-            if starting_position ~= i then
-                starting_position = i
-                break
-            end
-        end
+    -- We're already at the start of the line
+    if position == 0 then
+        return 0
     end
-    return starting_position, ending_position
+
+    local function get_char(pos)
+        return StringUtils.sub(line, pos, pos)
+    end
+
+    -- Step 1: Pass whitespace immediately left of cursor
+    while position > 0 and TextInput.isWhitespace(get_char(position)) do
+        position = position - 1
+    end
+
+    -- Step 2: If we're not at the start, figure out what kind of word part we're in
+    local current_type = TextInput.isPartOfWord(get_char(position))
+
+    -- Step 3: Move left while the character matches the current type
+    while position > 0 and TextInput.isPartOfWord(get_char(position)) == current_type do
+        position = position - 1
+    end
+
+    return position
 end
 
----@return number start_position, number end_position
-function TextInput.ctrlRight()
-    local starting_position, ending_position = self.cursor_x, self.cursor_x
+--- Get the end of the next word.
+---@return integer position # The end position of the next word.
+function TextInput.getNextWordEnd()
+    local position = TextInput.cursor_x
+    local line = TextInput.getCurrentLine()
+    local line_len = StringUtils.len(line)
 
-    local first_char = StringUtils.sub(self.input[self.cursor_y], starting_position + 1, starting_position + 1)
-    local was_part = self.isPartOfWord(first_char)
-
-    local hit = false
-    for i = starting_position, utf8.len(self.input[self.cursor_y]) do
-        if i == utf8.len(self.input[self.cursor_y]) then
-            ending_position = i
-            break
-        end
-        local char = StringUtils.sub(self.input[self.cursor_y], i + 1, i + 1)
-
-        if (self.isPartOfWord(char) ~= was_part) then hit = true end
-
-        if hit then
-            hit = false
-            if ending_position ~= i then
-                ending_position = i
-                break
-            end
-        end
+    if position >= line_len then
+        return position
     end
-    return starting_position, ending_position
+
+    local function get_char(pos)
+        return StringUtils.sub(line, pos, pos)
+    end
+
+    -- Step 1: Identify character type at cursor (or next char)
+    local current_type = TextInput.isPartOfWord(get_char(position + 1))
+
+    -- Step 2: Move right while characters are of the same type
+    while position < line_len and TextInput.isPartOfWord(get_char(position + 1)) == current_type do
+        position = position + 1
+    end
+
+    -- Step 3: Skip whitespace after that word
+    while position < line_len and TextInput.isWhitespace(get_char(position + 1)) do
+        position = position + 1
+    end
+
+    return position
 end
 
 ---@param char string
 ---@return boolean
+function TextInput.isWhitespace(char)
+    return char == " " or char == "\t"
+end
+
+---@param char string
+---@return boolean
+---@internal
 function TextInput.isPartOfWord(char)
     if char == "_" then return true end -- underscores are commonly used so we'll allow them in words
     if char == "-" then return true end -- same with dashes
@@ -468,70 +513,73 @@ function TextInput.isPartOfWord(char)
     return true -- alphanumeric, so part of a word
 end
 
+--- Sends the cursor to the end of the input.
 function TextInput.sendCursorToEnd()
-    self.cursor_x = utf8.len(self.input[#self.input])
-    self.cursor_x_tallest = self.cursor_x
-    self.cursor_y = #self.input
+    TextInput.cursor_y = #TextInput.input
+    TextInput.sendCursorToEndOfLine()
 end
 
+--- Sends the cursor to the end of the current line.
 function TextInput.sendCursorToEndOfLine()
-    self.cursor_x = utf8.len(self.input[self.cursor_y])
-    self.cursor_x_tallest = self.cursor_x
+    TextInput.cursor_x = StringUtils.len(TextInput.getCurrentLine())
+    TextInput.cursor_x_tallest = TextInput.cursor_x
 end
 
+--- Sends the cursor to the start of the input.
 function TextInput.sendCursorToStart()
-    self.cursor_x = 0
-    self.cursor_x_tallest = 0
-    self.cursor_y = 1
+    TextInput.cursor_x = 0
+    TextInput.cursor_x_tallest = 0
+    TextInput.cursor_y = 1
 end
 
----@param special_indenting boolean?
-function TextInput.sendCursorToStartOfLine(special_indenting)
-    if self.cursor_x == 0 then
-        self.cursor_x_tallest = 0
+--- Sends the cursor to the start of the line. If to_indent is true, it will first go to the end of the indent.
+---@param to_indent boolean? # Whether or not the cursor should go to the end of an indent first. Defaults to false.
+function TextInput.sendCursorToStartOfLine(to_indent)
+    if TextInput.cursor_x == 0 then
+        TextInput.cursor_x_tallest = 0
         return
     end
 
-    if special_indenting then
+    if to_indent then
         -- Loop through the utf8 string and find the end of an indent
         local last_space = 0
-        for i = 1, utf8.len(self.input[self.cursor_y]) do
-            local char = StringUtils.sub(self.input[self.cursor_y], i, i)
-            if char == " " then
+        for i = 1, StringUtils.len(TextInput.getCurrentLine()) do
+            local char = StringUtils.sub(TextInput.getCurrentLine(), i, i)
+            if TextInput.isWhitespace(char) then
                 last_space = i
             else
                 break
             end
         end
         -- We're not at the end of an indent, so send the cursor to it
-        if self.cursor_x ~= last_space then
-            self.cursor_x = last_space
-            self.cursor_x_tallest = self.cursor_x
+        if TextInput.cursor_x ~= last_space then
+            TextInput.cursor_x = last_space
+            TextInput.cursor_x_tallest = TextInput.cursor_x
             return
         -- We're at the end of an indent, let's just go to the start
         end
     end
-    self.cursor_x = 0
-    self.cursor_x_tallest = 0
+    TextInput.cursor_x = 0
+    TextInput.cursor_x_tallest = 0
 end
 
 function TextInput.selectAll()
-    self.cursor_x = 0
-    self.cursor_y = 1
-    self.cursor_select_x = utf8.len(self.input[#self.input])
-    self.cursor_select_y = #self.input
-    self.selecting = true
+    TextInput.cursor_select_x = 0
+    TextInput.cursor_select_y = 1
+    TextInput.cursor_x = StringUtils.len(TextInput.input[#TextInput.input] or "")
+    TextInput.cursor_y = #TextInput.input
+    TextInput.selecting = true
 end
 
 
 function TextInput.removeSelection()
-    if not self.selecting then return end
+    if not TextInput.selecting then return end
 
     local in_front = false
-    if self.cursor_y > self.cursor_select_y then
+    if TextInput.cursor_y > TextInput.cursor_select_y then
         in_front = true
-    elseif self.cursor_y == self.cursor_select_y then
-        if self.cursor_x >= self.cursor_select_x then
+    elseif TextInput.cursor_y == TextInput.cursor_select_y then
+        if TextInput.cursor_x >= TextInput.cursor_select_x then
             in_front = true
         end
     end
@@ -539,89 +587,99 @@ function TextInput.removeSelection()
     local start_x, start_y, end_x, end_y = 0, 0, 0, 0
 
     if in_front then
-        start_x = self.cursor_select_x
-        start_y = self.cursor_select_y
-        end_x = self.cursor_x
-        end_y = self.cursor_y
+        start_x = TextInput.cursor_select_x
+        start_y = TextInput.cursor_select_y
+        end_x = TextInput.cursor_x
+        end_y = TextInput.cursor_y
     else
-        start_x = self.cursor_x
-        start_y = self.cursor_y
-        end_x = self.cursor_select_x
-        end_y = self.cursor_select_y
+        start_x = TextInput.cursor_x
+        start_y = TextInput.cursor_y
+        end_x = TextInput.cursor_select_x
+        end_y = TextInput.cursor_select_y
     end
 
     if start_y == end_y then
-        self.input[start_y] = StringUtils.sub(self.input[start_y], 1, start_x) .. StringUtils.sub(self.input[start_y], end_x + 1)
+        TextInput.input[start_y] = StringUtils.sub(TextInput.input[start_y] or "", 1, start_x) .. StringUtils.sub(TextInput.input[start_y] or "", end_x + 1)
     else
-        local old_input = TableUtils.copy(self.input)
-        TableUtils.clear(self.input)
+        local old_input = TableUtils.copy(TextInput.input)
+        TableUtils.clear(TextInput.input)
         for i = 1, start_y - 1 do
-            table.insert(self.input, old_input[i])
+            table.insert(TextInput.input, old_input[i])
         end
 
         for i = start_y, end_y do
-            local text = old_input[i]
+            local text = old_input[i] or ""
             if i == start_y then
                 text = StringUtils.sub(text, 1, start_x)
-                table.insert(self.input, text)
+                table.insert(TextInput.input, text)
             elseif i == end_y then
                 text = StringUtils.sub(text, end_x + 1)
-                self.input[start_y] = self.input[start_y] .. text
+                TextInput.input[start_y] = TextInput.input[start_y] .. text
             end
         end
 
         for i = end_y + 1, #old_input do
-            table.insert(self.input, old_input[i])
+            table.insert(TextInput.input, old_input[i])
         end
     end
 
-    self.cursor_x = start_x
-    self.cursor_y = start_y
-    self.cursor_select_x = start_x
-    self.cursor_select_y = start_y
-    self.cursor_x_tallest = self.cursor_x
-    self.selecting = false
+    TextInput.cursor_x = start_x
+    TextInput.cursor_y = start_y
+    TextInput.cursor_select_x = start_x
+    TextInput.cursor_select_y = start_y
+    TextInput.cursor_x_tallest = TextInput.cursor_x
+    TextInput.selecting = false
+end
+
+---@return string
+function TextInput.getCurrentLine()
+    if TextInput.cursor_y < 1 or TextInput.cursor_y > #TextInput.input then
+        return ""
+    end
+    return TextInput.input[TextInput.cursor_y] or ""
 end
 
 ---@return string
 function TextInput.getSelectedText()
-    if not self.selecting then return "" end
+    if not TextInput.selecting then return "" end
 
     local text = ""
-    if self.cursor_y == self.cursor_select_y then
-        if self.cursor_x > self.cursor_select_x then
-            text = StringUtils.sub(self.input[self.cursor_y], self.cursor_select_x + 1, self.cursor_x)
+    if TextInput.cursor_y == TextInput.cursor_select_y then
+        if TextInput.cursor_x > TextInput.cursor_select_x then
+            text = StringUtils.sub(TextInput.getCurrentLine(), TextInput.cursor_select_x + 1, TextInput.cursor_x)
         else
-            text = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1, self.cursor_select_x)
+            text = StringUtils.sub(TextInput.getCurrentLine(), TextInput.cursor_x + 1, TextInput.cursor_select_x)
         end
     else
-        if self.cursor_y < self.cursor_select_y then
-            text = StringUtils.sub(self.input[self.cursor_y], self.cursor_x + 1)
-            for i = self.cursor_y + 1, self.cursor_select_y - 1 do
-                text = text .. "\n" .. self.input[i]
+        if TextInput.cursor_y < TextInput.cursor_select_y then
+            text = StringUtils.sub(TextInput.getCurrentLine(), TextInput.cursor_x + 1)
+            for i = TextInput.cursor_y + 1, TextInput.cursor_select_y - 1 do
+                text = text .. "\n" .. TextInput.input[i]
             end
-            text = text .. "\n" .. StringUtils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)
+            text = text .. "\n" .. StringUtils.sub(TextInput.input[TextInput.cursor_select_y] or "", 1, TextInput.cursor_select_x)
         else
-            text = StringUtils.sub(self.input[self.cursor_select_y], self.cursor_select_x + 1)
-            for i = self.cursor_select_y + 1, self.cursor_y - 1 do
-                text = text .. "\n" .. self.input[i]
+            text = StringUtils.sub(TextInput.input[TextInput.cursor_select_y] or "", TextInput.cursor_select_x + 1)
+            for i = TextInput.cursor_select_y + 1, TextInput.cursor_y - 1 do
+                text = text .. "\n" .. TextInput.input[i]
             end
-            text = text .. "\n" .. StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
+            text = text .. "\n" .. StringUtils.sub(TextInput.getCurrentLine(), 1, TextInput.cursor_x)
         end
     end
 
     return text
 end
 
-
+--- Insert a string where the cursor is currently positioned.
+---
+--- Used for pretty much everything which needs to insert text, like typing, pasting, etc.
 ---@param str string
 function TextInput.insertString(str)
 
-    if self.text_restriction then
+    if TextInput.text_restriction then
         local newstr = ""
-        for i = 1, utf8.len(str) do
+        for i = 1, StringUtils.len(str) do
             local char = StringUtils.sub(str, i, i)
-            local rest = self.text_restriction(char)
+            local rest = TextInput.text_restriction(char)
             if rest then
                 if type(rest) == "string" then
                     newstr = newstr .. rest
@@ -635,79 +693,88 @@ function TextInput.insertString(str)
 
     if str == "" then return end
 
-    if self.selecting then
-        self.removeSelection()
+    if TextInput.selecting then
+        TextInput.removeSelection()
     end
 
-    self.flash_timer = 0
-    local string_1 = StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)
-    local string_2 = StringUtils.sub(self.input[self.cursor_y],    self.cursor_x + 1, -1)
+    TextInput.flash_timer = 0
+    local string_1 = StringUtils.sub(TextInput.getCurrentLine(), 1, TextInput.cursor_x)
+    local string_2 = StringUtils.sub(TextInput.getCurrentLine(), TextInput.cursor_x + 1)
 
-    if self.cursor_x == 0 then
+    if TextInput.cursor_x == 0 then
         string_1 = ""
-        string_2 = self.input[self.cursor_y]
+        string_2 = TextInput.getCurrentLine()
     end
 
     local result
-    if not self.overtyping then
+    if not TextInput.overtyping then
         result = string_1 .. str .. string_2
     else
-        result = string_1 .. str .. StringUtils.sub(string_2, utf8.len(str) + 1)
+        result = string_1 .. str .. StringUtils.sub(string_2, StringUtils.len(str) + 1)
     end
 
     local split = StringUtils.split(result, "\n", false)
 
-    split[1] = split[1]:gsub("\n?$",""):gsub("\r","");
-    self.input[self.cursor_y] = split[1]
+    split[1] = split[1]:gsub("\n?$",""):gsub("\r","")
+
+    TextInput.input[TextInput.cursor_y] = split[1]
+
     for i = 2, #split do
-        split[i] = split[i]:gsub("\n?$",""):gsub("\r","");
-        table.insert(self.input, self.cursor_y + i - 1, split[i])
+        split[i] = split[i]:gsub("\n?$",""):gsub("\r","")
+        table.insert(TextInput.input, TextInput.cursor_y + i - 1, split[i])
     end
 
-    if not self.overtyping then
-        self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2)
+    if not TextInput.overtyping then
+        TextInput.cursor_x = StringUtils.len(split[#split] or "") - StringUtils.len(string_2)
     else
-        self.cursor_x = utf8.len(split[#split]) - utf8.len(string_2) + utf8.len(str)
+        TextInput.cursor_x = StringUtils.len(split[#split] or "") - StringUtils.len(string_2) + StringUtils.len(str)
     end
-    self.cursor_x_tallest = self.cursor_x
-    self.cursor_y = self.cursor_y + #split - 1
-    --self.cursor_x = self.cursor_y + utf8.len(str)
+
+    TextInput.cursor_x_tallest = TextInput.cursor_x
+    TextInput.cursor_y = TextInput.cursor_y + #split - 1
 end
 
 ---@class TextInput.drawOptions
----@field x number?
----@field y number?
+---@field x number? # The X position to draw the text input at.
+---@field y number? # The Y position to draw the text input at.
 ---@field font love.Font?
 ---@field get_prefix (fun(prefix:"single"|"start"|"end"|"middle"):string)?
 ---@field print fun(text:string, x:number, y:number)?
+---@field cursor_color [number, number, number, number?]? # The color of the cursor.
 
----@param options TextInput.drawOptions
+--- Draw the current text input, with the cursor.
+---@param options TextInput.drawOptions? # The options table. While optional, it won't be very pretty by default.
 function TextInput.draw(options)
+    love.graphics.push()
+
+    options = options or {}
+
     local off_x = options["x"] or 0
     local off_y = options["y"] or 0
-    local font = options["font"] or Assets.getFont("main_mono", 16)
+    local font = options["font"] or love.graphics.getFont()
     local get_prefix = options["get_prefix"] or function(prefix) return "" end
     local print_func = options["print"] or love.graphics.print
+    local cursor_color = options["cursor_color"] or {0, 1, 1, 1}
 
     local base_off = (options["prefix_width"] or 0) + off_x
 
     local cursor_pos_x = base_off
-    if self.cursor_x > 0 then
-        cursor_pos_x = font:getWidth(StringUtils.sub(self.input[self.cursor_y], 1, self.cursor_x)) + cursor_pos_x
+    if TextInput.cursor_x > 0 then
+        cursor_pos_x = font:getWidth(StringUtils.sub(TextInput.getCurrentLine(), 1, TextInput.cursor_x)) + cursor_pos_x
     end
-    local cursor_pos_y = off_y + ((self.cursor_y - 1) * font:getHeight())
+    local cursor_pos_y = off_y + ((TextInput.cursor_y - 1) * font:getHeight())
 
-    if self.selecting then
+    if TextInput.selecting then
         Draw.setColor(0, 0.5, 0.5, 1)
 
         local cursor_sel_x = base_off
-        if self.cursor_select_x > 0 then
-            cursor_sel_x = font:getWidth(StringUtils.sub(self.input[self.cursor_select_y], 1, self.cursor_select_x)) + cursor_sel_x
+        if TextInput.cursor_select_x > 0 then
+            cursor_sel_x = font:getWidth(StringUtils.sub(TextInput.input[TextInput.cursor_select_y], 1, TextInput.cursor_select_x)) + cursor_sel_x
         end
-        local cursor_sel_y = off_y + ((self.cursor_select_y - 1) * font:getHeight())
+        local cursor_sel_y = off_y + ((TextInput.cursor_select_y - 1) * font:getHeight())
 
 
-        if self.cursor_select_y == self.cursor_y then
+        if TextInput.cursor_select_y == TextInput.cursor_y then
             local x = cursor_sel_x
             local y = cursor_sel_y + font:getHeight()
             local width = cursor_pos_x - x
@@ -716,37 +783,37 @@ function TextInput.draw(options)
             love.graphics.rectangle("fill", x, y, width, height)
         else
             local in_front = false
-            if self.cursor_y > self.cursor_select_y then
+            if TextInput.cursor_y > TextInput.cursor_select_y then
                 in_front = true
             end
 
             if in_front then
-                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(font:getWidth(self.input[self.cursor_select_y]) - cursor_sel_x + base_off, 1), font:getHeight())
+                love.graphics.rectangle("fill", cursor_sel_x, cursor_sel_y, math.max(font:getWidth(TextInput.input[TextInput.cursor_select_y]) - cursor_sel_x + base_off, 1), font:getHeight())
                 love.graphics.rectangle("fill", base_off, cursor_pos_y, cursor_pos_x - base_off, font:getHeight())
 
-                for i = self.cursor_select_y + 1, self.cursor_y - 1 do
-                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(self.input[i]), 1), font:getHeight())
+                for i = TextInput.cursor_select_y + 1, TextInput.cursor_y - 1 do
+                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(TextInput.input[i]), 1), font:getHeight())
                 end
             else
-                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(font:getWidth(self.input[self.cursor_y]) - cursor_pos_x + base_off, 1), font:getHeight())
+                love.graphics.rectangle("fill", cursor_pos_x, cursor_pos_y, math.max(font:getWidth(TextInput.getCurrentLine()) - cursor_pos_x + base_off, 1), font:getHeight())
                 love.graphics.rectangle("fill", base_off, cursor_sel_y, cursor_sel_x - base_off, font:getHeight())
 
-                for i = self.cursor_y + 1, self.cursor_select_y - 1 do
-                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(self.input[i]), 1), font:getHeight())
+                for i = TextInput.cursor_y + 1, TextInput.cursor_select_y - 1 do
+                    love.graphics.rectangle("fill", base_off, off_y + (font:getHeight() * (i - 1)), math.max(font:getWidth(TextInput.input[i]), 1), font:getHeight())
                 end
             end
         end
     end
 
     Draw.setColor(1, 1, 1, 1)
-    for i, text in ipairs(self.input) do
+    for i, text in ipairs(TextInput.input) do
         local prefix = ""
-        if #self.input == 1 then
+        if #TextInput.input == 1 then
             prefix = get_prefix("single")
         else
             if i == 1 then
                 prefix = get_prefix("start")
-            elseif i == #self.input then
+            elseif i == #TextInput.input then
                 prefix = get_prefix("end")
             else
                 prefix = get_prefix("middle")
@@ -756,16 +823,23 @@ function TextInput.draw(options)
         print_func(text, base_off, off_y + (i - 1) * font:getHeight())
     end
 
-    Draw.setColor(1, 0, 1, 1)
-    if self.flash_timer < 0.5 and self.active then
-        if --[[self.cursor_x == utf8.len(self.input[self.cursor_y]) or]] self.overtyping then
-            print_func("_", cursor_pos_x, cursor_pos_y)
+    Draw.setColor(cursor_color)
+    if TextInput.flash_timer < 0.5 and TextInput.active then
+        local char_width = font:getWidth("M")
+
+        love.graphics.setLineWidth((char_width > 8) and 2 or 1)
+        love.graphics.setLineStyle("rough")
+        love.graphics.setLineJoin("none")
+
+
+        if TextInput.overtyping or ((not TextInput.selecting) and (TextInput.cursor_x == StringUtils.len(TextInput.getCurrentLine()))) then
+            love.graphics.line(cursor_pos_x, cursor_pos_y + font:getHeight(), cursor_pos_x + char_width, cursor_pos_y + font:getHeight())
         else
-            print_func("|", cursor_pos_x, cursor_pos_y)
+            love.graphics.line(cursor_pos_x + 1, cursor_pos_y, cursor_pos_x + 1, cursor_pos_y + font:getHeight())
         end
     end
+
+    love.graphics.pop()
 end
 
-self.reset()
-
-return self
+return TextInput

@@ -99,6 +99,8 @@ function love.load(args)
     -- load the keybinds
     Input.loadBinds()
 
+    TextInput.init()
+
     -- Save the defaults so if we do setWindowTitle for a mod we're able to revert it
     -- Unfortunate variable names
     Kristal.icon = love.window.getIcon()
