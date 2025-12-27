@@ -959,30 +959,41 @@ end
 ---@return number|linefailure y # If the lines intersected, this will be the vertical position of the intersection; otherwise, this will be a string describing why the lines did not intersect.
 ---
 function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
+    -- Get the slopes of the lines
     local m1 = (y1-y2)/(x1-x2)
     local m2 = (y3-y4)/(x3-x4)
 
+    -- Get the offsets of the lines
     local b1 = -(m1*x1-y1) or y1
     local b2 = -(m2*x3-y3) or y3
 
+    -- Make x and y variables
     local x = nil
     local y = nil
+
+    -- Check whether any of the lines are vertical
     if (x1-x2) == 0 then
+        -- Find x and y
         x = x1
         y = m2*x+b2
     elseif (x3-x4) == 0 then
+        -- Find x and y
         x = x3
         y = m1*x+b1
     else
+        -- Find x and y
         x = (b2-b1)/(m1-m2)
         y = m1*x+b1
     end
  
+    -- Check if the lines are parallel or the same
     if m1 == m2 and b1 ~= b2 then
         return false, "The lines are parallel."
     elseif m1 == m2 and b1 == b2 then
         return false, "The lines are the same."
     end
+
+    -- Check if x and y are out of the segment bounds
     if seg1 or seg2 then
         local min,max = math.min, math.max
         if seg1 and (x<min(x1, x2) or x>max(x1, x2) or y<min(y1, y2) or y>max(y1, y2)) then
@@ -992,6 +1003,7 @@ function Utils.getLineIntersect(x1, y1, x2, y2, x3, y3, x4, y4, seg1, seg2)
             return false, "The lines don't intersect." 
         end
     end
+
     return x, y
 end
 
