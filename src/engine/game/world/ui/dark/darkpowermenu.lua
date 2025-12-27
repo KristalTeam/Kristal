@@ -17,7 +17,7 @@ function DarkPowerMenu:init()
     self.heart_sprite = Assets.getTexture("player/heart")
     self.arrow_sprite = Assets.getTexture("ui/page_arrow_down")
 
-    self.tp_sprite = Game:getConfig("oldUIPositions") and Assets.getTexture("ui/menu/caption_tp_old") or Assets.getTexture("ui/menu/caption_tp")
+    self.tp_sprite = Assets.getTexture("ui/menu/caption_tp")
 
     self.caption_sprites = {
           ["char"] = Assets.getTexture("ui/menu/caption_char"),
