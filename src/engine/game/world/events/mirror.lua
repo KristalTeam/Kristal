@@ -27,7 +27,7 @@ end
 function MirrorArea:drawMirror()
     local to_draw = {}
     for _, obj in ipairs(Game.world.children) do
-        if obj:includes(Character) then
+        if obj:includes(Character) and obj.visible then
             table.insert(to_draw, 1, obj) -- always add to the start of the table, so they render in reverse layer order
         end
     end
