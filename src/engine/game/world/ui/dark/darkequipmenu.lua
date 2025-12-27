@@ -326,7 +326,7 @@ function DarkEquipMenu:draw()
     love.graphics.rectangle("fill", 188, -24, 6, 139)
     love.graphics.rectangle("fill", -24, 109, 58, 6)
     love.graphics.rectangle("fill", 130, 109, 160, 6)
-    love.graphics.rectangle("fill", 422, 109, 81, 6)
+    love.graphics.rectangle("fill", 422, 109, 79, 6)
     love.graphics.rectangle("fill", 241, 109, 6, 192)
 
     Draw.setColor(1, 1, 1, 1)
