@@ -179,6 +179,8 @@ LightItemMenu = require("src.engine.game.world.ui.light.lightitemmenu")
 LightStatMenu = require("src.engine.game.world.ui.light.lightstatmenu")
 LightCellMenu = require("src.engine.game.world.ui.light.lightcellmenu")
 
+EventRegistry = require("src.engine.game.world.eventregistry")
+
 Event = require("src.engine.game.world.event")
 Script = require("src.engine.game.world.events.script")
 Interactable = require("src.engine.game.world.events.interactable")

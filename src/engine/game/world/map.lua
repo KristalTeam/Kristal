@@ -699,7 +699,11 @@ function Map:loadObjects(layer, depth, layer_type)
     end
 end
 
-function Map:loadObject(name, data)
+--- Loads an object using the old system, based on the Registry.
+---
+--- Solely for legacy support of mods and libraries that use the old event system.
+---@internal
+function Map:legacyLoadObject(name, data)
     -- Mod object loading
     local obj = Kristal.modCall("loadObject", self.world, name, data)
     if obj then
@@ -713,7 +717,7 @@ function Map:loadObject(name, data)
             return events[name](data)
         end
     end
-    local registered_event = Registry.getEvent(name)
+    local registered_event = Registry.getLegacyEvent(name)
     if registered_event then
         return Registry.createEvent(name, data)
     end
@@ -728,74 +732,30 @@ function Map:loadObject(name, data)
             end
         end
     end
-    local chara_x, chara_y = data.center_x, data.center_y
-    if data.gid then
-        local tx, ty, tw, th = self:getTileObjectRect(data)
-        chara_x = tx + tw / 2
-        chara_y = ty + th
+end
+
+--- Load an object by its name.
+function Map:loadObject(name, data)
+
+    -- First: check the registry
+    if Game.event_registry:has(name) then
+        return Game.event_registry:create(name, data)
     end
 
-    local shape_data = { data.width, data.height, data.polygon }
+    -- Next: attempt to use the legacy system to load it
+    self:legacyLoadObject(name, data)
 
-    local rect_data = TableUtils.copy(shape_data)
-    rect_data[3] = nil
-
-    -- Kristal object loading
-    if name:lower() == "savepoint" then
-        return Savepoint(data.center_x, data.center_y, data.properties)
-    elseif name:lower() == "interactable" then
-        return Interactable(data.x, data.y, shape_data, data.properties)
-    elseif name:lower() == "script" then
-        return Script(data.x, data.y, shape_data, data.properties)
-    elseif name:lower() == "transition" then
-        return Transition(data.x, data.y, shape_data, data.properties)
-    elseif name:lower() == "npc" then
-        return NPC(data.properties["actor"], chara_x, chara_y, data.properties)
-    elseif name:lower() == "enemy" then
-        return ChaserEnemy(data.properties["actor"], chara_x, chara_y, data.properties)
-    elseif name:lower() == "outline" then
-        return Outline(data.x, data.y, rect_data)
-    elseif name:lower() == "silhouette" then
-        return Silhouette(data.x, data.y, rect_data)
-    elseif name:lower() == "slidearea" then
-        return SlideArea(data.x, data.y, rect_data, data.properties)
-    elseif name:lower() == "mirror" then
-        return MirrorArea(data.x, data.y, rect_data, data.properties)
-    elseif name:lower() == "chest" then
-        return TreasureChest(data.center_x, data.center_y, data.properties)
-    elseif name:lower() == "cameratarget" then
-        return CameraTarget(data.x, data.y, shape_data, data.properties)
-    elseif name:lower() == "hideparty" then
-        return HideParty(data.x, data.y, shape_data, data.properties.alpha)
-    elseif name:lower() == "setflag" then
-        return SetFlagEvent(data.x, data.y, shape_data, data.properties)
-    elseif name:lower() == "cybertrash" then
-        return CyberTrashCan(data.center_x, data.center_y, data.properties)
-    elseif name:lower() == "forcefield" then
-        return Forcefield(data.x, data.y, rect_data, data.properties)
-    elseif name:lower() == "pushblock" then
-        return PushBlock(data.x, data.y, rect_data, data.properties)
-    elseif name:lower() == "tilebutton" then
-        return TileButton(data.x, data.y, rect_data, data.properties)
-    elseif name:lower() == "magicglass" then
-        return MagicGlass(data.x, data.y, rect_data)
-    elseif name:lower() == "warpdoor" then
-        return WarpDoor(data.x, data.y, data.properties)
-    elseif name:lower() == "darkfountain" then
-        return DarkFountain(data.x, data.y, data.properties)
-    elseif name:lower() == "fountainfloor" then
-        return FountainFloor(data.x, data.y, rect_data)
-    elseif name:lower() == "quicksave" then
-        return QuicksaveEvent(data.x, data.y, shape_data, data.properties["marker"])
-    elseif name:lower() == "sprite" then
-        local sprite = Sprite(data.properties["texture"], data.x, data.y)
-        sprite:play(data.properties["speed"], true)
-        sprite:setScale(data.properties["scalex"] or 2, data.properties["scaley"] or 2)
-        return sprite
+    -- Finally: check for built-in events, must happen after everything else
+    if Game.builtin_event_registry:has(name) then
+        return Game.builtin_event_registry:create(name, data)
     end
+
+    -- Fallback to a TileObject
     if data.gid then
         return self:createTileObject(data)
     end
+
+    Kristal.Console:warn("No event with ID '" .. tostring(name) .. "' found")
 end
 
 function Map:loadController(name, data)
