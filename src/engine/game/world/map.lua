@@ -703,7 +703,11 @@ end
 ---
 --- Solely for legacy support of mods and libraries that use the old event system.
 ---@internal
+---@param name string The name of the object to load.
+---@param data table The Tiled object data for the object.
+---@return Event? The loaded object, or `nil` if none was found.
 function Map:legacyLoadObject(name, data)
+
     -- Mod object loading
     local obj = Kristal.modCall("loadObject", self.world, name, data)
     if obj then
@@ -717,10 +721,12 @@ function Map:legacyLoadObject(name, data)
             return events[name](data)
         end
     end
+
     local registered_event = Registry.getLegacyEvent(name)
     if registered_event then
-        return Registry.createEvent(name, data)
+        return Registry.createLegacyEvent(name, data)
     end
+
     -- Library object loading
     for id, lib in Kristal.iterLibraries() do
         local obj = Kristal.libCall(id, "loadObject", self.world, name, data)
@@ -732,6 +738,8 @@ function Map:legacyLoadObject(name, data)
             end
         end
     end
+
+    return nil
 end
 
 --- Load an object by its name.
@@ -743,7 +751,10 @@ function Map:loadObject(name, data)
     end
 
     -- Next: attempt to use the legacy system to load it
-    self:legacyLoadObject(name, data)
+    local loaded = self:legacyLoadObject(name, data)
+    if loaded ~= nil then
+        return loaded
+    end
 
     -- Finally: check for built-in events, must happen after everything else
     if Game.builtin_event_registry:has(name) then

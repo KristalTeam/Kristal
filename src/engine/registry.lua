@@ -445,7 +445,7 @@ end
 ---@param id string
 ---@param ... any
 ---@return Event|Object
-function Registry.createEvent(id, ...)
+function Registry.createLegacyEvent(id, ...)
     if self.events[id] then
         return self.events[id](...)
     else
