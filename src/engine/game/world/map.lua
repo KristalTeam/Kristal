@@ -711,9 +711,6 @@ function Map:legacyLoadObject(name, data)
     -- Mod object loading
     local obj = Kristal.modCall("loadObject", self.world, name, data)
     if obj then
-        if type(obj) == "boolean" then -- don't load the object if it returns true
-            return
-        end
         return obj
     else
         local events = Kristal.modGet("Events")
@@ -753,6 +750,9 @@ function Map:loadObject(name, data)
     -- Next: attempt to use the legacy system to load it
     local loaded = self:legacyLoadObject(name, data)
     if loaded ~= nil then
+        if type(loaded) == "boolean" then -- don't load the object if it returns true
+            return
+        end
         return loaded
     end
 
