@@ -3257,7 +3257,7 @@ function Battle:onKeyPressed(key)
             self:hurt(math.huge, true, "ALL")
         end
         if key == "k" then
-            Game:setTension(Game:getMaxTension())
+            Game:setTension(Game:getMaxTension() * 2, true)
         end
         if key == "n" then
             NOCLIP = not NOCLIP
