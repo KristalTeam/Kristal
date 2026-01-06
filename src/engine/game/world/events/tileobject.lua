@@ -24,7 +24,7 @@ local TileObject, super = Class(Event)
 function TileObject:init(tileset, tile, x, y, w, h, rotation, flip_x, flip_y)
     local tile_width, tile_height = tileset:getTileSize(tile)
 
-    super.init(self, x, y, {w or self.tile_width, h or self.tile_height})
+    super.init(self, x, y, { w or tile_width, h or tile_height })
 
     self.tileset = tileset
     self.tile = tile
@@ -41,7 +41,7 @@ function TileObject:draw()
     local sx = self.width / tile_width * (self.tile_flip_x and -1 or 1)
     local sy = self.height / tile_height * (self.tile_flip_y and -1 or 1)
     if self.tileset.preserve_aspect_fit then
-        sx = Utils.absMin(sx, sy)
+        sx = MathUtils.absMin(sx, sy)
         sy = sx
     end
     self.tileset:drawTile(self.tile, self.width/2, self.height/2, 0, sx, sy, tile_width/2, tile_height/2)

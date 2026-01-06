@@ -69,7 +69,7 @@ function GameOver:update()
             local y_pos = y_position_table[((i - 1) % #y_position_table) + 1]
             local shard = Sprite("player/heart_shard", self.soul.x + x_pos, self.soul.y + y_pos)
             shard:setColor(self.soul:getColor())
-            shard.physics.direction = math.rad(Utils.random(360))
+            shard.physics.direction = math.rad(MathUtils.random(360))
             shard.physics.speed = 7
             shard.physics.gravity = 0.2
             shard:play(5/30)
@@ -140,13 +140,13 @@ function GameOver:update()
                 self.current_stage = 7
             end
         else
-            local member = Utils.pick(options)
+            local member = TableUtils.pick(options)
             local voice = member:getActor():getVoice() or "default"
             self.lines = {}
             for _,dialogue in ipairs(member:getGameOverMessage(main_chara)) do
                 local spacing = Game:isLight() and 6 or 8
                 local full_line = "[speed:0.5][spacing:"..spacing.."][voice:"..voice.."]"
-                local lines = Utils.split(dialogue, "\n")
+                local lines = StringUtils.split(dialogue, "\n")
                 for i,line in ipairs(lines) do
                     if i > 1 then
                         full_line = full_line.."\n  "..line

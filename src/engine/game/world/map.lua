@@ -10,10 +10,8 @@ function Map:init(world, data)
     self.data = data
 
     if data and data.full_path then
-        local map_path = data.full_path
-        map_path = StringUtils.split(map_path, "/")
-        map_path = table.concat(map_path, "/", 1, #map_path - 1)
-        self.full_map_path = map_path
+        local split_map_path = StringUtils.split(data.full_path, "/")
+        self.full_map_path = table.concat(split_map_path, "/", 1, #split_map_path - 1)
     else
         self.full_map_path = Mod and Mod.info.path or ""
     end
