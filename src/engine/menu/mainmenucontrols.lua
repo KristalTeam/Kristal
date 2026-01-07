@@ -281,8 +281,7 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
 
             if valid_key then
                 -- rebind!!
-                local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key,
-                                             self.control_menu == "gamepad")
+                local worked = Input.setBind(self:getSelectedKey(), self.selected_bind, bound_key, self.control_menu == "gamepad")
 
                 self.rebinding = false
                 self.rebinding_shift = false
@@ -291,6 +290,8 @@ function MainMenuControls:onKeyPressed(key, is_repeat)
                 self.rebinding_cmd = false
 
                 self.selected_bind = 1
+
+                Input.clear(nil, true)
 
                 if worked then
                     Assets.stopAndPlaySound("ui_select")

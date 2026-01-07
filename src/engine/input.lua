@@ -463,13 +463,23 @@ function Input.setBind(alias, index, key, gamepad)
         end
     end
 
-    local is_gamepad_button = StringUtils.startsWith(key, "gamepad:")
-    if is_gamepad_button ~= gamepad or false then
-        -- Cannot assign gamepad button to key or vice versa
-        return false
+    if type(key) == "table" then
+        for _, k in ipairs(key) do
+            local is_gamepad_key = StringUtils.startsWith(k, "gamepad:")
+            if is_gamepad_key ~= (gamepad or false) then
+                -- Cannot assign gamepad button to key or vice versa
+                return false
+            end
+        end
+    else
+        local is_gamepad_button = StringUtils.startsWith(key, "gamepad:")
+        if is_gamepad_button ~= (gamepad or false) then
+            -- Cannot assign gamepad button to key or vice versa
+            return false
+        end
     end
 
-    if self.group_for_key[key] then
+    if type(key) ~= "table" and self.group_for_key[key] then
         key = self.group_for_key[key]
     end
 
