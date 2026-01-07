@@ -148,7 +148,7 @@ function ChaserEnemy:onCollide(player)
         self.encountered = true
 
         if not self.encounter then
-            error("ChaserEnemy has no encounter set!", 2)
+            error("ChaserEnemy has no encounter set!")
         end
 
         self.world.encountering_enemy = true
